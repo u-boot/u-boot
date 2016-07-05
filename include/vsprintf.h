@@ -8,6 +8,8 @@
 #ifndef __VSPRINTF_H
 #define __VSPRINTF_H
 
+#include <stdarg.h>
+
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 
 /**
