@@ -87,7 +87,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/*
 	 * Set the address of the fdt
 	 */
-	if (argv[1][0] == 'a') {
+	if (strncmp(argv[1], "ad", 2) == 0) {
 		unsigned long addr;
 		int control = 0;
 		struct fdt_header *blob;
