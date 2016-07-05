@@ -1,0 +1,11 @@
+config UT_OVERLAY
+	bool "Enable Device Tree Overlays Unit Tests"
+	depends on OF_LIBFDT_OVERLAY
+	depends on UNIT_TEST
+	help
+	  This enables the 'ut overlay' command which runs a series of unit
+	  tests on the fdt overlay code.
+	  If all is well then all tests pass although there will be a few
+	  messages printed along the way.
+	  Be warned that it requires an out-of-tree dtc compiler with patches
+	  to support the DT overlays, otherwise it will fail.

@@ -17,3 +17,4 @@ config UT_TIME
 
 source "test/dm/Kconfig"
 source "test/env/Kconfig"
+source "test/overlay/Kconfig"

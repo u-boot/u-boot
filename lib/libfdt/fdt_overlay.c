@@ -5,6 +5,20 @@
 
 #include "libfdt_internal.h"
 
+/**
+ * overlay_get_target_phandle - retrieves the target phandle of a fragment
+ * @fdto: pointer to the device tree overlay blob
+ * @fragment: node offset of the fragment in the overlay
+ *
+ * overlay_get_target_phandle() retrieves the target phandle of an
+ * overlay fragment when that fragment uses a phandle (target
+ * property) instead of a path (target-path property).
+ *
+ * returns:
+ *      the phandle pointed by the target property
+ *      0, if the phandle was not found
+ *	-1, if the phandle was malformed
+ */
 static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
 {
 	const uint32_t *val;
@@ -14,12 +28,26 @@ static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
 	if (!val)
 		return 0;
 
-	if ((*val == 0xffffffff) || (len != sizeof(*val)))
-		return 0xffffffff;
+	if ((*val == (uint32_t)-1) || (len != sizeof(*val)))
+		return (uint32_t)-1;
 
 	return fdt32_to_cpu(*val);
 }
 
+/**
+ * overlay_get_target - retrieves the target phandle of a fragment
+ * @fdt: Base device tree blob
+ * @fdto: Device tree overlay blob
+ * @fragment: node offset of the fragment in the overlay
+ *
+ * overlay_get_target() retrieves the target phandle in the base
+ * device tree of a fragment, no matter how the actual targetting is
+ * done (through a phandle or a path)
+ *
+ * returns:
+ *      the targetted node offset in the base device tree
+ *      Negative error code on error
+ */
 static int overlay_get_target(const void *fdt, const void *fdto,
 			      int fragment)
 {
@@ -28,7 +56,7 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 
 	/* Try first to do a phandle based lookup */
 	phandle = overlay_get_target_phandle(fdto, fragment);
-	if (phandle == -1)
+	if (phandle == (uint32_t)-1)
 		return -FDT_ERR_BADPHANDLE;
 
 	if (phandle)
@@ -42,6 +70,20 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 	return fdt_path_offset(fdt, path);
 }
 
+/**
+ * overlay_phandle_add_offset - Increases a phandle by an offset
+ * @fdt: Base device tree blob
+ * @node: Device tree overlay blob
+ * @name: Name of the property to modify (phandle or linux,phandle)
+ * @delta: offset to apply
+ *
+ * overlay_phandle_add_offset() increments a node phandle by a given
+ * offset.
+ *
+ * returns:
+ *      0 on success.
+ *      Negative error code on error
+ */
 static int overlay_phandle_add_offset(void *fdt, int node,
 				      const char *name, uint32_t delta)
 {
@@ -64,6 +106,21 @@ static int overlay_phandle_add_offset(void *fdt, int node,
 	return fdt_setprop_inplace_u32(fdt, node, name, adj_val);
 }
 
+/**
+ * overlay_adjust_node_phandles - Offsets the phandles of a node
+ * @fdto: Device tree overlay blob
+ * @node: Offset of the node we want to adjust
+ * @delta: Offset to shift the phandles of
+ *
+ * overlay_adjust_node_phandles() adds a constant to all the phandles
+ * of a given node. This is mainly use as part of the overlay
+ * application process, when we want to update all the overlay
+ * phandles to not conflict with the overlays of the base device tree.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_adjust_node_phandles(void *fdto, int node,
 					uint32_t delta)
 {
@@ -95,6 +152,20 @@ static int overlay_adjust_node_phandles(void *fdto, int node,
 	return 0;
 }
 
+/**
+ * overlay_adjust_local_phandles - Adjust the phandles of a whole overlay
+ * @fdto: Device tree overlay blob
+ * @delta: Offset to shift the phandles of
+ *
+ * overlay_adjust_local_phandles() adds a constant to all the
+ * phandles of an overlay. This is mainly use as part of the overlay
+ * application process, when we want to update all the overlay
+ * phandles to not conflict with the overlays of the base device tree.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
 {
 	/*
@@ -103,6 +174,25 @@ static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
 	return overlay_adjust_node_phandles(fdto, 0, delta);
 }
 
+/**
+ * overlay_update_local_node_references - Adjust the overlay references
+ * @fdto: Device tree overlay blob
+ * @tree_node: Node offset of the node to operate on
+ * @fixup_node: Node offset of the matching local fixups node
+ * @delta: Offset to shift the phandles of
+ *
+ * overlay_update_local_nodes_references() update the phandles
+ * pointing to a node within the device tree overlay by adding a
+ * constant delta.
+ *
+ * This is mainly used as part of a device tree application process,
+ * where you want the device tree overlays phandles to not conflict
+ * with the ones from the base device tree before merging them.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_update_local_node_references(void *fdto,
 						int tree_node,
 						int fixup_node,
@@ -113,41 +203,49 @@ static int overlay_update_local_node_references(void *fdto,
 	int ret;
 
 	fdt_for_each_property_offset(fixup_prop, fdto, fixup_node) {
-		const uint32_t *val = NULL;
-		uint32_t adj_val, index;
+		const unsigned char *fixup_val, *tree_val;
 		const char *name;
 		int fixup_len;
 		int tree_len;
+		int i;
 
-		val = fdt_getprop_by_offset(fdto, fixup_prop,
-					    &name, &fixup_len);
-		if (!val)
+		fixup_val = fdt_getprop_by_offset(fdto, fixup_prop,
+						  &name, &fixup_len);
+		if (!fixup_val)
 			return fixup_len;
-		index = fdt32_to_cpu(*val);
 
-		val = fdt_getprop(fdto, tree_node, name, &tree_len);
-		if (!val)
+		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
+		if (!tree_val)
 			return tree_len;
 
-		/*
-		 * The index can be unaligned.
-		 *
-		 * Use a memcpy for the architectures that do not
-		 * support unaligned accesses.
-		 */
-		memcpy(&adj_val, (unsigned char *)val + index,
-		       sizeof(uint32_t));
+		for (i = 0; i < fixup_len; i += sizeof(uint32_t)) {
+			uint32_t adj_val, index;
 
-		adj_val = fdt32_to_cpu(adj_val);
-		adj_val += delta;
-		adj_val = cpu_to_fdt32(adj_val);
+			index = *(uint32_t *)(fixup_val + i);
+			index = fdt32_to_cpu(index);
 
-		ret = fdt_setprop_inplace_namelen_partial(fdto, tree_node,
-							  name, strlen(name),
-							  index, &adj_val,
-							  sizeof(adj_val));
-		if (ret)
-			return ret;
+			/*
+			 * phandles to fixup can be unaligned.
+			 *
+			 * Use a memcpy for the architectures that do
+			 * not support unaligned accesses.
+			 */
+			memcpy(&adj_val, tree_val + index, sizeof(uint32_t));
+
+			adj_val = fdt32_to_cpu(adj_val);
+			adj_val += delta;
+			adj_val = cpu_to_fdt32(adj_val);
+
+			ret = fdt_setprop_inplace_namelen_partial(fdto,
+								  tree_node,
+								  name,
+								  strlen(name),
+								  index,
+								  &adj_val,
+								  sizeof(adj_val));
+			if (ret)
+				return ret;
+		}
 	}
 
 	fdt_for_each_subnode(fdto, fixup_child, fixup_node) {
@@ -171,11 +269,28 @@ static int overlay_update_local_node_references(void *fdto,
 	return 0;
 }
 
-static int overlay_update_local_references(void *dto, uint32_t delta)
+/**
+ * overlay_update_local_references - Adjust the overlay references
+ * @fdto: Device tree overlay blob
+ * @delta: Offset to shift the phandles of
+ *
+ * overlay_update_local_references() update all the phandles pointing
+ * to a node within the device tree overlay by adding a constant
+ * delta to not conflict with the base overlay.
+ *
+ * This is mainly used as part of a device tree application process,
+ * where you want the device tree overlays phandles to not conflict
+ * with the ones from the base device tree before merging them.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
+static int overlay_update_local_references(void *fdto, uint32_t delta)
 {
 	int fixups;
 
-	fixups = fdt_path_offset(dto, "/__local_fixups__");
+	fixups = fdt_path_offset(fdto, "/__local_fixups__");
 	if (fixups < 0) {
 		/* There's no local phandles to adjust, bail out */
 		if (fixups == -FDT_ERR_NOTFOUND)
@@ -187,10 +302,33 @@ static int overlay_update_local_references(void *dto, uint32_t delta)
 	/*
 	 * Update our local references from the root of the tree
 	 */
-	return overlay_update_local_node_references(dto, 0, fixups,
+	return overlay_update_local_node_references(fdto, 0, fixups,
 						    delta);
 }
 
+/**
+ * overlay_fixup_one_phandle - Set an overlay phandle to the base one
+ * @fdt: Base Device Tree blob
+ * @fdto: Device tree overlay blob
+ * @symbols_off: Node offset of the symbols node in the base device tree
+ * @path: Path to a node holding a phandle in the overlay
+ * @path_len: number of path characters to consider
+ * @name: Name of the property holding the phandle reference in the overlay
+ * @name_len: number of name characters to consider
+ * @index: Index in the overlay property where the phandle is stored
+ * @label: Label of the node referenced by the phandle
+ *
+ * overlay_fixup_one_phandle() resolves an overlay phandle pointing to
+ * a node in the base device tree.
+ *
+ * This is part of the device tree overlay application process, when
+ * you want all the phandles in the overlay to point to the actual
+ * base dt nodes.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 				     int symbols_off,
 				     const char *path, uint32_t path_len,
@@ -225,6 +363,25 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 						   &phandle, sizeof(phandle));
 };
 
+/**
+ * overlay_fixup_phandle - Set an overlay phandle to the base one
+ * @fdt: Base Device Tree blob
+ * @fdto: Device tree overlay blob
+ * @symbols_off: Node offset of the symbols node in the base device tree
+ * @property: Property offset in the overlay holding the list of fixups
+ *
+ * overlay_fixup_phandle() resolves all the overlay phandles pointed
+ * to in a __local_fixup__ property, and updates them to match the
+ * phandles in use in the base device tree.
+ *
+ * This is part of the device tree overlay application process, when
+ * you want all the phandles in the overlay to point to the actual
+ * base dt nodes.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
 				 int property)
 {
@@ -275,57 +432,98 @@ static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
 	return 0;
 }
 
-static int overlay_fixup_phandles(void *dt, void *dto)
+/**
+ * overlay_fixup_phandles - Resolve the overlay phandles to the base
+ *                          device tree
+ * @fdt: Base Device Tree blob
+ * @fdto: Device tree overlay blob
+ *
+ * overlay_fixup_phandles() resolves all the overlay phandles pointing
+ * to nodes in the base device tree.
+ *
+ * This is one of the steps of the device tree overlay application
+ * process, when you want all the phandles in the overlay to point to
+ * the actual base dt nodes.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
+static int overlay_fixup_phandles(void *fdt, void *fdto)
 {
 	int fixups_off, symbols_off;
 	int property;
 
-	symbols_off = fdt_path_offset(dt, "/__symbols__");
-	fixups_off = fdt_path_offset(dto, "/__fixups__");
+	symbols_off = fdt_path_offset(fdt, "/__symbols__");
+	fixups_off = fdt_path_offset(fdto, "/__fixups__");
 
-	fdt_for_each_property_offset(property, dto, fixups_off)
-		overlay_fixup_phandle(dt, dto, symbols_off, property);
+	fdt_for_each_property_offset(property, fdto, fixups_off) {
+		int ret;
+
+		ret = overlay_fixup_phandle(fdt, fdto, symbols_off, property);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
 
-static int apply_overlay_node(void *dt, int target,
-			      void *dto, int fragment)
+/**
+ * overlay_apply_node - Merge an overlay fragment into the base device tree
+ * @fdt: Base Device Tree blob
+ * @target: Node offset in the base device tree to apply the fragment to
+ * @fdto: Device tree overlay blob
+ * @fragment: Node offset in the overlay holding the changes to merge
+ *
+ * overlay_apply_node() merges an overlay fragment into a target base
+ * device tree node pointed.
+ *
+ * This is part of the final step in the device tree overlay
+ * application process, when all the phandles have been adjusted and
+ * resolved and you just have to merge overlay into the base device
+ * tree.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
+static int overlay_apply_node(void *fdt, int target,
+			      void *fdto, int fragment)
 {
 	int property;
 	int node;
 
-	fdt_for_each_property_offset(property, dto, fragment) {
+	fdt_for_each_property_offset(property, fdto, fragment) {
 		const char *name;
 		const void *prop;
 		int prop_len;
 		int ret;
 
-		prop = fdt_getprop_by_offset(dto, property, &name,
+		prop = fdt_getprop_by_offset(fdto, property, &name,
 					     &prop_len);
 		if (prop_len == -FDT_ERR_NOTFOUND)
 			return -FDT_ERR_INTERNAL;
 		if (prop_len < 0)
 			return prop_len;
 
-		ret = fdt_setprop(dt, target, name, prop, prop_len);
+		ret = fdt_setprop(fdt, target, name, prop, prop_len);
 		if (ret)
 			return ret;
 	}
 
-	fdt_for_each_subnode(dto, node, fragment) {
-		const char *name = fdt_get_name(dto, node, NULL);
+	fdt_for_each_subnode(fdto, node, fragment) {
+		const char *name = fdt_get_name(fdto, node, NULL);
 		int nnode;
 		int ret;
 
-		nnode = fdt_add_subnode(dt, target, name);
+		nnode = fdt_add_subnode(fdt, target, name);
 		if (nnode == -FDT_ERR_EXISTS)
-			nnode = fdt_subnode_offset(dt, target, name);
+			nnode = fdt_subnode_offset(fdt, target, name);
 
 		if (nnode < 0)
 			return nnode;
 
-		ret = apply_overlay_node(dt, nnode, dto, node);
+		ret = overlay_apply_node(fdt, nnode, fdto, node);
 		if (ret)
 			return ret;
 	}
@@ -333,6 +531,21 @@ static int apply_overlay_node(void *dt, int target,
 	return 0;
 }
 
+/**
+ * overlay_merge - Merge an overlay into its base device tree
+ * @fdt: Base Device Tree blob
+ * @fdto: Device tree overlay blob
+ *
+ * overlay_merge() merges an overlay into its base device tree.
+ *
+ * This is the final step in the device tree overlay application
+ * process, when all the phandles have been adjusted and resolved and
+ * you just have to merge overlay into the base device tree.
+ *
+ * returns:
+ *      0 on success
+ *      Negative error code on failure
+ */
 static int overlay_merge(void *dt, void *dto)
 {
 	int fragment;
@@ -350,7 +563,7 @@ static int overlay_merge(void *dt, void *dto)
 		if (overlay < 0)
 			return overlay;
 
-		ret = apply_overlay_node(dt, target, dto, overlay);
+		ret = overlay_apply_node(dt, target, dto, overlay);
 		if (ret)
 			return ret;
 	}
