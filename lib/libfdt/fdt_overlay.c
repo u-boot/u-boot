@@ -142,10 +142,10 @@ static int overlay_update_local_node_references(void *fdto,
 		adj_val += delta;
 		adj_val = cpu_to_fdt32(adj_val);
 
-		ret = fdt_setprop_inplace_namelen_by_index(fdto, tree_node,
-							   name, strlen(name),
-							   index, &adj_val,
-							   sizeof(adj_val));
+		ret = fdt_setprop_inplace_namelen_partial(fdto, tree_node,
+							  name, strlen(name),
+							  index, &adj_val,
+							  sizeof(adj_val));
 		if (ret)
 			return ret;
 	}
@@ -220,9 +220,9 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 		return fixup_off;
 
 	phandle = cpu_to_fdt32(phandle);
-	return fdt_setprop_inplace_namelen_by_index(fdto, fixup_off,
-						    name, name_len, index,
-						    &phandle, sizeof(phandle));
+	return fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
+						   name, name_len, index,
+						   &phandle, sizeof(phandle));
 };
 
 static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
