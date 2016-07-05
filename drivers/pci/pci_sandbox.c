@@ -10,7 +10,6 @@
 #include <fdtdec.h>
 #include <inttypes.h>
 #include <pci.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +54,7 @@ static int sandbox_pci_read_config(struct udevice *bus, pci_dev_t devfn,
 static int sandbox_pci_child_post_bind(struct udevice *dev)
 {
 	/* Attach an emulator if we can */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static const struct dm_pci_ops sandbox_pci_ops = {

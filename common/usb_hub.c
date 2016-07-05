@@ -36,7 +36,6 @@
 #include <asm/state.h>
 #endif
 #include <asm/unaligned.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -758,7 +757,7 @@ int usb_hub_scan(struct udevice *hub)
 static int usb_hub_post_bind(struct udevice *dev)
 {
 	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int usb_hub_post_probe(struct udevice *dev)

@@ -15,7 +15,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -256,7 +255,7 @@ static struct pinctrl_ops rk3036_pinctrl_ops = {
 static int rk3036_pinctrl_bind(struct udevice *dev)
 {
 	/* scan child GPIO banks */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int rk3036_pinctrl_probe(struct udevice *dev)

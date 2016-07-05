@@ -7,7 +7,6 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <dm/root.h>
 #include <power/pmic.h>
 #include <spmi/spmi.h>
 
@@ -82,7 +81,7 @@ static int pm8916_probe(struct udevice *dev)
 
 static int pm8916_bind(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 U_BOOT_DRIVER(pmic_pm8916) = {

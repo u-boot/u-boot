@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,7 +40,7 @@ static int simple_bus_post_bind(struct udevice *dev)
 		plat->size = cell[2];
 	}
 
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 UCLASS_DRIVER(simple_bus) = {

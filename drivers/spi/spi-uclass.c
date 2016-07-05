@@ -12,7 +12,6 @@
 #include <spi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <dm/root.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 
@@ -112,7 +111,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 static int spi_post_bind(struct udevice *dev)
 {
 	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int spi_child_post_bind(struct udevice *dev)

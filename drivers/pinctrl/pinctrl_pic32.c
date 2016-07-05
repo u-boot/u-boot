@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
-#include <dm/root.h>
 #include <mach/pic32.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -344,7 +343,7 @@ static int pic32_pinctrl_probe(struct udevice *dev)
 static int pic32_pinctrl_bind(struct udevice *dev)
 {
 	/* scan child GPIO banks */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static const struct udevice_id pic32_pinctrl_ids[] = {

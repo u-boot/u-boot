@@ -9,7 +9,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <dm/root.h>
 #include <spmi/spmi.h>
 #include <linux/ctype.h>
 
@@ -38,7 +37,7 @@ int spmi_reg_write(struct udevice *dev, int usid, int pid, int reg,
 
 static int spmi_post_bind(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 UCLASS_DRIVER(spmi) = {

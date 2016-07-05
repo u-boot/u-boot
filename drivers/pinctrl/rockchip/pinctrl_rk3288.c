@@ -17,7 +17,6 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pmu_rk3288.h>
 #include <dm/pinctrl.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -669,8 +668,7 @@ static int rk3288_pinctrl_bind(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	return 0;
 #else
-	/* scan child GPIO banks */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 #endif
 }
 

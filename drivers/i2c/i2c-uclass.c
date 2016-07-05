@@ -12,7 +12,6 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -503,7 +502,7 @@ static int i2c_post_bind(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+        return dm_scan_fdt_dev(dev);
 #else
 	return 0;
 #endif

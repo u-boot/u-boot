@@ -14,7 +14,6 @@
 #include <usb.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 #include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -351,8 +350,7 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 
 int usb_post_bind(struct udevice *dev)
 {
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)

@@ -8,7 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <pch.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,8 +62,7 @@ static int pch_uclass_post_bind(struct udevice *bus)
 	 * Before relocation, only bind devices marked for pre-relocation
 	 * use.
 	 */
-	return dm_scan_fdt_node(bus, gd->fdt_blob, bus->of_offset,
-				gd->flags & GD_FLG_RELOC ? false : true);
+	return dm_scan_fdt_dev(bus);
 }
 
 UCLASS_DRIVER(pch) = {

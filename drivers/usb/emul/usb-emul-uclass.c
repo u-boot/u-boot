@@ -8,7 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <usb.h>
-#include <dm/root.h>
 #include <dm/device-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -268,7 +267,7 @@ int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
 int usb_emul_post_bind(struct udevice *dev)
 {
 	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 void usb_emul_reset(struct udevice *dev)
