@@ -26,7 +26,9 @@ else
 
 obj-$(CONFIG_MP)	+= release.o
 
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ERRATA) += cmd_errata.o
+endif
 obj-$(CONFIG_CPM2)	+= commproc.o
 
 obj-$(CONFIG_CPM2)	+= ether_fcc.o
