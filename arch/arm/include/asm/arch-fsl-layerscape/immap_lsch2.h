@@ -94,6 +94,7 @@
 #define TY_ITYP_VER_A7          0x1
 #define TY_ITYP_VER_A53         0x2
 #define TY_ITYP_VER_A57         0x3
+#define TY_ITYP_VER_A72		0x4
 
 #define TP_CLUSTER_EOC		0xc0000000      /* end of clusters */
 #define TP_CLUSTER_INIT_MASK    0x0000003f      /* initiator mask */

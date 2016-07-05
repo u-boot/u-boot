@@ -309,7 +309,8 @@ int print_cpuinfo(void)
 		printf("CPU%d(%s):%-4s MHz  ", core,
 		       type == TY_ITYP_VER_A7 ? "A7 " :
 		       (type == TY_ITYP_VER_A53 ? "A53" :
-			(type == TY_ITYP_VER_A57 ? "A57" : "   ")),
+		       (type == TY_ITYP_VER_A57 ? "A57" :
+		       (type == TY_ITYP_VER_A72 ? "A72" : "   "))),
 		       strmhz(buf, sysinfo.freq_processor[core]));
 	}
 	printf("\n       Bus:      %-4s MHz  ",
