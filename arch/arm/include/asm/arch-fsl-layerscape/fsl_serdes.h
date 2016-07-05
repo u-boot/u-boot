@@ -140,6 +140,7 @@ enum srds_prtcl {
 
 enum srds {
 	FSL_SRDS_1  = 0,
+	FSL_SRDS_2  = 1,
 };
 
 #endif
