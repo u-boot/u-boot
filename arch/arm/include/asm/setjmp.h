@@ -43,6 +43,7 @@ static inline int setjmp(jmp_buf jmp)
 #else
 	asm volatile(
 #ifdef CONFIG_SYS_THUMB_BUILD
+		".align 2\n"
 		"adr r0, jmp_target\n"
 		"add r0, r0, $1\n"
 #else
@@ -52,7 +53,8 @@ static inline int setjmp(jmp_buf jmp)
 		"mov r2, sp\n"
 		"stm r1!, {r0, r2, r4, r5, r6, r7}\n"
 		"b 2f\n"
-		"jmp_target: "
+		".align 2\n"
+		"jmp_target: \n"
 		"mov %0, #1\n"
 		"2:\n"
 		: "+l" (r)
