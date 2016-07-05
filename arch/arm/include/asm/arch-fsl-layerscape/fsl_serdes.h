@@ -151,7 +151,7 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device);
 enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
 int is_serdes_prtcl_valid(int serdes, u32 prtcl);
 
-#ifdef	CONFIG_LS1043A
+#ifdef CONFIG_FSL_LSCH2
 const char *serdes_clock_to_string(u32 clock);
 int get_serdes_protocol(void);
 #endif

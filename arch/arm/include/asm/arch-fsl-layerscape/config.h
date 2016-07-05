@@ -209,6 +209,33 @@
 
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
+#elif defined(CONFIG_LS1046A)
+#define CONFIG_MAX_CPUS				4
+#define CONFIG_SYS_FMAN_V3
+#define CONFIG_SYS_NUM_FMAN			1
+#define CONFIG_SYS_NUM_FM1_DTSEC		8
+#define CONFIG_SYS_NUM_FM1_10GEC		2
+#define CONFIG_SYS_FSL_IFC_BANK_COUNT		4
+#define CONFIG_SYS_FSL_DDR_BE
+#define CONFIG_SYS_DDR_BLOCK1_SIZE  ((phys_size_t)2 << 30)
+#define CONFIG_MAX_MEM_MAPPED           CONFIG_SYS_DDR_BLOCK1_SIZE
+
+#define CONFIG_SYS_FSL_SRDS_2
+#define CONFIG_SYS_FSL_IFC_BE
+#define CONFIG_SYS_FSL_SFP_VER_3_2
+#define CONFIG_SYS_FSL_SNVS_LE
+#define CONFIG_SYS_FSL_SFP_BE
+#define CONFIG_SYS_FSL_SRK_LE
+#define CONFIG_KEY_REVOCATION
+
+/* SMMU Defintions */
+#define SMMU_BASE		0x09000000
+
+/* Generic Interrupt Controller Definitions */
+#define GICD_BASE		0x01410000
+#define GICC_BASE		0x01420000
+
+#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #else
 #error SoC not defined
 #endif
