@@ -4,6 +4,7 @@
 #include <config.h>
 
 #define __secure __attribute__ ((section ("._secure.text")))
+#define __secure_data __attribute__ ((section ("._secure.data")))
 
 #ifdef CONFIG_ARMV7_SECURE_BASE
 /*

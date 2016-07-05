@@ -69,12 +69,17 @@ SECTIONS
 		*(._secure.text)
 	}
 
-	.secure_stack ALIGN(ADDR(.secure_text) + SIZEOF(.secure_text),
+	.secure_data : AT(LOADADDR(.secure_text) + SIZEOF(.secure_text))
+	{
+		*(._secure.data)
+	}
+
+	.secure_stack ALIGN(ADDR(.secure_data) + SIZEOF(.secure_data),
 			    CONSTANT(COMMONPAGESIZE)) (NOLOAD) :
 #ifdef __ARMV7_PSCI_STACK_IN_RAM
 		AT(ADDR(.secure_stack))
 #else
-		AT(LOADADDR(.secure_text) + SIZEOF(.secure_text))
+		AT(LOADADDR(.secure_data) + SIZEOF(.secure_data))
 #endif
 	{
 		KEEP(*(.__secure_stack_start))
