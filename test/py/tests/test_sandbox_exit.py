@@ -7,7 +7,7 @@ import pytest
 import signal
 
 @pytest.mark.boardspec('sandbox')
-@pytest.mark.buildconfigspec('reset')
+@pytest.mark.buildconfigspec('sysreset')
 def test_reset(u_boot_console):
     """Test that the "reset" command exits sandbox process."""
 
