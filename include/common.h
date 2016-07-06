@@ -16,6 +16,7 @@ typedef volatile unsigned short vu_short;
 typedef volatile unsigned char	vu_char;
 
 #include <config.h>
+#include <errno.h>
 #include <asm-offsets.h>
 #include <linux/bitops.h>
 #include <linux/types.h>
