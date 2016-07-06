@@ -53,7 +53,7 @@ int cadence_qspi_apb_command_write(void *reg_base_addr,
 	unsigned int txlen,  const u8 *txbuf);
 
 int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, const u8 *cmdbuf);
+	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf);
 int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	unsigned int rxlen, u8 *rxbuf);
 int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
