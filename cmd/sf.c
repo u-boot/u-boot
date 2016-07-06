@@ -88,6 +88,8 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new, *bus_dev;
 	int ret;
+	/* In DM mode defaults will be taken from DT */
+	speed = 0, mode = 0;
 #else
 	struct spi_flash *new;
 #endif

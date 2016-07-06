@@ -55,9 +55,9 @@ int saveenv(void)
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new;
 
+	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-				     CONFIG_ENV_SPI_MAX_HZ,
-				     CONFIG_ENV_SPI_MODE, &new);
+				     0, 0, &new);
 	if (ret) {
 		set_default_env("!spi_flash_probe_bus_cs() failed");
 		return 1;
@@ -245,9 +245,9 @@ int saveenv(void)
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new;
 
+	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-				     CONFIG_ENV_SPI_MAX_HZ,
-				     CONFIG_ENV_SPI_MODE, &new);
+				     0, 0, &new);
 	if (ret) {
 		set_default_env("!spi_flash_probe_bus_cs() failed");
 		return 1;
