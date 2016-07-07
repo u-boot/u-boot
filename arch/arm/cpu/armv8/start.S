@@ -81,6 +81,14 @@ reset:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
+	/* Enalbe SMPEN bit for coherency.
+	 * This register is not architectural but at the moment
+	 * this bit should be set for A53/A57/A72.
+	 */
+	mrs     x0, S3_1_c15_c2_1               /* cpuactlr_el1 */
+	orr     x0, x0, #0x40
+	msr     S3_1_c15_c2_1, x0
+
 	/* Apply ARM core specific erratas */
 	bl	apply_core_errata
 
