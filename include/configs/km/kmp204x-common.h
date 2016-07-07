@@ -406,6 +406,7 @@ int get_scl(void);
 #endif
 
 #define __USB_PHY_TYPE	utmi
+#define CONFIG_USB_EHCI_FSL
 
 /*
  * Environment Configuration
