@@ -51,10 +51,21 @@ struct v7m_mpu {
 #define V7M_MPU_CTRL_ENABLE		(1 << 0)
 #define V7M_MPU_CTRL_HFNMIENA		(1 << 1)
 
+#define V7M_MPU_CTRL_ENABLE		(1 << 0)
+#define V7M_MPU_CTRL_DISABLE		(0 << 0)
+#define V7M_MPU_CTRL_HFNMIENA		(1 << 1)
+
 #define V7M_MPU_RASR_EN			(1 << 0)
 #define V7M_MPU_RASR_SIZE_BITS		1
 #define V7M_MPU_RASR_SIZE_4GB		(31 << V7M_MPU_RASR_SIZE_BITS)
+#define V7M_MPU_RASR_SIZE_8MB		(24 << V7M_MPU_RASR_SIZE_BITS)
+#define V7M_MPU_RASR_TEX_SHIFT	19
+#define V7M_MPU_RASR_S_SHIFT		18
+#define V7M_MPU_RASR_C_SHIFT		17
+#define V7M_MPU_RASR_B_SHIFT		16
 #define V7M_MPU_RASR_AP_RW_RW		(3 << 24)
+#define V7M_MPU_RASR_XN_ENABLE	(0 << 28)
+#define V7M_MPU_RASR_XN_DISABLE (1 << 28)
 
 #endif /* !defined(__ASSEMBLY__) */
 #endif /* ARMV7M_H */
