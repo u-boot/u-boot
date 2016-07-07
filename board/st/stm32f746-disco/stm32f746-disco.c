@@ -32,7 +32,7 @@ const struct stm32_gpio_ctl gpio_ctl_usart = {
 	.otype = STM32_GPIO_OTYPE_PP,
 	.speed = STM32_GPIO_SPEED_50M,
 	.pupd = STM32_GPIO_PUPD_UP,
-	.af = STM32_GPIO_AF7
+	.af = STM32_GPIO_AF8
 };
 
 const struct stm32_gpio_ctl gpio_ctl_fmc = {
@@ -251,8 +251,8 @@ int dram_init(void)
 }
 
 static const struct stm32_gpio_dsc usart_gpio[] = {
-	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},	/* TX */
-	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_7},	/* RX */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_6},	/* TX */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_7},	/* RX */
 };
 
 int uart_setup_gpio(void)
@@ -260,8 +260,7 @@ int uart_setup_gpio(void)
 	int i;
 	int rv = 0;
 
-	clock_setup(GPIO_A_CLOCK_CFG);
-	clock_setup(GPIO_B_CLOCK_CFG);
+	clock_setup(GPIO_C_CLOCK_CFG);
 	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {
 		rv = stm32_gpio_config(&usart_gpio[i], &gpio_ctl_usart);
 		if (rv)
@@ -273,7 +272,7 @@ out:
 }
 
 static const struct stm32x7_serial_platdata serial_platdata = {
-	.base = (struct stm32_usart *)USART1_BASE,
+	.base = (struct stm32_usart *)USART6_BASE,
 	.clock = CONFIG_SYS_CLK_FREQ,
 };
 
@@ -292,7 +291,7 @@ int board_early_init_f(void)
 	int res;
 
 	res = uart_setup_gpio();
-	clock_setup(USART1_CLOCK_CFG);
+	clock_setup(USART6_CLOCK_CFG);
 	if (res)
 		return res;
 
