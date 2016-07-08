@@ -330,7 +330,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024) /* Reserved for malloc */
 
 /*
