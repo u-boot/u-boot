@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "evb_rk3036"
 
 config SYS_VENDOR
-	default "evb_rk3036"
+	default "rockchip"
 
 config SYS_CONFIG_NAME
 	default "evb_rk3036"
