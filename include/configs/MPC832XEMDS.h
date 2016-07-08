@@ -441,6 +441,7 @@
  */
 					/* Initial Memory map for Linux */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Core HID Setup
