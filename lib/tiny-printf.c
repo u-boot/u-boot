@@ -13,11 +13,16 @@
 #include <stdarg.h>
 #include <serial.h>
 
-static char *bf;
-static char zs;
+/*
+ * This code in here may execute before the DRAM is initialised, so
+ * we should make sure that it doesn't touch BSS, which some boards
+ * put in DRAM.
+ */
+static char *bf __attribute__ ((section(".data")));
+static char zs __attribute__ ((section(".data")));
 
 /* Current position in sprintf() output string */
-static char *outstr;
+static char *outstr __attribute__ ((section(".data")));
 
 static void out(char c)
 {
