@@ -252,17 +252,17 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		stat = sdhci_readl(host, SDHCI_INT_STATUS);
 		if (stat & SDHCI_INT_ERROR)
 			break;
-	} while (((stat & mask) != mask) &&
-		 (get_timer(start) < SDHCI_READ_STATUS_TIMEOUT));
 
-	if (get_timer(start) >= SDHCI_READ_STATUS_TIMEOUT) {
-		if (host->quirks & SDHCI_QUIRK_BROKEN_R1B)
-			return 0;
-		else {
-			printf("%s: Timeout for status update!\n", __func__);
-			return TIMEOUT;
+		if (get_timer(start) >= SDHCI_READ_STATUS_TIMEOUT) {
+			if (host->quirks & SDHCI_QUIRK_BROKEN_R1B) {
+				return 0;
+			} else {
+				printf("%s: Timeout for status update!\n",
+				       __func__);
+				return TIMEOUT;
+			}
 		}
-	}
+	} while ((stat & mask) != mask);
 
 	if ((stat & (SDHCI_INT_ERROR | mask)) == mask) {
 		sdhci_cmd_done(host, cmd);
