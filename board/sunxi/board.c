@@ -20,12 +20,14 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/spl.h>
 #include <asm/arch/usb_phy.h>
 #ifndef CONFIG_ARM64
 #include <asm/armv7.h>
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <environment.h>
 #include <libfdt.h>
 #include <nand.h>
 #include <net.h>
@@ -572,10 +574,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
-#include <asm/arch/spl.h>
-#include <environment.h>
-
 /*
  * Check the SPL header for the "sunxi" variant. If found: parse values
  * that might have been passed by the loader ("fel" utility), and update
@@ -608,7 +606,6 @@ static void parse_spl_header(const uint32_t spl_addr)
 	/* otherwise assume .scr format (mkimage-type script) */
 	setenv_hex("fel_scriptaddr", spl->fel_script_address);
 }
-#endif
 
 /*
  * Note this function gets called multiple times.
@@ -657,12 +654,10 @@ static void setup_environment(const void *fdt)
 	}
 }
 
-#ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
 	__maybe_unused int ret;
 
-#if !defined(CONFIG_SPL_BUILD)
 	setenv("fel_booted", NULL);
 	setenv("fel_scriptaddr", NULL);
 	/* determine if we are running in FEL mode */
@@ -670,7 +665,6 @@ int misc_init_r(void)
 		setenv("fel_booted", "1");
 		parse_spl_header(SPL_ADDR);
 	}
-#endif
 
 	setup_environment(gd->fdt_blob);
 
@@ -683,7 +677,6 @@ int misc_init_r(void)
 
 	return 0;
 }
-#endif
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
