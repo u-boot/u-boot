@@ -369,8 +369,7 @@ int board_mmc_init(bd_t *bis)
 	 * are searched there first. Note we only do this for u-boot proper,
 	 * not for the SPL, see spl_boot_device().
 	 */
-	if (!sunxi_mmc_has_egon_boot_signature(mmc0) &&
-	    sunxi_mmc_has_egon_boot_signature(mmc1)) {
+	if (readb(SPL_ADDR + 0x28) == SUNXI_BOOTED_FROM_MMC2) {
 		/* Booting from emmc / mmc2, swap */
 		mmc0->block_dev.devnum = 1;
 		mmc1->block_dev.devnum = 0;
