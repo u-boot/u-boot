@@ -119,10 +119,11 @@
 };
 
 &spi0 {
+	status = "okay";
 	nor_flash: n25q128a11@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "Micron,n25q128a11";
+		compatible = "Micron,n25q128a11", "spi-flash";
 		spi-max-frequency = <54000000>;
 		m25p,fast-read;
 		reg = <0>;

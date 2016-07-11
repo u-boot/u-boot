@@ -19,6 +19,11 @@
 
 	aliases {
 		serial0	= &uart0;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		spi2 = &spi2;
+		spi3 = &spi3;
+		spi4 = &qspi;
 	};
 
 	memory {
@@ -80,6 +85,19 @@
 			bus_freq = <2500000>;
 		};
 
+		qspi: qspi@2940000 {
+			compatible =  "cadence,qspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x02940000 0x1000>,
+			      <0x24000000 0x4000000>;
+			interrupts = <GIC_SPI 198 IRQ_TYPE_EDGE_RISING>;
+			num-cs = <4>;
+			fifo-depth = <256>;
+			sram-size = <256>;
+			status = "disabled";
+		};
+
 		#include "k2g-netcp.dtsi"
 
 		pmmc: pmmc@2900000 {
@@ -88,5 +106,48 @@
 			ti,lpsc_module = <1>;
 		};
 
+		spi0: spi@21805400 {
+			compatible = "ti,keystone-spi", "ti,dm6441-spi";
+			reg = <0x21805400 0x200>;
+			num-cs = <4>;
+			ti,davinci-spi-intr-line = <0>;
+			interrupts = <GIC_SPI 64 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spi1: spi@21805800 {
+			compatible = "ti,keystone-spi", "ti,dm6441-spi";
+			reg = <0x21805800 0x200>;
+			num-cs = <4>;
+			ti,davinci-spi-intr-line = <0>;
+			interrupts = <GIC_SPI 66 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spi2: spi@21805c00 {
+			compatible = "ti,keystone-spi", "ti,dm6441-spi";
+			reg = <0x21805C00 0x200>;
+			num-cs = <4>;
+			ti,davinci-spi-intr-line = <0>;
+			interrupts = <GIC_SPI 68 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spi3: spi@21806000 {
+			compatible = "ti,keystone-spi", "ti,dm6441-spi";
+			reg = <0x21806000 0x200>;
+			num-cs = <4>;
+			ti,davinci-spi-intr-line = <0>;
+			interrupts = <GIC_SPI 70 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
 	};
 };

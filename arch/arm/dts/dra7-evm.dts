@@ -491,15 +491,13 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&qspi1_pins>;
 
-	spi-max-frequency = <48000000>;
+	spi-max-frequency = <64000000>;
 	m25p80@0 {
 		compatible = "s25fl256s1","spi-flash";
-		spi-max-frequency = <48000000>;
+		spi-max-frequency = <64000000>;
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
-		spi-cpol;
-		spi-cpha;
 		#address-cells = <1>;
 		#size-cells = <1>;
 

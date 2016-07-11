@@ -89,6 +89,10 @@
 #define CONFIG_SYS_SPI2
 #define CONFIG_SYS_SPI2_BASE		KS2_SPI2_BASE
 #define CONFIG_SYS_SPI2_NUM_CS		4
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
+#endif
 
 /* Network Configuration */
 #define CONFIG_PHYLIB

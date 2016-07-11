@@ -467,6 +467,19 @@ fdt_addr_t dev_get_addr(struct udevice *dev);
 void *dev_get_addr_ptr(struct udevice *dev);
 
 /**
+ * dev_map_physmem() - Read device address from reg property of the
+ *                     device node and map the address into CPU address
+ *                     space.
+ *
+ * @dev: Pointer to device
+ * @size: size of the memory to map
+ *
+ * @return  mapped address, or NULL if the device does not have reg
+ *          property.
+ */
+void *dev_map_physmem(struct udevice *dev, unsigned long size);
+
+/**
  * dev_get_addr_index() - Get the indexed reg property of a device
  *
  * @dev: Pointer to a device
