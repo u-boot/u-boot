@@ -8,7 +8,7 @@
 #define __SOCFPGA_PINMUX_CONFIG_H__
 
 const u8 sys_mgr_init_table[] = {
-	3, /* EMACIO0 */
+	0, /* EMACIO0 */
 	2, /* EMACIO1 */
 	2, /* EMACIO2 */
 	2, /* EMACIO3 */
@@ -17,7 +17,7 @@ const u8 sys_mgr_init_table[] = {
 	2, /* EMACIO6 */
 	2, /* EMACIO7 */
 	2, /* EMACIO8 */
-	3, /* EMACIO9 */
+	0, /* EMACIO9 */
 	2, /* EMACIO10 */
 	2, /* EMACIO11 */
 	2, /* EMACIO12 */
@@ -32,27 +32,27 @@ const u8 sys_mgr_init_table[] = {
 	0, /* FLASHIO1 */
 	3, /* FLASHIO2 */
 	3, /* FLASHIO3 */
-	3, /* FLASHIO4 */
-	3, /* FLASHIO5 */
-	3, /* FLASHIO6 */
-	3, /* FLASHIO7 */
+	0, /* FLASHIO4 */
+	0, /* FLASHIO5 */
+	0, /* FLASHIO6 */
+	0, /* FLASHIO7 */
 	0, /* FLASHIO8 */
 	3, /* FLASHIO9 */
 	3, /* FLASHIO10 */
 	3, /* FLASHIO11 */
-	0, /* GENERALIO0 */
-	1, /* GENERALIO1 */
-	1, /* GENERALIO2 */
-	0, /* GENERALIO3 */
-	0, /* GENERALIO4 */
-	1, /* GENERALIO5 */
-	1, /* GENERALIO6 */
-	1, /* GENERALIO7 */
-	1, /* GENERALIO8 */
-	0, /* GENERALIO9 */
-	0, /* GENERALIO10 */
-	0, /* GENERALIO11 */
-	0, /* GENERALIO12 */
+	3, /* GENERALIO0 */
+	3, /* GENERALIO1 */
+	3, /* GENERALIO2 */
+	3, /* GENERALIO3 */
+	3, /* GENERALIO4 */
+	3, /* GENERALIO5 */
+	3, /* GENERALIO6 */
+	3, /* GENERALIO7 */
+	3, /* GENERALIO8 */
+	3, /* GENERALIO9 */
+	3, /* GENERALIO10 */
+	3, /* GENERALIO11 */
+	3, /* GENERALIO12 */
 	2, /* GENERALIO13 */
 	2, /* GENERALIO14 */
 	3, /* GENERALIO15 */

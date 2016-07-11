@@ -10,6 +10,7 @@
 #include <pci.h>
 #include <smsc_sio1007.h>
 #include <asm/ibmpc.h>
+#include <asm/lpc_common.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 
@@ -50,9 +51,4 @@ int board_early_init_f(void)
 	sio1007_gpio_set_value(SIO1007_RUNTIME_IOPORT, 0, 1);
 
 	return 0;
-}
-
-void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio)
-{
-	return;
 }

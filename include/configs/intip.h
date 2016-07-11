@@ -46,7 +46,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* Call board_early_init_r */
 #define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
 #define CONFIG_BOARD_TYPES		1	/* support board types */
-#define CONFIG_FIT
 #define CFG_ALT_MEMTEST
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
@@ -282,12 +281,8 @@
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -312,7 +307,6 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1014	/* IBM */
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
 
-
 /*
  * External Bus Controller (EBC) Setup
  */
@@ -326,7 +320,6 @@
  *
  * 0xfc00.0000 -> 4.cc00.0000
  */
-
 
 /* Memory Bank 0 (NOR-FLASH) initialization */
 #define CONFIG_SYS_EBC_PB0AP		0x10055e00

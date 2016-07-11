@@ -64,7 +64,8 @@ static unsigned int sparse_block_size_to_storage(unsigned int size,
 						 sparse_storage_t *storage,
 						 sparse_header_t *sparse)
 {
-	return size * sparse->blk_sz / storage->block_sz;
+	return (unsigned int)lldiv((uint64_t)size * sparse->blk_sz,
+				   storage->block_sz);
 }
 
 static bool sparse_chunk_has_buffer(chunk_header_t *chunk)
@@ -275,7 +276,6 @@ int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
 	sparse_buffer_t *buffer;
 	uint32_t start;
 	uint32_t total_blocks = 0;
-	uint32_t skipped = 0;
 	int i;
 
 	debug("=== Storage ===\n");
@@ -330,9 +330,12 @@ int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
 		 * and go on parsing the rest of the chunks
 		 */
 		if (chunk_header->chunk_type == CHUNK_TYPE_DONT_CARE) {
-			skipped += sparse_block_size_to_storage(chunk_header->chunk_sz,
-								storage,
-								sparse_header);
+			blkcnt = sparse_block_size_to_storage(chunk_header->chunk_sz,
+							      storage,
+							      sparse_header);
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+			total_blocks += blkcnt;
+#endif
 			continue;
 		}
 
@@ -373,14 +376,14 @@ int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
 		sparse_put_data_buffer(buffer);
 	}
 
-	debug("Wrote %d blocks, skipped %d, expected to write %d blocks\n",
-	      total_blocks, skipped,
+	debug("Wrote %d blocks, expected to write %d blocks\n",
+	      total_blocks,
 	      sparse_block_size_to_storage(sparse_header->total_blks,
 					   storage, sparse_header));
 	printf("........ wrote %d blocks to '%s'\n", total_blocks,
 	       storage->name);
 
-	if ((total_blocks + skipped) !=
+	if (total_blocks !=
 	    sparse_block_size_to_storage(sparse_header->total_blks,
 					 storage, sparse_header)) {
 		printf("sparse image write failure\n");

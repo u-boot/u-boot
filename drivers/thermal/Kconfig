@@ -1,7 +1,7 @@
 config DM_THERMAL
 	bool "Driver support for thermal devices"
 	help
-	  Enable support for temporary-sensing devices. Some SoCs have on-chip
+	  Enable support for temperature-sensing devices. Some SoCs have on-chip
 	  temperature sensors to permit warnings, speed throttling or even
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.

@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>

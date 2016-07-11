@@ -8,7 +8,6 @@
 #ifndef __MX6UL_14X14_EVK_CONFIG_H
 #define __MX6UL_14X14_EVK_CONFIG_H
 
-
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
@@ -46,11 +45,9 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #endif
 
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
@@ -154,7 +151,6 @@
 	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x8000000)
 
@@ -187,17 +183,13 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_BMODE
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
 #endif
 
 #define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_BUS		0
@@ -210,7 +202,6 @@
 #endif
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6

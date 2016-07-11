@@ -72,7 +72,6 @@
 /* version string, parser, etc */
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
 #define CONFIG_SYS_LONGHELP
@@ -81,13 +80,7 @@
 #define CONFIG_MX_CYCLIC
 
 /* Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
-
-/* Enable devicetree support */
-#define CONFIG_OF_LIBFDT
 
 /* SHA hashing */
 #define CONFIG_CMD_HASH
@@ -96,9 +89,6 @@
 #define CONFIG_SHA256
 
 /* Enable Time Command */
-#define CONFIG_CMD_TIME
-
-#define CONFIG_CMD_BOOTZ
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER

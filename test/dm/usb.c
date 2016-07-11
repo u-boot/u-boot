@@ -39,19 +39,20 @@ DM_TEST(dm_test_usb_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_usb_flash(struct unit_test_state *uts)
 {
 	struct udevice *dev;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	char cmp[1024];
 
 	state_set_skip_delays(true);
 	ut_assertok(usb_init());
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
-	ut_assertok(get_device("usb", "0", &dev_desc));
+	ut_assertok(blk_get_device_by_str("usb", "0", &dev_desc));
 
 	/* Read a few blocks and look for the string we expect */
 	ut_asserteq(512, dev_desc->blksz);
 	memset(cmp, '\0', sizeof(cmp));
-	ut_asserteq(2, dev_desc->block_read(dev_desc, 0, 2, cmp));
+	ut_asserteq(2, blk_dread(dev_desc, 0, 2, cmp));
 	ut_assertok(strcmp(cmp, "this is a test"));
+	ut_assertok(usb_stop());
 
 	return 0;
 }
@@ -67,6 +68,7 @@ static int dm_test_usb_multi(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
+	ut_assertok(usb_stop());
 
 	return 0;
 }

@@ -133,7 +133,7 @@ struct gpio_desc {
  *		previously returned by gpio_request_by_name()
  * @return true if valid, false if not
  */
-static inline bool dm_gpio_is_valid(struct gpio_desc *desc)
+static inline bool dm_gpio_is_valid(const struct gpio_desc *desc)
 {
 	return desc->dev != NULL;
 }
@@ -360,6 +360,18 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 int gpio_get_values_as_int(const int *gpio_list);
 
 /**
+ * dm_gpio_get_values_as_int() - Turn the values of a list of GPIOs into an int
+ *
+ * This puts the value of the first GPIO into bit 0, the second into bit 1,
+ * etc. then returns the resulting integer.
+ *
+ * @desc_list: List of GPIOs to collect
+ * @count: Number of GPIOs
+ * @return resulting integer value, or -ve on error
+ */
+int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count);
+
+/**
  * gpio_claim_vector() - claim a number of GPIOs for input
  *
  * @gpio_num_array:	array of gpios to claim, terminated by -1
@@ -524,9 +536,9 @@ int gpio_free_list_nodev(struct gpio_desc *desc, int count);
  *		previously returned by gpio_request_by_name()
  * @return GPIO value (0 for inactive, 1 for active) or -ve on error
  */
-int dm_gpio_get_value(struct gpio_desc *desc);
+int dm_gpio_get_value(const struct gpio_desc *desc);
 
-int dm_gpio_set_value(struct gpio_desc *desc, int value);
+int dm_gpio_set_value(const struct gpio_desc *desc, int value);
 
 /**
  * dm_gpio_set_dir() - Set the direction for a GPIO
@@ -565,6 +577,6 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags);
  *		previously returned by gpio_request_by_name()
  * @return GPIO number, or -ve if not found
  */
-int gpio_get_number(struct gpio_desc *desc);
+int gpio_get_number(const struct gpio_desc *desc);
 
 #endif	/* _ASM_GENERIC_GPIO_H_ */

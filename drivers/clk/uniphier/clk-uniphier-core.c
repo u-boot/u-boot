@@ -8,12 +8,11 @@
 #include <mapmem.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
+#include <linux/sizes.h>
 #include <clk.h>
 #include <dm/device.h>
 
 #include "clk-uniphier.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int uniphier_clk_enable(struct udevice *dev, int index)
 {
@@ -133,14 +132,12 @@ int uniphier_clk_probe(struct udevice *dev)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg",
-				    &size);
+	addr = dev_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->base = map_sysmem(addr, size);
+	priv->base = map_sysmem(addr, SZ_4K);
 	if (!priv->base)
 		return -ENOMEM;
 

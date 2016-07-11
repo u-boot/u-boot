@@ -88,7 +88,6 @@
 #define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
 
 /* USB UHH support options */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
@@ -99,29 +98,13 @@
 #define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO 80
 #define CONFIG_OMAP_EHCI_PHY3_RESET_GPIO 79
 
-/* USB GADGET */
-#define CONFIG_USB_DWC3_PHY_OMAP
-#define CONFIG_USB_DWC3_OMAP
-#define CONFIG_USB_DWC3
-#define CONFIG_USB_DWC3_GADGET
-
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW 2
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
-#define CONFIG_USB_GADGET_DUALSPEED
-
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
-#define CONFIG_CMD_DFU
 
 #define CONFIG_DFU_MMC
 
 /* Enabled commands */
-#define CONFIG_CMD_DHCP		/* DHCP Support			*/
 
 /* USB Networking options */
 #define CONFIG_USB_HOST_ETHER

@@ -13,12 +13,12 @@
 #include <config.h>
 #include <zfs_common.h>
 
-static block_dev_desc_t *zfs_block_dev_desc;
+static struct blk_desc *zfs_blk_desc;
 static disk_partition_t *part_info;
 
-void zfs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
+void zfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 {
-	zfs_block_dev_desc = rbdd;
+	zfs_blk_desc = rbdd;
 	part_info = info;
 }
 
@@ -48,17 +48,16 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 
 	debug(" <%d, %d, %d>\n", sector, byte_offset, byte_len);
 
-	if (zfs_block_dev_desc == NULL) {
+	if (zfs_blk_desc == NULL) {
 		printf("** Invalid Block Device Descriptor (NULL)\n");
 		return 1;
 	}
 
 	if (byte_offset != 0) {
 		/* read first part which isn't aligned with start of sector */
-		if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
-						   part_info->start + sector, 1,
-						   (void *)sec_buf)
-		    != 1) {
+		if (zfs_blk_desc->block_read(zfs_blk_desc,
+					     part_info->start + sector, 1,
+					     (void *)sec_buf) != 1) {
 			printf(" ** zfs_devread() read error **\n");
 			return 1;
 		}
@@ -79,18 +78,16 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 		u8 p[SECTOR_SIZE];
 
 		block_len = SECTOR_SIZE;
-		zfs_block_dev_desc->block_read(zfs_block_dev_desc,
-					       part_info->start + sector,
-					       1, (void *)p);
+		zfs_blk_desc->block_read(zfs_blk_desc,
+					 part_info->start + sector,
+					 1, (void *)p);
 		memcpy(buf, p, byte_len);
 		return 0;
 	}
 
-	if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
-					   part_info->start + sector,
-					   block_len / SECTOR_SIZE,
-					   (void *)buf)
-	    != block_len / SECTOR_SIZE) {
+	if (zfs_blk_desc->block_read(zfs_blk_desc, part_info->start + sector,
+				     block_len / SECTOR_SIZE,
+				     (void *)buf) != block_len / SECTOR_SIZE) {
 		printf(" ** zfs_devread() read error - block\n");
 		return 1;
 	}
@@ -102,9 +99,9 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 
 	if (byte_len != 0) {
 		/* read rest of data which are not in whole sector */
-		if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
-						   part_info->start + sector,
-						   1, (void *)sec_buf) != 1) {
+		if (zfs_blk_desc->block_read(zfs_blk_desc,
+					     part_info->start + sector,
+					     1, (void *)sec_buf) != 1) {
 			printf(" ** zfs_devread() read error - last part\n");
 			return 1;
 		}

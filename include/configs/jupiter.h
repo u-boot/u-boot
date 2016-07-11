@@ -73,7 +73,6 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-
 /*
  * BOOTP options
  */
@@ -82,16 +81,13 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_PCI)
 #define CODFIG_CMD_PCI
 #endif
-
 
 /*
  * Autobooting
@@ -134,9 +130,6 @@
 
 #if 0
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
@@ -207,7 +200,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
-
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
@@ -242,7 +234,6 @@
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else

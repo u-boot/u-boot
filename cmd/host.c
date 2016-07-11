@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fs.h>
 #include <part.h>
 #include <sandboxblockdev.h>
@@ -67,7 +68,7 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	int dev;
 	printf("%3s %12s %s\n", "dev", "blocks", "path");
 	for (dev = min_dev; dev <= max_dev; dev++) {
-		block_dev_desc_t *blk_dev;
+		struct blk_desc *blk_dev;
 		int ret;
 
 		printf("%3d ", dev);
@@ -80,7 +81,13 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 
 			continue;
 		}
-		struct host_block_dev *host_dev = blk_dev->priv;
+		struct host_block_dev *host_dev;
+
+#ifdef CONFIG_BLK
+		host_dev = dev_get_priv(blk_dev->bdev);
+#else
+		host_dev = blk_dev->priv;
+#endif
 		printf("%12lu %s\n", (unsigned long)blk_dev->lba,
 		       host_dev->filename);
 	}
@@ -92,7 +99,7 @@ static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int dev;
 	char *ep;
-	block_dev_desc_t *blk_dev;
+	struct blk_desc *blk_dev;
 	int ret;
 
 	if (argc < 1 || argc > 3)

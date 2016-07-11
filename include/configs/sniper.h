@@ -88,8 +88,6 @@
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_I2C_MULTI_BUS
 
-#define CONFIG_CMD_I2C
-
 /*
  * Flash
  */
@@ -103,8 +101,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
-
-#define CONFIG_CMD_MMC
 
 /*
  * Power
@@ -169,7 +165,6 @@
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_CBSIZE	512
@@ -200,20 +195,6 @@
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_TWL4030_USB
-
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-
-/*
- * Download
- */
-
-#define CONFIG_USB_GADGET_DOWNLOAD
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
 
 /*
  * Fastboot
@@ -252,7 +233,7 @@
 	"recovery_mmc_part=4\0" \
 	"fdtfile=omap3-sniper.dtb\0" \
 	"bootfile=/boot/extlinux/extlinux.conf\0" \
-	"bootargs=console=ttyO2 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
+	"bootargs=console=ttyO2,115200 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
 
 /*
  * ATAGs

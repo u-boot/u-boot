@@ -636,7 +636,7 @@ dfu_prepare_strings(struct f_dfu *f_dfu, int n)
 
 	f_dfu->strings = calloc(sizeof(struct usb_string), n + 1);
 	if (!f_dfu->strings)
-		goto enomem;
+		return -ENOMEM;
 
 	for (i = 0; i < n; ++i) {
 		de = dfu_get_entity(i);
@@ -647,14 +647,6 @@ dfu_prepare_strings(struct f_dfu *f_dfu, int n)
 	f_dfu->strings[i].s = NULL;
 
 	return 0;
-
-enomem:
-	while (i)
-		f_dfu->strings[--i].s = NULL;
-
-	free(f_dfu->strings);
-
-	return -ENOMEM;
 }
 
 static int dfu_prepare_function(struct f_dfu *f_dfu, int n)

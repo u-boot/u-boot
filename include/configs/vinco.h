@@ -34,14 +34,12 @@
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS
 #define CONFIG_SYS_SDRAM_SIZE		0x4000000
 
-
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 /* SerialFlash */
-#define CONFIG_CMD_SF
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
@@ -55,9 +53,7 @@
 #define CONFIG_ENV_SPI_MODE		(SPI_MODE_0)
 #endif
 
-
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
@@ -76,7 +72,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
@@ -86,31 +81,24 @@
 #endif
 
 /* USB device */
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_ATMEL_USBA
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "L+G VInCo"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
 /* Ethernet Hardware */
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_SMSC
 #define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 
-
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_RNDIS
-
 
 #ifdef CONFIG_SYS_USE_SERIALFLASH
 /* bootstrap + u-boot + env + linux in serial flash */

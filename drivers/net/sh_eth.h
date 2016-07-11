@@ -1,5 +1,5 @@
 /*
- * sh_eth.h - Driver for Renesas SuperH ethernet controler.
+ * sh_eth.h - Driver for Renesas SuperH ethernet controller.
  *
  * Copyright (C) 2008 - 2012 Renesas Solutions Corp.
  * Copyright (c) 2008 - 2012 Nobuhiro Iwamatsu

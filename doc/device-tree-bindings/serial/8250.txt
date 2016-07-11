@@ -53,7 +53,7 @@ Note:
 
   Represents a single port that is compatible with the DUART found
   on many Freescale chips (examples include mpc8349, mpc8548,
-  mpc8641d, p4080 and ls2085a).
+  mpc8641d, p4080 and ls2080a).
 
 Example:
 

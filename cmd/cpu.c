@@ -14,6 +14,7 @@
 static const char *cpu_feature_name[CPU_FEAT_COUNT] = {
 	"L1 cache",
 	"MMU",
+	"Microcode",
 };
 
 static int print_cpu_list(bool detail)
@@ -58,6 +59,12 @@ static int print_cpu_list(bool detail)
 			}
 		}
 		printf("\n");
+		if (info.features & (1 << CPU_FEAT_UCODE)) {
+			printf("\tMicrocode version %#x\n",
+			       plat->ucode_version);
+		}
+		if (info.features & (1 << CPU_FEAT_DEVICE_ID))
+			printf("\tDevice ID %#lx\n", plat->device_id);
 	}
 
 	return 0;

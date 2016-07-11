@@ -54,6 +54,7 @@ obj-y += dfu/
 obj-$(CONFIG_X86) += pch/
 obj-y += rtc/
 obj-y += sound/
+obj-y += spmi/
 obj-y += timer/
 obj-y += tpm/
 obj-y += twserial/

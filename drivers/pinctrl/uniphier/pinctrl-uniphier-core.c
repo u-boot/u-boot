@@ -8,12 +8,11 @@
 #include <mapmem.h>
 #include <linux/io.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 #include <dm/device.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
 {
@@ -45,7 +44,23 @@ static const char *uniphier_pinmux_get_function_name(struct udevice *dev,
 	return priv->socdata->functions[selector];
 }
 
-static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
+static void uniphier_pinconf_input_enable_perpin(struct udevice *dev,
+						 unsigned pin)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	unsigned reg;
+	u32 mask, tmp;
+
+	reg = UNIPHIER_PINCTRL_IECTRL + pin / 32 * 4;
+	mask = BIT(pin % 32);
+
+	tmp = readl(priv->base + reg);
+	tmp |= mask;
+	writel(tmp, priv->base + reg);
+}
+
+static void uniphier_pinconf_input_enable_legacy(struct udevice *dev,
+						 unsigned pin)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	int pins_count = priv->socdata->pins_count;
@@ -65,17 +80,46 @@ static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
 	}
 }
 
+static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL)
+		uniphier_pinconf_input_enable_perpin(dev, pin);
+	else
+		uniphier_pinconf_input_enable_legacy(dev, pin);
+}
+
 static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 				    unsigned muxval)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
-	unsigned mux_bits = priv->socdata->mux_bits;
-	unsigned reg_stride = priv->socdata->reg_stride;
-	unsigned reg, reg_end, shift, mask;
+	unsigned mux_bits, reg_stride, reg, reg_end, shift, mask;
+	bool load_pinctrl;
 	u32 tmp;
 
 	/* some pins need input-enabling */
 	uniphier_pinconf_input_enable(dev, pin);
+
+	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE) {
+		/*
+		 *  Mode       offset        bit
+		 *  Normal     4 * n     shift+3:shift
+		 *  Debug      4 * n     shift+7:shift+4
+		 */
+		mux_bits = 4;
+		reg_stride = 8;
+		load_pinctrl = true;
+	} else {
+		/*
+		 *  Mode       offset           bit
+		 *  Normal     8 * n        shift+3:shift
+		 *  Debug      8 * n + 4    shift+3:shift
+		 */
+		mux_bits = 8;
+		reg_stride = 4;
+		load_pinctrl = false;
+	}
 
 	reg = UNIPHIER_PINCTRL_PINMUX_BASE + pin * mux_bits / 32 * reg_stride;
 	reg_end = reg + reg_stride;
@@ -95,7 +139,7 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 		muxval >>= mux_bits;
 	}
 
-	if (priv->socdata->load_pinctrl)
+	if (load_pinctrl)
 		writel(1, priv->base + UNIPHIER_PINCTRL_LOAD_PINMUX);
 }
 
@@ -128,14 +172,12 @@ int uniphier_pinctrl_probe(struct udevice *dev,
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg",
-				    &size);
+	addr = dev_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->base = map_sysmem(addr, size);
+	priv->base = map_sysmem(addr, SZ_4K);
 	if (!priv->base)
 		return -ENOMEM;
 

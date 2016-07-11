@@ -17,6 +17,14 @@
 #include <usb.h>
 #include "ohci.h"
 
+#ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
+#define AHB_CLK_DIST		2
+#else
+#define BASE_DIST		0x1000
+#define AHB_CLK_DIST		1
+#endif
+
 struct ohci_sunxi_priv {
 	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
@@ -30,6 +38,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
 	struct ohci_regs *regs = (struct ohci_regs *)dev_get_addr(dev);
+	int extra_ahb_gate_mask = 0;
 
 	bus_priv->companion = true;
 
@@ -39,17 +48,21 @@ static int ohci_usb_probe(struct udevice *dev)
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #ifdef CONFIG_MACH_SUN8I_H3
-	priv->ahb_gate_mask |= 1 << AHB_GATE_OFFSET_USB_EHCI0;
+	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
 #endif
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / 0x1000 + 1;
-	priv->ahb_gate_mask <<= priv->phy_index - 1;
-	priv->usb_gate_mask <<= priv->phy_index - 1;
+	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
+	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	extra_ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	priv->usb_gate_mask <<= priv->phy_index;
+	priv->phy_index++; /* Non otg phys start at 1 */
 
-	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
+	setbits_le32(&ccm->ahb_gate0,
+		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 	setbits_le32(&ccm->usb_clk_cfg, priv->usb_gate_mask);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+	setbits_le32(&ccm->ahb_reset0_cfg,
+		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 #endif
 
 	sunxi_usb_phy_init(priv->phy_index);
@@ -85,6 +98,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	{ .compatible = "allwinner,sun6i-a31-ohci", },
 	{ .compatible = "allwinner,sun7i-a20-ohci", },
 	{ .compatible = "allwinner,sun8i-a23-ohci", },
+	{ .compatible = "allwinner,sun8i-a83t-ohci", },
 	{ .compatible = "allwinner,sun8i-h3-ohci",  },
 	{ .compatible = "allwinner,sun9i-a80-ohci", },
 	{ }

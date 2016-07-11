@@ -395,7 +395,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -413,11 +412,9 @@ unsigned long get_board_ddr_clk(void);
  * MMC
  */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* SPI */
@@ -431,7 +428,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
 #define CONFIG_SPI_FLASH_DATAFLASH
 #endif
@@ -461,9 +457,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -478,6 +472,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_I2C_DVI_BUS_NUM	0
@@ -533,8 +528,8 @@ unsigned long get_board_ddr_clk(void);
 
 /* PCIe */
 #define CONFIG_PCI		/* Enable PCI/PCIE */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
@@ -559,16 +554,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_PCI
 #endif
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
-
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#undef CONFIG_CMD_IMLS
-#endif
 
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
@@ -604,8 +591,6 @@ unsigned long get_board_ddr_clk(void);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
@@ -613,9 +598,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
@@ -665,11 +647,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R
 

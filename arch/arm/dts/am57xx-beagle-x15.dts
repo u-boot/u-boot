@@ -586,7 +586,7 @@
 	vmmc_aux-supply = <&vdd_3v3>;
 	pbias-supply = <&pbias_mmc_reg>;
 	bus-width = <4>;
-	cd-gpios = <&gpio6 27 0>; /* gpio 219 */
+	cd-gpios = <&gpio6 27 GPIO_ACTIVE_LOW>; /* gpio 219 */
 };
 
 &mmc2 {

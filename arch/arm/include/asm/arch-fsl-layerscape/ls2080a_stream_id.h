@@ -7,28 +7,48 @@
 #ifndef __FSL_STREAM_ID_H
 #define __FSL_STREAM_ID_H
 
-/* Stream IDs on ls2080a devices are not hardwired and are
+/*
+ * Stream IDs on ls2080a devices are not hardwired and are
  * programmed by sw.  There are a limited number of stream IDs
  * available, and the partitioning of them is scenario dependent.
  * This header defines the partitioning between legacy, PCI,
  * and DPAA2 devices.
  *
- * This partitiong can be customized in this file depending
- * on the specific hardware config-- e.g. perhaps not all
- * PEX controllers are in use.
+ * This partitioning can be customized in this file depending
+ * on the specific hardware config:
  *
- * On LS2080 stream IDs are programmed in AMQ registers (32-bits) for
+ *  -non-PCI legacy, platform devices (USB, SD/MMC, SATA, DMA)
+ *     -all legacy devices get a unique stream ID assigned and programmed in
+ *      their AMQR registers by u-boot
+ *
+ *  -PCIe
+ *     -there is a range of stream IDs set aside for PCI in this
+ *      file.  U-boot will scan the PCI bus and for each device discovered:
+ *         -allocate a streamID
+ *         -set a PEXn LUT table entry mapping 'requester ID' to 'stream ID'
+ *         -set a msi-map entry in the PEXn controller node in the
+ *          device tree (see Documentation/devicetree/bindings/pci/pci-msi.txt
+ *          for more info on the msi-map definition)
+ *
+ *  -DPAA2
+ *     -u-boot will allocate a range of stream IDs to be used by the Management
+ *      Complex for containers and will set these values in the MC DPC image.
+ *     -the MC is responsible for allocating and setting up 'isolation context
+ *      IDs (ICIDs) based on the allocated stream IDs for all DPAA2 devices.
+ *
+ * On ls2080a SoCs stream IDs are programmed in AMQ registers (32-bits) for
  * each of the different bus masters.  The relationship between
  * the AMQ registers and stream IDs is defined in the table below:
  *          AMQ bit    streamID bit
  *      ---------------------------
- *           PL[18]         9
- *          BMT[17]         8
- *           VA[16]         7
- *             [15]         -
- *         ICID[14:7]       -
- *         ICID[6:0]        6-0
+ *           PL[18]         9        // privilege bit
+ *          BMT[17]         8        // bypass translation
+ *           VA[16]         7        // reserved
+ *             [15]         -        // unused
+ *         ICID[14:7]       -        // unused
+ *         ICID[6:0]        6-0      // isolation context id
  *     ----------------------------
+ *
  */
 
 #define AMQ_PL_MASK			(0x1 << 18)   /* priviledge bit */
@@ -46,16 +66,9 @@
 #define FSL_SATA2_STREAM_ID		5
 #define FSL_DMA_STREAM_ID		6
 
-/* PCI - programmed in PEXn_LUT by OS */
-/*   4 IDs per controller */
-#define FSL_PEX1_STREAM_ID_START	7
-#define FSL_PEX1_STREAM_ID_END		10
-#define FSL_PEX2_STREAM_ID_START	11
-#define FSL_PEX2_STREAM_ID_END		14
-#define FSL_PEX3_STREAM_ID_START	15
-#define FSL_PEX3_STREAM_ID_END		18
-#define FSL_PEX4_STREAM_ID_START	19
-#define FSL_PEX4_STREAM_ID_END		22
+/* PCI - programmed in PEXn_LUT */
+#define FSL_PEX_STREAM_ID_START		7
+#define FSL_PEX_STREAM_ID_END		22
 
 /* DPAA2 - set in MC DPC and alloced by MC */
 #define FSL_DPAA2_STREAM_ID_START	23

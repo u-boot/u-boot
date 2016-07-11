@@ -1151,7 +1151,7 @@ phys_size_t initdram(int board_type)
 	dram_size *= ranks;
 	debug("dram_size = %lu\n", dram_size);
 
-	/* Start the SDRAM controler */
+	/* Start the SDRAM controller */
 	mtsdram(DDR0_02, DDR0_02_START_ENCODE(1));
 	denali_wait_for_dlllock();
 

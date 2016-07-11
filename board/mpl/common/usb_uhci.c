@@ -52,7 +52,7 @@
  * For Interrupt transfers USB_MAX_TEMP_INT_TD Transfer descriptor are available. They
  * will be inserted after the appropriate (depending the interval setting) skeleton TD.
  * If an interrupt has been detected the dev->irqhandler is called. The status and number
- * of transfered bytes is stored in dev->irq_status resp. dev->irq_act_len. If the
+ * of transferred bytes is stored in dev->irq_status resp. dev->irq_act_len. If the
  * dev->irqhandler returns 0, the interrupt TD is removed and disabled. If an 1 is returned,
  * the interrupt TD will be reactivated.
  *
@@ -156,7 +156,7 @@ unsigned long usb_uhci_td_stat(unsigned long status)
 	return result;
 }
 
-/* get the status and the transfered len of a td chain.
+/* get the status and the transferred len of a td chain.
  * called from the completion handler
  */
 int usb_get_td_status(uhci_td_t *td,struct usb_device *dev)
@@ -177,7 +177,7 @@ int usb_get_td_status(uhci_td_t *td,struct usb_device *dev)
 				(((info >> 21) & 0x7ff)!= 0x7ff) &&
 				(temp & 0x7FF)!=0x7ff)
 		{  /* if not setup and not null data pack */
-			dev->act_len+=(temp & 0x7FF) + 1; /* the transfered len is act_len + 1 */
+			dev->act_len+=(temp & 0x7FF) + 1; /* the transferred len is act_len + 1 */
 		}
 		if(stat) {           /* status no ok */
 			dev->status=stat;
@@ -533,7 +533,7 @@ void usb_check_int_chain(void)
 			if((td->dev_ptr!=0L) && !(status & TD_CTRL_ACTIVE)) {
 				/* td is not active and a device is assigned -> call irqhandler */
 				dev=(struct usb_device *)td->dev_ptr;
-				dev->irq_act_len=((status & 0x7FF)==0x7FF) ? 0 : (status & 0x7FF) + 1; /* transfered length */
+				dev->irq_act_len=((status & 0x7FF)==0x7FF) ? 0 : (status & 0x7FF) + 1; /* transferred length */
 				dev->irq_status=usb_uhci_td_stat(status); /* get status */
 				res=dev->irq_handle(dev); /* call irqhandler */
 				if(res==1) {

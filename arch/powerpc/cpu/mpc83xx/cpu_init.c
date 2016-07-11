@@ -9,7 +9,7 @@
 #include <ioports.h>
 #include <asm/io.h>
 #ifdef CONFIG_USB_EHCI_FSL
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;

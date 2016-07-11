@@ -16,13 +16,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf532-0.5
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_NAND
-
 
 /*
  * Clock Settings
@@ -47,7 +45,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			3
 
-
 /*
  * Memory Settings
  */
@@ -64,7 +61,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -77,13 +73,11 @@
 #define DM9000_IO		CONFIG_DM9000_BASE
 #define DM9000_DATA		(CONFIG_DM9000_BASE + 2)
 
-
 /*
  * Flash Settings
  */
 #define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_SYS_NO_FLASH		/* we have only NAND */
-
 
 /*
  * SPI Settings
@@ -91,7 +85,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-
 
 /*
  * Env Storage Settings
@@ -101,7 +94,6 @@
 #define CONFIG_ENV_OFFSET	0x30000
 #define CONFIG_ENV_SIZE		0x10000
 #define CONFIG_ENV_SECT_SIZE	0x10000
-
 
 /*
  * NAND Settings
@@ -122,7 +114,6 @@
 #define NAND_PLAT_WRITE_ADR(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_ALE(chip), cmd)
 #define NAND_PLAT_GPIO_DEV_READY       GPIO_PF10
 
-
 /*
  * Misc Settings
  */
@@ -133,7 +124,6 @@
 /* Enable this if bootretry required; currently it's disabled */
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_BOOTCOMMAND	"run nandboot"
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

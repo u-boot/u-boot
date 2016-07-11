@@ -65,8 +65,3 @@ void board_deassert_perst(void)
 	val |= (1 << 0);
 	outl(val, port);
 }
-
-void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio)
-{
-	return;
-}

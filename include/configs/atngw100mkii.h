@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006 Atmel Corporation
  *
- * Copyright (C) 2012 Andreas Bießmann <andreas.devel@googlemail.com>
+ * Copyright (C) 2012 Andreas Bießmann <andreas@biessmann.org>
  *
  * Configuration settings for the AVR32 Network Gateway
  *
@@ -99,16 +99,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_MII
-
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB
@@ -119,7 +110,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #define CONFIG_GENERIC_MMC
 #define CONFIG_ATMEL_SPI
-
 
 #define CONFIG_SYS_DCACHE_LINESZ	32
 #define CONFIG_SYS_ICACHE_LINESZ	32

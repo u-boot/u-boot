@@ -32,6 +32,8 @@
 #include <fdtdec.h>
 #include <pch.h>
 #include <pci.h>
+#include <syscon.h>
+#include <asm/cpu.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/pci.h>
@@ -51,18 +53,6 @@ struct ich6_bank_priv {
 #define GPIO_IOSEL_OFFSET(x)	(x + 4)
 #define GPIO_LVL_OFFSET(x)	(x + 8)
 
-#define IOPAD_MODE_MASK				0x7
-#define IOPAD_PULL_ASSIGN_SHIFT		7
-#define IOPAD_PULL_ASSIGN_MASK		(0x3 << IOPAD_PULL_ASSIGN_SHIFT)
-#define IOPAD_PULL_STRENGTH_SHIFT	9
-#define IOPAD_PULL_STRENGTH_MASK	(0x3 << IOPAD_PULL_STRENGTH_SHIFT)
-
-/* TODO: Move this to device tree, or platform data */
-void ich_gpio_set_gpio_map(const struct pch_gpio_map *map)
-{
-	gd->arch.gpio_map = map;
-}
-
 static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
 {
 	u32 val;
@@ -73,23 +63,6 @@ static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
 	else
 		val &= ~(1UL << offset);
 	outl(val, base);
-
-	return 0;
-}
-
-static int _ich6_gpio_set_function(uint16_t base, unsigned offset, int func)
-{
-	u32 val;
-
-	if (func) {
-		val = inl(base);
-		val |= (1UL << offset);
-		outl(val, base);
-	} else {
-		val = inl(base);
-		val &= ~(1UL << offset);
-		outl(val, base);
-	}
 
 	return 0;
 }
@@ -111,158 +84,6 @@ static int _ich6_gpio_set_direction(uint16_t base, unsigned offset, int dir)
 	return 0;
 }
 
-static int _gpio_ich6_pinctrl_cfg_pin(s32 gpiobase, s32 iobase, int pin_node)
-{
-	u32 gpio_offset[2];
-	int pad_offset;
-	int val;
-	int ret;
-	const void *prop;
-
-	/*
-	 * GPIO node is not mandatory, so we only do the
-	 * pinmuxing if the node exist.
-	 */
-	ret = fdtdec_get_int_array(gd->fdt_blob, pin_node, "gpio-offset",
-			     gpio_offset, 2);
-	if (!ret) {
-		/* Do we want to force the GPIO mode? */
-		prop = fdt_getprop(gd->fdt_blob, pin_node, "mode-gpio",
-				      NULL);
-		if (prop)
-			_ich6_gpio_set_function(GPIO_USESEL_OFFSET
-						(gpiobase) +
-						gpio_offset[0],
-						gpio_offset[1], 1);
-
-		val =
-		    fdtdec_get_int(gd->fdt_blob, pin_node, "direction", -1);
-		if (val != -1)
-			_ich6_gpio_set_direction(GPIO_IOSEL_OFFSET
-						 (gpiobase) +
-						 gpio_offset[0],
-						 gpio_offset[1], val);
-
-		val =
-		    fdtdec_get_int(gd->fdt_blob, pin_node, "output-value", -1);
-		if (val != -1)
-			_ich6_gpio_set_value(GPIO_LVL_OFFSET(gpiobase)
-					     + gpio_offset[0],
-					     gpio_offset[1], val);
-	}
-
-	/* if iobase is present, let's configure the pad */
-	if (iobase != -1) {
-		int iobase_addr;
-
-		/*
-		 * The offset for the same pin for the IOBASE and GPIOBASE are
-		 * different, so instead of maintaining a lookup table,
-		 * the device tree should provide directly the correct
-		 * value for both mapping.
-		 */
-		pad_offset =
-		    fdtdec_get_int(gd->fdt_blob, pin_node, "pad-offset", -1);
-		if (pad_offset == -1) {
-			debug("%s: Invalid register io offset %d\n",
-			      __func__, pad_offset);
-			return -EINVAL;
-		}
-
-		/* compute the absolute pad address */
-		iobase_addr = iobase + pad_offset;
-
-		/*
-		 * Do we need to set a specific function mode?
-		 * If someone put also 'mode-gpio', this option will
-		 * be just ignored by the controller
-		 */
-		val = fdtdec_get_int(gd->fdt_blob, pin_node, "mode-func", -1);
-		if (val != -1)
-			clrsetbits_le32(iobase_addr, IOPAD_MODE_MASK, val);
-
-		/* Configure the pull-up/down if needed */
-		val = fdtdec_get_int(gd->fdt_blob, pin_node, "pull-assign", -1);
-		if (val != -1)
-			clrsetbits_le32(iobase_addr,
-					IOPAD_PULL_ASSIGN_MASK,
-					val << IOPAD_PULL_ASSIGN_SHIFT);
-
-		val =
-		    fdtdec_get_int(gd->fdt_blob, pin_node, "pull-strength", -1);
-		if (val != -1)
-			clrsetbits_le32(iobase_addr,
-					IOPAD_PULL_STRENGTH_MASK,
-					val << IOPAD_PULL_STRENGTH_SHIFT);
-
-		debug("%s: pad cfg [0x%x]: %08x\n", __func__, pad_offset,
-		      readl(iobase_addr));
-	}
-
-	return 0;
-}
-
-int gpio_ich6_pinctrl_init(void)
-{
-	struct udevice *pch;
-	int pin_node;
-	int node;
-	int ret;
-	u32 gpiobase;
-	u32 iobase = -1;
-
-	ret = uclass_first_device(UCLASS_PCH, &pch);
-	if (ret)
-		return ret;
-	if (!pch)
-		return -ENODEV;
-
-	/*
-	 * Get the memory/io base address to configure every pins.
-	 * IOBASE is used to configure the mode/pads
-	 * GPIOBASE is used to configure the direction and default value
-	 */
-	ret = pch_get_gpio_base(pch, &gpiobase);
-	if (ret) {
-		debug("%s: invalid GPIOBASE address (%08x)\n", __func__,
-		      gpiobase);
-		return -EINVAL;
-	}
-
-	/* This is not an error to not have a pinctrl node */
-	node =
-	    fdtdec_next_compatible(gd->fdt_blob, 0, COMPAT_INTEL_X86_PINCTRL);
-	if (node <= 0) {
-		debug("%s: no pinctrl node\n", __func__);
-		return 0;
-	}
-
-	/*
-	 * Get the IOBASE, this is not mandatory as this is not
-	 * supported by all the CPU
-	 */
-	ret = pch_get_io_base(pch, &iobase);
-	if (ret && ret != -ENOSYS) {
-		debug("%s: invalid IOBASE address (%08x)\n", __func__,
-		      iobase);
-		return -EINVAL;
-	}
-
-	for (pin_node = fdt_first_subnode(gd->fdt_blob, node);
-	     pin_node > 0;
-	     pin_node = fdt_next_subnode(gd->fdt_blob, pin_node)) {
-		/* Configure the pin */
-		ret = _gpio_ich6_pinctrl_cfg_pin(gpiobase, iobase, pin_node);
-		if (ret != 0) {
-			debug("%s: invalid configuration for the pin %d\n",
-			      __func__, pin_node);
-			return ret;
-		}
-	}
-
-	return 0;
-}
-
 static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
@@ -279,6 +100,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid register offset %d\n", __func__, offset);
 		return -EINVAL;
 	}
+	plat->offset = offset;
 	plat->base_addr = gpiobase + offset;
 	plat->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
 				      "bank-name", NULL);
@@ -291,11 +113,10 @@ static int ich6_gpio_probe(struct udevice *dev)
 	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
+	struct udevice *pinctrl;
 
-	if (gd->arch.gpio_map) {
-		setup_pch_gpios(plat->base_addr, gd->arch.gpio_map);
-		gd->arch.gpio_map = NULL;
-	}
+	/* Set up pin control if available */
+	syscon_get_by_driver_data(X86_SYSCON_PINCONF, &pinctrl);
 
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	uc_priv->bank_name = plat->bank_name;

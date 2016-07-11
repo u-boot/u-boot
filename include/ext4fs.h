@@ -110,7 +110,7 @@ struct ext_filesystem {
 	/* Journal Related */
 
 	/* Block Device Descriptor */
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 };
 
 extern struct ext2_data *ext4fs_root;
@@ -141,9 +141,9 @@ int ext4fs_exists(const char *filename);
 int ext4fs_size(const char *filename, loff_t *size);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
 int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf);
-void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
+void ext4fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
 long int read_allocated_block(struct ext2_inode *inode, int fileblock);
-int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
+int ext4fs_probe(struct blk_desc *fs_dev_desc,
 		 disk_partition_t *fs_partition);
 int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actread);

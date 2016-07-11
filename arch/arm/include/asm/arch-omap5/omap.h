@@ -60,6 +60,7 @@
 #define DRA752_CONTROL_ID_CODE_ES1_1		0x1B99002F
 #define DRA752_CONTROL_ID_CODE_ES2_0		0x2B99002F
 #define DRA722_CONTROL_ID_CODE_ES1_0		0x0B9BC02F
+#define DRA722_CONTROL_ID_CODE_ES2_0		0x1B9BC02F
 
 /* UART */
 #define UART1_BASE		(OMAP54XX_L4_PER_BASE + 0x6a000)
@@ -214,6 +215,10 @@ struct s32ktimer {
 
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK		(0x1 << 7)
+#define OMAP_ABB_MM_TXDONE_MASK			(0x1 << 31)
+#define OMAP_ABB_IVA_TXDONE_MASK		(0x1 << 30)
+#define OMAP_ABB_EVE_TXDONE_MASK		(0x1 << 29)
+#define OMAP_ABB_GPU_TXDONE_MASK		(0x1 << 28)
 
 /* ABB efuse masks */
 #define OMAP5_ABB_FUSE_VSET_MASK		(0x1F << 24)

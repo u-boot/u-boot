@@ -57,12 +57,16 @@ u32 omap_sys_boot_device(void)
 	return boot_devices[sys_boot];
 }
 
-char omap_reboot_mode(void)
+int omap_reboot_mode(char *mode, unsigned int length)
 {
 	u32 reboot_mode;
 	char c;
 
-	reboot_mode = readl((u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	if (length < 2)
+		return -1;
+
+	reboot_mode = readl((u32 *)(OMAP34XX_SCRATCHPAD +
+		OMAP_REBOOT_REASON_OFFSET));
 
 	c = (reboot_mode >> 24) & 0xff;
 	if (c != 'B')
@@ -74,23 +78,27 @@ char omap_reboot_mode(void)
 
 	c = reboot_mode & 0xff;
 
-	return c;
-}
-
-int omap_reboot_mode_clear(void)
-{
-	writel(0, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	mode[0] = c;
+	mode[1] = '\0';
 
 	return 0;
 }
 
-int omap_reboot_mode_store(char c)
+int omap_reboot_mode_clear(void)
+{
+	writel(0, (u32 *)(OMAP34XX_SCRATCHPAD + OMAP_REBOOT_REASON_OFFSET));
+
+	return 0;
+}
+
+int omap_reboot_mode_store(char *mode)
 {
 	u32 reboot_mode;
 
-	reboot_mode = 'B' << 24 | 'M' << 16 | c;
+	reboot_mode = 'B' << 24 | 'M' << 16 | mode[0];
 
-	writel(reboot_mode, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	writel(reboot_mode, (u32 *)(OMAP34XX_SCRATCHPAD +
+		OMAP_REBOOT_REASON_OFFSET));
 
 	return 0;
 }

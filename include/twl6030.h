@@ -20,18 +20,53 @@
 #define TWL6030_CHIP_PWM	0x49
 
 /* Slave Address 0x48 */
-#define VMMC_CFG_STATE		0x9A
-#define VMMC_CFG_VOLTATE	0x9B
-#define VUSB_CFG_STATE		0xA2
+#define TWL6030_STS_HW_CONDITIONS	0x21
+
+#define TWL6030_STS_HW_CONDITIONS_PWRON	(1 << 0)
+
+#define TWL6030_PHOENIX_DEV_ON		0x25
+
+#define TWL6030_PHOENIX_APP_DEVOFF	(1 << 0)
+#define TWL6030_PHOENIX_CON_DEVOFF	(1 << 1)
+#define TWL6030_PHOENIX_MOD_DEVOFF	(1 << 2)
+
+#define TWL6030_PH_STS_BOOT		0x29
+
+#define TWL6030_PH_STS_BOOT0		(1 << 0)
+#define TWL6030_PH_STS_BOOT1		(1 << 1)
+#define TWL6030_PH_STS_BOOT2		(1 << 2)
+#define TWL6030_PH_STS_BOOT3		(1 << 3)
+
+#define TWL6030_VAUX1_CFG_STATE		0x86
+#define TWL6030_VAUX1_CFG_VOLTAGE	0x87
+#define TWL6030_VMMC_CFG_STATE		0x9A
+#define TWL6030_VMMC_CFG_VOLTAGE	0x9B
+#define TWL6030_VUSB_CFG_STATE		0xA2
+#define TWL6030_VUSB_CFG_VOLTAGE	0xA3
+
+#define TWL6030_CFG_GRP_P1		(1 << 0)
+#define TWL6030_CFG_STATE_ON		(1 << 0)
+#define TWL6030_CFG_STATE_P1		(TWL6030_CFG_GRP_P1 << 5)
+#define TWL6030_CFG_VOLTAGE_18		0x09
+#define TWL6030_CFG_VOLTAGE_28		0x13
+#define TWL6030_CFG_VOLTAGE_30		0x15
+#define TWL6030_CFG_VOLTAGE_33		0x18
 
 #define MISC1			0xE4
 #define VAC_MEAS		(1 << 2)
 #define VBAT_MEAS		(1 << 1)
 #define BB_MEAS			(1 << 0)
 
-#define MISC2			0xE5
+#define TWL6030_MISC2			0xE5
+#define TWL6030_MISC2_VUSB_IN_PMID	(1 << 3)
+#define TWL6030_MISC2_VUSB_IN_VSYS	(1 << 4)
 
 /* Slave Address 0x49 */
+
+#define TWL6030_CONTROLLER_STAT1		0xE3
+
+#define TWL6030_CONTROLLER_STAT1_VAC_DET	(1 << 3)
+#define TWL6030_CONTROLLER_STAT1_VBUS_DET	(1 << 2)
 
 /* Battery CHARGER REGISTERS */
 #define CONTROLLER_INT_MASK	0xE0
@@ -162,12 +197,25 @@ static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
+/*
+ * Power
+ */
+
+void twl6030_power_off(void);
 void twl6030_init_battery_charging(void);
 void twl6030_usb_device_settings(void);
 void twl6030_start_usb_charging(void);
 void twl6030_stop_usb_charging(void);
 int twl6030_get_battery_voltage(void);
 int twl6030_get_battery_current(void);
-void twl6030_power_mmc_init(void);
+void twl6030_power_mmc_init(int dev_index);
+
+/*
+ * Input
+ */
+
+int twl6030_input_power_button(void);
+int twl6030_input_charger(void);
+int twl6030_input_usb(void);
 
 #endif /* TWL6030_H */

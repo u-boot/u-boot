@@ -102,7 +102,7 @@
 	"run mmcboot;" \
 	"run nandboot;"
 
-/* NS16550 Configuration: primary UART via FDTI */
+/* NS16550 Configuration: primary UART via FTDI */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_BAUDRATE			115200
 
@@ -149,7 +149,6 @@
 					  174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193,\
 					  194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209}
 
-
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	26
 #define CONFIG_SYS_NAND_ECCSTEPS	8
@@ -162,11 +161,8 @@
 /* #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000 */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
-
-
 #define CONFIG_CMD_MTDPARTS
 
-#define CONFIG_CMD_ASKENV /* monitor functions : ask for env variable */
 #define CONFIG_VERSION_VARIABLE /* monitor functions :  u-boot version */
 #define CONFIG_CMD_DIAG /* monitor functions : Diagnostics */
 
@@ -196,26 +192,19 @@
  */
 #define CONFIG_USB_MUSB_DSPS
 #define CONFIG_ARCH_MISC_INIT
-#define CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
 #if defined(CONFIG_USB_MUSB_HOST)
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
 /* disable host part of MUSB in SPL */
-#undef CONFIG_USB_MUSB_HOST
 /* Disable CPSW SPL support so we fit within the 101KiB limit. */
 #undef CONFIG_SPL_ETH_SUPPORT
 #endif
@@ -224,7 +213,6 @@
 #define CONFIG_NET_MULTI
 
 /* Network */
-#define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI

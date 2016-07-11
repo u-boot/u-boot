@@ -11,7 +11,7 @@
 
 # include  <part.h>
 
-block_dev_desc_t *  systemace_get_dev(int dev);
+struct blk_desc *systemace_get_dev(int dev);
 
 #endif	/* CONFIG_SYSTEMACE */
 #endif	/* __SYSTEMACE_H */

@@ -64,7 +64,7 @@ static struct driver_info driver_info_manual = {
 
 static struct driver_info driver_info_pre_reloc = {
 	.name = "test_pre_reloc_drv",
-	.platdata = &test_pdata_manual,
+	.platdata = &test_pdata_pre_reloc,
 };
 
 void dm_leak_check_start(struct unit_test_state *uts)

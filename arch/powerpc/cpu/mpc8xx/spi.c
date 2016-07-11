@@ -455,7 +455,7 @@ ssize_t spi_xfer (size_t count)
  *
  * The Serial Peripheral Interface (SPI) is tested in the local loopback mode.
  * The interface is configured accordingly and several packets
- * are transfered. The configurable test parameters are:
+ * are transferred. The configurable test parameters are:
  *   TEST_MIN_LENGTH - minimum size of packet to transfer
  *   TEST_MAX_LENGTH - maximum size of packet to transfer
  *   TEST_NUM - number of tests

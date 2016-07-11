@@ -24,8 +24,6 @@
 #define SIL1178_MASTER_I2C_ADDRESS 0x38
 #define SIL1178_SLAVE_I2C_ADDRESS 0x39
 
-#define DP501_I2C_ADDR 0x08
-
 #define PIXCLK_640_480_60 25180000
 #define MAX_X_CHARS 53
 #define MAX_Y_CHARS 26
@@ -76,14 +74,6 @@ int ics8n3qv01_i2c[] = CONFIG_SYS_ICS8N3QV01_I2C;
 
 #ifdef CONFIG_SYS_SIL1178_I2C
 int sil1178_i2c[] = CONFIG_SYS_SIL1178_I2C;
-#endif
-
-#ifdef CONFIG_SYS_DP501_I2C
-int dp501_i2c[] = CONFIG_SYS_DP501_I2C;
-#endif
-
-#ifdef CONFIG_SYS_DP501_BASE
-int dp501_base[] = CONFIG_SYS_DP501_BASE;
 #endif
 
 #ifdef CONFIG_SYS_MPC92469AC
@@ -317,13 +307,6 @@ int osd_probe(unsigned screen)
 	int old_bus = i2c_get_bus_num();
 	bool pixclock_present = false;
 	bool output_driver_present = false;
-#ifdef CONFIG_SYS_DP501_I2C
-#ifdef CONFIG_SYS_DP501_BASE
-	uint8_t dp501_addr = dp501_base[screen];
-#else
-	uint8_t dp501_addr = DP501_I2C_ADDR;
-#endif
-#endif
 
 	OSD_GET_REG(0, version, &version);
 	OSD_GET_REG(0, features, &features);
@@ -393,11 +376,8 @@ int osd_probe(unsigned screen)
 #endif
 
 #ifdef CONFIG_SYS_DP501_I2C
-	i2c_set_bus_num(dp501_i2c[screen]);
-	if (!i2c_probe(dp501_addr)) {
-		dp501_powerup(dp501_addr);
+	if (!dp501_probe(screen, true))
 		output_driver_present = true;
-	}
 #endif
 
 	if (!output_driver_present)

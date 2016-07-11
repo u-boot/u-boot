@@ -101,7 +101,6 @@
 #undef CONFIG_SYS_MONITOR_LEN
 #undef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_ENV_SIZE			(16 * 1024)
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -154,7 +153,6 @@
 	"if mmc rescan; then " \
 		"run emmcboot; " \
 	"fi;"
-
 
 #define CONFIG_CONS_INDEX		1
 

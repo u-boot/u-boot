@@ -115,7 +115,9 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 			   (unsigned long)((void *)buffer +
 			   roundup(buffer->buf_size, ARCH_DMA_MINALIGN)));
 
-	ret = bcm2835_mbox_call_raw(chan, phys_to_bus((u32)buffer), &rbuffer);
+	ret = bcm2835_mbox_call_raw(chan,
+				    phys_to_bus((unsigned long)buffer),
+				    &rbuffer);
 	if (ret)
 		return ret;
 
@@ -123,7 +125,7 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 				(unsigned long)((void *)buffer +
 				roundup(buffer->buf_size, ARCH_DMA_MINALIGN)));
 
-	if (rbuffer != phys_to_bus((u32)buffer)) {
+	if (rbuffer != phys_to_bus((unsigned long)buffer)) {
 		printf("mbox: Response buffer mismatch\n");
 		return -1;
 	}

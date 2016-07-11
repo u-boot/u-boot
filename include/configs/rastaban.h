@@ -36,7 +36,6 @@
 	"led5=63,0,1\0"
 
 #undef CONFIG_DOS_PARTITION
-#undef CONFIG_CMD_FAT
 
 #define CONFIG_BOARD_LATE_INIT
 
@@ -70,8 +69,6 @@
 #define CONFIG_ENV_SIZE_REDUND		0x2000
 #define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
 
-
-
 #define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V3
 
 #ifndef CONFIG_SPL_BUILD
@@ -98,7 +95,6 @@
 "run nand_boot;" \
 "run nand_boot_backup;" \
 "reset;"
-
 
 #else
 #define CONFIG_BOOTDELAY		0

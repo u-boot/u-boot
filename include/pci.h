@@ -700,6 +700,7 @@ extern void *pci_map_bar(pci_dev_t pdev, int bar, int flags);
 extern void pci_register_hose(struct pci_controller* hose);
 extern struct pci_controller* pci_bus_to_hose(int bus);
 extern struct pci_controller *find_hose_by_cfg_addr(void *cfg_addr);
+extern struct pci_controller *pci_get_hose_head(void);
 
 extern int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev);
 extern int pci_hose_scan(struct pci_controller *hose);
@@ -1007,6 +1008,7 @@ int dm_pci_hose_probe_bus(struct udevice *bus);
  *
  * @bus:	Bus to read from
  * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to read
  * @valuep:	Place to put the returned value
  * @size:	Access size
  * @return 0 if OK, -ve on error
@@ -1019,12 +1021,28 @@ int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
  *
  * @bus:	Bus to write from
  * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to write
  * @value:	Value to write
  * @size:	Access size
  * @return 0 if OK, -ve on error
  */
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
+
+/**
+ * pci_bus_clrset_config32() - Update a configuration value for a device
+ *
+ * The register at @offset is updated to (oldvalue & ~clr) | set.
+ *
+ * @bus:	Bus to access
+ * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to update
+ * @clr:	Bits to clear
+ * @set:	Bits to set
+ * @return 0 if OK, -ve on error
+ */
+int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
+			    u32 clr, u32 set);
 
 /**
  * Driver model PCI config access functions. Use these in preference to others
@@ -1043,6 +1061,14 @@ int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 int dm_pci_write_config8(struct udevice *dev, int offset, u8 value);
 int dm_pci_write_config16(struct udevice *dev, int offset, u16 value);
 int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
+
+/**
+ * These permit convenient read/modify/write on PCI configuration. The
+ * register is updated to (oldvalue & ~clr) | set.
+ */
+int dm_pci_clrset_config8(struct udevice *dev, int offset, u32 clr, u32 set);
+int dm_pci_clrset_config16(struct udevice *dev, int offset, u32 clr, u32 set);
+int dm_pci_clrset_config32(struct udevice *dev, int offset, u32 clr, u32 set);
 
 /*
  * The following functions provide access to the above without needing the
@@ -1237,9 +1263,9 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
 #define dm_pci_mem_to_virt(dev, addr, len, map_flags) \
 	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_MEM, (len), (map_flags))
 #define dm_pci_virt_to_io(dev, addr) \
-	dm_dm_pci_virt_to_bus((dev), (addr), PCI_REGION_IO)
+	dm_pci_virt_to_bus((dev), (addr), PCI_REGION_IO)
 #define dm_pci_io_to_virt(dev, addr, len, map_flags) \
-	dm_dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
+	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 /**
  * dm_pci_find_device() - find a device by vendor/device ID

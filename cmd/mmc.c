@@ -150,6 +150,7 @@ static struct mmc *init_mmc_device(int dev, bool force_init)
 		printf("no mmc device at slot %x\n", dev);
 		return NULL;
 	}
+
 	if (force_init)
 		mmc->has_init = 0;
 	if (mmc_init(mmc))
@@ -312,7 +313,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 	/* Switch to the RPMB partition */
-	original_part = mmc->block_dev.part_num;
+	original_part = mmc->block_dev.hwpart;
 	if (mmc_select_hwpart(curr_device, MMC_PART_RPMB) != 0)
 		return CMD_RET_FAILURE;
 	ret = cp->cmd(cmdtp, flag, argc, argv);
@@ -345,7 +346,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
-	n = mmc->block_dev.block_read(&mmc->block_dev, blk, cnt, addr);
+	n = blk_dread(&mmc->block_dev, blk, cnt, addr);
 	/* flush cache after read */
 	flush_cache((ulong)addr, cnt * 512); /* FIXME */
 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
@@ -377,7 +378,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = mmc->block_dev.block_write(&mmc->block_dev, blk, cnt, addr);
+	n = blk_dwrite(&mmc->block_dev, blk, cnt, addr);
 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -405,7 +406,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = mmc->block_dev.block_erase(&mmc->block_dev, blk, cnt);
+	n = blk_derase(&mmc->block_dev, blk, cnt);
 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -424,7 +425,7 @@ static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
-	block_dev_desc_t *mmc_dev;
+	struct blk_desc *mmc_dev;
 	struct mmc *mmc;
 
 	mmc = init_mmc_device(curr_device, false);
@@ -433,7 +434,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 
 	mmc_dev = mmc_get_dev(curr_device);
 	if (mmc_dev != NULL && mmc_dev->type != DEV_TYPE_UNKNOWN) {
-		print_part(mmc_dev);
+		part_print(mmc_dev);
 		return CMD_RET_SUCCESS;
 	}
 

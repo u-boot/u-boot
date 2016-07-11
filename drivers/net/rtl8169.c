@@ -995,7 +995,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 		/* Force RTL8169 in 10/100/1000 Full/Half mode. */
 		if (option > 0) {
 #ifdef DEBUG_RTL8169
-			printf("%s: Force-mode Enabled.\n", dev->name);
+			printf("%s: Force-mode Enabled.\n", name);
 #endif
 			Cap10_100 = 0, Cap1000 = 0;
 			switch (option) {
@@ -1027,7 +1027,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 		} else {
 #ifdef DEBUG_RTL8169
 			printf("%s: Auto-negotiation Enabled.\n",
-			       dev->name);
+			       name);
 #endif
 			/* enable 10/100 Full/Half Mode, leave PHY_AUTO_NEGO_REG bit4:0 unchanged */
 			mdio_write(PHY_AUTO_NEGO_REG,
@@ -1054,12 +1054,12 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 				if (option & _1000bpsF) {
 #ifdef DEBUG_RTL8169
 					printf("%s: 1000Mbps Full-duplex operation.\n",
-					     dev->name);
+					       name);
 #endif
 				} else {
 #ifdef DEBUG_RTL8169
 					printf("%s: %sMbps %s-duplex operation.\n",
-					       dev->name,
+					       name,
 					       (option & _100bps) ? "100" :
 					       "10",
 					       (option & FullDup) ? "Full" :
@@ -1077,7 +1077,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 #ifdef DEBUG_RTL8169
 		printf
 		    ("%s: 1000Mbps Full-duplex operation, TBI Link %s!\n",
-		     dev->name,
+		     name,
 		     (RTL_R32(TBICSR) & TBILinkOK) ? "OK" : "Failed");
 #endif
 	}

@@ -1726,7 +1726,7 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 	mtdcr (MAL0_RXDEIR, 0x80000000);
 
 #ifdef INFO_4XX_ENET
-	printf("\nMAL error occured.... ISR = %lx UIC = = %lx	MAL_DEF = %lx  MAL_ERR= %lx\n",
+	printf("\nMAL error occurred.... ISR = %lx UIC = = %lx	MAL_DEF = %lx  MAL_ERR= %lx\n",
 	       isr, uic, maldef, mal_errr);
 #endif
 
@@ -1740,7 +1740,7 @@ static void emac_err (struct eth_device *dev, unsigned long isr)
 {
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
-	printf ("EMAC%d error occured.... ISR = %lx\n", hw_p->devnum, isr);
+	printf ("EMAC%d error occurred.... ISR = %lx\n", hw_p->devnum, isr);
 	out_be32((void *)EMAC0_ISR + hw_p->hw_addr, isr);
 }
 

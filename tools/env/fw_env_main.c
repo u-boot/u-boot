@@ -49,10 +49,6 @@ static struct option long_options[] = {
 	{NULL, 0, NULL, 0}
 };
 
-struct common_args common_args;
-struct printenv_args printenv_args;
-struct setenv_args setenv_args;
-
 void usage_printenv(void)
 {
 
@@ -93,7 +89,7 @@ void usage_setenv(void)
 		"\n"
 		"Script Syntax:\n"
 		"  key [space] value\n"
-		"  lines starting with '#' are treated as commment\n"
+		"  lines starting with '#' are treated as comment\n"
 		"\n"
 		"  A variable without value will be deleted. Any number of spaces are\n"
 		"  allowed between key and value. Space inside of the value is treated\n"

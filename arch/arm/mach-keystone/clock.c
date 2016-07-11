@@ -228,18 +228,21 @@ void init_plls(void)
 	}
 }
 
-static int get_max_speed(u32 val, u32 speed_supported)
+static int get_max_speed(u32 val, u32 speed_supported, int *spds)
 {
 	int speed;
 
 	/* Left most setbit gives the speed */
 	for (speed = DEVSPEED_NUMSPDS; speed >= 0; speed--) {
 		if ((val & BIT(speed)) & speed_supported)
-			return speeds[speed];
+			return spds[speed];
 	}
 
-	/* If no bit is set, use SPD800 */
-	return SPD800;
+	/* If no bit is set, return minimum speed */
+	if (cpu_is_k2g())
+		return SPD200;
+	else
+		return SPD800;
 }
 
 static inline u32 read_efuse_bootrom(void)
@@ -250,24 +253,24 @@ static inline u32 read_efuse_bootrom(void)
 		return __raw_readl(KS2_EFUSE_BOOTROM);
 }
 
-int get_max_arm_speed(void)
+int get_max_arm_speed(int *spds)
 {
 	u32 armspeed = read_efuse_bootrom();
 
 	armspeed = (armspeed & DEVSPEED_ARMSPEED_MASK) >>
 		    DEVSPEED_ARMSPEED_SHIFT;
 
-	return get_max_speed(armspeed, ARM_SUPPORTED_SPEEDS);
+	return get_max_speed(armspeed, ARM_SUPPORTED_SPEEDS, spds);
 }
 
-int get_max_dev_speed(void)
+int get_max_dev_speed(int *spds)
 {
 	u32 devspeed = read_efuse_bootrom();
 
 	devspeed = (devspeed & DEVSPEED_DEVSPEED_MASK) >>
 		    DEVSPEED_DEVSPEED_SHIFT;
 
-	return get_max_speed(devspeed, DEV_SUPPORTED_SPEEDS);
+	return get_max_speed(devspeed, DEV_SUPPORTED_SPEEDS, spds);
 }
 
 /**

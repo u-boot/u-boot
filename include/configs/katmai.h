@@ -175,11 +175,8 @@
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ECCTEST
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
 
 #define	CONFIG_IBM_EMAC4_V4	1	/* 440SPe has this EMAC version	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/

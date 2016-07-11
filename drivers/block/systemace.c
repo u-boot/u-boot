@@ -69,11 +69,11 @@ static u16 ace_readw(unsigned off)
 	return in16(base + off);
 }
 
-static unsigned long systemace_read(block_dev_desc_t *block_dev,
+static unsigned long systemace_read(struct blk_desc *block_dev,
 				    unsigned long start, lbaint_t blkcnt,
 				    void *buffer);
 
-static block_dev_desc_t systemace_dev = { 0 };
+static struct blk_desc systemace_dev = { 0 };
 
 static int get_cf_lock(void)
 {
@@ -105,13 +105,13 @@ static void release_cf_lock(void)
 }
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *systemace_get_dev(int dev)
+struct blk_desc *systemace_get_dev(int dev)
 {
 	/* The first time through this, the systemace_dev object is
 	   not yet initialized. In that case, fill it in. */
 	if (systemace_dev.blksz == 0) {
 		systemace_dev.if_type = IF_TYPE_UNKNOWN;
-		systemace_dev.dev = 0;
+		systemace_dev.devnum = 0;
 		systemace_dev.part_type = PART_TYPE_UNKNOWN;
 		systemace_dev.type = DEV_TYPE_HARDDISK;
 		systemace_dev.blksz = 512;
@@ -124,7 +124,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		 */
 		ace_writew(width == 8 ? 0 : 0x0001, 0);
 
-		init_part(&systemace_dev);
+		part_init(&systemace_dev);
 
 	}
 
@@ -137,7 +137,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
  * the dev_desc) to read blocks of data. The return value is the
  * number of blocks read. A zero return indicates an error.
  */
-static unsigned long systemace_read(block_dev_desc_t *block_dev,
+static unsigned long systemace_read(struct blk_desc *block_dev,
 				    unsigned long start, lbaint_t blkcnt,
 				    void *buffer)
 {

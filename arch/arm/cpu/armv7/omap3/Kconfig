@@ -141,6 +141,6 @@ source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
 source "board/technexion/twister/Kconfig"
 source "board/quipos/cairo/Kconfig"
-source "board/lge/sniper/Kconfig"
+source "board/lg/sniper/Kconfig"
 
 endif

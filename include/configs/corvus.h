@@ -39,9 +39,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_OF_LIBFDT
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 #define CONFIG_AT91_GPIO
@@ -70,10 +67,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -118,23 +112,11 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_ATMEL_USBA
-
 /* DFU class support */
-#define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
-
-/* USB DFU IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0908
-#define CONFIG_G_DNL_PRODUCT_NUM 0x02d2
-#define CONFIG_G_DNL_MANUFACTURER "Siemens AG"
 
 #define CONFIG_SYS_CACHELINE_SIZE	SZ_8K
 #define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
@@ -164,7 +146,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Size of malloc() pool

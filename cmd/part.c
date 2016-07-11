@@ -29,7 +29,7 @@
 static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	disk_partition_t info;
 
 	if (argc < 2)
@@ -37,7 +37,7 @@ static int do_part_uuid(int argc, char * const argv[])
 	if (argc > 3)
 		return CMD_RET_USAGE;
 
-	part = get_device_and_partition(argv[0], argv[1], &dev_desc, &info, 0);
+	part = blk_get_device_part_str(argv[0], argv[1], &dev_desc, &info, 0);
 	if (part < 0)
 		return 1;
 
@@ -52,7 +52,7 @@ static int do_part_uuid(int argc, char * const argv[])
 static int do_part_list(int argc, char * const argv[])
 {
 	int ret;
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	char *var = NULL;
 	bool bootable = false;
 	int i;
@@ -81,7 +81,7 @@ static int do_part_list(int argc, char * const argv[])
 			return CMD_RET_USAGE;
 	}
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
@@ -92,7 +92,7 @@ static int do_part_list(int argc, char * const argv[])
 
 		for (p = 1; p < 128; p++) {
 			char t[5];
-			int r = get_partition_info(desc, p, &info);
+			int r = part_get_info(desc, p, &info);
 
 			if (r != 0)
 				continue;
@@ -107,14 +107,14 @@ static int do_part_list(int argc, char * const argv[])
 		return 0;
 	}
 
-	print_part(desc);
+	part_print(desc);
 
 	return 0;
 }
 
 static int do_part_start(int argc, char * const argv[])
 {
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
 	int part;
@@ -128,11 +128,11 @@ static int do_part_start(int argc, char * const argv[])
 
 	part = simple_strtoul(argv[2], NULL, 0);
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	err = get_partition_info(desc, part, &info);
+	err = part_get_info(desc, part, &info);
 	if (err)
 		return 1;
 
@@ -148,7 +148,7 @@ static int do_part_start(int argc, char * const argv[])
 
 static int do_part_size(int argc, char * const argv[])
 {
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
 	int part;
@@ -162,11 +162,11 @@ static int do_part_size(int argc, char * const argv[])
 
 	part = simple_strtoul(argv[2], NULL, 0);
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	err = get_partition_info(desc, part, &info);
+	err = part_get_info(desc, part, &info);
 	if (err)
 		return 1;
 

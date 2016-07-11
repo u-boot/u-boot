@@ -113,11 +113,11 @@ void fdt_fixup_qe_firmware(void *fdt);
  */
 int fdt_fixup_display(void *blob, const char *path, const char *display);
 
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
+#if defined(CONFIG_USB_EHCI_FSL) || defined(CONFIG_USB_XHCI_FSL)
 void fdt_fixup_dr_usb(void *blob, bd_t *bd);
 #else
 static inline void fdt_fixup_dr_usb(void *blob, bd_t *bd) {}
-#endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
+#endif /* defined(CONFIG_USB_EHCI_FSL) || defined(CONFIG_USB_XHCI_FSL) */
 
 #if defined(CONFIG_SYS_FSL_SEC_COMPAT)
 void fdt_fixup_crypto_node(void *blob, int sec_rev);

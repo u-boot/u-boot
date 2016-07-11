@@ -24,6 +24,10 @@ void sdelay(unsigned long);
 void return_to_fel(uint32_t lr, uint32_t sp);
 
 /* Board / SoC level designware gmac init */
-int sunxi_gmac_initialize(bd_t *bis);
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_SUNXI_GMAC
+void eth_init_board(void);
+#else
+static inline void eth_init_board(void) {}
+#endif
 
 #endif

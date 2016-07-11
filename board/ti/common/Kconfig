@@ -1,0 +1,5 @@
+config TI_I2C_BOARD_DETECT
+	bool "Support for Board detection for TI platforms"
+	help
+	   Support for detection board information on Texas Instrument's
+	   Evaluation Boards which have I2C based EEPROM detection

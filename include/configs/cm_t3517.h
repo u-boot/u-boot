@@ -51,7 +51,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_OF_LIBFDT
 /*
  * The early kernel mapping on ARM currently only maps from the base of DRAM
  * to the end of the kernel image.  The kernel is loaded at DRAM base + 0x8000.
@@ -114,17 +113,12 @@
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO 146
 #define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO 147
 #else /* !CONFIG_USB_MUSB_AM35X */
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_USB_MUSB_PIO_ONLY
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
@@ -133,12 +127,7 @@
 				"1920k(u-boot),256k(u-boot-env),"\
 				"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -206,7 +195,6 @@
 		"nand read ${loadaddr} 2a0000 400000; " \
 		"bootm ${loadaddr}\0" \
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
@@ -227,7 +215,6 @@
 #define CONFIG_TIMESTAMP
 #define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

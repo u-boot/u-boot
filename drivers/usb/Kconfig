@@ -49,9 +49,13 @@ config DM_USB
 
 source "drivers/usb/host/Kconfig"
 
+source "drivers/usb/dwc3/Kconfig"
+
 source "drivers/usb/musb-new/Kconfig"
 
 source "drivers/usb/emul/Kconfig"
+
+source "drivers/usb/ulpi/Kconfig"
 
 comment "USB peripherals"
 
@@ -87,5 +91,7 @@ choice
 endchoice
 
 endif
+
+source "drivers/usb/gadget/Kconfig"
 
 endif

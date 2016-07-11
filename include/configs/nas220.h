@@ -44,18 +44,12 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_IDE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -115,9 +109,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_NAND
 #define CONFIG_JFFS2_LZO
@@ -136,12 +127,6 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
 #endif
-
-
-/*
- * Device Tree
- */
-#define CONFIG_OF_LIBFDT
 
 /*
  * EFI partition

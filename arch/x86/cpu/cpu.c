@@ -27,6 +27,7 @@
 #include <asm/control_regs.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
+#include <asm/microcode.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -71,7 +72,7 @@ struct cpuinfo_x86 {
  * List of cpu vendor strings along with their normalized
  * id values.
  */
-static struct {
+static const struct {
 	int vendor;
 	const char *name;
 } x86_vendors[] = {
@@ -333,6 +334,16 @@ static inline void get_fms(struct cpuinfo_x86 *c, uint32_t tfms)
 		c->x86_model += ((tfms >> 16) & 0xF) << 4;
 }
 
+u32 cpu_get_family_model(void)
+{
+	return gd->arch.x86_device & 0x0fff0ff0;
+}
+
+u32 cpu_get_stepping(void)
+{
+	return gd->arch.x86_mask;
+}
+
 int x86_cpu_init_f(void)
 {
 	const u32 em_rst = ~X86_CR0_EM;
@@ -459,14 +470,14 @@ void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 __weak void reset_cpu(ulong addr)
 {
 	/* Do a hard reset through the chipset's reset control register */
-	outb(SYS_RST | RST_CPU, PORT_RESET);
+	outb(SYS_RST | RST_CPU, IO_PORT_RESET);
 	for (;;)
 		cpu_hlt();
 }
 
 void x86_full_reset(void)
 {
-	outb(FULL_RST | SYS_RST | RST_CPU, PORT_RESET);
+	outb(FULL_RST | SYS_RST | RST_CPU, IO_PORT_RESET);
 }
 
 int dcache_status(void)

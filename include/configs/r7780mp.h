@@ -21,9 +21,7 @@
  */
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 
 #define CONFIG_SCIF_CONSOLE	1
@@ -124,9 +122,6 @@
 #endif /* CONFIG_CMD_PCI */
 
 #if defined(CONFIG_CMD_NET)
-/*
-#define CONFIG_RTL8169
-*/
 /* AX88796L Support(NE2000 base chip) */
 #define CONFIG_DRIVER_AX88796L
 #define CONFIG_DRIVER_NE2000_BASE	0xA4100000

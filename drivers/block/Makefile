@@ -5,6 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_BLK) += blk-uclass.o
+
 obj-$(CONFIG_DISK) += disk-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
@@ -23,3 +25,4 @@ obj-$(CONFIG_IDE_SIL680) += sil680.o
 obj-$(CONFIG_SANDBOX) += sandbox.o
 obj-$(CONFIG_SCSI_SYM53C8XX) += sym53c8xx.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
+obj-$(CONFIG_BLOCK_CACHE) += blkcache.o

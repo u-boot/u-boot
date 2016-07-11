@@ -230,13 +230,11 @@
  */
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 
 #ifdef CONFIG_440EPX
-#define CONFIG_CMD_USB
 #endif
 
 #ifndef CONFIG_RAINIER

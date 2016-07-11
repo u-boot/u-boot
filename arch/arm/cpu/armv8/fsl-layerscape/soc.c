@@ -18,7 +18,31 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+bool soc_has_dp_ddr(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 svr = gur_in32(&gur->svr);
+
+	/* LS2085A has DP_DDR */
+	if (SVR_SOC_VER(svr) == SVR_LS2085)
+		return true;
+
+	return false;
+}
+
+bool soc_has_aiop(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 svr = gur_in32(&gur->svr);
+
+	/* LS2085A has AIOP */
+	if (SVR_SOC_VER(svr) == SVR_LS2085)
+		return true;
+
+	return false;
+}
+
+#ifdef CONFIG_LS2080A
 /*
  * This erratum requires setting a value to eddrtqcr1 to
  * optimal the DDR performance.
@@ -151,7 +175,14 @@ static void erratum_a009203(void)
 #endif
 #endif
 }
-
+void bypass_smmu(void)
+{
+	u32 val;
+	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_SCR0, val);
+	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_NSCR0, val);
+}
 void fsl_lsch3_early_init_f(void)
 {
 	erratum_a008751();
@@ -160,6 +191,15 @@ void fsl_lsch3_early_init_f(void)
 	erratum_a009203();
 	erratum_a008514();
 	erratum_a008336();
+#ifdef CONFIG_CHAIN_OF_TRUST
+	/* In case of Secure Boot, the IBR configures the SMMU
+	* to allow only Secure transactions.
+	* SMMU must be reset in bypass mode.
+	* Set the ClientPD bit and Clear the USFCFG Bit
+	*/
+	if (fsl_check_boot_mode_secure() == 1)
+		bypass_smmu();
+#endif
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT
@@ -240,7 +280,7 @@ void fsl_lsch2_early_init_f(void)
 	init_early_memctl_regs();	/* tighten IFC timing */
 #endif
 
-#ifdef CONFIG_FSL_QSPI
+#if defined(CONFIG_FSL_QSPI) && !defined(CONFIG_QSPI_BOOT)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 	/* Make SEC reads and writes snoopable */

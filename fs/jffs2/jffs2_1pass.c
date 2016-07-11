@@ -115,6 +115,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <div64.h>
+#include <linux/compiler.h>
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <watchdog.h>
@@ -1328,7 +1329,7 @@ int jffs2_sum_scan_sumnode(struct part_info *part, uint32_t offset,
 			   struct b_lists *pL)
 {
 	struct jffs2_unknown_node crcnode;
-	int ret, ofs;
+	int ret, __maybe_unused ofs;
 	uint32_t crc;
 
 	ofs = part->sector_size - sumsize;

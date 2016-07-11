@@ -30,7 +30,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_SPL_BUILD)
-inline void set_muxconf_regs_essential(void){};
+inline void set_muxconf_regs(void){};
 #endif
 
 const struct omap_sysinfo sysinfo = {

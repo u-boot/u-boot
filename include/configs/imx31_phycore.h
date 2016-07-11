@@ -18,7 +18,6 @@
 #define CONFIG_MX31			/* This is a mx31 */
 #define CONFIG_MX31_CLK32	32000
 
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -53,9 +52,7 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 
 #define CONFIG_BOOTDELAY	3
 
@@ -93,7 +90,6 @@
 	"videomode=video=ctfb:x:240,y:320,depth:16,mode:0,"		\
 		"pclk:185925,le:9,ri:17,up:7,lo:10,hs:1,vs:1,"		\
 		"sync:1241513985,vmode:0\0"
-
 
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_BASE	0xa8000000
@@ -183,7 +179,6 @@
 
 #define CONFIG_HARD_SPI
 #define CONFIG_MXC_SPI
-#define CONFIG_CMD_SPI
 
 #define CONFIG_S6E63D6
 

@@ -15,7 +15,7 @@
 int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *ep;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	int dev;
 	int part = 0;
 	disk_partition_t part_info;
@@ -39,7 +39,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		part = (int)simple_strtoul(++ep, NULL, 16);
 	}
 
-	dev_desc = get_dev(argv[1], dev);
+	dev_desc = blk_get_dev(argv[1], dev);
 	if (dev_desc == NULL) {
 		printf("Block device %s %d not supported\n", argv[1], dev);
 		return 1;
@@ -50,14 +50,14 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cnt = simple_strtoul(argv[5], NULL, 16);
 
 	if (part != 0) {
-		if (get_partition_info(dev_desc, part, &part_info)) {
+		if (part_get_info(dev_desc, part, &part_info)) {
 			printf("Cannot find partition %d\n", part);
 			return 1;
 		}
 		offset = part_info.start;
 		limit = part_info.size;
 	} else {
-		/* Largest address not available in block_dev_desc_t. */
+		/* Largest address not available in struct blk_desc. */
 		limit = ~0;
 	}
 
@@ -66,7 +66,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	if (dev_desc->block_read(dev_desc, offset + blk, cnt, addr) < 0) {
+	if (blk_read(dev_desc, offset + blk, cnt, addr) < 0) {
 		printf("Error reading blocks\n");
 		return 1;
 	}

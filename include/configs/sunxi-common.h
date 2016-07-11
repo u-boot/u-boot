@@ -56,6 +56,7 @@
 /* CPU */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_CACHELINE_SIZE	64
+#define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*
  * The DRAM Base differs between some models. We cannot use macros for the
@@ -90,7 +91,7 @@
 
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 
-#ifdef CONFIG_MACH_SUN9I
+#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
  * slightly bigger. Note that it is possible to map the first 32 KiB of the
@@ -99,7 +100,7 @@
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x0a000	/* 40 KiB */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
@@ -139,7 +140,6 @@
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
 #define CONFIG_ENV_IS_IN_MMC
@@ -174,6 +174,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 #define CONFIG_IDENT_STRING		" Allwinner Technology"
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
@@ -187,8 +188,16 @@
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
+#if defined(CONFIG_MACH_SUN9I)
+#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* ? KiB on sun9i */
+#elif defined(CONFIG_MACH_SUN50I)
+#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fe0		/* 32 KiB on sun50i */
+#else
 #define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
+#endif
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
 
@@ -196,14 +205,22 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
+#ifndef CONFIG_ARM64
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
+#endif
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	80	/* 40KiB */
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
+#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
+/* FIXME: 40 KiB instead of 32 KiB ? */
+#define LOW_LEVEL_SRAM_STACK		0x00018000
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+#else
 /* end of 32 KiB in sram */
 #define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+#endif
 
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
@@ -218,7 +235,6 @@
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
-#define CONFIG_CMD_I2C
 #endif
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
@@ -296,11 +312,6 @@ extern int soft_i2c_gpio_scl;
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 
-/* To be able to hook simplefb into dt */
-#ifdef CONFIG_VIDEO_DT_SIMPLEFB
-#define CONFIG_OF_BOARD_SETUP
-#endif
-
 #endif /* CONFIG_VIDEO */
 
 /* Ethernet support */
@@ -314,6 +325,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PHY_GIGE			/* GMAC can use gigabit PHY	*/
 #define CONFIG_PHY_ADDR		1
 #define CONFIG_MII			/* MII PHY management		*/
+#define CONFIG_PHY_REALTEK
 #endif
 
 #ifdef CONFIG_USB_EHCI_HCD
@@ -328,24 +340,12 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-
-#define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #endif
 
-#ifdef CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_G_DNL_VENDOR_NUM		0x1f3a
-#define CONFIG_G_DNL_PRODUCT_NUM	0x1010
-#define CONFIG_G_DNL_MANUFACTURER	"Allwinner Technology"
-#endif
-
 #ifdef CONFIG_USB_FUNCTION_DFU
-#define CONFIG_CMD_DFU
 #define CONFIG_DFU_RAM
 #endif
 
@@ -364,7 +364,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_CMD_USB_MASS_STORAGE
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD

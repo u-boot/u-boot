@@ -48,7 +48,6 @@ struct vfsmount;
 #define INODE_LOCKED_MAX	64
 
 struct super_block *ubifs_sb;
-LIST_HEAD(super_blocks);
 
 static struct inode *inodes_locked_down[INODE_LOCKED_MAX];
 
@@ -2425,10 +2424,10 @@ retry:
 	s->s_type = type;
 #ifndef __UBOOT__
 	strlcpy(s->s_id, type->name, sizeof(s->s_id));
+	list_add_tail(&s->s_list, &super_blocks);
 #else
 	strncpy(s->s_id, type->name, sizeof(s->s_id));
 #endif
-	list_add_tail(&s->s_list, &super_blocks);
 	hlist_add_head(&s->s_instances, &type->fs_supers);
 #ifndef __UBOOT__
 	spin_unlock(&sb_lock);

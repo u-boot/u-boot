@@ -19,6 +19,7 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/hi6220.h>
+#include <asm/armv8/mmu.h>
 
 /*TODO drop this table in favour of device tree */
 static const struct hikey_gpio_platdata hi6220_gpio[] = {
@@ -70,13 +71,15 @@ U_BOOT_DEVICES(hi6220_gpios) = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+
 static const struct pl01x_serial_platdata serial_platdata = {
 #if CONFIG_CONS_INDEX == 1
 	.base = HI6220_UART0_BASE,
 #elif CONFIG_CONS_INDEX == 4
 	.base = HI6220_UART3_BASE,
 #else
-#error "Unsuported console index value."
+#error "Unsupported console index value."
 #endif
 	.type = TYPE_PL011,
 	.clock = 19200000
@@ -86,6 +89,27 @@ U_BOOT_DEVICE(hikey_seriala) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#endif
+
+static struct mm_region hikey_mem_map[] = {
+	{
+		.base = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.base = 0x80000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = hikey_mem_map;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_uart_init(void)
@@ -386,12 +410,40 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
+	/*
+	 * Reserve regions below from DT memory node (which gets generated
+	 * by U-Boot from the dram banks in arch_fixup_fdt() before booting
+	 * the kernel. This will then match the kernel hikey dts memory node.
+	 *
+	 *  0x05e0,0000 - 0x05ef,ffff: MCU firmware runtime using
+	 *  0x05f0,1000 - 0x05f0,1fff: Reboot reason
+	 *  0x06df,f000 - 0x06df,ffff: Mailbox message data
+	 *  0x0740,f000 - 0x0740,ffff: MCU firmware section
+	 *  0x21f0,0000 - 0x21ff,ffff: pstore/ramoops buffer
+	 *  0x3e00,0000 - 0x3fff,ffff: OP-TEE
+	*/
+
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	gd->bd->bi_dram[0].size = 0x05e00000;
+
+	gd->bd->bi_dram[1].start = 0x05f00000;
+	gd->bd->bi_dram[1].size = 0x00001000;
+
+	gd->bd->bi_dram[2].start = 0x05f02000;
+	gd->bd->bi_dram[2].size = 0x00efd000;
+
+	gd->bd->bi_dram[3].start = 0x06e00000;
+	gd->bd->bi_dram[3].size = 0x0060f000;
+
+	gd->bd->bi_dram[4].start = 0x07410000;
+	gd->bd->bi_dram[4].size = 0x1aaf0000;
+
+	gd->bd->bi_dram[5].start = 0x22000000;
+	gd->bd->bi_dram[5].size = 0x1c000000;
 }
 
-/* Use the Watchdog to cause reset */
 void reset_cpu(ulong addr)
 {
-	/* TODO program the watchdog */
+	writel(0x48698284, &ao_sc->stat0);
+	wfi();
 }

@@ -50,4 +50,12 @@
 #define OTG_FORCESTDBY		0x414
 #	define	ENABLEFORCE		(1 << 0)
 
+/*
+ * OMAP4-specific definitions
+ */
+
+#define USBOTGHS_CONTROL_AVALID		(1 << 0)
+#define USBOTGHS_CONTROL_VBUSVALID	(1 << 2)
+#define USBOTGHS_CONTROL_IDDIG		(1 << 4)
+
 #endif	/* __MUSB_OMAP243X_H__ */

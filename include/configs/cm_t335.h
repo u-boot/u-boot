@@ -19,7 +19,6 @@
 #undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_SPI
 #undef CONFIG_OMAP3_SPI
-#undef CONFIG_CMD_SPI
 #undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_BOOTCOUNT_LIMIT
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
@@ -63,7 +62,6 @@
 		"run nandargs; " \
 		"nboot ${loadaddr} nand0 900000; " \
 		"bootm ${loadaddr}\0"
-
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=82000000\0" \

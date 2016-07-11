@@ -82,12 +82,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* U-Boot commands */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -112,7 +106,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -123,10 +116,6 @@
 #define CONFIG_CMD_DATE
 
 /* Ethernet Configs */
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 
 #define CONFIG_BOOTDELAY	1
 
@@ -225,7 +214,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_MAXARGS	       16

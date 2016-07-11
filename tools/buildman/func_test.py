@@ -255,6 +255,8 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(gitutil.use_no_decorate, True)
 
     def _HandleCommandGitLog(self, args):
+        if args[-1] == '--':
+            args = args[:-1]
         if '-n0' in args:
             return command.CommandResult(return_code=0)
         elif args[-1] == 'upstream/master..%s' % self._test_branch:

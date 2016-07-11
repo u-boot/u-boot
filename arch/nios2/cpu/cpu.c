@@ -63,11 +63,9 @@ int arch_cpu_init_dm(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_CPU, &dev);
+	ret = uclass_first_device_err(UCLASS_CPU, &dev);
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 #ifndef CONFIG_ROM_STUBS

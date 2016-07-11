@@ -39,7 +39,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
@@ -55,7 +54,6 @@
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup	*/
 #define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support	*/
-#define CONFIG_LOOPW		1	/* enable loopw command	*/
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */

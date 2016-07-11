@@ -65,7 +65,6 @@
 #ifdef CONFIG_SPI_FLASH
 
 /* SPI */
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
   #define CONFIG_MXC_SPI
   #define CONFIG_SPI_FLASH_MTD
@@ -79,7 +78,6 @@
 
 #else
 /* Enable NAND support */
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 #ifdef CONFIG_CMD_NAND
@@ -97,12 +95,7 @@
 
 #endif /* CONFIG_SPI_FLASH */
 
-/* Flattened Image Tree Suport */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
-
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -156,9 +149,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
@@ -176,7 +166,6 @@
 #define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -188,25 +177,14 @@
 #define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS      0
 #define CONFIG_USB_KEYBOARD
-#define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 /* USB Mass Storage Gadget */
-#define CONFIG_USB_GADGET
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW    2
-
-/* Netchip IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_PRODUCT_NUM 0xa4a5
-#define CONFIG_G_DNL_MANUFACTURER "Gateworks"
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO
@@ -442,7 +420,6 @@
 	"done"
 
 /* Device Tree Support */
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FDT_FIXUP_PARTITIONS
 
 #endif			       /* __CONFIG_H */

@@ -72,4 +72,5 @@ void main_loop(void)
 	autoboot_command(s);
 
 	cli_loop();
+	panic("No CLI available");
 }

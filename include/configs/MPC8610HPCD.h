@@ -20,7 +20,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
-
 /* video */
 #define CONFIG_FSL_DIU_FB
 
@@ -46,7 +45,7 @@
 #define CONFIG_SYS_SCRATCH_VA	0xc0000000
 
 #define CONFIG_PCI		1	/* Enable PCI/PCIE*/
-#define CONFIG_PCI1		1	/* PCI controler 1 */
+#define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIe 1 connected to ULI bridge */
 #define CONFIG_PCIE2		1	/* PCIe 2 connected to slot */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
@@ -136,13 +135,11 @@
 
 #endif
 
-
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-
 
 #define CONFIG_SYS_FLASH_BASE		0xf0000000 /* start of FLASH 128M */
 #define CONFIG_SYS_FLASH_BASE2		0xf8000000
@@ -160,7 +157,6 @@
 #endif
 #define CONFIG_SYS_BR3_PRELIM		0xe8000801 /* port size 8bit */
 #define CONFIG_SYS_OR3_PRELIM		0xfff06ff7 /* 1MB PIXIS area*/
-
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xe8000000	/* PIXIS registers */
@@ -233,17 +229,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
- * Pass open firmware flat tree to kernel
- */
-#define CONFIG_OF_LIBFDT		1
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
 
@@ -287,7 +272,6 @@
 #define CONFIG_SYS_PCIE2_IO_BUS		0x00000000	/* reuse mem LAW */
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00100000	/* 1M */
-
 
 #if defined(CONFIG_PCI)
 
@@ -397,7 +381,6 @@
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCIE2_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT4U	CONFIG_SYS_DBAT4U
 
-
 /*
  * BAT5		128K	Cacheable, non-guarded
  * 0xe400_0000	128K	Init RAM for stack in the CPU DCache (no backing memory)
@@ -435,7 +418,6 @@
 #define CONFIG_SYS_IBAT7L	(PIXIS_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT7U	CONFIG_SYS_DBAT7U
 
-
 /*
  * Environment
  */
@@ -453,7 +435,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-
 /*
  * BOOTP options
  */
@@ -462,21 +443,14 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SCSI
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_USB
 #endif
-
 
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */

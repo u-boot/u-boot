@@ -6,12 +6,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 #include "mx6_common.h"
-
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
@@ -120,7 +118,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -151,9 +148,6 @@
 #define CONFIG_APBH_DMA_BURST8
 
 /* Network */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -167,8 +161,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
-
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -183,11 +175,8 @@
 
 #define CONFIG_IMX_THERMAL
 
-#define CONFIG_CMD_TIME
-
 #define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SYS_FSL_QSPI_AHB
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0

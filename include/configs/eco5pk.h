@@ -18,7 +18,6 @@
 #undef CONFIG_USB_EHCI
 #undef CONFIG_USB_EHCI_OMAP
 #undef CONFIG_USB_OMAP3
-#undef CONFIG_CMD_USB
 
 /* Our console port is port3 */
 #undef CONFIG_CONS_INDEX
@@ -58,6 +57,5 @@
 				"nand write $fileaddr kernel; fi\0" \
 	"mtdparts="MTDPARTS_DEFAULT"\0" \
 	"serverip=192.168.142.60\0"
-
 
 #endif /* __CONFIG_H */

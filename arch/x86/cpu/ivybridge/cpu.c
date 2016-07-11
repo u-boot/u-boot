@@ -17,15 +17,18 @@
 #include <fdtdec.h>
 #include <pch.h>
 #include <asm/cpu.h>
+#include <asm/cpu_common.h>
+#include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
+#include <asm/lpc_common.h>
+#include <asm/microcode.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/arch/model_206ax.h>
-#include <asm/arch/microcode.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
@@ -33,51 +36,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int set_flex_ratio_to_tdp_nominal(void)
 {
-	msr_t flex_ratio, msr;
-	u8 nominal_ratio;
-
 	/* Minimum CPU revision for configurable TDP support */
 	if (cpuid_eax(1) < IVB_CONFIG_TDP_MIN_CPUID)
 		return -EINVAL;
 
-	/* Check for Flex Ratio support */
-	flex_ratio = msr_read(MSR_FLEX_RATIO);
-	if (!(flex_ratio.lo & FLEX_RATIO_EN))
-		return -EINVAL;
-
-	/* Check for >0 configurable TDPs */
-	msr = msr_read(MSR_PLATFORM_INFO);
-	if (((msr.hi >> 1) & 3) == 0)
-		return -EINVAL;
-
-	/* Use nominal TDP ratio for flex ratio */
-	msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
-	nominal_ratio = msr.lo & 0xff;
-
-	/* See if flex ratio is already set to nominal TDP ratio */
-	if (((flex_ratio.lo >> 8) & 0xff) == nominal_ratio)
-		return 0;
-
-	/* Set flex ratio to nominal TDP ratio */
-	flex_ratio.lo &= ~0xff00;
-	flex_ratio.lo |= nominal_ratio << 8;
-	flex_ratio.lo |= FLEX_RATIO_LOCK;
-	msr_write(MSR_FLEX_RATIO, flex_ratio);
-
-	/* Set flex ratio in soft reset data register bits 11:6 */
-	clrsetbits_le32(RCB_REG(SOFT_RESET_DATA), 0x3f << 6,
-			(nominal_ratio & 0x3f) << 6);
-
-	/* Set soft reset control to use register value */
-	setbits_le32(RCB_REG(SOFT_RESET_CTRL), 1);
-
-	/* Issue warm reset, will be "CPU only" due to soft reset data */
-	outb(0x0, PORT_RESET);
-	outb(SYS_RST | RST_CPU, PORT_RESET);
-	cpu_hlt();
-
-	/* Not reached */
-	return -EINVAL;
+	return cpu_set_flex_ratio_to_tdp_nominal();
 }
 
 int arch_cpu_init(void)
@@ -104,9 +67,9 @@ int arch_cpu_init_dm(void)
 	/* TODO(sjg@chromium.org): Get rid of gd->hose */
 	gd->hose = hose;
 
-	ret = uclass_first_device(UCLASS_LPC, &dev);
-	if (!dev)
-		return -ENODEV;
+	ret = uclass_first_device_err(UCLASS_LPC, &dev);
+	if (ret)
+		return ret;
 
 	/*
 	 * We should do as little as possible before the serial console is
@@ -162,17 +125,6 @@ static void enable_usb_bar(struct udevice *bus)
 	pci_bus_write_config(bus, usb3, PCI_COMMAND, cmd, PCI_SIZE_32);
 }
 
-static int report_bist_failure(void)
-{
-	if (gd->arch.bist != 0) {
-		post_code(POST_BIST_FAILURE);
-		printf("BIST failed: %08x\n", gd->arch.bist);
-		return -EFAULT;
-	}
-
-	return 0;
-}
-
 int print_cpuinfo(void)
 {
 	enum pei_boot_mode_t boot_mode = PEI_BOOT_NONE;
@@ -182,20 +134,6 @@ int print_cpuinfo(void)
 	uint32_t pm1_cnt;
 	uint16_t pm1_sts;
 	int ret;
-
-	/* Halt if there was a built in self test failure */
-	ret = report_bist_failure();
-	if (ret)
-		return ret;
-
-	enable_lapic();
-
-	ret = microcode_update_intel();
-	if (ret)
-		return ret;
-
-	/* Enable upper 128bytes of CMOS */
-	writel(1 << 2, RCB_REG(RC));
 
 	/* TODO: cmos_post_init() */
 	if (readl(MCHBAR_REG(SSKPD)) == 0xCAFE) {
@@ -207,17 +145,9 @@ int print_cpuinfo(void)
 		reset_cpu(0);
 	}
 
-	/* Early chipset init required before RAM init can work */
-	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
-
-	ret = uclass_first_device(UCLASS_LPC, &lpc);
+	ret = cpu_common_init();
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
-
-	/* Cause the SATA device to do its early init */
-	uclass_first_device(UCLASS_DISK, &dev);
 
 	/* Check PM1_STS[15] to see if we are waking from Sx */
 	pm1_sts = inw(DEFAULT_PMBASE + PM1_STS);
@@ -236,15 +166,15 @@ int print_cpuinfo(void)
 	post_code(POST_EARLY_INIT);
 
 	/* Enable SPD ROMs and DDR-III DRAM */
-	ret = uclass_first_device(UCLASS_I2C, &dev);
+	ret = uclass_first_device_err(UCLASS_I2C, &dev);
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
 
 	/* Prepare USB controller early in S3 resume */
-	if (boot_mode == PEI_BOOT_RESUME)
+	if (boot_mode == PEI_BOOT_RESUME) {
+		uclass_first_device(UCLASS_LPC, &lpc);
 		enable_usb_bar(pci_get_controller(lpc->parent));
+	}
 
 	gd->arch.pei_boot_mode = boot_mode;
 

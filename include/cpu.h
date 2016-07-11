@@ -15,15 +15,20 @@
  * device.
  *
  * @cpu_id:	Platform-specific way of identifying the CPU.
+ * @ucode_version: Microcode version, if CPU_FEAT_UCODE is set
  */
 struct cpu_platdata {
 	int cpu_id;
+	int ucode_version;
+	ulong device_id;
 };
 
 /* CPU features - mostly just a placeholder for now */
 enum {
 	CPU_FEAT_L1_CACHE	= 0,	/* Supports level 1 cache */
 	CPU_FEAT_MMU		= 1,	/* Supports virtual memory */
+	CPU_FEAT_UCODE		= 2,	/* Requires/uses microcode */
+	CPU_FEAT_DEVICE_ID	= 3,	/* Provides a device ID */
 
 	CPU_FEAT_COUNT,
 };

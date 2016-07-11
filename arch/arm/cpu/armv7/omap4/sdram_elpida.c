@@ -147,14 +147,14 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 
 #else
 
-static const struct lpddr2_device_details elpida_2G_S4_details = {
+const struct lpddr2_device_details elpida_2G_S4_details = {
 	.type		= LPDDR2_TYPE_S4,
 	.density	= LPDDR2_DENSITY_2Gb,
 	.io_width	= LPDDR2_IO_WIDTH_32,
 	.manufacturer	= LPDDR2_MANUFACTURER_ELPIDA
 };
 
-static const struct lpddr2_device_details elpida_4G_S4_details = {
+const struct lpddr2_device_details elpida_4G_S4_details = {
 	.type		= LPDDR2_TYPE_S4,
 	.density	= LPDDR2_DENSITY_4Gb,
 	.io_width	= LPDDR2_IO_WIDTH_32,
@@ -278,7 +278,7 @@ static const struct lpddr2_ac_timings *elpida_ac_timings[MAX_NUM_SPEEDBINS] = {
 		&timings_elpida_400_mhz
 };
 
-static const struct lpddr2_device_timings elpida_2G_S4_timings = {
+const struct lpddr2_device_timings elpida_2G_S4_timings = {
 	.ac_timings	= elpida_ac_timings,
 	.min_tck	= &min_tck_elpida,
 };

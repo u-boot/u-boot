@@ -277,9 +277,17 @@ static int gpio_sunxi_bind(struct udevice *parent)
 		start = 'L' - 'A';
 		no_banks = 2; /* L & M */
 	} else if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
-				"allwinner,sun8i-a23-r-pinctrl") == 0) {
+				"allwinner,sun8i-a23-r-pinctrl") == 0 ||
+		   fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
+				"allwinner,sun8i-a83t-r-pinctrl") == 0 ||
+		   fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
+				"allwinner,sun8i-h3-r-pinctrl") == 0) {
 		start = 'L' - 'A';
 		no_banks = 1; /* L only */
+	} else if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
+				"allwinner,sun9i-a80-r-pinctrl") == 0) {
+		start = 'L' - 'A';
+		no_banks = 3; /* L, M & N */
 	} else {
 		start = 0;
 		no_banks = SUNXI_GPIO_BANKS;
@@ -316,9 +324,14 @@ static const struct udevice_id sunxi_gpio_ids[] = {
 	{ .compatible = "allwinner,sun7i-a20-pinctrl" },
 	{ .compatible = "allwinner,sun8i-a23-pinctrl" },
 	{ .compatible = "allwinner,sun8i-a33-pinctrl" },
+	{ .compatible = "allwinner,sun8i-a83t-pinctrl", },
+	{ .compatible = "allwinner,sun8i-h3-pinctrl" },
 	{ .compatible = "allwinner,sun9i-a80-pinctrl" },
 	{ .compatible = "allwinner,sun6i-a31-r-pinctrl" },
 	{ .compatible = "allwinner,sun8i-a23-r-pinctrl" },
+	{ .compatible = "allwinner,sun8i-a83t-r-pinctrl" },
+	{ .compatible = "allwinner,sun8i-h3-r-pinctrl", },
+	{ .compatible = "allwinner,sun9i-a80-r-pinctrl", },
 	{ }
 };
 

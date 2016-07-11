@@ -65,24 +65,14 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_CACHE	/* icache, dcache		*/
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_DNS
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII		/* MII support			*/
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING		/* ping support			*/
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
@@ -148,11 +138,8 @@
 						/* Boot argument buffer size */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER			/* enable the "hush" shell */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "	/* secondary prompt string */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_PREBOOT			"run check_flash check_env;"
-
 
 /*
  * Boot Linux
@@ -160,8 +147,6 @@
 #define CONFIG_CMDLINE_TAG		/* send commandline to Kernel	*/
 #define CONFIG_SETUP_MEMORY_TAGS	/* send memory definition to kernel */
 #define CONFIG_INITRD_TAG		/* send initrd params	*/
-
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ZERO_BOOTDELAY_CHECK

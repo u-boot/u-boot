@@ -38,6 +38,7 @@ struct efi_device_path;
 #define EFI_WRITE_PROTECTED	(8 | (1UL << (BITS_PER_LONG - 1)))
 #define EFI_OUT_OF_RESOURCES	(9 | (1UL << (BITS_PER_LONG - 1)))
 #define EFI_NOT_FOUND		(14 | (1UL << (BITS_PER_LONG - 1)))
+#define EFI_ACCESS_DENIED	(15 | (1UL << (BITS_PER_LONG - 1)))
 #define EFI_SECURITY_VIOLATION	(26 | (1UL << (BITS_PER_LONG - 1)))
 
 typedef unsigned long efi_status_t;
@@ -139,6 +140,7 @@ enum {
 
 #define EFI_PAGE_SHIFT		12
 #define EFI_PAGE_SIZE		(1UL << EFI_PAGE_SHIFT)
+#define EFI_PAGE_MASK		(EFI_PAGE_SIZE - 1)
 
 struct efi_mem_desc {
 	u32 type;

@@ -22,17 +22,11 @@
  */
 
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_USB
 
 /*
  * Hardware configuration

@@ -17,4 +17,7 @@ config CONS_INDEX
 	  The DRA7xx (and AM57x) SoC has a total of 6 UARTs available to it.
 	  Depending on your specific board you may want something other than UART1
 	  here.
+
+source "board/ti/common/Kconfig"
+
 endif

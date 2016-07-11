@@ -88,8 +88,11 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_ENV_IS_NOWHERE
+/* must fit into GPT:u-boot-env partition */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_OFFSET		(0x00011a00 * 512)
+#define CONFIG_ENV_SIZE			(8 * 512)
 
 #define CONFIG_SYS_NO_FLASH	/* Not using NAND/NOR unmanaged flash */
 
@@ -111,7 +114,6 @@
 /* version string, parser, etc */
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
@@ -122,12 +124,6 @@
 #define CONFIG_BOOTCOMMAND		""
 
 /* Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_FAT_WRITE
 
 /* Fastboot and USB OTG */
@@ -138,15 +134,7 @@
 #define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_FASTBOOT_BUF_SIZE	(CONFIG_SYS_SDRAM_SIZE - SZ_1M)
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-#define CONFIG_USB_GADGET_DWC2_OTG
 #define CONFIG_USB_GADGET_BCM_UDC_OTG_PHY
-#define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USBID_ADDR		0x34052c46
-#define CONFIG_G_DNL_VENDOR_NUM		0x18d1	/* google */
-#define CONFIG_G_DNL_PRODUCT_NUM	0x0d02	/* nexus one */
-#define CONFIG_G_DNL_MANUFACTURER	"Broadcom Corporation"
 
 #endif /* __BCM28155_AP_H */

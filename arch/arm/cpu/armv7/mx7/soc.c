@@ -165,12 +165,30 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 	return val;
 }
 
+static bool is_mx7d(void)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+	int val;
+
+	val = readl(&fuse->tester4);
+	if (val & 1)
+		return false;
+	else
+		return true;
+}
+
 u32 get_cpu_rev(void)
 {
 	struct mxc_ccm_anatop_reg *ccm_anatop = (struct mxc_ccm_anatop_reg *)
 						 ANATOP_BASE_ADDR;
 	u32 reg = readl(&ccm_anatop->digprog);
 	u32 type = (reg >> 16) & 0xff;
+
+	if (!is_mx7d())
+		type = MXC_CPU_MX7S;
 
 	reg &= 0xff;
 	return (type << 12) | reg;

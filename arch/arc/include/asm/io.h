@@ -239,4 +239,9 @@ static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
+static inline phys_addr_t virt_to_phys(void *vaddr)
+{
+	return (phys_addr_t)((unsigned long)vaddr);
+}
+
 #endif	/* __ASM_ARC_IO_H */

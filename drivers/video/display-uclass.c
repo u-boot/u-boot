@@ -36,6 +36,9 @@ int display_read_timing(struct udevice *dev, struct display_timing *timing)
 	u8 buf[EDID_EXT_SIZE];
 	int ret;
 
+	if (ops && ops->read_timing)
+		return ops->read_timing(dev, timing);
+
 	if (!ops || !ops->read_edid)
 		return -ENOSYS;
 	ret = ops->read_edid(dev, buf, sizeof(buf));

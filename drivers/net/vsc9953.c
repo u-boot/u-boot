@@ -335,7 +335,7 @@ static int vsc9953_port_vlan_pvid_get(int port_nr, int *pvid)
 	struct vsc9953_analyzer *l2ana_reg;
 
 	/* Administrative down */
-	if (vsc9953_l2sw.port[port_nr].enabled) {
+	if (!vsc9953_l2sw.port[port_nr].enabled) {
 		printf("Port %d is administrative down\n", port_nr);
 		return -1;
 	}
@@ -2525,6 +2525,9 @@ void vsc9953_init(bd_t *bis)
 		if (vsc9953_port_init(i))
 			printf("Failed to initialize l2switch port %d\n", i);
 
+		if (!vsc9953_l2sw.port[i].enabled)
+			continue;
+
 		/* Enable VSC9953 GMII Ports Port ID 0 - 7 */
 		if (VSC9953_INTERNAL_PORT_CHECK(i)) {
 			out_le32(&l2ana_reg->pfc[i].pfc_cfg,
@@ -2537,6 +2540,11 @@ void vsc9953_init(bd_t *bis)
 			out_le32(&l2sys_reg->pause_cfg.mac_fc_cfg[i],
 				 VSC9953_MAC_FC_CFG);
 		}
+
+		l2dev_gmii_reg = (struct vsc9953_dev_gmii *)
+				 (VSC9953_OFFSET + VSC9953_DEV_GMII_OFFSET +
+				 T1040_SWITCH_GMII_DEV_OFFSET * i);
+
 		out_le32(&l2dev_gmii_reg->port_mode.clock_cfg,
 			 VSC9953_CLOCK_CFG);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_ena_cfg,
@@ -2558,10 +2566,6 @@ void vsc9953_init(bd_t *bis)
 			 VSC9953_PAUSE_CFG);
 		/* WAIT FOR 2 us*/
 		udelay(2);
-
-		l2dev_gmii_reg = (struct vsc9953_dev_gmii *)(
-				(char *)l2dev_gmii_reg
-				+ T1040_SWITCH_GMII_DEV_OFFSET);
 
 		/* Initialize Lynx PHY Wrappers */
 		phy_addr = 0;

@@ -1,5 +1,5 @@
 AT91RM9200EK BOARD
-M:	Andreas Bießmann <andreas.devel@gmail.com>
+M:	Andreas Bießmann <andreas@biessmann.org>
 S:	Maintained
 F:	board/atmel/at91rm9200ek/
 F:	include/configs/at91rm9200ek.h

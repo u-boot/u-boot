@@ -320,7 +320,7 @@ int poll_toggle_bit(long lOffset)
 		}
 		timeout--;
 	}
-	printf("Time out occured \n");
+	printf("Time out occurred \n");
 	if (timeout < 0)
 		return FLASH_FAIL;
 }

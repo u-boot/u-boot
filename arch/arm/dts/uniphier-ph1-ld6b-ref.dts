@@ -9,6 +9,7 @@
 /dts-v1/;
 /include/ "uniphier-ph1-ld6b.dtsi"
 /include/ "uniphier-ref-daughter.dtsi"
+/include/ "uniphier-support-card.dtsi"
 
 / {
 	model = "UniPhier PH1-LD6b Reference Board";
@@ -35,6 +36,10 @@
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
 	};
+};
+
+&ethsc {
+	interrupts = <0 52 4>;
 };
 
 &serial0 {

@@ -360,7 +360,7 @@ int run_descriptor_jr(uint32_t *desc)
 		}
 	}
 
-	if (!op.status) {
+	if (op.status) {
 		debug("Error %x\n", op.status);
 		ret = op.status;
 	}
@@ -543,7 +543,20 @@ int sec_init(void)
 	uint32_t liodn_s;
 #endif
 
+	/*
+	 * Modifying CAAM Read/Write Attributes
+	 * For LS2080A
+	 * For AXI Write - Cacheable, Write Back, Write allocate
+	 * For AXI Read - Cacheable, Read allocate
+	 * Only For LS2080a, to solve CAAM coherency issues
+	 */
+#ifdef CONFIG_LS2080A
+	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0xb << MCFGR_AWCACHE_SHIFT);
+	mcr = (mcr & ~MCFGR_ARCACHE_MASK) | (0x6 << MCFGR_ARCACHE_SHIFT);
+#else
 	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
+#endif
+
 #ifdef CONFIG_PHYS_64BIT
 	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif

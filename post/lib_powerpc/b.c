@@ -12,7 +12,7 @@
  * Branch instructions:		b, bl, bc
  *
  * The first 2 instructions (b, bl) are verified by jumping
- * to a fixed address and checking whether control was transfered
+ * to a fixed address and checking whether control was transferred
  * to that very point. For the bl instruction the value of the
  * link register is checked as well (using mfspr).
  * To verify the bc instruction various combinations of the BI/BO

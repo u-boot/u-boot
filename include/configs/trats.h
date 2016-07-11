@@ -14,7 +14,6 @@
 
 #define CONFIG_TRATS
 
-
 #define CONFIG_TIZEN			/* TIZEN lib */
 
 #define CONFIG_SYS_L2CACHE_OFF
@@ -49,8 +48,6 @@
 #define MACH_TYPE_TRATS			3928
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run autoboot"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
@@ -185,8 +182,6 @@
 
 /* I2C */
 #include <asm/arch/gpio.h>
-
-#define CONFIG_CMD_I2C
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_S3C24X0

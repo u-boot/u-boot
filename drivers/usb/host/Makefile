@@ -43,6 +43,7 @@ obj-$(CONFIG_USB_EHCI_MX7) += ehci-mx6.o
 obj-$(CONFIG_USB_EHCI_OMAP) += ehci-omap.o
 obj-$(CONFIG_USB_EHCI_PPC4XX) += ehci-ppc4xx.o
 obj-$(CONFIG_USB_EHCI_MARVELL) += ehci-marvell.o
+obj-$(CONFIG_USB_EHCI_MSM) += ehci-msm.o
 obj-$(CONFIG_USB_EHCI_PCI) += ehci-pci.o
 obj-$(CONFIG_USB_EHCI_SPEAR) += ehci-spear.o
 obj-$(CONFIG_USB_EHCI_SUNXI) += ehci-sunxi.o

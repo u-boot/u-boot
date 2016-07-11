@@ -8,7 +8,6 @@
 #ifndef _CONFIG_MARVELL_PLUG_H
 #define _CONFIG_MARVELL_PLUG_H
 
-
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -24,13 +23,7 @@
 #ifdef CONFIG_SYS_MVFS
 #define CONFIG_BZIP2
 #define CONFIG_LZMA
-#define CONFIG_CMD_BOOTZ
 #endif /* CONFIG_SYS_MVFS */
-
-/*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
 
 /*
  * Commands configuration
@@ -39,12 +32,10 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 
 /*
  * Extra file system
  */
-#define CONFIG_CMD_EXT4
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

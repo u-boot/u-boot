@@ -19,8 +19,6 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_FIT
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /*
@@ -30,24 +28,12 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_USB
 #define CONFIG_VIDEO
-
 
 /*
  * Memory configurations
@@ -87,7 +73,6 @@
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 #define CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Serial Driver
@@ -247,7 +232,6 @@
 #define CONFIG_LOADADDR		0x70800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_OF_LIBFDT
 
 /*
  * NAND SPL

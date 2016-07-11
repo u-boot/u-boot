@@ -74,7 +74,6 @@
  */
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
-#define CONFIG_CMD_MII		/* enable probing PHY */
 
 #define CONFIG_HOSTNAME	blackvme	/* Bfin board  */
 #define CONFIG_IPADDR		169.254.144.145	/* Bfin board  */
@@ -83,8 +82,6 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_ROOTPATH		"/export/uClinux-dist/romfs"	/*NFS*/
 #define CFG_AUTOLOAD		"no"
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 /*
  * SDRAM settings & memory map
@@ -152,9 +149,7 @@
 #define CONFIG_AUTO_COMPLETE	1
 
 #define CONFIG_CMD_BOOTLDR
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
-#define CONFIG_CMD_SF
 
 /*
  * Default: boot from SPI flash.
@@ -218,7 +213,6 @@
  * PF12,13 on SPI connector 0.
  */
 #ifdef CONFIG_SYS_I2C_SOFT
-# define CONFIG_CMD_I2C
 # define CONFIG_SOFT_I2C_GPIO_SCL	GPIO_PF12
 # define CONFIG_SOFT_I2C_GPIO_SDA	GPIO_PF13
 # define CONFIG_SYS_I2C_SPEED		50000

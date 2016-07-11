@@ -19,9 +19,7 @@ config SYS_CONFIG_NAME
 
 config ZYNQMP_QSPI
 	bool "Configure ZynqMP QSPI"
-
-config NAND_ARASAN
-	bool "Configure Arasan Nand"
+	select DM_SPI
 
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"

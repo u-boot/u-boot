@@ -9,7 +9,6 @@
 #include <common.h>
 #include <asm/e820.h>
 #include <asm/arch/sysinfo.h>
-#include <asm/arch/tables.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

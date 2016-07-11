@@ -97,9 +97,13 @@ void get_sys_info(struct sys_info *sys_info)
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	sys_info->freq_ddrbus2 *= (gur_in32(&gur->rcwsr[0]) >>
+	if (soc_has_dp_ddr()) {
+		sys_info->freq_ddrbus2 *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_MASK;
+	} else {
+		sys_info->freq_ddrbus2 = 0;
+	}
 #endif
 
 	for (i = 0; i < CONFIG_SYS_FSL_NUM_CC_PLLS; i++) {
@@ -176,7 +180,7 @@ ulong get_ddr_freq(ulong ctrl_num)
 
 	/*
 	 * DDR controller 0 & 1 are on memory complex 0
-	 * DDR controler 2 is on memory complext 1
+	 * DDR controller 2 is on memory complext 1
 	 */
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	if (ctrl_num >= 2)

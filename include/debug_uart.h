@@ -117,13 +117,15 @@ void printhex8(uint value);
 #define DEBUG_UART_FUNCS \
 	void printch(int ch) \
 	{ \
+		if (ch == '\n') \
+			_debug_uart_putc('\r'); \
 		_debug_uart_putc(ch); \
 	} \
 \
 	void printascii(const char *str) \
 	{ \
 		while (*str) \
-			_debug_uart_putc(*str++); \
+			printch(*str++); \
 	} \
 \
 	static inline void printhex1(uint digit) \

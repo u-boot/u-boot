@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
+#include <asm/arch/sys_proto.h>
 #include <spl.h>
 
 static u32 boot_devices[] = {
@@ -57,4 +58,48 @@ u32 omap_sys_boot_device(void)
 		return BOOT_DEVICE_NONE;
 
 	return boot_devices[sys_boot];
+}
+
+int omap_reboot_mode(char *mode, unsigned int length)
+{
+	unsigned int limit;
+	unsigned int i;
+
+	if (length < 2)
+		return -1;
+
+	if (!warm_reset())
+		return -1;
+
+	limit = (length < OMAP_REBOOT_REASON_SIZE) ? length :
+		OMAP_REBOOT_REASON_SIZE;
+
+	for (i = 0; i < (limit - 1); i++)
+		mode[i] = readb((u8 *)(OMAP44XX_SAR_RAM_BASE +
+			OMAP_REBOOT_REASON_OFFSET + i));
+
+	mode[i] = '\0';
+
+	return 0;
+}
+
+int omap_reboot_mode_clear(void)
+{
+	writeb(0, (u8 *)(OMAP44XX_SAR_RAM_BASE + OMAP_REBOOT_REASON_OFFSET));
+
+	return 0;
+}
+
+int omap_reboot_mode_store(char *mode)
+{
+	unsigned int i;
+
+	for (i = 0; i < (OMAP_REBOOT_REASON_SIZE - 1) && mode[i] != '\0'; i++)
+		writeb(mode[i], (u8 *)(OMAP44XX_SAR_RAM_BASE +
+			OMAP_REBOOT_REASON_OFFSET + i));
+
+	writeb('\0', (u8 *)(OMAP44XX_SAR_RAM_BASE +
+		OMAP_REBOOT_REASON_OFFSET + i));
+
+	return 0;
 }

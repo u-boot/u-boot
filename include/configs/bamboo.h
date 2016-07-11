@@ -185,12 +185,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_BAMBOO_NAND
 #define CONFIG_CMD_NAND

@@ -62,7 +62,7 @@ extern unsigned long *ps7_peripherals_init_data;
 #define USB0_FREQ  60000000
 #define USB1_FREQ  60000000
 #define SDIO_FREQ  50000000
-#define UART_FREQ  50000000
+#define UART_FREQ  100000000
 #define SPI_FREQ  10000000
 #define I2C_FREQ  108333336
 #define WDT_FREQ  108333336
@@ -71,9 +71,10 @@ extern unsigned long *ps7_peripherals_init_data;
 #define PCAP_FREQ  200000000
 #define TPIU_FREQ  200000000
 #define FPGA0_FREQ  100000000
-#define FPGA1_FREQ  175000000
-#define FPGA2_FREQ  12264151
-#define FPGA3_FREQ  100000000
+#define FPGA1_FREQ  142857132
+#define FPGA2_FREQ  200000000
+#define FPGA3_FREQ  50000000
+
 
 /* For delay calculation using global registers*/
 #define SCU_GLOBAL_TIMER_COUNT_L32	0xF8F00200

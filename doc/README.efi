@@ -4,6 +4,28 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+=========== Table of Contents ===========
+
+  1  U-Boot on EFI
+  1.1  In God's Name, Why?
+  1.2  Status
+  1.3  Build Instructions
+  1.4  Trying it out
+  1.5  Inner workings
+  1.6  EFI Application
+  1.7  EFI Payload
+  1.8  Tables
+  1.9  Interrupts
+  1.10 32/64-bit
+  1.11 Future work
+  1.12 Where is the code?
+
+  2  EFI on U-Boot
+  2.1  In God's Name, Why?
+  2.2  How do I get it?
+  2.3  Status
+  2.4  Future work
+
 U-Boot on EFI
 =============
 This document provides information about U-Boot running on top of EFI, either
@@ -234,7 +256,6 @@ board/efi/efi-x86/efi.c
 common/cmd_efi.c
 	the 'efi' command
 
-
 --
 Ben Stoltz, Simon Glass
 Google, Inc
@@ -242,3 +263,63 @@ July 2015
 
 [1] http://www.qemu.org
 [2] http://www.tianocore.org/ovmf/
+
+-------------------------------------------------------------------------------
+
+EFI on U-Boot
+=============
+
+In addition to support for running U-Boot as a UEFI application, U-Boot itself
+can also expose the UEFI interfaces and thus allow UEFI payloads to run under
+it.
+
+In God's Name, Why?
+-------------------
+
+With this support in place, you can run any UEFI payload (such as the Linux
+kernel, grub2 or gummiboot) on U-Boot. This dramatically simplifies boot loader
+configuration, as U-Boot based systems now look and feel (almost) the same way
+as TianoCore based systems.
+
+How do I get it?
+----------------
+
+EFI support for 32bit ARM and AArch64 is already included in U-Boot. All you
+need to do is enable
+
+  CONFIG_CMD_BOOTEFI=y
+  CONFIG_EFI_LOADER=y
+
+in your .config file and you will automatically get a bootefi command to run
+an efi application as well as snippet in the default distro boot script that
+scans for removable media efi binaries as fallback.
+
+Status
+------
+
+I am successfully able to run grub2 and Linux EFI binaries with this code on
+ARMv7 as well as AArch64 systems.
+
+When enabled, the resulting U-Boot binary only grows by ~10KB, so it's very
+light weight.
+
+All storage devices are directly accessible from the uEFI payload
+
+Removable media booting (search for /efi/boot/boota{a64,arm}.efi) is supported.
+
+Simple use cases like "Plug this SD card into my ARM device and it just
+boots into grub which boots into Linux", work very well.
+
+Future work
+-----------
+
+Of course, there are still a few things one could do on top:
+
+   - Improve disk media detection (don't scan, use what information we
+have)
+   - Add EFI variable support using NVRAM
+   - Add GFX support
+   - Make EFI Shell work
+   - Network device support
+   - Support for payload exit
+   - Payload Watchdog support

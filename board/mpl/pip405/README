@@ -217,8 +217,8 @@ Added files:
 Block device changes:
 ---------------------
 To allow the use of dos_part.c, mac_part.c and iso_part.c, the parameter
-block_dev_desc will be used when accessing the functions in these files. The block
-device descriptor (block_dev_desc) contains a pointer to the read routine of the
+blk_desc will be used when accessing the functions in these files. The block
+device descriptor (blk_desc) contains a pointer to the read routine of the
 device, which will be used to read blocks from the device.
 Renamed function ide_print to dev_print and moved it to the file disk/part.c to use
 it for IDE ATAPI and SCSI devices.

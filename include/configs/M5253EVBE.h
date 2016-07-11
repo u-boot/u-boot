@@ -37,7 +37,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o      (.text)
 
-
 /*
  * BOOTP options
  */
@@ -49,9 +48,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 
 /* ATA */

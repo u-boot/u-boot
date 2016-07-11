@@ -25,7 +25,7 @@ static int usb_stor_curr_dev = -1; /* current device */
 int spl_usb_load_image(void)
 {
 	int err;
-	block_dev_desc_t *stor_dev;
+	struct blk_desc *stor_dev;
 
 	usb_stop();
 	err = usb_init();

@@ -18,7 +18,7 @@
 #ifndef __SANDBOX_FS__
 #define __SANDBOX_FS__
 
-int sandbox_fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
+int sandbox_fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
 
 int sandbox_fs_read_at(const char *filename, loff_t pos, void *buffer,
 		       loff_t maxsize, loff_t *actread);

@@ -44,6 +44,7 @@ void lcd_ctrl_init(void *lcdbase)
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_setup, msg_setup, 1);
 	int ret;
 	u32 w, h;
+	u32 fb_start, fb_end;
 
 	debug("bcm2835: Query resolution...\n");
 
@@ -106,6 +107,14 @@ void lcd_ctrl_init(void *lcdbase)
 
 	gd->fb_base = bus_to_phys(
 		msg_setup->allocate_buffer.body.resp.fb_address);
+
+	/* Enable dcache for the frame buffer */
+	fb_start = gd->fb_base & ~(MMU_SECTION_SIZE - 1);
+	fb_end = gd->fb_base + msg_setup->allocate_buffer.body.resp.fb_size;
+	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
+	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
+		DCACHE_WRITEBACK);
+	lcd_set_flush_dcache(1);
 }
 
 void lcd_enable(void)

@@ -30,6 +30,8 @@ struct rsa_public_key {
 	uint64_t exponent;	/* public exponent */
 };
 
+struct image_sign_info;
+
 #if IMAGE_ENABLE_SIGN
 /**
  * sign() - calculate and return signature for given input data

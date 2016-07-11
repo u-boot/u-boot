@@ -12,17 +12,6 @@
 #define CONFIG_I2C_EEPROM
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#ifdef CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_COM1		CONFIG_SUPPORT_CARD_UART_BASE
-#define CONFIG_SYS_NS16550_CLK		12288000
-#define CONFIG_SYS_NS16550_REG_SIZE	-2
-#endif
-
-/* TODO: move to Kconfig and device tree */
-#if 0
-#define CONFIG_SYS_NS16550_SERIAL
-#endif
-
 #define CONFIG_SMC911X
 
 /* dummy: referenced by examples/standalone/smc911x_eeprom.c */
@@ -39,7 +28,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-/* Comment out the following to enable L2 cache */
+/* Comment out the following to disable L2 cache */
 #define CONFIG_UNIPHIER_L2CACHE_ON
 
 #define CONFIG_DISPLAY_CPUINFO
@@ -66,6 +55,7 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_MONITOR_BASE		0
+#define CONFIG_SYS_MONITOR_LEN		0x00080000	/* 512KB */
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
@@ -81,8 +71,7 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_ARM64)
 #define CONFIG_USE_ARCH_MEMSET
 #define CONFIG_USE_ARCH_MEMCPY
 #endif
@@ -109,16 +98,18 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 
+#ifdef CONFIG_ARM64
+#define CONFIG_ARMV8_MULTIENTRY
+#define CPU_RELEASE_ADDR			0x80000100
+#define COUNTER_FREQUENCY			50000000
+#define CONFIG_GICV3
+#define GICD_BASE				0x5fe00000
+#define GICR_BASE				0x5fe80000
+#else
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
+#endif
 
-/*
- * By default, ARP timeout is 5 sec.
- * The first ARP request does not seem to work.
- * So we need to retry ARP request anyway.
- * We want to shrink the interval until the second ARP request.
- */
-#define CONFIG_ARP_TIMEOUT	500UL  /* 0.5 msec */
 
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
@@ -126,7 +117,7 @@
 
 #define CONFIG_NAND_DENALI_ECC_SIZE			1024
 
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD3
+#ifdef CONFIG_ARCH_UNIPHIER_SLD3
 #define CONFIG_SYS_NAND_REGS_BASE			0xf8100000
 #define CONFIG_SYS_NAND_DATA_BASE			0xf8000000
 #else
@@ -142,12 +133,10 @@
 /* USB */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	4
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
 
 /* SD/MMC */
-#define CONFIG_CMD_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_GENERIC_MMC
 
@@ -194,23 +183,36 @@
 		"bootm $fit_addr_r\0" \
 	"__nfsboot=run tftpboot\0"
 #else
-#define CONFIG_CMD_BOOTZ
+#ifdef CONFIG_ARM64
+#define CONFIG_CMD_BOOTI
+#define CONFIG_BOOTFILE			"Image"
+#define LINUXBOOT_CMD			"booti"
+#define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
+#define KERNEL_SIZE			"kernel_size=0x00c00000\0"
+#define RAMDISK_ADDR			"ramdisk_addr=0x00e00000\0"
+#else
 #define CONFIG_BOOTFILE			"zImage"
+#define LINUXBOOT_CMD			"bootz"
+#define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
+#define KERNEL_SIZE			"kernel_size=0x00800000\0"
+#define RAMDISK_ADDR			"ramdisk_addr=0x00a00000\0"
+#endif
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
 	"kernel_addr=0x00200000\0" \
-	"kernel_addr_r=0x80208000\0" \
-	"kernel_size=0x00800000\0" \
-	"ramdisk_addr=0x00a00000\0" \
+	KERNEL_ADDR_R \
+	KERNEL_SIZE \
+	RAMDISK_ADDR \
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
+		"setexpr kernel_size $kernel_size / 4 &&" \
+		"cp $kernel_addr $kernel_addr_r $kernel_size &&" \
 		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
 		"run boot_common\0" \
@@ -233,45 +235,57 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
+	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
+		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
+		"setexpr tmp_addr $nor_base + 0x60000 &&"	\
+		"tftpboot $tmp_addr u-boot.bin\0"		\
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
 		"mmc erase 0 800 &&"				\
 		"tftpboot u-boot-spl.bin &&"			\
 		"mmc write $loadaddr 0 80 &&"			\
-		"tftpboot u-boot.img &&"			\
+		"tftpboot u-boot.bin &&"			\
 		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot.img &&"			\
+		"tftpboot u-boot.bin &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
-/* Open Firmware flat tree */
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
+/* for LD20; the last 64 byte is used for dynamic DDR PHY training */
+#define CONFIG_SYS_MEM_TOP_HIDE		64
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
+#if defined(CONFIG_ARM64)
+#define CONFIG_SPL_TEXT_BASE		0x30000000
+#elif defined(CONFIG_ARCH_UNIPHIER_SLD3) || \
+	defined(CONFIG_ARCH_UNIPHIER_LD4) || \
+	defined(CONFIG_ARCH_UNIPHIER_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000
 #else
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#define CONFIG_SPL_STACK		(0x3001c000)
+#else
 #define CONFIG_SPL_STACK		(0x00100000)
+#endif
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 #define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NOR_SUPPORT
+#ifndef CONFIG_ARM64
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
+#endif
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -279,8 +293,15 @@
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+
+/* subtract sizeof(struct image_header) */
+#define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
 
+#define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
+#define CONFIG_SPL_MAX_SIZE			0x10000
+#define CONFIG_SPL_BSS_START_ADDR		0x30016000
+#define CONFIG_SPL_BSS_MAX_SIZE			0x2000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

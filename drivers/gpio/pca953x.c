@@ -217,7 +217,7 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* All commands but "device" require 'maxargs' arguments */
 	if (!c || !((argc == (c->maxargs)) ||
-		(((int)c->cmd == PCA953X_CMD_DEVICE) &&
+		(((long)c->cmd == PCA953X_CMD_DEVICE) &&
 		 (argc == (c->maxargs - 1))))) {
 		return CMD_RET_USAGE;
 	}
@@ -230,7 +230,7 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc > 3)
 		ul_arg3 = simple_strtoul(argv[3], NULL, 16) & 0x1;
 
-	switch ((int)c->cmd) {
+	switch ((long)c->cmd) {
 #ifdef CONFIG_CMD_PCA953X_INFO
 	case PCA953X_CMD_INFO:
 		ret = pca953x_info(chip);

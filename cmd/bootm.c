@@ -673,6 +673,9 @@ static int booti_setup(bootm_headers_t *images)
 	 * correct location and then move the image there.
 	 */
 	dst = gd->bd->bi_dram[0].start + le32_to_cpu(ih->text_offset);
+
+	unmap_sysmem(ih);
+
 	if (images->ep != dst) {
 		void *src;
 
@@ -716,6 +719,8 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	ih = (struct Image_header *)map_sysmem(images->ep, 0);
 
 	lmb_reserve(&images->lmb, images->ep, le32_to_cpu(ih->image_size));
+
+	unmap_sysmem(ih);
 
 	/*
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not

@@ -57,8 +57,8 @@ enum env_flags_varaccess {
 	"gatewayip:i," \
 	"netmask:i," \
 	"serverip:i," \
-	"nvlan:i," \
-	"vlan:i," \
+	"nvlan:d," \
+	"vlan:d," \
 	"dnsip:i,"
 #else
 #define ETHADDR_FLAGS

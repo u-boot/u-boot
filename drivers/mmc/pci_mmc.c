@@ -28,7 +28,7 @@ int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported)
 		if (!mmc_host)
 			return -ENOMEM;
 
-		mmc_host->name = (char *)name;
+		mmc_host->name = name;
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		mmc_host->ioaddr = (void *)iobase;
 		mmc_host->quirks = 0;

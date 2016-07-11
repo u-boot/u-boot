@@ -130,7 +130,7 @@ struct usb_device {
 	int string_langid;		/* language ID for strings */
 	int (*irq_handle)(struct usb_device *dev);
 	unsigned long irq_status;
-	int irq_act_len;		/* transfered bytes */
+	int irq_act_len;		/* transferred bytes */
 	void *privptr;
 	/*
 	 * Child devices -  if this is a hub device
@@ -138,7 +138,7 @@ struct usb_device {
 	 */
 	unsigned long status;
 	unsigned long int_pending;	/* 1 bit per ep, used by int_queue */
-	int act_len;			/* transfered bytes */
+	int act_len;			/* transferred bytes */
 	int maxchild;			/* Number of ports if hub */
 	int portnr;			/* Port number, 1=first */
 #ifndef CONFIG_DM_USB
@@ -228,7 +228,7 @@ int board_usb_cleanup(int index, enum usb_init_type init);
 #ifdef CONFIG_USB_STORAGE
 
 #define USB_MAX_STOR_DEV 7
-block_dev_desc_t *usb_stor_get_dev(int index);
+struct blk_desc *usb_stor_get_dev(int index);
 int usb_stor_scan(int mode);
 int usb_stor_info(void);
 
@@ -556,6 +556,10 @@ struct usb_hub_descriptor {
 struct usb_hub_device {
 	struct usb_device *pusb_dev;
 	struct usb_hub_descriptor desc;
+
+	ulong connect_timeout;		/* Device connection timeout in ms */
+	ulong query_delay;		/* Device query delay in ms */
+	int overcurrent_count[USB_MAXCHILDREN];	/* Over-current counter */
 };
 
 #ifdef CONFIG_DM_USB

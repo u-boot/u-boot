@@ -58,6 +58,13 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_CADENCE
+	tristate "Cadence I2C Controller"
+	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
+	help
+	  Say yes here to select Cadence I2C Host Controller. This controller is
+	  e.g. used by Xilinx Zynq.
+
 config SYS_I2C_INTEL
 	bool "Intel I2C/SMBUS driver"
 	depends on DM_I2C

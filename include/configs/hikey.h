@@ -21,13 +21,10 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-/* Cache Definitions */
-#define CONFIG_SYS_DCACHE_OFF
+/* MMU Definitions */
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_IDENT_STRING		"hikey"
-
-/* Flat Device Tree Definitions */
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -36,7 +33,7 @@
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */
 #define CONFIG_SYS_TEXT_BASE		0x35000000
 
-#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_NR_DRAM_BANKS		6
 #define PHYS_SDRAM_1			0x00000000
 
 /* 1008 MB (the last 16Mb are secured for TrustZone by ATF*/
@@ -64,7 +61,6 @@
 #define CONFIG_PL01X_SERIAL
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
 #define CONFIG_USB_DWC2_REG_ADDR 0xF72C0000
@@ -86,13 +82,11 @@
 #define CONFIG_DWMMC
 #define CONFIG_HIKEY_DWMMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_MMC
 
 #define CONFIG_FS_EXT4
 
 /* Command line configuration */
 #define CONFIG_MENU
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_ENV
 
@@ -121,14 +115,13 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"	\
 				"kernel_addr_r=0x00080000\0" \
-				"fdt_name=hi6220-hikey.dtb\0" \
+				"fdtfile=hi6220-hikey.dtb\0" \
 				"fdt_addr_r=0x02000000\0" \
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
 				BOOTENV
 
-
-/* Preserve enviroment on sd card */
+/* Preserve environment on sd card */
 #define CONFIG_COMMAND_HISTORY
 
 #define CONFIG_ENV_SIZE			0x1000
@@ -143,7 +136,6 @@
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING

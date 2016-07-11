@@ -10,6 +10,19 @@
 #ifndef _ALTERA_H_
 #define _ALTERA_H_
 
+/*
+ * For the StratixV FPGA programming via SPI, the following
+ * information is coded in the 32bit cookie:
+ * Bit 31 ... Bit 0
+ * SPI-Bus | SPI-Dev | Config-Pin | Done-Pin
+ */
+#define FPGA_COOKIE(bus, dev, config, done)			\
+	(((bus) << 24) | ((dev) << 16) | ((config) << 8) | (done))
+#define COOKIE2SPI_BUS(c)	(((c) >> 24) & 0xff)
+#define COOKIE2SPI_DEV(c)	(((c) >> 16) & 0xff)
+#define COOKIE2CONFIG(c)	(((c) >> 8) & 0xff)
+#define COOKIE2DONE(c)		((c) & 0xff)
+
 enum altera_iface {
 	/* insert all new types after this */
 	min_altera_iface_type,
@@ -40,6 +53,8 @@ enum altera_family {
 	Altera_CYC2,
 	/* StratixII Family */
 	Altera_StratixII,
+	/* StratixV Family */
+	Altera_StratixV,
 	/* SoCFPGA Family */
 	Altera_SoCFPGA,
 
@@ -89,12 +104,17 @@ typedef struct {
 	Altera_done_fn done;
 	Altera_clk_fn clk;
 	Altera_data_fn data;
+	Altera_write_fn write;
 	Altera_abort_fn abort;
 	Altera_post_fn post;
 } altera_board_specific_func;
 
 #ifdef CONFIG_FPGA_SOCFPGA
 int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
+#endif
+
+#ifdef CONFIG_FPGA_STRATIX_V
+int stratixv_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
 #endif
 
 #endif /* _ALTERA_H_ */

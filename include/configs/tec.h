@@ -23,7 +23,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
-#define CONFIG_CMD_MMC
 
 /* NAND support */
 #define CONFIG_CMD_NAND
@@ -38,20 +37,15 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 
 /* General networking support */
-#define CONFIG_CMD_DHCP
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
-
-/* support the new (FDT-based) image format */
-#define CONFIG_FIT
 
 #include "tegra-common-post.h"
 

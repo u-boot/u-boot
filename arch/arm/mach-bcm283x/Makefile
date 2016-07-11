@@ -4,5 +4,5 @@
 # SPDX-License-Identifier:	GPL-2.0
 #
 
-obj-$(CONFIG_TARGET_RPI) += lowlevel_init.o
+obj-$(CONFIG_BCM2835) += lowlevel_init.o
 obj-y	+= init.o reset.o mbox.o phys2bus.o

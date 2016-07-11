@@ -170,8 +170,7 @@ void board_retimer_init(void)
 	u8 reg;
 
 	/* Retimer is connected to I2C1_CH7_CH5 */
-	reg = I2C_MUX_CH7;
-	i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &reg, 1);
+	select_i2c_ch_pca9547(I2C_MUX_CH7);
 	reg = I2C_MUX_CH5;
 	i2c_write(I2C_MUX_PCA_ADDR_SEC, 0, 1, &reg, 1);
 
@@ -219,6 +218,9 @@ void board_retimer_init(void)
 	i2c_write(I2C_RETIMER_ADDR, 0x63, 1, &reg, 1);
 	reg = 0xcd;
 	i2c_write(I2C_RETIMER_ADDR, 0x64, 1, &reg, 1);
+
+	/* Return the default channel */
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 }
 
 int board_early_init_f(void)

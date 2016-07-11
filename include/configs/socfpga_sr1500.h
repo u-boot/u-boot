@@ -16,25 +16,6 @@
 
 #define CONFIG_HW_WATCHDOG
 
-/* U-Boot Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GPIO
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMTEST
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TIME
-
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SR1500 */
 
@@ -55,7 +36,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
-	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramboot=setenv bootargs " CONFIG_BOOTARGS ";" \
 		"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"bootimage=zImage\0" \
@@ -92,23 +73,28 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0xfffffff8
 #define CONFIG_SYS_BOOTCOUNT_BE
 
-/* The rest of the configuration is shared */
-#include <configs/socfpga_common.h>
-
-/* U-Boot payload is stored at offset 0x60000 */
-#undef CONFIG_SYS_SPI_U_BOOT_OFFS
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x60000
-
 /* Environment setting for SPI flash */
-#undef CONFIG_ENV_SIZE
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SECT_SIZE	(64 * 1024)
 #define CONFIG_ENV_SIZE		(16 * 1024)
-#define CONFIG_ENV_OFFSET	0x00040000
+#define CONFIG_ENV_OFFSET	0x000e0000
 #define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SPI_BUS	0
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MODE	SPI_MODE_3
-#define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SPI_MAX_HZ	100000000	/* Use max of 100MHz */
+#define CONFIG_SF_DEFAULT_SPEED	100000000
+
+/*
+ * The QSPI NOR flash layout on SR1500:
+ *
+ * 0000.0000 - 0003.ffff: SPL (4 times)
+ * 0004.0000 - 000d.ffff: U-Boot
+ * 000e.0000 - 000e.ffff: env1
+ * 000f.0000 - 000f.ffff: env2
+ */
+
+/* The rest of the configuration is shared */
+#include <configs/socfpga_common.h>
 
 #endif	/* __CONFIG_SOCFPGA_SR1500_H__ */

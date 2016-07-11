@@ -350,10 +350,12 @@ struct sunxi_ccm_reg {
 #define CCM_HDMI_CTRL_DDC_GATE		(0x1 << 30)
 #define CCM_HDMI_CTRL_GATE		(0x1 << 31)
 
-#ifndef CONFIG_MACH_SUN8I
-#define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
-#else
+#if defined(CONFIG_MACH_SUN50I)
+#define MBUS_CLK_DEFAULT		0x81000002 /* PLL6x2 / 3 */
+#elif defined(CONFIG_MACH_SUN8I)
 #define MBUS_CLK_DEFAULT		0x81000003 /* PLL6 / 4 */
+#else
+#define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
 #endif
 #define MBUS_CLK_GATE			(0x1 << 31)
 

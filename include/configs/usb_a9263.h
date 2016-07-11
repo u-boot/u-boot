@@ -33,7 +33,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_SYS_TEXT_BASE		0x23f00000
 
 /*
@@ -60,8 +59,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
 
 /* SDRAM */
@@ -116,7 +113,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
 #endif
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
@@ -145,7 +141,6 @@
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP
 
 /*

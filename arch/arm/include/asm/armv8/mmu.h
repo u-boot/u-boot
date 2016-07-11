@@ -22,31 +22,18 @@
  * calculated specifically.
  */
 
-#ifndef CONFIG_SYS_FULL_VA
-#define VA_BITS			(42)	/* 42 bits virtual address */
-#else
 #define VA_BITS			CONFIG_SYS_VA_BITS
-#define PTL2_BITS		CONFIG_SYS_PTL2_BITS
-#endif
-
-/* PAGE_SHIFT determines the page size */
-#undef  PAGE_SIZE
-#define PAGE_SHIFT		16
-#define PAGE_SIZE		(1 << PAGE_SHIFT)
-#define PAGE_MASK		(~(PAGE_SIZE-1))
+#define PTE_BLOCK_BITS		CONFIG_SYS_PTL2_BITS
 
 /*
  * block/section address mask and size definitions.
  */
-#ifndef CONFIG_SYS_FULL_VA
-#define SECTION_SHIFT		29
-#define SECTION_SIZE		(UL(1) << SECTION_SHIFT)
-#define SECTION_MASK		(~(SECTION_SIZE-1))
-#else
-#define BLOCK_SHIFT		CONFIG_SYS_BLOCK_SHIFT
-#define BLOCK_SIZE		(UL(1) << BLOCK_SHIFT)
-#define BLOCK_MASK		(~(BLOCK_SIZE-1))
-#endif
+
+/* PAGE_SHIFT determines the page size */
+#undef  PAGE_SIZE
+#define PAGE_SHIFT		12
+#define PAGE_SIZE		(1 << PAGE_SHIFT)
+#define PAGE_MASK		(~(PAGE_SIZE-1))
 
 /***************************************************************/
 
@@ -70,63 +57,28 @@
  *
  */
 
-#ifdef CONFIG_SYS_FULL_VA
-/*
- * Level 1 descriptor (PGD).
- */
+#define PTE_TYPE_MASK		(3 << 0)
+#define PTE_TYPE_FAULT		(0 << 0)
+#define PTE_TYPE_TABLE		(3 << 0)
+#define PTE_TYPE_BLOCK		(1 << 0)
 
-#define PTL1_TYPE_MASK		(3 << 0)
-#define PTL1_TYPE_TABLE		(3 << 0)
-
-#define PTL1_TABLE_PXN		(1UL << 59)
-#define PTL1_TABLE_XN		(1UL << 60)
-#define PTL1_TABLE_AP		(1UL << 61)
-#define PTL1_TABLE_NS		(1UL << 63)
-
-
-/*
- * Level 2 descriptor (PMD).
- */
-
-#define PTL2_TYPE_MASK		(3 << 0)
-#define PTL2_TYPE_FAULT		(0 << 0)
-#define PTL2_TYPE_TABLE		(3 << 0)
-#define PTL2_TYPE_BLOCK		(1 << 0)
+#define PTE_TABLE_PXN		(1UL << 59)
+#define PTE_TABLE_XN		(1UL << 60)
+#define PTE_TABLE_AP		(1UL << 61)
+#define PTE_TABLE_NS		(1UL << 63)
 
 /*
  * Block
  */
-#define PTL2_MEMTYPE(x)		((x) << 2)
-#define PTL2_BLOCK_NON_SHARE	(0 << 8)
-#define PTL2_BLOCK_OUTER_SHARE	(2 << 8)
-#define PTL2_BLOCK_INNER_SHARE	(3 << 8)
-#define PTL2_BLOCK_AF		(1 << 10)
-#define PTL2_BLOCK_NG		(1 << 11)
-#define PTL2_BLOCK_PXN		(UL(1) << 53)
-#define PTL2_BLOCK_UXN		(UL(1) << 54)
-
-#else
-/*
- * Level 2 descriptor (PMD).
- */
-#define PMD_TYPE_MASK		(3 << 0)
-#define PMD_TYPE_FAULT		(0 << 0)
-#define PMD_TYPE_TABLE		(3 << 0)
-#define PMD_TYPE_SECT		(1 << 0)
-
-/*
- * Section
- */
-#define PMD_SECT_NS		(1 << 5)
-#define PMD_SECT_NON_SHARE	(0 << 8)
-#define PMD_SECT_OUTER_SHARE	(2 << 8)
-#define PMD_SECT_INNER_SHARE	(3 << 8)
-#define PMD_SECT_AF		(1 << 10)
-#define PMD_SECT_NG		(1 << 11)
-#define PMD_SECT_PXN		(UL(1) << 53)
-#define PMD_SECT_UXN		(UL(1) << 54)
-
-#endif
+#define PTE_BLOCK_MEMTYPE(x)	((x) << 2)
+#define PTE_BLOCK_NS            (1 << 5)
+#define PTE_BLOCK_NON_SHARE	(0 << 8)
+#define PTE_BLOCK_OUTER_SHARE	(2 << 8)
+#define PTE_BLOCK_INNER_SHARE	(3 << 8)
+#define PTE_BLOCK_AF		(1 << 10)
+#define PTE_BLOCK_NG		(1 << 11)
+#define PTE_BLOCK_PXN		(UL(1) << 53)
+#define PTE_BLOCK_UXN		(UL(1) << 54)
 
 /*
  * AttrIndx[2:0]
@@ -154,38 +106,13 @@
 #define TCR_TG0_4K		(0 << 14)
 #define TCR_TG0_64K		(1 << 14)
 #define TCR_TG0_16K		(2 << 14)
-
-#ifndef CONFIG_SYS_FULL_VA
-#define TCR_EL1_IPS_BITS	(UL(3) << 32)	/* 42 bits physical address */
-#define TCR_EL2_IPS_BITS	(3 << 16)	/* 42 bits physical address */
-#define TCR_EL3_IPS_BITS	(3 << 16)	/* 42 bits physical address */
-#else
-#define TCR_EL1_IPS_BITS	CONFIG_SYS_TCR_EL1_IPS_BITS
-#define TCR_EL2_IPS_BITS	CONFIG_SYS_TCR_EL2_IPS_BITS
-#define TCR_EL3_IPS_BITS	CONFIG_SYS_TCR_EL3_IPS_BITS
-#endif
-
-/* PTWs cacheable, inner/outer WBWA and inner shareable */
-#define TCR_FLAGS		(TCR_TG0_64K |		\
-				TCR_SHARED_INNER |	\
-				TCR_ORGN_WBWA |		\
-				TCR_IRGN_WBWA |		\
-				TCR_T0SZ(VA_BITS))
+#define TCR_EPD1_DISABLE	(1 << 23)
 
 #define TCR_EL1_RSVD		(1 << 31)
 #define TCR_EL2_RSVD		(1 << 31 | 1 << 23)
 #define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
 
 #ifndef __ASSEMBLY__
-#ifndef CONFIG_SYS_FULL_VA
-
-void set_pgtable_section(u64 *page_table, u64 index,
-			 u64 section, u64 memory_type,
-			 u64 attribute);
-void set_pgtable_table(u64 *page_table, u64 index,
-		       u64 *table_addr);
-
-#endif
 static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 {
 	asm volatile("dsb sy");
@@ -212,6 +139,8 @@ struct mm_region {
 	u64 size;
 	u64 attrs;
 };
+
+extern struct mm_region *mem_map;
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

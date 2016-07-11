@@ -5,7 +5,7 @@
  * minimal framebuffer driver for TI's AM335x SoC to be compatible with
  * Wolfgang Denk's LCD-Framework (CONFIG_LCD, common/lcd.c)
  *
- * - supporting only 24bit RGB/TFT raster Mode (not using palette)
+ * - supporting 16/24/32bit RGB/TFT raster Mode (not using palette)
  * - sets up LCD controller as in 'am335x_lcdpanel' struct given
  * - starts output DMA from gd->fb_base buffer
  *
@@ -55,7 +55,7 @@
 /* LCD Raster Ctrl Register */
 #define LCD_TFT_24BPP_MODE			(1 << 25)
 #define LCD_TFT_24BPP_UNPACK			(1 << 26)
-#define LCD_PALMODE_RAWDATA			(0x10 << 20)
+#define LCD_PALMODE_RAWDATA			(0x02 << 20)
 #define LCD_TFT_MODE				(0x01 << 7)
 #define LCD_RASTER_ENABLE			(0x01 << 0)
 
@@ -106,12 +106,29 @@ int lcd_get_size(int *line_length)
 
 int am335xfb_init(struct am335x_lcdpanel *panel)
 {
+	u32 raster_ctrl = 0;
+
 	if (0 == gd->fb_base) {
 		printf("ERROR: no valid fb_base stored in GLOBAL_DATA_PTR!\n");
 		return -1;
 	}
 	if (0 == panel) {
 		printf("ERROR: missing ptr to am335x_lcdpanel!\n");
+		return -1;
+	}
+
+	/* We can already set the bits for the raster_ctrl in this check */
+	switch (panel->bpp) {
+	case 16:
+		break;
+	case 32:
+		raster_ctrl |= LCD_TFT_24BPP_UNPACK;
+		/* fallthrough */
+	case 24:
+		raster_ctrl |= LCD_TFT_24BPP_MODE;
+		break;
+	default:
+		error("am335x-fb: invalid bpp value: %d\n", panel->bpp);
 		return -1;
 	}
 
@@ -126,6 +143,8 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	/* palette default entry */
 	memset((void *)gd->fb_base, 0, 0x20);
 	*(unsigned int *)gd->fb_base = 0x4000;
+	/* point fb behind palette */
+	gd->fb_base += 0x20;
 
 	/* turn ON display through powercontrol function if accessible */
 	if (0 != panel->panel_power_ctrl)
@@ -137,9 +156,9 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	lcdhw->raster_ctrl = 0;
 	lcdhw->ctrl = LCD_CLK_DIVISOR(panel->pxl_clk_div) | LCD_RASTER_MODE;
 	lcdhw->lcddma_fb0_base = gd->fb_base;
-	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel) + 0x20;
+	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_fb1_base = gd->fb_base;
-	lcdhw->lcddma_fb1_ceiling = gd->fb_base + FBSIZE(panel) + 0x20;
+	lcdhw->lcddma_fb1_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_ctrl = LCD_DMA_BURST_SIZE(LCD_DMA_BURST_16);
 
 	lcdhw->raster_timing0 = LCD_HORLSB(panel->hactive) |
@@ -157,13 +176,10 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 				LCD_HBPMSB(panel->hbp) |
 				LCD_HFPMSB(panel->hfp) |
 				0x0000FF00;	/* clk cycles for ac-bias */
-	lcdhw->raster_ctrl =	LCD_TFT_24BPP_MODE |
-				LCD_TFT_24BPP_UNPACK |
+	lcdhw->raster_ctrl =	raster_ctrl |
 				LCD_PALMODE_RAWDATA |
 				LCD_TFT_MODE |
 				LCD_RASTER_ENABLE;
-
-	gd->fb_base += 0x20;	/* point fb behind palette */
 
 	debug("am335x-fb: waiting picture to be stable.\n.");
 	mdelay(panel->pon_delay);

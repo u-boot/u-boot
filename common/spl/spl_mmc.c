@@ -21,28 +21,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
+static int mmc_load_legacy(struct mmc *mmc, ulong sector,
+			   struct image_header *header)
 {
-	unsigned long count;
 	u32 image_size_sectors;
-	struct image_header *header;
-
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-					 sizeof(struct image_header));
-
-	/* read image header to find the image size & load address */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
-	debug("read sector %lx, count=%lu\n", sector, count);
-	if (count == 0)
-		goto end;
-
-	if (image_get_magic(header) != IH_MAGIC) {
-		puts("bad magic\n");
-		return -1;
-	}
+	unsigned long count;
 
 	spl_parse_image_header(header);
-
 	/* convert size to sectors - round up */
 	image_size_sectors = (spl_image.size + mmc->read_bl_len - 1) /
 			     mmc->read_bl_len;
@@ -53,11 +38,55 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 					  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
+	if (count != image_size_sectors)
+		return -EIO;
+
+	return 0;
+}
+
+static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
+			     ulong count, void *buf)
+{
+	struct mmc *mmc = load->dev;
+
+	return mmc->block_dev.block_read(&mmc->block_dev, sector, count, buf);
+}
+
+static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
+{
+	unsigned long count;
+	struct image_header *header;
+	int ret = 0;
+
+	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
+					 sizeof(struct image_header));
+
+	/* read image header to find the image size & load address */
+	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
+	debug("hdr read sector %lx, count=%lu\n", sector, count);
+	if (count == 0) {
+		ret = -EIO;
+		goto end;
+	}
+
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	    image_get_magic(header) == FDT_MAGIC) {
+		struct spl_load_info load;
+
+		debug("Found FIT\n");
+		load.dev = mmc;
+		load.priv = NULL;
+		load.bl_len = mmc->read_bl_len;
+		load.read = h_spl_load_read;
+		ret = spl_load_simple_fit(&load, sector, header);
+	} else {
+		ret = mmc_load_legacy(mmc, sector, header);
+	}
 
 end:
-	if (count == 0) {
+	if (ret) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: mmc block read error\n");
+		puts("mmc_load_image_raw_sector: mmc block read error\n");
 #endif
 		return -1;
 	}
@@ -125,7 +154,7 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 	disk_partition_t info;
 	int err;
 
-	err = get_partition_info(&mmc->block_dev, partition, &info);
+	err = part_get_info(&mmc->block_dev, partition, &info);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: partition error\n");
@@ -152,6 +181,7 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 static int mmc_load_image_raw_os(struct mmc *mmc)
 {
 	unsigned long count;
+	int ret;
 
 	count = mmc->block_dev.block_read(&mmc->block_dev,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
@@ -159,13 +189,22 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
 	if (count == 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: mmc block read error\n");
+		puts("mmc_load_image_raw_os: mmc block read error\n");
 #endif
 		return -1;
 	}
 
-	return mmc_load_image_raw_sector(mmc,
+	ret = mmc_load_image_raw_sector(mmc,
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+	if (ret)
+		return ret;
+
+	if (spl_image.os != IH_OS_LINUX) {
+		puts("Expected Linux image is not found. Trying to start U-boot\n");
+		return -ENOENT;
+	}
+
+	return 0;
 }
 #else
 int spl_start_uboot(void)

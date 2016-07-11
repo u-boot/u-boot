@@ -60,7 +60,6 @@
 #define CONFIG_SYS_CLK_FREQ	33000000
 #endif
 
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
@@ -133,7 +132,6 @@
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
-
 /*
  * Local Bus Definitions
  */
@@ -198,7 +196,6 @@
 #define CONFIG_SYS_LBC_LSDMR_4	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
 #define CONFIG_SYS_LBC_LSDMR_5	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_NORMAL)
 
-
 /*
  * 32KB, 8-bit wide for ADS config reg
  */
@@ -225,16 +222,6 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT		1
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
@@ -282,7 +269,6 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
-
 
 #ifdef CONFIG_TSEC_ENET
 
@@ -355,7 +341,6 @@
 
 #endif
 
-
 /*
  * Environment
  */
@@ -382,12 +367,9 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
@@ -396,7 +378,6 @@
 #endif
 
 #if defined(CONFIG_ETHER_ON_FCC)
-    #define CONFIG_CMD_MII
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
@@ -430,7 +411,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
-
 
 /*
  * Environment Configuration

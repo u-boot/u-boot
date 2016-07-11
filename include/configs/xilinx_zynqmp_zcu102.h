@@ -37,6 +37,10 @@
 				}
 
 #define CONFIG_SYS_I2C_ZYNQ
+#define CONFIG_PCA953X
+#define CONFIG_CMD_PCA953X
+#define CONFIG_CMD_PCA953X_INFO
+
 #define CONFIG_AHCI
 #define CONFIG_SATA_CEVA
 

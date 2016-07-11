@@ -11,7 +11,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <usb.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 #include <usb/ulpi.h>
 
 #include "ehci.h"

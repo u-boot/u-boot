@@ -153,7 +153,6 @@
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
 #define CONFIG_MMC			1
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_ARM_PL180_MMCI
 #define CONFIG_ARM_PL180_MMCI_BASE	V2M_MMCI
@@ -186,7 +185,6 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
-#define CONFIG_CMD_ECHO
 
 #include <config_distro_defaults.h>
 
@@ -284,7 +282,6 @@
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP

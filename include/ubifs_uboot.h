@@ -21,7 +21,7 @@ void uboot_ubifs_umount(void);
 int ubifs_is_mounted(void);
 int ubifs_load(char *filename, u32 addr, u32 size);
 
-int ubifs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
+int ubifs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
 int ubifs_ls(const char *dir_name);
 int ubifs_exists(const char *filename);
 int ubifs_size(const char *filename, loff_t *size);

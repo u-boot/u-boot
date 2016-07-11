@@ -30,7 +30,12 @@
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
 
+#include "../common/board_detect.h"
 #include "mux_data.h"
+
+#define board_is_x15()		board_ti_is("BBRDX15_")
+#define board_is_am572x_evm()	board_ti_is("AM572PM_")
+#define board_is_am572x_idk()	board_ti_is("AM572IDK")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -41,8 +46,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO 7_11 */
 #define GPIO_DDR_VTT_EN 203
 
+#define SYSINFO_BOARD_NAME_MAX_LEN	45
+
 const struct omap_sysinfo sysinfo = {
-	"Board: BeagleBoard x15\n"
+	"Board: UNKNOWN(BeagleBoard X15?) REV UNKNOWN\n"
 };
 
 static const struct dmm_lisa_map_regs beagle_x15_lisa_regs = {
@@ -58,22 +65,22 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 	.sdram_config_init	= 0x61851b32,
 	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x00000000,
+	.sdram_config2		= 0x08000000,
 	.ref_ctrl		= 0x000040F1,
 	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xceef266b,
-	.sdram_tim2		= 0x328f7fda,
-	.sdram_tim3		= 0x027f88a8,
+	.sdram_tim1		= 0xcccf36ab,
+	.sdram_tim2		= 0x308f7fda,
+	.sdram_tim3		= 0x409f88a8,
 	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x0007190b,
+	.zq_config		= 0x5007190b,
 	.temp_alert_config	= 0x00000000,
 	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
 	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00740074,
-	.emif_ddr_ext_phy_ctrl_3 = 0x00780078,
-	.emif_ddr_ext_phy_ctrl_4 = 0x007c007c,
-	.emif_ddr_ext_phy_ctrl_5 = 0x007b007b,
+	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
 	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
@@ -83,39 +90,35 @@ static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 /* Ext phy ctrl regs 1-35 */
 static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 	0x10040100,
-	0x00740074,
-	0x00780078,
-	0x007c007c,
-	0x007b007b,
-	0x00800080,
-	0x00360036,
+	0x00910091,
+	0x00950095,
+	0x009B009B,
+	0x009E009E,
+	0x00980098,
 	0x00340034,
-	0x00360036,
 	0x00350035,
-	0x00350035,
-
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-
-	0x00430043,
-	0x003e003e,
-	0x004a004a,
-	0x00470047,
-	0x00400040,
-
+	0x00340034,
+	0x00310031,
+	0x00340034,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x00480048,
+	0x004A004A,
+	0x00520052,
+	0x00550055,
+	0x00500050,
 	0x00000000,
 	0x00600020,
 	0x40011080,
 	0x08102040,
-
-	0x00400040,
-	0x00400040,
-	0x00400040,
-	0x00400040,
-	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
 	0x0,
 	0x0,
 	0x0,
@@ -126,22 +129,22 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 	.sdram_config_init	= 0x61851b32,
 	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x00000000,
+	.sdram_config2		= 0x08000000,
 	.ref_ctrl		= 0x000040F1,
 	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xceef266b,
-	.sdram_tim2		= 0x328f7fda,
-	.sdram_tim3		= 0x027f88a8,
+	.sdram_tim1		= 0xcccf36b3,
+	.sdram_tim2		= 0x308f7fda,
+	.sdram_tim3		= 0x407f88a8,
 	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x0007190b,
+	.zq_config		= 0x5007190b,
 	.temp_alert_config	= 0x00000000,
 	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
 	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00820082,
-	.emif_ddr_ext_phy_ctrl_3 = 0x008b008b,
-	.emif_ddr_ext_phy_ctrl_4 = 0x00800080,
-	.emif_ddr_ext_phy_ctrl_5 = 0x007e007e,
+	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
 	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
@@ -150,37 +153,35 @@ static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 
 static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
 	0x10040100,
-	0x00820082,
-	0x008b008b,
-	0x00800080,
-	0x007e007e,
-	0x00800080,
-	0x00370037,
-	0x00390039,
-	0x00360036,
-	0x00370037,
+	0x00910091,
+	0x00950095,
+	0x009B009B,
+	0x009E009E,
+	0x00980098,
+	0x00340034,
 	0x00350035,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x01ff01ff,
-	0x00540054,
-	0x00540054,
-	0x004e004e,
-	0x004c004c,
-	0x00400040,
-
+	0x00340034,
+	0x00310031,
+	0x00340034,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x007F007F,
+	0x00480048,
+	0x004A004A,
+	0x00520052,
+	0x00550055,
+	0x00500050,
 	0x00000000,
 	0x00600020,
 	0x40011080,
 	0x08102040,
-
-	0x00400040,
-	0x00400040,
-	0x00400040,
-	0x00400040,
-	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
 	0x0,
 	0x0,
 	0x0,
@@ -220,18 +221,21 @@ struct vcores_data beagle_x15_volts = {
 	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
 	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
 	.eve.value		= VDD_EVE_DRA752,
 	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
 
 	.gpu.value		= VDD_GPU_DRA752,
 	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU_NOM,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr		= TPS659038_REG_ADDR_SMPS45,
 	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
 
 	.core.value		= VDD_CORE_DRA752,
 	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE_NOM,
@@ -244,7 +248,72 @@ struct vcores_data beagle_x15_volts = {
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
 	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
+
+#ifdef CONFIG_SPL_BUILD
+/* No env to setup for SPL */
+static inline void setup_board_eeprom_env(void) { }
+
+/* Override function to read eeprom information */
+void do_board_detect(void)
+{
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+}
+
+#else	/* CONFIG_SPL_BUILD */
+
+/* Override function to read eeprom information: actual i2c read done by SPL*/
+void do_board_detect(void)
+{
+	char *bname = NULL;
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+
+	if (board_is_x15())
+		bname = "BeagleBoard X15";
+	else if (board_is_am572x_evm())
+		bname = "AM572x EVM";
+	else if (board_is_am572x_idk())
+		bname = "AM572x IDK";
+
+	if (bname)
+		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
+			 "Board: %s REV %s\n", bname, board_ti_get_rev());
+}
+
+static void setup_board_eeprom_env(void)
+{
+	char *name = "beagle_x15";
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		goto invalid_eeprom;
+
+	if (board_is_am572x_evm())
+		name = "am57xx_evm";
+	else if (board_is_am572x_idk())
+		name = "am572x_idk";
+	else
+		printf("Unidentified board claims %s in eeprom header\n",
+		       board_ti_get_name());
+
+invalid_eeprom:
+	set_board_info_env(name);
+}
+
+#endif	/* CONFIG_SPL_BUILD */
 
 void hw_data_init(void)
 {
@@ -264,7 +333,8 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	init_sata(0);
+	setup_board_eeprom_env();
+
 	/*
 	 * DEV_CTRL.DEV_ON = 1 please - else palmas switches off in 8 seconds
 	 * This is the POWERHOLD-in-Low behavior.
@@ -273,7 +343,7 @@ int board_late_init(void)
 	return 0;
 }
 
-void set_muxconf_regs_essential(void)
+void set_muxconf_regs(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
 		     early_padconf, ARRAY_SIZE(early_padconf));
@@ -282,9 +352,24 @@ void set_muxconf_regs_essential(void)
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
-	__recalibrate_iodelay(core_padconf_array_essential,
-			      ARRAY_SIZE(core_padconf_array_essential),
-			      iodelay_cfg_array, ARRAY_SIZE(iodelay_cfg_array));
+	const struct pad_conf_entry *pconf;
+	const struct iodelay_cfg_entry *iod;
+	int pconf_sz, iod_sz;
+
+	if (board_is_am572x_idk()) {
+		pconf = core_padconf_array_essential_am572x_idk;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
+		iod = iodelay_cfg_array_am572x_idk;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am572x_idk);
+	} else {
+		/* Common for X15/GPEVM */
+		pconf = core_padconf_array_essential_x15;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_x15);
+		iod = iodelay_cfg_array_x15;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_x15);
+	}
+
+	__recalibrate_iodelay(pconf, pconf_sz, iod, iod_sz);
 }
 #endif
 
@@ -475,12 +560,39 @@ static struct cpsw_platform_data cpsw_data = {
 	.version		= CPSW_CTRL_VERSION_2,
 };
 
+static u64 mac_to_u64(u8 mac[6])
+{
+	int i;
+	u64 addr = 0;
+
+	for (i = 0; i < 6; i++) {
+		addr <<= 8;
+		addr |= mac[i];
+	}
+
+	return addr;
+}
+
+static void u64_to_mac(u64 addr, u8 mac[6])
+{
+	mac[5] = addr;
+	mac[4] = addr >> 8;
+	mac[3] = addr >> 16;
+	mac[2] = addr >> 24;
+	mac[1] = addr >> 32;
+	mac[0] = addr >> 40;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	int ret;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 	uint32_t ctrl_val;
+	int i;
+	u64 mac1, mac2;
+	u8 mac_addr1[6], mac_addr2[6];
+	int num_macs;
 
 	/* try reading mac address from efuse */
 	mac_lo = readl((*ctrl)->control_core_mac_id_0_lo);
@@ -517,9 +629,41 @@ int board_eth_init(bd_t *bis)
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
 
+	/* The phy address for the AM572x IDK are different than x15 */
+	if (board_is_am572x_idk()) {
+		cpsw_data.slave_data[0].phy_addr = 0;
+		cpsw_data.slave_data[1].phy_addr = 1;
+	}
+
 	ret = cpsw_register(&cpsw_data);
 	if (ret < 0)
 		printf("Error %d registering CPSW switch\n", ret);
+
+	/*
+	 * Export any Ethernet MAC addresses from EEPROM.
+	 * On AM57xx the 2 MAC addresses define the address range
+	 */
+	board_ti_get_eth_mac_addr(0, mac_addr1);
+	board_ti_get_eth_mac_addr(1, mac_addr2);
+
+	if (is_valid_ethaddr(mac_addr1) && is_valid_ethaddr(mac_addr2)) {
+		mac1 = mac_to_u64(mac_addr1);
+		mac2 = mac_to_u64(mac_addr2);
+
+		/* must contain an address range */
+		num_macs = mac2 - mac1 + 1;
+		/* <= 50 to protect against user programming error */
+		if (num_macs > 0 && num_macs <= 50) {
+			for (i = 0; i < num_macs; i++) {
+				u64_to_mac(mac1 + i, mac_addr);
+				if (is_valid_ethaddr(mac_addr)) {
+					eth_setenv_enetaddr_by_index("eth",
+								     i + 2,
+								     mac_addr);
+				}
+			}
+		}
+	}
 
 	return ret;
 }

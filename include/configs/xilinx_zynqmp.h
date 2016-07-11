@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
@@ -46,9 +45,6 @@
 /* Text base on 16MB for now - 0 doesn't work */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
-/* Flat Device Tree Definitions */
-#define CONFIG_OF_LIBFDT
-
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
 # define COUNTER_FREQUENCY		100000000
@@ -69,14 +65,9 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
 #define CONFIG_MP
-
-#define CONFIG_CMD_MII
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -86,18 +77,10 @@
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_BOOTP_SERVERIP
 
-/* SPI */
-#ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_CMD_SPI
-# define CONFIG_CMD_SF
-#endif
-
 #ifdef CONFIG_ZYNQMP_QSPI
 # define CONFIG_SPI_GENERIC
 # define CONFIG_SF_DEFAULT_SPEED	30000000
 # define CONFIG_SF_DUAL_FLASH
-# define CONFIG_CMD_SPI
-# define CONFIG_CMD_SF
 # define CONFIG_CMD_SF_TEST
 #endif
 
@@ -115,7 +98,6 @@
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
-# define CONFIG_CMD_MMC
 # define CONFIG_SUPPORT_EMMC_BOOT
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
@@ -124,7 +106,6 @@
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
 # define CONFIG_FAT_WRITE
-# define CONFIG_CMD_EXT4_WRITE
 #endif
 
 #ifdef CONFIG_NAND_ARASAN
@@ -144,27 +125,14 @@
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         1
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_XHCI_ZYNQMP
 
-#define CONFIG_USB_DWC3
-#define CONFIG_USB_DWC3_GADGET
-
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-#define CONFIG_USBDOWNLOAD_GADGET
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
-#define CONFIG_G_DNL_VENDOR_NUM		0x03FD
-#define CONFIG_G_DNL_PRODUCT_NUM	0x0300
-#define CONFIG_G_DNL_MANUFACTURER	"Xilinx"
 #define CONFIG_USB_CABLE_CHECK
-#define CONFIG_CMD_DFU
 #define CONFIG_CMD_THOR_DOWNLOAD
 #define CONFIG_USB_FUNCTION_THOR
 #define CONFIG_THOR_RESET_OFF
@@ -192,7 +160,7 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=4000000\0" \
 	"fdt_high=0x10000000\0" \
-	"loadbootenv_addr=0x100000\0" \
+	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sdbootdev=0\0"\
 	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"bootenv=uEnv.txt\0" \
@@ -257,7 +225,6 @@
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
@@ -278,7 +245,6 @@
 
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_CMD_I2C
 # define CONFIG_SYS_I2C
 # define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
 # define CONFIG_SYS_I2C_ZYNQ_SLAVE		0

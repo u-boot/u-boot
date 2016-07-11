@@ -77,9 +77,6 @@
 #define CONFIG_CMD_NAND_LOCK_UNLOCK /* Enable lock/unlock support */
 #endif
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-
 #undef CONFIG_SYS_I2C_OMAP24XX
 #define CONFIG_SYS_I2C_OMAP34XX
 

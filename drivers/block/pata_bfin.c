@@ -965,7 +965,7 @@ int scan_sata(int dev)
 		/* Probe device and set xfer mode */
 		bfin_ata_identify(ap, dev%PATA_DEV_NUM_PER_PORT);
 		bfin_ata_set_Feature_cmd(ap, dev%PATA_DEV_NUM_PER_PORT);
-		init_part(&sata_dev_desc[dev]);
+		part_init(&sata_dev_desc[dev]);
 		return 0;
 	}
 

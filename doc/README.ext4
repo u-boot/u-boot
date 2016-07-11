@@ -1,53 +1,77 @@
-This patch series adds support for ext4 ls,load and write features in uboot
-Journaling is supported for write feature.
+U-Boot supports access of both ext2 and ext4 filesystems, either in read-only
+mode or in read-write mode.
 
-To enable support for the ext4 (and ext2) filesystem implementation,
-#define CONFIG_FS_EXT4
+First, to enable support for both ext4 (and, automatically, ext2 as well),
+but without selecting the corresponding commands, use one of:
 
-If you want write support,
-#define CONFIG_EXT4_WRITE
+  #define CONFIG_FS_EXT4	(for read-only)
+  #define CONFIG_EXT4_WRITE	(for read-write)
 
-To Enable ext2 ls and load commands, modify the board specific config file with
-#define CONFIG_CMD_EXT2
-This automatically defines CONFIG_FS_EXT4 for you.
+Next, to select the ext2-related commands:
 
-To Enable ext4 ls and load commands, modify the board specific config file with
-#define CONFIG_CMD_EXT4
-This automatically defines CONFIG_FS_EXT4 for you.
+  * ext2ls
+  * ext2load
 
-To enable ext4 write command, modify the board specific config file with
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-These automatically define CONFIG_FS_EXT4 and CONFIG_EXT4_WRITE for you.
+or ext4-related commands:
 
-Also relevant are the generic filesystem commands,
-#define CONFIG_CMD_FS_GENERIC
-This does not automatically enable EXT4 support for you.
+  * ext4size
+  * ext4ls
+  * ext4load
 
-Steps to test:
+use one or both of:
 
-1. After applying the patch, ext4 specific commands can be seen
-   in the boot loader prompt using
+  #define CONFIG_CMD_EXT2
+  #define CONFIG_CMD_EXT4
+
+Selecting either of the above automatically defines CONFIG_FS_EXT4 if it
+wasn't defined already.
+
+In addition, to get the write access command "ext4write", use:
+
+  #define CONFIG_CMD_EXT4_WRITE
+
+which automatically defines CONFIG_EXT4_WRITE if it wasn't defined
+already.
+
+Also relevant are the generic filesystem commands, selected by:
+
+  #define CONFIG_CMD_FS_GENERIC
+
+This does not automatically enable EXT4 support for you, you still need
+to do that yourself.
+
+Some sample commands to test ext4 support:
+
+1. Check that the commands can be seen in the output of U-Boot help:
+
 	UBOOT #help
-
+	...
 	ext4load- load binary file from a Ext4 file system
 	ext4ls  - list files in a directory (default /)
+	ext4size - determine a file's size
 	ext4write- create a file in ext4 formatted partition
+	...
 
-2. To list the files in ext4 formatted partition, execute
+2. To list the files in an ext4-formatted partition, run:
+
 	ext4ls <interface> <dev[:part]> [directory]
+
 	For example:
 	UBOOT #ext4ls mmc 0:5 /usr/lib
 
-3. To read and load a file from an ext4 formatted partition to RAM, execute
+3. To read and load a file from an ext4-formatted partition to RAM, run:
+
 	ext4load <interface> <dev[:part]> [addr] [filename] [bytes]
+
 	For example:
 	UBOOT #ext4load mmc 2:2 0x30007fc0 uImage
 
-4. To write a file to a ext4 formatted partition.
+4. To write a file to an ext4-formatted partition.
+
 	a) First load a file to RAM at a particular address for example 0x30007fc0.
-	Now execute ext4write command
+	Now execute ext4write command:
 	ext4write <interface> <dev[:part]> [filename] [Address] [sizebytes]
+
 	For example:
 	UBOOT #ext4write mmc 2:2 /boot/uImage 0x30007fc0 6183120
 	(here 6183120 is the size of the file to be written)

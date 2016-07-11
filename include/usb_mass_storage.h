@@ -23,7 +23,7 @@ struct ums {
 	unsigned int start_sector;
 	unsigned int num_sectors;
 	const char *name;
-	block_dev_desc_t block_dev;
+	struct blk_desc block_dev;
 };
 
 int fsg_init(struct ums *ums_devs, int count);

@@ -45,7 +45,6 @@
 #define CONFIG_CONTROLCENTERD
 #define CONFIG_MP			/* support multiple processors */
 
-
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENABLE_36BIT_PHYS
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
@@ -97,7 +96,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 
 /*
  * Memory map
@@ -201,7 +199,6 @@
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 #ifndef CONFIG_TRAILBLAZER
-#define CONFIG_CMD_I2C
 #endif
 
 #define CONFIG_PCA9698			/* NXP PCA9698 */
@@ -216,8 +213,6 @@
  */
 #define CONFIG_HARD_SPI
 
-
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		0
 #endif
@@ -229,11 +224,9 @@
  */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
 
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-
 
 #ifndef CONFIG_TRAILBLAZER
 
@@ -252,7 +245,7 @@
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
-#define CONFIG_PCIE1			/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -326,7 +319,6 @@
  * USB
  */
 #define CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 
 #define CONFIG_HAS_FSL_DR_USB
@@ -365,7 +357,6 @@
  * Command line configuration.
  */
 #ifndef CONFIG_TRAILBLAZER
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
@@ -385,11 +376,7 @@
 #ifndef CONFIG_TRAILBLAZER
 
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -399,17 +386,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
-
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
 
 #else /* CONFIG_TRAILBLAZER */
 

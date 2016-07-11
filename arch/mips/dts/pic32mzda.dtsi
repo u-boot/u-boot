@@ -171,4 +171,16 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 	};
+
+	usb: musb@1f8e3000 {
+		compatible = "microchip,pic32mzda-usb";
+		reg = <0x1f8e3000 0x1000>,
+		      <0x1f884000 0x1000>;
+		reg-names = "mc", "control";
+		interrupts = <132 IRQ_TYPE_EDGE_RISING>,
+			     <133 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock PB5CLK>;
+		clock-names = "usb_clk";
+		status = "disabled";
+	};
 };

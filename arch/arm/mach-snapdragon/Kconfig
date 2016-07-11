@@ -1,0 +1,26 @@
+if ARCH_SNAPDRAGON
+
+config SYS_SOC
+	default "snapdragon"
+
+choice
+	prompt "Snapdragon board select"
+
+config TARGET_DRAGONBOARD410C
+	bool "96Boards Dragonboard 410C"
+	help
+	  Support for 96Boards Dragonboard 410C. This board complies with
+	  96Board Open Platform Specifications. Features:
+	  - Qualcomm Snapdragon 410C SoC - APQ8016 (4xCortex A53, Adreno 306)
+	  - 1GiB RAM
+	  - 8GiB eMMC, uSD slot
+	  - WiFi, Bluetooth and GPS module
+	  - 2x Host, 1x Device USB port
+	  - HDMI
+	  - 20-pin low speed and 40-pin high speed expanders, 4 LED, 3 buttons
+
+endchoice
+
+source "board/qualcomm/dragonboard410c/Kconfig"
+
+endif

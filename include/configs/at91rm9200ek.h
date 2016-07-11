@@ -58,10 +58,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_OF_LIBFDT
-
-
 /*
  * Memory Configuration
  */
@@ -121,11 +117,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 
 /*
  * Network Driver Setting
@@ -192,7 +183,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 /* Print Buffer Size */

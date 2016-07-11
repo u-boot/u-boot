@@ -12,6 +12,7 @@
 #include <asm/msr.h>
 #include <asm/acpi.h>
 #include <asm/cpu.h>
+#include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/processor.h>
@@ -167,8 +168,8 @@ static void sandybridge_setup_northbridge_bars(struct udevice *dev)
 	debug("Setting up static registers\n");
 	dm_pci_write_config32(dev, EPBAR, DEFAULT_EPBAR | 1);
 	dm_pci_write_config32(dev, EPBAR + 4, (0LL + DEFAULT_EPBAR) >> 32);
-	dm_pci_write_config32(dev, MCHBAR, DEFAULT_MCHBAR | 1);
-	dm_pci_write_config32(dev, MCHBAR + 4, (0LL + DEFAULT_MCHBAR) >> 32);
+	dm_pci_write_config32(dev, MCHBAR, MCH_BASE_ADDRESS | 1);
+	dm_pci_write_config32(dev, MCHBAR + 4, (0LL + MCH_BASE_ADDRESS) >> 32);
 	/* 64MB - busses 0-63 */
 	dm_pci_write_config32(dev, PCIEXBAR, DEFAULT_PCIEXBAR | 5);
 	dm_pci_write_config32(dev, PCIEXBAR + 4,

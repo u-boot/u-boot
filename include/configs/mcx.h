@@ -25,16 +25,12 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
 #define CONFIG_BOARD_LATE_INIT
 
-
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_FIT
 
 /*
  * Leave it at 0x80008000 to allow booting new u-boot.bin with X-loader
@@ -105,8 +101,6 @@
 #define CONFIG_OMAP3_GPIO_5
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_ULPI
-#define CONFIG_USB_ULPI_VIEWPORT_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 #define	CONFIG_USB_HOST_ETHER
@@ -114,19 +108,10 @@
 #define CONFIG_USB_ETHER_MCS7830
 
 /* commands to include */
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
@@ -145,7 +130,6 @@
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 
-#define CONFIG_CMD_MII
 /*
  * Board NAND Info.
  */
@@ -268,7 +252,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_CBSIZE		1024/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

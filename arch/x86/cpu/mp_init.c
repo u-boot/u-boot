@@ -15,6 +15,7 @@
 #include <asm/cpu.h>
 #include <asm/interrupt.h>
 #include <asm/lapic.h>
+#include <asm/microcode.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -195,7 +196,7 @@ static int save_bsp_msrs(char *start, int size)
 	msr_count = 2 * num_var_mtrrs + NUM_FIXED_MTRRS + 1;
 
 	if ((msr_count * sizeof(struct saved_msr)) > size) {
-		printf("Cannot mirror all %d msrs.\n", msr_count);
+		printf("Cannot mirror all %d msrs\n", msr_count);
 		return -ENOSPC;
 	}
 
@@ -247,8 +248,10 @@ static int load_sipi_vector(atomic_t **ap_countp, int num_cpus)
 	if (!stack)
 		return -ENOMEM;
 	params->stack_top = (u32)(stack + size);
-
-	params->microcode_ptr = 0;
+#if !defined(CONFIG_QEMU) && !defined(CONFIG_HAVE_FSP)
+	params->microcode_ptr = ucode_base;
+	debug("Microcode at %x\n", params->microcode_ptr);
+#endif
 	params->msr_table_ptr = (u32)msr_save;
 	ret = save_bsp_msrs(msr_save, sizeof(msr_save));
 	if (ret < 0)
@@ -283,21 +286,25 @@ static int check_cpu_devices(int expected_cpus)
 }
 
 /* Returns 1 for timeout. 0 on success */
-static int apic_wait_timeout(int total_delay, int delay_step)
+static int apic_wait_timeout(int total_delay, const char *msg)
 {
 	int total = 0;
-	int timeout = 0;
 
+	if (!(lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY))
+		return 0;
+
+	debug("Waiting for %s...", msg);
 	while (lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY) {
-		udelay(delay_step);
-		total += delay_step;
+		udelay(50);
+		total += 50;
 		if (total >= total_delay) {
-			timeout = 1;
-			break;
+			debug("timed out: aborting\n");
+			return -ETIMEDOUT;
 		}
 	}
+	debug("done\n");
 
-	return timeout;
+	return 0;
 }
 
 static int start_aps(int ap_count, atomic_t *num_aps)
@@ -320,73 +327,42 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 
 	debug("Attempting to start %d APs\n", ap_count);
 
-	if ((lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY)) {
-		debug("Waiting for ICR not to be busy...");
-		if (apic_wait_timeout(1000, 50)) {
-			debug("timed out. Aborting.\n");
-			return -1;
-		} else {
-			debug("done.\n");
-		}
-	}
+	if (apic_wait_timeout(1000, "ICR not to be busy"))
+		return -ETIMEDOUT;
 
 	/* Send INIT IPI to all but self */
 	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
 	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
 		    LAPIC_DM_INIT);
-	debug("Waiting for 10ms after sending INIT.\n");
+	debug("Waiting for 10ms after sending INIT\n");
 	mdelay(10);
 
 	/* Send 1st SIPI */
-	if ((lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY)) {
-		debug("Waiting for ICR not to be busy...");
-		if (apic_wait_timeout(1000, 50)) {
-			debug("timed out. Aborting.\n");
-			return -1;
-		} else {
-			debug("done.\n");
-		}
-	}
+	if (apic_wait_timeout(1000, "ICR not to be busy"))
+		return -ETIMEDOUT;
 
 	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
 	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
 		    LAPIC_DM_STARTUP | sipi_vector);
-	debug("Waiting for 1st SIPI to complete...");
-	if (apic_wait_timeout(10000, 50)) {
-		debug("timed out.\n");
-		return -1;
-	} else {
-		debug("done.\n");
-	}
+	if (apic_wait_timeout(10000, "first SIPI to complete"))
+		return -ETIMEDOUT;
 
 	/* Wait for CPUs to check in up to 200 us */
 	wait_for_aps(num_aps, ap_count, 200, 15);
 
 	/* Send 2nd SIPI */
-	if ((lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY)) {
-		debug("Waiting for ICR not to be busy...");
-		if (apic_wait_timeout(1000, 50)) {
-			debug("timed out. Aborting.\n");
-			return -1;
-		} else {
-			debug("done.\n");
-		}
-	}
+	if (apic_wait_timeout(1000, "ICR not to be busy"))
+		return -ETIMEDOUT;
 
 	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
 	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
 		    LAPIC_DM_STARTUP | sipi_vector);
-	debug("Waiting for 2nd SIPI to complete...");
-	if (apic_wait_timeout(10000, 50)) {
-		debug("timed out.\n");
-		return -1;
-	} else {
-		debug("done.\n");
-	}
+	if (apic_wait_timeout(10000, "second SIPI to complete"))
+		return -ETIMEDOUT;
 
 	/* Wait for CPUs to check in */
 	if (wait_for_aps(num_aps, ap_count, 10000, 50)) {
-		debug("Not all APs checked in: %d/%d.\n",
+		debug("Not all APs checked in: %d/%d\n",
 		      atomic_read(num_aps), ap_count);
 		return -1;
 	}
@@ -410,7 +386,7 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_params *mp_params)
 			/* Wait for the APs to check in */
 			if (wait_for_aps(&rec->cpus_entered, num_aps,
 					 timeout_us, step_us)) {
-				debug("MP record %d timeout.\n", i);
+				debug("MP record %d timeout\n", i);
 				ret = -1;
 			}
 		}
@@ -430,7 +406,7 @@ static int init_bsp(struct udevice **devp)
 	int ret;
 
 	cpu_get_name(processor_name);
-	debug("CPU: %s.\n", processor_name);
+	debug("CPU: %s\n", processor_name);
 
 	lapic_setup();
 
@@ -587,12 +563,16 @@ int mp_init(struct mp_params *p)
 
 int mp_init_cpu(struct udevice *cpu, void *unused)
 {
+	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
+
 	/*
 	 * Multiple APs are brought up simultaneously and they may get the same
 	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
 	 * this, set req_seq to the reg number in the device tree in advance.
 	 */
 	cpu->req_seq = fdtdec_get_int(gd->fdt_blob, cpu->of_offset, "reg", -1);
+	plat->ucode_version = microcode_read_rev();
+	plat->device_id = gd->arch.x86_device;
 
 	return device_probe(cpu);
 }

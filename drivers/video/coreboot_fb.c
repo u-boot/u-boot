@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <asm/arch/tables.h>
 #include <asm/arch/sysinfo.h>
 #include <vbe.h>
 #include <video_fb.h>

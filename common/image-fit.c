@@ -433,7 +433,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
 	    (type == IH_TYPE_RAMDISK)) {
-		fit_image_get_entry(fit, image_noffset, &entry);
+		ret = fit_image_get_entry(fit, image_noffset, &entry);
 		printf("%s  Entry Point:  ", p);
 		if (ret)
 			printf("unavailable\n");
@@ -675,6 +675,34 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 	return 0;
 }
 
+static int fit_image_get_address(const void *fit, int noffset, char *name,
+			  ulong *load)
+{
+	int len, cell_len;
+	const fdt32_t *cell;
+	uint64_t load64 = 0;
+
+	cell = fdt_getprop(fit, noffset, name, &len);
+	if (cell == NULL) {
+		fit_get_debug(fit, noffset, name, len);
+		return -1;
+	}
+
+	if (len > sizeof(ulong)) {
+		printf("Unsupported %s address size\n", name);
+		return -1;
+	}
+
+	cell_len = len >> 2;
+	/* Use load64 to avoid compiling warning for 32-bit target */
+	while (cell_len--) {
+		load64 = (load64 << 32) | uimage_to_cpu(*cell);
+		cell++;
+	}
+	*load = (ulong)load64;
+
+	return 0;
+}
 /**
  * fit_image_get_load() - get load addr property for given component image node
  * @fit: pointer to the FIT format image header
@@ -690,17 +718,7 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
  */
 int fit_image_get_load(const void *fit, int noffset, ulong *load)
 {
-	int len;
-	const uint32_t *data;
-
-	data = fdt_getprop(fit, noffset, FIT_LOAD_PROP, &len);
-	if (data == NULL) {
-		fit_get_debug(fit, noffset, FIT_LOAD_PROP, len);
-		return -1;
-	}
-
-	*load = uimage_to_cpu(*data);
-	return 0;
+	return fit_image_get_address(fit, noffset, FIT_LOAD_PROP, load);
 }
 
 /**
@@ -722,17 +740,7 @@ int fit_image_get_load(const void *fit, int noffset, ulong *load)
  */
 int fit_image_get_entry(const void *fit, int noffset, ulong *entry)
 {
-	int len;
-	const uint32_t *data;
-
-	data = fdt_getprop(fit, noffset, FIT_ENTRY_PROP, &len);
-	if (data == NULL) {
-		fit_get_debug(fit, noffset, FIT_ENTRY_PROP, len);
-		return -1;
-	}
-
-	*entry = uimage_to_cpu(*data);
-	return 0;
+	return fit_image_get_address(fit, noffset, FIT_ENTRY_PROP, entry);
 }
 
 /**
@@ -1101,8 +1109,9 @@ int fit_all_image_verify(const void *fit)
 			 * Direct child node of the images parent node,
 			 * i.e. component image node.
 			 */
-			printf("   Hash(es) for Image %u (%s): ", count++,
+			printf("   Hash(es) for Image %u (%s): ", count,
 			       fit_get_name(fit, noffset, NULL));
+			count++;
 
 			if (!fit_image_verify(fit, noffset))
 				return 0;

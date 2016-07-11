@@ -246,18 +246,14 @@ int bmp_display(ulong addr, int x, int y)
 	addr = map_to_sysmem(bmp);
 
 #ifdef CONFIG_DM_VIDEO
-	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
 	if (!ret) {
-		if (!dev)
-			ret = -ENODEV;
-		if (!ret) {
-			bool align = false;
+		bool align = false;
 
 # ifdef CONFIG_SPLASH_SCREEN_ALIGN
-			align = true;
+		align = true;
 # endif /* CONFIG_SPLASH_SCREEN_ALIGN */
-			ret = video_bmp_display(dev, addr, x, y, align);
-		}
+		ret = video_bmp_display(dev, addr, x, y, align);
 	}
 #elif defined(CONFIG_LCD)
 	ret = lcd_display_bitmap(addr, x, y);

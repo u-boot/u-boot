@@ -276,7 +276,6 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 #define CONFIG_SYS_NAND_WINDOW_SIZE (32 * 1024)
 
-
 #define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE \
 				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit port */ \
@@ -359,11 +358,6 @@
 
 #endif
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 #define CONFIG_MPC83XX_GPIO 1
 
 /*
@@ -378,9 +372,6 @@
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -435,7 +426,6 @@
 #define TSEC2_PHYIDX		0
 #endif
 
-
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC1"
 
@@ -482,14 +472,9 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 

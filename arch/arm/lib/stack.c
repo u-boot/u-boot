@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Andreas Bießmann <andreas.devel@googlemail.com>
+ * Copyright (c) 2015 Andreas Bießmann <andreas@biessmann.org>
  *
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2002-2006

@@ -138,8 +138,8 @@ static u32 get_cfg_reg(u16 a_delay, u16 g_delay, u32 cpde, u32 fpde)
 	return reg;
 }
 
-static int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
-			   int niodelays)
+int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
+		   int niodelays)
 {
 	struct iodelay_cfg_entry *iodelay = (struct iodelay_cfg_entry *)array;
 	u32 reg, cpde, fpde, i;
@@ -166,16 +166,14 @@ static int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
 	return 0;
 }
 
-void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
-			   struct iodelay_cfg_entry const *iodelay,
-			   int niodelays)
+int __recalibrate_iodelay_start(void)
 {
 	int ret = 0;
 
 	/* IO recalibration should be done only from SRAM */
 	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context()) {
 		puts("IODELAY recalibration called from invalid context - use only from SPL in SRAM\n");
-		return;
+		return -1;
 	}
 
 	/* unlock IODELAY CONFIG registers */
@@ -191,23 +189,27 @@ void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
 		goto err;
 
 	ret = update_delay_mechanism((*ctrl)->iodelay_config_base);
-	if (ret)
-		goto err;
-
-	/* Configure Mux settings */
-	do_set_mux32((*ctrl)->control_padconf_core_base, pad, npads);
-
-	/* Configure Manual IO timing modes */
-	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
-	if (ret)
-		goto err;
-
-	ret = isolate_io(DEISOLATE_IO);
 
 err:
+	return ret;
+}
+
+void __recalibrate_iodelay_end(int ret)
+{
+
+	/* IO recalibration should be done only from SRAM */
+	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context()) {
+		puts("IODELAY recalibration called from invalid context - use only from SPL in SRAM\n");
+		return;
+	}
+
+	if (!ret)
+		ret = isolate_io(DEISOLATE_IO);
+
 	/* lock IODELAY CONFIG registers */
 	writel(CFG_IODELAY_LOCK_KEY, (*ctrl)->iodelay_config_base +
 	       CFG_REG_8_OFFSET);
+
 	/*
 	 * UART cannot be used during IO recalibration sequence as IOs are in
 	 * isolation. So error handling and debug prints are done after
@@ -232,7 +234,41 @@ err:
 	case ERR_FPDE:
 		puts("IODELAY: FPDE calculation failed\n");
 		break;
+	case -1:
+		puts("IODELAY: Wrong Context call?\n");
+		break;
 	default:
 		debug("IODELAY: IO delay recalibration successfully completed\n");
 	}
+
+	return;
+}
+
+void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
+			   struct iodelay_cfg_entry const *iodelay,
+			   int niodelays)
+{
+	int ret = 0;
+
+	/* IO recalibration should be done only from SRAM */
+	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context()) {
+		puts("IODELAY recalibration called from invalid context - use only from SPL in SRAM\n");
+		return;
+	}
+
+	ret = __recalibrate_iodelay_start();
+	if (ret)
+		goto err;
+
+	/* Configure Mux settings */
+	do_set_mux32((*ctrl)->control_padconf_core_base, pad, npads);
+
+	/* Configure Manual IO timing modes */
+	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
+	if (ret)
+		goto err;
+
+err:
+	__recalibrate_iodelay_end(ret);
+
 }

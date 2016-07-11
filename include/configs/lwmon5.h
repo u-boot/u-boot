@@ -23,7 +23,6 @@
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 
-
 #define CONFIG_SYS_TEXT_BASE	0xFFF80000
 #define CONFIG_HOSTNAME		lwmon5
 
@@ -300,15 +299,8 @@
 					 CONFIG_SYS_I2C_DSPIC_KEYB_ADDR,\
 					 CONFIG_SYS_I2C_DSPIC_IO_ADDR }
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 /* Update size in "reg" property of NOR FLASH device tree nodes */
 #define CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
-
-#define CONFIG_FIT			/* enable FIT image support	*/
 
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 
@@ -408,16 +400,10 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
 
@@ -426,7 +412,6 @@
 #endif
 
 #ifdef CONFIG_440EPX
-#define CONFIG_CMD_USB
 #endif
 
 /*
@@ -435,8 +420,6 @@
 #define CONFIG_SUPPORT_VFAT
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	        1024	/* Console I/O Buffer Size	*/
@@ -454,7 +437,6 @@
 #define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 

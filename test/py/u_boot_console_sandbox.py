@@ -44,6 +44,7 @@ class ConsoleSandbox(ConsoleBase):
             cmd += ['gdbserver', self.config.gdbserver]
         cmd += [
             self.config.build_dir + '/u-boot',
+            '-v',
             '-d',
             self.config.build_dir + '/arch/sandbox/dts/test.dtb'
         ]

@@ -19,6 +19,13 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
+/* SRAM starts at 0x40200000 and ends at 0x4020FFFF (64KB) */
+#undef CONFIG_SPL_MAX_SIZE
+#undef CONFIG_SPL_TEXT_BASE
+
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_TEXT_BASE		0x40200000
+
 /*
  * Display CPU and Board information
  */
@@ -69,12 +76,9 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"IGEP"
 
-#define CONFIG_CMD_CACHE
 #ifdef CONFIG_BOOT_ONENAND
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
 #endif
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -93,7 +97,6 @@
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
-
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_DEVICE_SETTINGS \

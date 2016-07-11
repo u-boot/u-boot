@@ -430,8 +430,6 @@ int get_scl(void);
 
 #define	CONFIG_SYS_RESET_ADDRESS 0xFDFFFFFC	/* "bad" address */
 
-#define CONFIG_FIT		1
-
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@11a90"
 

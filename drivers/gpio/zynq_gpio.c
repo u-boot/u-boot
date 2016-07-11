@@ -325,7 +325,6 @@ static const struct dm_gpio_ops gpio_zynq_ops = {
 	.get_value		= zynq_gpio_get_value,
 	.set_value		= zynq_gpio_set_value,
 	.get_function		= zynq_gpio_get_function,
-
 };
 
 static const struct udevice_id zynq_gpio_ids[] = {

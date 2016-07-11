@@ -349,7 +349,8 @@ directory. These include:
      - Unit tests for U-Boot's compression algorithms, useful for
        security checking. It supports gzip, bzip2, lzma and lzo.
   driver model
-     - test/dm/test-dm.sh to run these.
+     - Run this pytest
+	  ./test/py/test.py --bd sandbox --build -k ut_dm -v
   image
      - Unit tests for images:
           test/image/test-imagetools.sh - multi-file images

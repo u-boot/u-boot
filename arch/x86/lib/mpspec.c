@@ -297,7 +297,7 @@ static int mptable_add_intsrc(struct mp_config_table *mc,
 	const u32 *cell;
 	int i, ret;
 
-	ret = uclass_first_device(UCLASS_IRQ, &dev);
+	ret = uclass_first_device_err(UCLASS_IRQ, &dev);
 	if (ret && ret != -ENODEV) {
 		debug("%s: Cannot find irq router node\n", __func__);
 		return ret;

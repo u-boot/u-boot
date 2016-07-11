@@ -44,21 +44,18 @@
 #define CONFIG_MXC_UART
 
 /* SPI */
-#define CONFIG_CMD_SPI
 #define CONFIG_MXC_SPI
 
 /* SPI Flash */
 
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
 
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
 #define CONFIG_SF_DEFAULT_SPEED	50000000
 #define CONFIG_SF_DEFAULT_MODE	(SPI_MODE_0)
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -91,7 +88,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -100,10 +96,6 @@
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -287,7 +279,6 @@
 		"sf read ${${fdt_addr}} ${offset} ${size}; "                   \
 		"setenv size ; setenv offset\0"                                \
 
-
 #define CONFIG_BOOTCOMMAND                                                     \
 	"sf probe; run mmcboot; run netboot; run panicboot"                    \
 
@@ -377,11 +368,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
 
 /*
  * All the defines above are for the TQMa6 SoM

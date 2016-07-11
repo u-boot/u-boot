@@ -145,7 +145,7 @@ config MIPS_BOOT_ENV_LEGACY
 	  Enable this option if you want U-Boot to hand over the Yamon-style
 	  environment to the kernel. Information like memory size, initrd
 	  address and size will be prepared as zero-terminated key/value list.
-	  The address of the enviroment is stored in register $a2.
+	  The address of the environment is stored in register $a2.
 
 config MIPS_BOOT_FDT
 	bool "Hand over a flattened device tree to Linux kernel"

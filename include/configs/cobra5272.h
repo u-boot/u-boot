@@ -116,13 +116,9 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-
-#undef CONFIG_CMD_MII
 
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_MII		1
@@ -157,7 +153,6 @@
 seconds u-boot will wait before starting defined (auto-)boot command, setting
 to -1 disables delay, setting to 0 will too prevent access to u-boot command
 interface: u-boot then has to reflashed */
-
 
 /* The following settings will be contained in the environment block ; if you
 want to use a neutral environment all those settings can be manually set in

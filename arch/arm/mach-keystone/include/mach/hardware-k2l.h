@@ -53,9 +53,6 @@
 #define KS2_LPSC_FFTC_B			49
 #define KS2_LPSC_IQN_AIL		50
 
-/* MSMC */
-#define KS2_MSMC_SEGMENT_PCIE1		14
-
 /* Chip Interrupt Controller */
 #define KS2_CIC2_DDR3_ECC_IRQ_NUM	0x0D3
 #define KS2_CIC2_DDR3_ECC_CHAN_NUM	0x01D
@@ -104,5 +101,12 @@
 
 /* NETCP */
 #define KS2_NETCP_BASE			0x26000000
+
+#ifndef __ASSEMBLY__
+static inline int ddr3_get_size(void)
+{
+	return 2;
+}
+#endif
 
 #endif /* __ASM_ARCH_HARDWARE_K2L_H */

@@ -10,7 +10,6 @@
 #ifndef _CONFIG_SHEEVAPLUG_H
 #define _CONFIG_SHEEVAPLUG_H
 
-
 /*
  * Version number information
  */
@@ -25,7 +24,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_MMC
 
 /*
  * Standard filesystems
@@ -60,16 +58,16 @@
  */
 #define CONFIG_BOOTCOMMAND		"${x_bootcmd_kernel}; "	\
 	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
-	"${x_bootcmd_usb}; bootm 0x6400000;"
+	"bootm 0x6400000;"
 
 #define CONFIG_MTDPARTS		\
-	"mtdparts=orion_nand:512K(uboot),"				\
-	"512K(env),1M(script),6M(kernel),"				\
-	"12M(ramdisk),4M(spare),-(rootfs)"
+	"orion_nand:512K(uboot),"				\
+	"512K(env),4M(kernel),"					\
+	"-(rootfs)\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS	\
-	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x300000\0" \
+	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x400000\0" \
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
 

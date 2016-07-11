@@ -10,8 +10,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_FIT
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #include "at91-sama5_common.h"
@@ -24,20 +22,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 /*#define CONFIG_LCD*/
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_USB
 
 /*
  * Memory configurations
@@ -133,9 +117,6 @@
 #define CONFIG_USB_STORAGE
 
 /* USB device */
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_ATMEL_USBA
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "DENX"
@@ -153,7 +134,6 @@
 #define CONFIG_LOADADDR		0x20800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments

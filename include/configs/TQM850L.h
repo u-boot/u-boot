@@ -84,7 +84,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
@@ -93,14 +92,9 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_SNTP
-
 
 #define CONFIG_NETCONSOLE
 
@@ -110,7 +104,6 @@
 #define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
@@ -441,9 +434,6 @@
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_HWCONFIG		1
 
 #endif	/* __CONFIG_H */

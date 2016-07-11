@@ -34,7 +34,7 @@
 #undef CONFIG_SPL_TEXT_BASE
 #undef CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_TEXT_BASE   0x40200000
-#define CONFIG_SPL_MAX_SIZE    (64 * 1024)
+#define CONFIG_SPL_MAX_SIZE    (SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
 
 /* Display CPU and Board information */
 
@@ -64,13 +64,8 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 /* I2C */
 #define CONFIG_SYS_I2C_OMAP34XX
@@ -79,18 +74,10 @@
 #define CONFIG_OMAP3_LOGIC_USE_NEW_PRODUCT_ID
 
 /* USB */
-#define CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_USB_MUSB_PIO_ONLY
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETHER_RNDIS
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"TI"
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_CMD_FASTBOOT
 #define CONFIG_ANDROID_BOOT_IMAGE
@@ -153,7 +140,7 @@
 #define CONFIG_PREBOOT \
 	"echo ======================NOTICE============================;"\
 	"echo \"The u-boot environment is not set.\";"			\
-	"echo \"If using a display a valid display varible for your panel\";" \
+	"echo \"If using a display a valid display variable for your panel\";" \
 	"echo \"needs to be set.\";"					\
 	"echo \"Valid display options are:\";"				\
 	"echo \"  2 == LQ121S1DG31     TFT SVGA    (12.1)  Sharp\";"	\
@@ -291,7 +278,6 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
 
 /* SMSC922x Ethernet */
 #if defined(CONFIG_CMD_NET)

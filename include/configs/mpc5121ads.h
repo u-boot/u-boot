@@ -291,10 +291,6 @@
 #define CONSOLE_FIFO_RX_ADDR	FIFOC_PSC3_RX_ADDR
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /*
  * Clocks in use
@@ -335,7 +331,6 @@
 #define CONFIG_SYS_PCI_IO_BASE		0x00000000
 #define CONFIG_SYS_PCI_IO_PHYS		0x84000000
 #define CONFIG_SYS_PCI_IO_SIZE		0x01000000	/* 16M */
-
 
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
@@ -383,7 +378,6 @@
 /*
  * USB  Support
  */
-#define CONFIG_CMD_USB
 
 #if defined(CONFIG_CMD_USB)
 #define CONFIG_USB_EHCI				/* Enable EHCI Support	*/
@@ -414,16 +408,10 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #undef CONFIG_CMD_FUSE
@@ -458,14 +446,12 @@
 						"1m(u-boot);"		\
 					"mpc5121.nand:-(data)"
 
-
 #if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#define CONFIG_CMD_FAT
 #define CONFIG_SUPPORT_VFAT
 
 #endif /* defined(CONFIG_CMD_IDE) */
@@ -490,7 +476,6 @@
 #else
 	#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #endif
-
 
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
@@ -586,8 +571,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_SUPPORT_OLD_DEVICE_TREES	1
 
 #define OF_CPU			"PowerPC,5121@0"

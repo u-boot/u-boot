@@ -17,10 +17,6 @@
 #define CONFIG_CMD_DTT
 #define CONFIG_JFFS2_CMDLINE
 
-/* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-
 /* standard km ethernet_present for piggy */
 #define CONFIG_KM_COMMON_ETH_INIT
 

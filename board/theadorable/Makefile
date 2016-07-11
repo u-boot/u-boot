@@ -5,3 +5,4 @@
 #
 
 obj-y	:= theadorable.o
+obj-y	+= fpga.o

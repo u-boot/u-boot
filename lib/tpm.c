@@ -242,7 +242,7 @@ static uint32_t tpm_sendrecv_command(const void *command,
 		response_length = sizeof(response_buffer);
 	}
 
-	ret = uclass_first_device(UCLASS_TPM, &dev);
+	ret = uclass_first_device_err(UCLASS_TPM, &dev);
 	if (ret)
 		return ret;
 	err = tpm_xfer(dev, command, tpm_command_size(command),
@@ -261,8 +261,8 @@ int tpm_init(void)
 	int err;
 	struct udevice *dev;
 
-	err = uclass_first_device(UCLASS_TPM, &dev);
-	if (err || !dev)
+	err = uclass_first_device_err(UCLASS_TPM, &dev);
+	if (err)
 		return err;
 	return tpm_open(dev);
 }

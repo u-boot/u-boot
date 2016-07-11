@@ -47,9 +47,9 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 static const struct ns16550_platdata omap3logic_serial = {
-	OMAP34XX_UART1,
-	2,
-	V_NS16550_CLK
+	.base = OMAP34XX_UART1,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK
 };
 
 U_BOOT_DEVICE(omap3logic_uart) = {

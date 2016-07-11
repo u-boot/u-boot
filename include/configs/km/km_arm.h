@@ -41,7 +41,6 @@
 #include "keymile-common.h"
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SF
 
 /* SPI NOR Flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		8100000
@@ -92,9 +91,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_MISC_INIT_R
-
-/* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
 
 /*
  * NS16550 Configuration
@@ -162,7 +158,6 @@
  */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_CMD_MII		/* to debug mdio phy config */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */

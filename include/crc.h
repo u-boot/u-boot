@@ -36,34 +36,8 @@
 # endif
 #endif
 
-/* Compute a CRC, using the POSIX 1003 definition */
-extern uint32_t
-cyg_posix_crc32(unsigned char *s, int len);
+/* 16 bit CRC with polynomial x^16+x^12+x^5+1 (CRC-CCITT) */
 
-/* Gary S. Brown's 32 bit CRC */
-
-extern uint32_t
-cyg_crc32(unsigned char *s, int len);
-
-/* Gary S. Brown's 32 bit CRC, but accumulate the result from a */
-/* previous CRC calculation */
-
-extern uint32_t
-cyg_crc32_accumulate(uint32_t crc, unsigned char *s, int len);
-
-/* Ethernet FCS Algorithm */
-
-extern uint32_t
-cyg_ether_crc32(unsigned char *s, int len);
-
-/* Ethernet FCS algorithm, but accumulate the result from a previous */
-/* CRC calculation. */
-
-extern uint32_t
-cyg_ether_crc32_accumulate(uint32_t crc, unsigned char *s, int len);
-
-/* 16 bit CRC with polynomial x^16+x^12+x^5+1 */
-
-extern uint16_t cyg_crc16(unsigned char *s, int len);
+uint16_t crc16_ccitt(uint16_t crc_start, unsigned char *s, int len);
 
 #endif /* _SERVICES_CRC_CRC_H_ */

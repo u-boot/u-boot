@@ -454,6 +454,16 @@ int device_find_next_child(struct udevice **devp);
 fdt_addr_t dev_get_addr(struct udevice *dev);
 
 /**
+ * dev_get_addr_ptr() - Return pointer to the address of the reg property
+ *                      of a device
+ *
+ * @dev: Pointer to a device
+ *
+ * @return Pointer to addr, or NULL if there is no such property
+ */
+void *dev_get_addr_ptr(struct udevice *dev);
+
+/**
  * dev_get_addr_index() - Get the indexed reg property of a device
  *
  * @dev: Pointer to a device
@@ -463,6 +473,18 @@ fdt_addr_t dev_get_addr(struct udevice *dev);
  * @return addr
  */
 fdt_addr_t dev_get_addr_index(struct udevice *dev, int index);
+
+/**
+ * dev_get_addr_name() - Get the reg property of a device, indexed by name
+ *
+ * @dev: Pointer to a device
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @return addr
+ */
+fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name);
 
 /**
  * device_has_children() - check if a device has any children

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
-#ifdef CONFIG_TWL6030_POWER
 
 #include <twl6030.h>
 
@@ -28,6 +27,7 @@ static struct twl6030_data twl6032_info = {
 	.vbat_mult	= TWL6032_VBAT_MULT,
 	.vbat_shift	= TWL6032_VBAT_SHIFT,
 };
+
 
 static int twl6030_gpadc_read_channel(u8 channel_no)
 {
@@ -70,6 +70,13 @@ static int twl6030_gpadc_sw2_trigger(void)
 	}
 
 	return 0;
+}
+
+void twl6030_power_off(void)
+{
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_PHOENIX_DEV_ON,
+		TWL6030_PHOENIX_APP_DEVOFF | TWL6030_PHOENIX_CON_DEVOFF |
+		TWL6030_PHOENIX_MOD_DEVOFF);
 }
 
 void twl6030_stop_usb_charging(void)
@@ -212,24 +219,53 @@ void twl6030_init_battery_charging(void)
 	return;
 }
 
-void twl6030_power_mmc_init()
+void twl6030_power_mmc_init(int dev_index)
 {
-	/* set voltage to 3.0 and turnon for APP */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_VOLTATE, 0x15);
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_STATE, 0x21);
+	u8 value = 0;
+
+	if (dev_index == 0) {
+		/* 3.0V voltage output for VMMC */
+		twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_VOLTAGE,
+			TWL6030_CFG_VOLTAGE_30);
+
+		/* Enable P1 output for VMMC */
+		twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_STATE,
+			TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
+
+		twl6030_i2c_read_u8(TWL6030_CHIP_PM, TWL6030_PH_STS_BOOT, &value);
+	} else if (dev_index == 1) {
+		/* BOOT2 indicates 1.8V/2.8V VAUX1 for eMMC */
+		if (value & TWL6030_PH_STS_BOOT2) {
+			/* 1.8V voltage output for VAUX1 */
+			twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_VOLTAGE,
+				TWL6030_CFG_VOLTAGE_18);
+		} else {
+			/* 2.8V voltage output for VAUX1 */
+			twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_VOLTAGE,
+				TWL6030_CFG_VOLTAGE_28);
+		}
+
+		/* Enable P1 output for VAUX */
+		twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_STATE,
+			TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
+	}
 }
 
 void twl6030_usb_device_settings()
 {
-	u8 data = 0;
+	u8 value = 0;
 
-	/* Select APP Group and set state to ON */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VUSB_CFG_STATE, 0x21);
+	/* 3.3V voltage output for VUSB */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VUSB_CFG_VOLTAGE,
+		TWL6030_CFG_VOLTAGE_33);
 
-	twl6030_i2c_read_u8(TWL6030_CHIP_PM, MISC2, &data);
-	data |= 0x10;
+	/* Enable P1 output for VUSB */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VUSB_CFG_STATE,
+		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
 
-	/* Select the input supply for VBUS regulator */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, MISC2, data);
+	/* Select the input supply for VUSB regulator */
+	twl6030_i2c_read_u8(TWL6030_CHIP_PM, TWL6030_MISC2, &value);
+	value |= TWL6030_MISC2_VUSB_IN_VSYS;
+	value &= ~TWL6030_MISC2_VUSB_IN_PMID;
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_MISC2, value);
 }
-#endif

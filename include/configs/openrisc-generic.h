@@ -116,11 +116,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_BSP
 
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-
-#define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 
 /*
@@ -130,6 +125,5 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 #endif /* __CONFIG_H */

@@ -34,13 +34,13 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int dev, part;
-	block_dev_desc_t *dev_desc=NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -48,7 +48,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	    filename = argv[3];
 	}
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	PRINTF("Using device %s %d:%d, directory: %s\n", argv[1], dev, part, filename);
 
 	reiserfs_set_blk_dev(dev_desc, &info);
@@ -82,7 +82,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int dev, part;
 	ulong addr = 0, filelen;
 	disk_partition_t info;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	unsigned long count;
 	char *addr_str;
 
@@ -122,11 +122,11 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 
 	printf("Loading file \"%s\" from %s device %d%c%c\n",
 		filename, argv[1], dev,

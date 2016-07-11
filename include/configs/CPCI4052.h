@@ -62,19 +62,13 @@
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
 
@@ -91,8 +85,6 @@
  * Miscellaneous configurable options
  */
 #undef CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-
-#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
@@ -129,8 +121,6 @@
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
-
-#define CONFIG_LOOPW            1       /* enable loopw command         */
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
@@ -208,9 +198,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 
 /*-----------------------------------------------------------------------
  * FLASH organization

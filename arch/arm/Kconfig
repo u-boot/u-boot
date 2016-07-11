@@ -7,6 +7,10 @@ config SYS_ARCH
 config ARM64
 	bool
 
+config DMA_ADDR_T_64BIT
+	bool
+	default y if ARM64
+
 config HAS_VBAR
         bool
 
@@ -111,7 +115,7 @@ config KIRKWOOD
 	select CPU_ARM926EJS
 
 config ARCH_MVEBU
-	bool "Marvell MVEBU family (Armada XP/38x)"
+	bool "Marvell MVEBU family (Armada XP/375/38x)"
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
@@ -368,6 +372,7 @@ config TARGET_AM335X_EVM
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select TI_I2C_BOARD_DETECT
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
@@ -380,6 +385,7 @@ config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select CPU_V7
 	select SUPPORT_SPL
+	select TI_I2C_BOARD_DETECT
 
 config TARGET_BAV335X
 	bool "Support bav335x"
@@ -448,6 +454,7 @@ config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CPU_V7
 	select SUPPORT_SPL
+	select CMD_POWEROFF
 
 config ARCH_MX7
 	bool "Freescale MX7"
@@ -504,6 +511,16 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
+config ARCH_SNAPDRAGON
+	bool "Qualcomm Snapdragon SoCs"
+	select ARM64
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select SPMI
+	select OF_CONTROL
+	select OF_SEPARATE
+
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
 	select CPU_V7
@@ -521,6 +538,7 @@ config TARGET_CM_T43
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select CMD_GPIO
 	select CMD_USB
 	select DM
 	select DM_ETH
@@ -528,10 +546,11 @@ config ARCH_SUNXI
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_USB
+	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_SEPARATE
-	select SPL_STACK_R if !MACH_SUN9I
-	select SPL_SYS_MALLOC_SIMPLE if !MACH_SUN9I
+	select SPL_STACK_R if SUPPORT_SPL
+	select SPL_SYS_MALLOC_SIMPLE if SUPPORT_SPL
 	select SYS_NS16550
 	select USB
 	select USB_STORAGE
@@ -573,8 +592,7 @@ config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
 	select DM
-	select DM_SPI
-	select DM_SPI_FLASH
+	select OF_CONTROL
 	select DM_SERIAL
 	select OF_CONTROL
 	select SPL_DISABLE_OF_CONTROL
@@ -652,6 +670,7 @@ config TARGET_HIKEY
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select OF_CONTROL
 	  help
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
@@ -683,6 +702,10 @@ config TARGET_LS1043ARDB
 
 config TARGET_H2200
 	bool "Support h2200"
+	select CPU_PXA
+
+config TARGET_ZIPITZ2
+	bool "Support zipitz2"
 	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
@@ -763,6 +786,8 @@ source "arch/arm/cpu/armv7/rmobile/Kconfig"
 source "arch/arm/mach-rockchip/Kconfig"
 
 source "arch/arm/mach-s5pc1xx/Kconfig"
+
+source "arch/arm/mach-snapdragon/Kconfig"
 
 source "arch/arm/mach-socfpga/Kconfig"
 
@@ -858,6 +883,7 @@ source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
+source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

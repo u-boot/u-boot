@@ -180,5 +180,4 @@
 #undef  CONFIG_KIRKWOOD_PCIE_INIT
 #endif
 
-
 #endif /* _CONFIG_KM_KIRKWOOD */

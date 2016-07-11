@@ -376,7 +376,7 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     if not series:
         series = Series()
     series.allow_overwrite = allow_overwrite
-    params = gitutil.LogCmd(commit_range,reverse=True, count=count,
+    params = gitutil.LogCmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
     stdout = command.RunPipe([params], capture=True).stdout
     ps = PatchStream(series, is_log=True)

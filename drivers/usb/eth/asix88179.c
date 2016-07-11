@@ -497,7 +497,7 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 				length + sizeof(packet_len) + sizeof(tx_hdr2),
 				&actual_len,
 				USB_BULK_SEND_TIMEOUT);
-	debug("Tx: len = %u, actual = %u, err = %d\n",
+	debug("Tx: len = %zu, actual = %u, err = %d\n",
 	      length + sizeof(packet_len), actual_len, err);
 
 	return err;

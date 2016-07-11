@@ -23,8 +23,10 @@
 #include <linux/usb/musb-omap.h>
 #else
 #include <common.h>
+#include <asm/omap_common.h>
 #include <asm/omap_musb.h>
 #include <twl4030.h>
+#include <twl6030.h>
 #include "linux-compat.h"
 #endif
 
@@ -434,6 +436,17 @@ static int omap2430_musb_enable(struct musb *musb)
 				__PRETTY_FUNCTION__);
 	}
 #endif
+
+#ifdef CONFIG_TWL6030_POWER
+	twl6030_usb_device_settings();
+#endif
+
+#ifdef CONFIG_OMAP4430
+	u32 *usbotghs_control = (u32 *)((*ctrl)->control_usbotghs_ctrl);
+	*usbotghs_control = USBOTGHS_CONTROL_AVALID |
+		USBOTGHS_CONTROL_VBUSVALID | USBOTGHS_CONTROL_IDDIG;
+#endif
+
 	return 0;
 #endif
 }

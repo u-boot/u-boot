@@ -6,11 +6,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <div64.h>
 #include "dhry.h"
 
 static int do_dhry(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong start, duration, dhry_per_sec, vax_mips;
+	ulong start, duration, vax_mips;
+	u64 dhry_per_sec;
 	int iterations = 1000000;
 
 	if (argc > 1)
@@ -19,10 +21,10 @@ static int do_dhry(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	start = get_timer(0);
 	dhry(iterations);
 	duration = get_timer(start);
-	dhry_per_sec = iterations * 1000 / duration;
-	vax_mips = dhry_per_sec / 1757;
+	dhry_per_sec = lldiv(iterations * 1000ULL, duration);
+	vax_mips = lldiv(dhry_per_sec, 1757);
 	printf("%d iterations in %lu ms: %lu/s, %lu DMIPS\n", iterations,
-	       duration, dhry_per_sec, vax_mips);
+	       duration, (ulong)dhry_per_sec, vax_mips);
 
 	return 0;
 }

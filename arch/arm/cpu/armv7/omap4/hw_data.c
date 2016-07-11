@@ -355,6 +355,10 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gptimer2_clkctrl,
 		(*prcm)->cm_wkup_wdtimer2_clkctrl,
 		(*prcm)->cm_l4per_uart3_clkctrl,
+		(*prcm)->cm_l4per_i2c1_clkctrl,
+		(*prcm)->cm_l4per_i2c2_clkctrl,
+		(*prcm)->cm_l4per_i2c3_clkctrl,
+		(*prcm)->cm_l4per_i2c4_clkctrl,
 		0
 	};
 
@@ -372,9 +376,13 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_wkup_gptimer1_clkctrl,
 			GPTIMER1_CLKCTRL_CLKSEL_MASK);
 
-	/* Enable optional 48M functional clock for USB  PHY */
+	/* Enable optional 48M functional clock for USB PHY */
 	setbits_le32((*prcm)->cm_l3init_usbphy_clkctrl,
 			USBPHY_CLKCTRL_OPTFCLKEN_PHY_48M_MASK);
+
+	/* Enable 32 KHz clock for USB PHY */
+	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
 
 	do_enable_clocks(clk_domains_essential,
 			 clk_modules_hw_auto_essential,
@@ -391,7 +399,6 @@ void enable_basic_uboot_clocks(void)
 	u32 const clk_modules_hw_auto_essential[] = {
 		(*prcm)->cm_l3init_hsusbotg_clkctrl,
 		(*prcm)->cm_l3init_usbphy_clkctrl,
-		(*prcm)->cm_l3init_usbphy_clkctrl,
 		(*prcm)->cm_clksel_usb_60mhz,
 		(*prcm)->cm_l3init_hsusbtll_clkctrl,
 		0
@@ -399,10 +406,6 @@ void enable_basic_uboot_clocks(void)
 
 	u32 const clk_modules_explicit_en_essential[] = {
 		(*prcm)->cm_l4per_mcspi1_clkctrl,
-		(*prcm)->cm_l4per_i2c1_clkctrl,
-		(*prcm)->cm_l4per_i2c2_clkctrl,
-		(*prcm)->cm_l4per_i2c3_clkctrl,
-		(*prcm)->cm_l4per_i2c4_clkctrl,
 		(*prcm)->cm_l3init_hsusbhost_clkctrl,
 		0
 	};

@@ -68,9 +68,9 @@ static struct {
 } expansion_config = {0x0};
 
 static const struct ns16550_platdata overo_serial = {
-	OMAP34XX_UART3,
-	2,
-	V_NS16550_CLK
+	.base = OMAP34XX_UART3,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK
 };
 
 U_BOOT_DEVICE(overo_uart) = {

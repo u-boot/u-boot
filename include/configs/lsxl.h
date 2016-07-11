@@ -8,7 +8,6 @@
 #ifndef _CONFIG_LSXL_H
 #define _CONFIG_LSXL_H
 
-
 /*
  * Version number information
  */
@@ -37,10 +36,8 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_KIRKWOOD_GPIO
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
@@ -52,18 +49,8 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
@@ -82,9 +69,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ		25000000
 #undef CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_SF_DEFAULT_SPEED		25000000
-
-
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  *  Environment variables configurations

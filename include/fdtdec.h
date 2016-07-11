@@ -152,14 +152,12 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
-	COMPAT_MEMORY_SPD,		/* Memory SPD information */
 	COMPAT_INTEL_PANTHERPOINT_AHCI,	/* Intel Pantherpoint AHCI */
 	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
 	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
 	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
-	COMPAT_INTEL_X86_PINCTRL,	/* Intel ICH7/9 pin control */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
 	COMPAT_INTEL_PCH,		/* Intel PCH */
 	COMPAT_ALTERA_SOCFPGA_DWMAC,	/* SoCFPGA Ethernet controller */
@@ -572,7 +570,7 @@ int fdtdec_check_fdt(void);
  * @param id		Compatible ID to look for
  * @param node_list	Place to put list of found nodes
  * @param maxcount	Maximum number of nodes to find
- * @return number of nodes found on success, FTD_ERR_... on error
+ * @return number of nodes found on success, FDT_ERR_... on error
  */
 int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 			enum fdt_compat_id id, int *node_list, int maxcount);

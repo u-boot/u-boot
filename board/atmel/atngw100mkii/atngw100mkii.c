@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2010 Atmel Corporation
  *
- * Copyright (C) 2012 Andreas Bießmann <andreas.devel@googlemail.com>
+ * Copyright (C) 2012 Andreas Bießmann <andreas@biessmann.org>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

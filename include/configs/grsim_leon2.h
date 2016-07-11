@@ -61,7 +61,6 @@
 	"echo"
 
 #undef	CONFIG_BOOTARGS
-/*#define CONFIG_SYS_HUSH_PARSER 0*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -189,7 +188,6 @@
 /* no SRAM available */
 #undef CONFIG_SYS_SRAM_BASE
 #undef CONFIG_SYS_SRAM_SIZE
-
 
 /* Always Run U-Boot from SDRAM */
 #define CONFIG_SYS_RAM_BASE CONFIG_SYS_SDRAM_BASE

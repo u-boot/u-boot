@@ -120,6 +120,10 @@ struct s32ktimer {
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 7)
 
+#define OMAP44XX_SAR_RAM_BASE		0x4a326000
+#define OMAP_REBOOT_REASON_OFFSET	0xA0C
+#define OMAP_REBOOT_REASON_SIZE		0x0F
+
 /* Boot parameters */
 #ifndef __ASSEMBLY__
 struct omap_boot_parameters {
@@ -129,6 +133,10 @@ struct omap_boot_parameters {
 	unsigned char reset_reason;
 	unsigned char ch_flags;
 };
+
+int omap_reboot_mode(char *mode, unsigned int length);
+int omap_reboot_mode_clear(void);
+int omap_reboot_mode_store(char *mode);
 #endif
 
 #endif

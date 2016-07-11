@@ -32,9 +32,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* Ethernet Configuration */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -72,7 +69,6 @@
 	"stdin=serial\0"						\
 	"stdout=serial\0"						\
 	"stderr=serial\0"
-
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\

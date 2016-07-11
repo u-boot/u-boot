@@ -13,6 +13,6 @@ obj-$(CONFIG_PPC) += lib_powerpc/
 obj-$(CONFIG_MPC83xx) += cpu/mpc83xx/
 obj-$(CONFIG_8xx) += cpu/mpc8xx/
 obj-$(CONFIG_4xx) += cpu/ppc4xx/
-ifneq ($(filter lwmon lwmon5 netta pdm360ng,$(BOARD)),)
+ifneq ($(filter lwmon5 pdm360ng,$(BOARD)),)
 obj-y += board/$(BOARD)/
 endif

@@ -494,7 +494,7 @@ This test will verify the following ALU instructions:
      This group will contain: b, bl, bc.
 
      The first 2 instructions (b, bl) will be verified by jumping to
-     a fixed address and checking whether control was transfered to
+     a fixed address and checking whether control was transferred to
      that very point. For the bl instruction the value of the link
      register will be checked as well (using mfspr). To verify the bc
      instruction various combinations of the BI/BO fields, the CTR

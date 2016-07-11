@@ -31,11 +31,8 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_DATE
 #define CONFIG_SYS_MVFS
@@ -49,7 +46,6 @@
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
-#undef CONFIG_SYS_PROMPT
 
 /*
  * Ethernet Driver configuration
@@ -80,20 +76,10 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * Console configuration
  */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
-/*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
 
 /*
  * Display cpu info at boot

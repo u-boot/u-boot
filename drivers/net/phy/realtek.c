@@ -5,12 +5,17 @@
  *
  * Copyright 2010-2011, 2015 Freescale Semiconductor, Inc.
  * author Andy Fleming
+ * Copyright 2016 Karsten Merker <merker@debian.org>
  */
 #include <config.h>
 #include <common.h>
 #include <phy.h>
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
+
+/* RTL8211x 1000BASE-T Control Register */
+#define MIIM_RTL8211x_CTRL1000T_MSCE (1 << 12);
+#define MIIM_RTL8211X_CTRL1000T_MASTER (1 << 11);
 
 /* RTL8211x PHY Status Register */
 #define MIIM_RTL8211x_PHY_STATUS       0x11
@@ -53,7 +58,14 @@ static int rtl8211x_config(struct phy_device *phydev)
 	 */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER,
 		  MIIM_RTL8211x_PHY_INTR_DIS);
-
+#ifdef CONFIG_RTL8211X_PHY_FORCE_MASTER
+	unsigned int reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_CTRL1000);
+	/* force manual master/slave configuration */
+	reg |= MIIM_RTL8211x_CTRL1000T_MSCE;
+	/* force master mode */
+	reg |= MIIM_RTL8211X_CTRL1000T_MASTER;
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, reg);
+#endif
 	/* read interrupt status just to clear it */
 	phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER);
 
@@ -223,7 +235,7 @@ static int rtl8211f_startup(struct phy_device *phydev)
 /* Support for RTL8211B PHY */
 static struct phy_driver RTL8211B_driver = {
 	.name = "RealTek RTL8211B",
-	.uid = 0x1cc910,
+	.uid = 0x1cc912,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
 	.config = &rtl8211x_config,

@@ -68,7 +68,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-
 /*
  * BOOTP options
  */
@@ -77,19 +76,12 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
@@ -340,11 +332,6 @@ static inline void tws_data_config_output(unsigned output)
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-/*
- * Enable loopw command.
- */
-#define CONFIG_LOOPW
 
 /*
  * Various low-level settings

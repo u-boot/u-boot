@@ -8,12 +8,16 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sysmap.h>
+#include <asm/kona-common/clk.h>
 
 #include "dwc2_udc_otg_priv.h"
 #include "bcm_udc_otg.h"
 
 void otg_phy_init(struct dwc2_udc *dev)
 {
+	/* turn on the USB OTG clocks */
+	clk_usb_otg_enable((void *)HSOTG_BASE_ADDR);
+
 	/* set Phy to driving mode */
 	wfld_clear(HSOTG_CTRL_BASE_ADDR + HSOTG_CTRL_PHY_P1CTL_OFFSET,
 		   HSOTG_CTRL_PHY_P1CTL_NON_DRIVING_MASK);

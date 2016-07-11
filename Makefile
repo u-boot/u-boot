@@ -3,7 +3,7 @@
 #
 
 VERSION = 2016
-PATCHLEVEL = 03
+PATCHLEVEL = 05
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -648,6 +648,7 @@ libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_ALTERA_SDRAM) += drivers/ddr/altera/
 libs-y += drivers/serial/
 libs-y += drivers/usb/dwc3/
+libs-y += drivers/usb/common/
 libs-y += drivers/usb/emul/
 libs-y += drivers/usb/eth/
 libs-y += drivers/usb/gadget/
@@ -893,9 +894,16 @@ quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 	-DDO_DEPS_ONLY -D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
 
+ifdef CONFIG_SPL_LOAD_FIT
+MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+else
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
+endif
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
 
@@ -908,7 +916,8 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
-u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl: \
+		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin dts/dt.dtb,u-boot.bin) FORCE
 	$(call if_changed,mkimage)
 
 u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
@@ -1044,6 +1053,10 @@ ifneq ($(CONFIG_HAVE_VGA_BIOS),)
 IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
 endif
 
+ifneq ($(CONFIG_HAVE_REFCODE),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_REFCODE_ADDR):refcode.bin
+endif
+
 quiet_cmd_ifdtool = IFDTOOL $@
 cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
 ifneq ($(CONFIG_HAVE_INTEL_ME),)
@@ -1052,7 +1065,15 @@ endif
 cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
 cmd_ifdtool += mv u-boot.tmp $@
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE
+refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
+	$(call if_changed,copy)
+
+quiet_cmd_ldr = LD      $@
+cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
+	       $(filter-out FORCE,$^) -o $@
+
+u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE \
+		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
 	$(call if_changed,ifdtool)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
@@ -1385,8 +1406,6 @@ CHANGELOG:
 	git log --no-merges U-Boot-1_1_5.. | \
 	unexpand -a | sed -e 's/\s\s*$$//' > $@
 
-include/license.h: tools/bin2header COPYING
-	cat COPYING | gzip -9 -c | ./tools/bin2header license_gzip > include/license.h
 #########################################################################
 
 ###
@@ -1401,7 +1420,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h include/license.h \
 	       boot* u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'

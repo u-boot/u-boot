@@ -242,11 +242,6 @@
 				| OR_GPCM_EAD)
 				/* 0xfe0009f7 */
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /*
  * Serial Port
  */
@@ -260,9 +255,6 @@
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 #if defined(CONFIG_PCI)
 /*
@@ -287,7 +279,6 @@
  * TSEC
  */
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
-
 
 #define CONFIG_TSEC1
 #ifdef CONFIG_TSEC1
@@ -329,9 +320,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING 1

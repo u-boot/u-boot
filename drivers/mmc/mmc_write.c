@@ -65,10 +65,10 @@ err_out:
 	return err;
 }
 
-unsigned long mmc_berase(block_dev_desc_t *block_dev, lbaint_t start,
+unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt)
 {
-	int dev_num = block_dev->dev;
+	int dev_num = block_dev->devnum;
 	int err = 0;
 	u32 start_rem, blkcnt_rem;
 	struct mmc *mmc = find_mmc_device(dev_num);
@@ -171,10 +171,10 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	return blkcnt;
 }
 
-ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt,
+ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
 {
-	int dev_num = block_dev->dev;
+	int dev_num = block_dev->devnum;
 	lbaint_t cur, blocks_todo = blkcnt;
 	int err;
 

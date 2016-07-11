@@ -132,6 +132,8 @@ static int check_reply_packet(uchar *pkt, unsigned dest, unsigned src,
 		retval = -5;
 	else if (!bootp_match_id(net_read_u32(&bp->bp_id)))
 		retval = -6;
+	else if (memcmp(bp->bp_chaddr, net_ethaddr, HWL_ETHER) != 0)
+		retval = -7;
 
 	debug("Filtering pkt = %d\n", retval);
 

@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -136,7 +135,8 @@ static phys_size_t fdt_get_reg(const void *fdt, int nodeoffset, void *buf,
 
 #define FDT_REG_SIZE  sizeof(u32)
 /* Temp location for sharing data for storing */
-static u8 tmp[CONFIG_NR_DRAM_BANKS * 16]; /* Up to 64-bit address + 64-bit size */
+/* Up to 64-bit address + 64-bit size */
+static u8 tmp[CONFIG_NR_DRAM_BANKS * 16];
 
 void dram_init_banksize(void)
 {

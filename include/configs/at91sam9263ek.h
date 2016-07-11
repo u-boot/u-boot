@@ -45,10 +45,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_OF_LIBFDT
-
-
 /*
  * Hardware drivers
  */
@@ -93,11 +89,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_USB		1
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -121,11 +113,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
-#endif
-
-/* FAT */
-#ifdef CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* NOR flash, if populated */
@@ -292,7 +279,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE		1
-#define CONFIG_CMD_FAT			1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
@@ -334,7 +320,6 @@
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Size of malloc() pool

@@ -16,7 +16,8 @@ arch-$(CONFIG_CPU_SA1100)	=-march=armv4
 arch-$(CONFIG_CPU_PXA)		=
 arch-$(CONFIG_CPU_ARM1136)	=-march=armv5
 arch-$(CONFIG_CPU_ARM1176)	=-march=armv5t
-arch-$(CONFIG_CPU_V7)		=$(call cc-option, -march=armv7-a, -march=armv5)
+arch-$(CONFIG_CPU_V7)		=$(call cc-option, -march=armv7-a, \
+				 $(call cc-option, -march=armv7, -march=armv5))
 arch-$(CONFIG_ARM64)		=-march=armv8-a
 
 # Evaluate arch cc-option calls now
@@ -54,6 +55,8 @@ machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
 machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_ARCH_S5PC1XX)		+= s5pc1xx
+machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
+machine-$(CONFIG_ARCH_SNAPDRAGON)	+= snapdragon
 machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
 machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
 machine-$(CONFIG_STM32)			+= stm32

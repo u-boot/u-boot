@@ -12,9 +12,9 @@
 
 #include <configs/ti_omap3_common.h>
 #undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_MAX_SIZE	(64*1024)
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE	0x40200000
+#define CONFIG_SPL_MAX_SIZE    (SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
 
 #define CONFIG_BCH
 
@@ -56,8 +56,6 @@
 #define CONFIG_OMAP3_GPIO_6	/* GPIO160..191 is in GPIO Bank 6 */
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */

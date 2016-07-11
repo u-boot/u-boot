@@ -73,9 +73,9 @@ static void write_toggle(struct usb_device *dev, u8 ep, u8 dir_out)
 }
 
 /*
- * This function checks if RxStall has occured on the endpoint. If a RxStall
- * has occured, the RxStall is cleared and 1 is returned. If RxStall has
- * not occured, 0 is returned.
+ * This function checks if RxStall has occurred on the endpoint. If a RxStall
+ * has occurred, the RxStall is cleared and 1 is returned. If RxStall has
+ * not occurred, 0 is returned.
  */
 static u8 check_stall(u8 ep, u8 dir_out)
 {

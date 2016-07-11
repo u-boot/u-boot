@@ -102,6 +102,7 @@ void rkvop_mode_set(struct rk3288_vop *regs,
 	u32 hfront_porch = edid->hfront_porch.typ;
 	u32 vfront_porch = edid->vfront_porch.typ;
 	uint flags;
+	int mode_flags;
 
 	switch (mode) {
 	case VOP_MODE_HDMI:
@@ -113,9 +114,20 @@ void rkvop_mode_set(struct rk3288_vop *regs,
 		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
 				V_EDP_OUT_EN(1));
 		break;
+	case VOP_MODE_LVDS:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_RGB_OUT_EN(1));
+		break;
 	}
 
-	flags = V_DSP_OUT_MODE(15) |
+	if (mode == VOP_MODE_HDMI || mode == VOP_MODE_EDP)
+		/* RGBaaa */
+		mode_flags = 15;
+	else
+		/* RGB888 */
+		mode_flags = 0;
+
+	flags = V_DSP_OUT_MODE(mode_flags) |
 		V_DSP_HSYNC_POL(!!(edid->flags & DISPLAY_FLAGS_HSYNC_HIGH)) |
 		V_DSP_VSYNC_POL(!!(edid->flags & DISPLAY_FLAGS_VSYNC_HIGH));
 
@@ -227,7 +239,7 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 
 	ret = rkclk_get_clk(CLK_NEW, &clk);
 	if (!ret) {
-		ret = clk_set_periph_rate(clk, DCLK_VOP0 + vop_id,
+		ret = clk_set_periph_rate(clk, DCLK_VOP0 + remote_vop_id,
 					  timing.pixelclock.typ);
 	}
 	if (ret) {

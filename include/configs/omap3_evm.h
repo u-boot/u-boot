@@ -24,24 +24,16 @@
  * Supported U-Boot commands
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_CMD_ASKENV
 
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 /* ----------------------------------------------------------------------------
  * Supported U-Boot features
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO

@@ -29,6 +29,7 @@
 #define ERROR_ESBC_CLIENT_HEADER_INV_IE_ENTRY_KEYLEN		0x18
 #define ERROR_IE_TABLE_NOT_FOUND				0x19
 #define ERROR_ESBC_CLIENT_HEADER_KEY_LEN_NOT_TWICE_SIG_LEN	0x20
+#define ERROR_KEY_TABLE_NOT_FOUND				0x21
 #define ERROR_ESBC_CLIENT_HEADER_KEY_MOD_1			0x40
 #define ERROR_ESBC_CLIENT_HEADER_KEY_MOD_2			0x80
 #define ERROR_ESBC_CLIENT_HEADER_SIG_KEY_MOD			0x100
@@ -121,6 +122,8 @@ static const struct fsl_secboot_errcode fsl_secboot_errcodes[] = {
 		"Wrong IE public key len in header" },
 	{ ERROR_IE_TABLE_NOT_FOUND,
 		"Information about IE Table missing" },
+	{ ERROR_KEY_TABLE_NOT_FOUND,
+		"No Key/ Key Table Found in header"},
 	{ ERROR_ESBC_CLIENT_MAX, "NULL" }
 };
 

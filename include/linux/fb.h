@@ -388,14 +388,14 @@ struct fb_cursor_user {
 #define FB_EVENT_GET_CONSOLE_MAP	0x07
 /*	CONSOLE-SPECIFIC: set console to framebuffer mapping */
 #define FB_EVENT_SET_CONSOLE_MAP	0x08
-/*	A hardware display blank change occured */
+/*	A hardware display blank change occurred */
 #define FB_EVENT_BLANK			0x09
 /*	Private modelist is to be replaced */
 #define FB_EVENT_NEW_MODELIST		0x0A
 /*	The resolution of the passed in fb_info about to change and
 	all vc's should be changed	   */
 #define FB_EVENT_MODE_CHANGE_ALL	0x0B
-/*	A software display blank change occured */
+/*	A software display blank change occurred */
 #define FB_EVENT_CONBLANK		0x0C
 /*	Get drawing requirements	*/
 #define FB_EVENT_GET_REQ		0x0D

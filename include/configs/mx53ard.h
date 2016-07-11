@@ -31,8 +31,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
 
-#define CONFIG_CMD_BOOTZ
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
 #define CONFIG_NAND_MXC
@@ -47,7 +45,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -60,18 +57,12 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -184,7 +175,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 
@@ -224,8 +214,6 @@
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
-
-#define CONFIG_OF_LIBFDT
 
 #define MX53ARD_CS1GCR1		(CSEN | DSZ(2))
 #define MX53ARD_CS1RCR1		(RCSN(2) | OEN (1) | RWSC(22))

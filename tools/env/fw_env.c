@@ -15,6 +15,7 @@
 #include <env_flags.h>
 #include <fcntl.h>
 #include <linux/stringify.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -34,9 +35,11 @@
 
 #include "fw_env.h"
 
-#define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
+struct common_args common_args;
+struct printenv_args printenv_args;
+struct setenv_args setenv_args;
 
-#define WHITESPACE(c) ((c == '\t') || (c == ' '))
+#define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
 #define min(x, y) ({				\
 	typeof(x) _min1 = (x);			\
@@ -134,20 +137,22 @@ static inline ulong getenvsize (void)
 	return rc;
 }
 
-static char *fw_string_blank(char *s, int noblank)
+static char *skip_chars(char *s)
 {
-	int i;
-	int len = strlen(s);
-
-	for (i = 0; i < len; i++, s++) {
-		if ((noblank && !WHITESPACE(*s)) ||
-			(!noblank && WHITESPACE(*s)))
-			break;
+	for (; *s != '\0'; s++) {
+		if (isblank(*s))
+			return s;
 	}
-	if (i == len)
-		return NULL;
+	return NULL;
+}
 
-	return s;
+static char *skip_blanks(char *s)
+{
+	for (; *s != '\0'; s++) {
+		if (!isblank(*s))
+			return s;
+	}
+	return NULL;
 }
 
 /*
@@ -565,31 +570,29 @@ int fw_parse_script(char *fname)
 		}
 
 		/* Drop ending line feed / carriage return */
-		while (len > 0 && (dump[len - 1] == '\n' ||
-				dump[len - 1] == '\r')) {
-			dump[len - 1] = '\0';
-			len--;
-		}
+		dump[--len] = '\0';
+		if (len && dump[len - 1] == '\r')
+			dump[--len] = '\0';
 
 		/* Skip comment or empty lines */
-		if ((len == 0) || dump[0] == '#')
+		if (len == 0 || dump[0] == '#')
 			continue;
 
 		/*
 		 * Search for variable's name,
 		 * remove leading whitespaces
 		 */
-		name = fw_string_blank(dump, 1);
+		name = skip_blanks(dump);
 		if (!name)
 			continue;
 
 		/* The first white space is the end of variable name */
-		val = fw_string_blank(name, 0);
+		val = skip_chars(name);
 		len = strlen(name);
 		if (val) {
 			*val++ = '\0';
 			if ((val - name) < len)
-				val = fw_string_blank(val, 1);
+				val = skip_blanks(val);
 			else
 				val = NULL;
 		}
@@ -1322,6 +1325,9 @@ static int parse_config ()
 	struct stat st;
 
 #if defined(CONFIG_FILE)
+	if (!common_args.config_file)
+		common_args.config_file = CONFIG_FILE;
+
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
 	if (get_config(common_args.config_file)) {
 		fprintf(stderr, "Cannot parse config file '%s': %m\n",

@@ -27,35 +27,6 @@ static const char *const me_ack_values[] = {
 	[ME_HFS_ACK_CONTINUE]	= "Continue to boot"
 };
 
-static inline void pci_read_dword_ptr(struct udevice *me_dev, void *ptr,
-				      int offset)
-{
-	u32 dword;
-
-	dm_pci_read_config32(me_dev, offset, &dword);
-	memcpy(ptr, &dword, sizeof(dword));
-}
-
-static inline void pci_write_dword_ptr(struct udevice *me_dev, void *ptr,
-				       int offset)
-{
-	u32 dword = 0;
-
-	memcpy(&dword, ptr, sizeof(dword));
-	dm_pci_write_config32(me_dev, offset, dword);
-}
-
-void intel_early_me_status(struct udevice *me_dev)
-{
-	struct me_hfs hfs;
-	struct me_gmes gmes;
-
-	pci_read_dword_ptr(me_dev, &hfs, PCI_ME_HFS);
-	pci_read_dword_ptr(me_dev, &gmes, PCI_ME_GMES);
-
-	intel_me_status(&hfs, &gmes);
-}
-
 int intel_early_me_init(struct udevice *me_dev)
 {
 	int count;
@@ -159,7 +130,7 @@ int intel_early_me_init_done(struct udevice *dev, struct udevice *me_dev,
 	debug("ME: Requested BIOS Action: %s\n", me_ack_values[hfs.ack_data]);
 
 	/* Check status after acknowledgement */
-	intel_early_me_status(me_dev);
+	intel_me_status(me_dev);
 
 	switch (hfs.ack_data) {
 	case ME_HFS_ACK_CONTINUE:

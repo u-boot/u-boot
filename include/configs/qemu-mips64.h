@@ -45,9 +45,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	0xffffffffb4000300
@@ -70,24 +67,13 @@
 
 #define CONFIG_SYS_IDE_MAXDEVICE	4
 
-#define CONFIG_CMD_RARP
-
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-/* Monitor Command Prompt */
-#undef CONFIG_SYS_PROMPT
-#if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"qemu-mips64el # "
-#else
-#define CONFIG_SYS_PROMPT		"qemu-mips64 # "
-#endif
-
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256

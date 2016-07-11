@@ -106,14 +106,9 @@
 #define CONFIG_CMD_BMP		/* BMP support */
 #endif
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
-#define CONFIG_CMD_DHCP		/* DHCP Support */
-#define CONFIG_CMD_FAT		/* FAT support */
-#define CONFIG_CMD_I2C		/* I2C serial bus support */
 #define CONFIG_CMD_IDE		/* IDE harddisk support */
 #define CONFIG_CMD_IRQ		/* irqinfo */
-#define CONFIG_CMD_MII		/* MII support */
 #define CONFIG_CMD_PCI		/* pciinfo */
-#define CONFIG_CMD_USB		/* USB Support */
 
 #define CONFIG_SYS_LOWBOOT	1
 
@@ -170,9 +165,6 @@
 /*
  * Open firmware flat tree support
  */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
@@ -293,8 +285,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1...15 MB in DRAM */
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000 /* default load address */
-
-#define CONFIG_LOOPW
 
 /*
  * Various low-level settings

@@ -16,7 +16,7 @@
 
 	aliases {
 		/*
-		 * This allows the ethaddr uboot environmnet variable
+		 * This allows the ethaddr uboot environment variable
 		 * contents to be added to the gmac1 device tree blob.
 		 */
 		ethernet0 = &gmac1;
@@ -88,7 +88,7 @@
 		#size-cells = <1>;
 		compatible = "n25q00", "spi-flash";
 		reg = <0>;      /* chip select */
-		spi-max-frequency = <50000000>;
+		spi-max-frequency = <100000000>;
 		m25p,fast-read;
 		page-size = <256>;
 		block-size = <16>; /* 2^16, 64KB */

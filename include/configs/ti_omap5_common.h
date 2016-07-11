@@ -19,7 +19,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_ARCH_CPU_INIT
 
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_798870
@@ -85,22 +84,10 @@
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
-	"bootenv=uEnv.txt\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
-	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
-		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
 			"if run loadimage; then " \
 				"run loadfdt; " \
 				"echo Booting from mmc${mmcdev} ...; " \
@@ -117,12 +104,13 @@
 			"setenv fdtfile dra72-evm.dtb; fi;" \
 		"if test $board_name = beagle_x15; then " \
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
+		"if test $board_name = am57xx_evm; then " \
+			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
 	DFUARGS \
 	NETARGS \
-
 
 #define CONFIG_BOOTCOMMAND \
 	"if test ${dofastboot} -eq 1; then " \
@@ -131,6 +119,7 @@
 		"echo Booting into fastboot ...; fastboot 0;" \
 	"fi;" \
 	"run findfdt; " \
+	"run envboot; " \
 	"run mmcboot;" \
 	"setenv mmcdev 1; " \
 	"setenv bootpart 1:2; " \
@@ -138,7 +127,6 @@
 	"run mmcboot;" \
 	""
 #endif
-
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the

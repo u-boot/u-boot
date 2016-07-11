@@ -93,13 +93,9 @@
  * Command line configuration.
  */
 /* add useful commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 

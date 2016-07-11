@@ -1,7 +1,7 @@
 Sandbox SPI/SPI Flash Implementation
 ====================================
 
-U-Boot supports SPI and SPI flash emuation in sandbox. This must be enabled
+U-Boot supports SPI and SPI flash emulation in sandbox. This must be enabled
 using the --spi_sf paramter when starting U-Boot.
 
 For example:

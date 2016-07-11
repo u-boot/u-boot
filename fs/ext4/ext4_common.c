@@ -81,29 +81,20 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 	}
 
 	if (remainder) {
-		if (fs->dev_desc->block_read) {
-			fs->dev_desc->block_read(fs->dev_desc,
-						 startblock, 1, sec_buf);
-			temp_ptr = sec_buf;
-			memcpy((temp_ptr + remainder),
-			       (unsigned char *)buf, size);
-			fs->dev_desc->block_write(fs->dev_desc,
-						  startblock, 1, sec_buf);
-		}
+		blk_dread(fs->dev_desc, startblock, 1, sec_buf);
+		temp_ptr = sec_buf;
+		memcpy((temp_ptr + remainder), (unsigned char *)buf, size);
+		blk_dwrite(fs->dev_desc, startblock, 1, sec_buf);
 	} else {
 		if (size >> log2blksz != 0) {
-			fs->dev_desc->block_write(fs->dev_desc,
-						  startblock,
-						  size >> log2blksz,
-						  (unsigned long *)buf);
+			blk_dwrite(fs->dev_desc, startblock, size >> log2blksz,
+				   (unsigned long *)buf);
 		} else {
-			fs->dev_desc->block_read(fs->dev_desc,
-						 startblock, 1, sec_buf);
+			blk_dread(fs->dev_desc, startblock, 1, sec_buf);
 			temp_ptr = sec_buf;
 			memcpy(temp_ptr, buf, size);
-			fs->dev_desc->block_write(fs->dev_desc,
-						  startblock, 1,
-						  (unsigned long *)sec_buf);
+			blk_dwrite(fs->dev_desc, startblock, 1,
+				   (unsigned long *)sec_buf);
 		}
 	}
 }
@@ -2049,7 +2040,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	if (!symlink)
 		return 0;
 
-	if (__le32_to_cpu(diro->inode.size) <= 60) {
+	if (__le32_to_cpu(diro->inode.size) < sizeof(diro->inode.b.symlink)) {
 		strncpy(symlink, diro->inode.b.symlink,
 			 __le32_to_cpu(diro->inode.size));
 	} else {

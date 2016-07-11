@@ -9,7 +9,6 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
-	int running_on_hw;
 };
 
 #include <asm-generic/global_data.h>

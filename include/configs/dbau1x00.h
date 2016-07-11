@@ -61,7 +61,6 @@
 #define CONFIG_BOOTCOMMAND	"bootp;bootm"
 #endif /* CONFIG_DBAU1550 */
 
-
 /*
  * BOOTP options
  */
@@ -70,27 +69,21 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_FAT
-#undef CONFIG_CMD_MII
 
 #ifdef CONFIG_DBAU1550
 
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE
 #undef CONFIG_CMD_PCMCIA
 
 #else
 
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DHCP
 
 #endif
-
 
 /*
  * Miscellaneous configurable options
@@ -173,7 +166,6 @@
 #define CONFIG_FLASH_16BIT
 
 #define CONFIG_NR_DRAM_BANKS	2
-
 
 #ifdef CONFIG_DBAU1550
 #define MEM_SIZE 192

@@ -35,6 +35,7 @@
 #define CMD_KBD_DIS	0xad	/* keyboard disable */
 #define CMD_KBD_EN	0xae	/* keyboard enable */
 #define CMD_SET_KBD_LED	0xed	/* set keyboard led */
+#define CMD_DRAIN_OUTPUT 0xf4   /* drain output buffer */
 #define CMD_RESET_KBD	0xff	/* reset keyboard */
 
 /* i8042 command result */

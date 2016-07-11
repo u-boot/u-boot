@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf561-0.3
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
-
 
 /*
  * Clock Settings
@@ -38,7 +36,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			6
 
-
 /*
  * Memory Settings
  */
@@ -55,7 +52,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -64,7 +60,6 @@
 #define CONFIG_SMC91111_BASE	0x2C010300
 #define CONFIG_SMC_USE_32_BIT	1
 #define CONFIG_HOSTNAME		bf561-ezkit
-
 
 /*
  * Flash Settings
@@ -81,7 +76,6 @@
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_SECT_SIZE	0x2000
-
 
 /*
  * I2C Settings
@@ -105,7 +99,6 @@
  * Run core 1 from L1 SRAM start address when init uboot on core 0
  */
 /* #define CONFIG_CORE1_RUN	1 */
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

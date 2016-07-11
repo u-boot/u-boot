@@ -17,6 +17,14 @@
 #include <dm.h>
 #include "ehci.h"
 
+#ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
+#define AHB_CLK_DIST		2
+#else
+#define BASE_DIST		0x1000
+#define AHB_CLK_DIST		1
+#endif
+
 struct ehci_sunxi_priv {
 	struct ehci_ctrl ehci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
@@ -30,6 +38,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_sunxi_priv *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr = (struct ehci_hccr *)dev_get_addr(dev);
 	struct ehci_hcor *hcor;
+	int extra_ahb_gate_mask = 0;
 
 	/*
 	 * This should go away once we've moved to the driver model for
@@ -37,14 +46,18 @@ static int ehci_usb_probe(struct udevice *dev)
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
 #ifdef CONFIG_MACH_SUN8I_H3
-	priv->ahb_gate_mask |= 1 << AHB_GATE_OFFSET_USB_OHCI0;
+	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #endif
-	priv->phy_index = ((u32)hccr - SUNXI_USB1_BASE) / 0x1000 + 1;
-	priv->ahb_gate_mask <<= priv->phy_index - 1;
+	priv->phy_index = ((u32)hccr - SUNXI_USB1_BASE) / BASE_DIST;
+	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	extra_ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	priv->phy_index++; /* Non otg phys start at 1 */
 
-	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
+	setbits_le32(&ccm->ahb_gate0,
+		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+	setbits_le32(&ccm->ahb_reset0_cfg,
+		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 #endif
 
 	sunxi_usb_phy_init(priv->phy_index);
@@ -82,6 +95,7 @@ static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "allwinner,sun6i-a31-ehci", },
 	{ .compatible = "allwinner,sun7i-a20-ehci", },
 	{ .compatible = "allwinner,sun8i-a23-ehci", },
+	{ .compatible = "allwinner,sun8i-a83t-ehci", },
 	{ .compatible = "allwinner,sun8i-h3-ehci",  },
 	{ .compatible = "allwinner,sun9i-a80-ehci", },
 	{ }

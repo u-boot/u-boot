@@ -1,0 +1,32 @@
+Summary
+=======
+
+LEGO MINDSTORMS EV3 is a toy robot produced by the LEGO Group. It is based
+on the davinci da850 evm. The EV3 has a 16MB spi flash and a SDHC microSD card
+reader.
+
+Booting
+=======
+
+The EV3 contains a bootloader in EEPROM that loads u-boot.bin from address 0x0
+of the spi flash memory. Using the default configuration, u-boot will check to
+see if there is a boot.scr file on the first FAT partition of the mmc. If there
+is, it will run the script and boot the kernel from the uImage file also in
+the FAT partition. Otherwise, it will load a kernel and rootfs from the flash.
+The kernel must be stored at address 0x50000 on the flash and have a maximum
+size of 3MiB. The rootfs must be a squasfs image and stored at 0x350000 in the
+flash and have a maximum size of 9.3MiB. The flash starting at 0xCB0000 is
+reserved for user data.
+
+Writing image to flash
+======================
+
+The EEPROM contains a program for uploading an image file to the flash memory.
+The program is started by holding down the right button on the EV3 when powering
+it on. You can also `run fwupdateboot` in the u-boot shell to reboot into this
+mode. The image can then be uploaded using the official LEGO MINDSTORMS EV3
+software or a 3rd party program capable of uploading a firmware file.
+
+If you are booting from the microSD card, it is enough to just write uboot.bin
+to the flash. If you are not using a microSD card, you will need to create an
+image file using the layout described above.

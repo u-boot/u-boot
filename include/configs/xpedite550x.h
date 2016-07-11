@@ -31,7 +31,7 @@
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI_PNP		1	/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
-#define CONFIG_PCIE1		1	/* PCIE controler 1 (PEX8112 or XMC) */
+#define CONFIG_PCIE1		1	/* PCIE controller 1 (PEX8112 or XMC) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
@@ -215,17 +215,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-/*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT		1
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 #define CONFIG_FDT_FIXUP_PCI_IRQ	1
 
 /*
@@ -310,7 +299,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe8000000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
-
 /*
  * Networking options
  */
@@ -364,23 +352,16 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 /*
  * Miscellaneous configurable options
@@ -397,8 +378,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 
 /*

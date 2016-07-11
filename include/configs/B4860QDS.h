@@ -83,7 +83,7 @@
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
-#define CONFIG_PCIE1			/* PCIE controler 1 */
+#define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
@@ -498,20 +498,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 #endif
 
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
@@ -586,7 +572,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
 
@@ -727,7 +712,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FM1_10GEC1_PHY_ADDR 0x7	 /*SLOT 1*/
 #define CONFIG_SYS_FM1_10GEC2_PHY_ADDR 0x6	 /*SLOT 2*/
 
-
 #define CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR    0x1c
 #define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR    0x1d
 #define CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR    0x1e
@@ -750,14 +734,9 @@ unsigned long get_board_ddr_clk(void);
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI
@@ -779,11 +758,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #endif
 #endif
 

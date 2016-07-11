@@ -91,3 +91,26 @@ int imagetool_save_subimage(
 
 	return 0;
 }
+
+int imagetool_get_filesize(struct image_tool_params *params, const char *fname)
+{
+	struct stat sbuf;
+	int fd;
+
+	fd = open(fname, O_RDONLY | O_BINARY);
+	if (fd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params->cmdname, fname, strerror(errno));
+		return -1;
+	}
+
+	if (fstat(fd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			params->cmdname, fname, strerror(errno));
+		close(fd);
+		return -1;
+	}
+	close(fd);
+
+	return sbuf.st_size;
+}

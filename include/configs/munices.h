@@ -26,9 +26,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_CMD_KGDB)
@@ -183,10 +181,6 @@
 #define CONFIG_SYS_CS_BURST		0x00000000
 #define CONFIG_SYS_CS_DEADCYCLE	0x33333333
 #define CONFIG_SYS_RESET_ADDRESS	0xff000000
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

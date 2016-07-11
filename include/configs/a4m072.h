@@ -88,19 +88,11 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DISPLAY
 
 #if defined(CONFIG_PCI)
@@ -227,7 +219,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #define CONFIG_SYS_INIT_RAM_SIZE		MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
-
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
@@ -260,7 +251,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
 #if defined(CONFIG_CMD_KGDB)
@@ -281,7 +271,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
 
 /*
  * Various low-level settings
@@ -354,9 +343,6 @@
  * Open firmware flat tree support
  *-----------------------------------------------------------------------
  */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

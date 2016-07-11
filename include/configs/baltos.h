@@ -41,7 +41,6 @@
 
 /* FIT support */
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
-#define CONFIG_OF_BOARD_SETUP
 
 /* UBI Support */
 #define CONFIG_CMD_MTDPARTS
@@ -199,7 +198,6 @@
 	"run mmcboot;" \
 	"run nandboot;"
 
-
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
@@ -272,21 +270,14 @@
  */
 #define CONFIG_USB_MUSB_DSPS
 #define CONFIG_ARCH_MISC_INIT
-#define CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_USB_GADGET
-#define CONFIG_USBDOWNLOAD_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_OTG
 
 #ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 
@@ -294,16 +285,10 @@
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
-
-/* USB TI's IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #endif /* CONFIG_USB_MUSB_GADGET */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* disable host part of MUSB in SPL */
-#undef CONFIG_USB_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
@@ -319,7 +304,6 @@
 #define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 #define CONFIG_MII
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_ATHEROS
 
 /* NAND support */

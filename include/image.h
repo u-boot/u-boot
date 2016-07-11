@@ -26,8 +26,8 @@ struct lmb;
 #include <sys/types.h>
 
 /* new uImage format support enabled on host */
-#define CONFIG_FIT		1
-#define CONFIG_OF_LIBFDT	1
+#define IMAGE_ENABLE_FIT	1
+#define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 #define IMAGE_ENABLE_IGNORE	0
@@ -43,9 +43,12 @@ struct lmb;
 #define IMAGE_ENABLE_IGNORE	1
 #define IMAGE_INDENT_STRING	"   "
 
+#define IMAGE_ENABLE_FIT	CONFIG_IS_ENABLED(FIT)
+#define IMAGE_ENABLE_OF_LIBFDT	CONFIG_IS_ENABLED(OF_LIBFDT)
+
 #endif /* USE_HOSTCC */
 
-#if defined(CONFIG_FIT)
+#if IMAGE_ENABLE_FIT
 #include <hash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -94,18 +97,12 @@ struct lmb;
 #define IMAGE_ENABLE_SHA256	0
 #endif
 
-#endif /* CONFIG_FIT */
+#endif /* IMAGE_ENABLE_FIT */
 
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 # define IMAGE_ENABLE_RAMDISK_HIGH	1
 #else
 # define IMAGE_ENABLE_RAMDISK_HIGH	0
-#endif
-
-#ifdef CONFIG_OF_LIBFDT
-# define IMAGE_ENABLE_OF_LIBFDT	1
-#else
-# define IMAGE_ENABLE_OF_LIBFDT	0
 #endif
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
@@ -309,7 +306,7 @@ typedef struct bootm_headers {
 	image_header_t	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
-#if defined(CONFIG_FIT)
+#if IMAGE_ENABLE_FIT
 	const char	*fit_uname_cfg;	/* configuration node unit name */
 
 	void		*fit_hdr_os;	/* os FIT image header */
@@ -416,7 +413,25 @@ int get_table_entry_id(const table_entry_t *table,
 char *get_table_entry_name(const table_entry_t *table, char *msg, int id);
 
 const char *genimg_get_os_name(uint8_t os);
+
+/**
+ * genimg_get_os_short_name() - get the short name for an OS
+ *
+ * @param os	OS (IH_OS_...)
+ * @return OS short name, or "unknown" if unknown
+ */
+const char *genimg_get_os_short_name(uint8_t comp);
+
 const char *genimg_get_arch_name(uint8_t arch);
+
+/**
+ * genimg_get_arch_short_name() - get the short name for an architecture
+ *
+ * @param arch	Architecture type (IH_ARCH_...)
+ * @return architecture short name, or "unknown" if unknown
+ */
+const char *genimg_get_arch_short_name(uint8_t arch);
+
 const char *genimg_get_type_name(uint8_t type);
 
 /**
@@ -428,6 +443,15 @@ const char *genimg_get_type_name(uint8_t type);
 const char *genimg_get_type_short_name(uint8_t type);
 
 const char *genimg_get_comp_name(uint8_t comp);
+
+/**
+ * genimg_get_comp_short_name() - get the short name for a compression method
+ *
+ * @param comp	compression method (IH_COMP_...)
+ * @return compression method short name, or "unknown" if unknown
+ */
+const char *genimg_get_comp_short_name(uint8_t comp);
+
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);
@@ -756,7 +780,6 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
 /*******************************************************************/
-#if defined(CONFIG_FIT)
 
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
@@ -789,6 +812,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
+#if IMAGE_ENABLE_FIT
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
@@ -952,12 +976,15 @@ struct image_sign_info {
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
 };
+#endif /* Allow struct image_region to always be defined for rsa.h */
 
 /* A part of an image, used for hashing */
 struct image_region {
 	const void *data;
 	int size;
 };
+
+#if IMAGE_ENABLE_FIT
 
 #if IMAGE_ENABLE_VERIFY
 # include <u-boot/rsa-checksum.h>
@@ -1126,5 +1153,18 @@ ulong android_image_get_end(const struct andr_img_hdr *hdr);
 ulong android_image_get_kload(const struct andr_img_hdr *hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
+
+/**
+ * board_fit_config_name_match() - Check for a matching board name
+ *
+ * This is used when SPL loads a FIT containing multiple device tree files
+ * and wants to work out which one to use. The description of each one is
+ * passed to this function. The description comes from the 'description' field
+ * in each (FDT) image node.
+ *
+ * @name: Device tree description
+ * @return 0 if this device tree should be used, non-zero to try the next
+ */
+int board_fit_config_name_match(const char *name);
 
 #endif	/* __IMAGE_H__ */

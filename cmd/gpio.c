@@ -119,7 +119,7 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int gpio;
 	enum gpio_cmd sub_cmd;
-	ulong value;
+	int value;
 	const char *str_cmd, *str_gpio = NULL;
 	int ret;
 #ifdef CONFIG_DM_GPIO
@@ -197,15 +197,35 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		value = gpio_get_value(gpio);
 	} else {
 		switch (sub_cmd) {
-			case GPIO_SET:    value = 1; break;
-			case GPIO_CLEAR:  value = 0; break;
-			case GPIO_TOGGLE: value = !gpio_get_value(gpio); break;
-			default:          goto show_usage;
+		case GPIO_SET:
+			value = 1;
+			break;
+		case GPIO_CLEAR:
+			value = 0;
+			break;
+		case GPIO_TOGGLE:
+			value = gpio_get_value(gpio);
+			if (!IS_ERR_VALUE(value))
+				value = !value;
+			break;
+		default:
+			goto show_usage;
 		}
 		gpio_direction_output(gpio, value);
 	}
-	printf("gpio: pin %s (gpio %i) value is %lu\n",
-		str_gpio, gpio, value);
+	printf("gpio: pin %s (gpio %i) value is ", str_gpio, gpio);
+	if (IS_ERR_VALUE(value))
+		printf("unknown (ret=%d)\n", value);
+	else
+		printf("%d\n", value);
+	if (sub_cmd != GPIO_INPUT && !IS_ERR_VALUE(value)) {
+		int nval = gpio_get_value(gpio);
+
+		if (IS_ERR_VALUE(nval))
+			printf("   Warning: no access to GPIO output value\n");
+		else if (nval != value)
+			printf("   Warning: value of pin is still %d\n", nval);
+	}
 
 	if (ret != -EBUSY)
 		gpio_free(gpio);

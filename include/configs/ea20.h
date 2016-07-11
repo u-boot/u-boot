@@ -24,7 +24,6 @@
 #define CONFIG_VIDEO
 #define CONFIG_PREBOOT
 
-
 /*
  * SoC Configuration
  */
@@ -102,7 +101,6 @@
 #define CONFIG_SYS_NO_FLASH
 #endif
 
-
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
 #define CONFIG_CFB_CONSOLE
@@ -128,7 +126,6 @@
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
@@ -146,22 +143,14 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_I2C
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #endif
 
 /* NAND Setup */
@@ -189,8 +178,6 @@
 
 /* SPI Flash */
 #ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #endif
 
 #if !defined(CONFIG_SYS_USE_NAND) && \

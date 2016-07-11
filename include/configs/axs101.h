@@ -39,8 +39,6 @@
 #define CONFIG_BOARD_TYPES
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_OF_LIBFDT
-
 /*
  * NAND Flash configuration
  */
@@ -107,8 +105,6 @@
 /*
  * Commands still not supported in Kconfig
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 
 #define CONFIG_AUTO_COMPLETE

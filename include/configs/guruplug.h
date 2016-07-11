@@ -10,7 +10,6 @@
 #ifndef _CONFIG_GURUPLUG_H
 #define _CONFIG_GURUPLUG_H
 
-
 /*
  * Version number information
  */

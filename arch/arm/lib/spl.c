@@ -27,7 +27,7 @@ gd_t gdata __attribute__ ((section(".data")));
 /*
  * In the context of SPL, board_init_f must ensure that any clocks/etc for
  * DDR are enabled, ensure that the stack pointer is valid, clear the BSS
- * and call board_init_f.  We provide this version by default but mark it
+ * and call board_init_r.  We provide this version by default but mark it
  * as __weak to allow for platforms to do this in their own way if needed.
  */
 void __weak board_init_f(ulong dummy)

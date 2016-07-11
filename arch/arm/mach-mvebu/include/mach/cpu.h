@@ -47,6 +47,9 @@ enum cpu_attrib {
 	CPU_ATTR_DRAM_CS3 = 0x07,
 	CPU_ATTR_NANDFLASH = 0x2f,
 	CPU_ATTR_SPIFLASH = 0x1e,
+	CPU_ATTR_SPI0_CS0 = 0x1e,
+	CPU_ATTR_SPI0_CS1 = 0x5e,
+	CPU_ATTR_SPI1_CS2 = 0x9a,
 	CPU_ATTR_BOOTROM = 0x1d,
 	CPU_ATTR_PCIE_IO = 0xe0,
 	CPU_ATTR_PCIE_MEM = 0xe8,
@@ -58,6 +61,7 @@ enum cpu_attrib {
 
 enum {
 	MVEBU_SOC_AXP,
+	MVEBU_SOC_A375,
 	MVEBU_SOC_A38X,
 	MVEBU_SOC_UNKNOWN,
 };
@@ -86,7 +90,11 @@ struct mbus_win {
  * Ref: Datasheet sec:A.28
  */
 struct mvebu_system_registers {
+#if defined(CONFIG_ARMADA_375)
+	u8 pad1[0x54];
+#else
 	u8 pad1[0x60];
+#endif
 	u32 rstoutn_mask; /* 0x60 */
 	u32 sys_soft_rst; /* 0x64 */
 };

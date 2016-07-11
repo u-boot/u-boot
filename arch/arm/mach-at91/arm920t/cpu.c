@@ -2,7 +2,7 @@
  * [origin: arch/arm/cpu/arm926ejs/at91/cpu.c]
  *
  * (C) Copyright 2011
- * Andreas Bießmann, andreas.devel@googlemail.com
+ * Andreas Bießmann, andreas@biessmann.org
  * (C) Copyright 2010
  * Reinhard Meyer, reinhard.meyer@emk-elektronik.de
  * (C) Copyright 2009

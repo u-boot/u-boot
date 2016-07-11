@@ -210,7 +210,7 @@ int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
  * clear keyboards LEDs). For data transfers, (storage transfers) we don't
  * allow control messages with 0 timeout, by previousely resetting the flag
  * asynch_allowed (usb_disable_asynch(1)).
- * returns the transfered length if OK or -1 if error. The transfered length
+ * returns the transferred length if OK or -1 if error. The transferred length
  * and the current status are stored in the dev->act_len and dev->status.
  */
 int usb_control_msg(struct usb_device *dev, unsigned int pipe,
@@ -919,19 +919,8 @@ __weak int usb_alloc_device(struct usb_device *udev)
 
 static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
 {
-	if (hub) {
-		unsigned short portstatus;
-		int err;
-
-		/* reset the port for the second time */
-		err = legacy_hub_port_reset(hub, dev->portnr - 1, &portstatus);
-		if (err < 0) {
-			printf("\n     Couldn't reset port %i\n", dev->portnr);
-			return err;
-		}
-	} else {
+	if (!hub)
 		usb_reset_root_port(dev);
-	}
 
 	return 0;
 }
@@ -1075,7 +1064,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 int usb_select_config(struct usb_device *dev)
 {
-	unsigned char *tmpbuf = 0;
+	unsigned char *tmpbuf = NULL;
 	int err;
 
 	err = get_descriptor_len(dev, USB_DT_DEVICE_SIZE, USB_DT_DEVICE_SIZE);
@@ -1087,6 +1076,14 @@ int usb_select_config(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idVendor);
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
+
+	/*
+	 * Kingston DT Ultimate 32GB USB 3.0 seems to be extremely sensitive
+	 * about this first Get Descriptor request. If there are any other
+	 * requests in the first microframe, the stick crashes. Wait about
+	 * one microframe duration here (1mS for USB 1.x , 125uS for USB 2.0).
+	 */
+	mdelay(1);
 
 	/* only support for one config for now */
 	err = usb_get_configuration_len(dev, 0);
@@ -1118,6 +1115,14 @@ int usb_select_config(struct usb_device *dev)
 			"len %d, status %lX\n", dev->act_len, dev->status);
 		return err;
 	}
+
+	/*
+	 * Wait until the Set Configuration request gets processed by the
+	 * device. This is required by at least SanDisk Cruzer Pop USB 2.0
+	 * and Kingston DT Ultimate 32GB USB 3.0 on DWC2 OTG controller.
+	 */
+	mdelay(10);
+
 	debug("new device strings: Mfr=%d, Product=%d, SerialNumber=%d\n",
 	      dev->descriptor.iManufacturer, dev->descriptor.iProduct,
 	      dev->descriptor.iSerialNumber);

@@ -50,3 +50,4 @@ else
 obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
 endif
 obj-$(CONFIG_PIC32_SDHCI) += pic32_sdhci.o
+obj-$(CONFIG_MSM_SDHCI) += msm_sdhci.o

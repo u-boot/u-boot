@@ -276,7 +276,6 @@ static const struct pmux_pingrp_config jetson_tk1_pingrps[] = {
 	PINCFG(CPU_PWR_REQ,            CPU,          NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PWR_INT_N,              PMI,          UP,     TRISTATE, INPUT,   DEFAULT, DEFAULT),
 	PINCFG(RESET_OUT_N,            RESET_OUT_N,  NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
-	PINCFG(OWR,                    RSVD2,        DOWN,   TRISTATE, OUTPUT,  DEFAULT, NORMAL),
 	PINCFG(CLK_32K_IN,             CLK,          NORMAL, TRISTATE, INPUT,   DEFAULT, DEFAULT),
 	PINCFG(JTAG_RTCK,              RTCK,         UP,     NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 };
@@ -294,6 +293,17 @@ static const struct pmux_pingrp_config jetson_tk1_pingrps[] = {
 	}
 
 static const struct pmux_drvgrp_config jetson_tk1_drvgrps[] = {
+};
+
+#define MIPIPADCTRLCFG(_grp, _mux) \
+	{							\
+		.grp		= PMUX_MIPIPADCTRLGRP_##_grp,	\
+		.func		= PMUX_FUNC_##_mux,		\
+	}
+
+static const struct pmux_mipipadctrlgrp_config jetson_tk1_mipipadctrlgrps[] = {
+	/*             grp,   mux */
+	MIPIPADCTRLCFG(DSI_B, DSI_B),
 };
 
 #endif /* PINMUX_CONFIG_JETSON_TK1_H */

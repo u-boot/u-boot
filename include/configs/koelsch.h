@@ -65,7 +65,6 @@
 #define CONFIG_SYS_TMU_CLK_DIV	4
 
 /* i2c */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SH
 #define CONFIG_SYS_I2C_SLAVE	0x7F
@@ -97,7 +96,6 @@
 
 /* SD */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SH_SDHI_FREQ	97500000
 

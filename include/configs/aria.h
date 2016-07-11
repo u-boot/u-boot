@@ -326,10 +326,6 @@
 #define CONSOLE_FIFO_RX_ADDR		FIFOC_PSC3_RX_ADDR
 
 #define CONFIG_CMDLINE_EDITING		1	/* command line history */
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /*
  * PCI
@@ -406,15 +402,10 @@
 #define CONFIG_LOADS_ECHO		1
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_FUSE
-#define CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -572,8 +563,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_SUPPORT_OLD_DEVICE_TREES	1
 
 #define OF_CPU			"PowerPC,5121@0"

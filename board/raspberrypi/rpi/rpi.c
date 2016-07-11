@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012-2013,2015 Stephen Warren
+ * (C) Copyright 2012-2016 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -18,6 +18,10 @@
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <dm/platform_data/serial_bcm283x_mu.h>
+#ifdef CONFIG_ARM64
+#include <asm/armv8/mmu.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,20 +34,33 @@ U_BOOT_DEVICE(bcm2835_gpios) = {
 	.platdata = &gpio_platdata,
 };
 
+#ifdef CONFIG_PL01X_SERIAL
 static const struct pl01x_serial_platdata serial_platdata = {
-#ifdef CONFIG_BCM2836
+#ifndef CONFIG_BCM2835
 	.base = 0x3f201000,
 #else
 	.base = 0x20201000,
 #endif
 	.type = TYPE_PL011,
-	.clock = 3000000,
+	.skip_init = true,
 };
 
 U_BOOT_DEVICE(bcm2835_serials) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#else
+static const struct bcm283x_mu_serial_platdata serial_platdata = {
+	.base = 0x3f215040,
+	.clock = 250000000,
+	.skip_init = true,
+};
+
+U_BOOT_DEVICE(bcm2837_serials) = {
+	.name = "serial_bcm283x_mu",
+	.platdata = &serial_platdata,
+};
+#endif
 
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;
@@ -99,11 +116,7 @@ struct rpi_model {
 
 static const struct rpi_model rpi_model_unknown = {
 	"Unknown model",
-#ifdef CONFIG_BCM2836
-	"bcm2836-rpi-other.dtb",
-#else
-	"bcm2835-rpi-other.dtb",
-#endif
+	"bcm283x-rpi-other.dtb",
 	false,
 };
 
@@ -111,6 +124,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 	[0x4] = {
 		"2 Model B",
 		"bcm2836-rpi-2-b.dtb",
+		true,
+	},
+	[0x8] = {
+		"3 Model B",
+		"bcm2837-rpi-3-b.dtb",
 		true,
 	},
 	[0x9] = {
@@ -212,6 +230,28 @@ static uint32_t revision;
 static uint32_t rev_scheme;
 static uint32_t rev_type;
 static const struct rpi_model *model;
+
+#ifdef CONFIG_ARM64
+static struct mm_region bcm2837_mem_map[] = {
+	{
+		.base = 0x00000000UL,
+		.size = 0x3f000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.base = 0x3f000000UL,
+		.size = 0x01000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = bcm2837_mem_map;
+#endif
 
 int dram_init(void)
 {

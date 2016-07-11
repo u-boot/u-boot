@@ -36,7 +36,7 @@
  *
  * The naming follows Intel's naming.
  */
-#define PORT_RESET		0xcf9
+#define IO_PORT_RESET		0xcf9
 
 enum {
 	SYS_RST		= 1 << 1,	/* 0 for soft reset, 1 for hard reset */

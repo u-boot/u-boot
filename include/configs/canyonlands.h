@@ -382,21 +382,16 @@
 #elif defined(CONFIG_CANYONLANDS)
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 #elif defined(CONFIG_GLACIER)
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
 #else
 #error "board type not defined"
 #endif

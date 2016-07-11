@@ -6,7 +6,6 @@
 #ifndef __CONFIG_SOCFPGA_COMMON_H__
 #define __CONFIG_SOCFPGA_COMMON_H__
 
-
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
@@ -24,8 +23,6 @@
 
 #define CONFIG_CRC32_VERIFY
 
-#define CONFIG_FIT
-#define CONFIG_OF_LIBFDT
 #define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
@@ -70,7 +67,6 @@
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 #define CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 #ifndef CONFIG_SYS_HOSTNAME
 #define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
@@ -92,10 +88,7 @@
  * EPCS/EPCQx1 Serial Flash Controller
  */
 #ifdef CONFIG_ALTERA_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH_BAR
 /*
  * The base address is configurable in QSys, each board must specify the
  * base address based on it's particular FPGA configuration. Please note
@@ -201,7 +194,6 @@
 unsigned int cm_get_l4_sp_clk_hz(void);
 #define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
 #endif
-#define CONFIG_CMD_I2C
 
 /*
  * QSPI support
@@ -220,13 +212,10 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
 #endif
 #define CONFIG_CQSPI_DECODER		0
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_BAR
 
 /*
  * Designware SPI support
  */
-#define CONFIG_CMD_SPI
 
 /*
  * Serial Driver
@@ -254,13 +243,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * USB Gadget (DFU, UMS)
  */
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DWC2_OTG
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-
-/* USB Composite download gadget - g_dnl */
-#define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #define CONFIG_USB_FUNCTION_DFU
@@ -271,13 +253,8 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 /* USB IDs */
-#define CONFIG_G_DNL_VENDOR_NUM		0x0525	/* NetChip */
-#define CONFIG_G_DNL_PRODUCT_NUM	0xA4A5	/* Linux-USB File-backed Storage Gadget */
-#define CONFIG_G_DNL_UMS_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM	CONFIG_G_DNL_PRODUCT_NUM
-#ifndef CONFIG_G_DNL_MANUFACTURER
-#define CONFIG_G_DNL_MANUFACTURER	CONFIG_SYS_VENDOR
-#endif
+#define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
+#define CONFIG_G_DNL_UMS_PRODUCT_NUM	0xA4A5
 #endif
 
 /*
@@ -286,12 +263,20 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
+#if !defined(CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE			4096
+#endif
 
 /* Environment for SDMMC boot */
 #if defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
+#endif
+
+/* Environment for QSPI boot */
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && !defined(CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_OFFSET		0x00100000
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #endif
 
 /*

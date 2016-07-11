@@ -242,12 +242,7 @@
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
 			 CLOCK_SCCR2_I2C_EN)
 
-
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
@@ -295,18 +290,11 @@
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DATE
 #undef CONFIG_CMD_FUSE
 #undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_DOS_PARTITION
 
@@ -426,9 +414,6 @@
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 
 #define OF_CPU			"PowerPC,5121@0"
 #define OF_SOC_COMPAT		"fsl,mpc5121-immr"

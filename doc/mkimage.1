@@ -97,6 +97,10 @@ Set XIP (execute in place) flag.
 .B Create FIT image:
 
 .TP
+.BI "\-b [" "device tree file" "]
+Appends the device tree binary file (.dtb) to the FIT.
+
+.TP
 .BI "\-c [" "comment" "]"
 Specifies a comment to be added when signing. This is typically a useful
 message which describes how the image was signed or some other useful
@@ -108,9 +112,23 @@ Provide special options to the device tree compiler that is used to
 create the image.
 
 .TP
-.BI "\-f [" "image tree source file" "]"
+.BI "\-E
+After processing, move the image data outside the FIT and store a data offset
+in the FIT. Images will be placed one after the other immediately after the
+FIT, with each one aligned to a 4-byte boundary. The existing 'data' property
+in each image will be replaced with 'data-offset' and 'data-size' properties.
+A 'data-offset' of 0 indicates that it starts in the first (4-byte aligned)
+byte after the FIT.
+
+.TP
+.BI "\-f [" "image tree source file" " | " "auto" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.
+
+This can be automatically generated for some simple cases.
+Use "-f auto" for this. In that case the arguments -d, -A, -O, -T, -C, -a
+and -e are used to specify the image to include in the FIT and its attributes.
+No .its file is required.
 
 .TP
 .BI "\-F"
@@ -164,7 +182,7 @@ skipping those for which keys cannot be found. Also add a comment.
 .nf
 .B mkimage -f kernel.its -k /public/signing-keys -K u-boot.dtb \\\\
 .br
-.B -c "Kernel 3.8 image for production devices" kernel.itb
+.B -c """Kernel 3.8 image for production devices""" kernel.itb
 .fi
 
 .P
@@ -175,7 +193,25 @@ with unavailable keys are skipped.
 .nf
 .B mkimage -F -k /secret/signing-keys -K u-boot.dtb \\\\
 .br
-.B -c "Kernel 3.8 image for production devices" kernel.itb
+.B -c """Kernel 3.8 image for production devices""" kernel.itb
+.fi
+
+.P
+Create a FIT image containing a kernel, using automatic mode. No .its file
+is required.
+.nf
+.B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
+.br
+.B -c """Kernel 4.4 image for production devices""" -d vmlinuz kernel.itb
+.fi
+.P
+Create a FIT image containing a kernel and some device tree files, using
+automatic mode. No .its file is required.
+.nf
+.B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
+.br
+.B -c """Kernel 4.4 image for production devices""" -d vmlinuz \\\\
+.B -b /path/to/rk3288-firefly.dtb -b /path/to/rk3288-jerry.dtb kernel.itb
 .fi
 
 .SH HOMEPAGE

@@ -343,7 +343,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-
 /* I2C */
 #define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
 #define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
@@ -401,10 +400,8 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
-
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
@@ -493,7 +490,6 @@ unsigned long get_board_ddr_clk(void);
 #define FM2_10GEC2_PHY_ADDR	0x3
 #endif
 
-
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
@@ -510,7 +506,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
 #ifdef CONFIG_FMAN_ENET
@@ -528,12 +523,10 @@ unsigned long get_board_ddr_clk(void);
 /*
 * USB
 */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #define CONFIG_HAS_FSL_DR_USB
 
 #define CONFIG_MMC
@@ -542,10 +535,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_ESDHC_DETECT_QUIRK \

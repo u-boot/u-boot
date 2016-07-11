@@ -10,7 +10,6 @@
 #ifndef __AMCC_COMMON_H
 #define __AMCC_COMMON_H
 
-
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* Start of U-Boot	*/
 #define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
@@ -51,18 +50,11 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_ASKENV
 #if defined(CONFIG_440)
-#define CONFIG_CMD_CACHE
 #endif
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -86,13 +78,10 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
-#define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 	/* include version env variable */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
-
-#define CONFIG_SYS_HUSH_PARSER		/* Use the HUSH parser		*/
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
@@ -121,11 +110,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 /* Update size in "reg" property of NOR FLASH device tree nodes */
 #define CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 

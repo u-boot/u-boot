@@ -15,6 +15,13 @@ choice
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
+	select MX7D
+	select DM
+	select DM_THERMAL
+
+config TARGET_WARP7
+	bool "warp7"
+	select MX7D
 	select DM
 	select DM_THERMAL
 
@@ -24,5 +31,6 @@ config SYS_SOC
 	default "mx7"
 
 source "board/freescale/mx7dsabresd/Kconfig"
+source "board/warp7/Kconfig"
 
 endif

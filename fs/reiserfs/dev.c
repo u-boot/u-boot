@@ -12,13 +12,13 @@
 
 #include "reiserfs_private.h"
 
-static block_dev_desc_t *reiserfs_block_dev_desc;
+static struct blk_desc *reiserfs_blk_desc;
 static disk_partition_t *part_info;
 
 
-void reiserfs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
+void reiserfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 {
-	reiserfs_block_dev_desc = rbdd;
+	reiserfs_blk_desc = rbdd;
 	part_info = info;
 }
 
@@ -53,17 +53,15 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 #endif
 
 
-	if (reiserfs_block_dev_desc == NULL)
+	if (reiserfs_blk_desc == NULL)
 		return 0;
 
 
 	if (byte_offset != 0) {
 		/* read first part which isn't aligned with start of sector */
-		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
-							part_info->start +
-								sector,
-							1, (void *)sec_buf)
-		    != 1) {
+		if (reiserfs_blk_desc->block_read(reiserfs_blk_desc,
+						  part_info->start + sector,
+						  1, (void *)sec_buf) != 1) {
 			printf (" ** reiserfs_devread() read error\n");
 			return 0;
 		}
@@ -75,11 +73,10 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	/* read sector aligned part */
 	block_len = byte_len & ~(SECTOR_SIZE-1);
-	if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
-						part_info->start + sector,
-						block_len / SECTOR_SIZE,
-						(void *)buf)
-	    != block_len/SECTOR_SIZE) {
+	if (reiserfs_blk_desc->block_read(reiserfs_blk_desc,
+					  part_info->start + sector,
+					  block_len / SECTOR_SIZE, (void *)buf)
+			!= block_len/SECTOR_SIZE) {
 		printf (" ** reiserfs_devread() read error - block\n");
 		return 0;
 	}
@@ -89,11 +86,9 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	if ( byte_len != 0 ) {
 		/* read rest of data which are not in whole sector */
-		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
-							part_info->start +
-							    sector,
-							1, (void *)sec_buf)
-		    != 1) {
+		if (reiserfs_blk_desc->block_read(reiserfs_blk_desc,
+						  part_info->start + sector,
+						  1, (void *)sec_buf) != 1) {
 			printf (" ** reiserfs_devread() read error - last part\n");
 			return 0;
 		}

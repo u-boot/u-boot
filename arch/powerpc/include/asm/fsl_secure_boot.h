@@ -76,12 +76,7 @@
 #define CONFIG_CMD_BLOB
 #define CONFIG_FSL_SEC_MON
 #define CONFIG_SHA_PROG_HW_ACCEL
-#define CONFIG_RSA
 #define CONFIG_RSA_FREESCALE_EXP
-
-#ifndef CONFIG_DM
-#define CONFIG_DM
-#endif
 
 #ifndef CONFIG_FSL_CAAM
 #define CONFIG_FSL_CAAM

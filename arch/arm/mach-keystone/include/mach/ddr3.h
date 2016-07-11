@@ -48,6 +48,14 @@ struct ddr3_emif_config {
 	unsigned int sdrfc;
 };
 
+struct ddr3_spd_cb {
+	char   dimm_name[32];
+	struct ddr3_phy_config phy_cfg;
+	struct ddr3_emif_config emif_cfg;
+	unsigned int ddrspdclock;
+	int    ddr_size_gbyte;
+};
+
 u32 ddr3_init(void);
 void ddr3_reset_ddrphy(void);
 void ddr3_init_ecc(u32 base, u32 ddr3_size);
@@ -58,5 +66,6 @@ void ddr3_err_reset_workaround(void);
 void ddr3_enable_ecc(u32 base, int test);
 void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg);
 void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg);
+int ddr3_get_size(void);
 
 #endif

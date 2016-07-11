@@ -36,26 +36,6 @@ Notes
 6. CONFIG_ARM64 instead of CONFIG_ARMV8 is used to distinguish aarch64 and
    aarch32 specific codes.
 
-7. CONFIG_SYS_FULL_VA is used to enable 2-level page tables. For cores
-   supporting 64k pages it allows usage of full 48+ virtual/physical addresses
-
-   Enabling this option requires the following ones to be defined:
-       - CONFIG_SYS_MEM_MAP - an array of 'struct mm_region' describing the
-         system memory map (start, length, attributes)
-       - CONFIG_SYS_MEM_MAP_SIZE - number of entries in CONFIG_SYS_MEM_MAP
-       - CONFIG_SYS_PTL1_ENTRIES - number of 1st level page table entries
-       - CONFIG_SYS_PTL2_ENTRIES - number of 1nd level page table entries
-         for the largest CONFIG_SYS_MEM_MAP entry
-       - CONFIG_COREID_MASK - the mask value used to get the core from the
-         MPIDR_EL1 register
-       - CONFIG_SYS_PTL2_BITS - number of bits addressed by the 2nd level
-         page tables
-       - CONFIG_SYS_BLOCK_SHIFT - number of bits addressed by a single block
-         entry from L2 page tables
-       - CONFIG_SYS_PGTABLE_SIZE - total size of the page table
-       - CONFIG_SYS_TCR_EL{1,2,3}_IPS_BITS - the IPS field of the TCR_EL{1,2,3}
-
-
 
 
 Contributor

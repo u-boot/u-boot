@@ -350,7 +350,7 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data)
  * make it obvious what the key for each entry is.
  *
  * item_choice - If not NULL, will be called when asking the user to choose an
- * item. Returns a key string corresponding to the choosen item or NULL if
+ * item. Returns a key string corresponding to the chosen item or NULL if
  * no item has been selected.
  *
  * item_choice_data - Will be passed as the argument to the item_choice function

@@ -123,6 +123,14 @@ ECC can be turned on/off by hwconfig.
 Syntax is
 hwconfig=fsl_ddr:ecc=off
 
+
+Memory address parity on/off
+============================
+address parity can be turned on/off by hwconfig.
+Syntax is:
+hwconfig=fsl_ddr:parity=on
+
+
 Memory testing options for mpc85xx
 ==================================
 1. Memory test can be done once U-Boot prompt comes up using mtest, or
@@ -142,6 +150,7 @@ Hwconfig can be combined with multiple parameters, for example, on a supported
 platform
 
 hwconfig=fsl_ddr:addr_hash=true,ctlr_intlv=cacheline,bank_intlv=cs0_cs1_cs2_cs3,ecc=on
+
 
 Table for dynamic ODT for DDR3
 ==============================

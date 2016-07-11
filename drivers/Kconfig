@@ -30,6 +30,8 @@ source "drivers/input/Kconfig"
 
 source "drivers/led/Kconfig"
 
+source "drivers/memory/Kconfig"
+
 source "drivers/misc/Kconfig"
 
 source "drivers/mmc/Kconfig"
@@ -59,6 +61,8 @@ source "drivers/serial/Kconfig"
 source "drivers/sound/Kconfig"
 
 source "drivers/spi/Kconfig"
+
+source "drivers/spmi/Kconfig"
 
 source "drivers/thermal/Kconfig"
 

@@ -10,6 +10,8 @@
 #include <asm/io.h>
 #ifdef CONFIG_LS1043A
 #include <asm/arch/immap_lsch2.h>
+#elif defined(CONFIG_FSL_LSCH3)
+#include <asm/arch/immap_lsch3.h>
 #else
 #include <asm/immap_85xx.h>
 #endif
@@ -285,7 +287,7 @@ static int set_voltage(int i2caddress, int vdd)
 int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
-#ifdef CONFIG_LS1043A
+#if defined(CONFIG_LS1043A) || defined(CONFIG_FSL_LSCH3)
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #else
 	ccsr_gur_t __iomem *gur =
@@ -362,7 +364,11 @@ int adjust_vdd(ulong vdd_override)
 	}
 
 	/* get the voltage ID from fuse status register */
+#ifdef CONFIG_FSL_LSCH3
+	fusesr = in_le32(&gur->dcfg_fusesr);
+#else
 	fusesr = in_be32(&gur->dcfg_fusesr);
+#endif
 	/*
 	 * VID is used according to the table below
 	 *                ---------------------------------------
@@ -386,6 +392,13 @@ int adjust_vdd(ulong vdd_override)
 	if ((vid == 0) || (vid == FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK)) {
 		vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_VID_SHIFT) &
 			FSL_CHASSIS2_DCFG_FUSESR_VID_MASK;
+	}
+#elif defined(CONFIG_FSL_LSCH3)
+	vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
 	}
 #else
 	vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT) &
@@ -454,6 +467,9 @@ int adjust_vdd(ulong vdd_override)
 exit:
 	if (re_enable)
 		enable_interrupts();
+
+	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
+
 	return ret;
 }
 
@@ -469,7 +485,7 @@ static int print_vdd(void)
 	ret = find_ir_chip_on_i2c();
 	if (ret < 0) {
 		printf("VID: Could not find voltage regulator on I2C.\n");
-		return -1;
+		goto exit;
 	} else {
 		i2caddress = ret;
 		debug("VID: IR Chip found on I2C address 0x%02x\n", i2caddress);
@@ -481,11 +497,14 @@ static int print_vdd(void)
 	vdd_last = read_voltage(i2caddress);
 	if (vdd_last < 0) {
 		printf("VID: Couldn't read sensor abort VID adjustment\n");
-		return -1;
+		goto exit;
 	}
 	printf("VID: Core voltage is at %d mV\n", vdd_last);
+exit:
+	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
 
-	return 0;
+	return ret < 0 ? -1 : 0;
+
 }
 
 static int do_vdd_override(cmd_tbl_t *cmdtp,

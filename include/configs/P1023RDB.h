@@ -33,9 +33,9 @@
 #define CONFIG_FSL_ELBC		/* Has Enhanced localbus controller */
 #define CONFIG_PCI		/* Enable PCI/PCIE */
 #define CONFIG_PCI_INDIRECT_BRIDGE     /* indirect PCI bridge support */
-#define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
-#define CONFIG_PCIE2		/* PCIE controler 2 (slot 2) */
-#define CONFIG_PCIE3		/* PCIE controler 3 (slot 3) */
+#define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
+#define CONFIG_PCIE2		/* PCIE controller 2 (slot 2) */
+#define CONFIG_PCIE3		/* PCIE controller 3 (slot 3) */
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
@@ -172,20 +172,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
@@ -206,8 +192,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-
-#define CONFIG_CMD_I2C
 
 /*
  * General PCI
@@ -269,8 +253,6 @@ extern unsigned long get_clock_freq(void);
  * Command line configuration.
  */
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -285,13 +267,9 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 #endif

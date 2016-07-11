@@ -170,7 +170,7 @@ int udc_init (void)
 
 /* udc_irq
  *
- * Poll for whatever events may have occured
+ * Poll for whatever events may have occurred
  */
 void udc_irq (void)
 {

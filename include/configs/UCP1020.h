@@ -342,20 +342,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
@@ -380,8 +366,6 @@
  */
 #define CONFIG_HARD_SPI
 
-#define CONFIG_CMD_SF			1
-#define CONFIG_CMD_SPI			1
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
@@ -484,18 +468,11 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_CRAMFS
-#define CONFIG_CRAMFS_CMDLINE
 
 /*
  * USB
@@ -508,7 +485,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
@@ -520,15 +496,12 @@
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_CMD_MMC
 #define CONFIG_MMC_SPI
 #define CONFIG_CMD_MMC_SPI
 #define CONFIG_GENERIC_MMC
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) || defined(CONFIG_FSL_SATA)
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -579,7 +552,6 @@
 #error "UCP1020 module revision is not defined !!!"
 #endif
 
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SERVERIP
 
 #define CONFIG_MII		/* MII PHY management */

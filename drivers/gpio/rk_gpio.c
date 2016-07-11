@@ -116,11 +116,9 @@ static int rockchip_gpio_probe(struct udevice *dev)
 
 	/* This only supports RK3288 at present */
 	priv->regs = (struct rockchip_gpio_regs *)dev_get_addr(dev);
-	ret = uclass_first_device(UCLASS_PINCTRL, &priv->pinctrl);
+	ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
 	if (ret)
 		return ret;
-	if (!priv->pinctrl)
-		return -ENODEV;
 
 	uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
 	end = strrchr(dev->name, '@');

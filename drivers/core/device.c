@@ -66,12 +66,12 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	dev->req_seq = -1;
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS)) {
 		/*
-		* Some devices, such as a SPI bus, I2C bus and serial ports
-		* are numbered using aliases.
-		*
-		* This is just a 'requested' sequence, and will be
-		* resolved (and ->seq updated) when the device is probed.
-		*/
+		 * Some devices, such as a SPI bus, I2C bus and serial ports
+		 * are numbered using aliases.
+		 *
+		 * This is just a 'requested' sequence, and will be
+		 * resolved (and ->seq updated) when the device is probed.
+		 */
 		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
 			if (uc->uc_drv->name && of_offset != -1) {
 				fdtdec_get_alias_seq(gd->fdt_blob,
@@ -331,6 +331,9 @@ int device_probe(struct udevice *dev)
 	ret = uclass_post_probe_device(dev);
 	if (ret)
 		goto fail_uclass;
+
+	if (dev->parent && device_get_uclass_id(dev) == UCLASS_PINCTRL)
+		pinctrl_select_state(dev, "default");
 
 	return 0;
 fail_uclass:
@@ -649,9 +652,30 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
+fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	int index;
+
+	index = fdt_find_string(gd->fdt_blob, dev->parent->of_offset,
+				"reg-names", name);
+	if (index < 0)
+		return index;
+
+	return dev_get_addr_index(dev, index);
+#else
+	return FDT_ADDR_T_NONE;
+#endif
+}
+
 fdt_addr_t dev_get_addr(struct udevice *dev)
 {
 	return dev_get_addr_index(dev, 0);
+}
+
+void *dev_get_addr_ptr(struct udevice *dev)
+{
+	return (void *)(uintptr_t)dev_get_addr_index(dev, 0);
 }
 
 bool device_has_children(struct udevice *dev)

@@ -240,6 +240,7 @@ struct ehci_ops {
 	void (*powerup_fixup)(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 			      uint32_t *reg);
 	uint32_t *(*get_portsc_register)(struct ehci_ctrl *ctrl, int port);
+	int (*init_after_reset)(struct ehci_ctrl *ctrl);
 };
 
 struct ehci_ctrl {

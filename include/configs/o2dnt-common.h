@@ -76,11 +76,6 @@
  * Supported commands
  */
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #endif
@@ -253,13 +248,13 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #ifdef CONFIG_POST
 /* preserve space for the post_word at end of on-chip SRAM */
-#define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_POST_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_POST_SIZE
 #else
 /* End of used area in DPRAM */
-#define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 #endif
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
@@ -293,7 +288,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
@@ -332,9 +326,6 @@
 /*
  * DT support
  */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

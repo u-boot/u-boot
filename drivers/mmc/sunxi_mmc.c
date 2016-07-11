@@ -339,7 +339,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		cmdval |= SUNXI_MMC_CMD_CHK_RESPONSE_CRC;
 
 	if (data) {
-		if ((u32) data->dest & 0x3) {
+		if ((u32)(long)data->dest & 0x3) {
 			error = -1;
 			goto out;
 		}
@@ -480,6 +480,10 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
+#ifdef CONFIG_MACH_SUN50I
+	if (sdc_no == 2)
+		cfg->host_caps = MMC_MODE_8BIT;
+#endif
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 

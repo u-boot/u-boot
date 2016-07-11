@@ -13,15 +13,9 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DEFAULTENV_VARS
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
 
@@ -33,7 +27,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -56,9 +49,6 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "Hit <SPACE> key to stop autoboot in %2ds\n"
-#define CONFIG_AUTOBOOT_STOP_STR        " "
 
 /* Support the IVM EEprom */
 #define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
@@ -83,7 +73,6 @@
 #define CONFIG_MTD_CONCAT
 
 #define CONFIG_CMD_CRAMFS
-#define CONFIG_CRAMFS_CMDLINE
 
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \

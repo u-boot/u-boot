@@ -8,17 +8,19 @@ The PINCTRL master node requires the following properties:
 
 Pin nodes must be children of the pinctrl master node and can
 contain the following properties:
-- pad-offset        - (required) offset in the IOBASE for the pin to configured.
-- gpio-offset       - (required) offset in the GPIOBASE for the pin to configured and
-					also the bit shift in this register.
-- mode-gpio			- (optional) standalone property to force the pin into GPIO mode.
-- mode-func			- (optional) function number to assign to the pin. if 'mode-gpio'
-					is set, this property will be ignored.
+- pad-offset	- (required) offset in the IOBASE for the pin to configure
+- gpio-offset	- (required) 2 cells
+			- offset in the GPIOBASE for the pin to configure
+			- the bit shift in this register (4 = bit 4)
+- mode-gpio	- (optional) standalone property to force the pin into GPIO mode
+- mode-func	- (optional) function number to assign to the pin. If
+			'mode-gpio' is set, this property will be ignored.
 in case of 'mode-gpio' property set:
-- output-value		- (optional) this set the default output value of the GPIO.
-- direction         - (optional) this set the direction of the gpio.
-- pull-str          - (optional) this set the pull strength of the pin.
-- pull-assign       - (optional) this set the pull assignement (up/down) of the pin.
+- output-value	- (optional) this set the default output value of the GPIO
+- direction	- (optional) this set the direction of the gpio
+- pull-str	- (optional) this set the pull strength of the pin
+- pull-assign	- (optional) this set the pull assignement (up/down) of the pin
+- invert            - (optional) this input pin is inverted
 
 Example:
 

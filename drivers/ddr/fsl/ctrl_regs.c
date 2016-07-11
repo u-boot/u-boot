@@ -895,11 +895,15 @@ static void set_ddr_sdram_cfg_2(const unsigned int ctrl_num,
 	slow = get_ddr_freq(ctrl_num) < 1249000000;
 #endif
 
-	if (popts->registered_dimm_en) {
+	if (popts->registered_dimm_en)
 		rcw_en = 1;
-		ap_en = popts->ap_en;
-	} else {
+
+	/* DDR4 can have address parity for UDIMM and discrete */
+	if ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) &&
+	    (!popts->registered_dimm_en)) {
 		ap_en = 0;
+	} else {
+		ap_en = popts->ap_en;
 	}
 
 	x4_en = popts->x4_en ? 1 : 0;
@@ -1135,6 +1139,7 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 	unsigned short esdmode5;	/* Extended SDRAM mode 5 */
 	int rtt_park = 0;
 	bool four_cs = false;
+	const unsigned int mclk_ps = get_memory_clk_period_ps(0);
 
 #if CONFIG_CHIP_SELECTS_PER_CTRL == 4
 	if ((ddr->cs[0].config & SDRAM_CS_CONFIG_EN) &&
@@ -1148,6 +1153,19 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 		rtt_park = four_cs ? 0 : 1;
 	} else {
 		esdmode5 = 0x00000400;	/* Data mask enabled */
+	}
+
+	/* set command/address parity latency */
+	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+		if (mclk_ps >= 935) {
+			/* for DDR4-1600/1866/2133 */
+			esdmode5 |= DDR_MR5_CA_PARITY_LAT_4_CLK;
+		} else if (mclk_ps >= 833) {
+			/* for DDR4-2400 */
+			esdmode5 |= DDR_MR5_CA_PARITY_LAT_5_CLK;
+		} else {
+			printf("parity: mclk_ps = %d not supported\n", mclk_ps);
+		}
 	}
 
 	ddr->ddr_sdram_mode_9 = (0
@@ -1170,6 +1188,20 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 			} else {
 				esdmode5 = 0x00000400;
 			}
+
+			if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+				if (mclk_ps >= 935) {
+					/* for DDR4-1600/1866/2133 */
+					esdmode5 |= DDR_MR5_CA_PARITY_LAT_4_CLK;
+				} else if (mclk_ps >= 833) {
+					/* for DDR4-2400 */
+					esdmode5 |= DDR_MR5_CA_PARITY_LAT_5_CLK;
+				} else {
+					printf("parity: mclk_ps = %d not supported\n",
+					       mclk_ps);
+				}
+			}
+
 			switch (i) {
 			case 1:
 				ddr->ddr_sdram_mode_11 = (0
@@ -1925,12 +1957,25 @@ static void set_timing_cfg_7(const unsigned int ctrl_num,
 			     const common_timing_params_t *common_dimm)
 {
 	unsigned int txpr, tcksre, tcksrx;
-	unsigned int cke_rst, cksre, cksrx, par_lat, cs_to_cmd;
+	unsigned int cke_rst, cksre, cksrx, par_lat = 0, cs_to_cmd;
+	const unsigned int mclk_ps = get_memory_clk_period_ps(ctrl_num);
 
 	txpr = max(5U, picos_to_mclk(ctrl_num, common_dimm->trfc1_ps + 10000));
 	tcksre = max(5U, picos_to_mclk(ctrl_num, 10000));
 	tcksrx = max(5U, picos_to_mclk(ctrl_num, 10000));
-	par_lat = 0;
+
+	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+		if (mclk_ps >= 935) {
+			/* parity latency 4 clocks in case of 1600/1866/2133 */
+			par_lat = 4;
+		} else if (mclk_ps >= 833) {
+			/* parity latency 5 clocks for DDR4-2400 */
+			par_lat = 5;
+		} else {
+			printf("parity: mclk_ps = %d not supported\n", mclk_ps);
+		}
+	}
+
 	cs_to_cmd = 0;
 
 	if (txpr <= 200)

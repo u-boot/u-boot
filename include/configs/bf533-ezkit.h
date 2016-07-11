@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf533-0.3
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
-
 
 /*
  * Clock Settings
@@ -38,7 +36,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			5
 
-
 /*
  * Memory Settings
  */
@@ -60,7 +57,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -76,7 +72,6 @@
 	} while (0)
 #define CONFIG_HOSTNAME		bf533-ezkit
 
-
 /*
  * Flash Settings
  */
@@ -87,7 +82,6 @@
 #define CONFIG_ENV_ADDR		0x20030000
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define FLASH_TOT_SECT		40
-
 
 /*
  * I2C Settings

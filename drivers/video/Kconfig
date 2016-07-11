@@ -112,7 +112,7 @@ config VIDEO_VESA
 
 config FRAMEBUFFER_SET_VESA_MODE
 	bool "Set framebuffer graphics resolution"
-	depends on VIDEO_VESA
+	depends on VIDEO_VESA || VIDEO_BROADWELL_IGD
 	help
 	  Set VESA/native framebuffer mode (needed for bootsplash and graphical
 	  framebuffer console)
@@ -361,6 +361,18 @@ config DISPLAY
 	   DisplayPort) and HDMI (High Definition Multimedia Interface).
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
+
+config VIDEO_BROADWELL_IGD
+	bool "Enable Intel Broadwell integrated graphics device"
+	depends on X86
+	help
+	  This enabled support for integrated graphics on Intel broadwell
+	  devices. Initialisation is mostly performed by a VGA boot ROM, with
+	  some setup handled by U-Boot itself. The graphics adaptor works as
+	  a VESA device and supports LCD panels, eDP and LVDS outputs.
+	  Configuration of most aspects of device operation is performed using
+	  a special tool which configures the VGA ROM, but the graphics
+	  resolution can be selected in U-Boot.
 
 config VIDEO_ROCKCHIP
 	bool "Enable Rockchip video support"

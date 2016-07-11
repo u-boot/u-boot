@@ -375,7 +375,7 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host)
 	if (mmc == NULL)
 		return -1;
 
-	debug("registered mmc interface number is:%d\n", mmc->block_dev.dev);
+	debug("registered mmc interface number is:%d\n", mmc->block_dev.devnum);
 
 	return 0;
 }

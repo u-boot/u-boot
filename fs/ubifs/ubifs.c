@@ -561,7 +561,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	return 0;
 }
 
-int ubifs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
+int ubifs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 {
 	if (rbdd) {
 		debug("UBIFS cannot be used with normal block devices\n");
@@ -569,7 +569,7 @@ int ubifs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 	}
 
 	/*
-	 * Should never happen since get_device_and_partition() already checks
+	 * Should never happen since blk_get_device_part_str() already checks
 	 * this, but better safe then sorry.
 	 */
 	if (!ubifs_is_mounted()) {

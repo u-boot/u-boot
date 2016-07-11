@@ -81,5 +81,12 @@
 		};
 
 		#include "k2g-netcp.dtsi"
+
+		pmmc: pmmc@2900000 {
+			compatible = "ti,power-processor";
+			reg = <0x02900000 0x40000>;
+			ti,lpsc_module = <1>;
+		};
+
 	};
 };

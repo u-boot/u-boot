@@ -43,6 +43,12 @@ void v7_outer_cache_enable(void)
 
 
 	/*
+	 * Must disable the L2 before changing the latency parameters
+	 * and auxiliary control register.
+	 */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+
+	/*
 	 * Set bit 22 in the auxiliary control register. If this bit
 	 * is cleared, PL310 treats Normal Shared Non-cacheable
 	 * accesses as Cacheable no-allocate.
@@ -58,9 +64,6 @@ void v7_outer_cache_enable(void)
 		writel(val, &iomux->gpr[11]);
 	}
 #endif
-
-	/* Must disable the L2 before changing the latency parameters */
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
 	writel(0x132, &pl310->pl310_tag_latency_ctrl);
 	writel(0x132, &pl310->pl310_data_latency_ctrl);

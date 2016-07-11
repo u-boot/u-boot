@@ -1061,6 +1061,7 @@ static int ata_io_flush(u8 port)
 
 	memcpy((unsigned char *)pp->cmd_tbl, fis, 20);
 	ahci_fill_cmd_slot(pp, cmd_fis_len);
+	ahci_dcache_flush_sata_cmd(pp);
 	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
 
 	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,

@@ -1111,6 +1111,14 @@ The following options need to be configured:
 
 		XXX - this list needs to get updated!
 
+- Removal of commands
+		If no commands are needed to boot, you can disable
+		CONFIG_CMDLINE to remove them. In this case, the command line
+		will not be available, and when U-Boot wants to execute the
+		boot command (on start-up) it will call board_run_command()
+		instead. This can reduce image size significantly for very
+		simple boot procedures.
+
 - Regular expression support:
 		CONFIG_REGEX
 		If this variable is defined, U-Boot is linked against
@@ -1797,7 +1805,7 @@ CBFS (Coreboot Filesystem) support
 
 		The DIU driver will look for the 'video-mode' environment
 		variable, and if defined, enable the DIU as a console during
-		boot.  See the documentation file README.video for a
+		boot.  See the documentation file doc/README.video for a
 		description of this variable.
 
 - LCD Support:	CONFIG_LCD
@@ -1911,7 +1919,7 @@ CBFS (Coreboot Filesystem) support
 
 		If this option is set, then U-Boot will prevent the environment
 		variable "splashimage" from being set to a problematic address
-		(see README.displaying-bmps).
+		(see doc/README.displaying-bmps).
 		This option is useful for targets where, due to alignment
 		restrictions, an improperly aligned BMP image will cause a data
 		abort. If you think you will not have problems with unaligned
@@ -3096,20 +3104,6 @@ CBFS (Coreboot Filesystem) support
 		will set it back to normal.  This command currently
 		supports i.MX53 and i.MX6.
 
-- Signing support:
-		CONFIG_RSA
-
-		This enables the RSA algorithm used for FIT image verification
-		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
-
-		The Modular Exponentiation algorithm in RSA is implemented using
-		driver model. So CONFIG_DM needs to be enabled by default for this
-		library to function.
-
-		The signing part is build into mkimage regardless of this
-		option. The software based modular exponentiation is built into
-		mkimage irrespective of this option.
-
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
 
@@ -3309,32 +3303,13 @@ FIT uImage format:
 		enabled per default for backward compatibility.
 
 - FIT image support:
-		CONFIG_FIT
-		Enable support for the FIT uImage format.
-
-		CONFIG_FIT_BEST_MATCH
-		When no configuration is explicitly selected, default to the
-		one whose fdt's compatibility field best matches that of
-		U-Boot itself. A match is considered "best" if it matches the
-		most specific compatibility entry of U-Boot's fdt's root node.
-		The order of entries in the configuration's fdt is ignored.
-
-		CONFIG_FIT_SIGNATURE
-		This option enables signature verification of FIT uImages,
-		using a hash signed and verified using RSA. If
-		CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
-		hashing is available using hardware, RSA library will use it.
-		See doc/uImage.FIT/signature.txt for more details.
-
-		WARNING: When relying on signed FIT images with required
-		signature check the legacy image format is default
-		disabled. If a board need legacy image format support
-		enable this through CONFIG_IMAGE_FORMAT_LEGACY
-
 		CONFIG_FIT_DISABLE_SHA256
 		Supporting SHA256 hashes has quite an impact on binary size.
 		For constrained systems sha256 hash support can be disabled
 		with this option.
+
+		TODO(sjg@chromium.org): Adjust this option to be positive,
+		and move it to Kconfig
 
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR

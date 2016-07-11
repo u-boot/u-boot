@@ -431,7 +431,16 @@ static void find_valid_banks(struct denali_nand_info *denali)
 static void detect_max_banks(struct denali_nand_info *denali)
 {
 	uint32_t features = readl(denali->flash_reg + FEATURES);
-	denali->max_banks = 2 << (features & FEATURES__N_BANKS);
+	/*
+	 * Read the revision register, so we can calculate the max_banks
+	 * properly: the encoding changed from rev 5.0 to 5.1
+	 */
+	u32 revision = MAKE_COMPARABLE_REVISION(
+				readl(denali->flash_reg + REVISION));
+	if (revision < REVISION_5_1)
+		denali->max_banks = 2 << (features & FEATURES__N_BANKS);
+	else
+		denali->max_banks = 1 << (features & FEATURES__N_BANKS);
 }
 
 static void detect_partition_feature(struct denali_nand_info *denali)
@@ -741,7 +750,7 @@ static void denali_setup_dma(struct denali_nand_info *denali, int op)
 {
 	uint32_t mode;
 	const int page_count = 1;
-	uint32_t addr = (uint32_t)denali->buf.dma_buf;
+	uint64_t addr = (unsigned long)denali->buf.dma_buf;
 
 	flush_dcache_range(addr, addr + sizeof(denali->buf.dma_buf));
 
@@ -759,7 +768,7 @@ static void denali_setup_dma(struct denali_nand_info *denali, int op)
 	index_addr(denali, mode, addr);
 
 	/* 3. set memory high address bits 64:32 */
-	index_addr(denali, mode, 0);
+	index_addr(denali, mode, addr >> 32);
 #else
 	mode = MODE_10 | BANK(denali->flash_bank);
 
@@ -769,7 +778,7 @@ static void denali_setup_dma(struct denali_nand_info *denali, int op)
 	index_addr(denali, mode | denali->page, 0x2000 | op | page_count);
 
 	/* 2. set memory high address bits 23:8 */
-	index_addr(denali, mode | ((addr >> 16) << 8), 0x2200);
+	index_addr(denali, mode | (((addr >> 16) & 0xffff) << 8), 0x2200);
 
 	/* 3. set memory low address bits 23:8 */
 	index_addr(denali, mode | ((addr & 0xffff) << 8), 0x2300);

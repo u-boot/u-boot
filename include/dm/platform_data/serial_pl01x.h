@@ -17,11 +17,14 @@ enum pl01x_type {
  * @base: Register base address
  * @type: Port type
  * @clock: Input clock rate, used for calculating the baud rate divisor
+ * @skip_init: Don't attempt to change port configuration (also means @clock
+ * is ignored)
  */
 struct pl01x_serial_platdata {
 	unsigned long base;
 	enum pl01x_type type;
 	unsigned int clock;
+	bool skip_init;
 };
 
 #endif

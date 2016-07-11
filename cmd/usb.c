@@ -15,6 +15,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <memalign.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -442,11 +443,14 @@ void usb_show_tree(void)
 #ifdef CONFIG_DM_USB
 	struct udevice *bus;
 
-	for (uclass_first_device(UCLASS_USB, &bus);
+	for (uclass_find_first_device(UCLASS_USB, &bus);
 		bus;
-		uclass_next_device(&bus)) {
+		uclass_find_next_device(&bus)) {
 		struct usb_device *udev;
 		struct udevice *dev;
+
+		if (!device_active(bus))
+			continue;
 
 		device_find_first_child(bus, &dev);
 		if (dev && device_active(dev)) {
@@ -541,7 +545,7 @@ static int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_usb_stop_keyboard(int force)
 {
-#ifdef CONFIG_USB_KEYBOARD
+#if !defined CONFIG_DM_USB && defined CONFIG_USB_KEYBOARD
 	if (usb_kbd_deregister(force) != 0) {
 		printf("USB not stopped: usbkbd still using USB\n");
 		return 1;
@@ -625,7 +629,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	extern char usb_started;
 #ifdef CONFIG_USB_STORAGE
-	block_dev_desc_t *stor_dev;
+	struct blk_desc *stor_dev;
 #endif
 
 	if (argc < 2)
@@ -727,7 +731,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					if (devno)
 						printf("\n");
 					debug("print_part of %x\n", devno);
-					print_part(stor_dev);
+					part_print(stor_dev);
 				}
 			}
 		} else {
@@ -737,7 +741,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
 				debug("print_part of %x\n", devno);
-				print_part(stor_dev);
+				part_print(stor_dev);
 			}
 		}
 		if (!ok) {
@@ -759,8 +763,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nUSB read: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
 			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
-			n = stor_dev->block_read(stor_dev, blk, cnt,
-						 (ulong *)addr);
+			n = blk_dread(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks read: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
 			if (n == cnt)
@@ -781,8 +784,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nUSB write: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
 			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
-			n = stor_dev->block_write(stor_dev, blk, cnt,
-						(ulong *)addr);
+			n = blk_dwrite(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks write: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
 			if (n == cnt)

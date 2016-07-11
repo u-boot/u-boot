@@ -105,7 +105,7 @@ void gzwrite_progress_finish(int returnval,
 }
 
 int gzwrite(unsigned char *src, int len,
-	    struct block_dev_desc *dev,
+	    struct blk_desc *dev,
 	    unsigned long szwritebuf,
 	    u64 startoffs,
 	    u64 szexpected)
@@ -232,9 +232,8 @@ int gzwrite(unsigned char *src, int len,
 			gzwrite_progress(iteration++,
 					 totalfilled,
 					 szexpected);
-			blocks_written = dev->block_write(dev, outblock,
-							  writeblocks,
-							  writebuf);
+			blocks_written = blk_dwrite(dev, outblock,
+						    writeblocks, writebuf);
 			outblock += blocks_written;
 			if (ctrlc()) {
 				puts("abort\n");

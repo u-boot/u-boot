@@ -12,8 +12,6 @@
 #define MACH_TYPE_M28EVK	3613
 #define CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
 
-#define CONFIG_FIT
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /* U-Boot Commands */
@@ -22,28 +20,12 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BMP
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_USB
 #define	CONFIG_VIDEO
-
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

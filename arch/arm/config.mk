@@ -19,6 +19,12 @@ PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
 PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
       $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 
+# LLVM support
+LLVMS_RELFLAGS		:= $(call cc-option,-mllvm,) \
+			$(call cc-option,-target arm-none-eabi,) \
+			$(call cc-option,-arm-use-movt=0,)
+PLATFORM_RELFLAGS	+= $(LLVM_RELFLAGS)
+
 PLATFORM_CPPFLAGS += -D__ARM__
 
 # Choose between ARM/Thumb instruction sets
@@ -120,6 +126,10 @@ endif
 
 ifdef CONFIG_OF_EMBED
 OBJCOPYFLAGS += -j .dtb.init.rodata
+endif
+
+ifdef CONFIG_EFI_LOADER
+OBJCOPYFLAGS += -j .efi_runtime -j .efi_runtime_rel
 endif
 
 ifneq ($(CONFIG_IMX_CONFIG),)

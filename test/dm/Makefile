@@ -15,6 +15,7 @@ obj-$(CONFIG_UT_DM) += test-uclass.o
 # subsystem you must add sandbox tests here.
 obj-$(CONFIG_UT_DM) += core.o
 ifneq ($(CONFIG_SANDBOX),)
+obj-$(CONFIG_BLK) += blk.o
 obj-$(CONFIG_CLK) += clk.o
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
@@ -36,4 +37,5 @@ obj-$(CONFIG_DM_REGULATOR) += regulator.o
 obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_DM_VIDEO) += video.o
 obj-$(CONFIG_ADC) += adc.o
+obj-$(CONFIG_SPMI) += spmi.o
 endif

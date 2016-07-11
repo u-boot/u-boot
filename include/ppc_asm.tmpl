@@ -263,12 +263,14 @@
 	b	transfer_to_handler
 
 #define STD_EXCEPTION(n, label, hdlr)				\
+.align 4;							\
 label:								\
 	EXCEPTION_PROLOG(SRR0, SRR1);				\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
 	EXC_XFER_TEMPLATE(n, label, hdlr, MSR_KERNEL, NOCOPY)	\
 
 #define CRIT_EXCEPTION(n, label, hdlr)				\
+.align 4;							\
 label:								\
 	EXCEPTION_PROLOG(CSRR0, CSRR1);				\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
@@ -276,6 +278,7 @@ label:								\
 	MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE), NOCOPY)		\
 
 #define MCK_EXCEPTION(n, label, hdlr)				\
+.align 4;							\
 label:								\
 	EXCEPTION_PROLOG(MCSRR0, MCSRR1);			\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;			\

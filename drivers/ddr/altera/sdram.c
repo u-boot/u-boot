@@ -118,7 +118,7 @@ static void sdram_set_rule(struct sdram_prot_rule *prule)
 
 	/* Obtain the address bits */
 	lo_addr_bits = prule->sdram_start >> 20ULL;
-	hi_addr_bits = prule->sdram_end >> 20ULL;
+	hi_addr_bits = (prule->sdram_end - 1) >> 20ULL;
 
 	debug("sdram set rule start %x, %d\n", lo_addr_bits,
 	      prule->sdram_start);

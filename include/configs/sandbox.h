@@ -28,9 +28,7 @@
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
-#define CONFIG_CMD_FDT
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_CMD_PCI
@@ -41,20 +39,20 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
+#define CONFIG_CMD_CBFS
+#define CONFIG_CMD_CRAMFS
 #define CONFIG_CMD_PART
 #define CONFIG_DOS_PARTITION
 #define CONFIG_HOST_MAX_DEVICES 4
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_MD5SUM
-
 
 #define CONFIG_CMD_GPT
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_EFI_PARTITION
+#define CONFIG_AMIGA_PARTITION
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_ISO_PARTITION
+#define CONFIG_MAC_PARTITION
 
 /*
  * Size of malloc() pool, before and after relocation
@@ -62,7 +60,6 @@
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* #undef to save memory */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SILENT_CONSOLE
@@ -80,11 +77,8 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* SPI - enable all SPI flash types for testing purposes */
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
-#define CONFIG_CMD_SPI
 
-#define CONFIG_CMD_I2C
 #define CONFIG_I2C_EDID
 #define CONFIG_I2C_EEPROM
 
@@ -122,12 +116,7 @@
 
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
-#define CONFIG_CMD_LINK_LOCAL
-#define CONFIG_CMD_CDP
-#define CONFIG_CMD_DNS
-#define CONFIG_CMD_SNTP
 #define CONFIG_TIMESTAMP
-#define CONFIG_CMD_RARP
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -145,8 +134,6 @@
 
 #define CONFIG_CMD_ENV_FLAGS
 #define CONFIG_CMD_ENV_CALLBACK
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_ASKENV
 
 #define CONFIG_BOOTARGS ""
 
@@ -203,7 +190,6 @@
 #define CONFIG_LZMA
 
 #define CONFIG_CMD_LZMADEC
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DATE
 
 #endif

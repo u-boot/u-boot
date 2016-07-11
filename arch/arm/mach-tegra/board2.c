@@ -404,16 +404,22 @@ ulong board_get_usable_ram_top(ulong total_size)
  */
 int ft_system_setup(void *blob, bd_t *bd)
 {
-	const char *gpu_path =
-#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
-		"/gpu@0,57000000";
-#else
-		NULL;
+	const char *gpu_compats[] = {
+#if defined(CONFIG_TEGRA124)
+		"nvidia,gk20a",
 #endif
+#if defined(CONFIG_TEGRA210)
+		"nvidia,gm20b",
+#endif
+	};
+	int i, ret;
 
 	/* Enable GPU node if GPU setup has been performed */
-	if (gpu_path != NULL)
-		return tegra_gpu_enable_node(blob, gpu_path);
+	for (i = 0; i < ARRAY_SIZE(gpu_compats); i++) {
+		ret = tegra_gpu_enable_node(blob, gpu_compats[i]);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }

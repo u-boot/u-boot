@@ -548,12 +548,6 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT1;
 			bus = mii_dev_for_muxval(EMI1_SLOT1);
 			wriop_set_mdio(dpmac_id, bus);
-			dpmac_info[dpmac_id].phydev = phy_connect(
-						dpmac_info[dpmac_id].bus,
-						dpmac_info[dpmac_id].phy_addr,
-						NULL,
-						dpmac_info[dpmac_id].enet_if);
-			phy_config(dpmac_info[dpmac_id].phydev);
 			break;
 		case 2:
 			/* Slot housing a SGMII riser card? */
@@ -562,12 +556,6 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT2;
 			bus = mii_dev_for_muxval(EMI1_SLOT2);
 			wriop_set_mdio(dpmac_id, bus);
-			dpmac_info[dpmac_id].phydev = phy_connect(
-						dpmac_info[dpmac_id].bus,
-						dpmac_info[dpmac_id].phy_addr,
-						NULL,
-						dpmac_info[dpmac_id].enet_if);
-			phy_config(dpmac_info[dpmac_id].phydev);
 			break;
 		case 3:
 			break;
@@ -606,12 +594,6 @@ serdes2:
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT4;
 			bus = mii_dev_for_muxval(EMI1_SLOT4);
 			wriop_set_mdio(dpmac_id, bus);
-			dpmac_info[dpmac_id].phydev = phy_connect(
-						dpmac_info[dpmac_id].bus,
-						dpmac_info[dpmac_id].phy_addr,
-						NULL,
-						dpmac_info[dpmac_id].enet_if);
-			phy_config(dpmac_info[dpmac_id].phydev);
 		break;
 		case 5:
 		break;
@@ -679,13 +661,6 @@ void ls2080a_handle_phy_interface_qsgmii(int dpmac_id)
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT1;
 			bus = mii_dev_for_muxval(EMI1_SLOT1);
 			wriop_set_mdio(dpmac_id, bus);
-			dpmac_info[dpmac_id].phydev = phy_connect(
-						dpmac_info[dpmac_id].bus,
-						dpmac_info[dpmac_id].phy_addr,
-						NULL,
-						dpmac_info[dpmac_id].enet_if);
-
-			phy_config(dpmac_info[dpmac_id].phydev);
 			break;
 		case 3:
 			break;

@@ -1,0 +1,18 @@
+if TARGET_GE_B450V3 || TARGET_GE_B650V3 || TARGET_GE_B850V3
+
+config IMX_CONFIG
+	default "board/ge/bx50v3/bx50v3.cfg"
+
+config SYS_BOARD
+	default "bx50v3"
+
+config SYS_VENDOR
+	default "ge"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "ge_bx50v3"
+
+endif

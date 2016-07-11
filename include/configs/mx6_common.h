@@ -69,20 +69,11 @@
 #define CONFIG_BAUDRATE         115200
 
 /* Filesystems and image support */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
 
 /* Miscellaneous configurable options */
-#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	512
@@ -90,7 +81,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
 #endif
 
 /* GPIO */
@@ -98,7 +88,6 @@
 
 /* MMC */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FSL_ESDHC

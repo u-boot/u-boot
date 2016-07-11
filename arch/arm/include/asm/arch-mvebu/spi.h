@@ -19,6 +19,9 @@ struct kwspi_registers {
 	u32 din;	/* 0x1060c */
 	u32 irq_cause;	/* 0x10610 */
 	u32 irq_mask;	/* 0x10614 */
+	u32 timing1;	/* 0x10618 */
+	u32 timing2;	/* 0x1061c */
+	u32 dw_cfg;	/* 0x10620 - Direct Write Configuration */
 };
 
 /* They are used to define CONFIG_SYS_KW_SPI_MPP
@@ -32,13 +35,15 @@ struct kwspi_registers {
 #define SCK_MPP10	(1 << 1)
 #define MISO_MPP11	(1 << 2)
 
+/* Control Register */
+#define KWSPI_CSN_ACT		(1 << 0) /* Activates serial memory interface */
+#define KWSPI_SMEMRDY		(1 << 1) /* SerMem Data xfer ready */
+#define KWSPI_CS_SHIFT		2	/* chip select shift */
+#define KWSPI_CS_MASK		0x7	/* chip select mask */
+
+/* Configuration Register */
 #define KWSPI_CLKPRESCL_MASK	0x1f
 #define KWSPI_CLKPRESCL_MIN	0x12
-#define KWSPI_CSN_ACT		1 /* Activates serial memory interface */
-#define KWSPI_SMEMRDY		(1 << 1) /* SerMem Data xfer ready */
-#define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */
-#define KWSPI_IRQMASK		0 /* mask SPI interrupt */
-#define KWSPI_SMEMRDIRQ		1 /* SerMem data xfer ready irq */
 #define KWSPI_XFERLEN_1BYTE	0
 #define KWSPI_XFERLEN_2BYTE	(1 << 5)
 #define KWSPI_XFERLEN_MASK	(1 << 5)
@@ -47,6 +52,11 @@ struct kwspi_registers {
 #define KWSPI_ADRLEN_3BYTE	(2 << 8)
 #define KWSPI_ADRLEN_4BYTE	(3 << 8)
 #define KWSPI_ADRLEN_MASK	(3 << 8)
+
+#define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */
+#define KWSPI_IRQMASK		0 /* mask SPI interrupt */
+#define KWSPI_SMEMRDIRQ		1 /* SerMem data xfer ready irq */
+
 #define KWSPI_TIMEOUT		10000
 
 #endif /* __KW_SPI_H__ */

@@ -76,7 +76,6 @@
 #endif
 
 /* SerialFlash */
-#define CONFIG_CMD_SF
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
@@ -109,13 +108,11 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_RGMII
-#define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9021
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -125,7 +122,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL
@@ -140,15 +136,11 @@
 #endif
 
 /* USB device */
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_ATMEL_USBA
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D3xEK"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #endif
 

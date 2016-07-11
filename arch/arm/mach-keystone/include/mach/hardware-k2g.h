@@ -10,7 +10,7 @@
 #ifndef __ASM_ARCH_HARDWARE_K2G_H
 #define __ASM_ARCH_HARDWARE_K2G_H
 
-#define KS2_NUM_DSPS	0
+#define KS2_NUM_DSPS			1
 
 /* Power and Sleep Controller (PSC) Domains */
 #define KS2_LPSC_ALWAYSON		0
@@ -30,7 +30,10 @@
 #define KS2_LPSC_MCASP			15
 #define KS2_LPSC_SR			16
 #define KS2_LPSC_MSMC			17
-#define KS2_LPSC_GEM			18
+#ifdef KS2_LPSC_GEM_0
+#undef KS2_LPSC_GEM_0
+#endif
+#define KS2_LPSC_GEM_0			18
 #define KS2_LPSC_ARM			19
 #define KS2_LPSC_ASRC			20
 #define KS2_LPSC_ICSS			21

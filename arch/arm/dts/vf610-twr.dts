@@ -11,7 +11,7 @@
 	model = "VF610 Tower Board";
 	compatible = "fsl,vf610-twr", "fsl,vf610";
 
-	choosen {
+	chosen {
 		stdout-path = &uart1;
 	};
 

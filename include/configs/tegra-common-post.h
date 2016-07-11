@@ -112,7 +112,6 @@
 #undef CONFIG_SYS_I2C_TEGRA
 #endif
 #ifdef CONFIG_CMD_I2C
-#undef CONFIG_CMD_I2C
 #endif
 
 /* remove MMC support */
@@ -126,7 +125,6 @@
 #undef CONFIG_TEGRA_MMC
 #endif
 #ifdef CONFIG_CMD_MMC
-#undef CONFIG_CMD_MMC
 #endif
 
 /* remove partitions/filesystems */
@@ -135,18 +133,6 @@
 #endif
 #ifdef CONFIG_EFI_PARTITION
 #undef CONFIG_EFI_PARTITION
-#endif
-#ifdef CONFIG_CMD_FS_GENERIC
-#undef CONFIG_CMD_FS_GENERIC
-#endif
-#ifdef CONFIG_CMD_EXT4
-#undef CONFIG_CMD_EXT4
-#endif
-#ifdef CONFIG_CMD_EXT2
-#undef CONFIG_CMD_EXT2
-#endif
-#ifdef CONFIG_CMD_FAT
-#undef CONFIG_CMD_FAT
 #endif
 #ifdef CONFIG_FS_EXT4
 #undef CONFIG_FS_EXT4
@@ -166,7 +152,6 @@
 #undef CONFIG_USB_STORAGE
 #endif
 #ifdef CONFIG_CMD_USB
-#undef CONFIG_CMD_USB
 #endif
 
 /* remove part command support */

@@ -7,6 +7,9 @@ config SYS_ARCH
 config SYS_BOARD
 	default "sandbox"
 
+config SYS_CPU
+	default "sandbox"
+
 config SYS_CONFIG_NAME
 	default "sandbox"
 

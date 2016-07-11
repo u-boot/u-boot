@@ -59,17 +59,13 @@
 
 /* Define which commands should be available at u-boot command prompt */
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #if ENABLE_JFFS
 #define CONFIG_CMD_JFFS2
 #endif
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMDLINE_EDITING
-
-#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_MCFRTC
 #undef RTC_DEBUG

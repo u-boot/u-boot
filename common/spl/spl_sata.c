@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int spl_sata_load_image(void)
 {
 	int err;
-	block_dev_desc_t *stor_dev;
+	struct blk_desc *stor_dev;
 
 	err = init_sata(CONFIG_SPL_SATA_BOOT_DEVICE);
 	if (err) {

@@ -19,6 +19,7 @@
 #include <rtc.h>
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
+#include <fsl_sec.h>
 
 #include "../common/qixis.h"
 #include "ls2080aqds_qixis.h"
@@ -227,7 +228,7 @@ void detail_board_ddr_info(void)
 	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
 	print_ddr_info(0);
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	if (gd->bd->bi_dram[2].size) {
+	if (soc_has_dp_ddr() && gd->bd->bi_dram[2].size) {
 		puts("\nDP-DDR ");
 		print_size(gd->bd->bi_dram[2].size, "");
 		print_ddr_info(CONFIG_DP_DDR_CTRL);
@@ -248,7 +249,9 @@ int arch_misc_init(void)
 #ifdef CONFIG_FSL_DEBUG_SERVER
 	debug_server_init();
 #endif
-
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 	return 0;
 }
 #endif
@@ -258,10 +261,10 @@ void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
 
-	offset = fdt_path_offset(fdt, "/fsl-mc");
+	offset = fdt_path_offset(fdt, "/soc/fsl-mc");
 
 	if (offset < 0)
-		offset = fdt_path_offset(fdt, "/fsl,dprc@0");
+		offset = fdt_path_offset(fdt, "/fsl-mc");
 
 	if (offset < 0) {
 		printf("%s: ERROR: fsl-mc node not found in device tree (error %d)\n",

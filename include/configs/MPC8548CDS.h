@@ -34,7 +34,7 @@
 
 #define CONFIG_PCI		/* enable any pci type devices */
 #define CONFIG_PCI1		/* PCI controller 1 */
-#define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
@@ -131,7 +131,6 @@ extern unsigned long get_clock_freq(void);
  * 0xfff80_0000	0xfffff_ffff	FLASH (boot bank)	8M	non-cacheable
  *
  */
-
 
 /*
  * Local Bus Definitions
@@ -331,14 +330,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT		1
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /*
  * I2C
  */
@@ -429,7 +420,6 @@ extern unsigned long get_clock_freq(void);
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -487,20 +477,15 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
 #endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -589,7 +574,6 @@ extern unsigned long get_clock_freq(void);
    "tftp $loadaddr $bootfile;"						\
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
-
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "					\

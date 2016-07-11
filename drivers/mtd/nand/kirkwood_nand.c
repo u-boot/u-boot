@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>
+#include <asm/arch/mpp.h>
 #include <nand.h>
 
 /* NAND Flash Soc registers */
@@ -21,6 +22,8 @@ struct kwnandf_registers {
 
 static struct kwnandf_registers *nf_reg =
 	(struct kwnandf_registers *)KW_NANDF_BASE;
+
+static u32 nand_mpp_backup[9] = { 0 };
 
 /*
  * hardware specific access to control-lines/bits
@@ -49,6 +52,22 @@ static void kw_nand_hwcontrol(struct mtd_info *mtd, int cmd,
 void kw_nand_select_chip(struct mtd_info *mtd, int chip)
 {
 	u32 data;
+	static const u32 nand_config[] = {
+		MPP0_NF_IO2,
+		MPP1_NF_IO3,
+		MPP2_NF_IO4,
+		MPP3_NF_IO5,
+		MPP4_NF_IO6,
+		MPP5_NF_IO7,
+		MPP18_NF_IO0,
+		MPP19_NF_IO1,
+		0
+	};
+
+	if (chip >= 0)
+		kirkwood_mpp_conf(nand_config, nand_mpp_backup);
+	else
+		kirkwood_mpp_conf(nand_mpp_backup, NULL);
 
 	data = readl(&nf_reg->ctrl);
 	data |= NAND_ACTCEBOOT_BIT;

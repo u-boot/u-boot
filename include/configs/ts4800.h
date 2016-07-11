@@ -24,8 +24,6 @@
 
 #define CONFIG_HW_WATCHDOG
 
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_TS48XX
 
 /* text base address used when linking */
@@ -57,7 +55,6 @@
  * */
 #define CONFIG_HARD_SPI /* puts SPI: ready */
 #define CONFIG_MXC_SPI /* driver for the SPI controllers*/
-#define CONFIG_CMD_SPI /* SPI serial bus support */
 
 /*
  * MMC Configs
@@ -67,9 +64,7 @@
 
 #define CONFIG_MMC
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /*
@@ -84,10 +79,6 @@
 #define CONFIG_ETHPRIME		"FEC"
 #define CONFIG_FEC_MXC_PHYADDR	0
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE		/* disable vendor parameters protection (serial#, ethaddr) */
 #define CONFIG_CONS_INDEX		1 /* use UART0 : used by serial driver */
@@ -96,9 +87,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#define CONFIG_CMD_BOOTZ
-#undef CONFIG_CMD_IMLS
 
 /* Environment variables */
 
@@ -137,7 +125,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */

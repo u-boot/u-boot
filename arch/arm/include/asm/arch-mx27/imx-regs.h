@@ -106,9 +106,9 @@ struct esdramc_regs {
 
 /* Watchdog Registers*/
 struct wdog_regs {
-	u32 wcr;
-	u32 wsr;
-	u32 wstr;
+	u16 wcr;
+	u16 wsr;
+	u16 wstr;
 };
 
 /* PLL registers */

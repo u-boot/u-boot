@@ -17,11 +17,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* new uImage format support */
-#define CONFIG_FIT		1
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE			*/
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
@@ -212,8 +207,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support */
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
-
 
 /*
  * I2C
@@ -263,7 +256,6 @@
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #endif	/* CONFIG_PCI */
 
-
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
@@ -301,7 +293,6 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
 
-
 /*
  * BOOTP options
  */
@@ -310,22 +301,14 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -360,7 +343,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
-
 
 #define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 
@@ -429,8 +411,6 @@
 #define CONFIG_BOOTCOMMAND	"run boot_nor"
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 /* USB support */
 #define CONFIG_USB_OHCI_NEW		1

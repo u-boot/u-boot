@@ -10,7 +10,6 @@
 #include <common.h>
 #include <net.h>
 #include <asm/arch/sysinfo.h>
-#include <asm/arch/tables.h>
 
 /*
  * This needs to be in the .data section so that it's copied over during

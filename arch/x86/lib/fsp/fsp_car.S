@@ -102,6 +102,8 @@ temp_ram_init_romstack:
 temp_ram_init_params:
 _dt_ucode_base_size:
 	/* These next two fields are filled in by ifdtool */
+.globl ucode_base
+ucode_base:	/* Declared in micrcode.h */
 	.long	0			/* microcode base */
 	.long	0			/* microcode size */
 	.long	CONFIG_SYS_MONITOR_BASE	/* code region base */

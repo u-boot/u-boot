@@ -65,7 +65,6 @@
 #define CONFIG_SYS_CLK_FREQ	33000000
 #endif
 
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
@@ -136,7 +135,6 @@
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
-
 /*
  * Local Bus Definitions
  */
@@ -201,7 +199,6 @@
 #define CONFIG_SYS_LBC_LSDMR_4	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
 #define CONFIG_SYS_LBC_LSDMR_5	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_NORMAL)
 
-
 /*
  * 32KB, 8-bit wide for ADS config reg
  */
@@ -230,16 +227,6 @@
 
 #define CONFIG_SYS_NS16550_COM1        (CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_CCSRBAR+0x4600)
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT		1
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
@@ -288,7 +275,6 @@
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -303,7 +289,6 @@
 #define TSEC1_FLAGS		TSEC_GIGABIT
 #define TSEC2_FLAGS		TSEC_GIGABIT
 
-
 #if CONFIG_HAS_FEC
 #define CONFIG_MPC85XX_FEC	1
 #define CONFIG_MPC85XX_FEC_NAME		"FEC"
@@ -316,7 +301,6 @@
 #define CONFIG_ETHPRIME		"TSEC0"
 
 #endif	/* CONFIG_TSEC_ENET */
-
 
 /*
  * Environment
@@ -336,7 +320,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-
 /*
  * BOOTP options
  */
@@ -345,12 +328,9 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 
 #if defined(CONFIG_PCI)
@@ -388,7 +368,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
-
 
 /*
  * Environment Configuration

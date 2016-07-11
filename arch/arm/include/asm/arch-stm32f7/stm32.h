@@ -50,6 +50,12 @@
 
 #define SDRAM_FMC_BASE		(AHB3_PERIPH_BASE + 0x4A0000140)
 
+static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
+	[0 ... 3] =	32 * 1024,
+	[4] =		128 * 1024,
+	[5 ... 7] =	256 * 1024
+};
+
 enum clock {
 	CLOCK_CORE,
 	CLOCK_AHB,

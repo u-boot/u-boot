@@ -111,6 +111,8 @@ void save_omap_boot_params(void)
 	    (boot_device <= MMC_BOOT_DEVICES_END)) {
 		switch (boot_device) {
 		case BOOT_DEVICE_MMC1:
+			boot_mode = MMCSD_MODE_FS;
+			break;
 		case BOOT_DEVICE_MMC2:
 			boot_mode = MMCSD_MODE_RAW;
 			break;

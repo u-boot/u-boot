@@ -15,6 +15,11 @@
 	};
 
 	aliases {
+		/*
+		 * This allows the ethaddr uboot environment variable
+		 * contents to be added to the gmac1 device tree blob.
+		 */
+		ethernet0 = &gmac1;
 		udc0 = &usb1;
 	};
 
@@ -78,5 +83,6 @@
 };
 
 &usb1 {
+	disable-over-current;
 	status = "okay";
 };

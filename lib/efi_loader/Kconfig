@@ -1,0 +1,9 @@
+config EFI_LOADER
+	bool "Support running EFI Applications in U-Boot"
+	depends on (ARM64 || ARM) && OF_LIBFDT
+	default y
+	help
+	  Select this option if you want to run EFI applications (like grub2)
+	  on top of U-Boot. If this option is enabled, U-Boot will expose EFI
+	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
+	  device drivers.

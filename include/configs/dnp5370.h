@@ -53,9 +53,6 @@
 #define CONFIG_PHY_ADDR         0
 #define CONFIG_RMII             1
 
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-
 #endif
 
 /*

@@ -38,4 +38,6 @@ config NOR_BOOT
 	  as the ROM only partially sets up pinmux.  We also default to using
 	  NOR for environment.
 
+source "board/ti/common/Kconfig"
+
 endif

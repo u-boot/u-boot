@@ -941,10 +941,12 @@ static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
 	if (usb_pipedevice(pipe) == ctrl->rootdev)
 		return xhci_submit_root(udev, pipe, buffer, setup);
 
-	if (setup->request == USB_REQ_SET_ADDRESS)
+	if (setup->request == USB_REQ_SET_ADDRESS &&
+	   (setup->requesttype & USB_TYPE_MASK) == USB_TYPE_STANDARD)
 		return xhci_address_device(udev, root_portnr);
 
-	if (setup->request == USB_REQ_SET_CONFIGURATION) {
+	if (setup->request == USB_REQ_SET_CONFIGURATION &&
+	   (setup->requesttype & USB_TYPE_MASK) == USB_TYPE_STANDARD) {
 		ret = xhci_set_configuration(udev);
 		if (ret) {
 			puts("Failed to configure xHCI endpoint\n");

@@ -45,7 +45,6 @@
 
 #define CONFIG_FACTORYSET
 
-
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
 
@@ -146,10 +145,6 @@
 #define DISPL_PLL_SPREAD_SPECTRUM
 #define CONFIG_SYS_CONSOLE_BG_COL	0xff
 #define CONFIG_SYS_CONSOLE_FG_COL	0x00
-#endif
-
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_FIT
 #endif
 
 #endif	/* ! __CONFIG_RUT_H */

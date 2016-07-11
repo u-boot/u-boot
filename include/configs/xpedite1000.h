@@ -108,11 +108,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * NOR flash configuration
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS	3
@@ -185,17 +180,11 @@ extern void out32(unsigned int, unsigned long);
 /*
  * Command configuration
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
 
 /*
  * Miscellaneous configurable options
@@ -210,8 +199,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 

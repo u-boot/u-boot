@@ -1,5 +1,5 @@
 ATNGW100MKII BOARD
-M:	Andreas Bießmann <andreas.devel@googlemail.com>
+M:	Andreas Bießmann <andreas@biessmann.org>
 S:	Maintained
 F:	board/atmel/atngw100mkii/
 F:	include/configs/atngw100mkii.h

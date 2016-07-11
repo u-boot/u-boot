@@ -11,11 +11,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
@@ -109,10 +106,5 @@
 #define CONFIG_PCI_SYS_BUS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
 #define CONFIG_PCI_SYS_PHYS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
 #define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
-
-/*
- * Network device (RTL8139) support
- */
-#define CONFIG_RTL8139
 
 #endif /* __CONFIG_H */

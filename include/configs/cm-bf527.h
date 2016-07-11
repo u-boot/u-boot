@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf527-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
-
 
 /*
  * Clock Settings
@@ -41,7 +39,6 @@
 /* Decrease core voltage */
 #define CONFIG_VR_CTL_VAL (VLEV_120 | CLKBUFOE | FREQ_1000)
 
-
 /*
  * Memory Settings
  */
@@ -58,7 +55,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
-
 /*
  * NAND Settings
  * (can't be used sametime as ethernet)
@@ -70,7 +66,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_CMD_NAND
 #endif
-
 
 /*
  * Network Settings
@@ -95,7 +90,6 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT 	67
 
-
 /*
  * Env Storage Settings
  */
@@ -106,13 +100,11 @@
 #define CONFIG_ENV_SECT_SIZE	0x8000
 #define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 
-
 /*
  * I2C Settings
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_ADI
-
 
 /*
  * Misc Settings

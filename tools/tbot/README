@@ -92,6 +92,16 @@ https://github.com/hsdenx/tbot/blob/master/doc/tbot_structure.png )
 
   It is possible to switch in a single TC between board states.
 
+- Events
+  tbot creates while executing testcases so called events.
+  After tbot ended with the testcase it can call event_backends,
+  which convert the events to different formats. more info:
+
+  https://github.com/hsdenx/tbot/blob/master/doc/README.event
+
+  demo for a event backend:
+  http://xeidos.ddns.net/tests/test_db_auslesen.php
+
 - tbot cmdline parameters:
 
 $ python2.7 src/common/tbot.py --help

@@ -80,7 +80,6 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_MII
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
@@ -102,7 +101,6 @@
  */
 #ifdef CONFIG_CMD_IDE
 #define __io
-#define CONFIG_CMD_EXT2
 #define CONFIG_MVSATA_IDE
 #define CONFIG_IDE_PREINIT
 #define CONFIG_MVSATA_IDE_USE_PORT1

@@ -3,6 +3,7 @@
 #
 
 obj-y					+= memconf.o
-obj-$(CONFIG_ARCH_UNIPHIER_PH1_SLD3)	+= memconf-ph1-sld3.o
-obj-$(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)	+= memconf-proxstream2.o
-obj-$(CONFIG_ARCH_UNIPHIER_PH1_LD6B)	+= memconf-proxstream2.o
+obj-$(CONFIG_ARCH_UNIPHIER_SLD3)	+= memconf-sld3.o
+obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= memconf-pxs2.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= memconf-pxs2.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= memconf-pxs2.o

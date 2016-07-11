@@ -38,7 +38,6 @@
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_CMD_DATE
 
-
 /* LED */
 #define CONFIG_CMD_LED
 #define CONFIG_STATUS_LED
@@ -71,8 +70,6 @@
  * Remove all unused interfaces / commands that are defined in
  * the common header tqms6.h
  */
-#undef CONFIG_CMD_SF
-#undef CONFIG_CMD_SPI
 #undef CONFIG_MXC_SPI
 
 #endif /* __CONFIG_TQMA6_WRU4_H */

@@ -124,12 +124,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* commands to include */
-#define CONFIG_CMD_EXT2			/* EXT2 Support */
-#define CONFIG_CMD_EXT4			/* EXT4 Support */
-#define CONFIG_CMD_FAT			/* FAT support */
-
-#define CONFIG_CMD_I2C			/* I2C serial bus support */
-#define CONFIG_CMD_MMC			/* MMC support */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
@@ -393,8 +387,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

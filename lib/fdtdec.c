@@ -57,14 +57,12 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS5_I2C, "samsung,exynos5-hsi2c"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
-	COMPAT(MEMORY_SPD, "memory-spd"),
 	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
 	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
 	COMPAT(INTEL_GMA, "intel,gma"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
 	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
-	COMPAT(INTEL_X86_PINCTRL, "intel,x86-pinctrl"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
@@ -123,9 +121,10 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 
 	if (sizep) {
 		*sizep = fdtdec_get_number(prop_size, ns);
-		debug("addr=%08llx, size=%llx\n", (u64)addr, (u64)*sizep);
+		debug("addr=%08llx, size=%llx\n", (unsigned long long)addr,
+		      (unsigned long long)*sizep);
 	} else {
-		debug("addr=%08llx\n", (u64)addr);
+		debug("addr=%08llx\n", (unsigned long long)addr);
 	}
 
 	return addr;

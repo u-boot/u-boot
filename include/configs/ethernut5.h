@@ -12,7 +12,6 @@
 
 #include <asm/hardware.h>
 
-
 /* The first stage boot loader expects u-boot running at this address. */
 #define CONFIG_SYS_TEXT_BASE	0x27000000	/* 16MB available */
 
@@ -89,33 +88,17 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SPI
 
 #ifndef MINIMAL_LOADER
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BSP
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_CDP
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DNS
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_RARP
 #define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SNTP
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_USB
 #endif
 
 /* NAND flash */
@@ -235,7 +218,6 @@
 #endif
 
 /* Misc. u-boot settings */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + 16 \

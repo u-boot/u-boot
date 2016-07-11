@@ -33,7 +33,6 @@
  * NET options
  */
 #define CONFIG_SYS_RX_ETH_BUFFER	0
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_GIGE
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #define CONFIG_PHY_MARVELL
@@ -49,8 +48,6 @@
 /*
  * FDT options
  */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_LMB
 
 /*

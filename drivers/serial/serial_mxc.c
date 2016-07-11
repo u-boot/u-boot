@@ -164,15 +164,15 @@ static int mxc_serial_getc(void)
 
 static void mxc_serial_putc(const char c)
 {
+	/* If \n, also do \r */
+	if (c == '\n')
+		serial_putc('\r');
+
 	__REG(UART_PHYS + UTXD) = c;
 
 	/* wait for transmitter to be ready */
 	while (!(__REG(UART_PHYS + UTS) & UTS_TXEMPTY))
 		WATCHDOG_RESET();
-
-	/* If \n, also do \r */
-	if (c == '\n')
-		serial_putc ('\r');
 }
 
 /*

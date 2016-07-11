@@ -81,7 +81,7 @@ static int load_rescue_image(ulong addr)
 	char dev[7];
 	char addr_str[16];
 	char * const argv[6] = { "fatload", "usb", dev, addr_str, nxri, NULL };
-	block_dev_desc_t *stor_dev = NULL;
+	struct blk_desc *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
 
 	/* Get name of firmware directory */
@@ -117,7 +117,7 @@ static int load_rescue_image(ulong addr)
 
 	/* Detect partition */
 	for (partno = -1, i = 0; i < 6; i++) {
-		if (get_partition_info(stor_dev, i, &info) == 0) {
+		if (part_get_info(stor_dev, i, &info) == 0) {
 			if (fat_register_device(stor_dev, i) == 0) {
 				/* Check if rescue image is present */
 				FW_DEBUG("Looking for firmware directory '%s'"

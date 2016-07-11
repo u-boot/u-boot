@@ -30,6 +30,7 @@
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
+#include <linux/list.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SANDBOX
 #include <asm/state.h>
@@ -46,9 +47,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define USB_BUFSIZ	512
 
+#define HUB_SHORT_RESET_TIME	20
+#define HUB_LONG_RESET_TIME	200
+
+#define PORT_OVERCURRENT_MAX_SCAN_COUNT		3
+
+struct usb_device_scan {
+	struct usb_device *dev;		/* USB hub device to scan */
+	struct usb_hub_device *hub;	/* USB hub struct */
+	int port;			/* USB port to scan */
+	struct list_head list;
+};
+
 /* TODO(sjg@chromium.org): Remove this when CONFIG_DM_USB is defined */
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
+static LIST_HEAD(usb_scan_list);
 
 __weak void usb_hub_reset_devices(int port)
 {
@@ -106,6 +120,15 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		debug("port %d returns %lX\n", i + 1, dev->status);
 	}
 
+#ifdef CONFIG_SANDBOX
+	/*
+	 * Don't set timeout / delay values here. This results
+	 * in these values still being reset to 0.
+	 */
+	if (state_get_skip_delays())
+		return;
+#endif
+
 	/*
 	 * Wait for power to become stable,
 	 * plus spec-defined max time for device to connect
@@ -117,12 +140,30 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		pgood_delay = max(pgood_delay,
 			          (unsigned)simple_strtol(env, NULL, 0));
 	debug("pgood_delay=%dms\n", pgood_delay);
-	mdelay(pgood_delay + 1000);
+
+	/*
+	 * Do a minimum delay of the larger value of 100ms or pgood_delay
+	 * so that the power can stablize before the devices are queried
+	 */
+	hub->query_delay = get_timer(0) + max(100, (int)pgood_delay);
+
+	/*
+	 * Record the power-on timeout here. The max. delay (timeout)
+	 * will be done based on this value in the USB port loop in
+	 * usb_hub_configure() later.
+	 */
+	hub->connect_timeout = hub->query_delay + 1000;
+	debug("devnum=%d poweron: query_delay=%d connect_timeout=%d\n",
+	      dev->devnum, max(100, (int)pgood_delay),
+	      max(100, (int)pgood_delay) + 1000);
 }
 
 void usb_hub_reset(void)
 {
 	usb_hub_index = 0;
+
+	/* Zero out global hub_dev in case its re-used again */
+	memset(hub_dev, 0, sizeof(hub_dev));
 }
 
 static struct usb_hub_device *usb_hub_allocate(void)
@@ -164,6 +205,7 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	int err, tries;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus, portchange;
+	int delay = HUB_SHORT_RESET_TIME; /* start with short reset delay */
 
 #ifdef CONFIG_DM_USB
 	debug("%s: resetting '%s' port %d...\n", __func__, dev->dev->name,
@@ -176,7 +218,7 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 		if (err < 0)
 			return err;
 
-		mdelay(200);
+		mdelay(delay);
 
 		if (usb_get_port_status(dev, port + 1, portsts) < 0) {
 			debug("get_port_status failed status %lX\n",
@@ -215,7 +257,8 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 		if (portstatus & USB_PORT_STAT_ENABLE)
 			break;
 
-		mdelay(200);
+		/* Switch to long reset delay for the next round */
+		delay = HUB_LONG_RESET_TIME;
 	}
 
 	if (tries == MAX_TRIES) {
@@ -270,7 +313,6 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		if (!(portstatus & USB_PORT_STAT_CONNECTION))
 			return -ENOTCONN;
 	}
-	mdelay(200);
 
 	/* Reset the port */
 	ret = legacy_hub_port_reset(dev, port, &portstatus);
@@ -279,8 +321,6 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 			printf("cannot reset port %i!?\n", port + 1);
 		return ret;
 	}
-
-	mdelay(200);
 
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
 	case USB_PORT_STAT_SUPER_SPEED:
@@ -330,6 +370,169 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	return ret;
 }
 
+static int usb_scan_port(struct usb_device_scan *usb_scan)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+	unsigned short portstatus;
+	unsigned short portchange;
+	struct usb_device *dev;
+	struct usb_hub_device *hub;
+	int ret = 0;
+	int i;
+
+	dev = usb_scan->dev;
+	hub = usb_scan->hub;
+	i = usb_scan->port;
+
+	/*
+	 * Don't talk to the device before the query delay is expired.
+	 * This is needed for voltages to stabalize.
+	 */
+	if (get_timer(0) < hub->query_delay)
+		return 0;
+
+	ret = usb_get_port_status(dev, i + 1, portsts);
+	if (ret < 0) {
+		debug("get_port_status failed\n");
+		if (get_timer(0) >= hub->connect_timeout) {
+			debug("devnum=%d port=%d: timeout\n",
+			      dev->devnum, i + 1);
+			/* Remove this device from scanning list */
+			list_del(&usb_scan->list);
+			free(usb_scan);
+			return 0;
+		}
+		return 0;
+	}
+
+	portstatus = le16_to_cpu(portsts->wPortStatus);
+	portchange = le16_to_cpu(portsts->wPortChange);
+	debug("Port %d Status %X Change %X\n", i + 1, portstatus, portchange);
+
+	/* No connection change happened, wait a bit more. */
+	if (!(portchange & USB_PORT_STAT_C_CONNECTION)) {
+		if (get_timer(0) >= hub->connect_timeout) {
+			debug("devnum=%d port=%d: timeout\n",
+			      dev->devnum, i + 1);
+			/* Remove this device from scanning list */
+			list_del(&usb_scan->list);
+			free(usb_scan);
+			return 0;
+		}
+		return 0;
+	}
+
+	/* Test if the connection came up, and if not exit */
+	if (!(portstatus & USB_PORT_STAT_CONNECTION))
+		return 0;
+
+	/* A new USB device is ready at this point */
+	debug("devnum=%d port=%d: USB dev found\n", dev->devnum, i + 1);
+
+	usb_hub_port_connect_change(dev, i);
+
+	if (portchange & USB_PORT_STAT_C_ENABLE) {
+		debug("port %d enable change, status %x\n", i + 1, portstatus);
+		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_C_ENABLE);
+		/*
+		 * The following hack causes a ghost device problem
+		 * to Faraday EHCI
+		 */
+#ifndef CONFIG_USB_EHCI_FARADAY
+		/*
+		 * EM interference sometimes causes bad shielded USB
+		 * devices to be shutdown by the hub, this hack enables
+		 * them again. Works at least with mouse driver
+		 */
+		if (!(portstatus & USB_PORT_STAT_ENABLE) &&
+		    (portstatus & USB_PORT_STAT_CONNECTION) &&
+		    usb_device_has_child_on_port(dev, i)) {
+			debug("already running port %i disabled by hub (EMI?), re-enabling...\n",
+			      i + 1);
+			usb_hub_port_connect_change(dev, i);
+		}
+#endif
+	}
+
+	if (portstatus & USB_PORT_STAT_SUSPEND) {
+		debug("port %d suspend change\n", i + 1);
+		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_SUSPEND);
+	}
+
+	if (portchange & USB_PORT_STAT_C_OVERCURRENT) {
+		debug("port %d over-current change\n", i + 1);
+		usb_clear_port_feature(dev, i + 1,
+				       USB_PORT_FEAT_C_OVER_CURRENT);
+		/* Only power-on this one port */
+		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
+		hub->overcurrent_count[i]++;
+
+		/*
+		 * If the max-scan-count is not reached, return without removing
+		 * the device from scan-list. This will re-issue a new scan.
+		 */
+		if (hub->overcurrent_count[i] <=
+		    PORT_OVERCURRENT_MAX_SCAN_COUNT)
+			return 0;
+
+		/* Otherwise the device will get removed */
+		printf("Port %d over-current occurred %d times\n", i + 1,
+		       hub->overcurrent_count[i]);
+	}
+
+	if (portchange & USB_PORT_STAT_C_RESET) {
+		debug("port %d reset change\n", i + 1);
+		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_C_RESET);
+	}
+
+	/*
+	 * We're done with this device, so let's remove this device from
+	 * scanning list
+	 */
+	list_del(&usb_scan->list);
+	free(usb_scan);
+
+	return 0;
+}
+
+static int usb_device_list_scan(void)
+{
+	struct usb_device_scan *usb_scan;
+	struct usb_device_scan *tmp;
+	static int running;
+	int ret = 0;
+
+	/* Only run this loop once for each controller */
+	if (running)
+		return 0;
+
+	running = 1;
+
+	while (1) {
+		/* We're done, once the list is empty again */
+		if (list_empty(&usb_scan_list))
+			goto out;
+
+		list_for_each_entry_safe(usb_scan, tmp, &usb_scan_list, list) {
+			int ret;
+
+			/* Scan this port */
+			ret = usb_scan_port(usb_scan);
+			if (ret)
+				goto out;
+		}
+	}
+
+out:
+	/*
+	 * This USB controller has finished scanning all its connected
+	 * USB devices. Set "running" back to 0, so that other USB controllers
+	 * will scan their devices too.
+	 */
+	running = 0;
+
+	return ret;
+}
 
 static int usb_hub_configure(struct usb_device *dev)
 {
@@ -464,104 +667,33 @@ static int usb_hub_configure(struct usb_device *dev)
 	for (i = 0; i < dev->maxchild; i++)
 		usb_hub_reset_devices(i + 1);
 
+	/*
+	 * Only add the connected USB devices, including potential hubs,
+	 * to a scanning list. This list will get scanned and devices that
+	 * are detected (either via port connected or via port timeout)
+	 * will get removed from this list. Scanning of the devices on this
+	 * list will continue until all devices are removed.
+	 */
 	for (i = 0; i < dev->maxchild; i++) {
-		ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
-		unsigned short portstatus, portchange;
-		int ret;
-		ulong start = get_timer(0);
-		uint delay = CONFIG_SYS_HZ;
+		struct usb_device_scan *usb_scan;
 
-#ifdef CONFIG_SANDBOX
-		if (state_get_skip_delays())
-			delay = 0;
-#endif
-#ifdef CONFIG_DM_USB
-		debug("\n\nScanning '%s' port %d\n", dev->dev->name, i + 1);
-#else
-		debug("\n\nScanning port %d\n", i + 1);
-#endif
-		/*
-		 * Wait for (whichever finishes first)
-		 *  - A maximum of 10 seconds
-		 *    This is a purely observational value driven by connecting
-		 *    a few broken pen drives and taking the max * 1.5 approach
-		 *  - connection_change and connection state to report same
-		 *    state
-		 */
-		do {
-			ret = usb_get_port_status(dev, i + 1, portsts);
-			if (ret < 0) {
-				debug("get_port_status failed\n");
-				break;
-			}
-
-			portstatus = le16_to_cpu(portsts->wPortStatus);
-			portchange = le16_to_cpu(portsts->wPortChange);
-
-			/* No connection change happened, wait a bit more. */
-			if (!(portchange & USB_PORT_STAT_C_CONNECTION))
-				continue;
-
-			/* Test if the connection came up, and if so, exit. */
-			if (portstatus & USB_PORT_STAT_CONNECTION)
-				break;
-
-		} while (get_timer(start) < delay);
-
-		if (ret < 0)
-			continue;
-
-		debug("Port %d Status %X Change %X\n",
-		      i + 1, portstatus, portchange);
-
-		if (portchange & USB_PORT_STAT_C_CONNECTION) {
-			debug("port %d connection change\n", i + 1);
-			usb_hub_port_connect_change(dev, i);
+		usb_scan = calloc(1, sizeof(*usb_scan));
+		if (!usb_scan) {
+			printf("Can't allocate memory for USB device!\n");
+			return -ENOMEM;
 		}
-		if (portchange & USB_PORT_STAT_C_ENABLE) {
-			debug("port %d enable change, status %x\n",
-			      i + 1, portstatus);
-			usb_clear_port_feature(dev, i + 1,
-						USB_PORT_FEAT_C_ENABLE);
-			/*
-			 * The following hack causes a ghost device problem
-			 * to Faraday EHCI
-			 */
-#ifndef CONFIG_USB_EHCI_FARADAY
-			/* EM interference sometimes causes bad shielded USB
-			 * devices to be shutdown by the hub, this hack enables
-			 * them again. Works at least with mouse driver */
-			if (!(portstatus & USB_PORT_STAT_ENABLE) &&
-			     (portstatus & USB_PORT_STAT_CONNECTION) &&
-			     usb_device_has_child_on_port(dev, i)) {
-				debug("already running port %i "  \
-				      "disabled by hub (EMI?), " \
-				      "re-enabling...\n", i + 1);
-				      usb_hub_port_connect_change(dev, i);
-			}
-#endif
-		}
-		if (portstatus & USB_PORT_STAT_SUSPEND) {
-			debug("port %d suspend change\n", i + 1);
-			usb_clear_port_feature(dev, i + 1,
-						USB_PORT_FEAT_SUSPEND);
-		}
+		usb_scan->dev = dev;
+		usb_scan->hub = hub;
+		usb_scan->port = i;
+		list_add_tail(&usb_scan->list, &usb_scan_list);
+	}
 
-		if (portchange & USB_PORT_STAT_C_OVERCURRENT) {
-			debug("port %d over-current change\n", i + 1);
-			usb_clear_port_feature(dev, i + 1,
-						USB_PORT_FEAT_C_OVER_CURRENT);
-			usb_hub_power_on(hub);
-		}
+	/*
+	 * And now call the scanning code which loops over the generated list
+	 */
+	ret = usb_device_list_scan();
 
-		if (portchange & USB_PORT_STAT_C_RESET) {
-			debug("port %d reset change\n", i + 1);
-			usb_clear_port_feature(dev, i + 1,
-						USB_PORT_FEAT_C_RESET);
-		}
-	} /* end for i all ports */
-
-	return 0;
+	return ret;
 }
 
 static int usb_hub_check(struct usb_device *dev, int ifnum)

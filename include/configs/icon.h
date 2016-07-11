@@ -167,11 +167,8 @@
  */
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #endif

@@ -51,6 +51,8 @@ static int do_spi_xfer(int bus, int cs)
 
 	snprintf(name, sizeof(name), "generic_%d:%d", bus, cs);
 	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
 	ret = spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv",
 				 str, &dev, &slave);
 	if (ret)

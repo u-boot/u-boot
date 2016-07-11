@@ -202,7 +202,7 @@ out:
  * Talk about misusing macros..
  */
 #define __OUT1(s,x) \
-static inline void out##s(unsigned x value, unsigned short port) {
+static inline void _out##s(unsigned x value, unsigned short port) {
 
 #define __OUT2(s,s1,s2) \
 __asm__ __volatile__ ("out" #s " %" s1 "0,%" s2 "1"
@@ -213,7 +213,7 @@ __OUT1(s,x) __OUT2(s,s1,"w") : : "a" (value), "Nd" (port)); } \
 __OUT1(s##_p,x) __OUT2(s,s1,"w") __FULL_SLOW_DOWN_IO : : "a" (value), "Nd" (port));}
 
 #define __IN1(s) \
-static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
+static inline RETURN_TYPE _in##s(unsigned short port) { RETURN_TYPE _v;
 
 #define __IN2(s,s1,s2) \
 __asm__ __volatile__ ("in" #s " %" s2 "1,%" s1 "0"
@@ -242,9 +242,17 @@ __IN(w,"")
 __IN(l,"")
 #undef RETURN_TYPE
 
+#define inb(port)	_inb((uintptr_t)(port))
+#define inw(port)	_inw((uintptr_t)(port))
+#define inl(port)	_inl((uintptr_t)(port))
+
 __OUT(b,"b",char)
 __OUT(w,"w",short)
 __OUT(l,,int)
+
+#define outb(val, port)	_outb(val, (uintptr_t)(port))
+#define outw(val, port)	_outw(val, (uintptr_t)(port))
+#define outl(val, port)	_outl(val, (uintptr_t)(port))
 
 __INS(b)
 __INS(w)
@@ -253,6 +261,28 @@ __INS(l)
 __OUTS(b)
 __OUTS(w)
 __OUTS(l)
+
+/* IO space accessors */
+#define clrio(type, addr, clear) \
+	out##type(in##type(addr) & ~(clear), (addr))
+
+#define setio(type, addr, set) \
+	out##type(in##type(addr) | (set), (addr))
+
+#define clrsetio(type, addr, clear, set) \
+	out##type((in##type(addr) & ~(clear)) | (set), (addr))
+
+#define clrio_32(addr, clear) clrio(l, addr, clear)
+#define clrio_16(addr, clear) clrio(w, addr, clear)
+#define clrio_8(addr, clear) clrio(b, addr, clear)
+
+#define setio_32(addr, set) setio(l, addr, set)
+#define setio_16(addr, set) setio(w, addr, set)
+#define setio_8(addr, set) setio(b, addr, set)
+
+#define clrsetio_32(addr, clear, set) clrsetio(l, addr, clear, set)
+#define clrsetio_16(addr, clear, set) clrsetio(w, addr, clear, set)
+#define clrsetio_8(addr, clear, set) clrsetio(b, addr, clear, set)
 
 static inline void sync(void)
 {

@@ -17,7 +17,7 @@
 #include <pci.h>
 #include <usb.h>
 #include <asm/io.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 
 #include "ehci.h"
 
@@ -93,7 +93,7 @@ static int reset_usb_controller(volatile struct usb_ehci *ehci)
 	unsigned int i;
 
 	/* Command a reset of the USB Controller */
-	out_be32(&(ehci->usbcmd), EHCI_FSL_USBCMD_RST);
+	out_be32(&(ehci->usbcmd), CMD_RESET);
 
 	/* Wait for the reset process to finish */
 	for (i = 65535 ; i > 0 ; i--) {
@@ -101,7 +101,7 @@ static int reset_usb_controller(volatile struct usb_ehci *ehci)
 		 * The host will set this bit to zero once the
 		 * reset process is complete
 		 */
-		if ((in_be32(&(ehci->usbcmd)) & EHCI_FSL_USBCMD_RST) == 0)
+		if ((in_be32(&(ehci->usbcmd)) & CMD_RESET) == 0)
 			return 0;
 	}
 

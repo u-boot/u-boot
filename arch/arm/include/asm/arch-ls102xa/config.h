@@ -90,7 +90,6 @@
 #define CONFIG_SYS_SCSI_MAX_LUN		1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_FSL_ERRATUM_A008407
 
@@ -137,7 +136,7 @@
 #endif
 
 #define FSL_IFC_COMPAT		"fsl,ifc"
-#define FSL_QSPI_COMPAT		"fsl,ls1-qspi"
-#define FSL_DSPI_COMPAT		"fsl,vf610-dspi"
+#define FSL_QSPI_COMPAT		"fsl,ls1021a-qspi"
+#define FSL_DSPI_COMPAT		"fsl,ls1021a-v1.0-dspi"
 
 #endif /* _ASM_ARMV7_LS102XA_CONFIG_ */

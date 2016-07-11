@@ -16,6 +16,8 @@
 
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
+	"boot=ubi\0"							\
 	"addr_mon=0x0c5f0000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
@@ -36,5 +38,7 @@
 /* Network */
 #define CONFIG_KSNET_NETCP_V1_0
 #define CONFIG_KSNET_CPSW_NUM_PORTS	5
+
+#define CONFIG_DDR_SPD
 
 #endif /* __CONFIG_K2HK_EVM_H */

@@ -381,7 +381,7 @@ static int enc_phy_link_wait(enc_dev_t *enc)
 		udelay(1000);
 	}
 
-	/* timeout occured */
+	/* timeout occurred */
 	printf("%s: link down\n", enc->dev->name);
 	return 1;
 }

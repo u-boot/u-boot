@@ -13,7 +13,6 @@
 #ifndef _CONFIG_POGO_E02_H
 #define _CONFIG_POGO_E02_H
 
-
 /*
  * Machine type definition and ID
  */
@@ -33,12 +32,8 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -86,8 +81,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS

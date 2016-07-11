@@ -17,9 +17,9 @@ struct unit_test_state;
  * ut_fail() - Record failure of a unit test
  *
  * @uts: Test state
- * @fname: Filename where the error occured
- * @line: Line number where the error occured
- * @func: Function name where the error occured
+ * @fname: Filename where the error occurred
+ * @line: Line number where the error occurred
+ * @func: Function name where the error occurred
  * @cond: The condition that failed
  */
 void ut_fail(struct unit_test_state *uts, const char *fname, int line,
@@ -29,9 +29,9 @@ void ut_fail(struct unit_test_state *uts, const char *fname, int line,
  * ut_failf() - Record failure of a unit test
  *
  * @uts: Test state
- * @fname: Filename where the error occured
- * @line: Line number where the error occured
- * @func: Function name where the error occured
+ * @fname: Filename where the error occurred
+ * @line: Line number where the error occurred
+ * @func: Function name where the error occurred
  * @cond: The condition that failed
  * @fmt: printf() format string for the error, followed by args
  */

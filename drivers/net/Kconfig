@@ -13,6 +13,27 @@ config PHYLIB
 	help
 	  Enable Ethernet PHY (physical media interface) support.
 
+config RTL8211X_PHY_FORCE_MASTER
+	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"
+	depends on PHYLIB
+	help
+	  Force master mode for 1000BASE-T on RTl8211x PHYs (except for RTL8211F).
+	  This can work around link stability and data corruption issues on gigabit
+	  links which can occur in slave mode on certain PHYs, e.g. on the
+	  RTL8211C(L).
+
+	  Please note that two directly connected devices (i.e. via crossover cable)
+	  will not be able to establish a link between each other if they both force
+	  master mode. Multiple devices forcing master mode when connected by a
+	  network switch do not pose a problem as the switch configures its affected
+	  ports into slave mode.
+
+	  This option only affects gigabit links. If you must establish a direct
+	  connection between two devices which both force master mode, try forcing
+	  the link speed to 100MBit/s.
+
+	  If unsure, say N.
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
@@ -94,6 +115,14 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config MVPP2
+	bool "Marvell Armada 375 network interface support"
+	depends on ARMADA_375
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  Marvell ARMADA 375 SoC.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI
@@ -101,6 +130,18 @@ config PCH_GBE
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
+
+config RTL8139
+	bool "Realtek 8139 series Ethernet controller driver"
+	help
+	  This driver supports Realtek 8139 series fast ethernet family of
+	  PCI chipsets/adapters.
+
+config RTL8169
+	bool "Realtek 8169 series Ethernet controller driver"
+	help
+	  This driver supports Realtek 8169 series gigabit ethernet family of
+	  PCI/PCIe chipsets/adapters.
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)

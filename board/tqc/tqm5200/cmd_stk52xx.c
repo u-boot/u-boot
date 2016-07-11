@@ -72,7 +72,7 @@ static int spi_transmit(unsigned char data)
 	spi->dr = data;
 	/* wait for SPI transmission completed */
 	while (!(spi->sr & 0x80)) {
-		if (spi->sr & 0x40) {	/* if write collision occured */
+		if (spi->sr & 0x40) {	/* if write collision occurred */
 			int dummy;
 
 			/* do dummy read to clear status register */

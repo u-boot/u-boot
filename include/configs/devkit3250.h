@@ -61,7 +61,6 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_LPC32XX
 #define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_CMD_I2C
 
 /*
  * GPIO
@@ -73,7 +72,6 @@
  */
 #define CONFIG_LPC32XX_SSP
 #define CONFIG_LPC32XX_SSP_TIMEOUT	100000
-#define CONFIG_CMD_SPI
 
 /*
  * Ethernet
@@ -84,9 +82,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR			0x1F
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 /*
  * NOR Flash
@@ -130,8 +125,6 @@
 #define CONFIG_USB_OHCI_LPC32XX
 #define CONFIG_USB_ISP1301_I2C_ADDR		0x2d
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
 
 /*
  * U-Boot General Configurations
@@ -152,7 +145,6 @@
 /*
  * Pass open firmware flat tree
  */
-#define CONFIG_OF_LIBFDT
 
 /*
  * Environment
@@ -180,7 +172,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_CACHE
 
 /*
  * Boot Linux

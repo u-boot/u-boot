@@ -69,6 +69,7 @@
 
 	aliases {
 		spi0 = &spi0;
+		spi1 = &spi1;
 		ethernet0 = &eth0;
 	};
 
@@ -135,6 +136,26 @@
 					#size-cells = <1>;
 					compatible = "n25q128a13", "jedec,spi-nor";
 					reg = <0>; /* Chip select 0 */
+					spi-max-frequency = <27777777>;
+				};
+
+				fpga@1 {
+					#address-cells = <1>;
+					#size-cells = <1>;
+					compatible = "spi-generic-device";
+					reg = <1>; /* Chip select 1 */
+					spi-max-frequency = <27777777>;
+				};
+			};
+
+			spi1: spi@10680 {
+				status = "okay";
+
+				fpga@2 {
+					#address-cells = <1>;
+					#size-cells = <1>;
+					compatible = "spi-generic-device";
+					reg = <2>; /* Chip select 2 */
 					spi-max-frequency = <27777777>;
 				};
 			};

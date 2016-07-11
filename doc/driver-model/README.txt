@@ -90,110 +90,137 @@ The intent with driver model is that the core portion has 100% test coverage
 in sandbox, and every uclass has its own test. As a move towards this, tests
 are provided in test/dm. To run them, try:
 
-   ./test/dm/test-dm.sh
+   ./test/py/test.py --bd sandbox --build -k ut_dm -v
 
 You should see something like this:
 
-    <...U-Boot banner...>
-    Running 53 driver model tests
-    Test: dm_test_autobind
-    Test: dm_test_autoprobe
-    Test: dm_test_bus_child_post_bind
-    Test: dm_test_bus_child_post_bind_uclass
-    Test: dm_test_bus_child_pre_probe_uclass
-    Test: dm_test_bus_children
-    Device 'c-test@0': seq 0 is in use by 'd-test'
-    Device 'c-test@1': seq 1 is in use by 'f-test'
-    Test: dm_test_bus_children_funcs
-    Test: dm_test_bus_children_iterators
-    Test: dm_test_bus_parent_data
-    Test: dm_test_bus_parent_data_uclass
-    Test: dm_test_bus_parent_ops
-    Test: dm_test_bus_parent_platdata
-    Test: dm_test_bus_parent_platdata_uclass
-    Test: dm_test_children
-    Test: dm_test_device_get_uclass_id
-    Test: dm_test_eth
-    Using eth@10002000 device
-    Using eth@10003000 device
-    Using eth@10004000 device
-    Test: dm_test_eth_alias
-    Using eth@10002000 device
-    Using eth@10004000 device
-    Using eth@10002000 device
-    Using eth@10003000 device
-    Test: dm_test_eth_prime
-    Using eth@10003000 device
-    Using eth@10002000 device
-    Test: dm_test_eth_rotate
+(venv)$ ./test/py/test.py --bd sandbox --build -k ut_dm -v
++make O=/root/u-boot/build-sandbox -s sandbox_defconfig
++make O=/root/u-boot/build-sandbox -s -j8
+============================= test session starts ==============================
+platform linux2 -- Python 2.7.5, pytest-2.9.0, py-1.4.31, pluggy-0.3.1 -- /root/u-boot/venv/bin/python
+cachedir: .cache
+rootdir: /root/u-boot, inifile:
+collected 199 items
 
-    Error: eth@10004000 address not set.
+test/py/tests/test_ut.py::test_ut_dm_init PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_bind] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_conversion] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_shot] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_conversion] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_shot] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_supply] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_adc_wrong_channel_selection] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_autobind] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_alloc] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_valid] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_autoprobe] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind_uclass] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_pre_probe_uclass] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_children] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_funcs] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_iterators] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data_uclass] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_ops] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata_uclass] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_children] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_clk_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_clk_periph] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_device_get_uclass_id] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_eth] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_eth_act] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_eth_alias] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_eth_prime] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_eth_rotate] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_fdt] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_fdt_offset] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_fdt_pre_reloc] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_fdt_uclass_seq] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio_anon] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio_copy] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio_leak] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio_phandles] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_gpio_requestf] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_bytewise] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_find] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset_len] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_probe_empty] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_read_write] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_i2c_speed] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_leak] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_led_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_led_gpio] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_led_label] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_lifecycle] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_mmc_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_net_retry] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_operations] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_ordering] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_pci_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_pci_busnum] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_pci_swapcase] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_platdata] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_get] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_io] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset_list] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_get] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_current] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_enable] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_mode] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_voltage] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_pre_reloc] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_ram_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_regmap_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_regmap_syscon] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_remoteproc_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_remove] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_reset_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_reset_walk] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_rtc_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_rtc_dual] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_rtc_reset] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_rtc_set_get] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_spi_find] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_spi_flash] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_spi_xfer] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_syscon_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_syscon_by_driver_data] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_timer_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass_before_ready] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find_by_name] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get_by_name] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_flash] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_keyb] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_multi] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_remove] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_remove] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_reorder] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_base] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp_comp] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_chars] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_context] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation1] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation2] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation3] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_text] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_bs] PASSED
+test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_scroll] PASSED
 
-    Error: eth@10004000 address not set.
-    Using eth@10002000 device
-
-    Error: eth@10004000 address not set.
-
-    Error: eth@10004000 address not set.
-    Using eth@10004000 device
-    Test: dm_test_fdt
-    Test: dm_test_fdt_offset
-    Test: dm_test_fdt_pre_reloc
-    Test: dm_test_fdt_uclass_seq
-    Test: dm_test_gpio
-    extra-gpios: get_value: error: gpio b5 not reserved
-    Test: dm_test_gpio_anon
-    Test: dm_test_gpio_copy
-    Test: dm_test_gpio_leak
-    extra-gpios: get_value: error: gpio b5 not reserved
-    Test: dm_test_gpio_phandles
-    Test: dm_test_gpio_requestf
-    Test: dm_test_i2c_bytewise
-    Test: dm_test_i2c_find
-    Test: dm_test_i2c_offset
-    Test: dm_test_i2c_offset_len
-    Test: dm_test_i2c_probe_empty
-    Test: dm_test_i2c_read_write
-    Test: dm_test_i2c_speed
-    Test: dm_test_leak
-    Test: dm_test_lifecycle
-    Test: dm_test_net_retry
-    Using eth@10004000 device
-    Using eth@10002000 device
-    Using eth@10004000 device
-    Test: dm_test_operations
-    Test: dm_test_ordering
-    Test: dm_test_pci_base
-    Test: dm_test_pci_swapcase
-    Test: dm_test_platdata
-    Test: dm_test_pre_reloc
-    Test: dm_test_remove
-    Test: dm_test_spi_find
-    Invalid chip select 0:0 (err=-19)
-    SF: Failed to get idcodes
-    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
-    Test: dm_test_spi_flash
-    2097152 bytes written in 0 ms
-    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
-    SPI flash test:
-    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    Test passed
-    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
-    Test: dm_test_spi_xfer
-    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
-    Test: dm_test_uclass
-    Test: dm_test_uclass_before_ready
-    Test: dm_test_usb_base
-    Test: dm_test_usb_flash
-    USB-1:   scanning bus 1 for devices... 2 USB Device(s) found
-    Failures: 0
-
+======================= 84 tests deselected by '-kut_dm' =======================
+================== 115 passed, 84 deselected in 3.77 seconds ===================
 
 What is going on?
 -----------------
