@@ -172,7 +172,13 @@ int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_fixup_nor_flash_size(void *blob);
 
+#if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 void fdt_fixup_mtdparts(void *fdt, void *node_info, int node_info_size);
+#else
+static inline void fdt_fixup_mtdparts(void *fdt, void *node_info,
+					int node_info_size) {}
+#endif
+
 void fdt_del_node_and_alias(void *blob, const char *alias);
 u64 fdt_translate_address(void *blob, int node_offset, const __be32 *in_addr);
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
