@@ -17,6 +17,7 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/onenand.h>
@@ -230,6 +231,23 @@ int misc_init_r(void)
 	set_fdt();
 
 	return 0;
+}
+
+void board_mtdparts_default(const char **mtdids, const char **mtdparts)
+{
+	struct mtd_info *mtd = get_mtd_device(NULL, 0);
+	if (mtd) {
+		static char ids[24];
+		static char parts[48];
+		const char *linux_name = "omap2-nand";
+		if (strncmp(mtd->name, "onenand0", 8) == 0)
+			linux_name = "omap2-onenand";
+		snprintf(ids, sizeof(ids), "%s=%s", mtd->name, linux_name);
+		snprintf(parts, sizeof(parts), "mtdparts=%s:%dk(SPL),-(UBI)",
+		         linux_name, 4 * mtd->erasesize >> 10);
+		*mtdids = ids;
+		*mtdparts = parts;
+	}
 }
 
 /*
