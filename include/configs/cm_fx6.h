@@ -69,6 +69,8 @@
 	"stderr=serial,vga\0" \
 	"panel=HDMI\0" \
 	"autoload=no\0" \
+	"uImage=uImage-cm-fx6\0" \
+	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \
 	"script=boot.scr\0" \
 	"dtb=cm-fx6.dtb\0" \
@@ -81,10 +83,10 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${loadaddr}\0" \
 	"doloadfdt=false\0" \
-	"setboottypez=setenv kernel zImage-cm-fx6;" \
+	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
 		"setenv doloadfdt true;\0" \
-	"setboottypem=setenv kernel uImage-cm-fx6;" \
+	"setboottypem=setenv kernel ${uImage};" \
 		"setenv doboot bootm ${loadaddr};" \
 		"setenv doloadfdt false;\0"\
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
@@ -92,13 +94,13 @@
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"sataargs=setenv bootargs console=${console} root=${sataroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandboot=if run nandloadkernel; then " \
 			"run nandloadfdt;" \
 			"run setboottypem;" \
