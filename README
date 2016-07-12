@@ -3583,6 +3583,10 @@ FIT uImage format:
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
 
+		CONFIG_SPL_UBI
+		Support for a lightweight UBI (fastmap) scanner and
+		loader
+
 		CONFIG_SPL_MTD_SUPPORT
 		Support for the MTD subsystem within SPL.  Useful for
 		environment on NAND support within SPL.

@@ -27,6 +27,7 @@ obj-$(CONFIG_SPL_MTD_SUPPORT) += mtd/
 obj-$(CONFIG_SPL_NAND_SUPPORT) += mtd/nand/
 obj-$(CONFIG_SPL_ONENAND_SUPPORT) += mtd/onenand/
 obj-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += mtd/spi/
+obj-$(CONFIG_SPL_UBI) += mtd/ubispl/
 obj-$(CONFIG_SPL_DMA_SUPPORT) += dma/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/phy/
