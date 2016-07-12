@@ -10,6 +10,7 @@
 #include <ns16550.h>
 #include <twl4030.h>
 #include <netdev.h>
+#include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -122,6 +123,17 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 		gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
 	}
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
 #endif
 
 int onenand_board_init(struct mtd_info *mtd)
