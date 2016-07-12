@@ -69,14 +69,6 @@ int board_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 /*
- * Routine: omap_rev_string
- * Description: For SPL builds output board rev
- */
-void omap_rev_string(void)
-{
-}
-
-/*
  * Routine: get_board_mem_timings
  * Description: If we use SPL then there is no x-loader nor config header
  * so we have to setup the DDR timings ourself on both banks.
