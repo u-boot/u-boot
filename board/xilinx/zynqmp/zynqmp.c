@@ -21,7 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
+    !defined(CONFIG_SPL_BUILD)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
 
 static const struct {
