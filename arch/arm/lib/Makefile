@@ -27,11 +27,13 @@ endif
 obj-$(CONFIG_CPU_V7M) += cmd_boot.o
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_CMD_BOOTM) += zimage.o
 obj-$(CONFIG_SYS_L2_PL310) += cache-pl310.o
 obj-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 obj-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
 else
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
+obj-$(CONFIG_SPL_FRAMEWORK) += zimage.o
 endif
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
