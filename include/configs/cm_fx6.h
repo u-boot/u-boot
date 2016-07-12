@@ -18,6 +18,7 @@
 #define CONFIG_MACH_TYPE		4273
 
 /* CMD */
+#define CONFIG_CMD_MTDPARTS
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
@@ -53,6 +54,20 @@
 #define CONFIG_SF_DEFAULT_SPEED		25000000
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
+/* MTD support */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FDT_FIXUP_PARTITIONS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_SPI_FLASH_MTD
+#endif
+
+#define MTDIDS_DEFAULT		"nor0=spi0.0"
+#define MTDPARTS_DEFAULT	"mtdparts=spi0.0:" \
+				"768k(uboot)," \
+				"256k(uboot-environment)," \
+				"-(reserved)"
+
 /* Environment */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
@@ -83,6 +98,8 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${loadaddr}\0" \
 	"doloadfdt=false\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
 		"setenv doloadfdt true;\0" \
@@ -157,7 +174,7 @@
 	"run setupnandboot;" \
 	"run nandboot;"
 
-#define CONFIG_PREBOOT		"usb start"
+#define CONFIG_PREBOOT		"usb start;sf probe"
 
 /* SPI */
 #define CONFIG_SPI
