@@ -209,6 +209,68 @@ static int nand_read_page(int block, int page, void *dst)
 }
 #endif
 
+#ifdef CONFIG_SPL_UBI
+/*
+ * Temporary storage for non NAND page aligned and non NAND page sized
+ * reads. Note: This does not support runtime detected FLASH yet, but
+ * that should be reasonably easy to fix by making the buffer large
+ * enough :)
+ */
+static u8 scratch_buf[CONFIG_SYS_NAND_PAGE_SIZE];
+
+/**
+ * nand_spl_read_block - Read data from physical eraseblock into a buffer
+ * @block:	Number of the physical eraseblock
+ * @offset:	Data offset from the start of @peb
+ * @len:	Data size to read
+ * @dst:	Address of the destination buffer
+ *
+ * This could be further optimized if we'd have a subpage read
+ * function in the simple code. On NAND which allows subpage reads
+ * this would spare quite some time to readout e.g. the VID header of
+ * UBI.
+ *
+ * Notes:
+ *	@offset + @len are not allowed to be larger than a physical
+ *	erase block. No sanity check done for simplicity reasons.
+ *
+ * To support runtime detected flash this needs to be extended by
+ * information about the actual flash geometry, but thats beyond the
+ * scope of this effort and for most applications where fast boot is
+ * required it is not an issue anyway.
+ */
+int nand_spl_read_block(int block, int offset, int len, void *dst)
+{
+	int page, read;
+
+	/* Calculate the page number */
+	page = offset / CONFIG_SYS_NAND_PAGE_SIZE;
+
+	/* Offset to the start of a flash page */
+	offset = offset % CONFIG_SYS_NAND_PAGE_SIZE;
+
+	while (len) {
+		/*
+		 * Non page aligned reads go to the scratch buffer.
+		 * Page aligned reads go directly to the destination.
+		 */
+		if (offset || len < CONFIG_SYS_NAND_PAGE_SIZE) {
+			nand_read_page(block, page, scratch_buf);
+			read = min(len, CONFIG_SYS_NAND_PAGE_SIZE - offset);
+			memcpy(dst, scratch_buf + offset, read);
+			offset = 0;
+		} else {
+			nand_read_page(block, page, dst);
+			read = CONFIG_SYS_NAND_PAGE_SIZE;
+		}
+		page++;
+		len -= read;
+		dst += read;
+	}
+	return 0;
+}
+#endif
+
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 {
 	unsigned int block, lastblock;
