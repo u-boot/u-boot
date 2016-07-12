@@ -1516,6 +1516,23 @@ static int spread_partitions(void)
 #endif /* CONFIG_CMD_MTDPARTS_SPREAD */
 
 /**
+ * The mtdparts variable tends to be long. If we need to access it
+ * before the env is relocated, then we need to use our own stack
+ * buffer.  gd->env_buf will be too small.
+ *
+ * @param buf temporary buffer pointer MTDPARTS_MAXLEN long
+ * @return mtdparts variable string, NULL if not found
+ */
+static const char *getenv_mtdparts(char *buf)
+{
+	if (gd->flags & GD_FLG_ENV_READY)
+		return getenv("mtdparts");
+	if (getenv_f("mtdparts", buf, MTDPARTS_MAXLEN) != -1)
+		return buf;
+	return NULL;
+}
+
+/**
  * Accept character string describing mtd partitions and call device_parse()
  * for each entry. Add created devices to the global devices list.
  *
@@ -1538,15 +1555,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 
 	/* re-read 'mtdparts' variable, mtd_devices_init may be updating env */
-	if (gd->flags & GD_FLG_ENV_READY)
-		p = getenv("mtdparts");
-	else {
-		if (getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN) != -1)
-			p = tmp_parts;
-		else
-			p = NULL;
-	}
-
+	p = getenv_mtdparts(tmp_parts);
 	if (!p)
 		p = mtdparts;
 
@@ -1691,6 +1700,7 @@ static int parse_mtdids(const char *const ids)
 	return 0;
 }
 
+
 /**
  * Parse and initialize global mtdids mapping and create global
  * device/partition list.
@@ -1718,19 +1728,7 @@ int mtdparts_init(void)
 
 	/* get variables */
 	ids = getenv("mtdids");
-	/*
-	 * The mtdparts variable tends to be long. If we need to access it
-	 * before the env is relocated, then we need to use our own stack
-	 * buffer.  gd->env_buf will be too small.
-	 */
-	if (gd->flags & GD_FLG_ENV_READY)
-		parts = getenv("mtdparts");
-	else {
-		if (getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN) != -1)
-			parts = tmp_parts;
-		else
-			parts = NULL;
-	}
+	parts = getenv_mtdparts(tmp_parts);
 	current_partition = getenv("partition");
 
 	/* save it for later parsing, cannot rely on current partition pointer
