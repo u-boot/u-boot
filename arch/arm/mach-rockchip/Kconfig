@@ -17,6 +17,14 @@ config ROCKCHIP_RK3036
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
 
+config ROCKCHIP_SPL_BACK_TO_BROM
+	bool "SPL returns to bootrom"
+	default y if ROCKCHIP_RK3036
+	help
+	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
+          SPL will return to the boot rom, which will then load the U-Boot
+          binary to keep going on.
+
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 endif

@@ -149,7 +149,7 @@ static int configure_emmc(struct udevice *pinctrl)
 	return 0;
 }
 #endif
-
+extern void back_to_bootrom(void);
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -204,6 +204,9 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
+#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+	back_to_bootrom();
+#endif
 }
 
 static int setup_led(void)
