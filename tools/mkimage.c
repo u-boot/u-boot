@@ -232,6 +232,7 @@ static void process_args(int argc, char **argv)
 					params.cmdname, optarg);
 				exit(EXIT_FAILURE);
 			}
+			break;
 		case 'q':
 			params.quiet = 1;
 			break;
