@@ -7,8 +7,6 @@
 #ifndef _IGEP00X0_H_
 #define _IGEP00X0_H_
 
-static void setup_net_chip(void);
-
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable
