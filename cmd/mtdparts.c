@@ -109,17 +109,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MTD_WRITEABLE_CMD		1
 
 /* default values for mtdids and mtdparts variables */
-#if defined(MTDIDS_DEFAULT)
-static const char *const mtdids_default = MTDIDS_DEFAULT;
-#else
-static const char *const mtdids_default = NULL;
+#if !defined(MTDIDS_DEFAULT)
+#define MTDIDS_DEFAULT NULL
 #endif
-
-#if defined(MTDPARTS_DEFAULT)
-static const char *const mtdparts_default = MTDPARTS_DEFAULT;
-#else
-static const char *const mtdparts_default = NULL;
+#if !defined(MTDPARTS_DEFAULT)
+#define MTDPARTS_DEFAULT NULL
 #endif
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+extern void board_mtdparts_default(const char **mtdids, const char **mtdparts);
+#endif
+static const char *mtdids_default = MTDIDS_DEFAULT;
+static const char *mtdparts_default = MTDPARTS_DEFAULT;
 
 /* copies of last seen 'mtdids', 'mtdparts' and 'partition' env variables */
 #define MTDIDS_MAXLEN		128
@@ -1725,6 +1725,9 @@ int mtdparts_init(void)
 		memset(last_ids, 0, MTDIDS_MAXLEN);
 		memset(last_parts, 0, MTDPARTS_MAXLEN);
 		memset(last_partition, 0, PARTITION_MAXLEN);
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+		board_mtdparts_default(&mtdids_default, &mtdparts_default);
+#endif
 		use_defaults = 1;
 		initialized = 1;
 	}
