@@ -142,6 +142,8 @@ static struct list_head devices;
 struct mtd_device *current_mtd_dev = NULL;
 u8 current_mtd_partnum = 0;
 
+u8 use_defaults;
+
 static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part_num);
 
 /* command line only routines */
@@ -1723,6 +1725,7 @@ int mtdparts_init(void)
 		memset(last_ids, 0, MTDIDS_MAXLEN);
 		memset(last_parts, 0, MTDPARTS_MAXLEN);
 		memset(last_partition, 0, PARTITION_MAXLEN);
+		use_defaults = 1;
 		initialized = 1;
 	}
 
@@ -1761,10 +1764,16 @@ int mtdparts_init(void)
 		return 1;
 	}
 
-	/* do no try to use defaults when mtdparts variable is not defined,
-	 * just check the length */
-	if (!parts)
-		printf("mtdparts variable not set, see 'help mtdparts'\n");
+	/* use defaults when mtdparts variable is not defined
+	 * once mtdparts is saved environment, drop use_defaults flag */
+	if (!parts) {
+		if (mtdparts_default && use_defaults) {
+			parts = mtdparts_default;
+			if (setenv("mtdparts", (char *)parts) == 0)
+				use_defaults = 0;
+		} else
+			printf("mtdparts variable not set, see 'help mtdparts'\n");
+	}
 
 	if (parts && (strlen(parts) > MTDPARTS_MAXLEN - 1)) {
 		printf("mtdparts too long (> %d)\n", MTDPARTS_MAXLEN);
@@ -1936,9 +1945,10 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {
-			setenv("mtdids", (char *)mtdids_default);
-			setenv("mtdparts", (char *)mtdparts_default);
+			setenv("mtdids", NULL);
+			setenv("mtdparts", NULL);
 			setenv("partition", NULL);
+			use_defaults = 1;
 
 			mtdparts_init();
 			return 0;
