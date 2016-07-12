@@ -2657,6 +2657,7 @@ int onenand_probe(struct mtd_info *mtd)
 	mtd->_sync = onenand_sync;
 	mtd->_block_isbad = onenand_block_isbad;
 	mtd->_block_markbad = onenand_block_markbad;
+	mtd->writebufsize = mtd->writesize;
 
 	return 0;
 }
