@@ -1524,7 +1524,7 @@ static int spread_partitions(void)
  */
 static int parse_mtdparts(const char *const mtdparts)
 {
-	const char *p = mtdparts;
+	const char *p;
 	struct mtd_device *dev;
 	int err = 1;
 	char tmp_parts[MTDPARTS_MAXLEN];
@@ -1538,12 +1538,17 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 
 	/* re-read 'mtdparts' variable, mtd_devices_init may be updating env */
-	if (gd->flags & GD_FLG_ENV_READY) {
+	if (gd->flags & GD_FLG_ENV_READY)
 		p = getenv("mtdparts");
-	} else {
-		p = tmp_parts;
-		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
+	else {
+		if (getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN) != -1)
+			p = tmp_parts;
+		else
+			p = NULL;
 	}
+
+	if (!p)
+		p = mtdparts;
 
 	if (strncmp(p, "mtdparts=", 9) != 0) {
 		printf("mtdparts variable doesn't start with 'mtdparts='\n");
@@ -1551,7 +1556,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 	p += 9;
 
-	while (p && (*p != '\0')) {
+	while (*p != '\0') {
 		err = 1;
 		if ((device_parse(p, &p, &dev) != 0) || (!dev))
 			break;
@@ -1569,12 +1574,10 @@ static int parse_mtdparts(const char *const mtdparts)
 		list_add_tail(&dev->link, &devices);
 		err = 0;
 	}
-	if (err == 1) {
+	if (err == 1)
 		device_delall(&devices);
-		return 1;
-	}
 
-	return 0;
+	return err;
 }
 
 /**
