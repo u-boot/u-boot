@@ -45,6 +45,7 @@ void emif4_init(void);
 void gpmc_init(void);
 void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs,
 				u32 base, u32 size);
+void set_gpmc_cs0(int flash_type);
 
 void watchdog_init(void);
 void set_muxconf_regs(void);

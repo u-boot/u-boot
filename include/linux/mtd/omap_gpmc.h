@@ -93,5 +93,6 @@ struct gpmc {
 
 /* Used for board specific gpmc initialization */
 extern const struct gpmc *gpmc_cfg;
+extern char gpmc_cs0_flash;
 
 #endif /* __ASM_OMAP_GPMC_H */
