@@ -37,7 +37,8 @@ void set_lpmode_selfrefresh(u32 base)
 void force_emif_self_refresh()
 {
 	set_lpmode_selfrefresh(EMIF1_BASE);
-	set_lpmode_selfrefresh(EMIF2_BASE);
+	if (!is_dra72x())
+		set_lpmode_selfrefresh(EMIF2_BASE);
 }
 
 inline u32 emif_num(u32 base)
