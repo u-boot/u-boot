@@ -55,7 +55,6 @@
  * Default environment
  * -----------------------------------------------------------------------------
  */
-#define CONFIG_BOOTDELAY	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"verify=no\0"			\

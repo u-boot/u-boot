@@ -58,12 +58,37 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_FSL
+       bool "Freescale I2C bus driver"
+       depends on DM_I2C
+       help
+	  Add support for Freescale I2C busses as used on MPC8240, MPC8245, and
+	  MPC85xx processors.
+
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
 	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
 	help
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
+
+config SYS_I2C_DW
+	bool "Designware I2C Controller"
+	default n
+	help
+	  Say yes here to select the Designware I2C Host Controller. This
+	  controller is used in various SoCs, e.g. the ST SPEAr, Altera
+	  SoCFPGA, Synopsys ARC700 and some Intel x86 SoCs.
+
+config SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
+	bool "DW I2C Enable Status Register not supported"
+	depends on SYS_I2C_DW && (TARGET_SPEAR300 || TARGET_SPEAR310 || \
+		TARGET_SPEAR320 || TARGET_SPEAR600 || TARGET_X600)
+	default y
+	help
+	  Some versions of the Designware I2C controller do not support the
+	  enable status register. This config option can be enabled in such
+	  cases.
 
 config SYS_I2C_INTEL
 	bool "Intel I2C/SMBUS driver"

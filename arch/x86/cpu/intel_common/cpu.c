@@ -58,7 +58,7 @@ int cpu_common_init(void)
 		return -ENODEV;
 
 	/* Cause the SATA device to do its early init */
-	uclass_first_device(UCLASS_DISK, &dev);
+	uclass_first_device(UCLASS_AHCI, &dev);
 
 	return 0;
 }

@@ -14,7 +14,6 @@
 #define XILINX_BOARD_NAME	microblaze-generic
 
 /* Microblaze is microblaze_0 */
-#define XILINX_USE_MSR_INSTR	1
 #define XILINX_FSL_NUMBER	3
 
 /* GPIO is LEDs_4Bit*/

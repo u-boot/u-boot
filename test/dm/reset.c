@@ -1,74 +1,39 @@
 /*
- * Copyright (C) 2015 Google, Inc
+ * Copyright (c) 2016, NVIDIA CORPORATION.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>
 #include <dm.h>
-#include <reset.h>
-#include <asm/state.h>
-#include <asm/test.h>
 #include <dm/test.h>
+#include <asm/reset.h>
 #include <test/ut.h>
 
-/* Test that we can use particular reset devices */
-static int dm_test_reset_base(struct unit_test_state *uts)
+/* This must match the specifier for mbox-names="test" in the DT node */
+#define TEST_RESET_ID 2
+
+static int dm_test_reset(struct unit_test_state *uts)
 {
-	struct sandbox_state *state = state_get_current();
-	struct udevice *dev;
+	struct udevice *dev_reset;
+	struct udevice *dev_test;
 
-	/* Device 0 is the platform data device - it should never respond */
-	ut_assertok(uclass_get_device(UCLASS_RESET, 0, &dev));
-	ut_asserteq(-ENODEV, reset_request(dev, RESET_WARM));
-	ut_asserteq(-ENODEV, reset_request(dev, RESET_COLD));
-	ut_asserteq(-ENODEV, reset_request(dev, RESET_POWER));
+	ut_assertok(uclass_get_device_by_name(UCLASS_RESET, "reset-ctl",
+					      &dev_reset));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
 
-	/* Device 1 is the warm reset device */
-	ut_assertok(uclass_get_device(UCLASS_RESET, 1, &dev));
-	ut_asserteq(-EACCES, reset_request(dev, RESET_WARM));
-	ut_asserteq(-ENOSYS, reset_request(dev, RESET_COLD));
-	ut_asserteq(-ENOSYS, reset_request(dev, RESET_POWER));
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
+					      &dev_test));
+	ut_assertok(sandbox_reset_test_get(dev_test));
 
-	state->reset_allowed[RESET_WARM] = true;
-	ut_asserteq(-EINPROGRESS, reset_request(dev, RESET_WARM));
-	state->reset_allowed[RESET_WARM] = false;
+	ut_assertok(sandbox_reset_test_assert(dev_test));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, TEST_RESET_ID));
 
-	/* Device 2 is the cold reset device */
-	ut_assertok(uclass_get_device(UCLASS_RESET, 2, &dev));
-	ut_asserteq(-ENOSYS, reset_request(dev, RESET_WARM));
-	ut_asserteq(-EACCES, reset_request(dev, RESET_COLD));
-	state->reset_allowed[RESET_POWER] = false;
-	ut_asserteq(-EACCES, reset_request(dev, RESET_POWER));
-	state->reset_allowed[RESET_POWER] = true;
+	ut_assertok(sandbox_reset_test_deassert(dev_test));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_free(dev_test));
 
 	return 0;
 }
-DM_TEST(dm_test_reset_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
-
-/* Test that we can walk through the reset devices */
-static int dm_test_reset_walk(struct unit_test_state *uts)
-{
-	struct sandbox_state *state = state_get_current();
-
-	/* If we generate a power reset, we will exit sandbox! */
-	state->reset_allowed[RESET_POWER] = false;
-	ut_asserteq(-EACCES, reset_walk(RESET_WARM));
-	ut_asserteq(-EACCES, reset_walk(RESET_COLD));
-	ut_asserteq(-EACCES, reset_walk(RESET_POWER));
-
-	/*
-	 * Enable cold reset - this should make cold reset work, plus a warm
-	 * reset should be promoted to cold, since this is the next step
-	 * along.
-	 */
-	state->reset_allowed[RESET_COLD] = true;
-	ut_asserteq(-EINPROGRESS, reset_walk(RESET_WARM));
-	ut_asserteq(-EINPROGRESS, reset_walk(RESET_COLD));
-	ut_asserteq(-EACCES, reset_walk(RESET_POWER));
-	state->reset_allowed[RESET_COLD] = false;
-	state->reset_allowed[RESET_POWER] = true;
-
-	return 0;
-}
-DM_TEST(dm_test_reset_walk, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_reset, DM_TESTF_SCAN_FDT);

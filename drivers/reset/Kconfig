@@ -1,0 +1,23 @@
+menu "Reset Controller Support"
+
+config DM_RESET
+	bool "Enable reset controllers using Driver Model"
+	depends on DM && OF_CONTROL
+	help
+	  Enable support for the reset controller driver class. Many hardware
+	  modules are equipped with a reset signal, typically driven by some
+	  reset controller hardware module within the chip. In U-Boot, reset
+	  controller drivers allow control over these reset signals. In some
+	  cases this API is applicable to chips outside the CPU as well,
+	  although driving such reset isgnals using GPIOs may be more
+	  appropriate in this case.
+
+config SANDBOX_RESET
+	bool "Enable the sandbox reset test driver"
+	depends on DM_MAILBOX && SANDBOX
+	help
+	  Enable support for a test reset controller implementation, which
+	  simply accepts requests to reset various HW modules without actually
+	  doing anything beyond a little error checking.
+
+endmenu

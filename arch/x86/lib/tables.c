@@ -80,9 +80,8 @@ void write_tables(void)
 
 #ifdef CONFIG_SEABIOS
 		table_size = rom_table_end - rom_table_start;
-		high_table = (u32)memalign(ROM_TABLE_ALIGN, table_size);
+		high_table = (u32)high_table_malloc(table_size);
 		if (high_table) {
-			memset((void *)high_table, 0, table_size);
 			table_write_funcs[i](high_table);
 
 			cfg_tables[i].start = high_table;

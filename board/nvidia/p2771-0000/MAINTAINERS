@@ -1,0 +1,6 @@
+P2771-0000 BOARD
+M:	Stephen Warren <swarren@nvidia.com>
+S:	Maintained
+F:	board/nvidia/p2771-0000/
+F:	include/configs/p2771-0000.h
+F:	configs/p2771-0000_defconfig

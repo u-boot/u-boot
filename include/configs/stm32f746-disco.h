@@ -69,7 +69,6 @@
 	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
 	"bootm 0x08044000 - 0x08042000\0"
 
-#define CONFIG_BOOTDELAY		3
 
 /*
  * Command line configuration.

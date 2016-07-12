@@ -29,10 +29,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RK_I2C_FIFO_SIZE	32
 
 struct rk_i2c {
-	struct udevice *clk;
+	struct clk clk;
 	struct i2c_regs *regs;
 	unsigned int speed;
-	int clk_id;
 };
 
 static inline void rk_i2c_get_div(int div, int *divh, int *divl)
@@ -55,7 +54,7 @@ static void rk_i2c_set_clk(struct rk_i2c *i2c, uint32_t scl_rate)
 	int div, divl, divh;
 
 	/* First get i2c rate from pclk */
-	i2c_rate = clk_get_periph_rate(i2c->clk, i2c->clk_id);
+	i2c_rate = clk_get_rate(&i2c->clk);
 
 	div = DIV_ROUND_UP(i2c_rate, scl_rate * 8) - 2;
 	divh = 0;
@@ -362,7 +361,6 @@ static int rockchip_i2c_ofdata_to_platdata(struct udevice *bus)
 		      bus->name, ret);
 		return ret;
 	}
-	priv->clk_id = ret;
 
 	return 0;
 }

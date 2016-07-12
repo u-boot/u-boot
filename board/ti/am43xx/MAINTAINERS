@@ -4,8 +4,7 @@ S:	Maintained
 F:	board/ti/am43xx/
 F:	include/configs/am43xx_evm.h
 F:	configs/am43xx_evm_defconfig
-F:	configs/am43xx_evm_qspiboot_defconfig
 F:	configs/am43xx_evm_ethboot_defconfig
+F:	configs/am43xx_evm_qspiboot_defconfig
 F:	configs/am43xx_evm_usbhost_boot_defconfig
-F:	configs/am437x_gp_evm_defconfig
-F:	configs/am437x_sk_evm_defconfig
+F:	configs/am43xx_hs_evm_defconfig

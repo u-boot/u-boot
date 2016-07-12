@@ -26,7 +26,6 @@
 #endif
 
 /* Initial environment and monitor configuration options. */
-#define CONFIG_BOOTDELAY		2
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_INITRD_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1

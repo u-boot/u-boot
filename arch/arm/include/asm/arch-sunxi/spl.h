@@ -18,6 +18,12 @@
 #define SPL_ADDR		0x0
 #endif
 
+/* The low 8-bits of the 'boot_media' field in the SPL header */
+#define SUNXI_BOOTED_FROM_MMC0	0
+#define SUNXI_BOOTED_FROM_NAND	1
+#define SUNXI_BOOTED_FROM_MMC2	2
+#define SUNXI_BOOTED_FROM_SPI	3
+
 /* boot head definition from sun4i boot code */
 struct boot_file_head {
 	uint32_t b_instruction;	/* one intruction jumping to real code */
@@ -45,7 +51,9 @@ struct boot_file_head {
 		uint8_t spl_signature[4];
 	};
 	uint32_t fel_script_address;
-	uint32_t reserved;		/* padding, align to 32 bytes */
+	uint32_t reserved1[3];
+	uint32_t boot_media;		/* written here by the boot ROM */
+	uint32_t reserved2[5];		/* padding, align to 64 bytes */
 };
 
 #define is_boot0_magic(addr)	(memcmp((void *)addr, BOOT0_MAGIC, 8) == 0)

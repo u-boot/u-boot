@@ -15,4 +15,5 @@ obj-$(CONFIG_PWM_ROCKCHIP) += rk_pwm.o
 obj-$(CONFIG_PWM_IMX) += pwm-imx.o pwm-imx-util.o
 ifdef CONFIG_DM_PWM
 obj-$(CONFIG_PWM_TEGRA) += tegra_pwm.o
+obj-$(CONFIG_PWM_EXYNOS) += exynos_pwm.o
 endif

@@ -323,13 +323,13 @@ $(obj)/%.S: $(src)/%.ttf
 
 # ACPI
 # ---------------------------------------------------------------------------
-quiet_cmd_acpi_c_asl= ASL     $@
+quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
-	$(CPP) -x assembler-with-cpp -P -o $<.tmp $<; \
-	iasl -p $< -tc -va $<.tmp; \
+	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) -o $<.tmp $<; \
+	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null); \
 	mv $(patsubst %.asl,%.hex,$<) $@
 
-$(obj)/%.c:    $(src)/%.asl
+$(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
 
 # Bzip2

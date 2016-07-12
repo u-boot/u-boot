@@ -46,6 +46,15 @@ menuconfig NETDEVICES
 
 if NETDEVICES
 
+config AG7XXX
+	bool "Atheros AG7xxx Ethernet MAC support"
+	depends on DM_ETH && ARCH_ATH79
+	select PHYLIB
+	help
+	  This driver supports the Atheros AG7xxx Ethernet MAC. This MAC is
+	  present in the Atheros AR7xxx, AR9xxx and QCA9xxx MIPS chips.
+
+
 config ALTERA_TSE
 	bool "Altera Triple-Speed Ethernet MAC support"
 	depends on DM_ETH

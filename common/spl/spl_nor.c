@@ -9,6 +9,7 @@
 
 int spl_nor_load_image(void)
 {
+	int ret;
 	/*
 	 * Loading of the payload to SDRAM is done with skipping of
 	 * the mkimage header in this SPL NOR driver
@@ -28,7 +29,9 @@ int spl_nor_load_image(void)
 		if (image_get_os(header) == IH_OS_LINUX) {
 			/* happy - was a Linux */
 
-			spl_parse_image_header(header);
+			ret = spl_parse_image_header(header);
+			if (ret)
+				return ret;
 
 			memcpy((void *)spl_image.load_addr,
 			       (void *)(CONFIG_SYS_OS_BASE +
@@ -56,8 +59,10 @@ int spl_nor_load_image(void)
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-	spl_parse_image_header(
+	ret = spl_parse_image_header(
 			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
+	if (ret)
+		return ret;
 
 	memcpy((void *)(unsigned long)spl_image.load_addr,
 	       (void *)(CONFIG_SYS_UBOOT_BASE + sizeof(struct image_header)),

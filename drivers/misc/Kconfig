@@ -121,13 +121,13 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
-config RESET
-	bool "Enable support for reset drivers"
+config SYSRESET
+	bool "Enable support for system reset drivers"
 	depends on DM
 	help
-	  Enable reset drivers which can be used to reset the CPU or board.
-	  Each driver can provide a reset method which will be called to
-	  effect a reset. The uclass will try all available drivers when
+	  Enable system reset drivers which can be used to reset the CPU or
+	  board. Each driver can provide a reset method which will be called
+	  to effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
 
 config WINBOND_W83627
@@ -137,5 +137,11 @@ config WINBOND_W83627
 	  W83627 Super I/O driver. This can be used to enable the
 	  legacy UART or other devices in the Winbond Super IO chips
 	  on X86 platforms.
+
+config QFW
+	bool
+	help
+	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
+	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
 
 endmenu

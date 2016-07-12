@@ -33,7 +33,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined(CONFIG_CMD_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
+#if defined(CONFIG_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
 
 #undef SCSI_SINGLE_STEP
 /*

@@ -56,21 +56,27 @@ struct fsl_esdhc {
 	uint    fevt;		/* Force event register */
 	uint    admaes;		/* ADMA error status register */
 	uint    adsaddr;	/* ADMA system address register */
-	char    reserved2[100];	/* reserved */
-	uint    vendorspec;	/* Vendor Specific register */
-	char    reserved3[56];	/* reserved */
+	char    reserved2[4];
+	uint    dllctrl;
+	uint    dllstat;
+	uint    clktunectrlstatus;
+	char    reserved3[84];
+	uint    vendorspec;
+	uint    mmcboot;
+	uint    vendorspec2;
+	char	reserved4[48];
 	uint    hostver;	/* Host controller version register */
-	char    reserved4[4];	/* reserved */
-	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved5[4];	/* reserved */
-	uint    dmaerrattr;	/* DMA error attribute register */
+	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved6[4];	/* reserved */
+	uint    dmaerrattr;	/* DMA error attribute register */
+	char    reserved7[4];	/* reserved */
 	uint    hostcapblt2;	/* Host controller capabilities register 2 */
-	char    reserved7[8];	/* reserved */
+	char    reserved8[8];	/* reserved */
 	uint    tcr;		/* Tuning control register */
-	char    reserved8[28];	/* reserved */
+	char    reserved9[28];	/* reserved */
 	uint    sddirctl;	/* SD direction control register */
-	char    reserved9[712];	/* reserved */
+	char    reserved10[712];/* reserved */
 	uint    scr;		/* eSDHC control register */
 };
 
@@ -85,7 +91,9 @@ struct fsl_esdhc {
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
  * @non_removable: 0: removable; 1: non-removable
+ * @wp_enable: 1: enable checking wp; 0: no check
  * @cd_gpio: gpio for card detection
+ * @wp_gpio: gpio for write protection
  */
 struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
@@ -95,7 +103,9 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 	struct udevice *dev;
 	int non_removable;
+	int wp_enable;
 	struct gpio_desc cd_gpio;
+	struct gpio_desc wp_gpio;
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -208,7 +218,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	int timeout;
 	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 	dma_addr_t addr;
 #endif
 	uint wml_value;
@@ -221,7 +231,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 		addr = virt_to_phys((void *)(data->dest));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -239,15 +249,18 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 #endif
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
-		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
-			printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
-			return TIMEOUT;
+		if (priv->wp_enable) {
+			if ((esdhc_read32(&regs->prsstat) &
+			    PRSSTAT_WPSPL) == 0) {
+				printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
+				return TIMEOUT;
+			}
 		}
 
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 		addr = virt_to_phys((void *)(data->src));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -308,15 +321,11 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 static void check_and_invalidate_dcache_range
 	(struct mmc_cmd *cmd,
 	 struct mmc_data *data) {
-#ifdef CONFIG_FSL_LAYERSCAPE
 	unsigned start = 0;
-#else
-	unsigned start = (unsigned)data->dest ;
-#endif
+	unsigned end = 0;
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
-	unsigned end = start+size ;
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 	dma_addr_t addr;
 
 	addr = virt_to_phys((void *)(data->dest));
@@ -324,7 +333,10 @@ static void check_and_invalidate_dcache_range
 		printf("Error found for upper 32 bits\n");
 	else
 		start = lower_32_bits(addr);
+#else
+	start = (unsigned)data->dest;
 #endif
+	end = start + size;
 	invalidate_dcache_range(start, end);
 }
 
@@ -533,7 +545,7 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	clk = (pre_div << 8) | (div << 4);
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
 #else
 	esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
 #endif
@@ -543,7 +555,7 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	udelay(10000);
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_clrbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN | VENDORSPEC_CKEN);
 #else
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 #endif
@@ -617,6 +629,20 @@ static int esdhc_init(struct mmc *mmc)
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
 		udelay(1000);
 
+#if defined(CONFIG_FSL_USDHC)
+	/* RSTA doesn't reset MMC_BOOT register, so manually reset it */
+	esdhc_write32(&regs->mmcboot, 0x0);
+	/* Reset MIX_CTRL and CLK_TUNE_CTRL_STATUS regs to 0 */
+	esdhc_write32(&regs->mixctrl, 0x0);
+	esdhc_write32(&regs->clktunectrlstatus, 0x0);
+
+	/* Put VEND_SPEC to default value */
+	esdhc_write32(&regs->vendorspec, VENDORSPEC_INIT);
+
+	/* Disable DLL_CTRL delay line */
+	esdhc_write32(&regs->dllctrl, 0x0);
+#endif
+
 #ifndef ARCH_MXC
 	/* Enable cache snooping */
 	esdhc_write32(&regs->scr, 0x00000040);
@@ -624,6 +650,8 @@ static int esdhc_init(struct mmc *mmc)
 
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
+#else
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_HCKEN | VENDORSPEC_IPGEN);
 #endif
 
 	/* Set the initial clock speed */
@@ -700,6 +728,7 @@ static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
 	priv->bus_width = cfg->max_bus_width;
 	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
 
 	return 0;
 };
@@ -721,6 +750,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN
 				| SYSCTL_IPGEN | SYSCTL_CKEN);
+#else
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
+			VENDORSPEC_HCKEN | VENDORSPEC_IPGEN | VENDORSPEC_CKEN);
 #endif
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
@@ -938,6 +970,13 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		gpio_request_by_name_nodev(fdt, node, "cd-gpios", 0,
 					   &priv->cd_gpio, GPIOD_IS_IN);
 	}
+
+	priv->wp_enable = 1;
+
+	ret = gpio_request_by_name_nodev(fdt, node, "wp-gpios", 0,
+					 &priv->wp_gpio, GPIOD_IS_IN);
+	if (ret)
+		priv->wp_enable = 0;
 
 	/*
 	 * TODO:

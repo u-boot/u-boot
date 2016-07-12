@@ -149,19 +149,6 @@
 /* AUTOBOOT settings - booting images automatically by u-boot after power on */
 
 /*
- * used for autoboot, delay in seconds u-boot will wait before starting
- * defined (auto-)boot command, setting to -1 disables delay, setting to
- * 0 will too prevent access to u-boot command interface: u-boot then has
- * to be reflashed
- * beware - watchdog is not serviced during autoboot delay time!
- */
-#ifdef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_BOOTDELAY	1
-#else
-#define CONFIG_BOOTDELAY	1
-#endif
-
-/*
  * The following settings will be contained in the environment block ; if you
  * want to use a neutral environment all those settings can be manually set in
  * u-boot: 'set' command

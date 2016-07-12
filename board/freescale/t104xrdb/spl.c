@@ -98,6 +98,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	get_clocks();
 	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
 			CONFIG_SPL_RELOC_MALLOC_SIZE);
+	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_initialize(bd);

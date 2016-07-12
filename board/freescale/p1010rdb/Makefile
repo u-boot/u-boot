@@ -13,18 +13,14 @@ endif
 endif
 
 ifdef MINIMAL
-
-obj-y	+= spl_minimal.o tlb.o law.o
-
+obj-y	+= spl_minimal.o
 else
-
 ifdef CONFIG_SPL_BUILD
-obj-y += spl.o
+obj-y	+= spl.o
 endif
-
 obj-y	+= p1010rdb.o
 obj-y	+= ddr.o
+endif
+
 obj-y	+= law.o
 obj-y	+= tlb.o
-
-endif

@@ -12,7 +12,6 @@
 #include <fdtdec.h>
 #include <rtc.h>
 #include <pci.h>
-#include <asm/acpi.h>
 #include <asm/intel_regs.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>

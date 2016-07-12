@@ -195,7 +195,7 @@ void pci_init_board (void)
 }
 #endif
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
@@ -203,7 +203,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 int board_eth_init(bd_t *bis)
 {

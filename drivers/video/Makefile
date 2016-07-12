@@ -25,11 +25,6 @@ obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
 obj-$(CONFIG_CFB_CONSOLE) += cfb_console.o
-obj-$(CONFIG_EXYNOS_DP) += exynos_dp.o exynos_dp_lowlevel.o
-obj-$(CONFIG_EXYNOS_FB) += exynos_fb.o exynos_fimd.o
-obj-$(CONFIG_EXYNOS_MIPI_DSIM) += exynos_mipi_dsi.o exynos_mipi_dsi_common.o \
-				exynos_mipi_dsi_lowlevel.o
-obj-$(CONFIG_EXYNOS_PWM_BL) += exynos_pwm_bl.o
 obj-$(CONFIG_FSL_DIU_FB) += fsl_diu_fb.o videomodes.o
 obj-$(CONFIG_FSL_DCU_FB) += fsl_dcu_fb.o videomodes.o
 obj-$(CONFIG_L5F31188) += l5f31188.o
@@ -68,6 +63,7 @@ obj-$(CONFIG_LG4573) += lg4573.o
 obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
+obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 
 obj-y += bridge/

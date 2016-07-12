@@ -14,15 +14,15 @@
 #include <linux/linkage.h>
 
 /*
- * void __asm_flush_dcache_level(level)
+ * void __asm_dcache_level(level)
  *
- * clean and invalidate one level cache.
+ * flush or invalidate one level cache.
  *
  * x0: cache level
- * x1: 0 flush & invalidate, 1 invalidate only
+ * x1: 0 clean & invalidate, 1 invalidate only
  * x2~x9: clobbered
  */
-ENTRY(__asm_flush_dcache_level)
+ENTRY(__asm_dcache_level)
 	lsl	x12, x0, #1
 	msr	csselr_el1, x12		/* select cache level */
 	isb				/* sync change of cssidr_el1 */
@@ -57,14 +57,14 @@ loop_way:
 	b.ge	loop_set
 
 	ret
-ENDPROC(__asm_flush_dcache_level)
+ENDPROC(__asm_dcache_level)
 
 /*
  * void __asm_flush_dcache_all(int invalidate_only)
  *
- * x0: 0 flush & invalidate, 1 invalidate only
+ * x0: 0 clean & invalidate, 1 invalidate only
  *
- * clean and invalidate all data cache by SET/WAY.
+ * flush or invalidate all data cache by SET/WAY.
  */
 ENTRY(__asm_dcache_all)
 	mov	x1, x0
@@ -87,7 +87,7 @@ loop_level:
 	and	x12, x12, #7		/* x12 <- cache type */
 	cmp	x12, #2
 	b.lt	skip			/* skip if no cache or icache */
-	bl	__asm_flush_dcache_level	/* x1 = 0 flush, 1 invalidate */
+	bl	__asm_dcache_level	/* x1 = 0 flush, 1 invalidate */
 skip:
 	add	x0, x0, #1		/* increment cache level */
 	cmp	x11, x0
@@ -104,19 +104,13 @@ finished:
 ENDPROC(__asm_dcache_all)
 
 ENTRY(__asm_flush_dcache_all)
-	mov	x16, lr
 	mov	x0, #0
-	bl	__asm_dcache_all
-	mov	lr, x16
-	ret
+	b	__asm_dcache_all
 ENDPROC(__asm_flush_dcache_all)
 
 ENTRY(__asm_invalidate_dcache_all)
-	mov	x16, lr
 	mov	x0, #0x1
-	bl	__asm_dcache_all
-	mov	lr, x16
-	ret
+	b	__asm_dcache_all
 ENDPROC(__asm_invalidate_dcache_all)
 
 /*

@@ -8,6 +8,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/macro.h>
+#include <asm/psci.h>
 #include <asm/system.h>
 
 /*
@@ -72,4 +73,19 @@ void smc_call(struct pt_regs *args)
 		: "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",
 		  "x8", "x9", "x10", "x11", "x12", "x13", "x14", "x15",
 		  "x16", "x17");
+}
+
+void __noreturn psci_system_reset(bool conduit_smc)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
+
+	if (conduit_smc)
+		smc_call(&regs);
+	else
+		hvc_call(&regs);
+
+	while (1)
+		;
 }

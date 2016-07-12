@@ -9,6 +9,21 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "vct"
 
+config SYS_TEXT_BASE
+	default 0x87000000
+
+config SYS_DCACHE_SIZE
+	default 16384
+
+config SYS_DCACHE_LINE_SIZE
+	default 32
+
+config SYS_ICACHE_SIZE
+	default 16384
+
+config SYS_ICACHE_LINE_SIZE
+	default 32
+
 menu "vct board options"
 
 choice

@@ -6,7 +6,6 @@
  */
 #include <common.h>
 #include <errno.h>
-#include <clk.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>

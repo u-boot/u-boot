@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -113,19 +114,33 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
+int gpio_xlate_offs_flags(struct udevice *dev,
+					 struct gpio_desc *desc,
+					 struct fdtdec_phandle_args *args)
+{
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	desc->offset = args->args[0];
+
+	if (args->args_count < 2)
+		return 0;
+
+	if (args->args[1] & GPIO_ACTIVE_LOW)
+		desc->flags = GPIOD_ACTIVE_LOW;
+
+	return 0;
+}
+
 static int gpio_find_and_xlate(struct gpio_desc *desc,
 			       struct fdtdec_phandle_args *args)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 
-	/* Use the first argument as the offset by default */
-	if (args->args_count > 0)
-		desc->offset = args->args[0];
+	if (ops->xlate)
+		return ops->xlate(desc->dev, desc, args);
 	else
-		desc->offset = -1;
-	desc->flags = 0;
-
-	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
+		return gpio_xlate_offs_flags(desc->dev, desc, args);
 }
 
 int dm_gpio_request(struct gpio_desc *desc, const char *label)
@@ -350,6 +365,38 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 		value = !value;
 	gpio_get_ops(desc->dev)->set_value(desc->dev, desc->offset, value);
 	return 0;
+}
+
+int dm_gpio_get_open_drain(struct gpio_desc *desc)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+	int ret;
+
+	ret = check_reserved(desc, "get_open_drain");
+	if (ret)
+		return ret;
+
+	if (ops->set_open_drain)
+		return ops->get_open_drain(desc->dev, desc->offset);
+	else
+		return -ENOSYS;
+}
+
+int dm_gpio_set_open_drain(struct gpio_desc *desc, int value)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+	int ret;
+
+	ret = check_reserved(desc, "set_open_drain");
+	if (ret)
+		return ret;
+
+	if (ops->set_open_drain)
+		ret = ops->set_open_drain(desc->dev, desc->offset, value);
+	else
+		return 0; /* feature not supported -> ignore setting */
+
+	return ret;
 }
 
 int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
@@ -605,6 +652,7 @@ static int _gpio_request_by_name_nodev(const void *blob, int node,
 
 	desc->dev = NULL;
 	desc->offset = 0;
+	desc->flags = 0;
 	ret = fdtdec_parse_phandle_with_args(blob, node, list_name,
 					     "#gpio-cells", 0, index, &args);
 	if (ret) {

@@ -362,7 +362,7 @@ int fec_initialize(bd_t *bis)
 	struct eth_device* dev;
 	int i;
 
-	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++)
+	for (i = 0; i < ARRAY_SIZE(ether_fcc_info); i++)
 	{
 		dev = (struct eth_device*) malloc(sizeof *dev);
 		memset(dev, 0, sizeof *dev);
@@ -432,7 +432,7 @@ static elbt_prdesc rxeacc_descs[] = {
 	{ offsetof(elbt_rxeacc, badlen),	"Bad Frame Length"	},
 	{ offsetof(elbt_rxeacc, badbit),	"Data Compare Errors"	},
 };
-static int rxeacc_ndesc = sizeof (rxeacc_descs) / sizeof (rxeacc_descs[0]);
+static int rxeacc_ndesc = ARRAY_SIZE(rxeacc_descs);
 
 typedef
 	struct {
@@ -449,7 +449,7 @@ static elbt_prdesc txeacc_descs[] = {
 	{ offsetof(elbt_txeacc, un),		"Underrun"		},
 	{ offsetof(elbt_txeacc, csl),		"Carrier Sense Lost"	},
 };
-static int txeacc_ndesc = sizeof (txeacc_descs) / sizeof (txeacc_descs[0]);
+static int txeacc_ndesc = ARRAY_SIZE(txeacc_descs);
 
 typedef
 	struct {
@@ -500,7 +500,7 @@ static elbt_prdesc epram_descs[] = {
 	{ offsetof(fcc_enet_t, fen_p512c),	"512-1023 Octet Frames"	},
 	{ offsetof(fcc_enet_t, fen_p1024c),	"1024-1518 Octet Frames"},
 };
-static int epram_ndesc = sizeof (epram_descs) / sizeof (epram_descs[0]);
+static int epram_ndesc = ARRAY_SIZE(epram_descs);
 
 /*
  * given an elbt_prdesc array and an array of base addresses, print

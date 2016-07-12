@@ -5,11 +5,9 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-y += spl.o
+obj-y	+= spl.o
 else
-obj-$(CONFIG_T2080RDB) += t208xrdb.o
-obj-$(CONFIG_T2080RDB) += eth_t208xrdb.o
-obj-$(CONFIG_T2080RDB) += cpld.o
+obj-$(CONFIG_T2080RDB) += t208xrdb.o eth_t208xrdb.o cpld.o
 obj-$(CONFIG_PCI)      += pci.o
 endif
 

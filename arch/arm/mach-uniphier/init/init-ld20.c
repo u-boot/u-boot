@@ -51,5 +51,7 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 
 	led_puts("L5");
 
+	dcache_disable();
+
 	return 0;
 }

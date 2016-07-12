@@ -51,7 +51,8 @@ int imagetool_verify_print_header(
 				 * successful
 				 */
 				if ((*curr)->print_header) {
-					(*curr)->print_header(ptr);
+					if (!params->quiet)
+						(*curr)->print_header(ptr);
 				} else {
 					fprintf(stderr,
 						"%s: print_header undefined for %s\n",
@@ -113,4 +114,24 @@ int imagetool_get_filesize(struct image_tool_params *params, const char *fname)
 	close(fd);
 
 	return sbuf.st_size;
+}
+
+time_t imagetool_get_source_date(
+	 struct image_tool_params *params,
+	 time_t fallback)
+{
+	char *source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+
+	if (source_date_epoch == NULL)
+		return fallback;
+
+	time_t time = (time_t) strtol(source_date_epoch, NULL, 10);
+
+	if (gmtime(&time) == NULL) {
+		fprintf(stderr, "%s: SOURCE_DATE_EPOCH is not valid\n",
+			params->cmdname);
+		time = 0;
+	}
+
+	return time;
 }

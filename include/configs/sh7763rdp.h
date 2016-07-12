@@ -20,7 +20,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_JFFS2
 
-#define CONFIG_BOOTDELAY        -1
 #define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
 #define CONFIG_ENV_OVERWRITE    1
 

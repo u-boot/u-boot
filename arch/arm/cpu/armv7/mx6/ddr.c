@@ -888,8 +888,7 @@ void mx6sdl_dram_iocfg(unsigned width,
 #define MR(val, ba, cmd, cs1) \
 	((val << 16) | (1 << 15) | (cmd << 4) | (cs1 << 3) | ba)
 #define MMDC1(entry, value) do {					  \
-	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL) && \
-	    !is_cpu_type(MXC_CPU_MX6SL))				  \
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6sl())			  \
 		mmdc1->entry = value;					  \
 	} while (0)
 
@@ -1197,12 +1196,11 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	u16 mem_speed = ddr3_cfg->mem_speed;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
-	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL) &&
-	    !is_cpu_type(MXC_CPU_MX6SL))
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6sl())
 		mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 
 	/* Limit mem_speed for MX6D/MX6Q */
-	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
+	if (is_mx6dq() || is_mx6dqp()) {
 		if (mem_speed > 1066)
 			mem_speed = 1066; /* 1066 MT/s */
 
@@ -1221,7 +1219,7 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	 * Data rate of 1066 MT/s requires 533 MHz DDR3 clock, but MX6D/Q supports
 	 * up to 528 MHz, so reduce the clock to fit chip specs
 	 */
-	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
+	if (is_mx6dq() || is_mx6dqp()) {
 		if (clock > 528)
 			clock = 528; /* 528 MHz */
 	}

@@ -81,7 +81,6 @@
 #define CONFIG_BOOTCOMMAND						\
 	"fsload 0x10400000 /uImage; bootm"
 
-#define CONFIG_BOOTDELAY		1
 
 /*
  * After booting the board for the first time, new ethernet addresses

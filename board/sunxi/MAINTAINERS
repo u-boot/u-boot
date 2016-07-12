@@ -54,10 +54,12 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
+F:	configs/inet86dz_defconfig
 F:	configs/orangepi_2_defconfig
 F:	configs/orangepi_one_defconfig
 F:	configs/orangepi_pc_defconfig
 F:	configs/orangepi_plus_defconfig
+F:	configs/polaroid_mid2407pxe03_defconfig
 F:	configs/polaroid_mid2809pxe04_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
@@ -199,6 +201,11 @@ MSI-PRIMO81 BOARD
 M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
+
+R16 EVB PARROT BOARD
+M:	Quentin Schulz <quentin.schulz@free-electrons.com>
+S:	Maintained
+F:	configs/parrot_r16_defconfig
 
 SINLINX SINA31s BOARD
 M:	Chen-Yu Tsai <wens@csie.org>

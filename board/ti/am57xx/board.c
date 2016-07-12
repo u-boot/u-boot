@@ -63,28 +63,28 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 }
 
 static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
-	.sdram_config_init	= 0x61851b32,
-	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x08000000,
-	.ref_ctrl		= 0x000040F1,
-	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xcccf36ab,
-	.sdram_tim2		= 0x308f7fda,
-	.sdram_tim3		= 0x409f88a8,
-	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x5007190b,
-	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
-	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
-	.emif_rd_wr_lvl_ctl	= 0x00000000,
-	.emif_rd_wr_exec_thresh	= 0x00000305
+	.sdram_config_init		= 0x61851b32,
+	.sdram_config			= 0x61851b32,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl			= 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1			= 0xcccf36ab,
+	.sdram_tim2			= 0x308f7fda,
+	.sdram_tim3			= 0x409f88a8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x5007190b,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
+	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
 /* Ext phy ctrl regs 1-35 */
@@ -127,28 +127,28 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 };
 
 static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
-	.sdram_config_init	= 0x61851b32,
-	.sdram_config		= 0x61851b32,
-	.sdram_config2		= 0x08000000,
-	.ref_ctrl		= 0x000040F1,
-	.ref_ctrl_final		= 0x00001035,
-	.sdram_tim1		= 0xcccf36b3,
-	.sdram_tim2		= 0x308f7fda,
-	.sdram_tim3		= 0x407f88a8,
-	.read_idle_ctrl		= 0x00050000,
-	.zq_config		= 0x5007190b,
-	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 = 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 = 0x009e009e,
-	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
-	.emif_rd_wr_lvl_ctl	= 0x00000000,
-	.emif_rd_wr_exec_thresh	= 0x00000305
+	.sdram_config_init		= 0x61851b32,
+	.sdram_config			= 0x61851b32,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl			= 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1			= 0xcccf36b3,
+	.sdram_tim2			= 0x308f7fda,
+	.sdram_tim3			= 0x407f88a8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x5007190b,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
+	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
 static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
@@ -216,37 +216,73 @@ void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr, const u32 **regs, u32 *size)
 }
 
 struct vcores_data beagle_x15_volts = {
-	.mpu.value		= VDD_MPU_DRA752,
-	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.value		= VDD_MPU_DRA7,
+	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU,
 	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
 	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic		= &tps659038,
-	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
+	.mpu.abb_tx_done_mask	= OMAP_ABB_MPU_TXDONE_MASK,
 
-	.eve.value		= VDD_EVE_DRA752,
-	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.value		= VDD_EVE_DRA7,
+	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic		= &tps659038,
 	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
 
-	.gpu.value		= VDD_GPU_DRA752,
-	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.value		= VDD_GPU_DRA7,
+	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr		= TPS659038_REG_ADDR_SMPS45,
 	.gpu.pmic		= &tps659038,
 	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
 
-	.core.value		= VDD_CORE_DRA752,
-	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.value		= VDD_CORE_DRA7,
+	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE,
 	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.core.addr		= TPS659038_REG_ADDR_SMPS6,
 	.core.pmic		= &tps659038,
 
-	.iva.value		= VDD_IVA_DRA752,
-	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.value		= VDD_IVA_DRA7,
+	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
+	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
+};
+
+struct vcores_data am572x_idk_volts = {
+	.mpu.value		= VDD_MPU_DRA7,
+	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
+	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
+	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask	= OMAP_ABB_MPU_TXDONE_MASK,
+
+	.eve.value		= VDD_EVE_DRA7,
+	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
+	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
+
+	.gpu.value		= VDD_GPU_DRA7,
+	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr		= TPS659038_REG_ADDR_SMPS6,
+	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
+
+	.core.value		= VDD_CORE_DRA7,
+	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE,
+	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.core.addr		= TPS659038_REG_ADDR_SMPS7,
+	.core.pmic		= &tps659038,
+
+	.iva.value		= VDD_IVA_DRA7,
+	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr		= TPS659038_REG_ADDR_SMPS8,
 	.iva.pmic		= &tps659038,
 	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
@@ -315,11 +351,18 @@ invalid_eeprom:
 
 #endif	/* CONFIG_SPL_BUILD */
 
+void vcores_init(void)
+{
+	if (board_is_am572x_idk())
+		*omap_vcores = &am572x_idk_volts;
+	else
+		*omap_vcores = &beagle_x15_volts;
+}
+
 void hw_data_init(void)
 {
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &beagle_x15_volts;
 	*ctrl = &dra7xx_ctrl;
 }
 
@@ -439,64 +482,6 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int board_usb_init(int index, enum usb_init_type init)
-{
-	enable_usb_clocks(index);
-	switch (index) {
-	case 0:
-		if (init == USB_INIT_DEVICE) {
-			printf("port %d can't be used as device\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		} else {
-			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
-			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
-			setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-				     OTG_SS_CLKCTRL_MODULEMODE_HW |
-				     OPTFCLKEN_REFCLK960M);
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy1_device);
-		dwc3_omap_uboot_init(&usb_otg_ss1_glue);
-		dwc3_uboot_init(&usb_otg_ss1);
-		break;
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-		} else {
-			printf("port %d can't be used as host\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy2_device);
-		dwc3_omap_uboot_init(&usb_otg_ss2_glue);
-		dwc3_uboot_init(&usb_otg_ss2);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	switch (index) {
-	case 0:
-	case 1:
-		ti_usb_phy_uboot_exit(index);
-		dwc3_uboot_exit(index);
-		dwc3_omap_uboot_exit(index);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-	disable_usb_clocks(index);
-	return 0;
-}
-
 int usb_gadget_handle_interrupts(int index)
 {
 	u32 status;
@@ -507,7 +492,63 @@ int usb_gadget_handle_interrupts(int index)
 
 	return 0;
 }
+#endif /* CONFIG_USB_DWC3 */
+
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+int board_usb_init(int index, enum usb_init_type init)
+{
+	enable_usb_clocks(index);
+	switch (index) {
+	case 0:
+		if (init == USB_INIT_DEVICE) {
+			printf("port %d can't be used as device\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+		break;
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+#ifdef CONFIG_USB_DWC3
+			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+			ti_usb_phy_uboot_init(&usb_phy2_device);
+			dwc3_omap_uboot_init(&usb_otg_ss2_glue);
+			dwc3_uboot_init(&usb_otg_ss2);
 #endif
+		} else {
+			printf("port %d can't be used as host\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	switch (index) {
+	case 0:
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			ti_usb_phy_uboot_exit(index);
+			dwc3_uboot_exit(index);
+			dwc3_omap_uboot_exit(index);
+		}
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+#endif
+	disable_usb_clocks(index);
+	return 0;
+}
+#endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 
@@ -684,5 +725,28 @@ int board_early_init_f(void)
 {
 	vtt_regulator_enable();
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (board_is_x15() && !strcmp(name, "am57xx-beagle-x15"))
+		return 0;
+	else if (board_is_am572x_evm() && !strcmp(name, "am57xx-beagle-x15"))
+		return 0;
+	else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk"))
+		return 0;
+	else
+		return -1;
 }
 #endif

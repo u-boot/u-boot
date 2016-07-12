@@ -160,7 +160,7 @@ void disable_edma3_clocks(void)
 }
 #endif
 
-#ifdef CONFIG_USB_DWC3
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
 void enable_usb_clocks(int index)
 {
 	u32 *usbclkctrl = 0;

@@ -25,7 +25,7 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	loff_t start, lim;
 	size_t count, actual;
 	int ret;
-	nand_info_t *nand;
+	struct mtd_info *mtd;
 
 	/* if buf == NULL return total size of the area */
 	if (buf == NULL) {
@@ -39,16 +39,16 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device].name) {
+	    !nand_info[nand_curr_device]->name) {
 		printf("%s: invalid nand device\n", __func__);
 		return -1;
 	}
 
-	nand = &nand_info[nand_curr_device];
+	mtd = nand_info[nand_curr_device];
 
 	if (op == DFU_OP_READ) {
-		ret = nand_read_skip_bad(nand, start, &count, &actual,
-				lim, buf);
+		ret = nand_read_skip_bad(mtd, start, &count, &actual,
+					 lim, buf);
 	} else {
 		nand_erase_options_t opts;
 
@@ -59,12 +59,12 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		opts.quiet = 1;
 		opts.lim = lim;
 		/* first erase */
-		ret = nand_erase_opts(nand, &opts);
+		ret = nand_erase_opts(mtd, &opts);
 		if (ret)
 			return ret;
 		/* then write */
-		ret = nand_write_skip_bad(nand, start, &count, &actual,
-				lim, buf, WITH_WR_VERIFY);
+		ret = nand_write_skip_bad(mtd, start, &count, &actual,
+					  lim, buf, WITH_WR_VERIFY);
 	}
 
 	if (ret != 0) {
@@ -139,27 +139,37 @@ static int dfu_read_medium_nand(struct dfu_entity *dfu, u64 offset, void *buf,
 static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 {
 	int ret = 0;
+	u64 off;
 
 	/* in case of ubi partition, erase rest of the partition */
 	if (dfu->data.nand.ubi) {
-		nand_info_t *nand;
+		struct mtd_info *mtd;
 		nand_erase_options_t opts;
 
 		if (nand_curr_device < 0 ||
 		    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-		    !nand_info[nand_curr_device].name) {
+		    !nand_info[nand_curr_device]->name) {
 			printf("%s: invalid nand device\n", __func__);
 			return -1;
 		}
 
-		nand = &nand_info[nand_curr_device];
+		mtd = nand_info[nand_curr_device];
 
 		memset(&opts, 0, sizeof(opts));
-		opts.offset = dfu->data.nand.start + dfu->offset +
+		off = dfu->offset;
+		if ((off & (mtd->erasesize - 1)) != 0) {
+			/*
+			 * last write ended with unaligned length
+			 * sector is erased, jump to next
+			 */
+			off = off & ~((mtd->erasesize - 1));
+			off += mtd->erasesize;
+		}
+		opts.offset = dfu->data.nand.start + off +
 				dfu->bad_skip;
 		opts.length = dfu->data.nand.start +
 				dfu->data.nand.size - opts.offset;
-		ret = nand_erase_opts(nand, &opts);
+		ret = nand_erase_opts(mtd, &opts);
 		if (ret != 0)
 			printf("Failure erase: %d\n", ret);
 	}

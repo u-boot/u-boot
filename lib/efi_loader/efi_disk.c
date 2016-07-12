@@ -7,6 +7,8 @@
  */
 
 #include <common.h>
+#include <blk.h>
+#include <dm.h>
 #include <efi_loader.h>
 #include <inttypes.h>
 #include <part.h>
@@ -75,9 +77,6 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	int blocks;
 	unsigned long n;
 
-	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
-		  buffer_size, buffer);
-
 	diskobj = container_of(this, struct efi_disk_obj, ops);
 	if (!(desc = blk_get_dev(diskobj->ifname, diskobj->dev_index)))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
@@ -85,26 +84,23 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	blocks = buffer_size / blksz;
 	lba += diskobj->offset;
 
-#ifdef DEBUG_EFI
-	printf("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
-	       __LINE__, blocks, lba, blksz, direction);
-#endif
+	debug("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
+	      __LINE__, blocks, lba, blksz, direction);
 
 	/* We only support full block access */
 	if (buffer_size & (blksz - 1))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
 	if (direction == EFI_DISK_READ)
-		n = desc->block_read(desc, lba, blocks, buffer);
+		n = blk_dread(desc, lba, blocks, buffer);
 	else
-		n = desc->block_write(desc, lba, blocks, buffer);
+		n = blk_dwrite(desc, lba, blocks, buffer);
 
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
 
-#ifdef DEBUG_EFI
-	printf("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
-#endif
+	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
+
 	if (n != blocks)
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
@@ -115,16 +111,70 @@ static efi_status_t efi_disk_read_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {
-	return efi_disk_rw_blocks(this, media_id, lba, buffer_size, buffer,
-				  EFI_DISK_READ);
+	void *real_buffer = buffer;
+	efi_status_t r;
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
+		r = efi_disk_read_blocks(this, media_id, lba,
+			EFI_LOADER_BOUNCE_BUFFER_SIZE, buffer);
+		if (r != EFI_SUCCESS)
+			return r;
+		return efi_disk_read_blocks(this, media_id, lba +
+			EFI_LOADER_BOUNCE_BUFFER_SIZE / this->media->block_size,
+			buffer_size - EFI_LOADER_BOUNCE_BUFFER_SIZE,
+			buffer + EFI_LOADER_BOUNCE_BUFFER_SIZE);
+	}
+
+	real_buffer = efi_bounce_buffer;
+#endif
+
+	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+		  buffer_size, buffer);
+
+	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
+			       EFI_DISK_READ);
+
+	/* Copy from bounce buffer to real buffer if necessary */
+	if ((r == EFI_SUCCESS) && (real_buffer != buffer))
+		memcpy(buffer, real_buffer, buffer_size);
+
+	return EFI_EXIT(r);
 }
 
 static efi_status_t efi_disk_write_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {
-	return efi_disk_rw_blocks(this, media_id, lba, buffer_size, buffer,
-				  EFI_DISK_WRITE);
+	void *real_buffer = buffer;
+	efi_status_t r;
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
+		r = efi_disk_write_blocks(this, media_id, lba,
+			EFI_LOADER_BOUNCE_BUFFER_SIZE, buffer);
+		if (r != EFI_SUCCESS)
+			return r;
+		return efi_disk_write_blocks(this, media_id, lba +
+			EFI_LOADER_BOUNCE_BUFFER_SIZE / this->media->block_size,
+			buffer_size - EFI_LOADER_BOUNCE_BUFFER_SIZE,
+			buffer + EFI_LOADER_BOUNCE_BUFFER_SIZE);
+	}
+
+	real_buffer = efi_bounce_buffer;
+#endif
+
+	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+		  buffer_size, buffer);
+
+	/* Populate bounce buffer if necessary */
+	if (real_buffer != buffer)
+		memcpy(real_buffer, buffer, buffer_size);
+
+	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
+			       EFI_DISK_WRITE);
+
+	return EFI_EXIT(r);
 }
 
 static efi_status_t EFIAPI efi_disk_flush_blocks(struct efi_block_io *this)
@@ -141,8 +191,8 @@ static const struct efi_block_io block_io_disk_template = {
 	.flush_blocks = &efi_disk_flush_blocks,
 };
 
-static void efi_disk_add_dev(char *name,
-			     const struct block_drvr *cur_drvr,
+static void efi_disk_add_dev(const char *name,
+			     const char *if_typename,
 			     const struct blk_desc *desc,
 			     int dev_index,
 			     lbaint_t offset)
@@ -160,7 +210,7 @@ static void efi_disk_add_dev(char *name,
 	diskobj->parent.protocols[1].open = efi_disk_open_dp;
 	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
-	diskobj->ifname = cur_drvr->name;
+	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
 	diskobj->offset = offset;
 
@@ -189,7 +239,7 @@ static void efi_disk_add_dev(char *name,
 }
 
 static int efi_disk_create_eltorito(struct blk_desc *desc,
-				    const struct block_drvr *cur_drvr,
+				    const char *if_typename,
 				    int diskid)
 {
 	int disks = 0;
@@ -202,9 +252,10 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 		return 0;
 
 	while (!part_get_info(desc, part, &info)) {
-		snprintf(devname, sizeof(devname), "%s%d:%d", cur_drvr->name,
+		snprintf(devname, sizeof(devname), "%s%d:%d", if_typename,
 			 diskid, part);
-		efi_disk_add_dev(devname, cur_drvr, desc, diskid, info.start);
+		efi_disk_add_dev(devname, if_typename, desc, diskid,
+				 info.start);
 		part++;
 		disks++;
 	}
@@ -218,39 +269,72 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
  * EFI payload, we scan through all of the potentially available ones and
  * store them in our object pool.
  *
+ * TODO(sjg@chromium.org): Actually with CONFIG_BLK, U-Boot does have this.
+ * Consider converting the code to look up devices as needed. The EFI device
+ * could be a child of the UCLASS_BLK block device, perhaps.
+ *
  * This gets called from do_bootefi_exec().
  */
 int efi_disk_register(void)
 {
-	const struct block_drvr *cur_drvr;
-	int i;
 	int disks = 0;
+#ifdef CONFIG_BLK
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_BLK, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		const char *if_typename = dev->driver->name;
+
+		printf("Scanning disk %s...\n", dev->name);
+		efi_disk_add_dev(dev->name, if_typename, desc, desc->devnum, 0);
+		disks++;
+
+		/*
+		* El Torito images show up as block devices in an EFI world,
+		* so let's create them here
+		*/
+		disks += efi_disk_create_eltorito(desc, if_typename,
+						  desc->devnum);
+	}
+#else
+	int i, if_type;
 
 	/* Search for all available disk devices */
-	for (cur_drvr = block_drvr; cur_drvr->name; cur_drvr++) {
-		printf("Scanning disks on %s...\n", cur_drvr->name);
+	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
+		const struct blk_driver *cur_drvr;
+		const char *if_typename;
+
+		cur_drvr = blk_driver_lookup_type(if_type);
+		if (!cur_drvr)
+			continue;
+
+		if_typename = cur_drvr->if_typename;
+		printf("Scanning disks on %s...\n", if_typename);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
 
-			desc = blk_get_dev(cur_drvr->name, i);
+			desc = blk_get_devnum_by_type(if_type, i);
 			if (!desc)
 				continue;
 			if (desc->type == DEV_TYPE_UNKNOWN)
 				continue;
 
 			snprintf(devname, sizeof(devname), "%s%d",
-				 cur_drvr->name, i);
-			efi_disk_add_dev(devname, cur_drvr, desc, i, 0);
+				 if_typename, i);
+			efi_disk_add_dev(devname, if_typename, desc, i, 0);
 			disks++;
 
 			/*
 			 * El Torito images show up as block devices
 			 * in an EFI world, so let's create them here
 			 */
-			disks += efi_disk_create_eltorito(desc, cur_drvr, i);
+			disks += efi_disk_create_eltorito(desc, if_typename, i);
 		}
 	}
+#endif
 	printf("Found %d disks\n", disks);
 
 	return 0;

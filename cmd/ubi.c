@@ -443,14 +443,8 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	return 0;
 }
 
-int ubi_part(char *part_name, const char *vid_header_offset)
+int ubi_detach(void)
 {
-	int err = 0;
-	char mtd_dev[16];
-	struct mtd_device *dev;
-	struct part_info *part;
-	u8 pnum;
-
 	if (mtdparts_init() != 0) {
 		printf("Error initializing mtdparts!\n");
 		return 1;
@@ -466,17 +460,28 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 		cmd_ubifs_umount();
 #endif
 
-	/* todo: get dev number for NAND... */
-	ubi_dev.nr = 0;
-
 	/*
 	 * Call ubi_exit() before re-initializing the UBI subsystem
 	 */
 	if (ubi_initialized) {
 		ubi_exit();
 		del_mtd_partitions(ubi_dev.mtd_info);
+		ubi_initialized = 0;
 	}
 
+	ubi_dev.selected = 0;
+	return 0;
+}
+
+int ubi_part(char *part_name, const char *vid_header_offset)
+{
+	int err = 0;
+	char mtd_dev[16];
+	struct mtd_device *dev;
+	struct part_info *part;
+	u8 pnum;
+
+	ubi_detach();
 	/*
 	 * Search the mtd device number where this partition
 	 * is located
@@ -516,6 +521,15 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
+
+
+	if (strcmp(argv[1], "detach") == 0) {
+		if (argc < 2)
+			return CMD_RET_USAGE;
+
+		return ubi_detach();
+	}
+
 
 	if (strcmp(argv[1], "part") == 0) {
 		const char *vid_header_offset = NULL;
@@ -661,7 +675,9 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	ubi, 6, 1, do_ubi,
 	"ubi commands",
-	"part [part] [offset]\n"
+	"detach"
+		" - detach ubi from a mtd partition\n"
+	"ubi part [part] [offset]\n"
 		" - Show or set current partition (with optional VID"
 		" header offset)\n"
 	"ubi info [l[ayout]]"

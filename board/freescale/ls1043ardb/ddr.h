@@ -6,6 +6,9 @@
 
 #ifndef __DDR_H__
 #define __DDR_H__
+
+extern void erratum_a008850_post(void);
+
 struct board_specific_parameters {
 	u32 n_ranks;
 	u32 datarate_mhz_high;
@@ -31,9 +34,9 @@ static const struct board_specific_parameters udimm0[] = {
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |      |delay |
 	 */
 #ifdef CONFIG_SYS_FSL_DDR4
-	{1,  1666, 0, 6,     7, 0x07090800, 0x00000000,},
-	{1,  1900, 0, 6,     7, 0x07090800, 0x00000000,},
-	{1,  2200, 0, 6,     7, 0x07090800, 0x00000000,},
+	{1,  1666, 0, 12,     7, 0x07090800, 0x00000000,},
+	{1,  1900, 0, 12,     7, 0x07090800, 0x00000000,},
+	{1,  2200, 0, 12,     7, 0x07090800, 0x00000000,},
 #endif
 	{}
 };

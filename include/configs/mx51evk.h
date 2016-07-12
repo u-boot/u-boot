@@ -120,7 +120,6 @@
 
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 

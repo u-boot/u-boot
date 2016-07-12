@@ -1,10 +1,13 @@
 /*
  * Device Tree Source for UniPhier PH1-LD11 SoC
  *
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
+
+/memreserve/ 0x80000000 0x00000008;	/* cpu-release-addr */
 
 / {
 	compatible = "socionext,ph1-ld11";
@@ -16,24 +19,41 @@
 		#address-cells = <2>;
 		#size-cells = <0>;
 
-		cpu@0 {
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&cpu0>;
+				};
+				core1 {
+					cpu = <&cpu1>;
+				};
+			};
+		};
+
+		cpu0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53", "arm,armv8";
 			reg = <0 0x000>;
 			enable-method = "spin-table";
-			cpu-release-addr = <0 0x80000100>;
+			cpu-release-addr = <0 0x80000000>;
 		};
 
-		cpu@1 {
+		cpu1: cpu@1 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53", "arm,armv8";
 			reg = <0 0x001>;
 			enable-method = "spin-table";
-			cpu-release-addr = <0 0x80000100>;
+			cpu-release-addr = <0 0x80000000>;
 		};
 	};
 
 	clocks {
+		refclk: ref {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <25000000>;
+		};
+
 		uart_clk: uart_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -60,6 +80,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0 0 0 0xffffffff>;
+		u-boot,dm-pre-reloc;
 
 		serial0: serial@54006800 {
 			compatible = "socionext,uniphier-uart";
@@ -183,6 +204,8 @@
 			reg = <0x58c00000 0x400>;
 			#address-cells = <2>;
 			#size-cells = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_system_bus>;
 		};
 
 		smpctrl@59800000 {
@@ -190,9 +213,56 @@
 			reg = <0x59801000 0x400>;
 		};
 
-		pinctrl: pinctrl@5f801000 {
-			compatible = "socionext,ph1-ld11-pinctrl", "syscon";
-			reg = <0x5f801000 0xe00>;
+		usb0: usb@5a800100 {
+			compatible = "socionext,uniphier-ehci", "generic-ehci";
+			status = "disabled";
+			reg = <0x5a800100 0x100>;
+			interrupts = <0 243 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb0>;
+			clocks = <&mio 3>, <&mio 6>;
+		};
+
+		usb1: usb@5a810100 {
+			compatible = "socionext,uniphier-ehci", "generic-ehci";
+			status = "disabled";
+			reg = <0x5a810100 0x100>;
+			interrupts = <0 244 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb1>;
+			clocks = <&mio 4>, <&mio 6>;
+		};
+
+		usb2: usb@5a820100 {
+			compatible = "socionext,uniphier-ehci", "generic-ehci";
+			status = "disabled";
+			reg = <0x5a820100 0x100>;
+			interrupts = <0 245 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb2>;
+			clocks = <&mio 5>, <&mio 6>;
+		};
+
+		mio: mioctrl@5b3e0000 {
+			compatible = "socionext,ph1-ld11-mioctrl";
+			reg = <0x5b3e0000 0x800>;
+			#clock-cells = <1>;
+		};
+
+		soc-glue@5f800000 {
+			compatible = "simple-mfd", "syscon";
+			reg = <0x5f800000 0x2000>;
+			u-boot,dm-pre-reloc;
+
+			pinctrl: pinctrl {
+				compatible = "socionext,uniphier-ld11-pinctrl";
+				u-boot,dm-pre-reloc;
+			};
+		};
+
+		aidet@5fc20000 {
+			compatible = "simple-mfd", "syscon";
+			reg = <0x5fc20000 0x200>;
 		};
 
 		gic: interrupt-controller@5fe00000 {

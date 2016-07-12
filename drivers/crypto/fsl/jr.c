@@ -19,11 +19,26 @@
 #define CIRC_CNT(head, tail, size)	(((head) - (tail)) & (size - 1))
 #define CIRC_SPACE(head, tail, size)	CIRC_CNT((tail), (head) + 1, (size))
 
-struct jobring jr;
+uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
+	0,
+#if defined(CONFIG_PPC_C29X)
+	CONFIG_SYS_FSL_SEC_IDX_OFFSET,
+	2 * CONFIG_SYS_FSL_SEC_IDX_OFFSET
+#endif
+};
 
-static inline void start_jr0(void)
+#define SEC_ADDR(idx)	\
+	((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
+
+#define SEC_JR0_ADDR(idx)	\
+	(SEC_ADDR(idx) +	\
+	 (CONFIG_SYS_FSL_JR0_OFFSET - CONFIG_SYS_FSL_SEC_OFFSET))
+
+struct jobring jr0[CONFIG_SYS_FSL_MAX_NUM_OF_SEC];
+
+static inline void start_jr0(uint8_t sec_idx)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	u32 ctpr_ms = sec_in32(&sec->ctpr_ms);
 	u32 scfgr = sec_in32(&sec->scfgr);
 
@@ -42,15 +57,15 @@ static inline void start_jr0(void)
 	}
 }
 
-static inline void jr_reset_liodn(void)
+static inline void jr_reset_liodn(uint8_t sec_idx)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	sec_out32(&sec->jrliodnr[0].ls, 0);
 }
 
-static inline void jr_disable_irq(void)
+static inline void jr_disable_irq(uint8_t sec_idx)
 {
-	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
+	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
 	uint32_t jrcfg = sec_in32(&regs->jrcfg1);
 
 	jrcfg = jrcfg | JR_INTMASK;
@@ -58,11 +73,12 @@ static inline void jr_disable_irq(void)
 	sec_out32(&regs->jrcfg1, jrcfg);
 }
 
-static void jr_initregs(void)
+static void jr_initregs(uint8_t sec_idx)
 {
-	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
-	phys_addr_t ip_base = virt_to_phys((void *)jr.input_ring);
-	phys_addr_t op_base = virt_to_phys((void *)jr.output_ring);
+	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
+	struct jobring *jr = &jr0[sec_idx];
+	phys_addr_t ip_base = virt_to_phys((void *)jr->input_ring);
+	phys_addr_t op_base = virt_to_phys((void *)jr->output_ring);
 
 #ifdef CONFIG_PHYS_64BIT
 	sec_out32(&regs->irba_h, ip_base >> 32);
@@ -79,59 +95,63 @@ static void jr_initregs(void)
 	sec_out32(&regs->ors, JR_SIZE);
 	sec_out32(&regs->irs, JR_SIZE);
 
-	if (!jr.irq)
-		jr_disable_irq();
+	if (!jr->irq)
+		jr_disable_irq(sec_idx);
 }
 
-static int jr_init(void)
+static int jr_init(uint8_t sec_idx)
 {
-	memset(&jr, 0, sizeof(struct jobring));
+	struct jobring *jr = &jr0[sec_idx];
 
-	jr.jq_id = DEFAULT_JR_ID;
-	jr.irq = DEFAULT_IRQ;
+	memset(jr, 0, sizeof(struct jobring));
+
+	jr->jq_id = DEFAULT_JR_ID;
+	jr->irq = DEFAULT_IRQ;
 
 #ifdef CONFIG_FSL_CORENET
-	jr.liodn = DEFAULT_JR_LIODN;
+	jr->liodn = DEFAULT_JR_LIODN;
 #endif
-	jr.size = JR_SIZE;
-	jr.input_ring = (dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
+	jr->size = JR_SIZE;
+	jr->input_ring = (dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
 				JR_SIZE * sizeof(dma_addr_t));
-	if (!jr.input_ring)
+	if (!jr->input_ring)
 		return -1;
 
-	jr.op_size = roundup(JR_SIZE * sizeof(struct op_ring),
-			     ARCH_DMA_MINALIGN);
-	jr.output_ring =
-	    (struct op_ring *)memalign(ARCH_DMA_MINALIGN, jr.op_size);
-	if (!jr.output_ring)
+	jr->op_size = roundup(JR_SIZE * sizeof(struct op_ring),
+			      ARCH_DMA_MINALIGN);
+	jr->output_ring =
+	    (struct op_ring *)memalign(ARCH_DMA_MINALIGN, jr->op_size);
+	if (!jr->output_ring)
 		return -1;
 
-	memset(jr.input_ring, 0, JR_SIZE * sizeof(dma_addr_t));
-	memset(jr.output_ring, 0, jr.op_size);
+	memset(jr->input_ring, 0, JR_SIZE * sizeof(dma_addr_t));
+	memset(jr->output_ring, 0, jr->op_size);
 
-	start_jr0();
+	start_jr0(sec_idx);
 
-	jr_initregs();
+	jr_initregs(sec_idx);
 
 	return 0;
 }
 
-static int jr_sw_cleanup(void)
+static int jr_sw_cleanup(uint8_t sec_idx)
 {
-	jr.head = 0;
-	jr.tail = 0;
-	jr.read_idx = 0;
-	jr.write_idx = 0;
-	memset(jr.info, 0, sizeof(jr.info));
-	memset(jr.input_ring, 0, jr.size * sizeof(dma_addr_t));
-	memset(jr.output_ring, 0, jr.size * sizeof(struct op_ring));
+	struct jobring *jr = &jr0[sec_idx];
+
+	jr->head = 0;
+	jr->tail = 0;
+	jr->read_idx = 0;
+	jr->write_idx = 0;
+	memset(jr->info, 0, sizeof(jr->info));
+	memset(jr->input_ring, 0, jr->size * sizeof(dma_addr_t));
+	memset(jr->output_ring, 0, jr->size * sizeof(struct op_ring));
 
 	return 0;
 }
 
-static int jr_hw_reset(void)
+static int jr_hw_reset(uint8_t sec_idx)
 {
-	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
+	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
 	uint32_t timeout = 100000;
 	uint32_t jrint, jrcr;
 
@@ -161,10 +181,11 @@ static int jr_hw_reset(void)
 /* -1 --- error, can't enqueue -- no space available */
 static int jr_enqueue(uint32_t *desc_addr,
 	       void (*callback)(uint32_t status, void *arg),
-	       void *arg)
+	       void *arg, uint8_t sec_idx)
 {
-	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
-	int head = jr.head;
+	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
+	struct jobring *jr = &jr0[sec_idx];
+	int head = jr->head;
 	uint32_t desc_word;
 	int length = desc_len(desc_addr);
 	int i;
@@ -184,18 +205,14 @@ static int jr_enqueue(uint32_t *desc_addr,
 
 	phys_addr_t desc_phys_addr = virt_to_phys(desc_addr);
 
-	if (sec_in32(&regs->irsa) == 0 ||
-	    CIRC_SPACE(jr.head, jr.tail, jr.size) <= 0)
-		return -1;
+	jr->info[head].desc_phys_addr = desc_phys_addr;
+	jr->info[head].callback = (void *)callback;
+	jr->info[head].arg = arg;
+	jr->info[head].op_done = 0;
 
-	jr.info[head].desc_phys_addr = desc_phys_addr;
-	jr.info[head].callback = (void *)callback;
-	jr.info[head].arg = arg;
-	jr.info[head].op_done = 0;
-
-	unsigned long start = (unsigned long)&jr.info[head] &
+	unsigned long start = (unsigned long)&jr->info[head] &
 					~(ARCH_DMA_MINALIGN - 1);
-	unsigned long end = ALIGN((unsigned long)&jr.info[head] +
+	unsigned long end = ALIGN((unsigned long)&jr->info[head] +
 				  sizeof(struct jr_info), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
@@ -205,11 +222,11 @@ static int jr_enqueue(uint32_t *desc_addr,
 	 * depend on endianness of SEC block.
 	 */
 #ifdef CONFIG_SYS_FSL_SEC_LE
-	addr_lo = (uint32_t *)(&jr.input_ring[head]);
-	addr_hi = (uint32_t *)(&jr.input_ring[head]) + 1;
+	addr_lo = (uint32_t *)(&jr->input_ring[head]);
+	addr_hi = (uint32_t *)(&jr->input_ring[head]) + 1;
 #elif defined(CONFIG_SYS_FSL_SEC_BE)
-	addr_hi = (uint32_t *)(&jr.input_ring[head]);
-	addr_lo = (uint32_t *)(&jr.input_ring[head]) + 1;
+	addr_hi = (uint32_t *)(&jr->input_ring[head]);
+	addr_lo = (uint32_t *)(&jr->input_ring[head]) + 1;
 #endif /* ifdef CONFIG_SYS_FSL_SEC_LE */
 
 	sec_out32(addr_hi, (uint32_t)(desc_phys_addr >> 32));
@@ -217,21 +234,21 @@ static int jr_enqueue(uint32_t *desc_addr,
 
 #else
 	/* Write the 32 bit Descriptor address on Input Ring. */
-	sec_out32(&jr.input_ring[head], desc_phys_addr);
+	sec_out32(&jr->input_ring[head], desc_phys_addr);
 #endif /* ifdef CONFIG_PHYS_64BIT */
 
-	start = (unsigned long)&jr.input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
-	end = ALIGN((unsigned long)&jr.input_ring[head] +
+	start = (unsigned long)&jr->input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
+	end = ALIGN((unsigned long)&jr->input_ring[head] +
 		     sizeof(dma_addr_t), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
-	jr.head = (head + 1) & (jr.size - 1);
+	jr->head = (head + 1) & (jr->size - 1);
 
 	/* Invalidate output ring */
-	start = (unsigned long)jr.output_ring &
+	start = (unsigned long)jr->output_ring &
 					~(ARCH_DMA_MINALIGN - 1);
-	end = ALIGN((unsigned long)jr.output_ring + jr.op_size,
-		     ARCH_DMA_MINALIGN);
+	end = ALIGN((unsigned long)jr->output_ring + jr->op_size,
+		    ARCH_DMA_MINALIGN);
 	invalidate_dcache_range(start, end);
 
 	sec_out32(&regs->irja, 1);
@@ -239,11 +256,12 @@ static int jr_enqueue(uint32_t *desc_addr,
 	return 0;
 }
 
-static int jr_dequeue(void)
+static int jr_dequeue(int sec_idx)
 {
-	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
-	int head = jr.head;
-	int tail = jr.tail;
+	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
+	struct jobring *jr = &jr0[sec_idx];
+	int head = jr->head;
+	int tail = jr->tail;
 	int idx, i, found;
 	void (*callback)(uint32_t status, void *arg);
 	void *arg = NULL;
@@ -253,7 +271,8 @@ static int jr_dequeue(void)
 	uint32_t *addr;
 #endif
 
-	while (sec_in32(&regs->orsf) && CIRC_CNT(jr.head, jr.tail, jr.size)) {
+	while (sec_in32(&regs->orsf) && CIRC_CNT(jr->head, jr->tail,
+						 jr->size)) {
 
 		found = 0;
 
@@ -264,11 +283,11 @@ static int jr_dequeue(void)
 		 * depend on endianness of SEC block.
 		 */
 	#ifdef CONFIG_SYS_FSL_SEC_LE
-		addr_lo = (uint32_t *)(&jr.output_ring[jr.tail].desc);
-		addr_hi = (uint32_t *)(&jr.output_ring[jr.tail].desc) + 1;
+		addr_lo = (uint32_t *)(&jr->output_ring[jr->tail].desc);
+		addr_hi = (uint32_t *)(&jr->output_ring[jr->tail].desc) + 1;
 	#elif defined(CONFIG_SYS_FSL_SEC_BE)
-		addr_hi = (uint32_t *)(&jr.output_ring[jr.tail].desc);
-		addr_lo = (uint32_t *)(&jr.output_ring[jr.tail].desc) + 1;
+		addr_hi = (uint32_t *)(&jr->output_ring[jr->tail].desc);
+		addr_lo = (uint32_t *)(&jr->output_ring[jr->tail].desc) + 1;
 	#endif /* ifdef CONFIG_SYS_FSL_SEC_LE */
 
 		op_desc = ((u64)sec_in32(addr_hi) << 32) |
@@ -276,15 +295,15 @@ static int jr_dequeue(void)
 
 	#else
 		/* Read the 32 bit Descriptor address from Output Ring. */
-		addr = (uint32_t *)&jr.output_ring[jr.tail].desc;
+		addr = (uint32_t *)&jr->output_ring[jr->tail].desc;
 		op_desc = sec_in32(addr);
 	#endif /* ifdef CONFIG_PHYS_64BIT */
 
-		uint32_t status = sec_in32(&jr.output_ring[jr.tail].status);
+		uint32_t status = sec_in32(&jr->output_ring[jr->tail].status);
 
-		for (i = 0; CIRC_CNT(head, tail + i, jr.size) >= 1; i++) {
-			idx = (tail + i) & (jr.size - 1);
-			if (op_desc == jr.info[idx].desc_phys_addr) {
+		for (i = 0; CIRC_CNT(head, tail + i, jr->size) >= 1; i++) {
+			idx = (tail + i) & (jr->size - 1);
+			if (op_desc == jr->info[idx].desc_phys_addr) {
 				found = 1;
 				break;
 			}
@@ -294,9 +313,9 @@ static int jr_dequeue(void)
 		if (!found)
 			return -1;
 
-		jr.info[idx].op_done = 1;
-		callback = (void *)jr.info[idx].callback;
-		arg = jr.info[idx].arg;
+		jr->info[idx].op_done = 1;
+		callback = (void *)jr->info[idx].callback;
+		arg = jr->info[idx].arg;
 
 		/* When the job on tail idx gets done, increment
 		 * tail till the point where job completed out of oredr has
@@ -304,14 +323,14 @@ static int jr_dequeue(void)
 		 */
 		if (idx == tail)
 			do {
-				tail = (tail + 1) & (jr.size - 1);
-			} while (jr.info[tail].op_done);
+				tail = (tail + 1) & (jr->size - 1);
+			} while (jr->info[tail].op_done);
 
-		jr.tail = tail;
-		jr.read_idx = (jr.read_idx + 1) & (jr.size - 1);
+		jr->tail = tail;
+		jr->read_idx = (jr->read_idx + 1) & (jr->size - 1);
 
 		sec_out32(&regs->orjr, 1);
-		jr.info[idx].op_done = 0;
+		jr->info[idx].op_done = 0;
 
 		callback(status, arg);
 	}
@@ -327,7 +346,7 @@ static void desc_done(uint32_t status, void *arg)
 	x->done = 1;
 }
 
-int run_descriptor_jr(uint32_t *desc)
+static inline int run_descriptor_jr_idx(uint32_t *desc, uint8_t sec_idx)
 {
 	unsigned long long timeval = get_ticks();
 	unsigned long long timeout = usec2ticks(CONFIG_SEC_DEQ_TIMEOUT);
@@ -336,7 +355,7 @@ int run_descriptor_jr(uint32_t *desc)
 
 	memset(&op, 0, sizeof(op));
 
-	ret = jr_enqueue(desc, desc_done, &op);
+	ret = jr_enqueue(desc, desc_done, &op, sec_idx);
 	if (ret) {
 		debug("Error in SEC enq\n");
 		ret = JQ_ENQ_ERR;
@@ -346,7 +365,7 @@ int run_descriptor_jr(uint32_t *desc)
 	timeval = get_ticks();
 	timeout = usec2ticks(CONFIG_SEC_DEQ_TIMEOUT);
 	while (op.done != 1) {
-		ret = jr_dequeue();
+		ret = jr_dequeue(sec_idx);
 		if (ret) {
 			debug("Error in SEC deq\n");
 			ret = JQ_DEQ_ERR;
@@ -368,20 +387,30 @@ out:
 	return ret;
 }
 
-int jr_reset(void)
+int run_descriptor_jr(uint32_t *desc)
 {
-	if (jr_hw_reset() < 0)
+	return run_descriptor_jr_idx(desc, 0);
+}
+
+static inline int jr_reset_sec(uint8_t sec_idx)
+{
+	if (jr_hw_reset(sec_idx) < 0)
 		return -1;
 
 	/* Clean up the jobring structure maintained by software */
-	jr_sw_cleanup();
+	jr_sw_cleanup(sec_idx);
 
 	return 0;
 }
 
-int sec_reset(void)
+int jr_reset(void)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	return jr_reset_sec(0);
+}
+
+static inline int sec_reset_idx(uint8_t sec_idx)
+{
+	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	uint32_t mcfgr = sec_in32(&sec->mcfgr);
 	uint32_t timeout = 100000;
 
@@ -408,14 +437,13 @@ int sec_reset(void)
 	return 0;
 }
 
-static int instantiate_rng(void)
+static int instantiate_rng(uint8_t sec_idx)
 {
 	struct result op;
 	u32 *desc;
 	u32 rdsta_val;
 	int ret = 0;
-	ccsr_sec_t __iomem *sec =
-			(ccsr_sec_t __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
 
@@ -432,7 +460,7 @@ static int instantiate_rng(void)
 	flush_dcache_range((unsigned long)desc,
 			   (unsigned long)desc + size);
 
-	ret = run_descriptor_jr(desc);
+	ret = run_descriptor_jr_idx(desc, sec_idx);
 
 	if (ret)
 		printf("RNG: Instantiation failed with error %x\n", ret);
@@ -444,9 +472,14 @@ static int instantiate_rng(void)
 	return ret;
 }
 
-static u8 get_rng_vid(void)
+int sec_reset(void)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	return sec_reset_idx(0);
+}
+
+static u8 get_rng_vid(uint8_t sec_idx)
+{
+	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	u32 cha_vid = sec_in32(&sec->chavid_ls);
 
 	return (cha_vid & SEC_CHAVID_RNG_LS_MASK) >> SEC_CHAVID_LS_RNG_SHIFT;
@@ -456,10 +489,9 @@ static u8 get_rng_vid(void)
  * By default, the TRNG runs for 200 clocks per sample;
  * 1200 clocks per sample generates better entropy.
  */
-static void kick_trng(int ent_delay)
+static void kick_trng(int ent_delay, uint8_t sec_idx)
 {
-	ccsr_sec_t __iomem *sec =
-			(ccsr_sec_t __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
 	u32 val;
@@ -486,11 +518,10 @@ static void kick_trng(int ent_delay)
 	sec_clrbits32(&rng->rtmctl, RTMCTL_PRGM);
 }
 
-static int rng_init(void)
+static int rng_init(uint8_t sec_idx)
 {
 	int ret, ent_delay = RTSDCTL_ENT_DLY_MIN;
-	ccsr_sec_t __iomem *sec =
-			(ccsr_sec_t __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
 
@@ -509,7 +540,7 @@ static int rng_init(void)
 		 * Also, if a handle was instantiated, do not change
 		 * the TRNG parameters.
 		 */
-		kick_trng(ent_delay);
+		kick_trng(ent_delay, sec_idx);
 		ent_delay += 400;
 		/*
 		 * if instantiate_rng(...) fails, the loop will rerun
@@ -518,7 +549,7 @@ static int rng_init(void)
 		 * interval, leading to a sucessful initialization of
 		 * the RNG.
 		 */
-		ret = instantiate_rng();
+		ret = instantiate_rng(sec_idx);
 	} while ((ret == -1) && (ent_delay < RTSDCTL_ENT_DLY_MAX));
 	if (ret) {
 		printf("RNG: Failed to instantiate RNG\n");
@@ -531,9 +562,9 @@ static int rng_init(void)
 	return ret;
 }
 
-int sec_init(void)
+int sec_init_idx(uint8_t sec_idx)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	uint32_t mcr = sec_in32(&sec->mcfgr);
 	int ret = 0;
 
@@ -542,6 +573,11 @@ int sec_init(void)
 	uint32_t liodn_ns;
 	uint32_t liodn_s;
 #endif
+
+	if (!(sec_idx < CONFIG_SYS_FSL_MAX_NUM_OF_SEC)) {
+		printf("SEC initialization failed\n");
+		return -1;
+	}
 
 	/*
 	 * Modifying CAAM Read/Write Attributes
@@ -568,7 +604,7 @@ int sec_init(void)
 	liodn_s = (liodnr & JRSLIODN_MASK) >> JRSLIODN_SHIFT;
 #endif
 
-	ret = jr_init();
+	ret = jr_init(sec_idx);
 	if (ret < 0) {
 		printf("SEC initialization failed\n");
 		return -1;
@@ -582,13 +618,18 @@ int sec_init(void)
 	pamu_enable();
 #endif
 
-	if (get_rng_vid() >= 4) {
-		if (rng_init() < 0) {
-			printf("RNG instantiation failed\n");
+	if (get_rng_vid(sec_idx) >= 4) {
+		if (rng_init(sec_idx) < 0) {
+			printf("SEC%u: RNG instantiation failed\n", sec_idx);
 			return -1;
 		}
-		printf("SEC: RNG instantiated\n");
+		printf("SEC%u: RNG instantiated\n", sec_idx);
 	}
 
 	return ret;
+}
+
+int sec_init(void)
+{
+	return sec_init_idx(0);
 }

@@ -89,6 +89,15 @@ config DEBUG_UART_ALTERA_UART
 	  You will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_AR933X
+	bool "QCA/Atheros ar933x"
+	depends on AR933X_UART
+	help
+	  Select this to enable a debug UART using the ar933x uart driver.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -109,6 +118,14 @@ config DEBUG_UART_S5P
 	bool "Samsung S5P"
 	help
 	  Select this to enable a debug UART using the serial_s5p driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
+config DEBUG_UART_MESON
+	bool "Amlogic Meson"
+	depends on MESON_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_meson driver. You
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
@@ -263,6 +280,15 @@ config ALTERA_UART
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config AR933X_UART
+	bool "QCA/Atheros ar933x UART support"
+	depends on DM_SERIAL && SOC_AR933X
+	help
+	  Select this to enable UART support for QCA/Atheros ar933x
+	  devices. This driver uses driver model and requires a device
+	  tree binding to operate, please refer to the document at
+	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
+
 config FSL_LPUART
 	bool "Freescale LPUART support"
 	help
@@ -318,6 +344,13 @@ config XILINX_UARTLITE
 	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || 4xx)
 	help
 	  If you have a Xilinx based board and want to use the uartlite
+	  serial ports, say Y to this option. If unsure, say N.
+
+config MESON_SERIAL
+	bool "Support for Amlogic Meson UART"
+	depends on DM_SERIAL && ARCH_MESON
+	help
+	  If you have an Amlogic Meson based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
 
 config MSM_SERIAL

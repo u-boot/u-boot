@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
+#include "ventana_eeprom.h"
 #include "gsc.h"
 
 /*
@@ -70,6 +71,8 @@ static void read_hwmon(const char *name, uint reg, uint size)
 		puts("fRD\n");
 	} else {
 		ui = buf[0] | (buf[1]<<8) | (buf[2]<<16);
+		if (reg == GSC_HWMON_TEMP && ui > 0x8000)
+			ui -= 0xffff;
 		if (ui == 0xffffff)
 			puts("invalid\n");
 		else
@@ -79,7 +82,6 @@ static void read_hwmon(const char *name, uint reg, uint size)
 
 int gsc_info(int verbose)
 {
-	const char *model = getenv("model");
 	unsigned char buf[16];
 
 	i2c_set_bus_num(0);
@@ -96,6 +98,12 @@ int gsc_info(int verbose)
 		gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1,
 			      &buf[GSC_SC_STATUS], 1);
 	}
+	if (!gsc_i2c_read(GSC_HWMON_ADDR, GSC_HWMON_TEMP, 1, buf, 2)) {
+		int ui = buf[0] | buf[1]<<8;
+		if (ui > 0x8000)
+			ui -= 0xffff;
+		printf(" board temp at %dC", ui / 10);
+	}
 	puts("\n");
 	if (!verbose)
 		return CMD_RET_SUCCESS;
@@ -109,10 +117,11 @@ int gsc_info(int verbose)
 	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
 	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
 	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
-	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
+	if (strncasecmp((const char*) ventana_info.model, "GW553", 5))
+		read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
 	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
 	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
-	switch (model[3]) {
+	switch (ventana_info.model[3]) {
 	case '1': /* GW51xx */
 		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
 		break;
@@ -160,6 +169,48 @@ int gsc_boot_wd_disable(void)
 }
 
 #ifdef CONFIG_CMD_GSC
+static int do_gsc_sleep(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	unsigned char reg;
+	unsigned long secs = 0;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	secs = simple_strtoul(argv[1], NULL, 10);
+	printf("GSC Sleeping for %ld seconds\n", secs);
+
+	i2c_set_bus_num(0);
+	reg = (secs >> 24) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 9, 1, &reg, 1))
+		goto error;
+	reg = (secs >> 16) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 8, 1, &reg, 1))
+		goto error;
+	reg = (secs >> 8) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 7, 1, &reg, 1))
+		goto error;
+	reg = secs & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 6, 1, &reg, 1))
+		goto error;
+	if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+	reg |= (1 << 2);
+	if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+	reg &= ~(1 << 2);
+	reg |= 0x3;
+	if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+
+	return CMD_RET_SUCCESS;
+
+error:
+	printf("i2c error\n");
+	return CMD_RET_FAILURE;
+}
+
 static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned char reg;
@@ -206,13 +257,15 @@ static int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (strcasecmp(argv[1], "wd") == 0)
 		return do_gsc_wd(cmdtp, flag, --argc, ++argv);
+	else if (strcasecmp(argv[1], "sleep") == 0)
+		return do_gsc_sleep(cmdtp, flag, --argc, ++argv);
 
 	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(
 	gsc, 4, 1, do_gsc, "GSC configuration",
-	"[wd enable [30|60]]|[wd disable]\n"
+	"[wd enable [30|60]]|[wd disable]|[sleep <secs>]\n"
 	);
 
 #endif /* CONFIG_CMD_GSC */

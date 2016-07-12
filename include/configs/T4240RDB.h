@@ -738,7 +738,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SHA_HW_ACCEL
 #endif
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define __USB_PHY_TYPE	utmi
 

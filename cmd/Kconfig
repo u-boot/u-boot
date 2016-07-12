@@ -13,7 +13,6 @@ config CMDLINE
 
 config HUSH_PARSER
 	bool "Use hush shell"
-	select SYS_HUSH_PARSER
 	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
@@ -24,11 +23,6 @@ config HUSH_PARSER
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
 
-config SYS_HUSH_PARSER
-	bool
-	help
-	  Backward compatibility.
-
 config SYS_PROMPT
 	string "Shell prompt"
 	default "=> "
@@ -37,6 +31,12 @@ config SYS_PROMPT
 	  cursor.
 
 menu "Autoboot options"
+
+config AUTOBOOT
+	bool "Autoboot"
+	default y
+	help
+	  This enables the autoboot.  See doc/README.autoboot for detail.
 
 config AUTOBOOT_KEYED
 	bool "Stop autobooting via specific input key / string"
@@ -605,6 +605,13 @@ config CMD_ZYNQ_RSA
 	help
 	  Verifies the authenticated and encrypted zynq images.
 
+config CMD_QFW
+	bool "qfw"
+	select QFW
+	help
+	  This provides access to the QEMU firmware interface.  The main
+	  feature is to allow easy loading of files passed to qemu-system
+	  via -kernel / -initrd
 endmenu
 
 config CMD_BOOTSTAGE

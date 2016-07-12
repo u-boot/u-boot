@@ -44,8 +44,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)

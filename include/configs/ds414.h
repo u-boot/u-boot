@@ -71,12 +71,11 @@
  * - USB init fails, controller does not respond in time */
 #if 0
 #undef CONFIG_DM_USB
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_PCI
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 #endif
 
-#if !defined(CONFIG_USB_XHCI)
+#if !defined(CONFIG_USB_XHCI_HCD)
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI

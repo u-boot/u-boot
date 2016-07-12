@@ -163,13 +163,14 @@
 	};
 
 	fimd@14400000 {
+		u-boot,dm-pre-reloc;
 		compatible = "samsung,exynos-fimd";
 		reg = <0x14400000 0x10000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 	};
 
-	dp@145b0000 {
+	dp: dp@145b0000 {
 		compatible = "samsung,exynos5-dp";
 		reg = <0x145b0000 0x1000>;
 		#address-cells = <1>;

@@ -163,7 +163,7 @@ struct ihs_fpga {
 };
 #endif
 
-#ifdef CONFIG_HRCON
+#if defined(CONFIG_HRCON) || defined(CONFIG_STRIDER_CON_DP)
 struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */
 	u16 versions;		/* 0x0002 */

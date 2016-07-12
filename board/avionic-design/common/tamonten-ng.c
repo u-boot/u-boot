@@ -42,12 +42,12 @@ void pinmux_init(void)
 void gpio_early_init(void)
 {
 	/* Turn on the alive signal */
-	gpio_request(GPIO_PV2, "ALIVE");
-	gpio_direction_output(GPIO_PV2, 1);
+	gpio_request(TEGRA_GPIO(V, 2), "ALIVE");
+	gpio_direction_output(TEGRA_GPIO(V, 2), 1);
 
 	/* Remove the reset on the external periph */
-	gpio_request(GPIO_PI4, "nRST_PERIPH");
-	gpio_direction_output(GPIO_PI4, 1);
+	gpio_request(TEGRA_GPIO(I, 4), "nRST_PERIPH");
+	gpio_direction_output(TEGRA_GPIO(I, 4), 1);
 }
 
 void pmu_write(uchar reg, uchar data)
@@ -73,8 +73,8 @@ void board_sdmmc_voltage_init(void)
 	pmu_write(PMU_REG_LDO5, PMU_LDO5(HIGH_POWER, 3300));
 
 	/* Switch the power on */
-	gpio_request(GPIO_PJ2, "EN_3V3_EMMC");
-	gpio_direction_output(GPIO_PJ2, 1);
+	gpio_request(TEGRA_GPIO(J, 2), "EN_3V3_EMMC");
+	gpio_direction_output(TEGRA_GPIO(J, 2), 1);
 }
 
 /*

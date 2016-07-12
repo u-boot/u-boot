@@ -1009,8 +1009,7 @@ int rk_edp_probe(struct udevice *dev)
 	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
 	struct rk_edp_priv *priv = dev_get_priv(dev);
 	struct rk3288_edp *regs = priv->regs;
-	struct udevice *clk;
-	int periph;
+	struct clk clk;
 	int ret;
 
 	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev, "rockchip,panel",
@@ -1026,8 +1025,8 @@ int rk_edp_probe(struct udevice *dev)
 
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret >= 0) {
-		periph = ret;
-		ret = clk_set_periph_rate(clk, periph, 0);
+		ret = clk_set_rate(&clk, 0);
+		clk_free(&clk);
 	}
 	if (ret) {
 		debug("%s: Failed to set EDP clock: ret=%d\n", __func__, ret);
@@ -1036,8 +1035,8 @@ int rk_edp_probe(struct udevice *dev)
 
 	ret = clk_get_by_index(uc_plat->src_dev, 0, &clk);
 	if (ret >= 0) {
-		periph = ret;
-		ret = clk_set_periph_rate(clk, periph, 192000000);
+		ret = clk_set_rate(&clk, 192000000);
+		clk_free(&clk);
 	}
 	if (ret < 0) {
 		debug("%s: Failed to set clock in source device '%s': ret=%d\n",

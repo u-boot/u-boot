@@ -217,9 +217,6 @@ int universal_spi_read(void);
 /*
  * LCD Settings
  */
-#define CONFIG_EXYNOS_FB
-#define CONFIG_LCD
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_LD9040
 #define CONFIG_VIDEO_BMP_GZIP

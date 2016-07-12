@@ -321,7 +321,7 @@ void ppc4xx_reginfo(void)
 	PRINT_DCR(OPB2PLB40_BCTRL);
 	PRINT_DCR(P4P3BO0_CFG);
 #endif
-	n = sizeof(ppc4xx_reg) / sizeof(ppc4xx_reg[0]);
+	n = ARRAY_SIZE(ppc4xx_reg);
 	for (i = 0; i < n; i++) {
 		value = 0;
 		type = ppc4xx_reg[i].type;

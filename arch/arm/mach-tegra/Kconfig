@@ -22,6 +22,7 @@ config TEGRA_ARMV7_COMMON
 	select SPL
 	select SUPPORT_SPL
 	select TEGRA_COMMON
+	select TEGRA_GPIO
 
 config TEGRA_ARMV8_COMMON
 	bool "Tegra 64-bit common options"
@@ -50,7 +51,15 @@ config TEGRA124
 
 config TEGRA210
 	bool "Tegra210 family"
+	select TEGRA_GPIO
 	select TEGRA_ARMV8_COMMON
+
+config TEGRA186
+	bool "Tegra186 family"
+	select DM_MAILBOX
+	select TEGRA186_GPIO
+	select TEGRA_ARMV8_COMMON
+	select TEGRA_HSP
 
 endchoice
 
@@ -75,5 +84,6 @@ source "arch/arm/mach-tegra/tegra30/Kconfig"
 source "arch/arm/mach-tegra/tegra114/Kconfig"
 source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
+source "arch/arm/mach-tegra/tegra186/Kconfig"
 
 endif

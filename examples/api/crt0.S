@@ -41,28 +41,29 @@ syscall:
 	ldr	pc, [ip]
 
 #elif defined(CONFIG_MIPS)
+#include <asm/asm.h>
 	.text
 	.globl __start
 	.ent __start
 __start:
-	sw	$sp, search_hint
+	PTR_S	$sp, search_hint
 	b	main
 	.end __start
 
 	.globl syscall
 	.ent syscall
 syscall:
-	sw	$ra, return_addr
-	lw	$t9, syscall_ptr
+	PTR_S	$ra, return_addr
+	PTR_L	$t9, syscall_ptr
 	jalr	$t9
 	nop
-	lw	$ra, return_addr
+	PTR_L	$ra, return_addr
 	jr	$ra
 	nop
 	.end syscall
 
 return_addr:
-	.align 4
+	.align 8
 	.long 0
 #else
 #error No support for this arch!
@@ -70,7 +71,7 @@ return_addr:
 
 	.globl syscall_ptr
 syscall_ptr:
-	.align	4
+	.align	8
 	.long	0
 
 	.globl search_hint

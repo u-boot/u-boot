@@ -229,7 +229,6 @@
 		"cp.b 200000 fff90000 70000\0"				\
 	""
 
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds     */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download  */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change        */
@@ -313,7 +312,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history     */
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------

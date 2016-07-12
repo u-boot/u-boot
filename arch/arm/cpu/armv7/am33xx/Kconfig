@@ -1,0 +1,40 @@
+if AM43XX
+config TARGET_AM43XX_EVM
+	bool "Support am43xx_evm"
+	select TI_I2C_BOARD_DETECT
+	help
+	  This option specifies support for the AM43xx
+	  GP and HS EVM development platforms.The AM437x
+	  GP EVM is a standalone test, development, and
+	  evaluation module system that enables developers
+	  to write software and develop hardware around
+	  an AM43xx processor subsystem.
+
+config ISW_ENTRY_ADDR
+	hex "Address in memory or XIP flash of bootloader entry point"
+	help
+	  After any reset, the boot ROM on the AM43XX SOC
+	  searches the boot media for a valid boot image.
+	  For non-XIP devices, the ROM then copies the
+	  image into internal memory.
+	  For all boot modes, after the ROM processes the
+	  boot image it eventually computes the entry
+	  point address depending on the device type
+	  (secure/non-secure), boot media (xip/non-xip) and
+	  image headers.
+	default 0x402F4000
+
+config PUB_ROM_DATA_SIZE
+	hex "Size in bytes of the L3 SRAM reserved by ROM to store data"
+	help
+	  During the device boot, the public ROM uses the top of
+	  the public L3 OCMC RAM to store r/w data like stack,
+	  heap, globals etc. When the ROM is copying the boot
+	  image from the boot media into memory, the image must
+	  not spill over into this area. This value can be used
+	  during compile time to determine the maximum size of a
+	  boot image. Once the ROM transfers control to the boot
+	  image, this area is no longer used, and can be reclaimed
+	  for run time use by the boot image.
+	default 0x8400
+endif

@@ -236,6 +236,8 @@ static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 			/* Dpll locked with ideal values for nominal opps. */
 			debug("\n %s Dpll already locked with ideal"
 						"nominal opp values", dpll);
+
+			bypass_dpll(base);
 			goto setup_post_dividers;
 		}
 	}
@@ -251,12 +253,12 @@ static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 
 	writel(temp, &dpll_regs->cm_clksel_dpll);
 
+setup_post_dividers:
+	setup_post_dividers(base, params);
+
 	/* Lock */
 	if (lock)
 		do_lock_dpll(base);
-
-setup_post_dividers:
-	setup_post_dividers(base, params);
 
 	/* Wait till the DPLL locks */
 	if (lock)

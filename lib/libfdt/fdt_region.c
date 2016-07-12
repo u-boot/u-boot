@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
 
-#include "libfdt_env.h"
+#include <libfdt_env.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>
@@ -18,14 +18,13 @@
 
 /**
  * fdt_add_region() - Add a new region to our list
+ * @info:	State information
+ * @offset:	Start offset of region
+ * @size:	Size of region
  *
  * The region is added if there is space, but in any case we increment the
  * count. If permitted, and the new region overlaps the last one, we merge
  * them.
- *
- * @info: State information
- * @offset: Start offset of region
- * @size: Size of region
  */
 static int fdt_add_region(struct fdt_region_state *info, int offset, int size)
 {
@@ -119,6 +118,8 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 
 /**
  * fdt_include_supernodes() - Include supernodes required by this node
+ * @info:	State information
+ * @depth:	Current stack depth
  *
  * When we decided to include a node or property which is not at the top
  * level, this function forces the inclusion of higher level nodes. For
@@ -131,9 +132,6 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
  *
  * If we decide to include testing then we need the root node to have a valid
  * tree. This function adds those regions.
- *
- * @info: State information
- * @depth: Current stack depth
  */
 static int fdt_include_supernodes(struct fdt_region_state *info, int depth)
 {
@@ -203,72 +201,78 @@ int fdt_first_region(const void *fdt,
 			       path, path_len, flags, info);
 }
 
-/*
- * Theory of operation
+/***********************************************************************
  *
+ *	Theory of operation
  *
+ * Note: in this description 'included' means that a node (or other part
+ * of the tree) should be included in the region list, i.e. it will have
+ * a region which covers its part of the tree.
  *
+ * This function maintains some state from the last time it is called.
+ * It checks the next part of the tree that it is supposed to look at
+ * (p.nextoffset) to see if that should be included or not. When it
+ * finds something to include, it sets info->start to its offset. This
+ * marks the start of the region we want to include.
+ *
+ * Once info->start is set to the start (i.e. not -1), we continue
+ * scanning until we find something that we don't want included. This
+ * will be the end of a region. At this point we can close off the
+ * region and add it to the list. So we do so, and reset info->start
+ * to -1.
+ *
+ * One complication here is that we want to merge regions. So when we
+ * come to add another region later, we may in fact merge it with the
+ * previous one if one ends where the other starts.
+ *
+ * The function fdt_add_region() will return -1 if it fails to add the
+ * region, because we already have a region ready to be returned, and
+ * the new one cannot be merged in with it. In this case, we must return
+ * the region we found, and wait for another call to this function.
+ * When it comes, we will repeat the processing of the tag and again
+ * try to add a region. This time it will succeed.
+ *
+ * The current state of the pointers (stack, offset, etc.) is maintained
+ * in a ptrs member. At the start of every loop iteration we make a copy
+ * of it.  The copy is then updated as the tag is processed. Only if we
+ * get to the end of the loop iteration (and successfully call
+ * fdt_add_region() if we need to) can we commit the changes we have
+ * made to these pointers. For example, if we see an FDT_END_NODE tag,
+ * we will decrement the depth value. But if we need to add a region
+ * for this tag (let's say because the previous tag is included and this
+ * FDT_END_NODE tag is not included) then we will only commit the result
+ * if we were able to add the region. That allows us to retry again next
+ * time.
+ *
+ * We keep track of a variable called 'want' which tells us what we want
+ * to include when there is no specific information provided by the
+ * h_include function for a particular property. This basically handles
+ * the inclusion of properties which are pulled in by virtue of the node
+ * they are in. So if you include a node, its properties are also
+ * included.  In this case 'want' will be WANT_NODES_AND_PROPS. The
+ * FDT_REG_DIRECT_SUBNODES feature also makes use of 'want'. While we
+ * are inside the subnode, 'want' will be set to WANT_NODES_ONLY, so
+ * that only the subnode's FDT_BEGIN_NODE and FDT_END_NODE tags will be
+ * included, and properties will be skipped. If WANT_NOTHING is
+ * selected, then we will just rely on what the h_include() function
+ * tells us.
+ *
+ * Using 'want' we work out 'include', which tells us whether this
+ * current tag should be included or not. As you can imagine, if the
+ * value of 'include' changes, that means we are on a boundary between
+ * nodes to include and nodes to exclude. At this point we either close
+ * off a previous region and add it to the list, or mark the start of a
+ * new region.
+ *
+ * Apart from the nodes, we have mem_rsvmap, the FDT_END tag and the
+ * string list. Each of these dealt with as a whole (i.e. we create a
+ * region for each if it is to be included). For mem_rsvmap we don't
+ * allow it to merge with the first struct region. For the stringlist,
+ * we don't allow it to merge with the last struct region (which
+ * contains at minimum the FDT_END tag).
+ *
+ *********************************************************************/
 
-Note: in this description 'included' means that a node (or other part of
-the tree) should be included in the region list, i.e. it will have a region
-which covers its part of the tree.
-
-This function maintains some state from the last time it is called. It
-checks the next part of the tree that it is supposed to look at
-(p.nextoffset) to see if that should be included or not. When it finds
-something to include, it sets info->start to its offset. This marks the
-start of the region we want to include.
-
-Once info->start is set to the start (i.e. not -1), we continue scanning
-until we find something that we don't want included. This will be the end
-of a region. At this point we can close off the region and add it to the
-list. So we do so, and reset info->start to -1.
-
-One complication here is that we want to merge regions. So when we come to
-add another region later, we may in fact merge it with the previous one if
-one ends where the other starts.
-
-The function fdt_add_region() will return -1 if it fails to add the region,
-because we already have a region ready to be returned, and the new one
-cannot be merged in with it. In this case, we must return the region we
-found, and wait for another call to this function. When it comes, we will
-repeat the processing of the tag and again try to add a region. This time it
-will succeed.
-
-The current state of the pointers (stack, offset, etc.) is maintained in
-a ptrs member. At the start of every loop iteration we make a copy of it.
-The copy is then updated as the tag is processed. Only if we get to the end
-of the loop iteration (and successfully call fdt_add_region() if we need
-to) can we commit the changes we have made to these pointers. For example,
-if we see an FDT_END_NODE tag we will decrement the depth value. But if we
-need to add a region for this tag (let's say because the previous tag is
-included and this FDT_END_NODE tag is not included) then we will only commit
-the result if we were able to add the region. That allows us to retry again
-next time.
-
-We keep track of a variable called 'want' which tells us what we want to
-include when there is no specific information provided by the h_include
-function for a particular property. This basically handles the inclusion of
-properties which are pulled in by virtue of the node they are in. So if you
-include a node, its properties are also included. In this case 'want' will
-be WANT_NODES_AND_PROPS. The FDT_REG_DIRECT_SUBNODES feature also makes use
-of 'want'. While we are inside the subnode, 'want' will be set to
-WANT_NODES_ONLY, so that only the subnode's FDT_BEGIN_NODE and FDT_END_NODE
-tags will be included, and properties will be skipped. If WANT_NOTHING is
-selected, then we will just rely on what the h_include() function tells us.
-
-Using 'want' we work out 'include', which tells us whether this current tag
-should be included or not. As you can imagine, if the value of 'include'
-changes, that means we are on a boundary between nodes to include and nodes
-to exclude. At this point we either close off a previous region and add it
-to the list, or mark the start of a new region.
-
-Apart from the nodes, we have mem_rsvmap, the FDT_END tag and the string
-list. Each of these dealt with as a whole (i.e. we create a region for each
-if it is to be included). For mem_rsvmap we don't allow it to merge with
-the first struct region. For the stringlist we don't allow it to merge with
-the last struct region (which contains at minimum the FDT_END tag).
-*/
 int fdt_next_region(const void *fdt,
 		int (*h_include)(void *priv, const void *fdt, int offset,
 				 int type, const char *data, int size),

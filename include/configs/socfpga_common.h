@@ -173,7 +173,6 @@
  * I2C support
  */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BUS_MAX		4
 #define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
 #define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
@@ -325,9 +324,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_RAM_DEVICE
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MALLOC_SIMPLE
-#endif
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -350,9 +346,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #else
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	3
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0xa00 /* offset 2560 sect (1M+256k) */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	1
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x200 /* offset 512 sect (256k) */
+#define CONFIG_SPL_LIBDISK_SUPPORT
 #endif
 #endif
 

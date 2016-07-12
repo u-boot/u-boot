@@ -17,6 +17,16 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_FSL_CLK
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
+#define CONFIG_SYS_I2C_IFDR_DIV		0x7e
+#endif
+
+#define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
@@ -44,7 +54,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_CMD_SCSI
+#define CONFIG_SCSI
 #define CONFIG_DOS_PARTITION
 #define CONFIG_BOARD_LATE_INIT
 
@@ -162,11 +172,13 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_DFLTBANK		0x00
 #define QIXIS_LBMAP_ALTBANK		0x04
 #define QIXIS_LBMAP_NAND		0x09
+#define QIXIS_LBMAP_QSPI		0x0f
 #define QIXIS_RST_CTL_RESET		0x31
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
 #define QIXIS_RCW_SRC_NAND		0x107
+#define QIXIS_RCW_SRC_QSPI		0x62
 #define	QIXIS_RST_FORCE_MEM		0x01
 
 #define CONFIG_SYS_CSPR3_EXT	(0x0)
@@ -227,7 +239,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 * 1024)
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	(512 * 1024)
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 * 1024)
 #else
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR_EARLY
@@ -257,10 +269,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 
+#if defined(CONFIG_QSPI_BOOT)
+#define CONFIG_SYS_TEXT_BASE		0x20010000
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET		0x100000        /* 1MB */
+#define CONFIG_ENV_SECT_SIZE		0x10000
+#else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x2000
+#endif
 #endif
 
 /* Debug Server firmware */
@@ -279,8 +299,27 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /* SPI */
-#ifdef CONFIG_FSL_DSPI
+#if defined(CONFIG_FSL_QSPI) || defined(CONFIG_FSL_DSPI)
 #define CONFIG_SPI_FLASH
+
+#ifdef CONFIG_FSL_DSPI
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SST
+#define CONFIG_SPI_FLASH_EON
+#endif
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		(1 << 26) /* 64MB */
+#define FSL_QSPI_FLASH_NUM		4
+#endif
+/*
+ * Verify QSPI when boot from NAND, QIXIS brdcfg9 need configure.
+ * If boot from on-board NAND, ISO1 = 1, ISO2 = 0, IBOOT = 0
+ * If boot from IFCCard NAND, ISO1 = 0, ISO2 = 0, IBOOT = 1
+ */
+#define FSL_QIXIS_BRDCFG9_QSPI		0x1
+
 #endif
 
 /*
@@ -374,7 +413,7 @@ unsigned long get_board_ddr_clk(void);
 #define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
 
 #define CONFIG_MII		/* MII PHY management */
-#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif
@@ -383,9 +422,7 @@ unsigned long get_board_ddr_clk(void);
  * USB
  */
 #define CONFIG_HAS_FSL_XHCI_USB
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE

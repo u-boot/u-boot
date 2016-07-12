@@ -2,7 +2,7 @@ menu "MMC Host controller Support"
 
 config MMC
 	bool "Enable MMC support"
-	depends on ARCH_SUNXI
+	depends on ARCH_SUNXI || SANDBOX
 	help
 	  TODO: Move all architectures to use this option
 
@@ -57,5 +57,14 @@ config MMC_UNIPHIER
 	depends on ARCH_UNIPHIER
 	help
 	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
+
+config SANDBOX_MMC
+	bool "Sandbox MMC support"
+	depends on MMC && SANDBOX
+	help
+	  This select a dummy sandbox MMC driver. At present this does nothing
+	  other than allow sandbox to be build with MMC support. This
+	  improves build coverage for sandbox and makes it easier to detect
+	  MMC build errors with sandbox.
 
 endmenu

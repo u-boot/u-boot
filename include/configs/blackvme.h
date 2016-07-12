@@ -155,7 +155,6 @@
  * Default: boot from SPI flash.
  * "sfboot" is a composite command defined in extra settings
  */
-#define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOTCOMMAND	"run sfboot"
 
 /*

@@ -47,6 +47,11 @@ static inline int board_is_evm_15_or_later(void)
 		strncmp("1.5", board_ti_get_rev(), 3) <= 0);
 }
 
+static inline int board_is_icev2(void)
+{
+	return board_ti_is("A335_ICE") && !strncmp("2", board_ti_get_rev(), 1);
+}
+
 /*
  * We have three pin mux functions that must exist.  We must be able to enable
  * uart0, for initial output and i2c0 to read the main EEPROM.  We then have a

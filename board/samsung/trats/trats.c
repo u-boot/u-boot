@@ -596,6 +596,7 @@ int mipi_power(void)
 	return 0;
 }
 
+#ifdef CONFIG_LCD
 void exynos_lcd_misc_init(vidinfo_t *vid)
 {
 #ifdef CONFIG_TIZEN
@@ -606,3 +607,4 @@ void exynos_lcd_misc_init(vidinfo_t *vid)
 	setenv("lcdinfo", "lcd=s6e8ax0");
 #endif
 }
+#endif

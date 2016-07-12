@@ -45,9 +45,9 @@ static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 #ifdef CONFIG_CMD_NAND
 static int splash_nand_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
-	return nand_read_skip_bad(&nand_info[nand_curr_device], offset,
+	return nand_read_skip_bad(nand_info[nand_curr_device], offset,
 				  &read_size, NULL,
-				  nand_info[nand_curr_device].size,
+				  nand_info[nand_curr_device]->size,
 				  (u_char *)bmp_load_addr);
 }
 #else
@@ -120,6 +120,12 @@ static int splash_select_fs_dev(struct splash_location *location)
 	case SPLASH_STORAGE_SATA:
 		res = fs_set_blk_dev("sata", location->devpart, FS_TYPE_ANY);
 		break;
+	case SPLASH_STORAGE_NAND:
+		if (location->ubivol != NULL)
+			res = fs_set_blk_dev("ubi", NULL, FS_TYPE_UBIFS);
+		else
+			res = -ENODEV;
+		break;
 	default:
 		printf("Error: unsupported location storage.\n");
 		return -ENODEV;
@@ -163,6 +169,41 @@ static inline int splash_init_sata(void)
 }
 #endif
 
+#ifdef CONFIG_CMD_UBIFS
+static int splash_mount_ubifs(struct splash_location *location)
+{
+	int res;
+	char cmd[32];
+
+	sprintf(cmd, "ubi part %s", location->mtdpart);
+	res = run_command(cmd, 0);
+	if (res)
+		return res;
+
+	sprintf(cmd, "ubifsmount %s", location->ubivol);
+	res = run_command(cmd, 0);
+
+	return res;
+}
+
+static inline int splash_umount_ubifs(void)
+{
+	return run_command("ubifsumount", 0);
+}
+#else
+static inline int splash_mount_ubifs(struct splash_location *location)
+{
+	printf("Cannot load splash image: no UBIFS support\n");
+	return -ENOSYS;
+}
+
+static inline int splash_umount_ubifs(void)
+{
+	printf("Cannot unmount UBIFS: no UBIFS support\n");
+	return -ENOSYS;
+}
+#endif
+
 #define SPLASH_SOURCE_DEFAULT_FILE_NAME		"splash.bmp"
 
 static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
@@ -181,26 +222,36 @@ static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
 	if (location->storage == SPLASH_STORAGE_SATA)
 		res = splash_init_sata();
 
+	if (location->ubivol != NULL)
+		res = splash_mount_ubifs(location);
+
 	if (res)
 		return res;
 
 	res = splash_select_fs_dev(location);
 	if (res)
-		return res;
+		goto out;
 
 	res = fs_size(splash_file, &bmp_size);
 	if (res) {
 		printf("Error (%d): cannot determine file size\n", res);
-		return res;
+		goto out;
 	}
 
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp) {
 		printf("Error: splashimage address too high. Data overwrites U-Boot and/or placed beyond DRAM boundaries.\n");
-		return -EFAULT;
+		res = -EFAULT;
+		goto out;
 	}
 
 	splash_select_fs_dev(location);
-	return fs_read(splash_file, bmp_load_addr, 0, 0, NULL);
+	res = fs_read(splash_file, bmp_load_addr, 0, 0, NULL);
+
+out:
+	if (location->ubivol != NULL)
+		splash_umount_ubifs();
+
+	return res;
 }
 
 /**

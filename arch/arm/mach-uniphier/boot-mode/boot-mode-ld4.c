@@ -36,14 +36,14 @@ struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NAND, "NAND (Mirror 1, ECC  8, ONFI,            Addr 5)"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 1, ECC 16, ONFI,            Addr 5)"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 1, ECC 24, ONFI,            Addr 5)"},
-	{BOOT_DEVICE_MMC1, "eMMC Boot (3.3V)"},
-	{BOOT_DEVICE_MMC1, "eMMC Boot (1.8V)"},
+	{BOOT_DEVICE_MMC1, "eMMC (3.3V)"},
+	{BOOT_DEVICE_MMC1, "eMMC (1.8V)"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
-	{BOOT_DEVICE_NOR,  "NOR Boot"},
+	{BOOT_DEVICE_NOR,  "NOR  (XECS0)"},
 };
 
 static int get_boot_mode_sel(void)

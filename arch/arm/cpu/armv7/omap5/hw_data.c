@@ -364,82 +364,6 @@ struct vcores_data omap5430_volts_es2 = {
 	.mm.abb_tx_done_mask = OMAP_ABB_MM_TXDONE_MASK,
 };
 
-struct vcores_data dra752_volts = {
-	.mpu.value	= VDD_MPU_DRA752,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
-	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.mpu.addr	= TPS659038_REG_ADDR_SMPS12,
-	.mpu.pmic	= &tps659038,
-	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
-
-	.eve.value	= VDD_EVE_DRA752,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
-	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.eve.addr	= TPS659038_REG_ADDR_SMPS45,
-	.eve.pmic	= &tps659038,
-	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
-
-	.gpu.value	= VDD_GPU_DRA752,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
-	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.gpu.addr	= TPS659038_REG_ADDR_SMPS6,
-	.gpu.pmic	= &tps659038,
-	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
-
-	.core.value	= VDD_CORE_DRA752,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
-	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.core.addr	= TPS659038_REG_ADDR_SMPS7,
-	.core.pmic	= &tps659038,
-
-	.iva.value	= VDD_IVA_DRA752,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
-	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.iva.addr	= TPS659038_REG_ADDR_SMPS8,
-	.iva.pmic	= &tps659038,
-	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
-};
-
-struct vcores_data dra722_volts = {
-	.mpu.value	= VDD_MPU_DRA72x,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
-	.mpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.mpu.addr	= TPS65917_REG_ADDR_SMPS1,
-	.mpu.pmic	= &tps659038,
-	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
-
-	.core.value	= VDD_CORE_DRA72x,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
-	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.core.addr	= TPS65917_REG_ADDR_SMPS2,
-	.core.pmic	= &tps659038,
-
-	/*
-	 * The DSPEVE, GPU and IVA rails are usually grouped on DRA72x
-	 * designs and powered by TPS65917 SMPS3, as on the J6Eco EVM.
-	 */
-	.gpu.value	= VDD_GPU_DRA72x,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
-	.gpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.gpu.addr	= TPS65917_REG_ADDR_SMPS3,
-	.gpu.pmic	= &tps659038,
-	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
-
-	.eve.value	= VDD_EVE_DRA72x,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
-	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.eve.addr	= TPS65917_REG_ADDR_SMPS3,
-	.eve.pmic	= &tps659038,
-	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
-
-	.iva.value	= VDD_IVA_DRA72x,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
-	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.iva.addr	= TPS65917_REG_ADDR_SMPS3,
-	.iva.pmic	= &tps659038,
-	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
-};
-
 /*
  * Enable essential clock domains, modules and
  * do some additional special settings needed
@@ -602,7 +526,7 @@ void disable_edma3_clocks(void)
 }
 #endif
 
-#ifdef CONFIG_USB_DWC3
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
 void enable_usb_clocks(int index)
 {
 	u32 cm_l3init_usb_otg_ss_clkctrl = 0;
@@ -614,9 +538,14 @@ void enable_usb_clocks(int index)
 		setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 			     OPTFCLKEN_REFCLK960M);
 
-		/* Enable 32 KHz clock for dwc3 */
+		/* Enable 32 KHz clock for USB_PHY1 */
 		setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
 			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Enable 32 KHz clock for USB_PHY3 */
+		if (is_dra7xx())
+			setbits_le32((*prcm)->cm_coreaon_usb_phy3_core_clkctrl,
+				     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
 	} else if (index == 1) {
 		cm_l3init_usb_otg_ss_clkctrl =
 			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
@@ -664,9 +593,14 @@ void disable_usb_clocks(int index)
 		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 			     OPTFCLKEN_REFCLK960M);
 
-		/* Disable 32 KHz clock for dwc3 */
+		/* Disable 32 KHz clock for USB_PHY1 */
 		clrbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
 			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Disable 32 KHz clock for USB_PHY3 */
+		if (is_dra7xx())
+			clrbits_le32((*prcm)->cm_coreaon_usb_phy3_core_clkctrl,
+				     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
 	} else if (index == 1) {
 		cm_l3init_usb_otg_ss_clkctrl =
 			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
@@ -792,7 +726,6 @@ void __weak hw_data_init(void)
 	case DRA752_ES2_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &dra752_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
 
@@ -800,7 +733,6 @@ void __weak hw_data_init(void)
 	case DRA722_ES2_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra72x_dplls;
-	*omap_vcores = &dra722_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
 

@@ -52,6 +52,16 @@ config USB_GADGET_DWC2_OTG
 	  driver to operate in Peripheral mode. This option requires
 	  USB_GADGET to be enabled.
 
+if USB_GADGET_DWC2_OTG
+
+config USB_GADGET_DWC2_OTG_PHY_BUS_WIDTH_8
+	bool "DesignWare USB2.0 HS OTG controller 8-bit PHY bus width"
+	help
+	  Set the Designware USB2.0 high-speed OTG controller
+	  PHY interface width to 8 bits, rather than the default (16 bits).
+
+endif # USB_GADGET_DWC2_OTG
+
 config CI_UDC
 	bool "ChipIdea device controller"
 	select USB_GADGET_DUALSPEED

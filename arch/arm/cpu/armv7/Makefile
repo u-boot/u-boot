@@ -18,15 +18,8 @@ obj-y	+= lowlevel_init.o
 endif
 endif
 
-ifneq ($(CONFIG_ARMV7_NONSEC),)
-obj-y	+= nonsec_virt.o
-obj-y	+= virt-v7.o
-obj-y	+= virt-dt.o
-endif
-
-ifneq ($(CONFIG_ARMV7_PSCI),)
-obj-y	+= psci.o
-endif
+obj-$(CONFIG_ARMV7_NONSEC)	+= nonsec_virt.o virt-v7.o virt-dt.o
+obj-$(CONFIG_ARMV7_PSCI)	+= psci.o
 
 obj-$(CONFIG_IPROC) += iproc-common/
 obj-$(CONFIG_KONA) += kona-common/
@@ -38,6 +31,7 @@ obj-y += s5p-common/
 endif
 
 obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
+obj-$(if $(filter bcm235xx,$(SOC)),y) += bcm235xx/
 obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
 obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
 obj-$(if $(filter bcmnsp,$(SOC)),y) += bcmnsp/

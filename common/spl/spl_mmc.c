@@ -26,16 +26,19 @@ static int mmc_load_legacy(struct mmc *mmc, ulong sector,
 {
 	u32 image_size_sectors;
 	unsigned long count;
+	int ret;
 
-	spl_parse_image_header(header);
+	ret = spl_parse_image_header(header);
+	if (ret)
+		return ret;
+
 	/* convert size to sectors - round up */
 	image_size_sectors = (spl_image.size + mmc->read_bl_len - 1) /
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector,
-					  image_size_sectors,
-					  (void *)(ulong)spl_image.load_addr);
+	count = blk_dread(mmc_get_blk_desc(mmc), sector, image_size_sectors,
+			  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
 	if (count != image_size_sectors)
@@ -49,7 +52,7 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 {
 	struct mmc *mmc = load->dev;
 
-	return mmc->block_dev.block_read(&mmc->block_dev, sector, count, buf);
+	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
 
 static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
@@ -62,7 +65,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 					 sizeof(struct image_header));
 
 	/* read image header to find the image size & load address */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
+	count = blk_dread(mmc_get_blk_desc(mmc), sector, 1, header);
 	debug("hdr read sector %lx, count=%lu\n", sector, count);
 	if (count == 0) {
 		ret = -EIO;
@@ -76,6 +79,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		debug("Found FIT\n");
 		load.dev = mmc;
 		load.priv = NULL;
+		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(&load, sector, header);
@@ -314,7 +318,7 @@ int spl_mmc_load_image(u32 boot_device)
 		return err;
 	}
 
-	boot_mode = spl_boot_mode();
+	boot_mode = spl_boot_mode(boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
@@ -328,7 +332,7 @@ int spl_mmc_load_image(u32 boot_device)
 			if (part == 7)
 				part = 0;
 
-			err = mmc_switch_part(0, part);
+			err = blk_dselect_hwpart(mmc_get_blk_desc(mmc), part);
 			if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 				puts("spl: mmc partition switch failed\n");

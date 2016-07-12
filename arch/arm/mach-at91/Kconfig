@@ -23,6 +23,14 @@ config TARGET_SNAPPER9260
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_GURNARD
+	bool "Support gurnard"
+	select CPU_ARM926EJS
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
+
 config TARGET_AT91SAM9261EK
 	bool "Atmel at91sam9261 reference board"
 	select CPU_ARM926EJS
@@ -71,6 +79,11 @@ config TARGET_AT91SAM9X5EK
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_SAMA5D2_PTC
+	bool "SAMA5D2 PTC board"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config TARGET_SAMA5D2_XPLAINED
 	bool "SAMA5D2 Xplained board"
 	select CPU_V7
@@ -109,16 +122,28 @@ config TARGET_CORVUS
 	bool "Support corvus"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
 
 config TARGET_TAURUS
 	bool "Support taurus"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
 
 config TARGET_SMARTWEB
 	bool "Support smartweb"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
 
 config TARGET_VINCO
 	bool "Support VINCO"
@@ -138,11 +163,13 @@ source "board/atmel/at91sam9m10g45ek/Kconfig"
 source "board/atmel/at91sam9n12ek/Kconfig"
 source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
+source "board/atmel/sama5d2_ptc/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
 source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
+source "board/bluewater/gurnard/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/denx/ma5d4evk/Kconfig"

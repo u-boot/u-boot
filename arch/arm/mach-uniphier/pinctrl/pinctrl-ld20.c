@@ -43,4 +43,9 @@ void uniphier_ld20_pin_init(void)
 	sg_set_pinsel(53, 0, 8, 4);	/* USB3OD   -> USB3OD */
 	sg_set_iectrl_range(46, 53);
 #endif
+
+	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
+	sg_set_iectrl(149);
+	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
+	sg_set_iectrl(153);
 }

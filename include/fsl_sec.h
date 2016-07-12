@@ -294,8 +294,6 @@ struct sg_entry {
 
 #endif
 
-int sec_init(void);
-
 /* blob_dek:
  * Encapsulates the src in a secure blob and stores it dst
  * @src: reference to the plaintext
@@ -305,6 +303,10 @@ int sec_init(void);
  */
 int blob_dek(const u8 *src, u8 *dst, u8 len);
 
+#if defined(CONFIG_PPC_C29X)
+int sec_init_idx(uint8_t);
+#endif
+int sec_init(void);
 #endif
 
 #endif /* __FSL_SEC_H */

@@ -543,8 +543,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -621,7 +619,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define CONFIG_HOSTNAME		hrcon
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

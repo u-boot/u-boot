@@ -21,5 +21,6 @@ config SPL_CLK
 	  used as U-Boot proper.
 
 source "drivers/clk/uniphier/Kconfig"
+source "drivers/clk/exynos/Kconfig"
 
 endmenu

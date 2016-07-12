@@ -731,7 +731,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"
 #endif
 
-#define CONFIG_BOOTDELAY	6
 
 #define CONFIG_BOOTARGS \
 	"root=/dev/nfs rw" \

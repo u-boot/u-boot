@@ -64,8 +64,8 @@ static void fun_wait(struct fsl_upm_nand *fun)
 #if CONFIG_SYS_NAND_MAX_CHIPS > 1
 static void fun_select_chip(struct mtd_info *mtd, int chip_nr)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct fsl_upm_nand *fun = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct fsl_upm_nand *fun = nand_get_controller_data(chip);
 
 	if (chip_nr >= 0) {
 		fun->chip_nr = chip_nr;
@@ -79,8 +79,8 @@ static void fun_select_chip(struct mtd_info *mtd, int chip_nr)
 
 static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct fsl_upm_nand *fun = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct fsl_upm_nand *fun = nand_get_controller_data(chip);
 	void __iomem *io_addr;
 	u32 mar;
 
@@ -123,7 +123,7 @@ static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 
 static u8 upm_nand_read_byte(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	return in_8(chip->IO_ADDR_R);
 }
@@ -131,8 +131,8 @@ static u8 upm_nand_read_byte(struct mtd_info *mtd)
 static void upm_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	int i;
-	struct nand_chip *chip = mtd->priv;
-	struct fsl_upm_nand *fun = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct fsl_upm_nand *fun = nand_get_controller_data(chip);
 
 	for (i = 0; i < len; i++) {
 		out_8(chip->IO_ADDR_W, buf[i]);
@@ -147,7 +147,7 @@ static void upm_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 static void upm_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	int i;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	for (i = 0; i < len; i++)
 		buf[i] = in_8(chip->IO_ADDR_R);
@@ -155,8 +155,8 @@ static void upm_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 
 static int nand_dev_ready(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct fsl_upm_nand *fun = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct fsl_upm_nand *fun = nand_get_controller_data(chip);
 
 	return fun->dev_ready(fun->chip_nr);
 }
@@ -168,7 +168,7 @@ int fsl_upm_nand_init(struct nand_chip *chip, struct fsl_upm_nand *fun)
 
 	fun->last_ctrl = NAND_CLE;
 
-	chip->priv = fun;
+	nand_set_controller_data(chip, fun);
 	chip->chip_delay = fun->chip_delay;
 	chip->ecc.mode = NAND_ECC_SOFT;
 	chip->cmd_ctrl = fun_cmd_ctrl;

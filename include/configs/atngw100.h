@@ -62,7 +62,6 @@
 #define CONFIG_BOOTCOMMAND						\
 	"fsload; bootm"
 
-#define CONFIG_BOOTDELAY		1
 
 /*
  * After booting the board for the first time, new ethernet addresses

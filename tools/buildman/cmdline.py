@@ -49,6 +49,8 @@ def ParseArgs():
     parser.add_option('-i', '--in-tree', dest='in_tree',
           action='store_true', default=False,
           help='Build in the source tree instead of a separate directory')
+    parser.add_option('-I', '--incremental', action='store_true',
+          default=False, help='Do not run make mrproper (when reconfiguring)')
     parser.add_option('-j', '--jobs', dest='jobs', type='int',
           default=None, help='Number of jobs to run at once (passed to make)')
     parser.add_option('-k', '--keep-outputs', action='store_true',
@@ -70,6 +72,8 @@ def ParseArgs():
           default=False, help='Do a rough build, with limited warning resolution')
     parser.add_option('-p', '--full-path', action='store_true',
           default=False, help="Use full toolchain path in CROSS_COMPILE")
+    parser.add_option('-P', '--per-board-out-dir', action='store_true',
+          default=False, help="Use an O= (output) directory per board rather than per thread")
     parser.add_option('-s', '--summary', action='store_true',
           default=False, help='Show a build summary')
     parser.add_option('-S', '--show-sizes', action='store_true',

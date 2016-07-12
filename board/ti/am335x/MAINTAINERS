@@ -6,7 +6,6 @@ F:	include/configs/am335x_evm.h
 F:	configs/am335x_boneblack_defconfig
 F:	configs/am335x_boneblack_vboot_defconfig
 F:	configs/am335x_evm_defconfig
-F:	configs/am335x_gp_evm_defconfig
 F:	configs/am335x_evm_nor_defconfig
 F:	configs/am335x_evm_norboot_defconfig
 F:	configs/am335x_evm_spiboot_defconfig

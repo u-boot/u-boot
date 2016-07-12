@@ -25,6 +25,7 @@
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <search.h>
 #include <errno.h>
 #include <ext4fs.h>
@@ -49,7 +50,7 @@ int env_init(void)
 int saveenv(void)
 {
 	env_t	env_new;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
 	int err;
@@ -58,13 +59,13 @@ int saveenv(void)
 	if (err)
 		return err;
 
-	part = get_device_and_partition(EXT4_ENV_INTERFACE,
+	part = blk_get_device_part_str(EXT4_ENV_INTERFACE,
 					EXT4_ENV_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	ext4fs_set_blk_dev(dev_desc, &info);
 
 	if (!ext4fs_mount(info.size)) {
@@ -90,18 +91,19 @@ int saveenv(void)
 void env_relocate_spec(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
 	int err;
+	loff_t off;
 
-	part = get_device_and_partition(EXT4_ENV_INTERFACE,
+	part = blk_get_device_part_str(EXT4_ENV_INTERFACE,
 					EXT4_ENV_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)
 		goto err_env_relocate;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	ext4fs_set_blk_dev(dev_desc, &info);
 
 	if (!ext4fs_mount(info.size)) {
@@ -110,7 +112,7 @@ void env_relocate_spec(void)
 		goto err_env_relocate;
 	}
 
-	err = ext4_read_file(EXT4_ENV_FILE, buf, 0, CONFIG_ENV_SIZE);
+	err = ext4_read_file(EXT4_ENV_FILE, buf, 0, CONFIG_ENV_SIZE, &off);
 	ext4fs_close();
 
 	if (err == -1) {

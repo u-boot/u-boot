@@ -1,5 +1,5 @@
 BCM28155_W1D BOARD
-M:	Steve Rae <srae@broadcom.com>
+M:	Steve Rae <steve.rae@raedomain.com>
 S:	Maintained
 F:	board/broadcom/bcm28155_ap/
 F:	include/configs/bcm28155_ap.h

@@ -1,5 +1,5 @@
 T208XQDS BOARD
-#M:	-
+M:	Shengzhou Liu <Shengzhou.Liu@nxp.com>
 S:	Maintained
 F:	board/freescale/t208xqds/
 F:	include/configs/T208xQDS.h

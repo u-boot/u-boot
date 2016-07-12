@@ -149,7 +149,6 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOOTFILE		"uImage"
 

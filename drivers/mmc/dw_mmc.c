@@ -121,7 +121,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 
 		if (host->fifo_mode && size) {
 			if (data->flags == MMC_DATA_READ) {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_RXDR)) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
@@ -133,7 +133,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 						     DWMCI_INTMSK_RXDR);
 				}
 			} else {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_TXDR)) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = fifo_depth - ((len >>
@@ -454,27 +454,40 @@ static const struct mmc_ops dwmci_ops = {
 	.init		= dwmci_init,
 };
 
+void dwmci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
+		     uint caps, u32 max_clk, u32 min_clk)
+{
+	cfg->name = name;
+	cfg->ops = &dwmci_ops;
+	cfg->f_min = min_clk;
+	cfg->f_max = max_clk;
+
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+
+	cfg->host_caps = caps;
+
+	if (buswidth == 8) {
+		cfg->host_caps |= MMC_MODE_8BIT;
+		cfg->host_caps &= ~MMC_MODE_4BIT;
+	} else {
+		cfg->host_caps |= MMC_MODE_4BIT;
+		cfg->host_caps &= ~MMC_MODE_8BIT;
+	}
+	cfg->host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
+
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+}
+
+#ifdef CONFIG_BLK
+int dwmci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
+{
+	return mmc_bind(dev, mmc, cfg);
+}
+#else
 int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 {
-	host->cfg.name = host->name;
-	host->cfg.ops = &dwmci_ops;
-	host->cfg.f_min = min_clk;
-	host->cfg.f_max = max_clk;
-
-	host->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-
-	host->cfg.host_caps = host->caps;
-
-	if (host->buswidth == 8) {
-		host->cfg.host_caps |= MMC_MODE_8BIT;
-		host->cfg.host_caps &= ~MMC_MODE_4BIT;
-	} else {
-		host->cfg.host_caps |= MMC_MODE_4BIT;
-		host->cfg.host_caps &= ~MMC_MODE_8BIT;
-	}
-	host->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
-
-	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	dwmci_setup_cfg(&host->cfg, host->name, host->buswidth, host->caps,
+			max_clk, min_clk);
 
 	host->mmc = mmc_create(&host->cfg, host);
 	if (host->mmc == NULL)
@@ -482,3 +495,4 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 
 	return 0;
 }
+#endif

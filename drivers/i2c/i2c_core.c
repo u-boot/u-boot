@@ -233,6 +233,11 @@ __weak void i2c_init_board(void)
 {
 }
 
+/* implement possible for i2c specific early i2c init */
+__weak void i2c_early_init_f(void)
+{
+}
+
 /*
  * i2c_init_all():
  *

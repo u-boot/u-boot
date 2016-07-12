@@ -8,7 +8,6 @@
  */
 
 #include <common.h>
-#include <clk.h>
 #include <dm.h>
 #include <syscon.h>
 #include <asm/errno.h>
@@ -16,7 +15,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <dm/pinctrl.h>
-#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/clock/rk3288-cru.h>
 
 enum {
@@ -98,15 +96,6 @@ static int rockchip_gpio_get_function(struct udevice *dev, unsigned offset)
 #endif
 }
 
-static int rockchip_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
-{
-	desc->offset = args->args[0];
-	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
-
-	return 0;
-}
-
 static int rockchip_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -135,7 +124,6 @@ static const struct dm_gpio_ops gpio_rockchip_ops = {
 	.get_value		= rockchip_gpio_get_value,
 	.set_value		= rockchip_gpio_set_value,
 	.get_function		= rockchip_gpio_get_function,
-	.xlate			= rockchip_gpio_xlate,
 };
 
 static const struct udevice_id rockchip_gpio_ids[] = {

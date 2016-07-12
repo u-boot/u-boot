@@ -18,9 +18,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct rockchip_mmc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
 struct rockchip_dwmmc_priv {
-	struct udevice *clk;
-	int periph;
+	struct clk clk;
 	struct dwmci_host host;
 };
 
@@ -30,7 +34,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = clk_set_periph_rate(priv->clk, priv->periph, freq);
+	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
 		debug("%s: err=%d\n", __func__, ret);
 		return ret;
@@ -62,6 +66,9 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int rockchip_dwmmc_probe(struct udevice *dev)
 {
+#ifdef CONFIG_BLK
+	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+#endif
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -73,7 +80,6 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
-	priv->periph = ret;
 
 	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
 				 "clock-freq-min-max", minmax, 2))
@@ -100,11 +106,33 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 			return ret;
 	}
 #endif
+#ifdef CONFIG_BLK
+	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
+			minmax[1], minmax[0]);
+	host->mmc = &plat->mmc;
+#else
 	ret = add_dwmci(host, minmax[1], minmax[0]);
 	if (ret)
 		return ret;
 
+#endif
+	host->mmc->priv = &priv->host;
+	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
+
+	return 0;
+}
+
+static int rockchip_dwmmc_bind(struct udevice *dev)
+{
+#ifdef CONFIG_BLK
+	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
 }
@@ -119,8 +147,10 @@ U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
 	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
+	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
+	.platdata_auto_alloc_size = sizeof(struct rockchip_mmc_plat),
 };
 
 #ifdef CONFIG_PWRSEQ

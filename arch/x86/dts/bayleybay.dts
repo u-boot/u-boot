@@ -65,6 +65,26 @@
 		};
 	};
 
+	pch_pinctrl {
+		compatible = "intel,x86-pinctrl";
+		reg = <0 0>;
+
+		/*
+		 * As of today, the latest version FSP (gold4) for BayTrail
+		 * misses the PAD configuration of the SD controller's Card
+		 * Detect signal. The default PAD value for the CD pin sets
+		 * the pin to work in GPIO mode, which causes card detect
+		 * status cannot be reflected by the Present State register
+		 * in the SD controller (bit 16 & bit 18 are always zero).
+		 *
+		 * Configure this pin to function 1 (SD controller).
+		 */
+		sdmmc3_cd@0 {
+			pad-offset = <0x3a0>;
+			mode-func = <1>;
+		};
+	};
+
 	pci {
 		compatible = "pci-x86";
 		#address-cells = <3>;
@@ -84,6 +104,7 @@
 				compatible = "intel,irq-router";
 				intel,pirq-config = "ibase";
 				intel,ibase-offset = <0x50>;
+				intel,actl-addr = <0>;
 				intel,pirq-link = <8 8>;
 				intel,pirq-mask = <0xdee0>;
 				intel,pirq-routing = <
@@ -212,7 +233,7 @@
 		fsp,mrc-init-mmio-size = <0x800>;
 		fsp,mrc-init-spd-addr1 = <0xa0>;
 		fsp,mrc-init-spd-addr2 = <0xa2>;
-		fsp,emmc-boot-mode = <2>;
+		fsp,emmc-boot-mode = <1>;
 		fsp,enable-sdio;
 		fsp,enable-sdcard;
 		fsp,enable-hsuart1;
@@ -249,10 +270,10 @@
 #include "microcode/m0230671117.dtsi"
 		};
 		update@1 {
-#include "microcode/m0130673322.dtsi"
+#include "microcode/m0130673325.dtsi"
 		};
 		update@2 {
-#include "microcode/m0130679901.dtsi"
+#include "microcode/m0130679907.dtsi"
 		};
 	};
 

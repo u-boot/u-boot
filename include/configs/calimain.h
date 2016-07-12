@@ -214,8 +214,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTARGS           ""
 #define CONFIG_BOOTCOMMAND        "run checkupdate; run checkbutton;"
-#define CONFIG_BOOTDELAY          0
-#define CONFIG_ZERO_BOOTDELAY_CHECK   /* check for keypress on bootdelay==0 */
 #define CONFIG_BOOT_RETRY_TIME    60  /* continue boot after 60 s inactivity */
 #define CONFIG_RESET_TO_RETRY
 

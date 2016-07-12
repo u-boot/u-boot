@@ -9,7 +9,6 @@
 #ifndef __WARP7_CONFIG_H
 #define __WARP7_CONFIG_H
 
-#define CONFIG_BOOTDELAY                1
 #include "mx7_common.h"
 
 #define PHYS_SDRAM_SIZE			SZ_512M
@@ -17,9 +16,10 @@
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
@@ -28,10 +28,7 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=image raw 0 0x800000;"\
-		"u-boot raw 0 0x4000;"\
-		"bootimg part 0 1;"\
-		"rootfs part 0 2\0" \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_DFU_ENV_SETTINGS \

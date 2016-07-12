@@ -63,7 +63,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
 #undef CONFIG_BOOTARGS
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/

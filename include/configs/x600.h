@@ -80,12 +80,13 @@
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 #define CONFIG_PHY_ADDR		0	/* PHY address */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_MICREL_KSZ9031
 
 #define CONFIG_SPEAR_GPIO
 
 /* I2C config options */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
@@ -123,7 +124,6 @@
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_BOOTDELAY			3
 
 /*
  * U-Boot Environment placing definitions.
@@ -145,7 +145,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000

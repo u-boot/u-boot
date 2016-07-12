@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *this = mtdinfo->priv;
+	struct nand_chip *this = mtd_to_nand(mtdinfo);
 	volatile u16 *nCE = (u16 *) CONFIG_SYS_LATCH_ADDR;
 
 	if (ctrl & NAND_CTRL_CHANGE) {

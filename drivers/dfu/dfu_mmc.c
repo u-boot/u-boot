@@ -50,8 +50,9 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	if (dfu->data.mmc.hw_partition >= 0) {
 		part_num_bkp = mmc->block_dev.hwpart;
-		ret = mmc_select_hwpart(dfu->data.mmc.dev_num,
-					dfu->data.mmc.hw_partition);
+		ret = blk_select_hwpart_devnum(IF_TYPE_MMC,
+					       dfu->data.mmc.dev_num,
+					       dfu->data.mmc.hw_partition);
 		if (ret)
 			return ret;
 	}
@@ -75,12 +76,16 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	if (n != blk_count) {
 		error("MMC operation failed");
 		if (dfu->data.mmc.hw_partition >= 0)
-			mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
+			blk_select_hwpart_devnum(IF_TYPE_MMC,
+						 dfu->data.mmc.dev_num,
+						 part_num_bkp);
 		return -EIO;
 	}
 
 	if (dfu->data.mmc.hw_partition >= 0) {
-		ret = mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
+		ret = blk_select_hwpart_devnum(IF_TYPE_MMC,
+					       dfu->data.mmc.dev_num,
+					       part_num_bkp);
 		if (ret)
 			return ret;
 	}

@@ -171,7 +171,6 @@
 /*
  * Boot option
  */
-#define CONFIG_BOOTDELAY		3
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE + SZ_16M

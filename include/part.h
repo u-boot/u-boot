@@ -12,7 +12,6 @@
 
 struct block_drvr {
 	char *name;
-	struct blk_desc* (*get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 };
 
@@ -73,32 +72,8 @@ typedef struct disk_partition {
  *	   error occurred.
  */
 struct blk_desc *blk_get_dev(const char *ifname, int dev);
-struct blk_desc *ide_get_dev(int dev);
-struct blk_desc *sata_get_dev(int dev);
-struct blk_desc *scsi_get_dev(int dev);
-struct blk_desc *usb_stor_get_dev(int dev);
-struct blk_desc *mmc_get_dev(int dev);
 
-/**
- * mmc_select_hwpart() - Select the MMC hardware partiion on an MMC device
- *
- * MMC devices can support partitioning at the hardware level. This is quite
- * separate from the normal idea of software-based partitions. MMC hardware
- * partitions must be explicitly selected. Once selected only the region of
- * the device covered by that partition is accessible.
- *
- * The MMC standard provides for two boot partitions (numbered 1 and 2),
- * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
- *
- * @dev_num:	Block device number (struct blk_desc->dev value)
- * @hwpart:	Hardware partition number to select. 0 means the raw device,
- *		1 is the first partition, 2 is the second, etc.
- * @return 0 if OK, other value for an error
- */
-int mmc_select_hwpart(int dev_num, int hwpart);
-struct blk_desc *systemace_get_dev(int dev);
 struct blk_desc *mg_disk_get_dev(int dev);
-struct blk_desc *host_get_dev(int dev);
 int host_get_dev_err(int dev, struct blk_desc **blk_devp);
 
 /* disk/part.c */
@@ -175,15 +150,7 @@ extern const struct block_drvr block_drvr[];
 #else
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
-static inline struct blk_desc *ide_get_dev(int dev) { return NULL; }
-static inline struct blk_desc *sata_get_dev(int dev) { return NULL; }
-static inline struct blk_desc *scsi_get_dev(int dev) { return NULL; }
-static inline struct blk_desc *usb_stor_get_dev(int dev) { return NULL; }
-static inline struct blk_desc *mmc_get_dev(int dev) { return NULL; }
-static inline int mmc_select_hwpart(int dev_num, int hwpart) { return -1; }
-static inline struct blk_desc *systemace_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *mg_disk_get_dev(int dev) { return NULL; }
-static inline struct blk_desc *host_get_dev(int dev) { return NULL; }
 
 static inline int part_get_info(struct blk_desc *dev_desc, int part,
 				disk_partition_t *info) { return -1; }

@@ -396,9 +396,6 @@ static inline void final_mmu_setup(void)
 	flush_dcache_range((ulong)level0_table,
 			   (ulong)level0_table + gd->arch.tlb_size);
 
-#ifdef CONFIG_SYS_DPAA_FMAN
-	flush_dcache_all();
-#endif
 	/* point TTBR to the new table */
 	set_ttbr_tcr_mair(el, (u64)level0_table, LAYERSCAPE_TCR_FINAL,
 			  MEMORY_ATTRIBUTES);
@@ -531,6 +528,13 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 	return -1;      /* cannot identify the cluster */
 }
 
+uint get_svr(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	return gur_in32(&gur->svr);
+}
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
@@ -639,6 +643,9 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
+#ifdef CONFIG_LS2080A
+	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
+#endif
 #ifdef COUNTER_FREQUENCY_REAL
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
 
@@ -651,6 +658,15 @@ int timer_init(void)
 	 * It is safe to do so even some clusters are not enabled.
 	 */
 	out_le32(cltbenr, 0xf);
+#endif
+
+#ifdef CONFIG_LS2080A
+	/*
+	 * In certain Layerscape SoCs, the clock for each core's
+	 * has an enable bit in the PMU Physical Core Time Base Enable
+	 * Register (PCTBENR), which allows the watchdog to operate.
+	 */
+	setbits_le32(pctbenr, 0xff);
 #endif
 
 	/* Enable clock for timer

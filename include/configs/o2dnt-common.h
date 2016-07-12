@@ -90,7 +90,6 @@
 #error "CONFIG_SYS_TEXT_BASE value is invalid"
 #endif
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"run master"
 

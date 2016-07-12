@@ -1,5 +1,5 @@
 BCM958622HR BOARD
-M:	Steve Rae <srae@broadcom.com>
+M:	Steve Rae <steve.rae@raedomain.com>
 S:	Maintained
 F:	board/broadcom/bcmnsp/
 F:	include/configs/bcm_ep_board.h

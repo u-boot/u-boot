@@ -3,7 +3,7 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
-#include "libfdt_env.h"
+#include <libfdt_env.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>
@@ -21,7 +21,7 @@ int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
 	int proplen;
 
 	propval = fdt_getprop_w(fdt, nodeoffset, name, &proplen);
-	if (! propval)
+	if (!propval)
 		return proplen;
 
 	if (proplen != len)
@@ -45,7 +45,7 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
 	int len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (! prop)
+	if (!prop)
 		return len;
 
 	_fdt_nop_region(prop, len + sizeof(*prop));

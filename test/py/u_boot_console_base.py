@@ -56,6 +56,22 @@ class ConsoleDisableCheck(object):
         self.console.disable_check_count[self.check_type] -= 1
         self.console.eval_bad_patterns()
 
+class ConsoleSetupTimeout(object):
+    """Context manager (for Python's with statement) that temporarily sets up
+    timeout for specific command. This is useful when execution time is greater
+    then default 30s."""
+
+    def __init__(self, console, timeout):
+        self.p = console.p
+        self.orig_timeout = self.p.timeout
+        self.p.timeout = timeout
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.p.timeout = self.orig_timeout
+
 class ConsoleBase(object):
     """The interface through which test functions interact with the U-Boot
     console. This primarily involves executing shell commands, capturing their
@@ -391,3 +407,18 @@ class ConsoleBase(object):
         """
 
         return ConsoleDisableCheck(self, check_type)
+
+    def temporary_timeout(self, timeout):
+        """Temporarily set up different timeout for commands.
+
+        Create a new context manager (for use with the "with" statement) which
+        temporarily change timeout.
+
+        Args:
+            timeout: Time in milliseconds.
+
+        Returns:
+            A context manager object.
+        """
+
+        return ConsoleSetupTimeout(self, timeout)

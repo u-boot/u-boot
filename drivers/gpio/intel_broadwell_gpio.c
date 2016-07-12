@@ -9,7 +9,6 @@
 #include <fdtdec.h>
 #include <pch.h>
 #include <pci.h>
-#include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -119,12 +118,6 @@ static int broadwell_gpio_probe(struct udevice *dev)
 	struct broadwell_bank_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct broadwell_bank_priv *priv = dev_get_priv(dev);
-	struct udevice *pinctrl;
-	int ret;
-
-	/* Set up pin control if available */
-	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &pinctrl);
-	debug("%s, pinctrl=%p, ret=%d\n", __func__, pinctrl, ret);
 
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	uc_priv->bank_name = plat->bank_name;
@@ -162,15 +155,6 @@ static int broadwell_gpio_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-				struct fdtdec_phandle_args *args)
-{
-	desc->offset = args->args[0];
-	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
-
-	return 0;
-}
-
 static const struct dm_gpio_ops gpio_broadwell_ops = {
 	.request		= broadwell_gpio_request,
 	.direction_input	= broadwell_gpio_direction_input,
@@ -178,7 +162,6 @@ static const struct dm_gpio_ops gpio_broadwell_ops = {
 	.get_value		= broadwell_gpio_get_value,
 	.set_value		= broadwell_gpio_set_value,
 	.get_function		= broadwell_gpio_get_function,
-	.xlate			= broadwell_gpio_xlate,
 };
 
 static const struct udevice_id intel_broadwell_gpio_ids[] = {

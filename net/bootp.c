@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <efi_loader.h>
 #include <net.h>
 #include <net/tftp.h>
 #include "bootp.h"
@@ -410,6 +411,26 @@ static void bootp_timeout_handler(void)
 		e += vci_strlen;				\
 	} while (0)
 
+static u8 *add_vci(u8 *e)
+{
+	char *vci = NULL;
+	char *env_vci = getenv("bootp_vci");
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
+	vci = CONFIG_SPL_NET_VCI_STRING;
+#elif defined(CONFIG_BOOTP_VCI_STRING)
+	vci = CONFIG_BOOTP_VCI_STRING;
+#endif
+
+	if (env_vci)
+		vci = env_vci;
+
+	if (vci)
+		put_vci(e, vci);
+
+	return e;
+}
+
 /*
  *	Initialize BOOTP extension fields in the request.
  */
@@ -419,10 +440,10 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 {
 	u8 *start = e;
 	u8 *cnt;
-#if defined(CONFIG_BOOTP_PXE)
+#ifdef CONFIG_LIB_UUID
 	char *uuid;
-	u16 clientarch;
 #endif
+	int clientarch = -1;
 
 #if defined(CONFIG_BOOTP_VENDOREX)
 	u8 *x;
@@ -478,12 +499,19 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#if defined(CONFIG_BOOTP_PXE)
+#ifdef CONFIG_BOOTP_PXE_CLIENTARCH
 	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
-	*e++ = 93;	/* Client System Architecture */
-	*e++ = 2;
-	*e++ = (clientarch >> 8) & 0xff;
-	*e++ = clientarch & 0xff;
+#endif
+
+	if (getenv("bootp_arch"))
+		clientarch = getenv_ulong("bootp_arch", 16, clientarch);
+
+	if (clientarch > 0) {
+		*e++ = 93;	/* Client System Architecture */
+		*e++ = 2;
+		*e++ = (clientarch >> 8) & 0xff;
+		*e++ = clientarch & 0xff;
+	}
 
 	*e++ = 94;	/* Client Network Interface Identifier */
 	*e++ = 3;
@@ -491,6 +519,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++ = 0;	/* major revision */
 	*e++ = 0;	/* minor revision */
 
+#ifdef CONFIG_LIB_UUID
 	uuid = getenv("pxeuuid");
 
 	if (uuid) {
@@ -507,11 +536,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
-	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
-#elif defined(CONFIG_BOOTP_VCI_STRING)
-	put_vci(e, CONFIG_BOOTP_VCI_STRING);
-#endif
+	e = add_vci(e);
 
 #if defined(CONFIG_BOOTP_VENDOREX)
 	x = dhcp_vendorex_prep(e);
@@ -597,14 +622,7 @@ static int bootp_extended(u8 *e)
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 #endif
 
-#if defined(CONFIG_BOOTP_VCI_STRING) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING))
-#ifdef CONFIG_SPL_BUILD
-	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
-#else
-	put_vci(e, CONFIG_BOOTP_VCI_STRING);
-#endif
-#endif
+	add_vci(e);
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
 	*e++ = 1;		/* Subnet mask request */
@@ -654,6 +672,15 @@ static int bootp_extended(u8 *e)
 #endif
 
 	*e++ = 255;		/* End of the list */
+
+	/*
+	 * If nothing in list, remove it altogether. Some DHCP servers get
+	 * upset by this minor faux pas and do not respond at all.
+	 */
+	if (e == start + 3) {
+		printf("*** Warning: no DHCP options requested\n");
+		e -= 3;
+	}
 
 	return e - start;
 }
@@ -1025,6 +1052,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0) {
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
 			dhcp_packet_process_options(bp);
+			efi_net_set_dhcp_ack(pkt, len);
 
 			debug("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;

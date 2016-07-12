@@ -540,7 +540,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
 
-#define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs*/
 
 #define CONFIG_BAUDRATE	115200

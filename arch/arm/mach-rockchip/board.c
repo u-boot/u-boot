@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,15 +55,43 @@ void lowlevel_init(void)
 static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
+	static const struct {
+		char *name;
+		int id;
+	} clks[] = {
+		{ "osc", CLK_OSC },
+		{ "apll", CLK_ARM },
+		{ "dpll", CLK_DDR },
+		{ "cpll", CLK_CODEC },
+		{ "gpll", CLK_GENERAL },
+#ifdef CONFIG_ROCKCHIP_RK3036
+		{ "mpll", CLK_NEW },
+#else
+		{ "npll", CLK_NEW },
+#endif
+	};
+	int ret, i;
 	struct udevice *dev;
 
-	for (uclass_first_device(UCLASS_CLK, &dev);
-	     dev;
-	     uclass_next_device(&dev)) {
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	if (ret) {
+		printf("clk-uclass not found\n");
+		return 0;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(clks); i++) {
+		struct clk clk;
 		ulong rate;
 
-		rate = clk_get_rate(dev);
-		printf("%s: %lu\n", dev->name, rate);
+		clk.id = clks[i].id;
+		ret = clk_request(dev, &clk);
+		if (ret < 0)
+			continue;
+
+		rate = clk_get_rate(&clk);
+		printf("%s: %lu\n", clks[i].name, rate);
+
+		clk_free(&clk);
 	}
 
 	return 0;

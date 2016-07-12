@@ -110,6 +110,7 @@ ENDPROC(psci_get_cpu_id)
 
 /* Imported from Linux kernel */
 LENTRY(v7_flush_dcache_all)
+	stmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	dmb					@ ensure ordering with previous memory accesses
 	mrc	p15, 1, r0, c0, c0, 1		@ read clidr
 	ands	r3, r0, #0x7000000		@ extract loc from clidr
@@ -153,6 +154,7 @@ finished:
 	mcr	p15, 2, r10, c0, c0, 0		@ select current cache level in cssr
 	dsb	st
 	isb
+	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	bx	lr
 ENDPROC(v7_flush_dcache_all)
 
@@ -196,15 +198,15 @@ ENDPROC(psci_cpu_off_common)
 
 @ expects CPU ID in r0 and returns stack top in r0
 ENTRY(psci_get_cpu_stack_top)
-	mov	r5, #0x400			@ 1kB of stack per CPU
-	mul	r0, r0, r5
+	mov	r3, #0x400			@ 1kB of stack per CPU
+	mul	r0, r0, r3
 
-	ldr	r5, =psci_text_end		@ end of monitor text
-	add	r5, r5, #0x2000			@ Skip two pages
-	lsr	r5, r5, #12			@ Align to start of page
-	lsl	r5, r5, #12
-	sub	r5, r5, #4			@ reserve 1 word for target PC
-	sub	r0, r5, r0			@ here's our stack!
+	ldr	r3, =psci_text_end		@ end of monitor text
+	add	r3, r3, #0x2000			@ Skip two pages
+	lsr	r3, r3, #12			@ Align to start of page
+	lsl	r3, r3, #12
+	sub	r3, r3, #4			@ reserve 1 word for target PC
+	sub	r0, r3, r0			@ here's our stack!
 
 	bx	lr
 ENDPROC(psci_get_cpu_stack_top)

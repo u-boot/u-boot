@@ -46,7 +46,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SILENT_CONSOLE
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* Clock Defines */
 #define V_OSCK				26000000 /* Clock output from T2 */
@@ -162,7 +161,6 @@
 
 /* Environment information (this is the common part) */
 
-#define CONFIG_BOOTDELAY		0
 
 /* hang() the board on panic() */
 #define CONFIG_PANIC_HANG

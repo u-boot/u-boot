@@ -35,8 +35,7 @@ struct rockchip_spi_platdata {
 
 struct rockchip_spi_priv {
 	struct rockchip_spi *regs;
-	struct udevice *clk;
-	int clk_id;
+	struct clk clk;
 	unsigned int max_freq;
 	unsigned int mode;
 	ulong last_transaction_us;	/* Time of last transaction end */
@@ -144,7 +143,6 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 		      bus->name, ret);
 		return ret;
 	}
-	priv->clk_id = ret;
 
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
 					 50000000);
@@ -175,7 +173,7 @@ static int rockchip_spi_probe(struct udevice *bus)
 	 * Use 99 MHz as our clock since it divides nicely into 594 MHz which
 	 * is the assumed speed for CLK_GENERAL.
 	 */
-	ret = clk_set_periph_rate(priv->clk, priv->clk_id, 99000000);
+	ret = clk_set_rate(&priv->clk, 99000000);
 	if (ret < 0) {
 		debug("%s: Failed to set clock: %d\n", __func__, ret);
 		return ret;

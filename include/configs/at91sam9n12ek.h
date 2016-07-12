@@ -51,7 +51,6 @@
 #define CONFIG_ATMEL_LCD_RGB565
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
-#define CONFIG_BOOTDELAY		3
 
 /*
  * BOOTP options

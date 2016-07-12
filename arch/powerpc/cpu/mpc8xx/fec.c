@@ -137,7 +137,7 @@ int fec_initialize(bd_t *bis)
 	struct ether_fcc_info_s *efis;
 	int             i;
 
-	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++) {
+	for (i = 0; i < ARRAY_SIZE(ether_fcc_info); i++) {
 
 		dev = malloc(sizeof(*dev));
 		if (dev == NULL)
@@ -879,7 +879,7 @@ void mii_init (void)
 
 	/* Setup the pin configuration of the FEC(s)
 	*/
-	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++)
+	for (i = 0; i < ARRAY_SIZE(ether_fcc_info); i++)
 		fec_pin_init(ether_fcc_info[i].ether_index);
 }
 

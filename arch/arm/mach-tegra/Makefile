@@ -7,6 +7,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifndef CONFIG_TEGRA186
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 obj-y += cpu.o
@@ -30,9 +31,11 @@ obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
 endif
+endif
 
 obj-$(CONFIG_TEGRA20) += tegra20/
 obj-$(CONFIG_TEGRA30) += tegra30/
 obj-$(CONFIG_TEGRA114) += tegra114/
 obj-$(CONFIG_TEGRA124) += tegra124/
+obj-$(CONFIG_TEGRA186) += tegra186/
 obj-$(CONFIG_TEGRA210) += tegra210/

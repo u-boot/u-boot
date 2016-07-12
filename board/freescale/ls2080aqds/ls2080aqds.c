@@ -26,6 +26,7 @@
 
 #define PIN_MUX_SEL_SDHC	0x00
 #define PIN_MUX_SEL_DSPI	0x0a
+#define SCFG_QSPICLKCTRL_DIV_20	(5 << 27)
 
 #define SET_SDHC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 
@@ -80,6 +81,8 @@ int checkboard(void)
 		puts("PromJet\n");
 	else if (sw == 0x9)
 		puts("NAND\n");
+	else if (sw == 0xf)
+		puts("QSPI\n");
 	else if (sw == 0x15)
 		printf("IFCCard\n");
 	else
@@ -207,6 +210,15 @@ int board_init(void)
 	else
 		config_board_mux(MUX_TYPE_SDHC);
 
+#if defined(CONFIG_NAND) && defined(CONFIG_FSL_QSPI)
+	val = in_le32(dcfg_ccsr + DCFG_RCWSR15 / 4);
+
+	if (DCFG_RCWSR15_IFCGRPABASE_QSPI == (val & (u32)0x3))
+		QIXIS_WRITE(brdcfg[9],
+			    (QIXIS_READ(brdcfg[9]) & 0xf8) |
+			     FSL_QIXIS_BRDCFG9_QSPI);
+#endif
+
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
@@ -218,7 +230,14 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+	i2c_early_init_f();
+#endif
 	fsl_lsch3_early_init_f();
+#ifdef CONFIG_FSL_QSPI
+	/* input clk: 1/2 platform clk, output: input/20 */
+	out_le32(SCFG_BASE + SCFG_QSPICLKCTLR, SCFG_QSPICLKCTRL_DIV_20);
+#endif
 	return 0;
 }
 
@@ -282,7 +301,9 @@ void fdt_fixup_board_enet(void *fdt)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#ifdef CONFIG_FSL_MC_ENET
 	int err;
+#endif
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -295,6 +316,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	size[1] = gd->bd->bi_dram[1].size;
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
+
+	fdt_fixup_dr_usb(blob, bd);
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);

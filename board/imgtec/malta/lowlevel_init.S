@@ -10,6 +10,7 @@
 #include <pci.h>
 
 #include <asm/addrspace.h>
+#include <asm/asm.h>
 #include <asm/regdef.h>
 #include <asm/malta.h>
 #include <asm/mipsregs.h>
@@ -24,7 +25,6 @@
 
 	.text
 	.set noreorder
-	.set mips32
 
 	.globl	lowlevel_init
 lowlevel_init:
@@ -35,7 +35,7 @@ lowlevel_init:
 	mtc0	t0, CP0_CONFIG, 2
 
 	/* detect the core card */
-	li	t0, KSEG1ADDR(MALTA_REVISION)
+	PTR_LI	t0, CKSEG1ADDR(MALTA_REVISION)
 	lw	t0, 0(t0)
 	srl	t0, t0, MALTA_REVISION_CORID_SHF
 	andi	t0, t0, (MALTA_REVISION_CORID_MSK >> \
@@ -69,12 +69,12 @@ lowlevel_init:
 	 */
 _gt64120:
 	/* move GT64120 registers from 0x14000000 to 0x1be00000 */
-	li	t1, KSEG1ADDR(GT_DEF_BASE)
+	PTR_LI	t1, CKSEG1ADDR(GT_DEF_BASE)
 	li	t0, CPU_TO_GT32(0xdf000000)
 	sw	t0, GT_ISD_OFS(t1)
 
 	/* setup MEM-to-PCI0 mapping */
-	li	t1, KSEG1ADDR(MALTA_GT_BASE)
+	PTR_LI	t1, CKSEG1ADDR(MALTA_GT_BASE)
 
 	/* setup PCI0 io window to 0x18000000-0x181fffff */
 	li	t0, CPU_TO_GT32(0xc0000000)
@@ -101,7 +101,7 @@ _gt64120:
 	 */
 _msc01:
 	/* setup peripheral bus controller clock divide */
-	li	t0, KSEG1ADDR(MALTA_MSC01_PBC_BASE)
+	PTR_LI	t0, CKSEG1ADDR(MALTA_MSC01_PBC_BASE)
 	li	t1, 0x1 << MSC01_PBC_CLKCFG_SHF
 	sw	t1, MSC01_PBC_CLKCFG_OFS(t0)
 
@@ -123,7 +123,7 @@ _msc01:
 	sw	t1, MSC01_PBC_CS0CFG_OFS(t0)
 
 	/* setup basic address decode */
-	li	t0, KSEG1ADDR(MALTA_MSC01_BIU_BASE)
+	PTR_LI	t0, CKSEG1ADDR(MALTA_MSC01_BIU_BASE)
 	li	t1, 0x0
 	li	t2, -CONFIG_SYS_MEM_SIZE
 	sw	t1, MSC01_BIU_MCBAS1L_OFS(t0)
@@ -158,7 +158,7 @@ _msc01:
 	sw	t2, MSC01_BIU_IP3MSK2L_OFS(t0)
 
 	/* setup PCI memory */
-	li	t0, KSEG1ADDR(MALTA_MSC01_PCI_BASE)
+	PTR_LI	t0, CKSEG1ADDR(MALTA_MSC01_PCI_BASE)
 	li	t1, MALTA_MSC01_PCIMEM_BASE
 	li	t2, (-MALTA_MSC01_PCIMEM_SIZE) & MSC01_PCI_SC2PMMSKL_MSK_MSK
 	li	t3, MALTA_MSC01_PCIMEM_MAP

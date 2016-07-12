@@ -7,6 +7,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/io.h>
+#include <asm/ioapic.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -338,6 +339,9 @@ int arch_misc_init(void)
 	mrccache_save();
 #endif
 
+	/* Assign a unique I/O APIC ID */
+	io_apic_set_id(1);
+
 	return 0;
 }
 
@@ -359,13 +363,4 @@ void board_final_cleanup(void)
 	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HM_BOUND, HM_BOUND_LOCK);
 
 	return;
-}
-
-int reserve_arch(void)
-{
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	return mrccache_reserve();
-#else
-	return 0;
-#endif
 }

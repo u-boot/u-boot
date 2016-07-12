@@ -51,6 +51,7 @@ void sdelay(unsigned long);
 void setup_early_clocks(void);
 void prcm_init(void);
 void do_board_detect(void);
+void vcores_init(void);
 void bypass_dpll(u32 const base);
 void freq_update_core(void);
 u32 get_sys_clk_freq(void);

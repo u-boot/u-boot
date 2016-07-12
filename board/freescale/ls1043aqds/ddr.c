@@ -116,6 +116,7 @@ phys_size_t initdram(int board_type)
 
 	dram_size = fsl_ddr_sdram();
 #endif
+	erratum_a008850_post();
 
 #ifdef CONFIG_FSL_DEEP_SLEEP
 	fsl_dp_ddr_restore();

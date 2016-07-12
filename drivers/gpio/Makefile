@@ -11,6 +11,9 @@ obj-$(CONFIG_AXP_GPIO)		+= axp_gpio.o
 endif
 obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
 
+obj-$(CONFIG_DM_PCA953X)	+= pca953x_gpio.o
+obj-$(CONFIG_DM_74X164)		+= 74x164_gpio.o
+
 obj-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 obj-$(CONFIG_ATMEL_PIO4)	+= atmel_pio4.o
 obj-$(CONFIG_INTEL_ICH6_GPIO)	+= intel_ich6_gpio.o
@@ -28,10 +31,12 @@ obj-$(CONFIG_S5P)		+= s5p_gpio.o
 obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
 obj-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
 obj-$(CONFIG_TEGRA_GPIO)	+= tegra_gpio.o
+obj-$(CONFIG_TEGRA186_GPIO)	+= tegra186_gpio.o
 obj-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_DM644X_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_ALTERA_PIO)	+= altera_pio.o
 obj-$(CONFIG_MPC83XX_GPIO)	+= mpc83xx_gpio.o
+obj-$(CONFIG_MPC85XX_GPIO)	+= mpc85xx_gpio.o
 obj-$(CONFIG_SH_GPIO_PFC)	+= sh_pfc.o
 obj-$(CONFIG_OMAP_GPIO)	+= omap_gpio.o
 obj-$(CONFIG_DB8500_GPIO)	+= db8500_gpio.o

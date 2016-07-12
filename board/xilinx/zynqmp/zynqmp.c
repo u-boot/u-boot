@@ -9,6 +9,7 @@
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <malloc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -16,6 +17,7 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -146,6 +148,22 @@ int board_early_init_r(void)
 	writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG |
 	       ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
 	       &iou_scntr->counter_control_register);
+
+	return 0;
+}
+
+int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+{
+#if defined(CONFIG_ZYNQ_GEM_EEPROM_ADDR) && \
+    defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET) && \
+    defined(CONFIG_ZYNQ_EEPROM_BUS)
+	i2c_set_bus_num(CONFIG_ZYNQ_EEPROM_BUS);
+
+	if (eeprom_read(CONFIG_ZYNQ_GEM_EEPROM_ADDR,
+			CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET,
+			ethaddr, 6))
+		printf("I2C EEPROM MAC address read failed\n");
+#endif
 
 	return 0;
 }
@@ -295,9 +313,17 @@ void scsi_init(void)
 
 int board_late_init(void)
 {
-	u32 reg = 0;
+	u32 ver, reg = 0;
 	u8 bootmode;
-	u32 ver = zynqmp_get_silicon_version();
+	const char *mode;
+	char *new_targets;
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
+
+	ver = zynqmp_get_silicon_version();
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
@@ -318,36 +344,55 @@ int board_late_init(void)
 	switch (bootmode) {
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
+		mode = "pxe dhcp";
 		setenv("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
-		setenv("modeboot", "qspiboot");
+		mode = "qspi0";
 		puts("QSPI_MODE\n");
+		setenv("modeboot", "qspiboot");
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
+		mode = "mmc0";
 		setenv("modeboot", "sdboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
+		mode = "mmc0";
 		setenv("modeboot", "sdboot");
 		break;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
+		mode = "mmc1";
 		setenv("sdbootdev", "1");
+#else
+		mode = "mmc0";
 #endif
 		setenv("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");
+		mode = "nand0";
 		setenv("modeboot", "nandboot");
 		break;
 	default:
+		mode = "";
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;
 	}
+
+	/*
+	 * One terminating char + one byte for space between mode
+	 * and default boot_targets
+	 */
+	new_targets = calloc(1, strlen(mode) +
+				strlen(getenv("boot_targets")) + 2);
+
+	sprintf(new_targets, "%s %s", mode, getenv("boot_targets"));
+	setenv("boot_targets", new_targets);
 
 	return 0;
 }

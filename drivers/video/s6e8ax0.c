@@ -9,8 +9,8 @@
 #include <common.h>
 #include <asm/arch/mipi_dsim.h>
 
-#include "exynos_mipi_dsi_lowlevel.h"
-#include "exynos_mipi_dsi_common.h"
+#include "exynos/exynos_mipi_dsi_lowlevel.h"
+#include "exynos/exynos_mipi_dsi_common.h"
 
 static void s6e8ax0_panel_cond(struct mipi_dsim_device *dsim_dev)
 {

@@ -12,67 +12,6 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	cpus {
-		#address-cells = <2>;
-		#size-cells = <0>;
-
-		/*
-		 * We expect the enable-method for cpu's to be "psci", but this
-		 * is dependent on the SoC FW, which will fill this in.
-		 *
-		 * Currently supported enable-method is psci v0.2
-		 */
-
-		/* We have 4 clusters having 2 Cortex-A57 cores each */
-		cpu@0 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x0>;
-		};
-
-		cpu@1 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x1>;
-		};
-
-		cpu@100 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x100>;
-		};
-
-		cpu@101 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x101>;
-		};
-
-		cpu@200 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x200>;
-		};
-
-		cpu@201 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x201>;
-		};
-
-		cpu@300 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x300>;
-		};
-
-		cpu@301 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a57";
-			reg = <0x0 0x301>;
-		};
-	};
-
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x00000000 0x80000000 0 0x80000000>;
@@ -125,5 +64,15 @@
 		reg = <0x0 0x2100000 0x0 0x10000>;
 		interrupts = <0 26 0x4>; /* Level high type */
 		num-cs = <6>;
+	};
+
+	qspi: quadspi@1550000 {
+		compatible = "fsl,vf610-qspi";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x20c0000 0x0 0x10000>,
+			<0x0 0x20000000 0x0 0x10000000>;
+		reg-names = "QuadSPI", "QuadSPI-memory";
+		num-cs = <4>;
 	};
 };

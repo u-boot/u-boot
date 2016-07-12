@@ -49,7 +49,8 @@ static int msm_sdc_clk_init(struct udevice *dev)
 					"clock-frequency", 400000);
 	uint clkd[2]; /* clk_id and clk_no */
 	int clk_offset;
-	struct udevice *clk;
+	struct udevice *clk_dev;
+	struct clk clk;
 	int ret;
 
 	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "clock", clkd,
@@ -61,11 +62,17 @@ static int msm_sdc_clk_init(struct udevice *dev)
 	if (clk_offset < 0)
 		return clk_offset;
 
-	ret = uclass_get_device_by_of_offset(UCLASS_CLK, clk_offset, &clk);
+	ret = uclass_get_device_by_of_offset(UCLASS_CLK, clk_offset, &clk_dev);
 	if (ret)
 		return ret;
 
-	ret = clk_set_periph_rate(clk, clkd[1], clk_rate);
+	clk.id = clkd[1];
+	ret = clk_request(clk_dev, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_set_rate(&clk, clk_rate);
+	clk_free(&clk);
 	if (ret < 0)
 		return ret;
 
@@ -129,7 +136,12 @@ static int msm_sdc_probe(struct udevice *dev)
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	/* automatically detect max and min speed */
-	return add_sdhci(host, 0, 0);
+	ret =  add_sdhci(host, 0, 0);
+	if (ret)
+		return ret;
+	host->mmc->dev = dev;
+
+	return 0;
 }
 
 static int msm_sdc_remove(struct udevice *dev)

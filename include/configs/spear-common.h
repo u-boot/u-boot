@@ -35,7 +35,6 @@
 
 /* I2C driver configuration */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #if defined(CONFIG_SPEAR600)
 #define CONFIG_SYS_I2C_BASE			0xD0200000
 #elif defined(CONFIG_SPEAR300)
@@ -105,12 +104,6 @@
 /*
  * Default Environment Varible definitions
  */
-#if defined(CONFIG_SPEAR_USBTTY)
-#define CONFIG_BOOTDELAY			-1
-#else
-#define CONFIG_BOOTDELAY			1
-#endif
-
 #define CONFIG_ENV_OVERWRITE
 
 /*
@@ -185,7 +178,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000

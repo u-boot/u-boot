@@ -100,10 +100,14 @@
 			"setenv fdtfile omap5-uevm.dtb; fi; " \
 		"if test $board_name = dra7xx; then " \
 			"setenv fdtfile dra7-evm.dtb; fi;" \
+		"if test $board_name = dra72x-revc; then " \
+			"setenv fdtfile dra72-evm-revc.dtb; fi;" \
 		"if test $board_name = dra72x; then " \
 			"setenv fdtfile dra72-evm.dtb; fi;" \
 		"if test $board_name = beagle_x15; then " \
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
+		"if test $board_name = am572x_idk; then " \
+			"setenv fdtfile am572x-idk.dtb; fi;" \
 		"if test $board_name = am57xx_evm; then " \
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
@@ -130,13 +134,35 @@
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
- * area between 0x40300000 and 0x4031E000 as a download area for OMAP5
- * (dra7xx is larger, but we do not need to be larger at this time).  We
- * set CONFIG_SPL_DISPLAY_PRINT to have omap_rev_string() called and
+ * area between 0x40300000 and 0x4031E000 as a download area for OMAP5.
+ * On DRA7xx/AM57XX the download area is between 0x40300000 and 0x4037E000.
+ * We set CONFIG_SPL_DISPLAY_PRINT to have omap_rev_string() called and
  * print some information.
  */
-#define CONFIG_SPL_TEXT_BASE		0x40300000
-#define CONFIG_SPL_MAX_SIZE		(0x4031E000 - CONFIG_SPL_TEXT_BASE)
+#ifdef CONFIG_TI_SECURE_DEVICE
+/*
+ * For memory booting on HS parts, the first 4KB of the internal RAM is
+ * reserved for secure world use and the flash loader image is
+ * preceded by a secure certificate. The SPL will therefore run in internal
+ * RAM from address 0x40301350 (0x40300000+0x1000(reserved)+0x350(cert)).
+ */
+#define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ	0x1000
+#define CONFIG_SPL_TEXT_BASE	0x40301350
+#else
+/*
+ * For all booting on GP parts, the flash loader image is
+ * downloaded into internal RAM at address 0x40300000.
+ */
+#define CONFIG_SPL_TEXT_BASE	0x40300000
+#endif
+
+/* DRA7xx/AM57xx have 512K of SRAM, OMAP5 only 128K */
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#define TI_ROM_BOOT_LOAD_END		0x4037E000
+#else
+#define TI_ROM_BOOT_LOAD_END		0x4031E000
+#endif
+#define CONFIG_SPL_MAX_SIZE     (TI_ROM_BOOT_LOAD_END - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
@@ -153,6 +179,7 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
+#undef CONFIG_DM_ETH
 #endif
 
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */

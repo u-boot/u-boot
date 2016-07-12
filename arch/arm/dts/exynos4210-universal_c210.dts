@@ -42,11 +42,11 @@
 	};
 
 	soft-spi {
-		compatible = "u-boot,soft-spi";
-		cs-gpio = <&gpy4 3 0>;
-		sclk-gpio = <&gpy3 1 0>;
-		mosi-gpio = <&gpy3 3 0>;
-		miso-gpio = <&gpy3 0 0>;
+		compatible = "spi-gpio";
+		cs-gpios = <&gpy4 3 0>;
+		gpio-sck = <&gpy3 1 0>;
+		gpio-mosi = <&gpy3 3 0>;
+		gpio-miso = <&gpy3 0 0>;
 		spi-delay-us = <1>;
 		#address-cells = <1>;
 		#size-cells = <0>;

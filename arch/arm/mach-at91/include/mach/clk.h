@@ -20,6 +20,8 @@
 #define GCK_CSS_MCK_CLK		4
 #define GCK_CSS_AUDIO_CLK	5
 
+#define AT91_UTMI_PLL_CLK_FREQ	480000000
+
 static inline unsigned long get_cpu_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;

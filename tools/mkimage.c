@@ -93,11 +93,13 @@ static void usage(const char *msg)
 		"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr,
-		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"
+		"Signing / verified boot options: [-E] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r]\n"
+		"          -E => place data outside of the FIT structure\n"
 		"          -k => set directory containing private keys\n"
 		"          -K => write public keys to this .dtb file\n"
 		"          -c => add comment in signature node\n"
 		"          -F => re-sign existing FIT image\n"
+		"          -p => place external data at a static position\n"
 		"          -r => mark keys used as 'required' in dtb\n");
 #else
 	fprintf(stderr,
@@ -136,7 +138,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:p:O:rR:qsT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -215,6 +217,16 @@ static void process_args(int argc, char **argv)
 			params.os = genimg_get_os_id(optarg);
 			if (params.os < 0)
 				usage("Invalid operating system");
+			break;
+		case 'p':
+			params.external_offset = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid offset size %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+		case 'q':
+			params.quiet = 1;
 			break;
 		case 'r':
 			params.require_keys = 1;

@@ -12,7 +12,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -35,4 +35,4 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 */
 	fdt_fixup_ethernet(blob);
 }
-#endif /* CONFIG_OF_LIBFDT && CONFIG_OF_BOARD_SETUP */
+#endif /* CONFIG_OF_BOARD_SETUP */

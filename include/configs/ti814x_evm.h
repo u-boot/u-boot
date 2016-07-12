@@ -39,7 +39,6 @@
 /* commands to include */
 #define CONFIG_VERSION_VARIABLE
 
-#define CONFIG_BOOTDELAY		1	/* negative for no autoboot */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \

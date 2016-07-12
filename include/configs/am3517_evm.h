@@ -200,7 +200,6 @@
 #endif /* CONFIG_NAND */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	10
 
 #define CONFIG_BOOTFILE		"uImage"
 

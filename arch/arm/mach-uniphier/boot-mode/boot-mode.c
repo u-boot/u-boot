@@ -39,7 +39,8 @@ u32 spl_boot_device_raw(void)
 	case SOC_UNIPHIER_LD6B:
 		return uniphier_pxs2_boot_device();
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD11:
 	case SOC_UNIPHIER_LD20:
 		return uniphier_ld20_boot_device();
 #endif
@@ -50,14 +51,33 @@ u32 spl_boot_device_raw(void)
 
 u32 spl_boot_device(void)
 {
-	u32 ret;
+	u32 mode;
 
-	ret = spl_boot_device_raw();
+	mode = spl_boot_device_raw();
 
-	return ret == BOOT_DEVICE_USB ? BOOT_DEVICE_NOR : ret;
+	switch (uniphier_get_soc_type()) {
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2) || defined(CONFIG_ARCH_UNIPHIER_LD6B)
+	case SOC_UNIPHIER_PXS2:
+	case SOC_UNIPHIER_LD6B:
+		if (mode == BOOT_DEVICE_USB)
+			mode = BOOT_DEVICE_NOR;
+		break;
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD11:
+	case SOC_UNIPHIER_LD20:
+		if (mode == BOOT_DEVICE_MMC1 || mode == BOOT_DEVICE_USB)
+			mode = BOOT_DEVICE_BOARD;
+		break;
+#endif
+	default:
+		break;
+	}
+
+	return mode;
 }
 
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	struct mmc *mmc;
 

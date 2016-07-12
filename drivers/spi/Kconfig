@@ -23,6 +23,15 @@ config ALTERA_SPI
 	  IP core. Please find details on the "Embedded Peripherals IP
 	  User Guide" of Altera.
 
+config ATH79_SPI
+	bool "Atheros SPI driver"
+	depends on ARCH_ATH79
+	help
+	  Enable the Atheros ar7xxx/ar9xxx SoC SPI driver, it was used
+	  to access SPI NOR flash and other SPI peripherals. This driver
+	  uses driver model and requires a device tree binding to operate.
+	  please refer to doc/device-tree-bindings/spi/spi-ath79.txt.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
@@ -65,6 +74,14 @@ config ICH_SPI
 	  Enable the Intel ICH SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
+
+config PIC32_SPI
+	bool "Microchip PIC32 SPI driver"
+	depends on MACH_PIC32
+	help
+	  Enable the Microchip PIC32 SPI driver. This driver can be used
+	  to access the SPI NOR flash, MMC-over-SPI on platforms based on
+	  Microchip PIC32 family devices.
 
 config ROCKCHIP_SPI
 	bool "Rockchip SPI driver"

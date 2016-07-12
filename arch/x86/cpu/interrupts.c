@@ -15,14 +15,14 @@
 #include <dm.h>
 #include <asm/cache.h>
 #include <asm/control_regs.h>
+#include <asm/i8259.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
-#include <asm/processor-flags.h>
-#include <linux/compiler.h>
+#include <asm/lapic.h>
 #include <asm/msr.h>
+#include <asm/processor-flags.h>
 #include <asm/processor.h>
 #include <asm/u-boot-x86.h>
-#include <asm/i8259.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -265,6 +265,8 @@ int interrupt_init(void)
 	/* Initialize the master/slave i8259 pic */
 	i8259_init();
 #endif
+
+	lapic_setup();
 
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts();

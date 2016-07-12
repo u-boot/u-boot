@@ -65,12 +65,30 @@ static void omap_rev_string(void)
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
+	const char *sec_s;
+
+	switch (get_device_type()) {
+	case TST_DEVICE:
+		sec_s = "TST";
+		break;
+	case EMU_DEVICE:
+		sec_s = "EMU";
+		break;
+	case HS_DEVICE:
+		sec_s = "HS";
+		break;
+	case GP_DEVICE:
+		sec_s = "GP";
+		break;
+	default:
+		sec_s = "?";
+	}
+
 	if (soc_variant)
 		printf("OMAP");
 	else
 		printf("DRA");
-	printf("%x ES%x.%x\n", omap_variant, major_rev,
-	       minor_rev);
+	printf("%x-%s ES%x.%x\n", omap_variant, sec_s, major_rev, minor_rev);
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -91,6 +109,16 @@ void __weak srcomp_enable(void)
  * overridden in the SoC family board file where desired.
  */
 void __weak do_board_detect(void)
+{
+}
+
+/**
+ * vcores_init() - Assign omap_vcores based on board
+ *
+ * Function to pick the vcores based on board. This is expected to be
+ * overridden in the SoC family board file where desired.
+ */
+void __weak vcores_init(void)
 {
 }
 
@@ -131,6 +159,7 @@ void early_system_init(void)
 #endif
 	setup_early_clocks();
 	do_board_detect();
+	vcores_init();
 	prcm_init();
 }
 

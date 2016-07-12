@@ -8,13 +8,13 @@
 #include <nand.h>
 #include <malloc.h>
 
-static nand_info_t mtd;
+static struct mtd_info *mtd;
 static struct nand_chip nand_chip;
 
 static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 			     int column, int page_addr)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 timeo, time_start;
 
 	/* write out the command to the device */
@@ -51,7 +51,7 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 
 static int mxs_flash_ident(struct mtd_info *mtd)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	int i;
 	u8 mfg_id, dev_id;
 	u8 id_data[8];
@@ -111,7 +111,7 @@ static int mxs_flash_ident(struct mtd_info *mtd)
 
 static int mxs_read_page_ecc(struct mtd_info *mtd, void *buf, unsigned int page)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	int ret;
 
 	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x0, page);
@@ -125,7 +125,7 @@ static int mxs_read_page_ecc(struct mtd_info *mtd, void *buf, unsigned int page)
 
 static int is_badblock(struct mtd_info *mtd, loff_t offs, int allowbbt)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	unsigned int block = offs >> chip->phys_erase_shift;
 	unsigned int page = offs >> chip->page_shift;
 
@@ -147,14 +147,14 @@ static int mxs_nand_init(void)
 
 	/* init mxs nand driver */
 	board_nand_init(&nand_chip);
-	mtd.priv = &nand_chip;
+	mtd = nand_to_mtd(&nand_chip);
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;
 	nand_chip.numchips = 1;
 
 	/* identify flash device */
 	puts("NAND : ");
-	if (mxs_flash_ident(&mtd)) {
+	if (mxs_flash_ident(mtd)) {
 		printf("Failed to identify\n");
 		return -1;
 	}
@@ -162,12 +162,12 @@ static int mxs_nand_init(void)
 	/* allocate and initialize buffers */
 	nand_chip.buffers = memalign(ARCH_DMA_MINALIGN,
 				     sizeof(*nand_chip.buffers));
-	nand_chip.oob_poi = nand_chip.buffers->databuf + mtd.writesize;
+	nand_chip.oob_poi = nand_chip.buffers->databuf + mtd->writesize;
 	/* setup flash layout (does not scan as we override that) */
-	mtd.size = nand_chip.chipsize;
-	nand_chip.scan_bbt(&mtd);
+	mtd->size = nand_chip.chipsize;
+	nand_chip.scan_bbt(mtd);
 
-	printf("%llu MiB\n", (mtd.size / (1024 * 1024)));
+	printf("%llu MiB\n", (mtd->size / (1024 * 1024)));
 	return 0;
 }
 
@@ -180,20 +180,20 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 
 	if (mxs_nand_init())
 		return -ENODEV;
-	chip = mtd.priv;
+	chip = mtd_to_nand(mtd);
 	page = offs >> chip->page_shift;
-	nand_page_per_block = mtd.erasesize / mtd.writesize;
+	nand_page_per_block = mtd->erasesize / mtd->writesize;
 
 	debug("%s offset:0x%08x len:%d page:%d\n", __func__, offs, size, page);
 
-	size = roundup(size, mtd.writesize);
+	size = roundup(size, mtd->writesize);
 	while (sz < size) {
-		if (mxs_read_page_ecc(&mtd, buf, page) < 0)
+		if (mxs_read_page_ecc(mtd, buf, page) < 0)
 			return -1;
-		sz += mtd.writesize;
-		offs += mtd.writesize;
+		sz += mtd->writesize;
+		offs += mtd->writesize;
 		page++;
-		buf += mtd.writesize;
+		buf += mtd->writesize;
 
 		/*
 		 * Check if we have crossed a block boundary, and if so
@@ -204,10 +204,10 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 			 * Yes, new block. See if this block is good. If not,
 			 * loop until we find a good block.
 			 */
-			while (is_badblock(&mtd, offs, 1)) {
+			while (is_badblock(mtd, offs, 1)) {
 				page = page + nand_page_per_block;
 				/* Check i we've reached the end of flash. */
-				if (page >= mtd.size >> chip->page_shift)
+				if (page >= mtd->size >> chip->page_shift)
 					return -ENOMEM;
 			}
 		}

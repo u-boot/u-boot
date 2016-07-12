@@ -145,6 +145,7 @@ struct prcm_regs {
 	u32 cm_ssc_modfreqdiv_dpll_unipro;
 	u32 cm_coreaon_usb_phy1_core_clkctrl;
 	u32 cm_coreaon_usb_phy2_core_clkctrl;
+	u32 cm_coreaon_usb_phy3_core_clkctrl;
 	u32 cm_coreaon_l3init_60m_gfclk_clkctrl;
 
 	/* cm2.core */
@@ -715,6 +716,17 @@ static inline u8 is_dra72x(void)
 #define DRA752_ES2_0	0x07520200
 #define DRA722_ES1_0	0x07220100
 #define DRA722_ES2_0	0x07220200
+
+/*
+ * silicon device type
+ * Moving to common from cpu.h, since it is shared by various omap devices
+ */
+#define DEVICE_MASK         (BIT(8) | BIT(9) | BIT(10))
+#define TST_DEVICE          0x0
+#define EMU_DEVICE          0x1
+#define HS_DEVICE           0x2
+#define GP_DEVICE           0x3
+
 
 /*
  * SRAM scratch space entries

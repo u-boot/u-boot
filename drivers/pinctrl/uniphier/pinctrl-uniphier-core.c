@@ -14,6 +14,8 @@
 
 #include "pinctrl-uniphier.h"
 
+static const char *uniphier_pinctrl_dummy_name = "_dummy";
+
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
@@ -25,6 +27,9 @@ static const char *uniphier_pinctrl_get_group_name(struct udevice *dev,
 						   unsigned selector)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (!priv->socdata->groups[selector].name)
+		return uniphier_pinctrl_dummy_name;
 
 	return priv->socdata->groups[selector].name;
 }
@@ -40,6 +45,9 @@ static const char *uniphier_pinmux_get_function_name(struct udevice *dev,
 						     unsigned selector)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (!priv->socdata->functions[selector])
+		return uniphier_pinctrl_dummy_name;
 
 	return priv->socdata->functions[selector];
 }
@@ -91,7 +99,7 @@ static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
 }
 
 static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
-				    unsigned muxval)
+				    int muxval)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	unsigned mux_bits, reg_stride, reg, reg_end, shift, mask;
@@ -100,6 +108,9 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 
 	/* some pins need input-enabling */
 	uniphier_pinconf_input_enable(dev, pin);
+
+	if (muxval < 0)
+		return;		/* dedicated pin; nothing to do for pin-mux */
 
 	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE) {
 		/*
@@ -173,7 +184,7 @@ int uniphier_pinctrl_probe(struct udevice *dev,
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = dev_get_addr(dev->parent);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

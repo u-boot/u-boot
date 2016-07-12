@@ -19,7 +19,6 @@
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
-#include <environment.h>
 #include <fsl_sec.h>
 #include "cpld.h"
 #ifdef CONFIG_U_QE
@@ -31,12 +30,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
-	static const char *freq[3] = {"100.00MHZ", "156.25MHZ"};
+	static const char *freq[2] = {"100.00MHZ", "156.25MHZ"};
 #ifndef CONFIG_SD_BOOT
 	u8 cfg_rcw_src1, cfg_rcw_src2;
-	u32 cfg_rcw_src;
+	u16 cfg_rcw_src;
 #endif
-	u32 sd1refclk_sel;
+	u8 sd1refclk_sel;
 
 	printf("Board: LS1043ARDB, boot from ");
 
@@ -83,20 +82,10 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
-
-	/*
-	 * Set CCI-400 control override register to enable barrier
-	 * transaction
-	 */
-	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_FSL_IFC
 	init_final_memctl_regs();
-#endif
-
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
 #endif
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
@@ -106,6 +95,8 @@ int board_init(void)
 #ifdef CONFIG_U_QE
 	u_qe_init();
 #endif
+	/* invert AQR105 IRQ pins polarity */
+	out_be32(&scfg->intpcr, AQR105_IRQ_MASK);
 
 	return 0;
 }

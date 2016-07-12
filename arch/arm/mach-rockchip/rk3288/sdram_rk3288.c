@@ -36,7 +36,7 @@ struct chan_info {
 struct dram_info {
 	struct chan_info chan[2];
 	struct ram_info info;
-	struct udevice *ddr_clk;
+	struct clk ddr_clk;
 	struct rk3288_cru *cru;
 	struct rk3288_grf *grf;
 	struct rk3288_sgrf *sgrf;
@@ -576,7 +576,7 @@ static void dram_all_config(const struct dram_info *dram,
 	rk_clrsetreg(&dram->sgrf->soc_con2, 0x1f, sdram_params->base.stride);
 }
 
-static int sdram_init(const struct dram_info *dram,
+static int sdram_init(struct dram_info *dram,
 		      const struct rk3288_sdram_params *sdram_params)
 {
 	int channel;
@@ -592,8 +592,8 @@ static int sdram_init(const struct dram_info *dram,
 		return -E2BIG;
 	}
 
-	debug("ddr clk %s\n", dram->ddr_clk->name);
-	ret = clk_set_rate(dram->ddr_clk, sdram_params->base.ddr_freq);
+	debug("ddr clk dpll\n");
+	ret = clk_set_rate(&dram->ddr_clk, sdram_params->base.ddr_freq);
 	debug("ret=%d\n", ret);
 	if (ret) {
 		debug("Could not set DDR clock\n");
@@ -836,6 +836,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	struct dram_info *priv = dev_get_priv(dev);
 	struct regmap *map;
 	int ret;
+	struct udevice *dev_clk;
 
 	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_NOC);
 	if (IS_ERR(map))
@@ -856,7 +857,11 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	priv->chan[1].pctl = regmap_get_range(map, 2);
 	priv->chan[1].publ = regmap_get_range(map, 3);
 
-	ret = uclass_get_device(UCLASS_CLK, CLK_DDR, &priv->ddr_clk);
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev_clk);
+	if (ret)
+		return ret;
+	priv->ddr_clk.id = CLK_DDR;
+	ret = clk_request(dev_clk, &priv->ddr_clk);
 	if (ret)
 		return ret;
 

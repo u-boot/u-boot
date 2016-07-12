@@ -148,8 +148,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	/* send memory definition to kernel */
 #define CONFIG_INITRD_TAG		/* send initrd params	*/
 
-#define CONFIG_BOOTDELAY	5
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define	CONFIG_BOOTFILE		__stringify(CONFIG_BOARD_NAME) "-linux.bin"
 #define CONFIG_BOOTARGS		"console=" __stringify(ACFG_CONSOLE_DEV) "," \
 			__stringify(CONFIG_BAUDRATE) " " MTDPARTS_DEFAULT \

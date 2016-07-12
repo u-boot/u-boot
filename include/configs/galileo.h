@@ -29,7 +29,7 @@
 
 /* SATA is not supported in Quark SoC */
 #undef CONFIG_SCSI_AHCI
-#undef CONFIG_CMD_SCSI
+#undef CONFIG_SCSI
 
 /* Video is not supported in Quark SoC */
 #undef CONFIG_VIDEO

@@ -187,7 +187,7 @@ void lcd_show_board_info(void)
 	nand_size = 0;
 #ifdef CONFIG_NAND_ATMEL
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i].size;
+		nand_size += nand_info[i]->size;
 #endif
 	lcd_printf("%ld MB SDRAM, %ld MB NAND\n",
 		   dram_size >> 20, nand_size >> 20);

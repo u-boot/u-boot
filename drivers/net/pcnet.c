@@ -135,13 +135,10 @@ static void pcnet_halt (struct eth_device *dev);
 static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
 
 static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
-						void *addr, bool uncached)
+						void *addr)
 {
-	pci_dev_t devbusfn = (pci_dev_t)dev->priv;
+	pci_dev_t devbusfn = (pci_dev_t)(unsigned long)dev->priv;
 	void *virt_addr = addr;
-
-	if (uncached)
-		virt_addr = (void *)CKSEG0ADDR(addr);
 
 	return pci_virt_to_mem(devbusfn, virt_addr);
 }
@@ -158,6 +155,7 @@ int pcnet_initialize(bd_t *bis)
 	struct eth_device *dev;
 	u16 command, status;
 	int dev_nr = 0;
+	u32 bar;
 
 	PCNET_DEBUG1("\npcnet_initialize...\n");
 
@@ -179,19 +177,18 @@ int pcnet_initialize(bd_t *bis)
 			break;
 		}
 		memset(dev, 0, sizeof(*dev));
-		dev->priv = (void *)devbusfn;
+		dev->priv = (void *)(unsigned long)devbusfn;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
 		/*
 		 * Setup the PCI device.
 		 */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0,
-				      (unsigned int *)&dev->iobase);
-		dev->iobase = pci_io_to_phys(devbusfn, dev->iobase);
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &bar);
+		dev->iobase = pci_io_to_phys(devbusfn, bar);
 		dev->iobase &= ~0xf;
 
-		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",
-			     dev->name, devbusfn, dev->iobase);
+		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
+			     dev->name, devbusfn, (unsigned long)dev->iobase);
 
 		command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
@@ -298,7 +295,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 {
 	struct pcnet_uncached_priv *uc;
 	int i, val;
-	u32 addr;
+	unsigned long addr;
 
 	PCNET_DEBUG1("%s: pcnet_init...\n", dev->name);
 
@@ -336,16 +333,18 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * must be aligned on 16-byte boundaries.
 	 */
 	if (lp == NULL) {
-		addr = (u32)malloc(sizeof(pcnet_priv_t) + 0x10);
+		addr = (unsigned long)malloc(sizeof(pcnet_priv_t) + 0x10);
 		addr = (addr + 0xf) & ~0xf;
 		lp = (pcnet_priv_t *)addr;
 
-		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->uc));
+		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
+					       sizeof(*lp->uc));
 		flush_dcache_range(addr, addr + sizeof(*lp->uc));
 		addr = UNCACHED_SDRAM(addr);
 		lp->uc = (struct pcnet_uncached_priv *)addr;
 
-		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->rx_buf));
+		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
+					       sizeof(*lp->rx_buf));
 		flush_dcache_range(addr, addr + sizeof(*lp->rx_buf));
 		lp->rx_buf = (void *)addr;
 	}
@@ -361,7 +360,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		addr = pcnet_virt_to_mem(dev, (*lp->rx_buf)[i], false);
+		addr = pcnet_virt_to_mem(dev, (*lp->rx_buf)[i]);
 		uc->rx_ring[i].base = cpu_to_le32(addr);
 		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 		uc->rx_ring[i].status = cpu_to_le16(0x8000);
@@ -393,9 +392,9 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 
 	uc->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
 					       RX_RING_LEN_BITS);
-	addr = pcnet_virt_to_mem(dev, uc->rx_ring, true);
+	addr = pcnet_virt_to_mem(dev, uc->rx_ring);
 	uc->init_block.rx_ring = cpu_to_le32(addr);
-	addr = pcnet_virt_to_mem(dev, uc->tx_ring, true);
+	addr = pcnet_virt_to_mem(dev, uc->tx_ring);
 	uc->init_block.tx_ring = cpu_to_le32(addr);
 
 	PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
@@ -406,7 +405,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * Tell the controller where the Init Block is located.
 	 */
 	barrier();
-	addr = pcnet_virt_to_mem(dev, &lp->uc->init_block, true);
+	addr = pcnet_virt_to_mem(dev, &lp->uc->init_block);
 	pcnet_write_csr(dev, 1, addr & 0xffff);
 	pcnet_write_csr(dev, 2, (addr >> 16) & 0xffff);
 
@@ -464,7 +463,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * Setup Tx ring. Caution: the write order is important here,
 	 * set the status with the "ownership" bits last.
 	 */
-	addr = pcnet_virt_to_mem(dev, packet, false);
+	addr = pcnet_virt_to_mem(dev, packet);
 	writew(-pkt_len, &entry->length);
 	writel(0, &entry->misc);
 	writel(addr, &entry->base);

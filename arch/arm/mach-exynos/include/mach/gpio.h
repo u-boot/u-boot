@@ -1349,7 +1349,7 @@ enum exynos5420_gpio_pin {
 };
 
 struct gpio_info {
-	unsigned int reg_addr;	/* Address of register for this part */
+	unsigned long reg_addr;	/* Address of register for this part */
 	unsigned int max_gpio;	/* Maximum GPIO in this part */
 };
 

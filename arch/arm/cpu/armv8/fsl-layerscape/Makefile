@@ -28,3 +28,7 @@ endif
 ifneq ($(CONFIG_LS1043A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1043a_serdes.o
 endif
+
+ifneq ($(CONFIG_LS1012A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += ls1012a_serdes.o
+endif

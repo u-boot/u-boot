@@ -112,10 +112,12 @@ static int vitesse_parse_status(struct phy_device *phydev)
 
 static int vitesse_startup(struct phy_device *phydev)
 {
-	genphy_update_link(phydev);
-	vitesse_parse_status(phydev);
+	int ret;
 
-	return 0;
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+	return vitesse_parse_status(phydev);
 }
 
 static int cis8204_config(struct phy_device *phydev)

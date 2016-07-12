@@ -5,3 +5,4 @@
 #
 
 obj-y	+= conga-qeval20-qa3.o start.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o

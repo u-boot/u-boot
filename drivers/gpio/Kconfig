@@ -109,6 +109,21 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config TEGRA_GPIO
+	bool "Tegra20..210 GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support for the GPIO controller contained in NVIDIA Tegra20 through
+	  Tegra210.
+
+config TEGRA186_GPIO
+	bool "Tegra186 GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support for the GPIO controller contained in NVIDIA Tegra186. This
+	  covers both the "main" and "AON" controller instances, even though
+	  they have slightly different register layout.
+
 config GPIO_UNIPHIER
 	bool "UniPhier GPIO"
 	depends on ARCH_UNIPHIER
@@ -143,4 +158,60 @@ config ZYNQ_GPIO
 	help
 	  Supports GPIO access on Zynq SoC.
 
+config DM_74X164
+	bool "74x164 serial-in/parallel-out 8-bits shift register"
+	depends on DM_GPIO
+	help
+	  Driver for 74x164 compatible serial-in/parallel-out 8-outputs
+	  shift registers, such as 74lv165, 74hc595.
+	  This driver can be used to provide access to more gpio outputs.
+
+config DM_PCA953X
+	bool "PCA95[357]x, PCA9698, TCA64xx, and MAX7310 I/O ports"
+	depends on DM_GPIO
+	help
+	  Say yes here to provide access to several register-oriented
+	  SMBus I/O expanders, made mostly by NXP or TI.  Compatible
+	  models include:
+
+	  4 bits:	pca9536, pca9537
+
+	  8 bits:	max7310, max7315, pca6107, pca9534, pca9538, pca9554,
+			pca9556, pca9557, pca9574, tca6408, xra1202
+
+	  16 bits:	max7312, max7313, pca9535, pca9539, pca9555, pca9575,
+			tca6416
+
+	  24 bits:	tca6424
+
+	  40 bits:	pca9505, pca9698
+
+	  Now, max 24 bits chips and PCA953X compatible chips are
+	  supported
+
+config MPC85XX_GPIO
+	bool "Freescale MPC85XX GPIO driver"
+	depends on DM_GPIO
+	help
+	  This driver supports the built-in GPIO controller of MPC85XX CPUs.
+	  Each GPIO bank is identified by its own entry in the device tree,
+	  i.e.
+
+	  gpio-controller@fc00 {
+		#gpio-cells = <2>;
+		compatible = "fsl,pq3-gpio";
+		reg = <0xfc00 0x100>
+	  }
+
+	  By default, each bank is assumed to have 32 GPIOs, but the ngpios
+	  setting is honored, so the number of GPIOs for each bank is
+	  configurable to match the actual GPIO count of the SoC (e.g. the
+	  32/32/23 banks of the P1022 SoC).
+
+	  Aside from the standard functions of input/output mode, and output
+	  value setting, the open-drain feature, which can configure individual
+	  GPIOs to work as open-drain outputs, is supported.
+
+	  The driver has been tested on MPC85XX, but it is likely that other
+	  PowerQUICC III devices will work as well.
 endmenu

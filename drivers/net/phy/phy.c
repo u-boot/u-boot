@@ -248,7 +248,7 @@ int genphy_update_link(struct phy_device *phydev)
 			if (i > PHY_ANEG_TIMEOUT) {
 				printf(" TIMEOUT !\n");
 				phydev->link = 0;
-				return 0;
+				return -ETIMEDOUT;
 			}
 
 			if (ctrlc()) {
@@ -431,10 +431,13 @@ int genphy_config(struct phy_device *phydev)
 
 int genphy_startup(struct phy_device *phydev)
 {
-	genphy_update_link(phydev);
-	genphy_parse_link(phydev);
+	int ret;
 
-	return 0;
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return genphy_parse_link(phydev);
 }
 
 int genphy_shutdown(struct phy_device *phydev)
@@ -458,6 +461,9 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_MV88E61XX_SWITCH
+	phy_mv88e61xx_init();
+#endif
 #ifdef CONFIG_PHY_AQUANTIA
 	phy_aquantia_init();
 #endif
@@ -876,9 +882,7 @@ __weak int board_phy_config(struct phy_device *phydev)
 int phy_config(struct phy_device *phydev)
 {
 	/* Invoke an optional board-specific helper */
-	board_phy_config(phydev);
-
-	return 0;
+	return board_phy_config(phydev);
 }
 
 int phy_shutdown(struct phy_device *phydev)

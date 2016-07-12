@@ -108,6 +108,7 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 		return ret;
 
 	upriv->mmc = host->mmc;
+	host->mmc->dev = dev;
 
 	return 0;
 }

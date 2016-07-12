@@ -13,15 +13,11 @@ endif
 endif
 
 ifdef MINIMAL
-
-obj-y	+= spl_minimal.o tlb.o law.o
-
+obj-y	+= spl_minimal.o
 else
-
-obj-y        += bsc9131rdb.o
-obj-y        += ddr.o
-obj-y        += law.o
-obj-y        += tlb.o
-#obj-y		+= bsc9131rdb_mux.o
-
+obj-y	+= bsc9131rdb.o
+obj-y	+= ddr.o
 endif
+
+obj-y	+= law.o
+obj-y	+= tlb.o

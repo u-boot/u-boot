@@ -69,8 +69,13 @@
 #undef CONFIG_BOOTP_HOSTNAME
 #undef CONFIG_BOOTP_MAY_FAIL
 #undef CONFIG_BOOTP_SERVERIP
+#undef CONFIG_BOOTP_PXE
 #undef CONFIG_CMD_BOOTI
 #undef CONFIG_CMD_UNZIP
+
+/* PXE */
+#undef CONFIG_CMD_PXE
+#undef CONFIG_MENU
 
 /* Define needed configs */
 #define CONFIG_CMD_MEMORY

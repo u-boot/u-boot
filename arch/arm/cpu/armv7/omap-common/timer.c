@@ -77,7 +77,7 @@ ulong get_timer_masked(void)
 		/* move stamp fordward with absoulte diff ticks */
 		gd->arch.tbl += (now - gd->arch.lastinc);
 	} else {	/* we have rollover of incrementer */
-		gd->arch.tbl += ((TIMER_LOAD_VAL / (TIMER_CLOCK /
+		gd->arch.tbl += ((TIMER_OVERFLOW_VAL / (TIMER_CLOCK /
 				CONFIG_SYS_HZ)) - gd->arch.lastinc) + now;
 	}
 	gd->arch.lastinc = now;

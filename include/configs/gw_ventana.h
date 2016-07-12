@@ -18,7 +18,6 @@
 /* Falcon Mode */
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_OS_BOOT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 #define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
 
@@ -33,6 +32,7 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
+#undef CONFIG_SPL_EXT_SUPPORT
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
@@ -51,9 +51,6 @@
 #define CONFIG_DM_GPIO
 #define CONFIG_DM_THERMAL
 #endif
-
-/* GPIO */
-#define CONFIG_MXC_GPIO
 
 /* Thermal */
 #define CONFIG_IMX_THERMAL
@@ -204,6 +201,7 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
+#define CONFIG_PREBOOT
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -284,37 +282,45 @@
 	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"disk=0\0" \
+	"part=1\0" \
 	\
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
 	"initrd_high=0xffffffff\0" \
+	"fixfdt=" \
+		"fdt addr ${fdt_addr}\0" \
 	"bootdir=boot\0" \
 	"loadfdt=" \
 		"if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file}; " \
+			"run fixfdt; " \
 		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file1}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file1}; " \
+			"run fixfdt; " \
 		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file2}; then " \
 			"echo Loaded DTB from ${bootdir}/${fdt_file2}; " \
+			"run fixfdt; " \
 		"fi\0" \
 	\
+	"fs=ext4\0" \
 	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
 		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
-			"source; " \
+			"source ${loadaddr}; " \
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
-	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
+	"mmc_root=/dev/mmcblk0p1 rootfstype=${fs} rootwait rw\0" \
 	"mmc_boot=" \
-		"setenv fsload 'ext2load mmc 0:1'; " \
-		"mmc dev 0 && mmc rescan && " \
+		"setenv fsload \"${fs}load mmc ${disk}:${part}\"; " \
+		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/mmcblk0p1 rootfstype=ext4 " \
+				"root=/dev/mmcblk0p1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
@@ -322,26 +328,28 @@
 		"fi\0" \
 	\
 	"sata_boot=" \
-		"setenv fsload 'ext2load sata 0:1'; sata init && " \
+		"setenv fsload \"${fs}load sata ${disk}:${part}\"; " \
+		"sata init && " \
 		"setenv dtype sata; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
 			"fi; " \
 		"fi\0" \
 	"usb_boot=" \
-		"setenv fsload 'ext2load usb 0:1'; usb start && usb dev 0 && " \
+		"setenv fsload \"${fs}load usb ${disk}:${part}\"; " \
+		"usb start && usb dev ${disk} && " \
 		"setenv dtype usb; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"bootm; " \
@@ -404,7 +412,7 @@
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=${root} ${video} ${extra}; " \
-			"if run loadfdt && fdt addr ${fdt_addr}; then " \
+			"if run loadfdt; then " \
 				"ubifsumount; " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \

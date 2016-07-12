@@ -9,7 +9,7 @@
  */
 
 #include <common.h>
-#include <clk.h>
+#include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -212,11 +212,11 @@ static int clk_init_uart(struct msm_clk_priv *priv)
 	return 0;
 }
 
-ulong msm_set_periph_rate(struct udevice *dev, int periph, ulong rate)
+ulong msm_set_rate(struct clk *clk, ulong rate)
 {
-	struct msm_clk_priv *priv = dev_get_priv(dev);
+	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
-	switch (periph) {
+	switch (clk->id) {
 	case 0: /* SDC1 */
 		return clk_init_sdc(priv, 0, rate);
 		break;
@@ -243,7 +243,7 @@ static int msm_clk_probe(struct udevice *dev)
 }
 
 static struct clk_ops msm_clk_ops = {
-	.set_periph_rate = msm_set_periph_rate,
+	.set_rate = msm_set_rate,
 };
 
 static const struct udevice_id msm_clk_ids[] = {

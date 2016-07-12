@@ -3,7 +3,7 @@
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
-#include "libfdt_env.h"
+#include <libfdt_env.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>

@@ -346,7 +346,6 @@
 
 #define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 
-#define CONFIG_BOOTDELAY 1		/* -1 disables auto-boot	*/
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Welcome on the ABB Socrates Board;" \

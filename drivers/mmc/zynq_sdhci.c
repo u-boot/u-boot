@@ -35,6 +35,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		  CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 
 	upriv->mmc = host->mmc;
+	host->mmc->dev = dev;
 
 	return 0;
 }

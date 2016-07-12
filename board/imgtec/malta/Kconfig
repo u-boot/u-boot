@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "malta"
 
+config SYS_TEXT_BASE
+	default 0xbe000000 if 32BIT
+	default 0xffffffffbe000000 if 64BIT
+
 endif

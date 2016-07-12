@@ -28,12 +28,8 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_CONS_SCIF0	1
 
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_ENV_OVERWRITE	1
-
-/* check for keypress on bootdelay==0 */
-/*#define CONFIG_ZERO_BOOTDELAY_CHECK*/
 
 #define CONFIG_SYS_TEXT_BASE		0x0FFC0000
 #define CONFIG_SYS_SDRAM_BASE		(0x08000000)

@@ -185,26 +185,17 @@ static int twsi_wait(struct i2c_adapter *adap, int expected_status)
 }
 
 /*
- * These flags are ORed to any write to the control register
- * They allow global setting of TWSIEN and ACK.
- * By default none are set.
- * twsi_start() sets TWSIEN (in case the controller was disabled)
- * twsi_recv() sets ACK or resets it depending on expected status.
- */
-static u8 twsi_control_flags = MVTWSI_CONTROL_TWSIEN;
-
-/*
  * Assert the START condition, either in a single I2C transaction
  * or inside back-to-back ones (repeated starts).
  */
-static int twsi_start(struct i2c_adapter *adap, int expected_status)
+static int twsi_start(struct i2c_adapter *adap, int expected_status, u8 *flags)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 
 	/* globally set TWSIEN in case it was not */
-	twsi_control_flags |= MVTWSI_CONTROL_TWSIEN;
+	*flags |= MVTWSI_CONTROL_TWSIEN;
 	/* assert START */
-	writel(twsi_control_flags | MVTWSI_CONTROL_START |
+	writel(*flags | MVTWSI_CONTROL_START |
 				    MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to process START */
 	return twsi_wait(adap, expected_status);
@@ -213,14 +204,15 @@ static int twsi_start(struct i2c_adapter *adap, int expected_status)
 /*
  * Send a byte (i2c address or data).
  */
-static int twsi_send(struct i2c_adapter *adap, u8 byte, int expected_status)
+static int twsi_send(struct i2c_adapter *adap, u8 byte, int expected_status,
+		     u8 *flags)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 
 	/* put byte in data register for sending */
 	writel(byte, &twsi->data);
 	/* clear any pending interrupt -- that'll cause sending */
-	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
+	writel(*flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and check ACK */
 	return twsi_wait(adap, expected_status);
 }
@@ -229,18 +221,18 @@ static int twsi_send(struct i2c_adapter *adap, u8 byte, int expected_status)
  * Receive a byte.
  * Global mvtwsi_control_flags variable says if we should ack or nak.
  */
-static int twsi_recv(struct i2c_adapter *adap, u8 *byte)
+static int twsi_recv(struct i2c_adapter *adap, u8 *byte, u8 *flags)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 	int expected_status, status;
 
 	/* compute expected status based on ACK bit in global control flags */
-	if (twsi_control_flags & MVTWSI_CONTROL_ACK)
+	if (*flags & MVTWSI_CONTROL_ACK)
 		expected_status = MVTWSI_STATUS_DATA_R_ACK;
 	else
 		expected_status = MVTWSI_STATUS_DATA_R_NAK;
 	/* acknowledge *previous state* and launch receive */
-	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
+	writel(*flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and assert ACK or NAK */
 	status = twsi_wait(adap, expected_status);
 	/* if we did receive expected byte then store it */
@@ -296,8 +288,7 @@ static unsigned int twsi_calc_freq(const int n, const int m)
 static void twsi_reset(struct i2c_adapter *adap)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
-	/* ensure controller will be enabled by any twsi*() function */
-	twsi_control_flags = MVTWSI_CONTROL_TWSIEN;
+
 	/* reset controller */
 	writel(0, &twsi->soft_reset);
 	/* wait 2 ms -- this is what the Marvell LSP does */
@@ -353,7 +344,7 @@ static void twsi_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
  * Expected address status will derive from direction bit (bit 0) in addr.
  */
 static int i2c_begin(struct i2c_adapter *adap, int expected_start_status,
-		     u8 addr)
+		     u8 addr, u8 *flags)
 {
 	int status, expected_addr_status;
 
@@ -363,10 +354,11 @@ static int i2c_begin(struct i2c_adapter *adap, int expected_start_status,
 	else /* writing */
 		expected_addr_status = MVTWSI_STATUS_ADDR_W_ACK;
 	/* assert START */
-	status = twsi_start(adap, expected_start_status);
+	status = twsi_start(adap, expected_start_status, flags);
 	/* send out the address if the start went well */
 	if (status == 0)
-		status = twsi_send(adap, addr, expected_addr_status);
+		status = twsi_send(adap, addr, expected_addr_status,
+				   flags);
 	/* return ok or status of first failure to caller */
 	return status;
 }
@@ -378,13 +370,14 @@ static int i2c_begin(struct i2c_adapter *adap, int expected_start_status,
 static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	u8 dummy_byte;
+	u8 flags = 0;
 	int status;
 
 	/* begin i2c read */
-	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1) | 1);
+	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1) | 1, &flags);
 	/* dummy read was accepted: receive byte but NAK it. */
 	if (status == 0)
-		status = twsi_recv(adap, &dummy_byte);
+		status = twsi_recv(adap, &dummy_byte, &flags);
 	/* Stop transaction */
 	twsi_stop(adap, 0);
 	/* return 0 or status of first failure */
@@ -405,27 +398,28 @@ static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 			int alen, uchar *data, int length)
 {
 	int status;
+	u8 flags = 0;
 
 	/* begin i2c write to send the address bytes */
-	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1));
+	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1), &flags);
 	/* send addr bytes */
 	while ((status == 0) && alen--)
 		status = twsi_send(adap, addr >> (8*alen),
-			MVTWSI_STATUS_DATA_W_ACK);
+			MVTWSI_STATUS_DATA_W_ACK, &flags);
 	/* begin i2c read to receive eeprom data bytes */
 	if (status == 0)
 		status = i2c_begin(adap, MVTWSI_STATUS_REPEATED_START,
-				   (chip << 1) | 1);
+				   (chip << 1) | 1, &flags);
 	/* prepare ACK if at least one byte must be received */
 	if (length > 0)
-		twsi_control_flags |= MVTWSI_CONTROL_ACK;
+		flags |= MVTWSI_CONTROL_ACK;
 	/* now receive actual bytes */
 	while ((status == 0) && length--) {
 		/* reset NAK if we if no more to read now */
 		if (length == 0)
-			twsi_control_flags &= ~MVTWSI_CONTROL_ACK;
+			flags &= ~MVTWSI_CONTROL_ACK;
 		/* read current byte */
-		status = twsi_recv(adap, data++);
+		status = twsi_recv(adap, data++, &flags);
 	}
 	/* Stop transaction */
 	status = twsi_stop(adap, status);
@@ -441,16 +435,18 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			int alen, uchar *data, int length)
 {
 	int status;
+	u8 flags = 0;
 
 	/* begin i2c write to send the eeprom adress bytes then data bytes */
-	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1));
+	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1), &flags);
 	/* send addr bytes */
 	while ((status == 0) && alen--)
 		status = twsi_send(adap, addr >> (8*alen),
-			MVTWSI_STATUS_DATA_W_ACK);
+			MVTWSI_STATUS_DATA_W_ACK, &flags);
 	/* send data bytes */
 	while ((status == 0) && (length-- > 0))
-		status = twsi_send(adap, *(data++), MVTWSI_STATUS_DATA_W_ACK);
+		status = twsi_send(adap, *(data++), MVTWSI_STATUS_DATA_W_ACK,
+				   &flags);
 	/* Stop transaction */
 	status = twsi_stop(adap, status);
 	/* return 0 or status of first failure */

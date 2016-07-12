@@ -115,7 +115,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xfff80000
 
 /* auto boot */
-#define CONFIG_BOOTDELAY	3	/* default enable autoboot */
 
 /*
  * For booting Linux, the board info and command line data

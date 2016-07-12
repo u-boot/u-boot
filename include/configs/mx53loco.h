@@ -87,7 +87,6 @@
 /* Command definition */
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 

@@ -30,6 +30,8 @@ source "drivers/input/Kconfig"
 
 source "drivers/led/Kconfig"
 
+source "drivers/mailbox/Kconfig"
+
 source "drivers/memory/Kconfig"
 
 source "drivers/misc/Kconfig"
@@ -53,6 +55,8 @@ source "drivers/pwm/Kconfig"
 source "drivers/ram/Kconfig"
 
 source "drivers/remoteproc/Kconfig"
+
+source "drivers/reset/Kconfig"
 
 source "drivers/rtc/Kconfig"
 

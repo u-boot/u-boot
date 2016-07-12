@@ -112,6 +112,8 @@ int device_unbind(struct udevice *dev)
 
 	devres_release_all(dev);
 
+	if (dev->flags & DM_NAME_ALLOCED)
+		free((char *)dev->name);
 	free(dev);
 
 	return 0;

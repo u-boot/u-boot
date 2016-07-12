@@ -100,7 +100,7 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_GETTIME
-#define CONFIG_CMD_SCSI
+#define CONFIG_SCSI
 
 #define CONFIG_CMD_ZBOOT
 
@@ -193,14 +193,19 @@
 #define CONFIG_HOSTNAME		x86
 #define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_LOADADDR		0x1000000
-#define CONFIG_RAMDISK_ADDR		0x4000000
+#define CONFIG_RAMDISK_ADDR	0x4000000
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+#define CONFIG_OTHBOOTARGS	"othbootargs=\0"
+#else
+#define CONFIG_OTHBOOTARGS	"othbootargs=acpi=off\0"
+#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
-	"othbootargs=acpi=off\0"			\
+	CONFIG_OTHBOOTARGS				\
 	"ramdiskaddr=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
 
@@ -220,6 +225,5 @@
 	"tftpboot $loadaddr $bootfile;"			\
 	"zboot $loadaddr"
 
-#define CONFIG_BOOTDELAY	2
 
 #endif	/* __CONFIG_H */

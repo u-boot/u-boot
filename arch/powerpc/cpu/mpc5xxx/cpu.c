@@ -96,7 +96,7 @@ unsigned long get_tbclk (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int div = in_8((void*)CONFIG_SYS_MBAR + 0x204) & 0x0020 ? 8 : 4;
@@ -117,7 +117,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_path(blob, eth_path, "mac-address", enetaddr, 6, 0);
 	do_fixup_by_path(blob, eth_path, "local-mac-address", enetaddr, 6, 0);
 #endif
-#if defined(CONFIG_OF_IDE_FIXUP)
+#ifdef CONFIG_OF_IDE_FIXUP
 	if (!ide_device_present(0)) {
 		/* NO CF card detected -> delete ata node in DTS */
 		int nodeoffset = 0;
@@ -132,10 +132,10 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		}
 	}
 
-#endif
+#endif /* CONFIG_OF_IDE_FIXUP */
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
-#endif
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 #ifdef CONFIG_MPC5xxx_FEC
 /* Default initializations for FEC controllers.  To override,

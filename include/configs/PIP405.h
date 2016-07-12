@@ -43,7 +43,7 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_FDC
-#define CONFIG_CMD_SCSI
+#define CONFIG_SCSI
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SAVES
@@ -89,10 +89,8 @@
  **************************************************************/
 #define CONFIG_BAUDRATE		9600	/* STD Baudrate */
 
-#define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */
 
 #define CONFIG_BOOTCOMMAND	"diskboot 400000 0:1; bootm" /* autoboot command		*/
 #define CONFIG_BOOTARGS		"console=ttyS0,9600 root=/dev/hda5" /* boot arguments */

@@ -36,7 +36,6 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#define CONFIG_BOOTDELAY               1
 
 #include "mx6_common.h"
 #include <linux/sizes.h>
@@ -60,13 +59,14 @@
 #define CONFIG_MXC_OCOTP
 
 /* SATA Configs */
-#define CONFIG_CMD_SATA
+#ifdef CONFIG_CMD_SATA
 #define CONFIG_DWC_AHSATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
 #define CONFIG_LIBATA
+#endif
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -78,6 +78,7 @@
 #define CONFIG_DOS_PARTITION
 
 /* USB Configs */
+#ifdef CONFIG_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -99,8 +100,10 @@
 #define CONFIG_G_DNL_VENDOR_NUM   0x0525
 #define CONFIG_G_DNL_PRODUCT_NUM  0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER "Advantech"
+#endif
 
 /* Networking Configs */
+#ifdef CONFIG_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -109,6 +112,7 @@
 #define CONFIG_FEC_MXC_PHYADDR		4
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
+#endif
 
 /* Serial Flash */
 #ifdef CONFIG_CMD_SF
@@ -221,28 +225,36 @@
 			"bootm; " \
 		"fi;\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"usb start; " \
-	"setenv dev usb; " \
-	"setenv devnum 0; " \
-	"setenv rootdev sda1; " \
-	"run tryboot; " \
-	\
+#define CONFIG_MMCBOOTCOMMAND \
 	"setenv dev mmc; " \
-	"setenv rootdev mmcblk0p1; " \
+	"setenv rootdev mmcblk0p${partnum}; " \
 	\
 	"setenv devnum ${sddev}; " \
 	"if mmc dev ${devnum}; then " \
 		"run tryboot; " \
-		"setenv rootdev mmcblk1p1; " \
+		"setenv rootdev mmcblk1p${partnum}; " \
 	"fi; " \
 	\
 	"setenv devnum ${emmcdev}; " \
 	"if mmc dev ${devnum}; then " \
 		"run tryboot; " \
 	"fi; " \
+
+#define CONFIG_USBBOOTCOMMAND \
+	"usb start; " \
+	"setenv dev usb; " \
+	"setenv devnum 0; " \
+	"setenv rootdev sda${partnum}; " \
+	"run tryboot; " \
 	\
+	CONFIG_MMCBOOTCOMMAND \
 	"bmode usb; " \
+
+#ifdef CONFIG_CMD_USB
+#define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
+#else
+#define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
+#endif
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
@@ -293,13 +305,14 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+
 /* Framebuffer */
-#define CONFIG_VIDEO
+#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -309,6 +322,7 @@
 #define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#endif
 
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK	66000000

@@ -65,12 +65,6 @@
 };
 
 /* for U-Boot only */
-/ {
-	soc {
-		u-boot,dm-pre-reloc;
-	};
-};
-
 &serial2 {
 	u-boot,dm-pre-reloc;
 };
@@ -80,10 +74,6 @@
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl {
 	u-boot,dm-pre-reloc;
 };
 

@@ -275,6 +275,12 @@ static int image_info(ulong addr)
 		puts("OK\n");
 		return 0;
 #endif
+#if defined(CONFIG_ANDROID_BOOT_IMAGE)
+	case IMAGE_FORMAT_ANDROID:
+		puts("   Android image found\n");
+		android_print_contents(hdr);
+		return 0;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		puts("   FIT image found\n");
@@ -372,8 +378,8 @@ next_bank:	;
 #endif
 
 #if defined(CONFIG_CMD_IMLS_NAND)
-static int nand_imls_legacyimage(nand_info_t *nand, int nand_dev, loff_t off,
-		size_t len)
+static int nand_imls_legacyimage(struct mtd_info *mtd, int nand_dev,
+				 loff_t off, size_t len)
 {
 	void *imgdata;
 	int ret;
@@ -386,8 +392,7 @@ static int nand_imls_legacyimage(nand_info_t *nand, int nand_dev, loff_t off,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(nand, off, &len,
-			imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
@@ -413,8 +418,8 @@ static int nand_imls_legacyimage(nand_info_t *nand, int nand_dev, loff_t off,
 	return 0;
 }
 
-static int nand_imls_fitimage(nand_info_t *nand, int nand_dev, loff_t off,
-		size_t len)
+static int nand_imls_fitimage(struct mtd_info *mtd, int nand_dev, loff_t off,
+			      size_t len)
 {
 	void *imgdata;
 	int ret;
@@ -427,8 +432,7 @@ static int nand_imls_fitimage(nand_info_t *nand, int nand_dev, loff_t off,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(nand, off, &len,
-			imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
@@ -449,7 +453,7 @@ static int nand_imls_fitimage(nand_info_t *nand, int nand_dev, loff_t off,
 
 static int do_imls_nand(void)
 {
-	nand_info_t *nand;
+	struct mtd_info *mtd;
 	int nand_dev = nand_curr_device;
 	size_t len;
 	loff_t off;
@@ -463,20 +467,20 @@ static int do_imls_nand(void)
 	printf("\n");
 
 	for (nand_dev = 0; nand_dev < CONFIG_SYS_MAX_NAND_DEVICE; nand_dev++) {
-		nand = &nand_info[nand_dev];
-		if (!nand->name || !nand->size)
+		mtd = nand_info[nand_dev];
+		if (!mtd->name || !mtd->size)
 			continue;
 
-		for (off = 0; off < nand->size; off += nand->erasesize) {
+		for (off = 0; off < mtd->size; off += mtd->erasesize) {
 			const image_header_t *header;
 			int ret;
 
-			if (nand_block_isbad(nand, off))
+			if (nand_block_isbad(mtd, off))
 				continue;
 
 			len = sizeof(buffer);
 
-			ret = nand_read(nand, off, &len, (u8 *)buffer);
+			ret = nand_read(mtd, off, &len, (u8 *)buffer);
 			if (ret < 0 && ret != -EUCLEAN) {
 				printf("NAND read error %d at offset %08llX\n",
 						ret, off);
@@ -489,13 +493,13 @@ static int do_imls_nand(void)
 				header = (const image_header_t *)buffer;
 
 				len = image_get_image_size(header);
-				nand_imls_legacyimage(nand, nand_dev, off, len);
+				nand_imls_legacyimage(mtd, nand_dev, off, len);
 				break;
 #endif
 #if defined(CONFIG_FIT)
 			case IMAGE_FORMAT_FIT:
 				len = fit_get_size(buffer);
-				nand_imls_fitimage(nand, nand_dev, off, len);
+				nand_imls_fitimage(mtd, nand_dev, off, len);
 				break;
 #endif
 			}
@@ -655,6 +659,7 @@ static int booti_setup(bootm_headers_t *images)
 {
 	struct Image_header *ih;
 	uint64_t dst;
+	uint64_t image_size;
 
 	ih = (struct Image_header *)map_sysmem(images->ep, 0);
 
@@ -665,14 +670,16 @@ static int booti_setup(bootm_headers_t *images)
 	
 	if (ih->image_size == 0) {
 		puts("Image lacks image_size field, assuming 16MiB\n");
-		ih->image_size = (16 << 20);
+		image_size = 16 << 20;
+	} else {
+		image_size = le64_to_cpu(ih->image_size);
 	}
 
 	/*
 	 * If we are not at the correct run-time location, set the new
 	 * correct location and then move the image there.
 	 */
-	dst = gd->bd->bi_dram[0].start + le32_to_cpu(ih->text_offset);
+	dst = gd->bd->bi_dram[0].start + le64_to_cpu(ih->text_offset);
 
 	unmap_sysmem(ih);
 
@@ -683,7 +690,7 @@ static int booti_setup(bootm_headers_t *images)
 
 		src = (void *)images->ep;
 		images->ep = dst;
-		memmove((void *)dst, src, le32_to_cpu(ih->image_size));
+		memmove((void *)dst, src, image_size);
 	}
 
 	return 0;

@@ -886,7 +886,8 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 	} else
 		popts->ecc_mode = 1;
 #endif
-	popts->ecc_init_using_memctl = 1; /* 0 = use DMA, 1 = use memctl */
+	/* 1 = use memory controler to init data */
+	popts->ecc_init_using_memctl = popts->ecc_mode ? 1 : 0;
 
 	/*
 	 * Choose DQS config

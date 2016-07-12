@@ -76,7 +76,7 @@ alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
-
+alias rockchip       uboot, sjg, Lin huang <hl@rock-chips.com>
 alias avr32          uboot, abiessmann
 
 alias bfin           uboot, vapier, sonic

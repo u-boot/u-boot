@@ -40,6 +40,10 @@ extern struct serial_device serial1_device;
 
 extern struct serial_device eserial1_device;
 extern struct serial_device eserial2_device;
+extern struct serial_device eserial3_device;
+extern struct serial_device eserial4_device;
+extern struct serial_device eserial5_device;
+extern struct serial_device eserial6_device;
 
 extern void serial_register(struct serial_device *);
 extern void serial_initialize(void);

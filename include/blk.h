@@ -30,6 +30,7 @@ enum if_type {
 	IF_TYPE_SD,
 	IF_TYPE_SATA,
 	IF_TYPE_HOST,
+	IF_TYPE_SYSTEMACE,
 
 	IF_TYPE_COUNT,			/* Number of interface types */
 };
@@ -62,6 +63,11 @@ struct blk_desc {
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
 #ifdef CONFIG_BLK
+	/*
+	 * For now we have a few functions which take struct blk_desc as a
+	 * parameter. This field allows them to look up the associated
+	 * device. Once these functions are removed we can drop this field.
+	 */
 	struct udevice *bdev;
 #else
 	unsigned long	(*block_read)(struct blk_desc *block_dev,
@@ -210,6 +216,25 @@ struct blk_ops {
 	 */
 	unsigned long (*erase)(struct udevice *dev, lbaint_t start,
 			       lbaint_t blkcnt);
+
+	/**
+	 * select_hwpart() - select a particular hardware partition
+	 *
+	 * Some devices (e.g. MMC) can support partitioning at the hardware
+	 * level. This is quite separate from the normal idea of
+	 * software-based partitions. MMC hardware partitions must be
+	 * explicitly selected. Once selected only the region of the device
+	 * covered by that partition is accessible.
+	 *
+	 * The MMC standard provides for two boot partitions (numbered 1 and 2),
+	 * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
+	 *
+	 * @desc:	Block device to update
+	 * @hwpart:	Hardware partition number to select. 0 means the raw
+	 *		device, 1 is the first partition, 2 is the second, etc.
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*select_hwpart)(struct udevice *dev, int hwpart);
 };
 
 #define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
@@ -269,7 +294,8 @@ int blk_next_device(struct udevice **devp);
  * @drv_name:	Driver name to use for the block device
  * @name:	Name for the device
  * @if_type:	Interface type (enum if_type_t)
- * @devnum:	Device number, specific to the interface type
+ * @devnum:	Device number, specific to the interface type, or -1 to
+ *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
  * @size:	Total size of the device in bytes
  * @devp:	the new device (which has not been probed)
@@ -277,6 +303,23 @@ int blk_next_device(struct udevice **devp);
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
 		      lbaint_t size, struct udevice **devp);
+
+/**
+ * blk_create_devicef() - Create a new named block device
+ *
+ * @parent:	Parent of the new device
+ * @drv_name:	Driver name to use for the block device
+ * @name:	Name for the device (parent name is prepended)
+ * @if_type:	Interface type (enum if_type_t)
+ * @devnum:	Device number, specific to the interface type, or -1 to
+ *		allocate the next available number
+ * @blksz:	Block size of the device in bytes (typically 512)
+ * @size:	Total size of the device in bytes
+ * @devp:	the new device (which has not been probed)
+ */
+int blk_create_devicef(struct udevice *parent, const char *drv_name,
+		       const char *name, int if_type, int devnum, int blksz,
+		       lbaint_t size, struct udevice **devp);
 
 /**
  * blk_prepare_device() - Prepare a block device for use
@@ -297,6 +340,29 @@ int blk_prepare_device(struct udevice *dev);
  * @return 0 if OK, -ve on error
  */
 int blk_unbind_all(int if_type);
+
+/**
+ * blk_find_max_devnum() - find the maximum device number for an interface type
+ *
+ * Finds the last allocated device number for an interface type @if_type. The
+ * next number is safe to use for a newly allocated device.
+ *
+ * @if_type:	Interface type to scan
+ * @return maximum device number found, or -ENODEV if none, or other -ve on
+ * error
+ */
+int blk_find_max_devnum(enum if_type if_type);
+
+/**
+ * blk_select_hwpart() - select a hardware partition
+ *
+ * Select a hardware partition if the device supports it (typically MMC does)
+ *
+ * @dev:	Device to update
+ * @hwpart:	Partition number to select
+ * @return 0 if OK, -ve on error
+ */
+int blk_select_hwpart(struct udevice *dev, int hwpart);
 
 #else
 #include <errno.h>
@@ -340,6 +406,201 @@ static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
 	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return block_dev->block_erase(block_dev, start, blkcnt);
 }
+
+/**
+ * struct blk_driver - Driver for block interface types
+ *
+ * This provides access to the block devices for each interface type. One
+ * driver should be provided using U_BOOT_LEGACY_BLK() for each interface
+ * type that is to be supported.
+ *
+ * @if_typename:	Interface type name
+ * @if_type:		Interface type
+ * @max_devs:		Maximum number of devices supported
+ * @desc:		Pointer to list of devices for this interface type,
+ *			or NULL to use @get_dev() instead
+ */
+struct blk_driver {
+	const char *if_typename;
+	enum if_type if_type;
+	int max_devs;
+	struct blk_desc *desc;
+	/**
+	 * get_dev() - get a pointer to a block device given its number
+	 *
+	 * Each interface allocates its own devices and typically
+	 * struct blk_desc is contained with the interface's data structure.
+	 * There is no global numbering for block devices. This method allows
+	 * the device for an interface type to be obtained when @desc is NULL.
+	 *
+	 * @devnum:	Device number (0 for first device on that interface,
+	 *		1 for second, etc.
+	 * @descp:	Returns pointer to the block device on success
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*get_dev)(int devnum, struct blk_desc **descp);
+
+	/**
+	 * select_hwpart() - Select a hardware partition
+	 *
+	 * Some devices (e.g. MMC) can support partitioning at the hardware
+	 * level. This is quite separate from the normal idea of
+	 * software-based partitions. MMC hardware partitions must be
+	 * explicitly selected. Once selected only the region of the device
+	 * covered by that partition is accessible.
+	 *
+	 * The MMC standard provides for two boot partitions (numbered 1 and 2),
+	 * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
+	 * Partition 0 is the main user-data partition.
+	 *
+	 * @desc:	Block device descriptor
+	 * @hwpart:	Hardware partition number to select. 0 means the main
+	 *		user-data partition, 1 is the first partition, 2 is
+	 *		the second, etc.
+	 * @return 0 if OK, other value for an error
+	 */
+	int (*select_hwpart)(struct blk_desc *desc, int hwpart);
+};
+
+/*
+ * Declare a new U-Boot legacy block driver. New drivers should use driver
+ * model (UCLASS_BLK).
+ */
+#define U_BOOT_LEGACY_BLK(__name)					\
+	ll_entry_declare(struct blk_driver, __name, blk_driver)
+
+struct blk_driver *blk_driver_lookup_type(int if_type);
+
 #endif /* !CONFIG_BLK */
+
+/**
+ * blk_get_devnum_by_typename() - Get a block device by type and number
+ *
+ * This looks through the available block devices of the given type, returning
+ * the one with the given @devnum.
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @return point to block device descriptor, or NULL if not found
+ */
+struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum);
+
+/**
+ * blk_get_devnum_by_type() - Get a block device by type name, and number
+ *
+ * This looks up the block device type based on @if_typename, then calls
+ * blk_get_devnum_by_type().
+ *
+ * @if_typename:	Block device type name
+ * @devnum:		Device number
+ * @return point to block device descriptor, or NULL if not found
+ */
+struct blk_desc *blk_get_devnum_by_typename(const char *if_typename,
+					    int devnum);
+
+/**
+ * blk_dselect_hwpart() - select a hardware partition
+ *
+ * This selects a hardware partition (such as is supported by MMC). The block
+ * device size may change as this effectively points the block device to a
+ * partition at the hardware level. See the select_hwpart() method above.
+ *
+ * @desc:	Block device descriptor for the device to select
+ * @hwpart:	Partition number to select
+ * @return 0 if OK, -ve on error
+ */
+int blk_dselect_hwpart(struct blk_desc *desc, int hwpart);
+
+/**
+ * blk_list_part() - list the partitions for block devices of a given type
+ *
+ * This looks up the partition type for each block device of type @if_type,
+ * then displays a list of partitions.
+ *
+ * @if_type:	Block device type
+ * @return 0 if OK, -ENODEV if there is none of that type
+ */
+int blk_list_part(enum if_type if_type);
+
+/**
+ * blk_list_devices() - list the block devices of a given type
+ *
+ * This lists each block device of the type @if_type, showing the capacity
+ * as well as type-specific information.
+ *
+ * @if_type:	Block device type
+ */
+void blk_list_devices(enum if_type if_type);
+
+/**
+ * blk_show_device() - show information about a given block device
+ *
+ * This shows the block device capacity as well as type-specific information.
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @return 0 if OK, -ENODEV for invalid device number
+ */
+int blk_show_device(enum if_type if_type, int devnum);
+
+/**
+ * blk_print_device_num() - show information about a given block device
+ *
+ * This is similar to blk_show_device() but returns an error if the block
+ * device type is unknown.
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @return 0 if OK, -ENODEV for invalid device number, -ENOENT if the block
+ * device is not connected
+ */
+int blk_print_device_num(enum if_type if_type, int devnum);
+
+/**
+ * blk_print_part_devnum() - print the partition information for a device
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @return 0 if OK, -ENOENT if the block device is not connected, -ENOSYS if
+ * the interface type is not supported, other -ve on other error
+ */
+int blk_print_part_devnum(enum if_type if_type, int devnum);
+
+/**
+ * blk_read_devnum() - read blocks from a device
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @blkcnt:	Number of blocks to read
+ * @buffer:	Address to write data to
+ * @return number of blocks read, or -ve error number on error
+ */
+ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
+		      lbaint_t blkcnt, void *buffer);
+
+/**
+ * blk_write_devnum() - write blocks to a device
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @blkcnt:	Number of blocks to write
+ * @buffer:	Address to read data from
+ * @return number of blocks written, or -ve error number on error
+ */
+ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
+		       lbaint_t blkcnt, const void *buffer);
+
+/**
+ * blk_select_hwpart_devnum() - select a hardware partition
+ *
+ * This is similar to blk_dselect_hwpart() but it looks up the interface and
+ * device number.
+ *
+ * @if_type:	Block device type
+ * @devnum:	Device number
+ * @hwpart:	Partition number to select
+ * @return 0 if OK, -ve on error
+ */
+int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
 
 #endif

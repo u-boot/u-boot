@@ -438,9 +438,11 @@ static void usb_show_subtree(struct usb_device *dev)
 	usb_show_tree_graph(dev, &preamble[0]);
 }
 
-void usb_show_tree(void)
-{
 #ifdef CONFIG_DM_USB
+typedef void (*usb_dev_func_t)(struct usb_device *udev);
+
+static void usb_for_each_root_dev(usb_dev_func_t func)
+{
 	struct udevice *bus;
 
 	for (uclass_find_first_device(UCLASS_USB, &bus);
@@ -455,9 +457,16 @@ void usb_show_tree(void)
 		device_find_first_child(bus, &dev);
 		if (dev && device_active(dev)) {
 			udev = dev_get_parent_priv(dev);
-			usb_show_subtree(udev);
+			func(udev);
 		}
 	}
+}
+#endif
+
+void usb_show_tree(void)
+{
+#ifdef CONFIG_DM_USB
+	usb_for_each_root_dev(usb_show_subtree);
 #else
 	struct usb_device *udev;
 	int i;
@@ -584,39 +593,20 @@ static void do_usb_start(void)
 }
 
 #ifdef CONFIG_DM_USB
-static void show_info(struct udevice *dev)
+static void usb_show_info(struct usb_device *udev)
 {
 	struct udevice *child;
-	struct usb_device *udev;
 
-	udev = dev_get_parent_priv(dev);
 	usb_display_desc(udev);
 	usb_display_config(udev);
-	for (device_find_first_child(dev, &child);
+	for (device_find_first_child(udev->dev, &child);
 	     child;
 	     device_find_next_child(&child)) {
-		if (device_active(child))
-			show_info(child);
-	}
-}
-
-static int usb_device_info(void)
-{
-	struct udevice *bus;
-
-	for (uclass_first_device(UCLASS_USB, &bus);
-	     bus;
-	     uclass_next_device(&bus)) {
-		struct udevice *hub;
-
-		device_find_first_child(bus, &hub);
-		if (device_get_uclass_id(hub) == UCLASS_USB_HUB &&
-		    device_active(hub)) {
-			show_info(hub);
+		if (device_active(child)) {
+			udev = dev_get_parent_priv(child);
+			usb_show_info(udev);
 		}
 	}
-
-	return 0;
 }
 #endif
 
@@ -672,7 +662,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (strncmp(argv[1], "inf", 3) == 0) {
 		if (argc == 2) {
 #ifdef CONFIG_DM_USB
-			usb_device_info();
+			usb_for_each_root_dev(usb_show_info);
 #else
 			int d;
 			for (d = 0; d < USB_MAX_DEVICE; d++) {
@@ -723,7 +713,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		int devno, ok = 0;
 		if (argc == 2) {
 			for (devno = 0; ; ++devno) {
-				stor_dev = usb_stor_get_dev(devno);
+				stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+								  devno);
 				if (stor_dev == NULL)
 					break;
 				if (stor_dev->type != DEV_TYPE_UNKNOWN) {
@@ -736,7 +727,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 		} else {
 			devno = simple_strtoul(argv[2], NULL, 16);
-			stor_dev = usb_stor_get_dev(devno);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, devno);
 			if (stor_dev != NULL &&
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
@@ -762,7 +753,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			unsigned long n;
 			printf("\nUSB read: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			n = blk_dread(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks read: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
@@ -783,7 +775,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			unsigned long n;
 			printf("\nUSB write: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			n = blk_dwrite(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks write: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
@@ -796,8 +789,9 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 			printf("\nUSB device %d: ", dev);
-			stor_dev = usb_stor_get_dev(dev);
-			if (stor_dev == NULL) {
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, dev);
+			if ((stor_dev == NULL) ||
+			    (stor_dev->if_type == IF_TYPE_UNKNOWN)) {
 				printf("unknown device\n");
 				return 1;
 			}
@@ -810,7 +804,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 0;
 		} else {
 			printf("\nUSB device %d: ", usb_stor_curr_dev);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			dev_print(stor_dev);
 			if (stor_dev->type == DEV_TYPE_UNKNOWN)
 				return 1;

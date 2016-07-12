@@ -65,7 +65,6 @@
 #define	CONFIG_GREEN_LED	AT91_PIN_PD15	/* this is the user1 led */
 #define	CONFIG_YELLOW_LED	AT91_PIN_PD16	/* this is the user2 led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * Command line configuration.

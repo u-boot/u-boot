@@ -97,6 +97,79 @@ config BOOTSTAGE_STASH_SIZE
 
 endmenu
 
+menu "Boot media"
+
+config NOR_BOOT
+	bool "Support for booting from NOR flash"
+	depends on NOR
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via NOR.  In this case we will enable certain pinmux early
+	  as the ROM only partially sets up pinmux.  We also default to using
+	  NOR for environment.
+
+config NAND_BOOT
+	bool "Support for booting from NAND flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via NAND flash. This is not a must, some SoCs need this,
+	  somes not.
+
+config ONENAND_BOOT
+	bool "Support for booting from ONENAND"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via ONENAND. This is not a must, some SoCs need this,
+	  somes not.
+
+config QSPI_BOOT
+	bool "Support for booting from QSPI flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via QSPI flash. This is not a must, some SoCs need this,
+	  somes not.
+
+config SATA_BOOT
+	bool "Support for booting from SATA"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SATA. This is not a must, some SoCs need this,
+	  somes not.
+
+config SD_BOOT
+	bool "Support for booting from SD/EMMC"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SD/EMMC. This is not a must, some SoCs need this,
+	  somes not.
+
+config SPI_BOOT
+	bool "Support for booting from SPI flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SPI flash. This is not a must, some SoCs need this,
+	  somes not.
+
+endmenu
+
+config BOOTDELAY
+	int "delay in seconds before automatically booting"
+	default 2
+	depends on AUTOBOOT
+	help
+	  Delay before automatically running bootcmd;
+	  set to 0 to autoboot with no delay, but you can stop it by key input.
+	  set to -1 to disable autoboot.
+	  set to -2 to autoboot with no delay and not check for abort
+
+	  See doc/README.autoboot for details.
+
 config CONSOLE_RECORD
 	bool "Console recording"
 	help

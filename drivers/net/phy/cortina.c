@@ -139,8 +139,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 	size_t fw_length = CONFIG_CORTINA_FW_LENGTH;
 
 	addr = malloc(CONFIG_CORTINA_FW_LENGTH);
-	ret = nand_read(&nand_info[0], (loff_t)CONFIG_CORTINA_FW_ADDR,
-		       &fw_length, (u_char *)addr);
+	ret = nand_read(nand_info[0], (loff_t)CONFIG_CORTINA_FW_ADDR,
+			&fw_length, (u_char *)addr);
 	if (ret == -EUCLEAN) {
 		printf("NAND read of Cortina firmware at 0x%x failed %d\n",
 		       CONFIG_CORTINA_FW_ADDR, ret);

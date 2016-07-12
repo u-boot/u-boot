@@ -39,7 +39,8 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		uniphier_pxs2_boot_mode_show();
 		break;
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD11:
 	case SOC_UNIPHIER_LD20:
 		uniphier_ld20_boot_mode_show();
 		break;

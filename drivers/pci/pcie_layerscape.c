@@ -569,7 +569,7 @@ static void fdt_fixup_pcie(void *blob)
 	unsigned char header_type;
 	int index;
 	u32 streamid;
-	pci_dev_t dev;
+	pci_dev_t dev, bdf;
 	int bus;
 	unsigned short id;
 	struct pci_controller *hose;
@@ -611,12 +611,15 @@ static void fdt_fixup_pcie(void *blob)
 					continue;
 				}
 
+				/* the DT fixup must be relative to the hose first_busno */
+				bdf = dev - PCI_BDF(hose->first_busno, 0, 0);
+
 				/* map PCI b.d.f to streamID in LUT */
-				ls_pcie_lut_set_mapping(pcie, index, dev >> 8,
+				ls_pcie_lut_set_mapping(pcie, index, bdf >> 8,
 							streamid);
 
 				/* update msi-map in device tree */
-				fdt_pcie_set_msi_map_entry(blob, pcie, dev >> 8,
+				fdt_pcie_set_msi_map_entry(blob, pcie, bdf >> 8,
 							   streamid);
 			}
 		}

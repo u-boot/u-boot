@@ -92,8 +92,8 @@ typedef struct ccsr_local_mcm {
 
 /* Daul I2C Registers(0x3000-0x4000) */
 typedef struct ccsr_i2c {
-	struct fsl_i2c	i2c[2];
-	u8	res[4096 - 2 * sizeof(struct fsl_i2c)];
+	struct fsl_i2c_base	i2c[2];
+	u8	res[4096 - 2 * sizeof(struct fsl_i2c_base)];
 } ccsr_i2c_t;
 
 /* DUART Registers(0x4000-0x5000) */

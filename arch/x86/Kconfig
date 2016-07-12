@@ -47,6 +47,9 @@ source "arch/x86/cpu/queensbay/Kconfig"
 
 # architecture-specific options below
 
+config AHCI
+	default y
+
 config SYS_MALLOC_F_LEN
 	default 0x800
 
@@ -271,6 +274,13 @@ config ENABLE_MRC_CACHE
 	  to be used for speeding up boot time on future reboots and/or
 	  power cycles.
 
+	  For platforms that use Intel FSP for the memory initialization,
+	  please check FSP output HOB via U-Boot command 'fsp hob' to see
+	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp/fsp_hob.h).
+	  If such GUID does not exist, MRC cache is not avaiable on such
+	  platform (eg: Intel Queensbay), which means selecting this option
+	  here does not make any difference.
+
 config HAVE_MRC
 	bool "Add a System Agent binary"
 	depends on !HAVE_FSP
@@ -436,20 +446,12 @@ config GENERATE_MP_TABLE
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
 	default n
+	select QFW if QEMU
 	help
 	  The Advanced Configuration and Power Interface (ACPI) specification
 	  provides an open standard for device configuration and management
 	  by the operating system. It defines platform-independent interfaces
 	  for configuration and power management monitoring.
-
-config QEMU_ACPI_TABLE
-	bool "Load ACPI table from QEMU fw_cfg interface"
-	depends on GENERATE_ACPI_TABLE && QEMU
-	default y
-	help
-	  By default, U-Boot generates its own ACPI tables. This option, if
-	  enabled, disables U-Boot's version and loads ACPI tables generated
-	  by QEMU.
 
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
@@ -461,6 +463,22 @@ config GENERATE_SMBIOS_TABLE
 	  on Intel architecture systems.
 
 	  Check http://www.dmtf.org/standards/smbios for details.
+
+config SMBIOS_MANUFACTURER
+	string "SMBIOS Manufacturer"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_VENDOR
+	help
+	  The board manufacturer to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_VENDOR).
+
+config SMBIOS_PRODUCT_NAME
+	string "SMBIOS Product Name"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_BOARD
+	help
+	  The product name to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_BOARD).
 
 endmenu
 
@@ -535,6 +553,20 @@ config SEABIOS
 	  all the configuration tables that are necessary to boot SeaBIOS.
 
 	  Check http://www.seabios.org/SeaBIOS for details.
+
+config HIGH_TABLE_SIZE
+	hex "Size of configuration tables which reside in high memory"
+	default 0x10000
+	depends on SEABIOS
+	help
+	  SeaBIOS itself resides in E seg and F seg, where U-Boot puts all
+	  configuration tables like PIRQ/MP/ACPI. To avoid conflicts, U-Boot
+	  puts a copy of configuration tables in high memory region which
+	  is reserved on the stack before relocation. The region size is
+	  determined by this option.
+
+	  Increse it if the default size does not fit the board's needs.
+	  This is most likely due to a large ACPI DSDT table is used.
 
 source "arch/x86/lib/efi/Kconfig"
 

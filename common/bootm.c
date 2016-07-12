@@ -246,6 +246,16 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 #endif
 
 #if IMAGE_ENABLE_FIT
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_XILINX)
+	/* find bitstreams */
+	ret = boot_get_fpga(argc, argv, &images, IH_ARCH_DEFAULT,
+			    NULL, NULL);
+	if (ret) {
+		printf("FPGA image is corrupted or invalid\n");
+		return 1;
+	}
+#endif
+
 	/* find all of the loadables */
 	ret = boot_get_loadable(argc, argv, &images, IH_ARCH_DEFAULT,
 			       NULL, NULL);
@@ -435,7 +445,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
-	flush_cache(load, *load_end - load);
+	flush_cache(load, ALIGN(*load_end - load, ARCH_DMA_MINALIGN));
 
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);

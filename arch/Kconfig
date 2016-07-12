@@ -1,13 +1,6 @@
 config CREATE_ARCH_SYMLINK
 	bool
 
-config HAVE_GENERIC_BOARD
-	bool
-
-config SYS_GENERIC_BOARD
-	bool
-	depends on HAVE_GENERIC_BOARD
-
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -15,57 +8,39 @@ choice
 config ARC
 	bool "ARC architecture"
 	select HAVE_PRIVATE_LIBGCC
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config ARM
 	bool "ARM architecture"
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config AVR32
 	bool "AVR32 architecture"
 	select CREATE_ARCH_SYMLINK
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 
 config BLACKFIN
 	bool "Blackfin architecture"
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config MIPS
 	bool "MIPS architecture"
 	select HAVE_PRIVATE_LIBGCC
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config NDS32
 	bool "NDS32 architecture"
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 
 config NIOS2
 	bool "Nios II architecture"
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
@@ -77,14 +52,10 @@ config OPENRISC
 config PPC
 	bool "PowerPC architecture"
 	select HAVE_PRIVATE_LIBGCC
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config SANDBOX
 	bool "Sandbox"
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 	select DM
 	select DM_SPI_FLASH
@@ -99,15 +70,12 @@ config SH
 
 config SPARC
 	bool "SPARC architecture"
-	select HAVE_GENERIC_BOARD
 	select CREATE_ARCH_SYMLINK
 
 config X86
 	bool "x86 architecture"
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC
-	select HAVE_GENERIC_BOARD
-	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 	select DM
 	select DM_SERIAL

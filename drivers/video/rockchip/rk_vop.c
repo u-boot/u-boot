@@ -195,7 +195,8 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 	struct udevice *disp;
 	int ret, remote, i, offset;
 	struct display_plat *disp_uc_plat;
-	struct udevice *clk;
+	struct udevice *dev_clk;
+	struct clk clk;
 
 	vop_id = fdtdec_get_int(blob, ep_node, "reg", -1);
 	debug("vop_id=%d\n", vop_id);
@@ -237,11 +238,13 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 		return ret;
 	}
 
-	ret = rkclk_get_clk(CLK_NEW, &clk);
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev_clk);
 	if (!ret) {
-		ret = clk_set_periph_rate(clk, DCLK_VOP0 + remote_vop_id,
-					  timing.pixelclock.typ);
+		clk.id = DCLK_VOP0 + remote_vop_id;
+		ret = clk_request(dev_clk, &clk);
 	}
+	if (!ret)
+		ret = clk_set_rate(&clk, timing.pixelclock.typ);
 	if (ret) {
 		debug("%s: Failed to set pixel clock: ret=%d\n", __func__, ret);
 		return ret;
@@ -326,6 +329,7 @@ static int rk_vop_probe(struct udevice *dev)
 		if (!ret)
 			break;
 	}
+	video_set_flush_dcache(dev, 1);
 
 	return ret;
 }

@@ -890,23 +890,6 @@ The following options need to be configured:
 		'Sane' compilers will generate smaller code if
 		CONFIG_PRE_CON_BUF_SZ is a power of 2
 
-- Boot Delay:	CONFIG_BOOTDELAY - in seconds
-		Delay before automatically booting the default image;
-		set to -1 to disable autoboot.
-		set to -2 to autoboot with no delay and not check for abort
-		(even when CONFIG_ZERO_BOOTDELAY_CHECK is defined).
-
-		See doc/README.autoboot for these options that
-		work with CONFIG_BOOTDELAY. None are required.
-		CONFIG_BOOT_RETRY_TIME
-		CONFIG_BOOT_RETRY_MIN
-		CONFIG_AUTOBOOT_KEYED
-		CONFIG_AUTOBOOT_PROMPT
-		CONFIG_AUTOBOOT_DELAY_STR
-		CONFIG_AUTOBOOT_STOP_STR
-		CONFIG_ZERO_BOOTDELAY_CHECK
-		CONFIG_RESET_TO_RETRY
-
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND
 		Only needed when CONFIG_BOOTDELAY is enabled;
@@ -1003,6 +986,7 @@ The following options need to be configured:
 		CONFIG_CMD_ECHO		  echo arguments
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
+		CONFIG_CMD_EEPROM_LAYOUT* EEPROM layout aware commands
 		CONFIG_CMD_ELF		* bootelf, bootvx
 		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
 		CONFIG_CMD_ENV_FLAGS	* display details about env flags
@@ -1066,7 +1050,7 @@ The following options need to be configured:
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SANDBOX	* sb command to access sandbox features
 		CONFIG_CMD_SAVES	* save S record dump
-		CONFIG_CMD_SCSI		* SCSI Support
+		CONFIG_SCSI		* SCSI Support
 		CONFIG_CMD_SDRAM	* print SDRAM configuration information
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
@@ -1257,7 +1241,7 @@ The following options need to be configured:
 		CONFIG_MTD_PARTITIONS  Memory Technology Device partition table.
 
 		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
-		CONFIG_CMD_SCSI) you must configure support for at
+		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
 - IDE Reset method:
@@ -3490,6 +3474,10 @@ FIT uImage format:
 		consider that a completely unreadable NAND block is bad,
 		and thus should be skipped silently.
 
+		CONFIG_SPL_ABORT_ON_RAW_IMAGE
+		When defined, SPL will proceed to another boot method
+		if the image it has loaded does not have a signature.
+
 		CONFIG_SPL_RELOC_STACK
 		Adress of the start of the stack SPL will use after
 		relocation.  If unspecified, this is equal to
@@ -4045,16 +4033,6 @@ Configuration Settings:
 - CONFIG_ENV_ACCESS_IGNORE_FORCE
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
-
-- CONFIG_SYS_GENERIC_BOARD
-	This selects the architecture-generic board system instead of the
-	architecture-specific board files. It is intended to move boards
-	to this new framework over time. Defining this will disable the
-	arch/foo/lib/board.c file and use common/board_f.c and
-	common/board_r.c instead. To use this option your architecture
-	must support it (i.e. must select HAVE_GENERIC_BOARD in arch/Kconfig).
-	If you find problems enabling this option on your board please report
-	the problem and send patches!
 
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
@@ -4831,6 +4809,11 @@ Low Level (hardware related) configuration options:
 		exception is when U-Boot is loaded (to RAM) by some
 		other boot loader or by a debugger which performs
 		these initializations itself.
+
+- CONFIG_SKIP_LOWLEVEL_INIT_ONLY
+		[ARM926EJ-S only] This allows just the call to lowlevel_init()
+		to be skipped. The normal CPU15 init (such as enabling the
+		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
 		Modifies the behaviour of start.S when compiling a loader

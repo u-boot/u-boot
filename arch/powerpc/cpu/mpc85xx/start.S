@@ -720,16 +720,39 @@ enable_l2_cluster_l2:
 	ori	r4, r4, (L2CSR0_L2FI|L2CSR0_L2LFC)@l
 	sync
 	stw	r4, 0(r3)	/* invalidate L2 */
+	/* Poll till the bits are cleared */
 1:	sync
 	lwz	r0, 0(r3)
 	twi	0, r0, 0
 	isync
 	and.	r1, r0, r4
 	bne	1b
+
+	/* L2PE must be set before L2 cache is enabled */
+	lis	r4, (L2CSR0_L2PE)@h
+	ori	r4, r4, (L2CSR0_L2PE)@l
+	sync
+	stw	r4, 0(r3)	/* enable L2 parity/ECC error checking */
+	/* Poll till the bit is set */
+1:	sync
+	lwz	r0, 0(r3)
+	twi	0, r0, 0
+	isync
+	and.	r1, r0, r4
+	beq	1b
+
 	lis	r4, (L2CSR0_L2E|L2CSR0_L2PE)@h
 	ori	r4, r4, (L2CSR0_L2REP_MODE)@l
 	sync
 	stw	r4, 0(r3)	/* enable L2 */
+	/* Poll till the bit is set */
+1:	sync
+	lwz	r0, 0(r3)
+	twi	0, r0, 0
+	isync
+	and.	r1, r0, r4
+	beq	1b
+
 delete_ccsr_l2_tlb:
 	delete_tlb0_entry 0, CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, r3
 #endif

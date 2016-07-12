@@ -62,6 +62,7 @@ config DEFAULT_DEVICE_TREE
 config OF_LIST
 	string "List of device tree files to include for DT control"
 	depends on SPL_LOAD_FIT
+	default DEFAULT_DEVICE_TREE
 	help
 	  This option specifies a list of device tree files to use for DT
 	  control. These will be packaged into a FIT. At run-time, SPL will

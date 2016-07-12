@@ -66,6 +66,7 @@ SECTIONS
 		KEEP(*(SORT(.u_boot_list*)));
 	}
 
+	PROVIDE (__init_end = .);
 	PROVIDE (reloc_dst_end = .);
 	/* _reloc_dst_end = .; */
 

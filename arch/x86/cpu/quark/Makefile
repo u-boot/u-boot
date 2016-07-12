@@ -6,3 +6,4 @@
 
 obj-y += car.o dram.o irq.o msg_port.o quark.o
 obj-y += mrc.o mrc_util.o hte.o smc.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi.o

@@ -128,7 +128,6 @@
 							/* devices */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 /* Environment information */
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \

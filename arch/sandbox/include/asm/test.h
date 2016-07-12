@@ -19,15 +19,6 @@
 
 #define SANDBOX_CLK_RATE		32768
 
-enum {
-	PERIPH_ID_FIRST = 0,
-	PERIPH_ID_SPI = PERIPH_ID_FIRST,
-	PERIPH_ID_I2C,
-	PERIPH_ID_PCI,
-
-	PERIPH_ID_COUNT,
-};
-
 /* System controller driver data */
 enum {
 	SYSCON0		= 32,

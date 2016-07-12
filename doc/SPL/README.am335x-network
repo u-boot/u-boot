@@ -66,6 +66,10 @@ subnet 192.168.8.0 netmask 255.255.255.0 {
   }
 }
 
+  May the ROM bootloader sends another "vendor-class-identifier"
+  on the shc board with an AM335X it is:
+  "AM335x ROM"
+
   2. Setup TFTP server.
      Install TFTP server and put image files to it's root directory
 (likely /tftpboot or /var/lib/tftpboot or /srv/tftp). You will need

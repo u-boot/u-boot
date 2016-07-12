@@ -56,6 +56,21 @@ void outl(unsigned int value, unsigned int addr);
 void outw(unsigned int value, unsigned int addr);
 void outb(unsigned int value, unsigned int addr);
 
+static inline void _insw(volatile u16 *port, void *buf, int ns)
+{
+}
+
+static inline void _outsw(volatile u16 *port, const void *buf, int ns)
+{
+}
+
+#define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
+#define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
+
+/* For systemace.c */
+#define out16(addr, val)
+#define in16(addr)		0
+
 #include <iotrace.h>
 #include <asm/types.h>
 

@@ -250,7 +250,7 @@ static void emaclite_stop(struct udevice *dev)
 
 static int setup_phy(struct udevice *dev)
 {
-	int i;
+	int i, ret;
 	u16 phyreg;
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	struct phy_device *phydev;
@@ -302,7 +302,9 @@ static int setup_phy(struct udevice *dev)
 	phydev->advertising = supported;
 	emaclite->phydev = phydev;
 	phy_config(phydev);
-	phy_startup(phydev);
+	ret = phy_startup(phydev);
+	if (ret)
+		return ret;
 
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);

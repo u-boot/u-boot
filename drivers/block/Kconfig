@@ -9,10 +9,9 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
-config DISK
-	bool "Support disk controllers with driver model"
+config AHCI
+	bool "Support SATA controllers with driver model"
 	depends on DM
-	default y if DM
 	help
 	  This enables a uclass for disk controllers in U-Boot. Various driver
 	  types can use this, such as AHCI/SATA. It does not provide any standard

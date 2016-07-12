@@ -17,22 +17,32 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
+#include <asm/arch/atmel_serial.h>
 #include <asm/arch/at91_spi.h>
 #include <spi.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <watchdog.h>
-#ifdef CONFIG_MACB
 # include <net.h>
+#ifndef CONFIG_DM_ETH
 # include <netdev.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static void smartweb_request_gpio(void)
+{
+	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(AT91_PIN_PA26, "ena PHY");
+}
 
 static void smartweb_nand_hw_init(void)
 {
@@ -65,7 +75,6 @@ static void smartweb_nand_hw_init(void)
 	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 
-#ifdef CONFIG_MACB
 static void smartweb_macb_hw_init(void)
 {
 	struct at91_port *pioa = (struct at91_port *)ATMEL_BASE_PIOA;
@@ -108,7 +117,6 @@ static void smartweb_macb_hw_init(void)
 	/* Initialize EMAC=MACB hardware */
 	at91_macb_hw_init();
 }
-#endif /* CONFIG_MACB */
 
 #ifdef CONFIG_USB_GADGET_AT91
 #include <linux/usb/at91_udc.h>
@@ -133,11 +141,13 @@ int board_early_init_f(void)
 {
 	/* enable this here, as we have SPL without serial support */
 	at91_seriald_hw_init();
+	smartweb_request_gpio();
 	return 0;
 }
 
 int board_init(void)
 {
+	smartweb_request_gpio();
 	/* power LED red */
 	at91_set_gpio_output(AT91_PIN_PC6, 0);
 	at91_set_gpio_output(AT91_PIN_PC7, 1);
@@ -157,9 +167,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	smartweb_nand_hw_init();
-#ifdef CONFIG_MACB
 	smartweb_macb_hw_init();
-#endif
 	return 0;
 }
 
@@ -171,12 +179,14 @@ int dram_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 #ifdef CONFIG_MACB
 int board_eth_init(bd_t *bis)
 {
 	return macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, 0x00);
 }
 #endif /* CONFIG_MACB */
+#endif
 
 #if defined(CONFIG_SPL_BUILD)
 #include <spl.h>
@@ -192,8 +202,9 @@ void matrix_init(void)
 			&mat->scfg[3]);
 }
 
-void spl_board_init(void)
+void at91_spl_board_init(void)
 {
+	smartweb_request_gpio();
 	/* power LED orange */
 	at91_set_gpio_output(AT91_PIN_PC6, 1);
 	at91_set_gpio_output(AT91_PIN_PC7, 1);
@@ -245,3 +256,12 @@ void mem_init(void)
 	sdramc_initialize(ATMEL_BASE_CS1, &setting);
 }
 #endif
+
+static struct atmel_serial_platdata at91sam9260_serial_plat = {
+	.base_addr = ATMEL_BASE_DBGU,
+};
+
+U_BOOT_DEVICE(at91sam9260_serial) = {
+	.name	= "serial_atmel",
+	.platdata = &at91sam9260_serial_plat,
+};

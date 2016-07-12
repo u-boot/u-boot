@@ -7,6 +7,7 @@
 
 obj-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
 obj-$(CONFIG_ALTERA_TSE) += altera_tse.o
+obj-$(CONFIG_AG7XXX) += ag7xxx.o
 obj-$(CONFIG_ARMADA100_FEC) += armada100_fec.o
 obj-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 obj-$(CONFIG_DRIVER_AX88180) += ax88180.o
@@ -59,7 +60,7 @@ obj-$(CONFIG_SMC91111) += smc91111.o
 obj-$(CONFIG_SMC911X) += smc911x.o
 obj-$(CONFIG_DRIVER_TI_EMAC) += davinci_emac.o
 obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
-obj-$(CONFIG_DRIVER_TI_CPSW) += cpsw.o
+obj-$(CONFIG_DRIVER_TI_CPSW) += cpsw.o cpsw-common.o
 obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 obj-$(CONFIG_TSI108_ETH) += tsi108_eth.o
 obj-$(CONFIG_ULI526X) += uli526x.o

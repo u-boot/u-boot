@@ -43,7 +43,7 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	assert(run_command_list("false", -1, 0) == 1);
 	assert(run_command_list("echo", -1, 0) == 0);
 
-#ifdef CONFIG_SYS_HUSH_PARSER
+#ifdef CONFIG_HUSH_PARSER
 	run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
 	run_command("run foo", 0);
 	assert(getenv("black") != NULL);

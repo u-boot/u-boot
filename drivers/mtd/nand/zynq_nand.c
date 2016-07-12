@@ -508,7 +508,7 @@ static int zynq_nand_read_subpage_raw(struct mtd_info *mtd,
  * @oob_required: must write chip->oob_poi to OOB
  */
 static int zynq_nand_write_page_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, const u8 *buf, int oob_required)
+	struct nand_chip *chip, const u8 *buf, int oob_required, int page)
 {
 	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
@@ -540,7 +540,7 @@ static int zynq_nand_write_page_raw(struct mtd_info *mtd,
  * This functions writes data and hardware generated ECC values in to the page.
  */
 static int zynq_nand_write_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const u8 *buf, int oob_required)
+	struct nand_chip *chip, const u8 *buf, int oob_required, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccsteps = chip->ecc.steps;
@@ -599,7 +599,7 @@ static int zynq_nand_write_page_hwecc(struct mtd_info *mtd,
  * @oob_required: must write chip->oob_poi to OOB
  */
 static int zynq_nand_write_page_swecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const u8 *buf, int oob_required)
+	struct nand_chip *chip, const u8 *buf, int oob_required, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -615,7 +615,7 @@ static int zynq_nand_write_page_swecc(struct mtd_info *mtd,
 	for (i = 0; i < chip->ecc.total; i++)
 		chip->oob_poi[eccpos[i]] = ecc_calc[i];
 
-	return chip->ecc.write_page_raw(mtd, chip, buf, 1);
+	return chip->ecc.write_page_raw(mtd, chip, buf, 1, page);
 }
 
 /*
@@ -761,7 +761,7 @@ static void zynq_nand_select_chip(struct mtd_info *mtd, int chip)
 static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				 int column, int page_addr)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	const struct zynq_nand_command_format *curr_cmd = NULL;
 	u8 addr_cycles = 0;
 	struct zynq_nand_info *xnand;
@@ -773,7 +773,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	unsigned long end_cmd_valid = 0;
 	unsigned long i;
 
-	xnand = (struct zynq_nand_info *)chip->priv;
+	xnand = nand_get_controller_data(chip);
 	if (xnand->end_cmd_pending) {
 		/* Check for end command if this command request is same as the
 		 * pending command then return
@@ -905,7 +905,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
  */
 static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	const u32 *nand = chip->IO_ADDR_R;
 
 	/* Make sure that buf is 32 bit aligned */
@@ -955,7 +955,7 @@ static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
  */
 static void zynq_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	const u32 *nand = chip->IO_ADDR_W;
 
 	/* Make sure that buf is 32 bit aligned */
@@ -1063,10 +1063,8 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	xnand->nand_base = (void *)ZYNQ_NAND_BASEADDR;
-	mtd = &nand_info[0];
-
-	nand_chip->priv = xnand;
-	mtd->priv = nand_chip;
+	mtd = nand_to_mtd(nand_chip);
+	nand_set_controller_data(nand_chip, xnand);
 
 	/* Set address of NAND IO lines */
 	nand_chip->IO_ADDR_R = xnand->nand_base;
@@ -1245,7 +1243,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	if (nand_register(devnum))
+	if (nand_register(devnum, mtd))
 		goto fail;
 
 	return 0;

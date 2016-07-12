@@ -232,7 +232,7 @@ static int nfc_read_page(unsigned int page_address, unsigned char *buf)
 	nfc_nand_read_page(page_address);
 
 	if (nfc_nand_check_ecc())
-		return -1;
+		return -EBADMSG;
 
 	src = (u32 *)&nfc->main_area[0][0];
 	dst = (u32 *)buf;

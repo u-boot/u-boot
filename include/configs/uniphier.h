@@ -99,12 +99,15 @@
 #define CONFIG_SYS_MMC_ENV_PART		1
 
 #ifdef CONFIG_ARM64
-#define CONFIG_ARMV8_MULTIENTRY
-#define CPU_RELEASE_ADDR			0x80000100
+#define CPU_RELEASE_ADDR			0x80000000
 #define COUNTER_FREQUENCY			50000000
 #define CONFIG_GICV3
 #define GICD_BASE				0x5fe00000
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+#define GICR_BASE				0x5fe40000
+#elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define GICR_BASE				0x5fe80000
+#endif
 #else
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
@@ -143,9 +146,6 @@
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01000000)
-
-#define CONFIG_BOOTDELAY			3
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 /*
  * Network Configuration
@@ -241,7 +241,6 @@
 		"tftpboot $tmp_addr u-boot.bin\0"		\
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
-		"mmc erase 0 800 &&"				\
 		"tftpboot u-boot-spl.bin &&"			\
 		"mmc write $loadaddr 0 80 &&"			\
 		"tftpboot u-boot.bin &&"			\
@@ -270,7 +269,9 @@
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+#define CONFIG_SPL_STACK		(0x30014c00)
+#elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define CONFIG_SPL_STACK		(0x3001c000)
 #else
 #define CONFIG_SPL_STACK		(0x00100000)
@@ -282,7 +283,9 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NOR_SUPPORT
-#ifndef CONFIG_ARM64
+#ifdef CONFIG_ARM64
+#define CONFIG_SPL_BOARD_LOAD_IMAGE
+#else
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
@@ -301,7 +304,11 @@
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 #define CONFIG_SPL_MAX_SIZE			0x10000
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+#define CONFIG_SPL_BSS_START_ADDR		0x30012000
+#elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define CONFIG_SPL_BSS_START_ADDR		0x30016000
+#endif
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

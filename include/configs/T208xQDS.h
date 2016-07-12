@@ -291,6 +291,10 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_SHIFT		0
 #define QIXIS_LBMAP_DFLTBANK		0x00
 #define QIXIS_LBMAP_ALTBANK		0x04
+#define QIXIS_LBMAP_NAND		0x09
+#define QIXIS_LBMAP_SD			0x00
+#define QIXIS_RCW_SRC_NAND		0x104
+#define QIXIS_RCW_SRC_SD		0x040
 #define QIXIS_RST_CTL_RESET		0x83
 #define QIXIS_RST_FORCE_MEM		0x1
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
@@ -817,7 +821,6 @@ unsigned long get_board_ddr_clk(void);
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 #define __USB_PHY_TYPE		utmi
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\

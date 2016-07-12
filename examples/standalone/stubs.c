@@ -65,6 +65,23 @@ gd_t *global_data;
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "ip");
 #endif
 #elif defined(CONFIG_MIPS)
+#ifdef CONFIG_CPU_MIPS64
+/*
+ * k0 ($26) holds the pointer to the global_data; t9 ($25) is a call-
+ * clobbered register that is also used to set gp ($26). Note that the
+ * jr instruction also executes the instruction immediately following
+ * it; however, GCC/mips generates an additional `nop' after each asm
+ * statement
+ */
+#define EXPORT_FUNC(f, a, x, ...) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	ld	$25, %0($26)\n"		\
+"	ld	$25, %1($25)\n"		\
+"	jr	$25\n"			\
+        : : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "t9");
+#else
 /*
  * k0 ($26) holds the pointer to the global_data; t9 ($25) is a call-
  * clobbered register that is also used to set gp ($26). Note that the
@@ -80,6 +97,7 @@ gd_t *global_data;
 "	lw	$25, %1($25)\n"		\
 "	jr	$25\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "t9");
+#endif
 #elif defined(CONFIG_NIOS2)
 /*
  * gp holds the pointer to the global_data, r8 is call-clobbered

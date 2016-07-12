@@ -25,7 +25,7 @@
 
 static void plat_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 
 	if (cmd == NAND_CMD_NONE)
 		return;
@@ -39,7 +39,7 @@ static void plat_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 #ifdef NAND_PLAT_DEV_READY
 static int plat_dev_ready(struct mtd_info *mtd)
 {
-	return NAND_PLAT_DEV_READY((struct nand_chip *)mtd->priv);
+	return NAND_PLAT_DEV_READY((struct nand_chip *)mtd_to_nand(mtd));
 }
 #else
 # define plat_dev_ready NULL

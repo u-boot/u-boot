@@ -15,7 +15,7 @@
 #define AT91_ASM_MATRIX_CSA0	(ATMEL_BASE_MATRIX + 0x30)
 #elif defined(CONFIG_AT91SAM9263)
 #define AT91_ASM_MATRIX_CSA0	(ATMEL_BASE_MATRIX + 0x120)
-#elif defined(CONFIG_AT91SAM9G45)
+#elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define AT91_ASM_MATRIX_CSA0	(ATMEL_BASE_MATRIX + 0x128)
 #else
 #error AT91_ASM_MATRIX_CSA0 is not definied for current CPU
@@ -33,7 +33,7 @@
 #elif defined(CONFIG_AT91SAM9263)
 #define AT91_MATRIX_MASTERS	9
 #define AT91_MATRIX_SLAVES	7
-#elif defined(CONFIG_AT91SAM9G45)
+#elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define AT91_MATRIX_MASTERS	11
 #define AT91_MATRIX_SLAVES	8
 #else
@@ -63,7 +63,7 @@ typedef struct at91_matrix {
 	u32		reserve3[32 - (2 * AT91_MATRIX_SLAVES)];
 	u32		mrcr;		/* 0x100 Master Remap Control */
 	u32		reserve4[3];
-#if	defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 	u32		ccr[52];	/* 0x110 - 0x1E0 Chip Configuration */
 	u32		womr;		/* 0x1E4 Write Protect Mode  */
 	u32		wpsr;		/* 0x1E8 Write Protect Status */
@@ -106,14 +106,14 @@ typedef struct at91_matrix {
 
 /* Undefined Length Burst Type */
 #if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9263) || \
-	defined(CONFIG_AT91SAM9G45)
+	defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define AT91_MATRIX_MCFG_ULBT_INFINITE	0x00000000
 #define AT91_MATRIX_MCFG_ULBT_SINGLE	0x00000001
 #define AT91_MATRIX_MCFG_ULBT_FOUR	0x00000002
 #define AT91_MATRIX_MCFG_ULBT_EIGHT	0x00000003
 #define AT91_MATRIX_MCFG_ULBT_SIXTEEN	0x00000004
 #endif
-#if defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define AT91_MATRIX_MCFG_ULBT_THIRTYTWO	0x00000005
 #define AT91_MATRIX_MCFG_ULBT_SIXTYFOUR	0x00000006
 #define AT91_MATRIX_MCFG_ULBT_128	0x00000007
@@ -125,14 +125,15 @@ typedef struct at91_matrix {
 #define AT91_MATRIX_SCFG_DEFMSTR_TYPE_FIXED	0x00020000
 
 /* Fixed Index of Default Master */
-#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9263)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9263) || \
+	defined(CONFIG_AT91SAM9M10G45)
 #define	AT91_MATRIX_SCFG_FIXED_DEFMSTR(x)	((x & 0xf) << 18)
 #elif defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9260)
 #define	AT91_MATRIX_SCFG_FIXED_DEFMSTR(x)	((x & 7) << 18)
 #endif
 
 /* Maximum Number of Allowed Cycles for a Burst */
-#if defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define	AT91_MATRIX_SCFG_SLOT_CYCLE(x)	((x & 0x1ff) << 0)
 #elif defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9261) || \
 	defined(CONFIG_AT91SAM9263)
@@ -147,13 +148,14 @@ typedef struct at91_matrix {
 
 /* Master Remap Control Register */
 #if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9263) || \
-	defined(CONFIG_AT91SAM9G45)
+	defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 /* Remap Command for AHB Master 0 (ARM926EJ-S Instruction Master) */
 #define	AT91_MATRIX_MRCR_RCB0	(1 << 0)
 /* Remap Command for AHB Master 1 (ARM926EJ-S Data Master) */
 #define	AT91_MATRIX_MRCR_RCB1	(1 << 1)
 #endif
-#if defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G45) || \
+	defined(CONFIG_AT91SAM9M10G45)
 #define	AT91_MATRIX_MRCR_RCB2	0x00000004
 #define	AT91_MATRIX_MRCR_RCB3	0x00000008
 #define	AT91_MATRIX_MRCR_RCB4	0x00000010
@@ -162,14 +164,14 @@ typedef struct at91_matrix {
 #define	AT91_MATRIX_MRCR_RCB7	0x00000080
 #define	AT91_MATRIX_MRCR_RCB8	0x00000100
 #endif
-#if defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 #define	AT91_MATRIX_MRCR_RCB9	0x00000200
 #define	AT91_MATRIX_MRCR_RCB10	0x00000400
 #define	AT91_MATRIX_MRCR_RCB11	0x00000800
 #endif
 
 /* TCM Configuration Register */
-#if defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 /* Size of ITCM enabled memory block */
 #define	AT91_MATRIX_TCMR_ITCM_0		0x00000000
 #define	AT91_MATRIX_TCMR_ITCM_32	0x00000040
@@ -204,7 +206,7 @@ typedef struct at91_matrix {
 #define	AT91_MATRIX_TCMR_DTCM_64	0x00000070
 #endif
 
-#if defined(CONFIG_AT91SAM9G45)
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 /* Video Mode Configuration Register */
 #define	AT91C_MATRIX_VDEC_SEL_OFF	0x00000000
 #define	AT91C_MATRIX_VDEC_SEL_ON	0x00000001

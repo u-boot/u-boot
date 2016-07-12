@@ -63,6 +63,11 @@ static struct mm_region zynqmp_mem_map[] = {
 };
 struct mm_region *mem_map = zynqmp_mem_map;
 
+u64 get_page_table_size(void)
+{
+	return 0x14000;
+}
+
 static unsigned int zynqmp_get_silicon_version_secure(void)
 {
 	u32 ver;

@@ -14,6 +14,13 @@
 #include <i2c.h>
 #include "qixis.h"
 
+#ifndef QIXIS_LBMAP_BRDCFG_REG
+/*
+ * For consistency with existing platforms
+ */
+#define QIXIS_LBMAP_BRDCFG_REG 0x00
+#endif
+
 #ifdef CONFIG_SYS_I2C_FPGA_ADDR
 u8 qixis_read_i2c(unsigned int reg)
 {
@@ -27,6 +34,7 @@ void qixis_write_i2c(unsigned int reg, u8 value)
 }
 #endif
 
+#ifdef QIXIS_BASE
 u8 qixis_read(unsigned int reg)
 {
 	void *p = (void *)QIXIS_BASE;
@@ -40,6 +48,7 @@ void qixis_write(unsigned int reg, u8 value)
 
 	out_8(p + reg, value);
 }
+#endif
 
 u16 qixis_read_minor(void)
 {
@@ -142,9 +151,9 @@ static void __maybe_unused set_lbmap(int lbmap)
 {
 	u8 reg;
 
-	reg = QIXIS_READ(brdcfg[0]);
+	reg = QIXIS_READ(brdcfg[QIXIS_LBMAP_BRDCFG_REG]);
 	reg = (reg & ~QIXIS_LBMAP_MASK) | lbmap;
-	QIXIS_WRITE(brdcfg[0], reg);
+	QIXIS_WRITE(brdcfg[QIXIS_LBMAP_BRDCFG_REG], reg);
 }
 
 static void __maybe_unused set_rcw_src(int rcw_src)

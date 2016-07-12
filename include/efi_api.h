@@ -17,6 +17,10 @@
 
 #include <efi.h>
 
+#ifdef CONFIG_EFI_LOADER
+#include <asm/setjmp.h>
+#endif
+
 /* Types and defines for EFI CreateEvent */
 enum efi_event_type {
 	EFI_TIMER_STOP = 0,
@@ -239,6 +243,12 @@ struct efi_loaded_image {
 	unsigned int image_code_type;
 	unsigned int image_data_type;
 	unsigned long unload;
+
+	/* Below are efi loader private fields */
+#ifdef CONFIG_EFI_LOADER
+	efi_status_t exit_status;
+	struct jmp_buf_data exit_jmp;
+#endif
 };
 
 #define DEVICE_PATH_GUID \
@@ -410,6 +420,125 @@ struct efi_gop
 				   unsigned long dy, unsigned long width,
 				   unsigned long height, unsigned long delta);
 	struct efi_gop_mode *mode;
+};
+
+#define EFI_SIMPLE_NETWORK_GUID \
+	EFI_GUID(0xa19832b9, 0xac25, 0x11d3, \
+		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+
+struct efi_mac_address {
+	char mac_addr[32];
+};
+
+struct efi_ip_address {
+	u8 ip_addr[16];
+};
+
+enum efi_simple_network_state {
+	EFI_NETWORK_STOPPED,
+	EFI_NETWORK_STARTED,
+	EFI_NETWORK_INITIALIZED,
+};
+
+struct efi_simple_network_mode {
+	enum efi_simple_network_state state;
+	u32 hwaddr_size;
+	u32 media_header_size;
+	u32 max_packet_size;
+	u32 nvram_size;
+	u32 nvram_access_size;
+	u32 receive_filter_mask;
+	u32 receive_filter_setting;
+	u32 max_mcast_filter_count;
+	u32 mcast_filter_count;
+	struct efi_mac_address mcast_filter[16];
+	struct efi_mac_address current_address;
+	struct efi_mac_address broadcast_address;
+	struct efi_mac_address permanent_address;
+	u8 if_type;
+	u8 mac_changeable;
+	u8 multitx_supported;
+	u8 media_present_supported;
+	u8 media_present;
+};
+
+#define EFI_SIMPLE_NETWORK_RECEIVE_UNICAST               0x01,
+#define EFI_SIMPLE_NETWORK_RECEIVE_MULTICAST             0x02,
+#define EFI_SIMPLE_NETWORK_RECEIVE_BROADCAST             0x04,
+#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS           0x08,
+#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS_MULTICAST 0x10,
+
+struct efi_simple_network
+{
+	u64 revision;
+	efi_status_t (EFIAPI *start)(struct efi_simple_network *this);
+	efi_status_t (EFIAPI *stop)(struct efi_simple_network *this);
+	efi_status_t (EFIAPI *initialize)(struct efi_simple_network *this,
+			ulong extra_rx, ulong extra_tx);
+	efi_status_t (EFIAPI *reset)(struct efi_simple_network *this,
+			int extended_verification);
+	efi_status_t (EFIAPI *shutdown)(struct efi_simple_network *this);
+	efi_status_t (EFIAPI *receive_filters)(struct efi_simple_network *this,
+			u32 enable, u32 disable, int reset_mcast_filter,
+			ulong mcast_filter_count,
+			struct efi_mac_address *mcast_filter);
+	efi_status_t (EFIAPI *station_address)(struct efi_simple_network *this,
+			int reset, struct efi_mac_address *new_mac);
+	efi_status_t (EFIAPI *statistics)(struct efi_simple_network *this,
+			int reset, ulong *stat_size, void *stat_table);
+	efi_status_t (EFIAPI *mcastiptomac)(struct efi_simple_network *this,
+			int ipv6, struct efi_ip_address *ip,
+			struct efi_mac_address *mac);
+	efi_status_t (EFIAPI *nvdata)(struct efi_simple_network *this,
+			int read_write, ulong offset, ulong buffer_size,
+			char *buffer);
+	efi_status_t (EFIAPI *get_status)(struct efi_simple_network *this,
+			u32 *int_status, void **txbuf);
+	efi_status_t (EFIAPI *transmit)(struct efi_simple_network *this,
+			ulong header_size, ulong buffer_size, void *buffer,
+			struct efi_mac_address *src_addr,
+			struct efi_mac_address *dest_addr, u16 *protocol);
+	efi_status_t (EFIAPI *receive)(struct efi_simple_network *this,
+			ulong *header_size, ulong *buffer_size, void *buffer,
+			struct efi_mac_address *src_addr,
+			struct efi_mac_address *dest_addr, u16 *protocol);
+	void (EFIAPI *waitforpacket)(void);
+	struct efi_simple_network_mode *mode;
+};
+
+#define EFI_PXE_GUID \
+	EFI_GUID(0x03c4e603, 0xac28, 0x11d3, \
+		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+
+struct efi_pxe_packet {
+	u8 packet[1472];
+};
+
+struct efi_pxe_mode
+{
+	u8 unused[52];
+	struct efi_pxe_packet dhcp_discover;
+	struct efi_pxe_packet dhcp_ack;
+	struct efi_pxe_packet proxy_offer;
+	struct efi_pxe_packet pxe_discover;
+	struct efi_pxe_packet pxe_reply;
+};
+
+struct efi_pxe {
+	u64 rev;
+	void (EFIAPI *start)(void);
+	void (EFIAPI *stop)(void);
+	void (EFIAPI *dhcp)(void);
+	void (EFIAPI *discover)(void);
+	void (EFIAPI *mftp)(void);
+	void (EFIAPI *udpwrite)(void);
+	void (EFIAPI *udpread)(void);
+	void (EFIAPI *setipfilter)(void);
+	void (EFIAPI *arp)(void);
+	void (EFIAPI *setparams)(void);
+	void (EFIAPI *setstationip)(void);
+	void (EFIAPI *setpackets)(void);
+	struct efi_pxe_mode *mode;
 };
 
 #endif

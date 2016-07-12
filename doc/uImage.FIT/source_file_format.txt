@@ -236,6 +236,7 @@ o config@1
   |- kernel = "kernel sub-node unit name"
   |- ramdisk = "ramdisk sub-node unit name"
   |- fdt = "fdt sub-node unit-name"
+  |- fpga = "fpga sub-node unit-name"
   |- loadables = "loadables sub-node unit-name"
 
 
@@ -251,6 +252,8 @@ o config@1
     "fdt type").
   - setup : Unit name of the corresponding setup binary (used for booting
     an x86 kernel). This contains the setup.bin file built by the kernel.
+  - fpga : Unit name of the corresponding fpga bitstream blob
+    (component image node of a "fpga type").
   - loadables : Unit name containing a list of additional binaries to be
     loaded at their given locations.  "loadables" is a comma-separated list
     of strings. U-Boot will load each binary at its given start-address.
@@ -279,6 +282,9 @@ In this case the 'data' property is omitted. Instead you can use:
     aligned to a 4-byte boundary.
   - data-size : size of the data in bytes
 
+The 'data-offset' property can be substituted with 'data-position', which
+defines an absolute position or address as the offset. This is helpful when
+booting U-Boot proper before performing relocation.
 
 9) Examples
 -----------

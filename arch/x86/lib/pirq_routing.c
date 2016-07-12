@@ -10,7 +10,6 @@
 #include <pci.h>
 #include <asm/pci.h>
 #include <asm/pirq_routing.h>
-#include <asm/tables.h>
 
 static bool irq_already_routed[16];
 
@@ -110,9 +109,6 @@ void pirq_route_irqs(struct udevice *dev, struct irq_info *irq, int num)
 u32 copy_pirq_routing_table(u32 addr, struct irq_routing_table *rt)
 {
 	struct irq_routing_table *rom_rt;
-
-	/* Fix up the table checksum */
-	rt->checksum = table_compute_checksum(rt, rt->size);
 
 	/* Align the table to be 16 byte aligned */
 	addr = ALIGN(addr, 16);

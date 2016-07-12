@@ -21,7 +21,6 @@
 
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
-#define CONFIG_BOOTDELAY	2 /* autoboot after 2 seconds */
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 /*

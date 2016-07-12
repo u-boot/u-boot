@@ -186,8 +186,7 @@ U-Boot sandbox supports these emulations:
 A wide range of commands is implemented. Filesystems which use a block
 device are supported.
 
-Also sandbox uses generic board (CONFIG_SYS_GENERIC_BOARD) and supports
-driver model (CONFIG_DM) and associated commands.
+Also sandbox supports driver model (CONFIG_DM) and associated commands.
 
 
 Linux RAW Networking Bridge

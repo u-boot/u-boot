@@ -13,11 +13,6 @@
 
 static uint32_t header;
 
-static int rkimage_check_params(struct image_tool_params *params)
-{
-	return 0;
-}
-
 static int rkimage_verify_header(unsigned char *buf, int size,
 				 struct image_tool_params *params)
 {
@@ -56,7 +51,7 @@ U_BOOT_IMAGE_TYPE(
 	"Rockchip Boot Image support",
 	4,
 	&header,
-	rkimage_check_params,
+	rkcommon_check_params,
 	rkimage_verify_header,
 	rkimage_print_header,
 	rkimage_set_header,

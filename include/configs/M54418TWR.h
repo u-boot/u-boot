@@ -75,7 +75,6 @@
 #define CONFIG_SYS_FEC0_PHYADDR	0
 #define CONFIG_SYS_FEC1_PHYADDR	1
 
-#define CONFIG_BOOTDELAY		2	/* autoboot after 5 seconds */
 
 #ifdef	CONFIG_SYS_NAND_BOOT
 #define CONFIG_BOOTARGS	"root=/dev/mtdblock2 rw rootfstype=jffs2 " \

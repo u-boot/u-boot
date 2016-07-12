@@ -41,7 +41,7 @@ static int wait_for_irq(uint32_t irq_mask)
 
 		if (intr_status & INTR_STATUS__ECC_UNCOR_ERR) {
 			debug("Uncorrected ECC detected\n");
-			return -EIO;
+			return -EBADMSG;
 		}
 
 		if (intr_status & irq_mask)

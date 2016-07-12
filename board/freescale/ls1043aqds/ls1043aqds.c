@@ -47,7 +47,7 @@ enum {
 int checkboard(void)
 {
 	char buf[64];
-#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
+#ifndef CONFIG_SD_BOOT
 	u8 sw;
 #endif
 
@@ -55,8 +55,6 @@ int checkboard(void)
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
-#elif defined(CONFIG_QSPI_BOOT)
-	puts("QSPI\n");
 #else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -67,8 +65,8 @@ int checkboard(void)
 		puts("PromJet\n");
 	else if (sw == 0x9)
 		puts("NAND\n");
-	else if (sw == 0x15)
-		printf("IFCCard\n");
+	else if (sw == 0xF)
+		printf("QSPI\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 #endif
@@ -232,14 +230,18 @@ int board_early_init_f(void)
 #ifdef CONFIG_LPUART
 	u8 uart;
 #endif
+
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+	i2c_early_init_f();
+#endif
 	fsl_lsch2_early_init_f();
 
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 	out_be32(&scfg->rcwpmuxcr0, 0x3333);
 	out_be32(&scfg->usbdrvvbus_selcr, SCFG_USBDRVVBUS_SELCR_USB1);
 	usb_pwrfault =
-		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB3_SHIFT) |
-		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB2_SHIFT) |
+		(SCFG_USBPWRFAULT_DEDICATED << SCFG_USBPWRFAULT_USB3_SHIFT) |
+		(SCFG_USBPWRFAULT_DEDICATED << SCFG_USBPWRFAULT_USB2_SHIFT) |
 		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB1_SHIFT);
 	out_be32(&scfg->usbpwrfault_selcr, usb_pwrfault);
 #endif
@@ -307,14 +309,6 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)
-				   CONFIG_SYS_CCI400_ADDR;
-
-	/* Set CCI-400 control override register to enable barrier
-	 * transaction */
-	out_le32(&cci->ctrl_ord,
-		 CCI400_CTRLORD_EN_BARRIER);
-
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	board_retimer_init();
 
@@ -324,10 +318,6 @@ int board_init(void)
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
-#endif
-
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
 #endif
 	return 0;
 }

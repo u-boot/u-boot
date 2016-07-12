@@ -590,7 +590,6 @@
 
 #if defined(CONFIG_DONGLE)
 
-#define CONFIG_BOOTDELAY 1	/* autoboot after 1 seconds */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run prog_spi_mbrbootcramfs\0"					\
 "bootfile=uImage\0"							\
@@ -720,7 +719,6 @@
 
 #if defined(CONFIG_UCP1020T1)
 
-#define CONFIG_BOOTDELAY 2 /* autoboot after 2 sec, -1 disables auto-boot */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run releasefpga; run norbootworking || run norbootrecovery\0"	\
 "bootfile=uImage\0"							\
@@ -810,7 +808,6 @@
 
 #else /* For Arcturus Modules */
 
-#define CONFIG_BOOTDELAY 2 /* autoboot after 2 sec, -1 disables auto-boot */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 "bootcmd=run norkernel\0"						\
 "bootfile=uImage\0"							\

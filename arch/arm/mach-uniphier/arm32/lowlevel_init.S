@@ -29,7 +29,7 @@ ENTRY(lowlevel_init)
 	bl	debug_ll_init
 #endif
 
-	bl	setup_init_ram		@ RAM area for stack and page talbe
+	bl	setup_init_ram		@ RAM area for stack and page table
 
 	/*
 	 * Now we are using the page table embedded in the Boot ROM.

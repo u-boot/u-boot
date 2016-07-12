@@ -90,9 +90,13 @@ const uchar default_environment[] = {
 #endif
 #ifdef	CONFIG_ENV_VARS_UBOOT_CONFIG
 	"arch="		CONFIG_SYS_ARCH			"\0"
+#ifdef CONFIG_SYS_CPU
 	"cpu="		CONFIG_SYS_CPU			"\0"
+#endif
+#ifdef CONFIG_SYS_BOARD
 	"board="	CONFIG_SYS_BOARD		"\0"
 	"board_name="	CONFIG_SYS_BOARD		"\0"
+#endif
 #ifdef CONFIG_SYS_VENDOR
 	"vendor="	CONFIG_SYS_VENDOR		"\0"
 #endif

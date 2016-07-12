@@ -417,7 +417,6 @@
 
 #ifdef CONFIG_TRAILBLAZER
 
-#define CONFIG_BOOTDELAY	0	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -432,7 +431,6 @@
 
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define CONFIG_BAUDRATE	115200
 

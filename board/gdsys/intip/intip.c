@@ -203,7 +203,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 extern void __ft_board_setup(void *blob, bd_t *bd);
 
 int ft_board_setup(void *blob, bd_t *bd)
@@ -218,4 +218,4 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */

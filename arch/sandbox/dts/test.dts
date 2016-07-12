@@ -108,8 +108,23 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
-	clk@0 {
+	clk_fixed: clk-fixed {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1234>;
+	};
+
+	clk_sandbox: clk-sbox {
 		compatible = "sandbox,clk";
+		#clock-cells = <1>;
+	};
+
+	clk-test {
+		compatible = "sandbox,clk-test";
+		clocks = <&clk_fixed>,
+			 <&clk_sandbox 1>,
+			 <&clk_sandbox 0>;
+		clock-names = "fixed", "i2c", "spi";
 	};
 
 	eth@10002000 {
@@ -216,6 +231,17 @@
 		};
 	};
 
+	mbox: mbox {
+		compatible = "sandbox,mbox";
+		#mbox-cells = <1>;
+	};
+
+	mbox-test {
+		compatible = "sandbox,mbox-test";
+		mboxes = <&mbox 100>, <&mbox 1>;
+		mbox-names = "other", "test";
+	};
+
 	mmc {
 		compatible = "sandbox,mmc";
 	};
@@ -246,6 +272,17 @@
 
 	reset@1 {
 		compatible = "sandbox,reset";
+	};
+
+	resetc: reset-ctl {
+		compatible = "sandbox,reset-ctl";
+		#reset-cells = <1>;
+	};
+
+	reset-ctl-test {
+		compatible = "sandbox,reset-ctl-test";
+		resets = <&resetc 100>, <&resetc 2>;
+		reset-names = "other", "test";
 	};
 
 	rproc_1: rproc@1 {

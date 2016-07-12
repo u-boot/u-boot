@@ -109,6 +109,7 @@
 #define ATMEL_BASE_RTT		0xfffffd20
 #define ATMEL_BASE_PIT		0xfffffd30
 #define ATMEL_BASE_WDT		0xfffffd40
+#define ATMEL_BASE_SCKCR	0xfffffd50
 #define ATMEL_BASE_GPBR		0xfffffd60
 #define ATMEL_BASE_RTC		0xfffffdb0
 /* Reserved:	0xfffffdc0 - 0xffffffff */

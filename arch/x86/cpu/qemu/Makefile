@@ -7,4 +7,5 @@
 ifndef CONFIG_EFI_STUB
 obj-y += car.o dram.o
 endif
-obj-y += cpu.o fw_cfg.o qemu.o
+obj-y += qemu.o
+obj-$(CONFIG_QFW) += cpu.o e820.o

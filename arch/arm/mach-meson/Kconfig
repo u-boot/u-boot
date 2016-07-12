@@ -1,0 +1,31 @@
+if ARCH_MESON
+
+config MESON_GXBB
+	bool "Support Meson GXBaby"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+	  The Amlogic Meson GXBaby (S905) is an ARM SoC with a
+	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
+
+if MESON_GXBB
+
+config TARGET_ODROID_C2
+	bool "ODROID-C2"
+	help
+	  ODROID-C2 is a single board computer based on Meson GXBaby
+	  with 2 GiB of RAM, Gigabit Ethernet, HDMI, 4 USB, micro-SD
+	  slot, eMMC, IR receiver and a 40-pin GPIO header.
+
+endif
+
+config SYS_SOC
+	default "meson"
+
+config SYS_MALLOC_F_LEN
+	default 0x1000
+
+source "board/amlogic/odroid-c2/Kconfig"
+
+endif

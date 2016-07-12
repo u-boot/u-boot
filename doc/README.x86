@@ -23,7 +23,8 @@ In this case, known as bare mode, from the fact that it runs on the
 'bare metal', U-Boot acts like a BIOS replacement. The following platforms
 are supported:
 
-   - Bayley Bay
+   - Bayley Bay CRB
+   - Congatec QEVAL 2.0 & conga-QA3/E3845
    - Cougar Canyon 2 CRB
    - Crown Bay CRB
    - Galileo
@@ -303,12 +304,12 @@ Offset   Description         Controlling config
 000000   descriptor.bin      Hard-coded to 0 in ifdtool
 001000   me.bin              Set by the descriptor
 500000   <spare>
+6ef000   Environment         CONFIG_ENV_OFFSET
 6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
 700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
 790000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
 7f8000   <spare>             (depends on size of fsp.bin)
-7fe000   Environment         CONFIG_ENV_OFFSET
 7ff800   U-Boot 16-bit boot  CONFIG_SYS_X86_START16
 
 Overall ROM image size is controlled by CONFIG_ROM_SIZE.
@@ -412,18 +413,19 @@ If you want to check both consoles, use '-serial stdio'.
 Multicore is also supported by QEMU via '-smp n' where n is the number of cores
 to instantiate. Note, the maximum supported CPU number in QEMU is 255.
 
-The fw_cfg interface in QEMU also provides information about kernel data, initrd,
-command-line arguments and more. U-Boot supports directly accessing these informtion
-from fw_cfg interface, this saves the time of loading them from hard disk or
-network again, through emulated devices. To use it , simply providing them in
-QEMU command line:
+The fw_cfg interface in QEMU also provides information about kernel data,
+initrd, command-line arguments and more. U-Boot supports directly accessing
+these informtion from fw_cfg interface, which saves the time of loading them
+from hard disk or network again, through emulated devices. To use it , simply
+providing them in QEMU command line:
 
 $ qemu-system-i386 -nographic -bios path/to/u-boot.rom -m 1024 -kernel /path/to/bzImage
     -append 'root=/dev/ram console=ttyS0' -initrd /path/to/initrd -smp 8
 
 Note: -initrd and -smp are both optional
 
-Then start QEMU, in U-Boot command line use the following U-Boot command to setup kernel:
+Then start QEMU, in U-Boot command line use the following U-Boot command to
+setup kernel:
 
  => qfw
 qfw - QEMU firmware interface
@@ -437,8 +439,8 @@ qfw <command>
 => qfw load
 loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
 
-Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then, 'zboot'
-can be used to boot the kernel:
+Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
+'zboot' can be used to boot the kernel:
 
 => zboot 02000000 - 04000000 1b1ab50
 
@@ -490,8 +492,8 @@ Booting Ubuntu
 --------------
 As an example of how to set up your boot flow with U-Boot, here are
 instructions for starting Ubuntu from U-Boot. These instructions have been
-tested on Minnowboard MAX with a SATA driver but are equally applicable on
-other platforms and other media. There are really only four steps and its a
+tested on Minnowboard MAX with a SATA drive but are equally applicable on
+other platforms and other media. There are really only four steps and it's a
 very simple script, but a more detailed explanation is provided here for
 completeness.
 
@@ -499,7 +501,7 @@ Note: It is possible to set up U-Boot to boot automatically using syslinux.
 It could also use the grub.cfg file (/efi/ubuntu/grub.cfg) to obtain the
 GUID. If you figure these out, please post patches to this README.
 
-Firstly, you will need Ubunutu installed on an available disk. It should be
+Firstly, you will need Ubuntu installed on an available disk. It should be
 possible to make U-Boot start a USB start-up disk but for now let's assume
 that you used another boot loader to install Ubuntu.
 
@@ -659,7 +661,7 @@ U-Boot:
    Loading bzImage at address 100000 (5805728 bytes)
    Magic signature found
    Initial RAM disk at linear address 0x04000000, size 19215259 bytes
-   Kernel command line: "console=ttyS0,115200 root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro"
+   Kernel command line: "root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro"
 
    Starting kernel ...
 
@@ -679,13 +681,14 @@ above commands into a script since then it will be faster.
                   240,329  ahci
                 1,422,704  vesa display
 
-Now the kernel actually starts:
+Now the kernel actually starts: (if you want to examine kernel boot up message
+on the serial console, append "console=ttyS0,115200" to the kernel command line)
 
    [    0.000000] Initializing cgroup subsys cpuset
    [    0.000000] Initializing cgroup subsys cpu
    [    0.000000] Initializing cgroup subsys cpuacct
    [    0.000000] Linux version 3.13.0-58-generic (buildd@allspice) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #97-Ubuntu SMP Wed Jul 8 02:56:15 UTC 2015 (Ubuntu 3.13.0-58.97-generic 3.13.11-ckt22)
-   [    0.000000] Command line: console=ttyS0,115200 root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro
+   [    0.000000] Command line: root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro console=ttyS0,115200
 
 It continues for a long time. Along the way you will see it pick up your
 ramdisk:
@@ -735,14 +738,6 @@ If you want to put this in a script you can use something like this:
 
 The \ is to tell the shell not to evaluate ${filesize} as part of the setenv
 command.
-
-You will also need to add this to your board configuration file, e.g.
-include/configs/minnowmax.h:
-
-   #define CONFIG_BOOTDELAY	2
-
-Now when you reset your board it wait a few seconds (in case you want to
-interrupt) and then should boot straight into Ubuntu.
 
 You can also bake this behaviour into your build by hard-coding the
 environment variables if you add this to minnowmax.h:
@@ -812,6 +807,30 @@ to install/boot a Windows XP OS (below for example command to install Windows).
 This is also tested on Intel Crown Bay board with a PCIe graphics card, booting
 SeaBIOS then chain-loading a GRUB on a USB drive, then Linux kernel finally.
 
+If you are using Intel Integrated Graphics Device (IGD) as the primary display
+device on your board, SeaBIOS needs to be patched manually to get its VGA ROM
+loaded and run by SeaBIOS. SeaBIOS locates VGA ROM via the PCI expansion ROM
+register, but IGD device does not have its VGA ROM mapped by this register.
+Its VGA ROM is packaged as part of u-boot.rom at a configurable flash address
+which is unknown to SeaBIOS. An example patch is needed for SeaBIOS below:
+
+diff --git a/src/optionroms.c b/src/optionroms.c
+index 65f7fe0..c7b6f5e 100644
+--- a/src/optionroms.c
++++ b/src/optionroms.c
+@@ -324,6 +324,8 @@ init_pcirom(struct pci_device *pci, int isvga, u64 *sources)
+         rom = deploy_romfile(file);
+     else if (RunPCIroms > 1 || (RunPCIroms == 1 && isvga))
+         rom = map_pcirom(pci);
++    if (pci->bdf == pci_to_bdf(0, 2, 0))
++        rom = (struct rom_header *)0xfff90000;
+     if (! rom)
+         // No ROM present.
+         return;
+
+Note: the patch above expects IGD device is at PCI b.d.f 0.2.0 and its VGA ROM
+is at 0xfff90000 which corresponds to CONFIG_VGA_BIOS_ADDR on Minnowboard MAX.
+Change these two accordingly if this is not the case on your board.
 
 Development Flow
 ----------------
@@ -963,12 +982,65 @@ transformations. Remember to add attribution to coreboot for new files added
 to U-Boot. This should go at the top of each file and list the coreboot
 filename where the code originated.
 
+Debugging ACPI issues with Windows:
+
+Windows might cache system information and only detect ACPI changes if you
+modify the ACPI table versions. So tweak them liberally when debugging ACPI
+issues with Windows.
+
+ACPI Support Status
+-------------------
+Advanced Configuration and Power Interface (ACPI) [16] aims to establish
+industry-standard interfaces enabling OS-directed configuration, power
+management, and thermal management of mobile, desktop, and server platforms.
+
+Linux can boot without ACPI with "acpi=off" command line parameter, but
+with ACPI the kernel gains the capabilities to handle power management.
+For Windows, ACPI is a must-have firmware feature since Windows Vista.
+CONFIG_GENERATE_ACPI_TABLE is the config option to turn on ACPI support in
+U-Boot. This requires Intel ACPI compiler to be installed on your host to
+compile ACPI DSDT table written in ASL format to AML format. You can get
+the compiler via "apt-get install iasl" if you are on Ubuntu or download
+the source from [17] to compile one by yourself.
+
+Current ACPI support in U-Boot is not complete. More features will be added
+in the future. The status as of today is:
+
+ * Support generating RSDT, XSDT, FACS, FADT, MADT, MCFG tables.
+ * Support one static DSDT table only, compiled by Intel ACPI compiler.
+ * Support S0/S5, reboot and shutdown from OS.
+ * Support booting a pre-installed Ubuntu distribution via 'zboot' command.
+ * Support installing and booting Ubuntu 14.04 (or above) from U-Boot with
+   the help of SeaBIOS using legacy interface (non-UEFI mode).
+ * Support installing and booting Windows 8.1/10 from U-Boot with the help
+   of SeaBIOS using legacy interface (non-UEFI mode).
+ * Support ACPI interrupts with SCI only.
+
+Features not supported so far (to make it a complete ACPI solution):
+ * S3 (Suspend to RAM), S4 (Suspend to Disk).
+
+Features that are optional:
+ * ACPI global NVS support. We may need it to simplify ASL code logic if
+   utilizing NVS variables. Most likely we will need this sooner or later.
+ * Dynamic AML bytecodes insertion at run-time. We may need this to support
+   SSDT table generation and DSDT fix up.
+ * SMI support. Since U-Boot is a modern bootloader, we don't want to bring
+   those legacy stuff into U-Boot. ACPI spec allows a system that does not
+   support SMI (a legacy-free system).
+
+ACPI was initially enabled on BayTrail based boards. Testing was done by booting
+a pre-installed Ubuntu 14.04 from a SATA drive. Installing Ubuntu 14.04 and
+Windows 8.1/10 to a SATA drive and booting from there is also tested. Most
+devices seem to work correctly and the board can respond a reboot/shutdown
+command from the OS.
+
+For other platform boards, ACPI support status can be checked by examining their
+board defconfig files to see if CONFIG_GENERATE_ACPI_TABLE is set to y.
 
 TODO List
 ---------
 - Audio
 - Chrome OS verified boot
-- SMI and ACPI support, to provide platform info and facilities to Linux
 
 References
 ----------
@@ -987,3 +1059,5 @@ References
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
 [14] http://www.seabios.org/SeaBIOS
 [15] doc/device-tree-bindings/misc/intel,irq-router.txt
+[16] http://www.acpi.info
+[17] https://www.acpica.org/downloads

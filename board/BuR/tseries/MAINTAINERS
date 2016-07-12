@@ -1,8 +1,0 @@
-TSERIES BOARD
-M:	Hannes Schmelzer <hannes.schmelzer@br-automation.com>
-S:	Maintained
-F:	board/BuR/tseries/
-F:	include/configs/tseries.h
-F:	configs/tseries_mmc_defconfig
-F:	configs/tseries_nand_defconfig
-F:	configs/tseries_spi_defconfig

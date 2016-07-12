@@ -280,6 +280,8 @@ static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				omap_nand_switch_ecc(1, 1);
 			else if (strncmp(argv[2], "bch8", 4) == 0)
 				omap_nand_switch_ecc(1, 8);
+			else if (strncmp(argv[2], "bch16", 5) == 0)
+				omap_nand_switch_ecc(1, 16);
 			else
 				goto usage;
 		}
@@ -308,8 +310,8 @@ usage:
 U_BOOT_CMD(
 	nandecc, 3, 1,	do_switch_ecc,
 	"switch OMAP3 NAND ECC calculation algorithm",
-	"hw [hamming|bch8] - Switch between NAND hardware 1-bit hamming and"
-	" 8-bit BCH\n"
+	"hw [hamming|bch8|bch16] - Switch between NAND hardware 1-bit hamming"
+	" and 8-bit/16-bit BCH\n"
 	"                           ecc calculation (second parameter may"
 	" be omitted).\n"
 	"nandecc sw               - Switch to NAND software ecc algorithm."

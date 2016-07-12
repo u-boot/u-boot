@@ -152,9 +152,6 @@
 							/* devices */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		3
-#define CONFIG_ZERO_BOOTDELAY_CHECK
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"baudrate=115200\0" \
@@ -304,5 +301,16 @@
 #define CONFIG_SCF0403_LCD
 
 #define CONFIG_OMAP3_SPI
+
+/* EEPROM */
+#define CONFIG_CMD_EEPROM
+#define CONFIG_ENV_EEPROM_IS_ON_I2C
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+#define CONFIG_SYS_EEPROM_SIZE			256
+
+#define CONFIG_CMD_EEPROM_LAYOUT
+#define CONFIG_EEPROM_LAYOUT_HELP_STRING "v1, v2, v3"
 
 #endif /* __CONFIG_H */

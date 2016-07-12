@@ -311,8 +311,8 @@ U_BOOT_CMD(
  * only HUSH can understand them.
  */
 
-#if !defined(CONFIG_SYS_HUSH_PARSER)
-#error CONFIG_CMD_HD44760 requires CONFIG_SYS_HUSH_PARSER
+#if !defined(CONFIG_HUSH_PARSER)
+#error CONFIG_CMD_HD44760 requires CONFIG_HUSH_PARSER
 #endif
 
 static int do_hd44780(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])

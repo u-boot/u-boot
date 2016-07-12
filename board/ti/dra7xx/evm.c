@@ -305,6 +305,82 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	}
 }
 
+struct vcores_data dra752_volts = {
+	.mpu.value	= VDD_MPU_DRA7,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.mpu.addr	= TPS659038_REG_ADDR_SMPS12,
+	.mpu.pmic	= &tps659038,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
+
+	.eve.value	= VDD_EVE_DRA7,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr	= TPS659038_REG_ADDR_SMPS45,
+	.eve.pmic	= &tps659038,
+	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
+
+	.gpu.value	= VDD_GPU_DRA7,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr	= TPS659038_REG_ADDR_SMPS6,
+	.gpu.pmic	= &tps659038,
+	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
+
+	.core.value	= VDD_CORE_DRA7,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
+	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.core.addr	= TPS659038_REG_ADDR_SMPS7,
+	.core.pmic	= &tps659038,
+
+	.iva.value	= VDD_IVA_DRA7,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr	= TPS659038_REG_ADDR_SMPS8,
+	.iva.pmic	= &tps659038,
+	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
+};
+
+struct vcores_data dra722_volts = {
+	.mpu.value	= VDD_MPU_DRA7,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.mpu.addr	= TPS65917_REG_ADDR_SMPS1,
+	.mpu.pmic	= &tps659038,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
+
+	.core.value	= VDD_CORE_DRA7,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
+	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.core.addr	= TPS65917_REG_ADDR_SMPS2,
+	.core.pmic	= &tps659038,
+
+	/*
+	 * The DSPEVE, GPU and IVA rails are usually grouped on DRA72x
+	 * designs and powered by TPS65917 SMPS3, as on the J6Eco EVM.
+	 */
+	.gpu.value	= VDD_GPU_DRA7,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.gpu.addr	= TPS65917_REG_ADDR_SMPS3,
+	.gpu.pmic	= &tps659038,
+	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
+
+	.eve.value	= VDD_EVE_DRA7,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.eve.addr	= TPS65917_REG_ADDR_SMPS3,
+	.eve.pmic	= &tps659038,
+	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
+
+	.iva.value	= VDD_IVA_DRA7,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
+	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.iva.addr	= TPS65917_REG_ADDR_SMPS3,
+	.iva.pmic	= &tps659038,
+	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
+};
+
 /**
  * @brief board_init
  *
@@ -337,10 +413,14 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char *name = "unknown";
 
-	if (is_dra72x())
-		name = "dra72x";
-	else
+	if (is_dra72x()) {
+		if (board_is_dra72x_revc_or_later())
+			name = "dra72x-revc";
+		else
+			name = "dra72x";
+	} else {
 		name = "dra7xx";
+	}
 
 	set_board_info_env(name);
 
@@ -389,6 +469,21 @@ void do_board_detect(void)
 			 "Board: %s REV %s\n", bname, board_ti_get_rev());
 }
 #endif	/* CONFIG_SPL_BUILD */
+
+void vcores_init(void)
+{
+	if (board_is_dra74x_evm()) {
+		*omap_vcores = &dra752_volts;
+	} else if (board_is_dra72x_evm()) {
+		*omap_vcores = &dra722_volts;
+	} else {
+		/* If EEPROM is not populated */
+		if (is_dra72x())
+			*omap_vcores = &dra722_volts;
+		else
+			*omap_vcores = &dra752_volts;
+	}
+}
 
 void set_muxconf_regs(void)
 {
@@ -716,5 +811,26 @@ int board_early_init_f(void)
 {
 	vtt_regulator_enable();
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_dra72x() && !strcmp(name, "dra72-evm"))
+		return 0;
+	else if (!is_dra72x() && !strcmp(name, "dra7-evm"))
+		return 0;
+	else
+		return -1;
 }
 #endif

@@ -34,6 +34,8 @@ enum pirq_config {
  *		IRQ N is available to be routed
  * @lb_bdf:	irq router's PCI bus/device/function number encoding
  * @ibase:	IBASE register block base address
+ * @actl_8bit:	ACTL register width is 8-bit (for ICH series chipset)
+ * @actl_addr:	ACTL register offset
  */
 struct irq_router {
 	int config;
@@ -41,6 +43,8 @@ struct irq_router {
 	u16 irq_mask;
 	u32 bdf;
 	u32 ibase;
+	bool actl_8bit;
+	int actl_addr;
 };
 
 struct pirq_routing {

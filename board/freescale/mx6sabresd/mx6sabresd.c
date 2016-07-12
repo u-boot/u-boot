@@ -177,13 +177,27 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_DISP0_DAT21__IPU1_DISP0_DATA21 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_DISP0_DAT22__IPU1_DISP0_DATA22 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const bl_pads[] = {
 	MX6_PAD_SD1_DAT3__GPIO1_IO21 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+
+static void enable_backlight(void)
+{
+	imx_iomux_v3_setup_multiple_pads(bl_pads, ARRAY_SIZE(bl_pads));
+	gpio_direction_output(DISP0_PWR_EN, 1);
+}
 
 static void enable_rgb(struct display_info_t const *dev)
 {
 	imx_iomux_v3_setup_multiple_pads(rgb_pads, ARRAY_SIZE(rgb_pads));
-	gpio_direction_output(DISP0_PWR_EN, 1);
+	enable_backlight();
+}
+
+static void enable_lvds(struct display_info_t const *dev)
+{
+	enable_backlight();
 }
 
 static struct i2c_pads_info i2c_pad_info1 = {
@@ -370,7 +384,7 @@ struct display_info_t const displays[] = {{
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
 	.detect	= NULL,
-	.enable	= NULL,
+	.enable	= enable_lvds,
 	.mode	= {
 		.name           = "Hannstar-XGA",
 		.refresh        = 60,
@@ -649,9 +663,9 @@ int board_late_init(void)
 
 	if (is_mx6dqp())
 		setenv("board_rev", "MX6QP");
-	else if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+	else if (is_mx6dq())
 		setenv("board_rev", "MX6Q");
-	else if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
+	else if (is_mx6sdl())
 		setenv("board_rev", "MX6DL");
 #endif
 

@@ -15,7 +15,7 @@ int setup_sata(void)
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	int ret;
 
-	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+	if (!is_mx6dq() && !is_mx6dqp())
 		return 1;
 
 	ret = enable_sata_clock();

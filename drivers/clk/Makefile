@@ -9,5 +9,7 @@ obj-$(CONFIG_CLK) += clk-uclass.o clk_fixed_rate.o
 obj-$(CONFIG_ROCKCHIP_RK3036) += clk_rk3036.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += clk_rk3288.o
 obj-$(CONFIG_SANDBOX) += clk_sandbox.o
+obj-$(CONFIG_SANDBOX) += clk_sandbox_test.o
 obj-$(CONFIG_MACH_PIC32) += clk_pic32.o
 obj-$(CONFIG_CLK_UNIPHIER) += uniphier/
+obj-$(CONFIG_CLK_EXYNOS) += exynos/

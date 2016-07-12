@@ -5,8 +5,8 @@ config SYS_ARCH
 	default "mips"
 
 config SYS_CPU
-	default "mips32" if CPU_MIPS32_R1 || CPU_MIPS32_R2
-	default "mips64" if CPU_MIPS64_R1 || CPU_MIPS64_R2
+	default "mips32" if CPU_MIPS32
+	default "mips64" if CPU_MIPS64
 
 choice
 	prompt "Target select"
@@ -23,11 +23,19 @@ config TARGET_QEMU_MIPS
 
 config TARGET_MALTA
 	bool "Support malta"
+	select DM
+	select DM_SERIAL
 	select DYNAMIC_IO_PORT_BASE
+	select OF_CONTROL
+	select OF_ISA_BUS
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select SUPPORTS_CPU_MIPS32_R6
+	select SUPPORTS_CPU_MIPS64_R1
+	select SUPPORTS_CPU_MIPS64_R2
+	select SUPPORTS_CPU_MIPS64_R6
 	select SWAP_IO_SPACE
 	select MIPS_L1_CACHE_SHIFT_6
 
@@ -55,6 +63,11 @@ config TARGET_PB1X00
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select MIPS_TUNE_4KC
 
+config ARCH_ATH79
+	bool "Support QCA/Atheros ath79"
+	select OF_CONTROL
+	select DM
+
 config MACH_PIC32
 	bool "Support Microchip PIC32"
 	select OF_CONTROL
@@ -67,6 +80,7 @@ source "board/imgtec/malta/Kconfig"
 source "board/micronas/vct/Kconfig"
 source "board/pb1x00/Kconfig"
 source "board/qemu-mips/Kconfig"
+source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 
 if MIPS
@@ -98,7 +112,7 @@ config CPU_MIPS32_R1
 	depends on SUPPORTS_CPU_MIPS32_R1
 	select 32BIT
 	help
-	  Choose this option to build an U-Boot for release 1 or later of the
+	  Choose this option to build an U-Boot for release 1 through 5 of the
 	  MIPS32 architecture.
 
 config CPU_MIPS32_R2
@@ -106,7 +120,15 @@ config CPU_MIPS32_R2
 	depends on SUPPORTS_CPU_MIPS32_R2
 	select 32BIT
 	help
-	  Choose this option to build an U-Boot for release 2 or later of the
+	  Choose this option to build an U-Boot for release 2 through 5 of the
+	  MIPS32 architecture.
+
+config CPU_MIPS32_R6
+	bool "MIPS32 Release 6"
+	depends on SUPPORTS_CPU_MIPS32_R6
+	select 32BIT
+	help
+	  Choose this option to build an U-Boot for release 6 or later of the
 	  MIPS32 architecture.
 
 config CPU_MIPS64_R1
@@ -114,7 +136,7 @@ config CPU_MIPS64_R1
 	depends on SUPPORTS_CPU_MIPS64_R1
 	select 64BIT
 	help
-	  Choose this option to build a kernel for release 1 or later of the
+	  Choose this option to build a kernel for release 1 through 5 of the
 	  MIPS64 architecture.
 
 config CPU_MIPS64_R2
@@ -122,7 +144,15 @@ config CPU_MIPS64_R2
 	depends on SUPPORTS_CPU_MIPS64_R2
 	select 64BIT
 	help
-	  Choose this option to build a kernel for release 2 or later of the
+	  Choose this option to build a kernel for release 2 through 5 of the
+	  MIPS64 architecture.
+
+config CPU_MIPS64_R6
+	bool "MIPS64 Release 6"
+	depends on SUPPORTS_CPU_MIPS64_R6
+	select 64BIT
+	help
+	  Choose this option to build a kernel for release 6 or later of the
 	  MIPS64 architecture.
 
 endchoice
@@ -169,19 +199,25 @@ config SUPPORTS_CPU_MIPS32_R1
 config SUPPORTS_CPU_MIPS32_R2
 	bool
 
+config SUPPORTS_CPU_MIPS32_R6
+	bool
+
 config SUPPORTS_CPU_MIPS64_R1
 	bool
 
 config SUPPORTS_CPU_MIPS64_R2
 	bool
 
+config SUPPORTS_CPU_MIPS64_R6
+	bool
+
 config CPU_MIPS32
 	bool
-	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2
+	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2 || CPU_MIPS32_R6
 
 config CPU_MIPS64
 	bool
-	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2
+	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2 || CPU_MIPS64_R6
 
 config MIPS_TUNE_4KC
 	bool
@@ -190,6 +226,12 @@ config MIPS_TUNE_14KC
 	bool
 
 config MIPS_TUNE_24KC
+	bool
+
+config MIPS_TUNE_34KC
+	bool
+
+config MIPS_TUNE_74KC
 	bool
 
 config 32BIT
@@ -203,6 +245,40 @@ config SWAP_IO_SPACE
 
 config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
+
+config SYS_DCACHE_SIZE
+	int
+	default 0
+	help
+	  The total size of the L1 Dcache, if known at compile time.
+
+config SYS_DCACHE_LINE_SIZE
+	int
+	default 0
+	help
+	  The size of L1 Dcache lines, if known at compile time.
+
+config SYS_ICACHE_SIZE
+	int
+	default 0
+	help
+	  The total size of the L1 ICache, if known at compile time.
+
+config SYS_ICACHE_LINE_SIZE
+	int
+	default 0
+	help
+	  The size of L1 Icache lines, if known at compile time.
+
+config SYS_CACHE_SIZE_AUTO
+	def_bool y if SYS_DCACHE_SIZE = 0 && SYS_ICACHE_SIZE = 0 && \
+		SYS_DCACHE_LINE_SIZE = 0 && SYS_ICACHE_LINE_SIZE = 0
+	help
+	  Select this (or let it be auto-selected by not defining any cache
+	  sizes) in order to allow U-Boot to automatically detect the sizes
+	  of caches at runtime. This has a small cost in code size & runtime
+	  so if you know the cache configuration for your system at compile
+	  time it would be beneficial to configure it.
 
 config MIPS_L1_CACHE_SHIFT_4
 	bool

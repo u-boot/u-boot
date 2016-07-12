@@ -4,7 +4,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <clk.h>
 #include <dm/device.h>
 
 #include "clk-uniphier.h"
@@ -162,6 +161,10 @@ static const struct udevice_id uniphier_mio_clk_match[] = {
 	},
 	{
 		.compatible = "socionext,proxstream2-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-ld11-mioctrl",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{

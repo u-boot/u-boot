@@ -7,10 +7,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <efi_loader.h>
 #include <inttypes.h>
 #include <lcd.h>
 #include <malloc.h>
+#include <video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -24,6 +26,8 @@ struct efi_gop_obj {
 	/* The only mode we support */
 	struct efi_gop_mode_info info;
 	struct efi_gop_mode mode;
+	/* Fields we only have acces to during init */
+	u32 bpix;
 };
 
 static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
@@ -57,6 +61,7 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 				   unsigned long dy, unsigned long width,
 				   unsigned long height, unsigned long delta)
 {
+	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
 	int i, j, line_len16, line_len32;
 	void *fb;
 
@@ -67,13 +72,17 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	fb = (void*)gd->fb_base;
-	line_len16 = panel_info.vl_col * sizeof(u16);
-	line_len32 = panel_info.vl_col * sizeof(u32);
+	line_len16 = gopobj->info.width * sizeof(u16);
+	line_len32 = gopobj->info.width * sizeof(u32);
 
 	/* Copy the contents line by line */
 
-	switch (panel_info.vl_bpix) {
+	switch (gopobj->bpix) {
+#ifdef CONFIG_DM_VIDEO
+	case VIDEO_BPP32:
+#else
 	case LCD_COLOR32:
+#endif
 		for (i = 0; i < height; i++) {
 			u32 *dest = fb + ((i + dy)  * line_len32) +
 					 (dx * sizeof(u32));
@@ -84,7 +93,11 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 			memcpy(dest, src, width * sizeof(u32));
 		}
 		break;
+#ifdef CONFIG_DM_VIDEO
+	case VIDEO_BPP16:
+#else
 	case LCD_COLOR16:
+#endif
 		for (i = 0; i < height; i++) {
 			u16 *dest = fb + ((i + dy)  * line_len16) +
 					 (dx * sizeof(u16));
@@ -102,7 +115,11 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 		break;
 	}
 
+#ifdef CONFIG_DM_VIDEO
+	video_sync_all();
+#else
 	lcd_sync();
+#endif
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -111,11 +128,34 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 int efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
-	int line_len;
+	u32 bpix, col, row;
 
-	switch (panel_info.vl_bpix) {
+#ifdef CONFIG_DM_VIDEO
+	struct udevice *vdev;
+
+	/* We only support a single video output device for now */
+	if (uclass_first_device(UCLASS_VIDEO, &vdev))
+		return -1;
+
+	struct video_priv *priv = dev_get_uclass_priv(vdev);
+	bpix = priv->bpix;
+	col = video_get_xsize(vdev);
+	row = video_get_ysize(vdev);
+#else
+
+	bpix = panel_info.vl_bpix;
+	col = panel_info.vl_col;
+	row = panel_info.vl_row;
+#endif
+
+	switch (bpix) {
+#ifdef CONFIG_DM_VIDEO
+	case VIDEO_BPP16:
+	case VIDEO_BPP32:
+#else
 	case LCD_COLOR32:
 	case LCD_COLOR16:
+#endif
 		break;
 	default:
 		/* So far, we only work in 16 or 32 bit mode */
@@ -136,14 +176,14 @@ int efi_gop_register(void)
 	gopobj->mode.max_mode = 1;
 	gopobj->mode.info = &gopobj->info;
 	gopobj->mode.info_size = sizeof(gopobj->info);
-	gopobj->mode.fb_base = gd->fb_base;
-	gopobj->mode.fb_size = lcd_get_size(&line_len);
 
 	gopobj->info.version = 0;
-	gopobj->info.width = panel_info.vl_col;
-	gopobj->info.height = panel_info.vl_row;
+	gopobj->info.width = col;
+	gopobj->info.height = row;
 	gopobj->info.pixel_format = EFI_GOT_RGBA8;
-	gopobj->info.pixels_per_scanline = panel_info.vl_col;
+	gopobj->info.pixels_per_scanline = col;
+
+	gopobj->bpix = bpix;
 
 	/* Hook up to the device list */
 	list_add_tail(&gopobj->parent.link, &efi_obj_list);

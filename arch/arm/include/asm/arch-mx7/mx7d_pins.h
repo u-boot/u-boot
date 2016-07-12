@@ -635,7 +635,7 @@ enum {
 	MX7D_PAD_LCD_DATA23__GPIO3_IO28                          = IOMUX_PAD(0x0394, 0x0124, 5, 0x0000, 0, 0),
 	MX7D_PAD_LCD_DATA23__I2C4_SDA                            = IOMUX_PAD(0x0394, 0x0124, IOMUX_CONFIG_SION | 6, 0x05F0, 1, 0),
 
-	MX7D_PAD_UART1_RX_DATA__UART1_DCE_RX                     = IOMUX_PAD(0x0398, 0x0128, 0, 0x0000, 0, 0),
+	MX7D_PAD_UART1_RX_DATA__UART1_DCE_RX                     = IOMUX_PAD(0x0398, 0x0128, 0, 0x06F4, 0, 0),
 
 	MX7D_PAD_UART1_RX_DATA__UART1_DTE_TX                     = IOMUX_PAD(0x0398, 0x0128, 0, 0x0000, 0, 0),
 	MX7D_PAD_UART1_RX_DATA__I2C1_SCL                         = IOMUX_PAD(0x0398, 0x0128, IOMUX_CONFIG_SION | 1, 0x0000, 0, 0),
@@ -655,7 +655,7 @@ enum {
 	MX7D_PAD_UART1_TX_DATA__GPIO4_IO1                        = IOMUX_PAD(0x039C, 0x012C, 5, 0x0000, 0, 0),
 	MX7D_PAD_UART1_TX_DATA__ENET1_MDC                        = IOMUX_PAD(0x039C, 0x012C, 6, 0x0000, 0, 0),
 
-	MX7D_PAD_UART2_RX_DATA__UART2_DCE_RX                     = IOMUX_PAD(0x03A0, 0x0130, 0, 0x0000, 0, 0),
+	MX7D_PAD_UART2_RX_DATA__UART2_DCE_RX                     = IOMUX_PAD(0x03A0, 0x0130, 0, 0x06FC, 2, 0),
 
 	MX7D_PAD_UART2_RX_DATA__UART2_DTE_TX                     = IOMUX_PAD(0x03A0, 0x0130, 0, 0x0000, 0, 0),
 	MX7D_PAD_UART2_RX_DATA__I2C2_SCL                         = IOMUX_PAD(0x03A0, 0x0130, IOMUX_CONFIG_SION | 1, 0x0000, 0, 0),
@@ -667,7 +667,7 @@ enum {
 
 	MX7D_PAD_UART2_TX_DATA__UART2_DCE_TX                     = IOMUX_PAD(0x03A4, 0x0134, 0, 0x0000, 0, 0),
 
-	MX7D_PAD_UART2_TX_DATA__UART2_DTE_RX                     = IOMUX_PAD(0x03A4, 0x0134, 0, 0x0000, 0, 0),
+	MX7D_PAD_UART2_TX_DATA__UART2_DTE_RX                     = IOMUX_PAD(0x03A4, 0x0134, 0, 0x06FC, 3, 0),
 	MX7D_PAD_UART2_TX_DATA__I2C2_SDA                         = IOMUX_PAD(0x03A4, 0x0134, IOMUX_CONFIG_SION | 1, 0x05E0, 0, 0),
 	MX7D_PAD_UART2_TX_DATA__SAI3_RX_DATA0                    = IOMUX_PAD(0x03A4, 0x0134, 2, 0x06C8, 0, 0),
 	MX7D_PAD_UART2_TX_DATA__ECSPI1_RDY                       = IOMUX_PAD(0x03A4, 0x0134, 3, 0x0000, 0, 0),
@@ -695,7 +695,7 @@ enum {
 	MX7D_PAD_UART3_TX_DATA__GPIO4_IO5                        = IOMUX_PAD(0x03AC, 0x013C, 5, 0x0000, 0, 0),
 	MX7D_PAD_UART3_TX_DATA__SD2_LCTL                         = IOMUX_PAD(0x03AC, 0x013C, 6, 0x0000, 0, 0),
 
-	MX7D_PAD_UART3_RTS_B__UART3_DCE_RTS                      = IOMUX_PAD(0x03B0, 0x0140, 0, 0x0000, 0, 0),
+	MX7D_PAD_UART3_RTS_B__UART3_DCE_RTS                      = IOMUX_PAD(0x03B0, 0x0140, 0, 0x0700, 2, 0),
 
 	MX7D_PAD_UART3_RTS_B__UART3_DTE_CTS                      = IOMUX_PAD(0x03B0, 0x0140, 0, 0x0000, 0, 0),
 	MX7D_PAD_UART3_RTS_B__USB_OTG2_OC                        = IOMUX_PAD(0x03B0, 0x0140, 1, 0x0000, 0, 0),

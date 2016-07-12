@@ -93,7 +93,6 @@
 #endif
 
 /* Boot Linux */
-#define CONFIG_BOOTDELAY		1
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTCOMMAND		"run bootcmd_nand"
 #define CONFIG_LOADADDR			0x41000000

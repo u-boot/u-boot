@@ -84,11 +84,14 @@ static int bcm54xx_parse_status(struct phy_device *phydev)
 
 static int bcm54xx_startup(struct phy_device *phydev)
 {
-	/* Read the Status (2x to make sure link is right) */
-	genphy_update_link(phydev);
-	bcm54xx_parse_status(phydev);
+	int ret;
 
-	return 0;
+	/* Read the Status (2x to make sure link is right) */
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return bcm54xx_parse_status(phydev);
 }
 
 /* Broadcom BCM5482S */
@@ -139,11 +142,14 @@ static int bcm5482_config(struct phy_device *phydev)
 
 static int bcm_cygnus_startup(struct phy_device *phydev)
 {
-	/* Read the Status (2x to make sure link is right) */
-	genphy_update_link(phydev);
-	genphy_parse_link(phydev);
+	int ret;
 
-	return 0;
+	/* Read the Status (2x to make sure link is right) */
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return genphy_parse_link(phydev);
 }
 
 static int bcm_cygnus_config(struct phy_device *phydev)
@@ -239,17 +245,21 @@ static u32 bcm5482_parse_serdes_sr(struct phy_device *phydev)
  */
 static int bcm5482_startup(struct phy_device *phydev)
 {
+	int ret;
+
 	if (bcm5482_is_serdes(phydev)) {
 		bcm5482_parse_serdes_sr(phydev);
 		phydev->port = PORT_FIBRE;
-	} else {
-		/* Wait for auto-negotiation to complete or fail */
-		genphy_update_link(phydev);
-		/* Parse BCM54xx copper aux status register */
-		bcm54xx_parse_status(phydev);
+		return 0;
 	}
 
-	return 0;
+	/* Wait for auto-negotiation to complete or fail */
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	/* Parse BCM54xx copper aux status register */
+	return bcm54xx_parse_status(phydev);
 }
 
 static struct phy_driver BCM5461S_driver = {

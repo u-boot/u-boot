@@ -39,8 +39,13 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		name = fdt_getprop(fdt, node, "description", &len);
-		if (!name)
+		if (!name) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			printf("%s: Missing FDT description in DTB\n",
+			       __func__);
+#endif
 			return -EINVAL;
+		}
 		if (board_fit_config_name_match(name))
 			continue;
 
@@ -62,9 +67,7 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 
 		*fdt_offsetp = fdt_getprop_u32(fdt, fdt_node, "data-offset");
 		len = fdt_getprop_u32(fdt, fdt_node, "data-size");
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("FIT: Selected '%s'\n", name);
-#endif
+		debug("FIT: Selected '%s'\n", name);
 
 		return len;
 	}
@@ -74,12 +77,48 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 	for (node = fdt_first_subnode(fdt, conf);
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
-		name = fdt_getprop(fdt, node, "name", &len);
+		name = fdt_getprop(fdt, node, "description", &len);
 		printf("   %s\n", name);
 	}
 #endif
 
 	return -ENOENT;
+}
+
+static int get_aligned_image_offset(struct spl_load_info *info, int offset)
+{
+	/*
+	 * If it is a FS read, get the first address before offset which is
+	 * aligned to ARCH_DMA_MINALIGN. If it is raw read return the
+	 * block number to which offset belongs.
+	 */
+	if (info->filename)
+		return offset & ~(ARCH_DMA_MINALIGN - 1);
+
+	return offset / info->bl_len;
+}
+
+static int get_aligned_image_overhead(struct spl_load_info *info, int offset)
+{
+	/*
+	 * If it is a FS read, get the difference between the offset and
+	 * the first address before offset which is aligned to
+	 * ARCH_DMA_MINALIGN. If it is raw read return the offset within the
+	 * block.
+	 */
+	if (info->filename)
+		return offset & (ARCH_DMA_MINALIGN - 1);
+
+	return offset % info->bl_len;
+}
+
+static int get_aligned_image_size(struct spl_load_info *info, int data_size,
+				  int offset)
+{
+	if (info->filename)
+		return data_size + get_aligned_image_overhead(info, offset);
+
+	return (data_size + info->bl_len - 1) / info->bl_len;
 }
 
 int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
@@ -91,7 +130,7 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	void *load_ptr;
 	int fdt_offset, fdt_len;
 	int data_offset, data_size;
-	int base_offset;
+	int base_offset, align_len = ARCH_DMA_MINALIGN - 1;
 	int src_sector;
 	void *dst;
 
@@ -117,8 +156,9 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	 * In fact the FIT has its own load address, but we assume it cannot
 	 * be before CONFIG_SYS_TEXT_BASE.
 	 */
-	fit = (void *)(CONFIG_SYS_TEXT_BASE - size - info->bl_len);
-	sectors = (size + info->bl_len - 1) / info->bl_len;
+	fit = (void *)((CONFIG_SYS_TEXT_BASE - size - info->bl_len -
+			align_len) & ~align_len);
+	sectors = get_aligned_image_size(info, size, 0);
 	count = info->read(info, sector, sectors, fit);
 	debug("fit read sector %lx, sectors=%d, dst=%p, count=%lu\n",
 	      sector, sectors, fit, count);
@@ -151,19 +191,23 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	 * byte will be at 'load'. This may mean we need to load it starting
 	 * before then, since we can only read whole blocks.
 	 */
-	sectors = (data_size + info->bl_len - 1) / info->bl_len;
 	data_offset += base_offset;
+	sectors = get_aligned_image_size(info, data_size, data_offset);
 	load_ptr = (void *)load;
 	debug("U-Boot size %x, data %p\n", data_size, load_ptr);
-	dst = load_ptr - (data_offset % info->bl_len);
+	dst = load_ptr;
 
 	/* Read the image */
-	src_sector = sector + data_offset / info->bl_len;
-	debug("image: data_offset=%x, dst=%p, src_sector=%x, sectors=%x\n",
-	      data_offset, dst, src_sector, sectors);
+	src_sector = sector + get_aligned_image_offset(info, data_offset);
+	debug("Aligned image read: dst=%p, src_sector=%x, sectors=%x\n",
+	      dst, src_sector, sectors);
 	count = info->read(info, src_sector, sectors, dst);
 	if (count != sectors)
 		return -EIO;
+	debug("image: dst=%p, data_offset=%x, size=%x\n", dst, data_offset,
+	      data_size);
+	memcpy(dst, dst + get_aligned_image_overhead(info, data_offset),
+	       data_size);
 
 	/* Figure out which device tree the board wants to use */
 	fdt_len = spl_fit_select_fdt(fit, images, &fdt_offset);
@@ -173,13 +217,15 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	/*
 	 * Read the device tree and place it after the image. There may be
 	 * some extra data before it since we can only read entire blocks.
+	 * And also align the destination address to ARCH_DMA_MINALIGN.
 	 */
-	dst = load_ptr + data_size;
+	dst = (void *)((load + data_size + align_len) & ~align_len);
 	fdt_offset += base_offset;
-	count = info->read(info, sector + fdt_offset / info->bl_len, sectors,
-			   dst);
-	debug("fit read %x sectors to %x, dst %p, data_offset %x\n",
-	      sectors, spl_image.load_addr, dst, fdt_offset);
+	sectors = get_aligned_image_size(info, fdt_len, fdt_offset);
+	src_sector = sector + get_aligned_image_offset(info, fdt_offset);
+	count = info->read(info, src_sector, sectors, dst);
+	debug("Aligned fdt read: dst %p, src_sector = %x, sectors %x\n",
+	      dst, src_sector, sectors);
 	if (count != sectors)
 		return -EIO;
 
@@ -188,7 +234,10 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	 * After this we will have the U-Boot image and its device tree ready
 	 * for us to start.
 	 */
-	memcpy(dst, dst + fdt_offset % info->bl_len, fdt_len);
+	debug("fdt: dst=%p, data_offset=%x, size=%x\n", dst, fdt_offset,
+	      fdt_len);
+	memcpy(load_ptr + data_size,
+	       dst + get_aligned_image_overhead(info, fdt_offset), fdt_len);
 
 	return 0;
 }

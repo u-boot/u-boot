@@ -80,11 +80,13 @@ class BuilderThread(threading.Thread):
         thread_num: Our thread number (0-n-1), used to decide on a
                 temporary directory
     """
-    def __init__(self, builder, thread_num):
+    def __init__(self, builder, thread_num, incremental, per_board_out_dir):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder
         self.thread_num = thread_num
+        self.incremental = incremental
+        self.per_board_out_dir = per_board_out_dir
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run 'make' on a particular commit and board.
@@ -136,7 +138,11 @@ class BuilderThread(threading.Thread):
         if self.builder.in_tree:
             out_dir = work_dir
         else:
-            out_dir = os.path.join(work_dir, 'build')
+            if self.per_board_out_dir:
+                out_rel_dir = os.path.join('..', brd.target)
+            else:
+                out_rel_dir = 'build'
+            out_dir = os.path.join(work_dir, out_rel_dir)
 
         # Check if the job was already completed last time
         done_file = self.builder.GetDoneFile(commit_upto, brd.target)
@@ -197,12 +203,12 @@ class BuilderThread(threading.Thread):
                         #
                         # Symlinks can confuse U-Boot's Makefile since
                         # we may use '..' in our path, so remove them.
-                        work_dir = os.path.realpath(work_dir)
-                        args.append('O=%s/build' % work_dir)
+                        out_dir = os.path.realpath(out_dir)
+                        args.append('O=%s' % out_dir)
                         cwd = None
                         src_dir = os.getcwd()
                     else:
-                        args.append('O=build')
+                        args.append('O=%s' % out_rel_dir)
                 if self.builder.verbose_build:
                     args.append('V=1')
                 else:
@@ -215,9 +221,11 @@ class BuilderThread(threading.Thread):
 
                 # If we need to reconfigure, do that now
                 if do_config:
-                    result = self.Make(commit, brd, 'mrproper', cwd,
-                            'mrproper', *args, env=env)
-                    config_out = result.combined
+                    config_out = ''
+                    if not self.incremental:
+                        result = self.Make(commit, brd, 'mrproper', cwd,
+                                'mrproper', *args, env=env)
+                        config_out += result.combined
                     result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
                     config_out += result.combined

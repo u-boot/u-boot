@@ -15,37 +15,37 @@
 #ifndef _PINMUX_CONFIG_P2571_H_
 #define _PINMUX_CONFIG_P2571_H_
 
-#define GPIO_INIT(_gpio, _init)				\
+#define GPIO_INIT(_port, _gpio, _init)			\
 	{						\
-		.gpio	= GPIO_P##_gpio,		\
+		.gpio	= TEGRA_GPIO(_port, _gpio),	\
 		.init	= TEGRA_GPIO_INIT_##_init,	\
 	}
 
 static const struct tegra_gpio_config p2571_gpio_inits[] = {
-	/*        gpio, init_val */
-	GPIO_INIT(A0,   IN),
-	GPIO_INIT(A5,   IN),
-	GPIO_INIT(D4,   IN),
-	GPIO_INIT(E4,   OUT0),
-	GPIO_INIT(G0,   IN),
-	GPIO_INIT(H0,   OUT0),
-	GPIO_INIT(H2,   IN),
-	GPIO_INIT(H3,   OUT0),
-	GPIO_INIT(H4,   OUT0),
-	GPIO_INIT(H5,   IN),
-	GPIO_INIT(I0,   OUT0),
-	GPIO_INIT(I1,   IN),
-	GPIO_INIT(V1,   OUT0),
-	GPIO_INIT(V6,   OUT1),
-	GPIO_INIT(X4,   IN),
-	GPIO_INIT(X6,   IN),
-	GPIO_INIT(X7,   IN),
-	GPIO_INIT(Y1,   IN),
-	GPIO_INIT(Z0,   IN),
-	GPIO_INIT(Z4,   OUT0),
-	GPIO_INIT(BB2,  OUT0),
-	GPIO_INIT(CC1,  IN),
-	GPIO_INIT(CC3,  IN),
+	/*        port, pin, init_val */
+	GPIO_INIT(A,    0,   IN),
+	GPIO_INIT(A,    5,   IN),
+	GPIO_INIT(D,    4,   IN),
+	GPIO_INIT(E,    4,   OUT0),
+	GPIO_INIT(G,    0,   IN),
+	GPIO_INIT(H,    0,   OUT0),
+	GPIO_INIT(H,    2,   IN),
+	GPIO_INIT(H,    3,   OUT0),
+	GPIO_INIT(H,    4,   OUT0),
+	GPIO_INIT(H,    5,   IN),
+	GPIO_INIT(I,    0,   OUT0),
+	GPIO_INIT(I,    1,   IN),
+	GPIO_INIT(V,    1,   OUT0),
+	GPIO_INIT(V,    6,   OUT1),
+	GPIO_INIT(X,    4,   IN),
+	GPIO_INIT(X,    6,   IN),
+	GPIO_INIT(X,    7,   IN),
+	GPIO_INIT(Y,    1,   IN),
+	GPIO_INIT(Z,    0,   IN),
+	GPIO_INIT(Z,    4,   OUT0),
+	GPIO_INIT(BB,   2,   OUT0),
+	GPIO_INIT(CC,   1,   IN),
+	GPIO_INIT(CC,   3,   IN),
 };
 
 #define PINCFG(_pingrp, _mux, _pull, _tri, _io, _od, _e_io_hv)	\

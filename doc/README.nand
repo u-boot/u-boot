@@ -136,15 +136,8 @@ Configuration Options:
       Example of new init to be added to the end of an existing driver
       init:
 
-	/*
-	 * devnum is the device number to be used in nand commands
-	 * and in mtd->name.  Must be less than
-	 * CONFIG_SYS_NAND_MAX_DEVICE.
-	 */
-	mtd = &nand_info[devnum];
-
 	/* chip is struct nand_chip, and is now provided by the driver. */
-	mtd->priv = &chip;
+	mtd = nand_to_mtd(&chip);
 
 	/*
 	 * Fill in appropriate values if this driver uses these fields,
@@ -165,7 +158,11 @@ Configuration Options:
 	if (nand_scan_tail(mtd))
 		error out
 
-	if (nand_register(devnum))
+	/*
+	 * devnum is the device number to be used in nand commands
+	 * and in mtd->name.  Must be less than CONFIG_SYS_NAND_MAX_DEVICE.
+	 */
+	if (nand_register(devnum, mtd))
 		error out
 
       In addition to providing more flexibility to the driver, it reduces
@@ -274,7 +271,7 @@ Platform specific options
 
 		However, for 4K pagesize NAND
 		NAND_PAGESIZE = 4096
-		NAND_OOBSIZE = 64
+		NAND_OOBSIZE = 224
 		ECC_BYTES = 26
 		2 + (4096 / 512) * 26 = 210 < NAND_OOBSIZE
 		Thus BCH16 can be supported on 4K page NAND.
@@ -310,7 +307,7 @@ Miscellaneous and testing commands:
   DANGEROUS!!! Factory set bad blocks will be lost. Use only
   to remove artificial bad blocks created with the "markbad" command.
 
-  "torture offset"
+  "torture offset [size]"
   Torture block to determine if it is still reliable.
   Enabled by the CONFIG_CMD_NAND_TORTURE configuration option.
   This command returns 0 if the block is still reliable, else 1.
@@ -327,6 +324,10 @@ Miscellaneous and testing commands:
   automate actions following a nand->write() error. This would e.g. be required
   in order to program or update safely firmware to NAND, especially for the UBI
   part of such firmware.
+  Optionally, a second parameter size can be given to test multiple blocks with
+  one call. If size is not a multiple of the NAND's erase size, then the block
+  that contains offset + size will be tested in full. If used with size, this
+  command returns 0 if all tested blocks have been found reliable, else 1.
 
 
 NAND locking command (for chips with active LOCKPRE pin)

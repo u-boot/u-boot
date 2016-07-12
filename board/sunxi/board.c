@@ -133,15 +133,6 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_MACH_SUN50I
-void dram_init_banksize(void)
-{
-	/* We need to reserve the first 16MB of RAM for ATF */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE + (16 * 1024 * 1024);
-	gd->bd->bi_dram[0].size = get_effective_memsize() - (16 * 1024 * 1024);
-}
-#endif
-
 #if defined(CONFIG_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
 static void nand_pinmux_setup(void)
 {
@@ -483,10 +474,12 @@ void sunxi_board_init(void)
 #endif
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-	defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+	defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed = axp_init();
 
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc1(CONFIG_AXP_DCDC1_VOLT);
 #endif
 	power_failed |= axp_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
@@ -494,11 +487,13 @@ void sunxi_board_init(void)
 #if !defined(CONFIG_AXP209_POWER) && !defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dcdc4(CONFIG_AXP_DCDC4_VOLT);
 #endif
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc5(CONFIG_AXP_DCDC5_VOLT);
 #endif
 
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
 #endif
 	power_failed |= axp_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
@@ -509,11 +504,14 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_aldo4(CONFIG_AXP_ALDO4_VOLT);
 #endif
 
-#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP818_POWER)
+#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP809_POWER) || \
+	defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dldo(1, CONFIG_AXP_DLDO1_VOLT);
 	power_failed |= axp_set_dldo(2, CONFIG_AXP_DLDO2_VOLT);
+#if !defined CONFIG_AXP809_POWER
 	power_failed |= axp_set_dldo(3, CONFIG_AXP_DLDO3_VOLT);
 	power_failed |= axp_set_dldo(4, CONFIG_AXP_DLDO4_VOLT);
+#endif
 	power_failed |= axp_set_eldo(1, CONFIG_AXP_ELDO1_VOLT);
 	power_failed |= axp_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
 	power_failed |= axp_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);
@@ -524,10 +522,14 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_fldo(2, CONFIG_AXP_FLDO2_VOLT);
 	power_failed |= axp_set_fldo(3, CONFIG_AXP_FLDO3_VOLT);
 #endif
+
+#if defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
+	power_failed |= axp_set_sw(IS_ENABLED(CONFIG_AXP_SW_ON));
+#endif
 #endif
 	printf("DRAM:");
 	ramsize = sunxi_dram_init();
-	printf(" %lu MiB\n", ramsize >> 20);
+	printf(" %d MiB\n", (int)(ramsize >> 20));
 	if (!ramsize)
 		hang();
 

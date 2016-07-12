@@ -320,7 +320,7 @@ struct mipi_dsim_lcd_device {
 	int			reverse_panel;
 
 	struct mipi_dsim_device *master;
-	void			*platform_data;
+	struct exynos_platform_mipi_dsim *platform_data;
 };
 
 /*
@@ -347,9 +347,10 @@ struct mipi_dsim_lcd_driver {
 };
 
 #ifdef CONFIG_EXYNOS_MIPI_DSIM
-int exynos_mipi_dsi_init(void);
+int exynos_mipi_dsi_init(struct exynos_platform_mipi_dsim *dsim_pd);
 #else
-static inline int exynos_mipi_dsi_init(void)
+static inline int exynos_mipi_dsi_init(
+			struct exynos_platform_mipi_dsim *dsim_pd)
 {
 	return 0;
 }
@@ -369,7 +370,8 @@ int exynos_mipi_dsi_register_lcd_device(struct mipi_dsim_lcd_device
 						*lcd_dev);
 
 void exynos_set_dsim_platform_data(struct exynos_platform_mipi_dsim *pd);
-void exynos_init_dsim_platform_data(vidinfo_t *vid);
+struct vidinfo;
+void exynos_init_dsim_platform_data(struct vidinfo *vid);
 
 /* panel driver init based on mipi dsi interface */
 void s6e8ax0_init(void);

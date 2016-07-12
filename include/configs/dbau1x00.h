@@ -37,7 +37,6 @@
 #endif
 #endif
 
-#define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds	*/
 
 #define CONFIG_BAUDRATE		115200
 
@@ -139,12 +138,6 @@
 #define CONFIG_SYS_FLASH_CFI           1
 #define CONFIG_FLASH_CFI_DRIVER    1
 
-/* The following #defines are needed to get flash environment right */
-/* ROM version */
-#define CONFIG_SYS_TEXT_BASE		0xbfc00000
-/* RAM version */
-/* #define CONFIG_SYS_TEXT_BASE		0x80100000 */
-
 #define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
@@ -207,12 +200,5 @@
 /* Offset for alternate registers       */
 #define CONFIG_SYS_ATA_ALT_OFFSET      0x0100
 #endif /* CONFIG_DBAU1550 */
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #endif	/* __CONFIG_H */

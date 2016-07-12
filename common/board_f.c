@@ -274,7 +274,7 @@ static int setup_mon_len(void)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #elif defined(CONFIG_NDS32)
 	gd->mon_len = (ulong)(&__bss_end) - (ulong)(&_start);
-#else
+#elif defined(CONFIG_SYS_MONITOR_BASE)
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
 	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
 #endif

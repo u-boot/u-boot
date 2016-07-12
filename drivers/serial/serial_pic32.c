@@ -135,7 +135,7 @@ static int pic32_uart_getc(struct udevice *dev)
 static int pic32_uart_probe(struct udevice *dev)
 {
 	struct pic32_uart_priv *priv = dev_get_priv(dev);
-	struct udevice *clkdev;
+	struct clk clk;
 	fdt_addr_t addr;
 	fdt_size_t size;
 	int ret;
@@ -148,10 +148,11 @@ static int pic32_uart_probe(struct udevice *dev)
 	priv->base = ioremap(addr, size);
 
 	/* get clock rate */
-	ret = clk_get_by_index(dev, 0, &clkdev);
+	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
-	priv->uartclk = clk_get_periph_rate(clkdev, ret);
+	priv->uartclk = clk_get_rate(&clk);
+	clk_free(&clk);
 
 	/* initialize serial */
 	return pic32_serial_init(priv->base, priv->uartclk, CONFIG_BAUDRATE);

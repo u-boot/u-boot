@@ -162,6 +162,12 @@ U-Boot Implementation
 Enabling the distro options
 ---------------------------
 
+In your board's defconfig, enable the DISTRO_DEFAULTS option by adding
+a line with "CONFIG_DISTRO_DEFAULTS=y". If you want to enable this
+from Kconfig itself, for e.g. all boards using a specific SoC then
+add a "default y if ARCH_FOO" to the DISTRO_DEFAULTS section of
+the Kconfig file in the root of the u-boot sources.
+
 In your board configuration file, include the following:
 
 ------------------------------------------------------------

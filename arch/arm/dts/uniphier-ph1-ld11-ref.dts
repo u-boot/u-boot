@@ -1,7 +1,8 @@
 /*
  * Device Tree Source for UniPhier PH1-LD11 Reference Board
  *
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -49,18 +50,20 @@
 	status = "okay";
 };
 
+&usb0 {
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
 /* for U-Boot only */
-/ {
-	soc {
-		u-boot,dm-pre-reloc;
-	};
-};
-
 &serial0 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl {
 	u-boot,dm-pre-reloc;
 };
 

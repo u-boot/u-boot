@@ -69,7 +69,7 @@ u32 spl_boot_device(void)
 }
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_FS;
 }
@@ -105,3 +105,13 @@ void spl_board_prepare_for_boot(void)
 	ps7_post_config();
 	debug("SPL bye\n");
 }
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
+
+	return 0;
+}
+#endif

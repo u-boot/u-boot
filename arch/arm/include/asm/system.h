@@ -128,6 +128,8 @@ void hvc_call(struct pt_regs *args);
  */
 void smc_call(struct pt_regs *args);
 
+void __noreturn psci_system_reset(bool smc);
+
 #endif	/* __ASSEMBLY__ */
 
 #else /* CONFIG_ARM64 */

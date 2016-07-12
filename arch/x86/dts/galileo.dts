@@ -29,6 +29,18 @@
 		stdout-path = &pciuart0;
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+	};
+
 	tsc-timer {
 		clock-frequency = <400000000>;
 	};
@@ -88,6 +100,7 @@
 			irq-router {
 				compatible = "intel,quark-irq-router";
 				intel,pirq-config = "pci";
+				intel,actl-addr = <0x58>;
 				intel,pirq-link = <0x60 8>;
 				intel,pirq-mask = <0xdef8>;
 				intel,pirq-routing = <

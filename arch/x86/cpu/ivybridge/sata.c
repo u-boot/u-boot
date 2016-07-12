@@ -233,7 +233,7 @@ static const struct udevice_id bd82x6x_ahci_ids[] = {
 
 U_BOOT_DRIVER(ahci_ivybridge_drv) = {
 	.name		= "ahci_ivybridge",
-	.id		= UCLASS_DISK,
+	.id		= UCLASS_AHCI,
 	.of_match	= bd82x6x_ahci_ids,
 	.probe		= bd82x6x_sata_probe,
 };

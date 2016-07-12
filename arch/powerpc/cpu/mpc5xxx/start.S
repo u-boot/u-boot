@@ -83,8 +83,7 @@ _start:
 	 * This function is called when the platform is build with SPL
 	 * support from the main (full-blown) U-Boot. And the GD needs
 	 * to get cleared (again) so that the following generic
-	 * board support code, defined via CONFIG_SYS_GENERIC_BOARD,
-	 * initializes all variables correctly.
+	 * board support code initializes all variables correctly.
 	 */
 	mr	r3, r2		/* parameter 1:	 GD pointer		*/
 	li	r4,0		/* parameter 2:	 value to fill		*/

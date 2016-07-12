@@ -54,7 +54,6 @@
 /*
  * Environment configuration
  */
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTARGS			"console=ttyARC0,115200n8"
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR

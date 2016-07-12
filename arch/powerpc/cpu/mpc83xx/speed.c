@@ -412,7 +412,7 @@ int get_clocks(void)
 #endif
 
 	corecnf_tab_index = ((corepll & 0x1F) << 2) | ((corepll & 0x60) >> 5);
-	if (corecnf_tab_index > (sizeof(corecnf_tab) / sizeof(corecnf_t))) {
+	if (corecnf_tab_index > (ARRAY_SIZE(corecnf_tab))) {
 		/* corecnf_tab_index is too high, possibly wrong value */
 		return -11;
 	}

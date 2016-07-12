@@ -57,33 +57,22 @@
 	"bootm"
 #endif
 
-struct common_args {
+struct env_opts {
 #ifdef CONFIG_FILE
 	char *config_file;
 #endif
-	uint8_t aes_key[AES_KEY_LENGTH];
 	int aes_flag; /* Is AES encryption used? */
+	uint8_t aes_key[AES_KEY_LENGTH];
 };
-extern struct common_args common_args;
-
-struct printenv_args {
-	int name_suppress;
-};
-extern struct printenv_args printenv_args;
-
-struct setenv_args {
-	char *script_file;
-};
-extern struct setenv_args setenv_args;
 
 int parse_aes_key(char *key, uint8_t *bin_key);
 
-extern int   fw_printenv(int argc, char *argv[]);
-extern char *fw_getenv  (char *name);
-extern int fw_setenv  (int argc, char *argv[]);
-extern int fw_parse_script(char *fname);
-extern int fw_env_open(void);
-extern int fw_env_write(char *name, char *value);
-extern int fw_env_close(void);
+int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
+char *fw_getenv(char *name);
+int fw_setenv(int argc, char *argv[], struct env_opts *opts);
+int fw_parse_script(char *fname, struct env_opts *opts);
+int fw_env_open(struct env_opts *opts);
+int fw_env_write(char *name, char *value);
+int fw_env_close(struct env_opts *opts);
 
-extern unsigned	long  crc32	 (unsigned long, const unsigned char *, unsigned);
+unsigned long crc32(unsigned long, const unsigned char *, unsigned);

@@ -898,6 +898,48 @@ when using the -b flag. For example:
 will build commits in us-buildman that are not in upstream/master.
 
 
+Building Faster
+===============
+
+By default, buildman executes 'make mrproper' prior to building the first
+commit for each board. This causes everything to be built from scratch. If you
+trust the build system's incremental build capabilities, you can pass the -I
+flag to skip the 'make mproper' invocation, which will reduce the amount of
+work 'make' does, and hence speed up the build. This flag will speed up any
+buildman invocation, since it reduces the amount of work done on any build.
+
+One possible application of buildman is as part of a continual edit, build,
+edit, build, ... cycle; repeatedly applying buildman to the same change or
+series of changes while making small incremental modifications to the source
+each time. This provides quick feedback regarding the correctness of recent
+modifications. In this scenario, buildman's default choice of build directory
+causes more build work to be performed than strictly necessary.
+
+By default, each buildman thread uses a single directory for all builds. When a
+thread builds multiple boards, the configuration built in this directory will
+cycle through various different configurations, one per board built by the
+thread. Variations in the configuration will force a rebuild of affected source
+files when a thread switches between boards. Ideally, such buildman-induced
+rebuilds would not happen, thus allowing the build to operate as efficiently as
+the build system and source changes allow. buildman's -P flag may be used to
+enable this; -P causes each board to be built in a separate (board-specific)
+directory, thus avoiding any buildman-induced configuration changes in any
+build directory.
+
+U-Boot's build system embeds information such as a build timestamp into the
+final binary. This information varies each time U-Boot is built. This causes
+various files to be rebuilt even if no source changes are made, which in turn
+requires that the final U-Boot binary be re-linked. This unnecessary work can
+be avoided by turning off the timestamp feature. This can be achieved by
+setting the SOURCE_DATE_EPOCH environment variable to 0.
+
+Combining all of these options together yields the command-line shown below.
+This will provide the quickest possible feedback regarding the current content
+of the source tree, thus allowing rapid tested evolution of the code.
+
+    SOURCE_DATE_EPOCH=0 ./tools/buildman/buildman -I -P tegra
+
+
 Other options
 =============
 

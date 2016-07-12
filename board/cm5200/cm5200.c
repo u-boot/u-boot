@@ -237,7 +237,7 @@ static void compose_hostname(hw_id_t hw_id, char *buf)
 }
 
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+#ifdef CONFIG_OF_BOARD_SETUP
 /*
  * Update 'model' and 'memory' properties in the blob according to the module
  * that we are running on.
@@ -255,7 +255,7 @@ static void ft_blob_update(void *blob, bd_t *bd)
 	printf("ft_blob_update(): cannot set /model property err:%s\n",
 		fdt_strerror(ret));
 }
-#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 
 /*
@@ -358,7 +358,7 @@ int last_stage_init(void)
 #endif /* CONFIG_LAST_STAGE_INIT */
 
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
@@ -366,4 +366,4 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */

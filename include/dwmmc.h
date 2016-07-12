@@ -180,8 +180,9 @@ struct dwmci_host {
 	 * @freq:	Frequency the host is trying to achieve
 	 */
 	unsigned int (*get_mmc_clk)(struct dwmci_host *host, uint freq);
-
+#ifndef CONFIG_BLK
 	struct mmc_config cfg;
+#endif
 
 	/* use fifo mode to read and write data */
 	bool fifo_mode;
@@ -222,6 +223,10 @@ static inline u8 dwmci_readb(struct dwmci_host *host, int reg)
 {
 	return readb(host->ioaddr + reg);
 }
+
+void dwmci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
+		     uint caps, u32 max_clk, u32 min_clk);
+int dwmci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
 
 int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk);
 #endif	/* __DWMMC_HW_H */

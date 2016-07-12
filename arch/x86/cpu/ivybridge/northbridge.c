@@ -10,7 +10,6 @@
 #include <common.h>
 #include <dm.h>
 #include <asm/msr.h>
-#include <asm/acpi.h>
 #include <asm/cpu.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>

@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
+#include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
@@ -59,8 +60,7 @@ static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	/* CD */
-	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
 /* ENET */
@@ -266,7 +266,9 @@ int board_phy_config(struct phy_device *phydev)
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FEC_MXC
-	if (board_type != GW551x && board_type != GW552x) {
+	struct ventana_board_info *info = &ventana_info;
+
+	if (test_bit(EECONFIG_ETH0, info->config)) {
 		setup_iomux_enet(GP_PHY_RST);
 		cpu_eth_init(bis);
 	}
@@ -317,6 +319,8 @@ static void enable_lvds(struct display_info_t const *dev)
 	writel(reg, &iomux->gpr[2]);
 
 	/* Enable Backlight */
+	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
+	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 	gpio_request(IMX_GPIO_NR(1, 18), "bklt_en");
 	SETUP_IOMUX_PAD(PAD_SD1_CMD__GPIO1_IO18 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 18), 1);
@@ -456,8 +460,7 @@ static void setup_display(void)
 	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);
 
-	/* Backlight CABEN on LVDS connector */
-	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
+	/* LVDS Backlight GPIO on LVDS connector - output low */
 	SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 }
@@ -697,7 +700,9 @@ int misc_init_r(void)
 			setenv("model_base", str);
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
 			setenv("fdt_file1", fdt);
-			if (board_type != GW551x && board_type != GW552x)
+			if (board_type != GW551x &&
+			    board_type != GW552x &&
+			    board_type != GW553x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
@@ -738,7 +743,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 
 static int ft_sethdmiinfmt(void *blob, char *mode)
 {
@@ -774,6 +779,27 @@ static int ft_sethdmiinfmt(void *blob, char *mode)
 	}
 
 	return 0;
+}
+
+/* enable a property of a node if the node is found */
+static inline void ft_enable_path(void *blob, const char *path)
+{
+	int i = fdt_path_offset(blob, path);
+	if (i >= 0) {
+		debug("enabling %s\n", path);
+		fdt_status_okay(blob, i);
+	}
+}
+
+/* remove a property of a node if the node is found */
+static inline void ft_delprop_path(void *blob, const char *path,
+				   const char *name)
+{
+	int i = fdt_path_offset(blob, path);
+	if (i) {
+		debug("removing %s/%s\n", path, name);
+		fdt_delprop(blob, i, name);
+	}
 }
 
 /*
@@ -879,6 +905,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 				range[1] = cpu_to_fdt32(23);
 			}
 		}
+
+		/* these have broken usd_vsel */
+		if (strstr((const char *)info->model, "SP318-B") ||
+		    strstr((const char *)info->model, "SP331-B"))
+			gpio_cfg[board_type].usd_vsel = 0;
 	}
 
 	/*
@@ -919,6 +950,32 @@ int ft_board_setup(void *blob, bd_t *bd)
 		ft_sethdmiinfmt(blob, "yuv422bt656");
 	}
 
+	/* Configure DIO */
+	for (i = 0; i < gpio_cfg[board_type].num_gpios; i++) {
+		struct dio_cfg *cfg = &gpio_cfg[board_type].dio_cfg[i];
+		char arg[10];
+
+		sprintf(arg, "dio%d", i);
+		if (!hwconfig(arg))
+			continue;
+		if (hwconfig_subarg_cmp(arg, "mode", "pwm") && cfg->pwm_param)
+		{
+			char path[48];
+			sprintf(path, "/soc/aips-bus@02000000/pwm@%08x",
+				0x02080000 + (0x4000 * (cfg->pwm_param - 1)));
+			printf("   Enabling pwm%d for DIO%d\n",
+			       cfg->pwm_param, i);
+			ft_enable_path(blob, path);
+		}
+	}
+
+	/* remove no-1-8-v if UHS-I support is present */
+	if (gpio_cfg[board_type].usd_vsel) {
+		debug("Enabling UHS-I support\n");
+		ft_delprop_path(blob, "/soc/aips-bus@02100000/usdhc@02198000",
+				"no-1-8-v");
+	}
+
 	/*
 	 * Peripheral Config:
 	 *  remove nodes by alias path if EEPROM config tells us the
@@ -939,7 +996,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 static struct mxc_serial_platdata ventana_mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART2_BASE,

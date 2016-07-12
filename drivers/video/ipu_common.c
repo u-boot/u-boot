@@ -352,7 +352,9 @@ static int ipu_pixel_clk_set_rate(struct clk *clk, unsigned long rate)
 	 */
 	__raw_writel((div / 16) << 16, DI_BS_CLKGEN1(clk->id));
 
-	clk->rate = (u64)(clk->parent->rate * 16) / div;
+	do_div(parent_rate, div);
+
+	clk->rate = parent_rate;
 
 	return 0;
 }

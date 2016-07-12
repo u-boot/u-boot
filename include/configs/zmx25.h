@@ -137,7 +137,6 @@
 
 #define CONFIG_PREBOOT  ""
 
-#define CONFIG_BOOTDELAY	5
 
 /*
  * Size of malloc() pool

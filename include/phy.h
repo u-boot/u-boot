@@ -249,6 +249,7 @@ int gen10g_startup(struct phy_device *phydev);
 int gen10g_shutdown(struct phy_device *phydev);
 int gen10g_discover_mmds(struct phy_device *phydev);
 
+int phy_mv88e61xx_init(void);
 int phy_aquantia_init(void);
 int phy_atheros_init(void);
 int phy_broadcom_init(void);
@@ -276,6 +277,28 @@ int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
  * @return PHY_INTERFACE_MODE_... value, or -1 if not found
  */
 int phy_get_interface_by_name(const char *str);
+
+/**
+ * phy_interface_is_rgmii - Convenience function for testing if a PHY interface
+ * is RGMII (all variants)
+ * @phydev: the phy_device struct
+ */
+static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
+{
+	return phydev->interface >= PHY_INTERFACE_MODE_RGMII &&
+		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
+}
+
+/**
+ * phy_interface_is_sgmii - Convenience function for testing if a PHY interface
+ * is SGMII (all variants)
+ * @phydev: the phy_device struct
+ */
+static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
+{
+	return phydev->interface >= PHY_INTERFACE_MODE_SGMII &&
+		phydev->interface <= PHY_INTERFACE_MODE_QSGMII;
+}
 
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340  0x13e51002

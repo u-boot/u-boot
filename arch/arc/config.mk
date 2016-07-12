@@ -43,11 +43,11 @@ PLATFORM_CPPFLAGS += -marcem
 endif
 
 ifdef CONFIG_CPU_ARCHS34
-PLATFORM_CPPFLAGS += -marchs
+PLATFORM_CPPFLAGS += -mcpu=archs
 endif
 
 ifdef CONFIG_CPU_ARCHS38
-PLATFORM_CPPFLAGS += -marchs
+PLATFORM_CPPFLAGS += -mcpu=archs
 endif
 
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2

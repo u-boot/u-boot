@@ -1,0 +1,39 @@
+/*
+ * Device Tree Include file for Freescale Layerscape-1012A family SoC.
+ *
+ * Copyright 2016, Freescale Semiconductor
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License version 2.  This program is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
+
+/include/ "fsl-ls1012a.dtsi"
+
+/ {
+	model = "LS1012A RDB Board";
+	aliases {
+		spi0 = &qspi;
+	};
+};
+
+&qspi {
+	bus-num = <0>;
+	status = "okay";
+
+	qflash0: s25fl128s@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <20000000>;
+		reg = <0>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&duart0 {
+	status = "okay";
+};

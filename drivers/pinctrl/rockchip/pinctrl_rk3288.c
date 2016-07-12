@@ -623,7 +623,7 @@ static int rk3288_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	const void *blob = gd->fdt_blob;
 	int pcfg_node, ret, flags, count, i;
-	u32 cell[40], *ptr;
+	u32 cell[60], *ptr;
 
 	debug("%s: %s %s\n", __func__, dev->name, config->name);
 	ret = fdtdec_get_int_array_count(blob, config->of_offset,

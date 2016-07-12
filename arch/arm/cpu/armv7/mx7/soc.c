@@ -441,3 +441,11 @@ void s_init(void)
 
 	return;
 }
+
+void reset_misc(void)
+{
+#ifdef CONFIG_VIDEO_MXS
+	lcdif_power_down();
+#endif
+}
+

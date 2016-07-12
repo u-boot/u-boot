@@ -32,8 +32,8 @@ Changed files:
 - include/cmd_bsp.h		added PIP405 commands definitions
 - include/cmd_condefs.h		added Floppy and SCSI support
 - include/cmd_disk.h		changed to work with block device description
-- include/config_LANTEC.h	excluded CONFIG_CMD_FDC and CONFIG_CMD_SCSI
-- include/config_hymod.h	excluded CONFIG_CMD_FDC and CONFIG_CMD_SCSI
+- include/config_LANTEC.h	excluded CONFIG_CMD_FDC and CONFIG_SCSI
+- include/config_hymod.h	excluded CONFIG_CMD_FDC and CONFIG_SCSI
 - include/flash.h		added INTEL_ID_28F320C3T  0x88C488C4
 - include/i2c.h			added "defined(CONFIG_PIP405)"
 - include/image.h		added IH_OS_U_BOOT, IH_TYPE_FIRMWARE
@@ -86,7 +86,7 @@ section "Changes".
 
 New Commands:
 -------------
-CONFIG_CMD_SCSI	SCSI Support
+CONFIG_SCSI	SCSI Support
 CONFIG_CMF_FDC	Floppy disk support
 
 IDE additions:

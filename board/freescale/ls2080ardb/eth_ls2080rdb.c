@@ -20,9 +20,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MC_BOOT_ENV_VAR "mcinitcmd"
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
+	char *mc_boot_env_var;
 	int i, interface;
 	struct memac_mdio_info mdio_info;
 	struct mii_dev *dev;
@@ -89,6 +91,9 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
+	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
+	if (mc_boot_env_var)
+		run_command_list(mc_boot_env_var, -1, 0);
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
 

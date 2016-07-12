@@ -91,7 +91,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 

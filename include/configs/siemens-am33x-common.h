@@ -102,8 +102,10 @@
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /* NS16550 Configuration */
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#endif
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_SYS_NS16550_COM4		0x481a6000
@@ -159,6 +161,7 @@
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
 					 CONFIG_SYS_NAND_PAGE_SIZE)
@@ -288,6 +291,8 @@
 #define CONFIG_LZO
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#define CONFIG_MTD_UBI_FASTMAP
+#define CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT      1
 #endif
 
 /* Commen environment */
@@ -419,7 +424,7 @@
 			"setenv nand_src_addr ${nand_src_addr_B};" \
 		"fi;" \
 		"setenv nand_root ubi0:${nand_active_ubi_vol} rw " \
-		"ubi.mtd=9,2048;" \
+		"ubi.mtd=9,${ubi_off};" \
 		"setenv bootargs ${bootargs} " \
 		"root=${nand_root} noinitrd ${mtdparts} " \
 		"rootfstype=${nand_root_fs_type} ip=${ip_method} " \
@@ -511,7 +516,7 @@
 	COMMON_ENV_DFU_ARGS \
 		"dfu_alt_info=" DFU_ALT_INFO_NAND_V2 "\0" \
 	COMMON_ENV_NAND_BOOT \
-		"ubi part rootfs 2048;" \
+		"ubi part rootfs ${ubi_off};" \
 		"ubifsmount ubi0:${nand_active_ubi_vol};" \
 		"ubifsload ${kloadaddr} boot/${kernel_name};" \
 		"ubifsload ${loadaddr} boot/${dtb_name}.dtb;" \

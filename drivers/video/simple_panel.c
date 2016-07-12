@@ -88,6 +88,8 @@ static const struct panel_ops simple_panel_ops = {
 static const struct udevice_id simple_panel_ids[] = {
 	{ .compatible = "simple-panel" },
 	{ .compatible = "auo,b133xtn01" },
+	{ .compatible = "auo,b116xw03" },
+	{ .compatible = "auo,b133htn01" },
 	{ }
 };
 

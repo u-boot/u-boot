@@ -45,7 +45,7 @@
 #define CONFIG_CMDLINE_TAG		/* pass commandline to Kernel */
 #define CONFIG_SETUP_MEMORY_TAGS	/* pass memory defs to kernel */
 #define CONFIG_INITRD_TAG		/* pass initrd param to kernel */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY	/* U-Boot is loaded by a bootloader */
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f() */
 #define CONFIG_DISPLAY_CPUINFO		/* display CPU Info at startup */
 
@@ -157,10 +157,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"at91sam9260"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-
 /* USB DFU support */
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
@@ -178,7 +174,6 @@
 #endif
 
 /* General Boot Parameter */
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_PBSIZE \

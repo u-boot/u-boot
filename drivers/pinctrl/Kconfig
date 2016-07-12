@@ -105,6 +105,24 @@ config SPL_PINCONF
 
 if PINCTRL || SPL_PINCTRL
 
+config AR933X_PINCTRL
+	bool "QCA/Athores ar933x pin control driver"
+	depends on DM && SOC_AR933X
+	help
+	  Support pin multiplexing control on QCA/Athores ar933x SoCs.
+	  The driver is controlled by a device tree node which contains
+	  both the GPIO definitions and pin control functions for each
+	  available multiplex function.
+
+config QCA953X_PINCTRL
+	bool "QCA/Athores qca953x pin control driver"
+	depends on DM && SOC_QCA953X
+	help
+	  Support pin multiplexing control on QCA/Athores qca953x SoCs.
+	  The driver is controlled by a device tree node which contains
+	  both the GPIO definitions and pin control functions for each
+	  available multiplex function.
+
 config ROCKCHIP_PINCTRL
 	bool "Rockchip pin control driver"
 	depends on DM
@@ -145,5 +163,6 @@ endif
 
 source "drivers/pinctrl/nxp/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
+source "drivers/pinctrl/exynos/Kconfig"
 
 endmenu

@@ -15,18 +15,10 @@
 
 #include <linux/list.h>
 
-/* #define DEBUG_EFI */
-
-#ifdef DEBUG_EFI
 #define EFI_ENTRY(format, ...) do { \
 	efi_restore_gd(); \
-	printf("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
+	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
 	} while(0)
-#else
-#define EFI_ENTRY(format, ...) do { \
-	efi_restore_gd(); \
-	} while(0)
-#endif
 
 #define EFI_EXIT(ret) efi_exit_func(ret);
 
@@ -91,6 +83,12 @@ extern struct list_head efi_obj_list;
 int efi_disk_register(void);
 /* Called by bootefi to make GOP (graphical) interface available */
 int efi_gop_register(void);
+/* Called by bootefi to make the network interface available */
+int efi_net_register(void **handle);
+
+/* Called by networking code to memorize the dhcp ack package */
+void efi_net_set_dhcp_ack(void *pkt, int len);
+
 /*
  * Stub implementation for a protocol opener that just returns the handle as
  * interface
@@ -133,8 +131,13 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+extern void *efi_bounce_buffer;
+#define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
+#endif
+
 /* Convert strings from normal C strings to uEFI strings */
-static inline void ascii2unicode(u16 *unicode, char *ascii)
+static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
 		*(unicode++) = *(ascii++);
@@ -157,5 +160,6 @@ static inline void ascii2unicode(u16 *unicode, char *ascii)
 static inline void efi_restore_gd(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
+static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 
 #endif

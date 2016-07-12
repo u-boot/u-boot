@@ -75,6 +75,13 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	ut_assertok(ops->set_value(dev, offset, 1));
 	ut_asserteq(1, ops->get_value(dev, offset));
 
+	/* Make it an open drain output, and reset it */
+	ut_asserteq(0, sandbox_gpio_get_open_drain(dev, offset));
+	ut_assertok(ops->set_open_drain(dev, offset, 1));
+	ut_asserteq(1, sandbox_gpio_get_open_drain(dev, offset));
+	ut_assertok(ops->set_open_drain(dev, offset, 0));
+	ut_asserteq(0, sandbox_gpio_get_open_drain(dev, offset));
+
 	/* Make it an input */
 	ut_assertok(ops->direction_input(dev, offset));
 	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));

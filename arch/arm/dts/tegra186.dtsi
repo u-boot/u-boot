@@ -1,0 +1,69 @@
+#include "skeleton.dtsi"
+#include <dt-bindings/gpio/tegra-gpio.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/mailbox/tegra-hsp.h>
+
+/ {
+	compatible = "nvidia,tegra186";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	gpio@2200000 {
+		compatible = "nvidia,tegra186-gpio";
+		reg-names = "security", "gpio";
+		reg =
+			<0x0 0x2200000 0x0 0x10000>,
+			<0x0 0x2210000 0x0 0x10000>;
+		interrupts =
+			<GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	uarta: serial@3100000 {
+		compatible = "nvidia,tegra186-uart", "nvidia,tegra20-uart";
+		reg = <0x0 0x03100000 0x0 0x10000>;
+		reg-shift = <2>;
+		status = "disabled";
+	};
+
+	sdhci@3460000 {
+		compatible = "nvidia,tegra186-sdhci";
+		reg = <0x0 0x03460000 0x0 0x200>;
+		interrupts = <GIC_SPI 31 0x04>;
+		status = "disabled";
+	};
+
+	hsp: hsp@3c00000 {
+		compatible = "nvidia,tegra186-hsp";
+		reg = <0x0 0x03c00000 0x0 0xa0000>;
+		interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
+		nvidia,num-SM = <0x8>;
+		nvidia,num-AS = <0x2>;
+		nvidia,num-SS = <0x2>;
+		nvidia,num-DB = <0x7>;
+		nvidia,num-SI = <0x8>;
+		#mbox-cells = <1>;
+	};
+
+	gpio@c2f0000 {
+		compatible = "nvidia,tegra186-gpio-aon";
+		reg-names = "security", "gpio";
+		reg =
+			<0x0 0xc2f0000 0x0 0x1000>,
+			<0x0 0xc2f1000 0x0 0x1000>;
+		interrupts =
+			<GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+};

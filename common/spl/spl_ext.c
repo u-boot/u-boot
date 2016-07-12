@@ -48,7 +48,11 @@ int spl_load_image_ext(struct blk_desc *block_dev,
 		goto end;
 	}
 
-	spl_parse_image_header(header);
+	err = spl_parse_image_header(header);
+	if (err < 0) {
+		puts("spl: ext: failed to parse image header\n");
+		goto end;
+	}
 
 	err = ext4fs_read((char *)spl_image.load_addr, filelen, &actlen);
 
@@ -84,8 +88,7 @@ int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
 #endif
 		return -1;
 	}
-
-#if defined(CONFIG_SPL_ENV_SUPPORT) && defined(CONFIG_SPL_OS_BOOT)
+#if defined(CONFIG_SPL_ENV_SUPPORT)
 	file = getenv("falcon_args_file");
 	if (file) {
 		err = ext4fs_open(file, &filelen);

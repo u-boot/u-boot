@@ -64,7 +64,7 @@
 	/* detect associativity */
 	srl	\sz, $1, \off + MIPS_CONF1_DA_SHF - MIPS_CONF1_DA_SHF
 	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHF)
-	addi	\sz, \sz, 1
+	addiu	\sz, \sz, 1
 
 	/* sz *= line_sz */
 	mul	\sz, \sz, \line_sz
@@ -99,16 +99,16 @@
  *
  */
 LEAF(mips_cache_reset)
-#ifdef CONFIG_SYS_ICACHE_SIZE
+#ifndef CONFIG_SYS_CACHE_SIZE_AUTO
 	li	t2, CONFIG_SYS_ICACHE_SIZE
-	li	t8, CONFIG_SYS_CACHELINE_SIZE
+	li	t8, CONFIG_SYS_ICACHE_LINE_SIZE
 #else
 	l1_info	t2, t8, MIPS_CONF1_IA_SHF
 #endif
 
-#ifdef CONFIG_SYS_DCACHE_SIZE
+#ifndef CONFIG_SYS_CACHE_SIZE_AUTO
 	li	t3, CONFIG_SYS_DCACHE_SIZE
-	li	t9, CONFIG_SYS_CACHELINE_SIZE
+	li	t9, CONFIG_SYS_DCACHE_LINE_SIZE
 #else
 	l1_info	t3, t9, MIPS_CONF1_DA_SHF
 #endif
@@ -116,7 +116,7 @@ LEAF(mips_cache_reset)
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 	/* Determine the largest L1 cache size */
-#if defined(CONFIG_SYS_ICACHE_SIZE) && defined(CONFIG_SYS_DCACHE_SIZE)
+#ifndef CONFIG_SYS_CACHE_SIZE_AUTO
 #if CONFIG_SYS_ICACHE_SIZE > CONFIG_SYS_DCACHE_SIZE
 	li	v0, CONFIG_SYS_ICACHE_SIZE
 #else

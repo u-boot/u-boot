@@ -58,8 +58,8 @@ static struct omap_nand_info omap_nand_info[GPMC_MAX_CS];
 static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 				uint32_t ctrl)
 {
-	register struct nand_chip *this = mtd->priv;
-	struct omap_nand_info *info = this->priv;
+	register struct nand_chip *this = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(this);
 	int cs = info->cs;
 
 	/*
@@ -85,8 +85,8 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 /* Check wait pin as dev ready indicator */
 static int omap_dev_ready(struct mtd_info *mtd)
 {
-	register struct nand_chip *this = mtd->priv;
-	struct omap_nand_info *info = this->priv;
+	register struct nand_chip *this = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(this);
 	return gpmc_cfg->status & (1 << (8 + info->ws));
 }
 
@@ -163,7 +163,7 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 				return 0;
 			printf("Error: Bad compare! failed\n");
 			/* detected 2 bit error */
-			return -1;
+			return -EBADMSG;
 		}
 	}
 	return 0;
@@ -177,8 +177,8 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 __maybe_unused
 static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 {
-	struct nand_chip	*nand	= mtd->priv;
-	struct omap_nand_info	*info	= nand->priv;
+	struct nand_chip	*nand	= mtd_to_nand(mtd);
+	struct omap_nand_info	*info	= nand_get_controller_data(nand);
 	unsigned int dev_width = (nand->options & NAND_BUSWIDTH_16) ? 1 : 0;
 	unsigned int ecc_algo = 0;
 	unsigned int bch_type = 0;
@@ -262,8 +262,8 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 				uint8_t *ecc_code)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct omap_nand_info *info = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(chip);
 	uint32_t *ptr, val = 0;
 	int8_t i = 0, j;
 
@@ -392,7 +392,7 @@ static int __read_prefetch_aligned(struct nand_chip *chip, uint32_t *buf, int le
 {
 	int ret;
 	uint32_t cnt;
-	struct omap_nand_info *info = chip->priv;
+	struct omap_nand_info *info = nand_get_controller_data(chip);
 
 	ret = omap_prefetch_enable(PREFETCH_FIFOTHRESHOLD_MAX, len, 0, info->cs);
 	if (ret < 0)
@@ -417,7 +417,7 @@ static int __read_prefetch_aligned(struct nand_chip *chip, uint32_t *buf, int le
 
 static inline void omap_nand_read(struct mtd_info *mtd, uint8_t *buf, int len)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	if (chip->options & NAND_BUSWIDTH_16)
 		nand_read_buf16(mtd, buf, len);
@@ -429,7 +429,7 @@ static void omap_nand_read_prefetch(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int ret;
 	uint32_t head, tail;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	/*
 	 * If the destination buffer is unaligned, start with reading
@@ -491,8 +491,8 @@ static void omap_reverse_list(u8 *list, unsigned int length)
 static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 				uint8_t *read_ecc, uint8_t *calc_ecc)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct omap_nand_info *info = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	uint32_t error_count = 0, error_max;
 	uint32_t error_loc[ELM_MAX_ERROR_COUNT];
@@ -652,8 +652,8 @@ static int omap_correct_data_bch_sw(struct mtd_info *mtd, u_char *data,
 	int i, count;
 	/* cannot correct more than 8 errors */
 	unsigned int errloc[8];
-	struct nand_chip *chip = mtd->priv;
-	struct omap_nand_info *info = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(chip);
 
 	count = decode_bch(info->control, NULL, 512, read_ecc, calc_ecc,
 							NULL, errloc);
@@ -691,8 +691,8 @@ static int omap_correct_data_bch_sw(struct mtd_info *mtd, u_char *data,
  */
 static void __maybe_unused omap_free_bch(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
-	struct omap_nand_info *info = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct omap_nand_info *info = nand_get_controller_data(chip);
 
 	if (info->control) {
 		free_bch(info->control);
@@ -710,7 +710,7 @@ static void __maybe_unused omap_free_bch(struct mtd_info *mtd)
  */
 static int omap_select_ecc_scheme(struct nand_chip *nand,
 	enum omap_ecc ecc_scheme, unsigned int pagesize, unsigned int oobsize) {
-	struct omap_nand_info	*info		= nand->priv;
+	struct omap_nand_info	*info		= nand_get_controller_data(nand);
 	struct nand_ecclayout	*ecclayout	= &omap_ecclayout;
 	int eccsteps = pagesize / SECTOR_BYTES;
 	int i;
@@ -898,13 +898,13 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device].name) {
+	    !nand_info[nand_curr_device]->name) {
 		printf("nand: error: no NAND devices found\n");
 		return -ENODEV;
 	}
 
-	mtd = &nand_info[nand_curr_device];
-	nand = mtd->priv;
+	mtd = nand_info[nand_curr_device];
+	nand = mtd_to_nand(mtd);
 	nand->options |= NAND_OWN_BUFFERS;
 	nand->options &= ~NAND_SUBPAGE_READ;
 	/* Setup the ecc configurations again */
@@ -916,6 +916,10 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 		} else if (eccstrength == 8) {
 			err = omap_select_ecc_scheme(nand,
 					OMAP_ECC_BCH8_CODE_HW,
+					mtd->writesize, mtd->oobsize);
+		} else if (eccstrength == 16) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_BCH16_CODE_HW,
 					mtd->writesize, mtd->oobsize);
 		} else {
 			printf("nand: error: unsupported ECC scheme\n");
@@ -994,7 +998,7 @@ int board_nand_init(struct nand_chip *nand)
 	omap_nand_info[cs].control = NULL;
 	omap_nand_info[cs].cs = cs;
 	omap_nand_info[cs].ws = wscfg[cs];
-	nand->priv	= &omap_nand_info[cs];
+	nand_set_controller_data(nand, &omap_nand_info[cs]);
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
 	nand->chip_delay = 100;

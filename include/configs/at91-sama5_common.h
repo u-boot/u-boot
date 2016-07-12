@@ -34,7 +34,6 @@
 /* general purpose I/O */
 #define CONFIG_AT91_GPIO
 
-#define CONFIG_BOOTDELAY		3
 
 /*
  * BOOTP options

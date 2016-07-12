@@ -156,7 +156,9 @@ int board_init(void)
 {
 	char *env_hwconfig;
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+#ifdef CONFIG_FSL_MC_ENET
 	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
+#endif
 	u32 val;
 
 	init_final_memctl_regs();
@@ -178,8 +180,10 @@ int board_init(void)
 
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET_EN);
 
+#ifdef CONFIG_FSL_MC_ENET
 	/* invert AQR405 IRQ pins polarity */
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR405_IRQ_MASK);
+#endif
 
 	return 0;
 }
@@ -261,7 +265,9 @@ void fdt_fixup_board_enet(void *fdt)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#ifdef CONFIG_FSL_MC_ENET
 	int err;
+#endif
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -274,6 +280,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	size[1] = gd->bd->bi_dram[1].size;
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
+
+	fdt_fixup_dr_usb(blob, bd);
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);

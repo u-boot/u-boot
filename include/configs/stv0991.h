@@ -66,7 +66,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_BOOTDELAY                       3
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"
 
 /*

@@ -117,11 +117,27 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+
+static void k2g_reset_mux_config(void)
+{
+	/* Unlock the reset mux register */
+	clrbits_le32(KS2_RSTMUX8, RSTMUX_LOCK8_MASK);
+
+	/* Configure BOOTCFG_RSTMUX8 for WDT event to cause a device reset */
+	clrsetbits_le32(KS2_RSTMUX8, RSTMUX_OMODE8_MASK,
+			RSTMUX_OMODE8_DEV_RESET << RSTMUX_OMODE8_SHIFT);
+
+	/* lock the reset mux register to prevent any spurious writes. */
+	setbits_le32(KS2_RSTMUX8, RSTMUX_LOCK8_MASK);
+}
+
 int board_early_init_f(void)
 {
 	init_plls();
 
 	k2g_mux_config();
+
+	k2g_reset_mux_config();
 
 	/* deassert FLASH_HOLD */
 	clrbits_le32(K2G_GPIO1_BANK2_BASE + K2G_GPIO_DIR_OFFSET,

@@ -13,9 +13,6 @@
 / {
 	model = "TI AM335x BeagleBone";
 	compatible = "ti,am335x-bone", "ti,am33xx";
-	chosen {
-		stdout-path = &uart0;
-	};
 };
 
 &ldo3_reg {

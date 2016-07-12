@@ -246,8 +246,10 @@ struct lmb;
 #define IH_TYPE_RKSD		24	/* Rockchip SD card		*/
 #define IH_TYPE_RKSPI		25	/* Rockchip SPI image		*/
 #define IH_TYPE_ZYNQIMAGE	26	/* Xilinx Zynq Boot Image */
+#define IH_TYPE_ZYNQMPIMAGE	27	/* Xilinx ZynqMP Boot Image */
+#define IH_TYPE_FPGA		28	/* FPGA Image */
 
-#define IH_TYPE_COUNT		27	/* Number of image types */
+#define IH_TYPE_COUNT		29	/* Number of image types */
 
 /*
  * Compression Types
@@ -494,6 +496,8 @@ int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
 ulong genimg_get_image(ulong img_addr);
 
+int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
+		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
@@ -809,6 +813,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_LOADABLE_PROP	"loadables"
 #define FIT_DEFAULT_PROP	"default"
 #define FIT_SETUP_PROP		"setup"
+#define FIT_FPGA_PROP		"fpga"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
@@ -1151,6 +1156,7 @@ int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 			      ulong *rd_data, ulong *rd_len);
 ulong android_image_get_end(const struct andr_img_hdr *hdr);
 ulong android_image_get_kload(const struct andr_img_hdr *hdr);
+void android_print_contents(const struct andr_img_hdr *hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
 

@@ -146,3 +146,8 @@ void board_init_f_init_reserve(ulong base)
 	base += CONFIG_SYS_MALLOC_F_LEN;
 #endif
 }
+
+/*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+__weak void show_boot_progress(int val) {}

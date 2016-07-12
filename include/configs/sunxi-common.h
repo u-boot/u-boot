@@ -100,7 +100,7 @@
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
+#define CONFIG_SYS_INIT_RAM_SIZE	0xA000	/* 40 KiB */
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
@@ -125,7 +125,7 @@
 #define CONFIG_SYS_SCSI_MAX_LUN		1
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
-#define CONFIG_CMD_SCSI
+#define CONFIG_SCSI
 #endif
 
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -189,14 +189,14 @@
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
 #if defined(CONFIG_MACH_SUN9I)
-#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* ? KiB on sun9i */
+#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* ? KiB on sun9i */
 #elif defined(CONFIG_MACH_SUN50I)
-#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x7fe0		/* 32 KiB on sun50i */
+#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fc0		/* 32 KiB on sun50i */
 #else
-#define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
+#define CONFIG_SPL_TEXT_BASE		0x40		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
 #endif
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
@@ -213,8 +213,7 @@
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
 #if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
-/* FIXME: 40 KiB instead of 32 KiB ? */
-#define LOW_LEVEL_SRAM_STACK		0x00018000
+#define LOW_LEVEL_SRAM_STACK		0x0001A000
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 #else
 /* end of 32 KiB in sram */
@@ -390,6 +389,23 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PRE_CONSOLE_BUFFER
 #define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
+#ifdef CONFIG_ARM64
+/*
+ * Boards seem to come with at least 512MB of DRAM.
+ * The kernel should go at 512K, which is the default text offset (that will
+ * be adjusted at runtime if needed).
+ * There is no compression for arm64 kernels (yet), so leave some space
+ * for really big kernels, say 256MB for now.
+ * Scripts, PXE and DTBs should go afterwards, leaving the rest for the initrd.
+ * Align the initrd to a 2MB page.
+ */
+#define KERNEL_ADDR_R	__stringify(SDRAM_OFFSET(0080000))
+#define FDT_ADDR_R	__stringify(SDRAM_OFFSET(FA00000))
+#define SCRIPT_ADDR_R	__stringify(SDRAM_OFFSET(FC00000))
+#define PXEFILE_ADDR_R	__stringify(SDRAM_OFFSET(FD00000))
+#define RAMDISK_ADDR_R	__stringify(SDRAM_OFFSET(FE00000))
+
+#else
 /*
  * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
@@ -401,6 +417,7 @@ extern int soft_i2c_gpio_scl;
 #define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(3100000))
 #define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(3200000))
 #define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0xa000000\0" \

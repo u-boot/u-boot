@@ -17,72 +17,57 @@ This tool intends to help this tremendous work.
 Usage
 -----
 
-This tool takes one input file.  (let's say 'recipe' file here.)
-The recipe describes the list of config options you want to move.
-Each line takes the form:
-<config_name> <type> <default>
-(the fields must be separated with whitespaces.)
-
-<config_name> is the name of config option.
-
-<type> is the type of the option.  It must be one of bool, tristate,
-string, int, and hex.
-
-<default> is the default value of the option.  It must be appropriate
-value corresponding to the option type.  It must be either y or n for
-the bool type.  Tristate options can also take m (although U-Boot has
-not supported the module feature).
-
-You can add two or more lines in the recipe file, so you can move
-multiple options at once.
-
-Let's say, for example, you want to move CONFIG_CMD_USB and
-CONFIG_SYS_TEXT_BASE.
-
-The type should be bool, hex, respectively.  So, the recipe file
-should look like this:
-
-  $ cat recipe
-  CONFIG_CMD_USB bool n
-  CONFIG_SYS_TEXT_BASE hex 0x00000000
-
-Next you must edit the Kconfig to add the menu entries for the configs
+First, you must edit the Kconfig to add the menu entries for the configs
 you are moving.
 
-And then run this tool giving the file name of the recipe
+And then run this tool giving CONFIG names you want to move.
+For example, if you want to move CONFIG_CMD_USB and CONFIG_SYS_TEXT_BASE,
+simply type as follows:
 
-  $ tools/moveconfig.py recipe
+  $ tools/moveconfig.py CONFIG_CMD_USB CONFIG_SYS_TEXT_BASE
 
-The tool walks through all the defconfig files to move the config
-options specified by the recipe file.
+The tool walks through all the defconfig files and move the given CONFIGs.
 
 The log is also displayed on the terminal.
 
-Each line is printed in the format
-<defconfig_name>   :  <action>
+The log is printed for each defconfig as follows:
 
-<defconfig_name> is the name of the defconfig
-(without the suffix _defconfig).
+<defconfig_name>
+    <action1>
+    <action2>
+    <action3>
+    ...
 
-<action> shows what the tool did for that defconfig.
+<defconfig_name> is the name of the defconfig.
+
+<action*> shows what the tool did for that defconfig.
 It looks like one of the followings:
 
  - Move 'CONFIG_... '
    This config option was moved to the defconfig
 
- - Default value 'CONFIG_...'.  Do nothing.
-   The value of this option is the same as default.
-   We do not have to add it to the defconfig.
+ - CONFIG_... is not defined in Kconfig.  Do nothing.
+   The entry for this CONFIG was not found in Kconfig.
+   There are two common cases:
+     - You forgot to create an entry for the CONFIG before running
+       this tool, or made a typo in a CONFIG passed to this tool.
+     - The entry was hidden due to unmet 'depends on'.
+       This is correct behavior.
 
- - 'CONFIG_...' already exists in Kconfig.  Do nothing.
-   This config option is already defined in Kconfig.
-   We do not need/want to touch it.
+ - 'CONFIG_...' is the same as the define in Kconfig.  Do nothing.
+   The define in the config header matched the one in Kconfig.
+   We do not need to touch it.
 
  - Undefined.  Do nothing.
    This config option was not found in the config header.
    Nothing to do.
 
- - Failed to process.  Skip.
+ - Compiler is missing.  Do nothing.
+   The compiler specified for this architecture was not found
+   in your PATH environment.
+   (If -e option is passed, the tool exits immediately.)
+
+ - Failed to process.
    An error occurred during processing this defconfig.  Skipped.
    (If -e option is passed, the tool exits immediately on error.)
 
@@ -94,19 +79,19 @@ It just uses the regex method, so you should not rely on it.
 Just in case, please do 'git diff' to see what happened.
 
 
-How does it works?
-------------------
+How does it work?
+-----------------
 
 This tool runs configuration and builds include/autoconf.mk for every
 defconfig.  The config options defined in Kconfig appear in the .config
 file (unless they are hidden because of unmet dependency.)
 On the other hand, the config options defined by board headers are seen
 in include/autoconf.mk.  The tool looks for the specified options in both
-of them to decide the appropriate action for the options.  If the option
-is found in the .config or the value is the same as the specified default,
-the option does not need to be touched.  If the option is found in
-include/autoconf.mk, but not in the .config, and the value is different
-from the default, the tools adds the option to the defconfig.
+of them to decide the appropriate action for the options.  If the given
+config option is found in the .config, but its value does not match the
+one from the board header, the config option in the .config is replaced
+with the define in the board header.  Then, the .config is synced by
+"make savedefconfig" and the defconfig is updated with it.
 
 For faster processing, this tool handles multi-threading.  It creates
 separate build directories where the out-of-tree build is run.  The
@@ -139,12 +124,17 @@ Available options
   Specify a file containing a list of defconfigs to move
 
  -n, --dry-run
-   Peform a trial run that does not make any changes.  It is useful to
+   Perform a trial run that does not make any changes.  It is useful to
    see what is going to happen before one actually runs it.
 
  -e, --exit-on-error
    Exit immediately if Make exits with a non-zero status while processing
    a defconfig file.
+
+ -s, --force-sync
+   Do "make savedefconfig" forcibly for all the defconfig files.
+   If not specified, "make savedefconfig" only occurs for cases
+   where at least one CONFIG was moved.
 
  -H, --headers-only
    Only cleanup the headers; skip the defconfig processing
@@ -152,6 +142,14 @@ Available options
  -j, --jobs
    Specify the number of threads to run simultaneously.  If not specified,
    the number of threads is the same as the number of CPU cores.
+
+ -r, --git-ref
+   Specify the git ref to clone for building the autoconf.mk. If unspecified
+   use the CWD. This is useful for when changes to the Kconfig affect the
+   default values and you want to capture the state of the defconfig from
+   before that change was in effect. If in doubt, specify a ref pre-Kconfig
+   changes (use HEAD if Kconfig changes are not committed). Worst case it will
+   take a bit longer to run, but will always do the right thing.
 
  -v, --verbose
    Show any build errors as boards are built
@@ -162,6 +160,7 @@ To see the complete list of supported options, run
 
 """
 
+import filecmp
 import fnmatch
 import multiprocessing
 import optparse
@@ -211,9 +210,8 @@ STATE_AUTOCONF = 2
 STATE_SAVEDEFCONFIG = 3
 
 ACTION_MOVE = 0
-ACTION_DEFAULT_VALUE = 1
-ACTION_ALREADY_EXIST = 2
-ACTION_UNDEFINED = 3
+ACTION_NO_ENTRY = 1
+ACTION_NO_CHANGE = 2
 
 COLOR_BLACK        = '0;30'
 COLOR_RED          = '0;31'
@@ -247,6 +245,12 @@ def check_top_directory():
         if not os.path.exists(f):
             sys.exit('Please run at the top of source directory.')
 
+def check_clean_directory():
+    """Exit if the source tree is not clean."""
+    for f in ('.config', 'include/config'):
+        if os.path.exists(f):
+            sys.exit("source tree is not clean, please run 'make mrproper'")
+
 def get_make_cmd():
     """Get the command name of GNU Make.
 
@@ -263,16 +267,14 @@ def get_make_cmd():
 def color_text(color_enabled, color, string):
     """Return colored string."""
     if color_enabled:
-        return '\033[' + color + 'm' + string + '\033[0m'
+        # LF should not be surrounded by the escape sequence.
+        # Otherwise, additional whitespace or line-feed might be printed.
+        return '\n'.join([ '\033[' + color + 'm' + s + '\033[0m' if s else ''
+                           for s in string.split('\n') ])
     else:
         return string
 
-def log_msg(color_enabled, color, defconfig, msg):
-    """Return the formated line for the log."""
-    return defconfig[:-len('_defconfig')].ljust(37) + ': ' + \
-        color_text(color_enabled, color, msg) + '\n'
-
-def update_cross_compile():
+def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
 
     The default CROSS_COMPILE values are available
@@ -286,6 +288,9 @@ def update_cross_compile():
 
     export CROSS_COMPILE_ARM=...
     export CROSS_COMPILE_POWERPC=...
+
+    Then, this function checks if specified compilers really exist in your
+    PATH environment.
     """
     archs = []
 
@@ -299,8 +304,20 @@ def update_cross_compile():
     for arch in archs:
         env = 'CROSS_COMPILE_' + arch.upper()
         cross_compile = os.environ.get(env)
-        if cross_compile:
-            CROSS_COMPILE[arch] = cross_compile
+        if not cross_compile:
+            cross_compile = CROSS_COMPILE.get(arch, '')
+
+        for path in os.environ["PATH"].split(os.pathsep):
+            gcc_path = os.path.join(path, cross_compile + 'gcc')
+            if os.path.isfile(gcc_path) and os.access(gcc_path, os.X_OK):
+                break
+        else:
+            print >> sys.stderr, color_text(color_enabled, COLOR_YELLOW,
+                 'warning: %sgcc: not found in PATH.  %s architecture boards will be skipped'
+                                            % (cross_compile, arch))
+            cross_compile = None
+
+        CROSS_COMPILE[arch] = cross_compile
 
 def cleanup_one_header(header_path, patterns, dry_run):
     """Clean regex-matched lines away from a file.
@@ -331,12 +348,11 @@ def cleanup_one_header(header_path, patterns, dry_run):
             if not i in matched:
                 f.write(line)
 
-def cleanup_headers(config_attrs, dry_run):
+def cleanup_headers(configs, dry_run):
     """Delete config defines from board headers.
 
     Arguments:
-      config_attrs: A list of dictionaris, each of them includes the name,
-                    the type, and the default value of the target config.
+      configs: A list of CONFIGs to remove.
       dry_run: make no changes, but still display log.
     """
     while True:
@@ -349,8 +365,7 @@ def cleanup_headers(config_attrs, dry_run):
         return
 
     patterns = []
-    for config_attr in config_attrs:
-        config = config_attr['config']
+    for config in configs:
         patterns.append(re.compile(r'#\s*define\s+%s\W' % config))
         patterns.append(re.compile(r'#\s*undef\s+%s\W' % config))
 
@@ -362,6 +377,29 @@ def cleanup_headers(config_attrs, dry_run):
                                        patterns, dry_run)
 
 ### classes ###
+class Progress:
+
+    """Progress Indicator"""
+
+    def __init__(self, total):
+        """Create a new progress indicator.
+
+        Arguments:
+          total: A number of defconfig files to process.
+        """
+        self.current = 0
+        self.total = total
+
+    def inc(self):
+        """Increment the number of processed defconfig files."""
+
+        self.current += 1
+
+    def show(self):
+        """Display the progress."""
+        print ' %d defconfigs out of %d\r' % (self.current, self.total),
+        sys.stdout.flush()
+
 class KconfigParser:
 
     """A parser of .config and include/autoconf.mk."""
@@ -369,29 +407,35 @@ class KconfigParser:
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
     re_cpu = re.compile(r'CONFIG_SYS_CPU="(.*)"')
 
-    def __init__(self, config_attrs, options, build_dir):
+    def __init__(self, configs, options, build_dir):
         """Create a new parser.
 
         Arguments:
-          config_attrs: A list of dictionaris, each of them includes the name,
-                        the type, and the default value of the target config.
+          configs: A list of CONFIGs to move.
           options: option flags.
           build_dir: Build directory.
         """
-        self.config_attrs = config_attrs
+        self.configs = configs
         self.options = options
-        self.build_dir = build_dir
+        self.dotconfig = os.path.join(build_dir, '.config')
+        self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
+        self.config_autoconf = os.path.join(build_dir, 'include', 'config',
+                                            'auto.conf')
+        self.defconfig = os.path.join(build_dir, 'defconfig')
 
     def get_cross_compile(self):
         """Parse .config file and return CROSS_COMPILE.
 
         Returns:
           A string storing the compiler prefix for the architecture.
+          Return a NULL string for architectures that do not require
+          compiler prefix (Sandbox and native build is the case).
+          Return None if the specified compiler is missing in your PATH.
+          Caller should distinguish '' and None.
         """
         arch = ''
         cpu = ''
-        dotconfig = os.path.join(self.build_dir, '.config')
-        for line in open(dotconfig):
+        for line in open(self.dotconfig):
             m = self.re_arch.match(line)
             if m:
                 arch = m.group(1)
@@ -400,15 +444,16 @@ class KconfigParser:
             if m:
                 cpu = m.group(1)
 
-        assert arch, 'Error: arch is not defined in %s' % defconfig
+        if not arch:
+            return None
 
         # fix-up for aarch64
         if arch == 'arm' and cpu == 'armv8':
             arch = 'aarch64'
 
-        return CROSS_COMPILE.get(arch, '')
+        return CROSS_COMPILE.get(arch, None)
 
-    def parse_one_config(self, config_attr, defconfig_lines, autoconf_lines):
+    def parse_one_config(self, config, dotconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
 
         This function looks for the config options in the lines from
@@ -416,74 +461,70 @@ class KconfigParser:
         which action should be taken for this defconfig.
 
         Arguments:
-          config_attr: A dictionary including the name, the type,
-                       and the default value of the target config.
-          defconfig_lines: lines from the original defconfig file.
+          config: CONFIG name to parse.
+          dotconfig_lines: lines from the .config file.
           autoconf_lines: lines from the include/autoconf.mk file.
 
         Returns:
           A tupple of the action for this defconfig and the line
           matched for the config.
         """
-        config = config_attr['config']
         not_set = '# %s is not set' % config
 
-        if config_attr['type'] in ('bool', 'tristate') and \
-           config_attr['default'] == 'n':
-            default = not_set
-        else:
-            default = config + '=' + config_attr['default']
-
-        for line in defconfig_lines:
+        for line in dotconfig_lines:
             line = line.rstrip()
             if line.startswith(config + '=') or line == not_set:
-                return (ACTION_ALREADY_EXIST, line)
-
-        if config_attr['type'] in ('bool', 'tristate'):
-            value = not_set
+                old_val = line
+                break
         else:
-            value = '(undefined)'
+            return (ACTION_NO_ENTRY, config)
 
         for line in autoconf_lines:
             line = line.rstrip()
             if line.startswith(config + '='):
-                value = line
+                new_val = line
                 break
-
-        if value == default:
-            action = ACTION_DEFAULT_VALUE
-        elif value == '(undefined)':
-            action = ACTION_UNDEFINED
         else:
-            action = ACTION_MOVE
+            new_val = not_set
 
-        return (action, value)
+        # If this CONFIG is neither bool nor trisate
+        if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
+            # tools/scripts/define2mk.sed changes '1' to 'y'.
+            # This is a problem if the CONFIG is int type.
+            # Check the type in Kconfig and handle it correctly.
+            if new_val[-2:] == '=y':
+                new_val = new_val[:-1] + '1'
 
-    def update_defconfig(self, defconfig):
-        """Parse files for the config options and update the defconfig.
+        return (ACTION_NO_CHANGE if old_val == new_val else ACTION_MOVE,
+                new_val)
 
-        This function parses the given defconfig, the generated .config
-        and include/autoconf.mk searching the target options.
-        Move the config option(s) to the defconfig or do nothing if unneeded.
-        Also, display the log to show what happened to this defconfig.
+    def update_dotconfig(self):
+        """Parse files for the config options and update the .config.
+
+        This function parses the generated .config and include/autoconf.mk
+        searching the target options.
+        Move the config option(s) to the .config as needed.
 
         Arguments:
           defconfig: defconfig name.
+
+        Returns:
+          Return a tuple of (updated flag, log string).
+          The "updated flag" is True if the .config was updated, False
+          otherwise.  The "log string" shows what happend to the .config.
         """
 
-        defconfig_path = os.path.join('configs', defconfig)
-        dotconfig_path = os.path.join(self.build_dir, '.config')
-        autoconf_path = os.path.join(self.build_dir, 'include', 'autoconf.mk')
         results = []
+        updated = False
 
-        with open(defconfig_path) as f:
-            defconfig_lines = f.readlines()
+        with open(self.dotconfig) as f:
+            dotconfig_lines = f.readlines()
 
-        with open(autoconf_path) as f:
+        with open(self.autoconf) as f:
             autoconf_lines = f.readlines()
 
-        for config_attr in self.config_attrs:
-            result = self.parse_one_config(config_attr, defconfig_lines,
+        for config in self.configs:
+            result = self.parse_one_config(config, dotconfig_lines,
                                            autoconf_lines)
             results.append(result)
 
@@ -493,32 +534,52 @@ class KconfigParser:
             if action == ACTION_MOVE:
                 actlog = "Move '%s'" % value
                 log_color = COLOR_LIGHT_GREEN
-            elif action == ACTION_DEFAULT_VALUE:
-                actlog = "Default value '%s'.  Do nothing." % value
+            elif action == ACTION_NO_ENTRY:
+                actlog = "%s is not defined in Kconfig.  Do nothing." % value
                 log_color = COLOR_LIGHT_BLUE
-            elif action == ACTION_ALREADY_EXIST:
-                actlog = "'%s' already defined in Kconfig.  Do nothing." % value
+            elif action == ACTION_NO_CHANGE:
+                actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
+                         % value
                 log_color = COLOR_LIGHT_PURPLE
-            elif action == ACTION_UNDEFINED:
-                actlog = "Undefined.  Do nothing."
-                log_color = COLOR_DARK_GRAY
             else:
                 sys.exit("Internal Error. This should not happen.")
 
-            log += log_msg(self.options.color, log_color, defconfig, actlog)
+            log += color_text(self.options.color, log_color, actlog) + '\n'
 
-        # Some threads are running in parallel.
-        # Print log in one shot to not mix up logs from different threads.
-        print log,
+        with open(self.dotconfig, 'a') as f:
+            for (action, value) in results:
+                if action == ACTION_MOVE:
+                    f.write(value + '\n')
+                    updated = True
 
-        if not self.options.dry_run:
-            with open(dotconfig_path, 'a') as f:
-                for (action, value) in results:
-                    if action == ACTION_MOVE:
-                        f.write(value + '\n')
+        self.results = results
+        os.remove(self.config_autoconf)
+        os.remove(self.autoconf)
 
-        os.remove(os.path.join(self.build_dir, 'include', 'config', 'auto.conf'))
-        os.remove(autoconf_path)
+        return (updated, log)
+
+    def check_defconfig(self):
+        """Check the defconfig after savedefconfig
+
+        Returns:
+          Return additional log if moved CONFIGs were removed again by
+          'make savedefconfig'.
+        """
+
+        log = ''
+
+        with open(self.defconfig) as f:
+            defconfig_lines = f.readlines()
+
+        for (action, value) in self.results:
+            if action != ACTION_MOVE:
+                continue
+            if not value + '\n' in defconfig_lines:
+                log += color_text(self.options.color, COLOR_YELLOW,
+                                  "'%s' was removed by savedefconfig.\n" %
+                                  value)
+
+        return log
 
 class Slot:
 
@@ -529,30 +590,35 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, config_attrs, options, devnull, make_cmd):
+    def __init__(self, configs, options, progress, devnull, make_cmd, reference_src_dir):
         """Create a new process slot.
 
         Arguments:
-          config_attrs: A list of dictionaris, each of them includes the name,
-                        the type, and the default value of the target config.
+          configs: A list of CONFIGs to move.
           options: option flags.
+          progress: A progress indicator.
           devnull: A file object of '/dev/null'.
           make_cmd: command name of GNU Make.
+          reference_src_dir: Determine the true starting config state from this
+                             source tree.
         """
         self.options = options
+        self.progress = progress
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
-        self.parser = KconfigParser(config_attrs, options, self.build_dir)
+        self.reference_src_dir = reference_src_dir
+        self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
+        self.suspicious_boards = []
 
     def __del__(self):
         """Delete the working directory
 
         This function makes sure the temporary directory is cleaned away
         even if Python suddenly dies due to error.  It should be done in here
-        because it is guranteed the destructor is always invoked when the
+        because it is guaranteed the destructor is always invoked when the
         instance of the class gets unreferenced.
 
         If the subprocess is still running, wait until it finishes.
@@ -562,7 +628,7 @@ class Slot:
                 pass
         shutil.rmtree(self.build_dir)
 
-    def add(self, defconfig, num, total):
+    def add(self, defconfig):
         """Assign a new subprocess for defconfig and add it to the slot.
 
         If the slot is vacant, create a new subprocess for processing the
@@ -577,14 +643,11 @@ class Slot:
         """
         if self.state != STATE_IDLE:
             return False
-        cmd = list(self.make_cmd)
-        cmd.append(defconfig)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+
         self.defconfig = defconfig
-        self.state = STATE_DEFCONFIG
-        self.num = num
-        self.total = total
+        self.log = ''
+        self.current_src_dir = self.reference_src_dir
+        self.do_defconfig()
         return True
 
     def poll(self):
@@ -594,8 +657,11 @@ class Slot:
         If the configuration is successfully finished, assign a new
         subprocess to build include/autoconf.mk.
         If include/autoconf.mk is generated, invoke the parser to
-        parse the .config and the include/autoconf.mk, and then set the
-        slot back to the idle state.
+        parse the .config and the include/autoconf.mk, moving
+        config options to the .config as needed.
+        If the .config was updated, run "make savedefconfig" to sync
+        it, update the original defconfig, and then set the slot back
+        to the idle state.
 
         Returns:
           Return True if the subprocess is terminated, False otherwise
@@ -607,91 +673,164 @@ class Slot:
             return False
 
         if self.ps.poll() != 0:
-            errmsg = 'Failed to process.'
-            errout = self.ps.stderr.read()
-            if errout.find('gcc: command not found') != -1:
-                errmsg = 'Compiler not found ('
-                errmsg += color_text(self.options.color, COLOR_YELLOW,
-                                     self.cross_compile)
-                errmsg += color_text(self.options.color, COLOR_LIGHT_RED,
-                                     ')')
-            print >> sys.stderr, log_msg(self.options.color,
-                                         COLOR_LIGHT_RED,
-                                         self.defconfig,
-                                         errmsg),
-            if self.options.verbose:
-                print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_CYAN, errout)
-            if self.options.exit_on_error:
-                sys.exit("Exit on error.")
+            self.handle_error()
+        elif self.state == STATE_DEFCONFIG:
+            if self.reference_src_dir and not self.current_src_dir:
+                self.do_savedefconfig()
             else:
-                # If --exit-on-error flag is not set,
-                # skip this board and continue.
-                # Record the failed board.
-                self.failed_boards.append(self.defconfig)
-                self.state = STATE_IDLE
-                return True
+                self.do_autoconf()
+        elif self.state == STATE_AUTOCONF:
+            if self.current_src_dir:
+                self.current_src_dir = None
+                self.do_defconfig()
+            else:
+                self.do_savedefconfig()
+        elif self.state == STATE_SAVEDEFCONFIG:
+            self.update_defconfig()
+        else:
+            sys.exit("Internal Error. This should not happen.")
 
-        if self.state == STATE_AUTOCONF:
-            self.parser.update_defconfig(self.defconfig)
+        return True if self.state == STATE_IDLE else False
 
-            print ' %d defconfigs out of %d\r' % (self.num + 1, self.total),
-            sys.stdout.flush()
+    def handle_error(self):
+        """Handle error cases."""
 
-            """Save off the defconfig in a consistent way"""
-            cmd = list(self.make_cmd)
-            cmd.append('savedefconfig')
-            self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                       stderr=subprocess.PIPE)
-            self.state = STATE_SAVEDEFCONFIG
-            return False
+        self.log += color_text(self.options.color, COLOR_LIGHT_RED,
+                               "Failed to process.\n")
+        if self.options.verbose:
+            self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
+                                   self.ps.stderr.read())
+        self.finish(False)
 
-        if self.state == STATE_SAVEDEFCONFIG:
-            defconfig_path = os.path.join(self.build_dir, 'defconfig')
-            shutil.move(defconfig_path,
-                        os.path.join('configs', self.defconfig))
-            self.state = STATE_IDLE
-            return True
+    def do_defconfig(self):
+        """Run 'make <board>_defconfig' to create the .config file."""
+
+        cmd = list(self.make_cmd)
+        cmd.append(self.defconfig)
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
+        self.state = STATE_DEFCONFIG
+
+    def do_autoconf(self):
+        """Run 'make include/config/auto.conf'."""
 
         self.cross_compile = self.parser.get_cross_compile()
+        if self.cross_compile is None:
+            self.log += color_text(self.options.color, COLOR_YELLOW,
+                                   "Compiler is missing.  Do nothing.\n")
+            self.finish(False)
+            return
+
         cmd = list(self.make_cmd)
         if self.cross_compile:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
-        """This will be screen-scraped, so be sure the expected text will be
-        returned consistently on every machine by setting LANG=C"""
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   env=dict(os.environ, LANG='C'),
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
-        return False
+
+    def do_savedefconfig(self):
+        """Update the .config and run 'make savedefconfig'."""
+
+        (updated, log) = self.parser.update_dotconfig()
+        self.log += log
+
+        if not self.options.force_sync and not updated:
+            self.finish(True)
+            return
+        if updated:
+            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                   "Syncing by savedefconfig...\n")
+        else:
+            self.log += "Syncing by savedefconfig (forced by option)...\n"
+
+        cmd = list(self.make_cmd)
+        cmd.append('savedefconfig')
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   stderr=subprocess.PIPE)
+        self.state = STATE_SAVEDEFCONFIG
+
+    def update_defconfig(self):
+        """Update the input defconfig and go back to the idle state."""
+
+        log = self.parser.check_defconfig()
+        if log:
+            self.suspicious_boards.append(self.defconfig)
+            self.log += log
+        orig_defconfig = os.path.join('configs', self.defconfig)
+        new_defconfig = os.path.join(self.build_dir, 'defconfig')
+        updated = not filecmp.cmp(orig_defconfig, new_defconfig)
+
+        if updated:
+            self.log += color_text(self.options.color, COLOR_LIGHT_BLUE,
+                                   "defconfig was updated.\n")
+
+        if not self.options.dry_run and updated:
+            shutil.move(new_defconfig, orig_defconfig)
+        self.finish(True)
+
+    def finish(self, success):
+        """Display log along with progress and go to the idle state.
+
+        Arguments:
+          success: Should be True when the defconfig was processed
+                   successfully, or False when it fails.
+        """
+        # output at least 30 characters to hide the "* defconfigs out of *".
+        log = self.defconfig.ljust(30) + '\n'
+
+        log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
+        # Some threads are running in parallel.
+        # Print log atomically to not mix up logs from different threads.
+        print >> (sys.stdout if success else sys.stderr), log
+
+        if not success:
+            if self.options.exit_on_error:
+                sys.exit("Exit on error.")
+            # If --exit-on-error flag is not set, skip this board and continue.
+            # Record the failed board.
+            self.failed_boards.append(self.defconfig)
+
+        self.progress.inc()
+        self.progress.show()
+        self.state = STATE_IDLE
 
     def get_failed_boards(self):
         """Returns a list of failed boards (defconfigs) in this slot.
         """
         return self.failed_boards
 
+    def get_suspicious_boards(self):
+        """Returns a list of boards (defconfigs) with possible misconversion.
+        """
+        return self.suspicious_boards
+
 class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, config_attrs, options):
+    def __init__(self, configs, options, progress, reference_src_dir):
         """Create a new slots controller.
 
         Arguments:
-          config_attrs: A list of dictionaris containing the name, the type,
-                        and the default value of the target CONFIG.
+          configs: A list of CONFIGs to move.
           options: option flags.
+          progress: A progress indicator.
+          reference_src_dir: Determine the true starting config state from this
+                             source tree.
         """
         self.options = options
         self.slots = []
         devnull = get_devnull()
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
-            self.slots.append(Slot(config_attrs, options, devnull, make_cmd))
+            self.slots.append(Slot(configs, options, progress, devnull,
+                                   make_cmd, reference_src_dir))
 
-    def add(self, defconfig, num, total):
+    def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
 
         Arguments:
@@ -701,7 +840,7 @@ class Slots:
           Return True on success or False on failure
         """
         for slot in self.slots:
-            if slot.add(defconfig, num, total):
+            if slot.add(defconfig):
                 return True
         return False
 
@@ -730,39 +869,98 @@ class Slots:
 
     def show_failed_boards(self):
         """Display all of the failed boards (defconfigs)."""
-        failed_boards = []
+        boards = []
+        output_file = 'moveconfig.failed'
 
         for slot in self.slots:
-            failed_boards += slot.get_failed_boards()
+            boards += slot.get_failed_boards()
 
-        if len(failed_boards) > 0:
-            msg = [ "The following boards were not processed due to error:" ]
-            msg += failed_boards
-            for line in msg:
-                print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_RED, line)
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards were not processed due to error:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_LIGHT_RED,
+                                            msg)
 
-            with open('moveconfig.failed', 'w') as f:
-                for board in failed_boards:
-                    f.write(board + '\n')
+            with open(output_file, 'w') as f:
+                f.write(boards)
 
-def move_config(config_attrs, options):
+    def show_suspicious_boards(self):
+        """Display all boards (defconfigs) with possible misconversion."""
+        boards = []
+        output_file = 'moveconfig.suspicious'
+
+        for slot in self.slots:
+            boards += slot.get_suspicious_boards()
+
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards might have been converted incorrectly.\n"
+            msg += "It is highly recommended to check them manually:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_YELLOW,
+                                            msg)
+
+            with open(output_file, 'w') as f:
+                f.write(boards)
+
+class ReferenceSource:
+
+    """Reference source against which original configs should be parsed."""
+
+    def __init__(self, commit):
+        """Create a reference source directory based on a specified commit.
+
+        Arguments:
+          commit: commit to git-clone
+        """
+        self.src_dir = tempfile.mkdtemp()
+        print "Cloning git repo to a separate work directory..."
+        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
+                                cwd=self.src_dir)
+        print "Checkout '%s' to build the original autoconf.mk." % \
+            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip()
+        subprocess.check_output(['git', 'checkout', commit],
+                                stderr=subprocess.STDOUT, cwd=self.src_dir)
+
+    def __del__(self):
+        """Delete the reference source directory
+
+        This function makes sure the temporary directory is cleaned away
+        even if Python suddenly dies due to error.  It should be done in here
+        because it is guaranteed the destructor is always invoked when the
+        instance of the class gets unreferenced.
+        """
+        shutil.rmtree(self.src_dir)
+
+    def get_dir(self):
+        """Return the absolute path to the reference source directory."""
+
+        return self.src_dir
+
+def move_config(configs, options):
     """Move config options to defconfig files.
 
     Arguments:
-      config_attrs: A list of dictionaris, each of them includes the name,
-                    the type, and the default value of the target config.
+      configs: A list of CONFIGs to move.
       options: option flags
     """
-    if len(config_attrs) == 0:
-        print 'Nothing to do. exit.'
-        sys.exit(0)
+    if len(configs) == 0:
+        if options.force_sync:
+            print 'No CONFIG is specified. You are probably syncing defconfigs.',
+        else:
+            print 'Neither CONFIG nor --force-sync is specified. Nothing will happen.',
+    else:
+        print 'Move ' + ', '.join(configs),
+    print '(jobs: %d)\n' % options.jobs
 
-    print 'Move the following CONFIG options (jobs: %d)' % options.jobs
-    for config_attr in config_attrs:
-        print '  %s (type: %s, default: %s)' % (config_attr['config'],
-                                                config_attr['type'],
-                                                config_attr['default'])
+    if options.git_ref:
+        reference_src = ReferenceSource(options.git_ref)
+        reference_src_dir = reference_src.get_dir()
+    else:
+        reference_src_dir = None
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
@@ -780,13 +978,14 @@ def move_config(config_attrs, options):
             for filename in fnmatch.filter(filenames, '*_defconfig'):
                 defconfigs.append(os.path.join(dirpath, filename))
 
-    slots = Slots(config_attrs, options)
+    progress = Progress(len(defconfigs))
+    slots = Slots(configs, options, progress, reference_src_dir)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
     #  Sleep if there is no available slot.
-    for i, defconfig in enumerate(defconfigs):
-        while not slots.add(defconfig, i, len(defconfigs)):
+    for defconfig in defconfigs:
+        while not slots.add(defconfig):
             while not slots.available():
                 # No available slot: sleep for a while
                 time.sleep(SLEEP_TIME)
@@ -797,76 +996,7 @@ def move_config(config_attrs, options):
 
     print ''
     slots.show_failed_boards()
-
-def bad_recipe(filename, linenum, msg):
-    """Print error message with the file name and the line number and exit."""
-    sys.exit("%s: line %d: error : " % (filename, linenum) + msg)
-
-def parse_recipe(filename):
-    """Parse the recipe file and retrieve the config attributes.
-
-    This function parses the given recipe file and gets the name,
-    the type, and the default value of the target config options.
-
-    Arguments:
-      filename: path to file to be parsed.
-    Returns:
-      A list of dictionaris, each of them includes the name,
-      the type, and the default value of the target config.
-    """
-    config_attrs = []
-    linenum = 1
-
-    for line in open(filename):
-        tokens = line.split()
-        if len(tokens) != 3:
-            bad_recipe(filename, linenum,
-                       "%d fields in this line.  Each line must contain 3 fields"
-                       % len(tokens))
-
-        (config, type, default) = tokens
-
-        # prefix the option name with CONFIG_ if missing
-        if not config.startswith('CONFIG_'):
-            config = 'CONFIG_' + config
-
-        # sanity check of default values
-        if type == 'bool':
-            if not default in ('y', 'n'):
-                bad_recipe(filename, linenum,
-                           "default for bool type must be either y or n")
-        elif type == 'tristate':
-            if not default in ('y', 'm', 'n'):
-                bad_recipe(filename, linenum,
-                           "default for tristate type must be y, m, or n")
-        elif type == 'string':
-            if default[0] != '"' or default[-1] != '"':
-                bad_recipe(filename, linenum,
-                           "default for string type must be surrounded by double-quotations")
-        elif type == 'int':
-            try:
-                int(default)
-            except:
-                bad_recipe(filename, linenum,
-                           "type is int, but default value is not decimal")
-        elif type == 'hex':
-            if len(default) < 2 or default[:2] != '0x':
-                bad_recipe(filename, linenum,
-                           "default for hex type must be prefixed with 0x")
-            try:
-                int(default, 16)
-            except:
-                bad_recipe(filename, linenum,
-                           "type is hex, but default value is not hexadecimal")
-        else:
-            bad_recipe(filename, linenum,
-                       "unsupported type '%s'. type must be one of bool, tristate, string, int, hex"
-                       % type)
-
-        config_attrs.append({'config': config, 'type': type, 'default': default})
-        linenum += 1
-
-    return config_attrs
+    slots.show_suspicious_boards()
 
 def main():
     try:
@@ -885,37 +1015,40 @@ def main():
     parser.add_option('-e', '--exit-on-error', action='store_true',
                       default=False,
                       help='exit immediately on any error')
+    parser.add_option('-s', '--force-sync', action='store_true', default=False,
+                      help='force sync by savedefconfig')
     parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
     parser.add_option('-j', '--jobs', type='int', default=cpu_count,
                       help='the number of jobs to run simultaneously')
+    parser.add_option('-r', '--git-ref', type='string',
+                      help='the git ref to clone for building the autoconf.mk')
     parser.add_option('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
-    parser.usage += ' recipe_file\n\n' + \
-                    'The recipe_file should describe config options you want to move.\n' + \
-                    'Each line should contain config_name, type, default_value\n\n' + \
-                    'Example:\n' + \
-                    'CONFIG_FOO bool n\n' + \
-                    'CONFIG_BAR int 100\n' + \
-                    'CONFIG_BAZ string "hello"\n'
+    parser.usage += ' CONFIG ...'
 
-    (options, args) = parser.parse_args()
+    (options, configs) = parser.parse_args()
 
-    if len(args) != 1:
+    if len(configs) == 0 and not options.force_sync:
         parser.print_usage()
         sys.exit(1)
 
-    config_attrs = parse_recipe(args[0])
-
-    update_cross_compile()
+    # prefix the option name with CONFIG_ if missing
+    configs = [ config if config.startswith('CONFIG_') else 'CONFIG_' + config
+                for config in configs ]
 
     check_top_directory()
 
-    if not options.cleanup_headers_only:
-        move_config(config_attrs, options)
+    check_clean_directory()
 
-    cleanup_headers(config_attrs, options.dry_run)
+    update_cross_compile(options.color)
+
+    if not options.cleanup_headers_only:
+        move_config(configs, options)
+
+    if configs:
+        cleanup_headers(configs, options.dry_run)
 
 if __name__ == '__main__':
     main()

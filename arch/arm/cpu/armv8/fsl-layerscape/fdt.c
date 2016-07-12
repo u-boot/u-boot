@@ -20,6 +20,8 @@
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
+#include <fsl_sec.h>
+#include <asm/arch-fsl-layerscape/soc.h>
 
 int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
@@ -75,6 +77,23 @@ void ft_fixup_cpu(void *blob)
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
+#ifdef CONFIG_FSL_LSCH2
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int svr = in_be32(&gur->svr);
+
+	/* delete crypto node if not on an E-processor */
+	if (!IS_E_PROCESSOR(svr))
+		fdt_fixup_crypto_node(blob, 0);
+#if CONFIG_SYS_FSL_SEC_COMPAT >= 4
+	else {
+		ccsr_sec_t __iomem *sec;
+
+		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
+	}
+#endif
+#endif
+
 #ifdef CONFIG_MP
 	ft_fixup_cpu(blob);
 #endif

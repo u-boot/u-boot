@@ -197,11 +197,22 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 #ifdef CONFIG_LCD
 	efi_gop_register();
 #endif
+#ifdef CONFIG_NET
+	void *nethandle = loaded_image_info.device_handle;
+	efi_net_register(&nethandle);
+
+	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
+		loaded_image_info.device_handle = nethandle;
+#endif
 
 	/* Call our payload! */
-#ifdef DEBUG_EFI
-	printf("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
-#endif
+	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
+
+	if (setjmp(&loaded_image_info.exit_jmp)) {
+		efi_status_t status = loaded_image_info.exit_status;
+		return status == EFI_SUCCESS ? 0 : -EINVAL;
+	}
+
 	return entry(&loaded_image_info, &systab);
 }
 
@@ -244,7 +255,7 @@ static char bootefi_help_text[] =
 
 U_BOOT_CMD(
 	bootefi, 3, 0, do_bootefi,
-	"Boots an EFI payload from memory\n",
+	"Boots an EFI payload from memory",
 	bootefi_help_text
 );
 

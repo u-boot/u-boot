@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <clk.h>
+#include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
 #include <syscon.h>
@@ -20,10 +20,6 @@
 #include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct rk3288_clk_plat {
-	enum rk_clk_id clk_id;
-};
 
 struct rk3288_clk_priv {
 	struct rk3288_grf *grf;
@@ -135,34 +131,18 @@ static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
 
-int rkclk_get_clk(enum rk_clk_id clk_id, struct udevice **devp)
-{
-	struct udevice *dev;
-
-	for (uclass_find_first_device(UCLASS_CLK, &dev);
-	     dev;
-	     uclass_find_next_device(&dev)) {
-		struct rk3288_clk_plat *plat = dev_get_platdata(dev);
-
-		if (plat->clk_id == clk_id) {
-			*devp = dev;
-			return device_probe(dev);
-		}
-	}
-
-	return -ENODEV;
-}
-
 void *rockchip_get_cru(void)
 {
 	struct rk3288_clk_priv *priv;
 	struct udevice *dev;
 	int ret;
 
-	ret = rkclk_get_clk(CLK_GENERAL, &dev);
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
 	if (ret)
 		return ERR_PTR(ret);
+
 	priv = dev_get_priv(dev);
+
 	return priv->cru;
 }
 
@@ -324,6 +304,17 @@ static int pll_para_config(ulong freq_hz, struct pll_div *div, uint *ext_div)
 	}
 
 	return 0;
+}
+
+static int rockchip_mac_set_clk(struct rk3288_cru *cru,
+				  int periph, uint freq)
+{
+	/* Assuming mac_clk is fed by an external clock */
+	rk_clrsetreg(&cru->cru_clksel_con[21],
+		     RMII_EXTCLK_MASK << RMII_EXTCLK_SHIFT,
+		     RMII_EXTCLK_SELECT_EXT_CLK << RMII_EXTCLK_SHIFT);
+
+	 return 0;
 }
 
 static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
@@ -528,32 +519,6 @@ static uint32_t rkclk_pll_get_rate(struct rk3288_cru *cru,
 	}
 }
 
-static ulong rk3288_clk_get_rate(struct udevice *dev)
-{
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
-	struct rk3288_clk_priv *priv = dev_get_priv(dev);
-
-	debug("%s\n", dev->name);
-	return rkclk_pll_get_rate(priv->cru, plat->clk_id);
-}
-
-static ulong rk3288_clk_set_rate(struct udevice *dev, ulong rate)
-{
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
-	struct rk3288_clk_priv *priv = dev_get_priv(dev);
-
-	debug("%s\n", dev->name);
-	switch (plat->clk_id) {
-	case CLK_DDR:
-		rkclk_configure_ddr(priv->cru, priv->grf, rate);
-		break;
-	default:
-		return -ENOENT;
-	}
-
-	return 0;
-}
-
 static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint gclk_rate,
 				  int periph)
 {
@@ -699,27 +664,25 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	return rockchip_spi_get_clk(cru, gclk_rate, periph);
 }
 
-static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
+static ulong rk3288_clk_get_rate(struct clk *clk)
 {
-	struct rk3288_clk_priv *priv = dev_get_priv(dev);
-	struct udevice *gclk;
+	struct rk3288_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong new_rate, gclk_rate;
-	int ret;
 
-	ret = rkclk_get_clk(CLK_GENERAL, &gclk);
-	if (ret)
-		return ret;
-	gclk_rate = clk_get_rate(gclk);
-	switch (periph) {
+	gclk_rate = rkclk_pll_get_rate(priv->cru, CLK_GENERAL);
+	switch (clk->id) {
+	case 0 ... 63:
+		new_rate = rkclk_pll_get_rate(priv->cru, clk->id);
+		break;
 	case HCLK_EMMC:
 	case HCLK_SDMMC:
 	case HCLK_SDIO0:
-		new_rate = rockchip_mmc_get_clk(priv->cru, gclk_rate, periph);
+		new_rate = rockchip_mmc_get_clk(priv->cru, gclk_rate, clk->id);
 		break;
 	case SCLK_SPI0:
 	case SCLK_SPI1:
 	case SCLK_SPI2:
-		new_rate = rockchip_spi_get_clk(priv->cru, gclk_rate, periph);
+		new_rate = rockchip_spi_get_clk(priv->cru, gclk_rate, clk->id);
 		break;
 	case PCLK_I2C0:
 	case PCLK_I2C1:
@@ -735,33 +698,34 @@ static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
 	return new_rate;
 }
 
-static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
+static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	struct rk3288_clk_priv *priv = dev_get_priv(clk->dev);
 	struct rk3288_cru *cru = priv->cru;
-	struct udevice *gclk;
 	ulong new_rate, gclk_rate;
-	int ret;
 
-	ret = rkclk_get_clk(CLK_GENERAL, &gclk);
-	if (ret)
-		return ret;
-	gclk_rate = clk_get_rate(gclk);
-	switch (periph) {
+	gclk_rate = rkclk_pll_get_rate(priv->cru, CLK_GENERAL);
+	switch (clk->id) {
+	case CLK_DDR:
+		new_rate = rkclk_configure_ddr(priv->cru, priv->grf, rate);
+		break;
 	case HCLK_EMMC:
 	case HCLK_SDMMC:
 	case HCLK_SDIO0:
-		new_rate = rockchip_mmc_set_clk(cru, gclk_rate, periph, rate);
+		new_rate = rockchip_mmc_set_clk(cru, gclk_rate, clk->id, rate);
 		break;
 	case SCLK_SPI0:
 	case SCLK_SPI1:
 	case SCLK_SPI2:
-		new_rate = rockchip_spi_set_clk(cru, gclk_rate, periph, rate);
+		new_rate = rockchip_spi_set_clk(cru, gclk_rate, clk->id, rate);
 		break;
 #ifndef CONFIG_SPL_BUILD
+	case SCLK_MAC:
+		new_rate = rockchip_mac_set_clk(priv->cru, clk->id, rate);
+		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
-		new_rate = rockchip_vop_set_clk(cru, priv->grf, periph, rate);
+		new_rate = rockchip_vop_set_clk(cru, priv->grf, clk->id, rate);
 		break;
 	case SCLK_EDP_24M:
 		/* clk_edp_24M source: 24M */
@@ -781,7 +745,7 @@ static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 		div = CPLL_HZ / rate;
 		assert((div - 1 < 64) && (div * rate == CPLL_HZ));
 
-		switch (periph) {
+		switch (clk->id) {
 		case ACLK_VOP0:
 			rk_clrsetreg(&cru->cru_clksel_con[31],
 				     3 << 6 | 0x1f << 0,
@@ -817,22 +781,12 @@ static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 static struct clk_ops rk3288_clk_ops = {
 	.get_rate	= rk3288_clk_get_rate,
 	.set_rate	= rk3288_clk_set_rate,
-	.set_periph_rate = rk3288_set_periph_rate,
-	.get_periph_rate = rk3288_get_periph_rate,
 };
 
 static int rk3288_clk_probe(struct udevice *dev)
 {
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
 
-	if (plat->clk_id != CLK_OSC) {
-		struct rk3288_clk_priv *parent_priv = dev_get_priv(dev->parent);
-
-		priv->cru = parent_priv->cru;
-		priv->grf = parent_priv->grf;
-		return 0;
-	}
 	priv->cru = (struct rk3288_cru *)dev_get_addr(dev);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 #ifdef CONFIG_SPL_BUILD
@@ -842,42 +796,12 @@ static int rk3288_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static const char *const clk_name[CLK_COUNT] = {
-	"osc",
-	"apll",
-	"dpll",
-	"cpll",
-	"gpll",
-	"npll",
-};
-
 static int rk3288_clk_bind(struct udevice *dev)
 {
-	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
-	int pll, ret;
-
-	/* We only need to set up the root clock */
-	if (dev->of_offset == -1) {
-		plat->clk_id = CLK_OSC;
-		return 0;
-	}
-
-	/* Create devices for P main clocks */
-	for (pll = 1; pll < CLK_COUNT; pll++) {
-		struct udevice *child;
-		struct rk3288_clk_plat *cplat;
-
-		debug("%s %s\n", __func__, clk_name[pll]);
-		ret = device_bind_driver(dev, "clk_rk3288", clk_name[pll],
-					 &child);
-		if (ret)
-			return ret;
-		cplat = dev_get_platdata(child);
-		cplat->clk_id = pll;
-	}
+	int ret;
 
 	/* The reset driver does not have a device node, so bind it here */
-	ret = device_bind_driver(gd->dm_root, "rk3288_reset", "reset", &dev);
+	ret = device_bind_driver(gd->dm_root, "rk3288_sysreset", "reset", &dev);
 	if (ret)
 		debug("Warning: No RK3288 reset driver: ret=%d\n", ret);
 
@@ -894,7 +818,6 @@ U_BOOT_DRIVER(clk_rk3288) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk3288_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3288_clk_priv),
-	.platdata_auto_alloc_size = sizeof(struct rk3288_clk_plat),
 	.ops		= &rk3288_clk_ops,
 	.bind		= rk3288_clk_bind,
 	.probe		= rk3288_clk_probe,

@@ -168,8 +168,6 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
-#define CONFIG_BOOTDELAY	0
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
 		"if run loadbootscr; then " \

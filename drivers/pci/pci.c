@@ -175,11 +175,7 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 	int bus;
 
 	for (hose = pci_get_hose_head(); hose; hose = hose->next) {
-#ifdef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
-		for (bus = hose->last_busno; bus >= hose->first_busno; bus--) {
-#else
 		for (bus = hose->first_busno; bus <= hose->last_busno; bus++) {
-#endif
 			bdf = pci_hose_find_devices(hose, bus, ids, &index);
 			if (bdf != -1)
 				return bdf;

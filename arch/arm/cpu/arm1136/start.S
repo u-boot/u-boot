@@ -82,6 +82,7 @@ cpu_init_crit:
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	/*
 	 * Jump to board specific initialization... The Mask ROM will have already initialized
 	 * basic memory.  Go here to bump up clock rate and handle wake up conditions.
@@ -89,5 +90,6 @@ cpu_init_crit:
 	mov	ip, lr		/* persevere link reg across call */
 	bl	lowlevel_init	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
+#endif
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

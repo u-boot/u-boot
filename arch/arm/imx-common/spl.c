@@ -70,7 +70,7 @@ u32 spl_boot_device(void)
 
 #if defined(CONFIG_SPL_MMC_SUPPORT)
 /* called from spl_mmc to see type of boot mode for storage (RAW or FAT) */
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	switch (spl_boot_device()) {
 	/* for MMC return either RAW or FAT mode */

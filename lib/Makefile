@@ -9,7 +9,6 @@ ifndef CONFIG_SPL_BUILD
 
 obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_EFI_LOADER) += efi_loader/
-obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_LZO) += lzo/
 obj-$(CONFIG_ZLIB) += zlib/
@@ -25,8 +24,6 @@ obj-y += crc8.o
 obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 obj-$(CONFIG_GZIP) += gunzip.o
 obj-$(CONFIG_GZIP_COMPRESSED) += gzip.o
@@ -39,15 +36,16 @@ obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
 obj-y += qsort.o
 obj-y += rc4.o
-obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
-obj-$(CONFIG_SHA256) += sha256.o
-obj-y	+= strmhz.o
 obj-$(CONFIG_TPM) += tpm.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
 endif
+
+obj-$(CONFIG_$(SPL_)RSA) += rsa/
+obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
+obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
 
 obj-$(CONFIG_$(SPL_)OF_LIBFDT) += libfdt/
 ifdef CONFIG_SPL_OF_CONTROL
@@ -85,11 +83,11 @@ ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_USE_TINY_PRINTF
 obj-$(CONFIG_SPL_SERIAL_SUPPORT) += tiny-printf.o panic.o strto.o
 else
-obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o
+obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o strmhz.o
 endif
 else
 # Main U-Boot always uses the full printf support
-obj-y += vsprintf.o panic.o strto.o
+obj-y += vsprintf.o panic.o strto.o strmhz.o
 endif
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

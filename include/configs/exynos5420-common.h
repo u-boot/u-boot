@@ -48,7 +48,6 @@
  */
 #define CONFIG_CORE_COUNT		0x8
 
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_EXYNOS
 
 #endif	/* __CONFIG_EXYNOS5420_H */

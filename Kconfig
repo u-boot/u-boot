@@ -53,6 +53,23 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config DISTRO_DEFAULTS
+	bool "Select defaults suitable for booting general purpose Linux distributions"
+	default y if ARCH_SUNXI
+	default n
+	select CMD_BOOTZ
+	select CMD_DHCP
+	select CMD_EXT2
+	select CMD_EXT4
+	select CMD_FAT
+	select CMD_FS_GENERIC
+	select CMD_MII
+	select CMD_PING
+	select HUSH_PARSER
+	help
+	  Select this to enable various options and commands which are suitable
+	  for building u-boot for booting general purpose Linux distributions.
+
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM
@@ -183,6 +200,11 @@ config FIT
 	  verified boot (secure boot using RSA). This option enables that
 	  feature.
 
+config SPL_FIT
+	bool "Support Flattened Image Tree within SPL"
+	depends on FIT
+	depends on SPL
+
 config FIT_VERBOSE
 	bool "Display verbose messages on FIT boot"
 	depends on FIT
@@ -204,6 +226,12 @@ config FIT_SIGNATURE
 	  unsigned images cannot be loaded. If a board needs the legacy image
 	  format support in this case, enable it using
 	  CONFIG_IMAGE_FORMAT_LEGACY.
+
+config SPL_FIT_SIGNATURE
+	bool "Enable signature verification of FIT firmware within SPL"
+	depends on SPL_FIT
+	depends on SPL_DM
+	select SPL_RSA
 
 config FIT_BEST_MATCH
 	bool "Select the best match for the kernel device tree"
@@ -268,7 +296,7 @@ config SYS_EXTRA_OPTIONS
 
 config SYS_TEXT_BASE
 	depends on SPARC || ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP || \
-		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE
+		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE || MIPS
 	depends on !EFI_APP
 	hex "Text Base"
 	help

@@ -10,6 +10,7 @@ import os.path
 import pytest
 import sys
 import time
+import pytest
 
 def md5sum_data(data):
     """Calculate the MD5 hash of some data.
@@ -200,7 +201,7 @@ def find_ram_base(u_boot_console):
     with u_boot_console.log.section('find_ram_base'):
         response = u_boot_console.run_command('bdinfo')
         for l in response.split('\n'):
-            if '-> start' in l:
+            if '-> start' in l or 'memstart    =' in l:
                 ram_base = int(l.split('=')[1].strip(), 16)
                 break
         if ram_base is None:

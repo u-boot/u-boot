@@ -30,6 +30,27 @@
 		i2c104 = &i2c_tunnel;
 	};
 
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 1000000 0>;
+		brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
+		default-brightness-level = <7>;
+		enable-gpios = <&gpx2 2 GPIO_ACTIVE_HIGH>;
+		power-supply = <&tps65090_fet1>;
+	};
+
+	panel: panel {
+		compatible = "auo,b133htn01";
+		power-supply = <&tps65090_fet6>;
+		backlight = <&backlight>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dp_out>;
+			};
+		};
+	};
+
 	dmc {
 		mem-manuf = "samsung";
 		mem-type = "ddr3";
@@ -129,6 +150,25 @@
 		samsung,dual-lcd-enabled = <0>;
 
 		samsung,bl-en-gpio = <&gpx2 2 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&dp {
+	status = "okay";
+	samsung,color-space = <0>;
+	samsung,dynamic-range = <0>;
+	samsung,ycbcr-coeff = <0>;
+	samsung,color-depth = <1>;
+	samsung,link-rate = <0x0a>;
+	samsung,lane-count = <2>;
+	samsung,hpd-gpio = <&gpx2 6 GPIO_ACTIVE_HIGH>;
+
+	ports {
+		port {
+			dp_out: endpoint {
+				remote-endpoint = <&panel_in>;
+			};
+		};
 	};
 };
 

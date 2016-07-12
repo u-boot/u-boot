@@ -55,7 +55,7 @@ enum srds {
 	FSL_SRDS_1  = 0,
 	FSL_SRDS_2  = 1,
 };
-#elif defined(CONFIG_LS1043A)
+#elif defined(CONFIG_FSL_LSCH2)
 enum srds_prtcl {
 	NONE = 0,
 	PCIE1,
@@ -134,6 +134,7 @@ enum srds_prtcl {
 	SGMII_2500_FM2_DTSEC6,
 	SGMII_2500_FM2_DTSEC9,
 	SGMII_2500_FM2_DTSEC10,
+	TX_CLK,
 	SERDES_PRCTL_COUNT
 };
 

@@ -128,7 +128,6 @@
  * USB Settings
  */
 #if !defined(__ADSPBF522__) && !defined(__ADSPBF523__)
-#define CONFIG_USB
 #define CONFIG_USB_MUSB_HCD
 #define CONFIG_USB_BLACKFIN
 #define CONFIG_USB_STORAGE

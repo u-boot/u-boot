@@ -10,6 +10,7 @@ obj-$(CONFIG_$(SPL_)RAM)	+= ram/
 
 ifdef CONFIG_SPL_BUILD
 
+obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
 obj-$(CONFIG_SPL_I2C_SUPPORT) += i2c/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += mmc/
@@ -36,6 +37,8 @@ obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
+obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
+obj-$(CONFIG_SPL_MMC_SUPPORT) += block/
 
 else
 
@@ -62,8 +65,10 @@ obj-y += video/
 obj-y += watchdog/
 obj-$(CONFIG_QE) += qe/
 obj-$(CONFIG_U_QE) += qe/
+obj-y += mailbox/
 obj-y += memory/
 obj-y += pwm/
+obj-y += reset/
 obj-y += input/
 # SOC specific infrastructure drivers.
 obj-y += soc/

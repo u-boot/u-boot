@@ -12,6 +12,7 @@ obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= umc-sld8.o \
 					   ddrphy-training.o ddrphy-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= umc-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= umc-pxs2.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= umc-ld11.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= umc-ld20.o
 
 else

@@ -92,13 +92,6 @@ memset:
 	bdnz	8b
 	blr
 
-	.globl	bcopy
-bcopy:
-	mr	r6,r3
-	mr	r3,r4
-	mr	r4,r6
-	b	memcpy
-
 	.globl	memmove
 memmove:
 	cmplw	0,r3,r4

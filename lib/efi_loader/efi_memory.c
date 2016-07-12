@@ -6,8 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-/* #define DEBUG_EFI */
-
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
@@ -24,8 +22,16 @@ struct efi_mem_list {
 	struct efi_mem_desc desc;
 };
 
+#define EFI_CARVE_NO_OVERLAP		-1
+#define EFI_CARVE_LOOP_AGAIN		-2
+#define EFI_CARVE_OVERLAPS_NONRAM	-3
+
 /* This list contains all memory map items */
 LIST_HEAD(efi_mem);
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+void *efi_bounce_buffer;
+#endif
 
 /*
  * Sorts the memory list from highest address to lowest address
@@ -74,11 +80,11 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 
 	/* check whether we're overlapping */
 	if ((carve_end <= map_start) || (carve_start >= map_end))
-		return 0;
+		return EFI_CARVE_NO_OVERLAP;
 
 	/* We're overlapping with non-RAM, warn the caller if desired */
 	if (overlap_only_ram && (map_desc->type != EFI_CONVENTIONAL_MEMORY))
-		return -1;
+		return EFI_CARVE_OVERLAPS_NONRAM;
 
 	/* Sanitize carve_start and carve_end to lie within our bounds */
 	carve_start = max(carve_start, map_start);
@@ -93,7 +99,7 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 
 		map_desc->physical_start = carve_end;
 		map_desc->num_pages = (map_end - carve_end) >> EFI_PAGE_SHIFT;
-		return 1;
+		return (carve_end - carve_start) >> EFI_PAGE_SHIFT;
 	}
 
 	/*
@@ -113,7 +119,7 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 	/* Shrink the map to [ map_start ... carve_start ] */
 	map_desc->num_pages = (carve_start - map_start) >> EFI_PAGE_SHIFT;
 
-	return 1;
+	return EFI_CARVE_LOOP_AGAIN;
 }
 
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
@@ -121,7 +127,8 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
-	bool do_carving;
+	bool carve_again;
+	uint64_t carved_pages = 0;
 
 	if (!pages)
 		return start;
@@ -148,7 +155,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 
 	/* Add our new map */
 	do {
-		do_carving = false;
+		carve_again = false;
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
 			int r;
@@ -156,14 +163,44 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			r = efi_mem_carve_out(lmem, &newlist->desc,
 					      overlap_only_ram);
-			if (r < 0) {
+			switch (r) {
+			case EFI_CARVE_OVERLAPS_NONRAM:
+				/*
+				 * The user requested to only have RAM overlaps,
+				 * but we hit a non-RAM region. Error out.
+				 */
 				return 0;
-			} else if (r) {
-				do_carving = true;
+			case EFI_CARVE_NO_OVERLAP:
+				/* Just ignore this list entry */
+				break;
+			case EFI_CARVE_LOOP_AGAIN:
+				/*
+				 * We split an entry, but need to loop through
+				 * the list again to actually carve it.
+				 */
+				carve_again = true;
+				break;
+			default:
+				/* We carved a number of pages */
+				carved_pages += r;
+				carve_again = true;
+				break;
+			}
+
+			if (carve_again) {
+				/* The list changed, we need to start over */
 				break;
 			}
 		}
-	} while (do_carving);
+	} while (carve_again);
+
+	if (overlap_only_ram && (carved_pages != pages)) {
+		/*
+		 * The payload wanted to have RAM overlaps, but we overlapped
+		 * with an unallocated region. Error out.
+		 */
+		return 0;
+	}
 
 	/* Add our new map */
         list_add_tail(&newlist->link, &efi_mem);
@@ -348,6 +385,18 @@ int efi_memory_init(void)
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(runtime_start, runtime_pages,
 			   EFI_RUNTIME_SERVICES_CODE, false);
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	/* Request a 32bit 64MB bounce buffer region */
+	uint64_t efi_bounce_buffer_addr = 0xffffffff;
+
+	if (efi_allocate_pages(1, EFI_LOADER_DATA,
+			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
+			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
+		return -1;
+
+	efi_bounce_buffer = (void*)(uintptr_t)efi_bounce_buffer_addr;
+#endif
 
 	return 0;
 }

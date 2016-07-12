@@ -45,7 +45,7 @@
 /* Rather than repeat this expression each time, add a define for it */
 #if defined(CONFIG_CMD_IDE) || \
 	defined(CONFIG_CMD_SATA) || \
-	defined(CONFIG_CMD_SCSI) || \
+	defined(CONFIG_SCSI) || \
 	defined(CONFIG_CMD_USB) || \
 	defined(CONFIG_CMD_PART) || \
 	defined(CONFIG_CMD_GPT) || \

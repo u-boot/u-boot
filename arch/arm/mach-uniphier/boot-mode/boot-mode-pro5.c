@@ -37,7 +37,7 @@ static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC  8, ONFI,            Addr 4)"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC 16, ONFI,            Addr 4)"},
 	{BOOT_DEVICE_NONE, "Reserved"},
-	{BOOT_DEVICE_MMC1, "eMMC Boot (1.8V)"},
+	{BOOT_DEVICE_MMC1, "eMMC (1.8V)"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC  8, EraseSize 128MB, Addr 5)"},

@@ -4,3 +4,10 @@ S:	Maintained
 F:	board/sandbox/
 F:	include/configs/sandbox.h
 F:	configs/sandbox_defconfig
+
+SANDBOX_NOBLK BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	board/sandbox/
+F:	include/configs/sandbox.h
+F:	configs/sandbox_noblk_defconfig

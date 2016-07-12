@@ -15,6 +15,7 @@
  */
 
 #include <config.h>
+#include <asm/unified.h>
 
 /*
  * Endian independent macros for shifting bytes within registers.

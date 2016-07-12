@@ -9,12 +9,6 @@ config USB_XHCI_HCD
 	  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
 	  "SuperSpeed" host controller hardware.
 
-config USB_XHCI
-	bool
-	default USB_XHCI_HCD
-	---help---
-	  TODO: rename after most boards switch to Kconfig
-
 if USB_XHCI_HCD
 
 config USB_XHCI_UNIPHIER
@@ -23,6 +17,12 @@ config USB_XHCI_UNIPHIER
 	default y
 	---help---
 	  Enables support for the on-chip xHCI controller on UniPhier SoCs.
+
+config USB_XHCI_DWC3
+	bool "DesignWare USB3 DRD Core Support"
+	help
+	  Say Y or if your system has a Dual Role SuperSpeed
+	  USB controller based on the DesignWare USB3 IP Core.
 
 endif
 

@@ -127,6 +127,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #define CONFIG_SDHCI_CMD_MAX_TIMEOUT		3200
 #endif
 #define CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT	100
+#define SDHCI_READ_STATUS_TIMEOUT		1000
 
 static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		       struct mmc_data *data)
@@ -137,7 +138,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	int trans_bytes = 0, is_aligned = 1;
 	u32 mask, flags, mode;
 	unsigned int time = 0, start_addr = 0;
-	int mmc_dev = mmc->block_dev.devnum;
+	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
 	unsigned start = get_timer(0);
 
 	/* Timeout unit - ms */
@@ -243,9 +244,9 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (stat & SDHCI_INT_ERROR)
 			break;
 	} while (((stat & mask) != mask) &&
-		 (get_timer(start) < CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT));
+		 (get_timer(start) < SDHCI_READ_STATUS_TIMEOUT));
 
-	if (get_timer(start) >= CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT) {
+	if (get_timer(start) >= SDHCI_READ_STATUS_TIMEOUT) {
 		if (host->quirks & SDHCI_QUIRK_BROKEN_R1B)
 			return 0;
 		else {

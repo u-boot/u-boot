@@ -469,6 +469,9 @@ int osd_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	for (screen = 0; screen < MAX_OSD_SCREEN; ++screen) {
+		if (!(osd_screen_mask & (1 << screen)))
+			continue;
+
 		OSD_SET_REG(screen, xy_size, ((x - 1) << 8) | (y - 1));
 		OSD_SET_REG(screen, x_pos, 32767 * (640 - 12 * x) / 65535);
 		OSD_SET_REG(screen, y_pos, 32767 * (480 - 18 * y) / 65535);

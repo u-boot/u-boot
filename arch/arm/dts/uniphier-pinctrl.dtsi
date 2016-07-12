@@ -47,6 +47,11 @@
 		function = "nand";
 	};
 
+	pinctrl_nand2cs: nand2cs_grp {
+		groups = "nand", "nand_cs1";
+		function = "nand";
+	};
+
 	pinctrl_sd: sd_grp {
 		groups = "sd";
 		function = "sd";
@@ -65,6 +70,11 @@
 	pinctrl_sd1_1v8: sd1_grp_1v8 {
 		groups = "sd1";
 		function = "sd1";
+	};
+
+	pinctrl_system_bus: system_bus_grp {
+		groups = "system_bus", "system_bus_cs1";
+		function = "system_bus";
 	};
 
 	pinctrl_uart0: uart0_grp {

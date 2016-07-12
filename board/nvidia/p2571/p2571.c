@@ -58,6 +58,6 @@ void pinmux_init(void)
 void start_cpu_fan(void)
 {
 	/* GPIO_PE4 is PS_VDD_FAN_ENABLE */
-	gpio_request(GPIO_PE4, "FAN_VDD");
-	gpio_direction_output(GPIO_PE4, 1);
+	gpio_request(TEGRA_GPIO(E, 4), "FAN_VDD");
+	gpio_direction_output(TEGRA_GPIO(E, 4), 1);
 }

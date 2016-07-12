@@ -25,8 +25,9 @@ enum {
 
 enum {
 	COMPRESSION_NONE = 0,
-	COMPRESSION_TYPE1_DELTA = 1,
-	COMPRESSION_TYPE1_TYPE2_DELTA = 3,
+	COMPRESSION_TYPE_1 = 1,
+	COMPRESSION_TYPE_1_2 = 3,
+	COMPRESSION_TYPE_1_2_3 = 7,
 };
 
 enum {
@@ -158,12 +159,16 @@ void ioep_fpga_print_info(unsigned int fpga)
 		printf(" no compression");
 		break;
 
-	case COMPRESSION_TYPE1_DELTA:
-		printf(" type1-deltacompression");
+	case COMPRESSION_TYPE_1:
+		printf(" compression type1(delta)");
 		break;
 
-	case COMPRESSION_TYPE1_TYPE2_DELTA:
-		printf(" type1-deltacompression, type2-inlinecompression");
+	case COMPRESSION_TYPE_1_2:
+		printf(" compression type1(delta), type2(inline)");
+		break;
+
+	case COMPRESSION_TYPE_1_2_3:
+		printf(" compression type1(delta), type2(inline), type3(intempo)");
 		break;
 
 	default:
