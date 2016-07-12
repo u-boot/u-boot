@@ -17,6 +17,10 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/nand.h>
+#include <linux/mtd/nand.h>
+#include <linux/mtd/onenand.h>
+#include <jffs2/load_kernel.h>
 #include "igep00x0.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -56,7 +60,25 @@ U_BOOT_DEVICE(igep_uart) = {
  */
 int board_init(void)
 {
-	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
+	int loops = 100;
+
+	/* find out flash memory type, assume NAND first */
+	gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
+	gpmc_init();
+
+	/* Issue a RESET and then READID */
+	writeb(NAND_CMD_RESET, &gpmc_cfg->cs[0].nand_cmd);
+	writeb(NAND_CMD_STATUS, &gpmc_cfg->cs[0].nand_cmd);
+	while ((readl(&gpmc_cfg->cs[0].nand_dat) & NAND_STATUS_READY)
+	                                        != NAND_STATUS_READY) {
+		udelay(1);
+		if (--loops == 0) {
+			gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
+			gpmc_init();	/* reinitialize for OneNAND */
+			break;
+		}
+	}
+
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
@@ -75,28 +97,41 @@ int board_init(void)
  */
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
-	timings->mr = MICRON_V_MR_165;
-#ifdef CONFIG_BOOT_NAND
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-	timings->ctrla = MICRON_V_ACTIMA_200;
-	timings->ctrlb = MICRON_V_ACTIMB_200;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
-#else
-	if (get_cpu_family() == CPU_OMAP34XX) {
-		timings->mcfg = NUMONYX_V_MCFG_165(256 << 20);
-		timings->ctrla = NUMONYX_V_ACTIMA_165;
-		timings->ctrlb = NUMONYX_V_ACTIMB_165;
-		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	int mfr, id, err = identify_nand_chip(&mfr, &id);
 
-	} else {
-		timings->mcfg = NUMONYX_V_MCFG_200(256 << 20);
-		timings->ctrla = NUMONYX_V_ACTIMA_200;
-		timings->ctrlb = NUMONYX_V_ACTIMB_200;
+	timings->mr = MICRON_V_MR_165;
+	if (!err && mfr == NAND_MFR_MICRON) {
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
+	} else {
+		if (get_cpu_family() == CPU_OMAP34XX) {
+			timings->mcfg = NUMONYX_V_MCFG_165(256 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_165;
+			timings->ctrlb = NUMONYX_V_ACTIMB_165;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		} else {
+			timings->mcfg = NUMONYX_V_MCFG_200(256 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_200;
+			timings->ctrlb = NUMONYX_V_ACTIMB_200;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		}
+		gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
 	}
-#endif
 }
 #endif
+
+int onenand_board_init(struct mtd_info *mtd)
+{
+	if (gpmc_cs0_flash == MTD_DEV_TYPE_ONENAND) {
+		struct onenand_chip *this = mtd->priv;
+		this->base = (void *)CONFIG_SYS_ONENAND_BASE;
+		return 0;
+	}
+	return 1;
+}
 
 #if defined(CONFIG_CMD_NET)
 static void reset_net_chip(int gpio)
