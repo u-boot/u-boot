@@ -169,7 +169,7 @@ static int ebi_write_bufferram(struct mtd_info *mtd, loff_t addr, int area,
 	return 0;
 }
 
-void onenand_board_init(struct mtd_info *mtd)
+int onenand_board_init(struct mtd_info *mtd)
 {
 	struct onenand_chip *chip = mtd->priv;
 
@@ -181,4 +181,6 @@ void onenand_board_init(struct mtd_info *mtd)
 
 	chip->read_bufferram = ebi_read_bufferram;
 	chip->write_bufferram = ebi_write_bufferram;
+
+	return 0;
 }

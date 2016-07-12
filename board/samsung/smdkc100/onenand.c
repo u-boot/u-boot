@@ -16,7 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 
-void onenand_board_init(struct mtd_info *mtd)
+int onenand_board_init(struct mtd_info *mtd)
 {
 	struct onenand_chip *this = mtd->priv;
 	struct s5pc100_clock *clk =
@@ -65,4 +65,6 @@ void onenand_board_init(struct mtd_info *mtd)
 	writel(value, &onenand->int_err_mask);
 
 	s3c_onenand_init(mtd);
+
+	return 0;
 }

@@ -26,7 +26,7 @@ extern struct mtd_info onenand_mtd;
 extern struct onenand_chip onenand_chip;
 
 /* board */
-extern void onenand_board_init(struct mtd_info *);
+extern int onenand_board_init(struct mtd_info *);
 
 /* Functions */
 extern void onenand_init(void);
