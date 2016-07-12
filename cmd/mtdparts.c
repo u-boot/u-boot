@@ -1720,11 +1720,13 @@ int mtdparts_init(void)
 	 * before the env is relocated, then we need to use our own stack
 	 * buffer.  gd->env_buf will be too small.
 	 */
-	if (gd->flags & GD_FLG_ENV_READY) {
+	if (gd->flags & GD_FLG_ENV_READY)
 		parts = getenv("mtdparts");
-	} else {
-		parts = tmp_parts;
-		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
+	else {
+		if (getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN) != -1)
+			parts = tmp_parts;
+		else
+			parts = NULL;
 	}
 	current_partition = getenv("partition");
 
