@@ -128,7 +128,7 @@ void board_mmc_power_init(void)
 #define GPMC_BASEADDR_MASK	0x3F
 #define GPMC_CS_ENABLE		0x1
 
-static void enable_gpmc_net_config(const u32 *gpmc_config, struct gpmc_cs *cs,
+static void enable_gpmc_net_config(const u32 *gpmc_config, const struct gpmc_cs *cs,
 		u32 base, u32 size)
 {
 	writel(0, &cs->config7);

@@ -43,8 +43,8 @@ void get_board_mem_timings(struct board_sdrc_timings *timings);
 int identify_nand_chip(int *mfr, int *id);
 void emif4_init(void);
 void gpmc_init(void);
-void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
-			u32 size);
+void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs,
+				u32 base, u32 size);
 
 void watchdog_init(void);
 void set_muxconf_regs(void);

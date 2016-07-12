@@ -21,7 +21,7 @@
 #include <command.h>
 #include <linux/mtd/omap_gpmc.h>
 
-struct gpmc *gpmc_cfg;
+const struct gpmc *gpmc_cfg = (struct gpmc *)GPMC_BASE;
 
 #if defined(CONFIG_OMAP34XX)
 /********************************************************
@@ -50,8 +50,8 @@ u32 mem_ok(u32 cs)
 }
 #endif
 
-void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
-			u32 size)
+void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs,
+				u32 base, u32 size)
 {
 	writel(0, &cs->config7);
 	sdelay(1000);
@@ -75,8 +75,6 @@ void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
  *****************************************************/
 void gpmc_init(void)
 {
-	/* putting a blanket check on GPMC based on ZeBu for now */
-	gpmc_cfg = (struct gpmc *)GPMC_BASE;
 #if defined(CONFIG_NOR)
 /* configure GPMC for NOR */
 	const u32 gpmc_regs[GPMC_MAX_REG] = {	STNOR_GPMC_CONFIG1,
