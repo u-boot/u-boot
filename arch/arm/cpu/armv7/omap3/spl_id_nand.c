@@ -20,29 +20,16 @@
 
 static struct gpmc *gpmc_config = (struct gpmc *)GPMC_BASE;
 
-/* nand_command: Send a flash command to the flash chip */
-static void nand_command(u8 command)
-{
-	writeb(command, &gpmc_config->cs[0].nand_cmd);
-
-	if (command == NAND_CMD_RESET) {
-		unsigned char ret_val;
-		writeb(NAND_CMD_STATUS, &gpmc_config->cs[0].nand_cmd);
-		do {
-			/* Wait until ready */
-			ret_val = readl(&gpmc_config->cs[0].nand_dat);
-		} while ((ret_val & NAND_STATUS_READY) != NAND_STATUS_READY);
-	}
-}
-
 /*
  * Many boards will want to know the results of the NAND_CMD_READID command
  * in order to decide what to do about DDR initialization.  This function
  * allows us to do that very early and to pass those results back to the
  * board so it can make whatever decisions need to be made.
  */
-void identify_nand_chip(int *mfr, int *id)
+int identify_nand_chip(int *mfr, int *id)
 {
+	int loops = 1000;
+
 	/* Make sure that we have setup GPMC for NAND correctly. */
 	writel(M_NAND_GPMC_CONFIG1, &gpmc_config->cs[0].config1);
 	writel(M_NAND_GPMC_CONFIG2, &gpmc_config->cs[0].config2);
@@ -62,8 +49,15 @@ void identify_nand_chip(int *mfr, int *id)
 	sdelay(2000);
 
 	/* Issue a RESET and then READID */
-	nand_command(NAND_CMD_RESET);
-	nand_command(NAND_CMD_READID);
+	writeb(NAND_CMD_RESET, &gpmc_config->cs[0].nand_cmd);
+	writeb(NAND_CMD_STATUS, &gpmc_config->cs[0].nand_cmd);
+	while ((readl(&gpmc_config->cs[0].nand_dat) & NAND_STATUS_READY)
+	                                           != NAND_STATUS_READY) {
+		sdelay(100);
+		if (--loops == 0)
+			return 1;
+	}
+	writeb(NAND_CMD_READID, &gpmc_config->cs[0].nand_cmd);
 
 	/* Set the address to read to 0x0 */
 	writeb(0x0, &gpmc_config->cs[0].nand_adr);
@@ -71,4 +65,6 @@ void identify_nand_chip(int *mfr, int *id)
 	/* Read off the manufacturer and device id. */
 	*mfr = readb(&gpmc_config->cs[0].nand_dat);
 	*id = readb(&gpmc_config->cs[0].nand_dat);
+
+	return 0;
 }
