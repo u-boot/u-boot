@@ -39,18 +39,6 @@ const omap3_sysinfo sysinfo = {
 #endif
 };
 
-#if defined(CONFIG_CMD_NET)
-/* GPMC definitions for LAN9221 chips */
-static const u32 gpmc_lan_config[] = {
-	NET_LAN9221_GPMC_CONFIG1,
-	NET_LAN9221_GPMC_CONFIG2,
-	NET_LAN9221_GPMC_CONFIG3,
-	NET_LAN9221_GPMC_CONFIG4,
-	NET_LAN9221_GPMC_CONFIG5,
-	NET_LAN9221_GPMC_CONFIG6,
-};
-#endif
-
 static const struct ns16550_platdata igep_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
@@ -119,7 +107,6 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 #endif
 
 #if defined(CONFIG_CMD_NET)
-
 static void reset_net_chip(int gpio)
 {
 	if (!gpio_request(gpio, "eth nrst")) {
@@ -140,6 +127,14 @@ static void reset_net_chip(int gpio)
 static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
+	static const u32 gpmc_lan_config[] = {
+		NET_LAN9221_GPMC_CONFIG1,
+		NET_LAN9221_GPMC_CONFIG2,
+		NET_LAN9221_GPMC_CONFIG3,
+		NET_LAN9221_GPMC_CONFIG4,
+		NET_LAN9221_GPMC_CONFIG5,
+		NET_LAN9221_GPMC_CONFIG6,
+	};
 
 	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5],
 			CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
@@ -153,6 +148,15 @@ static void setup_net_chip(void)
 		&ctrl_base->gpmc_nadv_ale);
 
 	reset_net_chip(64);
+}
+
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_SMC911X
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#else
+	return 0;
+#endif
 }
 #else
 static inline void setup_net_chip(void) {}
@@ -219,14 +223,3 @@ void set_muxconf_regs(void)
 	MUX_IGEP0030();
 #endif
 }
-
-#if defined(CONFIG_CMD_NET)
-int board_eth_init(bd_t *bis)
-{
-#ifdef CONFIG_SMC911X
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#else
-	return 0;
-#endif
-}
-#endif
