@@ -12,6 +12,7 @@
 
 int board_early_init_f(void)
 {
+#ifndef CONFIG_INTERNAL_UART
 	/*
 	 * The FSP enables the BayTrail internal legacy UART (again).
 	 * Disable it again, so that the Winbond one can be used.
@@ -21,6 +22,7 @@ int board_early_init_f(void)
 	/* Enable the legacy UART in the Winbond W83627 Super IO chip */
 	winbond_enable_serial(PNP_DEV(WINBOND_IO_PORT, W83627DHG_SP1),
 			      UART0_BASE, UART0_IRQ);
+#endif
 
 	return 0;
 }

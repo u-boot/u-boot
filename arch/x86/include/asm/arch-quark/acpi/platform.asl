@@ -22,6 +22,9 @@ Method(_WAK, 1)
 	Return (Package() {0, 0})
 }
 
+/* ACPI global NVS */
+#include "global_nvs.asl"
+
 /* TODO: add CPU ASL support */
 
 Scope (\_SB)

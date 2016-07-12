@@ -458,6 +458,11 @@ int dram_init(void)
 	struct udevice *dev, *me_dev;
 	int ret;
 
+	/* We need the pinctrl set up early */
+	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
+	if (ret)
+		return ret;
+
 	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
 	if (ret)
 		return ret;

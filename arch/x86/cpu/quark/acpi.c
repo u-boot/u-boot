@@ -9,6 +9,7 @@
 #include <asm/ioapic.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>
+#include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
@@ -160,4 +161,10 @@ u32 acpi_fill_madt(u32 current)
 	current += acpi_create_madt_irq_overrides(current);
 
 	return current;
+}
+
+void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+{
+	/* quark is a uni-processor */
+	gnvs->pcnt = 1;
 }

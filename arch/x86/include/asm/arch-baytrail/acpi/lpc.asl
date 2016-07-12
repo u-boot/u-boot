@@ -119,17 +119,14 @@ Device (LPCB)
 
 		Method(_STA, 0, Serialized)
 		{
-			/*
-			 * TODO:
-			 *
-			 * Need to hide the internal UART depending on whether
-			 * internal UART is enabled or not so that external
-			 * SuperIO UART can be exposed to system.
-			 */
-			Store(1, UI3E)
-			Store(1, UI4E)
-			Store(1, C1EN)
-			Return (STA_VISIBLE)
+			If (LEqual(IURE, 1)) {
+				Store(1, UI3E)
+				Store(1, UI4E)
+				Store(1, C1EN)
+				Return (STA_VISIBLE)
+			} Else {
+				Return (STA_MISSING)
+			}
 
 		}
 
