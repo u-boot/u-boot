@@ -22,6 +22,8 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 /* Uncomment to enable secure boot support */
 /* #define CONFIG_SECURE_BOOT */
 #define CONFIG_CSF_SIZE			0x4000
