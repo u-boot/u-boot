@@ -114,8 +114,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX7
 #define CONFIG_USB_STORAGE
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
