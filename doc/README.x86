@@ -314,6 +314,10 @@ Offset   Description         Controlling config
 
 Overall ROM image size is controlled by CONFIG_ROM_SIZE.
 
+Note that the debug version of the FSP is bigger in size. If this version
+is used, CONFIG_FSP_ADDR needs to be configured to 0xfffb0000 instead of
+the default value 0xfffc0000.
+
 ---
 
 Intel Galileo instructions for bare mode:
