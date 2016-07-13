@@ -40,3 +40,7 @@
 		};
 	};
 };
+
+&dwc3_0 {
+	/* USB works - also bootrom DFU */
+};
