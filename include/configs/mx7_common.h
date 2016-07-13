@@ -28,6 +28,8 @@
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
 
+#define CONFIG_ARCH_MISC_INIT
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
