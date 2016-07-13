@@ -386,6 +386,7 @@ static inline void qspi_ahb_read(struct fsl_qspi_priv *priv, u8 *rxbuf, int len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
 	u32 mcr_reg;
+	void *rx_addr = NULL;
 
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 
@@ -393,8 +394,9 @@ static inline void qspi_ahb_read(struct fsl_qspi_priv *priv, u8 *rxbuf, int len)
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
 		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
 
+	rx_addr = (void *)(uintptr_t)(priv->cur_amba_base + priv->sf_addr);
 	/* Read out the data directly from the AHB buffer. */
-	memcpy(rxbuf, (u8 *)(priv->cur_amba_base + priv->sf_addr), len);
+	memcpy(rxbuf, rx_addr, len);
 
 	qspi_write32(priv->flags, &regs->mcr, mcr_reg);
 }
