@@ -3,6 +3,8 @@ if ARCH_MX7
 config MX7
 	bool
 	select ROM_UNIFIED_SECTIONS
+	select CPU_V7_HAS_VIRT
+	select CPU_V7_HAS_NONSEC
 	default y
 
 config MX7D
