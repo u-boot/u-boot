@@ -49,7 +49,7 @@
 #define USBNC_OFFSET		0x200
 #define USBNC_PHYSTATUS_ID_DIG	(1 << 4) /* otg_id status */
 #define USBNC_PHYCFG2_ACAENB	(1 << 4) /* otg_id detection enable */
-#define UCTRL_PM                (1 << 9) /* OTG Power Mask */
+#define UCTRL_PWR_POL		(1 << 9) /* OTG Polarity of Power Pin */
 #define UCTRL_OVER_CUR_POL	(1 << 8) /* OTG Polarity of Overcurrent */
 #define UCTRL_OVER_CUR_DIS	(1 << 7) /* Disable OTG Overcurrent Detection */
 
@@ -207,12 +207,16 @@ static void usb_power_config(int index)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
 	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
+	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl1);
 
 	/*
 	 * Clear the ACAENB to enable usb_otg_id detection,
 	 * otherwise it is the ACA detection enabled.
 	 */
 	clrbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
+
+	/* Set power polarity to high active */
+	setbits_le32(ctrl, UCTRL_PWR_POL);
 }
 
 int usb_phy_mode(int port)
@@ -250,11 +254,7 @@ static void usb_oc_config(int index)
 	setbits_le32(ctrl, UCTRL_OVER_CUR_POL);
 #endif
 
-#if defined(CONFIG_MX6)
 	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS);
-#elif defined(CONFIG_MX7)
-	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS | UCTRL_PM);
-#endif
 }
 
 /**
