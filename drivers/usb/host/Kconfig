@@ -81,6 +81,15 @@ config USB_EHCI_MX7
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX7 SoCs.
 
+if USB_EHCI_MX7
+
+config MXC_USB_OTG_HACTIVE
+	bool "USB Power pin high active"
+	---help---
+	  Set the USB Power pin polarity to be high active (PWR_POL)
+
+endif
+
 config USB_EHCI_MSM
 	bool "Support for Qualcomm on-chip EHCI USB controller"
 	depends on DM_USB

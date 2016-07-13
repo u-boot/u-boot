@@ -216,7 +216,11 @@ static void usb_power_config(int index)
 	clrbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
 
 	/* Set power polarity to high active */
+#ifdef CONFIG_MXC_USB_OTG_HACTIVE
 	setbits_le32(ctrl, UCTRL_PWR_POL);
+#else
+	clrbits_le32(ctrl, UCTRL_PWR_POL);
+#endif
 }
 
 int usb_phy_mode(int port)
