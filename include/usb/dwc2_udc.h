@@ -12,6 +12,8 @@
 #define PHY0_SLEEP              (1 << 5)
 
 struct dwc2_plat_otg_data {
+	void		*priv;
+	int		phy_of_node;
 	int		(*phy_control)(int on);
 	unsigned int	regs_phy;
 	unsigned int	regs_otg;
