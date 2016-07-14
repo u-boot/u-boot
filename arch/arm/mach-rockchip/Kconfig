@@ -2,6 +2,7 @@ if ARCH_ROCKCHIP
 
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
+	select CPU_V7
 	help
 	  The Rockchip RK3288 is a ARM-based SoC with a quad-core Cortex-A17
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
@@ -11,6 +12,7 @@ config ROCKCHIP_RK3288
 
 config ROCKCHIP_RK3036
 	bool "Support Rockchip RK3036"
+	select CPU_V7
 	help
 	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options

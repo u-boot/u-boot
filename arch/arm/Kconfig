@@ -843,7 +843,6 @@ config ARCH_ROCKCHIP
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
-	select CPU_V7
 	select BLK
 	select DM
 	select SPL_DM
