@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <clk.h>
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
@@ -108,8 +109,33 @@ static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct zynq_uart_priv *priv = dev_get_priv(dev);
-	unsigned long clock = get_uart_clk(0);
+	unsigned long clock;
 
+#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
+	int ret;
+	struct clk clk;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(dev, "failed to get rate\n");
+		return clock;
+	}
+	debug("%s: CLK %ld\n", __func__, clock);
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+#else
+	clock = get_uart_clk(0);
+#endif
 	_uart_zynq_serial_setbrg(priv->regs, clock, baudrate);
 
 	return 0;
