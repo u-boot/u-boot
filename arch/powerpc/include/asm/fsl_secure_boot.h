@@ -35,7 +35,9 @@
 	defined(CONFIG_T104xD4RDB) || \
 	defined(CONFIG_PPC_T1023) || \
 	defined(CONFIG_PPC_T1024)
+#ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CPC_REINIT_F
+#endif
 #define CONFIG_KEY_REVOCATION
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
@@ -43,7 +45,13 @@
 
 #if defined(CONFIG_RAMBOOT_PBL)
 #undef CONFIG_SYS_INIT_L3_ADDR
-#define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
+#ifdef CONFIG_SYS_INIT_L3_VADDR
+#define CONFIG_SYS_INIT_L3_ADDR	\
+			(CONFIG_SYS_INIT_L3_VADDR & ~0xFFF00000) | \
+					0xbff00000
+#else
+#define CONFIG_SYS_INIT_L3_ADDR		0xbff00000
+#endif
 #endif
 
 #if defined(CONFIG_C29XPCIE)
