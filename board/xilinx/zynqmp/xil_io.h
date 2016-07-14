@@ -7,6 +7,7 @@
 
 /* FIXME remove this when vivado is fixed */
 #include <asm/io.h>
+#include <common.h>
 
 #define xil_printf(...)
 
@@ -42,5 +43,13 @@ __weak void prog_reg(unsigned long addr, unsigned long mask,
 	rdata = rdata | (value << shift);
 	Xil_Out32(addr,rdata);
 }
+
+void mask_delay(u32 delay);
+void usleep(u32 sleep)
+{
+	udelay(sleep);
+}
+int mask_poll(u32 add, u32 mask);
+int mask_pollOnValue(u32 add, u32 mask, u32 value);
 
 #endif /* XIL_IO_H */
