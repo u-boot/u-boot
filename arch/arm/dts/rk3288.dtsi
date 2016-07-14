@@ -454,6 +454,7 @@
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru HCLK_OTG0>;
 		clock-names = "otg";
+		dr_mode = "otg";
 		phys = <&usbphy0>;
 		phy-names = "usb2-phy";
 		status = "disabled";

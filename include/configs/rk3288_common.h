@@ -84,6 +84,32 @@
 #define CONFIG_SPI
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
+/* usb otg */
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_DWC2_OTG
+#define CONFIG_ROCKCHIP_USB2_PHY
+#define CONFIG_USB_GADGET_VBUS_DRAW	0
+
+/* fastboot  */
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_USB_FUNCTION_FASTBOOT
+#define CONFIG_FASTBOOT_FLASH
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV	1	/* eMMC */
+/* stroe safely fastboot buffer data to the middle of bank */
+#define CONFIG_FASTBOOT_BUF_ADDR	(CONFIG_SYS_SDRAM_BASE \
+					+ SDRAM_BANK_SIZE / 2)
+#define CONFIG_FASTBOOT_BUF_SIZE	0x08000000
+
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_G_DNL_MANUFACTURER	"Rockchip"
+#define CONFIG_G_DNL_VENDOR_NUM		0x2207
+#define CONFIG_G_DNL_PRODUCT_NUM	0x320a
+
+/* Enable gpt partition table */
+#define CONFIG_CMD_GPT
+#define CONFIG_EFI_PARTITION
+
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 
