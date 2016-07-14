@@ -28,6 +28,14 @@ void construct_pamu_addr_table(struct pamu_addr_tbl *tbl, int *num_entries)
 
 	i++;
 #endif
+#if (defined(CONFIG_SPL_BUILD) && (CONFIG_SYS_INIT_L3_VADDR))
+	tbl->start_addr[i] =
+		(uint64_t)virt_to_phys((void *)CONFIG_SYS_INIT_L3_VADDR);
+	tbl->size[i] = 256 * 1024; /* 256K CPC flash */
+	tbl->end_addr[i] = tbl->start_addr[i] +  tbl->size[i] - 1;
+
+	i++;
+#endif
 	debug("PAMU address\t\t\tsize\n");
 	for (j = 0; j < i ; j++)
 		debug("%llx \t\t\t%llx\n",  tbl->start_addr[j],  tbl->size[j]);
