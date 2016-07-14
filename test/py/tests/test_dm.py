@@ -33,3 +33,11 @@ def test_dm_static(u_boot_console):
     response = u_boot_console.run_command('dm drivers')
     for driver in drivers:
         assert driver in response
+
+@pytest.mark.buildconfigspec("cmd_dm")
+def test_dm_uclass(u_boot_console):
+    response = u_boot_console.run_command("dm uclass")
+
+@pytest.mark.buildconfigspec("cmd_dm")
+def test_dm_devres(u_boot_console):
+    response = u_boot_console.run_command("dm devres")
