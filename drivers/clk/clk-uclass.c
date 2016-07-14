@@ -20,31 +20,6 @@ static inline struct clk_ops *clk_dev_ops(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-#ifdef CONFIG_SPL_BUILD
-int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
-{
-	int ret;
-	u32 cell[2];
-
-	if (index != 0)
-		return -ENOSYS;
-	assert(clk);
-	ret = uclass_get_device(UCLASS_CLK, 0, &clk->dev);
-	if (ret)
-		return ret;
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "clocks",
-				   cell, 2);
-	if (ret)
-		return ret;
-	clk->id = cell[1];
-	return 0;
-}
-
-int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
-{
-	return -ENOSYS;
-}
-#else
 static int clk_of_xlate_default(struct clk *clk,
 				struct fdtdec_phandle_args *args)
 {
@@ -117,7 +92,6 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	return clk_get_by_index(dev, index, clk);
 }
-#endif
 #endif
 
 int clk_request(struct udevice *dev, struct clk *clk)
