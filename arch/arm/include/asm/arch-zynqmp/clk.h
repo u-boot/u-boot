@@ -8,7 +8,6 @@
 #ifndef _ASM_ARCH_CLK_H_
 #define _ASM_ARCH_CLK_H_
 
-unsigned long get_uart_clk(int dev_id);
 unsigned long zynqmp_get_system_timer_freq(void);
 
 #endif /* _ASM_ARCH_CLK_H_ */
