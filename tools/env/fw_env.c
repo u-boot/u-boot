@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <env_flags.h>
 #include <fcntl.h>
+#include <linux/fs.h>
 #include <linux/stringify.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -51,7 +52,7 @@ struct env_opts default_opts = {
 
 struct envdev_s {
 	const char *devname;		/* Device name */
-	ulong devoff;			/* Device offset */
+	long long devoff;		/* Device offset */
 	ulong env_size;			/* environment size */
 	ulong erase_size;		/* device erase size */
 	ulong env_sectors;		/* number of environment sectors */
@@ -994,7 +995,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "Writing new environment at 0x%lx on %s\n",
+	fprintf(stderr, "Writing new environment at 0x%llx on %s\n",
 		DEVOFFSET (dev_target), DEVNAME (dev_target));
 #endif
 
@@ -1010,7 +1011,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 			offsetof (struct env_image_redundant, flags);
 #ifdef DEBUG
 		fprintf(stderr,
-			"Setting obsolete flag in environment at 0x%lx on %s\n",
+			"Setting obsolete flag in environment at 0x%llx on %s\n",
 			DEVOFFSET (dev_current), DEVNAME (dev_current));
 #endif
 		flash_flag_obsolete (dev_current, fd_current, offset);
@@ -1335,7 +1336,27 @@ static int check_device_config(int dev)
 		}
 		DEVTYPE(dev) = mtdinfo.type;
 	} else {
+		uint64_t size;
 		DEVTYPE(dev) = MTD_ABSENT;
+
+		/*
+		 * Check for negative offsets, treat it as backwards offset
+		 * from the end of the block device
+		 */
+		if (DEVOFFSET(dev) < 0) {
+			rc = ioctl(fd, BLKGETSIZE64, &size);
+			if (rc < 0) {
+				fprintf(stderr, "Could not get block device size on %s\n",
+					DEVNAME(dev));
+				goto err;
+			}
+
+			DEVOFFSET(dev) = DEVOFFSET(dev) + size;
+#ifdef DEBUG
+			fprintf(stderr, "Calculated device offset 0x%llx on %s\n",
+				DEVOFFSET(dev), DEVNAME(dev));
+#endif
+		}
 	}
 
 err:
@@ -1434,12 +1455,12 @@ static int get_config (char *fname)
 		if (dump[0] == '#')
 			continue;
 
-		rc = sscanf (dump, "%ms %lx %lx %lx %lx",
-			     &devname,
-			     &DEVOFFSET (i),
-			     &ENVSIZE (i),
-			     &DEVESIZE (i),
-			     &ENVSECTORS (i));
+		rc = sscanf(dump, "%ms %lli %lx %lx %lx",
+			    &devname,
+			    &DEVOFFSET(i),
+			    &ENVSIZE(i),
+			    &DEVESIZE(i),
+			    &ENVSECTORS(i));
 
 		if (rc < 3)
 			continue;
