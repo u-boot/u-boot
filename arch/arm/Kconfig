@@ -669,6 +669,8 @@ config ARCH_ZYNQMP
 	select OF_CONTROL
 	select DM_SERIAL
 	select SUPPORT_SPL
+	select CLK
+	select SPL_CLK
 
 config TEGRA
 	bool "NVIDIA Tegra"
