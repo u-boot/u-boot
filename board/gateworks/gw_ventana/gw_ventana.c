@@ -1085,6 +1085,7 @@ void ft_board_pci_fixup(void *blob, bd_t *bd)
  */
 #define UART1_PATH	"/soc/aips-bus@02100000/serial@021ec000"
 #define WDOG1_PATH	"/soc/aips-bus@02000000/wdog@020bc000"
+#define WDOG2_PATH	"/soc/aips-bus@02000000/wdog@020c0000"
 #define GPIO3_PATH	"/soc/aips-bus@02000000/gpio@020a4000"
 int ft_board_setup(void *blob, bd_t *bd)
 {
@@ -1152,6 +1153,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 			if (i)
 				fdt_status_disabled(blob, i);
 		}
+
+		/* GW51xx-E adds WDOG1_B external reset */
+		if (rev < 'E')
+			ft_delprop_path(blob, WDOG1_PATH,
+					"fsl,ext-reset-output");
 		break;
 
 	case GW52xx:
@@ -1180,10 +1186,24 @@ int ft_board_setup(void *blob, bd_t *bd)
 			if (strstr((const char *)info->model, "SP318-B") ||
 			    strstr((const char *)info->model, "SP331-B"))
 				gpio_cfg[board_type].usd_vsel = 0;
+
+			/* GW520x-E adds WDOG1_B external reset */
+			if (info->model[4] == '0' && rev < 'E')
+				ft_delprop_path(blob, WDOG1_PATH,
+						"fsl,ext-reset-output");
+
+			/* GW522x-B adds WDOG1_B external reset */
+			if (info->model[4] == '2' && rev < 'B')
+				ft_delprop_path(blob, WDOG1_PATH,
+						"fsl,ext-reset-output");
 		}
 		break;
 
 	case GW53xx:
+		/* GW53xx-E adds WDOG1_B external reset */
+		if (rev < 'E')
+			ft_delprop_path(blob, WDOG1_PATH,
+					"fsl,ext-reset-output");
 		break;
 
 	case GW54xx:
@@ -1194,6 +1214,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		i = fdt_path_offset(blob, UART1_PATH);
 		if (i)
 			fdt_del_node(blob, i);
+
+		/* GW54xx-E adds WDOG2_B external reset */
+		if (rev < 'E')
+			ft_delprop_path(blob, WDOG2_PATH,
+					"fsl,ext-reset-output");
 		break;
 
 	case GW551x:
@@ -1239,6 +1264,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 			/* set BT656 video format */
 			ft_sethdmiinfmt(blob, "yuv422bt656");
 		}
+
+		/* GW551x-C adds WDOG1_B external reset */
+		if (rev < 'C')
+			ft_delprop_path(blob, WDOG1_PATH,
+					"fsl,ext-reset-output");
 		break;
 	}
 
