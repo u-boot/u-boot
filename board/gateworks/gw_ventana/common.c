@@ -487,6 +487,42 @@ struct dio_cfg gw552x_dio[] = {
 		{ 0, 0 },
 		0
 	},
+	{
+		{IOMUX_PADS(PAD_CSI0_PIXCLK__GPIO5_IO18) },
+		IMX_GPIO_NR(5, 18),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20) },
+		IMX_GPIO_NR(5, 20),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_VSYNC__GPIO5_IO21) },
+		IMX_GPIO_NR(5, 21),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT4__GPIO5_IO22) },
+		IMX_GPIO_NR(5, 22),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT5__GPIO5_IO23) },
+		IMX_GPIO_NR(5, 23),
+		{ 0, 0 },
+		0
+	},
+	{
+		{IOMUX_PADS(PAD_CSI0_DAT7__GPIO5_IO25) },
+		IMX_GPIO_NR(5, 25),
+		{ 0, 0 },
+		0
+	},
 };
 
 struct dio_cfg gw553x_dio[] = {
