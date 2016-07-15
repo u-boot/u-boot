@@ -123,21 +123,21 @@ config QCA953X_PINCTRL
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
 
-config ROCKCHIP_RK3288_PINCTRL
-	bool "Rockchip pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3288 SoCs. The driver
-	  is controlled by a device tree node which contains both the GPIO
-	  definitions and pin control functions for each available multiplex
-	  function.
-
 config ROCKCHIP_RK3036_PINCTRL
 	bool "Rockchip rk3036 pin control driver"
 	depends on DM
 	help
 	  Support pin multiplexing control on Rockchip rk3036 SoCs. The driver is
 	  controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
+config ROCKCHIP_RK3288_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3288 SoCs. The driver
+	  is controlled by a device tree node which contains both the GPIO
 	  definitions and pin control functions for each available multiplex
 	  function.
 

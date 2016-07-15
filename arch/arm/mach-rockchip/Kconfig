@@ -1,5 +1,14 @@
 if ARCH_ROCKCHIP
 
+config ROCKCHIP_RK3036
+	bool "Support Rockchip RK3036"
+	select CPU_V7
+	help
+	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
+	  including NEON and GPU, Mali-400 graphics, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7
@@ -10,15 +19,6 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART,s, SPI, I2C and PWMs.
 
-config ROCKCHIP_RK3036
-	bool "Support Rockchip RK3036"
-	select CPU_V7
-	help
-	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
-	  including NEON and GPU, Mali-400 graphics, several DDR3 options
-	  and video codec support. Peripherals include Gigabit Ethernet,
-	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
-
 config ROCKCHIP_SPL_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
@@ -27,6 +27,6 @@ config ROCKCHIP_SPL_BACK_TO_BROM
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
-source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
+source "arch/arm/mach-rockchip/rk3288/Kconfig"
 endif
