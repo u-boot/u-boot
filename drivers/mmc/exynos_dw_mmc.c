@@ -23,8 +23,21 @@
 #define	DWMMC_MMC0_SDR_TIMING_VAL	0x03030001
 #define	DWMMC_MMC2_SDR_TIMING_VAL	0x03020001
 
+#ifdef CONFIG_DM_MMC
+#include <dm.h>
+DECLARE_GLOBAL_DATA_PTR;
+
+struct exynos_mmc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+#endif
+
 /* Exynos implmentation specific drver private data */
 struct dwmci_exynos_priv_data {
+#ifdef CONFIG_DM_MMC
+	struct dwmci_host host;
+#endif
 	u32 sdr_timing;
 };
 
@@ -80,11 +93,10 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 		exynos_dwmci_clksel(host);
 }
 
-static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
+static int exynos_dwmci_core_init(struct dwmci_host *host)
 {
 	unsigned int div;
 	unsigned long freq, sclk;
-	struct dwmci_exynos_priv_data *priv = host->priv;
 
 	if (host->bus_hz)
 		freq = host->bus_hz;
@@ -92,10 +104,10 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 		freq = DWMMC_MAX_FREQ;
 
 	/* request mmc clock vlaue of 52MHz.  */
-	sclk = get_mmc_clk(index);
+	sclk = get_mmc_clk(host->dev_index);
 	div = DIV_ROUND_UP(sclk, freq);
 	/* set the clock divisor for mmc */
-	set_mmc_clk(index, div);
+	set_mmc_clk(host->dev_index, div);
 
 	host->name = "EXYNOS DWMMC";
 #ifdef CONFIG_EXYNOS5420
@@ -103,78 +115,35 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 #endif
 	host->board_init = exynos_dwmci_board_init;
 
-	if (!priv->sdr_timing) {
-		if (index == 0)
-			priv->sdr_timing = DWMMC_MMC0_SDR_TIMING_VAL;
-		else if (index == 2)
-			priv->sdr_timing = DWMMC_MMC2_SDR_TIMING_VAL;
-	}
-
 	host->caps = MMC_MODE_DDR_52MHz;
 	host->clksel = exynos_dwmci_clksel;
-	host->dev_index = index;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
+
+#ifndef CONFIG_DM_MMC
 	/* Add the mmc channel to be registered with mmc core */
 	if (add_dwmci(host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ)) {
-		printf("DWMMC%d registration failed\n", index);
+		printf("DWMMC%d registration failed\n", host->dev_index);
 		return -1;
 	}
+#endif
+
 	return 0;
 }
 
-/*
- * This function adds the mmc channel to be registered with mmc core.
- * index -	mmc channel number.
- * regbase -	register base address of mmc channel specified in 'index'.
- * bus_width -	operating bus width of mmc channel specified in 'index'.
- * clksel -	value to be written into CLKSEL register in case of FDT.
- *		NULL in case od non-FDT.
- */
-int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
-{
-	struct dwmci_host *host = NULL;
-	struct dwmci_exynos_priv_data *priv;
-
-	host = malloc(sizeof(struct dwmci_host));
-	if (!host) {
-		error("dwmci_host malloc fail!\n");
-		return -ENOMEM;
-	}
-
-	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
-	if (!priv) {
-		error("dwmci_exynos_priv_data malloc fail!\n");
-		return -ENOMEM;
-	}
-
-	host->ioaddr = (void *)regbase;
-	host->buswidth = bus_width;
-
-	if (clksel)
-		priv->sdr_timing = clksel;
-
-	host->priv = priv;
-
-	return exynos_dwmci_core_init(host, index);
-}
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
 
 static int do_dwmci_init(struct dwmci_host *host)
 {
-	int index, flag, err;
-
-	index = host->dev_index;
+	int flag, err;
 
 	flag = host->buswidth == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	err = exynos_pinmux_config(host->dev_id, flag);
 	if (err) {
-		printf("DWMMC%d not configure\n", index);
+		printf("DWMMC%d not configure\n", host->dev_index);
 		return err;
 	}
 
-	return exynos_dwmci_core_init(host, index);
+	return exynos_dwmci_core_init(host);
 }
 
 static int exynos_dwmci_get_config(const void *blob, int node,
@@ -197,12 +166,13 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	if (host->dev_index == host->dev_id)
 		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
 
-	/* Get the bus width from the device node */
-	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
-	if (host->buswidth <= 0) {
-		printf("DWMMC%d: Can't get bus-width\n", host->dev_index);
+	if (host->dev_index > 4) {
+		printf("DWMMC%d: Can't get the dev index\n", host->dev_index);
 		return -EINVAL;
 	}
+
+	/* Get the bus width from the device node (Default is 4bit buswidth) */
+	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 4);
 
 	/* Set the base address from the device node */
 	base = fdtdec_get_addr(blob, node, "reg");
@@ -265,15 +235,13 @@ static int exynos_dwmci_process_node(const void *blob,
 
 int exynos_dwmmc_init(const void *blob)
 {
-	int compat_id;
 	int node_list[DWMMC_MAX_CH_NUM];
 	int boot_dev_node;
 	int err = 0, count;
 
-	compat_id = COMPAT_SAMSUNG_EXYNOS_DWMMC;
-
 	count = fdtdec_find_aliases_for_id(blob, "mmc",
-				compat_id, node_list, DWMMC_MAX_CH_NUM);
+			COMPAT_SAMSUNG_EXYNOS_DWMMC, node_list,
+			DWMMC_MAX_CH_NUM);
 
 	/* For DWMMC always set boot device as mmc 0 */
 	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
@@ -286,4 +254,58 @@ int exynos_dwmmc_init(const void *blob)
 
 	return err;
 }
+
+#ifdef CONFIG_DM_MMC
+static int exynos_dwmmc_probe(struct udevice *dev)
+{
+	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct dwmci_exynos_priv_data *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	int err;
+
+	err = exynos_dwmci_get_config(gd->fdt_blob, dev->of_offset, host);
+	if (err)
+		return err;
+	err = do_dwmci_init(host);
+	if (err)
+		return err;
+
+	dwmci_setup_cfg(&plat->cfg, host->name, host->buswidth, host->caps,
+			DWMMC_MAX_FREQ, DWMMC_MIN_FREQ);
+	host->mmc = &plat->mmc;
+	host->mmc->priv = &priv->host;
+	host->priv = dev;
+	upriv->mmc = host->mmc;
+
+	return dwmci_probe(dev);
+}
+
+static int exynos_dwmmc_bind(struct udevice *dev)
+{
+	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id exynos_dwmmc_ids[] = {
+	{ .compatible = "samsung,exynos4412-dw-mshc" },
+	{ }
+};
+
+U_BOOT_DRIVER(exynos_dwmmc_drv) = {
+	.name		= "exynos_dwmmc",
+	.id		= UCLASS_MMC,
+	.of_match	= exynos_dwmmc_ids,
+	.bind		= exynos_dwmmc_bind,
+	.ops		= &dm_dwmci_ops,
+	.probe		= exynos_dwmmc_probe,
+	.priv_auto_alloc_size	= sizeof(struct dwmci_exynos_priv_data),
+	.platdata_auto_alloc_size = sizeof(struct exynos_mmc_plat),
+};
 #endif
