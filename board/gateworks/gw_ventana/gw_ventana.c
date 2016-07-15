@@ -1209,7 +1209,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	/* Configure DIO */
-	for (i = 0; i < gpio_cfg[board_type].num_gpios; i++) {
+	for (i = 0; i < gpio_cfg[board_type].dio_num; i++) {
 		struct dio_cfg *cfg = &gpio_cfg[board_type].dio_cfg[i];
 		char arg[10];
 

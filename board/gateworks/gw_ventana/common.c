@@ -338,6 +338,183 @@ static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
+/* Digital I/O */
+struct dio_cfg gw51xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+		IMX_GPIO_NR(1, 18),
+		{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+		4
+	},
+};
+
+struct dio_cfg gw52xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw53xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw54xx_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
+		IMX_GPIO_NR(1, 9),
+		{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
+		1
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
+		IMX_GPIO_NR(2, 9),
+		{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
+		IMX_GPIO_NR(2, 10),
+		{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
+		4
+	},
+};
+
+struct dio_cfg gw551x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+};
+
+struct dio_cfg gw552x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw553x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+		IMX_GPIO_NR(1, 18),
+		{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+		4
+	},
+};
 
 /*
  * Board Specific GPIO
@@ -347,33 +524,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw54xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw54xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
-				IMX_GPIO_NR(1, 9),
-				{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
-				1
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
-				IMX_GPIO_NR(2, 9),
-				{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
-				IMX_GPIO_NR(2, 10),
-				{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw54xx_dio,
+		.dio_num = ARRAY_SIZE(gw54xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -391,33 +543,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw51xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw51xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
-				IMX_GPIO_NR(1, 18),
-				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw51xx_dio,
+		.dio_num = ARRAY_SIZE(gw51xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -434,33 +561,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw52xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw52xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw52xx_dio,
+		.dio_num = ARRAY_SIZE(gw52xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -481,33 +583,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw53xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw53xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw53xx_dio,
+		.dio_num = ARRAY_SIZE(gw53xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -527,33 +604,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw54xx_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw54xx_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09) },
-				IMX_GPIO_NR(1, 9),
-				{ IOMUX_PADS(PAD_GPIO_9__PWM1_OUT) },
-				1
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT1__GPIO2_IO09) },
-				IMX_GPIO_NR(2, 9),
-				{ IOMUX_PADS(PAD_SD4_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD4_DAT2__GPIO2_IO10) },
-				IMX_GPIO_NR(2, 10),
-				{ IOMUX_PADS(PAD_SD4_DAT2__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw54xx_dio,
+		.dio_num = ARRAY_SIZE(gw54xx_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -575,21 +627,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw551x_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw551x_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-		},
-		.num_gpios = 2,
+		.dio_cfg = gw551x_dio,
+		.dio_num = ARRAY_SIZE(gw551x_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 7),
 		},
@@ -601,33 +640,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw552x_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(1, 20),
-				{ 0, 0 },
-				0
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw552x_dio,
+		.dio_num = ARRAY_SIZE(gw552x_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -643,33 +657,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 	{
 		.gpio_pads = gw553x_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw553x_gpio_pads)/2,
-		.dio_cfg = {
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
-				IMX_GPIO_NR(1, 16),
-				{ 0, 0 },
-				0
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
-				IMX_GPIO_NR(1, 19),
-				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
-				2
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
-				IMX_GPIO_NR(1, 17),
-				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
-				3
-			},
-			{
-				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
-				IMX_GPIO_NR(1, 18),
-				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
-				4
-			},
-		},
-		.num_gpios = 4,
+		.dio_cfg = gw553x_dio,
+		.dio_num = ARRAY_SIZE(gw553x_dio),
 		.leds = {
 			IMX_GPIO_NR(4, 10),
 			IMX_GPIO_NR(4, 11),
@@ -820,7 +809,7 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 	 * Configure DIO pinmux/padctl registers
 	 * see IMX6DQRM/IMX6SDLRM IOMUXC_SW_PAD_CTL_PAD_* register definitions
 	 */
-	for (i = 0; i < gpio_cfg[board].num_gpios; i++) {
+	for (i = 0; i < gpio_cfg[board].dio_num; i++) {
 		struct dio_cfg *cfg = &gpio_cfg[board].dio_cfg[i];
 		iomux_v3_cfg_t ctrl = DIO_PAD_CFG;
 		unsigned cputype = is_cpu_type(MXC_CPU_MX6Q) ? 0 : 1;
