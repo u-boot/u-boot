@@ -836,11 +836,13 @@
 				xlnx,pixel-format = "rgb565";
 				plane0 {
 					dmas = <&xlnx_dpdma 3>;
-					dma-names = "dma";
+					dma-names = "dma0";
 				};
 				plane1 {
-					dmas = <&xlnx_dpdma 0>;
-					dma-names = "dma";
+					dmas = <&xlnx_dpdma 0>,
+					       <&xlnx_dpdma 1>,
+					       <&xlnx_dpdma 2>;
+					dma-names = "dma0", "dma1", "dma2";
 				};
 			};
 		};
