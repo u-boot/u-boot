@@ -178,7 +178,7 @@ static int i2c_get_cur_bus_chip(uint chip_addr, struct udevice **devp)
  * i2c_init_board() - Board-specific I2C bus init
  *
  * This function is the default no-op implementation of I2C bus
- * initialization. This function can be overriden by board-specific
+ * initialization. This function can be overridden by board-specific
  * implementation if needed.
  */
 __weak

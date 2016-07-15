@@ -2212,7 +2212,7 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int wrlvl_en,
 		 * Write leveling start time
 		 * The value use for the DQS_ADJUST for the first sample
 		 * when write leveling is enabled. It probably needs to be
-		 * overriden per platform.
+		 * overridden per platform.
 		 */
 		wrlvl_start = 0x8;
 		/*

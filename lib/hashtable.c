@@ -822,7 +822,7 @@ int himport_r(struct hsearch_data *htab,
 	 * (CONFIG_ENV_SIZE).  This heuristics will result in
 	 * unreasonably large numbers (and thus memory footprint) for
 	 * big flash environments (>8,000 entries for 64 KB
-	 * envrionment size), so we clip it to a reasonable value.
+	 * environment size), so we clip it to a reasonable value.
 	 * On the other hand we need to add some more entries for free
 	 * space when importing very small buffers. Both boundaries can
 	 * be overwritten in the board config file if needed.

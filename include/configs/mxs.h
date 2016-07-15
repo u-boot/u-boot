@@ -120,7 +120,7 @@
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
-/* Default baudrate can be overriden by board! */
+/* Default baudrate can be overridden by board! */
 #ifndef CONFIG_BAUDRATE
 #define CONFIG_BAUDRATE			115200
 #endif

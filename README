@@ -511,7 +511,7 @@ The following options need to be configured:
 		implemetation.
 
 		CONFIG_SYS_FSL_DDR2
-		Board config to use DDR2. It can be eanbeld for SoCs with
+		Board config to use DDR2. It can be enabled for SoCs with
 		Freescale DDR2 or DDR3 controllers, depending on the board
 		implementation.
 

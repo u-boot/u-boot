@@ -21,7 +21,7 @@ config ARMV7_BOOT_SEC_DEFAULT
 	Say Y here to boot in secure mode by default even if non-secure mode
 	is supported. This option is useful to boot kernels which do not
 	suppport booting in non-secure mode. Only set this if you need it.
-	This can be overriden at run-time by setting the bootm_boot_mode env.
+	This can be overridden at run-time by setting the bootm_boot_mode env.
 	variable to "sec" or "nonsec".
 
 config ARMV7_VIRT

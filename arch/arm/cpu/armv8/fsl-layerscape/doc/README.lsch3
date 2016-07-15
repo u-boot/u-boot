@@ -128,7 +128,7 @@ mcinitcmd:	This environment variable is defined to initiate MC and DPL deploymen
 		during U-boot booting.However the MC, DPC and DPL can be applied from
 		console independently.
 		The variable needs to be set from the console once and then on
-		rebooting the parameters set in the varible will automatically be
+		rebooting the parameters set in the variable will automatically be
 		executed. The commmand is demostrated taking an example of mc boot
 		using NOR Flash i.e. MC, DPL, and DPC is stored in the NOR flash:
 

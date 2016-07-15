@@ -128,7 +128,7 @@ static void enable_clock_r5(void)
 	writel(tmp, &crlapb_base->cpu_r5_ctrl);
 
 	/* Give some delay for clock
-	 * to propogate */
+	 * to propagate */
 	udelay(0x500);
 }
 

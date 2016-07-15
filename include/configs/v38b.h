@@ -55,7 +55,7 @@
 #define SDRAM_TAPDELAY		0x10000000
 
 /*
- * PCI - no suport
+ * PCI - no support
  */
 #undef CONFIG_PCI
 

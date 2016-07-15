@@ -165,7 +165,7 @@ To restore GUID partition table one needs to:
    The fields 'name' and 'size' are mandatory for every partition.
    The field 'start' is optional.
 
-   If field 'size' of the last partition is 0, the partiton is extended
+   If field 'size' of the last partition is 0, the partition is extended
    up to the end of the device.
 
    The fields 'uuid' and 'uuid_disk' are optional if CONFIG_RANDOM_UUID is

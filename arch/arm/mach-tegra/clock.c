@@ -510,7 +510,7 @@ unsigned clock_get_rate(enum clock_id clkid)
  * @param p post divider(DIVP)
  * @param cpcon base PLL charge pump(CPCON)
  * @return 0 if ok, -1 on error (the requested PLL is incorrect and cannot
- *		be overriden), 1 if PLL is already correct
+ *		be overridden), 1 if PLL is already correct
  */
 int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 {

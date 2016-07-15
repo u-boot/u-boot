@@ -7,7 +7,7 @@
 #ifndef __ASM_STATUS_LED_H__
 #define __ASM_STATUS_LED_H__
 
-/* if not overriden */
+/* if not overridden */
 #ifndef CONFIG_BOARD_SPECIFIC_LED
 # if defined(CONFIG_8xx)
 #  include <mpc8xx.h>

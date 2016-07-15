@@ -53,7 +53,7 @@ int set_km_env(void)
 	sprintf((char *)buf, "0x%x", pnvramaddr);
 	setenv("pnvramaddr", (char *)buf);
 
-	/* try to read rootfssize (ram image) from envrionment */
+	/* try to read rootfssize (ram image) from environment */
 	p = getenv("rootfssize");
 	if (p != NULL)
 		strict_strtoul(p, 16, &rootfssize);

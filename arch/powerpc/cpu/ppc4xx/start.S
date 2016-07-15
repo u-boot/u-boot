@@ -144,7 +144,7 @@
 #endif
 
 /*
- * Unless otherwise overriden, enable two 128MB cachable instruction regions
+ * Unless otherwise overridden, enable two 128MB cachable instruction regions
  * at CONFIG_SYS_SDRAM_BASE and another 128MB cacheable instruction region covering
  * NOR flash at CONFIG_SYS_FLASH_BASE. Disable all cacheable data regions.
  */

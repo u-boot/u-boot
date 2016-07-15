@@ -627,7 +627,7 @@ static int __devinit dsps_probe(struct platform_device *pdev)
 	/* get memory resource */
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!iomem) {
-		dev_err(&pdev->dev, "failed to get usbss mem resourse\n");
+		dev_err(&pdev->dev, "failed to get usbss mem resource\n");
 		ret = -ENODEV;
 		goto err1;
 	}
