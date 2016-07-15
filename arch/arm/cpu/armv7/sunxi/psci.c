@@ -17,11 +17,11 @@
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>
+#include <asm/secure.h>
 #include <asm/system.h>
 
 #include <linux/bitops.h>
 
-#define __secure	__attribute__ ((section ("._secure.text")))
 #define __irq		__attribute__ ((interrupt ("IRQ")))
 
 #define	GICD_BASE	(SUNXI_GIC400_BASE + GIC_DIST_OFFSET)
@@ -209,9 +209,8 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc)
 		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = (mpidr & 0x3);
 
-	/* store target PC at target CPU stack top */
-	writel(pc, psci_get_cpu_stack_top(cpu));
-	DSB;
+	/* store target PC */
+	psci_save_target_pc(cpu, pc);
 
 	/* Set secondary core power on PC */
 	writel((u32)&psci_cpu_entry, &cpucfg->priv0);
@@ -250,7 +249,7 @@ void __secure psci_cpu_off(void)
 		wfi();
 }
 
-void __secure sunxi_gic_init(void)
+void __secure psci_arch_init(void)
 {
 	u32 reg;
 

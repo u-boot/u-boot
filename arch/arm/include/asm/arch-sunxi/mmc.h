@@ -127,5 +127,4 @@ struct sunxi_mmc {
 #define SUNXI_MMC_COMMON_RESET			(1 << 18)
 
 struct mmc *sunxi_mmc_init(int sdc_no);
-int sunxi_mmc_has_egon_boot_signature(struct mmc *mmc);
 #endif /* _SUNXI_MMC_H */

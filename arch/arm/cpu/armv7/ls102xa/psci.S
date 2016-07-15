@@ -29,16 +29,16 @@
 	@ r2 = target PC
 .globl	psci_cpu_on
 psci_cpu_on:
-	push	{lr}
+	push	{r4, r5, r6, lr}
 
 	@ Clear and Get the correct CPU number
 	@ r1 = 0xf01
-	and	r1, r1, #0xff
+	and	r4, r1, #0xff
 
-	mov	r0, r1
-	bl	psci_get_cpu_stack_top
-	str	r2, [r0]
-	dsb
+	mov	r0, r4
+	mov	r1, r2
+	bl	psci_save_target_pc
+	mov	r1, r4
 
 	@ Get DCFG base address
 	movw	r4, #(CONFIG_SYS_FSL_GUTS_ADDR & 0xffff)
@@ -101,7 +101,7 @@ holdoff_release:
 	@ Return
 	mov	r0, #ARM_PSCI_RET_SUCCESS
 
-	pop	{lr}
+	pop	{r4, r5, r6, lr}
 	bx	lr
 
 .globl	psci_cpu_off
@@ -111,16 +111,4 @@ psci_cpu_off:
 1:	wfi
 	b	1b
 
-.globl	psci_arch_init
-psci_arch_init:
-	mov	r6, lr
-
-	bl	psci_get_cpu_id
-	bl	psci_get_cpu_stack_top
-	mov	sp, r0
-
-	bx	r6
-
-	.globl psci_text_end
-psci_text_end:
 	.popsection

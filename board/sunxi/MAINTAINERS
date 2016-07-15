@@ -56,6 +56,7 @@ F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
 F:	configs/inet86dz_defconfig
 F:	configs/orangepi_2_defconfig
+F:	configs/orangepi_lite_defconfig
 F:	configs/orangepi_one_defconfig
 F:	configs/orangepi_pc_defconfig
 F:	configs/orangepi_plus_defconfig

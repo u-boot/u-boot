@@ -128,4 +128,16 @@ config SPI_FLASH_MTD
 
 	  If unsure, say N
 
+if SPL
+
+config SPL_SPI_SUNXI
+	bool "Support for SPI Flash on Allwinner SoCs in SPL"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_H3 || MACH_SUN50I
+	---help---
+	Enable support for SPI Flash. This option allows SPL to read from
+	sunxi SPI Flash. It uses the same method as the boot ROM, so does
+	not need any extra configuration.
+
+endif
+
 endmenu # menu "SPI Flash Support"

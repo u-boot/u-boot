@@ -47,12 +47,19 @@
 #define ARM_PSCI_0_2_FN_SYSTEM_OFF		ARM_PSCI_0_2_FN(8)
 #define ARM_PSCI_0_2_FN_SYSTEM_RESET		ARM_PSCI_0_2_FN(9)
 
+/* 1KB stack per core */
+#define ARM_PSCI_STACK_SHIFT	10
+#define ARM_PSCI_STACK_SIZE	(1 << ARM_PSCI_STACK_SHIFT)
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 
+/* These 2 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
+u32 psci_get_target_pc(int cpu);
+void psci_save_target_pc(int cpu, u32 pc);
+
 void psci_cpu_entry(void);
 u32 psci_get_cpu_id(void);
-u32 psci_get_cpu_stack_top(int cpu);
 void psci_cpu_off_common(void);
 
 int psci_update_dt(void *fdt);

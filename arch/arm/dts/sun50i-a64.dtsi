@@ -506,6 +506,25 @@
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
+
+			rmii_pins: rmii_pins {
+				allwinner,pins = "PD10", "PD11", "PD13", "PD14",
+						 "PD17", "PD18", "PD19", "PD20",
+						 "PD22", "PD23";
+				allwinner,function = "emac";
+				allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			rgmii_pins: rgmii_pins {
+				allwinner,pins = "PD8", "PD9", "PD10", "PD11",
+						 "PD12", "PD13", "PD15",
+						 "PD16", "PD17", "PD18", "PD19",
+						 "PD20", "PD21", "PD22", "PD23";
+				allwinner,function = "emac";
+				allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
 		};
 
 		ahb_rst: reset@1c202c0 {
@@ -616,6 +635,20 @@
 			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&bus_gates 98>;
 			resets = <&apb2_rst 2>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		emac: ethernet@01c30000 {
+			compatible = "allwinner,sun50i-a64-emac";
+			reg = <0x01c30000 0x2000>, <0x01c00030 0x4>;
+			reg-names = "emac", "syscon";
+			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&ahb_rst 17>;
+			reset-names = "ahb";
+			clocks = <&bus_gates 17>;
+			clock-names = "ahb";
 			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;

@@ -40,7 +40,8 @@ struct sunxi_ccm_reg {
 	u32 ahb_gate1;		/* 0x64 ahb module clock gating 1 */
 	u32 apb1_gate;		/* 0x68 apb1 module clock gating */
 	u32 apb2_gate;		/* 0x6c apb2 module clock gating */
-	u32 reserved9[4];
+	u32 bus_gate4;          /* 0x70 gate 4 module clock gating */
+	u8 res3[0xc];
 	u32 nand0_clk_cfg;	/* 0x80 nand0 clock control */
 	u32 nand1_clk_cfg;	/* 0x84 nand1 clock control */
 	u32 sd0_clk_cfg;	/* 0x88 sd0 clock control */
@@ -387,6 +388,7 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_LCD0		4
 
 /* ahb_reset2 offsets */
+#define AHB_RESET_OFFSET_EPHY		2
 #define AHB_RESET_OFFSET_LVDS		0
 
 /* apb2 reset */

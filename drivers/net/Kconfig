@@ -152,6 +152,15 @@ config RTL8169
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.
 
+config SUN8I_EMAC
+        bool "Allwinner Sun8i Ethernet MAC support"
+        depends on DM_ETH
+        select PHYLIB
+        help
+          This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
+	  It can be found in H3/A64/A83T based SoCs and compatible with both
+	  External and Internal PHY's.
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB

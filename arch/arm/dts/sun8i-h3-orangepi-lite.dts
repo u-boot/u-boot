@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Chen-Yu Tsai <wens@csie.org>
+ * Copyright (C) 2016 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -49,10 +49,12 @@
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	model = "Xunlong Orange Pi PC";
-	compatible = "xunlong,orangepi-pc", "allwinner,sun8i-h3";
+	model = "Xunlong Orange Pi Lite";
+	compatible = "xunlong,orangepi-lite", "allwinner,sun8i-h3";
 
 	aliases {
+		/* The H3 emac is not used so the wifi is ethernet0 */
+		ethernet1 = &rtl8189ftv;
 		serial0 = &uart0;
 	};
 
@@ -63,34 +65,26 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&leds_opc>;
+		pinctrl-0 = <&leds_opc>, <&leds_r_opc>;
 
-		status_led {
-			label = "status:red:user";
-			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
-		};
-	};
-
-	r_leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&leds_r_opc>;
-
-		tx {
-			label = "pwr:green:user";
+		pwr_led {
+			label = "orangepi:green:pwr";
 			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
+		};
+
+		status_led {
+			label = "orangepi:red:status";
+			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
 	r_gpio_keys {
 		compatible = "gpio-keys";
-		input-name = "sw4";
-
 		pinctrl-names = "default";
 		pinctrl-0 = <&sw_r_opc>;
 
-		sw4@0 {
+		sw4 {
 			label = "sw4";
 			linux,code = <BTN_0>;
 			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
@@ -103,10 +97,6 @@
 };
 
 &ehci2 {
-	status = "okay";
-};
-
-&ehci3 {
 	status = "okay";
 };
 
@@ -126,15 +116,28 @@
 	status = "okay";
 };
 
+&mmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pins_a>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	non-removable;
+	status = "okay";
+
+	/*
+	 * Explicitly define the sdio device, so that we can add an ethernet
+	 * alias for it (which e.g. makes u-boot set a mac-address).
+	 */
+	rtl8189ftv: sdio_wifi@1 {
+		reg = <1>;
+	};
+};
+
 &ohci1 {
 	status = "okay";
 };
 
 &ohci2 {
-	status = "okay";
-};
-
-&ohci3 {
 	status = "okay";
 };
 
@@ -156,7 +159,7 @@
 	};
 
 	sw_r_opc: key_pins@0 {
-		allwinner,pins = "PL03";
+		allwinner,pins = "PL3";
 		allwinner,function = "gpio_in";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
@@ -172,16 +175,4 @@
 &usbphy {
 	/* USB VBUS is always on */
 	status = "okay";
-};
-
-&emac {
-	phy = <&phy1>;
-	phy-mode = "mii";
-	allwinner,use-internal-phy;
-	allwinner,leds-active-low;
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
 };

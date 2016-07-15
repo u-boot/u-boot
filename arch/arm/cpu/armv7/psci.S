@@ -196,20 +196,48 @@ ENTRY(psci_cpu_off_common)
 	bx	lr
 ENDPROC(psci_cpu_off_common)
 
-@ expects CPU ID in r0 and returns stack top in r0
-ENTRY(psci_get_cpu_stack_top)
-	mov	r3, #0x400			@ 1kB of stack per CPU
-	mul	r0, r0, r3
-
-	ldr	r3, =psci_text_end		@ end of monitor text
-	add	r3, r3, #0x2000			@ Skip two pages
-	lsr	r3, r3, #12			@ Align to start of page
-	lsl	r3, r3, #12
-	sub	r3, r3, #4			@ reserve 1 word for target PC
-	sub	r0, r3, r0			@ here's our stack!
-
+@ The stacks are allocated in reverse order, i.e.
+@ the stack for CPU0 has the highest memory address.
+@
+@ --------------------  __secure_stack_end
+@ |  CPU0 target PC  |
+@ |------------------|
+@ |                  |
+@ |    CPU0 stack    |
+@ |                  |
+@ |------------------|  __secure_stack_end - 1KB
+@ |        .         |
+@ |        .         |
+@ |        .         |
+@ |        .         |
+@ --------------------  __secure_stack_start
+@
+@ This expects CPU ID in r0 and returns stack top in r0
+LENTRY(psci_get_cpu_stack_top)
+	@ stack top = __secure_stack_end - (cpuid << ARM_PSCI_STACK_SHIFT)
+	ldr	r3, =__secure_stack_end
+	sub	r0, r3, r0, LSL #ARM_PSCI_STACK_SHIFT
+	sub	r0, r0, #4		@ Save space for target PC
 	bx	lr
 ENDPROC(psci_get_cpu_stack_top)
+
+@ {r0, r1, r2, ip} from _do_nonsec_entry(kernel_entry, 0, machid, r2) in
+@ arch/arm/lib/bootm.c:boot_jump_linux() must remain unchanged across
+@ this function.
+ENTRY(psci_stack_setup)
+	mov	r6, lr
+	mov	r7, r0
+	bl	psci_get_cpu_id		@ CPU ID => r0
+	bl	psci_get_cpu_stack_top	@ stack top => r0
+	mov	sp, r0
+	mov	r0, r7
+	bx	r6
+ENDPROC(psci_stack_setup)
+
+ENTRY(psci_arch_init)
+	mov	pc, lr
+ENDPROC(psci_arch_init)
+.weak psci_arch_init
 
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
@@ -217,8 +245,7 @@ ENTRY(psci_cpu_entry)
 	bl	_nonsec_init
 
 	bl	psci_get_cpu_id			@ CPU ID => r0
-	bl	psci_get_cpu_stack_top		@ stack top => r0
-	ldr	r0, [r0]			@ target PC at stack top
+	bl	psci_get_target_pc		@ target PC => r0
 	b	_do_nonsec_entry
 ENDPROC(psci_cpu_entry)
 
