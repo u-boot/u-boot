@@ -31,14 +31,6 @@ int get_fpga_state(unsigned dev)
 	return gd->arch.fpga_state[dev];
 }
 
-void print_fpga_state(unsigned dev)
-{
-	if (gd->arch.fpga_state[dev] & FPGA_STATE_DONE_FAILED)
-		puts("       Waiting for FPGA-DONE timed out.\n");
-	if (gd->arch.fpga_state[dev] & FPGA_STATE_REFLECTION_FAILED)
-		puts("       FPGA reflection test failed.\n");
-}
-
 int board_early_init_f(void)
 {
 	unsigned k;
