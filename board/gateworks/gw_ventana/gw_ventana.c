@@ -1083,6 +1083,9 @@ void ft_board_pci_fixup(void *blob, bd_t *bd)
  *  - board (full model from EEPROM)
  *  - peripherals removed from DTB if not loaded on board (per EEPROM config)
  */
+#define UART1_PATH	"/soc/aips-bus@02100000/serial@021ec000"
+#define WDOG1_PATH	"/soc/aips-bus@02000000/wdog@020bc000"
+#define GPIO3_PATH	"/soc/aips-bus@02000000/gpio@020a4000"
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	struct ventana_board_info *info = &ventana_info;
@@ -1136,90 +1139,107 @@ int ft_board_setup(void *blob, bd_t *bd)
 	ft_sethdmiinfmt(blob, getenv("hdmiinfmt"));
 
 	/*
-	 * disable serial2 node for GW54xx for compatibility with older
-	 * 3.10.x kernel that improperly had this node enabled in the DT
+	 * Board model specific fixups
 	 */
-	if (board_type == GW54xx) {
-		i = fdt_path_offset(blob,
-				    "/soc/aips-bus@02100000/serial@021ec000");
+	switch (board_type) {
+	case GW51xx:
+		/*
+		 * disable wdog node for GW51xx-A/B to work around
+		 * errata causing wdog timer to be unreliable.
+		 */
+		if (rev >= 'A' && rev < 'C') {
+			i = fdt_path_offset(blob, WDOG1_PATH);
+			if (i)
+				fdt_status_disabled(blob, i);
+		}
+		break;
+
+	case GW52xx:
+		/* GW522x Uses GPIO3_IO23 instead of GPIO1_IO29 */
+		if (info->model[4] == '2') {
+			u32 handle = 0;
+			u32 *range = NULL;
+
+			i = fdt_node_offset_by_compatible(blob, -1,
+							  "fsl,imx6q-pcie");
+			if (i)
+				range = (u32 *)fdt_getprop(blob, i,
+							   "reset-gpio", NULL);
+
+			if (range) {
+				i = fdt_path_offset(blob, GPIO3_PATH);
+				if (i)
+					handle = fdt_get_phandle(blob, i);
+				if (handle) {
+					range[0] = cpu_to_fdt32(handle);
+					range[1] = cpu_to_fdt32(23);
+				}
+			}
+
+			/* these have broken usd_vsel */
+			if (strstr((const char *)info->model, "SP318-B") ||
+			    strstr((const char *)info->model, "SP331-B"))
+				gpio_cfg[board_type].usd_vsel = 0;
+		}
+		break;
+
+	case GW53xx:
+		break;
+
+	case GW54xx:
+		/*
+		 * disable serial2 node for GW54xx for compatibility with older
+		 * 3.10.x kernel that improperly had this node enabled in the DT
+		 */
+		i = fdt_path_offset(blob, UART1_PATH);
 		if (i)
 			fdt_del_node(blob, i);
-	}
+		break;
 
-	/*
-	 * disable wdog1/wdog2 nodes for GW51xx below revC to work around
-	 * errata causing wdog timer to be unreliable.
-	 */
-	if (board_type == GW51xx && rev >= 'A' && rev < 'C') {
-		i = fdt_path_offset(blob,
-				    "/soc/aips-bus@02000000/wdog@020bc000");
-		if (i)
-			fdt_status_disabled(blob, i);
-	}
+	case GW551x:
+		/*
+		 * isolate CSI0_DATA_EN for GW551x-A to work around errata
+		 * causing non functional digital video in (it is not hooked up)
+		 */
+		if (rev == 'A') {
+			u32 *range = NULL;
+			int len;
+			const u32 *handle = NULL;
 
-	/* GW522x Uses GPIO3_IO23 instead of GPIO1_IO29 */
-	else if (board_type == GW52xx && info->model[4] == '2') {
-		u32 handle = 0;
-		u32 *range = NULL;
-
-		i = fdt_node_offset_by_compatible(blob, -1, "fsl,imx6q-pcie");
-		if (i)
-			range = (u32 *)fdt_getprop(blob, i, "reset-gpio",
-						   NULL);
-
-		if (range) {
-			i = fdt_path_offset(blob,
-					    "/soc/aips-bus@02000000/gpio@020a4000");
+			i = fdt_node_offset_by_compatible(blob, -1,
+						"fsl,imx-tda1997x-video");
 			if (i)
-				handle = fdt_get_phandle(blob, i);
-			if (handle) {
-				range[0] = cpu_to_fdt32(handle);
-				range[1] = cpu_to_fdt32(23);
+				handle = fdt_getprop(blob, i, "pinctrl-0",
+						     NULL);
+			if (handle)
+				i = fdt_node_offset_by_phandle(blob,
+							fdt32_to_cpu(*handle));
+			if (i)
+				range = (u32 *)fdt_getprop(blob, i, "fsl,pins",
+							   &len);
+			if (range) {
+				len /= sizeof(u32);
+				for (i = 0; i < len; i += 6) {
+					u32 mux_reg = fdt32_to_cpu(range[i+0]);
+					u32 conf_reg = fdt32_to_cpu(range[i+1]);
+					/* mux PAD_CSI0_DATA_EN to GPIO */
+					if (is_cpu_type(MXC_CPU_MX6Q) &&
+					    mux_reg == 0x260 &&
+					    conf_reg == 0x630)
+						range[i+3] = cpu_to_fdt32(0x5);
+					else if (!is_cpu_type(MXC_CPU_MX6Q) &&
+						 mux_reg == 0x08c &&
+						 conf_reg == 0x3a0)
+						range[i+3] = cpu_to_fdt32(0x5);
+				}
+				fdt_setprop_inplace(blob, i, "fsl,pins", range,
+						    len);
 			}
+
+			/* set BT656 video format */
+			ft_sethdmiinfmt(blob, "yuv422bt656");
 		}
-
-		/* these have broken usd_vsel */
-		if (strstr((const char *)info->model, "SP318-B") ||
-		    strstr((const char *)info->model, "SP331-B"))
-			gpio_cfg[board_type].usd_vsel = 0;
-	}
-
-	/*
-	 * isolate CSI0_DATA_EN for GW551x below revB to work around
-	 * errata causing non functional digital video in (it is not hooked up)
-	 */
-	else if (board_type == GW551x && rev == 'A') {
-		u32 *range = NULL;
-		int len;
-		const u32 *handle = NULL;
-
-		i = fdt_node_offset_by_compatible(blob, -1,
-						  "fsl,imx-tda1997x-video");
-		if (i)
-			handle = fdt_getprop(blob, i, "pinctrl-0", NULL);
-		if (handle)
-			i = fdt_node_offset_by_phandle(blob,
-						       fdt32_to_cpu(*handle));
-		if (i)
-			range = (u32 *)fdt_getprop(blob, i, "fsl,pins", &len);
-		if (range) {
-			len /= sizeof(u32);
-			for (i = 0; i < len; i += 6) {
-				u32 mux_reg = fdt32_to_cpu(range[i+0]);
-				u32 conf_reg = fdt32_to_cpu(range[i+1]);
-				/* mux PAD_CSI0_DATA_EN to GPIO */
-				if (is_cpu_type(MXC_CPU_MX6Q) &&
-				    mux_reg == 0x260 && conf_reg == 0x630)
-					range[i+3] = cpu_to_fdt32(0x5);
-				else if (!is_cpu_type(MXC_CPU_MX6Q) &&
-				    mux_reg == 0x08c && conf_reg == 0x3a0)
-					range[i+3] = cpu_to_fdt32(0x5);
-			}
-			fdt_setprop_inplace(blob, i, "fsl,pins", range, len);
-		}
-
-		/* set BT656 video format */
-		ft_sethdmiinfmt(blob, "yuv422bt656");
+		break;
 	}
 
 	/* Configure DIO */
