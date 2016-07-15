@@ -784,7 +784,7 @@ static int veyron_init(struct dram_info *priv)
 		return ret;
 	udelay(100);/* Must wait for voltage to stabilize, 2mV/us */
 
-	rkclk_configure_cpu(priv->cru, priv->grf);
+	rk3288_clk_configure_cpu(priv->cru, priv->grf);
 
 	return 0;
 }

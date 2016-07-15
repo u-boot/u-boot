@@ -447,7 +447,7 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 }
 #endif
 
-void rkclk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
+void rk3288_clk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
 	/* pll enter slow-mode */
 	rk_clrsetreg(&cru->cru_mode_con,
