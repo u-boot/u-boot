@@ -132,7 +132,7 @@ config ROCKCHIP_RK3288_PINCTRL
 	  definitions and pin control functions for each available multiplex
 	  function.
 
-config ROCKCHIP_3036_PINCTRL
+config ROCKCHIP_RK3036_PINCTRL
 	bool "Rockchip rk3036 pin control driver"
 	depends on DM
 	help
