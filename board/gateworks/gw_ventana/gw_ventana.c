@@ -700,13 +700,14 @@ static const struct boot_mode board_boot_modes[] = {
 int misc_init_r(void)
 {
 	struct ventana_board_info *info = &ventana_info;
+	char buf[256];
+	int i;
 
 	/* set env vars based on EEPROM data */
 	if (ventana_info.model[0]) {
 		char str[16], fdt[36];
 		char *p;
 		const char *cputype = "";
-		int i;
 
 		/*
 		 * FDT name will be prefixed with CPU type.  Three versions
@@ -769,6 +770,19 @@ int misc_init_r(void)
 		setenv("mem_mb", str);
 	}
 
+	/* Set a non-initialized hwconfig based on board configuration */
+	if (!strcmp(getenv("hwconfig"), "_UNKNOWN_")) {
+		sprintf(buf, "hwconfig=");
+		if (gpio_cfg[board_type].rs232_en)
+			strcat(buf, "rs232;");
+		for (i = 0; i < gpio_cfg[board_type].dio_num; i++) {
+			char buf1[32];
+			sprintf(buf1, "dio%d:mode=gpio;", i);
+			if (strlen(buf) + strlen(buf1) < sizeof(buf))
+				strcat(buf, buf1);
+		}
+		setenv("hwconfig", buf);
+	}
 
 	/* setup baseboard specific GPIO based on board and env */
 	setup_board_gpio(board_type, info);
