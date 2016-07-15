@@ -8,5 +8,7 @@
 #
 
 obj-y	+= interrupts.o
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_PCI)	+= pci_io.o
+endif
 obj-$(CONFIG_CMD_BOOTM) += bootm.o

@@ -24,6 +24,12 @@ struct rk3288_sdram_channel {
 	u8 row_3_4;
 	u8 cs0_row;
 	u8 cs1_row;
+	/*
+	 * For of-platdata, which would otherwise convert this into two
+	 * byte-swapped integers. With a size of 9 bytes, this struct will
+	 * appear in of-platdata as a byte array.
+	 */
+	u8 dummy;
 };
 
 struct rk3288_sdram_pctl_timing {
@@ -79,14 +85,6 @@ struct rk3288_base_params {
 	u32 dramtype;
 	u32 stride;
 	u32 odt;
-};
-
-struct rk3288_sdram_params {
-	struct rk3288_sdram_channel ch[2];
-	struct rk3288_sdram_pctl_timing pctl_timing;
-	struct rk3288_sdram_phy_timing phy_timing;
-	struct rk3288_base_params base;
-	int num_channels;
 };
 
 #endif

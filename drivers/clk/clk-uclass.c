@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -21,6 +22,22 @@ static inline struct clk_ops *clk_dev_ops(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 #ifdef CONFIG_SPL_BUILD
+# if CONFIG_IS_ENABLED(OF_PLATDATA)
+int clk_get_by_index_platdata(struct udevice *dev, int index,
+			      struct phandle_2_cell *cells, struct clk *clk)
+{
+	int ret;
+
+	if (index != 0)
+		return -ENOSYS;
+	ret = uclass_get_device(UCLASS_CLK, 0, &clk->dev);
+	if (ret)
+		return ret;
+	clk->id = cells[0].id;
+
+	return 0;
+}
+# else
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 {
 	int ret;
@@ -39,6 +56,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	clk->id = cell[1];
 	return 0;
 }
+# endif /* OF_PLATDATA */
 
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 {
@@ -117,8 +135,8 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	return clk_get_by_index(dev, index, clk);
 }
-#endif
-#endif
+#endif /* CONFIG_SPL_BUILD */
+#endif /* OF_CONTROL */
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {

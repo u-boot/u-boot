@@ -193,7 +193,7 @@ def pytest_configure(config):
     for v in env_vars:
         os.environ['U_BOOT_' + v.upper()] = getattr(ubconfig, v)
 
-    if board_type == 'sandbox':
+    if board_type.startswith('sandbox'):
         import u_boot_console_sandbox
         console = u_boot_console_sandbox.ConsoleSandbox(log, ubconfig)
     else:

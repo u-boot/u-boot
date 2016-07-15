@@ -45,6 +45,7 @@ LDFLAGS_FINAL += --gc-sections
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 							$(NOSTDINC_FLAGS)
+c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
@@ -76,6 +77,9 @@ endif
 
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
+ifdef CONFIG_SPL_OF_PLATDATA
+u-boot-spl-platdata := $(obj)/dts/dt-platdata.o
+endif
 
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
@@ -169,7 +173,7 @@ cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_SPL_OF_CONTROL)$(CONFIG_OF_SEPARATE),yy)
+ifeq ($(CONFIG_SPL_OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_SPL_OF_PLATDATA),yy)
 $(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin $(obj)/$(SPL_BIN)-pad.bin \
 		$(obj)/$(SPL_BIN).dtb FORCE
 	$(call if_changed,cat)
@@ -207,6 +211,32 @@ cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 $(obj)/$(SPL_BIN).cfg:	include/config.h FORCE
 	$(call if_changed,cpp_cfg)
 
+pythonpath = PYTHONPATH=tools
+
+quiet_cmd_dtocc = DTOC C  $@
+cmd_dtocc = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ platdata
+
+quiet_cmd_dtoch = DTOC H  $@
+cmd_dtoch = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ struct
+
+quiet_cmd_plat = PLAT    $@
+cmd_plat = $(CC) $(c_flags) -c $< -o $@
+
+$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c include/generated/dt-structs.h
+	$(call if_changed,plat)
+
+PHONY += dts_dir
+dts_dir:
+	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
+
+include/generated/dt-structs.h: $(obj)/$(SPL_BIN).dtb dts_dir dtoc
+	$(call if_changed,dtoch)
+
+$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir dtoc
+	$(call if_changed,dtocc)
+
+dtoc: #$(objtree)/tools/_libfdt.so
+
 ifdef CONFIG_SAMSUNG
 ifdef CONFIG_VAR_SIZE_SPL
 VAR_SIZE_PARAM = --vs
@@ -241,19 +271,24 @@ cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mksunxiboot)
 
-quiet_cmd_u-boot-spl = LD      $@
-      cmd_u-boot-spl = (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+# Rule to link u-boot-spl
+# May be overridden by arch/$(ARCH)/config.mk
+quiet_cmd_u-boot-spl ?= LD      $@
+      cmd_u-boot-spl ?= (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
-		       $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --end-group \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-main))  \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) \
+		       --end-group \
 		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN))
 
-$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds FORCE
+$(obj)/$(SPL_BIN): $(u-boot-spl-platdata) $(u-boot-spl-init) \
+		$(u-boot-spl-main) $(obj)/u-boot-spl.lds FORCE
 	$(call if_changed,u-boot-spl)
 
 $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 
 PHONY += $(u-boot-spl-dirs)
-$(u-boot-spl-dirs):
+$(u-boot-spl-dirs): $(u-boot-spl-platdata)
 	$(Q)$(MAKE) $(build)=$@
 
 quiet_cmd_cpp_lds = LDS     $@

@@ -7,7 +7,9 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
+#include <mapmem.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -20,6 +22,12 @@
 #include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct rk3288_clk_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_cru dtd;
+#endif
+};
 
 struct rk3288_clk_priv {
 	struct rk3288_grf *grf;
@@ -783,13 +791,30 @@ static struct clk_ops rk3288_clk_ops = {
 	.set_rate	= rk3288_clk_set_rate,
 };
 
+static int rk3288_clk_ofdata_to_platdata(struct udevice *dev)
+{
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+
+	priv->cru = (struct rk3288_cru *)dev_get_addr(dev);
+#endif
+
+	return 0;
+}
+
 static int rk3288_clk_probe(struct udevice *dev)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3288_cru *)dev_get_addr(dev);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	if (IS_ERR(priv->grf))
+		return PTR_ERR(priv->grf);
 #ifdef CONFIG_SPL_BUILD
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct rk3288_clk_plat *plat = dev_get_platdata(dev);
+
+	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
+#endif
 	rkclk_init(priv->cru, priv->grf);
 #endif
 
@@ -813,12 +838,14 @@ static const struct udevice_id rk3288_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_rk3288) = {
-	.name		= "clk_rk3288",
+U_BOOT_DRIVER(rockchip_rk3288_cru) = {
+	.name		= "rockchip_rk3288_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3288_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3288_clk_priv),
+	.platdata_auto_alloc_size = sizeof(struct rk3288_clk_plat),
 	.ops		= &rk3288_clk_ops,
 	.bind		= rk3288_clk_bind,
+	.ofdata_to_platdata	= rk3288_clk_ofdata_to_platdata,
 	.probe		= rk3288_clk_probe,
 };

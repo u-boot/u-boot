@@ -57,6 +57,22 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
 int regmap_init_mem(struct udevice *dev, struct regmap **mapp);
 
 /**
+ * regmap_init_mem_platdata() - Set up a new memory register map for of-platdata
+ *
+ * This creates a new regmap with a list of regions passed in, rather than
+ * using the device tree. It only supports 32-bit machines.
+ *
+ * Use regmap_uninit() to free it.
+ *
+ * @dev:	Device that uses this map
+ * @reg:	List of address, size pairs
+ * @count:	Number of pairs (e.g. 1 if the regmap has a single entry)
+ * @mapp:	Returns allocated map
+ */
+int regmap_init_mem_platdata(struct udevice *dev, u32 *reg, int count,
+			     struct regmap **mapp);
+
+/**
  * regmap_get_range() - Obtain the base memory address of a regmap range
  *
  * @map:	Regmap to query

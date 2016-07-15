@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
 	const char *bootdev;
@@ -63,6 +64,7 @@ u32 spl_boot_device(void)
 	}
 
 fallback:
+#endif
 	return BOOT_DEVICE_MMC1;
 }
 
@@ -114,7 +116,6 @@ static void configure_l2ctlr(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 static int configure_emmc(struct udevice *pinctrl)
 {
-#if !defined(CONFIG_TARGET_ROCK2) && !defined(CONFIG_TARGET_FIREFLY_RK3288)
 	struct gpio_desc desc;
 	int ret;
 
@@ -144,7 +145,6 @@ static int configure_emmc(struct udevice *pinctrl)
 		debug("gpio value ret=%d\n", ret);
 		return ret;
 	}
-#endif
 
 	return 0;
 }
@@ -247,15 +247,18 @@ void spl_board_init(void)
 		goto err;
 	}
 #ifdef CONFIG_SPL_MMC_SUPPORT
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
-	if (ret) {
-		debug("%s: Failed to set up SD card\n", __func__);
-		goto err;
-	}
-	ret = configure_emmc(pinctrl);
-	if (ret) {
-		debug("%s: Failed to set up eMMC\n", __func__);
-		goto err;
+	if (!IS_ENABLED(CONFIG_TARGET_ROCK2) &&
+	    !IS_ENABLED(CONFIG_TARGET_FIREFLY_RK3288)) {
+		ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
+		if (ret) {
+			debug("%s: Failed to set up SD card\n", __func__);
+			goto err;
+		}
+		ret = configure_emmc(pinctrl);
+		if (ret) {
+			debug("%s: Failed to set up eMMC\n", __func__);
+			goto err;
+		}
 	}
 #endif
 
