@@ -250,8 +250,13 @@ int parse_aes_key(char *key, uint8_t *bin_key)
  */
 int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 {
-	char *env, *nxt;
 	int i, rc = 0;
+
+	if (value_only && argc != 1) {
+		fprintf(stderr,
+			"## Error: `-n' option requires exactly one argument\n");
+		return -1;
+	}
 
 	if (!opts)
 		opts = &default_opts;
@@ -260,6 +265,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 		return -1;
 
 	if (argc == 0) {		/* Print all env variables  */
+		char *env, *nxt;
 		for (env = environment.data; *env; env = nxt + 1) {
 			for (nxt = env; *nxt; ++nxt) {
 				if (nxt >= &environment.data[ENV_SIZE]) {
@@ -274,39 +280,23 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 		return 0;
 	}
 
-	if (value_only && argc != 1) {
-		fprintf(stderr,
-			"## Error: `-n' option requires exactly one argument\n");
-		return -1;
-	}
-
-	for (i = 0; i < argc; ++i) {	/* print single env variables   */
+	for (i = 0; i < argc; ++i) {	/* print a subset of env variables */
 		char *name = argv[i];
 		char *val = NULL;
 
-		for (env = environment.data; *env; env = nxt + 1) {
-
-			for (nxt = env; *nxt; ++nxt) {
-				if (nxt >= &environment.data[ENV_SIZE]) {
-					fprintf (stderr, "## Error: "
-						"environment not terminated\n");
-					return -1;
-				}
-			}
-			val = envmatch (name, env);
-			if (val) {
-				if (!value_only) {
-					fputs (name, stdout);
-					putc ('=', stdout);
-				}
-				puts (val);
-				break;
-			}
-		}
+		val = fw_getenv(name);
 		if (!val) {
 			fprintf (stderr, "## Error: \"%s\" not defined\n", name);
 			rc = -1;
+			continue;
 		}
+
+		if (value_only) {
+			puts(val);
+			break;
+		}
+
+		printf("%s=%s\n", name, val);
 	}
 
 	return rc;
