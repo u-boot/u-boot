@@ -122,7 +122,6 @@ static unsigned char obsolete_flag = 0;
 #include <env_default.h>
 
 static int flash_io (int mode);
-static char *envmatch (char * s1, char * s2);
 static int parse_config(struct env_opts *opts);
 
 #if defined(CONFIG_FILE)
@@ -148,6 +147,24 @@ static char *skip_blanks(char *s)
 }
 
 /*
+ * s1 is either a simple 'name', or a 'name=value' pair.
+ * s2 is a 'name=value' pair.
+ * If the names match, return the value of s2, else NULL.
+ */
+static char *envmatch(char *s1, char *s2)
+{
+	if (s1 == NULL || s2 == NULL)
+		return NULL;
+
+	while (*s1 == *s2++)
+		if (*s1++ == '=')
+			return s2;
+	if (*s1 == '\0' && *(s2 - 1) == '=')
+		return s2;
+	return NULL;
+}
+
+/**
  * Search the environment for a variable.
  * Return the value, if found, or NULL, if not found.
  */
@@ -1088,25 +1105,6 @@ exit:
 	}
 
 	return rc;
-}
-
-/*
- * s1 is either a simple 'name', or a 'name=value' pair.
- * s2 is a 'name=value' pair.
- * If the names match, return the value of s2, else NULL.
- */
-
-static char *envmatch (char * s1, char * s2)
-{
-	if (s1 == NULL || s2 == NULL)
-		return NULL;
-
-	while (*s1 == *s2++)
-		if (*s1++ == '=')
-			return s2;
-	if (*s1 == '\0' && *(s2 - 1) == '=')
-		return s2;
-	return NULL;
 }
 
 /*
