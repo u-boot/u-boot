@@ -484,7 +484,7 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 	valc = argc - 1;
 
 	if (env_flags_validate_env_set_params(name, valv, valc) < 0)
-		return 1;
+		return -1;
 
 	len = 0;
 	for (i = 0; i < valc; ++i) {
