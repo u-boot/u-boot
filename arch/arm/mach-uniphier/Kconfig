@@ -12,6 +12,7 @@ config ARCH_UNIPHIER_64BIT
 	select ARM64
 	select SPL_SEPARATE_BSS
 	select ARMV8_MULTIENTRY
+	select ARMV8_SPIN_TABLE
 
 choice
         prompt "UniPhier SoC select"
