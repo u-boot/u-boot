@@ -1039,10 +1039,21 @@ command from the OS.
 For other platform boards, ACPI support status can be checked by examining their
 board defconfig files to see if CONFIG_GENERATE_ACPI_TABLE is set to y.
 
+EFI Support
+-----------
+U-Boot supports booting as a 32-bit or 64-bit EFI payload, e.g. with UEFI.
+This is enabled with CONFIG_EFI_STUB. U-Boot can also run as an EFI
+application, with CONFIG_EFI_APP. The CONFIG_EFI_LOADER option, where U-Booot
+provides an EFI environment to the kernel (i.e. replaces UEFI completely but
+provides the same EFI run-time services) is not currently supported on x86.
+
+See README.efi for details of EFI support in U-Boot.
+
 TODO List
 ---------
 - Audio
 - Chrome OS verified boot
+- Support for CONFIG_EFI_LOADER
 
 References
 ----------
