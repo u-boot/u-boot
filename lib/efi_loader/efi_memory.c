@@ -130,6 +130,9 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	bool carve_again;
 	uint64_t carved_pages = 0;
 
+	debug("%s: 0x%" PRIx64 " 0x%" PRIx64 " %d %s\n", __func__,
+	      start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+
 	if (!pages)
 		return start;
 
