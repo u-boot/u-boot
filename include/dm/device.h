@@ -207,6 +207,10 @@ struct driver {
 #define U_BOOT_DRIVER(__name)						\
 	ll_entry_declare(struct driver, __name, driver)
 
+/* Get a pointer to a given driver */
+#define DM_GET_DRIVER(__name)						\
+	ll_entry_get(struct driver, __name, driver)
+
 /**
  * dev_get_platdata() - Get the platform data for a device
  *
