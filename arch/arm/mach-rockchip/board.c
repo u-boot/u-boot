@@ -178,7 +178,7 @@ static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
 	int ret, i;
 	struct udevice *dev;
 
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		printf("clk-uclass not found\n");
 		return 0;

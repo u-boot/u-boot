@@ -923,7 +923,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	priv->chan[1].pctl = regmap_get_range(plat->map, 2);
 	priv->chan[1].publ = regmap_get_range(plat->map, 3);
 #endif
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev_clk);
+	ret = rockchip_get_clk(&dev_clk);
 	if (ret)
 		return ret;
 	priv->ddr_clk.id = CLK_DDR;

@@ -145,7 +145,7 @@ void *rockchip_get_cru(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	ret = rockchip_get_clk(&dev);
 	if (ret)
 		return ERR_PTR(ret);
 

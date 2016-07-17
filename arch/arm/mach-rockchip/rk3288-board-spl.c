@@ -187,7 +187,7 @@ void board_init_f(ulong dummy)
 	rockchip_timer_init();
 	configure_l2ctlr();
 
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);
 		return;
