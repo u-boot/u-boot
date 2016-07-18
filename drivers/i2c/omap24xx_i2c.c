@@ -39,6 +39,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <i2c.h>
 
 #include <asm/arch/i2c.h>
@@ -52,6 +53,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Absolutely safe for status update at 100 kHz I2C: */
 #define I2C_WAIT	200
+
+struct omap_i2c {
+	struct udevice *clk;
+	struct i2c *regs;
+	unsigned int speed;
+	int waitdelay;
+	int clk_id;
+};
 
 static int omap24_i2c_findpsc(u32 *pscl, u32 *psch, uint speed)
 {
@@ -667,6 +676,7 @@ wr_exit:
 	return i2c_error;
 }
 
+#ifndef CONFIG_DM_I2C
 /*
  * The legacy I2C functions. These need to get removed once
  * all users of this driver are converted to DM.
@@ -811,3 +821,92 @@ U_BOOT_I2C_ADAP_COMPLETE(omap24_4, omap24_i2c_init, omap24_i2c_probe,
 #endif
 #endif
 #endif
+
+#else /* CONFIG_DM_I2C */
+
+static int omap_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
+{
+	struct omap_i2c *priv = dev_get_priv(bus);
+	int ret;
+
+	debug("i2c_xfer: %d messages\n", nmsgs);
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
+		if (msg->flags & I2C_M_RD) {
+			ret = __omap24_i2c_read(priv->regs, priv->waitdelay,
+						msg->addr, 0, 0, msg->buf,
+						msg->len);
+		} else {
+			ret = __omap24_i2c_write(priv->regs, priv->waitdelay,
+						 msg->addr, 0, 0, msg->buf,
+						 msg->len);
+		}
+		if (ret) {
+			debug("i2c_write: error sending\n");
+			return -EREMOTEIO;
+		}
+	}
+
+	return 0;
+}
+
+static int omap_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+{
+	struct omap_i2c *priv = dev_get_priv(bus);
+
+	priv->speed = speed;
+
+	return __omap24_i2c_setspeed(priv->regs, speed, &priv->waitdelay);
+}
+
+static int omap_i2c_probe_chip(struct udevice *bus, uint chip_addr,
+				     uint chip_flags)
+{
+	struct omap_i2c *priv = dev_get_priv(bus);
+
+	return __omap24_i2c_probe(priv->regs, priv->waitdelay, chip_addr);
+}
+
+static int omap_i2c_probe(struct udevice *bus)
+{
+	struct omap_i2c *priv = dev_get_priv(bus);
+
+	__omap24_i2c_init(priv->regs, priv->speed, 0, &priv->waitdelay);
+
+	return 0;
+}
+
+static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
+{
+	struct omap_i2c *priv = dev_get_priv(bus);
+
+	priv->regs = map_physmem(dev_get_addr(bus), sizeof(void *),
+				 MAP_NOCACHE);
+	priv->speed = CONFIG_SYS_OMAP24_I2C_SPEED;
+
+	return 0;
+}
+
+static const struct dm_i2c_ops omap_i2c_ops = {
+	.xfer		= omap_i2c_xfer,
+	.probe_chip	= omap_i2c_probe_chip,
+	.set_bus_speed	= omap_i2c_set_bus_speed,
+};
+
+static const struct udevice_id omap_i2c_ids[] = {
+	{ .compatible = "ti,omap4-i2c" },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_omap) = {
+	.name	= "i2c_omap",
+	.id	= UCLASS_I2C,
+	.of_match = omap_i2c_ids,
+	.ofdata_to_platdata = omap_i2c_ofdata_to_platdata,
+	.probe	= omap_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct omap_i2c),
+	.ops	= &omap_i2c_ops,
+	.flags  = DM_FLAG_PRE_RELOC,
+};
+
+#endif /* CONFIG_DM_I2C */
