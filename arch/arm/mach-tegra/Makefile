@@ -27,6 +27,7 @@ endif
 obj-$(CONFIG_ARM64) += arm64-mmu.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o
+obj-$(CONFIG_TEGRA_IVC) += ivc.o
 obj-y += lowlevel_init.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
