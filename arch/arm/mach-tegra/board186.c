@@ -11,12 +11,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
-{
-	gd->ram_size = (1.5 * 1024 * 1024 * 1024);
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	return 0;
@@ -30,12 +24,6 @@ int board_init(void)
 int board_late_init(void)
 {
 	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
 }
 
 void pad_init_mmc(struct mmc_host *host)
