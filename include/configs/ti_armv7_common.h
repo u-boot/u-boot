@@ -118,7 +118,15 @@
 
 /* I2C IP block */
 #define CONFIG_I2C
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#else
+/*
+ * Enable CONFIG_DM_I2C_COMPAT temporarily until all the i2c client
+ * devices are adopted to DM
+ */
+#define CONFIG_DM_I2C_COMPAT
+#endif
 
 /* MMC/SD IP block */
 #define CONFIG_MMC
