@@ -53,10 +53,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Absolutely safe for status update at 100 kHz I2C: */
 #define I2C_WAIT	200
 
-static int wait_for_bb(struct i2c_adapter *adap);
-static struct i2c *omap24_get_base(struct i2c_adapter *adap);
-static u16 wait_for_event(struct i2c_adapter *adap);
-static void flush_fifo(struct i2c_adapter *adap);
 static int omap24_i2c_findpsc(u32 *pscl, u32 *psch, uint speed)
 {
 	unsigned int sampleclk, prescaler;
@@ -90,9 +86,96 @@ static int omap24_i2c_findpsc(u32 *pscl, u32 *psch, uint speed)
 	}
 	return -1;
 }
-static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
+
+/*
+ * Wait for the bus to be free by checking the Bus Busy (BB)
+ * bit to become clear
+ */
+static int wait_for_bb(struct i2c *i2c_base, int waitdelay)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
+	int timeout = I2C_TIMEOUT;
+	u16 stat;
+
+	writew(0xFFFF, &i2c_base->stat);	/* clear current interrupts...*/
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+	while ((stat = readw(&i2c_base->stat) & I2C_STAT_BB) && timeout--) {
+#else
+	/* Read RAW status */
+	while ((stat = readw(&i2c_base->irqstatus_raw) &
+		I2C_STAT_BB) && timeout--) {
+#endif
+		writew(stat, &i2c_base->stat);
+		udelay(waitdelay);
+	}
+
+	if (timeout <= 0) {
+		printf("Timed out in wait_for_bb: status=%04x\n",
+		       stat);
+		return 1;
+	}
+	writew(0xFFFF, &i2c_base->stat);	 /* clear delayed stuff*/
+	return 0;
+}
+
+/*
+ * Wait for the I2C controller to complete current action
+ * and update status
+ */
+static u16 wait_for_event(struct i2c *i2c_base, int waitdelay)
+{
+	u16 status;
+	int timeout = I2C_TIMEOUT;
+
+	do {
+		udelay(waitdelay);
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+		status = readw(&i2c_base->stat);
+#else
+		/* Read RAW status */
+		status = readw(&i2c_base->irqstatus_raw);
+#endif
+	} while (!(status &
+		   (I2C_STAT_ROVR | I2C_STAT_XUDF | I2C_STAT_XRDY |
+		    I2C_STAT_RRDY | I2C_STAT_ARDY | I2C_STAT_NACK |
+		    I2C_STAT_AL)) && timeout--);
+
+	if (timeout <= 0) {
+		printf("Timed out in wait_for_event: status=%04x\n",
+		       status);
+		/*
+		 * If status is still 0 here, probably the bus pads have
+		 * not been configured for I2C, and/or pull-ups are missing.
+		 */
+		printf("Check if pads/pull-ups of bus are properly configured\n");
+		writew(0xFFFF, &i2c_base->stat);
+		status = 0;
+	}
+
+	return status;
+}
+
+static void flush_fifo(struct i2c *i2c_base)
+{
+	u16 stat;
+
+	/*
+	 * note: if you try and read data when its not there or ready
+	 * you get a bus error
+	 */
+	while (1) {
+		stat = readw(&i2c_base->stat);
+		if (stat == I2C_STAT_RRDY) {
+			readb(&i2c_base->data);
+			writew(I2C_STAT_RRDY, &i2c_base->stat);
+			udelay(1000);
+		} else
+			break;
+	}
+}
+
+static int __omap24_i2c_setspeed(struct i2c *i2c_base, uint speed,
+				 int *waitdelay)
+{
 	int psc, fsscll = 0, fssclh = 0;
 	int hsscll = 0, hssclh = 0;
 	u32 scll = 0, sclh = 0;
@@ -142,8 +225,7 @@ static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 		}
 	}
 
-	adap->speed	= speed;
-	adap->waitdelay = (10000000 / speed) * 2; /* wait for 20 clkperiods */
+	*waitdelay = (10000000 / speed) * 2; /* wait for 20 clkperiods */
 	writew(0, &i2c_base->con);
 	writew(psc, &i2c_base->psc);
 	writew(scll, &i2c_base->scll);
@@ -154,9 +236,8 @@ static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 	return 0;
 }
 
-static void omap24_i2c_deblock(struct i2c_adapter *adap)
+static void omap24_i2c_deblock(struct i2c *i2c_base)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
 	int i;
 	u16 systest;
 	u16 orgsystest;
@@ -200,9 +281,9 @@ static void omap24_i2c_deblock(struct i2c_adapter *adap)
 	writew(orgsystest, &i2c_base->systest);
 }
 
-static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+static void __omap24_i2c_init(struct i2c *i2c_base, int speed, int slaveadd,
+			      int *waitdelay)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
 	int timeout = I2C_TIMEOUT;
 	int deblock = 1;
 
@@ -224,7 +305,7 @@ retry:
 		udelay(1000);
 	}
 
-	if (0 != omap24_i2c_setspeed(adap, speed)) {
+	if (0 != __omap24_i2c_setspeed(i2c_base, speed, waitdelay)) {
 		printf("ERROR: failed to setup I2C bus-speed!\n");
 		return;
 	}
@@ -241,45 +322,24 @@ retry:
 	       I2C_IE_NACK_IE | I2C_IE_AL_IE, &i2c_base->ie);
 #endif
 	udelay(1000);
-	flush_fifo(adap);
+	flush_fifo(i2c_base);
 	writew(0xFFFF, &i2c_base->stat);
 
 	/* Handle possible failed I2C state */
-	if (wait_for_bb(adap))
+	if (wait_for_bb(i2c_base, *waitdelay))
 		if (deblock == 1) {
-			omap24_i2c_deblock(adap);
+			omap24_i2c_deblock(i2c_base);
 			deblock = 0;
 			goto retry;
 		}
-}
-
-static void flush_fifo(struct i2c_adapter *adap)
-{
-	struct i2c *i2c_base = omap24_get_base(adap);
-	u16 stat;
-
-	/*
-	 * note: if you try and read data when its not there or ready
-	 * you get a bus error
-	 */
-	while (1) {
-		stat = readw(&i2c_base->stat);
-		if (stat == I2C_STAT_RRDY) {
-			readb(&i2c_base->data);
-			writew(I2C_STAT_RRDY, &i2c_base->stat);
-			udelay(1000);
-		} else
-			break;
-	}
 }
 
 /*
  * i2c_probe: Use write access. Allows to identify addresses that are
  *            write-only (like the config register of dual-port EEPROMs)
  */
-static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
+static int __omap24_i2c_probe(struct i2c *i2c_base, int waitdelay, uchar chip)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
 	u16 status;
 	int res = 1; /* default = fail */
 
@@ -287,7 +347,7 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 		return res;
 
 	/* Wait until bus is free */
-	if (wait_for_bb(adap))
+	if (wait_for_bb(i2c_base, waitdelay))
 		return res;
 
 	/* No data transfer, slave addr only */
@@ -296,7 +356,7 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 	writew(I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_TRX |
 	       I2C_CON_STP, &i2c_base->con);
 
-	status = wait_for_event(adap);
+	status = wait_for_event(i2c_base, waitdelay);
 
 	if ((status & ~I2C_STAT_XRDY) == 0 || (status & I2C_STAT_AL)) {
 		/*
@@ -306,8 +366,8 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 		 * following 'if' section:
 		 */
 		if (status == I2C_STAT_XRDY)
-			printf("i2c_probe: pads on bus %d probably not configured (status=0x%x)\n",
-			       adap->hwadapnr, status);
+			printf("i2c_probe: pads on bus probably not configured (status=0x%x)\n",
+			       status);
 
 		goto pr_exit;
 	}
@@ -315,7 +375,7 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 	/* Check for ACK (!NAK) */
 	if (!(status & I2C_STAT_NACK)) {
 		res = 0;				/* Device found */
-		udelay(adap->waitdelay);/* Required by AM335X in SPL */
+		udelay(waitdelay);/* Required by AM335X in SPL */
 		/* Abort transfer (force idle state) */
 		writew(I2C_CON_MST | I2C_CON_TRX, &i2c_base->con); /* Reset */
 		udelay(1000);
@@ -323,7 +383,7 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 		       I2C_CON_STP, &i2c_base->con);		/* STP */
 	}
 pr_exit:
-	flush_fifo(adap);
+	flush_fifo(i2c_base);
 	writew(0xFFFF, &i2c_base->stat);
 	return res;
 }
@@ -341,10 +401,9 @@ pr_exit:
  *           or that do not need a register address at all (such as some clock
  *           distributors).
  */
-static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
-			   int alen, uchar *buffer, int len)
+static int __omap24_i2c_read(struct i2c *i2c_base, int waitdelay, uchar chip,
+			     uint addr, int alen, uchar *buffer, int len)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
 	int i2c_error = 0;
 	u16 status;
 
@@ -389,7 +448,7 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 #endif
 
 	/* Wait until bus not busy */
-	if (wait_for_bb(adap))
+	if (wait_for_bb(i2c_base, waitdelay))
 		return 1;
 
 	/* Zero, one or two bytes reg address (offset) */
@@ -410,12 +469,12 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 #endif
 		/* Send register offset */
 		while (1) {
-			status = wait_for_event(adap);
+			status = wait_for_event(i2c_base, waitdelay);
 			/* Try to identify bus that is not padconf'd for I2C */
 			if (status == I2C_STAT_XRDY) {
 				i2c_error = 2;
-				printf("i2c_read (addr phase): pads on bus %d probably not configured (status=0x%x)\n",
-				       adap->hwadapnr, status);
+				printf("i2c_read (addr phase): pads on bus probably not configured (status=0x%x)\n",
+				       status);
 				goto rd_exit;
 			}
 			if (status == 0 || (status & I2C_STAT_NACK)) {
@@ -450,7 +509,7 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 
 	/* Receive data */
 	while (1) {
-		status = wait_for_event(adap);
+		status = wait_for_event(i2c_base, waitdelay);
 		/*
 		 * Try to identify bus that is not padconf'd for I2C. This
 		 * state could be left over from previous transactions if
@@ -458,8 +517,8 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 		 */
 		if (status == I2C_STAT_XRDY) {
 			i2c_error = 2;
-			printf("i2c_read (data phase): pads on bus %d probably not configured (status=0x%x)\n",
-			       adap->hwadapnr, status);
+			printf("i2c_read (data phase): pads on bus probably not configured (status=0x%x)\n",
+			       status);
 			goto rd_exit;
 		}
 		if (status == 0 || (status & I2C_STAT_NACK)) {
@@ -477,16 +536,15 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 	}
 
 rd_exit:
-	flush_fifo(adap);
+	flush_fifo(i2c_base);
 	writew(0xFFFF, &i2c_base->stat);
 	return i2c_error;
 }
 
 /* i2c_write: Address (reg offset) may be 0, 1 or 2 bytes long. */
-static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
-			    int alen, uchar *buffer, int len)
+static int __omap24_i2c_write(struct i2c *i2c_base, int waitdelay, uchar chip,
+			      uint addr, int alen, uchar *buffer, int len)
 {
-	struct i2c *i2c_base = omap24_get_base(adap);
 	int i;
 	u16 status;
 	int i2c_error = 0;
@@ -536,7 +594,7 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 #endif
 
 	/* Wait until bus not busy */
-	if (wait_for_bb(adap))
+	if (wait_for_bb(i2c_base, waitdelay))
 		return 1;
 
 	/* Start address phase - will write regoffset + len bytes data */
@@ -549,12 +607,12 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 
 	while (alen) {
 		/* Must write reg offset (one or two bytes) */
-		status = wait_for_event(adap);
+		status = wait_for_event(i2c_base, waitdelay);
 		/* Try to identify bus that is not padconf'd for I2C */
 		if (status == I2C_STAT_XRDY) {
 			i2c_error = 2;
-			printf("i2c_write: pads on bus %d probably not configured (status=0x%x)\n",
-			       adap->hwadapnr, status);
+			printf("i2c_write: pads on bus probably not configured (status=0x%x)\n",
+			       status);
 			goto wr_exit;
 		}
 		if (status == 0 || (status & I2C_STAT_NACK)) {
@@ -576,7 +634,7 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	}
 	/* Address phase is over, now write data */
 	for (i = 0; i < len; i++) {
-		status = wait_for_event(adap);
+		status = wait_for_event(i2c_base, waitdelay);
 		if (status == 0 || (status & I2C_STAT_NACK)) {
 			i2c_error = 1;
 			printf("i2c_write: error waiting for data ACK (status=0x%x)\n",
@@ -598,87 +656,21 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	 * transferred on the bus.
 	 */
 	do {
-		status = wait_for_event(adap);
+		status = wait_for_event(i2c_base, waitdelay);
 	} while (!(status & I2C_STAT_ARDY) && timeout--);
 	if (timeout <= 0)
 		printf("i2c_write: timed out writig last byte!\n");
 
 wr_exit:
-	flush_fifo(adap);
+	flush_fifo(i2c_base);
 	writew(0xFFFF, &i2c_base->stat);
 	return i2c_error;
 }
 
 /*
- * Wait for the bus to be free by checking the Bus Busy (BB)
- * bit to become clear
+ * The legacy I2C functions. These need to get removed once
+ * all users of this driver are converted to DM.
  */
-static int wait_for_bb(struct i2c_adapter *adap)
-{
-	struct i2c *i2c_base = omap24_get_base(adap);
-	int timeout = I2C_TIMEOUT;
-	u16 stat;
-
-	writew(0xFFFF, &i2c_base->stat);	/* clear current interrupts...*/
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
-	while ((stat = readw(&i2c_base->stat) & I2C_STAT_BB) && timeout--) {
-#else
-	/* Read RAW status */
-	while ((stat = readw(&i2c_base->irqstatus_raw) &
-		I2C_STAT_BB) && timeout--) {
-#endif
-		writew(stat, &i2c_base->stat);
-		udelay(adap->waitdelay);
-	}
-
-	if (timeout <= 0) {
-		printf("Timed out in wait_for_bb: status=%04x\n",
-		       stat);
-		return 1;
-	}
-	writew(0xFFFF, &i2c_base->stat);	 /* clear delayed stuff*/
-	return 0;
-}
-
-/*
- * Wait for the I2C controller to complete current action
- * and update status
- */
-static u16 wait_for_event(struct i2c_adapter *adap)
-{
-	struct i2c *i2c_base = omap24_get_base(adap);
-	u16 status;
-	int timeout = I2C_TIMEOUT;
-
-	do {
-		udelay(adap->waitdelay);
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
-		status = readw(&i2c_base->stat);
-#else
-		/* Read RAW status */
-		status = readw(&i2c_base->irqstatus_raw);
-#endif
-	} while (!(status &
-		   (I2C_STAT_ROVR | I2C_STAT_XUDF | I2C_STAT_XRDY |
-		    I2C_STAT_RRDY | I2C_STAT_ARDY | I2C_STAT_NACK |
-		    I2C_STAT_AL)) && timeout--);
-
-	if (timeout <= 0) {
-		printf("Timed out in wait_for_event: status=%04x\n",
-		       status);
-		/*
-		 * If status is still 0 here, probably the bus pads have
-		 * not been configured for I2C, and/or pull-ups are missing.
-		 */
-		printf("Check if pads/pull-ups of bus %d are properly configured\n",
-		       adap->hwadapnr);
-		writew(0xFFFF, &i2c_base->stat);
-		status = 0;
-	}
-
-	return status;
-}
-
 static struct i2c *omap24_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
@@ -708,6 +700,56 @@ static struct i2c *omap24_get_base(struct i2c_adapter *adap)
 		break;
 	}
 	return NULL;
+}
+
+
+static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			   int alen, uchar *buffer, int len)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+
+	return __omap24_i2c_read(i2c_base, adap->waitdelay, chip, addr,
+				 alen, buffer, len);
+}
+
+
+static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			    int alen, uchar *buffer, int len)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+
+	return __omap24_i2c_write(i2c_base, adap->waitdelay, chip, addr,
+				  alen, buffer, len);
+}
+
+static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+	int ret;
+
+	ret = __omap24_i2c_setspeed(i2c_base, speed, &adap->waitdelay);
+	if (ret) {
+		error("%s: set i2c speed failed\n", __func__);
+		return ret;
+	}
+
+	adap->speed = speed;
+
+	return 0;
+}
+
+static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+
+	return __omap24_i2c_init(i2c_base, speed, slaveadd, &adap->waitdelay);
+}
+
+static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+
+	return __omap24_i2c_probe(i2c_base, adap->waitdelay, chip);
 }
 
 #if !defined(CONFIG_SYS_OMAP24_I2C_SPEED1)
