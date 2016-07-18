@@ -433,9 +433,9 @@ static u32 get_axi_clk(void)
 
 	if (cbcdr & MXC_CCM_CBCDR_AXI_SEL) {
 		if (cbcdr & MXC_CCM_CBCDR_AXI_ALT_SEL)
-			root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
-		else
 			root_freq = mxc_get_pll_pfd(PLL_USBOTG, 1);
+		else
+			root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
 	} else
 		root_freq = get_periph_clk();
 
