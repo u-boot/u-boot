@@ -144,6 +144,32 @@ For evb_rk3036 board:
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
       debug uart must be disabled
 
+Using fastboot on rk3288
+========================
+- Define GPT partition layout like kylin_rk3036(see include/configs/kylin_rk3036.h)
+- Write GPT partition layout to mmc device which fastboot want to use it to
+store the image
+
+        => gpt write mmc 1 $partitions
+
+- Invoke fastboot command to prepare
+
+        => fastboot 1
+
+- Start fastboot request on PC
+
+        fastboot -i 0x2207 flash loader evb-rk3288/spl/u-boot-spl-dtb.bin
+
+You should see something like:
+
+        => fastboot 1
+        WARNING: unknown variable: partition-type:loader
+        Starting download of 357796 bytes
+        ..
+        downloading of 357796 bytes finished
+        Flashing Raw Image
+        ........ wrote 357888 bytes to 'loader'
+
 Booting from SPI
 ================
 
