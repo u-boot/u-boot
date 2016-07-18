@@ -15,7 +15,7 @@ config TPM_TIS_SANDBOX
 
 config TPM_ATMEL_TWI
 	bool "Enable Atmel TWI TPM device driver"
-	depends on TPM && DM_I2C
+	depends on TPM
 	help
 	  This driver supports an Atmel TPM device connected on the I2C bus.
 	  The usual tpm operations and the 'tpm' command can be used to talk
