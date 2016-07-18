@@ -1,0 +1,8 @@
+/dts-v1/;
+
+#include "tegra186-p2771-0000.dtsi"
+
+/ {
+	model = "NVIDIA P2771-0000 B00";
+	compatible = "nvidia,p2771-0000-b00", "nvidia,p2771-0000", "nvidia,tegra186";
+};
