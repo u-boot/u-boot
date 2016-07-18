@@ -151,7 +151,7 @@ def test_vboot(u_boot_console):
     cons = u_boot_console
     tmpdir = cons.config.result_dir + '/'
     tmp = tmpdir + 'vboot.tmp'
-    datadir = 'test/py/tests/vboot/'
+    datadir = cons.config.source_dir + '/test/py/tests/vboot/'
     fit = '%stest.fit' % tmpdir
     mkimage = cons.config.build_dir + '/tools/mkimage'
     fit_check_sign = cons.config.build_dir + '/tools/fit_check_sign'
