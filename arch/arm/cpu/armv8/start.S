@@ -53,6 +53,11 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
+	/* Allow the board to save important registers */
+	b	save_boot_params
+.globl	save_boot_params_ret
+save_boot_params_ret:
+
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
@@ -282,3 +287,7 @@ ENTRY(c_runtime_cpu_setup)
 
 	ret
 ENDPROC(c_runtime_cpu_setup)
+
+WEAK(save_boot_params)
+	b	save_boot_params_ret	/* back to my caller */
+ENDPROC(save_boot_params)
