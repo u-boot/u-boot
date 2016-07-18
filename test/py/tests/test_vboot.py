@@ -29,6 +29,7 @@ import pytest
 import sys
 import u_boot_utils as util
 
+@pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
 def test_vboot(u_boot_console):
     """Test verified boot signing with mkimage and verification with 'bootm'.
