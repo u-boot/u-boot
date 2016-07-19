@@ -226,7 +226,6 @@
 		"run boot_common\0" \
 	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
-		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"
 #endif
