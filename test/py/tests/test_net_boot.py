@@ -35,7 +35,7 @@ def test_net_tftpboot_boot(u_boot_console):
     if not addr:
       addr = u_boot_utils.find_ram_base(u_boot_console)
 
-    timeout = 3000
+    timeout = 50000
     with u_boot_console.temporary_timeout(timeout):
 	try:
 	    # wait_for_prompt=False makes the core code not wait for the U-Boot
