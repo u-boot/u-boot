@@ -16,7 +16,6 @@
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
-#include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fdt_support.h>
 #include <asm/io.h>
