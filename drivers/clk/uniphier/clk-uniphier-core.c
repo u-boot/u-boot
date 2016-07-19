@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <mapmem.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -137,20 +137,11 @@ int uniphier_clk_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->base = map_sysmem(addr, SZ_4K);
+	priv->base = devm_ioremap(dev, addr, SZ_4K);
 	if (!priv->base)
 		return -ENOMEM;
 
 	priv->socdata = (void *)dev_get_driver_data(dev);
-
-	return 0;
-}
-
-int uniphier_clk_remove(struct udevice *dev)
-{
-	struct uniphier_clk_priv *priv = dev_get_priv(dev);
-
-	unmap_sysmem(priv->base);
 
 	return 0;
 }

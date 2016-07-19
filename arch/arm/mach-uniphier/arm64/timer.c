@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <mapmem.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -21,7 +20,7 @@ int timer_init(void)
 	void __iomem *base;
 	u32 tmp;
 
-	base = map_sysmem(CNT_CONTROL_BASE, SZ_4K);
+	base = ioremap(CNT_CONTROL_BASE, SZ_4K);
 
 	/*
 	 * Note:
@@ -32,7 +31,7 @@ int timer_init(void)
 	tmp |= CNTCR_EN;
 	writel(tmp, base + CNTCR);
 
-	unmap_sysmem(base);
+	iounmap(base);
 
 	return 0;
 }

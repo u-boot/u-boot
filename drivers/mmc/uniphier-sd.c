@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -7,7 +8,6 @@
 #include <common.h>
 #include <clk.h>
 #include <fdtdec.h>
-#include <mapmem.h>
 #include <mmc.h>
 #include <dm/device.h>
 #include <linux/compat.h>
@@ -660,7 +660,7 @@ int uniphier_sd_probe(struct udevice *dev)
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->regbase = map_sysmem(base, SZ_2K);
+	priv->regbase = devm_ioremap(dev, base, SZ_2K);
 	if (!priv->regbase)
 		return -ENOMEM;
 
@@ -735,7 +735,6 @@ int uniphier_sd_remove(struct udevice *dev)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 
-	unmap_sysmem(priv->regbase);
 	mmc_destroy(priv->mmc);
 
 	return 0;

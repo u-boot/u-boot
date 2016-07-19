@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014      Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <mapmem.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 
@@ -51,7 +52,7 @@ static void dump_loop(unsigned long *base,
 	int p, dx;
 
 	for (p = 0; *base; base++, p++) {
-		phy = map_sysmem(*base, SZ_4K);
+		phy = ioremap(*base, SZ_4K);
 
 		for (dx = 0; dx < NR_DATX8_PER_DDRPHY; dx++) {
 			printf("PHY%dDX%d:", p, dx);
@@ -59,7 +60,7 @@ static void dump_loop(unsigned long *base,
 			printf("\n");
 		}
 
-		unmap_sysmem(phy);
+		iounmap(phy);
 	}
 }
 
@@ -172,7 +173,7 @@ static void reg_dump(unsigned long *base)
 	printf("\n--- DDR PHY registers ---\n");
 
 	for (p = 0; *base; base++, p++) {
-		phy = map_sysmem(*base, SZ_4K);
+		phy = ioremap(*base, SZ_4K);
 
 		printf("== PHY%d (base: %p) ==\n", p, phy);
 		printf(" No: Name      : Address  : Data\n");
@@ -206,7 +207,7 @@ static void reg_dump(unsigned long *base)
 		REG_DUMP(dx[1].gcr);
 		REG_DUMP(dx[1].gtr);
 
-		unmap_sysmem(phy);
+		iounmap(phy);
 	}
 }
 

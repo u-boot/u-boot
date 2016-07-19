@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -52,6 +53,5 @@ struct uniphier_clk_priv {
 
 extern const struct clk_ops uniphier_clk_ops;
 int uniphier_clk_probe(struct udevice *dev);
-int uniphier_clk_remove(struct udevice *dev);
 
 #endif /* __CLK_UNIPHIER_H__ */
