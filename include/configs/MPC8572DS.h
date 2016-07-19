@@ -668,7 +668,7 @@
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=8572ds/ramdisk.uboot\0"		\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=8572ds/mpc8572ds.dtb\0"		\
 "bdev=sda3\0"
 

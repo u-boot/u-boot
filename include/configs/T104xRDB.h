@@ -900,7 +900,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=" __stringify(RAMDISKFILE) "\0"		\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"
 

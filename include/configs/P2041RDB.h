@@ -698,7 +698,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"usb_dr_mode=host\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=p2041rdb/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=p2041rdb/p2041rdb.dtb\0"			\
 	"bdev=sda3\0"
 

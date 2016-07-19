@@ -513,7 +513,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 "consoledev=ttyS0\0"	\
 "ramdiskaddr=2000000\0"	\
 "ramdiskfile=rootfs.ext2.gz.uboot\0"	\
-"fdtaddr=c00000\0"	\
+"fdtaddr=1e00000\0"	\
 "bdev=sda1\0"	\
 "norbootaddr=ef080000\0"	\
 "norfdtaddr=ef040000\0"	\
