@@ -10,6 +10,7 @@ obj-y += soc.o
 obj-$(CONFIG_MP) += mp.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_SPL) += spl.o
+obj-$(CONFIG_FSL_LS_PPA) += ppa.o
 
 ifneq ($(CONFIG_FSL_LSCH3),)
 obj-y += fsl_lsch3_speed.o

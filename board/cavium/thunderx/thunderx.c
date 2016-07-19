@@ -45,16 +45,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region thunderx_mem_map[] = {
 	{
-		.base = 0x000000000000UL,
+		.virt = 0x000000000000UL,
+		.phys = 0x000000000000UL,
 		.size = 0x40000000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE,
 	}, {
-		.base = 0x800000000000UL,
+		.virt = 0x800000000000UL,
+		.phys = 0x800000000000UL,
 		.size = 0x40000000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE,
 	}, {
-		.base = 0x840000000000UL,
+		.virt = 0x840000000000UL,
+		.phys = 0x840000000000UL,
 		.size = 0x40000000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE,

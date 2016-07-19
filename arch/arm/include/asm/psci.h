@@ -64,6 +64,7 @@ void psci_cpu_off_common(void);
 
 int psci_update_dt(void *fdt);
 void psci_board_init(void);
+int fdt_psci(void *fdt);
 #endif /* ! __ASSEMBLY__ */
 
 #endif /* __ARM_PSCI_H__ */

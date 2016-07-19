@@ -24,7 +24,9 @@
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
 #endif
-
+#ifdef CONFIG_FSL_LS_PPA
+#include <asm/arch/ppa.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -90,6 +92,10 @@ int board_init(void)
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
+#endif
+
+#ifdef CONFIG_FSL_LS_PPA
+	ppa_init();
 #endif
 
 #ifdef CONFIG_U_QE

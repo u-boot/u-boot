@@ -44,6 +44,21 @@ struct arch_global_data {
 	unsigned long tlb_emerg;
 #endif
 #endif
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#define MEM_RESERVE_SECURE_SECURED	0x1
+#define MEM_RESERVE_SECURE_MAINTAINED	0x2
+#define MEM_RESERVE_SECURE_ADDR_MASK	(~0x3)
+	/*
+	 * Secure memory addr
+	 * This variable needs maintenance if the RAM base is not zero,
+	 * or if RAM splits into non-consecutive banks. It also has a
+	 * flag indicating the secure memory is marked as secure by MMU.
+	 * Flags used: 0x1 secured
+	 *             0x2 maintained
+	 */
+	phys_addr_t secure_ram;
+	unsigned long tlb_allocated;
+#endif
 
 #ifdef CONFIG_OMAP_COMMON
 	u32 omap_boot_device;

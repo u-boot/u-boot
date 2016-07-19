@@ -18,40 +18,47 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region zynqmp_mem_map[] = {
 	{
-		.base = 0x0UL,
+		.virt = 0x0UL,
+		.phys = 0x0UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.base = 0x80000000UL,
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
 		.size = 0x70000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.base = 0xf8000000UL,
+		.virt = 0xf8000000UL,
+		.phys = 0xf8000000UL,
 		.size = 0x07e00000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.base = 0xffe00000UL,
+		.virt = 0xffe00000UL,
+		.phys = 0xffe00000UL,
 		.size = 0x00200000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.base = 0x400000000UL,
+		.virt = 0x400000000UL,
+		.phys = 0x400000000UL,
 		.size = 0x200000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.base = 0x600000000UL,
+		.virt = 0x600000000UL,
+		.phys = 0x600000000UL,
 		.size = 0x800000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.base = 0xe00000000UL,
+		.virt = 0xe00000000UL,
+		.phys = 0xe00000000UL,
 		.size = 0xf200000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |

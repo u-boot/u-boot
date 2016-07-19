@@ -135,12 +135,15 @@ static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 }
 
 struct mm_region {
-	u64 base;
+	u64 virt;
+	u64 phys;
 	u64 size;
 	u64 attrs;
 };
 
 extern struct mm_region *mem_map;
+void setup_pgtables(void);
+u64 get_tcr(int el, u64 *pips, u64 *pva_bits);
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

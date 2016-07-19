@@ -55,20 +55,6 @@ typedef struct global_data {
 
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t ram_size;	/* RAM size */
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-#define MEM_RESERVE_SECURE_SECURED	0x1
-#define MEM_RESERVE_SECURE_MAINTAINED	0x2
-#define MEM_RESERVE_SECURE_ADDR_MASK	(~0x3)
-	/*
-	 * Secure memory addr
-	 * This variable needs maintenance if the RAM base is not zero,
-	 * or if RAM splits into non-consecutive banks. It also has a
-	 * flag indicating the secure memory is marked as secure by MMU.
-	 * Flags used: 0x1 secured
-	 *             0x2 maintained
-	 */
-	phys_addr_t secure_ram;
-#endif
 	unsigned long mon_len;	/* monitor len */
 	unsigned long irq_sp;		/* irq stack pointer */
 	unsigned long start_addr_sp;	/* start_addr_stackpointer */

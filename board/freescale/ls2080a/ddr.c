@@ -177,7 +177,7 @@ void dram_init_banksize(void)
 #endif
 
 	/*
-	 * gd->secure_ram tracks the location of secure memory.
+	 * gd->arch.secure_ram tracks the location of secure memory.
 	 * It was set as if the memory starts from 0.
 	 * The address needs to add the offset of its bank.
 	 */
@@ -188,16 +188,17 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[1].size = gd->ram_size -
 					  CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->secure_ram = gd->bd->bi_dram[1].start +
-				 gd->secure_ram -
-				 CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
-		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+		gd->arch.secure_ram = gd->bd->bi_dram[1].start +
+				      gd->arch.secure_ram -
+				      CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
+		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
 #endif
 	} else {
 		gd->bd->bi_dram[0].size = gd->ram_size;
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->secure_ram = gd->bd->bi_dram[0].start + gd->secure_ram;
-		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
+				      gd->arch.secure_ram;
+		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
 #endif
 	}
 
