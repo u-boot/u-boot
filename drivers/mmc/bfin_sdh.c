@@ -109,9 +109,9 @@ sdh_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
 	}
 
 	if (status & CMD_TIME_OUT)
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 	else if (status & CMD_CRC_FAIL && flags & MMC_RSP_CRC)
-		ret = COMM_ERR;
+		ret = -ECOMM;
 	else
 		ret = 0;
 
@@ -136,7 +136,7 @@ static int sdh_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 	/* Don't support write yet. */
 	if (data->flags & MMC_DATA_WRITE)
-		return UNUSABLE_ERR;
+		return -EOPNOTSUPP;
 #ifndef RSI_BLKSZ
 	data_ctl |= ((ffs(data->blocksize) - 1) << 4);
 #else
@@ -194,10 +194,10 @@ static int bfin_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 		if (status & DAT_TIME_OUT) {
 			bfin_write_SDH_STATUS_CLR(DAT_TIMEOUT_STAT);
-			ret |= TIMEOUT;
+			ret = -ETIMEDOUT;
 		} else if (status & (DAT_CRC_FAIL | RX_OVERRUN)) {
 			bfin_write_SDH_STATUS_CLR(DAT_CRC_FAIL_STAT | RX_OVERRUN_STAT);
-			ret |= COMM_ERR;
+			ret = -ECOMM;
 		} else
 			bfin_write_SDH_STATUS_CLR(DAT_BLK_END_STAT | DAT_END_STAT);
 

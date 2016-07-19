@@ -9,6 +9,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
@@ -66,7 +67,7 @@ dmmc_wait_fifo_status(volatile struct davinci_mmc_regs *regs, uint status)
 		udelay(100);
 
 	if (wdog == 0)
-		return COMM_ERR;
+		return -ECOMM;
 
 	return 0;
 }
@@ -80,7 +81,7 @@ static int dmmc_busy_wait(volatile struct davinci_mmc_regs *regs)
 		udelay(10);
 
 	if (wdog == 0)
-		return COMM_ERR;
+		return -ECOMM;
 
 	return 0;
 }
@@ -99,7 +100,7 @@ static int dmmc_check_status(volatile struct davinci_mmc_regs *regs,
 			return 0;
 		} else if (mmcstatus & st_error) {
 			if (mmcstatus & MMCST0_TOUTRS)
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			printf("[ ST0 ERROR %x]\n", mmcstatus);
 			/*
 			 * Ignore CRC errors as some MMC cards fail to
@@ -107,7 +108,7 @@ static int dmmc_check_status(volatile struct davinci_mmc_regs *regs,
 			 */
 			if (mmcstatus & MMCST0_CRCRS)
 				return 0;
-			return COMM_ERR;
+			return -ECOMM;
 		}
 		udelay(10);
 
@@ -116,7 +117,7 @@ static int dmmc_check_status(volatile struct davinci_mmc_regs *regs,
 
 	printf("Status %x Timeout ST0:%x ST1:%x\n", st_ready, mmcstatus,
 			get_val(&regs->mmcst1));
-	return COMM_ERR;
+	return -ECOMM;
 }
 
 /*

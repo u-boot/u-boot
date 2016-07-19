@@ -162,7 +162,7 @@ static int uniphier_sd_check_error(struct uniphier_sd_priv *priv)
 		 * display error log since this might be a part of sequence to
 		 * distinguish between SD and MMC.
 		 */
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	if (info2 & UNIPHIER_SD_INFO2_ERR_TO) {

@@ -158,7 +158,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		if (get_timer(start) > timeout) {
 			debug("%s: Timeout waiting for data!\n",
 			      __func__);
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 			break;
 		}
 	}
@@ -203,7 +203,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
 			debug("%s: Timeout on data busy\n", __func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 
@@ -269,7 +269,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	if (i == retry) {
 		debug("%s: Timeout.\n", __func__);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	if (mask & DWMCI_INTMSK_RTO) {
@@ -282,7 +282,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		 * CMD8, please keep that in mind.
 		 */
 		debug("%s: Response Timeout.\n", __func__);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
 		debug("%s: Response Error.\n", __func__);
 		return -EIO;

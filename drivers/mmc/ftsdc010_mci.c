@@ -34,7 +34,7 @@ static inline int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
 {
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
-	int ret = TIMEOUT;
+	int ret = -ETIMEDOUT;
 	uint32_t ts, st;
 	uint32_t cmd   = FTSDC010_CMD_IDX(mmc_cmd->cmdidx);
 	uint32_t arg   = mmc_cmd->cmdarg;
@@ -126,7 +126,7 @@ static void ftsdc010_clkset(struct mmc *mmc, uint32_t rate)
 
 static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
 {
-	int ret = TIMEOUT;
+	int ret = -ETIMEDOUT;
 	uint32_t st, ts;
 
 	for (ts = get_timer(0); get_timer(ts) < CFG_CMD_TIMEOUT; ) {
@@ -151,7 +151,7 @@ static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
 static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	struct mmc_data *data)
 {
-	int ret = UNUSABLE_ERR;
+	int ret = -EOPNOTSUPP;
 	uint32_t len = 0;
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
@@ -279,7 +279,7 @@ static int ftsdc010_init(struct mmc *mmc)
 	uint32_t ts;
 
 	if (readl(&regs->status) & FTSDC010_STATUS_CARD_DETECT)
-		return NO_CARD_ERR;
+		return -ENOMEDIUM;
 
 	if (readl(&regs->status) & FTSDC010_STATUS_WRITE_PROT) {
 		printf("ftsdc010: write protected\n");
@@ -297,7 +297,7 @@ static int ftsdc010_init(struct mmc *mmc)
 	}
 	if (readl(&regs->cmd) & FTSDC010_CMD_SDC_RST) {
 		printf("ftsdc010: reset failed\n");
-		return UNUSABLE_ERR;
+		return -EOPNOTSUPP;
 	}
 
 	/* 2. enter low speed mode (400k card detection) */

@@ -170,7 +170,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 				       cmd_timeout);
 			} else {
 				puts("timeout.\n");
-				return COMM_ERR;
+				return -ECOMM;
 			}
 		}
 		time++;
@@ -260,7 +260,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 			} else {
 				printf("%s: Timeout for status update!\n",
 				       __func__);
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 		}
 	} while ((stat & mask) != mask);
@@ -289,9 +289,9 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	sdhci_reset(host, SDHCI_RESET_CMD);
 	sdhci_reset(host, SDHCI_RESET_DATA);
 	if (stat & SDHCI_INT_TIMEOUT)
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	else
-		return COMM_ERR;
+		return -ECOMM;
 }
 
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)

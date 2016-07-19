@@ -304,7 +304,7 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 		    (status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT)) {
 			debug("%s timeout %x\n", what,
 			      status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 		udelay(1000);
 	} while (!(status & done_bit));
@@ -375,7 +375,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (ret) {
 			error = readl(&mmchost->reg->rint) & \
 				SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT;
-			error = TIMEOUT;
+			error = -ETIMEDOUT;
 			goto out;
 		}
 	}
@@ -402,7 +402,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			status = readl(&mmchost->reg->status);
 			if (!timeout_msecs--) {
 				debug("busy timeout\n");
-				error = TIMEOUT;
+				error = -ETIMEDOUT;
 				goto out;
 			}
 			udelay(1000);
