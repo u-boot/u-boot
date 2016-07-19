@@ -840,14 +840,12 @@ config STM32
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
-	select SUPPORT_SPL
-	select SPL
 	select OF_CONTROL
 	select BLK
 	select DM
-	select SPL_DM
+	select SPL_DM if SPL
 	select SYS_MALLOC_F
-	select SPL_SYS_MALLOC_SIMPLE
+	select SPL_SYS_MALLOC_SIMPLE if SPL
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
