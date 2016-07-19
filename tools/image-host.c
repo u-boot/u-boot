@@ -238,12 +238,13 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
 	/* Get keyname again, as FDT has changed and invalidated our pointer */
 	info.keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
 
-	/* Write the public key into the supplied FDT file */
-	if (keydest && info.algo->add_verify_data(&info, keydest)) {
-		printf("Failed to add verification data for '%s' signature node in '%s' image node\n",
-		       node_name, image_name);
-		return -1;
-	}
+	ret = info.algo->add_verify_data(&info, keydest);
+
+	/* Write the public key into the supplied FDT file; this might fail
+	 * several times, since we try signing with successively increasing
+	 * size values */
+	if (keydest && ret)
+		return ret;
 
 	return 0;
 }
