@@ -10,12 +10,12 @@
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <malloc.h>
+#include <errno.h>
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/gpio.h>
-#include <asm-generic/errno.h>
 
 #define	DWMMC_MAX_CH_NUM		4
 #define	DWMMC_MAX_FREQ			52000000
