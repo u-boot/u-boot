@@ -90,6 +90,14 @@ config MXC_OCOTP
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
 
+config NUVOTON_NCT6102D
+	bool "Enable Nuvoton NCT6102D Super I/O driver"
+	help
+	  If you say Y here, you will get support for the Nuvoton
+	  NCT6102D Super I/O driver. This can be used to enable or
+	  disable the legacy UART, the watchdog or other devices
+	  in the Nuvoton Super IO chips on X86 platforms.
+
 config PWRSEQ
 	bool "Enable power-sequencing drivers"
 	depends on DM
