@@ -290,6 +290,11 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 
 	/* Patch bootefi_image_path to the target file path */
 	memset(bootefi_image_path[0].str, 0, sizeof(bootefi_image_path[0].str));
-	snprintf(devname, sizeof(devname), "%s", path);
+	if (strcmp(dev, "Net")) {
+		/* Add leading / to fs paths, because they're absolute */
+		snprintf(devname, sizeof(devname), "/%s", path);
+	} else {
+		snprintf(devname, sizeof(devname), "%s", path);
+	}
 	ascii2unicode(bootefi_image_path[0].str, devname);
 }
