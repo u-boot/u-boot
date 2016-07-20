@@ -19,6 +19,7 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/video.h>
+#include <asm/imx-common/sata.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
