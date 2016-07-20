@@ -233,13 +233,13 @@ static void part_print_iso(struct blk_desc *dev_desc)
 	disk_partition_t info;
 	int i;
 
-	if (part_get_info_iso_verb(dev_desc, 0, &info, 0) == -1) {
+	if (part_get_info_iso_verb(dev_desc, 1, &info, 0) == -1) {
 		printf("** No boot partition found on device %d **\n",
 		       dev_desc->devnum);
 		return;
 	}
 	printf("Part   Start     Sect x Size Type\n");
-	i=0;
+	i=1;
 	do {
 		printf(" %2d " LBAFU " " LBAFU " %6ld %.32s\n",
 		       i, info.start, info.size, info.blksz, info.type);
