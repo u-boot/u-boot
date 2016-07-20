@@ -1684,12 +1684,13 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
 	type_ok = fit_image_check_type(fit, noffset, image_type) ||
-		(image_type == IH_TYPE_KERNEL &&
-			fit_image_check_type(fit, noffset,
-					     IH_TYPE_KERNEL_NOLOAD));
+		  fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE) ||
+		  (image_type == IH_TYPE_KERNEL &&
+		   fit_image_check_type(fit, noffset, IH_TYPE_KERNEL_NOLOAD));
 
 	os_ok = image_type == IH_TYPE_FLATDT || IH_TYPE_FPGA ||
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
+		fit_image_check_os(fit, noffset, IH_OS_U_BOOT) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
 
 	/*
