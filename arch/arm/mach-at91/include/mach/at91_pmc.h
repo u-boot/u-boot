@@ -149,6 +149,9 @@ typedef struct at91_pmc {
 
 #define AT91_PMC_PCR_PID_MASK		(0x3f)
 #define AT91_PMC_PCR_GCKCSS		(0x7 << 8)
+#define AT91_PMC_PCR_GCKCSS_MASK	0x07
+#define AT91_PMC_PCR_GCKCSS_OFFSET	8
+#define AT91_PMC_PCR_GCKCSS_(x)		((x & 0x07) << 8)
 #define		AT91_PMC_PCR_GCKCSS_SLOW_CLK	(0x0 << 8)
 #define		AT91_PMC_PCR_GCKCSS_MAIN_CLK	(0x1 << 8)
 #define		AT91_PMC_PCR_GCKCSS_PLLA_CLK	(0x2 << 8)
@@ -158,8 +161,9 @@ typedef struct at91_pmc {
 #define AT91_PMC_PCR_CMD_WRITE		(0x1 << 12)
 #define AT91_PMC_PCR_DIV		(0x3 << 16)
 #define AT91_PMC_PCR_GCKDIV		(0xff << 20)
-#define		AT91_PMC_PCR_GCKDIV_(x)		(((x) & 0xff) << 20)
-#define		AT91_PMC_PCR_GCKDIV_OFFSET	20
+#define AT91_PMC_PCR_GCKDIV_MASK	0xff
+#define AT91_PMC_PCR_GCKDIV_OFFSET	20
+#define AT91_PMC_PCR_GCKDIV_(x)		((x & 0xff) << 20)
 #define AT91_PMC_PCR_EN			(0x1 << 28)
 #define AT91_PMC_PCR_GCKEN		(0x1 << 29)
 
@@ -243,8 +247,9 @@ typedef struct at91_pmc {
 #define		AT91_PMC_PCK1RDY	(1 <<  9)		/* Programmable Clock 1 */
 #define		AT91_PMC_PCK2RDY	(1 << 10)		/* Programmable Clock 2 */
 #define		AT91_PMC_PCK3RDY	(1 << 11)		/* Programmable Clock 3 */
+#define		AT91_PMC_MOSCSELS	BIT(16)			/* Main Oscillator Selection Status */
+#define		AT91_PMC_MOSCRCS	BIT(17)			/* 12 MHz RC Oscillator Status */
 #define		AT91_PMC_GCKRDY		(1 << 24)
-
 #define		AT91_PMC_PROTKEY	0x504d4301	/* Activation Code */
 
 /* PLL Charge Pump Current Register (PMC_PLLICPR) */
