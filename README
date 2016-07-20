@@ -4811,7 +4811,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 		[ARM926EJ-S only] This allows just the call to lowlevel_init()
-		to be skipped. The normal CPU15 init (such as enabling the
+		to be skipped. The normal CP15 init (such as enabling the
 		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
