@@ -151,7 +151,6 @@ static void mxc_serial_setbrg(void)
 	__REG(UART_PHYS + UFCR) = (RFDIV << UFCR_RFDIV_SHF)
 		| (TXTL << UFCR_TXTL_SHF)
 		| (RXTL << UFCR_RXTL_SHF);
-	__REG(UART_PHYS + UFCR) |= UFCR_DCEDTE;
 	__REG(UART_PHYS + UBIR) = 0xf;
 	__REG(UART_PHYS + UBMR) = clk / (2 * gd->baudrate);
 
