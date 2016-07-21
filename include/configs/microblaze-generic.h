@@ -175,10 +175,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 
-#if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
-#else
-#endif
-
 #if defined(FLASH)
 # define CONFIG_CMD_JFFS2
 # define CONFIG_CMD_UBI
