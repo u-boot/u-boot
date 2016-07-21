@@ -157,6 +157,12 @@ enum mvtwsi_ack_flags {
 	MVTWSI_READ_ACK = 1,
 };
 
+/*
+ * calc_tick() - Calculate the duration of a clock cycle from the I2C speed
+ *
+ * @speed:	The speed in Hz to calculate the clock cycle duration for.
+ * @return The duration of a clock cycle in ns.
+ */
 inline uint calc_tick(uint speed)
 {
 	/* One tick = the duration of a period at the specified speed in ns (we
@@ -167,9 +173,11 @@ inline uint calc_tick(uint speed)
 #ifndef CONFIG_DM_I2C
 
 /*
- * MVTWSI controller base
+ * twsi_get_base() - Get controller register base for specified adapter
+ *
+ * @adap:	Adapter to get the register base for.
+ * @return Register base for the specified adapter.
  */
-
 static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
@@ -238,8 +246,10 @@ inline uint mvtwsi_error(uint ec, uint lc, uint ls, uint es)
 }
 
 /*
- * Wait for IFLG to raise, or return 'timeout.' Then, if the status is as
- * expected, return 0 (ok) or 'wrong status' otherwise.
+ * twsi_wait() - Wait for I2C bus interrupt flag and check status, or time out.
+ *
+ * @return Zero if status is as expected, or a non-zero code if either a time
+ *	   out occurred, or the status was not the expected one.
  */
 static int twsi_wait(struct mvtwsi_registers *twsi, int expected_status,
 		     uint tick)
@@ -266,8 +276,17 @@ static int twsi_wait(struct mvtwsi_registers *twsi, int expected_status,
 }
 
 /*
- * Assert the START condition, either in a single I2C transaction
- * or inside back-to-back ones (repeated starts).
+ * twsi_start() - Assert a START condition on the bus.
+ *
+ * This function is used in both single I2C transactions and inside
+ * back-to-back transactions (repeated starts).
+ *
+ * @twsi:		The MVTWSI register structure to use.
+ * @expected_status:	The I2C bus status expected to be asserted after the
+ *			operation completion.
+ * @tick:		The duration of a clock cycle at the current I2C speed.
+ * @return Zero if status is as expected, or a non-zero code if either a time
+ *	   out occurred or the status was not the expected one.
  */
 static int twsi_start(struct mvtwsi_registers *twsi, int expected_status,
 		      uint tick)
@@ -280,7 +299,17 @@ static int twsi_start(struct mvtwsi_registers *twsi, int expected_status,
 }
 
 /*
- * Send a byte (i2c address or data).
+ * twsi_send() - Send a byte on the I2C bus.
+ *
+ * The byte may be part of an address byte or data.
+ *
+ * @twsi:		The MVTWSI register structure to use.
+ * @byte:		The byte to send.
+ * @expected_status:	The I2C bus status expected to be asserted after the
+ *			operation completion.
+ * @tick:		The duration of a clock cycle at the current I2C speed.
+ * @return Zero if status is as expected, or a non-zero code if either a time
+ *	   out occurred or the status was not the expected one.
  */
 static int twsi_send(struct mvtwsi_registers *twsi, u8 byte,
 		     int expected_status, uint tick)
@@ -295,7 +324,17 @@ static int twsi_send(struct mvtwsi_registers *twsi, u8 byte,
 }
 
 /*
- * Receive a byte.
+ * twsi_recv() - Receive a byte on the I2C bus.
+ *
+ * The static variable mvtwsi_control_flags controls whether we ack or nak.
+ *
+ * @twsi:		The MVTWSI register structure to use.
+ * @byte:		The byte to send.
+ * @ack_flag:		Flag that determines whether the received byte should
+ *			be acknowledged by the controller or not (sent ACK/NAK).
+ * @tick:		The duration of a clock cycle at the current I2C speed.
+ * @return Zero if status is as expected, or a non-zero code if either a time
+ *	   out occurred or the status was not the expected one.
  */
 static int twsi_recv(struct mvtwsi_registers *twsi, u8 *byte, int ack_flag,
 		     uint tick)
@@ -318,8 +357,15 @@ static int twsi_recv(struct mvtwsi_registers *twsi, u8 *byte, int ack_flag,
 }
 
 /*
- * Assert the STOP condition.
- * This is also used to force the bus back to idle (SDA = SCL = 1).
+ * twsi_stop() - Assert a STOP condition on the bus.
+ *
+ * This function is also used to force the bus back to idle state (SDA =
+ * SCL = 1).
+ *
+ * @twsi:	The MVTWSI register structure to use.
+ * @tick:	The duration of a clock cycle at the current I2C speed.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out
+ *	   occurred.
  */
 static int twsi_stop(struct mvtwsi_registers *twsi, uint tick)
 {
@@ -344,6 +390,13 @@ static int twsi_stop(struct mvtwsi_registers *twsi, uint tick)
 	return status;
 }
 
+/*
+ * twsi_calc_freq() - Compute I2C frequency depending on m and n parameters.
+ *
+ * @n:		Parameter 'n' for the frequency calculation algorithm.
+ * @m:		Parameter 'm' for the frequency calculation algorithm.
+ * @return The I2C frequency corresponding to the passed m and n parameters.
+ */
 static uint twsi_calc_freq(const int n, const int m)
 {
 #ifdef CONFIG_SUNXI
@@ -354,9 +407,12 @@ static uint twsi_calc_freq(const int n, const int m)
 }
 
 /*
- * Reset controller.
- * Controller reset also resets the baud rate and slave address, so
- * they must be re-established afterwards.
+ * twsi_reset() - Reset the I2C controller.
+ *
+ * Resetting the controller also resets the baud rate and slave address, hence
+ * they must be re-established after the reset.
+ *
+ * @twsi:	The MVTWSI register structure to use.
  */
 static void twsi_reset(struct mvtwsi_registers *twsi)
 {
@@ -367,7 +423,15 @@ static void twsi_reset(struct mvtwsi_registers *twsi)
 }
 
 /*
- * Sets baud to the highest possible value not exceeding the requested one.
+ * __twsi_i2c_set_bus_speed() - Set the speed of the I2C controller.
+ *
+ * This function sets baud rate to the highest possible value that does not
+ * exceed the requested rate.
+ *
+ * @twsi:		The MVTWSI register structure to use.
+ * @requested_speed:	The desired frequency the controller should run at
+ *			in Hz.
+ * @return The actual frequency the controller was configured to.
  */
 static uint __twsi_i2c_set_bus_speed(struct mvtwsi_registers *twsi,
 				     uint requested_speed)
@@ -400,6 +464,18 @@ static uint __twsi_i2c_set_bus_speed(struct mvtwsi_registers *twsi,
 	return highest_speed;
 }
 
+/*
+ * __twsi_i2c_init() - Initialize the I2C controller.
+ *
+ * @twsi:		The MVTWSI register structure to use.
+ * @speed:		The initial frequency the controller should run at
+ *			in Hz.
+ * @slaveadd:		The I2C address to be set for the I2C master.
+ * @actual_speed:	A output parameter that receives the actual frequency
+ *			in Hz the controller was set to by the function.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out
+ *	   occurred.
+ */
 static void __twsi_i2c_init(struct mvtwsi_registers *twsi, int speed,
 			    int slaveadd, uint *actual_speed)
 {
@@ -419,8 +495,21 @@ static void __twsi_i2c_init(struct mvtwsi_registers *twsi, int speed,
 }
 
 /*
- * Begin I2C transaction with expected start status, at given address.
- * Expected address status will derive from direction bit (bit 0) in addr.
+ * i2c_begin() - Start a I2C transaction.
+ *
+ * Begin a I2C transaction with a given expected start status and chip address.
+ * A START is asserted, and the address byte is sent to the I2C controller. The
+ * expected address status will be derived from the direction bit (bit 0) of
+ * the address byte.
+ *
+ * @twsi:			The MVTWSI register structure to use.
+ * @expected_start_status:	The I2C status the controller is expected to
+ *				assert after the address byte was sent.
+ * @addr:			The address byte to be sent.
+ * @tick:			The duration of a clock cycle at the current
+ *				I2C speed.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out or
+ *	   unexpected I2C status occurred.
  */
 static int i2c_begin(struct mvtwsi_registers *twsi, int expected_start_status,
 		     u8 addr, uint tick)
@@ -443,7 +532,16 @@ static int i2c_begin(struct mvtwsi_registers *twsi, int expected_start_status,
 }
 
 /*
- * Begin read, nak data byte, end.
+ * __twsi_i2c_probe_chip() - Probe the given I2C chip address.
+ *
+ * This function begins a I2C read transaction, does a dummy read and NAKs; if
+ * the procedure succeeds, the chip is considered to be present.
+ *
+ * @twsi:	The MVTWSI register structure to use.
+ * @chip:	The chip address to probe.
+ * @tick:	The duration of a clock cycle at the current I2C speed.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out or
+ *	   unexpected I2C status occurred.
  */
 static int __twsi_i2c_probe_chip(struct mvtwsi_registers *twsi, uchar chip,
 				 uint tick)
@@ -463,12 +561,26 @@ static int __twsi_i2c_probe_chip(struct mvtwsi_registers *twsi, uchar chip,
 }
 
 /*
- * Begin write, send address byte(s), begin read, receive data bytes, end.
+ * __twsi_i2c_read() - Read data from a I2C chip.
+ *
+ * This function begins a I2C write transaction, and transmits the address
+ * bytes; then begins a I2C read transaction, and receives the data bytes.
  *
  * NOTE: Some devices want a stop right before the second start, while some
  * will choke if it is there. Since deciding this is not yet supported in
  * higher level APIs, we need to make a decision here, and for the moment that
  * will be a repeated start without a preceding stop.
+ *
+ * @twsi:	The MVTWSI register structure to use.
+ * @chip:	The chip address to read from.
+ * @addr:	The address bytes to send.
+ * @alen:	The length of the address bytes in bytes.
+ * @data:	The buffer to receive the data read from the chip (has to have
+ *		a size of at least 'length' bytes).
+ * @length:	The amount of data to be read from the chip in bytes.
+ * @tick:	The duration of a clock cycle at the current I2C speed.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out or
+ *	   unexpected I2C status occurred.
  */
 static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
 			   u8 *addr, int alen, uchar *data, int length,
@@ -504,7 +616,20 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
 }
 
 /*
- * Begin write, send address byte(s), send data bytes, end.
+ * __twsi_i2c_write() - Send data to a I2C chip.
+ *
+ * This function begins a I2C write transaction, and transmits the address
+ * bytes; then begins a new I2C write transaction, and sends the data bytes.
+ *
+ * @twsi:	The MVTWSI register structure to use.
+ * @chip:	The chip address to read from.
+ * @addr:	The address bytes to send.
+ * @alen:	The length of the address bytes in bytes.
+ * @data:	The buffer containing the data to be sent to the chip.
+ * @length:	The length of data to be sent to the chip in bytes.
+ * @tick:	The duration of a clock cycle at the current I2C speed.
+ * @return Zero if the operation succeeded, or a non-zero code if a time out or
+ *	   unexpected I2C status occurred.
  */
 static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
 			    u8 *addr, int alen, uchar *data, int length,
