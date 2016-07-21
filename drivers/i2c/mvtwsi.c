@@ -290,10 +290,11 @@ static int twsi_recv(struct i2c_adapter *adap, u8 *byte, int ack_flag)
  * Assert the STOP condition.
  * This is also used to force the bus back to idle (SDA = SCL = 1).
  */
-static int twsi_stop(struct i2c_adapter *adap, int status)
+static int twsi_stop(struct i2c_adapter *adap)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 	int control, stop_status;
+	int status = 0;
 	int timeout = 1000;
 
 	/* Assert STOP */
@@ -308,10 +309,8 @@ static int twsi_stop(struct i2c_adapter *adap, int status)
 	} while (timeout--);
 	control = readl(&twsi->control);
 	if (stop_status != MVTWSI_STATUS_IDLE)
-		if (status == 0)
-			status = mvtwsi_error(
-				MVTWSI_ERROR_TIMEOUT,
-				control, status, MVTWSI_STATUS_IDLE);
+		status = mvtwsi_error(MVTWSI_ERROR_TIMEOUT,
+				      control, status, MVTWSI_STATUS_IDLE);
 	return status;
 }
 
@@ -379,7 +378,7 @@ static void twsi_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	writel(slaveadd, &twsi->slave_address);
 	writel(0, &twsi->xtnd_slave_addr);
 	/* Assert STOP, but don't care for the result */
-	(void) twsi_stop(adap, 0);
+	(void) twsi_stop(adap);
 }
 
 /*
@@ -420,7 +419,7 @@ static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
 	if (status == 0)
 		status = twsi_recv(adap, &dummy_byte, MVTWSI_READ_NAK);
 	/* Stop transaction */
-	twsi_stop(adap, 0);
+	twsi_stop(adap);
 	/* Return 0, or the status of the first failure */
 	return status;
 }
@@ -436,7 +435,8 @@ static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
 static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 			int alen, uchar *data, int length)
 {
-	int status;
+	int status = 0;
+	int stop_status;
 
 	/* Begin i2c write to send the address bytes */
 	status = i2c_begin(adap, MVTWSI_STATUS_START, (chip << 1));
@@ -455,9 +455,9 @@ static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 				   length > 0 ?
 				   MVTWSI_READ_ACK : MVTWSI_READ_NAK);
 	/* Stop transaction */
-	status = twsi_stop(adap, status);
+	stop_status = twsi_stop(adap);
 	/* Return 0, or the status of the first failure */
-	return status;
+	return status != 0 ? status : stop_status;
 }
 
 /*
@@ -466,7 +466,7 @@ static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			int alen, uchar *data, int length)
 {
-	int status;
+	int status, stop_status;
 
 	/* Begin i2c write to send first the address bytes, then the
 	 * data bytes */
@@ -479,9 +479,9 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	while ((status == 0) && (length-- > 0))
 		status = twsi_send(adap, *(data++), MVTWSI_STATUS_DATA_W_ACK);
 	/* Stop transaction */
-	status = twsi_stop(adap, status);
+	stop_status = twsi_stop(adap);
 	/* Return 0, or the status of the first failure */
-	return status;
+	return status != 0 ? status : stop_status;
 }
 
 #ifdef CONFIG_I2C_MVTWSI_BASE0
