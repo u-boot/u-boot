@@ -12,12 +12,18 @@
 #include <i2c.h>
 #include <asm/errno.h>
 #include <asm/io.h>
+#ifdef CONFIG_DM_I2C
+#include <dm.h>
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Include a file that will provide CONFIG_I2C_MVTWSI_BASE*, and possibly other
  * settings
  */
 
+#ifndef CONFIG_DM_I2C
 #if defined(CONFIG_ORION5X)
 #include <asm/arch/orion5x.h>
 #elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
@@ -27,6 +33,7 @@
 #else
 #error Driver mvtwsi not supported by SoC or board
 #endif
+#endif /* CONFIG_DM_I2C */
 
 /*
  * TWSI register structure
@@ -60,6 +67,19 @@ struct  mvtwsi_registers {
 };
 
 #endif
+
+#ifdef CONFIG_DM_I2C
+struct mvtwsi_i2c_dev {
+	/* TWSI Register base for the device */
+	struct mvtwsi_registers *base;
+	/* Number of the device (determined from cell-index property) */
+	int index;
+	/* The I2C slave address for the device */
+	u8 slaveadd;
+	/* The configured I2C speed in Hz */
+	uint speed;
+};
+#endif /* CONFIG_DM_I2C */
 
 /*
  * enum mvtwsi_ctrl_register_fields - Bit masks for flags in the control
@@ -134,6 +154,7 @@ enum mvtwsi_ack_flags {
 	MVTWSI_READ_ACK = 1,
 };
 
+#ifndef CONFIG_DM_I2C
 /*
  * MVTWSI controller base
  */
@@ -172,6 +193,7 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 
 	return NULL;
 }
+#endif
 
 /*
  * enum mvtwsi_error_class - types of I2C errors
@@ -358,7 +380,7 @@ static uint __twsi_i2c_set_bus_speed(struct mvtwsi_registers *twsi,
 }
 
 static void __twsi_i2c_init(struct mvtwsi_registers *twsi, int speed,
-			  int slaveadd)
+			    int slaveadd)
 {
 	/* Reset controller */
 	twsi_reset(twsi);
@@ -472,6 +494,7 @@ static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
 	return status != 0 ? status : stop_status;
 }
 
+#ifndef CONFIG_DM_I2C
 static void twsi_i2c_init(struct i2c_adapter *adap, int speed,
 			  int slaveadd)
 {
@@ -561,3 +584,89 @@ U_BOOT_I2C_ADAP_COMPLETE(twsi5, twsi_i2c_init, twsi_i2c_probe,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 5)
 
 #endif
+#else /* CONFIG_DM_I2C */
+
+static int mvtwsi_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
+				 u32 chip_flags)
+{
+	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	return __twsi_i2c_probe_chip(dev->base, chip_addr);
+}
+
+static int mvtwsi_i2c_set_bus_speed(struct udevice *bus, uint speed)
+{
+	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	return __twsi_i2c_set_bus_speed(dev->base, speed);
+}
+
+static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
+{
+	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+
+	dev->base = dev_get_addr_ptr(bus);
+
+	if (!dev->base)
+		return -ENOMEM;
+
+	dev->index = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				    "cell-index", -1);
+	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				       "u-boot,i2c-slave-addr", 0x0);
+	dev->speed = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				    "clock-frequency", 100000);
+	return 0;
+}
+
+static int mvtwsi_i2c_probe(struct udevice *bus)
+{
+	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	__twsi_i2c_init(dev->base, dev->speed, dev->slaveadd);
+	return 0;
+}
+
+static int mvtwsi_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
+{
+	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	struct i2c_msg *dmsg, *omsg, dummy;
+
+	memset(&dummy, 0, sizeof(struct i2c_msg));
+
+	/* We expect either two messages (one with an offset and one with the
+	 * actual data) or one message (just data or offset/data combined) */
+	if (nmsgs > 2 || nmsgs == 0) {
+		debug("%s: Only one or two messages are supported.", __func__);
+		return -1;
+	}
+
+	omsg = nmsgs == 1 ? &dummy : msg;
+	dmsg = nmsgs == 1 ? msg : msg + 1;
+
+	if (dmsg->flags & I2C_M_RD)
+		return __twsi_i2c_read(dev->base, dmsg->addr, omsg->buf,
+				       omsg->len, dmsg->buf, dmsg->len);
+	else
+		return __twsi_i2c_write(dev->base, dmsg->addr, omsg->buf,
+					omsg->len, dmsg->buf, dmsg->len);
+}
+
+static const struct dm_i2c_ops mvtwsi_i2c_ops = {
+	.xfer		= mvtwsi_i2c_xfer,
+	.probe_chip	= mvtwsi_i2c_probe_chip,
+	.set_bus_speed	= mvtwsi_i2c_set_bus_speed,
+};
+
+static const struct udevice_id mvtwsi_i2c_ids[] = {
+	{ .compatible = "marvell,mv64xxx-i2c", },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(i2c_mvtwsi) = {
+	.name = "i2c_mvtwsi",
+	.id = UCLASS_I2C,
+	.of_match = mvtwsi_i2c_ids,
+	.probe = mvtwsi_i2c_probe,
+	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof(struct mvtwsi_i2c_dev),
+	.ops = &mvtwsi_i2c_ops,
+};
+#endif /* CONFIG_DM_I2C */
