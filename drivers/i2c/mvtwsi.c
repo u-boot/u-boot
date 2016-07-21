@@ -341,8 +341,8 @@ static void twsi_reset(struct i2c_adapter *adap)
 /*
  * Sets baud to the highest possible value not exceeding the requested one.
  */
-static uint twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
-				   uint requested_speed)
+static uint __twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
+				     uint requested_speed)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 	uint tmp_speed, highest_speed, n, m;
@@ -366,14 +366,14 @@ static uint twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
 	return 0;
 }
 
-static void twsi_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+static void __twsi_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
 
 	/* Reset controller */
 	twsi_reset(adap);
 	/* Set speed */
-	twsi_i2c_set_bus_speed(adap, speed);
+	__twsi_i2c_set_bus_speed(adap, speed);
 	/* Set slave address; even though we don't use it */
 	writel(slaveadd, &twsi->slave_address);
 	writel(0, &twsi->xtnd_slave_addr);
@@ -408,7 +408,7 @@ static int i2c_begin(struct i2c_adapter *adap, int expected_start_status,
 /*
  * Begin read, nak data byte, end.
  */
-static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
+static int __twsi_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 {
 	u8 dummy_byte;
 	int status;
@@ -432,8 +432,8 @@ static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
  * higher level APIs, we need to make a decision here, and for the moment that
  * will be a repeated start without a preceding stop.
  */
-static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
-			int alen, uchar *data, int length)
+static int __twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			   int alen, uchar *data, int length)
 {
 	int status = 0;
 	int stop_status;
@@ -463,8 +463,8 @@ static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 /*
  * Begin write, send address byte(s), send data bytes, end.
  */
-static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
-			int alen, uchar *data, int length)
+static int __twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			    int alen, uchar *data, int length)
 {
 	int status, stop_status;
 
@@ -482,6 +482,35 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	stop_status = twsi_stop(adap);
 	/* Return 0, or the status of the first failure */
 	return status != 0 ? status : stop_status;
+}
+
+static void twsi_i2c_init(struct i2c_adapter *adap, int speed,
+			  int slaveadd)
+{
+	__twsi_i2c_init(adap, speed, slaveadd);
+}
+
+static uint twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
+				   uint requested_speed)
+{
+	return __twsi_i2c_set_bus_speed(adap, requested_speed);
+}
+
+static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
+{
+	return __twsi_i2c_probe_chip(adap, chip);
+}
+
+static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			 int alen, uchar *data, int length)
+{
+	return __twsi_i2c_read(adap, chip, addr, alen, data, length);
+}
+
+static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			  int alen, uchar *data, int length)
+{
+	return __twsi_i2c_write(adap, chip, addr, alen, data, length);
 }
 
 #ifdef CONFIG_I2C_MVTWSI_BASE0
