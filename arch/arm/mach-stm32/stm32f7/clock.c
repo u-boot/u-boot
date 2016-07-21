@@ -245,9 +245,6 @@ void clock_setup(int peripheral)
 	case USART1_CLOCK_CFG:
 		setbits_le32(RCC_BASE + RCC_APB2ENR, RCC_ENR_USART1EN);
 		break;
-	case USART6_CLOCK_CFG:
-		setbits_le32(RCC_BASE + RCC_APB2ENR, RCC_ENR_USART6EN);
-		break;
 	case GPIO_A_CLOCK_CFG:
 		setbits_le32(RCC_BASE + RCC_AHB1ENR, RCC_ENR_GPIO_A_EN);
 		break;
