@@ -62,15 +62,23 @@ struct  mvtwsi_registers {
 #endif
 
 /*
- * Control register fields
+ * enum mvtwsi_ctrl_register_fields - Bit masks for flags in the control
+ * register
  */
-
-#define	MVTWSI_CONTROL_ACK	0x00000004
-#define	MVTWSI_CONTROL_IFLG	0x00000008
-#define	MVTWSI_CONTROL_STOP	0x00000010
-#define	MVTWSI_CONTROL_START	0x00000020
-#define	MVTWSI_CONTROL_TWSIEN	0x00000040
-#define	MVTWSI_CONTROL_INTEN	0x00000080
+enum mvtwsi_ctrl_register_fields {
+	/* Acknowledge bit */
+	MVTWSI_CONTROL_ACK	= 0x00000004,
+	/* Interrupt flag */
+	MVTWSI_CONTROL_IFLG	= 0x00000008,
+	/* Stop bit */
+	MVTWSI_CONTROL_STOP	= 0x00000010,
+	/* Start bit */
+	MVTWSI_CONTROL_START	= 0x00000020,
+	/* I2C enable */
+	MVTWSI_CONTROL_TWSIEN	= 0x00000040,
+	/* Interrupt enable */
+	MVTWSI_CONTROL_INTEN	= 0x00000080,
+};
 
 /*
  * On sun6i and newer IFLG is a write-clear bit which is cleared by writing 1,
@@ -84,22 +92,36 @@ struct  mvtwsi_registers {
 #endif
 
 /*
- * Status register values -- only those expected in normal master
- * operation on non-10-bit-address devices; whatever status we don't
- * expect in nominal conditions (bus errors, arbitration losses,
- * missing ACKs...) we just pass back to the caller as an error
+ * enum mvstwsi_status_values - Possible values of I2C controller's status
+ * register
+ *
+ * Only those statuses expected in normal master operation on
+ * non-10-bit-address devices are specified.
+ *
+ * Every status that's unexpected during normal operation (bus errors,
+ * arbitration losses, missing ACKs...) is passed back to the caller as an error
  * code.
  */
-
-#define	MVTWSI_STATUS_START		0x08
-#define	MVTWSI_STATUS_REPEATED_START	0x10
-#define	MVTWSI_STATUS_ADDR_W_ACK	0x18
-#define	MVTWSI_STATUS_DATA_W_ACK	0x28
-#define	MVTWSI_STATUS_ADDR_R_ACK	0x40
-#define	MVTWSI_STATUS_ADDR_R_NAK	0x48
-#define	MVTWSI_STATUS_DATA_R_ACK	0x50
-#define	MVTWSI_STATUS_DATA_R_NAK	0x58
-#define	MVTWSI_STATUS_IDLE		0xF8
+enum mvstwsi_status_values {
+	/* START condition transmitted */
+	MVTWSI_STATUS_START		= 0x08,
+	/* Repeated START condition transmitted */
+	MVTWSI_STATUS_REPEATED_START	= 0x10,
+	/* Address + write bit transmitted, ACK received */
+	MVTWSI_STATUS_ADDR_W_ACK	= 0x18,
+	/* Data transmitted, ACK received */
+	MVTWSI_STATUS_DATA_W_ACK	= 0x28,
+	/* Address + read bit transmitted, ACK received */
+	MVTWSI_STATUS_ADDR_R_ACK	= 0x40,
+	/* Address + read bit transmitted, ACK not received */
+	MVTWSI_STATUS_ADDR_R_NAK	= 0x48,
+	/* Data received, ACK transmitted */
+	MVTWSI_STATUS_DATA_R_ACK	= 0x50,
+	/* Data received, ACK not transmitted */
+	MVTWSI_STATUS_DATA_R_NAK	= 0x58,
+	/* No relevant status */
+	MVTWSI_STATUS_IDLE		= 0xF8,
+};
 
 /*
  * MVTWSI controller base
@@ -141,20 +163,35 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 }
 
 /*
- * Returned statuses are 0 for success and nonzero otherwise.
- * Currently, cmd_i2c and cmd_eeprom do not interpret an error status.
- * Thus to ease debugging, the return status contains some debug info:
- * - bits 31..24 are error class: 1 is timeout, 2 is 'status mismatch'.
- * - bits 23..16 are the last value of the control register.
- * - bits 15..8 are the last value of the status register.
- * - bits 7..0 are the expected value of the status register.
+ * enum mvtwsi_error_class - types of I2C errors
  */
+enum mvtwsi_error_class {
+	/* The controller returned a different status than expected */
+	MVTWSI_ERROR_WRONG_STATUS       = 0x01,
+	/* The controller timed out */
+	MVTWSI_ERROR_TIMEOUT            = 0x02,
+};
 
-#define MVTWSI_ERROR_WRONG_STATUS	0x01
-#define MVTWSI_ERROR_TIMEOUT		0x02
-
-#define MVTWSI_ERROR(ec, lc, ls, es) (((ec << 24) & 0xFF000000) | \
-	((lc << 16) & 0x00FF0000) | ((ls<<8) & 0x0000FF00) | (es & 0xFF))
+/*
+ * mvtwsi_error() - Build I2C return code from error information
+ *
+ * For debugging purposes, this function packs some information of an occurred
+ * error into a return code. These error codes are returned from I2C API
+ * functions (i2c_{read,write}, dm_i2c_{read,write}, etc.).
+ *
+ * @ec:		The error class of the error (enum mvtwsi_error_class).
+ * @lc:		The last value of the control register.
+ * @ls:		The last value of the status register.
+ * @es:		The expected value of the status register.
+ * @return The generated error code.
+ */
+inline uint mvtwsi_error(uint ec, uint lc, uint ls, uint es)
+{
+	return ((ec << 24) & 0xFF000000)
+	       | ((lc << 16) & 0x00FF0000)
+	       | ((ls << 8) & 0x0000FF00)
+	       | (es & 0xFF);
+}
 
 /*
  * Wait for IFLG to raise, or return 'timeout'; then if status is as expected,
@@ -173,15 +210,15 @@ static int twsi_wait(struct i2c_adapter *adap, int expected_status)
 			if (status == expected_status)
 				return 0;
 			else
-				return MVTWSI_ERROR(
+				return mvtwsi_error(
 					MVTWSI_ERROR_WRONG_STATUS,
 					control, status, expected_status);
 		}
 		udelay(10); /* one clock cycle at 100 kHz */
 	} while (timeout--);
 	status = readl(&twsi->status);
-	return MVTWSI_ERROR(
-		MVTWSI_ERROR_TIMEOUT, control, status, expected_status);
+	return mvtwsi_error(MVTWSI_ERROR_TIMEOUT, control, status,
+			    expected_status);
 }
 
 /*
@@ -265,7 +302,7 @@ static int twsi_stop(struct i2c_adapter *adap, int status)
 	control = readl(&twsi->control);
 	if (stop_status != MVTWSI_STATUS_IDLE)
 		if (status == 0)
-			status = MVTWSI_ERROR(
+			status = mvtwsi_error(
 				MVTWSI_ERROR_TIMEOUT,
 				control, status, MVTWSI_STATUS_IDLE);
 	return status;
