@@ -449,16 +449,21 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
 {
 	int status = 0;
 	int stop_status;
+	int expected_start = MVTWSI_STATUS_START;
 
-	/* Begin i2c write to send the address bytes */
-	status = i2c_begin(twsi, MVTWSI_STATUS_START, (chip << 1));
-	/* Send address bytes */
-	while ((status == 0) && alen--)
-		status = twsi_send(twsi, *(addr++), MVTWSI_STATUS_DATA_W_ACK);
+	if (alen > 0) {
+		/* Begin i2c write to send the address bytes */
+		status = i2c_begin(twsi, expected_start, (chip << 1));
+		/* Send address bytes */
+		while ((status == 0) && alen--)
+			status = twsi_send(twsi, *(addr++),
+					   MVTWSI_STATUS_DATA_W_ACK);
+		/* Send repeated STARTs after the initial START */
+		expected_start = MVTWSI_STATUS_REPEATED_START;
+	}
 	/* Begin i2c read to receive data bytes */
 	if (status == 0)
-		status = i2c_begin(twsi, MVTWSI_STATUS_REPEATED_START,
-				   (chip << 1) | 1);
+		status = i2c_begin(twsi, expected_start, (chip << 1) | 1);
 	/* Receive actual data bytes; set NAK if we if we have nothing more to
 	 * read */
 	while ((status == 0) && length--)
