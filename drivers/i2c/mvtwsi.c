@@ -314,7 +314,7 @@ static int twsi_stop(struct i2c_adapter *adap)
 	return status;
 }
 
-static unsigned int twsi_calc_freq(const int n, const int m)
+static uint twsi_calc_freq(const int n, const int m)
 {
 #ifdef CONFIG_SUNXI
 	return CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n));
@@ -341,12 +341,12 @@ static void twsi_reset(struct i2c_adapter *adap)
 /*
  * Sets baud to the highest possible value not exceeding the requested one.
  */
-static unsigned int twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
-					   unsigned int requested_speed)
+static uint twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
+				   uint requested_speed)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
-	unsigned int tmp_speed, highest_speed, n, m;
-	unsigned int baud = 0x44; /* Baud rate after controller reset */
+	uint tmp_speed, highest_speed, n, m;
+	uint baud = 0x44; /* Baud rate after controller reset */
 
 	highest_speed = 0;
 	/* Successively try m, n combinations, and use the combination
