@@ -110,27 +110,27 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 	switch (adap->hwadapnr) {
 #ifdef CONFIG_I2C_MVTWSI_BASE0
 	case 0:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE0;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE0;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE1
 	case 1:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE1;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE1;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE2
 	case 2:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE2;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE2;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE3
 	case 3:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE3;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE3;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE4
 	case 4:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE4;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE4;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE5
 	case 5:
-		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE5;
+		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE5;
 #endif
 	default:
 		printf("Missing mvtwsi controller %d base\n", adap->hwadapnr);
@@ -312,8 +312,8 @@ static unsigned int twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
 	for (n = 0; n < 8; n++) {
 		for (m = 0; m < 16; m++) {
 			tmp_speed = twsi_calc_freq(n, m);
-			if ((tmp_speed <= requested_speed)
-			 && (tmp_speed > highest_speed)) {
+			if ((tmp_speed <= requested_speed) &&
+			    (tmp_speed > highest_speed)) {
 				highest_speed = tmp_speed;
 				baud = (m << 3) | n;
 			}
