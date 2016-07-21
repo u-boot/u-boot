@@ -327,6 +327,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
+	u8 reg;
 
 	/* fixup DT for the two DDR banks */
 	base[0] = gd->bd->bi_dram[0].start;
@@ -341,6 +342,15 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+
+	reg = QIXIS_READ(brdcfg[0]);
+	reg = (reg & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
+
+	/* Disable IFC if QSPI is enabled */
+	if (reg == 0xF)
+		do_fixup_by_compat(blob, "fsl,ifc",
+				   "status", "disabled", 8 + 1, 1);
+
 	return 0;
 }
 #endif
