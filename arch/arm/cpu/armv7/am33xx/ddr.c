@@ -120,12 +120,15 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 
 	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 	writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
+
+	/* Wait 1ms because of L3 timeout error */
+	udelay(1000);
+
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
 
 	/* Perform hardware leveling for DDR3 */
 	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3) {
-		udelay(1000);
 		writel(readl(&emif_reg[nr]->emif_ddr_ext_phy_ctrl_36) |
 		       0x100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
 		writel(readl(&emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw) |
