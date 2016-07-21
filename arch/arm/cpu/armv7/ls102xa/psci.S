@@ -25,6 +25,36 @@
 #define	ONE_MS		(GENERIC_TIMER_CLK / 1000)
 #define	RESET_WAIT	(30 * ONE_MS)
 
+@ r0: return value ARM_PSCI_RET_SUCCESS or ARM_PSCI_RET_INVAL
+@ r1: input target CPU ID in MPIDR format, original value in r1 may be dropped
+@ r4: output validated CPU ID if ARM_PSCI_RET_SUCCESS returns, meaningless for
+@ ARM_PSCI_RET_INVAL,suppose caller saves r4 before calling
+LENTRY(psci_check_target_cpu_id)
+	@ Get the real CPU number
+	and	r4, r1, #0xff
+	mov	r0, #ARM_PSCI_RET_INVAL
+
+	@ Bit[31:24], bits must be zero.
+	tst	r1, #0xff000000
+	bxne	lr
+
+	@ Affinity level 2 - Cluster: only one cluster in LS1021xa.
+	tst	r1, #0xff0000
+	bxne	lr
+
+	@ Affinity level 1 - Processors: should be in 0xf00 format.
+	lsr	r1, r1, #8
+	teq	r1, #0xf
+	bxne	lr
+
+	@ Affinity level 0 - CPU: only 0, 1 are valid in LS1021xa.
+	cmp	r4, #2
+	bxge	lr
+
+	mov	r0, #ARM_PSCI_RET_SUCCESS
+	bx	lr
+ENDPROC(psci_check_target_cpu_id)
+
 	@ r1 = target CPU
 	@ r2 = target PC
 .globl	psci_cpu_on
@@ -33,7 +63,9 @@ psci_cpu_on:
 
 	@ Clear and Get the correct CPU number
 	@ r1 = 0xf01
-	and	r4, r1, #0xff
+	bl	psci_check_target_cpu_id
+	cmp	r0, #ARM_PSCI_RET_INVAL
+	beq	out_psci_cpu_on
 
 	mov	r0, r4
 	mov	r1, r2
@@ -101,6 +133,7 @@ holdoff_release:
 	@ Return
 	mov	r0, #ARM_PSCI_RET_SUCCESS
 
+out_psci_cpu_on:
 	pop	{r4, r5, r6, lr}
 	bx	lr
 

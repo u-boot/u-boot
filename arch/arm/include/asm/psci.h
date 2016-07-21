@@ -67,6 +67,11 @@
 #define ARM_PSCI_STACK_SHIFT	10
 #define ARM_PSCI_STACK_SIZE	(1 << ARM_PSCI_STACK_SHIFT)
 
+/* PSCI affinity level state returned by AFFINITY_INFO */
+#define PSCI_AFFINITY_LEVEL_ON		0
+#define PSCI_AFFINITY_LEVEL_OFF		1
+#define PSCI_AFFINITY_LEVEL_ON_PENDING	2
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 
