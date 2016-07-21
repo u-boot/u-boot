@@ -423,7 +423,7 @@ static int __twsi_i2c_probe_chip(struct mvtwsi_registers *twsi, uchar chip)
  * will be a repeated start without a preceding stop.
  */
 static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
-			   uint addr, int alen, uchar *data, int length)
+			   u8 *addr, int alen, uchar *data, int length)
 {
 	int status = 0;
 	int stop_status;
@@ -432,8 +432,7 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
 	status = i2c_begin(twsi, MVTWSI_STATUS_START, (chip << 1));
 	/* Send address bytes */
 	while ((status == 0) && alen--)
-		status = twsi_send(twsi, addr >> (8*alen),
-			MVTWSI_STATUS_DATA_W_ACK);
+		status = twsi_send(twsi, *(addr++), MVTWSI_STATUS_DATA_W_ACK);
 	/* Begin i2c read to receive data bytes */
 	if (status == 0)
 		status = i2c_begin(twsi, MVTWSI_STATUS_REPEATED_START,
@@ -454,7 +453,7 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
  * Begin write, send address byte(s), send data bytes, end.
  */
 static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
-			    uint addr, int alen, uchar *data, int length)
+			    u8 *addr, int alen, uchar *data, int length)
 {
 	int status, stop_status;
 
@@ -462,9 +461,8 @@ static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
 	 * data bytes */
 	status = i2c_begin(twsi, MVTWSI_STATUS_START, (chip << 1));
 	/* Send address bytes */
-	while ((status == 0) && alen--)
-		status = twsi_send(twsi, addr >> (8*alen),
-			MVTWSI_STATUS_DATA_W_ACK);
+	while ((status == 0) && (alen-- > 0))
+		status = twsi_send(twsi, *(addr++), MVTWSI_STATUS_DATA_W_ACK);
 	/* Send data bytes */
 	while ((status == 0) && (length-- > 0))
 		status = twsi_send(twsi, *(data++), MVTWSI_STATUS_DATA_W_ACK);
@@ -498,14 +496,28 @@ static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 			 int alen, uchar *data, int length)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
-	return __twsi_i2c_read(twsi, chip, addr, alen, data, length);
+	u8 addr_bytes[4];
+
+	addr_bytes[0] = (addr >> 0) & 0xFF;
+	addr_bytes[1] = (addr >> 8) & 0xFF;
+	addr_bytes[2] = (addr >> 16) & 0xFF;
+	addr_bytes[3] = (addr >> 24) & 0xFF;
+
+	return __twsi_i2c_read(twsi, chip, addr_bytes, alen, data, length);
 }
 
 static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			  int alen, uchar *data, int length)
 {
 	struct mvtwsi_registers *twsi = twsi_get_base(adap);
-	return __twsi_i2c_write(twsi, chip, addr, alen, data, length);
+	u8 addr_bytes[4];
+
+	addr_bytes[0] = (addr >> 0) & 0xFF;
+	addr_bytes[1] = (addr >> 8) & 0xFF;
+	addr_bytes[2] = (addr >> 16) & 0xFF;
+	addr_bytes[3] = (addr >> 24) & 0xFF;
+
+	return __twsi_i2c_write(twsi, chip, addr_bytes, alen, data, length);
 }
 
 #ifdef CONFIG_I2C_MVTWSI_BASE0
