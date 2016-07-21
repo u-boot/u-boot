@@ -1,5 +1,5 @@
 #include "skeleton.dtsi"
-#include <dt-bindings/gpio/tegra-gpio.h>
+#include <dt-bindings/gpio/tegra186-gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/mailbox/tegra-hsp.h>
 

@@ -30,6 +30,28 @@ void pin_mux_mmc(void)
 	ret = dm_i2c_write(dev, MAX77620_CNFG1_L2_REG, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x3c 0x27 failed: %d\n", ret);
+
+	/* Disable LDO4 discharge */
+	ret = dm_i2c_read(dev, MAX77620_CNFG2_L4_REG, &val, 1);
+	if (ret) {
+		printf("i2c_read 0 0x3c 0x2c failed: %d\n", ret);
+	} else {
+		val &= ~BIT(1); /* ADE */
+		ret = dm_i2c_write(dev, MAX77620_CNFG2_L4_REG, &val, 1);
+		if (ret)
+			printf("i2c_write 0 0x3c 0x2c failed: %d\n", ret);
+	}
+
+	/* Set MBLPD */
+	ret = dm_i2c_read(dev, MAX77620_CNFGGLBL1_REG, &val, 1);
+	if (ret) {
+		printf("i2c_write 0 0x3c 0x00 failed: %d\n", ret);
+	} else {
+		val |= BIT(6); /* MBLPD */
+		ret = dm_i2c_write(dev, MAX77620_CNFGGLBL1_REG, &val, 1);
+		if (ret)
+			printf("i2c_write 0 0x3c 0x00 failed: %d\n", ret);
+	}
 }
 
 /*
