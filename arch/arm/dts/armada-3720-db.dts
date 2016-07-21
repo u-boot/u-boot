@@ -58,6 +58,7 @@
 
 	aliases {
 		ethernet0 = &eth0;
+		i2c0 = &i2c0;
 		spi0 = &spi0;
 	};
 
@@ -70,6 +71,10 @@
 &eth0 {
 	status = "okay";
 	phy-mode = "rgmii";
+};
+
+&i2c0 {
+	status = "okay";
 };
 
 /* CON3 */

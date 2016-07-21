@@ -153,6 +153,12 @@
 				status = "disabled";
 			};
 
+			i2c0: i2c@11000 {
+				compatible = "marvell,armada-3700-i2c";
+				reg = <0x11000 0x100>;
+				status = "disabled";
+			};
+
 			spi0: spi@10600 {
 				compatible = "marvell,armada-3700-spi";
 				reg = <0x10600 0x50>;
