@@ -134,6 +134,9 @@ enum ih_category {
 
 /*
  * Operating System Codes
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
 enum {
 	IH_OS_INVALID		= 0,	/* Invalid OS	*/
@@ -167,6 +170,9 @@ enum {
 
 /*
  * CPU Architecture Codes (supported by Linux)
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
 enum {
 	IH_ARCH_INVALID		= 0,	/* Invalid CPU	*/
@@ -182,6 +188,7 @@ enum {
 	IH_ARCH_SPARC,			/* Sparc	*/
 	IH_ARCH_SPARC64,		/* Sparc 64 Bit */
 	IH_ARCH_M68K,			/* M68K		*/
+	IH_ARCH_NIOS,			/* Nios-32	*/
 	IH_ARCH_MICROBLAZE,		/* MicroBlaze   */
 	IH_ARCH_NIOS2,			/* Nios-II	*/
 	IH_ARCH_BLACKFIN,		/* Blackfin	*/
@@ -234,6 +241,9 @@ enum {
  *	U-Boot's command interpreter; this feature is especially
  *	useful when you configure U-Boot to use a real shell (hush)
  *	as command interpreter (=> Shell Scripts).
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
 
 enum {
@@ -273,6 +283,9 @@ enum {
 
 /*
  * Compression Types
+ *
+ * The following are exposed to uImage header.
+ * Do not change values for backward compatibility.
  */
 enum {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
