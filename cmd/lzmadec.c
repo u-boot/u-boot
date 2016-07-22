@@ -20,7 +20,7 @@
 static int do_lzmadec(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long src, dst;
-	unsigned long src_len = ~0UL, dst_len = ~0UL;
+	SizeT src_len = ~0UL, dst_len = ~0UL;
 	int ret;
 
 	switch (argc) {
@@ -40,7 +40,8 @@ static int do_lzmadec(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (ret != SZ_OK)
 		return 1;
-	printf("Uncompressed size: %ld = 0x%lX\n", src_len, src_len);
+	printf("Uncompressed size: %ld = %#lX\n", (ulong)src_len,
+	       (ulong)src_len);
 	setenv_hex("filesize", src_len);
 
 	return 0;
