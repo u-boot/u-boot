@@ -85,6 +85,13 @@ config USB_EHCI_MSM
 	  This driver supports combination of Chipidea USB controller
 	  and Synapsys USB PHY in host mode only.
 
+config USB_EHCI_ZYNQ
+	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
+	depends on ARCH_ZYNQ
+	default y
+	---help---
+	  Enable support for Zynq on-chip EHCI USB controller
+
 config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on OF_CONTROL
