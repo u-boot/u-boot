@@ -599,9 +599,6 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 	/* Set clock gating for emac */
 	setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
 
-	/* Set EMAC clock */
-	setbits_le32(&ccm->axi_gate, (BIT(1) | BIT(0)));
-
 	/* De-assert EMAC */
 	setbits_le32(&ccm->ahb_reset0_cfg, BIT(AHB_RESET_OFFSET_GMAC));
 }
