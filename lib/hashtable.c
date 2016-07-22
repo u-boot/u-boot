@@ -602,8 +602,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		return (-1);
 	}
 
-	debug("EXPORT  table = %p, htab.size = %d, htab.filled = %d, "
-		"size = %zu\n", htab, htab->size, htab->filled, size);
+	debug("EXPORT  table = %p, htab.size = %d, htab.filled = %d, size = %lu\n",
+	      htab, htab->size, htab->filled, (ulong)size);
 	/*
 	 * Pass 1:
 	 * search used entries,
@@ -657,8 +657,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 	/* Check if the user supplied buffer size is sufficient */
 	if (size) {
 		if (size < totlen + 1) {	/* provided buffer too small */
-			printf("Env export buffer too small: %zu, "
-				"but need %zu\n", size, totlen + 1);
+			printf("Env export buffer too small: %lu, but need %lu\n",
+			       (ulong)size, (ulong)totlen + 1);
 			__set_errno(ENOMEM);
 			return (-1);
 		}
@@ -790,7 +790,7 @@ int himport_r(struct hsearch_data *htab,
 
 	/* we allocate new space to make sure we can write to the array */
 	if ((data = malloc(size + 1)) == NULL) {
-		debug("himport_r: can't malloc %zu bytes\n", size + 1);
+		debug("himport_r: can't malloc %lu bytes\n", (ulong)size + 1);
 		__set_errno(ENOMEM);
 		return 0;
 	}
