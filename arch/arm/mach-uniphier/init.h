@@ -24,6 +24,8 @@ struct uniphier_board_data {
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
 #define UNIPHIER_BD_DDR3PLUS		BIT(2)
+#define UNIPHIER_BD_PACKAGE_LD21	1
+#define UNIPHIER_BD_PACKAGE_TYPE(f)	((f) & 0x3)
 };
 
 const struct uniphier_board_data *uniphier_get_board_param(void);
