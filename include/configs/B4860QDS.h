@@ -830,7 +830,7 @@ unsigned long get_board_ddr_clk(void);
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=b4860qds/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=b4860qds/b4860qds.dtb\0"				\
 	"bdev=sda3\0"
 
@@ -868,7 +868,7 @@ unsigned long get_board_ddr_clk(void);
  "setenv bootargs root=/dev/ram rw "		\
  "console=$consoledev,$baudrate $othbootargs;"	\
  "setenv ramdiskaddr 0x02000000;"		\
- "setenv fdtaddr 0x00c00000;"			\
+ "setenv fdtaddr 0x01e00000;"			\
  "setenv loadaddr 0x1000000;"			\
  "bootm $loadaddr $ramdiskaddr $fdtaddr"
 

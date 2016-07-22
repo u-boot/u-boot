@@ -595,7 +595,7 @@
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=uRamdisk\0"			\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=sbc8548.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\

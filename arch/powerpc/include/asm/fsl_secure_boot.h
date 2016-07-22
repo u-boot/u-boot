@@ -35,7 +35,9 @@
 	defined(CONFIG_T104xD4RDB) || \
 	defined(CONFIG_PPC_T1023) || \
 	defined(CONFIG_PPC_T1024)
+#ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CPC_REINIT_F
+#endif
 #define CONFIG_KEY_REVOCATION
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
@@ -43,7 +45,13 @@
 
 #if defined(CONFIG_RAMBOOT_PBL)
 #undef CONFIG_SYS_INIT_L3_ADDR
-#define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
+#ifdef CONFIG_SYS_INIT_L3_VADDR
+#define CONFIG_SYS_INIT_L3_ADDR	\
+			(CONFIG_SYS_INIT_L3_VADDR & ~0xFFF00000) | \
+					0xbff00000
+#else
+#define CONFIG_SYS_INIT_L3_ADDR		0xbff00000
+#endif
 #endif
 
 #if defined(CONFIG_C29XPCIE)
@@ -72,6 +80,32 @@
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SPL_DM			1
+#define CONFIG_SPL_CRYPTO_SUPPORT
+#define CONFIG_SPL_HASH_SUPPORT
+#define CONFIG_SPL_RSA
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+/*
+ * PPAACT and SPAACT table for PAMU must be placed on DDR after DDR init
+ * due to space crunch on CPC and thus malloc will not work.
+ */
+#define CONFIG_SPL_PPAACT_ADDR		0x2e000000
+#define CONFIG_SPL_SPAACT_ADDR		0x2f000000
+#define CONFIG_SPL_JR0_LIODN_S		454
+#define CONFIG_SPL_JR0_LIODN_NS		458
+/*
+ * Define the key hash for U-Boot here if public/private key pair used to
+ * sign U-boot are different from the SRK hash put in the fuse
+ * Example of defining KEY_HASH is
+ * #define CONFIG_SPL_UBOOT_KEY_HASH \
+ *      "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
+ * else leave it defined as NULL
+ */
+
+#define CONFIG_SPL_UBOOT_KEY_HASH	NULL
+#endif /* ifdef CONFIG_SPL_BUILD */
+
 #define CONFIG_CMD_ESBC_VALIDATE
 #define CONFIG_CMD_BLOB
 #define CONFIG_FSL_SEC_MON
@@ -82,7 +116,9 @@
 #define CONFIG_FSL_CAAM
 #endif
 
-/* fsl_setenv_chain_of_trust() must be called from
+#ifndef CONFIG_SPL_BUILD
+/*
+ * fsl_setenv_chain_of_trust() must be called from
  * board_late_init()
  */
 #ifndef CONFIG_BOARD_LATE_INIT
@@ -119,5 +155,6 @@
 #endif /* #ifdef CONFIG_BOOTSCRIPT_COPY_RAM */
 
 #include <config_fsl_chain_trust.h>
+#endif /* #ifndef CONFIG_SPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif
