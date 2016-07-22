@@ -17,12 +17,3 @@ config IMX_BOOTAUX
 	depends on ARCH_MX7 || ARCH_MX6
 	help
 	  bootaux [addr] to boot auxiliary core.
-
-config MX7_SEC
-	bool "Support booting MX7 in secure mode"
-	depends on ARCH_MX7
-	help
-	  NXP kernel requires to boot MX7 in secure mode. Select
-	  this options if you want to boot a NXP kernel. In order
-	  to boot a mainline kernel this option needs to be
-	  unselected.
