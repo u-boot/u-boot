@@ -44,6 +44,9 @@ Note:
       make sandbox_defconfig all NO_SDL=1
       ./u-boot
 
+   If you are building on a 32-bit machine you may get errors from __ffs.h
+   about shifting more than the machine word size. Edit the config file
+   include/configs/sandbox.h and change CONFIG_SANDBOX_BITS_PER_LONG to 32.
 
 U-Boot will start on your computer, showing a sandbox emulation of the serial
 console:
