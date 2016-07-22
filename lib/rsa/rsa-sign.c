@@ -420,8 +420,10 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 		BN_rshift(num, num, 32); /*  N = N/B */
 	}
 
-	/* We try signing with successively increasing size values, so this
-	 * might fail several times */
+	/*
+	 * We try signing with successively increasing size values, so this
+	 * might fail several times
+	 */
 	ret = fdt_setprop(blob, noffset, prop_name, buf, size);
 	if (ret)
 		return -FDT_ERR_NOSPACE;
