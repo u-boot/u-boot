@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <linux/bitops.h>
 #include <linux/io.h>
 
 #include "../init.h"
@@ -32,12 +33,16 @@ void uniphier_pxs2_clk_init(void)
 	tmp |= SC_RSTCTRL2_NRST_USB3B1;
 	writel(tmp, SC_RSTCTRL2);
 	readl(SC_RSTCTRL2); /* dummy read */
+
+	tmp = readl(SC_RSTCTRL6);
+	tmp |= 0x37;
+	writel(tmp, SC_RSTCTRL6);
 #endif
 
 	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
 #ifdef CONFIG_USB_XHCI_UNIPHIER
-	tmp |= SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |
+	tmp |= BIT(20) | BIT(19) | SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |
 		SC_CLKCTRL_CEN_GIO;
 #endif
 #ifdef CONFIG_UNIPHIER_ETH
