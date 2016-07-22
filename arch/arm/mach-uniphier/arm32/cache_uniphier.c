@@ -19,6 +19,9 @@ static void uniphier_cache_sync(void)
 
 static void uniphier_cache_maint_all(u32 operation)
 {
+	/* clear the complete notification flag */
+	writel(SSCOLPQS_EF, SSCOLPQS);
+
 	/* try until the command is successfully set */
 	do {
 		writel(SSCOQM_S_ALL | SSCOQM_CE | operation, SSCOQM);
@@ -27,9 +30,6 @@ static void uniphier_cache_maint_all(u32 operation)
 	/* wait until the operation is completed */
 	while (readl(SSCOLPQS) != SSCOLPQS_EF)
 		;
-
-	/* clear the complete notification flag */
-	writel(SSCOLPQS_EF, SSCOLPQS);
 
 	uniphier_cache_sync();
 }
@@ -46,6 +46,9 @@ void v7_outer_cache_inval_all(void)
 
 static void __uniphier_cache_maint_range(u32 start, u32 size, u32 operation)
 {
+	/* clear the complete notification flag */
+	writel(SSCOLPQS_EF, SSCOLPQS);
+
 	/* try until the command is successfully set */
 	do {
 		writel(SSCOQM_S_ADDRESS | SSCOQM_CE | operation, SSCOQM);
@@ -57,9 +60,6 @@ static void __uniphier_cache_maint_range(u32 start, u32 size, u32 operation)
 	/* wait until the operation is completed */
 	while (readl(SSCOLPQS) != SSCOLPQS_EF)
 		;
-
-	/* clear the complete notification flag */
-	writel(SSCOLPQS_EF, SSCOLPQS);
 }
 
 static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
