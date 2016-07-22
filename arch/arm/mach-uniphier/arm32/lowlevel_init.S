@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -94,26 +96,26 @@ ENTRY(setup_init_ram)
 	 */
 0:
 	/*
-	 * set SSCOQM, SSCOQAD, SSCOQSZ, SSCOQWN in this order
+	 * set UNIPHIER_SSCOQM, UNIPHIER_SSCOQAD, UNIPHIER_SSCOQSZ, UNIPHIER_SSCOQWN in this order
 	 */
 	ldr	r0, = 0x00408006	@ touch to zero with address range
-	ldr	r1, = SSCOQM
+	ldr	r1, = UNIPHIER_SSCOQM
 	str	r0, [r1]
 	ldr	r0, = BOOT_RAM_BASE
-	ldr	r1, = SSCOQAD
+	ldr	r1, = UNIPHIER_SSCOQAD
 	str	r0, [r1]
 	ldr	r0, = BOOT_RAM_SIZE
-	ldr	r1, = SSCOQSZ
+	ldr	r1, = UNIPHIER_SSCOQSZ
 	str	r0, [r1]
 	ldr	r0, = BOOT_WAY_BITS
-	ldr	r1, = SSCOQWN
+	ldr	r1, = UNIPHIER_SSCOQWN
 	str	r0, [r1]
-	ldr	r1, = SSCOPPQSEF
+	ldr	r1, = UNIPHIER_SSCOPPQSEF
 	ldr	r0, [r1]
 	cmp	r0, #0			@ check if the command is successfully set
 	bne	0b			@ try again if an error occurs
 
-	ldr	r1, = SSCOLPQS
+	ldr	r1, = UNIPHIER_SSCOLPQS
 1:
 	ldr	r0, [r1]
 	cmp	r0, #0x4
