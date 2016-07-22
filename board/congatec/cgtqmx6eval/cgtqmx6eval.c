@@ -678,14 +678,6 @@ int overwrite_console(void)
 	return 1;
 }
 
-static bool is_mx6q(void)
-{
-	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
-		return true;
-	else
-		return false;
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -703,7 +695,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 
-	if (is_mx6q())
+	if (is_mx6dq())
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info1);
 	else
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
@@ -760,7 +752,7 @@ int misc_init_r(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (is_mx6q())
+	if (is_mx6dq())
 		setenv("board_rev", "MX6Q");
 	else
 		setenv("board_rev", "MX6DL");
@@ -1053,7 +1045,7 @@ static void spl_dram_init(int width)
 		return;
 	}
 
-	if (is_mx6q()) {
+	if (is_mx6dq()) {
 		mx6dq_dram_iocfg(width, &mx6q_ddr_ioregs, &mx6q_grp_ioregs);
 		mx6_dram_cfg(&sysinfo, &mx6q_mmcd_calib, &mem_ddr_2g);
 	} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
