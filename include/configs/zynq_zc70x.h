@@ -10,9 +10,6 @@
 #ifndef __CONFIG_ZYNQ_ZC70X_H
 #define __CONFIG_ZYNQ_ZC70X_H
 
-#define CONFIG_SYS_NO_FLASH
-
-#define CONFIG_ZYNQ_USB
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_EEPROM
 

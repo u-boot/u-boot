@@ -197,3 +197,9 @@ config CONSOLE_RECORD_IN_SIZE
 	  tstc() and getc() will use this in preference to real device input.
 	  The buffer is allocated immediately after the malloc() region is
 	  ready.
+
+config SYS_NO_FLASH
+	bool "Disable support for parallel NOR flash"
+	default n
+	help
+	  This option is used to disable support for parallel NOR flash.
