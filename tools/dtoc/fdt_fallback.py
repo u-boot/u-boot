@@ -71,6 +71,12 @@ class Prop:
         if type(newprop.value) == list and type(self.value) != list:
             self.value = newprop.value
 
+        if type(self.value) == list and len(newprop.value) > len(self.value):
+            val = fdt_util.GetEmpty(self.type)
+            while len(self.value) < len(newprop.value):
+                self.value.append(val)
+
+
 class Node:
     """A device tree node
 
