@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3036-cru.h>
+#include <linux/log2.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,11 +48,6 @@ enum {
 /* use interge mode*/
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 3, 1);
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2, 1);
-
-static inline unsigned int log2(unsigned int value)
-{
-	return fls(value) - 1;
-}
 
 void *rockchip_get_cru(void)
 {
@@ -177,11 +173,11 @@ static void rkclk_init(struct rk3036_cru *cru)
 	aclk_div = GPLL_HZ / PERI_ACLK_HZ - 1;
 	assert((aclk_div + 1) * PERI_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
 
-	hclk_div = log2(PERI_ACLK_HZ / PERI_HCLK_HZ);
+	hclk_div = ilog2(PERI_ACLK_HZ / PERI_HCLK_HZ);
 	assert((1 << hclk_div) * PERI_HCLK_HZ ==
 		PERI_ACLK_HZ && (pclk_div < 0x4));
 
-	pclk_div = log2(PERI_ACLK_HZ / PERI_PCLK_HZ);
+	pclk_div = ilog2(PERI_ACLK_HZ / PERI_PCLK_HZ);
 	assert((1 << pclk_div) * PERI_PCLK_HZ ==
 		PERI_ACLK_HZ && pclk_div < 0x8);
 
