@@ -22,10 +22,6 @@
 #include <miiphy.h>
 #include <net.h>
 
-#define SCTL_EMAC_TX_CLK_SRC_MII	BIT(0)
-#define SCTL_EMAC_EPIT_MII		BIT(2)
-#define SCTL_EMAC_CLK_SEL		BIT(18) /* 25 Mhz */
-
 #define MDIO_CMD_MII_BUSY		BIT(0)
 #define MDIO_CMD_MII_WRITE		BIT(1)
 
@@ -589,9 +585,6 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 		/* Set clock gating for ephy */
 		setbits_le32(&ccm->bus_gate4, BIT(AHB_GATE_OFFSET_EPHY));
 
-		/* Set Tx clock source as MII with rate 25 MZ */
-		setbits_le32(priv->sysctl_reg, SCTL_EMAC_TX_CLK_SRC_MII |
-				SCTL_EMAC_EPIT_MII | SCTL_EMAC_CLK_SEL);
 		/* Deassert EPHY */
 		setbits_le32(&ccm->ahb_reset2_cfg, BIT(AHB_RESET_OFFSET_EPHY));
 	}
@@ -693,11 +686,10 @@ static int sun8i_emac_eth_probe(struct udevice *dev)
 	priv->mac_reg = (void *)pdata->iobase;
 
 	sun8i_emac_board_setup(priv);
+	sun8i_emac_set_syscon(priv);
 
 	sun8i_mdio_init(dev->name, priv);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
-
-	sun8i_emac_set_syscon(priv);
 
 	return sun8i_phy_init(priv, dev);
 }
