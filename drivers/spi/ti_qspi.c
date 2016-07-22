@@ -247,13 +247,12 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 			debug("tx done, status %08x\n", status);
 		}
 		if (rxp) {
-			priv->cmd |= QSPI_RD_SNGL;
 			debug("rx cmd %08x dc %08x\n",
-			      priv->cmd, priv->dc);
+			      ((u32)(priv->cmd | QSPI_RD_SNGL)), priv->dc);
 			#ifdef CONFIG_DRA7XX
 				udelay(500);
 			#endif
-			writel(priv->cmd, &priv->base->cmd);
+			writel(priv->cmd | QSPI_RD_SNGL, &priv->base->cmd);
 			status = readl(&priv->base->status);
 			timeout = QSPI_TIMEOUT;
 			while ((status & QSPI_WC_BUSY) != QSPI_XFER_DONE) {
