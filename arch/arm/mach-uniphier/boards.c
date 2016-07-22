@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,7 +39,6 @@ static const struct uniphier_board_data uniphier_sld3_data = {
 static const struct uniphier_board_data uniphier_ld4_data = {
 	.dram_freq = 1600,
 	.dram_nr_ch = 2,
-	.dram_ddr3plus = true,
 	.dram_ch[0] = {
 		.base = 0x80000000,
 		.size = 0x10000000,
@@ -49,6 +49,7 @@ static const struct uniphier_board_data uniphier_ld4_data = {
 		.size = 0x10000000,
 		.width = 16,
 	},
+	.flags = UNIPHIER_BD_DDR3PLUS,
 };
 #endif
 
@@ -90,7 +91,6 @@ static const struct uniphier_board_data uniphier_pro4_2g_data = {
 static const struct uniphier_board_data uniphier_sld8_data = {
 	.dram_freq = 1333,
 	.dram_nr_ch = 2,
-	.dram_ddr3plus = true,
 	.dram_ch[0] = {
 		.base = 0x80000000,
 		.size = 0x10000000,
@@ -101,6 +101,7 @@ static const struct uniphier_board_data uniphier_sld8_data = {
 		.size = 0x10000000,
 		.width = 16,
 	},
+	.flags = UNIPHIER_BD_DDR3PLUS,
 };
 #endif
 

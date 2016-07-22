@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -170,7 +172,7 @@ int uniphier_pro4_umc_init(const struct uniphier_board_data *bd)
 		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
 				  bd->dram_ch[ch].size,
 				  bd->dram_ch[ch].width,
-				  bd->dram_ddr3plus);
+				  !!(bd->flags & UNIPHIER_BD_DDR3PLUS));
 		if (ret) {
 			pr_err("failed to initialize UMC ch%d\n", ch);
 			return ret;
