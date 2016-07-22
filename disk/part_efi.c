@@ -886,9 +886,10 @@ static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
 	count = le32_to_cpu(pgpt_head->num_partition_entries) *
 		le32_to_cpu(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %u * %u = %zu\n", __func__,
+	debug("%s: count = %u * %u = %lu\n", __func__,
 	      (u32) le32_to_cpu(pgpt_head->num_partition_entries),
-	      (u32) le32_to_cpu(pgpt_head->sizeof_partition_entry), count);
+	      (u32) le32_to_cpu(pgpt_head->sizeof_partition_entry),
+	      (ulong)count);
 
 	/* Allocate memory for PTE, remember to FREE */
 	if (count != 0) {
@@ -897,9 +898,8 @@ static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
 	}
 
 	if (count == 0 || pte == NULL) {
-		printf("%s: ERROR: Can't allocate 0x%zX "
-		       "bytes for GPT Entries\n",
-			__func__, count);
+		printf("%s: ERROR: Can't allocate %#lX bytes for GPT Entries\n",
+		       __func__, (ulong)count);
 		return NULL;
 	}
 
