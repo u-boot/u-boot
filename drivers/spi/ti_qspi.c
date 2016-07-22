@@ -110,12 +110,12 @@ static void ti_spi_set_speed(struct ti_qspi_priv *priv, uint hz)
 {
 	uint clk_div;
 
-	debug("ti_spi_set_speed: hz: %d, clock divider %d\n", hz, clk_div);
-
 	if (!hz)
 		clk_div = 0;
 	else
 		clk_div = (QSPI_FCLK / hz) - 1;
+
+	debug("ti_spi_set_speed: hz: %d, clock divider %d\n", hz, clk_div);
 
 	/* disable SCLK */
 	writel(readl(&priv->base->clk_ctrl) & ~QSPI_CLK_EN,
