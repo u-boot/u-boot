@@ -249,9 +249,6 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 		if (rxp) {
 			debug("rx cmd %08x dc %08x\n",
 			      ((u32)(priv->cmd | QSPI_RD_SNGL)), priv->dc);
-			#ifdef CONFIG_DRA7XX
-				udelay(500);
-			#endif
 			writel(priv->cmd | QSPI_RD_SNGL, &priv->base->cmd);
 			status = readl(&priv->base->status);
 			timeout = QSPI_TIMEOUT;
