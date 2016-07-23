@@ -17,7 +17,6 @@
 
 #define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
-#define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(64 * SZ_1M)
