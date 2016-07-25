@@ -1042,11 +1042,9 @@ def main():
 
     check_top_directory()
 
-    check_clean_directory()
-
-    update_cross_compile(options.color)
-
     if not options.cleanup_headers_only:
+        check_clean_directory()
+        update_cross_compile(options.color)
         move_config(configs, options)
 
     if configs:
