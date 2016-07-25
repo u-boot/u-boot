@@ -29,6 +29,9 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <common.h>
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+#include <fdtdec.h>
+#endif
 #include <malloc.h>
 #include <watchdog.h>
 #include <linux/err.h>
@@ -2411,7 +2414,7 @@ static int nand_do_write_ops(struct mtd_info *mtd, loff_t to,
 		int cached = writelen > bytes && page != blockmask;
 		uint8_t *wbuf = buf;
 		int use_bufpoi;
-		int part_pagewr = (column || writelen < (mtd->writesize - 1));
+		int part_pagewr = (column || writelen < mtd->writesize);
 
 		if (part_pagewr)
 			use_bufpoi = 1;
@@ -3763,6 +3766,66 @@ ident_done:
 	return type;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+DECLARE_GLOBAL_DATA_PTR;
+
+static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
+{
+	int ret, ecc_mode = -1, ecc_strength, ecc_step;
+	const void *blob = gd->fdt_blob;
+	const char *str;
+
+	ret = fdtdec_get_int(blob, node, "nand-bus-width", -1);
+	if (ret == 16)
+		chip->options |= NAND_BUSWIDTH_16;
+
+	if (fdtdec_get_bool(blob, node, "nand-on-flash-bbt"))
+		chip->bbt_options |= NAND_BBT_USE_FLASH;
+
+	str = fdt_getprop(blob, node, "nand-ecc-mode", NULL);
+	if (str) {
+		if (!strcmp(str, "none"))
+			ecc_mode = NAND_ECC_NONE;
+		else if (!strcmp(str, "soft"))
+			ecc_mode = NAND_ECC_SOFT;
+		else if (!strcmp(str, "hw"))
+			ecc_mode = NAND_ECC_HW;
+		else if (!strcmp(str, "hw_syndrome"))
+			ecc_mode = NAND_ECC_HW_SYNDROME;
+		else if (!strcmp(str, "hw_oob_first"))
+			ecc_mode = NAND_ECC_HW_OOB_FIRST;
+		else if (!strcmp(str, "soft_bch"))
+			ecc_mode = NAND_ECC_SOFT_BCH;
+	}
+
+
+	ecc_strength = fdtdec_get_int(blob, node, "nand-ecc-strength", -1);
+	ecc_step = fdtdec_get_int(blob, node, "nand-ecc-step-size", -1);
+
+	if ((ecc_step >= 0 && !(ecc_strength >= 0)) ||
+	    (!(ecc_step >= 0) && ecc_strength >= 0)) {
+		pr_err("must set both strength and step size in DT\n");
+		return -EINVAL;
+	}
+
+	if (ecc_mode >= 0)
+		chip->ecc.mode = ecc_mode;
+
+	if (ecc_strength >= 0)
+		chip->ecc.strength = ecc_strength;
+
+	if (ecc_step > 0)
+		chip->ecc.size = ecc_step;
+
+	return 0;
+}
+#else
+static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
+{
+	return 0;
+}
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
+
 /**
  * nand_scan_ident - [NAND Interface] Scan for the NAND device
  * @mtd: MTD device structure
@@ -3779,6 +3842,13 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 	int i, nand_maf_id, nand_dev_id;
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nand_flash_dev *type;
+	int ret;
+
+	if (chip->flash_node) {
+		ret = nand_dt_init(mtd, chip, chip->flash_node);
+		if (ret)
+			return ret;
+	}
 
 	/* Set the default functions */
 	nand_set_defaults(chip, chip->options & NAND_BUSWIDTH_16);
