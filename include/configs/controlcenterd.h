@@ -26,10 +26,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD
 #endif

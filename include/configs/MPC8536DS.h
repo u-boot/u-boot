@@ -14,10 +14,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT	1
-#endif
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
 #define CONFIG_SYS_TEXT_BASE	0xf8f40000

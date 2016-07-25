@@ -6,6 +6,7 @@ config SYS_ARCH
 
 config ARM64
 	bool
+	select PHYS_64BIT
 
 config DMA_ADDR_T_64BIT
 	bool

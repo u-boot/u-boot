@@ -9,7 +9,6 @@
  *
  */
 #define CONFIG_P5040DS
-#define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P5040
 
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */

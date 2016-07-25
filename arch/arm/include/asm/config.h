@@ -11,7 +11,6 @@
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 
 #ifdef CONFIG_ARM64
-#define CONFIG_PHYS_64BIT
 #define CONFIG_STATIC_RELA
 #endif
 

@@ -11,7 +11,6 @@
  * T104x RDB board configuration file
  */
 #define CONFIG_T104xRDB
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_E500			/* BOOKE e500 family */

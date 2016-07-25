@@ -11,7 +11,6 @@
 #define __CONFIG_H
 
 #define CONFIG_T4240QDS
-#define CONFIG_PHYS_64BIT
 
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4

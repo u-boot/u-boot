@@ -27,7 +27,6 @@
  * T1040 QDS board configuration file
  */
 #define CONFIG_T1040QDS
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_RAMBOOT_PBL

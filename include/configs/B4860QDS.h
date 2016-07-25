@@ -13,7 +13,6 @@
  * B4860 QDS board configuration file
  */
 #define CONFIG_B4860QDS
-#define CONFIG_PHYS_64BIT
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI	$(SRCTREE)/board/freescale/b4860qds/b4_pbi.cfg

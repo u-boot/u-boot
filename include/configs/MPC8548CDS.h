@@ -15,10 +15,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */

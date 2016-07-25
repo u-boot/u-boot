@@ -11,7 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_C29XPCIE

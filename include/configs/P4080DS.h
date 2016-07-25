@@ -9,7 +9,6 @@
  * Also supports P4040 DS
  */
 #define CONFIG_P4080DS
-#define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P4080
 
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */

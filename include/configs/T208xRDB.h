@@ -19,7 +19,6 @@
 #define CONFIG_FSL_SATA_V2
 
 /* High Level Configuration Options */
-#define CONFIG_PHYS_64BIT
 #define CONFIG_BOOKE
 #define CONFIG_E500		/* BOOKE e500 family */
 #define CONFIG_E500MC		/* BOOKE e500mc family */

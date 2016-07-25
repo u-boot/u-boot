@@ -11,9 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
 #define	CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_P1010

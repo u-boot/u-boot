@@ -11,8 +11,6 @@
 
 #define CONFIG_CYRUS
 
-#define CONFIG_PHYS_64BIT
-
 #if !defined(CONFIG_PPC_P5020) && !defined(CONFIG_PPC_P5040)
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif

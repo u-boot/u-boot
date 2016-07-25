@@ -15,10 +15,6 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif

@@ -124,6 +124,14 @@ config TOOLS_DEBUG
 	  debug through the source code, etc.
 
 endif
+
+config PHYS_64BIT
+	bool "64bit physical address support"
+	help
+	  Say Y here to support 64bit physical memory address.
+	  This can be used not only for 64bit SoCs, but also for
+	  large physical address extention on 32bit SoCs.
+
 endmenu		# General setup
 
 menu "Boot images"

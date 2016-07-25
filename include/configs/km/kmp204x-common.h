@@ -8,7 +8,6 @@
 #ifndef _CONFIG_KMP204X_H
 #define _CONFIG_KMP204X_H
 
-#define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P2041
 
 #define CONFIG_SYS_TEXT_BASE	0xfff40000

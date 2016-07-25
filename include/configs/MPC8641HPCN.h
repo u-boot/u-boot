@@ -23,7 +23,6 @@
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
-/*#define CONFIG_PHYS_64BIT	1*/	/* Place devices in 36-bit space */
 #define CONFIG_ADDR_MAP		1	/* Use addr map */
 
 /*
