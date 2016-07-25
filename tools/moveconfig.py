@@ -266,6 +266,16 @@ def get_make_cmd():
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
+def get_all_defconfigs():
+    """Get all the defconfig files under the configs/ directory."""
+    defconfigs = []
+    for (dirpath, dirnames, filenames) in os.walk('configs'):
+        dirpath = dirpath[len('configs') + 1:]
+        for filename in fnmatch.filter(filenames, '*_defconfig'):
+            defconfigs.append(os.path.join(dirpath, filename))
+
+    return defconfigs
+
 def color_text(color_enabled, color, string):
     """Return colored string."""
     if color_enabled:
@@ -1079,12 +1089,7 @@ def move_config(configs, options):
                 sys.exit('%s - defconfig does not exist. Stopping.' %
                          defconfigs[i])
     else:
-        # All the defconfig files to be processed
-        defconfigs = []
-        for (dirpath, dirnames, filenames) in os.walk('configs'):
-            dirpath = dirpath[len('configs') + 1:]
-            for filename in fnmatch.filter(filenames, '*_defconfig'):
-                defconfigs.append(os.path.join(dirpath, filename))
+        defconfigs = get_all_defconfigs()
 
     progress = Progress(len(defconfigs))
     slots = Slots(configs, options, progress, reference_src_dir)
