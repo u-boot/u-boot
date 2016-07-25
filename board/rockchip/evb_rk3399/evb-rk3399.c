@@ -21,6 +21,7 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = 0;
+	/* Reserve 0x200000 for ATF bl31 */
+	gd->bd->bi_dram[0].start = 0x200000;
 	gd->bd->bi_dram[0].size = 0x80000000;
 }
