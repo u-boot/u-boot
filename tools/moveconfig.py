@@ -276,13 +276,14 @@ def color_text(color_enabled, color, string):
     else:
         return string
 
-def show_diff(a, b, file_path):
+def show_diff(a, b, file_path, color_enabled):
     """Show unidified diff.
 
     Arguments:
       a: A list of lines (before)
       b: A list of lines (after)
       file_path: Path to the file
+      color_enabled: Display the diff in color
     """
 
     diff = difflib.unified_diff(a, b,
@@ -290,7 +291,12 @@ def show_diff(a, b, file_path):
                                 tofile=os.path.join('b', file_path))
 
     for line in diff:
-        print line,
+        if line[0] == '-' and line[1] != '-':
+            print color_text(color_enabled, COLOR_RED, line),
+        elif line[0] == '+' and line[1] != '+':
+            print color_text(color_enabled, COLOR_GREEN, line),
+        else:
+            print line,
 
 def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
@@ -388,14 +394,14 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
     matched += extended_matched
     matched.sort()
 
-def cleanup_one_header(header_path, patterns, dry_run):
+def cleanup_one_header(header_path, patterns, options):
     """Clean regex-matched lines away from a file.
 
     Arguments:
       header_path: path to the cleaned file.
       patterns: list of regex patterns.  Any lines matching to these
                 patterns are deleted.
-      dry_run: make no changes, but still display log.
+      options: option flags.
     """
     with open(header_path) as f:
         lines = f.readlines()
@@ -436,21 +442,21 @@ def cleanup_one_header(header_path, patterns, dry_run):
     for i in reversed(matched):
         tolines.pop(i)
 
-    show_diff(lines, tolines, header_path)
+    show_diff(lines, tolines, header_path, options.color)
 
-    if dry_run:
+    if options.dry_run:
         return
 
     with open(header_path, 'w') as f:
         for line in tolines:
             f.write(line)
 
-def cleanup_headers(configs, dry_run):
+def cleanup_headers(configs, options):
     """Delete config defines from board headers.
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      dry_run: make no changes, but still display log.
+      options: option flags.
     """
     while True:
         choice = raw_input('Clean up headers? [y/n]: ').lower()
@@ -473,7 +479,7 @@ def cleanup_headers(configs, dry_run):
             for filename in filenames:
                 if not fnmatch.fnmatch(filename, '*~'):
                     cleanup_one_header(os.path.join(dirpath, filename),
-                                       patterns, dry_run)
+                                       patterns, options)
 
 ### classes ###
 class Progress:
@@ -1145,7 +1151,7 @@ def main():
         move_config(configs, options)
 
     if configs:
-        cleanup_headers(configs, options.dry_run)
+        cleanup_headers(configs, options)
 
 if __name__ == '__main__':
     main()
