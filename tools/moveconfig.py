@@ -371,6 +371,8 @@ def cleanup_headers(configs, dry_run):
 
     for dir in 'include', 'arch', 'board':
         for (dirpath, dirnames, filenames) in os.walk(dir):
+            if dirpath == os.path.join('include', 'generated'):
+                continue
             for filename in filenames:
                 if not fnmatch.fnmatch(filename, '*~'):
                     cleanup_one_header(os.path.join(dirpath, filename),
