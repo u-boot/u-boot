@@ -588,6 +588,7 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
 	uint shift, ind = index;
 	uint mask;
+	uint value;
 	u32 *addr;
 	int ret;
 
@@ -596,7 +597,18 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 					  &mask);
 	if (ret)
 		return ret;
-	rk_clrsetreg(addr, mask << shift, muxval << shift);
+
+	/*
+	 * PMU_GPIO0 registers cannot be selectively written so we cannot use
+	 * rk_clrsetreg() here.  However, the upper 16 bits are reserved and
+	 * are ignored when written, so we can use the same code as for the
+	 * other GPIO banks providing that we preserve the value of the other
+	 * bits.
+	 */
+	value = readl(addr);
+	value &= ~(mask << shift);
+	value |= (mask << (shift + 16)) | (muxval << shift);
+	writel(value, addr);
 
 	/* Handle pullup/pulldown */
 	if (flags) {
@@ -614,7 +626,12 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 			addr = &priv->grf->gpio1_p[banknum - 1][ind];
 		debug("%s: addr=%p, val=%x, shift=%x\n", __func__, addr, val,
 		      shift);
-		rk_clrsetreg(addr, 3 << shift, val << shift);
+
+		/* As above, rk_clrsetreg() cannot be used here. */
+		value = readl(addr);
+		value &= ~(mask << shift);
+		value |= (3 << (shift + 16)) | (val << shift);
+		writel(value, addr);
 	}
 
 	return 0;
