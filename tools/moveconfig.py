@@ -494,6 +494,79 @@ def cleanup_headers(configs, options):
                     cleanup_one_header(os.path.join(dirpath, filename),
                                        patterns, options)
 
+def cleanup_one_extra_option(defconfig_path, configs, options):
+    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in one defconfig file.
+
+    Arguments:
+      defconfig_path: path to the cleaned defconfig file.
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+
+    start = 'CONFIG_SYS_EXTRA_OPTIONS="'
+    end = '"\n'
+
+    with open(defconfig_path) as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if line.startswith(start) and line.endswith(end):
+            break
+    else:
+        # CONFIG_SYS_EXTRA_OPTIONS was not found in this defconfig
+        return
+
+    old_tokens = line[len(start):-len(end)].split(',')
+    new_tokens = []
+
+    for token in old_tokens:
+        pos = token.find('=')
+        if not (token[:pos] if pos >= 0 else token) in configs:
+            new_tokens.append(token)
+
+    if new_tokens == old_tokens:
+        return
+
+    tolines = copy.copy(lines)
+
+    if new_tokens:
+        tolines[i] = start + ','.join(new_tokens) + end
+    else:
+        tolines.pop(i)
+
+    show_diff(lines, tolines, defconfig_path, options.color)
+
+    if options.dry_run:
+        return
+
+    with open(defconfig_path, 'w') as f:
+        for line in tolines:
+            f.write(line)
+
+def cleanup_extra_options(configs, options):
+    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    while True:
+        choice = raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').lower()
+        print choice
+        if choice == 'y' or choice == 'n':
+            break
+
+    if choice == 'n':
+        return
+
+    configs = [ config[len('CONFIG_'):] for config in configs ]
+
+    defconfigs = get_all_defconfigs()
+
+    for defconfig in defconfigs:
+        cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
+                                 options)
+
 ### classes ###
 class Progress:
 
@@ -1160,6 +1233,7 @@ def main():
 
     if configs:
         cleanup_headers(configs, options)
+        cleanup_extra_options(configs, options)
 
 if __name__ == '__main__':
     main()
