@@ -85,7 +85,6 @@
 #define CONFIG_CMD_SF_TEST
 
 #define CONFIG_I2C_EDID
-#define CONFIG_I2C_EEPROM
 
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
