@@ -160,6 +160,7 @@ To see the complete list of supported options, run
 
 """
 
+import copy
 import filecmp
 import fnmatch
 import multiprocessing
@@ -319,6 +320,57 @@ def update_cross_compile(color_enabled):
 
         CROSS_COMPILE[arch] = cross_compile
 
+def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
+                         extend_post):
+    """Extend matched lines if desired patterns are found before/after already
+    matched lines.
+
+    Arguments:
+      lines: A list of lines handled.
+      matched: A list of line numbers that have been already matched.
+               (will be updated by this function)
+      pre_patterns: A list of regular expression that should be matched as
+                    preamble.
+      post_patterns: A list of regular expression that should be matched as
+                     postamble.
+      extend_pre: Add the line number of matched preamble to the matched list.
+      extend_post: Add the line number of matched postamble to the matched list.
+    """
+    extended_matched = []
+
+    j = matched[0]
+
+    for i in matched:
+        if i == 0 or i < j:
+            continue
+        j = i
+        while j in matched:
+            j += 1
+        if j >= len(lines):
+            break
+
+        for p in pre_patterns:
+            if p.search(lines[i - 1]):
+                break
+        else:
+            # not matched
+            continue
+
+        for p in post_patterns:
+            if p.search(lines[j]):
+                break
+        else:
+            # not matched
+            continue
+
+        if extend_pre:
+            extended_matched.append(i - 1)
+        if extend_post:
+            extended_matched.append(j)
+
+    matched += extended_matched
+    matched.sort()
+
 def cleanup_one_header(header_path, patterns, dry_run):
     """Clean regex-matched lines away from a file.
 
@@ -334,13 +386,38 @@ def cleanup_one_header(header_path, patterns, dry_run):
     matched = []
     for i, line in enumerate(lines):
         for pattern in patterns:
-            m = pattern.search(line)
-            if m:
-                print '%s: %s: %s' % (header_path, i + 1, line),
+            if pattern.search(line):
                 matched.append(i)
                 break
 
-    if dry_run or not matched:
+    if not matched:
+        return
+
+    # remove empty #ifdef ... #endif, successive blank lines
+    pattern_if = re.compile(r'#\s*if(def|ndef)?\W') #  #if, #ifdef, #ifndef
+    pattern_elif = re.compile(r'#\s*el(if|se)\W')   #  #elif, #else
+    pattern_endif = re.compile(r'#\s*endif\W')      #  #endif
+    pattern_blank = re.compile(r'^\s*$')            #  empty line
+
+    while True:
+        old_matched = copy.copy(matched)
+        extend_matched_lines(lines, matched, [pattern_if],
+                             [pattern_endif], True, True)
+        extend_matched_lines(lines, matched, [pattern_elif],
+                             [pattern_elif, pattern_endif], True, False)
+        extend_matched_lines(lines, matched, [pattern_if, pattern_elif],
+                             [pattern_blank], False, True)
+        extend_matched_lines(lines, matched, [pattern_blank],
+                             [pattern_elif, pattern_endif], True, False)
+        extend_matched_lines(lines, matched, [pattern_blank],
+                             [pattern_blank], True, False)
+        if matched == old_matched:
+            break
+
+    for i in matched:
+        print '%s: %s: %s' % (header_path, i + 1, lines[i]),
+
+    if dry_run:
         return
 
     with open(header_path, 'w') as f:
