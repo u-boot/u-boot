@@ -408,6 +408,9 @@ def cleanup_one_header(header_path, patterns, options):
 
     matched = []
     for i, line in enumerate(lines):
+        if i - 1 in matched and lines[i - 1][-2:] == '\\\n':
+            matched.append(i)
+            continue
         for pattern in patterns:
             if pattern.search(line):
                 matched.append(i)
