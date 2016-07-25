@@ -161,6 +161,7 @@ To see the complete list of supported options, run
 """
 
 import copy
+import difflib
 import filecmp
 import fnmatch
 import multiprocessing
@@ -274,6 +275,22 @@ def color_text(color_enabled, color, string):
                            for s in string.split('\n') ])
     else:
         return string
+
+def show_diff(a, b, file_path):
+    """Show unidified diff.
+
+    Arguments:
+      a: A list of lines (before)
+      b: A list of lines (after)
+      file_path: Path to the file
+    """
+
+    diff = difflib.unified_diff(a, b,
+                                fromfile=os.path.join('a', file_path),
+                                tofile=os.path.join('b', file_path))
+
+    for line in diff:
+        print line,
 
 def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
@@ -414,16 +431,19 @@ def cleanup_one_header(header_path, patterns, dry_run):
         if matched == old_matched:
             break
 
-    for i in matched:
-        print '%s: %s: %s' % (header_path, i + 1, lines[i]),
+    tolines = copy.copy(lines)
+
+    for i in reversed(matched):
+        tolines.pop(i)
+
+    show_diff(lines, tolines, header_path)
 
     if dry_run:
         return
 
     with open(header_path, 'w') as f:
-        for i, line in enumerate(lines):
-            if not i in matched:
-                f.write(line)
+        for line in tolines:
+            f.write(line)
 
 def cleanup_headers(configs, dry_run):
     """Delete config defines from board headers.
