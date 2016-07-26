@@ -59,3 +59,28 @@ def EnsureCompiled(fname):
     args.append(dts_input)
     command.Run('dtc', *args)
     return dtb_output
+
+def GetInt(node, propname, default=None):
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = fdt32_to_cpu(prop.value)
+    if type(value) == type(list):
+        raise ValueError("Node '%s' property '%' has list value: expecting"
+                         "a single integer" % (node.name, propname))
+    return value
+
+def GetString(node, propname, default=None):
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if type(value) == type(list):
+        raise ValueError("Node '%s' property '%' has list value: expecting"
+                         "a single string" % (node.name, propname))
+    return value
+
+def GetBool(node, propname, default=False):
+    if propname in node.props:
+        return True
+    return default
