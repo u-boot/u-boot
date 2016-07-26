@@ -22,7 +22,7 @@ def fdt32_to_cpu(val):
     Return:
         A native-endian integer value
     """
-    return struct.unpack(">I", val)[0]
+    return struct.unpack('>I', val)[0]
 
 def EnsureCompiled(fname):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
