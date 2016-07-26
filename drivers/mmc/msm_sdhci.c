@@ -144,8 +144,8 @@ static int msm_sdc_probe(struct udevice *dev)
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-	ret = sdhci_setup_cfg(&plat->cfg, dev->name, host->bus_width,
-			      caps, 0, 0, host->version, host->quirks, 0);
+	ret = sdhci_setup_cfg(&plat->cfg, dev->name, caps,
+			0, 0, host->version, host->quirks, 0);
 	host->mmc = &plat->mmc;
 	if (ret)
 		return ret;

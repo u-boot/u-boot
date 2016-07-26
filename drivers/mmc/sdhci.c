@@ -511,7 +511,7 @@ static const struct mmc_ops sdhci_ops = {
 };
 #endif
 
-int sdhci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
+int sdhci_setup_cfg(struct mmc_config *cfg, const char *name,
 		    uint caps, u32 max_clk, u32 min_clk, uint version,
 		    uint quirks, uint host_caps)
 {
@@ -582,7 +582,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	}
 #endif
 
-	if (sdhci_setup_cfg(&host->cfg, host->name, host->bus_width, caps,
+	if (sdhci_setup_cfg(&host->cfg, host->name, caps,
 			    max_clk, min_clk, SDHCI_GET_VERSION(host),
 			    host->quirks, host->host_caps)) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",

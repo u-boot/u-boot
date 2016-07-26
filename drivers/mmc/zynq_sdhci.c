@@ -40,7 +40,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-	ret = sdhci_setup_cfg(&plat->cfg, dev->name, host->bus_width,
+	ret = sdhci_setup_cfg(&plat->cfg, dev->name,
 			      caps, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ, host->version,
 			      host->quirks, 0);
