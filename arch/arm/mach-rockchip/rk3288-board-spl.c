@@ -116,8 +116,7 @@ static void configure_l2ctlr(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 static int configure_emmc(struct udevice *pinctrl)
 {
-#if !defined(CONFIG_TARGET_ROCK2) && !defined(CONFIG_TARGET_FIREFLY_RK3288) && \
-	!defined(CONFIG_TARGET_EVB_RK3288)
+#if defined(CONFIG_TARGET_CHROMEBOOK_JERRY)
 
 	struct gpio_desc desc;
 	int ret;
