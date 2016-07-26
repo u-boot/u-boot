@@ -17,8 +17,6 @@
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 #define CONFIG_CMD_ESBC_VALIDATE
-#define CONFIG_CMD_BLOB
-#define CONFIG_CMD_HASH
 #define CONFIG_FSL_SEC_MON
 #define CONFIG_SHA_HW_ACCEL
 #define CONFIG_SHA_PROG_HW_ACCEL
@@ -28,6 +26,28 @@
 #define CONFIG_FSL_CAAM
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_DM			1
+#define CONFIG_SPL_CRYPTO_SUPPORT
+#define CONFIG_SPL_HASH_SUPPORT
+#define CONFIG_SPL_RSA
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+/*
+ * Define the key hash for U-Boot here if public/private key pair used to
+ * sign U-boot are different from the SRK hash put in the fuse
+ * Example of defining KEY_HASH is
+ * #define CONFIG_SPL_UBOOT_KEY_HASH \
+ *      "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
+ * else leave it defined as NULL
+ */
+
+#define CONFIG_SPL_UBOOT_KEY_HASH	NULL
+#endif /* ifdef CONFIG_SPL_BUILD */
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_BLOB
+#define CONFIG_CMD_HASH
 #define CONFIG_KEY_REVOCATION
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images
@@ -58,39 +78,55 @@
 	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
 #else
 #define CONFIG_EXTRA_ENV \
-	"setenv fdt_high 0xcfffffff;"	\
-	"setenv initrd_high 0xcfffffff;"	\
+	"setenv fdt_high 0xffffffff;"	\
+	"setenv initrd_high 0xffffffff;"	\
 	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
 #endif
 
 /* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
  * Non-XIP Memory (Nand/SD)*/
-#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A) || \
+	defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
-/* The address needs to be modified according to NOR and DDR memory map */
+/* The address needs to be modified according to NOR, NAND, SD and
+ * DDR memory map
+ */
 #ifdef CONFIG_LS2080A
-#define CONFIG_BS_HDR_ADDR_FLASH	0x583920000
-#define CONFIG_BS_ADDR_FLASH		0x583900000
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x583920000
+#define CONFIG_BS_ADDR_DEVICE		0x583900000
 #define CONFIG_BS_HDR_ADDR_RAM		0xa3920000
 #define CONFIG_BS_ADDR_RAM		0xa3900000
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BS_SIZE			0x00001000
 #else
-#define CONFIG_BS_HDR_ADDR_FLASH	0x600a0000
-#define CONFIG_BS_ADDR_FLASH		0x60060000
-#define CONFIG_BS_HDR_ADDR_RAM		0xa0060000
-#define CONFIG_BS_ADDR_RAM		0xa0060000
+#ifdef CONFIG_SD_BOOT
+/* For SD boot address and size are assigned in terms of sector
+ * offset and no. of sectors respectively.
+ */
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x00000800
+#define CONFIG_BS_ADDR_DEVICE		0x00000840
+#define CONFIG_BS_HDR_SIZE		0x00000010
+#define CONFIG_BS_SIZE			0x00000008
+#else
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x600a0000
+#define CONFIG_BS_ADDR_DEVICE		0x60060000
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BS_SIZE			0x00001000
+#endif /* #ifdef CONFIG_SD_BOOT */
+#define CONFIG_BS_HDR_ADDR_RAM		0x81000000
+#define CONFIG_BS_ADDR_RAM		0x81020000
 #endif
 
 #ifdef CONFIG_BOOTSCRIPT_COPY_RAM
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
-#define CONFIG_BS_HDR_SIZE		0x00002000
 #define CONFIG_BOOTSCRIPT_ADDR		CONFIG_BS_ADDR_RAM
-#define CONFIG_BS_SIZE			0x00001000
 #else
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_FLASH
-/* BS_HDR_SIZE, BOOTSCRIPT_ADDR and BS_SIZE are not required */
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_DEVICE
+/* BOOTSCRIPT_ADDR is not required */
 #endif
 
 #include <config_fsl_chain_trust.h>
+#endif /* #ifndef CONFIG_SPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif

@@ -9,3 +9,4 @@ F:	configs/ls1043aqds_nand_defconfig
 F:	configs/ls1043aqds_sdcard_ifc_defconfig
 F:	configs/ls1043aqds_sdcard_qspi_defconfig
 F:	configs/ls1043aqds_qspi_defconfig
+F:	configs/ls1043aqds_lpuart_defconfig

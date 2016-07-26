@@ -39,3 +39,4 @@ obj-$(CONFIG_PPC_T4080) += t4240.o
 obj-$(CONFIG_PPC_B4420) += b4860.o
 obj-$(CONFIG_PPC_B4860) += b4860.o
 obj-$(CONFIG_LS1043A)	+= ls1043.o
+obj-$(CONFIG_LS1046A)	+= ls1046.o

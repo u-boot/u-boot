@@ -145,11 +145,14 @@ static inline void final_mmu_setup(void)
 	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
 			  MEMORY_ATTRIBUTES);
 	/*
-	 * MMU is already enabled, just need to invalidate TLB to load the
+	 * EL3 MMU is already enabled, just need to invalidate TLB to load the
 	 * new table. The new table is compatible with the current table, if
 	 * MMU somehow walks through the new table before invalidation TLB,
 	 * it still works. So we don't need to turn off MMU here.
+	 * When EL2 MMU table is created by calling this function, MMU needs
+	 * to be enabled.
 	 */
+	set_sctlr(get_sctlr() | CR_M);
 }
 
 u64 get_page_table_size(void)
@@ -309,7 +312,8 @@ int print_cpuinfo(void)
 		printf("CPU%d(%s):%-4s MHz  ", core,
 		       type == TY_ITYP_VER_A7 ? "A7 " :
 		       (type == TY_ITYP_VER_A53 ? "A53" :
-			(type == TY_ITYP_VER_A57 ? "A57" : "   ")),
+		       (type == TY_ITYP_VER_A57 ? "A57" :
+		       (type == TY_ITYP_VER_A72 ? "A72" : "   "))),
 		       strmhz(buf, sysinfo.freq_processor[core]));
 	}
 	printf("\n       Bus:      %-4s MHz  ",

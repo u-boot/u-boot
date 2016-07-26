@@ -10,7 +10,10 @@
 #define CONFIG_LS102XA
 
 #define CONFIG_ARMV7_PSCI
+#define CONFIG_ARMV7_PSCI_1_0
 #define CONFIG_ARMV7_PSCI_NR_CPUS	CONFIG_MAX_CPUS
+
+#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
 #define CONFIG_SYS_FSL_CLK
 
@@ -124,7 +127,18 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image.
+ */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		(0x400 + \
+		(CONFIG_U_BOOT_HDR_SIZE / 512)
+#else
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x400
+#endif /* ifdef CONFIG_SECURE_BOOT */
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000
@@ -137,7 +151,18 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
+
+#ifdef CONFIG_U_BOOT_HDR_SIZE
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image. Here u-boot max. size is 512K. So if binary
+ * size increases then increase this size in case of secure boot as
+ * it uses raw u-boot image instead of fit image.
+ */
+#define CONFIG_SYS_MONITOR_LEN		(0x80000 + CONFIG_U_BOOT_HDR_SIZE)
+#else
 #define CONFIG_SYS_MONITOR_LEN		0x80000
+#endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 
 #ifdef CONFIG_QSPI_BOOT

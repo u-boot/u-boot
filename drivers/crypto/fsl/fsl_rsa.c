@@ -53,6 +53,7 @@ U_BOOT_DRIVER(fsl_rsa_mod_exp) = {
 	.name	= "fsl_rsa_mod_exp",
 	.id	= UCLASS_MOD_EXP,
 	.ops	= &fsl_mod_exp_ops,
+	.flags  = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DEVICE(fsl_rsa) = {
