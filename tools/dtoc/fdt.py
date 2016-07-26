@@ -144,6 +144,17 @@ class PropBase:
         else:
             return True
 
+    def GetOffset(self):
+        """Get the offset of a property
+
+        This can be implemented by subclasses.
+
+        Returns:
+            The offset of the property (struct fdt_property) within the
+            file, or None if not known.
+        """
+        return None
+
 class NodeBase:
     """A device tree node
 

@@ -108,3 +108,6 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name);
 
 const char *fdt_strerror(int errval);
 int fdt_pack(void *fdt);
+
+int fdt_totalsize(const void *fdt);
+int fdt_off_dt_struct(const void *fdt);

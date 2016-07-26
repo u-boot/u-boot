@@ -43,6 +43,14 @@ class Prop(PropBase):
             return
         self.type, self.value = self.BytesToValue(bytes)
 
+    def GetOffset(self):
+        """Get the offset of a property
+
+        Returns:
+            The offset of the property (struct fdt_property) within the file
+        """
+        return self._node._fdt.GetStructOffset(self._offset)
+
 class Node(NodeBase):
     """A device tree node
 
@@ -192,6 +200,16 @@ class FdtNormal(Fdt):
     def Refresh(self):
         """Refresh the offset cache"""
         self._root.Refresh(0)
+
+    def GetStructOffset(self, offset):
+        """Get the file offset of a given struct offset
+
+        Args:
+            offset: Offset within the 'struct' region of the device tree
+        Returns:
+            Position of @offset within the device tree binary
+        """
+        return libfdt.fdt_off_dt_struct(self._fdt) + offset
 
     @classmethod
     def Node(self, fdt, offset, name, path):
