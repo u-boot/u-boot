@@ -110,7 +110,7 @@ class FdtNormal(Fdt):
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
             with open(self._fname) as fd:
-                self._fdt = fd.read()
+                self._fdt = bytearray(fd.read())
 
     def GetFdt(self):
         """Get the contents of the FDT

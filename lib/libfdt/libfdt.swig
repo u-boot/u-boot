@@ -75,6 +75,14 @@ struct fdt_property {
     }
 %}
 
+%typemap(in) (const void *) {
+  if (!PyByteArray_Check($input)) {
+    SWIG_exception_fail(SWIG_TypeError, "in method '" "$symname" "', argument "
+                       "$argnum"" of type '" "$type""'");
+  }
+  $1 = (void *) PyByteArray_AsString($input);
+}
+
 const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int checklen);
 int fdt_path_offset(const void *fdt, const char *path);
 int fdt_first_property_offset(const void *fdt, int nodeoffset);
