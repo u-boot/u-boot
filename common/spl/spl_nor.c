@@ -40,11 +40,11 @@ int spl_nor_load_image(void)
 
 			/*
 			 * Copy DT blob (fdt) to SDRAM. Passing pointer to
-			 * flash doesn't work (16 KiB should be enough for DT)
+			 * flash doesn't work
 			 */
 			memcpy((void *)CONFIG_SYS_SPL_ARGS_ADDR,
 			       (void *)(CONFIG_SYS_FDT_BASE),
-			       (16 << 10));
+			       CONFIG_SYS_FDT_SIZE);
 
 			return 0;
 		} else {
