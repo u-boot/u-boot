@@ -26,7 +26,6 @@
 /* Enable gpt partition table */
 #define CONFIG_CMD_GPT
 #define CONFIG_RANDOM_UUID
-#define CONFIG_EFI_PARTITION
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=loader,start=32K,size=4000K,uuid=${uuid_gpt_loader};" \

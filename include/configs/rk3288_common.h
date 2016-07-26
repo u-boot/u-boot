@@ -56,7 +56,6 @@
 #define CONFIG_DWMMC
 #define CONFIG_BOUNCE_BUFFER
 
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
@@ -106,7 +105,6 @@
 
 /* Enable gpt partition table */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 
 #include <config_distro_defaults.h>
 
