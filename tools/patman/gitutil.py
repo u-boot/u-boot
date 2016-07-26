@@ -391,7 +391,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     """
     to = BuildEmailList(series.get('to'), '--to', alias, raise_on_error)
     if not to:
-        git_config_to = command.Output('git', 'config', 'sendemail.to')
+        git_config_to = command.Output('git', 'config', 'sendemail.to',
+                                       raise_on_error=False)
         if not git_config_to:
             print ("No recipient.\n"
                    "Please add something like this to a commit\n"

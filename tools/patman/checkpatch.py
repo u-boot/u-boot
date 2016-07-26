@@ -63,7 +63,8 @@ def CheckPatch(fname, verbose=False):
     result.problems = []
     chk = FindCheckPatch()
     item = {}
-    result.stdout = command.Output(chk, '--no-tree', fname)
+    result.stdout = command.Output(chk, '--no-tree', fname,
+                                   raise_on_error=False)
     #pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     #stdout, stderr = pipe.communicate()
 
