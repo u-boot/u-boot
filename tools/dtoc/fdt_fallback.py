@@ -70,6 +70,19 @@ class Node(NodeBase):
 
             node.Scan()
 
+    def DeleteProp(self, prop_name):
+        """Delete a property of a node
+
+        The property is deleted using fdtput.
+
+        Args:
+            prop_name: Name of the property to delete
+        Raises:
+            CommandError if the property does not exist
+        """
+        args = [self._fdt._fname, '-d', self.path, prop_name]
+        command.Output('fdtput', *args)
+        del self.props[prop_name]
 
 class FdtFallback(Fdt):
     """Provides simple access to a flat device tree blob using fdtget/fdtput

@@ -184,6 +184,16 @@ class NodeBase:
         """
         raise NotImplementedError()
 
+    def DeleteProp(self, prop_name):
+        """Delete a property of a node
+
+        This should be implemented by subclasses
+
+        Args:
+            prop_name: Name of the property to delete
+        """
+        raise NotImplementedError()
+
 class Fdt:
     """Provides simple access to a flat device tree blob.
 

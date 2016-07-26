@@ -20,6 +20,11 @@ import libfdt
 # This implementation uses a libfdt Python library to access the device tree,
 # so it is fairly efficient.
 
+def CheckErr(errnum, msg):
+    if errnum:
+        raise ValueError('Error %d: %s: %s' %
+            (errnum, libfdt.fdt_strerror(errnum), msg))
+
 class Prop(PropBase):
     """A device tree property
 
@@ -94,6 +99,21 @@ class Node(NodeBase):
         for subnode in self.subnodes:
             subnode.Refresh(offset)
             offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
+
+    def DeleteProp(self, prop_name):
+        """Delete a property of a node
+
+        The property is deleted and the offset cache is invalidated.
+
+        Args:
+            prop_name: Name of the property to delete
+        Raises:
+            ValueError if the property does not exist
+        """
+        CheckErr(libfdt.fdt_delprop(self._fdt.GetFdt(), self.Offset(), prop_name),
+                 "Node '%s': delete property: '%s'" % (self.path, prop_name))
+        del self.props[prop_name]
+        self._fdt.Invalidate()
 
 class FdtNormal(Fdt):
     """Provides simple access to a flat device tree blob using libfdt.
