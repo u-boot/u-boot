@@ -554,9 +554,6 @@ int sdhci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 			cfg->host_caps |= MMC_MODE_8BIT;
 	}
 
-	if (quirks & SDHCI_QUIRK_NO_HISPD_BIT)
-		cfg->host_caps &= ~(MMC_MODE_HS | MMC_MODE_HS_52MHz);
-
 	if (host_caps)
 		cfg->host_caps |= host_caps;
 
