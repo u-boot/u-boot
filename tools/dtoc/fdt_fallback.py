@@ -80,6 +80,8 @@ class FdtFallback(Fdt):
 
     def __init__(self, fname):
         Fdt.__init__(self, fname)
+        if self._fname:
+            self._fname = fdt_util.EnsureCompiled(self._fname)
 
     def GetSubNodes(self, node):
         """Returns a list of sub-nodes of a given node

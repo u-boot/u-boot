@@ -83,8 +83,11 @@ class FdtNormal(Fdt):
     """
     def __init__(self, fname):
         Fdt.__init__(self, fname)
-        with open(self._fname) as fd:
-            self._fdt = fd.read()
+        if self._fname:
+            self._fname = fdt_util.EnsureCompiled(self._fname)
+
+            with open(self._fname) as fd:
+                self._fdt = fd.read()
 
     def GetFdt(self):
         """Get the contents of the FDT

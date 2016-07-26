@@ -6,7 +6,12 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
+import os
 import struct
+import tempfile
+
+import command
+import tools
 
 def fdt32_to_cpu(val):
     """Convert a device tree cell to an integer
@@ -18,3 +23,39 @@ def fdt32_to_cpu(val):
         A native-endian integer value
     """
     return struct.unpack(">I", val)[0]
+
+def EnsureCompiled(fname):
+    """Compile an fdt .dts source file into a .dtb binary blob if needed.
+
+    Args:
+        fname: Filename (if .dts it will be compiled). It not it will be
+            left alone
+
+    Returns:
+        Filename of resulting .dtb file
+    """
+    _, ext = os.path.splitext(fname)
+    if ext != '.dts':
+        return fname
+
+    dts_input = tools.GetOutputFilename('source.dts')
+    dtb_output = tools.GetOutputFilename('source.dtb')
+
+    search_paths = [os.path.join(os.getcwd(), 'include')]
+    root, _ = os.path.splitext(fname)
+    args = ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
+    args += ['-Ulinux']
+    for path in search_paths:
+        args.extend(['-I', path])
+    args += ['-o', dts_input, fname]
+    command.Run('cc', *args)
+
+    # If we don't have a directory, put it in the tools tempdir
+    search_list = []
+    for path in search_paths:
+        search_list.extend(['-i', path])
+    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb']
+    args.extend(search_list)
+    args.append(dts_input)
+    command.Run('dtc', *args)
+    return dtb_output
