@@ -12,23 +12,12 @@ import os
 import struct
 import sys
 
-import fdt_util
-
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
-# Bring in either the normal fdt library (which relies on libfdt) or the
-# fallback one (which uses fdtget and is slower). Both provide the same
-# interfface for this file to use.
-try:
-    from fdt import Fdt
-    import fdt
-    have_libfdt = True
-except ImportError:
-    have_libfdt = False
-    from fdt_fallback import Fdt
-    import fdt_fallback as fdt
+import fdt_select
+import fdt_util
 
 # When we see these properties we ignore them - i.e. do not create a structure member
 PROP_IGNORE_LIST = [
@@ -177,8 +166,7 @@ class DtbPlatdata:
         Once this is done, self.fdt.GetRoot() can be called to obtain the
         device tree root node, and progress from there.
         """
-        self.fdt = Fdt(self._dtb_fname)
-        self.fdt.Scan()
+        self.fdt = fdt_select.FdtScan(self._dtb_fname)
 
     def ScanTree(self):
         """Scan the device tree for useful information
