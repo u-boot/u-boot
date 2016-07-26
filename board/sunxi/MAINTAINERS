@@ -59,6 +59,7 @@ F:	configs/orangepi_2_defconfig
 F:	configs/orangepi_lite_defconfig
 F:	configs/orangepi_one_defconfig
 F:	configs/orangepi_pc_defconfig
+F:	configs/orangepi_pc_plus_defconfig
 F:	configs/orangepi_plus_defconfig
 F:	configs/polaroid_mid2407pxe03_defconfig
 F:	configs/polaroid_mid2809pxe04_defconfig
