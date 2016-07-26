@@ -98,12 +98,11 @@ class FdtFallback(Fdt):
         out = command.Output('fdtget', self._fname, '-l', node)
         return out.strip().splitlines()
 
-    def GetProps(self, node, convert_dashes=False):
+    def GetProps(self, node):
         """Get all properties from a node
 
         Args:
             node: full path to node name to look in
-            convert_dashes: True to convert - to _ in node names
 
         Returns:
             A dictionary containing all the properties, indexed by node name.
@@ -118,8 +117,6 @@ class FdtFallback(Fdt):
         props_dict = {}
         for prop in props:
             name = prop
-            if convert_dashes:
-                prop = re.sub('-', '_', prop)
             props_dict[prop] = self.GetProp(node, name)
         return props_dict
 
