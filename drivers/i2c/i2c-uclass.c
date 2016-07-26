@@ -467,6 +467,7 @@ int i2c_deblock(struct udevice *bus)
 	return ops->deblock(bus);
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip)
 {
@@ -482,31 +483,44 @@ int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 
 	return 0;
 }
+#endif
 
 static int i2c_post_probe(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
 	i2c->speed_hz = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "clock-frequency", 100000);
 
 	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
+#else
+	return 0;
+#endif
 }
 
 static int i2c_post_bind(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	/* Scan the bus for devices */
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+#else
+	return 0;
+#endif
 }
 
 static int i2c_child_post_bind(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	struct dm_i2c_chip *plat = dev_get_parent_platdata(dev);
 
 	if (dev->of_offset == -1)
 		return 0;
 
 	return i2c_chip_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, plat);
+#else
+	return 0;
+#endif
 }
 
 UCLASS_DRIVER(i2c) = {

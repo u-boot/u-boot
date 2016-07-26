@@ -108,9 +108,25 @@
 /* Timer information. */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
+/*
+ * Disable DM_* for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_I2C
+#endif
+
 /* I2C IP block */
 #define CONFIG_I2C
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#else
+/*
+ * Enable CONFIG_DM_I2C_COMPAT temporarily until all the i2c client
+ * devices are adopted to DM
+ */
+#define CONFIG_DM_I2C_COMPAT
+#endif
 
 /* MMC/SD IP block */
 #define CONFIG_MMC

@@ -154,6 +154,13 @@ config SYS_I2C_UNIPHIER_F
 	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
 
+config SYS_I2C_MVTWSI
+	bool "Marvell I2C driver"
+	depends on DM_I2C
+	help
+	  Support for Marvell I2C controllers as used on the orion5x and
+	  kirkwood SoC families.
+
 source "drivers/i2c/muxes/Kconfig"
 
 endmenu
