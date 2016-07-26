@@ -140,6 +140,17 @@ class FdtNormal(Fdt):
         """
         return self._fdt
 
+    def Flush(self):
+        """Flush device tree changes back to the file"""
+        with open(self._fname, 'wb') as fd:
+            fd.write(self._fdt)
+
+    def Pack(self):
+        """Pack the device tree down to its minimum size"""
+        CheckErr(libfdt.fdt_pack(self._fdt), 'pack')
+        fdt_len = libfdt.fdt_totalsize(self._fdt)
+        del self._fdt[fdt_len:]
+
     def GetProps(self, node, path):
         """Get all properties from a node.
 

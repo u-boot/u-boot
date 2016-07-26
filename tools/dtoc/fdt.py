@@ -240,3 +240,19 @@ class Fdt:
                 return None
         return node
 
+    def Flush(self):
+        """Flush device tree changes back to the file
+
+        If the device tree has changed in memory, write it back to the file.
+        Subclasses can implement this if needed.
+        """
+        pass
+
+    def Pack(self):
+        """Pack the device tree down to its minimum size
+
+        When nodes and properties shrink or are deleted, wasted space can
+        build up in the device tree binary. Subclasses can implement this
+        to remove that spare space.
+        """
+        pass

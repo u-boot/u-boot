@@ -107,3 +107,4 @@ int fdt_next_subnode(const void *fdt, int offset);
 int fdt_delprop(void *fdt, int nodeoffset, const char *name);
 
 const char *fdt_strerror(int errval);
+int fdt_pack(void *fdt);
