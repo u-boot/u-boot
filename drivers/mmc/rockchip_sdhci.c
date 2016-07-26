@@ -33,15 +33,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct rockchip_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	int ret;
-	u32 caps;
 
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 
-	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-	ret = sdhci_setup_cfg(&plat->cfg, dev->name, host->bus_width,
-			caps, CONFIG_ROCKCHIP_SDHCI_MAX_FREQ, EMMC_MIN_FREQ,
-			host->version, host->quirks, 0);
+	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ROCKCHIP_SDHCI_MAX_FREQ,
+			EMMC_MIN_FREQ);
 
 	host->mmc = &plat->mmc;
 	if (ret)

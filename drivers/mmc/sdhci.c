@@ -511,18 +511,22 @@ static const struct mmc_ops sdhci_ops = {
 };
 #endif
 
-int sdhci_setup_cfg(struct mmc_config *cfg, const char *name,
-		    uint caps, u32 max_clk, u32 min_clk, uint version,
-		    uint quirks, uint host_caps)
+int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
+		u32 max_clk, u32 min_clk)
 {
-	cfg->name = name;
+	u32 caps;
+
+	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
+
+	cfg->name = host->name;
 #ifndef CONFIG_DM_MMC_OPS
 	cfg->ops = &sdhci_ops;
 #endif
 	if (max_clk)
 		cfg->f_max = max_clk;
 	else {
-		if (version >= SDHCI_SPEC_300)
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			cfg->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
 		else
@@ -535,7 +539,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, const char *name,
 	if (min_clk)
 		cfg->f_min = min_clk;
 	else {
-		if (version >= SDHCI_SPEC_300)
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			cfg->f_min = cfg->f_max / SDHCI_MAX_DIV_SPEC_300;
 		else
 			cfg->f_min = cfg->f_max / SDHCI_MAX_DIV_SPEC_200;
@@ -549,13 +553,13 @@ int sdhci_setup_cfg(struct mmc_config *cfg, const char *name,
 		cfg->voltages |= MMC_VDD_165_195;
 
 	cfg->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
-	if (version >= SDHCI_SPEC_300) {
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (caps & SDHCI_CAN_DO_8BIT)
 			cfg->host_caps |= MMC_MODE_8BIT;
 	}
 
-	if (host_caps)
-		cfg->host_caps |= host_caps;
+	if (host->host_caps)
+		cfg->host_caps |= host->host_caps;
 
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
@@ -582,9 +586,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	}
 #endif
 
-	if (sdhci_setup_cfg(&host->cfg, host->name, caps,
-			    max_clk, min_clk, SDHCI_GET_VERSION(host),
-			    host->quirks, host->host_caps)) {
+	if (sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk)) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",
 		       __func__);
 		return -EINVAL;

@@ -367,18 +367,12 @@ static inline u8 sdhci_readb(struct sdhci_host *host, int reg)
  * See msm_sdhci.c for an example.
  *
  * @cfg:	Configuration structure to fill in (generally &plat->mmc)
- * @name:	Device name (normally dev->name)
- * @caps:	Host capabilities (MMC_MODE_...)
+ * @host:	SDHCI host structure
  * @max_clk:	Maximum supported clock speed in HZ (0 for default)
  * @min_clk:	Minimum supported clock speed in HZ (0 for default)
- * @version:	Host controller version (generally read from the
- *		SDHCI_HOST_VERSION register)
- * @quirks:	Quick flags (SDHCI_QUIRK_...)
- * @host_caps:	Additional host capabilities (0 if none)
  */
-int sdhci_setup_cfg(struct mmc_config *cfg, const char *name,
-		    uint caps, u32 max_clk, u32 min_clk, uint version,
-		    uint quirks, uint host_caps);
+int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
+		    u32 max_clk, u32 min_clk);
 
 /**
  * sdhci_bind() - Set up a new MMC block device
