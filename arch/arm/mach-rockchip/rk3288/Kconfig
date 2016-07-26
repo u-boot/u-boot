@@ -53,6 +53,6 @@ source "board/firefly/firefly-rk3288/Kconfig"
 
 source "board/radxa/rock2/Kconfig"
 
-source "board/evb-rk3288/evb-rk3288/Kconfig"
+source "board/rockchip/evb_rk3288/Kconfig"
 
 endif
