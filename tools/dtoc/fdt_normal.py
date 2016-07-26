@@ -53,15 +53,24 @@ class Node(NodeBase):
     def __init__(self, fdt, offset, name, path):
         NodeBase.__init__(self, fdt, offset, name, path)
 
+    def Offset(self):
+        """Returns the offset of a node, after checking the cache
+
+        This should be used instead of self._offset directly, to ensure that
+        the cache does not contain invalid offsets.
+        """
+        self._fdt.CheckCache()
+        return self._offset
+
     def Scan(self):
         """Scan a node's properties and subnodes
 
         This fills in the props and subnodes properties, recursively
         searching into subnodes so that the entire tree is built.
         """
-        self.props = self._fdt.GetProps(self.path)
+        self.props = self._fdt.GetProps(self, self.path)
 
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
+        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
         while offset >= 0:
             sep = '' if self.path[-1] == '/' else '/'
             name = libfdt.Name(self._fdt.GetFdt(), offset)
@@ -72,6 +81,19 @@ class Node(NodeBase):
             node.Scan()
             offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
 
+    def Refresh(self, my_offset):
+        """Fix up the _offset for each node, recursively
+
+        Note: This does not take account of property offsets - these will not
+        be updated.
+        """
+        if self._offset != my_offset:
+            #print '%s: %d -> %d\n' % (self.path, self._offset, my_offset)
+            self._offset = my_offset
+        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
+        for subnode in self.subnodes:
+            subnode.Refresh(offset)
+            offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
 
 class FdtNormal(Fdt):
     """Provides simple access to a flat device tree blob using libfdt.
@@ -83,6 +105,7 @@ class FdtNormal(Fdt):
     """
     def __init__(self, fname):
         Fdt.__init__(self, fname)
+        self._cached_offsets = False
         if self._fname:
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
@@ -97,7 +120,7 @@ class FdtNormal(Fdt):
         """
         return self._fdt
 
-    def GetProps(self, node):
+    def GetProps(self, node, path):
         """Get all properties from a node.
 
         Args:
@@ -110,7 +133,7 @@ class FdtNormal(Fdt):
         Raises:
             ValueError: if the node does not exist.
         """
-        offset = libfdt.fdt_path_offset(self._fdt, node)
+        offset = libfdt.fdt_path_offset(self._fdt, path)
         if offset < 0:
             libfdt.Raise(offset)
         props_dict = {}
@@ -123,6 +146,21 @@ class FdtNormal(Fdt):
 
             poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
         return props_dict
+
+    def Invalidate(self):
+        """Mark our offset cache as invalid"""
+        self._cached_offsets = False
+
+    def CheckCache(self):
+        """Refresh the offset cache if needed"""
+        if self._cached_offsets:
+            return
+        self.Refresh()
+        self._cached_offsets = True
+
+    def Refresh(self):
+        """Refresh the offset cache"""
+        self._root.Refresh(0)
 
     @classmethod
     def Node(self, fdt, offset, name, path):
