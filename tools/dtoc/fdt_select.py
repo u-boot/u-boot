@@ -10,7 +10,7 @@
 # fallback one (which uses fdtget and is slower). Both provide the same
 # interface for this file to use.
 try:
-    import fdt
+    import fdt_normal as fdt
     have_libfdt = True
 except ImportError:
     have_libfdt = False
