@@ -94,22 +94,6 @@ class FdtNormal(Fdt):
         """
         return self._fdt
 
-    def Scan(self):
-        """Scan a device tree, building up a tree of Node objects
-
-        This fills in the self._root property
-        """
-        self._root = Node(self, 0, '/', '/')
-        self._root.Scan()
-
-    def GetRoot(self):
-        """Get the root Node of the device tree
-
-        Returns:
-            The root Node object
-        """
-        return self._root
-
     def GetProps(self, node):
         """Get all properties from a node.
 

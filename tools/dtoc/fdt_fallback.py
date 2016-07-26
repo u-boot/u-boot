@@ -81,22 +81,6 @@ class FdtFallback(Fdt):
     def __init__(self, fname):
         Fdt.__init__(self, fname)
 
-    def Scan(self):
-        """Scan a device tree, building up a tree of Node objects
-
-        This fills in the self._root property
-        """
-        self._root = Node(self, 0, '/', '/')
-        self._root.Scan()
-
-    def GetRoot(self):
-        """Get the root Node of the device tree
-
-        Returns:
-            The root Node object
-        """
-        return self._root
-
     def GetSubNodes(self, node):
         """Returns a list of sub-nodes of a given node
 

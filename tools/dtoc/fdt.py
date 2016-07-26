@@ -164,6 +164,26 @@ class NodeBase:
         self.subnodes = []
         self.props = {}
 
+    def _FindNode(self, name):
+        """Find a node given its name
+
+        Args:
+            name: Node name to look for
+        Returns:
+            Node object if found, else None
+        """
+        for subnode in self.subnodes:
+            if subnode.name == name:
+                return subnode
+        return None
+
+    def Scan(self):
+        """Scan the subnodes of a node
+
+        This should be implemented by subclasses
+        """
+        raise NotImplementedError()
+
 class Fdt:
     """Provides simple access to a flat device tree blob.
 
@@ -173,3 +193,40 @@ class Fdt:
     """
     def __init__(self, fname):
         self._fname = fname
+
+    def Scan(self, root='/'):
+        """Scan a device tree, building up a tree of Node objects
+
+        This fills in the self._root property
+
+        Args:
+            root: Ignored
+
+        TODO(sjg@chromium.org): Implement the 'root' parameter
+        """
+        self._root = self.Node(self, 0, '/', '/')
+        self._root.Scan()
+
+    def GetRoot(self):
+        """Get the root Node of the device tree
+
+        Returns:
+            The root Node object
+        """
+        return self._root
+
+    def GetNode(self, path):
+        """Look up a node from its path
+
+        Args:
+            path: Path to look up, e.g. '/microcode/update@0'
+        Returns:
+            Node object, or None if not found
+        """
+        node = self._root
+        for part in path.split('/')[1:]:
+            node = node._FindNode(part)
+            if not node:
+                return None
+        return node
+
