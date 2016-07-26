@@ -6,9 +6,13 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
+import struct
+import sys
+
+import fdt
+from fdt import Fdt, NodeBase, PropBase
 import fdt_util
 import libfdt
-import sys
 
 # This deals with a device tree, presenting it as a list of Node and Prop
 # objects, representing nodes and properties, respectively.
@@ -16,7 +20,7 @@ import sys
 # This implementation uses a libfdt Python library to access the device tree,
 # so it is fairly efficient.
 
-class Prop:
+class Prop(PropBase):
     """A device tree property
 
     Properties:
@@ -25,9 +29,9 @@ class Prop:
             bytes
         type: Value type
     """
-    def __init__(self, name, bytes):
-        self.name = name
-        self.value = None
+    def __init__(self, node, offset, name, bytes):
+        PropBase.__init__(self, node, offset, name)
+        self.bytes = bytes
         if not bytes:
             self.type = fdt_util.TYPE_BOOL
             self.value = True
@@ -76,7 +80,7 @@ class Prop:
                 self.value.append(val)
 
 
-class Node:
+class Node(NodeBase):
     """A device tree node
 
     Properties:
@@ -89,12 +93,7 @@ class Node:
             Keyed by property name
     """
     def __init__(self, fdt, offset, name, path):
-        self.offset = offset
-        self.name = name
-        self.path = path
-        self._fdt = fdt
-        self.subnodes = []
-        self.props = {}
+        NodeBase.__init__(self, fdt, offset, name, path)
 
     def Scan(self):
         """Scan a node's properties and subnodes
@@ -104,7 +103,7 @@ class Node:
         """
         self.props = self._fdt.GetProps(self.path)
 
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.offset)
+        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
         while offset >= 0:
             sep = '' if self.path[-1] == '/' else '/'
             name = libfdt.Name(self._fdt.GetFdt(), offset)
@@ -116,17 +115,17 @@ class Node:
             offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
 
 
-class Fdt:
-    """Provides simple access to a flat device tree blob.
+class FdtNormal(Fdt):
+    """Provides simple access to a flat device tree blob using libfdt.
 
     Properties:
-      fname: Filename of fdt
-      _root: Root of device tree (a Node object)
+        _fdt: Device tree contents (bytearray)
+        _cached_offsets: True if all the nodes have a valid _offset property,
+            False if something has changed to invalidate the offsets
     """
-
     def __init__(self, fname):
-        self.fname = fname
-        with open(fname) as fd:
+        Fdt.__init__(self, fname)
+        with open(self._fname) as fd:
             self._fdt = fd.read()
 
     def GetFdt(self):
@@ -173,8 +172,25 @@ class Fdt:
         poffset = libfdt.fdt_first_property_offset(self._fdt, offset)
         while poffset >= 0:
             dprop, plen = libfdt.fdt_get_property_by_offset(self._fdt, poffset)
-            prop = Prop(libfdt.String(self._fdt, dprop.nameoff), libfdt.Data(dprop))
+            prop = Prop(node, poffset, libfdt.String(self._fdt, dprop.nameoff),
+                        libfdt.Data(dprop))
             props_dict[prop.name] = prop
 
             poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
         return props_dict
+
+    @classmethod
+    def Node(self, fdt, offset, name, path):
+        """Create a new node
+
+        This is used by Fdt.Scan() to create a new node using the correct
+        class.
+
+        Args:
+            fdt: Fdt object
+            offset: Offset of node
+            name: Node name
+            path: Full path to node
+        """
+        node = Node(fdt, offset, name, path)
+        return node

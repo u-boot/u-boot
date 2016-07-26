@@ -10,14 +10,17 @@
 # fallback one (which uses fdtget and is slower). Both provide the same
 # interface for this file to use.
 try:
-    import fdt_normal as fdt
+    import fdt_normal
     have_libfdt = True
 except ImportError:
     have_libfdt = False
-    import fdt_fallback as fdt
+    import fdt_fallback
 
 def FdtScan(fname):
     """Returns a new Fdt object from the implementation we are using"""
-    dtb = fdt.Fdt(fname)
+    if have_libfdt:
+        dtb = fdt_normal.FdtNormal(fname)
+    else:
+        dtb = fdt_fallback.FdtFallback(fname)
     dtb.Scan()
     return dtb
