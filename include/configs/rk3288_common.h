@@ -81,6 +81,7 @@
 #define CONFIG_SPI
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
+#ifndef CONFIG_SPL_BUILD
 /* usb otg */
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_DUALSPEED
@@ -107,7 +108,6 @@
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
 
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 
 #define ENV_MEM_LAYOUT_SETTINGS \
