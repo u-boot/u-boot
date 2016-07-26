@@ -16,6 +16,7 @@ import sys
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
+import fdt
 import fdt_select
 import fdt_util
 
@@ -33,10 +34,10 @@ PROP_IGNORE_LIST = [
 
 # C type declarations for the tyues we support
 TYPE_NAMES = {
-    fdt_util.TYPE_INT: 'fdt32_t',
-    fdt_util.TYPE_BYTE: 'unsigned char',
-    fdt_util.TYPE_STRING: 'const char *',
-    fdt_util.TYPE_BOOL: 'bool',
+    fdt.TYPE_INT: 'fdt32_t',
+    fdt.TYPE_BYTE: 'unsigned char',
+    fdt.TYPE_STRING: 'const char *',
+    fdt.TYPE_BOOL: 'bool',
 };
 
 STRUCT_PREFIX = 'dtd_'
@@ -138,13 +139,13 @@ class DtbPlatdata:
             type: Data type (fdt_util)
             value: Data value, as a string of bytes
         """
-        if type == fdt_util.TYPE_INT:
+        if type == fdt.TYPE_INT:
             return '%#x' % fdt_util.fdt32_to_cpu(value)
-        elif type == fdt_util.TYPE_BYTE:
+        elif type == fdt.TYPE_BYTE:
             return '%#x' % ord(value[0])
-        elif type == fdt_util.TYPE_STRING:
+        elif type == fdt.TYPE_STRING:
             return '"%s"' % value
-        elif type == fdt_util.TYPE_BOOL:
+        elif type == fdt.TYPE_BOOL:
             return 'true'
 
     def GetCompatName(self, node):

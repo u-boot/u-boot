@@ -31,11 +31,11 @@ class Prop(PropBase):
     def __init__(self, node, name, byte_list_str):
         PropBase.__init__(self, node, 0, name)
         if not byte_list_str.strip():
-            self.type = fdt_util.TYPE_BOOL
+            self.type = fdt.TYPE_BOOL
             return
         self.bytes = [chr(int(byte, 16))
                       for byte in byte_list_str.strip().split(' ')]
-        self.type, self.value = fdt_util.BytesToValue(''.join(self.bytes))
+        self.type, self.value = self.BytesToValue(''.join(self.bytes))
 
     def GetPhandle(self):
         """Get a (single) phandle value from a property

@@ -33,10 +33,10 @@ class Prop(PropBase):
         PropBase.__init__(self, node, offset, name)
         self.bytes = bytes
         if not bytes:
-            self.type = fdt_util.TYPE_BOOL
+            self.type = fdt.TYPE_BOOL
             self.value = True
             return
-        self.type, self.value = fdt_util.BytesToValue(bytes)
+        self.type, self.value = self.BytesToValue(bytes)
 
     def GetPhandle(self):
         """Get a (single) phandle value from a property
@@ -75,7 +75,7 @@ class Prop(PropBase):
             self.value = [self.value]
 
         if type(self.value) == list and len(newprop.value) > len(self.value):
-            val = fdt_util.GetEmpty(self.type)
+            val = self.GetEmpty(self.type)
             while len(self.value) < len(newprop.value):
                 self.value.append(val)
 
