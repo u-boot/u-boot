@@ -38,48 +38,6 @@ class Prop(PropBase):
             return
         self.type, self.value = self.BytesToValue(bytes)
 
-    def GetPhandle(self):
-        """Get a (single) phandle value from a property
-
-        Gets the phandle valuie from a property and returns it as an integer
-        """
-        return fdt_util.fdt32_to_cpu(self.value[:4])
-
-    def Widen(self, newprop):
-        """Figure out which property type is more general
-
-        Given a current property and a new property, this function returns the
-        one that is less specific as to type. The less specific property will
-        be ble to represent the data in the more specific property. This is
-        used for things like:
-
-            node1 {
-                compatible = "fred";
-                value = <1>;
-            };
-            node1 {
-                compatible = "fred";
-                value = <1 2>;
-            };
-
-        He we want to use an int array for 'value'. The first property
-        suggests that a single int is enough, but the second one shows that
-        it is not. Calling this function with these two propertes would
-        update the current property to be like the second, since it is less
-        specific.
-        """
-        if newprop.type < self.type:
-            self.type = newprop.type
-
-        if type(newprop.value) == list and type(self.value) != list:
-            self.value = [self.value]
-
-        if type(self.value) == list and len(newprop.value) > len(self.value):
-            val = self.GetEmpty(self.type)
-            while len(self.value) < len(newprop.value):
-                self.value.append(val)
-
-
 class Node(NodeBase):
     """A device tree node
 
