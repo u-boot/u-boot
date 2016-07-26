@@ -9,6 +9,7 @@
 import copy
 from optparse import OptionError, OptionParser
 import os
+import struct
 import sys
 
 import fdt_util
@@ -28,8 +29,6 @@ except ImportError:
     have_libfdt = False
     from fdt_fallback import Fdt
     import fdt_fallback as fdt
-
-import struct
 
 # When we see these properties we ignore them - i.e. do not create a structure member
 PROP_IGNORE_LIST = [
