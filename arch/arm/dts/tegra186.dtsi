@@ -1,14 +1,16 @@
 #include "skeleton.dtsi"
+#include <dt-bindings/clock/tegra186-clock.h>
 #include <dt-bindings/gpio/tegra186-gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/mailbox/tegra186-hsp.h>
+#include <dt-bindings/reset/tegra186-reset.h>
 
 / {
 	compatible = "nvidia,tegra186";
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	gpio@2200000 {
+	gpio_main: gpio@2200000 {
 		compatible = "nvidia,tegra186-gpio";
 		reg-names = "security", "gpio";
 		reg =
@@ -34,9 +36,24 @@
 		status = "disabled";
 	};
 
+	sdhci@3400000 {
+		compatible = "nvidia,tegra186-sdhci";
+		reg = <0x0 0x03400000 0x0 0x200>;
+		resets = <&bpmp TEGRA186_RESET_SDMMC1>;
+		reset-names = "sdmmc";
+		clocks = <&bpmp TEGRA186_CLK_SDMMC1>;
+		clock-names = "sdmmc";
+		interrupts = <GIC_SPI 62 0x04>;
+		status = "disabled";
+	};
+
 	sdhci@3460000 {
 		compatible = "nvidia,tegra186-sdhci";
 		reg = <0x0 0x03460000 0x0 0x200>;
+		resets = <&bpmp TEGRA186_RESET_SDMMC4>;
+		reset-names = "sdmmc";
+		clocks = <&bpmp TEGRA186_CLK_SDMMC4>;
+		clock-names = "sdmmc";
 		interrupts = <GIC_SPI 31 0x04>;
 		status = "disabled";
 	};
@@ -49,7 +66,7 @@
 		#mbox-cells = <2>;
 	};
 
-	gpio@c2f0000 {
+	gpio_aon: gpio@c2f0000 {
 		compatible = "nvidia,tegra186-gpio-aon";
 		reg-names = "security", "gpio";
 		reg =
@@ -61,5 +78,39 @@
 		#gpio-cells = <2>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+	};
+
+	sysram@30000000 {
+		compatible = "nvidia,tegra186-sysram", "mmio-sram";
+		reg = <0x0 0x30000000 0x0 0x50000>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges = <0 0x0 0x0 0x30000000 0x0 0x50000>;
+
+		sysram_cpu_bpmp_tx: shmem@4e000 {
+			compatible = "nvidia,tegra186-bpmp-shmem";
+			reg = <0x0 0x4e000 0x0 0x1000>;
+		};
+
+		sysram_cpu_bpmp_rx: shmem@4f000 {
+			compatible = "nvidia,tegra186-bpmp-shmem";
+			reg = <0x0 0x4f000 0x0 0x1000>;
+		};
+	};
+
+	bpmp: bpmp {
+		compatible = "nvidia,tegra186-bpmp";
+		mboxes = <&hsp HSP_MBOX_TYPE_DB HSP_DB_MASTER_BPMP>;
+		/*
+		 * In theory, these references, and the configuration in the
+		 * node these reference point at, are board-specific, since
+		 * they depend on the BCT's memory carve-out setup, the
+		 * firmware that's actually loaded onto the BPMP, etc. However,
+		 * in practice, all boards are likely to use identical values.
+		 */
+		shmem = <&sysram_cpu_bpmp_tx &sysram_cpu_bpmp_rx>;
+		#clock-cells = <1>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
 	};
 };
