@@ -1,7 +1,7 @@
 #include "skeleton.dtsi"
 #include <dt-bindings/gpio/tegra186-gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/mailbox/tegra-hsp.h>
+#include <dt-bindings/mailbox/tegra186-hsp.h>
 
 / {
 	compatible = "nvidia,tegra186";
@@ -45,12 +45,8 @@
 		compatible = "nvidia,tegra186-hsp";
 		reg = <0x0 0x03c00000 0x0 0xa0000>;
 		interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
-		nvidia,num-SM = <0x8>;
-		nvidia,num-AS = <0x2>;
-		nvidia,num-SS = <0x2>;
-		nvidia,num-DB = <0x7>;
-		nvidia,num-SI = <0x8>;
-		#mbox-cells = <1>;
+		interrupt-names = "doorbell";
+		#mbox-cells = <2>;
 	};
 
 	gpio@c2f0000 {
