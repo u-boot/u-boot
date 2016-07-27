@@ -623,6 +623,10 @@ static void setup_environment(const void *fdt)
 
 	ret = sunxi_get_sid(sid);
 	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
+		/* Ensure the NIC specific bytes of the mac are not all 0 */
+		if ((sid[3] & 0xffffff) == 0)
+			sid[3] |= 0x800000;
+
 		for (i = 0; i < 4; i++) {
 			sprintf(ethaddr, "ethernet%d", i);
 			if (!fdt_get_alias(fdt, ethaddr))
