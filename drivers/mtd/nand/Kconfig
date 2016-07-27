@@ -78,6 +78,12 @@ config NAND_ARASAN
 	  controller. This uses the hardware ECC for read and
 	  write operations.
 
+config NAND_ZYNQ
+	bool "Support for Nand on Zynq SoC"
+	help
+	  This enables Nand driver support for Nand controller
+	  on Zynq SoC.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config
