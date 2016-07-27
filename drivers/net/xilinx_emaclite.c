@@ -19,6 +19,7 @@
 #include <fdtdec.h>
 #include <asm-generic/errno.h>
 #include <linux/kernel.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -595,7 +596,8 @@ static int emaclite_ofdata_to_platdata(struct udevice *dev)
 	int offset = 0;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
-	emaclite->regs = (struct emaclite_regs *)pdata->iobase;
+	emaclite->regs = (struct emaclite_regs *)ioremap_nocache(pdata->iobase,
+								 0x10000);
 
 	emaclite->phyaddr = -1;
 
