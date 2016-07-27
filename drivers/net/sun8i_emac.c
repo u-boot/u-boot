@@ -32,7 +32,14 @@
 
 #define CONFIG_TX_DESCR_NUM	32
 #define CONFIG_RX_DESCR_NUM	32
-#define CONFIG_ETH_BUFSIZE	2024
+#define CONFIG_ETH_BUFSIZE	2048 /* Note must be dma aligned */
+
+/*
+ * The datasheet says that each descriptor can transfers up to 4096 bytes
+ * But later, the register documentation reduces that value to 2048,
+ * using 2048 cause strange behaviours and even BSP driver use 2047
+ */
+#define CONFIG_ETH_RXSIZE	2044 /* Note must fit in ETH_BUFSIZE */
 
 #define TX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_TX_DESCR_NUM)
 #define RX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_RX_DESCR_NUM)
@@ -324,7 +331,7 @@ static void rx_descs_init(struct emac_eth_dev *priv)
 		desc_p->buf_addr = (uintptr_t)&rxbuffs[idx * CONFIG_ETH_BUFSIZE]
 			;
 		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
-		desc_p->st |= CONFIG_ETH_BUFSIZE;
+		desc_p->st |= CONFIG_ETH_RXSIZE;
 		desc_p->status = BIT(31);
 	}
 
@@ -506,7 +513,7 @@ static int _sun8i_eth_recv(struct emac_eth_dev *priv, uchar **packetp)
 					roundup(data_end,
 						ARCH_DMA_MINALIGN));
 		if (good_packet) {
-			if (length > CONFIG_ETH_BUFSIZE) {
+			if (length > CONFIG_ETH_RXSIZE) {
 				printf("Received packet is too big (len=%d)\n",
 				       length);
 				return -EMSGSIZE;
