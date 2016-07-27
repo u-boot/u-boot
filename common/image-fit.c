@@ -11,9 +11,9 @@
 
 #ifdef USE_HOSTCC
 #include "mkimage.h"
-#include <image.h>
 #include <time.h>
 #else
+#include <linux/compiler.h>
 #include <common.h>
 #include <errno.h>
 #include <mapmem.h>
@@ -21,6 +21,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
+#include <image.h>
 #include <bootstage.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
@@ -1507,6 +1508,12 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
+#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+	const void *data;
+	size_t size;
+	int ret;
+#endif
+
 	fit_image_print(fit, rd_noffset, "   ");
 
 	if (verify) {
@@ -1517,6 +1524,23 @@ static int fit_image_select(const void *fit, int rd_noffset, int verify)
 		}
 		puts("OK\n");
 	}
+
+#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+	ret = fit_image_get_data(fit, rd_noffset, &data, &size);
+	if (ret)
+		return ret;
+
+	/* perform any post-processing on the image data */
+	board_fit_image_post_process((void **)&data, &size);
+
+	/*
+	 * update U-Boot's understanding of the "data" property start address
+	 * and size according to the performed post-processing
+	 */
+	ret = fdt_setprop((void *)fit, rd_noffset, FIT_DATA_PROP, data, size);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
 }

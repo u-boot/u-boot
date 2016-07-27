@@ -344,6 +344,20 @@ config SPL_FIT_IMAGE_POST_PROCESS
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
 
+config FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
+	depends on FIT && TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from FIT images like stripping off headers or modifying the size of the
+	  blob, verification, authentication, decryption etc. in a platform or
+	  board specific way. In order to use this feature a platform or board-
+	  specific implementation of board_fit_image_post_process() must be
+	  provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI
 	int "CPU clock frequency"
