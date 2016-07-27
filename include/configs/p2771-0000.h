@@ -14,6 +14,9 @@
 /* High-level configuration options */
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P2771-0000"
 
+/* I2C */
+#define CONFIG_SYS_I2C_TEGRA
+
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
