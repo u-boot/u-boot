@@ -10,10 +10,6 @@
 #ifndef __CONFIG_ZYNQ_ZC770_H
 #define __CONFIG_ZYNQ_ZC770_H
 
-#if defined(CONFIG_ZC770_XM011)
-# define CONFIG_NAND_ZYNQ
-#endif
-
 #include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_ZC770_H */
