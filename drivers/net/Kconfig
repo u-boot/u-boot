@@ -175,7 +175,7 @@ config XILINX_AXIEMAC
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config XILINX_EMACLITE
-	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || MIPS)
 	select PHYLIB
 	select MII
 	bool "Xilinx Ethernetlite"
