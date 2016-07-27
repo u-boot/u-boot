@@ -10,8 +10,6 @@
 #ifndef __CONFIG_ZYNQ_ZED_H
 #define __CONFIG_ZYNQ_ZED_H
 
-#define CONFIG_SYS_NO_FLASH
-
 #include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_ZED_H */

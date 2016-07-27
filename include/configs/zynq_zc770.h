@@ -10,14 +10,8 @@
 #ifndef __CONFIG_ZYNQ_ZC770_H
 #define __CONFIG_ZYNQ_ZC770_H
 
-#define CONFIG_SYS_NO_FLASH
-
 #if defined(CONFIG_ZC770_XM011)
 # define CONFIG_NAND_ZYNQ
-
-#elif defined(CONFIG_ZC770_XM012)
-# undef CONFIG_SYS_NO_FLASH
-
 #endif
 
 #include <configs/zynq-common.h>

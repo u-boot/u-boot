@@ -25,8 +25,6 @@
  */
 #define CONFIG_ENV_OFFSET	0xF00000
 
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_ZYNQ_SDHCI1
 
 #include <configs/zynq-common.h>
