@@ -41,7 +41,7 @@
 # define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
 
-#define CONFIG_SYS_INIT_SP_ADDR		0xfffffffc
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
@@ -332,6 +332,7 @@
 #endif
 
 #define CONFIG_SPL_TEXT_BASE		0xfffc0000
+#define CONFIG_SPL_STACK		0xfffffffc
 #define CONFIG_SPL_MAX_SIZE		0x20000
 
 /* Just random location in OCM */
