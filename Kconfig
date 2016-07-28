@@ -319,6 +319,15 @@ config SYS_CLK_FREQ
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
+config ARCH_FIXUP_FDT
+	bool "Enable arch_fixup_fdt() call"
+	depends on ARM || MIPS
+	default y
+	help
+	  Enable FDT memory map syncup before OS boot. This feature can be
+	  used for booting OS with different memory setup where the part of
+	  the memory location should be used for different purpose.
+
 endmenu		# Boot images
 
 source "common/Kconfig"

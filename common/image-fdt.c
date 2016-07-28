@@ -458,11 +458,6 @@ __weak int ft_verify_fdt(void *fdt)
 	return 1;
 }
 
-__weak int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
-
 int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		       int of_size, struct lmb *lmb)
 {
@@ -479,10 +474,12 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		printf("ERROR: /chosen node create failed\n");
 		goto err;
 	}
+#ifdef CONFIG_ARCH_FIXUP_FDT
 	if (arch_fixup_fdt(blob) < 0) {
 		printf("ERROR: arch-specific fdt fixup failed\n");
 		goto err;
 	}
+#endif
 	if (IMAGE_OF_BOARD_SETUP) {
 		fdt_ret = ft_board_setup(blob, gd->bd);
 		if (fdt_ret) {

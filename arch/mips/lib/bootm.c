@@ -253,6 +253,7 @@ static int boot_reloc_fdt(bootm_headers_t *images)
 #endif
 }
 
+#ifdef CONFIG_ARCH_FIXUP_FDT
 int arch_fixup_fdt(void *blob)
 {
 #if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
@@ -264,6 +265,7 @@ int arch_fixup_fdt(void *blob)
 	return 0;
 #endif
 }
+#endif
 
 static int boot_setup_fdt(bootm_headers_t *images)
 {
