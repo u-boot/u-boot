@@ -5,6 +5,20 @@
 
 (Please read 'How to change from MAKEALL' if you are used to that tool)
 
+Quick-start
+===========
+
+If you just want to quickly set up buildman so you can build something (for
+example Raspberry Pi 2):
+
+   cd /path/to/u-boot
+   PATH=$PATH:`pwd`/tools/buildman
+   buildman --fetch-arch arm
+   buildman -k rpi_2
+   ls ../current/rpi_2
+   # u-boot.bin is the output image
+
+
 What is this?
 =============
 
