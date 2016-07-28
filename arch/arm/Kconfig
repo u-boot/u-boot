@@ -555,11 +555,13 @@ config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
 	select SUPPORT_SPL
+	select USE_TINY_PRINTF
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
 	select CPU_V7
 	select SUPPORT_SPL
+	select USE_TINY_PRINTF
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
