@@ -31,9 +31,9 @@ loading the next image from a different media, etc).
 
 Compilation
 ===========
-run "./MAKEALL ipam390" in the u-boot source tree.
-Once this build completes you will have a u-boot.ais file that needs to
-be written to the nand flash.
+run "tools/buildman/buildman -k ipam390" in the u-boot source tree.
+Once this build completes you will have a ../current/ipam390/u-boot.ais file
+that needs to be written to the nand flash.
 
 Flashing the images to NAND
 ==========================
@@ -71,13 +71,13 @@ here[1] to create an uboot-uart-ais.bin file
 - cd to the u-boot source tree
 
 - compile the u-boot for the ipam390 board:
-$ ./MAKEALL ipam390
+$ tools/buildman/buildman -k ipam390
 
   -> Now we shall have u-boot.bin
 
 - Create u-boot-uart-ais.bin
-$ mono HexAIS_OMAP-L138.exe -entrypoint 0xC1080000 -ini
-ipam390-ais-uart.cfg -o ./uboot-uart-ais.bin ./u-boot.bin@0xC1080000;
+$ mono HexAIS_OMAP-L138.exe -entrypoint 0xC1080000 -ini ipam390-ais-uart.cfg \
+	-o ../current/ipam390/uboot-uart-ais.bin ./u-boot.bin@0xC1080000;
 
 Note: The ipam390-ais-uart.cfg is found in the board directory
 for the ipam390 board, u-boot:/board/Barix/ipam390/ipam390-ais-uart.cfg

@@ -2756,7 +2756,7 @@ CBFS (Coreboot Filesystem) support
 		with a special header) as build targets. By defining
 		CONFIG_BUILD_TARGET in the SoC / board header, this
 		special image will be automatically built upon calling
-		make / MAKEALL.
+		make / buildman.
 
 		CONFIG_IDENT_STRING
 
@@ -5083,33 +5083,10 @@ official or latest in the git repository) version of U-Boot sources.
 But before you submit such a patch, please verify that your modifi-
 cation did not break existing code. At least make sure that *ALL* of
 the supported boards compile WITHOUT ANY compiler warnings. To do so,
-just run the "MAKEALL" script, which will configure and build U-Boot
-for ALL supported system. Be warned, this will take a while. You can
-select which (cross) compiler to use by passing a `CROSS_COMPILE'
-environment variable to the script, i. e. to use the ELDK cross tools
-you can type
-
-	CROSS_COMPILE=ppc_8xx- MAKEALL
-
-or to build on a native PowerPC system you can type
-
-	CROSS_COMPILE=' ' MAKEALL
-
-When using the MAKEALL script, the default behaviour is to build
-U-Boot in the source directory. This location can be changed by
-setting the BUILD_DIR environment variable. Also, for each target
-built, the MAKEALL script saves two log files (<target>.ERR and
-<target>.MAKEALL) in the <source dir>/LOG directory. This default
-location can be changed by setting the MAKEALL_LOGDIR environment
-variable. For example:
-
-	export BUILD_DIR=/tmp/build
-	export MAKEALL_LOGDIR=/tmp/log
-	CROSS_COMPILE=ppc_8xx- MAKEALL
-
-With the above settings build objects are saved in the /tmp/build,
-log files are saved in the /tmp/log and the source tree remains clean
-during the whole build process.
+just run the buildman script (tools/buildman/buildman), which will
+configure and build U-Boot for ALL supported system. Be warned, this
+will take a while. Please see the buildman README, or run 'buildman -H'
+for documentation.
 
 
 See also "U-Boot Porting Guide" below.
@@ -6565,7 +6542,7 @@ it:
 
 Notes:
 
-* Before sending the patch, run the MAKEALL script on your patched
+* Before sending the patch, run the buildman script on your patched
   source tree and make sure that no errors or warnings are reported
   for any of the boards.
 
