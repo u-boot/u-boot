@@ -92,6 +92,19 @@ static inline void print_bi_mem(const bd_t *bd)
 #endif
 }
 
+static inline void print_bi_dram(const bd_t *bd)
+{
+#ifdef CONFIG_NR_DRAM_BANKS
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
+	}
+#endif
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -179,15 +192,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
-	}
-
+	print_bi_dram(bd);
 	print_num("flash start",	(ulong)bd->bi_flashstart);
 	print_num("flash size",		(ulong)bd->bi_flashsize);
 	print_num("flash offset",	(ulong)bd->bi_flashoffset);
@@ -212,14 +219,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
-	int i;
 
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
-	}
-
+	print_bi_dram(bd);
 	print_num("flash start    ",	(ulong)bd->bi_flashstart);
 	print_num("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
@@ -390,17 +391,11 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_num("arch_number",	bd->bi_arch_number);
 	print_bi_boot_params(bd);
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
-	}
+	print_bi_dram(bd);
 
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_SECURED) {
@@ -465,7 +460,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_bi_boot_params(bd);
@@ -480,11 +474,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("cpufreq",		bd->bi_intfreq);
 	print_mhz("busfreq",		bd->bi_busfreq);
 
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
-	}
+	print_bi_dram(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
@@ -500,16 +490,10 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_bi_boot_params(bd);
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank", i);
-		print_num("-> start", bd->bi_dram[i].start);
-		print_num("-> size", bd->bi_dram[i].size);
-	}
+	print_bi_dram(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
@@ -525,17 +509,11 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_num("arch_number",	bd->bi_arch_number);
 	print_bi_boot_params(bd);
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
-	}
+	print_bi_dram(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
