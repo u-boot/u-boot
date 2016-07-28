@@ -149,7 +149,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 # define CONFIG_SPL_LOAD_FIT_ADDRESS	0
 #endif
 
-#ifdef CONFIG_SPL_RAM_DEVICE
+#if defined(CONFIG_SPL_RAM_DEVICE) || defined(CONFIG_SPL_DFU_SUPPORT)
 static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
@@ -286,6 +286,9 @@ struct boot_device_name boot_name_table[] = {
 #ifdef CONFIG_SPL_USB_SUPPORT
 	{ BOOT_DEVICE_USB, "USB" },
 #endif
+#ifdef CONFIG_SPL_DFU_SUPPORT
+	{ BOOT_DEVICE_DFU, "USB DFU" },
+#endif
 #ifdef CONFIG_SPL_SATA_SUPPORT
 	{ BOOT_DEVICE_SATA, "SATA" },
 #endif
@@ -365,6 +368,11 @@ static int spl_load_image(u32 boot_device)
 #ifdef CONFIG_SPL_USB_SUPPORT
 	case BOOT_DEVICE_USB:
 		return spl_usb_load_image();
+#endif
+#ifdef CONFIG_SPL_DFU_SUPPORT
+	case BOOT_DEVICE_DFU:
+		spl_dfu_cmd(0, "dfu_alt_info_ram", "ram", "0");
+		return spl_ram_load_image();
 #endif
 #ifdef CONFIG_SPL_SATA_SUPPORT
 	case BOOT_DEVICE_SATA:
