@@ -75,6 +75,23 @@ static inline void print_bi_boot_params(const bd_t *bd)
 	print_num("boot_params",	(ulong)bd->bi_boot_params);
 }
 
+static inline void print_bi_mem(const bd_t *bd)
+{
+#if defined(CONFIG_SH)
+	print_num("mem start      ",	(ulong)bd->bi_memstart);
+	print_lnum("mem size       ",	(u64)bd->bi_memsize);
+#elif defined(CONFIG_ARC)
+	print_num("mem start",		(ulong)bd->bi_memstart);
+	print_lnum("mem size",		(u64)bd->bi_memsize);
+#elif defined(CONFIG_AVR32)
+	print_num("memstart",		(ulong)bd->bi_dram[0].start);
+	print_lnum("memsize",		(u64)bd->bi_dram[0].size);
+#else
+	print_num("memstart",		(ulong)bd->bi_memstart);
+	print_lnum("memsize",		(u64)bd->bi_memsize);
+#endif
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -88,8 +105,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef DEBUG
 	print_num("bd address",		(ulong)bd);
 #endif
-	print_num("memstart",		bd->bi_memstart);
-	print_lnum("memsize",		bd->bi_memsize);
+	print_bi_mem(bd);
 	print_num("flashstart",		bd->bi_flashstart);
 	print_num("flashsize",		bd->bi_flashsize);
 	print_num("flashoffset",	bd->bi_flashoffset);
@@ -263,8 +279,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
-	print_num("memstart",		(ulong)bd->bi_memstart);
-	print_lnum("memsize",		(u64)bd->bi_memsize);
+	print_bi_mem(bd);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
 	print_num("flashsize",		(ulong)bd->bi_flashsize);
 	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -318,8 +333,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("SCLK",	bd->bi_sclk);
 
 	print_bi_boot_params(bd);
-	print_num("memstart",		(ulong)bd->bi_memstart);
-	print_lnum("memsize",		(u64)bd->bi_memsize);
+	print_bi_mem(bd);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
 	print_num("flashsize",		(ulong)bd->bi_flashsize);
 	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -338,8 +352,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_boot_params(bd);
-	print_num("memstart",		(ulong)bd->bi_memstart);
-	print_lnum("memsize",		(u64)bd->bi_memsize);
+	print_bi_mem(bd);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
 	print_num("flashsize",		(ulong)bd->bi_flashsize);
 	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -360,8 +373,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_boot_params(bd);
-	print_num("memstart",		(ulong)bd->bi_dram[0].start);
-	print_lnum("memsize",		(u64)bd->bi_dram[0].size);
+	print_bi_mem(bd);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
 	print_num("flashsize",		(ulong)bd->bi_flashsize);
 	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -435,8 +447,8 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
-	print_num("mem start      ",	(ulong)bd->bi_memstart);
-	print_lnum("mem size       ",	(u64)bd->bi_memsize);
+
+	print_bi_mem(bd);
 	print_num("flash start    ",	(ulong)bd->bi_flashstart);
 	print_num("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
@@ -540,8 +552,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
-	print_num("mem start",		(ulong)bd->bi_memstart);
-	print_lnum("mem size",		(u64)bd->bi_memsize);
+	print_bi_mem(bd);
 	print_num("flash start",	(ulong)bd->bi_flashstart);
 	print_num("flash size",		(ulong)bd->bi_flashsize);
 	print_num("flash offset",	(ulong)bd->bi_flashoffset);
@@ -562,8 +573,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
-	print_num("mem start",		bd->bi_memstart);
-	print_lnum("mem size",		bd->bi_memsize);
+	print_bi_mem(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
