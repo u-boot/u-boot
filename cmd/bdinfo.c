@@ -69,6 +69,12 @@ static void print_mhz(const char *name, unsigned long hz)
 	printf("%-12s= %6s MHz\n", name, strmhz(buf, hz));
 }
 
+
+static inline void print_bi_boot_params(const bd_t *bd)
+{
+	print_num("boot_params",	(ulong)bd->bi_boot_params);
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -311,7 +317,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("CCLK",	bd->bi_cclk);
 	print_mhz("SCLK",	bd->bi_sclk);
 
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 	print_num("memstart",		(ulong)bd->bi_memstart);
 	print_lnum("memsize",		(u64)bd->bi_memsize);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
@@ -331,7 +337,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 	print_num("memstart",		(ulong)bd->bi_memstart);
 	print_lnum("memsize",		(u64)bd->bi_memsize);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
@@ -353,7 +359,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 	print_num("memstart",		(ulong)bd->bi_dram[0].start);
 	print_lnum("memsize",		(u64)bd->bi_dram[0].size);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
@@ -376,7 +382,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	bd_t *bd = gd->bd;
 
 	print_num("arch_number",	bd->bi_arch_number);
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		print_num("DRAM bank",	i);
@@ -450,7 +456,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	bd_t *bd = gd->bd;
 
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 	print_num("bi_memstart",	bd->bi_memstart);
 	print_num("bi_memsize",		bd->bi_memsize);
 	print_num("bi_flashstart",	bd->bi_flashstart);
@@ -485,7 +491,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	bd_t *bd = gd->bd;
 
-	print_num("boot_params", (ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		print_num("DRAM bank", i);
@@ -511,7 +517,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_num("arch_number",	bd->bi_arch_number);
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
+	print_bi_boot_params(bd);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		print_num("DRAM bank",	i);
