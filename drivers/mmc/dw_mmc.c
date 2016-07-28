@@ -125,6 +125,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
 						    DWMCI_FIFO_MASK;
+					len = min(size, len);
 					for (i = 0; i < len; i++)
 						*buf++ =
 						dwmci_readl(host, DWMCI_DATA);
@@ -138,6 +139,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 					len = fifo_depth - ((len >>
 						   DWMCI_FIFO_SHIFT) &
 						   DWMCI_FIFO_MASK);
+					len = min(size, len);
 					for (i = 0; i < len; i++)
 						dwmci_writel(host, DWMCI_DATA,
 							     *buf++);
