@@ -193,10 +193,29 @@
 	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
 		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
-	"xen=tftpb $fdt_addr system.dtb && fdt addr $fdt_addr && fdt resize && " \
-		"tftpb 0x80000 Image && " \
-		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && "\
-		"tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
+	"xen_prepare_dt=fdt addr $fdt_addr && fdt resize && " \
+		"fdt set /chosen \\\\#address-cells <1> && " \
+		"fdt set /chosen \\\\#size-cells <1> && " \
+		"fdt mknod /chosen dom0 && " \
+		"fdt set /chosen/dom0 compatible \"xen,linux-zimage\" \"xen,multiboot-module\" && " \
+		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && " \
+		"fdt set /chosen xen,xen-bootargs \"console=dtuart dtuart=serial0 dom0_mem=512M bootscrub=0 maxcpus=1 timer_slop=0\" && " \
+		"fdt set /chosen xen,dom0-bootargs \"console=serial0 earlycon=xen earlyprintk=xen maxcpus=1\"\0" \
+	"xen_prepare_dt_qemu=run xen_prepare_dt && " \
+		"fdt set /cpus/cpu@1 device_type \"none\" && " \
+		"fdt set /cpus/cpu@2 device_type \"none\" && " \
+		"fdt set /cpus/cpu@3 device_type \"none\" && " \
+		"fdt rm /cpus/cpu@1 compatible && " \
+		"fdt rm /cpus/cpu@2 compatible && " \
+		"fdt rm /cpus/cpu@3 compatible\0" \
+	"xen=tftpb $fdt_addr system.dtb &&  tftpb 0x80000 Image &&" \
+		"run xen_prepare_dt && " \
+		"tftpb 6000000 xen.ub && tftpb 0x1000000 image.ub && " \
+		"bootm 6000000 0x1000000 $fdt_addr\0" \
+	"xen_qemu=tftpb $fdt_addr system.dtb && tftpb 0x80000 Image && " \
+		"run xen_prepare_dt_qemu && " \
+		"tftpb 6000000 xen.ub && tftpb 0x1000000 image.ub && " \
+		"bootm 6000000 0x1000000 $fdt_addr\0" \
 	"jtagboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
 		 "tftpboot 6000000 rootfs.cpio.ub && booti 80000 6000000 $fdt_addr\0" \
 	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
