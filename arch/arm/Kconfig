@@ -554,6 +554,7 @@ config TARGET_MX53SMD
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
