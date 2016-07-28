@@ -157,6 +157,15 @@ static inline void print_baudrate(void)
 #endif
 }
 
+static inline void print_std_bdinfo(const bd_t *bd)
+{
+	print_bi_boot_params(bd);
+	print_bi_mem(bd);
+	print_bi_flash(bd);
+	print_eth_ip_addr();
+	print_baudrate();
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -340,11 +349,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("CCLK",	bd->bi_cclk);
 	print_mhz("SCLK",	bd->bi_sclk);
 
-	print_bi_boot_params(bd);
-	print_bi_mem(bd);
-	print_bi_flash(bd);
-	print_eth_ip_addr();
-	print_baudrate();
+	print_std_bdinfo(bd);
 
 	return 0;
 }
@@ -353,13 +358,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	bd_t *bd = gd->bd;
-
-	print_bi_boot_params(bd);
-	print_bi_mem(bd);
-	print_bi_flash(bd);
-	print_eth_ip_addr();
-	print_baudrate();
+	print_std_bdinfo(gd->bd);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 
@@ -370,14 +369,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	bd_t *bd = gd->bd;
-
-	print_bi_boot_params(bd);
-	print_bi_mem(bd);
-	print_bi_flash(bd);
-	print_eth_ip_addr();
-	print_baudrate();
-
+	print_std_bdinfo(gd->bd);
 	return 0;
 }
 
