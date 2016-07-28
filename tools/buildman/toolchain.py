@@ -553,6 +553,5 @@ class Toolchains:
         if not self.TestSettingsHasPath(dirpath):
             print ("Adding 'download' to config file '%s'" %
                    bsettings.config_fname)
-            tools_dir = os.path.dirname(dirpath)
-            bsettings.SetItem('toolchain', 'download', '%s/*' % tools_dir)
+            bsettings.SetItem('toolchain', 'download', '%s/*/*' % dest)
         return 0
