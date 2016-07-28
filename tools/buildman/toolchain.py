@@ -487,7 +487,7 @@ class Toolchains:
         return stdout.splitlines()[0][:-1]
 
     def TestSettingsHasPath(self, path):
-        """Check if builmand will find this toolchain
+        """Check if buildman will find this toolchain
 
         Returns:
             True if the path is in settings, False if not
