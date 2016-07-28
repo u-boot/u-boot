@@ -609,7 +609,14 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: i.MX7D SABRESD\n");
+	char *mode;
+
+	if (IS_ENABLED(CONFIG_ARMV7_BOOT_SEC_DEFAULT))
+		mode = "secure";
+	else
+		mode = "non-secure";
+
+	printf("Board: i.MX7D SABRESD in %s mode\n", mode);
 
 	return 0;
 }
