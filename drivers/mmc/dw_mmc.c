@@ -119,6 +119,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		}
 
 		if (host->fifo_mode && size) {
+			len = 0;
 			if (data->flags == MMC_DATA_READ) {
 				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_RXDR)) {
