@@ -140,4 +140,12 @@ void spl_board_init(void);
  */
 bool spl_was_boot_source(void);
 
+/**
+ * spl_dfu_cmd- run dfu command with chosen mmc device interface
+ * @param usb_index - usb controller number
+ * @param mmc_dev -  mmc device nubmer
+ *
+ * @return 0 on success, otherwise error code
+ */
+int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 #endif
