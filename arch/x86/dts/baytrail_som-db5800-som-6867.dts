@@ -63,6 +63,12 @@
 			pad-offset = <0x270>;
 			mode-func = <2>;
 		};
+
+		/* SERIRQ */
+		soc_gpio_s0_50@0 {
+			pad-offset = <0x560>;
+			mode-func = <1>;
+		};
 	};
 
 	chosen {
