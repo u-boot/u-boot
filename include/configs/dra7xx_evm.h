@@ -132,6 +132,23 @@
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_CMD_BOOTD
+#ifdef CONFIG_SPL_DFU_SUPPORT
+#define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_HASH_SUPPORT
+#define DFU_ALT_INFO_RAM \
+	"dfu_alt_info_ram=" \
+	"kernel ram 0x80200000 0x4000000;" \
+	"fdt ram 0x80f80000 0x80000;" \
+	"ramdisk ram 0x81000000 0x4000000\0"
+#define DFUARGS \
+	"dfu_bufsiz=0x10000\0" \
+	DFU_ALT_INFO_RAM
+#endif
+#endif
+
 #include <configs/ti_omap5_common.h>
 
 /* Enhance our eMMC support / experience. */
@@ -209,9 +226,10 @@
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_DFU_MMC
-#define CONFIG_DFU_RAM
 #define CONFIG_DFU_SF
+#endif
 
 /* SATA */
 #define CONFIG_BOARD_LATE_INIT

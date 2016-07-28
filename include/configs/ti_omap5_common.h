@@ -64,7 +64,6 @@
 #define DFUARGS
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -128,7 +127,6 @@
 	"setenv mmcroot /dev/mmcblk0p2 rw; " \
 	"run mmcboot;" \
 	""
-#endif
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
