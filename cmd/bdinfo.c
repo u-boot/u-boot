@@ -146,6 +146,17 @@ static inline void print_eth_ip_addr(void)
 #endif
 }
 
+static inline void print_baudrate(void)
+{
+#if defined(CONFIG_PPC)
+	printf("baudrate    = %6u bps\n", gd->baudrate);
+#elif defined(CONFIG_SPARC)
+	printf("baudrate               = %6u bps\n", gd->baudrate);
+#else
+	printf("baudrate    = %u bps\n", gd->baudrate);
+#endif
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -204,7 +215,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	print_eth_ip_addr();
-	printf("baudrate    = %6u bps\n", gd->baudrate);
+	print_baudrate();
 	print_num("relocaddr", gd->relocaddr);
 	board_detail();
 	return 0;
@@ -225,7 +236,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -245,7 +256,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 	print_num("fdt_blob", (ulong)gd->fdt_blob);
@@ -281,7 +292,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	       GENERATED_GBL_DATA_SIZE);
 
 	print_eth_ip_addr();
-	printf("baudrate               = %6u bps\n", gd->baudrate);
+	print_baudrate();
 	return 0;
 }
 
@@ -311,7 +322,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("vcofreq",		bd->bi_vcofreq);
 #endif
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -333,7 +344,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -348,7 +359,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 
@@ -365,7 +376,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -390,7 +401,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	print_num("TLB addr", gd->arch.tlb_addr);
 #endif
@@ -430,7 +441,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 	return 0;
 }
 
@@ -458,7 +469,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth_ip_addr();
 	print_mhz("ethspeed",	    bd->bi_ethspeed);
 #endif
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -489,7 +500,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_boot_params(bd);
 	print_bi_dram(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -503,7 +514,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
@@ -516,7 +527,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_bi_mem(bd);
 	print_eth_ip_addr();
-	printf("baudrate    = %d bps\n", gd->baudrate);
+	print_baudrate();
 
 	return 0;
 }
