@@ -87,6 +87,7 @@ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 endif # !CONFIG_SPL_BUILD
 
 ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu.o
 obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
@@ -160,6 +161,7 @@ obj-$(CONFIG_CMDLINE) += cli_simple.o
 
 obj-y += cli.o
 obj-$(CONFIG_CMDLINE) += cli_readline.o
+obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-y += command.o
 obj-y += s_record.o
 obj-y += xyzModem.o
