@@ -12,7 +12,6 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -499,16 +498,6 @@ static int i2c_post_probe(struct udevice *dev)
 #endif
 }
 
-static int i2c_post_bind(struct udevice *dev)
-{
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-#else
-	return 0;
-#endif
-}
-
 static int i2c_child_post_bind(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -527,7 +516,9 @@ UCLASS_DRIVER(i2c) = {
 	.id		= UCLASS_I2C,
 	.name		= "i2c",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.post_bind	= i2c_post_bind,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.post_bind	= dm_scan_fdt_dev,
+#endif
 	.post_probe	= i2c_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_i2c_bus),
 	.per_child_platdata_auto_alloc_size = sizeof(struct dm_i2c_chip),

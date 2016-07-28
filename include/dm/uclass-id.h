@@ -59,6 +59,7 @@ enum uclass_id {
 	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PMIC,		/* PMIC I/O device */
 	UCLASS_PWM,		/* Pulse-width modulator */
+	UCLASS_POWER_DOMAIN,	/* (SoC) Power domains */
 	UCLASS_PWRSEQ,		/* Power sequence device */
 	UCLASS_RAM,		/* RAM controller */
 	UCLASS_REGULATOR,	/* Regulator device */

@@ -20,4 +20,8 @@ config SYS_CONFIG_NAME
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
+config SYS_MALLOC_F_LEN
+	default 0x600
+
+
 endif

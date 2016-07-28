@@ -36,7 +36,6 @@
 #include <asm/state.h>
 #endif
 #include <asm/unaligned.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -755,12 +754,6 @@ int usb_hub_scan(struct udevice *hub)
 	return usb_hub_configure(udev);
 }
 
-static int usb_hub_post_bind(struct udevice *dev)
-{
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
-
 static int usb_hub_post_probe(struct udevice *dev)
 {
 	debug("%s\n", __func__);
@@ -782,7 +775,7 @@ U_BOOT_DRIVER(usb_generic_hub) = {
 UCLASS_DRIVER(usb_hub) = {
 	.id		= UCLASS_USB_HUB,
 	.name		= "usb_hub",
-	.post_bind	= usb_hub_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 	.post_probe	= usb_hub_post_probe,
 	.child_pre_probe	= usb_child_pre_probe,
 	.per_child_auto_alloc_size = sizeof(struct usb_device),

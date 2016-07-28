@@ -54,7 +54,7 @@
  * which does the scan on the device node, for the 'regulator-name' constraint.
  * If the parent is not a PMIC device, and the child is not bind by function:
  * 'pmic_bind_childs()', then it's recommended to bind the device by call to
- * dm_scan_fdt_node() - this is usually done automatically for bus devices,
+ * dm_scan_fdt_dev() - this is usually done automatically for bus devices,
  * as a post bind method.
  *
  * Regulator get:

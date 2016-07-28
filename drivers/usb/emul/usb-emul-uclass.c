@@ -8,7 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <usb.h>
-#include <dm/root.h>
 #include <dm/device-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -265,12 +264,6 @@ int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
 	return 0;
 }
 
-int usb_emul_post_bind(struct udevice *dev)
-{
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
-
 void usb_emul_reset(struct udevice *dev)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
@@ -282,7 +275,7 @@ void usb_emul_reset(struct udevice *dev)
 UCLASS_DRIVER(usb_emul) = {
 	.id		= UCLASS_USB_EMUL,
 	.name		= "usb_emul",
-	.post_bind	= usb_emul_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 	.per_child_auto_alloc_size = sizeof(struct usb_device),
 	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
 };

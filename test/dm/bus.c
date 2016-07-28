@@ -7,7 +7,6 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
-#include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
@@ -30,7 +29,7 @@ static struct dm_test_state *test_state;
 
 static int testbus_drv_probe(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int testbus_child_post_bind(struct udevice *dev)

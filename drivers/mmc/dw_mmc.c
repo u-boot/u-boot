@@ -182,7 +182,7 @@ static int dwmci_set_transfer_mode(struct dwmci_host *host,
 }
 
 #ifdef CONFIG_DM_MMC_OPS
-int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+static int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		   struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -195,7 +195,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac, cur_idmac,
 				 data ? DIV_ROUND_UP(data->blocks, 8) : 0);
 	int ret = 0, flags = 0, i;
-	unsigned int timeout = 100000;
+	unsigned int timeout = 500;
 	u32 retry = 100000;
 	u32 mask, ctrl;
 	ulong start = get_timer(0);
@@ -381,7 +381,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 }
 
 #ifdef CONFIG_DM_MMC_OPS
-int dwmci_set_ios(struct udevice *dev)
+static int dwmci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 #else

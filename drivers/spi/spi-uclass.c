@@ -12,7 +12,6 @@
 #include <spi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <dm/root.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 
@@ -107,12 +106,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {
 	return dm_spi_xfer(slave->dev, bitlen, dout, din, flags);
-}
-
-static int spi_post_bind(struct udevice *dev)
-{
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
 }
 
 static int spi_child_post_bind(struct udevice *dev)
@@ -446,7 +439,7 @@ UCLASS_DRIVER(spi) = {
 	.id		= UCLASS_SPI,
 	.name		= "spi",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.post_bind	= spi_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 	.post_probe	= spi_post_probe,
 	.child_pre_probe = spi_child_pre_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_spi_bus),

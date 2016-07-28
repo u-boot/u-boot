@@ -26,7 +26,6 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device-internal.h>
-#include <dm/root.h>
 #include <dm/uclass-internal.h>
 
 #ifdef DEBUG_TRACE
@@ -1450,12 +1449,6 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return ret;
 }
 
-int cros_ec_post_bind(struct udevice *dev)
-{
-	/* Scan for available EC devices (e.g. I2C tunnel) */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
-
 U_BOOT_CMD(
 	crosec,	6,	1,	do_cros_ec,
 	"CROS-EC utility command",
@@ -1482,5 +1475,5 @@ UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros_ec",
 	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
-	.post_bind	= cros_ec_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 };
