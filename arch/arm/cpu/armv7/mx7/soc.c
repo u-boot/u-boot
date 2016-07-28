@@ -248,6 +248,20 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (is_mx7d())
+		setenv("soc", "imx7d");
+	else
+		setenv("soc", "imx7s");
+#endif
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SERIAL_TAG
 void get_board_serial(struct tag_serialnr *serialnr)
 {

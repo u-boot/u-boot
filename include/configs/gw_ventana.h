@@ -33,6 +33,8 @@
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 #undef CONFIG_SPL_EXT_SUPPORT
+#undef CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
@@ -269,15 +271,13 @@
 /* Environment */
 #define CONFIG_IPADDR             192.168.1.1
 #define CONFIG_SERVERIP           192.168.1.146
-#define HWCONFIG_DEFAULT \
-	"hwconfig=rs232;" \
-	"dio0:mode=gpio;dio1:mode=gpio;dio2:mode=gpio;dio3:mode=gpio\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"pcidisable=1\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \
-	HWCONFIG_DEFAULT \
+	"hwconfig=_UNKNOWN_\0" \
 	"video=\0" \
 	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \

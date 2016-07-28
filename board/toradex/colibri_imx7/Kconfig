@@ -1,0 +1,20 @@
+if TARGET_COLIBRI_IMX7
+
+config SYS_BOARD
+	default "colibri_imx7"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "colibri_imx7"
+
+config COLIBRI_IMX7_EXT_PHYCLK
+	bool "External oscillator for Ethernet PHY clock provided"
+	help
+	  Select this if your module provides a external Ethernet PHY
+	  clock source.
+	default y
+
+
+endif

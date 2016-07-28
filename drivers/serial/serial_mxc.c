@@ -76,6 +76,7 @@
 #define  UFCR_RXTL_SHF   0       /* Receiver trigger level shift */
 #define  UFCR_RFDIV      (7<<7)  /* Reference freq divider mask */
 #define  UFCR_RFDIV_SHF  7      /* Reference freq divider shift */
+#define  UFCR_DCEDTE	 (1<<6)  /* DTE mode select */
 #define  UFCR_TXTL_SHF   10      /* Transmitter trigger level shift */
 #define  USR1_PARITYERR  (1<<15) /* Parity error interrupt flag */
 #define  USR1_RTSS	 (1<<14) /* RTS pin status */
@@ -269,8 +270,13 @@ int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 	struct mxc_serial_platdata *plat = dev->platdata;
 	struct mxc_uart *const uart = plat->reg;
 	u32 clk = imx_get_uartclk();
+	u32 tmp;
 
-	writel(4 << 7, &uart->fcr); /* divide input clock by 2 */
+	tmp = 4 << UFCR_RFDIV_SHF;
+	if (plat->use_dte)
+		tmp |= UFCR_DCEDTE;
+	writel(tmp, &uart->fcr);
+
 	writel(0xf, &uart->bir);
 	writel(clk / (2 * baudrate), &uart->bmr);
 

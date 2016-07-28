@@ -148,6 +148,10 @@ config TARGET_PLATINUM_TITANIUM
 	bool "platinum-titanium"
 	select SUPPORT_SPL
 
+config TARGET_PCM058
+	bool "Phytec PCM058 i.MX6 Quad"
+	select SUPPORT_SPL
+
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 
@@ -178,6 +182,18 @@ config TARGET_XPRESS
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_ZC5202
+	bool "zc5202"
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+
+config TARGET_ZC5601
+	bool "zc5601"
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+
 endchoice
 
 config SYS_SOC
@@ -192,6 +208,7 @@ source "board/boundary/nitrogen6x/Kconfig"
 source "board/ccv/xpress/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
+source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
@@ -200,6 +217,7 @@ source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
+source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/seco/Kconfig"

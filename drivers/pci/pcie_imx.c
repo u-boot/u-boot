@@ -595,7 +595,7 @@ static int imx_pcie_link_up(void)
 	while (!imx6_pcie_link_up()) {
 		udelay(10);
 		count++;
-		if (count >= 2000) {
+		if (count >= 4000) {
 #ifdef CONFIG_PCI_SCAN_SHOW
 			puts("PCI:   pcie phy link never came up\n");
 #endif

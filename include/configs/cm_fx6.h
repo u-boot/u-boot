@@ -18,6 +18,7 @@
 #define CONFIG_MACH_TYPE		4273
 
 /* CMD */
+#define CONFIG_CMD_MTDPARTS
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
@@ -53,6 +54,20 @@
 #define CONFIG_SF_DEFAULT_SPEED		25000000
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
+/* MTD support */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FDT_FIXUP_PARTITIONS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_SPI_FLASH_MTD
+#endif
+
+#define MTDIDS_DEFAULT		"nor0=spi0.0"
+#define MTDPARTS_DEFAULT	"mtdparts=spi0.0:" \
+				"768k(uboot)," \
+				"256k(uboot-environment)," \
+				"-(reserved)"
+
 /* Environment */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
@@ -69,6 +84,8 @@
 	"stderr=serial,vga\0" \
 	"panel=HDMI\0" \
 	"autoload=no\0" \
+	"uImage=uImage-cm-fx6\0" \
+	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \
 	"script=boot.scr\0" \
 	"dtb=cm-fx6.dtb\0" \
@@ -81,10 +98,12 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${loadaddr}\0" \
 	"doloadfdt=false\0" \
-	"setboottypez=setenv kernel zImage-cm-fx6;" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
 		"setenv doloadfdt true;\0" \
-	"setboottypem=setenv kernel uImage-cm-fx6;" \
+	"setboottypem=setenv kernel ${uImage};" \
 		"setenv doboot bootm ${loadaddr};" \
 		"setenv doloadfdt false;\0"\
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
@@ -92,13 +111,13 @@
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"sataargs=setenv bootargs console=${console} root=${sataroot} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype} " \
-		"${video}\0" \
+		"${video} ${extrabootargs}\0" \
 	"nandboot=if run nandloadkernel; then " \
 			"run nandloadfdt;" \
 			"run setboottypem;" \
@@ -155,7 +174,7 @@
 	"run setupnandboot;" \
 	"run nandboot;"
 
-#define CONFIG_PREBOOT		"usb start"
+#define CONFIG_PREBOOT		"usb start;sf probe"
 
 /* SPI */
 #define CONFIG_SPI
