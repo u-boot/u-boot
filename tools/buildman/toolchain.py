@@ -167,15 +167,18 @@ class Toolchains:
         self.paths = []
         self._make_flags = dict(bsettings.GetItems('make-flags'))
 
-    def GetPathList(self):
+    def GetPathList(self, show_warning=True):
         """Get a list of available toolchain paths
+
+        Args:
+            show_warning: True to show a warning if there are no tool chains.
 
         Returns:
             List of strings, each a path to a toolchain mentioned in the
             [toolchain] section of the settings file.
         """
         toolchains = bsettings.GetItems('toolchain')
-        if not toolchains:
+        if show_warning and not toolchains:
             print ('Warning: No tool chains - please add a [toolchain] section'
                  ' to your buildman config file %s. See README for details' %
                  bsettings.config_fname)
@@ -188,9 +191,14 @@ class Toolchains:
                 paths.append(value)
         return paths
 
-    def GetSettings(self):
-      self.prefixes = bsettings.GetItems('toolchain-prefix')
-      self.paths += self.GetPathList()
+    def GetSettings(self, show_warning=True):
+        """Get toolchain settings from the settings file.
+
+        Args:
+            show_warning: True to show a warning if there are no tool chains.
+        """
+        self.prefixes = bsettings.GetItems('toolchain-prefix')
+        self.paths += self.GetPathList(show_warning)
 
     def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
             arch=None):
@@ -479,7 +487,7 @@ class Toolchains:
         Returns:
             True if the path is in settings, False if not
         """
-        paths = self.GetPathList()
+        paths = self.GetPathList(False)
         return path in paths
 
     def ListArchs(self):
