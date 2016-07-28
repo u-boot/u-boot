@@ -111,14 +111,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     options.git_dir = os.path.join(options.git, '.git')
 
-    if not toolchains:
+    no_toolchains = toolchains is None
+    if no_toolchains:
         toolchains = toolchain.Toolchains()
-        toolchains.GetSettings()
-        toolchains.Scan(options.list_tool_chains)
-    if options.list_tool_chains:
-        toolchains.List()
-        print
-        return 0
 
     if options.fetch_arch:
         if options.fetch_arch == 'list':
@@ -138,6 +133,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                 if ret:
                     return ret
             return 0
+
+    if no_toolchains:
+        toolchains.GetSettings()
+        toolchains.Scan(options.list_tool_chains)
+    if options.list_tool_chains:
+        toolchains.List()
+        print
+        return 0
 
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
