@@ -327,7 +327,8 @@ static void flush_dir_table(fsdata *mydata, dir_entry **dentptr);
 static void
 fill_dir_slot(fsdata *mydata, dir_entry **dentptr, const char *l_name)
 {
-	dir_slot *slotptr = (dir_slot *)get_contents_vfatname_block;
+	__u8 temp_dir_slot_buffer[MAX_LFN_SLOT * sizeof(dir_slot)];
+	dir_slot *slotptr = (dir_slot *)temp_dir_slot_buffer;
 	__u8 counter = 0, checksum;
 	int idx = 0, ret;
 
