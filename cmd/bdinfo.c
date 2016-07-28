@@ -105,6 +105,24 @@ static inline void print_bi_dram(const bd_t *bd)
 #endif
 }
 
+static inline void print_bi_flash(const bd_t *bd)
+{
+#if defined(CONFIG_MICROBLAZE) || defined(CONFIG_SH)
+	print_num("flash start    ",	(ulong)bd->bi_flashstart);
+	print_num("flash size     ",	(ulong)bd->bi_flashsize);
+	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
+
+#elif defined(CONFIG_NIOS2) || defined(CONFIG_OPENRISC)
+	print_num("flash start",	(ulong)bd->bi_flashstart);
+	print_num("flash size",		(ulong)bd->bi_flashsize);
+	print_num("flash offset",	(ulong)bd->bi_flashoffset);
+#else
+	print_num("flashstart",		(ulong)bd->bi_flashstart);
+	print_num("flashsize",		(ulong)bd->bi_flashsize);
+	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
+#endif
+}
+
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
@@ -119,9 +137,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("bd address",		(ulong)bd);
 #endif
 	print_bi_mem(bd);
-	print_num("flashstart",		bd->bi_flashstart);
-	print_num("flashsize",		bd->bi_flashsize);
-	print_num("flashoffset",	bd->bi_flashoffset);
+	print_bi_flash(bd);
 	print_num("sramstart",		bd->bi_sramstart);
 	print_num("sramsize",		bd->bi_sramsize);
 #if	defined(CONFIG_5xx)  || defined(CONFIG_8xx) || \
@@ -195,9 +211,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_dram(bd);
-	print_num("flash start",	(ulong)bd->bi_flashstart);
-	print_num("flash size",		(ulong)bd->bi_flashsize);
-	print_num("flash offset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 #if defined(CONFIG_SYS_SRAM_BASE)
 	print_num ("sram start",	(ulong)bd->bi_sramstart);
@@ -221,9 +235,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_dram(bd);
-	print_num("flash start    ",	(ulong)bd->bi_flashstart);
-	print_num("flash size     ",	(ulong)bd->bi_flashsize);
-	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 #if defined(CONFIG_SYS_SRAM_BASE)
 	print_num("sram start     ",	(ulong)bd->bi_sramstart);
 	print_num("sram size      ",	(ulong)bd->bi_sramsize);
@@ -281,9 +293,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_mem(bd);
-	print_num("flashstart",		(ulong)bd->bi_flashstart);
-	print_num("flashsize",		(ulong)bd->bi_flashsize);
-	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 #if defined(CONFIG_SYS_INIT_RAM_ADDR)
 	print_num("sramstart",		(ulong)bd->bi_sramstart);
 	print_num("sramsize",		(ulong)bd->bi_sramsize);
@@ -335,9 +345,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_bi_boot_params(bd);
 	print_bi_mem(bd);
-	print_num("flashstart",		(ulong)bd->bi_flashstart);
-	print_num("flashsize",		(ulong)bd->bi_flashsize);
-	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
@@ -354,9 +362,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_bi_boot_params(bd);
 	print_bi_mem(bd);
-	print_num("flashstart",		(ulong)bd->bi_flashstart);
-	print_num("flashsize",		(ulong)bd->bi_flashsize);
-	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
@@ -375,9 +381,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_bi_boot_params(bd);
 	print_bi_mem(bd);
-	print_num("flashstart",		(ulong)bd->bi_flashstart);
-	print_num("flashsize",		(ulong)bd->bi_flashsize);
-	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
@@ -444,9 +448,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_mem(bd);
-	print_num("flash start    ",	(ulong)bd->bi_flashstart);
-	print_num("flash size     ",	(ulong)bd->bi_flashsize);
-	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
@@ -531,9 +533,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_mem(bd);
-	print_num("flash start",	(ulong)bd->bi_flashstart);
-	print_num("flash size",		(ulong)bd->bi_flashsize);
-	print_num("flash offset",	(ulong)bd->bi_flashoffset);
+	print_bi_flash(bd);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
