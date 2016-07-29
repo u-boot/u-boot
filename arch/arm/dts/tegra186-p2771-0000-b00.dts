@@ -5,4 +5,9 @@
 / {
 	model = "NVIDIA P2771-0000 B00";
 	compatible = "nvidia,p2771-0000-b00", "nvidia,p2771-0000", "nvidia,tegra186";
+
+	sdhci@3400000 {
+		cd-gpios = <&gpio_main TEGRA_MAIN_GPIO(P, 5) GPIO_ACTIVE_LOW>;
+		power-gpios = <&gpio_main TEGRA_MAIN_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
+	};
 };

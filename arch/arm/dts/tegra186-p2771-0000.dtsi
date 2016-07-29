@@ -10,6 +10,8 @@
 
 	aliases {
 		sdhci0 = "/sdhci@3460000";
+		sdhci1 = "/sdhci@3400000";
+		i2c0 = "/bpmp/i2c";
 		i2c1 = "/i2c@3160000";
 		i2c2 = "/i2c@c240000";
 		i2c3 = "/i2c@3180000";
@@ -39,6 +41,12 @@
 		status = "okay";
 	};
 
+	sdhci@3400000 {
+		status = "okay";
+		wp-gpios = <&gpio_main TEGRA_MAIN_GPIO(P, 4) GPIO_ACTIVE_HIGH>;
+		bus-width = <4>;
+	};
+
 	sdhci@3460000 {
 		status = "okay";
 		bus-width = <8>;
@@ -54,5 +62,11 @@
 
 	i2c@31e0000 {
 		status = "okay";
+	};
+
+	bpmp {
+		i2c {
+			status = "okay";
+		};
 	};
 };
