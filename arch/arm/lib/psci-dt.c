@@ -51,24 +51,7 @@ int fdt_psci(void *fdt)
 		fdt_setprop_string(fdt, tmp, "enable-method", "psci");
 	}
 
-	/*
-	 * The PSCI node might be called "/psci" or might be called something
-	 * else but contain either of the compatible strings
-	 * "arm,psci"/"arm,psci-0.2"
-	 */
 	nodeoff = fdt_path_offset(fdt, "/psci");
-	if (nodeoff >= 0)
-		goto init_psci_node;
-
-	nodeoff = fdt_node_offset_by_compatible(fdt, -1, "arm,psci");
-	if (nodeoff >= 0)
-		goto init_psci_node;
-
-	nodeoff = fdt_node_offset_by_compatible(fdt, -1, "arm,psci-0.2");
-	if (nodeoff >= 0)
-		goto init_psci_node;
-
-	nodeoff = fdt_node_offset_by_compatible(fdt, -1, "arm,psci-1.0");
 	if (nodeoff >= 0)
 		goto init_psci_node;
 
