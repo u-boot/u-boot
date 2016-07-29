@@ -27,6 +27,7 @@
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <crc.h>
 #include <environment.h>
 #include <libfdt.h>
 #include <nand.h>
@@ -622,7 +623,24 @@ static void setup_environment(const void *fdt)
 	int i, ret;
 
 	ret = sunxi_get_sid(sid);
-	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
+	if (ret == 0 && sid[0] != 0) {
+		/*
+		 * The single words 1 - 3 of the SID have quite a few bits
+		 * which are the same on many models, so we take a crc32
+		 * of all 3 words, to get a more unique value.
+		 *
+		 * Note we only do this on newer SoCs as we cannot change
+		 * the algorithm on older SoCs since those have been using
+		 * fixed mac-addresses based on only using word 3 for a
+		 * long time and changing a fixed mac-address with an
+		 * u-boot update is not good.
+		 */
+#if !defined(CONFIG_MACH_SUN4I) && !defined(CONFIG_MACH_SUN5I) && \
+    !defined(CONFIG_MACH_SUN6I) && !defined(CONFIG_MACH_SUN7I) && \
+    !defined(CONFIG_MACH_SUN8I_A23) && !defined(CONFIG_MACH_SUN8I_A33)
+		sid[3] = crc32(0, (unsigned char *)&sid[1], 12);
+#endif
+
 		/* Ensure the NIC specific bytes of the mac are not all 0 */
 		if ((sid[3] & 0xffffff) == 0)
 			sid[3] |= 0x800000;
