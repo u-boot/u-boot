@@ -22,6 +22,10 @@
  * possible, maximum 16 steps). There is no clearing of ".."'s inside the
  * path, so please DON'T DO THAT. thx. */
 
+/* NOTE 4: NFSv3 support added by Guillaume GARDET, 2016-June-20.
+ * NFSv2 is still used by default. But if server does not support NFSv2, then
+ * NFSv3 is used, if available on NFS server. */
+
 #include <common.h>
 #include <command.h>
 #include <net.h>
@@ -47,8 +51,11 @@ static int nfs_offset = -1;
 static int nfs_len;
 static ulong nfs_timeout = NFS_TIMEOUT;
 
-static char dirfh[NFS_FHSIZE];	/* file handle of directory */
-static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
+static char dirfh[NFS_FHSIZE];	/* NFSv2 / NFSv3 file handle of directory */
+static char filefh[NFS_FHSIZE]; /* NFSv2 file handle */
+
+static char filefh3[NFS3_FHSIZE];	/* NFSv3 file handle  */
+static int filefh3_length;	/* (variable) length of filefh3 */
 
 static enum net_loop_state nfs_download_state;
 static struct in_addr nfs_server_ip;
@@ -68,6 +75,10 @@ static int nfs_state;
 static char *nfs_filename;
 static char *nfs_path;
 static char nfs_path_buff[2048];
+
+#define NFSV2_FLAG 1
+#define NFSV3_FLAG 1 << 1
+static char supported_nfs_versions = NFSV2_FLAG | NFSV3_FLAG;
 
 static inline int store_block(uchar *src, unsigned offset, unsigned len)
 {
@@ -187,7 +198,18 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	pkt.u.call.type = htonl(MSG_CALL);
 	pkt.u.call.rpcvers = htonl(2);	/* use RPC version 2 */
 	pkt.u.call.prog = htonl(rpc_prog);
-	pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
+	switch (rpc_prog) {
+	case PROG_NFS:
+		if (supported_nfs_versions & NFSV2_FLAG)
+			pkt.u.call.vers = htonl(2);	/* NFS v2 */
+		else /* NFSV3_FLAG */
+			pkt.u.call.vers = htonl(3);	/* NFS v3 */
+		break;
+	case PROG_PORTMAP:
+	case PROG_MOUNT:
+	default:
+		pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
+	}
 	pkt.u.call.proc = htonl(rpc_proc);
 	p = (uint32_t *)&(pkt.u.call.data);
 
@@ -223,7 +245,6 @@ static void rpc_lookup_req(int prog, int ver)
 	data[5] = htonl(ver);
 	data[6] = htonl(17);	/* IP_UDP */
 	data[7] = 0;
-
 	rpc_req(PROG_PORTMAP, PORTMAP_GETPORT, data, 8);
 }
 
@@ -290,8 +311,14 @@ static void nfs_readlink_req(void)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	memcpy(p, filefh, NFS_FHSIZE);
-	p += (NFS_FHSIZE / 4);
+	if (supported_nfs_versions & NFSV2_FLAG) {
+		memcpy(p, filefh, NFS_FHSIZE);
+		p += (NFS_FHSIZE / 4);
+	} else { /* NFSV3_FLAG */
+		*p++ = htonl(filefh3_length);
+		memcpy(p, filefh3, filefh3_length);
+		p += (filefh3_length / 4);
+	}
 
 	len = (uint32_t *)p - (uint32_t *)&(data[0]);
 
@@ -313,17 +340,32 @@ static void nfs_lookup_req(char *fname)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	memcpy(p, dirfh, NFS_FHSIZE);
-	p += (NFS_FHSIZE / 4);
-	*p++ = htonl(fnamelen);
-	if (fnamelen & 3)
-		*(p + fnamelen / 4) = 0;
-	memcpy(p, fname, fnamelen);
-	p += (fnamelen + 3) / 4;
+	if (supported_nfs_versions & NFSV2_FLAG) {
+		memcpy(p, dirfh, NFS_FHSIZE);
+		p += (NFS_FHSIZE / 4);
+		*p++ = htonl(fnamelen);
+		if (fnamelen & 3)
+			*(p + fnamelen / 4) = 0;
+		memcpy(p, fname, fnamelen);
+		p += (fnamelen + 3) / 4;
 
-	len = (uint32_t *)p - (uint32_t *)&(data[0]);
+		len = (uint32_t *)p - (uint32_t *)&(data[0]);
 
-	rpc_req(PROG_NFS, NFS_LOOKUP, data, len);
+		rpc_req(PROG_NFS, NFS_LOOKUP, data, len);
+	} else {  /* NFSV3_FLAG */
+		*p++ = htonl(NFS_FHSIZE);	/* Dir handle length */
+		memcpy(p, dirfh, NFS_FHSIZE);
+		p += (NFS_FHSIZE / 4);
+		*p++ = htonl(fnamelen);
+		if (fnamelen & 3)
+			*(p + fnamelen / 4) = 0;
+		memcpy(p, fname, fnamelen);
+		p += (fnamelen + 3) / 4;
+
+		len = (uint32_t *)p - (uint32_t *)&(data[0]);
+
+		rpc_req(PROG_NFS, NFS3PROC_LOOKUP, data, len);
+	}
 }
 
 /**************************************************************************
@@ -338,11 +380,21 @@ static void nfs_read_req(int offset, int readlen)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	memcpy(p, filefh, NFS_FHSIZE);
-	p += (NFS_FHSIZE / 4);
-	*p++ = htonl(offset);
-	*p++ = htonl(readlen);
-	*p++ = 0;
+	if (supported_nfs_versions & NFSV2_FLAG) {
+		memcpy(p, filefh, NFS_FHSIZE);
+		p += (NFS_FHSIZE / 4);
+		*p++ = htonl(offset);
+		*p++ = htonl(readlen);
+		*p++ = 0;
+	} else { /* NFSV3_FLAG */
+		*p++ = htonl(filefh3_length);
+		memcpy(p, filefh3, filefh3_length);
+		p += (filefh3_length / 4);
+		*p++ = htonl(0); /* offset is 64-bit long, so fill with 0 */
+		*p++ = htonl(offset);
+		*p++ = htonl(readlen);
+		*p++ = 0;
+	}
 
 	len = (uint32_t *)p - (uint32_t *)&(data[0]);
 
@@ -358,10 +410,16 @@ static void nfs_send(void)
 
 	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
-		rpc_lookup_req(PROG_MOUNT, 1);
+		if (supported_nfs_versions & NFSV2_FLAG)
+			rpc_lookup_req(PROG_MOUNT, 1);
+		else  /* NFSV3_FLAG */
+			rpc_lookup_req(PROG_MOUNT, 3);
 		break;
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
-		rpc_lookup_req(PROG_NFS, 2);
+		if (supported_nfs_versions & NFSV2_FLAG)
+			rpc_lookup_req(PROG_NFS, 2);
+		else  /* NFSV3_FLAG */
+			rpc_lookup_req(PROG_NFS, 3);
 		break;
 	case STATE_MOUNT_REQ:
 		nfs_mount_req(nfs_path);
@@ -435,6 +493,7 @@ static int nfs_mount_reply(uchar *pkt, unsigned len)
 		return -1;
 
 	fs_mounted = 1;
+	/*  NFSv2 and NFSv3 use same structure */
 	memcpy(dirfh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 
 	return 0;
@@ -482,14 +541,33 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	    rpc_pkt.u.reply.astatus  ||
 	    rpc_pkt.u.reply.data[0]) {
 		switch (ntohl(rpc_pkt.u.reply.astatus)) {
-		case 0: /* Not an error */
+		case NFS_RPC_SUCCESS: /* Not an error */
 			break;
-		case 2: /* Remote can't support NFS version */
-			printf("*** ERROR: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-			       2,
-			       ntohl(rpc_pkt.u.reply.data[0]),
-			       ntohl(rpc_pkt.u.reply.data[1]));
+		case NFS_RPC_PROG_MISMATCH:
+			/* Remote can't support NFS version */
+			switch (ntohl(rpc_pkt.u.reply.data[0])) {
+			/* Minimal supported NFS version */
+			case 3:
+				debug("*** Waring: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+				      (supported_nfs_versions & NFSV2_FLAG) ? 2 : 3,
+				      ntohl(rpc_pkt.u.reply.data[0]),
+				      ntohl(rpc_pkt.u.reply.data[1]));
+				debug("Will retry with NFSv3\n");
+				/* Clear NFSV2_FLAG from supported versions */
+				supported_nfs_versions &= ~NFSV2_FLAG;
+				return -NFS_RPC_PROG_MISMATCH;
+			case 4:
+			default:
+				printf("*** ERROR: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+				       (supported_nfs_versions & NFSV2_FLAG) ? 2 : 3,
+				       ntohl(rpc_pkt.u.reply.data[0]),
+				       ntohl(rpc_pkt.u.reply.data[1]));
+			}
 			break;
+		case NFS_RPC_PROG_UNAVAIL:
+		case NFS_RPC_PROC_UNAVAIL:
+		case NFS_RPC_GARBAGE_ARGS:
+		case NFS_RPC_SYSTEM_ERR:
 		default: /* Unknown error on 'accept state' flag */
 			printf("*** ERROR: accept state error (%d)\n",
 			       ntohl(rpc_pkt.u.reply.astatus));
@@ -498,7 +576,14 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 		return -1;
 	}
 
-	memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
+	if (supported_nfs_versions & NFSV2_FLAG) {
+		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
+	} else {  /* NFSV3_FLAG */
+		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
+		if (filefh3_length > NFS3_FHSIZE)
+			filefh3_length  = NFS3_FHSIZE;
+		memcpy(filefh3, rpc_pkt.u.reply.data + 2, filefh3_length);
+	}
 
 	return 0;
 }
@@ -523,18 +608,68 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 	    rpc_pkt.u.reply.data[0])
 		return -1;
 
-	rlen = ntohl(rpc_pkt.u.reply.data[1]); /* new path length */
+	if (supported_nfs_versions & NFSV2_FLAG) {
 
-	if (*((char *)&(rpc_pkt.u.reply.data[2])) != '/') {
-		int pathlen;
-		strcat(nfs_path, "/");
-		pathlen = strlen(nfs_path);
-		memcpy(nfs_path + pathlen, (uchar *)&(rpc_pkt.u.reply.data[2]),
-		       rlen);
-		nfs_path[pathlen + rlen] = 0;
-	} else {
-		memcpy(nfs_path, (uchar *)&(rpc_pkt.u.reply.data[2]), rlen);
-		nfs_path[rlen] = 0;
+		rlen = ntohl(rpc_pkt.u.reply.data[1]); /* new path length */
+
+		if (*((char *)&(rpc_pkt.u.reply.data[2])) != '/') {
+			int pathlen;
+			strcat(nfs_path, "/");
+			pathlen = strlen(nfs_path);
+			memcpy(nfs_path + pathlen,
+			       (uchar *)&(rpc_pkt.u.reply.data[2]),
+			       rlen);
+			nfs_path[pathlen + rlen] = 0;
+		} else {
+			memcpy(nfs_path,
+			       (uchar *)&(rpc_pkt.u.reply.data[2]),
+			       rlen);
+			nfs_path[rlen] = 0;
+		}
+	} else {  /* NFSV3_FLAG */
+		int nfsv3_data_offset = 0;
+		if (ntohl(rpc_pkt.u.reply.data[1]) != 0) {
+			/* 'attributes_follow' flag is TRUE,
+			 * so we have attributes on 21 bytes */
+			/* Skip unused values :
+				type;	32 bits value,
+				mode;	32 bits value,
+				nlink;	32 bits value,
+				uid;	32 bits value,
+				gid;	32 bits value,
+				size;	64 bits value,
+				used;	64 bits value,
+				rdev;	64 bits value,
+				fsid;	64 bits value,
+				fileid;	64 bits value,
+				atime;	64 bits value,
+				mtime;	64 bits value,
+				ctime;	64 bits value,
+			*/
+			nfsv3_data_offset = 22;
+		} else {
+			/* 'attributes_follow' flag is FALSE,
+			 * so we don't have any attributes */
+			nfsv3_data_offset = 1;
+		}
+
+		/* new path length */
+		rlen = ntohl(rpc_pkt.u.reply.data[1+nfsv3_data_offset]);
+
+		if (*((char *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset])) != '/') {
+			int pathlen;
+			strcat(nfs_path, "/");
+			pathlen = strlen(nfs_path);
+			memcpy(nfs_path + pathlen,
+			       (uchar *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset]),
+			       rlen);
+			nfs_path[pathlen + rlen] = 0;
+		} else {
+			memcpy(nfs_path,
+			       (uchar *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset]),
+			       rlen);
+			nfs_path[rlen] = 0;
+		}
 	}
 	return 0;
 }
@@ -543,6 +678,7 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 	int rlen;
+	uchar *data_ptr;
 
 	debug("%s\n", __func__);
 
@@ -570,10 +706,47 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 	if (!(nfs_offset % ((NFS_READ_SIZE / 2) * 10)))
 		putc('#');
 
-	rlen = ntohl(rpc_pkt.u.reply.data[18]);
-	if (store_block((uchar *)pkt + sizeof(rpc_pkt.u.reply),
-			nfs_offset, rlen))
-		return -9999;
+	if (supported_nfs_versions & NFSV2_FLAG) {
+		rlen = ntohl(rpc_pkt.u.reply.data[18]);
+		data_ptr = (uchar *)&(rpc_pkt.u.reply.data[19]);
+	} else {  /* NFSV3_FLAG */
+		if (ntohl(rpc_pkt.u.reply.data[1]) != 0) {
+			/* 'attributes_follow' is TRUE,
+			 * so we have attributes on 21 bytes */
+			/* Skip unused values :
+				type;	32 bits value,
+				mode;	32 bits value,
+				nlink;	32 bits value,
+				uid;	32 bits value,
+				gid;	32 bits value,
+				size;	64 bits value,
+				used;	64 bits value,
+				rdev;	64 bits value,
+				fsid;	64 bits value,
+				fileid;	64 bits value,
+				atime;	64 bits value,
+				mtime;	64 bits value,
+				ctime;	64 bits value,
+			*/
+			rlen = ntohl(rpc_pkt.u.reply.data[23]); /* count value */
+			/* Skip unused values :
+				EOF:		32 bits value,
+				data_size:	32 bits value,
+			*/
+			data_ptr = (uchar *)&(rpc_pkt.u.reply.data[26]);
+		} else {
+			/* attributes_follow is FALSE, so we don't have any attributes */
+			rlen = ntohl(rpc_pkt.u.reply.data[2]); /* count value */
+			/* Skip unused values :
+				EOF:		32 bits value,
+				data_size:	32 bits value,
+			*/
+			data_ptr = (uchar *)&(rpc_pkt.u.reply.data[5]);
+		}
+	}
+
+	if (store_block(data_ptr, nfs_offset, rlen))
+			return -9999;
 
 	return rlen;
 }
@@ -657,6 +830,13 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			puts("*** ERROR: File lookup fail\n");
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
+		} else if (reply == -NFS_RPC_PROG_MISMATCH && supported_nfs_versions != 0) {
+			/* umount */
+			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
+			/* And retry with another supported version */
+			nfs_state = STATE_PRCLOOKUP_PROG_MOUNT_REQ;
+			nfs_send();
 		} else {
 			nfs_state = STATE_READ_REQ;
 			nfs_offset = 0;
@@ -696,6 +876,8 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		} else {
 			if (!rlen)
 				nfs_download_state = NETLOOP_SUCCESS;
+			if (rlen < 0)
+				printf("NFS READ error (%d)\n", rlen);
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
 		}
