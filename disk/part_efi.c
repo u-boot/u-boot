@@ -655,6 +655,10 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 		      (unsigned long long)partitions[i].size);
 
 		if (le64_to_cpu(gpt_part_size) != partitions[i].size) {
+			/* We do not check the extend partition size */
+			if ((i == parts - 1) && (partitions[i].size == 0))
+				continue;
+
 			error("Partition %s size: %llu does not match %llu!\n",
 			      efi_str, (unsigned long long)gpt_part_size,
 			      (unsigned long long)partitions[i].size);

@@ -298,8 +298,8 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 		if (extract_env(val, &p))
 			p = val;
 		if ((strcmp(p, "-") == 0)) {
-			/* remove first usable lba and last block */
-			parts[i].size = dev_desc->lba - 34  - 1 - offset;
+			/* Let part efi module to auto extend the size */
+			parts[i].size = 0;
 		} else {
 			size_ll = ustrtoull(p, &p, 0);
 			parts[i].size = lldiv(size_ll, dev_desc->blksz);
