@@ -28,6 +28,11 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
+/* PCI host support */
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_CMD_PCI
+
 #include "tegra-common-post.h"
 
 /* Crystal is 38.4MHz. clk_m runs at half that rate */
