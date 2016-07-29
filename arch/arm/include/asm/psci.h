@@ -18,6 +18,9 @@
 #ifndef __ARM_PSCI_H__
 #define __ARM_PSCI_H__
 
+#define ARM_PSCI_VER_1_0		(0x00010000)
+#define ARM_PSCI_VER_0_2		(0x00000002)
+
 /* PSCI 0.1 interface */
 #define ARM_PSCI_FN_BASE		0x95c1ba5e
 #define ARM_PSCI_FN(n)			(ARM_PSCI_FN_BASE + (n))

@@ -19,7 +19,6 @@ int fdt_psci(void *fdt)
 #if defined(CONFIG_ARMV8_PSCI) || defined(CONFIG_ARMV7_PSCI)
 	int nodeoff;
 	unsigned int psci_ver = 0;
-	char *psci_compt;
 	int tmp;
 
 	nodeoff = fdt_path_offset(fdt, "/cpus");
@@ -68,39 +67,49 @@ init_psci_node:
 	psci_ver = sec_firmware_support_psci_version();
 #endif
 	switch (psci_ver) {
-	case 0x00010000:
-		psci_compt = "arm,psci-1.0";
-		break;
-	case 0x00000002:
-		psci_compt = "arm,psci-0.2";
-		break;
+	case ARM_PSCI_VER_1_0:
+		tmp = fdt_setprop_string(fdt, nodeoff,
+				"compatible", "arm,psci-1.0");
+		if (tmp)
+			return tmp;
+	case ARM_PSCI_VER_0_2:
+		tmp = fdt_appendprop_string(fdt, nodeoff,
+				"compatible", "arm,psci-0.2");
+		if (tmp)
+			return tmp;
 	default:
-		psci_compt = "arm,psci";
+	/*
+	 * The Secure firmware framework isn't able to support PSCI version 0.1.
+	 */
+#ifndef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+		tmp = fdt_appendprop_string(fdt, nodeoff,
+				"compatible", "arm,psci");
+		if (tmp)
+			return tmp;
+		tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_suspend",
+				ARM_PSCI_FN_CPU_SUSPEND);
+		if (tmp)
+			return tmp;
+		tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_off",
+				ARM_PSCI_FN_CPU_OFF);
+		if (tmp)
+			return tmp;
+		tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_on",
+				ARM_PSCI_FN_CPU_ON);
+		if (tmp)
+			return tmp;
+		tmp = fdt_setprop_u32(fdt, nodeoff, "migrate",
+				ARM_PSCI_FN_MIGRATE);
+		if (tmp)
+			return tmp;
+#endif
 		break;
 	}
 
-	tmp = fdt_setprop_string(fdt, nodeoff, "compatible", psci_compt);
-	if (tmp)
-		return tmp;
 	tmp = fdt_setprop_string(fdt, nodeoff, "method", "smc");
 	if (tmp)
 		return tmp;
 
-#ifdef CONFIG_ARMV7_PSCI
-	tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_suspend",
-				ARM_PSCI_FN_CPU_SUSPEND);
-	if (tmp)
-		return tmp;
-	tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_off", ARM_PSCI_FN_CPU_OFF);
-	if (tmp)
-		return tmp;
-	tmp = fdt_setprop_u32(fdt, nodeoff, "cpu_on", ARM_PSCI_FN_CPU_ON);
-	if (tmp)
-		return tmp;
-	tmp = fdt_setprop_u32(fdt, nodeoff, "migrate", ARM_PSCI_FN_MIGRATE);
-	if (tmp)
-		return tmp;
-#endif
 #endif
 	return 0;
 }
