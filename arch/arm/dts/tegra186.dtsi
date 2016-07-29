@@ -112,5 +112,14 @@
 		#clock-cells = <1>;
 		#power-domain-cells = <1>;
 		#reset-cells = <1>;
+
+		bpmp_i2c: i2c {
+			compatible = "nvidia,tegra186-bpmp-i2c";
+			nvidia,bpmp = <&bpmp>;
+			nvidia,bpmp-bus-id = <5>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
 	};
 };
