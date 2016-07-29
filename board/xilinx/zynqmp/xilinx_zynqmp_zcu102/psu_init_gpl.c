@@ -1078,7 +1078,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR1                                              0x1
 
 		6 bit divider
-		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR0                                              0xc
+		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR0                                              0x9
 
 		000 = IOPLL; 010 = RPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		clock. This is not usually an issue, but designers must be aware.)
@@ -1093,7 +1093,7 @@ unsigned long psu_clock_init_data() {
 			| 0x0000000CU << CRL_APB_QSPI_REF_CTRL_DIVISOR0_SHIFT
 			| 0x00000000U << CRL_APB_QSPI_REF_CTRL_SRCSEL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_QSPI_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010C00U);
+		PSU_Mask_Write (CRL_APB_QSPI_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010900U);
 	/*############################################################################################################################ */
 
 		/*Register : SDIO0_REF_CTRL @ 0XFF5E006C</p>
