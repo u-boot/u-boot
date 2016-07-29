@@ -15,10 +15,6 @@
 #include "version.h"
 #include <asm/cache.h>
 
-#ifndef	 CONFIG_IDENT_STRING
-#define	 CONFIG_IDENT_STRING ""
-#endif
-
 #define _START	_start
 #define _FAULT	_fault
 

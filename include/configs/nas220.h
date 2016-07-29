@@ -17,7 +17,6 @@
  */
 #define MACH_TYPE_NAS220		MACH_TYPE_RD88F6192_NAS
 #define CONFIG_MACH_TYPE		MACH_TYPE_NAS220
-#define CONFIG_IDENT_STRING		"\nNAS 220"
 
 /*
  * High Level Configuration Options (easy to change)

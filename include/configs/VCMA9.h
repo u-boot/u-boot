@@ -151,12 +151,6 @@
 #define CONFIG_LZO
 #define CONFIG_LZMA
 
-/* Ident */
-/*#define VERSION_TAG "released"*/
-#define VERSION_TAG "unstable"
-#define CONFIG_IDENT_STRING "\n(c) 2003 - 2011 by MPL AG Switzerland, " \
-			    "MEV-10080-001 " VERSION_TAG
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x30000000	/* SDRAM Bank #1 */

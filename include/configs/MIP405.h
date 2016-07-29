@@ -388,10 +388,4 @@
 #define CONFIG_ISO_STRING "MEV-10082-001"
 #endif
 
-#if !defined(CONFIG_BOOT_PCI)
-#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
-#else
-#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, PCI_BOOT Version"
-#endif
-
 #endif	/* __CONFIG_H */

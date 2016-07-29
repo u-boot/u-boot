@@ -31,12 +31,6 @@
 #define CONFIG_SYS_TEXT_BASE 		0x00800000
 
 /*
- * Version number information
- */
-
-#define CONFIG_IDENT_STRING	" EDMiniV2"
-
-/*
  * High Level Configuration Options (easy to change)
  */
 

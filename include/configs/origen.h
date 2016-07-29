@@ -87,8 +87,6 @@
 	"fi;" \
 	"load mmc ${mmcdev} ${loadaddr} uImage; bootm ${loadaddr} "
 
-#define CONFIG_IDENT_STRING		" for ORIGEN"
-
 #define CONFIG_CLK_1000_400_200
 
 /* MIU (Memory Interleaving Unit) */

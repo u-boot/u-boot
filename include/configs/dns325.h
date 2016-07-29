@@ -18,7 +18,6 @@
  */
 #define MACH_TYPE_DNS325		3800
 #define CONFIG_MACH_TYPE		MACH_TYPE_DNS325
-#define CONFIG_IDENT_STRING		"\nD-Link DNS-325"
 
 /*
  * High Level Configuration Options (easy to change)

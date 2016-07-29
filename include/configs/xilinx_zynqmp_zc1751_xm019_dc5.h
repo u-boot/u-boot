@@ -13,8 +13,6 @@
 
 #define CONFIG_ZYNQ_SDHCI0
 
-#define CONFIG_IDENT_STRING	" Xilinx ZynqMP ZC1751 xm019 dc5"
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM019_DC5_H */

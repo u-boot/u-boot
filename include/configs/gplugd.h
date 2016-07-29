@@ -26,11 +26,6 @@
 #endif
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-gplugD"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */

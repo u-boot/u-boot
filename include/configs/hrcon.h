@@ -20,12 +20,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_HRCON_DH
-#define CONFIG_IDENT_STRING	" hrcon dh 0.01"
-#else
-#define CONFIG_IDENT_STRING	" hrcon 0.01"
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT

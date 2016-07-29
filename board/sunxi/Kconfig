@@ -1,5 +1,8 @@
 if ARCH_SUNXI
 
+config IDENT_STRING
+	default " Allwinner Technology"
+
 config SPL_GPIO_SUPPORT
 	default y
 

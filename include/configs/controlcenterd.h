@@ -45,12 +45,6 @@
 #define CONFIG_ENABLE_36BIT_PHYS
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 
-#ifdef CONFIG_TRAILBLAZER
-#define CONFIG_IDENT_STRING	" controlcenterd trailblazer 0.01"
-#else
-#define CONFIG_IDENT_STRING	" controlcenterd 0.01"
-#endif
-
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */

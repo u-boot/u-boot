@@ -34,10 +34,6 @@
 /* Have release address at the end of 256MB for now */
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 
-#if !defined(CONFIG_IDENT_STRING)
-# define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
-#endif
-
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */

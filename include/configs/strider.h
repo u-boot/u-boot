@@ -20,16 +20,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_STRIDER_CPU_DP
-#define CONFIG_IDENT_STRING	" strider cpu dp 0.01"
-#elif defined(CONFIG_STRIDER_CPU)
-#define CONFIG_IDENT_STRING	" strider cpu 0.01"
-#elif defined(CONFIG_STRIDER_CON_DP)
-#define CONFIG_IDENT_STRING	" strider con dp 0.01"
-#else
-#define CONFIG_IDENT_STRING	" strider con 0.01"
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT

@@ -29,8 +29,6 @@
 #define CONFIG_SERIAL3		/* use SERIAL 3 */
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
-#define CONFIG_IDENT_STRING	" for Peach-Pi"
-
 /* Display */
 #define CONFIG_LCD
 #ifdef CONFIG_LCD

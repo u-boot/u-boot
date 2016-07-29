@@ -19,8 +19,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_IDENT_STRING		" vexpress_aemv8a"
-
 /* Link Definitions */
 #if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
 	defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM)

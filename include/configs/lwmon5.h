@@ -12,11 +12,6 @@
 #define __CONFIG_H
 
 /*
- * Liebherr extra version info
- */
-#define CONFIG_IDENT_STRING	" - v2.0"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_LWMON5		1		/* Board is lwmon5	*/

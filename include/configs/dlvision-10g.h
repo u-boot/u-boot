@@ -17,7 +17,6 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvsion-10g
-#define CONFIG_IDENT_STRING	" dlvision-10g 0.06"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F

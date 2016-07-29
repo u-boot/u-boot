@@ -10,11 +10,6 @@
 #define _CONFIG_ICONNECT_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	" Iomega iConnect"
-
-/*
  * High level configuration options
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */

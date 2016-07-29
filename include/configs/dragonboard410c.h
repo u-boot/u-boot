@@ -12,8 +12,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-apq8016.h>
 
-#define CONFIG_IDENT_STRING		"\nQualcomm-DragonBoard 410C"
-
 #define CONFIG_MISC_INIT_R /* To stop autoboot */
 
 /* Physical Memory Map */

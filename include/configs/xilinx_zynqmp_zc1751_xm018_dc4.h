@@ -10,8 +10,6 @@
 #ifndef __CONFIG_ZYNQMP_ZC1751_XM018_DC4_H
 #define __CONFIG_ZYNQMP_ZC1751_XM018_DC4_H
 
-#define CONFIG_IDENT_STRING	" Xilinx ZynqMP ZC1751 xm018 dc4"
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM018_DC4_H */

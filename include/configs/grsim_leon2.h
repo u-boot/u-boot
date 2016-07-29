@@ -287,6 +287,4 @@
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"
 
-#define CONFIG_IDENT_STRING " Gaisler GRSIM LEON2"
-
 #endif				/* __CONFIG_H */
