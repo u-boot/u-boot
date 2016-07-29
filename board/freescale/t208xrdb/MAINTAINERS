@@ -10,6 +10,6 @@ F:	configs/T2080RDB_SPIFLASH_defconfig
 F:	configs/T2080RDB_SRIO_PCIE_BOOT_defconfig
 
 T2080RDB_SECURE_BOOT BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/T2080RDB_SECURE_BOOT_defconfig

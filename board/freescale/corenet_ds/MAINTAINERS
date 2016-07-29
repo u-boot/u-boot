@@ -30,7 +30,7 @@ F:	configs/P5040DS_SPIFLASH_defconfig
 F:	configs/P5040DS_SECURE_BOOT_defconfig
 
 CORENET_DS_SECURE_BOOT BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/P3041DS_NAND_SECURE_BOOT_defconfig
 F:	configs/P5020DS_NAND_SECURE_BOOT_defconfig

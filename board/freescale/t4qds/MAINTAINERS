@@ -12,7 +12,7 @@ F:	configs/T4240QDS_SDCARD_defconfig
 F:	configs/T4240QDS_SRIO_PCIE_BOOT_defconfig
 
 T4160QDS_SECURE_BOOT BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/T4160QDS_SECURE_BOOT_defconfig
 F:	configs/T4240QDS_SECURE_BOOT_defconfig

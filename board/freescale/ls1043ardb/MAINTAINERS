@@ -9,6 +9,6 @@ F:	configs/ls1043ardb_nand_defconfig
 F:	configs/ls1043ardb_sdcard_defconfig
 
 LS1043A_SECURE_BOOT BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/ls1043ardb_SECURE_BOOT_defconfig
