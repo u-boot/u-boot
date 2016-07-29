@@ -24,7 +24,7 @@ int ppa_init(void)
 	u32 *boot_loc_ptr_l, *boot_loc_ptr_h;
 	int ret;
 
-#ifdef CONFIG_SYS_LS_PPA_FW_IN_NOR
+#ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
 	ppa_fit_addr = (void *)CONFIG_SYS_LS_PPA_FW_ADDR;
 #else
 #error "No CONFIG_SYS_LS_PPA_FW_IN_xxx defined"
