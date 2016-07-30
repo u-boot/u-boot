@@ -380,6 +380,7 @@ void setup_pgtables(void)
 static void setup_all_pgtables(void)
 {
 	u64 tlb_addr = gd->arch.tlb_addr;
+	u64 tlb_size = gd->arch.tlb_size;
 
 	/* Reset the fill ptr */
 	gd->arch.tlb_fillptr = tlb_addr;
@@ -388,10 +389,13 @@ static void setup_all_pgtables(void)
 	setup_pgtables();
 
 	/* Create emergency page tables */
+	gd->arch.tlb_size -= (uintptr_t)gd->arch.tlb_fillptr -
+			     (uintptr_t)gd->arch.tlb_addr;
 	gd->arch.tlb_addr = gd->arch.tlb_fillptr;
 	setup_pgtables();
 	gd->arch.tlb_emerg = gd->arch.tlb_addr;
 	gd->arch.tlb_addr = tlb_addr;
+	gd->arch.tlb_size = tlb_size;
 }
 
 /* to activate the MMU we need to set up virtual memory */
