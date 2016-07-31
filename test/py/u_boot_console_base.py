@@ -393,6 +393,11 @@ class ConsoleBase(object):
             pass
         self.p = None
 
+    def restart_uboot(self):
+        """Shut down and restart U-Boot."""
+        self.cleanup_spawn()
+        self.ensure_spawned()
+
     def get_spawn_output(self):
         """Return the start-up output from U-Boot
 

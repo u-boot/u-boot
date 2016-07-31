@@ -65,8 +65,7 @@ def test_vboot(u_boot_console):
             sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
                     use.
         """
-        cons.cleanup_spawn()
-        cons.ensure_spawned()
+        cons.restart_uboot()
         with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
             output = cons.run_command_list(
                 ['sb load hostfs - 100 %stest.fit' % tmpdir,
@@ -190,4 +189,6 @@ def test_vboot(u_boot_console):
         test_with_algo('sha1')
         test_with_algo('sha256')
     finally:
+        # Go back to the original U-Boot with the correct dtb.
         cons.config.dtb = old_dtb
+        cons.restart_uboot()
