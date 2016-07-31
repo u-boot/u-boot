@@ -24,15 +24,7 @@ config USB_XHCI_DWC3
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
 
-endif
-
-config USB_OHCI_GENERIC
-	bool "Support for generic OHCI USB controller"
-	depends on OF_CONTROL
-	depends on DM_USB
-	default n
-	---help---
-	  Enables support for generic OHCI controller.
+endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
@@ -116,4 +108,27 @@ config USB_EHCI_GENERIC
 	---help---
 	  Enables support for generic EHCI controller.
 
-endif
+endif # USB_EHCI_HCD
+
+config USB_OHCI_HCD
+	bool "OHCI HCD (USB 1.1) support"
+	---help---
+	  The Open Host Controller Interface (OHCI) is a standard for accessing
+	  USB 1.1 host controller hardware.  It does more in hardware than Intel's
+	  UHCI specification.  If your USB host controller follows the OHCI spec,
+	  say Y.  On most non-x86 systems, and on x86 hardware that's not using a
+	  USB controller from Intel or VIA, this is appropriate.  If your host
+	  controller doesn't use PCI, this is probably appropriate.  For a PCI
+	  based system where you're not sure, the "lspci -v" entry will list the
+	  right "prog-if" for your USB controller(s):  EHCI, OHCI, or UHCI.
+
+if USB_OHCI_HCD
+
+config USB_OHCI_GENERIC
+	bool "Support for generic OHCI USB controller"
+	depends on OF_CONTROL
+	depends on DM_USB
+	---help---
+	  Enables support for generic OHCI controller.
+
+endif # USB_OHCI_HCD
