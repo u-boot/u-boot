@@ -67,11 +67,11 @@ def test_vboot(u_boot_console):
         """
         cons.cleanup_spawn()
         cons.ensure_spawned()
-        cons.log.action('%s: Test Verified Boot Run: %s' % (sha_algo, test_type))
-        output = cons.run_command_list(
-            ['sb load hostfs - 100 %stest.fit' % tmpdir,
-             'fdt addr 100',
-             'bootm 100'])
+        with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
+            output = cons.run_command_list(
+                ['sb load hostfs - 100 %stest.fit' % tmpdir,
+                'fdt addr 100',
+                'bootm 100'])
         assert(expect_string in output)
 
     def make_fit(its):
