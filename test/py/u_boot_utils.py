@@ -201,9 +201,11 @@ def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
         runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
         runner.run(cmd)
     except Exception as e:
+        assert(retcode == runner.exit_status)
         assert(msg in runner.output)
     else:
-        raise Exception('Expected exception, but not raised')
+        raise Exception("Expected an exception with retcode %d message '%s',"
+                        "but it was not raised" % (retcode, msg))
     finally:
         runner.close()
 

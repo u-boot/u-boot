@@ -102,6 +102,7 @@ class RunAndLog(object):
         self.name = name
         self.chained_file = chained_file
         self.output = None
+        self.exit_status = None
 
     def close(self):
         """Clean up any resources managed by this object."""
@@ -166,6 +167,7 @@ class RunAndLog(object):
 
         # Store the output so it can be accessed if we raise an exception.
         self.output = output
+        self.exit_status = exit_status
         if exception:
             raise exception
         return output
