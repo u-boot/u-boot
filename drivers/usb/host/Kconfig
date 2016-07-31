@@ -3,8 +3,12 @@
 #
 comment "USB Host Controller Drivers"
 
+config USB_HOST
+	bool
+
 config USB_XHCI_HCD
 	bool "xHCI HCD (USB 3.0) support"
+	select USB_HOST
 	---help---
 	  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
 	  "SuperSpeed" host controller hardware.
@@ -28,6 +32,7 @@ endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
+	select USB_HOST
 	---help---
 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
@@ -128,6 +133,7 @@ config USB_OHCI_GENERIC
 	bool "Support for generic OHCI USB controller"
 	depends on OF_CONTROL
 	depends on DM_USB
+	select USB_HOST
 	---help---
 	  Enables support for generic OHCI controller.
 
@@ -135,6 +141,7 @@ endif # USB_OHCI_HCD
 
 config USB_UHCI_HCD
 	bool "UHCI HCD (most Intel and VIA) support"
+	select USB_HOST
 	---help---
 	  The Universal Host Controller Interface is a standard by Intel for
 	  accessing the USB hardware in the PC (which is also called the USB
