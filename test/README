@@ -13,7 +13,7 @@ To run most tests on sandbox, type this:
     test/run
 
 in the U-Boot directory. Note that only the pytest suite is run using this
-comment.
+command.
 
 
 Sandbox
@@ -29,7 +29,7 @@ Pytest Suite
 Many tests are available using the pytest suite, in test/py. This can run
 either on sandbox or on real hardware. It relies on the U-Boot console to
 inject test commands and check the result. It is slower to run than C code,
-but provides the ability to unify lots of test and summarise their results.
+but provides the ability to unify lots of tests and summarise their results.
 
 You can run the tests on sandbox with:
 
@@ -55,11 +55,11 @@ Ad-hoc tests
 There are several ad-hoc tests which run outside the pytest environment:
 
    test/fs	- File system test (shell script)
-   test/image	- FIT and lagacy image tests (shell script and Python)
+   test/image	- FIT and legacy image tests (shell script and Python)
    test/stdint	- A test that stdint.h can be used in U-Boot (shell script)
    trace	- Test for the tracing feature (shell script)
 
-The above should be converted to run as part of the pytest suite.
+TODO: Move these into pytest.
 
 
 When to write tests

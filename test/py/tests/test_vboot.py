@@ -106,7 +106,9 @@ def test_vboot(u_boot_console):
 
         algo = sha
 
-        # Compile our device tree files for kernel and U-Boot
+        # Compile our device tree files for kernel and U-Boot. These are
+        # regenerated here since mkimage will modify them (by adding a
+        # public key) below.
         dtc('sandbox-kernel.dts')
         dtc('sandbox-u-boot.dts')
 
@@ -139,7 +141,7 @@ def test_vboot(u_boot_console):
         sig = util.cmd(cons, 'fdtget -t bx %s %s value' % (fit, sig_node))
         byte_list = sig.split()
         byte = int(byte_list[0], 16)
-        byte_list = ['%x' % (byte + 1)] + byte_list[1:]
+        byte_list[0] = '%x' % (byte + 1)
         sig = ' '.join(byte_list)
         util.cmd(cons, 'fdtput -t bx %s %s value %s' % (fit, sig_node, sig))
 
