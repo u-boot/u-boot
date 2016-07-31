@@ -158,7 +158,9 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
 
     Args:
         u_boot_console: A console connection to U-Boot.
-        cmd: The command to run, as an array of argv[].
+        cmd: The command to run, as an array of argv[], or a string.
+            If a string, note that it is split up so that quoted spaces
+            will not be preserved. E.g. "fred and" becomes ['"fred', 'and"']
         ignore_errors: Indicate whether to ignore errors. If True, the function
             will simply return if the command cannot be executed or exits with
             an error code, otherwise an exception will be raised if such
@@ -167,23 +169,12 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
     Returns:
         The output as a string.
     """
-
+    if isinstance(cmd, str):
+        cmd = cmd.split()
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
     output = runner.run(cmd, ignore_errors=ignore_errors)
     runner.close()
     return output
-
-def cmd(u_boot_console, cmd_str):
-    """Run a single command string and log its output.
-
-    Args:
-        u_boot_console: A console connection to U-Boot.
-        cmd: The command to run, as a string.
-
-    Returns:
-        The output as a string.
-    """
-    return run_and_log(u_boot_console, cmd_str.split())
 
 def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
     """Run a command that is expected to fail.

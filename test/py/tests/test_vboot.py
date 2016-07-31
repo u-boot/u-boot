@@ -50,8 +50,8 @@ def test_vboot(u_boot_console):
             dts: Device tree file to compile.
         """
         dtb = dts.replace('.dts', '.dtb')
-        util.cmd(cons, 'dtc %s %s%s -O dtb '
-                       '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
+        util.run_and_log(cons, 'dtc %s %s%s -O dtb '
+                         '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
 
     def run_bootm(test_type, expect_string):
         """Run a 'bootm' command U-Boot.
@@ -138,12 +138,14 @@ def test_vboot(u_boot_console):
                                 '-k', dtb])
 
         # Increment the first byte of the signature, which should cause failure
-        sig = util.cmd(cons, 'fdtget -t bx %s %s value' % (fit, sig_node))
+        sig = util.run_and_log(cons, 'fdtget -t bx %s %s value' %
+                               (fit, sig_node))
         byte_list = sig.split()
         byte = int(byte_list[0], 16)
         byte_list[0] = '%x' % (byte + 1)
         sig = ' '.join(byte_list)
-        util.cmd(cons, 'fdtput -t bx %s %s value %s' % (fit, sig_node, sig))
+        util.run_and_log(cons, 'fdtput -t bx %s %s value %s' %
+                         (fit, sig_node, sig))
 
         run_bootm('Signed config with bad hash', 'Bad Data Hash')
 
@@ -164,14 +166,14 @@ def test_vboot(u_boot_console):
 
     # Create an RSA key pair
     public_exponent = 65537
-    util.cmd(cons, 'openssl genpkey -algorithm RSA -out %sdev.key '
-                   '-pkeyopt rsa_keygen_bits:2048 '
-                   '-pkeyopt rsa_keygen_pubexp:%d '
-                   '2>/dev/null'  % (tmpdir, public_exponent))
+    util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sdev.key '
+                     '-pkeyopt rsa_keygen_bits:2048 '
+                     '-pkeyopt rsa_keygen_pubexp:%d '
+                     '2>/dev/null'  % (tmpdir, public_exponent))
 
     # Create a certificate containing the public key
-    util.cmd(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '
-                   '%sdev.crt' % (tmpdir, tmpdir))
+    util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '
+                     '%sdev.crt' % (tmpdir, tmpdir))
 
     # Create a number kernel image with zeroes
     with open('%stest-kernel.bin' % tmpdir, 'w') as fd:
