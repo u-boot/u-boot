@@ -225,11 +225,12 @@ class ConsoleBase(object):
         Args:
             cmd: List of commands (each a string).
         Returns:
-            Combined output of all commands, as a string.
+            A list of output strings from each command, one element for each
+            command.
         """
-        output = ''
+        output = []
         for cmd in cmds:
-            output += self.run_command(cmd)
+            output.append(self.run_command(cmd))
         return output
 
     def ctrlc(self):

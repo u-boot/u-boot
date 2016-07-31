@@ -71,7 +71,7 @@ def test_vboot(u_boot_console):
                 ['sb load hostfs - 100 %stest.fit' % tmpdir,
                 'fdt addr 100',
                 'bootm 100'])
-        assert(expect_string in output)
+        assert(expect_string in ''.join(output))
 
     def make_fit(its):
         """Make a new FIT from the .its source file.
