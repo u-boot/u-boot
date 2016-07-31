@@ -186,7 +186,7 @@ def cmd(u_boot_console, cmd_str):
     return run_and_log(u_boot_console, cmd_str.split())
 
 def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
-    """Run a command which is expected to fail.
+    """Run a command that is expected to fail.
 
     This runs a command and checks that it fails with the expected return code
     and exception method. If not, an exception is raised.
@@ -195,7 +195,7 @@ def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
         u_boot_console: A console connection to U-Boot.
         cmd: The command to run, as an array of argv[].
         retcode: Expected non-zero return code from the command.
-        msg: String which should be contained within the command's output.
+        msg: String that should be contained within the command's output.
     """
     try:
         runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)

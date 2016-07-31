@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Google Inc.
+# Copyright (c) 2016, Google Inc.
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
@@ -16,7 +16,7 @@ For image verification:
 For configuration verification:
 - Corrupt signature and check for failure
 - Create FIT (with unsigned configuration) with mkimage
-- Check that image veriication works
+- Check that image verification works
 - Sign the FIT and mark the key as 'required' for verification
 - Check that image verification works
 - Corrupt the signature
@@ -41,7 +41,7 @@ def test_vboot(u_boot_console):
     key-generation process is quite slow and we want to avoid doing it twice.
     """
     def dtc(dts):
-        """Run the device-tree compiler to compile a .dts file
+        """Run the device tree compiler to compile a .dts file
 
         The output file will be the same as the input file but with a .dtb
         extension.
@@ -73,12 +73,12 @@ def test_vboot(u_boot_console):
         assert(expect_string in output)
 
     def make_fit(its):
-        """Make a new FIT from the .its source file
+        """Make a new FIT from the .its source file.
 
         This runs 'mkimage -f' to create a new FIT.
 
         Args:
-            its: Filename containing .its source
+            its: Filename containing .its source.
         """
         util.run_and_log(cons, [mkimage, '-D', dtc_args, '-f',
                                 '%s%s' % (datadir, its), fit])
@@ -94,7 +94,7 @@ def test_vboot(u_boot_console):
                                 '-r', fit])
 
     def test_with_algo(sha):
-        """Test verified boot with the given hash algorithm
+        """Test verified boot with the given hash algorithm.
 
         This is the main part of the test code. The same procedure is followed
         for both hashing algorithms.

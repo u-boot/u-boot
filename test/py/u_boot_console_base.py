@@ -223,9 +223,9 @@ class ConsoleBase(object):
         for each command in a list.
 
         Args:
-            cmd: List of commands (each a string)
+            cmd: List of commands (each a string).
         Returns:
-            Combined output of all commands, as a string
+            Combined output of all commands, as a string.
         """
         output = ''
         for cmd in cmds:
