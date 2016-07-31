@@ -132,3 +132,20 @@ config USB_OHCI_GENERIC
 	  Enables support for generic OHCI controller.
 
 endif # USB_OHCI_HCD
+
+config USB_UHCI_HCD
+	bool "UHCI HCD (most Intel and VIA) support"
+	---help---
+	  The Universal Host Controller Interface is a standard by Intel for
+	  accessing the USB hardware in the PC (which is also called the USB
+	  host controller). If your USB host controller conforms to this
+	  standard, you may want to say Y, but see below. All recent boards
+	  with Intel PCI chipsets (like intel 430TX, 440FX, 440LX, 440BX,
+	  i810, i820) conform to this standard. Also all VIA PCI chipsets
+	  (like VIA VP2, VP3, MVP3, Apollo Pro, Apollo Pro II or Apollo Pro
+	  133) and LEON/GRLIB SoCs with the GRUSBHC controller.
+	  If unsure, say Y.
+
+if USB_UHCI_HCD
+
+endif # USB_UHCI_HCD
