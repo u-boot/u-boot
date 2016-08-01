@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <linux/compiler.h>
+#include <asm/barriers.h>
 
 #ifdef CONFIG_ARM64
 
@@ -33,11 +34,6 @@ enum dcache_option {
 	DCACHE_WRITEBACK = 4 << 2,
 	DCACHE_WRITEALLOC = 4 << 2,
 };
-
-#define isb()				\
-	({asm volatile(			\
-	"isb" : : : "memory");		\
-	})
 
 #define wfi()				\
 	({asm volatile(			\
@@ -226,8 +222,6 @@ void __noreturn psci_system_reset(bool smc);
  * should use 'b' or 'bx' to return to save_boot_params_ret.
  */
 void save_boot_params_ret(void);
-
-#define isb() __asm__ __volatile__ ("" : : : "memory")
 
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
 

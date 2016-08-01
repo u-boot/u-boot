@@ -67,11 +67,6 @@ extra-y	+= eabi_compat.o
 endif
 
 asflags-y += -DCONFIG_ARM_ASM_UNIFIED
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
-asflags-y += -D__LINUX_ARM_ARCH__=4
-else
-asflags-y += -D__LINUX_ARM_ARCH__=$(CONFIG_SYS_ARM_ARCH)
-endif
 
 # some files can only build in ARM or THUMB2, not THUMB1
 

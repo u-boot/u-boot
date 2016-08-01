@@ -53,16 +53,16 @@ static void __secure __mdelay(u32 ms)
 	u32 reg = ONE_MS * ms;
 
 	cp15_write_cntp_tval(reg);
-	ISB;
+	isb();
 	cp15_write_cntp_ctl(3);
 
 	do {
-		ISB;
+		isb();
 		reg = cp15_read_cntp_ctl();
 	} while (!(reg & BIT(2)));
 
 	cp15_write_cntp_ctl(0);
-	ISB;
+	isb();
 }
 
 static void __secure clamp_release(u32 __maybe_unused *clamp)
@@ -164,7 +164,7 @@ static u32 __secure cp15_read_scr(void)
 static void __secure cp15_write_scr(u32 scr)
 {
 	asm volatile ("mcr p15, 0, %0, c1, c1, 0" : : "r" (scr));
-	ISB;
+	isb();
 }
 
 /*
@@ -190,7 +190,7 @@ void __secure __irq psci_fiq_enter(void)
 
 	/* End of interrupt */
 	writel(reg, GICC_BASE + GICC_EOIR);
-	DSB;
+	dsb();
 
 	/* Get CPU number */
 	cpu = (reg >> 10) & 0x7;
@@ -242,7 +242,7 @@ void __secure psci_cpu_off(void)
 
 	/* Ask CPU0 via SGI15 to pull the rug... */
 	writel(BIT(16) | 15, GICD_BASE + GICD_SGIR);
-	DSB;
+	dsb();
 
 	/* Wait to be turned off */
 	while (1)
