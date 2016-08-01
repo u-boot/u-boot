@@ -198,6 +198,12 @@ config CONSOLE_RECORD_IN_SIZE
 	  The buffer is allocated immediately after the malloc() region is
 	  ready.
 
+config IDENT_STRING
+	string "String to be added to uboot version"
+	help
+	  This string will be added to the U-Boot version
+	  information (U_BOOT_VERSION).
+
 config SYS_NO_FLASH
 	bool "Disable support for parallel NOR flash"
 	default n
