@@ -5,11 +5,11 @@
  */
 
 /dts-v1/;
-#include "rk3288-evb.dtsi"
+#include "rk3288-fennec.dtsi"
 
 / {
-	model = "Evb-RK3288";
-	compatible = "evb-rk3288,evb-rk3288", "rockchip,rk3288";
+	model = "Rockchip RK3288 Fennec Board";
+	compatible = "rockchip,rk3288-fennec", "rockchip,rk3288";
 
 	chosen {
 		stdout-path = &uart2;
