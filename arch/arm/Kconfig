@@ -675,9 +675,6 @@ config ARCH_ZYNQMP
 	select CLK
 	select SPL_CLK
 	select DM_USB if USB
-	select DM_MMC
-	select DM_MMC_OPS
-	select BLK
 
 config TEGRA
 	bool "NVIDIA Tegra"
