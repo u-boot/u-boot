@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#include <fsl_csu.h>
 #ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
@@ -304,6 +305,10 @@ void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
+#endif
 
 #ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();	/* tighten IFC timing */

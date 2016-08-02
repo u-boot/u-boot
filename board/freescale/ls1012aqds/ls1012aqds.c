@@ -17,7 +17,6 @@
 #include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
-#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_mmdc.h>
 #include <spl.h>
@@ -206,10 +205,6 @@ int board_init(void)
 	 * transaction */
 	out_le32(&cci->ctrl_ord,
 		 CCI400_CTRLORD_EN_BARRIER);
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];

@@ -16,7 +16,6 @@
 #include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
-#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
@@ -88,10 +87,6 @@ int board_init(void)
 
 #ifdef CONFIG_FSL_IFC
 	init_final_memctl_regs();
-#endif
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
 #endif
 
 #ifdef CONFIG_SECURE_BOOT

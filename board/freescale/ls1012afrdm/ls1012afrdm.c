@@ -11,7 +11,6 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
-#include <fsl_csu.h>
 #include <environment.h>
 #include <fsl_mmdc.h>
 #include <netdev.h>
@@ -173,10 +172,6 @@ int board_init(void)
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
-#endif
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
 #endif
 
 	return 0;
