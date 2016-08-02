@@ -79,6 +79,13 @@ config PM8916_GPIO
 	  Power and reset buttons are placed in "pm8916_key" bank and
           have gpio numbers 0 and 1 respectively.
 
+config PCF8575_GPIO
+	bool "PCF8575 I2C GPIO Expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	 Support for PCF8575 I2C 16-bit GPIO expander. Most of these
+	 chips are from NXP and TI.
+
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
 	depends on DM_GPIO
