@@ -22,6 +22,7 @@
 #include <netdev.h>
 #include <cpsw.h>
 #include <asm/errno.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <asm/arch/cpu.h>
@@ -1152,12 +1153,14 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct cpsw_priv *priv = dev_get_priv(dev);
+	struct gpio_desc *mode_gpios;
 	const char *phy_mode;
 	const void *fdt = gd->fdt_blob;
 	int node = dev->of_offset;
 	int subnode;
 	int slave_index = 0;
 	int active_slave;
+	int num_mode_gpios;
 	int ret;
 
 	pdata->iobase = dev_get_addr(dev);
@@ -1201,6 +1204,15 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	if (priv->data.mac_control <= 0) {
 		printf("error: ale_entries not found in dt\n");
 		return -ENOENT;
+	}
+
+	num_mode_gpios = gpio_get_list_count(dev, "mode-gpios");
+	if (num_mode_gpios > 0) {
+		mode_gpios = malloc(sizeof(struct gpio_desc) *
+				    num_mode_gpios);
+		gpio_request_list_by_name(dev, "mode-gpios", mode_gpios,
+					  num_mode_gpios, GPIOD_IS_OUT);
+		free(mode_gpios);
 	}
 
 	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
