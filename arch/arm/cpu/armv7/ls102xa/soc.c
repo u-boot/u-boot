@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
+#include <asm/arch/fsl_serdes.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/ls102xa_stream_id.h>
@@ -58,6 +59,19 @@ unsigned int get_soc_major_rev(void)
 
 	return major;
 }
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+void erratum_a010315(void)
+{
+	int i;
+
+	for (i = PCIE1; i <= PCIE2; i++)
+		if (!is_serdes_configured(i)) {
+			debug("PCIe%d: disabled all R/W permission!\n", i);
+			set_pcie_ns_access(i, 0);
+		}
+}
+#endif
 
 int arch_soc_init(void)
 {

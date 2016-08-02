@@ -8,11 +8,14 @@
 #include <fsl_ifc.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 #include <fsl_csu.h>
+#endif
 #ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
@@ -300,6 +303,19 @@ void erratum_a008850_post(void)
 	ddr_out32(&ddr->eor, tmp);
 #endif
 }
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+void erratum_a010315(void)
+{
+	int i;
+
+	for (i = PCIE1; i <= PCIE4; i++)
+		if (!is_serdes_configured(i)) {
+			debug("PCIe%d: disabled all R/W permission!\n", i);
+			set_pcie_ns_access(i, 0);
+		}
+}
+#endif
 
 void fsl_lsch2_early_init_f(void)
 {

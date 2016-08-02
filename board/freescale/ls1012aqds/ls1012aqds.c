@@ -206,6 +206,10 @@ int board_init(void)
 	out_le32(&cci->ctrl_ord,
 		 CCI400_CTRLORD_EN_BARRIER);
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
+#endif
+
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
 #endif

@@ -85,6 +85,10 @@ int board_init(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
+#endif
+
 #ifdef CONFIG_FSL_IFC
 	init_final_memctl_regs();
 #endif
