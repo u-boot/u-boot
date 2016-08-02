@@ -348,6 +348,7 @@
 		interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+		u-boot,i2c-offset-len = <0>;
 	};
 };
 
@@ -369,6 +370,7 @@
 		 * VIN6_SEL_S0 is low, thus selecting McASP3 over VIN6
 		 */
 		lines-initial-states = <0x0f2b>;
+		u-boot,i2c-offset-len = <0>;
 	};
 };
 

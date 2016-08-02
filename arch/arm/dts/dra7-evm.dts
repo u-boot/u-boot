@@ -415,6 +415,7 @@
 		interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+		u-boot,i2c-offset-len = <0>;
 	};
 
 };
