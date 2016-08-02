@@ -30,5 +30,6 @@ struct csu_ns_dev {
 };
 
 void enable_layerscape_ns_access(void);
+void set_devices_ns_access(struct csu_ns_dev *ns_dev, u16 val);
 
 #endif
