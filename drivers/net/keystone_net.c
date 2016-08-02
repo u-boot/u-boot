@@ -906,9 +906,9 @@ static int ks2_eth_probe(struct udevice *dev)
 		pll_pa_clk_sel();
 
 
-	priv->net_rx_buffs.buff_ptr = rx_buffs,
-	priv->net_rx_buffs.num_buffs = RX_BUFF_NUMS,
-	priv->net_rx_buffs.buff_len = RX_BUFF_LEN,
+	priv->net_rx_buffs.buff_ptr = rx_buffs;
+	priv->net_rx_buffs.num_buffs = RX_BUFF_NUMS;
+	priv->net_rx_buffs.buff_len = RX_BUFF_LEN;
 
 	/* Register MDIO bus */
 	mdio_bus = mdio_alloc();
