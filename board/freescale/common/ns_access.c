@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <fsl_csu.h>
 #include <asm/arch/ns_access.h>
+#include <asm/arch/fsl_serdes.h>
 
 void set_devices_ns_access(struct csu_ns_dev *ns_dev, u16 val)
 {
@@ -39,4 +40,31 @@ static void enable_devices_ns_access(struct csu_ns_dev *ns_dev, uint32_t num)
 void enable_layerscape_ns_access(void)
 {
 	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+}
+
+void set_pcie_ns_access(int pcie, u16 val)
+{
+	switch (pcie) {
+#ifdef CONFIG_PCIE1
+	case PCIE1:
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE1], val);
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE1_IO], val);
+		return;
+#endif
+#ifdef CONFIG_PCIE2
+	case PCIE2:
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE2], val);
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE2_IO], val);
+		return;
+#endif
+#ifdef CONFIG_PCIE3
+	case PCIE3:
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE3], val);
+		set_devices_ns_access(&ns_dev[CSU_CSLX_PCIE3_IO], val);
+		return;
+#endif
+	default:
+		debug("The PCIE%d doesn't exist!\n", pcie);
+		return;
+	}
 }
