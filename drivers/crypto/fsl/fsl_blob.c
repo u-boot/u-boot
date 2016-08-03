@@ -18,7 +18,7 @@ int blob_decap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 	int ret, i = 0;
 	u32 *desc;
 
-	printf("\nDecapsulating data to form blob\n");
+	printf("\nDecapsulating blob to get data\n");
 	desc = malloc(sizeof(int) * MAX_CAAM_DESCSIZE);
 	if (!desc) {
 		debug("Not enough memory for descriptor allocation\n");
@@ -27,12 +27,15 @@ int blob_decap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 
 	inline_cnstr_jobdesc_blob_decap(desc, key_mod, src, dst, len);
 
+	debug("Descriptor dump:\n");
 	for (i = 0; i < 14; i++)
-		printf("%x\n", *(desc + i));
+		debug("Word[%d]: %08x\n", i, *(desc + i));
 	ret = run_descriptor_jr(desc);
 
 	if (ret)
 		printf("Error in Decapsulation %d\n", ret);
+	else
+		printf("Decapsulation Success\n");
 
 	free(desc);
 	return ret;
@@ -51,12 +54,16 @@ int blob_encap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 	}
 
 	inline_cnstr_jobdesc_blob_encap(desc, key_mod, src, dst, len);
+
+	debug("Descriptor dump:\n");
 	for (i = 0; i < 14; i++)
-		printf("%x\n", *(desc + i));
+		debug("Word[%d]: %08x\n", i, *(desc + i));
 	ret = run_descriptor_jr(desc);
 
 	if (ret)
 		printf("Error in Encapsulation %d\n", ret);
+	else
+		printf("Encapsulation Success\n");
 
 	free(desc);
 	return ret;

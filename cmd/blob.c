@@ -54,7 +54,7 @@ __weak int blob_encap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
  */
 static int do_blob(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	uint32_t key_addr, src_addr, dst_addr, len;
+	ulong key_addr, src_addr, dst_addr, len;
 	uint8_t *km_ptr, *src_ptr, *dst_ptr;
 	int enc, ret = 0;
 

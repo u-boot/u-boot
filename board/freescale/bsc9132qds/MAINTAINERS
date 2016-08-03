@@ -13,7 +13,7 @@ F:	configs/BSC9132QDS_SPIFLASH_DDRCLK100_defconfig
 F:	configs/BSC9132QDS_SPIFLASH_DDRCLK133_defconfig
 
 BSC9132QDS_NAND_DDRCLK100_SECURE BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/BSC9132QDS_NAND_DDRCLK100_SECURE_defconfig
 F:	configs/BSC9132QDS_NAND_DDRCLK133_SECURE_defconfig

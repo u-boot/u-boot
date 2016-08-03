@@ -12,6 +12,6 @@ F:	configs/B4860QDS_SPIFLASH_defconfig
 F:	configs/B4860QDS_SRIO_PCIE_BOOT_defconfig
 
 B4860QDS_SECURE_BOOT BOARD
-M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/B4860QDS_SECURE_BOOT_defconfig
