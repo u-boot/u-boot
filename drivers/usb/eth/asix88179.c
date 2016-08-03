@@ -543,7 +543,7 @@ static int asix_recv(struct eth_device *eth)
 
 
 	rx_hdr = *(u32 *)(recv_buf + actual_len - 4);
-	le32_to_cpus(&pkt_hdr);
+	le32_to_cpus(&rx_hdr);
 
 	pkt_cnt = (u16)rx_hdr;
 	hdr_off = (u16)(rx_hdr >> 16);
