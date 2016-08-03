@@ -185,6 +185,7 @@
 #define FLAG_TYPE_SITECOM	(1U << 3)
 #define FLAG_TYPE_SAMSUNG	(1U << 4)
 #define FLAG_TYPE_LENOVO	(1U << 5)
+#define FLAG_TYPE_GX3		(1U << 6)
 
 /* local vars */
 static const struct {
@@ -596,6 +597,7 @@ static const struct asix_dongle asix_dongles[] = {
 	{ 0x0df6, 0x0072, FLAG_TYPE_SITECOM },
 	{ 0x04e8, 0xa100, FLAG_TYPE_SAMSUNG },
 	{ 0x17ef, 0x304b, FLAG_TYPE_LENOVO },
+	{ 0x04b4, 0x3610, FLAG_TYPE_GX3 },
 	{ 0x0000, 0x0000, FLAG_NONE }	/* END - Do not remove */
 };
 
