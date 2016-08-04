@@ -142,6 +142,7 @@ enum {
 	CLK_EMMC_PLL_SHIFT              = 8,
 	CLK_EMMC_PLL_MASK               = 0x7 << CLK_EMMC_PLL_SHIFT,
 	CLK_EMMC_PLL_SEL_GPLL           = 0x1,
+	CLK_EMMC_PLL_SEL_24M            = 0x5,
 	CLK_EMMC_DIV_CON_SHIFT          = 0,
 	CLK_EMMC_DIV_CON_MASK           = 0x7f << CLK_EMMC_DIV_CON_SHIFT,
 
@@ -642,9 +643,13 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 	default:
 		return -EINVAL;
 	}
-	div = (con>>CLK_EMMC_DIV_CON_SHIFT) & CLK_EMMC_DIV_CON_MASK;
+	div = (con & CLK_EMMC_DIV_CON_MASK) >> CLK_EMMC_DIV_CON_SHIFT;
 
-	return DIV_TO_RATE(GPLL_HZ, div);
+	if ((con & CLK_EMMC_PLL_MASK) >> CLK_EMMC_PLL_SHIFT
+			== CLK_EMMC_PLL_SEL_24M)
+		return DIV_TO_RATE(24*1024*1024, div);
+	else
+		return DIV_TO_RATE(GPLL_HZ, div);
 }
 
 static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
@@ -655,14 +660,22 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 
 	switch (clk_id) {
 	case SCLK_SDMMC:
-		/* Select clk_sdmmc source from GPLL too */
+		/* Select clk_sdmmc source from GPLL by default */
 		src_clk_div = GPLL_HZ / set_rate;
-		assert(src_clk_div - 1 < 127);
 
-		rk_clrsetreg(&cru->clksel_con[16],
-			     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,
-			     CLK_EMMC_PLL_SEL_GPLL << CLK_EMMC_PLL_SHIFT |
-			     (src_clk_div - 1) << CLK_EMMC_DIV_CON_SHIFT);
+		if (src_clk_div > 127) {
+			/* use 24MHz source for 400KHz clock */
+			src_clk_div = 24*1024*1024 / set_rate;
+			rk_clrsetreg(&cru->clksel_con[16],
+				     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,
+				     CLK_EMMC_PLL_SEL_24M << CLK_EMMC_PLL_SHIFT |
+				     (src_clk_div - 1) << CLK_EMMC_DIV_CON_SHIFT);
+		} else {
+			rk_clrsetreg(&cru->clksel_con[16],
+				     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,
+				     CLK_EMMC_PLL_SEL_GPLL << CLK_EMMC_PLL_SHIFT |
+				     (src_clk_div - 1) << CLK_EMMC_DIV_CON_SHIFT);
+		}
 		break;
 	case SCLK_EMMC:
 		/* Select aclk_emmc source from GPLL */
