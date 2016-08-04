@@ -141,3 +141,29 @@ void do_extension(struct pt_regs *regs)
 	printf("Extension instruction exception\n");
 	bad_mode(regs);
 }
+
+#ifdef CONFIG_ISA_ARCV2
+void do_swi(struct pt_regs *regs)
+{
+	printf("Software Interrupt exception\n");
+	bad_mode(regs);
+}
+
+void do_divzero(unsigned long address, struct pt_regs *regs)
+{
+	printf("Division by zero exception @ 0x%lx\n", address);
+	bad_mode(regs);
+}
+
+void do_dcerror(struct pt_regs *regs)
+{
+	printf("Data cache consistency error exception\n");
+	bad_mode(regs);
+}
+
+void do_maligned(unsigned long address, struct pt_regs *regs)
+{
+	printf("Misaligned data access exception @ 0x%lx\n", address);
+	bad_mode(regs);
+}
+#endif

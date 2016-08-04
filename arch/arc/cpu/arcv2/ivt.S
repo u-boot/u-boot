@@ -7,21 +7,26 @@
 .section .ivt, "a",@progbits
 .align 4
 	/* Critical system events */
-.word	_start			/* 0 - 0x000 */
-.word	memory_error		/* 1 - 0x008 */
-.word	instruction_error	/* 2 - 0x010 */
+.word	_start			/* 0x00 - Reset */
+.word	memory_error		/* 0x01 - Memory Error */
+.word	instruction_error	/* 0x02 - Instruction Error */
 
 	/* Exceptions */
-.word	EV_MachineCheck		/* 0x100, Fatal Machine check  (0x20) */
-.word	EV_TLBMissI		/* 0x108, Intruction TLB miss  (0x21) */
-.word	EV_TLBMissD		/* 0x110, Data TLB miss        (0x22) */
-.word	EV_TLBProtV		/* 0x118, Protection Violation (0x23)
-							or Misaligned Access  */
-.word	EV_PrivilegeV		/* 0x120, Privilege Violation  (0x24) */
-.word	EV_Trap			/* 0x128, Trap exception       (0x25) */
-.word	EV_Extension		/* 0x130, Extn Intruction Excp (0x26) */
+.word	EV_MachineCheck		/* 0x03 - Fatal Machine check */
+.word	EV_TLBMissI		/* 0x04 - Intruction TLB miss */
+.word	EV_TLBMissD		/* 0x05 - Data TLB miss */
+.word	EV_TLBProtV		/* 0x06 - Protection Violation or Misaligned Access */
+.word	EV_PrivilegeV		/* 0x07 - Privilege Violation */
+.word	EV_SWI			/* 0x08 - Software Interrupt */
+.word	EV_Trap			/* 0x09 - Trap */
+.word	EV_Extension		/* 0x0A - Extension Intruction Exception */
+.word	EV_DivZero		/* 0x0B - Division by Zero */
+.word	EV_DCError		/* 0x0C - Data cache consistency error */
+.word	EV_Maligned		/* 0x0D - Misaligned data access */
+.word	0			/* 0x0E - Unused */
+.word	0			/* 0x0F - Unused */
 
 	/* Device interrupts */
-.rept	29
-	j	interrupt_handler	/* 3:31 - 0x018:0xF8 */
+.rept	240
+.word	interrupt_handler	/* 0x10 - 0xFF */
 .endr
