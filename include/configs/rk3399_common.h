@@ -34,7 +34,11 @@
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_FS_FAT
 #define CONFIG_FAT_WRITE
+#define CONFIG_FS_EXT4
+#define CONFIG_CMD_PART
 
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	256
@@ -59,6 +63,14 @@
 	"kernel_addr_r=0x02000000\0" \
 	"ramdisk_addr_r=0x04000000\0"
 
+#define CONFIG_CMD_GPT
+#define CONFIG_RANDOM_UUID
+#define CONFIG_PARTITION_UUIDS
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=boot,start=16M,size=32M,bootable;" \
+	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs};\0" \
+
 /* First try to boot from SD (index 0), then eMMC (index 1) */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -66,6 +78,8 @@
 
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_MEM_LAYOUT_SETTINGS \
+	"partitions=" PARTS_DEFAULT \
 	BOOTENV
 
 #endif
