@@ -2,7 +2,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-dtb-$(CONFIG_TARGET_AXS101) +=  axs10x.dtb
+dtb-$(CONFIG_TARGET_AXS10X) +=  axs10x.dtb
 dtb-$(CONFIG_TARGET_NSIM) +=  nsim.dtb
 dtb-$(CONFIG_TARGET_TB100) +=  abilis_tb100.dtb
 

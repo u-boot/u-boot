@@ -1,12 +1,13 @@
 /*
- * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
+ * Copyright (C) 2013-2016 Synopsys, Inc. All rights reserved.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _CONFIG_AXS101_H_
-#define _CONFIG_AXS101_H_
+#ifndef _CONFIG_AXS10X_H_
+#define _CONFIG_AXS10X_H_
 
+#include <linux/sizes.h>
 /*
  *  CPU configuration
  */
@@ -24,13 +25,13 @@
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_SDRAM_SIZE		0x20000000	/* 512 Mb */
+#define CONFIG_SYS_SDRAM_SIZE		SZ_512M
 
 #define CONFIG_SYS_INIT_SP_ADDR		\
 	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MALLOC_LEN		0x200000	/* 2 MB */
-#define CONFIG_SYS_BOOTM_LEN		0x2000000	/* 32 MB */
+#define CONFIG_SYS_MALLOC_LEN		SZ_2M
+#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
@@ -113,7 +114,7 @@
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_EEPROM
-#define CONFIG_ENV_SIZE			0x00200		/* 512 bytes */
+#define CONFIG_ENV_SIZE			SZ_512
 #define CONFIG_ENV_OFFSET		0
 
 /*
@@ -127,7 +128,7 @@
  * Console configuration
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_CBSIZE		SZ_256
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 						sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -137,4 +138,4 @@
  */
 #define CONFIG_BOUNCE_BUFFER
 
-#endif /* _CONFIG_AXS101_H_ */
+#endif /* _CONFIG_AXS10X_H_ */
