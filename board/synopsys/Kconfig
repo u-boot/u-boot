@@ -1,9 +1,9 @@
-if TARGET_ARCANGEL4
+if TARGET_NSIM
 
 config SYS_VENDOR
 	default "synopsys"
 
 config SYS_CONFIG_NAME
-	default "arcangel4"
+	default "nsim"
 
 endif

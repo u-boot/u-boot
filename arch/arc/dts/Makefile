@@ -3,7 +3,7 @@
 #
 
 dtb-$(CONFIG_TARGET_AXS101) +=  axs10x.dtb
-dtb-$(CONFIG_TARGET_ARCANGEL4) +=  arcangel4.dtb
+dtb-$(CONFIG_TARGET_NSIM) +=  nsim.dtb
 dtb-$(CONFIG_TARGET_TB100) +=  abilis_tb100.dtb
 
 targets += $(dtb-y)

@@ -123,8 +123,8 @@ choice
 config TARGET_TB100
 	bool "Support tb100"
 
-config TARGET_ARCANGEL4
-	bool "Support arcangel4"
+config TARGET_NSIM
+	bool "Support standalone nSIM & Free nSIM"
 
 config TARGET_AXS101
 	bool "Support axs101"
