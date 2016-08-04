@@ -61,6 +61,10 @@
 	status = "okay";
 };
 
+&sdmmc {
+	status = "okay";
+};
+
 &sdhci {
 	bus-width = <8>;
 	mmc-hs400-1_8v;
