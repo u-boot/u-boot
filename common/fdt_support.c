@@ -997,8 +997,8 @@ static void of_dump_addr(const char *s, const fdt32_t *addr, int na) { }
 struct of_bus {
 	const char	*name;
 	const char	*addresses;
-	int		(*match)(void *blob, int parentoffset);
-	void		(*count_cells)(void *blob, int parentoffset,
+	int		(*match)(const void *blob, int parentoffset);
+	void		(*count_cells)(const void *blob, int parentoffset,
 				int *addrc, int *sizec);
 	u64		(*map)(fdt32_t *addr, const fdt32_t *range,
 				int na, int ns, int pna);
@@ -1006,7 +1006,7 @@ struct of_bus {
 };
 
 /* Default translator (generic bus) */
-void of_bus_default_count_cells(void *blob, int parentoffset,
+void of_bus_default_count_cells(const void *blob, int parentoffset,
 					int *addrc, int *sizec)
 {
 	const fdt32_t *prop;
@@ -1055,7 +1055,7 @@ static int of_bus_default_translate(fdt32_t *addr, u64 offset, int na)
 #ifdef CONFIG_OF_ISA_BUS
 
 /* ISA bus translator */
-static int of_bus_isa_match(void *blob, int parentoffset)
+static int of_bus_isa_match(const void *blob, int parentoffset)
 {
 	const char *name;
 
@@ -1066,7 +1066,7 @@ static int of_bus_isa_match(void *blob, int parentoffset)
 	return !strcmp(name, "isa");
 }
 
-static void of_bus_isa_count_cells(void *blob, int parentoffset,
+static void of_bus_isa_count_cells(const void *blob, int parentoffset,
 				   int *addrc, int *sizec)
 {
 	if (addrc)
@@ -1126,7 +1126,7 @@ static struct of_bus of_busses[] = {
 	},
 };
 
-static struct of_bus *of_match_bus(void *blob, int parentoffset)
+static struct of_bus *of_match_bus(const void *blob, int parentoffset)
 {
 	struct of_bus *bus;
 
@@ -1148,7 +1148,7 @@ static struct of_bus *of_match_bus(void *blob, int parentoffset)
 	return NULL;
 }
 
-static int of_translate_one(void * blob, int parent, struct of_bus *bus,
+static int of_translate_one(const void *blob, int parent, struct of_bus *bus,
 			    struct of_bus *pbus, fdt32_t *addr,
 			    int na, int ns, int pna, const char *rprop)
 {
@@ -1211,8 +1211,8 @@ static int of_translate_one(void * blob, int parent, struct of_bus *bus,
  * that can be mapped to a cpu physical address). This is not really specified
  * that way, but this is traditionally the way IBM at least do things
  */
-static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in_addr,
-				  const char *rprop)
+static u64 __of_translate_address(const void *blob, int node_offset,
+				  const fdt32_t *in_addr, const char *rprop)
 {
 	int parent;
 	struct of_bus *bus, *pbus;
@@ -1284,7 +1284,8 @@ static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in
 	return result;
 }
 
-u64 fdt_translate_address(void *blob, int node_offset, const fdt32_t *in_addr)
+u64 fdt_translate_address(const void *blob, int node_offset,
+			  const fdt32_t *in_addr)
 {
 	return __of_translate_address(blob, node_offset, in_addr, "ranges");
 }
