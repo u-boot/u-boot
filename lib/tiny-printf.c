@@ -13,29 +13,33 @@
 #include <stdarg.h>
 #include <serial.h>
 
-/*
- * This code in here may execute before the DRAM is initialised, so
- * we should make sure that it doesn't touch BSS, which some boards
- * put in DRAM.
- */
-static char *bf __attribute__ ((section(".data")));
-static char zs __attribute__ ((section(".data")));
+struct printf_info {
+	char *bf;	/* Digit buffer */
+	char zs;	/* non-zero if a digit has been written */
+	char *outstr;	/* Next output position for sprintf() */
 
-/* Current position in sprintf() output string */
-static char *outstr __attribute__ ((section(".data")));
+	/* Output a character */
+	void (*putc)(struct printf_info *info, char ch);
+};
 
-static void out(char c)
+void putc_normal(struct printf_info *info, char ch)
 {
-	*bf++ = c;
+	putc(ch);
 }
 
-static void out_dgt(char dgt)
+static void out(struct printf_info *info, char c)
 {
-	out(dgt + (dgt < 10 ? '0' : 'a' - 10));
-	zs = 1;
+	*info->bf++ = c;
 }
 
-static void div_out(unsigned int *num, unsigned int div)
+static void out_dgt(struct printf_info *info, char dgt)
+{
+	out(info, dgt + (dgt < 10 ? '0' : 'a' - 10));
+	info->zs = 1;
+}
+
+static void div_out(struct printf_info *info, unsigned int *num,
+		    unsigned int div)
 {
 	unsigned char dgt = 0;
 
@@ -44,11 +48,11 @@ static void div_out(unsigned int *num, unsigned int div)
 		dgt++;
 	}
 
-	if (zs || dgt > 0)
-		out_dgt(dgt);
+	if (info->zs || dgt > 0)
+		out_dgt(info, dgt);
 }
 
-int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
+int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 {
 	char ch;
 	char *p;
@@ -58,7 +62,7 @@ int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
 
 	while ((ch = *(fmt++))) {
 		if (ch != '%') {
-			putc(ch);
+			info->putc(info, ch);
 		} else {
 			bool lz = false;
 			int width = 0;
@@ -76,9 +80,9 @@ int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
 					ch = *fmt++;
 				}
 			}
-			bf = buf;
-			p = bf;
-			zs = 0;
+			info->bf = buf;
+			p = info->bf;
+			info->zs = 0;
 
 			switch (ch) {
 			case '\0':
@@ -88,45 +92,45 @@ int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
 				num = va_arg(va, unsigned int);
 				if (ch == 'd' && (int)num < 0) {
 					num = -(int)num;
-					out('-');
+					out(info, '-');
 				}
 				if (!num) {
-					out_dgt(0);
+					out_dgt(info, 0);
 				} else {
 					for (div = 1000000000; div; div /= 10)
-						div_out(&num, div);
+						div_out(info, &num, div);
 				}
 				break;
 			case 'x':
 				num = va_arg(va, unsigned int);
 				if (!num) {
-					out_dgt(0);
+					out_dgt(info, 0);
 				} else {
 					for (div = 0x10000000; div; div /= 0x10)
-						div_out(&num, div);
+						div_out(info, &num, div);
 				}
 				break;
 			case 'c':
-				out((char)(va_arg(va, int)));
+				out(info, (char)(va_arg(va, int)));
 				break;
 			case 's':
 				p = va_arg(va, char*);
 				break;
 			case '%':
-				out('%');
+				out(info, '%');
 			default:
 				break;
 			}
 
-			*bf = 0;
-			bf = p;
-			while (*bf++ && width > 0)
+			*info->bf = 0;
+			info->bf = p;
+			while (*info->bf++ && width > 0)
 				width--;
 			while (width-- > 0)
-				putc(lz ? '0' : ' ');
+				info->putc(info, lz ? '0' : ' ');
 			if (p) {
 				while ((ch = *p++))
-					putc(ch);
+					info->putc(info, ch);
 			}
 		}
 	}
@@ -137,36 +141,44 @@ abort:
 
 int vprintf(const char *fmt, va_list va)
 {
-	return _vprintf(fmt, va, putc);
+	struct printf_info info;
+
+	info.putc = putc_normal;
+	return _vprintf(&info, fmt, va);
 }
 
 int printf(const char *fmt, ...)
 {
+	struct printf_info info;
+
 	va_list va;
 	int ret;
 
+	info.putc = putc_normal;
 	va_start(va, fmt);
-	ret = _vprintf(fmt, va, putc);
+	ret = _vprintf(&info, fmt, va);
 	va_end(va);
 
 	return ret;
 }
 
-static void putc_outstr(char ch)
+static void putc_outstr(struct printf_info *info, char ch)
 {
-	*outstr++ = ch;
+	*info->outstr++ = ch;
 }
 
 int sprintf(char *buf, const char *fmt, ...)
 {
+	struct printf_info info;
 	va_list va;
 	int ret;
 
 	va_start(va, fmt);
-	outstr = buf;
-	ret = _vprintf(fmt, va, putc_outstr);
+	info.outstr = buf;
+	info.putc = putc_outstr;
+	ret = _vprintf(&info, fmt, va);
 	va_end(va);
-	*outstr = '\0';
+	*info.outstr = '\0';
 
 	return ret;
 }
@@ -174,14 +186,16 @@ int sprintf(char *buf, const char *fmt, ...)
 /* Note that size is ignored */
 int snprintf(char *buf, size_t size, const char *fmt, ...)
 {
+	struct printf_info info;
 	va_list va;
 	int ret;
 
 	va_start(va, fmt);
-	outstr = buf;
-	ret = _vprintf(fmt, va, putc_outstr);
+	info.outstr = buf;
+	info.putc = putc_outstr;
+	ret = _vprintf(&info, fmt, va);
 	va_end(va);
-	*outstr = '\0';
+	*info.outstr = '\0';
 
 	return ret;
 }
