@@ -124,6 +124,11 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config ETHOC
+	bool "OpenCores 10/100 Mbps Ethernet MAC"
+	help
+	  This MAC is present in OpenRISC and Xtensa XTFPGA boards.
+
 config MVPP2
 	bool "Marvell Armada 375 network interface support"
 	depends on ARMADA_375
