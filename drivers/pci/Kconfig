@@ -31,6 +31,7 @@ config PCI_SANDBOX
 config PCI_TEGRA
 	bool "Tegra PCI support"
 	depends on TEGRA
+	depends on (TEGRA186 && POWER_DOMAIN) || (!TEGRA186)
 	help
 	  Enable support for the PCIe controller found on some generations of
 	  Tegra. Tegra20 has 2 root ports with a total of 4 lanes, Tegra30 has
