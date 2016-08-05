@@ -202,6 +202,10 @@ static void efi_disk_add_dev(const char *name,
 	struct efi_device_path_file_path *dp;
 	int objlen = sizeof(*diskobj) + (sizeof(*dp) * 2);
 
+	/* Don't add empty devices */
+	if (!desc->lba)
+		return;
+
 	diskobj = calloc(1, objlen);
 
 	/* Fill in object data */
@@ -221,7 +225,7 @@ static void efi_disk_add_dev(const char *name,
 	diskobj->media.media_present = 1;
 	diskobj->media.block_size = desc->blksz;
 	diskobj->media.io_align = desc->blksz;
-	diskobj->media.last_block = desc->lba;
+	diskobj->media.last_block = desc->lba - offset;
 	diskobj->ops.media = &diskobj->media;
 
 	/* Fill in device path */
