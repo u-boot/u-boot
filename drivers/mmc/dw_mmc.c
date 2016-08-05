@@ -13,7 +13,6 @@
 #include <memalign.h>
 #include <mmc.h>
 #include <dwmmc.h>
-#include <asm-generic/errno.h>
 
 #define PAGE_SIZE 4096
 
@@ -120,12 +119,14 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		}
 
 		if (host->fifo_mode && size) {
+			len = 0;
 			if (data->flags == MMC_DATA_READ) {
 				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_RXDR)) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
 						    DWMCI_FIFO_MASK;
+					len = min(size, len);
 					for (i = 0; i < len; i++)
 						*buf++ =
 						dwmci_readl(host, DWMCI_DATA);
@@ -139,6 +140,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 					len = fifo_depth - ((len >>
 						   DWMCI_FIFO_SHIFT) &
 						   DWMCI_FIFO_MASK);
+					len = min(size, len);
 					for (i = 0; i < len; i++)
 						dwmci_writel(host, DWMCI_DATA,
 							     *buf++);
@@ -159,7 +161,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		if (get_timer(start) > timeout) {
 			debug("%s: Timeout waiting for data!\n",
 			      __func__);
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 			break;
 		}
 	}
@@ -204,7 +206,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
 			debug("%s: Timeout on data busy\n", __func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 
@@ -270,7 +272,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	if (i == retry) {
 		debug("%s: Timeout.\n", __func__);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	if (mask & DWMCI_INTMSK_RTO) {
@@ -283,7 +285,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		 * CMD8, please keep that in mind.
 		 */
 		debug("%s: Response Timeout.\n", __func__);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
 		debug("%s: Response Error.\n", __func__);
 		return -EIO;

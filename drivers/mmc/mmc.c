@@ -152,7 +152,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 				printf("Status Error: 0x%08X\n",
 					cmd.response[0]);
 #endif
-				return COMM_ERR;
+				return -ECOMM;
 			}
 		} else if (--retries < 0)
 			return err;
@@ -168,7 +168,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("Timeout waiting card ready\n");
 #endif
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	return 0;
@@ -344,7 +344,7 @@ static int sd_send_op_cond(struct mmc *mmc)
 			break;
 
 		if (timeout-- <= 0)
-			return UNUSABLE_ERR;
+			return -EOPNOTSUPP;
 
 		udelay(1000);
 	}
@@ -430,7 +430,7 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 			if (mmc->ocr & OCR_BUSY)
 				break;
 			if (get_timer(start) > timeout)
-				return UNUSABLE_ERR;
+				return -EOPNOTSUPP;
 			udelay(100);
 		}
 	}
@@ -1429,7 +1429,7 @@ static int mmc_startup(struct mmc *mmc)
 				   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
 				break;
 			else
-				err = SWITCH_ERR;
+				err = -EBADMSG;
 		}
 
 		if (err)
@@ -1499,7 +1499,7 @@ static int mmc_send_if_cond(struct mmc *mmc)
 		return err;
 
 	if ((cmd.response[0] & 0xff) != 0xaa)
-		return UNUSABLE_ERR;
+		return -EOPNOTSUPP;
 	else
 		mmc->version = SD_VERSION_2;
 
@@ -1526,7 +1526,7 @@ int mmc_start_init(struct mmc *mmc)
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("MMC: no card present\n");
 #endif
-		return NO_CARD_ERR;
+		return -ENOMEDIUM;
 	}
 
 	if (mmc->has_init)
@@ -1565,14 +1565,14 @@ int mmc_start_init(struct mmc *mmc)
 	err = sd_send_op_cond(mmc);
 
 	/* If the command timed out, we check for an MMC card */
-	if (err == TIMEOUT) {
+	if (err == -ETIMEDOUT) {
 		err = mmc_send_op_cond(mmc);
 
 		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			printf("Card did not respond to voltage select!\n");
 #endif
-			return UNUSABLE_ERR;
+			return -EOPNOTSUPP;
 		}
 	}
 

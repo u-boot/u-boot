@@ -105,7 +105,7 @@
 
 /* Status Register */
 #define DWMCI_BUSY		(1 << 9)
-#define DWMCI_FIFO_MASK		0x1ff
+#define DWMCI_FIFO_MASK		0x1fff
 #define DWMCI_FIFO_SHIFT	17
 
 /* FIFOTH Register */

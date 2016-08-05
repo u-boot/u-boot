@@ -169,7 +169,7 @@ void print_mmc_devices(char separator)
 
 	for (uclass_first_device(UCLASS_MMC, &dev);
 	     dev;
-	     uclass_next_device(&dev)) {
+	     uclass_next_device(&dev), first = false) {
 		struct mmc *m = mmc_get_mmc_dev(dev);
 
 		if (!first) {

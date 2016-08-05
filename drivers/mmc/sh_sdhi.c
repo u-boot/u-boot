@@ -232,7 +232,7 @@ static int sh_sdhi_error_manage(struct sh_sdhi_host *host)
 	e_state2 = sh_sdhi_readw(host, SDHI_ERR_STS2);
 	if (e_state2 & ERR_STS2_SYS_ERROR) {
 		if (e_state2 & ERR_STS2_RES_STOP_TIMEOUT)
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 		else
 			ret = -EILSEQ;
 		debug("%s: ERR_STS2 = %04x\n",
@@ -246,7 +246,7 @@ static int sh_sdhi_error_manage(struct sh_sdhi_host *host)
 	if (e_state1 & ERR_STS1_CRC_ERROR || e_state1 & ERR_STS1_CMD_ERROR)
 		ret = -EILSEQ;
 	else
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 
 	debug("%s: ERR_STS1 = %04x\n",
 	      DRIVER_NAME, sh_sdhi_readw(host, SDHI_ERR_STS1));
@@ -566,7 +566,7 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		case MMC_CMD_SELECT_CARD:
 		case SD_CMD_SEND_IF_COND:
 		case MMC_CMD_APP_CMD:
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 			break;
 		default:
 			debug(DRIVER_NAME": Cmd(d'%d) err\n", opc);

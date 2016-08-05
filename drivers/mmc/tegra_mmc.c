@@ -9,6 +9,7 @@
 
 #include <bouncebuf.h>
 #include <common.h>
+#include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #ifndef CONFIG_TEGRA186
@@ -216,14 +217,14 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (i == retry) {
 		printf("%s: waiting for status update\n", __func__);
 		writel(mask, &host->reg->norintsts);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	if (mask & TEGRA_MMC_NORINTSTS_CMD_TIMEOUT) {
 		/* Timeout Error */
 		debug("timeout: %08x cmd %d\n", mask, cmd->cmdidx);
 		writel(mask, &host->reg->norintsts);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if (mask & TEGRA_MMC_NORINTSTS_ERR_INTERRUPT) {
 		/* Error Interrupt */
 		debug("error: %08x cmd %d\n", mask, cmd->cmdidx);
@@ -257,7 +258,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 			if (i == retry) {
 				printf("%s: card is still busy\n", __func__);
 				writel(mask, &host->reg->norintsts);
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 
 			cmd->response[0] = readl(&host->reg->rspreg0);

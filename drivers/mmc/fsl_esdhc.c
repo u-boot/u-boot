@@ -12,11 +12,11 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <hwconfig.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
-#include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fdt_support.h>
 #include <asm/io.h>
@@ -253,7 +253,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 			if ((esdhc_read32(&regs->prsstat) &
 			    PRSSTAT_WPSPL) == 0) {
 				printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 		}
 
@@ -411,12 +411,12 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	irqstat = esdhc_read32(&regs->irqstat);
 
 	if (irqstat & CMD_ERR) {
-		err = COMM_ERR;
+		err = -ECOMM;
 		goto out;
 	}
 
 	if (irqstat & IRQSTAT_CTOE) {
-		err = TIMEOUT;
+		err = -ETIMEDOUT;
 		goto out;
 	}
 
@@ -442,7 +442,7 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 		if (timeout <= 0) {
 			printf("Timeout waiting for DAT0 to go high!\n");
-			err = TIMEOUT;
+			err = -ETIMEDOUT;
 			goto out;
 		}
 	}
@@ -471,12 +471,12 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			irqstat = esdhc_read32(&regs->irqstat);
 
 			if (irqstat & IRQSTAT_DTOE) {
-				err = TIMEOUT;
+				err = -ETIMEDOUT;
 				goto out;
 			}
 
 			if (irqstat & DATA_ERR) {
-				err = COMM_ERR;
+				err = -ECOMM;
 				goto out;
 			}
 		} while ((irqstat & DATA_COMPLETE) != DATA_COMPLETE);

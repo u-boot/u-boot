@@ -5,6 +5,7 @@
  * Licensed under the GPL-2 or later.
  */
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
@@ -182,13 +183,13 @@ static int mmc_spi_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	spi_cs_activate(spi);
 	r1 = mmc_spi_sendcmd(mmc, cmd->cmdidx, cmd->cmdarg);
 	if (r1 == 0xff) { /* no response */
-		ret = NO_CARD_ERR;
+		ret = -ENOMEDIUM;
 		goto done;
 	} else if (r1 & R1_SPI_COM_CRC) {
-		ret = COMM_ERR;
+		ret = -ECOMM;
 		goto done;
 	} else if (r1 & ~R1_SPI_IDLE) { /* other errors */
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 		goto done;
 	} else if (cmd->resp_type == MMC_RSP_R2) {
 		r1 = mmc_spi_readdata(mmc, cmd->response, 1, 16);
@@ -225,9 +226,9 @@ static int mmc_spi_request(struct mmc *mmc, struct mmc_cmd *cmd,
 				data->blocks, data->blocksize,
 				(cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK));
 		if (r1 & R1_SPI_COM_CRC)
-			ret = COMM_ERR;
+			ret = -ECOMM;
 		else if (r1) /* other errors */
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 	}
 done:
 	spi_cs_deactivate(spi);
