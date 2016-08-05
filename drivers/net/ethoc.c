@@ -255,6 +255,7 @@ static int ethoc_init_ring(struct ethoc *priv)
 
 	/* setup transmission buffers */
 	bd.stat = TX_BD_IRQ | TX_BD_CRC;
+	bd.addr = 0;
 
 	for (i = 0; i < priv->num_tx; i++) {
 		if (i == priv->num_tx - 1)
@@ -266,11 +267,12 @@ static int ethoc_init_ring(struct ethoc *priv)
 	bd.stat = RX_BD_EMPTY | RX_BD_IRQ;
 
 	for (i = 0; i < priv->num_rx; i++) {
-		bd.addr = (u32)net_rx_packets[i];
+		bd.addr = virt_to_phys(net_rx_packets[i]);
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
-		flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
+		flush_dcache_range((ulong)net_rx_packets[i],
+				   (ulong)net_rx_packets[i] + PKTSIZE_ALIGN);
 		ethoc_write_bd(priv, priv->num_tx + i, &bd);
 	}
 
@@ -351,10 +353,10 @@ static int ethoc_update_rx_stats(struct ethoc_bd *bd)
 
 static int ethoc_rx_common(struct ethoc *priv, uchar **packetp)
 {
-	u32 entry;
 	struct ethoc_bd bd;
+	u32 i = priv->cur_rx % priv->num_rx;
+	u32 entry = priv->num_tx + i;
 
-	entry = priv->num_tx + (priv->cur_rx % priv->num_rx);
 	ethoc_read_bd(priv, entry, &bd);
 	if (bd.stat & RX_BD_EMPTY)
 		return -EAGAIN;
@@ -365,7 +367,7 @@ static int ethoc_rx_common(struct ethoc *priv, uchar **packetp)
 		int size = bd.stat >> 16;
 
 		size -= 4;	/* strip the CRC */
-		*packetp = (void *)bd.addr;
+		*packetp = net_rx_packets[i];
 		return size;
 	} else {
 		return 0;
@@ -428,9 +430,9 @@ static int ethoc_send_common(struct ethoc *priv, void *packet, int length)
 		bd.stat |= TX_BD_PAD;
 	else
 		bd.stat &= ~TX_BD_PAD;
-	bd.addr = (u32)packet;
+	bd.addr = virt_to_phys(packet);
 
-	flush_dcache_range(bd.addr, bd.addr + length);
+	flush_dcache_range((ulong)packet, (ulong)packet + length);
 	bd.stat &= ~(TX_BD_STATS | TX_BD_LEN_MASK);
 	bd.stat |= TX_BD_LEN(length);
 	ethoc_write_bd(priv, entry, &bd);
@@ -463,14 +465,15 @@ static int ethoc_send_common(struct ethoc *priv, void *packet, int length)
 
 static int ethoc_free_pkt_common(struct ethoc *priv)
 {
-	u32 entry;
 	struct ethoc_bd bd;
+	u32 i = priv->cur_rx % priv->num_rx;
+	u32 entry = priv->num_tx + i;
 
-	entry = priv->num_tx + (priv->cur_rx % priv->num_rx);
 	ethoc_read_bd(priv, entry, &bd);
 
 	/* clear the buffer descriptor so it can be reused */
-	flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
+	flush_dcache_range((ulong)net_rx_packets[i],
+			   (ulong)net_rx_packets[i] + PKTSIZE_ALIGN);
 	bd.stat &= ~RX_BD_STATS;
 	bd.stat |= RX_BD_EMPTY;
 	ethoc_write_bd(priv, entry, &bd);
