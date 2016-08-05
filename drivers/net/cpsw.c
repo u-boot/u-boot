@@ -1146,7 +1146,8 @@ static const struct eth_ops cpsw_eth_ops = {
 
 static inline fdt_addr_t cpsw_get_addr_by_node(const void *fdt, int node)
 {
-	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL);
+	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL,
+						  false);
 }
 
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)

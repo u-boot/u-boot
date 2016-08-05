@@ -297,11 +297,13 @@ int fdtdec_next_compatible_subnode(const void *blob, int node,
  * @param na	the number of cells used to represent an address
  * @param ns	the number of cells used to represent a size
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 		const char *prop_name, int index, int na, int ns,
-		fdt_size_t *sizep);
+		fdt_size_t *sizep, bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address, and
@@ -317,10 +319,13 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
  * @param prop_name	name of property to find
  * @param index	which address to retrieve from a list of addresses. Often 0.
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
-		int node, const char *prop_name, int index, fdt_size_t *sizep);
+		int node, const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address, and
@@ -340,10 +345,13 @@ fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
  * @param prop_name	name of property to find
  * @param index	which address to retrieve from a list of addresses. Often 0.
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
-		const char *prop_name, int index, fdt_size_t *sizep);
+		const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address.
