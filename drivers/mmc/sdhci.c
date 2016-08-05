@@ -575,10 +575,10 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 #else
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
+#ifdef CONFIG_MMC_SDMA
 	unsigned int caps;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-#ifdef CONFIG_MMC_SDMA
 	if (!(caps & SDHCI_CAN_DO_SDMA)) {
 		printf("%s: Your controller doesn't support SDMA!!\n",
 		       __func__);
