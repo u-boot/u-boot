@@ -277,18 +277,16 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	MX6_PAD_NAND_DATA03__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc2_cd_pads[] = {
-	/*
-	 * The evk board uses DAT3 to detect CD card plugin,
-	 * in u-boot we mux the pin to GPIO when doing board_mmc_getcd.
-	 */
-	MX6_PAD_NAND_DATA03__GPIO4_IO05 | MUX_PAD_CTRL(USDHC_DAT3_CD_PAD_CTRL),
-};
+/*
+ * The evk board uses DAT3 to detect CD card plugin,
+ * in u-boot we mux the pin to GPIO when doing board_mmc_getcd.
+ */
+static iomux_v3_cfg_t const usdhc2_cd_pad =
+	MX6_PAD_NAND_DATA03__GPIO4_IO05 | MUX_PAD_CTRL(USDHC_DAT3_CD_PAD_CTRL);
 
-static iomux_v3_cfg_t const usdhc2_dat3_pads[] = {
+static iomux_v3_cfg_t const usdhc2_dat3_pad =
 	MX6_PAD_NAND_DATA03__USDHC2_DATA3 |
-	MUX_PAD_CTRL(USDHC_DAT3_CD_PAD_CTRL),
-};
+	MUX_PAD_CTRL(USDHC_DAT3_CD_PAD_CTRL);
 #endif
 
 static void setup_iomux_uart(void)
@@ -351,8 +349,7 @@ int board_mmc_getcd(struct mmc *mmc)
 #if defined(CONFIG_MX6UL_14X14_EVK_EMMC_REWORK)
 		ret = 1;
 #else
-		imx_iomux_v3_setup_multiple_pads(usdhc2_cd_pads,
-						 ARRAY_SIZE(usdhc2_cd_pads));
+		imx_iomux_v3_setup_pad(usdhc2_cd_pad);
 		gpio_direction_input(USDHC2_CD_GPIO);
 
 		/*
@@ -361,8 +358,7 @@ int board_mmc_getcd(struct mmc *mmc)
 		 */
 		ret = gpio_get_value(USDHC2_CD_GPIO);
 
-		imx_iomux_v3_setup_multiple_pads(usdhc2_dat3_pads,
-						 ARRAY_SIZE(usdhc2_dat3_pads));
+		imx_iomux_v3_setup_pad(usdhc2_dat3_pad);
 #endif
 		break;
 	}
