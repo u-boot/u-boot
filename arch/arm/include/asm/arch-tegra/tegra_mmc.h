@@ -9,6 +9,9 @@
 #ifndef __TEGRA_MMC_H_
 #define __TEGRA_MMC_H_
 
+#include <common.h>
+#include <clk.h>
+#include <reset.h>
 #include <fdtdec.h>
 #include <asm/gpio.h>
 
@@ -134,7 +137,10 @@ struct mmc_host {
 	int id;			/* device id/number, 0-3 */
 	int enabled;		/* 1 to enable, 0 to disable */
 	int width;		/* Bus Width, 1, 4 or 8 */
-#ifndef CONFIG_TEGRA186
+#ifdef CONFIG_TEGRA186
+	struct reset_ctl reset_ctl;
+	struct clk clk;
+#else
 	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
 #endif
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
