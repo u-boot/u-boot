@@ -18,6 +18,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <asm/cache.h>
+#include <wait_bit.h>
 
 /* register offsets */
 #define	MODER		0x00
@@ -181,6 +182,11 @@ struct ethoc {
 	void __iomem *iobase;
 	void __iomem *packet;
 	phys_addr_t packet_phys;
+
+#ifdef CONFIG_PHYLIB
+	struct mii_dev *bus;
+	struct phy_device *phydev;
+#endif
 };
 
 /**
@@ -193,14 +199,19 @@ struct ethoc_bd {
 	u32 addr;
 };
 
+static inline u32 *ethoc_reg(struct ethoc *priv, size_t offset)
+{
+	return priv->iobase + offset;
+}
+
 static inline u32 ethoc_read(struct ethoc *priv, size_t offset)
 {
-	return readl(priv->iobase + offset);
+	return readl(ethoc_reg(priv, offset));
 }
 
 static inline void ethoc_write(struct ethoc *priv, size_t offset, u32 data)
 {
-	writel(data, priv->iobase + offset);
+	writel(data, ethoc_reg(priv, offset));
 }
 
 static inline void ethoc_read_bd(struct ethoc *priv, int index,
@@ -319,13 +330,31 @@ static int ethoc_reset(struct ethoc *priv)
 
 static int ethoc_init_common(struct ethoc *priv)
 {
+	int ret = 0;
+
 	priv->num_tx = 1;
 	priv->num_rx = PKTBUFSRX;
 	ethoc_write(priv, TX_BD_NUM, priv->num_tx);
 	ethoc_init_ring(priv);
 	ethoc_reset(priv);
 
-	return 0;
+#ifdef CONFIG_PHYLIB
+	ret = phy_startup(priv->phydev);
+	if (ret) {
+		printf("Could not initialize PHY %s\n",
+		       priv->phydev->dev->name);
+		return ret;
+	}
+#endif
+	return ret;
+}
+
+static void ethoc_stop_common(struct ethoc *priv)
+{
+	ethoc_disable_rx_and_tx(priv);
+#ifdef CONFIG_PHYLIB
+	phy_shutdown(priv->phydev);
+#endif
 }
 
 static int ethoc_update_rx_stats(struct ethoc_bd *bd)
@@ -509,6 +538,110 @@ static int ethoc_free_pkt_common(struct ethoc *priv)
 	return 0;
 }
 
+#ifdef CONFIG_PHYLIB
+
+static int ethoc_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct ethoc *priv = bus->priv;
+	int rc;
+
+	ethoc_write(priv, MIIADDRESS, MIIADDRESS_ADDR(addr, reg));
+	ethoc_write(priv, MIICOMMAND, MIICOMMAND_READ);
+
+	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
+			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+
+	if (rc == 0) {
+		u32 data = ethoc_read(priv, MIIRX_DATA);
+
+		/* reset MII command register */
+		ethoc_write(priv, MIICOMMAND, 0);
+		return data;
+	}
+	return rc;
+}
+
+static int ethoc_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
+			    u16 val)
+{
+	struct ethoc *priv = bus->priv;
+	int rc;
+
+	ethoc_write(priv, MIIADDRESS, MIIADDRESS_ADDR(addr, reg));
+	ethoc_write(priv, MIITX_DATA, val);
+	ethoc_write(priv, MIICOMMAND, MIICOMMAND_WRITE);
+
+	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
+			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+
+	if (rc == 0) {
+		/* reset MII command register */
+		ethoc_write(priv, MIICOMMAND, 0);
+	}
+	return rc;
+}
+
+static int ethoc_mdio_init(const char *name, struct ethoc *priv)
+{
+	struct mii_dev *bus = mdio_alloc();
+	int ret;
+
+	if (!bus) {
+		printf("Failed to allocate MDIO bus\n");
+		return -ENOMEM;
+	}
+
+	bus->read = ethoc_mdio_read;
+	bus->write = ethoc_mdio_write;
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
+	bus->priv = priv;
+
+	ret = mdio_register(bus);
+	if (ret < 0)
+		return ret;
+
+	priv->bus = miiphy_get_dev_by_name(name);
+	return 0;
+}
+
+static int ethoc_phy_init(struct ethoc *priv, void *dev)
+{
+	struct phy_device *phydev;
+	int mask = 0xffffffff;
+
+#ifdef CONFIG_PHY_ADDR
+	mask = 1 << CONFIG_PHY_ADDR;
+#endif
+
+	phydev = phy_find_by_mask(priv->bus, mask, PHY_INTERFACE_MODE_MII);
+	if (!phydev)
+		return -ENODEV;
+
+	phy_connect_dev(phydev, dev);
+
+	phydev->supported &= PHY_BASIC_FEATURES;
+	phydev->advertising = phydev->supported;
+
+	priv->phydev = phydev;
+	phy_config(phydev);
+
+	return 0;
+}
+
+#else
+
+static inline int ethoc_mdio_init(const char *name, struct ethoc *priv)
+{
+	return 0;
+}
+
+static inline int ethoc_phy_init(struct ethoc *priv, void *dev)
+{
+	return 0;
+}
+
+#endif
+
 #ifdef CONFIG_DM_ETH
 
 static int ethoc_write_hwaddr(struct udevice *dev)
@@ -548,9 +681,7 @@ static int ethoc_start(struct udevice *dev)
 
 static void ethoc_stop(struct udevice *dev)
 {
-	struct ethoc *priv = dev_get_priv(dev);
-
-	ethoc_disable_rx_and_tx(priv);
+	ethoc_stop_common(dev_get_priv(dev));
 }
 
 static int ethoc_ofdata_to_platdata(struct udevice *dev)
@@ -576,6 +707,10 @@ static int ethoc_probe(struct udevice *dev)
 		priv->packet = ioremap(pdata->packet_base,
 				       (1 + PKTBUFSRX) * PKTSIZE_ALIGN);
 	}
+
+	ethoc_mdio_init(dev->name, priv);
+	ethoc_phy_init(priv, dev);
+
 	return 0;
 }
 
@@ -583,6 +718,11 @@ static int ethoc_remove(struct udevice *dev)
 {
 	struct ethoc *priv = dev_get_priv(dev);
 
+#ifdef CONFIG_PHYLIB
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+#endif
 	iounmap(priv->iobase);
 	return 0;
 }
@@ -687,6 +827,10 @@ int ethoc_initialize(u8 dev_num, int base_addr)
 	priv->iobase = ioremap(dev->iobase, ETHOC_IOSIZE);
 
 	eth_register(dev);
+
+	ethoc_mdio_init(dev->name, priv);
+	ethoc_phy_init(priv, dev);
+
 	return 1;
 }
 
