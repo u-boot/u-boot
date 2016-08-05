@@ -179,6 +179,8 @@ struct ethoc {
 	u32 num_rx;
 	u32 cur_rx;
 	void __iomem *iobase;
+	void __iomem *packet;
+	phys_addr_t packet_phys;
 };
 
 /**
@@ -247,6 +249,7 @@ static inline void ethoc_disable_rx_and_tx(struct ethoc *priv)
 static int ethoc_init_ring(struct ethoc *priv)
 {
 	struct ethoc_bd bd;
+	phys_addr_t addr = priv->packet_phys;
 	int i;
 
 	priv->cur_tx = 0;
@@ -258,6 +261,10 @@ static int ethoc_init_ring(struct ethoc *priv)
 	bd.addr = 0;
 
 	for (i = 0; i < priv->num_tx; i++) {
+		if (addr) {
+			bd.addr = addr;
+			addr += PKTSIZE_ALIGN;
+		}
 		if (i == priv->num_tx - 1)
 			bd.stat |= TX_BD_WRAP;
 
@@ -267,7 +274,12 @@ static int ethoc_init_ring(struct ethoc *priv)
 	bd.stat = RX_BD_EMPTY | RX_BD_IRQ;
 
 	for (i = 0; i < priv->num_rx; i++) {
-		bd.addr = virt_to_phys(net_rx_packets[i]);
+		if (addr) {
+			bd.addr = addr;
+			addr += PKTSIZE_ALIGN;
+		} else {
+			bd.addr = virt_to_phys(net_rx_packets[i]);
+		}
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
@@ -367,7 +379,10 @@ static int ethoc_rx_common(struct ethoc *priv, uchar **packetp)
 		int size = bd.stat >> 16;
 
 		size -= 4;	/* strip the CRC */
-		*packetp = net_rx_packets[i];
+		if (priv->packet)
+			*packetp = priv->packet + entry * PKTSIZE_ALIGN;
+		else
+			*packetp = net_rx_packets[i];
 		return size;
 	} else {
 		return 0;
@@ -430,8 +445,15 @@ static int ethoc_send_common(struct ethoc *priv, void *packet, int length)
 		bd.stat |= TX_BD_PAD;
 	else
 		bd.stat &= ~TX_BD_PAD;
-	bd.addr = virt_to_phys(packet);
 
+	if (priv->packet) {
+		void *p = priv->packet + entry * PKTSIZE_ALIGN;
+
+		memcpy(p, packet, length);
+		packet = p;
+	} else {
+		bd.addr = virt_to_phys(packet);
+	}
 	flush_dcache_range((ulong)packet, (ulong)packet + length);
 	bd.stat &= ~(TX_BD_STATS | TX_BD_LEN_MASK);
 	bd.stat |= TX_BD_LEN(length);
@@ -468,12 +490,17 @@ static int ethoc_free_pkt_common(struct ethoc *priv)
 	struct ethoc_bd bd;
 	u32 i = priv->cur_rx % priv->num_rx;
 	u32 entry = priv->num_tx + i;
+	void *src;
 
 	ethoc_read_bd(priv, entry, &bd);
 
+	if (priv->packet)
+		src = priv->packet + entry * PKTSIZE_ALIGN;
+	else
+		src = net_rx_packets[i];
 	/* clear the buffer descriptor so it can be reused */
-	flush_dcache_range((ulong)net_rx_packets[i],
-			   (ulong)net_rx_packets[i] + PKTSIZE_ALIGN);
+	flush_dcache_range((ulong)src,
+			   (ulong)src + PKTSIZE_ALIGN);
 	bd.stat &= ~RX_BD_STATS;
 	bd.stat |= RX_BD_EMPTY;
 	ethoc_write_bd(priv, entry, &bd);
@@ -529,8 +556,12 @@ static void ethoc_stop(struct udevice *dev)
 static int ethoc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	fdt_addr_t addr;
 
 	pdata->eth_pdata.iobase = dev_get_addr(dev);
+	addr = dev_get_addr_index(dev, 1);
+	if (addr != FDT_ADDR_T_NONE)
+		pdata->packet_base = addr;
 	return 0;
 }
 
@@ -540,6 +571,11 @@ static int ethoc_probe(struct udevice *dev)
 	struct ethoc *priv = dev_get_priv(dev);
 
 	priv->iobase = ioremap(pdata->eth_pdata.iobase, ETHOC_IOSIZE);
+	if (pdata->packet_base) {
+		priv->packet_phys = pdata->packet_base;
+		priv->packet = ioremap(pdata->packet_base,
+				       (1 + PKTBUFSRX) * PKTSIZE_ALIGN);
+	}
 	return 0;
 }
 

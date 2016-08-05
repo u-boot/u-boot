@@ -13,6 +13,7 @@
 
 struct ethoc_eth_pdata {
 	struct eth_pdata eth_pdata;
+	phys_addr_t packet_base;
 };
 
 #endif
