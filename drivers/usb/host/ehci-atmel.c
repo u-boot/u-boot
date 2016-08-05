@@ -7,11 +7,17 @@
  */
 
 #include <common.h>
+#include <clk.h>
+#include <dm.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 
 #include "ehci.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_DM_USB
 
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
@@ -41,3 +47,113 @@ int ehci_hcd_stop(int index)
 
 	return 0;
 }
+
+#else
+
+struct ehci_atmel_priv {
+	struct ehci_ctrl ehci;
+};
+
+static int ehci_atmel_enable_clk(struct udevice *dev)
+{
+	struct udevice *dev_clk;
+	struct clk clk;
+	int periph;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_index(dev, 1, &clk);
+	if (ret)
+		return -EINVAL;
+
+	periph = fdtdec_get_uint(gd->fdt_blob, clk.dev->of_offset, "reg", -1);
+	if (periph < 0)
+		return -EINVAL;
+
+	dev_clk = dev_get_parent(clk.dev);
+	if (!dev_clk)
+		return -ENODEV;
+
+	ret = clk_request(dev_clk, &clk);
+	if (ret)
+		return ret;
+
+	clk.id = periph;
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	clk_free(&clk);
+
+	return 0;
+}
+
+static int ehci_atmel_probe(struct udevice *dev)
+{
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+	fdt_addr_t hcd_base;
+	int ret;
+
+	ret = ehci_atmel_enable_clk(dev);
+	if (ret) {
+		debug("Failed to enable USB Host clock\n");
+		return ret;
+	}
+
+	/*
+	 * Get the base address for EHCI controller from the device node
+	 */
+	hcd_base = dev_get_addr(dev);
+	if (hcd_base == FDT_ADDR_T_NONE) {
+		debug("Can't get the EHCI register base address\n");
+		return -ENXIO;
+	}
+
+	hccr = (struct ehci_hccr *)hcd_base;
+	hcor = (struct ehci_hcor *)
+		((u32)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
+	debug("echi-atmel: init hccr %x and hcor %x hc_length %d\n",
+	      (u32)hccr, (u32)hcor,
+	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
+	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
+}
+
+static int ehci_atmel_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id ehci_usb_ids[] = {
+	{ .compatible = "atmel,at91sam9g45-ehci", },
+	{ }
+};
+
+U_BOOT_DRIVER(ehci_atmel) = {
+	.name		= "ehci_atmel",
+	.id		= UCLASS_USB,
+	.of_match	= ehci_usb_ids,
+	.probe		= ehci_atmel_probe,
+	.remove		= ehci_atmel_remove,
+	.ops		= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct ehci_atmel_priv),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+#endif
