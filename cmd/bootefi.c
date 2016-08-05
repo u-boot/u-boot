@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm/device.h>
 #include <efi_loader.h>
 #include <errno.h>
 #include <libfdt.h>
@@ -265,18 +266,30 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	char *colon;
 
-	/* Assemble the condensed device name we use in efi_disk.c */
-	snprintf(devname, sizeof(devname), "%s%s", dev, devnr);
+#if defined(CONFIG_BLK) || defined(CONFIG_ISO_PARTITION)
+	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+#endif
+
+#ifdef CONFIG_BLK
+	if (desc) {
+		snprintf(devname, sizeof(devname), "%s", desc->bdev->name);
+	} else
+#endif
+
+	{
+		/* Assemble the condensed device name we use in efi_disk.c */
+		snprintf(devname, sizeof(devname), "%s%s", dev, devnr);
+	}
+
 	colon = strchr(devname, ':');
 
 #ifdef CONFIG_ISO_PARTITION
 	/* For ISOs we create partition block devices */
-	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
 	if (desc && (desc->type != DEV_TYPE_UNKNOWN) &&
 	    (desc->part_type == PART_TYPE_ISO)) {
 		if (!colon)
-			snprintf(devname, sizeof(devname), "%s%s:1", dev,
-				 devnr);
+			snprintf(devname, sizeof(devname), "%s:1", devname);
+
 		colon = NULL;
 	}
 #endif
