@@ -27,7 +27,6 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct arasan_sdhci_plat *plat = dev_get_platdata(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
-	u32 caps;
 	int ret;
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
@@ -39,7 +38,6 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
