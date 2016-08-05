@@ -523,6 +523,14 @@ static void ethoc_stop(struct udevice *dev)
 	ethoc_disable_rx_and_tx(priv);
 }
 
+static int ethoc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->eth_pdata.iobase = dev_get_addr(dev);
+	return 0;
+}
+
 static int ethoc_probe(struct udevice *dev)
 {
 	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
@@ -549,9 +557,16 @@ static const struct eth_ops ethoc_ops = {
 	.write_hwaddr	= ethoc_write_hwaddr,
 };
 
+static const struct udevice_id ethoc_ids[] = {
+	{ .compatible = "opencores,ethoc" },
+	{ }
+};
+
 U_BOOT_DRIVER(ethoc) = {
 	.name				= "ethoc",
 	.id				= UCLASS_ETH,
+	.of_match			= ethoc_ids,
+	.ofdata_to_platdata		= ethoc_ofdata_to_platdata,
 	.probe				= ethoc_probe,
 	.remove				= ethoc_remove,
 	.ops				= &ethoc_ops,
