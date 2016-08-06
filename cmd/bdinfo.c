@@ -98,9 +98,11 @@ static inline void print_bi_dram(const bd_t *bd)
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		print_num("DRAM bank",	i);
-		print_num("-> start",	bd->bi_dram[i].start);
-		print_num("-> size",	bd->bi_dram[i].size);
+		if (bd->bi_dram[i].size) {
+			print_num("DRAM bank",	i);
+			print_num("-> start",	bd->bi_dram[i].start);
+			print_num("-> size",	bd->bi_dram[i].size);
+		}
 	}
 #endif
 }
