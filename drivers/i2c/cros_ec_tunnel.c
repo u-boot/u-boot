@@ -36,6 +36,5 @@ U_BOOT_DRIVER(cros_ec_tunnel) = {
 	.name	= "cros_ec_tunnel",
 	.id	= UCLASS_I2C,
 	.of_match = cros_ec_i2c_ids,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.ops	= &cros_ec_i2c_ops,
 };

@@ -69,7 +69,6 @@ U_BOOT_DRIVER(intel_i2c) = {
 	.name	= "i2c_intel",
 	.id	= UCLASS_I2C,
 	.of_match = intel_i2c_ids,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.ops	= &intel_i2c_ops,
 	.probe	= intel_i2c_probe,
 };

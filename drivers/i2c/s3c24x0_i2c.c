@@ -1433,7 +1433,6 @@ U_BOOT_DRIVER(i2c_s3c) = {
 	.id	= UCLASS_I2C,
 	.of_match = s3c_i2c_ids,
 	.ofdata_to_platdata = s3c_i2c_ofdata_to_platdata,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.priv_auto_alloc_size = sizeof(struct s3c24x0_i2c_bus),
 	.ops	= &s3c_i2c_ops,
 };
@@ -1458,7 +1457,6 @@ U_BOOT_DRIVER(hs_i2c) = {
 	.id	= UCLASS_I2C,
 	.of_match = exynos_hs_i2c_ids,
 	.ofdata_to_platdata = s3c_i2c_ofdata_to_platdata,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.priv_auto_alloc_size = sizeof(struct s3c24x0_i2c_bus),
 	.ops	= &exynos_hs_i2c_ops,
 };
