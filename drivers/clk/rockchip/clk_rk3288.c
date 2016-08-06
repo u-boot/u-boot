@@ -20,6 +20,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
+#include <linux/log2.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -184,11 +185,6 @@ static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 	rk_clrreg(&pll->con3, 1 << PLL_RESET_SHIFT);
 
 	return 0;
-}
-
-static inline unsigned int log2(unsigned int value)
-{
-	return fls(value) - 1;
 }
 
 static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
@@ -421,11 +417,11 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 	aclk_div = GPLL_HZ / PERI_ACLK_HZ - 1;
 	assert((aclk_div + 1) * PERI_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
 
-	hclk_div = log2(PERI_ACLK_HZ / PERI_HCLK_HZ);
+	hclk_div = ilog2(PERI_ACLK_HZ / PERI_HCLK_HZ);
 	assert((1 << hclk_div) * PERI_HCLK_HZ ==
 		PERI_ACLK_HZ && (hclk_div < 0x4));
 
-	pclk_div = log2(PERI_ACLK_HZ / PERI_PCLK_HZ);
+	pclk_div = ilog2(PERI_ACLK_HZ / PERI_PCLK_HZ);
 	assert((1 << pclk_div) * PERI_PCLK_HZ ==
 		PERI_ACLK_HZ && (pclk_div < 0x4));
 

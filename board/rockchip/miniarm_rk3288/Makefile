@@ -4,6 +4,4 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y += rk3399.o
-obj-y += reset_rk3399.o
-obj-y += syscon_rk3399.o
+obj-y	+= miniarm-rk3288.o
