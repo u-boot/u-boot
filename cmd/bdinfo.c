@@ -446,16 +446,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_bi_boot_params(bd);
-	print_num("bi_memstart",	bd->bi_memstart);
-	print_num("bi_memsize",		bd->bi_memsize);
-	print_num("bi_flashstart",	bd->bi_flashstart);
-	print_num("bi_flashsize",	bd->bi_flashsize);
-	print_num("bi_flashoffset",	bd->bi_flashoffset);
-	print_num("bi_sramstart",	bd->bi_sramstart);
-	print_num("bi_sramsize",	bd->bi_sramsize);
-	print_num("bi_bootflags",	bd->bi_bootflags);
-	print_mhz("cpufreq",		bd->bi_intfreq);
-	print_mhz("busfreq",		bd->bi_busfreq);
 
 	print_bi_dram(bd);
 
