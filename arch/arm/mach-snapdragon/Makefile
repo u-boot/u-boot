@@ -6,4 +6,3 @@
 
 obj-y += clock-apq8016.o
 obj-y += sysmap-apq8016.o
-obj-y += reset.o

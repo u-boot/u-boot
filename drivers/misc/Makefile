@@ -27,7 +27,6 @@ obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NS87308) += ns87308.o
 obj-$(CONFIG_PDSP188x) += pdsp188x.o
 obj-$(CONFIG_$(SPL_)PWRSEQ) += pwrseq-uclass.o
-obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
 ifdef CONFIG_DM_I2C
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
@@ -47,7 +46,6 @@ obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_FSL_SEC_MON) += fsl_sec_mon.o
 obj-$(CONFIG_PCA9551_LED) += pca9551_led.o
-obj-$(CONFIG_SYSRESET) += sysreset-uclass.o
 obj-$(CONFIG_FSL_DEVICE_DISABLE) += fsl_devdis.o
 obj-$(CONFIG_WINBOND_W83627) += winbond_w83627.o
 obj-$(CONFIG_QFW) += qfw.o

@@ -5,5 +5,4 @@
 #
 
 obj-y += rk3399.o
-obj-y += reset_rk3399.o
 obj-y += syscon_rk3399.o
