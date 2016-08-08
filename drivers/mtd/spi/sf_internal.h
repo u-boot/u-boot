@@ -22,11 +22,7 @@ enum spi_dual_flash {
 
 /* sf param flags */
 enum {
-#ifndef CONFIG_SPI_FLASH_USE_4K_SECTORS
-	SECT_4K		= 0,
-#else
 	SECT_4K		= BIT(0),
-#endif
 	E_FSR		= BIT(1),
 	SST_WR		= BIT(2),
 	WR_QPP		= BIT(3),
