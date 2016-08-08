@@ -65,6 +65,8 @@ config TEGRA210
 config TEGRA186
 	bool "Tegra186 family"
 	select DM_MAILBOX
+	select MISC
+	select TEGRA186_BPMP
 	select TEGRA186_GPIO
 	select TEGRA_ARMV8_COMMON
 	select TEGRA_HSP
