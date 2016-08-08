@@ -19,7 +19,7 @@
 ******************************************************************************/
 
 #include <xil_io.h>
-#include <sleep.h>
+/* #include <sleep.h> */
 #include "psu_init_gpl.h"
 
 int mask_pollOnValue(u32 add , u32 mask, u32 value );
@@ -38,7 +38,7 @@ static void PSU_Mask_Write (unsigned long offset, unsigned long mask, unsigned l
 	RegVal |= (val & mask);
 	Xil_Out32 (offset, RegVal);
 }
-
+/*
 	void prog_reg (unsigned long addr, unsigned long mask, unsigned long shift, unsigned long value) {
 	    int rdata =0;
 	    rdata  = Xil_In32(addr);
@@ -46,7 +46,7 @@ static void PSU_Mask_Write (unsigned long offset, unsigned long mask, unsigned l
 	    rdata  = rdata | (value << shift);
 	    Xil_Out32(addr,rdata);
 	    }
-
+*/
 unsigned long psu_pll_init_data() {
 		// : RPLL INIT
 		/*Register : RPLL_CFG @ 0XFF5E0034</p>
@@ -31227,6 +31227,8 @@ unsigned long psu_ddr_phybringup_data() {
 	////////////////////////////////////////////////////////////////////////////////
 	int dpll_divisor;
 	dpll_divisor = (Xil_In32(0xFD1A0080U) & 0x00003F00U) >> 0x00000008U;
+	if (dpll_divisor != 0 &&  !dpll_divisor)
+		dpll_divisor++;
 	prog_reg (0xFD1A0080U, 0x00003F00U, 0x00000008U, 0x00000005U);
 	prog_reg (0xFD080028U, 0x00000001U, 0x00000000U, 0x00000001U);
 	Xil_Out32(0xFD080004U, 0x00040003U);
@@ -31430,7 +31432,7 @@ unsigned long psu_ddr_phybringup_data() {
 
 // ** declare variables used for calculation **
 
-	int cal_byte0,cal_byte1,cal_byte2,cal_byte3,cal_byte4,cal_byte5,cal_byte6,cal_byte7,cal_byte8;
+	int cal_byte0,cal_byte1,cal_byte2,cal_byte3,cal_byte4,cal_byte5,cal_byte6,cal_byte7; //,cal_byte8;
 
 	cal_byte0 = ((DQ0RBD_0 + DQ0RBD_1 + DQ0RBD_2 + DQ0RBD_3 + DQ0RBD_4 + DQ0RBD_5 + DQ0RBD_6 + DQ0RBD_7)/8);
 	cal_byte1 = ((DQ1RBD_0 + DQ1RBD_1 + DQ1RBD_2 + DQ1RBD_3 + DQ1RBD_4 + DQ1RBD_5 + DQ1RBD_6 + DQ1RBD_7)/8);
