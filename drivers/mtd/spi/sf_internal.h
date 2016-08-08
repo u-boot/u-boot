@@ -20,19 +20,6 @@ enum spi_dual_flash {
 	SF_DUAL_PARALLEL_FLASH	= BIT(1),
 };
 
-/* sf param flags */
-enum {
-	SECT_4K		= BIT(0),
-	E_FSR		= BIT(1),
-	SST_WR		= BIT(2),
-	WR_QPP		= BIT(3),
-	RD_QUAD		= BIT(4),
-	RD_DUAL		= BIT(5),
-	RD_QUADIO	= BIT(6),
-	RD_DUALIO	= BIT(7),
-};
-#define RD_FULL		RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO
-
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= BIT(0),
 	SNOR_F_USE_FSR		= BIT(1),
@@ -133,7 +120,17 @@ struct spi_flash_params {
 	u16 ext_jedec;
 	u32 sector_size;
 	u32 nr_sectors;
+
 	u16 flags;
+#define SECT_4K			BIT(0)
+#define E_FSR			BIT(1)
+#define SST_WR			BIT(2)
+#define WR_QPP			BIT(3)
+#define RD_QUAD			BIT(4)
+#define RD_DUAL			BIT(5)
+#define RD_QUADIO		BIT(6)
+#define RD_DUALIO		BIT(7)
+#define RD_FULL			(RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO)
 };
 
 extern const struct spi_flash_params spi_flash_params_table[];
