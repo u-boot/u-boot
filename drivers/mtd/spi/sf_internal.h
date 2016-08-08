@@ -20,21 +20,6 @@ enum spi_dual_flash {
 	SF_DUAL_PARALLEL_FLASH	= BIT(1),
 };
 
-/* Enum list - Full read commands */
-enum spi_read_cmds {
-	ARRAY_SLOW		= BIT(0),
-	ARRAY_FAST		= BIT(1),
-	DUAL_OUTPUT_FAST	= BIT(2),
-	QUAD_OUTPUT_FAST	= BIT(3),
-	DUAL_IO_FAST		= BIT(4),
-	QUAD_IO_FAST		= BIT(5),
-};
-
-/* Normal - Extended - Full command set */
-#define RD_NORM		(ARRAY_SLOW | ARRAY_FAST)
-#define RD_EXTN		(RD_NORM | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
-#define RD_FULL		(RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST)
-
 /* sf param flags */
 enum {
 #ifndef CONFIG_SPI_FLASH_USE_4K_SECTORS
@@ -51,6 +36,7 @@ enum {
 	RD_QUADIO	= BIT(7),
 	RD_DUALIO	= BIT(8),
 };
+#define RD_FULL		RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO
 
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= BIT(0),
@@ -145,7 +131,6 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
  * @sector_size:	Isn't necessarily a sector size from vendor,
  *			the size listed here is what works with CMD_ERASE_64K
  * @nr_sectors:		No.of sectors on this device
- * @e_rd_cmd:		Enum list for read commands
  * @flags:		Important param, for flash specific behaviour
  */
 struct spi_flash_params {
@@ -154,7 +139,6 @@ struct spi_flash_params {
 	u16 ext_jedec;
 	u32 sector_size;
 	u32 nr_sectors;
-	u8 e_rd_cmd;
 	u16 flags;
 };
 
