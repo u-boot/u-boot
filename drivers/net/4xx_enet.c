@@ -283,10 +283,9 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 static void emac_err (struct eth_device *dev, unsigned long isr);
 
 extern int phy_setup_aneg (char *devname, unsigned char addr);
-extern int emac4xx_miiphy_read (const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value);
-extern int emac4xx_miiphy_write (const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value);
+int emac4xx_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg);
+int emac4xx_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			 u16 value);
 
 int board_emac_count(void);
 

@@ -86,10 +86,9 @@ extern struct bb_miiphy_bus bb_miiphy_buses[];
 extern int bb_miiphy_buses_num;
 
 void bb_miiphy_init(void);
-int bb_miiphy_read(const char *devname, unsigned char addr,
-		    unsigned char reg, unsigned short *value);
-int bb_miiphy_write(const char *devname, unsigned char addr,
-		     unsigned char reg, unsigned short value);
+int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
+int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
+		    u16 value);
 #endif
 
 /* phy seed setup */

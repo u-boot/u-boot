@@ -277,8 +277,7 @@ void __mii_init(void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  */
 
-int mcffec_miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
-		       unsigned short *value)
+int mcffec_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	short rdreg;		/* register working value */
 
@@ -287,27 +286,21 @@ int mcffec_miiphy_read(const char *devname, unsigned char addr, unsigned char re
 #endif
 	rdreg = mii_send(mk_mii_read(addr, reg));
 
-	*value = rdreg;
-
 #ifdef MII_DEBUG
-	printf("0x%04x\n", *value);
+	printf("0x%04x\n", rdreg);
 #endif
 
-	return 0;
+	return rdreg;
 }
 
-int mcffec_miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
-			unsigned short value)
+int mcffec_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			u16 value)
 {
 #ifdef MII_DEBUG
-	printf("miiphy_write(0x%x) @ 0x%x = ", reg, addr);
+	printf("miiphy_write(0x%x) @ 0x%x = 0x%04x\n", reg, addr, value);
 #endif
 
 	mii_send(mk_mii_write(addr, reg, value));
-
-#ifdef MII_DEBUG
-	printf("0x%04x\n", value);
-#endif
 
 	return 0;
 }
