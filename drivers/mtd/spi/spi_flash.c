@@ -1172,11 +1172,11 @@ int spi_flash_scan(struct spi_flash *flash)
 
 	/* Look for read commands */
 	flash->read_cmd = CMD_READ_ARRAY_FAST;
-	if (spi->mode_rx & SPI_RX_SLOW)
+	if (spi->mode & SPI_RX_SLOW)
 		flash->read_cmd = CMD_READ_ARRAY_SLOW;
-	else if (spi->mode_rx & SPI_RX_QUAD && params->flags & RD_QUAD)
+	else if (spi->mode & SPI_RX_QUAD && params->flags & RD_QUAD)
 		flash->read_cmd = CMD_READ_QUAD_OUTPUT_FAST;
-	else if (spi->mode_rx & SPI_RX_DUAL && params->flags & RD_DUAL)
+	else if (spi->mode & SPI_RX_DUAL && params->flags & RD_DUAL)
 		flash->read_cmd = CMD_READ_DUAL_OUTPUT_FAST;
 
 	/* Look for write commands */

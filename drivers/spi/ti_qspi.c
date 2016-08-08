@@ -356,7 +356,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_priv *priv)
 			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
 			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
 			QSPI_NUM_DUMMY_BITS);
-	slave->mode_rx = SPI_RX_QUAD;
+	slave->mode |= SPI_RX_QUAD;
 #else
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
@@ -442,7 +442,7 @@ static void __ti_qspi_setup_memorymap(struct ti_qspi_priv *priv,
 				      bool enable)
 {
 	u32 memval;
-	u32 mode = slave->mode_rx & (SPI_RX_QUAD | SPI_RX_DUAL);
+	u32 mode = slave->mode & (SPI_RX_QUAD | SPI_RX_DUAL);
 
 	if (!enable) {
 		writel(0, &priv->base->setup0);
@@ -456,7 +456,7 @@ static void __ti_qspi_setup_memorymap(struct ti_qspi_priv *priv,
 		memval |= QSPI_CMD_READ_QUAD;
 		memval |= QSPI_SETUP0_NUM_D_BYTES_8_BITS;
 		memval |= QSPI_SETUP0_READ_QUAD;
-		slave->mode_rx = SPI_RX_QUAD;
+		slave->mode |= SPI_RX_QUAD;
 		break;
 	case SPI_RX_DUAL:
 		memval |= QSPI_CMD_READ_DUAL;
