@@ -628,7 +628,7 @@ static int uec_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 	unsigned short value = 0;
 	int devindex = 0;
 
-	if (bus->name == NULL || &value == NULL) {
+	if (bus->name == NULL) {
 		debug("%s: NULL pointer given\n", __FUNCTION__);
 	} else {
 		devindex = uec_miiphy_find_dev_by_name(bus->name);

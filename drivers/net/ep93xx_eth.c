@@ -566,7 +566,6 @@ static int ep93xx_miiphy_read(struct mii_dev *bus, int addr, int devad,
 	BUG_ON(bus->name == NULL);
 	BUG_ON(addr > MII_ADDRESS_MAX);
 	BUG_ON(reg > MII_REGISTER_MAX);
-	BUG_ON(&value == NULL);
 
 	/*
 	 * Save the current SelfCTL register value.  Set MAC to suppress

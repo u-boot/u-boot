@@ -13,6 +13,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <linux/mdio.h>
 #include <linux/mii.h>
 
 #include <asm/blackfin.h>
@@ -126,6 +127,8 @@ int bfin_EMAC_initialize(bd_t *bis)
 	retval = mdio_register(mdiodev);
 	if (retval < 0)
 		return retval;
+
+	dev->priv = mdiodev;
 #endif
 
 	return 0;
@@ -234,8 +237,9 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 {
 	const unsigned short pins[] = CONFIG_BFIN_MAC_PINS;
-	u16 phydat;
+	int phydat;
 	size_t count;
+	struct mii_dev *mdiodev = dev->priv;
 
 	/* Enable PHY output */
 	bfin_write_VR_CTL(bfin_read_VR_CTL() | CLKBUFOE);
@@ -248,12 +252,15 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	bfin_write_EMAC_SYSCTL(RXDWA | RXCKS | SET_MDCDIV(MDC_FREQ_TO_DIV(CONFIG_PHY_CLOCK_FREQ)));
 
 	/* turn on auto-negotiation and wait for link to come up */
-	bfin_miiphy_write(dev->name, CONFIG_PHY_ADDR, MII_BMCR, BMCR_ANENABLE);
+	bfin_miiphy_write(mdiodev, CONFIG_PHY_ADDR, MDIO_DEVAD_NONE, MII_BMCR,
+			  BMCR_ANENABLE);
 	count = 0;
 	while (1) {
 		++count;
-		if (bfin_miiphy_read(dev->name, CONFIG_PHY_ADDR, MII_BMSR, &phydat))
-			return -1;
+		phydat = bfin_miiphy_read(mdiodev, CONFIG_PHY_ADDR,
+					  MDIO_DEVAD_NONE, MII_BMSR);
+		if (phydat < 0)
+			return phydat;
 		if (phydat & BMSR_LSTATUS)
 			break;
 		if (count > 30000) {
@@ -264,8 +271,10 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	}
 
 	/* see what kind of link we have */
-	if (bfin_miiphy_read(dev->name, CONFIG_PHY_ADDR, MII_LPA, &phydat))
-		return -1;
+	phydat = bfin_miiphy_read(mdiodev, CONFIG_PHY_ADDR, MDIO_DEVAD_NONE,
+				  MII_LPA);
+	if (phydat < 0)
+		return phydat;
 	if (phydat & LPA_DUPLEX)
 		*opmode = FDMODE;
 	else

@@ -6,10 +6,12 @@
  */
 
 #include <common.h>
-#include <malloc.h>
-#include <commproc.h>
-#include <net.h>
 #include <command.h>
+#include <commproc.h>
+#include <malloc.h>
+#include <net.h>
+
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

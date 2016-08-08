@@ -264,8 +264,7 @@ int last_stage_init(void)
 		putc(slash[k % 8]);
 	}
 
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
+	mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
 	strncpy(mdiodev->name, CONFIG_SYS_GBIT_MII1_BUSNAME, MDIO_NAME_LEN);

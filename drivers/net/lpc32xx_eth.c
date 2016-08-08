@@ -336,25 +336,6 @@ static int mii_reg_write(struct mii_dev *bus, int phy_adr, int devad,
 }
 #endif
 
-#if defined(CONFIG_PHYLIB)
-int lpc32xx_eth_phy_read(struct mii_dev *bus, int phy_addr, int dev_addr,
-	int reg_addr)
-{
-	u16 data;
-	int ret;
-	ret = mii_reg_read(bus->name, phy_addr, reg_addr, &data);
-	if (ret)
-		return ret;
-	return data;
-}
-
-int lpc32xx_eth_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
-	int reg_addr, u16 data)
-{
-	return mii_reg_write(bus->name, phy_addr, reg_addr, data);
-}
-#endif
-
 /*
  * Provide default Ethernet buffers base address if target did not.
  * Locate buffers in SRAM at 0x00001000 to avoid cache issues and
@@ -583,8 +564,8 @@ int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 		printf("mdio_alloc failed\n");
 		return -ENOMEM;
 	}
-	bus->read = lpc32xx_eth_phy_read;
-	bus->write = lpc32xx_eth_phy_write;
+	bus->read = mii_reg_read;
+	bus->write = mii_reg_write;
 	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);

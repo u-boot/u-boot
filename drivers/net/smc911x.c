@@ -230,7 +230,7 @@ static int smc911x_miiphy_read(struct mii_dev *bus, int phy, int devad,
 			return retval;
 		return val;
 	}
-	return -1;
+	return -ENODEV;
 }
 /* wrapper for smc911x_eth_phy_write */
 static int smc911x_miiphy_write(struct mii_dev *bus, int phy, int devad,
@@ -239,7 +239,7 @@ static int smc911x_miiphy_write(struct mii_dev *bus, int phy, int devad,
 	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	if (dev)
 		return smc911x_eth_phy_write(dev, phy, reg, val);
-	return -1;
+	return -ENODEV;
 }
 #endif
 
