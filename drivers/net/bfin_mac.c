@@ -72,18 +72,20 @@ static int bfin_miiphy_wait(void)
 	return 0;
 }
 
-static int bfin_miiphy_read(const char *devname, uchar addr, uchar reg, ushort *val)
+static int bfin_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
+	ushort val = 0;
 	if (bfin_miiphy_wait())
 		return 1;
 	bfin_write_EMAC_STAADD(SET_PHYAD(addr) | SET_REGAD(reg) | STABUSY);
 	if (bfin_miiphy_wait())
 		return 1;
-	*val = bfin_read_EMAC_STADAT();
-	return 0;
+	val = bfin_read_EMAC_STADAT();
+	return val;
 }
 
-static int bfin_miiphy_write(const char *devname, uchar addr, uchar reg, ushort val)
+static int bfin_miiphy_write(struct mii_dev *bus, int addr, int devad,
+			     int reg, u16 val)
 {
 	if (bfin_miiphy_wait())
 		return 1;
@@ -113,7 +115,17 @@ int bfin_EMAC_initialize(bd_t *bis)
 	eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register(dev->name, bfin_miiphy_read, bfin_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = bfin_miiphy_read;
+	mdiodev->write = bfin_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 
 	return 0;

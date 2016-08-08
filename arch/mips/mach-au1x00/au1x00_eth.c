@@ -73,9 +73,9 @@ mac_fifo_t mac_fifo[NO_OF_FIFOS];
 #define MAX_WAIT 1000
 
 #if defined(CONFIG_CMD_MII)
-int  au1x00_miiphy_read(const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short * value)
+int au1x00_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
+	unsigned short value = 0;
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);
 	volatile u32 *mii_data_reg = (volatile u32*)(ETH0_BASE+MAC_MII_DATA);
 	u32 mii_control;
@@ -102,12 +102,12 @@ int  au1x00_miiphy_read(const char *devname, unsigned char addr,
 			return -1;
 		}
 	}
-	*value = *mii_data_reg;
-	return 0;
+	value = *mii_data_reg;
+	return value;
 }
 
-int  au1x00_miiphy_write(const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value)
+int au1x00_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			u16 value)
 {
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);
 	volatile u32 *mii_data_reg = (volatile u32*)(ETH0_BASE+MAC_MII_DATA);
@@ -290,8 +290,17 @@ int au1x00_enet_initialize(bd_t *bis){
 	eth_register(dev);
 
 #if defined(CONFIG_CMD_MII)
-	miiphy_register(dev->name,
-		au1x00_miiphy_read, au1x00_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = au1x00_miiphy_read;
+	mdiodev->write = au1x00_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 
 	return 1;

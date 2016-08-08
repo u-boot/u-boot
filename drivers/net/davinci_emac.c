@@ -390,12 +390,18 @@ static int gen_auto_negotiate(int phy_addr)
 
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static int davinci_mii_phy_read(const char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
+static int davinci_mii_phy_read(struct mii_dev *bus, int addr, int devad,
+				int reg)
 {
-	return(davinci_eth_phy_read(addr, reg, value) ? 0 : 1);
+	unsigned short value = 0;
+	int retval = (davinci_eth_phy_read(addr, reg, &value) ? 0 : 1);
+	if (retval < 0)
+		return retval;
+	return value;
 }
 
-static int davinci_mii_phy_write(const char *devname, unsigned char addr, unsigned char reg, unsigned short value)
+static int davinci_mii_phy_write(struct mii_dev *bus, int addr, int devad,
+				 int reg, u16 value)
 {
 	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
 }
@@ -883,8 +889,17 @@ int davinci_emac_initialize(void)
 
 		debug("Ethernet PHY: %s\n", phy[i].name);
 
-		miiphy_register(phy[i].name, davinci_mii_phy_read,
-						davinci_mii_phy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, phy[i].name, MDIO_NAME_LEN);
+		mdiodev->read = davinci_mii_phy_read;
+		mdiodev->write = davinci_mii_phy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 	}
 
 #if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \

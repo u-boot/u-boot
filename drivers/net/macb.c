@@ -205,39 +205,41 @@ void __weak arch_get_mdio_control(const char *name)
 
 #if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 
-int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
+int macb_miiphy_read(struct mii_dev *bus, int phy_adr, int devad, int reg)
 {
+	u16 value = 0;
 #ifdef CONFIG_DM_ETH
-	struct udevice *dev = eth_get_dev_by_name(devname);
+	struct udevice *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = dev_get_priv(dev);
 #else
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = to_macb(dev);
 #endif
 
 	if (macb->phy_addr != phy_adr)
 		return -1;
 
-	arch_get_mdio_control(devname);
-	*value = macb_mdio_read(macb, reg);
+	arch_get_mdio_control(bus->name);
+	value = macb_mdio_read(macb, reg);
 
-	return 0;
+	return value;
 }
 
-int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
+int macb_miiphy_write(struct mii_dev *bus, int phy_adr, int devad, int reg,
+		      u16 value)
 {
 #ifdef CONFIG_DM_ETH
-	struct udevice *dev = eth_get_dev_by_name(devname);
+	struct udevice *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = dev_get_priv(dev);
 #else
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = to_macb(dev);
 #endif
 
 	if (macb->phy_addr != phy_adr)
 		return -1;
 
-	arch_get_mdio_control(devname);
+	arch_get_mdio_control(bus->name);
 	macb_mdio_write(macb, reg, value);
 
 	return 0;
@@ -913,7 +915,17 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	eth_register(netdev);
 
 #if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_register(netdev->name, macb_miiphy_read, macb_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, netdev->name, MDIO_NAME_LEN);
+	mdiodev->read = macb_miiphy_read;
+	mdiodev->write = macb_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 	macb->bus = miiphy_get_dev_by_name(netdev->name);
 #endif
 	return 0;
@@ -998,7 +1010,17 @@ static int macb_eth_probe(struct udevice *dev)
 
 	_macb_eth_initialize(macb);
 #if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_register(dev->name, macb_miiphy_read, macb_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = macb_miiphy_read;
+	mdiodev->write = macb_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 	macb->bus = miiphy_get_dev_by_name(dev->name);
 #endif
 

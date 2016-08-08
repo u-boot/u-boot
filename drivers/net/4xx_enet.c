@@ -2015,8 +2015,17 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 		eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		miiphy_register(dev->name,
-				emac4xx_miiphy_read, emac4xx_miiphy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = emac4xx_miiphy_read;
+		mdiodev->write = emac4xx_miiphy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 #endif
 
 		if (0 == virgin) {

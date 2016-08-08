@@ -48,9 +48,11 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * Returns 16bit phy register value, or 0xffff on error
  */
-static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
+static int smi_reg_read(struct mii_dev *bus, int phy_adr, int devad,
+			int reg_ofs)
 {
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	u16 data = 0;
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
@@ -60,8 +62,8 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	if (phy_adr == MV_PHY_ADR_REQUEST &&
 			reg_ofs == MV_PHY_ADR_REQUEST) {
 		/* */
-		*data = (u16) (MVGBE_REG_RD(regs->phyadr) & PHYADR_MASK);
-		return 0;
+		data = (u16) (MVGBE_REG_RD(regs->phyadr) & PHYADR_MASK);
+		return data;
 	}
 	/* check parameters */
 	if (phy_adr > PHYADR_MASK) {
@@ -111,12 +113,12 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	for (timeout = 0; timeout < MVGBE_PHY_SMI_TIMEOUT; timeout++)
 		;
 
-	*data = (u16) (MVGBE_REG_RD(MVGBE_SMI_REG) & MVGBE_PHY_SMI_DATA_MASK);
+	data = (u16) (MVGBE_REG_RD(MVGBE_SMI_REG) & MVGBE_PHY_SMI_DATA_MASK);
 
 	debug("%s:(adr %d, off %d) value= %04x\n", __func__, phy_adr, reg_ofs,
-	      *data);
+	      data);
 
-	return 0;
+	return data;
 }
 
 /*
@@ -125,9 +127,10 @@ static int smi_reg_read(const char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
  * Returns 0 if write succeed, -EINVAL on bad parameters
  * -ETIME on timeout
  */
-static int smi_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
+static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
+			 int reg_ofs, u16 data)
 {
-	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
@@ -785,7 +788,17 @@ error1:
 #if defined(CONFIG_PHYLIB)
 		mvgbe_phylib_init(dev, PHY_BASE_ADR + devnum);
 #elif defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		miiphy_register(dev->name, smi_reg_read, smi_reg_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = smi_reg_read;
+		mdiodev->write = smi_reg_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 		/* Set phy address of the port */
 		miiphy_write(dev->name, MV_PHY_ADR_REQUEST,
 				MV_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);

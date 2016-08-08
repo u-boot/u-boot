@@ -441,8 +441,17 @@ int fec_initialize(bd_t *bis)
 
 #if (defined(CONFIG_MII) || defined(CONFIG_CMD_MII)) \
 		&& defined(CONFIG_BITBANGMII)
-		miiphy_register(dev->name,
-				bb_miiphy_read,	bb_miiphy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = bb_miiphy_read;
+		mdiodev->write = bb_miiphy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 #endif
 	}
 
