@@ -61,6 +61,7 @@ struct cpu_type {
 /* ahci port register default value */
 #define AHCI_PORT_PHY_1_CFG    0xa003fffe
 #define AHCI_PORT_TRANS_CFG    0x08000029
+#define AHCI_PORT_AXICC_CFG	0x3fffffff
 
 /* AHCI (sata) register map */
 struct ccsr_ahci {

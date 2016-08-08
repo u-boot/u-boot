@@ -234,6 +234,7 @@ int sata_init(void)
 #endif
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA);
 	scsi_scan(0);
@@ -337,7 +338,9 @@ void fsl_lsch2_early_init_f(void)
 #endif
 	/* Make SEC reads and writes snoopable */
 	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
-		     SCFG_SNPCNFGCR_SECWRSNP);
+		     SCFG_SNPCNFGCR_SECWRSNP |
+		     SCFG_SNPCNFGCR_SATARDSNP |
+		     SCFG_SNPCNFGCR_SATAWRSNP);
 
 	/*
 	 * Enable snoop requests and DVM message requests for

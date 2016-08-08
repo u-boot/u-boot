@@ -335,6 +335,8 @@ struct ccsr_gur {
 
 #define SCFG_SNPCNFGCR_SECRDSNP		0x80000000
 #define SCFG_SNPCNFGCR_SECWRSNP		0x40000000
+#define SCFG_SNPCNFGCR_SATARDSNP	0x00800000
+#define SCFG_SNPCNFGCR_SATAWRSNP	0x00400000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
