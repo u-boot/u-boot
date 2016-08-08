@@ -25,6 +25,7 @@ obj-y += xusb-padctl-dummy.o
 endif
 
 obj-$(CONFIG_ARM64) += arm64-mmu.o
+obj-y += dt-setup.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o
 obj-$(CONFIG_TEGRA_IVC) += ivc.o

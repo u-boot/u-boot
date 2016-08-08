@@ -41,8 +41,3 @@ int board_mmc_init(bd_t *bd)
 
 	return 0;
 }
-
-int ft_system_setup(void *blob, bd_t *bd)
-{
-	return 0;
-}
