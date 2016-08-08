@@ -66,10 +66,12 @@ config TEGRA186
 	bool "Tegra186 family"
 	select CLK
 	select DM_MAILBOX
+	select DM_RESET
 	select MISC
 	select TEGRA186_BPMP
 	select TEGRA186_CLOCK
 	select TEGRA186_GPIO
+	select TEGRA186_RESET
 	select TEGRA_ARMV8_COMMON
 	select TEGRA_HSP
 	select TEGRA_IVC
