@@ -46,6 +46,10 @@ enum {
 	E_FSR		= BIT(2),
 	SST_WR		= BIT(3),
 	WR_QPP		= BIT(4),
+	RD_QUAD		= BIT(5),
+	RD_DUAL		= BIT(6),
+	RD_QUADIO	= BIT(7),
+	RD_DUALIO	= BIT(8),
 };
 
 enum spi_nor_option_flags {
