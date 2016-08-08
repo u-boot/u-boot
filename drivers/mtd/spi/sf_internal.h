@@ -27,14 +27,13 @@ enum {
 #else
 	SECT_4K		= BIT(0),
 #endif
-	SECT_32K	= BIT(1),
-	E_FSR		= BIT(2),
-	SST_WR		= BIT(3),
-	WR_QPP		= BIT(4),
-	RD_QUAD		= BIT(5),
-	RD_DUAL		= BIT(6),
-	RD_QUADIO	= BIT(7),
-	RD_DUALIO	= BIT(8),
+	E_FSR		= BIT(1),
+	SST_WR		= BIT(2),
+	WR_QPP		= BIT(3),
+	RD_QUAD		= BIT(4),
+	RD_DUAL		= BIT(5),
+	RD_QUADIO	= BIT(6),
+	RD_DUALIO	= BIT(7),
 };
 #define RD_FULL		RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO
 
@@ -57,7 +56,6 @@ enum spi_nor_option_flags {
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
-#define CMD_ERASE_32K			0x52
 #define CMD_ERASE_CHIP			0xc7
 #define CMD_ERASE_64K			0xd8
 

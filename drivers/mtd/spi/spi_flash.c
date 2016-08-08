@@ -1159,9 +1159,6 @@ int spi_flash_scan(struct spi_flash *flash)
 	if (params->flags & SECT_4K) {
 		flash->erase_cmd = CMD_ERASE_4K;
 		flash->erase_size = 4096 << flash->shift;
-	} else if (params->flags & SECT_32K) {
-		flash->erase_cmd = CMD_ERASE_32K;
-		flash->erase_size = 32768 << flash->shift;
 	} else {
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;
