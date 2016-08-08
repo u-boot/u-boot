@@ -17,4 +17,11 @@ config SANDBOX_POWER_DOMAIN
 	  simply accepts requests to power on/off various HW modules without
 	  actually doing anything beyond a little error checking.
 
+config TEGRA186_POWER_DOMAIN
+	bool "Enable Tegra186 BPMP-based power domain driver"
+	depends on TEGRA186_BPMP
+	help
+	  Enable support for manipulating Tegra's on-SoC power domains via IPC
+	  requests to the BPMP (Boot and Power Management Processor).
+
 endmenu
