@@ -21,6 +21,17 @@
 	};
 };
 
+&ehci0 {
+	dr_mode = "otg";
+	fsl,cdet-gpio = <&gpio3 6 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&ehci1 {
+	dr_mode = "host";
+	status = "okay";
+};
+
 &uart0 {
 	status = "okay";
 };
