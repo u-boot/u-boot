@@ -259,36 +259,32 @@ static int asix_read_cmd(struct ueth_data *dev, u8 cmd, u16 value, u16 index,
 	return len == size ? 0 : ECOMM;
 }
 
-static int asix_read_mac(struct eth_device *eth)
+static int asix_read_mac(struct ueth_data *dev, uint8_t *enetaddr)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	u8 buf[ETH_ALEN];
+	int ret;
 
-	asix_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, 6, 6, buf);
-	debug("asix_read_mac() returning %02x:%02x:%02x:%02x:%02x:%02x\n",
-	      buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+	ret = asix_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, 6, 6, enetaddr);
+	if (ret < 0)
+		debug("Failed to read MAC address: %02x\n", ret);
 
-	memcpy(eth->enetaddr, buf, ETH_ALEN);
-
-	return 0;
+	return ret;
 }
 
-static int asix_write_mac(struct eth_device *eth)
+static int asix_write_mac(struct ueth_data *dev, uint8_t *enetaddr)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	int ret;
 
 	ret = asix_write_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN,
-				 ETH_ALEN, eth->enetaddr);
+				 ETH_ALEN, enetaddr);
 	if (ret < 0)
 		debug("Failed to set MAC address: %02x\n", ret);
 
 	return ret;
 }
 
-static int asix_basic_reset(struct ueth_data *dev)
+static int asix_basic_reset(struct ueth_data *dev,
+			struct asix_private *dev_priv)
 {
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
 	u8 buf[5];
 	u16 *tmp16;
 	u8 *tmp;
@@ -387,13 +383,9 @@ static int asix_wait_link(struct ueth_data *dev)
 	}
 }
 
-/*
- * Asix callbacks
- */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_init_common(struct ueth_data *dev,
+			struct asix_private *dev_priv)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
 	u8 buf[2], tmp[5], link_sts;
 	u16 *tmp16, mode;
 
@@ -411,7 +403,7 @@ static int asix_init(struct eth_device *eth, bd_t *bd)
 	if (asix_wait_link(dev) != 0) {
 		/*reset device and try again*/
 		printf("Reset Ethernet Device\n");
-		asix_basic_reset(dev);
+		asix_basic_reset(dev, dev_priv);
 		if (asix_wait_link(dev) != 0)
 			goto out_err;
 	}
@@ -463,11 +455,10 @@ out_err:
 	return -1;
 }
 
-static int asix_send(struct eth_device *eth, void *packet, int length)
+static int asix_send_common(struct ueth_data *dev,
+			struct asix_private *dev_priv,
+			void *packet, int length)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
-
 	int err;
 	u32 packet_len, tx_hdr2;
 	int actual_len, framesize;
@@ -502,6 +493,32 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 	      length + sizeof(packet_len), actual_len, err);
 
 	return err;
+}
+
+/*
+ * Asix callbacks
+ */
+static int asix_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
+
+	return asix_init_common(dev, dev_priv);
+}
+
+static int asix_write_hwaddr(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+
+	return asix_write_mac(dev, eth->enetaddr);
+}
+
+static int asix_send(struct eth_device *eth, void *packet, int length)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
+
+	return asix_send_common(dev, dev_priv, packet, length);
 }
 
 static int asix_recv(struct eth_device *eth)
@@ -693,6 +710,8 @@ int ax88179_eth_probe(struct usb_device *dev, unsigned int ifnum,
 int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 				struct eth_device *eth)
 {
+	struct asix_private *dev_priv = (struct asix_private *)ss->dev_priv;
+
 	if (!eth) {
 		debug("%s: missing parameter.\n", __func__);
 		return 0;
@@ -702,14 +721,14 @@ int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->send = asix_send;
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
-	eth->write_hwaddr = asix_write_mac;
+	eth->write_hwaddr = asix_write_hwaddr;
 	eth->priv = ss;
 
-	if (asix_basic_reset(ss))
+	if (asix_basic_reset(ss, dev_priv))
 		return 0;
 
 	/* Get the MAC address */
-	if (asix_read_mac(eth))
+	if (asix_read_mac(ss, eth->enetaddr))
 		return 0;
 	debug("MAC %pM\n", eth->enetaddr);
 
