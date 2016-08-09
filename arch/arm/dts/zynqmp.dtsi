@@ -306,7 +306,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 124 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <0>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -318,7 +317,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 125 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <1>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -330,7 +328,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 126 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <2>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -342,7 +339,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 127 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <3>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -354,7 +350,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 128 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <4>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -366,7 +361,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 129 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <5>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -378,7 +372,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 130 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <6>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -390,7 +383,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 131 4>;
 			clock-names = "clk_main", "clk_apb";
-			xlnx,id = <7>;
 			xlnx,bus-width = <128>;
 			power-domains = <&pd_gdma>;
 		};
@@ -412,7 +404,6 @@
 			reg = <0x0 0xffa80000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 77 4>;
-			xlnx,id = <0>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -423,7 +414,6 @@
 			reg = <0x0 0xffa90000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 78 4>;
-			xlnx,id = <1>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -434,7 +424,6 @@
 			reg = <0x0 0xffaa0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 79 4>;
-			xlnx,id = <2>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -445,7 +434,6 @@
 			reg = <0x0 0xffab0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 80 4>;
-			xlnx,id = <3>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -456,7 +444,6 @@
 			reg = <0x0 0xffac0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 81 4>;
-			xlnx,id = <4>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -467,7 +454,6 @@
 			reg = <0x0 0xffad0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 82 4>;
-			xlnx,id = <5>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -478,7 +464,6 @@
 			reg = <0x0 0xffae0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 83 4>;
-			xlnx,id = <6>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
@@ -489,7 +474,6 @@
 			reg = <0x0 0xffaf0000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 84 4>;
-			xlnx,id = <7>;
 			xlnx,bus-width = <64>;
 			power-domains = <&pd_adma>;
 		};
