@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <usb.h>
 #include <net.h>
 #include <linux/mii.h>
@@ -197,10 +198,18 @@ static const struct {
 	{7, 0xcc, 0x4c, 0x04, 8},
 };
 
+#ifndef CONFIG_DM_ETH
 static int curr_eth_dev; /* index for name of next device detected */
+#endif
 
 /* driver private */
 struct asix_private {
+#ifdef CONFIG_DM_ETH
+	struct ueth_data ueth;
+	unsigned pkt_cnt;
+	uint8_t *pkt_data;
+	uint32_t *pkt_hdr;
+#endif
 	int flags;
 	int rx_urb_size;
 	int maxpacketsize;
@@ -495,6 +504,7 @@ static int asix_send_common(struct ueth_data *dev,
 	return err;
 }
 
+#ifndef CONFIG_DM_ETH
 /*
  * Asix callbacks
  */
@@ -734,3 +744,177 @@ int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 
 	return 1;
 }
+
+#else /* !CONFIG_DM_ETH */
+
+static int ax88179_eth_start(struct udevice *dev)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+
+	return asix_init_common(&priv->ueth, priv);
+}
+
+void ax88179_eth_stop(struct udevice *dev)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	debug("** %s()\n", __func__);
+
+	usb_ether_advance_rxbuf(ueth, -1);
+	priv->pkt_cnt = 0;
+	priv->pkt_data = NULL;
+	priv->pkt_hdr = NULL;
+}
+
+int ax88179_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+
+	return asix_send_common(&priv->ueth, priv, packet, length);
+}
+
+int ax88179_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+	int ret, len;
+	u16 pkt_len;
+
+	/* No packet left, get a new one */
+	if (priv->pkt_cnt == 0) {
+		uint8_t *ptr;
+		u16 pkt_cnt;
+		u16 hdr_off;
+		u32 rx_hdr;
+
+		len = usb_ether_get_rx_bytes(ueth, &ptr);
+		debug("%s: first try, len=%d\n", __func__, len);
+		if (!len) {
+			if (!(flags & ETH_RECV_CHECK_DEVICE))
+				return -EAGAIN;
+
+			ret = usb_ether_receive(ueth, priv->rx_urb_size);
+			if (ret < 0)
+				return ret;
+
+			len = usb_ether_get_rx_bytes(ueth, &ptr);
+			debug("%s: second try, len=%d\n", __func__, len);
+		}
+
+		if (len < 4) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return -EMSGSIZE;
+		}
+
+		rx_hdr = *(u32 *)(ptr + len - 4);
+		le32_to_cpus(&rx_hdr);
+
+		pkt_cnt = (u16)rx_hdr;
+		if (pkt_cnt == 0) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return 0;
+		}
+
+		hdr_off = (u16)(rx_hdr >> 16);
+		if (hdr_off > len - 4) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return -EIO;
+		}
+
+		priv->pkt_cnt = pkt_cnt;
+		priv->pkt_data = ptr;
+		priv->pkt_hdr = (u32 *)(ptr + hdr_off);
+		debug("%s: %d packets received, pkt header at %d\n",
+		      __func__, (int)priv->pkt_cnt, (int)hdr_off);
+	}
+
+	le32_to_cpus(priv->pkt_hdr);
+	pkt_len = (*priv->pkt_hdr >> 16) & 0x1fff;
+
+	*packetp = priv->pkt_data + 2;
+
+	priv->pkt_data += (pkt_len + 7) & 0xFFF8;
+	priv->pkt_cnt--;
+	priv->pkt_hdr++;
+
+	debug("%s: return packet of %d bytes (%d packets left)\n",
+	      __func__, (int)pkt_len, priv->pkt_cnt);
+	return pkt_len;
+}
+
+static int ax88179_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	if (priv->pkt_cnt == 0)
+		usb_ether_advance_rxbuf(ueth, -1);
+
+	return 0;
+}
+
+int ax88179_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	return asix_write_mac(ueth, pdata->enetaddr);
+}
+
+static int ax88179_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct asix_private *priv = dev_get_priv(dev);
+	struct usb_device *usb_dev;
+	int ret;
+
+	priv->flags = dev->driver_data;
+	ret = usb_ether_register(dev, &priv->ueth, AX_RX_URB_SIZE);
+	if (ret)
+		return ret;
+
+	usb_dev = priv->ueth.pusb_dev;
+	priv->maxpacketsize = usb_dev->epmaxpacketout[AX_ENDPOINT_OUT];
+
+	/* Get the MAC address */
+	ret = asix_read_mac(&priv->ueth, pdata->enetaddr);
+	if (ret)
+		return ret;
+	debug("MAC %pM\n", pdata->enetaddr);
+
+	return 0;
+}
+
+static const struct eth_ops ax88179_eth_ops = {
+	.start = ax88179_eth_start,
+	.send = ax88179_eth_send,
+	.recv = ax88179_eth_recv,
+	.free_pkt = ax88179_free_pkt,
+	.stop = ax88179_eth_stop,
+	.write_hwaddr = ax88179_write_hwaddr,
+};
+
+U_BOOT_DRIVER(ax88179_eth) = {
+	.name = "ax88179_eth",
+	.id = UCLASS_ETH,
+	.probe = ax88179_eth_probe,
+	.ops = &ax88179_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct asix_private),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+static const struct usb_device_id ax88179_eth_id_table[] = {
+	{ USB_DEVICE(0x0b95, 0x1790), .driver_info = FLAG_TYPE_AX88179 },
+	{ USB_DEVICE(0x0b95, 0x178a), .driver_info = FLAG_TYPE_AX88178a },
+	{ USB_DEVICE(0x2001, 0x4a00), .driver_info = FLAG_TYPE_DLINK_DUB1312 },
+	{ USB_DEVICE(0x0df6, 0x0072), .driver_info = FLAG_TYPE_SITECOM },
+	{ USB_DEVICE(0x04e8, 0xa100), .driver_info = FLAG_TYPE_SAMSUNG },
+	{ USB_DEVICE(0x17ef, 0x304b), .driver_info = FLAG_TYPE_LENOVO },
+	{ USB_DEVICE(0x04b4, 0x3610), .driver_info = FLAG_TYPE_GX3 },
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(ax88179_eth, ax88179_eth_id_table);
+#endif /* !CONFIG_DM_ETH */
