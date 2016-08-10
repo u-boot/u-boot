@@ -240,6 +240,53 @@ gd_t *global_data;
 "	ld	r10, [r10, %1]\n" \
 "	j	[r10]\n" \
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r10");
+#elif defined(CONFIG_XTENSA)
+/*
+ * Global data ptr is in global_data, jump table ptr is in jt.
+ * Windowed ABI: Jump just past 'entry' in target and adjust stack frame
+ * (extract stack frame size from target 'entry' instruction).
+ */
+
+static void **jt;
+
+#if defined(__XTENSA_CALL0_ABI__)
+#define EXPORT_FUNC(f, a, x, ...)	\
+	asm volatile (			\
+"	.extern jt\n"			\
+"	.globl " #x "\n"		\
+"	.align 4\n"			\
+#x ":\n"				\
+"	l32i	a8, %0, 0\n"		\
+"	l32i	a8, a8, %1\n"		\
+"	jx	a8\n"			\
+	: : "r"(jt), "i" (FO(x)) : "a8");
+#elif defined(__XTENSA_WINDOWED_ABI__)
+#if XCHAL_HAVE_BE
+# define SFT "8"
+#else
+# define SFT "12"
+#endif
+#define EXPORT_FUNC(f, a, x, ...)	\
+	asm volatile (			\
+"	.extern jt\n"			\
+"	.globl " #x "\n"		\
+"	.align 4\n"			\
+#x ":\n"				\
+"	entry	sp, 16\n"		\
+"	l32i	a8, %0, 0\n"		\
+"	l32i	a8, a8, %1\n"		\
+"	l32i	a9, a8, 0\n"		\
+"	extui	a9, a9, " SFT ", 12\n"	\
+"	subx8	a9, a9, sp\n"		\
+"	movi	a10, 16\n"		\
+"	sub	a9, a10, a9\n"		\
+"	movsp	sp, a9\n"		\
+"	addi	a8, a8, 3\n"		\
+"	jx	a8\n"			\
+	: : "r"(jt), "i" (FO(x)) : "a8", "a9", "a10");
+#else
+#error Unsupported Xtensa ABI
+#endif
 #else
 /*"	addi	$sp, $sp, -24\n"	\
 "	br	$r16\n"			\*/

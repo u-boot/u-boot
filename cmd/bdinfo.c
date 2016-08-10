@@ -524,6 +524,14 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_XTENSA)
+
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	print_std_bdinfo(gd->bd);
+	return 0;
+}
+
 #else
  #error "a case for this architecture does not exist!"
 #endif

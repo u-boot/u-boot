@@ -557,6 +557,14 @@ else
 include/config/auto.conf: ;
 endif # $(dot-config)
 
+#
+# Xtensa linker script cannot be preprocessed with -ansi because of
+# preprocessor operations on strings that don't make C identifiers.
+#
+ifeq ($(CONFIG_XTENSA),)
+LDPPFLAGS	+= -ansi
+endif
+
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
@@ -1312,7 +1320,7 @@ $(timestamp_h): $(srctree)/Makefile FORCE
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
-cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
+cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) \
 		-D__ASSEMBLY__ -x assembler-with-cpp -P -o $@ $<
 
 u-boot.lds: $(LDSCRIPT) prepare FORCE

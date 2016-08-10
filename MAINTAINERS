@@ -454,6 +454,11 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-x86.git
 F:	arch/x86/
 
+XTENSA
+M:	Max Filippov <jcmvbkbc@gmail.com>
+S:	Maintained
+F:	arch/xtensa/
+
 THE REST
 M:	Tom Rini <trini@konsulko.com>
 L:	u-boot@lists.denx.de

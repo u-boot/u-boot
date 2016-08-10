@@ -54,6 +54,8 @@
 #include <asm/sections.h>
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
 #include <asm/init_helpers.h>
+#endif
+#if defined(CONFIG_X86) || defined(CONFIG_ARC) || defined(CONFIG_XTENSA)
 #include <asm/relocate.h>
 #endif
 #ifdef CONFIG_SANDBOX
@@ -271,7 +273,8 @@ static int setup_mon_len(void)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX) || defined(CONFIG_EFI_APP)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
-#elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
+#elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2) || \
+	defined(CONFIG_XTENSA)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #elif defined(CONFIG_NDS32)
 	gd->mon_len = (ulong)(&__bss_end) - (ulong)(&_start);
@@ -971,7 +974,7 @@ static init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_BLACKFIN)
+#if defined(CONFIG_BLACKFIN) || defined(CONFIG_XTENSA)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
 #endif
@@ -1003,7 +1006,7 @@ static init_fnc_t init_sequence_f[] = {
 # endif
 #endif /* CONFIG_DM_VIDEO */
 	reserve_trace,
-#if !defined(CONFIG_BLACKFIN)
+#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_XTENSA)
 	reserve_uboot,
 #endif
 #ifndef CONFIG_SPL_BUILD
@@ -1035,6 +1038,9 @@ static init_fnc_t init_sequence_f[] = {
 	copy_uboot_to_ram,
 	clear_bss,
 	do_elf_reloc_fixups,
+#endif
+#if defined(CONFIG_XTENSA)
+	clear_bss,
 #endif
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
 	jump_to_copy,
