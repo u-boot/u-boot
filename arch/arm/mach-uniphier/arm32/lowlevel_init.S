@@ -11,8 +11,6 @@
 #include <linux/sizes.h>
 #include <asm/system.h>
 
-#include "ssc-regs.h"
-
 ENTRY(lowlevel_init)
 	mov	r8, lr			@ persevere link reg across call
 
@@ -88,39 +86,37 @@ ENDPROC(enable_mmu)
  */
 #define BOOT_RAM_SIZE	(SZ_32K)
 #define BOOT_RAM_BASE	((CONFIG_SPL_STACK) - (BOOT_RAM_SIZE))
-#define BOOT_WAY_BITS	(0x00000100)   /* way 8 */
+#define BOOT_RAM_WAYS	(0x00000100)	@ way 8
+
+#define SSCO_BASE		0x506c0000
+#define SSCOPE			0x244
+#define SSCOQM			0x248
+#define SSCOQAD			0x24c
+#define SSCOQSZ			0x250
+#define SSCOQWN			0x258
+#define SSCOPPQSEF		0x25c
+#define SSCOLPQS		0x260
 
 ENTRY(setup_init_ram)
-	/*
-	 * Touch to zero for the boot way
-	 */
-0:
-	/*
-	 * set UNIPHIER_SSCOQM, UNIPHIER_SSCOQAD, UNIPHIER_SSCOQSZ, UNIPHIER_SSCOQWN in this order
-	 */
-	ldr	r0, = 0x00408006	@ touch to zero with address range
-	ldr	r1, = UNIPHIER_SSCOQM
-	str	r0, [r1]
+	ldr	r1, = SSCO_BASE
+
+	/* Touch to zero for the boot way */
+0:	ldr	r0, = 0x00408006	@ touch to zero with address range
+	str	r0, [r1, #SSCOQM]
 	ldr	r0, = BOOT_RAM_BASE
-	ldr	r1, = UNIPHIER_SSCOQAD
-	str	r0, [r1]
+	str	r0, [r1, #SSCOQAD]
 	ldr	r0, = BOOT_RAM_SIZE
-	ldr	r1, = UNIPHIER_SSCOQSZ
-	str	r0, [r1]
-	ldr	r0, = BOOT_WAY_BITS
-	ldr	r1, = UNIPHIER_SSCOQWN
-	str	r0, [r1]
-	ldr	r1, = UNIPHIER_SSCOPPQSEF
-	ldr	r0, [r1]
+	str	r0, [r1, #SSCOQSZ]
+	ldr	r0, = BOOT_RAM_WAYS
+	str	r0, [r1, #SSCOQWN]
+	ldr	r0, [r1, #SSCOPPQSEF]
 	cmp	r0, #0			@ check if the command is successfully set
 	bne	0b			@ try again if an error occurs
 
-	ldr	r1, = UNIPHIER_SSCOLPQS
-1:
-	ldr	r0, [r1]
+1:	ldr	r0, [r1, #SSCOLPQS]
 	cmp	r0, #0x4
 	bne	1b			@ wait until the operation is completed
-	str	r0, [r1]		@ clear the complete notification flag
+	str	r0, [r1, #SSCOLPQS]	@ clear the complete notification flag
 
 	mov	pc, lr
 ENDPROC(setup_init_ram)
