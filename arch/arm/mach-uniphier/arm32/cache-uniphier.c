@@ -12,12 +12,13 @@
 #include <asm/armv7.h>
 #include <asm/processor.h>
 
+#include "cache-uniphier.h"
 #include "ssc-regs.h"
 
 #define UNIPHIER_SSCOQAD_IS_NEEDED(op) \
 		((op & UNIPHIER_SSCOQM_S_MASK) == UNIPHIER_SSCOQM_S_RANGE)
-
-#ifdef CONFIG_UNIPHIER_L2CACHE_ON
+#define UNIPHIER_SSCOQWM_IS_NEEDED(op) \
+		((op & UNIPHIER_SSCOQM_TID_MASK) == UNIPHIER_SSCOQM_TID_WAY)
 
 /* uniphier_cache_sync - perform a sync point for a particular cache level */
 static void uniphier_cache_sync(void)
@@ -33,9 +34,11 @@ static void uniphier_cache_sync(void)
  *
  * @start: start address of range operation (don't care for "all" operation)
  * @size: data size of range operation (don't care for "all" operation)
+ * @ways: target ways (don't care for operations other than pre-fetch, touch
  * @operation: flags to specify the desired cache operation
  */
-static void uniphier_cache_maint_common(u32 start, u32 size, u32 operation)
+static void uniphier_cache_maint_common(u32 start, u32 size, u32 ways,
+					u32 operation)
 {
 	/* clear the complete notification flag */
 	writel(UNIPHIER_SSCOLPQS_EF, UNIPHIER_SSCOLPQS);
@@ -49,6 +52,10 @@ static void uniphier_cache_maint_common(u32 start, u32 size, u32 operation)
 			writel(start, UNIPHIER_SSCOQAD);
 			writel(size, UNIPHIER_SSCOQSZ);
 		}
+
+		/* set target ways if needed */
+		if (unlikely(UNIPHIER_SSCOQWM_IS_NEEDED(operation)))
+			writel(ways, UNIPHIER_SSCOQWN);
 	} while (unlikely(readl(UNIPHIER_SSCOPPQSEF) &
 			  (UNIPHIER_SSCOPPQSEF_FE | UNIPHIER_SSCOPPQSEF_OE)));
 
@@ -59,12 +66,13 @@ static void uniphier_cache_maint_common(u32 start, u32 size, u32 operation)
 
 static void uniphier_cache_maint_all(u32 operation)
 {
-	uniphier_cache_maint_common(0, 0, UNIPHIER_SSCOQM_S_ALL | operation);
+	uniphier_cache_maint_common(0, 0, 0, UNIPHIER_SSCOQM_S_ALL | operation);
 
 	uniphier_cache_sync();
 }
 
-static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
+static void uniphier_cache_maint_range(u32 start, u32 end, u32 ways,
+				       u32 operation)
 {
 	u32 size;
 
@@ -91,7 +99,7 @@ static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
 	while (size) {
 		u32 chunk_size = min_t(u32, size, UNIPHIER_SSC_RANGE_OP_MAX_SIZE);
 
-		uniphier_cache_maint_common(start, chunk_size,
+		uniphier_cache_maint_common(start, chunk_size, ways,
 					    UNIPHIER_SSCOQM_S_RANGE | operation);
 
 		start += chunk_size;
@@ -101,6 +109,28 @@ static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
 	uniphier_cache_sync();
 }
 
+void uniphier_cache_prefetch_range(u32 start, u32 end, u32 ways)
+{
+	uniphier_cache_maint_range(start, end, ways,
+				   UNIPHIER_SSCOQM_TID_WAY |
+				   UNIPHIER_SSCOQM_CM_PREFETCH);
+}
+
+void uniphier_cache_touch_range(u32 start, u32 end, u32 ways)
+{
+	uniphier_cache_maint_range(start, end, ways,
+				   UNIPHIER_SSCOQM_TID_WAY |
+				   UNIPHIER_SSCOQM_CM_TOUCH);
+}
+
+void uniphier_cache_touch_zero_range(u32 start, u32 end, u32 ways)
+{
+	uniphier_cache_maint_range(start, end, ways,
+				   UNIPHIER_SSCOQM_TID_WAY |
+				   UNIPHIER_SSCOQM_CM_TOUCH_ZERO);
+}
+
+#ifdef CONFIG_UNIPHIER_L2CACHE_ON
 void v7_outer_cache_flush_all(void)
 {
 	uniphier_cache_maint_all(UNIPHIER_SSCOQM_CM_FLUSH);
@@ -113,14 +143,14 @@ void v7_outer_cache_inval_all(void)
 
 void v7_outer_cache_flush_range(u32 start, u32 end)
 {
-	uniphier_cache_maint_range(start, end, UNIPHIER_SSCOQM_CM_FLUSH);
+	uniphier_cache_maint_range(start, end, 0, UNIPHIER_SSCOQM_CM_FLUSH);
 }
 
 void v7_outer_cache_inval_range(u32 start, u32 end)
 {
 	if (start & (UNIPHIER_SSC_LINE_SIZE - 1)) {
 		start &= ~(UNIPHIER_SSC_LINE_SIZE - 1);
-		uniphier_cache_maint_range(start, UNIPHIER_SSC_LINE_SIZE,
+		uniphier_cache_maint_range(start, UNIPHIER_SSC_LINE_SIZE, 0,
 					   UNIPHIER_SSCOQM_CM_FLUSH);
 		start += UNIPHIER_SSC_LINE_SIZE;
 	}
@@ -132,7 +162,7 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 
 	if (end & (UNIPHIER_SSC_LINE_SIZE - 1)) {
 		end &= ~(UNIPHIER_SSC_LINE_SIZE - 1);
-		uniphier_cache_maint_range(end, UNIPHIER_SSC_LINE_SIZE,
+		uniphier_cache_maint_range(end, UNIPHIER_SSC_LINE_SIZE, 0,
 					   UNIPHIER_SSCOQM_CM_FLUSH);
 	}
 
@@ -141,7 +171,7 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 		return;
 	}
 
-	uniphier_cache_maint_range(start, end, UNIPHIER_SSCOQM_CM_INV);
+	uniphier_cache_maint_range(start, end, 0, UNIPHIER_SSCOQM_CM_INV);
 }
 
 void v7_outer_cache_enable(void)
