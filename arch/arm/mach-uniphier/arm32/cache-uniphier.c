@@ -8,11 +8,18 @@
 
 #include <common.h>
 #include <linux/io.h>
+#include <linux/kernel.h>
 #include <asm/armv7.h>
+#include <asm/processor.h>
 
 #include "ssc-regs.h"
 
+#define UNIPHIER_SSCOQAD_IS_NEEDED(op) \
+		((op & UNIPHIER_SSCOQM_S_MASK) == UNIPHIER_SSCOQM_S_RANGE)
+
 #ifdef CONFIG_UNIPHIER_L2CACHE_ON
+
+/* uniphier_cache_sync - perform a sync point for a particular cache level */
 static void uniphier_cache_sync(void)
 {
 	/* drain internal buffers */
@@ -21,21 +28,75 @@ static void uniphier_cache_sync(void)
 	readl(UNIPHIER_SSCOPE);
 }
 
-static void uniphier_cache_maint_all(u32 operation)
+/**
+ * uniphier_cache_maint_common - run a queue operation
+ *
+ * @start: start address of range operation (don't care for "all" operation)
+ * @size: data size of range operation (don't care for "all" operation)
+ * @operation: flags to specify the desired cache operation
+ */
+static void uniphier_cache_maint_common(u32 start, u32 size, u32 operation)
 {
 	/* clear the complete notification flag */
 	writel(UNIPHIER_SSCOLPQS_EF, UNIPHIER_SSCOLPQS);
 
-	/* try until the command is successfully set */
 	do {
-		writel(UNIPHIER_SSCOQM_S_ALL | UNIPHIER_SSCOQM_CE | operation,
-		       UNIPHIER_SSCOQM);
-	} while (readl(UNIPHIER_SSCOPPQSEF) &
-		 (UNIPHIER_SSCOPPQSEF_FE | UNIPHIER_SSCOPPQSEF_OE));
+		/* set cache operation */
+		writel(UNIPHIER_SSCOQM_CE | operation, UNIPHIER_SSCOQM);
+
+		/* set address range if needed */
+		if (likely(UNIPHIER_SSCOQAD_IS_NEEDED(operation))) {
+			writel(start, UNIPHIER_SSCOQAD);
+			writel(size, UNIPHIER_SSCOQSZ);
+		}
+	} while (unlikely(readl(UNIPHIER_SSCOPPQSEF) &
+			  (UNIPHIER_SSCOPPQSEF_FE | UNIPHIER_SSCOPPQSEF_OE)));
 
 	/* wait until the operation is completed */
-	while (readl(UNIPHIER_SSCOLPQS) != UNIPHIER_SSCOLPQS_EF)
-		;
+	while (likely(readl(UNIPHIER_SSCOLPQS) != UNIPHIER_SSCOLPQS_EF))
+		cpu_relax();
+}
+
+static void uniphier_cache_maint_all(u32 operation)
+{
+	uniphier_cache_maint_common(0, 0, UNIPHIER_SSCOQM_S_ALL | operation);
+
+	uniphier_cache_sync();
+}
+
+static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
+{
+	u32 size;
+
+	/*
+	 * If the start address is not aligned,
+	 * perform a cache operation for the first cache-line
+	 */
+	start = start & ~(UNIPHIER_SSC_LINE_SIZE - 1);
+
+	size = end - start;
+
+	if (unlikely(size >= (u32)(-UNIPHIER_SSC_LINE_SIZE))) {
+		/* this means cache operation for all range */
+		uniphier_cache_maint_all(operation);
+		return;
+	}
+
+	/*
+	 * If the end address is not aligned,
+	 * perform a cache operation for the last cache-line
+	 */
+	size = ALIGN(size, UNIPHIER_SSC_LINE_SIZE);
+
+	while (size) {
+		u32 chunk_size = min_t(u32, size, UNIPHIER_SSC_RANGE_OP_MAX_SIZE);
+
+		uniphier_cache_maint_common(start, chunk_size,
+					    UNIPHIER_SSCOQM_S_RANGE | operation);
+
+		start += chunk_size;
+		size -= chunk_size;
+	}
 
 	uniphier_cache_sync();
 }
@@ -50,62 +111,6 @@ void v7_outer_cache_inval_all(void)
 	uniphier_cache_maint_all(UNIPHIER_SSCOQM_CM_INV);
 }
 
-static void __uniphier_cache_maint_range(u32 start, u32 size, u32 operation)
-{
-	/* clear the complete notification flag */
-	writel(UNIPHIER_SSCOLPQS_EF, UNIPHIER_SSCOLPQS);
-
-	/* try until the command is successfully set */
-	do {
-		writel(UNIPHIER_SSCOQM_S_RANGE | UNIPHIER_SSCOQM_CE | operation,
-		       UNIPHIER_SSCOQM);
-		writel(start, UNIPHIER_SSCOQAD);
-		writel(size, UNIPHIER_SSCOQSZ);
-
-	} while (readl(UNIPHIER_SSCOPPQSEF) &
-		 (UNIPHIER_SSCOPPQSEF_FE | UNIPHIER_SSCOPPQSEF_OE));
-
-	/* wait until the operation is completed */
-	while (readl(UNIPHIER_SSCOLPQS) != UNIPHIER_SSCOLPQS_EF)
-		;
-}
-
-static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
-{
-	u32 size;
-
-	/*
-	 * If start address is not aligned to cache-line,
-	 * do cache operation for the first cache-line
-	 */
-	start = start & ~(UNIPHIER_SSC_LINE_SIZE - 1);
-
-	size = end - start;
-
-	if (unlikely(size >= (u32)(-UNIPHIER_SSC_LINE_SIZE))) {
-		/* this means cache operation for all range */
-		uniphier_cache_maint_all(operation);
-		return;
-	}
-
-	/*
-	 * If end address is not aligned to cache-line,
-	 * do cache operation for the last cache-line
-	 */
-	size = ALIGN(size, UNIPHIER_SSC_LINE_SIZE);
-
-	while (size) {
-		u32 chunk_size = size > UNIPHIER_SSC_RANGE_OP_MAX_SIZE ?
-					UNIPHIER_SSC_RANGE_OP_MAX_SIZE : size;
-		__uniphier_cache_maint_range(start, chunk_size, operation);
-
-		start += chunk_size;
-		size -= chunk_size;
-	}
-
-	uniphier_cache_sync();
-}
-
 void v7_outer_cache_flush_range(u32 start, u32 end)
 {
 	uniphier_cache_maint_range(start, end, UNIPHIER_SSCOQM_CM_FLUSH);
@@ -115,8 +120,8 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 {
 	if (start & (UNIPHIER_SSC_LINE_SIZE - 1)) {
 		start &= ~(UNIPHIER_SSC_LINE_SIZE - 1);
-		__uniphier_cache_maint_range(start, UNIPHIER_SSC_LINE_SIZE,
-					     UNIPHIER_SSCOQM_CM_FLUSH);
+		uniphier_cache_maint_range(start, UNIPHIER_SSC_LINE_SIZE,
+					   UNIPHIER_SSCOQM_CM_FLUSH);
 		start += UNIPHIER_SSC_LINE_SIZE;
 	}
 
@@ -127,8 +132,8 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 
 	if (end & (UNIPHIER_SSC_LINE_SIZE - 1)) {
 		end &= ~(UNIPHIER_SSC_LINE_SIZE - 1);
-		__uniphier_cache_maint_range(end, UNIPHIER_SSC_LINE_SIZE,
-					     UNIPHIER_SSCOQM_CM_FLUSH);
+		uniphier_cache_maint_range(end, UNIPHIER_SSC_LINE_SIZE,
+					   UNIPHIER_SSCOQM_CM_FLUSH);
 	}
 
 	if (start >= end) {
