@@ -801,7 +801,9 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
+#ifdef OMAP_HSMMC_USE_GPIO
 	priv->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
+#endif
 
 	return 0;
 }
