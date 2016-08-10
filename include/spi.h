@@ -27,9 +27,8 @@
 #define SPI_TX_DUAL	BIT(9)			/* transmit with 2 wires */
 #define SPI_TX_QUAD	BIT(10)			/* transmit with 4 wires */
 #define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
-#define SPI_RX_FAST	BIT(12)			/* receive with 1 wire fast */
-#define SPI_RX_DUAL	BIT(13)			/* receive with 2 wires */
-#define SPI_RX_QUAD	BIT(14)			/* receive with 4 wires */
+#define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
+#define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
 
 /* SPI bus connection options - see enum spi_dual_flash */
 #define SPI_CONN_DUAL_SHARED		(1 << 0)
