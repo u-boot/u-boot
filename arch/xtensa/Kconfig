@@ -11,8 +11,11 @@ config SYS_CPU
 choice
 	prompt "Target select"
 
+config TARGET_XTFPGA
+	bool "Support XTFPGA"
 
 endchoice
 
+source "board/cadence/xtfpga/Kconfig"
 
 endmenu
