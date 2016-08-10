@@ -72,7 +72,8 @@
 #define UNIPHIER_SSCOQAD_IS_NEEDED(op) \
 		((op & UNIPHIER_SSCOQM_S_MASK) == UNIPHIER_SSCOQM_S_RANGE)
 #define UNIPHIER_SSCOQWM_IS_NEEDED(op) \
-		((op & UNIPHIER_SSCOQM_TID_MASK) == UNIPHIER_SSCOQM_TID_WAY)
+		(((op & UNIPHIER_SSCOQM_S_MASK) == UNIPHIER_SSCOQM_S_WAY) || \
+		 ((op & UNIPHIER_SSCOQM_TID_MASK) == UNIPHIER_SSCOQM_TID_WAY))
 
 /* uniphier_cache_sync - perform a sync point for a particular cache level */
 static void uniphier_cache_sync(void)
@@ -182,6 +183,13 @@ void uniphier_cache_touch_zero_range(u32 start, u32 end, u32 ways)
 	uniphier_cache_maint_range(start, end, ways,
 				   UNIPHIER_SSCOQM_TID_WAY |
 				   UNIPHIER_SSCOQM_CM_TOUCH_ZERO);
+}
+
+void uniphier_cache_inv_way(u32 ways)
+{
+	uniphier_cache_maint_common(0, 0, ways,
+				    UNIPHIER_SSCOQM_S_WAY |
+				    UNIPHIER_SSCOQM_CM_INV);
 }
 
 static void uniphier_cache_endisable(int enable)
