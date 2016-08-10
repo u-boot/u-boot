@@ -130,6 +130,28 @@ void uniphier_cache_touch_zero_range(u32 start, u32 end, u32 ways)
 				   UNIPHIER_SSCOQM_CM_TOUCH_ZERO);
 }
 
+static void uniphier_cache_endisable(int enable)
+{
+	u32 tmp;
+
+	tmp = readl(UNIPHIER_SSCC);
+	if (enable)
+		tmp |= UNIPHIER_SSCC_ON;
+	else
+		tmp &= ~UNIPHIER_SSCC_ON;
+	writel(tmp, UNIPHIER_SSCC);
+}
+
+void uniphier_cache_enable(void)
+{
+	uniphier_cache_endisable(1);
+}
+
+void uniphier_cache_disable(void)
+{
+	uniphier_cache_endisable(0);
+}
+
 #ifdef CONFIG_UNIPHIER_L2CACHE_ON
 void v7_outer_cache_flush_all(void)
 {
@@ -176,21 +198,13 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 
 void v7_outer_cache_enable(void)
 {
-	u32 tmp;
-
 	writel(U32_MAX, UNIPHIER_SSCLPDAWCR);	/* activate all ways */
-	tmp = readl(UNIPHIER_SSCC);
-	tmp |= UNIPHIER_SSCC_ON;
-	writel(tmp, UNIPHIER_SSCC);
+	uniphier_cache_enable();
 }
 
 void v7_outer_cache_disable(void)
 {
-	u32 tmp;
-
-	tmp = readl(UNIPHIER_SSCC);
-	tmp &= ~UNIPHIER_SSCC_ON;
-	writel(tmp, UNIPHIER_SSCC);
+	uniphier_cache_disable();
 }
 #endif
 

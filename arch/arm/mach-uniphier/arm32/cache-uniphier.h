@@ -13,5 +13,7 @@
 void uniphier_cache_prefetch_range(u32 start, u32 end, u32 ways);
 void uniphier_cache_touch_range(u32 start, u32 end, u32 ways);
 void uniphier_cache_touch_zero_range(u32 start, u32 end, u32 ways);
+void uniphier_cache_enable(void);
+void uniphier_cache_disable(void);
 
 #endif /* __CACHE_UNIPHIER_H */
