@@ -183,7 +183,6 @@ void v7_outer_cache_enable(void)
 	tmp |= UNIPHIER_SSCC_ON;
 	writel(tmp, UNIPHIER_SSCC);
 }
-#endif
 
 void v7_outer_cache_disable(void)
 {
@@ -193,6 +192,7 @@ void v7_outer_cache_disable(void)
 	tmp &= ~UNIPHIER_SSCC_ON;
 	writel(tmp, UNIPHIER_SSCC);
 }
+#endif
 
 void enable_caches(void)
 {
