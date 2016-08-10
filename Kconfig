@@ -319,14 +319,6 @@ config SYS_CLK_FREQ
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
-config DISABLE_ARCH_FIXUP_FDT
-	bool "Disable arch_fixup_fdt() call"
-	depends on ARM
-	help
-	  Disable FDT memory map syncup before OS boot. This feature can be
-	  used for booting OS with different memory setup where the part of
-	  the memory location should be used for different purpose.
-
 endmenu		# Boot images
 
 source "common/Kconfig"
