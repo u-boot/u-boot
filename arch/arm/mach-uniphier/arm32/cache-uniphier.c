@@ -206,7 +206,7 @@ void uniphier_cache_disable(void)
 	uniphier_cache_endisable(0);
 }
 
-#ifdef CONFIG_UNIPHIER_L2CACHE_ON
+#ifdef CONFIG_CACHE_UNIPHIER
 void v7_outer_cache_flush_all(void)
 {
 	uniphier_cache_maint_all(UNIPHIER_SSCOQM_CM_FLUSH);
