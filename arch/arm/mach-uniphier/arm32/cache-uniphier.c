@@ -192,6 +192,26 @@ void uniphier_cache_inv_way(u32 ways)
 				    UNIPHIER_SSCOQM_CM_INV);
 }
 
+void uniphier_cache_set_active_ways(int cpu, u32 active_ways)
+{
+	void __iomem *base = (void __iomem *)UNIPHIER_SSCC + 0xc00;
+
+	switch (readl(UNIPHIER_SSCID)) { /* revision */
+	case 0x11:	/* sLD3 */
+		base = (void __iomem *)UNIPHIER_SSCC + 0x870;
+		break;
+	case 0x12:	/* LD4 */
+	case 0x16:	/* sld8 */
+		base = (void __iomem *)UNIPHIER_SSCC + 0x840;
+		break;
+	default:
+		base = (void __iomem *)UNIPHIER_SSCC + 0xc00;
+		break;
+	}
+
+	writel(active_ways, base + 4 * cpu);
+}
+
 static void uniphier_cache_endisable(int enable)
 {
 	u32 tmp;
@@ -260,7 +280,7 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 
 void v7_outer_cache_enable(void)
 {
-	writel(U32_MAX, UNIPHIER_SSCLPDAWCR);	/* activate all ways */
+	uniphier_cache_set_active_ways(0, U32_MAX);	/* activate all ways */
 	uniphier_cache_enable();
 }
 
