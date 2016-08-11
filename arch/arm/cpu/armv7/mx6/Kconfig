@@ -31,6 +31,10 @@ config MX6UL
 	select ROM_UNIFIED_SECTIONS
 	bool
 
+config MX6ULL
+	bool
+	select MX6UL
+
 choice
 	prompt "MX6 board select"
 	optional
