@@ -343,7 +343,7 @@ int arch_cpu_init(void)
 	 */
 	init_bandgap();
 
-	if (!IS_ENABLED(CONFIG_MX6UL)) {
+	if (!is_mx6ul() && !is_mx6ull()) {
 		/*
 		 * When low freq boot is enabled, ROM will not set AHB
 		 * freq, so we need to ensure AHB freq is 132MHz in such
