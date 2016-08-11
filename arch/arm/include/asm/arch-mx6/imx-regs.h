@@ -265,6 +265,7 @@
 #define IP2APB_PERFMON1_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x44000)
 #define IP2APB_PERFMON2_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x48000)
 #define MX6UL_LCDIF1_BASE_ADDR      (AIPS2_OFF_BASE_ADDR + 0x48000)
+#define MX6ULL_LCDIF1_BASE_ADDR     (AIPS2_OFF_BASE_ADDR + 0x48000)
 #ifdef CONFIG_MX6SX
 #define DEBUG_MONITOR_BASE_ADDR     (AIPS2_OFF_BASE_ADDR + 0x4C000)
 #else
@@ -318,6 +319,14 @@
 #define PWM6_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xA8000)
 #define PWM7_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xAC000)
 #define PWM8_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xB0000)
+#elif defined(CONFIG_MX6ULL)
+#define AIPS3_CONFIG_BASE_ADDR      (AIPS3_ARB_BASE_ADDR + 0x7C000)
+#define DCP_BASE_ADDR               (AIPS3_ARB_BASE_ADDR + 0x80000)
+#define RNGB_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x84000)
+#define UART8_IPS_BASE_ADDR         (AIPS3_ARB_BASE_ADDR + 0x88000)
+#define EPDC_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x8C000)
+#define IOMUXC_SNVS_BASE_ADDR       (AIPS3_ARB_BASE_ADDR + 0x90000)
+#define SNVS_GPR_BASE_ADDR          (AIPS3_ARB_BASE_ADDR + 0x94000)
 #endif
 /* Only for i.MX6SX */
 #define LCDIF2_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x24000)
@@ -336,10 +345,12 @@
 #include <asm/types.h>
 
 /* only for i.MX6SX/UL */
-#define WDOG3_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL) ?	\
+#define WDOG3_BASE_ADDR ((is_mx6ul() ?	\
 			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR))
-#define LCDIF1_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL)) ?	\
-			  MX6UL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR)
+#define LCDIF1_BASE_ADDR ((is_mx6ul()) ?	\
+			  MX6UL_LCDIF1_BASE_ADDR :		\
+			  ((is_mx6ull()) ?	\
+			  MX6ULL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR))
 
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
