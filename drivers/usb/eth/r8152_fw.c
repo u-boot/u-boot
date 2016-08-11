@@ -5,7 +5,9 @@
  *
   */
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
+#include "usb_ether.h"
 #include "r8152.h"
 
 static u8 r8152b_pla_patch_a[] = {

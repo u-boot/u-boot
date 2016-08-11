@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Freescale Semiconductor, Inc.
+ * Copyright 2015,2016 Freescale Semiconductor, Inc.
  *
  * FSL USB HOST xHCI Controller
  *
@@ -17,12 +17,21 @@
 #include "xhci.h"
 #include <fsl_errata.h>
 #include <fsl_usb.h>
+#include <dm.h>
 
 /* Declare global data pointer */
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_DM_USB
 static struct fsl_xhci fsl_xhci;
 unsigned long ctr_addr[] = FSL_USB_XHCI_ADDR;
+#else
+struct xhci_fsl_priv {
+	struct xhci_ctrl xhci;
+	fdt_addr_t hcd_base;
+	struct fsl_xhci ctx;
+};
+#endif
 
 __weak int __board_usb_init(int index, enum usb_init_type init)
 {
@@ -77,6 +86,77 @@ static int fsl_xhci_core_exit(struct fsl_xhci *fsl_xhci)
 	return 0;
 }
 
+#ifdef CONFIG_DM_USB
+static int xhci_fsl_probe(struct udevice *dev)
+{
+	struct xhci_fsl_priv *priv = dev_get_priv(dev);
+	struct xhci_hccr *hccr;
+	struct xhci_hcor *hcor;
+
+	int ret = 0;
+
+	/*
+	 * Get the base address for XHCI controller from the device node
+	 */
+	priv->hcd_base = dev_get_addr(dev);
+	if (priv->hcd_base == FDT_ADDR_T_NONE) {
+		debug("Can't get the XHCI register base address\n");
+		return -ENXIO;
+	}
+	priv->ctx.hcd = (struct xhci_hccr *)priv->hcd_base;
+	priv->ctx.dwc3_reg = (struct dwc3 *)((char *)(priv->hcd_base) +
+			  DWC3_REG_OFFSET);
+
+	fsl_apply_xhci_errata();
+
+	ret = fsl_xhci_core_init(&priv->ctx);
+	if (ret < 0) {
+		puts("Failed to initialize xhci\n");
+		return ret;
+	}
+
+	hccr = (struct xhci_hccr *)(priv->ctx.hcd);
+	hcor = (struct xhci_hcor *)((uintptr_t) hccr
+				+ HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+
+	debug("xhci-fsl: init hccr %lx and hcor %lx hc_length %lx\n",
+	      (uintptr_t)hccr, (uintptr_t)hcor,
+	      (uintptr_t)HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+
+	return xhci_register(dev, hccr, hcor);
+}
+
+static int xhci_fsl_remove(struct udevice *dev)
+{
+	struct xhci_fsl_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	fsl_xhci_core_exit(&priv->ctx);
+
+	ret = xhci_deregister(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id xhci_usb_ids[] = {
+	{ .compatible = "fsl,layerscape-dwc3", },
+	{ }
+};
+
+U_BOOT_DRIVER(xhci_fsl) = {
+	.name	= "xhci_fsl",
+	.id	= UCLASS_USB,
+	.of_match = xhci_usb_ids,
+	.probe = xhci_fsl_probe,
+	.remove = xhci_fsl_remove,
+	.ops	= &xhci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct xhci_fsl_priv),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#else
 int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 {
 	struct fsl_xhci *ctx = &fsl_xhci;
@@ -116,3 +196,4 @@ void xhci_hcd_stop(int index)
 
 	fsl_xhci_core_exit(ctx);
 }
+#endif

@@ -3,9 +3,10 @@
  *
  * SPDX-License-Identifier:	GPL-2.0
  *
-  */
+ */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <usb.h>
@@ -15,18 +16,13 @@
 #include "usb_ether.h"
 #include "r8152.h"
 
+#ifndef CONFIG_DM_ETH
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
 
 struct r8152_dongle {
 	unsigned short vendor;
 	unsigned short product;
-};
-
-struct r8152_version {
-	unsigned short tcr;
-	unsigned short version;
-	bool           gmii;
 };
 
 static const struct r8152_dongle const r8152_dongles[] = {
@@ -53,6 +49,13 @@ static const struct r8152_dongle const r8152_dongles[] = {
 
 	/* Nvidia */
 	{ 0x0955, 0x09ff },
+};
+#endif
+
+struct r8152_version {
+	unsigned short tcr;
+	unsigned short version;
+	bool           gmii;
 };
 
 static const struct r8152_version const r8152_versions[] = {
@@ -1176,11 +1179,8 @@ static int rtl_ops_init(struct r8152 *tp)
 	return ret;
 }
 
-static int r8152_init(struct eth_device *eth, bd_t *bd)
+static int r8152_init_common(struct r8152 *tp)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct r8152 *tp = (struct r8152 *)dev->dev_priv;
-
 	u8 speed;
 	int timeout = 0;
 	int link_detected;
@@ -1210,14 +1210,11 @@ static int r8152_init(struct eth_device *eth, bd_t *bd)
 	return 0;
 }
 
-static int r8152_send(struct eth_device *eth, void *packet, int length)
+static int r8152_send_common(struct ueth_data *ueth, void *packet, int length)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-
+	struct usb_device *udev = ueth->pusb_dev;
 	u32 opts1, opts2 = 0;
-
 	int err;
-
 	int actual_len;
 	unsigned char msg[PKTSIZE + sizeof(struct tx_desc)];
 	struct tx_desc *tx_desc = (struct tx_desc *)msg;
@@ -1231,16 +1228,29 @@ static int r8152_send(struct eth_device *eth, void *packet, int length)
 
 	memcpy(msg + sizeof(struct tx_desc), (void *)packet, length);
 
-	err = usb_bulk_msg(dev->pusb_dev,
-				usb_sndbulkpipe(dev->pusb_dev, dev->ep_out),
-				(void *)msg,
-				length + sizeof(struct tx_desc),
-				&actual_len,
-				USB_BULK_SEND_TIMEOUT);
+	err = usb_bulk_msg(udev, usb_sndbulkpipe(udev, ueth->ep_out),
+			   (void *)msg, length + sizeof(struct tx_desc),
+			   &actual_len, USB_BULK_SEND_TIMEOUT);
 	debug("Tx: len = %zu, actual = %u, err = %d\n",
 	      length + sizeof(struct tx_desc), actual_len, err);
 
 	return err;
+}
+
+#ifndef CONFIG_DM_ETH
+static int r8152_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct r8152 *tp = (struct r8152 *)dev->dev_priv;
+
+	return r8152_init_common(tp);
+}
+
+static int r8152_send(struct eth_device *eth, void *packet, int length)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+
+	return r8152_send_common(dev, packet, length);
 }
 
 static int r8152_recv(struct eth_device *eth)
@@ -1454,3 +1464,186 @@ int r8152_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	debug("MAC %pM\n", eth->enetaddr);
 	return 1;
 }
+#endif /* !CONFIG_DM_ETH */
+
+#ifdef CONFIG_DM_ETH
+static int r8152_eth_start(struct udevice *dev)
+{
+	struct r8152 *tp = dev_get_priv(dev);
+
+	debug("** %s (%d)\n", __func__, __LINE__);
+
+	return r8152_init_common(tp);
+}
+
+void r8152_eth_stop(struct udevice *dev)
+{
+	struct r8152 *tp = dev_get_priv(dev);
+
+	debug("** %s (%d)\n", __func__, __LINE__);
+
+	tp->rtl_ops.disable(tp);
+}
+
+int r8152_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct r8152 *tp = dev_get_priv(dev);
+
+	return r8152_send_common(&tp->ueth, packet, length);
+}
+
+int r8152_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct r8152 *tp = dev_get_priv(dev);
+	struct ueth_data *ueth = &tp->ueth;
+	uint8_t *ptr;
+	int ret, len;
+	struct rx_desc *rx_desc;
+	u16 packet_len;
+
+	len = usb_ether_get_rx_bytes(ueth, &ptr);
+	debug("%s: first try, len=%d\n", __func__, len);
+	if (!len) {
+		if (!(flags & ETH_RECV_CHECK_DEVICE))
+			return -EAGAIN;
+		ret = usb_ether_receive(ueth, RTL8152_AGG_BUF_SZ);
+		if (ret)
+			return ret;
+
+		len = usb_ether_get_rx_bytes(ueth, &ptr);
+		debug("%s: second try, len=%d\n", __func__, len);
+	}
+
+	rx_desc = (struct rx_desc *)ptr;
+	packet_len = le32_to_cpu(rx_desc->opts1) & RX_LEN_MASK;
+	packet_len -= CRC_SIZE;
+
+	if (packet_len > len - (sizeof(struct rx_desc) + CRC_SIZE)) {
+		debug("Rx: too large packet: %d\n", packet_len);
+		goto err;
+	}
+
+	*packetp = ptr + sizeof(struct rx_desc);
+	return packet_len;
+
+err:
+	usb_ether_advance_rxbuf(ueth, -1);
+	return -ENOSPC;
+}
+
+static int r8152_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
+{
+	struct r8152 *tp = dev_get_priv(dev);
+
+	packet_len += sizeof(struct rx_desc) + CRC_SIZE;
+	packet_len = ALIGN(packet_len, 8);
+	usb_ether_advance_rxbuf(&tp->ueth, packet_len);
+
+	return 0;
+}
+
+static int r8152_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct r8152 *tp = dev_get_priv(dev);
+
+	unsigned char enetaddr[8] = { 0 };
+
+	debug("** %s (%d)\n", __func__, __LINE__);
+	memcpy(enetaddr, pdata->enetaddr, ETH_ALEN);
+
+	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_CRWECR, CRWECR_CONFIG);
+	pla_ocp_write(tp, PLA_IDR, BYTE_EN_SIX_BYTES, 8, enetaddr);
+	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_CRWECR, CRWECR_NORAML);
+
+	debug("MAC %pM\n", pdata->enetaddr);
+	return 0;
+}
+
+int r8152_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct r8152 *tp = dev_get_priv(dev);
+
+	debug("** %s (%d)\n", __func__, __LINE__);
+	r8152_read_mac(tp, pdata->enetaddr);
+	return 0;
+}
+
+static int r8152_eth_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct r8152 *tp = dev_get_priv(dev);
+	struct ueth_data *ueth = &tp->ueth;
+	int ret;
+
+	tp->udev = udev;
+	r8152_read_mac(tp, pdata->enetaddr);
+
+	r8152b_get_version(tp);
+
+	ret = rtl_ops_init(tp);
+	if (ret)
+		return ret;
+
+	tp->rtl_ops.init(tp);
+	tp->rtl_ops.up(tp);
+
+	rtl8152_set_speed(tp, AUTONEG_ENABLE,
+			  tp->supports_gmii ? SPEED_1000 : SPEED_100,
+			  DUPLEX_FULL);
+
+	return usb_ether_register(dev, ueth, RTL8152_AGG_BUF_SZ);
+}
+
+static const struct eth_ops r8152_eth_ops = {
+	.start	= r8152_eth_start,
+	.send	= r8152_eth_send,
+	.recv	= r8152_eth_recv,
+	.free_pkt = r8152_free_pkt,
+	.stop	= r8152_eth_stop,
+	.write_hwaddr = r8152_write_hwaddr,
+	.read_rom_hwaddr = r8152_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(r8152_eth) = {
+	.name	= "r8152_eth",
+	.id	= UCLASS_ETH,
+	.probe = r8152_eth_probe,
+	.ops	= &r8152_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct r8152),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+static const struct usb_device_id r8152_eth_id_table[] = {
+	/* Realtek */
+	{ USB_DEVICE(0x0bda, 0x8050) },
+	{ USB_DEVICE(0x0bda, 0x8152) },
+	{ USB_DEVICE(0x0bda, 0x8153) },
+
+	/* Samsung */
+	{ USB_DEVICE(0x04e8, 0xa101) },
+
+	/* Lenovo */
+	{ USB_DEVICE(0x17ef, 0x304f) },
+	{ USB_DEVICE(0x17ef, 0x3052) },
+	{ USB_DEVICE(0x17ef, 0x3054) },
+	{ USB_DEVICE(0x17ef, 0x3057) },
+	{ USB_DEVICE(0x17ef, 0x7205) },
+	{ USB_DEVICE(0x17ef, 0x720a) },
+	{ USB_DEVICE(0x17ef, 0x720b) },
+	{ USB_DEVICE(0x17ef, 0x720c) },
+
+	/* TP-LINK */
+	{ USB_DEVICE(0x2357, 0x0601) },
+
+	/* Nvidia */
+	{ USB_DEVICE(0x0955, 0x09ff) },
+
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(r8152_eth, r8152_eth_id_table);
+#endif /* CONFIG_DM_ETH */
+

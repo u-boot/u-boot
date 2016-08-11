@@ -368,7 +368,7 @@
 		};
 
 		usb3@3100000 {
-			compatible = "snps,dwc3";
+			compatible = "fsl,layerscape-dwc3";
 			reg = <0x3100000 0x10000>;
 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
 			dr_mode = "host";
