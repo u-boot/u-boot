@@ -37,6 +37,8 @@ enum {
 #include "mx6sl_pins.h"
 #elif defined(CONFIG_MX6SX)
 #include "mx6sx_pins.h"
+#elif defined(CONFIG_MX6ULL)
+#include "mx6ull_pins.h"
 #elif defined(CONFIG_MX6UL)
 #include "mx6ul_pins.h"
 #else
