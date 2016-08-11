@@ -1294,6 +1294,18 @@ static int check_device_config(int dev)
 	struct stat st;
 	int fd, rc = 0;
 
+	if (DEVOFFSET(dev) % DEVESIZE(dev) != 0) {
+		fprintf(stderr, "Environment does not start on erase block boundary\n");
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (ENVSIZE(dev) > ENVSECTORS(dev) * DEVESIZE(dev)) {
+		fprintf(stderr, "Environment does not fit into available sectors\n");
+		errno = EINVAL;
+		return -1;
+	}
+
 	fd = open(DEVNAME(dev), O_RDONLY);
 	if (fd < 0) {
 		fprintf(stderr,
