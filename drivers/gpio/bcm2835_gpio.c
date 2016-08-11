@@ -44,15 +44,6 @@ static int bcm2835_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	return 0;
 }
 
-static bool bcm2835_gpio_is_output(const struct bcm2835_gpios *gpios, int gpio)
-{
-	u32 val;
-
-	val = readl(&gpios->reg->gpfsel[BCM2835_GPIO_FSEL_BANK(gpio)]);
-	val &= BCM2835_GPIO_FSEL_MASK << BCM2835_GPIO_FSEL_SHIFT(gpio);
-	return val ? true : false;
-}
-
 static int bcm2835_get_value(const struct bcm2835_gpios *gpios, unsigned gpio)
 {
 	unsigned val;
@@ -81,15 +72,28 @@ static int bcm2835_gpio_set_value(struct udevice *dev, unsigned gpio,
 	return 0;
 }
 
-static int bcm2835_gpio_get_function(struct udevice *dev, unsigned offset)
+int bcm2835_gpio_get_func_id(struct udevice *dev, unsigned gpio)
 {
 	struct bcm2835_gpios *gpios = dev_get_priv(dev);
+	u32 val;
 
-	/* GPIOF_FUNC is not implemented yet */
-	if (bcm2835_gpio_is_output(gpios, offset))
+	val = readl(&gpios->reg->gpfsel[BCM2835_GPIO_FSEL_BANK(gpio)]);
+
+	return (val >> BCM2835_GPIO_FSEL_SHIFT(gpio) & BCM2835_GPIO_FSEL_MASK);
+}
+
+static int bcm2835_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	int funcid = bcm2835_gpio_get_func_id(dev, offset);
+
+	switch (funcid) {
+	case BCM2835_GPIO_OUTPUT:
 		return GPIOF_OUTPUT;
-	else
+	case BCM2835_GPIO_INPUT:
 		return GPIOF_INPUT;
+	default:
+		return GPIOF_FUNC;
+	}
 }
 
 
