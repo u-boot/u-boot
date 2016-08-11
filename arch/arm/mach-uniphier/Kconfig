@@ -6,6 +6,8 @@ config SYS_CONFIG_NAME
 config ARCH_UNIPHIER_32BIT
 	bool
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select ARMV7_NONSEC
 
 config ARCH_UNIPHIER_64BIT
 	bool
@@ -69,6 +71,13 @@ config ARCH_UNIPHIER_LD6B
 	bool "Enable UniPhier PH1-LD6b SoC support"
 	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	default y
+
+config CACHE_UNIPHIER
+	bool "Enable the UniPhier L2 cache controller"
+	depends on ARCH_UNIPHIER_32BIT
+	default y
+	help
+	  This option allows to use the UniPhier System Cache as L2 cache.
 
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"

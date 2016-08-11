@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -8,6 +10,9 @@
 
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
+
+#define CONFIG_ARMV7_PSCI
+#define CONFIG_ARMV7_PSCI_NR_CPUS   4
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
@@ -25,10 +30,11 @@
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
 
+#ifdef CONFIG_CACHE_UNIPHIER
+#define CONFIG_SYS_CACHELINE_SIZE	128
+#else
 #define CONFIG_SYS_CACHELINE_SIZE	32
-
-/* Comment out the following to disable L2 cache */
-#define CONFIG_UNIPHIER_L2CACHE_ON
+#endif
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO

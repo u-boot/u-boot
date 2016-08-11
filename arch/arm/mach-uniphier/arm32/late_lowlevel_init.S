@@ -5,14 +5,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
 #include <linux/linkage.h>
 
-#include "ssc-regs.h"
-
 ENTRY(lowlevel_init)
-	ldr	r1, = UNIPHIER_SSCC
-	ldr	r0, [r1]
-	bic	r0, r0, #UNIPHIER_SSCC_ON	@ L2 disable
-	str	r0, [r1]
-	mov	pc, lr
+	ldr	sp, = CONFIG_SYS_INIT_SP_ADDR
+	b	uniphier_cache_disable
 ENDPROC(lowlevel_init)
