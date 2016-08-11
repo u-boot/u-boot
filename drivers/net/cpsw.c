@@ -908,7 +908,7 @@ static int _cpsw_send(struct cpsw_priv *priv, void *packet, int length)
 	int timeout = CPDMA_TIMEOUT;
 
 	flush_dcache_range((unsigned long)packet,
-			   (unsigned long)packet + length);
+			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
 	/* first reap completed packets */
 	while (timeout-- &&
