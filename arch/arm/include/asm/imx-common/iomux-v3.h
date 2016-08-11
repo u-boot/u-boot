@@ -85,12 +85,12 @@ typedef u64 iomux_v3_cfg_t;
 
 #define NO_PAD_CTRL		(1 << 17)
 
-#ifdef CONFIG_MX7
-
-#define IOMUX_LPSR_SEL_INPUT_OFS 0x70000
 #define IOMUX_CONFIG_LPSR       0x8
 #define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
 				MUX_MODE_SHIFT)
+#ifdef CONFIG_MX7
+
+#define IOMUX_LPSR_SEL_INPUT_OFS 0x70000
 
 #define PAD_CTL_DSE_1P8V_140OHM   (0x0<<0)
 #define PAD_CTL_DSE_1P8V_35OHM    (0x1<<0)
