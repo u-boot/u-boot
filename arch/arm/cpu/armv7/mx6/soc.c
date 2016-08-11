@@ -366,6 +366,20 @@ int arch_cpu_init(void)
 		writel(0x0000b8a0, IOMUXC_BASE_ADDR + 0x29c);
 	}
 
+	if (is_mx6ull()) {
+		/*
+		 * GPBIT[1:0] is suggested to set to 2'b11:
+		 * 2'b00 : always PUP100K
+		 * 2'b01 : PUP100K when PMIC_ON_REQ or SOC_NOT_FAIL
+		 * 2'b10 : always disable PUP100K
+		 * 2'b11 : PDN100K when SOC_FAIL, PUP100K when SOC_NOT_FAIL
+		 * register offset is different from i.MX6UL, since
+		 * i.MX6UL is fixed by ECO.
+		 */
+		writel(readl(MX6UL_SNVS_LP_BASE_ADDR) |
+			0x3, MX6UL_SNVS_LP_BASE_ADDR);
+	}
+
 	/* Set perclk to source from OSC 24MHz */
 #if defined(CONFIG_MX6SL)
 	set_preclk_from_osc();
