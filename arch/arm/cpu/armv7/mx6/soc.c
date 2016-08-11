@@ -314,6 +314,12 @@ static void init_bandgap(void)
 	 * be set.
 	 */
 	writel(BM_ANADIG_ANA_MISC0_REFTOP_SELBIASOFF, &anatop->ana_misc0_set);
+	/*
+	 * On i.MX6ULL, the LDO 1.2V bandgap voltage is 30mV higher. so set
+	 * VBGADJ bits to 2b'110 to adjust it.
+	 */
+	if (is_mx6ull())
+		writel(BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ, &anatop->ana_misc0_set);
 }
 
 
