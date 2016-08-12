@@ -57,7 +57,7 @@ config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
 	default y if ARCH_SUNXI
 	default n
-	select CMD_BOOTZ
+	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
 	select CMD_DHCP
 	select CMD_EXT2
