@@ -153,11 +153,12 @@ static int msm_spmi_probe(struct udevice *dev)
 	priv->spmi_core = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							   parent->of_offset,
 							   dev->of_offset,
-							   "reg", 1, NULL);
+							   "reg", 1, NULL,
+							   false);
 	priv->spmi_obs = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							  parent->of_offset,
 							  dev->of_offset, "reg",
-							  2, NULL);
+							  2, NULL, false);
 	if (priv->arb_chnl == FDT_ADDR_T_NONE ||
 	    priv->spmi_core == FDT_ADDR_T_NONE ||
 	    priv->spmi_obs == FDT_ADDR_T_NONE)

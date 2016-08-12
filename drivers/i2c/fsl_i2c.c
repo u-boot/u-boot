@@ -587,7 +587,7 @@ static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
 	fdt_size_t size;
 
 	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, bus->of_offset,
-						  "reg", 0, &size);
+						  "reg", 0, &size, false);
 
 	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, size);
 

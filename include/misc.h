@@ -38,6 +38,27 @@ int misc_write(struct udevice *dev, int offset, void *buf, int size);
 int misc_ioctl(struct udevice *dev, unsigned long request, void *buf);
 
 /*
+ * Send a message to the device and wait for a response.
+ *
+ * The caller provides the message type/ID and payload to be sent.
+ * The callee constructs any message header required, transmits it to the
+ * target, waits for a response, checks any error code in the response,
+ * strips any message header from the response, and returns the error code
+ * (or a parsed version of it) and the response message payload.
+ *
+ * @dev: the device.
+ * @msgid: the message ID/number to send.
+ * tx_msg: the request/transmit message payload.
+ * tx_size: the size of the buffer pointed at by tx_msg.
+ * rx_msg: the buffer to receive the response message payload. May be NULL if
+ *         the caller only cares about the error code.
+ * rx_size: the size of the buffer pointed at by rx_msg.
+ * @return the response message size if OK, -ve on error
+ */
+int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
+	      void *rx_msg, int rx_size);
+
+/*
  * struct misc_ops - Driver model Misc operations
  *
  * The uclass interface is implemented by all miscellaneous devices which
@@ -74,6 +95,20 @@ struct misc_ops {
 	 * @return: 0 if OK, -ve on error
 	 */
 	int (*ioctl)(struct udevice *dev, unsigned long request, void *buf);
+	/*
+	 * Send a message to the device and wait for a response.
+	 *
+	 * @dev: the device
+	 * @msgid: the message ID/number to send
+	 * tx_msg: the request/transmit message payload
+	 * tx_size: the size of the buffer pointed at by tx_msg
+	 * rx_msg: the buffer to receive the response message payload. May be
+	 *         NULL if the caller only cares about the error code.
+	 * rx_size: the size of the buffer pointed at by rx_msg
+	 * @return the response message size if OK, -ve on error
+	 */
+	int (*call)(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
+		    void *rx_msg, int rx_size);
 };
 
 #endif	/* _MISC_H_ */

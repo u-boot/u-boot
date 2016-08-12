@@ -178,7 +178,8 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							      parent->of_offset,
 							      dev->of_offset,
-							      "reg", 1, NULL);
+							      "reg", 1, NULL,
+							      false);
 	if (priv->base == (void *)FDT_ADDR_T_NONE ||
 	    host->ioaddr == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;
