@@ -13,17 +13,13 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/grf_rk3288.h>
 #include <asm/arch/pwm.h>
-#include <asm/arch/hardware.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct rk_pwm_priv {
 	struct rk3288_pwm *regs;
-	struct rk3288_grf *grf;
 	ulong freq;
 };
 
@@ -64,13 +60,8 @@ static int rk_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
-	struct regmap *map;
 
 	priv->regs = (struct rk3288_pwm *)dev_get_addr(dev);
-	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(map))
-		return PTR_ERR(map);
-	priv->grf = regmap_get_range(map, 0);
 
 	return 0;
 }
@@ -80,8 +71,6 @@ static int rk_pwm_probe(struct udevice *dev)
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
 	struct clk clk;
 	int ret = 0;
-
-	rk_setreg(&priv->grf->soc_con2, 1 << 0);
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {
