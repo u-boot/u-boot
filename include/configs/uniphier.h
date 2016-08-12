@@ -189,7 +189,6 @@
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_CMD_BOOTI
 #define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"

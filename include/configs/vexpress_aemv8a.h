@@ -133,7 +133,6 @@
 /* Command line configuration */
 #define CONFIG_MENU
 /*#define CONFIG_MENU_SHOW*/
-#define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV

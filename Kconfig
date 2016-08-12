@@ -58,6 +58,7 @@ config DISTRO_DEFAULTS
 	default y if ARCH_SUNXI
 	default n
 	select CMD_BOOTZ
+	select CMD_BOOTI if ARM64
 	select CMD_DHCP
 	select CMD_EXT2
 	select CMD_EXT4

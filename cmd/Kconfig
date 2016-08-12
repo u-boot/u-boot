@@ -165,6 +165,13 @@ config CMD_BOOTZ
 	help
 	  Boot the Linux zImage
 
+config CMD_BOOTI
+	bool "booti"
+	depends on ARM64
+	default y
+	help
+	  Boot an AArch64 Linux Kernel image from memory.
+
 config CMD_BOOTEFI
 	bool "bootefi"
 	depends on EFI_LOADER
