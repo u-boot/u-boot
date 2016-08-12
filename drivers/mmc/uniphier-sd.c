@@ -646,7 +646,7 @@ static const struct mmc_ops uniphier_sd_ops = {
 	.getcd = uniphier_sd_getcd,
 };
 
-int uniphier_sd_probe(struct udevice *dev)
+static int uniphier_sd_probe(struct udevice *dev)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -731,7 +731,7 @@ int uniphier_sd_probe(struct udevice *dev)
 	return 0;
 }
 
-int uniphier_sd_remove(struct udevice *dev)
+static int uniphier_sd_remove(struct udevice *dev)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 
