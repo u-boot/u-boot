@@ -7,14 +7,14 @@ config CPU_V7_HAS_VIRT
         bool
 
 config ARMV7_NONSEC
-	boolean "Enable support for booting in non-secure mode" if EXPERT
+	bool "Enable support for booting in non-secure mode" if EXPERT
 	depends on CPU_V7_HAS_NONSEC
 	default y
 	---help---
 	Say Y here to enable support for booting in non-secure / SVC mode.
 
 config ARMV7_BOOT_SEC_DEFAULT
-	boolean "Boot in secure mode by default" if EXPERT
+	bool "Boot in secure mode by default" if EXPERT
 	depends on ARMV7_NONSEC
 	default y if TEGRA
 	---help---
@@ -25,14 +25,14 @@ config ARMV7_BOOT_SEC_DEFAULT
 	variable to "sec" or "nonsec".
 
 config ARMV7_VIRT
-	boolean "Enable support for hardware virtualization" if EXPERT
+	bool "Enable support for hardware virtualization" if EXPERT
 	depends on CPU_V7_HAS_VIRT && ARMV7_NONSEC
 	default y
 	---help---
 	Say Y here to boot in hypervisor (HYP) mode when booting non-secure.
 
 config ARMV7_LPAE
-	boolean "Use LPAE page table format" if EXPERT
+	bool "Use LPAE page table format" if EXPERT
 	depends on CPU_V7
 	default n
 	---help---

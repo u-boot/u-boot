@@ -249,7 +249,7 @@ config UART0_PORT_F
 	Only enable this if you really know what you are doing.
 
 config OLD_SUNXI_KERNEL_COMPAT
-	boolean "Enable workarounds for booting old kernels"
+	bool "Enable workarounds for booting old kernels"
 	default n
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
@@ -419,13 +419,13 @@ config I2C4_ENABLE
 endif
 
 config AXP_GPIO
-	boolean "Enable support for gpio-s on axp PMICs"
+	bool "Enable support for gpio-s on axp PMICs"
 	default n
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
 config VIDEO
-	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
+	bool "Enable graphical uboot console on HDMI, LCD or VGA"
 	depends on !MACH_SUN8I_A83T && !MACH_SUN8I_H3 && !MACH_SUN9I && !MACH_SUN50I_A64
 	default y
 	---help---
@@ -434,21 +434,21 @@ config VIDEO
 	info on how to select the video output and mode.
 
 config VIDEO_HDMI
-	boolean "HDMI output support"
+	bool "HDMI output support"
 	depends on VIDEO && !MACH_SUN8I
 	default y
 	---help---
 	Say Y here to add support for outputting video over HDMI.
 
 config VIDEO_VGA
-	boolean "VGA output support"
+	bool "VGA output support"
 	depends on VIDEO && (MACH_SUN4I || MACH_SUN7I)
 	default n
 	---help---
 	Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
-	boolean "VGA via LCD controller support"
+	bool "VGA via LCD controller support"
 	depends on VIDEO && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
 	default n
 	---help---
@@ -457,7 +457,7 @@ config VIDEO_VGA_VIA_LCD
 	Olimex A13 boards.
 
 config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
-	boolean "Force sync active high for VGA via LCD controller support"
+	bool "Force sync active high for VGA via LCD controller support"
 	depends on VIDEO_VGA_VIA_LCD
 	default n
 	---help---
@@ -475,7 +475,7 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_COMPOSITE
-	boolean "Composite video output support"
+	bool "Composite video output support"
 	depends on VIDEO && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
 	default n
 	---help---

@@ -1,7 +1,7 @@
 if ARM64
 
 config ARMV8_MULTIENTRY
-        boolean "Enable multiple CPUs to enter into U-Boot"
+        bool "Enable multiple CPUs to enter into U-Boot"
 
 config ARMV8_SPIN_TABLE
 	bool "Support spin-table enable method"
