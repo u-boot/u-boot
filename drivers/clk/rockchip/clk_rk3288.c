@@ -695,6 +695,8 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 	case PCLK_I2C4:
 	case PCLK_I2C5:
 		return gclk_rate;
+	case PCLK_PWM:
+		return PD_BUS_PCLK_HZ;
 	default:
 		return -ENOENT;
 	}
