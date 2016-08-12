@@ -115,9 +115,14 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 	struct mmc *mmc;
 
 	/* quick validation */
-	if (cfg == NULL || cfg->ops == NULL || cfg->ops->send_cmd == NULL ||
-	    cfg->f_min == 0 || cfg->f_max == 0 || cfg->b_max == 0)
+	if (cfg == NULL || cfg->f_min == 0 ||
+	    cfg->f_max == 0 || cfg->b_max == 0)
 		return NULL;
+
+#ifndef CONFIG_DM_MMC_OPS
+	if (cfg->ops == NULL || cfg->ops->send_cmd == NULL)
+		return NULL;
+#endif
 
 	mmc = calloc(1, sizeof(*mmc));
 	if (mmc == NULL)
