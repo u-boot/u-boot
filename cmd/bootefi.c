@@ -226,7 +226,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int r = 0;
 
 	if (argc < 2)
-		return 1;
+		return CMD_RET_USAGE;
 	saddr = argv[1];
 
 	addr = simple_strtoul(saddr, NULL, 16);
