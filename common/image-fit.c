@@ -1712,7 +1712,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		  (image_type == IH_TYPE_KERNEL &&
 		   fit_image_check_type(fit, noffset, IH_TYPE_KERNEL_NOLOAD));
 
-	os_ok = image_type == IH_TYPE_FLATDT || IH_TYPE_FPGA ||
+	os_ok = image_type == IH_TYPE_FLATDT ||
+		image_type == IH_TYPE_FPGA ||
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
 		fit_image_check_os(fit, noffset, IH_OS_U_BOOT) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
