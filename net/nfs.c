@@ -142,13 +142,6 @@ RPC_ADD_CREDENTIALS - Add RPC authentication/verifier entries
 **************************************************************************/
 static uint32_t *rpc_add_credentials(uint32_t *p)
 {
-	int hl;
-	int hostnamelen;
-	char hostname[256];
-
-	strcpy(hostname, "");
-	hostnamelen = strlen(hostname);
-
 	/* Here's the executive summary on authentication requirements of the
 	 * various NFS server implementations:	Linux accepts both AUTH_NONE
 	 * and AUTH_UNIX authentication (also accepts an empty hostname field
@@ -158,17 +151,11 @@ static uint32_t *rpc_add_credentials(uint32_t *p)
 	 * it (if the BOOTP/DHCP reply didn't give one, just use an empty
 	 * hostname).  */
 
-	hl = (hostnamelen + 3) & ~3;
-
 	/* Provide an AUTH_UNIX credential.  */
 	*p++ = htonl(1);		/* AUTH_UNIX */
-	*p++ = htonl(hl+20);		/* auth length */
-	*p++ = htonl(0);		/* stamp */
-	*p++ = htonl(hostnamelen);	/* hostname string */
-	if (hostnamelen & 3)
-		*(p + hostnamelen / 4) = 0; /* add zero padding */
-	memcpy(p, hostname, hostnamelen);
-	p += hl / 4;
+	*p++ = htonl(20);		/* auth length */
+	*p++ = 0;			/* stamp */
+	*p++ = 0;			/* hostname string */
 	*p++ = 0;			/* uid */
 	*p++ = 0;			/* gid */
 	*p++ = 0;			/* auxiliary gid list */
