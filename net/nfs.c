@@ -557,11 +557,13 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 				return -NFS_RPC_PROG_MISMATCH;
 			case 4:
 			default:
-				printf("*** ERROR: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-				       (supported_nfs_versions & NFSV2_FLAG) ?
+				puts("*** ERROR: NFS version not supported");
+				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
+				      (supported_nfs_versions & NFSV2_FLAG) ?
 						2 : 3,
-				       ntohl(rpc_pkt.u.reply.data[0]),
-				       ntohl(rpc_pkt.u.reply.data[1]));
+				      ntohl(rpc_pkt.u.reply.data[0]),
+				      ntohl(rpc_pkt.u.reply.data[1]));
+				puts("\n");
 			}
 			break;
 		case NFS_RPC_PROG_UNAVAIL:
@@ -569,8 +571,8 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 		case NFS_RPC_GARBAGE_ARGS:
 		case NFS_RPC_SYSTEM_ERR:
 		default: /* Unknown error on 'accept state' flag */
-			printf("*** ERROR: accept state error (%d)\n",
-			       ntohl(rpc_pkt.u.reply.astatus));
+			debug("*** ERROR: accept state error (%d)\n",
+			      ntohl(rpc_pkt.u.reply.astatus));
 			break;
 		}
 		return -1;
@@ -781,7 +783,7 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		if (reply == -NFS_RPC_DROP) {
 			break;
 		} else if (reply == -NFS_RPC_ERR) {
-			puts("*** ERROR: Cannot umount\n");
+			debug("*** ERROR: Cannot umount\n");
 			net_set_state(NETLOOP_FAIL);
 		} else {
 			puts("\ndone\n");
@@ -845,7 +847,7 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			if (!rlen)
 				nfs_download_state = NETLOOP_SUCCESS;
 			if (rlen < 0)
-				printf("NFS READ error (%d)\n", rlen);
+				debug("NFS READ error (%d)\n", rlen);
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
 		}
@@ -864,7 +866,7 @@ void nfs_start(void)
 
 	if (nfs_path == NULL) {
 		net_set_state(NETLOOP_FAIL);
-		puts("*** ERROR: Fail allocate memory\n");
+		debug("*** ERROR: Fail allocate memory\n");
 		return;
 	}
 
@@ -875,8 +877,8 @@ void nfs_start(void)
 			(net_ip.s_addr >> 16) & 0xFF,
 			(net_ip.s_addr >> 24) & 0xFF);
 
-		printf("*** Warning: no boot file name; using '%s'\n",
-		       nfs_path);
+		debug("*** Warning: no boot file name; using '%s'\n",
+		      nfs_path);
 	} else {
 		char *p = net_boot_file_name;
 
@@ -894,10 +896,10 @@ void nfs_start(void)
 	nfs_filename = basename(nfs_path);
 	nfs_path     = dirname(nfs_path);
 
-	printf("Using %s device\n", eth_get_name());
+	debug("Using %s device\n", eth_get_name());
 
-	printf("File transfer via NFS from server %pI4; our IP address is %pI4",
-	       &nfs_server_ip, &net_ip);
+	debug("File transfer via NFS from server %pI4; our IP address is %pI4",
+	      &nfs_server_ip, &net_ip);
 
 	/* Check if we need to send across this subnet */
 	if (net_gateway.s_addr && net_netmask.s_addr) {
@@ -907,18 +909,17 @@ void nfs_start(void)
 		our_net.s_addr = net_ip.s_addr & net_netmask.s_addr;
 		server_net.s_addr = net_server_ip.s_addr & net_netmask.s_addr;
 		if (our_net.s_addr != server_net.s_addr)
-			printf("; sending through gateway %pI4",
-			       &net_gateway);
+			debug("; sending through gateway %pI4",
+			      &net_gateway);
 	}
-	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
+	debug("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
 	if (net_boot_file_expected_size_in_blocks) {
-		printf(" Size is 0x%x Bytes = ",
-		       net_boot_file_expected_size_in_blocks << 9);
+		debug(" Size is 0x%x Bytes = ",
+		      net_boot_file_expected_size_in_blocks << 9);
 		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
-	printf("\nLoad address: 0x%lx\n"
-		"Loading: *\b", load_addr);
+	debug("\nLoad address: 0x%lx\nLoading: *\b", load_addr);
 
 	net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);
