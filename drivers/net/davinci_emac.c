@@ -243,11 +243,10 @@ int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
 
 	if (tmp & MDIO_USERACCESS0_ACK) {
 		*data = tmp & 0xffff;
-		return(1);
+		return 0;
 	}
 
-	*data = -1;
-	return(0);
+	return -EIO;
 }
 
 /* Write to a PHY register via MDIO inteface. Blocks until operation is complete. */
@@ -268,7 +267,7 @@ int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
 	while (readl(&adap_mdio->USERACCESS0) & MDIO_USERACCESS0_GO)
 		;
 
-	return(1);
+	return 0;
 }
 
 /* PHY functions for a generic PHY */
@@ -390,14 +389,20 @@ static int gen_auto_negotiate(int phy_addr)
 
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static int davinci_mii_phy_read(const char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
+static int davinci_mii_phy_read(struct mii_dev *bus, int addr, int devad,
+				int reg)
 {
-	return(davinci_eth_phy_read(addr, reg, value) ? 0 : 1);
+	unsigned short value = 0;
+	int retval = davinci_eth_phy_read(addr, reg, &value);
+	if (retval < 0)
+		return retval;
+	return value;
 }
 
-static int davinci_mii_phy_write(const char *devname, unsigned char addr, unsigned char reg, unsigned short value)
+static int davinci_mii_phy_write(struct mii_dev *bus, int addr, int devad,
+				 int reg, u16 value)
 {
-	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
+	return davinci_eth_phy_write(addr, reg, value);
 }
 #endif
 
@@ -883,8 +888,17 @@ int davinci_emac_initialize(void)
 
 		debug("Ethernet PHY: %s\n", phy[i].name);
 
-		miiphy_register(phy[i].name, davinci_mii_phy_read,
-						davinci_mii_phy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, phy[i].name, MDIO_NAME_LEN);
+		mdiodev->read = davinci_mii_phy_read;
+		mdiodev->write = davinci_mii_phy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 	}
 
 #if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \

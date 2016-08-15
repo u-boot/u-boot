@@ -30,10 +30,10 @@
 #define GET_REGS(eth_dev)	(GET_PRIV(eth_dev)->regs)
 
 /* ep93xx_miiphy ops forward declarations */
-static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
-			unsigned char const reg, unsigned short * const value);
-static int ep93xx_miiphy_write(const char * const dev, unsigned char const addr,
-			unsigned char const reg, unsigned short const value);
+static int ep93xx_miiphy_read(struct mii_dev *bus, int addr, int devad,
+			      int reg);
+static int ep93xx_miiphy_write(struct mii_dev *bus, int addr, int devad,
+			       int reg, u16 value);
 
 #if defined(EP93XX_MAC_DEBUG)
 /**
@@ -421,7 +421,17 @@ eth_send_out:
 #if defined(CONFIG_MII)
 int ep93xx_miiphy_initialize(bd_t * const bd)
 {
-	miiphy_register("ep93xx_eth0", ep93xx_miiphy_read, ep93xx_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, "ep93xx_eth0", MDIO_NAME_LEN);
+	mdiodev->read = ep93xx_miiphy_read;
+	mdiodev->write = ep93xx_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 	return 0;
 }
 #endif
@@ -542,9 +552,10 @@ eth_init_done:
 /**
  * Read a 16-bit value from an MII register.
  */
-static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
-			unsigned char const reg, unsigned short * const value)
+static int ep93xx_miiphy_read(struct mii_dev *bus, int addr, int devad,
+			      int reg)
 {
+	unsigned short value = 0;
 	struct mac_regs *mac = (struct mac_regs *)MAC_BASE;
 	int ret = -1;
 	uint32_t self_ctl;
@@ -552,10 +563,9 @@ static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
 	debug("+ep93xx_miiphy_read");
 
 	/* Parameter checks */
-	BUG_ON(dev == NULL);
+	BUG_ON(bus->name == NULL);
 	BUG_ON(addr > MII_ADDRESS_MAX);
 	BUG_ON(reg > MII_REGISTER_MAX);
-	BUG_ON(value == NULL);
 
 	/*
 	 * Save the current SelfCTL register value.  Set MAC to suppress
@@ -579,7 +589,7 @@ static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
 	while (readl(&mac->miists) & MIISTS_BUSY)
 		; /* noop */
 
-	*value = (unsigned short)readl(&mac->miidata);
+	value = (unsigned short)readl(&mac->miidata);
 
 	/* Restore the saved SelfCTL value and return. */
 	writel(self_ctl, &mac->selfctl);
@@ -588,14 +598,16 @@ static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
 	/* Fall through */
 
 	debug("-ep93xx_miiphy_read");
-	return ret;
+	if (ret < 0)
+		return ret;
+	return value;
 }
 
 /**
  * Write a 16-bit value to an MII register.
  */
-static int ep93xx_miiphy_write(const char * const dev, unsigned char const addr,
-			unsigned char const reg, unsigned short const value)
+static int ep93xx_miiphy_write(struct mii_dev *bus, int addr, int devad,
+			       int reg, u16 value)
 {
 	struct mac_regs *mac = (struct mac_regs *)MAC_BASE;
 	int ret = -1;
@@ -604,7 +616,7 @@ static int ep93xx_miiphy_write(const char * const dev, unsigned char const addr,
 	debug("+ep93xx_miiphy_write");
 
 	/* Parameter checks */
-	BUG_ON(dev == NULL);
+	BUG_ON(bus->name == NULL);
 	BUG_ON(addr > MII_ADDRESS_MAX);
 	BUG_ON(reg > MII_REGISTER_MAX);
 

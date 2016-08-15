@@ -54,10 +54,10 @@ struct eth_info {
 	struct phy_device *port[BCM_ETH_MAX_PORT_NUM];
 	int port_num;
 
-	int (*miiphy_read)(const char *devname, unsigned char phyaddr,
-			   unsigned char reg, unsigned short *value);
-	int (*miiphy_write)(const char *devname, unsigned char phyaddr,
-			    unsigned char reg, unsigned short value);
+	int (*miiphy_read)(struct mii_dev *bus, int phyaddr, int devad,
+			   int reg);
+	int (*miiphy_write)(struct mii_dev *bus, int phyaddr, int devad,
+			    int reg, u16 value);
 
 	int (*mac_init)(struct eth_device *dev);
 	int (*enable_mac)(void);

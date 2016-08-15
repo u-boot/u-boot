@@ -21,13 +21,6 @@
 #include <net.h>
 #include <phy.h>
 
-struct legacy_mii_dev {
-	int (*read)(const char *devname, unsigned char addr,
-		     unsigned char reg, unsigned short *value);
-	int (*write)(const char *devname, unsigned char addr,
-		      unsigned char reg, unsigned short value);
-};
-
 int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value);
 int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
@@ -43,12 +36,6 @@ int miiphy_link(const char *devname, unsigned char addr);
 #endif
 
 void miiphy_init(void);
-
-void miiphy_register(const char *devname,
-		      int (*read)(const char *devname, unsigned char addr,
-				   unsigned char reg, unsigned short *value),
-		      int (*write)(const char *devname, unsigned char addr,
-				    unsigned char reg, unsigned short value));
 
 int miiphy_set_current_dev(const char *devname);
 const char *miiphy_get_current_dev(void);
@@ -86,10 +73,9 @@ extern struct bb_miiphy_bus bb_miiphy_buses[];
 extern int bb_miiphy_buses_num;
 
 void bb_miiphy_init(void);
-int bb_miiphy_read(const char *devname, unsigned char addr,
-		    unsigned char reg, unsigned short *value);
-int bb_miiphy_write(const char *devname, unsigned char addr,
-		     unsigned char reg, unsigned short value);
+int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
+int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
+		    u16 value);
 #endif
 
 /* phy seed setup */

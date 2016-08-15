@@ -623,20 +623,20 @@ static int uec_miiphy_find_dev_by_name(const char *devname)
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_read(const char *devname, unsigned char addr,
-			    unsigned char reg, unsigned short *value)
+static int uec_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
+	unsigned short value = 0;
 	int devindex = 0;
 
-	if (devname == NULL || value == NULL) {
+	if (bus->name == NULL) {
 		debug("%s: NULL pointer given\n", __FUNCTION__);
 	} else {
-		devindex = uec_miiphy_find_dev_by_name(devname);
+		devindex = uec_miiphy_find_dev_by_name(bus->name);
 		if (devindex >= 0) {
-			*value = uec_read_phy_reg(devlist[devindex], addr, reg);
+			value = uec_read_phy_reg(devlist[devindex], addr, reg);
 		}
 	}
-	return 0;
+	return value;
 }
 
 /*
@@ -645,15 +645,15 @@ static int uec_miiphy_read(const char *devname, unsigned char addr,
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_write(const char *devname, unsigned char addr,
-			     unsigned char reg, unsigned short value)
+static int uec_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			    u16 value)
 {
 	int devindex = 0;
 
-	if (devname == NULL) {
+	if (bus->name == NULL) {
 		debug("%s: NULL pointer given\n", __FUNCTION__);
 	} else {
-		devindex = uec_miiphy_find_dev_by_name(devname);
+		devindex = uec_miiphy_find_dev_by_name(bus->name);
 		if (devindex >= 0) {
 			uec_write_phy_reg(devlist[devindex], addr, reg, value);
 		}
@@ -1399,7 +1399,17 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	}
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register(dev->name, uec_miiphy_read, uec_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = uec_miiphy_read;
+	mdiodev->write = uec_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 
 	return 1;

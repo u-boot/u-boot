@@ -172,8 +172,17 @@ int last_stage_init(void)
 
 	print_fpga_info();
 
-	miiphy_register(CONFIG_SYS_GBIT_MII_BUSNAME,
-		bb_miiphy_read, bb_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, CONFIG_SYS_GBIT_MII_BUSNAME, MDIO_NAME_LEN);
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 
 	for (k = 0; k < 32; ++k)
 		configure_gbit_phy(k);

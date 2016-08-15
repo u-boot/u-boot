@@ -391,8 +391,8 @@ static int smsc95xx_write_hwaddr_common(struct usb_device *udev,
 					struct smsc95xx_private *priv,
 					unsigned char *enetaddr)
 {
-	u32 addr_lo = __get_unaligned_le32(&enetaddr[0]);
-	u32 addr_hi = __get_unaligned_le16(&enetaddr[4]);
+	u32 addr_lo = get_unaligned_le32(&enetaddr[0]);
+	u32 addr_hi = get_unaligned_le16(&enetaddr[4]);
 	int ret;
 
 	/* set hardware address */
