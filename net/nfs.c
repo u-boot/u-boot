@@ -65,7 +65,6 @@ static int nfs_state;
 #define STATE_READ_REQ			6
 #define STATE_READLINK_REQ		7
 
-static char default_filename[64];
 static char *nfs_filename;
 static char *nfs_path;
 static char nfs_path_buff[2048];
@@ -720,12 +719,11 @@ void nfs_start(void)
 	}
 
 	if (net_boot_file_name[0] == '\0') {
-		sprintf(default_filename, "/nfsroot/%02X%02X%02X%02X.img",
+		sprintf(nfs_path, "/nfsroot/%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
 			(net_ip.s_addr >> 16) & 0xFF,
 			(net_ip.s_addr >> 24) & 0xFF);
-		strcpy(nfs_path, default_filename);
 
 		printf("*** Warning: no boot file name; using '%s'\n",
 		       nfs_path);
