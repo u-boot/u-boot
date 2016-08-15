@@ -52,10 +52,8 @@ static int nfs_len;
 static ulong nfs_timeout = NFS_TIMEOUT;
 
 static char dirfh[NFS_FHSIZE];	/* NFSv2 / NFSv3 file handle of directory */
-static char filefh[NFS_FHSIZE]; /* NFSv2 file handle */
-
-static char filefh3[NFS3_FHSIZE];	/* NFSv3 file handle  */
-static int filefh3_length;	/* (variable) length of filefh3 */
+static char filefh[NFS3_FHSIZE]; /* NFSv2 / NFSv3 file handle */
+static int filefh3_length;	/* (variable) length of filefh when NFSv3 */
 
 static enum net_loop_state nfs_download_state;
 static struct in_addr nfs_server_ip;
@@ -316,7 +314,7 @@ static void nfs_readlink_req(void)
 		p += (NFS_FHSIZE / 4);
 	} else { /* NFSV3_FLAG */
 		*p++ = htonl(filefh3_length);
-		memcpy(p, filefh3, filefh3_length);
+		memcpy(p, filefh, filefh3_length);
 		p += (filefh3_length / 4);
 	}
 
@@ -388,7 +386,7 @@ static void nfs_read_req(int offset, int readlen)
 		*p++ = 0;
 	} else { /* NFSV3_FLAG */
 		*p++ = htonl(filefh3_length);
-		memcpy(p, filefh3, filefh3_length);
+		memcpy(p, filefh, filefh3_length);
 		p += (filefh3_length / 4);
 		*p++ = htonl(0); /* offset is 64-bit long, so fill with 0 */
 		*p++ = htonl(offset);
@@ -582,7 +580,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
-		memcpy(filefh3, rpc_pkt.u.reply.data + 2, filefh3_length);
+		memcpy(filefh, rpc_pkt.u.reply.data + 2, filefh3_length);
 	}
 
 	return 0;
