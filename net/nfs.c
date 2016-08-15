@@ -592,7 +592,7 @@ static int nfs3_get_attributes_offset(uint32_t *data)
 {
 	if (ntohl(data[1]) != 0) {
 		/* 'attributes_follow' flag is TRUE,
-		 * so we have attributes on 21 bytes */
+		 * so we have attributes on 21 dwords */
 		/* Skip unused values :
 			type;	32 bits value,
 			mode;	32 bits value,
