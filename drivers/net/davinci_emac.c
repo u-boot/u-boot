@@ -681,12 +681,12 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			printf ("WARN: emac_rcv_pkt: Error in packet\n");
 		} else {
 			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
+			unsigned short len =
+				rx_curr_desc->buff_off_len & 0xffff;
 
-			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
-			net_process_received_packet(
-				rx_curr_desc->buffer,
-				rx_curr_desc->buff_off_len & 0xffff);
-			ret = rx_curr_desc->buff_off_len & 0xffff;
+			invalidate_dcache_range(tmp, tmp + ALIGN(len, PKTALIGN));
+			net_process_received_packet(rx_curr_desc->buffer, len);
+			ret = len;
 		}
 
 		/* Ack received packet descriptor */
