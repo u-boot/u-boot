@@ -588,10 +588,39 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	return 0;
 }
 
+static int nfs3_get_attributes_offset(uint32_t *data)
+{
+	if (ntohl(data[1]) != 0) {
+		/* 'attributes_follow' flag is TRUE,
+		 * so we have attributes on 21 bytes */
+		/* Skip unused values :
+			type;	32 bits value,
+			mode;	32 bits value,
+			nlink;	32 bits value,
+			uid;	32 bits value,
+			gid;	32 bits value,
+			size;	64 bits value,
+			used;	64 bits value,
+			rdev;	64 bits value,
+			fsid;	64 bits value,
+			fileid;	64 bits value,
+			atime;	64 bits value,
+			mtime;	64 bits value,
+			ctime;	64 bits value,
+		*/
+		return 22;
+	} else {
+		/* 'attributes_follow' flag is FALSE,
+		 * so we don't have any attributes */
+		return 1;
+	}
+}
+
 static int nfs_readlink_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 	int rlen;
+	int nfsv3_data_offset = 0;
 
 	debug("%s\n", __func__);
 
@@ -608,68 +637,28 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 	    rpc_pkt.u.reply.data[0])
 		return -1;
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (!(supported_nfs_versions & NFSV2_FLAG)) { /* NFSV3_FLAG */
+		nfsv3_data_offset =
+			nfs3_get_attributes_offset(rpc_pkt.u.reply.data);
+	}
 
-		rlen = ntohl(rpc_pkt.u.reply.data[1]); /* new path length */
+	/* new path length */
+	rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
 
-		if (*((char *)&(rpc_pkt.u.reply.data[2])) != '/') {
-			int pathlen;
-			strcat(nfs_path, "/");
-			pathlen = strlen(nfs_path);
-			memcpy(nfs_path + pathlen,
-			       (uchar *)&(rpc_pkt.u.reply.data[2]),
-			       rlen);
-			nfs_path[pathlen + rlen] = 0;
-		} else {
-			memcpy(nfs_path,
-			       (uchar *)&(rpc_pkt.u.reply.data[2]),
-			       rlen);
-			nfs_path[rlen] = 0;
-		}
-	} else {  /* NFSV3_FLAG */
-		int nfsv3_data_offset = 0;
-		if (ntohl(rpc_pkt.u.reply.data[1]) != 0) {
-			/* 'attributes_follow' flag is TRUE,
-			 * so we have attributes on 21 bytes */
-			/* Skip unused values :
-				type;	32 bits value,
-				mode;	32 bits value,
-				nlink;	32 bits value,
-				uid;	32 bits value,
-				gid;	32 bits value,
-				size;	64 bits value,
-				used;	64 bits value,
-				rdev;	64 bits value,
-				fsid;	64 bits value,
-				fileid;	64 bits value,
-				atime;	64 bits value,
-				mtime;	64 bits value,
-				ctime;	64 bits value,
-			*/
-			nfsv3_data_offset = 22;
-		} else {
-			/* 'attributes_follow' flag is FALSE,
-			 * so we don't have any attributes */
-			nfsv3_data_offset = 1;
-		}
+	if (*((char *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset])) != '/') {
+		int pathlen;
 
-		/* new path length */
-		rlen = ntohl(rpc_pkt.u.reply.data[1+nfsv3_data_offset]);
-
-		if (*((char *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset])) != '/') {
-			int pathlen;
-			strcat(nfs_path, "/");
-			pathlen = strlen(nfs_path);
-			memcpy(nfs_path + pathlen,
-			       (uchar *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset]),
-			       rlen);
-			nfs_path[pathlen + rlen] = 0;
-		} else {
-			memcpy(nfs_path,
-			       (uchar *)&(rpc_pkt.u.reply.data[2+nfsv3_data_offset]),
-			       rlen);
-			nfs_path[rlen] = 0;
-		}
+		strcat(nfs_path, "/");
+		pathlen = strlen(nfs_path);
+		memcpy(nfs_path + pathlen,
+		       (uchar *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset]),
+		       rlen);
+		nfs_path[pathlen + rlen] = 0;
+	} else {
+		memcpy(nfs_path,
+		       (uchar *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset]),
+		       rlen);
+		nfs_path[rlen] = 0;
 	}
 	return 0;
 }
@@ -710,39 +699,17 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 		rlen = ntohl(rpc_pkt.u.reply.data[18]);
 		data_ptr = (uchar *)&(rpc_pkt.u.reply.data[19]);
 	} else {  /* NFSV3_FLAG */
-		if (ntohl(rpc_pkt.u.reply.data[1]) != 0) {
-			/* 'attributes_follow' is TRUE,
-			 * so we have attributes on 21 bytes */
-			/* Skip unused values :
-				type;	32 bits value,
-				mode;	32 bits value,
-				nlink;	32 bits value,
-				uid;	32 bits value,
-				gid;	32 bits value,
-				size;	64 bits value,
-				used;	64 bits value,
-				rdev;	64 bits value,
-				fsid;	64 bits value,
-				fileid;	64 bits value,
-				atime;	64 bits value,
-				mtime;	64 bits value,
-				ctime;	64 bits value,
-			*/
-			rlen = ntohl(rpc_pkt.u.reply.data[23]); /* count value */
-			/* Skip unused values :
-				EOF:		32 bits value,
-				data_size:	32 bits value,
-			*/
-			data_ptr = (uchar *)&(rpc_pkt.u.reply.data[26]);
-		} else {
-			/* attributes_follow is FALSE, so we don't have any attributes */
-			rlen = ntohl(rpc_pkt.u.reply.data[2]); /* count value */
-			/* Skip unused values :
-				EOF:		32 bits value,
-				data_size:	32 bits value,
-			*/
-			data_ptr = (uchar *)&(rpc_pkt.u.reply.data[5]);
-		}
+		int nfsv3_data_offset =
+			nfs3_get_attributes_offset(rpc_pkt.u.reply.data);
+
+		/* count value */
+		rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
+		/* Skip unused values :
+			EOF:		32 bits value,
+			data_size:	32 bits value,
+		*/
+		data_ptr = (uchar *)
+			&(rpc_pkt.u.reply.data[4 + nfsv3_data_offset]);
 	}
 
 	if (store_block(data_ptr, nfs_offset, rlen))
