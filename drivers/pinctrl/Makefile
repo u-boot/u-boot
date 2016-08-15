@@ -5,6 +5,7 @@
 obj-y					+= pinctrl-uclass.o
 obj-$(CONFIG_$(SPL_)PINCTRL_GENERIC)	+= pinctrl-generic.o
 
+obj-$(CONFIG_PINCTRL_AT91PIO4)		+= pinctrl-at91-pio4.o
 obj-y					+= nxp/
 obj-$(CONFIG_ARCH_ATH79) += ath79/
 obj-$(CONFIG_ARCH_ROCKCHIP) += rockchip/

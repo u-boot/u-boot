@@ -104,7 +104,7 @@ static inline int clk_get_by_index(struct udevice *dev, int index,
 	return -ENOSYS;
 }
 
-static int clk_get_by_name(struct udevice *dev, const char *name,
+static inline int clk_get_by_name(struct udevice *dev, const char *name,
 			   struct clk *clk)
 {
 	return -ENOSYS;

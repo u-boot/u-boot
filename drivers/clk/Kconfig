@@ -23,5 +23,6 @@ config SPL_CLK
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/uniphier/Kconfig"
 source "drivers/clk/exynos/Kconfig"
+source "drivers/clk/at91/Kconfig"
 
 endmenu
