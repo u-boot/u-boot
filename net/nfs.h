@@ -44,8 +44,6 @@
 #define NFS_READ_SIZE 1024 /* biggest power of two that fits Ether frame */
 #endif
 
-#define NFS_MAXLINKDEPTH 16
-
 struct rpc_t {
 	union {
 		uint8_t data[2048];
