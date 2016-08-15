@@ -35,10 +35,33 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
+static void ps_mode_reset(ulong mode)
+{
+	writel(mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_VAL_SHIFT |
+	       mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT,
+	       &crlapb_base->boot_pin_ctrl);
+	udelay(1);
+	writel(mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT,
+	       &crlapb_base->boot_pin_ctrl);
+	udelay(5);
+	writel(mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_VAL_SHIFT |
+	       mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT,
+	       &crlapb_base->boot_pin_ctrl);
+}
+
+/*
+ * Set default PS_MODE1 which is used for USB ULPI phy reset
+ * Also other resets can be connected to this certain pin
+ */
+#ifndef MODE_RESET
+# define MODE_RESET	PS_MODE1
+#endif
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void)
 {
 	preloader_console_init();
+	ps_mode_reset(MODE_RESET);
 	board_init();
 }
 #endif
