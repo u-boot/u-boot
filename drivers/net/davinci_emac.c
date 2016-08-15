@@ -637,7 +637,7 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 				      EMAC_CPPI_EOP_BIT);
 
 	flush_dcache_range((unsigned long)packet,
-			(unsigned long)packet + length);
+			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
 	/* Send the packet */
 	writel(BD_TO_HW((unsigned long)emac_tx_desc), &adap_emac->TX0HDP);
