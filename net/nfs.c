@@ -185,39 +185,39 @@ RPC_LOOKUP - Lookup RPC Port numbers
 **************************************************************************/
 static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 {
-	struct rpc_t pkt;
+	struct rpc_t rpc_pkt;
 	unsigned long id;
 	uint32_t *p;
 	int pktlen;
 	int sport;
 
 	id = ++rpc_id;
-	pkt.u.call.id = htonl(id);
-	pkt.u.call.type = htonl(MSG_CALL);
-	pkt.u.call.rpcvers = htonl(2);	/* use RPC version 2 */
-	pkt.u.call.prog = htonl(rpc_prog);
+	rpc_pkt.u.call.id = htonl(id);
+	rpc_pkt.u.call.type = htonl(MSG_CALL);
+	rpc_pkt.u.call.rpcvers = htonl(2);	/* use RPC version 2 */
+	rpc_pkt.u.call.prog = htonl(rpc_prog);
 	switch (rpc_prog) {
 	case PROG_NFS:
 		if (supported_nfs_versions & NFSV2_FLAG)
-			pkt.u.call.vers = htonl(2);	/* NFS v2 */
+			rpc_pkt.u.call.vers = htonl(2);	/* NFS v2 */
 		else /* NFSV3_FLAG */
-			pkt.u.call.vers = htonl(3);	/* NFS v3 */
+			rpc_pkt.u.call.vers = htonl(3);	/* NFS v3 */
 		break;
 	case PROG_PORTMAP:
 	case PROG_MOUNT:
 	default:
-		pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
+		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
-	pkt.u.call.proc = htonl(rpc_proc);
-	p = (uint32_t *)&(pkt.u.call.data);
+	rpc_pkt.u.call.proc = htonl(rpc_proc);
+	p = (uint32_t *)&(rpc_pkt.u.call.data);
 
 	if (datalen)
 		memcpy((char *)p, (char *)data, datalen*sizeof(uint32_t));
 
-	pktlen = (char *)p + datalen*sizeof(uint32_t) - (char *)&pkt;
+	pktlen = (char *)p + datalen * sizeof(uint32_t) - (char *)&rpc_pkt;
 
 	memcpy((char *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE,
-	       (char *)&pkt, pktlen);
+	       &rpc_pkt.u.data[0], pktlen);
 
 	if (rpc_prog == PROG_PORTMAP)
 		sport = SUNRPC_PORT;
@@ -445,7 +445,7 @@ static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
-	memcpy((unsigned char *)&rpc_pkt, pkt, len);
+	memcpy(&rpc_pkt.u.data[0], pkt, len);
 
 	debug("%s\n", __func__);
 
@@ -477,7 +477,7 @@ static int nfs_mount_reply(uchar *pkt, unsigned len)
 
 	debug("%s\n", __func__);
 
-	memcpy((unsigned char *)&rpc_pkt, pkt, len);
+	memcpy(&rpc_pkt.u.data[0], pkt, len);
 
 	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
 		return -NFS_RPC_ERR;
@@ -503,7 +503,7 @@ static int nfs_umountall_reply(uchar *pkt, unsigned len)
 
 	debug("%s\n", __func__);
 
-	memcpy((unsigned char *)&rpc_pkt, pkt, len);
+	memcpy(&rpc_pkt.u.data[0], pkt, len);
 
 	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
 		return -NFS_RPC_ERR;
@@ -527,7 +527,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 
 	debug("%s\n", __func__);
 
-	memcpy((unsigned char *)&rpc_pkt, pkt, len);
+	memcpy(&rpc_pkt.u.data[0], pkt, len);
 
 	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
 		return -NFS_RPC_ERR;
@@ -671,7 +671,7 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 
 	debug("%s\n", __func__);
 
-	memcpy((uchar *)&rpc_pkt, pkt, sizeof(rpc_pkt.u.reply));
+	memcpy(&rpc_pkt.u.data[0], pkt, sizeof(rpc_pkt.u.reply));
 
 	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
 		return -NFS_RPC_ERR;
