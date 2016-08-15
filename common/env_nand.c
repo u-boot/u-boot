@@ -163,6 +163,9 @@ static int erase_and_write_env(const struct env_location *location,
 {
 	int ret = 0;
 
+	if (!nand_info[0])
+		return 1;
+
 	printf("Erasing %s...\n", location->name);
 	if (nand_erase_opts(nand_info[0], &location->erase_opts))
 		return 1;
@@ -247,10 +250,10 @@ static int readenv(size_t offset, u_char *buf)
 	size_t blocksize, len;
 	u_char *char_ptr;
 
-	blocksize = nand_info[0]->erasesize;
-	if (!blocksize)
+	if (!nand_info[0])
 		return 1;
 
+	blocksize = nand_info[0]->erasesize;
 	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
@@ -387,12 +390,12 @@ void env_relocate_spec(void)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
 #if defined(CONFIG_ENV_OFFSET_OOB)
-	ret = get_nand_env_oob(nand_info[0], &nand_env_oob_offset);
 	/*
 	 * If unable to read environment offset from NAND OOB then fall through
 	 * to the normal environment reading code below
 	 */
-	if (!ret) {
+	if (nand_info[0] && !get_nand_env_oob(nand_info[0],
+					      &nand_env_oob_offset)) {
 		printf("Found Environment offset in OOB..\n");
 	} else {
 		set_default_env("!no env offset in OOB");
