@@ -15,6 +15,7 @@ dtb-y += bayleybay.dtb \
 	minnowmax.dtb \
 	qemu-x86_i440fx.dtb \
 	qemu-x86_q35.dtb \
+	theadorable-x86-dfi-bt700.dtb \
 	broadwell_som-6896.dtb \
 	baytrail_som-db5800-som-6867.dtb
 
