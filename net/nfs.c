@@ -183,41 +183,41 @@ static uint32_t *rpc_add_credentials(uint32_t *p)
 /**************************************************************************
 RPC_LOOKUP - Lookup RPC Port numbers
 **************************************************************************/
-static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
+static struct rpc_t *rpc_req_prep(void)
 {
-	struct rpc_t rpc_pkt;
+	return (struct rpc_t *)(net_tx_packet + net_eth_hdr_size() +
+				IP_UDP_HDR_SIZE);
+}
+
+static void rpc_req(int rpc_prog, int rpc_proc, struct rpc_t *rpc_pkt,
+		    int datalen)
+{
 	unsigned long id;
-	uint32_t *p;
 	int pktlen;
 	int sport;
 
 	id = ++rpc_id;
-	rpc_pkt.u.call.id = htonl(id);
-	rpc_pkt.u.call.type = htonl(MSG_CALL);
-	rpc_pkt.u.call.rpcvers = htonl(2);	/* use RPC version 2 */
-	rpc_pkt.u.call.prog = htonl(rpc_prog);
+	rpc_pkt->u.call.id = htonl(id);
+	rpc_pkt->u.call.type = htonl(MSG_CALL);
+	rpc_pkt->u.call.rpcvers = htonl(2);	/* use RPC version 2 */
+	rpc_pkt->u.call.prog = htonl(rpc_prog);
 	switch (rpc_prog) {
 	case PROG_NFS:
 		if (supported_nfs_versions & NFSV2_FLAG)
-			rpc_pkt.u.call.vers = htonl(2);	/* NFS v2 */
+			rpc_pkt->u.call.vers = htonl(2);	/* NFS v2 */
 		else /* NFSV3_FLAG */
-			rpc_pkt.u.call.vers = htonl(3);	/* NFS v3 */
+			rpc_pkt->u.call.vers = htonl(3);	/* NFS v3 */
 		break;
 	case PROG_PORTMAP:
 	case PROG_MOUNT:
 	default:
-		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
+		/* portmapper is version 2 */
+		rpc_pkt->u.call.vers = htonl(2);
 	}
-	rpc_pkt.u.call.proc = htonl(rpc_proc);
-	p = (uint32_t *)&(rpc_pkt.u.call.data);
+	rpc_pkt->u.call.proc = htonl(rpc_proc);
 
-	if (datalen)
-		memcpy((char *)p, (char *)data, datalen*sizeof(uint32_t));
-
-	pktlen = (char *)p + datalen * sizeof(uint32_t) - (char *)&rpc_pkt;
-
-	memcpy((char *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE,
-	       &rpc_pkt.u.data[0], pktlen);
+	pktlen = ((char *)&rpc_pkt->u.call.data - (char *)&rpc_pkt) +
+		datalen * sizeof(uint32_t);
 
 	if (rpc_prog == PROG_PORTMAP)
 		sport = SUNRPC_PORT;
@@ -235,15 +235,17 @@ RPC_LOOKUP - Lookup RPC Port numbers
 **************************************************************************/
 static void rpc_lookup_req(int prog, int ver)
 {
-	uint32_t data[16];
+	uint32_t *data;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
+	data = rpc_pkt->u.call.data;
 	data[0] = 0; data[1] = 0;	/* auth credential */
 	data[2] = 0; data[3] = 0;	/* auth verifier */
 	data[4] = htonl(prog);
 	data[5] = htonl(ver);
 	data[6] = htonl(17);	/* IP_UDP */
 	data[7] = 0;
-	rpc_req(PROG_PORTMAP, PORTMAP_GETPORT, data, 8);
+	rpc_req(PROG_PORTMAP, PORTMAP_GETPORT, rpc_pkt, 8);
 }
 
 /**************************************************************************
@@ -251,14 +253,14 @@ NFS_MOUNT - Mount an NFS Filesystem
 **************************************************************************/
 static void nfs_mount_req(char *path)
 {
-	uint32_t data[1024];
 	uint32_t *p;
 	int len;
 	int pathlen;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
 	pathlen = strlen(path);
 
-	p = &(data[0]);
+	p = rpc_pkt->u.call.data;
 	p = rpc_add_credentials(p);
 
 	*p++ = htonl(pathlen);
@@ -267,9 +269,9 @@ static void nfs_mount_req(char *path)
 	memcpy(p, path, pathlen);
 	p += (pathlen + 3) / 4;
 
-	len = (uint32_t *)p - (uint32_t *)&(data[0]);
+	len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-	rpc_req(PROG_MOUNT, MOUNT_ADDENTRY, data, len);
+	rpc_req(PROG_MOUNT, MOUNT_ADDENTRY, rpc_pkt, len);
 }
 
 /**************************************************************************
@@ -277,20 +279,20 @@ NFS_UMOUNTALL - Unmount all our NFS Filesystems on the Server
 **************************************************************************/
 static void nfs_umountall_req(void)
 {
-	uint32_t data[1024];
 	uint32_t *p;
 	int len;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
 	if ((nfs_server_mount_port == -1) || (!fs_mounted))
 		/* Nothing mounted, nothing to umount */
 		return;
 
-	p = &(data[0]);
+	p = rpc_pkt->u.call.data;
 	p = rpc_add_credentials(p);
 
-	len = (uint32_t *)p - (uint32_t *)&(data[0]);
+	len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-	rpc_req(PROG_MOUNT, MOUNT_UMOUNTALL, data, len);
+	rpc_req(PROG_MOUNT, MOUNT_UMOUNTALL, rpc_pkt, len);
 }
 
 /***************************************************************************
@@ -302,11 +304,11 @@ static void nfs_umountall_req(void)
  **************************************************************************/
 static void nfs_readlink_req(void)
 {
-	uint32_t data[1024];
 	uint32_t *p;
 	int len;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
-	p = &(data[0]);
+	p = rpc_pkt->u.call.data;
 	p = rpc_add_credentials(p);
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
@@ -318,9 +320,9 @@ static void nfs_readlink_req(void)
 		p += (filefh3_length / 4);
 	}
 
-	len = (uint32_t *)p - (uint32_t *)&(data[0]);
+	len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-	rpc_req(PROG_NFS, NFS_READLINK, data, len);
+	rpc_req(PROG_NFS, NFS_READLINK, rpc_pkt, len);
 }
 
 /**************************************************************************
@@ -328,14 +330,14 @@ NFS_LOOKUP - Lookup Pathname
 **************************************************************************/
 static void nfs_lookup_req(char *fname)
 {
-	uint32_t data[1024];
 	uint32_t *p;
 	int len;
 	int fnamelen;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
 	fnamelen = strlen(fname);
 
-	p = &(data[0]);
+	p = rpc_pkt->u.call.data;
 	p = rpc_add_credentials(p);
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
@@ -347,9 +349,9 @@ static void nfs_lookup_req(char *fname)
 		memcpy(p, fname, fnamelen);
 		p += (fnamelen + 3) / 4;
 
-		len = (uint32_t *)p - (uint32_t *)&(data[0]);
+		len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-		rpc_req(PROG_NFS, NFS_LOOKUP, data, len);
+		rpc_req(PROG_NFS, NFS_LOOKUP, rpc_pkt, len);
 	} else {  /* NFSV3_FLAG */
 		*p++ = htonl(NFS_FHSIZE);	/* Dir handle length */
 		memcpy(p, dirfh, NFS_FHSIZE);
@@ -360,9 +362,9 @@ static void nfs_lookup_req(char *fname)
 		memcpy(p, fname, fnamelen);
 		p += (fnamelen + 3) / 4;
 
-		len = (uint32_t *)p - (uint32_t *)&(data[0]);
+		len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-		rpc_req(PROG_NFS, NFS3PROC_LOOKUP, data, len);
+		rpc_req(PROG_NFS, NFS3PROC_LOOKUP, rpc_pkt, len);
 	}
 }
 
@@ -371,11 +373,11 @@ NFS_READ - Read File on NFS Server
 **************************************************************************/
 static void nfs_read_req(int offset, int readlen)
 {
-	uint32_t data[1024];
 	uint32_t *p;
 	int len;
+	struct rpc_t *rpc_pkt = rpc_req_prep();
 
-	p = &(data[0]);
+	p = rpc_pkt->u.call.data;
 	p = rpc_add_credentials(p);
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
@@ -394,9 +396,9 @@ static void nfs_read_req(int offset, int readlen)
 		*p++ = 0;
 	}
 
-	len = (uint32_t *)p - (uint32_t *)&(data[0]);
+	len = (uint32_t *)p - (uint32_t *)&(rpc_pkt->u.call.data);
 
-	rpc_req(PROG_NFS, NFS_READ, data, len);
+	rpc_req(PROG_NFS, NFS_READ, rpc_pkt, len);
 }
 
 /**************************************************************************
