@@ -123,5 +123,6 @@ U_BOOT_DRIVER(gpio_bcm2835) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_bcm2835_ops,
 	.probe	= bcm2835_gpio_probe,
+	.flags	= DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size = sizeof(struct bcm2835_gpios),
 };

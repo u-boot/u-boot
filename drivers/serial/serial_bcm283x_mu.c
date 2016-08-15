@@ -73,6 +73,9 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 
+	if (plat->disabled)
+		return -ENODEV;
+
 	priv->regs = (struct bcm283x_mu_regs *)plat->base;
 
 	return 0;
