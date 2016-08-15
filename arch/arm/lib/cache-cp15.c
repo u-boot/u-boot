@@ -61,7 +61,11 @@ __weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
+#ifdef CONFIG_ARMV7_LPAE
+	u64 *page_table = (u64 *)gd->arch.tlb_addr;
+#else
 	u32 *page_table = (u32 *)gd->arch.tlb_addr;
+#endif
 	unsigned long upto, end;
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
