@@ -547,7 +547,8 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 			/* Minimal supported NFS version */
 			case 3:
 				debug("*** Waring: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-				      (supported_nfs_versions & NFSV2_FLAG) ? 2 : 3,
+				      (supported_nfs_versions & NFSV2_FLAG) ?
+						2 : 3,
 				      ntohl(rpc_pkt.u.reply.data[0]),
 				      ntohl(rpc_pkt.u.reply.data[1]));
 				debug("Will retry with NFSv3\n");
@@ -557,7 +558,8 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 			case 4:
 			default:
 				printf("*** ERROR: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-				       (supported_nfs_versions & NFSV2_FLAG) ? 2 : 3,
+				       (supported_nfs_versions & NFSV2_FLAG) ?
+						2 : 3,
 				       ntohl(rpc_pkt.u.reply.data[0]),
 				       ntohl(rpc_pkt.u.reply.data[1]));
 			}
@@ -828,7 +830,8 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			puts("*** ERROR: File lookup fail\n");
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
-		} else if (reply == -NFS_RPC_PROG_MISMATCH && supported_nfs_versions != 0) {
+		} else if (reply == -NFS_RPC_PROG_MISMATCH &&
+			   supported_nfs_versions != 0) {
 			/* umount */
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
