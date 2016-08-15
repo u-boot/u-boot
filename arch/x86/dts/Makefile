@@ -9,6 +9,7 @@ dtb-y += bayleybay.dtb \
 	conga-qeval20-qa3-e3845.dtb \
 	cougarcanyon2.dtb \
 	crownbay.dtb \
+	dfi-bt700-q7x-151.dtb \
 	efi.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
