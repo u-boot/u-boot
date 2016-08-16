@@ -155,10 +155,12 @@
 &sdhci0 {
 	status = "okay";
 	bus-width = <8>;
+	xlnx,mio_bank = <2>;
 };
 
 &sdhci1 {
 	status = "okay";
+	xlnx,mio_bank = <1>;
 };
 
 &spi0 {
