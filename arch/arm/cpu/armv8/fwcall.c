@@ -6,6 +6,7 @@
 
 #include <asm-offsets.h>
 #include <config.h>
+#include <efi_loader.h>
 #include <version.h>
 #include <asm/macro.h>
 #include <asm/psci.h>
@@ -17,7 +18,7 @@
  * x0~x7: input arguments
  * x0~x3: output arguments
  */
-static void hvc_call(struct pt_regs *args)
+static void EFI_RUNTIME_TEXT hvc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -51,7 +52,7 @@ static void hvc_call(struct pt_regs *args)
  * x0~x3: output arguments
  */
 
-void smc_call(struct pt_regs *args)
+void EFI_RUNTIME_TEXT smc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -81,9 +82,9 @@ void smc_call(struct pt_regs *args)
  * use PSCI on U-Boot running below a hypervisor, please detect
  * this and set the flag accordingly.
  */
-static const bool use_smc_for_psci = true;
+static const EFI_RUNTIME_DATA bool use_smc_for_psci = true;
 
-void __noreturn psci_system_reset(void)
+void __noreturn EFI_RUNTIME_TEXT psci_system_reset(void)
 {
 	struct pt_regs regs;
 
@@ -98,7 +99,7 @@ void __noreturn psci_system_reset(void)
 		;
 }
 
-void __noreturn psci_system_off(void)
+void __noreturn EFI_RUNTIME_TEXT psci_system_off(void)
 {
 	struct pt_regs regs;
 
@@ -118,4 +119,24 @@ void reset_misc(void)
 {
 	psci_system_reset();
 }
+
+#ifdef CONFIG_EFI_LOADER
+void EFI_RUNTIME_TEXT EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data)
+{
+	switch (reset_type) {
+	case EFI_RESET_COLD:
+	case EFI_RESET_WARM:
+		psci_system_reset();
+		break;
+	case EFI_RESET_SHUTDOWN:
+		psci_system_off();
+		break;
+	}
+
+	while (1) { }
+}
+#endif /* CONFIG_EFI_LOADER */
 #endif /* CONFIG_PSCI_RESET */
