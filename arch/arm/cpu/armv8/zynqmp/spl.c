@@ -37,10 +37,6 @@ void board_init_f(ulong dummy)
 
 static void ps_mode_reset(ulong mode)
 {
-	writel(mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_VAL_SHIFT |
-	       mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT,
-	       &crlapb_base->boot_pin_ctrl);
-	udelay(1);
 	writel(mode << ZYNQMP_CRL_APB_BOOT_PIN_CTRL_OUT_EN_SHIFT,
 	       &crlapb_base->boot_pin_ctrl);
 	udelay(5);
