@@ -159,12 +159,14 @@
 &sdhci0 {
 	status = "okay";
 	bus-width = <8>;
+	xlnx,mio_bank = <0>;
 };
 
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;       /* for 1.0 silicon */
+	xlnx,mio_bank = <1>;
 };
 
 &uart0 {
