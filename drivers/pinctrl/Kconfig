@@ -148,6 +148,15 @@ config PINCTRL_AT91PIO4
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
 
+config ROCKCHIP_RK3399_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3399 SoCs. The driver
+	  is controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
 config PINCTRL_SANDBOX
 	bool "Sandbox pinctrl driver"
 	depends on SANDBOX
