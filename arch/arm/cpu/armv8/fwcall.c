@@ -112,3 +112,10 @@ void __noreturn psci_system_off(void)
 	while (1)
 		;
 }
+
+#ifdef CONFIG_PSCI_RESET
+void reset_misc(void)
+{
+	psci_system_reset();
+}
+#endif /* CONFIG_PSCI_RESET */
