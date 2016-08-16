@@ -116,6 +116,7 @@ void flush_l3_cache(void);
 void smc_call(struct pt_regs *args);
 
 void __noreturn psci_system_reset(void);
+void __noreturn psci_system_off(void);
 
 #endif	/* __ASSEMBLY__ */
 

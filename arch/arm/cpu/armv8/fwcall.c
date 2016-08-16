@@ -97,3 +97,18 @@ void __noreturn psci_system_reset(void)
 	while (1)
 		;
 }
+
+void __noreturn psci_system_off(void)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_OFF;
+
+	if (use_smc_for_psci)
+		smc_call(&regs);
+	else
+		hvc_call(&regs);
+
+	while (1)
+		;
+}
