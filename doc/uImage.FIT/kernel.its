@@ -85,3 +85,7 @@ For x86 a setup node is also required: see x86-fit-boot.txt.
 		};
 	};
 };
+
+Note: the above assumes a 32-bit kernel. To directly boot a 64-bit kernel,
+change both arch values to "x86_64". U-Boot will then change to 64-bit mode
+before booting the kernel (see boot_linux_kernel()).

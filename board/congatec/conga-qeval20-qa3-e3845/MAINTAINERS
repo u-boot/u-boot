@@ -4,4 +4,5 @@ S:	Maintained
 F:	board/congatec/conga-qeval20-qa3-e3845
 F:	include/configs/conga-qeval20-qa3-e3845.h
 F:	configs/conga-qeval20-qa3-e3845_defconfig
+F:	configs/conga-qeval20-qa3-e3845-internal-uart_defconfig
 F:	arch/x86/dts/conga-qeval20-qa3-e3845.dts

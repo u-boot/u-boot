@@ -134,32 +134,6 @@
 #define SATA_IOBP_SP0G3IR	0xea000151
 #define SATA_IOBP_SP1G3IR	0xea000051
 
-/* PCI Configuration Space (D31:F3): SMBus */
-#define PCH_SMBUS_DEV		PCI_BDF(0, 0x1f, 3)
-#define SMB_BASE		0x20
-#define HOSTC			0x40
-#define SMB_RCV_SLVA		0x09
-
-/* HOSTC bits */
-#define I2C_EN			(1 << 2)
-#define SMB_SMI_EN		(1 << 1)
-#define HST_EN			(1 << 0)
-
-/* SMBus I/O bits. */
-#define SMBHSTSTAT		0x0
-#define SMBHSTCTL		0x2
-#define SMBHSTCMD		0x3
-#define SMBXMITADD		0x4
-#define SMBHSTDAT0		0x5
-#define SMBHSTDAT1		0x6
-#define SMBBLKDAT		0x7
-#define SMBTRNSADD		0x9
-#define SMBSLVDATA		0xa
-#define SMLINK_PIN_CTL		0xe
-#define SMBUS_PIN_CTL		0xf
-
-#define SMBUS_TIMEOUT		(10 * 1000 * 100)
-
 #define VCH		0x0000	/* 32bit */
 #define VCAP1		0x0004	/* 32bit */
 #define VCAP2		0x0008	/* 32bit */

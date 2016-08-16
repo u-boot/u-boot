@@ -17,6 +17,9 @@ config VENDOR_CONGATEC
 config VENDOR_COREBOOT
 	bool "coreboot"
 
+config VENDOR_DFI
+	bool "dfi"
+
 config VENDOR_EFI
 	bool "efi"
 
@@ -35,6 +38,7 @@ endchoice
 source "board/advantech/Kconfig"
 source "board/congatec/Kconfig"
 source "board/coreboot/Kconfig"
+source "board/dfi/Kconfig"
 source "board/efi/Kconfig"
 source "board/emulation/Kconfig"
 source "board/google/Kconfig"
