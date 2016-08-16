@@ -283,46 +283,82 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		 * handle standard linux xterm esc sequences for arrow key, etc.
 		 */
 		if (esc_len != 0) {
+			enum { ESC_REJECT, ESC_SAVE, ESC_CONVERTED } act = ESC_REJECT;
+
 			if (esc_len == 1) {
-				if (ichar == '[') {
-					esc_save[esc_len] = ichar;
-					esc_len = 2;
-				} else {
-					cread_add_str(esc_save, esc_len,
-						      insert, &num, &eol_num,
-						      buf, *len);
-					esc_len = 0;
+				if (ichar == '[' || ichar == 'O')
+					act = ESC_SAVE;
+			} else if (esc_len == 2) {
+				switch (ichar) {
+				case 'D':	/* <- key */
+					ichar = CTL_CH('b');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^B handler */
+				case 'C':	/* -> key */
+					ichar = CTL_CH('f');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^F handler */
+				case 'H':	/* Home key */
+					ichar = CTL_CH('a');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^A handler */
+				case 'F':	/* End key */
+					ichar = CTL_CH('e');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^E handler */
+				case 'A':	/* up arrow */
+					ichar = CTL_CH('p');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^P handler */
+				case 'B':	/* down arrow */
+					ichar = CTL_CH('n');
+					act = ESC_CONVERTED;
+					break;	/* pass off to ^N handler */
+				case '1':
+				case '3':
+				case '4':
+				case '7':
+				case '8':
+					if (esc_save[1] == '[') {
+						/* see if next character is ~ */
+						act = ESC_SAVE;
+					}
+					break;
 				}
-				continue;
+			} else if (esc_len == 3) {
+				if (ichar == '~') {
+					switch (esc_save[2]) {
+					case '3':	/* Delete key */
+						ichar = CTL_CH('d');
+						act = ESC_CONVERTED;
+						break;	/* pass to ^D handler */
+					case '1':	/* Home key */
+					case '7':
+						ichar = CTL_CH('a');
+						act = ESC_CONVERTED;
+						break;	/* pass to ^A handler */
+					case '4':	/* End key */
+					case '8':
+						ichar = CTL_CH('e');
+						act = ESC_CONVERTED;
+						break;	/* pass to ^E handler */
+					}
+				}
 			}
 
-			switch (ichar) {
-			case 'D':	/* <- key */
-				ichar = CTL_CH('b');
-				esc_len = 0;
-				break;
-			case 'C':	/* -> key */
-				ichar = CTL_CH('f');
-				esc_len = 0;
-				break;	/* pass off to ^F handler */
-			case 'H':	/* Home key */
-				ichar = CTL_CH('a');
-				esc_len = 0;
-				break;	/* pass off to ^A handler */
-			case 'A':	/* up arrow */
-				ichar = CTL_CH('p');
-				esc_len = 0;
-				break;	/* pass off to ^P handler */
-			case 'B':	/* down arrow */
-				ichar = CTL_CH('n');
-				esc_len = 0;
-				break;	/* pass off to ^N handler */
-			default:
+			switch (act) {
+			case ESC_SAVE:
+				esc_save[esc_len++] = ichar;
+				continue;
+			case ESC_REJECT:
 				esc_save[esc_len++] = ichar;
 				cread_add_str(esc_save, esc_len, insert,
 					      &num, &eol_num, buf, *len);
 				esc_len = 0;
 				continue;
+			case ESC_CONVERTED:
+				esc_len = 0;
+				break;
 			}
 		}
 
