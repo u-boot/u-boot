@@ -16,6 +16,16 @@
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;
 
+struct efi_runtime_mmio_list {
+	struct list_head link;
+	void **ptr;
+	u64 paddr;
+	u64 len;
+};
+
+/* This list contains all runtime available mmio regions */
+LIST_HEAD(efi_runtime_mmio);
+
 static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_unimplemented(void);
 static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_device_error(void);
 static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_invalid_parameter(void);
@@ -55,9 +65,10 @@ struct elf_rela {
  * handle a good number of runtime callbacks
  */
 
-static void EFIAPI efi_reset_system(enum efi_reset_type reset_type,
-				    efi_status_t reset_status,
-				    unsigned long data_size, void *reset_data)
+static void EFIAPI efi_reset_system_boottime(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data)
 {
 	EFI_ENTRY("%d %lx %lx %p", reset_type, reset_status, data_size,
 		  reset_data);
@@ -72,11 +83,12 @@ static void EFIAPI efi_reset_system(enum efi_reset_type reset_type,
 		break;
 	}
 
-	EFI_EXIT(EFI_SUCCESS);
+	while (1) { }
 }
 
-static efi_status_t EFIAPI efi_get_time(struct efi_time *time,
-					struct efi_time_cap *capabilities)
+static efi_status_t EFIAPI efi_get_time_boottime(
+			struct efi_time *time,
+			struct efi_time_cap *capabilities)
 {
 #if defined(CONFIG_CMD_DATE) && defined(CONFIG_DM_RTC)
 	struct rtc_time tm;
@@ -107,6 +119,33 @@ static efi_status_t EFIAPI efi_get_time(struct efi_time *time,
 #endif
 }
 
+/* Boards may override the helpers below to implement RTS functionality */
+
+void __weak EFI_RUNTIME_TEXT EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data)
+{
+	/* Nothing we can do */
+	while (1) { }
+}
+
+void __weak efi_reset_system_init(void)
+{
+}
+
+efi_status_t __weak EFI_RUNTIME_TEXT EFIAPI efi_get_time(
+			struct efi_time *time,
+			struct efi_time_cap *capabilities)
+{
+	/* Nothing we can do */
+	return EFI_DEVICE_ERROR;
+}
+
+void __weak efi_get_time_init(void)
+{
+}
+
 struct efi_runtime_detach_list_struct {
 	void *ptr;
 	void *patchto;
@@ -116,7 +155,7 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	{
 		/* do_reset is gone */
 		.ptr = &efi_runtime_services.reset_system,
-		.patchto = NULL,
+		.patchto = efi_reset_system,
 	}, {
 		/* invalidate_*cache_all are gone */
 		.ptr = &efi_runtime_services.set_virtual_address_map,
@@ -124,7 +163,7 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	}, {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
-		.patchto = &efi_device_error,
+		.patchto = &efi_get_time,
 	}, {
 		/* Clean up system table */
 		.ptr = &systab.con_in,
@@ -233,12 +272,39 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 	EFI_ENTRY("%lx %lx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
 
+	/* Rebind mmio pointers */
+	for (i = 0; i < n; i++) {
+		struct efi_mem_desc *map = (void*)virtmap +
+					   (descriptor_size * i);
+		struct list_head *lhandle;
+		efi_physical_addr_t map_start = map->physical_start;
+		efi_physical_addr_t map_len = map->num_pages << EFI_PAGE_SHIFT;
+		efi_physical_addr_t map_end = map_start + map_len;
+
+		/* Adjust all mmio pointers in this region */
+		list_for_each(lhandle, &efi_runtime_mmio) {
+			struct efi_runtime_mmio_list *lmmio;
+
+			lmmio = list_entry(lhandle,
+					   struct efi_runtime_mmio_list,
+					   link);
+			if ((map_start <= lmmio->paddr) &&
+			    (map_end >= lmmio->paddr)) {
+				u64 off = map->virtual_start - map_start;
+				uintptr_t new_addr = lmmio->paddr + off;
+				*lmmio->ptr = (void *)new_addr;
+			}
+		}
+	}
+
+	/* Move the actual runtime code over */
 	for (i = 0; i < n; i++) {
 		struct efi_mem_desc *map;
 
 		map = (void*)virtmap + (descriptor_size * i);
 		if (map->type == EFI_RUNTIME_SERVICES_CODE) {
-			ulong new_offset = map->virtual_start - (runtime_start - gd->relocaddr);
+			ulong new_offset = map->virtual_start -
+					   (runtime_start - gd->relocaddr);
 
 			efi_runtime_relocate(new_offset, map);
 			/* Once we're virtual, we can no longer handle
@@ -249,6 +315,20 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 	}
 
 	return EFI_EXIT(EFI_INVALID_PARAMETER);
+}
+
+void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+{
+	struct efi_runtime_mmio_list *newmmio;
+
+	u64 pages = (len + EFI_PAGE_SIZE - 1) >> EFI_PAGE_SHIFT;
+	efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO, false);
+
+	newmmio = calloc(1, sizeof(*newmmio));
+	newmmio->ptr = mmio_ptr;
+	newmmio->paddr = *(uintptr_t *)mmio_ptr;
+	newmmio->len = len;
+	list_add_tail(&newmmio->link, &efi_runtime_mmio);
 }
 
 /*
@@ -292,7 +372,7 @@ struct efi_runtime_services EFI_RUNTIME_DATA efi_runtime_services = {
 		.revision = EFI_RUNTIME_SERVICES_REVISION,
 		.headersize = sizeof(struct efi_table_hdr),
 	},
-	.get_time = &efi_get_time,
+	.get_time = &efi_get_time_boottime,
 	.set_time = (void *)&efi_device_error,
 	.get_wakeup_time = (void *)&efi_unimplemented,
 	.set_wakeup_time = (void *)&efi_unimplemented,
@@ -302,5 +382,5 @@ struct efi_runtime_services EFI_RUNTIME_DATA efi_runtime_services = {
 	.get_next_variable = (void *)&efi_device_error,
 	.set_variable = (void *)&efi_device_error,
 	.get_next_high_mono_count = (void *)&efi_device_error,
-	.reset_system = &efi_reset_system,
+	.reset_system = &efi_reset_system_boottime,
 };

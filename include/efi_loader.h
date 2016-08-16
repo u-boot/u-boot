@@ -155,11 +155,29 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
 #define EFI_RUNTIME_DATA __attribute__ ((section ("efi_runtime_data")))
 #define EFI_RUNTIME_TEXT __attribute__ ((section ("efi_runtime_text")))
 
+/* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
+ * to make it available at runtime */
+void efi_add_runtime_mmio(void *mmio_ptr, u64 len);
+
+/* Boards may provide the functions below to implement RTS functionality */
+
+void EFI_RUNTIME_TEXT EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data);
+void efi_reset_system_init(void);
+
+efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_get_time(
+			struct efi_time *time,
+			struct efi_time_cap *capabilities);
+void efi_get_time_init(void);
+
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define EFI_RUNTIME_DATA
 #define EFI_RUNTIME_TEXT
+static inline void efi_add_runtime_mmio(void **mmio_ptr, u64 len) { }
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }

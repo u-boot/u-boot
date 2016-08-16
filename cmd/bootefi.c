@@ -206,6 +206,10 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		loaded_image_info.device_handle = nethandle;
 #endif
 
+	/* Initialize EFI runtime services */
+	efi_reset_system_init();
+	efi_get_time_init();
+
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
