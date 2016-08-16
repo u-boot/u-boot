@@ -168,6 +168,7 @@ config PIC32_PINCTRL
 
 endif
 
+source "drivers/pinctrl/meson/Kconfig"
 source "drivers/pinctrl/nxp/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"

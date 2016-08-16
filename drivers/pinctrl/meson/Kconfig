@@ -1,0 +1,11 @@
+if ARCH_MESON
+
+config PINCTRL_MESON
+	depends on PINCTRL_GENERIC
+	bool
+
+config PINCTRL_MESON_GXBB
+	bool "Amlogic Meson GXBB SoC pinctrl driver"
+	select PINCTRL_MESON
+
+endif
