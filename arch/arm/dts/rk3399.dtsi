@@ -175,6 +175,8 @@
 		clocks = <&cru SCLK_SDMMC>, <&cru HCLK_SDMMC>,
 			 <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
 		clock-names = "ciu", "biu", "ciu-drive", "ciu-sample";
+		pinctrl-names = "default";
+		pinctrl-0 = <&sdmmc_clk>;
 		fifo-depth = <0x100>;
 		status = "disabled";
 	};
@@ -768,6 +770,41 @@
 					<4 5 RK_FUNC_1 &pcfg_pull_none>,
 					<4 6 RK_FUNC_1 &pcfg_pull_none>,
 					<4 7 RK_FUNC_1 &pcfg_pull_none>;
+			};
+		};
+
+		sdmmc {
+			sdmmc_bus1: sdmmc-bus1 {
+				rockchip,pins =
+					<4 8 RK_FUNC_1 &pcfg_pull_up>;
+			};
+
+			sdmmc_bus4: sdmmc-bus4 {
+				rockchip,pins =
+					<4 8 RK_FUNC_1 &pcfg_pull_up>,
+					<4 9 RK_FUNC_1 &pcfg_pull_up>,
+					<4 10 RK_FUNC_1 &pcfg_pull_up>,
+					<4 11 RK_FUNC_1 &pcfg_pull_up>;
+			};
+
+			sdmmc_clk: sdmmc-clk {
+				rockchip,pins =
+					<4 12 RK_FUNC_1 &pcfg_pull_none>;
+			};
+
+			sdmmc_cmd: sdmmc-cmd {
+				rockchip,pins =
+					<4 13 RK_FUNC_1 &pcfg_pull_up>;
+			};
+
+			sdmmc_cd: sdmcc-cd {
+				rockchip,pins =
+					<0 7 RK_FUNC_1 &pcfg_pull_up>;
+			};
+
+			sdmmc_wp: sdmmc-wp {
+				rockchip,pins =
+					<0 8 RK_FUNC_1 &pcfg_pull_up>;
 			};
 		};
 
