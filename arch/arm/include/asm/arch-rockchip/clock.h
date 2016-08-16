@@ -16,6 +16,7 @@ enum {
 	ROCKCHIP_SYSCON_GRF,
 	ROCKCHIP_SYSCON_SGRF,
 	ROCKCHIP_SYSCON_PMU,
+	ROCKCHIP_SYSCON_PMUGRF,
 };
 
 /* Standard Rockchip clock numbers */

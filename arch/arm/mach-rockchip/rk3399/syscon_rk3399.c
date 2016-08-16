@@ -11,6 +11,7 @@
 
 static const struct udevice_id rk3399_syscon_ids[] = {
 	{ .compatible = "rockchip,rk3399-grf", .data = ROCKCHIP_SYSCON_GRF },
+	{ .compatible = "rockchip,rk3399-pmugrf", .data = ROCKCHIP_SYSCON_PMUGRF },
 };
 
 U_BOOT_DRIVER(syscon_rk3399) = {
