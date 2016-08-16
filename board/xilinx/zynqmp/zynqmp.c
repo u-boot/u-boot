@@ -430,5 +430,5 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 void reset_misc(void)
 {
-	psci_system_reset(true);
+	psci_system_reset();
 }

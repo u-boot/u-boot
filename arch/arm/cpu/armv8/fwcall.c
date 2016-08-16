@@ -17,7 +17,7 @@
  * x0~x7: input arguments
  * x0~x3: output arguments
  */
-void hvc_call(struct pt_regs *args)
+static void hvc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -75,13 +75,21 @@ void smc_call(struct pt_regs *args)
 		  "x16", "x17");
 }
 
-void __noreturn psci_system_reset(bool conduit_smc)
+/*
+ * For now, all systems we support run at least in EL2 and thus
+ * trigger PSCI calls to EL3 using SMC. If anyone ever wants to
+ * use PSCI on U-Boot running below a hypervisor, please detect
+ * this and set the flag accordingly.
+ */
+static const bool use_smc_for_psci = true;
+
+void __noreturn psci_system_reset(void)
 {
 	struct pt_regs regs;
 
 	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
 
-	if (conduit_smc)
+	if (use_smc_for_psci)
 		smc_call(&regs);
 	else
 		hvc_call(&regs);

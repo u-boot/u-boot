@@ -43,7 +43,7 @@ void dram_init_banksize(void)
 
 void reset_cpu(ulong addr)
 {
-	psci_system_reset(true);
+	psci_system_reset();
 }
 
 static struct mm_region gxbb_mem_map[] = {
