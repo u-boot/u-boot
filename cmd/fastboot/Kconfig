@@ -1,0 +1,60 @@
+comment "FASTBOOT"
+
+config FASTBOOT
+	bool ""
+
+menu "Fastboot support"
+	depends on FASTBOOT
+
+config USB_FUNCTION_FASTBOOT
+	bool "Enable USB fastboot gadget"
+	help
+	  This enables the USB part of the fastboot gadget.
+
+config CMD_FASTBOOT
+	bool "Enable FASTBOOT command"
+	help
+	  This enables the command "fastboot" which enables the Android
+	  fastboot mode for the platform's USB device. Fastboot is a USB
+	  protocol for downloading images, flashing and device control
+	  used on Android devices.
+
+config ANDROID_BOOT_IMAGE
+	bool "Enable support for Android Boot Images"
+	help
+	  This enables support for booting images which use the Android
+	  image format header.
+
+if USB_FUNCTION_FASTBOOT
+
+config FASTBOOT_BUF_ADDR
+	hex "Define FASTBOOT buffer address"
+	help
+	  The fastboot protocol requires a large memory buffer for
+	  downloads. Define this to the starting RAM address to use for
+	  downloaded images.
+
+config FASTBOOT_BUF_SIZE
+	hex "Define FASTBOOT buffer size"
+	help
+	  The fastboot protocol requires a large memory buffer for
+	  downloads. This buffer should be as large as possible for a
+	  platform. Define this to the size available RAM for fastboot.
+
+config FASTBOOT_FLASH
+	bool "Enable FASTBOOT FLASH command"
+	help
+	  The fastboot protocol includes a "flash" command for writing
+	  the downloaded image to a non-volatile storage device. Define
+	  this to enable the "fastboot flash" command.
+
+config FASTBOOT_FLASH_MMC_DEV
+	int "Define FASTBOOT MMC FLASH default device"
+	help
+	  The fastboot "flash" command requires additional information
+	  regarding the non-volatile storage device. Define this to
+	  the eMMC device that fastboot should use to store the image.
+
+endif # USB_FUNCTION_FASTBOOT
+
+endmenu
