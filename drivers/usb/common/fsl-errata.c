@@ -53,7 +53,8 @@ bool has_erratum_a006261(void)
 	case SVR_P2041:
 	case SVR_P2040:
 		return IS_SVR_REV(svr, 1, 0) ||
-			IS_SVR_REV(svr, 1, 1) || IS_SVR_REV(svr, 2, 1);
+			IS_SVR_REV(svr, 1, 1) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
 	case SVR_P3041:
 		return IS_SVR_REV(svr, 1, 0) ||
 			IS_SVR_REV(svr, 1, 1) ||
@@ -63,16 +64,10 @@ bool has_erratum_a006261(void)
 	case SVR_P5021:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
 	case SVR_T4240:
-	case SVR_T4160:
-	case SVR_T4080:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
-	case SVR_T1040:
-		return IS_SVR_REV(svr, 1, 0);
-	case SVR_T2080:
-	case SVR_T2081:
-		return IS_SVR_REV(svr, 1, 0);
 	case SVR_P5040:
-		return IS_SVR_REV(svr, 1, 0);
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
 #endif
 	}
 
