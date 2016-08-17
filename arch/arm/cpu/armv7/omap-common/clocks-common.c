@@ -443,15 +443,12 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 {
 	u32 offset_code;
 	u32 offset = volt_mv;
-#ifndef	CONFIG_DRA7XX
 	int ret = 0;
-#endif
 
 	if (!volt_mv)
 		return;
 
 	pmic->pmic_bus_init();
-#ifndef	CONFIG_DRA7XX
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -465,7 +462,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	/* Pull the GPIO low to select SET0 register, while we program SET1 */
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 0);
-#endif
+
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
@@ -476,10 +473,8 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 
 	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-#ifndef	CONFIG_DRA7XX
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 1);
-#endif
 }
 
 static u32 optimize_vcore_voltage(struct volts const *v)
