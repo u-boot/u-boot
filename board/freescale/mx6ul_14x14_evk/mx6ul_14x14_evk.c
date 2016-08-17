@@ -193,9 +193,7 @@ int power_init_board(void)
 		       reg, rev_id);
 
 		/* disable Low Power Mode during standby mode */
-		pmic_reg_read(pfuze, PFUZE3000_LDOGCTL, &reg);
-		reg |= 0x1;
-		pmic_reg_write(pfuze, PFUZE3000_LDOGCTL, reg);
+		pmic_reg_write(pfuze, PFUZE3000_LDOGCTL, 0x1);
 
 		/* SW1B step ramp up time from 2us to 4us/25mV */
 		reg = 0x40;
