@@ -1295,7 +1295,7 @@ static int check_device_config(int dev)
 	int fd, rc = 0;
 
 	if (DEVOFFSET(dev) % DEVESIZE(dev) != 0) {
-		fprintf(stderr, "Environment does not start on erase block boundary\n");
+		fprintf(stderr, "Environment does not start on (erase) block boundary\n");
 		errno = EINVAL;
 		return -1;
 	}
