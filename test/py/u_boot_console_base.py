@@ -106,7 +106,7 @@ class ConsoleBase(object):
 
         # Array slice removes leading/trailing quotes
         self.prompt = self.config.buildconfig['config_sys_prompt'][1:-1]
-        self.prompt_escaped = re.escape(self.prompt)
+        self.prompt_compiled = re.compile('^' + re.escape(self.prompt), re.MULTILINE)
         self.p = None
         self.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
         self.eval_bad_patterns()
@@ -201,7 +201,7 @@ class ConsoleBase(object):
                                     self.bad_pattern_ids[m - 1])
             if not wait_for_prompt:
                 return
-            m = self.p.expect([self.prompt_escaped] + self.bad_patterns)
+            m = self.p.expect([self.prompt_compiled] + self.bad_patterns)
             if m != 0:
                 self.at_prompt = False
                 raise Exception('Bad pattern found on console: ' +
@@ -354,7 +354,7 @@ class ConsoleBase(object):
                                 self.bad_pattern_ids[m - 1])
             self.u_boot_version_string = self.p.after
             while True:
-                m = self.p.expect([self.prompt_escaped,
+                m = self.p.expect([self.prompt_compiled,
                     pattern_stop_autoboot_prompt] + self.bad_patterns)
                 if m == 0:
                     break
