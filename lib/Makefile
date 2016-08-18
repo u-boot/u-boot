@@ -73,6 +73,7 @@ obj-y += linux_string.o
 obj-y += membuff.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
+obj-y += tables_csum.o
 obj-y += time.o
 obj-$(CONFIG_TRACE) += trace.o
 obj-$(CONFIG_LIB_UUID) += uuid.o
