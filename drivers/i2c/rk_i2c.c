@@ -269,9 +269,9 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 				if ((i * 4 + j) == bytes_xferred)
 					break;
 
-				if (i == 0 && j == 0) {
+				if (i == 0 && j == 0 && pbuf == buf) {
 					txdata |= (chip << 1);
-				} else if (i == 0 && j <= r_len) {
+				} else if (i == 0 && j <= r_len && pbuf == buf) {
 					txdata |= (reg &
 						(0xff << ((j - 1) * 8))) << 8;
 				} else {
