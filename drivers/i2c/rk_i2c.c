@@ -277,9 +277,9 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 				} else {
 					txdata |= (*pbuf++)<<(j * 8);
 				}
-				writel(txdata, &regs->txdata[i]);
 			}
-			debug("I2c Write TXDATA[%d] = 0x%x\n", i, txdata);
+			writel(txdata, &regs->txdata[i]);
+			debug("I2c Write TXDATA[%d] = 0x%08x\n", i, txdata);
 		}
 
 		writel(I2C_CON_EN | I2C_CON_MOD(I2C_MODE_TX), &regs->con);
