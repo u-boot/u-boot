@@ -21,6 +21,8 @@ struct cpu_platdata {
 	int cpu_id;
 	int ucode_version;
 	ulong device_id;
+	u16 family;		/* DMTF CPU Family */
+	u32 id[2];		/* DMTF CPU Processor IDs */
 };
 
 /* CPU features - mostly just a placeholder for now */
