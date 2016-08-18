@@ -37,6 +37,7 @@ F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun6i.h
 F:	configs/colorfly_e708_q1_defconfig
 F:	configs/CSQ_CS908_defconfig
+F:	configs/inet_q972_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
 F:	configs/Sinovoip_BPI_M2_defconfig
