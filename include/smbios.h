@@ -55,6 +55,7 @@ struct __packed smbios_entry {
 #define BIOS_CHARACTERISTICS_SELECTABLE_BOOT	(1 << 16)
 
 #define BIOS_CHARACTERISTICS_EXT1_ACPI		(1 << 0)
+#define BIOS_CHARACTERISTICS_EXT1_UEFI		(1 << 3)
 #define BIOS_CHARACTERISTICS_EXT2_TARGET	(1 << 2)
 
 struct __packed smbios_type0 {

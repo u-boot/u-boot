@@ -83,14 +83,20 @@ static int smbios_write_type0(uintptr_t *current, int handle)
 	t->vendor = smbios_add_string(t->eos, "U-Boot");
 	t->bios_ver = smbios_add_string(t->eos, PLAIN_VERSION);
 	t->bios_release_date = smbios_add_string(t->eos, U_BOOT_DMI_DATE);
+#ifdef CONFIG_ROM_SIZE
 	t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
+#endif
 	t->bios_characteristics = BIOS_CHARACTERISTICS_PCI_SUPPORTED |
 				  BIOS_CHARACTERISTICS_SELECTABLE_BOOT |
 				  BIOS_CHARACTERISTICS_UPGRADEABLE;
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	t->bios_characteristics_ext1 = BIOS_CHARACTERISTICS_EXT1_ACPI;
 #endif
+#ifdef CONFIG_EFI_LOADER
+	t->bios_characteristics_ext1 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
+#endif
 	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
+
 	t->bios_major_release = 0xff;
 	t->bios_minor_release = 0xff;
 	t->ec_major_release = 0xff;

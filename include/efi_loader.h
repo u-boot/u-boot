@@ -85,6 +85,8 @@ int efi_disk_register(void);
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
 int efi_net_register(void **handle);
+/* Called by bootefi to make SMBIOS tables available */
+void efi_smbios_register(void);
 
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
