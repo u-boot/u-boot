@@ -45,7 +45,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C1>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C1>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -58,7 +58,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C3>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C3>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -71,7 +71,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C4>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C4>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -84,7 +84,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C6>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C6>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -97,7 +97,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C7>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C7>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -110,7 +110,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C9>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C9>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -166,7 +166,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C2>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C2>;
 		reset-names = "i2c";
 		status = "disabled";
@@ -179,7 +179,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		clocks = <&bpmp TEGRA186_CLK_I2C8>;
-		clock-names = "i2c";
+		clock-names = "div-clk";
 		resets = <&bpmp TEGRA186_RESET_I2C8>;
 		reset-names = "i2c";
 		status = "disabled";
