@@ -122,6 +122,10 @@ static int tegra20_sflash_probe(struct udevice *bus)
 	priv->freq = plat->frequency;
 	priv->periph_id = plat->periph_id;
 
+	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
+	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH,
+			       priv->freq);
+
 	return 0;
 }
 
