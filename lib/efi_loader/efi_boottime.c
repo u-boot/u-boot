@@ -37,7 +37,7 @@ static bool efi_is_direct_boot = true;
  * In most cases we want to pass an FDT to the payload, so reserve one slot of
  * config table space for it. The pointer gets populated by do_bootefi_exec().
  */
-static struct efi_configuration_table EFI_RUNTIME_DATA efi_conf_table[1];
+static struct efi_configuration_table EFI_RUNTIME_DATA efi_conf_table[2];
 
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -376,31 +376,35 @@ static efi_status_t EFIAPI efi_locate_device_path(efi_guid_t *protocol,
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
 
-static efi_status_t EFIAPI efi_install_configuration_table(efi_guid_t *guid,
-							   void *table)
+efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table)
 {
 	int i;
-
-	EFI_ENTRY("%p, %p", guid, table);
 
 	/* Check for guid override */
 	for (i = 0; i < systab.nr_tables; i++) {
 		if (!guidcmp(guid, &efi_conf_table[i].guid)) {
 			efi_conf_table[i].table = table;
-			return EFI_EXIT(EFI_SUCCESS);
+			return EFI_SUCCESS;
 		}
 	}
 
 	/* No override, check for overflow */
 	if (i >= ARRAY_SIZE(efi_conf_table))
-		return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+		return EFI_OUT_OF_RESOURCES;
 
 	/* Add a new entry */
 	memcpy(&efi_conf_table[i].guid, guid, sizeof(*guid));
 	efi_conf_table[i].table = table;
 	systab.nr_tables = i;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_SUCCESS;
+}
+
+static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+							       void *table)
+{
+	EFI_ENTRY("%p, %p", guid, table);
+	return EFI_EXIT(efi_install_configuration_table(guid, table));
 }
 
 static efi_status_t EFIAPI efi_load_image(bool boot_policy,
@@ -751,7 +755,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.register_protocol_notify = efi_register_protocol_notify,
 	.locate_handle = efi_locate_handle,
 	.locate_device_path = efi_locate_device_path,
-	.install_configuration_table = efi_install_configuration_table,
+	.install_configuration_table = efi_install_configuration_table_ext,
 	.load_image = efi_load_image,
 	.start_image = efi_start_image,
 	.exit = efi_exit,

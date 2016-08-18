@@ -135,6 +135,8 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			    bool overlap_only_ram);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
+/* Adds new or overrides configuration table entry to the system table */
+efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
