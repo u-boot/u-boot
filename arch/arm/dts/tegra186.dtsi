@@ -120,9 +120,8 @@
 		compatible = "nvidia,tegra186-sdhci";
 		reg = <0x0 0x03400000 0x0 0x200>;
 		resets = <&bpmp TEGRA186_RESET_SDMMC1>;
-		reset-names = "sdmmc";
+		reset-names = "sdhci";
 		clocks = <&bpmp TEGRA186_CLK_SDMMC1>;
-		clock-names = "sdmmc";
 		interrupts = <GIC_SPI 62 0x04>;
 		status = "disabled";
 	};
@@ -131,9 +130,8 @@
 		compatible = "nvidia,tegra186-sdhci";
 		reg = <0x0 0x03460000 0x0 0x200>;
 		resets = <&bpmp TEGRA186_RESET_SDMMC4>;
-		reset-names = "sdmmc";
+		reset-names = "sdhci";
 		clocks = <&bpmp TEGRA186_CLK_SDMMC4>;
-		clock-names = "sdmmc";
 		interrupts = <GIC_SPI 31 0x04>;
 		status = "disabled";
 	};

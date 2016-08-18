@@ -648,12 +648,12 @@ static int mmc_get_config(const void *blob, int node, struct mmc_host *host,
 		struct udevice dev;
 		int ret;
 		dev.of_offset = node;
-		ret = reset_get_by_name(&dev, "sdmmc", &host->reset_ctl);
+		ret = reset_get_by_name(&dev, "sdhci", &host->reset_ctl);
 		if (ret) {
-			debug("reset_get_by_index() failed: %d\n", ret);
+			debug("reset_get_by_name() failed: %d\n", ret);
 			return ret;
 		}
-		ret = clk_get_by_name(&dev, "sdmmc", &host->clk);
+		ret = clk_get_by_index(&dev, 0, &host->clk);
 		if (ret) {
 			debug("clk_get_by_index() failed: %d\n", ret);
 			return ret;
