@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - Marcus Cooper <codekipper@gmail.com>
+ * Copyright (C) 2016 Maxime Ripard <maxime.ripard@free-electrons.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,110 +40,64 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun7i-a20.dtsi"
-#include "sunxi-itead-core-common.dtsi"
+#ifndef _DT_BINDINGS_RST_SUN8I_H3_H_
+#define _DT_BINDINGS_RST_SUN8I_H3_H_
 
-/ {
-	model = "Itead Ibox A20";
-	compatible = "itead,itead-ibox-a20", "allwinner,sun7i-a20";
+#define RST_USB_PHY0		0
+#define RST_USB_PHY1		1
+#define RST_USB_PHY2		2
+#define RST_USB_PHY3		3
 
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_itead_core>;
+#define RST_MBUS		4
 
-		green {
-			label = "itead_core:green:usr";
-			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
+#define RST_BUS_CE		5
+#define RST_BUS_DMA		6
+#define RST_BUS_MMC0		7
+#define RST_BUS_MMC1		8
+#define RST_BUS_MMC2		9
+#define RST_BUS_NAND		10
+#define RST_BUS_DRAM		11
+#define RST_BUS_EMAC		12
+#define RST_BUS_TS		13
+#define RST_BUS_HSTIMER		14
+#define RST_BUS_SPI0		15
+#define RST_BUS_SPI1		16
+#define RST_BUS_OTG		17
+#define RST_BUS_EHCI0		18
+#define RST_BUS_EHCI1		19
+#define RST_BUS_EHCI2		20
+#define RST_BUS_EHCI3		21
+#define RST_BUS_OHCI0		22
+#define RST_BUS_OHCI1		23
+#define RST_BUS_OHCI2		24
+#define RST_BUS_OHCI3		25
+#define RST_BUS_VE		26
+#define RST_BUS_TCON0		27
+#define RST_BUS_TCON1		28
+#define RST_BUS_DEINTERLACE	29
+#define RST_BUS_CSI		30
+#define RST_BUS_TVE		31
+#define RST_BUS_HDMI0		32
+#define RST_BUS_HDMI1		33
+#define RST_BUS_DE		34
+#define RST_BUS_GPU		35
+#define RST_BUS_MSGBOX		36
+#define RST_BUS_SPINLOCK	37
+#define RST_BUS_DBG		38
+#define RST_BUS_EPHY		39
+#define RST_BUS_CODEC		40
+#define RST_BUS_SPDIF		41
+#define RST_BUS_THS		42
+#define RST_BUS_I2S0		43
+#define RST_BUS_I2S1		44
+#define RST_BUS_I2S2		45
+#define RST_BUS_I2C0		46
+#define RST_BUS_I2C1		47
+#define RST_BUS_I2C2		48
+#define RST_BUS_UART0		49
+#define RST_BUS_UART1		50
+#define RST_BUS_UART2		51
+#define RST_BUS_UART3		52
+#define RST_BUS_SCR		53
 
-		blue {
-			label = "itead_core:blue:usr";
-			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-
-	sound {
-		compatible = "simple-audio-card";
-		simple-audio-card,name = "On-board SPDIF";
-
-		simple-audio-card,cpu {
-			sound-dai = <&spdif>;
-		};
-
-		simple-audio-card,codec {
-			sound-dai = <&spdif_out>;
-		};
-	};
-
-	spdif_out: spdif-out {
-		#sound-dai-cells = <0>;
-		compatible = "linux,spdif-dit";
-	};
-};
-
-&ahci {
-	target-supply = <&reg_ahci_5v>;
-	status = "okay";
-};
-
-&codec {
-	status = "okay";
-};
-
-&gmac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
-	phy = <&phy1>;
-	phy-mode = "mii";
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
-};
-
-&i2c0 {
-	axp209: pmic@34 {
-		interrupt-parent = <&nmi_intc>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-	};
-};
-
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_rx_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
-	cd-inverted;
-	status = "okay";
-};
-
-&pio {
-	led_pins_itead_core: led_pins@0 {
-		allwinner,pins = "PH20","PH21";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&reg_ahci_5v {
-	status = "okay";
-};
-
-&spdif {
-	pinctrl-names = "default";
-	pinctrl-0 = <&spdif_tx_pins_a>;
-	status = "okay";
-};
+#endif /* _DT_BINDINGS_RST_SUN8I_H3_H_ */

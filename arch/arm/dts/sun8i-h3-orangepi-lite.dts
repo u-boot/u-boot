@@ -54,7 +54,7 @@
 
 	aliases {
 		/* The H3 emac is not used so the wifi is ethernet0 */
-		ethernet1 = &rtl8189ftv;
+		ethernet0 = &rtl8189ftv;
 		serial0 = &uart0;
 	};
 

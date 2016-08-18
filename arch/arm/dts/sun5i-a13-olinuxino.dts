@@ -155,21 +155,6 @@
 	status = "okay";
 };
 
-&nfc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&nand_pins_a &nand_cs0_pins_a &nand_rb0_pins_a>;
-	status = "okay";
-
-	nand@0 {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		reg = <0>;
-		allwinner,rb = <0>;
-		nand-ecc-mode = "hw";
-		allwinner,randomize;
-	};
-};
-
 &ohci0 {
 	status = "okay";
 };
