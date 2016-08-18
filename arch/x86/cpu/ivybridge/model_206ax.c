@@ -477,6 +477,7 @@ static const struct cpu_ops cpu_x86_model_206ax_ops = {
 	.get_desc	= cpu_x86_get_desc,
 	.get_info	= model_206ax_get_info,
 	.get_count	= model_206ax_get_count,
+	.get_vendor	= cpu_x86_get_vendor,
 };
 
 static const struct udevice_id cpu_x86_model_206ax_ids[] = {

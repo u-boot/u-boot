@@ -743,6 +743,7 @@ static const struct cpu_ops cpu_x86_broadwell_ops = {
 	.get_desc	= cpu_x86_get_desc,
 	.get_info	= broadwell_get_info,
 	.get_count	= broadwell_get_count,
+	.get_vendor	= cpu_x86_get_vendor,
 };
 
 static const struct udevice_id cpu_x86_broadwell_ids[] = {

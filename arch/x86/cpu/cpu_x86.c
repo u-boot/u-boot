@@ -27,6 +27,18 @@ int cpu_x86_bind(struct udevice *dev)
 	return 0;
 }
 
+int cpu_x86_get_vendor(struct udevice *dev, char *buf, int size)
+{
+	const char *vendor = cpu_vendor_name(gd->arch.x86_vendor);
+
+	if (size < (strlen(vendor) + 1))
+		return -ENOSPC;
+
+	strcpy(buf, vendor);
+
+	return 0;
+}
+
 int cpu_x86_get_desc(struct udevice *dev, char *buf, int size)
 {
 	if (size < CPU_MAX_NAME_LEN)
@@ -65,6 +77,7 @@ static int cpu_x86_get_count(struct udevice *dev)
 static const struct cpu_ops cpu_x86_ops = {
 	.get_desc	= cpu_x86_get_desc,
 	.get_count	= cpu_x86_get_count,
+	.get_vendor	= cpu_x86_get_vendor,
 };
 
 static const struct udevice_id cpu_x86_ids[] = {
