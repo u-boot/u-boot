@@ -7,10 +7,10 @@
  */
 
 #include <common.h>
+#include <smbios.h>
+#include <tables_csum.h>
 #include <version.h>
 #include <asm/cpu.h>
-#include <asm/smbios.h>
-#include <asm/tables.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

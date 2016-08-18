@@ -5,9 +5,9 @@
  */
 
 #include <common.h>
+#include <smbios.h>
 #include <asm/sfi.h>
 #include <asm/mpspec.h>
-#include <asm/smbios.h>
 #include <asm/tables.h>
 #include <asm/acpi_table.h>
 #include <asm/coreboot_tables.h>
