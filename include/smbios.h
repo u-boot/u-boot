@@ -221,7 +221,7 @@ static inline void fill_smbios_header(void *table, int type,
  * @handle:	the structure's handle, a unique 16-bit number
  * @return:	size of the structure
  */
-typedef int (*smbios_write_type)(u32 *addr, int handle);
+typedef int (*smbios_write_type)(uintptr_t *addr, int handle);
 
 /**
  * write_smbios_table() - Write SMBIOS table
@@ -231,6 +231,6 @@ typedef int (*smbios_write_type)(u32 *addr, int handle);
  * @addr:	start address to write SMBIOS table
  * @return:	end address of SMBIOS table
  */
-u32 write_smbios_table(u32 addr);
+uintptr_t write_smbios_table(uintptr_t addr);
 
 #endif /* _SMBIOS_H_ */

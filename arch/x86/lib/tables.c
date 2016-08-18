@@ -12,6 +12,11 @@
 #include <asm/acpi_table.h>
 #include <asm/coreboot_tables.h>
 
+static u32 write_smbios_table_wrapper(u32 addr)
+{
+	return write_smbios_table(addr);
+}
+
 /**
  * Function prototype to write a specific configuration table
  *
@@ -34,7 +39,7 @@ static table_write table_write_funcs[] = {
 	write_acpi_tables,
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	write_smbios_table,
+	write_smbios_table_wrapper,
 #endif
 };
 

@@ -69,7 +69,7 @@ static int smbios_string_table_len(char *start)
 	return len + 1;
 }
 
-static int smbios_write_type0(u32 *current, int handle)
+static int smbios_write_type0(uintptr_t *current, int handle)
 {
 	struct smbios_type0 *t = (struct smbios_type0 *)*current;
 	int len = sizeof(struct smbios_type0);
@@ -98,7 +98,7 @@ static int smbios_write_type0(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type1(u32 *current, int handle)
+static int smbios_write_type1(uintptr_t *current, int handle)
 {
 	struct smbios_type1 *t = (struct smbios_type1 *)*current;
 	int len = sizeof(struct smbios_type1);
@@ -114,7 +114,7 @@ static int smbios_write_type1(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type2(u32 *current, int handle)
+static int smbios_write_type2(uintptr_t *current, int handle)
 {
 	struct smbios_type2 *t = (struct smbios_type2 *)*current;
 	int len = sizeof(struct smbios_type2);
@@ -132,7 +132,7 @@ static int smbios_write_type2(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type3(u32 *current, int handle)
+static int smbios_write_type3(uintptr_t *current, int handle)
 {
 	struct smbios_type3 *t = (struct smbios_type3 *)*current;
 	int len = sizeof(struct smbios_type3);
@@ -152,7 +152,7 @@ static int smbios_write_type3(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type4(u32 *current, int handle)
+static int smbios_write_type4(uintptr_t *current, int handle)
 {
 	struct smbios_type4 *t = (struct smbios_type4 *)*current;
 	int len = sizeof(struct smbios_type4);
@@ -185,7 +185,7 @@ static int smbios_write_type4(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type32(u32 *current, int handle)
+static int smbios_write_type32(uintptr_t *current, int handle)
 {
 	struct smbios_type32 *t = (struct smbios_type32 *)*current;
 	int len = sizeof(struct smbios_type32);
@@ -198,7 +198,7 @@ static int smbios_write_type32(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type127(u32 *current, int handle)
+static int smbios_write_type127(uintptr_t *current, int handle)
 {
 	struct smbios_type127 *t = (struct smbios_type127 *)*current;
 	int len = sizeof(struct smbios_type127);
@@ -221,7 +221,7 @@ static smbios_write_type smbios_write_funcs[] = {
 	smbios_write_type127
 };
 
-u32 write_smbios_table(u32 addr)
+uintptr_t write_smbios_table(uintptr_t addr)
 {
 	struct smbios_entry *se;
 	u32 tables;
