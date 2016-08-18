@@ -7,6 +7,8 @@
 #ifndef _X86_TABLES_H_
 #define _X86_TABLES_H_
 
+#include <tables_csum.h>
+
 /*
  * All x86 tables happen to like the address range from 0xf0000 to 0x100000.
  * We use 0xf0000 as the starting address to store those tables, including

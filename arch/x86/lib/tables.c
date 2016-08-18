@@ -38,18 +38,6 @@ static table_write table_write_funcs[] = {
 #endif
 };
 
-u8 table_compute_checksum(void *v, int len)
-{
-	u8 *bytes = v;
-	u8 checksum = 0;
-	int i;
-
-	for (i = 0; i < len; i++)
-		checksum -= bytes[i];
-
-	return checksum;
-}
-
 void table_fill_string(char *dest, const char *src, size_t n, char pad)
 {
 	int start, len;
