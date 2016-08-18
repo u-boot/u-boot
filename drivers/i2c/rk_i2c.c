@@ -258,7 +258,7 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 
 	while (bytes_remain_len) {
 		if (bytes_remain_len > RK_I2C_FIFO_SIZE)
-			bytes_xferred = 32;
+			bytes_xferred = RK_I2C_FIFO_SIZE;
 		else
 			bytes_xferred = bytes_remain_len;
 		words_xferred = DIV_ROUND_UP(bytes_xferred, 4);
