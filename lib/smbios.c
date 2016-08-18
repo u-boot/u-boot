@@ -10,7 +10,11 @@
 #include <smbios.h>
 #include <tables_csum.h>
 #include <version.h>
-#include <asm/cpu.h>
+#ifdef CONFIG_CPU
+#include <cpu.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -152,26 +156,47 @@ static int smbios_write_type3(uintptr_t *current, int handle)
 	return len;
 }
 
+static void smbios_write_type4_dm(struct smbios_type4 *t)
+{
+	u16 processor_family = SMBIOS_PROCESSOR_FAMILY_UNKNOWN;
+	const char *vendor = "Unknown";
+	const char *name = "Unknown";
+
+#ifdef CONFIG_CPU
+	char processor_name[49];
+	char vendor_name[49];
+	struct udevice *dev = NULL;
+
+	uclass_find_first_device(UCLASS_CPU, &dev);
+	if (dev) {
+		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+
+		if (plat->family)
+			processor_family = plat->family;
+		t->processor_id[0] = plat->id[0];
+		t->processor_id[1] = plat->id[1];
+
+		if (!cpu_get_vendor(dev, vendor_name, sizeof(vendor_name)))
+			vendor = vendor_name;
+		if (!cpu_get_desc(dev, processor_name, sizeof(processor_name)))
+			name = processor_name;
+	}
+#endif
+
+	t->processor_family = processor_family;
+	t->processor_manufacturer = smbios_add_string(t->eos, vendor);
+	t->processor_version = smbios_add_string(t->eos, name);
+}
+
 static int smbios_write_type4(uintptr_t *current, int handle)
 {
 	struct smbios_type4 *t = (struct smbios_type4 *)*current;
 	int len = sizeof(struct smbios_type4);
-	const char *vendor;
-	char *name;
-	char processor_name[CPU_MAX_NAME_LEN];
-	struct cpuid_result res;
 
 	memset(t, 0, sizeof(struct smbios_type4));
 	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
 	t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
-	t->processor_family = gd->arch.x86;
-	vendor = cpu_vendor_name(gd->arch.x86_vendor);
-	t->processor_manufacturer = smbios_add_string(t->eos, vendor);
-	res = cpuid(1);
-	t->processor_id[0] = res.eax;
-	t->processor_id[1] = res.edx;
-	name = cpu_get_name(processor_name);
-	t->processor_version = smbios_add_string(t->eos, name);
+	smbios_write_type4_dm(t);
 	t->status = SMBIOS_PROCESSOR_STATUS_ENABLED;
 	t->processor_upgrade = SMBIOS_PROCESSOR_UPGRADE_NONE;
 	t->l1_cache_handle = 0xffff;

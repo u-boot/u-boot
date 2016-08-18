@@ -139,6 +139,9 @@ struct __packed smbios_type3 {
 #define SMBIOS_PROCESSOR_STATUS_ENABLED	1
 #define SMBIOS_PROCESSOR_UPGRADE_NONE	6
 
+#define SMBIOS_PROCESSOR_FAMILY_OTHER	1
+#define SMBIOS_PROCESSOR_FAMILY_UNKNOWN	2
+
 struct __packed smbios_type4 {
 	u8 type;
 	u8 length;
