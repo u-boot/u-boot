@@ -112,11 +112,16 @@ static int smbios_write_type1(uintptr_t *current, int handle)
 {
 	struct smbios_type1 *t = (struct smbios_type1 *)*current;
 	int len = sizeof(struct smbios_type1);
+	char *serial_str = getenv("serial#");
 
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	t->manufacturer = smbios_add_string(t->eos, CONFIG_SMBIOS_MANUFACTURER);
 	t->product_name = smbios_add_string(t->eos, CONFIG_SMBIOS_PRODUCT_NAME);
+	if (serial_str) {
+		strncpy((char*)t->uuid, serial_str, sizeof(t->uuid));
+		t->serial_number = smbios_add_string(t->eos, serial_str);
+	}
 
 	len = t->length + smbios_string_table_len(t->eos);
 	*current += len;
