@@ -187,7 +187,7 @@ ENDPROC(psci_get_cpu_id)
 .weak psci_get_cpu_id
 
 /* Imported from Linux kernel */
-LENTRY(v7_flush_dcache_all)
+ENTRY(psci_v7_flush_dcache_all)
 	stmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	dmb					@ ensure ordering with previous memory accesses
 	mrc	p15, 1, r0, c0, c0, 1		@ read clidr
@@ -234,7 +234,7 @@ finished:
 	isb
 	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	bx	lr
-ENDPROC(v7_flush_dcache_all)
+ENDPROC(psci_v7_flush_dcache_all)
 
 ENTRY(psci_disable_smp)
 	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
@@ -264,7 +264,7 @@ ENTRY(psci_cpu_off_common)
 	isb
 	dsb
 
-	bl	v7_flush_dcache_all
+	bl	psci_v7_flush_dcache_all
 
 	clrex					@ Why???
 
