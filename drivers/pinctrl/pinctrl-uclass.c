@@ -113,7 +113,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 }
 
 /**
- * pinconfig_post-bind() - post binding for PINCONFIG uclass
+ * pinconfig_post_bind() - post binding for PINCONFIG uclass
  * Recursively bind its children as pinconfig devices.
  *
  * @dev: pinconfig device
@@ -257,7 +257,7 @@ int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
 }
 
 /**
- * pinconfig_post-bind() - post binding for PINCTRL uclass
+ * pinconfig_post_bind() - post binding for PINCTRL uclass
  * Recursively bind child nodes as pinconfig devices in case of full pinctrl.
  *
  * @dev: pinctrl device
