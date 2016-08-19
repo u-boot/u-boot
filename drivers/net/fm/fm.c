@@ -336,9 +336,6 @@ static int fm_init_bmi(int fm_idx, struct fm_bmi_common *bmi)
 
 static void fm_init_qmi(struct fm_qmi_common *qmi)
 {
-	/* disable enqueue and dequeue of QMI */
-	clrbits_be32(&qmi->fmqm_gc, FMQM_GC_ENQ_EN | FMQM_GC_DEQ_EN);
-
 	/* disable all error interrupts */
 	out_be32(&qmi->fmqm_eien, FMQM_EIEN_DISABLE_ALL);
 	/* clear all error events */
