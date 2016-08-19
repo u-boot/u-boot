@@ -340,6 +340,11 @@ int board_late_init(void)
 
 	puts("Bootmode: ");
 	switch (bootmode) {
+	case USB_MODE:
+		puts("USB_MODE\n");
+		mode = "usb";
+		setenv("modeboot", "usb_dfu_spl");
+		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
 		mode = "pxe dhcp";

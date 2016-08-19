@@ -82,7 +82,9 @@
 
 /* Diff from config_distro_defaults.h */
 #define CONFIG_SUPPORT_RAW_INITRD
+#if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
+#endif
 #define CONFIG_AUTO_COMPLETE
 
 /* PXE */
@@ -224,6 +226,7 @@
 	"sdroot1=setenv bootargs $bootargs root=/dev/mmcblk1p2 rw rootwait\0" \
 	"android=setenv bootargs $bootargs init=/init androidboot.selinux=disabled androidboot.hardware=$board\0" \
 	"android_debug=run android && setenv bootargs $bootargs video=DP-1:1024x768@60 drm.debug=0xf\0" \
+	"usb_dfu_spl=booti $kernel_addr - $fdt_addr\0" \
 	"usbhostboot=usb start && load usb 0 $fdt_addr system.dtb && " \
 		     "load usb 0 $kernel_addr Image && " \
 		     "booti $kernel_addr - $fdt_addr\0" \
@@ -350,9 +353,20 @@
 	DFU_ALT_INFO
 #endif
 
+/* SPL can't handle all huge variables - define just DFU */
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#undef CONFIG_EXTRA_ENV_SETTINGS
+# define CONFIG_EXTRA_ENV_SETTINGS \
+	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
+			  "atf-uboot.ub ram 0x10000000 0x1000000;" \
+			  "Image ram 0x80000 0x3f80000;" \
+			  "system.dtb ram 0x4000000 0x100000\0" \
+	"dfu_bufsiz=0x1000\0"
+#endif
+
 #define CONFIG_SPL_TEXT_BASE		0xfffc0000
 #define CONFIG_SPL_STACK		0xfffffffc
-#define CONFIG_SPL_MAX_SIZE		0x20000
+#define CONFIG_SPL_MAX_SIZE		0x40000
 
 /* Just random location in OCM */
 #define CONFIG_SPL_BSS_START_ADDR	0x0
@@ -386,6 +400,20 @@
 # define CONFIG_SPL_LIBDISK_SUPPORT
 # define CONFIG_SPL_FAT_SUPPORT
 # define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+#endif
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+# undef CONFIG_CMD_BOOTD
+# define CONFIG_SPL_ENV_SUPPORT
+# define CONFIG_SPL_HASH_SUPPORT
+# define CONFIG_ENV_MAX_ENTRIES	10
+
+# define CONFIG_SYS_SPL_MALLOC_START	0x20000000
+# define CONFIG_SYS_SPL_MALLOC_SIZE	0x10000000
+
+#ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
+# error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
+#endif
 #endif
 
 #endif /* __XILINX_ZYNQMP_H */
