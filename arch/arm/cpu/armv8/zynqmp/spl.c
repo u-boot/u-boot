@@ -67,6 +67,10 @@ u32 spl_boot_device(void)
 	case SD_MODE1:
 		return BOOT_DEVICE_MMC1;
 #endif
+#ifdef CONFIG_SPL_DFU_SUPPORT
+	case USB_MODE:
+		return BOOT_DEVICE_DFU;
+#endif
 	default:
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;
