@@ -116,7 +116,9 @@ struct sunxi_ccm_reg {
 	u32 mipi_bias_cfg;	/* 0x240 MIPI Bias config */
 	u32 pll9_bias_cfg;	/* 0x244 PLL9 Bias config */
 	u32 pll10_bias_cfg;	/* 0x248 PLL10 Bias config */
-	u32 reserved21[13];
+	u32 reserved21[5];
+	u32 pll5_tuning_cfg;	/* 0x260 PLL5 Tuning config */
+	u32 reserved21_5[7];
 	u32 pll1_pattern_cfg;	/* 0x280 PLL1 Pattern config */
 	u32 pll2_pattern_cfg;	/* 0x284 PLL2 Pattern config */
 	u32 pll3_pattern_cfg;	/* 0x288 PLL3 Pattern config */
@@ -222,6 +224,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL11_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
 #define CCM_PLL11_CTRL_UPD		(0x1 << 30)
 #define CCM_PLL11_CTRL_EN		(0x1 << 31)
+
+#define CCM_PLL5_TUN_LOCK_TIME(x)	(((x) & 0x7) << 24)
+#define CCM_PLL5_TUN_LOCK_TIME_MASK	CCM_PLL5_TUN_LOCK_TIME(0x7)
+#define CCM_PLL5_TUN_INIT_FREQ(x)	(((x) & 0x7f) << 16)
+#define CCM_PLL5_TUN_INIT_FREQ_MASK	CCM_PLL5_TUN_INIT_FREQ(0x7f)
 
 #if defined(CONFIG_MACH_SUN50I)
 /* AHB1=100MHz failsafe setup from the FEL mode, usable with PMIC defaults */
