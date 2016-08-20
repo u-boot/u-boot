@@ -1,0 +1,20 @@
+if ARCH_RMOBILE
+
+choice
+	prompt "Target Renesas SoC select"
+	default RCAR_32
+
+config RCAR_32
+	bool "Renesas ARM SoCs R-Car Gen1/Gen2 (32bit)"
+	select CPU_V7
+
+config RCAR_GEN3
+	bool "Renesas ARM SoCs R-Car Gen3 (64bit)"
+	select ARM64
+
+endchoice
+
+source "arch/arm/mach-rmobile/Kconfig.32"
+source "arch/arm/mach-rmobile/Kconfig.64"
+
+endif

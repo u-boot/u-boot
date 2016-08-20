@@ -14,13 +14,13 @@
 
 #undef DEBUG
 #define CONFIG_R8A7790
-#define CONFIG_RMOBILE_BOARD_STRING "Stout"
+#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Stout"
 
 #include "rcar-gen2-common.h"
 
 /* #define CONFIG_BOARD_LATE_INIT */
 
-#if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
+#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_TEXT_BASE	0xB0000000
 #else
 #define CONFIG_SYS_TEXT_BASE	0xE8080000

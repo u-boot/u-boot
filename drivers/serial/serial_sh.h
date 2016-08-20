@@ -225,7 +225,8 @@ struct uart_port {
 # define SCIF_ORER 0x0001		/* Overrun error bit */
 # define SCSCR_INIT(port)	0x38	/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
+	defined(CONFIG_R8A7792) || defined(CONFIG_R8A7793) || \
+	defined(CONFIG_R8A7794) || defined(CONFIG_R8A7795)
 # if defined(CONFIG_SCIF_A)
 #  define SCIF_ORER	0x0200
 # else
@@ -307,7 +308,7 @@ struct uart_port {
 /* SH7763 SCIF2 support */
 # define SCIF2_RFDC_MASK 0x001f
 # define SCIF2_TXROOM_MAX 16
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || defined(CONFIG_R8A7792) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 # define SCIF_ERRORS (SCIF_PER | SCIF_FER | SCIF_ER | SCIF_BRK)
 # if defined(CONFIG_SCIF_A)
@@ -565,7 +566,7 @@ SCIF_FNS(SCFCR,  0x18, 16)
 SCIF_FNS(SCFDR,  0x1c, 16)
 SCIF_FNS(SCLSR,  0x24, 16)
 SCIF_FNS(DL,	 0x00,  0) /* dummy */
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || defined(CONFIG_R8A7792) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 /* SCIFA and SCIF register offsets and size */
 SCIx_FNS(SCSMR,  0,  0, 0x00, 16, 0,  0, 0x00, 16, 0,  0)
@@ -761,7 +762,7 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 #define SCBRR_VALUE(bps, clk) scbrr_calc(port, bps, clk)
 #elif defined(__H8300H__) || defined(__H8300S__)
 #define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || defined(CONFIG_R8A7792) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
  #if defined(CONFIG_SCIF_A)

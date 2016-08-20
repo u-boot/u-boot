@@ -192,7 +192,7 @@ int dram_init(void)
 }
 
 const struct rmobile_sysinfo sysinfo = {
-	CONFIG_RMOBILE_BOARD_STRING
+	CONFIG_ARCH_RMOBILE_BOARD_STRING
 };
 
 void reset_cpu(ulong addr)

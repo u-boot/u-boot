@@ -1,0 +1,28 @@
+if RCAR_GEN3
+
+config R8A7795
+	bool
+
+choice
+	prompt "Renesus ARM64 SoCs board select"
+	optional
+
+config TARGET_SALVATOR_X
+	bool "Salvator-X board"
+	select R8A7795
+	help
+          Support for Renesas R-Car Gen3 R8a7795 platform
+
+endchoice
+
+config SYS_SOC
+	default "rmobile"
+
+config RCAR_GEN3_EXTRAM_BOOT
+	bool "Enable boot from RAM"
+	depends on TARGET_SALVATOR_X
+	default n
+
+source "board/renesas/salvator-x/Kconfig"
+
+endif
