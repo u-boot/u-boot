@@ -233,6 +233,10 @@
 		compatible = "arm,cortex-a53-edac";
 	};
 
+	pcap {
+		compatible = "xlnx,zynqmp-pcap-fpga";
+	};
+
 	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
