@@ -223,10 +223,10 @@ int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
 
 	if (tmp & MDIO_USERACCESS0_ACK) {
 		*data = tmp & 0xffff;
-		return 0;
+		return 1;
 	}
 
-	return -EIO;
+	return 0;
 }
 
 /* Write to a PHY register via MDIO inteface. Blocks until operation is complete. */
@@ -247,7 +247,7 @@ int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
 	while (readl(&adap_mdio->USERACCESS0) & MDIO_USERACCESS0_GO)
 		;
 
-	return 0;
+	return 1;
 }
 
 /* PHY functions for a generic PHY */
@@ -374,15 +374,14 @@ static int davinci_mii_phy_read(struct mii_dev *bus, int addr, int devad,
 {
 	unsigned short value = 0;
 	int retval = davinci_eth_phy_read(addr, reg, &value);
-	if (retval < 0)
-		return retval;
-	return value;
+
+	return retval ? value : -EIO;
 }
 
 static int davinci_mii_phy_write(struct mii_dev *bus, int addr, int devad,
 				 int reg, u16 value)
 {
-	return davinci_eth_phy_write(addr, reg, value);
+	return davinci_eth_phy_write(addr, reg, value) ? 0 : 1;
 }
 #endif
 
