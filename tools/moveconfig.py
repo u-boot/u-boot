@@ -203,7 +203,8 @@ CROSS_COMPILE = {
     'powerpc': 'powerpc-linux-',
     'sh': 'sh-linux-gnu-',
     'sparc': 'sparc-linux-',
-    'x86': 'i386-linux-'
+    'x86': 'i386-linux-',
+    'xtensa': 'xtensa-linux-'
 }
 
 STATE_IDLE = 0
