@@ -258,7 +258,7 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	ddr,	2,	1,	do_ddr,
 	"UniPhier DDR PHY parameters dumper",
-	"- dump all of the followings\n"
+	"- dump all of the following\n"
 	"ddr wbdl - dump Write Bit Delay\n"
 	"ddr rbdl - dump Read Bit Delay\n"
 	"ddr wld - dump Write Leveling\n"

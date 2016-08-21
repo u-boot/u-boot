@@ -112,7 +112,7 @@ X-QSGMII-16PORT riser card
 ----------------------------
 The X-QSGMII-16PORT is a 4xQSGMII/8xSGMII riser card with eighth SerDes
 interfaces implemented in PCIe form factor board.
-It supports followings
+It supports following:
  - Card can operate with up to 4 QSGMII lane simultaneously
  - Card can operate with up to 8 SGMII lane simultaneously
 

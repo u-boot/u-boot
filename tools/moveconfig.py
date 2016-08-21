@@ -41,7 +41,7 @@ The log is printed for each defconfig as follows:
 <defconfig_name> is the name of the defconfig.
 
 <action*> shows what the tool did for that defconfig.
-It looks like one of the followings:
+It looks like one of the following:
 
  - Move 'CONFIG_... '
    This config option was moved to the defconfig
@@ -179,7 +179,7 @@ SLEEP_TIME=0.03
 
 # Here is the list of cross-tools I use.
 # Most of them are available at kernel.org
-# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the followings:
+# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the following:
 # arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
 # blackfin: http://sourceforge.net/projects/adi-toolchain/files/
 # nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
