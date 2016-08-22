@@ -798,8 +798,8 @@ class Slot:
         self.reference_src_dir = reference_src_dir
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
-        self.failed_boards = []
-        self.suspicious_boards = []
+        self.failed_boards = set()
+        self.suspicious_boards = set()
 
     def __del__(self):
         """Delete the working directory
@@ -946,7 +946,7 @@ class Slot:
 
         log = self.parser.check_defconfig()
         if log:
-            self.suspicious_boards.append(self.defconfig)
+            self.suspicious_boards.add(self.defconfig)
             self.log += log
         orig_defconfig = os.path.join('configs', self.defconfig)
         new_defconfig = os.path.join(self.build_dir, 'defconfig')
@@ -980,19 +980,19 @@ class Slot:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
             # Record the failed board.
-            self.failed_boards.append(self.defconfig)
+            self.failed_boards.add(self.defconfig)
 
         self.progress.inc()
         self.progress.show()
         self.state = STATE_IDLE
 
     def get_failed_boards(self):
-        """Returns a list of failed boards (defconfigs) in this slot.
+        """Returns a set of failed boards (defconfigs) in this slot.
         """
         return self.failed_boards
 
     def get_suspicious_boards(self):
-        """Returns a list of boards (defconfigs) with possible misconversion.
+        """Returns a set of boards (defconfigs) with possible misconversion.
         """
         return self.suspicious_boards
 
@@ -1057,11 +1057,11 @@ class Slots:
 
     def show_failed_boards(self):
         """Display all of the failed boards (defconfigs)."""
-        boards = []
+        boards = set()
         output_file = 'moveconfig.failed'
 
         for slot in self.slots:
-            boards += slot.get_failed_boards()
+            boards |= slot.get_failed_boards()
 
         if boards:
             boards = '\n'.join(boards) + '\n'
@@ -1076,11 +1076,11 @@ class Slots:
 
     def show_suspicious_boards(self):
         """Display all boards (defconfigs) with possible misconversion."""
-        boards = []
+        boards = set()
         output_file = 'moveconfig.suspicious'
 
         for slot in self.slots:
-            boards += slot.get_suspicious_boards()
+            boards |= slot.get_suspicious_boards()
 
         if boards:
             boards = '\n'.join(boards) + '\n'
