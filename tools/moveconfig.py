@@ -58,10 +58,6 @@ It looks like one of the following:
    The define in the config header matched the one in Kconfig.
    We do not need to touch it.
 
- - Undefined.  Do nothing.
-   This config option was not found in the config header.
-   Nothing to do.
-
  - Compiler is missing.  Do nothing.
    The compiler specified for this architecture was not found
    in your PATH environment.
