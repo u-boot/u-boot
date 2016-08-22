@@ -138,6 +138,12 @@ Available options
    If not specified, "make savedefconfig" only occurs for cases
    where at least one CONFIG was moved.
 
+ -S, --spl
+   Look for moved config options in spl/include/autoconf.mk instead of
+   include/autoconf.mk.  This is useful for moving options for SPL build
+   because SPL related options (mostly prefixed with CONFIG_SPL_) are
+   sometimes blocked by CONFIG_SPL_BUILD ifdef conditionals.
+
  -H, --headers-only
    Only cleanup the headers; skip the defconfig processing
 
@@ -614,6 +620,8 @@ class KconfigParser:
         self.options = options
         self.dotconfig = os.path.join(build_dir, '.config')
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
+        self.spl_autoconf = os.path.join(build_dir, 'spl', 'include',
+                                         'autoconf.mk')
         self.config_autoconf = os.path.join(build_dir, 'include', 'config',
                                             'auto.conf')
         self.defconfig = os.path.join(build_dir, 'defconfig')
@@ -715,11 +723,25 @@ class KconfigParser:
         results = []
         updated = False
         suspicious = False
+        rm_files = [self.config_autoconf, self.autoconf]
+
+        if self.options.spl:
+            if os.path.exists(self.spl_autoconf):
+                autoconf_path = self.spl_autoconf
+                rm_files.append(self.spl_autoconf)
+            else:
+                for f in rm_files:
+                    os.remove(f)
+                return (updated, suspicious,
+                        color_text(self.options.color, COLOR_BROWN,
+                                   "SPL is not enabled.  Skipped.") + '\n')
+        else:
+            autoconf_path = self.autoconf
 
         with open(self.dotconfig) as f:
             dotconfig_lines = f.readlines()
 
-        with open(self.autoconf) as f:
+        with open(autoconf_path) as f:
             autoconf_lines = f.readlines()
 
         for config in self.configs:
@@ -744,6 +766,9 @@ class KconfigParser:
                 actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
                          % value
                 log_color = COLOR_LIGHT_PURPLE
+            elif action == ACTION_SPL_NOT_EXIST:
+                actlog = "SPL is not enabled for this defconfig.  Skip."
+                log_color = COLOR_PURPLE
             else:
                 sys.exit("Internal Error. This should not happen.")
 
@@ -756,8 +781,8 @@ class KconfigParser:
                     updated = True
 
         self.results = results
-        os.remove(self.config_autoconf)
-        os.remove(self.autoconf)
+        for f in rm_files:
+            os.remove(f)
 
         return (updated, suspicious, log)
 
@@ -1217,6 +1242,8 @@ def main():
                       help='exit immediately on any error')
     parser.add_option('-s', '--force-sync', action='store_true', default=False,
                       help='force sync by savedefconfig')
+    parser.add_option('-S', '--spl', action='store_true', default=False,
+                      help='parse config options defined for SPL build')
     parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
