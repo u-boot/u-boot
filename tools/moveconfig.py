@@ -47,12 +47,18 @@ It looks like one of the following:
    This config option was moved to the defconfig
 
  - CONFIG_... is not defined in Kconfig.  Do nothing.
-   The entry for this CONFIG was not found in Kconfig.
+   The entry for this CONFIG was not found in Kconfig.  The option is not
+   defined in the config header, either.  So, this case can be just skipped.
+
+ - CONFIG_... is not defined in Kconfig (suspicious).  Do nothing.
+   This option is defined in the config header, but its entry was not found
+   in Kconfig.
    There are two common cases:
      - You forgot to create an entry for the CONFIG before running
        this tool, or made a typo in a CONFIG passed to this tool.
      - The entry was hidden due to unmet 'depends on'.
-       This is correct behavior.
+   The tool does not know if the result is reasonable, so please check it
+   manually.
 
  - 'CONFIG_...' is the same as the define in Kconfig.  Do nothing.
    The define in the config header matched the one in Kconfig.
@@ -210,7 +216,8 @@ STATE_SAVEDEFCONFIG = 3
 
 ACTION_MOVE = 0
 ACTION_NO_ENTRY = 1
-ACTION_NO_CHANGE = 2
+ACTION_NO_ENTRY_WARN = 2
+ACTION_NO_CHANGE = 3
 
 COLOR_BLACK        = '0;30'
 COLOR_RED          = '0;31'
@@ -659,14 +666,6 @@ class KconfigParser:
         """
         not_set = '# %s is not set' % config
 
-        for line in dotconfig_lines:
-            line = line.rstrip()
-            if line.startswith(config + '=') or line == not_set:
-                old_val = line
-                break
-        else:
-            return (ACTION_NO_ENTRY, config)
-
         for line in autoconf_lines:
             line = line.rstrip()
             if line.startswith(config + '='):
@@ -674,6 +673,17 @@ class KconfigParser:
                 break
         else:
             new_val = not_set
+
+        for line in dotconfig_lines:
+            line = line.rstrip()
+            if line.startswith(config + '=') or line == not_set:
+                old_val = line
+                break
+        else:
+            if new_val == not_set:
+                return (ACTION_NO_ENTRY, config)
+            else:
+                return (ACTION_NO_ENTRY_WARN, config)
 
         # If this CONFIG is neither bool nor trisate
         if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
@@ -704,6 +714,7 @@ class KconfigParser:
 
         results = []
         updated = False
+        suspicious = False
 
         with open(self.dotconfig) as f:
             dotconfig_lines = f.readlines()
@@ -725,6 +736,10 @@ class KconfigParser:
             elif action == ACTION_NO_ENTRY:
                 actlog = "%s is not defined in Kconfig.  Do nothing." % value
                 log_color = COLOR_LIGHT_BLUE
+            elif action == ACTION_NO_ENTRY_WARN:
+                actlog = "%s is not defined in Kconfig (suspicious).  Do nothing." % value
+                log_color = COLOR_YELLOW
+                suspicious = True
             elif action == ACTION_NO_CHANGE:
                 actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
                          % value
@@ -744,7 +759,7 @@ class KconfigParser:
         os.remove(self.config_autoconf)
         os.remove(self.autoconf)
 
-        return (updated, log)
+        return (updated, suspicious, log)
 
     def check_defconfig(self):
         """Check the defconfig after savedefconfig
@@ -923,7 +938,9 @@ class Slot:
     def do_savedefconfig(self):
         """Update the .config and run 'make savedefconfig'."""
 
-        (updated, log) = self.parser.update_dotconfig()
+        (updated, suspicious, log) = self.parser.update_dotconfig()
+        if suspicious:
+            self.suspicious_boards.add(self.defconfig)
         self.log += log
 
         if not self.options.force_sync and not updated:
@@ -994,7 +1011,7 @@ class Slot:
     def get_suspicious_boards(self):
         """Returns a set of boards (defconfigs) with possible misconversion.
         """
-        return self.suspicious_boards
+        return self.suspicious_boards - self.failed_boards
 
 class Slots:
 
