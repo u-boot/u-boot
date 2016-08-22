@@ -58,6 +58,13 @@ static void fsl_apply_xhci_errata(void)
 	}
 }
 
+static void fsl_xhci_set_beat_burst_length(struct dwc3 *dwc3_reg)
+{
+	clrsetbits_le32(&dwc3_reg->g_sbuscfg0, USB3_ENABLE_BEAT_BURST_MASK,
+			USB3_ENABLE_BEAT_BURST);
+	setbits_le32(&dwc3_reg->g_sbuscfg1, USB3_SET_BEAT_BURST_LIMIT);
+}
+
 static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 {
 	int ret = 0;
@@ -73,6 +80,9 @@ static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 
 	/* Set GFLADJ_30MHZ as 20h as per XHCI spec default value */
 	dwc3_set_fladj(fsl_xhci->dwc3_reg, GFLADJ_30MHZ_DEFAULT);
+
+	/* Change beat burst and outstanding pipelined transfers requests */
+	fsl_xhci_set_beat_burst_length(fsl_xhci->dwc3_reg);
 
 	return ret;
 }
