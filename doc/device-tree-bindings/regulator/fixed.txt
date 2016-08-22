@@ -10,6 +10,7 @@ Required properties:
 
 Optional properties:
 - gpio: GPIO to use for enable control
+- startup-delay-us: startup time in microseconds
 - regulator constraints (binding info: regulator.txt)
 
 Other kernel-style properties, are currently not used.
