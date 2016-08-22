@@ -118,7 +118,6 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-#define CONFIG_SYS_CACHELINE_SIZE	SZ_8K
 #define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
 
 /* bootstrap + u-boot + env in nandflash */

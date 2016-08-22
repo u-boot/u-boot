@@ -8,11 +8,6 @@
 #include <common.h>
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-
-#ifndef CONFIG_SYS_CACHELINE_SIZE
-#define CONFIG_SYS_CACHELINE_SIZE	32
-#endif
-
 void invalidate_dcache_all(void)
 {
 	asm volatile("mcr p15, 0, %0, c7, c6, 0\n" : : "r"(0));

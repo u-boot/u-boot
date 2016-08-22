@@ -18,8 +18,6 @@
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */

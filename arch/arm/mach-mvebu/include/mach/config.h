@@ -26,8 +26,6 @@
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #define CONFIG_SYS_L2_PL310
 
 #ifdef CONFIG_SPL_BUILD

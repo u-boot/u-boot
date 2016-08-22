@@ -23,8 +23,6 @@
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_798870
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 

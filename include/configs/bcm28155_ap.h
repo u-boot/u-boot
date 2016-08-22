@@ -126,7 +126,6 @@
 /* Commands */
 #define CONFIG_FAT_WRITE
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_USBID_ADDR		0x34052c46
 
 #endif /* __BCM28155_AP_H */

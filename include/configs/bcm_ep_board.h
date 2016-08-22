@@ -11,8 +11,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /*
  * Memory configuration
  * (these must be defined elsewhere)

@@ -19,8 +19,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE 64
-
 /*
  * High Level Configuration Options
  */

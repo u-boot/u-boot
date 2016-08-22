@@ -36,8 +36,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_SYS_CACHELINE_SIZE       64
-
 /* commands to include */
 
 #define CONFIG_ENV_VARS_UBOOT_CONFIG

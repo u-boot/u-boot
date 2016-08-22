@@ -11,7 +11,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_SYS_CACHELINE_SIZE       32
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -49,7 +48,6 @@
 /* Enabling L2 Cache */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x48242000
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
  * Since SPL did pll and ddr initialization for us,

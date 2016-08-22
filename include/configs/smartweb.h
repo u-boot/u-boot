@@ -170,8 +170,6 @@
 #define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
-
-#define CONFIG_SYS_CACHELINE_SIZE	0x2000
 #endif
 
 /* General Boot Parameter */

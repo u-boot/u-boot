@@ -14,12 +14,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-#ifdef CONFIG_BCM2835
-#define CONFIG_SYS_CACHELINE_SIZE		32
-#else
-#define CONFIG_SYS_CACHELINE_SIZE		64
-#endif
-
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARCH_CPU_INIT
 

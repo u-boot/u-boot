@@ -18,8 +18,6 @@
  * High Level Configuration Options
  */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 

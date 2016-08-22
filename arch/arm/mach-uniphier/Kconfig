@@ -75,6 +75,7 @@ config ARCH_UNIPHIER_LD6B
 config CACHE_UNIPHIER
 	bool "Enable the UniPhier L2 cache controller"
 	depends on ARCH_UNIPHIER_32BIT
+	select SYS_CACHE_SHIFT_7
 	default y
 	help
 	  This option allows to use the UniPhier System Cache as L2 cache.

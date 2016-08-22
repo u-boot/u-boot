@@ -19,9 +19,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-/* MMU Definitions */
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #define CONFIG_IDENT_STRING		" vexpress_aemv8a"
 
 /* Link Definitions */

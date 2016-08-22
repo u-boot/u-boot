@@ -13,7 +13,6 @@
 
 #include "exynos-common.h"
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
 #ifdef FTRACE

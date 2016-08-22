@@ -23,8 +23,6 @@
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */

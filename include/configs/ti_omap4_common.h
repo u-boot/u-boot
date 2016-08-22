@@ -26,7 +26,6 @@
 #define CONFIG_SYS_L2_PL310		1
 #define CONFIG_SYS_PL310_BASE	0x48242000
 #endif
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>

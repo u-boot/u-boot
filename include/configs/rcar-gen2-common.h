@@ -9,8 +9,6 @@
 #ifndef __RCAR_GEN2_COMMON_H
 #define __RCAR_GEN2_COMMON_H
 
-#define CONFIG_SYS_CACHELINE_SIZE 64
-
 #include <asm/arch/rmobile.h>
 
 #define CONFIG_CMD_DFL

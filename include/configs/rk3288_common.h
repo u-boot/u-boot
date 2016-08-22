@@ -7,8 +7,6 @@
 #ifndef __CONFIG_RK3288_COMMON_H
 #define __CONFIG_RK3288_COMMON_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <asm/arch/hardware.h>
 
 #define CONFIG_SYS_NO_FLASH

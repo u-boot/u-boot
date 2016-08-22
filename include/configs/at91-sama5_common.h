@@ -12,8 +12,6 @@
 
 #include <asm/hardware.h>
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */

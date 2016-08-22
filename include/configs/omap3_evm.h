@@ -340,8 +340,6 @@
 /* Uncomment to define the board revision statically */
 /* #define CONFIG_STATIC_BOARD_REV	OMAP3EVM_BOARD_GEN_2 */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40200800

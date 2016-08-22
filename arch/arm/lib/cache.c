@@ -10,10 +10,6 @@
 #include <common.h>
 #include <malloc.h>
 
-#ifndef CONFIG_SYS_CACHELINE_SIZE
-#define CONFIG_SYS_CACHELINE_SIZE 32
-#endif
-
 /*
  * Flush range from all levels of d-cache/unified-cache.
  * Affects the range [start, start + size - 1].
