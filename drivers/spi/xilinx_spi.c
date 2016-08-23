@@ -73,7 +73,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define XILSPI_MAX_XFER_BITS	8
 #define XILSPI_SPICR_DFLT_ON	(SPICR_MANUAL_SS | SPICR_MASTER_MODE | \
-				SPICR_SPE)
+				SPICR_SPE | SPICR_MASTER_INHIBIT)
 #define XILSPI_SPICR_DFLT_OFF	(SPICR_MASTER_INHIBIT | SPICR_MANUAL_SS)
 
 #ifndef CONFIG_XILINX_SPI_IDLE_VAL
@@ -81,6 +81,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #define XILINX_SPI_QUAD_MODE	2
+
+#define XILINX_SPI_QUAD_EXTRA_DUMMY	3
+#define SPI_QUAD_OUT_FAST_READ		0x6B
 
 /* xilinx spi register set */
 struct xilinx_spi_regs {
@@ -106,6 +109,7 @@ struct xilinx_spi_priv {
 	struct xilinx_spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
+	unsigned int fifo_depth;
 };
 
 static int xilinx_spi_child_pre_probe(struct udevice *bus)
@@ -147,8 +151,12 @@ static void spi_cs_deactivate(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
+	u32 reg;
 
+	reg = readl(&regs->spicr) | SPICR_RXFIFO_RESEST | SPICR_TXFIFO_RESEST;
+	writel(reg, &regs->spicr);
 	writel(SPISSR_OFF, &regs->spissr);
+
 }
 
 static int xilinx_spi_claim_bus(struct udevice *dev)
@@ -174,6 +182,45 @@ static int xilinx_spi_release_bus(struct udevice *dev)
 
 	return 0;
 }
+static u32 xilinx_spi_fill_txfifo(struct udevice *bus, const u8 *txp,
+				  u32 txbytes)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	unsigned char d;
+	u32 i = 0;
+
+	while (txbytes && !(readl(&regs->spisr) & SPISR_TX_FULL) &&
+	       i < priv->fifo_depth) {
+		d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
+		debug("spi_xfer: tx:%x ", d);
+		/* write out and wait for processing (receive data) */
+		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);
+		txbytes--;
+		i++;
+	}
+	return i;
+}
+
+static u32 xilinx_spi_read_rxfifo(struct udevice *bus, u8 *rxp, u32 rxbytes)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	unsigned char d;
+	unsigned int i = 0;
+
+	while (rxbytes && !(readl(&regs->spisr) & SPISR_RX_EMPTY)) {
+		d = readl(&regs->spidrr) & SPIDRR_8BIT_MASK;
+		if (rxp)
+			*rxp++ = d;
+		debug("spi_xfer: rx:%x\n", d);
+		rxbytes--;
+		i++;
+	}
+	debug("Rx_done\n");
+
+	return i;
+}
 
 static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
@@ -186,8 +233,9 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	unsigned int bytes = bitlen / XILSPI_MAX_XFER_BITS;
 	const unsigned char *txp = dout;
 	unsigned char *rxp = din;
-	unsigned rxecount = 17;	/* max. 16 elements in FIFO, leftover 1 */
-	unsigned global_timeout;
+	u32 txbytes = bytes;
+	u32 rxbytes = bytes;
+	u32 reg, count, timeout;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
@@ -202,48 +250,41 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		goto done;
 	}
 
-	/* empty read buffer */
-	while (rxecount && !(readl(&regs->spisr) & SPISR_RX_EMPTY)) {
-		readl(&regs->spidrr);
-		rxecount--;
-	}
-
-	if (!rxecount) {
-		printf("XILSPI error: Rx buffer not empty\n");
-		return -1;
-	}
-
-	if (flags & SPI_XFER_BEGIN)
+	if (flags & SPI_XFER_BEGIN) {
 		spi_cs_activate(dev, slave_plat->cs);
-
-	/* at least 1usec or greater, leftover 1 */
-	global_timeout = priv->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
-			(XILSPI_MAX_XFER_BITS * 1000000 / priv->freq) + 1;
-
-	while (bytes--) {
-		unsigned timeout = global_timeout;
-		/* get Tx element from data out buffer and count up */
-		unsigned char d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
-		debug("spi_xfer: tx:%x ", d);
-
-		/* write out and wait for processing (receive data) */
-		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);
-		while (timeout && readl(&regs->spisr)
-						& SPISR_RX_EMPTY) {
-			timeout--;
-			udelay(1);
+		/* FIX ME Temporary hack to fix Quad read
+		 * check if the command is Quad out fast read
+		 * and increase dummy bytes by 3 so a total of 4
+		 * (3 here + 1 from framework)
+		 */
+		if (*txp == SPI_QUAD_OUT_FAST_READ) {
+			txbytes += XILINX_SPI_QUAD_EXTRA_DUMMY;
+			rxbytes += XILINX_SPI_QUAD_EXTRA_DUMMY;
 		}
+	}
+
+	while (txbytes && rxbytes) {
+		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
+		writel(reg, &regs->spicr);
+		txbytes -= count;
+		txp += count;
+
+		timeout = 10000000;
+		do {
+			udelay(1);
+		} while (!(readl(&regs->spisr) & SPISR_TX_EMPTY) && timeout--);
 
 		if (!timeout) {
 			printf("XILSPI error: Xfer timeout\n");
 			return -1;
 		}
 
-		/* read Rx element and push into data in buffer */
-		d = readl(&regs->spidrr) & SPIDRR_8BIT_MASK;
-		if (rxp)
-			*rxp++ = d;
-		debug("spi_xfer: rx:%x\n", d);
+		debug("txbytes:0x%x,txp:0x%p\n", txbytes, txp);
+		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
+		rxbytes -= count;
+		rxp += count;
+		debug("rxbytes:0x%x rxp:0x%p\n", rxbytes, rxp);
 	}
 
  done:
@@ -302,10 +343,14 @@ static const struct dm_spi_ops xilinx_spi_ops = {
 static int xilinx_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct udevice *dev = dev_get_parent(bus);
 
 	priv->regs = (struct xilinx_spi_regs *)dev_get_addr(bus);
 
 	debug("%s: regs=%p\n", __func__, priv->regs);
+
+	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					  "fifo-size", 0);
 
 	return 0;
 }
