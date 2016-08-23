@@ -163,9 +163,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 
-#ifndef CONFIG_ARM64		/* AArch64 FEL support is not ready yet */
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
-#endif
 
 /*
  * We cannot use expressions here, because expressions won't be evaluated in
