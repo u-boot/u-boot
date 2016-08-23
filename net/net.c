@@ -834,15 +834,7 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 #ifndef CONFIG_NET_MAXDEFRAG
 #define CONFIG_NET_MAXDEFRAG 16384
 #endif
-/*
- * MAXDEFRAG, above, is chosen in the config file and  is real data
- * so we need to add the NFS overhead, which is more than TFTP.
- * To use sizeof in the internal unnamed structures, we need a real
- * instance (can't do "sizeof(struct rpc_t.u.reply))", unfortunately).
- * The compiler doesn't complain nor allocates the actual structure
- */
-static struct rpc_t rpc_specimen;
-#define IP_PKTSIZE (CONFIG_NET_MAXDEFRAG + sizeof(rpc_specimen.u.reply))
+#define IP_PKTSIZE (CONFIG_NET_MAXDEFRAG)
 
 #define IP_MAXUDP (IP_PKTSIZE - IP_HDR_SIZE)
 

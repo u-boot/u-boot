@@ -380,7 +380,7 @@ int miiphy_reset(const char *devname, unsigned char addr)
  */
 int miiphy_speed(const char *devname, unsigned char addr)
 {
-	u16 bmcr, anlpar;
+	u16 bmcr, anlpar, adv;
 
 #if defined(CONFIG_PHY_GIGE)
 	u16 btsr;
@@ -417,7 +417,12 @@ int miiphy_speed(const char *devname, unsigned char addr)
 			printf("PHY AN speed");
 			goto miiphy_read_failed;
 		}
-		return (anlpar & LPA_100) ? _100BASET : _10BASET;
+
+		if (miiphy_read(devname, addr, MII_ADVERTISE, &adv)) {
+			puts("PHY AN adv speed");
+			goto miiphy_read_failed;
+		}
+		return ((anlpar & adv) & LPA_100) ? _100BASET : _10BASET;
 	}
 	/* Get speed from basic control settings. */
 	return (bmcr & BMCR_SPEED100) ? _100BASET : _10BASET;
@@ -433,7 +438,7 @@ miiphy_read_failed:
  */
 int miiphy_duplex(const char *devname, unsigned char addr)
 {
-	u16 bmcr, anlpar;
+	u16 bmcr, anlpar, adv;
 
 #if defined(CONFIG_PHY_GIGE)
 	u16 btsr;
@@ -475,7 +480,12 @@ int miiphy_duplex(const char *devname, unsigned char addr)
 			puts("PHY AN duplex");
 			goto miiphy_read_failed;
 		}
-		return (anlpar & (LPA_10FULL | LPA_100FULL)) ?
+
+		if (miiphy_read(devname, addr, MII_ADVERTISE, &adv)) {
+			puts("PHY AN adv duplex");
+			goto miiphy_read_failed;
+		}
+		return ((anlpar & adv) & (LPA_10FULL | LPA_100FULL)) ?
 		    FULL : HALF;
 	}
 	/* Get speed from basic control settings. */
