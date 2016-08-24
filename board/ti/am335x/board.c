@@ -47,11 +47,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_MUX_MII_CTRL	GPIO_TO_PIN(3, 10)
 #define GPIO_FET_SWITCH_CTRL	GPIO_TO_PIN(0, 7)
 #define GPIO_PHY_RESET		GPIO_TO_PIN(2, 5)
+#define GPIO_ETH0_MODE		GPIO_TO_PIN(0, 11)
+#define GPIO_ETH1_MODE		GPIO_TO_PIN(1, 26)
 
 #if defined(CONFIG_SPL_BUILD) || \
 	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #endif
+
+#define GPIO0_RISINGDETECT	(AM33XX_GPIO0_BASE + OMAP_GPIO_RISINGDETECT)
+#define GPIO1_RISINGDETECT	(AM33XX_GPIO1_BASE + OMAP_GPIO_RISINGDETECT)
+
+#define GPIO0_IRQSTATUS1	(AM33XX_GPIO0_BASE + OMAP_GPIO_IRQSTATUS1)
+#define GPIO1_IRQSTATUS1	(AM33XX_GPIO1_BASE + OMAP_GPIO_IRQSTATUS1)
+
+#define GPIO0_IRQSTATUSRAW	(AM33XX_GPIO0_BASE + 0x024)
+#define GPIO1_IRQSTATUSRAW	(AM33XX_GPIO1_BASE + 0x024)
 
 /*
  * Read header information from EEPROM into global structure.
@@ -492,9 +503,9 @@ void sdram_init(void)
 }
 #endif
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
+#if !defined(CONFIG_SPL_BUILD) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-static void request_and_set_gpio(int gpio, char *name)
+static void request_and_set_gpio(int gpio, char *name, int val)
 {
 	int ret;
 
@@ -510,7 +521,7 @@ static void request_and_set_gpio(int gpio, char *name)
 		goto err_free_gpio;
 	}
 
-	gpio_set_value(gpio, 1);
+	gpio_set_value(gpio, val);
 
 	return;
 
@@ -518,7 +529,8 @@ err_free_gpio:
 	gpio_free(gpio);
 }
 
-#define REQUEST_AND_SET_GPIO(N)	request_and_set_gpio(N, #N);
+#define REQUEST_AND_SET_GPIO(N)	request_and_set_gpio(N, #N, 1);
+#define REQUEST_AND_CLR_GPIO(N)	request_and_set_gpio(N, #N, 0);
 
 /**
  * RMII mode on ICEv2 board needs 50MHz clock. Given the clock
@@ -548,20 +560,76 @@ int board_init(void)
 #if defined(CONFIG_NOR) || defined(CONFIG_NAND)
 	gpmc_init();
 #endif
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD))
-	int rv;
 
+#if !defined(CONFIG_SPL_BUILD) || \
+	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	if (board_is_icev2()) {
+		int rv;
+		u32 reg;
+
 		REQUEST_AND_SET_GPIO(GPIO_PR1_MII_CTRL);
-		REQUEST_AND_SET_GPIO(GPIO_MUX_MII_CTRL);
+		/* Make J19 status available on GPIO1_26 */
+		REQUEST_AND_CLR_GPIO(GPIO_MUX_MII_CTRL);
+
 		REQUEST_AND_SET_GPIO(GPIO_FET_SWITCH_CTRL);
+		/*
+		 * Both ports can be set as RMII-CPSW or MII-PRU-ETH using
+		 * jumpers near the port. Read the jumper value and set
+		 * the pinmux, external mux and PHY clock accordingly.
+		 * As jumper line is overridden by PHY RX_DV pin immediately
+		 * after bootstrap (power-up/reset), we need to sample
+		 * it during PHY reset using GPIO rising edge detection.
+		 */
 		REQUEST_AND_SET_GPIO(GPIO_PHY_RESET);
+		/* Enable rising edge IRQ on GPIO0_11 and GPIO 1_26 */
+		reg = readl(GPIO0_RISINGDETECT) | BIT(11);
+		writel(reg, GPIO0_RISINGDETECT);
+		reg = readl(GPIO1_RISINGDETECT) | BIT(26);
+		writel(reg, GPIO1_RISINGDETECT);
+		/* Reset PHYs to capture the Jumper setting */
+		gpio_set_value(GPIO_PHY_RESET, 0);
+		udelay(2);	/* PHY datasheet states 1uS min. */
+		gpio_set_value(GPIO_PHY_RESET, 1);
+
+		reg = readl(GPIO0_IRQSTATUSRAW) & BIT(11);
+		if (reg) {
+			writel(reg, GPIO0_IRQSTATUS1); /* clear irq */
+			/* RMII mode */
+			printf("ETH0, CPSW\n");
+		} else {
+			/* MII mode */
+			printf("ETH0, PRU\n");
+			cdce913_data.pdiv3 = 4;	/* 25MHz PHY clk */
+		}
+
+		reg = readl(GPIO1_IRQSTATUSRAW) & BIT(26);
+		if (reg) {
+			writel(reg, GPIO1_IRQSTATUS1); /* clear irq */
+			/* RMII mode */
+			printf("ETH1, CPSW\n");
+			gpio_set_value(GPIO_MUX_MII_CTRL, 1);
+		} else {
+			/* MII mode */
+			printf("ETH1, PRU\n");
+			cdce913_data.pdiv2 = 4;	/* 25MHz PHY clk */
+		}
+
+		/* disable rising edge IRQs */
+		reg = readl(GPIO0_RISINGDETECT) & ~BIT(11);
+		writel(reg, GPIO0_RISINGDETECT);
+		reg = readl(GPIO1_RISINGDETECT) & ~BIT(26);
+		writel(reg, GPIO1_RISINGDETECT);
 
 		rv = setup_clock_synthesizer(&cdce913_data);
 		if (rv) {
 			printf("Clock synthesizer setup failed %d\n", rv);
 			return rv;
 		}
+
+		/* reset PHYs */
+		gpio_set_value(GPIO_PHY_RESET, 0);
+		udelay(2);	/* PHY datasheet states 1uS min. */
+		gpio_set_value(GPIO_PHY_RESET, 1);
 	}
 #endif
 
