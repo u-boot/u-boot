@@ -85,11 +85,19 @@
 	status = "okay";
 };
 
+&dwc3_typec0 {
+	status = "okay";
+};
+
 &usb_host1_ehci {
 	status = "okay";
 };
 
 &usb_host1_ohci {
+	status = "okay";
+};
+
+&dwc3_typec1 {
 	status = "okay";
 };
 

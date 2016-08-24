@@ -9,6 +9,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/rockchip.h>
+#define USB_CLASS_HUB			9
 
 / {
 	compatible = "rockchip,rk3399";
@@ -228,6 +229,50 @@
 		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST1_ARB>;
 		clock-names = "hclk_host1", "hclk_host1_arb";
 		status = "disabled";
+	};
+
+	dwc3_typec0: usb@fe800000 {
+		compatible = "rockchip,rk3399-xhci";
+		reg = <0x0 0xfe800000 0x0 0x100000>;
+		status = "disabled";
+		rockchip,vbus-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+		snps,dis-enblslpm-quirk;
+		snps,phyif-utmi-bits = <16>;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-u2-susphy-quirk;
+
+		#address-cells = <2>;
+		#size-cells = <2>;
+		hub {
+			compatible = "usb-hub";
+			usb,device-class = <USB_CLASS_HUB>;
+		};
+		typec_phy0 {
+			compatible = "rockchip,rk3399-usb3-phy";
+			reg = <0x0 0xff7c0000 0x0 0x40000>;
+		};
+	};
+
+	dwc3_typec1: usb@fe900000 {
+		compatible = "rockchip,rk3399-xhci";
+		reg = <0x0 0xfe900000 0x0 0x100000>;
+		status = "disabled";
+		rockchip,vbus-gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		snps,dis-enblslpm-quirk;
+		snps,phyif-utmi-bits = <16>;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-u2-susphy-quirk;
+
+		#address-cells = <2>;
+		#size-cells = <2>;
+		hub {
+			compatible = "usb-hub";
+			usb,device-class = <USB_CLASS_HUB>;
+		};
+		typec_phy1 {
+			compatible = "rockchip,rk3399-usb3-phy";
+			reg = <0x0 0xff800000 0x0 0x40000>;
+		};
 	};
 
 	gic: interrupt-controller@fee00000 {
