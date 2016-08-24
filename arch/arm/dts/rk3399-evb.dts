@@ -43,6 +43,12 @@
 		regulator-always-on;
 		regulator-boot-on;
 	};
+
+	vcc5v0_host: vcc5v0-host-en {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_host";
+		gpio = <&gpio4 25 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &emmc_phy {
