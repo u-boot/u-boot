@@ -896,6 +896,7 @@ config ARCH_ROCKCHIP
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select DM_USB if USB
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
