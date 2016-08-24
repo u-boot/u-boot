@@ -129,10 +129,8 @@ int spl_parse_image_header(const struct image_header *header)
 		 * is bad, and thus should be skipped silently.
 		 */
 		panic("** no mkimage signature but raw image not supported");
-#elif defined(CONFIG_SPL_ABORT_ON_RAW_IMAGE)
-		/* Signature not found, proceed to other boot methods. */
-		return -EINVAL;
-#else
+#endif
+
 #ifdef CONFIG_SPL_OS_BOOT
 		ulong start, end;
 
@@ -147,6 +145,11 @@ int spl_parse_image_header(const struct image_header *header)
 			return 0;
 		}
 #endif
+
+#ifdef CONFIG_SPL_ABORT_ON_RAW_IMAGE
+		/* Signature not found, proceed to other boot methods. */
+		return -EINVAL;
+#else
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
