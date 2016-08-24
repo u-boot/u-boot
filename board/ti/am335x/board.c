@@ -50,10 +50,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_ETH0_MODE		GPIO_TO_PIN(0, 11)
 #define GPIO_ETH1_MODE		GPIO_TO_PIN(1, 26)
 
-#if defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
-#endif
 
 #define GPIO0_RISINGDETECT	(AM33XX_GPIO0_BASE + OMAP_GPIO_RISINGDETECT)
 #define GPIO1_RISINGDETECT	(AM33XX_GPIO1_BASE + OMAP_GPIO_RISINGDETECT)
@@ -639,6 +636,11 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#if !defined(CONFIG_SPL_BUILD)
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+#endif
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	int rc;
 	char *name = NULL;
@@ -650,6 +652,39 @@ int board_late_init(void)
 	if (board_is_bbg1())
 		name = "BBG1";
 	set_board_info_env(name);
+#endif
+
+#if !defined(CONFIG_SPL_BUILD)
+	/* try reading mac address from efuse */
+	mac_lo = readl(&cdev->macid0l);
+	mac_hi = readl(&cdev->macid0h);
+	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+	mac_addr[4] = mac_lo & 0xFF;
+	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+	if (!getenv("ethaddr")) {
+		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
+
+		if (is_valid_ethaddr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+	}
+
+	mac_lo = readl(&cdev->macid1l);
+	mac_hi = readl(&cdev->macid1h);
+	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+	mac_addr[4] = mac_lo & 0xFF;
+	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+	if (!getenv("eth1addr")) {
+		if (is_valid_ethaddr(mac_addr))
+			eth_setenv_enetaddr("eth1addr", mac_addr);
+	}
 #endif
 
 	return 0;
@@ -720,11 +755,15 @@ static struct cpsw_platform_data cpsw_data = {
 int board_eth_init(bd_t *bis)
 {
 	int rv, n = 0;
+#if defined(CONFIG_USB_ETHER) && \
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
-	__maybe_unused struct ti_am_eeprom *header;
 
-	/* try reading mac address from efuse */
+	/*
+	 * use efuse mac address for USB ethernet as we know that
+	 * both CPSW and USB ethernet will never be active at the same time
+	 */
 	mac_lo = readl(&cdev->macid0l);
 	mac_hi = readl(&cdev->macid0h);
 	mac_addr[0] = mac_hi & 0xFF;
@@ -733,32 +772,13 @@ int board_eth_init(bd_t *bis)
 	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+#endif
+
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-	if (!getenv("ethaddr")) {
-		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
-
-		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
-	}
 
 #ifdef CONFIG_DRIVER_TI_CPSW
-
-	mac_lo = readl(&cdev->macid1l);
-	mac_hi = readl(&cdev->macid1h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
-	if (!getenv("eth1addr")) {
-		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("eth1addr", mac_addr);
-	}
-
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
