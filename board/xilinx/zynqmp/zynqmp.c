@@ -83,10 +83,7 @@ static int chip_id(void)
 	regs.regs[2] = 0;
 	regs.regs[3] = 0;
 
-/* Uncomment this when you have ATF version which supports this SMC call */
-#if 0
 	smc_call(&regs);
-#endif
 
 	return regs.regs[0];
 }
