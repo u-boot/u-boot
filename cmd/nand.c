@@ -115,8 +115,7 @@ free_dat:
 
 static int set_dev(int dev)
 {
-	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev]->name) {
+	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[dev]) {
 		puts("No such device\n");
 		return -1;
 	}
