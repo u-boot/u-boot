@@ -204,17 +204,12 @@ static int invoke_smc(ulong id, ulong reg0, ulong reg1, ulong reg2)
 	return regs.regs[0];
 }
 
-static int zynqmp_info(xilinx_desc *desc)
-{
-	debug("%s called!\n", __func__);
-	return invoke_smc(ZYNQMP_SIP_SVC_CSU_DMA_INFO, 0, 0, 0);
-}
-
 static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		     bitstream_type bstype)
 {
 	u32 swap;
-	ulong bin_buf;
+	ulong bin_buf, flags;
+	int ret;
 
 	if (zynqmp_validate_bitstream(desc, buf, bsize, bsize, &swap))
 		return FPGA_FAIL;
@@ -223,17 +218,21 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
-	return invoke_smc(ZYNQMP_SIP_SVC_CSU_DMA_LOAD, bin_buf, bsize, bstype);
-}
 
-static int zynqmp_dump(xilinx_desc *desc, const void *buf, size_t bsize)
-{
-	debug("%s called!\n", __func__);
-	return invoke_smc(ZYNQMP_SIP_SVC_CSU_DMA_DUMP, (u64)buf, bsize, 0);
+	if (bsize % 4)
+		bsize = bsize/4 + 1;
+	else
+		bsize = bsize/4;
+
+	flags = (u32)bsize | ((u64)bstype << 32);
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, bin_buf, flags, 0);
+	if (ret)
+		debug("PL FPGA LOAD fail\n");
+
+	return ret;
 }
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-	.dump = zynqmp_dump,
-	.info = zynqmp_info,
 };

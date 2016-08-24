@@ -10,10 +10,12 @@
 
 #include <xilinx.h>
 
-#define ZYNQMP_SIP_SVC_CSU_DMA_INFO		0x82002004
-#define ZYNQMP_SIP_SVC_CSU_DMA_LOAD		0x82002005
-#define ZYNQMP_SIP_SVC_CSU_DMA_DUMP		0x82002006
 #define ZYNQMP_SIP_SVC_CSU_DMA_CHIPID		0x82002007
+
+#define ZYNQMP_SIP_SVC_PM_FPGA_LOAD		0xC2000016
+#define ZYNQMP_FPGA_OP_INIT			(1 << 0)
+#define ZYNQMP_FPGA_OP_LOAD			(1 << 1)
+#define ZYNQMP_FPGA_OP_DONE			(1 << 2)
 
 extern struct xilinx_fpga_op zynqmp_op;
 
