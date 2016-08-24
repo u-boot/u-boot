@@ -7,12 +7,13 @@
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <asm/arch/periph.h>
+#include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	struct udevice *pinctrl;
+	struct udevice *pinctrl, *regulator;
 	int ret;
 
 	/*
@@ -35,6 +36,18 @@ int board_init(void)
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM3);
 	if (ret) {
 		debug("%s PWM3 pinctrl init fail!\n", __func__);
+		goto out;
+	}
+
+	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
+	if (ret) {
+		debug("%s vcc5v0_host init fail! ret %d\n", __func__, ret);
+		goto out;
+	}
+
+	ret = regulator_set_enable(regulator, true);
+	if (ret) {
+		debug("%s vcc5v0-host-en set fail!\n", __func__);
 		goto out;
 	}
 
