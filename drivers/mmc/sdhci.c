@@ -451,6 +451,8 @@ static int sdhci_init(struct mmc *mmc)
 {
 	struct sdhci_host *host = mmc->priv;
 
+	sdhci_reset(host, SDHCI_RESET_ALL);
+
 	if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) && !aligned_buffer) {
 		aligned_buffer = memalign(8, 512*1024);
 		if (!aligned_buffer) {
@@ -594,8 +596,6 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 
 	if (host->quirks & SDHCI_QUIRK_BROKEN_VOLTAGE)
 		host->cfg.voltages |= host->voltages;
-
-	sdhci_reset(host, SDHCI_RESET_ALL);
 
 	host->mmc = mmc_create(&host->cfg, host);
 	if (host->mmc == NULL) {
