@@ -189,31 +189,6 @@
 			#power-domain-cells = <0x0>;
 			pd-id = <0x30>;
 		};
-
-		pd_apll: pd-apll {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x32>;
-		};
-
-		pd_vpll: pd-vpll {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x33>;
-		};
-
-		pd_dpll: pd-dpll {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x34>;
-		};
-
-		pd_rpll: pd-rpll {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x35>;
-		};
-
-		pd_iopll: pd-iopll {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x36>;
-		};
 	};
 
 	pmu {
