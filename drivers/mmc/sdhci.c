@@ -536,8 +536,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 				SDHCI_CLOCK_BASE_SHIFT;
 		cfg->f_max *= 1000000;
 	}
-	if (cfg->f_max == 0)
+	if (cfg->f_max == 0) {
+		printf("%s: Hardware doesn't specify base clock frequency\n",
+		       __func__);
 		return -EINVAL;
+	}
 	if (min_clk)
 		cfg->f_min = min_clk;
 	else {
@@ -577,6 +580,8 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 #else
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
+	int ret;
+
 #ifdef CONFIG_MMC_SDMA
 	unsigned int caps;
 
@@ -588,11 +593,9 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	}
 #endif
 
-	if (sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk)) {
-		printf("%s: Hardware doesn't specify base clock frequency\n",
-		       __func__);
-		return -EINVAL;
-	}
+	ret = sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk);
+	if (ret)
+		return ret;
 
 	if (host->quirks & SDHCI_QUIRK_BROKEN_VOLTAGE)
 		host->cfg.voltages |= host->voltages;
