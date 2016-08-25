@@ -1506,7 +1506,8 @@ static int mvneta_send(struct udevice *dev, void *packet, int length)
 
 	tx_desc->buf_phys_addr = (u32)packet;
 	tx_desc->data_size = length;
-	flush_dcache_range((u32)packet, (u32)packet + length);
+	flush_dcache_range((u32)packet,
+			   (u32)packet + ALIGN(length, PKTALIGN));
 
 	/* First and Last descriptor */
 	tx_desc->command = MVNETA_TX_L4_CSUM_NOT | MVNETA_TXD_FLZ_DESC;
