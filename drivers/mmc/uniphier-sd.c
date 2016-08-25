@@ -496,8 +496,8 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	return ret;
 }
 
-static void uniphier_sd_set_bus_width(struct uniphier_sd_priv *priv,
-				      struct mmc *mmc)
+static int uniphier_sd_set_bus_width(struct uniphier_sd_priv *priv,
+				     struct mmc *mmc)
 {
 	u32 val, tmp;
 
@@ -512,14 +512,15 @@ static void uniphier_sd_set_bus_width(struct uniphier_sd_priv *priv,
 		val = UNIPHIER_SD_OPTION_WIDTH_8;
 		break;
 	default:
-		BUG();
-		break;
+		return -EINVAL;
 	}
 
 	tmp = readl(priv->regbase + UNIPHIER_SD_OPTION);
 	tmp &= ~UNIPHIER_SD_OPTION_WIDTH_MASK;
 	tmp |= val;
 	writel(tmp, priv->regbase + UNIPHIER_SD_OPTION);
+
+	return 0;
 }
 
 static void uniphier_sd_set_ddr_mode(struct uniphier_sd_priv *priv,
@@ -587,11 +588,14 @@ static int uniphier_sd_set_ios(struct udevice *dev)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	int ret;
 
 	dev_dbg(dev, "clock %uHz, DDRmode %d, width %u\n",
 		mmc->clock, mmc->ddr_mode, mmc->bus_width);
 
-	uniphier_sd_set_bus_width(priv, mmc);
+	ret = uniphier_sd_set_bus_width(priv, mmc);
+	if (ret)
+		return ret;
 	uniphier_sd_set_ddr_mode(priv, mmc);
 	uniphier_sd_set_clk_rate(priv, mmc);
 
