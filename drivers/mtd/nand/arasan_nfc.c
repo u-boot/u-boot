@@ -853,6 +853,8 @@ static int arasan_nand_send_rdcmd(struct arasan_nand_command_format *curr_cmd,
 		reg_val |= (page_val << ARASAN_NAND_CMD_PG_SIZE_SHIFT);
 	}
 
+	reg_val &= ~ARASAN_NAND_CMD_ECC_ON_MASK;
+
 	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
