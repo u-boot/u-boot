@@ -344,6 +344,7 @@ config SANDBOX_SERIAL
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
+	default y
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
