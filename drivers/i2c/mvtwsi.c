@@ -595,7 +595,7 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
 		status = i2c_begin(twsi, expected_start, (chip << 1), tick);
 		/* Send address bytes */
 		while ((status == 0) && alen--)
-			status = twsi_send(twsi, *(addr++),
+			status = twsi_send(twsi, addr[alen],
 					   MVTWSI_STATUS_DATA_W_ACK, tick);
 		/* Send repeated STARTs after the initial START */
 		expected_start = MVTWSI_STATUS_REPEATED_START;
@@ -642,7 +642,7 @@ static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
 	status = i2c_begin(twsi, MVTWSI_STATUS_START, (chip << 1), tick);
 	/* Send address bytes */
 	while ((status == 0) && (alen-- > 0))
-		status = twsi_send(twsi, *(addr++), MVTWSI_STATUS_DATA_W_ACK,
+		status = twsi_send(twsi, addr[alen], MVTWSI_STATUS_DATA_W_ACK,
 				   tick);
 	/* Send data bytes */
 	while ((status == 0) && (length-- > 0))
