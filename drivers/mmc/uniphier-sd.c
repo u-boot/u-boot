@@ -571,6 +571,9 @@ static void uniphier_sd_set_clk_rate(struct uniphier_sd_priv *priv,
 		val = UNIPHIER_SD_CLKCTL_DIV1024;
 
 	tmp = readl(priv->regbase + UNIPHIER_SD_CLKCTL);
+	if (tmp & UNIPHIER_SD_CLKCTL_SCLKEN &&
+	    (tmp & UNIPHIER_SD_CLKCTL_DIV_MASK) == val)
+		return;
 
 	/* stop the clock before changing its rate to avoid a glitch signal */
 	tmp &= ~UNIPHIER_SD_CLKCTL_SCLKEN;
@@ -582,6 +585,8 @@ static void uniphier_sd_set_clk_rate(struct uniphier_sd_priv *priv,
 
 	tmp |= UNIPHIER_SD_CLKCTL_SCLKEN;
 	writel(tmp, priv->regbase + UNIPHIER_SD_CLKCTL);
+
+	udelay(1000);
 }
 
 static int uniphier_sd_set_ios(struct udevice *dev)
@@ -598,8 +603,6 @@ static int uniphier_sd_set_ios(struct udevice *dev)
 		return ret;
 	uniphier_sd_set_ddr_mode(priv, mmc);
 	uniphier_sd_set_clk_rate(priv, mmc);
-
-	udelay(1000);
 
 	return 0;
 }
