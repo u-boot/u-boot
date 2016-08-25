@@ -61,6 +61,7 @@
 		#size-cells = <1>;
 		ranges;
 		interrupt-parent = <&intc>;
+		u-boot,dm-pre-reloc;
 
 		timer@20000200 {
 			compatible = "arm,cortex-a9-global-timer";
