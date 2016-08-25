@@ -127,7 +127,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #ifndef CONFIG_SDHCI_CMD_MAX_TIMEOUT
 #define CONFIG_SDHCI_CMD_MAX_TIMEOUT		3200
 #endif
-#define CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT	100
+#define SDHCI_CMD_DEFAULT_TIMEOUT		100
 #define SDHCI_READ_STATUS_TIMEOUT		1000
 
 #ifdef CONFIG_DM_MMC_OPS
@@ -151,7 +151,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned start = get_timer(0);
 
 	/* Timeout unit - ms */
-	static unsigned int cmd_timeout = CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT;
+	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
 
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	mask = SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT;
