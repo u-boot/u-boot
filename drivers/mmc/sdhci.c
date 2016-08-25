@@ -519,6 +519,14 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	u32 caps;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+
+#ifdef CONFIG_MMC_SDMA
+	if (!(caps & SDHCI_CAN_DO_SDMA)) {
+		printf("%s: Your controller doesn't support SDMA!!\n",
+		       __func__);
+		return -EINVAL;
+	}
+#endif
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	cfg->name = host->name;
@@ -584,17 +592,6 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
 	int ret;
-
-#ifdef CONFIG_MMC_SDMA
-	unsigned int caps;
-
-	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-	if (!(caps & SDHCI_CAN_DO_SDMA)) {
-		printf("%s: Your controller doesn't support SDMA!!\n",
-		       __func__);
-		return -1;
-	}
-#endif
 
 	ret = sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk);
 	if (ret)
