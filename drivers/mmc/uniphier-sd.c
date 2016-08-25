@@ -600,7 +600,24 @@ static int uniphier_sd_set_ios(struct udevice *dev)
 	return 0;
 }
 
-static int uniphier_sd_init(struct uniphier_sd_priv *priv)
+static int uniphier_sd_get_cd(struct udevice *dev)
+{
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
+
+	if (priv->caps & UNIPHIER_SD_CAP_NONREMOVABLE)
+		return 1;
+
+	return !!(readl(priv->regbase + UNIPHIER_SD_INFO1) &
+		  UNIPHIER_SD_INFO1_CD);
+}
+
+static const struct dm_mmc_ops uniphier_sd_ops = {
+	.send_cmd = uniphier_sd_send_cmd,
+	.set_ios = uniphier_sd_set_ios,
+	.get_cd = uniphier_sd_get_cd,
+};
+
+static void uniphier_sd_host_init(struct uniphier_sd_priv *priv)
 {
 	u32 tmp;
 
@@ -628,26 +645,7 @@ static int uniphier_sd_init(struct uniphier_sd_priv *priv)
 		tmp |= UNIPHIER_SD_DMA_MODE_ADDR_INC;
 		writel(tmp, priv->regbase + UNIPHIER_SD_DMA_MODE);
 	}
-
-	return 0;
 }
-
-static int uniphier_sd_get_cd(struct udevice *dev)
-{
-	struct uniphier_sd_priv *priv = dev_get_priv(dev);
-
-	if (priv->caps & UNIPHIER_SD_CAP_NONREMOVABLE)
-		return 1;
-
-	return !!(readl(priv->regbase + UNIPHIER_SD_INFO1) &
-		  UNIPHIER_SD_INFO1_CD);
-}
-
-static const struct dm_mmc_ops uniphier_sd_ops = {
-	.send_cmd = uniphier_sd_send_cmd,
-	.set_ios = uniphier_sd_set_ios,
-	.get_cd = uniphier_sd_get_cd,
-};
 
 static int uniphier_sd_probe(struct udevice *dev)
 {
@@ -715,7 +713,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 		priv->caps |= UNIPHIER_SD_CAP_DIV1024;
 	}
 
-	uniphier_sd_init(priv);
+	uniphier_sd_host_init(priv);
 
 	priv->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
 	priv->cfg.f_min = priv->mclk /
