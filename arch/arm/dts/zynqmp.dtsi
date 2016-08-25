@@ -190,11 +190,6 @@
 			pd-id = <0x30>;
 		};
 
-		pd_ddr: pd-ddr {
-			#power-domain-cells = <0x0>;
-			pd-id = <0x37>;
-		};
-
 		pd_apll: pd-apll {
 			#power-domain-cells = <0x0>;
 			pd-id = <0x32>;
