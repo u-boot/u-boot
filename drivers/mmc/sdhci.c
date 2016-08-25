@@ -121,12 +121,9 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
  * for card ready state.
  * Every time when card is busy after timeout then (last) timeout value will be
  * increased twice but only if it doesn't exceed global defined maximum.
- * Each function call will use last timeout value. Max timeout can be redefined
- * in board config file.
+ * Each function call will use last timeout value.
  */
-#ifndef CONFIG_SDHCI_CMD_MAX_TIMEOUT
-#define CONFIG_SDHCI_CMD_MAX_TIMEOUT		3200
-#endif
+#define SDHCI_CMD_MAX_TIMEOUT			3200
 #define SDHCI_CMD_DEFAULT_TIMEOUT		100
 #define SDHCI_READ_STATUS_TIMEOUT		1000
 
@@ -164,7 +161,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
 		if (time >= cmd_timeout) {
 			printf("%s: MMC: %d busy ", __func__, mmc_dev);
-			if (2 * cmd_timeout <= CONFIG_SDHCI_CMD_MAX_TIMEOUT) {
+			if (2 * cmd_timeout <= SDHCI_CMD_MAX_TIMEOUT) {
 				cmd_timeout += cmd_timeout;
 				printf("timeout increasing to: %u ms.\n",
 				       cmd_timeout);
