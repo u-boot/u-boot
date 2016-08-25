@@ -151,3 +151,8 @@ int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point)
 
 	return PSCI_RET_SUCCESS;
 }
+
+void __secure psci_system_reset(u32 function_id)
+{
+	reset_cpu(0);
+}
