@@ -122,7 +122,6 @@ DECLARE_GLOBAL_DATA_PTR;
 struct uniphier_sd_priv {
 	struct mmc_config cfg;
 	struct mmc *mmc;
-	struct udevice *dev;
 	void __iomem *regbase;
 	unsigned long mclk;
 	unsigned int version;
@@ -152,8 +151,9 @@ static void __dma_unmap_single(dma_addr_t addr, size_t size,
 		invalidate_dcache_range(addr, addr + size);
 }
 
-static int uniphier_sd_check_error(struct uniphier_sd_priv *priv)
+static int uniphier_sd_check_error(struct udevice *dev)
 {
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	u32 info2 = readl(priv->regbase + UNIPHIER_SD_INFO2);
 
 	if (info2 & UNIPHIER_SD_INFO2_ERR_RTO) {
@@ -166,38 +166,39 @@ static int uniphier_sd_check_error(struct uniphier_sd_priv *priv)
 	}
 
 	if (info2 & UNIPHIER_SD_INFO2_ERR_TO) {
-		dev_err(priv->dev, "timeout error\n");
+		dev_err(dev, "timeout error\n");
 		return -ETIMEDOUT;
 	}
 
 	if (info2 & (UNIPHIER_SD_INFO2_ERR_END | UNIPHIER_SD_INFO2_ERR_CRC |
 		     UNIPHIER_SD_INFO2_ERR_IDX)) {
-		dev_err(priv->dev, "communication out of sync\n");
+		dev_err(dev, "communication out of sync\n");
 		return -EILSEQ;
 	}
 
 	if (info2 & (UNIPHIER_SD_INFO2_ERR_ILA | UNIPHIER_SD_INFO2_ERR_ILR |
 		     UNIPHIER_SD_INFO2_ERR_ILW)) {
-		dev_err(priv->dev, "illegal access\n");
+		dev_err(dev, "illegal access\n");
 		return -EIO;
 	}
 
 	return 0;
 }
 
-static int uniphier_sd_wait_for_irq(struct uniphier_sd_priv *priv,
-				    unsigned int reg, u32 flag)
+static int uniphier_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
+				    u32 flag)
 {
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	long wait = 1000000;
 	int ret;
 
 	while (!(readl(priv->regbase + reg) & flag)) {
 		if (wait-- < 0) {
-			dev_err(priv->dev, "timeout\n");
+			dev_err(dev, "timeout\n");
 			return -ETIMEDOUT;
 		}
 
-		ret = uniphier_sd_check_error(priv);
+		ret = uniphier_sd_check_error(dev);
 		if (ret)
 			return ret;
 
@@ -207,14 +208,14 @@ static int uniphier_sd_wait_for_irq(struct uniphier_sd_priv *priv,
 	return 0;
 }
 
-static int uniphier_sd_pio_read_one_block(struct mmc *mmc, u32 **pbuf,
+static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
 					  uint blocksize)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	int i, ret;
 
 	/* wait until the buffer is filled with data */
-	ret = uniphier_sd_wait_for_irq(priv, UNIPHIER_SD_INFO2,
+	ret = uniphier_sd_wait_for_irq(dev, UNIPHIER_SD_INFO2,
 				       UNIPHIER_SD_INFO2_BRE);
 	if (ret)
 		return ret;
@@ -237,14 +238,14 @@ static int uniphier_sd_pio_read_one_block(struct mmc *mmc, u32 **pbuf,
 	return 0;
 }
 
-static int uniphier_sd_pio_write_one_block(struct mmc *mmc, const u32 **pbuf,
-					   uint blocksize)
+static int uniphier_sd_pio_write_one_block(struct udevice *dev,
+					   const u32 **pbuf, uint blocksize)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	int i, ret;
 
 	/* wait until the buffer becomes empty */
-	ret = uniphier_sd_wait_for_irq(priv, UNIPHIER_SD_INFO2,
+	ret = uniphier_sd_wait_for_irq(dev, UNIPHIER_SD_INFO2,
 				       UNIPHIER_SD_INFO2_BWE);
 	if (ret)
 		return ret;
@@ -263,7 +264,7 @@ static int uniphier_sd_pio_write_one_block(struct mmc *mmc, const u32 **pbuf,
 	return 0;
 }
 
-static int uniphier_sd_pio_xfer(struct mmc *mmc, struct mmc_data *data)
+static int uniphier_sd_pio_xfer(struct udevice *dev, struct mmc_data *data)
 {
 	u32 *dest = (u32 *)data->dest;
 	const u32 *src = (const u32 *)data->src;
@@ -271,10 +272,10 @@ static int uniphier_sd_pio_xfer(struct mmc *mmc, struct mmc_data *data)
 
 	for (i = 0; i < data->blocks; i++) {
 		if (data->flags & MMC_DATA_READ)
-			ret = uniphier_sd_pio_read_one_block(mmc, &dest,
+			ret = uniphier_sd_pio_read_one_block(dev, &dest,
 							     data->blocksize);
 		else
-			ret = uniphier_sd_pio_write_one_block(mmc, &src,
+			ret = uniphier_sd_pio_write_one_block(dev, &src,
 							      data->blocksize);
 		if (ret)
 			return ret;
@@ -306,14 +307,15 @@ static void uniphier_sd_dma_start(struct uniphier_sd_priv *priv,
 	writel(UNIPHIER_SD_DMA_CTL_START, priv->regbase + UNIPHIER_SD_DMA_CTL);
 }
 
-static int uniphier_sd_dma_wait_for_irq(struct uniphier_sd_priv *priv, u32 flag,
+static int uniphier_sd_dma_wait_for_irq(struct udevice *dev, u32 flag,
 					unsigned int blocks)
 {
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	long wait = 1000000 + 10 * blocks;
 
 	while (!(readl(priv->regbase + UNIPHIER_SD_DMA_INFO1) & flag)) {
 		if (wait-- < 0) {
-			dev_err(priv->dev, "timeout during DMA\n");
+			dev_err(dev, "timeout during DMA\n");
 			return -ETIMEDOUT;
 		}
 
@@ -321,16 +323,16 @@ static int uniphier_sd_dma_wait_for_irq(struct uniphier_sd_priv *priv, u32 flag,
 	}
 
 	if (readl(priv->regbase + UNIPHIER_SD_DMA_INFO2)) {
-		dev_err(priv->dev, "error during DMA\n");
+		dev_err(dev, "error during DMA\n");
 		return -EIO;
 	}
 
 	return 0;
 }
 
-static int uniphier_sd_dma_xfer(struct mmc *mmc, struct mmc_data *data)
+static int uniphier_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	size_t len = data->blocks * data->blocksize;
 	void *buf;
 	enum dma_data_direction dir;
@@ -358,7 +360,7 @@ static int uniphier_sd_dma_xfer(struct mmc *mmc, struct mmc_data *data)
 
 	uniphier_sd_dma_start(priv, dma_addr);
 
-	ret = uniphier_sd_dma_wait_for_irq(priv, poll_flag, data->blocks);
+	ret = uniphier_sd_dma_wait_for_irq(dev, poll_flag, data->blocks);
 
 	__dma_unmap_single(dma_addr, len, dir);
 
@@ -384,15 +386,15 @@ static bool uniphier_sd_addr_is_dmaable(unsigned long addr)
 	return true;
 }
 
-static int uniphier_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				struct mmc_data *data)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	int ret;
 	u32 tmp;
 
 	if (readl(priv->regbase + UNIPHIER_SD_INFO2) & UNIPHIER_SD_INFO2_CBSY) {
-		dev_err(priv->dev, "command busy\n");
+		dev_err(dev, "command busy\n");
 		return -EBUSY;
 	}
 
@@ -446,15 +448,15 @@ static int uniphier_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		tmp |= UNIPHIER_SD_CMD_RSP_R3;
 		break;
 	default:
-		dev_err(priv->dev, "unknown response type\n");
+		dev_err(dev, "unknown response type\n");
 		return -EINVAL;
 	}
 
-	dev_dbg(priv->dev, "sending CMD%d (SD_CMD=%08x, SD_ARG=%08x)\n",
+	dev_dbg(dev, "sending CMD%d (SD_CMD=%08x, SD_ARG=%08x)\n",
 		cmd->cmdidx, tmp, cmd->cmdarg);
 	writel(tmp, priv->regbase + UNIPHIER_SD_CMD);
 
-	ret = uniphier_sd_wait_for_irq(priv, UNIPHIER_SD_INFO1,
+	ret = uniphier_sd_wait_for_irq(dev, UNIPHIER_SD_INFO1,
 				       UNIPHIER_SD_INFO1_RSP);
 	if (ret)
 		return ret;
@@ -481,11 +483,11 @@ static int uniphier_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		/* use DMA if the HW supports it and the buffer is aligned */
 		if (priv->caps & UNIPHIER_SD_CAP_DMA_INTERNAL &&
 		    uniphier_sd_addr_is_dmaable((long)data->src))
-			ret = uniphier_sd_dma_xfer(mmc, data);
+			ret = uniphier_sd_dma_xfer(dev, data);
 		else
-			ret = uniphier_sd_pio_xfer(mmc, data);
+			ret = uniphier_sd_pio_xfer(dev, data);
 
-		ret = uniphier_sd_wait_for_irq(priv, UNIPHIER_SD_INFO1,
+		ret = uniphier_sd_wait_for_irq(dev, UNIPHIER_SD_INFO1,
 					       UNIPHIER_SD_INFO1_CMP);
 		if (ret)
 			return ret;
@@ -581,11 +583,12 @@ static void uniphier_sd_set_clk_rate(struct uniphier_sd_priv *priv,
 	writel(tmp, priv->regbase + UNIPHIER_SD_CLKCTL);
 }
 
-static void uniphier_sd_set_ios(struct mmc *mmc)
+static int uniphier_sd_set_ios(struct udevice *dev)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
 
-	dev_dbg(priv->dev, "clock %uHz, DDRmode %d, width %u\n",
+	dev_dbg(dev, "clock %uHz, DDRmode %d, width %u\n",
 		mmc->clock, mmc->ddr_mode, mmc->bus_width);
 
 	uniphier_sd_set_bus_width(priv, mmc);
@@ -593,11 +596,12 @@ static void uniphier_sd_set_ios(struct mmc *mmc)
 	uniphier_sd_set_clk_rate(priv, mmc);
 
 	udelay(1000);
+
+	return 0;
 }
 
-static int uniphier_sd_init(struct mmc *mmc)
+static int uniphier_sd_init(struct uniphier_sd_priv *priv)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
 	u32 tmp;
 
 	/* soft reset of the host */
@@ -628,9 +632,9 @@ static int uniphier_sd_init(struct mmc *mmc)
 	return 0;
 }
 
-static int uniphier_sd_getcd(struct mmc *mmc)
+static int uniphier_sd_get_cd(struct udevice *dev)
 {
-	struct uniphier_sd_priv *priv = mmc->priv;
+	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 
 	if (priv->caps & UNIPHIER_SD_CAP_NONREMOVABLE)
 		return 1;
@@ -639,11 +643,10 @@ static int uniphier_sd_getcd(struct mmc *mmc)
 		  UNIPHIER_SD_INFO1_CD);
 }
 
-static const struct mmc_ops uniphier_sd_ops = {
+static const struct dm_mmc_ops uniphier_sd_ops = {
 	.send_cmd = uniphier_sd_send_cmd,
 	.set_ios = uniphier_sd_set_ios,
-	.init = uniphier_sd_init,
-	.getcd = uniphier_sd_getcd,
+	.get_cd = uniphier_sd_get_cd,
 };
 
 static int uniphier_sd_probe(struct udevice *dev)
@@ -653,8 +656,6 @@ static int uniphier_sd_probe(struct udevice *dev)
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;
-
-	priv->dev = dev;
 
 	base = dev_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -686,7 +687,6 @@ static int uniphier_sd_probe(struct udevice *dev)
 	}
 
 	priv->cfg.name = dev->name;
-	priv->cfg.ops = &uniphier_sd_ops;
 	priv->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	switch (fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width", 1)) {
@@ -714,6 +714,8 @@ static int uniphier_sd_probe(struct udevice *dev)
 		priv->caps |= UNIPHIER_SD_CAP_DMA_INTERNAL;
 		priv->caps |= UNIPHIER_SD_CAP_DIV1024;
 	}
+
+	uniphier_sd_init(priv);
 
 	priv->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
 	priv->cfg.f_min = priv->mclk /
@@ -752,4 +754,5 @@ U_BOOT_DRIVER(uniphier_mmc) = {
 	.probe = uniphier_sd_probe,
 	.remove = uniphier_sd_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_sd_priv),
+	.ops = &uniphier_sd_ops,
 };

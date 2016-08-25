@@ -80,6 +80,7 @@ config ROCKCHIP_SDHCI
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
+	select DM_MMC_OPS
 	help
 	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
 
