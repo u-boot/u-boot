@@ -102,8 +102,6 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_SPI
 #undef CONFIG_DM_SPI_FLASH
-#undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_MAX_SIZE             (256 << 10) /* 256 KiB */
 #endif
 
 /* SPI SPL */

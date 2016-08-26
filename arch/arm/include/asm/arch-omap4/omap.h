@@ -19,6 +19,8 @@
 #include <asm/types.h>
 #endif /* !(__KERNEL_STRICT_NAMES || __ASSEMBLY__) */
 
+#include <linux/sizes.h>
+
 /*
  * L4 Peripherals - L4 Wakeup and L4 Core now
  */
@@ -109,7 +111,8 @@ struct s32ktimer {
  */
 #define NON_SECURE_SRAM_START	0x40304000
 #define NON_SECURE_SRAM_END	0x4030E000	/* Not inclusive */
-#define SRAM_SCRATCH_SPACE_ADDR	0x4030C000
+#define NON_SECURE_SRAM_IMG_END	0x4030C000
+#define SRAM_SCRATCH_SPACE_ADDR	(NON_SECURE_SRAM_IMG_END - SZ_1K)
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4030D000
 

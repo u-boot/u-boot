@@ -16,11 +16,11 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
-/* SRAM starts at 0x40200000 and ends at 0x4020FFFF (64KB) */
-#undef CONFIG_SPL_MAX_SIZE
+/*
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
+ */
 #undef CONFIG_SPL_TEXT_BASE
-
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
 /*

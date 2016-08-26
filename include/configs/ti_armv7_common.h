@@ -212,14 +212,14 @@
 /*
  * Place the image at the start of the ROM defined image space (per
  * CONFIG_SPL_TEXT_BASE and we limit our size to the ROM-defined
- * downloaded image area.  We initalize DRAM as soon as we can so that
- * we can place stack, malloc and BSS there.  We load U-Boot itself into
- * memory at 0x80800000 for legacy reasons (to not conflict with older
- * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
- * default Linux kernel address of 0x80008000 to work with most sized
- * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
- * end of the BSS area.  We suggest that the stack be placed at 32MiB after
- * the start of DRAM to allow room for all of the above (handled in Kconfig).
+ * downloaded image area minus 1KiB for scratch space.  We initalize DRAM as
+ * soon as we can so that we can place stack, malloc and BSS there.  We load
+ * U-Boot itself into memory at 0x80800000 for legacy reasons (to not conflict
+ * with older SPLs).  We have our BSS be placed 2MiB after this, to allow for
+ * the default Linux kernel address of 0x80008000 to work with most sized
+ * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the end
+ * of the BSS area.  We suggest that the stack be placed at 32MiB after the
+ * start of DRAM to allow room for all of the above (handled in Kconfig).
  */
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
@@ -233,6 +233,11 @@
 					 CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #endif
+#ifndef CONFIG_SPL_MAX_SIZE
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
+#endif
+
 
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
