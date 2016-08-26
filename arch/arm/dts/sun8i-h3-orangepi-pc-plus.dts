@@ -44,7 +44,8 @@
 #include "sun8i-h3-orangepi-pc.dts"
 
 / {
-	model = "Xunlong Orange Pi PC / PC Plus";
+	model = "Xunlong Orange Pi PC Plus";
+	compatible = "xunlong,orangepi-pc-plus", "allwinner,sun8i-h3";
 
 	aliases {
 		/* ethernet0 is the H3 emac, defined in sun8i-h3.dtsi */

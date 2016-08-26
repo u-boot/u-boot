@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - Marcus Cooper <codekipper@gmail.com>
+ * Copyright 2016 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -41,109 +41,60 @@
  */
 
 /dts-v1/;
-#include "sun7i-a20.dtsi"
-#include "sunxi-itead-core-common.dtsi"
+#include "sun6i-a31s.dtsi"
+#include "sun6i-reference-design-tablet.dtsi"
 
 / {
-	model = "Itead Ibox A20";
-	compatible = "itead,itead-ibox-a20", "allwinner,sun7i-a20";
-
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_itead_core>;
-
-		green {
-			label = "itead_core:green:usr";
-			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-
-		blue {
-			label = "itead_core:blue:usr";
-			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-
-	sound {
-		compatible = "simple-audio-card";
-		simple-audio-card,name = "On-board SPDIF";
-
-		simple-audio-card,cpu {
-			sound-dai = <&spdif>;
-		};
-
-		simple-audio-card,codec {
-			sound-dai = <&spdif_out>;
-		};
-	};
-
-	spdif_out: spdif-out {
-		#sound-dai-cells = <0>;
-		compatible = "linux,spdif-dit";
-	};
+	model = "iNet Q972 tablet";
+	compatible = "inet-tek,inet-q972", "allwinner,sun6i-a31s";
 };
 
-&ahci {
-	target-supply = <&reg_ahci_5v>;
+&ehci1 {
 	status = "okay";
 };
 
-&codec {
-	status = "okay";
-};
-
-&gmac {
+&i2c1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
-	phy = <&phy1>;
-	phy-mode = "mii";
+	pinctrl-0 = <&i2c1_pins_a>;
 	status = "okay";
 
-	phy1: ethernet-phy@1 {
-		reg = <1>;
+	ft5406ee8: touchscreen@38 {
+		compatible = "edt,edt-ft5406";
+		reg = <0x38>;
+		interrupt-parent = <&pio>;
+		interrupts = <0 3 IRQ_TYPE_LEVEL_HIGH>; /* PA3 */
+		touchscreen-size-x = <768>;
+		touchscreen-size-y = <1024>;
+		touchscreen-swapped-x-y;
 	};
 };
 
-&i2c0 {
-	axp209: pmic@34 {
-		interrupt-parent = <&nmi_intc>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+&lradc {
+	vref-supply = <&reg_aldo3>;
+	status = "okay";
+
+	button@200 {
+		label = "Volume Down";
+		linux,code = <KEY_VOLUMEDOWN>;
+		channel = <0>;
+		voltage = <200000>;
+	};
+
+	button@900 {
+		label = "Volume Up";
+		linux,code = <KEY_VOLUMEUP>;
+		channel = <0>;
+		voltage = <900000>;
+	};
+
+	button@1200 {
+		label = "Back";
+		linux,code = <KEY_BACK>;
+		channel = <0>;
+		voltage = <1200000>;
 	};
 };
 
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_rx_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
-	cd-inverted;
-	status = "okay";
-};
-
-&pio {
-	led_pins_itead_core: led_pins@0 {
-		allwinner,pins = "PH20","PH21";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&reg_ahci_5v {
-	status = "okay";
-};
-
-&spdif {
-	pinctrl-names = "default";
-	pinctrl-0 = <&spdif_tx_pins_a>;
+&ohci1 {
 	status = "okay";
 };
