@@ -103,8 +103,16 @@
 #define PORT_REG_STATUS_CMODE_1000BASE_X	0x9
 #define PORT_REG_STATUS_CMODE_SGMII		0xa
 
+#define PORT_REG_PHYS_CTRL_PCS_AN_EN	BIT(10)
+#define PORT_REG_PHYS_CTRL_PCS_AN_RST	BIT(9)
+#define PORT_REG_PHYS_CTRL_FC_VALUE	BIT(7)
+#define PORT_REG_PHYS_CTRL_FC_FORCE	BIT(6)
 #define PORT_REG_PHYS_CTRL_LINK_VALUE	BIT(5)
 #define PORT_REG_PHYS_CTRL_LINK_FORCE	BIT(4)
+#define PORT_REG_PHYS_CTRL_DUPLEX_VALUE	BIT(3)
+#define PORT_REG_PHYS_CTRL_DUPLEX_FORCE	BIT(2)
+#define PORT_REG_PHYS_CTRL_SPD1000	BIT(1)
+#define PORT_REG_PHYS_CTRL_SPD_MASK	(BIT(1) | BIT(0))
 
 #define PORT_REG_CTRL_PSTATE_SHIFT	0
 #define PORT_REG_CTRL_PSTATE_WIDTH	2
@@ -164,6 +172,14 @@
 #endif
 #ifndef CONFIG_MV88E61XX_CPU_PORT
 #error Define CONFIG_MV88E61XX_CPU_PORT to the port the CPU is attached to
+#endif
+
+/*
+ *  These are ports without PHYs that may be wired directly
+ * to other serdes interfaces
+ */
+#ifndef CONFIG_MV88E61XX_FIXED_PORTS
+#define CONFIG_MV88E61XX_FIXED_PORTS 0
 #endif
 
 /* ID register values for different switch models */
@@ -793,6 +809,27 @@ static int mv88e61xx_phy_setup(struct phy_device *phydev, u8 phy)
 	return 0;
 }
 
+static int mv88e61xx_fixed_port_setup(struct phy_device *phydev, u8 port)
+{
+	int val;
+
+	val = mv88e61xx_port_read(phydev, port, PORT_REG_PHYS_CTRL);
+	if (val < 0)
+		return val;
+
+	val &= ~(PORT_REG_PHYS_CTRL_SPD_MASK |
+		 PORT_REG_PHYS_CTRL_FC_VALUE);
+	val |= PORT_REG_PHYS_CTRL_PCS_AN_EN |
+	       PORT_REG_PHYS_CTRL_PCS_AN_RST |
+	       PORT_REG_PHYS_CTRL_FC_FORCE |
+	       PORT_REG_PHYS_CTRL_DUPLEX_VALUE |
+	       PORT_REG_PHYS_CTRL_DUPLEX_FORCE |
+	       PORT_REG_PHYS_CTRL_SPD1000;
+
+	return mv88e61xx_port_write(phydev, port, PORT_REG_PHYS_CTRL,
+				   val);
+}
+
 static int mv88e61xx_phy_config_port(struct phy_device *phydev, u8 phy)
 {
 	int val;
@@ -911,6 +948,12 @@ static int mv88e61xx_phy_config(struct phy_device *phydev)
 
 			/* Return success if any PHY succeeds */
 			ret = 0;
+		} else if ((1 << i) & CONFIG_MV88E61XX_FIXED_PORTS) {
+			res = mv88e61xx_fixed_port_setup(phydev, i);
+			if (res < 0) {
+				printf("Error configuring port %i\n", i);
+				continue;
+			}
 		}
 	}
 
