@@ -40,7 +40,7 @@
 
 #define PHY_AUTONEGOTIATE_TIMEOUT	5000
 
-#define PORT_COUNT			7
+#define PORT_COUNT			11
 #define PORT_MASK			((1 << PORT_COUNT) - 1)
 
 /* Device addresses */
@@ -167,6 +167,8 @@
 #endif
 
 /* ID register values for different switch models */
+#define PORT_SWITCH_ID_6096		0x0980
+#define PORT_SWITCH_ID_6097		0x0990
 #define PORT_SWITCH_ID_6172		0x1720
 #define PORT_SWITCH_ID_6176		0x1760
 #define PORT_SWITCH_ID_6240		0x2400
@@ -580,7 +582,7 @@ static int mv88e61xx_port_enable(struct phy_device *phydev, u8 port)
 }
 
 static int mv88e61xx_port_set_vlan(struct phy_device *phydev, u8 port,
-							u8 mask)
+							u16 mask)
 {
 	int val;
 
@@ -974,9 +976,21 @@ static struct phy_driver mv88e61xx_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver mv88e609x_driver = {
+	.name = "Marvell MV88E609x",
+	.uid = 0x1410c89,
+	.mask = 0xfffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.probe = mv88e61xx_probe,
+	.config = mv88e61xx_phy_config,
+	.startup = mv88e61xx_phy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_mv88e61xx_init(void)
 {
 	phy_register(&mv88e61xx_driver);
+	phy_register(&mv88e609x_driver);
 
 	return 0;
 }
