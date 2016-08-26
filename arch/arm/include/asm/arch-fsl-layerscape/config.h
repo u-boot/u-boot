@@ -15,7 +15,9 @@
 #define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
 #endif
 
-#ifndef CONFIG_LS1012A
+#ifdef CONFIG_LS1012A
+#define CONFIG_SYS_FSL_MMDC		/* Freescale MMDC driver */
+#else
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
 #endif
