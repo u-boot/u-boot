@@ -151,6 +151,7 @@ Directory Hierarchy:
   /x86			Files generic to x86 architecture
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
+/cmd			U-Boot commands functions
 /common			Misc architecture independent functions
 /configs		Board default configuration files
 /disk			Code for disk drive partition handling
