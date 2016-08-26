@@ -45,6 +45,7 @@
  */
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/comphy/comphy_data.h>
 
 / {
 	model = "Marvell Armada 37xx SoC";
@@ -168,6 +169,14 @@
 				clock-frequency = <160000>;
 				spi-max-frequency = <40000>;
 				status = "disabled";
+			};
+
+			comphy: comphy@18300 {
+				compatible = "marvell,mvebu-comphy", "marvell,comphy-armada-3700";
+				reg = <0x18300 0x28>,
+				      <0x1f300 0x3d000>;
+				mux-bitcount = <1>;
+				max-lanes = <2>;
 			};
 		};
 	};
