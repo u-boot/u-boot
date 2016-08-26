@@ -112,6 +112,11 @@
 	status = "okay";
 };
 
+/* CON29 */
+&usb2 {
+	status = "okay";
+};
+
 /* CON31 */
 &usb3 {
 	status = "okay";
