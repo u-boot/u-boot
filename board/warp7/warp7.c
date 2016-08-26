@@ -152,7 +152,14 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: WARP7\n");
+	char *mode;
+
+	if (IS_ENABLED(CONFIG_ARMV7_BOOT_SEC_DEFAULT))
+		mode = "secure";
+	else
+		mode = "non-secure";
+
+	printf("Board: WARP7 in %s mode\n", mode);
 
 	return 0;
 }
