@@ -835,25 +835,26 @@ u32 hws_serdes_topology_verify(enum serdes_type serdes_type, u32 serdes_id,
 		}
 	} else {
 		test_result = SERDES_ALREADY_IN_USE;
-		if (test_result == SERDES_ALREADY_IN_USE) {
-			printf("%s: Error: serdes lane %d is configured to type %s: type already in use\n",
-			       __func__, serdes_id,
-			       serdes_type_to_string[serdes_type]);
-			return MV_FAIL;
-		} else if (test_result == WRONG_NUMBER_OF_UNITS) {
-			printf("%s: Warning: serdes lane %d is set to type %s.\n",
-			       __func__, serdes_id,
-			       serdes_type_to_string[serdes_type]);
-			printf("%s: Maximum supported lanes are already set to this type (limit = %d)\n",
-			       __func__, serd_max_num);
-			return MV_FAIL;
-		} else if (test_result == UNIT_NUMBER_VIOLATION) {
-			printf("%s: Warning: serdes lane %d type is %s: current device support only %d units of this type.\n",
-			       __func__, serdes_id,
-			       serdes_type_to_string[serdes_type],
-			       serd_max_num);
-			return MV_FAIL;
-		}
+	}
+
+	if (test_result == SERDES_ALREADY_IN_USE) {
+		printf("%s: Error: serdes lane %d is configured to type %s: type already in use\n",
+		       __func__, serdes_id,
+		       serdes_type_to_string[serdes_type]);
+		return MV_FAIL;
+	} else if (test_result == WRONG_NUMBER_OF_UNITS) {
+		printf("%s: Warning: serdes lane %d is set to type %s.\n",
+		       __func__, serdes_id,
+		       serdes_type_to_string[serdes_type]);
+		printf("%s: Maximum supported lanes are already set to this type (limit = %d)\n",
+		       __func__, serd_max_num);
+		return MV_FAIL;
+	} else if (test_result == UNIT_NUMBER_VIOLATION) {
+		printf("%s: Warning: serdes lane %d type is %s: current device support only %d units of this type.\n",
+		       __func__, serdes_id,
+		       serdes_type_to_string[serdes_type],
+		       serd_max_num);
+		return MV_FAIL;
 	}
 
 	return MV_OK;

@@ -184,7 +184,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 		DEBUG_INIT_S("PCIe, Idx ");
 		DEBUG_INIT_D(pex_idx, 1);
 		DEBUG_INIT_S
-			(": Link upgraded to Gen2 based on client cpabilities\n");
+			(": Link upgraded to Gen2 based on client capabilities\n");
 	}
 
 	/* Update pex DEVICE ID */
