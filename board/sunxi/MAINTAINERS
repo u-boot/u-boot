@@ -156,6 +156,11 @@ M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
 F:	configs/iNet_86VS_defconfig
 
+INET D978 BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/iNet_D978_rev2_defconfig
+
 LAMOBO-R1 BOARD
 M:	Jelle de Jong <jelledejong@powercraft.nl>
 S:	Maintained
