@@ -65,9 +65,8 @@ void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 	while ((__raw_readl(base + KS2_DDRPHY_PGSR0_OFFSET) & 0x1) != 0x1)
 		;
 
-	/* Disable ECC for K2G */
 	if (cpu_is_k2g()) {
-		clrbits_le32(base + KS2_DDRPHY_DATX8_4_OFFSET, 0x1);
+		setbits_le32(base + KS2_DDRPHY_DATX8_4_OFFSET, 0x1);
 		clrbits_le32(base + KS2_DDRPHY_DATX8_5_OFFSET, 0x1);
 		clrbits_le32(base + KS2_DDRPHY_DATX8_6_OFFSET, 0x1);
 		clrbits_le32(base + KS2_DDRPHY_DATX8_7_OFFSET, 0x1);
