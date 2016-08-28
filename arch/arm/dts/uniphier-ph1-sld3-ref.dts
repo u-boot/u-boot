@@ -85,3 +85,11 @@
 &serial0 {
        u-boot,dm-pre-reloc;
 };
+
+&mio {
+       u-boot,dm-pre-reloc;
+};
+
+&emmc {
+       u-boot,dm-pre-reloc;
+};
