@@ -189,6 +189,16 @@
 			#power-domain-cells = <0x0>;
 			pd-id = <0x30>;
 		};
+
+		pd_pcie: pd-pcie {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x3b>;
+		};
+
+		pd_gpu: pd-gpu {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x3a>;
+		};
 	};
 
 	pmu {
@@ -392,6 +402,7 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>;
 			interrupt-names = "IRQGP", "IRQGPMMU", "IRQPP0", "IRQPPMMU0", "IRQPP1", "IRQPPMMU1";
+			power-domains = <&pd_gpu>;
 		};
 
 		/* ADMA */
@@ -611,6 +622,7 @@
 					<0x0 0x0 0x0 0x2 &pcie_intc 0x2>,
 					<0x0 0x0 0x0 0x3 &pcie_intc 0x3>,
 					<0x0 0x0 0x0 0x4 &pcie_intc 0x4>;
+			power-domains = <&pd_pcie>;
 			pcie_intc: legacy-interrupt-controller {
 				interrupt-controller;
 				#address-cells = <0>;
