@@ -689,7 +689,7 @@ static int flash_bad_block(int fd, uint8_t mtd_type, loff_t blockstart)
  * the DEVOFFSET (dev) block. On NOR the loop is only run once.
  */
 static int flash_read_buf (int dev, int fd, void *buf, size_t count,
-			   off_t offset, uint8_t mtd_type)
+			   off_t offset)
 {
 	size_t blocklen;	/* erase / write length - one block on NAND,
 				   0 on NOR */
@@ -706,7 +706,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 	/* Offset inside a block */
 	block_seek = offset - blockstart;
 
-	if (mtd_type == MTD_NANDFLASH) {
+	if (DEVTYPE(dev) == MTD_NANDFLASH) {
 		/*
 		 * NAND: calculate which blocks we are reading. We have
 		 * to read one block at a time to skip bad blocks.
@@ -722,7 +722,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 
 	/* This only runs once on NOR flash */
 	while (processed < count) {
-		rc = flash_bad_block(fd, mtd_type, blockstart);
+		rc = flash_bad_block(fd, DEVTYPE(dev), blockstart);
 		if (rc < 0)		/* block test failed */
 			return -1;
 
@@ -770,7 +770,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
  * erase and write the whole data at once.
  */
 static int flash_write_buf (int dev, int fd, void *buf, size_t count,
-			    off_t offset, uint8_t mtd_type)
+			    off_t offset)
 {
 	void *data;
 	struct erase_info_user erase;
@@ -793,7 +793,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	/*
 	 * For mtd devices only offset and size of the environment do matter
 	 */
-	if (mtd_type == MTD_ABSENT) {
+	if (DEVTYPE(dev) == MTD_ABSENT) {
 		blocklen = count;
 		erase_len = blocklen;
 		blockstart = offset;
@@ -834,8 +834,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 
-		rc = flash_read_buf (dev, fd, data, write_total, erase_offset,
-				     mtd_type);
+		rc = flash_read_buf(dev, fd, data, write_total, erase_offset);
 		if (write_total != rc)
 			return -1;
 
@@ -862,7 +861,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		data = buf;
 	}
 
-	if (mtd_type == MTD_NANDFLASH) {
+	if (DEVTYPE(dev) == MTD_NANDFLASH) {
 		/*
 		 * NAND: calculate which blocks we are writing. We have
 		 * to write one block at a time to skip bad blocks.
@@ -876,7 +875,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 
 	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
-		rc = flash_bad_block(fd, mtd_type, blockstart);
+		rc = flash_bad_block(fd, DEVTYPE(dev), blockstart);
 		if (rc < 0)		/* block test failed */
 			return rc;
 
@@ -890,11 +889,11 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			continue;
 		}
 
-		if (mtd_type != MTD_ABSENT) {
+		if (DEVTYPE(dev) != MTD_ABSENT) {
 			erase.start = blockstart;
 			ioctl(fd, MEMUNLOCK, &erase);
 			/* These do not need an explicit erase cycle */
-			if (mtd_type != MTD_DATAFLASH)
+			if (DEVTYPE(dev) != MTD_DATAFLASH)
 				if (ioctl(fd, MEMERASE, &erase) != 0) {
 					fprintf(stderr,
 						"MTD erase error on %s: %s\n",
@@ -921,7 +920,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 
-		if (mtd_type != MTD_ABSENT)
+		if (DEVTYPE(dev) != MTD_ABSENT)
 			ioctl(fd, MEMLOCK, &erase);
 
 		processed  += erasesize;
@@ -1008,8 +1007,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 #endif
 
 	rc = flash_write_buf(dev_target, fd_target, environment.image,
-			      CUR_ENVSIZE, DEVOFFSET(dev_target),
-			      DEVTYPE(dev_target));
+			     CUR_ENVSIZE, DEVOFFSET(dev_target));
 	if (rc < 0)
 		return rc;
 
@@ -1033,7 +1031,7 @@ static int flash_read (int fd)
 	int rc;
 
 	rc = flash_read_buf(dev_current, fd, environment.image, CUR_ENVSIZE,
-			    DEVOFFSET(dev_current), DEVTYPE(dev_current));
+			    DEVOFFSET(dev_current));
 	if (rc != CUR_ENVSIZE)
 		return -1;
 
