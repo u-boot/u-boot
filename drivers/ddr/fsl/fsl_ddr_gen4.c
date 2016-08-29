@@ -218,7 +218,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->err_disable, regs->err_disable);
 #endif
 	ddr_out32(&ddr->err_int_en, regs->err_int_en);
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < 64; i++) {
 		if (regs->debug[i]) {
 			debug("Write to debug_%d as %08x\n",
 			      i+1, regs->debug[i]);
