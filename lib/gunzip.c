@@ -11,6 +11,7 @@
 #include <console.h>
 #include <image.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <u-boot/zlib.h>
 #include <div64.h>
 
@@ -193,7 +194,7 @@ int gzwrite(unsigned char *src, int len,
 
 	s.next_in = src + i;
 	s.avail_in = payload_size+8;
-	writebuf = (unsigned char *)malloc(szwritebuf);
+	writebuf = (unsigned char *)malloc_cache_aligned(szwritebuf);
 
 	/* decompress until deflate stream ends or end of file */
 	do {
