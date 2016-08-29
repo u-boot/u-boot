@@ -765,12 +765,12 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 }
 
 /*
- * Write count bytes at offset, but stay within ENVSECTORS (dev) sectors of
+ * Write count bytes from begin of environment, but stay within
+ * ENVSECTORS(dev) sectors of
  * DEVOFFSET (dev). Similar to the read case above, on NOR and dataflash we
  * erase and write the whole data at once.
  */
-static int flash_write_buf (int dev, int fd, void *buf, size_t count,
-			    off_t offset)
+static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 {
 	void *data;
 	struct erase_info_user erase;
@@ -796,20 +796,21 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	if (DEVTYPE(dev) == MTD_ABSENT) {
 		blocklen = count;
 		erase_len = blocklen;
-		blockstart = offset;
+		blockstart = DEVOFFSET(dev);
 		block_seek = 0;
 		write_total = blocklen;
 	} else {
 		blocklen = DEVESIZE(dev);
 
-		erase_offset = (offset / blocklen) * blocklen;
+		erase_offset = DEVOFFSET(dev);
 
 		/* Maximum area we may use */
 		erase_len = environment_end(dev) - erase_offset;
 
 		blockstart = erase_offset;
+
 		/* Offset inside a block */
-		block_seek = offset - erase_offset;
+		block_seek = DEVOFFSET(dev) - erase_offset;
 
 		/*
 		 * Data size we actually write: from the start of the block
@@ -1007,7 +1008,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 #endif
 
 	rc = flash_write_buf(dev_target, fd_target, environment.image,
-			     CUR_ENVSIZE, DEVOFFSET(dev_target));
+			     CUR_ENVSIZE);
 	if (rc < 0)
 		return rc;
 
