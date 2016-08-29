@@ -398,7 +398,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
-			if (nand_info[i]->name)
+			if (nand_info[i])
 				nand_print_and_set_info(i);
 		}
 		return 0;
@@ -433,7 +433,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * for another device is to be used.
 	 */
 	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev]->name) {
+	    !nand_info[dev]) {
 		puts("\nno devices available\n");
 		return 1;
 	}
@@ -991,7 +991,7 @@ usage:
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
-	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx]->name) {
+	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx]) {
 		printf("\n** Device %d not available\n", idx);
 		bootstage_error(BOOTSTAGE_ID_NAND_AVAILABLE);
 		return 1;
