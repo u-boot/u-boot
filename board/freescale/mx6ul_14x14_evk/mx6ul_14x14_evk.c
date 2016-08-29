@@ -777,17 +777,17 @@ static struct mx6ul_iomux_ddr_regs mx6_ddr_ioregs = {
 	.dram_odt0 = 0x00000030,
 	.dram_odt1 = 0x00000030,
 	.dram_sdba2 = 0x00000000,
-	.dram_sdclk_0 = 0x00000008,
-	.dram_sdqs0 = 0x00000038,
+	.dram_sdclk_0 = 0x00000030,
+	.dram_sdqs0 = 0x00000030,
 	.dram_sdqs1 = 0x00000030,
 	.dram_reset = 0x00000030,
 };
 
 static struct mx6_mmdc_calibration mx6_mmcd_calib = {
-	.p0_mpwldectrl0 = 0x00070007,
-	.p0_mpdgctrl0 = 0x41490145,
-	.p0_mprddlctl = 0x40404546,
-	.p0_mpwrdlctl = 0x4040524D,
+	.p0_mpwldectrl0 = 0x00000000,
+	.p0_mpdgctrl0 = 0x41570155,
+	.p0_mprddlctl = 0x4040474A,
+	.p0_mpwrdlctl = 0x40405550,
 };
 
 struct mx6_ddr_sysinfo ddr_sysinfo = {
@@ -797,7 +797,7 @@ struct mx6_ddr_sysinfo ddr_sysinfo = {
 	.cs1_mirror = 0,
 	.rtt_wr = 2,
 	.rtt_nom = 1,		/* RTT_Nom = RZQ/2 */
-	.walat = 1,		/* Write additional latency */
+	.walat = 0,		/* Write additional latency */
 	.ralat = 5,		/* Read additional latency */
 	.mif3_mode = 3,		/* Command prediction working mode */
 	.bi_on = 1,		/* Bank interleaving enabled */
