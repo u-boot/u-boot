@@ -80,6 +80,13 @@ ACTION=="add", SUBSYSTEM=="block", SUBSYSTEMS=="usb", KERNELS=="3-13", MODE:="66
 (You may wish to change the group ID instead of setting the permissions wide
 open. All that matters is that the user ID running the test can access the
 device.)
+
+c) An optional udev rule to give you a persistent value to use in
+host_usb_dev_node. For example:
+
+IMPORT{builtin}="path_id"
+ENV{ID_PATH}=="?*", ENV{.ID_PORT}=="", SYMLINK+="bus/usb/by-path/$env{ID_PATH}"
+ENV{ID_PATH}=="?*", ENV{.ID_PORT}=="?*", SYMLINK+="bus/usb/by-path/$env{ID_PATH}-port$env{.ID_PORT}"
 """
 
 # The set of file sizes to test. These values trigger various edge-cases such
