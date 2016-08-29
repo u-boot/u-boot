@@ -2273,7 +2273,7 @@ int ext4fs_mount(unsigned part_length)
 		goto fail;
 	}
 
-	if (le32_to_cpu(data->sblock.revision_level == 0))
+	if (le32_to_cpu(data->sblock.revision_level) == 0)
 		fs->inodesz = 128;
 	else
 		fs->inodesz = le16_to_cpu(data->sblock.inode_size);
