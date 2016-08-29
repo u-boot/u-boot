@@ -187,6 +187,8 @@ static struct mx6_ddr_sysinfo mem_q = {
 	.mif3_mode	= 3,
 	.rst_to_cke	= 0x23,
 	.sde_to_rst	= 0x10,
+	.refsel = 1,	/* Refresh cycles at 32KHz */
+	.refr = 7,	/* 8 refresh commands per refresh cycle */
 };
 
 static struct mx6_mmdc_calibration mx6dl_1g_mmdc_calib = {
@@ -228,6 +230,8 @@ static struct mx6_ddr_sysinfo mem_dl = {
 	.mif3_mode	= 3,
 	.rst_to_cke	= 0x23,
 	.sde_to_rst	= 0x10,
+	.refsel = 1,	/* Refresh cycles at 32KHz */
+	.refr = 7,	/* 8 refresh commands per refresh cycle */
 };
 
 /* DDR 32bit 512MB */
@@ -245,6 +249,8 @@ static struct mx6_ddr_sysinfo mem_s = {
 	.mif3_mode	= 3,
 	.rst_to_cke	= 0x23,
 	.sde_to_rst	= 0x10,
+	.refsel = 1,	/* Refresh cycles at 32KHz */
+	.refr = 7,	/* 8 refresh commands per refresh cycle */
 };
 
 static void ccgr_init(void)

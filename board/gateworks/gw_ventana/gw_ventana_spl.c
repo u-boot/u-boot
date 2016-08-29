@@ -394,6 +394,8 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 		.pd_fast_exit = 1, /* enable precharge power-down fast exit */
 		.ddr_type = DDR_TYPE_DDR3,
+		.refsel = 1,	/* Refresh cycles at 32KHz */
+		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
 	/*

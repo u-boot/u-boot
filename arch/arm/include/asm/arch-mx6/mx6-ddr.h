@@ -408,6 +408,8 @@ struct mx6_ddr_sysinfo {
 	u8 sde_to_rst;	/* Time from SDE enable until DDR reset# is high */
 	u8 pd_fast_exit;/* enable precharge powerdown fast-exit */
 	u8 ddr_type;	/* DDR type: DDR3(0) or LPDDR2(1) */
+	u8 refsel;	/* REF_SEL field of register MDREF */
+	u8 refr;	/* REFR field of register MDREF */
 };
 
 /*

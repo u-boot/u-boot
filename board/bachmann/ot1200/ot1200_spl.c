@@ -85,6 +85,8 @@ static struct mx6_ddr_sysinfo ot1200_ddr_sysinfo = {
 	.bi_on      = 1,	/* Bank interleaving enabled */	/* war 1 */
 	.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 	.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+	.refsel = 1,		/* Refresh cycles at 32KHz */
+	.refr = 7,		/* 8 refresh commands per refresh cycle */
 };
 
 /* MT41K128M16JT-125 */
