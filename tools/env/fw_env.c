@@ -643,6 +643,18 @@ int fw_parse_script(char *fname, struct env_opts *opts)
 	return ret;
 }
 
+/**
+ * environment_end() - compute offset of first byte right after environemnt
+ * @dev - index of enviroment buffer
+ * Return:
+ *  device offset of first byte right after environemnt
+ */
+off_t environment_end(int dev)
+{
+	/* environment is block aligned */
+	return DEVOFFSET(dev) + ENVSECTORS(dev) * DEVESIZE(dev);
+}
+
 /*
  * Test for bad block on NAND, just returns 0 on NOR, on NAND:
  * 0	- block is good
@@ -683,7 +695,6 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 				   0 on NOR */
 	size_t processed = 0;	/* progress counter */
 	size_t readlen = count;	/* current read length */
-	off_t top_of_range;	/* end of the last block we may use */
 	off_t block_seek;	/* offset inside the current block to the start
 				   of the data */
 	loff_t blockstart;	/* running start of the current block -
@@ -702,19 +713,11 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 		 */
 		blocklen = DEVESIZE (dev);
 
-		/*
-		 * To calculate the top of the range, we have to use the
-		 * global DEVOFFSET (dev), which can be different from offset
-		 */
-		top_of_range = ((DEVOFFSET(dev) / blocklen) +
-				ENVSECTORS (dev)) * blocklen;
-
 		/* Limit to one block for the first read */
 		if (readlen > blocklen - block_seek)
 			readlen = blocklen - block_seek;
 	} else {
 		blocklen = 0;
-		top_of_range = offset + count;
 	}
 
 	/* This only runs once on NOR flash */
@@ -723,7 +726,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 		if (rc < 0)		/* block test failed */
 			return -1;
 
-		if (blockstart + block_seek + readlen > top_of_range) {
+		if (blockstart + block_seek + readlen > environment_end(dev)) {
 			/* End of range is reached */
 			fprintf (stderr,
 				 "Too few good blocks within range\n");
@@ -783,7 +786,6 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 				   below offset */
 	off_t block_seek;	/* offset inside the erase block to the start
 				   of the data */
-	off_t top_of_range;	/* end of the last block we may use */
 	loff_t blockstart;	/* running start of the current block -
 				   MEMGETBADBLOCK needs 64 bits */
 	int rc;
@@ -793,7 +795,6 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	 */
 	if (mtd_type == MTD_ABSENT) {
 		blocklen = count;
-		top_of_range = offset + count;
 		erase_len = blocklen;
 		blockstart = offset;
 		block_seek = 0;
@@ -801,13 +802,10 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	} else {
 		blocklen = DEVESIZE(dev);
 
-		top_of_range = ((DEVOFFSET(dev) / blocklen) +
-					ENVSECTORS(dev)) * blocklen;
-
 		erase_offset = (offset / blocklen) * blocklen;
 
 		/* Maximum area we may use */
-		erase_len = top_of_range - erase_offset;
+		erase_len = environment_end(dev) - erase_offset;
 
 		blockstart = erase_offset;
 		/* Offset inside a block */
@@ -882,7 +880,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (rc < 0)		/* block test failed */
 			return rc;
 
-		if (blockstart + erasesize > top_of_range) {
+		if (blockstart + erasesize > environment_end(dev)) {
 			fprintf (stderr, "End of range reached, aborting\n");
 			return -1;
 		}
