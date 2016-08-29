@@ -49,10 +49,10 @@
 #define EXT2_BLOCK_SIZE(data)	   (1 << LOG2_BLOCK_SIZE(data))
 
 /* Log2 size of ext2 block in bytes.  */
-#define LOG2_BLOCK_SIZE(data)	   (__le32_to_cpu		   \
+#define LOG2_BLOCK_SIZE(data)	   (le32_to_cpu		   \
 				    (data->sblock.log2_block_size) \
 				    + EXT2_MIN_BLOCK_LOG_SIZE)
-#define INODE_SIZE_FILESYSTEM(data)	(__le32_to_cpu \
+#define INODE_SIZE_FILESYSTEM(data)	(le32_to_cpu \
 			(data->sblock.inode_size))
 
 #define EXT2_FT_DIR	2

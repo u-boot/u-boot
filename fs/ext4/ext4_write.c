@@ -520,8 +520,8 @@ static int ext4fs_delete_file(int inodeno)
 
 	/* get the block no */
 	inodeno--;
-	blkno = __le32_to_cpu(bgd[ibmap_idx].inode_table_id) +
-		(inodeno % __le32_to_cpu(inode_per_grp)) / inodes_per_block;
+	blkno = le32_to_cpu(bgd[ibmap_idx].inode_table_id) +
+		(inodeno % le32_to_cpu(inode_per_grp)) / inodes_per_block;
 
 	/* get the offset of the inode */
 	blkoff = ((inodeno) % inodes_per_block) * fs->inodesz;
@@ -744,7 +744,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 {
 	int i;
 	int blockcnt;
-	unsigned int filesize = __le32_to_cpu(file_inode->size);
+	unsigned int filesize = le32_to_cpu(file_inode->size);
 	struct ext_filesystem *fs = get_fs();
 	int log2blksz = fs->dev_desc->log2blksz;
 	int log2_fs_blocksize = LOG2_BLOCK_SIZE(ext4fs_root) - log2blksz;
@@ -909,8 +909,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 		goto fail;
 	ibmap_idx = inodeno / ext4fs_root->sblock.inodes_per_group;
 	inodeno--;
-	itable_blkno = __le32_to_cpu(fs->bgd[ibmap_idx].inode_table_id) +
-			(inodeno % __le32_to_cpu(sblock->inodes_per_group)) /
+	itable_blkno = le32_to_cpu(fs->bgd[ibmap_idx].inode_table_id) +
+			(inodeno % le32_to_cpu(sblock->inodes_per_group)) /
 			inodes_per_block;
 	blkoff = (inodeno % inodes_per_block) * fs->inodesz;
 	ext4fs_devread((lbaint_t)itable_blkno * fs->sect_perblk, 0, fs->blksz,
@@ -928,9 +928,9 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	}
 	ibmap_idx = parent_inodeno / ext4fs_root->sblock.inodes_per_group;
 	parent_inodeno--;
-	parent_itable_blkno = __le32_to_cpu(fs->bgd[ibmap_idx].inode_table_id) +
+	parent_itable_blkno = le32_to_cpu(fs->bgd[ibmap_idx].inode_table_id) +
 	    (parent_inodeno %
-	     __le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
+	     le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
 	blkoff = (parent_inodeno % inodes_per_block) * fs->inodesz;
 	if (parent_itable_blkno != itable_blkno) {
 		memset(temp_ptr, '\0', fs->blksz);
