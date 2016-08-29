@@ -197,7 +197,7 @@
 
 		pd_gpu: pd-gpu {
 			#power-domain-cells = <0x0>;
-			pd-id = <0x3a>;
+			pd-id = <0x3a 0x14 0x15>;
 		};
 	};
 
