@@ -343,13 +343,12 @@ static const struct dm_spi_ops xilinx_spi_ops = {
 static int xilinx_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
-	struct udevice *dev = dev_get_parent(bus);
 
 	priv->regs = (struct xilinx_spi_regs *)dev_get_addr(bus);
 
 	debug("%s: regs=%p\n", __func__, priv->regs);
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
 					  "fifo-size", 0);
 
 	return 0;
