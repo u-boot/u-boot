@@ -844,10 +844,10 @@ static void spl_dram_init(void)
 
 void board_init_f(ulong dummy)
 {
+	ccgr_init();
+
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
-
-	ccgr_init();
 
 	/* iomux and setup of i2c */
 	board_early_init_f();
