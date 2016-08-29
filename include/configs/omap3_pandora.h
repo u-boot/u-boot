@@ -93,8 +93,8 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan && fatload mmc1 0 ${loadaddr} autoboot.scr || " \
-			"ext2load mmc1 0 ${loadaddr} autoboot.scr; then " \
+	"if mmc rescan && fatload mmc 0:1 ${loadaddr} autoboot.scr || " \
+			"ext2load mmc 0:1 ${loadaddr} autoboot.scr; then " \
 		"source ${loadaddr}; " \
 	"fi; " \
 	"ubi part boot && ubifsmount ubi:boot && " \
