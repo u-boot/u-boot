@@ -661,10 +661,10 @@ off_t environment_end(int dev)
  * > 0	- block is bad
  * < 0	- failed to test
  */
-static int flash_bad_block (int fd, uint8_t mtd_type, loff_t *blockstart)
+static int flash_bad_block(int fd, uint8_t mtd_type, loff_t blockstart)
 {
 	if (mtd_type == MTD_NANDFLASH) {
-		int badblock = ioctl (fd, MEMGETBADBLOCK, blockstart);
+		int badblock = ioctl(fd, MEMGETBADBLOCK, &blockstart);
 
 		if (badblock < 0) {
 			perror ("Cannot read bad block mark");
@@ -674,7 +674,7 @@ static int flash_bad_block (int fd, uint8_t mtd_type, loff_t *blockstart)
 		if (badblock) {
 #ifdef DEBUG
 			fprintf (stderr, "Bad block at 0x%llx, skipping\n",
-				(unsigned long long) *blockstart);
+				(unsigned long long)blockstart);
 #endif
 			return badblock;
 		}
@@ -722,7 +722,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 
 	/* This only runs once on NOR flash */
 	while (processed < count) {
-		rc = flash_bad_block (fd, mtd_type, &blockstart);
+		rc = flash_bad_block(fd, mtd_type, blockstart);
 		if (rc < 0)		/* block test failed */
 			return -1;
 
@@ -876,7 +876,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 
 	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
-		rc = flash_bad_block (fd, mtd_type, &blockstart);
+		rc = flash_bad_block(fd, mtd_type, blockstart);
 		if (rc < 0)		/* block test failed */
 			return rc;
 
