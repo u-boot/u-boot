@@ -60,6 +60,9 @@
 #define COMMON_PHY_SD_CTRL1_RXAUI0_MASK		\
 	(0x1 << COMMON_PHY_SD_CTRL1_RXAUI0_OFFSET)
 
+/* ToDo: Get this address via DT */
+#define MVEBU_CP0_REGS_BASE			0xF2000000UL
+
 #define DFX_DEV_GEN_CTRL12			(MVEBU_CP0_REGS_BASE + 0x400280)
 #define DFX_DEV_GEN_PCIE_CLK_SRC_OFFSET		7
 #define DFX_DEV_GEN_PCIE_CLK_SRC_MASK		\
@@ -117,10 +120,21 @@ static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 	return -1;
 }
 #endif
-int comphy_ap806_init(struct chip_serdes_phy_config *ptr_chip_cfg,
-		      struct comphy_map *serdes_map);
+
+#ifdef CONFIG_ARMADA_8K
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map);
+#else
+static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+		      struct comphy_map *serdes_map)
+{
+	/*
+	 * This function should never be called in this configuration, so
+	 * lets return an error here.
+	 */
+	return -1;
+}
+#endif
 
 void comphy_dedicated_phys_init(void);
 
