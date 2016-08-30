@@ -193,16 +193,21 @@
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily
- * memory) enough for full U-Boot to be loaded.  We also support Falcon
- * Mode so that the Linux kernel can be booted directly from SPL
- * instead, if desired.  We make use of the general SPL framework found
- * under common/spl/.  Given our generally common memory map, we set a
- * number of related defaults and sizes here.
+ * memory) enough for full U-Boot to be loaded. We make use of the general
+ * SPL framework found under common/spl/.  Given our generally common memory
+ * map, we set a number of related defaults and sizes here.
  */
 #if !defined(CONFIG_NOR_BOOT) && \
 	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
 #define CONFIG_SPL_FRAMEWORK
+
+/*
+ * We also support Falcon Mode so that the Linux kernel can be booted
+ * directly from SPL. This is not currently available on HS devices.
+ */
+#if !defined(CONFIG_TI_SECURE_DEVICE)
 #define CONFIG_SPL_OS_BOOT
+#endif
 
 /*
  * Place the image at the start of the ROM defined image space (per
