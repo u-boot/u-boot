@@ -335,38 +335,6 @@ config TARGET_BRPPT1
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_CM_T335
-	bool "Support cm_t335"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PEPPER
-	bool "Support pepper"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_IGEP0033
-	bool "Support am335x_igep0033"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PCM051
-	bool "Support pcm051"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
 config TARGET_DRACO
 	bool "Support draco"
 	select CPU_V7
@@ -414,62 +382,6 @@ config TARGET_RUT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-
-config TARGET_PENGWYN
-	bool "Support pengwyn"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_BALTOS
-	bool "Support am335x_baltos"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_EVM
-	bool "Support am335x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-	select TI_I2C_BOARD_DETECT
-
-config TARGET_AM335X_SHC
-	bool "Support am335x based shc board from bosch"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_SL50
-	bool "Support am335x_sl50"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-
-config TARGET_BAV335X
-	bool "Support bav335x"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	help
-	  The BAV335x OEM Network Processor integrates all the functions of an
-	  embedded network computer in a small, easy to use SODIMM module which
-	  incorporates the popular Texas Instruments Sitara 32bit ARM Coretex-A8
-	  processor, with fast DDR3 512MB SDRAM, 4GB of embedded MMC and a Gigabit
-	  ethernet with simple connection to external connectors.
-
-	  For more information, visit: http://birdland.com/oem
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
@@ -599,6 +511,17 @@ config AM43XX
 	  ARM core, a quad core PRU-ICSS for industrial Ethernet
 	  protocols, dual camera support, optional 3D graphics
 	  and an optional customer programmable secure boot.
+
+config AM33XX
+	bool "AM33XX SoC"
+	select CPU_V7
+	select SUPPORT_SPL
+	help
+	  Support for AM335x SOC from Texas Instruments.
+	  The AM335x high performance SOC features a Cortex-A8
+	  ARM core, a dual core PRU-ICSS for industrial Ethernet
+	  protocols, optional 3D graphics and an optional customer
+	  programmable secure boot.
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
