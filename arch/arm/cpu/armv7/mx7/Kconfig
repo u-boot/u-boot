@@ -5,6 +5,7 @@ config MX7
 	select ROM_UNIFIED_SECTIONS
 	select CPU_V7_HAS_VIRT
 	select CPU_V7_HAS_NONSEC
+	select ARCH_SUPPORT_PSCI
 	default y
 
 config MX7D

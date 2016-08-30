@@ -816,10 +816,13 @@ config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_SUPPORT_PSCI
+
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_SUPPORT_PSCI
 
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
