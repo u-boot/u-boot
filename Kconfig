@@ -83,6 +83,7 @@ config SYS_MALLOC_F
 config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
+	default 0x2000 if SPL_DM && SPL_OF_CONTROL
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
