@@ -67,6 +67,13 @@ u32 spl_boot_device(void)
 	u32 reg = 0;
 	u8 bootmode;
 
+#if defined(CONFIG_SPL_ZYNQMP_ALT_BOOTMODE_ENABLED)
+	/* Change default boot mode at run-time */
+	writel(BOOT_MODE_USE_ALT |
+	       CONFIG_SPL_ZYNQMP_ALT_BOOTMODE << BOOT_MODE_ALT_SHIFT,
+	       &crlapb_base->boot_mode);
+#endif
+
 	reg = readl(&crlapb_base->boot_mode);
 	bootmode = reg & BOOT_MODES_MASK;
 
