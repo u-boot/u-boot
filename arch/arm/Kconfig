@@ -459,6 +459,7 @@ config TARGET_AM335X_SL50
 	select CPU_V7
 	select SUPPORT_SPL
 	select DM
+	select DM_GPIO
 	select DM_SERIAL
 
 config TARGET_BAV335X
