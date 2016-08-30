@@ -83,10 +83,10 @@ SECTIONS
 #endif
 	{
 		KEEP(*(.__secure_stack_start))
-
+#ifdef CONFIG_ARMV7_PSCI
 		/* Skip addreses for stack */
 		. = . + CONFIG_ARMV7_PSCI_NR_CPUS * ARM_PSCI_STACK_SIZE;
-
+#endif
 		/* Align end of stack section to page boundary */
 		. = ALIGN(CONSTANT(COMMONPAGESIZE));
 
