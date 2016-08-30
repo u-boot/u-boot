@@ -31,13 +31,13 @@ ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 # Refer to README.ti-secure for more info
 #
 ALL-y	+= u-boot-spl_HS_ISSW
-ALL-$(CONFIG_SPL_SPI_SUPPORT) += u-boot-spl_HS_SPI_X-LOADER
+ALL-y += u-boot-spl_HS_SPI_X-LOADER
 ALL-y += u-boot-spl_HS_X-LOADER
 ALL-y += u-boot-spl_HS_MLO
 ALL-y += u-boot-spl_HS_2ND
 else
 ALL-y	+= MLO
-ALL-$(CONFIG_SPL_SPI_SUPPORT) += MLO.byteswap
+ALL-y += MLO.byteswap
 endif
 else
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
