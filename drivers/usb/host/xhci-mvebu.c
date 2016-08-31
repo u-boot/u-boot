@@ -79,6 +79,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id xhci_usb_ids[] = {
 	{ .compatible = "marvell,armada3700-xhci" },
+	{ .compatible = "marvell,armada-8k-xhci" },
 	{ }
 };
 
