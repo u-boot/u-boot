@@ -9,13 +9,13 @@ config BOOTSTAGE
 	  give the entry a name with bootstage_mark_name(). You can also
 	  record elapsed time in a particular stage using bootstage_start()
 	  before starting and bootstage_accum() when finished. Bootstage will
-	  add up all the accumated time and report it.
+	  add up all the accumulated time and report it.
 
 	  Normally, IDs are defined in bootstage.h but a small number of
-	  additional 'user' IDs can be used but passing BOOTSTAGE_ID_ALLOC
+	  additional 'user' IDs can be used by passing BOOTSTAGE_ID_ALLOC
 	  as the ID.
 
-	  Calls to show_boot_progress() wil also result in log entries but
+	  Calls to show_boot_progress() will also result in log entries but
 	  these will not have names.
 
 config BOOTSTAGE_REPORT
@@ -53,7 +53,7 @@ config BOOTSTAGE_FDT
 	  Stash the bootstage information in the FDT. A root 'bootstage'
 	  node is created with each bootstage id as a child. Each child
 	  has a 'name' property and either 'mark' containing the
-	  mark time in microsecond, or 'accum' containing the
+	  mark time in microseconds, or 'accum' containing the
 	  accumulated time for that bootstage id in microseconds.
 	  For example:
 
@@ -114,7 +114,7 @@ config NAND_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via NAND flash. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 config ONENAND_BOOT
 	bool "Support for booting from ONENAND"
@@ -122,7 +122,7 @@ config ONENAND_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via ONENAND. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 config QSPI_BOOT
 	bool "Support for booting from QSPI flash"
@@ -130,7 +130,7 @@ config QSPI_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via QSPI flash. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 config SATA_BOOT
 	bool "Support for booting from SATA"
@@ -138,7 +138,7 @@ config SATA_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SATA. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 config SD_BOOT
 	bool "Support for booting from SD/EMMC"
@@ -146,7 +146,7 @@ config SD_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SD/EMMC. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 config SPI_BOOT
 	bool "Support for booting from SPI flash"
@@ -154,7 +154,7 @@ config SPI_BOOT
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SPI flash. This is not a must, some SoCs need this,
-	  somes not.
+	  some not.
 
 endmenu
 
@@ -174,7 +174,7 @@ config CONSOLE_RECORD
 	bool "Console recording"
 	help
 	  This provides a way to record console output (and provide console
-	  input) through cirular buffers. This is mostly useful for testing.
+	  input) through circular buffers. This is mostly useful for testing.
 	  Console output is recorded even when the console is silent.
 	  To enable console recording, call console_record_reset_enable()
 	  from your code.
