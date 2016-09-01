@@ -18,6 +18,7 @@
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
 #include <i2c.h>
+#include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -424,9 +425,9 @@ static struct dwc3_device dwc3_device_data1 = {
 	.index = 1,
 };
 
-int usb_gadget_handle_interrupts(void)
+int usb_gadget_handle_interrupts(int index)
 {
-	dwc3_uboot_handle_interrupt(0);
+	dwc3_uboot_handle_interrupt(index);
 	return 0;
 }
 
