@@ -422,6 +422,10 @@ int board_usb_init(int index, enum usb_init_type init)
 {
 	debug("%s: index %x\n", __func__, index);
 
+#if defined(CONFIG_USB_GADGET_DOWNLOAD)
+	g_dnl_set_serialnumber(CONFIG_SYS_CONFIG_NAME);
+#endif
+
 	switch (index) {
 	case 0:
 		return dwc3_uboot_init(&dwc3_device_data0);
