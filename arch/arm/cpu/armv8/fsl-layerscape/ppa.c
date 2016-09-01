@@ -17,6 +17,9 @@
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
 #endif
+#ifdef CONFIG_CHAIN_OF_TRUST
+#include <fsl_validate.h>
+#endif
 
 int ppa_init(void)
 {
@@ -24,10 +27,28 @@ int ppa_init(void)
 	u32 *boot_loc_ptr_l, *boot_loc_ptr_h;
 	int ret;
 
+#ifdef CONFIG_CHAIN_OF_TRUST
+	uintptr_t ppa_esbc_hdr = CONFIG_SYS_LS_PPA_ESBC_ADDR;
+	uintptr_t ppa_img_addr = 0;
+#endif
+
 #ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
 	ppa_fit_addr = (void *)CONFIG_SYS_LS_PPA_FW_ADDR;
 #else
 #error "No CONFIG_SYS_LS_PPA_FW_IN_xxx defined"
+#endif
+
+#ifdef CONFIG_CHAIN_OF_TRUST
+	ppa_img_addr = (uintptr_t)ppa_fit_addr;
+	if (fsl_check_boot_mode_secure() != 0) {
+		ret = fsl_secboot_validate(ppa_esbc_hdr,
+					   CONFIG_PPA_KEY_HASH,
+					   &ppa_img_addr);
+		if (ret != 0)
+			printf("PPA validation failed\n");
+		else
+			printf("PPA validation Successful\n");
+	}
 #endif
 
 #ifdef CONFIG_FSL_LSCH3
