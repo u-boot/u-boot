@@ -59,10 +59,10 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 
 #if defined(CONFIG_EXT4_WRITE)
 uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n);
-int ext4fs_checksum_update(unsigned int i);
+uint16_t ext4fs_checksum_update(unsigned int i);
 int ext4fs_get_parent_inode_num(const char *dirname, char *dname, int flags);
 void ext4fs_update_parent_dentry(char *filename, int *p_ino, int file_type);
-long int ext4fs_get_new_blk_no(void);
+uint32_t ext4fs_get_new_blk_no(void);
 int ext4fs_get_new_inode_no(void);
 void ext4fs_reset_block_bmap(long int blockno, unsigned char *buffer,
 					int index);
