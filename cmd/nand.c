@@ -191,7 +191,7 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, int argc, char *const argv[])
 	struct mtd_info *mtd = nand_info[0];
 	char *cmd = argv[1];
 
-	if (CONFIG_SYS_MAX_NAND_DEVICE == 0 || !mtd->name) {
+	if (CONFIG_SYS_MAX_NAND_DEVICE == 0 || !mtd) {
 		puts("no devices available\n");
 		return 1;
 	}

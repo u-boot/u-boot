@@ -899,7 +899,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device]->name) {
+	    !nand_info[nand_curr_device]) {
 		printf("nand: error: no NAND devices found\n");
 		return -ENODEV;
 	}
