@@ -76,11 +76,12 @@
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it
  */
-#define CONFIG_SYS_CBSIZE		(256 * 2) /* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		(1024 * 2) /* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		32	/* max number of command args */
+#define CONFIG_SYS_MAXARGS		64	/* max number of command args */
+
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
