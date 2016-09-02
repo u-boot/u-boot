@@ -338,7 +338,9 @@ static void setup_board_eeprom_env(void)
 	if (rc)
 		goto invalid_eeprom;
 
-	if (board_is_am572x_evm())
+	if (board_is_x15())
+		name = "beagle_x15";
+	else if (board_is_am572x_evm())
 		name = "am57xx_evm";
 	else if (board_is_am572x_idk())
 		name = "am572x_idk";
