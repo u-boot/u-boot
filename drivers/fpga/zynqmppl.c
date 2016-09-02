@@ -220,9 +220,9 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	flush_dcache_range(bin_buf, bin_buf + bsize);
 
 	if (bsize % 4)
-		bsize = bsize/4 + 1;
+		bsize = bsize / 4 + 1;
 	else
-		bsize = bsize/4;
+		bsize = bsize / 4;
 
 	flags = (u32)bsize | ((u64)bstype << 32);
 
