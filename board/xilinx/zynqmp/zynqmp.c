@@ -95,9 +95,8 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 	id = chip_id();
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id) {
+		if (zynqmp_devices[i].id == id)
 			return zynqmp_devices[i].name;
-		}
 	}
 	return "unknown";
 }
@@ -109,13 +108,15 @@ int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && !defined(CONFIG_SPL_BUILD) || \
-    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
+    !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
+    defined(CONFIG_SPL_BUILD))
 	if (current_el() != 3) {
 		static char version[ZYNQMP_VERSION_SIZE];
 
 		strncat(version, "xczu", ZYNQMP_VERSION_SIZE);
-		zynqmppl.name = strncat(version, zynqmp_get_silicon_idcode_name(),
+		zynqmppl.name = strncat(version,
+					zynqmp_get_silicon_idcode_name(),
 					ZYNQMP_VERSION_SIZE);
 		printf("Chip ID:\t%s\n", zynqmppl.name);
 		fpga_init();
