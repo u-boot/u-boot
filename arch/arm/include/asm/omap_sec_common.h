@@ -27,4 +27,28 @@ u32 secure_rom_call(u32 service, u32 proc_id, u32 flag, ...);
  */
 int secure_boot_verify_image(void **p_image, size_t *p_size);
 
+/*
+ * Invoke a secure HAL API that allows configuration of the external memory
+ * firewall regions.
+ */
+int secure_emif_firewall_setup(uint8_t region_num, uint32_t start_addr,
+			       uint32_t size, uint32_t access_perm,
+			       uint32_t initiator_perm);
+
+/*
+ * Invoke a secure HAL API on high-secure (HS) device variants that reserves a
+ * region of external memory for secure world use, and protects it using memory
+ * firewalls that prevent public world access. This API is intended to setaside
+ * memory that will be used for a secure world OS/TEE.
+ */
+int secure_emif_reserve(void);
+
+/*
+ * Invoke a secure HAL API to lock the external memory firewall configurations.
+ * After this API is called, none of the HAL APIs for configuring the that
+ * firewall will be usable (calls to those APIs will return failure and have
+ * no effect).
+ */
+int secure_emif_firewall_lock(void);
+
 #endif /* _OMAP_SEC_COMMON_H_ */
