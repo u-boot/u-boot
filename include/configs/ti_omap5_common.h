@@ -144,6 +144,14 @@
  */
 #define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ	0x1000
 #define CONFIG_SPL_TEXT_BASE	0x40301350
+/* If no specific start address is specified then the secure EMIF
+ * region will be placed at the end of the DDR space. In order to prevent
+ * the main u-boot relocation from clobbering that memory and causing a
+ * firewall violation, we tell u-boot that memory is protected RAM (PRAM)
+ */
+#if (CONFIG_TI_SECURE_EMIF_REGION_START == 0)
+#define CONFIG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
+#endif
 #else
 /*
  * For all booting on GP parts, the flash loader image is
