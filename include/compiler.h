@@ -15,7 +15,7 @@
     defined(__sun__)	 || \
     defined(__APPLE__)
 # include <inttypes.h>
-#elif defined(__linux__) || defined(__WIN32__) || defined(__MINGW32__)
+#elif defined(__linux__) || defined(__WIN32__) || defined(__MINGW32__) || defined(__OpenBSD__)
 # include <stdint.h>
 #endif
 
@@ -50,6 +50,8 @@ typedef unsigned long ulong;
 #endif
 #ifdef __FreeBSD__
 # include <sys/endian.h> /* htole32 and friends */
+#elif defined(__OpenBSD__)
+# include <endian.h>
 #endif
 
 #include <time.h>
@@ -82,7 +84,20 @@ typedef unsigned int uint;
 # define uswap_64(x) _uswap_64(x, )
 #endif
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if defined(__OpenBSD__)
+#define cpu_to_le16(x)		htole16(x)
+#define cpu_to_le32(x)		htole32(x)
+#define cpu_to_le64(x)		htole64(x)
+#define le16_to_cpu(x)		letoh16(x)
+#define le32_to_cpu(x)		letoh32(x)
+#define le64_to_cpu(x)		letoh64(x)
+#define cpu_to_be16(x)		htobe16(x)
+#define cpu_to_be32(x)		htobe32(x)
+#define cpu_to_be64(x)		htobe64(x)
+#define be16_to_cpu(x)		betoh16(x)
+#define be32_to_cpu(x)		betoh32(x)
+#define be64_to_cpu(x)		betoh64(x)
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
 # define cpu_to_le16(x)		(x)
 # define cpu_to_le32(x)		(x)
 # define cpu_to_le64(x)		(x)
