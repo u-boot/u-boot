@@ -466,9 +466,8 @@
 
 		emac: ethernet@1c30000 {
 			compatible = "allwinner,sun8i-h3-emac";
-			syscon = <&syscon>;
-			reg = <0x01c30000 0x104>;
-			reg-names = "emac";
+			reg = <0x01c30000 0x104>, <0x01c00030 0x4>;
+			reg-names = "emac", "syscon";
 			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
 			resets = <&ccu RST_BUS_EMAC>, <&ccu RST_BUS_EPHY>;
 			reset-names = "ahb", "ephy";
