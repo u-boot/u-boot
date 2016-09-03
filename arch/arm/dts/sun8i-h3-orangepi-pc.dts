@@ -169,6 +169,7 @@
 &emac {
 	phy = <&phy1>;
 	phy-mode = "mii";
+	allwinner,use-internal-phy;
 	allwinner,leds-active-low;
 	status = "okay";
 	phy1: ethernet-phy@1 {

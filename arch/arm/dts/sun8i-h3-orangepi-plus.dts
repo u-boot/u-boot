@@ -44,20 +44,8 @@
 #include "sun8i-h3-orangepi-2.dts"
 
 / {
-	model = "Xunlong Orange Pi Plus / Plus 2 / Plus 2E";
+	model = "Xunlong Orange Pi Plus / Plus 2";
 	compatible = "xunlong,orangepi-plus", "allwinner,sun8i-h3";
-
-	reg_usb3_vbus: usb3-vbus {
-		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&usb3_vbus_pin_a>;
-		regulator-name = "usb3-vbus";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		regulator-boot-on;
-		enable-active-high;
-		gpio = <&pio 6 11 GPIO_ACTIVE_HIGH>;
-	};
 
 	reg_gmac_3v3: gmac-3v3 {
 		compatible = "regulator-fixed";
@@ -70,14 +58,31 @@
 		enable-active-high;
 		gpio = <&pio 3 6 GPIO_ACTIVE_HIGH>;
 	};
-};
 
-&ehci2 {
-	status = "okay";
+	reg_usb3_vbus: usb3-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb3_vbus_pin_a>;
+		regulator-name = "usb3-vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-boot-on;
+		enable-active-high;
+		gpio = <&pio 6 11 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &ehci3 {
 	status = "okay";
+};
+
+&emac {
+	/* The Orange Pi Plus uses an external phy */
+	pinctrl-names = "default";
+	pinctrl-0 = <&emac_rgmii_pins>;
+	phy-supply = <&reg_gmac_3v3>;
+	phy-mode = "rgmii";
+	/delete-property/allwinner,use-internal-phy;
 };
 
 &mmc2 {
@@ -97,28 +102,16 @@
 	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
 };
 
-&ohci1 {
-	status = "okay";
-};
-
-&ohci2 {
-	status = "okay";
-};
-
-&ohci3 {
-	status = "okay";
-};
-
 &pio {
-	usb3_vbus_pin_a: usb3_vbus_pin@0 {
-		allwinner,pins = "PG11";
+	gmac_power_pin_orangepi: gmac_power_pin@0 {
+		allwinner,pins = "PD6";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 
-	gmac_power_pin_orangepi: gmac_power_pin@0 {
-		allwinner,pins = "PD6";
+	usb3_vbus_pin_a: usb3_vbus_pin@0 {
+		allwinner,pins = "PG11";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
@@ -127,19 +120,4 @@
 
 &usbphy {
 	usb3_vbus-supply = <&reg_usb3_vbus>;
-};
-
-&emac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&emac_rgmii_pins>;
-	phy-supply = <&reg_gmac_3v3>;
-	phy = <&phy1>;
-	phy-mode = "rgmii";
-
-	allwinner,leds-active-low;
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-		reg = <0>;
-	};
 };
