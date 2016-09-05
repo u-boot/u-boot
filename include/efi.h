@@ -159,6 +159,8 @@ struct efi_mem_desc {
 	u64 attribute;
 };
 
+#define EFI_MEMORY_DESCRIPTOR_VERSION 1
+
 /* Allocation types for calls to boottime->allocate_pages*/
 #define EFI_ALLOCATE_ANY_PAGES		0
 #define EFI_ALLOCATE_MAX_ADDRESS	1
