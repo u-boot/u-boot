@@ -112,7 +112,6 @@ int sandbox_mmc_bind(struct udevice *dev)
 {
 	struct sandbox_mmc_plat *plat = dev_get_platdata(dev);
 	struct mmc_config *cfg = &plat->cfg;
-	int ret;
 
 	cfg->name = dev->name;
 	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT;
@@ -121,11 +120,7 @@ int sandbox_mmc_bind(struct udevice *dev)
 	cfg->f_max = 52000000;
 	cfg->b_max = U32_MAX;
 
-	ret = mmc_bind(dev, &plat->mmc, cfg);
-	if (ret)
-		return ret;
-
-	return 0;
+	return mmc_bind(dev, &plat->mmc, cfg);
 }
 
 int sandbox_mmc_unbind(struct udevice *dev)

@@ -190,13 +190,8 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 static int msm_sdc_bind(struct udevice *dev)
 {
 	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
-	int ret;
 
-	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
-	if (ret)
-		return ret;
-
-	return 0;
+	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id msm_mmc_ids[] = {

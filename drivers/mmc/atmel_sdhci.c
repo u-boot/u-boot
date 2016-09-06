@@ -136,13 +136,8 @@ static int atmel_sdhci_probe(struct udevice *dev)
 static int atmel_sdhci_bind(struct udevice *dev)
 {
 	struct atmel_sdhci_plat *plat = dev_get_platdata(dev);
-	int ret;
 
-	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
-	if (ret)
-		return ret;
-
-	return 0;
+	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id atmel_sdhci_ids[] = {
