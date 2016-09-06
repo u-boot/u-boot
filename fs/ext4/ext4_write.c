@@ -907,7 +907,9 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 		goto fail;
 	}
 
-	ext4fs_update_parent_dentry(filename, &inodeno, FILETYPE_REG);
+	inodeno = ext4fs_update_parent_dentry(filename, FILETYPE_REG);
+	if (inodeno == -1)
+		goto fail;
 	/* prepare file inode */
 	inode_buffer = zalloc(fs->inodesz);
 	if (!inode_buffer)

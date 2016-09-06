@@ -366,7 +366,7 @@ static int check_void_in_dentry(struct ext2_dirent *dir, char *filename)
 	return 0;
 }
 
-void ext4fs_update_parent_dentry(char *filename, int *p_ino, int file_type)
+int ext4fs_update_parent_dentry(char *filename, int file_type)
 {
 	unsigned int *zero_buffer = NULL;
 	char *root_first_block_buffer = NULL;
@@ -380,7 +380,7 @@ void ext4fs_update_parent_dentry(char *filename, int *p_ino, int file_type)
 	unsigned int last_entry_dirlen;
 	int sizeof_void_space = 0;
 	int templength = 0;
-	int inodeno;
+	int inodeno = -1;
 	int status;
 	struct ext_filesystem *fs = get_fs();
 	/* directory entry */
@@ -393,13 +393,13 @@ void ext4fs_update_parent_dentry(char *filename, int *p_ino, int file_type)
 	zero_buffer = zalloc(fs->blksz);
 	if (!zero_buffer) {
 		printf("No Memory\n");
-		return;
+		return -1;
 	}
 	root_first_block_buffer = zalloc(fs->blksz);
 	if (!root_first_block_buffer) {
 		free(zero_buffer);
 		printf("No Memory\n");
-		return;
+		return -1;
 	}
 restart:
 
@@ -518,8 +518,6 @@ restart:
 	temp_dir = temp_dir + sizeof(struct ext2_dirent);
 	memcpy(temp_dir, filename, strlen(filename));
 
-	*p_ino = inodeno;
-
 	/* update or write  the 1st block of root inode */
 	if (ext4fs_put_metadata(root_first_block_buffer,
 				first_block_no_of_root))
@@ -528,6 +526,8 @@ restart:
 fail:
 	free(zero_buffer);
 	free(root_first_block_buffer);
+
+	return inodeno;
 }
 
 static int search_dir(struct ext2_inode *parent_inode, char *dirname)
