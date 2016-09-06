@@ -127,10 +127,8 @@ void rtc_reset (void)
 
 static uchar rtc_read (uchar reg)
 {
-	uchar val;
-	val = *(unsigned char *)
+	return *(unsigned char *)
 		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg);
-	return val;
 }
 
 static void rtc_write (uchar reg, uchar val)
