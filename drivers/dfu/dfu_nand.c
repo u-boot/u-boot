@@ -39,7 +39,7 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device]->name) {
+	    !nand_info[nand_curr_device]) {
 		printf("%s: invalid nand device\n", __func__);
 		return -1;
 	}
@@ -148,7 +148,7 @@ static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 
 		if (nand_curr_device < 0 ||
 		    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-		    !nand_info[nand_curr_device]->name) {
+		    !nand_info[nand_curr_device]) {
 			printf("%s: invalid nand device\n", __func__);
 			return -1;
 		}

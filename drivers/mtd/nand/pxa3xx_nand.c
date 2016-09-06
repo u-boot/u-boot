@@ -1496,6 +1496,7 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 		host->read_id_bytes = 4;
 		mtd->owner = THIS_MODULE;
 
+		nand_set_controller_data(chip, host);
 		chip->ecc.read_page	= pxa3xx_nand_read_page_hwecc;
 		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
 		chip->controller        = &info->controller;
