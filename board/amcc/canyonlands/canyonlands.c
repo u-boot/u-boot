@@ -63,11 +63,7 @@ u32 ddr_clktr(u32 default_val) {
  */
 static inline int board_fpga_read(int offset)
 {
-	int data;
-
-	data = in_8((void *)(CONFIG_SYS_FPGA_BASE + offset));
-
-	return data;
+	return in_8((void *)(CONFIG_SYS_FPGA_BASE + offset));
 }
 
 static inline void board_fpga_write(int offset, int data)

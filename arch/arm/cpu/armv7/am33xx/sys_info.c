@@ -65,9 +65,7 @@ u32 get_device_type(void)
  */
 u32 get_sysboot_value(void)
 {
-	int mode;
-	mode = readl(&cstat->statusreg) & (SYSBOOT_MASK);
-	return mode;
+	return readl(&cstat->statusreg) & SYSBOOT_MASK;
 }
 
 #ifdef CONFIG_DISPLAY_CPUINFO

@@ -192,7 +192,5 @@ unsigned long usec2ticks(unsigned long usec)
  */
 ulong get_tbclk(void)
 {
-	ulong tbclk;
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
+	return CONFIG_SYS_HZ;
 }
