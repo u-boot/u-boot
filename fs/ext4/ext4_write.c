@@ -447,92 +447,48 @@ static int ext4fs_delete_file(int inodeno)
 		no_blocks++;
 
 	if (le32_to_cpu(inode.flags) & EXT4_EXTENTS_FL) {
-		struct ext2fs_node *node_inode =
-		    zalloc(sizeof(struct ext2fs_node));
-		if (!node_inode)
-			goto fail;
-		node_inode->data = ext4fs_root;
-		node_inode->ino = inodeno;
-		node_inode->inode_read = 0;
-		memcpy(&(node_inode->inode), &inode, sizeof(struct ext2_inode));
-
-		for (i = 0; i < no_blocks; i++) {
-			blknr = read_allocated_block(&(node_inode->inode), i);
-			bg_idx = blknr / blk_per_grp;
-			if (fs->blksz == 1024) {
-				remainder = blknr % blk_per_grp;
-				if (!remainder)
-					bg_idx--;
-			}
-			ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx],
-						bg_idx);
-			debug("EXT4_EXTENTS Block releasing %ld: %d\n",
-			      blknr, bg_idx);
-
-			ext4fs_bg_free_blocks_inc(&bgd[bg_idx]);
-			ext4fs_sb_free_blocks_inc(fs->sb);
-
-			/* journal backup */
-			if (prev_bg_bmap_idx != bg_idx) {
-				status =
-				    ext4fs_devread(
-						   (lbaint_t)le32_to_cpu(bgd[bg_idx].block_id) *
-						   fs->sect_perblk, 0,
-						   fs->blksz, journal_buffer);
-				if (status == 0)
-					goto fail;
-				if (ext4fs_log_journal(journal_buffer,
-							le32_to_cpu(bgd[bg_idx].block_id)))
-					goto fail;
-				prev_bg_bmap_idx = bg_idx;
-			}
-		}
-		if (node_inode) {
-			free(node_inode);
-			node_inode = NULL;
-		}
+		/* FIXME delete extent index blocks, i.e. eh_depth >= 1 */
+		struct ext4_extent_header *eh =
+			(struct ext4_extent_header *)
+				inode.b.blocks.dir_blocks;
+		debug("del: dep=%d entries=%d\n", eh->eh_depth, eh->eh_entries);
 	} else {
-
 		delete_single_indirect_block(&inode);
 		delete_double_indirect_block(&inode);
 		delete_triple_indirect_block(&inode);
+	}
 
-		/* read the block no allocated to a file */
-		no_blocks = le32_to_cpu(inode.size) / fs->blksz;
-		if (le32_to_cpu(inode.size) % fs->blksz)
-			no_blocks++;
-		for (i = 0; i < no_blocks; i++) {
-			blknr = read_allocated_block(&inode, i);
-			bg_idx = blknr / blk_per_grp;
-			if (fs->blksz == 1024) {
-				remainder = blknr % blk_per_grp;
-				if (!remainder)
-					bg_idx--;
-			}
-			ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx],
-						bg_idx);
-			debug("ActualB releasing %ld: %d\n", blknr, bg_idx);
+	/* release data blocks */
+	for (i = 0; i < no_blocks; i++) {
+		blknr = read_allocated_block(&inode, i);
+		bg_idx = blknr / blk_per_grp;
+		if (fs->blksz == 1024) {
+			remainder = blknr % blk_per_grp;
+			if (!remainder)
+				bg_idx--;
+		}
+		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx],
+					bg_idx);
+		debug("EXT4 Block releasing %ld: %d\n", blknr, bg_idx);
 
-			ext4fs_bg_free_blocks_inc(&bgd[bg_idx]);
-			ext4fs_sb_free_blocks_inc(fs->sb);
-			/* journal backup */
-			if (prev_bg_bmap_idx != bg_idx) {
-				memset(journal_buffer, '\0', fs->blksz);
-				status = ext4fs_devread(
-							(lbaint_t)le32_to_cpu(bgd[bg_idx].block_id)
-							* fs->sect_perblk,
-							0, fs->blksz,
-							journal_buffer);
-				if (status == 0)
-					goto fail;
-				if (ext4fs_log_journal(journal_buffer,
-						le32_to_cpu(bgd[bg_idx].block_id)))
-					goto fail;
-				prev_bg_bmap_idx = bg_idx;
-			}
+		ext4fs_bg_free_blocks_inc(&bgd[bg_idx]);
+		ext4fs_sb_free_blocks_inc(fs->sb);
+		/* journal backup */
+		if (prev_bg_bmap_idx != bg_idx) {
+			uint32_t bgd_blknr = le32_to_cpu(bgd[bg_idx].block_id);
+			status = ext4fs_devread((lbaint_t)bgd_blknr *
+						fs->sect_perblk,
+						0, fs->blksz,
+						journal_buffer);
+			if (status == 0)
+				goto fail;
+			if (ext4fs_log_journal(journal_buffer, bgd_blknr))
+				goto fail;
+			prev_bg_bmap_idx = bg_idx;
 		}
 	}
 
+	/* release inode */
 	/* from the inode no to blockno */
 	inodes_per_block = fs->blksz / fs->inodesz;
 	ibmap_idx = inodeno / inode_per_grp;
