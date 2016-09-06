@@ -129,15 +129,10 @@ static int xhci_fsl_probe(struct udevice *dev)
 static int xhci_fsl_remove(struct udevice *dev)
 {
 	struct xhci_fsl_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	fsl_xhci_core_exit(&priv->ctx);
 
-	ret = xhci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
+	return xhci_deregister(dev);
 }
 
 static const struct udevice_id xhci_usb_ids[] = {

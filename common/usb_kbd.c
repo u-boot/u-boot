@@ -605,11 +605,8 @@ int usb_kbd_deregister(int force)
 static int usb_kbd_probe(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	int ret;
 
-	ret = probe_usb_keyboard(udev);
-
-	return ret;
+	return probe_usb_keyboard(udev);
 }
 
 static int usb_kbd_remove(struct udevice *dev)

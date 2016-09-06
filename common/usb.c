@@ -557,12 +557,10 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 			unsigned char index, void *buf, int size)
 {
-	int res;
-	res = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-			USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-			(type << 8) + index, 0,
-			buf, size, USB_CNTL_TIMEOUT);
-	return res;
+	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+			       USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
+			       (type << 8) + index, 0, buf, size,
+			       USB_CNTL_TIMEOUT);
 }
 
 /**********************************************************************
@@ -612,14 +610,10 @@ int usb_get_configuration_no(struct usb_device *dev, int cfgno,
  */
 static int usb_set_address(struct usb_device *dev)
 {
-	int res;
-
 	debug("set address %d\n", dev->devnum);
-	res = usb_control_msg(dev, usb_snddefctrl(dev),
-				USB_REQ_SET_ADDRESS, 0,
-				(dev->devnum), 0,
-				NULL, 0, USB_CNTL_TIMEOUT);
-	return res;
+
+	return usb_control_msg(dev, usb_snddefctrl(dev), USB_REQ_SET_ADDRESS,
+			       0, (dev->devnum), 0, NULL, 0, USB_CNTL_TIMEOUT);
 }
 
 /********************************************************************
