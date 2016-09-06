@@ -152,7 +152,14 @@ static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 	}
 
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	/* Ethernet packets always fit, just bounce */
+	memcpy(efi_bounce_buffer, buffer, buffer_size);
+	net_send_packet(efi_bounce_buffer, buffer_size);
+#else
 	net_send_packet(buffer, buffer_size);
+#endif
+
 	new_tx_packet = buffer;
 
 	return EFI_EXIT(EFI_SUCCESS);
