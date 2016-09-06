@@ -461,6 +461,10 @@ static int ext4fs_delete_file(int inodeno)
 	/* release data blocks */
 	for (i = 0; i < no_blocks; i++) {
 		blknr = read_allocated_block(&inode, i);
+		if (blknr == 0)
+			continue;
+		if (blknr < 0)
+			goto fail;
 		bg_idx = blknr / blk_per_grp;
 		if (fs->blksz == 1024) {
 			remainder = blknr % blk_per_grp;
@@ -718,6 +722,10 @@ void ext4fs_deinit(void)
 	fs->curr_blkno = 0;
 }
 
+/*
+ * Write data to filesystem blocks. Uses same optimization for
+ * contigous sectors as ext4fs_read_file
+ */
 static int ext4fs_write_file(struct ext2_inode *file_inode,
 			     int pos, unsigned int len, char *buf)
 {
@@ -744,7 +752,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 		int blockend = fs->blksz;
 		int skipfirst = 0;
 		blknr = read_allocated_block(file_inode, i);
-		if (blknr < 0)
+		if (blknr <= 0)
 			return -1;
 
 		blknr = blknr << log2_fs_blocksize;
@@ -910,6 +918,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	/* copy the file content into data blocks */
 	if (ext4fs_write_file(file_inode, 0, sizebytes, (char *)buffer) == -1) {
 		printf("Error in copying content\n");
+		/* FIXME: Deallocate data blocks */
 		goto fail;
 	}
 	ibmap_idx = parent_inodeno / le32_to_cpu(ext4fs_root->sblock.inodes_per_group);

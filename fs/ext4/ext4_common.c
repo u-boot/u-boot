@@ -534,7 +534,7 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 	/* get the block no allocated to a file */
 	for (blk_idx = 0; blk_idx < directory_blocks; blk_idx++) {
 		blknr = read_allocated_block(parent_inode, blk_idx);
-		if (blknr == 0)
+		if (blknr <= 0)
 			goto fail;
 
 		/* read the directory block */
@@ -828,7 +828,7 @@ int ext4fs_filename_unlink(char *filename)
 	/* read the block no allocated to a file */
 	for (blk_idx = 0; blk_idx < directory_blocks; blk_idx++) {
 		blknr = read_allocated_block(g_parent_inode, blk_idx);
-		if (blknr == 0)
+		if (blknr <= 0)
 			break;
 		inodeno = unlink_filename(filename, blknr);
 		if (inodeno != -1)
@@ -1590,7 +1590,7 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 			if (status == 0) {
 				printf("** SI ext2fs read block (indir 1)"
 					"failed. **\n");
-				return 0;
+				return -1;
 			}
 			ext4fs_indir1_blkno =
 				le32_to_cpu(inode->b.blocks.
