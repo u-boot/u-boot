@@ -20,6 +20,9 @@ The K2E SoC details are available at
 The K2L SoC details are available at
  http://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
 
+The K2G SoC details are available at
+ http://www.ti.com/lit/ds/symlink/66ak2g02.pdf
+
 Board configuration:
 ====================
 
@@ -30,6 +33,7 @@ Some of the peripherals that are configured by U-Boot
 |K2HK  |2      |512MB  |6MB	   |4(2)       |2      |3      |3   |
 |K2E   |4      |512MB  |2MB	   |8(2)       |2      |3      |3   |
 |K2L   |2      |512MB  |2MB	   |4(2)       |4      |3      |3   |
+|K2G   |2      |256MB  |1MB	   |1          |1      |1      |1   |
 +------+-------+-------+-----------+-----------+-------+-------+----+
 
 There are only 2 eth port installed on the boards.
@@ -47,44 +51,48 @@ Board configuration files:
 include/configs/k2hk_evm.h
 include/configs/k2e_evm.h
 include/configs/k2l_evm.h
+include/configs/k2g_evm.h
 
 As U-Boot is migrating to Kconfig there is also board defconfig files
 configs/k2e_evm_defconfig
 configs/k2hk_evm_defconfig
 configs/k2l_evm_defconfig
+configs/k2g_evm_defconfig
 
 Supported boot modes:
  - SPI NOR boot
  - AEMIF NAND boot
  - UART boot
+ - MMC boot (Only on K2G)
 
 Supported image formats:
- - u-boot-dtb.bin: for loading and running u-boot-dtb.bin through
+ - u-boot.bin: for loading and running u-boot.bin through
 		Texas Instruments code composure studio (CCS) and for UART boot.
  - u-boot-spi.gph: gpimage for programming SPI NOR flash for SPI NOR boot
- - MLO: gpimage for programming AEMIF NAND flash for NAND boot
+ - MLO: gpimage for programming AEMIF NAND flash for NAND boot, MMC boot.
 
 Build instructions:
 ===================
-Examples for k2hk, for k2e and k2l just replace k2hk prefix accordingly.
+Examples for k2hk, for k2e, k2l and k2g just replace k2hk prefix accordingly.
 Don't forget to add ARCH=arm and CROSS_COMPILE.
 
-To build u-boot-dtb.bin, u-boot-spi.gph, MLO:
+To build u-boot.bin, u-boot-spi.gph, MLO:
   >make k2hk_evm_defconfig
   >make
 
 Load and Run U-Boot on keystone EVMs using CCS
 =========================================
 
-Need Code Composer Studio (CCS) installed on a PC to load and run u-boot-dtb.bin
+Need Code Composer Studio (CCS) installed on a PC to load and run u-boot.bin
 on EVM. See instructions at below link for installing CCS on a Windows PC.
 http://processors.wiki.ti.com/index.php/MCSDK_UG_Chapter_Getting_Started#
 Installing_Code_Composer_Studio
-Use u-boot-dtb.bin from the build folder for loading and running U-Boot binary
+Use u-boot.bin from the build folder for loading and running U-Boot binary
 on EVM. Follow instructions at
 K2HK http://processors.wiki.ti.com/index.php/EVMK2H_Hardware_Setup
 K2E  http://processors.wiki.ti.com/index.php/EVMK2E_Hardware_Setup
 K2L  http://processors.wiki.ti.com/index.php/TCIEVMK2L_Hardware_Setup
+K2G  http://processors.wiki.ti.com/index.php/66AK2G02_GP_EVM_Hardware_Setup
 
 to configure SW1 dip switch to use "No Boot/JTAG DSP Little Endian Boot Mode"
 and Power ON the EVM.  Follow instructions to connect serial port of EVM to
@@ -100,13 +108,13 @@ loading the U-Boot binary on the target EVM. Instead do the following:-
    is connected: Unknown)" at the debug window (This is created once Target
    configuration is launched) and select "Connect Target".
 2. Once target connect is successful, choose Tools->Load Memory option from the
-   top level menu. At the Load Memory window, choose the file u-boot-dtb.bin
+   top level menu. At the Load Memory window, choose the file u-boot.bin
    through "Browse" button and click "next >" button. In the next window, enter
-   Start address as 0xc001000, choose Type-size "32 bits" and click "Finish"
+   Start address as 0xc000000, choose Type-size "32 bits" and click "Finish"
    button.
 3. Click View -> Registers from the top level menu to view registers window.
 4. From Registers, window expand "Core Registers" to view PC. Edit PC value
-   to be 0xc001000. From the "Run" top level menu, select "Free Run"
+   to be 0xc000000. From the "Run" top level menu, select "Free Run"
 5. The U-Boot prompt is shown at the Tera Term/ Hyper terminal console as
    below and type any key to stop autoboot as instructed :=
 
@@ -167,8 +175,20 @@ Load and Run U-Boot on keystone EVMs using UART download
 
 Open BMC and regular UART terminals.
 
-1. On the regular UART port start xmodem transfer of the u-boot-dtb.bin
+1. On the regular UART port start xmodem transfer of the u-boot.bin
 2. Using BMC terminal set the ARM-UART bootmode and reboot the EVM
    BMC> bootmode #4
    MBC> reboot
 3. When xmodem is complete you should see the U-Boot starts on the UART port
+
+Load and Run U-Boot on K2G EVMs using MMC
+========================================================
+
+Open BMC and regular UART terminals.
+
+1. Set the SW3 dip switch to "ARM MMC Boot mode" as per instruction at
+   http://processors.wiki.ti.com/index.php/66AK2G02_GP_EVM_Hardware_Setup
+2. Create SD card partitions as per steps given in Hardware Setup Guide.
+3. Copy MLO to Boot Partition.
+4. Insert SD card and Power on the EVM.
+   The EVM now boots with U-Boot image from SD card.
