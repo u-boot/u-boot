@@ -929,7 +929,6 @@ restart:
 
 		if (le16_to_cpu(bgd[bg_idx].bg_flags) & EXT4_BG_BLOCK_UNINIT) {
 			uint16_t new_flags;
-			memset(zero_buffer, '\0', fs->blksz);
 			put_ext4((uint64_t)le32_to_cpu(bgd[bg_idx].block_id) * fs->blksz,
 				 zero_buffer, fs->blksz);
 			memcpy(fs->blk_bmaps[bg_idx], zero_buffer, fs->blksz);
@@ -946,7 +945,6 @@ restart:
 
 		/* journal backup */
 		if (prev_bg_bitmap_index != bg_idx) {
-			memset(journal_buffer, '\0', fs->blksz);
 			status = ext4fs_devread(
 						(lbaint_t)le32_to_cpu(bgd[bg_idx].block_id)
 						* fs->sect_perblk,
@@ -1040,7 +1038,6 @@ restart:
 		ibmap_idx = fs->curr_inode_no / inodes_per_grp;
 		if (le16_to_cpu(bgd[ibmap_idx].bg_flags) & EXT4_BG_INODE_UNINIT) {
 			int new_flags;
-			memset(zero_buffer, '\0', fs->blksz);
 			put_ext4((uint64_t)le32_to_cpu(bgd[ibmap_idx].inode_id) * fs->blksz,
 				 zero_buffer, fs->blksz);
 			new_flags = le16_to_cpu(bgd[ibmap_idx].bg_flags) & ~EXT4_BG_INODE_UNINIT;
