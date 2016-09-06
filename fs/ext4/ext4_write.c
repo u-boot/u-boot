@@ -560,7 +560,7 @@ static int ext4fs_delete_file(int inodeno)
 
 	read_buffer = read_buffer + blkoff;
 	inode_buffer = (struct ext2_inode *)read_buffer;
-	memset(inode_buffer, '\0', sizeof(struct ext2_inode));
+	memset(inode_buffer, '\0', fs->inodesz);
 
 	/* write the inode to original position in inode table */
 	if (ext4fs_put_metadata(start_block_address, blkno))
@@ -866,7 +866,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
 	memset(filename, 0x00, 256);
 
-	g_parent_inode = zalloc(sizeof(struct ext2_inode));
+	g_parent_inode = zalloc(fs->inodesz);
 	if (!g_parent_inode)
 		goto fail;
 
@@ -969,8 +969,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 		if (ext4fs_log_journal(temp_ptr, parent_itable_blkno))
 			goto fail;
 
-		memcpy(temp_ptr + blkoff, g_parent_inode,
-			sizeof(struct ext2_inode));
+		memcpy(temp_ptr + blkoff, g_parent_inode, fs->inodesz);
 		if (ext4fs_put_metadata(temp_ptr, parent_itable_blkno))
 			goto fail;
 	} else {
@@ -978,8 +977,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 		 * If parent and child fall in same inode table block
 		 * both should be kept in 1 buffer
 		 */
-		memcpy(temp_ptr + blkoff, g_parent_inode,
-		       sizeof(struct ext2_inode));
+		memcpy(temp_ptr + blkoff, g_parent_inode, fs->inodesz);
 		gd_index--;
 		if (ext4fs_put_metadata(temp_ptr, itable_blkno))
 			goto fail;
