@@ -323,10 +323,7 @@ err:
 static unsigned long gtt_read(struct broadwell_igd_priv *priv,
 			      unsigned long reg)
 {
-	u32 val;
-
-	val = readl(priv->regs + reg);
-	return val;
+	return readl(priv->regs + reg);
 }
 
 static void gtt_write(struct broadwell_igd_priv *priv, unsigned long reg,

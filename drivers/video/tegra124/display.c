@@ -326,13 +326,7 @@ static int display_update_config_from_edid(struct udevice *dp_dev,
 					   int *panel_bppp,
 					   struct display_timing *timing)
 {
-	int ret;
-
-	ret = display_read_timing(dp_dev, timing);
-	if (ret)
-		return ret;
-
-	return 0;
+	return display_read_timing(dp_dev, timing);
 }
 
 static int display_init(struct udevice *dev, void *lcdbase,
