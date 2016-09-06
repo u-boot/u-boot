@@ -453,8 +453,13 @@ restart:
 			    sizeof(struct ext2_dirent) + padding_factor;
 			if ((fs->blksz - totalbytes - last_entry_dirlen) <
 				new_entry_byte_reqd) {
-				printf("1st Block Full:Allocate new block\n");
+				printf("Last Block Full:Allocate new block\n");
 
+				if (le32_to_cpu(g_parent_inode->flags) &
+						EXT4_EXTENTS_FL) {
+					printf("Directory uses extents\n");
+					goto fail;
+				}
 				if (direct_blk_idx == INDIRECT_BLOCKS - 1) {
 					printf("Directory exceeds limit\n");
 					goto fail;
