@@ -881,6 +881,11 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 		goto fail;
 	if (ext4fs_iget(parent_inodeno, g_parent_inode))
 		goto fail;
+	/* do not mess up a directory using hash trees */
+	if (le32_to_cpu(g_parent_inode->flags) & EXT4_INDEX_FL) {
+		printf("hash tree directory\n");
+		goto fail;
+	}
 	/* check if the filename is already present in root */
 	existing_file_inodeno = ext4fs_filename_unlink(filename);
 	if (existing_file_inodeno != -1) {

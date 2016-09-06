@@ -28,6 +28,7 @@
 #define __EXT4__
 #include <ext_common.h>
 
+#define EXT4_INDEX_FL		0x00001000 /* Inode uses hash tree index */
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a
 #define EXT4_FEATURE_RO_COMPAT_GDT_CSUM	0x0010
