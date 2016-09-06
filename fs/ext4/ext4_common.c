@@ -903,8 +903,8 @@ uint32_t ext4fs_get_new_blk_no(void)
 
 		goto fail;
 	} else {
-restart:
 		fs->curr_blkno++;
+restart:
 		/* get the blockbitmap index respective to blockno */
 		bg_idx = fs->curr_blkno / blk_per_grp;
 		if (fs->blksz == 1024) {
@@ -922,8 +922,9 @@ restart:
 
 		if (bgd[bg_idx].free_blocks == 0) {
 			debug("block group %u is full. Skipping\n", bg_idx);
-			fs->curr_blkno = fs->curr_blkno + blk_per_grp;
-			fs->curr_blkno--;
+			fs->curr_blkno = (bg_idx + 1) * blk_per_grp;
+			if (fs->blksz == 1024)
+				fs->curr_blkno += 1;
 			goto restart;
 		}
 
@@ -940,6 +941,7 @@ restart:
 				   bg_idx) != 0) {
 			debug("going for restart for the block no %ld %u\n",
 			      fs->curr_blkno, bg_idx);
+			fs->curr_blkno++;
 			goto restart;
 		}
 
