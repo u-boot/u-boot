@@ -882,7 +882,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	if (ext4fs_iget(parent_inodeno, g_parent_inode))
 		goto fail;
 	/* check if the filename is already present in root */
-	existing_file_inodeno = ext4fs_filename_check(filename);
+	existing_file_inodeno = ext4fs_filename_unlink(filename);
 	if (existing_file_inodeno != -1) {
 		ret = ext4fs_delete_file(existing_file_inodeno);
 		fs->first_pass_bbmap = 0;

@@ -533,16 +533,14 @@ fail:
 static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 {
 	int status;
-	int inodeno;
+	int inodeno = 0;
 	int totalbytes;
 	int templength;
 	int direct_blk_idx;
 	long int blknr;
-	int found = 0;
 	char *ptr = NULL;
 	unsigned char *block_buffer = NULL;
 	struct ext2_dirent *dir = NULL;
-	struct ext2_dirent *previous_dir = NULL;
 	struct ext_filesystem *fs = get_fs();
 
 	/* read the block no allocated to a file */
@@ -552,7 +550,7 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 		if (blknr == 0)
 			goto fail;
 
-		/* read the blocks of parenet inode */
+		/* read the blocks of parent inode */
 		block_buffer = zalloc(fs->blksz);
 		if (!block_buffer)
 			goto fail;
@@ -572,15 +570,9 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 			 * space in the block that means
 			 * it is a last entry of directory entry
 			 */
-			if (strlen(dirname) == dir->namelen) {
+			if (dir->inode && (strlen(dirname) == dir->namelen)) {
 				if (strncmp(dirname, ptr + sizeof(struct ext2_dirent), dir->namelen) == 0) {
-					uint16_t new_len;
-					new_len = le16_to_cpu(previous_dir->direntlen);
-					new_len += le16_to_cpu(dir->direntlen);
-					previous_dir->direntlen = cpu_to_le16(new_len);
 					inodeno = le32_to_cpu(dir->inode);
-					dir->inode = 0;
-					found = 1;
 					break;
 				}
 			}
@@ -591,19 +583,15 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 			/* traversing the each directory entry */
 			templength = le16_to_cpu(dir->direntlen);
 			totalbytes = totalbytes + templength;
-			previous_dir = dir;
 			dir = (struct ext2_dirent *)((char *)dir + templength);
 			ptr = (char *)dir;
 		}
 
-		if (found == 1) {
-			free(block_buffer);
-			block_buffer = NULL;
-			return inodeno;
-		}
-
 		free(block_buffer);
 		block_buffer = NULL;
+
+		if (inodeno > 0)
+			return inodeno;
 	}
 
 fail:
@@ -779,15 +767,13 @@ fail:
 	return result_inode_no;
 }
 
-static int check_filename(char *filename, unsigned int blknr)
+static int unlink_filename(char *filename, unsigned int blknr)
 {
-	unsigned int first_block_no_of_root;
 	int totalbytes = 0;
 	int templength = 0;
 	int status, inodeno;
 	int found = 0;
 	char *root_first_block_buffer = NULL;
-	char *root_first_block_addr = NULL;
 	struct ext2_dirent *dir = NULL;
 	struct ext2_dirent *previous_dir = NULL;
 	char *ptr = NULL;
@@ -795,18 +781,15 @@ static int check_filename(char *filename, unsigned int blknr)
 	int ret = -1;
 
 	/* get the first block of root */
-	first_block_no_of_root = blknr;
 	root_first_block_buffer = zalloc(fs->blksz);
 	if (!root_first_block_buffer)
 		return -ENOMEM;
-	root_first_block_addr = root_first_block_buffer;
-	status = ext4fs_devread((lbaint_t)first_block_no_of_root *
-				fs->sect_perblk, 0,
+	status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
 				fs->blksz, root_first_block_buffer);
 	if (status == 0)
 		goto fail;
 
-	if (ext4fs_log_journal(root_first_block_buffer, first_block_no_of_root))
+	if (ext4fs_log_journal(root_first_block_buffer, blknr))
 		goto fail;
 	dir = (struct ext2_dirent *)root_first_block_buffer;
 	ptr = (char *)dir;
@@ -818,19 +801,21 @@ static int check_filename(char *filename, unsigned int blknr)
 		 * is free availble space in the block that
 		 * means it is a last entry of directory entry
 		 */
-		if (strlen(filename) == dir->namelen) {
-			if (strncmp(filename, ptr + sizeof(struct ext2_dirent),
-				dir->namelen) == 0) {
+		if (dir->inode && (strlen(filename) == dir->namelen) &&
+		    (strncmp(ptr + sizeof(struct ext2_dirent),
+			     filename, dir->namelen) == 0)) {
+			printf("file found, deleting\n");
+			inodeno = le32_to_cpu(dir->inode);
+			if (previous_dir) {
 				uint16_t new_len;
-				printf("file found deleting\n");
 				new_len = le16_to_cpu(previous_dir->direntlen);
 				new_len += le16_to_cpu(dir->direntlen);
 				previous_dir->direntlen = cpu_to_le16(new_len);
-				inodeno = le32_to_cpu(dir->inode);
+			} else {
 				dir->inode = 0;
-				found = 1;
-				break;
 			}
+			found = 1;
+			break;
 		}
 
 		if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen))
@@ -846,8 +831,7 @@ static int check_filename(char *filename, unsigned int blknr)
 
 
 	if (found == 1) {
-		if (ext4fs_put_metadata(root_first_block_addr,
-					first_block_no_of_root))
+		if (ext4fs_put_metadata(root_first_block_buffer, blknr))
 			goto fail;
 		ret = inodeno;
 	}
@@ -857,7 +841,7 @@ fail:
 	return ret;
 }
 
-int ext4fs_filename_check(char *filename)
+int ext4fs_filename_unlink(char *filename)
 {
 	short direct_blk_idx = 0;
 	long int blknr = -1;
@@ -869,7 +853,7 @@ int ext4fs_filename_check(char *filename)
 		blknr = read_allocated_block(g_parent_inode, direct_blk_idx);
 		if (blknr == 0)
 			break;
-		inodeno = check_filename(filename, blknr);
+		inodeno = unlink_filename(filename, blknr);
 		if (inodeno != -1)
 			return inodeno;
 	}

@@ -124,7 +124,7 @@ extern int gindex;
 
 int ext4fs_init(void);
 void ext4fs_deinit(void);
-int ext4fs_filename_check(char *filename);
+int ext4fs_filename_unlink(char *filename);
 int ext4fs_write(const char *fname, unsigned char *buffer,
 		 unsigned long sizebytes);
 int ext4_write_file(const char *filename, void *buf, loff_t offset, loff_t len,
