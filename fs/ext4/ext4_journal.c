@@ -190,7 +190,11 @@ int ext4fs_put_metadata(char *metadata_buffer, uint32_t blknr)
 		printf("Invalid input arguments %s\n", __func__);
 		return -EINVAL;
 	}
-	dirty_block_ptr[gd_index]->buf = zalloc(fs->blksz);
+	if (dirty_block_ptr[gd_index]->buf)
+		assert(dirty_block_ptr[gd_index]->blknr == blknr);
+	else
+		dirty_block_ptr[gd_index]->buf = zalloc(fs->blksz);
+
 	if (!dirty_block_ptr[gd_index]->buf)
 		return -ENOMEM;
 	memcpy(dirty_block_ptr[gd_index]->buf, metadata_buffer, fs->blksz);
