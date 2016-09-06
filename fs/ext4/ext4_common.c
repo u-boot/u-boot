@@ -370,14 +370,10 @@ int ext4fs_update_parent_dentry(char *filename, int file_type)
 {
 	unsigned int *zero_buffer = NULL;
 	char *root_first_block_buffer = NULL;
-	int direct_blk_idx;
-	long int root_blknr;
+	int blk_idx;
 	long int first_block_no_of_root = 0;
-	long int previous_blknr = -1;
 	int totalbytes = 0;
-	short int padding_factor = 0;
 	unsigned int new_entry_byte_reqd;
-	unsigned int last_entry_dirlen;
 	int sizeof_void_space = 0;
 	int templength = 0;
 	int inodeno = -1;
@@ -389,6 +385,7 @@ int ext4fs_update_parent_dentry(char *filename, int file_type)
 	uint32_t new_blk_no;
 	uint32_t new_size;
 	uint32_t new_blockcnt;
+	uint32_t directory_blocks;
 
 	zero_buffer = zalloc(fs->blksz);
 	if (!zero_buffer) {
@@ -401,19 +398,18 @@ int ext4fs_update_parent_dentry(char *filename, int file_type)
 		printf("No Memory\n");
 		return -1;
 	}
+	new_entry_byte_reqd = ROUND(strlen(filename) +
+				    sizeof(struct ext2_dirent), 4);
 restart:
+	directory_blocks = le32_to_cpu(g_parent_inode->size) >>
+		LOG2_BLOCK_SIZE(ext4fs_root);
+	blk_idx = directory_blocks - 1;
 
+restart_read:
 	/* read the block no allocated to a file */
-	for (direct_blk_idx = 0; direct_blk_idx < INDIRECT_BLOCKS;
-	     direct_blk_idx++) {
-		root_blknr = read_allocated_block(g_parent_inode,
-						  direct_blk_idx);
-		if (root_blknr == 0) {
-			first_block_no_of_root = previous_blknr;
-			break;
-		}
-		previous_blknr = root_blknr;
-	}
+	first_block_no_of_root = read_allocated_block(g_parent_inode, blk_idx);
+	if (first_block_no_of_root <= 0)
+		goto fail;
 
 	status = ext4fs_devread((lbaint_t)first_block_no_of_root
 				* fs->sect_perblk,
@@ -425,42 +421,33 @@ restart:
 		goto fail;
 	dir = (struct ext2_dirent *)root_first_block_buffer;
 	totalbytes = 0;
+
 	while (le16_to_cpu(dir->direntlen) > 0) {
-		/*
-		 * blocksize-totalbytes because last directory length
-		 * i.e. dir->direntlen is free availble space in the
-		 * block that means  it is a last entry of directory
-		 * entry
-		 */
+		unsigned short used_len = ROUND(dir->namelen +
+		    sizeof(struct ext2_dirent), 4);
 
-		/* traversing the each directory entry */
+		/* last entry of block */
 		if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen)) {
-			if (strlen(filename) % 4 != 0)
-				padding_factor = 4 - (strlen(filename) % 4);
 
-			new_entry_byte_reqd = strlen(filename) +
-			    sizeof(struct ext2_dirent) + padding_factor;
-			padding_factor = 0;
-			/*
-			 * update last directory entry length to its
-			 * length because we are creating new directory
-			 * entry
-			 */
-			if (dir->namelen % 4 != 0)
-				padding_factor = 4 - (dir->namelen % 4);
-
-			last_entry_dirlen = dir->namelen +
-			    sizeof(struct ext2_dirent) + padding_factor;
-			if ((fs->blksz - totalbytes - last_entry_dirlen) <
-				new_entry_byte_reqd) {
-				printf("Last Block Full:Allocate new block\n");
+			/* check if new entry fits */
+			if ((used_len + new_entry_byte_reqd) <=
+			    le16_to_cpu(dir->direntlen)) {
+				dir->direntlen = cpu_to_le16(used_len);
+				break;
+			} else {
+				if (blk_idx > 0) {
+					printf("Block full, trying previous\n");
+					blk_idx--;
+					goto restart_read;
+				}
+				printf("All blocks full: Allocate new\n");
 
 				if (le32_to_cpu(g_parent_inode->flags) &
 						EXT4_EXTENTS_FL) {
 					printf("Directory uses extents\n");
 					goto fail;
 				}
-				if (direct_blk_idx == INDIRECT_BLOCKS - 1) {
+				if (directory_blocks >= INDIRECT_BLOCKS) {
 					printf("Directory exceeds limit\n");
 					goto fail;
 				}
@@ -470,7 +457,8 @@ restart:
 					goto fail;
 				}
 				put_ext4((uint64_t)new_blk_no * fs->blksz, zero_buffer, fs->blksz);
-				g_parent_inode->b.blocks.dir_blocks[direct_blk_idx] =
+				g_parent_inode->b.blocks.
+					dir_blocks[directory_blocks] =
 					cpu_to_le32(new_blk_no);
 
 				new_size = le32_to_cpu(g_parent_inode->size);
@@ -487,8 +475,6 @@ restart:
 					goto fail;
 				goto restart;
 			}
-			dir->direntlen = cpu_to_le16(last_entry_dirlen);
-			break;
 		}
 
 		templength = le16_to_cpu(dir->direntlen);
