@@ -602,7 +602,7 @@ static void parse_spl_header(const uint32_t spl_addr)
 		 * data is expected in uEnv.txt compatible format, so "env
 		 * import -t" the string(s) at fel_script_address right away.
 		 */
-		himport_r(&env_htab, (char *)spl->fel_script_address,
+		himport_r(&env_htab, (char *)(uintptr_t)spl->fel_script_address,
 			  spl->fel_uEnv_length, '\n', H_NOCLEAR, 0, 0, NULL);
 		return;
 	}

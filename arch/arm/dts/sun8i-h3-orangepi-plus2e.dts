@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Chen-Yu Tsai <wens@csie.org>
+ * Copyright (C) 2016 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,139 +40,44 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun8i-h3.dtsi"
-#include "sunxi-common-regulators.dtsi"
+/*
+ * The Orange Pi Plus 2E is an extended version of the Orange Pi PC Plus,
+ * with 2G RAM and an external gbit ethernet phy.
+ */
 
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/pinctrl/sun4i-a10.h>
+#include "sun8i-h3-orangepi-pc-plus.dts"
 
 / {
-	model = "Xunlong Orange Pi PC";
-	compatible = "xunlong,orangepi-pc", "allwinner,sun8i-h3";
+	model = "Xunlong Orange Pi Plus 2E";
+	compatible = "xunlong,orangepi-plus2e", "allwinner,sun8i-h3";
 
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	leds {
-		compatible = "gpio-leds";
+	reg_gmac_3v3: gmac-3v3 {
+		compatible = "regulator-fixed";
 		pinctrl-names = "default";
-		pinctrl-0 = <&leds_opc>, <&leds_r_opc>;
-
-		pwr_led {
-			label = "orangepi:green:pwr";
-			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-
-		status_led {
-			label = "orangepi:red:status";
-			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
-		};
+		pinctrl-0 = <&gmac_power_pin_orangepi>;
+		regulator-name = "gmac-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		startup-delay-us = <100000>;
+		enable-active-high;
+		gpio = <&pio 3 6 GPIO_ACTIVE_HIGH>;
 	};
-
-	r_gpio_keys {
-		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&sw_r_opc>;
-
-		sw4 {
-			label = "sw4";
-			linux,code = <BTN_0>;
-			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
-		};
-	};
-};
-
-&ehci1 {
-	status = "okay";
-};
-
-&ehci2 {
-	status = "okay";
-};
-
-&ehci3 {
-	status = "okay";
-};
-
-&ir {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 */
-	cd-inverted;
-	status = "okay";
-};
-
-&ohci1 {
-	status = "okay";
-};
-
-&ohci2 {
-	status = "okay";
-};
-
-&ohci3 {
-	status = "okay";
-};
-
-&pio {
-	leds_opc: led_pins@0 {
-		allwinner,pins = "PA15";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&r_pio {
-	leds_r_opc: led_pins@0 {
-		allwinner,pins = "PL10";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-
-	sw_r_opc: key_pins@0 {
-		allwinner,pins = "PL3";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	/* USB VBUS is always on */
-	status = "okay";
 };
 
 &emac {
-	phy = <&phy1>;
-	phy-mode = "mii";
-	allwinner,use-internal-phy;
-	allwinner,leds-active-low;
-	status = "okay";
-	phy1: ethernet-phy@1 {
-		reg = <1>;
+	/* The Orange Pi Plus 2E uses an external gbit phy */
+	pinctrl-names = "default";
+	pinctrl-0 = <&emac_rgmii_pins>;
+	phy-supply = <&reg_gmac_3v3>;
+	phy-mode = "rgmii";
+	/delete-property/allwinner,use-internal-phy;
+};
+
+&pio {
+	gmac_power_pin_orangepi: gmac_power_pin@0 {
+		allwinner,pins = "PD6";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 };

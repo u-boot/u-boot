@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Chen-Yu Tsai <wens@csie.org>
+ * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright 2016 Icenowy Zheng <icenowy@aosc.xyz>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -41,138 +42,47 @@
  */
 
 /dts-v1/;
-#include "sun8i-h3.dtsi"
-#include "sunxi-common-regulators.dtsi"
-
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/pinctrl/sun4i-a10.h>
+#include "sun8i-a33.dtsi"
+#include "sun8i-reference-design-tablet.dtsi"
 
 / {
-	model = "Xunlong Orange Pi PC";
-	compatible = "xunlong,orangepi-pc", "allwinner,sun8i-h3";
-
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
+	model = "INet-D978 Rev 02";
+	compatible = "primux,inet-d978-rev2", "allwinner,sun8i-a33";
 
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&leds_opc>, <&leds_r_opc>;
+		pinctrl-0 = <&led_pin_d978>;
 
-		pwr_led {
-			label = "orangepi:green:pwr";
-			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-
-		status_led {
-			label = "orangepi:red:status";
-			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
-		};
-	};
-
-	r_gpio_keys {
-		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&sw_r_opc>;
-
-		sw4 {
-			label = "sw4";
-			linux,code = <BTN_0>;
-			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
+		home {
+			label = "d978:blue:home";
+			gpios = <&r_pio 0 5 GPIO_ACTIVE_HIGH>; /* PL5 */
 		};
 	};
 };
 
-&ehci1 {
-	status = "okay";
+&mmc1_pins_a {
+	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
 };
 
-&ehci2 {
-	status = "okay";
-};
-
-&ehci3 {
-	status = "okay";
-};
-
-&ir {
+&mmc1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&ir_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
-	vmmc-supply = <&reg_vcc3v3>;
+	pinctrl-0 = <&mmc1_pins_a>;
+	vmmc-supply = <&reg_dldo1>;
 	bus-width = <4>;
-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 */
-	cd-inverted;
+	non-removable;
 	status = "okay";
-};
 
-&ohci1 {
-	status = "okay";
-};
-
-&ohci2 {
-	status = "okay";
-};
-
-&ohci3 {
-	status = "okay";
-};
-
-&pio {
-	leds_opc: led_pins@0 {
-		allwinner,pins = "PA15";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	rtl8723bs: sdio_wifi@1 {
+		reg = <1>;
 	};
 };
 
 &r_pio {
-	leds_r_opc: led_pins@0 {
-		allwinner,pins = "PL10";
+	led_pin_d978: led_pin_d978@0 {
+		allwinner,pins = "PL5";
 		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-
-	sw_r_opc: key_pins@0 {
-		allwinner,pins = "PL3";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	/* USB VBUS is always on */
-	status = "okay";
-};
-
-&emac {
-	phy = <&phy1>;
-	phy-mode = "mii";
-	allwinner,use-internal-phy;
-	allwinner,leds-active-low;
-	status = "okay";
-	phy1: ethernet-phy@1 {
-		reg = <1>;
 	};
 };
