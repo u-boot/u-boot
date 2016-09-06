@@ -73,17 +73,6 @@ static int ehci_zynq_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, plat->init_type);
 }
 
-static int ehci_zynq_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_zynq_ids[] = {
 	{ .compatible = "xlnx,zynq-usb-2.20a" },
 	{ }
@@ -95,7 +84,7 @@ U_BOOT_DRIVER(ehci_zynq) = {
 	.of_match = ehci_zynq_ids,
 	.ofdata_to_platdata = ehci_zynq_ofdata_to_platdata,
 	.probe = ehci_zynq_probe,
-	.remove = ehci_zynq_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct zynq_ehci_priv),

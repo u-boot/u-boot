@@ -846,17 +846,6 @@ static int ehci_usb_probe(struct udevice *dev)
 			     plat->init_type);
 }
 
-static int ehci_usb_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
 	{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
@@ -871,7 +860,7 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.of_match = ehci_usb_ids,
 	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
 	.probe = ehci_usb_probe,
-	.remove = ehci_usb_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct fdt_usb),

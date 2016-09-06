@@ -126,17 +126,6 @@ static int ehci_pci_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
 
-static int ehci_pci_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_pci_ids[] = {
 	{ .compatible = "ehci-pci" },
 	{ }
@@ -146,7 +135,7 @@ U_BOOT_DRIVER(ehci_pci) = {
 	.name	= "ehci_pci",
 	.id	= UCLASS_USB,
 	.probe = ehci_pci_probe,
-	.remove = ehci_pci_remove,
+	.remove = ehci_deregister,
 	.of_match = ehci_pci_ids,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),

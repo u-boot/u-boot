@@ -94,17 +94,6 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
 
-static int ehci_mvebu_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "marvell,orion-ehci", },
 	{ }
@@ -115,7 +104,7 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
 	.probe = ehci_mvebu_probe,
-	.remove = ehci_mvebu_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),

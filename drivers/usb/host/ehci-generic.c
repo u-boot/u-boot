@@ -44,11 +44,6 @@ static int ehci_usb_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
 
-static int ehci_usb_remove(struct udevice *dev)
-{
-	return ehci_deregister(dev);
-}
-
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "generic-ehci" },
 	{ }
@@ -59,7 +54,7 @@ U_BOOT_DRIVER(ehci_generic) = {
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
 	.probe = ehci_usb_probe,
-	.remove = ehci_usb_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.priv_auto_alloc_size = sizeof(struct generic_ehci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
