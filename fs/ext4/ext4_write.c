@@ -609,7 +609,6 @@ int ext4fs_init(void)
 
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
-	fs->inodesz = INODE_SIZE_FILESYSTEM(ext4fs_root);
 	fs->sect_perblk = fs->blksz >> fs->dev_desc->log2blksz;
 
 	/* get the superblock */

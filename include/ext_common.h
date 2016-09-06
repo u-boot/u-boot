@@ -52,8 +52,6 @@
 #define LOG2_BLOCK_SIZE(data)	   (le32_to_cpu		   \
 				    (data->sblock.log2_block_size) \
 				    + EXT2_MIN_BLOCK_LOG_SIZE)
-#define INODE_SIZE_FILESYSTEM(data)	(le16_to_cpu \
-			(data->sblock.inode_size))
 
 #define EXT2_FT_DIR	2
 #define SUCCESS	1
