@@ -988,12 +988,13 @@ int ext4fs_get_new_inode_no(void)
 	if (!journal_buffer || !zero_buffer)
 		goto fail;
 	struct ext2_block_group *bgd = (struct ext2_block_group *)fs->gdtable;
+	int has_gdt_chksum = le32_to_cpu(fs->sb->feature_ro_compat) &
+		EXT4_FEATURE_RO_COMPAT_GDT_CSUM ? 1 : 0;
 
 	if (fs->first_pass_ibmap == 0) {
 		for (i = 0; i < fs->no_blkgrp; i++) {
 			if (bgd[i].free_inodes) {
-				if (bgd[i].bg_itable_unused !=
-						bgd[i].free_inodes)
+				if (has_gdt_chksum)
 					bgd[i].bg_itable_unused =
 						bgd[i].free_inodes;
 				if (le16_to_cpu(bgd[i].bg_flags) & EXT4_BG_INODE_UNINIT) {
@@ -1014,7 +1015,8 @@ int ext4fs_get_new_inode_no(void)
 							(i * inodes_per_grp);
 				fs->first_pass_ibmap++;
 				ext4fs_bg_free_inodes_dec(&bgd[i]);
-				ext4fs_bg_itable_unused_dec(&bgd[i]);
+				if (has_gdt_chksum)
+					ext4fs_bg_itable_unused_dec(&bgd[i]);
 				ext4fs_sb_free_inodes_dec(fs->sb);
 				status = ext4fs_devread(
 							(lbaint_t)le32_to_cpu(bgd[i].inode_id) *
@@ -1069,12 +1071,10 @@ restart:
 				goto fail;
 			prev_inode_bitmap_index = ibmap_idx;
 		}
-		if (bgd[ibmap_idx].bg_itable_unused !=
-				bgd[ibmap_idx].free_inodes)
+		ext4fs_bg_free_inodes_dec(&bgd[ibmap_idx]);
+		if (has_gdt_chksum)
 			bgd[ibmap_idx].bg_itable_unused =
 					bgd[ibmap_idx].free_inodes;
-		ext4fs_bg_free_inodes_dec(&bgd[ibmap_idx]);
-		ext4fs_bg_itable_unused_dec(&bgd[ibmap_idx]);
 		ext4fs_sb_free_inodes_dec(fs->sb);
 		goto success;
 	}
