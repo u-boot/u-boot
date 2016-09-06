@@ -163,17 +163,11 @@ static int _get_new_inode_no(unsigned char *buffer)
 
 static int _get_new_blk_no(unsigned char *buffer)
 {
-	unsigned char input;
-	int operand, status;
+	int operand;
 	int count = 0;
-	int j = 0;
+	int i;
 	unsigned char *ptr = buffer;
 	struct ext_filesystem *fs = get_fs();
-
-	if (fs->blksz != 1024)
-		count = 0;
-	else
-		count = 1;
 
 	while (*ptr == 255) {
 		ptr++;
@@ -182,21 +176,17 @@ static int _get_new_blk_no(unsigned char *buffer)
 			return -1;
 	}
 
-	for (j = 0; j < fs->blksz; j++) {
-		input = *ptr;
-		int i = 0;
-		while (i <= 7) {
-			operand = 1 << i;
-			status = input & operand;
-			if (status) {
-				i++;
-				count++;
-			} else {
-				*ptr |= operand;
-				return count;
-			}
+	if (fs->blksz == 1024)
+		count += 1;
+
+	for (i = 0; i <= 7; i++) {
+		operand = 1 << i;
+		if (*ptr & operand) {
+			count++;
+		} else {
+			*ptr |= operand;
+			return count;
 		}
-		ptr = ptr + 1;
 	}
 
 	return -1;
