@@ -525,64 +525,57 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 {
 	int status;
 	int inodeno = 0;
-	int totalbytes;
-	int templength;
-	int direct_blk_idx;
+	int offset;
+	int blk_idx;
 	long int blknr;
-	char *ptr = NULL;
-	unsigned char *block_buffer = NULL;
+	char *block_buffer = NULL;
 	struct ext2_dirent *dir = NULL;
 	struct ext_filesystem *fs = get_fs();
+	uint32_t directory_blocks;
+	char *direntname;
 
-	/* read the block no allocated to a file */
-	for (direct_blk_idx = 0; direct_blk_idx < INDIRECT_BLOCKS;
-		direct_blk_idx++) {
-		blknr = read_allocated_block(parent_inode, direct_blk_idx);
+	directory_blocks = le32_to_cpu(parent_inode->size) >>
+		LOG2_BLOCK_SIZE(ext4fs_root);
+
+	block_buffer = zalloc(fs->blksz);
+	if (!block_buffer)
+		goto fail;
+
+	/* get the block no allocated to a file */
+	for (blk_idx = 0; blk_idx < directory_blocks; blk_idx++) {
+		blknr = read_allocated_block(parent_inode, blk_idx);
 		if (blknr == 0)
 			goto fail;
 
-		/* read the blocks of parent inode */
-		block_buffer = zalloc(fs->blksz);
-		if (!block_buffer)
-			goto fail;
-
+		/* read the directory block */
 		status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk,
 					0, fs->blksz, (char *)block_buffer);
 		if (status == 0)
 			goto fail;
 
-		dir = (struct ext2_dirent *)block_buffer;
-		ptr = (char *)dir;
-		totalbytes = 0;
-		while (le16_to_cpu(dir->direntlen) >= 0) {
-			/*
-			 * blocksize-totalbytes because last directory
-			 * length i.e.,*dir->direntlen is free availble
-			 * space in the block that means
-			 * it is a last entry of directory entry
-			 */
-			if (dir->inode && (strlen(dirname) == dir->namelen)) {
-				if (strncmp(dirname, ptr + sizeof(struct ext2_dirent), dir->namelen) == 0) {
-					inodeno = le32_to_cpu(dir->inode);
-					break;
-				}
-			}
+		offset = 0;
+		do {
+			dir = (struct ext2_dirent *)(block_buffer + offset);
+			direntname = (char*)(dir) + sizeof(struct ext2_dirent);
 
-			if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen))
+			int direntlen = le16_to_cpu(dir->direntlen);
+			if (direntlen < sizeof(struct ext2_dirent))
 				break;
 
-			/* traversing the each directory entry */
-			templength = le16_to_cpu(dir->direntlen);
-			totalbytes = totalbytes + templength;
-			dir = (struct ext2_dirent *)((char *)dir + templength);
-			ptr = (char *)dir;
-		}
+			if (dir->inode && (strlen(dirname) == dir->namelen) &&
+			    (strncmp(dirname, direntname, dir->namelen) == 0)) {
+				inodeno = le32_to_cpu(dir->inode);
+				break;
+			}
 
-		free(block_buffer);
-		block_buffer = NULL;
+			offset += direntlen;
 
-		if (inodeno > 0)
+		} while (offset < fs->blksz);
+
+		if (inodeno > 0) {
+			free(block_buffer);
 			return inodeno;
+		}
 	}
 
 fail:
@@ -834,14 +827,17 @@ fail:
 
 int ext4fs_filename_unlink(char *filename)
 {
-	short direct_blk_idx = 0;
+	int blk_idx;
 	long int blknr = -1;
 	int inodeno = -1;
+	uint32_t directory_blocks;
+
+	directory_blocks = le32_to_cpu(g_parent_inode->size) >>
+		LOG2_BLOCK_SIZE(ext4fs_root);
 
 	/* read the block no allocated to a file */
-	for (direct_blk_idx = 0; direct_blk_idx < INDIRECT_BLOCKS;
-		direct_blk_idx++) {
-		blknr = read_allocated_block(g_parent_inode, direct_blk_idx);
+	for (blk_idx = 0; blk_idx < directory_blocks; blk_idx++) {
+		blknr = read_allocated_block(g_parent_inode, blk_idx);
 		if (blknr == 0)
 			break;
 		inodeno = unlink_filename(filename, blknr);
