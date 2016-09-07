@@ -50,8 +50,13 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008511) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A009801)
+	u32 temp32;
+#endif
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
-	u32 temp32, mr6;
+	u32 mr6;
 	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
 	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
 	u32 *vref_seq = vref_seq1;
