@@ -9,6 +9,8 @@
 
 #include <fsl_ddrc_version.h>
 
+#define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
+
 #ifdef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDRC_GEN4
 #else
