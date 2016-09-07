@@ -226,13 +226,6 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 		priv->cmd |= QSPI_3_PIN;
 	priv->cmd |= 0xfff;
 
-/* FIXME: This delay is required for successfull
- * completion of read/write/erase. Once its root
- * caused, it will be remove from the driver.
- */
-#ifdef CONFIG_AM43XX
-	udelay(100);
-#endif
 	while (words) {
 		u8 xfer_len = 0;
 
