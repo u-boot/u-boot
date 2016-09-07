@@ -23,6 +23,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QSPI_TIMEOUT                    2000000
 #define QSPI_FCLK			192000000
 #define QSPI_DRA7XX_FCLK                76800000
+#define QSPI_WLEN_MAX_BITS		128
+#define QSPI_WLEN_MAX_BYTES		(QSPI_WLEN_MAX_BITS >> 3)
+#define QSPI_WLEN_MASK			QSPI_WLEN(QSPI_WLEN_MAX_BITS)
 /* clock control */
 #define QSPI_CLK_EN                     BIT(31)
 #define QSPI_CLK_DIV_MAX                0xffff
@@ -230,13 +233,34 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 #ifdef CONFIG_AM43XX
 	udelay(100);
 #endif
-	while (words--) {
+	while (words) {
+		u8 xfer_len = 0;
+
 		if (txp) {
-			debug("tx cmd %08x dc %08x data %02x\n",
-			      priv->cmd | QSPI_WR_SNGL, priv->dc, *txp);
-			writel(*txp++, &priv->base->data);
-			writel(priv->cmd | QSPI_WR_SNGL,
-			       &priv->base->cmd);
+			u32 cmd = priv->cmd;
+
+			if (words >= QSPI_WLEN_MAX_BYTES) {
+				u32 *txbuf = (u32 *)txp;
+				u32 data;
+
+				data = cpu_to_be32(*txbuf++);
+				writel(data, &priv->base->data3);
+				data = cpu_to_be32(*txbuf++);
+				writel(data, &priv->base->data2);
+				data = cpu_to_be32(*txbuf++);
+				writel(data, &priv->base->data1);
+				data = cpu_to_be32(*txbuf++);
+				writel(data, &priv->base->data);
+				cmd &= ~QSPI_WLEN_MASK;
+				cmd |= QSPI_WLEN(QSPI_WLEN_MAX_BITS);
+				xfer_len = QSPI_WLEN_MAX_BYTES;
+			} else {
+				writeb(*txp, &priv->base->data);
+				xfer_len = 1;
+			}
+			debug("tx cmd %08x dc %08x\n",
+			      cmd | QSPI_WR_SNGL, priv->dc);
+			writel(cmd | QSPI_WR_SNGL, &priv->base->cmd);
 			status = readl(&priv->base->status);
 			timeout = QSPI_TIMEOUT;
 			while ((status & QSPI_WC_BUSY) != QSPI_XFER_DONE) {
@@ -246,6 +270,7 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 				}
 				status = readl(&priv->base->status);
 			}
+			txp += xfer_len;
 			debug("tx done, status %08x\n", status);
 		}
 		if (rxp) {
@@ -262,9 +287,11 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 				status = readl(&priv->base->status);
 			}
 			*rxp++ = readl(&priv->base->data);
+			xfer_len = 1;
 			debug("rx done, status %08x, read %02x\n",
 			      status, *(rxp-1));
 		}
+		words -= xfer_len;
 	}
 
 	/* Terminate frame */
