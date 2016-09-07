@@ -841,6 +841,18 @@ config TARGET_LS1043ARDB
 	help
 	  Support for Freescale LS1043ARDB platform.
 
+config TARGET_LS1046AQDS
+	bool "Support ls1046aqds"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	select DM_SPI_FLASH if DM_SPI
+	help
+	  Support for Freescale LS1046AQDS platform.
+	  The LS1046A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS1046A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1046ARDB
 	bool "Support ls1046ardb"
 	select ARM64
@@ -996,6 +1008,7 @@ source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/ls1046ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"

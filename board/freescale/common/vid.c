@@ -8,7 +8,7 @@
 #include <command.h>
 #include <i2c.h>
 #include <asm/io.h>
-#ifdef CONFIG_LS1043A
+#ifdef CONFIG_FSL_LSCH2
 #include <asm/arch/immap_lsch2.h>
 #elif defined(CONFIG_FSL_LSCH3)
 #include <asm/arch/immap_lsch3.h>
@@ -247,7 +247,7 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 	 * SoC before converting into an IR VID value
 	 */
 	vdd += board_vdd_drop_compensation();
-#ifdef CONFIG_LS1043A
+#ifdef CONFIG_FSL_LSCH2
 	vid = DIV_ROUND_UP(vdd - 265, 5);
 #else
 	vid = DIV_ROUND_UP(vdd - 245, 5);
@@ -287,7 +287,7 @@ static int set_voltage(int i2caddress, int vdd)
 int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
-#if defined(CONFIG_LS1043A) || defined(CONFIG_FSL_LSCH3)
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #else
 	ccsr_gur_t __iomem *gur =
@@ -386,7 +386,7 @@ int adjust_vdd(ulong vdd_override)
 	 * | T |          |         |                 |         |
 	 * ------------------------------------------------------
 	 */
-#ifdef CONFIG_LS1043A
+#ifdef CONFIG_FSL_LSCH2
 	vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_ALTVID_SHIFT) &
 		FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK;
 	if ((vid == 0) || (vid == FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK)) {
