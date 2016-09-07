@@ -61,10 +61,5 @@ void board_init_f(ulong dummy)
 	i2c_init_all();
 #endif
 	dram_init();
-
-	/* Clear the BSS */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	board_init_r(NULL, 0);
 }
 #endif
