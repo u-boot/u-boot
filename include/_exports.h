@@ -75,6 +75,7 @@
 		    const char *, char **, unsigned int)
 	EXPORT_FUNC(strcpy, char *, strcpy, char *dest, const char *src)
 	EXPORT_FUNC(mdelay, void, mdelay, unsigned long msec)
+	EXPORT_FUNC(memset, void *, memset, void *, int, size_t)
 #ifdef CONFIG_PHY_AQUANTIA
 	EXPORT_FUNC(mdio_get_current_dev, struct mii_dev *,
 		    mdio_get_current_dev, void)
