@@ -16,10 +16,9 @@
  * shifts the remaining entries to the front. Replacing an entry is a
  * combination of deleting the old value and adding the new one.
  *
- * The environment is preceeded by a 32 bit CRC over the data part.
+ * The environment is preceded by a 32 bit CRC over the data part.
  *
- **************************************************************************
- */
+ *************************************************************************/
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef	CONFIG_ENV_ADDR

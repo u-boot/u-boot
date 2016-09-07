@@ -15,7 +15,7 @@
  *
  * The "environment" is stored on external storage as a list of '\0'
  * terminated "name=value" strings. The end of the list is marked by
- * a double '\0'. The environment is preceeded by a 32 bit CRC over
+ * a double '\0'. The environment is preceded by a 32 bit CRC over
  * the data part and, in case of redundant environment, a byte of
  * flags.
  *
@@ -838,7 +838,7 @@ static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
  * With "-c" and size is NOT given, then the export command will
  * format the data as currently used for the persistent storage,
  * i. e. it will use CONFIG_ENV_SECT_SIZE as output block size and
- * prepend a valid CRC32 checksum and, in case of resundant
+ * prepend a valid CRC32 checksum and, in case of redundant
  * environment, a "current" redundancy flag. If size is given, this
  * value will be used instead of CONFIG_ENV_SECT_SIZE; again, CRC32
  * checksum and redundancy flag will be inserted.
@@ -847,12 +847,12 @@ static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
  * terminating '\0' byte) will be written; here the optional size
  * argument will be used to make sure not to overflow the user
  * provided buffer; the command will abort if the size is not
- * sufficient. Any remainign space will be '\0' padded.
+ * sufficient. Any remaining space will be '\0' padded.
  *
  * On successful return, the variable "filesize" will be set.
  * Note that filesize includes the trailing/terminating '\0' byte(s).
  *
- * Usage szenario:  create a text snapshot/backup of the current settings:
+ * Usage scenario:  create a text snapshot/backup of the current settings:
  *
  *	=> env export -t 100000
  *	=> era ${backup_addr} +${filesize}
@@ -970,7 +970,7 @@ sep_err:
 /*
  * env import [-d] [-t [-r] | -b | -c] addr [size]
  *	-d:	delete existing environment before importing;
- *		otherwise overwrite / append to existion definitions
+ *		otherwise overwrite / append to existing definitions
  *	-t:	assume text format; either "size" must be given or the
  *		text data must be '\0' terminated
  *	-r:	handle CRLF like LF, that means exported variables with

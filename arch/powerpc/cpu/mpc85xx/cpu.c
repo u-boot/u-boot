@@ -489,7 +489,7 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		fsl_ddr_get_spd(spd[i], i, CONFIG_DIMM_SLOTS_PER_CTLR);
 
-	puts("SPD data of all dimms (zero vaule is omitted)...\n");
+	puts("SPD data of all dimms (zero value is omitted)...\n");
 	puts("Byte (hex)  ");
 	k = 1;
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
@@ -543,7 +543,7 @@ static void dump_spd_ddr_reg(void)
 		}
 	}
 	printf("DDR registers dump for all controllers "
-		"(zero vaule is omitted)...\n");
+		"(zero value is omitted)...\n");
 	puts("Offset (hex)   ");
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		printf("     Base + 0x%04x", (u32)ddr[i] & 0xFFFF);

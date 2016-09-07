@@ -1058,7 +1058,7 @@ void board_init_f(ulong boot_flags)
 {
 #ifdef CONFIG_SYS_GENERIC_GLOBAL_DATA
 	/*
-	 * For some archtectures, global data is initialized and used before
+	 * For some architectures, global data is initialized and used before
 	 * calling this function. The data should be preserved. For others,
 	 * CONFIG_SYS_GENERIC_GLOBAL_DATA should be defined and use the stack
 	 * here to host global data until relocation.
@@ -1070,7 +1070,7 @@ void board_init_f(ulong boot_flags)
 	/*
 	 * Clear global data before it is accessed at debug print
 	 * in initcall_run_list. Otherwise the debug print probably
-	 * get the wrong vaule of gd->have_console.
+	 * get the wrong value of gd->have_console.
 	 */
 	zero_global_data();
 #endif

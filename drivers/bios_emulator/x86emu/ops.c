@@ -41,7 +41,7 @@
 * to the 256 byte-"opcodes" found on the 8086.	The table which
 * dispatches this is found in the files optab.[ch].
 *
-* Each opcode proc has a comment preceeding it which gives it's table
+* Each opcode proc has a comment preceding it which gives it's table
 * address.  Several opcodes are missing (undefined) in the table.
 *
 * Each proc includes information for decoding (DECODE_PRINTF and

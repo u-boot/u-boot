@@ -4263,7 +4263,7 @@ sub process {
 			}
 		}
 
-# check for case / default statements not preceeded by break/fallthrough/switch
+# check for case / default statements not preceded by break/fallthrough/switch
 		if ($line =~ /^.\s*(?:case\s+(?:$Ident|$Constant)\s*|default):/) {
 			my $has_break = 0;
 			my $has_statement = 0;
@@ -4284,7 +4284,7 @@ sub process {
 			}
 			if (!$has_break && $has_statement) {
 				WARN("MISSING_BREAK",
-				     "Possible switch case/default not preceeded by break or fallthrough comment\n" . $herecurr);
+				     "Possible switch case/default not preceded by break or fallthrough comment\n" . $herecurr);
 			}
 		}
 

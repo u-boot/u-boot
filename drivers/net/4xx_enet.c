@@ -899,7 +899,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	 * current transfer) have got the time to arrived before
 	 * netloop calls eth_halt
 	 */
-	printf ("About preceeding transfer (eth%d):\n"
+	printf ("About preceding transfer (eth%d):\n"
 		"- Sent packet number %d\n"
 		"- Received packet number %d\n"
 		"- Handled packet number %d\n",

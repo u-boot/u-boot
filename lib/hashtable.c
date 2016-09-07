@@ -499,7 +499,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
  *
  * If the separator character is different from NUL, then any
  * separator characters and backslash characters in the values will
- * be escaped by a preceeding backslash in output. This is needed for
+ * be escaped by a preceding backslash in output. This is needed for
  * example to enable multi-line values, especially when the output
  * shall later be parsed (for example, for re-import).
  *
