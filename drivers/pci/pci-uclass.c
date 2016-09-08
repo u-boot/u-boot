@@ -837,7 +837,7 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 	hose = bus->uclass_priv;
 
 	/* For bridges, use the top-level PCI controller */
-	if (device_get_uclass_id(bus->parent) == UCLASS_ROOT) {
+	if (!device_is_on_pci_bus(bus)) {
 		hose->ctlr = bus;
 		ret = decode_regions(hose, gd->fdt_blob, bus->parent->of_offset,
 				bus->of_offset);
