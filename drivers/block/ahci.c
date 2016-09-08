@@ -168,7 +168,7 @@ int ahci_reset(void __iomem *base)
 
 static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 {
-#ifndef CONFIG_SCSI_AHCI_PLAT
+#if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # ifdef CONFIG_DM_PCI
 	struct udevice *dev = probe_ent->dev;
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
@@ -198,7 +198,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	writel(cap_save, mmio + HOST_CAP);
 	writel_with_flush(0xf, mmio + HOST_PORTS_IMPL);
 
-#ifndef CONFIG_SCSI_AHCI_PLAT
+#if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # ifdef CONFIG_DM_PCI
 	if (pplat->vendor == PCI_VENDOR_ID_INTEL) {
 		u16 tmp16;
@@ -327,6 +327,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	writel(tmp | HOST_IRQ_EN, mmio + HOST_CTL);
 	tmp = readl(mmio + HOST_CTL);
 	debug("HOST_CTL 0x%x\n", tmp);
+#if !defined(CONFIG_DM_SCSI)
 #ifndef CONFIG_SCSI_AHCI_PLAT
 # ifdef CONFIG_DM_PCI
 	dm_pci_read_config16(dev, PCI_COMMAND, &tmp16);
@@ -338,14 +339,15 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	pci_write_config_word(pdev, PCI_COMMAND, tmp16);
 # endif
 #endif
+#endif
 	return 0;
 }
 
 
 static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 {
-#ifndef CONFIG_SCSI_AHCI_PLAT
-# ifdef CONFIG_DM_PCI
+#if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
+# if defined(CONFIG_DM_PCI)
 	struct udevice *dev = probe_ent->dev;
 # else
 	pci_dev_t pdev = probe_ent->dev;
@@ -372,7 +374,7 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	else
 		speed_s = "?";
 
-#ifdef CONFIG_SCSI_AHCI_PLAT
+#if defined(CONFIG_SCSI_AHCI_PLAT) || defined(CONFIG_DM_SCSI)
 	scc_s = "SATA";
 #else
 # ifdef CONFIG_DM_PCI
@@ -424,13 +426,15 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 }
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
-# ifdef CONFIG_DM_PCI
+# if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 static int ahci_init_one(struct udevice *dev)
 # else
 static int ahci_init_one(pci_dev_t dev)
 # endif
 {
+#if !defined(CONFIG_DM_SCSI)
 	u16 vendor;
+#endif
 	int rc;
 
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
@@ -450,6 +454,7 @@ static int ahci_init_one(pci_dev_t dev)
 	probe_ent->pio_mask = 0x1f;
 	probe_ent->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
 
+#if !defined(CONFIG_DM_SCSI)
 #ifdef CONFIG_DM_PCI
 	probe_ent->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5,
 					      PCI_REGION_MEM);
@@ -472,6 +477,10 @@ static int ahci_init_one(pci_dev_t dev)
 	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
 	if (vendor == 0x197b)
 		pci_write_config_byte(dev, 0x41, 0xa1);
+#endif
+#else
+	struct scsi_platdata *plat = dev_get_platdata(dev);
+	probe_ent->mmio_base = (void *)plat->base;
 #endif
 
 	debug("ahci mmio_base=0x%p\n", probe_ent->mmio_base);
@@ -954,20 +963,25 @@ int scsi_exec(ccb *pccb)
 
 }
 
-
+#if defined(CONFIG_DM_SCSI)
+void scsi_low_level_init(int busdevfunc, struct udevice *dev)
+#else
 void scsi_low_level_init(int busdevfunc)
+#endif
 {
 	int i;
 	u32 linkmap;
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
-# ifdef CONFIG_DM_PCI
+# if defined(CONFIG_DM_PCI)
 	struct udevice *dev;
 	int ret;
 
 	ret = dm_pci_bus_find_bdf(busdevfunc, &dev);
 	if (ret)
 		return;
+	ahci_init_one(dev);
+# elif defined(CONFIG_DM_SCSI)
 	ahci_init_one(dev);
 # else
 	ahci_init_one(busdevfunc);
