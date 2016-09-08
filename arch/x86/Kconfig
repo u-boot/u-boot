@@ -546,9 +546,6 @@ config I8254_TIMER
 	  Intel 8254 timer contains three counters which have fixed uses.
 	  Include this to have U-Boot set up the timer correctly.
 
-config I8042_KEYB
-	default y
-
 config SEABIOS
 	bool "Support booting SeaBIOS"
 	help
