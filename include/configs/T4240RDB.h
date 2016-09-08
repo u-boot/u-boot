@@ -19,7 +19,6 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t4rdb/t4_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t4rdb/t4_rcw.cfg
 #ifndef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
@@ -45,6 +44,7 @@
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t4rdb/t4_sd_rcw.cfg
 #define CONFIG_SPL_MMC_BOOT
 #endif
 
