@@ -561,7 +561,7 @@ static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 
 	puts("Booting kernel..\n");
 
-	sprintf(boot_addr_start, "0x%lx", load_addr);
+	sprintf(boot_addr_start, "0x%lx", CONFIG_FASTBOOT_BUF_ADDR);
 	do_bootm(NULL, 0, 2, bootm_args);
 
 	/* This only happens if image is somehow faulty so we start over */
