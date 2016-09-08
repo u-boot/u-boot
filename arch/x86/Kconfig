@@ -549,9 +549,6 @@ config I8254_TIMER
 config I8042_KEYB
 	default y
 
-config DM_KEYBOARD
-	default y
-
 config SEABIOS
 	bool "Support booting SeaBIOS"
 	help
