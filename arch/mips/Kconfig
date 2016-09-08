@@ -75,6 +75,23 @@ config MACH_PIC32
 	select OF_CONTROL
 	select DM
 
+config TARGET_BOSTON
+	bool "Support Boston"
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select MIPS_CM
+	select MIPS_L1_CACHE_SHIFT_6
+	select MIPS_L2_CACHE
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select SUPPORTS_CPU_MIPS32_R6
+	select SUPPORTS_CPU_MIPS64_R1
+	select SUPPORTS_CPU_MIPS64_R2
+	select SUPPORTS_CPU_MIPS64_R6
+
 config TARGET_XILFPGA
 	bool "Support Imagination Xilfpga"
 	select OF_CONTROL
@@ -92,6 +109,7 @@ config TARGET_XILFPGA
 endchoice
 
 source "board/dbau1x00/Kconfig"
+source "board/imgtec/boston/Kconfig"
 source "board/imgtec/malta/Kconfig"
 source "board/imgtec/xilfpga/Kconfig"
 source "board/micronas/vct/Kconfig"
