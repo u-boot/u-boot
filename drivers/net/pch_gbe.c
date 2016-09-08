@@ -421,7 +421,7 @@ int pch_gbe_probe(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv;
 	struct eth_pdata *plat = dev_get_platdata(dev);
-	u32 iobase;
+	void *iobase;
 
 	/*
 	 * The priv structure contains the descriptors and frame buffers which
@@ -432,11 +432,9 @@ int pch_gbe_probe(struct udevice *dev)
 
 	priv->dev = dev;
 
-	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
-	iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-	iobase = dm_pci_mem_to_phys(dev, iobase);
+	iobase = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_1, PCI_REGION_MEM);
 
-	plat->iobase = iobase;
+	plat->iobase = (ulong)iobase;
 	priv->mac_regs = (struct pch_gbe_regs *)iobase;
 
 	/* Read MAC address from SROM and initialize dev->enetaddr with it */
