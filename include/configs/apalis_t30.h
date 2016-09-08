@@ -41,7 +41,6 @@
 /* USB host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_STORAGE
 
 /* PCI host support */
 #define CONFIG_PCI

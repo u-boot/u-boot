@@ -72,7 +72,6 @@
 
 #ifdef CONFIG_CMD_USB
 #	define CONFIG_USB_OHCI_NEW
-#	define CONFIG_USB_STORAGE
 
 #	ifndef CONFIG_CMD_PCI
 #		define CONFIG_CMD_PCI

@@ -306,10 +306,6 @@
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
 #endif
 
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_USB_STORAGE
-#endif
-
 #ifdef CONFIG_USB_MUSB_GADGET
 /* Removing USB gadget and can be enabled adter adding support usb DM */
 #ifndef CONFIG_DM_ETH

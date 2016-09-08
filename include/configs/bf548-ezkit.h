@@ -153,7 +153,6 @@
 #if !defined(__ADSPBF544__)
 #define CONFIG_USB_MUSB_HCD
 #define CONFIG_USB_BLACKFIN
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_MUSB_TIMEOUT 100000
 #endif
 

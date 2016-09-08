@@ -91,7 +91,6 @@
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	25
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
-#define CONFIG_USB_STORAGE
 
 /* commands to include */
 #define CONFIG_CMD_NAND		/* NAND support			*/

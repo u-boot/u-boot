@@ -269,7 +269,6 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #endif
 #endif

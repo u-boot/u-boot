@@ -385,7 +385,6 @@
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN		/* With big-endian regs	*/
 #define CONFIG_EHCI_DESC_BIG_ENDIAN
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_STORAGE
 #endif
 
 /*

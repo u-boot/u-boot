@@ -51,7 +51,6 @@
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_OHCI_S3C24XX
 #define CONFIG_USB_KEYBOARD
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 
 /************************************************************

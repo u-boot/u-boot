@@ -199,10 +199,6 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#if defined(CONFIG_USB_MUSB_HOST)
-#define CONFIG_USB_STORAGE
-#endif
-
 #if defined(CONFIG_SPL_BUILD)
 /* disable host part of MUSB in SPL */
 /* Disable CPSW SPL support so we fit within the 101KiB limit. */

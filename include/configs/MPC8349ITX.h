@@ -151,7 +151,6 @@
 /*
  * Support USB
  */
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 

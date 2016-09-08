@@ -234,7 +234,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
-#define CONFIG_USB_STORAGE
 #endif
 
 /*

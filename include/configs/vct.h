@@ -99,7 +99,6 @@
 #endif
 
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 

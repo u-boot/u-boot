@@ -124,7 +124,6 @@
  */
 #define CONFIG_USB_OHCI_LPC32XX
 #define CONFIG_USB_ISP1301_I2C_ADDR		0x2d
-#define CONFIG_USB_STORAGE
 
 /*
  * U-Boot General Configurations

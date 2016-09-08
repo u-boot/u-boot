@@ -458,10 +458,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #endif
 
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
-#define CONFIG_USB_STORAGE
-#endif
-
 /*
  * Video
  */

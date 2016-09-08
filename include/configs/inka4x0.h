@@ -369,7 +369,6 @@ static inline void tws_data_config_output(unsigned output)
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_CLOCK	0x00015555
 #define CONFIG_USB_CONFIG	0x00001000
-#define CONFIG_USB_STORAGE
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff Supports IDE harddisk

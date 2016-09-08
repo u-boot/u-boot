@@ -276,7 +276,6 @@
 
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETHER_RNDIS
-#define CONFIG_USB_STORAGE
 #define CONGIG_CMD_STORAGE
 
 /* Defines for SPL */
