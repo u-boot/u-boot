@@ -39,4 +39,11 @@ config PCI_TEGRA
 	  with a total of 5 lanes. Some boards require this for Ethernet
 	  support to work (e.g. beaver, jetson-tk1).
 
+config PCI_XILINX
+	bool "Xilinx AXI Bridge for PCI Express"
+	depends on DM_PCI
+	help
+	  Enable support for the Xilinx AXI bridge for PCI express, an IP block
+	  which can be used on some generations of Xilinx FPGAs.
+
 endmenu
