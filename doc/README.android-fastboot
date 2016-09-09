@@ -79,6 +79,7 @@ The device type is as follows:
   * IDE, ATAPI and SATA disks: hd
   * SCSI disks: sd
   * USB media: usbd
+  * MMC and SD cards: mmcsd
   * Disk on chip: docd
   * other: xx
 

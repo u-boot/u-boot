@@ -137,30 +137,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	entry_num=1;
 	offset=0x20;
 	strcpy((char *)info->type, "U-Boot");
-	switch(dev_desc->if_type) {
-		case IF_TYPE_IDE:
-		case IF_TYPE_SATA:
-		case IF_TYPE_ATAPI:
-			sprintf ((char *)info->name, "hd%c%d",
-				'a' + dev_desc->devnum, part_num);
-			break;
-		case IF_TYPE_SCSI:
-			sprintf ((char *)info->name, "sd%c%d",
-				'a' + dev_desc->devnum, part_num);
-			break;
-		case IF_TYPE_USB:
-			sprintf ((char *)info->name, "usbd%c%d",
-				'a' + dev_desc->devnum, part_num);
-			break;
-		case IF_TYPE_DOC:
-			sprintf ((char *)info->name, "docd%c%d",
-				'a' + dev_desc->devnum, part_num);
-			break;
-		default:
-			sprintf ((char *)info->name, "xx%c%d",
-				'a' + dev_desc->devnum, part_num);
-			break;
-	}
+	part_set_generic_name(dev_desc, part_num, (char *)info->name);
 	/* the bootcatalog (including validation Entry) is limited to 2048Bytes
 	 * (63 boot entries + validation entry) */
 	 while(offset<2048) {

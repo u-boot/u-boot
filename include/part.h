@@ -165,6 +165,20 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 int part_get_info_by_name(struct blk_desc *dev_desc,
 			      const char *name, disk_partition_t *info);
 
+/**
+ * part_set_generic_name() - create generic partition like hda1 or sdb2
+ *
+ * Helper function for partition tables, which don't hold partition names
+ * (DOS, ISO). Generates partition name out of the device type and partition
+ * number.
+ *
+ * @dev_desc:	pointer to the block device
+ * @part_num:	partition number for which the name is generated
+ * @name:	buffer where the name is written
+ */
+void part_set_generic_name(const struct blk_desc *dev_desc,
+	int part_num, char *name);
+
 extern const struct block_drvr block_drvr[];
 #else
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
