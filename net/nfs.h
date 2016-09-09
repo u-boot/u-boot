@@ -76,7 +76,7 @@ struct rpc_t {
 			uint32_t verifier;
 			uint32_t v2;
 			uint32_t astatus;
-			uint32_t data[NFS_READ_SIZE / sizeof(uint32_t)];
+			uint32_t data[NFS_READ_SIZE];
 		} reply;
 	} u;
 };
