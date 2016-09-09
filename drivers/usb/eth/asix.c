@@ -819,6 +819,11 @@ int asix_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	}
 
 	*packetp = ptr + sizeof(packet_len);
+
+	if ((ueth->pusb_dev->descriptor.idVendor == ASIX_USB_VENDOR_ID) &&
+	    (ueth->pusb_dev->descriptor.idProduct == AX88772B_USB_PRODUCT_ID))
+		*packetp += 2;
+
 	return packet_len;
 
 err:
