@@ -8,8 +8,6 @@
 #include <command.h>
 #include <part.h>
 
-#if defined(CONFIG_CMD_IDE) || defined(CONFIG_SCSI) || \
-	defined(CONFIG_USB_STORAGE)
 int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 		    char *const argv[])
 {
@@ -130,4 +128,3 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 
 	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
-#endif
