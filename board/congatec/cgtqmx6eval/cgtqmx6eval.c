@@ -1037,6 +1037,8 @@ static void spl_dram_init(int width)
 		.bi_on = 1,
 		.sde_to_rst = 0x0d,
 		.rst_to_cke = 0x20,
+		.refsel = 1,	/* Refresh cycles at 32KHz */
+		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
 	if (is_cpu_type(MXC_CPU_MX6Q) && is_2gb()) {

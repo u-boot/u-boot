@@ -35,6 +35,10 @@ choice
 	prompt "MX6 board select"
 	optional
 
+config TARGET_ADVANTECH_DMS_BA16
+	bool "Advantech dms-ba16"
+	select MX6Q
+
 config TARGET_ARISTAINETOS
 	bool "aristainetos"
 
@@ -200,6 +204,7 @@ config SYS_SOC
 	default "mx6"
 
 source "board/ge/bx50v3/Kconfig"
+source "board/advantech/dms-ba16/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/barco/platinum/Kconfig"

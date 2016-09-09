@@ -29,6 +29,9 @@
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
+
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 
@@ -39,15 +42,15 @@
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=imx7d-warp.dtb\0" \
+	"fdt_file=imx7s-warp.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -55,6 +58,7 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
@@ -103,6 +107,18 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
+/* I2C configs */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1
+#define CONFIG_SYS_I2C_SPEED		100000
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE3000
+#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE			SZ_8K
@@ -113,7 +129,6 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_MMCROOT			"/dev/mmcblk2p2"
 
 /* USB Configs */
 #define CONFIG_USB_STORAGE

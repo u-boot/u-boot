@@ -494,6 +494,8 @@ static void spl_dram_init(void)
 		.sde_to_rst = 0,    /* LPDDR2 does not need this field */
 		.rst_to_cke = 0x10, /* JEDEC value for LPDDR2: 200us */
 		.ddr_type = DDR_TYPE_LPDDR2,
+		.refsel = 0,	/* Refresh cycles at 64KHz */
+		.refr = 3,	/* 4 refresh commands per refresh cycle */
 	};
 	mx6sl_dram_iocfg(32, &mx6_ddr_ioregs, &mx6_grp_ioregs);
 	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);

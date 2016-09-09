@@ -191,15 +191,15 @@
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_CMD_HDMIDETECT
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_HIDE_LOGO_VERSION  /* Custom config to hide U-boot version */
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
@@ -274,6 +274,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
 	"pcidisable=1\0" \
+	"splashpos=m,m\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \

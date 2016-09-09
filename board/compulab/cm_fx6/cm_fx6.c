@@ -588,7 +588,7 @@ struct node_info nodes[] = {
 	/*
 	 * Both entries target the same flash chip. The st,m25p compatible
 	 * is used in the vendor device trees, while upstream uses (the
-	 * documented) jedec,spi-nor comptatible.
+	 * documented) jedec,spi-nor compatible.
 	 */
 	{ "st,m25p",	MTD_DEV_TYPE_NOR,	},
 	{ "jedec,spi-nor",	MTD_DEV_TYPE_NOR,	},
@@ -616,6 +616,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 				     enetaddr, 6, 1);
 	}
 
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+
 	baseboard_rev = cl_eeprom_get_board_rev(0);
 	err = cl_eeprom_get_product_name((uchar *)baseboard_name, 0);
 	if (err || baseboard_rev == 0)
@@ -629,8 +631,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, USDHC3_PATH, "keep-power-in-suspend",
 				     NULL, 0, 1);
 	}
-
-	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
 
 	return 0;
 }

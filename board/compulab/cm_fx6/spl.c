@@ -107,6 +107,8 @@ static struct mx6_ddr_sysinfo cm_fx6_sysinfo_s = {
 	.mif3_mode	= 3,
 	.rst_to_cke	= 0x23,
 	.sde_to_rst	= 0x10,
+	.refsel = 1,		/* Refresh cycles at 32KHz */
+	.refr = 7,		/* 8 refresh commands per refresh cycle */
 };
 
 static struct mx6_ddr3_cfg cm_fx6_ddr3_cfg_s = {
@@ -174,6 +176,8 @@ static struct mx6_ddr_sysinfo cm_fx6_sysinfo_q = {
 	.mif3_mode	= 3,
 	.rst_to_cke	= 0x23,
 	.sde_to_rst	= 0x10,
+	.refsel = 1,		/* Refresh cycles at 32KHz */
+	.refr = 7,		/* 8 refresh commands per refresh cycle */
 };
 
 static struct mx6_ddr3_cfg cm_fx6_ddr3_cfg_q = {
