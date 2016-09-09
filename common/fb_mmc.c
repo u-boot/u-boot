@@ -14,15 +14,20 @@
 #include <mmc.h>
 #include <div64.h>
 
-#ifndef CONFIG_FASTBOOT_GPT_NAME
+#if defined(CONFIG_EFI_PARTITION) && !defined(CONFIG_FASTBOOT_GPT_NAME)
 #define CONFIG_FASTBOOT_GPT_NAME GPT_ENTRY_NAME
+#endif
+
+
+#if defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_FASTBOOT_MBR_NAME)
+#define CONFIG_FASTBOOT_MBR_NAME "mbr"
 #endif
 
 struct fb_mmc_sparse {
 	struct blk_desc	*dev_desc;
 };
 
-static int part_get_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
+static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
 		const char *name, disk_partition_t *info)
 {
 	int ret;
@@ -103,6 +108,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
+#ifdef CONFIG_EFI_PARTITION
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
 		printf("%s: updating MBR, Primary and Backup GPT(s)\n",
 		       __func__);
@@ -114,14 +120,36 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		}
 		if (write_mbr_and_gpt_partitions(dev_desc, download_buffer)) {
 			printf("%s: writing GPT partitions failed\n", __func__);
-			fastboot_fail(
-				      "writing GPT partitions failed");
+			fastboot_fail("writing GPT partitions failed");
 			return;
 		}
 		printf("........ success\n");
 		fastboot_okay("");
 		return;
-	} else if (part_get_info_efi_by_name_or_alias(dev_desc, cmd, &info)) {
+	}
+#endif
+
+#ifdef CONFIG_DOS_PARTITION
+	if (strcmp(cmd, CONFIG_FASTBOOT_MBR_NAME) == 0) {
+		printf("%s: updating MBR\n", __func__);
+		if (is_valid_dos_buf(download_buffer)) {
+			printf("%s: invalid MBR - refusing to write to flash\n",
+			       __func__);
+			fastboot_fail("invalid MBR partition");
+			return;
+		}
+		if (write_mbr_partition(dev_desc, download_buffer)) {
+			printf("%s: writing MBR partition failed\n", __func__);
+			fastboot_fail("writing MBR partition failed");
+			return;
+		}
+		printf("........ success\n");
+		fastboot_okay("");
+		return;
+	}
+#endif
+
+	if (part_get_info_by_name_or_alias(dev_desc, cmd, &info)) {
 		error("cannot find partition: '%s'\n", cmd);
 		fastboot_fail("cannot find partition");
 		return;
@@ -172,7 +200,7 @@ void fb_mmc_erase(const char *cmd)
 		return;
 	}
 
-	ret = part_get_info_efi_by_name_or_alias(dev_desc, cmd, &info);
+	ret = part_get_info_by_name_or_alias(dev_desc, cmd, &info);
 	if (ret) {
 		error("cannot find partition: '%s'", cmd);
 		fastboot_fail("cannot find partition");

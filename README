@@ -1683,6 +1683,13 @@ The following options need to be configured:
 		"fastboot flash" command line matches this value.
 		Default is GPT_ENTRY_NAME (currently "gpt") if undefined.
 
+		CONFIG_FASTBOOT_MBR_NAME
+		The fastboot "flash" command supports writing the downloaded
+		image to DOS MBR.
+		This occurs when the "partition name" specified on the
+		"fastboot flash" command line matches this value.
+		If not defined the default value "mbr" is used.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV

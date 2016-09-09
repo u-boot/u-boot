@@ -351,4 +351,27 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte);
 #endif
 
+#ifdef CONFIG_DOS_PARTITION
+/**
+ * is_valid_dos_buf() - Ensure that a DOS MBR image is valid
+ *
+ * @param buf - buffer which contains the MBR
+ *
+ * @return - '0' on success, otherwise error
+ */
+int is_valid_dos_buf(void *buf);
+
+/**
+ * write_mbr_partition() - write DOS MBR
+ *
+ * @param dev_desc - block device descriptor
+ * @param buf - buffer which contains the MBR
+ *
+ * @return - '0' on success, otherwise error
+ */
+int write_mbr_partition(struct blk_desc *dev_desc, void *buf);
+
+#endif
+
+
 #endif /* _PART_H */

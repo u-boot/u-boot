@@ -297,6 +297,26 @@ int part_get_info_dos(struct blk_desc *dev_desc, int part,
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
+int is_valid_dos_buf(void *buf)
+{
+	return test_block_type(buf) == DOS_MBR ? 0 : -1;
+}
+
+int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
+{
+	if (is_valid_dos_buf(buf))
+		return -1;
+
+	/* write MBR */
+	if (blk_dwrite(dev_desc, 0, 1, buf) != 1) {
+		printf("%s: failed writing '%s' (1 blks at 0x0)\n",
+		       __func__, "MBR");
+		return 1;
+	}
+
+	return 0;
+}
+
 U_BOOT_PART_TYPE(dos) = {
 	.name		= "DOS",
 	.part_type	= PART_TYPE_DOS,
