@@ -27,6 +27,7 @@
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
+		serial2 = &dcc;
 		spi0 = &qspi;
 		usb0 = &usb0;
 	};
@@ -66,6 +67,10 @@
 };
 
 &can1 {
+	status = "okay";
+};
+
+&dcc {
 	status = "okay";
 };
 
