@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <sdhci.h>
 #include <fdtdec.h>
@@ -15,6 +16,15 @@
 #include <asm/arch/clk.h>
 #include <errno.h>
 #include <asm/arch/pinmux.h>
+
+#ifdef CONFIG_DM_MMC
+struct s5p_sdhci_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 static char *S5P_NAME = "SAMSUNG SDHCI";
 static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
@@ -79,7 +89,11 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 	if (host->bus_width == 8)
 		host->host_caps |= MMC_MODE_8BIT;
 
+#ifndef CONFIG_BLK
 	return add_sdhci(host, 52000000, 400000);
+#else
+	return 0;
+#endif
 }
 
 int s5p_sdhci_init(u32 regbase, int index, int bus_width)
@@ -215,3 +229,60 @@ int exynos_mmc_init(const void *blob)
 	return process_nodes(blob, node_list, count);
 }
 #endif
+
+#ifdef CONFIG_DM_MMC
+static int s5p_sdhci_probe(struct udevice *dev)
+{
+	struct s5p_sdhci_plat *plat = dev_get_platdata(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct sdhci_host *host = dev_get_priv(dev);
+	int ret;
+
+	ret = sdhci_get_config(gd->fdt_blob, dev->of_offset, host);
+	if (ret)
+		return ret;
+
+	ret = do_sdhci_init(host);
+	if (ret)
+		return ret;
+
+	ret = sdhci_setup_cfg(&plat->cfg, host, 52000000, 400000);
+	if (ret)
+		return ret;
+
+	host->mmc = &plat->mmc;
+	host->mmc->priv = host;
+	host->mmc->dev = dev;
+	upriv->mmc = host->mmc;
+
+	return sdhci_probe(dev);
+}
+
+static int s5p_sdhci_bind(struct udevice *dev)
+{
+	struct s5p_sdhci_plat *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id s5p_sdhci_ids[] = {
+	{ .compatible = "samsung,exynos4412-sdhci"},
+	{ }
+};
+
+U_BOOT_DRIVER(s5p_sdhci_drv) = {
+	.name		= "s5p_sdhci",
+	.id		= UCLASS_MMC,
+	.of_match	= s5p_sdhci_ids,
+	.bind		= s5p_sdhci_bind,
+	.ops		= &sdhci_ops,
+	.probe		= s5p_sdhci_probe,
+	.priv_auto_alloc_size = sizeof(struct sdhci_host),
+	.platdata_auto_alloc_size = sizeof(struct s5p_sdhci_plat),
+};
+#endif /* CONFIG_DM_MMC */
