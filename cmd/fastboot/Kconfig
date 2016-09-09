@@ -50,10 +50,34 @@ config FASTBOOT_FLASH
 
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
+	depends on FASTBOOT_FLASH
 	help
 	  The fastboot "flash" command requires additional information
 	  regarding the non-volatile storage device. Define this to
 	  the eMMC device that fastboot should use to store the image.
+
+config FASTBOOT_GPT_NAME
+	string "Target name for updating GPT"
+	depends on FASTBOOT_FLASH
+	default "gpt"
+	help
+	  The fastboot "flash" command supports writing the downloaded
+	  image to the Protective MBR and the Primary GUID Partition
+	  Table. (Additionally, this downloaded image is post-processed
+	  to generate and write the Backup GUID Partition Table.)
+	  This occurs when the specified "partition name" on the
+	  "fastboot flash" command line matches the value defined here.
+	  The default target name for updating GPT is "gpt".
+
+config FASTBOOT_MBR_NAME
+	string "Target name for updating MBR"
+	depends on FASTBOOT_FLASH
+	default "mbr"
+	help
+	  The fastboot "flash" command allows to write the downloaded image
+	  to the Master Boot Record. This occurs when the "partition name"
+	  specified on the "fastboot flash" command line matches the value
+	  defined here. The default target name for updating MBR is "mbr".
 
 endif # USB_FUNCTION_FASTBOOT
 

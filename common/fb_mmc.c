@@ -14,12 +14,16 @@
 #include <mmc.h>
 #include <div64.h>
 
-#if defined(CONFIG_EFI_PARTITION) && !defined(CONFIG_FASTBOOT_GPT_NAME)
-#define CONFIG_FASTBOOT_GPT_NAME GPT_ENTRY_NAME
+/*
+ * FIXME: Ensure we always set these names via Kconfig once xxx_PARTITION is
+ * migrated
+ */
+#ifndef CONFIG_FASTBOOT_GPT_NAME
+#define CONFIG_FASTBOOT_GPT_NAME "gpt"
 #endif
 
 
-#if defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_FASTBOOT_MBR_NAME)
+#ifndef CONFIG_FASTBOOT_MBR_NAME
 #define CONFIG_FASTBOOT_MBR_NAME "mbr"
 #endif
 

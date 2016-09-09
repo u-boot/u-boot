@@ -1681,7 +1681,7 @@ The following options need to be configured:
 		to generate and write the Backup GUID Partition Table.)
 		This occurs when the specified "partition name" on the
 		"fastboot flash" command line matches this value.
-		Default is GPT_ENTRY_NAME (currently "gpt") if undefined.
+		The default is "gpt" if undefined.
 
 		CONFIG_FASTBOOT_MBR_NAME
 		The fastboot "flash" command supports writing the downloaded
