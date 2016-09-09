@@ -12,8 +12,8 @@
  * Copyright (C) 2010-2013 Wolfgang Denk <wd@denx.de>
  */
 
-#ifndef _SEARCH_H
-#define	_SEARCH_H 1
+#ifndef _SEARCH_H_
+#define _SEARCH_H_
 
 #include <stddef.h>
 
@@ -25,7 +25,7 @@ enum env_op {
 	env_op_overwrite,
 };
 
-/* Action which shall be performed in the call the hsearch.  */
+/* Action which shall be performed in the call to hsearch.  */
 typedef enum {
 	FIND,
 	ENTER
@@ -45,7 +45,7 @@ struct _ENTRY;
 /*
  * Family of hash table handling functions.  The functions also
  * have reentrant counterparts ending with _r.  The non-reentrant
- * functions all work on a signle internal hashing table.
+ * functions all work on a single internal hash table.
  */
 
 /* Data type for reentrant functions.  */
@@ -55,38 +55,38 @@ struct hsearch_data {
 	unsigned int filled;
 /*
  * Callback function which will check whether the given change for variable
- * "item" to "newval" may be applied or not, and possibly apply such change.
+ * "__item" to "newval" may be applied or not, and possibly apply such change.
  * When (flag & H_FORCE) is set, it shall not print out any error message and
  * shall force overwriting of write-once variables.
-.* Must return 0 for approval, 1 for denial.
+ * Must return 0 for approval, 1 for denial.
  */
 	int (*change_ok)(const ENTRY *__item, const char *newval, enum env_op,
 		int flag);
 };
 
-/* Create a new hashing table which will at most contain NEL elements.  */
+/* Create a new hash table which will contain at most "__nel" elements.  */
 extern int hcreate_r(size_t __nel, struct hsearch_data *__htab);
 
-/* Destroy current internal hashing table.  */
+/* Destroy current internal hash table.  */
 extern void hdestroy_r(struct hsearch_data *__htab);
 
 /*
- * Search for entry matching ITEM.key in internal hash table.  If
+ * Search for entry matching __item.key in internal hash table.  If
  * ACTION is `FIND' return found entry or signal error by returning
  * NULL.  If ACTION is `ENTER' replace existing data (if any) with
- * ITEM.data.
+ * __item.data.
  * */
 extern int hsearch_r(ENTRY __item, ACTION __action, ENTRY ** __retval,
 		     struct hsearch_data *__htab, int __flag);
 
 /*
- * Search for an entry matching `MATCH'.  Otherwise, Same semantics
+ * Search for an entry matching "__match".  Otherwise, Same semantics
  * as hsearch_r().
  */
 extern int hmatch_r(const char *__match, int __last_idx, ENTRY ** __retval,
 		    struct hsearch_data *__htab);
 
-/* Search and delete entry matching ITEM.key in internal hash table. */
+/* Search and delete entry matching "__key" in internal hash table. */
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
 		     int __flag);
 
@@ -97,8 +97,6 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
 /*
  * nvars: length of vars array
  * vars: array of strings (variable names) to import (nvars == 0 means all)
- * do_apply: whether to call callback function to check the new argument,
- * and possibly apply changes (false means accept everything)
  */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
@@ -123,4 +121,4 @@ extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 #define H_PROGRAMMATIC	(1 << 9) /* indicate that an import is from setenv() */
 #define H_ORIGIN_FLAGS	(H_INTERACTIVE | H_PROGRAMMATIC)
 
-#endif /* search.h */
+#endif /* _SEARCH_H_ */
