@@ -421,7 +421,10 @@
 			power-domains = <&pd_gpu>;
 		};
 
-		/* ADMA */
+		/* LPDDMA default allows only secured access. inorder to enable
+		 * These dma channels, Users should ensure that these dma
+		 * Channels are allowed for non secure access.
+		 */
 		lpd_dma_chan1: dma@ffa80000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
