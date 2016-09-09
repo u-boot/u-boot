@@ -27,7 +27,6 @@
 #define CONFIG_VIDEO
 
 /* U-Boot general configurations */
-#define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 
 /* U-Boot environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)

@@ -35,7 +35,6 @@
 #define CONFIG_INITRD_TAG		/* for ramdisk support */
 
 /* commands to include */
-#define CONFIG_VERSION_VARIABLE
 
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG

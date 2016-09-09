@@ -98,8 +98,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*-----------------------------------------------------------------------

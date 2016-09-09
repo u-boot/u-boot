@@ -39,7 +39,6 @@
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_BAUDRATE			115200
 
 /* NAND support */

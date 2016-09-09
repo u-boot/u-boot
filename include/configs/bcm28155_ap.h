@@ -112,7 +112,6 @@
 #define CONFIG_EFI_PARTITION
 
 /* version string, parser, etc */
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP

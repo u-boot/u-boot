@@ -51,7 +51,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 
 /*
  * Serial Driver

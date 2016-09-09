@@ -48,7 +48,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64

@@ -140,7 +140,6 @@
 
 #define CONFIG_BOOT_RETRY_TIME		60	/* retry after 60 secs */
 
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE			/* Support tab autocompletion */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP

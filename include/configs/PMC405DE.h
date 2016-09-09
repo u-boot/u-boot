@@ -92,7 +92,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history     */
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands      */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*
  * PCI stuff

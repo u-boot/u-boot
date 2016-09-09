@@ -265,7 +265,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_PARTITION_UUIDS
 

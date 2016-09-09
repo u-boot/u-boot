@@ -29,7 +29,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG		/* required for ramdisk support */
 
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\

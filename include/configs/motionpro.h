@@ -67,8 +67,6 @@
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
 
-#define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
-
 /*
  * Default environment settings
  */

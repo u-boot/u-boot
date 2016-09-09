@@ -163,7 +163,6 @@
 
 #define CONFIG_CMD_MTDPARTS
 
-#define CONFIG_VERSION_VARIABLE /* monitor functions :  u-boot version */
 #define CONFIG_CMD_DIAG /* monitor functions : Diagnostics */
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"

@@ -27,7 +27,6 @@
 	"bootdevice=0:1\0"						\
 	"usbload=usb reset;usbboot;usb stop;bootm\0"
 
-#define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 /* MEMORY */

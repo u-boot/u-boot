@@ -10,7 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_ENV_VERSION	10
 #define CONFIG_IDENT_STRING	" apf27 patch 3.10"
 #define CONFIG_BOARD_NAME apf27
