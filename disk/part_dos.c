@@ -300,6 +300,7 @@ int part_get_info_dos(struct blk_desc *dev_desc, int part,
 U_BOOT_PART_TYPE(dos) = {
 	.name		= "DOS",
 	.part_type	= PART_TYPE_DOS,
+	.max_entries	= DOS_ENTRY_NUMBERS,
 	.get_info	= part_get_info_ptr(part_get_info_dos),
 	.print		= part_print_ptr(part_print_dos),
 	.test		= part_test_dos,

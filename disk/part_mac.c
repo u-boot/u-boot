@@ -239,6 +239,7 @@ static int part_get_info_mac(struct blk_desc *dev_desc, int part,
 U_BOOT_PART_TYPE(mac) = {
 	.name		= "MAC",
 	.part_type	= PART_TYPE_MAC,
+	.max_entries	= MAC_ENTRY_NUMBERS,
 	.get_info	= part_get_info_mac,
 	.print		= part_print_mac,
 	.test		= part_test_mac,

@@ -27,7 +27,7 @@ static int part_get_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
 {
 	int ret;
 
-	ret = part_get_info_efi_by_name(dev_desc, name, info);
+	ret = part_get_info_by_name(dev_desc, name, info);
 	if (ret) {
 		/* strlen("fastboot_partition_alias_") + 32(part_name) + 1 */
 		char env_alias_name[25 + 32 + 1];
@@ -38,7 +38,7 @@ static int part_get_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
 		strncat(env_alias_name, name, 32);
 		aliased_part_name = getenv(env_alias_name);
 		if (aliased_part_name != NULL)
-			ret = part_get_info_efi_by_name(dev_desc,
+			ret = part_get_info_by_name(dev_desc,
 					aliased_part_name, info);
 	}
 	return ret;

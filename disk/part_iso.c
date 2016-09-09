@@ -257,6 +257,7 @@ static int part_test_iso(struct blk_desc *dev_desc)
 U_BOOT_PART_TYPE(iso) = {
 	.name		= "ISO",
 	.part_type	= PART_TYPE_ISO,
+	.max_entries	= ISO_ENTRY_NUMBERS,
 	.get_info	= part_get_info_iso,
 	.print		= part_print_iso,
 	.test		= part_test_iso,

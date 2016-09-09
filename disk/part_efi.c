@@ -296,25 +296,6 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 	return 0;
 }
 
-int part_get_info_efi_by_name(struct blk_desc *dev_desc,
-	const char *name, disk_partition_t *info)
-{
-	int ret;
-	int i;
-	for (i = 1; i < GPT_ENTRY_NUMBERS; i++) {
-		ret = part_get_info_efi(dev_desc, i, info);
-		if (ret != 0) {
-			/* no more entries in table */
-			return -1;
-		}
-		if (strcmp(name, (const char *)info->name) == 0) {
-			/* matched */
-			return 0;
-		}
-	}
-	return -2;
-}
-
 static int part_test_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
@@ -958,6 +939,7 @@ static int is_pte_valid(gpt_entry * pte)
 U_BOOT_PART_TYPE(a_efi) = {
 	.name		= "EFI",
 	.part_type	= PART_TYPE_EFI,
+	.max_entries	= GPT_ENTRY_NUMBERS,
 	.get_info	= part_get_info_ptr(part_get_info_efi),
 	.print		= part_print_ptr(part_print_efi),
 	.test		= part_test_efi,
