@@ -28,6 +28,7 @@
 		rtc0 = &rtc;
 		serial0 = &uart1;
 		serial1 = &max3107;
+		serial2 = &dcc;
 		spi0 = &qspi;
 		spi1 = &spi0;
 		usb0 = &usb0;
@@ -128,6 +129,10 @@
 		clock-frequency = <267439000>;
 		clock-accuracy = <0x64>;
 	};
+};
+
+&dcc {
+	status = "okay";
 };
 
 &gpio {

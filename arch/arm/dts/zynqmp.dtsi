@@ -45,6 +45,12 @@
 		};
 	};
 
+	dcc: dcc {
+		compatible = "arm,dcc";
+		status = "disabled";
+		u-boot,dm-pre-reloc;
+	};
+
 	power-domains {
 		compatible = "xlnx,zynqmp-genpd";
 
