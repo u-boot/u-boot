@@ -67,11 +67,8 @@
 	 AX_MEDIUM_AC | AX_MEDIUM_RE)
 
 /* AX88772 & AX88178 RX_CTL values */
-#define AX_RX_CTL_RH2M		0x0200	/* 32-bit aligned RX IP header */
-#define AX_RX_CTL_RH1M		0x0100	/* Enable RX header format type 1 */
-#define AX_RX_CTL_SO		0x0080
-#define AX_RX_CTL_AB		0x0008
-#define AX_RX_HEADER_DEFAULT	(AX_RX_CTL_RH1M | AX_RX_CTL_RH2M)
+#define AX_RX_CTL_SO			0x0080
+#define AX_RX_CTL_AB			0x0008
 
 #define AX_DEFAULT_RX_CTL	\
 	(AX_RX_CTL_SO | AX_RX_CTL_AB)
@@ -98,8 +95,6 @@
 #define FLAG_TYPE_AX88772B	(1U << 2)
 #define FLAG_EEPROM_MAC		(1U << 3) /* initial mac address in eeprom */
 
-#define ASIX_USB_VENDOR_ID	0x0b95
-#define AX88772B_USB_PRODUCT_ID	0x772b
 
 /* driver private */
 struct asix_private {
@@ -431,15 +426,10 @@ static int asix_init_common(struct ueth_data *dev, uint8_t *enetaddr)
 	int timeout = 0;
 #define TIMEOUT_RESOLUTION 50	/* ms */
 	int link_detected;
-	u32 ctl = AX_DEFAULT_RX_CTL;
 
 	debug("** %s()\n", __func__);
 
-	if ((dev->pusb_dev->descriptor.idVendor == ASIX_USB_VENDOR_ID) &&
-	    (dev->pusb_dev->descriptor.idProduct == AX88772B_USB_PRODUCT_ID))
-		ctl |= AX_RX_HEADER_DEFAULT;
-
-	if (asix_write_rx_ctl(dev, ctl) < 0)
+	if (asix_write_rx_ctl(dev, AX_DEFAULT_RX_CTL) < 0)
 		goto out_err;
 
 	if (asix_write_hwaddr_common(dev, enetaddr) < 0)
@@ -571,12 +561,6 @@ static int asix_recv(struct eth_device *eth)
 			debug("Rx: too large packet: %d\n", packet_len);
 			return -1;
 		}
-
-		if ((dev->pusb_dev->descriptor.idVendor ==
-		     ASIX_USB_VENDOR_ID) &&
-		    (dev->pusb_dev->descriptor.idProduct ==
-		     AX88772B_USB_PRODUCT_ID))
-			buf_ptr += 2;
 
 		/* Notify net stack */
 		net_process_received_packet(buf_ptr + sizeof(packet_len),
@@ -819,11 +803,6 @@ int asix_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	}
 
 	*packetp = ptr + sizeof(packet_len);
-
-	if ((ueth->pusb_dev->descriptor.idVendor == ASIX_USB_VENDOR_ID) &&
-	    (ueth->pusb_dev->descriptor.idProduct == AX88772B_USB_PRODUCT_ID))
-		*packetp += 2;
-
 	return packet_len;
 
 err:
