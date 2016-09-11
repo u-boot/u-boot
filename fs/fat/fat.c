@@ -876,6 +876,7 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	}
 
 	mydata->fatbufnum = -1;
+	mydata->fat_dirty = 0;
 	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
