@@ -528,7 +528,8 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 }
 
 /*
- * Determine the entry value at index 'entry' in a FAT (16/32) table
+ * Determine the next free cluster after 'entry' in a FAT (16/32) table
+ * and link it to 'entry'. EOC marker is not set on returned entry.
  */
 static __u32 determine_fatent(fsdata *mydata, __u32 entry)
 {
@@ -537,6 +538,7 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
 	while (1) {
 		next_fat = get_fatent_value(mydata, next_entry);
 		if (next_fat == 0) {
+			/* found free entry, link to entry */
 			set_fatent_value(mydata, entry, next_entry);
 			break;
 		}
