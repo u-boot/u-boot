@@ -126,7 +126,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 		return 1;
 	}
 	addr = simple_strtoul(argv[3], NULL, 16);
-	count = simple_strtoul(argv[5], NULL, 16);
+	count = (argc <= 5) ? 0 : simple_strtoul(argv[5], NULL, 16);
 
 	buf = map_sysmem(addr, count);
 	ret = file_fat_write(argv[4], buf, 0, count, &size);
@@ -145,7 +145,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 U_BOOT_CMD(
 	fatwrite,	6,	0,	do_fat_fswrite,
 	"write file into a dos filesystem",
-	"<interface> <dev[:part]> <addr> <filename> <bytes>\n"
+	"<interface> <dev[:part]> <addr> <filename> [<bytes>]\n"
 	"    - write file 'filename' from the address 'addr' in RAM\n"
 	"      to 'dev' on 'interface'"
 );
