@@ -183,7 +183,6 @@ static __u32 get_fatent_value(fsdata *mydata, __u32 entry)
 		if (getsize > fatlength)
 			getsize = fatlength;
 
-		fatlength *= mydata->sect_size;	/* We want it in bytes now */
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
 
 		/* Write back the fatbuf to the disk */
@@ -326,10 +325,8 @@ fill_dir_slot(fsdata *mydata, dir_entry **dentptr, const char *l_name)
 	dir_slot *slotptr = (dir_slot *)get_contents_vfatname_block;
 	__u8 counter = 0, checksum;
 	int idx = 0, ret;
-	char s_name[16];
 
-	/* Get short file name and checksum value */
-	strncpy(s_name, (*dentptr)->name, 16);
+	/* Get short file name checksum value */
 	checksum = mkcksum((*dentptr)->name, (*dentptr)->ext);
 
 	do {
