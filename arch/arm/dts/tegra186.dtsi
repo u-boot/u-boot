@@ -31,6 +31,26 @@
 		#interrupt-cells = <2>;
 	};
 
+	ethernet@2490000 {
+		compatible = "nvidia,tegra186-eqos", "snps,dwc-qos-ethernet-4.10";
+		reg = <0x0 0x02490000 0x0 0x10000>;
+		interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&bpmp TEGRA186_CLK_AXI_CBB>,
+			<&bpmp TEGRA186_CLK_EQOS_AXI>,
+			<&bpmp TEGRA186_CLK_EQOS_RX>,
+			<&bpmp TEGRA186_CLK_EQOS_PTP_REF>,
+			<&bpmp TEGRA186_CLK_EQOS_TX>;
+		clock-names = "slave_bus",
+			"master_bus",
+			"rx",
+			"ptp_ref",
+			"tx";
+		resets = <&bpmp TEGRA186_RESET_EQOS>;
+		reset-names = "eqos";
+		phy-mode = "rgmii";
+		status = "disabled";
+	};
+
 	uarta: serial@3100000 {
 		compatible = "nvidia,tegra186-uart", "nvidia,tegra20-uart";
 		reg = <0x0 0x03100000 0x0 0x10000>;
