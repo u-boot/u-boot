@@ -750,15 +750,24 @@ int cros_ec_flash_erase(struct cros_ec_dev *dev, uint32_t offset, uint32_t size)
 static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
 		const uint8_t *data, uint32_t offset, uint32_t size)
 {
-	struct ec_params_flash_write p;
+	struct ec_params_flash_write *p;
+	int ret;
 
-	p.offset = offset;
-	p.size = size;
-	assert(data && p.size <= EC_FLASH_WRITE_VER0_SIZE);
-	memcpy(&p + 1, data, p.size);
+	p = malloc(sizeof(*p) + size);
+	if (!p)
+		return -ENOMEM;
 
-	return ec_command_inptr(dev, EC_CMD_FLASH_WRITE, 0,
-			  &p, sizeof(p), NULL, 0) >= 0 ? 0 : -1;
+	p->offset = offset;
+	p->size = size;
+	assert(data && p->size <= EC_FLASH_WRITE_VER0_SIZE);
+	memcpy(p + 1, data, p->size);
+
+	ret = ec_command_inptr(dev, EC_CMD_FLASH_WRITE, 0,
+			  p, sizeof(*p) + size, NULL, 0) >= 0 ? 0 : -1;
+
+	free(p);
+
+	return ret;
 }
 
 /**
