@@ -116,32 +116,6 @@
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
 			"fi; "	\
 		"fi\0" \
-	"videoargs=" \
-		"setenv nextcon 0; " \
-		"if hdmidet; then " \
-			"setenv bootargs ${bootargs} " \
-				"video=mxcfb${nextcon}:dev=hdmi,1280x720M@60," \
-					"if=RGB24; " \
-			"setenv fbmen fbmem=28M; " \
-			"setexpr nextcon ${nextcon} + 1; " \
-		"else " \
-			"echo - no HDMI monitor;" \
-		"fi; " \
-		"i2c dev 1; " \
-		"if i2c probe 0x10; then " \
-			"setenv bootargs ${bootargs} " \
-				"video=mxcfb${nextcon}:dev=lcd,800x480@60," \
-					"if=RGB666,bpp=32; " \
-			"if test 0 -eq ${nextcon}; then " \
-				"setenv fbmem fbmem=10M; " \
-			"else " \
-				"setenv fbmem ${fbmem},10M; " \
-			"fi; " \
-			"setexpr nextcon ${nextcon} + 1; " \
-		"else " \
-			"echo '- no FWBADAPT-7WVGA-LCD-F07A-0102 display';" \
-		"fi; " \
-		"setenv bootargs ${bootargs} ${fbmem}\0" \
 	"findfdt="\
 		"if test $board_name = C1 && test $board_rev = MX6Q ; then " \
 			"setenv fdtfile imx6q-wandboard.dtb; fi; " \
