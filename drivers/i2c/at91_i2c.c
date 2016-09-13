@@ -8,7 +8,7 @@
 
 #include <asm/io.h>
 #include <common.h>
-#include <clk_client.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
