@@ -293,6 +293,12 @@ ${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_WRITE
 md5sum $addr \$filesize
 setenv filesize
 #
+
+# Next test case checks writing a file whose dirent
+# is the first in the block, which is always true for "."
+# The write should fail, but the lookup should work
+# Test Case 12 - Check directory traversal
+${PREFIX}${WRITE} host${SUFFIX} $addr ${FPATH}. 0x10
 reset
 
 EOF
@@ -472,6 +478,10 @@ function check_results() {
 	pass_fail "TC11: 1MB write to $3.w - write succeeded"
 	check_md5 "Test Case 11b " "$1" "$2" 1 \
 		"TC11: 1MB write to $3.w - content verified"
+
+	# Check lookup of 'dot' directory
+	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write file'
+	pass_fail "TC12: 1MB write to . - write denied"
 	echo "** End $1"
 }
 
