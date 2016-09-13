@@ -2,7 +2,7 @@
  * (C) Copyright 2014
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * Basic support for the pwm modul on imx6.
+ * Basic support for the pwm module on imx6.
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
