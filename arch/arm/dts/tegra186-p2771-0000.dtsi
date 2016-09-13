@@ -9,8 +9,8 @@
 	};
 
 	aliases {
-		sdhci0 = "/sdhci@3460000";
-		sdhci1 = "/sdhci@3400000";
+		mmc0 = "/sdhci@3460000";
+		mmc1 = "/sdhci@3400000";
 		i2c0 = "/bpmp/i2c";
 		i2c1 = "/i2c@3160000";
 		i2c2 = "/i2c@c240000";

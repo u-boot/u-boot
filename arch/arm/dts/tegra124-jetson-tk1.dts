@@ -16,8 +16,8 @@
 		i2c2 = "/i2c@7000c400";
 		i2c3 = "/i2c@7000c500";
 		i2c4 = "/i2c@7000c700";
-		sdhci0 = "/sdhci@700b0600";
-		sdhci1 = "/sdhci@700b0400";
+		mmc0 = "/sdhci@700b0600";
+		mmc1 = "/sdhci@700b0400";
 		spi0 = "/spi@7000d400";
 		spi1 = "/spi@7000da00";
 		usb0 = "/usb@7d000000";

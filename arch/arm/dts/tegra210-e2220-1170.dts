@@ -12,8 +12,8 @@
 
 	aliases {
 		i2c0 = "/i2c@0,7000d000";
-		sdhci0 = "/sdhci@0,700b0600";
-		sdhci1 = "/sdhci@0,700b0000";
+		mmc0 = "/sdhci@0,700b0600";
+		mmc1 = "/sdhci@0,700b0000";
 		usb0 = "/usb@0,7d000000";
 	};
 

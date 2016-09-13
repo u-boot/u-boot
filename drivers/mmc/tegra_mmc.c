@@ -736,7 +736,7 @@ void tegra_mmc_init(void)
 	debug("%s entry\n", __func__);
 
 	/* See if any Tegra186 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
 		COMPAT_NVIDIA_TEGRA186_SDMMC, node_list,
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra186 sdhci nodes is %d\n", __func__, count);
@@ -746,7 +746,7 @@ void tegra_mmc_init(void)
 	}
 
 	/* See if any Tegra210 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
 		COMPAT_NVIDIA_TEGRA210_SDMMC, node_list,
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra210 sdhci nodes is %d\n", __func__, count);
@@ -756,7 +756,7 @@ void tegra_mmc_init(void)
 	}
 
 	/* See if any Tegra124 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
 		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list,
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra124 sdhci nodes is %d\n", __func__, count);
@@ -766,7 +766,7 @@ void tegra_mmc_init(void)
 	}
 
 	/* See if any Tegra30 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
 		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list,
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T30 sdhci nodes is %d\n", __func__, count);
@@ -776,7 +776,7 @@ void tegra_mmc_init(void)
 	}
 
 	/* Now look for any Tegra20 MMC controllers */
-	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
 		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list,
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T20 sdhci nodes is %d\n", __func__, count);
