@@ -269,7 +269,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
 
 /*
  * Please select/define only one of the following

@@ -57,8 +57,6 @@
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 
