@@ -18,3 +18,6 @@ config SPL_GPIO_SUPPORT
 
 config SPL_I2C_SUPPORT
 	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y

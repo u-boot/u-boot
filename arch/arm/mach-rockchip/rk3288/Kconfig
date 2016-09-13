@@ -75,6 +75,9 @@ config SYS_MALLOC_F_LEN
 config SPL_DRIVERS_MISC_SUPPORT
 	default y
 
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
 source "board/chipspark/popmetal_rk3288/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"

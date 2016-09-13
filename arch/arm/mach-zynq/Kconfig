@@ -3,6 +3,9 @@ if ARCH_ZYNQ
 config SPL_FAT_SUPPORT
 	default y
 
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
 config SYS_BOARD
 	default "zynq"
 

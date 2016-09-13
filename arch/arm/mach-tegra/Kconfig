@@ -3,6 +3,9 @@ if TEGRA
 config SPL_GPIO_SUPPORT
 	default y
 
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
 config TEGRA_IVC
 	bool "Tegra IVC protocol"
 	help

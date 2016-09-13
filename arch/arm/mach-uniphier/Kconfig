@@ -1,5 +1,8 @@
 if ARCH_UNIPHIER
 
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
 config SYS_CONFIG_NAME
 	default "uniphier"
 

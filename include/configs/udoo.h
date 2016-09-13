@@ -11,7 +11,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 

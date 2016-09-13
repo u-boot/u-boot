@@ -286,7 +286,6 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 #define CONFIG_SPL_BOARD_INIT

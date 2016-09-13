@@ -11,7 +11,6 @@
 #include <config_distro_defaults.h>
 
 #ifdef CONFIG_SPL
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT

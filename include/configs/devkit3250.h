@@ -194,7 +194,6 @@
 /* Use the framework and generic lib */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
 
 /* SPL will use serial */
 #define CONFIG_SPL_SERIAL_SUPPORT
