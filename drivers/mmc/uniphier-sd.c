@@ -119,9 +119,12 @@ DECLARE_GLOBAL_DATA_PTR;
 /* alignment required by the DMA engine of this controller */
 #define UNIPHIER_SD_DMA_MINALIGN	0x10
 
-struct uniphier_sd_priv {
+struct uniphier_sd_plat {
 	struct mmc_config cfg;
-	struct mmc *mmc;
+	struct mmc mmc;
+};
+
+struct uniphier_sd_priv {
 	void __iomem *regbase;
 	unsigned long mclk;
 	unsigned int version;
@@ -654,8 +657,16 @@ static void uniphier_sd_host_init(struct uniphier_sd_priv *priv)
 	}
 }
 
+static int uniphier_sd_bind(struct udevice *dev)
+{
+	struct uniphier_sd_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+
 static int uniphier_sd_probe(struct udevice *dev)
 {
+	struct uniphier_sd_plat *plat = dev_get_platdata(dev);
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	fdt_addr_t base;
@@ -691,15 +702,15 @@ static int uniphier_sd_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->cfg.name = dev->name;
-	priv->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	plat->cfg.name = dev->name;
+	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	switch (fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width", 1)) {
 	case 8:
-		priv->cfg.host_caps |= MMC_MODE_8BIT;
+		plat->cfg.host_caps |= MMC_MODE_8BIT;
 		break;
 	case 4:
-		priv->cfg.host_caps |= MMC_MODE_4BIT;
+		plat->cfg.host_caps |= MMC_MODE_4BIT;
 		break;
 	case 1:
 		break;
@@ -722,27 +733,13 @@ static int uniphier_sd_probe(struct udevice *dev)
 
 	uniphier_sd_host_init(priv);
 
-	priv->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
-	priv->cfg.f_min = priv->mclk /
+	plat->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
+	plat->cfg.f_min = priv->mclk /
 			(priv->caps & UNIPHIER_SD_CAP_DIV1024 ? 1024 : 512);
-	priv->cfg.f_max = priv->mclk;
-	priv->cfg.b_max = U32_MAX; /* max value of UNIPHIER_SD_SECCNT */
+	plat->cfg.f_max = priv->mclk;
+	plat->cfg.b_max = U32_MAX; /* max value of UNIPHIER_SD_SECCNT */
 
-	priv->mmc = mmc_create(&priv->cfg, priv);
-	if (!priv->mmc)
-		return -EIO;
-
-	upriv->mmc = priv->mmc;
-	priv->mmc->dev = dev;
-
-	return 0;
-}
-
-static int uniphier_sd_remove(struct udevice *dev)
-{
-	struct uniphier_sd_priv *priv = dev_get_priv(dev);
-
-	mmc_destroy(priv->mmc);
+	upriv->mmc = &plat->mmc;
 
 	return 0;
 }
@@ -756,8 +753,9 @@ U_BOOT_DRIVER(uniphier_mmc) = {
 	.name = "uniphier-mmc",
 	.id = UCLASS_MMC,
 	.of_match = uniphier_sd_match,
+	.bind = uniphier_sd_bind,
 	.probe = uniphier_sd_probe,
-	.remove = uniphier_sd_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_sd_priv),
+	.platdata_auto_alloc_size = sizeof(struct uniphier_sd_plat),
 	.ops = &uniphier_sd_ops,
 };
