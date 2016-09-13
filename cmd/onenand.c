@@ -139,6 +139,12 @@ static int onenand_block_write(loff_t to, size_t len,
 	size_t _retlen = 0;
 	int ret;
 
+	if ((to & (mtd->writesize - 1)) != 0) {
+		printf("Attempt to write non block-aligned data\n");
+		*retlen = 0;
+		return 1;
+	}
+
 	if (to == next_ofs) {
 		next_ofs = to + len;
 		to += skip_ofs;
