@@ -24,7 +24,6 @@
 
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_OMAP_WATCHDOG
-#define CONFIG_SPL_WATCHDOG_SUPPORT
 
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000

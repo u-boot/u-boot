@@ -62,7 +62,6 @@
 					 (128 << 20))
 
 /* Enable the watchdog inside of SPL */
-#define CONFIG_SPL_WATCHDOG_SUPPORT
 
 /*
  * Since SPL did pll and ddr initialization for us,

@@ -112,7 +112,6 @@
 #endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
-#define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
 
 #ifdef CONFIG_SECURE_BOOT

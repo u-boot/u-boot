@@ -322,8 +322,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)
 
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
