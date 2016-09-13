@@ -39,7 +39,6 @@
 /* NAND support */
 #if defined(CONFIG_SPL_NAND_SUPPORT)
 #define CONFIG_SPL_NAND_MXS
-#define CONFIG_SPL_DMA_SUPPORT
 #endif
 
 /* MMC support */
