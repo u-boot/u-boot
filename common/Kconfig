@@ -213,3 +213,5 @@ config VERSION_VARIABLE
 	  version as printed by the "version" command.
 	  Any change to this variable will be reverted at the
 	  next reset.
+
+source "common/spl/Kconfig"
