@@ -424,10 +424,12 @@
 
 	usb@7d004000 { /* Internal webcam. */
 		status = "okay";
+		phy_type = "hsic";
 	};
 
 	usb-phy@7d004000 {
 		status = "okay";
+		phy_type = "hsic";
 		vbus-supply = <&vdd_run_cam>;
 	};
 
