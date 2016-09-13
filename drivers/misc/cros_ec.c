@@ -1364,6 +1364,15 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("Offset: %x\n", offset);
 			printf("Size:   %x\n", size);
 		}
+	} else if (0 == strcmp("flashinfo", cmd)) {
+		struct ec_response_flash_info p;
+
+		ret = cros_ec_read_flashinfo(dev, &p);
+		if (!ret) {
+			printf("Flash size:         %u\n", p.flash_size);
+			printf("Write block size:   %u\n", p.write_block_size);
+			printf("Erase block size:   %u\n", p.erase_block_size);
+		}
 	} else if (0 == strcmp("vbnvcontext", cmd)) {
 		uint8_t block[EC_VBNV_BLOCK_SIZE];
 		char buf[3];
@@ -1483,6 +1492,7 @@ U_BOOT_CMD(
 	"crosec events              Read CROS-EC host events\n"
 	"crosec clrevents [mask]    Clear CROS-EC host events\n"
 	"crosec regioninfo <ro|rw>  Read image info\n"
+	"crosec flashinfo           Read flash info\n"
 	"crosec erase <ro|rw>       Erase EC image\n"
 	"crosec read <ro|rw> <addr> [<size>]   Read EC image\n"
 	"crosec write <ro|rw> <addr> [<size>]  Write EC image\n"
