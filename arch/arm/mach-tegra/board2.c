@@ -33,7 +33,6 @@
 #include <usb.h>
 #endif
 #ifdef CONFIG_TEGRA_MMC
-#include <asm/arch-tegra/tegra_mmc.h>
 #include <asm/arch-tegra/mmc.h>
 #endif
 #include <asm/arch-tegra/xusb-padctl.h>
@@ -247,34 +246,6 @@ int board_mmc_init(bd_t *bd)
 	tegra_mmc_init();
 
 	return 0;
-}
-
-void pad_init_mmc(struct mmc_host *host)
-{
-#if defined(CONFIG_TEGRA30)
-	enum periph_id id = host->mmc_id;
-	u32 val;
-
-	debug("%s: sdmmc address = %08x, id = %d\n", __func__,
-		(unsigned int)host->reg, id);
-
-	/* Set the pad drive strength for SDMMC1 or 3 only */
-	if (id != PERIPH_ID_SDMMC1 && id != PERIPH_ID_SDMMC3) {
-		debug("%s: settings are only valid for SDMMC1/SDMMC3!\n",
-			__func__);
-		return;
-	}
-
-	val = readl(&host->reg->sdmemcmppadctl);
-	val &= 0xFFFFFFF0;
-	val |= MEMCOMP_PADCTRL_VREF;
-	writel(val, &host->reg->sdmemcmppadctl);
-
-	val = readl(&host->reg->autocalcfg);
-	val &= 0xFFFF0000;
-	val |= AUTO_CAL_PU_OFFSET | AUTO_CAL_PD_OFFSET | AUTO_CAL_ENABLED;
-	writel(val, &host->reg->autocalcfg);
-#endif	/* T30 */
 }
 #endif	/* MMC */
 

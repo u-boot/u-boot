@@ -151,7 +151,5 @@ struct mmc_host {
 	struct mmc_config cfg;	/* mmc configuration */
 };
 
-void pad_init_mmc(struct mmc_host *host);
-
 #endif	/* __ASSEMBLY__ */
 #endif	/* __TEGRA_MMC_H_ */
