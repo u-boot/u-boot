@@ -117,9 +117,6 @@
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
-/* General network SPL */
-#define CONFIG_SPL_NET_SUPPORT
-
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_OMAP_GPMC

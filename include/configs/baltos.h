@@ -227,7 +227,6 @@
 /* USB gadget RNDIS */
 
 /* General network SPL, both CPSW and USB gadget RNDIS */
-/*#define CONFIG_SPL_NET_SUPPORT
 #define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"*/
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"

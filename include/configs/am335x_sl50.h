@@ -106,8 +106,6 @@
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/* General network SPL  */
-#define CONFIG_SPL_NET_SUPPORT
 #endif
 
 #if defined(CONFIG_EMMC_BOOT)
