@@ -32,18 +32,6 @@ void uniphier_ld20_pin_init(void)
 	sg_set_iectrl_range(3, 17);
 #endif
 
-#ifdef CONFIG_USB_XHCI_UNIPHIER
-	sg_set_pinsel(46, 0, 8, 4);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(47, 0, 8, 4);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(48, 0, 8, 4);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(49, 0, 8, 4);	/* USB1OD   -> USB1OD */
-	sg_set_pinsel(50, 0, 8, 4);	/* USB2VBUS -> USB2VBUS */
-	sg_set_pinsel(51, 0, 8, 4);	/* USB2OD   -> USB2OD */
-	sg_set_pinsel(52, 0, 8, 4);	/* USB3VBUS -> USB3VBUS */
-	sg_set_pinsel(53, 0, 8, 4);	/* USB3OD   -> USB3OD */
-	sg_set_iectrl_range(46, 53);
-#endif
-
 	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
 	sg_set_iectrl(149);
 	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */

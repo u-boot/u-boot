@@ -33,12 +33,5 @@ void uniphier_pro4_pin_init(void)
 	/* sg_set_pinsel(132, 1, 4, 8); */	/* TXD2   -> XNFCE1 */
 #endif
 
-#ifdef CONFIG_USB_XHCI_UNIPHIER
-	sg_set_pinsel(180, 0, 4, 8);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(181, 0, 4, 8);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(182, 0, 4, 8);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(183, 0, 4, 8);	/* USB1OD   -> USB1OD */
-#endif
-
 	writel(1, SG_LOADPINCTRL);
 }

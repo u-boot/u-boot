@@ -33,12 +33,5 @@ void uniphier_pro5_pin_init(void)
 	sg_set_pinsel(35, 0, 4, 8);	/* NFD7   -> NFD7 */
 #endif
 
-#ifdef CONFIG_USB_XHCI_UNIPHIER
-	sg_set_pinsel(124, 0, 4, 8);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(125, 0, 4, 8);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(126, 0, 4, 8);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(127, 0, 4, 8);	/* USB1OD   -> USB1OD */
-#endif
-
 	writel(1, SG_LOADPINCTRL);
 }

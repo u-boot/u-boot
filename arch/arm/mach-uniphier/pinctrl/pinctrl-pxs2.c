@@ -32,15 +32,4 @@ void uniphier_pxs2_pin_init(void)
 	sg_set_pinsel(45, 8, 8, 4);	/* NFD6   -> NFD6 */
 	sg_set_pinsel(46, 8, 8, 4);	/* NFD7   -> NFD7 */
 #endif
-
-#ifdef CONFIG_USB_XHCI_UNIPHIER
-	sg_set_pinsel(56, 8, 8, 4);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(57, 8, 8, 4);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(58, 8, 8, 4);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(59, 8, 8, 4);	/* USB1OD   -> USB1OD */
-	sg_set_pinsel(60, 8, 8, 4);	/* USB2VBUS -> USB2VBUS */
-	sg_set_pinsel(61, 8, 8, 4);	/* USB2OD   -> USB2OD */
-	sg_set_pinsel(62, 8, 8, 4);	/* USB3VBUS -> USB3VBUS */
-	sg_set_pinsel(63, 8, 8, 4);	/* USB3OD   -> USB3OD */
-#endif
 }
