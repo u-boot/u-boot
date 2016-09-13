@@ -23,9 +23,14 @@ struct uniphier_board_data {
 	unsigned int dram_nr_ch;
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
-#define UNIPHIER_BD_DDR3PLUS		BIT(2)
-#define UNIPHIER_BD_PACKAGE_LD21	1
-#define UNIPHIER_BD_PACKAGE_TYPE(f)	((f) & 0x3)
+
+#define UNIPHIER_BD_DDR3PLUS			BIT(2)
+
+#define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x3)
+#define UNIPHIER_BD_BOARD_LD20_REF		0	/* LD20 reference */
+#define UNIPHIER_BD_BOARD_LD20_GLOBAL		1	/* LD20 TV Set */
+#define UNIPHIER_BD_BOARD_LD21_REF		2	/* LD21 reference */
+#define UNIPHIER_BD_BOARD_LD21_GLOBAL		3	/* LD21 TV Set */
 };
 
 const struct uniphier_board_data *uniphier_get_board_param(void);
