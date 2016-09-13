@@ -470,9 +470,9 @@ function check_results() {
 	# Check 1mb chunk write
 	grep -A3 "Test Case 11a " "$1" | \
 		egrep -q '1048576 bytes written|update journal'
-	pass_fail "TC11: 1MB write to $5 - write succeeded"
+	pass_fail "TC11: 1MB write to $3.w - write succeeded"
 	check_md5 "Test Case 11b " "$1" "$2" 1 \
-		"TC11: 1MB write to $5 - content verified"
+		"TC11: 1MB write to $3.w - content verified"
 	echo "** End $1"
 }
 
@@ -486,8 +486,7 @@ function test_fs_nonfs() {
 	OUT_FILE="${OUT}.$1.${fs}.out"
 	test_image $IMAGE $fs $SMALL_FILE $BIG_FILE $1 "" \
 		> ${OUT_FILE} 2>&1
-	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE \
-		$WRITE_FILE
+	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE
 	TOTAL_FAIL=$((TOTAL_FAIL + FAIL))
 	TOTAL_PASS=$((TOTAL_PASS + PASS))
 	echo "Summary: PASS: $PASS FAIL: $FAIL"
@@ -537,8 +536,7 @@ for fs in ext4 fat; do
 	sudo umount "$MOUNT_DIR"
 	rmdir "$MOUNT_DIR"
 
-	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE \
-		$WRITE_FILE
+	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE
 	TOTAL_FAIL=$((TOTAL_FAIL + FAIL))
 	TOTAL_PASS=$((TOTAL_PASS + PASS))
 	echo "Summary: PASS: $PASS FAIL: $FAIL"
