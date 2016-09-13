@@ -209,7 +209,7 @@ static const struct uniphier_board_data uniphier_ld21_data = {
 	.dram_nr_ch = 2,
 	.dram_ch[0] = {
 		.base = 0x80000000,
-		.size = 0x40000000,
+		.size = 0x20000000,
 		.width = 32,
 	},
 	.dram_ch[1] = {
