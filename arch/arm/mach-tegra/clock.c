@@ -612,6 +612,8 @@ int clock_verify(void)
 
 void clock_init(void)
 {
+	int i;
+
 	pll_rate[CLOCK_ID_CGENERAL] = clock_get_rate(CLOCK_ID_CGENERAL);
 	pll_rate[CLOCK_ID_MEMORY] = clock_get_rate(CLOCK_ID_MEMORY);
 	pll_rate[CLOCK_ID_PERIPH] = clock_get_rate(CLOCK_ID_PERIPH);
@@ -630,6 +632,19 @@ void clock_init(void)
 	debug("PLLU = %d\n", pll_rate[CLOCK_ID_USB]);
 	debug("PLLD = %d\n", pll_rate[CLOCK_ID_DISPLAY]);
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
+
+	for (i = 0; periph_clk_init_table[i].periph_id != -1; i++) {
+		enum periph_id periph_id;
+		enum clock_id parent;
+		int source, mux_bits, divider_bits;
+
+		periph_id = periph_clk_init_table[i].periph_id;
+		parent = periph_clk_init_table[i].parent_clock_id;
+
+		source = get_periph_clock_source(periph_id, parent, &mux_bits,
+						 &divider_bits);
+		clock_ll_set_source_bits(periph_id, mux_bits, source);
+	}
 }
 
 static void set_avp_clock_source(u32 src)

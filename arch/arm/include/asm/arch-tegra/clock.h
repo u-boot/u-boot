@@ -362,6 +362,12 @@ struct clk_pll_info {
 };
 extern struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT];
 
+struct periph_clk_init {
+	enum periph_id periph_id;
+	enum clock_id parent_clock_id;
+};
+extern struct periph_clk_init periph_clk_init_table[];
+
 /**
  * Enable output clock for external peripherals
  *
