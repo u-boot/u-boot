@@ -13,32 +13,15 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#ifndef CONFIG_TEGRA186
-#include <asm/arch/clock.h>
-#include <asm/arch-tegra/clk_rst.h>
-#endif
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <mmc.h>
-
-/*
- * FIXME: TODO: This driver contains a number of ifdef CONFIG_TEGRA186 that
- * should not be present. These are needed because newer Tegra SoCs support
- * only the standard clock/reset APIs, whereas older Tegra SoCs support only
- * a custom Tegra-specific API. ASAP the older Tegra SoCs' code should be
- * fixed to implement the standard APIs, and all drivers converted to solely
- * use the new standard APIs, with no ifdefs.
- */
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct tegra_mmc_priv {
 	struct tegra_mmc *reg;
-#ifdef CONFIG_TEGRA186
 	struct reset_ctl reset_ctl;
 	struct clk clk;
-#else
-	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
-#endif
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
 	struct gpio_desc pwr_gpio;	/* Power GPIO */
 	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
@@ -373,6 +356,7 @@ static int tegra_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static void tegra_mmc_change_clock(struct tegra_mmc_priv *priv, uint clock)
 {
+	ulong rate;
 	int div;
 	unsigned short clk;
 	unsigned long timeout;
@@ -384,15 +368,9 @@ static void tegra_mmc_change_clock(struct tegra_mmc_priv *priv, uint clock)
 	 */
 	if (clock == 0)
 		goto out;
-#ifdef CONFIG_TEGRA186
-	{
-		ulong rate = clk_set_rate(&priv->clk, clock);
-		div = (rate + clock - 1) / clock;
-	}
-#else
-	clock_adjust_periph_pll_div(priv->mmc_id, CLOCK_ID_PERIPH, clock,
-				    &div);
-#endif
+
+	rate = clk_set_rate(&priv->clk, clock);
+	div = (rate + clock - 1) / clock;
 	debug("div = %d\n", div);
 
 	writew(0, &priv->reg->clkcon);
@@ -593,10 +571,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct tegra_mmc_priv *priv = dev_get_priv(dev);
-	int bus_width;
-#ifdef CONFIG_TEGRA186
-	int ret;
-#endif
+	int bus_width, ret;
 
 	priv->cfg.name = "Tegra SD/MMC";
 	priv->cfg.ops = &tegra_mmc_ops;
@@ -625,7 +600,6 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 	priv->reg = (void *)dev_get_addr(dev);
 
-#ifdef CONFIG_TEGRA186
 	ret = reset_get_by_name(dev, "sdhci", &priv->reset_ctl);
 	if (ret) {
 		debug("reset_get_by_name() failed: %d\n", ret);
@@ -649,15 +623,6 @@ static int tegra_mmc_probe(struct udevice *dev)
 	ret = reset_deassert(&priv->reset_ctl);
 	if (ret)
 		return ret;
-#else
-	priv->mmc_id = clock_decode_periph_id(gd->fdt_blob, dev->of_offset);
-	if (priv->mmc_id == PERIPH_ID_NONE) {
-		debug("%s: could not decode periph id\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	clock_start_periph_pll(priv->mmc_id, CLOCK_ID_PERIPH, 20000000);
-#endif
 
 	/* These GPIOs are optional */
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
