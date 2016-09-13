@@ -30,6 +30,9 @@ config SPL_NAND_SUPPORT
 config SPL_POWER_SUPPORT
 	default y
 
+config SPL_SERIAL_SUPPORT
+	default y
+
 choice
 	prompt "OMAP4 board select"
 	optional

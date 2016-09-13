@@ -195,7 +195,6 @@
 #define CONFIG_SPL_FRAMEWORK
 
 /* SPL will use serial */
-#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* SPL loads an image from NAND */
 #define CONFIG_SPL_NAND_SIMPLE

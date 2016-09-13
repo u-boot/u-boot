@@ -263,7 +263,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 
 /* General parts of the framework, required. */
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 
 #ifdef CONFIG_NAND

@@ -18,6 +18,9 @@ config SPL_MMC_SUPPORT
 config SPL_POWER_SUPPORT
 	default y
 
+config SPL_SERIAL_SUPPORT
+	default y
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I

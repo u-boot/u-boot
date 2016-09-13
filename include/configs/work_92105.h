@@ -189,7 +189,6 @@
 /* Use the framework and generic lib */
 #define CONFIG_SPL_FRAMEWORK
 /* SPL will use serial */
-#define CONFIG_SPL_SERIAL_SUPPORT
 /* SPL will load U-Boot from NAND offset 0x40000 */
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE

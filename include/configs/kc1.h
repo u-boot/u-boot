@@ -129,8 +129,6 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SPL_SERIAL_SUPPORT
-
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	2
 
 /*

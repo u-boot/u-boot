@@ -188,7 +188,6 @@
 #define CONFIG_FAT_WRITE	/* enable write access */
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_SERIAL_SUPPORT
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 

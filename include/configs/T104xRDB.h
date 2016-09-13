@@ -43,7 +43,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1040d4_rcw.cfg
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #endif
 
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_FSL_LAW                 /* Use common FSL init code */

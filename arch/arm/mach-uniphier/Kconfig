@@ -12,6 +12,9 @@ config SPL_MMC_SUPPORT
 config SPL_NAND_SUPPORT
 	default y if !ARM64
 
+config SPL_SERIAL_SUPPORT
+	default y
+
 config SYS_CONFIG_NAME
 	default "uniphier"
 

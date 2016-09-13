@@ -15,6 +15,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC_SUPPORT
 	default y
 
+config SPL_SERIAL_SUPPORT
+	default y
+
 config SYS_BOARD
 	default "zynqmp"
 

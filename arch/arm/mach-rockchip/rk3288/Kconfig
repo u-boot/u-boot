@@ -84,6 +84,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC_SUPPORT
 	default y
 
+config SPL_SERIAL_SUPPORT
+	default y
+
 source "board/chipspark/popmetal_rk3288/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"
