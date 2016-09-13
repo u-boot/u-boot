@@ -135,22 +135,6 @@ function create_image() {
 	fi
 }
 
-# 1st parameter is the FS type: fat/ext4
-# 2nd parameter is the name of small file
-# Returns filename which can be used for fat or ext4 for writing
-function fname_for_write() {
-	case $1 in
-		ext4)
-			# ext4 needs absolute path name of file
-			echo /${2}.w
-			;;
-
-		*)
-			echo ${2}.w
-			;;
-	esac
-}
-
 # 1st parameter is image file
 # 2nd parameter is file system type - fat/ext4
 # 3rd parameter is name of small file
@@ -166,11 +150,14 @@ function test_image() {
 
 	case "$2" in
 		fat)
+		FPATH=""
 		PREFIX="fat"
 		WRITE="write"
 		;;
 
 		ext4)
+		# ext4 needs absolute path
+		FPATH="/"
 		PREFIX="ext4"
 		WRITE="write"
 		;;
@@ -205,15 +192,14 @@ function test_image() {
 
 	esac
 
-	if [ -z "$6" ]; then
-		FILE_WRITE=`fname_for_write $2 $3`
-		FILE_SMALL=$3
-		FILE_BIG=$4
-	else
-		FILE_WRITE=$6/`fname_for_write $2 $3`
-		FILE_SMALL=$6/$3
-		FILE_BIG=$6/$4
+	# sb always uses full path to mointpoint, irrespective of filesystem
+	if [ "$5" = "sb" ]; then
+		FPATH=${6}/
 	fi
+
+	FILE_WRITE=${3}.w
+	FILE_SMALL=$3
+	FILE_BIG=$4
 
 	# In u-boot commands, <interface> stands for host or hostfs
 	# hostfs maps to the host fs.
@@ -230,13 +216,13 @@ ${PREFIX}ls host${SUFFIX} $6
 # sb size hostfs - $3 for hostfs commands.
 # 1MB is 0x0010 0000
 # Test Case 2 - size of small file
-${PREFIX}size host${SUFFIX} $FILE_SMALL
+${PREFIX}size host${SUFFIX} ${FPATH}$FILE_SMALL
 printenv filesize
 setenv filesize
 
 # 2.5GB (1024*1024*2500) is 0x9C40 0000
 # Test Case 3 - size of big file
-${PREFIX}size host${SUFFIX} $FILE_BIG
+${PREFIX}size host${SUFFIX} ${FPATH}$FILE_BIG
 printenv filesize
 setenv filesize
 
@@ -245,14 +231,14 @@ setenv filesize
 # Last two parameters are size and offset.
 
 # Test Case 4a - Read full 1MB of small file
-${PREFIX}load host${SUFFIX} $addr $FILE_SMALL
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_SMALL
 printenv filesize
 # Test Case 4b - Read full 1MB of small file
 md5sum $addr \$filesize
 setenv filesize
 
 # Test Case 5a - First 1MB of big file
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG $length 0x0
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG $length 0x0
 printenv filesize
 # Test Case 5b - First 1MB of big file
 md5sum $addr \$filesize
@@ -260,7 +246,7 @@ setenv filesize
 
 # fails for ext as no offset support
 # Test Case 6a - Last 1MB of big file
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG $length 0x9C300000
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG $length 0x9C300000
 printenv filesize
 # Test Case 6b - Last 1MB of big file
 md5sum $addr \$filesize
@@ -268,7 +254,7 @@ setenv filesize
 
 # fails for ext as no offset support
 # Test Case 7a - One from the last 1MB chunk of 2GB
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG $length 0x7FF00000
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG $length 0x7FF00000
 printenv filesize
 # Test Case 7b - One from the last 1MB chunk of 2GB
 md5sum $addr \$filesize
@@ -276,7 +262,7 @@ setenv filesize
 
 # fails for ext as no offset support
 # Test Case 8a - One from the start 1MB chunk from 2GB
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG $length 0x80000000
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG $length 0x80000000
 printenv filesize
 # Test Case 8b - One from the start 1MB chunk from 2GB
 md5sum $addr \$filesize
@@ -284,7 +270,7 @@ setenv filesize
 
 # fails for ext as no offset support
 # Test Case 9a - One 1MB chunk crossing the 2GB boundary
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG $length 0x7FF80000
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG $length 0x7FF80000
 printenv filesize
 # Test Case 9b - One 1MB chunk crossing the 2GB boundary
 md5sum $addr \$filesize
@@ -292,17 +278,17 @@ setenv filesize
 
 # Generic failure case
 # Test Case 10 - 2MB chunk from the last 1MB of big file
-${PREFIX}load host${SUFFIX} $addr $FILE_BIG 0x00200000 0x9C300000
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_BIG 0x00200000 0x9C300000
 printenv filesize
 #
 
 # Read 1MB from small file
-${PREFIX}load host${SUFFIX} $addr $FILE_SMALL
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_SMALL
 # Write it back to test the writes
 # Test Case 11a - Check that the write succeeded
-${PREFIX}${WRITE} host${SUFFIX} $addr $FILE_WRITE \$filesize
+${PREFIX}${WRITE} host${SUFFIX} $addr ${FPATH}$FILE_WRITE \$filesize
 mw.b $addr 00 100
-${PREFIX}load host${SUFFIX} $addr $FILE_WRITE
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_WRITE
 # Test Case 11b - Check md5 of written to is same as the one read from
 md5sum $addr \$filesize
 setenv filesize
