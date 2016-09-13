@@ -122,6 +122,10 @@ Available options
    Surround each portion of the log with escape sequences to display it
    in color on the terminal.
 
+ -C, --commit
+   Create a git commit with the changes when the operation is complete. A
+   standard commit message is used which may need to be edited.
+
  -d, --defconfigs
   Specify a file containing a list of defconfigs to move
 
@@ -1240,6 +1244,8 @@ def main():
     # Add options here
     parser.add_option('-c', '--color', action='store_true', default=False,
                       help='display the log in color')
+    parser.add_option('-C', '--commit', action='store_true', default=False,
+                      help='Create a git commit for the operation')
     parser.add_option('-d', '--defconfigs', type='string',
                       help='a file containing a list of defconfigs to move')
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
@@ -1284,6 +1290,18 @@ def main():
     if configs:
         cleanup_headers(configs, options)
         cleanup_extra_options(configs, options)
+
+    if options.commit:
+        subprocess.call(['git', 'add', '-u'])
+        if configs:
+            msg = 'Convert %s %sto Kconfig' % (configs[0],
+                    'et al ' if len(configs) > 1 else '')
+            msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
+                    '\n   '.join(configs))
+        else:
+            msg = 'configs: Resync with savedefconfig'
+            msg += '\n\nRsync all defconfig files using moveconfig.py'
+        subprocess.call(['git', 'commit', '-s', '-m', msg])
 
 if __name__ == '__main__':
     main()
