@@ -3509,21 +3509,6 @@ FIT uImage format:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SPL_LIBCOMMON_SUPPORT
-		Support for common/libcommon.o in SPL binary
-
-		CONFIG_SPL_LIBDISK_SUPPORT
-		Support for disk/libdisk.o in SPL binary
-
-		CONFIG_SPL_I2C_SUPPORT
-		Support for drivers/i2c/libi2c.o in SPL binary
-
-		CONFIG_SPL_GPIO_SUPPORT
-		Support for drivers/gpio/libgpio.o in SPL binary
-
-		CONFIG_SPL_MMC_SUPPORT
-		Support for drivers/mmc/libmmc.o in SPL binary
-
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
 		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
 		Address and partition on the MMC to load U-Boot from
@@ -3546,12 +3531,6 @@ FIT uImage format:
 		CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
 		Partition on the MMC to load U-Boot from when the MMC is being
 		used in fs mode
-
-		CONFIG_SPL_FAT_SUPPORT
-		Support for fs/fat/libfat.o in SPL binary
-
-		CONFIG_SPL_EXT_SUPPORT
-		Support for EXT filesystem in SPL binary
 
 		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from filesystem
@@ -3591,17 +3570,9 @@ FIT uImage format:
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
 
-		CONFIG_SPL_MTD_SUPPORT
-		Support for the MTD subsystem within SPL.  Useful for
-		environment on NAND support within SPL.
-
 		CONFIG_SPL_NAND_RAW_ONLY
 		Support to boot only raw u-boot.bin images. Use this only
 		if you need to save space.
-
-		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-		Set for the SPL on PPC mpc8xxx targets, support for
-		drivers/ddr/fsl/libddr.o in SPL binary.
 
 		CONFIG_SPL_COMMON_INIT_DDR
 		Set for common ddr init with serial presence detect in
@@ -3638,28 +3609,8 @@ FIT uImage format:
 		Support for an OMAP3-specific set of functions to return the
 		ID and MFR of the first attached NAND chip, if present.
 
-		CONFIG_SPL_SERIAL_SUPPORT
-		Support for drivers/serial/libserial.o in SPL binary
-
-		CONFIG_SPL_SPI_FLASH_SUPPORT
-		Support for drivers/mtd/spi/libspi_flash.o in SPL binary
-
-		CONFIG_SPL_SPI_SUPPORT
-		Support for drivers/spi/libspi.o in SPL binary
-
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
-
-		CONFIG_SPL_LIBGENERIC_SUPPORT
-		Support for lib/libgeneric.o in SPL binary
-
-		CONFIG_SPL_ENV_SUPPORT
-		Support for the environment operating in SPL binary
-
-		CONFIG_SPL_NET_SUPPORT
-		Support for the net/libnet.o in SPL binary.
-		It conflicts with SPL env from storage medium specified by
-		CONFIG_ENV_IS_xxx but CONFIG_ENV_IS_NOWHERE
 
 		CONFIG_SPL_PAD_TO
 		Image offset to which the SPL should be padded before appending
