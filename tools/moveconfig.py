@@ -162,6 +162,10 @@ Available options
  -v, --verbose
    Show any build errors as boards are built
 
+ -y, --yes
+   Instead of prompting, automatically go ahead with all operations. This
+   includes cleaning up headers and CONFIG_SYS_EXTRA_OPTIONS.
+
 To see the complete list of supported options, run
 
   $ tools/moveconfig.py -h
@@ -481,14 +485,15 @@ def cleanup_headers(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    while True:
-        choice = raw_input('Clean up headers? [y/n]: ').lower()
-        print choice
-        if choice == 'y' or choice == 'n':
-            break
+    if not options.yes:
+        while True:
+            choice = raw_input('Clean up headers? [y/n]: ').lower()
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
 
-    if choice == 'n':
-        return
+        if choice == 'n':
+            return
 
     patterns = []
     for config in configs:
@@ -560,14 +565,16 @@ def cleanup_extra_options(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    while True:
-        choice = raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').lower()
-        print choice
-        if choice == 'y' or choice == 'n':
-            break
+    if not options.yes:
+        while True:
+            choice = (raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').
+                      lower())
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
 
-    if choice == 'n':
-        return
+        if choice == 'n':
+            return
 
     configs = [ config[len('CONFIG_'):] for config in configs ]
 
@@ -1251,6 +1258,8 @@ def main():
                       help='the number of jobs to run simultaneously')
     parser.add_option('-r', '--git-ref', type='string',
                       help='the git ref to clone for building the autoconf.mk')
+    parser.add_option('-y', '--yes', action='store_true', default=False,
+                      help="respond 'yes' to any prompts")
     parser.add_option('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
     parser.usage += ' CONFIG ...'
