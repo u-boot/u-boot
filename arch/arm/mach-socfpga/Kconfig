@@ -12,6 +12,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC_SUPPORT
 	default y if DM_MMC
 
+config SPL_NAND_SUPPORT
+	default y if SPL_NAND_DENALI
+
 config TARGET_SOCFPGA_ARRIA5
 	bool
 	select TARGET_SOCFPGA_GEN5

@@ -327,9 +327,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #ifdef CONFIG_DM_SPI
 #define CONFIG_SPL_SPI_SUPPORT
 #endif
-#ifdef CONFIG_SPL_NAND_DENALI
-#define CONFIG_SPL_NAND_SUPPORT
-#endif
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT

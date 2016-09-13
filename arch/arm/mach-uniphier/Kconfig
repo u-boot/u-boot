@@ -9,6 +9,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC_SUPPORT
 	default y if !ARCH_UNIPHIER_64BIT
 
+config SPL_NAND_SUPPORT
+	default y if !ARM64
+
 config SYS_CONFIG_NAME
 	default "uniphier"
 

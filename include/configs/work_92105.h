@@ -191,7 +191,6 @@
 /* SPL will use serial */
 #define CONFIG_SPL_SERIAL_SUPPORT
 /* SPL will load U-Boot from NAND offset 0x40000 */
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_BOOT

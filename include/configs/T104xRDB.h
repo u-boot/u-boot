@@ -61,7 +61,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define BOOT_PAGE_OFFSET		0x27000
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_SUPPORT
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
 /*

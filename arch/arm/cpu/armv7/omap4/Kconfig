@@ -24,6 +24,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC_SUPPORT
 	default y
 
+config SPL_NAND_SUPPORT
+	default y
+
 choice
 	prompt "OMAP4 board select"
 	optional
