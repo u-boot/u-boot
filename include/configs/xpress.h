@@ -12,7 +12,6 @@
 #include <asm/imx-common/gpio.h>
 
 /* SPL options */
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
 #define CONFIG_DISPLAY_CPUINFO

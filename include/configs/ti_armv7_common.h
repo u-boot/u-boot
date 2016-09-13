@@ -260,10 +260,6 @@
 #define CONFIG_CMD_SPL
 #endif
 
-#ifdef CONFIG_MMC
-#define CONFIG_SPL_MMC_SUPPORT
-#endif
-
 #define CONFIG_SYS_THUMB_BUILD
 
 /* General parts of the framework, required. */

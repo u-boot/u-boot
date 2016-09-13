@@ -12,6 +12,9 @@ config SPL_LIBDISK_SUPPORT
 config SPL_LIBGENERIC_SUPPORT
 	default y
 
+config SPL_MMC_SUPPORT
+	default y if ZYNQ_SDHCI
+
 config SYS_BOARD
 	default "zynq"
 

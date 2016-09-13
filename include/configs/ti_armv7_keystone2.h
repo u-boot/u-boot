@@ -307,7 +307,6 @@
 #undef CONFIG_SPL_OS_BOOT
 
 /* We do not have MMC support.. yet.. */
-#undef CONFIG_SPL_MMC_SUPPORT
 #undef CONFIG_MMC
 #undef CONFIG_GENERIC_MMC
 

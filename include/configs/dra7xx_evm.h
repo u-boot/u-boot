@@ -182,10 +182,6 @@
 #define CONFIG_SYS_SPI_ARGS_OFFS	0x140000
 #define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
 #if defined(CONFIG_QSPI_BOOT)
-/* In SPL, use the environment and discard MMC support for space. */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SPL_MMC_SUPPORT
-#endif
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED

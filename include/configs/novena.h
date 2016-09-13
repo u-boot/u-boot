@@ -72,7 +72,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 
 /* SPL */
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
 /* Ethernet Configuration */

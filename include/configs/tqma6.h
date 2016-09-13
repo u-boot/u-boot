@@ -13,7 +13,6 @@
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT
 
 /* common IMX6 SPL configuration */

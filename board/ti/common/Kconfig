@@ -27,3 +27,6 @@ config SPL_LIBDISK_SUPPORT
 
 config SPL_LIBGENERIC_SUPPORT
 	default y
+
+config SPL_MMC_SUPPORT
+	default y

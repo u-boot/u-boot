@@ -12,7 +12,6 @@
 #include <config_distro_defaults.h>
 #include "mx6_common.h"
 
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
 #define MACH_TYPE_WANDBOARD		4412
