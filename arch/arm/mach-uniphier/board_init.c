@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -45,7 +47,7 @@ static void uniphier_setup_xirq(void)
 	writel(tmp, 0x55000090);
 }
 
-int board_early_init_f(void)
+int board_init(void)
 {
 	led_puts("U0");
 
@@ -121,6 +123,16 @@ int board_early_init_f(void)
 	uniphier_setup_xirq();
 
 	led_puts("U2");
+
+	support_card_late_init();
+
+	led_puts("U3");
+
+#ifdef CONFIG_ARM64
+	uniphier_smp_kick_all_cpus();
+#endif
+
+	led_puts("Uboo");
 
 	return 0;
 }

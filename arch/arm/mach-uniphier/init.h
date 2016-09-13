@@ -115,6 +115,7 @@ void uniphier_pxs2_clk_init(void);
 void uniphier_ld11_clk_init(void);
 void uniphier_ld20_clk_init(void);
 
+void uniphier_smp_kick_all_cpus(void);
 void cci500_init(int nr_slaves);
 
 #define pr_err(fmt, args...)	printf(fmt, ##args)
