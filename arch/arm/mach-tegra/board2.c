@@ -53,6 +53,7 @@ U_BOOT_DEVICE(tegra_gpios) = {
 __weak void pinmux_init(void) {}
 __weak void pin_mux_usb(void) {}
 __weak void pin_mux_spi(void) {}
+__weak void pin_mux_mmc(void) {}
 __weak void gpio_early_init_uart(void) {}
 __weak void pin_mux_display(void) {}
 __weak void start_cpu_fan(void) {}
@@ -125,6 +126,10 @@ int board_init(void)
 
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
+#endif
+
+#ifdef CONFIG_TEGRA_MMC
+	pin_mux_mmc();
 #endif
 
 	/* Init is handled automatically in the driver-model case */
@@ -230,17 +235,10 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_TEGRA_MMC)
-__weak void pin_mux_mmc(void)
-{
-}
-
 /* this is a weak define that we are overriding */
 int board_mmc_init(bd_t *bd)
 {
 	debug("%s called\n", __func__);
-
-	/* Enable muxes, etc. for SDMMC controllers */
-	pin_mux_mmc();
 
 	debug("%s: init MMC\n", __func__);
 	tegra_mmc_init();
