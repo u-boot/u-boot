@@ -290,7 +290,6 @@
 /*
  * Disable CPSW SPL support so we fit within the 101KiB limit.
  */
-#undef CONFIG_SPL_ETH_SUPPORT
 #endif
 
 /* Network. */

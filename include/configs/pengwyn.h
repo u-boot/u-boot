@@ -200,7 +200,6 @@
 #if defined(CONFIG_SPL_BUILD)
 /* disable host part of MUSB in SPL */
 /* Disable CPSW SPL support so we fit within the 101KiB limit. */
-#undef CONFIG_SPL_ETH_SUPPORT
 #endif
 
 /* CPSW ethernet */
@@ -213,7 +212,6 @@
 #define CONFIG_PHY_REALTEK
 
 /* CPSW support */
-#define CONFIG_SPL_ETH_SUPPORT
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
