@@ -31,6 +31,7 @@
 	sdhci@0,700b0600 {
 		status = "okay";
 		bus-width = <8>;
+		non-removable;
 	};
 
 	i2c@0,7000d000 {

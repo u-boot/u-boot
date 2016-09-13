@@ -84,6 +84,7 @@
 	sdhci@0,700b0600 {
 		status = "okay";
 		bus-width = <8>;
+		non-removable;
 	};
 
 	usb@0,7d000000 {
