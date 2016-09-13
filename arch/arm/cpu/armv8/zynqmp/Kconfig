@@ -18,6 +18,9 @@ config SPL_MMC_SUPPORT
 config SPL_SERIAL_SUPPORT
 	default y
 
+config SPL_SPI_FLASH_SUPPORT
+	default y if ZYNQ_QSPI
+
 config SYS_BOARD
 	default "zynqmp"
 

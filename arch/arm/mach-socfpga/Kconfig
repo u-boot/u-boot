@@ -18,6 +18,9 @@ config SPL_NAND_SUPPORT
 config SPL_SERIAL_SUPPORT
 	default y
 
+config SPL_SPI_FLASH_SUPPORT
+	default y if DM_SPI
+
 config TARGET_SOCFPGA_ARRIA5
 	bool
 	select TARGET_SOCFPGA_GEN5

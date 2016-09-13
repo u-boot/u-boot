@@ -139,7 +139,6 @@
 #endif
 
 #ifdef CONFIG_SPL_SPI_SUNXI
-#define CONFIG_SPL_SPI_FLASH_SUPPORT	1
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 #endif
 
