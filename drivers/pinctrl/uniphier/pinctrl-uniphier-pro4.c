@@ -53,6 +53,26 @@ static const int sd_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned sd1_pins[] = {319, 320, 321, 322, 323, 324, 325, 326,
 				    327};
 static const int sd1_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const unsigned system_bus_pins[] = {25, 26, 27, 28, 29, 30, 31, 32, 33,
+					   34, 35, 36, 37, 38};
+static const int system_bus_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					 0};
+static const unsigned system_bus_cs0_pins[] = {318};
+static const int system_bus_cs0_muxvals[] = {5};
+static const unsigned system_bus_cs1_pins[] = {24};
+static const int system_bus_cs1_muxvals[] = {0};
+static const unsigned system_bus_cs2_pins[] = {315};
+static const int system_bus_cs2_muxvals[] = {5};
+static const unsigned system_bus_cs3_pins[] = {313};
+static const int system_bus_cs3_muxvals[] = {5};
+static const unsigned system_bus_cs4_pins[] = {305};
+static const int system_bus_cs4_muxvals[] = {5};
+static const unsigned system_bus_cs5_pins[] = {303};
+static const int system_bus_cs5_muxvals[] = {6};
+static const unsigned system_bus_cs6_pins[] = {307};
+static const int system_bus_cs6_muxvals[] = {6};
+static const unsigned system_bus_cs7_pins[] = {312};
+static const int system_bus_cs7_muxvals[] = {6};
 static const unsigned uart0_pins[] = {127, 128};
 static const int uart0_muxvals[] = {0, 0};
 static const unsigned uart1_pins[] = {129, 130};
@@ -86,6 +106,15 @@ static const struct uniphier_pinctrl_group uniphier_pro4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(nand_cs1),
 	UNIPHIER_PINCTRL_GROUP(sd),
 	UNIPHIER_PINCTRL_GROUP(sd1),
+	UNIPHIER_PINCTRL_GROUP(system_bus),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs0),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs1),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs2),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs3),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs4),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs5),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs6),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs7),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart0),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart1),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart2),
@@ -109,6 +138,7 @@ static const char * const uniphier_pro4_functions[] = {
 	UNIPHIER_PINMUX_FUNCTION(nand),
 	UNIPHIER_PINMUX_FUNCTION(sd),
 	UNIPHIER_PINMUX_FUNCTION(sd1),
+	UNIPHIER_PINMUX_FUNCTION(system_bus),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart0),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart1),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart2),

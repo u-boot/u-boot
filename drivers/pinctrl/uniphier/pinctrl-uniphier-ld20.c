@@ -34,6 +34,12 @@ static const unsigned nand_pins[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 static const int nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned sd_pins[] = {10, 11, 12, 13, 14, 15, 16, 17};
 static const int sd_muxvals[] = {3, 3, 3, 3, 3, 3, 3, 3};  /* No SDVOLC */
+static const unsigned system_bus_pins[] = {1, 2, 6, 7, 8, 9, 10, 11, 12, 13,
+					   14, 15, 16, 17};
+static const int system_bus_muxvals[] = {0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+					 2};
+static const unsigned system_bus_cs1_pins[] = {0};
+static const int system_bus_cs1_muxvals[] = {0};
 static const unsigned uart0_pins[] = {54, 55};
 static const int uart0_muxvals[] = {0, 0};
 static const unsigned uart1_pins[] = {58, 59};
@@ -62,6 +68,8 @@ static const struct uniphier_pinctrl_group uniphier_ld20_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(i2c4),
 	UNIPHIER_PINCTRL_GROUP(nand),
 	UNIPHIER_PINCTRL_GROUP(sd),
+	UNIPHIER_PINCTRL_GROUP_SPL(system_bus),
+	UNIPHIER_PINCTRL_GROUP_SPL(system_bus_cs1),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart0),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart1),
 	UNIPHIER_PINCTRL_GROUP_SPL(uart2),
@@ -82,6 +90,7 @@ static const char * const uniphier_ld20_functions[] = {
 	UNIPHIER_PINMUX_FUNCTION(i2c4),
 	UNIPHIER_PINMUX_FUNCTION(nand),
 	UNIPHIER_PINMUX_FUNCTION(sd),
+	UNIPHIER_PINMUX_FUNCTION_SPL(system_bus),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart0),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart1),
 	UNIPHIER_PINMUX_FUNCTION_SPL(uart2),
