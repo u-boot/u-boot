@@ -309,7 +309,6 @@
 /* We do not have MMC support.. yet.. */
 #undef CONFIG_SPL_LIBDISK_SUPPORT
 #undef CONFIG_SPL_MMC_SUPPORT
-#undef CONFIG_SPL_FAT_SUPPORT
 #undef CONFIG_MMC
 #undef CONFIG_GENERIC_MMC
 

@@ -3,6 +3,9 @@ if OMAP44XX
 config SPL_EXT_SUPPORT
 	default y
 
+config SPL_FAT_SUPPORT
+	default y
+
 choice
 	prompt "OMAP4 board select"
 	optional

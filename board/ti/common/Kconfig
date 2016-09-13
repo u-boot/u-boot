@@ -9,3 +9,6 @@ config TI_I2C_BOARD_DETECT
 
 config SPL_EXT_SUPPORT
 	default y
+
+config SPL_FAT_SUPPORT
+	default y

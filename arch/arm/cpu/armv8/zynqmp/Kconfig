@@ -1,5 +1,8 @@
 if ARCH_ZYNQMP
 
+config SPL_FAT_SUPPORT
+	default y
+
 config SYS_BOARD
 	default "zynqmp"
 

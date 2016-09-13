@@ -1,5 +1,8 @@
 if ARCH_ZYNQ
 
+config SPL_FAT_SUPPORT
+	default y
+
 config SYS_BOARD
 	default "zynq"
 
