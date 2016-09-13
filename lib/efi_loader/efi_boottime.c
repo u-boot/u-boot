@@ -134,9 +134,11 @@ static efi_status_t EFIAPI efi_allocate_pool(int pool_type, unsigned long size,
 					     void **buffer)
 {
 	efi_status_t r;
+	efi_physical_addr_t t;
 
 	EFI_ENTRY("%d, %ld, %p", pool_type, size, buffer);
-	r = efi_allocate_pages(0, pool_type, (size + 0xfff) >> 12, (void*)buffer);
+	r = efi_allocate_pages(0, pool_type, (size + 0xfff) >> 12, &t);
+	*buffer = (void *)(uintptr_t)t;
 	return EFI_EXIT(r);
 }
 
