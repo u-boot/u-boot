@@ -12,9 +12,6 @@
 #include <linux/kconfig.h>
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
-
-#define CONFIG_SPL_SPI_SUPPORT
-
 /* common IMX6 SPL configuration */
 #include "imx6_spl.h"
 

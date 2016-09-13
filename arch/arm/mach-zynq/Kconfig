@@ -21,6 +21,9 @@ config SPL_SERIAL_SUPPORT
 config SPL_SPI_FLASH_SUPPORT
 	default y if ZYNQ_QSPI
 
+config SPL_SPI_SUPPORT
+	default y if ZYNQ_QSPI
+
 config SYS_BOARD
 	default "zynq"
 

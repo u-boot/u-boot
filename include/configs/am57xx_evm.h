@@ -104,7 +104,6 @@
 #endif
 
 /* SPI SPL */
-#define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_TI_EDMA3
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
