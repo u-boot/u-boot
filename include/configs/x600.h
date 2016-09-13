@@ -267,7 +267,6 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 
 /*
