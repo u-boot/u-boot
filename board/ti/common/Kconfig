@@ -21,3 +21,6 @@ config SPL_I2C_SUPPORT
 
 config SPL_LIBCOMMON_SUPPORT
 	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y

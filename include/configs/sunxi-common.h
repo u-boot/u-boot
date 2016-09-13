@@ -205,8 +205,6 @@
 #define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
 #endif
 
-#define CONFIG_SPL_LIBDISK_SUPPORT
-
 #ifdef CONFIG_MMC
 #define CONFIG_SPL_MMC_SUPPORT
 #endif

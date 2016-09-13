@@ -261,7 +261,6 @@
 #endif
 
 #ifdef CONFIG_MMC
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
