@@ -337,7 +337,6 @@
 #undef CONFIG_EFI_PARTITION
 /* General network SPL  */
 #define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
@@ -416,7 +415,6 @@
 					"-(rootfs)"
 #elif defined(CONFIG_EMMC_BOOT)
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0

@@ -44,7 +44,6 @@
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xqds/t1024_pbi.cfg
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xqds/t1024_rcw.cfg
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
