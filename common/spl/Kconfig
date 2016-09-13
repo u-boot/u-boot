@@ -475,4 +475,71 @@ config SPL_YMODEM_SUPPORT
 	  means of transmitting U-Boot over a serial line for using in SPL,
 	  with a checksum to ensure correctness.
 
+config TPL_ENV_SUPPORT
+	bool "Support an environment"
+	depends on TPL
+	help
+	  Enable environment support in TPL. See SPL_ENV_SUPPORT for details.
+
+config TPL_I2C_SUPPORT
+	bool "Support I2C"
+	depends on TPL
+	help
+	  Enable support for the I2C bus in SPL. See SPL_I2C_SUPPORT for
+	  details.
+
+config TPL_LIBCOMMON_SUPPORT
+	bool "Support common libraries"
+	depends on TPL
+	help
+	  Enable support for common U-Boot libraries within TPL. See
+	  SPL_LIBCOMMON_SUPPORT for details.
+
+config TPL_LIBGENERIC_SUPPORT
+	bool "Support generic libraries"
+	depends on TPL
+	help
+	  Enable support for generic U-Boot libraries within TPL. See
+	  SPL_LIBGENERIC_SUPPORT for details.
+
+config TPL_MPC8XXX_INIT_DDR_SUPPORT
+	bool "Support MPC8XXX DDR init"
+	depends on TPL
+	help
+	  Enable support for DDR-SDRAM on the MPC8XXX family within TPL. See
+	  SPL_MPC8XXX_INIT_DDR_SUPPORT for details.
+
+config TPL_MMC_SUPPORT
+	bool "Support MMC"
+	depends on TPL
+	help
+	  Enable support for MMC within TPL. See SPL_MMC_SUPPORT for details.
+
+config TPL_NAND_SUPPORT
+	bool "Support NAND flash"
+	depends on TPL
+	help
+	  Enable support for NAND in SPL. See SPL_NAND_SUPPORT for details.
+
+config TPL_SERIAL_SUPPORT
+	bool "Support serial"
+	depends on TPL
+	help
+	  Enable support for serial in SPL. See SPL_SERIAL_SUPPORT for
+	  details.
+
+config TPL_SPI_FLASH_SUPPORT
+	bool "Support SPI flash drivers"
+	depends on TPL
+	help
+	  Enable support for using SPI flash in SPL. See SPL_SPI_FLASH_SUPPORT
+	  for details.
+
+config TPL_SPI_SUPPORT
+	bool "Support SPI drivers"
+	depends on TPL
+	help
+	  Enable support for using SPI in SPL. See SPL_SPI_SUPPORT for
+	  details.
+
 endmenu
