@@ -732,6 +732,51 @@ u32 *get_periph_source_reg(enum periph_id periph_id)
 	return &clkrst->crc_clk_src_y[internal_id];
 }
 
+int get_periph_clock_info(enum periph_id periph_id, int *mux_bits,
+			  int *divider_bits, int *type)
+{
+	enum periphc_internal_id internal_id;
+
+	if (!clock_periph_id_isvalid(periph_id))
+		return -1;
+
+	internal_id = periph_id_to_internal_id[periph_id];
+	if (!periphc_internal_id_isvalid(internal_id))
+		return -1;
+
+	*type = clock_periph_type[internal_id];
+	if (!clock_type_id_isvalid(*type))
+		return -1;
+
+	*mux_bits = clock_source[*type][CLOCK_MAX_MUX];
+
+	if (*type == CLOCK_TYPE_PC2CC3M_T16)
+		*divider_bits = 16;
+	else
+		*divider_bits = 8;
+
+	return 0;
+}
+
+enum clock_id get_periph_clock_id(enum periph_id periph_id, int source)
+{
+	enum periphc_internal_id internal_id;
+	int type;
+
+	if (!clock_periph_id_isvalid(periph_id))
+		return CLOCK_ID_NONE;
+
+	internal_id = periph_id_to_internal_id[periph_id];
+	if (!periphc_internal_id_isvalid(internal_id))
+		return CLOCK_ID_NONE;
+
+	type = clock_periph_type[internal_id];
+	if (!clock_type_id_isvalid(type))
+		return CLOCK_ID_NONE;
+
+	return clock_source[type][source];
+}
+
 /**
  * Given a peripheral ID and the required source clock, this returns which
  * value should be programmed into the source mux for that peripheral.
@@ -748,23 +793,10 @@ int get_periph_clock_source(enum periph_id periph_id,
 	enum clock_id parent, int *mux_bits, int *divider_bits)
 {
 	enum clock_type_id type;
-	enum periphc_internal_id internal_id;
-	int mux;
+	int mux, err;
 
-	assert(clock_periph_id_isvalid(periph_id));
-
-	internal_id = INTERNAL_ID(periph_id_to_internal_id[periph_id]);
-	assert(periphc_internal_id_isvalid(internal_id));
-
-	type = clock_periph_type[internal_id];
-	assert(clock_type_id_isvalid(type));
-
-	*mux_bits = clock_source[type][CLOCK_MAX_MUX];
-
-	if (type == CLOCK_TYPE_PC2CC3M_T16)
-		*divider_bits = 16;
-	else
-		*divider_bits = 8;
+	err = get_periph_clock_info(periph_id, mux_bits, divider_bits, &type);
+	assert(!err);
 
 	for (mux = 0; mux < CLOCK_MAX_MUX; mux++)
 		if (clock_source[type][mux] == parent)

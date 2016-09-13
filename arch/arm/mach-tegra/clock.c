@@ -206,6 +206,29 @@ int clock_ll_set_source_bits(enum periph_id periph_id, int mux_bits,
 	return 0;
 }
 
+static int clock_ll_get_source_bits(enum periph_id periph_id, int mux_bits)
+{
+	u32 *reg = get_periph_source_reg(periph_id);
+	u32 val = readl(reg);
+
+	switch (mux_bits) {
+	case MASK_BITS_31_30:
+		val >>= OUT_CLK_SOURCE_31_30_SHIFT;
+		val &= OUT_CLK_SOURCE_31_30_MASK;
+		return val;
+	case MASK_BITS_31_29:
+		val >>= OUT_CLK_SOURCE_31_29_SHIFT;
+		val &= OUT_CLK_SOURCE_31_29_MASK;
+		return val;
+	case MASK_BITS_31_28:
+		val >>= OUT_CLK_SOURCE_31_28_SHIFT;
+		val &= OUT_CLK_SOURCE_31_28_MASK;
+		return val;
+	default:
+		return -1;
+	}
+}
+
 void clock_ll_set_source(enum periph_id periph_id, unsigned source)
 {
 	clock_ll_set_source_bits(periph_id, MASK_BITS_31_30, source);
@@ -361,6 +384,20 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 
 	udelay(2);
 	return 0;
+}
+
+enum clock_id clock_get_periph_parent(enum periph_id periph_id)
+{
+	int err, mux_bits, divider_bits, type;
+	int source;
+
+	err = get_periph_clock_info(periph_id, &mux_bits, &divider_bits, &type);
+	if (err)
+		return CLOCK_ID_NONE;
+
+	source = clock_ll_get_source_bits(periph_id, mux_bits);
+
+	return get_periph_clock_id(periph_id, source);
 }
 
 unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
