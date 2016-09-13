@@ -359,7 +359,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
-#define CONFIG_SPL_MUSB_NEW_SUPPORT
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 #endif

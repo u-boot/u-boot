@@ -225,7 +225,6 @@
 #define CONFIG_BOOTCOUNT_AM33XX
 
 /* USB gadget RNDIS */
-/*#define CONFIG_SPL_MUSB_NEW_SUPPORT*/
 
 /* General network SPL, both CPSW and USB gadget RNDIS */
 /*#define CONFIG_SPL_NET_SUPPORT
