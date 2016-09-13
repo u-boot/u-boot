@@ -6,6 +6,9 @@ config SPL_EXT_SUPPORT
 config SPL_FAT_SUPPORT
 	default y
 
+config SPL_GPIO_SUPPORT
+	default y
+
 choice
 	prompt "OMAP3 board select"
 	optional

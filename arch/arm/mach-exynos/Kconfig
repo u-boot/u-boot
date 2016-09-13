@@ -61,6 +61,9 @@ endif
 
 if ARCH_EXYNOS5
 
+config SPL_GPIO_SUPPORT
+	default y
+
 choice
 	prompt "EXYNOS5 board select"
 

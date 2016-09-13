@@ -293,7 +293,6 @@ extern int soft_i2c_gpio_scl;
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
-#define CONFIG_SPL_GPIO_SUPPORT
 
 #ifdef CONFIG_VIDEO
 /*

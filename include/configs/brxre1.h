@@ -42,7 +42,6 @@
 #define CONFIG_SYS_OMAP24_I2C_SPEED_PSOC	20000
 
 /* GPIO */
-#define CONFIG_SPL_GPIO_SUPPORT
 
 /* MMC/SD IP block */
 #define CONFIG_MMC

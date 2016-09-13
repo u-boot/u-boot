@@ -1,5 +1,8 @@
 if ARCH_SUNXI
 
+config SPL_GPIO_SUPPORT
+	default y
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I

@@ -313,7 +313,6 @@
 #undef CONFIG_GENERIC_MMC
 
 /* And no support for GPIO, yet.. */
-#undef CONFIG_SPL_GPIO_SUPPORT
 
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
