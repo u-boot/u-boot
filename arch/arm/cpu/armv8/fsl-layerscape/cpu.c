@@ -203,6 +203,27 @@ static inline u32 initiator_type(u32 cluster, int init_id)
 	return 0;
 }
 
+u32 cpu_pos_mask(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	int i = 0;
+	u32 cluster, type, mask = 0;
+
+	do {
+		int j;
+
+		cluster = gur_in32(&gur->tp_cluster[i].lower);
+		for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+			type = initiator_type(cluster, j);
+			if (type && (TP_ITYP_TYPE(type) == TP_ITYP_TYPE_ARM))
+				mask |= 1 << (i * TP_INIT_PER_CLUSTER + j);
+		}
+		i++;
+	} while ((cluster & TP_CLUSTER_EOC) == 0x0);
+
+	return mask;
+}
+
 u32 cpu_mask(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);

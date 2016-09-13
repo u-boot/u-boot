@@ -104,6 +104,11 @@ int is_core_valid(unsigned int core)
 	return !!((1 << core) & cpu_mask());
 }
 
+static int is_pos_valid(unsigned int pos)
+{
+	return !!((1 << pos) & cpu_pos_mask());
+}
+
 int is_core_online(u64 cpu_id)
 {
 	u64 *table;
@@ -126,9 +131,9 @@ int cpu_disable(int nr)
 	return 0;
 }
 
-int core_to_pos(int nr)
+static int core_to_pos(int nr)
 {
-	u32 cores = cpu_mask();
+	u32 cores = cpu_pos_mask();
 	int i, count = 0;
 
 	if (nr == 0) {
@@ -139,14 +144,17 @@ int core_to_pos(int nr)
 	}
 
 	for (i = 1; i < 32; i++) {
-		if (is_core_valid(i)) {
+		if (is_pos_valid(i)) {
 			count++;
 			if (count == nr)
 				break;
 		}
 	}
 
-	return count;
+	if (count != nr)
+		return -1;
+
+	return i;
 }
 
 int cpu_status(int nr)
