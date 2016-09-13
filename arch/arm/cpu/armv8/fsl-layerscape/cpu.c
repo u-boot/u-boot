@@ -44,6 +44,9 @@ void cpu_name(char *name)
 
 			if (IS_E_PROCESSOR(svr))
 				strcat(name, "E");
+
+			sprintf(name + strlen(name), " Rev%d.%d",
+				SVR_MAJ(svr), SVR_MIN(svr));
 			break;
 		}
 
