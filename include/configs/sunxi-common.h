@@ -256,7 +256,6 @@ extern int soft_i2c_gpio_scl;
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
     defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
     defined CONFIG_SY8106A_POWER
-#define CONFIG_SPL_POWER_SUPPORT
 #endif
 
 #ifndef CONFIG_CONS_INDEX

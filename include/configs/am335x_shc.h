@@ -279,7 +279,6 @@
 #define CONFIG_POWER_TPS65217
 
 /* SPL */
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"

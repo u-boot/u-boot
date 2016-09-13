@@ -264,7 +264,6 @@
 
 /* General parts of the framework, required. */
 #define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 
 #ifdef CONFIG_NAND

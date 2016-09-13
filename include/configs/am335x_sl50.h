@@ -80,7 +80,6 @@
 #define CONFIG_POWER_TPS65910
 
 /* SPL */
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Bootcount using the RTC block */
