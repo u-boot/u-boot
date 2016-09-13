@@ -12,7 +12,7 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	pcie-controller@0,01003000 {
+	pcie-controller@01003000 {
 		compatible = "nvidia,tegra210-pcie";
 		device_type = "pci";
 		reg = <0x0 0x01003000 0x0 0x00000800   /* PADS registers */
@@ -78,7 +78,7 @@
 		};
 	};
 
-	gic: interrupt-controller@0,50041000 {
+	gic: interrupt-controller@50041000 {
 		compatible = "arm,gic-400";
 		#interrupt-cells = <3>;
 		interrupt-controller;
@@ -91,14 +91,14 @@
 		interrupt-parent = <&gic>;
 	};
 
-	tegra_car: clock@0,60006000 {
+	tegra_car: clock@60006000 {
 		compatible = "nvidia,tegra210-car";
 		reg = <0x0 0x60006000 0x0 0x1000>;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};
 
-	gpio: gpio@0,6000d000 {
+	gpio: gpio@6000d000 {
 		compatible = "nvidia,tegra210-gpio", "nvidia,tegra30-gpio";
 		reg = <0x0 0x6000d000 0x0 0x1000>;
 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
@@ -115,7 +115,7 @@
 		interrupt-controller;
 	};
 
-	i2c@0,7000c000 {
+	i2c@7000c000 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000c000 0x0 0x100>;
 		interrupts = <0 38 0x04>;
@@ -125,7 +125,7 @@
 		status = "disabled";
 	};
 
-	i2c@0,7000c400 {
+	i2c@7000c400 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000c400 0x0 0x100>;
 		interrupts = <0 84 0x04>;
@@ -135,7 +135,7 @@
 		status = "disabled";
 	};
 
-	i2c@0,7000c500 {
+	i2c@7000c500 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000c500 0x0 0x100>;
 		interrupts = <0 92 0x04>;
@@ -145,7 +145,7 @@
 		status = "disabled";
 	};
 
-	i2c@0,7000c700 {
+	i2c@7000c700 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000c700 0x0 0x100>;
 		interrupts = <0 120 0x04>;
@@ -155,7 +155,7 @@
 		status = "disabled";
 	};
 
-	i2c@0,7000d000 {
+	i2c@7000d000 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000d000 0x0 0x100>;
 		interrupts = <0 53 0x04>;
@@ -165,7 +165,7 @@
 		status = "disabled";
 	};
 
-	i2c@0,7000d100 {
+	i2c@7000d100 {
 		compatible = "nvidia,tegra210-i2c", "nvidia,tegra114-i2c";
 		reg = <0x0 0x7000d100 0x0 0x100>;
 		interrupts = <0 53 0x04>;
@@ -175,7 +175,7 @@
 		status = "disabled";
 	};
 
-	uarta: serial@0,70006000 {
+	uarta: serial@70006000 {
 		compatible = "nvidia,tegra210-uart", "nvidia,tegra20-uart";
 		reg = <0x0 0x70006000 0x0 0x40>;
 		reg-shift = <2>;
@@ -186,7 +186,7 @@
 		status = "disabled";
 	};
 
-	uartb: serial@0,70006040 {
+	uartb: serial@70006040 {
 		compatible = "nvidia,tegra210-uart", "nvidia,tegra20-uart";
 		reg = <0x0 0x70006040 0x0 0x40>;
 		reg-shift = <2>;
@@ -197,7 +197,7 @@
 		status = "disabled";
 	};
 
-	uartc: serial@0,70006200 {
+	uartc: serial@70006200 {
 		compatible = "nvidia,tegra210-uart", "nvidia,tegra20-uart";
 		reg = <0x0 0x70006200 0x0 0x40>;
 		reg-shift = <2>;
@@ -208,7 +208,7 @@
 		status = "disabled";
 	};
 
-	uartd: serial@0,70006300 {
+	uartd: serial@70006300 {
 		compatible = "nvidia,tegra210-uart", "nvidia,tegra20-uart";
 		reg = <0x0 0x70006300 0x0 0x40>;
 		reg-shift = <2>;
@@ -219,7 +219,7 @@
 		status = "disabled";
 	};
 
-	spi@0,7000d400 {
+	spi@7000d400 {
 		compatible = "nvidia,tegra210-spi", "nvidia,tegra114-spi";
 		reg = <0x0 0x7000d400 0x0 0x200>;
 		interrupts = <0 59 0x04>;
@@ -231,7 +231,7 @@
 		status = "disabled";
 	};
 
-	spi@0,7000d600 {
+	spi@7000d600 {
 		compatible = "nvidia,tegra210-spi", "nvidia,tegra114-spi";
 		reg = <0x0 0x7000d600 0x0 0x200>;
 		interrupts = <0 82 0x04>;
@@ -243,7 +243,7 @@
 		status = "disabled";
 	};
 
-	spi@0,7000d800 {
+	spi@7000d800 {
 		compatible = "nvidia,tegra210-spi", "nvidia,tegra114-spi";
 		reg = <0x0 0x7000d800 0x0 0x200>;
 		interrupts = <0 83 0x04>;
@@ -255,7 +255,7 @@
 		status = "disabled";
 	};
 
-	spi@0,7000da00 {
+	spi@7000da00 {
 		compatible = "nvidia,tegra210-spi", "nvidia,tegra114-spi";
 		reg = <0x0 0x7000da00 0x0 0x200>;
 		interrupts = <0 93 0x04>;
@@ -267,7 +267,7 @@
 		status = "disabled";
 	};
 
-	spi@0,70410000 {
+	spi@70410000 {
 		compatible = "nvidia,tegra210-qspi";
 		reg = <0x0 0x70410000 0x0 0x1000>;
 		interrupts = <0 10 0x04>;
@@ -277,7 +277,7 @@
 		status = "disabled";
 	};
 
-	padctl: padctl@0,7009f000 {
+	padctl: padctl@7009f000 {
 		compatible = "nvidia,tegra210-xusb-padctl";
 		reg = <0x0 0x7009f000 0x0 0x1000>;
 		resets = <&tegra_car 142>;
@@ -285,7 +285,7 @@
 		#phy-cells = <1>;
 	};
 
-	sdhci@0,700b0000 {
+	sdhci@700b0000 {
 		compatible = "nvidia,tegra210-sdhci";
 		reg = <0x0 0x700b0000 0x0 0x200>;
 		interrupts = <0 14 0x04>;
@@ -295,7 +295,7 @@
 		status = "disabled";
 	};
 
-	sdhci@0,700b0200 {
+	sdhci@700b0200 {
 		compatible = "nvidia,tegra210-sdhci";
 		reg = <0x0 0x700b0200 0x0 0x200>;
 		interrupts = <0 15 0x04>;
@@ -305,7 +305,7 @@
 		status = "disabled";
 	};
 
-	sdhci@0,700b0400 {
+	sdhci@700b0400 {
 		compatible = "nvidia,tegra210-sdhci";
 		reg = <0x0 0x700b0400 0x0 0x200>;
 		interrupts = <0 19 0x04>;
@@ -315,7 +315,7 @@
 		status = "disabled";
 	};
 
-	sdhci@0,700b0600 {
+	sdhci@700b0600 {
 		compatible = "nvidia,tegra210-sdhci";
 		reg = <0x0 0x700b0600 0x0 0x200>;
 		interrupts = <0 31 0x04>;
@@ -325,7 +325,7 @@
 		status = "disabled";
 	};
 
-	usb@0,7d000000 {
+	usb@7d000000 {
 		compatible = "nvidia,tegra210-ehci";
 		reg = <0x0 0x7d000000 0x0 0x4000>;
 		interrupts = <0 20 0x04>;
@@ -336,7 +336,7 @@
 		status = "disabled";
 	};
 
-	usb@0,7d004000 {
+	usb@7d004000 {
 		compatible = "nvidia,tegra210-ehci";
 		reg = <0x0 0x7d004000 0x0 0x4000>;
 		interrupts = < 53 >;
