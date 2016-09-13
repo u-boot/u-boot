@@ -11,8 +11,6 @@
 
 void uniphier_ld4_pin_init(void)
 {
-	u32 tmp;
-
 	/* Comment format:    PAD Name -> Function Name */
 
 #ifdef CONFIG_NAND_DENALI
@@ -34,8 +32,4 @@ void uniphier_ld4_pin_init(void)
 	sg_set_pinsel(30, 0, 8, 4);	/* MMCDAT6 -> NFD6_GB */
 	sg_set_pinsel(31, 0, 8, 4);	/* MMCDAT7 -> NFD7_GB */
 #endif
-
-	tmp = readl(SG_IECTRL);
-	tmp |= 0x41;
-	writel(tmp, SG_IECTRL);
 }
