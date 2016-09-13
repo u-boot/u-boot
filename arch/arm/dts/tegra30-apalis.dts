@@ -277,7 +277,6 @@
 		status = "okay";
 		/* USBH_EN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 1) GPIO_ACTIVE_HIGH>;
-		phy_type = "utmi";
 	};
 
 	/* EHCI instance 2: USB3_DP/N -> USBH3_DP/N */
@@ -285,6 +284,26 @@
 		status = "okay";
 		/* USBH_EN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 1) GPIO_ACTIVE_HIGH>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clk@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+		clk16m: clk@1 {
+			compatible = "fixed-clock";
+			reg=<1>;
+			#clock-cells = <0>;
+			clock-frequency = <16000000>;
+			clock-output-names = "clk16m";
+		};
 	};
 
 	regulators {
