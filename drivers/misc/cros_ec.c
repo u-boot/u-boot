@@ -790,6 +790,27 @@ static int cros_ec_data_is_erased(const uint32_t *data, int size)
 	return 1;
 }
 
+/**
+ * Read back flash parameters
+ *
+ * This function reads back parameters of the flash as reported by the EC
+ *
+ * @param dev  Pointer to device
+ * @param info Pointer to output flash info struct
+ */
+int cros_ec_read_flashinfo(struct cros_ec_dev *dev,
+			  struct ec_response_flash_info *info)
+{
+	int ret;
+
+	ret = ec_command(dev, EC_CMD_FLASH_INFO, 0,
+			 NULL, 0, info, sizeof(*info));
+	if (ret < 0)
+		return ret;
+
+	return ret < sizeof(*info) ? -1 : 0;
+}
+
 int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
 		     uint32_t offset, uint32_t size)
 {
