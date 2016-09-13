@@ -299,6 +299,23 @@ setenv filesize
 # The write should fail, but the lookup should work
 # Test Case 12 - Check directory traversal
 ${PREFIX}${WRITE} host${SUFFIX} $addr ${FPATH}. 0x10
+
+# Read 1MB from small file
+${PREFIX}load host${SUFFIX} $addr ${FPATH}$FILE_SMALL
+# Write it via "same directory", i.e. "." dirent
+# Test Case 13a - Check directory traversal
+${PREFIX}${WRITE} host${SUFFIX} $addr ${FPATH}./${FILE_WRITE}2 \$filesize
+mw.b $addr 00 100
+${PREFIX}load host${SUFFIX} $addr ${FPATH}./${FILE_WRITE}2
+# Test Case 13b - Check md5 of written to is same as the one read from
+md5sum $addr \$filesize
+setenv filesize
+mw.b $addr 00 100
+${PREFIX}load host${SUFFIX} $addr ${FPATH}${FILE_WRITE}2
+# Test Case 13c - Check md5 of written to is same as the one read from
+md5sum $addr \$filesize
+setenv filesize
+#
 reset
 
 EOF
@@ -335,9 +352,10 @@ function create_files() {
 			&> /dev/null
 	fi
 
-	# Delete the small file which possibly is written as part of a
+	# Delete the small file copies which possibly are written as part of a
 	# previous test.
 	sudo rm -f "${MB1}.w"
+	sudo rm -f "${MB1}.w2"
 
 	# Generate the md5sums of reads that we will test against small file
 	dd if="${MB1}" bs=1M skip=0 count=1 2> /dev/null | md5sum > "$2"
@@ -482,6 +500,15 @@ function check_results() {
 	# Check lookup of 'dot' directory
 	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write file'
 	pass_fail "TC12: 1MB write to . - write denied"
+
+	# Check directory traversal
+	grep -A2 "Test Case 13a " "$1" | grep -q '1048576 bytes written'
+	pass_fail "TC13: 1MB write to ./$3.w2 - write succeeded"
+	check_md5 "Test Case 13b " "$1" "$2" 1 \
+		"TC13: 1MB read from ./$3.w2 - content verified"
+	check_md5 "Test Case 13c " "$1" "$2" 1 \
+		"TC13: 1MB read from $3.w2 - content verified"
+
 	echo "** End $1"
 }
 
