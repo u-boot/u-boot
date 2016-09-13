@@ -14,21 +14,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int at91_pmc_bind(struct udevice *dev)
-{
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
-
 static const struct udevice_id at91_pmc_match[] = {
 	{ .compatible = "atmel,sama5d2-pmc" },
 	{}
 };
 
 U_BOOT_DRIVER(at91_pmc) = {
-	.name = "at91-pmc-core",
-	.id = UCLASS_CLK,
+	.name = "at91-pmc",
+	.id = UCLASS_SIMPLE_BUS,
 	.of_match = at91_pmc_match,
-	.bind = at91_pmc_bind,
 };
 
 int at91_pmc_core_probe(struct udevice *dev)
