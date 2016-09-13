@@ -32,9 +32,6 @@
 #ifdef CONFIG_USB_EHCI_TEGRA
 #include <usb.h>
 #endif
-#ifdef CONFIG_TEGRA_MMC
-#include <asm/arch-tegra/mmc.h>
-#endif
 #include <asm/arch-tegra/xusb-padctl.h>
 #include <power/as3722.h>
 #include <i2c.h>
@@ -233,19 +230,6 @@ int board_late_init(void)
 
 	return 0;
 }
-
-#if defined(CONFIG_TEGRA_MMC)
-/* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
-{
-	debug("%s called\n", __func__);
-
-	debug("%s: init MMC\n", __func__);
-	tegra_mmc_init();
-
-	return 0;
-}
-#endif	/* MMC */
 
 /*
  * In some SW environments, a memory carve-out exists to house a secure

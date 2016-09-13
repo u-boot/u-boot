@@ -2,7 +2,7 @@
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Jaehoon Chung <jh80.chung@samsung.com>
- * Portions Copyright 2011-2015 NVIDIA Corporation
+ * Portions Copyright 2011-2016 NVIDIA Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,7 +17,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 #endif
-#include <asm/arch-tegra/mmc.h>
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <mmc.h>
 
@@ -34,9 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct tegra_mmc_priv {
 	struct tegra_mmc *reg;
-	int id;			/* device id/number, 0-3 */
-	int enabled;		/* 1 to enable, 0 to disable */
-	int width;		/* Bus Width, 1, 4 or 8 */
 #ifdef CONFIG_TEGRA186
 	struct reset_ctl reset_ctl;
 	struct clk clk;
@@ -49,13 +45,8 @@ struct tegra_mmc_priv {
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
 	struct mmc_config cfg;	/* mmc configuration */
+	struct mmc *mmc;
 };
-
-struct tegra_mmc_priv mmc_host[CONFIG_SYS_MMC_MAX_DEVICE];
-
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
-#error "Please enable device tree support to use this driver"
-#endif
 
 static void tegra_mmc_set_power(struct tegra_mmc_priv *priv,
 				unsigned short power)
@@ -534,11 +525,11 @@ static void tegra_mmc_reset(struct tegra_mmc_priv *priv, struct mmc *mmc)
 	tegra_mmc_pad_init(priv);
 }
 
-static int tegra_mmc_core_init(struct mmc *mmc)
+static int tegra_mmc_init(struct mmc *mmc)
 {
 	struct tegra_mmc_priv *priv = mmc->priv;
 	unsigned int mask;
-	debug(" mmc_core_init called\n");
+	debug(" tegra_mmc_init called\n");
 
 	tegra_mmc_reset(priv, mmc);
 
@@ -594,59 +585,30 @@ static int tegra_mmc_getcd(struct mmc *mmc)
 static const struct mmc_ops tegra_mmc_ops = {
 	.send_cmd	= tegra_mmc_send_cmd,
 	.set_ios	= tegra_mmc_set_ios,
-	.init		= tegra_mmc_core_init,
+	.init		= tegra_mmc_init,
 	.getcd		= tegra_mmc_getcd,
 };
 
-static int do_mmc_init(int dev_index, bool removable)
+static int tegra_mmc_probe(struct udevice *dev)
 {
-	struct tegra_mmc_priv *priv;
-	struct mmc *mmc;
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct tegra_mmc_priv *priv = dev_get_priv(dev);
+	int bus_width;
 #ifdef CONFIG_TEGRA186
 	int ret;
 #endif
 
-	/* DT should have been read & host config filled in */
-	priv = &mmc_host[dev_index];
-	if (!priv->enabled)
-		return -1;
-
-	debug(" do_mmc_init: index %d, bus width %d pwr_gpio %d cd_gpio %d\n",
-	      dev_index, priv->width, gpio_get_number(&priv->pwr_gpio),
-	      gpio_get_number(&priv->cd_gpio));
-
-	priv->clock = 0;
-
-#ifdef CONFIG_TEGRA186
-	ret = reset_assert(&priv->reset_ctl);
-	if (ret)
-		return ret;
-	ret = clk_enable(&priv->clk);
-	if (ret)
-		return ret;
-	ret = clk_set_rate(&priv->clk, 20000000);
-	if (IS_ERR_VALUE(ret))
-		return ret;
-	ret = reset_deassert(&priv->reset_ctl);
-	if (ret)
-		return ret;
-#else
-	clock_start_periph_pll(priv->mmc_id, CLOCK_ID_PERIPH, 20000000);
-#endif
-
-	if (dm_gpio_is_valid(&priv->pwr_gpio))
-		dm_gpio_set_value(&priv->pwr_gpio, 1);
-
-	memset(&priv->cfg, 0, sizeof(priv->cfg));
-
 	priv->cfg.name = "Tegra SD/MMC";
 	priv->cfg.ops = &tegra_mmc_ops;
 
+	bus_width = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width",
+				   1);
+
 	priv->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	priv->cfg.host_caps = 0;
-	if (priv->width == 8)
+	if (bus_width == 8)
 		priv->cfg.host_caps |= MMC_MODE_8BIT;
-	if (priv->width >= 4)
+	if (bus_width >= 4)
 		priv->cfg.host_caps |= MMC_MODE_4BIT;
 	priv->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
@@ -661,177 +623,76 @@ static int do_mmc_init(int dev_index, bool removable)
 
 	priv->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	mmc = mmc_create(&priv->cfg, priv);
-	mmc->block_dev.removable = removable;
-	if (mmc == NULL)
-		return -1;
-
-	return 0;
-}
-
-/**
- * Get the host address and peripheral ID for a node.
- *
- * @param blob		fdt blob
- * @param node		Device index (0-3)
- * @param priv		Structure to fill in (reg, width, mmc_id)
- */
-static int mmc_get_config(const void *blob, int node,
-			  struct tegra_mmc_priv *priv, bool *removablep)
-{
-	debug("%s: node = %d\n", __func__, node);
-
-	priv->enabled = fdtdec_get_is_enabled(blob, node);
-
-	priv->reg = (struct tegra_mmc *)fdtdec_get_addr(blob, node, "reg");
-	if ((fdt_addr_t)priv->reg == FDT_ADDR_T_NONE) {
-		debug("%s: no sdmmc base reg info found\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
+	priv->reg = (void *)dev_get_addr(dev);
 
 #ifdef CONFIG_TEGRA186
-	{
-		/*
-		 * FIXME: This variable should go away when the MMC device
-		 * actually is a udevice.
-		 */
-		struct udevice dev;
-		int ret;
-		dev.of_offset = node;
-		ret = reset_get_by_name(&dev, "sdhci", &priv->reset_ctl);
-		if (ret) {
-			debug("reset_get_by_name() failed: %d\n", ret);
-			return ret;
-		}
-		ret = clk_get_by_index(&dev, 0, &priv->clk);
-		if (ret) {
-			debug("clk_get_by_index() failed: %d\n", ret);
-			return ret;
-		}
+	ret = reset_get_by_name(dev, "sdhci", &priv->reset_ctl);
+	if (ret) {
+		debug("reset_get_by_name() failed: %d\n", ret);
+		return ret;
 	}
+	ret = clk_get_by_index(dev, 0, &priv->clk);
+	if (ret) {
+		debug("clk_get_by_index() failed: %d\n", ret);
+		return ret;
+	}
+
+	ret = reset_assert(&priv->reset_ctl);
+	if (ret)
+		return ret;
+	ret = clk_enable(&priv->clk);
+	if (ret)
+		return ret;
+	ret = clk_set_rate(&priv->clk, 20000000);
+	if (IS_ERR_VALUE(ret))
+		return ret;
+	ret = reset_deassert(&priv->reset_ctl);
+	if (ret)
+		return ret;
 #else
-	priv->mmc_id = clock_decode_periph_id(blob, node);
+	priv->mmc_id = clock_decode_periph_id(gd->fdt_blob, dev->of_offset);
 	if (priv->mmc_id == PERIPH_ID_NONE) {
 		debug("%s: could not decode periph id\n", __func__);
 		return -FDT_ERR_NOTFOUND;
 	}
-#endif
 
-	/*
-	 * NOTE: mmc->bus_width is determined by mmc.c dynamically.
-	 * TBD: Override it with this value?
-	 */
-	priv->width = fdtdec_get_int(blob, node, "bus-width", 0);
-	if (!priv->width)
-		debug("%s: no sdmmc width found\n", __func__);
+	clock_start_periph_pll(priv->mmc_id, CLOCK_ID_PERIPH, 20000000);
+#endif
 
 	/* These GPIOs are optional */
-	gpio_request_by_name_nodev(blob, node, "cd-gpios", 0, &priv->cd_gpio,
-				   GPIOD_IS_IN);
-	gpio_request_by_name_nodev(blob, node, "wp-gpios", 0, &priv->wp_gpio,
-				   GPIOD_IS_IN);
-	gpio_request_by_name_nodev(blob, node, "power-gpios", 0,
-				   &priv->pwr_gpio, GPIOD_IS_OUT);
-	*removablep = !fdtdec_get_bool(blob, node, "non-removable");
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+			     GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
+			     GPIOD_IS_IN);
+	gpio_request_by_name(dev, "power-gpios", 0,
+			     &priv->pwr_gpio, GPIOD_IS_OUT);
+	if (dm_gpio_is_valid(&priv->pwr_gpio))
+		dm_gpio_set_value(&priv->pwr_gpio, 1);
 
-	debug("%s: found controller at %p, width = %d, periph_id = %d\n",
-		__func__, priv->reg, priv->width,
-#ifndef CONFIG_TEGRA186
-		priv->mmc_id
-#else
-		-1
-#endif
-	);
+	priv->mmc = mmc_create(&priv->cfg, priv);
+	if (priv->mmc == NULL)
+		return -1;
+
+	priv->mmc->dev = dev;
+	upriv->mmc = priv->mmc;
+
 	return 0;
 }
 
-/*
- * Process a list of nodes, adding them to our list of SDMMC ports.
- *
- * @param blob          fdt blob
- * @param node_list     list of nodes to process (any <=0 are ignored)
- * @param count         number of nodes to process
- * @return 0 if ok, -1 on error
- */
-static int process_nodes(const void *blob, int node_list[], int count)
-{
-	struct tegra_mmc_priv *priv;
-	bool removable;
-	int i, node;
+static const struct udevice_id tegra_mmc_ids[] = {
+	{ .compatible = "nvidia,tegra20-sdhci" },
+	{ .compatible = "nvidia,tegra30-sdhci" },
+	{ .compatible = "nvidia,tegra114-sdhci" },
+	{ .compatible = "nvidia,tegra124-sdhci" },
+	{ .compatible = "nvidia,tegra210-sdhci" },
+	{ .compatible = "nvidia,tegra186-sdhci" },
+	{ }
+};
 
-	debug("%s: count = %d\n", __func__, count);
-
-	/* build mmc_host[] for each controller */
-	for (i = 0; i < count; i++) {
-		node = node_list[i];
-		if (node <= 0)
-			continue;
-
-		priv = &mmc_host[i];
-		priv->id = i;
-
-		if (mmc_get_config(blob, node, priv, &removable)) {
-			printf("%s: failed to decode dev %d\n",	__func__, i);
-			return -1;
-		}
-		do_mmc_init(i, removable);
-	}
-	return 0;
-}
-
-void tegra_mmc_init(void)
-{
-	int node_list[CONFIG_SYS_MMC_MAX_DEVICE], count;
-	const void *blob = gd->fdt_blob;
-	debug("%s entry\n", __func__);
-
-	/* See if any Tegra186 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-		COMPAT_NVIDIA_TEGRA186_SDMMC, node_list,
-		CONFIG_SYS_MMC_MAX_DEVICE);
-	debug("%s: count of Tegra186 sdhci nodes is %d\n", __func__, count);
-	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T186 mmc node(s)!\n", __func__);
-		return;
-	}
-
-	/* See if any Tegra210 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-		COMPAT_NVIDIA_TEGRA210_SDMMC, node_list,
-		CONFIG_SYS_MMC_MAX_DEVICE);
-	debug("%s: count of Tegra210 sdhci nodes is %d\n", __func__, count);
-	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T210 mmc node(s)!\n", __func__);
-		return;
-	}
-
-	/* See if any Tegra124 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list,
-		CONFIG_SYS_MMC_MAX_DEVICE);
-	debug("%s: count of Tegra124 sdhci nodes is %d\n", __func__, count);
-	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T124 mmc node(s)!\n", __func__);
-		return;
-	}
-
-	/* See if any Tegra30 MMC controllers are present */
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list,
-		CONFIG_SYS_MMC_MAX_DEVICE);
-	debug("%s: count of T30 sdhci nodes is %d\n", __func__, count);
-	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
-		return;
-	}
-
-	/* Now look for any Tegra20 MMC controllers */
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list,
-		CONFIG_SYS_MMC_MAX_DEVICE);
-	debug("%s: count of T20 sdhci nodes is %d\n", __func__, count);
-	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T20 mmc node(s)!\n", __func__);
-		return;
-	}
-}
+U_BOOT_DRIVER(tegra_mmc_drv) = {
+	.name		= "tegra_mmc",
+	.id		= UCLASS_MMC,
+	.of_match	= tegra_mmc_ids,
+	.probe		= tegra_mmc_probe,
+	.priv_auto_alloc_size = sizeof(struct tegra_mmc_priv),
+};

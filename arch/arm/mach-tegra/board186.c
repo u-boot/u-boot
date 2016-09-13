@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <asm/arch/tegra.h>
-#include <asm/arch-tegra/mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,12 +26,5 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	return 0;
-}
-
-int board_mmc_init(bd_t *bd)
-{
-	tegra_mmc_init();
-
 	return 0;
 }

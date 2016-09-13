@@ -27,6 +27,7 @@ config TEGRA_COMMON
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
+	select DM_MMC
 	select DM_PCI
 	select DM_PCI_COMPAT
 	select DM_PWM
