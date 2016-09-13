@@ -49,7 +49,7 @@ static int support_card_show_revision(void)
 	return 0;
 }
 
-int check_support_card(void)
+int checkboard(void)
 {
 	printf("SC:    Micro Support Card ");
 	return support_card_show_revision();

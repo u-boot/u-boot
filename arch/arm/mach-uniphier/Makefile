@@ -11,7 +11,6 @@ else
 
 obj-$(CONFIG_BOARD_EARLY_INIT_F) += board_early_init_f.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
-obj-$(CONFIG_MISC_INIT_F) += print_misc_info.o
 obj-y += dram_init.o
 obj-y += board_common.o
 obj-$(CONFIG_BOARD_EARLY_INIT_R) += board_early_init_r.o
