@@ -13,10 +13,6 @@
 #include <linux/kernel.h>
 #include <linux/types.h>
 
-#define UNIPHIER_PINCTRL_PINMUX_BASE	0x1000
-#define UNIPHIER_PINCTRL_LOAD_PINMUX	0x1700
-#define UNIPHIER_PINCTRL_IECTRL		0x1d00
-
 #define UNIPHIER_PIN_ATTR_PACKED(iectrl)	(iectrl)
 
 static inline unsigned int uniphier_pin_get_iectrl(unsigned long data)

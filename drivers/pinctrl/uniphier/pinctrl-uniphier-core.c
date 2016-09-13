@@ -13,6 +13,10 @@
 
 #include "pinctrl-uniphier.h"
 
+#define UNIPHIER_PINCTRL_PINMUX_BASE	0x1000
+#define UNIPHIER_PINCTRL_LOAD_PINMUX	0x1700
+#define UNIPHIER_PINCTRL_IECTRL		0x1d00
+
 static const char *uniphier_pinctrl_dummy_name = "_dummy";
 
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
