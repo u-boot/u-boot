@@ -78,11 +78,16 @@ obj-$(CONFIG_LIB_UUID) += uuid.o
 obj-$(CONFIG_LIB_RAND) += rand.o
 
 ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_TPL_BUILD
+SERIAL_SUPPORT := $(CONFIG_TPL_SERIAL_SUPPORT)
+else
+SERIAL_SUPPORT := $(CONFIG_SPL_SERIAL_SUPPORT)
+endif
 # SPL U-Boot may use full-printf, tiny-printf or none at all
 ifdef CONFIG_USE_TINY_PRINTF
-obj-$(CONFIG_SPL_SERIAL_SUPPORT) += tiny-printf.o panic.o strto.o
+obj-$(SERIAL_SUPPORT) += tiny-printf.o panic.o strto.o
 else
-obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o strmhz.o
+obj-$(SERIAL_SUPPORT) += vsprintf.o panic.o strto.o strmhz.o
 endif
 else
 # Main U-Boot always uses the full printf support

@@ -99,10 +99,16 @@ obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
 # environment
-ifdef CONFIG_SPL_ENV_SUPPORT
+ifdef CONFIG_TPL_BUILD
+obj-$(CONFIG_TPL_ENV_SUPPORT) += env_attr.o
+obj-$(CONFIG_TPL_ENV_SUPPORT) += env_flags.o
+obj-$(CONFIG_TPL_ENV_SUPPORT) += env_callback.o
+else
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
+endif
+ifneq ($(CONFIG_TPL_ENV_SUPPORT)$(CONFIG_SPL_ENV_SUPPORT),)
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
 obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
@@ -123,7 +129,11 @@ obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_TPL_BUILD
+obj-$(CONFIG_TPL_SERIAL_SUPPORT) += console.o
+else
 obj-$(CONFIG_SPL_SERIAL_SUPPORT) += console.o
+endif
 else
 obj-y += console.o
 endif
