@@ -334,7 +334,6 @@
 #undef CONFIG_EFI_PARTITION
 /* General network SPL  */
 #define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
 /* USB Device Firmware Update support */

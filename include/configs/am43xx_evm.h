@@ -318,8 +318,6 @@
 #define CONFIG_PHYLIB
 #define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
-#define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ETH_SUPPORT)
 #undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_IS_NOWHERE
