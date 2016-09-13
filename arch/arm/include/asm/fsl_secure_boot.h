@@ -26,13 +26,13 @@
 #define CONFIG_FSL_CAAM
 #endif
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_DM			1
 #define CONFIG_SPL_CRYPTO_SUPPORT
 #define CONFIG_SPL_HASH_SUPPORT
 #define CONFIG_SPL_RSA
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+#ifdef CONFIG_SPL_BUILD
 /*
  * Define the key hash for U-Boot here if public/private key pair used to
  * sign U-boot are different from the SRK hash put in the fuse

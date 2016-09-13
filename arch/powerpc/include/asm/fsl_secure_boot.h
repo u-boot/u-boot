@@ -80,12 +80,13 @@
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_DM			1
 #define CONFIG_SPL_CRYPTO_SUPPORT
 #define CONFIG_SPL_HASH_SUPPORT
 #define CONFIG_SPL_RSA
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+
+#ifdef CONFIG_SPL_BUILD
 /*
  * PPAACT and SPAACT table for PAMU must be placed on DDR after DDR init
  * due to space crunch on CPC and thus malloc will not work.
