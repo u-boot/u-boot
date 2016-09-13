@@ -386,7 +386,7 @@ check_md5() {
 	# md5sum in u-boot has output of form:
 	# md5 for 01000008 ... 01100007 ==> <md5>
 	# the 7th field is the actual md5
-	md5_src=`grep -A3 "$1" "$2" | grep "md5 for" | tr -d '\r'`
+	md5_src=`grep -A2 "$1" "$2" | grep "md5 for" | tr -d '\r'`
 	md5_src=($md5_src)
 	md5_src=${md5_src[6]}
 
@@ -431,45 +431,44 @@ function check_results() {
 	pass_fail "TC3: size of $4"
 
 	# Check read full mb of 1MB.file
-	grep -A6 "Test Case 4a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 4a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC4: load of $3 size"
 	check_md5 "Test Case 4b " "$1" "$2" 1 "TC4: load from $3"
 
 	# Check first mb of 2.5GB.file
-	grep -A6 "Test Case 5a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 5a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC5: load of 1st MB from $4 size"
 	check_md5 "Test Case 5b " "$1" "$2" 2 "TC5: load of 1st MB from $4"
 
 	# Check last mb of 2.5GB.file
-	grep -A6 "Test Case 6a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 6a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC6: load of last MB from $4 size"
 	check_md5 "Test Case 6b " "$1" "$2" 3 "TC6: load of last MB from $4"
 
 	# Check last 1mb chunk of 2gb from 2.5GB file
-	grep -A6 "Test Case 7a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 7a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC7: load of last 1mb chunk of 2GB from $4 size"
 	check_md5 "Test Case 7b " "$1" "$2" 4 \
 		"TC7: load of last 1mb chunk of 2GB from $4"
 
 	# Check first 1mb chunk after 2gb from 2.5GB file
-	grep -A6 "Test Case 8a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 8a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC8: load 1st MB chunk after 2GB from $4 size"
 	check_md5 "Test Case 8b " "$1" "$2" 5 \
 		"TC8: load 1st MB chunk after 2GB from $4"
 
 	# Check 1mb chunk crossing the 2gb boundary from 2.5GB file
-	grep -A6 "Test Case 9a " "$1" | grep -q "filesize=100000"
+	grep -A4 "Test Case 9a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC9: load 1MB chunk crossing 2GB boundary from $4 size"
 	check_md5 "Test Case 9b " "$1" "$2" 6 \
 		"TC9: load 1MB chunk crossing 2GB boundary from $4"
 
 	# Check 2mb chunk from the last 1MB of 2.5GB file loads 1MB
-	grep -A6 "Test Case 10 " "$1" | grep -q "filesize=100000"
+	grep -A5 "Test Case 10 " "$1" | grep -q "filesize=100000"
 	pass_fail "TC10: load 2MB from the last 1MB of $4 loads 1MB"
 
 	# Check 1mb chunk write
-	grep -A3 "Test Case 11a " "$1" | \
-		egrep -q '1048576 bytes written|update journal'
+	grep -A2 "Test Case 11a " "$1" | grep -q '1048576 bytes written'
 	pass_fail "TC11: 1MB write to $3.w - write succeeded"
 	check_md5 "Test Case 11b " "$1" "$2" 1 \
 		"TC11: 1MB write to $3.w - content verified"
@@ -486,7 +485,12 @@ function test_fs_nonfs() {
 	OUT_FILE="${OUT}.$1.${fs}.out"
 	test_image $IMAGE $fs $SMALL_FILE $BIG_FILE $1 "" \
 		> ${OUT_FILE} 2>&1
-	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE
+	# strip out noise from fs code
+	grep -v -e "File System is consistent\|update journal finished" \
+		-e "reading .*\.file\|writing .*\.file.w" \
+		< ${OUT_FILE} > ${OUT_FILE}_clean
+	check_results ${OUT_FILE}_clean $MD5_FILE_FS $SMALL_FILE \
+		$BIG_FILE
 	TOTAL_FAIL=$((TOTAL_FAIL + FAIL))
 	TOTAL_PASS=$((TOTAL_PASS + PASS))
 	echo "Summary: PASS: $PASS FAIL: $FAIL"
