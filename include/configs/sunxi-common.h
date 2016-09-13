@@ -232,7 +232,6 @@
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
     defined CONFIG_SY8106A_POWER
-#define CONFIG_SPL_I2C_SUPPORT
 #endif
 
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \

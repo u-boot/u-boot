@@ -6,6 +6,9 @@ config SPL_EXT_SUPPORT
 config SPL_GPIO_SUPPORT
 	default y
 
+config SPL_I2C_SUPPORT
+	default y
+
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select TI_I2C_BOARD_DETECT

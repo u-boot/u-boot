@@ -266,7 +266,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT

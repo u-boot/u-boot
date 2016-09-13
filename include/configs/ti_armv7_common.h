@@ -268,7 +268,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 
 /* General parts of the framework, required. */
-#define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT

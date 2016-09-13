@@ -15,3 +15,6 @@ config SPL_FAT_SUPPORT
 
 config SPL_GPIO_SUPPORT
 	default y
+
+config SPL_I2C_SUPPORT
+	default y
