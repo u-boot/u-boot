@@ -1,5 +1,8 @@
 if OMAP54XX
 
+config SPL_EXT_SUPPORT
+	default y
+
 choice
 	prompt "OMAP5 board select"
 	optional

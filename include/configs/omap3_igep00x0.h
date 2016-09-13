@@ -167,6 +167,4 @@
 #define CONFIG_UBIFS_SILENCE_MSG	1
 #define CONFIG_ENV_SIZE			(32*1024)
 
-#undef CONFIG_SPL_EXT_SUPPORT
-
 #endif /* __IGEP00X0_H */
