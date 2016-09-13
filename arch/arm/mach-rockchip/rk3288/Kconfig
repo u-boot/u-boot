@@ -72,6 +72,9 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x0800
 
+config SPL_DRIVERS_MISC_SUPPORT
+	default y
+
 source "board/chipspark/popmetal_rk3288/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"

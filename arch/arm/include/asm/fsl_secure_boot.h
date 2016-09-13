@@ -27,7 +27,6 @@
 #endif
 
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #ifdef CONFIG_SPL_BUILD
 /*
  * Define the key hash for U-Boot here if public/private key pair used to

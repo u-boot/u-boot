@@ -79,9 +79,6 @@
 #endif /* #ifdef CONFIG_SECURE_BOOT */
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-
 #ifdef CONFIG_SPL_BUILD
 /*
  * PPAACT and SPAACT table for PAMU must be placed on DDR after DDR init
