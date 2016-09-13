@@ -124,7 +124,6 @@
 
 /* SPL */
 #undef CONFIG_SPL_OS_BOOT	/* Not supported by existing map */
-#define CONFIG_SPL_YMODEM_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

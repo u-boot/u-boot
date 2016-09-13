@@ -80,7 +80,6 @@
 #define CONFIG_POWER_TPS65910
 
 /* SPL */
-#define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -97,7 +96,6 @@
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* Remove other SPL modes. */
-#undef CONFIG_SPL_YMODEM_SUPPORT
 #define CONFIG_ENV_IS_NOWHERE
 #undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */

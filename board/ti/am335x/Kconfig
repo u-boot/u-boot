@@ -6,6 +6,9 @@ config SPL_ENV_SUPPORT
 config SPL_WATCHDOG_SUPPORT
 	default y
 
+config SPL_YMODEM_SUPPORT
+	default y
+
 config SYS_BOARD
 	default "am335x"
 

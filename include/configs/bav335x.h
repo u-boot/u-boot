@@ -350,8 +350,6 @@ DEFAULT_LINUX_BOOT_ENV \
 
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
-#define CONFIG_SPL_YMODEM_SUPPORT
-
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
