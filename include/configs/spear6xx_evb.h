@@ -12,13 +12,11 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SPEAR600
-
-#if defined(CONFIG_usbtty)
+#if defined(CONFIG_USBTTY)
 #define CONFIG_SPEAR_USBTTY
 #endif
 
-#if defined(CONFIG_nand)
+#if defined(CONFIG_NAND)
 #define CONFIG_ENV_IS_IN_NAND
 #else
 #define CONFIG_ENV_IS_IN_FLASH
