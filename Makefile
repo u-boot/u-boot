@@ -740,7 +740,8 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg binary_size_check
+ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg \
+	binary_size_check no_new_adhoc_configs_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -937,6 +938,13 @@ u-boot.dis:	u-boot
 
 u-boot.cfg:	include/config.h FORCE
 	$(call if_changed,cpp_cfg)
+
+# Check that this build does not use CONFIG options that we don't know about
+# unless they are in Kconfig. All the existing CONFIG options are whitelisted,
+# so new ones should not be added.
+no_new_adhoc_configs_check: u-boot.cfg FORCE
+	$(srctree)/scripts/check-config.sh $< \
+		$(srctree)/scripts/config_whitelist.txt ${srctree} 1>&2
 
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
