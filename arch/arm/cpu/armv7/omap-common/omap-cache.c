@@ -32,8 +32,8 @@ void dram_bank_mmu_setup(int bank)
 	bd_t *bd = gd->bd;
 	int	i;
 
-	u32 start = bd->bi_dram[bank].start >> 20;
-	u32 size = bd->bi_dram[bank].size >> 20;
+	u32 start = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
+	u32 size = bd->bi_dram[bank].size >> MMU_SECTION_SHIFT;
 	u32 end = start + size;
 
 	debug("%s: bank: %d\n", __func__, bank);
