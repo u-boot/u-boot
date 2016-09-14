@@ -17,6 +17,7 @@
 #include <config.h>
 #include <asm/system.h>
 #include <linux/linkage.h>
+#include <asm/armv7.h>
 
 /*************************************************************************
  *
@@ -30,11 +31,24 @@
 
 	.globl	reset
 	.globl	save_boot_params_ret
+#ifdef CONFIG_ARMV7_LPAE
+	.global	switch_to_hypervisor_ret
+#endif
 
 reset:
 	/* Allow the board to save important registers */
 	b	save_boot_params
 save_boot_params_ret:
+#ifdef CONFIG_ARMV7_LPAE
+/*
+ * check for Hypervisor support
+ */
+	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
+	and	r0, r0, #CPUID_ARM_VIRT_MASK	@ mask virtualization bits
+	cmp	r0, #(1 << CPUID_ARM_VIRT_SHIFT)
+	beq	switch_to_hypervisor
+switch_to_hypervisor_ret:
+#endif
 	/*
 	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,
 	 * except if in HYP mode already
@@ -102,6 +116,13 @@ ENTRY(save_boot_params)
 	b	save_boot_params_ret		@ back to my caller
 ENDPROC(save_boot_params)
 	.weak	save_boot_params
+
+#ifdef CONFIG_ARMV7_LPAE
+ENTRY(switch_to_hypervisor)
+	b	switch_to_hypervisor_ret
+ENDPROC(switch_to_hypervisor)
+	.weak	switch_to_hypervisor
+#endif
 
 /*************************************************************************
  *
