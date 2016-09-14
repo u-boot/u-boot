@@ -85,6 +85,7 @@
 #define SPI_XFER_ON_UPPER	2
 
 #define ZYNQMP_QSPI_DMA_ALIGN	0x4
+#define ZYNQMP_QSPI_MAX_BAUD_RATE_VAL	7
 
 /* QSPI register offsets */
 struct zynqmp_qspi_regs {
@@ -285,6 +286,9 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 		       ((plat->frequency /
 		       (2 << baud_rate_val)) > speed))
 			baud_rate_val++;
+
+		if (baud_rate_val > ZYNQMP_QSPI_MAX_BAUD_RATE_VAL)
+			baud_rate_val = ZYNQMP_QSPI_MAX_BAUD_RATE_VAL;
 
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
