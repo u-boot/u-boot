@@ -18,6 +18,7 @@
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_PMMC_BOOT_ENV						\
+	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
 	"boot=mmc\0"							\
 	"console=ttyS0,115200n8\0"					\
 	"bootpart=0:2\0"						\
@@ -31,6 +32,8 @@
 	"name_ubi=k2g-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2g-evm.gph\0"				\
 	"init_mmc=run args_all args_mmc\0"				\
+	"init_fw_rd_mmc=load mmc ${bootpart} ${rdaddr} "		\
+		"${bootdir}/${name_fw_rd}; run set_rd_spec\0"		\
 	"soc_variant=k2g\0"						\
 	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0"\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
@@ -40,7 +43,8 @@
 
 #define CONFIG_BOOTCOMMAND						\
 	"run envboot; "							\
-	"run set_name_pmmc init_${boot} get_pmmc_${boot} run_pmmc "	\
+	"run set_name_pmmc init_${boot} init_fw_rd_${boot} "		\
+	"get_pmmc_${boot} run_pmmc "					\
 	"get_fdt_${boot} get_mon_${boot} get_kern_${boot} "		\
 	"run_mon run_kern"
 
