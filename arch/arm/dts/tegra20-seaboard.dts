@@ -784,7 +784,7 @@
 	};
 
 	usb@c5004000 {
-		status = "disabled";
+		status = "okay";
 		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1)
 			GPIO_ACTIVE_LOW>;
 	};
