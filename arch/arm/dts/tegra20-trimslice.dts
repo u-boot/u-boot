@@ -11,8 +11,7 @@
 	};
 
 	aliases {
-		usb0 = "/usb@c5008000";
-		usb1 = "/usb@c5000000";
+		usb0 = "/usb@c5000000";
 		mmc0 = "/sdhci@c8000600";
 		mmc1 = "/sdhci@c8000000";
 		spi0 = "/spi@7000c380";

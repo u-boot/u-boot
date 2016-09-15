@@ -9,8 +9,9 @@
 
 	aliases {
 		/* This defines the order of our ports */
-		usb0 = "/usb@c5008000";
-		usb1 = "/usb@c5000000";
+		usb0 = "/usb@c5000000";
+		usb1 = "/usb@c5004000";
+		usb2 = "/usb@c5008000";
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
