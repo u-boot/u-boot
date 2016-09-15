@@ -68,6 +68,14 @@ config DM_REGULATOR_FIXED
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
 
+config DM_REGULATOR_GPIO
+	bool "Enable Driver Model for GPIO REGULATOR"
+	depends on DM_REGULATOR
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for gpio regulators. The driver implements get/set for
+	voltage value.
+
 config REGULATOR_RK808
 	bool "Enable driver for RK808 regulators"
 	depends on DM_REGULATOR && PMIC_RK808

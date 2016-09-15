@@ -11,6 +11,7 @@ obj-$(CONFIG_DM_REGULATOR_MAX77686) += max77686.o
 obj-$(CONFIG_DM_REGULATOR_PFUZE100) += pfuze100.o
 obj-$(CONFIG_REGULATOR_PWM) += pwm_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_FIXED) += fixed.o
+obj-$(CONFIG_$(SPL_)DM_REGULATOR_GPIO) += gpio-regulator.o
 obj-$(CONFIG_REGULATOR_RK808) += rk808.o
 obj-$(CONFIG_REGULATOR_S5M8767) += s5m8767.o
 obj-$(CONFIG_DM_REGULATOR_SANDBOX) += sandbox.o
