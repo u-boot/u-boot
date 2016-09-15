@@ -600,9 +600,18 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 
 	/* reset ULPI phy */
 	if (dm_gpio_is_valid(&config->phy_reset_gpio)) {
-		dm_gpio_set_value(&config->phy_reset_gpio, 0);
-		mdelay(5);
+		/*
+		 * This GPIO is typically active-low, and marked as such in
+		 * device tree. dm_gpio_set_value() takes this into account
+		 * and inverts the value we pass here if required. In other
+		 * words, this first call logically asserts the reset signal,
+		 * which typically results in driving the physical GPIO low,
+		 * and the second call logically de-asserts the reset signal,
+		 * which typically results in driver the GPIO high.
+		 */
 		dm_gpio_set_value(&config->phy_reset_gpio, 1);
+		mdelay(5);
+		dm_gpio_set_value(&config->phy_reset_gpio, 0);
 	}
 
 	/* Reset the usb controller */
