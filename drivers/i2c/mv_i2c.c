@@ -243,6 +243,11 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
 	      "len=0x%02x)\n", chip, *addr, alen, len);
 
+	if (len == 0) {
+		printf("reading zero byte is invalid\n");
+		return -EINVAL;
+	}
+
 	i2c_reset(base);
 
 	/* dummy chip address write */
