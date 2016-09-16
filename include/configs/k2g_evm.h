@@ -24,7 +24,6 @@
 	"bootpart=0:2\0"						\
 	"bootdir=/boot\0"						\
 	"rd_spec=-\0"							\
-	"addr_mon=0x0c040000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
 	"name_fdt=keystone-k2g-evm.dtb\0"				\
@@ -44,9 +43,8 @@
 #define CONFIG_BOOTCOMMAND						\
 	"run envboot; "							\
 	"run set_name_pmmc init_${boot} init_fw_rd_${boot} "		\
-	"get_pmmc_${boot} run_pmmc "					\
-	"get_fdt_${boot} get_mon_${boot} get_kern_${boot} "		\
-	"run_mon run_kern"
+	"get_pmmc_${boot} run_pmmc get_mon_${boot} run_mon "		\
+	"get_fdt_${boot} get_kern_${boot} run_kern"
 
 #include <configs/ti_armv7_keystone2.h>
 

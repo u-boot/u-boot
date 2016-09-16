@@ -247,6 +247,7 @@
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
+	"addr_mon=0x87000000\0"						\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootz ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 	"init_net=run args_all args_net\0"				\
@@ -291,8 +292,8 @@
 
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND						\
-	"run init_${boot} init_fw_rd_${boot} get_fdt_${boot} "		\
-		"get_mon_${boot} get_kern_${boot} run_mon run_kern"
+	"run init_${boot} get_mon_${boot} run_mon init_fw_rd_${boot} "	\
+	"get_fdt_${boot} get_kern_${boot} run_kern"
 #endif
 
 #define CONFIG_BOOTARGS							\
