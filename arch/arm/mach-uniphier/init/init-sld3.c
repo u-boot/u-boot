@@ -16,8 +16,6 @@ int uniphier_sld3_init(const struct uniphier_board_data *bd)
 
 	uniphier_sbc_init_admulti(bd);
 
-	uniphier_sld3_early_pin_init(bd);
-
 	support_card_reset();
 
 	uniphier_sld3_pll_init(bd);
