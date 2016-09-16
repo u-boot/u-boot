@@ -4,6 +4,7 @@
 
 obj-y					+= pinctrl-uniphier-core.o
 
+obj-$(CONFIG_PINCTRL_UNIPHIER_SLD3)	+= pinctrl-uniphier-sld3.o
 obj-$(CONFIG_PINCTRL_UNIPHIER_LD4)	+= pinctrl-uniphier-ld4.o
 obj-$(CONFIG_PINCTRL_UNIPHIER_PRO4)	+= pinctrl-uniphier-pro4.o
 obj-$(CONFIG_PINCTRL_UNIPHIER_SLD8)	+= pinctrl-uniphier-sld8.o
