@@ -15,7 +15,7 @@ obj-y += board_init.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 obj-y += reset.o
 
-obj-y += pinctrl/ clk/
+obj-y += clk/
 
 endif
 

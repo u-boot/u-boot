@@ -12,6 +12,7 @@
 
 #include "init.h"
 #include "micro-support-card.h"
+#include "sg-regs.h"
 #include "soc-info.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -112,7 +113,10 @@ int board_init(void)
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	case SOC_UNIPHIER_LD11:
 		uniphier_nand_pin_init(false);
-		uniphier_ld20_pin_init();
+		sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
+		sg_set_iectrl(149);
+		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
+		sg_set_iectrl(153);
 		led_puts("U1");
 		uniphier_ld11_clk_init();
 		break;
@@ -120,7 +124,10 @@ int board_init(void)
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	case SOC_UNIPHIER_LD20:
 		uniphier_nand_pin_init(false);
-		uniphier_ld20_pin_init();
+		sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
+		sg_set_iectrl(149);
+		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
+		sg_set_iectrl(153);
 		led_puts("U1");
 		uniphier_ld20_clk_init();
 		cci500_init(2);

@@ -101,8 +101,6 @@ int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
 
-void uniphier_ld20_pin_init(void);
-
 void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
