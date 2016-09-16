@@ -36,7 +36,7 @@ static void dpll_init(void)
 	 */
 	tmp = readl(SC_DPLLCTRL);
 	tmp &= ~0x3ff07fff;
-#ifdef CONFIG_DPLL_SSC_RATE_1PER
+#ifdef DPLL_SSC_RATE_1PER
 	tmp |= 0x084018bf;
 #else
 	tmp |= 0x084031a6;
