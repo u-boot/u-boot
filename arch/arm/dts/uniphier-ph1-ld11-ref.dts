@@ -70,3 +70,7 @@
 &pinctrl_uart0 {
 	u-boot,dm-pre-reloc;
 };
+
+&pinctrl_system_bus {
+	u-boot,dm-pre-reloc;
+};
