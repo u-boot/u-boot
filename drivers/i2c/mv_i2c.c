@@ -18,9 +18,8 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
-
 #include <i2c.h>
+#include <asm/io.h>
 #include "mv_i2c.h"
 
 /* All transfers are described by this data structure */
@@ -43,62 +42,11 @@ struct mv_i2c {
 	u32 isar;
 };
 
-static struct mv_i2c *base;
-static void i2c_board_init(struct mv_i2c *base)
-{
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	u32 icr;
-	/*
-	 * call board specific i2c bus reset routine before accessing the
-	 * environment, which might be in a chip on that bus. For details
-	 * about this problem see doc/I2C_Edge_Conditions.
-	 *
-	 * disable I2C controller first, otherwhise it thinks we want to
-	 * talk to the slave port...
-	 */
-	icr = readl(&base->icr);
-	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
-
-	i2c_init_board();
-
-	writel(icr, &base->icr);
-#endif
-}
-
-#ifdef CONFIG_I2C_MULTI_BUS
-static unsigned long i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
-static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
-static unsigned int current_bus;
-
-int i2c_set_bus_num(unsigned int bus)
-{
-	if ((bus < 0) || (bus >= CONFIG_MV_I2C_NUM)) {
-		printf("Bad bus: %d\n", bus);
-		return -1;
-	}
-
-	base = (struct mv_i2c *)i2c_regs[bus];
-	current_bus = bus;
-
-	if (!bus_initialized[current_bus]) {
-		i2c_board_init(base);
-		bus_initialized[current_bus] = 1;
-	}
-
-	return 0;
-}
-
-unsigned int i2c_get_bus_num(void)
-{
-	return current_bus;
-}
-#endif
-
 /*
  * i2c_reset: - reset the host controller
  *
  */
-static void i2c_reset(void)
+static void i2c_reset(struct mv_i2c *base)
 {
 	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
 	writel(readl(&base->icr) | ICR_UR, &base->icr);	  /* reset the unit */
@@ -120,7 +68,7 @@ static void i2c_reset(void)
  *
  * @return: 1 in case of success, 0 means timeout (no match within 10 ms).
  */
-static int i2c_isr_set_cleared(unsigned long set_mask,
+static int i2c_isr_set_cleared(struct mv_i2c *base, unsigned long set_mask,
 			       unsigned long cleared_mask)
 {
 	int timeout = 1000, isr;
@@ -150,7 +98,7 @@ static int i2c_isr_set_cleared(unsigned long set_mask,
  *          -5: illegal parameters
  *          -6: bus is busy and couldn't be aquired
  */
-int i2c_transfer(struct mv_i2c_msg *msg)
+static int i2c_transfer(struct mv_i2c *base, struct mv_i2c_msg *msg)
 {
 	int ret;
 
@@ -160,7 +108,7 @@ int i2c_transfer(struct mv_i2c_msg *msg)
 	switch (msg->direction) {
 	case I2C_WRITE:
 		/* check if bus is not busy */
-		if (!i2c_isr_set_cleared(0, ISR_IBB))
+		if (!i2c_isr_set_cleared(base, 0, ISR_IBB))
 			goto transfer_error_bus_busy;
 
 		/* start transmission */
@@ -179,7 +127,7 @@ int i2c_transfer(struct mv_i2c_msg *msg)
 		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* transmit register empty? */
-		if (!i2c_isr_set_cleared(ISR_ITE, 0))
+		if (!i2c_isr_set_cleared(base, ISR_ITE, 0))
 			goto transfer_error_transmit_timeout;
 
 		/* clear 'transmit empty' state */
@@ -187,14 +135,14 @@ int i2c_transfer(struct mv_i2c_msg *msg)
 
 		/* wait for ACK from slave */
 		if (msg->acknack == I2C_ACKNAK_WAITACK)
-			if (!i2c_isr_set_cleared(0, ISR_ACKNAK))
+			if (!i2c_isr_set_cleared(base, 0, ISR_ACKNAK))
 				goto transfer_error_ack_missing;
 		break;
 
 	case I2C_READ:
 
 		/* check if bus is not busy */
-		if (!i2c_isr_set_cleared(0, ISR_IBB))
+		if (!i2c_isr_set_cleared(base, 0, ISR_IBB))
 			goto transfer_error_bus_busy;
 
 		/* start receive */
@@ -212,7 +160,7 @@ int i2c_transfer(struct mv_i2c_msg *msg)
 		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* receive register full? */
-		if (!i2c_isr_set_cleared(ISR_IRF, 0))
+		if (!i2c_isr_set_cleared(base, ISR_IRF, 0))
 			goto transfer_error_receive_timeout;
 
 		msg->data = readl(&base->idbr);
@@ -258,68 +206,35 @@ transfer_error_bus_busy:
 
 i2c_transfer_finish:
 	debug("i2c_transfer: ISR: 0x%04x\n", readl(&base->isr));
-	i2c_reset();
+	i2c_reset(base);
 	return ret;
 }
 
-/* ------------------------------------------------------------------------ */
-/* API Functions                                                            */
-/* ------------------------------------------------------------------------ */
-void i2c_init(int speed, int slaveaddr)
-{
-#ifdef CONFIG_I2C_MULTI_BUS
-	current_bus = 0;
-	base = (struct mv_i2c *)i2c_regs[current_bus];
-#else
-	base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
-#endif
-
-	i2c_board_init(base);
-}
-
-/*
- * i2c_probe: - Test if a chip answers for a given i2c address
- *
- * @chip:	address of the chip which is searched for
- * @return:	0 if a chip was found, -1 otherwhise
- */
-int i2c_probe(uchar chip)
+static int __i2c_probe_chip(struct mv_i2c *base, uchar chip)
 {
 	struct mv_i2c_msg msg;
 
-	i2c_reset();
+	i2c_reset(base);
 
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
 	msg.data      = (chip << 1) + 1;
-	if (i2c_transfer(&msg))
+	if (i2c_transfer(base, &msg))
 		return -1;
 
 	msg.condition = I2C_COND_STOP;
 	msg.acknack   = I2C_ACKNAK_SENDNAK;
 	msg.direction = I2C_READ;
 	msg.data      = 0x00;
-	if (i2c_transfer(&msg))
+	if (i2c_transfer(base, &msg))
 		return -1;
 
 	return 0;
 }
 
-/*
- * i2c_read: - Read multiple bytes from an i2c device
- *
- * The higher level routines take into account that this function is only
- * called with len < page length of the device (see configuration file)
- *
- * @chip:	address of the chip which is to be read
- * @addr:	i2c data address within the chip
- * @alen:	length of the i2c data address (1..2 bytes)
- * @buffer:	where to write the data
- * @len:	how much byte do we want to read
- * @return:	0 in case of success
- */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int __i2c_read(struct mv_i2c *base, uchar chip, uint addr, int alen,
+		      uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
@@ -327,7 +242,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
 	      "len=0x%02x)\n", chip, addr, alen, len);
 
-	i2c_reset();
+	i2c_reset(base);
 
 	/* dummy chip address write */
 	debug("i2c_read: dummy chip address write\n");
@@ -336,7 +251,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.direction = I2C_WRITE;
 	msg.data = (chip << 1);
 	msg.data &= 0xFE;
-	if (i2c_transfer(&msg))
+	if (i2c_transfer(base, &msg))
 		return -1;
 
 	/*
@@ -354,7 +269,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
 		msg.data      = addr_bytes[alen];
-		if (i2c_transfer(&msg))
+		if (i2c_transfer(base, &msg))
 			return -1;
 	}
 
@@ -365,7 +280,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.direction = I2C_WRITE;
 	msg.data      = (chip << 1);
 	msg.data     |= 0x01;
-	if (i2c_transfer(&msg))
+	if (i2c_transfer(base, &msg))
 		return -1;
 
 	/* read bytes; send NACK at last byte */
@@ -380,7 +295,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 		msg.direction = I2C_READ;
 		msg.data      = 0x00;
-		if (i2c_transfer(&msg))
+		if (i2c_transfer(base, &msg))
 			return -1;
 
 		*buffer = msg.data;
@@ -389,25 +304,13 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		buffer++;
 	}
 
-	i2c_reset();
+	i2c_reset(base);
 
 	return 0;
 }
 
-/*
- * i2c_write: -  Write multiple bytes to an i2c device
- *
- * The higher level routines take into account that this function is only
- * called with len < page length of the device (see configuration file)
- *
- * @chip:	address of the chip which is to be written
- * @addr:	i2c data address within the chip
- * @alen:	length of the i2c data address (1..2 bytes)
- * @buffer:	where to find the data to be written
- * @len:	how much byte do we want to read
- * @return:	0 in case of success
- */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int __i2c_write(struct mv_i2c *base, uchar chip, uint addr, int alen,
+		       uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
@@ -415,7 +318,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	debug("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
 	      "len=0x%02x)\n", chip, addr, alen, len);
 
-	i2c_reset();
+	i2c_reset(base);
 
 	/* chip address write */
 	debug("i2c_write: chip address write\n");
@@ -424,7 +327,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.direction = I2C_WRITE;
 	msg.data = (chip << 1);
 	msg.data &= 0xFE;
-	if (i2c_transfer(&msg))
+	if (i2c_transfer(base, &msg))
 		return -1;
 
 	/*
@@ -441,7 +344,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
 		msg.data      = addr_bytes[alen];
-		if (i2c_transfer(&msg))
+		if (i2c_transfer(base, &msg))
 			return -1;
 	}
 
@@ -459,11 +362,123 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		msg.direction = I2C_WRITE;
 		msg.data      = *(buffer++);
 
-		if (i2c_transfer(&msg))
+		if (i2c_transfer(base, &msg))
 			return -1;
 	}
 
-	i2c_reset();
+	i2c_reset(base);
 
 	return 0;
+}
+
+static struct mv_i2c *base_glob;
+
+static void i2c_board_init(struct mv_i2c *base)
+{
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+	u32 icr;
+	/*
+	 * call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 *
+	 * disable I2C controller first, otherwhise it thinks we want to
+	 * talk to the slave port...
+	 */
+	icr = readl(&base->icr);
+	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
+
+	i2c_init_board();
+
+	writel(icr, &base->icr);
+#endif
+}
+
+#ifdef CONFIG_I2C_MULTI_BUS
+static unsigned long i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
+static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
+static unsigned int current_bus;
+
+int i2c_set_bus_num(unsigned int bus)
+{
+	if ((bus < 0) || (bus >= CONFIG_MV_I2C_NUM)) {
+		printf("Bad bus: %d\n", bus);
+		return -1;
+	}
+
+	base_glob = (struct mv_i2c *)i2c_regs[bus];
+	current_bus = bus;
+
+	if (!bus_initialized[current_bus]) {
+		i2c_board_init(base_glob);
+		bus_initialized[current_bus] = 1;
+	}
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_num(void)
+{
+	return current_bus;
+}
+#endif
+
+/* API Functions */
+void i2c_init(int speed, int slaveaddr)
+{
+#ifdef CONFIG_I2C_MULTI_BUS
+	current_bus = 0;
+	base_glob = (struct mv_i2c *)i2c_regs[current_bus];
+#else
+	base_glob = (struct mv_i2c *)CONFIG_MV_I2C_REG;
+#endif
+
+	i2c_board_init(base_glob);
+}
+
+/*
+ * i2c_probe: - Test if a chip answers for a given i2c address
+ *
+ * @chip:	address of the chip which is searched for
+ * @return:	0 if a chip was found, -1 otherwhise
+ */
+int i2c_probe(uchar chip)
+{
+	return __i2c_probe_chip(base_glob, chip);
+}
+
+/*
+ * i2c_read: - Read multiple bytes from an i2c device
+ *
+ * The higher level routines take into account that this function is only
+ * called with len < page length of the device (see configuration file)
+ *
+ * @chip:      address of the chip which is to be read
+ * @addr:      i2c data address within the chip
+ * @alen:      length of the i2c data address (1..2 bytes)
+ * @buffer:    where to write the data
+ * @len:       how much byte do we want to read
+ * @return:    0 in case of success
+ */
+int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+{
+	return __i2c_read(base_glob, chip, addr, alen, buffer, len);
+}
+
+/*
+ * i2c_write: -  Write multiple bytes to an i2c device
+ *
+ * The higher level routines take into account that this function is only
+ * called with len < page length of the device (see configuration file)
+ *
+ * @chip:	address of the chip which is to be written
+ * @addr:	i2c data address within the chip
+ * @alen:	length of the i2c data address (1..2 bytes)
+ * @buffer:	where to find the data to be written
+ * @len:	how much byte do we want to read
+ * @return:	0 in case of success
+ */
+int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+{
+	return __i2c_write(base_glob, chip, addr, alen, buffer, len);
 }
