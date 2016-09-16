@@ -4,7 +4,7 @@
 
 ifdef CONFIG_SPL_BUILD
 
-obj-y += init/ bcu/ memconf/ pll/ early-clk/
+obj-y += init/ bcu/ memconf/
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/
 
 else
@@ -15,13 +15,12 @@ obj-y += board_init.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 obj-y += reset.o
 
-obj-y += clk/
-
 endif
 
 obj-y += boards.o
 obj-y += soc_info.o
 obj-y += boot-mode/
+obj-y += clk/
 obj-y += dram/
 obj-y += pinctrl-glue.o
 
