@@ -93,3 +93,11 @@
 &emmc {
        u-boot,dm-pre-reloc;
 };
+
+&pinctrl_uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_emmc {
+	u-boot,dm-pre-reloc;
+};
