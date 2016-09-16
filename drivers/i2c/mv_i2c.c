@@ -20,7 +20,6 @@
 #include <common.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_HARD_I2C
 #include <i2c.h>
 #include "mv_i2c.h"
 
@@ -468,4 +467,3 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	return 0;
 }
-#endif	/* CONFIG_HARD_I2C */
