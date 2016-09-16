@@ -24,12 +24,6 @@
 #include <i2c.h>
 #include "mv_i2c.h"
 
-#ifdef DEBUG_I2C
-#define PRINTD(x) printf x
-#else
-#define PRINTD(x)
-#endif
-
 /* All transfers are described by this data structure */
 struct mv_i2c_msg {
 	u8 condition;
@@ -234,33 +228,39 @@ int i2c_transfer(struct mv_i2c_msg *msg)
 	return 0;
 
 transfer_error_msg_empty:
-		PRINTD(("i2c_transfer: error: 'msg' is empty\n"));
-		ret = -1; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: 'msg' is empty\n");
+	ret = -1;
+	goto i2c_transfer_finish;
 
 transfer_error_transmit_timeout:
-		PRINTD(("i2c_transfer: error: transmit timeout\n"));
-		ret = -2; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: transmit timeout\n");
+	ret = -2;
+	goto i2c_transfer_finish;
 
 transfer_error_ack_missing:
-		PRINTD(("i2c_transfer: error: ACK missing\n"));
-		ret = -3; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: ACK missing\n");
+	ret = -3;
+	goto i2c_transfer_finish;
 
 transfer_error_receive_timeout:
-		PRINTD(("i2c_transfer: error: receive timeout\n"));
-		ret = -4; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: receive timeout\n");
+	ret = -4;
+	goto i2c_transfer_finish;
 
 transfer_error_illegal_param:
-		PRINTD(("i2c_transfer: error: illegal parameters\n"));
-		ret = -5; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: illegal parameters\n");
+	ret = -5;
+	goto i2c_transfer_finish;
 
 transfer_error_bus_busy:
-		PRINTD(("i2c_transfer: error: bus is busy\n"));
-		ret = -6; goto i2c_transfer_finish;
+	debug("i2c_transfer: error: bus is busy\n");
+	ret = -6;
+	goto i2c_transfer_finish;
 
 i2c_transfer_finish:
-		PRINTD(("i2c_transfer: ISR: 0x%04x\n", readl(&base->isr)));
-		i2c_reset();
-		return ret;
+	debug("i2c_transfer: ISR: 0x%04x\n", readl(&base->isr));
+	i2c_reset();
+	return ret;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -325,13 +325,13 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
-	PRINTD(("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
-		"len=0x%02x)\n", chip, addr, alen, len));
+	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+	      "len=0x%02x)\n", chip, addr, alen, len);
 
 	i2c_reset();
 
 	/* dummy chip address write */
-	PRINTD(("i2c_read: dummy chip address write\n"));
+	debug("i2c_read: dummy chip address write\n");
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
@@ -350,7 +350,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
 
 	while (--alen >= 0) {
-		PRINTD(("i2c_read: send memory word address byte %1d\n", alen));
+		debug("i2c_read: send memory word address byte %1d\n", alen);
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
@@ -360,7 +360,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 	/* start read sequence */
-	PRINTD(("i2c_read: start read sequence\n"));
+	debug("i2c_read: start read sequence\n");
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
@@ -385,8 +385,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 			return -1;
 
 		*buffer = msg.data;
-		PRINTD(("i2c_read: reading byte (0x%08x)=0x%02x\n",
-			(unsigned int)buffer, *buffer));
+		debug("i2c_read: reading byte (0x%08x)=0x%02x\n",
+		      (unsigned int)buffer, *buffer);
 		buffer++;
 	}
 
@@ -413,13 +413,13 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
-	PRINTD(("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
-		"len=0x%02x)\n", chip, addr, alen, len));
+	debug("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+	      "len=0x%02x)\n", chip, addr, alen, len);
 
 	i2c_reset();
 
 	/* chip address write */
-	PRINTD(("i2c_write: chip address write\n"));
+	debug("i2c_write: chip address write\n");
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
@@ -437,7 +437,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
 
 	while (--alen >= 0) {
-		PRINTD(("i2c_write: send memory word address\n"));
+		debug("i2c_write: send memory word address\n");
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
@@ -448,8 +448,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	/* write bytes; send NACK at last byte */
 	while (len--) {
-		PRINTD(("i2c_write: writing byte (0x%08x)=0x%02x\n",
-			(unsigned int)buffer, *buffer));
+		debug("i2c_write: writing byte (0x%08x)=0x%02x\n",
+		      (unsigned int)buffer, *buffer);
 
 		if (len == 0)
 			msg.condition = I2C_COND_STOP;
