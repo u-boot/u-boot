@@ -131,7 +131,7 @@ static int fdt_fixup_erratum(int *usb_erratum_off, void *blob,
 	return 0;
 }
 
-void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+void fsl_fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	static const char * const modes[] = { "host", "peripheral", "otg" };
 	static const char * const phys[] = { "ulpi", "utmi", "utmi_dual" };

@@ -315,7 +315,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	FT_FSL_PCI_SETUP;
 
 #if defined(CONFIG_HAS_FSL_DR_USB)
-	fdt_fixup_dr_usb(blob, bd);
+	fsl_fdt_fixup_dr_usb(blob, bd);
 #endif
 
 #if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
