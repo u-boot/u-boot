@@ -12,7 +12,7 @@ obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= early-clk-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= early-clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= early-clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= early-clk-ld11.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= early-clk-ld20.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= early-clk-ld20.o dpll-ld20.o
 
 else
 
@@ -24,6 +24,8 @@ obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= clk-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= clk-ld11.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= clk-ld20.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= clk-ld20.o pll-ld20.o
 
 endif
+
+obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= pll-base-ld20.o

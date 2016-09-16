@@ -32,11 +32,13 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 
 	led_puts("L2");
 
-	led_puts("L3");
-
 #ifdef CONFIG_SPL_SERIAL_SUPPORT
 	preloader_console_init();
 #endif
+
+	led_puts("L3");
+
+	uniphier_ld20_dpll_init(bd);
 
 	led_puts("L4");
 
