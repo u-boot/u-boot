@@ -47,6 +47,14 @@ static void uniphier_setup_xirq(void)
 	writel(tmp, 0x55000090);
 }
 
+static void uniphier_nand_pin_init(bool cs2)
+{
+#ifdef CONFIG_NAND_DENALI
+	if (uniphier_pin_init(cs2 ? "nand2cs_grp" : "nand_grp"))
+		pr_err("failed to init NAND pins\n");
+#endif
+}
+
 int board_init(void)
 {
 	led_puts("U0");
@@ -54,55 +62,56 @@ int board_init(void)
 	switch (uniphier_get_soc_type()) {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	case SOC_UNIPHIER_SLD3:
-		uniphier_sld3_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_ld4_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	case SOC_UNIPHIER_LD4:
-		uniphier_ld4_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_ld4_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	case SOC_UNIPHIER_PRO4:
-		uniphier_pro4_pin_init();
+		uniphier_nand_pin_init(false);
 		led_puts("U1");
 		uniphier_pro4_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	case SOC_UNIPHIER_SLD8:
-		uniphier_sld8_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_ld4_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	case SOC_UNIPHIER_PRO5:
-		uniphier_pro5_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_pro5_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 	case SOC_UNIPHIER_PXS2:
-		uniphier_pxs2_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_pxs2_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	case SOC_UNIPHIER_LD6B:
-		uniphier_ld6b_pin_init();
+		uniphier_nand_pin_init(true);
 		led_puts("U1");
 		uniphier_pxs2_clk_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	case SOC_UNIPHIER_LD11:
+		uniphier_nand_pin_init(false);
 		uniphier_ld20_pin_init();
 		led_puts("U1");
 		uniphier_ld11_clk_init();
@@ -110,6 +119,7 @@ int board_init(void)
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	case SOC_UNIPHIER_LD20:
+		uniphier_nand_pin_init(false);
 		uniphier_ld20_pin_init();
 		led_puts("U1");
 		uniphier_ld20_clk_init();

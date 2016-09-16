@@ -23,6 +23,7 @@ obj-y += boards.o
 obj-y += soc_info.o
 obj-y += boot-mode/
 obj-y += dram/
+obj-y += pinctrl-glue.o
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += micro-support-card.o
 obj-$(CONFIG_DEBUG_UART_UNIPHIER) += debug-uart/

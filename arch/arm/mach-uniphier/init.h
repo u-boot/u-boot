@@ -103,13 +103,6 @@ int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
 
-void uniphier_sld3_pin_init(void);
-void uniphier_ld4_pin_init(void);
-void uniphier_pro4_pin_init(void);
-void uniphier_sld8_pin_init(void);
-void uniphier_pro5_pin_init(void);
-void uniphier_pxs2_pin_init(void);
-void uniphier_ld6b_pin_init(void);
 void uniphier_ld20_pin_init(void);
 
 void uniphier_ld4_clk_init(void);
@@ -119,6 +112,7 @@ void uniphier_pxs2_clk_init(void);
 void uniphier_ld11_clk_init(void);
 void uniphier_ld20_clk_init(void);
 
+int uniphier_pin_init(const char *pinconfig_name);
 void uniphier_smp_kick_all_cpus(void);
 void cci500_init(int nr_slaves);
 
