@@ -18,6 +18,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include "mv_i2c.h"
@@ -30,6 +31,16 @@ struct mv_i2c_msg {
 	u8 data;
 };
 
+#ifdef CONFIG_ARMADA_3700
+/* Armada 3700 has no padding between the registers */
+struct mv_i2c {
+	u32 ibmr;
+	u32 idbr;
+	u32 icr;
+	u32 isr;
+	u32 isar;
+};
+#else
 struct mv_i2c {
 	u32 ibmr;
 	u32 pad0;
@@ -41,6 +52,15 @@ struct mv_i2c {
 	u32 pad3;
 	u32 isar;
 };
+#endif
+
+/*
+ * Dummy implementation that can be overwritten by a board
+ * specific function
+ */
+__weak void i2c_clk_enable(void)
+{
+}
 
 /*
  * i2c_reset: - reset the host controller
@@ -210,37 +230,13 @@ i2c_transfer_finish:
 	return ret;
 }
 
-static int __i2c_probe_chip(struct mv_i2c *base, uchar chip)
-{
-	struct mv_i2c_msg msg;
-
-	i2c_reset(base);
-
-	msg.condition = I2C_COND_START;
-	msg.acknack   = I2C_ACKNAK_WAITACK;
-	msg.direction = I2C_WRITE;
-	msg.data      = (chip << 1) + 1;
-	if (i2c_transfer(base, &msg))
-		return -1;
-
-	msg.condition = I2C_COND_STOP;
-	msg.acknack   = I2C_ACKNAK_SENDNAK;
-	msg.direction = I2C_READ;
-	msg.data      = 0x00;
-	if (i2c_transfer(base, &msg))
-		return -1;
-
-	return 0;
-}
-
-static int __i2c_read(struct mv_i2c *base, uchar chip, uint addr, int alen,
+static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		      uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
-	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
 	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
-	      "len=0x%02x)\n", chip, addr, alen, len);
+	      "len=0x%02x)\n", chip, *addr, alen, len);
 
 	i2c_reset(base);
 
@@ -258,17 +254,13 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, uint addr, int alen,
 	 * send memory address bytes;
 	 * alen defines how much bytes we have to send.
 	 */
-	/*addr &= ((1 << CONFIG_SYS_EEPROM_PAGE_WRITE_BITS)-1); */
-	addr_bytes[0] = (u8)((addr >>  0) & 0x000000FF);
-	addr_bytes[1] = (u8)((addr >>  8) & 0x000000FF);
-	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
-
 	while (--alen >= 0) {
-		debug("i2c_read: send memory word address byte %1d\n", alen);
+		debug("i2c_read: send address byte %02x (alen=%d)\n",
+		      *addr, alen);
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = addr_bytes[alen];
+		msg.data      = *(addr++);
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
@@ -299,8 +291,8 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, uint addr, int alen,
 			return -1;
 
 		*buffer = msg.data;
-		debug("i2c_read: reading byte (0x%08x)=0x%02x\n",
-		      (unsigned int)buffer, *buffer);
+		debug("i2c_read: reading byte (%p)=0x%02x\n",
+		      buffer, *buffer);
 		buffer++;
 	}
 
@@ -309,14 +301,13 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, uint addr, int alen,
 	return 0;
 }
 
-static int __i2c_write(struct mv_i2c *base, uchar chip, uint addr, int alen,
+static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		       uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
-	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
 	debug("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
-	      "len=0x%02x)\n", chip, addr, alen, len);
+	      "len=0x%02x)\n", chip, *addr, alen, len);
 
 	i2c_reset(base);
 
@@ -334,24 +325,21 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, uint addr, int alen,
 	 * send memory address bytes;
 	 * alen defines how much bytes we have to send.
 	 */
-	addr_bytes[0] = (u8)((addr >>  0) & 0x000000FF);
-	addr_bytes[1] = (u8)((addr >>  8) & 0x000000FF);
-	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
-
 	while (--alen >= 0) {
-		debug("i2c_write: send memory word address\n");
+		debug("i2c_read: send address byte %02x (alen=%d)\n",
+		      *addr, alen);
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = addr_bytes[alen];
+		msg.data      = *(addr++);
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
 
 	/* write bytes; send NACK at last byte */
 	while (len--) {
-		debug("i2c_write: writing byte (0x%08x)=0x%02x\n",
-		      (unsigned int)buffer, *buffer);
+		debug("i2c_write: writing byte (%p)=0x%02x\n",
+		      buffer, *buffer);
 
 		if (len == 0)
 			msg.condition = I2C_COND_STOP;
@@ -370,6 +358,8 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, uint addr, int alen,
 
 	return 0;
 }
+
+#ifndef CONFIG_DM_I2C
 
 static struct mv_i2c *base_glob;
 
@@ -436,6 +426,29 @@ void i2c_init(int speed, int slaveaddr)
 	i2c_board_init(base_glob);
 }
 
+static int __i2c_probe_chip(struct mv_i2c *base, uchar chip)
+{
+	struct mv_i2c_msg msg;
+
+	i2c_reset(base);
+
+	msg.condition = I2C_COND_START;
+	msg.acknack   = I2C_ACKNAK_WAITACK;
+	msg.direction = I2C_WRITE;
+	msg.data      = (chip << 1) + 1;
+	if (i2c_transfer(base, &msg))
+		return -1;
+
+	msg.condition = I2C_COND_STOP;
+	msg.acknack   = I2C_ACKNAK_SENDNAK;
+	msg.direction = I2C_READ;
+	msg.data      = 0x00;
+	if (i2c_transfer(base, &msg))
+		return -1;
+
+	return 0;
+}
+
 /*
  * i2c_probe: - Test if a chip answers for a given i2c address
  *
@@ -462,7 +475,14 @@ int i2c_probe(uchar chip)
  */
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	return __i2c_read(base_glob, chip, addr, alen, buffer, len);
+	u8 addr_bytes[4];
+
+	addr_bytes[0] = (addr >> 0) & 0xFF;
+	addr_bytes[1] = (addr >> 8) & 0xFF;
+	addr_bytes[2] = (addr >> 16) & 0xFF;
+	addr_bytes[3] = (addr >> 24) & 0xFF;
+
+	return __i2c_read(base_glob, chip, addr_bytes, alen, buffer, len);
 }
 
 /*
@@ -480,5 +500,73 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
  */
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	return __i2c_write(base_glob, chip, addr, alen, buffer, len);
+	u8 addr_bytes[4];
+
+	addr_bytes[0] = (addr >> 0) & 0xFF;
+	addr_bytes[1] = (addr >> 8) & 0xFF;
+	addr_bytes[2] = (addr >> 16) & 0xFF;
+	addr_bytes[3] = (addr >> 24) & 0xFF;
+
+	return __i2c_write(base_glob, chip, addr_bytes, alen, buffer, len);
 }
+
+#else /* CONFIG_DM_I2C */
+
+struct mv_i2c_priv {
+	struct mv_i2c *base;
+};
+
+static int mv_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
+{
+	struct mv_i2c_priv *i2c = dev_get_priv(bus);
+	struct i2c_msg *dmsg, *omsg, dummy;
+
+	memset(&dummy, 0, sizeof(struct i2c_msg));
+
+	/*
+	 * We expect either two messages (one with an offset and one with the
+	 * actual data) or one message (just data or offset/data combined)
+	 */
+	if (nmsgs > 2 || nmsgs == 0) {
+		debug("%s: Only one or two messages are supported.", __func__);
+		return -1;
+	}
+
+	omsg = nmsgs == 1 ? &dummy : msg;
+	dmsg = nmsgs == 1 ? msg : msg + 1;
+
+	if (dmsg->flags & I2C_M_RD)
+		return __i2c_read(i2c->base, dmsg->addr, omsg->buf,
+				  omsg->len, dmsg->buf, dmsg->len);
+	else
+		return __i2c_write(i2c->base, dmsg->addr, omsg->buf,
+				   omsg->len, dmsg->buf, dmsg->len);
+}
+
+static int mv_i2c_probe(struct udevice *bus)
+{
+	struct mv_i2c_priv *priv = dev_get_priv(bus);
+
+	priv->base = (void *)dev_get_addr_ptr(bus);
+
+	return 0;
+}
+
+static const struct dm_i2c_ops mv_i2c_ops = {
+	.xfer		= mv_i2c_xfer,
+};
+
+static const struct udevice_id mv_i2c_ids[] = {
+	{ .compatible = "marvell,armada-3700-i2c" },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_mv) = {
+	.name	= "i2c_mv",
+	.id	= UCLASS_I2C,
+	.of_match = mv_i2c_ids,
+	.probe	= mv_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct mv_i2c_priv),
+	.ops	= &mv_i2c_ops,
+};
+#endif /* CONFIG_DM_I2C */
