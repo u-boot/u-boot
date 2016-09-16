@@ -65,6 +65,7 @@ int board_init(void)
 	case SOC_UNIPHIER_SLD3:
 		uniphier_nand_pin_init(true);
 		led_puts("U1");
+		uniphier_sld3_pll_init();
 		uniphier_ld4_clk_init();
 		break;
 #endif
@@ -72,6 +73,7 @@ int board_init(void)
 	case SOC_UNIPHIER_LD4:
 		uniphier_nand_pin_init(true);
 		led_puts("U1");
+		uniphier_ld4_pll_init();
 		uniphier_ld4_clk_init();
 		break;
 #endif
@@ -79,6 +81,7 @@ int board_init(void)
 	case SOC_UNIPHIER_PRO4:
 		uniphier_nand_pin_init(false);
 		led_puts("U1");
+		uniphier_pro4_pll_init();
 		uniphier_pro4_clk_init();
 		break;
 #endif
@@ -86,6 +89,7 @@ int board_init(void)
 	case SOC_UNIPHIER_SLD8:
 		uniphier_nand_pin_init(true);
 		led_puts("U1");
+		uniphier_ld4_pll_init();
 		uniphier_ld4_clk_init();
 		break;
 #endif
