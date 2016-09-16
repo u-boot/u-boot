@@ -94,8 +94,6 @@ int uniphier_pxs2_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_early_clk_init(const struct uniphier_board_data *bd);
 
-int uniphier_ld20_early_pin_init(const struct uniphier_board_data *bd);
-
 int uniphier_ld4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_umc_init(const struct uniphier_board_data *bd);

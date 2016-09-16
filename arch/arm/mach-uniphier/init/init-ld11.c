@@ -15,7 +15,7 @@ int uniphier_ld11_init(const struct uniphier_board_data *bd)
 {
 	uniphier_sbc_init_savepin(bd);
 	uniphier_pxs2_sbc_init(bd);
-	uniphier_ld20_early_pin_init(bd);
+	uniphier_pin_init("system_bus_grp");
 
 	support_card_reset();
 
