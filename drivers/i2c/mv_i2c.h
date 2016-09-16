@@ -23,12 +23,7 @@ extern void i2c_clk_enable(void);
 #define I2C_READ		0
 #define I2C_WRITE		1
 
-#if (CONFIG_SYS_I2C_SPEED == 400000)
-#define I2C_ICR_INIT	(ICR_FM | ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD \
-		| ICR_SCLE)
-#else
 #define I2C_ICR_INIT	(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
-#endif
 
 #define I2C_ISR_INIT		0x7FF
 /* ----- Control register bits ---------------------------------------- */
@@ -48,7 +43,15 @@ extern void i2c_clk_enable(void);
 #define ICR_ALDIE	0x1000		/* enable arbitration interrupt */
 #define ICR_SADIE	0x2000		/* slave address detected int enable */
 #define ICR_UR		0x4000		/* unit reset */
-#define ICR_FM		0x8000		/* Fast Mode */
+#ifdef CONFIG_ARMADA_3700
+#define ICR_SM		0x00000		/* Standard Mode */
+#define ICR_FM		0x10000		/* Fast Mode */
+#define ICR_MODE_MASK	0x30000		/* Mode mask */
+#else
+#define ICR_SM		0x00000		/* Standard Mode */
+#define ICR_FM		0x08000		/* Fast Mode */
+#define ICR_MODE_MASK	0x18000		/* Mode mask */
+#endif
 
 /* ----- Status register bits ----------------------------------------- */
 

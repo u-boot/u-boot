@@ -68,6 +68,10 @@ __weak void i2c_clk_enable(void)
  */
 static void i2c_reset(struct mv_i2c *base)
 {
+	u32 icr_mode;
+
+	/* Save bus mode (standard or fast speed) for later use */
+	icr_mode = readl(&base->icr) & ICR_MODE_MASK;
 	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
 	writel(readl(&base->icr) | ICR_UR, &base->icr);	  /* reset the unit */
 	udelay(100);
@@ -76,7 +80,8 @@ static void i2c_reset(struct mv_i2c *base)
 	i2c_clk_enable();
 
 	writel(CONFIG_SYS_I2C_SLAVE, &base->isar); /* set our slave address */
-	writel(I2C_ICR_INIT, &base->icr); /* set control reg values */
+	/* set control reg values */
+	writel(I2C_ICR_INIT | icr_mode, &base->icr);
 	writel(I2C_ISR_INIT, &base->isr); /* set clear interrupt bits */
 	writel(readl(&base->icr) | ICR_IUE, &base->icr); /* enable unit */
 	udelay(100);
@@ -416,12 +421,20 @@ unsigned int i2c_get_bus_num(void)
 /* API Functions */
 void i2c_init(int speed, int slaveaddr)
 {
+	u32 val;
+
 #ifdef CONFIG_I2C_MULTI_BUS
 	current_bus = 0;
 	base_glob = (struct mv_i2c *)i2c_regs[current_bus];
 #else
 	base_glob = (struct mv_i2c *)CONFIG_MV_I2C_REG;
 #endif
+
+	if (speed > 100000)
+		val = ICR_FM;
+	else
+		val = ICR_SM;
+	clrsetbits_le32(&base_glob->icr, ICR_MODE_MASK, val);
 
 	i2c_board_init(base_glob);
 }
@@ -543,6 +556,20 @@ static int mv_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 				   omsg->len, dmsg->buf, dmsg->len);
 }
 
+static int mv_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+{
+	struct mv_i2c_priv *priv = dev_get_priv(bus);
+	u32 val;
+
+	if (speed > 100000)
+		val = ICR_FM;
+	else
+		val = ICR_SM;
+	clrsetbits_le32(&priv->base->icr, ICR_MODE_MASK, val);
+
+	return 0;
+}
+
 static int mv_i2c_probe(struct udevice *bus)
 {
 	struct mv_i2c_priv *priv = dev_get_priv(bus);
@@ -554,6 +581,7 @@ static int mv_i2c_probe(struct udevice *bus)
 
 static const struct dm_i2c_ops mv_i2c_ops = {
 	.xfer		= mv_i2c_xfer,
+	.set_bus_speed	= mv_i2c_set_bus_speed,
 };
 
 static const struct udevice_id mv_i2c_ids[] = {
