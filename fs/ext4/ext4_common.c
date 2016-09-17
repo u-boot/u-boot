@@ -2339,15 +2339,6 @@ int ext4fs_mount(unsigned part_length)
 	if (le16_to_cpu(data->sblock.magic) != EXT2_MAGIC)
 		goto fail;
 
-	/*
-	 * The 64bit feature was enabled when metadata_csum was enabled
-	 * and we do not support metadata_csum (and cannot reliably find
-	 * files when it is set.  Refuse to mount.
-	 */
-	if (le32_to_cpu(data->sblock.feature_incompat) & EXT4_FEATURE_INCOMPAT_64BIT) {
-		printf("Unsupported feature found (64bit, possibly metadata_csum), not mounting\n");
-		goto fail;
-	}
 
 	if (le32_to_cpu(data->sblock.revision_level) == 0) {
 		fs->inodesz = 128;
