@@ -2233,13 +2233,23 @@ int ext4fs_mount(unsigned part_length)
 		goto fail;
 	}
 
-	if (le32_to_cpu(data->sblock.revision_level) == 0)
+	if (le32_to_cpu(data->sblock.revision_level) == 0) {
 		fs->inodesz = 128;
-	else
-		fs->inodesz = le16_to_cpu(data->sblock.inode_size);
+	} else {
+		debug("EXT4 features COMPAT: %08x INCOMPAT: %08x RO_COMPAT: %08x\n",
+		      __le32_to_cpu(data->sblock.feature_compatibility),
+		      __le32_to_cpu(data->sblock.feature_incompat),
+		      __le32_to_cpu(data->sblock.feature_ro_compat));
 
-	debug("EXT2 rev %d, inode_size %d\n",
-	       le32_to_cpu(data->sblock.revision_level), fs->inodesz);
+		fs->inodesz = le16_to_cpu(data->sblock.inode_size);
+		fs->gdsize = le32_to_cpu(data->sblock.feature_incompat) &
+			EXT4_FEATURE_INCOMPAT_64BIT ?
+			le16_to_cpu(data->sblock.descriptor_size) : 32;
+	}
+
+	debug("EXT2 rev %d, inode_size %d, descriptor size %d\n",
+	      le32_to_cpu(data->sblock.revision_level),
+	      fs->inodesz, fs->gdsize);
 
 	data->diropen.data = data;
 	data->diropen.ino = 2;

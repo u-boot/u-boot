@@ -87,6 +87,8 @@ struct ext_filesystem {
 	uint32_t inodesz;
 	/* Sectors per Block */
 	uint32_t sect_perblk;
+	/* Group Descriptor size */
+	uint16_t gdsize;
 	/* Group Descriptor Block Number */
 	uint32_t gdtable_blkno;
 	/* Total block groups of partition */
