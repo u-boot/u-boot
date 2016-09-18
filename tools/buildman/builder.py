@@ -1366,8 +1366,10 @@ class Builder:
             if os.path.exists(git_dir):
                 gitutil.Fetch(git_dir, thread_dir)
             else:
-                Print('Cloning repo for thread %d' % thread_num)
+                Print('\rCloning repo for thread %d' % thread_num,
+                      newline=False)
                 gitutil.Clone(src_dir, thread_dir)
+                Print('\r%s\r' % (' ' * 30), newline=False)
 
     def _PrepareWorkingSpace(self, max_threads, setup_git):
         """Prepare the working directory for use.
