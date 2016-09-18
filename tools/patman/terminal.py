@@ -55,6 +55,8 @@ def Print(text='', newline=True, colour=None):
         print text,
         if newline:
             print
+        else:
+            sys.stdout.flush()
 
 def SetPrintTestMode():
     """Go into test mode, where all printing is recorded"""
