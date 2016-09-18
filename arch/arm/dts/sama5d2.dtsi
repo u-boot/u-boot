@@ -79,7 +79,7 @@
 					#clock-cells = <0>;
 				};
 
-				plla: pllack {
+				plla: pllack@0 {
 					compatible = "atmel,sama5d3-clk-pll";
 					#clock-cells = <0>;
 					clocks = <&main>;
@@ -146,17 +146,17 @@
 					interrupt-parent = <&pmc>;
 					clocks = <&main>, <&plladiv>, <&utmi>, <&mck>;
 
-					prog0: prog0 {
+					prog0: prog@0 {
 						#clock-cells = <0>;
 						reg = <0>;
 					};
 
-					prog1: prog1 {
+					prog1: prog@1 {
 						#clock-cells = <0>;
 						reg = <1>;
 					};
 
-					prog2: prog2 {
+					prog2: prog@2 {
 						#clock-cells = <0>;
 						reg = <2>;
 					};
@@ -167,49 +167,49 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 
-					ddrck: ddrck {
+					ddrck: ddrck@2 {
 						#clock-cells = <0>;
 						reg = <2>;
 						clocks = <&mck>;
 					};
 
-					lcdck: lcdck {
+					lcdck: lcdck@3 {
 						#clock-cells = <0>;
 						reg = <3>;
 						clocks = <&mck>;
 					};
 
-					uhpck: uhpck {
+					uhpck: uhpck@6 {
 						#clock-cells = <0>;
 						reg = <6>;
 						clocks = <&usb>;
 					};
 
-					udpck: udpck {
+					udpck: udpck@7 {
 						#clock-cells = <0>;
 						reg = <7>;
 						clocks = <&usb>;
 					};
 
-					pck0: pck0 {
+					pck0: pck0@8 {
 						#clock-cells = <0>;
 						reg = <8>;
 						clocks = <&prog0>;
 					};
 
-					pck1: pck1 {
+					pck1: pck1@9 {
 						#clock-cells = <0>;
 						reg = <9>;
 						clocks = <&prog1>;
 					};
 
-					pck2: pck2 {
+					pck2: pck2@10 {
 						#clock-cells = <0>;
 						reg = <10>;
 						clocks = <&prog2>;
 					};
 
-					iscck: iscck {
+					iscck: iscck@18 {
 						#clock-cells = <0>;
 						reg = <18>;
 						clocks = <&mck>;
@@ -222,203 +222,203 @@
 					#size-cells = <0>;
 					clocks = <&h32ck>;
 
-					macb0_clk: macb0_clk {
+					macb0_clk: macb0_clk@5 {
 						#clock-cells = <0>;
 						reg = <5>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					tdes_clk: tdes_clk {
+					tdes_clk: tdes_clk@11 {
 						#clock-cells = <0>;
 						reg = <11>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					matrix1_clk: matrix1_clk {
+					matrix1_clk: matrix1_clk@14 {
 						#clock-cells = <0>;
 						reg = <14>;
 					};
 
-					hsmc_clk: hsmc_clk {
+					hsmc_clk: hsmc_clk@17 {
 						#clock-cells = <0>;
 						reg = <17>;
 					};
 
-					pioA_clk: pioA_clk {
+					pioA_clk: pioA_clk@18 {
 						#clock-cells = <0>;
 						reg = <18>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					flx0_clk: flx0_clk {
+					flx0_clk: flx0_clk@19 {
 						#clock-cells = <0>;
 						reg = <19>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					flx1_clk: flx1_clk {
+					flx1_clk: flx1_clk@20 {
 						#clock-cells = <0>;
 						reg = <20>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					flx2_clk: flx2_clk {
+					flx2_clk: flx2_clk@21 {
 						#clock-cells = <0>;
 						reg = <21>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					flx3_clk: flx3_clk {
+					flx3_clk: flx3_clk@22 {
 						#clock-cells = <0>;
 						reg = <22>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					flx4_clk: flx4_clk {
+					flx4_clk: flx4_clk@23 {
 						#clock-cells = <0>;
 						reg = <23>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uart0_clk: uart0_clk {
+					uart0_clk: uart0_clk@24 {
 						#clock-cells = <0>;
 						reg = <24>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uart1_clk: uart1_clk {
+					uart1_clk: uart1_clk@25 {
 						#clock-cells = <0>;
 						reg = <25>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uart2_clk: uart2_clk {
+					uart2_clk: uart2_clk@26 {
 						#clock-cells = <0>;
 						reg = <26>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uart3_clk: uart3_clk {
+					uart3_clk: uart3_clk@27 {
 						#clock-cells = <0>;
 						reg = <27>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uart4_clk: uart4_clk {
+					uart4_clk: uart4_clk@28 {
 						#clock-cells = <0>;
 						reg = <28>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					twi0_clk: twi0_clk {
+					twi0_clk: twi0_clk@29 {
 						reg = <29>;
 						#clock-cells = <0>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					twi1_clk: twi1_clk {
+					twi1_clk: twi1_clk@30 {
 						#clock-cells = <0>;
 						reg = <30>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					spi0_clk: spi0_clk {
+					spi0_clk: spi0_clk@33 {
 						#clock-cells = <0>;
 						reg = <33>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					spi1_clk: spi1_clk {
+					spi1_clk: spi1_clk@34 {
 						#clock-cells = <0>;
 						reg = <34>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					tcb0_clk: tcb0_clk {
+					tcb0_clk: tcb0_clk@35 {
 						#clock-cells = <0>;
 						reg = <35>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					tcb1_clk: tcb1_clk {
+					tcb1_clk: tcb1_clk@36 {
 						#clock-cells = <0>;
 						reg = <36>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					pwm_clk: pwm_clk {
+					pwm_clk: pwm_clk@38 {
 						#clock-cells = <0>;
 						reg = <38>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					adc_clk: adc_clk {
+					adc_clk: adc_clk@40 {
 						#clock-cells = <0>;
 						reg = <40>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					uhphs_clk: uhphs_clk {
+					uhphs_clk: uhphs_clk@41 {
 						#clock-cells = <0>;
 						reg = <41>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					udphs_clk: udphs_clk {
+					udphs_clk: udphs_clk@42 {
 						#clock-cells = <0>;
 						reg = <42>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					ssc0_clk: ssc0_clk {
+					ssc0_clk: ssc0_clk@43 {
 						#clock-cells = <0>;
 						reg = <43>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					ssc1_clk: ssc1_clk {
+					ssc1_clk: ssc1_clk@44 {
 						#clock-cells = <0>;
 						reg = <44>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					trng_clk: trng_clk {
+					trng_clk: trng_clk@47 {
 						#clock-cells = <0>;
 						reg = <47>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					pdmic_clk: pdmic_clk {
+					pdmic_clk: pdmic_clk@48 {
 						#clock-cells = <0>;
 						reg = <48>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					i2s0_clk: i2s0_clk {
+					i2s0_clk: i2s0_clk@54 {
 						#clock-cells = <0>;
 						reg = <54>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					i2s1_clk: i2s1_clk {
+					i2s1_clk: i2s1_clk@55 {
 						#clock-cells = <0>;
 						reg = <55>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					can0_clk: can0_clk {
+					can0_clk: can0_clk@56 {
 						#clock-cells = <0>;
 						reg = <56>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					can1_clk: can1_clk {
+					can1_clk: can1_clk@57 {
 						#clock-cells = <0>;
 						reg = <57>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					classd_clk: classd_clk {
+					classd_clk: classd_clk@59 {
 						#clock-cells = <0>;
 						reg = <59>;
 						atmel,clk-output-range = <0 83000000>;
@@ -431,67 +431,67 @@
 					#size-cells = <0>;
 					clocks = <&mck>;
 
-					dma0_clk: dma0_clk {
+					dma0_clk: dma0_clk@6 {
 						#clock-cells = <0>;
 						reg = <6>;
 					};
 
-					dma1_clk: dma1_clk {
+					dma1_clk: dma1_clk@7 {
 						#clock-cells = <0>;
 						reg = <7>;
 					};
 
-					aes_clk: aes_clk {
+					aes_clk: aes_clk@9 {
 						#clock-cells = <0>;
 						reg = <9>;
 					};
 
-					aesb_clk: aesb_clk {
+					aesb_clk: aesb_clk@10 {
 						#clock-cells = <0>;
 						reg = <10>;
 					};
 
-					sha_clk: sha_clk {
+					sha_clk: sha_clk@12 {
 						#clock-cells = <0>;
 						reg = <12>;
 					};
 
-					mpddr_clk: mpddr_clk {
+					mpddr_clk: mpddr_clk@13 {
 						#clock-cells = <0>;
 						reg = <13>;
 					};
 
-					matrix0_clk: matrix0_clk {
+					matrix0_clk: matrix0_clk@15 {
 						#clock-cells = <0>;
 						reg = <15>;
 					};
 
-					sdmmc0_hclk: sdmmc0_hclk {
+					sdmmc0_hclk: sdmmc0_hclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
 					};
 
-					sdmmc1_hclk: sdmmc1_hclk {
+					sdmmc1_hclk: sdmmc1_hclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
 					};
 
-					lcdc_clk: lcdc_clk {
+					lcdc_clk: lcdc_clk@45 {
 						#clock-cells = <0>;
 						reg = <45>;
 					};
 
-					isc_clk: isc_clk {
+					isc_clk: isc_clk@46 {
 						#clock-cells = <0>;
 						reg = <46>;
 					};
 
-					qspi0_clk: qspi0_clk {
+					qspi0_clk: qspi0_clk@52 {
 						#clock-cells = <0>;
 						reg = <52>;
 					};
 
-					qspi1_clk: qspi1_clk {
+					qspi1_clk: qspi1_clk@53 {
 						#clock-cells = <0>;
 						reg = <53>;
 					};
@@ -504,62 +504,62 @@
 					interrupt-parent = <&pmc>;
 					clocks = <&main>, <&plla>, <&utmi>, <&mck>;
 
-					sdmmc0_gclk: sdmmc0_gclk {
+					sdmmc0_gclk: sdmmc0_gclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
 					};
 
-					sdmmc1_gclk: sdmmc1_gclk {
+					sdmmc1_gclk: sdmmc1_gclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
 					};
 
-					tcb0_gclk: tcb0_gclk {
+					tcb0_gclk: tcb0_gclk@35 {
 						#clock-cells = <0>;
 						reg = <35>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					tcb1_gclk: tcb1_gclk {
+					tcb1_gclk: tcb1_gclk@36 {
 						#clock-cells = <0>;
 						reg = <36>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					pwm_gclk: pwm_gclk {
+					pwm_gclk: pwm_gclk@38 {
 						#clock-cells = <0>;
 						reg = <38>;
 						atmel,clk-output-range = <0 83000000>;
 					};
 
-					pdmic_gclk: pdmic_gclk {
+					pdmic_gclk: pdmic_gclk@48 {
 						#clock-cells = <0>;
 						reg = <48>;
 					};
 
-					i2s0_gclk: i2s0_gclk {
+					i2s0_gclk: i2s0_gclk@54 {
 						#clock-cells = <0>;
 						reg = <54>;
 					};
 
-					i2s1_gclk: i2s1_gclk {
+					i2s1_gclk: i2s1_gclk@55 {
 						#clock-cells = <0>;
 						reg = <55>;
 					};
 
-					can0_gclk: can0_gclk {
+					can0_gclk: can0_gclk@56 {
 						#clock-cells = <0>;
 						reg = <56>;
 						atmel,clk-output-range = <0 80000000>;
 					};
 
-					can1_gclk: can1_gclk {
+					can1_gclk: can1_gclk@57 {
 						#clock-cells = <0>;
 						reg = <57>;
 						atmel,clk-output-range = <0 80000000>;
 					};
 
-					classd_gclk: classd_gclk {
+					classd_gclk: classd_gclk@59 {
 						#clock-cells = <0>;
 						reg = <59>;
 						atmel,clk-output-range = <0 100000000>;
