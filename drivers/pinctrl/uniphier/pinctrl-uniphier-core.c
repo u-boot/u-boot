@@ -13,6 +13,10 @@
 
 #include "pinctrl-uniphier.h"
 
+#define UNIPHIER_PINCTRL_PINMUX_BASE	0x1000
+#define UNIPHIER_PINCTRL_LOAD_PINMUX	0x1700
+#define UNIPHIER_PINCTRL_IECTRL		0x1d00
+
 static const char *uniphier_pinctrl_dummy_name = "_dummy";
 
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
@@ -101,8 +105,10 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 				    int muxval)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
-	unsigned mux_bits, reg_stride, reg, reg_end, shift, mask;
-	bool load_pinctrl;
+	unsigned reg, reg_end, shift, mask;
+	unsigned mux_bits = 8;
+	unsigned reg_stride = 4;
+	bool load_pinctrl = false;
 	u32 tmp;
 
 	/* some pins need input-enabling */
@@ -111,24 +117,18 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 	if (muxval < 0)
 		return;		/* dedicated pin; nothing to do for pin-mux */
 
+	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_MUX_4BIT)
+		mux_bits = 4;
+
 	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE) {
 		/*
 		 *  Mode       offset        bit
 		 *  Normal     4 * n     shift+3:shift
 		 *  Debug      4 * n     shift+7:shift+4
 		 */
-		mux_bits = 4;
+		mux_bits /= 2;
 		reg_stride = 8;
 		load_pinctrl = true;
-	} else {
-		/*
-		 *  Mode       offset           bit
-		 *  Normal     8 * n        shift+3:shift
-		 *  Debug      8 * n + 4    shift+3:shift
-		 */
-		mux_bits = 8;
-		reg_stride = 4;
-		load_pinctrl = false;
 	}
 
 	reg = UNIPHIER_PINCTRL_PINMUX_BASE + pin * mux_bits / 32 * reg_stride;

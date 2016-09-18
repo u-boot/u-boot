@@ -59,7 +59,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
-	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
 	COMPAT(ALTERA_SOCFPGA_DWMMC, "altr,socfpga-dw-mshc"),
 	COMPAT(ALTERA_SOCFPGA_DWC2USB, "snps,dwc2"),

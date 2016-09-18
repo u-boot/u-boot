@@ -90,6 +90,8 @@
 			status = "disabled";
 			reg = <0x54006800 0x40>;
 			interrupts = <0 33 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_uart0>;
 			clocks = <&uart_clk>;
 			clock-frequency = <36864000>;
 		};
@@ -99,6 +101,8 @@
 			status = "disabled";
 			reg = <0x54006900 0x40>;
 			interrupts = <0 35 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_uart1>;
 			clocks = <&uart_clk>;
 			clock-frequency = <36864000>;
 		};
@@ -108,6 +112,8 @@
 			status = "disabled";
 			reg = <0x54006a00 0x40>;
 			interrupts = <0 37 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_uart2>;
 			clocks = <&uart_clk>;
 			clock-frequency = <36864000>;
 		};
@@ -231,6 +237,8 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 41 1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_i2c0>;
 			clocks = <&iobus_clk>;
 			clock-frequency = <100000>;
 		};
@@ -304,6 +312,9 @@
 			status = "disabled";
 			reg = <0x5a400000 0x200>;
 			interrupts = <0 78 4>;
+			pinctrl-names = "default", "1.8v";
+			pinctrl-0 = <&pinctrl_emmc>;
+			pinctrl-1 = <&pinctrl_emmc_1v8>;
 			clocks = <&mio 1>;
 			bus-width = <8>;
 			non-removable;
@@ -314,6 +325,9 @@
 			status = "disabled";
 			reg = <0x5a500000 0x200>;
 			interrupts = <0 76 4>;
+			pinctrl-names = "default", "1.8v";
+			pinctrl-0 = <&pinctrl_sd>;
+			pinctrl-1 = <&pinctrl_sd_1v8>;
 			clocks = <&mio 0>;
 			bus-width = <4>;
 		};
@@ -323,6 +337,8 @@
 			status = "disabled";
 			reg = <0x5a800100 0x100>;
 			interrupts = <0 80 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb0>;
 			clocks = <&mio 3>, <&mio 6>;
 		};
 
@@ -331,6 +347,8 @@
 			status = "disabled";
 			reg = <0x5a810100 0x100>;
 			interrupts = <0 81 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb1>;
 			clocks = <&mio 4>, <&mio 6>;
 		};
 
@@ -339,6 +357,8 @@
 			status = "disabled";
 			reg = <0x5a820100 0x100>;
 			interrupts = <0 82 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb2>;
 			clocks = <&mio 5>, <&mio 6>;
 		};
 
@@ -347,7 +367,20 @@
 			status = "disabled";
 			reg = <0x5a830100 0x100>;
 			interrupts = <0 83 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb3>;
 			clocks = <&mio 7>, <&mio 6>;
+		};
+
+		soc-glue@5f800000 {
+			compatible = "simple-mfd", "syscon";
+			reg = <0x5f800000 0x2000>;
+			u-boot,dm-pre-reloc;
+
+			pinctrl: pinctrl {
+				compatible = "socionext,uniphier-sld3-pinctrl";
+				u-boot,dm-pre-reloc;
+			};
 		};
 
 		aidet@f1830000 {
@@ -370,3 +403,5 @@
 		};
 	};
 };
+
+/include/ "uniphier-pinctrl.dtsi"

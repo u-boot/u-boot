@@ -15,13 +15,6 @@ config USB_XHCI_HCD
 
 if USB_XHCI_HCD
 
-config USB_XHCI_UNIPHIER
-	bool "Support for UniPhier on-chip xHCI USB controller"
-	depends on ARCH_UNIPHIER
-	default y
-	---help---
-	  Enables support for the on-chip xHCI controller on UniPhier SoCs.
-
 config USB_XHCI_DWC3
 	bool "DesignWare USB3 DRD Core Support"
 	help

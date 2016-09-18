@@ -1,59 +1,17 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2013-2014 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <linux/err.h>
 #include <linux/io.h>
 
 #include "../init.h"
 #include "../sc-regs.h"
 #include "../sg-regs.h"
-
-#undef DPLL_SSC_RATE_1PER
-
-static int dpll_init(unsigned int dram_freq)
-{
-	u32 tmp;
-
-	/*
-	 * Set Frequency
-	 * Set 0xc(1600MHz)/0xd(1333MHz)/0xe(1066MHz)
-	 * to FOUT ( DPLLCTRL.bit[29:20] )
-	 */
-	tmp = readl(SC_DPLLCTRL);
-	tmp &= ~(0x000f0000);
-	switch (dram_freq) {
-	case 1333:
-		tmp |= 0x000d0000;
-		break;
-	case 1600:
-		tmp |= 0x000c0000;
-		break;
-	default:
-		pr_err("Unsupported frequency");
-		return -EINVAL;
-	}
-
-	/*
-	 * Set Moduration rate
-	 * Set 0x0(1%)/0x1(2%) to SSC_RATE(DPLLCTRL.bit[15])
-	 */
-#if defined(DPLL_SSC_RATE_1PER)
-	tmp &= ~0x00008000;
-#else
-	tmp |= 0x00008000;
-#endif
-	writel(tmp, SC_DPLLCTRL);
-
-	tmp = readl(SC_DPLLCTRL2);
-	tmp |= SC_DPLLCTRL2_NRSTDS;
-	writel(tmp, SC_DPLLCTRL2);
-
-	return 0;
-}
+#include "pll.h"
 
 static void vpll_init(void)
 {
@@ -145,20 +103,8 @@ static void vpll_init(void)
 	writel(tmp, SC_VPLL27BCTRL);
 }
 
-int uniphier_pro4_pll_init(const struct uniphier_board_data *bd)
+void uniphier_pro4_pll_init(void)
 {
-	int ret;
-
-	ret = dpll_init(bd->dram_freq);
-	if (ret)
-		return ret;
 	vpll_init();
-
-	/*
-	 * Wait 500 usec until dpll get stable
-	 * We wait 1 usec in vpll_init() so 1 usec can be saved here.
-	 */
-	udelay(499);
-
-	return 0;
+	uniphier_ld4_dpll_ssc_en();
 }
