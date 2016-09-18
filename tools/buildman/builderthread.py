@@ -470,9 +470,7 @@ class BuilderThread(threading.Thread):
         This thread picks a job from the queue, runs it, and then goes to the
         next job.
         """
-        alive = True
         while True:
             job = self.builder.queue.get()
-            if alive:
-                self.RunJob(job)
+            self.RunJob(job)
             self.builder.queue.task_done()
