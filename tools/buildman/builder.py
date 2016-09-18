@@ -12,6 +12,7 @@ import os
 import re
 import Queue
 import shutil
+import signal
 import string
 import sys
 import threading
@@ -282,10 +283,16 @@ class Builder:
         ignore_lines = ['(make.*Waiting for unfinished)', '(Segmentation fault)']
         self.re_make_err = re.compile('|'.join(ignore_lines))
 
+        # Handle existing graceful with SIGINT / Ctrl-C
+        signal.signal(signal.SIGINT, self.signal_handler)
+
     def __del__(self):
         """Get rid of all threads created by the builder"""
         for t in self.threads:
             del t
+
+    def signal_handler(self, signal, frame):
+        sys.exit(1)
 
     def SetDisplayOptions(self, show_errors=False, show_sizes=False,
                           show_detail=False, show_bloat=False,
