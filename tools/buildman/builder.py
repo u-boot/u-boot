@@ -14,6 +14,7 @@ import Queue
 import shutil
 import string
 import sys
+import threading
 import time
 
 import builderthread
@@ -1443,8 +1444,11 @@ class Builder:
             job.step = self._step
             self.queue.put(job)
 
-        # Wait until all jobs are started
-        self.queue.join()
+        term = threading.Thread(target=self.queue.join)
+        term.setDaemon(True)
+        term.start()
+        while term.isAlive():
+            term.join(100)
 
         # Wait until we have processed all output
         self.out_queue.join()
