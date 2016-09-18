@@ -1397,8 +1397,14 @@ class Builder:
         for commit_upto in range(self.commit_count):
             dir_list.append(self._GetOutputDir(commit_upto))
 
+        to_remove = []
         for dirname in glob.glob(os.path.join(self.base_dir, '*')):
             if dirname not in dir_list:
+                to_remove.append(dirname)
+        if to_remove:
+            Print('Removing %d old build directories' % len(to_remove),
+                  newline=False)
+            for dirname in to_remove:
                 shutil.rmtree(dirname)
 
     def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
