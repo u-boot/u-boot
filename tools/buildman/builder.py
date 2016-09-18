@@ -127,7 +127,6 @@ class Builder:
     """Class for building U-Boot for a particular commit.
 
     Public members: (many should ->private)
-        active: True if the builder is active and has not been stopped
         already_done: Number of builds already completed
         base_dir: Base directory to use for builder
         checkout: True to check out source, False to skip that step.
@@ -235,7 +234,6 @@ class Builder:
         self.base_dir = base_dir
         self._working_dir = os.path.join(base_dir, '.bm-work')
         self.threads = []
-        self.active = True
         self.do_make = self.Make
         self.gnu_make = gnu_make
         self.checkout = checkout
@@ -389,11 +387,6 @@ class Builder:
         col = terminal.Color()
         if result:
             target = result.brd.target
-
-            if result.return_code < 0:
-                self.active = False
-                command.StopAll()
-                return
 
             self.upto += 1
             if result.return_code != 0:

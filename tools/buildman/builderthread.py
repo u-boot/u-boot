@@ -473,14 +473,6 @@ class BuilderThread(threading.Thread):
         alive = True
         while True:
             job = self.builder.queue.get()
-            if self.builder.active and alive:
+            if alive:
                 self.RunJob(job)
-            '''
-            try:
-                if self.builder.active and alive:
-                    self.RunJob(job)
-            except Exception as err:
-                alive = False
-                print err
-            '''
             self.builder.queue.task_done()
