@@ -53,7 +53,7 @@ def test_vboot(u_boot_console):
         util.run_and_log(cons, 'dtc %s %s%s -O dtb '
                          '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
 
-    def run_bootm(sha_algo, test_type, expect_string):
+    def run_bootm(sha_algo, test_type, expect_string, boots):
         """Run a 'bootm' command U-Boot.
 
         This always starts a fresh U-Boot instance since the device tree may
@@ -64,6 +64,8 @@ def test_vboot(u_boot_console):
             expect_string: A string which is expected in the output.
             sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
                     use.
+            boots: A boolean that is True if Linux should boot and False if
+                    we are expected to not boot
         """
         cons.restart_uboot()
         with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
@@ -72,6 +74,8 @@ def test_vboot(u_boot_console):
                 'fdt addr 100',
                 'bootm 100'])
         assert(expect_string in ''.join(output))
+        if boots:
+            assert('sandbox: continuing, as we cannot run' in ''.join(output))
 
     def make_fit(its):
         """Make a new FIT from the .its source file.
@@ -117,22 +121,22 @@ def test_vboot(u_boot_console):
         # Build the FIT, but don't sign anything yet
         cons.log.action('%s: Test FIT with signed images' % sha_algo)
         make_fit('sign-images-%s.its' % sha_algo)
-        run_bootm(sha_algo, 'unsigned images', 'dev-')
+        run_bootm(sha_algo, 'unsigned images', 'dev-', True)
 
         # Sign images with our dev keys
         sign_fit(sha_algo)
-        run_bootm(sha_algo, 'signed images', 'dev+')
+        run_bootm(sha_algo, 'signed images', 'dev+', True)
 
         # Create a fresh .dtb without the public keys
         dtc('sandbox-u-boot.dts')
 
         cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
         make_fit('sign-configs-%s.its' % sha_algo)
-        run_bootm(sha_algo, 'unsigned config', '%s+ OK' % sha_algo)
+        run_bootm(sha_algo, 'unsigned config', '%s+ OK' % sha_algo, True)
 
         # Sign images with our dev keys
         sign_fit(sha_algo)
-        run_bootm(sha_algo, 'signed config', 'dev+')
+        run_bootm(sha_algo, 'signed config', 'dev+', True)
 
         cons.log.action('%s: Check signed config on the host' % sha_algo)
 
@@ -149,7 +153,7 @@ def test_vboot(u_boot_console):
         util.run_and_log(cons, 'fdtput -t bx %s %s value %s' %
                          (fit, sig_node, sig))
 
-        run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash')
+        run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash', False)
 
         cons.log.action('%s: Check bad config on the host' % sha_algo)
         util.run_and_log_expect_exception(cons, [fit_check_sign, '-f', fit,
