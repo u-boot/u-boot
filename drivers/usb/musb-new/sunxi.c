@@ -201,10 +201,11 @@ static irqreturn_t sunxi_musb_interrupt(int irq, void *__hci)
 
 /* musb_core does not call enable / disable in a balanced manner <sigh> */
 static bool enabled = false;
-static struct musb *sunxi_musb;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
+	int ret;
+
 	pr_debug("%s():\n", __func__);
 
 	musb_ep_select(musb->mregs, 0);
@@ -217,26 +218,17 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		int id = sunxi_usb_phy_id_detect(0);
-
-		if (id == 1 && sunxi_usb_phy_power_is_on(0))
-			sunxi_usb_phy_power_off(0);
-
-		if (!sunxi_usb_phy_power_is_on(0)) {
-			int vbus = sunxi_usb_phy_vbus_detect(0);
-			if (vbus == 1) {
-				printf("A charger is plugged into the OTG: ");
-				return -ENODEV;
-			}
+		ret = sunxi_usb_phy_vbus_detect(0);
+		if (ret == 1) {
+			printf("A charger is plugged into the OTG: ");
+			return -ENODEV;
 		}
-
-		if (id == 1) {
+		ret = sunxi_usb_phy_id_detect(0);
+		if (ret == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
-
-		if (!sunxi_usb_phy_power_is_on(0))
-			sunxi_usb_phy_power_on(0);
+		sunxi_usb_phy_power_on(0); /* port power on */
 	}
 
 	USBC_ForceVbusValidToHigh(musb->mregs);
@@ -251,6 +243,9 @@ static void sunxi_musb_disable(struct musb *musb)
 
 	if (!enabled)
 		return;
+
+	if (is_host_enabled(musb))
+		sunxi_usb_phy_power_off(0); /* port power off */
 
 	USBC_ForceVbusValidToLow(musb->mregs);
 	mdelay(200); /* Wait for the current session to timeout */
@@ -313,7 +308,9 @@ static struct musb_hdrc_platform_data musb_plat = {
 };
 
 #ifdef CONFIG_USB_MUSB_HOST
-int musb_usb_probe(struct udevice *dev)
+static int musb_usb_remove(struct udevice *dev);
+
+static int musb_usb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
@@ -321,23 +318,21 @@ int musb_usb_probe(struct udevice *dev)
 
 	priv->desc_before_addr = true;
 
-	if (!sunxi_musb) {
-		sunxi_musb = musb_init_controller(&musb_plat, NULL,
-						  (void *)SUNXI_USB0_BASE);
-	}
-
-	host->host = sunxi_musb;
+	host->host = musb_init_controller(&musb_plat, NULL,
+					  (void *)SUNXI_USB0_BASE);
 	if (!host->host)
 		return -EIO;
 
 	ret = musb_lowlevel_init(host);
 	if (ret == 0)
 		printf("MUSB OTG\n");
+	else
+		musb_usb_remove(dev);
 
 	return ret;
 }
 
-int musb_usb_remove(struct udevice *dev)
+static int musb_usb_remove(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -349,6 +344,9 @@ int musb_usb_remove(struct udevice *dev)
 	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
 #endif
 	clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+
+	free(host->host);
+	host->host = NULL;
 
 	return 0;
 }
