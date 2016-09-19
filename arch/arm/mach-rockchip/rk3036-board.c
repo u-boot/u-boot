@@ -11,10 +11,49 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
+#include <asm/arch/grf_rk3036.h>
+#include <asm/arch/boot_mode.h>
+#include <asm/arch/sdram_rk3036.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define GRF_BASE	0x20008000
+
+static void setup_boot_mode(void)
+{
+	struct rk3036_grf *const grf = (void *)GRF_BASE;
+	int boot_mode = readl(&grf->os_reg[4]);
+
+	debug("boot mode %x.\n", boot_mode);
+
+	/* Clear boot mode */
+	writel(BOOT_NORMAL, &grf->os_reg[4]);
+
+	switch (boot_mode) {
+	case BOOT_FASTBOOT:
+		printf("enter fastboot!\n");
+		setenv("preboot", "setenv preboot; fastboot usb0");
+		break;
+	case BOOT_UMS:
+		printf("enter UMS!\n");
+		setenv("preboot", "setenv preboot; ums mmc 0");
+		break;
+	}
+}
+
+__weak int rk_board_late_init(void)
+{
+	return 0;
+}
+
+int board_late_init(void)
+{
+	setup_boot_mode();
+
+	return rk_board_late_init();
+}
 
 int board_init(void)
 {

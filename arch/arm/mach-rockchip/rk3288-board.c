@@ -8,13 +8,53 @@
 #include <clk.h>
 #include <dm.h>
 #include <ram.h>
+#include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
+#include <asm/arch/pmu_rk3288.h>
+#include <asm/arch/boot_mode.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define PMU_BASE	0xff730000
+
+static void setup_boot_mode(void)
+{
+	struct rk3288_pmu *const pmu = (void *)PMU_BASE;
+	int boot_mode = readl(&pmu->sys_reg[0]);
+
+	debug("boot mode %x.\n", boot_mode);
+
+	/* Clear boot mode */
+	writel(BOOT_NORMAL, &pmu->sys_reg[0]);
+
+	switch (boot_mode) {
+	case BOOT_FASTBOOT:
+		printf("enter fastboot!\n");
+		setenv("preboot", "setenv preboot; fastboot usb0");
+		break;
+	case BOOT_UMS:
+		printf("enter UMS!\n");
+		setenv("preboot", "setenv preboot; if mmc dev 0;"
+		       "then ums mmc 0; else ums mmc 1;fi");
+		break;
+	}
+}
+
+__weak int rk_board_late_init(void)
+{
+	return 0;
+}
+
+int board_late_init(void)
+{
+	setup_boot_mode();
+
+	return rk_board_late_init();
+}
 
 int board_init(void)
 {
@@ -22,11 +62,11 @@ int board_init(void)
 	struct udevice *pinctrl;
 	int ret;
 
-    /*
-     * We need to implement sdcard iomux here for the further
-     * initlization, otherwise, it'll hit sdcard command sending
-     * timeout exception.
-     */
+	/*
+	 * We need to implement sdcard iomux here for the further
+	 * initlization, otherwise, it'll hit sdcard command sending
+	 * timeout exception.
+	 */
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
 	if (ret) {
 		debug("%s: Cannot find pinctrl device\n", __func__);
