@@ -1566,7 +1566,7 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 	noffset = fit_conf_get_prop_node(fit_hdr, cfg_noffset, prop_name);
 	if (noffset < 0) {
 		debug("*  %s: no '%s' in config\n", prop_name, prop_name);
-		return -ENOENT;
+		return -ENOLINK;
 	}
 
 	return noffset;
