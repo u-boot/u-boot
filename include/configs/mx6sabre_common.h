@@ -238,11 +238,6 @@
 #define CONFIG_ANDROID_BOOT_IMAGE
 #define CONFIG_FASTBOOT_BUF_ADDR   CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE   0x07000000
-
-/* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_SF
 #endif
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

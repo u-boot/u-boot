@@ -90,8 +90,6 @@
 
 # define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
 # define DFU_DEFAULT_POLL_TIMEOUT	300
-# define CONFIG_USB_FUNCTION_DFU
-# define CONFIG_DFU_RAM
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_CMD_THOR_DOWNLOAD
 # define CONFIG_THOR_RESET_OFF
@@ -106,7 +104,6 @@
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
 # if defined(CONFIG_ZYNQ_SDHCI)
-#  define CONFIG_DFU_MMC
 #  define DFU_ALT_INFO_MMC \
 	"dfu_mmc_info=" \
 	"set dfu_alt_info " \

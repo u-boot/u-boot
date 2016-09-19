@@ -465,8 +465,6 @@ DEFAULT_LINUX_BOOT_ENV \
 
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \
@@ -481,7 +479,6 @@ DEFAULT_LINUX_BOOT_ENV \
 	"u-boot.img fat 0 1;" \
 	"uEnv.txt fat 0 1\0"
 #ifdef CONFIG_NAND
-#define CONFIG_DFU_NAND
 #define DFU_ALT_INFO_NAND \
 	"dfu_alt_info_nand=" \
 	"SPL part 0 1;" \
@@ -495,7 +492,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #else
 #define DFU_ALT_INFO_NAND ""
 #endif
-#define CONFIG_DFU_RAM
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
 	"kernel ram 0x80200000 0xD80000;" \

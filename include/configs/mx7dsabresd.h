@@ -252,11 +252,6 @@
 
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
-/* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_RAM
-
 #define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE

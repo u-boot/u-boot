@@ -215,10 +215,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
-/* Enable DFU to SF and RAM */
-#define CONFIG_DFU_RAM
-#define CONFIG_DFU_SF
-
 /* Support changing the prompt string */
 #define CONFIG_CMDLINE_PS_SUPPORT
 

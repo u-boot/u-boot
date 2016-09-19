@@ -404,6 +404,7 @@ config CMD_USB
 
 config CMD_DFU
 	bool "dfu"
+	select USB_FUNCTION_DFU
 	help
 	  Enables the command "dfu" which is used to have U-Boot create a DFU
 	  class device via USB.

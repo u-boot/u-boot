@@ -1,5 +1,9 @@
 menu "DFU support"
 
+config USB_FUNCTION_DFU
+	bool
+
+if CMD_DFU
 config DFU_TFTP
 	bool "DFU via TFTP"
 	help
@@ -7,4 +11,28 @@ config DFU_TFTP
 	  sent via TFTP boot.
 
 	  Detailed description of this feature can be found at ./doc/README.dfutftp
+
+config DFU_MMC
+	bool "MMC back end for DFU"
+	help
+	  This option enables using DFU to read and write to MMC based storage.
+
+config DFU_NAND
+	bool "NAND back end for DFU"
+	help
+	  This option enables using DFU to read and write to NAND based
+	  storage.
+
+config DFU_RAM
+	bool "RAM back end for DFU"
+	help
+	  This option enables using DFU to read and write RAM on the target.
+
+config DFU_SF
+	bool "SPI flash back end for DFU"
+	help
+	  This option enables using DFU to read and write to SPI flash based
+	  storage.
+
+endif
 endmenu
