@@ -120,9 +120,9 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 
 		if (host->fifo_mode && size) {
 			len = 0;
-			if (data->flags == MMC_DATA_READ) {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &
-				     DWMCI_INTMSK_RXDR)) {
+			if (data->flags == MMC_DATA_READ &&
+			    (mask & DWMCI_INTMSK_RXDR)) {
+				while (size) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
 						    DWMCI_FIFO_MASK;
@@ -130,12 +130,13 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 					for (i = 0; i < len; i++)
 						*buf++ =
 						dwmci_readl(host, DWMCI_DATA);
-					dwmci_writel(host, DWMCI_RINTSTS,
-						     DWMCI_INTMSK_RXDR);
+					size = size > len ? (size - len) : 0;
 				}
-			} else {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &
-				     DWMCI_INTMSK_TXDR)) {
+				dwmci_writel(host, DWMCI_RINTSTS,
+					     DWMCI_INTMSK_RXDR);
+			} else if (data->flags == MMC_DATA_WRITE &&
+				   (mask & DWMCI_INTMSK_TXDR)) {
+				while (size) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = fifo_depth - ((len >>
 						   DWMCI_FIFO_SHIFT) &
@@ -144,11 +145,11 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 					for (i = 0; i < len; i++)
 						dwmci_writel(host, DWMCI_DATA,
 							     *buf++);
-					dwmci_writel(host, DWMCI_RINTSTS,
-						     DWMCI_INTMSK_TXDR);
+					size = size > len ? (size - len) : 0;
 				}
+				dwmci_writel(host, DWMCI_RINTSTS,
+					     DWMCI_INTMSK_TXDR);
 			}
-			size = size > len ? (size - len) : 0;
 		}
 
 		/* Data arrived correctly. */
