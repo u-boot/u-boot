@@ -38,14 +38,30 @@ static inline void ext4fs_sb_free_blocks_inc(struct ext2_sblock *sb)
 	sb->free_blocks = cpu_to_le32(le32_to_cpu(sb->free_blocks) + 1);
 }
 
-static inline void ext4fs_bg_free_inodes_inc(struct ext2_block_group *bg)
+static inline void ext4fs_bg_free_inodes_inc
+	(struct ext2_block_group *bg, const struct ext_filesystem *fs)
 {
-	bg->free_inodes = cpu_to_le16(le16_to_cpu(bg->free_inodes) + 1);
+	uint32_t free_inodes = le16_to_cpu(bg->free_inodes);
+	if (fs->gdsize == 64)
+		free_inodes += le16_to_cpu(bg->free_inodes_high) << 16;
+	free_inodes++;
+
+	bg->free_inodes = cpu_to_le16(free_inodes & 0xffff);
+	if (fs->gdsize == 64)
+		bg->free_inodes_high = cpu_to_le16(free_inodes >> 16);
 }
 
-static inline void ext4fs_bg_free_blocks_inc(struct ext2_block_group *bg)
+static inline void ext4fs_bg_free_blocks_inc
+	(struct ext2_block_group *bg, const struct ext_filesystem *fs)
 {
-	bg->free_blocks = cpu_to_le16(le16_to_cpu(bg->free_blocks) + 1);
+	uint32_t free_blocks = le16_to_cpu(bg->free_blocks);
+	if (fs->gdsize == 64)
+		free_blocks += le16_to_cpu(bg->free_blocks_high) << 16;
+	free_blocks++;
+
+	bg->free_blocks = cpu_to_le16(free_blocks & 0xffff);
+	if (fs->gdsize == 64)
+		bg->free_blocks_high = cpu_to_le16(free_blocks >> 16);
 }
 
 static void ext4fs_update(void)
@@ -146,7 +162,7 @@ static void delete_single_indirect_block(struct ext2_inode *inode)
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx], bg_idx);
 		/* get  block group descriptor table */
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
-		ext4fs_bg_free_blocks_inc(bgd);
+		ext4fs_bg_free_blocks_inc(bgd, fs);
 		ext4fs_sb_free_blocks_inc(fs->sb);
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
@@ -210,7 +226,7 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 			ext4fs_reset_block_bmap(le32_to_cpu(*di_buffer),
 					fs->blk_bmaps[bg_idx], bg_idx);
 			di_buffer++;
-			ext4fs_bg_free_blocks_inc(bgd);
+			ext4fs_bg_free_blocks_inc(bgd, fs);
 			ext4fs_sb_free_blocks_inc(fs->sb);
 			/* journal backup */
 			if (prev_bg_bmap_idx != bg_idx) {
@@ -241,7 +257,7 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 		/* get  block group descriptor table */
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx], bg_idx);
-		ext4fs_bg_free_blocks_inc(bgd);
+		ext4fs_bg_free_blocks_inc(bgd, fs);
 		ext4fs_sb_free_blocks_inc(fs->sb);
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
@@ -322,7 +338,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 				tip_buffer++;
 				/* get  block group descriptor table */
 				bgd = ext4fs_get_group_descriptor(fs, bg_idx);
-				ext4fs_bg_free_blocks_inc(bgd);
+				ext4fs_bg_free_blocks_inc(bgd, fs);
 				ext4fs_sb_free_blocks_inc(fs->sb);
 				/* journal backup */
 				if (prev_bg_bmap_idx != bg_idx) {
@@ -362,7 +378,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			tigp_buffer++;
 			/* get  block group descriptor table */
 			bgd = ext4fs_get_group_descriptor(fs, bg_idx);
-			ext4fs_bg_free_blocks_inc(bgd);
+			ext4fs_bg_free_blocks_inc(bgd, fs);
 			ext4fs_sb_free_blocks_inc(fs->sb);
 			/* journal backup */
 			if (prev_bg_bmap_idx != bg_idx) {
@@ -394,7 +410,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx], bg_idx);
 		/* get  block group descriptor table */
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
-		ext4fs_bg_free_blocks_inc(bgd);
+		ext4fs_bg_free_blocks_inc(bgd, fs);
 		ext4fs_sb_free_blocks_inc(fs->sb);
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
@@ -481,7 +497,7 @@ static int ext4fs_delete_file(int inodeno)
 
 		/* get  block group descriptor table */
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
-		ext4fs_bg_free_blocks_inc(bgd);
+		ext4fs_bg_free_blocks_inc(bgd, fs);
 		ext4fs_sb_free_blocks_inc(fs->sb);
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
@@ -536,7 +552,7 @@ static int ext4fs_delete_file(int inodeno)
 	/* update the respective inode bitmaps */
 	inodeno++;
 	ext4fs_reset_inode_bmap(inodeno, fs->inode_bmaps[ibmap_idx], ibmap_idx);
-	ext4fs_bg_free_inodes_inc(bgd);
+	ext4fs_bg_free_inodes_inc(bgd, fs);
 	ext4fs_sb_free_inodes_inc(fs->sb);
 	/* journal backup */
 	memset(journal_buffer, '\0', fs->blksz);

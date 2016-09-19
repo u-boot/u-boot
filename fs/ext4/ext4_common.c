@@ -60,22 +60,51 @@ static inline void ext4fs_sb_free_inodes_dec(struct ext2_sblock *sb)
 
 static inline void ext4fs_sb_free_blocks_dec(struct ext2_sblock *sb)
 {
-	sb->free_blocks = cpu_to_le32(le32_to_cpu(sb->free_blocks) - 1);
+	uint64_t free_blocks = le32_to_cpu(sb->free_blocks);
+	free_blocks += (uint64_t)le32_to_cpu(sb->free_blocks_high) << 32;
+	free_blocks--;
+
+	sb->free_blocks = cpu_to_le32(free_blocks & 0xffffffff);
+	sb->free_blocks_high = cpu_to_le16(free_blocks >> 32);
 }
 
-static inline void ext4fs_bg_free_inodes_dec(struct ext2_block_group *bg)
+static inline void ext4fs_bg_free_inodes_dec
+	(struct ext2_block_group *bg, const struct ext_filesystem *fs)
 {
-	bg->free_inodes = cpu_to_le16(le16_to_cpu(bg->free_inodes) - 1);
+	uint32_t free_inodes = le16_to_cpu(bg->free_inodes);
+	if (fs->gdsize == 64)
+		free_inodes += le16_to_cpu(bg->free_inodes_high) << 16;
+	free_inodes--;
+
+	bg->free_inodes = cpu_to_le16(free_inodes & 0xffff);
+	if (fs->gdsize == 64)
+		bg->free_inodes_high = cpu_to_le16(free_inodes >> 16);
 }
 
-static inline void ext4fs_bg_free_blocks_dec(struct ext2_block_group *bg)
+static inline void ext4fs_bg_free_blocks_dec
+	(struct ext2_block_group *bg, const struct ext_filesystem *fs)
 {
-	bg->free_blocks = cpu_to_le16(le16_to_cpu(bg->free_blocks) - 1);
+	uint32_t free_blocks = le16_to_cpu(bg->free_blocks);
+	if (fs->gdsize == 64)
+		free_blocks += le16_to_cpu(bg->free_blocks_high) << 16;
+	free_blocks--;
+
+	bg->free_blocks = cpu_to_le16(free_blocks & 0xffff);
+	if (fs->gdsize == 64)
+		bg->free_blocks_high = cpu_to_le16(free_blocks >> 16);
 }
 
-static inline void ext4fs_bg_itable_unused_dec(struct ext2_block_group *bg)
+static inline void ext4fs_bg_itable_unused_dec
+	(struct ext2_block_group *bg, const struct ext_filesystem *fs)
 {
-	bg->bg_itable_unused = cpu_to_le16(le16_to_cpu(bg->bg_itable_unused) - 1);
+	uint32_t free_inodes = le16_to_cpu(bg->bg_itable_unused);
+	if (fs->gdsize == 64)
+		free_inodes += le16_to_cpu(bg->bg_itable_unused_high) << 16;
+	free_inodes--;
+
+	bg->bg_itable_unused = cpu_to_le16(free_inodes & 0xffff);
+	if (fs->gdsize == 64)
+		bg->bg_itable_unused_high = cpu_to_le16(free_inodes >> 16);
 }
 
 uint64_t ext4fs_sb_get_free_blocks(const struct ext2_sblock *sb)
@@ -958,7 +987,7 @@ uint32_t ext4fs_get_new_blk_no(void)
 				fs->curr_blkno = fs->curr_blkno +
 						(i * fs->blksz * 8);
 				fs->first_pass_bbmap++;
-				ext4fs_bg_free_blocks_dec(bgd);
+				ext4fs_bg_free_blocks_dec(bgd, fs);
 				ext4fs_sb_free_blocks_dec(fs->sb);
 				status = ext4fs_devread(b_bitmap_blk *
 							fs->sect_perblk,
@@ -1033,7 +1062,7 @@ restart:
 
 			prev_bg_bitmap_index = bg_idx;
 		}
-		ext4fs_bg_free_blocks_dec(bgd);
+		ext4fs_bg_free_blocks_dec(bgd, fs);
 		ext4fs_sb_free_blocks_dec(fs->sb);
 		goto success;
 	}
@@ -1092,9 +1121,9 @@ int ext4fs_get_new_inode_no(void)
 				fs->curr_inode_no = fs->curr_inode_no +
 							(i * inodes_per_grp);
 				fs->first_pass_ibmap++;
-				ext4fs_bg_free_inodes_dec(bgd);
+				ext4fs_bg_free_inodes_dec(bgd, fs);
 				if (has_gdt_chksum)
-					ext4fs_bg_itable_unused_dec(bgd);
+					ext4fs_bg_itable_unused_dec(bgd, fs);
 				ext4fs_sb_free_inodes_dec(fs->sb);
 				status = ext4fs_devread(i_bitmap_blk *
 							fs->sect_perblk,
@@ -1148,7 +1177,7 @@ restart:
 				goto fail;
 			prev_inode_bitmap_index = ibmap_idx;
 		}
-		ext4fs_bg_free_inodes_dec(bgd);
+		ext4fs_bg_free_inodes_dec(bgd, fs);
 		if (has_gdt_chksum)
 			bgd->bg_itable_unused = bgd->free_inodes;
 		ext4fs_sb_free_inodes_dec(fs->sb);
