@@ -936,6 +936,17 @@ u-boot.sha1:	u-boot.bin
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
+# If .u-boot.cfg.d is still present, then either:
+# a) The previous build used a Makefile that used if_changed rather than
+#    if_changed_dep when building u-boot.cfg, and hence any later builds will
+#    be unaware of the dependencies for u-boot.cfg. In this case, we must
+#    delete u-boot.cfg to force it and .u-boot.cfg.cmd to be rebuilt the
+#    correct way.
+# b) The previous build failed or was interrupted while building u-boot.cfg,
+#    so deleting u-boot.cfg isn't going to cause any additional work.
+ifneq ($(wildcard $(obj)/.u-boot.cfg.d),)
+  unused := $(shell rm -f $(obj)/u-boot.cfg)
+endif
 u-boot.cfg:	include/config.h FORCE
 	$(call if_changed_dep,cpp_cfg)
 
