@@ -146,11 +146,7 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#ifdef CONFIG_DFU_MMC
-#define CONFIG_SYS_MALLOC_LEN	((16 << 20) + CONFIG_SYS_DFU_DATA_BUF_SIZE)
-#else
-#define CONFIG_SYS_MALLOC_LEN	(16 << 20)
-#endif
+#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_ENV_VARS_UBOOT_CONFIG	/* Strongly encouraged */
@@ -230,7 +226,7 @@
 #ifndef CONFIG_SYS_SPL_MALLOC_START
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
 					 CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_8M
 #endif
 #ifndef CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
