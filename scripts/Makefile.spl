@@ -217,7 +217,7 @@ cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 	-DDO_DEPS_ONLY -D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
 
 $(obj)/$(SPL_BIN).cfg:	include/config.h FORCE
-	$(call if_changed,cpp_cfg)
+	$(call if_changed_dep,cpp_cfg)
 
 pythonpath = PYTHONPATH=tools
 

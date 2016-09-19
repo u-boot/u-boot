@@ -937,7 +937,7 @@ u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
 u-boot.cfg:	include/config.h FORCE
-	$(call if_changed,cpp_cfg)
+	$(call if_changed_dep,cpp_cfg)
 
 # Check that this build does not use CONFIG options that we don't know about
 # unless they are in Kconfig. All the existing CONFIG options are whitelisted,
