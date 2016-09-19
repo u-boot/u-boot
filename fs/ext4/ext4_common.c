@@ -47,6 +47,12 @@ struct ext2_inode *g_parent_inode;
 static int symlinknest;
 
 #if defined(CONFIG_EXT4_WRITE)
+struct ext2_block_group *ext4fs_get_group_descriptor
+	(const struct ext_filesystem *fs, uint32_t bg_idx)
+{
+	return (struct ext2_block_group *)(fs->gdtable + (bg_idx * fs->gdsize));
+}
+
 static inline void ext4fs_sb_free_inodes_dec(struct ext2_sblock *sb)
 {
 	sb->free_inodes = cpu_to_le32(le32_to_cpu(sb->free_inodes) - 1);
@@ -72,6 +78,82 @@ static inline void ext4fs_bg_itable_unused_dec(struct ext2_block_group *bg)
 	bg->bg_itable_unused = cpu_to_le16(le16_to_cpu(bg->bg_itable_unused) - 1);
 }
 
+uint64_t ext4fs_sb_get_free_blocks(const struct ext2_sblock *sb)
+{
+	uint64_t free_blocks = le32_to_cpu(sb->free_blocks);
+	free_blocks += (uint64_t)le32_to_cpu(sb->free_blocks_high) << 32;
+	return free_blocks;
+}
+
+void ext4fs_sb_set_free_blocks(struct ext2_sblock *sb, uint64_t free_blocks)
+{
+	sb->free_blocks = cpu_to_le32(free_blocks & 0xffffffff);
+	sb->free_blocks_high = cpu_to_le16(free_blocks >> 32);
+}
+
+uint32_t ext4fs_bg_get_free_blocks(const struct ext2_block_group *bg,
+				   const struct ext_filesystem *fs)
+{
+	uint32_t free_blocks = le16_to_cpu(bg->free_blocks);
+	if (fs->gdsize == 64)
+		free_blocks += le16_to_cpu(bg->free_blocks_high) << 16;
+	return free_blocks;
+}
+
+static inline
+uint32_t ext4fs_bg_get_free_inodes(const struct ext2_block_group *bg,
+				   const struct ext_filesystem *fs)
+{
+	uint32_t free_inodes = le16_to_cpu(bg->free_inodes);
+	if (fs->gdsize == 64)
+		free_inodes += le16_to_cpu(bg->free_inodes_high) << 16;
+	return free_inodes;
+}
+
+static inline uint16_t ext4fs_bg_get_flags(const struct ext2_block_group *bg)
+{
+	return le16_to_cpu(bg->bg_flags);
+}
+
+static inline void ext4fs_bg_set_flags(struct ext2_block_group *bg,
+				       uint16_t flags)
+{
+	bg->bg_flags = cpu_to_le16(flags);
+}
+
+/* Block number of the block bitmap */
+uint64_t ext4fs_bg_get_block_id(const struct ext2_block_group *bg,
+				const struct ext_filesystem *fs)
+{
+	uint64_t block_nr = le32_to_cpu(bg->block_id);
+	if (fs->gdsize == 64)
+		block_nr += (uint64_t)le32_to_cpu(bg->block_id_high) << 32;
+	return block_nr;
+}
+
+/* Block number of the inode bitmap */
+uint64_t ext4fs_bg_get_inode_id(const struct ext2_block_group *bg,
+				const struct ext_filesystem *fs)
+{
+	uint64_t block_nr = le32_to_cpu(bg->inode_id);
+	if (fs->gdsize == 64)
+		block_nr += (uint64_t)le32_to_cpu(bg->inode_id_high) << 32;
+	return block_nr;
+}
+#endif
+
+/* Block number of the inode table */
+uint64_t ext4fs_bg_get_inode_table_id(const struct ext2_block_group *bg,
+				      const struct ext_filesystem *fs)
+{
+	uint64_t block_nr = le32_to_cpu(bg->inode_table_id);
+	if (fs->gdsize == 64)
+		block_nr +=
+			(uint64_t)le32_to_cpu(bg->inode_table_id_high) << 32;
+	return block_nr;
+}
+
+#if defined(CONFIG_EXT4_WRITE)
 uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n)
 {
 	uint32_t res = size / n;
