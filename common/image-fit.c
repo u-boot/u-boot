@@ -1560,7 +1560,7 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 	cfg_noffset = fit_conf_get_node(fit_hdr, images->fit_uname_cfg);
 	if (cfg_noffset < 0) {
 		debug("*  %s: no such config\n", prop_name);
-		return -ENOENT;
+		return -EINVAL;
 	}
 
 	noffset = fit_conf_get_prop_node(fit_hdr, cfg_noffset, prop_name);
