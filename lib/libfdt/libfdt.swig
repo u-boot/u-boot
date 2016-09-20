@@ -75,6 +75,14 @@ struct fdt_property {
     }
 %}
 
+%typemap(in) (const void *) {
+  if (!PyByteArray_Check($input)) {
+    SWIG_exception_fail(SWIG_TypeError, "in method '" "$symname" "', argument "
+                       "$argnum"" of type '" "$type""'");
+  }
+  $1 = (void *) PyByteArray_AsString($input);
+}
+
 const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int checklen);
 int fdt_path_offset(const void *fdt, const char *path);
 int fdt_first_property_offset(const void *fdt, int nodeoffset);
@@ -87,3 +95,19 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *OUTPUT);
 const char *fdt_string(const void *fdt, int stroffset);
 int fdt_first_subnode(const void *fdt, int offset);
 int fdt_next_subnode(const void *fdt, int offset);
+
+%typemap(in) (void *) {
+  if (!PyByteArray_Check($input)) {
+    SWIG_exception_fail(SWIG_TypeError, "in method '" "$symname" "', argument "
+                       "$argnum"" of type '" "$type""'");
+  }
+  $1 = PyByteArray_AsString($input);
+}
+
+int fdt_delprop(void *fdt, int nodeoffset, const char *name);
+
+const char *fdt_strerror(int errval);
+int fdt_pack(void *fdt);
+
+int fdt_totalsize(const void *fdt);
+int fdt_off_dt_struct(const void *fdt);

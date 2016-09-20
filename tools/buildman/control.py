@@ -237,7 +237,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         options.step = len(series.commits) - 1
 
     gnu_make = command.Output(os.path.join(options.git,
-                                           'scripts/show-gnu-make')).rstrip()
+            'scripts/show-gnu-make'), raise_on_error=False).rstrip()
     if not gnu_make:
         sys.exit('GNU Make not found')
 

@@ -320,6 +320,25 @@ CONFIG_SPI_IDLE_VAL
 	The idle value on the SPI bus
 
 
+Block Device Emulation
+----------------------
+
+U-Boot can use raw disk images for block device emulation. To e.g. list
+the contents of the root directory on the second partion of the image
+"disk.raw", you can use the following commands:
+
+=>host bind 0 ./disk.raw
+=>ls host 0:2
+
+A disk image can be created using the following commands:
+
+$> truncate -s 1200M ./disk.raw
+$> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sfdisk  ./disk.raw
+$> lodev=`sudo losetup -P -f --show ./disk.raw`
+$> sudo mkfs.vfat -n EFI -v ${lodev}p1
+$> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
+
+
 Writing Sandbox Drivers
 -----------------------
 

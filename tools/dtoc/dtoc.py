@@ -9,27 +9,16 @@
 import copy
 from optparse import OptionError, OptionParser
 import os
+import struct
 import sys
-
-import fdt_util
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
-# Bring in either the normal fdt library (which relies on libfdt) or the
-# fallback one (which uses fdtget and is slower). Both provide the same
-# interfface for this file to use.
-try:
-    from fdt import Fdt
-    import fdt
-    have_libfdt = True
-except ImportError:
-    have_libfdt = False
-    from fdt_fallback import Fdt
-    import fdt_fallback as fdt
-
-import struct
+import fdt
+import fdt_select
+import fdt_util
 
 # When we see these properties we ignore them - i.e. do not create a structure member
 PROP_IGNORE_LIST = [
@@ -45,10 +34,10 @@ PROP_IGNORE_LIST = [
 
 # C type declarations for the tyues we support
 TYPE_NAMES = {
-    fdt_util.TYPE_INT: 'fdt32_t',
-    fdt_util.TYPE_BYTE: 'unsigned char',
-    fdt_util.TYPE_STRING: 'const char *',
-    fdt_util.TYPE_BOOL: 'bool',
+    fdt.TYPE_INT: 'fdt32_t',
+    fdt.TYPE_BYTE: 'unsigned char',
+    fdt.TYPE_STRING: 'const char *',
+    fdt.TYPE_BOOL: 'bool',
 };
 
 STRUCT_PREFIX = 'dtd_'
@@ -150,13 +139,13 @@ class DtbPlatdata:
             type: Data type (fdt_util)
             value: Data value, as a string of bytes
         """
-        if type == fdt_util.TYPE_INT:
+        if type == fdt.TYPE_INT:
             return '%#x' % fdt_util.fdt32_to_cpu(value)
-        elif type == fdt_util.TYPE_BYTE:
+        elif type == fdt.TYPE_BYTE:
             return '%#x' % ord(value[0])
-        elif type == fdt_util.TYPE_STRING:
+        elif type == fdt.TYPE_STRING:
             return '"%s"' % value
-        elif type == fdt_util.TYPE_BOOL:
+        elif type == fdt.TYPE_BOOL:
             return 'true'
 
     def GetCompatName(self, node):
@@ -178,8 +167,7 @@ class DtbPlatdata:
         Once this is done, self.fdt.GetRoot() can be called to obtain the
         device tree root node, and progress from there.
         """
-        self.fdt = Fdt(self._dtb_fname)
-        self.fdt.Scan()
+        self.fdt = fdt_select.FdtScan(self._dtb_fname)
 
     def ScanTree(self):
         """Scan the device tree for useful information
