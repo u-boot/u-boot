@@ -167,7 +167,15 @@ void ft_pci_setup(void *blob, bd_t *bd);
 int ft_system_setup(void *blob, bd_t *bd);
 
 void set_working_fdt_addr(ulong addr);
-int fdt_shrink_to_minimum(void *blob);
+
+/**
+ * shrink down the given blob to minimum size + some extrasize if required
+ *
+ * @param blob		FDT blob to update
+ * @param extrasize	additional bytes needed
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int fdt_shrink_to_minimum(void *blob, uint extrasize);
 int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_fixup_nor_flash_size(void *blob);
