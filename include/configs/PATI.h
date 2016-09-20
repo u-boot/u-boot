@@ -252,7 +252,4 @@
  */
 #define CONFIG_SYS_DER			0x00000000
 
-#define VERSION_TAG "released"
-#define CONFIG_ISO_STRING "MEV-10084-001"
-
 #endif	/* __CONFIG_H */
