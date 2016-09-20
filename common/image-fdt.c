@@ -285,7 +285,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			fdt_noffset = fit_get_node_from_config(images,
 							       FIT_FDT_PROP,
 							       fdt_addr);
-			if (fdt_noffset == -ENOLINK)
+			if (fdt_noffset == -ENOENT)
 				return 0;
 			else if (fdt_noffset < 0)
 				return 1;

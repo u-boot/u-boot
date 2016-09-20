@@ -1078,7 +1078,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			rd_addr = map_to_sysmem(images->fit_hdr_os);
 			rd_noffset = fit_get_node_from_config(images,
 					FIT_RAMDISK_PROP, rd_addr);
-			if (rd_noffset == -ENOLINK)
+			if (rd_noffset == -ENOENT)
 				return 0;
 			else if (rd_noffset < 0)
 				return 1;
