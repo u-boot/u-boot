@@ -118,7 +118,8 @@ void pci_405gp_init(struct pci_controller *hose)
 #endif
 	unsigned long ptmla[2]    = {CONFIG_SYS_PCI_PTM1LA, CONFIG_SYS_PCI_PTM2LA};
 	unsigned long ptmms[2]    = {CONFIG_SYS_PCI_PTM1MS, CONFIG_SYS_PCI_PTM2MS};
-#if defined(CONFIG_PIP405) || defined (CONFIG_MIP405)
+#if defined(CONFIG_PIP405) || defined(CONFIG_TARGET_MIP405) \
+		|| defined(CONFIG_TARGET_MIP405T)
 	unsigned long pmmla[3]    = {0x80000000, 0xA0000000, 0};
 	unsigned long pmmma[3]    = {0xE0000001, 0xE0000001, 0};
 	unsigned long pmmpcila[3] = {0x80000000, 0x00000000, 0};
@@ -408,7 +409,8 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
 }
 
-#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405))
+#if !(defined(CONFIG_PIP405) || defined(CONFIG_TARGET_MIP405) \
+		|| defined(CONFIG_TARGET_MIP405T))
 
 /*
  *As is these functs get called out of flash Not a horrible

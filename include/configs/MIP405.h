@@ -17,7 +17,6 @@
  * (easy to change)
  ***********************************************************/
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_MIP405		1	/* ...on a MIP405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
@@ -56,9 +55,6 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_BSP
-
-#if !defined(CONFIG_MIP405T)
-#endif
 
 /**************************************************************
  * I2C Stuff:
@@ -312,7 +308,7 @@
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
-#if defined(CONFIG_MIP405T)
+#if defined(CONFIG_TARGET_MIP405T)
 #define CONFIG_SYS_IDE_MAXBUS		1   /* MIP405T has only one IDE bus	*/
 #else
 #define CONFIG_SYS_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
@@ -358,7 +354,7 @@
 /************************************************************
  * USB support EXPERIMENTAL
  ************************************************************/
-#if !defined(CONFIG_MIP405T)
+#if !defined(CONFIG_TARGET_MIP405T)
 #define CONFIG_USB_UHCI
 #define CONFIG_USB_KEYBOARD
 
@@ -376,16 +372,5 @@
  * support BZIP2 compression
  ************************************************************/
 #define CONFIG_BZIP2		1
-
-/************************************************************
- * Ident
- ************************************************************/
-
-#define VERSION_TAG "released"
-#if !defined(CONFIG_MIP405T)
-#define CONFIG_ISO_STRING "MEV-10072-001"
-#else
-#define CONFIG_ISO_STRING "MEV-10082-001"
-#endif
 
 #endif	/* __CONFIG_H */
