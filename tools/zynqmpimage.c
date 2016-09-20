@@ -234,6 +234,30 @@ static int zynqmpimage_check_image_types(uint8_t type)
 	return EXIT_FAILURE;
 }
 
+static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
+	const char *filename)
+{
+	/* Expect a table of register-value pairs, e.g. "0x12345678 0x4321" */
+	FILE *fp = fopen(filename, "r");
+	struct zynqmp_reginit reginit;
+	unsigned int reg_count = 0;
+	int r;
+
+	if (!fp) {
+		fprintf(stderr, "Cannot open initparams file: %s\n", filename);
+		exit(1);
+	}
+	do {
+		r = fscanf(fp, "%x %x", &reginit.address, &reginit.data);
+		if (r == 2) {
+			zynqhdr->register_init[reg_count] = reginit;
+			++reg_count;
+		}
+		r = fscanf(fp, "%*[^\n]\n"); /* Skip to next line */
+	} while ((r != EOF) && (reg_count < HEADER_REGINITS));
+	fclose(fp);
+}
+
 static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		struct image_tool_params *params)
 {
@@ -249,6 +273,10 @@ static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	zynqhdr->image_load = 0xfffc0000;
 	if (params->eflag)
 		zynqhdr->image_load = cpu_to_le32((uint32_t)params->ep);
+
+	/* User can pass in text file with init list */
+	if (strlen(params->imagename2))
+		zynqmpimage_parse_initparams(zynqhdr, params->imagename2);
 
 	zynqhdr->checksum = zynqmpimage_checksum(zynqhdr);
 }

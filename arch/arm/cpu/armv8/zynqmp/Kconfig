@@ -41,6 +41,13 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
+config BOOT_INIT_FILE
+	string "boot.bin init register filename"
+	default ""
+	help
+	  Add register writes to boot.bin format (max 256 pairs).
+	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
+
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
