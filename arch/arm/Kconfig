@@ -868,6 +868,8 @@ config ARCH_UNIPHIER
 	select PINCTRL
 	select SPL
 	select SPL_DM
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
 	select SPL_OF_CONTROL
 	select SPL_PINCTRL
 	select SUPPORT_SPL
