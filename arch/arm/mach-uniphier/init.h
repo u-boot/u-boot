@@ -87,6 +87,7 @@ int uniphier_sld3_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_dpll_init(const struct uniphier_board_data *bd);
+int uniphier_ld11_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_dpll_init(const struct uniphier_board_data *bd);
 
 int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd);
@@ -105,6 +106,7 @@ int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
 void uniphier_sld3_pll_init(void);
 void uniphier_ld4_pll_init(void);
 void uniphier_pro4_pll_init(void);
+void uniphier_ld11_pll_init(void);
 int uniphier_ld20_pll_init(const struct uniphier_board_data *bd);
 
 void uniphier_ld4_clk_init(void);
