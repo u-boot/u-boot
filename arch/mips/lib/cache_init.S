@@ -293,6 +293,7 @@ l2_init:
 l1_init:
 	mtc0		zero, CP0_TAGLO
 	mtc0		zero, CP0_TAGLO, 2
+	ehb
 
 	/*
 	 * The caches are probably in an indeterminate state, so we force good
