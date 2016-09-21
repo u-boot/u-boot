@@ -485,9 +485,13 @@
 #define MIPS_CONF1_TLBS_SIZE    (6)
 #define MIPS_CONF1_TLBS         (_ULCAST_(63) << MIPS_CONF1_TLBS_SHIFT)
 
+#define MIPS_CONF2_SA_SHF	0
 #define MIPS_CONF2_SA		(_ULCAST_(15) << 0)
+#define MIPS_CONF2_SL_SHF	4
 #define MIPS_CONF2_SL		(_ULCAST_(15) << 4)
+#define MIPS_CONF2_SS_SHF	8
 #define MIPS_CONF2_SS		(_ULCAST_(15) << 8)
+#define MIPS_CONF2_L2B		(_ULCAST_(1) << 12)
 #define MIPS_CONF2_SU		(_ULCAST_(15) << 12)
 #define MIPS_CONF2_TA		(_ULCAST_(15) << 16)
 #define MIPS_CONF2_TL		(_ULCAST_(15) << 20)
@@ -551,6 +555,7 @@
 #define MIPS_CONF5_MVH		(_ULCAST_(1) << 5)
 #define MIPS_CONF5_FRE		(_ULCAST_(1) << 8)
 #define MIPS_CONF5_UFE		(_ULCAST_(1) << 9)
+#define MIPS_CONF5_L2C		(_ULCAST_(1) << 10)
 #define MIPS_CONF5_MSAEN	(_ULCAST_(1) << 27)
 #define MIPS_CONF5_EVA		(_ULCAST_(1) << 28)
 #define MIPS_CONF5_CV		(_ULCAST_(1) << 29)

@@ -315,6 +315,12 @@ config MIPS_L1_CACHE_SHIFT
 	default "4" if MIPS_L1_CACHE_SHIFT_4
 	default "5"
 
+config MIPS_L2_CACHE
+	bool
+	help
+	  Select this if your system includes an L2 cache and you want U-Boot
+	  to initialise & maintain it.
+
 config DYNAMIC_IO_PORT_BASE
 	bool
 
