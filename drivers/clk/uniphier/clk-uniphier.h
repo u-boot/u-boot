@@ -40,18 +40,6 @@ struct uniphier_clk_soc_data {
 		.rate = f,				\
 	}
 
-/**
- * struct uniphier_clk_priv - private data for UniPhier clock driver
- *
- * @base: base address of the clock provider
- * @socdata: SoC specific data
- */
-struct uniphier_clk_priv {
-	void __iomem *base;
-	const struct uniphier_clk_soc_data *socdata;
-};
-
-extern const struct clk_ops uniphier_clk_ops;
-int uniphier_clk_probe(struct udevice *dev);
+extern const struct uniphier_clk_soc_data uniphier_mio_clk_data;
 
 #endif /* __CLK_UNIPHIER_H__ */

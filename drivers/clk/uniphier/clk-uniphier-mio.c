@@ -132,54 +132,9 @@ static const struct uniphier_clk_rate_data uniphier_mio_clk_rate[] = {
 	UNIPHIER_MIO_CLK_RATE_SD(2, 2),		/* for PH1-Pro4 only */
 };
 
-static const struct uniphier_clk_soc_data uniphier_mio_clk_data = {
+const struct uniphier_clk_soc_data uniphier_mio_clk_data = {
 	.gate = uniphier_mio_clk_gate,
 	.nr_gate = ARRAY_SIZE(uniphier_mio_clk_gate),
 	.rate = uniphier_mio_clk_rate,
 	.nr_rate = ARRAY_SIZE(uniphier_mio_clk_rate),
-};
-
-static const struct udevice_id uniphier_mio_clk_match[] = {
-	{
-		.compatible = "socionext,ph1-sld3-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-ld4-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-pro4-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-sld8-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-pro5-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,proxstream2-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-ld11-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
-		.compatible = "socionext,ph1-ld20-mioctrl",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{ /* sentinel */ }
-};
-
-U_BOOT_DRIVER(uniphier_mio_clk) = {
-	.name = "uniphier-mio-clk",
-	.id = UCLASS_CLK,
-	.of_match = uniphier_mio_clk_match,
-	.probe = uniphier_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_clk_priv),
-	.ops = &uniphier_clk_ops,
 };

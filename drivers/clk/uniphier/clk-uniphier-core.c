@@ -14,6 +14,35 @@
 
 #include "clk-uniphier.h"
 
+/**
+ * struct uniphier_clk_priv - private data for UniPhier clock driver
+ *
+ * @base: base address of the clock provider
+ * @socdata: SoC specific data
+ */
+struct uniphier_clk_priv {
+	void __iomem *base;
+	const struct uniphier_clk_soc_data *socdata;
+};
+
+int uniphier_clk_probe(struct udevice *dev)
+{
+	struct uniphier_clk_priv *priv = dev_get_priv(dev);
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->base = devm_ioremap(dev, addr, SZ_4K);
+	if (!priv->base)
+		return -ENOMEM;
+
+	priv->socdata = (void *)dev_get_driver_data(dev);
+
+	return 0;
+}
+
 static int uniphier_clk_enable(struct clk *clk)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
@@ -128,20 +157,47 @@ const struct clk_ops uniphier_clk_ops = {
 	.set_rate = uniphier_clk_set_rate,
 };
 
-int uniphier_clk_probe(struct udevice *dev)
-{
-	struct uniphier_clk_priv *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
+static const struct udevice_id uniphier_clk_match[] = {
+	{
+		.compatible = "socionext,ph1-sld3-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-ld4-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-pro4-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-sld8-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-pro5-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,proxstream2-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-ld11-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,ph1-ld20-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{ /* sentinel */ }
+};
 
-	addr = dev_get_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	priv->base = devm_ioremap(dev, addr, SZ_4K);
-	if (!priv->base)
-		return -ENOMEM;
-
-	priv->socdata = (void *)dev_get_driver_data(dev);
-
-	return 0;
-}
+U_BOOT_DRIVER(uniphier_clk) = {
+	.name = "uniphier-clk",
+	.id = UCLASS_CLK,
+	.of_match = uniphier_clk_match,
+	.probe = uniphier_clk_probe,
+	.priv_auto_alloc_size = sizeof(struct uniphier_clk_priv),
+	.ops = &uniphier_clk_ops,
+};
