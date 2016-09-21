@@ -276,7 +276,7 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
 
 /* ATF is my kernel image */
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf.ub"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
 /* FIT load address for RAM boot */
 #define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
