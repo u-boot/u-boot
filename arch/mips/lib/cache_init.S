@@ -378,6 +378,44 @@ l2_unbypass:
 	ehb
 
 2:
+# ifdef CONFIG_MIPS_CM
+	/* Config3 must exist for a CM to be present */
+	mfc0		t0, CP0_CONFIG, 1
+	bgez		t0, 2f
+	mfc0		t0, CP0_CONFIG, 2
+	bgez		t0, 2f
+
+	/* Check Config3.CMGCR to determine CM presence */
+	mfc0		t0, CP0_CONFIG, 3
+	and		t0, t0, MIPS_CONF3_CMGCR
+	beqz		t0, 2f
+
+	/* Change Config.K0 to a coherent CCA */
+	mfc0		t0, CP0_CONFIG
+	li		t1, CONF_CM_CACHABLE_COW
+#if __mips_isa_rev >= 2
+	ins		t0, t1, 0, 3
+#else
+	ori		t0, t0, CONF_CM_CMASK
+	xori		t0, t0, CONF_CM_CMASK
+	or		t0, t0, t1
+#endif
+	mtc0		t0, CP0_CONFIG
+
+	/*
+	 * Join the coherent domain such that the caches of this core are kept
+	 * coherent with those of other cores.
+	 */
+	PTR_LI		t0, CKSEG1ADDR(CONFIG_MIPS_CM_BASE)
+	lw		t1, GCR_REV(t0)
+	li		t2, GCR_REV_CM3
+	li		t3, GCR_Cx_COHERENCE_EN
+	bge		t1, t2, 1f
+	li		t3, GCR_Cx_COHERENCE_DOM_EN
+1:	sw		t3, GCR_Cx_COHERENCE(t0)
+	ehb
+2:
+# endif
 #endif
 
 return:

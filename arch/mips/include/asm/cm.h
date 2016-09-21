@@ -19,6 +19,7 @@
 #define GCR_L2_TAG_STATE_UPPER		0x060c
 #define GCR_L2_DATA			0x0610
 #define GCR_L2_DATA_UPPER		0x0614
+#define GCR_Cx_COHERENCE		0x2008
 
 /* GCR_REV CM versions */
 #define GCR_REV_CM3			0x0800
@@ -31,6 +32,10 @@
 #define GCR_L2_CONFIG_SETSZ_SHIFT	12
 #define GCR_L2_CONFIG_SETSZ_BITS	4
 #define GCR_L2_CONFIG_BYPASS		(1 << 20)
+
+/* GCR_Cx_COHERENCE */
+#define GCR_Cx_COHERENCE_DOM_EN		(0xff << 0)
+#define GCR_Cx_COHERENCE_EN		(0x1 << 0)
 
 #ifndef __ASSEMBLY__
 
