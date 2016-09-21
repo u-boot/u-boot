@@ -30,7 +30,7 @@ int uniphier_clk_probe(struct udevice *dev)
 	struct uniphier_clk_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = dev_get_addr(dev->parent);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -159,35 +159,35 @@ const struct clk_ops uniphier_clk_ops = {
 
 static const struct udevice_id uniphier_clk_match[] = {
 	{
-		.compatible = "socionext,ph1-sld3-mioctrl",
+		.compatible = "socionext,uniphier-sld3-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-ld4-mioctrl",
+		.compatible = "socionext,uniphier-ld4-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-pro4-mioctrl",
+		.compatible = "socionext,uniphier-pro4-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-sld8-mioctrl",
+		.compatible = "socionext,uniphier-sld8-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-pro5-mioctrl",
+		.compatible = "socionext,uniphier-pro5-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,proxstream2-mioctrl",
+		.compatible = "socionext,uniphier-pxs2-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-ld11-mioctrl",
+		.compatible = "socionext,uniphier-ld11-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,ph1-ld20-mioctrl",
+		.compatible = "socionext,uniphier-ld20-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{ /* sentinel */ }
