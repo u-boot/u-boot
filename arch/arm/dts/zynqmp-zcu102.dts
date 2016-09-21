@@ -632,6 +632,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	status = "okay";
 	/* Peripheral and OTG mode not working - usb reset issue */
 	dr_mode = "host";
+	snps,usb3_lpm_capable;
 	phy-names = "usb3-phy";
 	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
 };
