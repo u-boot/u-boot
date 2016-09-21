@@ -420,6 +420,8 @@ l2_unbypass:
 #endif
 
 return:
+	/* Ensure all cache operations complete before returning */
+	sync
 	jr	ra
 	END(mips_cache_reset)
 
