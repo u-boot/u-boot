@@ -12,7 +12,7 @@
 #include <usb.h>
 #include <watchdog.h>
 #include <asm/gpio.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
 

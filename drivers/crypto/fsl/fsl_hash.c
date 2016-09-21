@@ -12,7 +12,7 @@
 #include "jr.h"
 #include "fsl_hash.h"
 #include <hw_sha.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 #define CRYPTO_MAX_ALG_NAME	80
 #define SHA1_DIGEST_SIZE        20

@@ -20,7 +20,7 @@
 #include <usb.h>
 #include <malloc.h>
 #include <asm/cache.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 #include "xhci.h"
 

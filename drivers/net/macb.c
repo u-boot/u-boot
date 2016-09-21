@@ -39,7 +39,7 @@
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 #include <asm/arch/clk.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 #include "macb.h"
 

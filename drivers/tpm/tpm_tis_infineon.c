@@ -25,7 +25,7 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <tpm.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <linux/compiler.h>
 #include <linux/types.h>
 #include <linux/unaligned/be_byteshift.h>
