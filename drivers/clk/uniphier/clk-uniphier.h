@@ -27,9 +27,9 @@ struct uniphier_clk_rate_data {
 };
 
 struct uniphier_clk_soc_data {
-	struct uniphier_clk_gate_data *gate;
+	const struct uniphier_clk_gate_data *gate;
 	unsigned int nr_gate;
-	struct uniphier_clk_rate_data *rate;
+	const struct uniphier_clk_rate_data *rate;
 	unsigned int nr_rate;
 };
 
@@ -48,7 +48,7 @@ struct uniphier_clk_soc_data {
  */
 struct uniphier_clk_priv {
 	void __iomem *base;
-	struct uniphier_clk_soc_data *socdata;
+	const struct uniphier_clk_soc_data *socdata;
 };
 
 extern const struct clk_ops uniphier_clk_ops;

@@ -115,7 +115,7 @@
 		.data = 0x00020000,		\
 	}
 
-static struct uniphier_clk_gate_data uniphier_mio_clk_gate[] = {
+static const struct uniphier_clk_gate_data uniphier_mio_clk_gate[] = {
 	UNIPHIER_MIO_CLK_GATE_SD(0, 0),
 	UNIPHIER_MIO_CLK_GATE_SD(1, 1),
 	UNIPHIER_MIO_CLK_GATE_SD(2, 2),		/* for PH1-Pro4 only */
@@ -126,13 +126,13 @@ static struct uniphier_clk_gate_data uniphier_mio_clk_gate[] = {
 	UNIPHIER_MIO_CLK_GATE_USB(3, 7),	/* for PH1-sLD3 only */
 };
 
-static struct uniphier_clk_rate_data uniphier_mio_clk_rate[] = {
+static const struct uniphier_clk_rate_data uniphier_mio_clk_rate[] = {
 	UNIPHIER_MIO_CLK_RATE_SD(0, 0),
 	UNIPHIER_MIO_CLK_RATE_SD(1, 1),
 	UNIPHIER_MIO_CLK_RATE_SD(2, 2),		/* for PH1-Pro4 only */
 };
 
-static struct uniphier_clk_soc_data uniphier_mio_clk_data = {
+static const struct uniphier_clk_soc_data uniphier_mio_clk_data = {
 	.gate = uniphier_mio_clk_gate,
 	.nr_gate = ARRAY_SIZE(uniphier_mio_clk_gate),
 	.rate = uniphier_mio_clk_rate,

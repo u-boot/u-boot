@@ -17,7 +17,7 @@
 static int uniphier_clk_enable(struct clk *clk)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	struct uniphier_clk_gate_data *gate = priv->socdata->gate;
+	const struct uniphier_clk_gate_data *gate = priv->socdata->gate;
 	unsigned int nr_gate = priv->socdata->nr_gate;
 	void __iomem *reg;
 	u32 mask, data, tmp;
@@ -44,7 +44,7 @@ static int uniphier_clk_enable(struct clk *clk)
 static ulong uniphier_clk_get_rate(struct clk *clk)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
+	const struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
 	unsigned int nr_rdata = priv->socdata->nr_rate;
 	void __iomem *reg;
 	u32 mask, data;
@@ -78,7 +78,7 @@ static ulong uniphier_clk_get_rate(struct clk *clk)
 static ulong uniphier_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
+	const struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
 	unsigned int nr_rdata = priv->socdata->nr_rate;
 	void __iomem *reg;
 	u32 mask, data, tmp;
