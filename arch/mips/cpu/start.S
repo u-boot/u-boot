@@ -123,8 +123,9 @@ reset:
 	mtc0	zero, CP0_COMPARE
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-	/* CONFIG0 register */
-	li	t0, CONF_CM_UNCACHED
+	mfc0	t0, CP0_CONFIG
+	and	t0, t0, MIPS_CONF_IMPL
+	or	t0, t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
 #endif
 

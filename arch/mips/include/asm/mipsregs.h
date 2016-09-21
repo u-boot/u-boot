@@ -450,6 +450,7 @@
 #define MIPS_CONF_MT_FTLB	(_ULCAST_(4) <<  7)
 #define MIPS_CONF_AR		(_ULCAST_(7) << 10)
 #define MIPS_CONF_AT		(_ULCAST_(3) << 13)
+#define MIPS_CONF_IMPL		(_ULCAST_(0x1ff) << 16)
 #define MIPS_CONF_M		(_ULCAST_(1) << 31)
 
 /*
