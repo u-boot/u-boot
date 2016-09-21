@@ -318,6 +318,22 @@ config MIPS_L1_CACHE_SHIFT
 config DYNAMIC_IO_PORT_BASE
 	bool
 
+config MIPS_CM
+	bool
+	help
+	  Select this if your system contains a MIPS Coherence Manager and you
+	  wish U-Boot to configure it or make use of it to retrieve system
+	  information such as cache configuration.
+
+config MIPS_CM_BASE
+	hex
+	default 0x1fbf8000
+	help
+	  The physical base address at which to map the MIPS Coherence Manager
+	  Global Configuration Registers (GCRs). This should be set such that
+	  the GCRs occupy a region of the physical address space which is
+	  otherwise unused, or at minimum that software doesn't need to access.
+
 endif
 
 endmenu

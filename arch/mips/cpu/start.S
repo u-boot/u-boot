@@ -141,6 +141,12 @@ reset:
 1:
 	PTR_L	gp, 0(ra)
 
+#ifdef CONFIG_MIPS_CM
+	PTR_LA	t9, mips_cm_map
+	jalr	t9
+	 nop
+#endif
+
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 # ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
