@@ -12,10 +12,6 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
-#ifndef CONFIG_SYS_MIPS_CACHE_MODE
-#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
-#endif
-
 #ifndef CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 				CONFIG_SYS_INIT_SP_OFFSET)
@@ -154,10 +150,6 @@ reset:
 	PTR_LA	t9, mips_cache_reset
 	jalr	t9
 	 nop
-
-	/* ... and enable them */
-	li	t0, CONFIG_SYS_MIPS_CACHE_MODE
-	mtc0	t0, CP0_CONFIG
 #endif
 
 	/* Set up temporary stack */

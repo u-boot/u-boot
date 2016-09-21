@@ -172,6 +172,19 @@ LEAF(mips_cache_reset)
 	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
 #endif
 
+	/* Enable use of the I-cache by setting Config.K0 */
+	sync
+	mfc0		t0, CP0_CONFIG
+	li		t1, CONFIG_SYS_MIPS_CACHE_MODE
+#if __mips_isa_rev >= 2
+	ins		t0, t1, 0, 3
+#else
+	ori		t0, t0, CONF_CM_CMASK
+	xori		t0, t0, CONF_CM_CMASK
+	or		t0, t0, t1
+#endif
+	mtc0		t0, CP0_CONFIG
+
 	/*
 	 * then initialize D-cache.
 	 */
