@@ -30,12 +30,6 @@
 			clock-frequency = <50000000>;
 		};
 
-		uart_clk: uart_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <80000000>;
-		};
-
 		iobus_clk: iobus_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -228,7 +222,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_sd>;
 		pinctrl-1 = <&pinctrl_sd_1v8>;
-		clocks = <&mio 0>;
+		clocks = <&mio_clk 0>;
 		bus-width = <4>;
 	};
 
@@ -240,7 +234,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_emmc>;
 		pinctrl-1 = <&pinctrl_emmc_1v8>;
-		clocks = <&mio 1>;
+		clocks = <&mio_clk 1>;
 		bus-width = <8>;
 		non-removable;
 	};
@@ -252,7 +246,7 @@
 		interrupts = <0 80 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb0>;
-		clocks = <&mio 3>, <&mio 6>;
+		clocks = <&mio_clk 3>, <&mio_clk 6>;
 	};
 
 	usb1: usb@5a810100 {
@@ -262,7 +256,7 @@
 		interrupts = <0 81 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb1>;
-		clocks = <&mio 4>, <&mio 6>;
+		clocks = <&mio_clk 4>, <&mio_clk 6>;
 	};
 
 	usb2: usb@5a820100 {
@@ -272,7 +266,7 @@
 		interrupts = <0 82 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb2>;
-		clocks = <&mio 5>, <&mio 6>;
+		clocks = <&mio_clk 5>, <&mio_clk 6>;
 	};
 
 	aidet@61830000 {
@@ -302,22 +296,30 @@
 	clock-frequency = <80000000>;
 };
 
-&mio {
-	compatible = "socionext,ph1-sld8-mioctrl";
-	clock-names = "stdmac", "ehci";
-	clocks = <&sysctrl 10>, <&sysctrl 18>;
+&mio_clk {
+	compatible = "socionext,uniphier-sld8-mio-clock";
 };
 
-&peri {
-	compatible = "socionext,ph1-sld8-perictrl";
-	clock-names = "uart", "i2c";
-	clocks = <&sysctrl 3>, <&sysctrl 4>;
+&mio_rst {
+	compatible = "socionext,uniphier-sld8-mio-reset";
+};
+
+&peri_clk {
+	compatible = "socionext,uniphier-sld8-peri-clock";
+};
+
+&peri_rst {
+	compatible = "socionext,uniphier-sld8-peri-reset";
 };
 
 &pinctrl {
 	compatible = "socionext,uniphier-sld8-pinctrl";
 };
 
-&sysctrl {
-	compatible = "socionext,ph1-sld8-sysctrl";
+&sys_clk {
+	compatible = "socionext,uniphier-sld8-clock";
+};
+
+&sys_rst {
+	compatible = "socionext,uniphier-sld8-reset";
 };

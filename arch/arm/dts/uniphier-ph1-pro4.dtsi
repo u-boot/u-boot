@@ -351,7 +351,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_sd>;
 		pinctrl-1 = <&pinctrl_sd_1v8>;
-		clocks = <&mio 0>;
+		clocks = <&mio_clk 0>;
 		bus-width = <4>;
 	};
 
@@ -363,7 +363,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_emmc>;
 		pinctrl-1 = <&pinctrl_emmc_1v8>;
-		clocks = <&mio 1>;
+		clocks = <&mio_clk 1>;
 		bus-width = <8>;
 		non-removable;
 	};
@@ -376,7 +376,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_sd1>;
 		pinctrl-1 = <&pinctrl_sd1_1v8>;
-		clocks = <&mio 2>;
+		clocks = <&mio_clk 2>;
 		bus-width = <4>;
 	};
 
@@ -387,7 +387,7 @@
 		interrupts = <0 80 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb2>;
-		clocks = <&mio 3>, <&mio 6>;
+		clocks = <&mio_clk 3>, <&mio_clk 6>;
 	};
 
 	usb3: usb@5a810100 {
@@ -397,7 +397,7 @@
 		interrupts = <0 81 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb3>;
-		clocks = <&mio 4>, <&mio 6>;
+		clocks = <&mio_clk 4>, <&mio_clk 6>;
 	};
 
 	aidet@5fc20000 {
@@ -444,22 +444,30 @@
 	clock-frequency = <73728000>;
 };
 
-&mio {
-	compatible = "socionext,ph1-pro4-mioctrl";
-	clock-names = "stdmac", "ehci";
-	clocks = <&sysctrl 10>, <&sysctrl 18>;
+&mio_clk {
+	compatible = "socionext,uniphier-pro4-mio-clock";
 };
 
-&peri {
-	compatible = "socionext,ph1-pro4-perictrl";
-	clock-names = "uart", "fi2c";
-	clocks = <&sysctrl 3>, <&sysctrl 4>;
+&mio_rst {
+	compatible = "socionext,uniphier-pro4-mio-reset";
+};
+
+&peri_clk {
+	compatible = "socionext,uniphier-pro4-peri-clock";
+};
+
+&peri_rst {
+	compatible = "socionext,uniphier-pro4-peri-reset";
 };
 
 &pinctrl {
 	compatible = "socionext,uniphier-pro4-pinctrl";
 };
 
-&sysctrl {
-	compatible = "socionext,ph1-pro4-sysctrl";
+&sys_clk {
+	compatible = "socionext,uniphier-pro4-clock";
+};
+
+&sys_rst {
+	compatible = "socionext,uniphier-pro4-reset";
 };
