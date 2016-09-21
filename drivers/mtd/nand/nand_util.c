@@ -26,7 +26,7 @@
 #include <memalign.h>
 #include <div64.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <nand.h>
 #include <jffs2/jffs2.h>

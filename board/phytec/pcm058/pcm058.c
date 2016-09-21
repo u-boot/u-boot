@@ -22,7 +22,7 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/spi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <mmc.h>
 #include <i2c.h>

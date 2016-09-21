@@ -38,7 +38,7 @@
 
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_CMD_BDI

@@ -10,7 +10,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_STIG_READ			0

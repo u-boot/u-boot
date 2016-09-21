@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "crypto.h"
 #include "aes.h"
 

@@ -15,7 +15,7 @@
 
 /* XXX U-BOOT XXX */
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "yportenv.h"
 #include "yaffs_trace.h"

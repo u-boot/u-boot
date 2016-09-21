@@ -20,7 +20,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/sys_proto.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;

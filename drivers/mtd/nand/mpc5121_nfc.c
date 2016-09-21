@@ -19,7 +19,7 @@
 #include <linux/mtd/nand_ecc.h>
 #include <linux/compat.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <nand.h>

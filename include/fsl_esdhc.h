@@ -10,7 +10,7 @@
 #ifndef  __FSL_ESDHC_H__
 #define	__FSL_ESDHC_H__
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/byteorder.h>
 
 /* needed for the mmc_cfg definition */

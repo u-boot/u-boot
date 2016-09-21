@@ -32,7 +32,7 @@
 #include <onenand_uboot.h>
 #endif
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 /* configurable */
 #if !defined(CONFIG_MTD_UBI_WL_THRESHOLD)

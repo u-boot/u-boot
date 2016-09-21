@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>

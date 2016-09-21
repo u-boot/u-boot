@@ -13,7 +13,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <linux/ctype.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <asm/arch/clock.h>

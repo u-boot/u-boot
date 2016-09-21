@@ -17,7 +17,7 @@
 #include <mapmem.h>
 #include <hw_sha.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #else
 #include "mkimage.h"
 #include <time.h>

@@ -8,7 +8,7 @@
 #include <altera.h>
 #include <spi.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 /* Write the RBF data to FPGA via SPI */
 static int program_write(int spi_bus, int spi_dev, const void *rbf_data,

@@ -22,7 +22,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device-internal.h>

@@ -19,7 +19,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 #include <malloc.h>
 

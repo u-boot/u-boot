@@ -21,7 +21,7 @@
 #include <linux/mtd/partitions.h>
 #include <linux/err.h>
 #include <ubi_uboot.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <jffs2/load_kernel.h>
 
 #undef ubi_msg

@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>

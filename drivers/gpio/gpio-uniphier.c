@@ -10,7 +10,7 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 
 #define UNIPHIER_GPIO_PORTS_PER_BANK	8

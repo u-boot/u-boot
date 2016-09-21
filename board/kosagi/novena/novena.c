@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

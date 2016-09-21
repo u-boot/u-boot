@@ -13,7 +13,7 @@
 #include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 #include <fdt_support.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #if defined(CONFIG_PCI)
 #include <pci.h>

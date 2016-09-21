@@ -11,7 +11,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <net.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 

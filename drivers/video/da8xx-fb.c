@@ -19,7 +19,7 @@
 #include <linux/list.h>
 #include <linux/fb.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 

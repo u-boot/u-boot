@@ -7,7 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */

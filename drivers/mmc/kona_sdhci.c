@@ -7,7 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/kona-common/clk.h>
 
 #define SDHCI_CORECTRL_OFFSET		0x00008000

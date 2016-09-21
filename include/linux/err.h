@@ -4,7 +4,7 @@
 #include <linux/compiler.h>
 #include <linux/compat.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 
 /*

@@ -13,7 +13,7 @@
 #include <command.h>
 #include <console.h>
 #include <fuse.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 static int strtou32(const char *str, unsigned int base, u32 *result)
 {

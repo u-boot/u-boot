@@ -22,7 +22,7 @@
 
 #ifdef __KERNEL__
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 struct msr {
 	union {

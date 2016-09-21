@@ -9,7 +9,7 @@
 #include <fdtdec.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/unaligned.h>
 #else

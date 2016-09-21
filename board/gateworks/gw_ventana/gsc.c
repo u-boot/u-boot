@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <common.h>
 #include <i2c.h>
 #include <linux/ctype.h>

@@ -13,7 +13,7 @@
 #include <common.h>
 #include <net.h>
 #include <malloc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/immap_qe.h>
 #include <asm/io.h>
 #include "uccf.h"

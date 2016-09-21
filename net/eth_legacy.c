@@ -11,7 +11,7 @@
 #include <environment.h>
 #include <net.h>
 #include <phy.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "eth_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -10,7 +10,7 @@
 #include <dm.h>
 #include <common.h>
 #include <sdhci.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <mach/pic32.h>
 
 DECLARE_GLOBAL_DATA_PTR;

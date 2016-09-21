@@ -12,7 +12,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/system.h>
 #include <asm/byteorder.h>

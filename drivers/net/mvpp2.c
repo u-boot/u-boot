@@ -22,7 +22,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>

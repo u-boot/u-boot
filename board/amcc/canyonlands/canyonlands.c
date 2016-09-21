@@ -15,7 +15,7 @@
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
 #include <asm/ppc4xx-gpio.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <usb.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */

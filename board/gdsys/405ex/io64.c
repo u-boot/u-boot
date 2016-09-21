@@ -15,7 +15,7 @@
 #include <fdt_support.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/ppc4xx-gpio.h>
 #include <flash.h>
 

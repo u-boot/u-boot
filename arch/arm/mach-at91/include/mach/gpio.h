@@ -10,7 +10,7 @@
 #define __ASM_ARCH_AT91_GPIO_H
 
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/hardware.h>
 

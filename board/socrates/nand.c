@@ -9,7 +9,7 @@
 
 #if defined(CONFIG_SYS_NAND_BASE)
 #include <nand.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 
 static int state;

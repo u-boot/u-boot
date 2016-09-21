@@ -7,7 +7,7 @@
 
 #include <config.h>
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/types.h>
 #include <i2c.h>
 #include <mc9sdz60.h>

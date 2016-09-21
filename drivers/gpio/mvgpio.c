@@ -11,7 +11,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "mvgpio.h"
 #include <asm/gpio.h>
 

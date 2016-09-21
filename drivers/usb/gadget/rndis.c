@@ -28,7 +28,7 @@
 
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #undef	RNDIS_PM
 #undef	RNDIS_WAKEUP

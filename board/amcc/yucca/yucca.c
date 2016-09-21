@@ -16,7 +16,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/4xx_pcie.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "yucca.h"
 

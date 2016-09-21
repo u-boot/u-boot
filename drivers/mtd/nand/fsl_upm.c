@@ -10,7 +10,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/fsl_upm.h>
 #include <nand.h>

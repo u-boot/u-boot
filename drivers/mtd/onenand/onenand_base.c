@@ -27,7 +27,7 @@
 #include <linux/mtd/onenand.h>
 
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <malloc.h>
 
 /* It should access 16-bit instead of 8-bit */

@@ -49,7 +49,7 @@
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)

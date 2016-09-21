@@ -8,7 +8,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <asm/byteorder.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/unaligned.h>
 #include <hash.h>
 #else

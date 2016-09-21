@@ -12,7 +12,7 @@
 #include <os.h>
 #include <malloc.h>
 #include <sandboxblockdev.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <dm/device-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;

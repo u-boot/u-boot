@@ -11,7 +11,7 @@
 #include <malloc.h>
 #include <video_fb.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/s3c24x0_cpu.h>
 

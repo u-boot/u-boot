@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <wait_bit.h>
 #include <spi.h>
 #include "cadence_qspi.h"

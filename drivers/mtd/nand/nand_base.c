@@ -44,7 +44,7 @@
 #include <linux/mtd/partitions.h>
 #endif
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 /* Define default oob placement schemes for large and small page devices */
 static struct nand_ecclayout nand_oob_8 = {

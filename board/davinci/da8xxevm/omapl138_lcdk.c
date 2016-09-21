@@ -18,7 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_DAVINCI_MMC
 #include <mmc.h>

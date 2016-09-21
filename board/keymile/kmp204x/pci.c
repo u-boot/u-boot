@@ -14,7 +14,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/fsl_serdes.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "kmp204x.h"
 

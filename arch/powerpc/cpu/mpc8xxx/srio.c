@@ -9,7 +9,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 #define SRIO_PORT_ACCEPT_ALL 0x10000001

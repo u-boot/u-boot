@@ -15,7 +15,7 @@
 #include <spi_flash.h>
 #include <os.h>
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/spi.h>
 #include <asm/state.h>
 #include <dm/device-internal.h>

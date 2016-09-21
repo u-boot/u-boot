@@ -16,7 +16,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include "apf27.h"
 #include "crc.h"
 #include "fpga.h"

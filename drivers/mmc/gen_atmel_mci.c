@@ -14,7 +14,7 @@
 #include <part.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>

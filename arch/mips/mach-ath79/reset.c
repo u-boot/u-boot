@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/types.h>

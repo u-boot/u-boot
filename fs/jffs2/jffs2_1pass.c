@@ -122,7 +122,7 @@
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
 #include <linux/compat.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "jffs2_private.h"
 

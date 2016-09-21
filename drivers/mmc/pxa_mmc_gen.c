@@ -9,7 +9,7 @@
 #include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/regs-mmc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <mmc.h>

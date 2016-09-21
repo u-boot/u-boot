@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <netdev.h>
 
 int cpu_eth_init(bd_t *bis)

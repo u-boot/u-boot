@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <spl.h>
 #include <usb.h>
 #include <asm/omap_sec_common.h>

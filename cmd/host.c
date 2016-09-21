@@ -9,7 +9,7 @@
 #include <fs.h>
 #include <part.h>
 #include <sandboxblockdev.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 static int host_curr_device = -1;
 

@@ -16,7 +16,7 @@
 #include <command.h>
 #include <tsec.h>
 #include <fsl_mdio.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 

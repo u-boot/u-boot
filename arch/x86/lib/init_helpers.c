@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/mtrr.h>
 
 DECLARE_GLOBAL_DATA_PTR;

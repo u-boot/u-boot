@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/clock.h>

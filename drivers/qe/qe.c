@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>
 #include <fsl_qe.h>

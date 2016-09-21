@@ -12,7 +12,7 @@
 #include <command.h>
 #include <mmc.h>
 #include <malloc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include "sh_mmcif.h"
 

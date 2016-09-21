@@ -13,7 +13,7 @@
 
 #include <common.h>
 #include <linux/usb/ch9.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/usb/gadget.h>
 #include <asm/unaligned.h>
 #include "gadget_chips.h"
