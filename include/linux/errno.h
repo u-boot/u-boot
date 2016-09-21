@@ -128,4 +128,6 @@
 #define	ENOMEDIUM	123	/* No medium found */
 #define	EMEDIUMTYPE	124	/* Wrong medium type */
 
+#define ENOTSUPP	524	/* Operation is not supported */
+
 #endif
