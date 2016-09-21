@@ -39,6 +39,7 @@
 #define CP0_ENTRYLO0 $2
 #define CP0_ENTRYLO1 $3
 #define CP0_CONF $3
+#define CP0_GLOBALNUMBER $3, 1
 #define CP0_CONTEXT $4
 #define CP0_PAGEMASK $5
 #define CP0_WIRED $6
@@ -361,6 +362,11 @@
 #define CAUSEF_BD		(_ULCAST_(1)   << 31)
 
 /*
+ * Bits in the coprocessor 0 EBase register.
+ */
+#define EBASE_CPUNUM		0x3ff
+
+/*
  * Bits in the coprocessor 0 config register.
  */
 /* Generic bits.  */
@@ -553,6 +559,7 @@
 #define MIPS_CONF5_MRP		(_ULCAST_(1) << 3)
 #define MIPS_CONF5_LLB		(_ULCAST_(1) << 4)
 #define MIPS_CONF5_MVH		(_ULCAST_(1) << 5)
+#define MIPS_CONF5_VP		(_ULCAST_(1) << 7)
 #define MIPS_CONF5_FRE		(_ULCAST_(1) << 8)
 #define MIPS_CONF5_UFE		(_ULCAST_(1) << 9)
 #define MIPS_CONF5_L2C		(_ULCAST_(1) << 10)

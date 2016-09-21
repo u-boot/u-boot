@@ -108,9 +108,28 @@ ENTRY(_start)
 
 	.align 4
 reset:
+#if __mips_isa_rev >= 6
+	mfc0	t0, CP0_CONFIG, 5
+	and	t0, t0, MIPS_CONF5_VP
+	beqz	t0, 1f
+	 nop
+
+	b	2f
+	 mfc0	t0, CP0_GLOBALNUMBER
+#endif
+
+1:	mfc0	t0, CP0_EBASE
+	and	t0, t0, EBASE_CPUNUM
+
+	/* Hang if this isn't the first CPU in the system */
+2:	beqz	t0, 4f
+	 nop
+3:	wait
+	b	3b
+	 nop
 
 	/* Clear watch registers */
-	MTC0	zero, CP0_WATCHLO
+4:	MTC0	zero, CP0_WATCHLO
 	mtc0	zero, CP0_WATCHHI
 
 	/* WP(Watch Pending), SW0/1 should be cleared */
