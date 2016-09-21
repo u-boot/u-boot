@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <dm.h>
 #include "ehci.h"
@@ -35,6 +36,18 @@ static int ehci_usb_probe(struct udevice *dev)
 		if (clk_enable(&clk))
 			printf("failed to enable clock %d\n", i);
 		clk_free(&clk);
+	}
+
+	for (i = 0; ; i++) {
+		struct reset_ctl reset;
+		int ret;
+
+		ret = reset_get_by_index(dev, i, &reset);
+		if (ret < 0)
+			break;
+		if (reset_deassert(&reset))
+			printf("failed to deassert reset %d\n", i);
+		reset_free(&reset);
 	}
 
 	hccr = map_physmem(dev_get_addr(dev), 0x100, MAP_NOCACHE);
