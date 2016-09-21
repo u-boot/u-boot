@@ -10,6 +10,7 @@
 #define _CLK_H_
 
 #include <linux/types.h>
+#include <asm/errno.h>
 
 /**
  * A clock is a hardware signal that oscillates autonomously at a specific
