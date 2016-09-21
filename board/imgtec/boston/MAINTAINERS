@@ -1,0 +1,6 @@
+BOSTON BOARD
+M:	Paul Burton <paul.burton@imgtec.com>
+S:	Maintained
+F:	board/imgtec/boston/
+F:	include/configs/boston.h
+F:	configs/boston_defconfig
