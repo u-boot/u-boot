@@ -9,32 +9,39 @@
 #include <asm/cacheops.h>
 #include <asm/mipsregs.h>
 
-static inline unsigned long icache_line_size(void)
-{
-	unsigned long conf1, il;
+DECLARE_GLOBAL_DATA_PTR;
 
-	if (!config_enabled(CONFIG_SYS_CACHE_SIZE_AUTO))
-		return CONFIG_SYS_ICACHE_LINE_SIZE;
+void mips_cache_probe(void)
+{
+#ifdef CONFIG_SYS_CACHE_SIZE_AUTO
+	unsigned long conf1, il, dl;
 
 	conf1 = read_c0_config1();
+
 	il = (conf1 & MIPS_CONF1_IL) >> MIPS_CONF1_IL_SHF;
-	if (!il)
-		return 0;
-	return 2 << il;
+	dl = (conf1 & MIPS_CONF1_DL) >> MIPS_CONF1_DL_SHF;
+
+	gd->arch.l1i_line_size = il ? (2 << il) : 0;
+	gd->arch.l1d_line_size = dl ? (2 << dl) : 0;
+#endif
+}
+
+static inline unsigned long icache_line_size(void)
+{
+#ifdef CONFIG_SYS_CACHE_SIZE_AUTO
+	return gd->arch.l1i_line_size;
+#else
+	return CONFIG_SYS_ICACHE_LINE_SIZE;
+#endif
 }
 
 static inline unsigned long dcache_line_size(void)
 {
-	unsigned long conf1, dl;
-
-	if (!config_enabled(CONFIG_SYS_CACHE_SIZE_AUTO))
-		return CONFIG_SYS_DCACHE_LINE_SIZE;
-
-	conf1 = read_c0_config1();
-	dl = (conf1 & MIPS_CONF1_DL) >> MIPS_CONF1_DL_SHF;
-	if (!dl)
-		return 0;
-	return 2 << dl;
+#ifdef CONFIG_SYS_CACHE_SIZE_AUTO
+	return gd->arch.l1d_line_size;
+#else
+	return CONFIG_SYS_DCACHE_LINE_SIZE;
+#endif
 }
 
 #define cache_loop(start, end, lsize, ops...) do {			\

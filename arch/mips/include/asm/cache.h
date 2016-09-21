@@ -19,4 +19,13 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE ARCH_DMA_MINALIGN
 
+/**
+ * mips_cache_probe() - Probe the properties of the caches
+ *
+ * Call this to probe the properties such as line sizes of the caches
+ * present in the system, if any. This must be done before cache maintenance
+ * functions such as flush_cache may be called.
+ */
+void mips_cache_probe(void);
+
 #endif /* __MIPS_CACHE_H__ */
