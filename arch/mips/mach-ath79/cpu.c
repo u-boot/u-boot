@@ -46,7 +46,7 @@ static const struct ath79_soc_desc desc[] = {
 	{ATH79_SOC_QCA9561,     "9561", REV_ID_MAJOR_QCA9561,   0},
 };
 
-int arch_cpu_init(void)
+int mach_cpu_init(void)
 {
 	void __iomem *base;
 	enum ath79_soc_type soc = ATH79_SOC_UNKNOWN;
