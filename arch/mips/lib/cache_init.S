@@ -98,19 +98,23 @@
  * RETURNS: N/A
  *
  */
+#define R_IC_SIZE	t2
+#define R_IC_LINE	t8
+#define R_DC_SIZE	t3
+#define R_DC_LINE	t9
 LEAF(mips_cache_reset)
 #ifndef CONFIG_SYS_CACHE_SIZE_AUTO
-	li	t2, CONFIG_SYS_ICACHE_SIZE
-	li	t8, CONFIG_SYS_ICACHE_LINE_SIZE
+	li	R_IC_SIZE, CONFIG_SYS_ICACHE_SIZE
+	li	R_IC_LINE, CONFIG_SYS_ICACHE_LINE_SIZE
 #else
-	l1_info	t2, t8, MIPS_CONF1_IA_SHF
+	l1_info	R_IC_SIZE, R_IC_LINE, MIPS_CONF1_IA_SHF
 #endif
 
 #ifndef CONFIG_SYS_CACHE_SIZE_AUTO
-	li	t3, CONFIG_SYS_DCACHE_SIZE
-	li	t9, CONFIG_SYS_DCACHE_LINE_SIZE
+	li	R_DC_SIZE, CONFIG_SYS_DCACHE_SIZE
+	li	R_DC_LINE, CONFIG_SYS_DCACHE_LINE_SIZE
 #else
-	l1_info	t3, t9, MIPS_CONF1_DA_SHF
+	l1_info	R_DC_SIZE, R_DC_LINE, MIPS_CONF1_DA_SHF
 #endif
 
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
@@ -123,9 +127,9 @@ LEAF(mips_cache_reset)
 	li	v0, CONFIG_SYS_DCACHE_SIZE
 #endif
 #else
-	move	v0, t2
-	sltu	t1, t2, t3
-	movn	v0, t3, t1
+	move	v0, R_IC_SIZE
+	sltu	t1, R_IC_SIZE, R_DC_SIZE
+	movn	v0, R_DC_SIZE, t1
 #endif
 	/*
 	 * Now clear that much memory starting from zero.
@@ -158,18 +162,18 @@ LEAF(mips_cache_reset)
 	/*
 	 * Initialize the I-cache first,
 	 */
-	blez		t2, 1f
+	blez		R_IC_SIZE, 1f
 	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, t2
+	PTR_ADDU	t1, t0, R_IC_SIZE
 	/* clear tag to invalidate */
-	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* fill once, so data field parity is correct */
 	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, t8, FILL
+	cache_loop	t0, t1, R_IC_LINE, FILL
 	/* invalidate again - prudent but not strictly neccessary */
 	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #endif
 
 	/* Enable use of the I-cache by setting Config.K0 */
@@ -188,20 +192,20 @@ LEAF(mips_cache_reset)
 	/*
 	 * then initialize D-cache.
 	 */
-1:	blez		t3, 3f
+1:	blez		R_DC_SIZE, 3f
 	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, t3
+	PTR_ADDU	t1, t0, R_DC_SIZE
 	/* clear all tags */
-	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* load from each line (in cached space) */
 	PTR_LI		t0, INDEX_BASE
 2:	LONG_L		zero, 0(t0)
-	PTR_ADDU	t0, t9
+	PTR_ADDU	t0, R_DC_LINE
 	bne		t0, t1, 2b
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #endif
 
 3:	jr	ra
