@@ -127,6 +127,7 @@ reset:
 	and	t0, t0, MIPS_CONF_IMPL
 	or	t0, t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
+	ehb
 #endif
 
 	/*
