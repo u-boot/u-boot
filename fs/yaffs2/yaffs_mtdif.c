@@ -19,10 +19,10 @@
 
 #include "yaffs_mtdif.h"
 
-#include "linux/mtd/mtd.h"
-#include "linux/types.h"
-#include "linux/time.h"
-#include "linux/mtd/nand.h"
+#include <linux/mtd/mtd.h>
+#include <linux/types.h>
+#include <linux/time.h>
+#include <linux/mtd/nand.h>
 
 
 static inline void translate_spare2oob(const struct yaffs_spare *spare, u8 *oob)
