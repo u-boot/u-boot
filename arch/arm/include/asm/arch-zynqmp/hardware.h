@@ -79,6 +79,7 @@ struct iou_scntr_secure {
 #define NAND_MODE	0x00000004
 #define EMMC_MODE	0x00000006
 #define USB_MODE	0x00000007
+#define SD1_LSHFT_MODE	0x0000000E /* SD1 Level shifter */
 #define JTAG_MODE	0x00000000
 
 #define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000

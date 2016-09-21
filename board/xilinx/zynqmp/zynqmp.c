@@ -361,6 +361,9 @@ int board_late_init(void)
 		mode = "mmc0";
 		setenv("modeboot", "sdboot");
 		break;
+	case SD1_LSHFT_MODE:
+		puts("LVL_SHFT_");
+		/* fall through */
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
