@@ -192,7 +192,6 @@
 #define MULTI_PURPOSE_SOCKET_ADDR	0x08000000
 
 /* File system */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_JFFS2
 #define CONFIG_YAFFS2

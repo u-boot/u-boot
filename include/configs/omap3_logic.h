@@ -93,7 +93,6 @@
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 
-#define CONFIG_CMD_UBI			/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
 #define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
 #define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */

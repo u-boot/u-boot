@@ -146,7 +146,6 @@
 #define CONFIG_CMD_MTDPARTS		/* Enable MTD parts commands */
 #define CONFIG_CMD_NAND			/* NAND support */
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands */
-#define CONFIG_CMD_UBI			/* UBI commands */
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 

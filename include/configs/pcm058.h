@@ -92,7 +92,6 @@
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
-#define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 
 /* Physical Memory Map */

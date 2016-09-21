@@ -44,7 +44,6 @@
 #define CONFIG_JFFS2_NAND
 
 /* UBI */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_LZO

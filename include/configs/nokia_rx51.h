@@ -135,7 +135,6 @@
 #define CONFIG_CMD_MTDPARTS		/* mtd parts support */
 
 #ifdef UBIFS_SUPPORT
-#define CONFIG_CMD_UBI			/* UBI Support */
 #define CONFIG_CMD_UBIFS		/* UBIFS Support */
 #endif
 

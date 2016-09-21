@@ -109,7 +109,6 @@
 
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_LZO

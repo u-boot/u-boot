@@ -110,7 +110,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_NAND
 #define CONFIG_JFFS2_LZO
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */

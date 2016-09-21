@@ -177,7 +177,6 @@
 
 #if defined(FLASH)
 # define CONFIG_CMD_JFFS2
-# define CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
@@ -192,7 +191,6 @@
 # endif
 #else
 # undef CONFIG_CMD_JFFS2
-# undef CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 #endif
 #endif
@@ -202,7 +200,6 @@
 #endif
 
 #if defined(CONFIG_CMD_UBIFS)
-# define CONFIG_CMD_UBI
 # define CONFIG_LZO
 #endif
 

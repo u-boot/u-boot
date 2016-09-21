@@ -75,7 +75,6 @@
 #define CONFIG_LZO			/* needed for UBI */
 #define CONFIG_RBTREE			/* needed for UBI */
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
 /*

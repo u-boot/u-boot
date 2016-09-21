@@ -49,7 +49,6 @@
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
 /* UBI */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_LZO

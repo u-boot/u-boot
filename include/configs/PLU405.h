@@ -374,7 +374,6 @@
 /*
  * UBI
  */
-#define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS

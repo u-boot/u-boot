@@ -75,7 +75,6 @@
 
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_UBI
 
 #ifndef CONFIG_SPL_BUILD
 

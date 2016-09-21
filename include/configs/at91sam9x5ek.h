@@ -109,7 +109,6 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #endif
 

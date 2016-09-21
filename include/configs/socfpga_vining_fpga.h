@@ -192,9 +192,7 @@
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
 
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define MTDPARTS_DEFAULT			\

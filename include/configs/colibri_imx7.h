@@ -188,8 +188,6 @@
 /* UBI stuff */
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_CMD_UBI
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 
 /* Dynamic MTD partition support */

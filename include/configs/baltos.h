@@ -48,7 +48,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
 /* I2C configuration */

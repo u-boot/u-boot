@@ -69,7 +69,6 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
 /*
