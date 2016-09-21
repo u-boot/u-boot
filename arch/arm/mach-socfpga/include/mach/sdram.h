@@ -30,7 +30,8 @@ struct socfpga_sdr_ctrl {
 	u32	dram_timing4;	/* 0x10 */
 	u32	lowpwr_timing;
 	u32	dram_odt;
-	u32	__padding0[4];
+	u32	extratime1;
+	u32	__padding0[3];
 	u32	dram_addrw;	/* 0x2c */
 	u32	dram_if_width;	/* 0x30 */
 	u32	dram_dev_width;
@@ -88,6 +89,7 @@ struct socfpga_sdram_config {
 	u32	dram_timing4;
 	u32	lowpwr_timing;
 	u32	dram_odt;
+	u32	extratime1;
 	u32	dram_addrw;
 	u32	dram_if_width;
 	u32	dram_dev_width;
@@ -427,6 +429,10 @@ SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_MASK \
 /* Field instance: sdr::ctrlgrp::dramsts                                   */
 #define SDR_CTRLGRP_DRAMSTS_DBEERR_MASK 0x00000008
 #define SDR_CTRLGRP_DRAMSTS_SBEERR_MASK 0x00000004
+/* Register template: sdr::ctrlgrp::extratime1                             */
+#define SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_LSB 20
+#define SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_BC_LSB 24
+#define SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_DIFF_LSB 28
 
 /* SDRAM width macro for configuration with ECC */
 #define SDRAM_WIDTH_32BIT_WITH_ECC	40
