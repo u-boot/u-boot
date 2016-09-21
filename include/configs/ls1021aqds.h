@@ -543,8 +543,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_ARMV7_NONSEC
-#define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200

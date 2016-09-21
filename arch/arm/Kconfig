@@ -736,6 +736,8 @@ config TARGET_LS1012AFRDM
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
@@ -744,6 +746,8 @@ config TARGET_LS1021AQDS
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
