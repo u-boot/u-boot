@@ -11,6 +11,7 @@
 #define _MMC_H_
 
 #include <linux/list.h>
+#include <linux/sizes.h>
 #include <linux/compiler.h>
 #include <part.h>
 
@@ -102,6 +103,7 @@
 #define SD_CMD_SWITCH_UHS18V		11
 
 #define SD_CMD_APP_SET_BUS_WIDTH	6
+#define SD_CMD_APP_SD_STATUS		13
 #define SD_CMD_ERASE_WR_BLK_START	32
 #define SD_CMD_ERASE_WR_BLK_END		33
 #define SD_CMD_APP_SEND_OP_COND		41
@@ -392,6 +394,12 @@ struct mmc_config {
 	unsigned char part_type;
 };
 
+struct sd_ssr {
+	unsigned int au;		/* In sectors */
+	unsigned int erase_timeout;	/* In milliseconds */
+	unsigned int erase_offset;	/* In milliseconds */
+};
+
 /*
  * With CONFIG_DM_MMC enabled, struct mmc can be accessed from the MMC device
  * with mmc_get_mmc_dev().
@@ -426,6 +434,7 @@ struct mmc {
 	uint write_bl_len;
 	uint erase_grp_size;	/* in 512-byte sectors */
 	uint hc_wp_grp_size;	/* in 512-byte sectors */
+	struct sd_ssr	ssr;	/* SD status register */
 	u64 capacity;
 	u64 capacity_user;
 	u64 capacity_boot;
