@@ -290,6 +290,11 @@ __weak int arch_cpu_init(void)
 	return 0;
 }
 
+__weak int mach_cpu_init(void)
+{
+	return 0;
+}
+
 #ifdef CONFIG_SANDBOX
 static int setup_ram_buf(void)
 {
@@ -860,6 +865,7 @@ static init_fnc_t init_sequence_f[] = {
 	x86_fsp_init,
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
+	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
 	arch_cpu_init_dm,
 	mark_bootstage,		/* need timer, go after init dm */
