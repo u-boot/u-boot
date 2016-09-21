@@ -142,15 +142,24 @@ reset:
 	PTR_L	gp, 0(ra)
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
+# ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
 	PTR_LA	t9, lowlevel_init
 	jalr	t9
 	 nop
+# endif
 
 	/* Initialize caches... */
 	PTR_LA	t9, mips_cache_reset
 	jalr	t9
 	 nop
+
+# ifndef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
+	/* Initialize any external memory */
+	PTR_LA	t9, lowlevel_init
+	jalr	t9
+	 nop
+# endif
 #endif
 
 	/* Set up temporary stack */
