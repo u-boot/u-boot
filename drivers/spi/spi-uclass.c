@@ -164,7 +164,6 @@ static int spi_child_pre_probe(struct udevice *dev)
 
 	slave->max_hz = plat->max_hz;
 	slave->mode = plat->mode;
-	slave->mode_rx = plat->mode_rx;
 	slave->wordlen = SPI_DEFAULT_WORDLEN;
 
 	return 0;
@@ -381,7 +380,7 @@ void spi_free_slave(struct spi_slave *slave)
 int spi_slave_ofdata_to_platdata(const void *blob, int node,
 				 struct dm_spi_slave_platdata *plat)
 {
-	int mode = 0, mode_rx = 0;
+	int mode = 0;
 	int value;
 
 	plat->cs = fdtdec_get_int(blob, node, "reg", -1);
@@ -413,24 +412,22 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		break;
 	}
 
-	plat->mode = mode;
-
 	value = fdtdec_get_uint(blob, node, "spi-rx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
 	case 2:
-		mode_rx |= SPI_RX_DUAL;
+		mode |= SPI_RX_DUAL;
 		break;
 	case 4:
-		mode_rx |= SPI_RX_QUAD;
+		mode |= SPI_RX_QUAD;
 		break;
 	default:
 		error("spi-rx-bus-width %d not supported\n", value);
 		break;
 	}
 
-	plat->mode_rx = mode_rx;
+	plat->mode = mode;
 
 	return 0;
 }

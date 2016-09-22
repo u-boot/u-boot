@@ -26,12 +26,9 @@
 #define SPI_TX_BYTE	BIT(8)			/* transmit with 1 wire byte */
 #define SPI_TX_DUAL	BIT(9)			/* transmit with 2 wires */
 #define SPI_TX_QUAD	BIT(10)			/* transmit with 4 wires */
-
-/* SPI mode_rx flags */
-#define SPI_RX_SLOW	BIT(0)			/* receive with 1 wire slow */
-#define SPI_RX_FAST	BIT(1)			/* receive with 1 wire fast */
-#define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
-#define SPI_RX_QUAD	BIT(3)			/* receive with 4 wires */
+#define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
+#define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
+#define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
 
 /* SPI bus connection options - see enum spi_dual_flash */
 #define SPI_CONN_DUAL_SHARED		(1 << 0)
@@ -61,13 +58,11 @@ struct dm_spi_bus {
  * @cs:		Chip select number (0..n-1)
  * @max_hz:	Maximum bus speed that this slave can tolerate
  * @mode:	SPI mode to use for this device (see SPI mode flags)
- * @mode_rx:	SPI RX mode to use for this slave (see SPI mode_rx flags)
  */
 struct dm_spi_slave_platdata {
 	unsigned int cs;
 	uint max_hz;
 	uint mode;
-	u8 mode_rx;
 };
 
 #endif /* CONFIG_DM_SPI */
@@ -94,7 +89,6 @@ struct dm_spi_slave_platdata {
  *			bus (bus->seq) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
- * @mode_rx:		SPI RX mode to use for this slave (see SPI mode_rx flags)
  * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
@@ -112,7 +106,6 @@ struct spi_slave {
 	unsigned int cs;
 #endif
 	uint mode;
-	u8 mode_rx;
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
