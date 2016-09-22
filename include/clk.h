@@ -98,19 +98,6 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
  * @return 0 if OK, or a negative error code.
  */
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
-#else
-static inline int clk_get_by_index(struct udevice *dev, int index,
-				   struct clk *clk)
-{
-	return -ENOSYS;
-}
-
-static inline int clk_get_by_name(struct udevice *dev, const char *name,
-			   struct clk *clk)
-{
-	return -ENOSYS;
-}
-#endif
 
 /**
  * clk_request - Request a clock by provider-specific ID.
@@ -175,5 +162,17 @@ int clk_enable(struct clk *clk);
 int clk_disable(struct clk *clk);
 
 int soc_clk_dump(void);
+#else
+static inline int clk_get_by_index(struct udevice *dev, int index,
+				   struct clk *clk)
+{
+	return -ENOSYS;
+}
 
+static inline int clk_get_by_name(struct udevice *dev, const char *name,
+			   struct clk *clk)
+{
+	return -ENOSYS;
+}
+#endif
 #endif
