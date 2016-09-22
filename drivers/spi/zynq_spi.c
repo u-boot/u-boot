@@ -92,7 +92,8 @@ static void zynq_spi_init_hw(struct zynq_spi_priv *priv)
 	u32 confr;
 
 	/* Disable SPI */
-	writel(~ZYNQ_SPI_ENR_SPI_EN_MASK, &regs->enr);
+	confr = ZYNQ_SPI_ENR_SPI_EN_MASK;
+	writel(~confr, &regs->enr);
 
 	/* Disable Interrupts */
 	writel(ZYNQ_SPI_IXR_ALL_MASK, &regs->idr);
@@ -173,8 +174,10 @@ static int zynq_spi_release_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
+	u32 confr;
 
-	writel(~ZYNQ_SPI_ENR_SPI_EN_MASK, &regs->enr);
+	confr = ZYNQ_SPI_ENR_SPI_EN_MASK;
+	writel(~confr, &regs->enr);
 
 	return 0;
 }

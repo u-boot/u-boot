@@ -75,7 +75,9 @@
 
 /* Diff from config_distro_defaults.h */
 #define CONFIG_SUPPORT_RAW_INITRD
+#if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
+#endif
 #define CONFIG_AUTO_COMPLETE
 
 /* PXE */
@@ -108,7 +110,7 @@
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 #if defined(CONFIG_ZYNQMP_USB)
-#define CONFIG_USB_MAX_CONTROLLER_COUNT         1
+#define CONFIG_USB_MAX_CONTROLLER_COUNT         2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
 #define CONFIG_USB_XHCI_ZYNQMP
 
@@ -135,7 +137,6 @@
 #if !defined(DFU_ALT_INFO)
 # define DFU_ALT_INFO
 #endif
-
 
 #define CONFIG_BOARD_LATE_INIT
 
@@ -185,7 +186,6 @@
 #endif
 
 #ifdef CONFIG_SATA_CEVA
-#define CONFIG_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
@@ -247,13 +247,24 @@
 	DFU_ALT_INFO
 #endif
 
+/* SPL can't handle all huge variables - define just DFU */
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#undef CONFIG_EXTRA_ENV_SETTINGS
+# define CONFIG_EXTRA_ENV_SETTINGS \
+	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
+			  "atf-uboot.ub ram 0x10000000 0x1000000;" \
+			  "Image ram 0x80000 0x3f80000;" \
+			  "system.dtb ram 0x4000000 0x100000\0" \
+	"dfu_bufsiz=0x1000\0"
+#endif
+
 #define CONFIG_SPL_TEXT_BASE		0xfffc0000
 #define CONFIG_SPL_STACK		0xfffffffc
-#define CONFIG_SPL_MAX_SIZE		0x20000
+#define CONFIG_SPL_MAX_SIZE		0x40000
 
 /* Just random location in OCM */
-#define CONFIG_SPL_BSS_START_ADDR	0x1000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x2000000
+#define CONFIG_SPL_BSS_START_ADDR	0x0
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
@@ -265,7 +276,7 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
 
 /* ATF is my kernel image */
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf.ub"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
 /* FIT load address for RAM boot */
 #define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
@@ -277,6 +288,20 @@
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
 # define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+#endif
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+# undef CONFIG_CMD_BOOTD
+# define CONFIG_SPL_ENV_SUPPORT
+# define CONFIG_SPL_HASH_SUPPORT
+# define CONFIG_ENV_MAX_ENTRIES	10
+
+# define CONFIG_SYS_SPL_MALLOC_START	0x20000000
+# define CONFIG_SYS_SPL_MALLOC_SIZE	0x10000000
+
+#ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
+# error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
+#endif
 #endif
 
 #endif /* __XILINX_ZYNQMP_H */

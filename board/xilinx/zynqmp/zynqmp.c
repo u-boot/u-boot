@@ -16,13 +16,113 @@
 #include <asm/io.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
+#include <zynqmppl.h>
 #include <i2c.h>
+#include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
+    !defined(CONFIG_SPL_BUILD)
+static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
+
+static const struct {
+	uint32_t id;
+	char *name;
+} zynqmp_devices[] = {
+	{
+		.id = 0x10,
+		.name = "3eg",
+	},
+	{
+		.id = 0x11,
+		.name = "2eg",
+	},
+	{
+		.id = 0x20,
+		.name = "5ev",
+	},
+	{
+		.id = 0x21,
+		.name = "4ev",
+	},
+	{
+		.id = 0x30,
+		.name = "7ev",
+	},
+	{
+		.id = 0x38,
+		.name = "9eg",
+	},
+	{
+		.id = 0x39,
+		.name = "6eg",
+	},
+	{
+		.id = 0x40,
+		.name = "11eg",
+	},
+	{
+		.id = 0x50,
+		.name = "15eg",
+	},
+	{
+		.id = 0x58,
+		.name = "19eg",
+	},
+	{
+		.id = 0x59,
+		.name = "17eg",
+	},
+};
+
+static int chip_id(void)
+{
+	struct pt_regs regs;
+	regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
+	regs.regs[1] = 0;
+	regs.regs[2] = 0;
+	regs.regs[3] = 0;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}
+
+static char *zynqmp_get_silicon_idcode_name(void)
+{
+	uint32_t i, id;
+
+	id = chip_id();
+	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
+		if (zynqmp_devices[i].id == id)
+			return zynqmp_devices[i].name;
+	}
+	return "unknown";
+}
+#endif
+
+#define ZYNQMP_VERSION_SIZE	9
 
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
+    !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
+    defined(CONFIG_SPL_BUILD))
+	if (current_el() != 3) {
+		static char version[ZYNQMP_VERSION_SIZE];
+
+		strncat(version, "xczu", ZYNQMP_VERSION_SIZE);
+		zynqmppl.name = strncat(version,
+					zynqmp_get_silicon_idcode_name(),
+					ZYNQMP_VERSION_SIZE);
+		printf("Chip ID:\t%s\n", zynqmppl.name);
+		fpga_init();
+		fpga_add(fpga_xilinx, &zynqmppl);
+	}
+#endif
 
 	return 0;
 }
@@ -228,6 +328,10 @@ int board_late_init(void)
 
 	puts("Bootmode: ");
 	switch (bootmode) {
+	case USB_MODE:
+		puts("USB_MODE\n");
+		mode = "usb";
+		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
 		mode = "pxe dhcp";
@@ -283,22 +387,38 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_USB_DWC3
-static struct dwc3_device dwc3_device_data = {
+static struct dwc3_device dwc3_device_data0 = {
 	.maximum_speed = USB_SPEED_HIGH,
 	.base = ZYNQMP_USB0_XHCI_BASEADDR,
 	.dr_mode = USB_DR_MODE_PERIPHERAL,
 	.index = 0,
 };
 
-int usb_gadget_handle_interrupts(void)
+static struct dwc3_device dwc3_device_data1 = {
+	.maximum_speed = USB_SPEED_HIGH,
+	.base = ZYNQMP_USB1_XHCI_BASEADDR,
+	.dr_mode = USB_DR_MODE_PERIPHERAL,
+	.index = 1,
+};
+
+int usb_gadget_handle_interrupts(int index)
 {
-	dwc3_uboot_handle_interrupt(0);
+	dwc3_uboot_handle_interrupt(index);
 	return 0;
 }
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	return dwc3_uboot_init(&dwc3_device_data);
+	debug("%s: index %x\n", __func__, index);
+
+	switch (index) {
+	case 0:
+		return dwc3_uboot_init(&dwc3_device_data0);
+	case 1:
+		return dwc3_uboot_init(&dwc3_device_data1);
+	};
+
+	return -1;
 }
 
 int board_usb_cleanup(int index, enum usb_init_type init)

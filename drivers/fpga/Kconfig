@@ -1,0 +1,20 @@
+menu "FPGA support"
+
+config FPGA
+	bool
+
+config FPGA_XILINX
+	bool "Enable Xilinx FPGA drivers"
+	select FPGA
+	help
+	  Enable Xilinx FPGA specific functions which includes bitstream
+	  (in BIT format), fpga and device validation.
+
+config FPGA_ZYNQMPPL
+	bool "Enable Xilinx FPGA driver for ZynqMP"
+	depends on FPGA_XILINX
+	help
+	  Enable FPGA driver for loading bitstream in BIT and BIN format
+	  on Xilinx Zynq UltraScale+ (ZynqMP) device.
+
+endmenu

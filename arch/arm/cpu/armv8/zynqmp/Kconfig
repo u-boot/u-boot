@@ -47,5 +47,53 @@ config ZYNQMP_USB
 config SYS_MALLOC_F_LEN
 	default 0x600
 
+config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
+	bool "Overwrite SPL bootmode"
+	depends on SPL
+	help
+	  Overwrite bootmode selected via boot mode pins to tell SPL what should
+	  be the next boot device.
+
+config SPL_ZYNQMP_ALT_BOOTMODE
+	hex
+	default 0x0 if JTAG_MODE
+	default 0x1 if QSPI_MODE_24BIT
+	default 0x2 if QSPI_MODE_32BIT
+	default 0x3 if SD_MODE
+	default 0x4 if NAND_MODE
+	default 0x5 if SD_MODE1
+	default 0x6 if EMMC_MODE
+	default 0x7 if USB_MODE
+
+choice
+	prompt "Boot mode"
+	depends on ZYNQMP_ALT_BOOTMODE_ENABLED
+	default JTAG
+
+config JTAG_MODE
+	bool "JTAG_MODE"
+
+config QSPI_MODE_24BIT
+	bool "QSPI_MODE_24BIT"
+
+config QSPI_MODE_32BIT
+	bool "QSPI_MODE_32BIT"
+
+config SD_MODE
+	bool "SD_MODE"
+
+config SD_MODE1
+	bool "SD_MODE1"
+
+config NAND_MODE
+	bool "NAND_MODE"
+
+config EMMC_MODE
+	bool "EMMC_MODE"
+
+config USB_MODE
+	bool "USB"
+
+endchoice
 
 endif
