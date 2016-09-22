@@ -9,6 +9,7 @@
 
 #include <asm/arch/hardware.h>
 
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_ENV_SIZE			0x2000

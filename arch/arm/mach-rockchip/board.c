@@ -81,10 +81,6 @@ void enable_caches(void)
 }
 #endif
 
-void lowlevel_init(void)
-{
-}
-
 #if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
 #include <usb.h>
 #include <usb/dwc2_udc.h>

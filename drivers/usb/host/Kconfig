@@ -21,6 +21,13 @@ config USB_XHCI_DWC3
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_ROCKCHIP
+	bool "Support for Rockchip on-chip xHCI USB controller"
+	depends on ARCH_ROCKCHIP
+	default y
+	help
+	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
+
 endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
