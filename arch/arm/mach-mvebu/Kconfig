@@ -21,7 +21,7 @@ config MV78460
 	bool
 	select ARMADA_XP
 
-config DB_88F6820_GP
+config 88F6820
 	bool
 	select ARMADA_38X
 
@@ -31,7 +31,7 @@ choice
 
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
-	select DB_88F6820_GP
+	select 88F6820
 
 config TARGET_DB_88F6720
 	bool "Support DB-88F6720 Armada 375"
@@ -39,7 +39,7 @@ config TARGET_DB_88F6720
 
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
-	select DB_88F6820_GP
+	select 88F6820
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
