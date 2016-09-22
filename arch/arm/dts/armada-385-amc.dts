@@ -120,6 +120,14 @@
 					reg = <0>;
 				};
 			};
+
+			flash@d0000 {
+				status = "okay";
+				num-cs = <1>;
+				marvell,nand-keep-config;
+				marvell,nand-enable-arbiter;
+				nand-on-flash-bbt;
+			};
 		};
 
 		pcie-controller {
