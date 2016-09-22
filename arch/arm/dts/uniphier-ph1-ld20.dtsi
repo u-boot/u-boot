@@ -78,12 +78,6 @@
 			clock-frequency = <25000000>;
 		};
 
-		uart_clk: uart_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <58820000>;
-		};
-
 		i2c_clk: i2c_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -93,10 +87,10 @@
 
 	timer {
 		compatible = "arm,armv8-timer";
-		interrupts = <1 13 0xf01>,
-			     <1 14 0xf01>,
-			     <1 11 0xf01>,
-			     <1 10 0xf01>;
+		interrupts = <1 13 4>,
+			     <1 14 4>,
+			     <1 11 4>,
+			     <1 10 4>;
 	};
 
 	soc {
@@ -113,7 +107,7 @@
 			interrupts = <0 33 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart0>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 0>;
 			clock-frequency = <58820000>;
 		};
 
@@ -124,7 +118,7 @@
 			interrupts = <0 35 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart1>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 1>;
 			clock-frequency = <58820000>;
 		};
 
@@ -135,7 +129,7 @@
 			interrupts = <0 37 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart2>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 2>;
 			clock-frequency = <58820000>;
 		};
 
@@ -146,7 +140,7 @@
 			interrupts = <0 177 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart3>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 3>;
 			clock-frequency = <58820000>;
 		};
 
@@ -237,10 +231,36 @@
 			reg = <0x59801000 0x400>;
 		};
 
-		mio: mioctrl@59810000 {
-			compatible = "socionext,ph1-ld20-mioctrl";
+		mioctrl@59810000 {
+			compatible = "socionext,uniphier-mioctrl",
+				     "simple-mfd", "syscon";
 			reg = <0x59810000 0x800>;
-			#clock-cells = <1>;
+
+			mio_clk: clock {
+				compatible = "socionext,uniphier-ld20-mio-clock";
+				#clock-cells = <1>;
+			};
+
+			mio_rst: reset {
+				compatible = "socionext,uniphier-ld20-mio-reset";
+				#reset-cells = <1>;
+			};
+		};
+
+		perictrl@59820000 {
+			compatible = "socionext,uniphier-perictrl",
+				     "simple-mfd", "syscon";
+			reg = <0x59820000 0x200>;
+
+			peri_clk: clock {
+				compatible = "socionext,uniphier-ld20-peri-clock";
+				#clock-cells = <1>;
+			};
+
+			peri_rst: reset {
+				compatible = "socionext,uniphier-ld20-peri-reset";
+				#reset-cells = <1>;
+			};
 		};
 
 		sd: sdhc@5a400000 {
@@ -250,12 +270,13 @@
 			interrupts = <0 76 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sd>;
-			clocks = <&mio 0>;
+			clocks = <&mio_clk 0>;
 			bus-width = <4>;
 		};
 
 		soc-glue@5f800000 {
-			compatible = "simple-mfd", "syscon";
+			compatible = "socionext,uniphier-soc-glue",
+				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
 			u-boot,dm-pre-reloc;
 
@@ -277,6 +298,22 @@
 			interrupt-controller;
 			#interrupt-cells = <3>;
 			interrupts = <1 9 4>;
+		};
+
+		sysctrl@61840000 {
+			compatible = "socionext,uniphier-sysctrl",
+				     "simple-mfd", "syscon";
+			reg = <0x61840000 0x4000>;
+
+			sys_clk: clock {
+				compatible = "socionext,uniphier-ld20-clock";
+				#clock-cells = <1>;
+			};
+
+			sys_rst: reset {
+				compatible = "socionext,uniphier-ld20-reset";
+				#reset-cells = <1>;
+			};
 		};
 	};
 };

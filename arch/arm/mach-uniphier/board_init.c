@@ -128,6 +128,7 @@ int board_init(void)
 		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
 		sg_set_iectrl(153);
 		led_puts("U1");
+		uniphier_ld11_pll_init();
 		uniphier_ld11_clk_init();
 		break;
 #endif

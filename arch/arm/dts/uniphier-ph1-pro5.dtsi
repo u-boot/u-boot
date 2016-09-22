@@ -38,12 +38,6 @@
 			clock-frequency = <50000000>;
 		};
 
-		uart_clk: uart_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <73728000>;
-		};
-
 		i2c_clk: i2c_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -367,7 +361,7 @@
 		interrupts = <0 78 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_emmc>;
-		clocks = <&mio 1>;
+		clocks = <&mio_clk 1>;
 		bus-width = <8>;
 		non-removable;
 	};
@@ -380,7 +374,7 @@
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_sd>;
 		pinctrl-1 = <&pinctrl_sd_1v8>;
-		clocks = <&mio 0>;
+		clocks = <&mio_clk 0>;
 		bus-width = <4>;
 	};
 
@@ -423,22 +417,30 @@
 	clock-frequency = <73728000>;
 };
 
-&mio {
-	compatible = "socionext,ph1-pro5-mioctrl";
-	clock-names = "stdmac";
-	clocks = <&sysctrl 10>;
+&mio_clk {
+	compatible = "socionext,uniphier-pro5-mio-clock";
 };
 
-&peri {
-	compatible = "socionext,ph1-pro5-perictrl";
-	clock-names = "uart", "fi2c";
-	clocks = <&sysctrl 3>, <&sysctrl 4>;
+&mio_rst {
+	compatible = "socionext,uniphier-pro5-mio-reset";
+};
+
+&peri_clk {
+	compatible = "socionext,uniphier-pro5-peri-clock";
+};
+
+&peri_rst {
+	compatible = "socionext,uniphier-pro5-peri-reset";
 };
 
 &pinctrl {
 	compatible = "socionext,uniphier-pro5-pinctrl";
 };
 
-&sysctrl {
-	compatible = "socionext,ph1-pro5-sysctrl";
+&sys_clk {
+	compatible = "socionext,uniphier-pro5-clock";
+};
+
+&sys_rst {
+	compatible = "socionext,uniphier-pro5-reset";
 };

@@ -89,7 +89,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&mio {
+&mio_clk {
 	u-boot,dm-pre-reloc;
 };
 
