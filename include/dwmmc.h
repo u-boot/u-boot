@@ -253,14 +253,12 @@ static inline u8 dwmci_readb(struct dwmci_host *host, int reg)
  * See rockchip_dw_mmc.c for an example.
  *
  * @cfg:	Configuration structure to fill in (generally &plat->mmc)
- * @name:	Device name (normally dev->name)
- * @buswidth:	Bus width (in bits, such as 4 or 8)
- * @caps:	Host capabilities (MMC_MODE_...)
+ * @host:	DWMMC host
  * @max_clk:	Maximum supported clock speed in HZ (e.g. 150000000)
  * @min_clk:	Minimum supported clock speed in HZ (e.g. 400000)
  */
-void dwmci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
-		     uint caps, u32 max_clk, u32 min_clk);
+void dwmci_setup_cfg(struct mmc_config *cfg, struct dwmci_host *host,
+		u32 max_clk, u32 min_clk);
 
 /**
  * dwmci_bind() - Set up a new MMC block device
