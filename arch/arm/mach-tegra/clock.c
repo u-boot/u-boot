@@ -311,9 +311,43 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 		enum clock_id parent)
 {
 	u32 *reg = get_periph_source_reg(periph_id);
+	unsigned parent_rate = pll_rate[parent];
+	int div = (readl(reg) & OUT_CLK_DIVISOR_MASK) >> OUT_CLK_DIVISOR_SHIFT;
 
-	return get_rate_from_divider(pll_rate[parent],
-		(readl(reg) & OUT_CLK_DIVISOR_MASK) >> OUT_CLK_DIVISOR_SHIFT);
+	switch (periph_id) {
+	case PERIPH_ID_UART1:
+	case PERIPH_ID_UART2:
+	case PERIPH_ID_UART3:
+	case PERIPH_ID_UART4:
+	case PERIPH_ID_UART5:
+#ifdef CONFIG_TEGRA20
+		/* There's no divider for these clocks in this SoC. */
+		return parent_rate;
+#else
+		/*
+		 * This undoes the +2 in get_rate_from_divider() which I
+		 * believe is incorrect. Ideally we would fix
+		 * get_rate_from_divider(), but... Removing the +2 from
+		 * get_rate_from_divider() would probably require remove the -2
+		 * from the tail of clk_get_divider() since I believe that's
+		 * only there to invert get_rate_from_divider()'s +2. Observe
+		 * how find_best_divider() uses those two functions together.
+		 * However, doing so breaks other stuff, such as Seaboard's
+		 * display, likely due to clock_set_pllout()'s call to
+		 * clk_get_divider(). Attempting to fix that by making
+		 * clock_set_pllout() subtract 2 from clk_get_divider()'s
+		 * return value doesn't help. In summary this clock driver is
+		 * quite broken but I'm afraid I have no idea how to fix it
+		 * without completely replacing it.
+		 */
+		div -= 2;
+		break;
+#endif
+	default:
+		break;
+	}
+
+	return get_rate_from_divider(parent_rate, div);
 }
 
 /**
