@@ -64,9 +64,9 @@ check_member(rk3399_cru, sdio1_con[1], 0x594);
 #define APLL_HZ		(600*MHz)
 #define GPLL_HZ		(594*MHz)
 #define CPLL_HZ		(384*MHz)
-#define PPLL_HZ		(594*MHz)
+#define PPLL_HZ		(676*MHz)
 
-#define PMU_PCLK_HZ	(99*MHz)
+#define PMU_PCLK_HZ	(48*MHz)
 
 #define ACLKM_CORE_HZ	(300*MHz)
 #define ATCLK_CORE_HZ	(300*MHz)
