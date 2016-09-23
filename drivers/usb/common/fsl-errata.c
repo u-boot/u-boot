@@ -190,4 +190,30 @@ bool has_erratum_a008751(void)
 	return false;
 }
 
+bool has_erratum_a010151(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+#ifdef CONFIG_ARM64
+	case SVR_LS2080A:
+	case SVR_LS2085A:
+	case SVR_LS1046A:
+	case SVR_LS1012A:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_LS1043A:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+#endif
+#ifdef CONFIG_LS102XA
+	case SOC_VER_LS1020:
+	case SOC_VER_LS1021:
+	case SOC_VER_LS1022:
+	case SOC_VER_SLS1020:
+		return IS_SVR_REV(svr, 2, 0);
+#endif
+	}
+	return false;
+}
+
 #endif

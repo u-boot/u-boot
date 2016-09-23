@@ -198,6 +198,7 @@ struct dwc3 {					/* offset: 0xC100 */
 
 /* Global USB3 PIPE Control Register */
 #define DWC3_GUSB3PIPECTL_PHYSOFTRST		(1 << 31)
+#define DWC3_GUSB3PIPECTL_DISRXDETP3		(1 << 28)
 #define DWC3_GUSB3PIPECTL_SUSPHY		(1 << 17)
 
 /* Global TX Fifo Size Register */
