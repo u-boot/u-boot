@@ -9,14 +9,14 @@
 # It currently tests the fs/sb and native commands for ext4 and fat partitions
 # Expected results are as follows:
 # EXT4 tests:
-# fs-test.sb.ext4.out: Summary: PASS: 17 FAIL: 2
-# fs-test.ext4.out: Summary: PASS: 10 FAIL: 9
-# fs-test.fs.ext4.out: Summary: PASS: 10 FAIL: 9
+# fs-test.sb.ext4.out: Summary: PASS: 23 FAIL: 0
+# fs-test.ext4.out: Summary: PASS: 14 FAIL: 9
+# fs-test.fs.ext4.out: Summary: PASS: 14 FAIL: 9
 # FAT tests:
-# fs-test.sb.fat.out: Summary: PASS: 17 FAIL: 2
-# fs-test.fat.out: Summary: PASS: 19 FAIL: 0
-# fs-test.fs.fat.out: Summary: PASS: 19 FAIL: 0
-# Total Summary: TOTAL PASS: 92 TOTAL FAIL: 22
+# fs-test.sb.fat.out: Summary: PASS: 23 FAIL: 0
+# fs-test.fat.out: Summary: PASS: 20 FAIL: 3
+# fs-test.fs.fat.out: Summary: PASS: 20 FAIL: 3
+# Total Summary: TOTAL PASS: 114 TOTAL FAIL: 24
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
