@@ -181,9 +181,6 @@ struct spl_image_loader {
 		.load_image = __method, \
 	}
 
-/* NAND SPL functions */
-int spl_nand_load_image(struct spl_boot_device *bootdev);
-
 /* OneNAND SPL functions */
 int spl_onenand_load_image(struct spl_boot_device *bootdev);
 

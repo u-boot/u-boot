@@ -67,7 +67,7 @@ static int spl_nand_load_element(int offset, struct image_header *header)
 	}
 }
 
-int spl_nand_load_image(void)
+static int spl_nand_load_image(struct spl_boot_device *bootdev)
 {
 	int err;
 	struct image_header *header;
@@ -145,3 +145,5 @@ int spl_nand_load_image(void)
 	return err;
 }
 #endif
+/* Use priorty 1 so that Ubi can override this */
+SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_NAND, spl_nand_load_image);
