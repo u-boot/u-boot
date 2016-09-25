@@ -191,9 +191,11 @@ int spl_load_image_fat_os(struct blk_desc *block_dev, int partition);
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 
 /* SPL EXT image functions */
-int spl_load_image_ext(struct blk_desc *block_dev, int partition,
+int spl_load_image_ext(struct spl_image_info *spl_image,
+		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
-int spl_load_image_ext_os(struct blk_desc *block_dev, int partition);
+int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct blk_desc *block_dev, int partition);
 
 /**
  * spl_init() - Set up device tree and driver model in SPL if enabled
