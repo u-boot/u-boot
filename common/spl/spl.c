@@ -384,10 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-	case BOOT_DEVICE_SPI:
-		return spl_spi_load_image(&bootdev);
-#endif
 #ifdef CONFIG_SPL_ETH_SUPPORT
 	case BOOT_DEVICE_CPGMAC:
 #ifdef CONFIG_SPL_ETH_DEVICE

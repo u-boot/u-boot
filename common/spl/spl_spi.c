@@ -65,7 +65,7 @@ static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,
  * configured and available since this code loads the main U-Boot image
  * from SPI into SDRAM and starts it from there.
  */
-int spl_spi_load_image(struct spl_boot_device *bootdev)
+static int spl_spi_load_image(struct spl_boot_device *bootdev)
 {
 	int err = 0;
 	struct spi_flash *flash;
@@ -121,3 +121,5 @@ int spl_spi_load_image(struct spl_boot_device *bootdev)
 
 	return err;
 }
+/* Use priorty 1 so that boards can override this */
+SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_SPI, spl_spi_load_image);

@@ -262,7 +262,7 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 
 /*****************************************************************************/
 
-int spl_spi_load_image(struct spl_boot_device *bootdev)
+static int spl_spi_load_image(struct spl_boot_device *bootdev)
 {
 	int err;
 	struct image_header *header;
@@ -281,3 +281,5 @@ int spl_spi_load_image(struct spl_boot_device *bootdev)
 	spi0_deinit();
 	return 0;
 }
+/* Use priorty 0 to override the default if it happens to be linked in */
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_SPI, spl_spi_load_image);

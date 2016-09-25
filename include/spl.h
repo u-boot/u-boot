@@ -181,9 +181,6 @@ struct spl_image_loader {
 		.load_image = __method, \
 	}
 
-/* SPI SPL functions */
-int spl_spi_load_image(struct spl_boot_device *bootdev);
-
 /* Ethernet SPL functions */
 int spl_net_load_image(struct spl_boot_device *bootdev);
 
