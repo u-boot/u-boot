@@ -122,6 +122,13 @@ void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
  */
 int spl_start_uboot(void);
 
+/**
+ * spl_display_print() - Display a board-specific message in SPL
+ *
+ * If CONFIG_SPL_DISPLAY_PRINT is enabled, U-Boot will call this function
+ * immediately after displaying the SPL console banner ("U-Boot SPL ...").
+ * This function should be provided by the board.
+ */
 void spl_display_print(void);
 
 /* NAND SPL functions */

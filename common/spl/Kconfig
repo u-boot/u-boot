@@ -61,6 +61,15 @@ config SPL_SEPARATE_BSS
 	  location is used. Normally we put the device tree at the end of BSS
 	  but with this option enabled, it goes at _image_binary_end.
 
+config SPL_DISPLAY_PRINT
+	depends on SPL
+	bool "Display a board-specific message in SPL"
+	help
+	  If this option is enabled, U-Boot will call the function
+	  spl_display_print() immediately after displaying the SPL console
+	  banner ("U-Boot SPL ..."). This function should be provided by
+	  the board.
+
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL

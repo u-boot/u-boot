@@ -160,7 +160,6 @@
 #define CONFIG_SPL_TEXT_BASE	0x40300000
 #endif
 
-#define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))

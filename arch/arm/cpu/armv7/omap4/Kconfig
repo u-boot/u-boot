@@ -33,6 +33,9 @@ config SPL_POWER_SUPPORT
 config SPL_SERIAL_SUPPORT
 	default y
 
+config SPL_DISPLAY_PRINT
+	default y
+
 choice
 	prompt "OMAP4 board select"
 	optional
