@@ -160,7 +160,7 @@ class FdtFallback(Fdt):
         if default is not None:
           args += ['-d', str(default)]
         if typespec is not None:
-          args += ['-t%s' % typespec]
+          args += ['-t', typespec]
         out = command.Output('fdtget', *args)
         return out.strip()
 
