@@ -191,6 +191,11 @@ static int spl_ram_load_image(struct spl_boot_device *bootdev)
 
 	header = (struct image_header *)CONFIG_SPL_LOAD_FIT_ADDRESS;
 
+#if defined(CONFIG_SPL_DFU_SUPPORT)
+	if (bootdev->boot_device == BOOT_DEVICE_DFU)
+		spl_dfu_cmd(0, "dfu_alt_info_ram", "ram", "0");
+#endif
+
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
@@ -215,6 +220,10 @@ static int spl_ram_load_image(struct spl_boot_device *bootdev)
 
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_RAM, spl_ram_load_image);
+#if defined(CONFIG_SPL_DFU_SUPPORT)
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_DFU, spl_ram_load_image);
+#endif
 #endif
 
 int spl_init(void)
@@ -375,10 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#ifdef CONFIG_SPL_RAM_DEVICE
-	case BOOT_DEVICE_RAM:
-		return spl_ram_load_image(&bootdev);
-#endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
@@ -426,11 +431,6 @@ static int spl_load_image(u32 boot_device)
 #ifdef CONFIG_SPL_USB_SUPPORT
 	case BOOT_DEVICE_USB:
 		return spl_usb_load_image(&bootdev);
-#endif
-#ifdef CONFIG_SPL_DFU_SUPPORT
-	case BOOT_DEVICE_DFU:
-		spl_dfu_cmd(0, "dfu_alt_info_ram", "ram", "0");
-		return spl_ram_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_SATA_SUPPORT
 	case BOOT_DEVICE_SATA:
