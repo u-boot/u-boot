@@ -15,6 +15,8 @@
 #include <libfdt_env.h>
 #include <memalign.h>
 #include <asm/global_data.h>
+#include <asm-generic/sections.h>
+#include <linux/linkage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,7 +54,7 @@ static struct efi_device_path_file_path bootefi_device_path[] = {
 	}
 };
 
-static efi_status_t bootefi_open_dp(void *handle, efi_guid_t *protocol,
+static efi_status_t EFIAPI bootefi_open_dp(void *handle, efi_guid_t *protocol,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
 {
@@ -145,7 +147,8 @@ static void *copy_fdt(void *fdt)
  */
 static unsigned long do_bootefi_exec(void *efi, void *fdt)
 {
-	ulong (*entry)(void *image_handle, struct efi_system_table *st);
+	ulong (*entry)(void *image_handle, struct efi_system_table *st)
+		asmlinkage;
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	bootm_headers_t img = { 0 };
 

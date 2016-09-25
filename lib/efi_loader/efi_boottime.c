@@ -160,7 +160,7 @@ static struct {
 	u32 trigger_time;
 	u64 trigger_next;
 	unsigned long notify_tpl;
-	void (*notify_function) (void *event, void *context);
+	void (EFIAPI *notify_function) (void *event, void *context);
 	void *notify_context;
 } efi_event = {
 	/* Disable timers on bootup */
@@ -169,7 +169,8 @@ static struct {
 
 static efi_status_t EFIAPI efi_create_event(
 			enum efi_event_type type, ulong notify_tpl,
-			void (*notify_function) (void *event, void *context),
+			void (EFIAPI *notify_function) (void *event,
+							void *context),
 			void *notify_context, void **event)
 {
 	EFI_ENTRY("%d, 0x%lx, %p, %p", type, notify_tpl, notify_function,

@@ -95,7 +95,7 @@ void efi_net_set_dhcp_ack(void *pkt, int len);
  * Stub implementation for a protocol opener that just returns the handle as
  * interface
  */
-efi_status_t efi_return_handle(void *handle,
+efi_status_t EFIAPI efi_return_handle(void *handle,
 		efi_guid_t *protocol, void **protocol_interface,
 		void *agent_handle, void *controller_handle,
 		uint32_t attributes);
