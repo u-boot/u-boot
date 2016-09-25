@@ -127,11 +127,6 @@ int kona_sdhci_init(int dev_index, u32 min_clk, u32 quirks)
 		return -EINVAL;
 	}
 
-	if (quirks & SDHCI_QUIRK_REG32_RW)
-		host->version = sdhci_readl(host, SDHCI_HOST_VERSION - 2) >> 16;
-	else
-		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
-
 	add_sdhci(host, max_clk, min_clk);
 	return ret;
 }

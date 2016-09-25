@@ -81,7 +81,6 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 		SDHCI_QUIRK_32BIT_DMA_ADDR |
 		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_USE_WIDE8;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	host->set_control_reg = &s5p_sdhci_set_control_reg;
 	host->set_clock = set_mmc_clk;

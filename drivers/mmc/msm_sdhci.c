@@ -140,9 +140,6 @@ static int msm_sdc_probe(struct udevice *dev)
 		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
 	}
 
-	/* Set host controller version */
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
-
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	host->mmc = &plat->mmc;
 	if (ret)

@@ -36,8 +36,6 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
 #endif
 
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
-
 	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
