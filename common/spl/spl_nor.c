@@ -7,7 +7,7 @@
 #include <common.h>
 #include <spl.h>
 
-int spl_nor_load_image(struct spl_boot_device *bootdev)
+static int spl_nor_load_image(struct spl_boot_device *bootdev)
 {
 	int ret;
 	/*
@@ -70,3 +70,4 @@ int spl_nor_load_image(struct spl_boot_device *bootdev)
 
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_NOR, spl_nor_load_image);

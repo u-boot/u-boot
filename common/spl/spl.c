@@ -384,10 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#ifdef CONFIG_SPL_NOR_SUPPORT
-	case BOOT_DEVICE_NOR:
-		return spl_nor_load_image(&bootdev);
-#endif
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	case BOOT_DEVICE_UART:
 		return spl_ymodem_load_image(&bootdev);
