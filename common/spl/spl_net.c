@@ -14,7 +14,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int spl_net_load_image(struct spl_boot_device *bootdev)
+#if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USBETH_SUPPORT)
+static int spl_net_load_image(struct spl_boot_device *bootdev)
 {
 	int rv;
 
@@ -37,3 +38,26 @@ int spl_net_load_image(struct spl_boot_device *bootdev)
 	return spl_parse_image_header(&spl_image,
 				      (struct image_header *)load_addr);
 }
+#endif
+
+#ifdef CONFIG_SPL_ETH_SUPPORT
+int spl_net_load_image_cpgmac(struct spl_boot_device *bootdev)
+{
+#ifdef CONFIG_SPL_ETH_DEVICE
+	bootdev->boot_device_name = CONFIG_SPL_ETH_DEVICE;
+#endif
+
+	return spl_net_load_image(bootdev);
+}
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_CPGMAC, spl_net_load_image_cpgmac);
+#endif
+
+#ifdef CONFIG_SPL_USBETH_SUPPORT
+int spl_net_load_image_usb(struct spl_boot_device *bootdev)
+{
+	bootdev->boot_device_name = "usb_ether";
+
+	return spl_net_load_image(bootdev);
+}
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_USBETH, spl_net_load_image_usb);
+#endif

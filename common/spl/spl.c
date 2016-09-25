@@ -384,19 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#ifdef CONFIG_SPL_ETH_SUPPORT
-	case BOOT_DEVICE_CPGMAC:
-#ifdef CONFIG_SPL_ETH_DEVICE
-		bootdev.boot_device_name = CONFIG_SPL_ETH_DEVICE;
-#endif
-		return spl_net_load_image(&bootdev);
-#endif
-#ifdef CONFIG_SPL_USBETH_SUPPORT
-	case BOOT_DEVICE_USBETH:
-		bootdev.boot_device_name = "usb_ether";
-		return spl_net_load_image(&bootdev);
-#endif
-#endif
 #ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
 	case BOOT_DEVICE_BOARD:
 		return spl_board_load_image(&bootdev);
