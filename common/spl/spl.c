@@ -29,7 +29,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 u32 *boot_params_ptr = NULL;
-struct spl_image_info spl_image;
 
 /* Define board data structure */
 static bd_t bdata __attribute__ ((section(".data")));
@@ -263,14 +262,6 @@ int spl_init(void)
 #define BOOT_DEVICE_NONE 0xdeadbeef
 #endif
 
-static u32 spl_boot_list[] = {
-	BOOT_DEVICE_NONE,
-	BOOT_DEVICE_NONE,
-	BOOT_DEVICE_NONE,
-	BOOT_DEVICE_NONE,
-	BOOT_DEVICE_NONE,
-};
-
 __weak void board_boot_order(u32 *spl_boot_list)
 {
 	spl_boot_list[0] = spl_boot_device();
@@ -374,7 +365,7 @@ static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
 	return NULL;
 }
 
-static int spl_load_image(u32 boot_device)
+static int spl_load_image(struct spl_image_info *spl_image, u32 boot_device)
 {
 	struct spl_boot_device bootdev;
 	struct spl_image_loader *loader = spl_ll_find_loader(boot_device);
@@ -382,7 +373,7 @@ static int spl_load_image(u32 boot_device)
 	bootdev.boot_device = boot_device;
 	bootdev.boot_device_name = NULL;
 	if (loader)
-		return loader->load_image(&spl_image, &bootdev);
+		return loader->load_image(spl_image, &bootdev);
 
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	puts("SPL: Unsupported Boot Device!\n");
@@ -392,6 +383,14 @@ static int spl_load_image(u32 boot_device)
 
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
+	u32 spl_boot_list[] = {
+		BOOT_DEVICE_NONE,
+		BOOT_DEVICE_NONE,
+		BOOT_DEVICE_NONE,
+		BOOT_DEVICE_NONE,
+		BOOT_DEVICE_NONE,
+	};
+	struct spl_image_info spl_image;
 	int i;
 
 	debug(">>spl:board_init_r()\n");
@@ -417,11 +416,12 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
+	memset(&spl_image, '\0', sizeof(spl_image));
 	board_boot_order(spl_boot_list);
 	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
 			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
 		announce_boot_device(spl_boot_list[i]);
-		if (!spl_load_image(spl_boot_list[i]))
+		if (!spl_load_image(&spl_image, spl_boot_list[i]))
 			break;
 	}
 
