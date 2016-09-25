@@ -228,12 +228,4 @@ bool spl_was_boot_source(void);
  */
 int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 
-/**
- * Board-specific load method for boards that have a special way of loading
- * U-Boot, which does not fit with the existing SPL code.
- *
- * @return 0 on success, negative errno value on failure.
- */
-int spl_board_load_image(struct spl_boot_device *bootdev);
-
 #endif

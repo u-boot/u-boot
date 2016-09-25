@@ -383,19 +383,10 @@ static int spl_load_image(u32 boot_device)
 	if (loader)
 		return loader->load_image(&bootdev);
 
-	switch (boot_device) {
-#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
-	case BOOT_DEVICE_BOARD:
-		return spl_board_load_image(&bootdev);
-#endif
-	default:
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		puts("SPL: Unsupported Boot Device!\n");
+	puts("SPL: Unsupported Boot Device!\n");
 #endif
-		return -ENODEV;
-	}
-
-	return -EINVAL;
+	return -ENODEV;
 }
 
 void board_init_r(gd_t *dummy1, ulong dummy2)
