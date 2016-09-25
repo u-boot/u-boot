@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int spl_net_load_image(const char *device)
+int spl_net_load_image(struct spl_boot_device *bootdev)
 {
 	int rv;
 
@@ -27,8 +27,8 @@ int spl_net_load_image(const char *device)
 		printf("No Ethernet devices found\n");
 		return -ENODEV;
 	}
-	if (device)
-		setenv("ethact", device);
+	if (bootdev->boot_device_name)
+		setenv("ethact", bootdev->boot_device_name);
 	rv = net_loop(BOOTP);
 	if (rv < 0) {
 		printf("Problem booting with BOOTP\n");

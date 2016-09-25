@@ -267,14 +267,14 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 }
 #endif
 
-int spl_mmc_load_image(u32 boot_device)
+int spl_mmc_load_image(struct spl_boot_device *bootdev)
 {
 	struct mmc *mmc = NULL;
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part;
 
-	err = spl_mmc_find_device(&mmc, boot_device);
+	err = spl_mmc_find_device(&mmc, bootdev->boot_device);
 	if (err)
 		return err;
 
@@ -286,7 +286,7 @@ int spl_mmc_load_image(u32 boot_device)
 		return err;
 	}
 
-	boot_mode = spl_boot_mode(boot_device);
+	boot_mode = spl_boot_mode(bootdev->boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:

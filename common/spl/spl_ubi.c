@@ -12,14 +12,14 @@
 #include <ubispl.h>
 #include <spl.h>
 
-int spl_ubi_load_image(u32 boot_device)
+int spl_ubi_load_image(struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	struct ubispl_info info;
 	struct ubispl_load volumes[2];
 	int ret = 1;
 
-	switch (boot_device) {
+	switch (bootdev->boot_device) {
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
 		nand_init();
@@ -71,7 +71,7 @@ int spl_ubi_load_image(u32 boot_device)
 		spl_parse_image_header(&spl_image, header);
 out:
 #ifdef CONFIG_SPL_NAND_SUPPORT
-	if (boot_device == BOOT_DEVICE_NAND)
+	if (bootdev->boot_device == BOOT_DEVICE_NAND)
 		nand_deselect();
 #endif
 	return ret;

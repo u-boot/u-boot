@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
 
-int spl_usb_load_image(void)
+int spl_usb_load_image(struct spl_boot_device *bootdev)
 {
 	int err;
 	struct blk_desc *stor_dev;

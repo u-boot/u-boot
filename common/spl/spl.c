@@ -185,7 +185,7 @@ static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 	return count;
 }
 
-static int spl_ram_load_image(void)
+static int spl_ram_load_image(struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 
@@ -349,71 +349,76 @@ static inline void announce_boot_device(u32 boot_device) { }
 
 static int spl_load_image(u32 boot_device)
 {
+	struct spl_boot_device bootdev;
+
+	bootdev.boot_device = boot_device;
+	bootdev.boot_device_name = NULL;
+
 	switch (boot_device) {
 #ifdef CONFIG_SPL_RAM_DEVICE
 	case BOOT_DEVICE_RAM:
-		return spl_ram_load_image();
+		return spl_ram_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-		return spl_mmc_load_image(boot_device);
+		return spl_mmc_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_UBI
 	case BOOT_DEVICE_NAND:
 	case BOOT_DEVICE_ONENAND:
-		return spl_ubi_load_image(boot_device);
+		return spl_ubi_load_image(&bootdev);
 #else
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
-		return spl_nand_load_image();
+		return spl_nand_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_ONENAND_SUPPORT
 	case BOOT_DEVICE_ONENAND:
-		return spl_onenand_load_image();
+		return spl_onenand_load_image(&bootdev);
 #endif
 #endif
 #ifdef CONFIG_SPL_NOR_SUPPORT
 	case BOOT_DEVICE_NOR:
-		return spl_nor_load_image();
+		return spl_nor_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	case BOOT_DEVICE_UART:
-		return spl_ymodem_load_image();
+		return spl_ymodem_load_image(&bootdev);
 #endif
 #if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 	case BOOT_DEVICE_SPI:
-		return spl_spi_load_image();
+		return spl_spi_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_ETH_SUPPORT
 	case BOOT_DEVICE_CPGMAC:
 #ifdef CONFIG_SPL_ETH_DEVICE
-		return spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
-#else
-		return spl_net_load_image(NULL);
+		bootdev.boot_device_name = CONFIG_SPL_ETH_DEVICE;
 #endif
+		return spl_net_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_USBETH_SUPPORT
 	case BOOT_DEVICE_USBETH:
-		return spl_net_load_image("usb_ether");
+		bootdev.boot_device_name = "usb_ether";
+		return spl_net_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_USB_SUPPORT
 	case BOOT_DEVICE_USB:
-		return spl_usb_load_image();
+		return spl_usb_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_DFU_SUPPORT
 	case BOOT_DEVICE_DFU:
 		spl_dfu_cmd(0, "dfu_alt_info_ram", "ram", "0");
-		return spl_ram_load_image();
+		return spl_ram_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_SATA_SUPPORT
 	case BOOT_DEVICE_SATA:
-		return spl_sata_load_image();
+		return spl_sata_load_image(&bootdev);
 #endif
 #ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
 	case BOOT_DEVICE_BOARD:
-		return spl_board_load_image();
+		return spl_board_load_image(&bootdev);
 #endif
 	default:
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)

@@ -131,35 +131,53 @@ int spl_start_uboot(void);
  */
 void spl_display_print(void);
 
+/**
+ * struct spl_boot_device - Describes a boot device used by SPL
+ *
+ * @boot_device: A number indicating the BOOT_DEVICE type. There are various
+ * BOOT_DEVICE... #defines and enums in U-Boot and they are not consistently
+ * numbered.
+ * @boot_device_name: Named boot device, or NULL if none.
+ *
+ * Note: Additional fields can be added here, bearing in mind that SPL is
+ * size-sensitive and common fields will be present on all boards. This
+ * struct can also be used to return additional information about the load
+ * process if that becomes useful.
+ */
+struct spl_boot_device {
+	uint boot_device;
+	const char *boot_device_name;
+};
+
 /* NAND SPL functions */
-int spl_nand_load_image(void);
+int spl_nand_load_image(struct spl_boot_device *bootdev);
 
 /* OneNAND SPL functions */
-int spl_onenand_load_image(void);
+int spl_onenand_load_image(struct spl_boot_device *bootdev);
 
 /* NOR SPL functions */
-int spl_nor_load_image(void);
+int spl_nor_load_image(struct spl_boot_device *bootdev);
 
 /* UBI SPL functions */
-int spl_ubi_load_image(u32 boot_device);
+int spl_ubi_load_image(struct spl_boot_device *bootdev);
 
 /* MMC SPL functions */
-int spl_mmc_load_image(u32 boot_device);
+int spl_mmc_load_image(struct spl_boot_device *bootdev);
 
 /* YMODEM SPL functions */
-int spl_ymodem_load_image(void);
+int spl_ymodem_load_image(struct spl_boot_device *bootdev);
 
 /* SPI SPL functions */
-int spl_spi_load_image(void);
+int spl_spi_load_image(struct spl_boot_device *bootdev);
 
 /* Ethernet SPL functions */
-int spl_net_load_image(const char *device);
+int spl_net_load_image(struct spl_boot_device *bootdev);
 
 /* USB SPL functions */
-int spl_usb_load_image(void);
+int spl_usb_load_image(struct spl_boot_device *bootdev);
 
 /* SATA SPL functions */
-int spl_sata_load_image(void);
+int spl_sata_load_image(struct spl_boot_device *bootdev);
 
 /* SPL FAT image functions */
 int spl_load_image_fat(struct blk_desc *block_dev, int partition,
@@ -214,6 +232,6 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
  *
  * @return 0 on success, negative errno value on failure.
  */
-int spl_board_load_image(void);
+int spl_board_load_image(struct spl_boot_device *bootdev);
 
 #endif

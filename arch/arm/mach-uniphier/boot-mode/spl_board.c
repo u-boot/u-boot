@@ -65,7 +65,7 @@ int uniphier_rom_get_mmc_funcptr(int (**send_cmd)(u32, u32),
 	return 0;
 }
 
-int spl_board_load_image(void)
+int spl_board_load_image(struct spl_boot_device *bootdev)
 {
 	int (*send_cmd)(u32 cmd, u32 arg);
 	int (*card_blockaddr)(u32 rca);

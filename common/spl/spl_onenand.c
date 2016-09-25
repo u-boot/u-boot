@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <onenand_uboot.h>
 
-int spl_onenand_load_image(void)
+int spl_onenand_load_image(struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	int ret;

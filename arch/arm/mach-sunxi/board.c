@@ -133,7 +133,7 @@ static int gpio_init(void)
 	return 0;
 }
 
-int spl_board_load_image(void)
+int spl_board_load_image(struct spl_boot_device *bootdev)
 {
 	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
 	return_to_fel(fel_stash.sp, fel_stash.lr);

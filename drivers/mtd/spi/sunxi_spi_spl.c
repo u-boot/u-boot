@@ -262,7 +262,7 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 
 /*****************************************************************************/
 
-int spl_spi_load_image(void)
+int spl_spi_load_image(struct spl_boot_device *bootdev)
 {
 	int err;
 	struct image_header *header;
