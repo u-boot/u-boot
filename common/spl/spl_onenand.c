@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <onenand_uboot.h>
 
-int spl_onenand_load_image(struct spl_boot_device *bootdev)
+static int spl_onenand_load_image(struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	int ret;
@@ -34,3 +34,5 @@ int spl_onenand_load_image(struct spl_boot_device *bootdev)
 
 	return 0;
 }
+/* Use priorty 1 so that Ubi can override this */
+SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_ONENAND, spl_onenand_load_image);
