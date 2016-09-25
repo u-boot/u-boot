@@ -157,7 +157,7 @@ int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq)
 	bcm_host = calloc(1, sizeof(*bcm_host));
 	if (!bcm_host) {
 		printf("sdhci_host calloc fail!\n");
-		return 1;
+		return -ENOMEM;
 	}
 
 	/*

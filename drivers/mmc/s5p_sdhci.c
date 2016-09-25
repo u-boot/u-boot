@@ -100,7 +100,7 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 	struct sdhci_host *host = calloc(1, sizeof(struct sdhci_host));
 	if (!host) {
 		printf("sdhci__host allocation fail!\n");
-		return 1;
+		return -ENOMEM;
 	}
 	host->ioaddr = (void *)regbase;
 	host->index = index;
@@ -154,7 +154,7 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 	dev_id = pinmux_decode_periph_id(blob, node);
 	if (dev_id < PERIPH_ID_SDMMC0 && dev_id > PERIPH_ID_SDMMC3) {
 		debug("MMC: Can't get device id\n");
-		return -1;
+		return -EINVAL;
 	}
 	host->index = dev_id - PERIPH_ID_SDMMC0;
 
@@ -162,7 +162,7 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 	bus_width = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
 	if (bus_width <= 0) {
 		debug("MMC: Can't get bus-width\n");
-		return -1;
+		return -EINVAL;
 	}
 	host->bus_width = bus_width;
 
@@ -170,7 +170,7 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 	base = fdtdec_get_addr(blob, node, "reg");
 	if (!base) {
 		debug("MMC: Can't get base address\n");
-		return -1;
+		return -EINVAL;
 	}
 	host->ioaddr = (void *)base;
 

@@ -87,7 +87,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 		if (stat & SDHCI_INT_ERROR) {
 			printf("%s: Error detected in status(0x%X)!\n",
 			       __func__, stat);
-			return -1;
+			return -EIO;
 		}
 		if (stat & rdy) {
 			if (!(sdhci_readl(host, SDHCI_PRESENT_STATE) & mask))
@@ -110,7 +110,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 			udelay(10);
 		else {
 			printf("%s: Transfer data timeout\n", __func__);
-			return -1;
+			return -ETIMEDOUT;
 		}
 	} while (!(stat & SDHCI_INT_DATA_END));
 	return 0;
@@ -303,7 +303,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		if (timeout == 0) {
 			printf("%s: Timeout to wait cmd & data inhibit\n",
 			       __func__);
-			return -1;
+			return -EBUSY;
 		}
 
 		timeout--;
@@ -374,7 +374,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		if (timeout == 0) {
 			printf("%s: Internal clock never stabilised.\n",
 			       __func__);
-			return -1;
+			return -EBUSY;
 		}
 		timeout--;
 		udelay(1000);
@@ -477,7 +477,7 @@ static int sdhci_init(struct mmc *mmc)
 		if (!aligned_buffer) {
 			printf("%s: Aligned buffer alloc failed!!!\n",
 			       __func__);
-			return -1;
+			return -ENOMEM;
 		}
 	}
 
@@ -631,7 +631,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	host->mmc = mmc_create(&host->cfg, host);
 	if (host->mmc == NULL) {
 		printf("%s: mmc create fail!\n", __func__);
-		return -1;
+		return -ENOMEM;
 	}
 
 	return 0;
