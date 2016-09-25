@@ -384,11 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#ifdef CONFIG_SPL_UBI
-	case BOOT_DEVICE_NAND:
-	case BOOT_DEVICE_ONENAND:
-		return spl_ubi_load_image(&bootdev);
-#else
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
 		return spl_nand_load_image(&bootdev);
@@ -396,7 +391,6 @@ static int spl_load_image(u32 boot_device)
 #ifdef CONFIG_SPL_ONENAND_SUPPORT
 	case BOOT_DEVICE_ONENAND:
 		return spl_onenand_load_image(&bootdev);
-#endif
 #endif
 #ifdef CONFIG_SPL_NOR_SUPPORT
 	case BOOT_DEVICE_NOR:

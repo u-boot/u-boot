@@ -190,9 +190,6 @@ int spl_onenand_load_image(struct spl_boot_device *bootdev);
 /* NOR SPL functions */
 int spl_nor_load_image(struct spl_boot_device *bootdev);
 
-/* UBI SPL functions */
-int spl_ubi_load_image(struct spl_boot_device *bootdev);
-
 /* YMODEM SPL functions */
 int spl_ymodem_load_image(struct spl_boot_device *bootdev);
 
