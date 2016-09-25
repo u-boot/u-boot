@@ -230,13 +230,13 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	if (!spl_start_uboot()) {
-		err = spl_load_image_fat_os(mmc_get_blk_desc(mmc),
+		err = spl_load_image_fat_os(spl_image, mmc_get_blk_desc(mmc),
 			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
 		if (!err)
 			return err;
 	}
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-	err = spl_load_image_fat(mmc_get_blk_desc(mmc),
+	err = spl_load_image_fat(spl_image, mmc_get_blk_desc(mmc),
 				 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 	if (!err)
