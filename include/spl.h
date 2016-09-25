@@ -99,7 +99,17 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
-void __noreturn jump_to_image_linux(void *arg);
+
+/**
+ * jump_to_image_linux() - Jump to a Linux kernel from SPL
+ *
+ * This jumps into a Linux kernel using the information in @spl_image.
+ *
+ * @spl_image: Image description to set up
+ * @arg: Argument to pass to Linux (typically a device tree pointer)
+ */
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
+				    void *arg);
 int spl_start_uboot(void);
 void spl_display_print(void);
 

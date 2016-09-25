@@ -17,14 +17,14 @@ DECLARE_GLOBAL_DATA_PTR;
  * arg: Pointer to paramter image in RAM
  */
 #ifdef CONFIG_SPL_OS_BOOT
-void __noreturn jump_to_image_linux(void *arg)
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image, void *arg)
 {
 	debug("Entering kernel arg pointer: 0x%p\n", arg);
 	typedef void (*image_entry_arg_t)(void *, ulong r4, ulong r5, ulong r6,
 					  ulong r7, ulong r8, ulong r9)
 		__attribute__ ((noreturn));
 	image_entry_arg_t image_entry =
-		(image_entry_arg_t)spl_image.entry_point;
+		(image_entry_arg_t)spl_image->entry_point;
 
 	image_entry(arg, 0, 0, EPAPR_MAGIC, CONFIG_SYS_BOOTMAPSZ, 0, 0);
 }

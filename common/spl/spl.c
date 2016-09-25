@@ -474,7 +474,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
 		spl_board_prepare_for_linux();
-		jump_to_image_linux((void *)CONFIG_SYS_SPL_ARGS_ADDR);
+		jump_to_image_linux(&spl_image,
+				    (void *)CONFIG_SYS_SPL_ARGS_ADDR);
 #endif
 	default:
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
