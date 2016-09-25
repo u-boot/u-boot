@@ -204,7 +204,7 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.bl_len = 1;
 		load.read = spl_ram_load_read;
-		spl_load_simple_fit(&load, 0, header);
+		spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {
 		debug("Legacy image\n");
 		/*

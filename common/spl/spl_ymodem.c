@@ -103,7 +103,7 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		info.buf = buf;
 		info.image_read = BUF_SIZE;
 		load.read = ymodem_read_fit;
-		ret =  spl_load_simple_fit(&load, 0, (void *)buf);
+		ret = spl_load_simple_fit(spl_image, &load, 0, (void *)buf);
 		size = info.image_read;
 
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)

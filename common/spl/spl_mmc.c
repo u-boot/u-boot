@@ -80,7 +80,7 @@ static int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
-		ret = spl_load_simple_fit(&load, sector, header);
+		ret = spl_load_simple_fit(spl_image, &load, sector, header);
 	} else {
 		ret = mmc_load_legacy(spl_image, mmc, sector, header);
 	}

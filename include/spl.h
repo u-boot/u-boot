@@ -49,6 +49,7 @@ struct spl_load_info {
 
 /**
  * spl_load_simple_fit() - Loads a fit image from a device.
+ * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
  * @sector:	Sector number where FIT image is located in the device
  * @fdt:	Pointer to the copied FIT header.
@@ -57,7 +58,8 @@ struct spl_load_info {
  * specified load address and copies the dtb to end of u-boot image.
  * Returns 0 on success.
  */
-int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fdt);
+int spl_load_simple_fit(struct spl_image_info *spl_image,
+			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
 

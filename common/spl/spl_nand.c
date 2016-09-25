@@ -59,7 +59,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.filename = NULL;
 		load.bl_len = 1;
 		load.read = spl_nand_fit_read;
-		return spl_load_simple_fit(&load, offset, header);
+		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else {
 		err = spl_parse_image_header(spl_image, header);
 		if (err)
