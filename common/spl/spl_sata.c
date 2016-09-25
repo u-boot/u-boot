@@ -20,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int spl_sata_load_image(struct spl_boot_device *bootdev)
+static int spl_sata_load_image(struct spl_boot_device *bootdev)
 {
 	int err;
 	struct blk_desc *stor_dev;
@@ -53,3 +53,4 @@ int spl_sata_load_image(struct spl_boot_device *bootdev)
 
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_SATA, spl_sata_load_image);

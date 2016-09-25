@@ -187,9 +187,6 @@ int spl_spi_load_image(struct spl_boot_device *bootdev);
 /* Ethernet SPL functions */
 int spl_net_load_image(struct spl_boot_device *bootdev);
 
-/* SATA SPL functions */
-int spl_sata_load_image(struct spl_boot_device *bootdev);
-
 /* SPL FAT image functions */
 int spl_load_image_fat(struct blk_desc *block_dev, int partition,
 		       const char *filename);

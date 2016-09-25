@@ -401,10 +401,6 @@ static int spl_load_image(u32 boot_device)
 		return spl_net_load_image(&bootdev);
 #endif
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
-	case BOOT_DEVICE_SATA:
-		return spl_sata_load_image(&bootdev);
-#endif
 #ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
 	case BOOT_DEVICE_BOARD:
 		return spl_board_load_image(&bootdev);
