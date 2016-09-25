@@ -384,12 +384,6 @@ static int spl_load_image(u32 boot_device)
 		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		return spl_mmc_load_image(&bootdev);
-#endif
 #ifdef CONFIG_SPL_UBI
 	case BOOT_DEVICE_NAND:
 	case BOOT_DEVICE_ONENAND:

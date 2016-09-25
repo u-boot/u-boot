@@ -267,7 +267,7 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 }
 #endif
 
-int spl_mmc_load_image(struct spl_boot_device *bootdev)
+static int spl_mmc_load_image(struct spl_boot_device *bootdev)
 {
 	struct mmc *mmc = NULL;
 	u32 boot_mode;
@@ -345,3 +345,7 @@ int spl_mmc_load_image(struct spl_boot_device *bootdev)
 
 	return err;
 }
+
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_MMC1, spl_mmc_load_image);
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_MMC2, spl_mmc_load_image);
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_MMC2_2, spl_mmc_load_image);
