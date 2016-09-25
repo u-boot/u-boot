@@ -185,7 +185,8 @@ static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 	return count;
 }
 
-static int spl_ram_load_image(struct spl_boot_device *bootdev)
+static int spl_ram_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 
@@ -215,7 +216,7 @@ static int spl_ram_load_image(struct spl_boot_device *bootdev)
 		header = (struct image_header *)
 			(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
 
-		spl_parse_image_header(&spl_image, header);
+		spl_parse_image_header(spl_image, header);
 	}
 
 	return 0;
@@ -381,7 +382,7 @@ static int spl_load_image(u32 boot_device)
 	bootdev.boot_device = boot_device;
 	bootdev.boot_device_name = NULL;
 	if (loader)
-		return loader->load_image(&bootdev);
+		return loader->load_image(&spl_image, &bootdev);
 
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	puts("SPL: Unsupported Boot Device!\n");

@@ -68,7 +68,8 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 	return size;
 }
 
-static int spl_ymodem_load_image(struct spl_boot_device *bootdev)
+static int spl_ymodem_load_image(struct spl_image_info *spl_image,
+				 struct spl_boot_device *bootdev)
 {
 	int size = 0;
 	int err;
@@ -108,12 +109,12 @@ static int spl_ymodem_load_image(struct spl_boot_device *bootdev)
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)
 			size += res;
 	} else {
-		spl_parse_image_header(&spl_image, (struct image_header *)buf);
-		ret = spl_parse_image_header(&spl_image,
+		spl_parse_image_header(spl_image, (struct image_header *)buf);
+		ret = spl_parse_image_header(spl_image,
 					     (struct image_header *)buf);
 		if (ret)
 			return ret;
-		addr = spl_image.load_addr;
+		addr = spl_image->load_addr;
 		memcpy((void *)addr, buf, res);
 		size += res;
 		addr += res;

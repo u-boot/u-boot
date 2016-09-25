@@ -18,26 +18,26 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int mmc_load_legacy(struct mmc *mmc, ulong sector,
-			   struct image_header *header)
+static int mmc_load_legacy(struct spl_image_info *spl_image, struct mmc *mmc,
+			   ulong sector, struct image_header *header)
 {
 	u32 image_size_sectors;
 	unsigned long count;
 	int ret;
 
-	ret = spl_parse_image_header(&spl_image, header);
+	ret = spl_parse_image_header(spl_image, header);
 	if (ret)
 		return ret;
 
 	/* convert size to sectors - round up */
-	image_size_sectors = (spl_image.size + mmc->read_bl_len - 1) /
+	image_size_sectors = (spl_image->size + mmc->read_bl_len - 1) /
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
 	count = blk_dread(mmc_get_blk_desc(mmc), sector, image_size_sectors,
-			  (void *)(ulong)spl_image.load_addr);
+			  (void *)(ulong)spl_image->load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
-	      spl_image.load_addr);
+	      spl_image->load_addr);
 	if (count != image_size_sectors)
 		return -EIO;
 
@@ -52,7 +52,8 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
 
-static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
+static int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
+				     struct mmc *mmc, unsigned long sector)
 {
 	unsigned long count;
 	struct image_header *header;
@@ -81,7 +82,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(&load, sector, header);
 	} else {
-		ret = mmc_load_legacy(mmc, sector, header);
+		ret = mmc_load_legacy(spl_image, mmc, sector, header);
 	}
 
 end:
@@ -150,7 +151,8 @@ static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
-static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
+static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
+					struct mmc *mmc, int partition)
 {
 	disk_partition_t info;
 	int err;
@@ -164,22 +166,24 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 	}
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
-	return mmc_load_image_raw_sector(mmc, info.start +
-					 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+	return mmc_load_image_raw_sector(spl_image, mmc,
+			info.start + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #else
-	return mmc_load_image_raw_sector(mmc, info.start);
+	return mmc_load_image_raw_sector(spl_image, mmc, info.start);
 #endif
 }
 #else
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION -1
-static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
+static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
+					struct mmc *mmc, int partition)
 {
 	return -ENOSYS;
 }
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT
-static int mmc_load_image_raw_os(struct mmc *mmc)
+static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
+				 struct mmc *mmc)
 {
 	unsigned long count;
 	int ret;
@@ -195,12 +199,12 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 		return -1;
 	}
 
-	ret = mmc_load_image_raw_sector(mmc,
+	ret = mmc_load_image_raw_sector(spl_image, mmc,
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
 	if (ret)
 		return ret;
 
-	if (spl_image.os != IH_OS_LINUX) {
+	if (spl_image->os != IH_OS_LINUX) {
 		puts("Expected Linux image is not found. Trying to start U-boot\n");
 		return -ENOENT;
 	}
@@ -212,14 +216,15 @@ int spl_start_uboot(void)
 {
 	return 1;
 }
-static int mmc_load_image_raw_os(struct mmc *mmc)
+static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
+				 struct mmc *mmc)
 {
 	return -ENOSYS;
 }
 #endif
 
 #ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
-int spl_mmc_do_fs_boot(struct mmc *mmc)
+static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 {
 	int err = -ENOSYS;
 
@@ -261,13 +266,14 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 	return err;
 }
 #else
-int spl_mmc_do_fs_boot(struct mmc *mmc)
+static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 {
 	return -ENOSYS;
 }
 #endif
 
-static int spl_mmc_load_image(struct spl_boot_device *bootdev)
+static int spl_mmc_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
 {
 	struct mmc *mmc = NULL;
 	u32 boot_mode;
@@ -312,17 +318,17 @@ static int spl_mmc_load_image(struct spl_boot_device *bootdev)
 		debug("spl: mmc boot mode: raw\n");
 
 		if (!spl_start_uboot()) {
-			err = mmc_load_image_raw_os(mmc);
+			err = mmc_load_image_raw_os(spl_image, mmc);
 			if (!err)
 				return err;
 		}
 
-		err = mmc_load_image_raw_partition(mmc,
+		err = mmc_load_image_raw_partition(spl_image, mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
 		if (!err)
 			return err;
 #if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
-		err = mmc_load_image_raw_sector(mmc,
+		err = mmc_load_image_raw_sector(spl_image, mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 		if (!err)
 			return err;
@@ -331,7 +337,7 @@ static int spl_mmc_load_image(struct spl_boot_device *bootdev)
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 
-		err = spl_mmc_do_fs_boot(mmc);
+		err = spl_mmc_do_fs_boot(spl_image, mmc);
 		if (!err)
 			return err;
 

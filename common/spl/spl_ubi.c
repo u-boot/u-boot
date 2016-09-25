@@ -12,7 +12,8 @@
 #include <ubispl.h>
 #include <spl.h>
 
-int spl_ubi_load_image(struct spl_boot_device *bootdev)
+int spl_ubi_load_image(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	struct ubispl_info info;
@@ -54,7 +55,7 @@ int spl_ubi_load_image(struct spl_boot_device *bootdev)
 		ret = ubispl_load_volumes(&info, volumes, 2);
 		if (!ret) {
 			header = (struct image_header *)volumes[0].load_addr;
-			spl_parse_image_header(&spl_image, header);
+			spl_parse_image_header(spl_image, header);
 			puts("Linux loaded.\n");
 			goto out;
 		}
@@ -68,7 +69,7 @@ int spl_ubi_load_image(struct spl_boot_device *bootdev)
 
 	ret = ubispl_load_volumes(&info, volumes, 1);
 	if (!ret)
-		spl_parse_image_header(&spl_image, header);
+		spl_parse_image_header(spl_image, header);
 out:
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	if (bootdev->boot_device == BOOT_DEVICE_NAND)

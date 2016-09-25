@@ -20,7 +20,8 @@
  * Load the kernel, check for a valid header we can parse, and if found load
  * the kernel and then device tree.
  */
-static int spi_load_image_os(struct spi_flash *flash,
+static int spi_load_image_os(struct spl_image_info *spl_image,
+			     struct spi_flash *flash,
 			     struct image_header *header)
 {
 	int err;
@@ -32,12 +33,12 @@ static int spi_load_image_os(struct spi_flash *flash,
 	if (image_get_magic(header) != IH_MAGIC)
 		return -1;
 
-	err = spl_parse_image_header(&spl_image, header);
+	err = spl_parse_image_header(spl_image, header);
 	if (err)
 		return err;
 
 	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS,
-		       spl_image.size, (void *)spl_image.load_addr);
+		       spl_image->size, (void *)spl_image->load_addr);
 
 	/* Read device tree. */
 	spi_flash_read(flash, CONFIG_SYS_SPI_ARGS_OFFS,
@@ -65,7 +66,8 @@ static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,
  * configured and available since this code loads the main U-Boot image
  * from SPI into SDRAM and starts it from there.
  */
-static int spl_spi_load_image(struct spl_boot_device *bootdev)
+static int spl_spi_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
 {
 	int err = 0;
 	struct spi_flash *flash;
@@ -88,7 +90,7 @@ static int spl_spi_load_image(struct spl_boot_device *bootdev)
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
 
 #ifdef CONFIG_SPL_OS_BOOT
-	if (spl_start_uboot() || spi_load_image_os(flash, header))
+	if (spl_start_uboot() || spi_load_image_os(spl_image, flash, header))
 #endif
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
@@ -110,12 +112,12 @@ static int spl_spi_load_image(struct spl_boot_device *bootdev)
 						  CONFIG_SYS_SPI_U_BOOT_OFFS,
 						  header);
 		} else {
-			err = spl_parse_image_header(&spl_image, header);
+			err = spl_parse_image_header(spl_image, header);
 			if (err)
 				return err;
 			err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
-					     spl_image.size,
-					     (void *)spl_image.load_addr);
+					     spl_image->size,
+					     (void *)spl_image->load_addr);
 		}
 	}
 

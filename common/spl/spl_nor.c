@@ -7,14 +7,15 @@
 #include <common.h>
 #include <spl.h>
 
-static int spl_nor_load_image(struct spl_boot_device *bootdev)
+static int spl_nor_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
 {
 	int ret;
 	/*
 	 * Loading of the payload to SDRAM is done with skipping of
 	 * the mkimage header in this SPL NOR driver
 	 */
-	spl_image.flags |= SPL_COPY_PAYLOAD_ONLY;
+	spl_image->flags |= SPL_COPY_PAYLOAD_ONLY;
 
 #ifdef CONFIG_SPL_OS_BOOT
 	if (!spl_start_uboot()) {
@@ -29,14 +30,14 @@ static int spl_nor_load_image(struct spl_boot_device *bootdev)
 		if (image_get_os(header) == IH_OS_LINUX) {
 			/* happy - was a Linux */
 
-			ret = spl_parse_image_header(&spl_image, header);
+			ret = spl_parse_image_header(spl_image, header);
 			if (ret)
 				return ret;
 
-			memcpy((void *)spl_image.load_addr,
+			memcpy((void *)spl_image->load_addr,
 			       (void *)(CONFIG_SYS_OS_BASE +
 					sizeof(struct image_header)),
-			       spl_image.size);
+			       spl_image->size);
 
 			/*
 			 * Copy DT blob (fdt) to SDRAM. Passing pointer to
@@ -59,14 +60,14 @@ static int spl_nor_load_image(struct spl_boot_device *bootdev)
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-	ret = spl_parse_image_header(&spl_image,
+	ret = spl_parse_image_header(spl_image,
 			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
 	if (ret)
 		return ret;
 
-	memcpy((void *)(unsigned long)spl_image.load_addr,
+	memcpy((void *)(unsigned long)spl_image->load_addr,
 	       (void *)(CONFIG_SYS_UBOOT_BASE + sizeof(struct image_header)),
-	       spl_image.size);
+	       spl_image->size);
 
 	return 0;
 }

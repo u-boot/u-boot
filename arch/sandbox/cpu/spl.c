@@ -38,7 +38,8 @@ void spl_board_announce_boot_device(void)
 	printf("%s\n", fname);
 }
 
-static int spl_board_load_image(struct spl_boot_device *bootdev)
+static int spl_board_load_image(struct spl_image_info *spl_image,
+				struct spl_boot_device *bootdev)
 {
 	char fname[256];
 	int ret;

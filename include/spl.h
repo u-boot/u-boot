@@ -160,9 +160,11 @@ struct spl_image_loader {
 	/**
 	 * load_image() - Load an SPL image
 	 *
+	 * @spl_image: place to put image information
 	 * @bootdev: describes the boot device to load from
 	 */
-	int (*load_image)(struct spl_boot_device *bootdev);
+	int (*load_image)(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev);
 };
 
 /* Declare an SPL image loader */
