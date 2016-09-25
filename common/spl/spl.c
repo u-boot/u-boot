@@ -82,13 +82,13 @@ __weak void spl_board_prepare_for_boot(void)
 	/* Nothing to do! */
 }
 
-void spl_set_header_raw_uboot(void)
+void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
-	spl_image.size = CONFIG_SYS_MONITOR_LEN;
-	spl_image.entry_point = CONFIG_SYS_UBOOT_START;
-	spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
-	spl_image.os = IH_OS_U_BOOT;
-	spl_image.name = "U-Boot";
+	spl_image->size = CONFIG_SYS_MONITOR_LEN;
+	spl_image->entry_point = CONFIG_SYS_UBOOT_START;
+	spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
+	spl_image->os = IH_OS_U_BOOT;
+	spl_image->name = "U-Boot";
 }
 
 int spl_parse_image_header(const struct image_header *header)
@@ -153,7 +153,7 @@ int spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		spl_set_header_raw_uboot();
+		spl_set_header_raw_uboot(&spl_image);
 #endif
 	}
 	return 0;

@@ -67,7 +67,18 @@ extern struct spl_image_info spl_image;
 void preloader_console_init(void);
 u32 spl_boot_device(void);
 u32 spl_boot_mode(const u32 boot_device);
-void spl_set_header_raw_uboot(void);
+
+/**
+ * spl_set_header_raw_uboot() - Set up a standard SPL image structure
+ *
+ * This sets up the given spl_image which the standard values obtained from
+ * config options: CONFIG_SYS_MONITOR_LEN, CONFIG_SYS_UBOOT_START,
+ * CONFIG_SYS_TEXT_BASE.
+ *
+ * @spl_image: Image to set up
+ */
+void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
+
 int spl_parse_image_header(const struct image_header *header);
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
