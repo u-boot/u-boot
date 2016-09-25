@@ -108,8 +108,9 @@ int spl_ymodem_load_image(void)
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)
 			size += res;
 	} else {
-		spl_parse_image_header((struct image_header *)buf);
-		ret = spl_parse_image_header((struct image_header *)buf);
+		spl_parse_image_header(&spl_image, (struct image_header *)buf);
+		ret = spl_parse_image_header(&spl_image,
+					     (struct image_header *)buf);
 		if (ret)
 			return ret;
 		addr = spl_image.load_addr;

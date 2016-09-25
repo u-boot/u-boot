@@ -271,7 +271,7 @@ int spl_spi_load_image(void)
 	spi0_init();
 
 	spi0_read_data((void *)header, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40);
-	err = spl_parse_image_header(header);
+	err = spl_parse_image_header(&spl_image, header);
 	if (err)
 		return err;
 

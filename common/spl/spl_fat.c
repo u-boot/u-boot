@@ -84,7 +84,7 @@ int spl_load_image_fat(struct blk_desc *block_dev,
 
 		return spl_load_simple_fit(&load, 0, header);
 	} else {
-		err = spl_parse_image_header(header);
+		err = spl_parse_image_header(&spl_image, header);
 		if (err)
 			goto end;
 

@@ -48,7 +48,7 @@ int spl_load_image_ext(struct blk_desc *block_dev,
 		goto end;
 	}
 
-	err = spl_parse_image_header(header);
+	err = spl_parse_image_header(&spl_image, header);
 	if (err < 0) {
 		puts("spl: ext: failed to parse image header\n");
 		goto end;

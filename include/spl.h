@@ -75,11 +75,27 @@ u32 spl_boot_mode(const u32 boot_device);
  * config options: CONFIG_SYS_MONITOR_LEN, CONFIG_SYS_UBOOT_START,
  * CONFIG_SYS_TEXT_BASE.
  *
- * @spl_image: Image to set up
+ * @spl_image: Image description to set up
  */
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
 
-int spl_parse_image_header(const struct image_header *header);
+/**
+ * spl_parse_image_header() - parse the image header and set up info
+ *
+ * This parses the legacy image header information at @header and sets up
+ * @spl_image according to what is found. If no image header is found, then
+ * a raw image or bootz is assumed. If CONFIG_SPL_PANIC_ON_RAW_IMAGE is
+ * enabled, then this causes a panic. If CONFIG_SPL_ABORT_ON_RAW_IMAGE is
+ * enabled then U-Boot gives up. Otherwise U-Boot sets up the image using
+ * spl_set_header_raw_uboot(), or possibly the bootz header.
+ *
+ * @spl_image: Image description to set up
+ * @header image header to parse
+ * @return 0 if a header was correctly parsed, -ve on error
+ */
+int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct image_header *header);
+
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);

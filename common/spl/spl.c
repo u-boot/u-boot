@@ -91,33 +91,34 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	spl_image->name = "U-Boot";
 }
 
-int spl_parse_image_header(const struct image_header *header)
+int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
 
 	if (image_get_magic(header) == IH_MAGIC) {
-		if (spl_image.flags & SPL_COPY_PAYLOAD_ONLY) {
+		if (spl_image->flags & SPL_COPY_PAYLOAD_ONLY) {
 			/*
 			 * On some system (e.g. powerpc), the load-address and
 			 * entry-point is located at address 0. We can't load
 			 * to 0-0x40. So skip header in this case.
 			 */
-			spl_image.load_addr = image_get_load(header);
-			spl_image.entry_point = image_get_ep(header);
-			spl_image.size = image_get_data_size(header);
+			spl_image->load_addr = image_get_load(header);
+			spl_image->entry_point = image_get_ep(header);
+			spl_image->size = image_get_data_size(header);
 		} else {
-			spl_image.entry_point = image_get_load(header);
+			spl_image->entry_point = image_get_load(header);
 			/* Load including the header */
-			spl_image.load_addr = spl_image.entry_point -
+			spl_image->load_addr = spl_image->entry_point -
 				header_size;
-			spl_image.size = image_get_data_size(header) +
+			spl_image->size = image_get_data_size(header) +
 				header_size;
 		}
-		spl_image.os = image_get_os(header);
-		spl_image.name = image_get_name(header);
+		spl_image->os = image_get_os(header);
+		spl_image->name = image_get_name(header);
 		debug("spl: payload image: %.*s load addr: 0x%x size: %d\n",
-			(int)sizeof(spl_image.name), spl_image.name,
-			spl_image.load_addr, spl_image.size);
+			(int)sizeof(spl_image->name), spl_image->name,
+			spl_image->load_addr, spl_image->size);
 	} else {
 #ifdef CONFIG_SPL_PANIC_ON_RAW_IMAGE
 		/*
@@ -135,13 +136,13 @@ int spl_parse_image_header(const struct image_header *header)
 		ulong start, end;
 
 		if (!bootz_setup((ulong)header, &start, &end)) {
-			spl_image.name = "Linux";
-			spl_image.os = IH_OS_LINUX;
-			spl_image.load_addr = CONFIG_SYS_LOAD_ADDR;
-			spl_image.entry_point = CONFIG_SYS_LOAD_ADDR;
-			spl_image.size = end - start;
+			spl_image->name = "Linux";
+			spl_image->os = IH_OS_LINUX;
+			spl_image->load_addr = CONFIG_SYS_LOAD_ADDR;
+			spl_image->entry_point = CONFIG_SYS_LOAD_ADDR;
+			spl_image->size = end - start;
 			debug("spl: payload zImage, load addr: 0x%x size: %d\n",
-			      spl_image.load_addr, spl_image.size);
+			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
 #endif
@@ -153,7 +154,7 @@ int spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		spl_set_header_raw_uboot(&spl_image);
+		spl_set_header_raw_uboot(spl_image);
 #endif
 	}
 	return 0;
@@ -209,7 +210,7 @@ static int spl_ram_load_image(void)
 		header = (struct image_header *)
 			(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
 
-		spl_parse_image_header(header);
+		spl_parse_image_header(&spl_image, header);
 	}
 
 	return 0;

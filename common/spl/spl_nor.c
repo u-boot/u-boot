@@ -29,7 +29,7 @@ int spl_nor_load_image(void)
 		if (image_get_os(header) == IH_OS_LINUX) {
 			/* happy - was a Linux */
 
-			ret = spl_parse_image_header(header);
+			ret = spl_parse_image_header(&spl_image, header);
 			if (ret)
 				return ret;
 
@@ -59,7 +59,7 @@ int spl_nor_load_image(void)
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-	ret = spl_parse_image_header(
+	ret = spl_parse_image_header(&spl_image,
 			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
 	if (ret)
 		return ret;

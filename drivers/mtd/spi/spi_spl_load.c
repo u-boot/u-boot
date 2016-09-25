@@ -32,7 +32,7 @@ static int spi_load_image_os(struct spi_flash *flash,
 	if (image_get_magic(header) != IH_MAGIC)
 		return -1;
 
-	err = spl_parse_image_header(header);
+	err = spl_parse_image_header(&spl_image, header);
 	if (err)
 		return err;
 
@@ -110,7 +110,7 @@ int spl_spi_load_image(void)
 						  CONFIG_SYS_SPI_U_BOOT_OFFS,
 						  header);
 		} else {
-			err = spl_parse_image_header(header);
+			err = spl_parse_image_header(&spl_image, header);
 			if (err)
 				return err;
 			err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,

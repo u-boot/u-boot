@@ -25,7 +25,7 @@ static int mmc_load_legacy(struct mmc *mmc, ulong sector,
 	unsigned long count;
 	int ret;
 
-	ret = spl_parse_image_header(header);
+	ret = spl_parse_image_header(&spl_image, header);
 	if (ret)
 		return ret;
 

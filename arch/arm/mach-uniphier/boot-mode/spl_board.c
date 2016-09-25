@@ -113,7 +113,7 @@ int spl_board_load_image(void)
 		return ret;
 	}
 
-	ret = spl_parse_image_header((void *)CONFIG_SYS_TEXT_BASE);
+	ret = spl_parse_image_header(&spl_image, (void *)CONFIG_SYS_TEXT_BASE);
 	if (ret)
 		return ret;
 
