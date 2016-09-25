@@ -68,7 +68,7 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 	return size;
 }
 
-int spl_ymodem_load_image(struct spl_boot_device *bootdev)
+static int spl_ymodem_load_image(struct spl_boot_device *bootdev)
 {
 	int size = 0;
 	int err;
@@ -132,3 +132,4 @@ end_stream:
 	printf("Loaded %d bytes\n", size);
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_UART, spl_ymodem_load_image);

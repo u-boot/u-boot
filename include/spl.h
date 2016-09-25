@@ -181,9 +181,6 @@ struct spl_image_loader {
 		.load_image = __method, \
 	}
 
-/* YMODEM SPL functions */
-int spl_ymodem_load_image(struct spl_boot_device *bootdev);
-
 /* SPI SPL functions */
 int spl_spi_load_image(struct spl_boot_device *bootdev);
 
