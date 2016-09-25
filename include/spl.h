@@ -110,7 +110,18 @@ int spl_board_ubi_load_image(u32 boot_device);
  */
 void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
 				    void *arg);
+
+/**
+ * spl_start_uboot() - Check if SPL should start the kernel or U-Boot
+ *
+ * This is called by the various SPL loaders to determine whether the board
+ * wants to load the kernel or U-Boot. This function should be provided by
+ * the board.
+ *
+ * @return 0 if SPL should start the kernel, 1 if U-Boot must be started
+ */
 int spl_start_uboot(void);
+
 void spl_display_print(void);
 
 /* NAND SPL functions */
