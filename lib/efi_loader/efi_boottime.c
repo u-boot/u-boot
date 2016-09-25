@@ -39,6 +39,7 @@ static bool efi_is_direct_boot = true;
  */
 static struct efi_configuration_table EFI_RUNTIME_DATA efi_conf_table[2];
 
+#ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
  * fixed when compiling U-Boot. However, the payload does not know about that
@@ -46,16 +47,20 @@ static struct efi_configuration_table EFI_RUNTIME_DATA efi_conf_table[2];
  * EFI callback entry/exit.
  */
 static volatile void *efi_gd, *app_gd;
+#endif
 
 /* Called from do_bootefi_exec() */
 void efi_save_gd(void)
 {
+#ifdef CONFIG_ARM
 	efi_gd = gd;
+#endif
 }
 
 /* Called on every callback entry */
 void efi_restore_gd(void)
 {
+#ifdef CONFIG_ARM
 	/* Only restore if we're already in EFI context */
 	if (!efi_gd)
 		return;
@@ -63,12 +68,16 @@ void efi_restore_gd(void)
 	if (gd != efi_gd)
 		app_gd = gd;
 	gd = efi_gd;
+#endif
 }
 
 /* Called on every callback exit */
 efi_status_t efi_exit_func(efi_status_t ret)
 {
+#ifdef CONFIG_ARM
 	gd = app_gd;
+#endif
+
 	return ret;
 }
 

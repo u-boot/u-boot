@@ -44,6 +44,10 @@ static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_invalid_parameter(void);
 #elif defined(CONFIG_ARM)
 #define R_RELATIVE	23
 #define R_MASK		0xffULL
+#elif defined(CONFIG_X86)
+#include <asm/elf.h>
+#define R_RELATIVE	R_386_RELATIVE
+#define R_MASK		0xffULL
 #else
 #error Need to add relocation awareness
 #endif

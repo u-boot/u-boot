@@ -28,6 +28,7 @@ obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
+obj-y	+= sections.o
 obj-y += sfi.o
 obj-y	+= string.o
 ifndef CONFIG_QEMU
