@@ -149,6 +149,38 @@ struct spl_boot_device {
 	const char *boot_device_name;
 };
 
+/**
+ * Holds information about a way of loading an SPL image
+ *
+ * @boot_device: Boot device that this loader supports
+ * @load_image: Function to call to load image
+ */
+struct spl_image_loader {
+	uint boot_device;
+	/**
+	 * load_image() - Load an SPL image
+	 *
+	 * @bootdev: describes the boot device to load from
+	 */
+	int (*load_image)(struct spl_boot_device *bootdev);
+};
+
+/* Declare an SPL image loader */
+#define SPL_LOAD_IMAGE(__name)					\
+	ll_entry_declare(struct spl_image_loader, __name, spl_image_loader)
+
+/*
+ * __priority is the priority of this method, 0 meaning it will be the top
+ * choice for this device, 9 meaning it is the bottom choice.
+ * __boot_device is the BOOT_DEVICE_... value
+ * __method is the load_image function to call
+ */
+#define SPL_LOAD_IMAGE_METHOD(__priority, __boot_device, __method) \
+	SPL_LOAD_IMAGE(__method ## __priority ## __boot_device) = { \
+		.boot_device = __boot_device, \
+		.load_image = __method, \
+	}
+
 /* NAND SPL functions */
 int spl_nand_load_image(struct spl_boot_device *bootdev);
 

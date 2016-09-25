@@ -347,12 +347,32 @@ static void announce_boot_device(u32 boot_device)
 static inline void announce_boot_device(u32 boot_device) { }
 #endif
 
+static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
+{
+	struct spl_image_loader *drv =
+		ll_entry_start(struct spl_image_loader, spl_image_loader);
+	const int n_ents =
+		ll_entry_count(struct spl_image_loader, spl_image_loader);
+	struct spl_image_loader *entry;
+
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (boot_device == entry->boot_device)
+			return entry;
+	}
+
+	/* Not found */
+	return NULL;
+}
+
 static int spl_load_image(u32 boot_device)
 {
 	struct spl_boot_device bootdev;
+	struct spl_image_loader *loader = spl_ll_find_loader(boot_device);
 
 	bootdev.boot_device = boot_device;
 	bootdev.boot_device_name = NULL;
+	if (loader)
+		return loader->load_image(&bootdev);
 
 	switch (boot_device) {
 #ifdef CONFIG_SPL_RAM_DEVICE
