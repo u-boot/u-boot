@@ -17,7 +17,6 @@
 #include <asm/arch/mbox.h>
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
-#include <dm/platform_data/serial_pl01x.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
@@ -28,42 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* From lowlevel_init.S */
 extern unsigned long fw_dtb_pointer;
 
-static const struct bcm2835_gpio_platdata gpio_platdata = {
-	.base = BCM2835_GPIO_BASE,
-};
-
-U_BOOT_DEVICE(bcm2835_gpios) = {
-	.name = "gpio_bcm2835",
-	.platdata = &gpio_platdata,
-};
-
-#ifdef CONFIG_PL01X_SERIAL
-static const struct pl01x_serial_platdata serial_platdata = {
-#ifndef CONFIG_BCM2835
-	.base = 0x3f201000,
-#else
-	.base = 0x20201000,
-#endif
-	.type = TYPE_PL011,
-	.skip_init = true,
-};
-
-U_BOOT_DEVICE(bcm2835_serials) = {
-	.name = "serial_pl01x",
-	.platdata = &serial_platdata,
-};
-#else
-static struct bcm283x_mu_serial_platdata serial_platdata = {
-	.base = 0x3f215040,
-	.clock = 250000000,
-	.skip_init = true,
-};
-
-U_BOOT_DEVICE(bcm2837_serials) = {
-	.name = "serial_bcm283x_mu",
-	.platdata = &serial_platdata,
-};
-#endif
 
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;

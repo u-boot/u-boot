@@ -321,6 +321,7 @@ config ARCH_BCM283X
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OF_CONTROL
 
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
