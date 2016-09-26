@@ -394,6 +394,12 @@ typedef struct {
 	Elf64_Xword r_info;	/* index and type of relocation */
 } Elf64_Rel;
 
+typedef struct {
+	Elf64_Addr r_offset;    /* Location at which to apply the action */
+	Elf64_Xword r_info;     /* index and type of relocation */
+	Elf64_Sxword r_addend;  /* Constant addend used to compute value */
+} Elf64_Rela;
+
 /* Extract relocation info - r_info */
 #define ELF32_R_SYM(i)		((i) >> 8)
 #define ELF32_R_TYPE(i)		((unsigned char) (i))
