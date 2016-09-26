@@ -14,7 +14,7 @@
 #include <dm.h>
 #include <rtc.h>
 
-#if defined(__I386__) || defined(CONFIG_MALTA)
+#if defined(CONFIG_X86) || defined(CONFIG_MALTA)
 #include <asm/io.h>
 #define in8(p) inb(p)
 #define out8(p, v) outb(v, p)
