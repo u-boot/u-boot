@@ -119,9 +119,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"blimg_file=u-boot.imx\0" \
-	"blsec_addr=0x81000000\0" \
-	"blimg_addr=0x81000400\0" \
+	"blimg_file=u-boot.vyb\0" \
+	"blimg_addr=0x81000000\0" \
 	"kernel_file=zImage\0" \
 	"kernel_addr=0x82000000\0" \
 	"fdt_file=zImage.dtb\0" \
@@ -163,12 +162,11 @@
 		"nand read ${kernel_addr} kernel; " \
 		"nand read ${ram_addr} root; " \
 		"bootz ${kernel_addr} ${ram_addr} ${fdt_addr}\0" \
-	"update_bootloader_from_tftp=mtdparts default; " \
-		"nand read ${blsec_addr} bootloader; " \
-		"mw.b ${blimg_addr} 0xff 0x5FC00; " \
-		"if tftp ${blimg_addr} ${tftpdir}${blimg_file}; then " \
+	"update_bootloader_from_tftp=if tftp ${blimg_addr} "\
+		"${tftpdir}${blimg_file}; then " \
+		"mtdparts default; " \
 		"nand erase.part bootloader; " \
-		"nand write ${blsec_addr} bootloader ${filesize}; fi\0" \
+		"nand write ${blimg_addr} bootloader ${filesize}; fi\0" \
 	"update_kernel_from_sd=if fatload mmc 0:2 ${kernel_addr} " \
 		"${kernel_file}; " \
 		"then mtdparts default; " \

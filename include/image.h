@@ -278,6 +278,7 @@ enum {
 	IH_TYPE_ZYNQIMAGE,		/* Xilinx Zynq Boot Image */
 	IH_TYPE_ZYNQMPIMAGE,		/* Xilinx ZynqMP Boot Image */
 	IH_TYPE_FPGA,			/* FPGA Image */
+	IH_TYPE_VYBRIDIMAGE,	/* VYBRID .vyb Image */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };

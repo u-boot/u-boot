@@ -845,6 +845,12 @@ endif
 %.imx: %.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
 
+%.vyb: %.imx
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/armv7/vf610 $@
+
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
+
 u-boot.dtb: dts/dt.dtb
 	$(call cmd,copy)
 
