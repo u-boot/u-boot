@@ -134,7 +134,8 @@
 	"tftptimeout=1000\0" \
 	"tftptimeoutcountmax=1000000\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
-	"bootargs_base=setenv bootargs rw mem=256M " \
+	"bootargs_base=setenv bootargs rw " \
+		" mem=" __stringify(CONFIG_PCM052_DDR_SIZE) "M " \
 		"console=ttyLP1,115200n8\0" \
 	"bootargs_sd=setenv bootargs ${bootargs} " \
 		"root=/dev/mmcblk0p2 rootwait\0" \
@@ -218,7 +219,7 @@
 /* Physical memory map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			(0x80000000)
-#define PHYS_SDRAM_SIZE			(256 * 1024 * 1024)
+#define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
