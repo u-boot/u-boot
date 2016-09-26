@@ -355,10 +355,10 @@ static void enable_clock_gating(struct udevice *pch)
 	reg16 |= (1 << 2) | (1 << 11);
 	dm_pci_write_config16(pch, GEN_PMCON_1, reg16);
 
-	pch_iobp_update(pch, 0xEB007F07, ~0UL, (1 << 31));
-	pch_iobp_update(pch, 0xEB004000, ~0UL, (1 << 7));
-	pch_iobp_update(pch, 0xEC007F07, ~0UL, (1 << 31));
-	pch_iobp_update(pch, 0xEC004000, ~0UL, (1 << 7));
+	pch_iobp_update(pch, 0xeb007f07, ~0U, 1 << 31);
+	pch_iobp_update(pch, 0xeb004000, ~0U, 1 << 7);
+	pch_iobp_update(pch, 0xec007f07, ~0U, 1 << 31);
+	pch_iobp_update(pch, 0xec004000, ~0U, 1 << 7);
 
 	reg32 = readl(RCB_REG(CG));
 	reg32 |= (1 << 31);
