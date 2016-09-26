@@ -5,13 +5,8 @@
 # Check that the u-boot.cfg file provided does not introduce any new
 # ad-hoc CONFIG options
 #
-# You can generate the list of current ad-hoc CONFIG options (those which are
-# not in Kconfig) with this command:
-#
-# export LC_ALL=C LC_COLLATE=C
-# git grep CONFIG_ |tr ' \t' '\n\n' |sed -n 's/^\(CONFIG_[A-Z0-9_]*\).*/\1/p' \
-#	|sort |uniq >scripts/config_whitelist.txt;
-# unset LC_ALL LC_COLLATE
+# Use scripts/build-whitelist.sh to generate the list of current ad-hoc
+# CONFIG options (those which are not in Kconfig).
 
 # Usage
 #    check-config.sh <path to u-boot.cfg> <path to whitelist file> <source dir>
