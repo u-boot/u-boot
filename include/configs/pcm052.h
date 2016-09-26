@@ -52,13 +52,20 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
+
+#ifndef MTDIDS_DEFAULT
 #define MTDIDS_DEFAULT			"nand0=NAND"
+#endif
+
+#ifndef MTDPARTS_DEFAULT
 #define MTDPARTS_DEFAULT		"mtdparts=NAND:640k(bootloader)"\
 					",128k(env1)"\
 					",128k(env2)"\
 					",128k(dtb)"\
 					",6144k(kernel)"\
 					",-(root)"
+#endif
+
 #endif
 
 #define CONFIG_MMC
@@ -85,7 +92,6 @@
 /* QSPI Configs*/
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
@@ -115,8 +121,31 @@
 #define CONFIG_SYS_TEXT_BASE		0x3f408000
 #define CONFIG_BOARD_SIZE_LIMIT		524288
 
-#define CONFIG_BOOTCOMMAND              "run bootcmd_sd"
+/* if no target-specific extra environment settings were defined by the
+   target, define an empty one */
+#ifndef PCM052_EXTRA_ENV_SETTINGS
+#define PCM052_EXTRA_ENV_SETTINGS
+#endif
+
+/* if no target-specific boot command was defined by the target,
+   define an empty one */
+#ifndef PCM052_BOOTCOMMAND
+#define PCM052_BOOTCOMMAND
+#endif
+
+/* if no target-specific extra environment settings were defined by the
+   target, define an empty one */
+#ifndef PCM052_NET_INIT
+#define PCM052_NET_INIT
+#endif
+
+/* boot command, including the target-defined one if any */
+#define CONFIG_BOOTCOMMAND	PCM052_BOOTCOMMAND "run bootcmd_nand"
+
+/* Extra env settings (including the target-defined ones if any) */
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	PCM052_EXTRA_ENV_SETTINGS \
+	"autoload=no\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"blimg_file=u-boot.vyb\0" \
@@ -163,7 +192,8 @@
 		"nand read ${kernel_addr} kernel; " \
 		"nand read ${ram_addr} root; " \
 		"bootz ${kernel_addr} ${ram_addr} ${fdt_addr}\0" \
-	"update_bootloader_from_tftp=if tftp ${blimg_addr} "\
+	"update_bootloader_from_tftp=" PCM052_NET_INIT \
+		"if tftp ${blimg_addr} "\
 		"${tftpdir}${blimg_file}; then " \
 		"mtdparts default; " \
 		"nand erase.part bootloader; " \
@@ -176,7 +206,8 @@
 		"if fatload mmc 0:2 ${fdt_addr} ${fdt_file}; then " \
 		"nand erase.part dtb; " \
 		"nand write ${fdt_addr} dtb ${filesize}; fi\0" \
-	"update_kernel_from_tftp=if tftp ${fdt_addr} ${tftpdir}${fdt_file}; " \
+	"update_kernel_from_tftp=" PCM052_NET_INIT \
+		"if tftp ${fdt_addr} ${tftpdir}${fdt_file}; " \
 		"then setenv fdtsize ${filesize}; " \
 		"if tftp ${kernel_addr} ${tftpdir}${kernel_file}; then " \
 		"mtdparts default; " \
@@ -184,13 +215,15 @@
 		"nand write ${fdt_addr} dtb ${fdtsize}; " \
 		"nand erase.part kernel; " \
 		"nand write ${kernel_addr} kernel ${filesize}; fi; fi\0" \
-	"update_rootfs_from_tftp=if tftp ${sys_addr} ${tftpdir}${filesys}; " \
+	"update_rootfs_from_tftp=" PCM052_NET_INIT \
+		"if tftp ${sys_addr} ${tftpdir}${filesys}; " \
 		"then mtdparts default; " \
 		"nand erase.part root; " \
 		"ubi part root; " \
 		"ubi create rootfs; " \
 		"ubi write ${sys_addr} rootfs ${filesize}; fi\0" \
-	"update_ramdisk_from_tftp=if tftp ${ram_addr} ${tftpdir}${ram_file}; " \
+	"update_ramdisk_from_tftp=" PCM052_NET_INIT \
+		"if tftp ${ram_addr} ${tftpdir}${ram_file}; " \
 		"then mtdparts default; " \
 		"nand erase.part root; " \
 		"nand write ${ram_addr} root ${filesize}; fi\0"

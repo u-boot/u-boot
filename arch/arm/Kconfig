@@ -595,6 +595,10 @@ config TARGET_PCM052
 	bool "Support pcm-052"
 	select CPU_V7
 
+config TARGET_BK4R1
+	bool "Support BK4r1"
+	select CPU_V7
+
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
