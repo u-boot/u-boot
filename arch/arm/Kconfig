@@ -820,16 +820,19 @@ config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
 
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
+	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -838,6 +841,7 @@ config TARGET_LS1043AQDS
 
 config TARGET_LS1043ARDB
 	bool "Support ls1043ardb"
+	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -947,6 +951,8 @@ source "arch/arm/mach-keystone/Kconfig"
 source "arch/arm/mach-kirkwood/Kconfig"
 
 source "arch/arm/mach-mvebu/Kconfig"
+
+source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/cpu/armv7/mx7/Kconfig"
 

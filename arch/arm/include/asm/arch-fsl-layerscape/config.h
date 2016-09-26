@@ -169,7 +169,6 @@
 
 #define CONFIG_SYS_FSL_SRDS_1
 
-#define CONFIG_SYS_FSL_ERRATUM_A010315
 /* SoC related */
 #ifdef CONFIG_LS1043A
 #define CONFIG_MAX_CPUS				4
