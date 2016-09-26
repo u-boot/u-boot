@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <fdtdec.h>
 
 struct bcm2835_gpios {
 	struct bcm2835_gpio_regs *reg;
@@ -118,9 +119,32 @@ static int bcm2835_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id bcm2835_gpio_id[] = {
+	{.compatible = "brcm,bcm2835-gpio"},
+	{}
+};
+
+static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
+{
+	struct bcm2835_gpio_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = addr;
+	return 0;
+}
+#endif
+
 U_BOOT_DRIVER(gpio_bcm2835) = {
 	.name	= "gpio_bcm2835",
 	.id	= UCLASS_GPIO,
+	.of_match = of_match_ptr(bcm2835_gpio_id),
+	.ofdata_to_platdata = of_match_ptr(bcm2835_gpio_ofdata_to_platdata),
+	.platdata_auto_alloc_size = sizeof(struct bcm2835_gpio_platdata),
 	.ops	= &gpio_bcm2835_ops,
 	.probe	= bcm2835_gpio_probe,
 	.flags	= DM_FLAG_PRE_RELOC,
