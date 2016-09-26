@@ -54,7 +54,23 @@ int checkboard(void)
 
 int dram_init(void)
 {
-	mmdc_init();
+	static const struct fsl_mmdc_info mparam = {
+		0x05180000,	/* mdctl */
+		0x00030035,	/* mdpdc */
+		0x12554000,	/* mdotc */
+		0xbabf7954,	/* mdcfg0 */
+		0xdb328f64,	/* mdcfg1 */
+		0x01ff00db,	/* mdcfg2 */
+		0x00001680,	/* mdmisc */
+		0x0f3c8000,	/* mdref */
+		0x00002000,	/* mdrwd */
+		0x00bf1023,	/* mdor */
+		0x0000003f,	/* mdasp */
+		0x0000022a,	/* mpodtctrl */
+		0xa1390003,	/* mpzqhwctrl */
+	};
+
+	mmdc_init(&mparam);
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 

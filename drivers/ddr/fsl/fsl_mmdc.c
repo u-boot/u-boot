@@ -26,7 +26,7 @@ static void set_wait_for_bits_clear(void *ptr, u32 value, u32 bits)
 		printf("Error: %p wait for clear timeout.\n", ptr);
 }
 
-void mmdc_init(void)
+void mmdc_init(const struct fsl_mmdc_info *priv)
 {
 	struct mmdc_regs *mmdc = (struct mmdc_regs *)CONFIG_SYS_FSL_DDR_ADDR;
 	unsigned int tmp;
@@ -35,26 +35,26 @@ void mmdc_init(void)
 	out_be32(&mmdc->mdscr, MDSCR_ENABLE_CON_REQ);
 
 	/* 2. configure the desired timing parameters */
-	out_be32(&mmdc->mdotc,  CONFIG_MMDC_MDOTC);
-	out_be32(&mmdc->mdcfg0, CONFIG_MMDC_MDCFG0);
-	out_be32(&mmdc->mdcfg1, CONFIG_MMDC_MDCFG1);
-	out_be32(&mmdc->mdcfg2, CONFIG_MMDC_MDCFG2);
+	out_be32(&mmdc->mdotc, priv->mdotc);
+	out_be32(&mmdc->mdcfg0, priv->mdcfg0);
+	out_be32(&mmdc->mdcfg1, priv->mdcfg1);
+	out_be32(&mmdc->mdcfg2, priv->mdcfg2);
 
 	/* 3. configure DDR type and other miscellaneous parameters */
-	out_be32(&mmdc->mdmisc, CONFIG_MMDC_MDMISC);
+	out_be32(&mmdc->mdmisc, priv->mdmisc);
 	out_be32(&mmdc->mpmur0,	MMDC_MPMUR0_FRC_MSR);
-	out_be32(&mmdc->mdrwd,  CONFIG_MMDC_MDRWD);
-	out_be32(&mmdc->mpodtctrl, CONFIG_MMDC_MPODTCTRL);
+	out_be32(&mmdc->mdrwd, priv->mdrwd);
+	out_be32(&mmdc->mpodtctrl, priv->mpodtctrl);
 
 	/* 4. configure the required delay while leaving reset */
-	out_be32(&mmdc->mdor,  CONFIG_MMDC_MDOR);
+	out_be32(&mmdc->mdor, priv->mdor);
 
 	/* 5. configure DDR physical parameters */
 	/* set row/column address width, burst length, data bus width */
-	tmp = CONFIG_MMDC_MDCTL & ~(MDCTL_SDE0 | MDCTL_SDE1);
+	tmp = priv->mdctl & ~(MDCTL_SDE0 | MDCTL_SDE1);
 	out_be32(&mmdc->mdctl, tmp);
 	/* configure address space partition */
-	out_be32(&mmdc->mdasp, CONFIG_MMDC_MDASP);
+	out_be32(&mmdc->mdasp, priv->mdasp);
 
 	/* 6. perform a ZQ calibration - not needed here, doing in #8b */
 
@@ -84,7 +84,7 @@ void mmdc_init(void)
 	out_be32(&mmdc->mdscr,  CMD_ADDR_MSB_MR_OP(0x4) | MDSCR_ENABLE_CON_REQ |
 				CMD_ZQ_CALIBRATION | CMD_BANK_ADDR_0);
 
-	set_wait_for_bits_clear(&mmdc->mpzqhwctrl, CONFIG_MMDC_MPZQHWCTRL,
+	set_wait_for_bits_clear(&mmdc->mpzqhwctrl, priv->mpzqhwctrl,
 				MPZQHWCTRL_ZQ_HW_FORCE);
 
 	/* 9a. calibrations now, wr lvl */
@@ -116,11 +116,11 @@ void mmdc_init(void)
 	out_be32(&mmdc->mppdcmpr2, MPPDCMPR2_MPR_COMPARE_EN);
 
 	/* set absolute read delay offset */
-#if defined(CONFIG_MMDC_MPRDDLCTL)
-	out_be32(&mmdc->mprddlctl, CONFIG_MMDC_MPRDDLCTL);
-#else
-	out_be32(&mmdc->mprddlctl, MMDC_MPRDDLCTL_DEFAULT_DELAY);
-#endif
+	if (priv->mprddlctl)
+		out_be32(&mmdc->mprddlctl, priv->mprddlctl);
+	else
+		out_be32(&mmdc->mprddlctl, MMDC_MPRDDLCTL_DEFAULT_DELAY);
+
 	set_wait_for_bits_clear(&mmdc->mpdgctrl0,
 				AUTO_RD_DQS_GATING_CALIBRATION_EN,
 				AUTO_RD_DQS_GATING_CALIBRATION_EN);
@@ -142,13 +142,13 @@ void mmdc_init(void)
 				CMD_BANK_ADDR_3);
 
 	/* 10. configure power-down, self-refresh entry, exit parameters */
-	out_be32(&mmdc->mdpdc, CONFIG_MMDC_MDPDC);
+	out_be32(&mmdc->mdpdc, priv->mdpdc);
 	out_be32(&mmdc->mapsr, MMDC_MAPSR_PWR_SAV_CTRL_STAT);
 
 	/* 11. ZQ config again? do nothing here */
 
 	/* 12. refresh scheme */
-	set_wait_for_bits_clear(&mmdc->mdref, CONFIG_MMDC_MDREF,
+	set_wait_for_bits_clear(&mmdc->mdref, priv->mdref,
 				MDREF_START_REFRESH);
 
 	/* 13. disable CON_REQ */

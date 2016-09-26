@@ -150,10 +150,23 @@ struct mmdc_regs {
 	u32 mpdccr;
 };
 
-void mmdc_init(void);
+struct fsl_mmdc_info {
+	u32 mdctl;
+	u32 mdpdc;
+	u32 mdotc;
+	u32 mdcfg0;
+	u32 mdcfg1;
+	u32 mdcfg2;
+	u32 mdmisc;
+	u32 mdref;
+	u32 mdrwd;
+	u32 mdor;
+	u32 mdasp;
+	u32 mpodtctrl;
+	u32 mpzqhwctrl;
+	u32 mprddlctl;
+};
 
-#if !defined(CONFIG_MMDC_MDCTL)
-#error Must configure board-specific timing CONFIG_MMDC_* in <board>.h for MMDC
-#endif
+void mmdc_init(const struct fsl_mmdc_info *);
 
 #endif /* FSL_MMDC_H */
