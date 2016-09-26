@@ -74,7 +74,7 @@ int do_getclk_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	clk = simple_strtoul(argv[1], NULL, 10);
 
-	freq = clk_get_rate(clk);
+	freq = ks_clk_get_rate(clk);
 	if (freq)
 		printf("clock index [%d] - frequency %lu\n", clk, freq);
 	else

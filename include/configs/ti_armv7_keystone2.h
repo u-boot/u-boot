@@ -68,14 +68,14 @@
 #define CONFIG_CONS_INDEX		1
 
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
+#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_NS16550_CLK		clk_get_rate(uart_pll_clk) / 2
+#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(uart_pll_clk) / 2
 #endif
 
 /* SPI Configuration */
 #define CONFIG_DAVINCI_SPI
-#define CONFIG_SYS_SPI_CLK		clk_get_rate(KS2_CLK1_6)
+#define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_SYS_SPI0
@@ -314,7 +314,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_HZ_CLOCK		clk_get_rate(KS2_CLK1_6)
+#define CONFIG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
 #else
 #define CONFIG_SYS_HZ_CLOCK		external_clk[sys_clk]
 #endif

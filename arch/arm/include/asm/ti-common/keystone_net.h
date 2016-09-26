@@ -51,9 +51,9 @@
 
 /* MDIO module input frequency */
 #ifdef CONFIG_SOC_K2G
-#define EMAC_MDIO_BUS_FREQ		(clk_get_rate(sys_clk0_3_clk))
+#define EMAC_MDIO_BUS_FREQ		(ks_clk_get_rate(sys_clk0_3_clk))
 #else
-#define EMAC_MDIO_BUS_FREQ		(clk_get_rate(pass_pll_clk))
+#define EMAC_MDIO_BUS_FREQ		(ks_clk_get_rate(pass_pll_clk))
 #endif
 /* MDIO clock output frequency */
 #define EMAC_MDIO_CLOCK_FREQ		2500000	/* 2.5 MHz */

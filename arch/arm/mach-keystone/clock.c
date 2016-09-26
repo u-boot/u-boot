@@ -341,7 +341,7 @@ static unsigned long pll_freq_get(int pll)
 	return ret;
 }
 
-unsigned long clk_get_rate(unsigned int clk)
+unsigned long ks_clk_get_rate(unsigned int clk)
 {
 	unsigned long freq = 0;
 
@@ -381,37 +381,37 @@ unsigned long clk_get_rate(unsigned int clk)
 		freq = pll_freq_get(CORE_PLL) / pll0div_read(4);
 		break;
 	case sys_clk0_2_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 2;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 2;
 		break;
 	case sys_clk0_3_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 3;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 3;
 		break;
 	case sys_clk0_4_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 4;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 4;
 		break;
 	case sys_clk0_6_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 6;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 6;
 		break;
 	case sys_clk0_8_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 8;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 8;
 		break;
 	case sys_clk0_12_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 12;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 12;
 		break;
 	case sys_clk0_24_clk:
-		freq = clk_get_rate(sys_clk0_clk) / 24;
+		freq = ks_clk_get_rate(sys_clk0_clk) / 24;
 		break;
 	case sys_clk1_3_clk:
-		freq = clk_get_rate(sys_clk1_clk) / 3;
+		freq = ks_clk_get_rate(sys_clk1_clk) / 3;
 		break;
 	case sys_clk1_4_clk:
-		freq = clk_get_rate(sys_clk1_clk) / 4;
+		freq = ks_clk_get_rate(sys_clk1_clk) / 4;
 		break;
 	case sys_clk1_6_clk:
-		freq = clk_get_rate(sys_clk1_clk) / 6;
+		freq = ks_clk_get_rate(sys_clk1_clk) / 6;
 		break;
 	case sys_clk1_12_clk:
-		freq = clk_get_rate(sys_clk1_clk) / 12;
+		freq = ks_clk_get_rate(sys_clk1_clk) / 12;
 		break;
 	default:
 		break;
