@@ -53,14 +53,12 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define MTDIDS_DEFAULT			"nand0=NAND"
-#define MTDPARTS_DEFAULT		"mtdparts=NAND:256k(spare)"\
-					",384k(bootloader)"\
+#define MTDPARTS_DEFAULT		"mtdparts=NAND:640k(bootloader)"\
 					",128k(env1)"\
 					",128k(env2)"\
 					",128k(dtb)"\
 					",6144k(kernel)"\
-					",65536k(ramdisk)"\
-					",450944k(root)"
+					",-(root)"
 #endif
 
 #define CONFIG_MMC
@@ -144,7 +142,7 @@
 	"bootargs_net=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp " \
 		"nfsroot=${serverip}:${nfs_root},v3,tcp\0" \
 	"bootargs_nand=setenv bootargs ${bootargs} " \
-		"ubi.mtd=6 rootfstype=ubifs root=ubi0:rootfs\0" \
+		"ubi.mtd=5 rootfstype=ubifs root=ubi0:rootfs\0" \
 	"bootargs_ram=setenv bootargs ${bootargs} " \
 		"root=/dev/ram rw initrd=${ram_addr}\0" \
 	"bootargs_mtd=setenv bootargs ${bootargs} ${mtdparts}\0" \
@@ -163,7 +161,7 @@
 	"bootcmd_ram=run bootargs_base bootargs_ram bootargs_mtd; " \
 		"nand read ${fdt_addr} dtb; " \
 		"nand read ${kernel_addr} kernel; " \
-		"nand read ${ram_addr} ramdisk; " \
+		"nand read ${ram_addr} root; " \
 		"bootz ${kernel_addr} ${ram_addr} ${fdt_addr}\0" \
 	"update_bootloader_from_tftp=mtdparts default; " \
 		"nand read ${blsec_addr} bootloader; " \
@@ -195,8 +193,8 @@
 		"ubi write ${sys_addr} rootfs ${filesize}; fi\0" \
 	"update_ramdisk_from_tftp=if tftp ${ram_addr} ${tftpdir}${ram_file}; " \
 		"then mtdparts default; " \
-		"nand erase.part ramdisk; " \
-		"nand write ${ram_addr} ramdisk ${filesize}; fi\0"
+		"nand erase.part root; " \
+		"nand write ${ram_addr} root ${filesize}; fi\0"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
