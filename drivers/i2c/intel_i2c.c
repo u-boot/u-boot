@@ -248,11 +248,11 @@ static int intel_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 static int intel_i2c_probe(struct udevice *dev)
 {
 	struct intel_i2c *priv = dev_get_priv(dev);
-	u32 base;
+	ulong base;
 
 	/* Save base address from PCI BAR */
-	priv->base = (u32)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_4,
-					 PCI_REGION_IO);
+	priv->base = (ulong)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_4,
+					   PCI_REGION_IO);
 	base = priv->base;
 
 	/* Set SMBus enable. */
