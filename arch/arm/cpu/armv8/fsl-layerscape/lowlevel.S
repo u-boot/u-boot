@@ -180,7 +180,7 @@ ENTRY(lowlevel_init)
 	dsb	sy
 #endif
 
-#ifdef CONFIG_LS1046A
+#ifdef CONFIG_ARCH_LS1046A
 	/* Initialize the L2 RAM latency */
 	mrs   x1, S3_1_c11_c0_2
 	mov   x0, #0x1C7

@@ -1,0 +1,2 @@
+config ARCH_LS1046A
+	bool "Freescale Layerscape LS1046A SoC"

@@ -7,6 +7,7 @@
 #ifndef _ASM_ARMV8_FSL_LAYERSCAPE_CONFIG_H_
 #define _ASM_ARMV8_FSL_LAYERSCAPE_CONFIG_H_
 
+#include <linux/kconfig.h>
 #include <fsl_ddrc_version.h>
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
@@ -213,7 +214,7 @@
 
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
-#elif defined(CONFIG_LS1046A)
+#elif defined(CONFIG_ARCH_LS1046A)
 #define CONFIG_MAX_CPUS				4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_NUM_FMAN			1

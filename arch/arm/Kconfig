@@ -843,6 +843,7 @@ config TARGET_LS1043ARDB
 
 config TARGET_LS1046AQDS
 	bool "Support ls1046aqds"
+	select ARCH_LS1046A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -855,6 +856,7 @@ config TARGET_LS1046AQDS
 
 config TARGET_LS1046ARDB
 	bool "Support ls1046ardb"
+	select ARCH_LS1046A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -950,6 +952,8 @@ source "arch/arm/cpu/armv7/mx6/Kconfig"
 source "arch/arm/cpu/armv7/mx5/Kconfig"
 
 source "arch/arm/cpu/armv7/omap-common/Kconfig"
+
+source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
 
