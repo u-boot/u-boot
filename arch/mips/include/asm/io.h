@@ -501,7 +501,7 @@ map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 	if (flags == MAP_NOCACHE)
 		return ioremap(paddr, len);
 
-	return (void *)paddr;
+	return (void *)CKSEG0ADDR(paddr);
 }
 
 /*
