@@ -741,8 +741,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg \
-	binary_size_check
+ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -941,20 +940,6 @@ u-boot.sha1:	u-boot.bin
 
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
-
-# If .u-boot.cfg.d is still present, then either:
-# a) The previous build used a Makefile that used if_changed rather than
-#    if_changed_dep when building u-boot.cfg, and hence any later builds will
-#    be unaware of the dependencies for u-boot.cfg. In this case, we must
-#    delete u-boot.cfg to force it and .u-boot.cfg.cmd to be rebuilt the
-#    correct way.
-# b) The previous build failed or was interrupted while building u-boot.cfg,
-#    so deleting u-boot.cfg isn't going to cause any additional work.
-ifneq ($(wildcard $(obj)/.u-boot.cfg.d),)
-  unused := $(shell rm -f $(obj)/u-boot.cfg)
-endif
-u-boot.cfg:	include/config.h FORCE
-	$(call if_changed_dep,cpp_cfg)
 
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
