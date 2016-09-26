@@ -124,7 +124,7 @@
 	"blimg_addr=0x81000400\0" \
 	"kernel_file=zImage\0" \
 	"kernel_addr=0x82000000\0" \
-	"fdt_file=vf610-pcm052.dtb\0" \
+	"fdt_file=zImage.dtb\0" \
 	"fdt_addr=0x81000000\0" \
 	"ram_file=uRamdisk\0" \
 	"ram_addr=0x83000000\0" \
