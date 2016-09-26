@@ -45,7 +45,18 @@ cat `find . -name "Kconfig*"` |sed -n \
 
 # Use only the options that are present in the first file but not the second.
 comm -23 scripts/config_whitelist.txt.tmp1 scripts/config_whitelist.txt.tmp2 \
-	|sort |uniq >scripts/config_whitelist.txt
-rm scripts/config_whitelist.txt.tmp1 scripts/config_whitelist.txt.tmp2
+	|sort |uniq >scripts/config_whitelist.txt.tmp3
+
+# If scripts/config_whitelist.txt already exists, take the intersection of the
+# current list and the new one.  We do not want to increase whitelist options.
+if [ -r scripts/config_whitelist.txt ]; then
+	comm -12 scripts/config_whitelist.txt.tmp3 scripts/config_whitelist.txt \
+		> scripts/config_whitelist.txt.tmp4
+	mv scripts/config_whitelist.txt.tmp4 scripts/config_whitelist.txt
+else
+	mv scripts/config_whitelist.txt.tmp3 scripts/config_whitelist.txt
+fi
+
+rm scripts/config_whitelist.txt.tmp*
 
 unset LC_ALL LC_COLLATE
