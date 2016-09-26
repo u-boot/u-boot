@@ -6,6 +6,7 @@
 
 #ifndef __FSL_NS_ACCESS_H_
 #define __FSL_NS_ACCESS_H_
+#include <fsl_csu.h>
 
 enum csu_cslx_ind {
 	CSU_CSLX_PCIE2_IO = 0,

@@ -7,7 +7,10 @@
 #ifndef _ASM_ARMV8_FSL_LAYERSCAPE_CONFIG_H_
 #define _ASM_ARMV8_FSL_LAYERSCAPE_CONFIG_H_
 
+#include <linux/kconfig.h>
 #include <fsl_ddrc_version.h>
+
+#define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
 
 #ifdef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDRC_GEN4
@@ -15,7 +18,7 @@
 #define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
 #endif
 
-#ifndef CONFIG_LS1012A
+#ifndef CONFIG_ARCH_LS1012A
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
 #endif
@@ -165,6 +168,7 @@
 #define CONFIG_SYS_FSL_SEC_BE
 
 #define CONFIG_SYS_FSL_SRDS_1
+
 /* SoC related */
 #ifdef CONFIG_LS1043A
 #define CONFIG_MAX_CPUS				4
@@ -201,13 +205,13 @@
 #define CONFIG_SYS_FSL_ERRATUM_A009942
 #define CONFIG_SYS_FSL_ERRATUM_A009660
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
-#elif defined(CONFIG_LS1012A)
+#elif defined(CONFIG_ARCH_LS1012A)
 #define CONFIG_MAX_CPUS                         1
 #undef	CONFIG_SYS_FSL_DDRC_ARM_GEN3
 
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
-#elif defined(CONFIG_LS1046A)
+#elif defined(CONFIG_ARCH_LS1046A)
 #define CONFIG_MAX_CPUS				4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_NUM_FMAN			1
@@ -234,6 +238,12 @@
 #define GICC_BASE		0x01420000
 
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
+
+#define CONFIG_SYS_FSL_ERRATUM_A008511
+#define CONFIG_SYS_FSL_ERRATUM_A009801
+#define CONFIG_SYS_FSL_ERRATUM_A009803
+#define CONFIG_SYS_FSL_ERRATUM_A009942
+#define CONFIG_SYS_FSL_ERRATUM_A010165
 #else
 #error SoC not defined
 #endif

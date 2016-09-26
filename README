@@ -4898,12 +4898,6 @@ The Freescale Layerscape Debug Server Support supports the loading of
 "Debug Server firmware" and triggering SP boot-rom.
 This firmware often needs to be loaded during U-Boot booting.
 
-- CONFIG_FSL_DEBUG_SERVER
-	Enable the Debug Server for Layerscape SoCs.
-
-- CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
-	Define minimum DDR size required for debug server image
-
 - CONFIG_SYS_MC_RSV_MEM_ALIGN
 	Define alignment of reserved memory MC requires
 

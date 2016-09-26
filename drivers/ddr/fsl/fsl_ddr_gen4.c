@@ -50,8 +50,13 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008511) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A009801)
+	u32 temp32;
+#endif
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
-	u32 temp32, mr6;
+	u32 mr6;
 	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
 	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
 	u32 *vref_seq = vref_seq1;
@@ -218,7 +223,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->err_disable, regs->err_disable);
 #endif
 	ddr_out32(&ddr->err_int_en, regs->err_int_en);
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < 64; i++) {
 		if (regs->debug[i]) {
 			debug("Write to debug_%d as %08x\n",
 			      i+1, regs->debug[i]);
@@ -238,7 +243,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	/* Part 1 of 2 */
-	/* This erraum only applies to verion 5.2.0 */
 	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
 		/* Disable DRAM VRef training */
 		ddr_out32(&ddr->ddr_cdr2,
@@ -247,11 +251,23 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		temp32 = ddr_in32(&ddr->debug[28]);
 		temp32 |= DDR_TX_BD_DIS;
 		ddr_out32(&ddr->debug[28], temp32);
-		/* Disable D_INIT */
-		ddr_out32(&ddr->sdram_cfg_2,
-			  regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
 		ddr_out32(&ddr->debug[25], 0x9000);
+	} else if (fsl_ddr_get_version(ctrl_num) == 0x50201) {
+		/* Output enable forced off */
+		ddr_out32(&ddr->debug[37], 1 << 31);
+		/* Enable Vref training */
+		ddr_out32(&ddr->ddr_cdr2,
+			  regs->ddr_cdr2 | DDR_CDR2_VREF_TRAIN_EN);
+	} else {
+		debug("Erratum A008511 doesn't apply.\n");
 	}
+#endif
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009803) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008511)
+	/* Disable D_INIT */
+	ddr_out32(&ddr->sdram_cfg_2,
+		  regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009801
@@ -331,21 +347,21 @@ step2:
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008511) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_A009803)
 	/* Part 2 of 2 */
-	/* This erraum only applies to verion 5.2.0 */
-	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
-		/* Wait for idle */
-		timeout = 40;
-		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
-		       (timeout > 0)) {
-			udelay(1000);
-			timeout--;
-		}
-		if (timeout <= 0) {
-			printf("Controler %d timeout, debug_2 = %x\n",
-			       ctrl_num, ddr_in32(&ddr->debug[1]));
-		}
+	timeout = 40;
+	/* Wait for idle. D_INIT needs to be cleared earlier, or timeout */
+	while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
+	       (timeout > 0)) {
+		udelay(1000);
+		timeout--;
+	}
+	if (timeout <= 0) {
+		printf("Controler %d timeout, debug_2 = %x\n",
+		       ctrl_num, ddr_in32(&ddr->debug[1]));
+	}
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
+	/* This erraum only applies to verion 5.2.0 */
+	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
 		/* The vref setting sequence is different for range 2 */
 		if (regs->ddr_cdr2 & DDR_CDR2_VREF_RANGE_2)
 			vref_seq = vref_seq2;
@@ -392,31 +408,31 @@ step2:
 			printf("Controler %d timeout, debug_2 = %x\n",
 			       ctrl_num, ddr_in32(&ddr->debug[1]));
 		}
-		/* Restore D_INIT */
-		ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
+	}
 #endif /* CONFIG_SYS_FSL_ERRATUM_A008511 */
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009803
-		if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
-			/* if it's RDIMM */
-			if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) {
-				for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-					if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
-						continue;
-					set_wait_for_bits_clear(&ddr->sdram_md_cntl,
-								MD_CNTL_MD_EN |
-								MD_CNTL_CS_SEL(i) |
-								0x070000ed,
-								MD_CNTL_MD_EN);
-					udelay(1);
-				}
+	if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+		/* if it's RDIMM */
+		if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) {
+			for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+				if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
+					continue;
+				set_wait_for_bits_clear(&ddr->sdram_md_cntl,
+							MD_CNTL_MD_EN |
+							MD_CNTL_CS_SEL(i) |
+							0x070000ed,
+							MD_CNTL_MD_EN);
+				udelay(1);
 			}
-
-			ddr_out32(&ddr->err_disable,
-				  regs->err_disable & ~DDR_ERR_DISABLE_APED);
 		}
-#endif
+
+		ddr_out32(&ddr->err_disable,
+			  regs->err_disable & ~DDR_ERR_DISABLE_APED);
 	}
+#endif
+	/* Restore D_INIT */
+	ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 #endif
 
 	total_gb_size_per_controller = 0;

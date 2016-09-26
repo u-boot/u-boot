@@ -17,7 +17,6 @@
 #include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
-#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_mmdc.h>
 #include <spl.h>
@@ -27,20 +26,6 @@
 #include "ls1012aqds_qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static void set_wait_for_bits_clear(void *ptr, u32 value, u32 bits)
-{
-	int timeout = 1000;
-
-	out_be32(ptr, value);
-
-	while (in_be32(ptr) & bits) {
-		udelay(100);
-		timeout--;
-	}
-	if (timeout <= 0)
-		puts("Error: wait for clear timeout.\n");
-}
 
 int checkboard(void)
 {
@@ -67,111 +52,25 @@ int checkboard(void)
 	return 0;
 }
 
-void mmdc_init(void)
-{
-	struct mmdc_p_regs *mmdc =
-		(struct mmdc_p_regs *)CONFIG_SYS_FSL_DDR_ADDR;
-
-	out_be32(&mmdc->mdscr, CONFIGURATION_REQ);
-
-	/* configure timing parms */
-	out_be32(&mmdc->mdotc,  CONFIG_SYS_MMDC_CORE_ODT_TIMING);
-	out_be32(&mmdc->mdcfg0, CONFIG_SYS_MMDC_CORE_TIMING_CFG_0);
-	out_be32(&mmdc->mdcfg1, CONFIG_SYS_MMDC_CORE_TIMING_CFG_1);
-	out_be32(&mmdc->mdcfg2, CONFIG_SYS_MMDC_CORE_TIMING_CFG_2);
-
-	/* other parms	*/
-	out_be32(&mmdc->mdmisc,    CONFIG_SYS_MMDC_CORE_MISC);
-	out_be32(&mmdc->mpmur0,    CONFIG_SYS_MMDC_PHY_MEASURE_UNIT);
-	out_be32(&mmdc->mdrwd,     CONFIG_SYS_MMDC_CORE_RDWR_CMD_DELAY);
-	out_be32(&mmdc->mpodtctrl, CONFIG_SYS_MMDC_PHY_ODT_CTRL);
-
-	/* out of reset delays */
-	out_be32(&mmdc->mdor,  CONFIG_SYS_MMDC_CORE_OUT_OF_RESET_DELAY);
-
-	/* physical parms */
-	out_be32(&mmdc->mdctl, CONFIG_SYS_MMDC_CORE_CONTROL_1);
-	out_be32(&mmdc->mdasp, CONFIG_SYS_MMDC_CORE_ADDR_PARTITION);
-
-       /* Enable MMDC */
-	out_be32(&mmdc->mdctl, CONFIG_SYS_MMDC_CORE_CONTROL_2);
-
-	/* dram init sequence: update MRs */
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x8) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_2));
-	out_be32(&mmdc->mdscr, (CONFIGURATION_REQ | CMD_LOAD_MODE_REG |
-				CMD_BANK_ADDR_3));
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x4) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_1));
-	out_be32(&mmdc->mdscr, (CMD_ADDR_MSB_MR_OP(0x19) |
-				CMD_ADDR_LSB_MR_ADDR(0x30) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_0));
-
-       /* dram init sequence: ZQCL */
-	out_be32(&mmdc->mdscr, (CMD_ADDR_MSB_MR_OP(0x4) | CONFIGURATION_REQ |
-				CMD_ZQ_CALIBRATION | CMD_BANK_ADDR_0));
-	set_wait_for_bits_clear(&mmdc->mpzqhwctrl,
-				CONFIG_SYS_MMDC_PHY_ZQ_HW_CTRL,
-				FORCE_ZQ_AUTO_CALIBRATION);
-
-       /* Calibrations now: wr lvl */
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x84) |
-				CONFIGURATION_REQ | CMD_LOAD_MODE_REG |
-				CMD_BANK_ADDR_1));
-	out_be32(&mmdc->mdscr, (CONFIGURATION_REQ | WL_EN | CMD_NORMAL));
-	set_wait_for_bits_clear(&mmdc->mpwlgcr, WR_LVL_HW_EN, WR_LVL_HW_EN);
-
-	mdelay(1);
-
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x4) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_1));
-	out_be32(&mmdc->mdscr, CONFIGURATION_REQ);
-
-	mdelay(1);
-
-       /* Calibrations now: Read DQS gating calibration */
-	out_be32(&mmdc->mdscr, (CMD_ADDR_MSB_MR_OP(0x4) | CONFIGURATION_REQ |
-				CMD_PRECHARGE_BANK_OPEN | CMD_BANK_ADDR_0));
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x4) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_3));
-	out_be32(&mmdc->mppdcmpr2, MPR_COMPARE_EN);
-	out_be32(&mmdc->mprddlctl, CONFIG_SYS_MMDC_PHY_RD_DLY_LINES_CFG);
-	set_wait_for_bits_clear(&mmdc->mpdgctrl0,
-				AUTO_RD_DQS_GATING_CALIBRATION_EN,
-				AUTO_RD_DQS_GATING_CALIBRATION_EN);
-
-	out_be32(&mmdc->mdscr, (CONFIGURATION_REQ | CMD_LOAD_MODE_REG |
-				CMD_BANK_ADDR_3));
-
-       /* Calibrations now: Read calibration */
-	out_be32(&mmdc->mdscr, (CMD_ADDR_MSB_MR_OP(0x4) | CONFIGURATION_REQ |
-				CMD_PRECHARGE_BANK_OPEN | CMD_BANK_ADDR_0));
-	out_be32(&mmdc->mdscr, (CMD_ADDR_LSB_MR_ADDR(0x4) | CONFIGURATION_REQ |
-				CMD_LOAD_MODE_REG | CMD_BANK_ADDR_3));
-	out_be32(&mmdc->mppdcmpr2,  MPR_COMPARE_EN);
-	set_wait_for_bits_clear(&mmdc->mprddlhwctl,
-				AUTO_RD_CALIBRATION_EN,
-				AUTO_RD_CALIBRATION_EN);
-
-	out_be32(&mmdc->mdscr, (CONFIGURATION_REQ | CMD_LOAD_MODE_REG |
-				CMD_BANK_ADDR_3));
-
-       /* PD, SR */
-	out_be32(&mmdc->mdpdc, CONFIG_SYS_MMDC_CORE_PWR_DOWN_CTRL);
-	out_be32(&mmdc->mapsr, CONFIG_SYS_MMDC_CORE_PWR_SAV_CTRL_STAT);
-
-       /* refresh scheme */
-	set_wait_for_bits_clear(&mmdc->mdref,
-				CONFIG_SYS_MMDC_CORE_REFRESH_CTL,
-				START_REFRESH);
-
-       /* disable CON_REQ */
-	out_be32(&mmdc->mdscr, DISABLE_CFG_REQ);
-}
-
 int dram_init(void)
 {
-	mmdc_init();
+	static const struct fsl_mmdc_info mparam = {
+		0x05180000,	/* mdctl */
+		0x00030035,	/* mdpdc */
+		0x12554000,	/* mdotc */
+		0xbabf7954,	/* mdcfg0 */
+		0xdb328f64,	/* mdcfg1 */
+		0x01ff00db,	/* mdcfg2 */
+		0x00001680,	/* mdmisc */
+		0x0f3c8000,	/* mdref */
+		0x00002000,	/* mdrwd */
+		0x00bf1023,	/* mdor */
+		0x0000003f,	/* mdasp */
+		0x0000022a,	/* mpodtctrl */
+		0xa1390003,	/* mpzqhwctrl */
+	};
+
+	mmdc_init(&mparam);
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
@@ -207,8 +106,8 @@ int board_init(void)
 	out_le32(&cci->ctrl_ord,
 		 CCI400_CTRLORD_EN_BARRIER);
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
 #endif
 
 #ifdef CONFIG_ENV_IS_NOWHERE

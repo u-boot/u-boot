@@ -153,11 +153,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE			0x530000000ULL
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
-/* Debug Server firmware */
-#define CONFIG_FSL_DEBUG_SERVER
-/* 2 sec timeout */
-#define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
-
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
@@ -175,8 +170,7 @@ unsigned long long get_qixis_addr(void);
  * It will be used by MC and Debug Server. The MC region must be
  * 512MB aligned, so the min size to hide is 512MB.
  */
-#if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(254UL * 1024 * 1024)
+#ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
 #define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif

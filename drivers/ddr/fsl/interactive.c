@@ -670,7 +670,7 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 
 	print_option_table(options, n_opts, ddr);
 
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < 64; i++)
 		printf("debug_%02d = 0x%08X\n", i+1, ddr->debug[i]);
 }
 
@@ -771,7 +771,7 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 	if (handle_option_table(options, n_opts, ddr, regname, value_str))
 		return;
 
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < 64; i++) {
 		unsigned int value = simple_strtoul(value_str, NULL, 0);
 		sprintf(buf, "debug_%u", i + 1);
 		if (strcmp(buf, regname) == 0) {

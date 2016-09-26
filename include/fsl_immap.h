@@ -131,7 +131,6 @@ struct ccsr_ddr {
 	u32	capture_ext_address;	/* Error Extended Addr Capture */
 	u32	err_sbe;		/* Single-Bit ECC Error Management */
 	u8	res_e5c[164];
-	u32	debug[32];		/* debug_1 to debug_32 */
-	u8	res_f80[128];
+	u32     debug[64];		/* debug_1 to debug_64 */
 };
 #endif /* __FSL_IMMAP_H */

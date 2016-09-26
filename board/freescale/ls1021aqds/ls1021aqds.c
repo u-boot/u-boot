@@ -430,6 +430,10 @@ int board_init(void)
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 	unsigned int major;
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
+#endif
+
 	major = get_soc_major_rev();
 	if (major == SOC_MAJOR_VER_1_0) {
 		/* Set CCI-400 control override register to
@@ -445,10 +449,6 @@ int board_init(void)
 #endif
 
 	ls102xa_smmu_stream_id_init();
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
 
 #ifdef CONFIG_U_QE
 	u_qe_init();

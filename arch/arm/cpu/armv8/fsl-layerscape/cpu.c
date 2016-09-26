@@ -18,7 +18,6 @@
 #include <asm/arch/mp.h>
 #endif
 #include <fm_eth.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -456,10 +455,6 @@ phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 
 #ifdef CONFIG_SYS_MEM_TOP_HIDE
 #error CONFIG_SYS_MEM_TOP_HIDE not to be used together with this function
-#endif
-/* Carve the Debug Server private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	ram_top -= debug_server_get_dram_block_size();
 #endif
 
 /* Carve the MC private DRAM block from the end of DRAM */

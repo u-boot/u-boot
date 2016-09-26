@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <libfdt.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <asm/arch/soc.h>
@@ -60,10 +59,6 @@ int dram_init(void)
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	debug_server_init();
-#endif
-
 	return 0;
 }
 #endif

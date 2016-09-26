@@ -100,6 +100,10 @@ void cpu_name(char *name);
 void erratum_a009635(void);
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+void erratum_a010315(void);
+#endif
+
 bool soc_has_dp_ddr(void);
 bool soc_has_aiop(void);
 #endif /* _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_ */

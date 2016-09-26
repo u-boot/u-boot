@@ -1,0 +1,6 @@
+config ARCH_LS1021A
+	bool "Freescale Layerscape LS1021A SoC"
+	select SYS_FSL_ERRATUM_A010315
+
+config LS1_DEEP_SLEEP
+	bool "Freescale Layerscape 1 deep sleep"
