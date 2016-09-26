@@ -42,7 +42,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
-	lmb_reserve(lmb, sp, CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp);
+	lmb_reserve(lmb, sp, gd->ram_top - sp);
 }
 
 static void linux_cmdline_init(void)
