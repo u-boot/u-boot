@@ -30,13 +30,3 @@ int init_cache_f_r(void)
 	/* Initialise the CPU cache(s) */
 	return init_cache();
 }
-
-bd_t bd_data;
-
-int init_bd_struct_r(void)
-{
-	gd->bd = &bd_data;
-	memset(gd->bd, 0, sizeof(bd_t));
-
-	return 0;
-}

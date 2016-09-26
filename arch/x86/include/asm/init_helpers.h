@@ -9,7 +9,5 @@
 #define _INIT_HELPERS_H_
 
 int init_cache_f_r(void);
-int init_bd_struct_r(void);
-int init_func_spi(void);
 
 #endif	/* !_INIT_HELPERS_H_ */
