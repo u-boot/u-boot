@@ -472,15 +472,6 @@ static void get_board_rev(void)
 	printf("RPI %s (0x%x)\n", model->name, revision);
 }
 
-int board_init(void)
-{
-	get_board_rev();
-
-	gd->bd->bi_boot_params = 0x100;
-
-	return power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
-}
-
 #ifndef CONFIG_PL01X_SERIAL
 static bool rpi_is_serial_active(void)
 {
@@ -500,17 +491,38 @@ static bool rpi_is_serial_active(void)
 
 	return true;
 }
+
+/* Disable mini-UART I/O if it's not pinmuxed to our pins.
+ * The firmware only enables it if explicitly done in config.txt: enable_uart=1
+ */
+static void rpi_disable_inactive_uart(void)
+{
+	struct udevice *dev;
+	struct bcm283x_mu_serial_platdata *plat;
+
+	if (uclass_get_device_by_driver(UCLASS_SERIAL,
+					DM_GET_DRIVER(serial_bcm283x_mu),
+					&dev) || !dev)
+		return;
+
+	if (!rpi_is_serial_active()) {
+		plat = dev_get_platdata(dev);
+		plat->disabled = true;
+	}
+}
 #endif
 
-int board_early_init_f(void)
+int board_init(void)
 {
 #ifndef CONFIG_PL01X_SERIAL
-	/* Disable mini-UART I/O if it's not pinmuxed to our pins */
-	if (!rpi_is_serial_active())
-		serial_platdata.disabled = true;
+	rpi_disable_inactive_uart();
 #endif
 
-	return 0;
+	get_board_rev();
+
+	gd->bd->bi_boot_params = 0x100;
+
+	return power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
 }
 
 int board_mmc_init(bd_t *bis)
