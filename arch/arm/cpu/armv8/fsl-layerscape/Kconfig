@@ -1,2 +1,9 @@
+config ARCH_LS1012A
+	bool "Freescale Layerscape LS1012A SoC"
+	select SYS_FSL_MMDC
+
 config ARCH_LS1046A
 	bool "Freescale Layerscape LS1046A SoC"
+
+config SYS_FSL_MMDC
+	bool "Freescale Multi Mode DDR Controller"

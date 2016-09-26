@@ -788,6 +788,7 @@ config TARGET_HIKEY
 
 config TARGET_LS1012AQDS
 	bool "Support ls1012aqds"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012AQDS platform.
@@ -797,6 +798,7 @@ config TARGET_LS1012AQDS
 
 config TARGET_LS1012ARDB
 	bool "Support ls1012ardb"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012ARDB platform.
@@ -806,6 +808,7 @@ config TARGET_LS1012ARDB
 
 config TARGET_LS1012AFRDM
 	bool "Support ls1012afrdm"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012AFRDM platform.

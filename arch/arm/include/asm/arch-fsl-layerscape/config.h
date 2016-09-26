@@ -18,9 +18,7 @@
 #define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
 #endif
 
-#ifdef CONFIG_LS1012A
-#define CONFIG_SYS_FSL_MMDC		/* Freescale MMDC driver */
-#else
+#ifndef CONFIG_ARCH_LS1012A
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
 #endif
@@ -208,7 +206,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_A009942
 #define CONFIG_SYS_FSL_ERRATUM_A009660
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
-#elif defined(CONFIG_LS1012A)
+#elif defined(CONFIG_ARCH_LS1012A)
 #define CONFIG_MAX_CPUS                         1
 #undef	CONFIG_SYS_FSL_DDRC_ARM_GEN3
 
