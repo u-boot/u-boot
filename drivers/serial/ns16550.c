@@ -13,7 +13,6 @@
 #include <serial.h>
 #include <watchdog.h>
 #include <linux/types.h>
-#include <linux/compiler.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -354,8 +353,8 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev->platdata;
 	fdt_addr_t addr;
-	__maybe_unused struct clk clk;
-	__maybe_unused int err;
+	struct clk clk;
+	int err;
 
 	/* try Processor Local Bus device first */
 	addr = dev_get_addr(dev);
@@ -402,7 +401,6 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					 "reg-shift", 0);
 
-#ifdef CONFIG_CLK
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
 		err = clk_get_rate(&clk);
@@ -412,7 +410,6 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		debug("ns16550 failed to get clock\n");
 		return err;
 	}
-#endif
 
 	if (!plat->clock)
 		plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
