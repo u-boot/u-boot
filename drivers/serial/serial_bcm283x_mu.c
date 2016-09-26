@@ -59,7 +59,7 @@ static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 divider;
 
-	if (plat->skip_init)
+	if (plat->disabled || plat->skip_init)
 		return 0;
 
 	divider = plat->clock / (baudrate * 8);
@@ -85,9 +85,13 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 
 static int bcm283x_mu_serial_getc(struct udevice *dev)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 data;
+
+	if (plat->disabled)
+		return -EAGAIN;
 
 	/* Wait until there is data in the FIFO */
 	if (!(readl(&regs->lsr) & BCM283X_MU_LSR_RX_READY))
@@ -100,8 +104,12 @@ static int bcm283x_mu_serial_getc(struct udevice *dev)
 
 static int bcm283x_mu_serial_putc(struct udevice *dev, const char data)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
+
+	if (plat->disabled)
+		return 0;
 
 	/* Wait until there is space in the FIFO */
 	if (!(readl(&regs->lsr) & BCM283X_MU_LSR_TX_EMPTY))
@@ -115,9 +123,15 @@ static int bcm283x_mu_serial_putc(struct udevice *dev, const char data)
 
 static int bcm283x_mu_serial_pending(struct udevice *dev, bool input)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
-	unsigned int lsr = readl(&regs->lsr);
+	unsigned int lsr;
+
+	if (plat->disabled)
+		return 0;
+
+	lsr = readl(&regs->lsr);
 
 	if (input) {
 		WATCHDOG_RESET();
