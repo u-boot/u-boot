@@ -822,6 +822,7 @@ config TARGET_LS1021AQDS
 	select SUPPORT_SPL
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
+	select LS1_DEEP_SLEEP
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
@@ -829,6 +830,7 @@ config TARGET_LS1021ATWR
 	select SUPPORT_SPL
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
+	select LS1_DEEP_SLEEP
 
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
