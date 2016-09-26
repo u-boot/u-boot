@@ -742,7 +742,7 @@ endif
 
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg \
-	binary_size_check no_new_adhoc_configs_check
+	binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -821,6 +821,11 @@ ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo "before sending patches to the mailing list."
 	@echo "===================================================="
 endif
+	@# Check that this build does not use CONFIG options that we do not
+	@# know about unless they are in Kconfig. All the existing CONFIG
+	@# options are whitelisted, so new ones should not be added.
+	$(srctree)/scripts/check-config.sh u-boot.cfg \
+		$(srctree)/scripts/config_whitelist.txt ${srctree} 1>&2
 
 PHONY += dtbs
 dtbs: dts/dt.dtb
@@ -950,13 +955,6 @@ ifneq ($(wildcard $(obj)/.u-boot.cfg.d),)
 endif
 u-boot.cfg:	include/config.h FORCE
 	$(call if_changed_dep,cpp_cfg)
-
-# Check that this build does not use CONFIG options that we don't know about
-# unless they are in Kconfig. All the existing CONFIG options are whitelisted,
-# so new ones should not be added.
-no_new_adhoc_configs_check: u-boot.cfg FORCE
-	$(srctree)/scripts/check-config.sh $< \
-		$(srctree)/scripts/config_whitelist.txt ${srctree} 1>&2
 
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
