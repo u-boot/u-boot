@@ -181,7 +181,7 @@ index 0000000..2234c87
         elif data_type == 'indent':
             indent = tab
         else:
-            print 'not implemented'
+            print('not implemented')
         return data % (signoff, tab, indent, tab)
 
     def SetupData(self, data_type):

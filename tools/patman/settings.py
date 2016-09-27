@@ -3,6 +3,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+from __future__ import print_function
+
 import ConfigParser
 import os
 import re
@@ -156,7 +158,7 @@ def ReadGitAliases(fname):
     try:
         fd = open(fname, 'r')
     except IOError:
-        print "Warning: Cannot find alias file '%s'" % fname
+        print("Warning: Cannot find alias file '%s'" % fname)
         return
 
     re_line = re.compile('alias\s+(\S+)\s+(.*)')
@@ -167,7 +169,7 @@ def ReadGitAliases(fname):
 
         m = re_line.match(line)
         if not m:
-            print "Warning: Alias file line '%s' not understood" % line
+            print("Warning: Alias file line '%s' not understood" % line)
             continue
 
         list = alias.get(m.group(1), [])
@@ -200,10 +202,10 @@ def CreatePatmanConfigFile(config_fname):
     try:
         f = open(config_fname, 'w')
     except IOError:
-        print "Couldn't create patman config file\n"
+        print("Couldn't create patman config file\n")
         raise
 
-    print >>f, "[alias]\nme: %s <%s>" % (name, email)
+    print("[alias]\nme: %s <%s>" % (name, email), file=f)
     f.close();
 
 def _UpdateDefaults(parser, config):
@@ -233,7 +235,7 @@ def _UpdateDefaults(parser, config):
                 val = config.getint('settings', name)
             parser.set_default(name, val)
         else:
-            print "WARNING: Unknown setting %s" % name
+            print("WARNING: Unknown setting %s" % name)
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.
@@ -258,7 +260,7 @@ def _ReadAliasFile(fname):
                     continue
                 alias[words[1]] = [s.strip() for s in words[2].split(',')]
         if bad_line:
-            print bad_line
+            print(bad_line)
 
 def Setup(parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
@@ -276,7 +278,7 @@ def Setup(parser, project_name, config_fname=''):
         config_fname = '%s/.patman' % os.getenv('HOME')
 
     if not os.path.exists(config_fname):
-        print "No config file found ~/.patman\nCreating one...\n"
+        print("No config file found ~/.patman\nCreating one...\n")
         CreatePatmanConfigFile(config_fname)
 
     config.read(config_fname)

@@ -491,7 +491,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
         if raise_on_error:
             raise OSError, msg
         else:
-            print col.Color(col.RED, msg)
+            print(col.Color(col.RED, msg))
             return out_list
 
     if lookup_name:
@@ -500,7 +500,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
             if raise_on_error:
                 raise ValueError, msg
             else:
-                print col.Color(col.RED, msg)
+                print(col.Color(col.RED, msg))
                 return out_list
         for item in alias[lookup_name]:
             todo = LookupEmail(item, alias, raise_on_error, level + 1)
@@ -508,7 +508,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
                 if not new_item in out_list:
                     out_list.append(new_item)
 
-    #print "No match for alias '%s'" % lookup_name
+    #print("No match for alias '%s'" % lookup_name)
     return out_list
 
 def GetTopLevel():
