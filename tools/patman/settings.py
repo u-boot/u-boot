@@ -36,7 +36,10 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     - Merge general default settings/aliases with project-specific ones.
 
     # Sample config used for tests below...
-    >>> import StringIO
+    >>> try:
+    ...     from StringIO import StringIO
+    ... except ImportError:
+    ...     from io import StringIO
     >>> sample_config = '''
     ... [alias]
     ... me: Peter P. <likesspiders@example.com>
@@ -54,25 +57,25 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
 
     # Check to make sure that bogus project gets general alias.
     >>> config = _ProjectConfigParser("zzz")
-    >>> config.readfp(StringIO.StringIO(sample_config))
+    >>> config.readfp(StringIO(sample_config))
     >>> config.get("alias", "enemies")
     'Evil <evil@example.com>'
 
     # Check to make sure that alias gets overridden by project.
     >>> config = _ProjectConfigParser("sm")
-    >>> config.readfp(StringIO.StringIO(sample_config))
+    >>> config.readfp(StringIO(sample_config))
     >>> config.get("alias", "enemies")
     'Green G. <ugly@example.com>'
 
     # Check to make sure that settings get merged with project.
     >>> config = _ProjectConfigParser("linux")
-    >>> config.readfp(StringIO.StringIO(sample_config))
+    >>> config.readfp(StringIO(sample_config))
     >>> sorted(config.items("settings"))
     [('am_hero', 'True'), ('process_tags', 'False')]
 
     # Check to make sure that settings works with unknown project.
     >>> config = _ProjectConfigParser("unknown")
-    >>> config.readfp(StringIO.StringIO(sample_config))
+    >>> config.readfp(StringIO(sample_config))
     >>> sorted(config.items("settings"))
     [('am_hero', 'True')]
     """
