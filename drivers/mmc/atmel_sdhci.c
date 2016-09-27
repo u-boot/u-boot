@@ -50,29 +50,6 @@ struct atmel_sdhci_plat {
 	struct mmc mmc;
 };
 
-static int atmel_sdhci_get_clk(struct udevice *dev, int index, struct clk *clk)
-{
-	struct udevice *dev_clk;
-	int periph, ret;
-
-	ret = clk_get_by_index(dev, index, clk);
-	if (ret)
-		return ret;
-
-	periph = fdtdec_get_uint(gd->fdt_blob, clk->dev->of_offset, "reg", -1);
-	if (periph < 0)
-		return -EINVAL;
-
-	dev_clk = dev_get_parent(clk->dev);
-	ret = clk_request(dev_clk, clk);
-	if (ret)
-		return ret;
-
-	clk->id = periph;
-
-	return 0;
-}
-
 static int atmel_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -85,7 +62,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	ret = atmel_sdhci_get_clk(dev, 0, &clk);
+	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
 
@@ -106,7 +83,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >> SDHCI_CLOCK_MUL_SHIFT;
 	gck_rate = clk_base * 1000000 * (clk_mul + 1);
 
-	ret = atmel_sdhci_get_clk(dev, 1, &clk);
+	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret)
 		return ret;
 
