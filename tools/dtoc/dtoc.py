@@ -60,7 +60,7 @@ def Conv_name_to_c(name):
 def TabTo(num_tabs, str):
     if len(str) >= num_tabs * 8:
         return str + ' '
-    return str + '\t' * (num_tabs - len(str) / 8)
+    return str + '\t' * (num_tabs - len(str) // 8)
 
 class DtbPlatdata:
     """Provide a means to convert device tree binary data to platform data
