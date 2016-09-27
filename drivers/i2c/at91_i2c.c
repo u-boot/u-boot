@@ -190,7 +190,7 @@ static int at91_i2c_enable_clk(struct udevice *dev)
 
 	clk_rate = clk_get_rate(&clk);
 	if (!clk_rate)
-		return -ENODEV;
+		return -EINVAL;
 
 	bus->bus_clk_rate = clk_rate;
 
