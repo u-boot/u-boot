@@ -225,7 +225,7 @@ class Series(dict):
                                                raise_on_error=raise_on_error)
             list += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-	    if add_maintainers:
+            if add_maintainers:
                 list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
             print >>fd, commit.patch, ', '.join(set(list))
@@ -259,7 +259,7 @@ class Series(dict):
         """
         git_prefix = gitutil.GetDefaultSubjectPrefix()
         if git_prefix:
-	    git_prefix = '%s][' % git_prefix
+            git_prefix = '%s][' % git_prefix
         else:
             git_prefix = ''
 
