@@ -8,6 +8,7 @@
 
 import os
 import struct
+import sys
 import tempfile
 
 import command
@@ -22,6 +23,8 @@ def fdt32_to_cpu(val):
     Return:
         A native-endian integer value
     """
+    if sys.version_info > (3, 0):
+        val = val.encode('raw_unicode_escape')
     return struct.unpack('>I', val)[0]
 
 def EnsureCompiled(fname):
