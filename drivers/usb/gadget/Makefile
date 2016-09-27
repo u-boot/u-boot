@@ -19,7 +19,9 @@ obj-$(CONFIG_USB_GADGET_FOTG210) += fotg210.o
 obj-$(CONFIG_CI_UDC)	+= ci_udc.o
 obj-$(CONFIG_USB_GADGET_DOWNLOAD) += g_dnl.o
 obj-$(CONFIG_USB_FUNCTION_THOR) += f_thor.o
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_FUNCTION_DFU) += f_dfu.o
+endif
 obj-$(CONFIG_USB_FUNCTION_MASS_STORAGE) += f_mass_storage.o
 obj-$(CONFIG_USB_FUNCTION_FASTBOOT) += f_fastboot.o
 endif
