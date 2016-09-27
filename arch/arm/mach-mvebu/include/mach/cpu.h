@@ -166,5 +166,12 @@ struct mvebu_lcd_info {
 
 int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info);
 
+/*
+ * get_ref_clk
+ *
+ * return: reference clock in MHz (25 or 40)
+ */
+u32 get_ref_clk(void);
+
 #endif /* __ASSEMBLY__ */
 #endif /* _MVEBU_CPU_H */

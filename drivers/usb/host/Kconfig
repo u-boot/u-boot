@@ -21,6 +21,15 @@ config USB_XHCI_DWC3
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_MVEBU
+	bool "MVEBU USB 3.0 support"
+	default y
+	depends on ARCH_MVEBU
+	help
+	  Choose this option to add support for USB 3.0 driver on mvebu
+	  SoCs, which includes Armada8K, Armada3700 and other Armada
+	  family SoCs.
+
 config USB_XHCI_ROCKCHIP
 	bool "Support for Rockchip on-chip xHCI USB controller"
 	depends on ARCH_ROCKCHIP

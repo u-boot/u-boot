@@ -164,9 +164,7 @@ config KIRKWOOD
 	select CPU_ARM926EJS
 
 config ARCH_MVEBU
-	bool "Marvell MVEBU family (Armada XP/375/38x)"
-	select CPU_V7
-	select SUPPORT_SPL
+	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
 	select OF_CONTROL
 	select OF_SEPARATE
 	select DM
@@ -174,10 +172,6 @@ config ARCH_MVEBU
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select SPL_DM
-	select SPL_DM_SEQ_ALIAS
-	select SPL_OF_CONTROL
-	select SPL_SIMPLE_BUS
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
