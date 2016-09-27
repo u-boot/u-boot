@@ -15,9 +15,11 @@
 		rtc0 = "/i2c@7000d000/tps6586x@34";
 		rtc1 = "/rtc@7000e000";
 		serial0 = &uartd;
-		usb0 = "/usb@c5008000";
-		sdhci0 = "/sdhci@c8000600";
-		sdhci1 = "/sdhci@c8000400";
+		usb0 = "/usb@c5000000";
+		usb1 = "/usb@c5004000";
+		usb2 = "/usb@c5008000";
+		mmc0 = "/sdhci@c8000600";
+		mmc1 = "/sdhci@c8000400";
 	};
 
 	memory {

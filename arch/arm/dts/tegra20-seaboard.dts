@@ -9,8 +9,9 @@
 
 	aliases {
 		/* This defines the order of our ports */
-		usb0 = "/usb@c5008000";
-		usb1 = "/usb@c5000000";
+		usb0 = "/usb@c5000000";
+		usb1 = "/usb@c5004000";
+		usb2 = "/usb@c5008000";
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
@@ -18,8 +19,8 @@
 		rtc0 = "/i2c@7000d000/tps6586x@34";
 		rtc1 = "/rtc@7000e000";
 		serial0 = &uartd;
-		sdhci0 = "/sdhci@c8000600";
-		sdhci1 = "/sdhci@c8000400";
+		mmc0 = "/sdhci@c8000600";
+		mmc1 = "/sdhci@c8000400";
 	};
 
 	chosen {
@@ -783,7 +784,7 @@
 	};
 
 	usb@c5004000 {
-		status = "disabled";
+		status = "okay";
 		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1)
 			GPIO_ACTIVE_LOW>;
 	};

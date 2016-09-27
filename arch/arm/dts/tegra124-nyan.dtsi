@@ -3,8 +3,8 @@
 
 / {
 	aliases {
-		rtc0 = "/i2c@0,7000d000/pmic@40";
-		rtc1 = "/rtc@0,7000e000";
+		rtc0 = "/i2c@7000d000/pmic@40";
+		rtc1 = "/rtc@7000e000";
 		serial0 = &uarta;
 	};
 
@@ -424,10 +424,12 @@
 
 	usb@7d004000 { /* Internal webcam. */
 		status = "okay";
+		phy_type = "hsic";
 	};
 
 	usb-phy@7d004000 {
 		status = "okay";
+		phy_type = "hsic";
 		vbus-supply = <&vdd_run_cam>;
 	};
 

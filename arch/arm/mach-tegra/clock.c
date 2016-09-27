@@ -206,6 +206,29 @@ int clock_ll_set_source_bits(enum periph_id periph_id, int mux_bits,
 	return 0;
 }
 
+static int clock_ll_get_source_bits(enum periph_id periph_id, int mux_bits)
+{
+	u32 *reg = get_periph_source_reg(periph_id);
+	u32 val = readl(reg);
+
+	switch (mux_bits) {
+	case MASK_BITS_31_30:
+		val >>= OUT_CLK_SOURCE_31_30_SHIFT;
+		val &= OUT_CLK_SOURCE_31_30_MASK;
+		return val;
+	case MASK_BITS_31_29:
+		val >>= OUT_CLK_SOURCE_31_29_SHIFT;
+		val &= OUT_CLK_SOURCE_31_29_MASK;
+		return val;
+	case MASK_BITS_31_28:
+		val >>= OUT_CLK_SOURCE_31_28_SHIFT;
+		val &= OUT_CLK_SOURCE_31_28_MASK;
+		return val;
+	default:
+		return -1;
+	}
+}
+
 void clock_ll_set_source(enum periph_id periph_id, unsigned source)
 {
 	clock_ll_set_source_bits(periph_id, MASK_BITS_31_30, source);
@@ -288,9 +311,43 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 		enum clock_id parent)
 {
 	u32 *reg = get_periph_source_reg(periph_id);
+	unsigned parent_rate = pll_rate[parent];
+	int div = (readl(reg) & OUT_CLK_DIVISOR_MASK) >> OUT_CLK_DIVISOR_SHIFT;
 
-	return get_rate_from_divider(pll_rate[parent],
-		(readl(reg) & OUT_CLK_DIVISOR_MASK) >> OUT_CLK_DIVISOR_SHIFT);
+	switch (periph_id) {
+	case PERIPH_ID_UART1:
+	case PERIPH_ID_UART2:
+	case PERIPH_ID_UART3:
+	case PERIPH_ID_UART4:
+	case PERIPH_ID_UART5:
+#ifdef CONFIG_TEGRA20
+		/* There's no divider for these clocks in this SoC. */
+		return parent_rate;
+#else
+		/*
+		 * This undoes the +2 in get_rate_from_divider() which I
+		 * believe is incorrect. Ideally we would fix
+		 * get_rate_from_divider(), but... Removing the +2 from
+		 * get_rate_from_divider() would probably require remove the -2
+		 * from the tail of clk_get_divider() since I believe that's
+		 * only there to invert get_rate_from_divider()'s +2. Observe
+		 * how find_best_divider() uses those two functions together.
+		 * However, doing so breaks other stuff, such as Seaboard's
+		 * display, likely due to clock_set_pllout()'s call to
+		 * clk_get_divider(). Attempting to fix that by making
+		 * clock_set_pllout() subtract 2 from clk_get_divider()'s
+		 * return value doesn't help. In summary this clock driver is
+		 * quite broken but I'm afraid I have no idea how to fix it
+		 * without completely replacing it.
+		 */
+		div -= 2;
+		break;
+#endif
+	default:
+		break;
+	}
+
+	return get_rate_from_divider(parent_rate, div);
 }
 
 /**
@@ -361,6 +418,20 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 
 	udelay(2);
 	return 0;
+}
+
+enum clock_id clock_get_periph_parent(enum periph_id periph_id)
+{
+	int err, mux_bits, divider_bits, type;
+	int source;
+
+	err = get_periph_clock_info(periph_id, &mux_bits, &divider_bits, &type);
+	if (err)
+		return CLOCK_ID_NONE;
+
+	source = clock_ll_get_source_bits(periph_id, mux_bits);
+
+	return get_periph_clock_id(periph_id, source);
 }
 
 unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
@@ -612,6 +683,8 @@ int clock_verify(void)
 
 void clock_init(void)
 {
+	int i;
+
 	pll_rate[CLOCK_ID_CGENERAL] = clock_get_rate(CLOCK_ID_CGENERAL);
 	pll_rate[CLOCK_ID_MEMORY] = clock_get_rate(CLOCK_ID_MEMORY);
 	pll_rate[CLOCK_ID_PERIPH] = clock_get_rate(CLOCK_ID_PERIPH);
@@ -630,6 +703,19 @@ void clock_init(void)
 	debug("PLLU = %d\n", pll_rate[CLOCK_ID_USB]);
 	debug("PLLD = %d\n", pll_rate[CLOCK_ID_DISPLAY]);
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
+
+	for (i = 0; periph_clk_init_table[i].periph_id != -1; i++) {
+		enum periph_id periph_id;
+		enum clock_id parent;
+		int source, mux_bits, divider_bits;
+
+		periph_id = periph_clk_init_table[i].periph_id;
+		parent = periph_clk_init_table[i].parent_clock_id;
+
+		source = get_periph_clock_source(periph_id, parent, &mux_bits,
+						 &divider_bits);
+		clock_ll_set_source_bits(periph_id, mux_bits, source);
+	}
 }
 
 static void set_avp_clock_source(u32 src)

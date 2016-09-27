@@ -17,7 +17,7 @@
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
 		usb2 = "/usb@c5004000";
-		sdhci0 = "/sdhci@c8000600";
+		mmc0 = "/sdhci@c8000600";
 	};
 
 	host1x@50000000 {
@@ -39,7 +39,8 @@
 	usb@c5004000 {
 		statuc = "okay";
 		/* VBUS_LAN */
-		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
+		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1)
+			GPIO_ACTIVE_LOW>;
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 

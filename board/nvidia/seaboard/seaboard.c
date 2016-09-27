@@ -44,6 +44,12 @@ void pin_mux_mmc(void)
 
 void pin_mux_usb(void)
 {
-	/* For USB's GPIO PD0. For now, since we have no pinmux in fdt */
+	/* For USB0's GPIO PD0. For now, since we have no pinmux in fdt */
 	pinmux_tristate_disable(PMUX_PINGRP_SLXK);
+	/* For USB1's ULPI signals */
+	funcmux_select(PERIPH_ID_USB2, FUNCMUX_USB2_ULPI);
+	pinmux_set_func(PMUX_PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
+	pinmux_tristate_disable(PMUX_PINGRP_CDEV2);
+	/* USB1 PHY reset GPIO */
+	pinmux_tristate_disable(PMUX_PINGRP_UAC);
 }

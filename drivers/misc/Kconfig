@@ -129,6 +129,13 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
+config TEGRA_CAR
+	bool "Enable support for the Tegra CAR driver"
+	depends on TEGRA_NO_BPMP
+	help
+	  The Tegra CAR (Clock and Reset Controller) is a HW module that
+	  controls almost all clocks and resets in a Tegra SoC.
+
 config TEGRA186_BPMP
 	bool "Enable support for the Tegra186 BPMP driver"
 	depends on TEGRA186
