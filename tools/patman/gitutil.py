@@ -139,7 +139,7 @@ def GetUpstream(git_dir, branch):
         leaf = merge.split('/')[-1]
         return '%s/%s' % (remote, leaf), None
     else:
-        raise ValueError, ("Cannot determine upstream branch for branch "
+        raise ValueError("Cannot determine upstream branch for branch "
                 "'%s' remote='%s', merge='%s'" % (branch, remote, merge))
 
 
@@ -224,7 +224,7 @@ def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     result = command.RunPipe([pipe], capture=True, raise_on_error=False,
                              capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git checkout (%s): %s' % (pipe, result.stderr)
+        raise OSError('git checkout (%s): %s' % (pipe, result.stderr))
 
 def Clone(git_dir, output_dir):
     """Checkout the selected commit for this build
@@ -236,7 +236,7 @@ def Clone(git_dir, output_dir):
     result = command.RunPipe([pipe], capture=True, cwd=output_dir,
                              capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git clone: %s' % result.stderr
+        raise OSError('git clone: %s' % result.stderr)
 
 def Fetch(git_dir=None, work_tree=None):
     """Fetch from the origin repo
@@ -252,7 +252,7 @@ def Fetch(git_dir=None, work_tree=None):
     pipe.append('fetch')
     result = command.RunPipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git fetch: %s' % result.stderr
+        raise OSError('git fetch: %s' % result.stderr)
 
 def CreatePatches(start, count, series):
     """Create a series of patches from the top of the current branch.
@@ -489,7 +489,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     if level > 10:
         msg = "Recursive email alias at '%s'" % lookup_name
         if raise_on_error:
-            raise OSError, msg
+            raise OSError(msg)
         else:
             print(col.Color(col.RED, msg))
             return out_list
@@ -498,7 +498,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
         if not lookup_name in alias:
             msg = "Alias '%s' not found" % lookup_name
             if raise_on_error:
-                raise ValueError, msg
+                raise ValueError(msg)
             else:
                 print(col.Color(col.RED, msg))
                 return out_list
