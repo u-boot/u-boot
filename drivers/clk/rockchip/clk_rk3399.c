@@ -786,7 +786,9 @@ void *rockchip_get_cru(void)
 	fdt_addr_t *addr;
 	int ret;
 
-	ret = uclass_get_device_by_name(UCLASS_CLK, "clk_rk3399", &dev);
+	ret = uclass_get_device_by_driver(UCLASS_CLK,
+			DM_GET_DRIVER(clk_rk3399), &dev);
+
 	if (ret)
 		return ERR_PTR(ret);
 
