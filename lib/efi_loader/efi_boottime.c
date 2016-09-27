@@ -475,7 +475,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		  exit_data_size, exit_data);
 
 	loaded_image_info->exit_status = exit_status;
-	longjmp(&loaded_image_info->exit_jmp);
+	longjmp(&loaded_image_info->exit_jmp, 1);
 
 	panic("EFI application exited");
 }
