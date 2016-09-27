@@ -94,7 +94,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
         if not self.has_section(project_settings):
             self.add_section(project_settings)
         project_defaults = _default_settings.get(project_name, {})
-        for setting_name, setting_value in project_defaults.iteritems():
+        for setting_name, setting_value in project_defaults.items():
             self.set(project_settings, setting_name, setting_value)
 
     def get(self, section, option, *args, **kwargs):
