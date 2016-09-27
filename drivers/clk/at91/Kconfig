@@ -1,6 +1,7 @@
 config CLK_AT91
 	bool "AT91 clock drivers"
 	depends on CLK
+	select MISC
 	help
 	  This option is used to enable the AT91 clock driver.
 	  The driver supports the AT91 clock generator, including
