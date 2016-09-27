@@ -11,6 +11,12 @@
 #include <errno.h>
 #include <i2c.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+struct cros_ec_i2c_bus {
+	int remote_bus;
+};
+
 static int cros_ec_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 {
 	return 0;
@@ -19,7 +25,21 @@ static int cros_ec_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 static int cros_ec_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			    int nmsgs)
 {
-	return cros_ec_i2c_tunnel(dev->parent, msg, nmsgs);
+	struct cros_ec_i2c_bus *i2c_bus = dev_get_priv(dev);
+
+	return cros_ec_i2c_tunnel(dev->parent, i2c_bus->remote_bus, msg, nmsgs);
+}
+
+static int cros_ec_i2c_ofdata_to_platdata(struct udevice *dev)
+{
+	struct cros_ec_i2c_bus *i2c_bus = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+
+	i2c_bus->remote_bus = fdtdec_get_uint(blob, node, "google,remote-bus",
+					      0);
+
+	return 0;
 }
 
 static const struct dm_i2c_ops cros_ec_i2c_ops = {
@@ -36,5 +56,7 @@ U_BOOT_DRIVER(cros_ec_tunnel) = {
 	.name	= "cros_ec_tunnel",
 	.id	= UCLASS_I2C,
 	.of_match = cros_ec_i2c_ids,
+	.ofdata_to_platdata = cros_ec_i2c_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof(struct cros_ec_i2c_bus),
 	.ops	= &cros_ec_i2c_ops,
 };

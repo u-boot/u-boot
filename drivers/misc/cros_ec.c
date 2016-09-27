@@ -1058,7 +1058,8 @@ int cros_ec_decode_ec_flash(const void *blob, int node,
 	return 0;
 }
 
-int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *in, int nmsgs)
+int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *in,
+		       int nmsgs)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	union {
@@ -1078,7 +1079,7 @@ int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *in, int nmsgs)
 	int rv;
 	int i;
 
-	p->port = 0;
+	p->port = port;
 
 	p->num_msgs = nmsgs;
 	size = sizeof(*p) + p->num_msgs * sizeof(*msg);

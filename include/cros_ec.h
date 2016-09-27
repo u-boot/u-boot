@@ -395,9 +395,11 @@ struct i2c_msg;
  * Tunnel an I2C transfer to the EC
  *
  * @param dev		CROS-EC device
+ * @param port		The remote port on EC to use
  * @param msg		List of messages to transfer
  * @param nmsgs		Number of messages to transfer
  */
-int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *msg, int nmsgs);
+int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *msg,
+		       int nmsgs);
 
 #endif
