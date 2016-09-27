@@ -828,12 +828,18 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	if (is_dra72x() && !strcmp(name, "dra72-evm"))
+	if (is_dra72x()) {
+		if (board_is_dra72x_revc_or_later()) {
+			if (!strcmp(name, "dra72-evm-revc"))
+				return 0;
+		} else if (!strcmp(name, "dra72-evm")) {
+			return 0;
+		}
+	} else if (!is_dra72x() && !strcmp(name, "dra7-evm")) {
 		return 0;
-	else if (!is_dra72x() && !strcmp(name, "dra7-evm"))
-		return 0;
-	else
-		return -1;
+	}
+
+	return -1;
 }
 #endif
 
