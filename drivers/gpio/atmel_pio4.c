@@ -284,27 +284,15 @@ static int atmel_pio4_probe(struct udevice *dev)
 	struct atmel_pio4_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct atmel_pioctrl_data *pioctrl_data;
-	struct udevice *dev_clk;
 	struct clk clk;
 	fdt_addr_t addr_base;
 	u32 nbanks;
-	int periph;
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
 
-	periph = fdtdec_get_uint(gd->fdt_blob, clk.dev->of_offset, "reg", -1);
-	if (periph < 0)
-		return -EINVAL;
-
-	dev_clk = dev_get_parent(clk.dev);
-	ret = clk_request(dev_clk, &clk);
-	if (ret)
-		return ret;
-
-	clk.id = periph;
 	ret = clk_enable(&clk);
 	if (ret)
 		return ret;
