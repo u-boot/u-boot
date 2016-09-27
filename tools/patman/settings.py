@@ -5,7 +5,11 @@
 
 from __future__ import print_function
 
-import ConfigParser
+try:
+    import configparser as ConfigParser
+except:
+    import ConfigParser
+
 import os
 import re
 
