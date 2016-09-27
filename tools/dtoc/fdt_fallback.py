@@ -58,7 +58,7 @@ class Node(NodeBase):
         This fills in the props and subnodes properties, recursively
         searching into subnodes so that the entire tree is built.
         """
-        for name, byte_list_str in self._fdt.GetProps(self.path).iteritems():
+        for name, byte_list_str in self._fdt.GetProps(self.path).items():
             prop = Prop(self, name, byte_list_str)
             self.props[name] = prop
 
