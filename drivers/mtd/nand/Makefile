@@ -67,6 +67,7 @@ obj-$(CONFIG_NAND_OMAP_GPMC) += omap_gpmc.o
 obj-$(CONFIG_NAND_OMAP_ELM) += omap_elm.o
 obj-$(CONFIG_NAND_PLAT) += nand_plat.o
 obj-$(CONFIG_NAND_SUNXI) += sunxi_nand.o
+obj-$(CONFIG_NAND_ZYNQ) += zynq_nand.o
 
 else  # minimal SPL drivers
 

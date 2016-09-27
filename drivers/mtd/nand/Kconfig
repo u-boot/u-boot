@@ -87,6 +87,13 @@ config NAND_MXS
 	  This enables NAND driver for the NAND flash controller on the
 	  MXS processors.
 
+config NAND_ZYNQ
+	bool "Support for Zynq Nand controller"
+	select SYS_NAND_SELF_INIT
+	help
+	  This enables Nand driver support for Nand flash controller
+	  found on Zynq SoC.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config
