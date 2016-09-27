@@ -36,10 +36,10 @@
 
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
 #define board_is_dra72x_evm()		board_ti_is("DRA72x-T")
-#define board_is_dra74x_revh_or_later() board_is_dra74x_evm() &&	\
-				(strncmp("H", board_ti_get_rev(), 1) <= 0)
-#define board_is_dra72x_revc_or_later() board_is_dra72x_evm() &&	\
-				(strncmp("C", board_ti_get_rev(), 1) <= 0)
+#define board_is_dra74x_revh_or_later() (board_is_dra74x_evm() &&	\
+				(strncmp("H", board_ti_get_rev(), 1) <= 0))
+#define board_is_dra72x_revc_or_later() (board_is_dra72x_evm() &&	\
+				(strncmp("C", board_ti_get_rev(), 1) <= 0))
 #define board_ti_get_emif_size()	board_ti_get_emif1_size() +	\
 					board_ti_get_emif2_size()
 
