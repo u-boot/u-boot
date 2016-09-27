@@ -98,8 +98,6 @@
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
-
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
@@ -110,11 +108,6 @@
 
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
 #define CONFIG_SYS_BASE_BAUD	    691200
-
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-	 57600, 115200, 230400, 460800, 921600 }
 
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
