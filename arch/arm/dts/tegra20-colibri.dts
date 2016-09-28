@@ -14,10 +14,10 @@
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
-		usb0 = "/usb@c5008000";
-		usb1 = "/usb@c5000000";
-		usb2 = "/usb@c5004000";
 		mmc0 = "/sdhci@c8000600";
+		usb0 = "/usb@c5000000";
+		usb1 = "/usb@c5004000"; /* on-module only, for ASIX */
+		usb2 = "/usb@c5008000";
 	};
 
 	host1x@50000000 {
@@ -41,25 +41,6 @@
 				};
 			};
 		};
-	};
-
-	usb@c5000000 {
-		statuc = "okay";
-		dr_mode = "otg";
-	};
-
-	usb@c5004000 {
-		statuc = "okay";
-		/* VBUS_LAN */
-		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1)
-			GPIO_ACTIVE_LOW>;
-		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
-	};
-
-	usb@c5008000 {
-		statuc = "okay";
-		/* USBH_PEN */
-		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
 	nand-controller@70008000 {
@@ -100,6 +81,27 @@
 	i2c@7000d000 {
 		status = "okay";
 		clock-frequency = <100000>;
+	};
+
+	/* EHCI instance 0: USB1_DP/N -> USBC_P/N */
+	usb@c5000000 {
+		status = "okay";
+		dr_mode = "otg";
+	};
+
+	/* EHCI instance 1: ULPI -> USB3340 -> AX88772B */
+	usb@c5004000 {
+		status = "okay";
+		/* VBUS_LAN */
+		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
+	};
+
+	/* EHCI instance 2: USB3_DP/N -> USBH_P/N */
+	usb@c5008000 {
+		status = "okay";
+		/* USBH_PEN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
 	sdhci@c8000600 {
