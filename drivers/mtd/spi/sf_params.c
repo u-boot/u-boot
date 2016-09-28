@@ -101,6 +101,8 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #endif
 	{"N25Q1024",	   0x20ba21, 0x0,       64 * 1024,  2048, RD_FULL, WR_QPP | E_FSR | SECT_4K},
 	{"N25Q1024A",	   0x20bb21, 0x0,       64 * 1024,  2048, RD_FULL, WR_QPP | E_FSR | SECT_4K},
+	{"MT25QL02G",	   0x20ba22, 0x0,       64 * 1024,  4096, RD_FULL, WR_QPP | E_FSR | SECT_4K},
+	{"MT25QU02G",	   0x20bb22, 0x0,       64 * 1024,  4096, RD_FULL, WR_QPP | E_FSR | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_FLASH_SST		/* SST */
 	{"SST25VF040B",	   0xbf258d, 0x0,	64 * 1024,     8, RD_NORM,          SECT_4K | SST_WR},
