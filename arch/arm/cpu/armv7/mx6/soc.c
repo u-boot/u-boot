@@ -362,14 +362,27 @@ int arch_cpu_init(void)
 			set_ahb_rate(132000000);
 	}
 
-	if (is_mx6ul() && is_soc_rev(CHIP_REV_1_0) == 0) {
-		/*
-		 * According to the design team's requirement on i.MX6UL,
-		 * the PMIC_STBY_REQ PAD should be configured as open
-		 * drain 100K (0x0000b8a0).
-		 * Only exists on TO1.0
-		 */
-		writel(0x0000b8a0, IOMUXC_BASE_ADDR + 0x29c);
+	if (is_mx6ul()) {
+		if (is_soc_rev(CHIP_REV_1_0) == 0) {
+			/*
+			 * According to the design team's requirement on
+			 * i.MX6UL,the PMIC_STBY_REQ PAD should be configured
+			 * as open drain 100K (0x0000b8a0).
+			 * Only exists on TO1.0
+			 */
+			writel(0x0000b8a0, IOMUXC_BASE_ADDR + 0x29c);
+		} else {
+			/*
+			 * From TO1.1, SNVS adds internal pull up control
+			 * for POR_B, the register filed is GPBIT[1:0],
+			 * after system boot up, it can be set to 2b'01
+			 * to disable internal pull up.It can save about
+			 * 30uA power in SNVS mode.
+			 */
+			writel((readl(MX6UL_SNVS_LP_BASE_ADDR + 0x10) &
+			       (~0x1400)) | 0x400,
+			       MX6UL_SNVS_LP_BASE_ADDR + 0x10);
+		}
 	}
 
 	if (is_mx6ull()) {
