@@ -28,6 +28,7 @@ config SYS_BOARD
 	default "zynq"
 
 config SYS_VENDOR
+	string "Vendor name"
 	default "xilinx"
 
 config SYS_SOC
