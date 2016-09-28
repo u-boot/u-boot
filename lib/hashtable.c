@@ -477,11 +477,11 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 	return 1;
 }
 
+#if !(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SAVEENV))
 /*
  * hexport()
  */
 
-#ifndef CONFIG_SPL_BUILD
 /*
  * Export the data stored in the hash table in linearized form.
  *

@@ -47,6 +47,7 @@ obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
 obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
 
+obj-$(CONFIG_SPL_SAVEENV) += qsort.o
 obj-$(CONFIG_$(SPL_)OF_LIBFDT) += libfdt/
 ifneq ($(CONFIG_SPL_BUILD)$(CONFIG_SPL_OF_PLATDATA),yy)
 obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o

@@ -172,6 +172,19 @@ config SPL_ENV_SUPPORT
 	  starting U-Boot first. Enabling this option will make getenv()
 	  and setenv() available in SPL.
 
+config SPL_SAVEENV
+	bool "Support save environment"
+	depends on SPL && SPL_ENV_SUPPORT
+	help
+	  Enable save environment support in SPL after setenv. By default
+	  the saveenv option is not provided in SPL, but some boards need
+	  this support in 'Falcon' boot, where SPL need to boot from
+	  different images based on environment variable set by OS. For
+	  example OS may set "reboot_image" environment variable to
+	  "recovery" inorder to boot recovery image by SPL. The SPL read
+	  "reboot_image" and act accordingly and change the reboot_image
+	  to default mode using setenv and save the environemnt.
+
 config SPL_ETH_SUPPORT
 	bool "Support Ethernet"
 	depends on SPL_ENV_SUPPORT
