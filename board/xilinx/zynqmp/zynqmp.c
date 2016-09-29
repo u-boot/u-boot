@@ -86,6 +86,17 @@ static int chip_id(void)
 
 	smc_call(&regs);
 
+	/*
+	 * SMC returns:
+	 * regs[0][31:0]  = status of the operation
+	 * regs[0][63:32] = CSU.IDCODE register
+	 * regs[1][31:0]  = CSU.version register
+	 */
+	regs.regs[0] = upper_32_bits(regs.regs[0]);
+	regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+			ZYNQMP_CSU_IDCODE_SVD_MASK;
+	regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+
 	return regs.regs[0];
 }
 
