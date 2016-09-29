@@ -6,12 +6,17 @@ config ARCH_LS1012A
 config ARCH_LS1043A
 	bool "Freescale Layerscape LS1043A SoC"
 	select SYS_FSL_ERRATUM_A010315
+	select SYS_FSL_ERRATUM_A010539
 
 config ARCH_LS1046A
 	bool "Freescale Layerscape LS1046A SoC"
+	select SYS_FSL_ERRATUM_A010539
 
 config SYS_FSL_MMDC
 	bool "Freescale Multi Mode DDR Controller"
 
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
+
+config SYS_FSL_ERRATUM_A010539
+	bool "Workaround for PIN MUX erratum A010539"

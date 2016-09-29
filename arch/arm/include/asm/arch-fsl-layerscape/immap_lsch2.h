@@ -168,6 +168,8 @@ struct sys_info {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
 
 /* Device Configuration and Pin Control */
+#define DCFG_DCSR_PORCR1		0x0
+
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
 #define FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK	0xFF800000
