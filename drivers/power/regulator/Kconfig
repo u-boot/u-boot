@@ -133,3 +133,11 @@ config REGULATOR_TPS65090
 	regulators, one for each FET. The standard regulator interface is
 	supported, but it is only possible to turn the regulators on or off.
 	There is no voltage/current control.
+
+config DM_REGULATOR_PALMAS
+	bool "Enable driver for PALMAS PMIC regulators"
+       depends on PMIC_PALMAS
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR PALMAS and the family of PALMAS PMICs.
+	The driver implements get/set api for: value and enable.
