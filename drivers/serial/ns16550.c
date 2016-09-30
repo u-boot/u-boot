@@ -408,7 +408,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		err = clk_get_rate(&clk);
 		if (!IS_ERR_VALUE(err))
 			plat->clock = err;
-	} else if (err != -ENODEV && err != -ENOSYS) {
+	} else if (err != -ENOENT && err != -ENODEV && err != -ENOSYS) {
 		debug("ns16550 failed to get clock\n");
 		return err;
 	}
