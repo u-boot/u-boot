@@ -150,3 +150,10 @@ config PMIC_PALMAS
 	---help---
 	The PALMAS is a PMIC containing several LDOs, SMPS.
 	This driver binds the pmic children.
+
+config PMIC_LP873X
+	bool "Enable driver for Texas Instruments LP873X PMIC"
+	depends on DM_PMIC
+	---help---
+	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
+	This driver binds the pmic children.
