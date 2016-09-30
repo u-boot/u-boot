@@ -141,3 +141,11 @@ config DM_REGULATOR_PALMAS
 	This enables implementation of driver-model regulator uclass
 	features for REGULATOR PALMAS and the family of PALMAS PMICs.
 	The driver implements get/set api for: value and enable.
+
+config DM_REGULATOR_LP873X
+	bool "Enable driver for LP873X PMIC regulators"
+        depends on PMIC_LP873X
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP873X and the family of LP873X PMICs.
+	The driver implements get/set api for: value and enable.
