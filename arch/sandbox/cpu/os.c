@@ -320,14 +320,16 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	int ret;
 	char *fname;
 	int len;
+	int dirlen;
 
 	*headp = NULL;
 	dir = opendir(dirname);
 	if (!dir)
 		return -1;
 
-	/* Create a buffer for the maximum filename length */
-	len = sizeof(entry.d_name) + strlen(dirname) + 2;
+	/* Create a buffer upfront, with typically sufficient size */
+	dirlen = strlen(dirname) + 2;
+	len = dirlen + 256;
 	fname = malloc(len);
 	if (!fname) {
 		ret = -ENOMEM;
@@ -339,7 +341,12 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 		if (ret || !result)
 			break;
 		next = malloc(sizeof(*node) + strlen(entry.d_name) + 1);
-		if (!next) {
+		if (dirlen + strlen(entry.d_name) > len) {
+			len = dirlen + strlen(entry.d_name);
+			fname = realloc(fname, len);
+		}
+		if (!next || !fname) {
+			free(next);
 			os_dirent_free(head);
 			ret = -ENOMEM;
 			goto done;
