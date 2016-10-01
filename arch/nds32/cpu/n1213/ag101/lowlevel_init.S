@@ -6,6 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+.pic
+
 .text
 
 #include <common.h>
@@ -248,16 +250,11 @@ relo_base:
     */
 	li	$r5, AHBC_BSR6_A
 	lwi $r8, [$r5]
-	li	$r4, 0xfff00000
+	li	$r4, 0xfff00000   /* r4 = bank6 base */
 	and $r4, $r4, $r8
 
-
-	li	$r5, 0x0
-	la	$r1, relo_base				/* get $pc or $lp */
-	sub	$r2, $r0, $r1
-	sethi	$r6, hi20(_end)
-	ori	$r6, $r6, lo12(_end)
-	add	$r6, $r6, $r2
+	la	$r5, _start@GOTOFF
+	la  $r6, _end@GOTOFF
 1:
 	lwi.p	$r7, [$r5], #4
 	swi.p	$r7, [$r4], #4
