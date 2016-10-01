@@ -116,10 +116,13 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 		if (map_end == carve_end) {
 			/* Full overlap, just remove map */
 			list_del(&map->link);
+			free(map);
+		} else {
+			map->desc.physical_start = carve_end;
+			map->desc.num_pages = (map_end - carve_end)
+					      >> EFI_PAGE_SHIFT;
 		}
 
-		map_desc->physical_start = carve_end;
-		map_desc->num_pages = (map_end - carve_end) >> EFI_PAGE_SHIFT;
 		return (carve_end - carve_start) >> EFI_PAGE_SHIFT;
 	}
 
