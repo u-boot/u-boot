@@ -313,7 +313,7 @@ void os_dirent_free(struct os_dirent_node *node)
 
 int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 {
-	struct dirent entry, *result;
+	struct dirent *entry;
 	struct os_dirent_node *head, *node, *next;
 	struct stat buf;
 	DIR *dir;
@@ -337,12 +337,15 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	}
 
 	for (node = head = NULL;; node = next) {
-		ret = readdir_r(dir, &entry, &result);
-		if (ret || !result)
+		errno = 0;
+		entry = readdir(dir);
+		if (!entry) {
+			ret = errno;
 			break;
-		next = malloc(sizeof(*node) + strlen(entry.d_name) + 1);
-		if (dirlen + strlen(entry.d_name) > len) {
-			len = dirlen + strlen(entry.d_name);
+		}
+		next = malloc(sizeof(*node) + strlen(entry->d_name) + 1);
+		if (dirlen + strlen(entry->d_name) > len) {
+			len = dirlen + strlen(entry->d_name);
 			fname = realloc(fname, len);
 		}
 		if (!next || !fname) {
@@ -352,8 +355,8 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			goto done;
 		}
 		next->next = NULL;
-		strcpy(next->name, entry.d_name);
-		switch (entry.d_type) {
+		strcpy(next->name, entry->d_name);
+		switch (entry->d_type) {
 		case DT_REG:
 			next->type = OS_FILET_REG;
 			break;
