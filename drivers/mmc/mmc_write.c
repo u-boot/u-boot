@@ -66,9 +66,15 @@ err_out:
 	return err;
 }
 
-unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
-			 lbaint_t blkcnt)
+#ifdef CONFIG_BLK
+ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
+#else
+ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int dev_num = block_dev->devnum;
 	int err = 0;
 	u32 start_rem, blkcnt_rem;
