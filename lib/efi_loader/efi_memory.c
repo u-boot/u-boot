@@ -135,7 +135,8 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 	newmap->desc = map->desc;
 	newmap->desc.physical_start = carve_start;
 	newmap->desc.num_pages = (map_end - carve_start) >> EFI_PAGE_SHIFT;
-        list_add_tail(&newmap->link, &efi_mem);
+	/* Insert before current entry (descending address order) */
+	list_add_tail(&newmap->link, &map->link);
 
 	/* Shrink the map to [ map_start ... carve_start ] */
 	map_desc->num_pages = (carve_start - map_start) >> EFI_PAGE_SHIFT;
