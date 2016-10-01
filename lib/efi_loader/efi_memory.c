@@ -62,9 +62,17 @@ static void efi_mem_sort(void)
  * Unmaps all memory occupied by the carve_desc region from the
  * list entry pointed to by map.
  *
- * Returns 1 if carving was performed or 0 if the regions don't overlap.
- * Returns -1 if it would affect non-RAM regions but overlap_only_ram is set.
- * Carving is only guaranteed to complete when all regions return 0.
+ * Returns EFI_CARVE_NO_OVERLAP if the regions don't overlap.
+ * Returns EFI_CARVE_OVERLAPS_NONRAM if the carve and map overlap,
+ *    and the map contains anything but free ram.
+ *    (only when overlap_only_ram is true)
+ * Returns EFI_CARVE_LOOP_AGAIN if the mapping list should be traversed
+ *    again, as it has been altered
+ * Returns the number of overlapping pages. The pages are removed from
+ *     the mapping list.
+ *
+ * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
+ * to readd the already carved out pages to the mapping.
  */
 static int efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
