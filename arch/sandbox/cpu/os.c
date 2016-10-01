@@ -363,8 +363,8 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			next->size = buf.st_size;
 		if (node)
 			node->next = next;
-		if (!head)
-			head = node;
+		else
+			head = next;
 	}
 	*headp = head;
 
