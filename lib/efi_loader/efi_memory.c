@@ -336,8 +336,15 @@ void *efi_alloc(uint64_t len, int memory_type)
 
 efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 {
-	/* We don't free, let's cross our fingers we have plenty RAM */
-	return EFI_SUCCESS;
+	uint64_t r = 0;
+
+	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	/* Merging of adjacent free regions is missing */
+
+	if (r == memory)
+		return EFI_SUCCESS;
+
+	return EFI_NOT_FOUND;
 }
 
 efi_status_t efi_allocate_pool(int pool_type, unsigned long size,

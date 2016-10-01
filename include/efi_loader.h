@@ -117,7 +117,7 @@ void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
 efi_status_t efi_allocate_pages(int type, int memory_type, unsigned long pages,
 				uint64_t *memory);
-/* EFI memory free function. Not implemented today */
+/* EFI memory free function. */
 efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
 /* EFI memory allocator for small allocations */
 efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
