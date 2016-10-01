@@ -34,6 +34,7 @@ CONFIG_CMD_FAT=y
 CONFIG_CMD_FS_GENERIC=y
 CONFIG_OF_CONTROL=y
 CONFIG_OF_LIST="am335x-evm am335x-bone am335x-boneblack am335x-evmsk am335x-bonegreen am335x-icev2"
+# CONFIG_BLK is not set
 CONFIG_DFU_MMC=y
 CONFIG_DFU_NAND=y
 CONFIG_DFU_RAM=y
