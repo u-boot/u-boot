@@ -40,12 +40,12 @@ static inline void unmap_sysmem(const void *vaddr)
 phys_addr_t map_to_sysmem(const void *ptr);
 
 /* Define nops for sandbox I/O access */
-#define readb(addr) 0
-#define readw(addr) 0
-#define readl(addr) 0
-#define writeb(v, addr)
-#define writew(v, addr)
-#define writel(v, addr)
+#define readb(addr) ((void)addr, 0)
+#define readw(addr) ((void)addr, 0)
+#define readl(addr) ((void)addr, 0)
+#define writeb(v, addr) ((void)addr)
+#define writew(v, addr) ((void)addr)
+#define writel(v, addr) ((void)addr)
 
 /* I/O access functions */
 int inl(unsigned int addr);
