@@ -394,7 +394,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 			/* remove dts usb node */
 			fdt_del_node_compat(blob, "fsl-usb2-dr");
 		} else {
-			fdt_fixup_dr_usb(blob, bd);
+			fsl_fdt_fixup_dr_usb(blob, bd);
 			fdt_del_node_and_alias(blob, "serial2");
 		}
 	}

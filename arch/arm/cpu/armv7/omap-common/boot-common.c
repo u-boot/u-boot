@@ -91,6 +91,11 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
+#if defined(BOOT_DEVICE_DFU) && !defined(CONFIG_SPL_DFU_SUPPORT)
+		case BOOT_DEVICE_DFU:
+			sys_boot_device = 1;
+			break;
+#endif
 	}
 
 	if (sys_boot_device) {

@@ -332,7 +332,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	ft_tsec_fixup(blob, bd);
-	fdt_fixup_dr_usb(blob, bd);
+	fsl_fdt_fixup_dr_usb(blob, bd);
 	fdt_fixup_esdhc(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
