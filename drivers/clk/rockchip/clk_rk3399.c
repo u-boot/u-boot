@@ -18,11 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct rk3399_clk_priv {
-	struct rk3399_cru *cru;
-	ulong rate;
-};
-
 struct rk3399_pmuclk_priv {
 	struct rk3399_pmucru *pmucru;
 };
@@ -780,25 +775,6 @@ static struct clk_ops rk3399_clk_ops = {
 	.set_rate = rk3399_clk_set_rate,
 };
 
-void *rockchip_get_cru(void)
-{
-	struct udevice *dev;
-	fdt_addr_t *addr;
-	int ret;
-
-	ret = uclass_get_device_by_driver(UCLASS_CLK,
-			DM_GET_DRIVER(clk_rk3399), &dev);
-
-	if (ret)
-		return ERR_PTR(ret);
-
-	addr = dev_get_addr_ptr(dev);
-	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
-		return ERR_PTR(-EINVAL);
-
-	return addr;
-}
-
 static int rk3399_clk_probe(struct udevice *dev)
 {
 	struct rk3399_clk_priv *priv = dev_get_priv(dev);
@@ -992,7 +968,7 @@ static const struct udevice_id rk3399_pmuclk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(pmuclk_rk3399) = {
+U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.name		= "pmuclk_rk3399",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_pmuclk_ids,
