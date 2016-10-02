@@ -410,10 +410,7 @@ int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-static inline int fdt_path_offset(const void *fdt, const char *path)
-{
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
-}
+int fdt_path_offset(const void *fdt, const char *path);
 
 /**
  * fdt_get_name - retrieve the name of a given node
