@@ -60,11 +60,11 @@ uint32_t fdt_get_max_phandle(const void *fdt)
 			return max_phandle;
 
 		if (offset < 0)
-			return 0;
+			return (uint32_t)-1;
 
 		phandle = fdt_get_phandle(fdt, offset);
 		if (phandle == (uint32_t)-1)
-			return 0;
+			continue;
 
 		if (phandle > max_phandle)
 			max_phandle = phandle;
@@ -623,10 +623,8 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
 	if (!prop)
 		return len;
-	if (fdt_stringlist_contains(prop, len, compatible))
-		return 0;
-	else
-		return 1;
+
+	return !fdt_stringlist_contains(prop, len, compatible);
 }
 
 int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
