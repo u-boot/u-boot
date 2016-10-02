@@ -990,7 +990,7 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 	char *slave_name;
 
 	interfaces = fdt_subnode_offset(fdt, gbe, "interfaces");
-	fdt_for_each_subnode(fdt, slave, interfaces) {
+	fdt_for_each_subnode(slave, fdt, interfaces) {
 		int slave_no;
 
 		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
@@ -1015,7 +1015,7 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 	}
 
 	sec_slave = fdt_subnode_offset(fdt, gbe, "secondary-slave-ports");
-	fdt_for_each_subnode(fdt, slave, sec_slave) {
+	fdt_for_each_subnode(slave, fdt, sec_slave) {
 		int slave_no;
 
 		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);

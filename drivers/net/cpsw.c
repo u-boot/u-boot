@@ -1219,7 +1219,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
 	priv->data.active_slave = active_slave;
 
-	fdt_for_each_subnode(fdt, subnode, node) {
+	fdt_for_each_subnode(subnode, fdt, node) {
 		int len;
 		const char *name;
 

@@ -176,24 +176,27 @@ int fdt_next_subnode(const void *fdt, int offset);
 /**
  * fdt_for_each_subnode - iterate over all subnodes of a parent
  *
+ * @node:	child node (int, lvalue)
+ * @fdt:	FDT blob (const void *)
+ * @parent:	parent node (int)
+ *
  * This is actually a wrapper around a for loop and would be used like so:
  *
- *	fdt_for_each_subnode(fdt, node, parent) {
- *		...
- *		use node
+ *	fdt_for_each_subnode(node, fdt, parent) {
+ *		Use node
  *		...
  *	}
  *
- * Note that this is implemented as a macro and node is used as iterator in
- * the loop. It should therefore be a locally allocated variable. The parent
- * variable on the other hand is never modified, so it can be constant or
- * even a literal.
+ *	if ((node < 0) && (node != -FDT_ERR_NOT_FOUND)) {
+ *		Error handling
+ *	}
  *
- * @fdt:	FDT blob (const void *)
- * @node:	child node (int)
- * @parent:	parent node (int)
+ * Note that this is implemented as a macro and @node is used as
+ * iterator in the loop. The parent variable be constant or even a
+ * literal.
+ *
  */
-#define fdt_for_each_subnode(fdt, node, parent)		\
+#define fdt_for_each_subnode(node, fdt, parent)		\
 	for (node = fdt_first_subnode(fdt, parent);	\
 	     node >= 0;					\
 	     node = fdt_next_subnode(fdt, node))

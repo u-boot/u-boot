@@ -146,7 +146,7 @@ static int overlay_adjust_node_phandles(void *fdto, int node,
 	if (!found && !ret)
 		return ret;
 
-	fdt_for_each_subnode(fdto, child, node)
+	fdt_for_each_subnode(child, fdto, node)
 		overlay_adjust_node_phandles(fdto, child, delta);
 
 	return 0;
@@ -248,7 +248,7 @@ static int overlay_update_local_node_references(void *fdto,
 		}
 	}
 
-	fdt_for_each_subnode(fdto, fixup_child, fixup_node) {
+	fdt_for_each_subnode(fixup_child, fdto, fixup_node) {
 		const char *fixup_child_name = fdt_get_name(fdto, fixup_child,
 							    NULL);
 		int tree_child;
@@ -511,7 +511,7 @@ static int overlay_apply_node(void *fdt, int target,
 			return ret;
 	}
 
-	fdt_for_each_subnode(fdto, node, fragment) {
+	fdt_for_each_subnode(node, fdto, fragment) {
 		const char *name = fdt_get_name(fdto, node, NULL);
 		int nnode;
 		int ret;
@@ -550,7 +550,7 @@ static int overlay_merge(void *dt, void *dto)
 {
 	int fragment;
 
-	fdt_for_each_subnode(dto, fragment, 0) {
+	fdt_for_each_subnode(fragment, dto, 0) {
 		int overlay;
 		int target;
 		int ret;

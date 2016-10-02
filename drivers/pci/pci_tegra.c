@@ -531,7 +531,7 @@ static int tegra_pcie_parse_dt(const void *fdt, int node, enum tegra_pci_id id,
 	}
 #endif
 
-	fdt_for_each_subnode(fdt, subnode, node) {
+	fdt_for_each_subnode(subnode, fdt, node) {
 		unsigned int index = 0, num_lanes = 0;
 		struct tegra_pcie_port *port;
 

@@ -223,7 +223,7 @@ tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	config->name = fdt_get_name(fdt, node, NULL);
 
-	fdt_for_each_subnode(fdt, subnode, node) {
+	fdt_for_each_subnode(subnode, fdt, node) {
 		struct tegra_xusb_padctl_group *group;
 		int err;
 
@@ -253,7 +253,7 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 		return err;
 	}
 
-	fdt_for_each_subnode(fdt, subnode, node) {
+	fdt_for_each_subnode(subnode, fdt, node) {
 		struct tegra_xusb_padctl_config *config = &padctl->config;
 
 		err = tegra_xusb_padctl_config_parse_dt(padctl, config, fdt,

@@ -152,7 +152,7 @@ static int comphy_probe(struct udevice *dev)
 	}
 
 	lane = 0;
-	fdt_for_each_subnode(blob, subnode, node) {
+	fdt_for_each_subnode(subnode, blob, node) {
 		/* Skip disabled ports */
 		if (!fdtdec_get_is_enabled(blob, subnode))
 			continue;

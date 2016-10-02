@@ -154,7 +154,7 @@ int meson_pinctrl_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	fdt_for_each_subnode(gd->fdt_blob, node, dev->of_offset) {
+	fdt_for_each_subnode(node, gd->fdt_blob, dev->of_offset) {
 		if (fdt_getprop(gd->fdt_blob, node, "gpio-controller", &len)) {
 			gpio = node;
 			break;
