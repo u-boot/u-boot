@@ -132,7 +132,8 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		plat->base = base;
 		plat->bank = bank;
 		plat->pins = fdtdec_get_int(blob, node, "snps,nr-gpios", 0);
-		ret = fdt_get_string(blob, node, "bank-name", &plat->name);
+		plat->name = fdt_stringlist_get(blob, node, "bank-name", 0,
+						NULL);
 		if (ret)
 			goto err;
 

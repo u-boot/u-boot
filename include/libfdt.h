@@ -121,12 +121,17 @@
 	/* FDT_ERR_BADNCELLS: Device tree has a #address-cells, #size-cells
 	 * or similar property with a bad format or value */
 
-#define FDT_ERR_TOODEEP		15
+#define FDT_ERR_BADVALUE	15
+	/* FDT_ERR_BADVALUE: Device tree has a property with an unexpected
+	 * value. For example: a property expected to contain a string list
+	 * is not NUL-terminated within the length of its value. */
+
+#define FDT_ERR_TOODEEP		16
 	/* FDT_ERR_TOODEEP: The depth of a node has exceeded the internal
 	 * libfdt limit. This can happen if you have more than
 	 * FDT_MAX_DEPTH nested nodes. */
 
-#define FDT_ERR_MAX		15
+#define FDT_ERR_MAX		16
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
@@ -957,51 +962,66 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
 
 /**
- * fdt_count_strings - count the number of strings in a string list
+ * fdt_stringlist_count - count the number of strings in a string list
  * @fdt: pointer to the device tree blob
- * @node: offset of the node
+ * @nodeoffset: offset of a tree node
  * @property: name of the property containing the string list
- * @return: the number of strings in the given property
+ * @return:
+ *   the number of strings in the given property
+ *   -FDT_ERR_BADVALUE if the property value is not NUL-terminated
+ *   -FDT_ERR_NOTFOUND if the property does not exist
  */
-int fdt_count_strings(const void *fdt, int node, const char *property);
+int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
 
 /**
- * fdt_find_string - find a string in a string list and return its index
+ * fdt_stringlist_search - find a string in a string list and return its index
  * @fdt: pointer to the device tree blob
- * @node: offset of the node
+ * @nodeoffset: offset of a tree node
  * @property: name of the property containing the string list
  * @string: string to look up in the string list
- * @return: the index of the string or negative on error
+ *
+ * Note that it is possible for this function to succeed on property values
+ * that are not NUL-terminated. That's because the function will stop after
+ * finding the first occurrence of @string. This can for example happen with
+ * small-valued cell properties, such as #address-cells, when searching for
+ * the empty string.
+ *
+ * @return:
+ *   the index of the string in the list of strings
+ *   -FDT_ERR_BADVALUE if the property value is not NUL-terminated
+ *   -FDT_ERR_NOTFOUND if the property does not exist or does not contain
+ *                     the given string
  */
-int fdt_find_string(const void *fdt, int node, const char *property,
-		    const char *string);
+int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+			  const char *string);
 
 /**
- * fdt_get_string_index() - obtain the string at a given index in a string list
+ * fdt_stringlist_get() - obtain the string at a given index in a string list
  * @fdt: pointer to the device tree blob
- * @node: offset of the node
+ * @nodeoffset: offset of a tree node
  * @property: name of the property containing the string list
  * @index: index of the string to return
- * @output: return location for the string
- * @return: 0 if the string was found or a negative error code otherwise
- */
-int fdt_get_string_index(const void *fdt, int node, const char *property,
-			 int index, const char **output);
-
-/**
- * fdt_get_string() - obtain the first string in a string list
- * @fdt: pointer to the device tree blob
- * @node: offset of the node
- * @property: name of the property containing the string list
- * @output: return location for the string
- * @return: 0 if the string was found or a negative error code otherwise
+ * @lenp: return location for the string length or an error code on failure
  *
- * This is a shortcut for:
+ * Note that this will successfully extract strings from properties with
+ * non-NUL-terminated values. For example on small-valued cell properties
+ * this function will return the empty string.
  *
- *	fdt_get_string_index(fdt, node, property, 0, output).
+ * If non-NULL, the length of the string (on success) or a negative error-code
+ * (on failure) will be stored in the integer pointer to by lenp.
+ *
+ * @return:
+ *   A pointer to the string at the given index in the string list or NULL on
+ *   failure. On success the length of the string will be stored in the memory
+ *   location pointed to by the lenp parameter, if non-NULL. On failure one of
+ *   the following negative error codes will be returned in the lenp parameter
+ *   (if non-NULL):
+ *     -FDT_ERR_BADVALUE if the property value is not NUL-terminated
+ *     -FDT_ERR_NOTFOUND if the property does not exist
  */
-int fdt_get_string(const void *fdt, int node, const char *property,
-		   const char **output);
+const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
+			       const char *property, int index,
+			       int *lenp);
 
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */

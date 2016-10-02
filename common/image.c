@@ -1305,7 +1305,7 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 	void *buf;
 	int conf_noffset;
 	int fit_img_result;
-	char *uname, *name;
+	const char *uname, *name;
 	int err;
 	int devnum = 0; /* TODO support multi fpga platforms */
 	const fpga_desc * const desc = fpga_get_desc(devnum);
@@ -1332,9 +1332,9 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 	case IMAGE_FORMAT_FIT:
 		conf_noffset = fit_conf_get_node(buf, images->fit_uname_cfg);
 
-		err = fdt_get_string_index(buf, conf_noffset, FIT_FPGA_PROP, 0,
-					   (const char **)&uname);
-		if (err < 0) {
+		uname = fdt_stringlist_get(buf, conf_noffset, FIT_FPGA_PROP, 0,
+					   NULL);
+		if (!uname) {
 			debug("## FPGA image is not specified\n");
 			return 0;
 		}
@@ -1404,7 +1404,7 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 	int loadables_index;
 	int conf_noffset;
 	int fit_img_result;
-	char *uname;
+	const char *uname;
 
 	/* Check to see if the images struct has a FIT configuration */
 	if (!genimg_has_config(images)) {
@@ -1428,15 +1428,14 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 		conf_noffset = fit_conf_get_node(buf, images->fit_uname_cfg);
 
 		for (loadables_index = 0;
-		     fdt_get_string_index(buf, conf_noffset,
-				FIT_LOADABLE_PROP,
-				loadables_index,
-				(const char **)&uname) == 0;
+		     uname = fdt_stringlist_get(buf, conf_noffset,
+					FIT_LOADABLE_PROP, loadables_index,
+					NULL), uname;
 		     loadables_index++)
 		{
 			fit_img_result = fit_image_load(images,
 				tmp_img_addr,
-				(const char **)&uname,
+				&uname,
 				&(images->fit_uname_cfg), arch,
 				IH_TYPE_LOADABLE,
 				BOOTSTAGE_ID_FIT_LOADABLE_START,

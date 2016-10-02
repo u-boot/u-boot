@@ -1457,7 +1457,7 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 void fit_conf_print(const void *fit, int noffset, const char *p)
 {
 	char *desc;
-	char *uname;
+	const char *uname;
 	int ret;
 	int loadables_index;
 
@@ -1469,7 +1469,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	else
 		printf("%s\n", desc);
 
-	uname = (char *)fdt_getprop(fit, noffset, FIT_KERNEL_PROP, NULL);
+	uname = fdt_getprop(fit, noffset, FIT_KERNEL_PROP, NULL);
 	printf("%s  Kernel:       ", p);
 	if (uname == NULL)
 		printf("unavailable\n");
@@ -1477,26 +1477,23 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 		printf("%s\n", uname);
 
 	/* Optional properties */
-	uname = (char *)fdt_getprop(fit, noffset, FIT_RAMDISK_PROP, NULL);
+	uname = fdt_getprop(fit, noffset, FIT_RAMDISK_PROP, NULL);
 	if (uname)
 		printf("%s  Init Ramdisk: %s\n", p, uname);
 
-	uname = (char *)fdt_getprop(fit, noffset, FIT_FDT_PROP, NULL);
+	uname = fdt_getprop(fit, noffset, FIT_FDT_PROP, NULL);
 	if (uname)
 		printf("%s  FDT:          %s\n", p, uname);
 
-	uname = (char *)fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
+	uname = fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
 	if (uname)
 		printf("%s  FPGA:         %s\n", p, uname);
 
 	/* Print out all of the specified loadables */
 	for (loadables_index = 0;
-	     fdt_get_string_index(fit, noffset,
-			FIT_LOADABLE_PROP,
-			loadables_index,
-			(const char **)&uname) == 0;
-	     loadables_index++)
-	{
+	     uname = fdt_stringlist_get(fit, noffset, FIT_LOADABLE_PROP,
+					loadables_index, NULL), uname;
+	     loadables_index++) {
 		if (loadables_index == 0) {
 			printf("%s  Loadables:    ", p);
 		} else {

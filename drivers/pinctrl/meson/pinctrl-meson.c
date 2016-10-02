@@ -122,7 +122,7 @@ static fdt_addr_t parse_address(int offset, const char *name, int na, int ns)
 	int index, len = 0;
 	const fdt32_t *reg;
 
-	index = fdt_find_string(gd->fdt_blob, offset, "reg-names", name);
+	index = fdt_stringlist_search(gd->fdt_blob, offset, "reg-names", name);
 	if (index < 0)
 		return FDT_ADDR_T_NONE;
 

@@ -52,12 +52,15 @@ static int fdt_getprop_str(void *fdt, const char *path, const char *name,
 			   const char **out)
 {
 	int node_off;
+	int len;
 
 	node_off = fdt_path_offset(fdt, path);
 	if (node_off < 0)
 		return node_off;
 
-	return fdt_get_string(fdt, node_off, name, out);
+	*out = fdt_stringlist_get(fdt, node_off, name, 0, &len);
+
+	return len < 0 ? len : 0;
 }
 
 static int fdt_overlay_change_int_property(struct unit_test_state *uts)
