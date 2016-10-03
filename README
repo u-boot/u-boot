@@ -2280,8 +2280,6 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_SH_SPEED3 for for the speed channel 3
 		  - CONFIG_SYS_I2C_SH_BASE4 for setting the register channel 4
 		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
-		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
-		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
 		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
 
 		- drivers/i2c/omap24xx_i2c.c
