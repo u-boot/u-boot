@@ -1297,10 +1297,6 @@ The following options need to be configured:
 		CONFIG_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
-			CONFIG_LAN91C96_BASE
-			Define this to hold the physical address
-			of the LAN91C96's I/O space
-
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
