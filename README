@@ -325,27 +325,6 @@ The following options need to be configured:
 - CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
 		Define exactly one, e.g. CONFIG_ATSTK1002
 
-- CPU Module Type: (if CONFIG_COGENT is defined)
-		Define exactly one of
-		CONFIG_CMA286_60_OLD
---- FIXME --- not tested yet:
-		CONFIG_CMA286_60, CONFIG_CMA286_21, CONFIG_CMA286_60P,
-		CONFIG_CMA287_23, CONFIG_CMA287_50
-
-- Motherboard Type: (if CONFIG_COGENT is defined)
-		Define exactly one of
-		CONFIG_CMA101, CONFIG_CMA102
-
-- Motherboard I/O Modules: (if CONFIG_COGENT is defined)
-		Define one or more of
-		CONFIG_CMA302
-
-- Motherboard Options: (if CONFIG_CMA101 or CONFIG_CMA102 are defined)
-		Define one or more of
-		CONFIG_LCD_HEARTBEAT	- update a character position on
-					  the LCD display every second with
-					  a "rotator" |\-/|\-/
-
 - Marvell Family Member
 		CONFIG_SYS_MVFS		- define it if you want to enable
 					  multiple fs option at one time
@@ -3752,10 +3731,6 @@ Configuration Settings:
 
 - CONFIG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.
-
-- CONFIG_SYS_MBIO_BASE:
-		Physical start address of Motherboard I/O (if using a
-		Cogent motherboard)
 
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
