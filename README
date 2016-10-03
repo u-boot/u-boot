@@ -4163,7 +4163,7 @@ to save the current settings.
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data, so
 	  that there is a valid backup copy in case there is a power failure
-	  during a "saveenv" operation. CONFIG_ENV_OFFSET_RENDUND must be
+	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
 	- CONFIG_ENV_SPI_BUS (optional):
@@ -4214,7 +4214,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data, so
 	  that there is a valid backup copy in case there is a power failure
-	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_RENDUND must be
+	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase block boundary.
 
 	- CONFIG_ENV_RANGE (optional):
