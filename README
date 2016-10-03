@@ -695,11 +695,6 @@ The following options need to be configured:
 		This causes ft_system_setup() to be called before booting
 		the kernel.
 
-		CONFIG_OF_BOOT_CPU
-
-		This define fills in the correct boot CPU in the boot
-		param header, the default value is zero if undefined.
-
 		CONFIG_OF_IDE_FIXUP
 
 		U-Boot can detect if an IDE device is present or not.
