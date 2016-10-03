@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <dm/uclass-internal.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
 
@@ -38,6 +39,11 @@ int board_init(void)
 		debug("%s PWM3 pinctrl init fail!\n", __func__);
 		goto out;
 	}
+
+	/* rk3399 need init vdd_center to get correct output voltage */
+	ret = regulator_get_by_platname("vdd_center", &regulator);
+	if (ret)
+		debug("%s: Cannot get vdd_center regulator\n", __func__);
 
 	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
 	if (ret) {

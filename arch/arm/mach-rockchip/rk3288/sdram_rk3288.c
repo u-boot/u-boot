@@ -755,10 +755,11 @@ size_t sdram_size_mb(struct rk3288_pmu *pmu)
 	}
 
 	/*
-	* we use the 0x00000000~0xfeffffff space since 0xff000000~0xffffffff
-	* is SoC register space (i.e. reserved)
+	* we use the 0x00000000~0xfdffffff space since 0xff000000~0xffffffff
+	* is SoC register space (i.e. reserved), and 0xfe000000~0xfeffffff is 
+	* inaccessible for some IP controller.
 	*/
-	size_mb = min(size_mb, 0xff000000 >> 20);
+	size_mb = min(size_mb, 0xfe000000 >> 20);
 
 	return size_mb;
 }

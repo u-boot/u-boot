@@ -70,10 +70,17 @@
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x08000000
 
+/* usb mass storage */
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_CMD_USB_MASS_STORAGE
+
 #define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_G_DNL_MANUFACTURER	"Rockchip"
 #define CONFIG_G_DNL_VENDOR_NUM		0x2207
 #define CONFIG_G_DNL_PRODUCT_NUM	0x310a
+
+/* Enable gpt partition table */
+#define CONFIG_CMD_GPT
 
 #include <config_distro_defaults.h>
 
@@ -83,6 +90,12 @@
 	"fdt_addr_r=0x61f00000\0" \
 	"kernel_addr_r=0x62000000\0" \
 	"ramdisk_addr_r=0x64000000\0"
+
+#define CONFIG_RANDOM_UUID
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=boot,start=8M,size=64M,bootable,uuid=${uuid_gpt_boot};" \
+	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs};\0" \
 
 /* First try to boot from SD (index 0), then eMMC (index 1 */
 #define BOOT_TARGET_DEVICES(func) \
@@ -95,8 +108,12 @@
  * so limit the fdt reallocation to that */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x7fffffff\0" \
+	"partitions=" PARTS_DEFAULT \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 #endif
+
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_PREBOOT
 
 #endif
