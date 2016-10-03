@@ -1656,22 +1656,12 @@ The following options need to be configured:
 		If not defined the default value "mbr" is used.
 
 - Journaling Flash filesystem support:
-		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
-		CONFIG_JFFS2_NAND_DEV
+		CONFIG_JFFS2_NAND
 		Define these for a default partition on a NAND device
 
 		CONFIG_SYS_JFFS2_FIRST_SECTOR,
 		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
 		Define these for a default partition on a NOR device
-
-		CONFIG_SYS_JFFS_CUSTOM_PART
-		Define this to create an own partition. You have to provide a
-		function struct part_info* jffs2_part_info(int part_num)
-
-		If you define only one JFFS2 partition you may also want to
-		#define CONFIG_SYS_JFFS_SINGLE_PART	1
-		to disable the command chpart. This is the default when you
-		have not defined a custom partition
 
 - FAT(File Allocation Table) filesystem write function support:
 		CONFIG_FAT_WRITE
