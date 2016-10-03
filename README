@@ -4546,11 +4546,6 @@ Low Level (hardware related) configuration options:
 		enable SPI microcode relocation patch (MPC8xx);
 		define relocation offset in DPRAM [SCC4]
 
-- CONFIG_SYS_USE_OSCCLK:
-		Use OSCM clock mode on MBX8xx board. Be careful,
-		wrong setting might damage your board. Read
-		doc/README.MBX before setting this variable!
-
 - CONFIG_SYS_CPM_POST_WORD_ADDR: (MPC8xx, MPC8260 only)
 		Offset of the bootmode word in DPRAM used by post
 		(Power On Self Tests). This definition overrides
