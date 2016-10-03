@@ -2333,10 +2333,7 @@ CBFS (Coreboot Filesystem) support
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
-		Hold the number of i2c buses you want to use. If you
-		don't use/have i2c muxes on your i2c bus, this
-		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
-		omit this define.
+		Hold the number of i2c buses you want to use.
 
 		CONFIG_SYS_I2C_DIRECT_BUS
 		define this, if you don't use i2c muxes on your hardware.
@@ -2550,7 +2547,7 @@ CBFS (Coreboot Filesystem) support
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
 
 			#define CONFIG_I2C_MULTI_BUS
-			#define CONFIG_SYS_I2C_MULTI_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
+			#define CONFIG_SYS_I2C_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
