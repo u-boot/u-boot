@@ -1481,10 +1481,6 @@ The following options need to be configured:
 				Derive USB clock from external clock "blah"
 				- CONFIG_SYS_USB_EXTC_CLK 0x02
 
-				CONFIG_SYS_USB_BRG_CLK 0xBLAH
-				Derive USB clock from brgclk
-				- CONFIG_SYS_USB_BRG_CLK 0x04
-
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
 		or directly in usbd_vendor_info.h. If you don't define
