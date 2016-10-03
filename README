@@ -578,20 +578,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_SEC_LE
 		Defines the SEC controller register space as Little Endian
 
-- Intel Monahans options:
-		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
-
-		Defines the Monahans run mode to oscillator
-		ratio. Valid values are 8, 16, 24, 31. The core
-		frequency is this value multiplied by 13 MHz.
-
-		CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO
-
-		Defines the Monahans turbo mode to oscillator
-		ratio. Valid values are 1 (default if undefined) and
-		2. The core frequency as calculated above is multiplied
-		by this value.
-
 - MIPS CPU options:
 		CONFIG_SYS_INIT_SP_OFFSET
 
