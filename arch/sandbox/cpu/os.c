@@ -366,6 +366,8 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 		case DT_LNK:
 			next->type = OS_FILET_LNK;
 			break;
+		default:
+			next->type = OS_FILET_UNKNOWN;
 		}
 		next->size = 0;
 		snprintf(fname, len, "%s/%s", dirname, next->name);
