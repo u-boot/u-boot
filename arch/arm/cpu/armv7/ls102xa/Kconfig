@@ -23,4 +23,9 @@ config MAX_CPUS
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
 
+config SYS_FSL_IFC_BANK_COUNT
+	int "Maximum banks of Integrated flash controller"
+	depends on ARCH_LS1021A
+	default 8
+
 endmenu
