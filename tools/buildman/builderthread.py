@@ -304,10 +304,6 @@ class BuilderThread(threading.Thread):
                 print >>fd, 'arch', result.toolchain.arch
                 fd.write('%s' % result.return_code)
 
-            with open(os.path.join(build_dir, 'toolchain'), 'w') as fd:
-                print >>fd, 'gcc', result.toolchain.gcc
-                print >>fd, 'path', result.toolchain.path
-
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
             lines = []
