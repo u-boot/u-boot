@@ -43,7 +43,8 @@
 #define HS_DEVICE			0x2
 #define GP_DEVICE			0x3
 
-/* cpu-id for AM33XX and TI81XX family */
+/* cpu-id for AM43XX AM33XX and TI81XX family */
+#define AM437X				0xB98C
 #define AM335X				0xB944
 #define TI81XX				0xB81E
 #define DEVICE_ID			(CTRL_BASE + 0x0600)
