@@ -652,6 +652,7 @@ config TARGET_VEXPRESS64_JUNO
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	help
@@ -662,6 +663,7 @@ config TARGET_LS2080A_EMU
 
 config TARGET_LS2080A_SIMU
 	bool "Support ls2080a_simu"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	help
@@ -672,6 +674,7 @@ config TARGET_LS2080A_SIMU
 
 config TARGET_LS2080AQDS
 	bool "Support ls2080aqds"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -683,6 +686,7 @@ config TARGET_LS2080AQDS
 
 config TARGET_LS2080ARDB
 	bool "Support ls2080ardb"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL

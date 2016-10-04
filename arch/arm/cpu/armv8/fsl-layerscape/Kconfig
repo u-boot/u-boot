@@ -1,19 +1,32 @@
 config ARCH_LS1012A
 	bool
+	select FSL_LSCH2
 	select SYS_FSL_MMDC
 	select SYS_FSL_ERRATUM_A010315
 
 config ARCH_LS1043A
 	bool
+	select FSL_LSCH2
 	select SYS_FSL_ERRATUM_A010315
 	select SYS_FSL_ERRATUM_A010539
 
 config ARCH_LS1046A
 	bool
+	select FSL_LSCH2
 	select SYS_FSL_ERRATUM_A010539
 
 config ARCH_LS2080A
 	bool
+	select FSL_LSCH3
+
+config FSL_LSCH2
+	bool
+
+config FSL_LSCH3
+	bool
+
+menu "Layerscape architecture"
+	depends on FSL_LSCH2 || FSL_LSCH3
 
 config SYS_FSL_MMDC
 	bool
@@ -23,3 +36,5 @@ config SYS_FSL_ERRATUM_A010315
 
 config SYS_FSL_ERRATUM_A010539
 	bool "Workaround for PIN MUX erratum A010539"
+
+endmenu

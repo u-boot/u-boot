@@ -2,6 +2,14 @@ config ARCH_LS1021A
 	bool
 	select SYS_FSL_ERRATUM_A010315
 
+menu "LS102xA architecture"
+	depends on ARCH_LS1021A
+
 config LS1_DEEP_SLEEP
 	bool "Deep sleep"
 	depends on ARCH_LS1021A
+
+config SYS_FSL_ERRATUM_A010315
+	bool "Workaround for PCIe erratum A010315"
+
+endmenu
