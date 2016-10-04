@@ -9,6 +9,17 @@ config LS1_DEEP_SLEEP
 	bool "Deep sleep"
 	depends on ARCH_LS1021A
 
+config MAX_CPUS
+	int "Maximum number of CPUs permitted for LS102xA"
+	depends on ARCH_LS1021A
+	default 2
+	help
+	  Set this number to the maximum number of possible CPUs in the SoC.
+	  SoCs may have multiple clusters with each cluster may have multiple
+	  ports. If some ports are reserved but higher ports are used for
+	  cores, count the reserved ports. This will allocate enough memory
+	  in spin table to properly handle all cores.
+
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
 

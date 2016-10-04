@@ -30,7 +30,6 @@
 #define CONFIG_SYS_MEM_RESERVE_SECURE	(2048 * 1024)	/* 2MB */
 
 #ifdef CONFIG_LS2080A
-#define CONFIG_MAX_CPUS				16
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT		8
 #define CONFIG_NUM_DDR_CONTROLLERS		3
 #define CONFIG_SYS_FSL_HAS_DP_DDR		/* Runtime check to confirm */
@@ -171,7 +170,6 @@
 
 /* SoC related */
 #ifdef CONFIG_LS1043A
-#define CONFIG_MAX_CPUS				4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_NUM_FMAN			1
 #define CONFIG_SYS_NUM_FM1_DTSEC		7
@@ -206,13 +204,11 @@
 #define CONFIG_SYS_FSL_ERRATUM_A009660
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #elif defined(CONFIG_ARCH_LS1012A)
-#define CONFIG_MAX_CPUS                         1
 #undef	CONFIG_SYS_FSL_DDRC_ARM_GEN3
 
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
 #elif defined(CONFIG_ARCH_LS1046A)
-#define CONFIG_MAX_CPUS				4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_NUM_FMAN			1
 #define CONFIG_SYS_NUM_FM1_DTSEC		8

@@ -37,4 +37,17 @@ config SYS_FSL_ERRATUM_A010315
 config SYS_FSL_ERRATUM_A010539
 	bool "Workaround for PIN MUX erratum A010539"
 
+config MAX_CPUS
+	int "Maximum number of CPUs permitted for Layerscape"
+	default 4 if ARCH_LS1043A
+	default 4 if ARCH_LS1046A
+	default 16 if ARCH_LS2080A
+	default 1
+	help
+	  Set this number to the maximum number of possible CPUs in the SoC.
+	  SoCs may have multiple clusters with each cluster may have multiple
+	  ports. If some ports are reserved but higher ports are used for
+	  cores, count the reserved ports. This will allocate enough memory
+	  in spin table to properly handle all cores.
+
 endmenu
