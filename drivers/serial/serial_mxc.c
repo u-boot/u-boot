@@ -108,6 +108,8 @@
 #define  UTS_RXFULL	 (1<<3)	 /* RxFIFO full */
 #define  UTS_SOFTRST	 (1<<0)	 /* Software reset */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_DM_SERIAL
 
 #ifndef CONFIG_MXC_UART_BASE
@@ -134,8 +136,6 @@
 #define UBMR  0xa8 /* BRM Modulator Register */
 #define UBRC  0xac /* Baud Rate Count Register */
 #define UTS   0xb4 /* UART Test Register (mx31) */
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define TXTL  2 /* reset default */
 #define RXTL  1 /* reset default */
@@ -347,9 +347,37 @@ static const struct dm_serial_ops mxc_serial_ops = {
 	.setbrg = mxc_serial_setbrg,
 };
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
+{
+	struct mxc_serial_platdata *plat = dev->platdata;
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg = (struct mxc_uart *)addr;
+
+	plat->use_dte = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+					"fsl,dte-mode");
+	return 0;
+}
+
+static const struct udevice_id mxc_serial_ids[] = {
+	{ .compatible = "fsl,imx7d-uart" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(serial_mxc) = {
 	.name	= "serial_mxc",
 	.id	= UCLASS_SERIAL,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = mxc_serial_ids,
+	.ofdata_to_platdata = mxc_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct mxc_serial_platdata),
+#endif
 	.probe = mxc_serial_probe,
 	.ops	= &mxc_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
