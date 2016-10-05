@@ -14,16 +14,23 @@ config ARCH_LS1046A
 	bool
 	select FSL_LSCH2
 	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_SRDS_2
 
 config ARCH_LS2080A
 	bool
 	select FSL_LSCH3
+	select SYS_FSL_HAS_DP_DDR
+	select SYS_FSL_SRDS_2
 
 config FSL_LSCH2
 	bool
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 
 config FSL_LSCH3
 	bool
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
@@ -63,6 +70,15 @@ config SYS_FSL_IFC_BANK_COUNT
 	default 8 if ARCH_LS2080A
 
 config SYS_FSL_HAS_DP_DDR
+	bool
+
+config SYS_FSL_SRDS_1
+	bool
+
+config SYS_FSL_SRDS_2
+	bool
+
+config SYS_HAS_SERDES
 	bool
 
 endmenu

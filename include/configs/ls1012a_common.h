@@ -10,8 +10,6 @@
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV2
 
-#define	CONFIG_SYS_HAS_SERDES
-
 #include <asm/arch/config.h>
 #define CONFIG_SYS_NO_FLASH
 

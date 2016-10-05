@@ -52,8 +52,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
-#define CONFIG_SYS_HAS_SERDES
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB

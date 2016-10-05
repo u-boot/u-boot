@@ -142,8 +142,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
-#define CONFIG_SYS_HAS_SERDES
-
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \

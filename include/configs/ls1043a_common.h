@@ -15,9 +15,6 @@
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
-#ifdef CONFIG_SYS_FSL_SRDS_1
-#define	CONFIG_SYS_HAS_SERDES
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
