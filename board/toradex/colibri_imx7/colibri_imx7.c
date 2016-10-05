@@ -21,6 +21,8 @@
 #include <mmc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <power/pmic.h>
+#include <power/rn5t567_pmic.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -336,6 +338,46 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DM_PMIC
+int power_init_board(void)
+{
+	struct udevice *dev;
+	int reg, ver;
+	int ret;
+
+
+	ret = pmic_get("rn5t567", &dev);
+	if (ret)
+		return ret;
+	ver = pmic_reg_read(dev, RN5T567_LSIVER);
+	reg = pmic_reg_read(dev, RN5T567_OTPVER);
+
+	printf("PMIC:  RN5T567 LSIVER=0x%02x OTPVER=0x%02x\n", ver, reg);
+
+	/* set judge and press timer of N_OE to minimal values */
+	pmic_clrsetbits(dev, RN5T567_NOETIMSETCNT, 0x7, 0);
+
+	return 0;
+}
+
+void reset_cpu(ulong addr)
+{
+	struct udevice *dev;
+
+	pmic_get("rn5t567", &dev);
+
+	/* Use PMIC to reset, set REPWRTIM to 0 and REPWRON to 1 */
+	pmic_reg_write(dev, RN5T567_REPCNT, 0x1);
+	pmic_reg_write(dev, RN5T567_SLPCNT, 0x1);
+
+	/*
+	 * Re-power factor detection on PMIC side is not instant. 1ms
+	 * proved to be enough time until reset takes effect.
+	 */
+	mdelay(1);
+}
+#endif
 
 int checkboard(void)
 {
