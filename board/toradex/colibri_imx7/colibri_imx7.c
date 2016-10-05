@@ -368,13 +368,3 @@ int board_ehci_hcd_init(int port)
 	return 0;
 }
 #endif
-
-static struct mxc_serial_platdata mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART1_IPS_BASE_ADDR,
-	.use_dte = true,
-};
-
-U_BOOT_DEVICE(mxc_serial) = {
-	.name = "serial_mxc",
-	.platdata = &mxc_serial_plat,
-};
