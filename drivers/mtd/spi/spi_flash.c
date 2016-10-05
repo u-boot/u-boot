@@ -200,6 +200,9 @@ bar_end:
 static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 {
 	u8 curr_bank = 0;
+#ifdef CONFIG_SPI_GENERIC
+	u8 curr_bank_up = 0;
+#endif
 	int ret;
 
 	if (flash->size <= SPI_FLASH_16MB_BOUN)
@@ -215,12 +218,34 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
 	}
 
-	ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
-				    &curr_bank, 1);
-	if (ret) {
-		debug("SF: fail to read bank addr register\n");
-		return ret;
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_LOWER;
+		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+					    &curr_bank, 1);
+		if (ret)
+			return ret;
+
+		flash->spi->flags |= SPI_XFER_UPPER;
+		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+					    &curr_bank_up, 1);
+		if (ret)
+			return ret;
+		if (curr_bank != curr_bank_up) {
+			printf("Incorrect Bank selections Dual parallel\n");
+			return -EINVAL;
+		}
+	} else {
+#endif
+		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+					    &curr_bank, 1);
+		if (ret) {
+			debug("SF: fail to read bank addr register\n");
+			return ret;
+		}
+#ifdef CONFIG_SPI_GENERIC
 	}
+#endif
 
 bank_end:
 	flash->bank_curr = curr_bank;
@@ -826,12 +851,37 @@ int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len)
 {
 	int status;
 	u8 sr;
+#ifdef CONFIG_SPI_GENERIC
+	int status_up;
+	u8 sr_up;
+#endif
 
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_LOWER;
+		status = read_sr(flash, &sr);
+		if (status < 0)
+			return 0;
+		status = stm_is_locked_sr(flash, ofs, len, sr);
+
+		flash->spi->flags |= SPI_XFER_UPPER;
+		status_up = read_sr(flash, &sr_up);
+		if (status_up < 0)
+			return status_up;
+		status_up = stm_is_locked_sr(flash, ofs, len, sr_up);
+		status = status && status_up;
+
+		return status;
+	} else {
+#endif
 	status = read_sr(flash, &sr);
 	if (status < 0)
 		return status;
 
 	return stm_is_locked_sr(flash, ofs, len, sr);
+#ifdef CONFIG_SPI_GENERIC
+	}
+#endif
 }
 
 /*
