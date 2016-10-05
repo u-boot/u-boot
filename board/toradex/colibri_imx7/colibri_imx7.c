@@ -12,13 +12,11 @@
 #include <asm/gpio.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fsl_esdhc.h>
-#include <i2c.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <miiphy.h>
@@ -38,45 +36,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
 
-#define I2C_PAD_CTRL    (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
-
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_PU100KOHM | \
 	PAD_CTL_DSE_3P3V_49OHM)
 
 #define NAND_PAD_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU5KOHM)
-
-#ifdef CONFIG_SYS_I2C_MXC
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1 for PMIC */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO04__I2C1_SCL | PC,
-		.gpio_mode = MX7D_PAD_GPIO1_IO04__GPIO1_IO4 | PC,
-		.gp = IMX_GPIO_NR(1, 4),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO05__I2C1_SDA | PC,
-		.gpio_mode = MX7D_PAD_GPIO1_IO05__GPIO1_IO5 | PC,
-		.gp = IMX_GPIO_NR(1, 5),
-	},
-};
-/* I2C4 for Colibri I2C */
-static struct i2c_pads_info i2c_pad_info4 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_ENET1_RGMII_TD2__I2C4_SCL | PC,
-		.gpio_mode = MX7D_PAD_ENET1_RGMII_TD2__GPIO7_IO8 | PC,
-		.gp = IMX_GPIO_NR(7, 8),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_ENET1_RGMII_TD3__I2C4_SDA | PC,
-		.gpio_mode = MX7D_PAD_ENET1_RGMII_TD3__GPIO7_IO9 | PC,
-		.gp = IMX_GPIO_NR(7, 9),
-	},
-};
-#endif
 
 int dram_init(void)
 {
@@ -330,11 +295,6 @@ int board_phy_config(struct phy_device *phydev)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
-#endif
 
 	return 0;
 }
