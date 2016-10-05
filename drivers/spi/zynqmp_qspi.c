@@ -87,6 +87,8 @@
 #define ZYNQMP_QSPI_DMA_ALIGN	0x4
 #define ZYNQMP_QSPI_MAX_BAUD_RATE_VAL	7
 
+#define ZYNQMP_QSPI_TIMEOUT	100000000
+
 /* QSPI register offsets */
 struct zynqmp_qspi_regs {
 	u32 confr;	/* 0x00 */
@@ -388,7 +390,7 @@ static int zynqmp_qspi_set_mode(struct udevice *bus, uint mode)
 static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 {
 	u32 data;
-	u32 timeout = 10000000;
+	u32 timeout = ZYNQMP_QSPI_TIMEOUT;
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 *buf = (u32 *)priv->tx_buf;
 	u32 len = size;
@@ -427,11 +429,12 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 				size = 0;
 			}
 		} else {
+			udelay(1);
 			timeout--;
 		}
 	}
 	if (!timeout) {
-		debug("zynqmp_qspi_fill_tx_fifo: Timeout\n");
+		printf("zynqmp_qspi_fill_tx_fifo: Timeout\n");
 		return -1;
 	}
 
@@ -535,7 +538,7 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 {
 	u32 addr;
 	u32 size, len;
-	u32 timeout = 10000000;
+	u32 timeout = ZYNQMP_QSPI_TIMEOUT;
 	u32 actuallen = priv->len;
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
@@ -565,6 +568,7 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 			       &dma_regs->dmaisr);
 			break;
 		}
+		udelay(1);
 		timeout--;
 	}
 
@@ -572,7 +576,7 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 	      (unsigned long)buf, (unsigned long)priv->rx_buf, *buf,
 	      actuallen);
 	if (!timeout) {
-		debug("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
+		printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
 		return -1;
 	}
 
