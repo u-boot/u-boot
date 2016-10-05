@@ -46,7 +46,6 @@
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #endif
 #ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
 

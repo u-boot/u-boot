@@ -42,9 +42,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
-#endif
 
 #define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC

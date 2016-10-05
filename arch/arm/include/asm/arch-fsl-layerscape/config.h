@@ -12,17 +12,6 @@
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
 
-#ifdef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDRC_GEN4
-#else
-#define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
-#endif
-
-#ifndef CONFIG_ARCH_LS1012A
-#define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
-#define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
-#endif
-
 /*
  * Reserve secure memory
  * To be aligned with MMU block size
@@ -42,7 +31,6 @@
 #define CONFIG_SYS_FSL_OCRAM_SIZE	0x00200000	/* 2M */
 
 /* DDR */
-#define CONFIG_SYS_FSL_DDR_LE
 #define CONFIG_SYS_LS2_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_LS2_DDR_BLOCK1_SIZE
 
@@ -166,7 +154,6 @@
 #define CONFIG_SYS_NUM_FMAN			1
 #define CONFIG_SYS_NUM_FM1_DTSEC		7
 #define CONFIG_SYS_NUM_FM1_10GEC		1
-#define CONFIG_SYS_FSL_DDR_BE
 #define CONFIG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED			CONFIG_SYS_DDR_BLOCK1_SIZE
 
@@ -204,7 +191,6 @@
 #define CONFIG_SYS_NUM_FMAN			1
 #define CONFIG_SYS_NUM_FM1_DTSEC		8
 #define CONFIG_SYS_NUM_FM1_10GEC		2
-#define CONFIG_SYS_FSL_DDR_BE
 #define CONFIG_SYS_DDR_BLOCK1_SIZE  ((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED           CONFIG_SYS_DDR_BLOCK1_SIZE
 
