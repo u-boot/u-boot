@@ -222,7 +222,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 			return -ENOMEM;
 	}
 
-	dev_info(dev, "initialized IMX pinctrl driver\n");
+	dev_dbg(dev, "initialized IMX pinctrl driver\n");
 
 	return 0;
 }
