@@ -293,8 +293,6 @@
 
 /* for booting directly linux */
 
-#define CONFIG_SYS_OS_BASE		(CONFIG_SYS_FLASH_BASE + \
-					 0x60000)
 #define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 0x40000)
 #define CONFIG_SYS_FDT_SIZE		(16<<10)

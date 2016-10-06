@@ -389,6 +389,16 @@ config SPL_OS_BOOT
 	  Enable booting directly to an OS from SPL.
 	  for more info read doc/README.falcon
 
+if SPL_OS_BOOT
+config SYS_OS_BASE
+	hex "addr, where OS is found"
+	depends on SPL && SPL_NOR_SUPPORT
+	help
+	  Specify the address, where the OS image is found, which
+	  gets booted.
+
+endif # SPL_OS_BOOT
+
 config SPL_POST_MEM_SUPPORT
 	bool "Support POST drivers"
 	depends on SPL
