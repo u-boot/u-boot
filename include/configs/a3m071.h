@@ -401,7 +401,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	((128 - 1) << 20)
 #define CONFIG_SPL_BSS_MAX_SIZE		(64 << 10)
 
-#define CONFIG_SPL_OS_BOOT
 /* Place patched DT blob (fdt) at this address */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x01800000
 

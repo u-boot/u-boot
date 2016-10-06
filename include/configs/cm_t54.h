@@ -16,8 +16,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-#undef CONFIG_SPL_OS_BOOT
-
 /* EEPROM related defines */
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50

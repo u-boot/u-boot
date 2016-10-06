@@ -301,7 +301,6 @@
 #include <configs/ti_armv7_common.h>
 
 /* We wont be loading up OS from SPL for now.. */
-#undef CONFIG_SPL_OS_BOOT
 
 /* We do not have MMC support.. yet.. */
 #undef CONFIG_MMC

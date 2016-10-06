@@ -139,7 +139,6 @@
 
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
-#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 

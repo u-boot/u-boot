@@ -381,6 +381,14 @@ config SPL_ONENAND_SUPPORT
 	  load U-Boot from supported devices. This enables the drivers in
 	  drivers/mtd/onenand as part of an SPL build.
 
+config SPL_OS_BOOT
+	bool "Activate Falcon Mode"
+	depends on SPL && !TI_SECURE_DEVICE
+	default n
+	help
+	  Enable booting directly to an OS from SPL.
+	  for more info read doc/README.falcon
+
 config SPL_POST_MEM_SUPPORT
 	bool "Support POST drivers"
 	depends on SPL

@@ -292,7 +292,6 @@
 #endif
 
 /* for booting directly linux */
-#define CONFIG_SPL_OS_BOOT
 
 #define CONFIG_SYS_OS_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 0x60000)

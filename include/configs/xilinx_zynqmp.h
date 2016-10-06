@@ -268,7 +268,6 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
 
-#define CONFIG_SPL_OS_BOOT
 /* u-boot is like dtb */
 #define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000

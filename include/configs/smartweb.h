@@ -275,6 +275,5 @@
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
 #endif
 #endif /* __CONFIG_H */

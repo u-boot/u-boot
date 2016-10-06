@@ -205,9 +205,6 @@
  * We also support Falcon Mode so that the Linux kernel can be booted
  * directly from SPL. This is not currently available on HS devices.
  */
-#if !defined(CONFIG_TI_SECURE_DEVICE)
-#define CONFIG_SPL_OS_BOOT
-#endif
 
 /*
  * Place the image at the start of the ROM defined image space (per

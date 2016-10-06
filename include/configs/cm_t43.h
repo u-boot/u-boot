@@ -90,7 +90,6 @@
 #define CONFIG_HSMMC2_8BIT
 
 #include <configs/ti_armv7_omap.h>
-#undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_SYS_MONITOR_LEN
 #undef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 

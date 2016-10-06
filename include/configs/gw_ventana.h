@@ -14,7 +14,6 @@
 
 /* Falcon Mode */
 #define CONFIG_CMD_SPL
-#define CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 #define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
 
