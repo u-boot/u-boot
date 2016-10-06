@@ -20,7 +20,6 @@
 #include <asm/processor.h>
 #include <asm/speedstep.h>
 #include <asm/turbo.h>
-#include <asm/arch/bd82x6x.h>
 #include <asm/arch/model_206ax.h>
 
 static void enable_vmx(void)

@@ -162,7 +162,6 @@ int intel_early_me_init_done(struct udevice *dev, struct udevice *me_dev,
 
 static const struct udevice_id ivybridge_syscon_ids[] = {
 	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
-	{ .compatible = "intel,gma", .data = X86_SYSCON_GMA },
 	{ }
 };
 
