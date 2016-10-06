@@ -420,7 +420,4 @@
 		"if run ${btype}_boot; then; fi; " \
 	"done"
 
-/* Device Tree Support */
-#define CONFIG_FDT_FIXUP_PARTITIONS
-
 #endif			       /* __CONFIG_H */

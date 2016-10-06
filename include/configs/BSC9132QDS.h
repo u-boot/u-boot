@@ -605,14 +605,6 @@ combinations. this should be removed later
 			"8m(kernel),512k(dtb),-(fs)"
 #endif
 /*
- * Override partitions in device tree using info
- * in "mtdparts" environment variable
- */
-#ifdef CONFIG_CMD_MTDPARTS
-#define CONFIG_FDT_FIXUP_PARTITIONS
-#endif
-
-/*
  * Environment Configuration
  */
 
