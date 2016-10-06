@@ -115,6 +115,7 @@ void setup_board_tags(struct tag **in_params)
 	unsigned int boardId;
 	struct tag *params;
 	struct tag_mv_uboot *t;
+	int i;
 
 	printf("Synology board tags...");
 	params = *in_params;
@@ -127,6 +128,12 @@ void setup_board_tags(struct tag **in_params)
 
 	t->tclk = CONFIG_SYS_TCLK;
 	t->sysclk = CONFIG_SYS_TCLK*2;
+
+	t->isusbhost = 1;
+	for (i = 0; i < 4; i++)	{
+		memset(t->macaddr[i], 0, sizeof(t->macaddr[i]));
+		t->mtu[i] = 0;
+	}
 
 	params->hdr.tag = ATAG_MV_UBOOT;
 	params->hdr.size = tag_size(tag_mv_uboot);
