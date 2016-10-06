@@ -106,5 +106,7 @@ extern struct vbe_mode_info mode_info;
 
 struct graphic_device;
 int vbe_get_video_info(struct graphic_device *gdev);
+struct video_priv;
+int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void));
 
 #endif
