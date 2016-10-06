@@ -20,6 +20,7 @@ obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
 endif
 
 obj-$(CONFIG_VIDEO_BROADWELL_IGD) += broadwell_igd.o
+obj-$(CONFIG_VIDEO_IVYBRIDGE_IGD) += ivybridge_igd.o
 
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
