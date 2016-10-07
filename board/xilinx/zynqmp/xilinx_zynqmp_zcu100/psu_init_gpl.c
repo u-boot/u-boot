@@ -9043,7 +9043,601 @@ unsigned long psu_ps_pl_reset_config_data() {
   return 1;
 }
 unsigned long psu_ddr_phybringup_data() {return 1;}
-unsigned long psu_ddr_init_data() {return 1;}
+
+#define CRF_APB_BASEADDR      0XFD1A0000U
+#define CRF_APB_RST_DDR_SS_OFFSET                                                  0XFD1A0108
+#define CRF_APB_RST_DDR_SS    ( ( CRF_APB_BASEADDR ) + 0X00000108U )
+
+void noinline prog_reg_ddr(unsigned long addr, unsigned long shift,
+		     unsigned long mask, unsigned long value)
+{
+	int rdata = 0;
+
+	rdata = Xil_In32(addr);
+	rdata = rdata & (~mask);
+	rdata = rdata | (value << shift);
+	Xil_Out32(addr,rdata);
+}
+
+unsigned long psu_ddr_init_data() {
+   // ***** zcu100 is set to 1 *****
+ // ***** lp4_wrk_around is overwritten to 1 *****
+
+
+
+unsigned int regval = 0;
+unsigned int tmp_regval;
+int tp;
+
+
+ tmp_regval = Xil_In32(CRF_APB_RST_DDR_SS);
+ tmp_regval = tmp_regval & 0xFFFFFFF7;
+ tmp_regval = tmp_regval | 0x00000008;
+ Xil_Out32(CRF_APB_RST_DDR_SS, tmp_regval);
+
+
+Xil_Out32(0xFD070000, 0x81081020); //MSTR
+Xil_Out32(0xFD070010, 0x00000030); //MRCTRL0
+Xil_Out32(0xFD070020, 0x00000102); //DERATEEN
+Xil_Out32(0xFD070024, 0x0028AA28); //DERATEINT
+Xil_Out32(0xFD070030, 0x00000000); //PWRCTL
+Xil_Out32(0xFD070034, 0x00404310); //PWRTMG
+Xil_Out32(0xFD070050, 0x00210000); //RFSHCTL0
+Xil_Out32(0xFD070060, 0x00000000); //RFSHCTL3
+Xil_Out32(0xFD070064, 0x00208030); //RFSHTMG
+Xil_Out32(0xFD070070, 0x00000010); //ECCCFG0
+Xil_Out32(0xFD070074, 0x00000000); //ECCCFG1
+Xil_Out32(0xFD0700C4, 0x10000200); //CRCPARCTL1
+Xil_Out32(0xFD0700C8, 0x0030051F); //CRCPARCTL2
+Xil_Out32(0xFD0700D0, 0x0002020A); //INIT0
+Xil_Out32(0xFD0700D4, 0x00360000); //INIT1
+Xil_Out32(0xFD0700D8, 0x00001205); //INIT2
+Xil_Out32(0xFD0700DC, 0x00140009); //INIT3
+Xil_Out32(0xFD0700E0, 0x00310008); //INIT4
+Xil_Out32(0xFD0700E4, 0x00210004); //INIT5
+Xil_Out32(0xFD0700E8, 0x00000000); //INIT6
+Xil_Out32(0xFD0700EC, 0x00000000); //INIT7
+Xil_Out32(0xFD0700F0, 0x00000010); //DIMMCTL
+Xil_Out32(0xFD0700F4, 0x0000077F); //RANKCTL
+Xil_Out32(0xFD070100, 0x0D0B010C); //DRAMTMG0
+Xil_Out32(0xFD070104, 0x00030411); //DRAMTMG1
+Xil_Out32(0xFD070108, 0x03050D0C); //DRAMTMG2
+Xil_Out32(0xFD07010C, 0x00A05000); //DRAMTMG3
+Xil_Out32(0xFD070110, 0x05040306); //DRAMTMG4
+Xil_Out32(0xFD070114, 0x01020404); //DRAMTMG5
+Xil_Out32(0xFD070118, 0x01010004); //DRAMTMG6
+Xil_Out32(0xFD07011C, 0x00000201); //DRAMTMG7
+Xil_Out32(0xFD070120, 0x03030303); //DRAMTMG8
+Xil_Out32(0xFD070124, 0x0004040D); //DRAMTMG9
+Xil_Out32(0xFD07012C, 0x440C011C); //DRAMTMG11
+Xil_Out32(0xFD070130, 0x00020608); //DRAMTMG12
+Xil_Out32(0xFD070180, 0x010B0008); //ZQCTL0
+Xil_Out32(0xFD070184, 0x00E32D4B); //ZQCTL1
+Xil_Out32(0xFD070190, 0x04878204); //DFITMG0
+Xil_Out32(0xFD070194, 0x00030304); //DFITMG1
+Xil_Out32(0xFD070198, 0x07000101); //DFILPCFG0
+Xil_Out32(0xFD07019C, 0x00000021); //DFILPCFG1
+Xil_Out32(0xFD0701A0, 0x03FF0003); //DFIUPD0
+Xil_Out32(0xFD0701A4, 0x00A00070); //DFIUPD1
+Xil_Out32(0xFD0701B0, 0x00000004); //DFIMISC
+Xil_Out32(0xFD0701B4, 0x0000053F); //DFITMG2
+Xil_Out32(0xFD0701C0, 0x00000001); //DBICTL
+Xil_Out32(0xFD070200, 0x0000001F); //ADDRMAP0
+Xil_Out32(0xFD070204, 0x00070707); //ADDRMAP1
+Xil_Out32(0xFD070208, 0x00000000); //ADDRMAP2
+Xil_Out32(0xFD07020C, 0x0F000000); //ADDRMAP3
+Xil_Out32(0xFD070210, 0x00000F0F); //ADDRMAP4
+Xil_Out32(0xFD070214, 0x060F0606); //ADDRMAP5
+Xil_Out32(0xFD070218, 0x0F060606); //ADDRMAP6
+Xil_Out32(0xFD07021C, 0x00000F0F); //ADDRMAP7
+Xil_Out32(0xFD070220, 0x00000000); //ADDRMAP8
+Xil_Out32(0xFD070224, 0x06060606); //ADDRMAP9
+Xil_Out32(0xFD070228, 0x06060606); //ADDRMAP10
+Xil_Out32(0xFD07022C, 0x00000006); //ADDRMAP11
+Xil_Out32(0xFD070240, 0x04000400); //ODTCFG
+Xil_Out32(0xFD070244, 0x00000000); //ODTMAP
+Xil_Out32(0xFD070250, 0x01002001); //SCHED
+Xil_Out32(0xFD070264, 0x08000040); //PERFLPR1
+Xil_Out32(0xFD07026C, 0x08000040); //PERFWR1
+Xil_Out32(0xFD070294, 0x00000001); //DQMAP5
+Xil_Out32(0xFD070300, 0x00000000); //DBG0
+Xil_Out32(0xFD07030C, 0x00000000); //DBGCMD
+Xil_Out32(0xFD070320, 0x00000000); //SWCTL
+Xil_Out32(0xFD070400, 0x00000001); //PCCFG
+Xil_Out32(0xFD070404, 0x0000200F); //PCFGR_0
+Xil_Out32(0xFD070408, 0x0000200F); //PCFGW_0
+Xil_Out32(0xFD070490, 0x00000001); //PCTRL_0
+Xil_Out32(0xFD070494, 0x0020000B); //PCFGQOS0_0
+Xil_Out32(0xFD070498, 0x00000000); //PCFGQOS1_0
+Xil_Out32(0xFD0704B4, 0x0000200F); //PCFGR_1
+Xil_Out32(0xFD0704B8, 0x0000200F); //PCFGW_1
+Xil_Out32(0xFD070540, 0x00000001); //PCTRL_1
+Xil_Out32(0xFD070544, 0x02000B03); //PCFGQOS0_1
+Xil_Out32(0xFD070548, 0x00000000); //PCFGQOS1_1
+Xil_Out32(0xFD070564, 0x0000200F); //PCFGR_2
+Xil_Out32(0xFD070568, 0x0000200F); //PCFGW_2
+Xil_Out32(0xFD0705F0, 0x00000001); //PCTRL_2
+Xil_Out32(0xFD0705F4, 0x02000B03); //PCFGQOS0_2
+Xil_Out32(0xFD0705F8, 0x00000000); //PCFGQOS1_2
+Xil_Out32(0xFD070614, 0x0000200F); //PCFGR_3
+Xil_Out32(0xFD070618, 0x0000200F); //PCFGW_3
+Xil_Out32(0xFD0706A0, 0x00000001); //PCTRL_3
+Xil_Out32(0xFD0706A4, 0x00100003); //PCFGQOS0_3
+Xil_Out32(0xFD0706A8, 0x0000004F); //PCFGQOS1_3
+Xil_Out32(0xFD0706AC, 0x00100003); //PCFGWQOS0_3
+Xil_Out32(0xFD0706B0, 0x0000004F); //PCFGWQOS1_3
+Xil_Out32(0xFD0706C4, 0x0000200F); //PCFGR_4
+Xil_Out32(0xFD0706C8, 0x0000200F); //PCFGW_4
+Xil_Out32(0xFD070750, 0x00000001); //PCTRL_4
+Xil_Out32(0xFD070754, 0x00100003); //PCFGQOS0_4
+Xil_Out32(0xFD070758, 0x0000004F); //PCFGQOS1_4
+Xil_Out32(0xFD07075C, 0x00100003); //PCFGWQOS0_4
+Xil_Out32(0xFD070760, 0x0000004F); //PCFGWQOS1_4
+Xil_Out32(0xFD070774, 0x0000200F); //PCFGR_5
+Xil_Out32(0xFD070778, 0x0000200F); //PCFGW_5
+Xil_Out32(0xFD070800, 0x00000001); //PCTRL_5
+Xil_Out32(0xFD070804, 0x00100003); //PCFGQOS0_5
+Xil_Out32(0xFD070808, 0x0000004F); //PCFGQOS1_5
+Xil_Out32(0xFD07080C, 0x00100003); //PCFGWQOS0_5
+Xil_Out32(0xFD070810, 0x0000004F); //PCFGWQOS1_5
+Xil_Out32(0xFD070F04, 0x00000000); //SARBASE0
+Xil_Out32(0xFD070F08, 0x00000000); //SARSIZE0
+Xil_Out32(0xFD070F0C, 0x00000010); //SARBASE1
+Xil_Out32(0xFD070F10, 0x0000000F); //SARSIZE1
+Xil_Out32(0xFD072190, 0x07828002); //DFITMG0_SHADOW
+ for(tp=0;tp<10;tp++) {
+    tmp_regval = Xil_In32(CRF_APB_RST_DDR_SS);
+    tmp_regval = tmp_regval & 0xFFFFFFF7;
+    tmp_regval = tmp_regval | 0x00000000;
+    Xil_Out32(CRF_APB_RST_DDR_SS, tmp_regval);
+ }
+Xil_Out32(0xFD080010, 0x87001E00); //PGCR0
+Xil_Out32(0xFD080018, 0x00F03D18); //PGCR2
+Xil_Out32(0xFD08001C, 0x55AA5480); //PGCR3
+Xil_Out32(0xFD080024, 0x010100F4); //PGCR5
+Xil_Out32(0xFD080040, 0x5E001810); //PTR0
+Xil_Out32(0xFD080044, 0xA068057A); //PTR1
+Xil_Out32(0xFD080090, 0x02A040A1); //DSGCR
+Xil_Out32(0xFD080100, 0x0000040D); //DCR
+Xil_Out32(0xFD080110, 0x06180C08); //DTPR0
+Xil_Out32(0xFD080114, 0x2816050A); //DTPR1
+Xil_Out32(0xFD080118, 0x00080064); //DTPR2
+Xil_Out32(0xFD08011C, 0x82000501); //DTPR3
+Xil_Out32(0xFD080120, 0x00602B08); //DTPR4
+Xil_Out32(0xFD080124, 0x00221008); //DTPR5
+Xil_Out32(0xFD080128, 0x0000060A); //DTPR6
+Xil_Out32(0xFD080140, 0x08400020); //RDIMMGCR0
+Xil_Out32(0xFD080144, 0x00000C80); //RDIMMGCR1
+Xil_Out32(0xFD080150, 0x00000000); //RDIMMCR0
+Xil_Out32(0xFD080154, 0x00000000); //RDIMMCR1
+Xil_Out32(0xFD080180, 0x00000000); //MR0
+Xil_Out32(0xFD080184, 0x00000014); //MR1
+Xil_Out32(0xFD080188, 0x00000009); //MR2
+Xil_Out32(0xFD08018C, 0x00000031); //MR3
+Xil_Out32(0xFD080190, 0x00000008); //MR4
+Xil_Out32(0xFD080194, 0x00000000); //MR5
+Xil_Out32(0xFD080198, 0x00000000); //MR6
+Xil_Out32(0xFD0801AC, 0x00000056); //MR11
+Xil_Out32(0xFD0801B0, 0x00000021); //MR12
+Xil_Out32(0xFD0801B4, 0x00000008); //MR13
+Xil_Out32(0xFD0801B8, 0x00000019); //MR14
+Xil_Out32(0xFD0801D8, 0x00000016); //MR22
+Xil_Out32(0xFD080200, 0x800091C7); //DTCR0
+Xil_Out32(0xFD080204, 0x00010236); //DTCR1
+Xil_Out32(0xFD080240, 0x00141054); //CATR0
+Xil_Out32(0xFD080250, 0x00088000); //DQSDR0
+Xil_Out32(0xFD080414, 0x12340400); //BISTLSR
+Xil_Out32(0xFD0804F4, 0x0000000A); //RIOCR5
+Xil_Out32(0xFD080500, 0x30000028); //ACIOCR0
+Xil_Out32(0xFD080508, 0x00000000); //ACIOCR2
+Xil_Out32(0xFD08050C, 0x00000005); //ACIOCR3
+Xil_Out32(0xFD080510, 0x00000000); //ACIOCR4
+Xil_Out32(0xFD080520, 0x0300BD99); //IOVCR0
+Xil_Out32(0xFD080528, 0xF1032019); //VTCR0
+Xil_Out32(0xFD08052C, 0x07F001E3); //VTCR1
+Xil_Out32(0xFD080544, 0x00000000); //ACBDLR1
+Xil_Out32(0xFD080548, 0x00000000); //ACBDLR2
+Xil_Out32(0xFD080558, 0x00000000); //ACBDLR6
+Xil_Out32(0xFD08055C, 0x00000000); //ACBDLR7
+Xil_Out32(0xFD080560, 0x00000000); //ACBDLR8
+Xil_Out32(0xFD080564, 0x00000000); //ACBDLR9
+Xil_Out32(0xFD080680, 0x00894C58); //ZQCR
+Xil_Out32(0xFD080684, 0x0001B39B); //ZQ0PR0
+Xil_Out32(0xFD080694, 0x01E10210); //ZQ0OR0
+Xil_Out32(0xFD080698, 0x01E10000); //ZQ0OR1
+Xil_Out32(0xFD0806A4, 0x0001BB9B); //ZQ1PR0
+Xil_Out32(0xFD080700, 0x40800604); //DX0GCR0
+Xil_Out32(0xFD080710, 0x0E00F50C); //DX0GCR4
+Xil_Out32(0xFD080714, 0x09091616); //DX0GCR5
+Xil_Out32(0xFD080718, 0x09092B2B); //DX0GCR6
+Xil_Out32(0xFD080800, 0x40800604); //DX1GCR0
+Xil_Out32(0xFD080810, 0x0E00F50C); //DX1GCR4
+Xil_Out32(0xFD080814, 0x09091616); //DX1GCR5
+Xil_Out32(0xFD080818, 0x09092B2B); //DX1GCR6
+Xil_Out32(0xFD080900, 0x40800604); //DX2GCR0
+Xil_Out32(0xFD080904, 0x00007FFF); //DX2GCR1
+Xil_Out32(0xFD080910, 0x0E00F50C); //DX2GCR4
+Xil_Out32(0xFD080914, 0x09091616); //DX2GCR5
+Xil_Out32(0xFD080918, 0x09092B2B); //DX2GCR6
+Xil_Out32(0xFD080A00, 0x40800604); //DX3GCR0
+Xil_Out32(0xFD080A04, 0x00007FFF); //DX3GCR1
+Xil_Out32(0xFD080A10, 0x0E00F50C); //DX3GCR4
+Xil_Out32(0xFD080A14, 0x09091616); //DX3GCR5
+Xil_Out32(0xFD080A18, 0x09092B2B); //DX3GCR6
+Xil_Out32(0xFD080B00, 0x40800604); //DX4GCR0
+Xil_Out32(0xFD080B04, 0x00007F00); //DX4GCR1
+Xil_Out32(0xFD080B10, 0x0E00BD0C); //DX4GCR4
+Xil_Out32(0xFD080B14, 0x09091616); //DX4GCR5
+Xil_Out32(0xFD080B18, 0x09092B2B); //DX4GCR6
+Xil_Out32(0xFD080C00, 0x40800604); //DX5GCR0
+Xil_Out32(0xFD080C04, 0x00007F00); //DX5GCR1
+Xil_Out32(0xFD080C10, 0x0E00BD0C); //DX5GCR4
+Xil_Out32(0xFD080C14, 0x09091616); //DX5GCR5
+Xil_Out32(0xFD080C18, 0x09092B2B); //DX5GCR6
+Xil_Out32(0xFD080D00, 0x40800604); //DX6GCR0
+Xil_Out32(0xFD080D04, 0x00007F00); //DX6GCR1
+Xil_Out32(0xFD080D10, 0x0E00BD0C); //DX6GCR4
+Xil_Out32(0xFD080D14, 0x09091616); //DX6GCR5
+Xil_Out32(0xFD080D18, 0x09092B2B); //DX6GCR6
+Xil_Out32(0xFD080E00, 0x40800604); //DX7GCR0
+Xil_Out32(0xFD080E04, 0x00007F00); //DX7GCR1
+Xil_Out32(0xFD080E10, 0x0E00BD0C); //DX7GCR4
+Xil_Out32(0xFD080E14, 0x09091616); //DX7GCR5
+Xil_Out32(0xFD080E18, 0x09092B2B); //DX7GCR6
+Xil_Out32(0xFD080F00, 0x40800624); //DX8GCR0
+Xil_Out32(0xFD080F04, 0x00007F00); //DX8GCR1
+Xil_Out32(0xFD080F10, 0x0E00BD0C); //DX8GCR4
+Xil_Out32(0xFD080F14, 0x09091616); //DX8GCR5
+Xil_Out32(0xFD080F18, 0x09092B2B); //DX8GCR6
+Xil_Out32(0xFD081400, 0x2A019FFE); //DX8SL0OSC
+Xil_Out32(0xFD08141C, 0x01264300); //DX8SL0DQSCTL
+Xil_Out32(0xFD08142C, 0x000C1800); //DX8SL0DXCTL2
+Xil_Out32(0xFD081430, 0x71000000); //DX8SL0IOCR
+Xil_Out32(0xFD081440, 0x2A019FFE); //DX8SL1OSC
+Xil_Out32(0xFD08145C, 0x01264300); //DX8SL1DQSCTL
+Xil_Out32(0xFD08146C, 0x000C1800); //DX8SL1DXCTL2
+Xil_Out32(0xFD081470, 0x71000000); //DX8SL1IOCR
+Xil_Out32(0xFD081480, 0x2A019FFE); //DX8SL2OSC
+Xil_Out32(0xFD08149C, 0x01264300); //DX8SL2DQSCTL
+Xil_Out32(0xFD0814AC, 0x000C1800); //DX8SL2DXCTL2
+Xil_Out32(0xFD0814B0, 0x71000000); //DX8SL2IOCR
+Xil_Out32(0xFD0814C0, 0x2A019FFE); //DX8SL3OSC
+Xil_Out32(0xFD0814DC, 0x01264300); //DX8SL3DQSCTL
+Xil_Out32(0xFD0814EC, 0x000C1800); //DX8SL3DXCTL2
+Xil_Out32(0xFD0814F0, 0x71000000); //DX8SL3IOCR
+Xil_Out32(0xFD081500, 0x2A019FFE); //DX8SL4OSC
+Xil_Out32(0xFD08151C, 0x01264300); //DX8SL4DQSCTL
+Xil_Out32(0xFD08152C, 0x000C1800); //DX8SL4DXCTL2
+Xil_Out32(0xFD081530, 0x71000000); //DX8SL4IOCR
+Xil_Out32(0xFD0817DC, 0x012643C4); //DX8SLBDQSCTL
+Xil_Out32(0xFD080004, 0x00040073); //PIR
+
+// PHY BRINGUP SEQ
+while ((Xil_In32(0xFD080030) & 0x0000000F) != 0x0000000F);
+
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+//poll for PHY initialization to complete
+while ((Xil_In32(0xFD080030) & 0x000000FF) != 0x0000001F);
+
+Xil_Out32(0xFD070010, 0x00000038); //MRCTRL0
+Xil_Out32(0xFD0701B0, 0x00000005); //DFIMISC
+Xil_Out32(0xFD070014, 0x00000331); //MRCTRL1
+Xil_Out32(0xFD070010, 0x80000018); //MRCTRL0
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  while((regval & 0x1) != 0x0){
+     regval = Xil_In32(0xFD070018); //MRSTAT
+  }
+
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+Xil_Out32(0xFD070014, 0x00000B36); //MRCTRL1
+Xil_Out32(0xFD070010, 0x80000018); //MRCTRL0
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  while((regval & 0x1) != 0x0){
+     regval = Xil_In32(0xFD070018); //MRSTAT
+  }
+
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+Xil_Out32(0xFD070014, 0x00000C21); //MRCTRL1
+Xil_Out32(0xFD070010, 0x80000018); //MRCTRL0
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  while((regval & 0x1) != 0x0){
+     regval = Xil_In32(0xFD070018); //MRSTAT
+  }
+
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+Xil_Out32(0xFD070014, 0x00000E19); //MRCTRL1
+Xil_Out32(0xFD070010, 0x80000018); //MRCTRL0
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  while((regval & 0x1) != 0x0){
+     regval = Xil_In32(0xFD070018); //MRSTAT
+  }
+
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+Xil_Out32(0xFD070014, 0x00001616); //MRCTRL1
+Xil_Out32(0xFD070010, 0x80000018); //MRCTRL0
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  while((regval & 0x1) != 0x0){
+     regval = Xil_In32(0xFD070018); //MRSTAT
+  }
+
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+  regval = Xil_In32(0xFD070018); //MRSTAT
+Xil_Out32(0xFD070010, 0x80000010); //MRCTRL0
+Xil_Out32(0xFD0701B0, 0x00000005); //DFIMISC
+Xil_Out32(0xFD070320, 0x00000001); //SWCTL
+while ((Xil_In32(0xFD070004) & 0x0000000F) != 0x00000001);
+////////////////////////////////////////////////////////////////////////////////
+// LPDDR4 training work around code
+////////////////////////////////////////////////////////////////////////////////
+prog_reg_ddr (0xFD080014, 0x6, 0x40, 0x1);
+prog_reg_ddr (0xFD080680, 0x5, 0xE0, 0x0);
+prog_reg_ddr (0xFD080028, 0x0, 0x1, 0x1);
+prog_reg_ddr (0xFD070320, 0x0, 0x1, 0x0);
+prog_reg_ddr (0xFD0701A0, 0x1F, 0x80000000, 0x1);
+prog_reg_ddr (0xFD080004, 0xA, 0x400, 0x1);
+prog_reg_ddr (0xFD080004, 0x9, 0x200, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00000001) != 0x00000001);
+int wdqsl_a0;
+wdqsl_a0 = (Xil_In32(0xFD0807C0) & 0x07000000) >> 24;
+int wdqsl_a1;
+wdqsl_a1 = (Xil_In32(0xFD0808C0) & 0x07000000) >> 24;
+int wdqsl_a2;
+wdqsl_a2 = (Xil_In32(0xFD0809C0) & 0x07000000) >> 24;
+int wdqsl_a3;
+wdqsl_a3 = (Xil_In32(0xFD080AC0) & 0x07000000) >> 24;
+int lcdl_a0;
+lcdl_a0 = (Xil_In32(0xFD080784) & 0x000001FF) >> 0;
+int lcdl_a1;
+lcdl_a1 = (Xil_In32(0xFD080884) & 0x000001FF) >> 0;
+int lcdl_a2;
+lcdl_a2 = (Xil_In32(0xFD080984) & 0x000001FF) >> 0;
+int lcdl_a3;
+lcdl_a3 = (Xil_In32(0xFD080A84) & 0x000001FF) >> 0;
+int iprd0;
+iprd0 = (Xil_In32(0xFD0807A0) & 0x000001FF) >> 0;
+int iprd1;
+iprd1 = (Xil_In32(0xFD0808A0) & 0x000001FF) >> 0;
+int iprd2;
+iprd2 = (Xil_In32(0xFD0809A0) & 0x000001FF) >> 0;
+int iprd3;
+iprd3 = (Xil_In32(0xFD080AA0) & 0x000001FF) >> 0;
+prog_reg_ddr (0xFD080004, 0x14, 0x100000, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00008001) != 0x00008001)
+  ;
+
+int wdqsl_b0;
+wdqsl_b0 = (Xil_In32(0xFD0807C0) & 0x07000000) >> 24;
+int wdqsl_b1;
+wdqsl_b1 = (Xil_In32(0xFD0808C0) & 0x07000000) >> 24;
+int lcdl_b0;
+lcdl_b0 = (Xil_In32(0xFD080784) & 0x000001FF) >> 0;
+int lcdl_b1;
+lcdl_b1 = (Xil_In32(0xFD080884) & 0x000001FF) >> 0;
+
+// ** declare variables used for calculation **
+
+int calc10, calc11, calc20, calc21, calc22, calc23;
+
+calc10 = ((wdqsl_b0 * iprd0) + lcdl_b0) - ((wdqsl_a0 * iprd0) + lcdl_a0);
+calc11 = ((wdqsl_b1 * iprd1) + lcdl_b1) - ((wdqsl_a1 * iprd1) + lcdl_a1);
+
+calc20 = (calc10 / 2) + ((wdqsl_a0 * iprd0) + lcdl_a0);
+calc21 = (calc11 / 2) + ((wdqsl_a1 * iprd1) + lcdl_a1);
+calc22 = (calc10 / 2) + ((wdqsl_a2 * iprd2) + lcdl_a2);
+calc23 = (calc11 / 2) + ((wdqsl_a3 * iprd3) + lcdl_a3);
+
+prog_reg_ddr (0xFD0807C0, 0x18, 0x7000000, 0x0);
+prog_reg_ddr (0xFD0808C0, 0x18, 0x7000000, 0x0);
+prog_reg_ddr (0xFD0809C0, 0x18, 0x7000000, 0x0);
+prog_reg_ddr (0xFD080AC0, 0x18, 0x7000000, 0x0);
+prog_reg_ddr (0xFD080784, 0, 0x000001FF, calc20);
+prog_reg_ddr (0xFD080884, 0, 0x000001FF, calc21);
+prog_reg_ddr (0xFD080984, 0, 0x000001FF, calc22);
+prog_reg_ddr (0xFD080A84, 0, 0x000001FF, calc23);
+prog_reg_ddr (0xFD080004, 0xE, 0x4000, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00000401) != 0x00000401);
+prog_reg_ddr (0xFD080004, 0xB, 0x800, 0x1);
+prog_reg_ddr (0xFD080004, 0xC, 0x1000, 0x1);
+prog_reg_ddr (0xFD080004, 0xD, 0x2000, 0x1);
+prog_reg_ddr (0xFD080004, 0xE, 0x4000, 0x1);
+prog_reg_ddr (0xFD080004, 0xF, 0x8000, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00000001) != 0x00000001);
+prog_reg_ddr (0xFD080018, 0x0, 0x3FFFF, 0xEAD);
+prog_reg_ddr (0xFD08001C, 0x3, 0x18, 0x3);
+prog_reg_ddr (0xFD08142C, 0x4, 0x30, 0x3);
+prog_reg_ddr (0xFD08146C, 0x4, 0x30, 0x3);
+prog_reg_ddr (0xFD0814AC, 0x4, 0x30, 0x3);
+prog_reg_ddr (0xFD0814EC, 0x4, 0x30, 0x3);
+prog_reg_ddr (0xFD08152C, 0x4, 0x30, 0x3);
+prog_reg_ddr (0xFD080004, 0x11, 0x20000, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00000001) != 0x00000001);
+prog_reg_ddr (0xFD080004, 0xE, 0x4000, 0x1);
+prog_reg_ddr (0xFD080004, 0xF, 0x8000, 0x1);
+prog_reg_ddr (0xFD080004, 0x0, 0x1, 0x1);
+while ((Xil_In32(0xFD080030) & 0x00000001) != 0x00000001);
+prog_reg_ddr (0xFD080200, 0x1C, 0xF0000000, 0x8);
+prog_reg_ddr (0xFD08001C, 0x3, 0x18, 0x0);
+prog_reg_ddr (0xFD08142C, 0x4, 0x30, 0x0);
+prog_reg_ddr (0xFD08146C, 0x4, 0x30, 0x0);
+prog_reg_ddr (0xFD0814AC, 0x4, 0x30, 0x0);
+prog_reg_ddr (0xFD0814EC, 0x4, 0x30, 0x0);
+prog_reg_ddr (0xFD08152C, 0x4, 0x30, 0x0);
+prog_reg_ddr (0xFD080680, 0x5, 0xE0, 0x2);
+prog_reg_ddr (0xFD080028, 0x0, 0x1, 0x0);
+prog_reg_ddr (0xFD0701A0, 0x1F, 0x80000000, 0x0);
+prog_reg_ddr (0xFD070320, 0x0, 0x1, 0x1);
+prog_reg_ddr (0xFD070020, 0x0, 0x1, 0x1);
+prog_reg_ddr (0xFD080014, 0x6, 0x40, 0x0);
+prog_reg_ddr (0xFD080090, 0x6, 0xFC0, 0x4);
+prog_reg_ddr (0xFD080090, 0x2, 0x4, 0x1);
+prog_reg_ddr (0xFD08070C, 0x19, 0x2000000, 0x0);
+prog_reg_ddr (0xFD08080C, 0x19, 0x2000000, 0x0);
+prog_reg_ddr (0xFD08090C, 0x19, 0x2000000, 0x0);
+prog_reg_ddr (0xFD080A0C, 0x19, 0x2000000, 0x0);
+prog_reg_ddr (0xFD080F0C, 0x19, 0x2000000, 0x0);
+prog_reg_ddr (0xFD080200, 0x4, 0x10, 0x1);
+prog_reg_ddr (0xFD080250, 0x1, 0x2, 0x0);
+prog_reg_ddr (0xFD080250, 0x2, 0xC, 0x1);
+prog_reg_ddr (0xFD080250, 0x4, 0xF0, 0x0);
+prog_reg_ddr (0xFD080250, 0x14, 0x300000, 0x1);
+prog_reg_ddr (0xFD080250, 0x1C, 0xF0000000, 0x2);
+prog_reg_ddr (0xFD08070C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD08080C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD08090C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080A0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080B0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080C0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080D0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080E0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080F0C, 0x1B, 0x8000000, 0x0);
+prog_reg_ddr (0xFD080254, 0x0, 0xFF, 0x1);
+prog_reg_ddr (0xFD080254, 0x10, 0xF0000, 0xA);
+prog_reg_ddr (0xFD080250, 0x0, 0x1, 0x1);
+//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// zddr_driver.c ver. 1.97, Oct  6 2016 , 23:36:35 ********
+//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ---- INPUT PARAMETERS ----
+// sim mode    = 0
+// train       = 0
+// gls       = 0
+// Vref       = 0
+// slowboot     = 0
+// ecc         = 0
+// bus width   = 32
+// dram width  = 16
+// display_port(dp) = 0
+// memory type = LPDDR4
+// speed bin   = 1066
+// frequency   = 533.000 MHz
+// device capacity  = 8192 Mbit
+// rank   addr cnt  = 0
+// lp4catrain   = 0
+// no_derate  = 0
+// enable 2nd clk  = 0
+// bank group  addr cnt  = 0
+// bank   addr cnt  = 3
+// row    addr cnt  = 15
+// column addr cnt  = 10
+// video buffer size = 0
+// decoder stride size = 0
+// decoder tile width = 0
+// decoder tile height = 0
+// temp ctrl ref mode = 0
+// temp ctrl ref range = 0
+// CL   = 6 cycles
+// CWL  = 0 cycles
+// tRCD = 10 cycles
+// tRP  = 12 cycles
+// AL   = 0 cycles
+// BL   = 16 (burst length)
+// tRC  = 63.000 nsec
+// tRAS = 42.000 nsec
+// tFAW = 40.000 nsec
+// si_ver = 0.000000
+// clock_stop_en = 0
+// wr_drift  = 1
+// rd_drift  = 1
+// rd_dbi = 0
+// wr_dbi = 0
+// phy_dbi_mode = 0
+// rdbi_wrk_around = 0
+// zcal_wrk_around = 0
+// lp4_wrk_around = 1
+// data_mask = 1
+// ecc_scrub = 0
+// dis_dfi_lp_sr = 0
+// dis_dfi_lp_pd = 0
+// dis_dfi_lp_mpsm = 0
+// ecc_poison = 0
+// derate_int_d = 10000
+// parity = 0
+// ca_parity_latency = 0
+// en_2t_timing_mode = 0
+// geardown = 0
+// max_pwr_sav_en = 0
+// cal_mode_en = 0
+// self_ref_abort = 0
+// lp_asr = 0
+// udimm = 0
+// rdimm = 0
+// gate_ext = 0
+// no_gate_ext_no_train = 0
+// addr_mirror = 1
+// dimm_addr_mirror = 0
+// dis_op_inv = 0
+// phy_clk_gate = 0
+// no_retry = 0
+// en_op_inv_after_train = 0
+// pll_bypass = 0
+// freq_b = 0
+// deep_pwr_dn_en = 0
+// pwr_dn_en = 0
+// crc = 0
+// fgrm = 0
+// ddr4_addr_mapping = 0
+// brc_mapping = 0
+// wr_preamble = 0
+// rd_preamble = 0
+// wr_postamble = 0
+// rd_postamble = 0
+// lpddr4_hynix = 0
+// lpddr4_samsung = 0
+// per_bank_refresh = 0
+// static_rd_mode = 0
+// zcu100 = 1
+
+
+  return 1;
+}
 /**
  * CRL_APB Base Address
  */
