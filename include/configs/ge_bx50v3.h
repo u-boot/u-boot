@@ -15,6 +15,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
 
+#define BX50V3_BOOTARGS_EXTRA
 #if defined(CONFIG_TARGET_GE_B450V3)
 #define CONFIG_BOARD_NAME	"General Electric B450v3"
 #define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-b450v3.dtb"
@@ -24,6 +25,9 @@
 #elif defined(CONFIG_TARGET_GE_B850V3)
 #define CONFIG_BOARD_NAME	"General Electric B850v3"
 #define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-b850v3.dtb"
+#undef BX50V3_BOOTARGS_EXTRA
+#define BX50V3_BOOTARGS_EXTRA	"video=DP-1:1024x768@60 " \
+				"video=HDMI-A-1:1024x768@60 "
 #else
 #define CONFIG_BOARD_NAME	"General Electric BA16 Generic"
 #define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-ba16.dtb"
@@ -166,7 +170,8 @@
 			"echo 'U-Boot upgraded. Please reset'; " \
 		"fi\0" \
 	"setargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/${rootdev} rw rootwait cma=128M\0" \
+		"root=/dev/${rootdev} rw rootwait cma=128M " \
+		BX50V3_BOOTARGS_EXTRA "\0" \
 	"loadbootscript=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from ${dev}:${devnum}:${partnum};" \
