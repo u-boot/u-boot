@@ -1,17 +1,18 @@
 /*
- * Device Tree Source for UniPhier PH1-Pro5 4KBOX Board (EVB-Pro5-4KBOX-M-V0)
+ * Device Tree Source for UniPhier Pro5 4KBOX Board (EVB-Pro5-4KBOX-M-V0)
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
-/include/ "uniphier-ph1-pro5.dtsi"
+/include/ "uniphier-pro5.dtsi"
 
 / {
-	model = "UniPhier PH1-Pro5 4KBOX Board";
-	compatible = "socionext,ph1-pro5-4kbox", "socionext,ph1-pro5";
+	model = "UniPhier Pro5 4KBOX Board";
+	compatible = "socionext,uniphier-pro5-4kbox", "socionext,uniphier-pro5";
 
 	memory {
 		device_type = "memory";

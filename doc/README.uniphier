@@ -28,45 +28,45 @@ Tested toolchains
 Compile the source
 ------------------
 
-PH1-sLD3 reference board:
+sLD3 reference board:
     $ make uniphier_sld3_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-LD4 reference board:
+LD4 reference board:
     $ make uniphier_ld4_sld8_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-sLD8 reference board:
+sLD8 reference board:
     $ make uniphier_ld4_sld8_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-sld8-ref
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-sld8-ref
 
-PH1-Pro4 reference board:
+Pro4 reference board:
     $ make uniphier_pro4_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-Pro4 Ace board:
+Pro4 Ace board:
     $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-ace
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-pro4-ace
 
-PH1-Pro4 Sanji board:
+Pro4 Sanji board:
     $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-sanji
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-pro4-sanji
 
-PH1-Pro5 4KBOX Board:
+Pro5 4KBOX Board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro5-4kbox
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-pro5-4kbox
 
-ProXstream2 Gentil board:
+PXs2 Gentil board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-proxstream2-gentil
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-pxs2-gentil
 
-ProXstream2 Vodka board:
+PXs2 Vodka board:
     $ make uniphier_pxs2_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-LD6b reference board:
+LD6b reference board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-ld6b-ref
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ld6b-ref
 
 You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
 to use your favorite compiler.

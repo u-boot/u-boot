@@ -1,21 +1,22 @@
 /*
- * Device Tree Source for UniPhier PH1-Pro4 Ace Board
+ * Device Tree Source for UniPhier Pro4 Sanji Board
  *
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
 
 /dts-v1/;
-/include/ "uniphier-ph1-pro4.dtsi"
+/include/ "uniphier-pro4.dtsi"
 
 / {
-	model = "UniPhier PH1-Pro4 Ace Board";
-	compatible = "socionext,ph1-pro4-ace", "socionext,ph1-pro4";
+	model = "UniPhier Pro4 Sanji Board";
+	compatible = "socionext,uniphier-pro4-sanji", "socionext,uniphier-pro4";
 
 	memory {
 		device_type = "memory";
-		reg = <0x80000000 0x40000000>;
+		reg = <0x80000000 0x80000000>;
 	};
 
 	chosen {
@@ -25,7 +26,6 @@
 	aliases {
 		serial0 = &serial0;
 		serial1 = &serial1;
-		serial2 = &serial2;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -43,15 +43,11 @@
 	status = "okay";
 };
 
-&serial2 {
-	status = "okay";
-};
-
 &i2c0 {
 	status = "okay";
 
-	eeprom {
-		compatible = "24c64", "i2c-eeprom";
+	eeprom@54 {
+		compatible = "st,24c64", "i2c-eeprom";
 		reg = <0x54>;
 		u-boot,i2c-offset-len = <2>;
 	};
@@ -69,7 +65,7 @@
 	status = "okay";
 };
 
-&sd {
+&emmc {
 	status = "okay";
 };
 
@@ -94,6 +90,18 @@
 	u-boot,dm-pre-reloc;
 };
 
+&mio_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl_uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_emmc {
 	u-boot,dm-pre-reloc;
 };

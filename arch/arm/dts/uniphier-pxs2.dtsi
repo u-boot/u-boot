@@ -1,7 +1,8 @@
 /*
- * Device Tree Source for UniPhier ProXstream2 SoC
+ * Device Tree Source for UniPhier PXs2 SoC
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -9,17 +10,17 @@
 /include/ "uniphier-common32.dtsi"
 
 / {
-	compatible = "socionext,proxstream2";
+	compatible = "socionext,uniphier-pxs2";
 
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		enable-method = "socionext,uniphier-smp";
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0>;
+			enable-method = "psci";
 			next-level-cache = <&l2>;
 		};
 
@@ -27,6 +28,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <1>;
+			enable-method = "psci";
 			next-level-cache = <&l2>;
 		};
 
@@ -34,6 +36,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <2>;
+			enable-method = "psci";
 			next-level-cache = <&l2>;
 		};
 
@@ -41,6 +44,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <3>;
+			enable-method = "psci";
 			next-level-cache = <&l2>;
 		};
 	};
@@ -361,6 +365,8 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_emmc>;
 		clocks = <&mio_clk 1>;
+		reset-names = "host", "hw-reset";
+		resets = <&mio_rst 1>, <&mio_rst 6>;
 		bus-width = <8>;
 		non-removable;
 	};
@@ -374,6 +380,8 @@
 		pinctrl-0 = <&pinctrl_sd>;
 		pinctrl-1 = <&pinctrl_sd_1v8>;
 		clocks = <&mio_clk 0>;
+		reset-names = "host";
+		resets = <&mio_rst 0>;
 		bus-width = <4>;
 	};
 
