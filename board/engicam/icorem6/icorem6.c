@@ -9,12 +9,15 @@
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <mmc.h>
+#include <miiphy.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/sizes.h>
 
 #include <asm/arch/clock.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
@@ -30,9 +33,26 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |               \
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
+#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+
 static iomux_v3_cfg_t const uart4_pads[] = {
 	IOMUX_PADS(PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
+static iomux_v3_cfg_t const enet_pads[] = {
+	IOMUX_PADS(PAD_ENET_CRS_DV__ENET_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_16__ENET_REF_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL | PAD_CTL_SRE_FAST)),
+	IOMUX_PADS(PAD_ENET_TX_EN__ENET_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_RXD1__ENET_RX_DATA1	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_RXD0__ENET_RX_DATA0	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_TXD1__ENET_TX_DATA1	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_TXD0__ENET_TX_DATA0	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usdhc1_pads[] = {
@@ -96,6 +116,58 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_FEC_MXC
+#define ENET_PHY_RST		IMX_GPIO_NR(7, 12)
+static int setup_fec(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	s32 timeout = 100000;
+	u32 reg = 0;
+	int ret;
+
+	/* Enable fec clock */
+	setbits_le32(&ccm->CCGR1, MXC_CCM_CCGR1_ENET_MASK);
+
+	/* use 50MHz */
+	ret = enable_fec_anatop_clock(0, ENET_50MHZ);
+	if (ret)
+		return ret;
+
+	/* Enable PLLs */
+	reg = readl(&anatop->pll_enet);
+	reg &= ~BM_ANADIG_PLL_SYS_POWERDOWN;
+	writel(reg, &anatop->pll_enet);
+	reg = readl(&anatop->pll_enet);
+	reg |= BM_ANADIG_PLL_SYS_ENABLE;
+	while (timeout--) {
+		if (readl(&anatop->pll_enet) & BM_ANADIG_PLL_SYS_LOCK)
+			break;
+	}
+	if (timeout <= 0)
+		return -EIO;
+	reg &= ~BM_ANADIG_PLL_SYS_BYPASS;
+	writel(reg, &anatop->pll_enet);
+
+	/* reset the phy */
+	gpio_direction_output(ENET_PHY_RST, 0);
+	udelay(10000);
+	gpio_set_value(ENET_PHY_RST, 1);
+
+	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int ret;
+
+	SETUP_IOMUX_PADS(enet_pads);
+	setup_fec();
+
+	return ret = cpu_eth_init(bis);
 }
 #endif
 

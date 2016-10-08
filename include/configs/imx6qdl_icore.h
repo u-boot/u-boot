@@ -111,6 +111,18 @@
 # define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 #endif
 
+/* Ethernet */
+#ifdef CONFIG_FEC_MXC
+# define IMX_FEC_BASE			ENET_BASE_ADDR
+# define CONFIG_FEC_MXC_PHYADDR		0
+# define CONFIG_FEC_XCV_TYPE		RMII
+# define CONFIG_ETHPRIME		"FEC"
+
+# define CONFIG_MII
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_SMSC
+#endif
+
 /* SPL */
 #ifdef CONFIG_SPL
 # define CONFIG_SPL_MMC_SUPPORT
