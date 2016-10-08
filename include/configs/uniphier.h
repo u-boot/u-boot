@@ -40,10 +40,9 @@
 /* FLASH related */
 #define CONFIG_MTD_DEVICE
 
-/*
- * uncomment the following to disable FLASH related code.
- */
-/* #define CONFIG_SYS_NO_FLASH */
+#ifndef CONFIG_MICRO_SUPPORT_CARD
+#define CONFIG_SYS_NO_FLASH
+#endif
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
