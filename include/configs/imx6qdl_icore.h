@@ -129,6 +129,8 @@
 # define CONFIG_CMD_MTDPARTS
 # define CONFIG_MTD_PARTITIONS
 # define MTDIDS_DEFAULT			"nand0=nand"
+# define MTDPARTS_DEFAULT		"mtdparts=nand:2m(spl),2m(uboot)," \
+					"1m(env),4m(kernel),1m(dtb),-(rootfs)"
 
 # define CONFIG_APBH_DMA
 # define CONFIG_APBH_DMA_BURST
