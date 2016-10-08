@@ -881,6 +881,11 @@ int enable_fec_anatop_clock(int fec_id, enum enet_freq freq)
 	writel(reg, &anatop->pll_enet);
 
 #ifdef CONFIG_MX6SX
+	/* Disable enet system clcok before switching clock parent */
+	reg = readl(&imx_ccm->CCGR3);
+	reg &= ~MXC_CCM_CCGR3_ENET_MASK;
+	writel(reg, &imx_ccm->CCGR3);
+
 	/*
 	 * Set enet ahb clock to 200MHz
 	 * pll2_pfd2_396m-> ENET_PODF-> ENET_AHB
