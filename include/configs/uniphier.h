@@ -54,7 +54,7 @@
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
- * flash_toggle does not work for out supoort card.
+ * flash_toggle does not work for our support card.
  * We need to use flash_status_poll.
  */
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL
