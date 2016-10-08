@@ -7,6 +7,8 @@
 #ifndef __CONFIG_RK3399_COMMON_H
 #define __CONFIG_RK3399_COMMON_H
 
+#include "rockchip-common.h"
+
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_ENV_SIZE			0x2000
@@ -52,7 +54,6 @@
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
@@ -60,19 +61,6 @@
 	"fdt_addr_r=0x01f00000\0" \
 	"kernel_addr_r=0x02000000\0" \
 	"ramdisk_addr_r=0x04000000\0"
-
-#define CONFIG_CMD_GPT
-#define CONFIG_RANDOM_UUID
-#define CONFIG_PARTITION_UUIDS
-#define PARTS_DEFAULT \
-	"uuid_disk=${uuid_gpt_disk};" \
-	"name=boot,start=16M,size=32M,bootable;" \
-	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs};\0" \
-
-/* First try to boot from SD (index 0), then eMMC (index 1) */
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1)
 
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS \
