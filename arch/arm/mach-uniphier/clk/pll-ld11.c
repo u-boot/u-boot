@@ -23,6 +23,7 @@ void uniphier_ld11_pll_init(void)
 	uniphier_ld20_sscpll_ssc_en(SC_CPLLCTRL);
 	uniphier_ld20_sscpll_ssc_en(SC_MPLLCTRL);
 	uniphier_ld20_sscpll_ssc_en(SC_VSPLLCTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_DPLLCTRL);
 
 	uniphier_ld20_vpll27_init(SC_VPLL27FCTRL);
 	uniphier_ld20_vpll27_init(SC_VPLL27ACTRL);
