@@ -89,6 +89,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			os_support.o \
 			pblimage.o \
 			pbl_crc32.o \
+			vybridimage.o \
 			$(ROCKCHIP_OBS) \
 			socfpgaimage.o \
 			lib/sha1.o \

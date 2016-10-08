@@ -144,4 +144,7 @@ else
 ALL-y += u-boot.imx
 endif
 endif
+ifneq ($(CONFIG_VF610),)
+ALL-y += u-boot.vyb
+endif
 endif

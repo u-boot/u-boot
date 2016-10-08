@@ -39,7 +39,7 @@
 #define CONFIG_SYS_MEMTEST_END \
 	(CONFIG_SYS_MEMTEST_START + 500 * 1024 * 1024)
 
-#define CONFIG_SYS_BOOTMAPSZ		0x6C000000
+#define CONFIG_SYS_BOOTMAPSZ		0x10000000
 
 /* Serial console */
 #define CONFIG_MXC_UART
@@ -56,9 +56,11 @@
 
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE
+#define CONFIG_CMD_PART
 
 /* Filesystems / image support */
 #define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

@@ -91,7 +91,7 @@ Word 0x00000002: 9f027772 00000004
 2. Using imx_usb_loader for first install with SPL
 --------------------------------------------------
 
-imx_usb_loader is a very nice tool by BoundaryDevice that
+imx_usb_loader is a very nice tool by Boundary Devices that
 allow to install U-Boot without a JTAG debugger, using
 the USB boot mode as described in the manual. It is
 a replacement for Freescale's MFGTOOLS.

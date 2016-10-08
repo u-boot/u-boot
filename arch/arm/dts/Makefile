@@ -279,7 +279,12 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \
 	vf610-twr.dtb \
-	pcm052.dtb
+	pcm052.dtb \
+	bk4r1.dtb
+
+dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb
+
+dtb-$(CONFIG_MX7) += imx7-colibri.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 	k2l-evm.dtb \
