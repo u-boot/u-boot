@@ -40,7 +40,6 @@
 
 /* Display CPU and Board information */
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R		/* misc_init_r dumps the die id */

@@ -54,7 +54,6 @@
 #endif
 
 /* CPU */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*

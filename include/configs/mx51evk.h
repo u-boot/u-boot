@@ -15,7 +15,6 @@
 
 #define CONFIG_MX51	/* in a mx51 */
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_FSL_CLK

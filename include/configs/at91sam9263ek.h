@@ -43,8 +43,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_DISPLAY_CPUINFO
-
 /*
  * Hardware drivers
  */

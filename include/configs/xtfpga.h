@@ -112,7 +112,6 @@
 
 #undef	CONFIG_USE_IRQ			/* Keep it simple, poll only */
 #define CONFIG_BOARD_POSTCLK_INIT
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 

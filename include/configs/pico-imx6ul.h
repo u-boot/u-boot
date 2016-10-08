@@ -14,7 +14,6 @@
 #include "mx6_common.h"
 #include <asm/imx-common/gpio.h>
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* Network support */

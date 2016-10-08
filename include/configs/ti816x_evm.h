@@ -29,8 +29,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG		/* required for ramdisk support */
 
-#define CONFIG_DISPLAY_CPUINFO
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"loadaddr=0x81000000\0"		\
 

@@ -32,7 +32,6 @@
 /*
  * Display CPU and Board information
  */
-#define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
 #define CONFIG_MISC_INIT_R

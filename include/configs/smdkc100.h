@@ -25,7 +25,6 @@
 
 #define CONFIG_ARCH_CPU_INIT
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* input clock of PLL: SMDKC100 has 12MHz input clock */

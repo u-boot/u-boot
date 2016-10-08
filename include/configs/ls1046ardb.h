@@ -20,7 +20,6 @@
 #endif
 #endif
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_SD_BOOT

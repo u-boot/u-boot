@@ -36,7 +36,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* Allow to overwrite serial and ethaddr */

@@ -35,7 +35,6 @@
 /*
  * Display CPU and Board information
  */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* Clock Defines */

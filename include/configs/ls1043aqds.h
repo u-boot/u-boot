@@ -9,7 +9,6 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)

@@ -28,7 +28,6 @@
  * Board display option
  */
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
 
 /*
  * SPL

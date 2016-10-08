@@ -13,7 +13,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_NO_FLASH

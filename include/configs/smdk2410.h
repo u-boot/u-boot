@@ -101,8 +101,6 @@
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-#define CONFIG_DISPLAY_CPUINFO				/* Display cpu info */
-
 #define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x33F00000	/* 63 MB in DRAM */
 

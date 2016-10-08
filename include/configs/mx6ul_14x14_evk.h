@@ -20,7 +20,6 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* Size of malloc() pool */

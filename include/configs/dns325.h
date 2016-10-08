@@ -81,11 +81,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
- * Display cpu info at boot
- */
-#define CONFIG_DISPLAY_CPUINFO
-
-/*
  * Environment variables configurations
  */
 #ifdef CONFIG_CMD_NAND

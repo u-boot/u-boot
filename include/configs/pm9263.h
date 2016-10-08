@@ -19,7 +19,6 @@
 #include <asm/hardware.h>
 
 /* ARM asynchronous clock */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		6

@@ -23,7 +23,6 @@
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
 
 /* CPU information */
-#define CONFIG_DISPLAY_CPUINFO		/* Display at console. */
 #define CONFIG_ARCH_CPU_INIT
 
 /* ARM asynchronous clock */

@@ -216,8 +216,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-#define CONFIG_DISPLAY_CPUINFO
-
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 

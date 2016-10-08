@@ -135,7 +135,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_DISPLAY_CPUINFO				/* Display cpu info */
 #define CONFIG_DISPLAY_BOARDINFO			/* Display board info */
 
 #define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on */

@@ -47,7 +47,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_DISPLAY_CPUINFO
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */

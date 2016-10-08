@@ -18,7 +18,6 @@
 #define CONFIG_MX31			/* This is a mx31 */
 #define CONFIG_MX31_CLK32	32000
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */

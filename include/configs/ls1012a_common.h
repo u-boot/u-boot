@@ -101,8 +101,6 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-#define CONFIG_DISPLAY_CPUINFO
-
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"initrd_high=0xffffffff\0"		\

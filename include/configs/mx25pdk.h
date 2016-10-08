@@ -20,7 +20,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */

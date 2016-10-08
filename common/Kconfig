@@ -219,4 +219,12 @@ config VERSION_VARIABLE
 	  Any change to this variable will be reverted at the
 	  next reset.
 
+config DISPLAY_CPUINFO
+	bool "Display information about the CPU during start up"
+	default y if ARM || BLACKFIN || NIOS2 || X86 || XTENSA
+	help
+	  Display information about the CPU that U-Boot is running on
+	  when U-Boot starts up. The function print_cpuinfo() is called
+	  to do this.
+
 source "common/spl/Kconfig"

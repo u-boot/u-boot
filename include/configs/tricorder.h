@@ -40,7 +40,6 @@
 #include <asm/arch/omap.h>
 
 /* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SILENT_CONSOLE
