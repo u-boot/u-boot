@@ -11,6 +11,7 @@
 
 #include <reset.h>
 
+struct fdtdec_phandle_args;
 struct udevice;
 
 /**
