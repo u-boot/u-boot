@@ -134,6 +134,13 @@ int board_init(void)
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	case SOC_UNIPHIER_LD20:
+		/* ES1 errata: increase VDD09 supply to suppress VBO noise */
+		if (uniphier_get_soc_revision() == 1) {
+			writel(0x00000003, 0x6184e004);
+			writel(0x00000100, 0x6184e040);
+			writel(0x0000b500, 0x6184e024);
+			writel(0x00000001, 0x6184e000);
+		}
 		uniphier_nand_pin_init(false);
 		sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
 		sg_set_iectrl(149);
