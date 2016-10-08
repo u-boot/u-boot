@@ -78,8 +78,6 @@
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 #define CONFIG_SYS_TEXT_BASE    0x77800000
 
-#define CONFIG_DEFAULT_FDT_FILE		"imx53-ard.dtb"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"uimage=zImage\0" \
