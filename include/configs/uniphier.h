@@ -15,12 +15,6 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#define CONFIG_SMC911X
-
-/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
-#define CONFIG_SMC911X_BASE	0
-#define CONFIG_SMC911X_32_BIT
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -40,7 +34,13 @@
 /* FLASH related */
 #define CONFIG_MTD_DEVICE
 
-#ifndef CONFIG_MICRO_SUPPORT_CARD
+#define CONFIG_SMC911X_32_BIT
+/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
+#define CONFIG_SMC911X_BASE	0
+
+#ifdef CONFIG_MICRO_SUPPORT_CARD
+#define CONFIG_SMC911X
+#else
 #define CONFIG_SYS_NO_FLASH
 #endif
 
