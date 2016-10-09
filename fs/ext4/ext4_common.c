@@ -854,16 +854,15 @@ fail:
 
 static int unlink_filename(char *filename, unsigned int blknr)
 {
-	int templength = 0;
-	int status, inodeno;
-	int found = 0;
+	int status;
+	int inodeno = 0;
 	int offset;
 	char *block_buffer = NULL;
 	struct ext2_dirent *dir = NULL;
-	struct ext2_dirent *previous_dir = NULL;
-	char *ptr = NULL;
+	struct ext2_dirent *previous_dir;
 	struct ext_filesystem *fs = get_fs();
 	int ret = -1;
+	char *direntname;
 
 	block_buffer = zalloc(fs->blksz);
 	if (!block_buffer)
@@ -877,20 +876,18 @@ static int unlink_filename(char *filename, unsigned int blknr)
 
 	if (ext4fs_log_journal(block_buffer, blknr))
 		goto fail;
-	dir = (struct ext2_dirent *)block_buffer;
-	ptr = (char *)dir;
 	offset = 0;
-	while (le16_to_cpu(dir->direntlen) >= 0) {
-		/*
-		 * blocksize-offset because last
-		 * directory length i.e., *dir->direntlen
-		 * is free availble space in the block that
-		 * means it is a last entry of directory entry
-		 */
+	do {
+		previous_dir = dir;
+		dir = (struct ext2_dirent *)(block_buffer + offset);
+		direntname = (char *)(dir) + sizeof(struct ext2_dirent);
+
+		int direntlen = le16_to_cpu(dir->direntlen);
+		if (direntlen < sizeof(struct ext2_dirent))
+			break;
+
 		if (dir->inode && (strlen(filename) == dir->namelen) &&
-		    (strncmp(ptr + sizeof(struct ext2_dirent),
-			     filename, dir->namelen) == 0)) {
-			printf("file found, deleting\n");
+		    (strncmp(direntname, filename, dir->namelen) == 0)) {
 			inodeno = le32_to_cpu(dir->inode);
 			if (previous_dir) {
 				uint16_t new_len;
@@ -900,23 +897,15 @@ static int unlink_filename(char *filename, unsigned int blknr)
 			} else {
 				dir->inode = 0;
 			}
-			found = 1;
 			break;
 		}
 
-		if (fs->blksz - offset == le16_to_cpu(dir->direntlen))
-			break;
+		offset += direntlen;
 
-		/* traversing the each directory entry */
-		templength = le16_to_cpu(dir->direntlen);
-		offset = offset + templength;
-		previous_dir = dir;
-		dir = (struct ext2_dirent *)((char *)dir + templength);
-		ptr = (char *)dir;
-	}
+	} while (offset < fs->blksz);
 
+	if (inodeno > 0) {
 
-	if (found == 1) {
 		if (ext4fs_put_metadata(block_buffer, blknr))
 			goto fail;
 		ret = inodeno;
