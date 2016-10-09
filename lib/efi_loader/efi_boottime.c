@@ -141,12 +141,12 @@ static efi_status_t EFIAPI efi_allocate_pool_ext(int pool_type,
 	return EFI_EXIT(r);
 }
 
-static efi_status_t EFIAPI efi_free_pool(void *buffer)
+static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 {
 	efi_status_t r;
 
 	EFI_ENTRY("%p", buffer);
-	r = efi_free_pages((ulong)buffer, 0);
+	r = efi_free_pool(buffer);
 	return EFI_EXIT(r);
 }
 
@@ -736,7 +736,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.free_pages = efi_free_pages_ext,
 	.get_memory_map = efi_get_memory_map_ext,
 	.allocate_pool = efi_allocate_pool_ext,
-	.free_pool = efi_free_pool,
+	.free_pool = efi_free_pool_ext,
 	.create_event = efi_create_event,
 	.set_timer = efi_set_timer,
 	.wait_for_event = efi_wait_for_event,

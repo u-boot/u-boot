@@ -122,6 +122,8 @@ efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
 /* EFI memory allocator for small allocations */
 efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
 			       void **buffer);
+/* EFI pool memory free function. */
+efi_status_t efi_free_pool(void *buffer);
 /* Returns the EFI memory map */
 efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 				struct efi_mem_desc *memory_map,

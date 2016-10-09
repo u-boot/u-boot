@@ -34,6 +34,19 @@ void *efi_bounce_buffer;
 #endif
 
 /*
+ * U-Boot services each EFI AllocatePool request as a separate
+ * (multiple) page allocation.  We have to track the number of pages
+ * to be able to free the correct amount later.
+ * EFI requires 8 byte alignment for pool allocations, so we can
+ * prepend each allocation with an 64 bit header tracking the
+ * allocation size, and hand out the remainder to the caller.
+ */
+struct efi_pool_allocation {
+	u64 num_pages;
+	char data[];
+};
+
+/*
  * Sorts the memory list from highest address to lowest address
  *
  * When allocating memory we should always start from the highest
@@ -332,11 +345,34 @@ efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
 {
 	efi_status_t r;
 	efi_physical_addr_t t;
-	u64 num_pages = (size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+	u64 num_pages = (size + sizeof(u64) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+	if (size == 0) {
+		*buffer = NULL;
+		return EFI_SUCCESS;
+	}
 
 	r = efi_allocate_pages(0, pool_type, num_pages, &t);
-	if (r == EFI_SUCCESS)
-		*buffer = (void *)(uintptr_t)t;
+
+	if (r == EFI_SUCCESS) {
+		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
+		alloc->num_pages = num_pages;
+		*buffer = alloc->data;
+	}
+
+	return r;
+}
+
+efi_status_t efi_free_pool(void *buffer)
+{
+	efi_status_t r;
+	struct efi_pool_allocation *alloc;
+
+	alloc = container_of(buffer, struct efi_pool_allocation, data);
+	/* Sanity check, was the supplied address returned by allocate_pool */
+	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
+
+	r = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
 
 	return r;
 }
