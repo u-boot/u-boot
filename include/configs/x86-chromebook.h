@@ -53,14 +53,8 @@
 
 #define CONFIG_SYS_WHITE_ON_BLACK
 
-#ifdef CONFIG_DM_VIDEO
-#define VIDEO_DEV "vidconsole"
-#else
-#define VIDEO_DEV "vga"
-#endif
-
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,i8042-kbd,serial\0" \
-					"stdout=" VIDEO_DEV ",serial\0" \
-					"stderr=" VIDEO_DEV ",serial\0"
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \
+					"stdout=vidconsole,serial\0" \
+					"stderr=vidconsole,serial\0"
 
 #endif
