@@ -91,7 +91,12 @@ struct uniphier_pinctrl_socdata {
 #define __UNIPHIER_PINMUX_FUNCTION(func)	#func
 
 #ifdef CONFIG_SPL_BUILD
-#define UNIPHIER_PINCTRL_GROUP(grp)		{ .name = NULL }
+	/*
+	 * a tricky way to drop unneeded *_pins and *_muxvals arrays from SPL,
+	 * suppressing "defined but not used" warnings.
+	 */
+#define UNIPHIER_PINCTRL_GROUP(grp)					\
+	{ .num_pins = ARRAY_SIZE(grp##_pins) + ARRAY_SIZE(grp##_muxvals) }
 #define UNIPHIER_PINMUX_FUNCTION(func)		NULL
 #else
 #define UNIPHIER_PINCTRL_GROUP(grp)		__UNIPHIER_PINCTRL_GROUP(grp)
