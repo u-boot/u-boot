@@ -327,6 +327,20 @@ efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 	return EFI_SUCCESS;
 }
 
+efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+			       void **buffer)
+{
+	efi_status_t r;
+	efi_physical_addr_t t;
+	u64 num_pages = (size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+	r = efi_allocate_pages(0, pool_type, num_pages, &t);
+	if (r == EFI_SUCCESS)
+		*buffer = (void *)(uintptr_t)t;
+
+	return r;
+}
+
 efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 			       struct efi_mem_desc *memory_map,
 			       unsigned long *map_key,

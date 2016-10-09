@@ -130,15 +130,14 @@ efi_status_t EFIAPI efi_get_memory_map_ext(unsigned long *memory_map_size,
 	return EFI_EXIT(r);
 }
 
-static efi_status_t EFIAPI efi_allocate_pool(int pool_type, unsigned long size,
-					     void **buffer)
+static efi_status_t EFIAPI efi_allocate_pool_ext(int pool_type,
+						 unsigned long size,
+						 void **buffer)
 {
 	efi_status_t r;
-	efi_physical_addr_t t;
 
 	EFI_ENTRY("%d, %ld, %p", pool_type, size, buffer);
-	r = efi_allocate_pages(0, pool_type, (size + 0xfff) >> 12, &t);
-	*buffer = (void *)(uintptr_t)t;
+	r = efi_allocate_pool(pool_type, size, buffer);
 	return EFI_EXIT(r);
 }
 
@@ -736,7 +735,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.allocate_pages = efi_allocate_pages_ext,
 	.free_pages = efi_free_pages_ext,
 	.get_memory_map = efi_get_memory_map_ext,
-	.allocate_pool = efi_allocate_pool,
+	.allocate_pool = efi_allocate_pool_ext,
 	.free_pool = efi_free_pool,
 	.create_event = efi_create_event,
 	.set_timer = efi_set_timer,
