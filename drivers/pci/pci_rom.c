@@ -382,9 +382,13 @@ int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
+	printf("Video: ");
+
 	/* If we are running from EFI or coreboot, this can't work */
-	if (!ll_boot_init())
+	if (!ll_boot_init()) {
+		printf("Not available (previous bootloader prevents it)\n");
 		return -EPERM;
+	}
 	bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
 	ret = dm_pci_run_vga_bios(dev, int15_handler, PCI_ROM_USE_NATIVE |
 					PCI_ROM_ALLOW_FALLBACK);
@@ -399,6 +403,9 @@ int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		debug("No video mode configured\n");
 		return ret;
 	}
+
+	printf("%dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
+	       mode_info.vesa.bits_per_pixel);
 
 	return 0;
 }
