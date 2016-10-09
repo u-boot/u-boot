@@ -874,8 +874,6 @@ static int unlink_filename(char *filename, unsigned int blknr)
 	if (status == 0)
 		goto fail;
 
-	if (ext4fs_log_journal(block_buffer, blknr))
-		goto fail;
 	offset = 0;
 	do {
 		previous_dir = dir;
@@ -889,14 +887,6 @@ static int unlink_filename(char *filename, unsigned int blknr)
 		if (dir->inode && (strlen(filename) == dir->namelen) &&
 		    (strncmp(direntname, filename, dir->namelen) == 0)) {
 			inodeno = le32_to_cpu(dir->inode);
-			if (previous_dir) {
-				uint16_t new_len;
-				new_len = le16_to_cpu(previous_dir->direntlen);
-				new_len += le16_to_cpu(dir->direntlen);
-				previous_dir->direntlen = cpu_to_le16(new_len);
-			} else {
-				dir->inode = 0;
-			}
 			break;
 		}
 
@@ -905,7 +895,20 @@ static int unlink_filename(char *filename, unsigned int blknr)
 	} while (offset < fs->blksz);
 
 	if (inodeno > 0) {
+		printf("file found, deleting\n");
+		if (ext4fs_log_journal(block_buffer, blknr))
+			goto fail;
 
+		if (previous_dir) {
+			/* merge dir entry with predecessor */
+			uint16_t new_len;
+			new_len = le16_to_cpu(previous_dir->direntlen);
+			new_len += le16_to_cpu(dir->direntlen);
+			previous_dir->direntlen = cpu_to_le16(new_len);
+		} else {
+			/* invalidate dir entry */
+			dir->inode = 0;
+		}
 		if (ext4fs_put_metadata(block_buffer, blknr))
 			goto fail;
 		ret = inodeno;
