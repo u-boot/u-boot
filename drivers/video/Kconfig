@@ -101,6 +101,15 @@ config VIDCONSOLE_AS_LCD
 	  to update the environment, the breakage may be confusing for users.
 	  This option will be removed around the end of 2016.
 
+config VIDEO_COREBOOT
+	bool "Enable coreboot framebuffer driver support"
+	depends on X86 && SYS_COREBOOT
+	help
+	  Turn on this option to enable a framebuffer driver when U-Boot is
+	  loaded by coreboot where the graphics device is configured by
+	  coreboot already. This can in principle be used with any platform
+	  that coreboot supports.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
