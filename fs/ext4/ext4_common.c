@@ -854,34 +854,35 @@ fail:
 
 static int unlink_filename(char *filename, unsigned int blknr)
 {
-	int totalbytes = 0;
 	int templength = 0;
 	int status, inodeno;
 	int found = 0;
-	char *root_first_block_buffer = NULL;
+	int offset;
+	char *block_buffer = NULL;
 	struct ext2_dirent *dir = NULL;
 	struct ext2_dirent *previous_dir = NULL;
 	char *ptr = NULL;
 	struct ext_filesystem *fs = get_fs();
 	int ret = -1;
 
-	/* get the first block of root */
-	root_first_block_buffer = zalloc(fs->blksz);
-	if (!root_first_block_buffer)
+	block_buffer = zalloc(fs->blksz);
+	if (!block_buffer)
 		return -ENOMEM;
+
+	/* read the directory block */
 	status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
-				fs->blksz, root_first_block_buffer);
+				fs->blksz, block_buffer);
 	if (status == 0)
 		goto fail;
 
-	if (ext4fs_log_journal(root_first_block_buffer, blknr))
+	if (ext4fs_log_journal(block_buffer, blknr))
 		goto fail;
-	dir = (struct ext2_dirent *)root_first_block_buffer;
+	dir = (struct ext2_dirent *)block_buffer;
 	ptr = (char *)dir;
-	totalbytes = 0;
+	offset = 0;
 	while (le16_to_cpu(dir->direntlen) >= 0) {
 		/*
-		 * blocksize-totalbytes because last
+		 * blocksize-offset because last
 		 * directory length i.e., *dir->direntlen
 		 * is free availble space in the block that
 		 * means it is a last entry of directory entry
@@ -903,12 +904,12 @@ static int unlink_filename(char *filename, unsigned int blknr)
 			break;
 		}
 
-		if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen))
+		if (fs->blksz - offset == le16_to_cpu(dir->direntlen))
 			break;
 
 		/* traversing the each directory entry */
 		templength = le16_to_cpu(dir->direntlen);
-		totalbytes = totalbytes + templength;
+		offset = offset + templength;
 		previous_dir = dir;
 		dir = (struct ext2_dirent *)((char *)dir + templength);
 		ptr = (char *)dir;
@@ -916,12 +917,12 @@ static int unlink_filename(char *filename, unsigned int blknr)
 
 
 	if (found == 1) {
-		if (ext4fs_put_metadata(root_first_block_buffer, blknr))
+		if (ext4fs_put_metadata(block_buffer, blknr))
 			goto fail;
 		ret = inodeno;
 	}
 fail:
-	free(root_first_block_buffer);
+	free(block_buffer);
 
 	return ret;
 }
