@@ -8,8 +8,4 @@ config CBMEM_CONSOLE
 	bool
 	default y
 
-config VIDEO_COREBOOT
-	bool
-	default y
-
 endif

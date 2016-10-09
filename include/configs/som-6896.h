@@ -27,9 +27,9 @@
 
 #define CONFIG_ARCH_EARLY_INIT_R
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial,vga,usbkbd\0" \
-					"stdout=serial,vga\0" \
-					"stderr=serial,vga\0"
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
+					"stdout=serial,vidconsole\0" \
+					"stderr=serial,vidconsole\0"
 
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0x00ff0000
