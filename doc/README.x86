@@ -449,7 +449,7 @@ loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
 Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
-=> zboot 02000000 - 04000000 1b1ab50
+=> zboot 01000000 - 04000000 1b1ab50
 
 CPU Microcode
 -------------
