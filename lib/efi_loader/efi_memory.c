@@ -336,6 +336,7 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	ulong map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
+	unsigned long provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
@@ -350,7 +351,7 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	if (descriptor_version)
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
 
-	if (*memory_map_size < map_size)
+	if (provided_map_size < map_size)
 		return EFI_BUFFER_TOO_SMALL;
 
 	/* Copy list into array */
