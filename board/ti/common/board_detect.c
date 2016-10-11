@@ -171,7 +171,7 @@ int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
 		goto already_read;
 
 	/* Initialize with a known bad marker for i2c fails.. */
-	ep->header = 0xADEAD12C;
+	ep->header = TI_DEAD_EEPROM_MAGIC;
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
