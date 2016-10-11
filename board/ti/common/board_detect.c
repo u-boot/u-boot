@@ -131,6 +131,7 @@ int __maybe_unused ti_i2c_eeprom_am_get(int bus_addr, int dev_addr)
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
+	ep->config[0] = 0x0;
 
 	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, TI_EEPROM_HEADER_MAGIC,
 			       sizeof(am_ep), (uint8_t *)&am_ep);
@@ -175,6 +176,7 @@ int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
+	ep->config[0] = 0x0;
 	ep->emif1_size = 0;
 	ep->emif2_size = 0;
 
