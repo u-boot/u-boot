@@ -133,7 +133,7 @@ bool board_ti_is(char *name_tag);
  *
  * NOTE: revision information is often messed up (hence the str len match) :(
  *
- * Return: false if board information does not match OR eeprom was'nt read.
+ * Return: false if board information does not match OR eeprom wasn't read.
  *	   true otherwise
  */
 bool board_ti_rev_is(char *rev_tag, int cmp_len);
@@ -141,7 +141,7 @@ bool board_ti_rev_is(char *rev_tag, int cmp_len);
 /**
  * board_ti_get_rev() - Get board revision for TI EVMs
  *
- * Return: NULL if eeprom was'nt read.
+ * Return: Empty string if eeprom wasn't read.
  *	   Board revision otherwise
  */
 char *board_ti_get_rev(void);
@@ -149,7 +149,7 @@ char *board_ti_get_rev(void);
 /**
  * board_ti_get_config() - Get board config for TI EVMs
  *
- * Return: NULL if eeprom was'nt read.
+ * Return: Empty string if eeprom wasn't read.
  *	   Board config otherwise
  */
 char *board_ti_get_config(void);
@@ -157,7 +157,7 @@ char *board_ti_get_config(void);
 /**
  * board_ti_get_name() - Get board name for TI EVMs
  *
- * Return: NULL if eeprom was'nt read.
+ * Return: Empty string if eeprom wasn't read.
  *	   Board name otherwise
  */
 char *board_ti_get_name(void);
@@ -174,14 +174,14 @@ void board_ti_get_eth_mac_addr(int index, u8 mac_addr[TI_EEPROM_HDR_ETH_ALEN]);
 /**
  * board_ti_get_emif1_size() - Get size of the DDR on emif1 for TI EVMs
  *
- * Return: NULL if eeprom was'nt read or emif1_size is not available.
+ * Return: NULL if eeprom wasn't read or emif1_size is not available.
  */
 u64 board_ti_get_emif1_size(void);
 
 /**
  * board_ti_get_emif2_size() - Get size of the DDR on emif2 for TI EVMs
  *
- * Return: NULL if eeprom was'nt read or emif2_size is not available.
+ * Return: NULL if eeprom wasn't read or emif2_size is not available.
  */
 u64 board_ti_get_emif2_size(void);
 
