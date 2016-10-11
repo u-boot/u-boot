@@ -57,6 +57,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DISP0_PWR_EN	IMX_GPIO_NR(1, 21)
 
+#define KEY_VOL_UP	IMX_GPIO_NR(1, 4)
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -681,6 +683,16 @@ int checkboard(void)
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
 #include <libfdt.h>
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	gpio_direction_input(KEY_VOL_UP);
+
+	/* Only enter in Falcon mode if KEY_VOL_UP is pressed */
+	return gpio_get_value(KEY_VOL_UP);
+}
+#endif
 
 static void ccgr_init(void)
 {
