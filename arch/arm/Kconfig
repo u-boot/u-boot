@@ -825,6 +825,7 @@ config ARCH_UNIPHIER
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
+	select DM_RESET
 	select DM_SERIAL
 	select DM_USB
 	select OF_CONTROL

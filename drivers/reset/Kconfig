@@ -34,4 +34,13 @@ config TEGRA186_RESET
 	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config RESET_UNIPHIER
+	bool "Reset controller driver for UniPhier SoCs"
+	depends on ARCH_UNIPHIER
+	default y
+	help
+	  Support for reset controllers on UniPhier SoCs.
+	  Say Y if you want to control reset signals provided by System Control
+	  block, Media I/O block, Peripheral Block.
+
 endmenu

@@ -15,7 +15,9 @@ int uniphier_ld11_init(const struct uniphier_board_data *bd)
 {
 	uniphier_sbc_init_savepin(bd);
 	uniphier_pxs2_sbc_init(bd);
-	uniphier_pin_init("system_bus_grp");
+	/* pins for NAND and System Bus are multiplexed */
+	if (spl_boot_device() != BOOT_DEVICE_NAND)
+		uniphier_pin_init("system_bus_grp");
 
 	support_card_reset();
 

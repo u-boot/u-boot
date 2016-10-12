@@ -15,12 +15,6 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#define CONFIG_SMC911X
-
-/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
-#define CONFIG_SMC911X_BASE	0
-#define CONFIG_SMC911X_32_BIT
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -38,10 +32,15 @@
 /* FLASH related */
 #define CONFIG_MTD_DEVICE
 
-/*
- * uncomment the following to disable FLASH related code.
- */
-/* #define CONFIG_SYS_NO_FLASH */
+#define CONFIG_SMC911X_32_BIT
+/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
+#define CONFIG_SMC911X_BASE	0
+
+#ifdef CONFIG_MICRO_SUPPORT_CARD
+#define CONFIG_SMC911X
+#else
+#define CONFIG_SYS_NO_FLASH
+#endif
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -52,7 +51,7 @@
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
- * flash_toggle does not work for out supoort card.
+ * flash_toggle does not work for our support card.
  * We need to use flash_status_poll.
  */
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL
