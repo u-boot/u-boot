@@ -39,17 +39,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
-#endif
 
 #define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
-
-#define CONFIG_SYS_HAS_SERDES
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET

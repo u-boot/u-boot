@@ -107,3 +107,9 @@ Start Address	End Address	Description			Size
 0x00_4000_0000	0x00_5FFF_FFFF	QSPI				512MB
 0x00_6000_0000	0x00_67FF_FFFF	IFC - NOR Flash			128MB
 0x00_8000_0000	0x00_FFFF_FFFF	DRAM1				2GB
+
+LS1021a rev1.0 Soc specific Options/Settings
+--------------------------------------------
+If the LS1021a Soc is rev1.0, you need modify the configure file.
+Add the following define in include/configs/ls1021atwr.h:
+#define CONFIG_SKIP_LOWLEVEL_INIT

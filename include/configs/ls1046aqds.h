@@ -46,8 +46,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
-#define CONFIG_SYS_HAS_SERDES
-
 /* DSPI */
 #ifdef CONFIG_FSL_DSPI
 #define CONFIG_SPI_FLASH_STMICRO	/* cs0 */

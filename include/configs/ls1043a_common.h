@@ -9,16 +9,12 @@
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_FSL_LSCH2
 #define CONFIG_LS1043A
 #define CONFIG_MP
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
-#ifdef CONFIG_SYS_FSL_SRDS_1
-#define	CONFIG_SYS_HAS_SERDES
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
@@ -27,10 +23,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F	1
-
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
-#endif
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000

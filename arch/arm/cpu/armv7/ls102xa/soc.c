@@ -60,6 +60,10 @@ unsigned int get_soc_major_rev(void)
 	return major;
 }
 
+void s_init(void)
+{
+}
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010315
 void erratum_a010315(void)
 {

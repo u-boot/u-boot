@@ -233,9 +233,8 @@ int sata_init(void)
 	out_le32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + 0x520, 0x80000000);
 #endif
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
-	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY_2_CFG);
-	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY_3_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA);
 	scsi_scan(0);
@@ -321,6 +320,19 @@ void erratum_a010315(void)
 }
 #endif
 
+static void erratum_a010539(void)
+{
+#if defined(CONFIG_SYS_FSL_ERRATUM_A010539) && defined(CONFIG_QSPI_BOOT)
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 porsr1;
+
+	porsr1 = in_be32(&gur->porsr1);
+	porsr1 &= ~FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK;
+	out_be32((void *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
+		 porsr1);
+#endif
+}
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
@@ -339,7 +351,9 @@ void fsl_lsch2_early_init_f(void)
 #endif
 	/* Make SEC reads and writes snoopable */
 	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
-		     SCFG_SNPCNFGCR_SECWRSNP);
+		     SCFG_SNPCNFGCR_SECWRSNP |
+		     SCFG_SNPCNFGCR_SATARDSNP |
+		     SCFG_SNPCNFGCR_SATAWRSNP);
 
 	/*
 	 * Enable snoop requests and DVM message requests for
@@ -352,6 +366,7 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a008850_early(); /* part 1 of 2 */
 	erratum_a009929();
 	erratum_a009660();
+	erratum_a010539();
 }
 #endif
 

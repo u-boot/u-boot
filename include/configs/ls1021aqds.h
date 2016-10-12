@@ -125,7 +125,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
@@ -139,8 +138,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
-
-#define CONFIG_SYS_HAS_SERDES
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
@@ -541,8 +538,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_ARMV7_NONSEC
-#define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200

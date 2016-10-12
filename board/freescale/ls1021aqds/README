@@ -110,3 +110,9 @@ Start Address	End Address	Description			Size
 0x00_7E80_0000	0x00_7E80_FFFF	IFC - NAND Flash		64KB
 0x00_7FB0_0000	0x00_7FB0_0FFF	IFC - FPGA			4KB
 0x00_8000_0000	0x00_FFFF_FFFF	DRAM1				2GB
+
+LS1021a rev1.0 Soc specific Options/Settings
+--------------------------------------------
+If the LS1021a Soc is rev1.0, you need modify the configure file.
+Add the following define in include/configs/ls1021aqds.h:
+#define CONFIG_SKIP_LOWLEVEL_INIT

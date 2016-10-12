@@ -9,15 +9,11 @@
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_FSL_LSCH2
 #define CONFIG_MP
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
-#ifdef CONFIG_SYS_FSL_SRDS_1
-#define	CONFIG_SYS_HAS_SERDES
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
