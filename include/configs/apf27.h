@@ -25,11 +25,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /*
- * Board display option
- */
-#define CONFIG_DISPLAY_BOARDINFO
-
-/*
  * SPL
  */
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"

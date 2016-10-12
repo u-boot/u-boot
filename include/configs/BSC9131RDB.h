@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_BSC9131RDB
 #define CONFIG_BSC9131
 #define CONFIG_NAND_FSL_IFC

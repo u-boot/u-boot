@@ -15,8 +15,6 @@
 #define CONFIG_PB1X00		1
 #define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_PB1000
 #define CONFIG_SOC_AU1000	1
 #else

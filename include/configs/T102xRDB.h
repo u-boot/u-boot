@@ -12,7 +12,6 @@
 #define __T1024RDB_H
 
 /* High Level Configuration Options */
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */

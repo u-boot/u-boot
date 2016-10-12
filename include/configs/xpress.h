@@ -14,8 +14,6 @@
 /* SPL options */
 #include "imx6_spl.h"
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 << 20)
 

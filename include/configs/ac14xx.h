@@ -13,7 +13,6 @@
 #define __CONFIG_H
 
 #define CONFIG_AC14XX 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the ifm AC14xx board:

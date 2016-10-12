@@ -42,8 +42,6 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

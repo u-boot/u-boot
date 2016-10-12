@@ -15,7 +15,6 @@
 
 #define CONFIG_MPC5200		1	/* This is a MPC5200 CPU */
 #define CONFIG_CANMB		1	/* ... on canmb board - we need this for FEC.C */
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * allowed and functional CONFIG_SYS_TEXT_BASE values:

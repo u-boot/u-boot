@@ -36,11 +36,6 @@
 
 #define CONFIG_MACH_TYPE                MACH_TYPE_CM_T3517
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)

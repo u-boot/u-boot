@@ -19,8 +19,6 @@
  * (easy to change)
  */
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_BAUDRATE		115200

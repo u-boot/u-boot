@@ -9,8 +9,6 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #elif defined(CONFIG_QSPI_BOOT)

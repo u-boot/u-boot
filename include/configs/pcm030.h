@@ -350,8 +350,6 @@ RTC configuration
 
 #define CONFIG_SYS_LOAD_ADDR 0x400000 /* default load address */
 
-#define CONFIG_DISPLAY_BOARDINFO 1
-
 /*-----------------------------------------------------------------------------
  Various low-level settings
 -----------------------------------------------------------------------------*/

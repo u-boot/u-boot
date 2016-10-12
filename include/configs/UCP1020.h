@@ -14,8 +14,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_FSL_ELBC
 #define CONFIG_PCI
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */

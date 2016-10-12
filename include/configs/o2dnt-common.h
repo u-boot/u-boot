@@ -17,7 +17,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_MPC5200
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* running at 33.000000MHz */
 

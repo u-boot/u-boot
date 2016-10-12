@@ -19,7 +19,6 @@
 
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 

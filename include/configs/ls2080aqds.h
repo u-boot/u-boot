@@ -9,8 +9,6 @@
 
 #include "ls2080a_common.h"
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);

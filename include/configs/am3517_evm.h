@@ -42,8 +42,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS

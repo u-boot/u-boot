@@ -20,8 +20,6 @@
 #endif
 #endif
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #else

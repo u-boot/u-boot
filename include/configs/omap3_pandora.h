@@ -18,11 +18,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_BOARDINFO	1
-
 #define CONFIG_MISC_INIT_R
 #define CONFIG_REVISION_TAG		1
 

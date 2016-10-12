@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_BSC9132QDS
 #define CONFIG_BSC9132
 #endif

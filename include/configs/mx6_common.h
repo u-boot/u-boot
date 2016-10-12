@@ -35,7 +35,6 @@
 #define CONFIG_MX6
 #endif
 
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_FSL_CLK
 
 /* ATAGs */

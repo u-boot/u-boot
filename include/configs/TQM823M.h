@@ -19,7 +19,6 @@
 
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823M		1	/* ...on a TQM8xxM module	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 

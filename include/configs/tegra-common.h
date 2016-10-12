@@ -24,11 +24,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 #endif
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 
 /* Environment */

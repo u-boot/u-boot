@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CYRUS
 
 #if !defined(CONFIG_PPC_P5020) && !defined(CONFIG_PPC_P5040)

@@ -40,8 +40,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #if (CONFIG_SYS_TEXT_BASE == 0xFE000000)
 #define CONFIG_SYS_LOWBOOT
 #endif

@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #if defined(CONFIG_P1020MBG)
 #define CONFIG_BOARDNAME "P1020MBG-PC"
 #define CONFIG_P1020

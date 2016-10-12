@@ -11,7 +11,6 @@
 #ifndef __T2080RDB_H
 #define __T2080RDB_H
 
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_T2080RDB
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC

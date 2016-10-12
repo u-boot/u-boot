@@ -11,8 +11,6 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE

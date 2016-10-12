@@ -8,11 +8,6 @@
 #define __CONFIGS_BOSTON_H__
 
 /*
- * General board configuration
- */
-#define CONFIG_DISPLAY_BOARDINFO
-
-/*
  * CPU
  */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	30000000

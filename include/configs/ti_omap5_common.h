@@ -17,8 +17,6 @@
 #ifndef __CONFIG_TI_OMAP5_COMMON_H
 #define __CONFIG_TI_OMAP5_COMMON_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_798870
 

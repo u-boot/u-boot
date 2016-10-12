@@ -227,4 +227,12 @@ config DISPLAY_CPUINFO
 	  when U-Boot starts up. The function print_cpuinfo() is called
 	  to do this.
 
+config DISPLAY_BOARDINFO
+	bool "Display information about the board during start up"
+	default y if ARM || M68K || MIPS || PPC || SPARC || XTENSA
+	help
+	  Display information about the board that U-Boot is running on
+	  when U-Boot starts up. The board function checkboard() is called
+	  to do this.
+
 source "common/spl/Kconfig"

@@ -16,8 +16,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */

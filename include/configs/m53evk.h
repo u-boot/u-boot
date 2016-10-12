@@ -23,7 +23,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 

@@ -19,7 +19,6 @@
 
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_TQM860L		1	/* ...on a TQM8xxL module	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 
