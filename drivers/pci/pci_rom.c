@@ -31,6 +31,7 @@
 #include <pci.h>
 #include <pci_rom.h>
 #include <vbe.h>
+#include <video.h>
 #include <video_fb.h>
 #include <linux/screen_info.h>
 
@@ -348,3 +349,64 @@ err:
 		free(ram);
 	return ret;
 }
+
+#ifdef CONFIG_DM_VIDEO
+int vbe_setup_video_priv(struct vesa_mode_info *vesa,
+			 struct video_priv *uc_priv,
+			 struct video_uc_platdata *plat)
+{
+	if (!vesa->x_resolution)
+		return -ENXIO;
+	uc_priv->xsize = vesa->x_resolution;
+	uc_priv->ysize = vesa->y_resolution;
+	switch (vesa->bits_per_pixel) {
+	case 32:
+	case 24:
+		uc_priv->bpix = VIDEO_BPP32;
+		break;
+	case 16:
+		uc_priv->bpix = VIDEO_BPP16;
+		break;
+	default:
+		return -EPROTONOSUPPORT;
+	}
+	plat->base = vesa->phys_base_ptr;
+	plat->size = vesa->bytes_per_scanline * vesa->y_resolution;
+
+	return 0;
+}
+
+int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	printf("Video: ");
+
+	/* If we are running from EFI or coreboot, this can't work */
+	if (!ll_boot_init()) {
+		printf("Not available (previous bootloader prevents it)\n");
+		return -EPERM;
+	}
+	bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
+	ret = dm_pci_run_vga_bios(dev, int15_handler, PCI_ROM_USE_NATIVE |
+					PCI_ROM_ALLOW_FALLBACK);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
+	if (ret) {
+		debug("failed to run video BIOS: %d\n", ret);
+		return ret;
+	}
+
+	ret = vbe_setup_video_priv(&mode_info.vesa, uc_priv, plat);
+	if (ret) {
+		debug("No video mode configured\n");
+		return ret;
+	}
+
+	printf("%dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
+	       mode_info.vesa.bits_per_pixel);
+
+	return 0;
+}
+#endif

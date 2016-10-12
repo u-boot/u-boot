@@ -9,7 +9,6 @@ obj-y += fsp_configs.o ivybridge.o
 else
 obj-y += cpu.o
 obj-y += early_me.o
-obj-y += gma.o
 obj-y += lpc.o
 obj-y += model_206ax.o
 obj-y += northbridge.o

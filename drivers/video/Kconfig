@@ -101,6 +101,15 @@ config VIDCONSOLE_AS_LCD
 	  to update the environment, the breakage may be confusing for users.
 	  This option will be removed around the end of 2016.
 
+config VIDEO_COREBOOT
+	bool "Enable coreboot framebuffer driver support"
+	depends on X86 && SYS_COREBOOT
+	help
+	  Turn on this option to enable a framebuffer driver when U-Boot is
+	  loaded by coreboot where the graphics device is configured by
+	  coreboot already. This can in principle be used with any platform
+	  that coreboot supports.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -366,7 +375,19 @@ config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
 	depends on X86
 	help
-	  This enabled support for integrated graphics on Intel broadwell
+	  This enables support for integrated graphics on Intel broadwell
+	  devices. Initialisation is mostly performed by a VGA boot ROM, with
+	  some setup handled by U-Boot itself. The graphics adaptor works as
+	  a VESA device and supports LCD panels, eDP and LVDS outputs.
+	  Configuration of most aspects of device operation is performed using
+	  a special tool which configures the VGA ROM, but the graphics
+	  resolution can be selected in U-Boot.
+
+config VIDEO_IVYBRIDGE_IGD
+	bool "Enable Intel Ivybridge integration graphics support"
+	depends on X86
+	help
+	  This enables support for integrated graphics on Intel ivybridge
 	  devices. Initialisation is mostly performed by a VGA boot ROM, with
 	  some setup handled by U-Boot itself. The graphics adaptor works as
 	  a VESA device and supports LCD panels, eDP and LVDS outputs.

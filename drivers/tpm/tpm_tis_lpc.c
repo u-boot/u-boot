@@ -204,7 +204,7 @@ static int tis_senddata(struct udevice *dev, const u8 *data, size_t len)
 		/* Wait till the device is ready to accept more data. */
 		while (!burst) {
 			if (max_cycles++ == MAX_DELAY_US) {
-				printf("%s:%d failed to feed %d bytes of %d\n",
+				printf("%s:%d failed to feed %zd bytes of %zd\n",
 				       __FILE__, __LINE__, len - offset, len);
 				return -ETIMEDOUT;
 			}
@@ -224,7 +224,7 @@ static int tis_senddata(struct udevice *dev, const u8 *data, size_t len)
 		 * changes to zero exactly after the last byte is fed into the
 		 * FIFO.
 		 */
-		count = min((u32)burst, len - offset - 1);
+		count = min((size_t)burst, len - offset - 1);
 		while (count--)
 			tpm_write_byte(priv, data[offset++],
 				       &regs[locality].data);

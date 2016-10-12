@@ -148,6 +148,15 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 	return 0;
 }
 
+const char *uclass_get_name(enum uclass_id id)
+{
+	struct uclass *uc;
+
+	if (uclass_get(id, &uc))
+		return NULL;
+	return uc->uc_drv->name;
+}
+
 int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 {
 	struct uclass *uc;

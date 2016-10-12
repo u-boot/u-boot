@@ -54,6 +54,9 @@ static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	ulong base, align, size;
 
+	if (!plat->size)
+		return 0;
+
 	align = plat->align ? plat->align : 1 << 20;
 	base = *addrp - plat->size;
 	base &= ~(align - 1);

@@ -1,7 +1,5 @@
 /*
- * From Coreboot file of the same name
- *
- * Copyright (C) 2011 Chromium OS Authors
+ * Copyright (C) 2016 Google, Inc
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -12,6 +10,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <pci_rom.h>
+#include <vbe.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/mtrr.h>
@@ -24,6 +23,7 @@ struct gt_powermeter {
 	u32 value;
 };
 
+/* These are magic values - unfortunately the meaning is unknown */
 static const struct gt_powermeter snb_pm_gt1[] = {
 	{ 0xa200, 0xcc000000 },
 	{ 0xa204, 0x07000040 },
@@ -294,33 +294,6 @@ static const struct gt_powermeter ivb_pm_gt2_35w[] = {
 	{ 0 }
 };
 
-/*
- * Some vga option roms are used for several chipsets but they only have one
- * PCI ID in their header. If we encounter such an option rom, we need to do
- * the mapping ourselves.
- */
-
-u32 map_oprom_vendev(u32 vendev)
-{
-	u32 new_vendev = vendev;
-
-	switch (vendev) {
-	case 0x80860102:		/* GT1 Desktop */
-	case 0x8086010a:		/* GT1 Server */
-	case 0x80860112:		/* GT2 Desktop */
-	case 0x80860116:		/* GT2 Mobile */
-	case 0x80860122:		/* GT2 Desktop >=1.3GHz */
-	case 0x80860126:		/* GT2 Mobile >=1.3GHz */
-	case 0x80860156:		/* IVB */
-	case 0x80860166:		/* IVB */
-		/* Set to GT1 Mobile */
-		new_vendev = 0x80860106;
-		break;
-	}
-
-	return new_vendev;
-}
-
 static inline u32 gtt_read(void *bar, u32 reg)
 {
 	return readl(bar + reg);
@@ -539,7 +512,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 	return 0;
 }
 
-int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
+static int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
 {
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
@@ -731,7 +704,8 @@ static int int15_handler(void)
 	return res;
 }
 
-void sandybridge_setup_graphics(struct udevice *dev, struct udevice *video_dev)
+static void sandybridge_setup_graphics(struct udevice *dev,
+				       struct udevice *video_dev)
 {
 	u32 reg32;
 	u16 reg16;
@@ -797,11 +771,8 @@ void sandybridge_setup_graphics(struct udevice *dev, struct udevice *video_dev)
 	writel(reg32, MCHBAR_REG(0x5418));
 }
 
-int gma_func0_init(struct udevice *dev)
+static int gma_func0_init(struct udevice *dev)
 {
-#ifdef CONFIG_VIDEO
-	ulong start;
-#endif
 	struct udevice *nbridge;
 	void *gtt_bar;
 	ulong base;
@@ -835,16 +806,38 @@ int gma_func0_init(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_VIDEO
-	start = get_timer(0);
-	ret = dm_pci_run_vga_bios(dev, int15_handler,
-				  PCI_ROM_USE_NATIVE | PCI_ROM_ALLOW_FALLBACK);
-	debug("BIOS ran in %lums\n", get_timer(start));
-#endif
+	return rev;
+}
+
+static int bd82x6x_video_probe(struct udevice *dev)
+{
+	void *gtt_bar;
+	int ret, rev;
+
+	rev = gma_func0_init(dev);
+	if (rev < 0)
+		return rev;
+	ret = vbe_setup_video(dev, int15_handler);
+	if (ret)
+		return ret;
+
 	/* Post VBIOS init */
+	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
 	ret = gma_pm_init_post_vbios(dev, rev, gtt_bar);
 	if (ret)
 		return ret;
 
 	return 0;
 }
+
+static const struct udevice_id bd82x6x_video_ids[] = {
+	{ .compatible = "intel,gma" },
+	{ }
+};
+
+U_BOOT_DRIVER(bd82x6x_video) = {
+	.name	= "bd82x6x_video",
+	.id	= UCLASS_VIDEO,
+	.of_match = bd82x6x_video_ids,
+	.probe	= bd82x6x_video_probe,
+};

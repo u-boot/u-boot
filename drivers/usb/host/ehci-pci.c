@@ -32,8 +32,8 @@ static void ehci_pci_init(struct udevice *dev, struct ehci_hccr **ret_hccr,
 	hcor = (struct ehci_hcor *)((uintptr_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	debug("EHCI-PCI init hccr 0x%x and hcor 0x%x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
+	debug("EHCI-PCI init hccr %#lx and hcor %#lx hc_length %d\n",
+	      (ulong)hccr, (ulong)hcor,
 	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	*ret_hccr = hccr;

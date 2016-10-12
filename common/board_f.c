@@ -912,9 +912,6 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	sandbox_early_getopt_check,
 #endif
-#ifdef CONFIG_OF_CONTROL
-	fdtdec_prepare_fdt,
-#endif
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
 #if defined(CONFIG_MPC8260)

@@ -291,7 +291,6 @@ void board_debug_uart_init(void)
 
 static const struct udevice_id broadwell_syscon_ids[] = {
 	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
-	{ .compatible = "intel,gma", .data = X86_SYSCON_GMA },
 	{ }
 };
 

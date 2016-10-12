@@ -119,6 +119,14 @@ struct uclass_driver {
 int uclass_get(enum uclass_id key, struct uclass **ucp);
 
 /**
+ * uclass_get_name() - Get the name of a uclass driver
+ *
+ * @id: ID to look up
+ * @returns the name of the uclass driver for that ID, or NULL if none
+ */
+const char *uclass_get_name(enum uclass_id id);
+
+/**
  * uclass_get_device() - Get a uclass device based on an ID and index
  *
  * The device is probed to activate it ready for use.

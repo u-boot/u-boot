@@ -182,8 +182,8 @@ static inline void load_idt(const struct desc_ptr *dtr)
 
 void set_vector(u8 intnum, void *routine)
 {
-	idt[intnum].base_high = (u16)((u32)(routine) >> 16);
-	idt[intnum].base_low = (u16)((u32)(routine) & 0xffff);
+	idt[intnum].base_high = (u16)((ulong)(routine) >> 16);
+	idt[intnum].base_low = (u16)((ulong)(routine) & 0xffff);
 }
 
 /*
@@ -238,8 +238,11 @@ int disable_interrupts(void)
 {
 	long flags;
 
+#ifdef CONFIG_X86_64
+	asm volatile ("pushfq ; popq %0 ; cli\n" : "=g" (flags) : );
+#else
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
-
+#endif
 	return flags & X86_EFLAGS_IF;
 }
 
