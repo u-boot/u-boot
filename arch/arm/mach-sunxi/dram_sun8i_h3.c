@@ -217,35 +217,57 @@ static void mctl_zq_calibration(struct dram_para *para)
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 
-	int i;
-	u16 zq_val[6];
-	u8 val;
+	if ((readl(SUNXI_SRAMC_BASE + 0x24) & 0xff) == 0 &&
+	    (readl(SUNXI_SRAMC_BASE + 0xf0) & 0x1) == 0) {
+		u32 reg_val;
 
-	writel(0x0a0a0a0a, &mctl_ctl->zqdr[2]);
-
-	for (i = 0; i < 6; i++) {
-		u8 zq = (CONFIG_DRAM_ZQ >> (i * 4)) & 0xf;
-
-		writel((zq << 20) | (zq << 16) | (zq << 12) |
-				(zq << 8) | (zq << 4) | (zq << 0),
-				&mctl_ctl->zqcr);
+		clrsetbits_le32(&mctl_ctl->zqcr, 0xffff,
+				CONFIG_DRAM_ZQ & 0xffff);
 
 		writel(PIR_CLRSR, &mctl_ctl->pir);
 		mctl_phy_init(PIR_ZCAL);
 
-		zq_val[i] = readl(&mctl_ctl->zqdr[0]) & 0xff;
-		writel(REPEAT_BYTE(zq_val[i]), &mctl_ctl->zqdr[2]);
+		reg_val = readl(&mctl_ctl->zqdr[0]);
+		reg_val &= (0x1f << 16) | (0x1f << 0);
+		reg_val |= reg_val << 8;
+		writel(reg_val, &mctl_ctl->zqdr[0]);
 
-		writel(PIR_CLRSR, &mctl_ctl->pir);
-		mctl_phy_init(PIR_ZCAL);
+		reg_val = readl(&mctl_ctl->zqdr[1]);
+		reg_val &= (0x1f << 16) | (0x1f << 0);
+		reg_val |= reg_val << 8;
+		writel(reg_val, &mctl_ctl->zqdr[1]);
+		writel(reg_val, &mctl_ctl->zqdr[2]);
+	} else {
+		int i;
+		u16 zq_val[6];
+		u8 val;
 
-		val = readl(&mctl_ctl->zqdr[0]) >> 24;
-		zq_val[i] |= bin_to_mgray(mgray_to_bin(val) - 1) << 8;
+		writel(0x0a0a0a0a, &mctl_ctl->zqdr[2]);
+
+		for (i = 0; i < 6; i++) {
+			u8 zq = (CONFIG_DRAM_ZQ >> (i * 4)) & 0xf;
+
+			writel((zq << 20) | (zq << 16) | (zq << 12) |
+					(zq << 8) | (zq << 4) | (zq << 0),
+					&mctl_ctl->zqcr);
+
+			writel(PIR_CLRSR, &mctl_ctl->pir);
+			mctl_phy_init(PIR_ZCAL);
+
+			zq_val[i] = readl(&mctl_ctl->zqdr[0]) & 0xff;
+			writel(REPEAT_BYTE(zq_val[i]), &mctl_ctl->zqdr[2]);
+
+			writel(PIR_CLRSR, &mctl_ctl->pir);
+			mctl_phy_init(PIR_ZCAL);
+
+			val = readl(&mctl_ctl->zqdr[0]) >> 24;
+			zq_val[i] |= bin_to_mgray(mgray_to_bin(val) - 1) << 8;
+		}
+
+		writel((zq_val[1] << 16) | zq_val[0], &mctl_ctl->zqdr[0]);
+		writel((zq_val[3] << 16) | zq_val[2], &mctl_ctl->zqdr[1]);
+		writel((zq_val[5] << 16) | zq_val[4], &mctl_ctl->zqdr[2]);
 	}
-
-	writel((zq_val[1] << 16) | zq_val[0], &mctl_ctl->zqdr[0]);
-	writel((zq_val[3] << 16) | zq_val[2], &mctl_ctl->zqdr[1]);
-	writel((zq_val[5] << 16) | zq_val[4], &mctl_ctl->zqdr[2]);
 }
 
 static void mctl_set_cr(struct dram_para *para)
