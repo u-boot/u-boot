@@ -10,7 +10,9 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* USB gadget mode support*/
+#ifndef CONFIG_TEGRA20
 #define CONFIG_CI_UDC_HAS_HOSTPC
+#endif
 /* USB mass storage protocol */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 /* DFU protocol */

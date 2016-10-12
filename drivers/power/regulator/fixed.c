@@ -37,11 +37,15 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	/* Set type to fixed */
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	/* Get fixed regulator gpio desc */
+	/* Get fixed regulator optional enable GPIO desc */
 	gpio = &dev_pdata->gpio;
 	ret = gpio_request_by_name(dev, "gpio", 0, gpio, GPIOD_IS_OUT);
-	if (ret)
-		debug("Fixed regulator gpio - not found! Error: %d", ret);
+	if (ret) {
+		debug("Fixed regulator optional enable GPIO - not found! Error: %d\n",
+		      ret);
+		if (ret != -ENOENT)
+			return ret;
+	}
 
 	/* Get optional ramp up delay */
 	dev_pdata->startup_delay_us = fdtdec_get_uint(gd->fdt_blob,
@@ -87,8 +91,9 @@ static bool fixed_regulator_get_enable(struct udevice *dev)
 {
 	struct fixed_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 
+	/* Enable GPIO is optional */
 	if (!dev_pdata->gpio.dev)
-		return false;
+		return true;
 
 	return dm_gpio_get_value(&dev_pdata->gpio);
 }
@@ -98,8 +103,12 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 	struct fixed_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 	int ret;
 
-	if (!dev_pdata->gpio.dev)
-		return -ENOSYS;
+	/* Enable GPIO is optional */
+	if (!dev_pdata->gpio.dev) {
+		if (!enable)
+			return -ENOSYS;
+		return 0;
+	}
 
 	ret = dm_gpio_set_value(&dev_pdata->gpio, enable);
 	if (ret) {
