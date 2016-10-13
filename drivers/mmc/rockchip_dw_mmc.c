@@ -129,8 +129,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 			return ret;
 	}
 #endif
-	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
-			priv->minmax[1], priv->minmax[0]);
+	dwmci_setup_cfg(&plat->cfg, host, priv->minmax[1], priv->minmax[0]);
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;

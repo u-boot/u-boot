@@ -29,7 +29,6 @@ int atmel_sdhci_init(void *regbase, u32 id)
 	host->name = "atmel_sdhci";
 	host->ioaddr = regbase;
 	host->quirks = 0;
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 	max_clk = at91_get_periph_generated_clk(id);
 	if (!max_clk) {
 		printf("%s: Failed to get the proper clock\n", __func__);

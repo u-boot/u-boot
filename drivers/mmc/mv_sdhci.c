@@ -71,7 +71,7 @@ int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 	host = (struct sdhci_host *)malloc(sizeof(struct sdhci_host));
 	if (!host) {
 		printf("sdh_host malloc fail!\n");
-		return 1;
+		return -ENOMEM;
 	}
 
 	host->name = MVSDH_NAME;
@@ -88,9 +88,5 @@ int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 		sdhci_mvebu_mbus_config((void __iomem *)regbase);
 	}
 
-	if (quirks & SDHCI_QUIRK_REG32_RW)
-		host->version = sdhci_readl(host, SDHCI_HOST_VERSION - 2) >> 16;
-	else
-		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 	return add_sdhci(host, max_clk, min_clk);
 }

@@ -111,8 +111,7 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 
 #ifdef CONFIG_BLK
-	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
-			host->bus_hz, 400000);
+	dwmci_setup_cfg(&plat->cfg, host, host->bus_hz, 400000);
 	host->mmc = &plat->mmc;
 #else
 	int ret;

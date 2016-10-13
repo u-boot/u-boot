@@ -271,8 +271,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	if (err)
 		return err;
 
-	dwmci_setup_cfg(&plat->cfg, host->name, host->buswidth, host->caps,
-			DWMMC_MAX_FREQ, DWMMC_MIN_FREQ);
+	dwmci_setup_cfg(&plat->cfg, host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ);
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
 	host->priv = dev;
