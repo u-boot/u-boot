@@ -243,9 +243,6 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		return CMD_RET_SUCCESS;
 	}
 
-	/* flush cache */
-	flush_cache(load_addr, size);
-
 	bootstage_mark(BOOTSTAGE_ID_NET_LOADED);
 
 	rcode = bootm_maybe_autostart(cmdtp, argv[0]);

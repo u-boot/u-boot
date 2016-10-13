@@ -1619,7 +1619,7 @@ static int mvneta_probe(struct udevice *dev)
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
 	 * done once for all interfaces. As only one interface can
-	 * be active. Make this area DMA save by disabling the D-cache
+	 * be active. Make this area DMA safe by disabling the D-cache
 	 */
 	if (!buffer_loc.tx_descs) {
 		/* Align buffer area for descs and rx_buffers to 1MiB */
