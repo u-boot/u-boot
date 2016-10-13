@@ -1,6 +1,7 @@
 config BLK
 	bool "Support block devices"
 	depends on DM
+	default y if DM_MMC
 	help
 	  Enable support for block devices, such as SCSI, MMC and USB
 	  flash sticks. These provide a block-level interface which permits

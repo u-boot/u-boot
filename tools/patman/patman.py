@@ -93,11 +93,11 @@ elif options.test:
         suite.run(result)
 
     # TODO: Surely we can just 'print' result?
-    print result
+    print(result)
     for test, err in result.errors:
-        print err
+        print(err)
     for test, err in result.failures:
-        print err
+        print(err)
 
 # Called from git with a patch filename as argument
 # Printout a list of additional CC recipients for this patch
@@ -110,7 +110,7 @@ elif options.cc_cmd:
             for cc in match.group(2).split(', '):
                 cc = cc.strip()
                 if cc:
-                    print cc
+                    print(cc)
     fd.close()
 
 elif options.full_help:
@@ -166,12 +166,12 @@ else:
                 options.dry_run, not options.ignore_bad_tags, cc_file,
                 in_reply_to=options.in_reply_to, thread=options.thread)
     else:
-        print col.Color(col.RED, "Not sending emails due to errors/warnings")
+        print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
         series.ShowActions(args, cmd, options.process_tags)
         if not its_a_go:
-            print col.Color(col.RED, "Email would not be sent")
+            print(col.Color(col.RED, "Email would not be sent"))
 
     os.remove(cc_file)

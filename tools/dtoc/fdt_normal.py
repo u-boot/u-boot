@@ -81,7 +81,7 @@ class Node(NodeBase):
         This fills in the props and subnodes properties, recursively
         searching into subnodes so that the entire tree is built.
         """
-        self.props = self._fdt.GetProps(self, self.path)
+        self.props = self._fdt.GetProps(self)
 
         offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
         while offset >= 0:
@@ -159,7 +159,7 @@ class FdtNormal(Fdt):
         fdt_len = libfdt.fdt_totalsize(self._fdt)
         del self._fdt[fdt_len:]
 
-    def GetProps(self, node, path):
+    def GetProps(self, node):
         """Get all properties from a node.
 
         Args:
@@ -172,11 +172,8 @@ class FdtNormal(Fdt):
         Raises:
             ValueError: if the node does not exist.
         """
-        offset = libfdt.fdt_path_offset(self._fdt, path)
-        if offset < 0:
-            libfdt.Raise(offset)
         props_dict = {}
-        poffset = libfdt.fdt_first_property_offset(self._fdt, offset)
+        poffset = libfdt.fdt_first_property_offset(self._fdt, node._offset)
         while poffset >= 0:
             dprop, plen = libfdt.fdt_get_property_by_offset(self._fdt, poffset)
             prop = Prop(node, poffset, libfdt.String(self._fdt, dprop.nameoff),

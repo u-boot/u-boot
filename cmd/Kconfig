@@ -677,6 +677,19 @@ config CMD_TPM_TEST
 
 endmenu
 
+menu "Firmware commands"
+config CMD_CROS_EC
+	bool "Enable crosec command"
+	depends on CROS_EC
+	default y
+	help
+	  Enable command-line access to the Chrome OS EC (Embedded
+	  Controller). This provides the 'crosec' command which has
+	  a number of sub-commands for performing EC tasks such as
+	  updating its flash, accessing a small saved context area
+	  and talking to the I2C bus behind the EC (if there is one).
+endmenu
+
 menu "Filesystem commands"
 config CMD_EXT2
 	bool "ext2 command support"

@@ -60,7 +60,7 @@ def Conv_name_to_c(name):
 def TabTo(num_tabs, str):
     if len(str) >= num_tabs * 8:
         return str + ' '
-    return str + '\t' * (num_tabs - len(str) / 8)
+    return str + '\t' * (num_tabs - len(str) // 8)
 
 class DtbPlatdata:
     """Provide a means to convert device tree binary data to platform data
@@ -224,14 +224,14 @@ class DtbPlatdata:
             fields = {}
 
             # Get a list of all the valid properties in this node.
-            for name, prop in node.props.iteritems():
+            for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     fields[name] = copy.deepcopy(prop)
 
             # If we've seen this node_name before, update the existing struct.
             if node_name in structs:
                 struct = structs[node_name]
-                for name, prop in fields.iteritems():
+                for name, prop in fields.items():
                     oldprop = struct.get(name)
                     if oldprop:
                         oldprop.Widen(prop)
@@ -246,7 +246,7 @@ class DtbPlatdata:
         for node in self._valid_nodes:
             node_name = self.GetCompatName(node)
             struct = structs[node_name]
-            for name, prop in node.props.iteritems():
+            for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
             upto += 1
@@ -298,7 +298,7 @@ class DtbPlatdata:
             var_name = Conv_name_to_c(node.name)
             self.Buf('static struct %s%s %s%s = {\n' %
                 (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
-            for pname, prop in node.props.iteritems():
+            for pname, prop in node.props.items():
                 if pname in PROP_IGNORE_LIST or pname[0] == '#':
                     continue
                 ptype = TYPE_NAMES[prop.type]

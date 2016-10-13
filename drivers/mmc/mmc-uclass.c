@@ -262,6 +262,7 @@ static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
 #ifndef CONFIG_SPL_BUILD
 	.write	= mmc_bwrite,
+	.erase	= mmc_berase,
 #endif
 	.select_hwpart	= mmc_select_hwpart,
 };

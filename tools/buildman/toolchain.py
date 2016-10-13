@@ -127,6 +127,18 @@ class Toolchain:
                 return PRIORITY_CALC + prio
         return PRIORITY_CALC + prio
 
+    def GetWrapper(self, show_warning=True):
+        """Get toolchain wrapper from the setting file.
+        """
+	value = ''
+	for name, value in bsettings.GetItems('toolchain-wrapper'):
+            if not value:
+                print "Warning: Wrapper not found"
+        if value:
+            value = value + ' '
+
+        return value
+
     def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
 
@@ -138,10 +150,12 @@ class Toolchain:
                 PATH
         """
         env = dict(os.environ)
+        wrapper = self.GetWrapper()
+
         if full_path:
-            env['CROSS_COMPILE'] = os.path.join(self.path, self.cross)
+            env['CROSS_COMPILE'] = wrapper + os.path.join(self.path, self.cross)
         else:
-            env['CROSS_COMPILE'] = self.cross
+            env['CROSS_COMPILE'] = wrapper + self.cross
             env['PATH'] = self.path + ':' + env['PATH']
 
         return env

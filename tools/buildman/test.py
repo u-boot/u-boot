@@ -198,9 +198,9 @@ class TestBuild(unittest.TestCase):
             if line.text.strip():
                 count += 1
 
-        # We should get one starting message, then an update for every commit
+        # We should get two starting messages, then an update for every commit
         # built.
-        self.assertEqual(count, len(commits) * len(boards) + 1)
+        self.assertEqual(count, len(commits) * len(boards) + 2)
         build.SetDisplayOptions(show_errors=True);
         build.ShowSummary(self.commits, board_selected)
         #terminal.EchoPrintTestLines()

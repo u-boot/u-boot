@@ -19,6 +19,7 @@ config DM_MMC
 config DM_MMC_OPS
 	bool "Support MMC controller operations using Driver Model"
 	depends on DM_MMC
+	default y if DM_MMC
 	help
 	  Driver model provides a means of supporting device operations. This
 	  option moves MMC operations under the control of driver model. The

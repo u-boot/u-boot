@@ -68,6 +68,14 @@ config DM_REGULATOR_FIXED
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
 
+config DM_REGULATOR_GPIO
+	bool "Enable Driver Model for GPIO REGULATOR"
+	depends on DM_REGULATOR
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for gpio regulators. The driver implements get/set for
+	voltage value.
+
 config REGULATOR_RK808
 	bool "Enable driver for RK808 regulators"
 	depends on DM_REGULATOR && PMIC_RK808
@@ -125,3 +133,19 @@ config REGULATOR_TPS65090
 	regulators, one for each FET. The standard regulator interface is
 	supported, but it is only possible to turn the regulators on or off.
 	There is no voltage/current control.
+
+config DM_REGULATOR_PALMAS
+	bool "Enable driver for PALMAS PMIC regulators"
+       depends on PMIC_PALMAS
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR PALMAS and the family of PALMAS PMICs.
+	The driver implements get/set api for: value and enable.
+
+config DM_REGULATOR_LP873X
+	bool "Enable driver for LP873X PMIC regulators"
+        depends on PMIC_LP873X
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP873X and the family of LP873X PMICs.
+	The driver implements get/set api for: value and enable.
