@@ -1096,7 +1096,7 @@ u-boot-x86-16bit.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 endif
 
-ifneq ($(CONFIG_SUNXI),)
+ifneq ($(CONFIG_ARCH_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
 u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE

@@ -35,7 +35,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SUNXI		/* sunxi family */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif

@@ -166,7 +166,7 @@ ifdef CONFIG_ARCH_SOCFPGA
 ALL-y	+= $(obj)/$(SPL_BIN).sfp
 endif
 
-ifdef CONFIG_SUNXI
+ifdef CONFIG_ARCH_SUNXI
 ALL-y	+= $(obj)/sunxi-spl.bin
 endif
 
