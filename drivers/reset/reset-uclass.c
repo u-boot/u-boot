@@ -88,10 +88,10 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 	debug("%s(dev=%p, name=%s, reset_ctl=%p)\n", __func__, dev, name,
 	      reset_ctl);
 
-	index = fdt_find_string(gd->fdt_blob, dev->of_offset, "reset-names",
-				name);
+	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+				      "reset-names", name);
 	if (index < 0) {
-		debug("fdt_find_string() failed: %d\n", index);
+		debug("fdt_stringlist_search() failed: %d\n", index);
 		return index;
 	}
 

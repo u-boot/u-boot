@@ -72,7 +72,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 	struct udevice *config;
 	int state, size, i, ret;
 
-	state = fdt_find_string(fdt, node, "pinctrl-names", statename);
+	state = fdt_stringlist_search(fdt, node, "pinctrl-names", statename);
 	if (state < 0) {
 		char *end;
 		/*

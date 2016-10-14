@@ -1098,7 +1098,7 @@ static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 	}
 
 	/* Count flash numbers */
-	fdt_for_each_subnode(blob, subnode, node)
+	fdt_for_each_subnode(subnode, blob, node)
 		++flash_num;
 
 	if (flash_num == 0) {

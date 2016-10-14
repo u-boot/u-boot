@@ -662,7 +662,12 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	/* resize the fdt */
 	else if (strncmp(argv[1], "re", 2) == 0) {
-		fdt_shrink_to_minimum(working_fdt);
+		uint extrasize;
+		if (argc > 2)
+			extrasize = simple_strtoul(argv[2], NULL, 16);
+		else
+			extrasize = 0;
+		fdt_shrink_to_minimum(working_fdt, extrasize);
 	}
 	else {
 		/* Unrecognized command */
@@ -1056,7 +1061,7 @@ static char fdt_help_text[] =
 	"fdt systemsetup                     - Do system-specific set up\n"
 #endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
-	"fdt resize                          - Resize fdt to size + padding to 4k addr\n"
+	"fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt get value <var> <path> <prop>   - Get <property> and store in <var>\n"

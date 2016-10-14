@@ -101,10 +101,10 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	debug("%s(dev=%p, name=%s, clk=%p)\n", __func__, dev, name, clk);
 
-	index = fdt_find_string(gd->fdt_blob, dev->of_offset, "clock-names",
-				name);
+	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+				      "clock-names", name);
 	if (index < 0) {
-		debug("fdt_find_string() failed: %d\n", index);
+		debug("fdt_stringlist_search() failed: %d\n", index);
 		return index;
 	}
 

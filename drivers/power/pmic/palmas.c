@@ -52,7 +52,7 @@ static int palmas_bind(struct udevice *dev)
 	int node = dev->of_offset;
 	int subnode, len;
 
-	fdt_for_each_subnode(blob, subnode, node) {
+	fdt_for_each_subnode(subnode, blob, node) {
 		const char *name;
 		char *temp;
 

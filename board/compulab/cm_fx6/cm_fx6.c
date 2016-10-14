@@ -602,7 +602,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	char baseboard_name[16];
 	int err;
 
-	fdt_shrink_to_minimum(blob); /* Make room for new properties */
+	fdt_shrink_to_minimum(blob, 0); /* Make room for new properties */
 
 	/* MAC addr */
 	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
