@@ -37,7 +37,7 @@ static bool efi_is_direct_boot = true;
  * In most cases we want to pass an FDT to the payload, so reserve one slot of
  * config table space for it. The pointer gets populated by do_bootefi_exec().
  */
-static struct efi_configuration_table EFI_RUNTIME_DATA efi_conf_table[2];
+static struct efi_configuration_table __efi_runtime_data efi_conf_table[2];
 
 #ifdef CONFIG_ARM
 /*
@@ -790,10 +790,10 @@ static const struct efi_boot_services efi_boot_services = {
 };
 
 
-static uint16_t EFI_RUNTIME_DATA firmware_vendor[] =
+static uint16_t __efi_runtime_data firmware_vendor[] =
 	{ 'D','a','s',' ','U','-','b','o','o','t',0 };
 
-struct efi_system_table EFI_RUNTIME_DATA systab = {
+struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
 		.revision = 0x20005, /* 2.5 */

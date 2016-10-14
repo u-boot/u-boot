@@ -18,7 +18,7 @@
  * x0~x7: input arguments
  * x0~x3: output arguments
  */
-static void EFI_RUNTIME_TEXT hvc_call(struct pt_regs *args)
+static void __efi_runtime hvc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -52,7 +52,7 @@ static void EFI_RUNTIME_TEXT hvc_call(struct pt_regs *args)
  * x0~x3: output arguments
  */
 
-void EFI_RUNTIME_TEXT smc_call(struct pt_regs *args)
+void __efi_runtime smc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -82,9 +82,9 @@ void EFI_RUNTIME_TEXT smc_call(struct pt_regs *args)
  * use PSCI on U-Boot running below a hypervisor, please detect
  * this and set the flag accordingly.
  */
-static const EFI_RUNTIME_DATA bool use_smc_for_psci = true;
+static const __efi_runtime_data bool use_smc_for_psci = true;
 
-void __noreturn EFI_RUNTIME_TEXT psci_system_reset(void)
+void __noreturn __efi_runtime psci_system_reset(void)
 {
 	struct pt_regs regs;
 
@@ -99,7 +99,7 @@ void __noreturn EFI_RUNTIME_TEXT psci_system_reset(void)
 		;
 }
 
-void __noreturn EFI_RUNTIME_TEXT psci_system_off(void)
+void __noreturn __efi_runtime psci_system_off(void)
 {
 	struct pt_regs regs;
 
@@ -121,7 +121,7 @@ void reset_misc(void)
 }
 
 #ifdef CONFIG_EFI_LOADER
-void EFI_RUNTIME_TEXT EFIAPI efi_reset_system(
+void __efi_runtime EFIAPI efi_reset_system(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
 			unsigned long data_size, void *reset_data)

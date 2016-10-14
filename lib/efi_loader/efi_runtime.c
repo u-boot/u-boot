@@ -26,9 +26,9 @@ struct efi_runtime_mmio_list {
 /* This list contains all runtime available mmio regions */
 LIST_HEAD(efi_runtime_mmio);
 
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_unimplemented(void);
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_device_error(void);
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_invalid_parameter(void);
+static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
+static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
+static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
 #ifdef CONFIG_SYS_CACHELINE_SIZE
 #define EFI_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
@@ -125,7 +125,7 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 
 /* Boards may override the helpers below to implement RTS functionality */
 
-void __weak EFI_RUNTIME_TEXT EFIAPI efi_reset_system(
+void __weak __efi_runtime EFIAPI efi_reset_system(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
 			unsigned long data_size, void *reset_data)
@@ -138,7 +138,7 @@ void __weak efi_reset_system_init(void)
 {
 }
 
-efi_status_t __weak EFI_RUNTIME_TEXT EFIAPI efi_get_time(
+efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
@@ -346,7 +346,7 @@ void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
  * function or variable below this line.
  *
  * Please keep everything fully self-contained and annotated with
- * EFI_RUNTIME_TEXT and EFI_RUNTIME_DATA markers.
+ * __efi_runtime and __efi_runtime_data markers.
  */
 
 /*
@@ -355,22 +355,22 @@ void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
  * address map calls.
  */
 
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_unimplemented(void)
+static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
 {
 	return EFI_UNSUPPORTED;
 }
 
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_device_error(void)
+static efi_status_t __efi_runtime EFIAPI efi_device_error(void)
 {
 	return EFI_DEVICE_ERROR;
 }
 
-static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_invalid_parameter(void)
+static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void)
 {
 	return EFI_INVALID_PARAMETER;
 }
 
-struct efi_runtime_services EFI_RUNTIME_DATA efi_runtime_services = {
+struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.hdr = {
 		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
 		.revision = EFI_RUNTIME_SERVICES_REVISION,
