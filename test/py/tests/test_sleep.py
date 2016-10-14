@@ -9,6 +9,8 @@ def test_sleep(u_boot_console):
     """Test the sleep command, and validate that it sleeps for approximately
     the correct amount of time."""
 
+    if u_boot_console.config.buildconfig.get('config_cmd_misc', 'n') != 'y':
+        pytest.skip('sleep command not supported')
     # 3s isn't too long, but is enough to cross a few second boundaries.
     sleep_time = 3
     tstart = time.time()
