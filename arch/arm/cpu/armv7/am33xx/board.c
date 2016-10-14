@@ -270,15 +270,11 @@ static void watchdog_disable(void)
 		;
 }
 
-#ifdef CONFIG_SPL_BUILD
-void board_init_f(ulong dummy)
-{
-	board_early_init_f();
-	sdram_init();
-}
-#endif
-
 void s_init(void)
+{
+}
+
+void early_system_init(void)
 {
 	/*
 	 * The ROM will only have set up sufficient pinmux to allow for the
@@ -297,4 +293,22 @@ void s_init(void)
 	rtc32k_enable();
 #endif
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	early_system_init();
+	board_early_init_f();
+	sdram_init();
+}
 #endif
+
+#endif
+
+int arch_cpu_init_dm(void)
+{
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	early_system_init();
+#endif
+	return 0;
+}
