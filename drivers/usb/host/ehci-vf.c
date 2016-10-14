@@ -339,17 +339,6 @@ static int ehci_usb_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, &vf_ehci_ops, 0, priv->init_type);
 }
 
-static int ehci_usb_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id vf_usb_ids[] = {
 	{ .compatible = "fsl,vf610-usb" },
 	{ }
@@ -361,7 +350,7 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.of_match = vf_usb_ids,
 	.bind = vf_usb_bind,
 	.probe = ehci_usb_probe,
-	.remove = ehci_usb_remove,
+	.remove = ehci_deregister,
 	.ops = &ehci_usb_ops,
 	.ofdata_to_platdata = vf_usb_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
