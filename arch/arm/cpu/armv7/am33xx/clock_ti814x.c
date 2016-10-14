@@ -386,6 +386,12 @@ void setup_clocks_for_console(void)
 	while (readl(&cmalwon->uart0clkctrl) != PRCM_MOD_EN)
 		;
 }
+
+void setup_early_clocks(void)
+{
+	setup_clocks_for_console();
+}
+
 /*
  * Configure the PLL/PRCM for necessary peripherals
  */

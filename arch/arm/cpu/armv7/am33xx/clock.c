@@ -232,10 +232,15 @@ __weak void scale_vcores(void)
 {
 }
 
-void prcm_init()
+void setup_early_clocks(void)
 {
+	setup_clocks_for_console();
 	enable_basic_clocks();
+	timer_init();
+}
+
+void prcm_init(void)
+{
 	scale_vcores();
 	setup_dplls();
-	timer_init();
 }
