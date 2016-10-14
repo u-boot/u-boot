@@ -288,6 +288,9 @@ void early_system_init(void)
 	set_uart_mux_conf();
 	setup_early_clocks();
 	uart_soft_reset();
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
+	do_board_detect();
+#endif
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 	/* Enable RTC32K clock */
 	rtc32k_enable();

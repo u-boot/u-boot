@@ -45,3 +45,4 @@ int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 
 void enable_usb_clocks(int index);
 void disable_usb_clocks(int index);
+void do_board_detect(void);
