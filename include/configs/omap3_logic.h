@@ -128,27 +128,7 @@
 
 /* Environment information */
 
-/*
- * PREBOOT assumes the 4.3" display is attached.  User can interrupt
- * and modify display variable to suit their needs.
- */
 #define CONFIG_PREBOOT \
-	"echo ======================NOTICE============================;"\
-	"echo \"The u-boot environment is not set.\";"			\
-	"echo \"If using a display a valid display variable for your panel\";" \
-	"echo \"needs to be set.\";"					\
-	"echo \"Valid display options are:\";"				\
-	"echo \"  2 == LQ121S1DG31     TFT SVGA    (12.1)  Sharp\";"	\
-	"echo \"  3 == LQ036Q1DA01     TFT QVGA    (3.6)   Sharp w/ASIC\";" \
-	"echo \"  5 == LQ064D343       TFT VGA     (6.4)   Sharp\";"	\
-	"echo \"  7 == LQ10D368        TFT VGA     (10.4)  Sharp\";"	\
-	"echo \" 15 == LQ043T1DG01     TFT WQVGA   (4.3)   Sharp (DEFAULT)\";" \
-	"echo \" vga[-dvi or -hdmi]    LCD VGA     640x480\";"          \
-	"echo \" svga[-dvi or -hdmi]   LCD SVGA    800x600\";"          \
-	"echo \" xga[-dvi or -hdmi]    LCD XGA     1024x768\";"         \
-	"echo \" 720p[-dvi or -hdmi]   LCD 720P    1280x720\";"         \
-	"echo \"Defaulting to 4.3 LCD panel (display=15).\";"		\
-	"setenv display 15;"						\
 	"setenv preboot;"						\
 	"nand unlock;"							\
 	"saveenv;"
