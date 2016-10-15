@@ -626,10 +626,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 
-	do_fixup_by_compat_u32(blob, "fsl,pq3-localbus",
-		"bus-frequency", gd->arch.lbc_clk, 1);
-	do_fixup_by_compat_u32(blob, "fsl,elbc",
-		"bus-frequency", gd->arch.lbc_clk, 1);
 #ifdef CONFIG_QE
 	ft_qe_setup(blob);
 	ft_fixup_qe_snum(blob);

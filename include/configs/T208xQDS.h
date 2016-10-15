@@ -46,11 +46,6 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
-#if defined(CONFIG_PPC_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_rcw.cfg
-#endif
 
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
@@ -74,6 +69,11 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_nand_rcw.cfg
+#endif
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
@@ -88,6 +88,11 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_spi_rcw.cfg
+#endif
 #define CONFIG_SPL_SPI_BOOT
 #endif
 
@@ -101,6 +106,11 @@
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
+#endif
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_sd_rcw.cfg
 #endif
 #define CONFIG_SPL_MMC_BOOT
 #endif

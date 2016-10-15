@@ -24,24 +24,6 @@
 		$(SRCTREE)/board/freescale/t104xrdb/t104x_pbi_sb.cfg
 #endif
 
-#ifdef CONFIG_T1040RDB
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1040_rcw.cfg
-#endif
-#ifdef CONFIG_T1042RDB_PI
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_rcw.cfg
-#endif
-#ifdef CONFIG_T1042RDB
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_rcw.cfg
-#endif
-#ifdef CONFIG_T1040D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040d4_rcw.cfg
-#endif
-#ifdef CONFIG_T1042D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
-#endif
-
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_FSL_LAW                 /* Use common FSL init code */
@@ -74,6 +56,26 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#ifdef CONFIG_T1040RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040_nand_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB_PI
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_nand_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_nand_rcw.cfg
+#endif
+#ifdef CONFIG_T1040D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040d4_nand_rcw.cfg
+#endif
+#ifdef CONFIG_T1042D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
+#endif
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
@@ -88,6 +90,26 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
+#ifdef CONFIG_T1040RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040_spi_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB_PI
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_spi_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_spi_rcw.cfg
+#endif
+#ifdef CONFIG_T1040D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040d4_spi_rcw.cfg
+#endif
+#ifdef CONFIG_T1042D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
+#endif
 #define CONFIG_SPL_SPI_BOOT
 #endif
 
@@ -101,6 +123,26 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
+#endif
+#ifdef CONFIG_T1040RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040_sd_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB_PI
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_sd_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042_sd_rcw.cfg
+#endif
+#ifdef CONFIG_T1040D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1040d4_sd_rcw.cfg
+#endif
+#ifdef CONFIG_T1042D4RDB
+#define CONFIG_SYS_FSL_PBL_RCW \
+$(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 #define CONFIG_SPL_MMC_BOOT
 #endif

@@ -39,7 +39,6 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xrdb/t2080_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_rcw.cfg
 
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
@@ -63,6 +62,7 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT  "arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_nand_rcw.cfg
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
@@ -77,6 +77,7 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_spi_rcw.cfg
 #define CONFIG_SPL_SPI_BOOT
 #endif
 
@@ -91,6 +92,7 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_sd_rcw.cfg
 #define CONFIG_SPL_MMC_BOOT
 #endif
 
