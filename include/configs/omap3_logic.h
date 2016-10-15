@@ -189,6 +189,12 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
+	"nfsargs=run setconsole; setenv serverip ${tftpserver}; " \
+		"setenv bootargs console=${console} root=/dev/nfs " \
+		"nfsroot=${nfsrootpath} " \
+		"ip=${ipaddr}:${tftpserver}:${gatewayip}:${netmask}::eth0:off\0" \
+	"nfsrootpath=/opt/nfs-exports/omap\0" \
+	"autoload=no\0" \
 	"fdtaddr=0x86000000\0" \
 	"loadfdtimage=mmc rescan; " \
 		"fatload mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
@@ -213,14 +219,21 @@
 		"run loadzimage; " \
 		"run loadramdisk; " \
 		"run loadfdtimage; " \
-		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr}\0; " \
+		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr};\0" \
 	"tftpboot=echo 'Booting kernel/ramdisk rootfs from tftp...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
-		"tftpboot ${loadaddr} ${uimage}; " \
+		"tftpboot ${loadaddr} ${zimage}; " \
 		"tftpboot ${ramdiskaddr} ${ramdiskimage}; " \
-		"bootm ${loadaddr} ${ramdiskaddr}\0"
+		"bootm ${loadaddr} ${ramdiskaddr}\0" \
+	"tftpbootz=echo 'Booting kernel NFS rootfs...'; " \
+		"dhcp;" \
+		"run nfsargs;" \
+		"run common_bootargs;" \
+		"run dump_bootargs;" \
+		"tftpboot $loadaddr zImage;" \
+		"bootz $loadaddr\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run autoboot"
