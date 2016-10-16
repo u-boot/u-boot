@@ -532,15 +532,15 @@ static cmd_tbl_t cmd_cros_tpm_sub[] = {
 static int do_tpmtest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
+	int i;
 
 	printf("argc = %d, argv = ", argc);
-	do {
-		int i = 0;
 
-		for (i = 0; i < argc; i++)
-			printf(" %s", argv[i]);
-			printf("\n------\n");
-		} while (0);
+	for (i = 0; i < argc; i++)
+		printf(" %s", argv[i]);
+
+	printf("\n------\n");
+
 	argc--;
 	argv++;
 	c = find_cmd_tbl(argv[0], cmd_cros_tpm_sub,
