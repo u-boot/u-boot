@@ -25,34 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_SPI
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
-}
-#endif
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 17, 0);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 17, 1);
-}
-
-static void board_spi0_hw_init(void)
-{
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 14, 0);
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 15, 0);
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 16, 0);
-
-	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 17, 1);
-
-	at91_periph_clk_enable(ATMEL_ID_SPI0);
-}
-
 static void board_usb_hw_init(void)
 {
 	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 10, 1);
@@ -159,55 +131,6 @@ static void board_gmac_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_GMAC);
 }
 
-static void board_sdhci0_hw_init(void)
-{
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 0, 0);	/* SDMMC0_CK */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 1, 0);	/* SDMMC0_CMD */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 2, 0);	/* SDMMC0_DAT0 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 3, 0);	/* SDMMC0_DAT1 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 4, 0);	/* SDMMC0_DAT2 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 5, 0);	/* SDMMC0_DAT3 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 6, 0);	/* SDMMC0_DAT4 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 7, 0);	/* SDMMC0_DAT5 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 8, 0);	/* SDMMC0_DAT6 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 9, 0);	/* SDMMC0_DAT7 */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* SDMMC0_RSTN */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* SDMMC0_VDDSEL */
-	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* SDMMC0_CD */
-
-	at91_periph_clk_enable(ATMEL_ID_SDMMC0);
-	at91_enable_periph_generated_clk(ATMEL_ID_SDMMC0,
-					 GCK_CSS_UPLL_CLK, 1);
-}
-
-static void board_sdhci1_hw_init(void)
-{
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 18, 0);	/* SDMMC1_DAT0 */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 19, 0);	/* SDMMC1_DAT1 */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 20, 0);	/* SDMMC1_DAT2 */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 21, 0);	/* SDMMC1_DAT3 */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 22, 0);	/* SDMMC1_CK */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 27, 0);	/* SDMMC1_RSTN */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 28, 0);	/* SDMMC1_CMD */
-	atmel_pio4_set_e_periph(AT91_PIO_PORTA, 30, 0);	/* SDMMC1_CD */
-
-	at91_periph_clk_enable(ATMEL_ID_SDMMC1);
-	at91_enable_periph_generated_clk(ATMEL_ID_SDMMC1,
-					 GCK_CSS_UPLL_CLK, 1);
-}
-
-int board_mmc_init(bd_t *bis)
-{
-#ifdef CONFIG_ATMEL_SDHCI0
-	atmel_sdhci_init((void *)ATMEL_BASE_SDMMC0, ATMEL_ID_SDMMC0);
-#endif
-#ifdef CONFIG_ATMEL_SDHCI1
-	atmel_sdhci_init((void *)ATMEL_BASE_SDMMC1, ATMEL_ID_SDMMC1);
-#endif
-
-	return 0;
-}
-
 static void board_uart1_hw_init(void)
 {
 	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, 1);	/* URXD1 */
@@ -218,11 +141,6 @@ static void board_uart1_hw_init(void)
 
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOB);
-	at91_periph_clk_enable(ATMEL_ID_PIOC);
-	at91_periph_clk_enable(ATMEL_ID_PIOD);
-
 	board_uart1_hw_init();
 
 	return 0;
@@ -233,17 +151,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-#ifdef CONFIG_ATMEL_SPI
-	board_spi0_hw_init();
-#endif
-#ifdef CONFIG_ATMEL_SDHCI
-#ifdef CONFIG_ATMEL_SDHCI0
-	board_sdhci0_hw_init();
-#endif
-#ifdef CONFIG_ATMEL_SDHCI1
-	board_sdhci1_hw_init();
-#endif
-#endif
 #ifdef CONFIG_MACB
 	board_gmac_hw_init();
 #endif
@@ -289,17 +196,6 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_SERIALFLASH
-	board_spi0_hw_init();
-#endif
-#ifdef CONFIG_ATMEL_SDHCI
-#ifdef CONFIG_ATMEL_SDHCI0
-	board_sdhci0_hw_init();
-#endif
-#ifdef CONFIG_ATMEL_SDHCI1
-	board_sdhci1_hw_init();
-#endif
-#endif
 }
 
 static void ddrc_conf(struct atmel_mpddrc_config *ddrc)
