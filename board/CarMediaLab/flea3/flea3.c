@@ -19,6 +19,9 @@
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <netdev.h>
+#include <fdt_support.h>
+#include <mtd_node.h>
+#include <jffs2/load_kernel.h>
 
 #ifndef CONFIG_BOARD_EARLY_INIT_F
 #error "CONFIG_BOARD_EARLY_INIT_F must be set for this board"
@@ -275,4 +278,25 @@ u32 get_board_rev(void)
 	int rev = 0;
 
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
+}
+
+/*
+ * called prior to booting kernel or by 'fdt boardsetup' command
+ *
+ */
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	struct node_info nodes[] = {
+		{ "physmap-flash.0", MTD_DEV_TYPE_NOR, },  /* NOR flash */
+		{ "mxc_nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
+	};
+
+	if (getenv("fdt_noauto")) {
+		puts("   Skiping ft_board_setup (fdt_noauto defined)\n");
+		return 0;
+	}
+
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+
+	return 0;
 }
