@@ -296,7 +296,6 @@ extern unsigned long get_clock_freq(void);
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_MPC85XX_PCI2
 
 #undef CONFIG_EEPRO100

@@ -492,9 +492,6 @@
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 /*PCIE video card used*/
 #define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE3_IO_VIRT
 

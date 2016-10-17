@@ -648,7 +648,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000      /* 64k */
 #endif
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */

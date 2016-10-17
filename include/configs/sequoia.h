@@ -272,7 +272,6 @@
  */
 /* General PCI */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	0	/* to avoid problems with PNP	*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CONFIG_SYS_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to	*/

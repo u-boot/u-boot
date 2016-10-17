@@ -244,7 +244,6 @@
 #define CONFIG_SYS_PCI1_IO_SIZE	0x01000000	/* 16M			*/
 
 #if defined(CONFIG_PCI)
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #endif	/* CONFIG_PCI */
 

@@ -103,8 +103,6 @@
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xC0010000
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif

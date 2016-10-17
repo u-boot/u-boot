@@ -399,8 +399,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_PCI2_IO_SIZE		0x01000000	/* 16M */
 #endif
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #ifndef CONFIG_PCI_PNP
     #define PCI_ENET0_IOADDR	0x00000000
     #define PCI_ENET0_MEMADDR	CONFIG_SYS_PCI2_MEM_BASE

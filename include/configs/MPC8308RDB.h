@@ -369,8 +369,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
-
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #define CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES 1
 

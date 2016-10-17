@@ -266,7 +266,6 @@
 
 #ifndef VME_CADDY2
 #endif
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP

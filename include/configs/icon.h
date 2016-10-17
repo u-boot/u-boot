@@ -207,7 +207,6 @@
  */
 /* General PCI */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_PCI_BOOTDELAY	1000	/* enable pci bootdelay variable*/

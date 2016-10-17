@@ -326,8 +326,6 @@
 #define CONFIG_SYS_PCI_IO_PHYS		0x84000000
 #define CONFIG_SYS_PCI_IO_SIZE		0x01000000	/* 16M */
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 #endif

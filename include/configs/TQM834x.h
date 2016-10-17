@@ -228,7 +228,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 /* PCI1 host bridge */

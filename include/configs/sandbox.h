@@ -35,7 +35,6 @@
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_CMD_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_CMD_IO
 
 #define CONFIG_FS_FAT

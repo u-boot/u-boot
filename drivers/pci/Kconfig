@@ -26,6 +26,13 @@ config DM_PCI_COMPAT
 	  measure when porting a board to use driver model for PCI. Once the
 	  board is fully supported, this option should be disabled.
 
+config PCI_PNP
+	bool "Enable Plug & Play support for PCI"
+	depends on PCI || DM_PCI
+	default y
+	help
+	  Enable PCI memory and I/O space resource allocation and assignment.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI

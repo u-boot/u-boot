@@ -229,7 +229,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 #if defined(CONFIG_PCI)
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 

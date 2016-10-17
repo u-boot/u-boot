@@ -87,7 +87,6 @@
 #define CONFIG_SYS_PCIE_MEM_SIZE        0x80000000      /* 128M */
 
 #define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 

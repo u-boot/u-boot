@@ -198,8 +198,6 @@
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif

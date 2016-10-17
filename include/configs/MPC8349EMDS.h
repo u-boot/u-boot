@@ -390,7 +390,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100

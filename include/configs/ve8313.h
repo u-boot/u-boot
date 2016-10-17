@@ -268,7 +268,6 @@
 #define CONFIG_SYS_PCI1_IO_PHYS		0xE2000000
 #define CONFIG_SYS_PCI1_IO_SIZE		0x00100000	/* 1M */
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif
 

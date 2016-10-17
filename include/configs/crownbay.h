@@ -19,8 +19,6 @@
 
 #define CONFIG_SMSC_LPC47M
 
-#define CONFIG_PCI_PNP
-
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd,usbkbd\0" \
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"

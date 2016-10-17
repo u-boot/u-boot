@@ -330,8 +330,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 

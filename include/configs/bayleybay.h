@@ -16,8 +16,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_ARCH_MISC_INIT
 
-#define CONFIG_PCI_PNP
-
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
