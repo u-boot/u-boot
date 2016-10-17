@@ -144,8 +144,10 @@ static void sgmii_configure_repeater(int serdes_port)
 
 		mdelay(10);
 
-		if ((value & 0xfff) == 0x40f) {
+		if ((value & 0xfff) == 0x401) {
 			printf("DPMAC %d:PHY is ..... Configured\n", dpmac_id);
+			miiphy_write(dev[mii_bus], riser_phy_addr[dpmac],
+				     0x1f, 0);
 			continue;
 		}
 
@@ -181,28 +183,29 @@ static void sgmii_configure_repeater(int serdes_port)
 				if (ret > 0)
 					goto error;
 
-				mdelay(1);
+				mdelay(100);
 				ret = miiphy_read(dev[mii_bus],
 						  riser_phy_addr[dpmac],
 						  0x11, &value);
 				if (ret > 0)
 					goto error;
-				mdelay(10);
 
-				if ((value & 0xfff) == 0x40f) {
+				if ((value & 0xfff) == 0x401) {
 					printf("DPMAC %d :PHY is configured ",
 					       dpmac_id);
 					printf("after setting repeater 0x%x\n",
 					       value);
 					i = 5;
 					j = 5;
-				} else
+				} else {
 					printf("DPMAC %d :PHY is failed to ",
 					       dpmac_id);
 					printf("configure the repeater 0x%x\n",
 					       value);
 				}
+			}
 		}
+		miiphy_write(dev[mii_bus], riser_phy_addr[dpmac], 0x1f, 0);
 	}
 error:
 	if (ret)
