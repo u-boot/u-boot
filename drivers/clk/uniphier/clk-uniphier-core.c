@@ -6,11 +6,11 @@
  */
 
 #include <common.h>
+#include <clk-uclass.h>
+#include <dm/device.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
-#include <clk-uclass.h>
-#include <dm/device.h>
 
 #include "clk-uniphier.h"
 
@@ -18,14 +18,116 @@
  * struct uniphier_clk_priv - private data for UniPhier clock driver
  *
  * @base: base address of the clock provider
- * @socdata: SoC specific data
+ * @data: SoC specific data
  */
 struct uniphier_clk_priv {
 	void __iomem *base;
-	const struct uniphier_clk_soc_data *socdata;
+	const struct uniphier_clk_data *data;
 };
 
-int uniphier_clk_probe(struct udevice *dev)
+static int uniphier_clk_enable(struct clk *clk)
+{
+	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
+	unsigned long id = clk->id;
+	const struct uniphier_clk_gate_data *p;
+
+	for (p = priv->data->gate; p->id != UNIPHIER_CLK_ID_END; p++) {
+		u32 val;
+
+		if (p->id != id)
+			continue;
+
+		val = readl(priv->base + p->reg);
+		val |= BIT(p->bit);
+		writel(val, priv->base + p->reg);
+
+		return 0;
+	}
+
+	dev_err(priv->dev, "clk_id=%lu was not handled\n", id);
+	return -EINVAL;
+}
+
+static const struct uniphier_clk_mux_data *
+uniphier_clk_get_mux_data(struct uniphier_clk_priv *priv, unsigned long id)
+{
+	const struct uniphier_clk_mux_data *p;
+
+	for (p = priv->data->mux; p->id != UNIPHIER_CLK_ID_END; p++) {
+		if (p->id == id)
+			return p;
+	}
+
+	return NULL;
+}
+
+static ulong uniphier_clk_get_rate(struct clk *clk)
+{
+	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct uniphier_clk_mux_data *mux;
+	u32 val;
+	int i;
+
+	mux = uniphier_clk_get_mux_data(priv, clk->id);
+	if (!mux)
+		return 0;
+
+	if (!mux->nr_muxs)		/* fixed-rate */
+		return mux->rates[0];
+
+	val = readl(priv->base + mux->reg);
+
+	for (i = 0; i < mux->nr_muxs; i++)
+		if ((mux->masks[i] & val) == mux->vals[i])
+			return mux->rates[i];
+
+	return -EINVAL;
+}
+
+static ulong uniphier_clk_set_rate(struct clk *clk, ulong rate)
+{
+	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct uniphier_clk_mux_data *mux;
+	u32 val;
+	int i, best_rate_id = -1;
+	ulong best_rate = 0;
+
+	mux = uniphier_clk_get_mux_data(priv, clk->id);
+	if (!mux)
+		return 0;
+
+	if (!mux->nr_muxs)		/* fixed-rate */
+		return mux->rates[0];
+
+	/* first, decide the best match rate */
+	for (i = 0; i < mux->nr_muxs; i++) {
+		if (mux->rates[i] > best_rate && mux->rates[i] <= rate) {
+			best_rate = mux->rates[i];
+			best_rate_id = i;
+		}
+	}
+
+	if (best_rate_id < 0)
+		return -EINVAL;
+
+	val = readl(priv->base + mux->reg);
+	val &= ~mux->masks[best_rate_id];
+	val |= mux->vals[best_rate_id];
+	writel(val, priv->base + mux->reg);
+
+	debug("%s: requested rate = %lu, set rate = %lu\n", __func__,
+	      rate, best_rate);
+
+	return best_rate;
+}
+
+const struct clk_ops uniphier_clk_ops = {
+	.enable = uniphier_clk_enable,
+	.get_rate = uniphier_clk_get_rate,
+	.set_rate = uniphier_clk_set_rate,
+};
+
+static int uniphier_clk_probe(struct udevice *dev)
 {
 	struct uniphier_clk_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
@@ -38,124 +140,10 @@ int uniphier_clk_probe(struct udevice *dev)
 	if (!priv->base)
 		return -ENOMEM;
 
-	priv->socdata = (void *)dev_get_driver_data(dev);
+	priv->data = (void *)dev_get_driver_data(dev);
 
 	return 0;
 }
-
-static int uniphier_clk_enable(struct clk *clk)
-{
-	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct uniphier_clk_gate_data *gate = priv->socdata->gate;
-	unsigned int nr_gate = priv->socdata->nr_gate;
-	void __iomem *reg;
-	u32 mask, data, tmp;
-	int i;
-
-	for (i = 0; i < nr_gate; i++) {
-		if (gate[i].index != clk->id)
-			continue;
-
-		reg = priv->base + gate[i].reg;
-		mask = gate[i].mask;
-		data = gate[i].data & mask;
-
-		tmp = readl(reg);
-		tmp &= ~mask;
-		tmp |= data & mask;
-		debug("%s: %p: %08x\n", __func__, reg, tmp);
-		writel(tmp, reg);
-	}
-
-	return 0;
-}
-
-static ulong uniphier_clk_get_rate(struct clk *clk)
-{
-	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
-	unsigned int nr_rdata = priv->socdata->nr_rate;
-	void __iomem *reg;
-	u32 mask, data;
-	ulong matched_rate = 0;
-	int i;
-
-	for (i = 0; i < nr_rdata; i++) {
-		if (rdata[i].index != clk->id)
-			continue;
-
-		if (rdata[i].reg == UNIPHIER_CLK_RATE_IS_FIXED)
-			return rdata[i].rate;
-
-		reg = priv->base + rdata[i].reg;
-		mask = rdata[i].mask;
-		data = rdata[i].data & mask;
-		if ((readl(reg) & mask) == data) {
-			if (matched_rate && rdata[i].rate != matched_rate) {
-				printf("failed to get clk rate for insane register values\n");
-				return -EINVAL;
-			}
-			matched_rate = rdata[i].rate;
-		}
-	}
-
-	debug("%s: rate = %lu\n", __func__, matched_rate);
-
-	return matched_rate;
-}
-
-static ulong uniphier_clk_set_rate(struct clk *clk, ulong rate)
-{
-	struct uniphier_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct uniphier_clk_rate_data *rdata = priv->socdata->rate;
-	unsigned int nr_rdata = priv->socdata->nr_rate;
-	void __iomem *reg;
-	u32 mask, data, tmp;
-	ulong best_rate = 0;
-	int i;
-
-	/* first, decide the best match rate */
-	for (i = 0; i < nr_rdata; i++) {
-		if (rdata[i].index != clk->id)
-			continue;
-
-		if (rdata[i].reg == UNIPHIER_CLK_RATE_IS_FIXED)
-			return 0;
-
-		if (rdata[i].rate > best_rate && rdata[i].rate <= rate)
-			best_rate = rdata[i].rate;
-	}
-
-	if (!best_rate)
-		return -ENODEV;
-
-	debug("%s: requested rate = %lu, set rate = %lu\n", __func__,
-	      rate, best_rate);
-
-	/* second, really set registers */
-	for (i = 0; i < nr_rdata; i++) {
-		if (rdata[i].index != clk->id || rdata[i].rate != best_rate)
-			continue;
-
-		reg = priv->base + rdata[i].reg;
-		mask = rdata[i].mask;
-		data = rdata[i].data & mask;
-
-		tmp = readl(reg);
-		tmp &= ~mask;
-		tmp |= data;
-		debug("%s: %p: %08x\n", __func__, reg, tmp);
-		writel(tmp, reg);
-	}
-
-	return best_rate;
-}
-
-const struct clk_ops uniphier_clk_ops = {
-	.enable = uniphier_clk_enable,
-	.get_rate = uniphier_clk_get_rate,
-	.set_rate = uniphier_clk_set_rate,
-};
 
 static const struct udevice_id uniphier_clk_match[] = {
 	{
