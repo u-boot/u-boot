@@ -122,6 +122,8 @@ static void setup_iomux_fec(void)
 		MX35_PAD_FEC_TDATA2__FEC_TDATA_2,
 		MX35_PAD_FEC_RDATA3__FEC_RDATA_3,
 		MX35_PAD_FEC_TDATA3__FEC_TDATA_3,
+		/* GPIO used to power off ethernet */
+		MX35_PAD_STXFS4__GPIO2_31,
 	};
 
 	/* setup pins for FEC */
@@ -182,6 +184,11 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	/* Enable power for ethernet */
+	gpio_direction_output(63, 0);
+
+	udelay(2000);
 
 	return 0;
 }
