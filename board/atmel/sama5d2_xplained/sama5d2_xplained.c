@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <atmel_hlcdc.h>
+#include <debug_uart.h>
 #include <dm.h>
 #include <i2c.h>
 #include <lcd.h>
@@ -141,12 +142,25 @@ static void board_uart1_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_UART1);
 }
 
-int board_early_init_f(void)
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
 {
 	board_uart1_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#else
+	board_uart1_hw_init();
+#endif
 
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
