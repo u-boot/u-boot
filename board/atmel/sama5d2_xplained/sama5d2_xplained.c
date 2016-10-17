@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <atmel_hlcdc.h>
+#include <dm.h>
+#include <i2c.h>
 #include <lcd.h>
 #include <mmc.h>
 #include <net.h>
@@ -191,6 +193,55 @@ int board_eth_init(bd_t *bis)
 
 	return rc;
 }
+
+#ifdef CONFIG_CMD_I2C
+static int set_ethaddr_from_eeprom(void)
+{
+	const int ETH_ADDR_LEN = 6;
+	unsigned char ethaddr[ETH_ADDR_LEN];
+	const char *ETHADDR_NAME = "ethaddr";
+	struct udevice *bus, *dev;
+
+	if (getenv(ETHADDR_NAME))
+		return 0;
+
+	if (uclass_get_device_by_seq(UCLASS_I2C, 1, &bus)) {
+		printf("Cannot find I2C bus 1\n");
+		return -1;
+	}
+
+	if (dm_i2c_probe(bus, AT24MAC_ADDR, 0, &dev)) {
+		printf("Failed to probe I2C chip\n");
+		return -1;
+	}
+
+	if (dm_i2c_read(dev, AT24MAC_REG, ethaddr, ETH_ADDR_LEN)) {
+		printf("Failed to read ethernet address from EEPROM\n");
+		return -1;
+	}
+
+	if (!is_valid_ethaddr(ethaddr)) {
+		printf("The ethernet address read from EEPROM is not valid!\n");
+		return -1;
+	}
+
+	return eth_setenv_enetaddr(ETHADDR_NAME, ethaddr);
+}
+#else
+static int set_ethaddr_from_eeprom(void)
+{
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	set_ethaddr_from_eeprom();
+
+	return 0;
+}
+#endif
 
 /* SPL */
 #ifdef CONFIG_SPL_BUILD

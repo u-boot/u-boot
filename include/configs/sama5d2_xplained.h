@@ -15,6 +15,8 @@
 
 #include "at91-sama5_common.h"
 
+#define CONFIG_MISC_INIT_R
+
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS
@@ -53,6 +55,10 @@
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
 #define CONFIG_DOS_PARTITION
 #endif
+
+/* I2C */
+#define AT24MAC_ADDR		0x5c
+#define AT24MAC_REG		0x9a
 
 /* Ethernet Hardware */
 #define CONFIG_MACB
