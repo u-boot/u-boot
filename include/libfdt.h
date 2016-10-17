@@ -79,8 +79,10 @@
 	 * (e.g. missing a leading / for a function which requires an
 	 * absolute path) */
 #define FDT_ERR_BADPHANDLE	6
-	/* FDT_ERR_BADPHANDLE: Function was passed an invalid phandle
-	 * value.  phandle values of 0 and -1 are not permitted. */
+	/* FDT_ERR_BADPHANDLE: Function was passed an invalid phandle.
+	 * This can be caused either by an invalid phandle property
+	 * length, or the phandle value was either 0 or -1, which are
+	 * not permitted. */
 #define FDT_ERR_BADSTATE	7
 	/* FDT_ERR_BADSTATE: Function was passed an incomplete device
 	 * tree created by the sequential-write functions, which is
@@ -126,12 +128,21 @@
 	 * value. For example: a property expected to contain a string list
 	 * is not NUL-terminated within the length of its value. */
 
-#define FDT_ERR_TOODEEP		16
+#define FDT_ERR_BADOVERLAY	16
+	/* FDT_ERR_BADOVERLAY: The device tree overlay, while
+	 * correctly structured, cannot be applied due to some
+	 * unexpected or missing value, property or node. */
+
+#define FDT_ERR_NOPHANDLES	17
+	/* FDT_ERR_NOPHANDLES: The device tree doesn't have any
+	 * phandle available anymore without causing an overflow */
+
+#define FDT_ERR_TOODEEP	18
 	/* FDT_ERR_TOODEEP: The depth of a node has exceeded the internal
 	 * libfdt limit. This can happen if you have more than
 	 * FDT_MAX_DEPTH nested nodes. */
 
-#define FDT_ERR_MAX		16
+#define FDT_ERR_MAX		18
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
@@ -1789,8 +1800,9 @@ int fdt_del_node(void *fdt, int nodeoffset);
  *	-FDT_ERR_NOSPACE, there's not enough space in the base device tree
  *	-FDT_ERR_NOTFOUND, the overlay points to some inexistant nodes or
  *		properties in the base DT
- *	-FDT_ERR_BADPHANDLE, the phandles in the overlay do not have the right
- *		magic
+ *	-FDT_ERR_BADPHANDLE,
+ *	-FDT_ERR_BADOVERLAY,
+ *	-FDT_ERR_NOPHANDLES,
  *	-FDT_ERR_INTERNAL,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_BADMAGIC,
