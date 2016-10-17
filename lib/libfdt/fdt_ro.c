@@ -576,7 +576,7 @@ int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
 	if (!list)
-		return -length;
+		return length;
 
 	len = strlen(string) + 1;
 	end = list + length;
