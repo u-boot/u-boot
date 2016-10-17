@@ -25,10 +25,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_DM_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	return bus == 0 && cs == 0;
 }
+#endif
 
 void spi_cs_activate(struct spi_slave *slave)
 {
