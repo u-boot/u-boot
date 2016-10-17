@@ -306,12 +306,12 @@ static int pinctrl_generic_set_state_subnode(struct udevice *dev,
 	const char *name;
 	int strings_count, selector, i, ret;
 
-	strings_count =  fdt_stringlist_count(fdt, node, subnode_target_type);
+	strings_count = fdt_stringlist_count(fdt, node, subnode_target_type);
 	if (strings_count < 0) {
 		subnode_target_type = "groups";
 		is_group = true;
-		strings_count =  fdt_stringlist_count(fdt, node,
-						  subnode_target_type);
+		strings_count = fdt_stringlist_count(fdt, node,
+						     subnode_target_type);
 		if (strings_count < 0) {
 			/* skip this node; may contain config child nodes */
 			return 0;

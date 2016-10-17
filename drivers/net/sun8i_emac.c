@@ -457,7 +457,7 @@ static int parse_phy_pins(struct udevice *dev)
 		int pin;
 
 		pin_name = fdt_stringlist_get(gd->fdt_blob, offset,
-					 "allwinner,pins", i, NULL);
+					      "allwinner,pins", i, NULL);
 		if (!pin_name)
 			break;
 		if (pin_name[0] != 'P')

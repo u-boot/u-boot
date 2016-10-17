@@ -82,7 +82,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	group->name = fdt_get_name(fdt, node, &len);
 
-	len =  fdt_stringlist_count(fdt, node, "nvidia,lanes");
+	len = fdt_stringlist_count(fdt, node, "nvidia,lanes");
 	if (len < 0) {
 		error("failed to parse \"nvidia,lanes\" property");
 		return -EINVAL;

@@ -80,7 +80,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	 * refer to the following document for the pinctrl bindings
 	 * linux/Documentation/devicetree/bindings/pinctrl/samsung-pinctrl.txt
 	 */
-	count =  fdt_stringlist_count(fdt, node, "samsung,pins");
+	count = fdt_stringlist_count(fdt, node, "samsung,pins");
 	if (count <= 0)
 		return -EINVAL;
 

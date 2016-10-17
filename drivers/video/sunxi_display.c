@@ -1563,7 +1563,7 @@ int sunxi_simplefb_setup(void *blob)
 					       "allwinner,simple-framebuffer");
 	while (offset >= 0) {
 		ret = fdt_stringlist_search(blob, offset, "allwinner,pipeline",
-				      pipeline);
+					    pipeline);
 		if (ret == 0)
 			break;
 		offset = fdt_node_offset_by_compatible(blob, offset,
