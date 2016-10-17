@@ -431,6 +431,9 @@ def setup_buildconfigspec(item):
         if not ubconfig.buildconfig.get('config_' + option.lower(), None):
             pytest.skip('.config feature not enabled')
 
+def start_test_section(item):
+    anchors[item.name] = log.start_section(item.name)
+
 def pytest_runtest_setup(item):
     """pytest hook: Configure (set up) a test item.
 
@@ -444,7 +447,7 @@ def pytest_runtest_setup(item):
         Nothing.
     """
 
-    anchors[item.name] = log.start_section(item.name)
+    start_test_section(item)
     setup_boardspec(item)
     setup_buildconfigspec(item)
 
@@ -463,6 +466,14 @@ def pytest_runtest_protocol(item, nextitem):
     """
 
     reports = runtestprotocol(item, nextitem=nextitem)
+
+    # In pytest 3, runtestprotocol() may not call pytest_runtest_setup() if
+    # the test is skipped. That call is required to create the test's section
+    # in the log file. The call to log.end_section() requires that the log
+    # contain a section for this test. Create a section for the test if it
+    # doesn't already exist.
+    if not item.name in anchors:
+        start_test_section(item)
 
     failure_cleanup = False
     test_list = tests_passed
