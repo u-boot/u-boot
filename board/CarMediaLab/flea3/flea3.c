@@ -30,18 +30,6 @@
 #define CCM_CCMR_CONFIG		0x003F4208
 
 #define ESDCTL_DDR2_CONFIG	0x007FFC3F
-#define ESDCTL_0x92220000	0x92220000
-#define ESDCTL_0xA2220000	0xA2220000
-#define ESDCTL_0xB2220000	0xB2220000
-#define ESDCTL_0x82228080	0x82228080
-#define ESDCTL_DDR2_EMR2	0x04000000
-#define ESDCTL_DDR2_EMR3	0x06000000
-#define ESDCTL_PRECHARGE	0x00000400
-#define ESDCTL_DDR2_EN_DLL	0x02000400
-#define ESDCTL_DDR2_RESET_DLL	0x00000333
-#define ESDCTL_DDR2_MR		0x00000233
-#define ESDCTL_DDR2_OCD_DEFAULT 0x02000780
-#define ESDCTL_DELAY_LINE5	0x00F49F00
 
 static inline void dram_wait(unsigned int count)
 {
@@ -61,83 +49,6 @@ int dram_init(void)
 	return 0;
 }
 
-static void board_setup_sdram_bank(u32 start_address)
-
-{
-	struct esdc_regs *esdc = (struct esdc_regs *)ESDCTL_BASE_ADDR;
-	u32 *cfg_reg, *ctl_reg;
-	u32 val;
-
-	switch (start_address) {
-	case CSD0_BASE_ADDR:
-		cfg_reg = &esdc->esdcfg0;
-		ctl_reg = &esdc->esdctl0;
-		break;
-	case CSD1_BASE_ADDR:
-		cfg_reg = &esdc->esdcfg1;
-		ctl_reg = &esdc->esdctl1;
-		break;
-	default:
-		return;
-	}
-
-	/* Initialize MISC register for DDR2 */
-	val = ESDC_MISC_RST | ESDC_MISC_MDDR_EN | ESDC_MISC_MDDR_DL_RST |
-		ESDC_MISC_DDR_EN | ESDC_MISC_DDR2_EN;
-	writel(val, &esdc->esdmisc);
-	val &= ~(ESDC_MISC_RST | ESDC_MISC_MDDR_DL_RST);
-	writel(val, &esdc->esdmisc);
-
-	/*
-	 * according to DDR2 specs, wait a while before
-	 * the PRECHARGE_ALL command
-	 */
-	dram_wait(0x20000);
-
-	/* Load DDR2 config and timing */
-	writel(ESDCTL_DDR2_CONFIG, cfg_reg);
-
-	/* Precharge ALL */
-	writel(ESDCTL_0x92220000,
-		ctl_reg);
-	writel(0xda, start_address + ESDCTL_PRECHARGE);
-
-	/* Load mode */
-	writel(ESDCTL_0xB2220000,
-		ctl_reg);
-	writeb(0xda, start_address + ESDCTL_DDR2_EMR2); /* EMRS2 */
-	writeb(0xda, start_address + ESDCTL_DDR2_EMR3); /* EMRS3 */
-	writeb(0xda, start_address + ESDCTL_DDR2_EN_DLL); /* Enable DLL */
-	writeb(0xda, start_address + ESDCTL_DDR2_RESET_DLL); /* Reset DLL */
-
-	/* Precharge ALL */
-	writel(ESDCTL_0x92220000,
-		ctl_reg);
-	writel(0xda, start_address + ESDCTL_PRECHARGE);
-
-	/* Set mode auto refresh : at least two refresh are required */
-	writel(ESDCTL_0xA2220000,
-		ctl_reg);
-	writel(0xda, start_address);
-	writel(0xda, start_address);
-
-	writel(ESDCTL_0xB2220000,
-		ctl_reg);
-	writeb(0xda, start_address + ESDCTL_DDR2_MR);
-	writeb(0xda, start_address + ESDCTL_DDR2_OCD_DEFAULT);
-
-	/* OCD mode exit */
-	writeb(0xda, start_address + ESDCTL_DDR2_EN_DLL); /* Enable DLL */
-
-	/* Set normal mode */
-	writel(ESDCTL_0x82228080,
-		ctl_reg);
-
-	dram_wait(0x20000);
-
-	/* Do not set delay lines, only for MDDR */
-}
-
 static void board_setup_sdram(void)
 {
 	struct esdc_regs *esdc = (struct esdc_regs *)ESDCTL_BASE_ADDR;
@@ -146,7 +57,9 @@ static void board_setup_sdram(void)
 	writel(0x2000, &esdc->esdctl0);
 	writel(0x2000, &esdc->esdctl1);
 
-	board_setup_sdram_bank(CSD0_BASE_ADDR);
+
+	mx3_setup_sdram_bank(CSD0_BASE_ADDR, ESDCTL_DDR2_CONFIG,
+			     13, 10, 2, 0x8080);
 }
 
 static void setup_iomux_uart3(void)
