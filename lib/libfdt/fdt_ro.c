@@ -550,7 +550,7 @@ int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
 	if (!list)
-		return -length;
+		return length;
 
 	end = list + length;
 
