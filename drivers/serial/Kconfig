@@ -296,6 +296,13 @@ config AR933X_UART
 	  tree binding to operate, please refer to the document at
 	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
 
+config ATMEL_USART
+	bool "Atmel USART support"
+	help
+	  Select this to enable USART support for Atmel SoCs. It can be
+	  configured in the device tree, and input clock frequency can
+	  be got from the clk node.
+
 config FSL_LPUART
 	bool "Freescale LPUART support"
 	help
