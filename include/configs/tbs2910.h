@@ -75,7 +75,6 @@
 #define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_IPUV3_CLK		260000000

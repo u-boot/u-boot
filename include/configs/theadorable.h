@@ -96,7 +96,6 @@
 /* Enable LCD and reserve 512KB from top of memory*/
 #define CONFIG_SYS_MEM_TOP_HIDE		0x80000
 
-#define CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP

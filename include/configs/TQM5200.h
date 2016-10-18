@@ -97,7 +97,6 @@
  * Video console
  */
 #ifndef CONFIG_TQM5200S		/* No graphics controller on TQM5200S */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501
 #define CONFIG_VIDEO_SM501_32BPP
 #define CONFIG_CFB_CONSOLE

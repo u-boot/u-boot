@@ -462,7 +462,6 @@
 #define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE1_IO_VIRT
 
 /* video */
-#define CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_BIOSEMU

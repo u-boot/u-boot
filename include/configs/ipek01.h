@@ -43,7 +43,6 @@
 /*
  * Video configuration for LIME GDC
  */
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MB862xx
 #define CONFIG_VIDEO_MB862xx_ACCEL

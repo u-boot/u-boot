@@ -225,7 +225,6 @@
  * Framebuffer
  */
 /* Video console */
-#define CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_CFB_CONSOLE_ANSI	/* Enable ANSI escape codes in framebuffer */
 #define CONFIG_VIDEO_LOGO

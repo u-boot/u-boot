@@ -205,7 +205,6 @@
 #endif
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MXS

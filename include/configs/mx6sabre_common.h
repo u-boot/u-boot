@@ -208,7 +208,6 @@
 #endif
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE

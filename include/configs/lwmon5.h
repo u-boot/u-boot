@@ -354,7 +354,6 @@
 #define CONFIG_PHY1_ADDR	1
 
 /* Video console */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_MB862xx
 #define CONFIG_VIDEO_MB862xx_ACCEL
 #define CONFIG_CFB_CONSOLE

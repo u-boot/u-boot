@@ -434,4 +434,13 @@ config VIDEO_TEGRA124
 
 source "drivers/video/bridge/Kconfig"
 
+config VIDEO
+	bool "Enable legacy video support"
+	depends on !DM_VIDEO
+	help
+	  Define this for video support, without using driver model. Some
+	  drivers use this because they are not yet converted to driver
+	  model. Video drivers typically provide a colour text console and
+	  cursor.
+
 endmenu

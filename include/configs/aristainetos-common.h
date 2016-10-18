@@ -229,7 +229,6 @@
 #define CONFIG_IMX_WATCHDOG
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 /* check this console not needed, after test remove it */
 #define CONFIG_CFB_CONSOLE

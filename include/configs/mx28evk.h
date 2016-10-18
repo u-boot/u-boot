@@ -22,7 +22,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_VIDEO
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

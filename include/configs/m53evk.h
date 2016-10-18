@@ -31,7 +31,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_CMD_SATA
-#define CONFIG_VIDEO
 
 /*
  * Memory configurations

@@ -252,7 +252,6 @@
 #define CONFIG_SPL_SPI_LOAD
 
 /* Display */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_IMX_HDMI

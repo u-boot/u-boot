@@ -118,7 +118,6 @@
 #undef CONFIG_HW_WATCHDOG
 #endif
 
-#define CONFIG_VIDEO
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
 #define CONFIG_CFB_CONSOLE

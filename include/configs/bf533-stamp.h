@@ -204,7 +204,6 @@
 #endif
 
 /* define to enable splash screen support */
-/* #define CONFIG_VIDEO */
 
 /*
  * Pull in common ADI header for remaining command/environment setup

@@ -37,7 +37,6 @@
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /* video */
-#undef CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_CFB_CONSOLE

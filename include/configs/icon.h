@@ -126,7 +126,6 @@
 /*
  * Video options
  */
-#define CONFIG_VIDEO
 
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501

@@ -38,7 +38,6 @@
 #define CONFIG_SYS_DEVICE_NULLDEV
 
 /* Video */
-#define CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_CFB_CONSOLE

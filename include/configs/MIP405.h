@@ -343,7 +343,6 @@
 /************************************************************
  * Video support
  ************************************************************/
-#define CONFIG_VIDEO			/*To enable video controller support */
 #define CONFIG_VIDEO_CT69000
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO

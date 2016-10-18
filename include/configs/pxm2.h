@@ -124,7 +124,6 @@
 #endif
 #endif	/* CONFIG_SPL_BUILD */
 
-#define CONFIG_VIDEO
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
 #define CONFIG_CFB_CONSOLE

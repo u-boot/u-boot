@@ -24,7 +24,6 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA
-#define CONFIG_VIDEO
 
 /* U-Boot general configurations */
 
