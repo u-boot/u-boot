@@ -42,7 +42,6 @@
 #define CONFIG_CONS_SCIF0	1
 #undef  CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress display of console
 								   information at boot */
-#undef  CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 
 #define CONFIG_SYS_MEMTEST_START	(MIGO_R_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))

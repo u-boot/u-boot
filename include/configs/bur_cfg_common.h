@@ -41,7 +41,6 @@
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 
 /* As stated above, the following choices are optional. */
 #define CONFIG_SYS_LONGHELP

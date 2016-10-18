@@ -77,7 +77,6 @@
 
 /* Suppress display of console information at boot */
 #undef  CONFIG_SYS_CONSOLE_INFO_QUIET
-#undef  CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE	(0x88000000)

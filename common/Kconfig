@@ -309,6 +309,15 @@ config SYS_CONSOLE_IS_IN_ENV
 	  environment variables can be updated after boot to change the
 	  input/output devices.
 
+config SYS_CONSOLE_OVERWRITE_ROUTINE
+	bool "Allow board control over console overwriting"
+	help
+	  If this is enabled, and the board-specific function
+	  overwrite_console() returns 1, the stdin, stderr and stdout are
+	  switched to the serial port, else the settings in the environment
+	  are used. If this is not enabled, the console will not be switched
+	  to serial.
+
 config SYS_CONSOLE_ENV_OVERWRITE
 	bool "Update environment variables during console init"
 	help
