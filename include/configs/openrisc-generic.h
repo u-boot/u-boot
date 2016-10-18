@@ -38,7 +38,6 @@
 
 #define CONFIG_BAUDRATE			CONFIG_SYS_UART_BAUD
 #define CONFIG_SYS_BAUDRATE_TABLE	{CONFIG_BAUDRATE}
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 #define CONSOLE_ARG			"console=console=ttyS0,115200\0"
 
 /*

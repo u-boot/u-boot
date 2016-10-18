@@ -101,7 +101,6 @@
 /***************************************************************
  * defines if an overwrite_console function exists
  *************************************************************/
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 /***************************************************************
  * defines if the overwrite_console should be stored in the
  * environment

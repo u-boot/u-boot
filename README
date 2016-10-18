@@ -3527,9 +3527,6 @@ Configuration Settings:
 - CONFIG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
 
-- CONFIG_SYS_CONSOLE_INFO_QUIET
-		Suppress display of console information at boot.
-
 - CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END:
 		Begin and End addresses of the area used by the
 		simple memory test.

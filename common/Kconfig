@@ -327,6 +327,14 @@ config SYS_CONSOLE_ENV_OVERWRITE
 	  start-up (after relocation). This causes the environment to be
 	  updated to match the console devices actually chosen.
 
+config SYS_CONSOLE_INFO_QUIET
+	bool "Don't display the console devices on boot"
+	help
+	  Normally U-Boot displays the current settings for stdout, stdin
+	  and stderr on boot when the post-relocation console is set up.
+	  Enable this option to supress this output. It can be obtained by
+	  calling stdio_print_current_devices() from board code.
+
 endmenu
 
 config SYS_NO_FLASH

@@ -51,7 +51,6 @@
 /* Boot argument buffer size	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1 /* no console @ startup	*/
 #define CONFIG_AUTO_COMPLETE		1 /* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC		1 /* enable mdc/mwc commands	*/
 

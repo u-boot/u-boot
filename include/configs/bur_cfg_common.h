@@ -39,7 +39,6 @@
 #define CONFIG_NETCONSOLE		1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 
 /* As stated above, the following choices are optional. */

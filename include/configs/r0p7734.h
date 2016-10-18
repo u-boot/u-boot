@@ -76,7 +76,6 @@
 #define CONFIG_CONS_SCIF3	1
 
 /* Suppress display of console information at boot */
-#undef  CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE	(0x88000000)

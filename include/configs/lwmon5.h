@@ -426,8 +426,6 @@
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
-
 #ifndef DEBUG
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
 #endif

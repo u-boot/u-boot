@@ -18,7 +18,6 @@
  * SERIAL
  */
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 
 /*
  * CFI Flash

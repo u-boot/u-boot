@@ -72,7 +72,6 @@
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

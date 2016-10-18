@@ -36,7 +36,6 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /*
  * Enable u-boot API for standalone programs.

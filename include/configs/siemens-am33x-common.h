@@ -110,7 +110,6 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SERIAL1                  1
 #define CONFIG_CONS_INDEX               1
 

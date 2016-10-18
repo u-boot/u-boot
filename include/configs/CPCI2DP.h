@@ -74,8 +74,6 @@
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
-
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/

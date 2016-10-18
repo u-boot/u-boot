@@ -246,8 +246,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
-
 /*
  * Various low-level settings
  */

@@ -140,7 +140,6 @@
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_TIMESTAMP			/* Print image info with timestamp */
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
-#define CONFIG_SYS_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
 
 /*
  * FLASH and environment organization

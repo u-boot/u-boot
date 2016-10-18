@@ -48,7 +48,6 @@
 #define CONFIG_SH_GPIO_PFC
 
 /* console */
-#undef  CONFIG_SYS_CONSOLE_INFO_QUIET
 
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		256

@@ -40,7 +40,6 @@
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
-#undef  CONFIG_SYS_CONSOLE_INFO_QUIET			/* Suppress display of console information at boot */
 
 #define CONFIG_SYS_MEMTEST_START	(MS7722SE_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))

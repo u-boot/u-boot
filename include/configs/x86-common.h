@@ -83,8 +83,6 @@
 #endif
 #define CONFIG_PARTITION_UUIDS
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-
 /* x86 GPIOs are accessed through a PCI device */
 #define CONFIG_INTEL_ICH6_GPIO
 

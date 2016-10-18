@@ -73,7 +73,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console info */
 
 #define CONFIG_SYS_MEMTEST_START	0x0100000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x3000000 /* 1 ... 48 MB in DRAM */
