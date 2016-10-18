@@ -103,7 +103,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_STDIO_DEREGISTER	/* needs stdio_deregister */
 
 /* RTC */
 #define CONFIG_RTC_S3C24X0

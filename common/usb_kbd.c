@@ -570,7 +570,7 @@ int drv_usb_kbd_init(void)
 /* Deregister the keyboard. */
 int usb_kbd_deregister(int force)
 {
-#ifdef CONFIG_SYS_STDIO_DEREGISTER
+#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;

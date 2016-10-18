@@ -60,10 +60,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_STDIO_DEREGISTER
-#endif
-
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it

@@ -101,7 +101,6 @@
 #define CONFIG_TFTP_TSIZE
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_USB_EVENT_POLL
-#define CONFIG_SYS_STDIO_DEREGISTER
 #endif
 
 /* Console UART */

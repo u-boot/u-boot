@@ -335,6 +335,15 @@ config SYS_CONSOLE_INFO_QUIET
 	  Enable this option to supress this output. It can be obtained by
 	  calling stdio_print_current_devices() from board code.
 
+config SYS_STDIO_DEREGISTER
+	bool "Allow deregistering stdio devices"
+	default y if USB_KEYBOARD
+	help
+	  Generally there is no need to deregister stdio devices since they
+	  are never deactivated. But if a stdio device is used which can be
+	  removed (for example a USB keyboard) then this option can be
+	  enabled to ensure this is handled correctly.
+
 endmenu
 
 config SYS_NO_FLASH

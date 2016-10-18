@@ -116,7 +116,6 @@
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_PREBOOT \
 	"usb start; " \
 	"if hdmidet; then " \

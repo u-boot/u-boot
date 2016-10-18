@@ -37,7 +37,7 @@ char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 #endif
 
-#ifdef	CONFIG_SYS_STDIO_DEREGISTER
+#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 #endif
 
@@ -245,7 +245,7 @@ int stdio_register(struct stdio_dev *dev)
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
-#ifdef	CONFIG_SYS_STDIO_DEREGISTER
+#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 int stdio_deregister_dev(struct stdio_dev *dev, int force)
 {
 	int l;
@@ -292,7 +292,7 @@ int stdio_deregister(const char *devname, int force)
 
 	return stdio_deregister_dev(dev, force);
 }
-#endif	/* CONFIG_SYS_STDIO_DEREGISTER */
+#endif /* CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER) */
 
 int stdio_init_tables(void)
 {
