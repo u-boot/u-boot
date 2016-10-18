@@ -68,7 +68,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x2a000000
-#define CONFIG_PRE_CON_BUF_ADDR		0x2f000000
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -79,7 +78,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x4a000000
-#define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -370,10 +368,6 @@ extern int soft_i2c_gpio_scl;
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
-
-/* Enable pre-console buffer to get complete log on the VGA console */
-#define CONFIG_PRE_CONSOLE_BUFFER
-#define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
 #ifdef CONFIG_ARM64
 /*

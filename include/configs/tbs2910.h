@@ -50,10 +50,6 @@
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_CONS_INDEX		1
 
-#define CONFIG_PRE_CONSOLE_BUFFER
-#define CONFIG_PRE_CON_BUF_SZ		4096
-#define CONFIG_PRE_CON_BUF_ADDR		0x7C000000
-
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_PART

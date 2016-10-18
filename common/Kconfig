@@ -246,6 +246,48 @@ config SILENT_CONSOLE_UPDATE_ON_RELOC
 	  (e.g. NAND). This option makes the value of the 'silent'
 	  environment variable take effect at relocation.
 
+config PRE_CONSOLE_BUFFER
+	bool "Buffer characters before the console is available"
+	help
+	  Prior to the console being initialised (i.e. serial UART
+	  initialised etc) all console output is silently discarded.
+	  Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
+	  buffer any console messages prior to the console being
+	  initialised to a buffer. The buffer is a circular buffer, so
+	  if it overflows, earlier output is discarded.
+
+	  Note that this is not currently supported in SPL. It would be
+	  useful to be able to share the pre-console buffer with SPL.
+
+config PRE_CON_BUF_SZ
+	int "Sets the size of the pre-console buffer"
+	depends on PRE_CONSOLE_BUFFER
+	default 4096
+	help
+	  The size of the pre-console buffer affects how much console output
+	  can be held before it overflows and starts discarding earlier
+	  output. Normally there is very little output at this early stage,
+	  unless debugging is enabled, so allow enough for ~10 lines of
+	  text.
+
+	  This is a useful feature if you are using a video console and
+	  want to see the full boot output on the console. Without this
+	  option only the post-relocation output will be displayed.
+
+config PRE_CON_BUF_ADDR
+	hex "Address of the pre-console buffer"
+	depends on PRE_CONSOLE_BUFFER
+	default 0x2f000000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x4f000000 if ARCH_SUNXI && !MACH_SUN9I
+	help
+	  This sets the start address of the pre-console buffer. This must
+	  be in available memory and is accessed before relocation and
+	  possibly before DRAM is set up. Therefore choose an address
+	  carefully.
+
+	  We should consider removing this option and allocating the memory
+	  in board_init_f_init_reserve() instead.
+
 endmenu
 
 config SYS_NO_FLASH

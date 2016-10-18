@@ -3,6 +3,9 @@ if ARCH_SUNXI
 config IDENT_STRING
 	default " Allwinner Technology"
 
+config PRE_CONSOLE_BUFFER
+	default y
+
 config SPL_GPIO_SUPPORT
 	default y
 
