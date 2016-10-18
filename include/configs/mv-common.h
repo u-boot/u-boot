@@ -83,7 +83,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_init_f for early inits */
