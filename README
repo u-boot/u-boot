@@ -1619,34 +1619,11 @@ CBFS (Coreboot Filesystem) support
 		instead.
 
 - Video support:
-		CONFIG_VIDEO_CT69000
-
-		Enable Chips & Technologies 69000 Video chip
-
 		CONFIG_VIDEO_SMI_LYNXEM
 		Enable Silicon Motion SMI 712/710/810 Video chip. The
 		video output is selected via environment 'videoout'
 		(1 = LCD and 2 = CRT). If videoout is undefined, CRT is
 		assumed.
-
-		For the CT69000 and SMI_LYNXEM drivers, videomode is
-		selected via environment 'videomode'. Two different ways
-		are possible:
-		- "videomode=num"   'num' is a standard LiLo mode numbers.
-		Following standard modes are supported	(* is default):
-
-		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
-		-------------+---------------------------------------------
-		      8 bits |	0x301*	0x303	 0x305	  0x161	    0x307
-		     15 bits |	0x310	0x313	 0x316	  0x162	    0x319
-		     16 bits |	0x311	0x314	 0x317	  0x163	    0x31A
-		     24 bits |	0x312	0x315	 0x318	    ?	    0x31B
-		-------------+---------------------------------------------
-		(i.e. setenv videomode 317; saveenv; reset;)
-
-		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/video/videomodes.c)
-
 
 		CONFIG_VIDEO_SED13806
 		Enable Epson SED13806 driver. This driver supports 8bpp
