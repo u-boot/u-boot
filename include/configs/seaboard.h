@@ -57,7 +57,6 @@
 #define CONFIG_KEYBOARD
 
 /* USB keyboard */
-#define CONFIG_USB_KEYBOARD
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK

@@ -303,7 +303,6 @@
  * USB support
  ************************************************************/
 #define CONFIG_USB_UHCI
-#define CONFIG_USB_KEYBOARD
 
 /* Enable needed helper functions */
 #define CONFIG_SYS_STDIO_DEREGISTER		/* needs stdio_deregister */
