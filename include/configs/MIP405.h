@@ -111,7 +111,6 @@
  * defines if the overwrite_console should be stored in the
  * environment
  **************************************************************/
-#undef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
 /**************************************************************
  * loads config

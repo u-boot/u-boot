@@ -3533,9 +3533,6 @@ Configuration Settings:
 - CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 		Enable the call to overwrite_console().
 
-- CONFIG_SYS_CONSOLE_ENV_OVERWRITE
-		Enable overwrite of previous console environment settings.
-
 - CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END:
 		Begin and End addresses of the area used by the
 		simple memory test.

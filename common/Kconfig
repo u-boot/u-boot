@@ -309,6 +309,15 @@ config SYS_CONSOLE_IS_IN_ENV
 	  environment variables can be updated after boot to change the
 	  input/output devices.
 
+config SYS_CONSOLE_ENV_OVERWRITE
+	bool "Update environment variables during console init"
+	help
+	  The console environment variables (stdout, stdin, stderr) can be
+	  used to determine the correct console devices on start-up. This
+	  option writes the console devices to these variables on console
+	  start-up (after relocation). This causes the environment to be
+	  updated to match the console devices actually chosen.
+
 endmenu
 
 config SYS_NO_FLASH
