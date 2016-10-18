@@ -255,7 +255,6 @@
 /* Reserve GPT0_COMP1-COMP5 for logbuffer header */
 #define CONFIG_ALT_LH_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + GPT0_COMP1)
 #define CONFIG_ALT_LB_ADDR	(CONFIG_SYS_OCM_BASE)
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*
  * I2C

@@ -516,9 +516,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
-#endif
 
 #if defined(CONFIG_T1042RDB_PI) || defined(CONFIG_T1042D4RDB)
 /* Video */

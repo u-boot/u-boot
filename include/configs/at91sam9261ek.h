@@ -58,8 +58,6 @@
 #define CONFIG_ATMEL_LCD_BGR555
 #endif
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
 /* LED */
 #define CONFIG_AT91_LED
 #define	CONFIG_RED_LED		AT91_PIN_PA23	/* this is the power led */

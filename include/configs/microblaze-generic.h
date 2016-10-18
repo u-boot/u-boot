@@ -256,8 +256,6 @@
 
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
 /* Enable flat device tree support */
 #define CONFIG_LMB		1
 

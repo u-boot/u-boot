@@ -449,7 +449,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_I2C_DVI_BUS_NUM	0

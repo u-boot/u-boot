@@ -102,7 +102,6 @@
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_ATMEL_HLCD
 #define CONFIG_ATMEL_LCD_RGB565
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #ifdef CONFIG_SYS_USE_SERIALFLASH
 /* override the bootcmd, bootargs and other configuration for spi flash env*/

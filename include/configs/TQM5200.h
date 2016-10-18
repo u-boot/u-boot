@@ -111,7 +111,6 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif /* #ifndef CONFIG_TQM5200S */
 
 /* Partitions */

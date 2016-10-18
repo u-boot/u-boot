@@ -42,7 +42,6 @@
 
 /* Console configuration */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* MACH_TYPE_TRATS macro will be removed once added to mach-types */
 #define MACH_TYPE_TRATS			3928

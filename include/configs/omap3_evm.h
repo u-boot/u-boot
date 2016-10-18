@@ -240,7 +240,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Change these to suit your needs */
 #define CONFIG_USBD_VENDORID		0x0451

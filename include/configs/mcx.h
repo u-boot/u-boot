@@ -371,6 +371,5 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_OMAP3
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #endif /* __CONFIG_H */

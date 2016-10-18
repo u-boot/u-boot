@@ -57,7 +57,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
 #define CONFIG_PREBOOT
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/

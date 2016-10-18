@@ -75,12 +75,6 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 /*
- * Console configuration
- */
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
-/*
  * Environment variables configurations
  */
 #ifdef CONFIG_CMD_NAND

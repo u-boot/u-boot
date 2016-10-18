@@ -251,7 +251,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * U-Boot environment
  */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 #if !defined(CONFIG_ENV_SIZE)

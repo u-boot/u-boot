@@ -106,7 +106,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 /* Change these to suit your needs */
 #define CONFIG_USBD_VENDORID		0x0451
 #define CONFIG_USBD_PRODUCTID		0x5678

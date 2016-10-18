@@ -38,11 +38,6 @@
 #define CONFIG_SPL_STACK		0xff718000
 #define CONFIG_SPL_TEXT_BASE		0xff704004
 
-#ifndef CONFIG_SPL_BUILD
-# define CONFIG_SYS_CONSOLE_IS_IN_ENV
-# define CONFIG_CONSOLE_MUX
-#endif
-
 /* MMC/SD IP block */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC

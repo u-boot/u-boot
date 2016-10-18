@@ -288,6 +288,27 @@ config PRE_CON_BUF_ADDR
 	  We should consider removing this option and allocating the memory
 	  in board_init_f_init_reserve() instead.
 
+config CONSOLE_MUX
+	bool "Enable console multiplexing"
+	default y if DM_VIDEO || VIDEO || LCD
+	help
+	  This allows multiple devices to be used for each console 'file'.
+	  For example, stdout can be set to go to serial and video.
+	  Similarly, stdin can be set to come from serial and keyboard.
+	  Input can be provided from either source. Console multiplexing
+	  adds a small amount of size to U-Boot.  Changes to the environment
+	  variables stdout, stdin and stderr will take effect immediately.
+
+config SYS_CONSOLE_IS_IN_ENV
+	bool "Select console devices from the environment"
+	default y if CONSOLE_MUX
+	help
+	  This allows multiple input/output devices to be set at boot time.
+	  For example, if stdout is set to "serial,video" then output will
+	  be sent to both the serial and video devices on boot. The
+	  environment variables can be updated after boot to change the
+	  input/output devices.
+
 endmenu
 
 config SYS_NO_FLASH

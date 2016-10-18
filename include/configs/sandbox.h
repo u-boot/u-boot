@@ -149,8 +149,6 @@
 /* LCD and keyboard require SDL support */
 #ifdef CONFIG_SANDBOX_SDL
 #define CONFIG_CMD_BMP
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define LCD_BPP			LCD_COLOR16
 #define CONFIG_LCD_BMP_RLE8
 #define CONFIG_VIDEO_BMP_RLE8

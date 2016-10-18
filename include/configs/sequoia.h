@@ -265,8 +265,6 @@
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x7fff0000	/* free virtual address     */
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* Otherwise it catches logbuffer as output */
-
 #define CONFIG_SUPPORT_VFAT
 
 /*

@@ -3618,12 +3618,6 @@ Configuration Settings:
 - CONFIG_SYS_CONSOLE_INFO_QUIET
 		Suppress display of console information at boot.
 
-- CONFIG_SYS_CONSOLE_IS_IN_ENV
-		If the board specific function
-			extern int overwrite_console (void);
-		returns 1, the stdin, stderr and stdout are switched to the
-		serial port, else the settings in the environment are used.
-
 - CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 		Enable the call to overwrite_console().
 

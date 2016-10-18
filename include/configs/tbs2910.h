@@ -46,8 +46,6 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_CONS_INDEX		1
 
 /* *** Command definition *** */

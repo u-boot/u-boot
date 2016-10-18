@@ -96,7 +96,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* commands to include */
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */

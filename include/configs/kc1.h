@@ -135,8 +135,6 @@
  * Console
  */
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_LONGHELP

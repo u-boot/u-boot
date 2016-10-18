@@ -23,7 +23,6 @@
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 #define CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*

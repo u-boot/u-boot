@@ -142,12 +142,6 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME			"u-boot.img"
 
-/*
- * Console
- */
-
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_LONGHELP

@@ -296,7 +296,6 @@ extern int soft_i2c_gpio_scl;
 #define VIDEO_LINE_LEN (pGD->plnSizeX)
 
 /* allow both serial and cfb console. */
-#define CONFIG_CONSOLE_MUX
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 
@@ -350,7 +349,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_PREBOOT
 #define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
@@ -364,7 +362,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #define CONFIG_MISC_INIT_R
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>

@@ -409,8 +409,6 @@ combinations. this should be removed later
 #define CONFIG_NS16550_MIN_FUNCTIONS
 #endif
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
-
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 

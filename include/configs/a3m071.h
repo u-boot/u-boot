@@ -53,7 +53,6 @@
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_NET_RETRY_COUNT 3
 #define CONFIG_NETCONSOLE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS	/* needed for UBI */
 #define CONFIG_FLASH_CFI_MTD

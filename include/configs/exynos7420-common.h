@@ -53,8 +53,6 @@
 
 /* select serial console configuration */
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_CONSOLE_MUX
 
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 

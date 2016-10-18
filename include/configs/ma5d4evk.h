@@ -81,7 +81,6 @@
 #define LCD_BPP				LCD_COLOR16
 #define LCD_OUTPUT_BPP                  24
 #define CONFIG_ATMEL_HLCD
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif
 
 /*
