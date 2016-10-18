@@ -69,6 +69,7 @@
 #include <fdtdec.h>
 #include <version.h>
 #include <malloc.h>
+#include <video.h>
 #include <linux/compiler.h>
 
 /*
@@ -233,16 +234,6 @@ void console_cursor(int state);
 #else
 #define SHORTSWAP32(x)		(x)
 #endif
-#endif
-
-#ifdef CONFIG_CONSOLE_EXTRA_INFO
-/*
- * setup a board string: type, speed, etc.
- *
- * line_number:	location to place info string beside logo
- * info:	buffer for info string
- */
-extern void video_get_info_str(int line_number,	char *info);
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -823,7 +814,7 @@ static void parse_putc(const char c)
 		CURSOR_SET;
 }
 
-static void video_putc(struct stdio_dev *dev, const char c)
+static void cfb_video_putc(struct stdio_dev *dev, const char c)
 {
 #ifdef CONFIG_CFB_CONSOLE_ANSI
 	int i;
@@ -1037,7 +1028,7 @@ static void video_putc(struct stdio_dev *dev, const char c)
 		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 
-static void video_puts(struct stdio_dev *dev, const char *s)
+static void cfb_video_puts(struct stdio_dev *dev, const char *s)
 {
 	int flush = cfb_do_flush_cache;
 	int count = strlen(s);
@@ -1046,7 +1037,7 @@ static void video_puts(struct stdio_dev *dev, const char *s)
 	cfb_do_flush_cache = 0;
 
 	while (count--)
-		video_putc(dev, *s++);
+		cfb_video_putc(dev, *s++);
 
 	if (flush) {
 		cfb_do_flush_cache = flush;
@@ -2013,7 +2004,7 @@ void video_clear(void)
 #endif
 }
 
-static int video_init(void)
+static int cfg_video_init(void)
 {
 	unsigned char color8;
 
@@ -2139,7 +2130,7 @@ int drv_video_init(void)
 		return 0;
 
 	/* Init video chip - returns with framebuffer cleared */
-	if (video_init() == -1)
+	if (cfg_video_init() == -1)
 		return 0;
 
 	if (board_cfb_skip())
@@ -2164,8 +2155,8 @@ int drv_video_init(void)
 	memset(&console_dev, 0, sizeof(console_dev));
 	strcpy(console_dev.name, "vga");
 	console_dev.flags = DEV_FLAGS_OUTPUT;
-	console_dev.putc = video_putc;	/* 'putc' function */
-	console_dev.puts = video_puts;	/* 'puts' function */
+	console_dev.putc = cfb_video_putc;	/* 'putc' function */
+	console_dev.puts = cfb_video_puts;	/* 'puts' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	if (have_keyboard && keyboard_ok) {

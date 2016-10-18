@@ -15,6 +15,7 @@
 #include <pci.h>
 #include <malloc.h>
 #include <bzlib.h>
+#include <video.h>
 
 #ifdef CONFIG_PIP405
 #include "../pip405/pip405.h"
