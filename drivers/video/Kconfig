@@ -523,6 +523,16 @@ config CONSOLE_EXTRA_INFO
 	  each line of the display. The function should return the string,
 	  which can be empty if there is nothing to display for that line.
 
+config CONSOLE_SCROLL_LINES
+	int "Number of lines to scroll the console by"
+	depends on CFB_CONSOLE || DM_VIDEO || LCD
+	default 1
+	help
+	  When the console need to be scrolled, this is the number of
+	  lines to scroll by. It defaults to 1. Increasing this makes the
+	  console jump but can help speed up operation when scrolling
+	  is slow.
+
 config VIDEO_CT69000
 	bool "Enable Chips & Technologies 69000 video driver"
 	depends on VIDEO

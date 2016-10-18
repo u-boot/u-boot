@@ -126,11 +126,6 @@
 #define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------
- * Video Configuration
- */
-#define CONFIG_CONSOLE_SCROLL_LINES 5
-
-/*-----------------------------------------------------------------------
  * CPU Features
  */
 

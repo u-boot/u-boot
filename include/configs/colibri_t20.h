@@ -47,7 +47,6 @@
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CONSOLE_SCROLL_LINES	10
 #define CONFIG_CMD_BMP
 #define CONFIG_LCD_LOGO
 

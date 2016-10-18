@@ -61,7 +61,6 @@
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CONSOLE_SCROLL_LINES	10
 
 /* NAND support */
 #define CONFIG_CMD_NAND

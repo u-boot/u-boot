@@ -5,9 +5,6 @@
  */
 
 /* By default we scroll by a single line */
-#ifndef CONFIG_CONSOLE_SCROLL_LINES
-#define CONFIG_CONSOLE_SCROLL_LINES 1
-#endif
 
 struct console_t {
 	short curr_col, curr_row;

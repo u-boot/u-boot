@@ -1693,12 +1693,6 @@ CBFS (Coreboot Filesystem) support
 		here, since it is cheaper to change data cache settings on
 		a per-section basis.
 
-		CONFIG_CONSOLE_SCROLL_LINES
-
-		When the console need to be scrolled, this is the number of
-		lines to scroll by. It defaults to 1. Increasing this makes
-		the console jump but can help speed up operation when scrolling
-		is slow.
 
 		CONFIG_LCD_ROTATION
 
