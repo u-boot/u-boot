@@ -170,6 +170,8 @@ config BOOTDELAY
 
 	  See doc/README.autoboot for details.
 
+menu "Console"
+
 config CONSOLE_RECORD
 	bool "Console recording"
 	help
@@ -202,6 +204,49 @@ config IDENT_STRING
 	string "Board specific string to be added to uboot version string"
 	help
 	  This options adds the board specific name to u-boot version.
+
+config SILENT_CONSOLE
+	bool "Support a silent console"
+	help
+	  This option allows the console to be silenced, meaning that no
+	  output will appear on the console devices. This is controlled by
+	  setting the environment vaariable 'silent' to a non-empty value.
+	  Note this also silences the console when booting Linux.
+
+	  When the console is set up, the variable is checked, and the
+	  GD_FLG_SILENT flag is set. Changing the environment variable later
+	  will update the flag.
+
+config SILENT_U_BOOT_ONLY
+	bool "Only silence the U-Boot console"
+	depends on SILENT_CONSOLE
+	help
+	  Normally when the U-Boot console is silenced, Linux's console is
+	  also silenced (assuming the board boots into Linux). This option
+	  allows the linux console to operate normally, even if U-Boot's
+	  is silenced.
+
+config SILENT_CONSOLE_UPDATE_ON_SET
+	bool "Changes to the 'silent' environment variable update immediately"
+	depends on SILENT_CONSOLE
+	default y if SILENT_CONSOLE
+	help
+	  When the 'silent' environment variable is changed, update the
+	  console silence flag immediately. This allows 'setenv' to be used
+	  to silence or un-silence the console.
+
+	  The effect is that any change to the variable will affect the
+	  GD_FLG_SILENT flag.
+
+config SILENT_CONSOLE_UPDATE_ON_RELOC
+	bool "Allow flags to take effect on relocation"
+	depends on SILENT_CONSOLE
+	help
+	  In some cases the environment is not available until relocation
+	  (e.g. NAND). This option makes the value of the 'silent'
+	  environment variable take effect at relocation.
+
+endmenu
 
 config SYS_NO_FLASH
 	bool "Disable support for parallel NOR flash"

@@ -813,11 +813,6 @@ The following options need to be configured:
 		default i/o. Serial console can be forced with
 		environment 'console=serial'.
 
-		When CONFIG_SILENT_CONSOLE is defined, all console
-		messages (by U-Boot and Linux!) can be silenced with
-		the "silent" environment variable. See
-		doc/README.silent for more information.
-
 		CONFIG_SYS_CONSOLE_BG_COL: define the backgroundcolor, default
 			is 0x00.
 		CONFIG_SYS_CONSOLE_FG_COL: define the foregroundcolor, default

@@ -33,7 +33,6 @@
 
 #define CONFIG_DEEP_SLEEP
 #if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_SILENT_CONSOLE
 #define CONFIG_BOARD_EARLY_INIT_F
 #endif
 

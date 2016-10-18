@@ -19,9 +19,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_DEEP_SLEEP
-#if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_SILENT_CONSOLE
-#endif
 
 /*
  * Size of malloc() pool

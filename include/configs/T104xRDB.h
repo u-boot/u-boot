@@ -159,7 +159,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_DEEP_SLEEP
 #if defined(CONFIG_DEEP_SLEEP)
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_SILENT_CONSOLE
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE

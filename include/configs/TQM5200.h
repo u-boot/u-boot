@@ -51,7 +51,6 @@
 
 #ifdef CONFIG_FO300
 #define CONFIG_SYS_DEVICE_NULLDEV		1	/* enable null device */
-#define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* used to detect S1 switch position */
 #define CONFIG_USB_BIN_FIXUP		1	/* for a buggy USB device */
 #if 0

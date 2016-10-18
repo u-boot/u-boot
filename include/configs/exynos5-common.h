@@ -42,7 +42,6 @@
 /* select serial console configuration */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
-#define CONFIG_SILENT_CONSOLE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_CONSOLE_MUX
 

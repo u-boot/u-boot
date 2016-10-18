@@ -52,10 +52,6 @@
 
 #define CONFIG_LAST_STAGE_INIT
 
-#if !defined(CONFIG_DONGLE)
-#define CONFIG_SILENT_CONSOLE
-#endif
-
 #endif
 
 #if defined(CONFIG_TARGET_UCP1020)
