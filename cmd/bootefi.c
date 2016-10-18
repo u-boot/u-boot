@@ -207,6 +207,8 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 
 	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
 		loaded_image_info.device_handle = nethandle;
+	else
+		loaded_image_info.device_handle = bootefi_device_path;
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
 	efi_smbios_register();
