@@ -144,7 +144,6 @@
 /* LCD */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
-#define CONFIG_VIDEO_SW_CURSOR
 #endif
 
 /* MMC */

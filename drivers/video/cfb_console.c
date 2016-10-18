@@ -141,12 +141,6 @@
 #include <splash.h>
 #endif
 
-/*
- * Cursor definition:
- * CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No
- *			   blinking is provided. Uses the macros CURSOR_SET
- *			   and CURSOR_OFF.
- */
 #if !defined(CONFIG_VIDEO_SW_CURSOR)
 /* no Cursor defined */
 #define CURSOR_ON

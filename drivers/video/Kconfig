@@ -503,6 +503,16 @@ config VGA_AS_SINGLE_DEVICE
 	  may be used if you have no keyboard device, or more than one
 	  (USB Keyboard, AT Keyboard).
 
+config VIDEO_SW_CURSOR
+	bool "Enable a software cursor"
+	depends on CFB_CONSOLE
+	default y if CFB_CONSOLE
+	help
+	  This draws a cursor after the last character. No blinking is
+	  provided. This makes it possible to see the current cursor
+	  position when entering text on the console. It is recommended to
+	  enable this.
+
 config VIDEO_CT69000
 	bool "Enable Chips & Technologies 69000 video driver"
 	depends on VIDEO

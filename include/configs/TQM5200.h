@@ -107,7 +107,6 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 #endif /* #ifndef CONFIG_TQM5200S */
 
