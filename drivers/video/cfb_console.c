@@ -58,12 +58,6 @@
  *					info);
  *				that fills a info buffer at i=row.
  *				s.a: board/eltec/bab7xx.
- * CONFIG_VGA_AS_SINGLE_DEVICE - If set the framebuffer device will be
- *				initialized as an output only device.
- *				The Keyboard driver will not be
- *				set-up.  This may be used, if you have
- *				no or more than one Keyboard devices
- *				(USB Keyboard, AT Keyboard).
  *
  * CONFIG_VIDEO_SW_CURSOR:    - Draws a cursor after the last
  *				character. No blinking is provided.

@@ -179,7 +179,6 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_CMD_HDMIDETECT

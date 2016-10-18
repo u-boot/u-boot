@@ -38,10 +38,6 @@
 
 /* video */
 
-#if defined(CONFIG_VIDEO)
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#endif
-
 /* CONFIG_PCI is defined at config time */
 
 #define CONFIG_SYS_MPC512X_CLKIN	33000000	/* in Hz */

@@ -493,6 +493,16 @@ config CFB_CONSOLE_ANSI
 	  erase functions and limited graphics rendition control). Normal
 	  output from U-Boot will pass through this filter.
 
+config VGA_AS_SINGLE_DEVICE
+	bool "Set the video as an output-only device"
+	depends on CFB_CONSOLE
+	default y
+	help
+	  If enable the framebuffer device will be initialized as an
+	  output-only device. The Keyboard driver will not be set up. This
+	  may be used if you have no keyboard device, or more than one
+	  (USB Keyboard, AT Keyboard).
+
 config VIDEO_CT69000
 	bool "Enable Chips & Technologies 69000 video driver"
 	depends on VIDEO

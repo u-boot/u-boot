@@ -31,10 +31,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000
 
-#if defined(CONFIG_VIDEO)
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#endif
-
 #define CONFIG_SYS_MPC512X_CLKIN	25000000	/* in Hz */
 #define SCFR1_IPS_DIV			2
 #define SCFR1_LPC_DIV			2

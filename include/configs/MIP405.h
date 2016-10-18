@@ -341,7 +341,6 @@
  ************************************************************/
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_SW_CURSOR
 #undef CONFIG_VIDEO_ONBOARD
 /************************************************************
