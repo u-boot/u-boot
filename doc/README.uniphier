@@ -2,74 +2,67 @@ U-Boot for UniPhier SoC family
 ==============================
 
 
-Tested toolchains
------------------
+Recommended toolchains
+----------------------
 
- (a) Ubuntu packages  (CROSS_COMPILE=arm-linux-gnueabi-)
-
-  If you are building U-Boot on Ubuntu, its standard package is recommended.
-  You can install it as follows:
-
-    $ sudo apt-get install gcc-arm-linux-gnueabi-
-
- (b) Linaro compilers  (CROSS_COMPILE=arm-linux-gnueabihf-)
-
-  You can download pre-built toolchains from:
+The UniPhir platform is well tested with Linaro toolchanis.
+You can download pre-built toolchains from:
 
     http://www.linaro.org/downloads/
-
- (c) kernel.org compilers  (CROSS_COMPILE=arm-unknown-linux-gnueabi-)
-
-  You can download pre-built toolchains from:
-
-    ftp://www.kernel.org/pub/tools/crosstool/files/bin/
 
 
 Compile the source
 ------------------
 
-PH1-sLD3 reference board:
+sLD3 reference board:
     $ make uniphier_sld3_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+    $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-PH1-LD4 reference board:
+LD4 reference board:
     $ make uniphier_ld4_sld8_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+    $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-PH1-sLD8 reference board:
+sLD8 reference board:
     $ make uniphier_ld4_sld8_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-sld8-ref
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-sld8-ref
 
-PH1-Pro4 reference board:
+Pro4 reference board:
     $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+    $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-PH1-Pro4 Ace board:
+Pro4 Ace board:
     $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-ace
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro4-ace
 
-PH1-Pro4 Sanji board:
+Pro4 Sanji board:
     $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-sanji
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro4-sanji
 
-PH1-Pro5 4KBOX Board:
+Pro5 4KBOX Board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro5-4kbox
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro5-4kbox
 
-ProXstream2 Gentil board:
+PXs2 Gentil board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-proxstream2-gentil
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pxs2-gentil
 
-ProXstream2 Vodka board:
+PXs2 Vodka board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+    $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-PH1-LD6b reference board:
+LD6b reference board:
     $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-ld6b-ref
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-ld6b-ref
 
-You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
-to use your favorite compiler.
+LD11 reference board:
+    $ make uniphier_ld11_defconfig
+    $ make CROSS_COMPILE=aarch64-linux-gnu-
+
+LD20 reference board:
+    $ make uniphier_ld20_defconfig
+    $ make CROSS_COMPILE=aarch64-linux-gnu-
+
+You may wish to change the "CROSS_COMPILE=..." to use your favorite compiler.
 
 
 Burn U-Boot images to NAND
@@ -118,6 +111,9 @@ UniPhier specific commands
 
  - ddrphy (enabled by CONFIG_CMD_DDRPHY_DUMP)
      shows the DDR PHY parameters set by the PHY training
+
+ - ddrmphy (enabled by CONFIG_CMD_DDRMPHY_DUMP)
+     shows the DDR Multi PHY parameters set by the PHY training
 
 
 Supported devices
@@ -179,4 +175,4 @@ newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
 
 --
 Masahiro Yamada <yamada.masahiro@socionext.com>
-Feb. 2016
+Oct. 2016

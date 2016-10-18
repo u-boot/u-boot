@@ -1,7 +1,8 @@
 /*
- * Device Tree Source for UniPhier PH1-sLD8 SoC
+ * Device Tree Source for UniPhier LD4 SoC
  *
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -9,7 +10,7 @@
 /include/ "uniphier-common32.dtsi"
 
 / {
-	compatible = "socionext,ph1-sld8";
+	compatible = "socionext,uniphier-ld4";
 
 	cpus {
 		#address-cells = <1>;
@@ -19,6 +20,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0>;
+			enable-method = "psci";
 			next-level-cache = <&l2>;
 		};
 	};
@@ -44,7 +46,7 @@
 		reg = <0x500c0000 0x2000>, <0x503c0100 0x4>, <0x506c0000 0x400>;
 		interrupts = <0 174 4>, <0 175 4>;
 		cache-unified;
-		cache-size = <(256 * 1024)>;
+		cache-size = <(512 * 1024)>;
 		cache-sets = <256>;
 		cache-line-size = <128>;
 		cache-level = <2>;
@@ -223,18 +225,22 @@
 		pinctrl-0 = <&pinctrl_sd>;
 		pinctrl-1 = <&pinctrl_sd_1v8>;
 		clocks = <&mio_clk 0>;
+		reset-names = "host", "bridge";
+		resets = <&mio_rst 0>, <&mio_rst 3>;
 		bus-width = <4>;
 	};
 
 	emmc: sdhc@5a500000 {
 		compatible = "socionext,uniphier-sdhc";
 		status = "disabled";
-		interrupts = <0 78 4>;
 		reg = <0x5a500000 0x200>;
+		interrupts = <0 78 4>;
 		pinctrl-names = "default", "1.8v";
 		pinctrl-0 = <&pinctrl_emmc>;
 		pinctrl-1 = <&pinctrl_emmc_1v8>;
 		clocks = <&mio_clk 1>;
+		reset-names = "host", "bridge", "hw-reset";
+		resets = <&mio_rst 1>, <&mio_rst 4>, <&mio_rst 6>;
 		bus-width = <8>;
 		non-removable;
 	};
@@ -246,7 +252,9 @@
 		interrupts = <0 80 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb0>;
-		clocks = <&mio_clk 3>, <&mio_clk 6>;
+		clocks = <&mio_clk 7>, <&mio_clk 8>, <&mio_clk 12>;
+		resets = <&sys_rst 8>, <&mio_rst 7>, <&mio_rst 8>,
+			 <&mio_rst 12>;
 	};
 
 	usb1: usb@5a810100 {
@@ -256,7 +264,9 @@
 		interrupts = <0 81 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb1>;
-		clocks = <&mio_clk 4>, <&mio_clk 6>;
+		clocks = <&mio_clk 7>, <&mio_clk 9>, <&mio_clk 13>;
+		resets = <&sys_rst 8>, <&mio_rst 7>, <&mio_rst 9>,
+			 <&mio_rst 13>;
 	};
 
 	usb2: usb@5a820100 {
@@ -266,7 +276,9 @@
 		interrupts = <0 82 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb2>;
-		clocks = <&mio_clk 5>, <&mio_clk 6>;
+		clocks = <&mio_clk 7>, <&mio_clk 10>, <&mio_clk 14>;
+		resets = <&sys_rst 8>, <&mio_rst 7>, <&mio_rst 10>,
+			 <&mio_rst 14>;
 	};
 
 	aidet@61830000 {
@@ -276,50 +288,50 @@
 };
 
 &refclk {
-	clock-frequency = <25000000>;
+	clock-frequency = <24576000>;
 };
 
 &serial0 {
-	clock-frequency = <80000000>;
+	clock-frequency = <36864000>;
 };
 
 &serial1 {
-	clock-frequency = <80000000>;
+	clock-frequency = <36864000>;
 };
 
 &serial2 {
-	clock-frequency = <80000000>;
+	clock-frequency = <36864000>;
 };
 
 &serial3 {
 	interrupts = <0 29 4>;
-	clock-frequency = <80000000>;
+	clock-frequency = <36864000>;
 };
 
 &mio_clk {
-	compatible = "socionext,uniphier-sld8-mio-clock";
+	compatible = "socionext,uniphier-ld4-mio-clock";
 };
 
 &mio_rst {
-	compatible = "socionext,uniphier-sld8-mio-reset";
+	compatible = "socionext,uniphier-ld4-mio-reset";
 };
 
 &peri_clk {
-	compatible = "socionext,uniphier-sld8-peri-clock";
+	compatible = "socionext,uniphier-ld4-peri-clock";
 };
 
 &peri_rst {
-	compatible = "socionext,uniphier-sld8-peri-reset";
+	compatible = "socionext,uniphier-ld4-peri-reset";
 };
 
 &pinctrl {
-	compatible = "socionext,uniphier-sld8-pinctrl";
+	compatible = "socionext,uniphier-ld4-pinctrl";
 };
 
 &sys_clk {
-	compatible = "socionext,uniphier-sld8-clock";
+	compatible = "socionext,uniphier-ld4-clock";
 };
 
 &sys_rst {
-	compatible = "socionext,uniphier-sld8-reset";
+	compatible = "socionext,uniphier-ld4-reset";
 };

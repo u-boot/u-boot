@@ -1,13 +1,10 @@
 config CLK_UNIPHIER
-	bool
+	bool "Clock driver for UniPhier SoCs"
+	depends on ARCH_UNIPHIER
 	select CLK
 	select SPL_CLK
-
-menu "Clock drivers for UniPhier SoCs"
-	depends on CLK_UNIPHIER
-
-config CLK_UNIPHIER_MIO
-	bool "Clock driver for UniPhier Media I/O block"
 	default y
-
-endmenu
+	help
+	  Support for clock controllers on UniPhier SoCs.
+	  Say Y if you want to control clocks provided by System Control
+	  block, Media I/O block, Peripheral Block.

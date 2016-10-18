@@ -250,35 +250,35 @@ struct uniphier_board_id {
 
 static const struct uniphier_board_id uniphier_boards[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	{ "socionext,ph1-sld3", &uniphier_sld3_data, },
+	{ "socionext,uniphier-sld3", &uniphier_sld3_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
-	{ "socionext,ph1-ld4", &uniphier_ld4_data, },
+	{ "socionext,uniphier-ld4", &uniphier_ld4_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
-	{ "socionext,ph1-pro4-ace", &uniphier_pro4_2g_data, },
-	{ "socionext,ph1-pro4-sanji", &uniphier_pro4_2g_data, },
-	{ "socionext,ph1-pro4", &uniphier_pro4_data, },
+	{ "socionext,uniphier-pro4-ace", &uniphier_pro4_2g_data, },
+	{ "socionext,uniphier-pro4-sanji", &uniphier_pro4_2g_data, },
+	{ "socionext,uniphier-pro4", &uniphier_pro4_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
-	{ "socionext,ph1-sld8", &uniphier_sld8_data, },
+	{ "socionext,uniphier-sld8", &uniphier_sld8_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
-	{ "socionext,ph1-pro5", &uniphier_pro5_data, },
+	{ "socionext,uniphier-pro5", &uniphier_pro5_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
-	{ "socionext,proxstream2", &uniphier_pxs2_data, },
+	{ "socionext,uniphier-pxs2", &uniphier_pxs2_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
-	{ "socionext,ph1-ld6b", &uniphier_ld6b_data, },
+	{ "socionext,uniphier-ld6b", &uniphier_ld6b_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
-	{ "socionext,ph1-ld11", &uniphier_ld11_data, },
+	{ "socionext,uniphier-ld11", &uniphier_ld11_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
-	{ "socionext,ph1-ld21", &uniphier_ld21_data, },
-	{ "socionext,ph1-ld20-ref", &uniphier_ld20_ref_data, },
-	{ "socionext,ph1-ld20", &uniphier_ld20_data, },
+	{ "socionext,uniphier-ld21", &uniphier_ld21_data, },
+	{ "socionext,uniphier-ld20-ref", &uniphier_ld20_ref_data, },
+	{ "socionext,uniphier-ld20", &uniphier_ld20_data, },
 #endif
 };
 

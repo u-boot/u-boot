@@ -1,17 +1,18 @@
 /*
- * Device Tree Source for UniPhier ProXstream2 Vodka Board
+ * Device Tree Source for UniPhier PXs2 Vodka Board
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
-/include/ "uniphier-proxstream2.dtsi"
+/include/ "uniphier-pxs2.dtsi"
 
 / {
-	model = "UniPhier ProXstream2 Vodka Board";
-	compatible = "socionext,proxstream2-vodka", "socionext,proxstream2";
+	model = "UniPhier PXs2 Vodka Board";
+	compatible = "socionext,uniphier-pxs2-vodka", "socionext,uniphier-pxs2";
 
 	memory {
 		device_type = "memory";

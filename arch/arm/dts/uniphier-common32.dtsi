@@ -1,7 +1,8 @@
 /*
  * Device Tree Source commonly used by UniPhier ARM SoCs
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -9,6 +10,11 @@
 /include/ "skeleton.dtsi"
 
 / {
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
 	clocks {
 		refclk: ref {
 			#clock-cells = <0>;
