@@ -356,7 +356,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
-#define CONFIG_CONSOLE		ttyS0
+#define CONSOLE			ttyS0
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
@@ -738,10 +738,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 		__stringify(CONFIG_GATEWAYIP) ":"	\
 		__stringify(CONFIG_NETMASK) ":"		\
 		CONFIG_HOSTNAME ":" CONFIG_NETDEV ":off"		\
-	" console=" __stringify(CONFIG_CONSOLE) "," __stringify(CONFIG_BAUDRATE)
+	" console=" __stringify(CONSOLE) "," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=" __stringify(CONFIG_CONSOLE) "\0"			\
+	"console=" __stringify(CONSOLE) "\0"			\
 	"netdev=" CONFIG_NETDEV "\0"					\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
