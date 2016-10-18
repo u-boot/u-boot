@@ -288,7 +288,6 @@ extern int soft_i2c_gpio_scl;
 
 #define CONFIG_VIDEO_SUNXI
 
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_STD_TIMINGS

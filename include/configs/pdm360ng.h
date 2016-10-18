@@ -40,7 +40,6 @@
 /* Video */
 
 #if defined(CONFIG_VIDEO)
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_LOGO

@@ -443,6 +443,47 @@ config VIDEO
 	  model. Video drivers typically provide a colour text console and
 	  cursor.
 
+config CFB_CONSOLE
+	bool "Enable colour frame buffer console"
+	depends on VIDEO
+	default y if VIDEO
+	help
+	  Enables the colour frame buffer driver. This supports colour
+	  output on a bitmap display from an in-memory frame buffer.
+	  Several colour devices are supported along with various options to
+	  adjust the supported features. The driver is implemented in
+	  cfb_console.c
+
+	  The following defines are needed (cf. smiLynxEM, i8042)
+		VIDEO_FB_LITTLE_ENDIAN	graphic memory organisation
+					(default big endian)
+		VIDEO_HW_RECTFILL	graphic chip supports
+					rectangle fill (cf. smiLynxEM)
+		VIDEO_HW_BITBLT		graphic chip supports
+					bit-blit (cf. smiLynxEM)
+		VIDEO_VISIBLE_COLS	visible pixel columns (cols=pitch)
+		VIDEO_VISIBLE_ROWS	visible pixel rows
+		VIDEO_PIXEL_SIZE	bytes per pixel
+		VIDEO_DATA_FORMAT	graphic data format
+					(0-5, cf. cfb_console.c)
+		VIDEO_FB_ADRS		framebuffer address
+		VIDEO_KBD_INIT_FCT	keyboard int fct (i.e. rx51_kp_init())
+		VIDEO_TSTC_FCT		test char fct (i.e. rx51_kp_tstc)
+		VIDEO_GETC_FCT		get char fct (i.e. rx51_kp_getc)
+		CONFIG_VIDEO_LOGO	display Linux logo in upper left corner
+		CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of linux_logo.h
+					for logo. Requires CONFIG_VIDEO_LOGO
+		CONFIG_CONSOLE_EXTRA_INFO
+					additional board info beside
+					the logo
+		CONFIG_HIDE_LOGO_VERSION
+					do not display bootloader
+					version string
+
+	  When CONFIG_CFB_CONSOLE is defined, the video console is the
+	  default console. The serial console can be forced by setting the
+	  environment 'console=serial'.
+
 config LCD
 	bool "Enable legacy LCD support"
 	help

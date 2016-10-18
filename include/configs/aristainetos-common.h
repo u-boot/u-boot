@@ -231,7 +231,6 @@
 /* Framebuffer */
 #define CONFIG_VIDEO_IPUV3
 /* check this console not needed, after test remove it */
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8

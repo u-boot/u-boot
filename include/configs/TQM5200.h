@@ -99,7 +99,6 @@
 #ifndef CONFIG_TQM5200S		/* No graphics controller on TQM5200S */
 #define CONFIG_VIDEO_SM501
 #define CONFIG_VIDEO_SM501_32BPP
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
 
 #ifndef CONFIG_FO300

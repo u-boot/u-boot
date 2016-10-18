@@ -378,7 +378,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_BIOSEMU
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_ATI_RADEON_FB

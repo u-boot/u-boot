@@ -445,7 +445,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_FSL_DCU_FB
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO

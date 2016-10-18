@@ -509,7 +509,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
