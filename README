@@ -1614,12 +1614,6 @@ CBFS (Coreboot Filesystem) support
 		instead.
 
 - Video support:
-		CONFIG_VIDEO_SMI_LYNXEM
-		Enable Silicon Motion SMI 712/710/810 Video chip. The
-		video output is selected via environment 'videoout'
-		(1 = LCD and 2 = CRT). If videoout is undefined, CRT is
-		assumed.
-
 		CONFIG_VIDEO_SED13806
 		Enable Epson SED13806 driver. This driver supports 8bpp
 		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP

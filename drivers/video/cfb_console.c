@@ -27,7 +27,6 @@
  *
  * (for SMI LynxE graphic chip)
  *
- * CONFIG_VIDEO_SMI_LYNXEM    - use graphic driver for SMI 710,712,810
  * VIDEO_FB_LITTLE_ENDIAN     - framebuffer organisation default: big endian
  * VIDEO_HW_RECTFILL	      - graphic driver supports hardware rectangle fill
  * VIDEO_HW_BITBLT	      - graphic driver supports hardware bit blt
@@ -85,18 +84,6 @@
 #include <version.h>
 #include <malloc.h>
 #include <linux/compiler.h>
-
-/*
- * Console device defines with SMI graphic
- * Any other graphic must change this section
- */
-
-#ifdef	CONFIG_VIDEO_SMI_LYNXEM
-
-#define VIDEO_FB_LITTLE_ENDIAN
-#define VIDEO_HW_RECTFILL
-#define VIDEO_HW_BITBLT
-#endif
 
 /*
  * Defines for the CT69000 driver

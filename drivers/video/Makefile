@@ -54,7 +54,6 @@ obj-$(CONFIG_VIDEO_S3C) += s3c-fb.o videomodes.o
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += sandbox_sdl.o
 obj-$(CONFIG_VIDEO_SED13806) += sed13806.o
 obj-$(CONFIG_VIDEO_SM501) += sm501.o
-obj-$(CONFIG_VIDEO_SMI_LYNXEM) += smiLynxEM.o videomodes.o
 obj-$(CONFIG_VIDEO_SUNXI) += sunxi_display.o videomodes.o
 obj-$(CONFIG_VIDEO_TEGRA20) += tegra.o
 obj-$(CONFIG_VIDEO_VCXK) += bus_vcxk.o
