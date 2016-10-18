@@ -16,7 +16,7 @@
 #define CONFIG_DEFAULT_FDT_FILE	"imx6q-dms-ba16.dtb"
 
 #define CONFIG_MXC_UART_BASE	UART4_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc3"
+#define CONSOLE_DEV	"ttymxc3"
 #define CONFIG_EXTRA_BOOTARGS	"panic=10"
 
 #define CONFIG_BOOT_DIR	""
@@ -114,7 +114,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=yes\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
 	"sddev=0\0" \

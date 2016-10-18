@@ -11,7 +11,7 @@
 
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
+#define CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p1"
 
 #define CONFIG_DEFAULT_FDT_FILE	"imx6q-zc5601.dtb"

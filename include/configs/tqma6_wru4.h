@@ -21,7 +21,7 @@
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc3"
+#define CONSOLE_DEV		"ttymxc3"
 
 #define CONFIG_MISC_INIT_R
 

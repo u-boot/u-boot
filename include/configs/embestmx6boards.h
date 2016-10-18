@@ -14,7 +14,7 @@
 #define __RIOTBOARD_CONFIG_H
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
+#define CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)

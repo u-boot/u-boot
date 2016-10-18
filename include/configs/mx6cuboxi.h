@@ -71,7 +71,7 @@
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc0"
+#define CONSOLE_DEV	"ttymxc0"
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* SDHC2 */
 
@@ -89,7 +89,7 @@
 	"initrd_high=0xffffffff\0" \
 	"fdt_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"update_sd_firmware=" \

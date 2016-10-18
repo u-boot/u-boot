@@ -34,7 +34,7 @@
 #endif
 
 #define CONFIG_MXC_UART_BASE	UART3_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc2"
+#define CONSOLE_DEV	"ttymxc2"
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 
@@ -140,7 +140,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=yes\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
 	"sddev=0\0" \

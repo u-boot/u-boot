@@ -57,7 +57,7 @@
 	"rescue_sys_length=f10000\0" \
 	"panel=lb07wv8\0" \
 	"splashpos=m,m\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0" \

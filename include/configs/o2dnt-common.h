@@ -94,8 +94,8 @@
 
 #undef	CONFIG_BOOTARGS
 
-#if !defined(CONFIG_CONSOLE_DEV)
-#define CONFIG_CONSOLE_DEV	"ttyPSC1"
+#if !defined(CONSOLE_DEV)
+#define CONSOLE_DEV	"ttyPSC1"
 #endif
 
 /*
@@ -130,7 +130,7 @@
 	"addmem=setenv bootargs ${bootargs} ${memlimit}\0"		\
 	"addmisc=sete bootargs ${bootargs} ${miscargs}\0"		\
 	"addtty=sete bootargs ${bootargs} console="			\
-		CONFIG_CONSOLE_DEV ",${baudrate}\0"			\
+		CONSOLE_DEV ",${baudrate}\0"			\
 	"bootfile="CONFIG_BOARD_NAME"/uImage_"CONFIG_BOARD_NAME"_act\0"	\
 	"kernel_addr_r=600000\0"					\
 	"initrd_high=0x03e00000\0"					\

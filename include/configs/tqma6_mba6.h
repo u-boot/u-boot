@@ -25,6 +25,6 @@
 #define CONFIG_PHY_KSZ9031
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
+#define CONSOLE_DEV		"ttymxc1"
 
 #endif /* __CONFIG_TQMA6_MBA6_H */

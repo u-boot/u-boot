@@ -24,7 +24,7 @@
 /* Serial */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
+#define CONSOLE_DEV		"ttymxc1"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
