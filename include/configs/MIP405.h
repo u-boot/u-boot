@@ -340,7 +340,6 @@
  * Video support
  ************************************************************/
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
 #undef CONFIG_VIDEO_ONBOARD
 /************************************************************
  * USB support EXPERIMENTAL

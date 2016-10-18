@@ -102,7 +102,6 @@
 #define CONFIG_VIDEO_LOGO
 
 #ifndef CONFIG_FO300
-#define CONFIG_CONSOLE_EXTRA_INFO
 #else
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
