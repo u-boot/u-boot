@@ -63,14 +63,6 @@
  *				character. No blinking is provided.
  *				Uses the macros CURSOR_SET and
  *				CURSOR_OFF.
- *
- * CONFIG_VIDEO_HW_CURSOR:    - Uses the hardware cursor capability
- *				of the graphic chip. Uses the macro
- *				CURSOR_SET. ATTENTION: If booting an
- *				OS, the display driver must disable
- *				the hardware register of the graphic
- *				chip. Otherwise a blinking field is
- *				displayed.
  */
 
 #include <common.h>
@@ -154,13 +146,8 @@
  * CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No
  *			   blinking is provided. Uses the macros CURSOR_SET
  *			   and CURSOR_OFF.
- * CONFIG_VIDEO_HW_CURSOR: Uses the hardware cursor capability of the
- *			   graphic chip. Uses the macro CURSOR_SET.
- *			   ATTENTION: If booting an OS, the display driver
- *			   must disable the hardware register of the graphic
- *			   chip. Otherwise a blinking field is displayed
  */
-#if !defined(CONFIG_VIDEO_SW_CURSOR) && !defined(CONFIG_VIDEO_HW_CURSOR)
+#if !defined(CONFIG_VIDEO_SW_CURSOR)
 /* no Cursor defined */
 #define CURSOR_ON
 #define CURSOR_OFF
@@ -168,27 +155,12 @@
 #endif
 
 #if defined(CONFIG_VIDEO_SW_CURSOR)
-#if defined(CONFIG_VIDEO_HW_CURSOR)
-#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
-	defined
-#endif
 void console_cursor(int state);
 
 #define CURSOR_ON  console_cursor(1)
 #define CURSOR_OFF console_cursor(0)
 #define CURSOR_SET video_set_cursor()
 #endif /* CONFIG_VIDEO_SW_CURSOR */
-
-#ifdef CONFIG_VIDEO_HW_CURSOR
-#ifdef	CURSOR_ON
-#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
-	defined
-#endif
-#define CURSOR_ON
-#define CURSOR_OFF
-#define CURSOR_SET video_set_hw_cursor(console_col * VIDEO_FONT_WIDTH, \
-		  (console_row * VIDEO_FONT_HEIGHT) + video_logo_height)
-#endif /* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef	CONFIG_VIDEO_LOGO
 #ifdef	CONFIG_VIDEO_BMP_LOGO
@@ -2056,9 +2028,6 @@ static int video_init(void)
 		return -1;
 
 	video_fb_address = (void *) VIDEO_FB_ADRS;
-#ifdef CONFIG_VIDEO_HW_CURSOR
-	video_init_hw_cursor(VIDEO_FONT_WIDTH, VIDEO_FONT_HEIGHT);
-#endif
 
 	cfb_do_flush_cache = cfb_fb_is_in_dram() && dcache_status();
 

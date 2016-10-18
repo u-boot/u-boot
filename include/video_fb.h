@@ -88,9 +88,5 @@ void video_set_lut (
     unsigned char g,              /* green */
     unsigned char b               /* blue */
     );
-#ifdef CONFIG_VIDEO_HW_CURSOR
-void video_set_hw_cursor(int x, int y); /* x y in pixel */
-void video_init_hw_cursor(int font_width, int font_height);
-#endif
 
 #endif /*_VIDEO_FB_H_ */
