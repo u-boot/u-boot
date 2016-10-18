@@ -1614,11 +1614,6 @@ CBFS (Coreboot Filesystem) support
 		instead.
 
 - Video support:
-		CONFIG_VIDEO_SED13806
-		Enable Epson SED13806 driver. This driver supports 8bpp
-		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
-		or CONFIG_VIDEO_SED13806_16BPP
-
 		CONFIG_FSL_DIU_FB
 		Enable the Freescale DIU video driver.	Reference boards for
 		SOCs that have a DIU should define this macro to enable DIU

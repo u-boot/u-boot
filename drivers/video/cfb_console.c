@@ -95,15 +95,6 @@
 #define VIDEO_HW_BITBLT
 #endif
 
-/*
- * Defines for the SED13806 driver
- */
-#ifdef CONFIG_VIDEO_SED13806
-#define VIDEO_FB_LITTLE_ENDIAN
-#define VIDEO_HW_RECTFILL
-#define VIDEO_HW_BITBLT
-#endif
-
 #if defined(CONFIG_VIDEO_MXS)
 #define VIDEO_FB_16BPP_WORD_SWAP
 #endif
