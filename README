@@ -770,10 +770,6 @@ The following options need to be configured:
 		port routines must be defined elsewhere
 		(i.e. serial_init(), serial_getc(), ...)
 
-		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
-		a limited number of ANSI escape sequences (cursor control,
-		erase functions and limited graphics rendition control).
-
 		CONFIG_SYS_CONSOLE_BG_COL: define the backgroundcolor, default
 			is 0x00.
 		CONFIG_SYS_CONSOLE_FG_COL: define the foregroundcolor, default

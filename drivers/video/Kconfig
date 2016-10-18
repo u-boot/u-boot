@@ -484,6 +484,15 @@ config CFB_CONSOLE
 	  default console. The serial console can be forced by setting the
 	  environment 'console=serial'.
 
+config CFB_CONSOLE_ANSI
+	bool "Support ANSI escape sequences"
+	depends on CFB_CONSOLE
+	help
+	  This allows the colour buffer frame buffer driver to support
+	  a limited number of ANSI escape sequences (cursor control,
+	  erase functions and limited graphics rendition control). Normal
+	  output from U-Boot will pass through this filter.
+
 config LCD
 	bool "Enable legacy LCD support"
 	help
