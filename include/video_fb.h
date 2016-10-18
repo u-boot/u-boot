@@ -18,14 +18,6 @@
 #ifndef _VIDEO_FB_H_
 #define _VIDEO_FB_H_
 
-#if defined(CONFIG_SYS_CONSOLE_FG_COL) && defined(CONFIG_SYS_CONSOLE_BG_COL)
-#define CONSOLE_BG_COL            CONFIG_SYS_CONSOLE_BG_COL
-#define CONSOLE_FG_COL            CONFIG_SYS_CONSOLE_FG_COL
-#else
-#define CONSOLE_BG_COL            0x00
-#define CONSOLE_FG_COL            0xa0
-#endif
-
 /*
  * Graphic Data Format (GDF) bits for VIDEO_DATA_FORMAT
  */

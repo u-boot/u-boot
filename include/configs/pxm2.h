@@ -136,8 +136,6 @@
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 #define PWM_TICKS	0x1388
 #define PWM_DUTY	0x200
-#define CONFIG_SYS_CONSOLE_BG_COL	0xff
-#define CONFIG_SYS_CONSOLE_FG_COL	0x00
 #endif
 
 #endif	/* ! __CONFIG_PXM2_H */

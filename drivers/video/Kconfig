@@ -520,6 +520,28 @@ config VIDEO_CT69000
 		- "videomode=bootargs" all the video parameters are parsed
 		from the bootargs. (See drivers/video/videomodes.c)
 
+config SYS_CONSOLE_BG_COL
+	hex "Background colour"
+	depends on CFB_CONSOLE || VIDEO_CT69000
+	default 0x00
+	help
+	  Defines the background colour for the console. The value is from
+	  0x00 to 0xff and the meaning depends on the graphics card.
+	  Typically, 0x00 means black and 0xff means white. Do not set
+	  the background and foreground to the same colour or you will see
+	  nothing.
+
+config SYS_CONSOLE_FG_COL
+	hex "Foreground colour"
+	depends on CFB_CONSOLE || VIDEO_CT69000
+	default 0xa0
+	help
+	  Defines the foreground colour for the console. The value is from
+	  0x00 to 0xff and the meaning depends on the graphics card.
+	  Typically, 0x00 means black and 0xff means white. Do not set
+	  the background and foreground to the same colour or you will see
+	  nothing.
+
 config LCD
 	bool "Enable legacy LCD support"
 	help

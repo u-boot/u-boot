@@ -870,7 +870,8 @@ video_init_hw_cursor (int font_width, int font_height)
 	xr_80 = ctRead_i (CT_XR_O, 0x80);
 	xr_80 |= 0x1;		/* alternate palette select */
 	ctWrite_i (CT_XR_O, 0x80, xr_80);
-	video_set_lut (4, CONSOLE_FG_COL, CONSOLE_FG_COL, CONSOLE_FG_COL);
+	video_set_lut(4, CONFIG_SYS_CONSOLE_FG_COL, CONFIG_SYS_CONSOLE_FG_COL,
+		      CONFIG_SYS_CONSOLE_FG_COL);
 	/* position 4 is color 0 cursor 0 */
 	xr_80 &= 0xfe;		/* normal palette select */
 	ctWrite_i (CT_XR_O, 0x80, xr_80);

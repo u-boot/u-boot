@@ -2093,70 +2093,72 @@ static int video_init(void)
 	/* Init drawing pats */
 	switch (VIDEO_DATA_FORMAT) {
 	case GDF__8BIT_INDEX:
-		video_set_lut(0x01, CONSOLE_FG_COL, CONSOLE_FG_COL,
-			      CONSOLE_FG_COL);
-		video_set_lut(0x00, CONSOLE_BG_COL, CONSOLE_BG_COL,
-			      CONSOLE_BG_COL);
+		video_set_lut(0x01, CONFIG_SYS_CONSOLE_FG_COL,
+			      CONFIG_SYS_CONSOLE_FG_COL,
+			      CONFIG_SYS_CONSOLE_FG_COL);
+		video_set_lut(0x00, CONFIG_SYS_CONSOLE_BG_COL,
+			      CONFIG_SYS_CONSOLE_BG_COL,
+			      CONFIG_SYS_CONSOLE_BG_COL);
 		fgx = 0x01010101;
 		bgx = 0x00000000;
 		break;
 	case GDF__8BIT_332RGB:
-		color8 = ((CONSOLE_FG_COL & 0xe0) |
-			  ((CONSOLE_FG_COL >> 3) & 0x1c) |
-			  CONSOLE_FG_COL >> 6);
+		color8 = ((CONFIG_SYS_CONSOLE_FG_COL & 0xe0) |
+			  ((CONFIG_SYS_CONSOLE_FG_COL >> 3) & 0x1c) |
+			  CONFIG_SYS_CONSOLE_FG_COL >> 6);
 		fgx = (color8 << 24) | (color8 << 16) | (color8 << 8) |
 			color8;
-		color8 = ((CONSOLE_BG_COL & 0xe0) |
-			  ((CONSOLE_BG_COL >> 3) & 0x1c) |
-			  CONSOLE_BG_COL >> 6);
+		color8 = ((CONFIG_SYS_CONSOLE_BG_COL & 0xe0) |
+			  ((CONFIG_SYS_CONSOLE_BG_COL >> 3) & 0x1c) |
+			  CONFIG_SYS_CONSOLE_BG_COL >> 6);
 		bgx = (color8 << 24) | (color8 << 16) | (color8 << 8) |
 			color8;
 		break;
 	case GDF_15BIT_555RGB:
-		fgx = (((CONSOLE_FG_COL >> 3) << 26) |
-		       ((CONSOLE_FG_COL >> 3) << 21) |
-		       ((CONSOLE_FG_COL >> 3) << 16) |
-		       ((CONSOLE_FG_COL >> 3) << 10) |
-		       ((CONSOLE_FG_COL >> 3) <<  5) |
-			(CONSOLE_FG_COL >> 3));
-		bgx = (((CONSOLE_BG_COL >> 3) << 26) |
-		       ((CONSOLE_BG_COL >> 3) << 21) |
-		       ((CONSOLE_BG_COL >> 3) << 16) |
-		       ((CONSOLE_BG_COL >> 3) << 10) |
-		       ((CONSOLE_BG_COL >> 3) <<  5) |
-			(CONSOLE_BG_COL >> 3));
+		fgx = (((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 26) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 21) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 16) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 10) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) <<  5) |
+			(CONFIG_SYS_CONSOLE_FG_COL >> 3));
+		bgx = (((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 26) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 21) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 16) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 10) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) <<  5) |
+			(CONFIG_SYS_CONSOLE_BG_COL >> 3));
 		break;
 	case GDF_16BIT_565RGB:
-		fgx = (((CONSOLE_FG_COL >> 3) << 27) |
-		       ((CONSOLE_FG_COL >> 2) << 21) |
-		       ((CONSOLE_FG_COL >> 3) << 16) |
-		       ((CONSOLE_FG_COL >> 3) << 11) |
-		       ((CONSOLE_FG_COL >> 2) <<  5) |
-			(CONSOLE_FG_COL >> 3));
-		bgx = (((CONSOLE_BG_COL >> 3) << 27) |
-		       ((CONSOLE_BG_COL >> 2) << 21) |
-		       ((CONSOLE_BG_COL >> 3) << 16) |
-		       ((CONSOLE_BG_COL >> 3) << 11) |
-		       ((CONSOLE_BG_COL >> 2) <<  5) |
-			(CONSOLE_BG_COL >> 3));
+		fgx = (((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 27) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 2) << 21) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 16) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 3) << 11) |
+		       ((CONFIG_SYS_CONSOLE_FG_COL >> 2) <<  5) |
+			(CONFIG_SYS_CONSOLE_FG_COL >> 3));
+		bgx = (((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 27) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 2) << 21) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 16) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 3) << 11) |
+		       ((CONFIG_SYS_CONSOLE_BG_COL >> 2) <<  5) |
+			(CONFIG_SYS_CONSOLE_BG_COL >> 3));
 		break;
 	case GDF_32BIT_X888RGB:
-		fgx =	(CONSOLE_FG_COL << 16) |
-			(CONSOLE_FG_COL <<  8) |
-			 CONSOLE_FG_COL;
-		bgx =	(CONSOLE_BG_COL << 16) |
-			(CONSOLE_BG_COL <<  8) |
-			 CONSOLE_BG_COL;
+		fgx =	(CONFIG_SYS_CONSOLE_FG_COL << 16) |
+			(CONFIG_SYS_CONSOLE_FG_COL <<  8) |
+			 CONFIG_SYS_CONSOLE_FG_COL;
+		bgx =	(CONFIG_SYS_CONSOLE_BG_COL << 16) |
+			(CONFIG_SYS_CONSOLE_BG_COL <<  8) |
+			 CONFIG_SYS_CONSOLE_BG_COL;
 		break;
 	case GDF_24BIT_888RGB:
-		fgx =	(CONSOLE_FG_COL << 24) |
-			(CONSOLE_FG_COL << 16) |
-			(CONSOLE_FG_COL <<  8) |
-			 CONSOLE_FG_COL;
-		bgx =	(CONSOLE_BG_COL << 24) |
-			(CONSOLE_BG_COL << 16) |
-			(CONSOLE_BG_COL <<  8) |
-			 CONSOLE_BG_COL;
+		fgx =	(CONFIG_SYS_CONSOLE_FG_COL << 24) |
+			(CONFIG_SYS_CONSOLE_FG_COL << 16) |
+			(CONFIG_SYS_CONSOLE_FG_COL <<  8) |
+			 CONFIG_SYS_CONSOLE_FG_COL;
+		bgx =	(CONFIG_SYS_CONSOLE_BG_COL << 24) |
+			(CONFIG_SYS_CONSOLE_BG_COL << 16) |
+			(CONFIG_SYS_CONSOLE_BG_COL <<  8) |
+			 CONFIG_SYS_CONSOLE_BG_COL;
 		break;
 	}
 	eorx = fgx ^ bgx;
