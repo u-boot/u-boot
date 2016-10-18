@@ -30,7 +30,6 @@
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
 /* Display */
-#define CONFIG_LCD
 #ifdef CONFIG_LCD
 #define CONFIG_EXYNOS_FB
 #define CONFIG_EXYNOS_DP

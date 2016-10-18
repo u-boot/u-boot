@@ -35,7 +35,6 @@
 #define CONFIG_USART_ID		ATMEL_ID_SYS
 
 /* LCD */
-#define CONFIG_LCD
 #define LCD_BPP			LCD_COLOR16
 #define LCD_OUTPUT_BPP		24
 #define CONFIG_LCD_LOGO

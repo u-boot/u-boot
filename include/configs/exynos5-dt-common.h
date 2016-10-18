@@ -27,7 +27,6 @@
 #define CONFIG_BOARD_COMMON
 
 /* Display */
-#define CONFIG_LCD
 #ifdef CONFIG_LCD
 #define CONFIG_EXYNOS_FB
 #define CONFIG_EXYNOS_DP
