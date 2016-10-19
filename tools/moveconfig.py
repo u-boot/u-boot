@@ -127,7 +127,8 @@ Available options
    standard commit message is used which may need to be edited.
 
  -d, --defconfigs
-  Specify a file containing a list of defconfigs to move
+  Specify a file containing a list of defconfigs to move.  The defconfig
+  files can be given with shell-style wildcards.
 
  -n, --dry-run
    Perform a trial run that does not make any changes.  It is useful to
@@ -180,6 +181,7 @@ import copy
 import difflib
 import filecmp
 import fnmatch
+import glob
 import multiprocessing
 import optparse
 import os
@@ -283,6 +285,24 @@ def get_make_cmd():
     if process.returncode:
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
+
+def get_matched_defconfigs(defconfigs_file):
+    """Get all the defconfig files that match the patterns in a file."""
+    defconfigs = []
+    for i, line in enumerate(open(defconfigs_file)):
+        line = line.strip()
+        if not line:
+            continue # skip blank lines silently
+        pattern = os.path.join('configs', line)
+        matched = glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+        if not matched:
+            print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
+                                                 (defconfigs_file, i + 1, line)
+
+        defconfigs += matched
+
+    # use set() to drop multiple matching
+    return [ defconfig[len('configs') + 1:]  for defconfig in set(defconfigs) ]
 
 def get_all_defconfigs():
     """Get all the defconfig files under the configs/ directory."""
@@ -1204,13 +1224,7 @@ def move_config(configs, options):
         reference_src_dir = None
 
     if options.defconfigs:
-        defconfigs = [line.strip() for line in open(options.defconfigs)]
-        for i, defconfig in enumerate(defconfigs):
-            if not defconfig.endswith('_defconfig'):
-                defconfigs[i] = defconfig + '_defconfig'
-            if not os.path.exists(os.path.join('configs', defconfigs[i])):
-                sys.exit('%s - defconfig does not exist. Stopping.' %
-                         defconfigs[i])
+        defconfigs = get_matched_defconfigs(options.defconfigs)
     else:
         defconfigs = get_all_defconfigs()
 
