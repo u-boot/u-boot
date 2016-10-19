@@ -394,7 +394,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 		/* Bus 3 is not connected */
 	};
 
-	/* FIXME PL connection - u55 , PMOD - j160 */
+	/* FIXME PMOD - j160 */
 	/* FIXME MSP430F - u41 - not detected */
 };
 
