@@ -10,7 +10,7 @@
 #define SMC_SIP_INVOKE_MCE		0x82FFFF00
 #define MCE_SMC_ROC_FLUSH_CACHE		(SMC_SIP_INVOKE_MCE | 11)
 
-ENTRY(__asm_flush_l3_cache)
+ENTRY(__asm_flush_l3_dcache)
 	mov	x0, #(MCE_SMC_ROC_FLUSH_CACHE & 0xffff)
 	movk	x0, #(MCE_SMC_ROC_FLUSH_CACHE >> 16), lsl #16
 	mov	x1, #0
@@ -22,4 +22,4 @@ ENTRY(__asm_flush_l3_cache)
 	smc	#0
 	mov	x0, #0
 	ret
-ENDPROC(__asm_flush_l3_cache)
+ENDPROC(__asm_flush_l3_dcache)
