@@ -107,15 +107,6 @@ void smp_kick_all_cpus(void);
 void flush_l3_cache(void);
 
 /*
- *Issue a hypervisor call in accordance with ARM "SMC Calling convention",
- * DEN0028A
- *
- * @args: input and output arguments
- *
- */
-void hvc_call(struct pt_regs *args);
-
-/*
  *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
  * DEN0028A
  *
@@ -124,7 +115,8 @@ void hvc_call(struct pt_regs *args);
  */
 void smc_call(struct pt_regs *args);
 
-void __noreturn psci_system_reset(bool smc);
+void __noreturn psci_system_reset(void);
+void __noreturn psci_system_off(void);
 
 #endif	/* __ASSEMBLY__ */
 

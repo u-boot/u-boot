@@ -34,6 +34,19 @@ void *efi_bounce_buffer;
 #endif
 
 /*
+ * U-Boot services each EFI AllocatePool request as a separate
+ * (multiple) page allocation.  We have to track the number of pages
+ * to be able to free the correct amount later.
+ * EFI requires 8 byte alignment for pool allocations, so we can
+ * prepend each allocation with an 64 bit header tracking the
+ * allocation size, and hand out the remainder to the caller.
+ */
+struct efi_pool_allocation {
+	u64 num_pages;
+	char data[];
+};
+
+/*
  * Sorts the memory list from highest address to lowest address
  *
  * When allocating memory we should always start from the highest
@@ -62,9 +75,17 @@ static void efi_mem_sort(void)
  * Unmaps all memory occupied by the carve_desc region from the
  * list entry pointed to by map.
  *
- * Returns 1 if carving was performed or 0 if the regions don't overlap.
- * Returns -1 if it would affect non-RAM regions but overlap_only_ram is set.
- * Carving is only guaranteed to complete when all regions return 0.
+ * Returns EFI_CARVE_NO_OVERLAP if the regions don't overlap.
+ * Returns EFI_CARVE_OVERLAPS_NONRAM if the carve and map overlap,
+ *    and the map contains anything but free ram.
+ *    (only when overlap_only_ram is true)
+ * Returns EFI_CARVE_LOOP_AGAIN if the mapping list should be traversed
+ *    again, as it has been altered
+ * Returns the number of overlapping pages. The pages are removed from
+ *     the mapping list.
+ *
+ * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
+ * to readd the already carved out pages to the mapping.
  */
 static int efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
@@ -95,10 +116,13 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 		if (map_end == carve_end) {
 			/* Full overlap, just remove map */
 			list_del(&map->link);
+			free(map);
+		} else {
+			map->desc.physical_start = carve_end;
+			map->desc.num_pages = (map_end - carve_end)
+					      >> EFI_PAGE_SHIFT;
 		}
 
-		map_desc->physical_start = carve_end;
-		map_desc->num_pages = (map_end - carve_end) >> EFI_PAGE_SHIFT;
 		return (carve_end - carve_start) >> EFI_PAGE_SHIFT;
 	}
 
@@ -114,7 +138,8 @@ static int efi_mem_carve_out(struct efi_mem_list *map,
 	newmap->desc = map->desc;
 	newmap->desc.physical_start = carve_start;
 	newmap->desc.num_pages = (map_end - carve_start) >> EFI_PAGE_SHIFT;
-        list_add_tail(&newmap->link, &efi_mem);
+	/* Insert before current entry (descending address order) */
+	list_add_tail(&newmap->link, &map->link);
 
 	/* Shrink the map to [ map_start ... carve_start ] */
 	map_desc->num_pages = (carve_start - map_start) >> EFI_PAGE_SHIFT;
@@ -315,8 +340,52 @@ void *efi_alloc(uint64_t len, int memory_type)
 
 efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 {
-	/* We don't free, let's cross our fingers we have plenty RAM */
-	return EFI_SUCCESS;
+	uint64_t r = 0;
+
+	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	/* Merging of adjacent free regions is missing */
+
+	if (r == memory)
+		return EFI_SUCCESS;
+
+	return EFI_NOT_FOUND;
+}
+
+efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+			       void **buffer)
+{
+	efi_status_t r;
+	efi_physical_addr_t t;
+	u64 num_pages = (size + sizeof(u64) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+	if (size == 0) {
+		*buffer = NULL;
+		return EFI_SUCCESS;
+	}
+
+	r = efi_allocate_pages(0, pool_type, num_pages, &t);
+
+	if (r == EFI_SUCCESS) {
+		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
+		alloc->num_pages = num_pages;
+		*buffer = alloc->data;
+	}
+
+	return r;
+}
+
+efi_status_t efi_free_pool(void *buffer)
+{
+	efi_status_t r;
+	struct efi_pool_allocation *alloc;
+
+	alloc = container_of(buffer, struct efi_pool_allocation, data);
+	/* Sanity check, was the supplied address returned by allocate_pool */
+	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
+
+	r = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
+
+	return r;
 }
 
 efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
@@ -328,6 +397,7 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	ulong map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
+	unsigned long provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
@@ -342,7 +412,7 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	if (descriptor_version)
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
 
-	if (*memory_map_size < map_size)
+	if (provided_map_size < map_size)
 		return EFI_BUFFER_TOO_SMALL;
 
 	/* Copy list into array */

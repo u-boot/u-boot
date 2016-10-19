@@ -21,4 +21,22 @@ config ARMV8_SPIN_TABLE
 	    - Reserve the code for the spin-table and the release address
 	      via a /memreserve/ region in the Device Tree.
 
+config PSCI_RESET
+	bool "Use PSCI for reset and shutdown"
+	default y
+	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && !TARGET_LS2080A_EMU && \
+		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
+		   !TARGET_LS2080ARDB && !TARGET_LS1012AQDS && \
+		   !TARGET_LS1012ARDB && !TARGET_LS1012AFRDM && \
+		   !TARGET_LS1043ARDB && !ARCH_UNIPHIER && !ARCH_SNAPDRAGON && \
+		   !TARGET_S32V234EVB
+	help
+	  Most armv8 systems have PSCI support enabled in EL3, either through
+	  ARM Trusted Firmware or other firmware.
+
+	  On these systems, we do not need to implement system reset manually,
+	  but can instead rely on higher level firmware to deal with it.
+
+	  Select Y here to make use of PSCI calls for system reset
+
 endif

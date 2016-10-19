@@ -35,9 +35,10 @@ struct efi_disk_obj {
 	const struct blk_desc *desc;
 };
 
-static efi_status_t efi_disk_open_block(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
+static efi_status_t EFIAPI efi_disk_open_block(void *handle,
+			efi_guid_t *protocol, void **protocol_interface,
+			void *agent_handle, void *controller_handle,
+			uint32_t attributes)
 {
 	struct efi_disk_obj *diskobj = handle;
 
@@ -46,7 +47,7 @@ static efi_status_t efi_disk_open_block(void *handle, efi_guid_t *protocol,
 	return EFI_SUCCESS;
 }
 
-static efi_status_t efi_disk_open_dp(void *handle, efi_guid_t *protocol,
+static efi_status_t EFIAPI efi_disk_open_dp(void *handle, efi_guid_t *protocol,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
 {
@@ -108,7 +109,7 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t efi_disk_read_blocks(struct efi_block_io *this,
+static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {
@@ -143,7 +144,7 @@ static efi_status_t efi_disk_read_blocks(struct efi_block_io *this,
 	return EFI_EXIT(r);
 }
 
-static efi_status_t efi_disk_write_blocks(struct efi_block_io *this,
+static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {

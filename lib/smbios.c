@@ -7,10 +7,14 @@
  */
 
 #include <common.h>
+#include <smbios.h>
+#include <tables_csum.h>
 #include <version.h>
-#include <asm/cpu.h>
-#include <asm/smbios.h>
-#include <asm/tables.h>
+#ifdef CONFIG_CPU
+#include <cpu.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -69,7 +73,7 @@ static int smbios_string_table_len(char *start)
 	return len + 1;
 }
 
-static int smbios_write_type0(u32 *current, int handle)
+static int smbios_write_type0(uintptr_t *current, int handle)
 {
 	struct smbios_type0 *t = (struct smbios_type0 *)*current;
 	int len = sizeof(struct smbios_type0);
@@ -79,14 +83,20 @@ static int smbios_write_type0(u32 *current, int handle)
 	t->vendor = smbios_add_string(t->eos, "U-Boot");
 	t->bios_ver = smbios_add_string(t->eos, PLAIN_VERSION);
 	t->bios_release_date = smbios_add_string(t->eos, U_BOOT_DMI_DATE);
+#ifdef CONFIG_ROM_SIZE
 	t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
+#endif
 	t->bios_characteristics = BIOS_CHARACTERISTICS_PCI_SUPPORTED |
 				  BIOS_CHARACTERISTICS_SELECTABLE_BOOT |
 				  BIOS_CHARACTERISTICS_UPGRADEABLE;
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	t->bios_characteristics_ext1 = BIOS_CHARACTERISTICS_EXT1_ACPI;
 #endif
+#ifdef CONFIG_EFI_LOADER
+	t->bios_characteristics_ext1 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
+#endif
 	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
+
 	t->bios_major_release = 0xff;
 	t->bios_minor_release = 0xff;
 	t->ec_major_release = 0xff;
@@ -98,15 +108,20 @@ static int smbios_write_type0(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type1(u32 *current, int handle)
+static int smbios_write_type1(uintptr_t *current, int handle)
 {
 	struct smbios_type1 *t = (struct smbios_type1 *)*current;
 	int len = sizeof(struct smbios_type1);
+	char *serial_str = getenv("serial#");
 
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	t->manufacturer = smbios_add_string(t->eos, CONFIG_SMBIOS_MANUFACTURER);
 	t->product_name = smbios_add_string(t->eos, CONFIG_SMBIOS_PRODUCT_NAME);
+	if (serial_str) {
+		strncpy((char*)t->uuid, serial_str, sizeof(t->uuid));
+		t->serial_number = smbios_add_string(t->eos, serial_str);
+	}
 
 	len = t->length + smbios_string_table_len(t->eos);
 	*current += len;
@@ -114,7 +129,7 @@ static int smbios_write_type1(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type2(u32 *current, int handle)
+static int smbios_write_type2(uintptr_t *current, int handle)
 {
 	struct smbios_type2 *t = (struct smbios_type2 *)*current;
 	int len = sizeof(struct smbios_type2);
@@ -132,7 +147,7 @@ static int smbios_write_type2(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type3(u32 *current, int handle)
+static int smbios_write_type3(uintptr_t *current, int handle)
 {
 	struct smbios_type3 *t = (struct smbios_type3 *)*current;
 	int len = sizeof(struct smbios_type3);
@@ -152,26 +167,47 @@ static int smbios_write_type3(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type4(u32 *current, int handle)
+static void smbios_write_type4_dm(struct smbios_type4 *t)
+{
+	u16 processor_family = SMBIOS_PROCESSOR_FAMILY_UNKNOWN;
+	const char *vendor = "Unknown";
+	const char *name = "Unknown";
+
+#ifdef CONFIG_CPU
+	char processor_name[49];
+	char vendor_name[49];
+	struct udevice *dev = NULL;
+
+	uclass_find_first_device(UCLASS_CPU, &dev);
+	if (dev) {
+		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+
+		if (plat->family)
+			processor_family = plat->family;
+		t->processor_id[0] = plat->id[0];
+		t->processor_id[1] = plat->id[1];
+
+		if (!cpu_get_vendor(dev, vendor_name, sizeof(vendor_name)))
+			vendor = vendor_name;
+		if (!cpu_get_desc(dev, processor_name, sizeof(processor_name)))
+			name = processor_name;
+	}
+#endif
+
+	t->processor_family = processor_family;
+	t->processor_manufacturer = smbios_add_string(t->eos, vendor);
+	t->processor_version = smbios_add_string(t->eos, name);
+}
+
+static int smbios_write_type4(uintptr_t *current, int handle)
 {
 	struct smbios_type4 *t = (struct smbios_type4 *)*current;
 	int len = sizeof(struct smbios_type4);
-	const char *vendor;
-	char *name;
-	char processor_name[CPU_MAX_NAME_LEN];
-	struct cpuid_result res;
 
 	memset(t, 0, sizeof(struct smbios_type4));
 	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
 	t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
-	t->processor_family = gd->arch.x86;
-	vendor = cpu_vendor_name(gd->arch.x86_vendor);
-	t->processor_manufacturer = smbios_add_string(t->eos, vendor);
-	res = cpuid(1);
-	t->processor_id[0] = res.eax;
-	t->processor_id[1] = res.edx;
-	name = cpu_get_name(processor_name);
-	t->processor_version = smbios_add_string(t->eos, name);
+	smbios_write_type4_dm(t);
 	t->status = SMBIOS_PROCESSOR_STATUS_ENABLED;
 	t->processor_upgrade = SMBIOS_PROCESSOR_UPGRADE_NONE;
 	t->l1_cache_handle = 0xffff;
@@ -185,7 +221,7 @@ static int smbios_write_type4(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type32(u32 *current, int handle)
+static int smbios_write_type32(uintptr_t *current, int handle)
 {
 	struct smbios_type32 *t = (struct smbios_type32 *)*current;
 	int len = sizeof(struct smbios_type32);
@@ -198,7 +234,7 @@ static int smbios_write_type32(u32 *current, int handle)
 	return len;
 }
 
-static int smbios_write_type127(u32 *current, int handle)
+static int smbios_write_type127(uintptr_t *current, int handle)
 {
 	struct smbios_type127 *t = (struct smbios_type127 *)*current;
 	int len = sizeof(struct smbios_type127);
@@ -221,7 +257,7 @@ static smbios_write_type smbios_write_funcs[] = {
 	smbios_write_type127
 };
 
-u32 write_smbios_table(u32 addr)
+uintptr_t write_smbios_table(uintptr_t addr)
 {
 	struct smbios_entry *se;
 	u32 tables;

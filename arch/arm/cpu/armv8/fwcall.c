@@ -6,6 +6,7 @@
 
 #include <asm-offsets.h>
 #include <config.h>
+#include <efi_loader.h>
 #include <version.h>
 #include <asm/macro.h>
 #include <asm/psci.h>
@@ -17,7 +18,7 @@
  * x0~x7: input arguments
  * x0~x3: output arguments
  */
-void hvc_call(struct pt_regs *args)
+static void __efi_runtime hvc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -51,7 +52,7 @@ void hvc_call(struct pt_regs *args)
  * x0~x3: output arguments
  */
 
-void smc_call(struct pt_regs *args)
+void __efi_runtime smc_call(struct pt_regs *args)
 {
 	asm volatile(
 		"ldr x0, %0\n"
@@ -75,13 +76,21 @@ void smc_call(struct pt_regs *args)
 		  "x16", "x17");
 }
 
-void __noreturn psci_system_reset(bool conduit_smc)
+/*
+ * For now, all systems we support run at least in EL2 and thus
+ * trigger PSCI calls to EL3 using SMC. If anyone ever wants to
+ * use PSCI on U-Boot running below a hypervisor, please detect
+ * this and set the flag accordingly.
+ */
+static const __efi_runtime_data bool use_smc_for_psci = true;
+
+void __noreturn __efi_runtime psci_system_reset(void)
 {
 	struct pt_regs regs;
 
 	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
 
-	if (conduit_smc)
+	if (use_smc_for_psci)
 		smc_call(&regs);
 	else
 		hvc_call(&regs);
@@ -89,3 +98,45 @@ void __noreturn psci_system_reset(bool conduit_smc)
 	while (1)
 		;
 }
+
+void __noreturn __efi_runtime psci_system_off(void)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_OFF;
+
+	if (use_smc_for_psci)
+		smc_call(&regs);
+	else
+		hvc_call(&regs);
+
+	while (1)
+		;
+}
+
+#ifdef CONFIG_PSCI_RESET
+void reset_misc(void)
+{
+	psci_system_reset();
+}
+
+#ifdef CONFIG_EFI_LOADER
+void __efi_runtime EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data)
+{
+	switch (reset_type) {
+	case EFI_RESET_COLD:
+	case EFI_RESET_WARM:
+		psci_system_reset();
+		break;
+	case EFI_RESET_SHUTDOWN:
+		psci_system_off();
+		break;
+	}
+
+	while (1) { }
+}
+#endif /* CONFIG_EFI_LOADER */
+#endif /* CONFIG_PSCI_RESET */

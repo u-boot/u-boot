@@ -55,6 +55,7 @@ struct __packed smbios_entry {
 #define BIOS_CHARACTERISTICS_SELECTABLE_BOOT	(1 << 16)
 
 #define BIOS_CHARACTERISTICS_EXT1_ACPI		(1 << 0)
+#define BIOS_CHARACTERISTICS_EXT1_UEFI		(1 << 3)
 #define BIOS_CHARACTERISTICS_EXT2_TARGET	(1 << 2)
 
 struct __packed smbios_type0 {
@@ -139,6 +140,9 @@ struct __packed smbios_type3 {
 #define SMBIOS_PROCESSOR_STATUS_ENABLED	1
 #define SMBIOS_PROCESSOR_UPGRADE_NONE	6
 
+#define SMBIOS_PROCESSOR_FAMILY_OTHER	1
+#define SMBIOS_PROCESSOR_FAMILY_UNKNOWN	2
+
 struct __packed smbios_type4 {
 	u8 type;
 	u8 length;
@@ -221,7 +225,7 @@ static inline void fill_smbios_header(void *table, int type,
  * @handle:	the structure's handle, a unique 16-bit number
  * @return:	size of the structure
  */
-typedef int (*smbios_write_type)(u32 *addr, int handle);
+typedef int (*smbios_write_type)(uintptr_t *addr, int handle);
 
 /**
  * write_smbios_table() - Write SMBIOS table
@@ -231,6 +235,6 @@ typedef int (*smbios_write_type)(u32 *addr, int handle);
  * @addr:	start address to write SMBIOS table
  * @return:	end address of SMBIOS table
  */
-u32 write_smbios_table(u32 addr);
+uintptr_t write_smbios_table(uintptr_t addr);
 
 #endif /* _SMBIOS_H_ */

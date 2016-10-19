@@ -15,6 +15,7 @@
 #ifndef _EFI_H
 #define _EFI_H
 
+#include <linux/linkage.h>
 #include <linux/string.h>
 #include <linux/types.h>
 
@@ -22,7 +23,7 @@
 /* EFI uses the Microsoft ABI which is not the default for GCC */
 #define EFIAPI __attribute__((ms_abi))
 #else
-#define EFIAPI
+#define EFIAPI asmlinkage
 #endif
 
 struct efi_device_path;
