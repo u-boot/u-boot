@@ -10,6 +10,8 @@ language: c
 
 addons:
   apt:
+    sources:
+    - sourceline: 'ppa:gns3/qemu'
     packages:
     - cppcheck
     - sloccount
@@ -19,6 +21,10 @@ addons:
     - libsdl1.2-dev
     - python
     - python-virtualenv
+    - qemu-system-arm
+    - qemu-system-mips
+    - qemu-system-ppc
+    - qemu-system-x86
     - gcc-powerpc-linux-gnu
     - gcc-arm-linux-gnueabihf
     - iasl
@@ -27,6 +33,10 @@ install:
  # install latest device tree compiler
  - git clone --depth=1 git://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
  - make -j4 -C /tmp/dtc
+ # Clone uboot-test-hooks
+ - git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
+ - ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
+ - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - export BUILDMAN_ROOT="root:"
  - echo -e "[toolchain]\n${BUILDMAN_ROOT} /usr" > ~/.buildman
@@ -38,7 +48,7 @@ install:
 
 env:
   global:
-    - PATH=/tmp/dtc:$PATH
+    - PATH=/tmp/dtc:/tmp/uboot-test-hooks/bin:$PATH
     - BUILD_DIR=build
     - HOSTCC="cc"
     - HOSTCXX="c++"
@@ -167,5 +177,29 @@ matrix:
     # test/py
     - script:
         - ./test/py/test.py --bd sandbox --build
+    - env:
+        - CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
+      script:
+        - ./test/py/test.py --bd vexpress_ca15_tc2 --id qemu --build;
+          ./test/py/test.py --bd vexpress_ca9x4 --id qemu --build;
+          ./test/py/test.py --bd integratorcp_cm926ejs --id qemu --build;
+    - env:
+        - TOOLCHAIN="mips"
+          CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-"
+      script:
+        - ./test/py/test.py --bd qemu_mips --build -k 'not sleep';
+          ./test/py/test.py --bd qemu_mipsel --build -k 'not sleep';
+          ./test/py/test.py --bd qemu_mips64 --build -k 'not sleep';
+          ./test/py/test.py --bd qemu_mips64el --build -k 'not sleep';
+    - env:
+        - CROSS_COMPILE="/usr/bin/powerpc-linux-gnu-"
+      script:
+        - ./test/py/test.py --bd qemu-ppce500 --build -k 'not sleep'
+    - env:
+        - TOOLCHAIN="x86_64"
+          BUILD_ROM=yes
+          CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-"
+      script:
+        - ./test/py/test.py --bd qemu-x86 --build -k 'not sleep'
 
 # TODO make it perfect ;-r
