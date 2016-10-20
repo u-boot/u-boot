@@ -705,7 +705,6 @@
 			interrupts = <0 48 4>;
 			reg = <0x0 0xff160000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
-			broken-tuning;
 			xlnx,device_id = <0>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x870>;
@@ -720,7 +719,6 @@
 			interrupts = <0 49 4>;
 			reg = <0x0 0xff170000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
-			broken-tuning;
 			xlnx,device_id = <1>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x871>;
