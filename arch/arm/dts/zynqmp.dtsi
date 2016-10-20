@@ -553,10 +553,10 @@
 			compatible = "xlnx,zynqmp-gpio-1.0";
 			status = "disabled";
 			#gpio-cells = <0x2>;
-			#interrupt-cells = <2>;
-			interrupt-controller;
 			interrupt-parent = <&gic>;
 			interrupts = <0 16 4>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 			reg = <0x0 0xff0a0000 0x1000>;
 			power-domains = <&pd_gpio>;
 		};
