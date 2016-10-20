@@ -850,8 +850,7 @@
 		xlnx_dp: dp@fd4a0000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
-			reg = <0x0 0xfd4a0000 0x1000>,
-			      <0x0 0xfd400000 0x20000>;
+			reg = <0x0 0xfd4a0000 0x1000>;
 			interrupts = <0 119 4>;
 			interrupt-parent = <&gic>;
 			clock-names = "aclk", "aud_clk";
