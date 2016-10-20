@@ -3,7 +3,8 @@
 
 # build U-Boot on Travis CI - https://travis-ci.org/
 
-sudo: true
+sudo: required
+dist: trusty
 
 language: c
 
