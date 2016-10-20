@@ -57,10 +57,6 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
 
 script:
- # the execution sequence for each test
- - if [[ "${TEST_CMD}" != "" ]]; then
-     ${TEST_CMD};
-   fi
  # Exit code 129 means warnings only.
  - if [[ "${BUILDMAN}" != "" ]]; then
      set +e;
@@ -154,24 +150,22 @@ matrix:
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
-    - env:
-        - TEST_CMD="cppcheck --force --quiet --inline-suppr ."
+    - script:
+        - cppcheck --force --quiet --inline-suppr .
     # search for TODO within source tree
-    - env:
-        - TEST_CMD="grep -r TODO ."
+    - script:
+        - grep -r TODO .
     # search for FIXME within source tree
-    - env:
-        - TEST_CMD="grep -r FIXME ."
+    - script:
+        - grep -r FIXME .
     # search for HACK within source tree and ignore HACKKIT board
-    - env:
-        - TEST_CMD="grep -r HACK . | grep -v HACKKIT"
       script:
         - grep -r HACK . | grep -v HACKKIT
     # some statistics about the code base
-    - env:
-        - TEST_CMD="sloccount ."
+    - script:
+        - sloccount .
     # test/py
-    - env:
-        - TEST_CMD="./test/py/test.py --bd sandbox --build"
+    - script:
+        - ./test/py/test.py --bd sandbox --build
 
 # TODO make it perfect ;-r
