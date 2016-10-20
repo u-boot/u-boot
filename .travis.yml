@@ -109,6 +109,9 @@ matrix:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
     - env:
+        - BUILDMAN="microblaze"
+          TOOLCHAIN="microblaze"
+    - env:
         - BUILDMAN="mips"
           TOOLCHAIN="mips"
     - env:
@@ -142,6 +145,12 @@ matrix:
     - env:
         - BUILDMAN="aarch64"
           TOOLCHAIN="aarch64"
+    - env:
+        - BUILDMAN="sh4"
+          TOOLCHAIN="sh4"
+    - env:
+        - BUILDMAN="xtensa"
+          TOOLCHAIN="xtensa"
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
