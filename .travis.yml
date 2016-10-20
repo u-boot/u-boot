@@ -69,8 +69,15 @@ script:
  - if [[ "${TEST_CMD}" != "" ]]; then
      ${TEST_CMD};
    fi
+ # Exit code 129 means warnings only.
  - if [[ "${BUILDMAN}" != "" ]]; then
+     set +e;
      tools/buildman/buildman ${BUILDMAN};
+     if [[ "$?" == "0" || "$?" == "129" ]]; then
+       exit 0;
+     else
+       exit $?;
+     fi
    fi
 
 matrix:
