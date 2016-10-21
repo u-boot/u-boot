@@ -653,5 +653,34 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
+
+		usbphy: phy@1c1b810 {
+			compatible = "allwinner,sun50i-a64-usb-phy",
+				     "allwinner,sun8i-a33-usb-phy";
+			reg = <0x01c1b810 0x14>, <0x01c1b800 0x4>;
+			reg-names = "phy_ctrl", "pmu1";
+			status = "disabled";
+			#phy-cells = <1>;
+		};
+
+		ehci1: usb@01c1b000 {
+			compatible = "allwinner,sun50i-a64-ehci",
+				     "generic-ehci";
+			reg = <0x01c1b000 0x100>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+			phys = <&usbphy 1>;
+			phy-names = "usb";
+			status = "disabled";
+		};
+
+		ohci1: usb@01c1b400 {
+			compatible = "allwinner,sun50i-a64-ohci",
+				     "generic-ohci";
+			reg = <0x01c1b400 0x100>;
+			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+			phys = <&usbphy 1>;
+			phy-names = "usb";
+			status = "enabled";
+		};
 	};
 };
