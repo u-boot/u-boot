@@ -19,10 +19,18 @@ config SYS_CONFIG_NAME
 
 config BOOT_INIT_FILE
 	string "boot.bin init register filename"
+	depends on SPL
 	default ""
 	help
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
+
+config PMUFW_INIT_FILE
+	string "PMU firwmare"
+	depends on SPL
+	default ""
+	help
+	  Include PMUFW to boot.bin.
 
 config ZYNQMP_QSPI
 	bool "Configure ZynqMP QSPI"
