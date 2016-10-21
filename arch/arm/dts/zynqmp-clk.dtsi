@@ -218,6 +218,10 @@
 	clocks = <&clk250>, <&clk250>;
 };
 
+&watchdog0 {
+	clocks = <&clk250>;
+};
+
 &xilinx_drm {
 	clocks = <&drm_clock>;
 };
