@@ -14,6 +14,9 @@
 #include <spl.h>
 
 #if defined(CONFIG_MX6)
+#define MX6_MMC_PORT_MASK	GENMASK(12, 11)
+#define MX6_MMC_PORT_2		BIT(11)
+
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
 {
@@ -55,10 +58,11 @@ u32 spl_boot_device(void)
 	/* SD/eSD: 8.5.3, Table 8-15  */
 	case 0x4:
 	case 0x5:
-		return BOOT_DEVICE_MMC1;
 	/* MMC/eMMC: 8.5.3 */
 	case 0x6:
 	case 0x7:
+		if ((reg & MX6_MMC_PORT_MASK) == MX6_MMC_PORT_2)
+			return BOOT_DEVICE_MMC2;
 		return BOOT_DEVICE_MMC1;
 	/* NAND Flash: 8.5.2 */
 	case 0x8 ... 0xf:
