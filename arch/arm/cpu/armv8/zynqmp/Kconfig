@@ -57,6 +57,14 @@ config BOOT_INIT_FILE
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
 
+config PMUFW_INIT_FILE
+	string "PMU firmware"
+	depends on SPL
+	default ""
+	help
+	  Include external PMUFW (Platform Management Unit FirmWare) to
+	  a Xilinx bootable image (boot.bin).
+
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 

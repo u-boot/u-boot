@@ -99,6 +99,8 @@ struct zynqmp_header {
 };
 
 static struct zynqmp_header zynqmpimage_header;
+static void *dynamic_header;
+static FILE *fpmu;
 
 static uint32_t zynqmpimage_checksum(struct zynqmp_header *ptr)
 {
@@ -181,6 +183,13 @@ static void zynqmpimage_print_header(const void *ptr)
 	printf("Image Size   : %lu bytes (%lu bytes packed)\n",
 	       (unsigned long)le32_to_cpu(zynqhdr->image_size),
 	       (unsigned long)le32_to_cpu(zynqhdr->image_stored_size));
+
+	if (zynqhdr->pfw_image_length)
+		printf("PMUFW Size   : %lu bytes (%lu bytes packed)\n",
+		       (unsigned long)le32_to_cpu(zynqhdr->pfw_image_length),
+		       (unsigned long)le32_to_cpu(
+				zynqhdr->total_pfw_image_length));
+
 	printf("Image Load   : 0x%08x\n", le32_to_cpu(zynqhdr->image_load));
 	printf("Checksum     : 0x%08x\n", le32_to_cpu(zynqhdr->checksum));
 
@@ -203,6 +212,8 @@ static void zynqmpimage_print_header(const void *ptr)
 		       le32_to_cpu(zynqhdr->register_init[i].address),
 		       le32_to_cpu(zynqhdr->register_init[i].data));
 	}
+
+	free(dynamic_header);
 }
 
 static int zynqmpimage_check_params(struct image_tool_params *params)
@@ -232,6 +243,44 @@ static int zynqmpimage_check_image_types(uint8_t type)
 	if (type == IH_TYPE_ZYNQMPIMAGE)
 		return EXIT_SUCCESS;
 	return EXIT_FAILURE;
+}
+
+static int fsize(FILE *fp)
+{
+	int size;
+	int origin = ftell(fp);
+
+	fseek(fp, 0L, SEEK_END);
+	size = ftell(fp);
+
+	/* going back */
+	fseek(fp, origin, SEEK_SET);
+
+	return size;
+}
+
+static void zynqmpimage_pmufw(struct zynqmp_header *zynqhdr,
+			      const char *filename)
+{
+	uint32_t size;
+
+	/* Setup PMU fw size */
+	zynqhdr->pfw_image_length = fsize(fpmu);
+	zynqhdr->total_pfw_image_length = zynqhdr->pfw_image_length;
+
+	zynqhdr->image_size -= zynqhdr->pfw_image_length;
+	zynqhdr->image_stored_size -= zynqhdr->total_pfw_image_length;
+
+	/* Read the whole PMUFW to the header */
+	size = fread(&zynqhdr->__reserved4[66], 1,
+		     zynqhdr->pfw_image_length, fpmu);
+	if (size != zynqhdr->pfw_image_length) {
+		fprintf(stderr, "Cannot read PMUFW file: %s\n", filename);
+		fclose(fpmu);
+		exit(1);
+	}
+
+	fclose(fpmu);
 }
 
 static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
@@ -288,11 +337,59 @@ static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	if (params->eflag)
 		zynqhdr->image_load = cpu_to_le32((uint32_t)params->ep);
 
+	/* PMUFW */
+	if (fpmu)
+		zynqmpimage_pmufw(zynqhdr, params->imagename);
+
 	/* User can pass in text file with init list */
 	if (strlen(params->imagename2))
 		zynqmpimage_parse_initparams(zynqhdr, params->imagename2);
 
 	zynqhdr->checksum = zynqmpimage_checksum(zynqhdr);
+}
+
+static int zynqmpimage_vrec_header(struct image_tool_params *params,
+				   struct image_type_params *tparams)
+{
+	struct stat path_stat;
+	char *filename = params->imagename;
+	int err;
+
+	/* Handle static case without PMUFW */
+	tparams->header_size = sizeof(struct zynqmp_header);
+	tparams->hdr = (void *)&zynqmpimage_header;
+
+	/* PMUFW name is passed via params->imagename */
+	if (strlen(filename) == 0)
+		return EXIT_SUCCESS;
+
+	fpmu = fopen(filename, "r");
+	if (!fpmu) {
+		fprintf(stderr, "Cannot open PMUFW file: %s\n", filename);
+		return EXIT_FAILURE;
+	}
+
+	err = fstat(fileno(fpmu), &path_stat);
+	if (err) {
+		fclose(fpmu);
+		fpmu = NULL;
+		return EXIT_FAILURE;
+	}
+
+	if (!S_ISREG(path_stat.st_mode)) {
+		fclose(fpmu);
+		fpmu = NULL;
+		return EXIT_FAILURE;
+	}
+
+	/* Increase header size by PMUFW file size */
+	tparams->header_size += fsize(fpmu);
+
+	/* Allocate buffer with space for PMUFW */
+	dynamic_header = calloc(1, tparams->header_size);
+	tparams->hdr = dynamic_header;
+
+	return EXIT_SUCCESS;
 }
 
 U_BOOT_IMAGE_TYPE(
@@ -307,5 +404,5 @@ U_BOOT_IMAGE_TYPE(
 	NULL,
 	zynqmpimage_check_image_types,
 	NULL,
-	NULL
+	zynqmpimage_vrec_header
 );
