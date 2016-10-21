@@ -10,12 +10,15 @@
 /*
  * e.g. PCI controllers need this
  */
+
+#include <asm/io.h>
+
 #ifdef CONFIG_SYS_OHCI_SWAP_REG_ACCESS
-# define ohci_readl(a) __swap_32(*((volatile u32 *)(a)))
-# define ohci_writel(a, b) (*((volatile u32 *)(b)) = __swap_32((volatile u32)a))
+# define ohci_readl(a) __swap_32(readl(a))
+# define ohci_writel(v, a) writel(__swap_32(v), a)
 #else
-# define ohci_readl(a) (*((volatile u32 *)(a)))
-# define ohci_writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
+# define ohci_readl(a) readl(a)
+# define ohci_writel(v, a) writel(v, a)
 #endif /* CONFIG_SYS_OHCI_SWAP_REG_ACCESS */
 
 #if ARCH_DMA_MINALIGN > 16
