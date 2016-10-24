@@ -964,7 +964,7 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 	flush_dcache_buffer(buffer, data_len);
 
 	/* OHCI handles the DATA-toggles itself, we just use the USB-toggle
-	 * bits for reseting */
+	 * bits for resetting */
 	if (usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe))) {
 		toggle = TD_T_TOGGLE;
 	} else {

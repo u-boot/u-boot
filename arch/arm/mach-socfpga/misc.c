@@ -362,7 +362,7 @@ int arch_early_init_r(void)
 	 * issuing warm reset. The ancient kernel code expects this
 	 * value to be written into the register by the bootloader, so
 	 * to support that old code, we write it here instead of in the
-	 * reset_cpu() function just before reseting the CPU.
+	 * reset_cpu() function just before resetting the CPU.
 	 */
 	writel(0xae9efebc, &sysmgr_regs->romcodegrp_warmramgrp_enable);
 
