@@ -162,7 +162,7 @@ static char bootm_help_text[] =
 #endif
 #if defined(CONFIG_FIT)
 	"\t\nFor the new multi component uImage format (FIT) addresses\n"
-	"\tmust be extened to include component or configuration unit name:\n"
+	"\tmust be extended to include component or configuration unit name:\n"
 	"\taddr:<subimg_uname> - direct component image specification\n"
 	"\taddr#<conf_uname>   - configuration specification\n"
 	"\tUse iminfo command to get the list of existing component\n"
