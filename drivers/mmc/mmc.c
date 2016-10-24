@@ -1595,7 +1595,7 @@ static int mmc_power_init(struct mmc *mmc)
 	ret = device_get_supply_regulator(mmc->dev, "vmmc-supply",
 					  &vmmc_supply);
 	if (ret) {
-		puts("No vmmc supply\n");
+		debug("%s: No vmmc supply\n", mmc->dev->name);
 		return 0;
 	}
 
