@@ -85,8 +85,6 @@ matrix:
     - env:
         - BUILDMAN="arm1136"
     - env:
-        - BUILDMAN="arm1136"
-    - env:
         - BUILDMAN="arm1176"
     - env:
         - BUILDMAN="arm720t"
