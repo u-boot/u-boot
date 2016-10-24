@@ -93,7 +93,7 @@ phys_size_t initdram(int board_type)
 	out_be32((u32 *)0x00000004, 0xbeaddeed);
 	/* issue AUTOREFRESH */
 	out_be32(&dc->dacr0, 0x0000b304);
-	/* let refresh occour */
+	/* let refresh occur */
 	fudelay(1);
 
 	out_be32(&dc->dacr0, 0x0000b344);
