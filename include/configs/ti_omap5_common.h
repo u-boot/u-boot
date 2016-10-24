@@ -114,7 +114,8 @@
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
 		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; fastboot 0;" \
+		"echo Booting into fastboot ...; " \
+		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
 	"fi;" \
 	"run findfdt; " \
 	"run envboot; " \
