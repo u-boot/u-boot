@@ -777,6 +777,13 @@ int cpu_init_r(void)
 		sync();
 	}
 #endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007907
+	flush_dcache();
+	mtspr(L1CSR2, (mfspr(L1CSR2) & ~L1CSR2_DCSTASHID));
+	sync();
+#endif
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005812
 	/*
 	 * A-005812 workaround sets bit 32 of SPR 976 for SoCs running

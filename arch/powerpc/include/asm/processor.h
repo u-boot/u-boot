@@ -501,6 +501,7 @@
 #define   L1CSR1_ICE		0x00000001	/* Instruction Cache Enable */
 #define SPRN_L1CSR2	0x25e	/* L1 Data Cache Control and Status Register 2 */
 #define   L1CSR2_DCWS		0x40000000	/* Data Cache Write Shadow */
+#define   L1CSR2_DCSTASHID  0x000003ff	/* Data Cache Stash ID */
 #define SPRN_L2CSR0	0x3f9	/* L2 Data Cache Control and Status Register 0 */
 #define   L2CSR0_L2E		0x80000000	/* L2 Cache Enable */
 #define   L2CSR0_L2PE		0x40000000	/* L2 Cache Parity/ECC Enable */
