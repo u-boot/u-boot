@@ -160,30 +160,42 @@ matrix:
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
-    - script:
+    - env:
+        - JOB="cppcheck"
+      script:
         - cppcheck --force --quiet --inline-suppr .
     # search for TODO within source tree
-    - script:
+    - env:
+        - JOB="grep TODO"
+      script:
         - grep -r TODO .
     # search for FIXME within source tree
-    - script:
+    - env:
+        - JOB="grep FIXME HACK"
+      script:
         - grep -r FIXME .
     # search for HACK within source tree and ignore HACKKIT board
       script:
         - grep -r HACK . | grep -v HACKKIT
     # some statistics about the code base
-    - script:
+    - env:
+        - JOB="sloccount"
+      script:
         - sloccount .
     # test/py
-    - script:
+    - env:
+        - JOB="test.py sandbox"
+      script:
         - ./test/py/test.py --bd sandbox --build
     - env:
+        - JOB="test.py ARM"
         - CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
       script:
         - ./test/py/test.py --bd vexpress_ca15_tc2 --id qemu --build;
           ./test/py/test.py --bd vexpress_ca9x4 --id qemu --build;
           ./test/py/test.py --bd integratorcp_cm926ejs --id qemu --build;
     - env:
+        - JOB="test.py MIPS"
         - TOOLCHAIN="mips"
           CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-"
       script:
@@ -192,10 +204,12 @@ matrix:
           ./test/py/test.py --bd qemu_mips64 --build -k 'not sleep';
           ./test/py/test.py --bd qemu_mips64el --build -k 'not sleep';
     - env:
+        - JOB="test.py PowerPC"
         - CROSS_COMPILE="/usr/bin/powerpc-linux-gnu-"
       script:
         - ./test/py/test.py --bd qemu-ppce500 --build -k 'not sleep'
     - env:
+        - JOB="test.py x86-64"
         - TOOLCHAIN="x86_64"
           BUILD_ROM=yes
           CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-"
