@@ -41,6 +41,14 @@ config FASTBOOT_BUF_SIZE
 	  downloads. This buffer should be as large as possible for a
 	  platform. Define this to the size available RAM for fastboot.
 
+config FASTBOOT_USB_DEV
+	int "USB controller number"
+	default 0
+	help
+	  Some boards have USB OTG controller other than 0. Define this
+	  option so it can be used in compiled environment (e.g. in
+	  CONFIG_BOOTCOMMAND).
+
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
 	help
