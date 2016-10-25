@@ -109,12 +109,20 @@ int arch_early_init_r(void)
 {
 	struct udevice *dev;
 	int ret;
+	int i;
 
-	/* Call the comphy code via the MISC uclass driver */
-	ret = uclass_get_device(UCLASS_MISC, 0, &dev);
-	if (ret) {
-		debug("COMPHY init failed: %d\n", ret);
-		return -ENODEV;
+	/*
+	 * Loop over all MISC uclass drivers to call the comphy code
+	 * and init all CP110 devices enabled in the DT
+	 */
+	i = 0;
+	while (1) {
+		/* Call the comphy code via the MISC uclass driver */
+		ret = uclass_get_device(UCLASS_MISC, i++, &dev);
+
+		/* We're done, once no further CP110 device is found */
+		if (ret)
+			break;
 	}
 
 	/* Cause the SATA device to do its early init */
