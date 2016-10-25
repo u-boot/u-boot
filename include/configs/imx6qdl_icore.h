@@ -127,6 +127,10 @@
 #ifdef CONFIG_SPL
 # define CONFIG_SPL_MMC_SUPPORT
 # include "imx6_spl.h"
+# ifdef CONFIG_SPL_BUILD
+#  undef CONFIG_DM_GPIO
+#  undef CONFIG_DM_MMC
+# endif
 #endif
 
 #endif /* __IMX6QLD_ICORE_CONFIG_H */
