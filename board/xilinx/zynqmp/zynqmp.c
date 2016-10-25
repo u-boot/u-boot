@@ -335,6 +335,9 @@ int board_late_init(void)
 	}
 
 	reg = readl(&crlapb_base->boot_mode);
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
 	bootmode = reg & BOOT_MODES_MASK;
 
 	puts("Bootmode: ");
