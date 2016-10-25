@@ -148,3 +148,87 @@
 &cps_usb3_1 {
 	status = "okay";
 };
+
+&cpm_comphy {
+	/*
+	 * Serdes Configuration:
+	 * Lane 0: SGMII2
+	 * Lane 1: USB3_HOST0
+	 * Lane 2: KR (10G)
+	 * Lane 3: SATA1
+	 * Lane 4: USB3_HOST1
+	 * Lane 5: PEX2x1
+	 */
+	phy0 {
+		phy-type = <PHY_TYPE_SGMII2>;
+		phy-speed = <PHY_SPEED_3_125G>;
+	};
+
+	phy1 {
+		phy-type = <PHY_TYPE_USB3_HOST0>;
+	};
+
+	phy2 {
+		phy-type = <PHY_TYPE_KR>;
+	};
+
+	phy3 {
+		phy-type = <PHY_TYPE_SATA1>;
+	};
+
+	phy4 {
+		phy-type = <PHY_TYPE_USB3_HOST1>;
+	};
+
+	phy5 {
+		phy-type = <PHY_TYPE_PEX2>;
+	};
+};
+
+&cps_comphy {
+	/*
+	 * Serdes Configuration:
+	 * Lane 0: SGMII2
+	 * Lane 1: USB3_HOST0
+	 * Lane 2: KR (10G)
+	 * Lane 3: SATA1
+	 * Lane 4: Unconnected
+	 * Lane 5: PEX2x1
+	 */
+	phy0 {
+		phy-type = <PHY_TYPE_SGMII2>;
+		phy-speed = <PHY_SPEED_3_125G>;
+	};
+
+	phy1 {
+		phy-type = <PHY_TYPE_USB3_HOST0>;
+	};
+
+	phy2 {
+		phy-type = <PHY_TYPE_KR>;
+	};
+
+	phy3 {
+		phy-type = <PHY_TYPE_SATA1>;
+	};
+
+	phy4 {
+		phy-type = <PHY_TYPE_UNCONNECTED>;
+	};
+
+	phy5 {
+		phy-type = <PHY_TYPE_PEX2>;
+	};
+};
+
+&cpm_utmi0 {
+	status = "okay";
+};
+
+&cpm_utmi1 {
+	status = "okay";
+};
+
+&cps_utmi0 {
+	status = "okay";
+};
