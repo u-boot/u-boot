@@ -44,6 +44,8 @@
  * Device Tree file for Marvell Armada CP110 Slave.
  */
 
+#include <dt-bindings/comphy/comphy_data.h>
+
 / {
 	cp110-slave {
 		#address-cells = <2>;
@@ -162,6 +164,23 @@
 				#size-cells = <0>;
 				interrupts = <GIC_SPI 311 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&cps_syscon0 1 21>;
+				status = "disabled";
+			};
+
+			cps_comphy: comphy@441000 {
+				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
+				reg = <0x441000 0x8>,
+				      <0x120000 0x8>;
+				mux-bitcount = <4>;
+				max-lanes = <6>;
+			};
+
+			cps_utmi0: utmi@580000 {
+				compatible = "marvell,mvebu-utmi-2.6.0";
+				reg = <0x580000 0x1000>,	/* utmi-unit */
+				      <0x440420 0x4>,		/* usb-cfg */
+				      <0x440440 0x4>;		/* utmi-cfg */
+				utmi-port = <UTMI_PHY_TO_USB_HOST0>;
 				status = "disabled";
 			};
 		};
