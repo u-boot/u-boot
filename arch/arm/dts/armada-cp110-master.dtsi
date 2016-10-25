@@ -149,7 +149,7 @@
 				status = "disabled";
 			};
 
-			comphy_cp110: comphy@441000 {
+			cpm_comphy: comphy@441000 {
 				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
 				reg = <0x441000 0x8>,
 				      <0x120000 0x8>;
@@ -157,7 +157,7 @@
 				max-lanes = <6>;
 			};
 
-			utmi0: utmi@580000 {
+			cpm_utmi0: utmi@580000 {
 				compatible = "marvell,mvebu-utmi-2.6.0";
 				reg = <0x580000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */
@@ -166,7 +166,7 @@
 				status = "disabled";
 			};
 
-			utmi1: utmi@581000 {
+			cpm_utmi1: utmi@581000 {
 				compatible = "marvell,mvebu-utmi-2.6.0";
 				reg = <0x581000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */

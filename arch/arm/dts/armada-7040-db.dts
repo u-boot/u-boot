@@ -152,7 +152,7 @@
 	status = "okay";
 };
 
-&comphy_cp110 {
+&cpm_comphy {
 	phy0 {
 		phy-type = <PHY_TYPE_SGMII2>;
 		phy-speed = <PHY_SPEED_3_125G>;
@@ -184,10 +184,10 @@
 	};
 };
 
-&utmi0 {
+&cpm_utmi0 {
 	status = "okay";
 };
 
-&utmi1 {
+&cpm_utmi1 {
 	status = "okay";
 };
