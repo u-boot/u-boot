@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _CONFIG_MVEBU_DB_88F7040_H
-#define _CONFIG_MVEBU_DB_88F7040_H
+#ifndef _CONFIG_MVEBU_ARMADA_8K_H
+#define _CONFIG_MVEBU_ARMADA_8K_H
 
 /*
  * High Level Configuration Options (easy to change)
@@ -128,4 +128,4 @@
 #define CONFIG_CMD_PART
 #define CONFIG_PARTITION_UUIDS
 
-#endif /* _CONFIG_MVEBU_DB_88F7040_H */
+#endif /* _CONFIG_MVEBU_ARMADA_8K_H */
