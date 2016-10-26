@@ -48,6 +48,20 @@ int regulator_set_value(struct udevice *dev, int uV)
 	return ops->set_value(dev, uV);
 }
 
+/*
+ * To be called with at most caution as there is no check
+ * before setting the actual voltage value.
+ */
+int regulator_set_value_force(struct udevice *dev, int uV)
+{
+	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+
+	if (!ops || !ops->set_value)
+		return -ENOSYS;
+
+	return ops->set_value(dev, uV);
+}
+
 int regulator_get_current(struct udevice *dev)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
