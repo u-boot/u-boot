@@ -38,8 +38,7 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
- - export BUILDMAN_ROOT="root:"
- - echo -e "[toolchain]\n${BUILDMAN_ROOT} /usr" > ~/.buildman
+ - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
  - echo -e "\n[toolchain-alias]\nblackfin = bfin\nsh = sh4\nopenrisc = or32" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
@@ -105,8 +104,7 @@ matrix:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
       script:
-        - export BUILDMAN_X86="x86:";
-          echo -e "\n[toolchain-prefix]\n${BUILDMAN_X86} ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman
+        - echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman
     - env:
         - BUILDMAN="kirkwood"
     - env:
