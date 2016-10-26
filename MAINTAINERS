@@ -272,7 +272,7 @@ F:	lib/fdtdec*
 F:	lib/libfdt/
 F:	include/fdt*
 F:	include/libfdt*
-F.	common/cmd_fdt.c
+F:	cmd/fdt.c
 F:	common/fdt_support.c
 
 FREEBSD
