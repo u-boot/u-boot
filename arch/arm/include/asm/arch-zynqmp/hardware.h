@@ -83,6 +83,9 @@ struct iou_scntr_secure {
 #define JTAG_MODE	0x00000000
 #define BOOT_MODE_USE_ALT	0x100
 #define BOOT_MODE_ALT_SHIFT	12
+/* SW secondary boot modes 0xa - 0xd */
+#define SW_USBHOST_MODE	0x0000000A
+#define SW_SATA_MODE	0x0000000B
 
 #define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000
 

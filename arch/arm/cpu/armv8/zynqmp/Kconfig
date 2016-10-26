@@ -71,6 +71,8 @@ config SPL_ZYNQMP_ALT_BOOTMODE
 	default 0x5 if SD_MODE1
 	default 0x6 if EMMC_MODE
 	default 0x7 if USB_MODE
+	default 0xa if SW_USBHOST_MODE
+	default 0xb if SW_SATA_MODE
 
 choice
 	prompt "Boot mode"
@@ -100,6 +102,12 @@ config EMMC_MODE
 
 config USB_MODE
 	bool "USB"
+
+config SW_USBHOST_MODE
+	bool "SW USBHOST_MODE"
+
+config SW_SATA_MODE
+	bool "SW SATA_MODE"
 
 endchoice
 
