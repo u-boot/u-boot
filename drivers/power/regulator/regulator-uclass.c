@@ -82,6 +82,13 @@ int regulator_get_current(struct udevice *dev)
 int regulator_set_current(struct udevice *dev, int uA)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+	struct dm_regulator_uclass_platdata *uc_pdata;
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	if (uc_pdata->min_uA != -ENODATA && uA < uc_pdata->min_uA)
+		return -EINVAL;
+	if (uc_pdata->max_uA != -ENODATA && uA > uc_pdata->max_uA)
+		return -EINVAL;
 
 	if (!ops || !ops->set_current)
 		return -ENOSYS;
