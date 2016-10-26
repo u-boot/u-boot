@@ -74,9 +74,7 @@ script:
      set +e;
      tools/buildman/buildman -P ${BUILDMAN};
      ret=$?;
-     if [[ $ret -eq 0 || $ret -eq 129 ]]; then
-       exit 0;
-     else
+     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
        exit $ret;
      fi;
    fi
