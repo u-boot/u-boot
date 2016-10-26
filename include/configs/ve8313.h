@@ -25,7 +25,6 @@
 #define CONFIG_SYS_TEXT_BASE	0xfe000000
 #endif
 
-#define CONFIG_PCI		1
 #define CONFIG_PCI_INDIRECT_BRIDGE 1
 #define CONFIG_FSL_ELBC		1
 

@@ -56,7 +56,6 @@
 /*
  * PCI - no support
  */
-#undef CONFIG_PCI
 
 /*
  * Partitions

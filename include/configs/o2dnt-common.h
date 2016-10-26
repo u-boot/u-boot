@@ -49,7 +49,6 @@
  * 0x40000000 - 0x4fffffff - PCI Memory
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
-#undef CONFIG_PCI
 #define CONFIG_PCI_PNP		1
 
 #define CONFIG_PCI_MEM_BUS	0x40000000

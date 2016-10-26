@@ -18,8 +18,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#define CONFIG_PCI		1
-
 /*
  * System Clock Setup
  */

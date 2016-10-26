@@ -88,7 +88,6 @@
 /*
  * SuperH PCI Bridge Configration
  */
-#define CONFIG_PCI
 #define CONFIG_SH4_PCI
 #define CONFIG_SH7751_PCI
 #define CONFIG_PCI_PNP

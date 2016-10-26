@@ -24,7 +24,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */

@@ -31,7 +31,6 @@
 #endif
 
 #ifdef CONFIG_PCISLAVE
-#define CONFIG_PCI
 #define CONFIG_83XX_PCICLK	66666666	/* in Hz */
 #endif /* CONFIG_PCISLAVE */
 

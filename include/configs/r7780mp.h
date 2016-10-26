@@ -94,7 +94,6 @@
 
 /* PCI Controller */
 #if defined(CONFIG_CMD_PCI)
-#define CONFIG_PCI
 #define CONFIG_SH4_PCI
 #define CONFIG_SH7780_PCI
 #define CONFIG_SH7780_PCI_LSR	0x07f00001

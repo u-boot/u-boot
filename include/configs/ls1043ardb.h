@@ -310,7 +310,6 @@
 #define SCSI_VEND_ID 0x1b4b
 #define SCSI_DEV_ID  0x9170
 #define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
-#define CONFIG_PCI
 
 #include <asm/fsl_secure_boot.h>
 

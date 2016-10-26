@@ -106,7 +106,6 @@
 #define CONFIG_R8A66597_ENDIAN		0x0000	/* little */
 
 /* PCI Controller */
-#define CONFIG_PCI
 #define CONFIG_SH4_PCI
 #define CONFIG_SH7780_PCI
 #if defined(CONFIG_SH_32BIT)

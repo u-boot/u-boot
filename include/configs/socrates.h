@@ -25,7 +25,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff80000
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support	*/

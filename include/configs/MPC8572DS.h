@@ -33,7 +33,6 @@
 #define CONFIG_MP		1	/* support multiple processors */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
 #define CONFIG_PCIE3		1	/* PCIE controller 3 (ULI bridge) */

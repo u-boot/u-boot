@@ -38,7 +38,6 @@
  */
 #define CONFIG_SYS_SCRATCH_VA	0xc0000000
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE*/
 #define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIe 1 connected to ULI bridge */
 #define CONFIG_PCIE2		1	/* PCIe 2 connected to slot */

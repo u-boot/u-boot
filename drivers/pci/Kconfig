@@ -1,4 +1,12 @@
-menu "PCI"
+menuconfig PCI
+	bool "PCI support"
+	default y if PPC || X86
+	help
+	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
+	  used on some devices to allow the CPU to communicate with its
+	  peripherals.
+
+if PCI
 
 config DM_PCI
 	bool "Enable driver mode for PCI"
@@ -46,4 +54,4 @@ config PCI_XILINX
 	  Enable support for the Xilinx AXI bridge for PCI express, an IP block
 	  which can be used on some generations of Xilinx FPGAs.
 
-endmenu
+endif

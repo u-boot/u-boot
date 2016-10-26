@@ -225,7 +225,6 @@
  * General PCI
  * Addresses are mapped 1-1.
  */
-#define CONFIG_PCI
 
 #if defined(CONFIG_PCI)
 
