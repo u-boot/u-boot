@@ -69,6 +69,9 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
 
 script:
+ # Comments must be outside the command strings below, or the Travis parser
+ # will get confused.
+ #
  # Exit code 129 means warnings only.
  - if [[ "${BUILDMAN}" != "" ]]; then
      set +e;
@@ -77,6 +80,15 @@ script:
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
        exit $ret;
      fi;
+   fi
+ # "not a_test_which_does_not_exist" is a dummy -k parameter which will
+ # never prevent any test from running. That way, we can always pass
+ # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
+ # value.
+ - if [[ "${TEST_PY_BD}" != "" ]]; then
+     ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
+       -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
+       --build-dir `cd .. && pwd`/.bm-work/${TEST_PY_BD};
    fi
 
 matrix:
@@ -178,38 +190,53 @@ matrix:
         - JOB="sloccount"
       script:
         - sloccount .
+
     # test/py
     - env:
-        - JOB="test.py sandbox"
-      script:
-        - ./test/py/test.py --bd sandbox --build
+        - TEST_PY_BD="sandbox"
+          BUILDMAN="^sandbox$"
+          TOOLCHAIN="x86_64"
     - env:
-        - JOB="test.py ARM"
-        - CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
-      script:
-        - ./test/py/test.py --bd vexpress_ca15_tc2 --id qemu --build;
-          ./test/py/test.py --bd vexpress_ca9x4 --id qemu --build;
-          ./test/py/test.py --bd integratorcp_cm926ejs --id qemu --build;
+        - TEST_PY_BD="vexpress_ca15_tc2"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^vexpress_ca15_tc2$"
     - env:
-        - JOB="test.py MIPS"
-        - TOOLCHAIN="mips"
-          CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-"
-      script:
-        - ./test/py/test.py --bd qemu_mips --build -k 'not sleep';
-          ./test/py/test.py --bd qemu_mipsel --build -k 'not sleep';
-          ./test/py/test.py --bd qemu_mips64 --build -k 'not sleep';
-          ./test/py/test.py --bd qemu_mips64el --build -k 'not sleep';
+        - TEST_PY_BD="vexpress_ca9x4"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^vexpress_ca9x4$"
     - env:
-        - JOB="test.py PowerPC"
-        - CROSS_COMPILE="/usr/bin/powerpc-linux-gnu-"
-      script:
-        - ./test/py/test.py --bd qemu-ppce500 --build -k 'not sleep'
+        - TEST_PY_BD="integratorcp_cm926ejs"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^integratorcp_cm926ejs$"
     - env:
-        - JOB="test.py x86-64"
-        - TOOLCHAIN="x86_64"
-          BUILD_ROM=yes
-          CROSS_COMPILE="${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-"
-      script:
-        - ./test/py/test.py --bd qemu-x86 --build -k 'not sleep'
+        - TEST_PY_BD="qemu_mips"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu_mips$"
+          TOOLCHAIN="mips"
+    - env:
+        - TEST_PY_BD="qemu_mipsel"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu_mipsel$"
+          TOOLCHAIN="mips"
+    - env:
+        - TEST_PY_BD="qemu_mips64"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu_mips64$"
+          TOOLCHAIN="mips"
+    - env:
+        - TEST_PY_BD="qemu_mips64el"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu_mips64el$"
+          TOOLCHAIN="mips"
+    - env:
+        - TEST_PY_BD="qemu-ppce500"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu-ppce500$"
+    - env:
+        - TEST_PY_BD="qemu-x86"
+          TEST_PY_TEST_SPEC="not sleep"
+          BUILDMAN="^qemu-x86$"
+          TOOLCHAIN="x86_64"
+          BUILD_ROM="yes"
 
 # TODO make it perfect ;-r
