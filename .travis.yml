@@ -62,7 +62,10 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
   - if [[ "${TOOLCHAIN}" == *or32* ]]; then ./tools/buildman/buildman --fetch-arch or32 ; fi
   - if [[ "${TOOLCHAIN}" == *sh4* ]]; then ./tools/buildman/buildman --fetch-arch sh4 ; fi
-  - if [[ "${TOOLCHAIN}" == *x86_64* ]]; then ./tools/buildman/buildman --fetch-arch x86_64 ; fi
+  - if [[ "${TOOLCHAIN}" == *x86_64* ]]; then
+      ./tools/buildman/buildman --fetch-arch x86_64;
+      echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
+    fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
 
 script:
@@ -104,8 +107,6 @@ matrix:
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
-      script:
-        - echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman
     - env:
         - BUILDMAN="kirkwood"
     - env:
