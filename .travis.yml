@@ -155,6 +155,8 @@ matrix:
     - env:
         - BUILDMAN="siemens"
     - env:
+        - BUILDMAN="tegra -x aarch64"
+    - env:
         - BUILDMAN="ti"
     - env:
         - BUILDMAN="aarch64"
