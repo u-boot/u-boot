@@ -41,6 +41,13 @@ int regulator_get_value(struct udevice *dev)
 int regulator_set_value(struct udevice *dev, int uV)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+	struct dm_regulator_uclass_platdata *uc_pdata;
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	if (uc_pdata->min_uV != -ENODATA && uV < uc_pdata->min_uV)
+		return -EINVAL;
+	if (uc_pdata->max_uV != -ENODATA && uV > uc_pdata->max_uV)
+		return -EINVAL;
 
 	if (!ops || !ops->set_value)
 		return -ENOSYS;
