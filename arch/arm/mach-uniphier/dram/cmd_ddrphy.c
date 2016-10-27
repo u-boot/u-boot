@@ -22,6 +22,8 @@
 /* field separator */
 #define FS "   "
 
+#define ptr_to_uint(p)	((unsigned int)(unsigned long)(p))
+
 struct phy_param {
 	resource_size_t base;
 	unsigned int nr_dx;
@@ -44,6 +46,11 @@ static const struct phy_param uniphier_pro4_phy_param[] = {
 static const struct phy_param uniphier_sld8_phy_param[] = {
 	{ .base = 0x5bc01000, .nr_dx = 2, },
 	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ /* sentinel */ }
+};
+
+static const struct phy_param uniphier_ld11_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 4, },
 	{ /* sentinel */ }
 };
 
@@ -174,15 +181,17 @@ static void mdl_dump(const struct phy_param *phy_param)
 
 #define REG_DUMP(x)							\
 	{ int ofst = PHY_ ## x; void __iomem *reg = phy_base + ofst;	\
-		printf("%3d: %-10s: %p : %08x\n",			\
-		       ofst >> PHY_REG_SHIFT, #x, reg, readl(reg)); }
+		printf("%3d: %-10s: %08x : %08x\n",			\
+		       ofst >> PHY_REG_SHIFT, #x,			\
+		       ptr_to_uint(reg), readl(reg)); }
 
 #define DX_REG_DUMP(dx, x)						\
 	{ int ofst = PHY_DX_BASE + PHY_DX_STRIDE * (dx) +		\
 			PHY_DX_## x;					\
 		void __iomem *reg = phy_base + ofst;			\
-		printf("%3d: DX%d%-7s: %p : %08x\n",			\
-		       ofst >> PHY_REG_SHIFT, (dx), #x, reg, readl(reg)); }
+		printf("%3d: DX%d%-7s: %08x : %08x\n",			\
+		       ofst >> PHY_REG_SHIFT, (dx), #x,			\
+		       ptr_to_uint(reg), readl(reg)); }
 
 static void reg_dump(const struct phy_param *phy_param)
 {
@@ -194,7 +203,7 @@ static void reg_dump(const struct phy_param *phy_param)
 	for (p = 0; phy_param->base; phy_param++, p++) {
 		phy_base = ioremap(phy_param->base, SZ_4K);
 
-		printf("== PHY%d (base: %p) ==\n", p, phy_base);
+		printf("== PHY%d (base: %08x) ==\n", p, ptr_to_uint(phy_base));
 		printf(" No: Name      : Address  : Data\n");
 
 		REG_DUMP(RIDR);
@@ -245,6 +254,9 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	case SOC_UNIPHIER_SLD8:
 		phy_param = uniphier_sld8_phy_param;
+		break;
+	case SOC_UNIPHIER_LD11:
+		phy_param = uniphier_ld11_phy_param;
 		break;
 	default:
 		printf("unsupported SoC\n");
