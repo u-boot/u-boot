@@ -64,6 +64,7 @@ static int show_valid_options(enum ih_category category)
 			genimg_get_cat_name(category, item));
 	}
 	fprintf(stderr, "\n");
+	free(order);
 
 	return 0;
 }
