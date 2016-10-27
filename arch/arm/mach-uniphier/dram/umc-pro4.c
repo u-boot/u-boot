@@ -13,7 +13,7 @@
 #include <asm/processor.h>
 
 #include "../init.h"
-#include "ddrphy-regs.h"
+#include "ddrphy-init.h"
 #include "umc-regs.h"
 
 #define DRAM_CH_NR	2
