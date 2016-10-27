@@ -11,7 +11,6 @@
 #include <linux/sizes.h>
 
 #include "../soc-info.h"
-#include "ddrphy-init.h"
 #include "ddrphy-regs.h"
 
 /* Select either decimal or hexadecimal */
@@ -23,22 +22,29 @@
 /* field separator */
 #define FS "   "
 
-static unsigned long uniphier_ld4_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+struct phy_param {
+	resource_size_t base;
+	unsigned int nr_dx;
 };
 
-static unsigned long uniphier_pro4_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+static const struct phy_param uniphier_ld4_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ /* sentinel */ }
 };
 
-static unsigned long uniphier_sld8_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+static const struct phy_param uniphier_pro4_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5bc02000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ .base = 0x5be02000, .nr_dx = 2, },
+	{ /* sentinel */ }
+};
+
+static const struct phy_param uniphier_sld8_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ /* sentinel */ }
 };
 
 static void print_bdl(void __iomem *reg, int n)
@@ -50,17 +56,17 @@ static void print_bdl(void __iomem *reg, int n)
 		printf(FS PRINTF_FORMAT, (val >> i * 6) & 0x3f);
 }
 
-static void dump_loop(unsigned long *base,
+static void dump_loop(const struct phy_param *phy_param,
 		      void (*callback)(void __iomem *))
 {
 	void __iomem *phy_base, *dx_base;
 	int p, dx;
 
-	for (p = 0; *base; base++, p++) {
-		phy_base = ioremap(*base, SZ_4K);
+	for (p = 0; phy_param->base; phy_param++, p++) {
+		phy_base = ioremap(phy_param->base, SZ_4K);
 		dx_base = phy_base + PHY_DX_BASE;
 
-		for (dx = 0; dx < NR_DATX8_PER_DDRPHY; dx++) {
+		for (dx = 0; dx < phy_param->nr_dx; dx++) {
 			printf("PHY%dDX%d:", p, dx);
 			(*callback)(dx_base);
 			dx_base += PHY_DX_STRIDE;
@@ -80,12 +86,12 @@ static void __wbdl_dump(void __iomem *dx_base)
 	       readl(dx_base + PHY_DX_LCDLR1) & 0xff);
 }
 
-static void wbdl_dump(unsigned long *base)
+static void wbdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Write Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  DQS  (WDQD)\n");
 
-	dump_loop(base, &__wbdl_dump);
+	dump_loop(phy_param, &__wbdl_dump);
 }
 
 static void __rbdl_dump(void __iomem *dx_base)
@@ -97,12 +103,12 @@ static void __rbdl_dump(void __iomem *dx_base)
 	       (readl(dx_base + PHY_DX_LCDLR1) >> 8) & 0xff);
 }
 
-static void rbdl_dump(unsigned long *base)
+static void rbdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Read Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  (RDQSD)\n");
 
-	dump_loop(base, &__rbdl_dump);
+	dump_loop(phy_param, &__rbdl_dump);
 }
 
 static void __wld_dump(void __iomem *dx_base)
@@ -120,12 +126,12 @@ static void __wld_dump(void __iomem *dx_base)
 	}
 }
 
-static void wld_dump(unsigned long *base)
+static void wld_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Write Leveling Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
 
-	dump_loop(base, &__wld_dump);
+	dump_loop(phy_param, &__wld_dump);
 }
 
 static void __dqsgd_dump(void __iomem *dx_base)
@@ -142,12 +148,12 @@ static void __dqsgd_dump(void __iomem *dx_base)
 	}
 }
 
-static void dqsgd_dump(unsigned long *base)
+static void dqsgd_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- DQS Gating Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
 
-	dump_loop(base, &__dqsgd_dump);
+	dump_loop(phy_param, &__dqsgd_dump);
 }
 
 static void __mdl_dump(void __iomem *dx_base)
@@ -158,12 +164,12 @@ static void __mdl_dump(void __iomem *dx_base)
 		printf(FS PRINTF_FORMAT, (mdl >> (8 * i)) & 0xff);
 }
 
-static void mdl_dump(unsigned long *base)
+static void mdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Master Delay Line ---\n");
 	printf("          IPRD TPRD MDLD\n");
 
-	dump_loop(base, &__mdl_dump);
+	dump_loop(phy_param, &__mdl_dump);
 }
 
 #define REG_DUMP(x)							\
@@ -178,15 +184,15 @@ static void mdl_dump(unsigned long *base)
 		printf("%3d: DX%d%-7s: %p : %08x\n",			\
 		       ofst >> PHY_REG_SHIFT, (dx), #x, reg, readl(reg)); }
 
-static void reg_dump(unsigned long *base)
+static void reg_dump(const struct phy_param *phy_param)
 {
 	void __iomem *phy_base;
 	int p, dx;
 
 	printf("\n--- DDR PHY registers ---\n");
 
-	for (p = 0; *base; base++, p++) {
-		phy_base = ioremap(*base, SZ_4K);
+	for (p = 0; phy_param->base; phy_param++, p++) {
+		phy_base = ioremap(phy_param->base, SZ_4K);
 
 		printf("== PHY%d (base: %p) ==\n", p, phy_base);
 		printf(" No: Name      : Address  : Data\n");
@@ -216,7 +222,7 @@ static void reg_dump(unsigned long *base)
 		REG_DUMP(MR2);
 		REG_DUMP(MR3);
 
-		for (dx = 0; dx < NR_DATX8_PER_DDRPHY; dx++) {
+		for (dx = 0; dx < phy_param->nr_dx; dx++) {
 			DX_REG_DUMP(dx, GCR);
 			DX_REG_DUMP(dx, GTR);
 		}
@@ -228,17 +234,17 @@ static void reg_dump(unsigned long *base)
 static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *cmd = argv[1];
-	unsigned long *base;
+	const struct phy_param *phy_param;
 
 	switch (uniphier_get_soc_type()) {
 	case SOC_UNIPHIER_LD4:
-		base = uniphier_ld4_base;
+		phy_param = uniphier_ld4_phy_param;
 		break;
 	case SOC_UNIPHIER_PRO4:
-		base = uniphier_pro4_base;
+		phy_param = uniphier_pro4_phy_param;
 		break;
 	case SOC_UNIPHIER_SLD8:
-		base = uniphier_sld8_base;
+		phy_param = uniphier_sld8_phy_param;
 		break;
 	default:
 		printf("unsupported SoC\n");
@@ -249,22 +255,22 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		cmd = "all";
 
 	if (!strcmp(cmd, "wbdl") || !strcmp(cmd, "all"))
-		wbdl_dump(base);
+		wbdl_dump(phy_param);
 
 	if (!strcmp(cmd, "rbdl") || !strcmp(cmd, "all"))
-		rbdl_dump(base);
+		rbdl_dump(phy_param);
 
 	if (!strcmp(cmd, "wld") || !strcmp(cmd, "all"))
-		wld_dump(base);
+		wld_dump(phy_param);
 
 	if (!strcmp(cmd, "dqsgd") || !strcmp(cmd, "all"))
-		dqsgd_dump(base);
+		dqsgd_dump(phy_param);
 
 	if (!strcmp(cmd, "mdl") || !strcmp(cmd, "all"))
-		mdl_dump(base);
+		mdl_dump(phy_param);
 
 	if (!strcmp(cmd, "reg") || !strcmp(cmd, "all"))
-		reg_dump(base);
+		reg_dump(phy_param);
 
 	return CMD_RET_SUCCESS;
 }

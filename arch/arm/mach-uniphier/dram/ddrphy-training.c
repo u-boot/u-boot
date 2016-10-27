@@ -12,6 +12,9 @@
 #include "ddrphy-init.h"
 #include "ddrphy-regs.h"
 
+/* for LD4, Pro4, sLD8 */
+#define NR_DATX8_PER_DDRPHY	2
+
 void ddrphy_prepare_training(void __iomem *phy_base, int rank)
 {
 	void __iomem *dx_base = phy_base + PHY_DX_BASE;
