@@ -33,6 +33,16 @@ config PCI_PNP
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
+config PCIE_DW_MVEBU
+	bool "Enable Armada-8K PCIe driver (DesignWare core)"
+	default n
+	depends on DM_PCI
+	depends on ARMADA_8K
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Armada-8K SoCs. The PCIe controller on Armada-8K is based on
+	  DesignWare hardware.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI
