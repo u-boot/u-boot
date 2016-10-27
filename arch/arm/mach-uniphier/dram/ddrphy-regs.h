@@ -34,6 +34,7 @@
 #define   PHY_PIR_INITBYP		BIT(31)	/* Initialization Bypass */
 #define PHY_PGCR0		(0x002 << PHY_REG_SHIFT)
 #define PHY_PGCR1		(0x003 << PHY_REG_SHIFT)
+#define   PHY_PGCR1_INHVT		BIT(26)	/* VT Calculation Inhibit */
 #define PHY_PGSR0		(0x004 << PHY_REG_SHIFT)
 #define   PHY_PGSR0_IDONE		BIT(0)	/* Initialization Done */
 #define   PHY_PGSR0_PLDONE		BIT(1)	/* PLL Lock Done */
@@ -58,6 +59,7 @@
 #define   PHY_PGSR0_DTERR_SHIFT		28	/* Data Training Error Status*/
 #define   PHY_PGSR0_DTERR		(7 << (PHY_PGSR0_DTERR_SHIFT))
 #define PHY_PGSR1		(0x005 << PHY_REG_SHIFT)
+#define   PHY_PGSR1_VTSTOP		BIT(30)	/* VT Stop (v3-) */
 #define PHY_PLLCR		(0x006 << PHY_REG_SHIFT)
 #define PHY_PTR0		(0x007 << PHY_REG_SHIFT)
 #define PHY_PTR1		(0x008 << PHY_REG_SHIFT)
