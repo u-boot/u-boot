@@ -137,7 +137,7 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 	int phy, ret;
 
 	writel(UMC_INITSET_INIT1EN, dc_base + UMC_INITSET);
-	while (readl(dc_base + UMC_INITSET) & UMC_INITSTAT_INIT1ST)
+	while (readl(dc_base + UMC_INITSTAT) & UMC_INITSTAT_INIT1ST)
 		cpu_relax();
 
 	for (phy = 0; phy < nr_phy; phy++) {
