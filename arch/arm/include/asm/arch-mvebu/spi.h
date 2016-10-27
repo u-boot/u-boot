@@ -52,6 +52,10 @@ struct kwspi_registers {
 #define KWSPI_ADRLEN_3BYTE	(2 << 8)
 #define KWSPI_ADRLEN_4BYTE	(3 << 8)
 #define KWSPI_ADRLEN_MASK	(3 << 8)
+#define KWSPI_CPOL		(1 << 11)
+#define KWSPI_CPHA		(1 << 12)
+#define KWSPI_TXLSBF		(1 << 13)
+#define KWSPI_RXLSBF		(1 << 14)
 
 #define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */
 #define KWSPI_IRQMASK		0 /* mask SPI interrupt */
