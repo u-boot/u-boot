@@ -13,8 +13,6 @@
 
 int uniphier_ld20_pll_init(const struct uniphier_board_data *bd)
 {
-	unsigned int dpll_ssc_rate = UNIPHIER_BD_DPLL_SSC_GET_RATE(bd->flags);
-
 	uniphier_ld20_sscpll_init(SC_CPLLCTRL, UNIPHIER_PLL_FREQ_DEFAULT, 0, 4);
 	/* do nothing for SPLL */
 	uniphier_ld20_sscpll_init(SC_SPLL2CTRL, UNIPHIER_PLL_FREQ_DEFAULT, 0, 4);
@@ -24,11 +22,14 @@ int uniphier_ld20_pll_init(const struct uniphier_board_data *bd)
 
 	mdelay(1);
 
-	if (dpll_ssc_rate > 0) {
-		uniphier_ld20_sscpll_ssc_en(SC_DPLL0CTRL);
-		uniphier_ld20_sscpll_ssc_en(SC_DPLL1CTRL);
-		uniphier_ld20_sscpll_ssc_en(SC_DPLL2CTRL);
-	}
+	uniphier_ld20_sscpll_ssc_en(SC_CPLLCTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_SPLL2CTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_MPLLCTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_VPPLLCTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_GPPLLCTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_DPLL0CTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_DPLL1CTRL);
+	uniphier_ld20_sscpll_ssc_en(SC_DPLL2CTRL);
 
 	uniphier_ld20_vpll27_init(SC_VPLL27FCTRL);
 	uniphier_ld20_vpll27_init(SC_VPLL27ACTRL);
