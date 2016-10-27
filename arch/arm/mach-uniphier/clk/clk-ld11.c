@@ -5,18 +5,20 @@
  */
 
 #include <common.h>
+#include <spl.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 
+#include "../boot-mode/boot-device.h"
 #include "../init.h"
 #include "../sc64-regs.h"
 #include "../sg-regs.h"
 
 void uniphier_ld11_clk_init(void)
 {
-	if (readl(SG_PINMON0) & BIT(27)) {
-		/* if booted without stand-by MPU */
-
+	/* if booted from a device other than USB, without stand-by MPU */
+	if ((readl(SG_PINMON0) & BIT(27)) &&
+	    spl_boot_device_raw() != BOOT_DEVICE_USB) {
 		writel(1, SG_ETPHYPSHUT);
 		writel(1, SG_ETPHYCNT);
 
