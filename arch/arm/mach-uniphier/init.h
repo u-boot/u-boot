@@ -26,11 +26,12 @@ struct uniphier_board_data {
 
 #define UNIPHIER_BD_DDR3PLUS			BIT(2)
 
-#define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x3)
+#define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x7)
 #define UNIPHIER_BD_BOARD_LD20_REF		0	/* LD20 reference */
 #define UNIPHIER_BD_BOARD_LD20_GLOBAL		1	/* LD20 TV Set */
-#define UNIPHIER_BD_BOARD_LD21_REF		2	/* LD21 reference */
-#define UNIPHIER_BD_BOARD_LD21_GLOBAL		3	/* LD21 TV Set */
+#define UNIPHIER_BD_BOARD_LD20_C1		2	/* LD20 TV Set C1 */
+#define UNIPHIER_BD_BOARD_LD21_REF		3	/* LD21 reference */
+#define UNIPHIER_BD_BOARD_LD21_GLOBAL		4	/* LD21 TV Set */
 };
 
 const struct uniphier_board_data *uniphier_get_board_param(void);

@@ -15,6 +15,7 @@
 #define PHY_MAS_DLY_WIDTH		8
 
 #define PHY_SCL_START			(0x40 << (PHY_REG_SHIFT))
+#define   PHY_SCL_START_GO_DONE		BIT(28)
 #define PHY_SCL_DATA_0			(0x41 << (PHY_REG_SHIFT))
 #define PHY_SCL_DATA_1			(0x42 << (PHY_REG_SHIFT))
 #define PHY_SCL_LATENCY			(0x43 << (PHY_REG_SHIFT))
