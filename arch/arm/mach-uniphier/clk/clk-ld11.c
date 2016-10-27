@@ -9,6 +9,7 @@
 #include <linux/io.h>
 
 #include "../init.h"
+#include "../sc64-regs.h"
 #include "../sg-regs.h"
 
 void uniphier_ld11_clk_init(void)
@@ -25,4 +26,14 @@ void uniphier_ld11_clk_init(void)
 		writel(3, SG_ETPHYPSHUT);
 		writel(7, SG_ETPHYCNT);
 	}
+
+#ifdef CONFIG_USB_EHCI
+	{
+		/* FIXME: the current clk driver can not handle parents */
+		u32 tmp;
+		tmp = readl(SC_CLKCTRL4);
+		tmp |= SC_CLKCTRL4_MIO | SC_CLKCTRL4_STDMAC;
+		writel(tmp, SC_CLKCTRL4);
+	}
+#endif
 }
