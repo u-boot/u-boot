@@ -128,4 +128,12 @@
 #define CONFIG_CMD_PART
 #define CONFIG_PARTITION_UUIDS
 
+/*
+ * PCI configuration
+ */
+#ifdef CONFIG_PCIE_DW_MVEBU
+#define CONFIG_E1000
+#define CONFIG_CMD_PCI
+#endif
+
 #endif /* _CONFIG_MVEBU_ARMADA_8K_H */
