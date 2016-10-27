@@ -24,9 +24,6 @@ struct uniphier_board_data {
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
 
-#define UNIPHIER_BD_DPLL_SSC_GET_RATE(f)	(((f) >> 8) & 0x3)
-#define UNIPHIER_BD_DPLL_SSC_RATE(r)		(((r) & 0x3) << 8)
-
 #define UNIPHIER_BD_DDR3PLUS			BIT(2)
 
 #define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x3)
