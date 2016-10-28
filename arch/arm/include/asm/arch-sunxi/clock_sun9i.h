@@ -37,57 +37,61 @@ struct sunxi_ccm_reg {
 	u8 reserved3[0x04];	/* 0x7c */
 	u32 ats_cfg;		/* 0x80 ats clock configuration */
 	u32 trace_cfg;		/* 0x84 trace clock configuration */
-	u8 reserved4[0xf8];	/* 0x88 */
+	u8 reserved4[0x14];     /* 0x88 */
+	u32 pll_stable_status;  /* 0x9c */
+	u8 reserved5[0xe0];	/* 0xa0 */
 	u32 clk_output_a;	/* 0x180 clk_output_a */
 	u32 clk_output_b;	/* 0x184 clk_output_a */
-	u8 reserved5[0x278];	/* 0x188 */
+	u8 reserved6[0x278];	/* 0x188 */
 
 	u32 nand0_clk_cfg;	/* 0x400 nand0 clock configuration0 */
 	u32 nand0_clk_cfg1;	/* 0x404 nand1 clock configuration */
-	u8 reserved6[0x08];	/* 0x408 */
+	u8 reserved7[0x08];	/* 0x408 */
 	u32 sd0_clk_cfg;	/* 0x410 sd0 clock configuration */
 	u32 sd1_clk_cfg;	/* 0x414 sd1 clock configuration */
 	u32 sd2_clk_cfg;	/* 0x418 sd2 clock configuration */
 	u32 sd3_clk_cfg;	/* 0x41c sd3 clock configuration */
-	u8 reserved7[0x08];	/* 0x420 */
+	u8 reserved8[0x08];	/* 0x420 */
 	u32 ts_clk_cfg;		/* 0x428 transport stream clock cfg */
 	u32 ss_clk_cfg;		/* 0x42c security system clock cfg */
 	u32 spi0_clk_cfg;	/* 0x430 spi0 clock configuration */
 	u32 spi1_clk_cfg;	/* 0x434 spi1 clock configuration */
 	u32 spi2_clk_cfg;	/* 0x438 spi2 clock configuration */
 	u32 spi3_clk_cfg;	/* 0x43c spi3 clock configuration */
-	u8 reserved8[0x50];	/* 0x440 */
+	u8 reserved9[0x44];	/* 0x440 */
+	u32 dram_clk_cfg;       /* 0x484 DRAM (controller) clock config */
+	u8 reserved10[0x8];     /* 0x488 */
 	u32 de_clk_cfg;		/* 0x490 display engine clock configuration */
-	u8 reserved9[0x04];	/* 0x494 */
+	u8 reserved11[0x04];	/* 0x494 */
 	u32 mp_clk_cfg;		/* 0x498 mp clock configuration */
 	u32 lcd0_clk_cfg;	/* 0x49c LCD0 module clock */
 	u32 lcd1_clk_cfg;	/* 0x4a0 LCD1 module clock */
-	u8 reserved10[0x1c];	/* 0x4a4 */
+	u8 reserved12[0x1c];	/* 0x4a4 */
 	u32 csi_isp_clk_cfg;	/* 0x4c0 CSI ISP module clock */
 	u32 csi0_clk_cfg;	/* 0x4c4 CSI0 module clock */
 	u32 csi1_clk_cfg;	/* 0x4c8 CSI1 module clock */
 	u32 fd_clk_cfg;		/* 0x4cc FD module clock */
 	u32 ve_clk_cfg;		/* 0x4d0 VE module clock */
 	u32 avs_clk_cfg;	/* 0x4d4 AVS module clock */
-	u8 reserved11[0x18];	/* 0x4d8 */
+	u8 reserved13[0x18];	/* 0x4d8 */
 	u32 gpu_core_clk_cfg;	/* 0x4f0 GPU core clock config */
 	u32 gpu_mem_clk_cfg;	/* 0x4f4 GPU memory clock config */
 	u32 gpu_axi_clk_cfg;	/* 0x4f8 GPU AXI clock config */
-	u8 reserved12[0x10];	/* 0x4fc */
+	u8 reserved14[0x10];	/* 0x4fc */
 	u32 gp_adc_clk_cfg;	/* 0x50c General Purpose ADC clk config */
-	u8 reserved13[0x70];	/* 0x510 */
+	u8 reserved15[0x70];	/* 0x510 */
 
 	u32 ahb_gate0;		/* 0x580 AHB0 Gating Register */
 	u32 ahb_gate1;		/* 0x584 AHB1 Gating Register */
 	u32 ahb_gate2;		/* 0x588 AHB2 Gating Register */
-	u8 reserved14[0x04];	/* 0x58c */
+	u8 reserved16[0x04];	/* 0x58c */
 	u32 apb0_gate;		/* 0x590 APB0 Clock Gating Register */
 	u32 apb1_gate;		/* 0x594 APB1 Clock Gating Register */
-	u8 reserved15[0x08];	/* 0x598 */
+	u8 reserved17[0x08];	/* 0x598 */
 	u32 ahb_reset0_cfg;	/* 0x5a0 AHB0 Software Reset Register */
 	u32 ahb_reset1_cfg;	/* 0x5a4 AHB1 Software Reset Register */
 	u32 ahb_reset2_cfg;	/* 0x5a8 AHB2 Software Reset Register */
-	u8 reserved16[0x04];	/* 0x5ac */
+	u8 reserved18[0x04];	/* 0x5ac */
 	u32 apb0_reset_cfg;	/* 0x5b0 Bus Software Reset Register 3 */
 	u32 apb1_reset_cfg;	/* 0x5b4 Bus Software Reset Register 4 */
 };
@@ -112,6 +116,8 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_ENABLE		(1 << 31)
 
 /* ahb_gate0 fields */
+#define AHB_GATE_OFFSET_MCTL		14
+
 /* On sun9i all sdc-s share their ahb gate, so ignore (x) */
 #define AHB_GATE_OFFSET_NAND0		13
 #define AHB_GATE_OFFSET_MMC(x)		8
@@ -126,6 +132,8 @@ struct sunxi_ccm_reg {
 #define APB1_GATE_TWI_MASK		(0xf << APB1_GATE_TWI_SHIFT)
 
 /* ahb_reset0_cfg fields */
+#define AHB_RESET_OFFSET_MCTL		14
+
 /* On sun9i all sdc-s share their ahb reset, so ignore (x) */
 #define AHB_RESET_OFFSET_MMC(x)		8
 

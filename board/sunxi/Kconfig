@@ -141,11 +141,13 @@ config DRAM_TYPE
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
+	default 792 if MACH_SUN9I
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
-	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24.
+	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
+	must be a multiple of 24. For the sun9i (A80), the tested values
+	(for DDR3-1600) are 312 to 792.
 
 if MACH_SUN5I || MACH_SUN7I
 config DRAM_MBUS_CLK
