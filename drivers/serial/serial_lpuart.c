@@ -170,9 +170,14 @@ static int lpuart_serial_probe(struct udevice *dev)
 }
 #else
 
+u32 __weak get_lpuart_clk(void)
+{
+	return CONFIG_SYS_CLK_FREQ;
+}
+
 static void _lpuart32_serial_setbrg(struct lpuart_fsl *base, int baudrate)
 {
-	u32 clk = CONFIG_SYS_CLK_FREQ;
+	u32 clk = get_lpuart_clk();
 	u32 sbr;
 
 	sbr = (clk / (16 * baudrate));
