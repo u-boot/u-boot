@@ -242,6 +242,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDMA
+	trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
 	flush_cache(start_addr, trans_bytes);
 #endif
 	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
@@ -607,9 +608,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	 * In case of Host Controller v3.00, find out whether clock
 	 * multiplier is supported.
 	 */
-	caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
-	host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
-			SDHCI_CLOCK_MUL_SHIFT;
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
+				SDHCI_CLOCK_MUL_SHIFT;
+	}
 
 	return 0;
 }

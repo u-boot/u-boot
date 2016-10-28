@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
+#include <power/regulator.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/list.h>
@@ -1582,6 +1583,31 @@ __weak void board_mmc_power_init(void)
 {
 }
 
+static int mmc_power_init(struct mmc *mmc)
+{
+	board_mmc_power_init();
+
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_DM_REGULATOR) && \
+	!defined(CONFIG_SPL_BUILD)
+	struct udevice *vmmc_supply;
+	int ret;
+
+	ret = device_get_supply_regulator(mmc->dev, "vmmc-supply",
+					  &vmmc_supply);
+	if (ret) {
+		debug("%s: No vmmc supply\n", mmc->dev->name);
+		return 0;
+	}
+
+	ret = regulator_set_enable(vmmc_supply, true);
+	if (ret) {
+		puts("Error enabling VMMC supply\n");
+		return ret;
+	}
+#endif
+	return 0;
+}
+
 int mmc_start_init(struct mmc *mmc)
 {
 	bool no_card;
@@ -1606,7 +1632,9 @@ int mmc_start_init(struct mmc *mmc)
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 	mmc_adapter_card_type_ident();
 #endif
-	board_mmc_power_init();
+	err = mmc_power_init(mmc);
+	if (err)
+		return err;
 
 #ifdef CONFIG_DM_MMC_OPS
 	/* The device has already been probed ready for use */
