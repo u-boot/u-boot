@@ -15,10 +15,9 @@
 
 #include "at91-sama5_common.h"
 
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_UART1
-#define CONFIG_USART_ID			ATMEL_ID_UART1
+#define CONFIG_BOARD_EARLY_INIT_F
+
+#define CONFIG_MISC_INIT_R
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -34,14 +33,8 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
-#undef CONFIG_AT91_GPIO
-#define CONFIG_ATMEL_PIO4
-
 /* SerialFlash */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_ATMEL_SPI
-#define CONFIG_ATMEL_SPI0
-#define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		30000000
@@ -51,23 +44,9 @@
 #undef CONFIG_CMD_NAND
 
 /* MMC */
-
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SDHCI
-#define CONFIG_ATMEL_SDHCI
-#define CONFIG_ATMEL_SDHCI0
-#define CONFIG_ATMEL_SDHCI1
-#define CONFIG_SUPPORT_EMMC_BOOT
-#endif
-
-/* USB */
-
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_ATMEL
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #endif
 
 /* USB device */
@@ -78,6 +57,10 @@
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
 #define CONFIG_DOS_PARTITION
 #endif
+
+/* I2C */
+#define AT24MAC_ADDR		0x5c
+#define AT24MAC_REG		0x9a
 
 /* Ethernet Hardware */
 #define CONFIG_MACB

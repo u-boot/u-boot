@@ -80,6 +80,9 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 		      __func__, ret);
 		return ret;
 	}
+
+	clk->dev = dev_clk;
+
 	ops = clk_dev_ops(dev_clk);
 
 	if (ops->of_xlate)

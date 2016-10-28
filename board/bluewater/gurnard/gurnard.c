@@ -414,12 +414,6 @@ void reset_phy(void)
 {
 }
 
-/* This breaks the Ethernet MAC at present */
-void enable_caches(void)
-{
-	dcache_enable();
-}
-
 /* SPI chip select control - only used for FPGA programming */
 #ifdef CONFIG_ATMEL_SPI
 
