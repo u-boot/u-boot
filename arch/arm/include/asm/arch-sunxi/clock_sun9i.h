@@ -96,15 +96,86 @@ struct sunxi_ccm_reg {
 	u32 apb1_reset_cfg;	/* 0x5b4 Bus Software Reset Register 4 */
 };
 
-/* pll4_periph0_cfg */
-#define PLL4_CFG_DEFAULT		0x90002800 /* 960 MHz */
-
 #define CCM_PLL4_CTRL_N_SHIFT		8
 #define CCM_PLL4_CTRL_N_MASK		(0xff << CCM_PLL4_CTRL_N_SHIFT)
 #define CCM_PLL4_CTRL_P_SHIFT		16
 #define CCM_PLL4_CTRL_P_MASK		(0x1 << CCM_PLL4_CTRL_P_SHIFT)
 #define CCM_PLL4_CTRL_M_SHIFT		18
 #define CCM_PLL4_CTRL_M_MASK		(0x1 << CCM_PLL4_CTRL_M_SHIFT)
+
+/* pllx_cfg bits */
+#define CCM_PLL1_CTRL_N(n)		(((n) & 0xff) << 8)
+#define CCM_PLL1_CTRL_P(n)		(((n) & 0x1) << 16)
+#define CCM_PLL1_CTRL_EN		(1 << 31)
+#define CCM_PLL1_CLOCK_TIME_2		(2 << 24)
+
+#define CCM_PLL2_CTRL_N(n)		(((n) & 0xff) << 8)
+#define CCM_PLL2_CTRL_P(n)		(((n) & 0x1) << 16)
+#define CCM_PLL2_CTRL_EN		(1 << 31)
+#define CCM_PLL2_CLOCK_TIME_2		(2 << 24)
+
+#define CCM_PLL4_CTRL_N(n)		(((n) & 0xff) << 8)
+#define CCM_PLL4_CTRL_EN		(1 << 31)
+
+#define CCM_PLL6_CTRL_N(n)		(((n) & 0xff) << 8)
+#define CCM_PLL6_CTRL_P(p)		(((p) & 0x1) << 16)
+#define CCM_PLL6_CTRL_EN		(1 << 31)
+#define CCM_PLL6_CFG_UPDATE             (1 << 30)
+
+#define CCM_PLL12_CTRL_N(n)		(((n) & 0xff) << 8)
+#define CCM_PLL12_CTRL_EN		(1 << 31)
+
+#define PLL_C0CPUX_STATUS               (1 << 0)
+#define PLL_C1CPUX_STATUS               (1 << 1)
+#define PLL_DDR_STATUS                  (1 << 5)
+#define PLL_PERIPH1_STATUS              (1 << 11)
+
+/* cpu_clk_source bits */
+#define C0_CPUX_CLK_SRC_SHIFT           0
+#define C1_CPUX_CLK_SRC_SHIFT           8
+#define C0_CPUX_CLK_SRC_MASK            (1 << C0_CPUX_CLK_SRC_SHIFT)
+#define C1_CPUX_CLK_SRC_MASK            (1 << C1_CPUX_CLK_SRC_SHIFT)
+#define C0_CPUX_CLK_SRC_OSC24M		(0 << C0_CPUX_CLK_SRC_SHIFT)
+#define C0_CPUX_CLK_SRC_PLL1		(1 << C0_CPUX_CLK_SRC_SHIFT)
+#define C1_CPUX_CLK_SRC_OSC24M		(0 << C1_CPUX_CLK_SRC_SHIFT)
+#define C1_CPUX_CLK_SRC_PLL2		(1 << C1_CPUX_CLK_SRC_SHIFT)
+
+/* c0_cfg */
+#define C0_CFG_AXI0_CLK_DIV_RATIO(n)    (((n - 1) & 0x3) << 0)
+#define C0_CFG_APB0_CLK_DIV_RATIO(n)    (((n - 1) & 0x3) << 8)
+
+/* ahbx_cfg */
+#define AHBx_SRC_CLK_SELECT_SHIFT       24
+#define AHBx_SRC_MASK                   (0x3 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHB0_SRC_GTBUS_CLK              (0x0 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHB1_SRC_GTBUS_CLK              (0x0 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHB2_SRC_OSC24M                 (0x0 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHBx_SRC_PLL_PERIPH0            (0x1 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHBx_SRC_PLL_PERIPH1            (0x2 << AHBx_SRC_CLK_SELECT_SHIFT)
+#define AHBx_CLK_DIV_RATIO(n)           (((ffs(n) - 1) & 0x3) << 0)
+
+/* apb0_cfg */
+#define APB0_SRC_CLK_SELECT_SHIFT       24
+#define APB0_SRC_MASK                   (0x1 << APB0_SRC_CLK_SELECT_SHIFT)
+#define APB0_SRC_OSC24M                 (0x0 << APB0_SRC_CLK_SELECT_SHIFT)
+#define APB0_SRC_PLL_PERIPH0            (0x1 << APB0_SRC_CLK_SELECT_SHIFT)
+#define APB0_CLK_DIV_RATIO(n)           (((ffs(n) - 1) & 0x3) << 0)
+
+/* gtbus_clk_cfg */
+#define GTBUS_SRC_CLK_SELECT_SHIFT      24
+#define GTBUS_SRC_MASK                  (0x3 << GTBUS_SRC_CLK_SELECT_SHIFT)
+#define GTBUS_SRC_OSC24M                (0x0 << GTBUS_SRC_CLK_SELECT_SHIFT)
+#define GTBUS_SRC_PLL_PERIPH0           (0x1 << GTBUS_SRC_CLK_SELECT_SHIFT)
+#define GTBUS_SRC_PLL_PERIPH1           (0x2 << GTBUS_SRC_CLK_SELECT_SHIFT)
+#define GTBUS_CLK_DIV_RATIO(n)          (((n - 1) & 0x3) << 0)
+
+/* cci400_clk_cfg */
+#define CCI400_SRC_CLK_SELECT_SHIFT     24
+#define CCI400_SRC_MASK                 (0x3 << CCI400_SRC_CLK_SELECT_SHIFT)
+#define CCI400_SRC_OSC24M               (0x0 << CCI400_SRC_CLK_SELECT_SHIFT)
+#define CCI400_SRC_PLL_PERIPH0          (0x1 << CCI400_SRC_CLK_SELECT_SHIFT)
+#define CCI400_SRC_PLL_PERIPH1          (0x2 << CCI400_SRC_CLK_SELECT_SHIFT)
+#define CCI400_CLK_DIV_RATIO(n)         (((n - 1) & 0x3) << 0)
 
 /* sd#_clk_cfg fields */
 #define CCM_MMC_CTRL_M(x)		((x) - 1)
@@ -145,6 +216,11 @@ struct sunxi_ccm_reg {
 
 
 #ifndef __ASSEMBLY__
+void clock_set_pll1(unsigned int clk);
+void clock_set_pll2(unsigned int clk);
+void clock_set_pll4(unsigned int clk);
+void clock_set_pll6(unsigned int clk);
+void clock_set_pll12(unsigned int clk);
 unsigned int clock_get_pll4_periph0(void);
 #endif
 
