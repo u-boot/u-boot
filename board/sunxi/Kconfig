@@ -163,6 +163,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 4145117 if MACH_SUN9I
 	---help---
 	Set the dram zq value.
 
