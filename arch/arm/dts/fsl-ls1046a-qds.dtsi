@@ -75,3 +75,7 @@
 &duart1 {
 	status = "okay";
 };
+
+&lpuart0 {
+	status = "okay";
+};
