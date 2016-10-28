@@ -417,7 +417,7 @@ T:	git git://git.denx.de/u-boot-sparc.git
 F:	arch/sparc/
 
 SPI
-M:	Jagan Teki <jteki@openedev.com>
+M:	Jagan Teki <jagan@openedev.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-spi.git
 F:	drivers/mtd/spi/
