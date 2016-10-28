@@ -13,7 +13,6 @@
 #include <asm/imx-common/gpio.h>
 
 #define CONFIG_BOARD_NAME	"Advantech DMS-BA16"
-#define CONFIG_DEFAULT_FDT_FILE	"imx6q-dms-ba16.dtb"
 
 #define CONFIG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV	"ttymxc3"

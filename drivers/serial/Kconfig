@@ -309,6 +309,13 @@ config MVEBU_A3700_UART
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.
 
+config MXC_UART
+	bool "IMX serial port support"
+	depends on MX6
+	help
+	  If you have a machine based on a Motorola IMX CPU you
+	  can enable its onboard serial port by enabling this option.
+
 config PIC32_SERIAL
 	bool "Support for Microchip PIC32 on-chip UART"
 	depends on DM_SERIAL && MACH_PIC32

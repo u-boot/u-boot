@@ -346,6 +346,11 @@ config SYS_STDIO_DEREGISTER
 
 endmenu
 
+config DEFAULT_FDT_FILE
+	string "Default fdt file"
+	help
+	  This option is used to set the default fdt file to boot OS.
+
 config SYS_NO_FLASH
 	bool "Disable support for parallel NOR flash"
 	default n

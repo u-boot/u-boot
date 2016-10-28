@@ -17,3 +17,17 @@ config IMX_BOOTAUX
 	depends on ARCH_MX7 || ARCH_MX6
 	help
 	  bootaux [addr] to boot auxiliary core.
+
+config USE_IMXIMG_PLUGIN
+	bool "Use imximage plugin code"
+	depends on ARCH_MX7 || ARCH_MX6
+	help
+	  i.MX6/7 supports DCD and Plugin. Enable this configuration
+	  to use Plugin, otherwise DCD will be used.
+
+config SECURE_BOOT
+	bool "Support i.MX HAB features"
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	help
+	  This option enables the support for secure boot (HAB).
+	  See doc/README.mxc_hab for more details.

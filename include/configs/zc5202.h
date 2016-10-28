@@ -13,8 +13,6 @@
 #define CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
-#define CONFIG_DEFAULT_FDT_FILE	"imx6q-zc5202.dtb"
-
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
 #include "el6x_common.h"

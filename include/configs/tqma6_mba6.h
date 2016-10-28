@@ -9,12 +9,6 @@
 #ifndef __CONFIG_TQMA6_MBA6_H
 #define __CONFIG_TQMA6_MBA6_H
 
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6dl-mba6x.dtb"
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6q-mba6x.dtb"
-#endif
-
 #define CONFIG_DTT_SENSORS		{ 0, 1 }
 
 #define CONFIG_FEC_XCV_TYPE		RGMII

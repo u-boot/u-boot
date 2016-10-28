@@ -80,6 +80,13 @@ config NAND_ARASAN
 	  controller. This uses the hardware ECC for read and
 	  write operations.
 
+config NAND_MXS
+	bool "MXS NAND support"
+	depends on MX6
+	help
+	  This enables NAND driver for the NAND flash controller on the
+	  MXS processors.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config
