@@ -495,6 +495,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
 #define MX6_MMDC_P0_MPDGCTRL1	0x021b0840
 #define MX6_MMDC_P0_MPRDDLCTL	0x021b0848
 #define MX6_MMDC_P0_MPWRDLCTL	0x021b0850
+#define MX6_MMDC_P0_MPZQLP2CTL	0x021b085C
 #define MX6_MMDC_P0_MPMUR0	0x021b08b8
 
 #define MX6_MMDC_P1_MDCTL	0x021b4000
@@ -522,6 +523,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
 #define MX6_MMDC_P1_MPDGCTRL1	0x021b4840
 #define MX6_MMDC_P1_MPRDDLCTL	0x021b4848
 #define MX6_MMDC_P1_MPWRDLCTL	0x021b4850
+#define MX6_MMDC_P1_MPZQLP2CTL	0x021b485C
 #define MX6_MMDC_P1_MPMUR0	0x021b48b8
 
 #endif	/*__ASM_ARCH_MX6_DDR_H__ */
