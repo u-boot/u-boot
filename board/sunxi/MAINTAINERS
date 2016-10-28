@@ -94,6 +94,11 @@ M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
 F:	configs/A33-OLinuXino_defconfig
 
+A80 OPTIMUS BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Merrii_A80_Optimus_defconfig
+
 AINOL AW1 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
