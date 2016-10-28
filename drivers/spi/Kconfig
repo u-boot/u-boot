@@ -32,6 +32,14 @@ config ATH79_SPI
 	  uses driver model and requires a device tree binding to operate.
 	  please refer to doc/device-tree-bindings/spi/spi-ath79.txt.
 
+config ATMEL_SPI
+	bool "Atmel SPI driver"
+	depends on ARCH_AT91
+	help
+	  This enables driver for the Atmel SPI Controller, present on
+	  many AT32 (AVR32) and AT91 (ARM) chips. This driver can be
+	  used to access the SPI Flash, such as AT25DF321.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
