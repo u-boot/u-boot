@@ -39,7 +39,6 @@
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-#define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
  * Serial Console Configuration
