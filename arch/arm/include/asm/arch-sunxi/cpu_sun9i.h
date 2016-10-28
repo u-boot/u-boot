@@ -24,6 +24,8 @@
 #define SUNXI_TSC_BASE			(REGS_AHB0_BASE + 0x4000)
 
 #define SUNXI_GTBUS_BASE		(REGS_AHB0_BASE + 0x9000)
+/* SID address space starts at 0x01ce000, but e-fuse is at offset 0x200 */
+#define SUNXI_SID_BASE			(REGS_AHB0_BASE + 0xe200)
 
 #define SUNXI_MMC0_BASE			(REGS_AHB0_BASE + 0x0f000)
 #define SUNXI_MMC1_BASE			(REGS_AHB0_BASE + 0x10000)
