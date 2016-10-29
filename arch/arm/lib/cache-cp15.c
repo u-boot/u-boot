@@ -71,7 +71,7 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
 	start = start >> MMU_SECTION_SHIFT;
-	debug("%s: start=%pa, size=%zu, option=%d\n", __func__, &start, size,
+	debug("%s: start=%pa, size=%zu, option=0x%x\n", __func__, &start, size,
 	      option);
 	for (upto = start; upto < end; upto++)
 		set_section_dcache(upto, option);
