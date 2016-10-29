@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Socionext Inc.
  *
- * based on commit 9073035a9860f892f8d1345dfb0ea862b5021145 of Diag
+ * based on commit a7a36122aa072fe1bb06e02b73b3634b7a6c555a of Diag
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,7 +14,7 @@
 #include <asm/processor.h>
 
 #include "../init.h"
-#include "ddrphy-ld20-regs.h"
+#include "ddruqphy-regs.h"
 #include "umc64-regs.h"
 
 #define DRAM_CH_NR	3
@@ -33,6 +33,7 @@ enum dram_size {
 enum dram_board {		/* board type */
 	DRAM_BOARD_LD20_REF,	/* LD20 reference */
 	DRAM_BOARD_LD20_GLOBAL,	/* LD20 TV */
+	DRAM_BOARD_LD20_C1,	/* LD20 TV C1 */
 	DRAM_BOARD_LD21_REF,	/* LD21 reference */
 	DRAM_BOARD_LD21_GLOBAL,	/* LD21 TV */
 	DRAM_BOARD_NR,
@@ -42,6 +43,7 @@ enum dram_board {		/* board type */
 static const int ddrphy_adrctrl[DRAM_BOARD_NR][DRAM_CH_NR] = {
 	{268 - 262, 268 - 263, 268 - 378},	/* LD20 reference */
 	{268 - 262, 268 - 263, 268 - 378},	/* LD20 TV */
+	{268 - 262, 268 - 263, 268 - 378},	/* LD20 TV C1 */
 	{268 - 212, 268 - 268, /* No CH2 */},	/* LD21 reference */
 	{268 - 212, 268 - 268, /* No CH2 */},	/* LD21 TV */
 };
@@ -49,6 +51,7 @@ static const int ddrphy_adrctrl[DRAM_BOARD_NR][DRAM_CH_NR] = {
 static const int ddrphy_dlltrimclk[DRAM_BOARD_NR][DRAM_CH_NR] = {
 	{268, 268, 268},			/* LD20 reference */
 	{268, 268, 268},			/* LD20 TV */
+	{189, 189, 189},			/* LD20 TV C1 */
 	{268, 268 + 252, /* No CH2 */},		/* LD21 reference */
 	{268, 268 + 202, /* No CH2 */},		/* LD21 TV */
 };
@@ -56,6 +59,7 @@ static const int ddrphy_dlltrimclk[DRAM_BOARD_NR][DRAM_CH_NR] = {
 static const int ddrphy_dllrecalib[DRAM_BOARD_NR][DRAM_CH_NR] = {
 	{268 - 378, 268 - 263, 268 - 378},	/* LD20 reference */
 	{268 - 378, 268 - 263, 268 - 378},	/* LD20 TV */
+	{268 - 378, 268 - 263, 268 - 378},	/* LD20 TV C1 */
 	{268 - 212, 268 - 536, /* No CH2 */},	/* LD21 reference */
 	{268 - 212, 268 - 536, /* No CH2 */},	/* LD21 TV */
 };
@@ -63,6 +67,7 @@ static const int ddrphy_dllrecalib[DRAM_BOARD_NR][DRAM_CH_NR] = {
 static const u32 ddrphy_phy_pad_ctrl[DRAM_BOARD_NR][DRAM_CH_NR] = {
 	{0x50B840B1, 0x50B840B1, 0x50B840B1},	/* LD20 reference */
 	{0x50BB40B1, 0x50BB40B1, 0x50BB40B1},	/* LD20 TV */
+	{0x50BB40B1, 0x50BB40B1, 0x50BB40B1},	/* LD20 TV C1 */
 	{0x50BB40B4, 0x50B840B1, /* No CH2 */},	/* LD21 reference */
 	{0x50BB40B4, 0x50B840B1, /* No CH2 */},	/* LD21 TV */
 };
@@ -93,6 +98,26 @@ static const int ddrphy_op_dq_shift_val[DRAM_BOARD_NR][DRAM_CH_NR][32] = {
 		},
 	},
 	{ /* LD20 TV */
+		{
+			2, 1, 0, 1, 2, 1, 1, 1,
+			2, 1, 1, 2, 1, 1, 1, 1,
+			1, 2, 1, 1, 1, 2, 1, 1,
+			2, 2, 0, 1, 1, 2, 2, 1,
+		},
+		{
+			1, 1, 0, 1, 2, 2, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 0, 0, 1, 1, 0, 0,
+			0, 1, 1, 1, 2, 1, 2, 1,
+		},
+		{
+			2, 2, 0, 2, 1, 1, 2, 1,
+			1, 1, 0, 1, 1, -1, 1, 1,
+			2, 2, 2, 2, 1, 1, 1, 1,
+			1, 1, 1, 0, 2, 2, 1, 2,
+		},
+	},
+	{ /* LD20 TV C1 */
 		{
 			2, 1, 0, 1, 2, 1, 1, 1,
 			2, 1, 1, 2, 1, 1, 1, 1,
@@ -164,6 +189,26 @@ static int ddrphy_ip_dq_shift_val[DRAM_BOARD_NR][DRAM_CH_NR][32] = {
 		},
 	},
 	{ /* LD20 TV */
+		{
+			3, 3, 3, 2, 3, 2, 0, 2,
+			2, 3, 3, 1, 2, 2, 2, 2,
+			2, 2, 2, 2, 0, 1, 1, 1,
+			2, 2, 2, 2, 3, 0, 2, 2,
+		},
+		{
+			2, 2, 1, 1, -1, 1, 1, 1,
+			2, 0, 2, 2, 2, 1, 0, 2,
+			2, 1, 2, 1, 0, 1, 1, 1,
+			2, 2, 2, 2, 2, 2, 2, 2,
+		},
+		{
+			2, 2, 3, 2, 1, 2, 2, 2,
+			2, 3, 4, 2, 3, 4, 3, 3,
+			2, 2, 1, 2, 1, 1, 1, 1,
+			2, 2, 2, 2, 1, 2, 2, 1,
+		},
+	},
+	{ /* LD20 TV C1 */
 		{
 			3, 3, 3, 2, 3, 2, 0, 2,
 			2, 3, 3, 1, 2, 2, 2, 2,
@@ -387,7 +432,7 @@ static int ddrphy_training(void __iomem *phy_base, enum dram_board board,
 	writel(0x00010000, phy_base + PHY_DLL_TRIM_2);
 	writel(0x50000000, phy_base + PHY_SCL_START);
 
-	while (readl(phy_base + PHY_SCL_START) & BIT(28))
+	while (readl(phy_base + PHY_SCL_START) & PHY_SCL_START_GO_DONE)
 		cpu_relax();
 
 	writel(0x00000000, phy_base + PHY_DISABLE_GATING_FOR_SCL);
@@ -396,13 +441,13 @@ static int ddrphy_training(void __iomem *phy_base, enum dram_board board,
 	writel(0xFBF8FFFF, phy_base + PHY_SCL_START_ADDR);
 	writel(0x11000000, phy_base + PHY_SCL_START);
 
-	while (readl(phy_base + PHY_SCL_START) & BIT(28))
+	while (readl(phy_base + PHY_SCL_START) & PHY_SCL_START_GO_DONE)
 		cpu_relax();
 
 	writel(0xFBF0FFFF, phy_base + PHY_SCL_START_ADDR);
 	writel(0x30500000, phy_base + PHY_SCL_START);
 
-	while (readl(phy_base + PHY_SCL_START) & BIT(28))
+	while (readl(phy_base + PHY_SCL_START) & PHY_SCL_START_GO_DONE)
 		cpu_relax();
 
 	writel(0x00000001, phy_base + PHY_DISABLE_GATING_FOR_SCL);
@@ -411,12 +456,12 @@ static int ddrphy_training(void __iomem *phy_base, enum dram_board board,
 	writel(0xf10e4a56, phy_base + PHY_SCL_DATA_1);
 	writel(0x11000000, phy_base + PHY_SCL_START);
 
-	while (readl(phy_base + PHY_SCL_START) & BIT(28))
+	while (readl(phy_base + PHY_SCL_START) & PHY_SCL_START_GO_DONE)
 		cpu_relax();
 
 	writel(0x34000000, phy_base + PHY_SCL_START);
 
-	while (readl(phy_base + PHY_SCL_START) & BIT(28))
+	while (readl(phy_base + PHY_SCL_START) & PHY_SCL_START_GO_DONE)
 		cpu_relax();
 
 	writel(0x00000003, phy_base + PHY_DISABLE_GATING_FOR_SCL);
@@ -445,45 +490,42 @@ static int ddrphy_training(void __iomem *phy_base, enum dram_board board,
 }
 
 /* UMC */
-static u32 umc_initctla[DRAM_FREQ_NR] = {0x71016D11};
-static u32 umc_initctlb[DRAM_FREQ_NR] = {0x07E390AC};
-static u32 umc_initctlc[DRAM_FREQ_NR] = {0x00FF00FF};
-static u32 umc_drmmr0[DRAM_FREQ_NR] = {0x00000114};
-static u32 umc_drmmr2[DRAM_FREQ_NR] = {0x000002a0};
+static const u32 umc_initctla[DRAM_FREQ_NR] = {0x71016D11};
+static const u32 umc_initctlb[DRAM_FREQ_NR] = {0x07E390AC};
+static const u32 umc_initctlc[DRAM_FREQ_NR] = {0x00FF00FF};
+static const u32 umc_drmmr0[DRAM_FREQ_NR] = {0x00000114};
+static const u32 umc_drmmr2[DRAM_FREQ_NR] = {0x000002a0};
 
-static u32 umc_memconf0a[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+static const u32 umc_memconf0a[DRAM_FREQ_NR][DRAM_SZ_NR] = {
 	/*  256MB       512MB */
 	{0x00000601, 0x00000801},	/* 1866 MHz */
 };
 
-static u32 umc_memconf0b[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+static const u32 umc_memconf0b[DRAM_FREQ_NR][DRAM_SZ_NR] = {
 	/*  256MB       512MB */
 	{0x00000120, 0x00000130},	/* 1866 MHz */
 };
 
-static u32 umc_memconfch[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+static const u32 umc_memconfch[DRAM_FREQ_NR][DRAM_SZ_NR] = {
 	/*  256MB       512MB */
 	{0x00033603, 0x00033803},	/* 1866 MHz */
 };
 
-static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x060D0D20};
-static u32 umc_cmdctlb[DRAM_FREQ_NR] = {0x2D211C08};
-static u32 umc_cmdctlc[DRAM_FREQ_NR] = {0x00150C04};
-static u32 umc_cmdctle[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+static const u32 umc_cmdctla[DRAM_FREQ_NR] = {0x060D0D20};
+static const u32 umc_cmdctlb[DRAM_FREQ_NR] = {0x2D211C08};
+static const u32 umc_cmdctlc[DRAM_FREQ_NR] = {0x00150C04};
+static const u32 umc_cmdctle[DRAM_FREQ_NR][DRAM_SZ_NR] = {
 	/*  256MB       512MB */
 	{0x0049071D, 0x0078071D},	/* 1866 MHz */
 };
 
-static u32 umc_rdatactl_d0[DRAM_FREQ_NR] = {0x00000610};
-static u32 umc_rdatactl_d1[DRAM_FREQ_NR] = {0x00000610};
-static u32 umc_wdatactl_d0[DRAM_FREQ_NR] = {0x00000204};
-static u32 umc_wdatactl_d1[DRAM_FREQ_NR] = {0x00000204};
-static u32 umc_odtctl_d0[DRAM_FREQ_NR] = {0x02000002};
-static u32 umc_odtctl_d1[DRAM_FREQ_NR] = {0x02000002};
-static u32 umc_dataset[DRAM_FREQ_NR] = {0x04000000};
+static const u32 umc_rdatactl[DRAM_FREQ_NR] = {0x00000610};
+static const u32 umc_wdatactl[DRAM_FREQ_NR] = {0x00000204};
+static const u32 umc_odtctl[DRAM_FREQ_NR] = {0x02000002};
+static const u32 umc_dataset[DRAM_FREQ_NR] = {0x04000000};
 
-static u32 umc_flowctla[DRAM_FREQ_NR] = {0x0081E01E};
-static u32 umc_directbusctrla[DRAM_CH_NR] = {
+static const u32 umc_flowctla[DRAM_FREQ_NR] = {0x0081E01E};
+static const u32 umc_directbusctrla[DRAM_CH_NR] = {
 	0x00000000, 0x00000001, 0x00000001
 };
 
@@ -546,13 +588,13 @@ static int umc_dc_init(void __iomem *dc_base, unsigned int freq,
 	writel(umc_cmdctlc[freq_e], dc_base + UMC_CMDCTLC);
 	writel(umc_cmdctle[freq_e][size_e], dc_base + UMC_CMDCTLE);
 
-	writel(umc_rdatactl_d0[freq_e], dc_base + UMC_RDATACTL_D0);
-	writel(umc_rdatactl_d1[freq_e], dc_base + UMC_RDATACTL_D1);
+	writel(umc_rdatactl[freq_e], dc_base + UMC_RDATACTL_D0);
+	writel(umc_rdatactl[freq_e], dc_base + UMC_RDATACTL_D1);
 
-	writel(umc_wdatactl_d0[freq_e], dc_base + UMC_WDATACTL_D0);
-	writel(umc_wdatactl_d1[freq_e], dc_base + UMC_WDATACTL_D1);
-	writel(umc_odtctl_d0[freq_e], dc_base + UMC_ODTCTL_D0);
-	writel(umc_odtctl_d1[freq_e], dc_base + UMC_ODTCTL_D1);
+	writel(umc_wdatactl[freq_e], dc_base + UMC_WDATACTL_D0);
+	writel(umc_wdatactl[freq_e], dc_base + UMC_WDATACTL_D1);
+	writel(umc_odtctl[freq_e], dc_base + UMC_ODTCTL_D0);
+	writel(umc_odtctl[freq_e], dc_base + UMC_ODTCTL_D1);
 	writel(umc_dataset[freq_e], dc_base + UMC_DATASET);
 
 	writel(0x00400020, dc_base + UMC_DCCGCTL);
@@ -643,6 +685,9 @@ int uniphier_ld20_umc_init(const struct uniphier_board_data *bd)
 		break;
 	case UNIPHIER_BD_BOARD_LD20_GLOBAL:
 		board = DRAM_BOARD_LD20_GLOBAL;
+		break;
+	case UNIPHIER_BD_BOARD_LD20_C1:
+		board = DRAM_BOARD_LD20_C1;
 		break;
 	case UNIPHIER_BD_BOARD_LD21_REF:
 		board = DRAM_BOARD_LD21_REF;

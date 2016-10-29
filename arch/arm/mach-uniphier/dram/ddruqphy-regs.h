@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _DDRPHY_LD20_REGS_H
-#define _DDRPHY_LD20_REGS_H
+#ifndef _DDRUQPHY_REGS_H
+#define _DDRUQPHY_REGS_H
 
 #include <linux/bitops.h>
 
@@ -15,6 +15,7 @@
 #define PHY_MAS_DLY_WIDTH		8
 
 #define PHY_SCL_START			(0x40 << (PHY_REG_SHIFT))
+#define   PHY_SCL_START_GO_DONE		BIT(28)
 #define PHY_SCL_DATA_0			(0x41 << (PHY_REG_SHIFT))
 #define PHY_SCL_DATA_1			(0x42 << (PHY_REG_SHIFT))
 #define PHY_SCL_LATENCY			(0x43 << (PHY_REG_SHIFT))
@@ -75,4 +76,4 @@
 #define PHY_VREF_TRAINING		(0x72 << (PHY_REG_SHIFT))
 #define PHY_SCL_GATE_TIMING		(0x78 << (PHY_REG_SHIFT))
 
-#endif /* _DDRPHY_LD20_REGS_H */
+#endif /* _DDRUQPHY_REGS_H */

@@ -67,8 +67,6 @@ int uniphier_ld20_sscpll_ssc_en(unsigned long reg_base)
 	if (!base)
 		return -ENOMEM;
 
-	mdelay(1);
-
 	tmp = readl(base);	/* SSCPLLCTRL */
 	tmp |= SC_PLLCTRL_SSC_EN;
 	writel(tmp, base);

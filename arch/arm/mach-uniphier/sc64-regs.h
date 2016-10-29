@@ -52,6 +52,8 @@
 #define SC_CLKCTRL		(SC_BASE_ADDR | 0x2100)
 #define SC_CLKCTRL3		(SC_BASE_ADDR | 0x2108)
 #define SC_CLKCTRL4		(SC_BASE_ADDR | 0x210c)
+#define   SC_CLKCTRL4_MIO		(1 << 10)
+#define   SC_CLKCTRL4_STDMAC		(1 << 8)
 #define   SC_CLKCTRL4_PERI		(1 << 7)
 #define   SC_CLKCTRL4_ETHER		(1 << 6)
 #define   SC_CLKCTRL4_NAND		(1 << 0)

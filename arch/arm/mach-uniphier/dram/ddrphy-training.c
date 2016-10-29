@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -8,35 +9,38 @@
 #include <linux/err.h>
 #include <linux/io.h>
 
+#include "ddrphy-init.h"
 #include "ddrphy-regs.h"
 
-void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank)
+/* for LD4, Pro4, sLD8 */
+#define NR_DATX8_PER_DDRPHY	2
+
+void ddrphy_prepare_training(void __iomem *phy_base, int rank)
 {
+	void __iomem *dx_base = phy_base + PHY_DX_BASE;
 	int dx;
-	u32 __iomem tmp, *p;
+	u32 tmp;
 
 	for (dx = 0; dx < NR_DATX8_PER_DDRPHY; dx++) {
-		p = &phy->dx[dx].gcr;
-
-		tmp = readl(p);
+		tmp = readl(dx_base + PHY_DX_GCR);
 		/* Specify the rank that should be write leveled */
-		tmp &= ~DXGCR_WLRKEN_MASK;
-		tmp |= (1 << (DXGCR_WLRKEN_SHIFT + rank)) & DXGCR_WLRKEN_MASK;
-		writel(tmp, p);
+		tmp &= ~PHY_DX_GCR_WLRKEN_MASK;
+		tmp |= (1 << (PHY_DX_GCR_WLRKEN_SHIFT + rank)) &
+			PHY_DX_GCR_WLRKEN_MASK;
+		writel(tmp, dx_base + PHY_DX_GCR);
+		dx_base += PHY_DX_STRIDE;
 	}
 
-	p = &phy->dtcr;
-
-	tmp = readl(p);
+	tmp = readl(phy_base + PHY_DTCR);
 	/* Specify the rank used during data bit deskew and eye centering */
-	tmp &= ~DTCR_DTRANK_MASK;
-	tmp |= (rank << DTCR_DTRANK_SHIFT) & DTCR_DTRANK_MASK;
+	tmp &= ~PHY_DTCR_DTRANK_MASK;
+	tmp |= (rank << PHY_DTCR_DTRANK_SHIFT) & PHY_DTCR_DTRANK_MASK;
 	/* Use Multi-Purpose Register for DQS gate training */
-	tmp |= DTCR_DTMPR;
+	tmp |= PHY_DTCR_DTMPR;
 	/* Specify the rank enabled for data-training */
-	tmp &= ~DTCR_RANKEN_MASK;
-	tmp |= (1 << (DTCR_RANKEN_SHIFT + rank)) & DTCR_RANKEN_MASK;
-	writel(tmp, p);
+	tmp &= ~PHY_DTCR_RANKEN_MASK;
+	tmp |= (1 << (PHY_DTCR_RANKEN_SHIFT + rank)) & PHY_DTCR_RANKEN_MASK;
+	writel(tmp, phy_base + PHY_DTCR);
 }
 
 struct ddrphy_init_sequence {
@@ -49,60 +53,60 @@ struct ddrphy_init_sequence {
 static const struct ddrphy_init_sequence init_sequence[] = {
 	{
 		"DRAM Initialization",
-		PIR_DRAMRST | PIR_DRAMINIT,
-		PGSR0_DIDONE,
-		PGSR0_DIERR
+		PHY_PIR_DRAMRST | PHY_PIR_DRAMINIT,
+		PHY_PGSR0_DIDONE,
+		PHY_PGSR0_DIERR
 	},
 	{
 		"Write Leveling",
-		PIR_WL,
-		PGSR0_WLDONE,
-		PGSR0_WLERR
+		PHY_PIR_WL,
+		PHY_PGSR0_WLDONE,
+		PHY_PGSR0_WLERR
 	},
 	{
 		"Read DQS Gate Training",
-		PIR_QSGATE,
-		PGSR0_QSGDONE,
-		PGSR0_QSGERR
+		PHY_PIR_QSGATE,
+		PHY_PGSR0_QSGDONE,
+		PHY_PGSR0_QSGERR
 	},
 	{
 		"Write Leveling Adjustment",
-		PIR_WLADJ,
-		PGSR0_WLADONE,
-		PGSR0_WLAERR
+		PHY_PIR_WLADJ,
+		PHY_PGSR0_WLADONE,
+		PHY_PGSR0_WLAERR
 	},
 	{
 		"Read Bit Deskew",
-		PIR_RDDSKW,
-		PGSR0_RDDONE,
-		PGSR0_RDERR
+		PHY_PIR_RDDSKW,
+		PHY_PGSR0_RDDONE,
+		PHY_PGSR0_RDERR
 	},
 	{
 		"Write Bit Deskew",
-		PIR_WRDSKW,
-		PGSR0_WDDONE,
-		PGSR0_WDERR
+		PHY_PIR_WRDSKW,
+		PHY_PGSR0_WDDONE,
+		PHY_PGSR0_WDERR
 	},
 	{
 		"Read Eye Training",
-		PIR_RDEYE,
-		PGSR0_REDONE,
-		PGSR0_REERR
+		PHY_PIR_RDEYE,
+		PHY_PGSR0_REDONE,
+		PHY_PGSR0_REERR
 	},
 	{
 		"Write Eye Training",
-		PIR_WREYE,
-		PGSR0_WEDONE,
-		PGSR0_WEERR
+		PHY_PIR_WREYE,
+		PHY_PGSR0_WEDONE,
+		PHY_PGSR0_WEERR
 	}
 };
 
-int ddrphy_training(struct ddrphy __iomem *phy)
+int ddrphy_training(void __iomem *phy_base)
 {
 	int i;
 	u32 pgsr0;
-	u32 init_flag = PIR_INIT;
-	u32 done_flag = PGSR0_IDONE;
+	u32 init_flag = PHY_PIR_INIT;
+	u32 done_flag = PHY_PGSR0_IDONE;
 	int timeout = 50000; /* 50 msec is long enough */
 #ifdef DISPLAY_ELAPSED_TIME
 	ulong start = get_timer(0);
@@ -113,7 +117,7 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 		done_flag |= init_sequence[i].done_flag;
 	}
 
-	writel(init_flag, &phy->pir);
+	writel(init_flag, phy_base + PHY_PIR);
 
 	do {
 		if (--timeout < 0) {
@@ -122,7 +126,7 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 			return -ETIMEDOUT;
 		}
 		udelay(1);
-		pgsr0 = readl(&phy->pgsr[0]);
+		pgsr0 = readl(phy_base + PHY_PGSR0);
 	} while ((pgsr0 & done_flag) != done_flag);
 
 	for (i = 0; i < ARRAY_SIZE(init_sequence); i++) {
