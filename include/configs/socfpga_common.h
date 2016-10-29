@@ -230,7 +230,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(32 * 1024 * 1024)
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(16 * 1024 * 1024)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 /* USB IDs */
