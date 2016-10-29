@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "asm/arch/spl.h"
+#include "../arch/arm/include/asm/arch-sunxi/spl.h"
 
 #define STAMP_VALUE                     0x5F0A6C39
 
