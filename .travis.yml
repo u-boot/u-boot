@@ -27,6 +27,7 @@ addons:
     - qemu-system-x86
     - gcc-powerpc-linux-gnu
     - gcc-arm-linux-gnueabihf
+    - gcc-aarch64-linux-gnu
     - iasl
 
 install:
@@ -54,7 +55,6 @@ env:
 
 before_script:
   # install toolchains based on TOOLCHAIN} variable
-  - if [[ "${TOOLCHAIN}" == *aarch64* ]]; then ./tools/buildman/buildman --fetch-arch aarch64 ; fi
   - if [[ "${TOOLCHAIN}" == *avr32* ]]; then ./tools/buildman/buildman --fetch-arch avr32 ; fi
   - if [[ "${TOOLCHAIN}" == *bfin* ]]; then ./tools/buildman/buildman --fetch-arch bfin ; fi
   - if [[ "${TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
@@ -113,7 +113,8 @@ matrix:
     - env:
         - BUILDMAN="denx"
     - env:
-        - BUILDMAN="freescale -x powerpc,m68k,aarch64"
+        - JOB="Freescale ARM"
+          BUILDMAN="freescale -x powerpc,m68k"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
@@ -155,11 +156,13 @@ matrix:
     - env:
         - BUILDMAN="siemens"
     - env:
-        - BUILDMAN="tegra -x aarch64"
+        - BUILDMAN="tegra"
     - env:
         - BUILDMAN="ti"
     - env:
-        - BUILDMAN="aarch64"
+        - BUILDMAN="uniphier"
+    - env:
+        - BUILDMAN="aarch64 -x tegra,freescale,uniphier"
           TOOLCHAIN="aarch64"
     - env:
         - BUILDMAN="sh4"
