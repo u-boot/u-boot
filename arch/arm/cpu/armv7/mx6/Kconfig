@@ -35,6 +35,14 @@ config MX6ULL
 	bool
 	select MX6UL
 
+config MX6_DDRCAL
+	bool "Include dynamic DDR calibration routines"
+	depends on SPL
+	default n
+	help
+	  Say "Y" if your board uses dynamic (per-boot) DDR calibration.
+	  If unsure, say N.
+
 choice
 	prompt "MX6 board select"
 	optional

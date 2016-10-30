@@ -14,8 +14,7 @@
 #include <asm/types.h>
 #include <wait_bit.h>
 
-#if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-
+#if defined(CONFIG_MX6_DDRCAL)
 static void reset_read_data_fifos(void)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
