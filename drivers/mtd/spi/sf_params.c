@@ -42,7 +42,6 @@
 		.page_size = 256,					\
 		.flags = (_flags),
 
-/* SPI/QSPI flash device params structure */
 const struct spi_flash_info spi_flash_ids[] = {
 #ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
 	{"AT45DB011D",	   INFO(0x1f2200, 0x0, 64 * 1024,     4, SECT_4K) },

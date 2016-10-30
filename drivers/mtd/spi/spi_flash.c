@@ -1015,16 +1015,13 @@ int spi_flash_scan(struct spi_flash *flash)
 	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST)
 		write_sr(flash, 0);
 
-	/* Assign spi data */
 	flash->name = info->name;
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = spi->option;
 
-	/* Assign spi flash flags */
 	if (info->flags & SST_WR)
 		flash->flags |= SNOR_F_SST_WR;
 
-	/* Assign spi_flash ops */
 #ifndef CONFIG_DM_SPI_FLASH
 	flash->write = spi_flash_cmd_write_ops;
 #if defined(CONFIG_SPI_FLASH_SST)
