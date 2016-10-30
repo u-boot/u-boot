@@ -199,15 +199,13 @@ bar_end:
 #ifdef CONFIG_SF_DUAL_FLASH
 static void spi_flash_dual(struct spi_flash *flash, u32 *addr)
 {
-	struct spi_slave *spi = flash->spi;
-
 	switch (flash->dual_flash) {
 	case SF_DUAL_STACKED_FLASH:
 		if (*addr >= (flash->size >> 1)) {
 			*addr -= flash->size >> 1;
-			spi->flags |= SPI_XFER_U_PAGE;
+			flash->flags |= SNOR_F_USE_UPAGE;
 		} else {
-			spi->flags &= ~SPI_XFER_U_PAGE;
+			flash->flags &= ~SNOR_F_USE_UPAGE;
 		}
 		break;
 	case SF_DUAL_PARALLEL_FLASH:
@@ -1016,7 +1014,6 @@ int spi_flash_scan(struct spi_flash *flash)
 
 	flash->name = info->name;
 	flash->memory_map = spi->memory_map;
-	flash->dual_flash = spi->option;
 
 	if (info->flags & SST_WR)
 		flash->flags |= SNOR_F_SST_WR;

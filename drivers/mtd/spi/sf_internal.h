@@ -23,6 +23,7 @@ enum spi_dual_flash {
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= BIT(0),
 	SNOR_F_USE_FSR		= BIT(1),
+	SNOR_F_USE_UPAGE	= BIT(3),
 };
 
 #define SPI_FLASH_3B_ADDR_LEN		3
