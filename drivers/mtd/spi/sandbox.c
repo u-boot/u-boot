@@ -88,7 +88,7 @@ struct sandbox_spi_flash {
 	/* The current flash status (see STAT_XXX defines above) */
 	u16 status;
 	/* Data describing the flash we're emulating */
-	const struct spi_flash_params *data;
+	const struct spi_flash_info *data;
 	/* The file on disk to serv up data from */
 	int fd;
 };
@@ -112,7 +112,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
 	const char *file;
 	size_t len, idname_len;
-	const struct spi_flash_params *data;
+	const struct spi_flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
 	struct sandbox_state *state = state_get_current();
 	struct udevice *bus = dev->parent;
@@ -168,7 +168,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	}
 	debug("%s: device='%s'\n", __func__, spec);
 
-	for (data = spi_flash_params_table; data->name; data++) {
+	for (data = spi_flash_ids; data->name; data++) {
 		len = strlen(data->name);
 		if (idname_len != len)
 			continue;
@@ -359,7 +359,9 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			debug(" id: off:%u tx:", sbsf->off);
 			if (sbsf->off < IDCODE_LEN) {
 				/* Extract correct byte from ID 0x00aabbcc */
-				id = sbsf->data->jedec >>
+				id = ((((sbsf->data)->id[0]) << 16) |
+					(((sbsf->data)->id[1]) << 8 |
+					((sbsf->data)->id[2]))) >>
 					(8 * (IDCODE_LEN - 1 - sbsf->off));
 			} else {
 				id = 0;

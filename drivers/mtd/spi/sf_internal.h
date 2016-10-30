@@ -103,23 +103,35 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 #define CMD_SPANSION_RDAR	0x65 /* Read any device register */
 #define CMD_SPANSION_WRAR	0x71 /* Write any device register */
 #endif
+
+#define JEDEC_MFR(info)		((info)->id[0])
+#define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
+#define JEDEC_EXT(info)		(((info)->id[3]) << 8 | ((info)->id[4]))
+
 /**
- * struct spi_flash_params - SPI/QSPI flash device params structure
+ * struct spi_flash_info - SPI/QSPI flash device params structure
  *
  * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
- * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
- * @ext_jedec:		Device ext_jedec ID
  * @sector_size:	Isn't necessarily a sector size from vendor,
  *			the size listed here is what works with CMD_ERASE_64K
  * @nr_sectors:		No.of sectors on this device
  * @flags:		Important param, for flash specific behaviour
  */
-struct spi_flash_params {
+struct spi_flash_info {
 	const char *name;
-	u32 jedec;
-	u16 ext_jedec;
+
+	/*
+	 * This array stores the ID bytes.
+	 * The first three bytes are the JEDIC ID.
+	 * JEDEC ID zero means "no ID" (mostly older chips).
+	 */
+	u8		id[5];
+	u8		id_len;
+
 	u32 sector_size;
 	u32 nr_sectors;
+
+	u16 page_size;
 
 	u16 flags;
 #define SECT_4K			BIT(0)
@@ -133,7 +145,7 @@ struct spi_flash_params {
 #define RD_FULL			(RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO)
 };
 
-extern const struct spi_flash_params spi_flash_params_table[];
+extern const struct spi_flash_info spi_flash_ids[];
 
 /* Send a single-byte command to the device and read the response */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);

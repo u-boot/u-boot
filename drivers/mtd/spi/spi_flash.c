@@ -165,7 +165,8 @@ bar_end:
 	return flash->bank_curr;
 }
 
-static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
+static int spi_flash_read_bar(struct spi_flash *flash,
+			      const struct spi_flash_info *info)
 {
 	u8 curr_bank = 0;
 	int ret;
@@ -173,7 +174,7 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 	if (flash->size <= SPI_FLASH_16MB_BOUN)
 		goto bar_end;
 
-	switch (idcode0) {
+	switch (JEDEC_MFR(info)) {
 	case SPI_FLASH_CFI_MFR_SPANSION:
 		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
 		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
@@ -924,9 +925,35 @@ static int micron_quad_enable(struct spi_flash *flash)
 }
 #endif
 
-static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
+static const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
 {
-	switch (idcode0) {
+	int				tmp;
+	u8				id[5];
+	const struct spi_flash_info	*info;
+
+	tmp = spi_flash_cmd(flash->spi, CMD_READ_ID, id, 5);
+	if (tmp < 0) {
+		printf("SF: error %d reading JEDEC ID\n", tmp);
+		return ERR_PTR(tmp);
+	}
+
+	info = spi_flash_ids;
+	for (; info->name != NULL; info++) {
+		if (info->id_len) {
+			if (!memcmp(info->id, id, info->id_len))
+				return info;
+		}
+	}
+
+	printf("SF: unrecognized JEDEC id bytes: %02x, %02x, %02x\n",
+	       id[0], id[1], id[2]);
+	return ERR_PTR(-ENODEV);
+}
+
+static int set_quad_mode(struct spi_flash *flash,
+			 const struct spi_flash_info *info)
+{
+	switch (JEDEC_MFR(info)) {
 #ifdef CONFIG_SPI_FLASH_MACRONIX
 	case SPI_FLASH_CFI_MFR_MACRONIX:
 		return macronix_quad_enable(flash);
@@ -941,7 +968,8 @@ static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 		return micron_quad_enable(flash);
 #endif
 	default:
-		printf("SF: Need set QEB func for %02x flash\n", idcode0);
+		printf("SF: Need set QEB func for %02x flash\n",
+		       JEDEC_MFR(info));
 		return -1;
 	}
 }
@@ -1011,45 +1039,12 @@ static int spansion_s25fss_disable_4KB_erase(struct spi_slave *spi)
 int spi_flash_scan(struct spi_flash *flash)
 {
 	struct spi_slave *spi = flash->spi;
-	const struct spi_flash_params *params;
-	u16 jedec, ext_jedec;
-	u8 idcode[5];
-	int ret;
+	const struct spi_flash_info *info = NULL;
+	int ret = -1;
 
-	/* Read the ID codes */
-	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
-	if (ret) {
-		printf("SF: Failed to get idcodes\n");
-		return ret;
-	}
-
-#ifdef DEBUG
-	printf("SF: Got idcodes\n");
-	print_buffer(0, idcode, 1, sizeof(idcode), 0);
-#endif
-
-	jedec = idcode[1] << 8 | idcode[2];
-	ext_jedec = idcode[3] << 8 | idcode[4];
-
-	/* Validate params from spi_flash_params table */
-	params = spi_flash_params_table;
-	for (; params->name != NULL; params++) {
-		if ((params->jedec >> 16) == idcode[0]) {
-			if ((params->jedec & 0xFFFF) == jedec) {
-				if (params->ext_jedec == 0)
-					break;
-				else if (params->ext_jedec == ext_jedec)
-					break;
-			}
-		}
-	}
-
-	if (!params->name) {
-		printf("SF: Unsupported flash IDs: ");
-		printf("manuf %02x, jedec %04x, ext_jedec %04x\n",
-		       idcode[0], jedec, ext_jedec);
-		return -EPROTONOSUPPORT;
-	}
+	info = spi_flash_read_id(flash);
+	if (IS_ERR_OR_NULL(info))
+		return -ENOENT;
 
 #ifdef CONFIG_SPI_FLASH_SPANSION
 	/*
@@ -1065,10 +1060,16 @@ int spi_flash_scan(struct spi_flash *flash)
 	 * sector that is not overlaid by the parameter sectors.
 	 * The uniform sector erase command has no effect on parameter sectors.
 	 */
-	if ((jedec == 0x0219 || (jedec == 0x0220)) &&
-	    (ext_jedec & 0xff00) == 0x4d00) {
+	if ((JEDEC_ID(info) == 0x0219 || (JEDEC_ID(info) == 0x0220)) &&
+	    (JEDEC_EXT(info) & 0xff00) == 0x4d00) {
 		int ret;
+		u8 idcode[5];
 		u8 id[6];
+
+		/* Read the ID codes again, 5 bytes */
+		ret = spi_flash_cmd(flash->spi, CMD_READ_ID, idcode, sizeof(idcode));
+		if (ret)
+			return -EIO;
 
 		/* Read the ID codes again, 6 bytes */
 		ret = spi_flash_cmd(flash->spi, CMD_READ_ID, id, sizeof(id));
@@ -1088,18 +1089,18 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 #endif
 	/* Flash powers up read-only, so clear BP# bits */
-	if (idcode[0] == SPI_FLASH_CFI_MFR_ATMEL ||
-	    idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
-	    idcode[0] == SPI_FLASH_CFI_MFR_SST)
+	if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ATMEL ||
+	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX ||
+	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST)
 		write_sr(flash, 0);
 
 	/* Assign spi data */
-	flash->name = params->name;
+	flash->name = info->name;
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = spi->option;
 
 	/* Assign spi flash flags */
-	if (params->flags & SST_WR)
+	if (info->flags & SST_WR)
 		flash->flags |= SNOR_F_SST_WR;
 
 	/* Assign spi_flash ops */
@@ -1118,7 +1119,7 @@ int spi_flash_scan(struct spi_flash *flash)
 #endif
 
 	/* lock hooks are flash specific - assign them based on idcode0 */
-	switch (idcode[0]) {
+	switch (JEDEC_MFR(info)) {
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 	case SPI_FLASH_CFI_MFR_STMICRO:
 	case SPI_FLASH_CFI_MFR_SST:
@@ -1128,28 +1129,26 @@ int spi_flash_scan(struct spi_flash *flash)
 #endif
 		break;
 	default:
-		debug("SF: Lock ops not supported for %02x flash\n", idcode[0]);
+		debug("SF: Lock ops not supported for %02x flash\n", JEDEC_MFR(info));
 	}
 
 	/* Compute the flash size */
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
+	flash->page_size = info->page_size;
 	/*
 	 * The Spansion S25FL032P and S25FL064P have 256b pages, yet use the
 	 * 0x4d00 Extended JEDEC code. The rest of the Spansion flashes with
 	 * the 0x4d00 Extended JEDEC code have 512b pages. All of the others
 	 * have 256b pages.
 	 */
-	if (ext_jedec == 0x4d00) {
-		if ((jedec == 0x0215) || (jedec == 0x216) || (jedec == 0x220))
-			flash->page_size = 256;
-		else
+	if (JEDEC_EXT(info) == 0x4d00) {
+		if ((JEDEC_ID(info) != 0x0215) &&
+		    (JEDEC_ID(info) != 0x0216))
 			flash->page_size = 512;
-	} else {
-		flash->page_size = 256;
 	}
 	flash->page_size <<= flash->shift;
-	flash->sector_size = params->sector_size << flash->shift;
-	flash->size = flash->sector_size * params->nr_sectors << flash->shift;
+	flash->sector_size = info->sector_size << flash->shift;
+	flash->size = flash->sector_size * info->nr_sectors << flash->shift;
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
 		flash->size <<= 1;
@@ -1157,7 +1156,7 @@ int spi_flash_scan(struct spi_flash *flash)
 
 #ifdef CONFIG_SPI_FLASH_USE_4K_SECTORS
 	/* Compute erase sector and command */
-	if (params->flags & SECT_4K) {
+	if (info->flags & SECT_4K) {
 		flash->erase_cmd = CMD_ERASE_4K;
 		flash->erase_size = 4096 << flash->shift;
 	} else
@@ -1174,13 +1173,13 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->read_cmd = CMD_READ_ARRAY_FAST;
 	if (spi->mode & SPI_RX_SLOW)
 		flash->read_cmd = CMD_READ_ARRAY_SLOW;
-	else if (spi->mode & SPI_RX_QUAD && params->flags & RD_QUAD)
+	else if (spi->mode & SPI_RX_QUAD && info->flags & RD_QUAD)
 		flash->read_cmd = CMD_READ_QUAD_OUTPUT_FAST;
-	else if (spi->mode & SPI_RX_DUAL && params->flags & RD_DUAL)
+	else if (spi->mode & SPI_RX_DUAL && info->flags & RD_DUAL)
 		flash->read_cmd = CMD_READ_DUAL_OUTPUT_FAST;
 
 	/* Look for write commands */
-	if (params->flags & WR_QPP && spi->mode & SPI_TX_QUAD)
+	if (info->flags & WR_QPP && spi->mode & SPI_TX_QUAD)
 		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
 	else
 		/* Go for default supported write cmd */
@@ -1190,9 +1189,10 @@ int spi_flash_scan(struct spi_flash *flash)
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
 	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
 	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
-		ret = set_quad_mode(flash, idcode[0]);
+		ret = set_quad_mode(flash, info);
 		if (ret) {
-			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
+			debug("SF: Fail to set QEB for %02x\n",
+			      JEDEC_MFR(info));
 			return -EINVAL;
 		}
 	}
@@ -1217,13 +1217,13 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 
 #ifdef CONFIG_SPI_FLASH_STMICRO
-	if (params->flags & E_FSR)
+	if (info->flags & E_FSR)
 		flash->flags |= SNOR_F_USE_FSR;
 #endif
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = spi_flash_read_bar(flash, idcode[0]);
+	ret = spi_flash_read_bar(flash, info);
 	if (ret < 0)
 		return ret;
 #endif
