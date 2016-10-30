@@ -501,9 +501,10 @@ static struct flash_info dataflash_data[] = {
 	{ "at45db642d",  0x1f2800, 8192, 1024, 10, SUP_POW2PS | IS_POW2PS},
 };
 
-static struct flash_info *jedec_probe(struct spi_slave *spi, u8 *id)
+static struct flash_info *jedec_probe(struct spi_slave *spi)
 {
 	int			tmp;
+	uint8_t			id[5];
 	uint32_t		jedec;
 	struct flash_info	*info;
 	int status;
@@ -517,6 +518,11 @@ static struct flash_info *jedec_probe(struct spi_slave *spi, u8 *id)
 	 * That's not an error; only rev C and newer chips handle it, and
 	 * only Atmel sells these chips.
 	 */
+	tmp = spi_flash_cmd(spi, CMD_READ_ID, id, sizeof(id));
+	if (tmp < 0) {
+		printf("dataflash: error %d reading JEDEC ID\n", tmp);
+		return ERR_PTR(tmp);
+	}
 	if (id[0] != 0x1f)
 		return NULL;
 
@@ -580,7 +586,6 @@ static int spi_dataflash_probe(struct udevice *dev)
 	struct spi_slave *spi = dev_get_parent_priv(dev);
 	struct spi_flash *spi_flash;
 	struct flash_info *info;
-	u8 idcode[5];
 	int ret, status = 0;
 
 	spi_flash = dev_get_uclass_priv(dev);
@@ -591,12 +596,6 @@ static int spi_dataflash_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
-	if (ret) {
-		printf("SPI DataFlash: Failed to get idcodes\n");
-		goto err_read_cmd;
-	}
-
 	/*
 	 * Try to detect dataflash by JEDEC ID.
 	 * If it succeeds we know we have either a C or D part.
@@ -604,7 +603,9 @@ static int spi_dataflash_probe(struct udevice *dev)
 	 * Both support the security register, though with different
 	 * write procedures.
 	 */
-	info = jedec_probe(spi, idcode);
+	info = jedec_probe(spi);
+	if (IS_ERR(info))
+		return PTR_ERR(info);
 	if (info != NULL)
 		add_dataflash(dev, info->name, info->nr_pages,
 			      info->pagesize, info->pageoffset,
