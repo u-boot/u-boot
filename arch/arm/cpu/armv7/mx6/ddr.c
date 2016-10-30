@@ -347,6 +347,8 @@ int mmdc_do_dqs_calibration(void)
 	 * 16 before comparing read data.
 	 */
 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 30);
+	if (sysinfo->dsize == 2)
+		setbits_le32(&mmdc1->mpdgctrl0, 1 << 30);
 
 	/* Set bit 28 to start automatic read DQS gating calibration */
 	setbits_le32(&mmdc0->mpdgctrl0, 5 << 28);
@@ -364,6 +366,11 @@ int mmdc_do_dqs_calibration(void)
 
 	if ((bus_size == 0x2) && (readl(&mmdc1->mpdgctrl0) & 0x00001000))
 		errors |= 2;
+
+	/* now disable mpdgctrl0[DG_CMP_CYC] */
+	clrbits_le32(&mmdc0->mpdgctrl0, 1 << 30);
+	if (sysinfo->dsize == 2)
+		clrbits_le32(&mmdc1->mpdgctrl0, 1 << 30);
 
 	/*
 	 * DQS gating absolute offset should be modified from
