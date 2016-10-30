@@ -584,6 +584,7 @@ static int spi_dataflash_probe(struct udevice *dev)
 	int ret, status = 0;
 
 	spi_flash = dev_get_uclass_priv(dev);
+	spi_flash->spi = spi;
 	spi_flash->dev = dev;
 
 	ret = spi_claim_bus(spi);
@@ -663,11 +664,6 @@ static int spi_dataflash_probe(struct udevice *dev)
 			goto err_read_cmd;
 		}
 	}
-
-	/* Assign spi data */
-	spi_flash->spi = spi;
-	spi_flash->memory_map = spi->memory_map;
-	spi_flash->dual_flash = spi->option;
 
 	spi_release_bus(spi);
 
