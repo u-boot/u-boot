@@ -586,15 +586,15 @@ static int spi_dataflash_probe(struct udevice *dev)
 	struct spi_slave *spi = dev_get_parent_priv(dev);
 	struct spi_flash *spi_flash;
 	struct flash_info *info;
-	int ret, status = 0;
+	int status;
 
 	spi_flash = dev_get_uclass_priv(dev);
 	spi_flash->spi = spi;
 	spi_flash->dev = dev;
 
-	ret = spi_claim_bus(spi);
-	if (ret)
-		return ret;
+	status = spi_claim_bus(spi);
+	if (status)
+		return status;
 
 	/*
 	 * Try to detect dataflash by JEDEC ID.
@@ -605,74 +605,69 @@ static int spi_dataflash_probe(struct udevice *dev)
 	 */
 	info = jedec_probe(spi);
 	if (IS_ERR(info))
-		return PTR_ERR(info);
-	if (info != NULL)
-		add_dataflash(dev, info->name, info->nr_pages,
-			      info->pagesize, info->pageoffset,
-			      (info->flags & SUP_POW2PS) ? 'd' : 'c');
-	else {
-		/*
-		* Older chips support only legacy commands, identifing
-		* capacity using bits in the status byte.
-		*/
-		status = dataflash_status(spi);
-		if (status <= 0 || status == 0xff) {
-			printf("SPI DataFlash: read status error %d\n", status);
-			if (status == 0 || status == 0xff)
-				status = -ENODEV;
-			goto err_read_cmd;
-		}
-		/*
-		* if there's a device there, assume it's dataflash.
-		* board setup should have set spi->max_speed_max to
-		* match f(car) for continuous reads, mode 0 or 3.
-		*/
-		switch (status & 0x3c) {
-		case 0x0c:	/* 0 0 1 1 x x */
-			status = add_dataflash(dev, "AT45DB011B",
-					       512, 264, 9, 0);
-			break;
-		case 0x14:	/* 0 1 0 1 x x */
-			status = add_dataflash(dev, "AT45DB021B",
-					       1024, 264, 9, 0);
-			break;
-		case 0x1c:	/* 0 1 1 1 x x */
-			status = add_dataflash(dev, "AT45DB041x",
-					       2048, 264, 9, 0);
-			break;
-		case 0x24:	/* 1 0 0 1 x x */
-			status = add_dataflash(dev, "AT45DB081B",
-					       4096, 264, 9, 0);
-			break;
-		case 0x2c:	/* 1 0 1 1 x x */
-			status = add_dataflash(dev, "AT45DB161x",
-					       4096, 528, 10, 0);
-			break;
-		case 0x34:	/* 1 1 0 1 x x */
-			status = add_dataflash(dev, "AT45DB321x",
-					       8192, 528, 10, 0);
-			break;
-		case 0x38:	/* 1 1 1 x x x */
-		case 0x3c:
-			status = add_dataflash(dev, "AT45DB642x",
-					       8192, 1056, 11, 0);
-			break;
-		/* obsolete AT45DB1282 not (yet?) supported */
-		default:
-			dev_info(&spi->dev, "unsupported device (%x)\n",
-				 status & 0x3c);
-			status = -ENODEV;
-			goto err_read_cmd;
-		}
+		goto err_jedec_probe;
+	if (info != NULL) {
+		status = add_dataflash(dev, info->name, info->nr_pages,
+				info->pagesize, info->pageoffset,
+				(info->flags & SUP_POW2PS) ? 'd' : 'c');
+		if (status < 0)
+			goto err_status;
 	}
 
+	/*
+	* Older chips support only legacy commands, identifing
+	* capacity using bits in the status byte.
+	*/
+	status = dataflash_status(spi);
+	if (status <= 0 || status == 0xff) {
+		printf("SPI DataFlash: read status error %d\n", status);
+		if (status == 0 || status == 0xff)
+			status = -ENODEV;
+		goto err_jedec_probe;
+	}
+
+	/*
+	* if there's a device there, assume it's dataflash.
+	* board setup should have set spi->max_speed_max to
+	* match f(car) for continuous reads, mode 0 or 3.
+	*/
+	switch (status & 0x3c) {
+	case 0x0c:	/* 0 0 1 1 x x */
+		status = add_dataflash(dev, "AT45DB011B", 512, 264, 9, 0);
+		break;
+	case 0x14:	/* 0 1 0 1 x x */
+		status = add_dataflash(dev, "AT45DB021B", 1024, 264, 9, 0);
+		break;
+	case 0x1c:	/* 0 1 1 1 x x */
+		status = add_dataflash(dev, "AT45DB041x", 2048, 264, 9, 0);
+		break;
+	case 0x24:	/* 1 0 0 1 x x */
+		status = add_dataflash(dev, "AT45DB081B", 4096, 264, 9, 0);
+		break;
+	case 0x2c:	/* 1 0 1 1 x x */
+		status = add_dataflash(dev, "AT45DB161x", 4096, 528, 10, 0);
+		break;
+	case 0x34:	/* 1 1 0 1 x x */
+		status = add_dataflash(dev, "AT45DB321x", 8192, 528, 10, 0);
+		break;
+	case 0x38:	/* 1 1 1 x x x */
+	case 0x3c:
+		status = add_dataflash(dev, "AT45DB642x", 8192, 1056, 11, 0);
+		break;
+	/* obsolete AT45DB1282 not (yet?) supported */
+	default:
+		dev_info(&spi->dev, "unsupported device (%x)\n",
+				 status & 0x3c);
+		status = -ENODEV;
+		goto err_status;
+	}
+
+	return status;
+
+err_status:
+	spi_free_slave(spi);
+err_jedec_probe:
 	spi_release_bus(spi);
-
-	return 0;
-
-err_read_cmd:
-	spi_release_bus(spi);
-
 	return status;
 }
 
