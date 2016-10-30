@@ -46,6 +46,7 @@
 
 	aliases {
 		serial0 = &uart0;
+		ethernet0 = &emac;
 	};
 
 	soc {
@@ -77,4 +78,16 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins>;
 	status = "okay";
+};
+
+&usbphy {
+       status = "okay";
+};
+
+&ohci1 {
+       status = "okay";
+};
+
+&ehci1 {
+       status = "okay";
 };

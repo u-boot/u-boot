@@ -45,10 +45,10 @@ static int ehci_usb_probe(struct udevice *dev)
 	 * clocks resp. phys.
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
-#ifdef CONFIG_MACH_SUN8I_H3
+#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
 	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #endif
-	priv->phy_index = ((u32)hccr - SUNXI_USB1_BASE) / BASE_DIST;
+	priv->phy_index = ((uintptr_t)hccr - SUNXI_USB1_BASE) / BASE_DIST;
 	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
 	extra_ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
 	priv->phy_index++; /* Non otg phys start at 1 */
@@ -63,7 +63,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	sunxi_usb_phy_init(priv->phy_index);
 	sunxi_usb_phy_power_on(priv->phy_index);
 
-	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
 				    HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	return ehci_register(dev, hccr, hcor, NULL, 0, plat->init_type);
@@ -98,6 +98,7 @@ static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "allwinner,sun8i-a83t-ehci", },
 	{ .compatible = "allwinner,sun8i-h3-ehci",  },
 	{ .compatible = "allwinner,sun9i-a80-ehci", },
+	{ .compatible = "allwinner,sun50i-a64-ehci", },
 	{ }
 };
 
