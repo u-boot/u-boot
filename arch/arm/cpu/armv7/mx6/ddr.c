@@ -1501,6 +1501,29 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mdelay(1);
 }
 
+void mmdc_read_calibration(struct mx6_ddr_sysinfo const *sysinfo,
+                           struct mx6_mmdc_calibration *calib)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
+
+	calib->p0_mpwldectrl0 = readl(&mmdc0->mpwldectrl0);
+	calib->p0_mpwldectrl1 = readl(&mmdc0->mpwldectrl1);
+	calib->p0_mpdgctrl0 = readl(&mmdc0->mpdgctrl0);
+	calib->p0_mpdgctrl1 = readl(&mmdc0->mpdgctrl1);
+	calib->p0_mprddlctl = readl(&mmdc0->mprddlctl);
+	calib->p0_mpwrdlctl = readl(&mmdc0->mpwrdlctl);
+
+	if (sysinfo->dsize == 2) {
+		calib->p1_mpwldectrl0 = readl(&mmdc1->mpwldectrl0);
+		calib->p1_mpwldectrl1 = readl(&mmdc1->mpwldectrl1);
+		calib->p1_mpdgctrl0 = readl(&mmdc1->mpdgctrl0);
+		calib->p1_mpdgctrl1 = readl(&mmdc1->mpdgctrl1);
+		calib->p1_mprddlctl = readl(&mmdc1->mprddlctl);
+		calib->p1_mpwrdlctl = readl(&mmdc1->mpwrdlctl);
+	}
+}
+
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		  const struct mx6_mmdc_calibration *calib,
 		  const void *ddr_cfg)

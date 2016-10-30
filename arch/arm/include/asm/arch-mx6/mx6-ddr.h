@@ -461,6 +461,8 @@ void mx6sl_dram_iocfg(unsigned width,
 #if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
 int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo);
 int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo);
+void mmdc_read_calibration(struct mx6_ddr_sysinfo const *sysinfo,
+                           struct mx6_mmdc_calibration *calib);
 #endif
 
 /* configure mx6 mmdc registers */
