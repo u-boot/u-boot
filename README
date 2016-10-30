@@ -127,7 +127,7 @@ releases in "stable" maintenance trees.
 Examples:
 	U-Boot v2009.11	    - Release November 2009
 	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
-	U-Boot v2010.09-rc1 - Release candiate 1 for September 2010 release
+	U-Boot v2010.09-rc1 - Release candidate 1 for September 2010 release
 
 
 Directory Hierarchy:
