@@ -928,10 +928,10 @@ static int micron_quad_enable(struct spi_flash *flash)
 static const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
 {
 	int				tmp;
-	u8				id[5];
+	u8				id[SPI_FLASH_MAX_ID_LEN];
 	const struct spi_flash_info	*info;
 
-	tmp = spi_flash_cmd(flash->spi, CMD_READ_ID, id, 5);
+	tmp = spi_flash_cmd(flash->spi, CMD_READ_ID, id, SPI_FLASH_MAX_ID_LEN);
 	if (tmp < 0) {
 		printf("SF: error %d reading JEDEC ID\n", tmp);
 		return ERR_PTR(tmp);

@@ -107,6 +107,7 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 #define JEDEC_MFR(info)		((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
 #define JEDEC_EXT(info)		(((info)->id[3]) << 8 | ((info)->id[4]))
+#define SPI_FLASH_MAX_ID_LEN	5
 
 struct spi_flash_info {
 	/* Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO]) */
@@ -117,7 +118,7 @@ struct spi_flash_info {
 	 * The first three bytes are the JEDIC ID.
 	 * JEDEC ID zero means "no ID" (mostly older chips).
 	 */
-	u8		id[5];
+	u8		id[SPI_FLASH_MAX_ID_LEN];
 	u8		id_len;
 
 	/*
