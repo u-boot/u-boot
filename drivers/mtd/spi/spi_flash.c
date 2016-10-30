@@ -1118,19 +1118,15 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->read = spi_flash_cmd_read_ops;
 #endif
 
-	/* lock hooks are flash specific - assign them based on idcode0 */
-	switch (JEDEC_MFR(info)) {
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
-	case SPI_FLASH_CFI_MFR_STMICRO:
-	case SPI_FLASH_CFI_MFR_SST:
+	/* NOR protection support for STmicro/Micron chips and similar */
+	if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_STMICRO ||
+	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST) {
 		flash->flash_lock = stm_lock;
 		flash->flash_unlock = stm_unlock;
 		flash->flash_is_locked = stm_is_locked;
-#endif
-		break;
-	default:
-		debug("SF: Lock ops not supported for %02x flash\n", JEDEC_MFR(info));
 	}
+#endif
 
 	/* Compute the flash size */
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
