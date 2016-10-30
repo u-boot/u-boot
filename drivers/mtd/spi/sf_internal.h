@@ -185,7 +185,7 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
  * - SPI claim
  * - spi_flash_cmd_write_enable
  * - spi_flash_cmd_write
- * - spi_flash_cmd_wait_ready
+ * - spi_flash_wait_till_ready
  * - SPI release
  */
 int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,

@@ -144,7 +144,7 @@ static int write_evcr(struct spi_flash *flash, u8 evcr)
 #endif
 
 #ifdef CONFIG_SPI_FLASH_BAR
-static int spi_flash_write_bar(struct spi_flash *flash, u32 offset)
+static int write_bar(struct spi_flash *flash, u32 offset)
 {
 	u8 cmd, bank_sel;
 	int ret;
@@ -165,8 +165,7 @@ bar_end:
 	return flash->bank_curr;
 }
 
-static int spi_flash_read_bar(struct spi_flash *flash,
-			      const struct spi_flash_info *info)
+static int read_bar(struct spi_flash *flash, const struct spi_flash_info *info)
 {
 	u8 curr_bank = 0;
 	int ret;
@@ -263,8 +262,8 @@ static int spi_flash_ready(struct spi_flash *flash)
 	return sr && fsr;
 }
 
-static int spi_flash_cmd_wait_ready(struct spi_flash *flash,
-					unsigned long timeout)
+static int spi_flash_wait_till_ready(struct spi_flash *flash,
+				     unsigned long timeout)
 {
 	unsigned long timebase;
 	int ret;
@@ -312,7 +311,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 		return ret;
 	}
 
-	ret = spi_flash_cmd_wait_ready(flash, timeout);
+	ret = spi_flash_wait_till_ready(flash, timeout);
 	if (ret < 0) {
 		debug("SF: write %s timed out\n",
 		      timeout == SPI_FLASH_PROG_TIMEOUT ?
@@ -354,7 +353,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 			spi_flash_dual(flash, &erase_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bar(flash, erase_addr);
+		ret = write_bar(flash, erase_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -405,7 +404,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 			spi_flash_dual(flash, &write_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bar(flash, write_addr);
+		ret = write_bar(flash, write_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -509,7 +508,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			spi_flash_dual(flash, &read_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bar(flash, read_addr);
+		ret = write_bar(flash, read_addr);
 		if (ret < 0)
 			return ret;
 		bank_sel = flash->bank_curr;
@@ -561,7 +560,7 @@ static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	if (ret)
 		return ret;
 
-	return spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	return spi_flash_wait_till_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 }
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
@@ -609,7 +608,7 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 			break;
 		}
 
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		ret = spi_flash_wait_till_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 		if (ret)
 			break;
 
@@ -1137,7 +1136,7 @@ int spi_flash_scan(struct spi_flash *flash)
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = spi_flash_read_bar(flash, info);
+	ret = read_bar(flash, info);
 	if (ret < 0)
 		return ret;
 #endif
