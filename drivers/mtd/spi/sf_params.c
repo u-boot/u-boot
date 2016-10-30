@@ -23,7 +23,7 @@
 			},						\
 		.id_len = (!(_jedec_id) ? 0 : (3 + ((_ext_id) ? 2 : 0))),	\
 		.sector_size = (_sector_size),				\
-		.nr_sectors = (_n_sectors),				\
+		.n_sectors = (_n_sectors),				\
 		.page_size = 256,					\
 		.flags = (_flags),
 

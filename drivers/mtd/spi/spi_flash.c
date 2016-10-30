@@ -1144,7 +1144,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 	flash->page_size <<= flash->shift;
 	flash->sector_size = info->sector_size << flash->shift;
-	flash->size = flash->sector_size * info->nr_sectors << flash->shift;
+	flash->size = flash->sector_size * info->n_sectors << flash->shift;
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
 		flash->size <<= 1;

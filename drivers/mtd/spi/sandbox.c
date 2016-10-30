@@ -289,7 +289,7 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 		/* we only support erase here */
 		if (sbsf->cmd == CMD_ERASE_CHIP) {
 			sbsf->erase_size = sbsf->data->sector_size *
-				sbsf->data->nr_sectors;
+				sbsf->data->n_sectors;
 		} else if (sbsf->cmd == CMD_ERASE_4K && (flags & SECT_4K)) {
 			sbsf->erase_size = 4 << 10;
 		} else if (sbsf->cmd == CMD_ERASE_64K && !(flags & SECT_4K)) {

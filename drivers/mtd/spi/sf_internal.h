@@ -125,7 +125,7 @@ struct spi_flash_info {
 	 * necessarily called a "sector" by the vendor.
 	 */
 	u32		sector_size;
-	u32		nr_sectors;
+	u32		n_sectors;
 
 	u16		page_size;
 
