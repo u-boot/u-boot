@@ -459,8 +459,8 @@ void mx6sl_dram_iocfg(unsigned width,
 		      const struct mx6sl_iomux_grp_regs *);
 
 #if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-int mmdc_do_write_level_calibration(void);
-int mmdc_do_dqs_calibration(void);
+int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo);
+int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo);
 #endif
 
 /* configure mx6 mmdc registers */
