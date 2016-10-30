@@ -108,17 +108,9 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
 #define JEDEC_EXT(info)		(((info)->id[3]) << 8 | ((info)->id[4]))
 
-/**
- * struct spi_flash_info - SPI/QSPI flash device params structure
- *
- * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
- * @sector_size:	Isn't necessarily a sector size from vendor,
- *			the size listed here is what works with CMD_ERASE_64K
- * @nr_sectors:		No.of sectors on this device
- * @flags:		Important param, for flash specific behaviour
- */
 struct spi_flash_info {
-	const char *name;
+	/* Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO]) */
+	const char	*name;
 
 	/*
 	 * This array stores the ID bytes.
@@ -128,20 +120,24 @@ struct spi_flash_info {
 	u8		id[5];
 	u8		id_len;
 
-	u32 sector_size;
-	u32 nr_sectors;
+	/*
+	 * The size listed here is what works with SPINOR_OP_SE, which isn't
+	 * necessarily called a "sector" by the vendor.
+	 */
+	u32		sector_size;
+	u32		nr_sectors;
 
-	u16 page_size;
+	u16		page_size;
 
-	u16 flags;
-#define SECT_4K			BIT(0)
-#define E_FSR			BIT(1)
-#define SST_WR			BIT(2)
-#define WR_QPP			BIT(3)
-#define RD_QUAD			BIT(4)
-#define RD_DUAL			BIT(5)
-#define RD_QUADIO		BIT(6)
-#define RD_DUALIO		BIT(7)
+	u16		flags;
+#define SECT_4K			BIT(0)	/* CMD_ERASE_4K works uniformly */
+#define E_FSR			BIT(1)	/* use flag status register for */
+#define SST_WR			BIT(2)	/* use SST byte/word programming */
+#define WR_QPP			BIT(3)	/* use Quad Page Program */
+#define RD_QUAD			BIT(4)	/* use Quad Read */
+#define RD_DUAL			BIT(5)	/* use Dual Read */
+#define RD_QUADIO		BIT(6)	/* use Quad IO Read */
+#define RD_DUALIO		BIT(7)	/* use Dual IO Read */
 #define RD_FULL			(RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO)
 };
 
