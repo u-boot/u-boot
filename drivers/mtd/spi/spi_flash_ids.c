@@ -1,6 +1,7 @@
 /*
- * SPI flash Params table
+ * SPI Flash ID's.
  *
+ * Copyright (C) 2016 Jagan Teki <jagan@openedev.com>
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
