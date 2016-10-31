@@ -587,10 +587,12 @@ const table_entry_t *get_table_entry(const table_entry_t *table, int id)
 
 static const char *unknown_msg(enum ih_category category)
 {
+	static const char unknown_str[] = "Unknown ";
 	static char msg[30];
 
-	strcpy(msg, "Unknown ");
-	strcat(msg, table_info[category].desc);
+	strcpy(msg, unknown_str);
+	strncat(msg, table_info[category].desc,
+		sizeof(msg) - sizeof(unknown_str));
 
 	return msg;
 }
