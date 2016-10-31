@@ -607,6 +607,9 @@ void fsl_serdes_init(void)
 
 	soc_serdes_init();
 
+	/* Set the first bit to indicate serdes has been initialized */
+	serdes_prtcl_map |= (1 << NONE);
+
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	/*
 	 * Bank two uses the clock from bank three, so if bank two is enabled,
@@ -862,9 +865,6 @@ void fsl_serdes_init(void)
 			     SRDS_RSTCTL_SDPD);
 	}
 #endif
-
-	/* Set the first bit to indicate serdes has been initialized */
-	serdes_prtcl_map |= (1 << NONE);
 }
 
 const char *serdes_clock_to_string(u32 clock)
