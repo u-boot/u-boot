@@ -342,7 +342,6 @@ static int spl_mmc_load_image(struct spl_image_info *spl_image,
 			return err;
 
 		break;
-	case MMCSD_MODE_UNDEFINED:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	default:
 		puts("spl: mmc: wrong boot mode\n");
