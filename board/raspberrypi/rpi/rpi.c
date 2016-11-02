@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <config.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
 #include <lcd.h>
@@ -517,6 +518,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	 * node exists for the "real" graphics driver.
 	 */
 	lcd_dt_simplefb_add_node(blob);
+
+#ifdef CONFIG_EFI_LOADER
+	/* Reserve the spin table */
+	efi_add_memory_map(0, 1, EFI_RESERVED_MEMORY_TYPE, 0);
+#endif
 
 	return 0;
 }
