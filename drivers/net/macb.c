@@ -1030,8 +1030,6 @@ static int macb_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct macb_device *macb = dev_get_priv(dev);
-
-#ifdef CONFIG_DM_ETH
 	const char *phy_mode;
 	int ret;
 
@@ -1042,7 +1040,6 @@ static int macb_eth_probe(struct udevice *dev)
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
-#endif
 
 	macb->regs = (void *)pdata->iobase;
 
