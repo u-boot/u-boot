@@ -71,9 +71,9 @@ void lcd_ctrl_init(void *lcdbase)
 	msg_setup->virtual_w_h.body.req.width = w;
 	msg_setup->virtual_w_h.body.req.height = h;
 	BCM2835_MBOX_INIT_TAG(&msg_setup->depth, SET_DEPTH);
-	msg_setup->depth.body.req.bpp = 16;
+	msg_setup->depth.body.req.bpp = 32;
 	BCM2835_MBOX_INIT_TAG(&msg_setup->pixel_order, SET_PIXEL_ORDER);
-	msg_setup->pixel_order.body.req.order = BCM2835_MBOX_PIXEL_ORDER_BGR;
+	msg_setup->pixel_order.body.req.order = BCM2835_MBOX_PIXEL_ORDER_RGB;
 	BCM2835_MBOX_INIT_TAG(&msg_setup->alpha_mode, SET_ALPHA_MODE);
 	msg_setup->alpha_mode.body.req.alpha = BCM2835_MBOX_ALPHA_MODE_IGNORED;
 	BCM2835_MBOX_INIT_TAG(&msg_setup->virtual_offset, SET_VIRTUAL_OFFSET);
@@ -103,7 +103,7 @@ void lcd_ctrl_init(void *lcdbase)
 
 	panel_info.vl_col = w;
 	panel_info.vl_row = h;
-	panel_info.vl_bpix = LCD_COLOR16;
+	panel_info.vl_bpix = LCD_COLOR32;
 
 	gd->fb_base = bus_to_phys(
 		msg_setup->allocate_buffer.body.resp.fb_address);

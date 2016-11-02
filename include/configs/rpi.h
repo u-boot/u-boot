@@ -71,7 +71,7 @@
 #define CONFIG_BCM2835_GPIO
 /* LCD */
 #define CONFIG_LCD_DT_SIMPLEFB
-#define LCD_BPP				LCD_COLOR16
+#define LCD_BPP				LCD_COLOR32
 /*
  * Prevent allocation of RAM for FB; the real FB address is queried
  * dynamically from the VideoCore co-processor, and comes from RAM
