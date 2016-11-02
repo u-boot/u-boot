@@ -149,7 +149,6 @@ Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, th
 
 Using fastboot on rk3288
 ========================
-- Define GPT partition layout like kylin_rk3036(see include/configs/kylin_rk3036.h)
 - Write GPT partition layout to mmc device which fastboot want to use it to
 store the image
 
@@ -211,7 +210,6 @@ When booting you should see something like:
    Out:   serial@ff690000
    Err:   serial@ff690000
    =>
-
 
 Future work
 ===========
@@ -298,6 +296,15 @@ overhead and in SPL with a 32KB size limit some shortcuts have been taken.
 In general all Rockchip drivers should use these features, with SPL-specific
 modifications where required.
 
+GPT partition layout
+----------------------------
+
+Rockchip use a unified GPT partition layout  in open source support.
+With this GPT partition layout, uboot can be compatilbe with other components,
+like miniloader, trusted-os, arm-trust-firmware.
+
+There are some documents about partitions in the links below.
+http://rockchip.wikidot.com/partitions
 
 --
 Simon Glass <sjg@chromium.org>

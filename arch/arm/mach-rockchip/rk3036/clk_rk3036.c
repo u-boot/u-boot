@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Google, Inc
+ * Copyright (C) 2016 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -9,17 +9,17 @@
 #include <dm.h>
 #include <syscon.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3288.h>
+#include <asm/arch/cru_rk3036.h>
 
 int rockchip_get_clk(struct udevice **devp)
 {
 	return uclass_get_device_by_driver(UCLASS_CLK,
-			DM_GET_DRIVER(rockchip_rk3288_cru), devp);
+			DM_GET_DRIVER(rockchip_rk3036_cru), devp);
 }
 
 void *rockchip_get_cru(void)
 {
-	struct rk3288_clk_priv *priv;
+	struct rk3036_clk_priv *priv;
 	struct udevice *dev;
 	int ret;
 

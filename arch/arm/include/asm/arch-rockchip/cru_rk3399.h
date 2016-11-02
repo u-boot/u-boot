@@ -9,6 +9,12 @@
 
 #include <common.h>
 
+/* Private data for the clock driver - used by rockchip_get_cru() */
+struct rk3399_clk_priv {
+	struct rk3399_cru *cru;
+	ulong rate;
+};
+
 struct rk3399_pmucru {
 	u32 ppll_con[6];
 	u32 reserved[0x1a];

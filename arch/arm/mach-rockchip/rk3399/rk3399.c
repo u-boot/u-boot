@@ -6,6 +6,10 @@
 
 #include <common.h>
 #include <asm/armv8/mmu.h>
+#include <asm/io.h>
+#include <asm/arch/hardware.h>
+
+#define GRF_EMMCCORE_CON11 0xff77f02c
 
 static struct mm_region rk3399_mem_map[] = {
 	{
@@ -28,3 +32,13 @@ static struct mm_region rk3399_mem_map[] = {
 };
 
 struct mm_region *mem_map = rk3399_mem_map;
+
+int arch_cpu_init(void)
+{
+	/* We do some SoC one time setting here. */
+
+	/* Emmc clock generator: disable the clock multipilier */
+	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
+
+	return 0;
+}

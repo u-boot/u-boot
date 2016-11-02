@@ -6,7 +6,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#define GRF_SOC_CON2 0x24c
+#define GRF_SOC_CON2 0xff77024c
 
 int arch_cpu_init(void)
 {
