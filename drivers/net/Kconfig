@@ -155,6 +155,16 @@ config MVPP2
 	  This driver supports the network interface units in the
 	  Marvell ARMADA 375 SoC.
 
+config MACB
+	bool "Cadence MACB/GEM Ethernet Interface"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  The Cadence MACB ethernet interface is found on many Atmel
+	  AT91 and SAMA5 parts.  This driver also supports the Cadence
+	  GEM (Gigabit Ethernet MAC) found in some ARM SoC devices.
+	  Say Y to include support for the MACB/GEM chip.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI
