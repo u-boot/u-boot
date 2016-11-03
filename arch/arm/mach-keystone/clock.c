@@ -163,14 +163,14 @@ void configure_secondary_pll(const struct pll_init_data *data)
 {
 	int pllod = data->pll_od - 1;
 
+	/* Enable Glitch free bypass for ARM PLL */
+	if (cpu_is_k2hk() && data->pll == TETRIS_PLL)
+		clrbits_le32(KS2_MISC_CTRL, MISC_CTL1_ARM_PLL_EN);
+
 	/* Enable Bypass mode */
 	setbits_le32(keystone_pll_regs[data->pll].reg1, CFG_PLLCTL1_ENSAT_MASK);
 	setbits_le32(keystone_pll_regs[data->pll].reg0,
 		     CFG_PLLCTL0_BYPASS_MASK);
-
-	/* Enable Glitch free bypass for ARM PLL */
-	if (cpu_is_k2hk() && data->pll == TETRIS_PLL)
-		clrbits_le32(KS2_MISC_CTRL, MISC_CTL1_ARM_PLL_EN);
 
 	configure_mult_div(data);
 
@@ -189,10 +189,6 @@ void configure_secondary_pll(const struct pll_init_data *data)
 	if (data->pll == PASS_PLL && cpu_is_k2hk())
 		pll_pa_clk_sel();
 
-	/* Select the Output of ARM PLL as input to ARM */
-	if (data->pll == TETRIS_PLL)
-		setbits_le32(KS2_MISC_CTRL, MISC_CTL1_ARM_PLL_EN);
-
 	clrbits_le32(keystone_pll_regs[data->pll].reg1, CFG_PLLCTL1_RST_MASK);
 	/* Wait for 500 * REFCLK cucles * (PLLD + 1) */
 	sdelay(105000);
@@ -200,6 +196,10 @@ void configure_secondary_pll(const struct pll_init_data *data)
 	/* Switch to PLL mode */
 	clrbits_le32(keystone_pll_regs[data->pll].reg0,
 		     CFG_PLLCTL0_BYPASS_MASK);
+
+	/* Select the Output of ARM PLL as input to ARM */
+	if (cpu_is_k2hk() && data->pll == TETRIS_PLL)
+		setbits_le32(KS2_MISC_CTRL, MISC_CTL1_ARM_PLL_EN);
 }
 
 void init_pll(const struct pll_init_data *data)
