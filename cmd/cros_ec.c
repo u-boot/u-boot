@@ -20,6 +20,29 @@ static const char * const ec_current_image_name[] = {"unknown", "RO", "RW"};
 DECLARE_GLOBAL_DATA_PTR;
 
 /**
+ * Decode a flash region parameter
+ *
+ * @param argc Number of params remaining
+ * @param argv List of remaining parameters
+ * @return flash region (EC_FLASH_REGION_...) or -1 on error
+ */
+static int cros_ec_decode_region(int argc, char * const argv[])
+{
+	if (argc > 0) {
+		if (0 == strcmp(*argv, "rw"))
+			return EC_FLASH_REGION_RW;
+		else if (0 == strcmp(*argv, "ro"))
+			return EC_FLASH_REGION_RO;
+
+		debug("%s: Invalid region '%s'\n", __func__, *argv);
+	} else {
+		debug("%s: Missing region parameter\n", __func__);
+	}
+
+	return -1;
+}
+
+/**
  * Perform a flash read or write command
  *
  * @param dev		CROS-EC device to read/write

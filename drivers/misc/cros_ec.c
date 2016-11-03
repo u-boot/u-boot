@@ -1024,22 +1024,6 @@ int cros_ec_register(struct udevice *dev)
 	return 0;
 }
 
-int cros_ec_decode_region(int argc, char * const argv[])
-{
-	if (argc > 0) {
-		if (0 == strcmp(*argv, "rw"))
-			return EC_FLASH_REGION_RW;
-		else if (0 == strcmp(*argv, "ro"))
-			return EC_FLASH_REGION_RO;
-
-		debug("%s: Invalid region '%s'\n", __func__, *argv);
-	} else {
-		debug("%s: Missing region parameter\n", __func__);
-	}
-
-	return -1;
-}
-
 int cros_ec_decode_ec_flash(const void *blob, int node,
 			    struct fdt_cros_ec *config)
 {
