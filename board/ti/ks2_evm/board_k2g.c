@@ -66,7 +66,7 @@ static struct pll_init_data tetris_pll_config[NUM_SPDS] = {
 
 static struct pll_init_data uart_pll_config = {UART_PLL, 64, 1, 4};
 static struct pll_init_data nss_pll_config = {NSS_PLL, 250, 3, 2};
-static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 250, 3, 10};
+static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 133, 1, 16};
 
 struct pll_init_data *get_pll_init_data(int pll)
 {
