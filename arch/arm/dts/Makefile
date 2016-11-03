@@ -143,7 +143,8 @@ dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_LS102XA) += ls1021a-qds-duart.dtb \
 	ls1021a-qds-lpuart.dtb \
-	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb
+	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb \
+	ls1021a-iot-duart.dtb
 dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 	fsl-ls2080a-rdb.dtb
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
