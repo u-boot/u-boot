@@ -530,10 +530,6 @@
 	};
 };
 
-&pcie { /* FIXME - no GT lines connected */
-/*	status = "okay"; */
-};
-
 &qspi {
 	status = "okay";
 	is-dual = <1>;
