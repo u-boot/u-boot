@@ -27,24 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const omap3_sysinfo sysinfo = {
-	DDR_STACKED,
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-	"IGEPv2",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-	"IGEP COM MODULE/ELECTRON",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
-	"IGEP COM PROTON",
-#endif
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-	"ONENAND",
-#else
-	"NAND",
-#endif
-};
-
 static const struct ns16550_platdata igep_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
