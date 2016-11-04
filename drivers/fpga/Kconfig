@@ -3,6 +3,26 @@ menu "FPGA support"
 config FPGA
 	bool
 
+config FPGA_ALTERA
+	bool "Enable Altera FPGA drivers"
+	select FPGA
+	help
+	  Say Y here to enable the Altera FPGA driver
+
+	  This provides basic infrastructure to support Altera FPGA devices.
+	  Enable Altera FPGA specific functions which includes bitstream
+	  (in BIT format), fpga and device validation.
+
+config FPGA_CYCLON2
+	bool "Enable Altera FPGA driver for Cyclone II"
+	depends on FPGA_ALTERA
+	help
+	  Say Y here to enable the Altera Cyclone II FPGA specific driver
+
+	  This provides common functionality for Altera Cyclone II devices.
+	  Enable FPGA driver for loading bitstream in BIT and BIN format
+	  on Altera Cyclone II device.
+
 config FPGA_XILINX
 	bool "Enable Xilinx FPGA drivers"
 	select FPGA
