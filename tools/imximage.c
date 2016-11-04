@@ -533,12 +533,19 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 
 static void copy_plugin_code(struct imx_header *imxhdr, char *plugin_file)
 {
-	int ifd = -1;
+	int ifd;
 	struct stat sbuf;
 	char *plugin_buf = imxhdr->header.hdr_v2.data.plugin_code;
 	char *ptr;
 
 	ifd = open(plugin_file, O_RDONLY|O_BINARY);
+	if (ifd < 0) {
+		fprintf(stderr, "Can't open %s: %s\n",
+			plugin_file,
+			strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	if (fstat(ifd, &sbuf) < 0) {
 		fprintf(stderr, "Can't stat %s: %s\n",
 			plugin_file,
