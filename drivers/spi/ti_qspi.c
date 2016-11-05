@@ -16,6 +16,7 @@
 #include <asm/omap_gpio.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
+#include <linux/kernel.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -118,21 +119,18 @@ static void ti_spi_set_speed(struct ti_qspi_priv *priv, uint hz)
 	if (!hz)
 		clk_div = 0;
 	else
-		clk_div = (priv->fclk / hz) - 1;
+		clk_div = DIV_ROUND_UP(priv->fclk, hz) - 1;
+
+	/* truncate clk_div value to QSPI_CLK_DIV_MAX */
+	if (clk_div > QSPI_CLK_DIV_MAX)
+		clk_div = QSPI_CLK_DIV_MAX;
 
 	debug("ti_spi_set_speed: hz: %d, clock divider %d\n", hz, clk_div);
 
 	/* disable SCLK */
 	writel(readl(&priv->base->clk_ctrl) & ~QSPI_CLK_EN,
 	       &priv->base->clk_ctrl);
-
-	/* assign clk_div values */
-	if (clk_div < 0)
-		clk_div = 0;
-	else if (clk_div > QSPI_CLK_DIV_MAX)
-		clk_div = QSPI_CLK_DIV_MAX;
-
-	/* enable SCLK */
+	/* enable SCLK and program the clk divider */
 	writel(QSPI_CLK_EN | clk_div, &priv->base->clk_ctrl);
 }
 
