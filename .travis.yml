@@ -78,6 +78,7 @@ script:
      tools/buildman/buildman -P ${BUILDMAN};
      ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+       tools/buildman/buildman -sdeP ${BUILDMAN};
        exit $ret;
      fi;
    fi
@@ -96,30 +97,53 @@ matrix:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
     - env:
-        - BUILDMAN="arm1136"
+        - BUILDMAN="arm11"
     - env:
-        - BUILDMAN="arm1176"
-    - env:
-        - BUILDMAN="arm720t"
+        - BUILDMAN="arm7"
     - env:
         - BUILDMAN="arm920t"
+    - env:
+        - JOB="arm926ejs"
+          BUILDMAN="arm926ejs -x mx,siemens,atmel"
+    - env:
+        - BUILDMAN="arm946es"
     - env:
         - BUILDMAN="atmel -x avr32"
     - env:
         - BUILDMAN="avr32"
           TOOLCHAIN="avr32"
     - env:
-        - BUILDMAN="davinci"
-    - env:
         - BUILDMAN="denx"
     - env:
         - JOB="Freescale ARM"
           BUILDMAN="freescale -x powerpc,m68k"
     - env:
+        - JOB="i.MX (non-Freescale)"
+          BUILDMAN="mx -x freescale"
+    - env:
+        - BUILDMAN="sun4i"
+    - env:
+        - BUILDMAN="sun5i"
+    - env:
+        - BUILDMAN="sun6i"
+    - env:
+        - BUILDMAN="sun7i"
+    - env:
+        - BUILDMAN="sun8i"
+    - env:
+        - BUILDMAN="sun9i"
+    - env:
+        - BUILDMAN="sun50i"
+    - env:
+        - JOB="Catch-all ARM"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,siemens,tegra,uniphier,mx,sunxi,am33xx,omap3,omap4,omap5,pxa"
+    - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
     - env:
         - BUILDMAN="kirkwood"
+    - env:
+        - BUILDMAN="pxa"
     - env:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
@@ -158,11 +182,18 @@ matrix:
     - env:
         - BUILDMAN="tegra"
     - env:
-        - BUILDMAN="ti"
+        - JOB="am33xx"
+          BUILDMAN="am33xx -x siemens"
+    - env:
+        - BUILDMAN="omap3"
+    - env:
+        - BUILDMAN="omap4"
+    - env:
+        - BUILDMAN="omap5"
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - BUILDMAN="aarch64 -x tegra,freescale,uniphier"
+        - BUILDMAN="aarch64 -x tegra,freescale,uniphier,sunxi"
           TOOLCHAIN="aarch64"
     - env:
         - BUILDMAN="sh4"
