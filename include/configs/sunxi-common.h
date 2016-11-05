@@ -145,6 +145,7 @@
 #define CONFIG_MMC_SUNXI_SLOT		0
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
+#define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
 /* 64MB of malloc() pool */
