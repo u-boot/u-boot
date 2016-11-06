@@ -150,7 +150,8 @@ CONFIG_SECURE_BOOT is needed to build those two binaries.
 After building, you need to create a command sequence file and use
 Freescales Code Signing Tool to sign both binaries. After creation,
 the mkimage tool outputs the required information about the HAB Blocks
-parameter for the CSF.
+parameter for the CSF. During the build, the information is preserved
+in log files named as the binaries. (SPL.log and u-boot-ivt.log).
 
 More information about the CSF and HAB can be found in the AN4581.
 https://cache.freescale.com/files/32bit/doc/app_note/AN4581.pdf
