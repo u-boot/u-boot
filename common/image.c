@@ -166,6 +166,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_ZYNQMPIMAGE, "zynqmpimage", "Xilinx ZynqMP Boot Image" },
 	{	IH_TYPE_FPGA,       "fpga",       "FPGA Image" },
 	{       IH_TYPE_TEE,        "tee",        "Trusted Execution Environment Image",},
+	{	IH_TYPE_FIRMWARE_IVT, "firmware_ivt", "Firmware with HABv4 IVT" },
 	{	-1,		    "",		  "",			},
 };
 
@@ -365,6 +366,11 @@ void image_print_contents(const void *ptr)
 				printf("%s    Offset = 0x%08lx\n", p, data);
 			}
 		}
+	} else if (image_check_type(hdr, IH_TYPE_FIRMWARE_IVT)) {
+		printf("HAB Blocks:   0x%08x   0x0000   0x%08x\n",
+				image_get_load(hdr) - image_get_header_size(),
+				image_get_size(hdr) + image_get_header_size()
+						- 0x1FE0);
 	}
 }
 
