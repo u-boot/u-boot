@@ -10,13 +10,13 @@
 # Expected results are as follows:
 # EXT4 tests:
 # fs-test.sb.ext4.out: Summary: PASS: 23 FAIL: 0
-# fs-test.ext4.out: Summary: PASS: 14 FAIL: 9
-# fs-test.fs.ext4.out: Summary: PASS: 14 FAIL: 9
+# fs-test.ext4.out: Summary: PASS: 23 FAIL: 0
+# fs-test.fs.ext4.out: Summary: PASS: 23 FAIL: 0
 # FAT tests:
 # fs-test.sb.fat.out: Summary: PASS: 23 FAIL: 0
 # fs-test.fat.out: Summary: PASS: 20 FAIL: 3
 # fs-test.fs.fat.out: Summary: PASS: 20 FAIL: 3
-# Total Summary: TOTAL PASS: 114 TOTAL FAIL: 24
+# Total Summary: TOTAL PASS: 132 TOTAL FAIL: 6
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
