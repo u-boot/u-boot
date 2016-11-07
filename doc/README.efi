@@ -310,6 +310,20 @@ Removable media booting (search for /efi/boot/boota{a64,arm}.efi) is supported.
 Simple use cases like "Plug this SD card into my ARM device and it just
 boots into grub which boots into Linux", work very well.
 
+
+Running HelloWord.efi
+---------------------
+
+You can run a simple 'hello world' EFI program in U-Boot.
+Enable the option CONFIG_CMD_BOOTEFI_HELLO.
+
+Then you can boot into U-Boot and type:
+
+   > bootefi hello
+
+The 'hello world EFI' program will then run, print a message and exit.
+
+
 Future work
 -----------
 

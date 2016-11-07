@@ -239,13 +239,23 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
-	saddr = argv[1];
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	if (!strcmp(argv[1], "hello")) {
+		ulong size = __efi_hello_world_end - __efi_hello_world_begin;
 
-	addr = simple_strtoul(saddr, NULL, 16);
+		addr = CONFIG_SYS_LOAD_ADDR;
+		memcpy((char *)addr, __efi_hello_world_begin, size);
+	} else
+#endif
+	{
+		saddr = argv[1];
 
-	if (argc > 2) {
-		sfdt = argv[2];
-		fdt_addr = simple_strtoul(sfdt, NULL, 16);
+		addr = simple_strtoul(saddr, NULL, 16);
+
+		if (argc > 2) {
+			sfdt = argv[2];
+			fdt_addr = simple_strtoul(sfdt, NULL, 16);
+		}
 	}
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
@@ -263,7 +273,12 @@ static char bootefi_help_text[] =
 	"<image address> [fdt address]\n"
 	"  - boot EFI payload stored at address <image address>.\n"
 	"    If specified, the device tree located at <fdt address> gets\n"
-	"    exposed as EFI configuration table.\n";
+	"    exposed as EFI configuration table.\n"
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	"hello\n"
+	"  - boot a sample Hello World application stored within U-Boot"
+#endif
+	;
 #endif
 
 U_BOOT_CMD(
