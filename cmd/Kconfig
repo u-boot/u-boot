@@ -183,7 +183,7 @@ config CMD_BOOTEFI
 
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
-	depends on CMD_BOOTEFI && NEED_CRT0_ENABLEMENT
+	depends on CMD_BOOTEFI && ARM && !ARM64
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
 	  it can be used with the 'bootefi hello' command. This is useful
