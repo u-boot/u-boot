@@ -64,6 +64,17 @@ config ALTERA_TSE
 	  Please find details on the "Triple-Speed Ethernet MegaCore Function
 	  Resource Center" of Altera.
 
+config DWC_ETH_QOS
+	bool "Synopsys DWC Ethernet QOS device support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Synopsys Designware Ethernet QOS (Quality
+	  Of Service) IP block. The IP supports many options for bus type,
+	  clocking/reset structure, and feature list. This driver currently
+	  supports the specific configuration used in NVIDIA's Tegra186 chip,
+	  but should be extensible to other combinations quite easily.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	help

@@ -25,6 +25,11 @@
 		reg = <0x0 0x80000000 0x0 0x60000000>;
 	};
 
+	ethernet@2490000 {
+		status = "okay";
+		phy-reset-gpios = <&gpio_main TEGRA_MAIN_GPIO(M, 4) GPIO_ACTIVE_LOW>;
+	};
+
 	i2c@3160000 {
 		status = "okay";
 	};
