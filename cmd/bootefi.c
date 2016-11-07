@@ -248,7 +248,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		fdt_addr = simple_strtoul(sfdt, NULL, 16);
 	}
 
-	printf("## Starting EFI application at 0x%08lx ...\n", addr);
+	printf("## Starting EFI application at %08lx ...\n", addr);
 	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
 	printf("## Application terminated, r = %d\n", r);
 
