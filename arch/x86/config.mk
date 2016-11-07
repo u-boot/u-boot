@@ -46,7 +46,7 @@ endif
 EFIPAYLOAD_BFDARCH = i386
 
 LDSCRIPT_EFI := $(srctree)/arch/x86/lib/elf_$(EFIARCH)_efi.lds
-EFISTUB := crt0-efi-$(EFIARCH).o reloc_$(EFIARCH).o
+EFISTUB := crt0_$(EFIARCH)_efi.o reloc_$(EFIARCH)_efi.o
 OBJCOPYFLAGS_EFI += --target=efi-app-$(EFIARCH)
 
 CPPFLAGS_REMOVE_crt0-efi-$(EFIARCH).o += $(CFLAGS_NON_EFI)
