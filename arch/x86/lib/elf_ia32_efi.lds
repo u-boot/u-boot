@@ -6,8 +6,6 @@
  * Modified from usr/lib32/elf_ia32_efi.lds in gnu-efi
  */
 
-#include <config.h>
-
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)

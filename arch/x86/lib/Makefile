@@ -61,4 +61,9 @@ AFLAGS_crt0_x86_64_efi.o += -fpic -fshort-wchar
 
 extra-$(CONFIG_EFI_STUB_32BIT) += crt0_ia32_efi.o reloc_ia32_efi.o
 extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
+
+endif
+
+ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO),)
+extra-y += $(EFI_CRT0) $(EFI_RELOC)
 endif
