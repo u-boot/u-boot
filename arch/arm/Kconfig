@@ -574,6 +574,11 @@ config ARCH_SUNXI
 	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USE_TINY_PRINTF
 
+config TARGET_TS4600
+	bool "Support TS4600"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
 config TARGET_TS4800
 	bool "Support TS4800"
 	select CPU_V7
@@ -1025,6 +1030,7 @@ source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
+source "board/technologic/ts4600/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
