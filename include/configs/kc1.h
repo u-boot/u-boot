@@ -31,7 +31,6 @@
 
 #define CONFIG_OMAP
 #define CONFIG_OMAP4430
-#define CONFIG_OMAP_COMMON
 
 /*
  * Board

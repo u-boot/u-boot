@@ -19,7 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973

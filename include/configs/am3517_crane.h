@@ -18,7 +18,6 @@
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP3_AM3517CRANE	1	/* working with CRANEBOARD */
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973

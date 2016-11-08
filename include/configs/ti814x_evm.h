@@ -20,7 +20,6 @@
 #define CONFIG_TI814X
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_OMAP
-#define CONFIG_OMAP_COMMON
 
 #include <asm/arch/omap.h>
 

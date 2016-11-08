@@ -27,7 +27,6 @@
 #define CONFIG_OMAP3430			/* which is in a 3430 */
 #define CONFIG_OMAP3_RX51		/* working with RX51 */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
