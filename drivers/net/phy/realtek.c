@@ -16,7 +16,7 @@
 
 /* RTL8211x 1000BASE-T Control Register */
 #define MIIM_RTL8211x_CTRL1000T_MSCE BIT(12);
-#define MIIM_RTL8211X_CTRL1000T_MASTER BIT(11);
+#define MIIM_RTL8211x_CTRL1000T_MASTER BIT(11);
 
 /* RTL8211x PHY Status Register */
 #define MIIM_RTL8211x_PHY_STATUS       0x11
@@ -64,7 +64,7 @@ static int rtl8211x_config(struct phy_device *phydev)
 	/* force manual master/slave configuration */
 	reg |= MIIM_RTL8211x_CTRL1000T_MSCE;
 	/* force master mode */
-	reg |= MIIM_RTL8211X_CTRL1000T_MASTER;
+	reg |= MIIM_RTL8211x_CTRL1000T_MASTER;
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, reg);
 #endif
 	/* read interrupt status just to clear it */
