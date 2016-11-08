@@ -421,19 +421,20 @@ __weak void mmu_setup(void)
 void invalidate_dcache_all(void)
 {
 	__asm_invalidate_dcache_all();
+	__asm_invalidate_l3_dcache();
 }
 
 /*
  * Performs a clean & invalidation of the entire data cache at all levels.
  * This function needs to be inline to avoid using stack.
- * __asm_flush_l3_cache return status of timeout
+ * __asm_flush_l3_dcache return status of timeout
  */
 inline void flush_dcache_all(void)
 {
 	int ret;
 
 	__asm_flush_dcache_all();
-	ret = __asm_flush_l3_cache();
+	ret = __asm_flush_l3_dcache();
 	if (ret)
 		debug("flushing dcache returns 0x%x\n", ret);
 	else
@@ -623,7 +624,7 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 
 void icache_enable(void)
 {
-	__asm_invalidate_icache_all();
+	invalidate_icache_all();
 	set_sctlr(get_sctlr() | CR_I);
 }
 
@@ -640,6 +641,7 @@ int icache_status(void)
 void invalidate_icache_all(void)
 {
 	__asm_invalidate_icache_all();
+	__asm_invalidate_l3_icache();
 }
 
 #else	/* CONFIG_SYS_ICACHE_OFF */
