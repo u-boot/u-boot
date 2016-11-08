@@ -113,6 +113,6 @@
 
 /* General parts of the framework, required. */
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 #endif	/* ! __BUR_AM335X_COMMON_H__ */

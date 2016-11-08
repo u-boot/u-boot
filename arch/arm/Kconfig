@@ -544,8 +544,7 @@ config ARCH_SOCFPGA
 
 config TARGET_CM_T43
 	bool "Support cm_t43"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -891,7 +890,7 @@ source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/cpu/armv7/mx5/Kconfig"
 
-source "arch/arm/cpu/armv7/omap-common/Kconfig"
+source "arch/arm/mach-omap2/Kconfig"
 
 source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 

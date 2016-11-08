@@ -207,6 +207,6 @@
 
 /* CPSW support */
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 #endif	/* ! __CONFIG_PENGWYN_H */

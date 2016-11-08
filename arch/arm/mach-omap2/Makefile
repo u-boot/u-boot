@@ -5,7 +5,12 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= reset.o
+obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
+obj-$(CONFIG_OMAP34XX) += omap3/
+obj-$(CONFIG_OMAP44XX) += omap4/
+obj-$(CONFIG_OMAP54XX) += omap5/
+
+obj-y	+= reset.o
 ifeq ($(CONFIG_TIMER),)
 obj-y	+= timer.o
 else

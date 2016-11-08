@@ -130,7 +130,7 @@
 
 #define CONFIG_SYS_SPI_U_BOOT_OFFS  0x20000
 #define CONFIG_SYS_SPI_U_BOOT_SIZE  0x40000
-#define CONFIG_SPL_LDSCRIPT     "$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT     "arch/arm/mach-omap2/u-boot-spl.lds"
 
 #define CONFIG_SPL_BOARD_INIT
 

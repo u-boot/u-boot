@@ -120,7 +120,7 @@
 /* CPU */
 #define CONFIG_ENV_IS_NOWHERE
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 #ifdef CONFIG_SPI_BOOT
 #define CONFIG_SPL_SPI_LOAD

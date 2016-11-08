@@ -104,7 +104,7 @@
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
 
 /* SPL */
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 /* Network. */
 #define CONFIG_PHY_GIGE
