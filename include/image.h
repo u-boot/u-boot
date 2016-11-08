@@ -1070,6 +1070,8 @@ struct image_region {
 struct checksum_algo {
 	const char *name;
 	const int checksum_len;
+	const int der_len;
+	const uint8_t *der_prefix;
 	const int key_len;
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
@@ -1077,7 +1079,6 @@ struct checksum_algo {
 	int (*calculate)(const char *name,
 			 const struct image_region region[],
 			 int region_count, uint8_t *checksum);
-	const uint8_t *rsa_padding;
 };
 
 struct image_sig_algo {

@@ -34,32 +34,35 @@ struct checksum_algo checksum_algos[] = {
 	{
 		"sha1",
 		SHA1_SUM_LEN,
+		SHA1_DER_LEN,
+		sha1_der_prefix,
 		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #endif
 		hash_calculate,
-		padding_sha1_rsa2048,
 	},
 	{
 		"sha256",
 		SHA256_SUM_LEN,
+		SHA256_DER_LEN,
+		sha256_der_prefix,
 		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
 		hash_calculate,
-		padding_sha256_rsa2048,
 	},
 	{
 		"sha256",
 		SHA256_SUM_LEN,
+		SHA256_DER_LEN,
+		sha256_der_prefix,
 		RSA4096_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
 		hash_calculate,
-		padding_sha256_rsa4096,
 	}
 
 };

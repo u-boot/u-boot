@@ -25,6 +25,40 @@
 #define RSA_DEFAULT_PUBEXP	65537
 
 /**
+ * rsa_verify_padding() - Verify RSA message padding is valid
+ *
+ * Verify a RSA message's padding is consistent with PKCS1.5
+ * padding as described in the RSA PKCS#1 v2.1 standard.
+ *
+ * @msg:	Padded message
+ * @pad_len:	Number of expected padding bytes
+ * @algo:	Checksum algo structure having information on DER encoding etc.
+ * @return 0 on success, != 0 on failure
+ */
+static int rsa_verify_padding(const uint8_t *msg, const int pad_len,
+			      struct checksum_algo *algo)
+{
+	int ff_len;
+	int ret;
+
+	/* first byte must be 0x00 */
+	ret = *msg++;
+	/* second byte must be 0x01 */
+	ret |= *msg++ ^ 0x01;
+	/* next ff_len bytes must be 0xff */
+	ff_len = pad_len - algo->der_len - 3;
+	ret |= *msg ^ 0xff;
+	ret |= memcmp(msg, msg+1, ff_len-1);
+	msg += ff_len;
+	/* next byte must be 0x00 */
+	ret |= *msg++;
+	/* next der_len bytes must match der_prefix */
+	ret |= memcmp(msg, algo->der_prefix, algo->der_len);
+
+	return ret;
+}
+
+/**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
  * Verify a RSA PKCS1.5 signature against an expected hash using
@@ -83,11 +117,11 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 		return ret;
 	}
 
-	padding = algo->rsa_padding;
 	pad_len = algo->key_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
-	if (memcmp(buf, padding, pad_len)) {
+	ret = rsa_verify_padding(buf, pad_len, algo);
+	if (ret) {
 		debug("In RSAVerify(): Padding check failed!\n");
 		return -EINVAL;
 	}
