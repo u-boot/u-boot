@@ -126,6 +126,11 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  ARM_SOC_BOOT0_HOOK which contains the required assembler
 	  preprocessor code.
 
+config ARCH_OMAP2
+	bool
+	select CPU_V7
+	select SUPPORT_SPL
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
@@ -327,71 +332,61 @@ config TARGET_VEXPRESS_CA9X4
 
 config TARGET_BRXRE1
 	bool "Support BRXRE1"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_BRPPT1
 	bool "Support BRPPT1"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_DRACO
 	bool "Support draco"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_THUBAN
 	bool "Support thuban"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_RASTABAN
 	bool "Support rastaban"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_ETAMIN
 	bool "Support etamin"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_PXM2
 	bool "Support pxm2"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_RUT
 	bool "Support rut"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_TI816X_EVM
 	bool "Support ti816x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
@@ -486,25 +481,21 @@ config TARGET_MX53SMD
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select USE_TINY_PRINTF
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select USE_TINY_PRINTF
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config AM43XX
 	bool "AM43XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	help
 	  Support for AM43xx SOC from Texas Instruments.
 	  The AM43xx high performance SOC features a Cortex-A9
@@ -514,8 +505,7 @@ config AM43XX
 
 config AM33XX
 	bool "AM33XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
