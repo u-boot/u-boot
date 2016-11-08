@@ -1049,7 +1049,9 @@ struct image_sign_info {
 	const char *keyname;		/* Name of key to use */
 	void *fit;			/* Pointer to FIT blob */
 	int node_offset;		/* Offset of signature node */
-	struct image_sig_algo *algo;	/* Algorithm information */
+	const char *name;		/* Algorithm name */
+	struct checksum_algo *checksum;	/* Checksum algorithm information */
+	struct crypto_algo *crypto;	/* Crypto algorithm information */
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
@@ -1133,21 +1135,21 @@ struct crypto_algo {
 		      uint8_t *sig, uint sig_len);
 };
 
-struct image_sig_algo {
-	const char *name;
-	/* pointer to cryptosystem algorithm */
-	struct crypto_algo *crypto;
-	/* pointer to checksum algorithm */
-	struct checksum_algo *checksum;
-};
-
 /**
- * image_get_sig_algo() - Look up a signature algortihm
+ * image_get_checksum_algo() - Look up a checksum algorithm
  *
- * @param name		Name of algorithm
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
  * @return pointer to algorithm information, or NULL if not found
  */
-struct image_sig_algo *image_get_sig_algo(const char *name);
+struct checksum_algo *image_get_checksum_algo(const char *full_name);
+
+/**
+ * image_get_crypto_algo() - Look up a cryptosystem algorithm
+ *
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct crypto_algo *image_get_crypto_algo(const char *full_name);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'

@@ -184,8 +184,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	}
 
 	ret = rsa_verify_key(&prop, sig, sig_len, hash,
-			     info->algo->crypto->key_len,
-			     info->algo->checksum);
+			     info->crypto->key_len, info->checksum);
 
 	return ret;
 }
@@ -196,7 +195,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	const void *blob = info->fdt_blob;
 	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->algo->crypto->key_len];
+	uint8_t hash[info->crypto->key_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
@@ -206,11 +205,10 @@ int rsa_verify(struct image_sign_info *info,
 	 * Verify that the checksum-length does not exceed the
 	 * rsa-signature-length
 	 */
-	if (info->algo->checksum->checksum_len >
-	    info->algo->crypto->key_len) {
+	if (info->checksum->checksum_len >
+	    info->crypto->key_len) {
 		debug("%s: invlaid checksum-algorithm %s for %s\n",
-		      __func__, info->algo->checksum->name,
-		      info->algo->crypto->name);
+		      __func__, info->checksum->name, info->crypto->name);
 		return -EINVAL;
 	}
 
@@ -221,7 +219,7 @@ int rsa_verify(struct image_sign_info *info,
 	}
 
 	/* Calculate checksum with checksum-algorithm */
-	ret = info->algo->checksum->calculate(info->algo->checksum->name,
+	ret = info->checksum->calculate(info->checksum->name,
 					region, region_count, hash);
 	if (ret < 0) {
 		debug("%s: Error in checksum calculation\n", __func__);
