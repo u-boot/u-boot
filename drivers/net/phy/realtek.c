@@ -9,13 +9,14 @@
  */
 #include <config.h>
 #include <common.h>
+#include <linux/bitops.h>
 #include <phy.h>
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 
 /* RTL8211x 1000BASE-T Control Register */
-#define MIIM_RTL8211x_CTRL1000T_MSCE (1 << 12);
-#define MIIM_RTL8211X_CTRL1000T_MASTER (1 << 11);
+#define MIIM_RTL8211x_CTRL1000T_MSCE BIT(12);
+#define MIIM_RTL8211X_CTRL1000T_MASTER BIT(11);
 
 /* RTL8211x PHY Status Register */
 #define MIIM_RTL8211x_PHY_STATUS       0x11
