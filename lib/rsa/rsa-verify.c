@@ -84,7 +84,7 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 	}
 
 	padding = algo->rsa_padding;
-	pad_len = algo->pad_len - algo->checksum_len;
+	pad_len = algo->key_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
 	if (memcmp(buf, padding, pad_len)) {
@@ -160,7 +160,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	const void *blob = info->fdt_blob;
 	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->algo->checksum->pad_len];
+	uint8_t hash[info->algo->checksum->key_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
@@ -171,7 +171,7 @@ int rsa_verify(struct image_sign_info *info,
 	 * rsa-signature-length
 	 */
 	if (info->algo->checksum->checksum_len >
-	    info->algo->checksum->pad_len) {
+	    info->algo->checksum->key_len) {
 		debug("%s: invlaid checksum-algorithm %s for %s\n",
 		      __func__, info->algo->checksum->name, info->algo->name);
 		return -EINVAL;
