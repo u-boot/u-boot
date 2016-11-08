@@ -68,14 +68,14 @@ static int rsa_verify_padding(const uint8_t *msg, const int pad_len,
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
  * @hash:	Pointer to the expected hash
- * @algo:	Checksum algo structure having information on RSA padding etc.
+ * @key_len:	Number of bytes in rsa key
+ * @algo:	Checksum algo structure having information on DER encoding etc.
  * @return 0 if verified, -ve on error
  */
 static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 			  const uint32_t sig_len, const uint8_t *hash,
-			  struct checksum_algo *algo)
+			  const uint32_t key_len, struct checksum_algo *algo)
 {
-	const uint8_t *padding;
 	int pad_len;
 	int ret;
 #if !defined(USE_HOSTCC)
@@ -117,7 +117,7 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 		return ret;
 	}
 
-	pad_len = algo->key_len - algo->checksum_len;
+	pad_len = key_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
 	ret = rsa_verify_padding(buf, pad_len, algo);
@@ -183,7 +183,9 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 		return -EFAULT;
 	}
 
-	ret = rsa_verify_key(&prop, sig, sig_len, hash, info->algo->checksum);
+	ret = rsa_verify_key(&prop, sig, sig_len, hash,
+			     info->algo->crypto->key_len,
+			     info->algo->checksum);
 
 	return ret;
 }
@@ -194,7 +196,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	const void *blob = info->fdt_blob;
 	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->algo->checksum->key_len];
+	uint8_t hash[info->algo->crypto->key_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
@@ -205,9 +207,10 @@ int rsa_verify(struct image_sign_info *info,
 	 * rsa-signature-length
 	 */
 	if (info->algo->checksum->checksum_len >
-	    info->algo->checksum->key_len) {
+	    info->algo->crypto->key_len) {
 		debug("%s: invlaid checksum-algorithm %s for %s\n",
-		      __func__, info->algo->checksum->name, info->algo->name);
+		      __func__, info->algo->checksum->name,
+		      info->algo->crypto->name);
 		return -EINVAL;
 	}
 

@@ -36,7 +36,6 @@ struct checksum_algo checksum_algos[] = {
 		SHA1_SUM_LEN,
 		SHA1_DER_LEN,
 		sha1_der_prefix,
-		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #endif
@@ -47,18 +46,6 @@ struct checksum_algo checksum_algos[] = {
 		SHA256_SUM_LEN,
 		SHA256_DER_LEN,
 		sha256_der_prefix,
-		RSA2048_BYTES,
-#if IMAGE_ENABLE_SIGN
-		EVP_sha256,
-#endif
-		hash_calculate,
-	},
-	{
-		"sha256",
-		SHA256_SUM_LEN,
-		SHA256_DER_LEN,
-		sha256_der_prefix,
-		RSA4096_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
@@ -67,27 +54,39 @@ struct checksum_algo checksum_algos[] = {
 
 };
 
-struct image_sig_algo image_sig_algos[] = {
+struct crypto_algo crypto_algos[] = {
 	{
-		"sha1,rsa2048",
+		"rsa2048",
+		RSA2048_BYTES,
 		rsa_sign,
 		rsa_add_verify_data,
 		rsa_verify,
+	},
+	{
+		"rsa4096",
+		RSA4096_BYTES,
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
+	}
+
+};
+
+struct image_sig_algo image_sig_algos[] = {
+	{
+		"sha1,rsa2048",
+		&crypto_algos[0],
 		&checksum_algos[0],
 	},
 	{
 		"sha256,rsa2048",
-		rsa_sign,
-		rsa_add_verify_data,
-		rsa_verify,
+		&crypto_algos[0],
 		&checksum_algos[1],
 	},
 	{
 		"sha256,rsa4096",
-		rsa_sign,
-		rsa_add_verify_data,
-		rsa_verify,
-		&checksum_algos[2],
+		&crypto_algos[1],
+		&checksum_algos[1],
 	}
 
 };
@@ -197,7 +196,8 @@ int fit_image_check_sig(const void *fit, int noffset, const void *data,
 	region.data = data;
 	region.size = size;
 
-	if (info.algo->verify(&info, &region, 1, fit_value, fit_value_len)) {
+	if (info.algo->crypto->verify(&info, &region, 1, fit_value,
+				      fit_value_len)) {
 		*err_msgp = "Verification failed";
 		return -1;
 	}
@@ -378,8 +378,8 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 	struct image_region region[count];
 
 	fit_region_make_list(fit, fdt_regions, count, region);
-	if (info.algo->verify(&info, region, count, fit_value,
-			      fit_value_len)) {
+	if (info.algo->crypto->verify(&info, region, count, fit_value,
+				      fit_value_len)) {
 		*err_msgp = "Verification failed";
 		return -1;
 	}

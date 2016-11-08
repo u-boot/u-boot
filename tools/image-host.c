@@ -213,7 +213,7 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
 	node_name = fit_get_name(fit, noffset, NULL);
 	region.data = data;
 	region.size = size;
-	ret = info.algo->sign(&info, &region, 1, &value, &value_len);
+	ret = info.algo->crypto->sign(&info, &region, 1, &value, &value_len);
 	if (ret) {
 		printf("Failed to sign '%s' signature node in '%s' image node: %d\n",
 		       node_name, image_name, ret);
@@ -239,7 +239,7 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
 	info.keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
 
 	if (keydest)
-		ret = info.algo->add_verify_data(&info, keydest);
+		ret = info.algo->crypto->add_verify_data(&info, keydest);
 	else
 		return -1;
 
@@ -588,7 +588,8 @@ static int fit_config_process_sig(const char *keydir, void *keydest,
 				require_keys ? "conf" : NULL))
 		return -1;
 
-	ret = info.algo->sign(&info, region, region_count, &value, &value_len);
+	ret = info.algo->crypto->sign(&info, region, region_count, &value,
+				      &value_len);
 	free(region);
 	if (ret) {
 		printf("Failed to sign '%s' signature node in '%s' conf node\n",
@@ -617,7 +618,7 @@ static int fit_config_process_sig(const char *keydir, void *keydest,
 
 	/* Write the public key into the supplied FDT file */
 	if (keydest) {
-		ret = info.algo->add_verify_data(&info, keydest);
+		ret = info.algo->crypto->add_verify_data(&info, keydest);
 		if (ret == -ENOSPC)
 			return -ENOSPC;
 		if (ret) {

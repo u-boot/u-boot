@@ -1072,7 +1072,6 @@ struct checksum_algo {
 	const int checksum_len;
 	const int der_len;
 	const uint8_t *der_prefix;
-	const int key_len;
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
@@ -1081,8 +1080,9 @@ struct checksum_algo {
 			 int region_count, uint8_t *checksum);
 };
 
-struct image_sig_algo {
+struct crypto_algo {
 	const char *name;		/* Name of algorithm */
+	const int key_len;
 
 	/**
 	 * sign() - calculate and return signature for given input data
@@ -1131,7 +1131,12 @@ struct image_sig_algo {
 	int (*verify)(struct image_sign_info *info,
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
+};
 
+struct image_sig_algo {
+	const char *name;
+	/* pointer to cryptosystem algorithm */
+	struct crypto_algo *crypto;
 	/* pointer to checksum algorithm */
 	struct checksum_algo *checksum;
 };
