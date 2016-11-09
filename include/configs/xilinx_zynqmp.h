@@ -211,6 +211,10 @@
 			"run loadbootenv; " \
 			"echo Loaded environment from ${bootenv}; " \
 			"run importbootenv; " \
+		"fi; " \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...; " \
+			"run uenvcmd; " \
 		"fi\0" \
 	"sdboot=mmc dev $sdbootdev && mmcinfo && run uenvboot || run sdroot$sdbootdev; " \
 		"load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
