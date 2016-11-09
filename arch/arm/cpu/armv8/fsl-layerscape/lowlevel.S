@@ -29,6 +29,26 @@ ENTRY(lowlevel_init)
 	ldr	x0, =CCI_AUX_CONTROL_BASE(20)
 	ldr	x1, =0x00000010
 	bl	ccn504_set_aux
+
+	/*
+	 * Set forced-order mode in RNI-6, RNI-20
+	 * This is required for performance optimization on LS2088A
+	 * LS2080A family does not support setting forced-order mode,
+	 * so skip this operation for LS2080A family
+	 */
+	bl	get_svr
+	lsr	w0, w0, #16
+	ldr	w1, =SVR_DEV_LS2080A
+	cmp	w0, w1
+	b.eq	1f
+
+	ldr	x0, =CCI_AUX_CONTROL_BASE(6)
+	ldr	x1, =0x00000020
+	bl	ccn504_set_aux
+	ldr	x0, =CCI_AUX_CONTROL_BASE(20)
+	ldr	x1, =0x00000020
+	bl	ccn504_set_aux
+1:
 #endif
 
 	/* Add fully-coherent masters to DVM domain */
