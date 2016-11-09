@@ -10343,35 +10343,31 @@ unsigned long psu_serdes_init_data() {
 		Sel of lane 0 ref clock local mux. Set to 1 to select lane 0 slicer output. Set to 0 to select lane0 ref clock mux output.
 		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL                                 0x0
 
-		Bit 2 of lane 0 ref clock mux one hot sel. Set to 1 to select lane 2 slicer output from ref clock network
-		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_2                                   0x1
+		Bit 1 of lane 0 ref clock mux one hot sel. Set to 1 to select lane 1 slicer output from ref clock network
+		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_1                                   0x1
 
 		Lane0 Ref Clock Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD402860, 0x00000084U ,0x00000004U)
-		RegMask = (SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_MASK | SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_2_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD402860, 0x00000082U ,0x00000002U)
+		RegMask = (SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_MASK | SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_1_MASK |  0 );
 
 		RegVal = ((0x00000000U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_SHIFT
-			| 0x00000001U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_2_SHIFT
+			| 0x00000001U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_1_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_L0_REF_CLK_SEL_OFFSET ,0x00000084U ,0x00000004U);
+		PSU_Mask_Write (SERDES_L0_L0_REF_CLK_SEL_OFFSET ,0x00000082U ,0x00000002U);
 	/*############################################################################################################################ */
 
 		/*Register : L0_L1_REF_CLK_SEL @ 0XFD402864</p>
 
 		Sel of lane 1 ref clock local mux. Set to 1 to select lane 1 slicer output. Set to 0 to select lane1 ref clock mux output.
-		PSU_SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL                                 0x0
-
-		Bit 2 of lane 1 ref clock mux one hot sel. Set to 1 to select lane 2 slicer output from ref clock network
-		PSU_SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_SEL_2                                   0x1
+		PSU_SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL                                 0x1
 
 		Lane1 Ref Clock Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD402864, 0x00000084U ,0x00000004U)
-		RegMask = (SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL_MASK | SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_SEL_2_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD402864, 0x00000080U ,0x00000080U)
+		RegMask = (SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL_MASK |  0 );
 
-		RegVal = ((0x00000000U << SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL_SHIFT
-			| 0x00000001U << SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_SEL_2_SHIFT
+		RegVal = ((0x00000001U << SERDES_L0_L1_REF_CLK_SEL_L1_REF_CLK_LCL_SEL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_L1_REF_CLK_SEL_OFFSET ,0x00000084U ,0x00000004U);
+		PSU_Mask_Write (SERDES_L0_L1_REF_CLK_SEL_OFFSET ,0x00000080U ,0x00000080U);
 	/*############################################################################################################################ */
 
 		/*Register : L0_L2_REF_CLK_SEL @ 0XFD402868</p>
@@ -10379,31 +10375,35 @@ unsigned long psu_serdes_init_data() {
 		Sel of lane 2 ref clock local mux. Set to 1 to select lane 1 slicer output. Set to 0 to select lane2 ref clock mux output.
 		PSU_SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_LCL_SEL                                 0x0
 
-		Bit 3 of lane 2 ref clock mux one hot sel. Set to 1 to select lane 3 slicer output from ref clock network
-		PSU_SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_3                                   0x1
+		Bit 0 of lane 2 ref clock mux one hot sel. Set to 1 to select lane 0 slicer output from ref clock network
+		PSU_SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_0                                   0x1
 
 		Lane2 Ref Clock Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD402868, 0x00000088U ,0x00000008U)
-		RegMask = (SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_LCL_SEL_MASK | SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_3_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD402868, 0x00000081U ,0x00000001U)
+		RegMask = (SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_LCL_SEL_MASK | SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_0_MASK |  0 );
 
 		RegVal = ((0x00000000U << SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_LCL_SEL_SHIFT
-			| 0x00000001U << SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_3_SHIFT
+			| 0x00000001U << SERDES_L0_L2_REF_CLK_SEL_L2_REF_CLK_SEL_0_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_L2_REF_CLK_SEL_OFFSET ,0x00000088U ,0x00000008U);
+		PSU_Mask_Write (SERDES_L0_L2_REF_CLK_SEL_OFFSET ,0x00000081U ,0x00000001U);
 	/*############################################################################################################################ */
 
 		/*Register : L0_L3_REF_CLK_SEL @ 0XFD40286C</p>
 
 		Sel of lane 3 ref clock local mux. Set to 1 to select lane 3 slicer output. Set to 0 to select lane3 ref clock mux output.
-		PSU_SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL                                 0x1
+		PSU_SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL                                 0x0
+
+		Bit 0 of lane 3 ref clock mux one hot sel. Set to 1 to select lane 0 slicer output from ref clock network
+		PSU_SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_SEL_0                                   0x1
 
 		Lane3 Ref Clock Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD40286C, 0x00000080U ,0x00000080U)
-		RegMask = (SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD40286C, 0x00000081U ,0x00000001U)
+		RegMask = (SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL_MASK | SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_SEL_0_MASK |  0 );
 
-		RegVal = ((0x00000001U << SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL_SHIFT
+		RegVal = ((0x00000000U << SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_LCL_SEL_SHIFT
+			| 0x00000001U << SERDES_L0_L3_REF_CLK_SEL_L3_REF_CLK_SEL_0_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_L3_REF_CLK_SEL_OFFSET ,0x00000080U ,0x00000080U);
+		PSU_Mask_Write (SERDES_L0_L3_REF_CLK_SEL_OFFSET ,0x00000081U ,0x00000001U);
 	/*############################################################################################################################ */
 
 		// : ENABLE SPREAD SPECTRUM
