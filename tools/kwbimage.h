@@ -73,7 +73,7 @@ struct kwb_header {
 /* Structure of the main header, version 1 (Armada 370, Armada XP) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0 */
-	uint8_t  reserved1;             /* 1 */
+	uint8_t  flags;                 /* 1 */
 	uint16_t reserved2;             /* 2-3 */
 	uint32_t blocksize;             /* 4-7 */
 	uint8_t  version;               /* 8 */

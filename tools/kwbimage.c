@@ -69,6 +69,7 @@ struct image_cfg_element {
 		IMAGE_CFG_PAYLOAD,
 		IMAGE_CFG_DATA,
 		IMAGE_CFG_BAUDRATE,
+		IMAGE_CFG_DEBUG,
 	} type;
 	union {
 		unsigned int version;
@@ -87,6 +88,7 @@ struct image_cfg_element {
 		unsigned int nandpagesz;
 		struct ext_hdr_v0_reg regdata;
 		unsigned int baudrate;
+		unsigned int debug;
 	};
 };
 
@@ -425,6 +427,9 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_BAUDRATE);
 	if (e)
 		main_hdr->options = baudrate_to_option(e->baudrate);
+	e = image_find_option(IMAGE_CFG_DEBUG);
+	if (e)
+		main_hdr->flags = e->debug ? 0x1 : 0;
 
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
@@ -579,6 +584,10 @@ static int image_create_config_parse_oneline(char *line,
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
 		el->type = IMAGE_CFG_BAUDRATE;
 		el->baudrate = strtoul(value, NULL, 10);
+	} else if (!strcmp(keyword, "DEBUG")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_DEBUG;
+		el->debug = strtoul(value, NULL, 10);
 	} else {
 		fprintf(stderr, "Ignoring unknown line '%s'\n", line);
 	}
