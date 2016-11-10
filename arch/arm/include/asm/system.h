@@ -215,6 +215,8 @@ void armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
  */
 void armv8_switch_to_el1(u64 args, u64 mach_nr, u64 fdt_addr,
 			 u64 entry_point, u64 es_flag);
+void armv8_el2_to_aarch32(u64 args, u64 mach_nr, u64 fdt_addr,
+			  u64 entry_point);
 void gic_init(void);
 void gic_send_sgi(unsigned long sgino);
 void wait_for_wakeup(void);
