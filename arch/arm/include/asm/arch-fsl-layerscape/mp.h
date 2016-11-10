@@ -36,4 +36,8 @@ void secondary_boot_func(void);
 int is_core_online(u64 cpu_id);
 u32 cpu_pos_mask(void);
 #endif
+
+#define IH_ARCH_ARM		2	/* ARM */
+#define IH_ARCH_ARM64		22	/* ARM64 */
+
 #endif /* _FSL_LAYERSCAPE_MP_H */

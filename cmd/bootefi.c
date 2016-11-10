@@ -141,6 +141,18 @@ static void *copy_fdt(void *fdt)
 	return new_fdt;
 }
 
+#ifdef CONFIG_ARM64
+static unsigned long efi_run_in_el2(ulong (*entry)(void *image_handle,
+		struct efi_system_table *st), void *image_handle,
+		struct efi_system_table *st)
+{
+	/* Enable caches again */
+	dcache_enable();
+
+	return entry(image_handle, st);
+}
+#endif
+
 /*
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
@@ -231,9 +243,14 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	if (current_el() == 3) {
 		smp_kick_all_cpus();
 		dcache_disable();	/* flush cache before switch to EL2 */
-		armv8_switch_to_el2();
-		/* Enable caches again */
-		dcache_enable();
+
+		/* Move into EL2 and keep running there */
+		armv8_switch_to_el2((ulong)entry, (ulong)&loaded_image_info,
+				    (ulong)&systab, (ulong)efi_run_in_el2,
+				    ES_TO_AARCH64);
+
+		/* Should never reach here, efi exits with longjmp */
+		while (1) { }
 	}
 #endif
 

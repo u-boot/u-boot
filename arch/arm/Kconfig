@@ -126,6 +126,12 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  ARM_SOC_BOOT0_HOOK which contains the required assembler
 	  preprocessor code.
 
+config ARM64_SUPPORT_AARCH32
+	bool "ARM64 system support AArch32 execution state"
+	default y if ARM64 && !TARGET_THUNDERX_88XX
+	help
+	  This ARM64 system supports AArch32 execution state.
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
