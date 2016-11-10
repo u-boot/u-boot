@@ -277,6 +277,10 @@ bool armv7_boot_nonsec(void)
 #endif
 
 #ifdef CONFIG_ARM64
+__weak void update_os_arch_secondary_cores(uint8_t os_arch)
+{
+}
+
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 static void switch_to_el1(void)
 {
@@ -313,6 +317,8 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	if (!fake) {
 		do_nonsec_virt_switch();
+
+		update_os_arch_secondary_cores(images->os.arch);
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 		armv8_switch_to_el2((u64)images->ft_addr, 0, 0,
