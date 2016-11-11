@@ -255,7 +255,7 @@
 		compatible = "xlnx,zynqmp-pcap-fpga";
 	};
 
-	amba_apu: amba_apu {
+	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <1>;
@@ -734,16 +734,16 @@
 			      <0x0 0xff5e0000 0x0 0x1000>;
 			reg-names = "serdes", "siou", "fpd", "lpd";
 			xlnx,tx_termination_fix;
-			lane0: lane@0 {
+			lane0: lane0 {
 				#phy-cells = <4>;
 			};
-			lane1: lane@1 {
+			lane1: lane1 {
 				#phy-cells = <4>;
 			};
-			lane2: lane@2 {
+			lane2: lane2 {
 				#phy-cells = <4>;
 			};
-			lane3: lane@3 {
+			lane3: lane3 {
 				#phy-cells = <4>;
 			};
 		};
@@ -910,7 +910,7 @@
 			power-domains = <&pd_uart1>;
 		};
 
-		usb0: usb@fe200000 {
+		usb0: usb0 {
 			#address-cells = <2>;
 			#size-cells = <2>;
 			status = "disabled";
@@ -933,7 +933,7 @@
 			};
 		};
 
-		usb1: usb@fe300000 {
+		usb1: usb1 {
 			#address-cells = <2>;
 			#size-cells = <2>;
 			status = "disabled";
@@ -1053,22 +1053,22 @@
 			clock-names = "axi_clk";
 			dma-channels = <6>;
 			#dma-cells = <1>;
-			dma-video0channel@fd4c0000 {
+			dma-video0channel {
 				compatible = "xlnx,video0";
 			};
-			dma-video1channel@fd4c0000 {
+			dma-video1channel {
 				compatible = "xlnx,video1";
 			};
-			dma-video2channel@fd4c0000 {
+			dma-video2channel {
 				compatible = "xlnx,video2";
 			};
-			dma-graphicschannel@fd4c0000 {
+			dma-graphicschannel {
 				compatible = "xlnx,graphics";
 			};
-			dma-audio0channel@fd4c0000 {
+			dma-audio0channel {
 				compatible = "xlnx,audio0";
 			};
-			dma-audio1channel@fd4c0000 {
+			dma-audio1channel {
 				compatible = "xlnx,audio1";
 			};
 		};
