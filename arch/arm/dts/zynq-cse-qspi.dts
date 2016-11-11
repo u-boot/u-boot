@@ -6,9 +6,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
-/include/ "skeleton.dtsi"
 
 / {
+	#address-cells = <1>;
+	#size-cells = <1>;
 	model = "Zynq CSE QSPI Board";
 	compatible = "xlnx,zynq-cse-qspi", "xlnx,zynq-7000";
 
@@ -17,7 +18,7 @@
 		serial0 = &uart1;
 	};
 
-	memory {
+	memory@fffc0000 {
 		device_type = "memory";
 		reg = <0xFFFC0000 0x40000>;
 	};
