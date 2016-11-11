@@ -201,6 +201,9 @@
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
 
+/* MXC SPI driver support */
+#define CONFIG_MXC_SPI
+
 /*
  * If want to use nand, define CONFIG_NAND_MXS and rework board
  * to support nand, since emmc has pin conflicts with nand
