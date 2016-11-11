@@ -17,6 +17,23 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
+ * Not all memory is mapped in the MMU. So we need to restrict the
+ * memory size so that U-Boot does not try to access it. Also, the
+ * internal registers are located at 0xf000.0000 - 0xffff.ffff.
+ * Currently only 2GiB are mapped for system memory. This is what
+ * we pass to the U-Boot subsystem here.
+ */
+#define USABLE_RAM_SIZE		0x80000000
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	if (gd->ram_size > USABLE_RAM_SIZE)
+		return USABLE_RAM_SIZE;
+
+	return gd->ram_size;
+}
+
+/*
  * On ARMv8, MBus is not configured in U-Boot. To enable compilation
  * of the already implemented drivers, lets add a dummy version of
  * this function so that linking does not fail.
