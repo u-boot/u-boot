@@ -50,16 +50,16 @@ bool soc_has_aiop(void)
 	return false;
 }
 
-#ifdef CONFIG_LS2080A
+#if defined(CONFIG_FSL_LSCH3)
 /*
  * This erratum requires setting a value to eddrtqcr1 to
  * optimal the DDR performance.
  */
 static void erratum_a008336(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 #ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
 	if (fsl_ddr_get_version(0) == 0x50200)
@@ -79,9 +79,9 @@ static void erratum_a008336(void)
  */
 static void erratum_a008514(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 #ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
 	out_le32(eddrtqcr1, 0x63b20002);
@@ -176,6 +176,7 @@ static void erratum_a009203(void)
 #endif
 #endif
 }
+
 void bypass_smmu(void)
 {
 	u32 val;
