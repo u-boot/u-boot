@@ -118,6 +118,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 			case env_op_create:
 			case env_op_overwrite:
 				eth_parse_enetaddr(value, dev->enetaddr);
+				eth_write_hwaddr(dev, "eth", dev->index);
 				break;
 			case env_op_delete:
 				memset(dev->enetaddr, 0, 6);
