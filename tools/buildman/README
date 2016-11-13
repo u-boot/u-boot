@@ -1004,6 +1004,18 @@ configuration you can in fact avoid doing a full build, using -D. This tells
 buildman to configuration U-Boot and create the .cfg files, but not actually
 build the source. This is 5-10 times faster than doing a full build.
 
+By default buildman considers the follow two configuration methods
+equivalent:
+
+   #define CONFIG_SOME_OPTION
+
+   CONFIG_SOME_OPTION=y
+
+The former would appear in a header filer and the latter in a defconfig
+file. The achieve this, buildman considers 'y' to be '1' in configuration
+variables. This avoids lots of useless output when converting a CONFIG
+option to Kconfig. To disable this behaviour, use --squash-config-y.
+
 
 Other options
 =============

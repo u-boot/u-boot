@@ -259,7 +259,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             verbose_build=options.verbose_build,
             incremental=options.incremental,
             per_board_out_dir=options.per_board_out_dir,
-            config_only=options.config_only)
+            config_only=options.config_only,
+            squash_config_y=not options.preserve_config_y)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

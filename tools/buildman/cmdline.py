@@ -59,6 +59,8 @@ def ParseArgs():
           default=False, help='Keep all build output files (e.g. binaries)')
     parser.add_option('-K', '--show-config', action='store_true',
           default=False, help='Show configuration changes in summary (both board config files and Kconfig)')
+    parser.add_option('--preserve-config-y', action='store_true',
+          default=False, help="Don't convert y to 1 in configs")
     parser.add_option('-l', '--list-error-boards', action='store_true',
           default=False, help='Show a list of boards next to each error/warning')
     parser.add_option('--list-tool-chains', action='store_true', default=False,
