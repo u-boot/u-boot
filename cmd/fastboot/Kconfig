@@ -1,10 +1,9 @@
 comment "FASTBOOT"
 
-config FASTBOOT
-	bool ""
+menuconfig FASTBOOT
+	bool "Fastboot support"
 
-menu "Fastboot support"
-	depends on FASTBOOT
+if FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
@@ -89,4 +88,4 @@ config FASTBOOT_MBR_NAME
 
 endif # USB_FUNCTION_FASTBOOT
 
-endmenu
+endif # FASTBOOT
