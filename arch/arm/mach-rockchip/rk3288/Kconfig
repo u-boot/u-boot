@@ -49,6 +49,15 @@ config TARGET_CHROMEBOOK_JERRY
 	  WiFi. It includes a Chrome OS EC (Cortex-M3) to provide access to
 	  the keyboard and battery functions.
 
+config TARGET_CHROMEBIT_MICKEY
+	bool "Google/Rockchip Veyron-Mickey Chromebit"
+	help
+	  Mickey is a small RK3288-based device with one USB 3.0 port, HDMI
+	  and WiFi. It has a separate power port and is designed to connect
+	  to the HDMI input of a monitor or TV. It has no internal battery.
+	  Typically a USB hub or wireless keyboard/touchpad is used to get
+	  keyboard and mouse access.
+
 config TARGET_ROCK2
 	bool "Radxa Rock 2"
 	help

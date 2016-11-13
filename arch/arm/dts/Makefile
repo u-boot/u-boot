@@ -31,6 +31,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3036-sdk.dtb \
 	rk3288-firefly.dtb \
 	rk3288-veyron-jerry.dtb \
+	rk3288-veyron-mickey.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-evb.dtb \
 	rk3288-fennec.dtb \
