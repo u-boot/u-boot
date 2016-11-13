@@ -297,8 +297,11 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		debug("%s: Binding new device '%s', busnum=%d, cs=%d, driver=%s\n",
 		      __func__, dev_name, busnum, cs, drv_name);
 		ret = device_bind_driver(bus, drv_name, dev_name, &dev);
-		if (ret)
+		if (ret) {
+			debug("%s: Unable to bind driver (ret=%d)\n", __func__,
+			      ret);
 			return ret;
+		}
 		plat = dev_get_parent_platdata(dev);
 		plat->cs = cs;
 		plat->max_hz = speed;
