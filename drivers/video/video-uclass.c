@@ -117,7 +117,8 @@ void video_sync(struct udevice *vid)
 
 	if (priv->flush_dcache) {
 		flush_dcache_range((ulong)priv->fb,
-				   (ulong)priv->fb + priv->fb_size);
+				   ALIGN((ulong)priv->fb + priv->fb_size,
+					 CONFIG_SYS_CACHELINE_SIZE));
 	}
 #elif defined(CONFIG_VIDEO_SANDBOX_SDL)
 	struct video_priv *priv = dev_get_uclass_priv(vid);
