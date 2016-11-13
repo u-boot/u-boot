@@ -13,6 +13,8 @@
 / {
 	aliases {
 		i2c20 = &i2c_tunnel;
+		video0 = &vopl;
+		video1 = &vopb;
 	};
 
 	gpio_keys: gpio-keys {
