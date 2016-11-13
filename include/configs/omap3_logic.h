@@ -108,9 +108,12 @@
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(MLO),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
+#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:"\
+							"512k(MLO),"\
+							"1792k(u-boot),"\
+							"128k(spl-os)," \
+							"128k(u-boot-env),"\
+							"6m(kernel),-(fs)"
 #endif
 
 /* Environment information */
