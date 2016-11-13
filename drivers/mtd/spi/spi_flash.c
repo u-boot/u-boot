@@ -1138,7 +1138,7 @@ int spi_flash_scan(struct spi_flash *flash)
 		return ret;
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = spi_flash_decode_fdt(gd->fdt_blob, flash);
 	if (ret) {
 		debug("SF: FDT decode error\n");
