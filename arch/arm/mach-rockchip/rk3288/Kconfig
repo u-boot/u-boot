@@ -88,7 +88,7 @@ source "board/chipspark/popmetal_rk3288/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"
 
-source "board/google/chromebook_jerry/Kconfig"
+source "board/google/veyron/Kconfig"
 
 source "board/radxa/rock2/Kconfig"
 
