@@ -899,7 +899,8 @@ static int rk_hdmi_probe(struct udevice *dev)
 	rk_setreg(&priv->grf->soc_con6, 1 << 15);
 
 	/* hdmi data from vop id */
-	rk_setreg(&priv->grf->soc_con6, (vop_id == 1) ? (1 << 4) : (1 << 4));
+	rk_clrsetreg(&priv->grf->soc_con6, 1 << 4,
+		     (vop_id == 1) ? (1 << 4) : 0);
 
 	ret = hdmi_wait_for_hpd(priv->regs);
 	if (ret < 0) {
