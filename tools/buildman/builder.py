@@ -207,7 +207,8 @@ class Builder:
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
                  no_subdirs=False, full_path=False, verbose_build=False,
-                 incremental=False, per_board_out_dir=False):
+                 incremental=False, per_board_out_dir=False,
+                 config_only=False):
         """Create a new Builder object
 
         Args:
@@ -230,6 +231,7 @@ class Builder:
                 mrproper when configuring
             per_board_out_dir: Build in a separate persistent directory per
                 board rather than a thread-specific directory
+            config_only: Only configure each build, don't build it
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -257,6 +259,7 @@ class Builder:
         self.no_subdirs = no_subdirs
         self.full_path = full_path
         self.verbose_build = verbose_build
+        self.config_only = config_only
 
         self.col = terminal.Color()
 
