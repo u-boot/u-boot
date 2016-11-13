@@ -110,6 +110,14 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
 
+	/* If it's too soon to do another transaction, wait */
+	if (plat->deactivate_delay_us && priv->last_transaction_us) {
+		ulong delay_us;		/* The delay completed so far */
+		delay_us = timer_get_us() - priv->last_transaction_us;
+		if (delay_us < plat->deactivate_delay_us)
+			udelay(plat->deactivate_delay_us - delay_us);
+	}
+
 	debug("activate cs%u\n", cs);
 	writel(1 << cs, &regs->ser);
 	if (plat->activate_delay_us)
