@@ -195,7 +195,6 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 	struct udevice *disp;
 	int ret, remote, i, offset;
 	struct display_plat *disp_uc_plat;
-	struct udevice *dev_clk;
 	struct clk clk;
 
 	vop_id = fdtdec_get_int(blob, ep_node, "reg", -1);
@@ -238,11 +237,7 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 		return ret;
 	}
 
-	ret = rockchip_get_clk(&dev_clk);
-	if (!ret) {
-		clk.id = DCLK_VOP0 + remote_vop_id;
-		ret = clk_request(dev_clk, &clk);
-	}
+	ret = clk_get_by_index(dev, 1, &clk);
 	if (!ret)
 		ret = clk_set_rate(&clk, timing.pixelclock.typ);
 	if (ret) {
