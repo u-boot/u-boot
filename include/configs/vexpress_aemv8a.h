@@ -127,7 +127,6 @@
 
 /*#define CONFIG_MENU_SHOW*/
 #define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
 #define CONFIG_DOS_PARTITION
 

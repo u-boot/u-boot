@@ -214,7 +214,6 @@
 
 #if 0
 /* Configure PXE */
-#define CONFIG_CMD_PXE
 #define CONFIG_BOOTP_PXE
 #define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 #endif

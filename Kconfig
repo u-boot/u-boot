@@ -61,6 +61,7 @@ config DISTRO_DEFAULTS
 	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
 	select CMD_DHCP
+	select CMD_PXE
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT

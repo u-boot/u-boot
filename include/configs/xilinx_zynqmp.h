@@ -80,9 +80,6 @@
 #endif
 #define CONFIG_AUTO_COMPLETE
 
-/* PXE */
-#define CONFIG_CMD_PXE
-
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
