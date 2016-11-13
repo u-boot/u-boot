@@ -15,19 +15,6 @@
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.  We use this rather than the inherited defines from
- * ti_armv7_common.h for backwards compatibility.
- */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE		(512 << 10)	/* 512 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-
 #include <configs/ti_omap3_common.h>
 
 /*
