@@ -14,6 +14,9 @@
  *
  * Copyright (C) 1999 2000 2001 Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
  *
+ * Modified to add driver model (DM) support
+ * (C) Copyright 2016 Marcel Ziswiler <marcel.ziswiler@toradex.com>
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -21,73 +24,17 @@
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
 #include <asm/io.h>
+#include <dm.h>
+#include <dm/platform_data/serial_pxa.h>
 #include <linux/compiler.h>
 #include <serial.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * The numbering scheme differs here for PXA25x, PXA27x and PXA3xx so we can
- * easily handle enabling of clock.
- */
-#ifdef	CONFIG_CPU_MONAHANS
-#define	UART_CLK_BASE	CKENA_21_BTUART
-#define	UART_CLK_REG	CKENA
-#define	BTUART_INDEX	0
-#define	FFUART_INDEX	1
-#define	STUART_INDEX	2
-#elif	CONFIG_CPU_PXA25X
-#define	UART_CLK_BASE	(1 << 4)	/* HWUART */
-#define	UART_CLK_REG	CKEN
-#define	HWUART_INDEX	0
-#define	STUART_INDEX	1
-#define	FFUART_INDEX	2
-#define	BTUART_INDEX	3
-#else	/* PXA27x */
-#define	UART_CLK_BASE	CKEN5_STUART
-#define	UART_CLK_REG	CKEN
-#define	STUART_INDEX	0
-#define	FFUART_INDEX	1
-#define	BTUART_INDEX	2
-#endif
-
-/*
- * Only PXA250 has HWUART, to avoid poluting the code with more macros,
- * artificially introduce this.
- */
-#ifndef	CONFIG_CPU_PXA25X
-#define	HWUART_INDEX	0xff
-#endif
-
-static uint32_t pxa_uart_get_baud_divider(void)
+static uint32_t pxa_uart_get_baud_divider(int baudrate)
 {
-	if (gd->baudrate == 1200)
-		return 768;
-	else if (gd->baudrate == 9600)
-		return 96;
-	else if (gd->baudrate == 19200)
-		return 48;
-	else if (gd->baudrate == 38400)
-		return 24;
-	else if (gd->baudrate == 57600)
-		return 16;
-	else if (gd->baudrate == 115200)
-		return 8;
-	else	/* Unsupported baudrate */
-		return 0;
-}
-
-static struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
-{
-	switch (uart_index) {
-	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
-	case BTUART_INDEX: return (struct pxa_uart_regs *)BTUART_BASE;
-	case STUART_INDEX: return (struct pxa_uart_regs *)STUART_BASE;
-	case HWUART_INDEX: return (struct pxa_uart_regs *)HWUART_BASE;
-	default:
-		return NULL;
-	}
+	return 921600 / baudrate;
 }
 
 static void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
@@ -110,20 +57,14 @@ static void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
 /*
  * Enable clock and set baud rate, parity etc.
  */
-void pxa_setbrg_dev(uint32_t uart_index)
+void pxa_setbrg_common(struct pxa_uart_regs *uart_regs, int port, int baudrate)
 {
-	uint32_t divider = 0;
-	struct pxa_uart_regs *uart_regs;
-
-	divider = pxa_uart_get_baud_divider();
+	uint32_t divider = pxa_uart_get_baud_divider(baudrate);
 	if (!divider)
 		hang();
 
-	uart_regs = pxa_uart_index_to_regs(uart_index);
-	if (!uart_regs)
-		hang();
 
-	pxa_uart_toggle_clock(uart_index, 1);
+	pxa_uart_toggle_clock(port, 1);
 
 	/* Disable interrupts and FIFOs */
 	writel(0, &uart_regs->ier);
@@ -139,13 +80,38 @@ void pxa_setbrg_dev(uint32_t uart_index)
 	writel(IER_UUE, &uart_regs->ier);
 }
 
+#ifndef CONFIG_DM_SERIAL
+static struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
+{
+	switch (uart_index) {
+	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
+	case BTUART_INDEX: return (struct pxa_uart_regs *)BTUART_BASE;
+	case STUART_INDEX: return (struct pxa_uart_regs *)STUART_BASE;
+	case HWUART_INDEX: return (struct pxa_uart_regs *)HWUART_BASE;
+	default:
+		return NULL;
+	}
+}
+
+/*
+ * Enable clock and set baud rate, parity etc.
+ */
+void pxa_setbrg_dev(uint32_t uart_index)
+{
+	struct pxa_uart_regs *uart_regs = pxa_uart_index_to_regs(uart_index);
+	if (!uart_regs)
+		panic("Failed getting UART registers\n");
+
+	pxa_setbrg_common(uart_regs, uart_index, gd->baudrate);
+}
+
 /*
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
 int pxa_init_dev(unsigned int uart_index)
 {
-	pxa_setbrg_dev (uart_index);
+	pxa_setbrg_dev(uart_index);
 	return 0;
 }
 
@@ -297,3 +263,80 @@ void pxa_serial_initialize(void)
 	serial_register(&serial_stuart_device);
 #endif
 }
+#endif /* CONFIG_DM_SERIAL */
+
+#ifdef CONFIG_DM_SERIAL
+static int pxa_serial_probe(struct udevice *dev)
+{
+	struct pxa_serial_platdata *plat = dev->platdata;
+
+	pxa_setbrg_common((struct pxa_uart_regs *)plat->base, plat->port,
+			  plat->baudrate);
+	return 0;
+}
+
+static int pxa_serial_putc(struct udevice *dev, const char ch)
+{
+	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
+
+	/* Wait for last character to go. */
+	if (!(readl(&uart_regs->lsr) & LSR_TEMT))
+		return -EAGAIN;
+
+	writel(ch, &uart_regs->thr);
+
+	return 0;
+}
+
+static int pxa_serial_getc(struct udevice *dev)
+{
+	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
+
+	/* Wait for a character to arrive. */
+	if (!(readl(&uart_regs->lsr) & LSR_DR))
+		return -EAGAIN;
+
+	return readl(&uart_regs->rbr) & 0xff;
+}
+
+int pxa_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
+	int port = plat->port;
+
+	pxa_setbrg_common(uart_regs, port, baudrate);
+
+	return 0;
+}
+
+static int pxa_serial_pending(struct udevice *dev, bool input)
+{
+	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
+
+	if (input)
+		return readl(&uart_regs->lsr) & LSR_DR ? 1 : 0;
+	else
+		return readl(&uart_regs->lsr) & LSR_TEMT ? 0 : 1;
+
+	return 0;
+}
+
+static const struct dm_serial_ops pxa_serial_ops = {
+	.putc		= pxa_serial_putc,
+	.pending	= pxa_serial_pending,
+	.getc		= pxa_serial_getc,
+	.setbrg		= pxa_serial_setbrg,
+};
+
+U_BOOT_DRIVER(serial_pxa) = {
+	.name	= "serial_pxa",
+	.id	= UCLASS_SERIAL,
+	.probe	= pxa_serial_probe,
+	.ops	= &pxa_serial_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
+};
+#endif /* CONFIG_DM_SERIAL */
