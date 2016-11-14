@@ -407,4 +407,10 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config PXA_SERIAL
+	bool "PXA serial port support"
+	help
+	  If you have a machine based on a Marvell XScale PXA2xx CPU you
+	  can enable its onboard serial ports by enabling this option.
+
 endmenu
