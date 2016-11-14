@@ -8,10 +8,13 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/regs-mmc.h>
 #include <asm/arch/pxa.h>
-#include <netdev.h>
+#include <asm/arch/regs-mmc.h>
+#include <asm/arch/regs-uart.h>
 #include <asm/io.h>
+#include <dm/platdata.h>
+#include <dm/platform_data/serial_pxa.h>
+#include <netdev.h>
 #include <serial.h>
 #include <usb.h>
 
@@ -105,3 +108,14 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+static const struct pxa_serial_platdata serial_platdata = {
+	.base = (struct pxa_uart_regs *)FFUART_BASE,
+	.port = FFUART_INDEX,
+	.baudrate = CONFIG_BAUDRATE,
+};
+
+U_BOOT_DEVICE(pxa_serials) = {
+	.name = "serial_pxa",
+	.platdata = &serial_platdata,
+};
