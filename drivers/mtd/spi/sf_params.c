@@ -27,6 +27,21 @@
 		.page_size = 256,					\
 		.flags = (_flags),
 
+#define INFO6(_jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
+		.id = {							\
+			((_jedec_id) >> 16) & 0xff,			\
+			((_jedec_id) >> 8) & 0xff,			\
+			(_jedec_id) & 0xff,				\
+			((_ext_id) >> 16) & 0xff,			\
+			((_ext_id) >> 8) & 0xff,			\
+			(_ext_id) & 0xff,				\
+			},						\
+		.id_len = 6,						\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.page_size = 256,					\
+		.flags = (_flags),
+
 /* SPI/QSPI flash device params structure */
 const struct spi_flash_info spi_flash_ids[] = {
 #ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
