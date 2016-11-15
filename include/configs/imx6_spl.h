@@ -29,6 +29,12 @@
 #define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
+/*
+ * Pad SPL to 68KB (4KB header + 64KB max size). This allows to write the
+ * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
+ * boot media (given that boot media specific offset is configured properly).
+ */
+#define CONFIG_SPL_PAD_TO		0x11000
 
 /* NAND support */
 #if defined(CONFIG_SPL_NAND_SUPPORT)
