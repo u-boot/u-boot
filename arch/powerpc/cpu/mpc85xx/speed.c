@@ -652,7 +652,7 @@ void get_sys_info(sys_info_t *sys_info)
 int get_clocks (void)
 {
 	sys_info_t sys_info;
-#ifdef CONFIG_MPC8544
+#ifdef CONFIG_ARCH_MPC8544
 	volatile ccsr_gur_t *gur = (void *) CONFIG_SYS_MPC85xx_GUTS_ADDR;
 #endif
 #if defined(CONFIG_CPM2)
@@ -685,7 +685,7 @@ int get_clocks (void)
 	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555) || \
 	defined(CONFIG_P1022)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
-#elif defined(CONFIG_MPC8544)
+#elif defined(CONFIG_ARCH_MPC8544)
 	/*
 	 * On the 8544, the I2C clock is the same as the SEC clock.  This can be
 	 * either CCB/2 or CCB/3, depending on the value of cfg_sec_freq. See
