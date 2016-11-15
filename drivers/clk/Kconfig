@@ -20,6 +20,13 @@ config SPL_CLK
 	  setting up clocks within SPL, and allows the same drivers to be
 	  used as U-Boot proper.
 
+config CLK_ZYNQMP
+	bool "Enable clock driver support for ZynqMP"
+	depends on ARCH_ZYNQMP
+	help
+	  This clock driver adds support for clock realted settings for
+	  ZynqMP platform.
+
 source "drivers/clk/uniphier/Kconfig"
 source "drivers/clk/exynos/Kconfig"
 
