@@ -16,7 +16,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_MPC8548CDS	1	/* MPC8548CDS board specific */
 
 #ifndef CONFIG_SYS_TEXT_BASE

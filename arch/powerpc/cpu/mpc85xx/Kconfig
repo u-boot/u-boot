@@ -10,6 +10,7 @@ choice
 
 config TARGET_SBC8548
 	bool "Support sbc8548"
+	select ARCH_MPC8548
 
 config TARGET_SOCRATES
 	bool "Support socrates"
@@ -63,6 +64,7 @@ config TARGET_MPC8544DS
 
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
+	select ARCH_MPC8548
 
 config TARGET_MPC8555CDS
 	bool "Support MPC8555CDS"
@@ -156,6 +158,7 @@ config TARGET_KMP204X
 
 config TARGET_XPEDITE520X
 	bool "Support xpedite520x"
+	select ARCH_MPC8548
 
 config TARGET_XPEDITE537X
 	bool "Support xpedite537x"
@@ -171,6 +174,9 @@ config TARGET_CYRUS
 	select PHYS_64BIT
 
 endchoice
+
+config ARCH_MPC8548
+	bool
 
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"

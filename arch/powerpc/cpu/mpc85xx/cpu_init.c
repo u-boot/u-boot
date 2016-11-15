@@ -442,7 +442,7 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SYS_RAMBOOT)
 	struct law_entry law;
 #endif
-#ifdef CONFIG_MPC8548
+#ifdef CONFIG_ARCH_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
 

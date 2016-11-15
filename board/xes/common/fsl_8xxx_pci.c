@@ -55,7 +55,7 @@ void pci_init_board(void)
 	} else {
 		printf("PCI1: disabled\n");
 	}
-#elif defined CONFIG_MPC8548
+#elif defined CONFIG_ARCH_MPC8548
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	/* PCI1 not present on MPC8572 */
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI1);
