@@ -443,7 +443,7 @@ class Builder:
 
         name += target
         Print(line + name, newline=False)
-        length = 14 + len(name)
+        length = 16 + len(name)
         self.ClearLine(length)
 
     def _GetOutputDir(self, commit_upto):
