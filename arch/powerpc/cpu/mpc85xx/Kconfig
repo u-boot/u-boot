@@ -23,10 +23,12 @@ config TARGET_B4860QDS
 
 config TARGET_BSC9131RDB
 	bool "Support BSC9131RDB"
+	select ARCH_BSC9131
 	select SUPPORT_SPL
 
 config TARGET_BSC9132QDS
 	bool "Support BSC9132QDS"
+	select ARCH_BSC9132
 	select SUPPORT_SPL
 
 config TARGET_C29XPCIE
@@ -176,6 +178,12 @@ config TARGET_CYRUS
 	select PHYS_64BIT
 
 endchoice
+
+config ARCH_BSC9131
+	bool
+
+config ARCH_BSC9132
+	bool
 
 config ARCH_MPC8544
 	bool
