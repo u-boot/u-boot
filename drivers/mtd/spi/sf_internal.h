@@ -98,12 +98,6 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
 #endif
 
-#ifdef CONFIG_SPI_FLASH_SPANSION
-/* Used for Spansion S25FS-S family flash only. */
-#define CMD_SPANSION_RDAR	0x65 /* Read any device register */
-#define CMD_SPANSION_WRAR	0x71 /* Write any device register */
-#endif
-
 #define JEDEC_MFR(info)		((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
 #define JEDEC_EXT(info)		(((info)->id[3]) << 8 | ((info)->id[4]))
