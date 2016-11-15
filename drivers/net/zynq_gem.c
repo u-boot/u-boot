@@ -9,6 +9,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <net.h>
@@ -181,6 +182,9 @@ struct zynq_gem_priv {
 	struct phy_device *phydev;
 	int phy_of_handle;
 	struct mii_dev *bus;
+#ifdef CONFIG_CLK_ZYNQMP
+	struct clk clk;
+#endif
 };
 
 static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -455,8 +459,14 @@ static int zynq_gem_init(struct udevice *dev)
 
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
+#ifndef CONFIG_CLK_ZYNQMP
 		zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
+#else
+		ret = clk_set_rate(&priv->clk, clk_rate);
+		if (IS_ERR_VALUE(ret))
+			return -1;
+#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -628,6 +638,14 @@ static int zynq_gem_probe(struct udevice *dev)
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;
 	priv->rx_bd = (struct emac_bd *)((ulong)bd_space + BD_SEPRN_SPACE);
+
+#ifdef CONFIG_CLK_ZYNQMP
+	ret = clk_get_by_name(dev, "tx_clk", &priv->clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return -EINVAL;
+	}
+#endif
 
 	priv->bus = mdio_alloc();
 	priv->bus->read = zynq_gem_miiphy_read;
