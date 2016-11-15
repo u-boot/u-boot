@@ -27,7 +27,7 @@
 	"name=reserved2,size=4M,uuid=${uuid_gpt_reserved2};" \
 	"name=loader2,size=4MB,uuid=${uuid_gpt_loader2};" \
 	"name=atf,size=4M,uuid=${uuid_gpt_atf};" \
-	"name=boot,size=128M,bootable,uuid=${uuid_gpt_boot};" \
+	"name=boot,size=112M,bootable,uuid=${uuid_gpt_boot};" \
 	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs};\0" \
 
 #endif
