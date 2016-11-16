@@ -99,7 +99,7 @@ extern void pckbd_leds(unsigned char leds);
 #endif /* !CONFIG_DM_KEYBOARD */
 
 #if defined(CONFIG_MPC5xxx) || defined(CONFIG_ARCH_MPC8540) || \
-		defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_MPC8555)
+		defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
 int ps2ser_check(void);
 #endif
 

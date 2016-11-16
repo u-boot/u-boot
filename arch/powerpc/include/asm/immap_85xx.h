@@ -127,7 +127,7 @@ typedef struct ccsr_i2c {
 #if defined(CONFIG_ARCH_MPC8540) || \
 	defined(CONFIG_ARCH_MPC8541) || \
 	defined(CONFIG_ARCH_MPC8548) || \
-	defined(CONFIG_MPC8555)
+	defined(CONFIG_ARCH_MPC8555)
 /* DUART Registers */
 typedef struct ccsr_duart {
 	u8	res1[1280];
