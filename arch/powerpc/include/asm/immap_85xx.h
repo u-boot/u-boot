@@ -2484,7 +2484,7 @@ typedef struct ccsr_gur {
 	u32	svr;		/* System version */
 	u8	res10[8];
 	u32	rstcr;		/* Reset control */
-#if defined(CONFIG_MPC8568)||defined(CONFIG_MPC8569)
+#if defined(CONFIG_ARCH_MPC8568) || defined(CONFIG_MPC8569)
 	u8	res11a[76];
 	par_io_t qe_par_io[7];
 	u8	res11b[1600];

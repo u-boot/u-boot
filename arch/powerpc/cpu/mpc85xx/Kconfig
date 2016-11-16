@@ -84,6 +84,7 @@ config TARGET_MPC8560ADS
 
 config TARGET_MPC8568MDS
 	bool "Support MPC8568MDS"
+	select ARCH_MPC8568
 
 config TARGET_MPC8569MDS
 	bool "Support MPC8569MDS"
@@ -213,6 +214,9 @@ config ARCH_MPC8555
 	bool
 
 config ARCH_MPC8560
+	bool
+
+config ARCH_MPC8568
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
