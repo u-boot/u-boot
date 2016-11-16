@@ -45,7 +45,7 @@ endif
 
 obj-$(CONFIG_FSL_DCU_SII9022A)    += dcu_sii9022a.o
 
-obj-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o
+obj-$(CONFIG_TARGET_MPC8541CDS)	+= cds_pci_ft.o
 obj-$(CONFIG_TARGET_MPC8548CDS)	+= cds_pci_ft.o
 obj-$(CONFIG_MPC8555CDS)	+= cds_pci_ft.o
 
