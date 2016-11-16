@@ -245,8 +245,6 @@
 
 /* SPL */
 #include "imx6_spl.h"
-#undef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80 /* offset 64 kb */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #define CONFIG_SPL_SPI_LOAD
 

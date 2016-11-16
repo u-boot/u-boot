@@ -165,7 +165,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 		return -1;
 	}
 
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 	return mmc_load_image_raw_sector(spl_image, mmc,
 			info.start + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #else
@@ -327,7 +327,7 @@ static int spl_mmc_load_image(struct spl_image_info *spl_image,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
 		if (!err)
 			return err;
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 		err = mmc_load_image_raw_sector(spl_image, mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 		if (!err)

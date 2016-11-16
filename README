@@ -3338,9 +3338,8 @@ FIT uImage format:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
-		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
-		Address and partition on the MMC to load U-Boot from
+		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS
+		Size of partition on the MMC to load U-Boot from
 		when the MMC is being used in raw mode.
 
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION

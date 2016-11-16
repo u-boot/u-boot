@@ -70,6 +70,33 @@ config SPL_DISPLAY_PRINT
 	  banner ("U-Boot SPL ..."). This function should be provided by
 	  the board.
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	bool "MMC raw mode: by sector"
+	depends on SPL
+	default y if ARCH_SUNXI || ARCH_DAVINCI || ARCH_UNIPHIER ||ARCH_MX6 || \
+		     ARCH_ROCKCHIP || ARCH_MVEBU ||  ARCH_SOCFPGA || \
+		     ARCH_AT91 || ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || \
+		     OMAP44XX || OMAP54XX || AM33XX || AM43XX
+	help
+	  Use sector number for specifying U-Boot location on MMC/SD in
+	  raw mode.
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+	hex "Address on the MMC to load U-Boot from"
+	depends on SPL && SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	default 0x50 if ARCH_SUNXI
+	default 0x75 if ARCH_DAVINCI
+	default 0x80 if ARCH_UNIPHIER
+	default 0x8a if ARCH_MX6
+	default 0x100 if ARCH_ROCKCHIP
+	default 0x140 if ARCH_MVEBU
+	default 0x200 if ARCH_SOCFPGA || ARCH_AT91
+	default 0x300 if ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || OMAP44XX || \
+		         OMAP54XX || AM33XX || AM43XX
+	help
+	  Address on the MMC to load U-Boot from, when the MMC is being used
+	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
+
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL

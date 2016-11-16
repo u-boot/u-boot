@@ -50,7 +50,6 @@
 #define CONFIG_CMD_PART
 
 /* RAW SD card / eMMC locations. */
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	256
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 
 /* FAT sd card locations. */

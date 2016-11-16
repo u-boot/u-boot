@@ -346,7 +346,6 @@
 
 /* Load U-Boot Image From MMC */
 #ifdef CONFIG_SPL_MMC_LOAD
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x75
 #undef CONFIG_SPL_SPI_LOAD
 #endif
 
