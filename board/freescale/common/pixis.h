@@ -7,7 +7,7 @@
 #define __PIXIS_H_	1
 
 /* PIXIS register set. */
-#if defined(CONFIG_MPC8536DS)
+#if defined(CONFIG_TARGET_MPC8536DS)
 typedef struct pixis {
 	u8 id;
 	u8 ver;
