@@ -52,8 +52,6 @@
  #define CONFIG_GENERIC_MMC
  #define CONFIG_OMAP_HSMMC
  #define CONFIG_SUPPORT_EMMC_BOOT
-/* RAW SD card / eMMC locations. */
- #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x200 /* 256 KB */
 #endif /* CONFIG_EMMC_BOOT */
 
 /*

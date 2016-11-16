@@ -52,7 +52,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x500
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1d000

@@ -108,15 +108,11 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 
 #ifdef CONFIG_SECURE_BOOT
-#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 /*
  * HDR would be appended at end of image and copied to DDR along
  * with U-Boot image.
  */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		(0x400 + \
-		(CONFIG_U_BOOT_HDR_SIZE / 512)
-#else
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x400
+#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 #endif /* ifdef CONFIG_SECURE_BOOT */
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
