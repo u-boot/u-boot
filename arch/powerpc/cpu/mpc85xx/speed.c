@@ -626,7 +626,7 @@ void get_sys_info(sys_info_t *sys_info)
 		 */
 		lcrr_div *= 4;
 #elif !defined(CONFIG_ARCH_MPC8540) && !defined(CONFIG_ARCH_MPC8541) && \
-	!defined(CONFIG_ARCH_MPC8555) && !defined(CONFIG_MPC8560)
+	!defined(CONFIG_ARCH_MPC8555) && !defined(CONFIG_ARCH_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.
@@ -682,7 +682,7 @@ int get_clocks (void)
 	 * AN2919.
 	 */
 #if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
-	defined(CONFIG_MPC8560) || defined(CONFIG_ARCH_MPC8555) || \
+	defined(CONFIG_ARCH_MPC8560) || defined(CONFIG_ARCH_MPC8555) || \
 	defined(CONFIG_P1022)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #elif defined(CONFIG_ARCH_MPC8544)
