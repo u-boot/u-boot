@@ -169,7 +169,7 @@
 #define CONFIG_ESDHC_HC_BLK_ADDR
 
 /* P1011 is single core version of P1020 */
-#elif defined(CONFIG_P1011)
+#elif defined(CONFIG_ARCH_P1011)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_SYS_PPC_E500_DEBUG_TLB	2

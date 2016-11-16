@@ -241,6 +241,9 @@ config ARCH_MPC8572
 config ARCH_P1010
 	bool
 
+config ARCH_P1011
+	bool
+
 config ARCH_P1022
 	bool
 
