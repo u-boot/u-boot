@@ -528,22 +528,6 @@ int checkboard(void)
 	return 0;
 }
 
-int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
-{
-	unsigned short usb_pid;
-
-	put_unaligned(CONFIG_TRDX_VID, &dev->idVendor);
-
-	if (is_colibri_vf61())
-		usb_pid = CONFIG_TRDX_PID_COLIBRI_VF61IT;
-	else
-		usb_pid = CONFIG_TRDX_PID_COLIBRI_VF50IT;
-
-	put_unaligned(usb_pid, &dev->idProduct);
-
-	return 0;
-}
-
 #ifdef CONFIG_USB_EHCI_VF
 int board_ehci_hcd_init(int port)
 {
