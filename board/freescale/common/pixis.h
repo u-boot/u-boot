@@ -46,7 +46,7 @@ typedef struct pixis {
 	u8 res2[4];
 } __attribute__ ((packed)) pixis_t;
 
-#elif defined(CONFIG_MPC8544DS)
+#elif defined(CONFIG_TARGET_MPC8544DS)
 typedef struct pixis {
 	u8 id;
 	u8 ver;
