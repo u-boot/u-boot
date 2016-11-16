@@ -80,7 +80,6 @@ unsigned packet_received, packet_sent;
 /* Based on linux 2.6.27 version */
 #define DRIVER_VERSION		"May Day 2005"
 
-static const char shortname[] = "ether";
 static const char driver_desc[] = DRIVER_DESC;
 
 #define RX_EXTRA	20		/* guard against rx overflows */
