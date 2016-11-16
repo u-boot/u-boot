@@ -15,7 +15,7 @@ int __weak checkboard(void)
  * If the root node of the DTB has a "model" property, show it.
  * Then call checkboard().
  */
-int show_board_info(void)
+int __weak show_board_info(void)
 {
 #ifdef CONFIG_OF_CONTROL
 	DECLARE_GLOBAL_DATA_PTR;
