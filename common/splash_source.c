@@ -395,9 +395,9 @@ int splash_source_load(struct splash_location *locations, uint size)
 	if (!splash_location)
 		return -EINVAL;
 
-	if (splash_location->flags & SPLASH_STORAGE_RAW)
+	if (splash_location->flags == SPLASH_STORAGE_RAW)
 		return splash_load_raw(splash_location, bmp_load_addr);
-	else if (splash_location->flags & SPLASH_STORAGE_FS)
+	else if (splash_location->flags == SPLASH_STORAGE_FS)
 		return splash_load_fs(splash_location, bmp_load_addr);
 #ifdef CONFIG_FIT
 	else if (splash_location->flags == SPLASH_STORAGE_FIT)
