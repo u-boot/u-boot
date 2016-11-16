@@ -164,7 +164,7 @@ int misc_init_r(void)
 		    memcmp(env_enetaddr, buff, 6))
 			printf("Warning: MAC address in SPI flash don't match "
 					"with the MAC address in the environment\n");
-			printf("Default using MAC address from environment\n");
+		printf("Default using MAC address from environment\n");
 	}
 #endif
 	uint8_t enetaddr[8];
@@ -190,7 +190,7 @@ int misc_init_r(void)
 		if (eeprom_mac_read && memcmp(enetaddr, env_enetaddr, 6))
 			printf("Warning: MAC address in EEPROM don't match "
 					"with the MAC address in the environment\n");
-			printf("Default using MAC address from environment\n");
+		printf("Default using MAC address from environment\n");
 	}
 
 #endif
