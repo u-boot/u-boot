@@ -339,9 +339,6 @@ struct rtl8169_private {
 
 static struct rtl8169_private *tpc;
 
-static const u16 rtl8169_intr_mask =
-    SYSErr | PCSTimeout | RxUnderrun | RxOverflow | RxFIFOOver | TxErr |
-    TxOK | RxErr | RxOK;
 static const unsigned int rtl8169_rx_config =
     (RX_FIFO_THRESH << RxCfgFIFOShift) | (RX_DMA_BURST << RxCfgDMAShift);
 
