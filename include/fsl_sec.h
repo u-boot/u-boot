@@ -303,7 +303,7 @@ struct sg_entry {
  */
 int blob_dek(const u8 *src, u8 *dst, u8 len);
 
-#if defined(CONFIG_PPC_C29X)
+#if defined(CONFIG_ARCH_C29X)
 int sec_init_idx(uint8_t);
 #endif
 int sec_init(void);

@@ -65,7 +65,7 @@ obj-$(CONFIG_SYS_FSL_QORIQ_CHASSIS1) += fsl_corenet_serdes.o
 obj-$(CONFIG_SYS_FSL_QORIQ_CHASSIS2) += fsl_corenet2_serdes.o
 
 # SoC specific SERDES support
-obj-$(CONFIG_PPC_C29X)	+= c29x_serdes.o
+obj-$(CONFIG_ARCH_C29X)	+= c29x_serdes.o
 obj-$(CONFIG_MPC8536) += mpc8536_serdes.o
 obj-$(CONFIG_ARCH_MPC8544) += mpc8544_serdes.o
 obj-$(CONFIG_ARCH_MPC8548) += mpc8548_serdes.o

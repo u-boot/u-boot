@@ -914,7 +914,7 @@ defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
 
-#elif defined(CONFIG_PPC_C29X)
+#elif defined(CONFIG_ARCH_C29X)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_NUM_LAWS		12
@@ -955,7 +955,7 @@ defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #define CONFIG_SYS_FSL_DDRC_GEN3
 #endif
 
-#if !defined(CONFIG_PPC_C29X)
+#if !defined(CONFIG_ARCH_C29X)
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	1
 #endif
 
