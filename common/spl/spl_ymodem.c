@@ -109,7 +109,6 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)
 			size += res;
 	} else {
-		spl_parse_image_header(spl_image, (struct image_header *)buf);
 		ret = spl_parse_image_header(spl_image,
 					     (struct image_header *)buf);
 		if (ret)
