@@ -60,6 +60,7 @@ config TARGET_MPC8536DS
 
 config TARGET_MPC8540ADS
 	bool "Support MPC8540ADS"
+	select ARCH_MPC8540
 
 config TARGET_MPC8541CDS
 	bool "Support MPC8541CDS"
@@ -191,6 +192,9 @@ config ARCH_C29X
 	bool
 
 config ARCH_MPC8536
+	bool
+
+config ARCH_MPC8540
 	bool
 
 config ARCH_MPC8544

@@ -124,7 +124,7 @@ typedef struct ccsr_i2c {
 	u8	res[4096 - 1 * sizeof(struct fsl_i2c_base)];
 } ccsr_i2c_t;
 
-#if defined(CONFIG_MPC8540) || \
+#if defined(CONFIG_ARCH_MPC8540) || \
 	defined(CONFIG_MPC8541) || \
 	defined(CONFIG_ARCH_MPC8548) || \
 	defined(CONFIG_MPC8555)
