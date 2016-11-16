@@ -596,7 +596,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_QE
-#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	sys_info->freq_qe =  sys_info->freq_systembus;
 #else
 	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
