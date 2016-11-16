@@ -9,6 +9,16 @@
 #include <asm/io.h>
 #include <asm/system.h>
 
+#ifdef CONFIG_TARGET_ESPRESSO7420
+/*
+ * Exynos7420 uses CPU0 of Cluster-1 as boot CPU. Due to this, branch_if_master
+ * fails to identify as the boot CPU as the master CPU. As temporary workaround,
+ * setup the slave CPU boot address as "_main".
+ */
+extern void _main(void);
+void *secondary_boot_addr = (void *)_main;
+#endif /* CONFIG_TARGET_ESPRESSO7420 */
+
 void reset_cpu(ulong addr)
 {
 #ifdef CONFIG_CPU_V7
@@ -21,13 +31,5 @@ void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
-}
-#endif
-
-#ifdef CONFIG_ARM64
-void lowlevel_init(void)
-{
-	armv8_switch_to_el2();
-	armv8_switch_to_el1();
 }
 #endif
