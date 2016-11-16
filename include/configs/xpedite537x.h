@@ -16,7 +16,6 @@
  */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_XPEDITE5370	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5370"
 #define CONFIG_SYS_FORM_3U_VPX	1
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
