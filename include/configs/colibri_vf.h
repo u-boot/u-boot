@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 Toradex, Inc.
+ * Copyright 2015-2016 Toradex, Inc.
  *
- * Configuration settings for the Toradex VF50/VF61 module.
+ * Configuration settings for the Toradex VF50/VF61 modules.
  *
  * Based on vf610twr.h:
  * Copyright 2013 Freescale Semiconductor, Inc.
@@ -21,6 +21,7 @@
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_ARCH_MISC_INIT
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -36,6 +37,7 @@
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_BAUDRATE			115200
 

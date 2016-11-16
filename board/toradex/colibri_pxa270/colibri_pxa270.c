@@ -2,6 +2,7 @@
  * Toradex Colibri PXA270 Support
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright (C) 2016 Marcel Ziswiler <marcel.ziswiler@toradex.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -31,6 +32,13 @@ int board_init(void)
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
+
+	return 0;
+}
+
+int checkboard(void)
+{
+	puts("Model: Toradex Colibri PXA270\n");
 
 	return 0;
 }

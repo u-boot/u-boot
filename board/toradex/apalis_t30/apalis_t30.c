@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2014
+ *  (C) Copyright 2014-2016
  *  Marcel Ziswiler <marcel@ziswiler.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -17,6 +17,8 @@
 
 #include "pinmux-config-apalis_t30.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define PMU_I2C_ADDRESS		0x2D
 #define MAX_I2C_RETRY		3
 
@@ -25,6 +27,14 @@ int arch_misc_init(void)
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
+
+	return 0;
+}
+
+int checkboard(void)
+{
+	printf("Model: Toradex Apalis T30 %dGB\n",
+	       (gd->ram_size == 0x40000000) ? 1 : 2);
 
 	return 0;
 }

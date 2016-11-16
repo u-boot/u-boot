@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2014
+ *  (C) Copyright 2014-2016
  *  Stefan Agner <stefan@agner.ch>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -20,6 +20,13 @@ int arch_misc_init(void)
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
+
+	return 0;
+}
+
+int checkboard(void)
+{
+	puts("Model: Toradex Colibri T30 1GB\n");
 
 	return 0;
 }
