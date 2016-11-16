@@ -35,7 +35,7 @@
 #define CONFIG_SYS_NUM_TLBCAMS		16
 #endif
 
-#if defined(CONFIG_MPC8536)
+#if defined(CONFIG_ARCH_MPC8536)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_SYS_PPC_E500_DEBUG_TLB	1

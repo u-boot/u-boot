@@ -56,6 +56,7 @@ config TARGET_P5040DS
 
 config TARGET_MPC8536DS
 	bool "Support MPC8536DS"
+	select ARCH_MPC8536
 
 config TARGET_MPC8540ADS
 	bool "Support MPC8540ADS"
@@ -187,6 +188,9 @@ config ARCH_BSC9132
 	bool
 
 config ARCH_C29X
+	bool
+
+config ARCH_MPC8536
 	bool
 
 config ARCH_MPC8544

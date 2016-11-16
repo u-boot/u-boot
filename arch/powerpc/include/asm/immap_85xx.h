@@ -2120,7 +2120,7 @@ typedef struct ccsr_rcpm {
 #else
 typedef struct ccsr_gur {
 	u32	porpllsr;	/* POR PLL ratio status */
-#ifdef CONFIG_MPC8536
+#ifdef CONFIG_ARCH_MPC8536
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x3e000000
 #define MPC85xx_PORPLLSR_DDR_RATIO_SHIFT	25
 #elif defined(CONFIG_ARCH_C29X)
@@ -2203,7 +2203,7 @@ typedef struct ccsr_gur {
 	u8	res1[8];
 	u32	gpporcr;	/* General-purpose POR configuration */
 	u8	res2[12];
-#if defined(CONFIG_MPC8536)
+#if defined(CONFIG_ARCH_MPC8536)
 	u32	gencfgr;	/* General Configuration Register */
 #define MPC85xx_GENCFGR_SDHC_WP_INV	0x20000000
 #else
