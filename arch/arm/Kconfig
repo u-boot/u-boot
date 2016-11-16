@@ -542,6 +542,7 @@ config ARCH_SOCFPGA
 	select DM
 	select DM_SPI_FLASH
 	select DM_SPI
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 
 config TARGET_CM_T43
 	bool "Support cm_t43"
