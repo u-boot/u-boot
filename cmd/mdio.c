@@ -27,12 +27,12 @@ static uint last_reg_hi;
 static int extract_range(char *input, int *plo, int *phi)
 {
 	char *end;
-	*plo = simple_strtol(input, &end, 0);
+	*plo = simple_strtol(input, &end, 16);
 	if (end == input)
 		return -1;
 
 	if ((*end == '-') && *(++end))
-		*phi = simple_strtol(end, NULL, 0);
+		*phi = simple_strtol(end, NULL, 16);
 	else if (*end == '\0')
 		*phi = *plo;
 	else
@@ -79,7 +79,7 @@ static int mdio_read_ranges(struct phy_device *phydev, struct mii_dev *bus,
 
 	printf("Reading from bus %s\n", bus->name);
 	for (addr = addrlo; addr <= addrhi; addr++) {
-		printf("PHY at address %d:\n", addr);
+		printf("PHY at address %x:\n", addr);
 
 		for (devad = devadlo; devad <= devadhi; devad++) {
 			for (reg = reglo; reg <= reghi; reg++) {

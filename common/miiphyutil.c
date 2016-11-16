@@ -135,7 +135,7 @@ void mdio_list_devices(void)
 			struct phy_device *phydev = bus->phymap[i];
 
 			if (phydev) {
-				printf("%d - %s", i, phydev->drv->name);
+				printf("%x - %s", i, phydev->drv->name);
 
 				if (phydev->dev)
 					printf(" <--> %s\n", phydev->dev->name);
