@@ -32,7 +32,7 @@ void board_init_f(ulong bootflag)
 	/* Clock configuration to access CPLD using IFC(GPCM) */
 	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
 
-#ifdef CONFIG_P1010RDB_PB
+#ifdef CONFIG_TARGET_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);
 #endif
 

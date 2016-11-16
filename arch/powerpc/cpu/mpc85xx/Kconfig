@@ -94,8 +94,14 @@ config TARGET_MPC8572DS
 	bool "Support MPC8572DS"
 	select ARCH_MPC8572
 
-config TARGET_P1010RDB
-	bool "Support P1010RDB"
+config TARGET_P1010RDB_PA
+	bool "Support P1010RDB_PA"
+	select ARCH_P1010
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+
+config TARGET_P1010RDB_PB
+	bool "Support P1010RDB_PB"
 	select ARCH_P1010
 	select SUPPORT_SPL
 	select SUPPORT_TPL
