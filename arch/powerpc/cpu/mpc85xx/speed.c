@@ -625,7 +625,7 @@ void get_sys_info(sys_info_t *sys_info)
 		 * for four times the clock divider values.
 		 */
 		lcrr_div *= 4;
-#elif !defined(CONFIG_ARCH_MPC8540) && !defined(CONFIG_MPC8541) && \
+#elif !defined(CONFIG_ARCH_MPC8540) && !defined(CONFIG_ARCH_MPC8541) && \
     !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same
@@ -681,7 +681,7 @@ int get_clocks (void)
 	 * for that SOC. This information is taken from application note
 	 * AN2919.
 	 */
-#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_MPC8541) || \
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
 	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555) || \
 	defined(CONFIG_P1022)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;

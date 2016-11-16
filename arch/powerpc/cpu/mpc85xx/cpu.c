@@ -293,7 +293,7 @@ int checkcpu (void)
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 /* Everything after the first generation of PQ3 parts has RSTCR */
-#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_MPC8541) || \
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
     defined(CONFIG_MPC8555) || defined(CONFIG_MPC8560)
 	unsigned long val, msr;
 
