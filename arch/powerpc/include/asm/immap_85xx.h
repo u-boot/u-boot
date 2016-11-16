@@ -2169,7 +2169,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_IO_SEL		0x00600000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	21
 #else
-#if defined(CONFIG_P1010)
+#if defined(CONFIG_ARCH_P1010)
 #define MPC85xx_PORDEVSR_IO_SEL		0x00600000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	21
 #elif defined(CONFIG_ARCH_BSC9132)
@@ -2181,7 +2181,7 @@ typedef struct ccsr_gur {
 #else
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	19
-#endif /* if defined(CONFIG_P1010) */
+#endif /* if defined(CONFIG_ARCH_P1010) */
 #endif
 #define MPC85xx_PORDEVSR_PCI2_ARB	0x00040000
 #define MPC85xx_PORDEVSR_PCI1_ARB	0x00020000
@@ -2222,7 +2222,7 @@ typedef struct ccsr_gur {
 	u32	gpindr;		/* General-purpose input data */
 	u8	res5[12];
 	u32	pmuxcr;		/* Alt. function signal multiplex control */
-#if defined(CONFIG_P1010) || defined(CONFIG_P1014)
+#if defined(CONFIG_ARCH_P1010) || defined(CONFIG_P1014)
 #define MPC85xx_PMUXCR_TSEC1_0_1588		0x40000000
 #define MPC85xx_PMUXCR_TSEC1_0_RES		0xC0000000
 #define MPC85xx_PMUXCR_TSEC1_1_1588_TRIG	0x10000000
@@ -2350,7 +2350,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_SPI_GPIO			0x00000100
 #endif
 	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
-#if defined(CONFIG_P1010) || defined(CONFIG_P1014)
+#if defined(CONFIG_ARCH_P1010) || defined(CONFIG_P1014)
 #define MPC85xx_PMUXCR2_UART_GPIO		0x40000000
 #define MPC85xx_PMUXCR2_UART_TDM		0x80000000
 #define MPC85xx_PMUXCR2_UART_RES		0xC0000000

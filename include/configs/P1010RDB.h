@@ -11,7 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_P1010
 #define CONFIG_E500			/* BOOKE e500 family */
 #include <asm/config_mpc85xx.h>
 #define CONFIG_NAND_FSL_IFC
