@@ -2162,7 +2162,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_SGMII4_DIS	0x04000000
 #define MPC85xx_PORDEVSR_SRDS2_IO_SEL	0x38000000
 #define MPC85xx_PORDEVSR_PCI1		0x00800000
-#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#if defined(CONFIG_P1013) || defined(CONFIG_ARCH_P1022)
 #define MPC85xx_PORDEVSR_IO_SEL		0x007c0000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	18
 #elif defined(CONFIG_P1017) || defined(CONFIG_P1023)
@@ -2290,7 +2290,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_QE11		0x00000010
 #define MPC85xx_PMUXCR_QE12		0x00000008
 #endif
-#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#if defined(CONFIG_P1013) || defined(CONFIG_ARCH_P1022)
 #define MPC85xx_PMUXCR_TDM_MASK		0x0001cc00
 #define MPC85xx_PMUXCR_TDM		0x00014800
 #define MPC85xx_PMUXCR_SPI_MASK		0x00600000
@@ -2375,7 +2375,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR2_DEBUG_MUX_SEL_USBPHY	0x00002000
 #define MPC85xx_PMUXCR2_PLL_LKDT_EXPOSE		0x00001000
 #endif
-#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#if defined(CONFIG_P1013) || defined(CONFIG_ARCH_P1022)
 #define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f8000
 #define MPC85xx_PMUXCR2_USB		0x00150000
 #endif

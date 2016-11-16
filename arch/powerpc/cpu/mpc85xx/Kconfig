@@ -108,6 +108,7 @@ config TARGET_P1010RDB_PB
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
+	select ARCH_P1022
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 
@@ -171,6 +172,7 @@ config TARGET_T4240RDB
 
 config TARGET_CONTROLCENTERD
 	bool "Support controlcenterd"
+	select ARCH_P1022
 
 config TARGET_KMP204X
 	bool "Support kmp204x"
@@ -236,6 +238,9 @@ config ARCH_MPC8572
 	bool
 
 config ARCH_P1010
+	bool
+
+config ARCH_P1022
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
