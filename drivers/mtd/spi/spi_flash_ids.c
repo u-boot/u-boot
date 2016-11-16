@@ -99,7 +99,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"s25fl256s_256k", INFO(0x010219, 0x4d00, 256 * 1024,   128, RD_FULL | WR_QPP) },
 	{"s25fl256s_64k",  INFO(0x010219, 0x4d01,  64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"s25fs256s_64k",  INFO6(0x010219, 0x4d0181, 64 * 1024, 512, RD_FULL | WR_QPP | SECT_4K) },
-	{"s25fs512s",      INFO(0x010220, 0x4d00, 128 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
+	{"s25fs512s",      INFO6(0x010220, 0x4d0081, 128 * 1024, 512, RD_FULL | WR_QPP | SECT_4K) },
 	{"s25fl512s_256k", INFO(0x010220, 0x4d00, 256 * 1024,   256, RD_FULL | WR_QPP) },
 	{"s25fl512s_64k",  INFO(0x010220, 0x4d01,  64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"s25fl512s_512k", INFO(0x010220, 0x4f00, 256 * 1024,   256, RD_FULL | WR_QPP) },
