@@ -114,6 +114,7 @@ config TARGET_P1022DS
 
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
+	select ARCH_P1023
 
 config TARGET_P1_P2_RDB_PC
 	bool "Support p1_p2_rdb_pc"
@@ -241,6 +242,9 @@ config ARCH_P1010
 	bool
 
 config ARCH_P1022
+	bool
+
+config ARCH_P1023
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
