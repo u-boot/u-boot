@@ -92,6 +92,7 @@ config TARGET_MPC8569MDS
 
 config TARGET_MPC8572DS
 	bool "Support MPC8572DS"
+	select ARCH_MPC8572
 
 config TARGET_P1010RDB
 	bool "Support P1010RDB"
@@ -174,6 +175,7 @@ config TARGET_XPEDITE520X
 
 config TARGET_XPEDITE537X
 	bool "Support xpedite537x"
+	select ARCH_MPC8572
 
 config TARGET_XPEDITE550X
 	bool "Support xpedite550x"
@@ -221,6 +223,9 @@ config ARCH_MPC8568
 	bool
 
 config ARCH_MPC8569
+	bool
+
+config ARCH_MPC8572
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

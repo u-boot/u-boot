@@ -85,7 +85,7 @@ enum law_trgt_if {
 #if defined(CONFIG_ARCH_BSC9131) || defined(CONFIG_ARCH_BSC9132)
 	LAW_TRGT_IF_OCN_DSP = 0x03,
 #else
-#if !defined(CONFIG_MPC8572) && !defined(CONFIG_P2020)
+#if !defined(CONFIG_ARCH_MPC8572) && !defined(CONFIG_P2020)
 	LAW_TRGT_IF_PCIE_3 = 0x03,
 #endif
 #endif
@@ -121,7 +121,7 @@ enum law_trgt_if {
 #define LAW_TRGT_IF_PCIE_1	LAW_TRGT_IF_PCI
 #endif
 
-#if defined(CONFIG_MPC8572) || defined(CONFIG_P2020)
+#if defined(CONFIG_ARCH_MPC8572) || defined(CONFIG_P2020)
 #define LAW_TRGT_IF_PCIE_3	LAW_TRGT_IF_PCI
 #endif
 #endif /* CONFIG_FSL_CORENET */
