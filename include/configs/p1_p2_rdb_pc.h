@@ -131,7 +131,7 @@
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
-#if defined(CONFIG_P1025RDB)
+#if defined(CONFIG_TARGET_P1025RDB)
 #define CONFIG_BOARDNAME "P1025RDB"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1025
@@ -755,7 +755,7 @@
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #endif /* CONFIG_QE */
 
-#ifdef CONFIG_P1025RDB
+#ifdef CONFIG_TARGET_P1025RDB
 /*
  * QE UEC ethernet configuration
  */
@@ -789,7 +789,7 @@
 #define CONFIG_SYS_UEC5_INTERFACE_TYPE PHY_INTERFACE_MODE_RMII
 #define CONFIG_SYS_UEC5_INTERFACE_SPEED	100
 #endif /* CONFIG_UEC_ETH5 */
-#endif /* CONFIG_P1025RDB */
+#endif /* CONFIG_TARGET_P1025RDB */
 
 /*
  * Environment

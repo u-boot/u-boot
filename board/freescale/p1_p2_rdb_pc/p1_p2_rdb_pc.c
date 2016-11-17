@@ -47,7 +47,7 @@
 #define GPIO_2BIT_MASK		(0x3 << (32 - (GPIO_DDR_RST_PIN + 1) * 2))
 #endif
 
-#if defined(CONFIG_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
+#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
 #define PCA_IOPORT_I2C_ADDR		0x23
 #define PCA_IOPORT_OUTPUT_CMD		0x2
 #define PCA_IOPORT_CFG_CMD		0x6
@@ -65,7 +65,7 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{GPIO_GETH_SW_PORT, GPIO_GETH_SW_PIN, 1, 0, 0},	/* RST_GETH_SW_N */
 	{GPIO_SLIC_PORT, GPIO_SLIC_PIN, 1, 0, 0},	/* RST_SLIC_N */
 
-#ifdef CONFIG_P1025RDB
+#ifdef CONFIG_TARGET_P1025RDB
 	/* QE_MUX_MDC */
 	{1,  19, 1, 0, 1}, /* QE_MUX_MDC               */
 
@@ -379,7 +379,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_QE) && \
-	(defined(CONFIG_P1025RDB) || defined(CONFIG_TARGET_P1021RDB))
+	(defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB))
 static void fdt_board_fixup_qe_pins(void *blob)
 {
 	unsigned int oldbus;
@@ -448,7 +448,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
 			sizeof("okay"), 0);
-#if defined(CONFIG_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
+#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
 	fdt_board_fixup_qe_pins(blob);
 #endif
 #endif
