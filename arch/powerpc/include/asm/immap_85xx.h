@@ -2150,7 +2150,7 @@ typedef struct ccsr_gur {
 #define PORBMSR_ROMLOC_NOR	0xf
 	u32	porimpscr;	/* POR I/O impedance status & control */
 	u32	pordevsr;	/* POR I/O device status regsiter */
-#if defined(CONFIG_P1017) || defined(CONFIG_ARCH_P1023)
+#if defined(CONFIG_ARCH_P1023)
 #define MPC85xx_PORDEVSR_SGMII1_DIS	0x10000000
 #define MPC85xx_PORDEVSR_SGMII2_DIS	0x08000000
 #define MPC85xx_PORDEVSR_TSEC1_PRTC	0x02000000
@@ -2165,7 +2165,7 @@ typedef struct ccsr_gur {
 #if defined(CONFIG_ARCH_P1022)
 #define MPC85xx_PORDEVSR_IO_SEL		0x007c0000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	18
-#elif defined(CONFIG_P1017) || defined(CONFIG_ARCH_P1023)
+#elif defined(CONFIG_ARCH_P1023)
 #define MPC85xx_PORDEVSR_IO_SEL		0x00600000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	21
 #else
@@ -2268,7 +2268,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_CAN2_TDM			0x00000002
 #define MPC85xx_PMUXCR_CAN2_RES			0x00000003
 #endif
-#if defined(CONFIG_P1017) || defined(CONFIG_ARCH_P1023)
+#if defined(CONFIG_ARCH_P1023)
 #define MPC85xx_PMUXCR_TSEC1_1		0x10000000
 #else
 #define MPC85xx_PMUXCR_SD_DATA		0x80000000

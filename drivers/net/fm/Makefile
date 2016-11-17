@@ -17,7 +17,6 @@ obj-$(CONFIG_SYS_FMAN_V3) += memac_phy.o
 obj-$(CONFIG_SYS_FMAN_V3) += memac.o
 
 # SoC specific SERDES support
-obj-$(CONFIG_P1017)	+= p1023.o
 obj-$(CONFIG_ARCH_P1023)	+= p1023.o
 # The P204x, P304x, and P5020 are the same
 obj-$(CONFIG_PPC_P2041) += p5020.o
