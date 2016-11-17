@@ -104,7 +104,7 @@ def test_efi_setup_static(u_boot_console):
     global net_set_up
     net_set_up = True
 
-@pytest.mark.buildconfigspec('cmd_bootefi_hello')
+@pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
 def test_efi_helloworld_net(u_boot_console):
     """Run the helloworld.efi binary via TFTP.
 
