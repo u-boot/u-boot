@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/am35x_def.h>
 
-void am35x_musb_reset(void)
+void am35x_musb_reset(struct udevice *dev)
 {
 	/* Reset the musb interface */
 	clrsetbits_le32(&am35x_scm_general_regs->ip_sw_reset,
@@ -22,7 +22,7 @@ void am35x_musb_reset(void)
 			USBOTGSS_SW_RST, 0);
 }
 
-void am35x_musb_phy_power(u8 on)
+void am35x_musb_phy_power(struct udevice *dev, u8 on)
 {
 	unsigned long start = get_timer(0);
 
@@ -53,7 +53,7 @@ void am35x_musb_phy_power(u8 on)
 	}
 }
 
-void am35x_musb_clear_irq(void)
+void am35x_musb_clear_irq(struct udevice *dev)
 {
 	clrsetbits_le32(&am35x_scm_general_regs->lvl_intr_clr,
 			0, USBOTGSS_INT_CLR);

@@ -7,7 +7,7 @@
 
 #ifndef __ASM_ARCH_OMAP3_MUSB_H
 #define __ASM_ARCH_OMAP3_MUSB_H
-extern void am35x_musb_reset(void);
-extern void am35x_musb_phy_power(u8 on);
-extern void am35x_musb_clear_irq(void);
+void am35x_musb_reset(struct udevice *dev);
+void am35x_musb_phy_power(struct udevice *dev, u8 on);
+void am35x_musb_clear_irq(struct udevice *dev);
 #endif

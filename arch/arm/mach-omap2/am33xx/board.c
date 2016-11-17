@@ -148,7 +148,7 @@ static struct musb_hdrc_config musb_config = {
 };
 
 #ifdef CONFIG_AM335X_USB0
-static void am33xx_otg0_set_phy_power(u8 on)
+static void am33xx_otg0_set_phy_power(struct udevice *dev, u8 on)
 {
 	am33xx_usb_set_phy_power(on, &cdev->usb_ctrl0);
 }
@@ -167,7 +167,7 @@ static struct musb_hdrc_platform_data otg0_plat = {
 #endif
 
 #ifdef CONFIG_AM335X_USB1
-static void am33xx_otg1_set_phy_power(u8 on)
+static void am33xx_otg1_set_phy_power(struct udevice *dev, u8 on)
 {
 	am33xx_usb_set_phy_power(on, &cdev->usb_ctrl1);
 }
