@@ -244,6 +244,7 @@ matrix:
           BUILDMAN="^vexpress_ca9x4$"
     - env:
         - TEST_PY_BD="integratorcp_cm926ejs"
+          TEST_PY_TEST_SPEC="not sleep"
           TEST_PY_ID="--id qemu"
           BUILDMAN="^integratorcp_cm926ejs$"
     - env:
