@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <efi_loader.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <phy.h>
@@ -105,6 +106,11 @@ remove_psci_node:
 
 	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
 			*boot_code_size);
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+	efi_add_memory_map((uintptr_t)&secondary_boot_code,
+			   ALIGN(*boot_code_size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE, false);
+#endif
 }
 #endif
 
