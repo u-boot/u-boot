@@ -707,8 +707,7 @@ int get_clocks (void)
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	gd->arch.sdhc_clk = sys_info.freq_sdhc / 2;
 #else
-#if defined(CONFIG_ARCH_MPC8569) || defined(CONFIG_ARCH_P1010) ||\
-       defined(CONFIG_P1014)
+#if defined(CONFIG_ARCH_MPC8569) || defined(CONFIG_ARCH_P1010)
 	gd->arch.sdhc_clk = gd->bus_clk;
 #else
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
