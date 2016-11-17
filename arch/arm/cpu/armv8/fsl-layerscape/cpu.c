@@ -17,6 +17,7 @@
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
+#include <efi_loader.h>
 #include <fm_eth.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
@@ -462,9 +463,10 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+__efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+
+void __efi_runtime reset_cpu(ulong addr)
 {
-	u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 	u32 val;
 
 	/* Raise RESET_REQ_B */
@@ -472,6 +474,33 @@ void reset_cpu(ulong addr)
 	val |= 0x02;
 	scfg_out32(rstcr, val);
 }
+
+#ifdef CONFIG_EFI_LOADER
+
+void __efi_runtime EFIAPI efi_reset_system(
+		       enum efi_reset_type reset_type,
+		       efi_status_t reset_status,
+		       unsigned long data_size, void *reset_data)
+{
+	switch (reset_type) {
+	case EFI_RESET_COLD:
+	case EFI_RESET_WARM:
+		reset_cpu(0);
+		break;
+	case EFI_RESET_SHUTDOWN:
+		/* Nothing we can do */
+		break;
+	}
+
+	while (1) { }
+}
+
+void efi_reset_system_init(void)
+{
+       efi_add_runtime_mmio(&rstcr, sizeof(*rstcr));
+}
+
+#endif
 
 phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
