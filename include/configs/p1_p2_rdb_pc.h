@@ -10,7 +10,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#if defined(CONFIG_P1020MBG)
+#if defined(CONFIG_TARGET_P1020MBG)
 #define CONFIG_BOARDNAME "P1020MBG-PC"
 #define CONFIG_P1020
 #define CONFIG_VSC7385_ENET
@@ -336,7 +336,7 @@
 #define SPD_EEPROM_ADDRESS 0x52
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
-#if (defined(CONFIG_P1020MBG) || defined(CONFIG_P1020RDB_PD))
+#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_P1020RDB_PD))
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
@@ -406,7 +406,7 @@
 /*
  * Local Bus Definitions
  */
-#if (defined(CONFIG_P1020MBG) || defined(CONFIG_P1020RDB_PD))
+#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_P1020RDB_PD))
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #elif defined(CONFIG_P1020UTM)
