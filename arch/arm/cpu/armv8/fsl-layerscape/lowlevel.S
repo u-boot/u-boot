@@ -148,26 +148,26 @@ ENTRY(lowlevel_init)
 	 * 	 placeholders.
 	 */
 	ldr	x1, =TZASC_GATE_KEEPER(0)
-	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
-	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_GATE_KEEPER(1)
-	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
-	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(0)
-	ldr	x0, [x1]		/* Region-0 Attributes Register */
-	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
-	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Region-0 Attributes Register */
+	orr	w0, w0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(1)
-	ldr	x0, [x1]		/* Region-1 Attributes Register */
-	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
-	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
-	str	x0, [x1]
+	ldr	w0, [x1]		/* Region-1 Attributes Register */
+	orr	w0, w0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	w0, [x1]
 
 	ldr	x1, =TZASC_REGION_ID_ACCESS_0(0)
 	ldr	w0, [x1]		/* Region-0 Access Register */
