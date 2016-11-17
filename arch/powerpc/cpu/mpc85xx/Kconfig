@@ -120,6 +120,11 @@ config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+config TARGET_P1020RDB_PC
+	bool "Support P1020RDB-PC"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+
 
 config TARGET_P1_P2_RDB_PC
 	bool "Support p1_p2_rdb_pc"

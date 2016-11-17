@@ -109,7 +109,7 @@ dimm_params_t ddr_raw_timing = {
 	.refresh_rate_ps = 7800000,
 	.tfaw_ps = 37500,
 };
-#elif defined(CONFIG_P1020RDB_PC)
+#elif defined(CONFIG_TARGET_P1020RDB_PC)
 /*
  * Samsung K4B2G0846C-HCF8
  * The following timing are for "downshift"

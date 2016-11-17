@@ -1,5 +1,6 @@
-if TARGET_P1_P2_RDB_PC || \
-	TARGET_P1020MBG
+if TARGET_P1_P2_RDB_PC		|| \
+	TARGET_P1020MBG		|| \
+	TARGET_P1020RDB_PC
 
 config SYS_BOARD
 	default "p1_p2_rdb_pc"
