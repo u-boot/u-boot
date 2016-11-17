@@ -120,7 +120,8 @@ int cpu_mmc_init(bd_t *bis)
 
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)) && \
-	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))
+	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1)) && \
+	(!defined(CONFIG_DM_USB))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* USB 2.0 PHY Control */
@@ -187,6 +188,7 @@ static struct musb_hdrc_platform_data otg1_plat = {
 
 int arch_misc_init(void)
 {
+#ifndef CONFIG_DM_USB
 #ifdef CONFIG_AM335X_USB0
 	musb_register(&otg0_plat, &otg0_board_data,
 		(void *)USB0_OTG_BASE);
@@ -194,6 +196,7 @@ int arch_misc_init(void)
 #ifdef CONFIG_AM335X_USB1
 	musb_register(&otg1_plat, &otg1_board_data,
 		(void *)USB1_OTG_BASE);
+#endif
 #endif
 	return 0;
 }
