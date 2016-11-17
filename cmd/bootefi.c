@@ -226,6 +226,17 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		return status == EFI_SUCCESS ? 0 : -EINVAL;
 	}
 
+#ifdef CONFIG_ARM64
+	/* On AArch64 we need to make sure we call our payload in < EL3 */
+	if (current_el() == 3) {
+		smp_kick_all_cpus();
+		dcache_disable();	/* flush cache before switch to EL2 */
+		armv8_switch_to_el2();
+		/* Enable caches again */
+		dcache_enable();
+	}
+#endif
+
 	return entry(&loaded_image_info, &systab);
 }
 
