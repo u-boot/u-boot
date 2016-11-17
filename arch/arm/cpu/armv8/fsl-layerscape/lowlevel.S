@@ -15,6 +15,7 @@
 #endif
 #ifdef CONFIG_FSL_LSCH3
 #include <asm/arch-fsl-layerscape/immap_lsch3.h>
+#include <asm/arch-fsl-layerscape/soc.h>
 #endif
 
 ENTRY(lowlevel_init)
@@ -140,6 +141,16 @@ ENTRY(lowlevel_init)
 #endif
 
 #ifdef CONFIG_FSL_TZASC_400
+	/*
+	 * LS2080 and its personalities does not support TZASC
+	 * So skip TZASC related operations
+	 */
+	bl	get_svr
+	lsr	w0, w0, #16
+	ldr	w1, =SVR_DEV_LS2080A
+	cmp	w0, w1
+	b.eq	1f
+
 	/* Set TZASC so that:
 	 * a. We use only Region0 whose global secure write/read is EN
 	 * b. We use only Region0 whose NSAID write/read is EN
@@ -182,7 +193,7 @@ ENTRY(lowlevel_init)
 	isb
 	dsb	sy
 #endif
-
+1:
 #ifdef CONFIG_ARCH_LS1046A
 	/* Initialize the L2 RAM latency */
 	mrs   x1, S3_1_c11_c0_2
