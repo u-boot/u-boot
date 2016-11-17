@@ -191,7 +191,7 @@ void enable_caches(void)
 }
 #endif
 
-static inline u32 initiator_type(u32 cluster, int init_id)
+u32 initiator_type(u32 cluster, int init_id)
 {
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
