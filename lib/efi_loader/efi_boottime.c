@@ -538,6 +538,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
 {
 	EFI_ENTRY("%p, %ld", image_handle, map_key);
 
+	board_quiesce_devices();
+
 	/* Fix up caches for EFI payloads if necessary */
 	efi_exit_caches();
 

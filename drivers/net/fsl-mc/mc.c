@@ -40,6 +40,7 @@ int child_dprc_id;
 struct fsl_dpbp_obj *dflt_dpbp = NULL;
 struct fsl_dpio_obj *dflt_dpio = NULL;
 struct fsl_dpni_obj *dflt_dpni = NULL;
+static u64 mc_lazy_dpl_addr;
 
 #ifdef DEBUG
 void dump_ram_words(const char *title, void *addr)
@@ -571,6 +572,9 @@ int mc_apply_dpl(u64 mc_dpl_addr)
 	u32 reg_gsr;
 	u64 mc_ram_addr = mc_get_dram_addr();
 	size_t mc_ram_size = mc_get_dram_block_size();
+
+	if (!mc_dpl_addr)
+		return -1;
 
 	error = load_mc_dpl(mc_ram_addr, mc_ram_size, mc_dpl_addr);
 	if (error != 0)
@@ -1156,6 +1160,11 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 {
 	int err = 0;
 
+	if (bd && mc_lazy_dpl_addr && !fsl_mc_ldpaa_exit(NULL)) {
+		mc_apply_dpl(mc_lazy_dpl_addr);
+		mc_lazy_dpl_addr = 0;
+	}
+
 	/* MC is not loaded intentionally, So return success. */
 	if (bd && get_mc_boot_status() != 0)
 		return 0;
@@ -1259,6 +1268,7 @@ static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		break;
 
+	case 'l':
 	case 'a': {
 			u64 mc_dpl_addr;
 
@@ -1279,8 +1289,17 @@ static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return -ENODEV;
 			}
 
-			if (!fsl_mc_ldpaa_exit(NULL))
-				err = mc_apply_dpl(mc_dpl_addr);
+			if (argv[1][0] == 'l') {
+				/*
+				 * We will do the actual dpaa exit and dpl apply
+				 * later from announce_and_cleanup().
+				 */
+				mc_lazy_dpl_addr = mc_dpl_addr;
+			} else {
+				/* The user wants it applied now */
+				if (!fsl_mc_ldpaa_exit(NULL))
+					err = mc_apply_dpl(mc_dpl_addr);
+			}
 			break;
 		}
 	default:
@@ -1298,5 +1317,6 @@ U_BOOT_CMD(
 	"DPAA2 command to manage Management Complex (MC)",
 	"start mc [FW_addr] [DPC_addr] - Start Management Complex\n"
 	"fsl_mc apply DPL [DPL_addr] - Apply DPL file\n"
+	"fsl_mc lazyapply DPL [DPL_addr] - Apply DPL file on exit\n"
 	"fsl_mc start aiop [FW_addr] - Start AIOP\n"
 );
