@@ -265,6 +265,25 @@ int usb_phy_mode(int port)
 }
 #endif
 
+static void ehci_mx6_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+				   uint32_t *reg)
+{
+	u32 result;
+	int usec = 2000;
+
+	mdelay(50);
+
+	do {
+		result = ehci_readl(status_reg);
+		udelay(5);
+		if (!(result & EHCI_PS_PR))
+			break;
+		usec--;
+	} while (usec > 0);
+
+	*reg = ehci_readl(status_reg);
+}
+
 #if !defined(CONFIG_PHY)
 /* Should be done in the MXS PHY driver */
 static void usb_oc_config(struct usbnc_regs *usbnc, int index)
@@ -331,6 +350,10 @@ int __weak board_ehci_power(int port, int on)
 	return 0;
 }
 
+static const struct ehci_ops mx6_ehci_ops = {
+	.powerup_fixup = ehci_mx6_powerup_fixup,
+};
+
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
@@ -393,6 +416,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		usb_phy_enable(ehci, (void __iomem *)phy_bases[index]);
 	}
 #endif
+
+	ehci_set_controller_priv(index, NULL, &mx6_ehci_ops);
 
 	type = board_usb_phy_mode(index);
 
@@ -502,7 +527,8 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 }
 
 static const struct ehci_ops mx6_ehci_ops = {
-	.init_after_reset = mx6_init_after_reset
+	.init_after_reset = mx6_init_after_reset,
+	.powerup_fixup = ehci_mx6_powerup_fixup,
 };
 
 static int ehci_usb_phy_mode(struct udevice *dev)
