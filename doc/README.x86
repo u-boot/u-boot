@@ -1077,7 +1077,6 @@ TODO List
 ---------
 - Audio
 - Chrome OS verified boot
-- Support for CONFIG_EFI_LOADER
 - Building U-Boot to run in 64-bit mode
 
 References

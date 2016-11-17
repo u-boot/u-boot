@@ -64,6 +64,10 @@ void arch_lmb_reserve(struct lmb *lmb)
 		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
 }
 
+__weak void board_quiesce_devices(void)
+{
+}
+
 /**
  * announce_and_cleanup() - Print message and prepare for kernel boot
  *
@@ -84,6 +88,9 @@ static void announce_and_cleanup(int fake)
 #ifdef CONFIG_USB_DEVICE
 	udc_disconnect();
 #endif
+
+	board_quiesce_devices();
+
 	cleanup_before_linux();
 }
 

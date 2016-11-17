@@ -181,7 +181,7 @@ void efi_get_time_init(void);
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
 #define __efi_runtime
-static inline void efi_add_runtime_mmio(void **mmio_ptr, u64 len) { }
+static inline void efi_add_runtime_mmio(void *mmio_ptr, u64 len) { }
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }

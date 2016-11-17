@@ -13,6 +13,9 @@ CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
+CFLAGS_NON_EFI := -fno-pic -ffixed-r9 -ffunction-sections -fdata-sections
+CFLAGS_EFI := -fpic -fshort-wchar
+
 LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
 		     -fno-common -ffixed-r9
@@ -148,3 +151,7 @@ ifneq ($(CONFIG_VF610),)
 ALL-y += u-boot.vyb
 endif
 endif
+
+EFI_LDS := elf_arm_efi.lds
+EFI_CRT0 := crt0_arm_efi.o
+EFI_RELOC := reloc_arm_efi.o

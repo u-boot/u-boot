@@ -181,6 +181,15 @@ config CMD_BOOTEFI
 	help
 	  Boot an EFI image from memory.
 
+config CMD_BOOTEFI_HELLO
+	bool "Allow booting a standard EFI hello world for testing"
+	depends on CMD_BOOTEFI && (ARM || X86)
+	help
+	  This adds a standard EFI hello world application to U-Boot so that
+	  it can be used with the 'bootefi hello' command. This is useful
+	  for testing that EFI is working at a basic level, and for bringing
+	  up EFI support on a new architecture.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
