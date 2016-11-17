@@ -58,7 +58,7 @@
  * 010001 800 800 400 667 NAND Core0 boot; Core1 hold-off
  * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
  */
-#if defined(CONFIG_P1020RDB_PD)
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_BOARDNAME "P1020RDB-PD"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1020
@@ -336,7 +336,7 @@
 #define SPD_EEPROM_ADDRESS 0x52
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_P1020RDB_PD))
+#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
@@ -406,7 +406,7 @@
 /*
  * Local Bus Definitions
  */
-#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_P1020RDB_PD))
+#if (defined(CONFIG_TARGET_P1020MBG) || defined(CONFIG_TARGET_P1020RDB_PD))
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #elif defined(CONFIG_P1020UTM)
@@ -455,7 +455,7 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_CMD_NAND
-#if defined(CONFIG_P1020RDB_PD)
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 #else
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(16 * 1024)
@@ -466,7 +466,7 @@
 	| BR_PS_8	/* Port Size = 8 bit */ \
 	| BR_MS_FCM	/* MSEL = FCM */ \
 	| BR_V)	/* valid */
-#if defined(CONFIG_P1020RDB_PD)
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_NAND_OR_PRELIM	(OR_AM_32KB \
 	| OR_FCM_PGS	/* Large Page*/ \
 	| OR_FCM_CSCT \
@@ -853,7 +853,7 @@
 #endif
 #endif
 
-#if defined(CONFIG_P1020RDB_PD)
+#if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif
 
