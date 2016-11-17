@@ -31,8 +31,10 @@ bool soc_has_dp_ddr(void)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
-	/* LS2085A has DP_DDR */
-	if (SVR_SOC_VER(svr) == SVR_LS2085A)
+	/* LS2085A, LS2088A, LS2048A has DP_DDR */
+	if ((SVR_SOC_VER(svr) == SVR_LS2085A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2088A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2048A))
 		return true;
 
 	return false;
