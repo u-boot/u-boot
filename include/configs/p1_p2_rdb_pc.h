@@ -83,7 +83,7 @@
 			"57088k(fs),1m(vsc7385-firmware),1280k(u-boot)"
 #endif
 
-#if defined(CONFIG_P1021RDB)
+#if defined(CONFIG_TARGET_P1021RDB)
 #define CONFIG_BOARDNAME "P1021RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1021
