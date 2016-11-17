@@ -433,6 +433,7 @@ int timer_init(void)
 #endif
 #ifdef CONFIG_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
+	u32 svr_dev_id;
 #endif
 #ifdef COUNTER_FREQUENCY_REAL
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
@@ -455,6 +456,14 @@ int timer_init(void)
 	 * Register (PCTBENR), which allows the watchdog to operate.
 	 */
 	setbits_le32(pctbenr, 0xff);
+	/*
+	 * For LS2080A SoC and its personalities, timer controller
+	 * offset is different
+	 */
+	svr_dev_id = get_svr() >> 16;
+	if (svr_dev_id == SVR_DEV_LS2080A)
+		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
+
 #endif
 
 	/* Enable clock for timer
