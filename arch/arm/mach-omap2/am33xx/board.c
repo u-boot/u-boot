@@ -197,6 +197,13 @@ int arch_misc_init(void)
 	musb_register(&otg1_plat, &otg1_board_data,
 		(void *)USB1_OTG_BASE);
 #endif
+#else
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_MISC, &dev);
+	if (ret || !dev)
+		return ret;
 #endif
 	return 0;
 }
