@@ -15,6 +15,7 @@
 #include <libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
+#include <efi_loader.h>
 #include <i2c.h>
 #include <asm/arch/soc.h>
 #include <fsl_sec.h>
@@ -200,6 +201,14 @@ int misc_init_r(void)
 
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+	if (soc_has_dp_ddr() && gd->bd->bi_dram[2].size) {
+		efi_add_memory_map(gd->bd->bi_dram[2].start,
+				   gd->bd->bi_dram[2].size >> EFI_PAGE_SHIFT,
+				   EFI_RESERVED_MEMORY_TYPE, false);
+	}
+#endif
 
 	return 0;
 }
