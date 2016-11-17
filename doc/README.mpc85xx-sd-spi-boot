@@ -70,9 +70,7 @@ P1010RDB	config_ddr3_1gb_p1010rdb_800M.dat
 P1014RDB	config_ddr3_1gb_p1014rdb_800M.dat
 P1021RDB	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
 P1022DS		config_ddr3_2gb_p1022ds.dat
-P1013DS		config_ddr3_2gb_p1022ds.dat
 P1024RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
-P1013RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1025RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1016RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1020UTM	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
