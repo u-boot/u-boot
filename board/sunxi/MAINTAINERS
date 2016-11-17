@@ -232,6 +232,11 @@ M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_defconfig
 
+NINTENDO NES CLASSIC EDITION BOARD
+M:	FUKAUMI Naoki <naobsd@gmail.com>
+S:	Maintained
+F:	configs/Nintendo_NES_Classic_Edition_defconfig
+
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
 S:	Maintained
