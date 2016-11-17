@@ -86,10 +86,11 @@ script:
  # never prevent any test from running. That way, we can always pass
  # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
  # value.
- - if [[ "${TEST_PY_BD}" != "" ]]; then
+ - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+   if [[ "${TEST_PY_BD}" != "" ]]; then
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
        -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
-       --build-dir `cd .. && pwd`/.bm-work/${TEST_PY_BD};
+       --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
    fi
 
 matrix:
