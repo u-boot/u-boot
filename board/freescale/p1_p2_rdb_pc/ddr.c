@@ -16,7 +16,7 @@
 #ifdef CONFIG_SYS_DDR_RAW_TIMING
 #if	defined(CONFIG_P1020RDB_PROTO) || \
 	defined(CONFIG_P1021RDB) || \
-	defined(CONFIG_P1020UTM)
+	defined(CONFIG_TARGET_P1020UTM)
 /* Micron MT41J256M8_187E */
 dimm_params_t ddr_raw_timing = {
 	.n_ranks = 1,
