@@ -118,7 +118,7 @@
 #endif
 #endif
 
-#if defined(CONFIG_P1024RDB)
+#if defined(CONFIG_TARGET_P1024RDB)
 #define CONFIG_BOARDNAME "P1024RDB"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1024

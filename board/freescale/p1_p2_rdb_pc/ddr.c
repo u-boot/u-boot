@@ -146,7 +146,7 @@ dimm_params_t ddr_raw_timing = {
 	.refresh_rate_ps = 7800000,
 	.tfaw_ps = 37500,
 };
-#elif	defined(CONFIG_P1024RDB) || \
+#elif	defined(CONFIG_TARGET_P1024RDB) || \
 	defined(CONFIG_P1025RDB)
 /*
  * Samsung K4B2G0846C-HCH9
