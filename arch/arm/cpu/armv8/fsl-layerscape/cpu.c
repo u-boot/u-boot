@@ -306,12 +306,14 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 	return -1;      /* cannot identify the cluster */
 }
 
+#ifndef CONFIG_FSL_LSCH3
 uint get_svr(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 
 	return gur_in32(&gur->svr);
 }
+#endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
