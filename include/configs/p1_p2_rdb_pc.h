@@ -82,7 +82,6 @@
 #if defined(CONFIG_TARGET_P1021RDB)
 #define CONFIG_BOARDNAME "P1021RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
-#define CONFIG_P1021
 #define CONFIG_QE
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of

@@ -2488,7 +2488,7 @@ typedef struct ccsr_gur {
 	u8	res11a[76];
 	par_io_t qe_par_io[7];
 	u8	res11b[1600];
-#elif defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#elif defined(CONFIG_ARCH_P1021) || defined(CONFIG_P1025)
 	u8      res11a[12];
 	u32     iovselsr;
 	u8      res11b[60];

@@ -144,6 +144,7 @@ config TARGET_P1021RDB
 	bool "Support P1021RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1021
 
 config TARGET_P1024RDB
 	bool "Support P1024RDB"
@@ -285,6 +286,9 @@ config ARCH_P1011
 	bool
 
 config ARCH_P1020
+	bool
+
+config ARCH_P1021
 	bool
 
 config ARCH_P1022
