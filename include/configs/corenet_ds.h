@@ -24,7 +24,7 @@
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/corenet_ds/pbi.cfg
-#if defined(CONFIG_P3041DS)
+#if defined(CONFIG_TARGET_P3041DS)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p3041ds.cfg
 #elif defined(CONFIG_P4080DS)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p4080ds.cfg

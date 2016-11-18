@@ -8,8 +8,6 @@
  * P3041 DS board configuration file
  *
  */
-#define CONFIG_P3041DS
-
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_MMC
