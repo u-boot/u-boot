@@ -24,6 +24,10 @@
 #include "gadget_chips.h"
 #include "rndis.h"
 
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#include <dm/device-internal.h>
+
 #define USB_NET_NAME "usb_ether"
 
 #define atomic_read
@@ -101,6 +105,9 @@ struct eth_dev {
 	struct usb_gadget	*gadget;
 	struct usb_request	*req;		/* for control responses */
 	struct usb_request	*stat_req;	/* for cdc & rndis status */
+#ifdef CONFIG_DM_USB
+	struct udevice		*usb_udev;
+#endif
 
 	u8			config;
 	struct usb_ep		*in_ep, *out_ep, *status_ep;
@@ -2303,6 +2310,24 @@ fail:
 
 /*-------------------------------------------------------------------------*/
 
+#ifdef CONFIG_DM_USB
+int dm_usb_init(struct eth_dev *e_dev)
+{
+	struct udevice *dev = NULL;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_USB_DEV_GENERIC, &dev);
+	if (!dev || ret) {
+		error("No USB device found\n");
+		return -ENODEV;
+	}
+
+	e_dev->usb_udev = dev;
+
+	return ret;
+}
+#endif
+
 static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct eth_dev *dev = &l_ethdev;
@@ -2315,7 +2340,14 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		goto fail;
 	}
 
+#ifdef CONFIG_DM_USB
+	if (dm_usb_init(dev)) {
+		error("USB ether not found\n");
+		return -ENODEV;
+	}
+#else
 	board_usb_init(0, USB_INIT_DEVICE);
+#endif
 
 	/* Configure default mac-addresses for the USB ethernet device */
 #ifdef CONFIG_USBNET_DEV_ADDR
@@ -2497,7 +2529,11 @@ void usb_eth_halt(struct eth_device *netdev)
 	}
 
 	usb_gadget_unregister_driver(&eth_driver);
+#ifdef CONFIG_DM_USB
+	device_remove(dev->usb_udev);
+#else
 	board_usb_cleanup(0, USB_INIT_DEVICE);
+#endif
 }
 
 static struct usb_gadget_driver eth_driver = {
