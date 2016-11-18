@@ -480,15 +480,88 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
 #endif
 }
 
+/**
+ * scsi_detect_dev - Detect scsi device
+ *
+ * @pccb: pointer to temporary SCSI command block
+ * @dev_desc: block device description
+ * @lun: Logical unit number
+ *
+ * The scsi_detect_dev detects and fills a dev_desc structure when the device is
+ * detected.
+ *
+ * Return: 0 on success, error value otherwise
+ */
+static int scsi_detect_dev(ccb *pccb, struct blk_desc *dev_desc, int lun)
+{
+	unsigned char perq, modi;
+	lbaint_t capacity;
+	unsigned long blksz;
+
+	pccb->lun = lun;
+	pccb->pdata = (unsigned char *)&tempbuff;
+	pccb->datalen = 512;
+	scsi_setup_inquiry(pccb);
+	if (scsi_exec(pccb) != true) {
+		if (pccb->contr_stat == SCSI_SEL_TIME_OUT) {
+			/*
+			  * selection timeout => assuming no
+			  * device present
+			  */
+			debug("Selection timeout ID %d\n",
+			      pccb->target);
+			return -ETIMEDOUT;
+		}
+		scsi_print_error(pccb);
+		return -ENODEV;
+	}
+	perq = tempbuff[0];
+	modi = tempbuff[1];
+	if ((perq & 0x1f) == 0x1f)
+		return -ENODEV; /* skip unknown devices */
+	if ((modi & 0x80) == 0x80) /* drive is removable */
+		dev_desc->removable = true;
+	/* get info for this device */
+	scsi_ident_cpy((unsigned char *)dev_desc->vendor,
+		       &tempbuff[8], 8);
+	scsi_ident_cpy((unsigned char *)dev_desc->product,
+		       &tempbuff[16], 16);
+	scsi_ident_cpy((unsigned char *)dev_desc->revision,
+		       &tempbuff[32], 4);
+	dev_desc->target = pccb->target;
+	dev_desc->lun = pccb->lun;
+
+	pccb->datalen = 0;
+	scsi_setup_test_unit_ready(pccb);
+	if (scsi_exec(pccb) != true) {
+		if (dev_desc->removable) {
+			dev_desc->type = perq;
+			goto removable;
+		}
+		scsi_print_error(pccb);
+		return -EINVAL;
+	}
+	if (scsi_read_capacity(pccb, &capacity, &blksz)) {
+		scsi_print_error(pccb);
+		return -EINVAL;
+	}
+	dev_desc->lba = capacity;
+	dev_desc->blksz = blksz;
+	dev_desc->log2blksz = LOG2(dev_desc->blksz);
+	dev_desc->type = perq;
+	part_init(&dev_desc[0]);
+removable:
+	return 0;
+}
+
 /*
  * (re)-scan the scsi bus and reports scsi device info
  * to the user if mode = 1
  */
 void scsi_scan(int mode)
 {
-	unsigned char i, perq, modi, lun;
-	lbaint_t capacity;
-	unsigned long blksz;
+	unsigned char i, lun;
+	int ret;
 	ccb *pccb = (ccb *)&tempccb;
 
 	if (mode == 1)
@@ -500,66 +573,14 @@ void scsi_scan(int mode)
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		pccb->target = i;
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
-			pccb->lun = lun;
-			pccb->pdata = (unsigned char *)&tempbuff;
-			pccb->datalen = 512;
-			scsi_setup_inquiry(pccb);
-			if (scsi_exec(pccb) != true) {
-				if (pccb->contr_stat == SCSI_SEL_TIME_OUT) {
-					/*
-					 * selection timeout => assuming no
-					 * device present
-					 */
-					debug("Selection timeout ID %d\n",
-					      pccb->target);
-					continue;
-				}
-				scsi_print_error(pccb);
+			ret = scsi_detect_dev(pccb,
+					      &scsi_dev_desc[scsi_max_devs],
+					      lun);
+			if (ret)
 				continue;
-			}
-			perq = tempbuff[0];
-			modi = tempbuff[1];
-			if ((perq & 0x1f) == 0x1f)
-				continue; /* skip unknown devices */
-			if ((modi & 0x80) == 0x80) /* drive is removable */
-				scsi_dev_desc[scsi_max_devs].removable = true;
-			/* get info for this device */
-			scsi_ident_cpy((unsigned char *)&scsi_dev_desc
-						[scsi_max_devs].vendor[0],
-				       &tempbuff[8], 8);
-			scsi_ident_cpy((unsigned char *)&scsi_dev_desc
-						[scsi_max_devs].product[0],
-				       &tempbuff[16], 16);
-			scsi_ident_cpy((unsigned char *)&scsi_dev_desc
-						[scsi_max_devs].revision[0],
-				       &tempbuff[32], 4);
-			scsi_dev_desc[scsi_max_devs].target = pccb->target;
-			scsi_dev_desc[scsi_max_devs].lun = pccb->lun;
 
-			pccb->datalen = 0;
-			scsi_setup_test_unit_ready(pccb);
-			if (scsi_exec(pccb) != true) {
-				if (scsi_dev_desc[scsi_max_devs].removable) {
-					scsi_dev_desc[scsi_max_devs].type =
-							perq;
-					goto removable;
-				}
-				scsi_print_error(pccb);
-				continue;
-			}
-			if (scsi_read_capacity(pccb, &capacity, &blksz)) {
-				scsi_print_error(pccb);
-				continue;
-			}
-			scsi_dev_desc[scsi_max_devs].lba = capacity;
-			scsi_dev_desc[scsi_max_devs].blksz = blksz;
-			scsi_dev_desc[scsi_max_devs].log2blksz =
-				LOG2(scsi_dev_desc[scsi_max_devs].blksz);
-			scsi_dev_desc[scsi_max_devs].type = perq;
-			part_init(&scsi_dev_desc[scsi_max_devs]);
-removable:
 			if (mode == 1) {
-				printf("  Device %d: ", scsi_max_devs);
+				printf("  Device %d: ", 0);
 				dev_print(&scsi_dev_desc[scsi_max_devs]);
 			} /* if mode */
 			scsi_max_devs++;
