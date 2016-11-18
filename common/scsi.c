@@ -485,20 +485,19 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
  *
  * @pccb: pointer to temporary SCSI command block
  * @dev_desc: block device description
- * @lun: Logical unit number
  *
  * The scsi_detect_dev detects and fills a dev_desc structure when the device is
- * detected.
+ * detected. The LUN number is taken from the struct blk_desc *dev_desc.
  *
  * Return: 0 on success, error value otherwise
  */
-static int scsi_detect_dev(ccb *pccb, struct blk_desc *dev_desc, int lun)
+static int scsi_detect_dev(ccb *pccb, struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
 	lbaint_t capacity;
 	unsigned long blksz;
 
-	pccb->lun = lun;
+	pccb->lun = dev_desc->lun;
 	pccb->pdata = (unsigned char *)&tempbuff;
 	pccb->datalen = 512;
 	scsi_setup_inquiry(pccb);
@@ -573,9 +572,9 @@ void scsi_scan(int mode)
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		pccb->target = i;
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
+			scsi_dev_desc[scsi_max_devs].lun = lun;
 			ret = scsi_detect_dev(pccb,
-					      &scsi_dev_desc[scsi_max_devs],
-					      lun);
+					      &scsi_dev_desc[scsi_max_devs]);
 			if (ret)
 				continue;
 
