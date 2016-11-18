@@ -480,10 +480,11 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
 #endif
 }
 
+
 /**
  * scsi_detect_dev - Detect scsi device
  *
- * @pccb: pointer to temporary SCSI command block
+ * @target: target id
  * @dev_desc: block device description
  *
  * The scsi_detect_dev detects and fills a dev_desc structure when the device is
@@ -491,12 +492,14 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
  *
  * Return: 0 on success, error value otherwise
  */
-static int scsi_detect_dev(ccb *pccb, struct blk_desc *dev_desc)
+static int scsi_detect_dev(int target, struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
 	lbaint_t capacity;
 	unsigned long blksz;
+	ccb *pccb = (ccb *)&tempccb;
 
+	pccb->target = target;
 	pccb->lun = dev_desc->lun;
 	pccb->pdata = (unsigned char *)&tempbuff;
 	pccb->datalen = 512;
@@ -561,7 +564,6 @@ void scsi_scan(int mode)
 {
 	unsigned char i, lun;
 	int ret;
-	ccb *pccb = (ccb *)&tempccb;
 
 	if (mode == 1)
 		printf("scanning bus for devices...\n");
@@ -570,11 +572,9 @@ void scsi_scan(int mode)
 
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
-		pccb->target = i;
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
 			scsi_dev_desc[scsi_max_devs].lun = lun;
-			ret = scsi_detect_dev(pccb,
-					      &scsi_dev_desc[scsi_max_devs]);
+			ret = scsi_detect_dev(i, &scsi_dev_desc[scsi_max_devs]);
 			if (ret)
 				continue;
 
