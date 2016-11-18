@@ -1121,7 +1121,11 @@ int rndis_msg_parser(u8 configNr, u8 *buf)
 	return -ENOTSUPP;
 }
 
+#ifndef CONFIG_DM_ETH
 int rndis_register(int (*rndis_control_ack)(struct eth_device *))
+#else
+int rndis_register(int (*rndis_control_ack)(struct udevice *))
+#endif
 {
 	u8 i;
 
@@ -1149,8 +1153,13 @@ void rndis_deregister(int configNr)
 	return;
 }
 
-int rndis_set_param_dev(u8 configNr, struct eth_device *dev, int mtu,
-			struct net_device_stats *stats,	u16 *cdc_filter)
+#ifndef CONFIG_DM_ETH
+int  rndis_set_param_dev(u8 configNr, struct eth_device *dev, int mtu,
+			 struct net_device_stats *stats, u16 *cdc_filter)
+#else
+int  rndis_set_param_dev(u8 configNr, struct udevice *dev, int mtu,
+			 struct net_device_stats *stats, u16 *cdc_filter)
+#endif
 {
 	debug("%s: configNr = %d\n", __func__, configNr);
 	if (!dev || !stats)

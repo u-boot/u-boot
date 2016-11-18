@@ -255,6 +255,13 @@ int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 
 
 /*
+ * Initialize USB ethernet device with CONFIG_DM_ETH
+ * Returns:
+ *	0 is success, non-zero is error status.
+ */
+int usb_ether_init(void);
+
+/*
  * Get the hardware address for an ethernet interface .
  * Args:
  *	base_name - base name for device (normally "eth")
