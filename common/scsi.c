@@ -458,6 +458,28 @@ void scsi_setup_test_unit_ready(ccb *pccb)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
+static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
+{
+	dev_desc->target = 0xff;
+	dev_desc->lun = 0xff;
+	dev_desc->lba = 0;
+	dev_desc->blksz = 0;
+	dev_desc->log2blksz =
+		LOG2_INVALID(typeof(dev_desc->log2blksz));
+	dev_desc->type = DEV_TYPE_UNKNOWN;
+	dev_desc->vendor[0] = 0;
+	dev_desc->product[0] = 0;
+	dev_desc->revision[0] = 0;
+	dev_desc->removable = false;
+	dev_desc->if_type = IF_TYPE_SCSI;
+	dev_desc->devnum = devnum;
+	dev_desc->part_type = PART_TYPE_UNKNOWN;
+#ifndef CONFIG_BLK
+	dev_desc->block_read = scsi_read;
+	dev_desc->block_write = scsi_write;
+#endif
+}
+
 /*
  * (re)-scan the scsi bus and reports scsi device info
  * to the user if mode = 1
@@ -471,26 +493,9 @@ void scsi_scan(int mode)
 
 	if (mode == 1)
 		printf("scanning bus for devices...\n");
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_DEVICE; i++) {
-		scsi_dev_desc[i].target = 0xff;
-		scsi_dev_desc[i].lun = 0xff;
-		scsi_dev_desc[i].lba = 0;
-		scsi_dev_desc[i].blksz = 0;
-		scsi_dev_desc[i].log2blksz =
-			LOG2_INVALID(typeof(scsi_dev_desc[i].log2blksz));
-		scsi_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		scsi_dev_desc[i].vendor[0] = 0;
-		scsi_dev_desc[i].product[0] = 0;
-		scsi_dev_desc[i].revision[0] = 0;
-		scsi_dev_desc[i].removable = false;
-		scsi_dev_desc[i].if_type = IF_TYPE_SCSI;
-		scsi_dev_desc[i].devnum = i;
-		scsi_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-#ifndef CONFIG_BLK
-		scsi_dev_desc[i].block_read = scsi_read;
-		scsi_dev_desc[i].block_write = scsi_write;
-#endif
-	}
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_DEVICE; i++)
+		scsi_init_dev_desc(&scsi_dev_desc[i], i);
+
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		pccb->target = i;
