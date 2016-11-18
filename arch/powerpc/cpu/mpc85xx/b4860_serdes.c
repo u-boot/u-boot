@@ -15,7 +15,7 @@ struct serdes_config {
 	u8 lanes[SRDS_MAX_LANES];
 };
 
-#ifdef CONFIG_PPC_B4860
+#ifdef CONFIG_ARCH_B4860
 static struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{0x01, {AURORA, AURORA, CPRI6, CPRI5,

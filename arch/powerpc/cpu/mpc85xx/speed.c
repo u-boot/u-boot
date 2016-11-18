@@ -202,7 +202,7 @@ void get_sys_info(sys_info_t *sys_info)
 	}
 #endif
 
-#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420) || \
+#if defined(CONFIG_ARCH_B4860) || defined(CONFIG_PPC_B4420) || \
 	defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29

@@ -23,6 +23,7 @@ config TARGET_B4420QDS
 
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
+	select ARCH_B4860
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -255,6 +256,9 @@ config TARGET_CYRUS
 	select PHYS_64BIT
 
 endchoice
+
+config ARCH_B4860
+	bool
 
 config ARCH_BSC9131
 	bool

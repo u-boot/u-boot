@@ -790,7 +790,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define __USB_PHY_TYPE	ulpi
 
-#ifdef CONFIG_PPC_B4860
+#ifdef CONFIG_ARCH_B4860
 #define HWCONFIG	"hwconfig=fsl_ddr:ctlr_intlv=null,"	\
 			"bank_intlv=cs0_cs1;"	\
 			"en_cpc:cpc2;"

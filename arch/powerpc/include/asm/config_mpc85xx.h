@@ -611,7 +611,7 @@
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 #define CONFIG_SYS_FSL_PCI_VER_3_X
 
-#elif defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420)
+#elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_PPC_B4420)
 #define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -653,7 +653,7 @@
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
-#ifdef CONFIG_PPC_B4860
+#ifdef CONFIG_ARCH_B4860
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_MAX_CPUS			4
 #define CONFIG_MAX_DSP_CPUS		12
