@@ -189,8 +189,8 @@ config TARGET_QEMU_PPCE500
 	select ARCH_QEMU_E500
 	select PHYS_64BIT
 
-config TARGET_T102XQDS
-	bool "Support T102xQDS"
+config TARGET_T1024QDS
+	bool "Support T1024QDS"
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
