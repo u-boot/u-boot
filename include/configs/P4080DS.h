@@ -8,8 +8,6 @@
  * P4080 DS board configuration file
  * Also supports P4040 DS
  */
-#define CONFIG_P4080DS
-
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_MMC
