@@ -611,7 +611,7 @@
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 #define CONFIG_SYS_FSL_PCI_VER_3_X
 
-#elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_PPC_B4420)
+#elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
 #define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */

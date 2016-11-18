@@ -18,6 +18,7 @@ config TARGET_SOCRATES
 
 config TARGET_B4420QDS
 	bool "Support B4420QDS"
+	select ARCH_B4420
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -256,6 +257,9 @@ config TARGET_CYRUS
 	select PHYS_64BIT
 
 endchoice
+
+config ARCH_B4420
+	bool
 
 config ARCH_B4860
 	bool

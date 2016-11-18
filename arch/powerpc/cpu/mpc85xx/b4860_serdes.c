@@ -180,7 +180,7 @@ static struct serdes_config serdes2_cfg_tbl[] = {
 };
 #endif
 
-#ifdef CONFIG_PPC_B4420
+#ifdef CONFIG_ARCH_B4420
 static struct serdes_config serdes1_cfg_tbl[] = {
 	{0x0D, {NONE, NONE, CPRI6, CPRI5,
 		CPRI4, CPRI3, NONE, NONE} },
