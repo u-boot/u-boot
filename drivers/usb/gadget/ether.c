@@ -2334,9 +2334,8 @@ int dm_usb_init(struct eth_dev *e_dev)
 }
 #endif
 
-static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
+static int _usb_eth_init(struct ether_priv *priv)
 {
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
 	struct eth_dev *dev = &priv->ethdev;
 	struct usb_gadget *gadget;
 	unsigned long ts;
@@ -2415,11 +2414,10 @@ fail:
 	return -1;
 }
 
-static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
+static int _usb_eth_send(struct ether_priv *priv, void *packet, int length)
 {
 	int			retval;
 	void			*rndis_pkt = NULL;
-	struct ether_priv	*priv = (struct ether_priv *)netdev->priv;
 	struct eth_dev		*dev = &priv->ethdev;
 	struct usb_request	*req = dev->tx_req;
 	unsigned long ts;
@@ -2485,30 +2483,15 @@ drop:
 	return -ENOMEM;
 }
 
-static int usb_eth_recv(struct eth_device *netdev)
+static int _usb_eth_recv(struct ether_priv *priv)
 {
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
-	struct eth_dev *dev = &priv->ethdev;
-
 	usb_gadget_handle_interrupts(0);
 
-	if (packet_received) {
-		debug("%s: packet received\n", __func__);
-		if (dev->rx_req) {
-			net_process_received_packet(net_rx_packets[0],
-						    dev->rx_req->length);
-			packet_received = 0;
-
-			rx_submit(dev, dev->rx_req, 0);
-		} else
-			error("dev->rx_req invalid");
-	}
 	return 0;
 }
 
-void usb_eth_halt(struct eth_device *netdev)
+void _usb_eth_halt(struct ether_priv *priv)
 {
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
 	struct eth_dev *dev = &priv->ethdev;
 
 	/* If the gadget not registered, simple return */
@@ -2542,6 +2525,54 @@ void usb_eth_halt(struct eth_device *netdev)
 #else
 	board_usb_cleanup(0, USB_INIT_DEVICE);
 #endif
+}
+
+static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
+{
+	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
+
+	return _usb_eth_init(priv);
+}
+
+static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
+{
+	struct ether_priv	*priv = (struct ether_priv *)netdev->priv;
+
+	return _usb_eth_send(priv, packet, length);
+}
+
+static int usb_eth_recv(struct eth_device *netdev)
+{
+	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
+	struct eth_dev *dev = &priv->ethdev;
+	int ret;
+
+	ret = _usb_eth_recv(priv);
+	if (ret) {
+		error("error packet receive\n");
+		return ret;
+	}
+
+	if (!packet_received)
+		return 0;
+
+	if (dev->rx_req) {
+		net_process_received_packet(net_rx_packets[0],
+					    dev->rx_req->length);
+	} else {
+		error("dev->rx_req invalid");
+	}
+	packet_received = 0;
+	rx_submit(dev, dev->rx_req, 0);
+
+	return 0;
+}
+
+void usb_eth_halt(struct eth_device *netdev)
+{
+	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
+
+	_usb_eth_halt(priv);
 }
 
 int usb_eth_initialize(bd_t *bi)
