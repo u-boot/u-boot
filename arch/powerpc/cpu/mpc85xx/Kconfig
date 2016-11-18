@@ -16,6 +16,11 @@ config TARGET_SOCRATES
 	bool "Support socrates"
 	select ARCH_MPC8544
 
+config TARGET_B4420QDS
+	bool "Support B4420QDS"
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
 	select SUPPORT_SPL

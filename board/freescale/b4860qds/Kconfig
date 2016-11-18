@@ -1,4 +1,4 @@
-if TARGET_B4860QDS
+if TARGET_B4860QDS || TARGET_B4420QDS
 
 config SYS_BOARD
 	default "b4860qds"
