@@ -491,7 +491,7 @@ void fsl_serdes_init(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int cfg;
 	serdes_corenet_t *srds_regs;
-#ifdef CONFIG_PPC_P5040
+#ifdef CONFIG_ARCH_P5040
 	serdes_corenet_t *srds2_regs;
 #endif
 	int lane, bank, idx;
@@ -577,7 +577,7 @@ void fsl_serdes_init(void)
 		}
 	}
 
-#ifdef CONFIG_PPC_P5040
+#ifdef CONFIG_ARCH_P5040
 	/*
 	 * Lanes on bank 4 on P5040 are commented-out, but for some SERDES
 	 * protocols, these lanes are routed to SATA.  We use serdes_prtcl_map

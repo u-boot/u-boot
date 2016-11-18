@@ -19,7 +19,7 @@
 #define FIRST_PORT_ADDR 3
 #define SECOND_PORT_ADDR 7
 
-#ifdef CONFIG_PPC_P5040
+#ifdef CONFIG_ARCH_P5040
 #define FIRST_PORT FM1_DTSEC5
 #define SECOND_PORT FM2_DTSEC5
 #else
@@ -83,7 +83,7 @@ int board_eth_init(bd_t *bis)
 			fm_disable_port(i);
 	}
 
-#ifdef CONFIG_PPC_P5040
+#ifdef CONFIG_ARCH_P5040
 	for (i = FM2_DTSEC2; i < FM2_DTSEC1 + CONFIG_SYS_NUM_FM2_DTSEC; i++) {
 		if (!IS_VALID_PORT(i))
 			fm_disable_port(i);

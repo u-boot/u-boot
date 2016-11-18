@@ -9,7 +9,7 @@
 
 #define CONFIG_CYRUS
 
-#if !defined(CONFIG_ARCH_P5020) && !defined(CONFIG_PPC_P5040)
+#if !defined(CONFIG_ARCH_P5020) && !defined(CONFIG_ARCH_P5040)
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
 
@@ -33,7 +33,7 @@
 #if defined(CONFIG_ARCH_P5020)
 #define CONFIG_SYS_CLK_FREQ 133000000
 #define CONFIG_SYS_FSL_PBL_RCW board/varisys/cyrus/rcw_p5020_v2.cfg
-#elif defined(CONFIG_PPC_P5040)
+#elif defined(CONFIG_ARCH_P5040)
 #define CONFIG_SYS_CLK_FREQ 100000000
 #define CONFIG_SYS_FSL_PBL_RCW board/varisys/cyrus/rcw_p5040.cfg
 #endif
