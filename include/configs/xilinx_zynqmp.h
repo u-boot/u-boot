@@ -269,7 +269,7 @@
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1
-#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SIZE			0x8000
 
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */
