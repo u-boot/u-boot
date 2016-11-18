@@ -300,7 +300,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_A004477
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 
-#elif defined(CONFIG_PPC_P2041) /* also supports P2040 */
+#elif defined(CONFIG_ARCH_P2041) /* also supports P2040 */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MAX_CPUS			4

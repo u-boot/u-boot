@@ -170,6 +170,7 @@ config TARGET_P1_TWR
 
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
+	select ARCH_P2041
 	select PHYS_64BIT
 
 config TARGET_QEMU_PPCE500
@@ -221,6 +222,7 @@ config TARGET_CONTROLCENTERD
 
 config TARGET_KMP204X
 	bool "Support kmp204x"
+	select ARCH_P2041
 	select PHYS_64BIT
 
 config TARGET_XPEDITE520X
@@ -309,6 +311,9 @@ config ARCH_P1025
 	bool
 
 config ARCH_P2020
+	bool
+
+config ARCH_P2041
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

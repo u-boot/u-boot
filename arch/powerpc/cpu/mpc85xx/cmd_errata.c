@@ -26,7 +26,7 @@ static void check_erratum_a4849(uint32_t svr)
 	void __iomem *dcsr = (void *)CONFIG_SYS_DCSRBAR + 0xb0000;
 	unsigned int i;
 
-#if defined(CONFIG_PPC_P2041) || defined(CONFIG_PPC_P3041)
+#if defined(CONFIG_ARCH_P2041) || defined(CONFIG_PPC_P3041)
 	static const uint8_t offsets[] = {
 		0x50, 0x54, 0x58, 0x90, 0x94, 0x98
 	};
@@ -45,7 +45,7 @@ static void check_erratum_a4849(uint32_t svr)
 		}
 	}
 
-#if defined(CONFIG_PPC_P2041) || defined(CONFIG_PPC_P3041)
+#if defined(CONFIG_ARCH_P2041) || defined(CONFIG_PPC_P3041)
 	x108 = 0x12;
 #endif
 

@@ -39,7 +39,7 @@ obj-$(CONFIG_PCI)	+= pci.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += portals.o
 
 # various SoC specific assignments
-obj-$(CONFIG_PPC_P2041) += p2041_ids.o
+obj-$(CONFIG_ARCH_P2041) += p2041_ids.o
 obj-$(CONFIG_PPC_P3041) += p3041_ids.o
 obj-$(CONFIG_PPC_P4080) += p4080_ids.o
 obj-$(CONFIG_PPC_P5020) += p5020_ids.o
@@ -81,7 +81,7 @@ obj-$(CONFIG_ARCH_P1023)	+= p1023_serdes.o
 obj-$(CONFIG_ARCH_P1024)	+= p1021_serdes.o
 obj-$(CONFIG_ARCH_P1025)	+= p1021_serdes.o
 obj-$(CONFIG_ARCH_P2020)	+= p2020_serdes.o
-obj-$(CONFIG_PPC_P2041) += p2041_serdes.o
+obj-$(CONFIG_ARCH_P2041) += p2041_serdes.o
 obj-$(CONFIG_PPC_P3041) += p3041_serdes.o
 obj-$(CONFIG_PPC_P4080) += p4080_serdes.o
 obj-$(CONFIG_PPC_P5020) += p5020_serdes.o
