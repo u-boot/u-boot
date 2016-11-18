@@ -34,7 +34,7 @@
 	defined(CONFIG_T104xD4QDS) || \
 	defined(CONFIG_T104xRDB) || \
 	defined(CONFIG_T104xD4RDB) || \
-	defined(CONFIG_PPC_T1023) || \
+	defined(CONFIG_ARCH_T1023) || \
 	defined(CONFIG_PPC_T1024)
 #ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CPC_REINIT_F

@@ -196,6 +196,7 @@ config TARGET_T102XQDS
 
 config TARGET_T1023RDB
 	bool "Support T1023RDB"
+	select ARCH_T1023
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -352,6 +353,9 @@ config ARCH_P5040
 	bool
 
 config ARCH_QEMU_E500
+	bool
+
+config ARCH_T1023
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

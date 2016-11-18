@@ -730,7 +730,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_SYS_FSL_ERRATUM_A008378
 #define CONFIG_SYS_FSL_ERRATUM_A009663
 
-#elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023) ||\
+#elif defined(CONFIG_PPC_T1024) || defined(CONFIG_ARCH_T1023) ||\
 defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
@@ -741,7 +741,7 @@ defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #ifdef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDRC_GEN4
 #endif
-#if defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023)
+#if defined(CONFIG_PPC_T1024) || defined(CONFIG_ARCH_T1023)
 #define CONFIG_MAX_CPUS			2
 #elif defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #define CONFIG_MAX_CPUS			1
