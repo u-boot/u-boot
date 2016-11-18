@@ -338,7 +338,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_A006261
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x11
 
-#elif defined(CONFIG_PPC_P3041)
+#elif defined(CONFIG_ARCH_P3041)
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MAX_CPUS			4

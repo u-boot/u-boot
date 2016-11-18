@@ -41,6 +41,7 @@ config TARGET_C29XPCIE
 config TARGET_P3041DS
 	bool "Support P3041DS"
 	select PHYS_64BIT
+	select ARCH_P3041
 
 config TARGET_P4080DS
 	bool "Support P4080DS"
@@ -314,6 +315,9 @@ config ARCH_P2020
 	bool
 
 config ARCH_P2041
+	bool
+
+config ARCH_P3041
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

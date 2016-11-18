@@ -58,7 +58,7 @@
 #define CONFIG_KEY_REVOCATION
 #endif
 
-#if defined(CONFIG_PPC_P3041)	||	\
+#if defined(CONFIG_ARCH_P3041)	||	\
 	defined(CONFIG_PPC_P4080) ||	\
 	defined(CONFIG_PPC_P5020) ||	\
 	defined(CONFIG_PPC_P5040) ||	\
