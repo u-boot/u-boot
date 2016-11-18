@@ -86,6 +86,10 @@
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
 # endif
+# define CONFIG_ENV_IS_IN_FAT
+# define FAT_ENV_DEVICE_AND_PART	"0:auto"
+# define FAT_ENV_FILE			"uboot.env"
+# define FAT_ENV_INTERFACE		"mmc"
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
@@ -132,7 +136,9 @@
 #define CONFIG_BOARD_LATE_INIT
 
 /* Do not preserve environment */
+#if !defined(CONFIG_ENV_IS_IN_FAT)
 #define CONFIG_ENV_IS_NOWHERE		1
+#endif
 #define CONFIG_ENV_SIZE			0x8000
 
 /* Monitor Command Prompt */
