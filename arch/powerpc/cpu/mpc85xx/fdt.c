@@ -556,7 +556,7 @@ void fdt_fixup_dma3(void *blob)
 #define fdt_fixup_dma3(x)
 #endif
 
-#if defined(CONFIG_PPC_T1040)
+#if defined(CONFIG_ARCH_T1040)
 static void fdt_fixup_l2_switch(void *blob)
 {
 	uchar l2swaddr[6];
