@@ -104,20 +104,18 @@ def test_efi_setup_static(u_boot_console):
     global net_set_up
     net_set_up = True
 
-@pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
-def test_efi_helloworld_net(u_boot_console):
-    """Run the helloworld.efi binary via TFTP.
+def fetch_tftp_file(u_boot_console, env_conf):
+    """Grab an env described file via TFTP and return its address
 
-    The helloworld.efi file is downloaded from the TFTP server and gets
-    executed.
+    A file as described by an env config <env_conf> is downloaded from the TFTP
+    server. The address to that file is returned.
     """
-
     if not net_set_up:
         pytest.skip('Network not initialized')
 
-    f = u_boot_console.config.env.get('env__efi_loader_helloworld_file', None)
+    f = u_boot_console.config.env.get(env_conf, None)
     if not f:
-        pytest.skip('No hello world binary specified in environment')
+        pytest.skip('No %s binary specified in environment' % env_conf)
 
     addr = f.get('addr', None)
     if not addr:
@@ -133,13 +131,25 @@ def test_efi_helloworld_net(u_boot_console):
 
     expected_crc = f.get('crc32', None)
     if not expected_crc:
-        return
+        return addr
 
     if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
-        return
+        return addr
 
     output = u_boot_console.run_command('crc32 %x $filesize' % addr)
     assert expected_crc in output
+
+    return addr
+
+@pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
+def test_efi_helloworld_net(u_boot_console):
+    """Run the helloworld.efi binary via TFTP.
+
+    The helloworld.efi file is downloaded from the TFTP server and gets
+    executed.
+    """
+
+    addr = fetch_tftp_file(u_boot_console, 'env__efi_loader_helloworld_file')
 
     output = u_boot_console.run_command('bootefi %x' % addr)
     expected_text = 'Hello, world'
@@ -156,3 +166,30 @@ def test_efi_helloworld_builtin(u_boot_console):
     output = u_boot_console.run_command('bootefi hello')
     expected_text = 'Hello, world'
     assert expected_text in output
+
+@pytest.mark.buildconfigspec('cmd_bootefi')
+def test_efi_grub_net(u_boot_console):
+    """Run the grub.efi binary via TFTP.
+
+    The grub.efi file is downloaded from the TFTP server and gets
+    executed.
+    """
+
+    addr = fetch_tftp_file(u_boot_console, 'env__efi_loader_grub_file')
+
+    u_boot_console.run_command('bootefi %x' % addr, wait_for_prompt=False)
+
+    # Verify that we have an SMBIOS table
+    check_smbios = u_boot_console.config.env.get('env__efi_loader_check_smbios', False)
+    if check_smbios:
+        u_boot_console.wait_for('grub>')
+        output = u_boot_console.run_command('lsefisystab', wait_for_prompt=False, wait_for_echo=False)
+        u_boot_console.wait_for('SMBIOS')
+
+    # Then exit cleanly
+    u_boot_console.wait_for('grub>')
+    output = u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
+    u_boot_console.wait_for('r = 0')
+
+    # And give us our U-Boot prompt back
+    u_boot_console.run_command('')

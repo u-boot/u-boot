@@ -29,6 +29,9 @@ addons:
     - gcc-arm-linux-gnueabihf
     - gcc-aarch64-linux-gnu
     - iasl
+    - grub-efi-ia32-bin
+    - rpm2cpio
+    - wget
 
 install:
  # install latest device tree compiler
@@ -45,6 +48,9 @@ install:
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
  - pip install pytest
+ - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+ - mkdir ~/grub2-arm
+ - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
 
 env:
   global:
@@ -88,6 +94,8 @@ script:
  # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
  # value.
  - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+   cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   cp ~/grub2-arm/usr/lib/grub2/arm-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi;
    if [[ "${TEST_PY_BD}" != "" ]]; then
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
        -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
