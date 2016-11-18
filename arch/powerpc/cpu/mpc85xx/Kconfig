@@ -120,20 +120,25 @@ config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1020
+
 config TARGET_P1020RDB_PC
 	bool "Support P1020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1020
 
 config TARGET_P1020RDB_PD
 	bool "Support P1020RDB-PD"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1020
 
 config TARGET_P1020UTM
 	bool "Support P1020UTM"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1020
 
 config TARGET_P1021RDB
 	bool "Support P1021RDB"
@@ -226,6 +231,7 @@ config TARGET_XPEDITE550X
 
 config TARGET_UCP1020
 	bool "Support uCP1020"
+	select ARCH_P1020
 
 config TARGET_CYRUS
 	bool "Support Varisys Cyrus"
@@ -276,6 +282,9 @@ config ARCH_P1010
 	bool
 
 config ARCH_P1011
+	bool
+
+config ARCH_P1020
 	bool
 
 config ARCH_P1022
