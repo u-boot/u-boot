@@ -141,9 +141,14 @@ struct eth_dev {
  */
 
 /*-------------------------------------------------------------------------*/
-static struct eth_dev l_ethdev;
-static struct eth_device l_netdev;
-static struct usb_gadget_driver eth_driver;
+struct ether_priv {
+	struct eth_dev ethdev;
+	struct eth_device netdev;
+	struct usb_gadget_driver eth_driver;
+};
+
+struct ether_priv eth_priv;
+struct ether_priv *l_priv = &eth_priv;
 
 /*-------------------------------------------------------------------------*/
 
@@ -1848,7 +1853,7 @@ static char rndis_resp_buf[8] __attribute__((aligned(sizeof(__le32))));
 
 static int rndis_control_ack(struct eth_device *net)
 {
-	struct eth_dev		*dev = &l_ethdev;
+	struct eth_dev		*dev = &l_priv->ethdev;
 	int                     length;
 	struct usb_request      *resp = dev->stat_req;
 
@@ -1989,7 +1994,7 @@ static int get_ether_addr(const char *str, u8 *dev_addr)
 
 static int eth_bind(struct usb_gadget *gadget)
 {
-	struct eth_dev		*dev = &l_ethdev;
+	struct eth_dev		*dev = &l_priv->ethdev;
 	u8			cdc = 1, zlp = 1, rndis = 1;
 	struct usb_ep		*in_ep, *out_ep, *status_ep = NULL;
 	int			status = -ENOMEM;
@@ -2182,7 +2187,7 @@ autoconf_fail:
 
 
 	/* network device setup */
-	dev->net = &l_netdev;
+	dev->net = &l_priv->netdev;
 
 	dev->cdc = cdc;
 	dev->zlp = zlp;
@@ -2330,7 +2335,7 @@ int dm_usb_init(struct eth_dev *e_dev)
 
 static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 {
-	struct eth_dev *dev = &l_ethdev;
+	struct eth_dev *dev = &l_priv->ethdev;
 	struct usb_gadget *gadget;
 	unsigned long ts;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
@@ -2374,7 +2379,15 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		goto fail;
 	}
 
-	if (usb_gadget_register_driver(&eth_driver) < 0)
+	l_priv->eth_driver.speed	= DEVSPEED;
+	l_priv->eth_driver.bind		= eth_bind;
+	l_priv->eth_driver.unbind	= eth_unbind;
+	l_priv->eth_driver.setup	= eth_setup;
+	l_priv->eth_driver.reset	= eth_disconnect;
+	l_priv->eth_driver.disconnect	= eth_disconnect;
+	l_priv->eth_driver.suspend	= eth_suspend;
+	l_priv->eth_driver.resume	= eth_resume;
+	if (usb_gadget_register_driver(&l_priv->eth_driver) < 0)
 		goto fail;
 
 	dev->network_started = 0;
@@ -2409,7 +2422,7 @@ static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
 {
 	int			retval;
 	void			*rndis_pkt = NULL;
-	struct eth_dev		*dev = &l_ethdev;
+	struct eth_dev		*dev = &l_priv->ethdev;
 	struct usb_request	*req = dev->tx_req;
 	unsigned long ts;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
@@ -2476,7 +2489,7 @@ drop:
 
 static int usb_eth_recv(struct eth_device *netdev)
 {
-	struct eth_dev *dev = &l_ethdev;
+	struct eth_dev *dev = &l_priv->ethdev;
 
 	usb_gadget_handle_interrupts(0);
 
@@ -2496,7 +2509,7 @@ static int usb_eth_recv(struct eth_device *netdev)
 
 void usb_eth_halt(struct eth_device *netdev)
 {
-	struct eth_dev *dev = &l_ethdev;
+	struct eth_dev *dev = &l_priv->ethdev;
 
 	if (!netdev) {
 		error("received NULL ptr");
@@ -2528,7 +2541,7 @@ void usb_eth_halt(struct eth_device *netdev)
 		dev->network_started = 0;
 	}
 
-	usb_gadget_unregister_driver(&eth_driver);
+	usb_gadget_unregister_driver(&l_priv->eth_driver);
 #ifdef CONFIG_DM_USB
 	device_remove(dev->usb_udev);
 #else
@@ -2536,23 +2549,9 @@ void usb_eth_halt(struct eth_device *netdev)
 #endif
 }
 
-static struct usb_gadget_driver eth_driver = {
-	.speed		= DEVSPEED,
-
-	.bind		= eth_bind,
-	.unbind		= eth_unbind,
-
-	.setup		= eth_setup,
-	.reset		= eth_disconnect,
-	.disconnect	= eth_disconnect,
-
-	.suspend	= eth_suspend,
-	.resume		= eth_resume,
-};
-
 int usb_eth_initialize(bd_t *bi)
 {
-	struct eth_device *netdev = &l_netdev;
+	struct eth_device *netdev = &l_priv->netdev;
 
 	strlcpy(netdev->name, USB_NET_NAME, sizeof(netdev->name));
 
