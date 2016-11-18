@@ -12,7 +12,6 @@
 
 #if defined(CONFIG_TWR_P1025)
 #define CONFIG_BOARDNAME "TWR-P1025"
-#define CONFIG_P1025
 #define CONFIG_PHY_ATHEROS
 #define CONFIG_QE
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Conversion of LBC addr */

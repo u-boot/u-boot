@@ -156,6 +156,7 @@ config TARGET_P1025RDB
 	bool "Support P1025RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1025
 
 config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
@@ -164,6 +165,7 @@ config TARGET_P2020RDB
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
+	select ARCH_P1025
 
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
@@ -299,6 +301,9 @@ config ARCH_P1023
 	bool
 
 config ARCH_P1024
+	bool
+
+config ARCH_P1025
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
