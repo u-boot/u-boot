@@ -162,6 +162,7 @@ config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P2020
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
@@ -232,6 +233,7 @@ config TARGET_XPEDITE537X
 
 config TARGET_XPEDITE550X
 	bool "Support xpedite550x"
+	select ARCH_P2020
 
 config TARGET_UCP1020
 	bool "Support uCP1020"
@@ -304,6 +306,9 @@ config ARCH_P1024
 	bool
 
 config ARCH_P1025
+	bool
+
+config ARCH_P2020
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

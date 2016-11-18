@@ -2940,7 +2940,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_PCIX2_OFFSET		0x9000
 #define CONFIG_SYS_MPC85xx_PCIE1_OFFSET         0xa000
 #define CONFIG_SYS_MPC85xx_PCIE2_OFFSET         0x9000
-#if defined(CONFIG_ARCH_MPC8572) || defined(CONFIG_P2020)
+#if defined(CONFIG_ARCH_MPC8572) || defined(CONFIG_ARCH_P2020)
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET         0x8000
 #else
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET         0xb000
