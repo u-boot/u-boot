@@ -60,7 +60,7 @@
 
 #if defined(CONFIG_ARCH_P3041)	||	\
 	defined(CONFIG_ARCH_P4080) ||	\
-	defined(CONFIG_PPC_P5020) ||	\
+	defined(CONFIG_ARCH_P5020) ||	\
 	defined(CONFIG_PPC_P5040) ||	\
 	defined(CONFIG_ARCH_P2041)
 	#define	CONFIG_FSL_TRUST_ARCH_v1

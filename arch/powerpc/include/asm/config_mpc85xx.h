@@ -429,7 +429,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_A007075
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x20
 
-#elif defined(CONFIG_PPC_P5020) /* also supports P5010 */
+#elif defined(CONFIG_ARCH_P5020) /* also supports P5010 */
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */

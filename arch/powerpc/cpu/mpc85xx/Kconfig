@@ -51,6 +51,7 @@ config TARGET_P4080DS
 config TARGET_P5020DS
 	bool "Support P5020DS"
 	select PHYS_64BIT
+	select ARCH_P5020
 
 config TARGET_P5040DS
 	bool "Support P5040DS"
@@ -322,6 +323,9 @@ config ARCH_P3041
 	bool
 
 config ARCH_P4080
+	bool
+
+config ARCH_P5020
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
