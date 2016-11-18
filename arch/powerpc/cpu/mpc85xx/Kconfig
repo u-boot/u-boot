@@ -191,6 +191,7 @@ config TARGET_QEMU_PPCE500
 
 config TARGET_T1024QDS
 	bool "Support T1024QDS"
+	select ARCH_T1024
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -202,6 +203,7 @@ config TARGET_T1023RDB
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
+	select ARCH_T1024
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -356,6 +358,9 @@ config ARCH_QEMU_E500
 	bool
 
 config ARCH_T1023
+	bool
+
+config ARCH_T1024
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

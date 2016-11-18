@@ -497,7 +497,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* Video */
-#ifdef CONFIG_PPC_T1024		/* no DIU on T1023 */
+#ifdef CONFIG_ARCH_T1024		/* no DIU on T1023 */
 #define CONFIG_FSL_DIU_FB
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_FSL_DIU_CH7301
