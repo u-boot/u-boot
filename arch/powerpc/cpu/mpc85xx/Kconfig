@@ -226,6 +226,7 @@ config TARGET_T1040D4RDB
 
 config TARGET_T1042RDB
 	bool "Support T1042RDB"
+	select ARCH_T1042
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -377,6 +378,9 @@ config ARCH_T1024
 	bool
 
 config ARCH_T1040
+	bool
+
+config ARCH_T1042
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

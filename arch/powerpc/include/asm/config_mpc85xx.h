@@ -679,7 +679,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #endif
 
-#elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_PPC_T1042) ||\
+#elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042) ||\
 defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -689,7 +689,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #ifdef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDRC_GEN4
 #endif
-#if defined(CONFIG_ARCH_T1040) || defined(CONFIG_PPC_T1042)
+#if defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042)
 #define CONFIG_MAX_CPUS			4
 #elif defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_MAX_CPUS			2
