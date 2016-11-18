@@ -25,7 +25,8 @@
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
-#if defined(CONFIG_B4860QDS) || \
+#if defined(CONFIG_TARGET_B4860QDS) || \
+	defined(CONFIG_TARGET_B4420QDS) || \
 	defined(CONFIG_T4240QDS) || \
 	defined(CONFIG_T2080QDS) || \
 	defined(CONFIG_T2080RDB) || \
@@ -134,7 +135,7 @@
 /* The bootscript header address is different for B4860 because the NOR
  * mapping is different on B4 due to reduced NOR size.
  */
-#if defined(CONFIG_B4860QDS)
+#if defined(CONFIG_TARGET_B4860QDS) || defined(CONFIG_TARGET_B4420QDS)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xecc00000
 #elif defined(CONFIG_FSL_CORENET)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xe8e00000
