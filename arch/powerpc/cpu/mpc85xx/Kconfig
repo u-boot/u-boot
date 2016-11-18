@@ -186,6 +186,7 @@ config TARGET_P2041RDB
 
 config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
+	select ARCH_QEMU_E500
 	select PHYS_64BIT
 
 config TARGET_T102XQDS
@@ -343,6 +344,9 @@ config ARCH_P5020
 	bool
 
 config ARCH_P5040
+	bool
+
+config ARCH_QEMU_E500
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

@@ -105,7 +105,7 @@ obj-y	+= cpu.o
 obj-y	+= cpu_init.o
 obj-y	+= cpu_init_early.o
 obj-y	+= interrupts.o
-ifneq ($(CONFIG_QEMU_E500),y)
+ifneq ($(CONFIG_ARCH_QEMU_E500),y)
 obj-y	+= speed.o
 endif
 obj-y	+= tlb.o

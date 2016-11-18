@@ -311,7 +311,7 @@ l2_disabled:
 #endif
 	mtspr	HID0,r0
 
-#if !defined(CONFIG_E500MC) && !defined(CONFIG_QEMU_E500)
+#if !defined(CONFIG_E500MC) && !defined(CONFIG_ARCH_QEMU_E500)
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
 	mfspr	r3,PVR
 	andi.	r3,r3, 0xff

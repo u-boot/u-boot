@@ -404,7 +404,7 @@ void mpc85xx_reginfo(void)
 phys_size_t initdram(int board_type)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
-	defined(CONFIG_QEMU_E500)
+	defined(CONFIG_ARCH_QEMU_E500)
 	return fsl_ddr_sdram_size();
 #else
 	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
