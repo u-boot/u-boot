@@ -250,7 +250,7 @@
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x11
 
 /* P1024 is lower end variant of P1020 */
-#elif defined(CONFIG_P1024)
+#elif defined(CONFIG_ARCH_P1024)
 #define CONFIG_MAX_CPUS			2
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_SYS_PPC_E500_DEBUG_TLB	2

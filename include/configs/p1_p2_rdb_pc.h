@@ -116,7 +116,6 @@
 #if defined(CONFIG_TARGET_P1024RDB)
 #define CONFIG_BOARDNAME "P1024RDB"
 #define CONFIG_NAND_FSL_ELBC
-#define CONFIG_P1024
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0xf3
 #define __SW_BOOT_NOR		0x00

@@ -150,6 +150,7 @@ config TARGET_P1024RDB
 	bool "Support P1024RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select ARCH_P1024
 
 config TARGET_P1025RDB
 	bool "Support P1025RDB"
@@ -295,6 +296,9 @@ config ARCH_P1022
 	bool
 
 config ARCH_P1023
+	bool
+
+config ARCH_P1024
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
