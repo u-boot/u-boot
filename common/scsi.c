@@ -161,43 +161,41 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 #ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 #endif
-	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
 	ccb *pccb = (ccb *)&tempccb;
-	device &= 0xff;
 
 	/* Setup device */
-	pccb->target = scsi_dev_desc[device].target;
-	pccb->lun = scsi_dev_desc[device].lun;
+	pccb->target = block_dev->target;
+	pccb->lun = block_dev->lun;
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
 	debug("\nscsi_read: dev %d startblk " LBAF
 	      ", blccnt " LBAF " buffer %lx\n",
-	      device, start, blks, (unsigned long)buffer);
+	      block_dev->devnum, start, blks, (unsigned long)buffer);
 	do {
 		pccb->pdata = (unsigned char *)buf_addr;
 #ifdef CONFIG_SYS_64BIT_LBA
 		if (start > SCSI_LBA48_READ) {
 			unsigned long blocks;
 			blocks = min_t(lbaint_t, blks, SCSI_MAX_READ_BLK);
-			pccb->datalen = scsi_dev_desc[device].blksz * blocks;
+			pccb->datalen = block_dev->blksz * blocks;
 			scsi_setup_read16(pccb, start, blocks);
 			start += blocks;
 			blks -= blocks;
 		} else
 #endif
 		if (blks > SCSI_MAX_READ_BLK) {
-			pccb->datalen = scsi_dev_desc[device].blksz *
+			pccb->datalen = block_dev->blksz *
 				SCSI_MAX_READ_BLK;
 			smallblks = SCSI_MAX_READ_BLK;
 			scsi_setup_read_ext(pccb, start, smallblks);
 			start += SCSI_MAX_READ_BLK;
 			blks -= SCSI_MAX_READ_BLK;
 		} else {
-			pccb->datalen = scsi_dev_desc[device].blksz * blks;
+			pccb->datalen = block_dev->blksz * blks;
 			smallblks = (unsigned short)blks;
 			scsi_setup_read_ext(pccb, start, smallblks);
 			start += blks;
@@ -236,33 +234,30 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 #ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 #endif
-	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
 	ccb *pccb = (ccb *)&tempccb;
 
-	device &= 0xff;
-
 	/* Setup device */
-	pccb->target = scsi_dev_desc[device].target;
-	pccb->lun = scsi_dev_desc[device].lun;
+	pccb->target = block_dev->target;
+	pccb->lun = block_dev->lun;
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
 	debug("\n%s: dev %d startblk " LBAF ", blccnt " LBAF " buffer %lx\n",
-	      __func__, device, start, blks, (unsigned long)buffer);
+	      __func__, block_dev->devnum, start, blks, (unsigned long)buffer);
 	do {
 		pccb->pdata = (unsigned char *)buf_addr;
 		if (blks > SCSI_MAX_WRITE_BLK) {
-			pccb->datalen = (scsi_dev_desc[device].blksz *
+			pccb->datalen = (block_dev->blksz *
 					 SCSI_MAX_WRITE_BLK);
 			smallblks = SCSI_MAX_WRITE_BLK;
 			scsi_setup_write_ext(pccb, start, smallblks);
 			start += SCSI_MAX_WRITE_BLK;
 			blks -= SCSI_MAX_WRITE_BLK;
 		} else {
-			pccb->datalen = scsi_dev_desc[device].blksz * blks;
+			pccb->datalen = block_dev->blksz * blks;
 			smallblks = (unsigned short)blks;
 			scsi_setup_write_ext(pccb, start, smallblks);
 			start += blks;
