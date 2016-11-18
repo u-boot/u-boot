@@ -211,8 +211,13 @@ config TARGET_T1040QDS
 	bool "Support T1040QDS"
 	select PHYS_64BIT
 
-config TARGET_T104XRDB
-	bool "Support T104xRDB"
+config TARGET_T1040RDB
+	bool "Support T1040RDB"
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
+config TARGET_T1042RDB
+	bool "Support T1042RDB"
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
