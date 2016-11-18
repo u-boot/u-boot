@@ -30,7 +30,7 @@
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p4080ds.cfg
 #elif defined(CONFIG_TARGET_P5020DS)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p5020ds.cfg
-#elif defined(CONFIG_P5040DS)
+#elif defined(CONFIG_TARGET_P5040DS)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p5040ds.cfg
 #endif
 #endif
