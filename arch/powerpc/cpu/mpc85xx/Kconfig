@@ -230,6 +230,12 @@ config TARGET_T1042RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
+config TARGET_T1042RDB_PI
+	bool "Support T1042RDB_PI"
+	select ARCH_T1042
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
 config TARGET_T208XQDS
 	bool "Support T208xQDS"
 	select SUPPORT_SPL

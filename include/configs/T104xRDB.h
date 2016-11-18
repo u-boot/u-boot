@@ -60,7 +60,7 @@
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040_nand_rcw.cfg
 #endif
-#ifdef CONFIG_T1042RDB_PI
+#ifdef CONFIG_TARGET_T1042RDB_PI
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_nand_rcw.cfg
 #endif
@@ -94,7 +94,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040_spi_rcw.cfg
 #endif
-#ifdef CONFIG_T1042RDB_PI
+#ifdef CONFIG_TARGET_T1042RDB_PI
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_spi_rcw.cfg
 #endif
@@ -128,7 +128,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040_sd_rcw.cfg
 #endif
-#ifdef CONFIG_T1042RDB_PI
+#ifdef CONFIG_TARGET_T1042RDB_PI
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_sd_rcw.cfg
 #endif
@@ -342,7 +342,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CPLD_LBMAP_RESET		0xFF
 #define CPLD_LBMAP_SHIFT		0x03
 
-#if defined(CONFIG_T1042RDB_PI)
+#if defined(CONFIG_TARGET_T1042RDB_PI)
 #define CPLD_DIU_SEL_DFP		0x80
 #elif defined(CONFIG_T1042D4RDB)
 #define CPLD_DIU_SEL_DFP		0xc0
@@ -516,7 +516,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
-#if defined(CONFIG_T1042RDB_PI) || defined(CONFIG_T1042D4RDB)
+#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_T1042D4RDB)
 /* Video */
 #define CONFIG_FSL_DIU_FB
 
@@ -551,7 +551,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define I2C_MUX_CH_DEFAULT      0x8
 #endif
 
-#if defined(CONFIG_T1042RDB_PI) || defined(CONFIG_T104XD4RDB)
+#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_T104XD4RDB)
 /* LDI/DVI Encoder for display */
 #define CONFIG_SYS_I2C_LDI_ADDR		0x38
 #define CONFIG_SYS_I2C_DVI_ADDR		0x75
@@ -803,7 +803,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /*
  * Command line configuration.
  */
-#ifdef CONFIG_T1042RDB_PI
+#ifdef CONFIG_TARGET_T1042RDB_PI
 #define CONFIG_CMD_DATE
 #endif
 #define CONFIG_CMD_ERRATA
@@ -883,7 +883,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #ifdef CONFIG_TARGET_T1040RDB
 #define FDTFILE		"t1040rdb/t1040rdb.dtb"
-#elif defined(CONFIG_T1042RDB_PI)
+#elif defined(CONFIG_TARGET_T1042RDB_PI)
 #define FDTFILE		"t1042rdb_pi/t1042rdb_pi.dtb"
 #elif defined(CONFIG_T1042RDB)
 #define FDTFILE		"t1042rdb/t1042rdb.dtb"
