@@ -220,6 +220,8 @@
 	"set_rd_spec=setenv rd_spec ${rdaddr}:${filesize}\0"		\
 	"init_fw_rd_net=dhcp ${rdaddr} ${tftp_root}/${name_fw_rd}; "	\
 		"run set_rd_spec\0"					\
+	"init_fw_rd_nfs=nfs ${rdaddr} ${nfs_root}/boot/${name_fw_rd}; "	\
+		"run set_rd_spec\0"					\
 	"init_fw_rd_ramfs=setenv rd_spec -\0"				\
 	"init_fw_rd_ubi=ubifsload ${rdaddr} ${bootdir}/${name_fw_rd}; "	\
 		"run set_rd_spec\0"					\
@@ -228,6 +230,7 @@
 	"set_name_pmmc=setenv name_pmmc ti-sci-firmware-${soc_variant}.bin\0" \
 	"dev_pmmc=0\0"							\
 	"get_pmmc_net=dhcp ${loadaddr} ${tftp_root}/${name_pmmc}\0"	\
+	"get_pmmc_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_pmmc}\0"	\
 	"get_pmmc_ramfs=run get_pmmc_net\0"				\
 	"get_pmmc_mmc=load mmc ${bootpart} ${loadaddr} "		\
 			"${bootdir}/${name_pmmc}\0"			\
