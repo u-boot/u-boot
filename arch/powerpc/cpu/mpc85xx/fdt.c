@@ -490,7 +490,7 @@ static void ft_fixup_qe_snum(void *blob)
 }
 #endif
 
-#if defined(CONFIG_PPC_P4080)
+#if defined(CONFIG_ARCH_P4080)
 static void fdt_fixup_usb(void *fdt)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);

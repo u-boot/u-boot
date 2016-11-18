@@ -31,7 +31,7 @@ static void check_erratum_a4849(uint32_t svr)
 		0x50, 0x54, 0x58, 0x90, 0x94, 0x98
 	};
 #endif
-#ifdef CONFIG_PPC_P4080
+#ifdef CONFIG_ARCH_P4080
 	static const uint8_t offsets[] = {
 		0x60, 0x64, 0x68, 0x6c, 0xa0, 0xa4, 0xa8, 0xac
 	};
@@ -49,7 +49,7 @@ static void check_erratum_a4849(uint32_t svr)
 	x108 = 0x12;
 #endif
 
-#ifdef CONFIG_PPC_P4080
+#ifdef CONFIG_ARCH_P4080
 	/*
 	 * For P4080, the erratum document says that the value at offset 0x108
 	 * should be 0x12 on rev2, or 0x1c on rev3.

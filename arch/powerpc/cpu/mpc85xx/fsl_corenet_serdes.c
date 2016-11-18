@@ -76,7 +76,7 @@ static const struct {
 	{ 17, 163, FSL_SRDS_BANK_2 },
 	{ 18, 164, FSL_SRDS_BANK_2 },
 	{ 19, 165, FSL_SRDS_BANK_2 },
-#ifdef CONFIG_PPC_P4080
+#ifdef CONFIG_ARCH_P4080
 	{ 20, 170, FSL_SRDS_BANK_3 },
 	{ 21, 171, FSL_SRDS_BANK_3 },
 	{ 22, 172, FSL_SRDS_BANK_3 },

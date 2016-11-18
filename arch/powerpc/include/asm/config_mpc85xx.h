@@ -378,7 +378,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_A006261
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x20
 
-#elif defined(CONFIG_PPC_P4080) /* also supports P4040 */
+#elif defined(CONFIG_ARCH_P4080) /* also supports P4040 */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MAX_CPUS			8

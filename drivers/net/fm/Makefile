@@ -21,7 +21,7 @@ obj-$(CONFIG_ARCH_P1023)	+= p1023.o
 # The P204x, P304x, and P5020 are the same
 obj-$(CONFIG_ARCH_P2041) += p5020.o
 obj-$(CONFIG_ARCH_P3041) += p5020.o
-obj-$(CONFIG_PPC_P4080) += p4080.o
+obj-$(CONFIG_ARCH_P4080) += p4080.o
 obj-$(CONFIG_PPC_P5020) += p5020.o
 obj-$(CONFIG_PPC_P5040) += p5040.o
 obj-$(CONFIG_PPC_T1040) += t1040.o
