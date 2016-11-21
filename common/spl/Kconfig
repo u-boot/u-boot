@@ -492,17 +492,6 @@ config SPL_SPI_SUPPORT
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
 
-config SPL_USBETH_SUPPORT
-	bool "Support USB Ethernet drivers"
-	depends on SPL
-	help
-	  Enable access to the USB network subsystem and associated
-	  drivers in SPL. This permits SPL to load U-Boot over a
-	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
-	  than from an onboard peripheral. Environment support is required
-	  since the network stack uses a number of environment variables.
-	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
-
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
 	depends on SPL
@@ -524,9 +513,27 @@ config SPL_USB_SUPPORT
 	  config options. This enables loading from USB using a configured
 	  device.
 
+config SPL_USB_GADGET_SUPPORT
+	bool "Suppport USB Gadget drivers"
+	depends on SPL
+	help
+	  Enable USB Gadget API which allows to enable USB device functions
+	  in SPL.
+
+if SPL_USB_GADGET_SUPPORT
+
+config SPL_USBETH_SUPPORT
+	bool "Support USB Ethernet drivers"
+	help
+	  Enable access to the USB network subsystem and associated
+	  drivers in SPL. This permits SPL to load U-Boot over a
+	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
+	  than from an onboard peripheral. Environment support is required
+	  since the network stack uses a number of environment variables.
+	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
+
 config SPL_DFU_SUPPORT
 	bool "Support DFU (Device Firmware Upgarde)"
-	depends on SPL
 	select SPL_HASH_SUPPORT
 	help
 	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
@@ -549,6 +556,8 @@ config SPL_DFU_RAM
 	 DFU and execute the u-boot/kernel from RAM.
 
 endchoice
+
+endif
 
 config SPL_WATCHDOG_SUPPORT
 	bool "Support watchdog drivers"
