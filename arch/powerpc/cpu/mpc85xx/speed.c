@@ -131,8 +131,8 @@ void get_sys_info(sys_info_t *sys_info)
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
 #if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
-	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080) || \
-	defined(CONFIG_PPC_T2081)
+	defined(CONFIG_PPC_T4080) || defined(CONFIG_ARCH_T2080) || \
+	defined(CONFIG_ARCH_T2081)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:
@@ -203,7 +203,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420) || \
-	defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
+	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
 #elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
@@ -456,7 +456,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 #define ESDHC_CLK_SEL	0x00000007
 #define ESDHC_CLK_SHIFT	0
 #define ESDHC_CLK_RCWSR	15
@@ -480,7 +480,7 @@ void get_sys_info(sys_info_t *sys_info)
 	case 4:
 		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 4;
 		break;
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 	case 5:
 		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK];
 		break;

@@ -244,16 +244,19 @@ config TARGET_T1042RDB_PI
 
 config TARGET_T2080QDS
 	bool "Support T2080QDS"
+	select ARCH_T2080
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
 config TARGET_T2080RDB
 	bool "Support T2080RDB"
+	select ARCH_T2080
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
 config TARGET_T2081QDS
 	bool "Support T2081QDS"
+	select ARCH_T2081
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -398,6 +401,12 @@ config ARCH_T1040
 	bool
 
 config ARCH_T1042
+	bool
+
+config ARCH_T2080
+	bool
+
+config ARCH_T2081
 	bool
 
 source "board/freescale/b4860qds/Kconfig"

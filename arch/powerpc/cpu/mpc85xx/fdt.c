@@ -511,7 +511,7 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
-#if defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T4240) || \
+#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_PPC_T4240) || \
 	defined(CONFIG_PPC_T4160) || defined(CONFIG_PPC_T4080)
 void fdt_fixup_dma3(void *blob)
 {
@@ -520,7 +520,7 @@ void fdt_fixup_dma3(void *blob)
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 #define CONFIG_SYS_ELO3_DMA3 (0xffe000000 + 0x102300)
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 	u32 srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
 				    FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
