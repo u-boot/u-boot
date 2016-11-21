@@ -1759,7 +1759,7 @@ typedef struct ccsr_gur {
 /* use reserved bits 18~23 as scratch space to host DDR PLL ratio */
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT	8
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_ARCH_T4160) || \
 	defined(CONFIG_PPC_T4080)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	26
@@ -1875,7 +1875,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_MII          0x00100000
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_NONE         0x00180000
 #endif
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_ARCH_T4160) || \
 	defined(CONFIG_PPC_T4080)
 #define FSL_CORENET_RCWSR13_EC1			0x60000000 /* bits 417..418 */
 #define FSL_CORENET_RCWSR13_EC1_FM2_DTSEC5_RGMII	0x00000000

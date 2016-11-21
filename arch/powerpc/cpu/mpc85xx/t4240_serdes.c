@@ -263,7 +263,7 @@ static const struct serdes_config serdes4_cfg_tbl[] = {
 	{18, {PCIE3, PCIE3, PCIE3, PCIE3, AURORA, AURORA, AURORA, AURORA}},
 	{}
 };
-#elif defined(CONFIG_PPC_T4160) || defined(CONFIG_PPC_T4080)
+#elif defined(CONFIG_ARCH_T4160) || defined(CONFIG_PPC_T4080)
 static const struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{1, {NONE, NONE, NONE, NONE,

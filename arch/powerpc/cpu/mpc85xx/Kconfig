@@ -262,11 +262,13 @@ config TARGET_T2081QDS
 
 config TARGET_T4160QDS
 	bool "Support T4160QDS"
+	select ARCH_T4160
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
+	select ARCH_T4160
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
@@ -417,6 +419,9 @@ config ARCH_T2080
 	bool
 
 config ARCH_T2081
+	bool
+
+config ARCH_T4160
 	bool
 
 source "board/freescale/b4860qds/Kconfig"
