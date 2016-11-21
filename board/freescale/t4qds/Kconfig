@@ -1,4 +1,4 @@
-if TARGET_T4240QDS
+if TARGET_T4160QDS || TARGET_T4240QDS
 
 config SYS_BOARD
 	default "t4qds"
