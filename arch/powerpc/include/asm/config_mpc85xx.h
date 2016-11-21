@@ -545,8 +545,7 @@
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x11
 #define CONFIG_ESDHC_HC_BLK_ADDR
 
-#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
-	defined(CONFIG_PPC_T4080)
+#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
 #define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -571,9 +570,6 @@
 #if defined(CONFIG_ARCH_T4160)
 #define CONFIG_MAX_CPUS			8
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS	{ 1, 1 }
-#elif defined(CONFIG_PPC_T4080)
-#define CONFIG_MAX_CPUS			4
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS	{ 1 }
 #endif
 #endif
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	5
