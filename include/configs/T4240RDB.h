@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_T4240RDB
-
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 
