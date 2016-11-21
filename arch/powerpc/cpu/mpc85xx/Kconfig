@@ -265,6 +265,11 @@ config TARGET_T4160QDS
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
+config TARGET_T4160RDB
+	bool "Support T4160RDB"
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
 	select SUPPORT_SPL
