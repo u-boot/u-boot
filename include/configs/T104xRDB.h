@@ -10,8 +10,6 @@
 /*
  * T104x RDB board configuration file
  */
-#define CONFIG_T104xRDB
-
 #define CONFIG_E500			/* BOOKE e500 family */
 #include <asm/config_mpc85xx.h>
 
@@ -547,11 +545,11 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
-#if defined(CONFIG_T104xRDB) || defined(CONFIG_T104XD4RDB)
 #define I2C_MUX_CH_DEFAULT      0x8
-#endif
 
-#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_T104XD4RDB)
+#if defined(CONFIG_TARGET_T1042RDB_PI)	|| \
+	defined(CONFIG_TARGET_T1040D4RDB)	|| \
+	defined(CONFIG_TARGET_T1042D4RDB)
 /* LDI/DVI Encoder for display */
 #define CONFIG_SYS_I2C_LDI_ADDR		0x38
 #define CONFIG_SYS_I2C_DVI_ADDR		0x75
@@ -706,10 +704,8 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
-#if defined(CONFIG_T104xRDB) || defined(CONFIG_T104XD4RDB)
 #define CONFIG_QE
 #define CONFIG_U_QE
-#endif
 
 /* Default address of microcode for the Linux Fman driver */
 #if defined(CONFIG_SPIFLASH)
@@ -735,7 +731,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #endif
 
-#if defined(CONFIG_T104xRDB) || defined(CONFIG_T104XD4RDB)
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_QE_FW_ADDR		0x130000
 #elif defined(CONFIG_SDCARD)
@@ -744,7 +739,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_QE_FW_ADDR		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
 #define CONFIG_SYS_QE_FW_ADDR		0xEFF10000
-#endif
 #endif
 
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
@@ -768,7 +762,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_SGMII3_PHY_ADDR             0x01
 #endif
 
-#ifdef CONFIG_T104XD4RDB
+#if defined(CONFIG_TARGET_T1040D4RDB) || defined(CONFIG_TARGET_T1042D4RDB)
 #define CONFIG_SYS_RGMII1_PHY_ADDR             0x04
 #define CONFIG_SYS_RGMII2_PHY_ADDR             0x05
 #else

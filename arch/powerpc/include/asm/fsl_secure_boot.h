@@ -32,8 +32,11 @@
 	defined(CONFIG_T2080RDB) || \
 	defined(CONFIG_T1040QDS) || \
 	defined(CONFIG_T104xD4QDS) || \
-	defined(CONFIG_T104xRDB) || \
-	defined(CONFIG_T104xD4RDB) || \
+	defined(CONFIG_TARGET_T1040RDB) || \
+	defined(CONFIG_TARGET_T1040D4RDB) || \
+	defined(CONFIG_TARGET_T1042RDB) || \
+	defined(CONFIG_TARGET_T1042D4RDB) || \
+	defined(CONFIG_TARGET_T1042RDB_PI) || \
 	defined(CONFIG_ARCH_T1023) || \
 	defined(CONFIG_ARCH_T1024)
 #ifndef CONFIG_SYS_RAMBOOT

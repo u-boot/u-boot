@@ -29,7 +29,7 @@ int checkboard(void)
 	struct cpu_type *cpu = gd->arch.cpu;
 	u8 sw;
 
-#ifdef CONFIG_T104XD4RDB
+#if defined(CONFIG_TARGET_T1040D4RDB) || defined(CONFIG_TARGET_T1042D4RDB)
 	printf("Board: %sD4RDB\n", cpu->name);
 #else
 	printf("Board: %sRDB\n", cpu->name);
