@@ -247,8 +247,8 @@ config TARGET_T2080QDS
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
-config TARGET_T208XRDB
-	bool "Support T208xRDB"
+config TARGET_T2080RDB
+	bool "Support T2080RDB"
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
