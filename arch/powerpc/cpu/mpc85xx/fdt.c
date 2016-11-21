@@ -511,7 +511,7 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
-#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_PPC_T4240) || \
+#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T4240) || \
 	defined(CONFIG_ARCH_T4160) || defined(CONFIG_PPC_T4080)
 void fdt_fixup_dma3(void *blob)
 {
@@ -529,7 +529,7 @@ void fdt_fixup_dma3(void *blob)
 	case 0x29:
 	case 0x2d:
 	case 0x2e:
-#elif defined(CONFIG_PPC_T4240) || defined(CONFIG_ARCH_T4160) || \
+#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
 	defined(CONFIG_PPC_T4080)
 	u32 srds_prtcl_s4 = in_be32(&gur->rcwsr[4]) &
 				    FSL_CORENET2_RCWSR4_SRDS4_PRTCL;

@@ -545,7 +545,7 @@
 #define CONFIG_SYS_FSL_A004447_SVR_REV	0x11
 #define CONFIG_ESDHC_HC_BLK_ADDR
 
-#elif defined(CONFIG_PPC_T4240) || defined(CONFIG_ARCH_T4160) || \
+#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
 	defined(CONFIG_PPC_T4080)
 #define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
@@ -553,7 +553,7 @@
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
-#ifdef CONFIG_PPC_T4240
+#ifdef CONFIG_ARCH_T4240
 #define CONFIG_MAX_CPUS			12
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS   { 1, 1, 4 }
 #define CONFIG_SYS_NUM_FM1_DTSEC	8

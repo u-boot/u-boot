@@ -15,7 +15,7 @@ struct serdes_config {
 	u8 lanes[SRDS_MAX_LANES];
 };
 
-#ifdef CONFIG_PPC_T4240
+#ifdef CONFIG_ARCH_T4240
 static const struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{1, {XAUI_FM1_MAC9, XAUI_FM1_MAC9,
