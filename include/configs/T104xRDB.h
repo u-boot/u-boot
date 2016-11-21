@@ -68,7 +68,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_nand_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_nand_rcw.cfg
 #endif
-#ifdef CONFIG_T1040D4RDB
+#ifdef CONFIG_TARGET_T1040D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_nand_rcw.cfg
 #endif
@@ -102,7 +102,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_spi_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_spi_rcw.cfg
 #endif
-#ifdef CONFIG_T1040D4RDB
+#ifdef CONFIG_TARGET_T1040D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_spi_rcw.cfg
 #endif
@@ -136,7 +136,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_sd_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042_sd_rcw.cfg
 #endif
-#ifdef CONFIG_T1040D4RDB
+#ifdef CONFIG_TARGET_T1040D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_sd_rcw.cfg
 #endif
@@ -348,7 +348,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CPLD_DIU_SEL_DFP		0xc0
 #endif
 
-#if defined(CONFIG_T1040D4RDB)
+#if defined(CONFIG_TARGET_T1040D4RDB)
 #define CPLD_INT_MASK_ALL		0xFF
 #define CPLD_INT_MASK_THERM		0x80
 #define CPLD_INT_MASK_DVI_DFP		0x40
@@ -760,7 +760,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x03
-#elif defined(CONFIG_T1040D4RDB)
+#elif defined(CONFIG_TARGET_T1040D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x01
 #elif defined(CONFIG_T1042D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x02
@@ -777,7 +777,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* Enable VSC9953 L2 Switch driver on T1040 SoC */
-#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1040D4RDB)
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_TARGET_T1040D4RDB)
 #define CONFIG_VSC9953
 #define CONFIG_CMD_ETHSW
 #ifdef CONFIG_T1040RDB
@@ -887,7 +887,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define FDTFILE		"t1042rdb_pi/t1042rdb_pi.dtb"
 #elif defined(CONFIG_T1042RDB)
 #define FDTFILE		"t1042rdb/t1042rdb.dtb"
-#elif defined(CONFIG_T1040D4RDB)
+#elif defined(CONFIG_TARGET_T1040D4RDB)
 #define FDTFILE		"t1042rdb/t1040d4rdb.dtb"
 #elif defined(CONFIG_T1042D4RDB)
 #define FDTFILE		"t1042rdb/t1042d4rdb.dtb"

@@ -43,7 +43,7 @@ int board_eth_init(bd_t *bis)
 		int idx = i - FM1_DTSEC1;
 
 		switch (fm_info_get_enet_if(i)) {
-#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1040D4RDB)
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_TARGET_T1040D4RDB)
 		case PHY_INTERFACE_MODE_SGMII:
 			/* T1040RDB & T1040D4RDB only supports SGMII on
 			 * DTSEC3

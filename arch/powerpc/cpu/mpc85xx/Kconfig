@@ -218,6 +218,12 @@ config TARGET_T1040RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
+config TARGET_T1040D4RDB
+	bool "Support T1040D4RDB"
+	select ARCH_T1040
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
 config TARGET_T1042RDB
 	bool "Support T1042RDB"
 	select SUPPORT_SPL

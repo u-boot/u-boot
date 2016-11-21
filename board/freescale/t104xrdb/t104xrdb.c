@@ -105,7 +105,7 @@ int misc_init_r(void)
 		CPLD_WRITE(misc_ctl_status, CPLD_READ(misc_ctl_status) |
 					 MISC_CTL_SG_SEL | MISC_CTL_AURORA_SEL);
 
-#if defined(CONFIG_T1040D4RDB)
+#if defined(CONFIG_TARGET_T1040D4RDB)
 	if (hwconfig("qe-tdm")) {
 		CPLD_WRITE(sfp_ctl_status, CPLD_READ(sfp_ctl_status) |
 			   MISC_MUX_QE_TDM);
