@@ -72,7 +72,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_nand_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_nand_rcw.cfg
 #endif
-#ifdef CONFIG_T1042D4RDB
+#ifdef CONFIG_TARGET_T1042D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
 #endif
@@ -106,7 +106,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_spi_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_spi_rcw.cfg
 #endif
-#ifdef CONFIG_T1042D4RDB
+#ifdef CONFIG_TARGET_T1042D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
 #endif
@@ -140,7 +140,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042_sd_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040d4_sd_rcw.cfg
 #endif
-#ifdef CONFIG_T1042D4RDB
+#ifdef CONFIG_TARGET_T1042D4RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
@@ -344,7 +344,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #if defined(CONFIG_TARGET_T1042RDB_PI)
 #define CPLD_DIU_SEL_DFP		0x80
-#elif defined(CONFIG_T1042D4RDB)
+#elif defined(CONFIG_TARGET_T1042D4RDB)
 #define CPLD_DIU_SEL_DFP		0xc0
 #endif
 
@@ -516,7 +516,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
-#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_T1042D4RDB)
+#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_TARGET_T1042D4RDB)
 /* Video */
 #define CONFIG_FSL_DIU_FB
 
@@ -762,7 +762,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x03
 #elif defined(CONFIG_TARGET_T1040D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x01
-#elif defined(CONFIG_T1042D4RDB)
+#elif defined(CONFIG_TARGET_T1042D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x02
 #define CONFIG_SYS_SGMII2_PHY_ADDR             0x03
 #define CONFIG_SYS_SGMII3_PHY_ADDR             0x01
@@ -889,7 +889,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define FDTFILE		"t1042rdb/t1042rdb.dtb"
 #elif defined(CONFIG_TARGET_T1040D4RDB)
 #define FDTFILE		"t1042rdb/t1040d4rdb.dtb"
-#elif defined(CONFIG_T1042D4RDB)
+#elif defined(CONFIG_TARGET_T1042D4RDB)
 #define FDTFILE		"t1042rdb/t1042d4rdb.dtb"
 #endif
 

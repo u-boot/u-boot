@@ -62,7 +62,7 @@ int board_eth_init(bd_t *bis)
 						CONFIG_SYS_SGMII1_PHY_ADDR);
 			break;
 #endif
-#ifdef CONFIG_T1042D4RDB
+#ifdef CONFIG_TARGET_T1042D4RDB
 		case PHY_INTERFACE_MODE_SGMII:
 			/* T1042D4RDB supports SGMII on DTSEC1, DTSEC2
 			 *  & DTSEC3
