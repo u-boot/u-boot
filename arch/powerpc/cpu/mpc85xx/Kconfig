@@ -242,13 +242,18 @@ config TARGET_T1042RDB_PI
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
-config TARGET_T208XQDS
-	bool "Support T208xQDS"
+config TARGET_T2080QDS
+	bool "Support T2080QDS"
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
 config TARGET_T208XRDB
 	bool "Support T208xRDB"
+	select SUPPORT_SPL
+	select PHYS_64BIT
+
+config TARGET_T2081QDS
+	bool "Support T2081QDS"
 	select SUPPORT_SPL
 	select PHYS_64BIT
 
