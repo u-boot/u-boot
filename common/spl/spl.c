@@ -220,7 +220,9 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
+#if defined(CONFIG_SPL_RAM_DEVICE)
 SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_RAM, spl_ram_load_image);
+#endif
 #if defined(CONFIG_SPL_DFU_SUPPORT)
 SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_DFU, spl_ram_load_image);
 #endif
