@@ -1513,12 +1513,6 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
-#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
-	const void *data;
-	size_t size;
-	int ret;
-#endif
-
 	fit_image_print(fit, rd_noffset, "   ");
 
 	if (verify) {
@@ -1529,23 +1523,6 @@ static int fit_image_select(const void *fit, int rd_noffset, int verify)
 		}
 		puts("OK\n");
 	}
-
-#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
-	ret = fit_image_get_data(fit, rd_noffset, &data, &size);
-	if (ret)
-		return ret;
-
-	/* perform any post-processing on the image data */
-	board_fit_image_post_process((void **)&data, &size);
-
-	/*
-	 * update U-Boot's understanding of the "data" property start address
-	 * and size according to the performed post-processing
-	 */
-	ret = fdt_setprop((void *)fit, rd_noffset, FIT_DATA_PROP, data, size);
-	if (ret)
-		return ret;
-#endif
 
 	return 0;
 }
@@ -1755,6 +1732,12 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;
 	}
+
+#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+	/* perform any post-processing on the image data */
+	board_fit_image_post_process((void **)&buf, &size);
+#endif
+
 	len = (ulong)size;
 
 	/* verify that image data is a proper FDT blob */
