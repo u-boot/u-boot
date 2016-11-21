@@ -134,7 +134,6 @@
 #undef CONFIG_CMD_BOOTD
 #ifdef CONFIG_SPL_DFU_SUPPORT
 #define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
-#define CONFIG_SPL_HASH_SUPPORT
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
 	"kernel ram 0x80200000 0x4000000;" \

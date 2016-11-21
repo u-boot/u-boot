@@ -524,6 +524,32 @@ config SPL_USB_SUPPORT
 	  config options. This enables loading from USB using a configured
 	  device.
 
+config SPL_DFU_SUPPORT
+	bool "Support DFU (Device Firmware Upgarde)"
+	depends on SPL
+	select SPL_HASH_SUPPORT
+	help
+	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
+	  RAM memory device support. The ROM code will load and execute
+	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
+	  selected device partition from host-pc using dfu-utils.
+	  This feature is useful to flash the binaries to factory or bare-metal
+	  boards using USB interface.
+
+choice
+	bool "DFU device selection"
+	depends on SPL_DFU_SUPPORT
+
+config SPL_DFU_RAM
+	bool "RAM device"
+	depends on SPL_DFU_SUPPORT
+	help
+	 select RAM/DDR memory device for loading binary images
+	 (u-boot/kernel) to the selected device partition using
+	 DFU and execute the u-boot/kernel from RAM.
+
+endchoice
+
 config SPL_WATCHDOG_SUPPORT
 	bool "Support watchdog drivers"
 	depends on SPL

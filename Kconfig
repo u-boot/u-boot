@@ -292,33 +292,6 @@ config FIT_IMAGE_POST_PROCESS
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
 
-config SPL_DFU_SUPPORT
-	bool "Enable SPL with DFU to load binaries to memory device"
-	depends on USB
-	help
-	  Currently the SPL does not have capability to load the
-	  binaries or boot images to boot devices like ram,eMMC,SPI,etc.
-	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
-	  RAM memory device support. The ROM code will load and execute
-	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
-	  selected device partition from host-pc using dfu-utils.
-		This feature will be useful to flash the binaries to factory
-	  or bare-metal boards using USB interface.
-
-choice
-	bool "DFU device selection"
-	depends on SPL_DFU_SUPPORT
-
-config SPL_DFU_RAM
-	bool "RAM device"
-	depends on SPL_DFU_SUPPORT
-	help
-	 select RAM/DDR memory device for loading binary images
-	 (u-boot/kernel) to the selected device partition using
-	 DFU and execute the u-boot/kernel from RAM.
-
-endchoice
-
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI
 	int "CPU clock frequency"

@@ -66,9 +66,6 @@ endif
 
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
 libs-y += drivers/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/dfu/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/gadget/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/gadget/udc/
 libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/dwc3/
 libs-y += dts/
 libs-y += fs/
