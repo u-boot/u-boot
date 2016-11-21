@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_T4240QDS
-
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
