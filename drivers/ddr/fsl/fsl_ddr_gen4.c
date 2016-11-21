@@ -64,9 +64,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #ifdef CONFIG_FSL_DDR_BIST
 	char buffer[CONFIG_SYS_CBSIZE];
 #endif
-#if defined(CONFIG_SYS_FSL_ERRATUM_A009942)
-	u32 ddr_freq;
-#endif
 	switch (ctrl_num) {
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
@@ -223,16 +220,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			ddr_out32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008378
-	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
-#define IS_ACC_ECC_EN(v) ((v) & 0x4)
-#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
-	if (has_erratum_a008378()) {
-		if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
-		    IS_DBI(regs->ddr_sdram_cfg_3))
-			ddr_setbits32(&ddr->debug[28], 0x9 << 20);
-	}
-#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	/* Part 1 of 2 */
@@ -268,19 +255,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	temp32 &= ~DDR_CAS_TO_PRE_SUB_MASK;
 	temp32 |= 9 << DDR_CAS_TO_PRE_SUB_SHIFT;
 	ddr_out32(&ddr->debug[25], temp32);
-#endif
-
-#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
-	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
-	temp32 = ddr_in32(&ddr->debug[28]);
-	if (ddr_freq <= 1333)
-		ddr_out32(&ddr->debug[28], temp32 | 0x0080006a);
-	else if (ddr_freq <= 1600)
-		ddr_out32(&ddr->debug[28], temp32 | 0x0070006f);
-	else if (ddr_freq <= 1867)
-		ddr_out32(&ddr->debug[28], temp32 | 0x00700076);
-	else if (ddr_freq <= 2133)
-		ddr_out32(&ddr->debug[28], temp32 | 0x0060007b);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010165

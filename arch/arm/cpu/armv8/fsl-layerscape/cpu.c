@@ -26,6 +26,9 @@
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
 #endif
+#ifdef CONFIG_SYS_FSL_DDR
+#include <fsl_ddr.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -403,7 +406,9 @@ int arch_early_init_r(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 	erratum_a009635();
 #endif
-
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
+	erratum_a009942_check_cpo();
+#endif
 #ifdef CONFIG_MP
 #if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && defined(CONFIG_ARMV8_PSCI)
 	/* Check the psci version to determine if the psci is supported */
