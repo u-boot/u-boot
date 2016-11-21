@@ -4110,7 +4110,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
          Define this to a string that is the name of the block device.
 
-       - FAT_ENV_DEV_AND_PART:
+       - FAT_ENV_DEVICE_AND_PART:
 
          Define this to a string to specify the partition of the device. It can
          be as following:
