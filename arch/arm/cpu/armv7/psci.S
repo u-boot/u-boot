@@ -258,6 +258,10 @@ ENDPROC(psci_enable_smp)
 ENTRY(psci_cpu_off_common)
 	push	{lr}
 
+	bl	psci_v7_flush_dcache_all
+
+	clrex					@ Why???
+
 	mrc	p15, 0, r0, c1, c0, 0		@ SCTLR
 	bic	r0, r0, #(1 << 2)		@ Clear C bit
 	mcr	p15, 0, r0, c1, c0, 0		@ SCTLR
