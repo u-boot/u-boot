@@ -6,7 +6,7 @@ Required properties:
 - compatible : Should be the manufacturer and the name of the chip. Bear in
                mind that the DT binding is not U-Boot-only, but in case of
                U-Boot, see spi_flash_params_table table in
-               drivers/mtd/spi/sf_params.c for the list of supported chips.
+               drivers/mtd/spi/spi_flash_ids.c for the list of supported chips.
 - reg : Chip-Select number
 - spi-max-frequency : Maximum frequency of the SPI bus the chip can operate at
 
