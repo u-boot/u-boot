@@ -265,6 +265,8 @@
 	firmware {
 		compatible = "xlnx,zynqmp-pm";
 		method = "smc";
+		interrupt-parent = <&gic>;
+		interrupts = <0 35 4>;
 	};
 
 	timer {
