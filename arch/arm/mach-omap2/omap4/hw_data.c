@@ -261,43 +261,43 @@ struct pmic_data tps62361 = {
 };
 
 struct vcores_data omap4430_volts_es1 = {
-	.mpu.value = 1325,
+	.mpu.value[OPP_NOM] = 1325,
 	.mpu.addr = SMPS_REG_ADDR_VCORE1,
 	.mpu.pmic = &twl6030_4430es1,
 
-	.core.value = 1200,
+	.core.value[OPP_NOM] = 1200,
 	.core.addr = SMPS_REG_ADDR_VCORE3,
 	.core.pmic = &twl6030_4430es1,
 
-	.mm.value = 1200,
+	.mm.value[OPP_NOM] = 1200,
 	.mm.addr = SMPS_REG_ADDR_VCORE2,
 	.mm.pmic = &twl6030_4430es1,
 };
 
 struct vcores_data omap4430_volts = {
-	.mpu.value = 1325,
+	.mpu.value[OPP_NOM] = 1325,
 	.mpu.addr = SMPS_REG_ADDR_VCORE1,
 	.mpu.pmic = &twl6030,
 
-	.core.value = 1200,
+	.core.value[OPP_NOM] = 1200,
 	.core.addr = SMPS_REG_ADDR_VCORE3,
 	.core.pmic = &twl6030,
 
-	.mm.value = 1200,
+	.mm.value[OPP_NOM] = 1200,
 	.mm.addr = SMPS_REG_ADDR_VCORE2,
 	.mm.pmic = &twl6030,
 };
 
 struct vcores_data omap4460_volts = {
-	.mpu.value = 1203,
+	.mpu.value[OPP_NOM] = 1203,
 	.mpu.addr = TPS62361_REG_ADDR_SET1,
 	.mpu.pmic = &tps62361,
 
-	.core.value = 1200,
+	.core.value[OPP_NOM] = 1200,
 	.core.addr = SMPS_REG_ADDR_VCORE1,
 	.core.pmic = &twl6030,
 
-	.mm.value = 1200,
+	.mm.value[OPP_NOM] = 1200,
 	.mm.addr = SMPS_REG_ADDR_VCORE2,
 	.mm.pmic = &twl6030,
 };
@@ -307,15 +307,15 @@ struct vcores_data omap4460_volts = {
  * voltage selection code. Aligned with OMAP4470 ES1.0 OCA V.0.7.
  */
 struct vcores_data omap4470_volts = {
-	.mpu.value = 1202,
+	.mpu.value[OPP_NOM] = 1202,
 	.mpu.addr = SMPS_REG_ADDR_SMPS1,
 	.mpu.pmic = &twl6030,
 
-	.core.value = 1126,
+	.core.value[OPP_NOM] = 1126,
 	.core.addr = SMPS_REG_ADDR_SMPS2,
 	.core.pmic = &twl6030,
 
-	.mm.value = 1139,
+	.mm.value[OPP_NOM] = 1139,
 	.mm.addr = SMPS_REG_ADDR_SMPS5,
 	.mm.pmic = &twl6030,
 };

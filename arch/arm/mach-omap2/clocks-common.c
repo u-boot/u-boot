@@ -477,35 +477,45 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 		gpio_direction_output(pmic->gpio, 1);
 }
 
-static u32 optimize_vcore_voltage(struct volts const *v)
+int __weak get_voltrail_opp(int rail_offset)
+{
+	/*
+	 * By default return OPP_NOM for all voltage rails.
+	 */
+	return OPP_NOM;
+}
+
+static u32 optimize_vcore_voltage(struct volts const *v, int opp)
 {
 	u32 val;
-	if (!v->value)
+
+	if (!v->value[opp])
 		return 0;
-	if (!v->efuse.reg)
-		return v->value;
+	if (!v->efuse.reg[opp])
+		return v->value[opp];
 
 	switch (v->efuse.reg_bits) {
 	case 16:
-		val = readw(v->efuse.reg);
+		val = readw(v->efuse.reg[opp]);
 		break;
 	case 32:
-		val = readl(v->efuse.reg);
+		val = readl(v->efuse.reg[opp]);
 		break;
 	default:
 		printf("Error: efuse 0x%08x bits=%d unknown\n",
-		       v->efuse.reg, v->efuse.reg_bits);
-		return v->value;
+		       v->efuse.reg[opp], v->efuse.reg_bits);
+		return v->value[opp];
 	}
 
 	if (!val) {
 		printf("Error: efuse 0x%08x bits=%d val=0, using %d\n",
-		       v->efuse.reg, v->efuse.reg_bits, v->value);
-		return v->value;
+		       v->efuse.reg[opp], v->efuse.reg_bits, v->value[opp]);
+		return v->value[opp];
 	}
 
 	debug("%s:efuse 0x%08x bits=%d Vnom=%d, using efuse value %d\n",
-	      __func__, v->efuse.reg, v->efuse.reg_bits, v->value, val);
+	      __func__, v->efuse.reg[opp], v->efuse.reg_bits, v->value[opp],
+	      val);
 	return val;
 }
 
@@ -529,16 +539,19 @@ void __weak recalibrate_iodelay(void)
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
-	int i;
+	int i, opp, j, ol;
 	struct volts *pv = (struct volts *)vcores;
 	struct volts *px;
 
 	for (i=0; i<(sizeof(struct vcores_data)/sizeof(struct volts)); i++) {
-		debug("%d -> ", pv->value);
-		if (pv->value) {
+		opp = get_voltrail_opp(i);
+		debug("%d -> ", pv->value[opp]);
+
+		if (pv->value[opp]) {
 			/* Handle non-empty members only */
-			pv->value = optimize_vcore_voltage(pv);
+			pv->value[opp] = optimize_vcore_voltage(pv, opp);
      			px = (struct volts *)vcores;
+			j = 0;
 			while (px < pv) {
 				/*
 				 * Scan already handled non-empty members to see
@@ -547,26 +560,29 @@ void scale_vcores(struct vcores_data const *vcores)
 				 * particular SMPS; the other group voltages are
 				 * zeroed.
 				 */
-				if (px->value) {
-					if ((pv->pmic->i2c_slave_addr ==
-					     px->pmic->i2c_slave_addr) &&
-					    (pv->addr == px->addr)) {
-					    	/* Same PMIC, same SMPS */
-						if (pv->value > px->value)
-							px->value = pv->value;
+				ol = get_voltrail_opp(j);
+				if (px->value[ol] &&
+				    (pv->pmic->i2c_slave_addr ==
+				     px->pmic->i2c_slave_addr) &&
+				    (pv->addr == px->addr)) {
+					/* Same PMIC, same SMPS */
+					if (pv->value[opp] > px->value[ol])
+						px->value[ol] = pv->value[opp];
 
-						pv->value = 0;
-					}
-		     		}
+					pv->value[opp] = 0;
+				}
 				px++;
+				j++;
 			}
 		}
-	     	debug("%d\n", pv->value);
+		debug("%d\n", pv->value[opp]);
 		pv++;
 	}
 
-	debug("cor: %d\n", vcores->core.value);
-	do_scale_vcore(vcores->core.addr, vcores->core.value, vcores->core.pmic);
+	opp = get_voltrail_opp(VOLT_CORE);
+	debug("cor: %d\n", vcores->core.value[opp]);
+	do_scale_vcore(vcores->core.addr, vcores->core.value[opp],
+		       vcores->core.pmic);
 	/*
 	 * IO delay recalibration should be done immediately after
 	 * adjusting AVS voltages for VDD_CORE_L.
@@ -577,10 +593,12 @@ void scale_vcores(struct vcores_data const *vcores)
 	recalibrate_iodelay();
 #endif
 
-	debug("mpu: %d\n", vcores->mpu.value);
-	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value, vcores->mpu.pmic);
+	opp = get_voltrail_opp(VOLT_MPU);
+	debug("mpu: %d\n", vcores->mpu.value[opp]);
+	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value[opp],
+		       vcores->mpu.pmic);
 	/* Configure MPU ABB LDO after scale */
-	abb_setup(vcores->mpu.efuse.reg,
+	abb_setup(vcores->mpu.efuse.reg[opp],
 		  (*ctrl)->control_wkup_ldovbb_mpu_voltage_ctrl,
 		  (*prcm)->prm_abbldo_mpu_setup,
 		  (*prcm)->prm_abbldo_mpu_ctrl,
@@ -588,10 +606,12 @@ void scale_vcores(struct vcores_data const *vcores)
 		  vcores->mpu.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
 
-	debug("mm: %d\n", vcores->mm.value);
-	do_scale_vcore(vcores->mm.addr, vcores->mm.value, vcores->mm.pmic);
+	opp = get_voltrail_opp(VOLT_MM);
+	debug("mm: %d\n", vcores->mm.value[opp]);
+	do_scale_vcore(vcores->mm.addr, vcores->mm.value[opp],
+		       vcores->mm.pmic);
 	/* Configure MM ABB LDO after scale */
-	abb_setup(vcores->mm.efuse.reg,
+	abb_setup(vcores->mm.efuse.reg[opp],
 		  (*ctrl)->control_wkup_ldovbb_mm_voltage_ctrl,
 		  (*prcm)->prm_abbldo_mm_setup,
 		  (*prcm)->prm_abbldo_mm_ctrl,
@@ -599,30 +619,38 @@ void scale_vcores(struct vcores_data const *vcores)
 		  vcores->mm.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
 
-	debug("gpu: %d\n", vcores->gpu.value);
-	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value, vcores->gpu.pmic);
+	opp = get_voltrail_opp(VOLT_GPU);
+	debug("gpu: %d\n", vcores->gpu.value[opp]);
+	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value[opp],
+		       vcores->gpu.pmic);
 	/* Configure GPU ABB LDO after scale */
-	abb_setup(vcores->gpu.efuse.reg,
+	abb_setup(vcores->gpu.efuse.reg[opp],
 		  (*ctrl)->control_wkup_ldovbb_gpu_voltage_ctrl,
 		  (*prcm)->prm_abbldo_gpu_setup,
 		  (*prcm)->prm_abbldo_gpu_ctrl,
 		  (*prcm)->prm_irqstatus_mpu,
 		  vcores->gpu.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
-	debug("eve: %d\n", vcores->eve.value);
-	do_scale_vcore(vcores->eve.addr, vcores->eve.value, vcores->eve.pmic);
+
+	opp = get_voltrail_opp(VOLT_EVE);
+	debug("eve: %d\n", vcores->eve.value[opp]);
+	do_scale_vcore(vcores->eve.addr, vcores->eve.value[opp],
+		       vcores->eve.pmic);
 	/* Configure EVE ABB LDO after scale */
-	abb_setup(vcores->eve.efuse.reg,
+	abb_setup(vcores->eve.efuse.reg[opp],
 		  (*ctrl)->control_wkup_ldovbb_eve_voltage_ctrl,
 		  (*prcm)->prm_abbldo_eve_setup,
 		  (*prcm)->prm_abbldo_eve_ctrl,
 		  (*prcm)->prm_irqstatus_mpu,
 		  vcores->eve.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
-	debug("iva: %d\n", vcores->iva.value);
-	do_scale_vcore(vcores->iva.addr, vcores->iva.value, vcores->iva.pmic);
+
+	opp = get_voltrail_opp(VOLT_IVA);
+	debug("iva: %d\n", vcores->iva.value[opp]);
+	do_scale_vcore(vcores->iva.addr, vcores->iva.value[opp],
+		       vcores->iva.pmic);
 	/* Configure IVA ABB LDO after scale */
-	abb_setup(vcores->iva.efuse.reg,
+	abb_setup(vcores->iva.efuse.reg[opp],
 		  (*ctrl)->control_wkup_ldovbb_iva_voltage_ctrl,
 		  (*prcm)->prm_abbldo_iva_setup,
 		  (*prcm)->prm_abbldo_iva_ctrl,

@@ -308,35 +308,47 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 }
 
 struct vcores_data dra752_volts = {
-	.mpu.value	= VDD_MPU_DRA7,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
 	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.mpu.addr	= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic	= &tps659038,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
-	.eve.value	= VDD_EVE_DRA7,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_OD]	= VDD_EVE_DRA7_OD,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_DSPEVE_OD,
+	.eve.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr	= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic	= &tps659038,
 	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
 
-	.gpu.value	= VDD_GPU_DRA7,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.value[OPP_OD]	= VDD_GPU_DRA7_OD,
+	.gpu.value[OPP_HIGH]	= VDD_GPU_DRA7_HIGH,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_GPU_OD,
+	.gpu.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_GPU_HIGH,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr	= TPS659038_REG_ADDR_SMPS6,
 	.gpu.pmic	= &tps659038,
 	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
 
-	.core.value	= VDD_CORE_DRA7,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
+	.core.value[OPP_NOM]	= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
 	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.core.addr	= TPS659038_REG_ADDR_SMPS7,
 	.core.pmic	= &tps659038,
 
-	.iva.value	= VDD_IVA_DRA7,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_OD]	= VDD_IVA_DRA7_OD,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_IVA_OD,
+	.iva.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_IVA_HIGH,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr	= TPS659038_REG_ADDR_SMPS8,
 	.iva.pmic	= &tps659038,
@@ -344,15 +356,15 @@ struct vcores_data dra752_volts = {
 };
 
 struct vcores_data dra722_volts = {
-	.mpu.value	= VDD_MPU_DRA7,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
 	.mpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.mpu.addr	= TPS65917_REG_ADDR_SMPS1,
 	.mpu.pmic	= &tps659038,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
-	.core.value	= VDD_CORE_DRA7,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
+	.core.value[OPP_NOM]	= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
 	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.core.addr	= TPS65917_REG_ADDR_SMPS2,
 	.core.pmic	= &tps659038,
@@ -361,27 +373,66 @@ struct vcores_data dra722_volts = {
 	 * The DSPEVE, GPU and IVA rails are usually grouped on DRA72x
 	 * designs and powered by TPS65917 SMPS3, as on the J6Eco EVM.
 	 */
-	.gpu.value	= VDD_GPU_DRA7,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.value[OPP_OD]	= VDD_GPU_DRA7_OD,
+	.gpu.value[OPP_HIGH]	= VDD_GPU_DRA7_HIGH,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_GPU_OD,
+	.gpu.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_GPU_HIGH,
 	.gpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.gpu.addr	= TPS65917_REG_ADDR_SMPS3,
 	.gpu.pmic	= &tps659038,
 	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
 
-	.eve.value	= VDD_EVE_DRA7,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_OD]	= VDD_EVE_DRA7_OD,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_DSPEVE_OD,
+	.eve.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
 	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.eve.addr	= TPS65917_REG_ADDR_SMPS3,
 	.eve.pmic	= &tps659038,
 	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
 
-	.iva.value	= VDD_IVA_DRA7,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_OD]	= VDD_IVA_DRA7_OD,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_IVA_OD,
+	.iva.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_IVA_HIGH,
 	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.iva.addr	= TPS65917_REG_ADDR_SMPS3,
 	.iva.pmic	= &tps659038,
 	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
 };
+
+int get_voltrail_opp(int rail_offset)
+{
+	int opp;
+
+	switch (rail_offset) {
+	case VOLT_MPU:
+		opp = DRA7_MPU_OPP;
+		break;
+	case VOLT_CORE:
+		opp = DRA7_CORE_OPP;
+		break;
+	case VOLT_GPU:
+		opp = DRA7_GPU_OPP;
+		break;
+	case VOLT_EVE:
+		opp = DRA7_DSPEVE_OPP;
+		break;
+	case VOLT_IVA:
+		opp = DRA7_IVA_OPP;
+		break;
+	default:
+		opp = OPP_NOM;
+	}
+
+	return opp;
+}
 
 /**
  * @brief board_init

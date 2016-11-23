@@ -539,23 +539,41 @@ struct pmic_data {
 	int (*pmic_write)(u8 sa, u8 reg_addr, u8 reg_data);
 };
 
+enum {
+	OPP_LOW,
+	OPP_NOM,
+	OPP_OD,
+	OPP_HIGH,
+	NUM_OPPS,
+};
+
 /**
  * struct volts_efuse_data - efuse definition for voltage
  * @reg:	register address for efuse
  * @reg_bits:	Number of bits in a register address, mandatory.
  */
 struct volts_efuse_data {
-	u32 reg;
+	u32 reg[NUM_OPPS];
 	u8 reg_bits;
 };
 
 struct volts {
-	u32 value;
+	u32 value[NUM_OPPS];
 	u32 addr;
 	struct volts_efuse_data efuse;
 	struct pmic_data *pmic;
 
 	u32 abb_tx_done_mask;
+};
+
+enum {
+	VOLT_MPU,
+	VOLT_CORE,
+	VOLT_MM,
+	VOLT_GPU,
+	VOLT_EVE,
+	VOLT_IVA,
+	NUM_VOLT_RAILS,
 };
 
 struct vcores_data {
@@ -612,6 +630,7 @@ void enable_usb_clocks(int index);
 void disable_usb_clocks(int index);
 
 void scale_vcores(struct vcores_data const *);
+int get_voltrail_opp(int rail_offset);
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
 void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,

@@ -337,30 +337,30 @@ struct pmic_data tps659038 = {
 };
 
 struct vcores_data omap5430_volts = {
-	.mpu.value = VDD_MPU,
+	.mpu.value[OPP_NOM] = VDD_MPU,
 	.mpu.addr = SMPS_REG_ADDR_12_MPU,
 	.mpu.pmic = &palmas,
 
-	.core.value = VDD_CORE,
+	.core.value[OPP_NOM] = VDD_CORE,
 	.core.addr = SMPS_REG_ADDR_8_CORE,
 	.core.pmic = &palmas,
 
-	.mm.value = VDD_MM,
+	.mm.value[OPP_NOM] = VDD_MM,
 	.mm.addr = SMPS_REG_ADDR_45_IVA,
 	.mm.pmic = &palmas,
 };
 
 struct vcores_data omap5430_volts_es2 = {
-	.mpu.value = VDD_MPU_ES2,
+	.mpu.value[OPP_NOM] = VDD_MPU_ES2,
 	.mpu.addr = SMPS_REG_ADDR_12_MPU,
 	.mpu.pmic = &palmas,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
-	.core.value = VDD_CORE_ES2,
+	.core.value[OPP_NOM] = VDD_CORE_ES2,
 	.core.addr = SMPS_REG_ADDR_8_CORE,
 	.core.pmic = &palmas,
 
-	.mm.value = VDD_MM_ES2,
+	.mm.value[OPP_NOM] = VDD_MM_ES2,
 	.mm.addr = SMPS_REG_ADDR_45_IVA,
 	.mm.pmic = &palmas,
 	.mm.abb_tx_done_mask = OMAP_ABB_MM_TXDONE_MASK,
