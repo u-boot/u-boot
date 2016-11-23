@@ -115,7 +115,7 @@ int get_clocks(void)
 	 * for that SOC. This information is taken from application note
 	 * AN2919.
 	 */
-#ifdef CONFIG_MPC8610
+#ifdef CONFIG_ARCH_MPC8610
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #else
 	gd->arch.i2c1_clk = sys_info.freq_systembus / 2;

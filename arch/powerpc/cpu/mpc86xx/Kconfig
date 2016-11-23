@@ -13,6 +13,7 @@ config TARGET_SBC8641D
 
 config TARGET_MPC8610HPCD
 	bool "Support MPC8610HPCD"
+	select ARCH_MPC8610
 
 config TARGET_MPC8641HPCN
 	bool "Support MPC8641HPCN"
@@ -21,6 +22,9 @@ config TARGET_XPEDITE517X
 	bool "Support xpedite517x"
 
 endchoice
+
+config ARCH_MPC8610
+	bool
 
 source "board/freescale/mpc8610hpcd/Kconfig"
 source "board/freescale/mpc8641hpcn/Kconfig"
