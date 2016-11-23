@@ -220,7 +220,6 @@ static int dev_enum_stor(int type, struct device_info *di)
 	 */
 
 	if (di->cookie == NULL) {
-
 		debugf("group%d - enum restart\n", type);
 
 		/*
@@ -231,7 +230,6 @@ static int dev_enum_stor(int type, struct device_info *di)
 		specs[type].enum_started = 1;
 
 	} else if (dev_is_stor(type, di)) {
-
 		debugf("group%d - enum continued for the next device\n", type);
 
 		if (specs[type].enum_ended) {
@@ -243,7 +241,6 @@ static int dev_enum_stor(int type, struct device_info *di)
 		found = dev_stor_get(type, 0, &more, di);
 
 	} else {
-
 		if (specs[type].enum_ended) {
 			debugf("group %d - already enumerated, skipping\n", type);
 			return 0;
