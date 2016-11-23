@@ -37,7 +37,7 @@ struct stor_spec {
 	int		max_dev;
 	int		enum_started;
 	int		enum_ended;
-	int		type;		/* "external" type: DT_STOR_{IDE,USB,etc} */
+	int		type;	/* "external" type: DT_STOR_{IDE,USB,etc} */
 	char		*name;
 };
 
