@@ -85,6 +85,8 @@
 			"setenv fdtfile dra72-evm-revc.dtb; fi;" \
 		"if test $board_name = dra72x; then " \
 			"setenv fdtfile dra72-evm.dtb; fi;" \
+		"if test $board_name = dra71x; then " \
+			"setenv fdtfile dra71-evm.dtb; fi;" \
 		"if test $board_name = beagle_x15; then " \
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
 		"if test $board_name = am572x_idk; then " \
