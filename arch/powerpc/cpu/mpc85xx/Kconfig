@@ -429,6 +429,42 @@ config ARCH_T4160
 config ARCH_T4240
 	bool
 
+config MAX_CPUS
+	int "Maximum number of CPUs permitted for MPC85xx"
+	default 12 if ARCH_T4240
+	default 8 if ARCH_P4080 || \
+		     ARCH_T4160
+	default 4 if ARCH_B4860 || \
+		     ARCH_P2041 || \
+		     ARCH_P3041 || \
+		     ARCH_P5040 || \
+		     ARCH_T1040 || \
+		     ARCH_T1042 || \
+		     ARCH_T2080 || \
+		     ARCH_T2081
+	default 2 if ARCH_B4420 || \
+		     ARCH_BSC9132 || \
+		     ARCH_MPC8572 || \
+		     ARCH_P1020 || \
+		     ARCH_P1021 || \
+		     ARCH_P1022 || \
+		     ARCH_P1023 || \
+		     ARCH_P1024 || \
+		     ARCH_P1025 || \
+		     ARCH_P2020 || \
+		     ARCH_P5020 || \
+		     ARCH_T1020 || \
+		     ARCH_T1022 || \
+		     ARCH_T1023 || \
+		     ARCH_T1024
+	default 1
+	help
+	  Set this number to the maximum number of possible CPUs in the SoC.
+	  SoCs may have multiple clusters with each cluster may have multiple
+	  ports. If some ports are reserved but higher ports are used for
+	  cores, count the reserved ports. This will allocate enough memory
+	  in spin table to properly handle all cores.
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"
