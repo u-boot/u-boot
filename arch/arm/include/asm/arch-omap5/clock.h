@@ -324,6 +324,9 @@
 /* Standard offset is 0.5v expressed in uv */
 #define PALMAS_SMPS_BASE_VOLT_UV 500000
 
+/* Offset is 0.73V for LP873x */
+#define LP873X_BUCK_BASE_VOLT_UV		730000
+
 /* TPS659038 */
 #define TPS659038_I2C_SLAVE_ADDR		0x58
 #define TPS659038_REG_ADDR_SMPS12		0x23
@@ -338,6 +341,11 @@
 #define TPS65917_REG_ADDR_SMPS2		0x27
 #define TPS65917_REG_ADDR_SMPS3		0x2F
 
+/* LP873X */
+#define LP873X_I2C_SLAVE_ADDR		0x60
+#define LP873X_REG_ADDR_BUCK0		0x6
+#define LP873X_REG_ADDR_BUCK1		0x7
+#define LP873X_REG_ADDR_LDO1		0xA
 
 /* TPS */
 #define TPS62361_I2C_SLAVE_ADDR		0x60

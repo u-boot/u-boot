@@ -336,6 +336,22 @@ struct pmic_data tps659038 = {
 	.gpio_en = 0,
 };
 
+/* The LP8732 and LP8733 are software-compatible, use common struct */
+struct pmic_data lp8733 = {
+	.base_offset = LP873X_BUCK_BASE_VOLT_UV,
+	.step = 5000, /* 5 mV represented in uV */
+	/*
+	 * Offset codes 0 - 0x13 Invalid.
+	 * Offset codes 0x14 0x17 give 10mV steps
+	 * Offset codes 0x17 through 0x9D give 5mV steps
+	 * So let us start with our operating range from .73V
+	 */
+	.start_code = 0x17,
+	.i2c_slave_addr = 0x60,
+	.pmic_bus_init  = gpi2c_init,
+	.pmic_write     = palmas_i2c_write_u8,
+};
+
 struct vcores_data omap5430_volts = {
 	.mpu.value[OPP_NOM] = VDD_MPU,
 	.mpu.addr = SMPS_REG_ADDR_12_MPU,

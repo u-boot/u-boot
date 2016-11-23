@@ -408,9 +408,59 @@ struct vcores_data dra722_volts = {
 	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
 };
 
+struct vcores_data dra718_volts = {
+	/*
+	 * In the case of dra71x GPU MPU and CORE
+	 * are all powered up by BUCK0 of LP873X PMIC
+	 */
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.mpu.addr	= LP873X_REG_ADDR_BUCK0,
+	.mpu.pmic	= &lp8733,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
+
+	.core.value[OPP_NOM]		= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.core.addr	= LP873X_REG_ADDR_BUCK0,
+	.core.pmic	= &lp8733,
+
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.gpu.addr	= LP873X_REG_ADDR_BUCK0,
+	.gpu.pmic	= &lp8733,
+	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
+
+	/*
+	 * The DSPEVE and IVA rails are grouped on DRA71x-evm
+	 * and are powered by BUCK1 of LP873X PMIC
+	 */
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.eve.addr	= LP873X_REG_ADDR_BUCK1,
+	.eve.pmic	= &lp8733,
+	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
+
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.iva.addr	= LP873X_REG_ADDR_BUCK1,
+	.iva.pmic	= &lp8733,
+	.iva.abb_tx_done_mask = OMAP_ABB_IVA_TXDONE_MASK,
+};
+
 int get_voltrail_opp(int rail_offset)
 {
 	int opp;
+
+	/*
+	 * DRA71x supports only OPP_NOM.
+	 */
+	if (board_is_dra71x_evm())
+		return OPP_NOM;
 
 	switch (rail_offset) {
 	case VOLT_MPU:
@@ -541,6 +591,8 @@ void vcores_init(void)
 		*omap_vcores = &dra752_volts;
 	} else if (board_is_dra72x_evm()) {
 		*omap_vcores = &dra722_volts;
+	} else if (board_is_dra71x_evm()) {
+		*omap_vcores = &dra718_volts;
 	} else {
 		/* If EEPROM is not populated */
 		if (is_dra72x())
