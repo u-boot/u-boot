@@ -57,10 +57,6 @@
 #endif
 #endif
 
-#ifndef CONFIG_MAX_CPUS
-#define CONFIG_MAX_CPUS		1
-#endif
-
 /*
  * Provide a default boot page translation virtual address that lines up with
  * Freescale's default e500 reset page.
