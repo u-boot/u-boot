@@ -15,7 +15,7 @@
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		10
 
-#elif defined(CONFIG_MPC8641)
+#elif defined(CONFIG_ARCH_MPC8641)
 #define CONFIG_MAX_CPUS			2
 #define CONFIG_SYS_FSL_NUM_LAWS		10
 

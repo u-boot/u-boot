@@ -79,7 +79,7 @@ enum law_trgt_if {
 enum law_trgt_if {
 	LAW_TRGT_IF_PCI = 0x00,
 	LAW_TRGT_IF_PCI_2 = 0x01,
-#ifndef CONFIG_MPC8641
+#ifndef CONFIG_ARCH_MPC8641
 	LAW_TRGT_IF_PCIE_1 = 0x02,
 #endif
 #if defined(CONFIG_ARCH_BSC9131) || defined(CONFIG_ARCH_BSC9132)
@@ -117,7 +117,7 @@ enum law_trgt_if {
 #define LAW_TRGT_IF_RIO_1	LAW_TRGT_IF_RIO
 #define LAW_TRGT_IF_IFC		LAW_TRGT_IF_LBC
 
-#ifdef CONFIG_MPC8641
+#ifdef CONFIG_ARCH_MPC8641
 #define LAW_TRGT_IF_PCIE_1	LAW_TRGT_IF_PCI
 #endif
 

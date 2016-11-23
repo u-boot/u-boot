@@ -92,7 +92,7 @@ checkcpu(void)
 	if (get_l2cr() & 0x80000000) {
 #if defined(CONFIG_ARCH_MPC8610)
 		puts("256");
-#elif defined(CONFIG_MPC8641)
+#elif defined(CONFIG_ARCH_MPC8641)
 		puts("512");
 #endif
 		puts(" KiB enabled\n");
