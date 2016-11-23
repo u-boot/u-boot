@@ -4,7 +4,6 @@ How to port a serial driver to driver model
 Almost all of the serial drivers have been converted as at January 2016. These
 ones remain:
 
-   mcfuart.c
    serial_bfin.c
    serial_pxa.c
    serial_s3c24x0.c
