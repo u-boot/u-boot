@@ -116,8 +116,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 		else
 			found = 1;
 
-		/* provide hint if there are more devices in
-		 * this group to enumerate */
+		/*
+		 * provide hint if there are more devices in
+		 * this group to enumerate
+		 */
 		if (1 < specs[type].max_dev)
 			*more = 1;
 
@@ -125,8 +127,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 		for (i = 0; i < specs[type].max_dev; i++)
 			if (di->cookie ==
 			    (void *)blk_get_dev(specs[type].name, i)) {
-				/* previous cookie found -- advance to the
-				 * next device, if possible */
+				/*
+				 * previous cookie found -- advance to the
+				 * next device, if possible
+				 */
 
 				if (++i >= specs[type].max_dev) {
 					/* out of range, no more to enum */
@@ -141,8 +145,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 				else
 					found = 1;
 
-				/* provide hint if there are more devices in
-				 * this group to enumerate */
+				/*
+				 * provide hint if there are more devices in
+				 * this group to enumerate
+				 */
 				if ((i + 1) < specs[type].max_dev)
 					*more = 1;
 
@@ -171,9 +177,8 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 }
 
 
-/*
- * returns:	ENUM_IDE, ENUM_USB etc. based on struct blk_desc
- */
+/* returns: ENUM_IDE, ENUM_USB etc. based on struct blk_desc */
+
 static int dev_stor_type(struct blk_desc *dd)
 {
 	int i, j;
@@ -187,9 +192,8 @@ static int dev_stor_type(struct blk_desc *dd)
 }
 
 
-/*
- * returns:	0/1 whether cookie points to some device in this group
- */
+/* returns: 0/1 whether cookie points to some device in this group */
+
 static int dev_is_stor(int type, struct device_info *di)
 {
 	return (dev_stor_type(di->cookie) == type) ? 1 : 0;
@@ -300,9 +304,7 @@ int dev_enum_storage(struct device_info *di)
 {
 	int i;
 
-	/*
-	 * check: ide, usb, scsi, mmc
-	 */
+	/* check: ide, usb, scsi, mmc */
 	for (i = ENUM_IDE; i < ENUM_MAX; i ++) {
 		if (dev_enum_stor(i, di))
 			return 1;
