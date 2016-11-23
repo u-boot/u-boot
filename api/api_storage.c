@@ -282,7 +282,7 @@ static int dev_enum_stor(int type, struct device_info *di)
 
 	if (found)
 		debugf("device found, returning cookie 0x%08x\n",
-			(u_int32_t)di->cookie);
+		       (u_int32_t)di->cookie);
 	else
 		debugf("no device found\n");
 
