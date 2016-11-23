@@ -86,6 +86,99 @@ config TI_SECURE_EMIF_PROTECTED_REGION_SIZE
 	  using hardware memory firewalls. This value must be smaller than the
 	  TI_SECURE_EMIF_TOTAL_REGION_SIZE value.
 
+if TARGET_DRA7XX_EVM || TARGET_AM57XX_EVM
+menu "Voltage Domain OPP selections"
+
+choice
+	prompt "MPU Voltage Domain"
+	default DRA7_MPU_OPP_NOM
+        help
+	  Select the Operating Performance Point(OPP) for the MPU voltage
+	  domain on DRA7xx & AM57xx SoCs.
+
+config DRA7_MPU_OPP_NOM
+	bool "OPP NOM"
+	help
+	  This config option enables Normal OPP for MPU. This is the safest
+	  option for booting.
+
+endchoice
+
+choice
+	prompt "DSPEVE Voltage Domain"
+        help
+	  Select the Operating Performance Point(OPP) for the DSPEVE voltage
+	  domain on DRA7xx & AM57xx SoCs.
+
+config DRA7_DSPEVE_OPP_NOM
+	bool "OPP NOM"
+	help
+	  This config option enables Normal OPP for DSPEVE. This is the safest
+	  option for booting and choose this when unsure about other OPPs .
+
+config DRA7_DSPEVE_OPP_OD
+	bool "OPP OD"
+	help
+	  This config option enables Over drive OPP for DSPEVE.
+
+config DRA7_DSPEVE_OPP_HIGH
+	bool "OPP HIGH"
+	help
+	  This config option enables High OPP for DSPEVE.
+
+endchoice
+
+choice
+	prompt "IVA Voltage Domain"
+        help
+	  Select the Operating Performance Point(OPP) for the IVA voltage
+	  domain on DRA7xx & AM57xx SoCs.
+
+config DRA7_IVA_OPP_NOM
+	bool "OPP NOM"
+	help
+	  This config option enables Normal OPP for IVA. This is the safest
+	  option for booting and choose this when unsure about other OPPs .
+
+config DRA7_IVA_OPP_OD
+	bool "OPP OD"
+	help
+	  This config option enables Over drive OPP for IVA.
+
+config DRA7_IVA_OPP_HIGH
+	bool "OPP HIGH"
+	help
+	  This config option enables High OPP for IVA.
+
+endchoice
+
+choice
+	prompt "GPU Voltage Domain"
+        help
+	  Select the Operating Performance Point(OPP) for the GPU voltage
+	  domain on DRA7xx & AM57xx SoCs.
+
+config DRA7_GPU_OPP_NOM
+	bool "OPP NOM"
+	help
+	  This config option enables Normal OPP for GPU. This is the safest
+	  option for booting and choose this when unsure about other OPPs .
+
+config DRA7_GPU_OPP_OD
+	bool "OPP OD"
+	help
+	  This config option enables Over drive OPP for GPU.
+
+config DRA7_GPU_OPP_HIGH
+	bool "OPP HIGH"
+	help
+	  This config option enables High OPP for GPU.
+
+endchoice
+
+endmenu
+endif
+
 source "board/compulab/cm_t54/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/dra7xx/Kconfig"
