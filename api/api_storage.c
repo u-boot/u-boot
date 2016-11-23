@@ -256,7 +256,7 @@ static int dev_enum_stor(int type, struct device_info *di)
 			/*
 			 * 2b.  If enumerating devices in this group did not
 			 * happen before, it means the cookie pointed to a
-			 * device frome some other group (another storage
+			 * device from some other group (another storage
 			 * group, or network); in this case try to take the
 			 * first available device from our group
 			 */
