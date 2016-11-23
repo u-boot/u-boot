@@ -14,6 +14,7 @@
 #include <time.h>
 #else
 #include <linux/compiler.h>
+#include <linux/kconfig.h>
 #include <common.h>
 #include <errno.h>
 #include <mapmem.h>
@@ -27,7 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
-#include <generated/autoconf.h>
 
 /*****************************************************************************/
 /* New uImage format routines */
