@@ -569,7 +569,12 @@ void recalibrate_iodelay(void)
 	case DRA722_ES2_0:
 		pads = dra72x_core_padconf_array_common;
 		npads = ARRAY_SIZE(dra72x_core_padconf_array_common);
-		if (board_is_dra72x_revc_or_later()) {
+		if (board_is_dra71x_evm()) {
+			pads = dra71x_core_padconf_array;
+			npads = ARRAY_SIZE(dra71x_core_padconf_array);
+			iodelay = dra71_iodelay_cfg_array;
+			niodelays = ARRAY_SIZE(dra71_iodelay_cfg_array);
+		} else if (board_is_dra72x_revc_or_later()) {
 			delta_pads = dra72x_rgmii_padconf_array_revc;
 			delta_npads =
 				ARRAY_SIZE(dra72x_rgmii_padconf_array_revc);
