@@ -13,6 +13,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <palmas.h>
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
@@ -451,3 +452,36 @@ void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 #endif
 	omap_smc1(OMAP5_SERVICE_ACR_SET, acr);
 }
+
+#if defined(CONFIG_PALMAS_POWER)
+void vmmc_pbias_config(uint voltage)
+{
+	u32 value = 0;
+	struct vcores_data const *vcores = *omap_vcores;
+
+	value = readl((*ctrl)->control_pbias);
+	value &= ~SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(10); /* wait 10 us */
+	value &= ~SDCARD_BIAS_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+
+	if (vcores->core.pmic->i2c_slave_addr == 0x60) {
+		if (voltage == LDO_VOLT_3V0)
+			voltage = 0x19;
+		else if (voltage == LDO_VOLT_1V8)
+			voltage = 0xa;
+		lp873x_mmc1_poweron_ldo(voltage);
+	} else {
+		palmas_mmc1_poweron_ldo(voltage);
+	}
+
+	value = readl((*ctrl)->control_pbias);
+	value |= SDCARD_BIAS_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(150); /* wait 150 us */
+	value |= SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(150); /* wait 150 us */
+}
+#endif

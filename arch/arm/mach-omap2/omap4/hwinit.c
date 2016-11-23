@@ -12,6 +12,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <palmas.h>
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
@@ -175,3 +176,15 @@ void v7_outer_cache_disable(void)
 	omap_smc1(OMAP4_SERVICE_PL310_CONTROL_REG_SET, 0);
 }
 #endif /* !CONFIG_SYS_L2CACHE_OFF */
+
+void vmmc_pbias_config(uint voltage)
+{
+	u32 value = 0;
+
+	value = readl((*ctrl)->control_pbiaslite);
+	value &= ~(MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ);
+	writel(value, (*ctrl)->control_pbiaslite);
+	value = readl((*ctrl)->control_pbiaslite);
+	value |= MMC1_PBIASLITE_VMODE | MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ;
+	writel(value, (*ctrl)->control_pbiaslite);
+}
