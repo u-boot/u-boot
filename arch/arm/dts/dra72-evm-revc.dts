@@ -11,25 +11,35 @@
 / {
 	model = "TI DRA722 Rev C EVM";
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x80000000 0x0 0x80000000>; /* 2GB */
 	};
 };
 
-&tps65917_regulators {
-	ldo2_reg: ldo2 {
-		/* LDO2_OUT --> VDDA_1V8_PHY2 */
-		regulator-name = "ldo2";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
-		regulator-boot-on;
+&i2c1 {
+	tps65917: tps65917@58 {
+		reg = <0x58>;
+
+		interrupts = <GIC_SPI 2 IRQ_TYPE_NONE>;  /* IRQ_SYS_1N */
 	};
 };
 
+#include "dra72-evm-tps65917.dtsi"
+
+&ldo2_reg {
+	/* LDO2_OUT --> VDDA_1V8_PHY2 */
+	regulator-always-on;
+	regulator-boot-on;
+};
+
 &hdmi {
-	vdda_video-supply = <&ldo2_reg>;
+	vdda-supply = <&ldo2_reg>;
+};
+
+&pcf_gpio_21 {
+	interrupt-parent = <&gpio3>;
+	interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
 };
 
 &mac {
