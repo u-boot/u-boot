@@ -36,6 +36,7 @@
 
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
 #define board_is_dra72x_evm()		board_ti_is("DRA72x-T")
+#define board_is_dra71x_evm()		board_ti_is("DRA79x,D")
 #define board_is_dra74x_revh_or_later() (board_is_dra74x_evm() &&	\
 				(strncmp("H", board_ti_get_rev(), 1) <= 0))
 #define board_is_dra72x_revc_or_later() (board_is_dra72x_evm() &&	\
@@ -469,6 +470,8 @@ int board_late_init(void)
 	if (is_dra72x()) {
 		if (board_is_dra72x_revc_or_later())
 			name = "dra72x-revc";
+		else if (board_is_dra71x_evm())
+			name = "dra71x";
 		else
 			name = "dra72x";
 	} else {
@@ -516,6 +519,8 @@ void do_board_detect(void)
 		bname = "DRA74x EVM";
 	} else if (board_is_dra72x_evm()) {
 		bname = "DRA72x EVM";
+	} else if (board_is_dra71x_evm()) {
+		bname = "DRA71x EVM";
 	} else {
 		/* If EEPROM is not populated */
 		if (is_dra72x())
