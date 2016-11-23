@@ -406,6 +406,7 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
+	select DM_I2C
 	select DM_SPI_FLASH
 	select DM_SERIAL
 	select DM_SPI

@@ -155,39 +155,6 @@
 /* GPT */
 #define CONFIG_RANDOM_UUID
 
-/* I2C */
-#include <asm/arch/gpio.h>
-
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
-#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
-#define CONFIG_MAX_I2C_NUM		8
-#define CONFIG_SYS_I2C_SOFT
-#define CONFIG_SYS_I2C_SOFT_SPEED	50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
-#define I2C_SOFT_DECLARATIONS2
-#define CONFIG_SYS_I2C_SOFT_SPEED_2     50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE_2     0x00
-#define CONFIG_SOFT_I2C_READ_REPEATED_START
-#define CONFIG_SYS_I2C_INIT_BOARD
-
-#ifndef __ASSEMBLY__
-int get_soft_i2c_scl_pin(void);
-int get_soft_i2c_sda_pin(void);
-#endif
-#define CONFIG_SOFT_I2C_GPIO_SCL	get_soft_i2c_scl_pin()
-#define CONFIG_SOFT_I2C_GPIO_SDA	get_soft_i2c_sda_pin()
-
-/* POWER */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_MAX77686
-#define CONFIG_POWER_PMIC_MAX77693
-#define CONFIG_POWER_MUIC_MAX77693
-#define CONFIG_POWER_FG_MAX77693
-#define CONFIG_POWER_BATTERY_TRATS2
-
 /* Security subsystem - enable hw_rand() */
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_LIB_HW_RAND
