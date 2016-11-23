@@ -1,6 +1,0 @@
-VCMA9 BOARD
-M:	David Müller <d.mueller@elsoft.ch>
-S:	Maintained
-F:	board/mpl/vcma9/
-F:	include/configs/VCMA9.h
-F:	configs/VCMA9_defconfig
