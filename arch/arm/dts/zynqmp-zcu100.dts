@@ -31,6 +31,7 @@
 		serial2 = &dcc;
 		spi0 = &qspi;
 		spi1 = &spi0;
+		spi2 = &spi1;
 		usb0 = &usb0;
 		usb1 = &usb1;
 		mmc0 = &sdhci0;
@@ -438,6 +439,10 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 	};
+};
+
+&spi1 { /* High Speed connector */
+	status = "okay";
 };
 
 &uart1 {
