@@ -126,7 +126,7 @@
 
 	dp_clk_wiz: dp_clk_wiz {
 		compatible = "fixed-clock";
-		#clock-cells = <0x0>;
+		#clock-cells = <0>;
 		clock-frequency = <267439000>;
 		clock-accuracy = <0x64>;
 	};
@@ -412,8 +412,8 @@
 	mmc-pwrseq = <&sdio_pwrseq>;
 	max-frequency = <16000000>;
 	vqmmc-supply = <&wmmcsdio_fixed>;
-	#address-cells = <0x1>;
-	#size-cells = <0x0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
 	wlcore: wlcore@2 {
 		compatible = "ti,wl1831";
 		reg = <2>;
