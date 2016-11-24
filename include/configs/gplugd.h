@@ -72,11 +72,6 @@
 /* GPIO Configuration for PHY */
 #define CONFIG_SYS_GPIO_PHY_RST		104	/* GPIO104 */
 
-/* SPI Support */
-#define CONFIG_ARMADA100_SPI
-#define CONFIG_ENV_SPI_CS		110
-#define CONFIG_SYS_SSP_PORT		2
-
 /* Flash Support */
 
 /*
@@ -95,10 +90,8 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SECT_SIZE		0x4000
+#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x4000
-#define CONFIG_ENV_OFFSET		0x07C000
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
