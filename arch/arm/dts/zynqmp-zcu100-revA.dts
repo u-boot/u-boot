@@ -1,5 +1,5 @@
 /*
- * dts file for Xilinx ZynqMP ZCU100 revB
+ * dts file for Xilinx ZynqMP ZCU100
  *
  * (C) Copyright 2016, Xilinx, Inc.
  *
@@ -18,17 +18,20 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
-	model = "ZynqMP ZCU100 RevB";
-	compatible = "xlnx,zynqmp-zcu100-revB", "xlnx,zynqmp-zcu100", "xlnx,zynqmp";
+	model = "ZynqMP ZCU100 RevA";
+	compatible = "xlnx,zynqmp-zcu100-revA", "xlnx,zynqmp-zcu100", "xlnx,zynqmp";
 
 	aliases {
 		gpio0 = &gpio;
+		gpio1 = &max3107;
 		i2c0 = &i2c0;
 		rtc0 = &rtc;
 		serial0 = &uart1;
-		serial1 = &dcc;
-		spi0 = &spi0;
-		spi1 = &spi1;
+		serial1 = &max3107;
+		serial2 = &dcc;
+		spi0 = &qspi;
+		spi1 = &spi0;
+		spi2 = &spi1;
 		usb0 = &usb0;
 		usb1 = &usb1;
 		mmc0 = &sdhci0;
@@ -52,9 +55,9 @@
 		autorepeat;
 		sw4 {
 			label = "sw4";
-			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 39 GPIO_ACTIVE_LOW>; /* shared with pmic IRQ */ /* uboot: gpio input 39 */
 			linux,code = <108>; /* down */
-			gpio-key,wakeup; /* FIXME test this */
+			gpio-key,wakeup;
 			autorepeat;
 		};
 	};
@@ -87,23 +90,24 @@
 		};
 
 		/* FIXME this is not correct - used fixed-regulator for it */
-		vbus_det { /* U5 USB5744  VBUS detection via MIO25 */
+		vbus_det { /* U5 USB5744  VBUS detection via MIO7 */
 			label = "vbus_det";
-			gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio 7 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 		};
 	};
 
+	clk3_6: clk3_6 { /* for spi uart max3107 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <3600000>;
+	};
+
 	ltc2952: ltc2952 { /* U7 */
-		/*
-		 * FIXME this is ltc2954 not ltc2952 - try this driver and
-		 * maybe just extend compatible string.
-		 */
-		compatible = "lltc,ltc2954", "lltc,ltc2952";
-		trigger-gpios = <&gpio 26 GPIO_ACTIVE_LOW>; /* INT line - input */
-		/* If there is HW watchdog on mezzanine this signal should be connected there */
-		watchdog-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>; /* FIXME - unconnected MIO pin now */
-		kill-gpios = <&gpio 34 GPIO_ACTIVE_LOW>; /* KILL signal - output */
+		compatible = "lltc,ltc2952";
+		trigger-gpios = <&gpio 23 GPIO_ACTIVE_LOW>; /* INT line - input */
+		watchdog-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>; /* FIXME Bogus - set it up to max3107 */
+		kill-gpios = <&gpio 25 GPIO_ACTIVE_LOW>; /* KILL signal - output */
 	};
 
 	wmmcsdio_fixed: fixedregulator-mmcsdio {
@@ -117,10 +121,9 @@
 
 	sdio_pwrseq: sdio_pwrseq {
 		compatible = "mmc-pwrseq-simple";
-		reset-gpios = <&gpio 7 GPIO_ACTIVE_LOW>; /* WIFI_EN */
+		reset-gpios = <&max3107 1 GPIO_ACTIVE_LOW>; /* WIFI_EN */
 	};
 
-	/* FIXME - not tested */
 	dp_clk_wiz: dp_clk_wiz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -328,33 +331,60 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
-			/* PS_PMBUS */
-			ina226@40 { /* u35 */
-				compatible = "ti,ina226";
-				reg = <0x40>;
-				shunt-resistor = <10000>;
-				/* MIO31 is alert which should be routed to PMUFW */
-			};
-
-
-
+			/*
+			 * SYSMON
+			 */
 		};
 		i2csw_6: i2c@6 { /* i2c mw 75 0 40 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
 			/*
-			 * Not Connected
+			 * EEPROM with globally unique ID (will provide MAC address)
 			 */
+			eeprom@50 { /* u35 - 24aa02E48T */
+				compatible = "atmel,24c02"; /* 8 blocks 50-57 - works */
+				reg = <0x50>; /* low 3 bits: don't care */
+			};
 		};
 		i2csw_7: i2c@7 { /* i2c mw 75 0 80 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <7>;
 			/*
-			 * usb5744 (DNP) - U5
+			 * usb5744 - U5
 			 * 100kHz - this is default freq for us
 			 */
+			/* FIXME 0x2c 0x2d - disabled because of SMBUS */
+		};
+	};
+};
+
+&qspi {
+	status = "okay"; /* This device may be DNP for cost savings */
+	flash@0 { /* single x4 - 16 MB flash at U13 */
+		compatible = "n25q128a13", "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>; /* Based on DC1 spec */
+		partition@qspi-fsbl-uboot { /* for testing purpose */
+			label = "qspi-fsbl-uboot";
+			reg = <0x0 0x100000>;
+		};
+		partition@qspi-linux { /* for testing purpose */
+			label = "qspi-linux";
+			reg = <0x100000 0x500000>;
+		};
+		partition@qspi-device-tree { /* for testing purpose */
+			label = "qspi-device-tree";
+			reg = <0x600000 0x20000>;
+		};
+		partition@qspi-rootfs { /* for testing purpose */
+			label = "qspi-rootfs";
+			reg = <0x620000 0x9E0000>;
 		};
 	};
 };
@@ -396,8 +426,19 @@
 	status = "okay";
 };
 
-&spi0 { /* Low Speed connector */
+&spi0 {
 	status = "okay";
+	max3107: max3107@0 { /* I'm assuming no offset...? */
+		compatible = "maxim,max3107";
+		spi-max-frequency = <26000000>;
+		reg = <0>;
+		interrupt-parent = <&gpio>;
+		interrupts = <77 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&clk3_6>;
+		clock-names = "osc";
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
 };
 
 &spi1 { /* High Speed connector */
