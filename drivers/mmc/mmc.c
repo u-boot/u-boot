@@ -1817,3 +1817,37 @@ int mmc_initialize(bd_t *bis)
 	mmc_do_preinit();
 	return 0;
 }
+
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+int mmc_set_bkops_enable(struct mmc *mmc)
+{
+	int err;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+
+	err = mmc_send_ext_csd(mmc, ext_csd);
+	if (err) {
+		puts("Could not get ext_csd register values\n");
+		return err;
+	}
+
+	if (!(ext_csd[EXT_CSD_BKOPS_SUPPORT] & 0x1)) {
+		puts("Background operations not supported on device\n");
+		return -EMEDIUMTYPE;
+	}
+
+	if (ext_csd[EXT_CSD_BKOPS_EN] & 0x1) {
+		puts("Background operations already enabled\n");
+		return 0;
+	}
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BKOPS_EN, 1);
+	if (err) {
+		puts("Failed to enable manual background operations\n");
+		return err;
+	}
+
+	puts("Enabled manual background operations\n");
+
+	return 0;
+}
+#endif

@@ -572,6 +572,15 @@ config SYS_AMBAPP_PRINT_ON_STARTUP
 	help
 	  Show AMBA Plug-n-Play information on startup.
 
+config CMD_BKOPS_ENABLE
+	bool "mmc bkops enable"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable command for setting manual background operations handshake
+	  on a eMMC device. The feature is optionally available on eMMC devices
+	  conforming to standard >= 4.41.
+
 config CMD_BLOCK_CACHE
 	bool "blkcache - control and stats for block cache"
 	depends on BLOCK_CACHE

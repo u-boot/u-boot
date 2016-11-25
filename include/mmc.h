@@ -174,6 +174,7 @@
 #define EXT_CSD_MAX_ENH_SIZE_MULT	157	/* R */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
 #define EXT_CSD_RST_N_FUNCTION		162	/* R/W */
+#define EXT_CSD_BKOPS_EN		163	/* R/W & R/W/E */
 #define EXT_CSD_WR_REL_PARAM		166	/* R */
 #define EXT_CSD_WR_REL_SET		167	/* R/W */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
@@ -188,6 +189,7 @@
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
+#define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
 
 /*
  * EXT_CSD field definitions
@@ -540,6 +542,10 @@ int mmc_rpmb_read(struct mmc *mmc, void *addr, unsigned short blk,
 		  unsigned short cnt, unsigned char *key);
 int mmc_rpmb_write(struct mmc *mmc, void *addr, unsigned short blk,
 		   unsigned short cnt, unsigned char *key);
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+int mmc_set_bkops_enable(struct mmc *mmc);
+#endif
+
 /**
  * Start device initialization and return immediately; it does not block on
  * polling OCR (operation condition register) status.  Then you should call
