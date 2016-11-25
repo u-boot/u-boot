@@ -473,7 +473,7 @@ void fdt_fixup_ethernet(void *fdt)
 	char *tmp, *end;
 	char mac[16];
 	const char *path;
-	unsigned char mac_addr[6];
+	unsigned char mac_addr[ARP_HLEN];
 	int offset;
 
 	if (fdt_path_offset(fdt, "/aliases") < 0)
