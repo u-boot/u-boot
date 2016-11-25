@@ -500,7 +500,7 @@ static int eth_post_probe(struct udevice *dev)
 		    memcmp(pdata->enetaddr, env_enetaddr, ARP_HLEN)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
 			       dev->name);
-			printf("Address in SROM is         %pM\n",
+			printf("Address in ROM is          %pM\n",
 			       pdata->enetaddr);
 			printf("Address in environment is  %pM\n",
 			       env_enetaddr);
