@@ -196,6 +196,7 @@ fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.
 HOSTCFLAGS_crc32.o := -pedantic
+HOSTCFLAGS_crc8.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
