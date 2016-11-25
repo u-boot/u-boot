@@ -14,6 +14,7 @@
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
+#include <environment/ti/dfu.h>
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
@@ -122,43 +123,12 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
-
-#define DFU_ALT_INFO_MMC \
-	"dfu_alt_info_mmc=" \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"MLO fat 0 1;" \
-	"spl-os-args fat 0 1;" \
-	"spl-os-image fat 0 1;" \
-	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1\0"
-
-#define DFU_ALT_INFO_EMMC \
-	"dfu_alt_info_emmc=" \
-	"MLO raw 0x100 0x100 mmcpart 0;" \
-	"u-boot.img raw 0x300 0x1000 mmcpart 0\0"
-
-#define DFU_ALT_INFO_RAM \
-	"dfu_alt_info_ram=" \
-	"kernel ram 0x80200000 0x4000000;" \
-	"fdt ram 0x80f80000 0x80000;" \
-	"ramdisk ram 0x81000000 0x4000000\0"
-
-#define DFU_ALT_INFO_QSPI \
-	"dfu_alt_info_qspi=" \
-	"u-boot.bin raw 0x0 0x080000;" \
-	"u-boot.backup raw 0x080000 0x080000;" \
-	"u-boot-spl-os raw 0x100000 0x010000;" \
-	"u-boot-env raw 0x110000 0x010000;" \
-	"u-boot-env.backup raw 0x120000 0x010000;" \
-	"kernel raw 0x130000 0x800000\0"
-
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_RAM \
-	DFU_ALT_INFO_QSPI
+	DFU_ALT_INFO_QSPI_XIP
 #else
 #define DFUARGS
 #endif
