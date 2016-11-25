@@ -42,6 +42,7 @@
 				(board_ti_is("AM572PM_") && \
 				 (strncmp("A.30", board_ti_get_rev(), 3) <= 0))
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
+#define board_is_am571x_idk()	board_ti_is("AM571IDK")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -63,9 +64,17 @@ static const struct dmm_lisa_map_regs beagle_x15_lisa_regs = {
 	.is_ma_present  = 0x1
 };
 
+static const struct dmm_lisa_map_regs am571x_idk_lisa_regs = {
+	.dmm_lisa_map_3 = 0x80640100,
+	.is_ma_present  = 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
-	*dmm_lisa_regs = &beagle_x15_lisa_regs;
+	if (board_is_am571x_idk())
+		*dmm_lisa_regs = &am571x_idk_lisa_regs;
+	else
+		*dmm_lisa_regs = &beagle_x15_lisa_regs;
 }
 
 static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
@@ -379,6 +388,8 @@ void do_board_detect(void)
 		bname = "AM572x EVM";
 	else if (board_is_am572x_idk())
 		bname = "AM572x IDK";
+	else if (board_is_am571x_idk())
+		bname = "AM571x IDK";
 
 	if (bname)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
@@ -407,6 +418,8 @@ static void setup_board_eeprom_env(void)
 			name = "am57xx_evm";
 	} else if (board_is_am572x_idk()) {
 		name = "am572x_idk";
+	} else if (board_is_am571x_idk()) {
+		name = "am571x_idk";
 	} else {
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
@@ -480,6 +493,11 @@ void recalibrate_iodelay(void)
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
 		iod = iodelay_cfg_array_am572x_idk;
 		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am572x_idk);
+	} else if (board_is_am571x_idk()) {
+		pconf = core_padconf_array_essential_am571x_idk;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am571x_idk);
+		iod = iodelay_cfg_array_am571x_idk;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am571x_idk);
 	} else {
 		/* Common for X15/GPEVM */
 		pconf = core_padconf_array_essential_x15;
@@ -757,8 +775,8 @@ int board_eth_init(bd_t *bis)
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
 
-	/* The phy address for the AM572x IDK are different than x15 */
-	if (board_is_am572x_idk()) {
+	/* The phy address for the AM57xx IDK are different than x15 */
+	if (board_is_am572x_idk() || board_is_am571x_idk()) {
 		cpsw_data.slave_data[0].phy_addr = 0;
 		cpsw_data.slave_data[1].phy_addr = 1;
 	}

@@ -97,6 +97,8 @@
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
 		"if test $board_name = am57xx_evm_reva3; then " \
 			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
+		"if test $board_name = am571x_idk; then " \
+			"setenv fdtfile am571x-idk.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	DFUARGS \
