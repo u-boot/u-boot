@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2017 Synopsys, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+
+#include "skeleton.dtsi"
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	aliases {
+		console = &uart0;
+	};
+
+	cpu_card {
+		core_clk: core_clk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <1000000000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	uart0: serial0@f0005000 {
+		compatible = "snps,dw-apb-uart";
+		reg = <0xf0005000 0x1000>;
+		reg-shift = <2>;
+		reg-io-width = <4>;
+	};
+
+	ethernet@f0008000 {
+		#interrupt-cells = <1>;
+		compatible = "altr,socfpga-stmmac";
+		reg = <0xf0008000 0x2000>;
+		phy-mode = "gmii";
+	};
+
+	ehci@0xf0040000 {
+		compatible = "generic-ehci";
+		reg = <0xf0040000 0x100>;
+	};
+
+	ohci@0xf0060000 {
+		compatible = "generic-ohci";
+		reg = <0xf0060000 0x100>;
+	};
+};

@@ -6,6 +6,7 @@ dtb-$(CONFIG_TARGET_AXS101) +=  axs101.dtb
 dtb-$(CONFIG_TARGET_AXS103) +=  axs103.dtb
 dtb-$(CONFIG_TARGET_NSIM) +=  nsim.dtb
 dtb-$(CONFIG_TARGET_TB100) +=  abilis_tb100.dtb
+dtb-$(CONFIG_TARGET_HSDK) +=  hsdk.dtb
 
 targets += $(dtb-y)
 
