@@ -69,8 +69,7 @@ ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
 S:	Maintainted
 T:	git git://git.denx.de/u-boot-socfpga.git
-F:	arch/arm/cpu/armv7/socfpga/
-F:	board/altera/socfpga/
+F:	arch/arm/mach-socfpga/
 
 ARM ATMEL AT91
 M:	Andreas Bießmann <andreas@biessmann.org>
