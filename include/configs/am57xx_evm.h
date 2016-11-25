@@ -12,6 +12,8 @@
 #ifndef __CONFIG_AM57XX_EVM_H
 #define __CONFIG_AM57XX_EVM_H
 
+#include <environment/ti/dfu.h>
+
 #define CONFIG_AM57XX
 
 #ifdef CONFIG_SPL_BUILD
@@ -58,6 +60,12 @@
 	"name=ipu1,size=1M,uuid=${uuid_gpt_ipu1};" \
 	"name=ipu2,size=1M,uuid=${uuid_gpt_ipu2};" \
 	"name=userdata,size=-,uuid=${uuid_gpt_userdata}"
+
+#define DFUARGS \
+	"dfu_bufsiz=0x10000\0" \
+	DFU_ALT_INFO_MMC \
+	DFU_ALT_INFO_EMMC \
+	DFU_ALT_INFO_RAM \
 
 #include <configs/ti_omap5_common.h>
 
