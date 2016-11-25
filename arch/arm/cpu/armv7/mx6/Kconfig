@@ -200,6 +200,10 @@ config TARGET_UDOO
 	bool "udoo"
 	select SUPPORT_SPL
 
+config TARGET_UDOO_NEO
+	bool "UDOO Neo"
+	select SUPPORT_SPL
+
 config TARGET_WANDBOARD
 	bool "wandboard"
 	select SUPPORT_SPL
@@ -261,6 +265,7 @@ source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/udoo/Kconfig"
+source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 
