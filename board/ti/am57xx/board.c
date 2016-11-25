@@ -35,6 +35,8 @@
 #include "mux_data.h"
 
 #define board_is_x15()		board_ti_is("BBRDX15_")
+#define board_is_x15_revb1()	(board_ti_is("BBRDX15_") && \
+				 (strncmp("B.10", board_ti_get_rev(), 3) <= 0))
 #define board_is_am572x_evm()	board_ti_is("AM572PM_")
 #define board_is_am572x_evm_reva3()	\
 				(board_ti_is("AM572PM_") && \
@@ -394,7 +396,10 @@ static void setup_board_eeprom_env(void)
 		goto invalid_eeprom;
 
 	if (board_is_x15()) {
-		name = "beagle_x15";
+		if (board_is_x15_revb1())
+			name = "beagle_x15_revb1";
+		else
+			name = "beagle_x15";
 	} else if (board_is_am572x_evm()) {
 		if (board_is_am572x_evm_reva3())
 			name = "am57xx_evm_reva3";
@@ -790,14 +795,21 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	if (board_is_x15() && !strcmp(name, "am57xx-beagle-x15"))
+	if (board_is_x15()) {
+		if (board_is_x15_revb1()) {
+			if (!strcmp(name, "am57xx-beagle-x15-revb1"))
+				return 0;
+		} else if (!strcmp(name, "am57xx-beagle-x15")) {
+			return 0;
+		}
+	} else if (board_is_am572x_evm() &&
+		   !strcmp(name, "am57xx-beagle-x15")) {
 		return 0;
-	else if (board_is_am572x_evm() && !strcmp(name, "am57xx-beagle-x15"))
+	} else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk")) {
 		return 0;
-	else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk"))
-		return 0;
-	else
-		return -1;
+	}
+
+	return -1;
 }
 #endif
 
