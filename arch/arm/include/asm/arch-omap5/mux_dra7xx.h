@@ -362,7 +362,7 @@
 #define EMU3		0x454
 #define EMU4		0x458
 #define RESETN		0x45C
-#define NMIN		0x460
+#define NMIN_DSP	0x460
 #define RSTOUTN		0x464
 
 #endif /* _MUX_DRA7XX_H_ */
