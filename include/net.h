@@ -168,7 +168,8 @@ void eth_halt_state_only(void); /* Set passive state */
 
 #ifndef CONFIG_DM_ETH
 struct eth_device {
-	char name[16];
+#define ETH_NAME_LEN 16
+	char name[ETH_NAME_LEN];
 	unsigned char enetaddr[ARP_HLEN];
 	phys_addr_t iobase;
 	int state;
