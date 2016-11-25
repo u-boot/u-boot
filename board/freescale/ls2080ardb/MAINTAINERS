@@ -1,5 +1,5 @@
 LS2080A BOARD
-M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>, Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
 F:	board/freescale/ls2080ardb/
 F:	board/freescale/ls2080a/ls2080ardb.c

@@ -23,10 +23,12 @@
 #define CONFIG_SYS_IFC_ADDR			(CONFIG_SYS_IMMR + 0x01240000)
 #define CONFIG_SYS_NS16550_COM1			(CONFIG_SYS_IMMR + 0x011C0500)
 #define CONFIG_SYS_NS16550_COM2			(CONFIG_SYS_IMMR + 0x011C0600)
-#define CONFIG_SYS_FSL_TIMER_ADDR		0x023d0000
+#define SYS_FSL_LS2080A_LS2085A_TIMER_ADDR	0x023d0000
+#define CONFIG_SYS_FSL_TIMER_ADDR		0x023e0000
 #define CONFIG_SYS_FSL_PMU_CLTBENR		(CONFIG_SYS_FSL_PMU_ADDR + \
 						 0x18A0)
 #define FSL_PMU_PCTBENR_OFFSET (CONFIG_SYS_FSL_PMU_ADDR + 0x8A0)
+#define FSL_LSCH3_SVR		(CONFIG_SYS_FSL_GUTS_ADDR + 0xA4)
 
 #define CONFIG_SYS_FSL_WRIOP1_ADDR		(CONFIG_SYS_IMMR + 0x7B80000)
 #define CONFIG_SYS_FSL_WRIOP1_MDIO1	(CONFIG_SYS_FSL_WRIOP1_ADDR + 0x16000)
@@ -153,7 +155,7 @@
 #define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
 #define TP_INIT_PER_CLUSTER     4
 /* This is chassis generation 3 */
-
+#ifndef __ASSEMBLY__
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
 	unsigned long freq_systembus;
@@ -317,6 +319,5 @@ struct ccsr_reset {
 	u32 ip_rev2;			/* 0xbfc */
 };
 
-uint get_svr(void);
-
+#endif /*__ASSEMBLY__*/
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */

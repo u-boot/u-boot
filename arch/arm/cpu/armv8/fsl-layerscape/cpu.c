@@ -191,7 +191,7 @@ void enable_caches(void)
 }
 #endif
 
-static inline u32 initiator_type(u32 cluster, int init_id)
+u32 initiator_type(u32 cluster, int init_id)
 {
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
@@ -306,12 +306,14 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 	return -1;      /* cannot identify the cluster */
 }
 
+#ifndef CONFIG_FSL_LSCH3
 uint get_svr(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 
 	return gur_in32(&gur->svr);
 }
+#endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
@@ -431,6 +433,7 @@ int timer_init(void)
 #endif
 #ifdef CONFIG_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
+	u32 svr_dev_id;
 #endif
 #ifdef COUNTER_FREQUENCY_REAL
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
@@ -453,6 +456,14 @@ int timer_init(void)
 	 * Register (PCTBENR), which allows the watchdog to operate.
 	 */
 	setbits_le32(pctbenr, 0xff);
+	/*
+	 * For LS2080A SoC and its personalities, timer controller
+	 * offset is different
+	 */
+	svr_dev_id = get_svr() >> 16;
+	if (svr_dev_id == SVR_DEV_LS2080A)
+		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
+
 #endif
 
 	/* Enable clock for timer

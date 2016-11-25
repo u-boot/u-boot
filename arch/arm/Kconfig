@@ -131,6 +131,12 @@ config ARCH_OMAP2
 	select CPU_V7
 	select SUPPORT_SPL
 
+config ARM64_SUPPORT_AARCH32
+	bool "ARM64 system support AArch32 execution state"
+	default y if ARM64 && !TARGET_THUNDERX_88XX
+	help
+	  This ARM64 system supports AArch32 execution state.
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
@@ -750,6 +756,20 @@ config TARGET_LS1021ATWR
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
 
+config TARGET_LS1021AIOT
+	bool "Support ls1021aiot"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select SUPPORT_SPL
+	select ARCH_LS1021A
+	select ARCH_SUPPORT_PSCI
+	help
+	  Support for Freescale LS1021AIOT platform.
+	  The LS1021A Freescale board (IOT) is a high-performance
+	  development platform that supports the QorIQ LS1021A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
 	select ARCH_LS1043A
@@ -951,6 +971,7 @@ source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1021aiot/Kconfig"
 source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/ls1046ardb/Kconfig"

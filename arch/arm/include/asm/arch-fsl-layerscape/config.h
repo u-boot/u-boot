@@ -25,6 +25,7 @@
 #ifndef L1_CACHE_BYTES
 #define L1_CACHE_SHIFT		6
 #define L1_CACHE_BYTES		BIT(L1_CACHE_SHIFT)
+#define CONFIG_FSL_TZASC_400
 #endif
 
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000	/* initial RAM */
