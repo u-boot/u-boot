@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= jerry.o
+obj-y	+= veyron.o
