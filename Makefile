@@ -1053,49 +1053,10 @@ endif
 
 # x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
-# the middle.
+# the middle. This is handled by binman based on an image description in the
+# board's device tree.
 ifneq ($(CONFIG_X86_RESET_VECTOR),)
 rom: u-boot.rom FORCE
-
-IFDTOOL=$(objtree)/tools/ifdtool
-IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
-IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
-IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-nodtb.bin
-IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
-IFDTOOL_FLAGS += -C
-
-ifneq ($(CONFIG_HAVE_INTEL_ME),)
-IFDTOOL_ME_FLAGS  = -D $(srctree)/board/$(BOARDDIR)/descriptor.bin
-IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
-endif
-
-ifneq ($(CONFIG_HAVE_MRC),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
-endif
-
-ifneq ($(CONFIG_HAVE_FSP),)
-IFDTOOL_FLAGS += -w $(CONFIG_FSP_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_FSP_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_CMC),)
-IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_VGA_BIOS),)
-IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_REFCODE),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_REFCODE_ADDR):refcode.bin
-endif
-
-quiet_cmd_ifdtool = IFDTOOL $@
-cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
-ifneq ($(CONFIG_HAVE_INTEL_ME),)
-cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_ME_FLAGS) u-boot.tmp;
-endif
-cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
-cmd_ifdtool += mv u-boot.tmp $@
 
 refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
 	$(call if_changed,copy)
@@ -1106,7 +1067,7 @@ cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 
 u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE \
 		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
-	$(call if_changed,ifdtool)
+	$(call if_changed,binman)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
 u-boot-x86-16bit.bin: u-boot FORCE
