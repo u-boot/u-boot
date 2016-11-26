@@ -1,0 +1,15 @@
+/*
+ * Copyright (C) 2016 Google, Inc
+ * Written by Simon Glass <sjg@chromium.org>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/ {
+	host1x@50000000 {
+		u-boot,dm-pre-reloc;
+		dc@54200000 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};

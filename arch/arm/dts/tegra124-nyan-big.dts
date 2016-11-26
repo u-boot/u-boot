@@ -27,9 +27,7 @@
 	};
 
 	host1x@50000000 {
-		u-boot,dm-pre-reloc;
 		dc@54200000 {
-			u-boot,dm-pre-reloc;
 			display-timings {
 				timing@0 {
 					clock-frequency = <69500000>;
