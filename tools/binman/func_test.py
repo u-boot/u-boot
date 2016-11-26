@@ -714,7 +714,95 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual('nodtb with microcode' + pos_and_size +
                             ' somewhere in here', first)
 
+    def testPackUbootSingleMicrocode(self):
+        """Test that x86 microcode can be handled correctly with fdt_normal.
+        """
+        self._RunPackUbootSingleMicrocode(False)
+
+    def testPackUbootSingleMicrocodeFallback(self):
+        """Test that x86 microcode can be handled correctly with fdt_fallback.
+
+        This only supports collating the microcode.
+        """
+        try:
+            old_val = fdt_select.UseFallback(True)
+            self._RunPackUbootSingleMicrocode(True)
+        finally:
+            fdt_select.UseFallback(old_val)
+
     def testUBootImg(self):
         """Test that u-boot.img can be put in a file"""
         data = self._DoReadFile('36_u_boot_img.dts')
         self.assertEqual(U_BOOT_IMG_DATA, data)
+
+    def testNoMicrocode(self):
+        """Test that a missing microcode region is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('37_x86_no_ucode.dts', True)
+        self.assertIn("Node '/binman/u-boot-dtb-with-ucode': No /microcode "
+                      "node found in ", str(e.exception))
+
+    def testMicrocodeWithoutNode(self):
+        """Test that a missing u-boot-dtb-with-ucode node is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('38_x86_ucode_missing_node.dts', True)
+        self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
+                "microcode region u-boot-dtb-with-ucode", str(e.exception))
+
+    def testMicrocodeWithoutNode2(self):
+        """Test that a missing u-boot-ucode node is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('39_x86_ucode_missing_node2.dts', True)
+        self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
+            "microcode region u-boot-ucode", str(e.exception))
+
+    def testMicrocodeWithoutPtrInElf(self):
+        """Test that a U-Boot binary without the microcode symbol is detected"""
+        # ELF file without a '_dt_ucode_base_size' symbol
+        if not fdt_select.have_libfdt:
+            return
+        try:
+            with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
+                TestFunctional._MakeInputFile('u-boot', fd.read())
+
+            with self.assertRaises(ValueError) as e:
+                self._RunPackUbootSingleMicrocode(False)
+            self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot locate "
+                    "_dt_ucode_base_size symbol in u-boot", str(e.exception))
+
+        finally:
+            # Put the original file back
+            with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+                TestFunctional._MakeInputFile('u-boot', fd.read())
+
+    def testMicrocodeNotInImage(self):
+        """Test that microcode must be placed within the image"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('40_x86_ucode_not_in_image.dts', True)
+        self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Microcode "
+                "pointer _dt_ucode_base_size at fffffe14 is outside the "
+                "image ranging from 00000000 to 0000002e", str(e.exception))
+
+    def testWithoutMicrocode(self):
+        """Test that we can cope with an image without microcode (e.g. qemu)"""
+        with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('u-boot', fd.read())
+        data, dtb = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
+
+        # Now check the device tree has no microcode
+        self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
+        second = data[len(U_BOOT_NODTB_DATA):]
+
+        fdt_len = self.GetFdtLen(second)
+        self.assertEqual(dtb, second[:fdt_len])
+
+        used_len = len(U_BOOT_NODTB_DATA) + fdt_len
+        third = data[used_len:]
+        self.assertEqual(chr(0) * (0x200 - used_len), third)
+
+    def testUnknownPosSize(self):
+        """Test that microcode must be placed within the image"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('41_unknown_pos_size.dts', True)
+        self.assertIn("Image '/binman': Unable to set pos/size for unknown "
+                "entry 'invalid-entry'", str(e.exception))
