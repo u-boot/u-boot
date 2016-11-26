@@ -310,8 +310,8 @@ quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
 # Bring in any U-Boot-specific include after the '/dts-v1/;' header
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
-	cat $< $(if $(u-boot-dtsi),\
-		| sed 's%^/ {$$%\#include \"$(u-boot-dtsi)\"\n&%')  | \
+	cat $< $(if $(u_boot_dtsi),\
+		| sed 's%^/ {$$%\#include \"$(u_boot_dtsi)\"\n&%')  | \
 		$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) - ; \
 	$(DTC) -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
