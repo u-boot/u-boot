@@ -36,6 +36,8 @@ VGA_DATA            = 'vga'
 U_BOOT_DTB_DATA     = 'udtb'
 X86_START16_DATA    = 'start16'
 U_BOOT_NODTB_DATA   = 'nodtb with microcode pointer somewhere in here'
+FSP_DATA            = 'fsp'
+CMC_DATA            = 'cmc'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -70,6 +72,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
+        TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
+        TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -806,3 +810,13 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('41_unknown_pos_size.dts', True)
         self.assertIn("Image '/binman': Unable to set pos/size for unknown "
                 "entry 'invalid-entry'", str(e.exception))
+
+    def testPackFsp(self):
+        """Test that an image with a FSP binary can be created"""
+        data = self._DoReadFile('42_intel-fsp.dts')
+        self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
+
+    def testPackCmc(self):
+        """Test that an image with a FSP binary can be created"""
+        data = self._DoReadFile('43_intel-cmc.dts')
+        self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
