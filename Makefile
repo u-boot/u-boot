@@ -903,6 +903,12 @@ u-boot.ldr:	u-boot
 		$(LDR) -T $(CONFIG_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
+# binman
+# ---------------------------------------------------------------------------
+quiet_cmd_binman = BINMAN  $@
+cmd_binman = $(srctree)/tools/binman/binman -d u-boot.dtb -O . \
+		-I . -I $(srctree)/board/$(BOARDDIR) $<
+
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 
 OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
