@@ -1,0 +1,15 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		sort-by-pos;
+		end-at-4gb;
+		size = <16>;
+		intel-me {
+			pos-unset;
+		};
+	};
+};

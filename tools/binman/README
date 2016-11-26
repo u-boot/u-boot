@@ -369,6 +369,17 @@ Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
 
+Special properties
+------------------
+
+Some entries support special properties, documented here:
+
+u-boot-with-ucode-ptr:
+	optional-ucode: boolean property to make microcode optional. If the
+		u-boot.bin image does not include microcode, no error will
+		be generated.
+
+
 Order of image creation
 -----------------------
 

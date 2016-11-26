@@ -65,9 +65,20 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot.img', U_BOOT_IMG_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.bin', U_BOOT_SPL_DATA)
         TestFunctional._MakeInputFile('blobfile', BLOB_DATA)
+        TestFunctional._MakeInputFile('me.bin', ME_DATA)
+        TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+        TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         self._output_setup = False
+
+        # ELF file with a '_dt_ucode_base_size' symbol
+        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('u-boot', fd.read())
+
+        # Intel flash descriptor file
+        with open(self.TestFile('descriptor.bin')) as fd:
+            TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
     @classmethod
     def tearDownClass(self):
@@ -125,6 +136,18 @@ class TestFunctional(unittest.TestCase):
                               '-d', self.TestFile(fname))
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
+        """Set up a new test device-tree file
+
+        The given file is compiled and set up as the device tree to be used
+        for ths test.
+
+        Args:
+            fname: Filename of .dts file to read
+            outfile: Output filename for compiled device tree binary
+
+        Returns:
+            Contents of device tree binary
+        """
         if not self._output_setup:
             tools.PrepareOutputDir(self._indir, True)
             self._output_setup = True
@@ -132,8 +155,9 @@ class TestFunctional(unittest.TestCase):
         with open(dtb) as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
+            return data
 
-    def _DoReadFile(self, fname, use_real_dtb=False):
+    def _DoReadFileDtb(self, fname, use_real_dtb=False):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -148,10 +172,16 @@ class TestFunctional(unittest.TestCase):
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+
+        Returns:
+            Tuple:
+                Resulting image contents
+                Device tree contents
         """
+        dtb_data = None
         # Use the compiled test file as the u-boot-dtb input
         if use_real_dtb:
-            self._SetupDtb(fname)
+            dtb_data = self._SetupDtb(fname)
 
         try:
             retcode = self._DoTestFile(fname)
@@ -162,11 +192,15 @@ class TestFunctional(unittest.TestCase):
             fname = tools.GetOutputFilename('image.bin')
             self.assertTrue(os.path.exists(fname))
             with open(fname) as fd:
-                return fd.read()
+                return fd.read(), dtb_data
         finally:
             # Put the test file back
             if use_real_dtb:
                 TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+
+    def _DoReadFile(self, fname, use_real_dtb=False):
+        """Helper function which discards the device-tree binary"""
+        return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
     @classmethod
     def _MakeInputFile(self, fname, contents):
@@ -212,6 +246,17 @@ class TestFunctional(unittest.TestCase):
         for entry in entries.values():
             self.assertEqual(pos, entry.pos)
             pos += entry.size
+
+    def GetFdtLen(self, dtb):
+        """Get the totalsize field from a device tree binary
+
+        Args:
+            dtb: Device tree binary contents
+
+        Returns:
+            Total size of device tree binary, from the header
+        """
+        return struct.unpack('>L', dtb[4:8])[0]
 
     def testRun(self):
         """Test a basic run with valid args"""
@@ -540,3 +585,131 @@ class TestFunctional(unittest.TestCase):
         """Test that a device tree can be added to U-Boot"""
         data = self._DoReadFile('26_pack_u_boot_dtb.dts')
         self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA, data)
+
+    def testPackX86RomNoSize(self):
+        """Test that the end-at-4gb property requires a size property"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('27_pack_4gb_no_size.dts')
+        self.assertIn("Image '/binman': Image size must be provided when "
+                      "using end-at-4gb", str(e.exception))
+
+    def testPackX86RomOutside(self):
+        """Test that the end-at-4gb property checks for position boundaries"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('28_pack_4gb_outside.dts')
+        self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
+                      "the image starting at 0xfffffff0 (4294967280)",
+                      str(e.exception))
+
+    def testPackX86Rom(self):
+        """Test that a basic x86 ROM can be created"""
+        data = self._DoReadFile('29_x86-rom.dts')
+        self.assertEqual(U_BOOT_DATA + chr(0) * 3 + U_BOOT_SPL_DATA +
+                         chr(0) * 6, data)
+
+    def testPackX86RomMeNoDesc(self):
+        """Test that an invalid Intel descriptor entry is detected"""
+        TestFunctional._MakeInputFile('descriptor.bin', '')
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('31_x86-rom-me.dts')
+        self.assertIn("Node '/binman/intel-descriptor': Cannot find FD "
+                      "signature", str(e.exception))
+
+    def testPackX86RomBadDesc(self):
+        """Test that the Intel requires a descriptor entry"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('30_x86-rom-me-no-desc.dts')
+        self.assertIn("Node '/binman/intel-me': No position set with "
+                      "pos-unset: should another entry provide this correct "
+                      "position?", str(e.exception))
+
+    def testPackX86RomMe(self):
+        """Test that an x86 ROM with an ME region can be created"""
+        data = self._DoReadFile('31_x86-rom-me.dts')
+        self.assertEqual(ME_DATA, data[0x1000:0x1000 + len(ME_DATA)])
+
+    def testPackVga(self):
+        """Test that an image with a VGA binary can be created"""
+        data = self._DoReadFile('32_intel-vga.dts')
+        self.assertEqual(VGA_DATA, data[:len(VGA_DATA)])
+
+    def testPackStart16(self):
+        """Test that an image with an x86 start16 region can be created"""
+        data = self._DoReadFile('33_x86-start16.dts')
+        self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
+
+    def testPackUbootMicrocode(self):
+        """Test that x86 microcode can be handled correctly
+
+        We expect to see the following in the image, in order:
+            u-boot-nodtb.bin with a microcode pointer inserted at the correct
+                place
+            u-boot.dtb with the microcode removed
+            the microcode
+        """
+        data = self._DoReadFile('34_x86_ucode.dts', True)
+
+        # Now check the device tree has no microcode
+        second = data[len(U_BOOT_NODTB_DATA):]
+        fname = tools.GetOutputFilename('test.dtb')
+        with open(fname, 'wb') as fd:
+            fd.write(second)
+        fdt = fdt_select.FdtScan(fname)
+        ucode = fdt.GetNode('/microcode')
+        self.assertTrue(ucode)
+        for node in ucode.subnodes:
+            self.assertFalse(node.props.get('data'))
+
+        fdt_len = self.GetFdtLen(second)
+        third = second[fdt_len:]
+
+        # Check that the microcode appears immediately after the Fdt
+        # This matches the concatenation of the data properties in
+        # the /microcode/update@xxx nodes in x86_ucode.dts.
+        ucode_data = struct.pack('>4L', 0x12345678, 0x12345679, 0xabcd0000,
+                                 0x78235609)
+        self.assertEqual(ucode_data, third[:len(ucode_data)])
+        ucode_pos = len(U_BOOT_NODTB_DATA) + fdt_len
+
+        # Check that the microcode pointer was inserted. It should match the
+        # expected position and size
+        pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
+                                   len(ucode_data))
+        first = data[:len(U_BOOT_NODTB_DATA)]
+        self.assertEqual('nodtb with microcode' + pos_and_size +
+                         ' somewhere in here', first)
+
+    def _RunPackUbootSingleMicrocode(self, collate):
+        """Test that x86 microcode can be handled correctly
+
+        We expect to see the following in the image, in order:
+            u-boot-nodtb.bin with a microcode pointer inserted at the correct
+                place
+            u-boot.dtb with the microcode
+            an empty microcode region
+        """
+        # We need the libfdt library to run this test since only that allows
+        # finding the offset of a property. This is required by
+        # Entry_u_boot_dtb_with_ucode.ObtainContents().
+        if not fdt_select.have_libfdt:
+            return
+        data = self._DoReadFile('35_x86_single_ucode.dts', True)
+
+        second = data[len(U_BOOT_NODTB_DATA):]
+
+        fdt_len = self.GetFdtLen(second)
+        third = second[fdt_len:]
+        second = second[:fdt_len]
+
+        if not collate:
+            ucode_data = struct.pack('>2L', 0x12345678, 0x12345679)
+            self.assertIn(ucode_data, second)
+            ucode_pos = second.find(ucode_data) + len(U_BOOT_NODTB_DATA)
+
+            # Check that the microcode pointer was inserted. It should match the
+            # expected position and size
+            pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
+                                    len(ucode_data))
+            first = data[:len(U_BOOT_NODTB_DATA)]
+            self.assertEqual('nodtb with microcode' + pos_and_size +
+                            ' somewhere in here', first)
