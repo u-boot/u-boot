@@ -713,3 +713,8 @@ class TestFunctional(unittest.TestCase):
             first = data[:len(U_BOOT_NODTB_DATA)]
             self.assertEqual('nodtb with microcode' + pos_and_size +
                             ' somewhere in here', first)
+
+    def testUBootImg(self):
+        """Test that u-boot.img can be put in a file"""
+        data = self._DoReadFile('36_u_boot_img.dts')
+        self.assertEqual(U_BOOT_IMG_DATA, data)
