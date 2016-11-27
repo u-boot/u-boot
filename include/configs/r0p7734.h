@@ -9,7 +9,6 @@
 #ifndef __R0P7734_H
 #define __R0P7734_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7734	1
 #define CONFIG_R0P7734		1
 #define CONFIG_400MHZ_MODE	1

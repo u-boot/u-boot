@@ -9,7 +9,6 @@
 #ifndef __MIGO_R_H
 #define __MIGO_R_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7722	1
 #define CONFIG_MIGO_R		1
 

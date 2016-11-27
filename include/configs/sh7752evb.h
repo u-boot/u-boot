@@ -9,7 +9,6 @@
 #ifndef __SH7752EVB_H
 #define __SH7752EVB_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7752	1
 #define CONFIG_SH7752EVB	1
 

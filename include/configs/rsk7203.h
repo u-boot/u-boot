@@ -10,7 +10,6 @@
 #ifndef __RSK7203_H
 #define __RSK7203_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7203	1
 #define CONFIG_RSK7203	1
 

@@ -9,7 +9,6 @@
 #ifndef __SH7757LCR_H
 #define __SH7757LCR_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7757	1
 #define CONFIG_SH7757LCR	1
 #define CONFIG_SH7757LCR_DDR_ECC	1

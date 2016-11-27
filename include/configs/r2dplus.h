@@ -1,8 +1,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG
-
 #define CONFIG_CPU_SH7751	1
 #define CONFIG_CPU_SH_TYPE_R	1
 #define CONFIG_R2DPLUS		1
