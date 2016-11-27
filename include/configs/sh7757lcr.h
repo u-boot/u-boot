@@ -24,6 +24,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 /* MEMORY */

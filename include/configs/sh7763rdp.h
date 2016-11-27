@@ -23,6 +23,7 @@
 #define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
 #define CONFIG_ENV_OVERWRITE    1
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* SCIF */

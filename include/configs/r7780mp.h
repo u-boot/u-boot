@@ -15,6 +15,8 @@
 #define CONFIG_SYS_R7780MP_OLD_FLASH	1
 #define __LITTLE_ENDIAN__ 1
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * Command line configuration.
  */
