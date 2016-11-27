@@ -6,4 +6,4 @@
 #
 
 obj-y	:= ms7750se.o
-obj-y	+= lowlevel_init.o
+extra-y	+= lowlevel_init.o

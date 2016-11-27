@@ -31,7 +31,7 @@ SECTIONS
 	.text :
 	{
 		KEEP(*/start.o		(.text))
-		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.spiboot1.text))
+		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
 		KEEP(*(.spiboot2.text))
 		. = ALIGN(8192);
 		common/env_embedded.o	(.ppcenv)
