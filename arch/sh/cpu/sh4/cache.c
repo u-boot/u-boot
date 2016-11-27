@@ -97,7 +97,7 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 
 	start &= ~(L1_CACHE_BYTES - 1);
 	for (v = start; v < end; v += L1_CACHE_BYTES) {
-		asm volatile ("ocbwb     %0" :	/* no output */
+		asm volatile ("ocbp     %0" :	/* no output */
 			      : "m" (__m(v)));
 	}
 }
