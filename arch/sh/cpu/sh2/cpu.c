@@ -83,9 +83,3 @@ int dcache_status(void)
 {
 	return 0;
 }
-
-void relocate_code(ulong start_addr_sp, gd_t *new_gd, ulong relocaaddr)
-{
-	/* TODO(sh maintainer): Implement this */
-	while (1);
-}

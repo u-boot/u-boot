@@ -41,9 +41,3 @@ int cpu_eth_init(bd_t *bis)
 #endif
 	return 0;
 }
-
-void relocate_code(ulong start_addr_sp, gd_t *new_gd, ulong relocaaddr)
-{
-	/* TODO(sh maintainer): Implement this */
-	while (1);
-}
