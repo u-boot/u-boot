@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2007
- * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) Copyright 2016 Vladimir Zapolskiy <vz@mleia.com>
+ * (C) Copyright 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -35,7 +35,7 @@ static inline void cache_wback_all(void)
 #define CACHE_ENABLE      0
 #define CACHE_DISABLE     1
 
-int cache_control(unsigned int cmd)
+static int cache_control(unsigned int cmd)
 {
 	unsigned long ccr;
 
@@ -74,4 +74,37 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 		asm volatile ("ocbi     %0" :	/* no output */
 			      : "m" (__m(v)));
 	}
+}
+
+void flush_cache(unsigned long addr, unsigned long size)
+{
+	flush_dcache_range(addr , addr + size);
+}
+
+void icache_enable(void)
+{
+	cache_control(CACHE_ENABLE);
+}
+
+void icache_disable(void)
+{
+	cache_control(CACHE_DISABLE);
+}
+
+int icache_status(void)
+{
+	return 0;
+}
+
+void dcache_enable(void)
+{
+}
+
+void dcache_disable(void)
+{
+}
+
+int dcache_status(void)
+{
+	return 0;
 }
