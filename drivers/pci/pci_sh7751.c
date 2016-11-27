@@ -164,7 +164,7 @@ int pci_sh7751_init(struct pci_controller *hose)
 	p4_out(SH7751_PCI_MEM_BASE, SH7751_PCIMBR);
 
 	/* Map IO window to same address on PCI bus */
-	p4_out(0x2000 & 0xfffc0000, SH7751_PCIIOBR);
+	p4_out(SH7751_PCI_IO_BASE, SH7751_PCIIOBR);
 
 	/* set BREQEN */
 	p4_out(inl(SH7751_BCR1) | 0x00080000, SH7751_BCR1);
