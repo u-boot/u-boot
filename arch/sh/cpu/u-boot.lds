@@ -60,7 +60,7 @@ SECTIONS
 	PROVIDE (_fgot = .);
 	.got :
 	{
-		*(.got)
+		*(.got.plt) *(.got)
 		. = ALIGN(4);
 	} >ram
 	PROVIDE (_egot = .);
