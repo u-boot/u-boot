@@ -11,6 +11,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include "config.h"
+
 OUTPUT_FORMAT("elf32-sh-linux", "elf32-sh-linux", "elf32-sh-linux")
 OUTPUT_ARCH(sh)
 ENTRY(_start)
@@ -29,6 +31,8 @@ SECTIONS
 	.text :
 	{
 		KEEP(*/start.o		(.text))
+		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.spiboot1.text))
+		KEEP(*(.spiboot2.text))
 		. = ALIGN(8192);
 		common/env_embedded.o	(.ppcenv)
 		. = ALIGN(8192);

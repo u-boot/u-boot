@@ -15,7 +15,6 @@
 #define CONFIG_SH7757LCR_DDR_ECC	1
 
 #define CONFIG_SYS_TEXT_BASE	0x8ef80000
-#define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7757lcr/u-boot.lds"
 
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_MD5SUM
