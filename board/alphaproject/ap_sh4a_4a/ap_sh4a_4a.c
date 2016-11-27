@@ -11,8 +11,6 @@
 #include <netdev.h>
 #include <i2c.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MODEMR			(0xFFCC0020)
 #define MODEMR_MASK		(0x6)
 #define MODEMR_533MHZ	(0x2)
@@ -169,15 +167,6 @@ int board_late_init(void)
 
 	if (is_valid_ethaddr(mac))
 		eth_setenv_enetaddr("ethaddr", mac);
-
-	return 0;
-}
-
-int dram_init(void)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
-	printf("DRAM:  %dMB\n", CONFIG_SYS_SDRAM_SIZE / (1024 * 1024));
 
 	return 0;
 }

@@ -10,8 +10,6 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* PRI control register */
 #define PRPRICR5	0xFF800048 /* LMB */
 #define PRPRICR5_D	0x2a
@@ -127,14 +125,6 @@ int board_init(void)
 	/* cpld init */
 	init_cpld();
 
-	return 0;
-}
-
-int dram_init(void)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
-	printf("DRAM:  %dMB\n", CONFIG_SYS_SDRAM_SIZE / (1024 * 1024));
 	return 0;
 }
 
