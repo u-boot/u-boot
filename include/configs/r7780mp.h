@@ -100,7 +100,6 @@
 #define CONFIG_SH7780_PCI_LAR	CONFIG_SYS_SDRAM_SIZE
 #define CONFIG_SH7780_PCI_BAR	CONFIG_SYS_SDRAM_SIZE
 #define CONFIG_PCI_SCAN_SHOW	1
-#define __io
 #define __mem_pci
 
 #define CONFIG_PCI_MEM_BUS	0xFD000000	/* Memory space base addr */

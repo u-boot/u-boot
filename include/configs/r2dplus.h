@@ -91,7 +91,6 @@
 #define CONFIG_SH4_PCI
 #define CONFIG_SH7751_PCI
 #define CONFIG_PCI_SCAN_SHOW	1
-#define __io
 #define __mem_pci
 
 #define CONFIG_PCI_MEM_BUS	0xFD000000	/* Memory space base addr */
