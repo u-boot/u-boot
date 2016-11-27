@@ -19,10 +19,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	/*
-	 * entry and reloct_dst will be provided via ldflags
-	 */
-	. = .;
+	reloc_dst = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);
@@ -73,7 +70,6 @@ SECTIONS
 
 	PROVIDE (__init_end = .);
 	PROVIDE (reloc_dst_end = .);
-	/* _reloc_dst_end = .; */
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);
