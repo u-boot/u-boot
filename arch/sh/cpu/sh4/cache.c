@@ -18,10 +18,10 @@ static inline void cache_wback_all(void)
 {
 	unsigned long addr, data, i, j;
 
-	jump_to_P2();
-	for (i = 0; i < CACHE_OC_NUM_ENTRIES; i++){
+	for (i = 0; i < CACHE_OC_NUM_ENTRIES; i++) {
 		for (j = 0; j < CACHE_OC_NUM_WAYS; j++) {
-			addr = CACHE_OC_ADDRESS_ARRAY | (j << CACHE_OC_WAY_SHIFT)
+			addr = CACHE_OC_ADDRESS_ARRAY
+				| (j << CACHE_OC_WAY_SHIFT)
 				| (i << CACHE_OC_ENTRY_SHIFT);
 			data = inl(addr);
 			if (data & CACHE_UPDATED) {
@@ -30,9 +30,7 @@ static inline void cache_wback_all(void)
 			}
 		}
 	}
-	back_to_P1();
 }
-
 
 #define CACHE_ENABLE      0
 #define CACHE_DISABLE     1
