@@ -1384,6 +1384,20 @@ void select_ldb_di_clock_source(enum ldb_di_clock clk)
 }
 #endif
 
+#ifndef CONFIG_SYS_NO_FLASH
+void enable_eim_clk(unsigned char enable)
+{
+	u32 reg;
+
+	reg = __raw_readl(&imx_ccm->CCGR6);
+	if (enable)
+		reg |= MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	else
+		reg &= ~MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	__raw_writel(reg, &imx_ccm->CCGR6);
+}
+#endif
+
 /***************************************************/
 
 U_BOOT_CMD(
