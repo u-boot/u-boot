@@ -110,9 +110,22 @@
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
 			"if run loadimage; then " \
-				"run mmcloados;" \
+				"if test ${boot_fit} -eq 1; then " \
+					"run loadfit; " \
+				"else " \
+					"run mmcloados;" \
+				"fi;" \
 			"fi;" \
 		"fi;\0" \
+
+#define DEFAULT_FIT_TI_ARGS \
+	"boot_fit=0\0" \
+	"fit_loadaddr=0x88000000\0" \
+	"fit_bootfile=fitImage.itb\0" \
+	"update_to_fit=setenv loadaddr ${fit_loadaddr}; setenv bootfile ${fit_bootfile}\0" \
+	"args_fit=setenv bootargs console=${console} \0" \
+	"loadfit=run args_fit; bootm ${loadaddr}:kernel@1 " \
+		"${loadaddr}:ramdisk@1 ${loadaddr}:${fdtfile};\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
