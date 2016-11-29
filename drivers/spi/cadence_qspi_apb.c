@@ -294,8 +294,7 @@ void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	return;
 }
 
-void cadence_qspi_apb_set_clk_mode(void *reg_base,
-	unsigned int clk_pol, unsigned int clk_pha)
+void cadence_qspi_apb_set_clk_mode(void *reg_base, uint mode)
 {
 	unsigned int reg;
 
@@ -303,9 +302,9 @@ void cadence_qspi_apb_set_clk_mode(void *reg_base,
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg &= ~(CQSPI_REG_CONFIG_CLK_POL | CQSPI_REG_CONFIG_CLK_PHA);
 
-	if (clk_pol)
+	if (mode & SPI_CPOL)
 		reg |= CQSPI_REG_CONFIG_CLK_POL;
-	if (clk_pha)
+	if (mode & SPI_CPHA)
 		reg |= CQSPI_REG_CONFIG_CLK_PHA;
 
 	writel(reg, reg_base + CQSPI_REG_CONFIG);

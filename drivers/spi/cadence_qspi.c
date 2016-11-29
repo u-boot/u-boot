@@ -170,14 +170,12 @@ static int cadence_spi_probe(struct udevice *bus)
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
-	unsigned int clk_pol = (mode & SPI_CPOL) ? 1 : 0;
-	unsigned int clk_pha = (mode & SPI_CPHA) ? 1 : 0;
 
 	/* Disable QSPI */
 	cadence_qspi_apb_controller_disable(priv->regbase);
 
 	/* Set SPI mode */
-	cadence_qspi_apb_set_clk_mode(priv->regbase, clk_pol, clk_pha);
+	cadence_qspi_apb_set_clk_mode(priv->regbase, mode);
 
 	/* Enable QSPI */
 	cadence_qspi_apb_controller_enable(priv->regbase);
