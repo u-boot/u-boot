@@ -57,9 +57,9 @@
  * Controller's configuration and status register (offset from QSPI_BASE)
  ****************************************************************************/
 #define	CQSPI_REG_CONFIG			0x00
-#define	CQSPI_REG_CONFIG_CLK_POL_LSB		1
-#define	CQSPI_REG_CONFIG_CLK_PHA_LSB		2
 #define	CQSPI_REG_CONFIG_ENABLE_MASK		BIT(0)
+#define	CQSPI_REG_CONFIG_CLK_POL		BIT(1)
+#define	CQSPI_REG_CONFIG_CLK_PHA		BIT(2)
 #define	CQSPI_REG_CONFIG_DIRECT_MASK		BIT(7)
 #define	CQSPI_REG_CONFIG_DECODE_MASK		BIT(9)
 #define	CQSPI_REG_CONFIG_XIP_IMM_MASK		BIT(18)
@@ -94,10 +94,10 @@
 #define	CQSPI_REG_DELAY_TSD2D_MASK		0xFF
 #define	CQSPI_REG_DELAY_TSHSL_MASK		0xFF
 
-#define	CQSPI_READLCAPTURE			0x10
-#define	CQSPI_READLCAPTURE_BYPASS_LSB		0
-#define	CQSPI_READLCAPTURE_DELAY_LSB		1
-#define	CQSPI_READLCAPTURE_DELAY_MASK		0xF
+#define	CQSPI_REG_RD_DATA_CAPTURE		0x10
+#define	CQSPI_REG_RD_DATA_CAPTURE_BYPASS	BIT(0)
+#define	CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB	1
+#define	CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK	0xF
 
 #define	CQSPI_REG_SIZE				0x14
 #define	CQSPI_REG_SIZE_ADDRESS_LSB		0
@@ -244,20 +244,20 @@ void cadence_qspi_apb_readdata_capture(void *reg_base,
 	unsigned int reg;
 	cadence_qspi_apb_controller_disable(reg_base);
 
-	reg = readl(reg_base + CQSPI_READLCAPTURE);
+	reg = readl(reg_base + CQSPI_REG_RD_DATA_CAPTURE);
 
 	if (bypass)
-		reg |= (1 << CQSPI_READLCAPTURE_BYPASS_LSB);
+		reg |= CQSPI_REG_RD_DATA_CAPTURE_BYPASS;
 	else
-		reg &= ~(1 << CQSPI_READLCAPTURE_BYPASS_LSB);
+		reg &= ~CQSPI_REG_RD_DATA_CAPTURE_BYPASS;
 
-	reg &= ~(CQSPI_READLCAPTURE_DELAY_MASK
-		<< CQSPI_READLCAPTURE_DELAY_LSB);
+	reg &= ~(CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK
+		<< CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB);
 
-	reg |= ((delay & CQSPI_READLCAPTURE_DELAY_MASK)
-		<< CQSPI_READLCAPTURE_DELAY_LSB);
+	reg |= (delay & CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK)
+		<< CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB;
 
-	writel(reg, reg_base + CQSPI_READLCAPTURE);
+	writel(reg, reg_base + CQSPI_REG_RD_DATA_CAPTURE);
 
 	cadence_qspi_apb_controller_enable(reg_base);
 	return;
@@ -301,11 +301,12 @@ void cadence_qspi_apb_set_clk_mode(void *reg_base,
 
 	cadence_qspi_apb_controller_disable(reg_base);
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
-	reg &= ~(1 << CQSPI_REG_CONFIG_CLK_POL_LSB);
-	reg &= ~(1 << CQSPI_REG_CONFIG_CLK_PHA_LSB);
+	reg &= ~(CQSPI_REG_CONFIG_CLK_POL | CQSPI_REG_CONFIG_CLK_PHA);
 
-	reg |= ((clk_pol & 0x1) << CQSPI_REG_CONFIG_CLK_POL_LSB);
-	reg |= ((clk_pha & 0x1) << CQSPI_REG_CONFIG_CLK_PHA_LSB);
+	if (clk_pol)
+		reg |= CQSPI_REG_CONFIG_CLK_POL;
+	if (clk_pha)
+		reg |= CQSPI_REG_CONFIG_CLK_PHA;
 
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
