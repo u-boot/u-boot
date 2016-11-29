@@ -138,7 +138,10 @@ static void ddr3_reset_data(u32 base, u32 ddr3_size)
 	puts("\nClear entire DDR3 memory to enable ECC\n");
 
 	/* save the SES MPAX regs */
-	msmc_get_ses_mpax(8, 0, mpax);
+	if (cpu_is_k2g())
+		msmc_get_ses_mpax(K2G_MSMC_SEGMENT_ARM, 0, mpax);
+	else
+		msmc_get_ses_mpax(K2HKLE_MSMC_SEGMENT_ARM, 0, mpax);
 
 	/* setup edma slot 1 configuration */
 	slot.opt = EDMA3_SLOPT_TRANS_COMP_INT_ENB |
@@ -169,8 +172,17 @@ static void ddr3_reset_data(u32 base, u32 ddr3_size)
 	for (seg = 0; seg < seg_num; seg += KS2_MSMC_MAP_SEG_NUM) {
 		/* map 2GB 36-bit DDR address to 32-bit DDR address in EMIF
 		   access slave interface so that edma driver can access */
-		msmc_map_ses_segment(8, 0, base >> KS2_MSMC_SEG_SIZE_SHIFT,
-				     KS2_MSMC_DST_SEG_BASE + seg, MPAX_SEG_2G);
+		if (cpu_is_k2g()) {
+			msmc_map_ses_segment(K2G_MSMC_SEGMENT_ARM, 0,
+					     base >> KS2_MSMC_SEG_SIZE_SHIFT,
+					     KS2_MSMC_DST_SEG_BASE + seg,
+					     MPAX_SEG_2G);
+		} else {
+			msmc_map_ses_segment(K2HKLE_MSMC_SEGMENT_ARM, 0,
+					     base >> KS2_MSMC_SEG_SIZE_SHIFT,
+					     KS2_MSMC_DST_SEG_BASE + seg,
+					     MPAX_SEG_2G);
+		}
 
 		if ((seg_num - seg) > KS2_MSMC_MAP_SEG_NUM)
 			edma_blks = KS2_MSMC_MAP_SEG_NUM <<
@@ -197,7 +209,10 @@ static void ddr3_reset_data(u32 base, u32 ddr3_size)
 	qedma3_stop(KS2_EDMA0_BASE, &edma_channel);
 
 	/* restore the SES MPAX regs */
-	msmc_set_ses_mpax(8, 0, mpax);
+	if (cpu_is_k2g())
+		msmc_set_ses_mpax(K2G_MSMC_SEGMENT_ARM, 0, mpax);
+	else
+		msmc_set_ses_mpax(K2HKLE_MSMC_SEGMENT_ARM, 0, mpax);
 }
 
 static void ddr3_ecc_init_range(u32 base)
