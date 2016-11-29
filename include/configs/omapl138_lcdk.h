@@ -274,12 +274,16 @@
 		"run spiboot; " \
 	"fi"
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdtaddr=0xc0600000\0" \
+	"fdtfile=da850-lcdk.dtb\0" \
+	"fdtboot=bootm 0xc0700000 - ${fdtaddr};\0" \
 	"mmcboot=" \
 		"if fatload mmc 0 0xc0600000 boot.scr; then " \
 			"source 0xc0600000; " \
 		"else " \
 			"fatload mmc 0 0xc0700000 uImage; " \
-			"bootm 0xc0700000; " \
+			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
+			"run fdtboot; " \
 		"fi;\0" \
 	"spiboot=" \
 		"sf probe 0; " \
