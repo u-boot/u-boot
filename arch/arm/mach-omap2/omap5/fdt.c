@@ -212,6 +212,38 @@ static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
 static int ft_hs_fixup_dram(void *fdt, bd_t *bd) { return 0; }
 #endif
 
+static int ft_hs_add_tee(void *fdt, bd_t *bd)
+{
+	const char *path, *subpath;
+	int offs;
+
+	extern int tee_loaded;
+	if (!tee_loaded)
+		return 0;
+
+	path = "/";
+	offs = fdt_path_offset(fdt, path);
+
+	subpath = "firmware";
+	offs = fdt_add_subnode(fdt, offs, subpath);
+	if (offs < 0) {
+		printf("Could not create %s node.\n", subpath);
+		return 1;
+	}
+
+	subpath = "optee";
+	offs = fdt_add_subnode(fdt, offs, subpath);
+	if (offs < 0) {
+		printf("Could not create %s node.\n", subpath);
+		return 1;
+	}
+
+	fdt_setprop_string(fdt, offs, "compatible", "linaro,optee-tz");
+	fdt_setprop_string(fdt, offs, "method", "smc");
+
+	return 0;
+}
+
 static void ft_hs_fixups(void *fdt, bd_t *bd)
 {
 	/* Check we are running on an HS/EMU device type */
@@ -219,7 +251,8 @@ static void ft_hs_fixups(void *fdt, bd_t *bd)
 		if ((ft_hs_fixup_crossbar(fdt, bd) == 0) &&
 		    (ft_hs_disable_rng(fdt, bd) == 0) &&
 		    (ft_hs_fixup_sram(fdt, bd) == 0) &&
-		    (ft_hs_fixup_dram(fdt, bd) == 0))
+		    (ft_hs_fixup_dram(fdt, bd) == 0) &&
+		    (ft_hs_add_tee(fdt, bd) == 0))
 			return;
 	} else {
 		printf("ERROR: Incorrect device type (GP) detected!");
