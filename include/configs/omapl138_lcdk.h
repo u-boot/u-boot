@@ -172,7 +172,6 @@
 #define CONFIG_SYS_NAND_MASK_ALE	0x8
 #undef CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#define NAND_MAX_CHIPS			1
 #endif
 
 #ifdef CONFIG_SYS_USE_NOR
