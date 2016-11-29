@@ -280,12 +280,12 @@ void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	 */
 	div = DIV_ROUND_UP(ref_clk_hz, sclk_hz * 2) - 1;
 
-	debug("%s: ref_clk %dHz sclk %dHz Div 0x%x\n", __func__,
-	      ref_clk_hz, sclk_hz, div);
-
 	/* ensure the baud rate doesn't exceed the max value */
 	if (div > CQSPI_REG_CONFIG_BAUD_MASK)
 		div = CQSPI_REG_CONFIG_BAUD_MASK;
+
+	debug("%s: ref_clk %dHz sclk %dHz Div 0x%x, actual %dHz\n", __func__,
+	      ref_clk_hz, sclk_hz, div, ref_clk_hz / (2 * (div + 1)));
 
 	reg |= (div << CQSPI_REG_CONFIG_BAUD_LSB);
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
