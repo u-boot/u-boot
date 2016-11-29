@@ -199,20 +199,6 @@
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load ${devtype} ${devnum} ${rdaddr} ramdisk.gz\0" \
-	"loadimage=load ${devtype} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
-	"mmcboot=mmc dev ${mmcdev}; " \
-		"setenv devnum ${mmcdev}; " \
-		"setenv devtype mmc; " \
-		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${devnum};" \
-			"if run loadimage; then " \
-				"run loadfdt; " \
-				"echo Booting from mmc${mmcdev} ...; " \
-				"run args_mmc; " \
-				"bootz ${loadaddr} - ${fdtaddr}; " \
-			"fi;" \
-		"fi;\0" \
 	"usbboot=" \
 		"setenv devnum ${usbdev}; " \
 		"setenv devtype usb; " \
