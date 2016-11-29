@@ -273,22 +273,12 @@ void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg &= ~(CQSPI_REG_CONFIG_BAUD_MASK << CQSPI_REG_CONFIG_BAUD_LSB);
 
-	div = ref_clk_hz / sclk_hz;
-
-	if (div > 32)
-		div = 32;
-
-	/* Check if even number. */
-	if ((div & 1)) {
-		div = (div / 2);
-	} else {
-		if (ref_clk_hz % sclk_hz)
-			/* ensure generated SCLK doesn't exceed user
-			specified sclk_hz */
-			div = (div / 2);
-		else
-			div = (div / 2) - 1;
-	}
+	/*
+	 * The baud_div field in the config reg is 4 bits, and the ref clock is
+	 * divided by 2 * (baud_div + 1). Round up the divider to ensure the
+	 * SPI clock rate is less than or equal to the requested clock rate.
+	 */
+	div = DIV_ROUND_UP(ref_clk_hz, sclk_hz * 2) - 1;
 
 	debug("%s: ref_clk %dHz sclk %dHz Div 0x%x\n", __func__,
 	      ref_clk_hz, sclk_hz, div);
