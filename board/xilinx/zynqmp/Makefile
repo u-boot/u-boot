@@ -7,7 +7,7 @@
 
 obj-y	:= zynqmp.o
 
-hw-platform-y :=$(shell echo $(CONFIG_SYS_CONFIG_NAME))
+hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
 
 init-objs := $(if $(wildcard $(srctree)/$(src)/$(hw-platform-y)/psu_init_gpl.c),\
 	$(hw-platform-y)/psu_init_gpl.o)
