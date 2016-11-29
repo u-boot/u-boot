@@ -296,6 +296,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 
 	plat->regbase = (void *)data[0];
 	plat->ahbbase = (void *)data[2];
+	plat->sram_size = fdtdec_get_int(blob, node, "sram-size", 128);
 
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
@@ -315,7 +316,6 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->tsd2d_ns = fdtdec_get_int(blob, subnode, "tsd2d-ns", 255);
 	plat->tchsh_ns = fdtdec_get_int(blob, subnode, "tchsh-ns", 20);
 	plat->tslch_ns = fdtdec_get_int(blob, subnode, "tslch-ns", 20);
-	plat->sram_size = fdtdec_get_int(blob, node, "sram-size", 128);
 
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,
