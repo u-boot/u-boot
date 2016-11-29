@@ -19,12 +19,29 @@
 #include <asm/omap_sec_common.h>
 #include <asm/spl.h>
 #include <spl.h>
+#include <asm/cache.h>
+#include <mapmem.h>
+#include <tee/optee.h>
 
 /* Index for signature PPA-based TI HAL APIs */
 #define PPA_HAL_SERVICES_START_INDEX        (0x200)
+#define PPA_SERV_HAL_TEE_LOAD_MASTER        (PPA_HAL_SERVICES_START_INDEX + 23)
+#define PPA_SERV_HAL_TEE_LOAD_SLAVE         (PPA_HAL_SERVICES_START_INDEX + 24)
 #define PPA_SERV_HAL_SETUP_SEC_RESVD_REGION (PPA_HAL_SERVICES_START_INDEX + 25)
 #define PPA_SERV_HAL_SETUP_EMIF_FW_REGION   (PPA_HAL_SERVICES_START_INDEX + 26)
 #define PPA_SERV_HAL_LOCK_EMIF_FW           (PPA_HAL_SERVICES_START_INDEX + 27)
+
+int tee_loaded = 0;
+
+/* Argument for PPA_SERV_HAL_TEE_LOAD_MASTER */
+struct ppa_tee_load_info {
+	u32 tee_sec_mem_start; /* Physical start address reserved for TEE */
+	u32 tee_sec_mem_size;  /* Size of the memory reserved for TEE */
+	u32 tee_cert_start;    /* Address where signed TEE binary is loaded */
+	u32 tee_cert_size;     /* Size of TEE certificate (signed binary) */
+	u32 tee_jump_addr;     /* Address to jump to start TEE execution */
+	u32 tee_arg0;          /* argument to TEE jump function, in r0 */
+};
 
 static u32 get_sec_mem_start(void)
 {
@@ -123,4 +140,95 @@ int secure_emif_firewall_lock(void)
 	}
 
 	return result;
+}
+
+static struct ppa_tee_load_info tee_info __aligned(ARCH_DMA_MINALIGN);
+
+int secure_tee_install(u32 addr)
+{
+	struct optee_header *hdr;
+	void *loadptr;
+	u32 tee_file_size;
+	u32 sec_mem_start = get_sec_mem_start();
+	const u32 size = CONFIG_TI_SECURE_EMIF_PROTECTED_REGION_SIZE;
+	u32 *smc_cpu1_params;
+	u32 ret;
+
+	/* If there is no protected region, there is no place to put the TEE */
+	if (size == 0) {
+		printf("Error loading TEE, no protected memory region available\n");
+		return -ENOBUFS;
+	}
+
+	hdr = (struct optee_header *)map_sysmem(addr, sizeof(struct optee_header));
+	/* 280 bytes = size of signature */
+	tee_file_size = hdr->init_size + hdr->paged_size +
+			sizeof(struct optee_header) + 280;
+
+	if ((hdr->magic != OPTEE_MAGIC) ||
+	    (hdr->version != OPTEE_VERSION) ||
+	    (hdr->init_load_addr_hi != 0) ||
+	    (hdr->init_load_addr_lo < (sec_mem_start + sizeof(struct optee_header))) ||
+	    (tee_file_size > size) ||
+	    ((hdr->init_load_addr_lo + tee_file_size - 1) >
+	     (sec_mem_start + size - 1))) {
+		printf("Error in TEE header. Check load address and sizes\n");
+		unmap_sysmem(hdr);
+		return CMD_RET_FAILURE;
+	}
+
+	tee_info.tee_sec_mem_start = sec_mem_start;
+	tee_info.tee_sec_mem_size = size;
+	tee_info.tee_jump_addr = hdr->init_load_addr_lo;
+	tee_info.tee_cert_start = addr;
+	tee_info.tee_cert_size = tee_file_size;
+	tee_info.tee_arg0 = hdr->init_size + tee_info.tee_jump_addr;
+	unmap_sysmem(hdr);
+	loadptr = map_sysmem(addr, tee_file_size);
+
+	debug("tee_info.tee_sec_mem_start= %08X\n", tee_info.tee_sec_mem_start);
+	debug("tee_info.tee_sec_mem_size = %08X\n", tee_info.tee_sec_mem_size);
+	debug("tee_info.tee_jump_addr = %08X\n", tee_info.tee_jump_addr);
+	debug("tee_info.tee_cert_start = %08X\n", tee_info.tee_cert_start);
+	debug("tee_info.tee_cert_size = %08X\n", tee_info.tee_cert_size);
+	debug("tee_info.tee_arg0 = %08X\n", tee_info.tee_arg0);
+	debug("tee_file_size = %d\n", tee_file_size);
+
+#if !defined(CONFIG_SYS_DCACHE_OFF)
+	flush_dcache_range(
+		rounddown((u32)loadptr, ARCH_DMA_MINALIGN),
+		roundup((u32)loadptr + tee_file_size, ARCH_DMA_MINALIGN));
+
+	flush_dcache_range((u32)&tee_info, (u32)&tee_info +
+			roundup(sizeof(tee_info), ARCH_DMA_MINALIGN));
+#endif
+	unmap_sysmem(loadptr);
+
+	ret = secure_rom_call(PPA_SERV_HAL_TEE_LOAD_MASTER, 0, 0, 1, &tee_info);
+	if (ret) {
+		printf("TEE_LOAD_MASTER Failed\n");
+		return ret;
+	}
+	printf("TEE_LOAD_MASTER Done\n");
+
+	if (!is_dra72x()) {
+		/* Reuse the tee_info buffer for SMC params */
+		smc_cpu1_params = (u32 *)&tee_info;
+		smc_cpu1_params[0] = 0;
+#if !defined(CONFIG_SYS_DCACHE_OFF)
+		flush_dcache_range((u32)smc_cpu1_params, (u32)smc_cpu1_params +
+				roundup(sizeof(u32), ARCH_DMA_MINALIGN));
+#endif
+		ret = omap_smc_sec_cpu1(PPA_SERV_HAL_TEE_LOAD_SLAVE, 0, 0,
+				smc_cpu1_params);
+		if (ret) {
+			printf("TEE_LOAD_SLAVE Failed\n");
+			return ret;
+		}
+		printf("TEE_LOAD_SLAVE Done\n");
+	}
+
+	tee_loaded = 1;
+
+	return 0;
 }
