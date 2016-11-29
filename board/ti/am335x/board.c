@@ -639,6 +639,13 @@ int board_late_init(void)
 	if (board_is_bbg1())
 		name = "BBG1";
 	set_board_info_env(name);
+
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
 #endif
 
 #if !defined(CONFIG_SPL_BUILD)
