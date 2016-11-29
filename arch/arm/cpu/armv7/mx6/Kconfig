@@ -204,6 +204,12 @@ config TARGET_UDOO_NEO
 	bool "UDOO Neo"
 	select SUPPORT_SPL
 
+config TARGET_SAMTEC_VINING_2000
+	bool "samtec VIN|ING 2000"
+	select MX6SX
+	select DM
+	select DM_THERMAL
+
 config TARGET_WANDBOARD
 	bool "wandboard"
 	select SUPPORT_SPL
@@ -259,6 +265,7 @@ source "board/freescale/mx6ullevk/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
+source "board/samtec/vining_2000/Kconfig"
 source "board/seco/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
