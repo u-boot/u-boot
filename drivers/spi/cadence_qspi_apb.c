@@ -169,9 +169,6 @@
 	((readl(base + CQSPI_REG_CONFIG) >>		\
 		CQSPI_REG_CONFIG_IDLE_LSB) & 0x1)
 
-#define CQSPI_CAL_DELAY(tdelay_ns, tref_ns, tsclk_ns)		\
-	((((tdelay_ns) - (tsclk_ns)) / (tref_ns)))
-
 #define CQSPI_GET_RD_SRAM_LEVEL(reg_base)			\
 	(((readl(reg_base + CQSPI_REG_SDRAMLEVEL)) >>	\
 	CQSPI_REG_SDRAMLEVEL_RD_LSB) & CQSPI_REG_SDRAMLEVEL_RD_MASK)
@@ -355,16 +352,20 @@ void cadence_qspi_apb_delay(void *reg_base,
 	cadence_qspi_apb_controller_disable(reg_base);
 
 	/* Convert to ns. */
-	ref_clk_ns = (1000000000) / ref_clk;
+	ref_clk_ns = DIV_ROUND_UP(1000000000, ref_clk);
 
 	/* Convert to ns. */
-	sclk_ns = (1000000000) / sclk_hz;
+	sclk_ns = DIV_ROUND_UP(1000000000, sclk_hz);
 
-	/* Plus 1 to round up 1 clock cycle. */
-	tshsl = CQSPI_CAL_DELAY(tshsl_ns, ref_clk_ns, sclk_ns) + 1;
-	tchsh = CQSPI_CAL_DELAY(tchsh_ns, ref_clk_ns, sclk_ns) + 1;
-	tslch = CQSPI_CAL_DELAY(tslch_ns, ref_clk_ns, sclk_ns) + 1;
-	tsd2d = CQSPI_CAL_DELAY(tsd2d_ns, ref_clk_ns, sclk_ns) + 1;
+	/* The controller adds additional delay to that programmed in the reg */
+	if (tshsl_ns >= sclk_ns + ref_clk_ns)
+		tshsl_ns -= sclk_ns + ref_clk_ns;
+	if (tchsh_ns >= sclk_ns + 3 * ref_clk_ns)
+		tchsh_ns -= sclk_ns + 3 * ref_clk_ns;
+	tshsl = DIV_ROUND_UP(tshsl_ns, ref_clk_ns);
+	tchsh = DIV_ROUND_UP(tchsh_ns, ref_clk_ns);
+	tslch = DIV_ROUND_UP(tslch_ns, ref_clk_ns);
+	tsd2d = DIV_ROUND_UP(tsd2d_ns, ref_clk_ns);
 
 	reg = ((tshsl & CQSPI_REG_DELAY_TSHSL_MASK)
 			<< CQSPI_REG_DELAY_TSHSL_LSB);
