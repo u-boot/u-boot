@@ -32,37 +32,37 @@
 #include <spi.h>
 #include "cadence_qspi.h"
 
-#define CQSPI_REG_POLL_US			(1) /* 1us */
-#define CQSPI_REG_RETRY				(10000)
-#define CQSPI_POLL_IDLE_RETRY			(3)
+#define CQSPI_REG_POLL_US			1 /* 1us */
+#define CQSPI_REG_RETRY				10000
+#define CQSPI_POLL_IDLE_RETRY			3
 
-#define CQSPI_FIFO_WIDTH			(4)
+#define CQSPI_FIFO_WIDTH			4
 
-#define CQSPI_REG_SRAM_THRESHOLD_WORDS		(50)
+#define CQSPI_REG_SRAM_THRESHOLD_WORDS		50
 
 /* Transfer mode */
-#define CQSPI_INST_TYPE_SINGLE			(0)
-#define CQSPI_INST_TYPE_DUAL			(1)
-#define CQSPI_INST_TYPE_QUAD			(2)
+#define CQSPI_INST_TYPE_SINGLE			0
+#define CQSPI_INST_TYPE_DUAL			1
+#define CQSPI_INST_TYPE_QUAD			2
 
-#define CQSPI_STIG_DATA_LEN_MAX			(8)
+#define CQSPI_STIG_DATA_LEN_MAX			8
 
-#define CQSPI_DUMMY_CLKS_PER_BYTE		(8)
-#define CQSPI_DUMMY_BYTES_MAX			(4)
-
+#define CQSPI_DUMMY_CLKS_PER_BYTE		8
+#define CQSPI_DUMMY_BYTES_MAX			4
 
 #define CQSPI_REG_SRAM_FILL_THRESHOLD	\
 	((CQSPI_REG_SRAM_SIZE_WORD / 2) * CQSPI_FIFO_WIDTH)
+
 /****************************************************************************
  * Controller's configuration and status register (offset from QSPI_BASE)
  ****************************************************************************/
 #define	CQSPI_REG_CONFIG			0x00
-#define	CQSPI_REG_CONFIG_ENABLE_MASK		BIT(0)
+#define	CQSPI_REG_CONFIG_ENABLE			BIT(0)
 #define	CQSPI_REG_CONFIG_CLK_POL		BIT(1)
 #define	CQSPI_REG_CONFIG_CLK_PHA		BIT(2)
-#define	CQSPI_REG_CONFIG_DIRECT_MASK		BIT(7)
-#define	CQSPI_REG_CONFIG_DECODE_MASK		BIT(9)
-#define	CQSPI_REG_CONFIG_XIP_IMM_MASK		BIT(18)
+#define	CQSPI_REG_CONFIG_DIRECT			BIT(7)
+#define	CQSPI_REG_CONFIG_DECODE			BIT(9)
+#define	CQSPI_REG_CONFIG_XIP_IMM		BIT(18)
 #define	CQSPI_REG_CONFIG_CHIPSELECT_LSB		10
 #define	CQSPI_REG_CONFIG_BAUD_LSB		19
 #define	CQSPI_REG_CONFIG_IDLE_LSB		31
@@ -123,18 +123,18 @@
 #define	CQSPI_REG_IRQMASK			0x44
 
 #define	CQSPI_REG_INDIRECTRD			0x60
-#define	CQSPI_REG_INDIRECTRD_START_MASK		BIT(0)
-#define	CQSPI_REG_INDIRECTRD_CANCEL_MASK	BIT(1)
-#define	CQSPI_REG_INDIRECTRD_INPROGRESS_MASK	BIT(2)
-#define	CQSPI_REG_INDIRECTRD_DONE_MASK		BIT(5)
+#define	CQSPI_REG_INDIRECTRD_START		BIT(0)
+#define	CQSPI_REG_INDIRECTRD_CANCEL		BIT(1)
+#define	CQSPI_REG_INDIRECTRD_INPROGRESS		BIT(2)
+#define	CQSPI_REG_INDIRECTRD_DONE		BIT(5)
 
 #define	CQSPI_REG_INDIRECTRDWATERMARK		0x64
 #define	CQSPI_REG_INDIRECTRDSTARTADDR		0x68
 #define	CQSPI_REG_INDIRECTRDBYTES		0x6C
 
 #define	CQSPI_REG_CMDCTRL			0x90
-#define	CQSPI_REG_CMDCTRL_EXECUTE_MASK		BIT(0)
-#define	CQSPI_REG_CMDCTRL_INPROGRESS_MASK	BIT(1)
+#define	CQSPI_REG_CMDCTRL_EXECUTE		BIT(0)
+#define	CQSPI_REG_CMDCTRL_INPROGRESS		BIT(1)
 #define	CQSPI_REG_CMDCTRL_DUMMY_LSB		7
 #define	CQSPI_REG_CMDCTRL_WR_BYTES_LSB		12
 #define	CQSPI_REG_CMDCTRL_WR_EN_LSB		15
@@ -150,10 +150,10 @@
 #define	CQSPI_REG_CMDCTRL_OPCODE_MASK		0xFF
 
 #define	CQSPI_REG_INDIRECTWR			0x70
-#define	CQSPI_REG_INDIRECTWR_START_MASK		BIT(0)
-#define	CQSPI_REG_INDIRECTWR_CANCEL_MASK	BIT(1)
-#define	CQSPI_REG_INDIRECTWR_INPROGRESS_MASK	BIT(2)
-#define	CQSPI_REG_INDIRECTWR_DONE_MASK		BIT(5)
+#define	CQSPI_REG_INDIRECTWR_START		BIT(0)
+#define	CQSPI_REG_INDIRECTWR_CANCEL		BIT(1)
+#define	CQSPI_REG_INDIRECTWR_INPROGRESS		BIT(2)
+#define	CQSPI_REG_INDIRECTWR_DONE		BIT(5)
 
 #define	CQSPI_REG_INDIRECTWRWATERMARK		0x74
 #define	CQSPI_REG_INDIRECTWRSTARTADDR		0x78
@@ -197,7 +197,7 @@ void cadence_qspi_apb_controller_enable(void *reg_base)
 {
 	unsigned int reg;
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
-	reg |= CQSPI_REG_CONFIG_ENABLE_MASK;
+	reg |= CQSPI_REG_CONFIG_ENABLE;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 	return;
 }
@@ -206,7 +206,7 @@ void cadence_qspi_apb_controller_disable(void *reg_base)
 {
 	unsigned int reg;
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
-	reg &= ~CQSPI_REG_CONFIG_ENABLE_MASK;
+	reg &= ~CQSPI_REG_CONFIG_ENABLE;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 	return;
 }
@@ -327,9 +327,9 @@ void cadence_qspi_apb_chipselect(void *reg_base,
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	/* docoder */
 	if (decoder_enable) {
-		reg |= CQSPI_REG_CONFIG_DECODE_MASK;
+		reg |= CQSPI_REG_CONFIG_DECODE;
 	} else {
-		reg &= ~CQSPI_REG_CONFIG_DECODE_MASK;
+		reg &= ~CQSPI_REG_CONFIG_DECODE;
 		/* Convert CS if without decoder.
 		 * CS0 to 4b'1110
 		 * CS1 to 4b'1101
@@ -423,12 +423,12 @@ static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
 	/* Write the CMDCTRL without start execution. */
 	writel(reg, reg_base + CQSPI_REG_CMDCTRL);
 	/* Start execute */
-	reg |= CQSPI_REG_CMDCTRL_EXECUTE_MASK;
+	reg |= CQSPI_REG_CMDCTRL_EXECUTE;
 	writel(reg, reg_base + CQSPI_REG_CMDCTRL);
 
 	while (retry--) {
 		reg = readl(reg_base + CQSPI_REG_CMDCTRL);
-		if ((reg & CQSPI_REG_CMDCTRL_INPROGRESS_MASK) == 0)
+		if ((reg & CQSPI_REG_CMDCTRL_INPROGRESS) == 0)
 			break;
 		udelay(1);
 	}
@@ -646,7 +646,7 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	writel(n_rx, plat->regbase + CQSPI_REG_INDIRECTRDBYTES);
 
 	/* Start the indirect read transfer */
-	writel(CQSPI_REG_INDIRECTRD_START_MASK,
+	writel(CQSPI_REG_INDIRECTRD_START,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
 
 	while (remaining > 0) {
@@ -675,21 +675,21 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 
 	/* Check indirect done status */
 	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTRD,
-			   CQSPI_REG_INDIRECTRD_DONE_MASK, 1, 10, 0);
+			   CQSPI_REG_INDIRECTRD_DONE, 1, 10, 0);
 	if (ret) {
 		printf("Indirect read completion error (%i)\n", ret);
 		goto failrd;
 	}
 
 	/* Clear indirect completion status */
-	writel(CQSPI_REG_INDIRECTRD_DONE_MASK,
+	writel(CQSPI_REG_INDIRECTRD_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
 
 	return 0;
 
 failrd:
 	/* Cancel the indirect read */
-	writel(CQSPI_REG_INDIRECTRD_CANCEL_MASK,
+	writel(CQSPI_REG_INDIRECTRD_CANCEL,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
 	return ret;
 }
@@ -737,7 +737,7 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 	writel(n_tx, plat->regbase + CQSPI_REG_INDIRECTWRBYTES);
 
 	/* Start the indirect write transfer */
-	writel(CQSPI_REG_INDIRECTWR_START_MASK,
+	writel(CQSPI_REG_INDIRECTWR_START,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
 
 	while (remaining > 0) {
@@ -762,20 +762,20 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 
 	/* Check indirect done status */
 	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTWR,
-			   CQSPI_REG_INDIRECTWR_DONE_MASK, 1, 10, 0);
+			   CQSPI_REG_INDIRECTWR_DONE, 1, 10, 0);
 	if (ret) {
 		printf("Indirect write completion error (%i)\n", ret);
 		goto failwr;
 	}
 
 	/* Clear indirect completion status */
-	writel(CQSPI_REG_INDIRECTWR_DONE_MASK,
+	writel(CQSPI_REG_INDIRECTWR_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
 	return 0;
 
 failwr:
 	/* Cancel the indirect write */
-	writel(CQSPI_REG_INDIRECTWR_CANCEL_MASK,
+	writel(CQSPI_REG_INDIRECTWR_CANCEL,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
 	return ret;
 }
@@ -786,9 +786,9 @@ void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy)
 
 	/* enter XiP mode immediately and enable direct mode */
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
-	reg |= CQSPI_REG_CONFIG_ENABLE_MASK;
-	reg |= CQSPI_REG_CONFIG_DIRECT_MASK;
-	reg |= CQSPI_REG_CONFIG_XIP_IMM_MASK;
+	reg |= CQSPI_REG_CONFIG_ENABLE;
+	reg |= CQSPI_REG_CONFIG_DIRECT;
+	reg |= CQSPI_REG_CONFIG_XIP_IMM;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
 	/* keep the XiP mode */
