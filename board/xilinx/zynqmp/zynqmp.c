@@ -86,6 +86,17 @@ static int chip_id(void)
 
 	smc_call(&regs);
 
+	/*
+	 * SMC returns:
+	 * regs[0][31:0]  = status of the operation
+	 * regs[0][63:32] = CSU.IDCODE register
+	 * regs[1][31:0]  = CSU.version register
+	 */
+	regs.regs[0] = upper_32_bits(regs.regs[0]);
+	regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+			ZYNQMP_CSU_IDCODE_SVD_MASK;
+	regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+
 	return regs.regs[0];
 }
 
@@ -324,6 +335,9 @@ int board_late_init(void)
 	}
 
 	reg = readl(&crlapb_base->boot_mode);
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
 	bootmode = reg & BOOT_MODES_MASK;
 
 	puts("Bootmode: ");
@@ -349,6 +363,9 @@ int board_late_init(void)
 		puts("SD_MODE\n");
 		mode = "mmc0";
 		break;
+	case SD1_LSHFT_MODE:
+		puts("LVL_SHFT_");
+		/* fall through */
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
@@ -410,6 +427,10 @@ int usb_gadget_handle_interrupts(int index)
 int board_usb_init(int index, enum usb_init_type init)
 {
 	debug("%s: index %x\n", __func__, index);
+
+#if defined(CONFIG_USB_GADGET_DOWNLOAD)
+	g_dnl_set_serialnumber(CONFIG_SYS_CONFIG_NAME);
+#endif
 
 	switch (index) {
 	case 0:

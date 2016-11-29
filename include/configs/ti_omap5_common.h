@@ -114,7 +114,8 @@
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
 		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; fastboot 0;" \
+		"echo Booting into fastboot ...; " \
+		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
 	"fi;" \
 	"run findfdt; " \
 	"run envboot; " \
@@ -157,7 +158,7 @@
 #define CONFIG_SPL_TEXT_BASE	0x40300000
 #endif
 
-#define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT "arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 

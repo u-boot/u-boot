@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Marcel Ziswiler
+ * Copyright (c) 2014-2016 Marcel Ziswiler
  *
  * Configuration settings for the Toradex Apalis T30 modules.
  *
@@ -16,7 +16,7 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"Toradex Apalis T30"
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
@@ -32,11 +32,12 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 
-/* Environment in eMMC, at the end of 2nd "boot sector" */
+/* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
+					 CONFIG_TDX_CFG_BLOCK_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		2
+#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* USB host support */
 #define CONFIG_USB_EHCI

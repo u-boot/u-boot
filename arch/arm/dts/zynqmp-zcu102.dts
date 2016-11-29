@@ -12,6 +12,7 @@
 
 #include "zynqmp.dtsi"
 #include "zynqmp-clk.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "ZynqMP ZCU102 RevA";
@@ -26,6 +27,7 @@
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
+		serial2 = &dcc;
 		spi0 = &qspi;
 		usb0 = &usb0;
 	};
@@ -35,13 +37,40 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		autorepeat;
+		sw19 {
+			label = "sw19";
+			gpios = <&gpio 22 GPIO_ACTIVE_HIGH>;
+			linux,code = <108>; /* down */
+			gpio-key,wakeup;
+			autorepeat;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		heartbeat_led {
+			label = "heartbeat";
+			gpios = <&gpio 23 0>;
+			linux,default-trigger = "heartbeat";
+		};
 	};
 };
 
 &can1 {
+	status = "okay";
+};
+
+&dcc {
 	status = "okay";
 };
 
@@ -365,7 +394,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 		/* Bus 3 is not connected */
 	};
 
-	/* FIXME PL connection - u55 , PMOD - j160 */
+	/* FIXME PMOD - j160 */
 	/* FIXME MSP430F - u41 - not detected */
 };
 
@@ -576,6 +605,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;	/* for 1.0 silicon */
+	xlnx,mio_bank = <1>;
 };
 
 &uart0 {

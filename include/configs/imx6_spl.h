@@ -25,7 +25,7 @@
  *    or 64KB
  */
 #define CONFIG_SYS_THUMB_BUILD
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
@@ -37,10 +37,8 @@
 
 /* MMC support */
 #if defined(CONFIG_SPL_MMC_SUPPORT)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	138 /* offset 69KB */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
-#define CONFIG_SYS_MONITOR_LEN  (CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS/2*1024)
+#define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 

@@ -126,6 +126,7 @@ choice
 config  TARGET_ESPRESSO7420
 	bool "ESPRESSO7420 board"
 	select ARM64
+	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select SPL_DISABLE_OF_CONTROL

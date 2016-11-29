@@ -23,8 +23,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #define	CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm1136/u-boot-spl.lds"
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x100 /* address 0x60000 */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x400 /* 512 KB */
 
 #define CONFIG_SPL_TEXT_BASE		0x10002300
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)	/* 8 KB for stack */

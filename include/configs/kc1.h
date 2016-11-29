@@ -31,7 +31,6 @@
 
 #define CONFIG_OMAP
 #define CONFIG_OMAP4430
-#define CONFIG_OMAP_COMMON
 
 /*
  * Board
@@ -126,7 +125,7 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(1024 * 1024)
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	2

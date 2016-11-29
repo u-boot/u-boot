@@ -61,11 +61,18 @@ ENTRY(lowlevel_init)
 	/*
 	 * All slaves will enter EL2 and optionally EL1.
 	 */
+	adr	x3, lowlevel_in_el2
+	ldr	x4, =ES_TO_AARCH64
 	bl	armv8_switch_to_el2
-#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	bl	armv8_switch_to_el1
-#endif
 
+lowlevel_in_el2:
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	adr	x3, lowlevel_in_el1
+	ldr	x4, =ES_TO_AARCH64
+	bl	armv8_switch_to_el1
+
+lowlevel_in_el1:
+#endif
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
 	bl      s_init

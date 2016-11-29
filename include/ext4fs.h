@@ -135,7 +135,7 @@ int ext4_write_file(const char *filename, void *buf, loff_t offset, loff_t len,
 
 struct ext_filesystem *get_fs(void);
 int ext4fs_open(const char *filename, loff_t *len);
-int ext4fs_read(char *buf, loff_t len, loff_t *actread);
+int ext4fs_read(char *buf, loff_t offset, loff_t len, loff_t *actread);
 int ext4fs_mount(unsigned part_length);
 void ext4fs_close(void);
 void ext4fs_reinit_global(void);

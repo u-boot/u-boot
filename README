@@ -3338,11 +3338,6 @@ FIT uImage format:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
-		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
-		Address and partition on the MMC to load U-Boot from
-		when the MMC is being used in raw mode.
-
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 		Partition on the MMC to load U-Boot from when the MMC is being
 		used in raw mode
@@ -4115,7 +4110,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
          Define this to a string that is the name of the block device.
 
-       - FAT_ENV_DEV_AND_PART:
+       - FAT_ENV_DEVICE_AND_PART:
 
          Define this to a string to specify the partition of the device. It can
          be as following:

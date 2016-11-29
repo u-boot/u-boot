@@ -151,9 +151,10 @@ static int stdio_probe_device(const char *name, enum uclass_id id,
 	*sdevp = NULL;
 	seq = trailing_strtoln(name, NULL);
 	if (seq == -1)
+		seq = 0;
+	ret = uclass_get_device_by_seq(id, seq, &dev);
+	if (ret == -ENODEV)
 		ret = uclass_first_device_err(id, &dev);
-	else
-		ret = uclass_get_device_by_seq(id, seq, &dev);
 	if (ret) {
 		debug("No %s device for seq %d (%s)\n", uclass_get_name(id),
 		      seq, name);
@@ -173,12 +174,12 @@ static int stdio_probe_device(const char *name, enum uclass_id id,
 }
 #endif
 
-struct stdio_dev* stdio_get_by_name(const char *name)
+struct stdio_dev *stdio_get_by_name(const char *name)
 {
 	struct list_head *pos;
 	struct stdio_dev *sdev;
 
-	if(!name)
+	if (!name)
 		return NULL;
 
 	list_for_each(pos, &(devs.list)) {

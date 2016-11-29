@@ -180,8 +180,8 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	miiaddr |= MDIO_CMD_MII_WRITE;
 	miiaddr |= MDIO_CMD_MII_BUSY;
 
-	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
 	writel(val, priv->mac_reg + EMAC_MII_DATA);
+	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
 
 	start = get_timer(0);
 	while (get_timer(start) < timeout) {

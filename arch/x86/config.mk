@@ -45,8 +45,8 @@ endif
 
 EFIPAYLOAD_BFDARCH = i386
 
-LDSCRIPT_EFI := $(srctree)/$(CPUDIR)/efi/elf_$(EFIARCH)_efi.lds
-EFISTUB := crt0-efi-$(EFIARCH).o reloc_$(EFIARCH).o
+LDSCRIPT_EFI := $(srctree)/arch/x86/lib/elf_$(EFIARCH)_efi.lds
+EFISTUB := crt0_$(EFIARCH)_efi.o reloc_$(EFIARCH)_efi.o
 OBJCOPYFLAGS_EFI += --target=efi-app-$(EFIARCH)
 
 CPPFLAGS_REMOVE_crt0-efi-$(EFIARCH).o += $(CFLAGS_NON_EFI)
@@ -63,5 +63,21 @@ else
 PLATFORM_CPPFLAGS += $(CFLAGS_NON_EFI)
 PLATFORM_LDFLAGS += --emit-relocs
 LDFLAGS_FINAL += --gc-sections -pie
+
+endif
+
+ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+
+ifneq ($(CONFIG_EFI_STUB_64BIT),)
+EFI_LDS := elf_x86_64_efi.lds
+EFI_CRT0 := crt0_x86_64_efi.o
+EFI_RELOC := reloc_x86_64_efi.o
+EFI_TARGET := --target=efi-app-ia32
+else
+EFI_LDS := elf_ia32_efi.lds
+EFI_CRT0 := crt0_ia32_efi.o
+EFI_RELOC := reloc_ia32_efi.o
+EFI_TARGET := --target=efi-app-x86_64
+endif
 
 endif

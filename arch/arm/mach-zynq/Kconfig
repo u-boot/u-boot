@@ -28,6 +28,7 @@ config SYS_BOARD
 	default "zynq"
 
 config SYS_VENDOR
+	string "Vendor name"
 	default "xilinx"
 
 config SYS_SOC
@@ -43,5 +44,12 @@ config SYS_CONFIG_NAME
 
 config SYS_MALLOC_F_LEN
 	default 0x600
+
+config BOOT_INIT_FILE
+	string "boot.bin init register filename"
+	default ""
+	help
+	  Add register writes to boot.bin format (max 256 pairs).
+	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
 
 endif

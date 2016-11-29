@@ -34,7 +34,7 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
 	};
@@ -159,12 +159,14 @@
 &sdhci0 {
 	status = "okay";
 	bus-width = <8>;
+	xlnx,mio_bank = <0>;
 };
 
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;       /* for 1.0 silicon */
+	xlnx,mio_bank = <1>;
 };
 
 &uart0 {

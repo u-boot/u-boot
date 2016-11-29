@@ -244,7 +244,7 @@ int rsa_sign(struct image_sign_info *info,
 	ret = rsa_get_priv_key(info->keydir, info->keyname, &rsa);
 	if (ret)
 		goto err_priv;
-	ret = rsa_sign_with_key(rsa, info->algo->checksum, region,
+	ret = rsa_sign_with_key(rsa, info->checksum, region,
 				region_count, sigp, sig_len);
 	if (ret)
 		goto err_sign;
@@ -508,7 +508,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	}
 	if (!ret) {
 		ret = fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
-					 info->algo->name);
+					 info->name);
 	}
 	if (!ret && info->require_keys) {
 		ret = fdt_setprop_string(keydest, node, "required",

@@ -298,6 +298,32 @@ def pytest_generate_tests(metafunc):
             continue
         generate_config(metafunc, fn)
 
+@pytest.fixture(scope='session')
+def u_boot_log(request):
+     """Generate the value of a test's log fixture.
+
+     Args:
+         request: The pytest request.
+
+     Returns:
+         The fixture value.
+     """
+
+     return console.log
+
+@pytest.fixture(scope='session')
+def u_boot_config(request):
+     """Generate the value of a test's u_boot_config fixture.
+
+     Args:
+         request: The pytest request.
+
+     Returns:
+         The fixture value.
+     """
+
+     return console.config
+
 @pytest.fixture(scope='function')
 def u_boot_console(request):
     """Generate the value of a test's u_boot_console fixture.

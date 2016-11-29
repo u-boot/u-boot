@@ -31,13 +31,17 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x40000000>;
 	};
 };
 
 &can0 {
+	status = "okay";
+};
+
+&can1 {
 	status = "okay";
 };
 
@@ -150,10 +154,12 @@
 &sdhci0 {
 	status = "okay";
 	bus-width = <8>;
+	xlnx,mio_bank = <2>;
 };
 
 &sdhci1 {
 	status = "okay";
+	xlnx,mio_bank = <1>;
 };
 
 &spi0 {

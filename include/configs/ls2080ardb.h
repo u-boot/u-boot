@@ -269,6 +269,7 @@ unsigned long get_board_sys_clk(void);
 #ifdef CONFIG_FSL_DSPI
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR
+#define CONFIG_SPI_FLASH_STMICRO
 #endif
 
 /*
@@ -316,10 +317,25 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
 
+#undef CONFIG_CMDLINE_EDITING
+#include <config_distro_defaults.h>
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
+	func(MMC, mmc, 0) \
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"scriptaddr=0x80800000\0"		\
+	"kernel_addr_r=0x81000000\0"		\
+	"pxefile_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x88000000\0"		\
+	"ramdisk_addr_r=0x89000000\0"		\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\
 	"ramdisk_addr=0x800000\0"		\
@@ -329,14 +345,23 @@ unsigned long get_board_sys_clk(void);
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580300000"	\
-	" 0x580800000 \0"
+	" 0x580800000 \0"			\
+	BOOTENV
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
+
+#undef CONFIG_BOOTCOMMAND
+/* Try to boot an on-NOR kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580700000" \
+			   " && cp.b $kernel_start $kernel_load $kernel_size" \
+			   " && bootm $kernel_load" \
+			   " || run distro_bootcmd"
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET

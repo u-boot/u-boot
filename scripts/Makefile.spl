@@ -66,10 +66,7 @@ endif
 
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
 libs-y += drivers/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/dfu/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/gadget/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/gadget/udc/
-libs-$(CONFIG_SPL_DFU_SUPPORT) += drivers/usb/dwc3/
+libs-$(CONFIG_SPL_USB_GADGET_SUPPORT) += drivers/usb/dwc3/
 libs-y += dts/
 libs-y += fs/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
@@ -146,10 +143,10 @@ boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 else
 ifdef CONFIG_ARCH_ZYNQ
-MKIMAGEFLAGS_boot.bin = -T zynqimage
+MKIMAGEFLAGS_boot.bin = -T zynqimage -R $(srctree)/$(CONFIG_BOOT_INIT_FILE)
 endif
 ifdef CONFIG_ARCH_ZYNQMP
-MKIMAGEFLAGS_boot.bin = -T zynqmpimage
+MKIMAGEFLAGS_boot.bin = -T zynqmpimage -R $(srctree)/$(CONFIG_BOOT_INIT_FILE)
 endif
 
 spl/boot.bin: $(obj)/u-boot-spl.bin FORCE

@@ -141,6 +141,18 @@ static void *copy_fdt(void *fdt)
 	return new_fdt;
 }
 
+#ifdef CONFIG_ARM64
+static unsigned long efi_run_in_el2(ulong (*entry)(void *image_handle,
+		struct efi_system_table *st), void *image_handle,
+		struct efi_system_table *st)
+{
+	/* Enable caches again */
+	dcache_enable();
+
+	return entry(image_handle, st);
+}
+#endif
+
 /*
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
@@ -226,6 +238,22 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		return status == EFI_SUCCESS ? 0 : -EINVAL;
 	}
 
+#ifdef CONFIG_ARM64
+	/* On AArch64 we need to make sure we call our payload in < EL3 */
+	if (current_el() == 3) {
+		smp_kick_all_cpus();
+		dcache_disable();	/* flush cache before switch to EL2 */
+
+		/* Move into EL2 and keep running there */
+		armv8_switch_to_el2((ulong)entry, (ulong)&loaded_image_info,
+				    (ulong)&systab, (ulong)efi_run_in_el2,
+				    ES_TO_AARCH64);
+
+		/* Should never reach here, efi exits with longjmp */
+		while (1) { }
+	}
+#endif
+
 	return entry(&loaded_image_info, &systab);
 }
 
@@ -239,16 +267,26 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
-	saddr = argv[1];
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	if (!strcmp(argv[1], "hello")) {
+		ulong size = __efi_hello_world_end - __efi_hello_world_begin;
 
-	addr = simple_strtoul(saddr, NULL, 16);
+		addr = CONFIG_SYS_LOAD_ADDR;
+		memcpy((char *)addr, __efi_hello_world_begin, size);
+	} else
+#endif
+	{
+		saddr = argv[1];
 
-	if (argc > 2) {
-		sfdt = argv[2];
-		fdt_addr = simple_strtoul(sfdt, NULL, 16);
+		addr = simple_strtoul(saddr, NULL, 16);
+
+		if (argc > 2) {
+			sfdt = argv[2];
+			fdt_addr = simple_strtoul(sfdt, NULL, 16);
+		}
 	}
 
-	printf("## Starting EFI application at 0x%08lx ...\n", addr);
+	printf("## Starting EFI application at %08lx ...\n", addr);
 	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
 	printf("## Application terminated, r = %d\n", r);
 
@@ -263,7 +301,12 @@ static char bootefi_help_text[] =
 	"<image address> [fdt address]\n"
 	"  - boot EFI payload stored at address <image address>.\n"
 	"    If specified, the device tree located at <fdt address> gets\n"
-	"    exposed as EFI configuration table.\n";
+	"    exposed as EFI configuration table.\n"
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	"hello\n"
+	"  - boot a sample Hello World application stored within U-Boot"
+#endif
+	;
 #endif
 
 U_BOOT_CMD(

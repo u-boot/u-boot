@@ -691,6 +691,13 @@ static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 
 	gclk_rate = rkclk_pll_get_rate(priv->cru, CLK_GENERAL);
 	switch (clk->id) {
+	case PLL_APLL:
+		/* We only support a fixed rate here */
+		if (rate != 1800000000)
+			return -EINVAL;
+		rk3288_clk_configure_cpu(priv->cru, priv->grf);
+		new_rate = rate;
+		break;
 	case CLK_DDR:
 		new_rate = rkclk_configure_ddr(priv->cru, priv->grf, rate);
 		break;

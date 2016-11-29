@@ -70,6 +70,33 @@ config SPL_DISPLAY_PRINT
 	  banner ("U-Boot SPL ..."). This function should be provided by
 	  the board.
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	bool "MMC raw mode: by sector"
+	depends on SPL
+	default y if ARCH_SUNXI || ARCH_DAVINCI || ARCH_UNIPHIER ||ARCH_MX6 || \
+		     ARCH_ROCKCHIP || ARCH_MVEBU ||  ARCH_SOCFPGA || \
+		     ARCH_AT91 || ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || \
+		     OMAP44XX || OMAP54XX || AM33XX || AM43XX
+	help
+	  Use sector number for specifying U-Boot location on MMC/SD in
+	  raw mode.
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+	hex "Address on the MMC to load U-Boot from"
+	depends on SPL && SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	default 0x50 if ARCH_SUNXI
+	default 0x75 if ARCH_DAVINCI
+	default 0x80 if ARCH_UNIPHIER
+	default 0x8a if ARCH_MX6
+	default 0x100 if ARCH_ROCKCHIP
+	default 0x140 if ARCH_MVEBU
+	default 0x200 if ARCH_SOCFPGA || ARCH_AT91
+	default 0x300 if ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || OMAP44XX || \
+		         OMAP54XX || AM33XX || AM43XX
+	help
+	  Address on the MMC to load U-Boot from, when the MMC is being used
+	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
+
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL
@@ -465,17 +492,6 @@ config SPL_SPI_SUPPORT
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
 
-config SPL_USBETH_SUPPORT
-	bool "Support USB Ethernet drivers"
-	depends on SPL
-	help
-	  Enable access to the USB network subsystem and associated
-	  drivers in SPL. This permits SPL to load U-Boot over a
-	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
-	  than from an onboard peripheral. Environment support is required
-	  since the network stack uses a number of environment variables.
-	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
-
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
 	depends on SPL
@@ -496,6 +512,52 @@ config SPL_USB_SUPPORT
 	  The actual drivers are enabled separately using the normal U-Boot
 	  config options. This enables loading from USB using a configured
 	  device.
+
+config SPL_USB_GADGET_SUPPORT
+	bool "Suppport USB Gadget drivers"
+	depends on SPL
+	help
+	  Enable USB Gadget API which allows to enable USB device functions
+	  in SPL.
+
+if SPL_USB_GADGET_SUPPORT
+
+config SPL_USBETH_SUPPORT
+	bool "Support USB Ethernet drivers"
+	help
+	  Enable access to the USB network subsystem and associated
+	  drivers in SPL. This permits SPL to load U-Boot over a
+	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
+	  than from an onboard peripheral. Environment support is required
+	  since the network stack uses a number of environment variables.
+	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
+
+config SPL_DFU_SUPPORT
+	bool "Support DFU (Device Firmware Upgarde)"
+	select SPL_HASH_SUPPORT
+	help
+	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
+	  RAM memory device support. The ROM code will load and execute
+	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
+	  selected device partition from host-pc using dfu-utils.
+	  This feature is useful to flash the binaries to factory or bare-metal
+	  boards using USB interface.
+
+choice
+	bool "DFU device selection"
+	depends on SPL_DFU_SUPPORT
+
+config SPL_DFU_RAM
+	bool "RAM device"
+	depends on SPL_DFU_SUPPORT
+	help
+	 select RAM/DDR memory device for loading binary images
+	 (u-boot/kernel) to the selected device partition using
+	 DFU and execute the u-boot/kernel from RAM.
+
+endchoice
+
+endif
 
 config SPL_WATCHDOG_SUPPORT
 	bool "Support watchdog drivers"

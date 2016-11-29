@@ -321,6 +321,39 @@ cmd_S_ttf=						\
 $(obj)/%.S: $(src)/%.ttf
 	$(call cmd,S_ttf)
 
+# EFI Hello World application
+# ---------------------------------------------------------------------------
+
+# Generate an assembly file to wrap the EFI app
+cmd_S_efi=						\
+(							\
+	echo '.section .rodata.efi.init,"a"';		\
+	echo '.balign 16';				\
+	echo '.global __efi_hello_world_begin';		\
+	echo '__efi_hello_world_begin:';		\
+	echo '.incbin "$<" ';				\
+	echo '__efi_hello_world_end:';			\
+	echo '.global __efi_hello_world_end';		\
+	echo '.balign 16';				\
+) > $@
+
+$(obj)/%_efi.S: $(obj)/%.efi
+	$(call cmd,S_efi)
+
+$(obj)/%.efi: $(obj)/%.so
+	$(OBJCOPY) -j .header -j .text -j .sdata -j .data -j .dynamic \
+		-j .dynsym  -j .rel* -j .rela* -j .reloc \
+		$(if $(EFI_TARGET),$(EFI_TARGET),-O binary) $^ $@
+
+EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
+
+$(obj)/helloworld.so: $(EFI_LDS_PATH)
+
+$(obj)/helloworld.so: $(obj)/helloworld.o arch/$(ARCH)/lib/$(EFI_CRT0) \
+		arch/$(ARCH)/lib/$(EFI_RELOC)
+	$(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared -Bsymbolic \
+		$^ -o $@
+
 # ACPI
 # ---------------------------------------------------------------------------
 quiet_cmd_acpi_c_asl= ASL     $<

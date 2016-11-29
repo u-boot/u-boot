@@ -9,6 +9,8 @@
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 #include <asm/arch/soc.h>
+#include "cpu.h"
+#include <asm/arch-fsl-layerscape/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -22,11 +24,49 @@ phys_addr_t determine_mp_bootpg(void)
 	return (phys_addr_t)&secondary_boot_code;
 }
 
+void update_os_arch_secondary_cores(uint8_t os_arch)
+{
+	u64 *table = get_spin_tbl_addr();
+	int i;
+
+	for (i = 1; i < CONFIG_MAX_CPUS; i++)
+		table[i * WORDS_PER_SPIN_TABLE_ENTRY +
+			SPIN_TABLE_ELEM_OS_ARCH_IDX] = os_arch;
+}
+
+#ifdef CONFIG_FSL_LSCH3
+void wake_secondary_core_n(int cluster, int core, int cluster_cores)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
+	u32 mpidr = 0;
+
+	mpidr = ((cluster << 8) | core);
+	/*
+	 * mpidr_el1 register value of core which needs to be released
+	 * is written to scratchrw[6] register
+	 */
+	gur_out32(&gur->scratchrw[6], mpidr);
+	asm volatile("dsb st" : : : "memory");
+	rst->brrl |= 1 << ((cluster * cluster_cores) + core);
+	asm volatile("dsb st" : : : "memory");
+	/*
+	 * scratchrw[6] register value is polled
+	 * when the value becomes zero, this means that this core is up
+	 * and running, next core can be released now
+	 */
+	while (gur_in32(&gur->scratchrw[6]) != 0)
+		;
+}
+#endif
+
 int fsl_layerscape_wake_seconday_cores(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #ifdef CONFIG_FSL_LSCH3
 	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
+	u32 svr, ver, cluster, type;
+	int j = 0, cluster_cores = 0;
 #elif defined(CONFIG_FSL_LSCH2)
 	struct ccsr_scfg __iomem *scfg = (void *)(CONFIG_SYS_FSL_SCFG_ADDR);
 #endif
@@ -55,10 +95,40 @@ int fsl_layerscape_wake_seconday_cores(void)
 #ifdef CONFIG_FSL_LSCH3
 	gur_out32(&gur->bootlocptrh, (u32)(gd->relocaddr >> 32));
 	gur_out32(&gur->bootlocptrl, (u32)gd->relocaddr);
-	gur_out32(&gur->scratchrw[6], 1);
-	asm volatile("dsb st" : : : "memory");
-	rst->brrl = cores;
-	asm volatile("dsb st" : : : "memory");
+
+	svr = gur_in32(&gur->svr);
+	ver = SVR_SOC_VER(svr);
+	if (ver == SVR_LS2080A || ver == SVR_LS2085A) {
+		gur_out32(&gur->scratchrw[6], 1);
+		asm volatile("dsb st" : : : "memory");
+		rst->brrl = cores;
+		asm volatile("dsb st" : : : "memory");
+	} else {
+		/*
+		 * Release the cores out of reset one-at-a-time to avoid
+		 * power spikes
+		 */
+		i = 0;
+		cluster = in_le32(&gur->tp_cluster[i].lower);
+		for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+			type = initiator_type(cluster, j);
+			if (type &&
+			    TP_ITYP_TYPE(type) == TP_ITYP_TYPE_ARM)
+				cluster_cores++;
+		}
+
+		do {
+			cluster = in_le32(&gur->tp_cluster[i].lower);
+			for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+				type = initiator_type(cluster, j);
+				if (type &&
+				    TP_ITYP_TYPE(type) == TP_ITYP_TYPE_ARM)
+					wake_secondary_core_n(i, j,
+							      cluster_cores);
+			}
+		i++;
+		} while ((cluster & TP_CLUSTER_EOC) != TP_CLUSTER_EOC);
+	}
 #elif defined(CONFIG_FSL_LSCH2)
 	scfg_out32(&scfg->scratchrw[0], (u32)(gd->relocaddr >> 32));
 	scfg_out32(&scfg->scratchrw[1], (u32)gd->relocaddr);

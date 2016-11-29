@@ -25,6 +25,40 @@
 #define RSA_DEFAULT_PUBEXP	65537
 
 /**
+ * rsa_verify_padding() - Verify RSA message padding is valid
+ *
+ * Verify a RSA message's padding is consistent with PKCS1.5
+ * padding as described in the RSA PKCS#1 v2.1 standard.
+ *
+ * @msg:	Padded message
+ * @pad_len:	Number of expected padding bytes
+ * @algo:	Checksum algo structure having information on DER encoding etc.
+ * @return 0 on success, != 0 on failure
+ */
+static int rsa_verify_padding(const uint8_t *msg, const int pad_len,
+			      struct checksum_algo *algo)
+{
+	int ff_len;
+	int ret;
+
+	/* first byte must be 0x00 */
+	ret = *msg++;
+	/* second byte must be 0x01 */
+	ret |= *msg++ ^ 0x01;
+	/* next ff_len bytes must be 0xff */
+	ff_len = pad_len - algo->der_len - 3;
+	ret |= *msg ^ 0xff;
+	ret |= memcmp(msg, msg+1, ff_len-1);
+	msg += ff_len;
+	/* next byte must be 0x00 */
+	ret |= *msg++;
+	/* next der_len bytes must match der_prefix */
+	ret |= memcmp(msg, algo->der_prefix, algo->der_len);
+
+	return ret;
+}
+
+/**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
  * Verify a RSA PKCS1.5 signature against an expected hash using
@@ -34,14 +68,14 @@
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
  * @hash:	Pointer to the expected hash
- * @algo:	Checksum algo structure having information on RSA padding etc.
+ * @key_len:	Number of bytes in rsa key
+ * @algo:	Checksum algo structure having information on DER encoding etc.
  * @return 0 if verified, -ve on error
  */
 static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 			  const uint32_t sig_len, const uint8_t *hash,
-			  struct checksum_algo *algo)
+			  const uint32_t key_len, struct checksum_algo *algo)
 {
-	const uint8_t *padding;
 	int pad_len;
 	int ret;
 #if !defined(USE_HOSTCC)
@@ -83,11 +117,11 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 		return ret;
 	}
 
-	padding = algo->rsa_padding;
-	pad_len = algo->pad_len - algo->checksum_len;
+	pad_len = key_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
-	if (memcmp(buf, padding, pad_len)) {
+	ret = rsa_verify_padding(buf, pad_len, algo);
+	if (ret) {
 		debug("In RSAVerify(): Padding check failed!\n");
 		return -EINVAL;
 	}
@@ -149,7 +183,8 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 		return -EFAULT;
 	}
 
-	ret = rsa_verify_key(&prop, sig, sig_len, hash, info->algo->checksum);
+	ret = rsa_verify_key(&prop, sig, sig_len, hash,
+			     info->crypto->key_len, info->checksum);
 
 	return ret;
 }
@@ -160,7 +195,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	const void *blob = info->fdt_blob;
 	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->algo->checksum->pad_len];
+	uint8_t hash[info->crypto->key_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
@@ -170,10 +205,10 @@ int rsa_verify(struct image_sign_info *info,
 	 * Verify that the checksum-length does not exceed the
 	 * rsa-signature-length
 	 */
-	if (info->algo->checksum->checksum_len >
-	    info->algo->checksum->pad_len) {
+	if (info->checksum->checksum_len >
+	    info->crypto->key_len) {
 		debug("%s: invlaid checksum-algorithm %s for %s\n",
-		      __func__, info->algo->checksum->name, info->algo->name);
+		      __func__, info->checksum->name, info->crypto->name);
 		return -EINVAL;
 	}
 
@@ -184,7 +219,7 @@ int rsa_verify(struct image_sign_info *info,
 	}
 
 	/* Calculate checksum with checksum-algorithm */
-	ret = info->algo->checksum->calculate(info->algo->checksum->name,
+	ret = info->checksum->calculate(info->checksum->name,
 					region, region_count, hash);
 	if (ret < 0) {
 		debug("%s: Error in checksum calculation\n", __func__);

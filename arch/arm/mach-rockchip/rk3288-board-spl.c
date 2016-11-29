@@ -64,6 +64,10 @@ u32 spl_boot_device(void)
 	}
 
 fallback:
+#elif defined(CONFIG_TARGET_CHROMEBOOK_JERRY) || \
+		defined(CONFIG_TARGET_CHROMEBIT_MICKEY) || \
+		defined(CONFIG_TARGET_CHROMEBOOK_MINNIE)
+	return BOOT_DEVICE_SPI;
 #endif
 	return BOOT_DEVICE_MMC1;
 }

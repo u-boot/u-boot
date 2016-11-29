@@ -132,8 +132,8 @@ static const u32 csc_coeff_default[3][4] = {
 
 static void hdmi_set_clock_regenerator(struct rk3288_hdmi *regs, u32 n, u32 cts)
 {
-	u8 cts3;
-	u8 n3;
+	uint cts3;
+	uint n3;
 
 	/* first set ncts_atomic_write (if present) */
 	n3 = HDMI_AUD_N3_NCTS_ATOMIC_WRITE;
@@ -199,7 +199,7 @@ static void hdmi_audio_set_samplerate(struct rk3288_hdmi *regs, u32 pixel_clk)
 static void hdmi_video_sample(struct rk3288_hdmi *regs)
 {
 	u32 color_format = 0x01;
-	u8 val;
+	uint val;
 
 	val = HDMI_TX_INVID0_INTERNAL_DE_GENERATOR_DISABLE |
 	      ((color_format << HDMI_TX_INVID0_VIDEO_MAPPING_OFFSET) &
@@ -256,7 +256,7 @@ static void hdmi_video_packetize(struct rk3288_hdmi *regs)
 	u32 output_select = HDMI_VP_CONF_OUTPUT_SELECTOR_BYPASS;
 	u32 remap_size = HDMI_VP_REMAP_YCC422_16BIT;
 	u32 color_depth = 0;
-	u8 val, vp_conf;
+	uint val, vp_conf;
 
 	/* set the packetizer registers */
 	val = ((color_depth << HDMI_VP_PR_CD_COLOR_DEPTH_OFFSET) &
@@ -297,7 +297,7 @@ static void hdmi_video_packetize(struct rk3288_hdmi *regs)
 			output_select);
 }
 
-static inline void hdmi_phy_test_clear(struct rk3288_hdmi *regs, u8 bit)
+static inline void hdmi_phy_test_clear(struct rk3288_hdmi *regs, uint bit)
 {
 	clrsetbits_le32(&regs->phy_tst0, HDMI_PHY_TST0_TSTCLR_MASK,
 			bit << HDMI_PHY_TST0_TSTCLR_OFFSET);
@@ -382,7 +382,7 @@ static void hdmi_phy_sel_interface_control(struct rk3288_hdmi *regs,
 static int hdmi_phy_configure(struct rk3288_hdmi *regs, u32 mpixelclock)
 {
 	ulong start;
-	u8 i, val;
+	uint i, val;
 
 	writel(HDMI_MC_FLOWCTRL_FEED_THROUGH_OFF_CSC_BYPASS,
 	       &regs->mc_flowctrl);
@@ -481,8 +481,8 @@ static int hdmi_phy_init(struct rk3288_hdmi *regs, uint mpixelclock)
 static void hdmi_av_composer(struct rk3288_hdmi *regs,
 			     const struct display_timing *edid)
 {
-	u8 mdataenablepolarity = 1;
-	u8 inv_val;
+	bool mdataenablepolarity = true;
+	uint inv_val;
 	uint hbl;
 	uint vbl;
 
@@ -553,7 +553,7 @@ static void hdmi_av_composer(struct rk3288_hdmi *regs,
 /* hdmi initialization step b.4 */
 static void hdmi_enable_video_path(struct rk3288_hdmi *regs)
 {
-	u8 clkdis;
+	uint clkdis;
 
 	/* control period minimum duration */
 	writel(12, &regs->fc_ctrldur);
@@ -580,7 +580,7 @@ static void hdmi_enable_video_path(struct rk3288_hdmi *regs)
 /* workaround to clear the overflow condition */
 static void hdmi_clear_overflow(struct rk3288_hdmi *regs)
 {
-	u8 val, count;
+	uint val, count;
 
 	/* tmds software reset */
 	writel((u8)~HDMI_MC_SWRSTZ_TMDSSWRST_REQ, &regs->mc_swrstz);
@@ -614,7 +614,7 @@ static void hdmi_audio_fifo_reset(struct rk3288_hdmi *regs)
 
 static void hdmi_init_interrupt(struct rk3288_hdmi *regs)
 {
-	u8 ih_mute;
+	uint ih_mute;
 
 	/*
 	 * boot up defaults are:
@@ -650,11 +650,11 @@ static void hdmi_init_interrupt(struct rk3288_hdmi *regs)
 	writel(HDMI_IH_PHY_STAT0_HPD, &regs->ih_phy_stat0);
 }
 
-static u8 hdmi_get_plug_in_status(struct rk3288_hdmi *regs)
+static int hdmi_get_plug_in_status(struct rk3288_hdmi *regs)
 {
-	u8 val = readl(&regs->phy_stat0) & HDMI_PHY_HPD;
+	uint val = readl(&regs->phy_stat0) & HDMI_PHY_HPD;
 
-	return !!(val);
+	return !!val;
 }
 
 static int hdmi_wait_for_hpd(struct rk3288_hdmi *regs)
@@ -753,7 +753,7 @@ static int hdmi_read_edid(struct rk3288_hdmi *regs, int block, u8 *buff)
 	return edid_read_err;
 }
 
-static u8 pre_buf[] = {
+static const u8 pre_buf[] = {
 	0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00,
 	0x04, 0x69, 0xfa, 0x23, 0xc8, 0x28, 0x01, 0x00,
 	0x10, 0x17, 0x01, 0x03, 0x80, 0x33, 0x1d, 0x78,
@@ -899,7 +899,8 @@ static int rk_hdmi_probe(struct udevice *dev)
 	rk_setreg(&priv->grf->soc_con6, 1 << 15);
 
 	/* hdmi data from vop id */
-	rk_setreg(&priv->grf->soc_con6, (vop_id == 1) ? (1 << 4) : (1 << 4));
+	rk_clrsetreg(&priv->grf->soc_con6, 1 << 4,
+		     (vop_id == 1) ? (1 << 4) : 0);
 
 	ret = hdmi_wait_for_hpd(priv->regs);
 	if (ret < 0) {

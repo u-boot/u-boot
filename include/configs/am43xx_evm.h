@@ -82,7 +82,7 @@
 #define FAT_ENV_FILE			"uboot.env"
 #define CONFIG_FAT_WRITE
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* SPL USB Support */
 

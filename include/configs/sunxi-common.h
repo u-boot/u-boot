@@ -145,6 +145,7 @@
 #define CONFIG_MMC_SUNXI_SLOT		0
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
+#define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
 /* 64MB of malloc() pool */
@@ -199,7 +200,6 @@
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
 #endif
 
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	80	/* 40KiB */
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
 #if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)

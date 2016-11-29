@@ -35,6 +35,7 @@ alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias bobenstein     Przemyslaw Marczak <p.marczak@samsung.com>
@@ -70,7 +71,7 @@ alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
 alias socfpga        uboot, marex, Dinh Nguyen <dinguyen@opensource.altera.com>
-alias sunxi          uboot, ijc, jwrdegoede
+alias sunxi          uboot, jagan, maxime
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, trini

@@ -2,7 +2,7 @@
  * Toradex Colibri PXA270 configuration file
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
- * Copyright (C) 2015 Marcel Ziswiler <marcel@ziswiler.com>
+ * Copyright (C) 2015-2016 Marcel Ziswiler <marcel@ziswiler.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,10 +21,14 @@
 /* We will never enable dcache because we have to setup MMU first */
 #define CONFIG_SYS_DCACHE_OFF
 
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
+
 /*
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
@@ -43,9 +47,6 @@
 /*
  * Serial Console Configuration
  */
-#define	CONFIG_PXA_SERIAL
-#define	CONFIG_FFUART			1
-#define CONFIG_CONS_INDEX		3
 #define	CONFIG_BAUDRATE			115200
 
 /*
@@ -94,8 +95,8 @@
 #define	CONFIG_SYS_MAXARGS		16
 #define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
-#define	CONFIG_CMDLINE_EDITING		1
-#define	CONFIG_AUTO_COMPLETE		1
+#undef	CONFIG_CMDLINE_EDITING		/* Saves 2.5 KB */
+#undef	CONFIG_AUTO_COMPLETE		/* Saves 2.5 KB */
 
 /*
  * Clock Configuration

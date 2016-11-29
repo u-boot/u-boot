@@ -494,6 +494,7 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
 	struct mmc_cmd cmd;
 	int timeout = 1000;
+	int retries = 3;
 	int ret;
 
 	cmd.cmdidx = MMC_CMD_SWITCH;
@@ -502,11 +503,17 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 				 (index << 16) |
 				 (value << 8);
 
-	ret = mmc_send_cmd(mmc, &cmd, NULL);
+	while (retries > 0) {
+		ret = mmc_send_cmd(mmc, &cmd, NULL);
 
-	/* Waiting for the ready status */
-	if (!ret)
-		ret = mmc_send_status(mmc, timeout);
+		/* Waiting for the ready status */
+		if (!ret) {
+			ret = mmc_send_status(mmc, timeout);
+			return ret;
+		}
+
+		retries--;
+	}
 
 	return ret;
 

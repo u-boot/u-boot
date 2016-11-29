@@ -17,6 +17,7 @@
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
+#include <efi_loader.h>
 #include <fm_eth.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
@@ -190,7 +191,7 @@ void enable_caches(void)
 }
 #endif
 
-static inline u32 initiator_type(u32 cluster, int init_id)
+u32 initiator_type(u32 cluster, int init_id)
 {
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
@@ -305,12 +306,14 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 	return -1;      /* cannot identify the cluster */
 }
 
+#ifndef CONFIG_FSL_LSCH3
 uint get_svr(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 
 	return gur_in32(&gur->svr);
 }
+#endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
@@ -430,6 +433,7 @@ int timer_init(void)
 #endif
 #ifdef CONFIG_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
+	u32 svr_dev_id;
 #endif
 #ifdef COUNTER_FREQUENCY_REAL
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
@@ -452,6 +456,14 @@ int timer_init(void)
 	 * Register (PCTBENR), which allows the watchdog to operate.
 	 */
 	setbits_le32(pctbenr, 0xff);
+	/*
+	 * For LS2080A SoC and its personalities, timer controller
+	 * offset is different
+	 */
+	svr_dev_id = get_svr() >> 16;
+	if (svr_dev_id == SVR_DEV_LS2080A)
+		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
+
 #endif
 
 	/* Enable clock for timer
@@ -462,9 +474,10 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+__efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+
+void __efi_runtime reset_cpu(ulong addr)
 {
-	u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 	u32 val;
 
 	/* Raise RESET_REQ_B */
@@ -472,6 +485,33 @@ void reset_cpu(ulong addr)
 	val |= 0x02;
 	scfg_out32(rstcr, val);
 }
+
+#ifdef CONFIG_EFI_LOADER
+
+void __efi_runtime EFIAPI efi_reset_system(
+		       enum efi_reset_type reset_type,
+		       efi_status_t reset_status,
+		       unsigned long data_size, void *reset_data)
+{
+	switch (reset_type) {
+	case EFI_RESET_COLD:
+	case EFI_RESET_WARM:
+		reset_cpu(0);
+		break;
+	case EFI_RESET_SHUTDOWN:
+		/* Nothing we can do */
+		break;
+	}
+
+	while (1) { }
+}
+
+void efi_reset_system_init(void)
+{
+       efi_add_runtime_mmio(&rstcr, sizeof(*rstcr));
+}
+
+#endif
 
 phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {

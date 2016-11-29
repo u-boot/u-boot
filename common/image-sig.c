@@ -34,68 +34,74 @@ struct checksum_algo checksum_algos[] = {
 	{
 		"sha1",
 		SHA1_SUM_LEN,
-		RSA2048_BYTES,
+		SHA1_DER_LEN,
+		sha1_der_prefix,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #endif
 		hash_calculate,
-		padding_sha1_rsa2048,
 	},
 	{
 		"sha256",
 		SHA256_SUM_LEN,
+		SHA256_DER_LEN,
+		sha256_der_prefix,
+#if IMAGE_ENABLE_SIGN
+		EVP_sha256,
+#endif
+		hash_calculate,
+	}
+
+};
+
+struct crypto_algo crypto_algos[] = {
+	{
+		"rsa2048",
 		RSA2048_BYTES,
-#if IMAGE_ENABLE_SIGN
-		EVP_sha256,
-#endif
-		hash_calculate,
-		padding_sha256_rsa2048,
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
 	},
 	{
-		"sha256",
-		SHA256_SUM_LEN,
+		"rsa4096",
 		RSA4096_BYTES,
-#if IMAGE_ENABLE_SIGN
-		EVP_sha256,
-#endif
-		hash_calculate,
-		padding_sha256_rsa4096,
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
 	}
 
 };
 
-struct image_sig_algo image_sig_algos[] = {
-	{
-		"sha1,rsa2048",
-		rsa_sign,
-		rsa_add_verify_data,
-		rsa_verify,
-		&checksum_algos[0],
-	},
-	{
-		"sha256,rsa2048",
-		rsa_sign,
-		rsa_add_verify_data,
-		rsa_verify,
-		&checksum_algos[1],
-	},
-	{
-		"sha256,rsa4096",
-		rsa_sign,
-		rsa_add_verify_data,
-		rsa_verify,
-		&checksum_algos[2],
-	}
-
-};
-
-struct image_sig_algo *image_get_sig_algo(const char *name)
+struct checksum_algo *image_get_checksum_algo(const char *full_name)
 {
 	int i;
+	const char *name;
 
-	for (i = 0; i < ARRAY_SIZE(image_sig_algos); i++) {
-		if (!strcmp(image_sig_algos[i].name, name))
-			return &image_sig_algos[i];
+	for (i = 0; i < ARRAY_SIZE(checksum_algos); i++) {
+		name = checksum_algos[i].name;
+		/* Make sure names match and next char is a comma */
+		if (!strncmp(name, full_name, strlen(name)) &&
+		    full_name[strlen(name)] == ',')
+			return &checksum_algos[i];
+	}
+
+	return NULL;
+}
+
+struct crypto_algo *image_get_crypto_algo(const char *full_name)
+{
+	int i;
+	const char *name;
+
+	/* Move name to after the comma */
+	name = strchr(full_name, ',');
+	if (!name)
+		return NULL;
+	name += 1;
+
+	for (i = 0; i < ARRAY_SIZE(crypto_algos); i++) {
+		if (!strcmp(crypto_algos[i].name, name))
+			return &crypto_algos[i];
 	}
 
 	return NULL;
@@ -159,12 +165,14 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 	info->keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
 	info->fit = (void *)fit;
 	info->node_offset = noffset;
-	info->algo = image_get_sig_algo(algo_name);
+	info->name = algo_name;
+	info->checksum = image_get_checksum_algo(algo_name);
+	info->crypto = image_get_crypto_algo(algo_name);
 	info->fdt_blob = gd_fdt_blob();
 	info->required_keynode = required_keynode;
 	printf("%s:%s", algo_name, info->keyname);
 
-	if (!info->algo) {
+	if (!info->checksum || !info->crypto) {
 		*err_msgp = "Unknown signature algorithm";
 		return -1;
 	}
@@ -194,7 +202,7 @@ int fit_image_check_sig(const void *fit, int noffset, const void *data,
 	region.data = data;
 	region.size = size;
 
-	if (info.algo->verify(&info, &region, 1, fit_value, fit_value_len)) {
+	if (info.crypto->verify(&info, &region, 1, fit_value, fit_value_len)) {
 		*err_msgp = "Verification failed";
 		return -1;
 	}
@@ -375,8 +383,8 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 	struct image_region region[count];
 
 	fit_region_make_list(fit, fdt_regions, count, region);
-	if (info.algo->verify(&info, region, count, fit_value,
-			      fit_value_len)) {
+	if (info.crypto->verify(&info, region, count, fit_value,
+				fit_value_len)) {
 		*err_msgp = "Verification failed";
 		return -1;
 	}

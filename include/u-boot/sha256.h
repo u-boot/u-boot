@@ -2,6 +2,9 @@
 #define _SHA256_H
 
 #define SHA256_SUM_LEN	32
+#define SHA256_DER_LEN	19
+
+extern const uint8_t sha256_der_prefix[];
 
 /* Reset watchdog each time we process this many bytes */
 #define CHUNKSZ_SHA256	(64 * 1024)

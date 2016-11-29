@@ -14,6 +14,9 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <nand.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define PMU_I2C_ADDRESS		0x34
 #define MAX_I2C_RETRY		3
@@ -57,6 +60,16 @@ int arch_misc_init(void)
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
+
+	return 0;
+}
+
+int checkboard(void)
+{
+	printf("Model: Toradex Colibri T20 %dMB V%s\n",
+	       (gd->ram_size == 0x10000000) ? 256 : 512,
+	       (nand_info[0]->erasesize >> 10 == 512) ?
+	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
 
 	return 0;
 }

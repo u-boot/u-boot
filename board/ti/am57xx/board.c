@@ -447,26 +447,6 @@ int spl_start_uboot(void)
 #endif
 
 #ifdef CONFIG_USB_DWC3
-static struct dwc3_device usb_otg_ss1 = {
-	.maximum_speed = USB_SPEED_SUPER,
-	.base = DRA7_USB_OTG_SS1_BASE,
-	.tx_fifo_resize = false,
-	.index = 0,
-};
-
-static struct dwc3_omap_device usb_otg_ss1_glue = {
-	.base = (void *)DRA7_USB_OTG_SS1_GLUE_BASE,
-	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.index = 0,
-};
-
-static struct ti_usb_phy_device usb_phy1_device = {
-	.pll_ctrl_base = (void *)DRA7_USB3_PHY1_PLL_CTRL,
-	.usb2_phy_power = (void *)DRA7_USB2_PHY1_POWER,
-	.usb3_phy_power = (void *)DRA7_USB3_PHY1_POWER,
-	.index = 0,
-};
-
 static struct dwc3_device usb_otg_ss2 = {
 	.maximum_speed = USB_SPEED_HIGH,
 	.base = DRA7_USB_OTG_SS2_BASE,

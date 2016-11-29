@@ -37,7 +37,8 @@ void bootcount_store(ulong a)
 
 	/* Make sure the data is written to RAM */
 	flush_dcache_range((ulong)&save_addr[0],
-			   (ulong)&save_addr[REPEAT_PATTERN + OFFS_PATTERN]);
+			   (((ulong)&save_addr[REPEAT_PATTERN + OFFS_PATTERN] &
+			     ~(ARCH_DMA_MINALIGN - 1)) + ARCH_DMA_MINALIGN));
 }
 
 ulong bootcount_load(void)

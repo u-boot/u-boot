@@ -61,8 +61,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x600
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000

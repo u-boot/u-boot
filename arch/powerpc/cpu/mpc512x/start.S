@@ -443,6 +443,11 @@ get_pvr:
 	mfspr	r3, PVR
 	blr
 
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
+	blr
+
 /*-------------------------------------------------------------------*/
 
 /*

@@ -261,6 +261,16 @@ int regulator_get_value(struct udevice *dev);
 int regulator_set_value(struct udevice *dev, int uV);
 
 /**
+ * regulator_set_value_force: set the microvoltage value of a given regulator
+ *			      without any min-,max condition check
+ *
+ * @dev    - pointer to the regulator device
+ * @uV     - the output value to set [micro Volts]
+ * @return - 0 on success or -errno val if fails
+ */
+int regulator_set_value_force(struct udevice *dev, int uV);
+
+/**
  * regulator_get_current: get microampere value of a given regulator
  *
  * @dev    - pointer to the regulator device

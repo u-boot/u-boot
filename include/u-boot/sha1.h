@@ -21,6 +21,9 @@ extern "C" {
 
 #define SHA1_SUM_POS	-0x20
 #define SHA1_SUM_LEN	20
+#define SHA1_DER_LEN	15
+
+extern const uint8_t sha1_der_prefix[];
 
 /**
  * \brief	   SHA-1 context structure

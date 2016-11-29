@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 Toradex, Inc.
+ * Copyright 2015-2016 Toradex, Inc.
  *
- * Configuration settings for the Toradex VF50/VF61 module.
+ * Configuration settings for the Toradex VF50/VF61 modules.
  *
  * Based on vf610twr.h:
  * Copyright 2013 Freescale Semiconductor, Inc.
@@ -21,6 +21,7 @@
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_ARCH_MISC_INIT
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -36,6 +37,7 @@
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_BAUDRATE			115200
 
@@ -205,13 +207,6 @@
 #define CONFIG_USB_EHCI_VF
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
-/* USB Client Support */
-#define CONFIG_TRDX_VID                  0x1B67
-#define CONFIG_TRDX_PID_COLIBRI_VF50     0x0016
-#define CONFIG_TRDX_PID_COLIBRI_VF61     0x0017
-#define CONFIG_TRDX_PID_COLIBRI_VF61IT   0x0018
-#define CONFIG_TRDX_PID_COLIBRI_VF50IT   0x0019
 
 /* USB DFU */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)

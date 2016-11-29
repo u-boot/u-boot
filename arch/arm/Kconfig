@@ -126,6 +126,17 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  ARM_SOC_BOOT0_HOOK which contains the required assembler
 	  preprocessor code.
 
+config ARCH_OMAP2
+	bool
+	select CPU_V7
+	select SUPPORT_SPL
+
+config ARM64_SUPPORT_AARCH32
+	bool "ARM64 system support AArch32 execution state"
+	default y if ARM64 && !TARGET_THUNDERX_88XX
+	help
+	  This ARM64 system supports AArch32 execution state.
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
@@ -327,71 +338,61 @@ config TARGET_VEXPRESS_CA9X4
 
 config TARGET_BRXRE1
 	bool "Support BRXRE1"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_BRPPT1
 	bool "Support BRPPT1"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_DRACO
 	bool "Support draco"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_THUBAN
 	bool "Support thuban"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_RASTABAN
 	bool "Support rastaban"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_ETAMIN
 	bool "Support etamin"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_PXM2
 	bool "Support pxm2"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_RUT
 	bool "Support rut"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_TI816X_EVM
 	bool "Support ti816x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
@@ -486,25 +487,21 @@ config TARGET_MX53SMD
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select USE_TINY_PRINTF
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	select USE_TINY_PRINTF
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config AM43XX
 	bool "AM43XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	help
 	  Support for AM43xx SOC from Texas Instruments.
 	  The AM43xx high performance SOC features a Cortex-A9
@@ -514,8 +511,7 @@ config AM43XX
 
 config AM33XX
 	bool "AM33XX SoC"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
@@ -554,29 +550,28 @@ config ARCH_SOCFPGA
 
 config TARGET_CM_T43
 	bool "Support cm_t43"
-	select CPU_V7
-	select SUPPORT_SPL
+	select ARCH_OMAP2
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
 	select CMD_GPIO
 	select CMD_MMC if MMC
-	select CMD_USB
+	select CMD_USB if DISTRO_DEFAULTS
 	select DM
 	select DM_ETH
 	select DM_GPIO
 	select DM_KEYBOARD
 	select DM_SERIAL
-	select DM_USB
+	select DM_USB if DISTRO_DEFAULTS
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_SEPARATE
 	select SPL_STACK_R if SUPPORT_SPL
 	select SPL_SYS_MALLOC_SIMPLE if SUPPORT_SPL
 	select SYS_NS16550
-	select USB
-	select USB_STORAGE
-	select USB_KEYBOARD
+	select USB if DISTRO_DEFAULTS
+	select USB_STORAGE if DISTRO_DEFAULTS
+	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USE_TINY_PRINTF
 
 config TARGET_TS4800
@@ -761,6 +756,20 @@ config TARGET_LS1021ATWR
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
 
+config TARGET_LS1021AIOT
+	bool "Support ls1021aiot"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select SUPPORT_SPL
+	select ARCH_LS1021A
+	select ARCH_SUPPORT_PSCI
+	help
+	  Support for Freescale LS1021AIOT platform.
+	  The LS1021A Freescale board (IOT) is a high-performance
+	  development platform that supports the QorIQ LS1021A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
 	select ARCH_LS1043A
@@ -901,7 +910,7 @@ source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/cpu/armv7/mx5/Kconfig"
 
-source "arch/arm/cpu/armv7/omap-common/Kconfig"
+source "arch/arm/mach-omap2/Kconfig"
 
 source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 
@@ -962,6 +971,7 @@ source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1021aiot/Kconfig"
 source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/ls1046ardb/Kconfig"

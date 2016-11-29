@@ -12,7 +12,6 @@
 
 /* Platform type */
 #define CONFIG_SOC_K2G
-#define CONFIG_K2G_EVM
 
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
