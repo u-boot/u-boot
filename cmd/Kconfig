@@ -203,6 +203,12 @@ config CMD_BOOTEFI_HELLO
 	  for testing that EFI is working at a basic level, and for bringing
 	  up EFI support on a new architecture.
 
+config CMD_BOOTMENU
+	bool "bootmenu"
+	select MENU
+	help
+	  Add an ANSI terminal boot menu command.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y

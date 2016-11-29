@@ -82,7 +82,6 @@
 
 /* PXE */
 #define CONFIG_CMD_PXE
-#define CONFIG_MENU
 
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
