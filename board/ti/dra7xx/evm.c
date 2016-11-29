@@ -426,6 +426,13 @@ int board_late_init(void)
 
 	set_board_info_env(name);
 
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
+
 	omap_die_id_serial();
 #endif
 	return 0;
