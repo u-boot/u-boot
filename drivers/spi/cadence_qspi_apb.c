@@ -199,7 +199,6 @@ void cadence_qspi_apb_controller_enable(void *reg_base)
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg |= CQSPI_REG_CONFIG_ENABLE;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
-	return;
 }
 
 void cadence_qspi_apb_controller_disable(void *reg_base)
@@ -208,7 +207,6 @@ void cadence_qspi_apb_controller_disable(void *reg_base)
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg &= ~CQSPI_REG_CONFIG_ENABLE;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
-	return;
 }
 
 /* Return 1 if idle, otherwise return 0 (busy). */
@@ -260,7 +258,6 @@ void cadence_qspi_apb_readdata_capture(void *reg_base,
 	writel(reg, reg_base + CQSPI_REG_RD_DATA_CAPTURE);
 
 	cadence_qspi_apb_controller_enable(reg_base);
-	return;
 }
 
 void cadence_qspi_apb_config_baudrate_div(void *reg_base,
@@ -291,7 +288,6 @@ void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(reg_base);
-	return;
 }
 
 void cadence_qspi_apb_set_clk_mode(void *reg_base, uint mode)
@@ -310,7 +306,6 @@ void cadence_qspi_apb_set_clk_mode(void *reg_base, uint mode)
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(reg_base);
-	return;
 }
 
 void cadence_qspi_apb_chipselect(void *reg_base,
@@ -345,7 +340,6 @@ void cadence_qspi_apb_chipselect(void *reg_base,
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(reg_base);
-	return;
 }
 
 void cadence_qspi_apb_delay(void *reg_base,
@@ -383,7 +377,6 @@ void cadence_qspi_apb_delay(void *reg_base,
 	writel(reg, reg_base + CQSPI_REG_DELAY);
 
 	cadence_qspi_apb_controller_enable(reg_base);
-	return;
 }
 
 void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
@@ -411,7 +404,6 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 	writel(0, plat->regbase + CQSPI_REG_IRQMASK);
 
 	cadence_qspi_apb_controller_enable(plat->regbase);
-	return;
 }
 
 static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
