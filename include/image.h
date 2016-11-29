@@ -1271,4 +1271,34 @@ int board_fit_config_name_match(const char *name);
 void board_fit_image_post_process(void **p_image, size_t *p_size);
 #endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
 
+/**
+ * Mapping of image types to function handlers to be invoked on the associated
+ * loaded images
+ *
+ * @type: Type of image, I.E. IH_TYPE_*
+ * @handler: Function to call on loaded image
+ */
+struct fit_loadable_tbl {
+	int type;
+	/**
+	 * handler() - Process a loaded image
+	 *
+	 * @data: Pointer to start of loaded image data
+	 * @size: Size of loaded image data
+	 */
+	void (*handler)(ulong data, size_t size);
+};
+
+/*
+ * Define a FIT loadable image type handler
+ *
+ * _type is a valid uimage_type ID as defined in the "Image Type" enum above
+ * _handler is the handler function to call after this image type is loaded
+ */
+#define U_BOOT_FIT_LOADABLE_HANDLER(_type, _handler) \
+	ll_entry_declare(struct fit_loadable_tbl, _function, fit_loadable) = { \
+		.type = _type, \
+		.handler = _handler, \
+	}
+
 #endif	/* __IMAGE_H__ */
