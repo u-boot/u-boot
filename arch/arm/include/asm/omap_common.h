@@ -632,6 +632,7 @@ void omap_smc1(u32 service, u32 val);
  * security (HS) device variants by doing a specially-formed smc entry.
  */
 u32 omap_smc_sec(u32 service, u32 proc_id, u32 flag, u32 *params);
+u32 omap_smc_sec_cpu1(u32 service, u32 proc_id, u32 flag, u32 *params);
 
 void enable_edma3_clocks(void);
 void disable_edma3_clocks(void);
