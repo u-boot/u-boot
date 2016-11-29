@@ -311,8 +311,8 @@ void cadence_qspi_apb_set_clk_mode(void *reg_base,
 
 	cadence_qspi_apb_controller_disable(reg_base);
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
-	reg &= ~(1 <<
-		(CQSPI_REG_CONFIG_CLK_POL_LSB | CQSPI_REG_CONFIG_CLK_PHA_LSB));
+	reg &= ~(1 << CQSPI_REG_CONFIG_CLK_POL_LSB);
+	reg &= ~(1 << CQSPI_REG_CONFIG_CLK_PHA_LSB);
 
 	reg |= ((clk_pol & 0x1) << CQSPI_REG_CONFIG_CLK_POL_LSB);
 	reg |= ((clk_pha & 0x1) << CQSPI_REG_CONFIG_CLK_PHA_LSB);
