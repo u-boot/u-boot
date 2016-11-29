@@ -22,6 +22,7 @@ config TARGET_EA20
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
 	select SUPPORT_SPL
+	select SYS_DA850_PLL_INIT
 
 config TARGET_CALIMAIN
 	bool "Calimain board"
