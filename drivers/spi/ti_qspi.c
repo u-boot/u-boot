@@ -383,7 +383,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	priv->base = (struct ti_qspi_regs *)QSPI_BASE;
 	priv->mode = mode;
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 	priv->ctrl_mod_mmap = (void *)CORE_CTRL_IO;
 	priv->slave.memory_map = (void *)MMAP_START_ADDR_DRA;
 	priv->fclk = QSPI_DRA7XX_FCLK;

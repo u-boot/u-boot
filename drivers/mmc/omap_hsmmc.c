@@ -700,8 +700,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	case 1:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
-	defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX) || \
-	defined(CONFIG_AM33XX) || \
+	defined(CONFIG_DRA7XX) || defined(CONFIG_AM33XX) || \
 	defined(CONFIG_AM43XX) || defined(CONFIG_SOC_KEYSTONE)) && \
 		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
@@ -712,7 +711,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC3_BASE;
-#if (defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)) && defined(CONFIG_HSMMC3_8BIT)
+#if defined(CONFIG_DRA7XX) && defined(CONFIG_HSMMC3_8BIT)
 		/* Enable 8-bit interface for eMMC on DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
 #endif

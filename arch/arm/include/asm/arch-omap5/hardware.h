@@ -24,7 +24,7 @@
 #define GPMC_BASE			0x50000000
 
 /* EDMA3 Base address for DRA7XX and AM57XX */
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 #define EDMA3_BASE			0x43300000
 #endif
 

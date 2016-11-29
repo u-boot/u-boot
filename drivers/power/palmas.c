@@ -27,7 +27,7 @@ int palmas_mmc1_poweron_ldo(void)
 {
 	u8 val = 0;
 
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 	/*
 	 * Currently valid for the dra7xx_evm board:
 	 * Set TPS659038 LDO1 to 3.0 V

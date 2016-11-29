@@ -12,7 +12,7 @@
 #include <spl.h>
 
 static u32 boot_devices[] = {
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 	BOOT_DEVICE_MMC2,
 	BOOT_DEVICE_NAND,
 	BOOT_DEVICE_MMC1,

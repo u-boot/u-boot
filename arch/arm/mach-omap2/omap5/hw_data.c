@@ -456,7 +456,7 @@ void enable_basic_clocks(void)
 void enable_basic_uboot_clocks(void)
 {
 	u32 const clk_domains_essential[] = {
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 		(*prcm)->cm_ipu_clkstctrl,
 #endif
 		0
@@ -472,7 +472,7 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l4per_i2c2_clkctrl,
 		(*prcm)->cm_l4per_i2c3_clkctrl,
 		(*prcm)->cm_l4per_i2c4_clkctrl,
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 		(*prcm)->cm_ipu_i2c5_clkctrl,
 #else
 		(*prcm)->cm_l4per_i2c5_clkctrl,

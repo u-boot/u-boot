@@ -29,13 +29,13 @@
 #define CONTROL_CORE_ID_CODE	0x4A002204
 #define CONTROL_WKUP_ID_CODE	0x4AE0C204
 
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 #define CONTROL_ID_CODE		CONTROL_WKUP_ID_CODE
 #else
 #define CONTROL_ID_CODE		CONTROL_CORE_ID_CODE
 #endif
 
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 #define DRA7_USB_OTG_SS1_BASE		0x48890000
 #define DRA7_USB_OTG_SS1_GLUE_BASE	0x48880000
 #define DRA7_USB3_PHY1_PLL_CTRL		0x4A084C00
@@ -185,7 +185,7 @@ struct s32ktimer {
  * much larger) and do not, at this time, make use of the additional
  * space.
  */
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#if defined(CONFIG_DRA7XX)
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
 #define NON_SECURE_SRAM_IMG_END	0x4037E000
