@@ -80,6 +80,13 @@ config TARGET_CM_FX6
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_COLIBRI_IMX6
+	bool "Toradex Colibri iMX6 board"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_THERMAL
+
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 
@@ -279,6 +286,7 @@ source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
+source "board/toradex/colibri_imx6/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
