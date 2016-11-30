@@ -24,6 +24,7 @@
 #include <power/pmic.h>
 #include <power/rn5t567_pmic.h>
 #include <usb/ehci-ci.h>
+#include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -386,6 +387,13 @@ int checkboard(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	return ft_common_board_setup(blob, bd);
+}
+#endif
 
 #ifdef CONFIG_USB_EHCI_MX7
 static iomux_v3_cfg_t const usb_otg2_pads[] = {
