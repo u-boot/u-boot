@@ -17,7 +17,7 @@ static int scsi_curr_dev; /* current device */
 /*
  * scsi boot command intepreter. Derived from diskboot
  */
-int do_scsiboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_scsiboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	return common_diskboot(cmdtp, "scsi", argc, argv);
 }
@@ -25,7 +25,7 @@ int do_scsiboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 /*
  * scsi command intepreter
  */
-int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
