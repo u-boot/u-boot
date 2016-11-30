@@ -51,6 +51,13 @@ config TARGET_ADVANTECH_DMS_BA16
 	bool "Advantech dms-ba16"
 	select MX6Q
 
+config TARGET_APALIS_IMX6
+	bool "Toradex Apalis iMX6 board"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_THERMAL
+
 config TARGET_ARISTAINETOS
 	bool "aristainetos"
 
@@ -271,6 +278,7 @@ source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
+source "board/toradex/apalis_imx6/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
