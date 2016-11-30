@@ -152,10 +152,14 @@ struct spl_boot_device {
 /**
  * Holds information about a way of loading an SPL image
  *
+ * @name: User-friendly name for this method (e.g. "MMC")
  * @boot_device: Boot device that this loader supports
  * @load_image: Function to call to load image
  */
 struct spl_image_loader {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+	const char *name;
+#endif
 	uint boot_device;
 	/**
 	 * load_image() - Load an SPL image
@@ -177,11 +181,20 @@ struct spl_image_loader {
  * _boot_device is the BOOT_DEVICE_... value
  * _method is the load_image function to call
  */
-#define SPL_LOAD_IMAGE_METHOD(_priority, _boot_device, _method) \
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+#define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
+	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+		.name = _name, \
+		.boot_device = _boot_device, \
+		.load_image = _method, \
+	}
+#else
+#define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
 	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
 		.boot_device = _boot_device, \
 		.load_image = _method, \
 	}
+#endif
 
 /* SPL FAT image functions */
 int spl_load_image_fat(struct spl_image_info *spl_image,

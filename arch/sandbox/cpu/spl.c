@@ -51,7 +51,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	/* Hopefully this will not return */
 	return os_spl_to_uboot(fname);
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("sandbox", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 
 void spl_board_init(void)
 {
