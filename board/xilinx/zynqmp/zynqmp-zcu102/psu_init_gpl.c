@@ -952,7 +952,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR1                                              0x1
 
 		6 bit divider
-		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR0                                              0x9
+		PSU_CRL_APB_QSPI_REF_CTRL_DIVISOR0                                              0xc
 
 		000 = IOPLL; 010 = RPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		clock. This is not usually an issue, but designers must be aware.)
@@ -967,7 +967,7 @@ unsigned long psu_clock_init_data() {
 			| 0x0000000CU << CRL_APB_QSPI_REF_CTRL_DIVISOR0_SHIFT
 			| 0x00000000U << CRL_APB_QSPI_REF_CTRL_SRCSEL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_QSPI_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010900U);
+		PSU_Mask_Write (CRL_APB_QSPI_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010C00U);
 	/*############################################################################################################################ */
 
 		/*Register : SDIO1_REF_CTRL @ 0XFF5E0070</p>
@@ -1222,21 +1222,21 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_LPD_SWITCH_CTRL_CLKACT                                              0x1
 
 		6 bit divider
-		PSU_CRL_APB_LPD_SWITCH_CTRL_DIVISOR0                                            0x6
+		PSU_CRL_APB_LPD_SWITCH_CTRL_DIVISOR0                                            0x3
 
 		000 = RPLL; 010 = IOPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRL_APB_LPD_SWITCH_CTRL_SRCSEL                                              0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00A8, 0x01003F07U ,0x01000602U)
+		(OFFSET, MASK, VALUE)      (0XFF5E00A8, 0x01003F07U ,0x01000302U)
 		RegMask = (CRL_APB_LPD_SWITCH_CTRL_CLKACT_MASK | CRL_APB_LPD_SWITCH_CTRL_DIVISOR0_MASK | CRL_APB_LPD_SWITCH_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_LPD_SWITCH_CTRL_CLKACT_SHIFT
-			| 0x00000006U << CRL_APB_LPD_SWITCH_CTRL_DIVISOR0_SHIFT
+			| 0x00000003U << CRL_APB_LPD_SWITCH_CTRL_DIVISOR0_SHIFT
 			| 0x00000002U << CRL_APB_LPD_SWITCH_CTRL_SRCSEL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_LPD_SWITCH_CTRL_OFFSET ,0x01003F07U ,0x01000602U);
+		PSU_Mask_Write (CRL_APB_LPD_SWITCH_CTRL_OFFSET ,0x01003F07U ,0x01000302U);
 	/*############################################################################################################################ */
 
 		/*Register : LPD_LSBUS_CTRL @ 0XFF5E00AC</p>
@@ -1502,29 +1502,6 @@ unsigned long psu_clock_init_data() {
 			| 0x00000002U << CRF_APB_SATA_REF_CTRL_DIVISOR0_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (CRF_APB_SATA_REF_CTRL_OFFSET ,0x01003F07U ,0x01000200U);
-	/*############################################################################################################################ */
-
-		/*Register : PCIE_REF_CTRL @ 0XFD1A00B4</p>
-
-		000 = IOPLL_TO_FPD; 010 = RPLL_TO_FPD; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cyc
-		es of the new clock. This is not usually an issue, but designers must be aware.)
-		PSU_CRF_APB_PCIE_REF_CTRL_SRCSEL                                                0x0
-
-		Clock active signal. Switch to 0 to disable the clock
-		PSU_CRF_APB_PCIE_REF_CTRL_CLKACT                                                0x1
-
-		6 bit divider
-		PSU_CRF_APB_PCIE_REF_CTRL_DIVISOR0                                              0x2
-
-		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00B4, 0x01003F07U ,0x01000200U)
-		RegMask = (CRF_APB_PCIE_REF_CTRL_SRCSEL_MASK | CRF_APB_PCIE_REF_CTRL_CLKACT_MASK | CRF_APB_PCIE_REF_CTRL_DIVISOR0_MASK |  0 );
-
-		RegVal = ((0x00000000U << CRF_APB_PCIE_REF_CTRL_SRCSEL_SHIFT
-			| 0x00000001U << CRF_APB_PCIE_REF_CTRL_CLKACT_SHIFT
-			| 0x00000002U << CRF_APB_PCIE_REF_CTRL_DIVISOR0_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_PCIE_REF_CTRL_OFFSET ,0x01003F07U ,0x01000200U);
 	/*############################################################################################################################ */
 
 		/*Register : DP_VIDEO_REF_CTRL @ 0XFD1A0070</p>
@@ -2753,7 +2730,7 @@ unsigned long psu_ddr_init_data() {
 		tFAW Valid only when 8 or more banks(or banks x bank groups) are present. In 8-bank design, at most 4 banks must be activated
 		in a rolling window of tFAW cycles. For configurations with MEMC_FREQ_RATIO=2, program this to (tFAW/2) and round up to next
 		nteger value. In a 4-bank design, set this register to 0x1 independent of the MEMC_FREQ_RATIO configuration. Unit: Clocks
-		PSU_DDRC_DRAMTMG0_T_FAW                                                         0xc
+		PSU_DDRC_DRAMTMG0_T_FAW                                                         0x11
 
 		tRAS(max): Maximum time between activate and precharge to same bank. This is the maximum time that a page can be kept open Mi
 		imum value of this register is 1. Zero is invalid. For configurations with MEMC_FREQ_RATIO=2, program this to (tRAS(max)-1)/2
@@ -2766,15 +2743,15 @@ unsigned long psu_ddr_init_data() {
 		PSU_DDRC_DRAMTMG0_T_RAS_MIN                                                     0x12
 
 		SDRAM Timing Register 0
-		(OFFSET, MASK, VALUE)      (0XFD070100, 0x7F3F7F3FU ,0x110C2412U)
+		(OFFSET, MASK, VALUE)      (0XFD070100, 0x7F3F7F3FU ,0x11112412U)
 		RegMask = (DDRC_DRAMTMG0_WR2PRE_MASK | DDRC_DRAMTMG0_T_FAW_MASK | DDRC_DRAMTMG0_T_RAS_MAX_MASK | DDRC_DRAMTMG0_T_RAS_MIN_MASK |  0 );
 
 		RegVal = ((0x00000011U << DDRC_DRAMTMG0_WR2PRE_SHIFT
-			| 0x0000000CU << DDRC_DRAMTMG0_T_FAW_SHIFT
+			| 0x00000011U << DDRC_DRAMTMG0_T_FAW_SHIFT
 			| 0x00000024U << DDRC_DRAMTMG0_T_RAS_MAX_SHIFT
 			| 0x00000012U << DDRC_DRAMTMG0_T_RAS_MIN_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (DDRC_DRAMTMG0_OFFSET ,0x7F3F7F3FU ,0x110C2412U);
+		PSU_Mask_Write (DDRC_DRAMTMG0_OFFSET ,0x7F3F7F3FU ,0x11112412U);
 	/*############################################################################################################################ */
 
 		/*Register : DRAMTMG1 @ 0XFD070104</p>
@@ -2794,17 +2771,17 @@ unsigned long psu_ddr_init_data() {
 
 		tRC: Minimum time between activates to same bank. For configurations with MEMC_FREQ_RATIO=2, program this to (tRC/2) and roun
 		 up to next integer value. Unit: Clocks.
-		PSU_DDRC_DRAMTMG1_T_RC                                                          0x19
+		PSU_DDRC_DRAMTMG1_T_RC                                                          0x1a
 
 		SDRAM Timing Register 1
-		(OFFSET, MASK, VALUE)      (0XFD070104, 0x001F1F7FU ,0x00040419U)
+		(OFFSET, MASK, VALUE)      (0XFD070104, 0x001F1F7FU ,0x0004041AU)
 		RegMask = (DDRC_DRAMTMG1_T_XP_MASK | DDRC_DRAMTMG1_RD2PRE_MASK | DDRC_DRAMTMG1_T_RC_MASK |  0 );
 
 		RegVal = ((0x00000004U << DDRC_DRAMTMG1_T_XP_SHIFT
 			| 0x00000004U << DDRC_DRAMTMG1_RD2PRE_SHIFT
-			| 0x00000019U << DDRC_DRAMTMG1_T_RC_SHIFT
+			| 0x0000001AU << DDRC_DRAMTMG1_T_RC_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (DDRC_DRAMTMG1_OFFSET ,0x001F1F7FU ,0x00040419U);
+		PSU_Mask_Write (DDRC_DRAMTMG1_OFFSET ,0x001F1F7FU ,0x0004041AU);
 	/*############################################################################################################################ */
 
 		/*Register : DRAMTMG2 @ 0XFD070108</p>
@@ -5661,7 +5638,7 @@ unsigned long psu_ddr_init_data() {
 		PSU_DDR_PHY_DTPR1_RESERVED_23                                                   0x0
 
 		4-bank activate period
-		PSU_DDR_PHY_DTPR1_TFAW                                                          0x18
+		PSU_DDR_PHY_DTPR1_TFAW                                                          0x22
 
 		Reserved. Return zeroes on reads.
 		PSU_DDR_PHY_DTPR1_RESERVED_15_11                                                0x0
@@ -5676,19 +5653,19 @@ unsigned long psu_ddr_init_data() {
 		PSU_DDR_PHY_DTPR1_TMRD                                                          0x8
 
 		DRAM Timing Parameters Register 1
-		(OFFSET, MASK, VALUE)      (0XFD080114, 0xFFFFFFFFU ,0x28180708U)
+		(OFFSET, MASK, VALUE)      (0XFD080114, 0xFFFFFFFFU ,0x28220708U)
 		RegMask = (DDR_PHY_DTPR1_RESERVED_31_MASK | DDR_PHY_DTPR1_TWLMRD_MASK | DDR_PHY_DTPR1_RESERVED_23_MASK | DDR_PHY_DTPR1_TFAW_MASK | DDR_PHY_DTPR1_RESERVED_15_11_MASK | DDR_PHY_DTPR1_TMOD_MASK | DDR_PHY_DTPR1_RESERVED_7_5_MASK | DDR_PHY_DTPR1_TMRD_MASK |  0 );
 
 		RegVal = ((0x00000000U << DDR_PHY_DTPR1_RESERVED_31_SHIFT
 			| 0x00000028U << DDR_PHY_DTPR1_TWLMRD_SHIFT
 			| 0x00000000U << DDR_PHY_DTPR1_RESERVED_23_SHIFT
-			| 0x00000018U << DDR_PHY_DTPR1_TFAW_SHIFT
+			| 0x00000022U << DDR_PHY_DTPR1_TFAW_SHIFT
 			| 0x00000000U << DDR_PHY_DTPR1_RESERVED_15_11_SHIFT
 			| 0x00000007U << DDR_PHY_DTPR1_TMOD_SHIFT
 			| 0x00000000U << DDR_PHY_DTPR1_RESERVED_7_5_SHIFT
 			| 0x00000008U << DDR_PHY_DTPR1_TMRD_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (DDR_PHY_DTPR1_OFFSET ,0xFFFFFFFFU ,0x28180708U);
+		PSU_Mask_Write (DDR_PHY_DTPR1_OFFSET ,0xFFFFFFFFU ,0x28220708U);
 	/*############################################################################################################################ */
 
 		/*Register : DTPR2 @ 0XFD080118</p>
@@ -5819,7 +5796,7 @@ unsigned long psu_ddr_init_data() {
 		PSU_DDR_PHY_DTPR5_RESERVED_31_24                                                0x0
 
 		Activate to activate command delay (same bank)
-		PSU_DDR_PHY_DTPR5_TRC                                                           0x32
+		PSU_DDR_PHY_DTPR5_TRC                                                           0x34
 
 		Reserved. Return zeroes on reads.
 		PSU_DDR_PHY_DTPR5_RESERVED_15                                                   0x0
@@ -5834,17 +5811,17 @@ unsigned long psu_ddr_init_data() {
 		PSU_DDR_PHY_DTPR5_TWTR                                                          0x9
 
 		DRAM Timing Parameters Register 5
-		(OFFSET, MASK, VALUE)      (0XFD080124, 0xFFFFFFFFU ,0x00320F09U)
+		(OFFSET, MASK, VALUE)      (0XFD080124, 0xFFFFFFFFU ,0x00340F09U)
 		RegMask = (DDR_PHY_DTPR5_RESERVED_31_24_MASK | DDR_PHY_DTPR5_TRC_MASK | DDR_PHY_DTPR5_RESERVED_15_MASK | DDR_PHY_DTPR5_TRCD_MASK | DDR_PHY_DTPR5_RESERVED_7_5_MASK | DDR_PHY_DTPR5_TWTR_MASK |  0 );
 
 		RegVal = ((0x00000000U << DDR_PHY_DTPR5_RESERVED_31_24_SHIFT
-			| 0x00000032U << DDR_PHY_DTPR5_TRC_SHIFT
+			| 0x00000034U << DDR_PHY_DTPR5_TRC_SHIFT
 			| 0x00000000U << DDR_PHY_DTPR5_RESERVED_15_SHIFT
 			| 0x0000000FU << DDR_PHY_DTPR5_TRCD_SHIFT
 			| 0x00000000U << DDR_PHY_DTPR5_RESERVED_7_5_SHIFT
 			| 0x00000009U << DDR_PHY_DTPR5_TWTR_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (DDR_PHY_DTPR5_OFFSET ,0xFFFFFFFFU ,0x00320F09U);
+		PSU_Mask_Write (DDR_PHY_DTPR5_OFFSET ,0xFFFFFFFFU ,0x00340F09U);
 	/*############################################################################################################################ */
 
 		/*Register : DTPR6 @ 0XFD080128</p>
@@ -12839,7 +12816,7 @@ unsigned long psu_mio_init_data() {
 
 		Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Input, pmu_gpi[0]- (PMU GPI) 2= test_scan, Input, test_scan_in[26]- (Test Sc
 		n Port) = test_scan, Output, test_scan_out[26]- (Test Scan Port) 3= csu, Input, csu_ext_tamper- (CSU Ext Tamper)
-		PSU_IOU_SLCR_MIO_PIN_26_L2_SEL                                                  1
+		PSU_IOU_SLCR_MIO_PIN_26_L2_SEL                                                  0
 
 		Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[0]- (GPIO bank 1) 0= gpio1, Output, gpio_1_pin_out[0]- (GPIO bank 1) 1= can
 		, Input, can0_phy_rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0, Output, i2c0_scl_out- (SCL signal
@@ -12849,15 +12826,15 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_26_L3_SEL                                                  0
 
 		Configures MIO Pin 26 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180068, 0x000000FEU ,0x00000008U)
+		(OFFSET, MASK, VALUE)      (0XFF180068, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_26_L0_SEL_MASK | IOU_SLCR_MIO_PIN_26_L1_SEL_MASK | IOU_SLCR_MIO_PIN_26_L2_SEL_MASK | IOU_SLCR_MIO_PIN_26_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_26_L0_SEL_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_PIN_26_L1_SEL_SHIFT
-			| 0x00000001U << IOU_SLCR_MIO_PIN_26_L2_SEL_SHIFT
+			| 0x00000000U << IOU_SLCR_MIO_PIN_26_L2_SEL_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_PIN_26_L3_SEL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (IOU_SLCR_MIO_PIN_26_OFFSET ,0x000000FEU ,0x00000008U);
+		PSU_Mask_Write (IOU_SLCR_MIO_PIN_26_OFFSET ,0x000000FEU ,0x00000000U);
 	/*############################################################################################################################ */
 
 		/*Register : MIO_PIN_27 @ 0XFF18006C</p>
@@ -14513,7 +14490,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_25_TRI                                            1
 
 		Master Tri-state Enable for pin 26, active high
-		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI                                            1
+		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI                                            0
 
 		Master Tri-state Enable for pin 27, active high
 		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_27_TRI                                            0
@@ -14531,7 +14508,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_31_TRI                                            0
 
 		MIO pin Tri-state Enables, 31:0
-		(OFFSET, MASK, VALUE)      (0XFF180204, 0xFFFFFFFFU ,0x56240000U)
+		(OFFSET, MASK, VALUE)      (0XFF180204, 0xFFFFFFFFU ,0x52240000U)
 		RegMask = (IOU_SLCR_MIO_MST_TRI0_PIN_00_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_01_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_02_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_03_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_04_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_05_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_06_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_07_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_08_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_09_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_10_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_11_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_12_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_13_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_14_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_15_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_16_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_17_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_18_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_19_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_20_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_21_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_22_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_23_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_24_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_25_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_27_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_28_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_29_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_30_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_31_TRI_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_00_TRI_SHIFT
@@ -14560,14 +14537,14 @@ unsigned long psu_mio_init_data() {
 			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_23_TRI_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_24_TRI_SHIFT
 			| 0x00000001U << IOU_SLCR_MIO_MST_TRI0_PIN_25_TRI_SHIFT
-			| 0x00000001U << IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI_SHIFT
+			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_27_TRI_SHIFT
 			| 0x00000001U << IOU_SLCR_MIO_MST_TRI0_PIN_28_TRI_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_29_TRI_SHIFT
 			| 0x00000001U << IOU_SLCR_MIO_MST_TRI0_PIN_30_TRI_SHIFT
 			| 0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_31_TRI_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (IOU_SLCR_MIO_MST_TRI0_OFFSET ,0xFFFFFFFFU ,0x56240000U);
+		PSU_Mask_Write (IOU_SLCR_MIO_MST_TRI0_OFFSET ,0xFFFFFFFFU ,0x52240000U);
 	/*############################################################################################################################ */
 
 		/*Register : MIO_MST_TRI1 @ 0XFF180208</p>
@@ -16949,15 +16926,6 @@ unsigned long psu_peripherals_init_data() {
 		// : FPD RESET
 		/*Register : RST_FPD_TOP @ 0XFD1A0100</p>
 
-		PCIE config reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET                                          0
-
-		PCIE control block level reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET                                         0
-
-		PCIE bridge block level reset (AXI interface)
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET                                       0
-
 		Display Port block level reset (includes DPDMA)
 		PSU_CRF_APB_RST_FPD_TOP_DP_RESET                                                0
 
@@ -16983,13 +16951,10 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRF_APB_RST_FPD_TOP_SATA_RESET                                              0
 
 		FPD Block level software controlled reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x000F807EU ,0x00000000U)
-		RegMask = (CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_MASK | CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_MASK | CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_MASK | CRF_APB_RST_FPD_TOP_DP_RESET_MASK | CRF_APB_RST_FPD_TOP_SWDT_RESET_MASK | CRF_APB_RST_FPD_TOP_GDMA_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP0_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP1_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_RESET_MASK | CRF_APB_RST_FPD_TOP_GT_RESET_MASK | CRF_APB_RST_FPD_TOP_SATA_RESET_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x0001807EU ,0x00000000U)
+		RegMask = (CRF_APB_RST_FPD_TOP_DP_RESET_MASK | CRF_APB_RST_FPD_TOP_SWDT_RESET_MASK | CRF_APB_RST_FPD_TOP_GDMA_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP0_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP1_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_RESET_MASK | CRF_APB_RST_FPD_TOP_GT_RESET_MASK | CRF_APB_RST_FPD_TOP_SATA_RESET_MASK |  0 );
 
-		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_SHIFT
-			| 0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_SHIFT
-			| 0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_SHIFT
-			| 0x00000000U << CRF_APB_RST_FPD_TOP_DP_RESET_SHIFT
+		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_DP_RESET_SHIFT
 			| 0x00000000U << CRF_APB_RST_FPD_TOP_SWDT_RESET_SHIFT
 			| 0x00000000U << CRF_APB_RST_FPD_TOP_GDMA_RESET_SHIFT
 			| 0x00000000U << CRF_APB_RST_FPD_TOP_GPU_PP0_RESET_SHIFT
@@ -16998,7 +16963,7 @@ unsigned long psu_peripherals_init_data() {
 			| 0x00000000U << CRF_APB_RST_FPD_TOP_GT_RESET_SHIFT
 			| 0x00000000U << CRF_APB_RST_FPD_TOP_SATA_RESET_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x000F807EU ,0x00000000U);
+		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x0001807EU ,0x00000000U);
 	/*############################################################################################################################ */
 
 		// : SD
@@ -17183,6 +17148,63 @@ unsigned long psu_peripherals_init_data() {
 			| 0x00000000U << CRL_APB_RST_LPD_IOU2_UART1_RESET_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (CRL_APB_RST_LPD_IOU2_OFFSET ,0x00000006U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		// : TPIU WIDTH
+		// : TRACE LOCK ACCESS REGISTER
+		/*Register : LAR @ 0XFE980FB0</p>
+
+		A write of 0xC5ACCE55 enables further write access to this device. A write of any value other than 0xC5ACCE55 will have the a
+		fect of removing write access.
+		PSU_TPIU_LAR_ACCESS_W                                                           0XC5ACCE55
+
+		This is used to enable write access to device registers. External accesses from a debugger (paddrdbg31 = 1) are not subject t
+		 the Lock Registers. A debugger does not have to unlock the component in order to write and modify the registers in the compo
+		ent.
+		(OFFSET, MASK, VALUE)      (0XFE980FB0, 0xFFFFFFFFU ,0xC5ACCE55U)
+		RegMask = (TPIU_LAR_ACCESS_W_MASK |  0 );
+
+		RegVal = ((0xC5ACCE55U << TPIU_LAR_ACCESS_W_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (TPIU_LAR_OFFSET ,0xFFFFFFFFU ,0xC5ACCE55U);
+	/*############################################################################################################################ */
+
+		// : TRACE CURRENT PORT SIZE
+		/*Register : Current_port_size @ 0XFE980004</p>
+
+		Indicates whether the current port size of the TPIU is 32 bits.
+		PSU_TPIU_CURRENT_PORT_SIZE_PORT_SIZE_32                                         1
+
+		The Current Port Size Register has the same format as the Supported Port Sizes register but only one bit is set, and all othe
+		s must be zero. Writing values with more than one bit set or setting a bit that is not indicated as supported is not supporte
+		 and causes unpredictable behavior.On reset this defaults to the smallest possible port size, 1 bit, and so reads as 0x000000
+		1.Note : Do not modify the value while the Trace Port is still active, or without correctly stopping the formatter (see Forma
+		ter and Flush Control Register, 0x304). This can result in data not being aligned to the port width. For example, data on an
+		-bit Trace Port might not be byte aligned.
+		(OFFSET, MASK, VALUE)      (0XFE980004, 0x80000000U ,0x80000000U)
+		RegMask = (TPIU_CURRENT_PORT_SIZE_PORT_SIZE_32_MASK |  0 );
+
+		RegVal = ((0x00000001U << TPIU_CURRENT_PORT_SIZE_PORT_SIZE_32_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (TPIU_CURRENT_PORT_SIZE_OFFSET ,0x80000000U ,0x80000000U);
+	/*############################################################################################################################ */
+
+		// : TRACE LOCK ACCESS REGISTER
+		/*Register : LAR @ 0XFE980FB0</p>
+
+		A write of 0xC5ACCE55 enables further write access to this device. A write of any value other than 0xC5ACCE55 will have the a
+		fect of removing write access.
+		PSU_TPIU_LAR_ACCESS_W                                                           0X0
+
+		This is used to enable write access to device registers. External accesses from a debugger (paddrdbg31 = 1) are not subject t
+		 the Lock Registers. A debugger does not have to unlock the component in order to write and modify the registers in the compo
+		ent.
+		(OFFSET, MASK, VALUE)      (0XFE980FB0, 0xFFFFFFFFU ,0x00000000U)
+		RegMask = (TPIU_LAR_ACCESS_W_MASK |  0 );
+
+		RegVal = ((0x00000000U << TPIU_LAR_ACCESS_W_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (TPIU_LAR_OFFSET ,0xFFFFFFFFU ,0x00000000U);
 	/*############################################################################################################################ */
 
 		// : UART BAUD RATE
@@ -17491,7 +17513,6 @@ unsigned long psu_peripherals_init_data() {
 	/*############################################################################################################################ */
 
 		// : CSU TAMPER RESPONSE
-		// : AFIFM INTERFACE WIDTH
 		// : CPU QOS DEFAULT
 		/*Register : ACE_CTRL @ 0XFD5C0060</p>
 
@@ -17776,1205 +17797,53 @@ unsigned long psu_lpd_xppu_data() {
 
 		// : APERTURE PERMISIION LIST
 		// : APERTURE NAME: UART0, START ADDRESS: FF000000, END ADDRESS: FF00FFFF
-		/*Register : APERPERM_000 @ 0XFF981000</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_000_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_000_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_000_PARITY                                            0x0
-
-		Entry 000 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00010000
-		(OFFSET, MASK, VALUE)      (0XFF981000, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_000_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_000_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_000_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_000_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_000_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_000_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_000_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: UART1, START ADDRESS: FF010000, END ADDRESS: FF01FFFF
-		/*Register : APERPERM_001 @ 0XFF981004</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_001_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_001_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_001_PARITY                                            0x0
-
-		Entry 001 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00010000
-		(OFFSET, MASK, VALUE)      (0XFF981004, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_001_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_001_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_001_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_001_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_001_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_001_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_001_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: I2C0, START ADDRESS: FF020000, END ADDRESS: FF02FFFF
-		/*Register : APERPERM_002 @ 0XFF981008</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_002_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_002_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_002_PARITY                                            0x0
-
-		Entry 002 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00020000
-		(OFFSET, MASK, VALUE)      (0XFF981008, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_002_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_002_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_002_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_002_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_002_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_002_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_002_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: I2C1, START ADDRESS: FF030000, END ADDRESS: FF03FFFF
-		/*Register : APERPERM_003 @ 0XFF98100C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_003_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_003_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_003_PARITY                                            0x0
-
-		Entry 003 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00030000
-		(OFFSET, MASK, VALUE)      (0XFF98100C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_003_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_003_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_003_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_003_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_003_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_003_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_003_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: SPI0, START ADDRESS: FF040000, END ADDRESS: FF04FFFF
-		/*Register : APERPERM_004 @ 0XFF981010</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_004_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_004_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_004_PARITY                                            0x0
-
-		Entry 004 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00040000
-		(OFFSET, MASK, VALUE)      (0XFF981010, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_004_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_004_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_004_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_004_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_004_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_004_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_004_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: SPI1, START ADDRESS: FF050000, END ADDRESS: FF05FFFF
-		/*Register : APERPERM_005 @ 0XFF981014</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_005_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_005_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_005_PARITY                                            0x0
-
-		Entry 005 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00050000
-		(OFFSET, MASK, VALUE)      (0XFF981014, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_005_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_005_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_005_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_005_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_005_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_005_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_005_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CAN0, START ADDRESS: FF060000, END ADDRESS: FF06FFFF
-		/*Register : APERPERM_006 @ 0XFF981018</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_006_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_006_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_006_PARITY                                            0x0
-
-		Entry 006 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00060000
-		(OFFSET, MASK, VALUE)      (0XFF981018, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_006_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_006_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_006_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_006_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_006_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_006_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_006_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CAN1, START ADDRESS: FF070000, END ADDRESS: FF07FFFF
-		/*Register : APERPERM_007 @ 0XFF98101C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_007_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_007_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_007_PARITY                                            0x0
-
-		Entry 007 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00070000
-		(OFFSET, MASK, VALUE)      (0XFF98101C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_007_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_007_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_007_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_007_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_007_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_007_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_007_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_12, START ADDRESS: FF080000, END ADDRESS: FF09FFFF
-		/*Register : APERPERM_008 @ 0XFF981020</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_008_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_008_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_008_PARITY                                            0x0
-
-		Entry 008 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00080000
-		(OFFSET, MASK, VALUE)      (0XFF981020, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_008_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_008_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_008_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_008_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_008_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_008_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_008_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_12, START ADDRESS: FF080000, END ADDRESS: FF09FFFF
-		/*Register : APERPERM_009 @ 0XFF981024</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_009_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_009_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_009_PARITY                                            0x0
-
-		Entry 009 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00090000
-		(OFFSET, MASK, VALUE)      (0XFF981024, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_009_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_009_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_009_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_009_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_009_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_009_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_009_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: GPIO, START ADDRESS: FF0A0000, END ADDRESS: FF0AFFFF
-		/*Register : APERPERM_010 @ 0XFF981028</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_010_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_010_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_010_PARITY                                            0x0
-
-		Entry 010 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000A0000
-		(OFFSET, MASK, VALUE)      (0XFF981028, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_010_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_010_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_010_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_010_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_010_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_010_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_010_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: GEM0, START ADDRESS: FF0B0000, END ADDRESS: FF0BFFFF
-		/*Register : APERPERM_011 @ 0XFF98102C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_011_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_011_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_011_PARITY                                            0x0
-
-		Entry 011 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000B0000
-		(OFFSET, MASK, VALUE)      (0XFF98102C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_011_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_011_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_011_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_011_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_011_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_011_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_011_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: GEM1, START ADDRESS: FF0C0000, END ADDRESS: FF0CFFFF
-		/*Register : APERPERM_012 @ 0XFF981030</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_012_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_012_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_012_PARITY                                            0x0
-
-		Entry 012 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000C0000
-		(OFFSET, MASK, VALUE)      (0XFF981030, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_012_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_012_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_012_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_012_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_012_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_012_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_012_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: GEM2, START ADDRESS: FF0D0000, END ADDRESS: FF0DFFFF
-		/*Register : APERPERM_013 @ 0XFF981034</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_013_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_013_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_013_PARITY                                            0x0
-
-		Entry 013 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000D0000
-		(OFFSET, MASK, VALUE)      (0XFF981034, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_013_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_013_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_013_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_013_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_013_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_013_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_013_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: GEM3, START ADDRESS: FF0E0000, END ADDRESS: FF0EFFFF
-		/*Register : APERPERM_014 @ 0XFF981038</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_014_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_014_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_014_PARITY                                            0x0
-
-		Entry 014 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000E0000
-		(OFFSET, MASK, VALUE)      (0XFF981038, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_014_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_014_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_014_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_014_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_014_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_014_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_014_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: QSPI, START ADDRESS: FF0F0000, END ADDRESS: FF0FFFFF
-		/*Register : APERPERM_015 @ 0XFF98103C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_015_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_015_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_015_PARITY                                            0x0
-
-		Entry 015 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x000F0000
-		(OFFSET, MASK, VALUE)      (0XFF98103C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_015_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_015_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_015_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_015_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_015_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_015_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_015_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: NAND, START ADDRESS: FF100000, END ADDRESS: FF10FFFF
-		/*Register : APERPERM_016 @ 0XFF981040</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_016_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_016_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_016_PARITY                                            0x0
-
-		Entry 016 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00100000
-		(OFFSET, MASK, VALUE)      (0XFF981040, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_016_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_016_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_016_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_016_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_016_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_016_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_016_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: TTC0, START ADDRESS: FF110000, END ADDRESS: FF11FFFF
-		/*Register : APERPERM_017 @ 0XFF981044</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_017_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_017_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_017_PARITY                                            0x0
-
-		Entry 017 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00110000
-		(OFFSET, MASK, VALUE)      (0XFF981044, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_017_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_017_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_017_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_017_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_017_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_017_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_017_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: TTC1, START ADDRESS: FF120000, END ADDRESS: FF12FFFF
-		/*Register : APERPERM_018 @ 0XFF981048</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_018_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_018_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_018_PARITY                                            0x0
-
-		Entry 018 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00120000
-		(OFFSET, MASK, VALUE)      (0XFF981048, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_018_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_018_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_018_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_018_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_018_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_018_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_018_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: TTC2, START ADDRESS: FF130000, END ADDRESS: FF13FFFF
-		/*Register : APERPERM_019 @ 0XFF98104C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_019_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_019_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_019_PARITY                                            0x0
-
-		Entry 019 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00130000
-		(OFFSET, MASK, VALUE)      (0XFF98104C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_019_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_019_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_019_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_019_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_019_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_019_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_019_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: TTC3, START ADDRESS: FF140000, END ADDRESS: FF14FFFF
-		/*Register : APERPERM_020 @ 0XFF981050</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_020_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_020_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_020_PARITY                                            0x0
-
-		Entry 020 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00140000
-		(OFFSET, MASK, VALUE)      (0XFF981050, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_020_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_020_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_020_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_020_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_020_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_020_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_020_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: SWDT, START ADDRESS: FF150000, END ADDRESS: FF15FFFF
-		/*Register : APERPERM_021 @ 0XFF981054</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_021_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_021_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_021_PARITY                                            0x0
-
-		Entry 021 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00150000
-		(OFFSET, MASK, VALUE)      (0XFF981054, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_021_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_021_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_021_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_021_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_021_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_021_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_021_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: SD0, START ADDRESS: FF160000, END ADDRESS: FF16FFFF
-		/*Register : APERPERM_022 @ 0XFF981058</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_022_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_022_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_022_PARITY                                            0x0
-
-		Entry 022 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00160000
-		(OFFSET, MASK, VALUE)      (0XFF981058, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_022_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_022_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_022_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_022_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_022_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_022_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_022_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: SD1, START ADDRESS: FF170000, END ADDRESS: FF17FFFF
-		/*Register : APERPERM_023 @ 0XFF98105C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_023_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_023_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_023_PARITY                                            0x0
-
-		Entry 023 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00170000
-		(OFFSET, MASK, VALUE)      (0XFF98105C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_023_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_023_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_023_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_023_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_023_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_023_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_023_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_024 @ 0XFF981060</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_024_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_024_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_024_PARITY                                            0x0
-
-		Entry 024 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00180000
-		(OFFSET, MASK, VALUE)      (0XFF981060, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_024_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_024_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_024_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_024_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_024_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_024_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_024_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_025 @ 0XFF981064</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_025_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_025_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_025_PARITY                                            0x0
-
-		Entry 025 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00190000
-		(OFFSET, MASK, VALUE)      (0XFF981064, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_025_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_025_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_025_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_025_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_025_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_025_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_025_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_026 @ 0XFF981068</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_026_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_026_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_026_PARITY                                            0x0
-
-		Entry 026 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001A0000
-		(OFFSET, MASK, VALUE)      (0XFF981068, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_026_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_026_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_026_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_026_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_026_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_026_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_026_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_027 @ 0XFF98106C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_027_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_027_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_027_PARITY                                            0x0
-
-		Entry 027 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001B0000
-		(OFFSET, MASK, VALUE)      (0XFF98106C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_027_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_027_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_027_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_027_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_027_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_027_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_027_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_028 @ 0XFF981070</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_028_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_028_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_028_PARITY                                            0x0
-
-		Entry 028 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001C0000
-		(OFFSET, MASK, VALUE)      (0XFF981070, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_028_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_028_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_028_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_028_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_028_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_028_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_028_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_029 @ 0XFF981074</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_029_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_029_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_029_PARITY                                            0x0
-
-		Entry 029 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001D0000
-		(OFFSET, MASK, VALUE)      (0XFF981074, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_029_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_029_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_029_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_029_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_029_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_029_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_029_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_030 @ 0XFF981078</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_030_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_030_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_030_PARITY                                            0x0
-
-		Entry 030 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001E0000
-		(OFFSET, MASK, VALUE)      (0XFF981078, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_030_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_030_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_030_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_030_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_030_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_030_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_030_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_031 @ 0XFF98107C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_031_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_031_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_031_PARITY                                            0x0
-
-		Entry 031 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x001F0000
-		(OFFSET, MASK, VALUE)      (0XFF98107C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_031_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_031_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_031_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_031_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_031_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_031_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_031_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_032 @ 0XFF981080</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_032_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_032_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_032_PARITY                                            0x0
-
-		Entry 032 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00200000
-		(OFFSET, MASK, VALUE)      (0XFF981080, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_032_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_032_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_032_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_032_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_032_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_032_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_032_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_033 @ 0XFF981084</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_033_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_033_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_033_PARITY                                            0x0
-
-		Entry 033 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00210000
-		(OFFSET, MASK, VALUE)      (0XFF981084, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_033_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_033_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_033_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_033_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_033_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_033_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_033_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_034 @ 0XFF981088</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_034_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_034_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_034_PARITY                                            0x0
-
-		Entry 034 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00220000
-		(OFFSET, MASK, VALUE)      (0XFF981088, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_034_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_034_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_034_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_034_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_034_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_034_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_034_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SLCR, START ADDRESS: FF180000, END ADDRESS: FF23FFFF
-		/*Register : APERPERM_035 @ 0XFF98108C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_035_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_035_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_035_PARITY                                            0x0
-
-		Entry 035 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00230000
-		(OFFSET, MASK, VALUE)      (0XFF98108C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_035_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_035_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_035_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_035_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_035_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_035_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_035_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SECURE_SLCR, START ADDRESS: FF240000, END ADDRESS: FF24FFFF
-		/*Register : APERPERM_036 @ 0XFF981090</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_036_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_036_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_036_PARITY                                            0x0
-
-		Entry 036 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00240000
-		(OFFSET, MASK, VALUE)      (0XFF981090, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_036_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_036_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_036_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_036_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_036_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_036_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_036_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SCNTR, START ADDRESS: FF250000, END ADDRESS: FF25FFFF
-		/*Register : APERPERM_037 @ 0XFF981094</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_037_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_037_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_037_PARITY                                            0x0
-
-		Entry 037 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00250000
-		(OFFSET, MASK, VALUE)      (0XFF981094, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_037_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_037_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_037_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_037_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_037_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_037_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_037_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IOU_SCNTRS, START ADDRESS: FF260000, END ADDRESS: FF26FFFF
-		/*Register : APERPERM_038 @ 0XFF981098</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_038_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_038_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_038_PARITY                                            0x0
-
-		Entry 038 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00260000
-		(OFFSET, MASK, VALUE)      (0XFF981098, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_038_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_038_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_038_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_038_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_038_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_038_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_038_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_11, START ADDRESS: FF270000, END ADDRESS: FF2AFFFF
-		/*Register : APERPERM_039 @ 0XFF98109C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_039_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_039_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_039_PARITY                                            0x0
-
-		Entry 039 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00270000
-		(OFFSET, MASK, VALUE)      (0XFF98109C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_039_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_039_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_039_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_039_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_039_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_039_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_039_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_11, START ADDRESS: FF270000, END ADDRESS: FF2AFFFF
-		/*Register : APERPERM_040 @ 0XFF9810A0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_040_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_040_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_040_PARITY                                            0x0
-
-		Entry 040 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00280000
-		(OFFSET, MASK, VALUE)      (0XFF9810A0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_040_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_040_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_040_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_040_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_040_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_040_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_040_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_11, START ADDRESS: FF270000, END ADDRESS: FF2AFFFF
-		/*Register : APERPERM_041 @ 0XFF9810A4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_041_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_041_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_041_PARITY                                            0x0
-
-		Entry 041 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00290000
-		(OFFSET, MASK, VALUE)      (0XFF9810A4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_041_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_041_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_041_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_041_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_041_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_041_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_041_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_11, START ADDRESS: FF270000, END ADDRESS: FF2AFFFF
-		/*Register : APERPERM_042 @ 0XFF9810A8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_042_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_042_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_042_PARITY                                            0x0
-
-		Entry 042 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002A0000
-		(OFFSET, MASK, VALUE)      (0XFF9810A8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_042_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_042_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_042_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_042_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_042_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_042_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_042_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_14, START ADDRESS: FF2B0000, END ADDRESS: FF2FFFFF
-		/*Register : APERPERM_043 @ 0XFF9810AC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_043_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_043_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_043_PARITY                                            0x0
-
-		Entry 043 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002B0000
-		(OFFSET, MASK, VALUE)      (0XFF9810AC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_043_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_043_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_043_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_043_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_043_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_043_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_043_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_14, START ADDRESS: FF2B0000, END ADDRESS: FF2FFFFF
-		/*Register : APERPERM_044 @ 0XFF9810B0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_044_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_044_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_044_PARITY                                            0x0
-
-		Entry 044 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002C0000
-		(OFFSET, MASK, VALUE)      (0XFF9810B0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_044_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_044_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_044_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_044_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_044_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_044_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_044_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_14, START ADDRESS: FF2B0000, END ADDRESS: FF2FFFFF
-		/*Register : APERPERM_045 @ 0XFF9810B4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_045_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_045_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_045_PARITY                                            0x0
-
-		Entry 045 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002D0000
-		(OFFSET, MASK, VALUE)      (0XFF9810B4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_045_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_045_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_045_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_045_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_045_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_045_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_045_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_14, START ADDRESS: FF2B0000, END ADDRESS: FF2FFFFF
-		/*Register : APERPERM_046 @ 0XFF9810B8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_046_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_046_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_046_PARITY                                            0x0
-
-		Entry 046 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002E0000
-		(OFFSET, MASK, VALUE)      (0XFF9810B8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_046_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_046_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_046_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_046_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_046_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_046_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_046_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_14, START ADDRESS: FF2B0000, END ADDRESS: FF2FFFFF
-		/*Register : APERPERM_047 @ 0XFF9810BC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_047_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_047_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_047_PARITY                                            0x0
-
-		Entry 047 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x002F0000
-		(OFFSET, MASK, VALUE)      (0XFF9810BC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_047_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_047_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_047_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_047_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_047_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_047_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_047_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_0, START ADDRESS: FF300000, END ADDRESS: FF30FFFF
 		/*Register : APERPERM_048 @ 0XFF9810C0</p>
 
@@ -19076,5030 +17945,205 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_052 @ 0XFF9810D0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_052_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_052_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_052_PARITY                                            0x0
-
-		Entry 052 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00340000
-		(OFFSET, MASK, VALUE)      (0XFF9810D0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_052_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_052_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_052_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_052_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_052_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_052_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_052_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_053 @ 0XFF9810D4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_053_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_053_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_053_PARITY                                            0x0
-
-		Entry 053 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00350000
-		(OFFSET, MASK, VALUE)      (0XFF9810D4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_053_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_053_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_053_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_053_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_053_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_053_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_053_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_054 @ 0XFF9810D8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_054_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_054_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_054_PARITY                                            0x0
-
-		Entry 054 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00360000
-		(OFFSET, MASK, VALUE)      (0XFF9810D8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_054_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_054_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_054_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_054_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_054_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_054_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_054_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_055 @ 0XFF9810DC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_055_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_055_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_055_PARITY                                            0x0
-
-		Entry 055 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00370000
-		(OFFSET, MASK, VALUE)      (0XFF9810DC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_055_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_055_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_055_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_055_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_055_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_055_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_055_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_056 @ 0XFF9810E0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_056_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_056_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_056_PARITY                                            0x0
-
-		Entry 056 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00380000
-		(OFFSET, MASK, VALUE)      (0XFF9810E0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_056_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_056_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_056_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_056_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_056_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_056_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_056_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_057 @ 0XFF9810E4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_057_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_057_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_057_PARITY                                            0x0
-
-		Entry 057 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00390000
-		(OFFSET, MASK, VALUE)      (0XFF9810E4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_057_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_057_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_057_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_057_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_057_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_057_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_057_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_058 @ 0XFF9810E8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_058_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_058_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_058_PARITY                                            0x0
-
-		Entry 058 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003A0000
-		(OFFSET, MASK, VALUE)      (0XFF9810E8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_058_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_058_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_058_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_058_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_058_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_058_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_058_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_059 @ 0XFF9810EC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_059_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_059_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_059_PARITY                                            0x0
-
-		Entry 059 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003B0000
-		(OFFSET, MASK, VALUE)      (0XFF9810EC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_059_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_059_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_059_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_059_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_059_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_059_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_059_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_060 @ 0XFF9810F0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_060_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_060_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_060_PARITY                                            0x0
-
-		Entry 060 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003C0000
-		(OFFSET, MASK, VALUE)      (0XFF9810F0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_060_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_060_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_060_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_060_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_060_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_060_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_060_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_061 @ 0XFF9810F4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_061_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_061_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_061_PARITY                                            0x0
-
-		Entry 061 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003D0000
-		(OFFSET, MASK, VALUE)      (0XFF9810F4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_061_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_061_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_061_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_061_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_061_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_061_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_061_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_062 @ 0XFF9810F8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_062_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_062_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_062_PARITY                                            0x0
-
-		Entry 062 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003E0000
-		(OFFSET, MASK, VALUE)      (0XFF9810F8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_062_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_062_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_062_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_062_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_062_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_062_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_062_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_CTRL, START ADDRESS: FF380000, END ADDRESS: FF3FFFFF
-		/*Register : APERPERM_063 @ 0XFF9810FC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_063_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_063_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_063_PARITY                                            0x0
-
-		Entry 063 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x003F0000
-		(OFFSET, MASK, VALUE)      (0XFF9810FC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_063_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_063_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_063_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_063_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_063_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_063_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_063_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_1, START ADDRESS: FF400000, END ADDRESS: FF40FFFF
-		/*Register : APERPERM_064 @ 0XFF981100</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_064_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_064_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_064_PARITY                                            0x0
-
-		Entry 064 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00400000
-		(OFFSET, MASK, VALUE)      (0XFF981100, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_064_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_064_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_064_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_064_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_064_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_064_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_064_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_065 @ 0XFF981104</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_065_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_065_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_065_PARITY                                            0x0
-
-		Entry 065 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00410000
-		(OFFSET, MASK, VALUE)      (0XFF981104, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_065_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_065_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_065_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_065_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_065_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_065_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_065_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_066 @ 0XFF981108</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_066_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_066_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_066_PARITY                                            0x0
-
-		Entry 066 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00420000
-		(OFFSET, MASK, VALUE)      (0XFF981108, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_066_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_066_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_066_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_066_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_066_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_066_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_066_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_067 @ 0XFF98110C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_067_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_067_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_067_PARITY                                            0x0
-
-		Entry 067 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00430000
-		(OFFSET, MASK, VALUE)      (0XFF98110C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_067_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_067_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_067_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_067_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_067_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_067_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_067_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_068 @ 0XFF981110</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_068_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_068_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_068_PARITY                                            0x0
-
-		Entry 068 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00440000
-		(OFFSET, MASK, VALUE)      (0XFF981110, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_068_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_068_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_068_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_068_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_068_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_068_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_068_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_069 @ 0XFF981114</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_069_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_069_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_069_PARITY                                            0x0
-
-		Entry 069 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00450000
-		(OFFSET, MASK, VALUE)      (0XFF981114, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_069_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_069_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_069_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_069_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_069_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_069_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_069_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_070 @ 0XFF981118</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_070_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_070_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_070_PARITY                                            0x0
-
-		Entry 070 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00460000
-		(OFFSET, MASK, VALUE)      (0XFF981118, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_070_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_070_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_070_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_070_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_070_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_070_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_070_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_071 @ 0XFF98111C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_071_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_071_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_071_PARITY                                            0x0
-
-		Entry 071 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00470000
-		(OFFSET, MASK, VALUE)      (0XFF98111C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_071_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_071_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_071_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_071_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_071_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_071_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_071_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_072 @ 0XFF981120</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_072_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_072_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_072_PARITY                                            0x0
-
-		Entry 072 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00480000
-		(OFFSET, MASK, VALUE)      (0XFF981120, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_072_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_072_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_072_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_072_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_072_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_072_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_072_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_073 @ 0XFF981124</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_073_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_073_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_073_PARITY                                            0x0
-
-		Entry 073 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00490000
-		(OFFSET, MASK, VALUE)      (0XFF981124, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_073_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_073_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_073_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_073_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_073_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_073_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_073_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR, START ADDRESS: FF410000, END ADDRESS: FF4AFFFF
-		/*Register : APERPERM_074 @ 0XFF981128</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_074_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_074_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_074_PARITY                                            0x0
-
-		Entry 074 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004A0000
-		(OFFSET, MASK, VALUE)      (0XFF981128, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_074_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_074_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_074_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_074_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_074_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_074_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_074_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR_SECURE, START ADDRESS: FF4B0000, END ADDRESS: FF4DFFFF
-		/*Register : APERPERM_075 @ 0XFF98112C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_075_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_075_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_075_PARITY                                            0x0
-
-		Entry 075 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004B0000
-		(OFFSET, MASK, VALUE)      (0XFF98112C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_075_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_075_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_075_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_075_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_075_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_075_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_075_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR_SECURE, START ADDRESS: FF4B0000, END ADDRESS: FF4DFFFF
-		/*Register : APERPERM_076 @ 0XFF981130</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_076_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_076_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_076_PARITY                                            0x0
-
-		Entry 076 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004C0000
-		(OFFSET, MASK, VALUE)      (0XFF981130, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_076_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_076_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_076_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_076_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_076_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_076_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_076_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_SLCR_SECURE, START ADDRESS: FF4B0000, END ADDRESS: FF4DFFFF
-		/*Register : APERPERM_077 @ 0XFF981134</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_077_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_077_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_077_PARITY                                            0x0
-
-		Entry 077 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004D0000
-		(OFFSET, MASK, VALUE)      (0XFF981134, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_077_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_077_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_077_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_077_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_077_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_077_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_077_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_078 @ 0XFF981138</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_078_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_078_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_078_PARITY                                            0x0
-
-		Entry 078 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004E0000
-		(OFFSET, MASK, VALUE)      (0XFF981138, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_078_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_078_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_078_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_078_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_078_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_078_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_078_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_079 @ 0XFF98113C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_079_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_079_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_079_PARITY                                            0x0
-
-		Entry 079 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x004F0000
-		(OFFSET, MASK, VALUE)      (0XFF98113C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_079_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_079_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_079_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_079_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_079_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_079_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_079_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_080 @ 0XFF981140</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_080_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_080_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_080_PARITY                                            0x0
-
-		Entry 080 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00500000
-		(OFFSET, MASK, VALUE)      (0XFF981140, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_080_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_080_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_080_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_080_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_080_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_080_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_080_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_081 @ 0XFF981144</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_081_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_081_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_081_PARITY                                            0x0
-
-		Entry 081 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00510000
-		(OFFSET, MASK, VALUE)      (0XFF981144, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_081_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_081_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_081_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_081_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_081_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_081_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_081_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_082 @ 0XFF981148</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_082_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_082_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_082_PARITY                                            0x0
-
-		Entry 082 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00520000
-		(OFFSET, MASK, VALUE)      (0XFF981148, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_082_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_082_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_082_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_082_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_082_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_082_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_082_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_083 @ 0XFF98114C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_083_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_083_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_083_PARITY                                            0x0
-
-		Entry 083 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00530000
-		(OFFSET, MASK, VALUE)      (0XFF98114C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_083_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_083_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_083_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_083_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_083_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_083_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_083_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_084 @ 0XFF981150</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_084_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_084_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_084_PARITY                                            0x0
-
-		Entry 084 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00540000
-		(OFFSET, MASK, VALUE)      (0XFF981150, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_084_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_084_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_084_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_084_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_084_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_084_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_084_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_085 @ 0XFF981154</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_085_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_085_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_085_PARITY                                            0x0
-
-		Entry 085 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00550000
-		(OFFSET, MASK, VALUE)      (0XFF981154, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_085_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_085_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_085_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_085_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_085_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_085_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_085_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_086 @ 0XFF981158</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_086_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_086_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_086_PARITY                                            0x0
-
-		Entry 086 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00560000
-		(OFFSET, MASK, VALUE)      (0XFF981158, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_086_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_086_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_086_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_086_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_086_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_086_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_086_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_087 @ 0XFF98115C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_087_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_087_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_087_PARITY                                            0x0
-
-		Entry 087 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00570000
-		(OFFSET, MASK, VALUE)      (0XFF98115C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_087_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_087_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_087_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_087_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_087_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_087_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_087_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_088 @ 0XFF981160</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_088_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_088_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_088_PARITY                                            0x0
-
-		Entry 088 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00580000
-		(OFFSET, MASK, VALUE)      (0XFF981160, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_088_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_088_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_088_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_088_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_088_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_088_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_088_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_089 @ 0XFF981164</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_089_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_089_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_089_PARITY                                            0x0
-
-		Entry 089 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00590000
-		(OFFSET, MASK, VALUE)      (0XFF981164, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_089_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_089_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_089_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_089_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_089_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_089_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_089_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_090 @ 0XFF981168</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_090_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_090_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_090_PARITY                                            0x0
-
-		Entry 090 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005A0000
-		(OFFSET, MASK, VALUE)      (0XFF981168, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_090_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_090_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_090_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_090_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_090_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_090_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_090_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_091 @ 0XFF98116C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_091_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_091_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_091_PARITY                                            0x0
-
-		Entry 091 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005B0000
-		(OFFSET, MASK, VALUE)      (0XFF98116C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_091_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_091_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_091_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_091_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_091_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_091_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_091_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_092 @ 0XFF981170</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_092_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_092_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_092_PARITY                                            0x0
-
-		Entry 092 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005C0000
-		(OFFSET, MASK, VALUE)      (0XFF981170, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_092_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_092_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_092_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_092_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_092_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_092_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_092_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_2, START ADDRESS: FF4E0000, END ADDRESS: FF5DFFFF
-		/*Register : APERPERM_093 @ 0XFF981174</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_093_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_093_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_093_PARITY                                            0x0
-
-		Entry 093 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005D0000
-		(OFFSET, MASK, VALUE)      (0XFF981174, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_093_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_093_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_093_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_093_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_093_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_093_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_093_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_094 @ 0XFF981178</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_094_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_094_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_094_PARITY                                            0x0
-
-		Entry 094 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005E0000
-		(OFFSET, MASK, VALUE)      (0XFF981178, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_094_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_094_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_094_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_094_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_094_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_094_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_094_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_095 @ 0XFF98117C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_095_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_095_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_095_PARITY                                            0x0
-
-		Entry 095 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x005F0000
-		(OFFSET, MASK, VALUE)      (0XFF98117C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_095_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_095_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_095_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_095_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_095_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_095_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_095_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_096 @ 0XFF981180</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_096_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_096_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_096_PARITY                                            0x0
-
-		Entry 096 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00600000
-		(OFFSET, MASK, VALUE)      (0XFF981180, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_096_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_096_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_096_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_096_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_096_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_096_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_096_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_097 @ 0XFF981184</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_097_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_097_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_097_PARITY                                            0x0
-
-		Entry 097 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00610000
-		(OFFSET, MASK, VALUE)      (0XFF981184, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_097_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_097_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_097_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_097_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_097_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_097_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_097_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_098 @ 0XFF981188</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_098_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_098_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_098_PARITY                                            0x0
-
-		Entry 098 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00620000
-		(OFFSET, MASK, VALUE)      (0XFF981188, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_098_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_098_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_098_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_098_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_098_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_098_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_098_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_099 @ 0XFF98118C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_099_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_099_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_099_PARITY                                            0x0
-
-		Entry 099 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00630000
-		(OFFSET, MASK, VALUE)      (0XFF98118C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_099_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_099_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_099_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_099_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_099_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_099_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_099_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_100 @ 0XFF981190</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_100_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_100_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_100_PARITY                                            0x0
-
-		Entry 100 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00640000
-		(OFFSET, MASK, VALUE)      (0XFF981190, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_100_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_100_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_100_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_100_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_100_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_100_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_100_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_101 @ 0XFF981194</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_101_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_101_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_101_PARITY                                            0x0
-
-		Entry 101 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00650000
-		(OFFSET, MASK, VALUE)      (0XFF981194, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_101_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_101_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_101_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_101_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_101_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_101_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_101_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_102 @ 0XFF981198</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_102_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_102_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_102_PARITY                                            0x0
-
-		Entry 102 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00660000
-		(OFFSET, MASK, VALUE)      (0XFF981198, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_102_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_102_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_102_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_102_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_102_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_102_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_102_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_103 @ 0XFF98119C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_103_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_103_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_103_PARITY                                            0x0
-
-		Entry 103 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00670000
-		(OFFSET, MASK, VALUE)      (0XFF98119C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_103_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_103_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_103_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_103_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_103_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_103_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_103_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_104 @ 0XFF9811A0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_104_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_104_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_104_PARITY                                            0x0
-
-		Entry 104 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00680000
-		(OFFSET, MASK, VALUE)      (0XFF9811A0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_104_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_104_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_104_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_104_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_104_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_104_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_104_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_105 @ 0XFF9811A4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_105_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_105_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_105_PARITY                                            0x0
-
-		Entry 105 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00690000
-		(OFFSET, MASK, VALUE)      (0XFF9811A4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_105_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_105_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_105_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_105_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_105_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_105_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_105_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_106 @ 0XFF9811A8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_106_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_106_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_106_PARITY                                            0x0
-
-		Entry 106 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006A0000
-		(OFFSET, MASK, VALUE)      (0XFF9811A8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_106_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_106_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_106_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_106_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_106_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_106_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_106_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_107 @ 0XFF9811AC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_107_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_107_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_107_PARITY                                            0x0
-
-		Entry 107 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006B0000
-		(OFFSET, MASK, VALUE)      (0XFF9811AC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_107_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_107_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_107_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_107_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_107_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_107_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_107_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_108 @ 0XFF9811B0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_108_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_108_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_108_PARITY                                            0x0
-
-		Entry 108 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006C0000
-		(OFFSET, MASK, VALUE)      (0XFF9811B0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_108_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_108_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_108_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_108_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_108_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_108_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_108_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_109 @ 0XFF9811B4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_109_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_109_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_109_PARITY                                            0x0
-
-		Entry 109 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006D0000
-		(OFFSET, MASK, VALUE)      (0XFF9811B4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_109_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_109_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_109_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_109_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_109_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_109_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_109_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_110 @ 0XFF9811B8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_110_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_110_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_110_PARITY                                            0x0
-
-		Entry 110 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006E0000
-		(OFFSET, MASK, VALUE)      (0XFF9811B8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_110_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_110_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_110_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_110_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_110_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_110_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_110_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_111 @ 0XFF9811BC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_111_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_111_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_111_PARITY                                            0x0
-
-		Entry 111 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x006F0000
-		(OFFSET, MASK, VALUE)      (0XFF9811BC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_111_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_111_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_111_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_111_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_111_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_111_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_111_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_112 @ 0XFF9811C0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_112_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_112_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_112_PARITY                                            0x0
-
-		Entry 112 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00700000
-		(OFFSET, MASK, VALUE)      (0XFF9811C0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_112_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_112_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_112_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_112_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_112_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_112_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_112_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_113 @ 0XFF9811C4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_113_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_113_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_113_PARITY                                            0x0
-
-		Entry 113 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00710000
-		(OFFSET, MASK, VALUE)      (0XFF9811C4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_113_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_113_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_113_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_113_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_113_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_113_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_113_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_114 @ 0XFF9811C8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_114_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_114_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_114_PARITY                                            0x0
-
-		Entry 114 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00720000
-		(OFFSET, MASK, VALUE)      (0XFF9811C8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_114_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_114_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_114_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_114_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_114_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_114_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_114_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_115 @ 0XFF9811CC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_115_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_115_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_115_PARITY                                            0x0
-
-		Entry 115 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00730000
-		(OFFSET, MASK, VALUE)      (0XFF9811CC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_115_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_115_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_115_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_115_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_115_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_115_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_115_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_116 @ 0XFF9811D0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_116_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_116_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_116_PARITY                                            0x0
-
-		Entry 116 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00740000
-		(OFFSET, MASK, VALUE)      (0XFF9811D0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_116_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_116_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_116_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_116_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_116_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_116_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_116_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_117 @ 0XFF9811D4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_117_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_117_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_117_PARITY                                            0x0
-
-		Entry 117 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00750000
-		(OFFSET, MASK, VALUE)      (0XFF9811D4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_117_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_117_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_117_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_117_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_117_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_117_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_117_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_118 @ 0XFF9811D8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_118_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_118_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_118_PARITY                                            0x0
-
-		Entry 118 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00760000
-		(OFFSET, MASK, VALUE)      (0XFF9811D8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_118_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_118_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_118_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_118_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_118_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_118_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_118_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_119 @ 0XFF9811DC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_119_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_119_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_119_PARITY                                            0x0
-
-		Entry 119 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00770000
-		(OFFSET, MASK, VALUE)      (0XFF9811DC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_119_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_119_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_119_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_119_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_119_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_119_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_119_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_120 @ 0XFF9811E0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_120_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_120_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_120_PARITY                                            0x0
-
-		Entry 120 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00780000
-		(OFFSET, MASK, VALUE)      (0XFF9811E0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_120_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_120_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_120_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_120_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_120_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_120_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_120_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_121 @ 0XFF9811E4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_121_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_121_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_121_PARITY                                            0x0
-
-		Entry 121 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00790000
-		(OFFSET, MASK, VALUE)      (0XFF9811E4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_121_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_121_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_121_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_121_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_121_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_121_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_121_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_122 @ 0XFF9811E8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_122_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_122_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_122_PARITY                                            0x0
-
-		Entry 122 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007A0000
-		(OFFSET, MASK, VALUE)      (0XFF9811E8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_122_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_122_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_122_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_122_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_122_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_122_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_122_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_123 @ 0XFF9811EC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_123_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_123_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_123_PARITY                                            0x0
-
-		Entry 123 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007B0000
-		(OFFSET, MASK, VALUE)      (0XFF9811EC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_123_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_123_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_123_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_123_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_123_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_123_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_123_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_124 @ 0XFF9811F0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_124_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_124_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_124_PARITY                                            0x0
-
-		Entry 124 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007C0000
-		(OFFSET, MASK, VALUE)      (0XFF9811F0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_124_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_124_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_124_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_124_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_124_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_124_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_124_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_125 @ 0XFF9811F4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_125_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_125_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_125_PARITY                                            0x0
-
-		Entry 125 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007D0000
-		(OFFSET, MASK, VALUE)      (0XFF9811F4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_125_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_125_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_125_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_125_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_125_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_125_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_125_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_126 @ 0XFF9811F8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_126_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_126_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_126_PARITY                                            0x0
-
-		Entry 126 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007E0000
-		(OFFSET, MASK, VALUE)      (0XFF9811F8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_126_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_126_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_126_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_126_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_126_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_126_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_126_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_127 @ 0XFF9811FC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_127_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_127_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_127_PARITY                                            0x0
-
-		Entry 127 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x007F0000
-		(OFFSET, MASK, VALUE)      (0XFF9811FC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_127_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_127_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_127_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_127_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_127_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_127_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_127_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_128 @ 0XFF981200</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_128_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_128_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_128_PARITY                                            0x0
-
-		Entry 128 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00800000
-		(OFFSET, MASK, VALUE)      (0XFF981200, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_128_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_128_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_128_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_128_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_128_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_128_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_128_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_129 @ 0XFF981204</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_129_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_129_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_129_PARITY                                            0x0
-
-		Entry 129 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00810000
-		(OFFSET, MASK, VALUE)      (0XFF981204, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_129_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_129_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_129_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_129_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_129_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_129_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_129_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_130 @ 0XFF981208</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_130_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_130_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_130_PARITY                                            0x0
-
-		Entry 130 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00820000
-		(OFFSET, MASK, VALUE)      (0XFF981208, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_130_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_130_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_130_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_130_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_130_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_130_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_130_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_131 @ 0XFF98120C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_131_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_131_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_131_PARITY                                            0x0
-
-		Entry 131 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00830000
-		(OFFSET, MASK, VALUE)      (0XFF98120C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_131_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_131_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_131_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_131_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_131_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_131_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_131_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_132 @ 0XFF981210</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_132_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_132_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_132_PARITY                                            0x0
-
-		Entry 132 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00840000
-		(OFFSET, MASK, VALUE)      (0XFF981210, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_132_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_132_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_132_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_132_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_132_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_132_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_132_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CRL_APB, START ADDRESS: FF5E0000, END ADDRESS: FF85FFFF
-		/*Register : APERPERM_133 @ 0XFF981214</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_133_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_133_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_133_PARITY                                            0x0
-
-		Entry 133 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00850000
-		(OFFSET, MASK, VALUE)      (0XFF981214, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_133_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_133_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_133_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_133_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_133_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_133_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_133_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_134 @ 0XFF981218</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_134_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_134_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_134_PARITY                                            0x0
-
-		Entry 134 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00860000
-		(OFFSET, MASK, VALUE)      (0XFF981218, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_134_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_134_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_134_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_134_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_134_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_134_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_134_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_135 @ 0XFF98121C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_135_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_135_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_135_PARITY                                            0x0
-
-		Entry 135 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00870000
-		(OFFSET, MASK, VALUE)      (0XFF98121C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_135_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_135_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_135_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_135_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_135_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_135_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_135_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_136 @ 0XFF981220</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_136_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_136_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_136_PARITY                                            0x0
-
-		Entry 136 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00880000
-		(OFFSET, MASK, VALUE)      (0XFF981220, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_136_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_136_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_136_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_136_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_136_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_136_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_136_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_137 @ 0XFF981224</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_137_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_137_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_137_PARITY                                            0x0
-
-		Entry 137 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00890000
-		(OFFSET, MASK, VALUE)      (0XFF981224, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_137_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_137_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_137_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_137_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_137_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_137_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_137_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_138 @ 0XFF981228</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_138_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_138_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_138_PARITY                                            0x0
-
-		Entry 138 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008A0000
-		(OFFSET, MASK, VALUE)      (0XFF981228, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_138_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_138_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_138_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_138_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_138_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_138_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_138_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_139 @ 0XFF98122C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_139_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_139_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_139_PARITY                                            0x0
-
-		Entry 139 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008B0000
-		(OFFSET, MASK, VALUE)      (0XFF98122C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_139_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_139_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_139_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_139_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_139_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_139_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_139_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_140 @ 0XFF981230</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_140_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_140_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_140_PARITY                                            0x0
-
-		Entry 140 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008C0000
-		(OFFSET, MASK, VALUE)      (0XFF981230, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_140_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_140_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_140_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_140_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_140_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_140_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_140_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_141 @ 0XFF981234</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_141_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_141_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_141_PARITY                                            0x0
-
-		Entry 141 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008D0000
-		(OFFSET, MASK, VALUE)      (0XFF981234, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_141_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_141_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_141_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_141_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_141_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_141_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_141_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_142 @ 0XFF981238</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_142_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_142_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_142_PARITY                                            0x0
-
-		Entry 142 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008E0000
-		(OFFSET, MASK, VALUE)      (0XFF981238, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_142_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_142_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_142_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_142_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_142_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_142_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_142_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_143 @ 0XFF98123C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_143_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_143_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_143_PARITY                                            0x0
-
-		Entry 143 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x008F0000
-		(OFFSET, MASK, VALUE)      (0XFF98123C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_143_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_143_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_143_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_143_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_143_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_143_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_143_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_144 @ 0XFF981240</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_144_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_144_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_144_PARITY                                            0x0
-
-		Entry 144 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00900000
-		(OFFSET, MASK, VALUE)      (0XFF981240, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_144_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_144_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_144_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_144_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_144_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_144_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_144_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_145 @ 0XFF981244</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_145_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_145_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_145_PARITY                                            0x0
-
-		Entry 145 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00910000
-		(OFFSET, MASK, VALUE)      (0XFF981244, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_145_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_145_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_145_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_145_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_145_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_145_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_145_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_146 @ 0XFF981248</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_146_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_146_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_146_PARITY                                            0x0
-
-		Entry 146 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00920000
-		(OFFSET, MASK, VALUE)      (0XFF981248, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_146_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_146_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_146_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_146_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_146_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_146_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_146_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_147 @ 0XFF98124C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_147_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_147_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_147_PARITY                                            0x0
-
-		Entry 147 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00930000
-		(OFFSET, MASK, VALUE)      (0XFF98124C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_147_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_147_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_147_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_147_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_147_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_147_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_147_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_148 @ 0XFF981250</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_148_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_148_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_148_PARITY                                            0x0
-
-		Entry 148 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00940000
-		(OFFSET, MASK, VALUE)      (0XFF981250, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_148_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_148_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_148_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_148_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_148_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_148_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_148_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_3, START ADDRESS: FF860000, END ADDRESS: FF95FFFF
-		/*Register : APERPERM_149 @ 0XFF981254</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_149_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_149_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_149_PARITY                                            0x0
-
-		Entry 149 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00950000
-		(OFFSET, MASK, VALUE)      (0XFF981254, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_149_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_149_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_149_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_149_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_149_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_149_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_149_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: OCM_SLCR, START ADDRESS: FF960000, END ADDRESS: FF96FFFF
-		/*Register : APERPERM_150 @ 0XFF981258</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_150_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_150_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_150_PARITY                                            0x0
-
-		Entry 150 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00960000
-		(OFFSET, MASK, VALUE)      (0XFF981258, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_150_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_150_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_150_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_150_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_150_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_150_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_150_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_4, START ADDRESS: FF970000, END ADDRESS: FF97FFFF
-		/*Register : APERPERM_151 @ 0XFF98125C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_151_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_151_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_151_PARITY                                            0x0
-
-		Entry 151 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00970000
-		(OFFSET, MASK, VALUE)      (0XFF98125C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_151_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_151_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_151_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_151_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_151_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_151_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_151_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_XPPU, START ADDRESS: FF980000, END ADDRESS: FF99FFFF
-		/*Register : APERPERM_152 @ 0XFF981260</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_152_PERMISSION                                        0x0
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_152_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_152_PARITY                                            0x0
-
-		Entry 152 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00980000
-		(OFFSET, MASK, VALUE)      (0XFF981260, 0xF80FFFFFU ,0x08000000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_152_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_152_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_152_PARITY_MASK |  0 );
-
-		RegVal = ((0x00000000U << LPD_XPPU_CFG_APERPERM_152_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_152_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_152_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_152_OFFSET ,0xF80FFFFFU ,0x08000000U);
-	/*############################################################################################################################ */
-
-		// : APERTURE NAME: LPD_XPPU, START ADDRESS: FF980000, END ADDRESS: FF99FFFF
-		/*Register : APERPERM_153 @ 0XFF981264</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_153_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_153_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_153_PARITY                                            0x0
-
-		Entry 153 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00990000
-		(OFFSET, MASK, VALUE)      (0XFF981264, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_153_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_153_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_153_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_153_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_153_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_153_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_153_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU, START ADDRESS: FF9A0000, END ADDRESS: FF9AFFFF
-		/*Register : APERPERM_154 @ 0XFF981268</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_154_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_154_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_154_PARITY                                            0x0
-
-		Entry 154 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009A0000
-		(OFFSET, MASK, VALUE)      (0XFF981268, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_154_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_154_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_154_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_154_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_154_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_154_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_154_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: AFIFM6, START ADDRESS: FF9B0000, END ADDRESS: FF9BFFFF
-		/*Register : APERPERM_155 @ 0XFF98126C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_155_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_155_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_155_PARITY                                            0x0
-
-		Entry 155 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009B0000
-		(OFFSET, MASK, VALUE)      (0XFF98126C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_155_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_155_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_155_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_155_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_155_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_155_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_155_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_XPPU_SINK, START ADDRESS: FF9C0000, END ADDRESS: FF9CFFFF
-		/*Register : APERPERM_156 @ 0XFF981270</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_156_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_156_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_156_PARITY                                            0x0
-
-		Entry 156 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009C0000
-		(OFFSET, MASK, VALUE)      (0XFF981270, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_156_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_156_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_156_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_156_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_156_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_156_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_156_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: USB3_0, START ADDRESS: FF9D0000, END ADDRESS: FF9DFFFF
-		/*Register : APERPERM_157 @ 0XFF981274</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_157_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_157_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_157_PARITY                                            0x0
-
-		Entry 157 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009D0000
-		(OFFSET, MASK, VALUE)      (0XFF981274, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_157_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_157_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_157_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_157_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_157_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_157_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_157_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: USB3_1, START ADDRESS: FF9E0000, END ADDRESS: FF9EFFFF
-		/*Register : APERPERM_158 @ 0XFF981278</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_158_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_158_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_158_PARITY                                            0x0
-
-		Entry 158 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009E0000
-		(OFFSET, MASK, VALUE)      (0XFF981278, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_158_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_158_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_158_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_158_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_158_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_158_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_158_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_5, START ADDRESS: FF9F0000, END ADDRESS: FF9FFFFF
-		/*Register : APERPERM_159 @ 0XFF98127C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_159_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_159_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_159_PARITY                                            0x0
-
-		Entry 159 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x009F0000
-		(OFFSET, MASK, VALUE)      (0XFF98127C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_159_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_159_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_159_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_159_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_159_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_159_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_159_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: APM0, START ADDRESS: FFA00000, END ADDRESS: FFA0FFFF
-		/*Register : APERPERM_160 @ 0XFF981280</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_160_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_160_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_160_PARITY                                            0x0
-
-		Entry 160 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A00000
-		(OFFSET, MASK, VALUE)      (0XFF981280, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_160_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_160_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_160_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_160_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_160_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_160_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_160_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: APM1, START ADDRESS: FFA10000, END ADDRESS: FFA1FFFF
-		/*Register : APERPERM_161 @ 0XFF981284</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_161_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_161_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_161_PARITY                                            0x0
-
-		Entry 161 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A10000
-		(OFFSET, MASK, VALUE)      (0XFF981284, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_161_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_161_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_161_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_161_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_161_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_161_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_161_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: APM_INTC_IOU, START ADDRESS: FFA20000, END ADDRESS: FFA2FFFF
-		/*Register : APERPERM_162 @ 0XFF981288</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_162_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_162_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_162_PARITY                                            0x0
-
-		Entry 162 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A20000
-		(OFFSET, MASK, VALUE)      (0XFF981288, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_162_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_162_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_162_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_162_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_162_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_162_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_162_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: APM_FPD_LPD, START ADDRESS: FFA30000, END ADDRESS: FFA3FFFF
-		/*Register : APERPERM_163 @ 0XFF98128C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_163_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_163_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_163_PARITY                                            0x0
-
-		Entry 163 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A30000
-		(OFFSET, MASK, VALUE)      (0XFF98128C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_163_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_163_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_163_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_163_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_163_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_163_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_163_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_6, START ADDRESS: FFA40000, END ADDRESS: FFA4FFFF
-		/*Register : APERPERM_164 @ 0XFF981290</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_164_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_164_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_164_PARITY                                            0x0
-
-		Entry 164 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A40000
-		(OFFSET, MASK, VALUE)      (0XFF981290, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_164_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_164_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_164_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_164_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_164_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_164_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_164_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: AMS, START ADDRESS: FFA50000, END ADDRESS: FFA5FFFF
-		/*Register : APERPERM_165 @ 0XFF981294</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_165_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_165_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_165_PARITY                                            0x0
-
-		Entry 165 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A50000
-		(OFFSET, MASK, VALUE)      (0XFF981294, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_165_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_165_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_165_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_165_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_165_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_165_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_165_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RTC, START ADDRESS: FFA60000, END ADDRESS: FFA6FFFF
-		/*Register : APERPERM_166 @ 0XFF981298</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_166_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_166_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_166_PARITY                                            0x0
-
-		Entry 166 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A60000
-		(OFFSET, MASK, VALUE)      (0XFF981298, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_166_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_166_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_166_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_166_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_166_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_166_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_166_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: OCM_XMPU_CFG, START ADDRESS: FFA70000, END ADDRESS: FFA7FFFF
-		/*Register : APERPERM_167 @ 0XFF98129C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_167_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_167_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_167_PARITY                                            0x0
-
-		Entry 167 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A70000
-		(OFFSET, MASK, VALUE)      (0XFF98129C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_167_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_167_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_167_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_167_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_167_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_167_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_167_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_0, START ADDRESS: FFA80000, END ADDRESS: FFA8FFFF
-		/*Register : APERPERM_168 @ 0XFF9812A0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_168_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_168_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_168_PARITY                                            0x0
-
-		Entry 168 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A80000
-		(OFFSET, MASK, VALUE)      (0XFF9812A0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_168_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_168_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_168_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_168_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_168_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_168_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_168_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_1, START ADDRESS: FFA90000, END ADDRESS: FFA9FFFF
-		/*Register : APERPERM_169 @ 0XFF9812A4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_169_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_169_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_169_PARITY                                            0x0
-
-		Entry 169 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00A90000
-		(OFFSET, MASK, VALUE)      (0XFF9812A4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_169_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_169_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_169_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_169_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_169_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_169_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_169_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_2, START ADDRESS: FFAA0000, END ADDRESS: FFAAFFFF
-		/*Register : APERPERM_170 @ 0XFF9812A8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_170_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_170_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_170_PARITY                                            0x0
-
-		Entry 170 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AA0000
-		(OFFSET, MASK, VALUE)      (0XFF9812A8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_170_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_170_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_170_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_170_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_170_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_170_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_170_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_3, START ADDRESS: FFAB0000, END ADDRESS: FFABFFFF
-		/*Register : APERPERM_171 @ 0XFF9812AC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_171_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_171_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_171_PARITY                                            0x0
-
-		Entry 171 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AB0000
-		(OFFSET, MASK, VALUE)      (0XFF9812AC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_171_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_171_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_171_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_171_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_171_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_171_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_171_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_4, START ADDRESS: FFAC0000, END ADDRESS: FFACFFFF
-		/*Register : APERPERM_172 @ 0XFF9812B0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_172_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_172_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_172_PARITY                                            0x0
-
-		Entry 172 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AC0000
-		(OFFSET, MASK, VALUE)      (0XFF9812B0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_172_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_172_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_172_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_172_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_172_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_172_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_172_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_5, START ADDRESS: FFAD0000, END ADDRESS: FFADFFFF
-		/*Register : APERPERM_173 @ 0XFF9812B4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_173_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_173_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_173_PARITY                                            0x0
-
-		Entry 173 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AD0000
-		(OFFSET, MASK, VALUE)      (0XFF9812B4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_173_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_173_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_173_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_173_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_173_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_173_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_173_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_6, START ADDRESS: FFAE0000, END ADDRESS: FFAEFFFF
-		/*Register : APERPERM_174 @ 0XFF9812B8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_174_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_174_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_174_PARITY                                            0x0
-
-		Entry 174 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AE0000
-		(OFFSET, MASK, VALUE)      (0XFF9812B8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_174_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_174_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_174_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_174_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_174_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_174_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_174_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: ADMA_7, START ADDRESS: FFAF0000, END ADDRESS: FFAFFFFF
-		/*Register : APERPERM_175 @ 0XFF9812BC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_175_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_175_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_175_PARITY                                            0x0
-
-		Entry 175 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00AF0000
-		(OFFSET, MASK, VALUE)      (0XFF9812BC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_175_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_175_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_175_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_175_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_175_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_175_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_175_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_176 @ 0XFF9812C0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_176_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_176_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_176_PARITY                                            0x0
-
-		Entry 176 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B00000
-		(OFFSET, MASK, VALUE)      (0XFF9812C0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_176_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_176_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_176_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_176_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_176_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_176_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_176_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_177 @ 0XFF9812C4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_177_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_177_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_177_PARITY                                            0x0
-
-		Entry 177 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B10000
-		(OFFSET, MASK, VALUE)      (0XFF9812C4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_177_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_177_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_177_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_177_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_177_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_177_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_177_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_178 @ 0XFF9812C8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_178_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_178_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_178_PARITY                                            0x0
-
-		Entry 178 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B20000
-		(OFFSET, MASK, VALUE)      (0XFF9812C8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_178_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_178_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_178_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_178_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_178_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_178_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_178_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_179 @ 0XFF9812CC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_179_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_179_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_179_PARITY                                            0x0
-
-		Entry 179 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B30000
-		(OFFSET, MASK, VALUE)      (0XFF9812CC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_179_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_179_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_179_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_179_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_179_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_179_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_179_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_180 @ 0XFF9812D0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_180_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_180_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_180_PARITY                                            0x0
-
-		Entry 180 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B40000
-		(OFFSET, MASK, VALUE)      (0XFF9812D0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_180_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_180_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_180_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_180_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_180_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_180_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_180_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_181 @ 0XFF9812D4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_181_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_181_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_181_PARITY                                            0x0
-
-		Entry 181 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B50000
-		(OFFSET, MASK, VALUE)      (0XFF9812D4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_181_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_181_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_181_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_181_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_181_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_181_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_181_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_182 @ 0XFF9812D8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_182_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_182_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_182_PARITY                                            0x0
-
-		Entry 182 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B60000
-		(OFFSET, MASK, VALUE)      (0XFF9812D8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_182_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_182_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_182_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_182_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_182_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_182_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_182_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_183 @ 0XFF9812DC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_183_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_183_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_183_PARITY                                            0x0
-
-		Entry 183 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B70000
-		(OFFSET, MASK, VALUE)      (0XFF9812DC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_183_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_183_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_183_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_183_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_183_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_183_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_183_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_184 @ 0XFF9812E0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_184_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_184_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_184_PARITY                                            0x0
-
-		Entry 184 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B80000
-		(OFFSET, MASK, VALUE)      (0XFF9812E0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_184_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_184_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_184_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_184_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_184_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_184_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_184_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_185 @ 0XFF9812E4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_185_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_185_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_185_PARITY                                            0x0
-
-		Entry 185 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00B90000
-		(OFFSET, MASK, VALUE)      (0XFF9812E4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_185_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_185_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_185_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_185_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_185_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_185_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_185_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_186 @ 0XFF9812E8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_186_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_186_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_186_PARITY                                            0x0
-
-		Entry 186 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BA0000
-		(OFFSET, MASK, VALUE)      (0XFF9812E8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_186_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_186_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_186_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_186_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_186_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_186_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_186_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_187 @ 0XFF9812EC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_187_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_187_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_187_PARITY                                            0x0
-
-		Entry 187 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BB0000
-		(OFFSET, MASK, VALUE)      (0XFF9812EC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_187_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_187_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_187_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_187_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_187_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_187_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_187_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_188 @ 0XFF9812F0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_188_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_188_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_188_PARITY                                            0x0
-
-		Entry 188 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BC0000
-		(OFFSET, MASK, VALUE)      (0XFF9812F0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_188_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_188_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_188_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_188_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_188_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_188_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_188_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_189 @ 0XFF9812F4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_189_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_189_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_189_PARITY                                            0x0
-
-		Entry 189 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BD0000
-		(OFFSET, MASK, VALUE)      (0XFF9812F4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_189_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_189_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_189_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_189_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_189_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_189_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_189_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_190 @ 0XFF9812F8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_190_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_190_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_190_PARITY                                            0x0
-
-		Entry 190 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BE0000
-		(OFFSET, MASK, VALUE)      (0XFF9812F8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_190_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_190_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_190_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_190_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_190_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_190_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_190_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_7, START ADDRESS: FFB00000, END ADDRESS: FFBFFFFF
-		/*Register : APERPERM_191 @ 0XFF9812FC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_191_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_191_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_191_PARITY                                            0x0
-
-		Entry 191 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00BF0000
-		(OFFSET, MASK, VALUE)      (0XFF9812FC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_191_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_191_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_191_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_191_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_191_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_191_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_191_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_ROM, START ADDRESS: FFC00000, END ADDRESS: FFC1FFFF
-		/*Register : APERPERM_192 @ 0XFF981300</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_192_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_192_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_192_PARITY                                            0x0
-
-		Entry 192 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C00000
-		(OFFSET, MASK, VALUE)      (0XFF981300, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_192_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_192_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_192_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_192_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_192_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_192_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_192_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_ROM, START ADDRESS: FFC00000, END ADDRESS: FFC1FFFF
-		/*Register : APERPERM_193 @ 0XFF981304</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_193_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_193_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_193_PARITY                                            0x0
-
-		Entry 193 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C10000
-		(OFFSET, MASK, VALUE)      (0XFF981304, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_193_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_193_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_193_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_193_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_193_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_193_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_193_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_LOCAL, START ADDRESS: FFC20000, END ADDRESS: FFC2FFFF
-		/*Register : APERPERM_194 @ 0XFF981308</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_194_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_194_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_194_PARITY                                            0x0
-
-		Entry 194 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C20000
-		(OFFSET, MASK, VALUE)      (0XFF981308, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_194_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_194_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_194_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_194_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_194_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_194_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_194_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PUF, START ADDRESS: FFC30000, END ADDRESS: FFC3FFFF
-		/*Register : APERPERM_195 @ 0XFF98130C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_195_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_195_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_195_PARITY                                            0x0
-
-		Entry 195 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C30000
-		(OFFSET, MASK, VALUE)      (0XFF98130C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_195_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_195_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_195_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_195_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_195_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_195_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_195_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_RAM, START ADDRESS: FFC40000, END ADDRESS: FFC5FFFF
-		/*Register : APERPERM_196 @ 0XFF981310</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_196_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_196_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_196_PARITY                                            0x0
-
-		Entry 196 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C40000
-		(OFFSET, MASK, VALUE)      (0XFF981310, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_196_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_196_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_196_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_196_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_196_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_196_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_196_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_RAM, START ADDRESS: FFC40000, END ADDRESS: FFC5FFFF
-		/*Register : APERPERM_197 @ 0XFF981314</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_197_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_197_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_197_PARITY                                            0x0
-
-		Entry 197 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C50000
-		(OFFSET, MASK, VALUE)      (0XFF981314, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_197_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_197_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_197_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_197_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_197_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_197_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_197_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_IOMODULE, START ADDRESS: FFC60000, END ADDRESS: FFC7FFFF
-		/*Register : APERPERM_198 @ 0XFF981318</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_198_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_198_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_198_PARITY                                            0x0
-
-		Entry 198 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C60000
-		(OFFSET, MASK, VALUE)      (0XFF981318, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_198_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_198_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_198_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_198_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_198_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_198_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_198_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_IOMODULE, START ADDRESS: FFC60000, END ADDRESS: FFC7FFFF
-		/*Register : APERPERM_199 @ 0XFF98131C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_199_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_199_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_199_PARITY                                            0x0
-
-		Entry 199 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C70000
-		(OFFSET, MASK, VALUE)      (0XFF98131C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_199_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_199_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_199_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_199_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_199_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_199_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_199_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSUDMA, START ADDRESS: FFC80000, END ADDRESS: FFC9FFFF
-		/*Register : APERPERM_200 @ 0XFF981320</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_200_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_200_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_200_PARITY                                            0x0
-
-		Entry 200 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C80000
-		(OFFSET, MASK, VALUE)      (0XFF981320, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_200_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_200_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_200_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_200_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_200_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_200_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_200_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSUDMA, START ADDRESS: FFC80000, END ADDRESS: FFC9FFFF
-		/*Register : APERPERM_201 @ 0XFF981324</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_201_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_201_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_201_PARITY                                            0x0
-
-		Entry 201 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00C90000
-		(OFFSET, MASK, VALUE)      (0XFF981324, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_201_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_201_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_201_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_201_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_201_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_201_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_201_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU, START ADDRESS: FFCA0000, END ADDRESS: FFCAFFFF
-		/*Register : APERPERM_202 @ 0XFF981328</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_202_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_202_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_202_PARITY                                            0x0
-
-		Entry 202 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CA0000
-		(OFFSET, MASK, VALUE)      (0XFF981328, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_202_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_202_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_202_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_202_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_202_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_202_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_202_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CSU_WDT, START ADDRESS: FFCB0000, END ADDRESS: FFCBFFFF
-		/*Register : APERPERM_203 @ 0XFF98132C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_203_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_203_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_203_PARITY                                            0x0
-
-		Entry 203 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CB0000
-		(OFFSET, MASK, VALUE)      (0XFF98132C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_203_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_203_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_203_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_203_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_203_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_203_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_203_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: EFUSE, START ADDRESS: FFCC0000, END ADDRESS: FFCCFFFF
-		/*Register : APERPERM_204 @ 0XFF981330</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_204_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_204_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_204_PARITY                                            0x0
-
-		Entry 204 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CC0000
-		(OFFSET, MASK, VALUE)      (0XFF981330, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_204_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_204_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_204_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_204_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_204_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_204_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_204_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: BBRAM, START ADDRESS: FFCD0000, END ADDRESS: FFCDFFFF
-		/*Register : APERPERM_205 @ 0XFF981334</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_205_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_205_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_205_PARITY                                            0x0
-
-		Entry 205 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CD0000
-		(OFFSET, MASK, VALUE)      (0XFF981334, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_205_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_205_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_205_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_205_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_205_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_205_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_205_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RSA_CORE, START ADDRESS: FFCE0000, END ADDRESS: FFCEFFFF
-		/*Register : APERPERM_206 @ 0XFF981338</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_206_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_206_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_206_PARITY                                            0x0
-
-		Entry 206 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CE0000
-		(OFFSET, MASK, VALUE)      (0XFF981338, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_206_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_206_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_206_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_206_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_206_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_206_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_206_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: MBISTJTAG, START ADDRESS: FFCF0000, END ADDRESS: FFCFFFFF
-		/*Register : APERPERM_207 @ 0XFF98133C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_207_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_207_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_207_PARITY                                            0x0
-
-		Entry 207 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00CF0000
-		(OFFSET, MASK, VALUE)      (0XFF98133C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_207_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_207_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_207_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_207_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_207_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_207_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_207_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_ROM, START ADDRESS: FFD00000, END ADDRESS: FFD3FFFF
-		/*Register : APERPERM_208 @ 0XFF981340</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_208_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_208_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_208_PARITY                                            0x0
-
-		Entry 208 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D00000
-		(OFFSET, MASK, VALUE)      (0XFF981340, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_208_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_208_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_208_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_208_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_208_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_208_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_208_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_ROM, START ADDRESS: FFD00000, END ADDRESS: FFD3FFFF
-		/*Register : APERPERM_209 @ 0XFF981344</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_209_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_209_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_209_PARITY                                            0x0
-
-		Entry 209 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D10000
-		(OFFSET, MASK, VALUE)      (0XFF981344, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_209_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_209_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_209_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_209_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_209_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_209_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_209_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_ROM, START ADDRESS: FFD00000, END ADDRESS: FFD3FFFF
-		/*Register : APERPERM_210 @ 0XFF981348</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_210_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_210_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_210_PARITY                                            0x0
-
-		Entry 210 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D20000
-		(OFFSET, MASK, VALUE)      (0XFF981348, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_210_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_210_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_210_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_210_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_210_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_210_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_210_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_ROM, START ADDRESS: FFD00000, END ADDRESS: FFD3FFFF
-		/*Register : APERPERM_211 @ 0XFF98134C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_211_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_211_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_211_PARITY                                            0x0
-
-		Entry 211 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D30000
-		(OFFSET, MASK, VALUE)      (0XFF98134C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_211_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_211_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_211_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_211_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_211_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_211_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_211_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_IOMODULE, START ADDRESS: FFD40000, END ADDRESS: FFD5FFFF
-		/*Register : APERPERM_212 @ 0XFF981350</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_212_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_212_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_212_PARITY                                            0x0
-
-		Entry 212 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D40000
-		(OFFSET, MASK, VALUE)      (0XFF981350, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_212_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_212_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_212_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_212_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_212_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_212_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_212_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_IOMODULE, START ADDRESS: FFD40000, END ADDRESS: FFD5FFFF
-		/*Register : APERPERM_213 @ 0XFF981354</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_213_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_213_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_213_PARITY                                            0x0
-
-		Entry 213 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D50000
-		(OFFSET, MASK, VALUE)      (0XFF981354, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_213_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_213_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_213_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_213_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_213_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_213_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_213_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_LOCAL, START ADDRESS: FFD60000, END ADDRESS: FFD7FFFF
-		/*Register : APERPERM_214 @ 0XFF981358</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_214_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_214_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_214_PARITY                                            0x0
-
-		Entry 214 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D60000
-		(OFFSET, MASK, VALUE)      (0XFF981358, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_214_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_214_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_214_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_214_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_214_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_214_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_214_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_LOCAL, START ADDRESS: FFD60000, END ADDRESS: FFD7FFFF
-		/*Register : APERPERM_215 @ 0XFF98135C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_215_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_215_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_215_PARITY                                            0x0
-
-		Entry 215 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D70000
-		(OFFSET, MASK, VALUE)      (0XFF98135C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_215_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_215_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_215_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_215_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_215_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_215_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_215_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_GLOBAL, START ADDRESS: FFD80000, END ADDRESS: FFDBFFFF
-		/*Register : APERPERM_216 @ 0XFF981360</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_216_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_216_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_216_PARITY                                            0x0
-
-		Entry 216 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D80000
-		(OFFSET, MASK, VALUE)      (0XFF981360, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_216_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_216_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_216_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_216_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_216_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_216_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_216_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_GLOBAL, START ADDRESS: FFD80000, END ADDRESS: FFDBFFFF
-		/*Register : APERPERM_217 @ 0XFF981364</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_217_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_217_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_217_PARITY                                            0x0
-
-		Entry 217 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00D90000
-		(OFFSET, MASK, VALUE)      (0XFF981364, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_217_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_217_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_217_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_217_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_217_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_217_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_217_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_GLOBAL, START ADDRESS: FFD80000, END ADDRESS: FFDBFFFF
-		/*Register : APERPERM_218 @ 0XFF981368</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_218_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_218_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_218_PARITY                                            0x0
-
-		Entry 218 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DA0000
-		(OFFSET, MASK, VALUE)      (0XFF981368, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_218_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_218_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_218_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_218_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_218_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_218_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_218_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_GLOBAL, START ADDRESS: FFD80000, END ADDRESS: FFDBFFFF
-		/*Register : APERPERM_219 @ 0XFF98136C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_219_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_219_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_219_PARITY                                            0x0
-
-		Entry 219 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DB0000
-		(OFFSET, MASK, VALUE)      (0XFF98136C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_219_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_219_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_219_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_219_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_219_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_219_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_219_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_RAM, START ADDRESS: FFDC0000, END ADDRESS: FFDFFFFF
-		/*Register : APERPERM_220 @ 0XFF981370</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_220_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_220_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_220_PARITY                                            0x0
-
-		Entry 220 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DC0000
-		(OFFSET, MASK, VALUE)      (0XFF981370, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_220_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_220_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_220_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_220_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_220_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_220_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_220_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_RAM, START ADDRESS: FFDC0000, END ADDRESS: FFDFFFFF
-		/*Register : APERPERM_221 @ 0XFF981374</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_221_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_221_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_221_PARITY                                            0x0
-
-		Entry 221 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DD0000
-		(OFFSET, MASK, VALUE)      (0XFF981374, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_221_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_221_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_221_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_221_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_221_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_221_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_221_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_RAM, START ADDRESS: FFDC0000, END ADDRESS: FFDFFFFF
-		/*Register : APERPERM_222 @ 0XFF981378</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_222_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_222_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_222_PARITY                                            0x0
-
-		Entry 222 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DE0000
-		(OFFSET, MASK, VALUE)      (0XFF981378, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_222_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_222_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_222_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_222_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_222_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_222_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_222_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: PMU_RAM, START ADDRESS: FFDC0000, END ADDRESS: FFDFFFFF
-		/*Register : APERPERM_223 @ 0XFF98137C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_223_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_223_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_223_PARITY                                            0x0
-
-		Entry 223 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00DF0000
-		(OFFSET, MASK, VALUE)      (0XFF98137C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_223_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_223_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_223_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_223_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_223_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_223_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_223_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_ATCM, START ADDRESS: FFE00000, END ADDRESS: FFE0FFFF
-		/*Register : APERPERM_224 @ 0XFF981380</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_224_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_224_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_224_PARITY                                            0x0
-
-		Entry 224 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E00000
-		(OFFSET, MASK, VALUE)      (0XFF981380, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_224_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_224_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_224_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_224_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_224_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_224_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_224_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_ATCM_LOCKSTEP, START ADDRESS: FFE10000, END ADDRESS: FFE1FFFF
-		/*Register : APERPERM_225 @ 0XFF981384</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_225_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_225_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_225_PARITY                                            0x0
-
-		Entry 225 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E10000
-		(OFFSET, MASK, VALUE)      (0XFF981384, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_225_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_225_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_225_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_225_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_225_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_225_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_225_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_BTCM, START ADDRESS: FFE20000, END ADDRESS: FFE2FFFF
-		/*Register : APERPERM_226 @ 0XFF981388</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_226_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_226_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_226_PARITY                                            0x0
-
-		Entry 226 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E20000
-		(OFFSET, MASK, VALUE)      (0XFF981388, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_226_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_226_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_226_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_226_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_226_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_226_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_226_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_BTCM_LOCKSTEP, START ADDRESS: FFE30000, END ADDRESS: FFE3FFFF
-		/*Register : APERPERM_227 @ 0XFF98138C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_227_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_227_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_227_PARITY                                            0x0
-
-		Entry 227 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E30000
-		(OFFSET, MASK, VALUE)      (0XFF98138C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_227_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_227_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_227_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_227_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_227_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_227_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_227_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_INSTRUCTION_CACHE, START ADDRESS: FFE40000, END ADDRESS: FFE4FFFF
-		/*Register : APERPERM_228 @ 0XFF981390</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_228_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_228_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_228_PARITY                                            0x0
-
-		Entry 228 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E40000
-		(OFFSET, MASK, VALUE)      (0XFF981390, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_228_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_228_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_228_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_228_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_228_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_228_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_228_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_0_DATA_CACHE, START ADDRESS: FFE50000, END ADDRESS: FFE5FFFF
-		/*Register : APERPERM_229 @ 0XFF981394</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_229_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_229_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_229_PARITY                                            0x0
-
-		Entry 229 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E50000
-		(OFFSET, MASK, VALUE)      (0XFF981394, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_229_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_229_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_229_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_229_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_229_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_229_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_229_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_8, START ADDRESS: FFE60000, END ADDRESS: FFE8FFFF
-		/*Register : APERPERM_230 @ 0XFF981398</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_230_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_230_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_230_PARITY                                            0x0
-
-		Entry 230 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E60000
-		(OFFSET, MASK, VALUE)      (0XFF981398, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_230_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_230_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_230_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_230_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_230_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_230_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_230_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_8, START ADDRESS: FFE60000, END ADDRESS: FFE8FFFF
-		/*Register : APERPERM_231 @ 0XFF98139C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_231_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_231_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_231_PARITY                                            0x0
-
-		Entry 231 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E70000
-		(OFFSET, MASK, VALUE)      (0XFF98139C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_231_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_231_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_231_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_231_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_231_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_231_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_231_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_8, START ADDRESS: FFE60000, END ADDRESS: FFE8FFFF
-		/*Register : APERPERM_232 @ 0XFF9813A0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_232_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_232_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_232_PARITY                                            0x0
-
-		Entry 232 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E80000
-		(OFFSET, MASK, VALUE)      (0XFF9813A0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_232_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_232_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_232_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_232_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_232_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_232_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_232_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_1_ATCM_, START ADDRESS: FFE90000, END ADDRESS: FFE9FFFF
-		/*Register : APERPERM_233 @ 0XFF9813A4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_233_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_233_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_233_PARITY                                            0x0
-
-		Entry 233 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00E90000
-		(OFFSET, MASK, VALUE)      (0XFF9813A4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_233_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_233_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_233_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_233_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_233_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_233_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_233_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: RPU_UNUSED_10, START ADDRESS: FFEA0000, END ADDRESS: FFEAFFFF
-		/*Register : APERPERM_234 @ 0XFF9813A8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_234_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_234_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_234_PARITY                                            0x0
-
-		Entry 234 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00EA0000
-		(OFFSET, MASK, VALUE)      (0XFF9813A8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_234_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_234_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_234_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_234_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_234_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_234_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_234_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_1_BTCM_, START ADDRESS: FFEB0000, END ADDRESS: FFEBFFFF
-		/*Register : APERPERM_235 @ 0XFF9813AC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_235_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_235_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_235_PARITY                                            0x0
-
-		Entry 235 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00EB0000
-		(OFFSET, MASK, VALUE)      (0XFF9813AC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_235_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_235_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_235_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_235_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_235_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_235_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_235_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_1_INSTRUCTION_CACHE, START ADDRESS: FFEC0000, END ADDRESS: FFECFFFF
-		/*Register : APERPERM_236 @ 0XFF9813B0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_236_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_236_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_236_PARITY                                            0x0
-
-		Entry 236 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00EC0000
-		(OFFSET, MASK, VALUE)      (0XFF9813B0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_236_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_236_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_236_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_236_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_236_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_236_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_236_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: R5_1_DATA_CACHE, START ADDRESS: FFED0000, END ADDRESS: FFEDFFFF
-		/*Register : APERPERM_237 @ 0XFF9813B4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_237_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_237_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_237_PARITY                                            0x0
-
-		Entry 237 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00ED0000
-		(OFFSET, MASK, VALUE)      (0XFF9813B4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_237_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_237_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_237_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_237_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_237_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_237_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_237_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_238 @ 0XFF9813B8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_238_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_238_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_238_PARITY                                            0x0
-
-		Entry 238 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00EE0000
-		(OFFSET, MASK, VALUE)      (0XFF9813B8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_238_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_238_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_238_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_238_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_238_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_238_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_238_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_239 @ 0XFF9813BC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_239_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_239_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_239_PARITY                                            0x0
-
-		Entry 239 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00EF0000
-		(OFFSET, MASK, VALUE)      (0XFF9813BC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_239_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_239_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_239_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_239_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_239_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_239_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_239_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_240 @ 0XFF9813C0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_240_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_240_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_240_PARITY                                            0x0
-
-		Entry 240 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F00000
-		(OFFSET, MASK, VALUE)      (0XFF9813C0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_240_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_240_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_240_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_240_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_240_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_240_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_240_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_241 @ 0XFF9813C4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_241_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_241_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_241_PARITY                                            0x0
-
-		Entry 241 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F10000
-		(OFFSET, MASK, VALUE)      (0XFF9813C4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_241_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_241_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_241_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_241_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_241_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_241_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_241_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_242 @ 0XFF9813C8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_242_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_242_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_242_PARITY                                            0x0
-
-		Entry 242 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F20000
-		(OFFSET, MASK, VALUE)      (0XFF9813C8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_242_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_242_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_242_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_242_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_242_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_242_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_242_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_243 @ 0XFF9813CC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_243_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_243_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_243_PARITY                                            0x0
-
-		Entry 243 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F30000
-		(OFFSET, MASK, VALUE)      (0XFF9813CC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_243_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_243_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_243_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_243_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_243_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_243_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_243_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_244 @ 0XFF9813D0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_244_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_244_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_244_PARITY                                            0x0
-
-		Entry 244 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F40000
-		(OFFSET, MASK, VALUE)      (0XFF9813D0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_244_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_244_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_244_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_244_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_244_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_244_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_244_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_245 @ 0XFF9813D4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_245_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_245_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_245_PARITY                                            0x0
-
-		Entry 245 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F50000
-		(OFFSET, MASK, VALUE)      (0XFF9813D4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_245_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_245_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_245_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_245_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_245_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_245_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_245_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_246 @ 0XFF9813D8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_246_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_246_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_246_PARITY                                            0x0
-
-		Entry 246 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F60000
-		(OFFSET, MASK, VALUE)      (0XFF9813D8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_246_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_246_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_246_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_246_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_246_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_246_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_246_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_247 @ 0XFF9813DC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_247_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_247_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_247_PARITY                                            0x0
-
-		Entry 247 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F70000
-		(OFFSET, MASK, VALUE)      (0XFF9813DC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_247_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_247_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_247_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_247_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_247_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_247_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_247_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_248 @ 0XFF9813E0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_248_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_248_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_248_PARITY                                            0x0
-
-		Entry 248 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F80000
-		(OFFSET, MASK, VALUE)      (0XFF9813E0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_248_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_248_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_248_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_248_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_248_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_248_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_248_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_249 @ 0XFF9813E4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_249_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_249_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_249_PARITY                                            0x0
-
-		Entry 249 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00F90000
-		(OFFSET, MASK, VALUE)      (0XFF9813E4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_249_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_249_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_249_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_249_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_249_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_249_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_249_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_250 @ 0XFF9813E8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_250_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_250_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_250_PARITY                                            0x0
-
-		Entry 250 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00FA0000
-		(OFFSET, MASK, VALUE)      (0XFF9813E8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_250_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_250_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_250_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_250_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_250_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_250_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_250_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_251 @ 0XFF9813EC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_251_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_251_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_251_PARITY                                            0x0
-
-		Entry 251 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00FB0000
-		(OFFSET, MASK, VALUE)      (0XFF9813EC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_251_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_251_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_251_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_251_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_251_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_251_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_251_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_9, START ADDRESS: FFEE0000, END ADDRESS: FFFBFFFF
-		/*Register : APERPERM_252 @ 0XFF9813F0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_252_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_252_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_252_PARITY                                            0x0
-
-		Entry 252 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00FC0000
-		(OFFSET, MASK, VALUE)      (0XFF9813F0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_252_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_252_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_252_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_252_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_252_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_252_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_252_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_15, START ADDRESS: FFFD0000, END ADDRESS: FFFFFFFF
 		// : APERTURE NAME: LPD_UNUSED_15, START ADDRESS: FFFD0000, END ADDRESS: FFFFFFFF
 		// : APERTURE NAME: LPD_UNUSED_15, START ADDRESS: FFFD0000, END ADDRESS: FFFFFFFF
@@ -25454,205 +19498,13 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_310 @ 0XFF9814D8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_310_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_310_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_310_PARITY                                            0x0
-
-		Entry 310 of the Aperture Permission List, for 32-byte IPI buffer 054 at BASE_32B + 0x000006C0
-		(OFFSET, MASK, VALUE)      (0XFF9814D8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_310_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_310_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_310_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_310_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_310_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_310_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_310_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_311 @ 0XFF9814DC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_311_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_311_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_311_PARITY                                            0x0
-
-		Entry 311 of the Aperture Permission List, for 32-byte IPI buffer 055 at BASE_32B + 0x000006E0
-		(OFFSET, MASK, VALUE)      (0XFF9814DC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_311_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_311_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_311_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_311_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_311_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_311_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_311_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_312 @ 0XFF9814E0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_312_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_312_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_312_PARITY                                            0x0
-
-		Entry 312 of the Aperture Permission List, for 32-byte IPI buffer 056 at BASE_32B + 0x00000700
-		(OFFSET, MASK, VALUE)      (0XFF9814E0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_312_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_312_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_312_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_312_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_312_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_312_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_312_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_313 @ 0XFF9814E4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_313_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_313_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_313_PARITY                                            0x0
-
-		Entry 313 of the Aperture Permission List, for 32-byte IPI buffer 057 at BASE_32B + 0x00000720
-		(OFFSET, MASK, VALUE)      (0XFF9814E4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_313_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_313_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_313_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_313_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_313_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_313_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_313_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_314 @ 0XFF9814E8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_314_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_314_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_314_PARITY                                            0x0
-
-		Entry 314 of the Aperture Permission List, for 32-byte IPI buffer 058 at BASE_32B + 0x00000740
-		(OFFSET, MASK, VALUE)      (0XFF9814E8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_314_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_314_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_314_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_314_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_314_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_314_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_314_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_315 @ 0XFF9814EC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_315_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_315_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_315_PARITY                                            0x0
-
-		Entry 315 of the Aperture Permission List, for 32-byte IPI buffer 059 at BASE_32B + 0x00000760
-		(OFFSET, MASK, VALUE)      (0XFF9814EC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_315_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_315_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_315_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_315_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_315_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_315_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_315_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_316 @ 0XFF9814F0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_316_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_316_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_316_PARITY                                            0x0
-
-		Entry 316 of the Aperture Permission List, for 32-byte IPI buffer 060 at BASE_32B + 0x00000780
-		(OFFSET, MASK, VALUE)      (0XFF9814F0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_316_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_316_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_316_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_316_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_316_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_316_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_316_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
-		/*Register : APERPERM_317 @ 0XFF9814F4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_317_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_317_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_317_PARITY                                            0x0
-
-		Entry 317 of the Aperture Permission List, for 32-byte IPI buffer 061 at BASE_32B + 0x000007A0
-		(OFFSET, MASK, VALUE)      (0XFF9814F4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_317_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_317_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_317_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_317_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_317_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_317_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_317_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_7, START ADDRESS: FF340000, END ADDRESS: FF34FFFF
 		/*Register : APERPERM_318 @ 0XFF9814F8</p>
 
@@ -25854,205 +19706,13 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_326 @ 0XFF981518</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_326_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_326_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_326_PARITY                                            0x0
-
-		Entry 326 of the Aperture Permission List, for 32-byte IPI buffer 070 at BASE_32B + 0x000008C0
-		(OFFSET, MASK, VALUE)      (0XFF981518, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_326_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_326_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_326_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_326_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_326_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_326_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_326_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_327 @ 0XFF98151C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_327_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_327_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_327_PARITY                                            0x0
-
-		Entry 327 of the Aperture Permission List, for 32-byte IPI buffer 071 at BASE_32B + 0x000008E0
-		(OFFSET, MASK, VALUE)      (0XFF98151C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_327_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_327_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_327_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_327_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_327_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_327_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_327_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_328 @ 0XFF981520</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_328_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_328_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_328_PARITY                                            0x0
-
-		Entry 328 of the Aperture Permission List, for 32-byte IPI buffer 072 at BASE_32B + 0x00000900
-		(OFFSET, MASK, VALUE)      (0XFF981520, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_328_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_328_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_328_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_328_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_328_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_328_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_328_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_329 @ 0XFF981524</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_329_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_329_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_329_PARITY                                            0x0
-
-		Entry 329 of the Aperture Permission List, for 32-byte IPI buffer 073 at BASE_32B + 0x00000920
-		(OFFSET, MASK, VALUE)      (0XFF981524, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_329_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_329_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_329_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_329_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_329_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_329_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_329_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_330 @ 0XFF981528</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_330_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_330_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_330_PARITY                                            0x0
-
-		Entry 330 of the Aperture Permission List, for 32-byte IPI buffer 074 at BASE_32B + 0x00000940
-		(OFFSET, MASK, VALUE)      (0XFF981528, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_330_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_330_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_330_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_330_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_330_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_330_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_330_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_331 @ 0XFF98152C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_331_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_331_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_331_PARITY                                            0x0
-
-		Entry 331 of the Aperture Permission List, for 32-byte IPI buffer 075 at BASE_32B + 0x00000960
-		(OFFSET, MASK, VALUE)      (0XFF98152C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_331_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_331_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_331_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_331_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_331_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_331_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_331_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_332 @ 0XFF981530</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_332_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_332_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_332_PARITY                                            0x0
-
-		Entry 332 of the Aperture Permission List, for 32-byte IPI buffer 076 at BASE_32B + 0x00000980
-		(OFFSET, MASK, VALUE)      (0XFF981530, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_332_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_332_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_332_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_332_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_332_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_332_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_332_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
-		/*Register : APERPERM_333 @ 0XFF981534</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_333_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_333_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_333_PARITY                                            0x0
-
-		Entry 333 of the Aperture Permission List, for 32-byte IPI buffer 077 at BASE_32B + 0x000009A0
-		(OFFSET, MASK, VALUE)      (0XFF981534, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_333_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_333_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_333_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_333_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_333_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_333_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_333_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_8, START ADDRESS: FF350000, END ADDRESS: FF35FFFF
 		/*Register : APERPERM_334 @ 0XFF981538</p>
 
@@ -26254,205 +19914,13 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_342 @ 0XFF981558</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_342_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_342_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_342_PARITY                                            0x0
-
-		Entry 342 of the Aperture Permission List, for 32-byte IPI buffer 086 at BASE_32B + 0x00000AC0
-		(OFFSET, MASK, VALUE)      (0XFF981558, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_342_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_342_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_342_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_342_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_342_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_342_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_342_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_343 @ 0XFF98155C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_343_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_343_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_343_PARITY                                            0x0
-
-		Entry 343 of the Aperture Permission List, for 32-byte IPI buffer 087 at BASE_32B + 0x00000AE0
-		(OFFSET, MASK, VALUE)      (0XFF98155C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_343_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_343_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_343_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_343_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_343_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_343_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_343_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_344 @ 0XFF981560</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_344_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_344_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_344_PARITY                                            0x0
-
-		Entry 344 of the Aperture Permission List, for 32-byte IPI buffer 088 at BASE_32B + 0x00000B00
-		(OFFSET, MASK, VALUE)      (0XFF981560, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_344_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_344_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_344_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_344_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_344_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_344_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_344_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_345 @ 0XFF981564</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_345_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_345_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_345_PARITY                                            0x0
-
-		Entry 345 of the Aperture Permission List, for 32-byte IPI buffer 089 at BASE_32B + 0x00000B20
-		(OFFSET, MASK, VALUE)      (0XFF981564, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_345_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_345_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_345_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_345_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_345_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_345_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_345_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_346 @ 0XFF981568</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_346_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_346_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_346_PARITY                                            0x0
-
-		Entry 346 of the Aperture Permission List, for 32-byte IPI buffer 090 at BASE_32B + 0x00000B40
-		(OFFSET, MASK, VALUE)      (0XFF981568, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_346_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_346_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_346_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_346_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_346_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_346_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_346_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_347 @ 0XFF98156C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_347_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_347_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_347_PARITY                                            0x0
-
-		Entry 347 of the Aperture Permission List, for 32-byte IPI buffer 091 at BASE_32B + 0x00000B60
-		(OFFSET, MASK, VALUE)      (0XFF98156C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_347_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_347_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_347_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_347_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_347_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_347_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_347_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_348 @ 0XFF981570</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_348_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_348_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_348_PARITY                                            0x0
-
-		Entry 348 of the Aperture Permission List, for 32-byte IPI buffer 092 at BASE_32B + 0x00000B80
-		(OFFSET, MASK, VALUE)      (0XFF981570, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_348_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_348_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_348_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_348_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_348_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_348_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_348_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
-		/*Register : APERPERM_349 @ 0XFF981574</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_349_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_349_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_349_PARITY                                            0x0
-
-		Entry 349 of the Aperture Permission List, for 32-byte IPI buffer 093 at BASE_32B + 0x00000BA0
-		(OFFSET, MASK, VALUE)      (0XFF981574, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_349_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_349_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_349_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_349_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_349_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_349_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_349_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_9, START ADDRESS: FF360000, END ADDRESS: FF36FFFF
 		/*Register : APERPERM_350 @ 0XFF981578</p>
 
@@ -26654,205 +20122,13 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_358 @ 0XFF981598</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_358_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_358_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_358_PARITY                                            0x0
-
-		Entry 358 of the Aperture Permission List, for 32-byte IPI buffer 102 at BASE_32B + 0x00000CC0
-		(OFFSET, MASK, VALUE)      (0XFF981598, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_358_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_358_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_358_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_358_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_358_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_358_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_358_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_359 @ 0XFF98159C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_359_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_359_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_359_PARITY                                            0x0
-
-		Entry 359 of the Aperture Permission List, for 32-byte IPI buffer 103 at BASE_32B + 0x00000CE0
-		(OFFSET, MASK, VALUE)      (0XFF98159C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_359_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_359_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_359_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_359_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_359_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_359_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_359_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_360 @ 0XFF9815A0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_360_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_360_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_360_PARITY                                            0x0
-
-		Entry 360 of the Aperture Permission List, for 32-byte IPI buffer 104 at BASE_32B + 0x00000D00
-		(OFFSET, MASK, VALUE)      (0XFF9815A0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_360_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_360_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_360_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_360_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_360_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_360_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_360_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_361 @ 0XFF9815A4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_361_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_361_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_361_PARITY                                            0x0
-
-		Entry 361 of the Aperture Permission List, for 32-byte IPI buffer 105 at BASE_32B + 0x00000D20
-		(OFFSET, MASK, VALUE)      (0XFF9815A4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_361_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_361_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_361_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_361_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_361_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_361_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_361_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_362 @ 0XFF9815A8</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_362_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_362_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_362_PARITY                                            0x0
-
-		Entry 362 of the Aperture Permission List, for 32-byte IPI buffer 106 at BASE_32B + 0x00000D40
-		(OFFSET, MASK, VALUE)      (0XFF9815A8, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_362_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_362_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_362_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_362_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_362_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_362_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_362_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_363 @ 0XFF9815AC</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_363_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_363_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_363_PARITY                                            0x0
-
-		Entry 363 of the Aperture Permission List, for 32-byte IPI buffer 107 at BASE_32B + 0x00000D60
-		(OFFSET, MASK, VALUE)      (0XFF9815AC, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_363_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_363_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_363_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_363_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_363_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_363_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_363_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_364 @ 0XFF9815B0</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_364_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_364_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_364_PARITY                                            0x0
-
-		Entry 364 of the Aperture Permission List, for 32-byte IPI buffer 108 at BASE_32B + 0x00000D80
-		(OFFSET, MASK, VALUE)      (0XFF9815B0, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_364_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_364_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_364_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_364_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_364_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_364_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_364_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
-		/*Register : APERPERM_365 @ 0XFF9815B4</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_365_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_365_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_365_PARITY                                            0x0
-
-		Entry 365 of the Aperture Permission List, for 32-byte IPI buffer 109 at BASE_32B + 0x00000DA0
-		(OFFSET, MASK, VALUE)      (0XFF9815B4, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_365_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_365_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_365_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_365_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_365_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_365_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_365_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: IPI_10, START ADDRESS: FF370000, END ADDRESS: FF37FFFF
 		/*Register : APERPERM_366 @ 0XFF9815B8</p>
 
@@ -27304,431 +20580,37 @@ unsigned long psu_lpd_xppu_data() {
 	/*############################################################################################################################ */
 
 		// : APERTURE NAME: IOU_GPV, START ADDRESS: FE000000, END ADDRESS: FE0FFFFF
-		/*Register : APERPERM_384 @ 0XFF981600</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_384_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_384_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_384_PARITY                                            0x0
-
-		Entry 384 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00000000
-		(OFFSET, MASK, VALUE)      (0XFF981600, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_384_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_384_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_384_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_384_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_384_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_384_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_384_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_GPV, START ADDRESS: FE100000, END ADDRESS: FE1FFFFF
-		/*Register : APERPERM_385 @ 0XFF981604</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_385_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_385_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_385_PARITY                                            0x0
-
-		Entry 385 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00100000
-		(OFFSET, MASK, VALUE)      (0XFF981604, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_385_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_385_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_385_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_385_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_385_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_385_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_385_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: USB3_0_XHCI, START ADDRESS: FE200000, END ADDRESS: FE2FFFFF
-		/*Register : APERPERM_386 @ 0XFF981608</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_386_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_386_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_386_PARITY                                            0x0
-
-		Entry 386 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00200000
-		(OFFSET, MASK, VALUE)      (0XFF981608, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_386_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_386_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_386_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_386_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_386_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_386_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_386_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: USB3_1_XHCI, START ADDRESS: FE300000, END ADDRESS: FE3FFFFF
-		/*Register : APERPERM_387 @ 0XFF98160C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_387_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_387_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_387_PARITY                                            0x0
-
-		Entry 387 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00300000
-		(OFFSET, MASK, VALUE)      (0XFF98160C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_387_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_387_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_387_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_387_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_387_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_387_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_387_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_13, START ADDRESS: FE400000, END ADDRESS: FE7FFFFF
-		/*Register : APERPERM_388 @ 0XFF981610</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_388_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_388_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_388_PARITY                                            0x0
-
-		Entry 388 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00400000
-		(OFFSET, MASK, VALUE)      (0XFF981610, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_388_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_388_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_388_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_388_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_388_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_388_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_388_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_13, START ADDRESS: FE400000, END ADDRESS: FE7FFFFF
-		/*Register : APERPERM_389 @ 0XFF981614</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_389_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_389_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_389_PARITY                                            0x0
-
-		Entry 389 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00500000
-		(OFFSET, MASK, VALUE)      (0XFF981614, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_389_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_389_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_389_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_389_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_389_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_389_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_389_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_13, START ADDRESS: FE400000, END ADDRESS: FE7FFFFF
-		/*Register : APERPERM_390 @ 0XFF981618</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_390_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_390_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_390_PARITY                                            0x0
-
-		Entry 390 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00600000
-		(OFFSET, MASK, VALUE)      (0XFF981618, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_390_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_390_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_390_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_390_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_390_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_390_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_390_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: LPD_UNUSED_13, START ADDRESS: FE400000, END ADDRESS: FE7FFFFF
-		/*Register : APERPERM_391 @ 0XFF98161C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_391_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_391_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_391_PARITY                                            0x0
-
-		Entry 391 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00700000
-		(OFFSET, MASK, VALUE)      (0XFF98161C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_391_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_391_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_391_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_391_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_391_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_391_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_391_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_392 @ 0XFF981620</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_392_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_392_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_392_PARITY                                            0x0
-
-		Entry 392 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00800000
-		(OFFSET, MASK, VALUE)      (0XFF981620, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_392_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_392_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_392_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_392_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_392_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_392_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_392_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_393 @ 0XFF981624</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_393_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_393_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_393_PARITY                                            0x0
-
-		Entry 393 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00900000
-		(OFFSET, MASK, VALUE)      (0XFF981624, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_393_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_393_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_393_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_393_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_393_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_393_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_393_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_394 @ 0XFF981628</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_394_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_394_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_394_PARITY                                            0x0
-
-		Entry 394 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00A00000
-		(OFFSET, MASK, VALUE)      (0XFF981628, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_394_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_394_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_394_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_394_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_394_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_394_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_394_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_395 @ 0XFF98162C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_395_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_395_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_395_PARITY                                            0x0
-
-		Entry 395 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00B00000
-		(OFFSET, MASK, VALUE)      (0XFF98162C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_395_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_395_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_395_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_395_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_395_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_395_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_395_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_396 @ 0XFF981630</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_396_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_396_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_396_PARITY                                            0x0
-
-		Entry 396 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00C00000
-		(OFFSET, MASK, VALUE)      (0XFF981630, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_396_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_396_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_396_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_396_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_396_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_396_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_396_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_397 @ 0XFF981634</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_397_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_397_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_397_PARITY                                            0x0
-
-		Entry 397 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00D00000
-		(OFFSET, MASK, VALUE)      (0XFF981634, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_397_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_397_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_397_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_397_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_397_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_397_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_397_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_398 @ 0XFF981638</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_398_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_398_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_398_PARITY                                            0x0
-
-		Entry 398 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00E00000
-		(OFFSET, MASK, VALUE)      (0XFF981638, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_398_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_398_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_398_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_398_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_398_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_398_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_398_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: CORESIGHT, START ADDRESS: FE800000, END ADDRESS: FEFFFFFF
-		/*Register : APERPERM_399 @ 0XFF98163C</p>
-
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_399_PERMISSION                                        0x80000
-
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_399_TRUSTZONE                                         0x1
-
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_399_PARITY                                            0x0
-
-		Entry 399 of the Aperture Permission List, for the 1M-byte aperture at BASE_1MB + 0x00F00000
-		(OFFSET, MASK, VALUE)      (0XFF98163C, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_399_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_399_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_399_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_399_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_399_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_399_PARITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_399_OFFSET ,0xF80FFFFFU ,0x08080000U);
-	/*############################################################################################################################ */
-
 		// : APERTURE NAME: QSPI_LINEAR_ADDRESS, START ADDRESS: C0000000, END ADDRESS: DFFFFFFF
-		/*Register : APERPERM_400 @ 0XFF981640</p>
+		// : XPPU CONTROL
+		/*Register : err_ctrl @ 0XFF9CFFEC</p>
 
-		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
-		h.
-		PSU_LPD_XPPU_CFG_APERPERM_400_PERMISSION                                        0x80000
+		Whether an APB access to the "hole" region and to an unimplemented register space causes PSLVERR
+		PSU_LPD_XPPU_SINK_ERR_CTRL_PSLVERR                                              1
 
-		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
-		PSU_LPD_XPPU_CFG_APERPERM_400_TRUSTZONE                                         0x1
+		Error control register
+		(OFFSET, MASK, VALUE)      (0XFF9CFFEC, 0x00000001U ,0x00000001U)
+		RegMask = (LPD_XPPU_SINK_ERR_CTRL_PSLVERR_MASK |  0 );
 
-		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
-		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
-		PSU_LPD_XPPU_CFG_APERPERM_400_PARITY                                            0x0
-
-		Entry 400 of the Aperture Permission List, for the 512M-byte aperture at BASE_512MB + 0x00000000
-		(OFFSET, MASK, VALUE)      (0XFF981640, 0xF80FFFFFU ,0x08080000U)
-		RegMask = (LPD_XPPU_CFG_APERPERM_400_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_400_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_400_PARITY_MASK |  0 );
-
-		RegVal = ((0x00080000U << LPD_XPPU_CFG_APERPERM_400_PERMISSION_SHIFT
-			| 0x00000001U << LPD_XPPU_CFG_APERPERM_400_TRUSTZONE_SHIFT
-			| 0x00000000U << LPD_XPPU_CFG_APERPERM_400_PARITY_SHIFT
+		RegVal = ((0x00000001U << LPD_XPPU_SINK_ERR_CTRL_PSLVERR_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_400_OFFSET ,0xF80FFFFFU ,0x08080000U);
+		PSU_Mask_Write (LPD_XPPU_SINK_ERR_CTRL_OFFSET ,0x00000001U ,0x00000001U);
 	/*############################################################################################################################ */
 
-		// : XPPU CONTROL
 		/*Register : CTRL @ 0XFF980000</p>
 
 		0=Bypass XPPU (transparent) 1=Enable XPPU permission checking
@@ -27741,6 +20623,45 @@ unsigned long psu_lpd_xppu_data() {
 		RegVal = ((0x00000001U << LPD_XPPU_CFG_CTRL_ENABLE_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (LPD_XPPU_CFG_CTRL_OFFSET ,0x00000001U ,0x00000001U);
+	/*############################################################################################################################ */
+
+		// : XPPU INTERRUPT ENABLE
+		/*Register : IEN @ 0XFF980018</p>
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_APER_PARITY                                                0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_APER_TZ                                                    0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_APER_PERM                                                  0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_MID_PARITY                                                 0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_MID_RO                                                     0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_MID_MISS                                                   0X1
+
+		See Interuppt Status Register for details
+		PSU_LPD_XPPU_CFG_IEN_INV_APB                                                    0X1
+
+		Interrupt Enable Register
+		(OFFSET, MASK, VALUE)      (0XFF980018, 0x000000EFU ,0x000000EFU)
+		RegMask = (LPD_XPPU_CFG_IEN_APER_PARITY_MASK | LPD_XPPU_CFG_IEN_APER_TZ_MASK | LPD_XPPU_CFG_IEN_APER_PERM_MASK | LPD_XPPU_CFG_IEN_MID_PARITY_MASK | LPD_XPPU_CFG_IEN_MID_RO_MASK | LPD_XPPU_CFG_IEN_MID_MISS_MASK | LPD_XPPU_CFG_IEN_INV_APB_MASK |  0 );
+
+		RegVal = ((0x00000001U << LPD_XPPU_CFG_IEN_APER_PARITY_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_APER_TZ_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_APER_PERM_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_MID_PARITY_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_MID_RO_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_MID_MISS_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_IEN_INV_APB_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (LPD_XPPU_CFG_IEN_OFFSET ,0x000000EFU ,0x000000EFU);
 	/*############################################################################################################################ */
 
 
@@ -27786,6 +20707,38 @@ unsigned long psu_fpd_xmpu_data() {
 
   return 1;
 }
+unsigned long psu_protection_lock_data() {
+		// : LOCKING PROTECTION MODULE
+		// : XPPU LOCK
+		// : APERTURE NAME: LPD_XPPU, START ADDRESS: FF980000, END ADDRESS: FF99FFFF
+		/*Register : APERPERM_152 @ 0XFF981260</p>
+
+		This field defines the MASTER ID match criteria. Each entry in the IDL corresponds to a bit in this field. 0=not match, 1=mat
+		h.
+		PSU_LPD_XPPU_CFG_APERPERM_152_PERMISSION                                        0x0
+
+		1=secure or non-secure transactions are allowed 0=only secure transactiona are allowed
+		PSU_LPD_XPPU_CFG_APERPERM_152_TRUSTZONE                                         0x1
+
+		SW must calculate and set up parity, if parity check is enabled by the CTRL register. 31: parity for bits 19:15 30: parity fo
+		 bits 14:10 29: parity for bits 9:5 28: parity for bits 27, 4:0
+		PSU_LPD_XPPU_CFG_APERPERM_152_PARITY                                            0x0
+
+		Entry 152 of the Aperture Permission List, for the 64K-byte aperture at BASE_64KB + 0x00980000
+		(OFFSET, MASK, VALUE)      (0XFF981260, 0xF80FFFFFU ,0x08000000U)
+		RegMask = (LPD_XPPU_CFG_APERPERM_152_PERMISSION_MASK | LPD_XPPU_CFG_APERPERM_152_TRUSTZONE_MASK | LPD_XPPU_CFG_APERPERM_152_PARITY_MASK |  0 );
+
+		RegVal = ((0x00000000U << LPD_XPPU_CFG_APERPERM_152_PERMISSION_SHIFT
+			| 0x00000001U << LPD_XPPU_CFG_APERPERM_152_TRUSTZONE_SHIFT
+			| 0x00000000U << LPD_XPPU_CFG_APERPERM_152_PARITY_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (LPD_XPPU_CFG_APERPERM_152_OFFSET ,0xF80FFFFFU ,0x08000000U);
+	/*############################################################################################################################ */
+
+		// : XMPU LOCK
+
+  return 1;
+}
 unsigned long psu_apply_master_tz() {
 		// : RPU
 		// : DP TZ
@@ -27807,15 +20760,15 @@ unsigned long psu_serdes_init_data() {
 		PLL0 Reference Selection. 0x0 - 5MHz, 0x1 - 9.6MHz, 0x2 - 10MHz, 0x3 - 12MHz, 0x4 - 13MHz, 0x5 - 19.2MHz, 0x6 - 20MHz, 0x7 -
 		4MHz, 0x8 - 26MHz, 0x9 - 27MHz, 0xA - 38.4MHz, 0xB - 40MHz, 0xC - 52MHz, 0xD - 100MHz, 0xE - 108MHz, 0xF - 125MHz, 0x10 - 135
 		Hz, 0x11 - 150 MHz. 0x12 to 0x1F - Reserved
-		PSU_SERDES_PLL_REF_SEL0_PLLREFSEL0                                              0xD
+		PSU_SERDES_PLL_REF_SEL0_PLLREFSEL0                                              0x9
 
 		PLL0 Reference Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD410000, 0x0000001FU ,0x0000000DU)
+		(OFFSET, MASK, VALUE)      (0XFD410000, 0x0000001FU ,0x00000009U)
 		RegMask = (SERDES_PLL_REF_SEL0_PLLREFSEL0_MASK |  0 );
 
-		RegVal = ((0x0000000DU << SERDES_PLL_REF_SEL0_PLLREFSEL0_SHIFT
+		RegVal = ((0x00000009U << SERDES_PLL_REF_SEL0_PLLREFSEL0_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_PLL_REF_SEL0_OFFSET ,0x0000001FU ,0x0000000DU);
+		PSU_Mask_Write (SERDES_PLL_REF_SEL0_OFFSET ,0x0000001FU ,0x00000009U);
 	/*############################################################################################################################ */
 
 		/*Register : PLL_REF_SEL1 @ 0XFD410004</p>
@@ -27823,15 +20776,15 @@ unsigned long psu_serdes_init_data() {
 		PLL1 Reference Selection. 0x0 - 5MHz, 0x1 - 9.6MHz, 0x2 - 10MHz, 0x3 - 12MHz, 0x4 - 13MHz, 0x5 - 19.2MHz, 0x6 - 20MHz, 0x7 -
 		4MHz, 0x8 - 26MHz, 0x9 - 27MHz, 0xA - 38.4MHz, 0xB - 40MHz, 0xC - 52MHz, 0xD - 100MHz, 0xE - 108MHz, 0xF - 125MHz, 0x10 - 135
 		Hz, 0x11 - 150 MHz. 0x12 to 0x1F - Reserved
-		PSU_SERDES_PLL_REF_SEL1_PLLREFSEL1                                              0x11
+		PSU_SERDES_PLL_REF_SEL1_PLLREFSEL1                                              0x9
 
 		PLL1 Reference Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD410004, 0x0000001FU ,0x00000011U)
+		(OFFSET, MASK, VALUE)      (0XFD410004, 0x0000001FU ,0x00000009U)
 		RegMask = (SERDES_PLL_REF_SEL1_PLLREFSEL1_MASK |  0 );
 
-		RegVal = ((0x00000011U << SERDES_PLL_REF_SEL1_PLLREFSEL1_SHIFT
+		RegVal = ((0x00000009U << SERDES_PLL_REF_SEL1_PLLREFSEL1_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_PLL_REF_SEL1_OFFSET ,0x0000001FU ,0x00000011U);
+		PSU_Mask_Write (SERDES_PLL_REF_SEL1_OFFSET ,0x0000001FU ,0x00000009U);
 	/*############################################################################################################################ */
 
 		/*Register : PLL_REF_SEL2 @ 0XFD410008</p>
@@ -27855,30 +20808,34 @@ unsigned long psu_serdes_init_data() {
 		PLL3 Reference Selection. 0x0 - 5MHz, 0x1 - 9.6MHz, 0x2 - 10MHz, 0x3 - 12MHz, 0x4 - 13MHz, 0x5 - 19.2MHz, 0x6 - 20MHz, 0x7 -
 		4MHz, 0x8 - 26MHz, 0x9 - 27MHz, 0xA - 38.4MHz, 0xB - 40MHz, 0xC - 52MHz, 0xD - 100MHz, 0xE - 108MHz, 0xF - 125MHz, 0x10 - 135
 		Hz, 0x11 - 150 MHz. 0x12 to 0x1F - Reserved
-		PSU_SERDES_PLL_REF_SEL3_PLLREFSEL3                                              0x9
+		PSU_SERDES_PLL_REF_SEL3_PLLREFSEL3                                              0xF
 
 		PLL3 Reference Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD41000C, 0x0000001FU ,0x00000009U)
+		(OFFSET, MASK, VALUE)      (0XFD41000C, 0x0000001FU ,0x0000000FU)
 		RegMask = (SERDES_PLL_REF_SEL3_PLLREFSEL3_MASK |  0 );
 
-		RegVal = ((0x00000009U << SERDES_PLL_REF_SEL3_PLLREFSEL3_SHIFT
+		RegVal = ((0x0000000FU << SERDES_PLL_REF_SEL3_PLLREFSEL3_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_PLL_REF_SEL3_OFFSET ,0x0000001FU ,0x00000009U);
+		PSU_Mask_Write (SERDES_PLL_REF_SEL3_OFFSET ,0x0000001FU ,0x0000000FU);
 	/*############################################################################################################################ */
 
 		// : GT REFERENCE CLOCK FREQUENCY SELECTION
 		/*Register : L0_L0_REF_CLK_SEL @ 0XFD402860</p>
 
 		Sel of lane 0 ref clock local mux. Set to 1 to select lane 0 slicer output. Set to 0 to select lane0 ref clock mux output.
-		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL                                 0x1
+		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL                                 0x0
+
+		Bit 3 of lane 0 ref clock mux one hot sel. Set to 1 to select lane 3 slicer output from ref clock network
+		PSU_SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_3                                   0x1
 
 		Lane0 Ref Clock Selection Register
-		(OFFSET, MASK, VALUE)      (0XFD402860, 0x00000080U ,0x00000080U)
-		RegMask = (SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFD402860, 0x00000088U ,0x00000008U)
+		RegMask = (SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_MASK | SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_3_MASK |  0 );
 
-		RegVal = ((0x00000001U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_SHIFT
+		RegVal = ((0x00000000U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_LCL_SEL_SHIFT
+			| 0x00000001U << SERDES_L0_L0_REF_CLK_SEL_L0_REF_CLK_SEL_3_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_L0_REF_CLK_SEL_OFFSET ,0x00000080U ,0x00000080U);
+		PSU_Mask_Write (SERDES_L0_L0_REF_CLK_SEL_OFFSET ,0x00000088U ,0x00000008U);
 	/*############################################################################################################################ */
 
 		/*Register : L0_L1_REF_CLK_SEL @ 0XFD402864</p>
@@ -27976,12 +20933,16 @@ unsigned long psu_serdes_init_data() {
 
 		/*Register : L3_PLL_SS_STEPS_0_LSB @ 0XFD40E368</p>
 
-		Spread Spectrum No of Steps bits 7:0
-		(OFFSET, MASK, VALUE)      (0XFD40E368, 0x00000000U ,0x00000000U)
-		RegMask = ( 0 );
+		Spread Spectrum No of Steps [7:0]
+		PSU_SERDES_L3_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB                          0xE0
 
-		RegVal = (( 0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_PLL_SS_STEPS_0_LSB_OFFSET ,0x00000000U ,0x00000000U);
+		Spread Spectrum No of Steps bits 7:0
+		(OFFSET, MASK, VALUE)      (0XFD40E368, 0x000000FFU ,0x000000E0U)
+		RegMask = (SERDES_L3_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB_MASK |  0 );
+
+		RegVal = ((0x000000E0U << SERDES_L3_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L3_PLL_SS_STEPS_0_LSB_OFFSET ,0x000000FFU ,0x000000E0U);
 	/*############################################################################################################################ */
 
 		/*Register : L3_PLL_SS_STEPS_1_MSB @ 0XFD40E36C</p>
@@ -27996,6 +20957,34 @@ unsigned long psu_serdes_init_data() {
 		RegVal = ((0x00000003U << SERDES_L3_PLL_SS_STEPS_1_MSB_SS_NUM_OF_STEPS_1_MSB_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (SERDES_L3_PLL_SS_STEPS_1_MSB_OFFSET ,0x00000007U ,0x00000003U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEPS_0_LSB @ 0XFD402368</p>
+
+		Spread Spectrum No of Steps [7:0]
+		PSU_SERDES_L0_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB                          0x58
+
+		Spread Spectrum No of Steps bits 7:0
+		(OFFSET, MASK, VALUE)      (0XFD402368, 0x000000FFU ,0x00000058U)
+		RegMask = (SERDES_L0_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB_MASK |  0 );
+
+		RegVal = ((0x00000058U << SERDES_L0_PLL_SS_STEPS_0_LSB_SS_NUM_OF_STEPS_0_LSB_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEPS_0_LSB_OFFSET ,0x000000FFU ,0x00000058U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEPS_1_MSB @ 0XFD40236C</p>
+
+		Spread Spectrum No of Steps [10:8]
+		PSU_SERDES_L0_PLL_SS_STEPS_1_MSB_SS_NUM_OF_STEPS_1_MSB                          0x3
+
+		Spread Spectrum No of Steps bits 10:8
+		(OFFSET, MASK, VALUE)      (0XFD40236C, 0x00000007U ,0x00000003U)
+		RegMask = (SERDES_L0_PLL_SS_STEPS_1_MSB_SS_NUM_OF_STEPS_1_MSB_MASK |  0 );
+
+		RegVal = ((0x00000003U << SERDES_L0_PLL_SS_STEPS_1_MSB_SS_NUM_OF_STEPS_1_MSB_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEPS_1_MSB_OFFSET ,0x00000007U ,0x00000003U);
 	/*############################################################################################################################ */
 
 		/*Register : L1_PLL_SS_STEPS_0_LSB @ 0XFD406368</p>
@@ -28024,6 +21013,70 @@ unsigned long psu_serdes_init_data() {
 		RegVal = ((0x00000003U << SERDES_L1_PLL_SS_STEPS_1_MSB_SS_NUM_OF_STEPS_1_MSB_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (SERDES_L1_PLL_SS_STEPS_1_MSB_OFFSET ,0x00000007U ,0x00000003U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEP_SIZE_0_LSB @ 0XFD402370</p>
+
+		Step Size for Spread Spectrum [7:0]
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB                         0x7C
+
+		Step Size for Spread Spectrum LSB
+		(OFFSET, MASK, VALUE)      (0XFD402370, 0x000000FFU ,0x0000007CU)
+		RegMask = (SERDES_L0_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB_MASK |  0 );
+
+		RegVal = ((0x0000007CU << SERDES_L0_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEP_SIZE_0_LSB_OFFSET ,0x000000FFU ,0x0000007CU);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEP_SIZE_1 @ 0XFD402374</p>
+
+		Step Size for Spread Spectrum [15:8]
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1                                 0x33
+
+		Step Size for Spread Spectrum 1
+		(OFFSET, MASK, VALUE)      (0XFD402374, 0x000000FFU ,0x00000033U)
+		RegMask = (SERDES_L0_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1_MASK |  0 );
+
+		RegVal = ((0x00000033U << SERDES_L0_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEP_SIZE_1_OFFSET ,0x000000FFU ,0x00000033U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEP_SIZE_2 @ 0XFD402378</p>
+
+		Step Size for Spread Spectrum [23:16]
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2                                 0x2
+
+		Step Size for Spread Spectrum 2
+		(OFFSET, MASK, VALUE)      (0XFD402378, 0x000000FFU ,0x00000002U)
+		RegMask = (SERDES_L0_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2_MASK |  0 );
+
+		RegVal = ((0x00000002U << SERDES_L0_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEP_SIZE_2_OFFSET ,0x000000FFU ,0x00000002U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_PLL_SS_STEP_SIZE_3_MSB @ 0XFD40237C</p>
+
+		Step Size for Spread Spectrum [25:24]
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_SS_STEP_SIZE_3_MSB                         0x0
+
+		Enable/Disable test mode force on SS step size
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_STEP_SIZE                         0x1
+
+		Enable/Disable test mode force on SS no of steps
+		PSU_SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_NUM_OF_STEPS                      0x1
+
+		Enable force on enable Spread Spectrum
+		(OFFSET, MASK, VALUE)      (0XFD40237C, 0x00000033U ,0x00000030U)
+		RegMask = (SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_SS_STEP_SIZE_3_MSB_MASK | SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_STEP_SIZE_MASK | SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_NUM_OF_STEPS_MASK |  0 );
+
+		RegVal = ((0x00000000U << SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_SS_STEP_SIZE_3_MSB_SHIFT
+			| 0x00000001U << SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_STEP_SIZE_SHIFT
+			| 0x00000001U << SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_FORCE_SS_NUM_OF_STEPS_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_PLL_SS_STEP_SIZE_3_MSB_OFFSET ,0x00000033U ,0x00000030U);
 	/*############################################################################################################################ */
 
 		/*Register : L1_PLL_SS_STEP_SIZE_0_LSB @ 0XFD406370</p>
@@ -28157,43 +21210,43 @@ unsigned long psu_serdes_init_data() {
 		/*Register : L3_PLL_SS_STEP_SIZE_0_LSB @ 0XFD40E370</p>
 
 		Step Size for Spread Spectrum [7:0]
-		PSU_SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB                         0xD3
+		PSU_SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB                         0xC9
 
 		Step Size for Spread Spectrum LSB
-		(OFFSET, MASK, VALUE)      (0XFD40E370, 0x000000FFU ,0x000000D3U)
+		(OFFSET, MASK, VALUE)      (0XFD40E370, 0x000000FFU ,0x000000C9U)
 		RegMask = (SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB_MASK |  0 );
 
-		RegVal = ((0x000000D3U << SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB_SHIFT
+		RegVal = ((0x000000C9U << SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_SS_STEP_SIZE_0_LSB_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_OFFSET ,0x000000FFU ,0x000000D3U);
+		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_0_LSB_OFFSET ,0x000000FFU ,0x000000C9U);
 	/*############################################################################################################################ */
 
 		/*Register : L3_PLL_SS_STEP_SIZE_1 @ 0XFD40E374</p>
 
 		Step Size for Spread Spectrum [15:8]
-		PSU_SERDES_L3_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1                                 0xDA
+		PSU_SERDES_L3_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1                                 0xD2
 
 		Step Size for Spread Spectrum 1
-		(OFFSET, MASK, VALUE)      (0XFD40E374, 0x000000FFU ,0x000000DAU)
+		(OFFSET, MASK, VALUE)      (0XFD40E374, 0x000000FFU ,0x000000D2U)
 		RegMask = (SERDES_L3_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1_MASK |  0 );
 
-		RegVal = ((0x000000DAU << SERDES_L3_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1_SHIFT
+		RegVal = ((0x000000D2U << SERDES_L3_PLL_SS_STEP_SIZE_1_SS_STEP_SIZE_1_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_1_OFFSET ,0x000000FFU ,0x000000DAU);
+		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_1_OFFSET ,0x000000FFU ,0x000000D2U);
 	/*############################################################################################################################ */
 
 		/*Register : L3_PLL_SS_STEP_SIZE_2 @ 0XFD40E378</p>
 
 		Step Size for Spread Spectrum [23:16]
-		PSU_SERDES_L3_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2                                 0x2
+		PSU_SERDES_L3_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2                                 0x1
 
 		Step Size for Spread Spectrum 2
-		(OFFSET, MASK, VALUE)      (0XFD40E378, 0x000000FFU ,0x00000002U)
+		(OFFSET, MASK, VALUE)      (0XFD40E378, 0x000000FFU ,0x00000001U)
 		RegMask = (SERDES_L3_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2_MASK |  0 );
 
-		RegVal = ((0x00000002U << SERDES_L3_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2_SHIFT
+		RegVal = ((0x00000001U << SERDES_L3_PLL_SS_STEP_SIZE_2_SS_STEP_SIZE_2_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_2_OFFSET ,0x000000FFU ,0x00000002U);
+		PSU_Mask_Write (SERDES_L3_PLL_SS_STEP_SIZE_2_OFFSET ,0x000000FFU ,0x00000001U);
 	/*############################################################################################################################ */
 
 		/*Register : L3_PLL_SS_STEP_SIZE_3_MSB @ 0XFD40E37C</p>
@@ -28335,20 +21388,6 @@ unsigned long psu_serdes_init_data() {
 	/*############################################################################################################################ */
 
 		// : ENABLE CHICKEN BIT FOR PCIE AND USB
-		/*Register : L0_TM_AUX_0 @ 0XFD4010CC</p>
-
-		Spare- not used
-		PSU_SERDES_L0_TM_AUX_0_BIT_2                                                    1
-
-		Spare registers
-		(OFFSET, MASK, VALUE)      (0XFD4010CC, 0x00000020U ,0x00000020U)
-		RegMask = (SERDES_L0_TM_AUX_0_BIT_2_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_AUX_0_BIT_2_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_AUX_0_OFFSET ,0x00000020U ,0x00000020U);
-	/*############################################################################################################################ */
-
 		/*Register : L2_TM_AUX_0 @ 0XFD4090CC</p>
 
 		Spare- not used
@@ -28421,188 +21460,6 @@ unsigned long psu_serdes_init_data() {
 	/*############################################################################################################################ */
 
 		// : ILL SETTINGS FOR GAIN AND LOCK SETTINGS
-		/*Register : L0_TM_MISC2 @ 0XFD40189C</p>
-
-		ILL calib counts BYPASSED with calcode bits
-		PSU_SERDES_L0_TM_MISC2_ILL_CAL_BYPASS_COUNTS                                    0x1
-
-		sampler cal
-		(OFFSET, MASK, VALUE)      (0XFD40189C, 0x00000080U ,0x00000080U)
-		RegMask = (SERDES_L0_TM_MISC2_ILL_CAL_BYPASS_COUNTS_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_MISC2_ILL_CAL_BYPASS_COUNTS_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_MISC2_OFFSET ,0x00000080U ,0x00000080U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_IQ_ILL1 @ 0XFD4018F8</p>
-
-		IQ ILL F0 CALCODE bypass value. MPHY : G1a, PCIE : Gen 1, SATA : Gen1 , USB3 : SS
-		PSU_SERDES_L0_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0                               0x64
-
-		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD4018F8, 0x000000FFU ,0x00000064U)
-		RegMask = (SERDES_L0_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0_MASK |  0 );
-
-		RegVal = ((0x00000064U << SERDES_L0_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_IQ_ILL1_OFFSET ,0x000000FFU ,0x00000064U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_IQ_ILL2 @ 0XFD4018FC</p>
-
-		IQ ILL F1 CALCODE bypass value. MPHY : G1b, PCIE : Gen2, SATA: Gen2
-		PSU_SERDES_L0_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1                               0x64
-
-		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD4018FC, 0x000000FFU ,0x00000064U)
-		RegMask = (SERDES_L0_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1_MASK |  0 );
-
-		RegVal = ((0x00000064U << SERDES_L0_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_IQ_ILL2_OFFSET ,0x000000FFU ,0x00000064U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_ILL12 @ 0XFD401990</p>
-
-		G1A pll ctr bypass value
-		PSU_SERDES_L0_TM_ILL12_G1A_PLL_CTR_BYP_VAL                                      0x11
-
-		ill pll counter values
-		(OFFSET, MASK, VALUE)      (0XFD401990, 0x000000FFU ,0x00000011U)
-		RegMask = (SERDES_L0_TM_ILL12_G1A_PLL_CTR_BYP_VAL_MASK |  0 );
-
-		RegVal = ((0x00000011U << SERDES_L0_TM_ILL12_G1A_PLL_CTR_BYP_VAL_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_ILL12_OFFSET ,0x000000FFU ,0x00000011U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_E_ILL1 @ 0XFD401924</p>
-
-		E ILL F0 CALCODE bypass value. MPHY : G1a, PCIE : Gen 1, SATA : Gen1 , USB3 : SS
-		PSU_SERDES_L0_TM_E_ILL1_ILL_BYPASS_E_CALCODE_F0                                 0x4
-
-		epi cal code
-		(OFFSET, MASK, VALUE)      (0XFD401924, 0x000000FFU ,0x00000004U)
-		RegMask = (SERDES_L0_TM_E_ILL1_ILL_BYPASS_E_CALCODE_F0_MASK |  0 );
-
-		RegVal = ((0x00000004U << SERDES_L0_TM_E_ILL1_ILL_BYPASS_E_CALCODE_F0_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_E_ILL1_OFFSET ,0x000000FFU ,0x00000004U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_E_ILL2 @ 0XFD401928</p>
-
-		E ILL F1 CALCODE bypass value. MPHY : G1b, PCIE : Gen2, SATA: Gen2
-		PSU_SERDES_L0_TM_E_ILL2_ILL_BYPASS_E_CALCODE_F1                                 0xFE
-
-		epi cal code
-		(OFFSET, MASK, VALUE)      (0XFD401928, 0x000000FFU ,0x000000FEU)
-		RegMask = (SERDES_L0_TM_E_ILL2_ILL_BYPASS_E_CALCODE_F1_MASK |  0 );
-
-		RegVal = ((0x000000FEU << SERDES_L0_TM_E_ILL2_ILL_BYPASS_E_CALCODE_F1_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_E_ILL2_OFFSET ,0x000000FFU ,0x000000FEU);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_IQ_ILL3 @ 0XFD401900</p>
-
-		IQ ILL F2CALCODE bypass value. MPHY : G2a, SATA : Gen3
-		PSU_SERDES_L0_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2                               0x64
-
-		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD401900, 0x000000FFU ,0x00000064U)
-		RegMask = (SERDES_L0_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2_MASK |  0 );
-
-		RegVal = ((0x00000064U << SERDES_L0_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_IQ_ILL3_OFFSET ,0x000000FFU ,0x00000064U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_E_ILL3 @ 0XFD40192C</p>
-
-		E ILL F2CALCODE bypass value. MPHY : G2a, SATA : Gen3
-		PSU_SERDES_L0_TM_E_ILL3_ILL_BYPASS_E_CALCODE_F2                                 0x0
-
-		epi cal code
-		(OFFSET, MASK, VALUE)      (0XFD40192C, 0x000000FFU ,0x00000000U)
-		RegMask = (SERDES_L0_TM_E_ILL3_ILL_BYPASS_E_CALCODE_F2_MASK |  0 );
-
-		RegVal = ((0x00000000U << SERDES_L0_TM_E_ILL3_ILL_BYPASS_E_CALCODE_F2_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_E_ILL3_OFFSET ,0x000000FFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_ILL8 @ 0XFD401980</p>
-
-		ILL calibration code change wait time
-		PSU_SERDES_L0_TM_ILL8_ILL_CAL_ITER_WAIT                                         0xFF
-
-		ILL cal routine control
-		(OFFSET, MASK, VALUE)      (0XFD401980, 0x000000FFU ,0x000000FFU)
-		RegMask = (SERDES_L0_TM_ILL8_ILL_CAL_ITER_WAIT_MASK |  0 );
-
-		RegVal = ((0x000000FFU << SERDES_L0_TM_ILL8_ILL_CAL_ITER_WAIT_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_ILL8_OFFSET ,0x000000FFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_IQ_ILL8 @ 0XFD401914</p>
-
-		IQ ILL polytrim bypass value
-		PSU_SERDES_L0_TM_IQ_ILL8_ILL_BYPASS_IQ_POLYTRIM_VAL                             0xF7
-
-		iqpi polytrim
-		(OFFSET, MASK, VALUE)      (0XFD401914, 0x000000FFU ,0x000000F7U)
-		RegMask = (SERDES_L0_TM_IQ_ILL8_ILL_BYPASS_IQ_POLYTRIM_VAL_MASK |  0 );
-
-		RegVal = ((0x000000F7U << SERDES_L0_TM_IQ_ILL8_ILL_BYPASS_IQ_POLYTRIM_VAL_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_IQ_ILL8_OFFSET ,0x000000FFU ,0x000000F7U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_IQ_ILL9 @ 0XFD401918</p>
-
-		bypass IQ polytrim
-		PSU_SERDES_L0_TM_IQ_ILL9_ILL_BYPASS_IQ_POLYTIM                                  0x1
-
-		enables for lf,constant gm trim and polytirm
-		(OFFSET, MASK, VALUE)      (0XFD401918, 0x00000001U ,0x00000001U)
-		RegMask = (SERDES_L0_TM_IQ_ILL9_ILL_BYPASS_IQ_POLYTIM_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_IQ_ILL9_ILL_BYPASS_IQ_POLYTIM_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_IQ_ILL9_OFFSET ,0x00000001U ,0x00000001U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_E_ILL8 @ 0XFD401940</p>
-
-		E ILL polytrim bypass value
-		PSU_SERDES_L0_TM_E_ILL8_ILL_BYPASS_E_POLYTRIM_VAL                               0xF7
-
-		epi polytrim
-		(OFFSET, MASK, VALUE)      (0XFD401940, 0x000000FFU ,0x000000F7U)
-		RegMask = (SERDES_L0_TM_E_ILL8_ILL_BYPASS_E_POLYTRIM_VAL_MASK |  0 );
-
-		RegVal = ((0x000000F7U << SERDES_L0_TM_E_ILL8_ILL_BYPASS_E_POLYTRIM_VAL_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_E_ILL8_OFFSET ,0x000000FFU ,0x000000F7U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_E_ILL9 @ 0XFD401944</p>
-
-		bypass E polytrim
-		PSU_SERDES_L0_TM_E_ILL9_ILL_BYPASS_E_POLYTIM                                    0x1
-
-		enables for lf,constant gm trim and polytirm
-		(OFFSET, MASK, VALUE)      (0XFD401944, 0x00000001U ,0x00000001U)
-		RegMask = (SERDES_L0_TM_E_ILL9_ILL_BYPASS_E_POLYTIM_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_E_ILL9_ILL_BYPASS_E_POLYTIM_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_E_ILL9_OFFSET ,0x00000001U ,0x00000001U);
-	/*############################################################################################################################ */
-
 		/*Register : L2_TM_MISC2 @ 0XFD40989C</p>
 
 		ILL calib counts BYPASSED with calcode bits
@@ -28802,29 +21659,29 @@ unsigned long psu_serdes_init_data() {
 		/*Register : L3_TM_IQ_ILL1 @ 0XFD40D8F8</p>
 
 		IQ ILL F0 CALCODE bypass value. MPHY : G1a, PCIE : Gen 1, SATA : Gen1 , USB3 : SS
-		PSU_SERDES_L3_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0                               0x96
+		PSU_SERDES_L3_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0                               0x7D
 
 		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD40D8F8, 0x000000FFU ,0x00000096U)
+		(OFFSET, MASK, VALUE)      (0XFD40D8F8, 0x000000FFU ,0x0000007DU)
 		RegMask = (SERDES_L3_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0_MASK |  0 );
 
-		RegVal = ((0x00000096U << SERDES_L3_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0_SHIFT
+		RegVal = ((0x0000007DU << SERDES_L3_TM_IQ_ILL1_ILL_BYPASS_IQ_CALCODE_F0_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL1_OFFSET ,0x000000FFU ,0x00000096U);
+		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL1_OFFSET ,0x000000FFU ,0x0000007DU);
 	/*############################################################################################################################ */
 
 		/*Register : L3_TM_IQ_ILL2 @ 0XFD40D8FC</p>
 
 		IQ ILL F1 CALCODE bypass value. MPHY : G1b, PCIE : Gen2, SATA: Gen2
-		PSU_SERDES_L3_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1                               0x96
+		PSU_SERDES_L3_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1                               0x7D
 
 		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD40D8FC, 0x000000FFU ,0x00000096U)
+		(OFFSET, MASK, VALUE)      (0XFD40D8FC, 0x000000FFU ,0x0000007DU)
 		RegMask = (SERDES_L3_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1_MASK |  0 );
 
-		RegVal = ((0x00000096U << SERDES_L3_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1_SHIFT
+		RegVal = ((0x0000007DU << SERDES_L3_TM_IQ_ILL2_ILL_BYPASS_IQ_CALCODE_F1_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL2_OFFSET ,0x000000FFU ,0x00000096U);
+		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL2_OFFSET ,0x000000FFU ,0x0000007DU);
 	/*############################################################################################################################ */
 
 		/*Register : L3_TM_ILL12 @ 0XFD40D990</p>
@@ -28886,15 +21743,15 @@ unsigned long psu_serdes_init_data() {
 		/*Register : L3_TM_IQ_ILL3 @ 0XFD40D900</p>
 
 		IQ ILL F2CALCODE bypass value. MPHY : G2a, SATA : Gen3
-		PSU_SERDES_L3_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2                               0x96
+		PSU_SERDES_L3_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2                               0x7D
 
 		iqpi cal code
-		(OFFSET, MASK, VALUE)      (0XFD40D900, 0x000000FFU ,0x00000096U)
+		(OFFSET, MASK, VALUE)      (0XFD40D900, 0x000000FFU ,0x0000007DU)
 		RegMask = (SERDES_L3_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2_MASK |  0 );
 
-		RegVal = ((0x00000096U << SERDES_L3_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2_SHIFT
+		RegVal = ((0x0000007DU << SERDES_L3_TM_IQ_ILL3_ILL_BYPASS_IQ_CALCODE_F2_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL3_OFFSET ,0x000000FFU ,0x00000096U);
+		PSU_Mask_Write (SERDES_L3_TM_IQ_ILL3_OFFSET ,0x000000FFU ,0x0000007DU);
 	/*############################################################################################################################ */
 
 		/*Register : L3_TM_E_ILL3 @ 0XFD40D92C</p>
@@ -28981,26 +21838,195 @@ unsigned long psu_serdes_init_data() {
 		PSU_Mask_Write (SERDES_L3_TM_E_ILL9_OFFSET ,0x00000001U ,0x00000001U);
 	/*############################################################################################################################ */
 
-		// : PCIE PLL SETTINGS
+		// : SYMBOL LOCK AND WAIT
+		// : SIOU SETTINGS FOR BYPASS CONTROL,HSRX-DIG
+		/*Register : L0_TM_RST_DLY @ 0XFD4019A4</p>
+
+		Delay apb reset by specified amount
+		PSU_SERDES_L0_TM_RST_DLY_APB_RST_DLY                                            0xFF
+
+		reset delay for apb reset w.r.t pso of hsrx
+		(OFFSET, MASK, VALUE)      (0XFD4019A4, 0x000000FFU ,0x000000FFU)
+		RegMask = (SERDES_L0_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
+
+		RegVal = ((0x000000FFU << SERDES_L0_TM_RST_DLY_APB_RST_DLY_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
+	/*############################################################################################################################ */
+
+		/*Register : L0_TM_ANA_BYP_15 @ 0XFD401038</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_15
+		PSU_SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
+
+		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
+		(OFFSET, MASK, VALUE)      (0XFD401038, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_TM_ANA_BYP_12 @ 0XFD40102C</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_12
+		PSU_SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
+
+		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
+		(OFFSET, MASK, VALUE)      (0XFD40102C, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TM_ANA_BYP_12_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L1_TM_RST_DLY @ 0XFD4059A4</p>
+
+		Delay apb reset by specified amount
+		PSU_SERDES_L1_TM_RST_DLY_APB_RST_DLY                                            0xFF
+
+		reset delay for apb reset w.r.t pso of hsrx
+		(OFFSET, MASK, VALUE)      (0XFD4059A4, 0x000000FFU ,0x000000FFU)
+		RegMask = (SERDES_L1_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
+
+		RegVal = ((0x000000FFU << SERDES_L1_TM_RST_DLY_APB_RST_DLY_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L1_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
+	/*############################################################################################################################ */
+
+		/*Register : L1_TM_ANA_BYP_15 @ 0XFD405038</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_15
+		PSU_SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
+
+		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
+		(OFFSET, MASK, VALUE)      (0XFD405038, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L1_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L1_TM_ANA_BYP_12 @ 0XFD40502C</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_12
+		PSU_SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
+
+		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
+		(OFFSET, MASK, VALUE)      (0XFD40502C, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L1_TM_ANA_BYP_12_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L2_TM_RST_DLY @ 0XFD4099A4</p>
+
+		Delay apb reset by specified amount
+		PSU_SERDES_L2_TM_RST_DLY_APB_RST_DLY                                            0xFF
+
+		reset delay for apb reset w.r.t pso of hsrx
+		(OFFSET, MASK, VALUE)      (0XFD4099A4, 0x000000FFU ,0x000000FFU)
+		RegMask = (SERDES_L2_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
+
+		RegVal = ((0x000000FFU << SERDES_L2_TM_RST_DLY_APB_RST_DLY_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L2_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
+	/*############################################################################################################################ */
+
+		/*Register : L2_TM_ANA_BYP_15 @ 0XFD409038</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_15
+		PSU_SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
+
+		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
+		(OFFSET, MASK, VALUE)      (0XFD409038, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L2_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L2_TM_ANA_BYP_12 @ 0XFD40902C</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_12
+		PSU_SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
+
+		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
+		(OFFSET, MASK, VALUE)      (0XFD40902C, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L2_TM_ANA_BYP_12_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L3_TM_RST_DLY @ 0XFD40D9A4</p>
+
+		Delay apb reset by specified amount
+		PSU_SERDES_L3_TM_RST_DLY_APB_RST_DLY                                            0xFF
+
+		reset delay for apb reset w.r.t pso of hsrx
+		(OFFSET, MASK, VALUE)      (0XFD40D9A4, 0x000000FFU ,0x000000FFU)
+		RegMask = (SERDES_L3_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
+
+		RegVal = ((0x000000FFU << SERDES_L3_TM_RST_DLY_APB_RST_DLY_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L3_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
+	/*############################################################################################################################ */
+
+		/*Register : L3_TM_ANA_BYP_15 @ 0XFD40D038</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_15
+		PSU_SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
+
+		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
+		(OFFSET, MASK, VALUE)      (0XFD40D038, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L3_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
+		/*Register : L3_TM_ANA_BYP_12 @ 0XFD40D02C</p>
+
+		Enable Bypass for <7> of TM_ANA_BYPS_12
+		PSU_SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
+
+		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
+		(OFFSET, MASK, VALUE)      (0XFD40D02C, 0x00000040U ,0x00000040U)
+		RegMask = (SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L3_TM_ANA_BYP_12_OFFSET ,0x00000040U ,0x00000040U);
+	/*############################################################################################################################ */
+
 		// : GT LANE SETTINGS
 		/*Register : ICM_CFG0 @ 0XFD410010</p>
 
 		Controls UPHY Lane 0 protocol configuration. 0 - PowerDown, 1 - PCIe .0, 2 - Sata0, 3 - USB0, 4 - DP.1, 5 - SGMII0, 6 - Unuse
 		, 7 - Unused
-		PSU_SERDES_ICM_CFG0_L0_ICM_CFG                                                  1
+		PSU_SERDES_ICM_CFG0_L0_ICM_CFG                                                  4
 
 		Controls UPHY Lane 1 protocol configuration. 0 - PowerDown, 1 - PCIe.1, 2 - Sata1, 3 - USB0, 4 - DP.0, 5 - SGMII1, 6 - Unused
 		 7 - Unused
 		PSU_SERDES_ICM_CFG0_L1_ICM_CFG                                                  4
 
 		ICM Configuration Register 0
-		(OFFSET, MASK, VALUE)      (0XFD410010, 0x00000077U ,0x00000041U)
+		(OFFSET, MASK, VALUE)      (0XFD410010, 0x00000077U ,0x00000044U)
 		RegMask = (SERDES_ICM_CFG0_L0_ICM_CFG_MASK | SERDES_ICM_CFG0_L1_ICM_CFG_MASK |  0 );
 
-		RegVal = ((0x00000001U << SERDES_ICM_CFG0_L0_ICM_CFG_SHIFT
+		RegVal = ((0x00000004U << SERDES_ICM_CFG0_L0_ICM_CFG_SHIFT
 			| 0x00000004U << SERDES_ICM_CFG0_L1_ICM_CFG_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_ICM_CFG0_OFFSET ,0x00000077U ,0x00000041U);
+		PSU_Mask_Write (SERDES_ICM_CFG0_OFFSET ,0x00000077U ,0x00000044U);
 	/*############################################################################################################################ */
 
 		/*Register : ICM_CFG1 @ 0XFD410014</p>
@@ -29025,6 +22051,36 @@ unsigned long psu_serdes_init_data() {
 
 		// : CHECKING PLL LOCK
 		// : ENABLE SERIAL DATA MUX DEEMPH
+		/*Register : L0_TXPMD_TM_45 @ 0XFD400CB4</p>
+
+		Enable/disable DP post2 path
+		PSU_SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_POST2_PATH                         0x1
+
+		Override enable/disable of DP post2 path
+		PSU_SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST2_PATH                    0x1
+
+		Override enable/disable of DP post1 path
+		PSU_SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST1_PATH                    0x1
+
+		Enable/disable DP main path
+		PSU_SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_MAIN_PATH                          0x1
+
+		Override enable/disable of DP main path
+		PSU_SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_MAIN_PATH                     0x1
+
+		Post or pre or main DP path selection
+		(OFFSET, MASK, VALUE)      (0XFD400CB4, 0x00000037U ,0x00000037U)
+		RegMask = (SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_POST2_PATH_MASK | SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST2_PATH_MASK | SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST1_PATH_MASK | SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_MAIN_PATH_MASK | SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_MAIN_PATH_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_POST2_PATH_SHIFT
+			| 0x00000001U << SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST2_PATH_SHIFT
+			| 0x00000001U << SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_POST1_PATH_SHIFT
+			| 0x00000001U << SERDES_L0_TXPMD_TM_45_DP_TM_TX_DP_ENABLE_MAIN_PATH_SHIFT
+			| 0x00000001U << SERDES_L0_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_MAIN_PATH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TXPMD_TM_45_OFFSET ,0x00000037U ,0x00000037U);
+	/*############################################################################################################################ */
+
 		/*Register : L1_TXPMD_TM_45 @ 0XFD404CB4</p>
 
 		Enable/disable DP post2 path
@@ -29053,6 +22109,20 @@ unsigned long psu_serdes_init_data() {
 			| 0x00000001U << SERDES_L1_TXPMD_TM_45_DP_TM_TX_OVRD_DP_ENABLE_MAIN_PATH_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (SERDES_L1_TXPMD_TM_45_OFFSET ,0x00000037U ,0x00000037U);
+	/*############################################################################################################################ */
+
+		/*Register : L0_TX_ANA_TM_118 @ 0XFD4001D8</p>
+
+		Test register force for enabling/disablign TX deemphasis bits <17:0>
+		PSU_SERDES_L0_TX_ANA_TM_118_FORCE_TX_DEEMPH_17_0                                0x1
+
+		Enable Override of TX deemphasis
+		(OFFSET, MASK, VALUE)      (0XFD4001D8, 0x00000001U ,0x00000001U)
+		RegMask = (SERDES_L0_TX_ANA_TM_118_FORCE_TX_DEEMPH_17_0_MASK |  0 );
+
+		RegVal = ((0x00000001U << SERDES_L0_TX_ANA_TM_118_FORCE_TX_DEEMPH_17_0_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TX_ANA_TM_118_OFFSET ,0x00000001U ,0x00000001U);
 	/*############################################################################################################################ */
 
 		/*Register : L1_TX_ANA_TM_118 @ 0XFD4041D8</p>
@@ -29164,6 +22234,20 @@ unsigned long psu_serdes_init_data() {
 		PSU_Mask_Write (SERDES_L1_TXPMD_TM_48_OFFSET ,0x0000001FU ,0x00000000U);
 	/*############################################################################################################################ */
 
+		/*Register : L0_TXPMD_TM_48 @ 0XFD400CC0</p>
+
+		Margining factor value
+		PSU_SERDES_L0_TXPMD_TM_48_TM_RESULTANT_MARGINING_FACTOR                         0
+
+		Margining factor
+		(OFFSET, MASK, VALUE)      (0XFD400CC0, 0x0000001FU ,0x00000000U)
+		RegMask = (SERDES_L0_TXPMD_TM_48_TM_RESULTANT_MARGINING_FACTOR_MASK |  0 );
+
+		RegVal = ((0x00000000U << SERDES_L0_TXPMD_TM_48_TM_RESULTANT_MARGINING_FACTOR_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TXPMD_TM_48_OFFSET ,0x0000001FU ,0x00000000U);
+	/*############################################################################################################################ */
+
 		/*Register : L1_TX_ANA_TM_18 @ 0XFD404048</p>
 
 		pipe_TX_Deemph. 0: -6dB de-emphasis, 1: -3.5dB de-emphasis, 2 : No de-emphasis, Others: reserved
@@ -29178,6 +22262,20 @@ unsigned long psu_serdes_init_data() {
 		PSU_Mask_Write (SERDES_L1_TX_ANA_TM_18_OFFSET ,0x000000FFU ,0x00000000U);
 	/*############################################################################################################################ */
 
+		/*Register : L0_TX_ANA_TM_18 @ 0XFD400048</p>
+
+		pipe_TX_Deemph. 0: -6dB de-emphasis, 1: -3.5dB de-emphasis, 2 : No de-emphasis, Others: reserved
+		PSU_SERDES_L0_TX_ANA_TM_18_PIPE_TX_DEEMPH_7_0                                   0
+
+		Override for PIPE TX de-emphasis
+		(OFFSET, MASK, VALUE)      (0XFD400048, 0x000000FFU ,0x00000000U)
+		RegMask = (SERDES_L0_TX_ANA_TM_18_PIPE_TX_DEEMPH_7_0_MASK |  0 );
+
+		RegVal = ((0x00000000U << SERDES_L0_TX_ANA_TM_18_PIPE_TX_DEEMPH_7_0_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (SERDES_L0_TX_ANA_TM_18_OFFSET ,0x000000FFU ,0x00000000U);
+	/*############################################################################################################################ */
+
 		/*Register : L3_TX_ANA_TM_18 @ 0XFD40C048</p>
 
 		pipe_TX_Deemph. 0: -6dB de-emphasis, 1: -3.5dB de-emphasis, 2 : No de-emphasis, Others: reserved
@@ -29190,293 +22288,6 @@ unsigned long psu_serdes_init_data() {
 		RegVal = ((0x00000001U << SERDES_L3_TX_ANA_TM_18_PIPE_TX_DEEMPH_7_0_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (SERDES_L3_TX_ANA_TM_18_OFFSET ,0x000000FFU ,0x00000001U);
-	/*############################################################################################################################ */
-
-		// : SIOU SETTINGS FOR BYPASS CONTROL,HSRX-DIG,CDR_LOCK_TIME
-		/*Register : L0_TM_RST_DLY @ 0XFD4019A4</p>
-
-		Delay apb reset by specified amount
-		PSU_SERDES_L0_TM_RST_DLY_APB_RST_DLY                                            0xFF
-
-		reset delay for apb reset w.r.t pso of hsrx
-		(OFFSET, MASK, VALUE)      (0XFD4019A4, 0x000000FFU ,0x000000FFU)
-		RegMask = (SERDES_L0_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
-
-		RegVal = ((0x000000FFU << SERDES_L0_TM_RST_DLY_APB_RST_DLY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_ANA_BYP_15 @ 0XFD401038</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_15
-		PSU_SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
-
-		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
-		(OFFSET, MASK, VALUE)      (0XFD401038, 0x00000040U ,0x00000040U)
-		RegMask = (SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_ANA_BYP_12 @ 0XFD40102C</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_12
-		PSU_SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
-
-		Enable Bypass for <5> of TM_ANA_BYPS_12
-		PSU_SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES                               0x1
-
-		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
-		(OFFSET, MASK, VALUE)      (0XFD40102C, 0x00000050U ,0x00000050U)
-		RegMask = (SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK | SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
-			| 0x00000001U << SERDES_L0_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_ANA_BYP_12_OFFSET ,0x00000050U ,0x00000050U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_DIG_21 @ 0XFD4010A8</p>
-
-		pre lock comma count threshold. 2'b 00 : 3, 2'b 01 : 5, 2'b 10 : 10, 2'b 11 : 20
-		PSU_SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH                                   0x11
-
-		pre lock comma count threshold. 2'b 00 : 3, 2'b 01 : 5, 2'b 10 : 10, 2'b 11 : 20
-		PSU_SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH                                   0x11
-
-		Control symbol alignment locking - wait counts
-		(OFFSET, MASK, VALUE)      (0XFD4010A8, 0x00000003U ,0x00000003U)
-		RegMask = (SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH_MASK | SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH_MASK |  0 );
-
-		RegVal = ((0x00000011U << SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH_SHIFT
-			| 0x00000011U << SERDES_L0_TM_DIG_21_COMMA_PRE_LOCK_THRESH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_DIG_21_OFFSET ,0x00000003U ,0x00000003U);
-	/*############################################################################################################################ */
-
-		/*Register : L0_TM_DIG_10 @ 0XFD40107C</p>
-
-		CDR lock wait time. (1-16 us). cdr_lock_wait_time = 4'b xxxx + 4'b 0001
-		PSU_SERDES_L0_TM_DIG_10_CDR_BIT_LOCK_TIME                                       0xF
-
-		test control for changing cdr lock wait time
-		(OFFSET, MASK, VALUE)      (0XFD40107C, 0x0000000FU ,0x0000000FU)
-		RegMask = (SERDES_L0_TM_DIG_10_CDR_BIT_LOCK_TIME_MASK |  0 );
-
-		RegVal = ((0x0000000FU << SERDES_L0_TM_DIG_10_CDR_BIT_LOCK_TIME_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L0_TM_DIG_10_OFFSET ,0x0000000FU ,0x0000000FU);
-	/*############################################################################################################################ */
-
-		/*Register : L1_TM_RST_DLY @ 0XFD4059A4</p>
-
-		Delay apb reset by specified amount
-		PSU_SERDES_L1_TM_RST_DLY_APB_RST_DLY                                            0xFF
-
-		reset delay for apb reset w.r.t pso of hsrx
-		(OFFSET, MASK, VALUE)      (0XFD4059A4, 0x000000FFU ,0x000000FFU)
-		RegMask = (SERDES_L1_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
-
-		RegVal = ((0x000000FFU << SERDES_L1_TM_RST_DLY_APB_RST_DLY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L1_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : L1_TM_ANA_BYP_15 @ 0XFD405038</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_15
-		PSU_SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
-
-		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
-		(OFFSET, MASK, VALUE)      (0XFD405038, 0x00000040U ,0x00000040U)
-		RegMask = (SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L1_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L1_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
-	/*############################################################################################################################ */
-
-		/*Register : L1_TM_ANA_BYP_12 @ 0XFD40502C</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_12
-		PSU_SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
-
-		Enable Bypass for <5> of TM_ANA_BYPS_12
-		PSU_SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES                               0x1
-
-		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
-		(OFFSET, MASK, VALUE)      (0XFD40502C, 0x00000050U ,0x00000050U)
-		RegMask = (SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK | SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
-			| 0x00000001U << SERDES_L1_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L1_TM_ANA_BYP_12_OFFSET ,0x00000050U ,0x00000050U);
-	/*############################################################################################################################ */
-
-		/*Register : L1_TM_DIG_21 @ 0XFD4050A8</p>
-
-		pre lock comma count threshold. 2'b 00 : 3, 2'b 01 : 5, 2'b 10 : 10, 2'b 11 : 20
-		PSU_SERDES_L1_TM_DIG_21_COMMA_PRE_LOCK_THRESH                                   0x11
-
-		Control symbol alignment locking - wait counts
-		(OFFSET, MASK, VALUE)      (0XFD4050A8, 0x00000003U ,0x00000003U)
-		RegMask = (SERDES_L1_TM_DIG_21_COMMA_PRE_LOCK_THRESH_MASK |  0 );
-
-		RegVal = ((0x00000011U << SERDES_L1_TM_DIG_21_COMMA_PRE_LOCK_THRESH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L1_TM_DIG_21_OFFSET ,0x00000003U ,0x00000003U);
-	/*############################################################################################################################ */
-
-		/*Register : L1_TM_DIG_10 @ 0XFD40507C</p>
-
-		CDR lock wait time. (1-16 us). cdr_lock_wait_time = 4'b xxxx + 4'b 0001
-		PSU_SERDES_L1_TM_DIG_10_CDR_BIT_LOCK_TIME                                       0xF
-
-		test control for changing cdr lock wait time
-		(OFFSET, MASK, VALUE)      (0XFD40507C, 0x0000000FU ,0x0000000FU)
-		RegMask = (SERDES_L1_TM_DIG_10_CDR_BIT_LOCK_TIME_MASK |  0 );
-
-		RegVal = ((0x0000000FU << SERDES_L1_TM_DIG_10_CDR_BIT_LOCK_TIME_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L1_TM_DIG_10_OFFSET ,0x0000000FU ,0x0000000FU);
-	/*############################################################################################################################ */
-
-		/*Register : L2_TM_RST_DLY @ 0XFD4099A4</p>
-
-		Delay apb reset by specified amount
-		PSU_SERDES_L2_TM_RST_DLY_APB_RST_DLY                                            0xFF
-
-		reset delay for apb reset w.r.t pso of hsrx
-		(OFFSET, MASK, VALUE)      (0XFD4099A4, 0x000000FFU ,0x000000FFU)
-		RegMask = (SERDES_L2_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
-
-		RegVal = ((0x000000FFU << SERDES_L2_TM_RST_DLY_APB_RST_DLY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L2_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : L2_TM_ANA_BYP_15 @ 0XFD409038</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_15
-		PSU_SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
-
-		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
-		(OFFSET, MASK, VALUE)      (0XFD409038, 0x00000040U ,0x00000040U)
-		RegMask = (SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L2_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L2_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
-	/*############################################################################################################################ */
-
-		/*Register : L2_TM_ANA_BYP_12 @ 0XFD40902C</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_12
-		PSU_SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
-
-		Enable Bypass for <5> of TM_ANA_BYPS_12
-		PSU_SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES                               0x1
-
-		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
-		(OFFSET, MASK, VALUE)      (0XFD40902C, 0x00000050U ,0x00000050U)
-		RegMask = (SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK | SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
-			| 0x00000001U << SERDES_L2_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L2_TM_ANA_BYP_12_OFFSET ,0x00000050U ,0x00000050U);
-	/*############################################################################################################################ */
-
-		/*Register : L2_TM_DIG_21 @ 0XFD4090A8</p>
-
-		pre lock comma count threshold. 2'b 00 : 3, 2'b 01 : 5, 2'b 10 : 10, 2'b 11 : 20
-		PSU_SERDES_L2_TM_DIG_21_COMMA_PRE_LOCK_THRESH                                   0x11
-
-		Control symbol alignment locking - wait counts
-		(OFFSET, MASK, VALUE)      (0XFD4090A8, 0x00000003U ,0x00000003U)
-		RegMask = (SERDES_L2_TM_DIG_21_COMMA_PRE_LOCK_THRESH_MASK |  0 );
-
-		RegVal = ((0x00000011U << SERDES_L2_TM_DIG_21_COMMA_PRE_LOCK_THRESH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L2_TM_DIG_21_OFFSET ,0x00000003U ,0x00000003U);
-	/*############################################################################################################################ */
-
-		/*Register : L2_TM_DIG_10 @ 0XFD40907C</p>
-
-		CDR lock wait time. (1-16 us). cdr_lock_wait_time = 4'b xxxx + 4'b 0001
-		PSU_SERDES_L2_TM_DIG_10_CDR_BIT_LOCK_TIME                                       0xF
-
-		test control for changing cdr lock wait time
-		(OFFSET, MASK, VALUE)      (0XFD40907C, 0x0000000FU ,0x0000000FU)
-		RegMask = (SERDES_L2_TM_DIG_10_CDR_BIT_LOCK_TIME_MASK |  0 );
-
-		RegVal = ((0x0000000FU << SERDES_L2_TM_DIG_10_CDR_BIT_LOCK_TIME_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L2_TM_DIG_10_OFFSET ,0x0000000FU ,0x0000000FU);
-	/*############################################################################################################################ */
-
-		/*Register : L3_TM_RST_DLY @ 0XFD40D9A4</p>
-
-		Delay apb reset by specified amount
-		PSU_SERDES_L3_TM_RST_DLY_APB_RST_DLY                                            0xFF
-
-		reset delay for apb reset w.r.t pso of hsrx
-		(OFFSET, MASK, VALUE)      (0XFD40D9A4, 0x000000FFU ,0x000000FFU)
-		RegMask = (SERDES_L3_TM_RST_DLY_APB_RST_DLY_MASK |  0 );
-
-		RegVal = ((0x000000FFU << SERDES_L3_TM_RST_DLY_APB_RST_DLY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_RST_DLY_OFFSET ,0x000000FFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : L3_TM_ANA_BYP_15 @ 0XFD40D038</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_15
-		PSU_SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE                       0x1
-
-		Bypass control for pcs-pma interface. EQ supplies, main master supply and ps for samp c2c
-		(OFFSET, MASK, VALUE)      (0XFD40D038, 0x00000040U ,0x00000040U)
-		RegMask = (SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L3_TM_ANA_BYP_15_FORCE_UPHY_ENABLE_LOW_LEAKAGE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_ANA_BYP_15_OFFSET ,0x00000040U ,0x00000040U);
-	/*############################################################################################################################ */
-
-		/*Register : L3_TM_ANA_BYP_12 @ 0XFD40D02C</p>
-
-		Enable Bypass for <7> of TM_ANA_BYPS_12
-		PSU_SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG                              0x1
-
-		Enable Bypass for <5> of TM_ANA_BYPS_12
-		PSU_SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES                               0x1
-
-		Bypass control for pcs-pma interface. Hsrx supply, hsrx des, and cdr enable controls
-		(OFFSET, MASK, VALUE)      (0XFD40D02C, 0x00000050U ,0x00000050U)
-		RegMask = (SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_MASK | SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_MASK |  0 );
-
-		RegVal = ((0x00000001U << SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PSO_HSRXDIG_SHIFT
-			| 0x00000001U << SERDES_L3_TM_ANA_BYP_12_FORCE_UPHY_PDN_HS_DES_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_ANA_BYP_12_OFFSET ,0x00000050U ,0x00000050U);
-	/*############################################################################################################################ */
-
-		/*Register : L3_TM_DIG_10 @ 0XFD40D07C</p>
-
-		CDR lock wait time. (1-16 us). cdr_lock_wait_time = 4'b xxxx + 4'b 0001
-		PSU_SERDES_L3_TM_DIG_10_CDR_BIT_LOCK_TIME                                       0xF
-
-		test control for changing cdr lock wait time
-		(OFFSET, MASK, VALUE)      (0XFD40D07C, 0x0000000FU ,0x0000000FU)
-		RegMask = (SERDES_L3_TM_DIG_10_CDR_BIT_LOCK_TIME_MASK |  0 );
-
-		RegVal = ((0x0000000FU << SERDES_L3_TM_DIG_10_CDR_BIT_LOCK_TIME_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (SERDES_L3_TM_DIG_10_OFFSET ,0x0000000FU ,0x0000000FU);
 	/*############################################################################################################################ */
 
 
@@ -29514,6 +22325,20 @@ unsigned long psu_resetout_init_data() {
 		PSU_Mask_Write (USB3_0_FPD_POWER_PRSNT_OFFSET ,0x00000001U ,0x00000001U);
 	/*############################################################################################################################ */
 
+		/*Register : fpd_pipe_clk @ 0XFF9D007C</p>
+
+		This bit is used to choose between PIPE clock coming from SerDes and the suspend clk
+		PSU_USB3_0_FPD_PIPE_CLK_OPTION                                                  0x0
+
+		fpd_pipe_clk
+		(OFFSET, MASK, VALUE)      (0XFF9D007C, 0x00000001U ,0x00000000U)
+		RegMask = (USB3_0_FPD_PIPE_CLK_OPTION_MASK |  0 );
+
+		RegVal = ((0x00000000U << USB3_0_FPD_PIPE_CLK_OPTION_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (USB3_0_FPD_PIPE_CLK_OFFSET ,0x00000001U ,0x00000000U);
+	/*############################################################################################################################ */
+
 		// :
 		/*Register : RST_LPD_TOP @ 0XFF5E023C</p>
 
@@ -29531,55 +22356,6 @@ unsigned long psu_resetout_init_data() {
 			| 0x00000000U << CRL_APB_RST_LPD_TOP_USB0_CORERESET_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00000140U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		// : PUTTING USB1 IN RESET
-		/*Register : RST_LPD_TOP @ 0XFF5E023C</p>
-
-		USB 1 reset for control registers
-		PSU_CRL_APB_RST_LPD_TOP_USB1_APB_RESET                                          0X0
-
-		Software control register for the LPD block.
-		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000800U ,0x00000000U)
-		RegMask = (CRL_APB_RST_LPD_TOP_USB1_APB_RESET_MASK |  0 );
-
-		RegVal = ((0x00000000U << CRL_APB_RST_LPD_TOP_USB1_APB_RESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00000800U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		// : USB1 PIPE POWER PRESENT
-		/*Register : fpd_power_prsnt @ 0XFF9E0080</p>
-
-		This bit is used to choose between PIPE power present and 1'b1
-		PSU_USB3_1_FPD_POWER_PRSNT_OPTION                                               0X1
-
-		fpd_power_prsnt
-		(OFFSET, MASK, VALUE)      (0XFF9E0080, 0x00000001U ,0x00000001U)
-		RegMask = (USB3_1_FPD_POWER_PRSNT_OPTION_MASK |  0 );
-
-		RegVal = ((0x00000001U << USB3_1_FPD_POWER_PRSNT_OPTION_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (USB3_1_FPD_POWER_PRSNT_OFFSET ,0x00000001U ,0x00000001U);
-	/*############################################################################################################################ */
-
-		// :
-		/*Register : RST_LPD_TOP @ 0XFF5E023C</p>
-
-		USB 1 sleep circuit reset
-		PSU_CRL_APB_RST_LPD_TOP_USB1_HIBERRESET                                         0X0
-
-		USB 1 reset
-		PSU_CRL_APB_RST_LPD_TOP_USB1_CORERESET                                          0X0
-
-		Software control register for the LPD block.
-		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000280U ,0x00000000U)
-		RegMask = (CRL_APB_RST_LPD_TOP_USB1_HIBERRESET_MASK | CRL_APB_RST_LPD_TOP_USB1_CORERESET_MASK |  0 );
-
-		RegVal = ((0x00000000U << CRL_APB_RST_LPD_TOP_USB1_HIBERRESET_SHIFT
-			| 0x00000000U << CRL_APB_RST_LPD_TOP_USB1_CORERESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00000280U ,0x00000000U);
 	/*############################################################################################################################ */
 
 		// : PUTTING GEM0 IN RESET
@@ -29624,25 +22400,6 @@ unsigned long psu_resetout_init_data() {
 		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_SATA_RESET_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x00000002U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		// : PUTTING PCIE CFG AND BRIDGE IN RESET
-		/*Register : RST_FPD_TOP @ 0XFD1A0100</p>
-
-		PCIE config reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET                                          0X0
-
-		PCIE bridge block level reset (AXI interface)
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET                                       0X0
-
-		FPD Block level software controlled reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x000C0000U ,0x00000000U)
-		RegMask = (CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_MASK | CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_MASK |  0 );
-
-		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_SHIFT
-			| 0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x000C0000U ,0x00000000U);
 	/*############################################################################################################################ */
 
 		// : PUTTING DP IN RESET
@@ -29698,7 +22455,7 @@ unsigned long psu_resetout_init_data() {
 		. The required values for this field: - 4'h5: When the MAC interface is 16-bit UTMI+. - 4'h9: When the MAC interface is 8-bit
 		UTMI+/ULPI. If SoC bus clock is less than 60 MHz, and USB turnaround time is not critical, this field can be set to a larger
 		alue. Note: This field is valid only in device mode.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_USBTRDTIM                                           0X9
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_USBTRDTIM                                           0x9
 
 		Transceiver Delay: Enables a delay between the assertion of the UTMI/ULPI Transceiver Select signal (for HS) and the assertio
 		 of the TxValid signal during a HS Chirp. When this bit is set to 1, a delay (of approximately 2.5 us) is introduced from the
@@ -29706,7 +22463,7 @@ unsigned long psu_resetout_init_data() {
 		ay is required for some UTMI/ULPI PHYs. Note: - If you enable the hibernation feature when the device core comes out of power
 		off, you must re-initialize this bit with the appropriate value because the core does not save and restore this bit value dur
 		ng hibernation. - This bit is valid only in device mode.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_XCVRDLY                                             0X0
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_XCVRDLY                                             0x0
 
 		Enable utmi_sleep_n and utmi_l1_suspend_n (EnblSlpM) The application uses this bit to control utmi_sleep_n and utmi_l1_suspen
 		_n assertion to the PHY in the L1 state. - 1'b0: utmi_sleep_n and utmi_l1_suspend_n assertion from the core is not transferre
@@ -29715,42 +22472,33 @@ unsigned long psu_resetout_init_data() {
 		n operating in 2.0 speeds, disable this bit and enable it after the command completes. Without disabling this bit, if a comma
 		d is issued when the device is in L1 state and if mac2_clk (utmi_clk/ulpi_clk) is gated off, the command will not get complet
 		d.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_ENBLSLPM                                            0X0
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_ENBLSLPM                                            0x0
 
 		USB 2.0 High-Speed PHY or USB 1.1 Full-Speed Serial Transceiver Select The application uses this bit to select a high-speed P
 		Y or a full-speed transceiver. - 1'b0: USB 2.0 high-speed UTMI+ or ULPI PHY. This bit is always 0, with Write Only access. -
 		'b1: USB 1.1 full-speed serial transceiver. This bit is always 1, with Write Only access. If both interface types are selecte
 		 in coreConsultant (that is, parameters' values are not zero), the application uses this bit to select the active interface i
 		 active, with Read-Write bit access. Note: USB 1.1 full-serial transceiver is not supported. This bit always reads as 1'b0.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_PHYSEL                                              0X0
-
-		Suspend USB2.0 HS/FS/LS PHY (SusPHY) When set, USB2.0 PHY enters Suspend mode if Suspend conditions are valid. For DRD/OTG co
-		figurations, it is recommended that this bit is set to 0 during coreConsultant configuration. If it is set to 1, then the app
-		ication must clear this bit after power-on reset. Application needs to set it to 1 after the core initialization completes. F
-		r all other configurations, this bit can be set to 1 during core configuration. Note: - In host mode, on reset, this bit is s
-		t to 1. Software can override this bit after reset. - In device mode, before issuing any device endpoint command when operati
-		g in 2.0 speeds, disable this bit and enable it after the command completes. If you issue a command without disabling this bi
-		 when the device is in L2 state and if mac2_clk (utmi_clk/ulpi_clk) is gated off, the command will not get completed.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_SUSPENDUSB20                                        0X1
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_PHYSEL                                              0x0
 
 		Full-Speed Serial Interface Select (FSIntf) The application uses this bit to select a unidirectional or bidirectional USB 1.1
 		full-speed serial transceiver interface. - 1'b0: 6-pin unidirectional full-speed serial interface. This bit is set to 0 with
 		ead Only access. - 1'b1: 3-pin bidirectional full-speed serial interface. This bit is set to 0 with Read Only access. Note: U
 		B 1.1 full-speed serial interface is not supported. This bit always reads as 1'b0.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_FSINTF                                              0X0
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_FSINTF                                              0x0
 
 		ULPI or UTMI+ Select (ULPI_UTMI_Sel) The application uses this bit to select a UTMI+ or ULPI Interface. - 1'b0: UTMI+ Interfa
 		e - 1'b1: ULPI Interface This bit is writable only if UTMI+ and ULPI is specified for High-Speed PHY Interface(s) in coreCons
 		ltant configuration (DWC_USB3_HSPHY_INTERFACE = 3). Otherwise, this bit is read-only and the value depends on the interface s
 		lected through DWC_USB3_HSPHY_INTERFACE.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL                                       0X1
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL                                       0x1
 
 		PHY Interface (PHYIf) If UTMI+ is selected, the application uses this bit to configure the core to support a UTMI+ PHY with a
 		 8- or 16-bit interface. - 1'b0: 8 bits - 1'b1: 16 bits ULPI Mode: 1'b0 Note: - All the enabled 2.0 ports must have the same
 		lock frequency as Port0 clock frequency (utmi_clk[0]). - The UTMI 8-bit and 16-bit modes cannot be used together for differen
 		 ports at the same time (that is, all the ports must be in 8-bit mode, or all of them must be in 16-bit mode, at a time). - I
 		 any of the USB 2.0 ports is selected as ULPI port for operation, then all the USB 2.0 ports must be operating at 60 MHz.
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_PHYIF                                               0X0
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_PHYIF                                               0x0
 
 		HS/FS Timeout Calibration (TOutCal) The number of PHY clocks, as indicated by the application in this field, is multiplied by
 		a bit-time factor; this factor is added to the high-speed/full-speed interpacket timeout duration in the core to account for
@@ -29760,25 +22508,24 @@ unsigned long psu_resetout_init_data() {
 		ield based on the speed of connection. The number of bit times added per PHY clock are: High-speed operation: - One 30-MHz PH
 		 clock = 16 bit times - One 60-MHz PHY clock = 8 bit times Full-speed operation: - One 30-MHz PHY clock = 0.4 bit times - One
 		60-MHz PHY clock = 0.2 bit times - One 48-MHz PHY clock = 0.25 bit times
-		PSU_USB3_0_XHCI_GUSB2PHYCFG_TOUTCAL                                             0X7
+		PSU_USB3_0_XHCI_GUSB2PHYCFG_TOUTCAL                                             0x7
 
 		Global USB2 PHY Configuration Register The application must program this register before starting any transactions on either
 		he SoC bus or the USB. In Device-only configurations, only one register is needed. In Host mode, per-port registers are imple
 		ented.
-		(OFFSET, MASK, VALUE)      (0XFE20C200, 0x00003FFFU ,0x00002457U)
-		RegMask = (USB3_0_XHCI_GUSB2PHYCFG_USBTRDTIM_MASK | USB3_0_XHCI_GUSB2PHYCFG_XCVRDLY_MASK | USB3_0_XHCI_GUSB2PHYCFG_ENBLSLPM_MASK | USB3_0_XHCI_GUSB2PHYCFG_PHYSEL_MASK | USB3_0_XHCI_GUSB2PHYCFG_SUSPENDUSB20_MASK | USB3_0_XHCI_GUSB2PHYCFG_FSINTF_MASK | USB3_0_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL_MASK | USB3_0_XHCI_GUSB2PHYCFG_PHYIF_MASK | USB3_0_XHCI_GUSB2PHYCFG_TOUTCAL_MASK |  0 );
+		(OFFSET, MASK, VALUE)      (0XFE20C200, 0x00003FBFU ,0x00002417U)
+		RegMask = (USB3_0_XHCI_GUSB2PHYCFG_USBTRDTIM_MASK | USB3_0_XHCI_GUSB2PHYCFG_XCVRDLY_MASK | USB3_0_XHCI_GUSB2PHYCFG_ENBLSLPM_MASK | USB3_0_XHCI_GUSB2PHYCFG_PHYSEL_MASK | USB3_0_XHCI_GUSB2PHYCFG_FSINTF_MASK | USB3_0_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL_MASK | USB3_0_XHCI_GUSB2PHYCFG_PHYIF_MASK | USB3_0_XHCI_GUSB2PHYCFG_TOUTCAL_MASK |  0 );
 
 		RegVal = ((0x00000009U << USB3_0_XHCI_GUSB2PHYCFG_USBTRDTIM_SHIFT
 			| 0x00000000U << USB3_0_XHCI_GUSB2PHYCFG_XCVRDLY_SHIFT
 			| 0x00000000U << USB3_0_XHCI_GUSB2PHYCFG_ENBLSLPM_SHIFT
 			| 0x00000000U << USB3_0_XHCI_GUSB2PHYCFG_PHYSEL_SHIFT
-			| 0x00000001U << USB3_0_XHCI_GUSB2PHYCFG_SUSPENDUSB20_SHIFT
 			| 0x00000000U << USB3_0_XHCI_GUSB2PHYCFG_FSINTF_SHIFT
 			| 0x00000001U << USB3_0_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL_SHIFT
 			| 0x00000000U << USB3_0_XHCI_GUSB2PHYCFG_PHYIF_SHIFT
 			| 0x00000007U << USB3_0_XHCI_GUSB2PHYCFG_TOUTCAL_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (USB3_0_XHCI_GUSB2PHYCFG_OFFSET ,0x00003FFFU ,0x00002457U);
+		PSU_Mask_Write (USB3_0_XHCI_GUSB2PHYCFG_OFFSET ,0x00003FBFU ,0x00002417U);
 	/*############################################################################################################################ */
 
 		/*Register : GFLADJ @ 0XFE20C630</p>
@@ -29792,7 +22539,7 @@ unsigned long psu_resetout_init_data() {
 		uding the fractional value. Examples: If the ref_clk is 24 MHz then - GUCTL.REF_CLK_PERIOD = 41 - GFLADJ.GLADJ_REFCLK_FLADJ =
 		((125000/41)-(125000/41.6666))*41.6666 = 2032 (ignoring the fractional value) If the ref_clk is 48 MHz then - GUCTL.REF_CLK_P
 		RIOD = 20 - GFLADJ.GLADJ_REFCLK_FLADJ = ((125000/20)-(125000/20.8333))*20.8333 = 5208 (ignoring the fractional value)
-		PSU_USB3_0_XHCI_GFLADJ_GFLADJ_REFCLK_FLADJ                                      0X0
+		PSU_USB3_0_XHCI_GFLADJ_GFLADJ_REFCLK_FLADJ                                      0x0
 
 		Global Frame Length Adjustment Register This register provides options for the software to control the core behavior with res
 		ect to SOF (Start of Frame) and ITP (Isochronous Timestamp Packet) timers and frame timer functionality. It provides an optio
@@ -29806,131 +22553,20 @@ unsigned long psu_resetout_init_data() {
 		PSU_Mask_Write (USB3_0_XHCI_GFLADJ_OFFSET ,0x003FFF00U ,0x00000000U);
 	/*############################################################################################################################ */
 
-		// : USB1 GFLADJ
-		/*Register : GUSB2PHYCFG @ 0XFE30C200</p>
+		// : UPDATING TWO PCIE REGISTERS DEFAULT VALUES, AS THESE REGISTERS HAVE INCORRECT RESET VALUES IN SILICON.
+		/*Register : ATTR_25 @ 0XFD480064</p>
 
-		USB 2.0 Turnaround Time (USBTrdTim) Sets the turnaround time in PHY clocks. Specifies the response time for a MAC request to
-		he Packet FIFO Controller (PFC) to fetch data from the DFIFO (SPRAM). The following are the required values for the minimum S
-		C bus frequency of 60 MHz. USB turnaround time is a critical certification criteria when using long cables and five hub level
-		. The required values for this field: - 4'h5: When the MAC interface is 16-bit UTMI+. - 4'h9: When the MAC interface is 8-bit
-		UTMI+/ULPI. If SoC bus clock is less than 60 MHz, and USB turnaround time is not critical, this field can be set to a larger
-		alue. Note: This field is valid only in device mode.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_USBTRDTIM                                           0X9
+		If TRUE Completion Timeout Disable is supported. This is required to be TRUE for Endpoint and either setting allowed for Root
+		ports. Drives Device Capability 2 [4]; EP=0x0001; RP=0x0001
+		PSU_PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED                      0X1
 
-		Transceiver Delay: Enables a delay between the assertion of the UTMI/ULPI Transceiver Select signal (for HS) and the assertio
-		 of the TxValid signal during a HS Chirp. When this bit is set to 1, a delay (of approximately 2.5 us) is introduced from the
-		time when the Transceiver Select is set to 2'b00 (HS) to the time the TxValid is driven to 0 for sending the chirp-K. This de
-		ay is required for some UTMI/ULPI PHYs. Note: - If you enable the hibernation feature when the device core comes out of power
-		off, you must re-initialize this bit with the appropriate value because the core does not save and restore this bit value dur
-		ng hibernation. - This bit is valid only in device mode.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_XCVRDLY                                             0X0
+		ATTR_25
+		(OFFSET, MASK, VALUE)      (0XFD480064, 0x00000200U ,0x00000200U)
+		RegMask = (PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_MASK |  0 );
 
-		Enable utmi_sleep_n and utmi_l1_suspend_n (EnblSlpM) The application uses this bit to control utmi_sleep_n and utmi_l1_suspen
-		_n assertion to the PHY in the L1 state. - 1'b0: utmi_sleep_n and utmi_l1_suspend_n assertion from the core is not transferre
-		 to the external PHY. - 1'b1: utmi_sleep_n and utmi_l1_suspend_n assertion from the core is transferred to the external PHY.
-		ote: This bit must be set high for Port0 if PHY is used. Note: In Device mode - Before issuing any device endpoint command wh
-		n operating in 2.0 speeds, disable this bit and enable it after the command completes. Without disabling this bit, if a comma
-		d is issued when the device is in L1 state and if mac2_clk (utmi_clk/ulpi_clk) is gated off, the command will not get complet
-		d.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_ENBLSLPM                                            0X0
-
-		USB 2.0 High-Speed PHY or USB 1.1 Full-Speed Serial Transceiver Select The application uses this bit to select a high-speed P
-		Y or a full-speed transceiver. - 1'b0: USB 2.0 high-speed UTMI+ or ULPI PHY. This bit is always 0, with Write Only access. -
-		'b1: USB 1.1 full-speed serial transceiver. This bit is always 1, with Write Only access. If both interface types are selecte
-		 in coreConsultant (that is, parameters' values are not zero), the application uses this bit to select the active interface i
-		 active, with Read-Write bit access. Note: USB 1.1 full-serial transceiver is not supported. This bit always reads as 1'b0.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_PHYSEL                                              0X0
-
-		Suspend USB2.0 HS/FS/LS PHY (SusPHY) When set, USB2.0 PHY enters Suspend mode if Suspend conditions are valid. For DRD/OTG co
-		figurations, it is recommended that this bit is set to 0 during coreConsultant configuration. If it is set to 1, then the app
-		ication must clear this bit after power-on reset. Application needs to set it to 1 after the core initialization completes. F
-		r all other configurations, this bit can be set to 1 during core configuration. Note: - In host mode, on reset, this bit is s
-		t to 1. Software can override this bit after reset. - In device mode, before issuing any device endpoint command when operati
-		g in 2.0 speeds, disable this bit and enable it after the command completes. If you issue a command without disabling this bi
-		 when the device is in L2 state and if mac2_clk (utmi_clk/ulpi_clk) is gated off, the command will not get completed.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_SUSPENDUSB20                                        0X1
-
-		Full-Speed Serial Interface Select (FSIntf) The application uses this bit to select a unidirectional or bidirectional USB 1.1
-		full-speed serial transceiver interface. - 1'b0: 6-pin unidirectional full-speed serial interface. This bit is set to 0 with
-		ead Only access. - 1'b1: 3-pin bidirectional full-speed serial interface. This bit is set to 0 with Read Only access. Note: U
-		B 1.1 full-speed serial interface is not supported. This bit always reads as 1'b0.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_FSINTF                                              0X0
-
-		ULPI or UTMI+ Select (ULPI_UTMI_Sel) The application uses this bit to select a UTMI+ or ULPI Interface. - 1'b0: UTMI+ Interfa
-		e - 1'b1: ULPI Interface This bit is writable only if UTMI+ and ULPI is specified for High-Speed PHY Interface(s) in coreCons
-		ltant configuration (DWC_USB3_HSPHY_INTERFACE = 3). Otherwise, this bit is read-only and the value depends on the interface s
-		lected through DWC_USB3_HSPHY_INTERFACE.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL                                       0X1
-
-		PHY Interface (PHYIf) If UTMI+ is selected, the application uses this bit to configure the core to support a UTMI+ PHY with a
-		 8- or 16-bit interface. - 1'b0: 8 bits - 1'b1: 16 bits ULPI Mode: 1'b0 Note: - All the enabled 2.0 ports must have the same
-		lock frequency as Port0 clock frequency (utmi_clk[0]). - The UTMI 8-bit and 16-bit modes cannot be used together for differen
-		 ports at the same time (that is, all the ports must be in 8-bit mode, or all of them must be in 16-bit mode, at a time). - I
-		 any of the USB 2.0 ports is selected as ULPI port for operation, then all the USB 2.0 ports must be operating at 60 MHz.
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_PHYIF                                               0X0
-
-		HS/FS Timeout Calibration (TOutCal) The number of PHY clocks, as indicated by the application in this field, is multiplied by
-		a bit-time factor; this factor is added to the high-speed/full-speed interpacket timeout duration in the core to account for
-		dditional delays introduced by the PHY. This may be required, since the delay introduced by the PHY in generating the linesta
-		e condition may vary among PHYs. The USB standard timeout value for high-speed operation is 736 to 816 (inclusive) bit times.
-		The USB standard timeout value for full-speed operation is 16 to 18 (inclusive) bit times. The application must program this
-		ield based on the speed of connection. The number of bit times added per PHY clock are: High-speed operation: - One 30-MHz PH
-		 clock = 16 bit times - One 60-MHz PHY clock = 8 bit times Full-speed operation: - One 30-MHz PHY clock = 0.4 bit times - One
-		60-MHz PHY clock = 0.2 bit times - One 48-MHz PHY clock = 0.25 bit times
-		PSU_USB3_1_XHCI_GUSB2PHYCFG_TOUTCAL                                             0X7
-
-		Global USB2 PHY Configuration Register The application must program this register before starting any transactions on either
-		he SoC bus or the USB. In Device-only configurations, only one register is needed. In Host mode, per-port registers are imple
-		ented.
-		(OFFSET, MASK, VALUE)      (0XFE30C200, 0x00003FFFU ,0x00002457U)
-		RegMask = (USB3_1_XHCI_GUSB2PHYCFG_USBTRDTIM_MASK | USB3_1_XHCI_GUSB2PHYCFG_XCVRDLY_MASK | USB3_1_XHCI_GUSB2PHYCFG_ENBLSLPM_MASK | USB3_1_XHCI_GUSB2PHYCFG_PHYSEL_MASK | USB3_1_XHCI_GUSB2PHYCFG_SUSPENDUSB20_MASK | USB3_1_XHCI_GUSB2PHYCFG_FSINTF_MASK | USB3_1_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL_MASK | USB3_1_XHCI_GUSB2PHYCFG_PHYIF_MASK | USB3_1_XHCI_GUSB2PHYCFG_TOUTCAL_MASK |  0 );
-
-		RegVal = ((0x00000009U << USB3_1_XHCI_GUSB2PHYCFG_USBTRDTIM_SHIFT
-			| 0x00000000U << USB3_1_XHCI_GUSB2PHYCFG_XCVRDLY_SHIFT
-			| 0x00000000U << USB3_1_XHCI_GUSB2PHYCFG_ENBLSLPM_SHIFT
-			| 0x00000000U << USB3_1_XHCI_GUSB2PHYCFG_PHYSEL_SHIFT
-			| 0x00000001U << USB3_1_XHCI_GUSB2PHYCFG_SUSPENDUSB20_SHIFT
-			| 0x00000000U << USB3_1_XHCI_GUSB2PHYCFG_FSINTF_SHIFT
-			| 0x00000001U << USB3_1_XHCI_GUSB2PHYCFG_ULPI_UTMI_SEL_SHIFT
-			| 0x00000000U << USB3_1_XHCI_GUSB2PHYCFG_PHYIF_SHIFT
-			| 0x00000007U << USB3_1_XHCI_GUSB2PHYCFG_TOUTCAL_SHIFT
+		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (USB3_1_XHCI_GUSB2PHYCFG_OFFSET ,0x00003FFFU ,0x00002457U);
-	/*############################################################################################################################ */
-
-		/*Register : GFLADJ @ 0XFE30C630</p>
-
-		This field indicates the frame length adjustment to be applied when SOF/ITP counter is running on the ref_clk. This register
-		alue is used to adjust the ITP interval when GCTL[SOFITPSYNC] is set to '1'; SOF and ITP interval when GLADJ.GFLADJ_REFCLK_LP
-		_SEL is set to '1'. This field must be programmed to a non-zero value only if GFLADJ_REFCLK_LPM_SEL is set to '1' or GCTL.SOF
-		TPSYNC is set to '1'. The value is derived as follows: FLADJ_REF_CLK_FLADJ=((125000/ref_clk_period_integer)-(125000/ref_clk_p
-		riod)) * ref_clk_period where - the ref_clk_period_integer is the integer value of the ref_clk period got by truncating the d
-		cimal (fractional) value that is programmed in the GUCTL.REF_CLK_PERIOD field. - the ref_clk_period is the ref_clk period inc
-		uding the fractional value. Examples: If the ref_clk is 24 MHz then - GUCTL.REF_CLK_PERIOD = 41 - GFLADJ.GLADJ_REFCLK_FLADJ =
-		((125000/41)-(125000/41.6666))*41.6666 = 2032 (ignoring the fractional value) If the ref_clk is 48 MHz then - GUCTL.REF_CLK_P
-		RIOD = 20 - GFLADJ.GLADJ_REFCLK_FLADJ = ((125000/20)-(125000/20.8333))*20.8333 = 5208 (ignoring the fractional value)
-		PSU_USB3_1_XHCI_GFLADJ_GFLADJ_REFCLK_FLADJ                                      0X0
-
-		Global Frame Length Adjustment Register This register provides options for the software to control the core behavior with res
-		ect to SOF (Start of Frame) and ITP (Isochronous Timestamp Packet) timers and frame timer functionality. It provides an optio
-		 to override the fladj_30mhz_reg sideband signal. In addition, it enables running SOF or ITP frame timer counters completely
-		rom the ref_clk. This facilitates hardware LPM in host mode with the SOF or ITP counters being run from the ref_clk signal.
-		(OFFSET, MASK, VALUE)      (0XFE30C630, 0x003FFF00U ,0x00000000U)
-		RegMask = (USB3_1_XHCI_GFLADJ_GFLADJ_REFCLK_FLADJ_MASK |  0 );
-
-		RegVal = ((0x00000000U << USB3_1_XHCI_GFLADJ_GFLADJ_REFCLK_FLADJ_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (USB3_1_XHCI_GFLADJ_OFFSET ,0x003FFF00U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		// : CHECK PLL LOCK FOR LANE0
-		/*Register : L0_PLL_STATUS_READ_1 @ 0XFD4023E4</p>
-
-		Status Read value of PLL Lock
-		PSU_SERDES_L0_PLL_STATUS_READ_1_PLL_LOCK_STATUS_READ                            1
-		(OFFSET, MASK, VALUE)      (0XFD4023E4, 0x00000010U ,0x00000010U)  */
-		mask_poll(SERDES_L0_PLL_STATUS_READ_1_OFFSET,0x00000010U);
-
+		PSU_Mask_Write (PCIE_ATTRIB_ATTR_25_OFFSET ,0x00000200U ,0x00000200U);
 	/*############################################################################################################################ */
 
 		// : CHECK PLL LOCK FOR LANE1
@@ -29963,865 +22599,14 @@ unsigned long psu_resetout_init_data() {
 
 	/*############################################################################################################################ */
 
-		// : UPDATING TWO PCIE REGISTERS DEFAULT VALUES, AS THESE REGISTERS HAVE INCORRECT RESET VALUES IN SILICON.
-		/*Register : ATTR_25 @ 0XFD480064</p>
-
-		If TRUE Completion Timeout Disable is supported. This is required to be TRUE for Endpoint and either setting allowed for Root
-		ports. Drives Device Capability 2 [4]; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED                      0X1
-
-		ATTR_25
-		(OFFSET, MASK, VALUE)      (0XFD480064, 0x00000200U ,0x00000200U)
-		RegMask = (PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_25_OFFSET ,0x00000200U ,0x00000200U);
-	/*############################################################################################################################ */
-
-		// : PCIE SETTINGS
-		/*Register : ATTR_7 @ 0XFD48001C</p>
-
-		Specifies mask/settings for Base Address Register (BAR) 0. If BAR is not to be implemented, set to 32'h00000000. Bits are def
-		ned as follows: Memory Space BAR [0] = Mem Space Indicator (set to 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] =
-		Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory a
-		erture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR1,BAR0\'7d to 1. IO Space BAR 0] = IO Space Indicator
-		set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set uppermost 31:n bits to 1, where 2^n=i/o apert
-		re size in bytes.; EP=0x0004; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_7_ATTR_BAR0                                                0x0
-
-		ATTR_7
-		(OFFSET, MASK, VALUE)      (0XFD48001C, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_7_ATTR_BAR0_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_7_ATTR_BAR0_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_7_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_8 @ 0XFD480020</p>
-
-		Specifies mask/settings for Base Address Register (BAR) 0. If BAR is not to be implemented, set to 32'h00000000. Bits are def
-		ned as follows: Memory Space BAR [0] = Mem Space Indicator (set to 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] =
-		Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory a
-		erture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR1,BAR0\'7d to 1. IO Space BAR 0] = IO Space Indicator
-		set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set uppermost 31:n bits to 1, where 2^n=i/o apert
-		re size in bytes.; EP=0xFFF0; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_8_ATTR_BAR0                                                0x0
-
-		ATTR_8
-		(OFFSET, MASK, VALUE)      (0XFD480020, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_8_ATTR_BAR0_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_8_ATTR_BAR0_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_8_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_9 @ 0XFD480024</p>
-
-		Specifies mask/settings for Base Address Register (BAR) 1 if BAR0 is a 32-bit BAR, or the upper bits of \'7bBAR1,BAR0\'7d if
-		AR0 is a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR0 description if this functions as the uppe
-		 bits of a 64-bit BAR. Bits are defined as follows: Memory Space BAR (not upper bits of BAR0) [0] = Mem Space Indicator (set
-		o 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if
-		32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of
-		'7bBAR2,BAR1\'7d to 1. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable b
-		ts of BAR; set uppermost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_9_ATTR_BAR1                                                0x0
-
-		ATTR_9
-		(OFFSET, MASK, VALUE)      (0XFD480024, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_9_ATTR_BAR1_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_9_ATTR_BAR1_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_9_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_10 @ 0XFD480028</p>
-
-		Specifies mask/settings for Base Address Register (BAR) 1 if BAR0 is a 32-bit BAR, or the upper bits of \'7bBAR1,BAR0\'7d if
-		AR0 is a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR0 description if this functions as the uppe
-		 bits of a 64-bit BAR. Bits are defined as follows: Memory Space BAR (not upper bits of BAR0) [0] = Mem Space Indicator (set
-		o 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if
-		32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of
-		'7bBAR2,BAR1\'7d to 1. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable b
-		ts of BAR; set uppermost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_10_ATTR_BAR1                                               0x0
-
-		ATTR_10
-		(OFFSET, MASK, VALUE)      (0XFD480028, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_10_ATTR_BAR1_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_10_ATTR_BAR1_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_10_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_11 @ 0XFD48002C</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 2 if BAR1 is a 32-bit BAR, or the upper bits of \'7b
-		AR2,BAR1\'7d if BAR1 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR1 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root: This must be set to 00FF_FFFF. For an endpoin
-		, bits are defined as follows: Memory Space BAR (not upper bits of BAR1) [0] = Mem Space Indicator (set to 0) [2:1] = Type fi
-		ld (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppe
-		most 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR3,BAR2\'7d to
-		. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set upper
-		ost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0x0004; RP=0xFFFF
-		PSU_PCIE_ATTRIB_ATTR_11_ATTR_BAR2                                               0xFFFF
-
-		ATTR_11
-		(OFFSET, MASK, VALUE)      (0XFD48002C, 0x0000FFFFU ,0x0000FFFFU)
-		RegMask = (PCIE_ATTRIB_ATTR_11_ATTR_BAR2_MASK |  0 );
-
-		RegVal = ((0x0000FFFFU << PCIE_ATTRIB_ATTR_11_ATTR_BAR2_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_11_OFFSET ,0x0000FFFFU ,0x0000FFFFU);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_12 @ 0XFD480030</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 2 if BAR1 is a 32-bit BAR, or the upper bits of \'7b
-		AR2,BAR1\'7d if BAR1 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR1 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root: This must be set to 00FF_FFFF. For an endpoin
-		, bits are defined as follows: Memory Space BAR (not upper bits of BAR1) [0] = Mem Space Indicator (set to 0) [2:1] = Type fi
-		ld (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppe
-		most 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR3,BAR2\'7d to
-		. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set upper
-		ost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFF0; RP=0x00FF
-		PSU_PCIE_ATTRIB_ATTR_12_ATTR_BAR2                                               0xFF
-
-		ATTR_12
-		(OFFSET, MASK, VALUE)      (0XFD480030, 0x0000FFFFU ,0x000000FFU)
-		RegMask = (PCIE_ATTRIB_ATTR_12_ATTR_BAR2_MASK |  0 );
-
-		RegVal = ((0x000000FFU << PCIE_ATTRIB_ATTR_12_ATTR_BAR2_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_12_OFFSET ,0x0000FFFFU ,0x000000FFU);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_13 @ 0XFD480034</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 3 if BAR2 is a 32-bit BAR, or the upper bits of \'7b
-		AR3,BAR2\'7d if BAR2 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR2 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root, this must be set to: FFFF_0000 = IO Limit/Bas
-		 Registers not implemented FFFF_F0F0 = IO Limit/Base Registers use 16-bit decode FFFF_F1F1 = IO Limit/Base Registers use 32-b
-		t decode For an endpoint, bits are defined as follows: Memory Space BAR (not upper bits of BAR2) [0] = Mem Space Indicator (s
-		t to 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR;
-		if 32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits
-		f \'7bBAR4,BAR3\'7d to 1. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writabl
-		 bits of BAR; set uppermost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_13_ATTR_BAR3                                               0x0
-
-		ATTR_13
-		(OFFSET, MASK, VALUE)      (0XFD480034, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_13_ATTR_BAR3_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_13_ATTR_BAR3_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_13_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_14 @ 0XFD480038</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 3 if BAR2 is a 32-bit BAR, or the upper bits of \'7b
-		AR3,BAR2\'7d if BAR2 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR2 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root, this must be set to: FFFF_0000 = IO Limit/Bas
-		 Registers not implemented FFFF_F0F0 = IO Limit/Base Registers use 16-bit decode FFFF_F1F1 = IO Limit/Base Registers use 32-b
-		t decode For an endpoint, bits are defined as follows: Memory Space BAR (not upper bits of BAR2) [0] = Mem Space Indicator (s
-		t to 0) [2:1] = Type field (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR;
-		if 32-bit BAR, set uppermost 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits
-		f \'7bBAR4,BAR3\'7d to 1. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writabl
-		 bits of BAR; set uppermost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0xFFFF
-		PSU_PCIE_ATTRIB_ATTR_14_ATTR_BAR3                                               0xFFFF
-
-		ATTR_14
-		(OFFSET, MASK, VALUE)      (0XFD480038, 0x0000FFFFU ,0x0000FFFFU)
-		RegMask = (PCIE_ATTRIB_ATTR_14_ATTR_BAR3_MASK |  0 );
-
-		RegVal = ((0x0000FFFFU << PCIE_ATTRIB_ATTR_14_ATTR_BAR3_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_14_OFFSET ,0x0000FFFFU ,0x0000FFFFU);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_15 @ 0XFD48003C</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 4 if BAR3 is a 32-bit BAR, or the upper bits of \'7b
-		AR4,BAR3\'7d if BAR3 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR3 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root: This must be set to FFF0_FFF0. For an endpoin
-		, bits are defined as follows: Memory Space BAR (not upper bits of BAR3) [0] = Mem Space Indicator (set to 0) [2:1] = Type fi
-		ld (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppe
-		most 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR5,BAR4\'7d to
-		. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set upper
-		ost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0x0004; RP=0xFFF0
-		PSU_PCIE_ATTRIB_ATTR_15_ATTR_BAR4                                               0xFFF0
-
-		ATTR_15
-		(OFFSET, MASK, VALUE)      (0XFD48003C, 0x0000FFFFU ,0x0000FFF0U)
-		RegMask = (PCIE_ATTRIB_ATTR_15_ATTR_BAR4_MASK |  0 );
-
-		RegVal = ((0x0000FFF0U << PCIE_ATTRIB_ATTR_15_ATTR_BAR4_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_15_OFFSET ,0x0000FFFFU ,0x0000FFF0U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_16 @ 0XFD480040</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 4 if BAR3 is a 32-bit BAR, or the upper bits of \'7b
-		AR4,BAR3\'7d if BAR3 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR3 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root: This must be set to FFF0_FFF0. For an endpoin
-		, bits are defined as follows: Memory Space BAR (not upper bits of BAR3) [0] = Mem Space Indicator (set to 0) [2:1] = Type fi
-		ld (10 for 64-bit, 00 for 32-bit) [3] = Prefetchable (0 or 1) [31:4] = Mask for writable bits of BAR; if 32-bit BAR, set uppe
-		most 31:n bits to 1, where 2^n=memory aperture size in bytes. If 64-bit BAR, set uppermost 63:n bits of \'7bBAR5,BAR4\'7d to
-		. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set upper
-		ost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFF0; RP=0xFFF0
-		PSU_PCIE_ATTRIB_ATTR_16_ATTR_BAR4                                               0xFFF0
-
-		ATTR_16
-		(OFFSET, MASK, VALUE)      (0XFD480040, 0x0000FFFFU ,0x0000FFF0U)
-		RegMask = (PCIE_ATTRIB_ATTR_16_ATTR_BAR4_MASK |  0 );
-
-		RegVal = ((0x0000FFF0U << PCIE_ATTRIB_ATTR_16_ATTR_BAR4_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_16_OFFSET ,0x0000FFFFU ,0x0000FFF0U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_17 @ 0XFD480044</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 5 if BAR4 is a 32-bit BAR, or the upper bits of \'7b
-		AR5,BAR4\'7d if BAR4 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR4 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root, this must be set to: 0000_0000 = Prefetchable
-		Memory Limit/Base Registers not implemented FFF0_FFF0 = 32-bit Prefetchable Memory Limit/Base implemented FFF1_FFF1 = 64-bit
-		refetchable Memory Limit/Base implemented For an endpoint, bits are defined as follows: Memory Space BAR (not upper bits of B
-		R4) [0] = Mem Space Indicator (set to 0) [2:1] = Type field (00 for 32-bit; BAR5 cannot be lower part of a 64-bit BAR) [3] =
-		refetchable (0 or 1) [31:4] = Mask for writable bits of BAR; set uppermost 31:n bits to 1, where 2^n=memory aperture size in
-		ytes. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set u
-		permost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0xFFF1
-		PSU_PCIE_ATTRIB_ATTR_17_ATTR_BAR5                                               0xFFF1
-
-		ATTR_17
-		(OFFSET, MASK, VALUE)      (0XFD480044, 0x0000FFFFU ,0x0000FFF1U)
-		RegMask = (PCIE_ATTRIB_ATTR_17_ATTR_BAR5_MASK |  0 );
-
-		RegVal = ((0x0000FFF1U << PCIE_ATTRIB_ATTR_17_ATTR_BAR5_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_17_OFFSET ,0x0000FFFFU ,0x0000FFF1U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_18 @ 0XFD480048</p>
-
-		For an endpoint, specifies mask/settings for Base Address Register (BAR) 5 if BAR4 is a 32-bit BAR, or the upper bits of \'7b
-		AR5,BAR4\'7d if BAR4 is the lower part of a 64-bit BAR. If BAR is not to be implemented, set to 32'h00000000. See BAR4 descri
-		tion if this functions as the upper bits of a 64-bit BAR. For a switch or root, this must be set to: 0000_0000 = Prefetchable
-		Memory Limit/Base Registers not implemented FFF0_FFF0 = 32-bit Prefetchable Memory Limit/Base implemented FFF1_FFF1 = 64-bit
-		refetchable Memory Limit/Base implemented For an endpoint, bits are defined as follows: Memory Space BAR (not upper bits of B
-		R4) [0] = Mem Space Indicator (set to 0) [2:1] = Type field (00 for 32-bit; BAR5 cannot be lower part of a 64-bit BAR) [3] =
-		refetchable (0 or 1) [31:4] = Mask for writable bits of BAR; set uppermost 31:n bits to 1, where 2^n=memory aperture size in
-		ytes. IO Space BAR 0] = IO Space Indicator (set to 1) [1] = Reserved (set to 0) [31:2] = Mask for writable bits of BAR; set u
-		permost 31:n bits to 1, where 2^n=i/o aperture size in bytes.; EP=0xFFFF; RP=0xFFF1
-		PSU_PCIE_ATTRIB_ATTR_18_ATTR_BAR5                                               0xFFF1
-
-		ATTR_18
-		(OFFSET, MASK, VALUE)      (0XFD480048, 0x0000FFFFU ,0x0000FFF1U)
-		RegMask = (PCIE_ATTRIB_ATTR_18_ATTR_BAR5_MASK |  0 );
-
-		RegVal = ((0x0000FFF1U << PCIE_ATTRIB_ATTR_18_ATTR_BAR5_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_18_OFFSET ,0x0000FFFFU ,0x0000FFF1U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_27 @ 0XFD48006C</p>
-
-		Specifies maximum payload supported. Valid settings are: 0- 128 bytes, 1- 256 bytes, 2- 512 bytes, 3- 1024 bytes. Transferred
-		to the Device Capabilities register. The values: 4-2048 bytes, 5- 4096 bytes are not supported; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_MAX_PAYLOAD_SUPPORTED                      1
-
-		Endpoint L1 Acceptable Latency. Records the latency that the endpoint can withstand on transitions from L1 state to L0 (if L1
-		state supported). Valid settings are: 0h less than 1us, 1h 1 to 2us, 2h 2 to 4us, 3h 4 to 8us, 4h 8 to 16us, 5h 16 to 32us, 6
-		 32 to 64us, 7h more than 64us. For Endpoints only. Must be 0h for other devices.; EP=0x0007; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_ENDPOINT_L1_LATENCY                        0x0
-
-		ATTR_27
-		(OFFSET, MASK, VALUE)      (0XFD48006C, 0x00000738U ,0x00000100U)
-		RegMask = (PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_MAX_PAYLOAD_SUPPORTED_MASK | PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_ENDPOINT_L1_LATENCY_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_MAX_PAYLOAD_SUPPORTED_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_27_ATTR_DEV_CAP_ENDPOINT_L1_LATENCY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_27_OFFSET ,0x00000738U ,0x00000100U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_50 @ 0XFD4800C8</p>
-
-		Identifies the type of device/port as follows: 0000b PCI Express Endpoint device, 0001b Legacy PCI Express Endpoint device, 0
-		00b Root Port of PCI Express Root Complex, 0101b Upstream Port of PCI Express Switch, 0110b Downstream Port of PCI Express Sw
-		tch, 0111b PCIE Express to PCI/PCI-X Bridge, 1000b PCI/PCI-X to PCI Express Bridge. Transferred to PCI Express Capabilities r
-		gister. Must be consistent with IS_SWITCH and UPSTREAM_FACING settings.; EP=0x0000; RP=0x0004
-		PSU_PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_DEVICE_PORT_TYPE                          4
-
-		PCIe Capability's Next Capability Offset pointer to the next item in the capabilities list, or 00h if this is the final capab
-		lity.; EP=0x009C; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_NEXTPTR                                   0
-
-		ATTR_50
-		(OFFSET, MASK, VALUE)      (0XFD4800C8, 0x0000FFF0U ,0x00000040U)
-		RegMask = (PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_DEVICE_PORT_TYPE_MASK | PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_NEXTPTR_MASK |  0 );
-
-		RegVal = ((0x00000004U << PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_DEVICE_PORT_TYPE_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_50_ATTR_PCIE_CAP_NEXTPTR_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_50_OFFSET ,0x0000FFF0U ,0x00000040U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_105 @ 0XFD4801A4</p>
-
-		Number of credits that should be advertised for Completion data received on Virtual Channel 0. The bytes advertised must be l
-		ss than or equal to the bram bytes available. See VC0_RX_RAM_LIMIT; EP=0x0172; RP=0x00CD
-		PSU_PCIE_ATTRIB_ATTR_105_ATTR_VC0_TOTAL_CREDITS_CD                              0xCD
-
-		ATTR_105
-		(OFFSET, MASK, VALUE)      (0XFD4801A4, 0x000007FFU ,0x000000CDU)
-		RegMask = (PCIE_ATTRIB_ATTR_105_ATTR_VC0_TOTAL_CREDITS_CD_MASK |  0 );
-
-		RegVal = ((0x000000CDU << PCIE_ATTRIB_ATTR_105_ATTR_VC0_TOTAL_CREDITS_CD_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_105_OFFSET ,0x000007FFU ,0x000000CDU);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_106 @ 0XFD4801A8</p>
-
-		Number of credits that should be advertised for Completion headers received on Virtual Channel 0. The sum of the posted, non
-		osted, and completion header credits must be <= 80; EP=0x0048; RP=0x0024
-		PSU_PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_CH                              0x24
-
-		Number of credits that should be advertised for Non-Posted headers received on Virtual Channel 0. The number of non posted da
-		a credits advertised by the block is equal to the number of non posted header credits. The sum of the posted, non posted, and
-		completion header credits must be <= 80; EP=0x0004; RP=0x000C
-		PSU_PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_NPH                             0xC
-
-		ATTR_106
-		(OFFSET, MASK, VALUE)      (0XFD4801A8, 0x00003FFFU ,0x00000624U)
-		RegMask = (PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_CH_MASK | PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_NPH_MASK |  0 );
-
-		RegVal = ((0x00000024U << PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_CH_SHIFT
-			| 0x0000000CU << PCIE_ATTRIB_ATTR_106_ATTR_VC0_TOTAL_CREDITS_NPH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_106_OFFSET ,0x00003FFFU ,0x00000624U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_107 @ 0XFD4801AC</p>
-
-		Number of credits that should be advertised for Non-Posted data received on Virtual Channel 0. The number of non posted data
-		redits advertised by the block is equal to two times the number of non posted header credits if atomic operations are support
-		d or is equal to the number of non posted header credits if atomic operations are not supported. The bytes advertised must be
-		less than or equal to the bram bytes available. See VC0_RX_RAM_LIMIT; EP=0x0008; RP=0x0018
-		PSU_PCIE_ATTRIB_ATTR_107_ATTR_VC0_TOTAL_CREDITS_NPD                             0x18
-
-		ATTR_107
-		(OFFSET, MASK, VALUE)      (0XFD4801AC, 0x000007FFU ,0x00000018U)
-		RegMask = (PCIE_ATTRIB_ATTR_107_ATTR_VC0_TOTAL_CREDITS_NPD_MASK |  0 );
-
-		RegVal = ((0x00000018U << PCIE_ATTRIB_ATTR_107_ATTR_VC0_TOTAL_CREDITS_NPD_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_107_OFFSET ,0x000007FFU ,0x00000018U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_108 @ 0XFD4801B0</p>
-
-		Number of credits that should be advertised for Posted data received on Virtual Channel 0. The bytes advertised must be less
-		han or equal to the bram bytes available. See VC0_RX_RAM_LIMIT; EP=0x0020; RP=0x00B5
-		PSU_PCIE_ATTRIB_ATTR_108_ATTR_VC0_TOTAL_CREDITS_PD                              0xB5
-
-		ATTR_108
-		(OFFSET, MASK, VALUE)      (0XFD4801B0, 0x000007FFU ,0x000000B5U)
-		RegMask = (PCIE_ATTRIB_ATTR_108_ATTR_VC0_TOTAL_CREDITS_PD_MASK |  0 );
-
-		RegVal = ((0x000000B5U << PCIE_ATTRIB_ATTR_108_ATTR_VC0_TOTAL_CREDITS_PD_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_108_OFFSET ,0x000007FFU ,0x000000B5U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_109 @ 0XFD4801B4</p>
-
-		Not currently in use. Invert ECRC generated by block when trn_tecrc_gen_n and trn_terrfwd_n are asserted.; EP=0x0000; RP=0x00
-		0
-		PSU_PCIE_ATTRIB_ATTR_109_ATTR_TECRC_EP_INV                                      0x0
-
-		Enables td bit clear and ECRC trim on received TLP's FALSE == don't trim TRUE == trim.; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK_TRIM                                    0x1
-
-		Enables ECRC check on received TLP's 0 == don't check 1 == always check 3 == check if enabled by ECRC check enable bit of AER
-		cap structure; EP=0x0003; RP=0x0003
-		PSU_PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK                                         0x3
-
-		Index of last packet buffer used by TX TLM (i.e. number of buffers - 1). Calculated from max payload size supported and the n
-		mber of brams configured for transmit; EP=0x001C; RP=0x001C
-		PSU_PCIE_ATTRIB_ATTR_109_ATTR_VC0_TX_LASTPACKET                                 0x1c
-
-		Number of credits that should be advertised for Posted headers received on Virtual Channel 0. The sum of the posted, non post
-		d, and completion header credits must be <= 80; EP=0x0004; RP=0x0020
-		PSU_PCIE_ATTRIB_ATTR_109_ATTR_VC0_TOTAL_CREDITS_PH                              0x20
-
-		ATTR_109
-		(OFFSET, MASK, VALUE)      (0XFD4801B4, 0x0000FFFFU ,0x00007E20U)
-		RegMask = (PCIE_ATTRIB_ATTR_109_ATTR_TECRC_EP_INV_MASK | PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK_TRIM_MASK | PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK_MASK | PCIE_ATTRIB_ATTR_109_ATTR_VC0_TX_LASTPACKET_MASK | PCIE_ATTRIB_ATTR_109_ATTR_VC0_TOTAL_CREDITS_PH_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_109_ATTR_TECRC_EP_INV_SHIFT
-			| 0x00000001U << PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK_TRIM_SHIFT
-			| 0x00000003U << PCIE_ATTRIB_ATTR_109_ATTR_RECRC_CHK_SHIFT
-			| 0x0000001CU << PCIE_ATTRIB_ATTR_109_ATTR_VC0_TX_LASTPACKET_SHIFT
-			| 0x00000020U << PCIE_ATTRIB_ATTR_109_ATTR_VC0_TOTAL_CREDITS_PH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_109_OFFSET ,0x0000FFFFU ,0x00007E20U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_34 @ 0XFD480088</p>
-
-		Specifies values to be transferred to Header Type register. Bit 7 should be set to '0' indicating single-function device. Bit
-		0 identifies header as Type 0 or Type 1, with '0' indicating a Type 0 header.; EP=0x0000; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_34_ATTR_HEADER_TYPE                                        0x1
-
-		ATTR_34
-		(OFFSET, MASK, VALUE)      (0XFD480088, 0x000000FFU ,0x00000001U)
-		RegMask = (PCIE_ATTRIB_ATTR_34_ATTR_HEADER_TYPE_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_34_ATTR_HEADER_TYPE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_34_OFFSET ,0x000000FFU ,0x00000001U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_53 @ 0XFD4800D4</p>
-
-		PM Capability's Next Capability Offset pointer to the next item in the capabilities list, or 00h if this is the final capabil
-		ty.; EP=0x0048; RP=0x0060
-		PSU_PCIE_ATTRIB_ATTR_53_ATTR_PM_CAP_NEXTPTR                                     0x60
-
-		ATTR_53
-		(OFFSET, MASK, VALUE)      (0XFD4800D4, 0x000000FFU ,0x00000060U)
-		RegMask = (PCIE_ATTRIB_ATTR_53_ATTR_PM_CAP_NEXTPTR_MASK |  0 );
-
-		RegVal = ((0x00000060U << PCIE_ATTRIB_ATTR_53_ATTR_PM_CAP_NEXTPTR_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_53_OFFSET ,0x000000FFU ,0x00000060U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_41 @ 0XFD4800A4</p>
-
-		MSI Per-Vector Masking Capable. The value is transferred to the MSI Control Register[8]. When set, adds Mask and Pending Dwor
-		 to Cap structure; EP=0x0000; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_PER_VECTOR_MASKING_CAPABLE                 0x0
-
-		Indicates that the MSI structures exists. If this is FALSE, then the MSI structure cannot be accessed via either the link or
-		he management port.; EP=0x0001; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON                                         0
-
-		MSI Capability's Next Capability Offset pointer to the next item in the capabilities list, or 00h if this is the final capabi
-		ity.; EP=0x0060; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_NEXTPTR                                    0x0
-
-		Indicates that the MSI structures exists. If this is FALSE, then the MSI structure cannot be accessed via either the link or
-		he management port.; EP=0x0001; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON                                         0
-
-		ATTR_41
-		(OFFSET, MASK, VALUE)      (0XFD4800A4, 0x000003FFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_PER_VECTOR_MASKING_CAPABLE_MASK | PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON_MASK | PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_NEXTPTR_MASK | PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_PER_VECTOR_MASKING_CAPABLE_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_NEXTPTR_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_41_ATTR_MSI_CAP_ON_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_41_OFFSET ,0x000003FFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_97 @ 0XFD480184</p>
-
-		Maximum Link Width. Valid settings are: 000001b x1, 000010b x2, 000100b x4, 001000b x8.; EP=0x0004; RP=0x0004
-		PSU_PCIE_ATTRIB_ATTR_97_ATTR_LINK_CAP_MAX_LINK_WIDTH                            0x1
-
-		Used by LTSSM to set Maximum Link Width. Valid settings are: 000001b [x1], 000010b [x2], 000100b [x4], 001000b [x8].; EP=0x00
-		4; RP=0x0004
-		PSU_PCIE_ATTRIB_ATTR_97_ATTR_LTSSM_MAX_LINK_WIDTH                               0x1
-
-		ATTR_97
-		(OFFSET, MASK, VALUE)      (0XFD480184, 0x00000FFFU ,0x00000041U)
-		RegMask = (PCIE_ATTRIB_ATTR_97_ATTR_LINK_CAP_MAX_LINK_WIDTH_MASK | PCIE_ATTRIB_ATTR_97_ATTR_LTSSM_MAX_LINK_WIDTH_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_97_ATTR_LINK_CAP_MAX_LINK_WIDTH_SHIFT
-			| 0x00000001U << PCIE_ATTRIB_ATTR_97_ATTR_LTSSM_MAX_LINK_WIDTH_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_97_OFFSET ,0x00000FFFU ,0x00000041U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_100 @ 0XFD480190</p>
-
-		TRUE specifies upstream-facing port. FALSE specifies downstream-facing port.; EP=0x0001; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_100_ATTR_UPSTREAM_FACING                                   0x0
-
-		ATTR_100
-		(OFFSET, MASK, VALUE)      (0XFD480190, 0x00000040U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_100_ATTR_UPSTREAM_FACING_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_100_ATTR_UPSTREAM_FACING_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_100_OFFSET ,0x00000040U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_101 @ 0XFD480194</p>
-
-		Enable the routing of message TLPs to the user through the TRN RX interface. A bit value of 1 enables routing of the message
-		LP to the user. Messages are always decoded by the message decoder. Bit 0 - ERR COR, Bit 1 - ERR NONFATAL, Bit 2 - ERR FATAL,
-		Bit 3 - INTA Bit 4 - INTB, Bit 5 - INTC, Bit 6 - INTD, Bit 7 PM_PME, Bit 8 - PME_TO_ACK, Bit 9 - unlock, Bit 10 PME_Turn_Off;
-		EP=0x0000; RP=0x07FF
-		PSU_PCIE_ATTRIB_ATTR_101_ATTR_ENABLE_MSG_ROUTE                                  0x7FF
-
-		Disable BAR filtering. Does not change the behavior of the bar hit outputs; EP=0x0000; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_101_ATTR_DISABLE_BAR_FILTERING                             0x1
-
-		ATTR_101
-		(OFFSET, MASK, VALUE)      (0XFD480194, 0x0000FFE2U ,0x0000FFE2U)
-		RegMask = (PCIE_ATTRIB_ATTR_101_ATTR_ENABLE_MSG_ROUTE_MASK | PCIE_ATTRIB_ATTR_101_ATTR_DISABLE_BAR_FILTERING_MASK |  0 );
-
-		RegVal = ((0x000007FFU << PCIE_ATTRIB_ATTR_101_ATTR_ENABLE_MSG_ROUTE_SHIFT
-			| 0x00000001U << PCIE_ATTRIB_ATTR_101_ATTR_DISABLE_BAR_FILTERING_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_101_OFFSET ,0x0000FFE2U ,0x0000FFE2U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_37 @ 0XFD480094</p>
-
-		Link Bandwidth notification capability. Indicates support for the link bandwidth notification status and interrupt mechanism.
-		Required for Root.; EP=0x0000; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_LINK_BANDWIDTH_NOTIFICATION_CAP           0x1
-
-		Sets the ASPM Optionality Compliance bit, to comply with the 2.1 ASPM Optionality ECN. Transferred to the Link Capabilities r
-		gister.; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY                          0x1
-
-		ATTR_37
-		(OFFSET, MASK, VALUE)      (0XFD480094, 0x00004200U ,0x00004200U)
-		RegMask = (PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_LINK_BANDWIDTH_NOTIFICATION_CAP_MASK | PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_LINK_BANDWIDTH_NOTIFICATION_CAP_SHIFT
-			| 0x00000001U << PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_37_OFFSET ,0x00004200U ,0x00004200U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_93 @ 0XFD480174</p>
-
-		Enables the Replay Timer to use the user-defined LL_REPLAY_TIMEOUT value (or combined with the built-in value, depending on L
-		_REPLAY_TIMEOUT_FUNC). If FALSE, the built-in value is used.; EP=0x0000; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT_EN                               0x1
-
-		Sets a user-defined timeout for the Replay Timer to force cause the retransmission of unacknowledged TLPs; refer to LL_REPLAY
-		TIMEOUT_EN and LL_REPLAY_TIMEOUT_FUNC to see how this value is used. The unit for this attribute is in symbol times, which is
-		4ns at GEN1 speeds and 2ns at GEN2.; EP=0x0000; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT                                  0x1000
-
-		ATTR_93
-		(OFFSET, MASK, VALUE)      (0XFD480174, 0x0000FFFFU ,0x00009000U)
-		RegMask = (PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT_EN_MASK | PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT_EN_SHIFT
-			| 0x00001000U << PCIE_ATTRIB_ATTR_93_ATTR_LL_REPLAY_TIMEOUT_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_93_OFFSET ,0x0000FFFFU ,0x00009000U);
-	/*############################################################################################################################ */
-
-		/*Register : ID @ 0XFD480200</p>
-
-		Device ID for the the PCIe Cap Structure Device ID field
-		PSU_PCIE_ATTRIB_ID_CFG_DEV_ID                                                   0xd021
-
-		Vendor ID for the PCIe Cap Structure Vendor ID field
-		PSU_PCIE_ATTRIB_ID_CFG_VEND_ID                                                  0x10ee
-
-		ID
-		(OFFSET, MASK, VALUE)      (0XFD480200, 0xFFFFFFFFU ,0x10EED021U)
-		RegMask = (PCIE_ATTRIB_ID_CFG_DEV_ID_MASK | PCIE_ATTRIB_ID_CFG_VEND_ID_MASK |  0 );
-
-		RegVal = ((0x0000D021U << PCIE_ATTRIB_ID_CFG_DEV_ID_SHIFT
-			| 0x000010EEU << PCIE_ATTRIB_ID_CFG_VEND_ID_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ID_OFFSET ,0xFFFFFFFFU ,0x10EED021U);
-	/*############################################################################################################################ */
-
-		/*Register : SUBSYS_ID @ 0XFD480204</p>
-
-		Subsystem ID for the the PCIe Cap Structure Subsystem ID field
-		PSU_PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_ID                                         0x7
-
-		Subsystem Vendor ID for the PCIe Cap Structure Subsystem Vendor ID field
-		PSU_PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_VEND_ID                                    0x10ee
-
-		SUBSYS_ID
-		(OFFSET, MASK, VALUE)      (0XFD480204, 0xFFFFFFFFU ,0x10EE0007U)
-		RegMask = (PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_ID_MASK | PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_VEND_ID_MASK |  0 );
-
-		RegVal = ((0x00000007U << PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_ID_SHIFT
-			| 0x000010EEU << PCIE_ATTRIB_SUBSYS_ID_CFG_SUBSYS_VEND_ID_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_SUBSYS_ID_OFFSET ,0xFFFFFFFFU ,0x10EE0007U);
-	/*############################################################################################################################ */
-
-		/*Register : REV_ID @ 0XFD480208</p>
-
-		Revision ID for the the PCIe Cap Structure
-		PSU_PCIE_ATTRIB_REV_ID_CFG_REV_ID                                               0x0
-
-		REV_ID
-		(OFFSET, MASK, VALUE)      (0XFD480208, 0x000000FFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_REV_ID_CFG_REV_ID_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_REV_ID_CFG_REV_ID_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_REV_ID_OFFSET ,0x000000FFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_24 @ 0XFD480060</p>
-
-		Code identifying basic function, subclass and applicable programming interface. Transferred to the Class Code register.; EP=0
-		8000; RP=0x8000
-		PSU_PCIE_ATTRIB_ATTR_24_ATTR_CLASS_CODE                                         0x400
-
-		ATTR_24
-		(OFFSET, MASK, VALUE)      (0XFD480060, 0x0000FFFFU ,0x00000400U)
-		RegMask = (PCIE_ATTRIB_ATTR_24_ATTR_CLASS_CODE_MASK |  0 );
-
-		RegVal = ((0x00000400U << PCIE_ATTRIB_ATTR_24_ATTR_CLASS_CODE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_24_OFFSET ,0x0000FFFFU ,0x00000400U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_25 @ 0XFD480064</p>
-
-		Code identifying basic function, subclass and applicable programming interface. Transferred to the Class Code register.; EP=0
-		0005; RP=0x0006
-		PSU_PCIE_ATTRIB_ATTR_25_ATTR_CLASS_CODE                                         0x6
-
-		INTX Interrupt Generation Capable. If FALSE, this will cause Command[10] to be hardwired to 0.; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_25_ATTR_CMD_INTX_IMPLEMENTED                               0
-
-		ATTR_25
-		(OFFSET, MASK, VALUE)      (0XFD480064, 0x000001FFU ,0x00000006U)
-		RegMask = (PCIE_ATTRIB_ATTR_25_ATTR_CLASS_CODE_MASK | PCIE_ATTRIB_ATTR_25_ATTR_CMD_INTX_IMPLEMENTED_MASK |  0 );
-
-		RegVal = ((0x00000006U << PCIE_ATTRIB_ATTR_25_ATTR_CLASS_CODE_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_25_ATTR_CMD_INTX_IMPLEMENTED_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_25_OFFSET ,0x000001FFU ,0x00000006U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_0 @ 0XFD480000</p>
-
-		Indicates that the core is capable of generating ECRC. Value transferred to bit 5 of the AER Capabilities and Control Registe
-		.; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_0_ATTR_AER_CAP_ECRC_GEN_CAPABLE                            0
-
-		ATTR_0
-		(OFFSET, MASK, VALUE)      (0XFD480000, 0x00000002U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_0_ATTR_AER_CAP_ECRC_GEN_CAPABLE_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_0_ATTR_AER_CAP_ECRC_GEN_CAPABLE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_0_OFFSET ,0x00000002U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_4 @ 0XFD480010</p>
-
-		Indicates that the AER structures exists. If this is FALSE, then the AER structure cannot be accessed via either the link or
-		he management port, and AER will be considered to not be present for error management tasks (such as what types of error mess
-		ges are sent if an error is detected).; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON                                          0
-
-		Indicates that the AER structures exists. If this is FALSE, then the AER structure cannot be accessed via either the link or
-		he management port, and AER will be considered to not be present for error management tasks (such as what types of error mess
-		ges are sent if an error is detected).; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON                                          0
-
-		ATTR_4
-		(OFFSET, MASK, VALUE)      (0XFD480010, 0x00001000U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON_MASK | PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON_SHIFT
-			| 0x00000000U << PCIE_ATTRIB_ATTR_4_ATTR_AER_CAP_ON_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_4_OFFSET ,0x00001000U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_89 @ 0XFD480164</p>
-
-		VSEC's Next Capability Offset pointer to the next item in the capabilities list, or 000h if this is the final capability.; EP
-		0x0140; RP=0x0140
-		PSU_PCIE_ATTRIB_ATTR_89_ATTR_VSEC_CAP_NEXTPTR                                   0
-
-		ATTR_89
-		(OFFSET, MASK, VALUE)      (0XFD480164, 0x00001FFEU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_89_ATTR_VSEC_CAP_NEXTPTR_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_89_ATTR_VSEC_CAP_NEXTPTR_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_89_OFFSET ,0x00001FFEU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_79 @ 0XFD48013C</p>
-
-		CRS SW Visibility. Indicates RC can return CRS to SW. Transferred to the Root Capabilities register.; EP=0x0000; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_79_ATTR_ROOT_CAP_CRS_SW_VISIBILITY                         1
-
-		ATTR_79
-		(OFFSET, MASK, VALUE)      (0XFD48013C, 0x00000020U ,0x00000020U)
-		RegMask = (PCIE_ATTRIB_ATTR_79_ATTR_ROOT_CAP_CRS_SW_VISIBILITY_MASK |  0 );
-
-		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_79_ATTR_ROOT_CAP_CRS_SW_VISIBILITY_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_79_OFFSET ,0x00000020U ,0x00000020U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_43 @ 0XFD4800AC</p>
-
-		Indicates that the MSIX structures exists. If this is FALSE, then the MSIX structure cannot be accessed via either the link o
-		 the management port.; EP=0x0001; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_43_ATTR_MSIX_CAP_ON                                        0
-
-		ATTR_43
-		(OFFSET, MASK, VALUE)      (0XFD4800AC, 0x00000100U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_43_ATTR_MSIX_CAP_ON_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_43_ATTR_MSIX_CAP_ON_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_43_OFFSET ,0x00000100U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_48 @ 0XFD4800C0</p>
-
-		MSI-X Table Size. This value is transferred to the MSI-X Message Control[10:0] field. Set to 0 if MSI-X is not enabled. Note
-		hat the core does not implement the table; that must be implemented in user logic.; EP=0x0003; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_48_ATTR_MSIX_CAP_TABLE_SIZE                                0
-
-		ATTR_48
-		(OFFSET, MASK, VALUE)      (0XFD4800C0, 0x000007FFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_48_ATTR_MSIX_CAP_TABLE_SIZE_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_48_ATTR_MSIX_CAP_TABLE_SIZE_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_48_OFFSET ,0x000007FFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_46 @ 0XFD4800B8</p>
-
-		MSI-X Table Offset. This value is transferred to the MSI-X Table Offset field. Set to 0 if MSI-X is not enabled.; EP=0x0001;
-		P=0x0000
-		PSU_PCIE_ATTRIB_ATTR_46_ATTR_MSIX_CAP_TABLE_OFFSET                              0
-
-		ATTR_46
-		(OFFSET, MASK, VALUE)      (0XFD4800B8, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_46_ATTR_MSIX_CAP_TABLE_OFFSET_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_46_ATTR_MSIX_CAP_TABLE_OFFSET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_46_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_47 @ 0XFD4800BC</p>
-
-		MSI-X Table Offset. This value is transferred to the MSI-X Table Offset field. Set to 0 if MSI-X is not enabled.; EP=0x0000;
-		P=0x0000
-		PSU_PCIE_ATTRIB_ATTR_47_ATTR_MSIX_CAP_TABLE_OFFSET                              0
-
-		ATTR_47
-		(OFFSET, MASK, VALUE)      (0XFD4800BC, 0x00001FFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_47_ATTR_MSIX_CAP_TABLE_OFFSET_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_47_ATTR_MSIX_CAP_TABLE_OFFSET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_47_OFFSET ,0x00001FFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_44 @ 0XFD4800B0</p>
-
-		MSI-X Pending Bit Array Offset This value is transferred to the MSI-X PBA Offset field. Set to 0 if MSI-X is not enabled.; EP
-		0x0001; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_44_ATTR_MSIX_CAP_PBA_OFFSET                                0
-
-		ATTR_44
-		(OFFSET, MASK, VALUE)      (0XFD4800B0, 0x0000FFFFU ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_44_ATTR_MSIX_CAP_PBA_OFFSET_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_44_ATTR_MSIX_CAP_PBA_OFFSET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_44_OFFSET ,0x0000FFFFU ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_45 @ 0XFD4800B4</p>
-
-		MSI-X Pending Bit Array Offset This value is transferred to the MSI-X PBA Offset field. Set to 0 if MSI-X is not enabled.; EP
-		0x1000; RP=0x0000
-		PSU_PCIE_ATTRIB_ATTR_45_ATTR_MSIX_CAP_PBA_OFFSET                                0
-
-		ATTR_45
-		(OFFSET, MASK, VALUE)      (0XFD4800B4, 0x0000FFF8U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_45_ATTR_MSIX_CAP_PBA_OFFSET_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_45_ATTR_MSIX_CAP_PBA_OFFSET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_45_OFFSET ,0x0000FFF8U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : CB @ 0XFD48031C</p>
-
-		DT837748 Enable
-		PSU_PCIE_ATTRIB_CB_CB1                                                          0x0
-
-		ECO Register 1
-		(OFFSET, MASK, VALUE)      (0XFD48031C, 0x00000002U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_CB_CB1_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_CB_CB1_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_CB_OFFSET ,0x00000002U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		/*Register : ATTR_35 @ 0XFD48008C</p>
-
-		Active State PM Support. Indicates the level of active state power management supported by the selected PCI Express Link, enc
-		ded as follows: 0 Reserved, 1 L0s entry supported, 2 Reserved, 3 L0s and L1 entry supported.; EP=0x0001; RP=0x0001
-		PSU_PCIE_ATTRIB_ATTR_35_ATTR_LINK_CAP_ASPM_SUPPORT                              0x0
-
-		ATTR_35
-		(OFFSET, MASK, VALUE)      (0XFD48008C, 0x00003000U ,0x00000000U)
-		RegMask = (PCIE_ATTRIB_ATTR_35_ATTR_LINK_CAP_ASPM_SUPPORT_MASK |  0 );
-
-		RegVal = ((0x00000000U << PCIE_ATTRIB_ATTR_35_ATTR_LINK_CAP_ASPM_SUPPORT_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (PCIE_ATTRIB_ATTR_35_OFFSET ,0x00003000U ,0x00000000U);
-	/*############################################################################################################################ */
-
-		// : PUTTING PCIE CONTROL IN RESET
-		/*Register : RST_FPD_TOP @ 0XFD1A0100</p>
-
-		PCIE control block level reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET                                         0X0
-
-		FPD Block level software controlled reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x00020000U ,0x00000000U)
-		RegMask = (CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_MASK |  0 );
-
-		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x00020000U ,0x00000000U);
-	/*############################################################################################################################ */
-
 		// : SATA AHCI VENDOR SETTING
 		/*Register : PP2C @ 0XFD0C00AC</p>
 
 		CIBGMN: COMINIT Burst Gap Minimum.
-		PSU_SATA_AHCI_VENDOR_PP2C_CIBGMN                                                0x1B
+		PSU_SATA_AHCI_VENDOR_PP2C_CIBGMN                                                0x18
 
 		CIBGMX: COMINIT Burst Gap Maximum.
-		PSU_SATA_AHCI_VENDOR_PP2C_CIBGMX                                                0x4D
+		PSU_SATA_AHCI_VENDOR_PP2C_CIBGMX                                                0x40
 
 		CIBGN: COMINIT Burst Gap Nominal.
 		PSU_SATA_AHCI_VENDOR_PP2C_CIBGN                                                 0x18
@@ -30831,15 +22616,15 @@ unsigned long psu_resetout_init_data() {
 
 		PP2C - Port Phy2Cfg Register. This register controls the configuration of the Phy Control OOB timing for the COMINIT paramete
 		s for either Port 0 or Port 1. The Port configured is controlled by the value programmed into the Port Config Register.
-		(OFFSET, MASK, VALUE)      (0XFD0C00AC, 0xFFFFFFFFU ,0x28184D1BU)
+		(OFFSET, MASK, VALUE)      (0XFD0C00AC, 0xFFFFFFFFU ,0x28184018U)
 		RegMask = (SATA_AHCI_VENDOR_PP2C_CIBGMN_MASK | SATA_AHCI_VENDOR_PP2C_CIBGMX_MASK | SATA_AHCI_VENDOR_PP2C_CIBGN_MASK | SATA_AHCI_VENDOR_PP2C_CINMP_MASK |  0 );
 
-		RegVal = ((0x0000001BU << SATA_AHCI_VENDOR_PP2C_CIBGMN_SHIFT
-			| 0x0000004DU << SATA_AHCI_VENDOR_PP2C_CIBGMX_SHIFT
+		RegVal = ((0x00000018U << SATA_AHCI_VENDOR_PP2C_CIBGMN_SHIFT
+			| 0x00000040U << SATA_AHCI_VENDOR_PP2C_CIBGMX_SHIFT
 			| 0x00000018U << SATA_AHCI_VENDOR_PP2C_CIBGN_SHIFT
 			| 0x00000028U << SATA_AHCI_VENDOR_PP2C_CINMP_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SATA_AHCI_VENDOR_PP2C_OFFSET ,0xFFFFFFFFU ,0x28184D1BU);
+		PSU_Mask_Write (SATA_AHCI_VENDOR_PP2C_OFFSET ,0xFFFFFFFFU ,0x28184018U);
 	/*############################################################################################################################ */
 
 		/*Register : PP3C @ 0XFD0C00B0</p>
@@ -30848,7 +22633,7 @@ unsigned long psu_resetout_init_data() {
 		PSU_SATA_AHCI_VENDOR_PP3C_CWBGMN                                                0x06
 
 		CWBGMX: COMWAKE Burst Gap Maximum.
-		PSU_SATA_AHCI_VENDOR_PP3C_CWBGMX                                                0x19
+		PSU_SATA_AHCI_VENDOR_PP3C_CWBGMX                                                0x14
 
 		CWBGN: COMWAKE Burst Gap Nominal.
 		PSU_SATA_AHCI_VENDOR_PP3C_CWBGN                                                 0x08
@@ -30858,15 +22643,15 @@ unsigned long psu_resetout_init_data() {
 
 		PP3C - Port Phy3CfgRegister. This register controls the configuration of the Phy Control OOB timing for the COMWAKE parameter
 		 for either Port 0 or Port 1. The Port configured is controlled by the value programmed into the Port Config Register.
-		(OFFSET, MASK, VALUE)      (0XFD0C00B0, 0xFFFFFFFFU ,0x0E081906U)
+		(OFFSET, MASK, VALUE)      (0XFD0C00B0, 0xFFFFFFFFU ,0x0E081406U)
 		RegMask = (SATA_AHCI_VENDOR_PP3C_CWBGMN_MASK | SATA_AHCI_VENDOR_PP3C_CWBGMX_MASK | SATA_AHCI_VENDOR_PP3C_CWBGN_MASK | SATA_AHCI_VENDOR_PP3C_CWNMP_MASK |  0 );
 
 		RegVal = ((0x00000006U << SATA_AHCI_VENDOR_PP3C_CWBGMN_SHIFT
-			| 0x00000019U << SATA_AHCI_VENDOR_PP3C_CWBGMX_SHIFT
+			| 0x00000014U << SATA_AHCI_VENDOR_PP3C_CWBGMX_SHIFT
 			| 0x00000008U << SATA_AHCI_VENDOR_PP3C_CWBGN_SHIFT
 			| 0x0000000EU << SATA_AHCI_VENDOR_PP3C_CWNMP_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (SATA_AHCI_VENDOR_PP3C_OFFSET ,0xFFFFFFFFU ,0x0E081906U);
+		PSU_Mask_Write (SATA_AHCI_VENDOR_PP3C_OFFSET ,0xFFFFFFFFU ,0x0E081406U);
 	/*############################################################################################################################ */
 
 		/*Register : PP4C @ 0XFD0C00B4</p>
@@ -30948,29 +22733,6 @@ unsigned long psu_resetin_init_data() {
 		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00000540U ,0x00000540U);
 	/*############################################################################################################################ */
 
-		// : PUTTING USB1 IN RESET
-		/*Register : RST_LPD_TOP @ 0XFF5E023C</p>
-
-		USB 1 reset for control registers
-		PSU_CRL_APB_RST_LPD_TOP_USB1_APB_RESET                                          0X1
-
-		USB 1 sleep circuit reset
-		PSU_CRL_APB_RST_LPD_TOP_USB1_HIBERRESET                                         0X1
-
-		USB 1 reset
-		PSU_CRL_APB_RST_LPD_TOP_USB1_CORERESET                                          0X1
-
-		Software control register for the LPD block.
-		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000A80U ,0x00000A80U)
-		RegMask = (CRL_APB_RST_LPD_TOP_USB1_APB_RESET_MASK | CRL_APB_RST_LPD_TOP_USB1_HIBERRESET_MASK | CRL_APB_RST_LPD_TOP_USB1_CORERESET_MASK |  0 );
-
-		RegVal = ((0x00000001U << CRL_APB_RST_LPD_TOP_USB1_APB_RESET_SHIFT
-			| 0x00000001U << CRL_APB_RST_LPD_TOP_USB1_HIBERRESET_SHIFT
-			| 0x00000001U << CRL_APB_RST_LPD_TOP_USB1_CORERESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00000A80U ,0x00000A80U);
-	/*############################################################################################################################ */
-
 		// : PUTTING GEM0 IN RESET
 		/*Register : RST_LPD_IOU0 @ 0XFF5E0230</p>
 
@@ -30999,29 +22761,6 @@ unsigned long psu_resetin_init_data() {
 		RegVal = ((0x00000001U << CRF_APB_RST_FPD_TOP_SATA_RESET_SHIFT
 			|  0 ) & RegMask); */
 		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x00000002U ,0x00000002U);
-	/*############################################################################################################################ */
-
-		// : PUTTING PCIE IN RESET
-		/*Register : RST_FPD_TOP @ 0XFD1A0100</p>
-
-		PCIE config reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET                                          0X1
-
-		PCIE control block level reset
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET                                         0X1
-
-		PCIE bridge block level reset (AXI interface)
-		PSU_CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET                                       0X1
-
-		FPD Block level software controlled reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x000E0000U ,0x000E0000U)
-		RegMask = (CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_MASK | CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_MASK | CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_MASK |  0 );
-
-		RegVal = ((0x00000001U << CRF_APB_RST_FPD_TOP_PCIE_CFG_RESET_SHIFT
-			| 0x00000001U << CRF_APB_RST_FPD_TOP_PCIE_CTRL_RESET_SHIFT
-			| 0x00000001U << CRF_APB_RST_FPD_TOP_PCIE_BRIDGE_RESET_SHIFT
-			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x000E0000U ,0x000E0000U);
 	/*############################################################################################################################ */
 
 		// : PUTTING DP IN RESET
@@ -31072,6 +22811,301 @@ unsigned long psu_resetin_init_data() {
   return 1;
 }
 unsigned long psu_ps_pl_isolation_removal_data() {
+		// : AFI RESET
+		/*Register : RST_FPD_TOP @ 0XFD1A0100</p>
+
+		AF_FM0 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM0_RESET                                           0
+
+		AF_FM1 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM1_RESET                                           0
+
+		AF_FM2 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM2_RESET                                           0
+
+		AF_FM3 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM3_RESET                                           0
+
+		AF_FM4 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM4_RESET                                           0
+
+		AF_FM5 block level reset
+		PSU_CRF_APB_RST_FPD_TOP_AFI_FM5_RESET                                           0
+
+		FPD Block level software controlled reset
+		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x00001F80U ,0x00000000U)
+		RegMask = (CRF_APB_RST_FPD_TOP_AFI_FM0_RESET_MASK | CRF_APB_RST_FPD_TOP_AFI_FM1_RESET_MASK | CRF_APB_RST_FPD_TOP_AFI_FM2_RESET_MASK | CRF_APB_RST_FPD_TOP_AFI_FM3_RESET_MASK | CRF_APB_RST_FPD_TOP_AFI_FM4_RESET_MASK | CRF_APB_RST_FPD_TOP_AFI_FM5_RESET_MASK |  0 );
+
+		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM0_RESET_SHIFT
+			| 0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM1_RESET_SHIFT
+			| 0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM2_RESET_SHIFT
+			| 0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM3_RESET_SHIFT
+			| 0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM4_RESET_SHIFT
+			| 0x00000000U << CRF_APB_RST_FPD_TOP_AFI_FM5_RESET_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (CRF_APB_RST_FPD_TOP_OFFSET ,0x00001F80U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : RST_LPD_TOP @ 0XFF5E023C</p>
+
+		AFI FM 6
+		PSU_CRL_APB_RST_LPD_TOP_AFI_FM6_RESET                                           0
+
+		Software control register for the LPD block.
+		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00080000U ,0x00000000U)
+		RegMask = (CRL_APB_RST_LPD_TOP_AFI_FM6_RESET_MASK |  0 );
+
+		RegVal = ((0x00000000U << CRL_APB_RST_LPD_TOP_AFI_FM6_RESET_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (CRL_APB_RST_LPD_TOP_OFFSET ,0x00080000U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		// : AFIFM INTERFACE WIDTH
+		/*Register : afi_fs @ 0XFD615000</p>
+
+		Select the 32/64/128-bit data width selection for the Slave 0 00: 32-bit AXI data width (default) 01: 64-bit AXI data width 1
+		: 128-bit AXI data width 11: reserved
+		PSU_FPD_SLCR_AFI_FS_DW_SS0_SEL                                                  0x2
+
+		Select the 32/64/128-bit data width selection for the Slave 1 00: 32-bit AXI data width (default) 01: 64-bit AXI data width 1
+		: 128-bit AXI data width 11: reserved
+		PSU_FPD_SLCR_AFI_FS_DW_SS1_SEL                                                  0x2
+
+		afi fs SLCR control register. This register is static and should not be modified during operation.
+		(OFFSET, MASK, VALUE)      (0XFD615000, 0x00000F00U ,0x00000A00U)
+		RegMask = (FPD_SLCR_AFI_FS_DW_SS0_SEL_MASK | FPD_SLCR_AFI_FS_DW_SS1_SEL_MASK |  0 );
+
+		RegVal = ((0x00000002U << FPD_SLCR_AFI_FS_DW_SS0_SEL_SHIFT
+			| 0x00000002U << FPD_SLCR_AFI_FS_DW_SS1_SEL_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (FPD_SLCR_AFI_FS_OFFSET ,0x00000F00U ,0x00000A00U);
+	/*############################################################################################################################ */
+
+		/*Register : afi_fs @ 0XFF419000</p>
+
+		Select the 32/64/128-bit data width selection for the Slave 0 00: 32-bit AXI data width (default) 01: 64-bit AXI data width 1
+		: 128-bit AXI data width 11: reserved
+		PSU_LPD_SLCR_AFI_FS_DW_SS2_SEL                                                  0x2
+
+		afi fs SLCR control register. Do not change the bits durin
+		(OFFSET, MASK, VALUE)      (0XFF419000, 0x00000300U ,0x00000200U)
+		RegMask = (LPD_SLCR_AFI_FS_DW_SS2_SEL_MASK |  0 );
+
+		RegVal = ((0x00000002U << LPD_SLCR_AFI_FS_DW_SS2_SEL_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (LPD_SLCR_AFI_FS_OFFSET ,0x00000300U ,0x00000200U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD360000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD360000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM0_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD370000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD370000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM1_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD380000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD380000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM2_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD390000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD390000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM3_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD3A0000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD3A0000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM4_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFD3B0000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD3B0000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM5_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_RDCTRL @ 0XFF9B0000</p>
+
+		Configures the Read Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 128
+		bit enabled
+		PSU_AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
+
+		Read Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFF9B0000, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM6_AFIFM_RDCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD360014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM0_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD360014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM0_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM0_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM0_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD370014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM1_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD370014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM1_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM1_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM1_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD380014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM2_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD380014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM2_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM2_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM2_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD390014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM3_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD390014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM3_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM3_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM3_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD3A0014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM4_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD3A0014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM4_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM4_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM4_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFD3B0014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM5_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFD3B0014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM5_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM5_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM5_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
+		/*Register : AFIFM_WRCTRL @ 0XFF9B0014</p>
+
+		Configures the Write Channel Fabric interface width. 2'b11 : Reserved 2'b10 : 32-bit Fabric 2'b01 : 64-bit enabled 2'b00 : 12
+		-bit enabled
+		PSU_AFIFM6_AFIFM_WRCTRL_FABRIC_WIDTH                                            0x0
+
+		Write Channel Control Register
+		(OFFSET, MASK, VALUE)      (0XFF9B0014, 0x00000003U ,0x00000000U)
+		RegMask = (AFIFM6_AFIFM_WRCTRL_FABRIC_WIDTH_MASK |  0 );
+
+		RegVal = ((0x00000000U << AFIFM6_AFIFM_WRCTRL_FABRIC_WIDTH_SHIFT
+			|  0 ) & RegMask); */
+		PSU_Mask_Write (AFIFM6_AFIFM_WRCTRL_OFFSET ,0x00000003U ,0x00000000U);
+	/*############################################################################################################################ */
+
 		// : PS-PL POWER UP REQUEST
 		/*Register : REQ_PWRUP_INT_EN @ 0XFFD80118</p>
 
@@ -31219,16 +23253,8 @@ unsigned long psu_ddr_phybringup_data() {
 
 
 		unsigned int regval = 0;
-	////////////////////////////////////////////////////////////////////////////////
-	// RDBI work around code start
-	////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////
-	// RDBI work around code end
-	////////////////////////////////////////////////////////////////////////////////
 	int dpll_divisor;
 	dpll_divisor = (Xil_In32(0xFD1A0080U) & 0x00003F00U) >> 0x00000008U;
-	if (dpll_divisor != 0 &&  !dpll_divisor)
-		dpll_divisor++;
 	prog_reg (0xFD1A0080U, 0x00003F00U, 0x00000008U, 0x00000005U);
 	prog_reg (0xFD080028U, 0x00000001U, 0x00000000U, 0x00000001U);
 	Xil_Out32(0xFD080004U, 0x00040003U);
@@ -31237,6 +23263,7 @@ unsigned long psu_ddr_phybringup_data() {
 	prog_reg (0xFD0806A4U, 0x06000000U, 0x00000019U, 0x00000001U);
 	prog_reg (0xFD0806C4U, 0x06000000U, 0x00000019U, 0x00000001U);
 	prog_reg (0xFD0806E4U, 0x06000000U, 0x00000019U, 0x00000001U);
+	prog_reg (0xFD1A0080, 0x3F00, 0x8, dpll_divisor);
 	Xil_Out32(0xFD080004U, 0x40040071U);
 	while ((Xil_In32(0xFD080030U) & 0x00000001U) != 0x00000001U);
 	Xil_Out32(0xFD080004U, 0x40040001U);
@@ -31295,167 +23322,6 @@ unsigned long psu_ddr_phybringup_data() {
 	Xil_Out32(0xFD070180U, 0x01000040U);
 	Xil_Out32(0xFD070060U, 0x00000000U);
 	prog_reg (0xFD080014U, 0x00000040U, 0x00000006U, 0x00000000U);
-	////////////////////////////////////////////////////////////////////////////////
-	// RDBI work around code start
-	////////////////////////////////////////////////////////////////////////////////
-	prog_reg (0xFD080014U, 0x00000040U, 0x00000006U, 0x00000001U);
-	prog_reg (0xFD070320U, 0x00000001U, 0x00000000U, 0x00000000U);
-	prog_reg (0xFD0701A0U, 0x80000000U, 0x0000001FU, 0x00000001U);
-	int DQ0RBD_0;
-	DQ0RBD_0 = (Xil_In32(0xFD080750U) & 0x0000003FU) >> 0x00000000U;
-	int DQ0RBD_1;
-	DQ0RBD_1 = (Xil_In32(0xFD080750U) & 0x00003F00U) >> 0x00000008U;
-	int DQ0RBD_2;
-	DQ0RBD_2 = (Xil_In32(0xFD080750U) & 0x003F0000U) >> 0x00000010U;
-	int DQ0RBD_3;
-	DQ0RBD_3 = (Xil_In32(0xFD080750U) & 0x3F000000U) >> 0x00000018U;
-	int DQ0RBD_4;
-	DQ0RBD_4 = (Xil_In32(0xFD080754U) & 0x0000003FU) >> 0x00000000U;
-	int DQ0RBD_5;
-	DQ0RBD_5 = (Xil_In32(0xFD080754U) & 0x00003F00U) >> 0x00000008U;
-	int DQ0RBD_6;
-	DQ0RBD_6 = (Xil_In32(0xFD080754U) & 0x003F0000U) >> 0x00000010U;
-	int DQ0RBD_7;
-	DQ0RBD_7 = (Xil_In32(0xFD080754U) & 0x3F000000U) >> 0x00000018U;
-	int DQ1RBD_0;
-	DQ1RBD_0 = (Xil_In32(0xFD080850U) & 0x0000003FU) >> 0x00000000U;
-	int DQ1RBD_1;
-	DQ1RBD_1 = (Xil_In32(0xFD080850U) & 0x00003F00U) >> 0x00000008U;
-	int DQ1RBD_2;
-	DQ1RBD_2 = (Xil_In32(0xFD080850U) & 0x003F0000U) >> 0x00000010U;
-	int DQ1RBD_3;
-	DQ1RBD_3 = (Xil_In32(0xFD080850U) & 0x3F000000U) >> 0x00000018U;
-	int DQ1RBD_4;
-	DQ1RBD_4 = (Xil_In32(0xFD080854U) & 0x0000003FU) >> 0x00000000U;
-	int DQ1RBD_5;
-	DQ1RBD_5 = (Xil_In32(0xFD080854U) & 0x00003F00U) >> 0x00000008U;
-	int DQ1RBD_6;
-	DQ1RBD_6 = (Xil_In32(0xFD080854U) & 0x003F0000U) >> 0x00000010U;
-	int DQ1RBD_7;
-	DQ1RBD_7 = (Xil_In32(0xFD080854U) & 0x3F000000U) >> 0x00000018U;
-	int DQ2RBD_0;
-	DQ2RBD_0 = (Xil_In32(0xFD080950U) & 0x0000003FU) >> 0x00000000U;
-	int DQ2RBD_1;
-	DQ2RBD_1 = (Xil_In32(0xFD080950U) & 0x00003F00U) >> 0x00000008U;
-	int DQ2RBD_2;
-	DQ2RBD_2 = (Xil_In32(0xFD080950U) & 0x003F0000U) >> 0x00000010U;
-	int DQ2RBD_3;
-	DQ2RBD_3 = (Xil_In32(0xFD080950U) & 0x3F000000U) >> 0x00000018U;
-	int DQ2RBD_4;
-	DQ2RBD_4 = (Xil_In32(0xFD080954U) & 0x0000003FU) >> 0x00000000U;
-	int DQ2RBD_5;
-	DQ2RBD_5 = (Xil_In32(0xFD080954U) & 0x00003F00U) >> 0x00000008U;
-	int DQ2RBD_6;
-	DQ2RBD_6 = (Xil_In32(0xFD080954U) & 0x003F0000U) >> 0x00000010U;
-	int DQ2RBD_7;
-	DQ2RBD_7 = (Xil_In32(0xFD080954U) & 0x3F000000U) >> 0x00000018U;
-	int DQ3RBD_0;
-	DQ3RBD_0 = (Xil_In32(0xFD080A50U) & 0x0000003FU) >> 0x00000000U;
-	int DQ3RBD_1;
-	DQ3RBD_1 = (Xil_In32(0xFD080A50U) & 0x00003F00U) >> 0x00000008U;
-	int DQ3RBD_2;
-	DQ3RBD_2 = (Xil_In32(0xFD080A50U) & 0x003F0000U) >> 0x00000010U;
-	int DQ3RBD_3;
-	DQ3RBD_3 = (Xil_In32(0xFD080A50U) & 0x3F000000U) >> 0x00000018U;
-	int DQ3RBD_4;
-	DQ3RBD_4 = (Xil_In32(0xFD080A54U) & 0x0000003FU) >> 0x00000000U;
-	int DQ3RBD_5;
-	DQ3RBD_5 = (Xil_In32(0xFD080A54U) & 0x00003F00U) >> 0x00000008U;
-	int DQ3RBD_6;
-	DQ3RBD_6 = (Xil_In32(0xFD080A54U) & 0x003F0000U) >> 0x00000010U;
-	int DQ3RBD_7;
-	DQ3RBD_7 = (Xil_In32(0xFD080A54U) & 0x3F000000U) >> 0x00000018U;
-	int DQ4RBD_0;
-	DQ4RBD_0 = (Xil_In32(0xFD080B50U) & 0x0000003FU) >> 0x00000000U;
-	int DQ4RBD_1;
-	DQ4RBD_1 = (Xil_In32(0xFD080B50U) & 0x00003F00U) >> 0x00000008U;
-	int DQ4RBD_2;
-	DQ4RBD_2 = (Xil_In32(0xFD080B50U) & 0x003F0000U) >> 0x00000010U;
-	int DQ4RBD_3;
-	DQ4RBD_3 = (Xil_In32(0xFD080B50U) & 0x3F000000U) >> 0x00000018U;
-	int DQ4RBD_4;
-	DQ4RBD_4 = (Xil_In32(0xFD080B54U) & 0x0000003FU) >> 0x00000000U;
-	int DQ4RBD_5;
-	DQ4RBD_5 = (Xil_In32(0xFD080B54U) & 0x00003F00U) >> 0x00000008U;
-	int DQ4RBD_6;
-	DQ4RBD_6 = (Xil_In32(0xFD080B54U) & 0x003F0000U) >> 0x00000010U;
-	int DQ4RBD_7;
-	DQ4RBD_7 = (Xil_In32(0xFD080B54U) & 0x3F000000U) >> 0x00000018U;
-	int DQ5RBD_0;
-	DQ5RBD_0 = (Xil_In32(0xFD080C50U) & 0x0000003FU) >> 0x00000000U;
-	int DQ5RBD_1;
-	DQ5RBD_1 = (Xil_In32(0xFD080C50U) & 0x00003F00U) >> 0x00000008U;
-	int DQ5RBD_2;
-	DQ5RBD_2 = (Xil_In32(0xFD080C50U) & 0x003F0000U) >> 0x00000010U;
-	int DQ5RBD_3;
-	DQ5RBD_3 = (Xil_In32(0xFD080C50U) & 0x3F000000U) >> 0x00000018U;
-	int DQ5RBD_4;
-	DQ5RBD_4 = (Xil_In32(0xFD080C54U) & 0x0000003FU) >> 0x00000000U;
-	int DQ5RBD_5;
-	DQ5RBD_5 = (Xil_In32(0xFD080C54U) & 0x00003F00U) >> 0x00000008U;
-	int DQ5RBD_6;
-	DQ5RBD_6 = (Xil_In32(0xFD080C54U) & 0x003F0000U) >> 0x00000010U;
-	int DQ5RBD_7;
-	DQ5RBD_7 = (Xil_In32(0xFD080C54U) & 0x3F000000U) >> 0x00000018U;
-	int DQ6RBD_0;
-	DQ6RBD_0 = (Xil_In32(0xFD080D50U) & 0x0000003FU) >> 0x00000000U;
-	int DQ6RBD_1;
-	DQ6RBD_1 = (Xil_In32(0xFD080D50U) & 0x00003F00U) >> 0x00000008U;
-	int DQ6RBD_2;
-	DQ6RBD_2 = (Xil_In32(0xFD080D50U) & 0x003F0000U) >> 0x00000010U;
-	int DQ6RBD_3;
-	DQ6RBD_3 = (Xil_In32(0xFD080D50U) & 0x3F000000U) >> 0x00000018U;
-	int DQ6RBD_4;
-	DQ6RBD_4 = (Xil_In32(0xFD080D54U) & 0x0000003FU) >> 0x00000000U;
-	int DQ6RBD_5;
-	DQ6RBD_5 = (Xil_In32(0xFD080D54U) & 0x00003F00U) >> 0x00000008U;
-	int DQ6RBD_6;
-	DQ6RBD_6 = (Xil_In32(0xFD080D54U) & 0x003F0000U) >> 0x00000010U;
-	int DQ6RBD_7;
-	DQ6RBD_7 = (Xil_In32(0xFD080D54U) & 0x3F000000U) >> 0x00000018U;
-	int DQ7RBD_0;
-	DQ7RBD_0 = (Xil_In32(0xFD080E50U) & 0x0000003FU) >> 0x00000000U;
-	int DQ7RBD_1;
-	DQ7RBD_1 = (Xil_In32(0xFD080E50U) & 0x00003F00U) >> 0x00000008U;
-	int DQ7RBD_2;
-	DQ7RBD_2 = (Xil_In32(0xFD080E50U) & 0x003F0000U) >> 0x00000010U;
-	int DQ7RBD_3;
-	DQ7RBD_3 = (Xil_In32(0xFD080E50U) & 0x3F000000U) >> 0x00000018U;
-	int DQ7RBD_4;
-	DQ7RBD_4 = (Xil_In32(0xFD080E54U) & 0x0000003FU) >> 0x00000000U;
-	int DQ7RBD_5;
-	DQ7RBD_5 = (Xil_In32(0xFD080E54U) & 0x00003F00U) >> 0x00000008U;
-	int DQ7RBD_6;
-	DQ7RBD_6 = (Xil_In32(0xFD080E54U) & 0x003F0000U) >> 0x00000010U;
-	int DQ7RBD_7;
-	DQ7RBD_7 = (Xil_In32(0xFD080E54U) & 0x3F000000U) >> 0x00000018U;
-
-// ** declare variables used for calculation **
-
-	int cal_byte0,cal_byte1,cal_byte2,cal_byte3,cal_byte4,cal_byte5,cal_byte6,cal_byte7; //,cal_byte8;
-
-	cal_byte0 = ((DQ0RBD_0 + DQ0RBD_1 + DQ0RBD_2 + DQ0RBD_3 + DQ0RBD_4 + DQ0RBD_5 + DQ0RBD_6 + DQ0RBD_7)/8);
-	cal_byte1 = ((DQ1RBD_0 + DQ1RBD_1 + DQ1RBD_2 + DQ1RBD_3 + DQ1RBD_4 + DQ1RBD_5 + DQ1RBD_6 + DQ1RBD_7)/8);
-	cal_byte2 = ((DQ2RBD_0 + DQ2RBD_1 + DQ2RBD_2 + DQ2RBD_3 + DQ2RBD_4 + DQ2RBD_5 + DQ2RBD_6 + DQ2RBD_7)/8);
-	cal_byte3 = ((DQ3RBD_0 + DQ3RBD_1 + DQ3RBD_2 + DQ3RBD_3 + DQ3RBD_4 + DQ3RBD_5 + DQ3RBD_6 + DQ3RBD_7)/8);
-	cal_byte4 = ((DQ4RBD_0 + DQ4RBD_1 + DQ4RBD_2 + DQ4RBD_3 + DQ4RBD_4 + DQ4RBD_5 + DQ4RBD_6 + DQ4RBD_7)/8);
-	cal_byte5 = ((DQ5RBD_0 + DQ5RBD_1 + DQ5RBD_2 + DQ5RBD_3 + DQ5RBD_4 + DQ5RBD_5 + DQ5RBD_6 + DQ5RBD_7)/8);
-	cal_byte6 = ((DQ6RBD_0 + DQ6RBD_1 + DQ6RBD_2 + DQ6RBD_3 + DQ6RBD_4 + DQ6RBD_5 + DQ6RBD_6 + DQ6RBD_7)/8);
-	cal_byte7 = ((DQ7RBD_0 + DQ7RBD_1 + DQ7RBD_2 + DQ7RBD_3 + DQ7RBD_4 + DQ7RBD_5 + DQ7RBD_6 + DQ7RBD_7)/8);
-	prog_reg (0xFD080758U, 0x0000003FU, 0, cal_byte0);
-	prog_reg (0xFD080858U, 0x0000003FU, 0, cal_byte1);
-	prog_reg (0xFD080958U, 0x0000003FU, 0, cal_byte2);
-	prog_reg (0xFD080A58U, 0x0000003FU, 0, cal_byte3);
-	prog_reg (0xFD080B58U, 0x0000003FU, 0, cal_byte4);
-	prog_reg (0xFD080C58U, 0x0000003FU, 0, cal_byte5);
-	prog_reg (0xFD080D58U, 0x0000003FU, 0, cal_byte6);
-	prog_reg (0xFD080E58U, 0x0000003FU, 0, cal_byte7);
-	prog_reg (0xFD0701A0U, 0x80000000U, 0x0000001FU, 0x00000000U);
-	prog_reg (0xFD070320U, 0x00000001U, 0x00000000U, 0x00000001U);
-	prog_reg (0xFD080014U, 0x00000040U, 0x00000006U, 0x00000000U);
-	////////////////////////////////////////////////////////////////////////////////
-	// RDBI work around code end
-	////////////////////////////////////////////////////////////////////////////////
 
 return 1;
 }
@@ -31482,7 +23348,7 @@ return 1;
 
 
 int mask_pollOnValue(u32 add , u32 mask, u32 value ) {
-	volatile u32 *addr = (volatile u32*) add;
+	volatile u32 *addr = (volatile u32*)(unsigned long) add;
 	int i = 0;
 	while ((*addr & mask)!= value) {
 		if (i == PSU_MASK_POLL_TIME) {
@@ -31495,7 +23361,7 @@ int mask_pollOnValue(u32 add , u32 mask, u32 value ) {
 }
 
 int mask_poll(u32 add , u32 mask) {
-	volatile u32 *addr = (volatile u32*) add;
+	volatile u32 *addr = (volatile u32*)(unsigned long) add;
 	int i = 0;
 	while (!(*addr & mask)) {
 		if (i == PSU_MASK_POLL_TIME) {
@@ -31512,7 +23378,7 @@ void mask_delay(u32 delay) {
 }
 
 u32 mask_read(u32 add , u32 mask ) {
-        volatile u32 *addr = (volatile u32*) add;
+        volatile u32 *addr = (volatile u32*)(unsigned long) add;
         u32 val = (*addr & mask);
         //xil_printf("MaskRead : 0x%x --> 0x%x \n \r" , add, val);
         return val;
@@ -31625,9 +23491,21 @@ void init_peripheral()
   Xil_Out32(0xFD690030, tmp_regval);
 }
 
+int psu_init_xppu_aper_ram() {
+	unsigned long APER_OFFSET = 0xFF981000;
+	int i = 0;
+	for (; i <= 400; i++) {
+		PSU_Mask_Write (APER_OFFSET ,0xF80FFFFFU ,0x08080000U);
+		APER_OFFSET = APER_OFFSET + 0x4;
+	}
+
+	return 0;
+}
+
 int psu_lpd_protection() {
+   psu_init_xppu_aper_ram();
    psu_lpd_xppu_data();
-   return 1;
+   return 0;
 }
 
 int psu_ddr_protection() {
@@ -31637,24 +23515,29 @@ int psu_ddr_protection() {
    psu_ddr_xmpu3_data();
    psu_ddr_xmpu4_data();
    psu_ddr_xmpu5_data();
-   return 1;
+   return 0;
 }
 int psu_ocm_protection() {
    psu_ocm_xmpu_data();
-   return 1;
+   return 0;
 }
 
 int psu_fpd_protection() {
    psu_fpd_xmpu_data();
-   return 1;
+   return 0;
+}
+
+int psu_protection_lock() {
+  psu_protection_lock_data();
+  return 0;
 }
 
 int psu_protection() {
-  psu_lpd_protection();
   psu_ddr_protection();
   psu_ocm_protection();
   psu_fpd_protection();
-  return 1;
+  psu_lpd_protection();
+  return 0;
 }
 
 
