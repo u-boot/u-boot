@@ -134,6 +134,11 @@ config MACH_SUN8I_H3
 	select MACH_SUNXI_H3_H5
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
+config MACH_SUN8I_R40
+	bool "sun8i (Allwinner R40)"
+	select CPU_V7
+	select SUNXI_GEN_SUN6I
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
@@ -163,6 +168,7 @@ config MACH_SUN8I
 	default y if MACH_SUN8I_A33
 	default y if MACH_SUN8I_A83T
 	default y if MACH_SUNXI_H3_H5
+	default y if MACH_SUN8I_R40
 
 config RESERVE_ALLWINNER_BOOT0_HEADER
 	bool "reserve space for Allwinner boot0 header"
@@ -528,6 +534,7 @@ config VIDEO
 	bool "Enable graphical uboot console on HDMI, LCD or VGA"
 	depends on !MACH_SUN8I_A83T
 	depends on !MACH_SUNXI_H3_H5
+	depends on !MACH_SUN8I_R40
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
 	default y
