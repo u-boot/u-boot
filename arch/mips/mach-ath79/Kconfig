@@ -9,6 +9,7 @@ config SOC_AR933X
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select ROM_EXCEPTION_VECTORS
 	select MIPS_TUNE_24KC
 	help
 	  This supports QCA/Atheros ar933x family SOCs.
@@ -27,6 +28,7 @@ config SOC_QCA953X
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select ROM_EXCEPTION_VECTORS
 	select MIPS_TUNE_24KC
 	help
 	  This supports QCA/Atheros qca953x family SOCs.
