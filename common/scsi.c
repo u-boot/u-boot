@@ -119,22 +119,6 @@ void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-void scsi_setup_read6(ccb *pccb, lbaint_t start, unsigned short blocks)
-{
-	pccb->cmd[0] = SCSI_READ6;
-	pccb->cmd[1] = pccb->lun << 5 | ((unsigned char)(start >> 16) & 0x1f);
-	pccb->cmd[2] = (unsigned char)(start >> 8) & 0xff;
-	pccb->cmd[3] = (unsigned char)start & 0xff;
-	pccb->cmd[4] = (unsigned char)blocks & 0xff;
-	pccb->cmd[5] = 0;
-	pccb->cmdlen = 6;
-	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
-	debug("scsi_setup_read6: cmd: %02X %02X startblk %02X%02X blccnt %02X\n",
-	      pccb->cmd[0], pccb->cmd[1],
-	      pccb->cmd[2], pccb->cmd[3], pccb->cmd[4]);
-}
-
-
 void scsi_setup_inquiry(ccb *pccb)
 {
 	pccb->cmd[0] = SCSI_INQUIRY;
@@ -277,11 +261,6 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 	return blkcnt;
 }
 
-int scsi_get_disk_count(void)
-{
-	return scsi_max_devs;
-}
-
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 void scsi_init(void)
 {
@@ -361,20 +340,6 @@ void scsi_ident_cpy(unsigned char *dest, unsigned char *src, unsigned int len)
 	for (; start <= end; start++)
 		*dest ++= src[start];
 	*dest = '\0';
-}
-
-
-/* Trim trailing blanks, and NUL-terminate string
- */
-void scsi_trim_trail(unsigned char *str, unsigned int len)
-{
-	unsigned char *p = str + len - 1;
-
-	while (len-- > 0) {
-		*p-- = '\0';
-		if (*p != ' ')
-			return;
-	}
 }
 
 int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
