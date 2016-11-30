@@ -473,7 +473,7 @@ config USB3_VBUS_PIN
 
 config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
-	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_R40
 	default n if MACH_SUN6I || MACH_SUN8I
 	select CMD_I2C
 	---help---
