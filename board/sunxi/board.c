@@ -201,7 +201,8 @@ static void mmc_pinmux_setup(int sdc)
 	case 1:
 		pins = sunxi_name_to_gpio_bank(CONFIG_MMC1_PINS);
 
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 		if (pins == SUNXI_GPIO_H) {
 			/* SDC1: PH22-PH-27 */
 			for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
@@ -296,6 +297,17 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
 		}
+#elif defined(CONFIG_MACH_SUN8I_R40)
+		/* SDC2: PC6-PC15, PC24 */
+		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_SDC2);
+		sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+		sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
 #elif defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I)
 		/* SDC2: PC5-PC6, PC8-PC16 */
 		for (pin = SUNXI_GPC(5); pin <= SUNXI_GPC(6); pin++) {
@@ -322,7 +334,8 @@ static void mmc_pinmux_setup(int sdc)
 	case 3:
 		pins = sunxi_name_to_gpio_bank(CONFIG_MMC3_PINS);
 
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 		/* SDC3: PI4-PI9 */
 		for (pin = SUNXI_GPI(4); pin <= SUNXI_GPI(9); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUNXI_GPI_SDC3);
