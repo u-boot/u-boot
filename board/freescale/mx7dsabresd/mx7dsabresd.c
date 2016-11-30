@@ -50,6 +50,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define NAND_PAD_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
+#define SPI_PAD_CTRL \
+  (PAD_CTL_HYS | PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_FAST)
+
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU5KOHM)
 #ifdef CONFIG_SYS_I2C_MXC
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
@@ -67,6 +70,23 @@ static struct i2c_pads_info i2c_pad_info1 = {
 	},
 };
 #endif
+
+static iomux_v3_cfg_t const ecspi3_pads[] = {
+    MX7D_PAD_SAI2_RX_DATA__ECSPI3_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+    MX7D_PAD_SAI2_TX_SYNC__ECSPI3_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+    MX7D_PAD_SAI2_TX_BCLK__ECSPI3_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+    MX7D_PAD_SAI2_TX_DATA__GPIO6_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+         return (bus == 2 && cs == 0) ? (IMX_GPIO_NR(6, 22)) : -1;
+}
+
+static void setup_spi(void)
+{
+         imx_iomux_v3_setup_multiple_pads(ecspi3_pads, ARRAY_SIZE(ecspi3_pads));
+}
 
 int dram_init(void)
 {
@@ -551,6 +571,10 @@ int board_init(void)
 
 #ifdef CONFIG_FSL_QSPI
 	board_qspi_init();
+#endif
+
+#ifdef CONFIG_MXC_SPI
+       setup_spi();
 #endif
 
 	return 0;

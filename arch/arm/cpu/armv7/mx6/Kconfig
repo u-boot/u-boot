@@ -35,6 +35,14 @@ config MX6ULL
 	bool
 	select MX6UL
 
+config MX6_DDRCAL
+	bool "Include dynamic DDR calibration routines"
+	depends on SPL
+	default n
+	help
+	  Say "Y" if your board uses dynamic (per-boot) DDR calibration.
+	  If unsure, say N.
+
 choice
 	prompt "MX6 board select"
 	optional
@@ -192,6 +200,16 @@ config TARGET_UDOO
 	bool "udoo"
 	select SUPPORT_SPL
 
+config TARGET_UDOO_NEO
+	bool "UDOO Neo"
+	select SUPPORT_SPL
+
+config TARGET_SAMTEC_VINING_2000
+	bool "samtec VIN|ING 2000"
+	select MX6SX
+	select DM
+	select DM_THERMAL
+
 config TARGET_WANDBOARD
 	bool "wandboard"
 	select SUPPORT_SPL
@@ -247,12 +265,14 @@ source "board/freescale/mx6ullevk/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
+source "board/samtec/vining_2000/Kconfig"
 source "board/seco/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/udoo/Kconfig"
+source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 

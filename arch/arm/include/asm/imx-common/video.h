@@ -12,6 +12,7 @@ struct display_info_t {
 	int	bus;
 	int	addr;
 	int	pixfmt;
+	int	di;
 	int	(*detect)(struct display_info_t const *dev);
 	void	(*enable)(struct display_info_t const *dev);
 	struct	fb_videomode mode;
