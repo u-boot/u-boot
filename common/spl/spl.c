@@ -367,12 +367,12 @@ static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
 	return NULL;
 }
 
-static int spl_load_image(struct spl_image_info *spl_image, u32 boot_device)
+static int spl_load_image(struct spl_image_info *spl_image,
+			  struct spl_image_loader *loader)
 {
 	struct spl_boot_device bootdev;
-	struct spl_image_loader *loader = spl_ll_find_loader(boot_device);
 
-	bootdev.boot_device = boot_device;
+	bootdev.boot_device = loader->boot_device;
 	bootdev.boot_device_name = NULL;
 
 	return loader->load_image(spl_image, &bootdev);
@@ -400,7 +400,7 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 		if (!loader)
 			puts("SPL: Unsupported Boot Device!\n");
 #endif
-		if (loader && !spl_load_image(spl_image, spl_boot_list[i]))
+		if (loader && !spl_load_image(spl_image, loader))
 			return 0;
 	}
 
