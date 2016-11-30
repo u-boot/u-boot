@@ -108,7 +108,7 @@ int show_board_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_USBDOWNLOAD_GADGET
+#ifdef CONFIG_USB_GADGET_DOWNLOAD
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	unsigned short usb_pid;
@@ -118,7 +118,7 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
-#endif /* CONFIG_USBDOWNLOAD_GADGET */
+#endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
