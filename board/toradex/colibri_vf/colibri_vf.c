@@ -368,12 +368,18 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
 			CCM_CCGR10_NFC_CTRL_MASK);
 
-#ifdef CONFIG_CI_UDC
+#ifdef CONFIG_USB_EHCI_VF
 	setbits_le32(&ccm->ccgr1, CCM_CCGR1_USBC0_CTRL_MASK);
-#endif
-
-#ifdef CONFIG_USB_EHCI
 	setbits_le32(&ccm->ccgr7, CCM_CCGR7_USBC1_CTRL_MASK);
+
+	clrsetbits_le32(&anadig->pll3_ctrl, ANADIG_PLL3_CTRL_BYPASS |
+			ANADIG_PLL3_CTRL_POWERDOWN |
+			ANADIG_PLL3_CTRL_DIV_SELECT,
+			ANADIG_PLL3_CTRL_ENABLE);
+	clrsetbits_le32(&anadig->pll7_ctrl, ANADIG_PLL7_CTRL_BYPASS |
+			ANADIG_PLL7_CTRL_POWERDOWN |
+			ANADIG_PLL7_CTRL_DIV_SELECT,
+			ANADIG_PLL7_CTRL_ENABLE);
 #endif
 
 	clrsetbits_le32(&anadig->pll5_ctrl, ANADIG_PLL5_CTRL_BYPASS |
