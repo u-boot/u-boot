@@ -78,7 +78,8 @@ void scsi_setup_read16(ccb *pccb, lbaint_t start, unsigned long blocks)
 }
 #endif
 
-void scsi_setup_read_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
+static void scsi_setup_read_ext(ccb *pccb, lbaint_t start,
+				unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_READ10;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -98,7 +99,8 @@ void scsi_setup_read_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
+static void scsi_setup_write_ext(ccb *pccb, lbaint_t start,
+				 unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_WRITE10;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -119,7 +121,7 @@ void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-void scsi_setup_inquiry(ccb *pccb)
+static void scsi_setup_inquiry(ccb *pccb)
 {
 	pccb->cmd[0] = SCSI_INQUIRY;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -321,7 +323,8 @@ void scsi_init(void)
 /* copy src to dest, skipping leading and trailing blanks
  * and null terminate the string
  */
-void scsi_ident_cpy(unsigned char *dest, unsigned char *src, unsigned int len)
+static void scsi_ident_cpy(unsigned char *dest, unsigned char *src,
+			   unsigned int len)
 {
 	int start, end;
 
@@ -342,7 +345,8 @@ void scsi_ident_cpy(unsigned char *dest, unsigned char *src, unsigned int len)
 	*dest = '\0';
 }
 
-int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
+static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
+			      unsigned long *blksz)
 {
 	*capacity = 0;
 
@@ -406,7 +410,7 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
 /*
  * Some setup (fill-in) routines
  */
-void scsi_setup_test_unit_ready(ccb *pccb)
+static void scsi_setup_test_unit_ready(ccb *pccb)
 {
 	pccb->cmd[0] = SCSI_TST_U_RDY;
 	pccb->cmd[1] = pccb->lun << 5;
