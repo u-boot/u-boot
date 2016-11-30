@@ -428,7 +428,7 @@ static void clock_init(void)
 			CCM_CSCDR2_ESDHC1_EN | CCM_CSCDR2_ESDHC1_CLK_DIV(0) |
 			CCM_CSCDR2_NFC_EN);
 	clrsetbits_le32(&ccm->cscdr3, CCM_REG_CTRL_MASK,
-			CCM_CSCDR3_NFC_PRE_DIV(5));
+			CCM_CSCDR3_NFC_PRE_DIV(3));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 			CCM_CSCMR2_RMII_CLK_SEL(2));
 }
