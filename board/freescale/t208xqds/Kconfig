@@ -1,4 +1,4 @@
-if TARGET_T208XQDS
+if TARGET_T2080QDS || TARGET_T2081QDS
 
 config SYS_BOARD
 	default "t208xqds"

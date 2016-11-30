@@ -442,7 +442,7 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SYS_RAMBOOT)
 	struct law_entry law;
 #endif
-#ifdef CONFIG_MPC8548
+#ifdef CONFIG_ARCH_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
 
@@ -959,7 +959,7 @@ int cpu_init_r(void)
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 
-#if defined(CONFIG_PPC_C29X)
+#if defined(CONFIG_ARCH_C29X)
 	if ((SVR_SOC_VER(svr) == SVR_C292) ||
 	    (SVR_SOC_VER(svr) == SVR_C293))
 		sec_init_idx(1);

@@ -22,7 +22,7 @@ unsigned long get_board_sys_clk(ulong dummy)
 	if (in_be32(&gur->gpporcr) & 0x10000)
 		return 66666666;
 	else
-#ifdef CONFIG_P2020
+#ifdef CONFIG_ARCH_P2020
 		return 100000000;
 #else
 		return 50000000;
@@ -42,7 +42,7 @@ unsigned long get_board_ddr_clk(ulong dummy)
 	if (ddr_ratio == 0x7)
 		return get_board_sys_clk(dummy);
 
-#ifdef CONFIG_P2020
+#ifdef CONFIG_ARCH_P2020
 	if (in_be32(&gur->gpporcr) & 0x20000)
 		return 66666666;
 	else

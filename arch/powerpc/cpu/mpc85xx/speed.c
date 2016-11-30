@@ -130,9 +130,8 @@ void get_sys_info(sys_info_t *sys_info)
 	 * it uses 6.
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
-	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080) || \
-	defined(CONFIG_PPC_T2081)
+#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
+	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:
@@ -202,11 +201,11 @@ void get_sys_info(sys_info_t *sys_info)
 	}
 #endif
 
-#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420) || \
-	defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
+#if defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420) || \
+	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
-#elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023)
+#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
 #define FM1_CLK_SEL	0x00000007
 #define FM1_CLK_SHIFT	0
 #else
@@ -216,7 +215,7 @@ void get_sys_info(sys_info_t *sys_info)
 #define FM1_CLK_SHIFT	26
 #endif
 #if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
-#if defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023)
+#if defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
 	rcw_tmp = in_be32(&gur->rcwsr[15]) - 4;
 #else
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
@@ -456,7 +455,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 #define ESDHC_CLK_SEL	0x00000007
 #define ESDHC_CLK_SHIFT	0
 #define ESDHC_CLK_RCWSR	15
@@ -480,7 +479,7 @@ void get_sys_info(sys_info_t *sys_info)
 	case 4:
 		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 4;
 		break;
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 	case 5:
 		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK];
 		break;
@@ -596,7 +595,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_QE
-#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
 	sys_info->freq_qe =  sys_info->freq_systembus;
 #else
 	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
@@ -625,8 +624,8 @@ void get_sys_info(sys_info_t *sys_info)
 		 * for four times the clock divider values.
 		 */
 		lcrr_div *= 4;
-#elif !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
-    !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
+#elif !defined(CONFIG_ARCH_MPC8540) && !defined(CONFIG_ARCH_MPC8541) && \
+	!defined(CONFIG_ARCH_MPC8555) && !defined(CONFIG_ARCH_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.
@@ -652,7 +651,7 @@ void get_sys_info(sys_info_t *sys_info)
 int get_clocks (void)
 {
 	sys_info_t sys_info;
-#ifdef CONFIG_MPC8544
+#ifdef CONFIG_ARCH_MPC8544
 	volatile ccsr_gur_t *gur = (void *) CONFIG_SYS_MPC85xx_GUTS_ADDR;
 #endif
 #if defined(CONFIG_CPM2)
@@ -681,11 +680,11 @@ int get_clocks (void)
 	 * for that SOC. This information is taken from application note
 	 * AN2919.
 	 */
-#if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
-	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555) || \
-	defined(CONFIG_P1022)
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
+	defined(CONFIG_ARCH_MPC8560) || defined(CONFIG_ARCH_MPC8555) || \
+	defined(CONFIG_ARCH_P1022)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
-#elif defined(CONFIG_MPC8544)
+#elif defined(CONFIG_ARCH_MPC8544)
 	/*
 	 * On the 8544, the I2C clock is the same as the SEC clock.  This can be
 	 * either CCB/2 or CCB/3, depending on the value of cfg_sec_freq. See
@@ -707,8 +706,7 @@ int get_clocks (void)
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	gd->arch.sdhc_clk = sys_info.freq_sdhc / 2;
 #else
-#if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
-       defined(CONFIG_P1014)
+#if defined(CONFIG_ARCH_MPC8569) || defined(CONFIG_ARCH_P1010)
 	gd->arch.sdhc_clk = gd->bus_clk;
 #else
 	gd->arch.sdhc_clk = gd->bus_clk / 2;

@@ -21,7 +21,7 @@ struct cpld_data {
 	u8 int_status;		/* 0x12 - Interrupt status Register */
 	u8 flash_ctl_status;	/* 0x13 - Flash control and status register */
 	u8 fan_ctl_status;	/* 0x14 - Fan control and status register  */
-#if defined(CONFIG_T104XD4RDB)
+#if defined(CONFIG_TARGET_T1040D4RDB) || defined(CONFIG_TARGET_T1042D4RDB)
 	u8 int_mask;		/* 0x15 - Interrupt mask Register */
 #else
 	u8 led_ctl_status;	/* 0x15 - LED control and status register */

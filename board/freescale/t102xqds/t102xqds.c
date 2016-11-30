@@ -152,7 +152,7 @@ static int board_mux_lane_to_slot(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC_T1024
+#ifdef CONFIG_ARCH_T1024
 static void board_mux_setup(void)
 {
 	u8 brdcfg15;
@@ -332,7 +332,7 @@ unsigned long get_board_ddr_clk(void)
 #define NUM_SRDS_PLL	2
 int misc_init_r(void)
 {
-#ifdef CONFIG_PPC_T1024
+#ifdef CONFIG_ARCH_T1024
 	board_mux_setup();
 #endif
 	return 0;

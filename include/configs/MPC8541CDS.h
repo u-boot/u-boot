@@ -17,8 +17,6 @@
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_CPM2		1	/* has CPM2 */
-#define CONFIG_MPC8541		1	/* MPC8541 specific */
-#define CONFIG_MPC8541CDS	1	/* MPC8541CDS board specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff80000
 

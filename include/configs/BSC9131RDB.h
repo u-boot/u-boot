@@ -11,10 +11,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_BSC9131RDB
-#define CONFIG_BSC9131
 #define CONFIG_NAND_FSL_IFC
-#endif
 
 #ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH

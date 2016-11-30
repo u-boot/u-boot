@@ -1831,7 +1831,7 @@ static void set_ddr_sdram_clk_cntl(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int clk_adjust;	/* Clock adjust */
 	unsigned int ss_en = 0;		/* Source synchronous enable */
 
-#if defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#if defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
 	/* Per FSL Application Note: AN2805 */
 	ss_en = 1;
 #endif

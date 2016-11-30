@@ -10,8 +10,6 @@
 /*
  * B4860 QDS board configuration file
  */
-#define CONFIG_B4860QDS
-
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI	$(SRCTREE)/board/freescale/b4860qds/b4_pbi.cfg
 #define CONFIG_SYS_FSL_PBL_RCW	$(SRCTREE)/board/freescale/b4860qds/b4_rcw.cfg
@@ -75,7 +73,7 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#ifndef CONFIG_PPC_B4420
+#ifndef CONFIG_ARCH_B4420
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
@@ -790,7 +788,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define __USB_PHY_TYPE	ulpi
 
-#ifdef CONFIG_PPC_B4860
+#ifdef CONFIG_ARCH_B4860
 #define HWCONFIG	"hwconfig=fsl_ddr:ctlr_intlv=null,"	\
 			"bank_intlv=cs0_cs1;"	\
 			"en_cpc:cpc2;"

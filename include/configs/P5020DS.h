@@ -8,9 +8,6 @@
  * P5020 DS board configuration file
  * Also supports P5010 DS
  */
-#define CONFIG_P5020DS
-#define CONFIG_PPC_P5020
-
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_MMC

@@ -1,4 +1,4 @@
-if TARGET_T102XQDS
+if TARGET_T1024QDS
 
 config SYS_BOARD
 	default "t102xqds"

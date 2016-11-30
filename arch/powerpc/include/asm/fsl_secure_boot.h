@@ -16,25 +16,30 @@
 
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
-#elif defined(CONFIG_BSC9132QDS)
+#elif defined(CONFIG_TARGET_BSC9132QDS)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc8000000
-#elif defined(CONFIG_C29XPCIE)
+#elif defined(CONFIG_TARGET_C29XPCIE)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xcc000000
 #else
 #define CONFIG_SYS_PBI_FLASH_BASE		0xce000000
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
-#if defined(CONFIG_B4860QDS) || \
-	defined(CONFIG_T4240QDS) || \
+#if defined(CONFIG_TARGET_B4860QDS) || \
+	defined(CONFIG_TARGET_B4420QDS) || \
+	defined(CONFIG_TARGET_T4160QDS) || \
+	defined(CONFIG_TARGET_T4240QDS) || \
 	defined(CONFIG_T2080QDS) || \
 	defined(CONFIG_T2080RDB) || \
 	defined(CONFIG_T1040QDS) || \
 	defined(CONFIG_T104xD4QDS) || \
-	defined(CONFIG_T104xRDB) || \
-	defined(CONFIG_T104xD4RDB) || \
-	defined(CONFIG_PPC_T1023) || \
-	defined(CONFIG_PPC_T1024)
+	defined(CONFIG_TARGET_T1040RDB) || \
+	defined(CONFIG_TARGET_T1040D4RDB) || \
+	defined(CONFIG_TARGET_T1042RDB) || \
+	defined(CONFIG_TARGET_T1042D4RDB) || \
+	defined(CONFIG_TARGET_T1042RDB_PI) || \
+	defined(CONFIG_ARCH_T1023) || \
+	defined(CONFIG_ARCH_T1024)
 #ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CPC_REINIT_F
 #endif
@@ -54,15 +59,15 @@
 #endif
 #endif
 
-#if defined(CONFIG_C29XPCIE)
+#if defined(CONFIG_TARGET_C29XPCIE)
 #define CONFIG_KEY_REVOCATION
 #endif
 
-#if defined(CONFIG_PPC_P3041)	||	\
-	defined(CONFIG_PPC_P4080) ||	\
-	defined(CONFIG_PPC_P5020) ||	\
-	defined(CONFIG_PPC_P5040) ||	\
-	defined(CONFIG_PPC_P2041)
+#if defined(CONFIG_ARCH_P3041)	||	\
+	defined(CONFIG_ARCH_P4080) ||	\
+	defined(CONFIG_ARCH_P5020) ||	\
+	defined(CONFIG_ARCH_P5040) ||	\
+	defined(CONFIG_ARCH_P2041)
 	#define	CONFIG_FSL_TRUST_ARCH_v1
 #endif
 
@@ -134,13 +139,13 @@
 /* The bootscript header address is different for B4860 because the NOR
  * mapping is different on B4 due to reduced NOR size.
  */
-#if defined(CONFIG_B4860QDS)
+#if defined(CONFIG_TARGET_B4860QDS) || defined(CONFIG_TARGET_B4420QDS)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xecc00000
 #elif defined(CONFIG_FSL_CORENET)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xe8e00000
-#elif defined(CONFIG_BSC9132QDS)
+#elif defined(CONFIG_TARGET_BSC9132QDS)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0x88020000
-#elif defined(CONFIG_C29XPCIE)
+#elif defined(CONFIG_TARGET_C29XPCIE)
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xec020000
 #else
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000

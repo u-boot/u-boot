@@ -57,23 +57,17 @@ Please see the SoC reference manual for more documentation.
 
 P1022DS		config_sram_p1022ds.dat
 P2020DS		config_sram_p2020ds.dat
-P2010DS		config_sram_p2020ds.dat
 P1020RDB	config_ddr2_1g_p1020rdb_533M.dat
 P1020RDB	config_ddr2_1g_p1020rdb_667M.dat
 P2020RDB	config_ddr2_1g_p2020rdb_800M.dat
 P2020RDB	config_ddr2_1g_p2020rdb_667M.dat
 P2020RDB	config_ddr3_1gb_64bit_p2020rdb_pc.dat
-P2010RDB	config_ddr3_1gb_64bit_p2020rdb_pc.dat
 P1020RDB	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
 P1011RDB	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
 P1010RDB	config_ddr3_1gb_p1010rdb_800M.dat
-P1014RDB	config_ddr3_1gb_p1014rdb_800M.dat
 P1021RDB	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
-P1012RDB	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat
 P1022DS		config_ddr3_2gb_p1022ds.dat
-P1013DS		config_ddr3_2gb_p1022ds.dat
 P1024RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
-P1013RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1025RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1016RDB	config_ddr3_1gb_p1_p2_rdb_pc_667M.dat
 P1020UTM	config_ddr3_1gb_p1_p2_rdb_pc_800M.dat

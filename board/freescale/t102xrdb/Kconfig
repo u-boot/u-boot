@@ -1,4 +1,4 @@
-if TARGET_T102XRDB
+if TARGET_T1023RDB || TARGET_T1024RDB
 
 config SYS_BOARD
 	default "t102xrdb"

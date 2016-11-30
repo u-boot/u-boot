@@ -11,10 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_BSC9132QDS
-#define CONFIG_BSC9132
-#endif
-
 #define CONFIG_MISC_INIT_R
 
 #ifdef CONFIG_SDCARD

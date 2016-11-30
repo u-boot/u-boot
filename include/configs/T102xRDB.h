@@ -34,7 +34,7 @@
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 /* support deep sleep */
-#ifdef CONFIG_PPC_T1024
+#ifdef CONFIG_ARCH_T1024
 #define CONFIG_DEEP_SLEEP
 #endif
 #if defined(CONFIG_DEEP_SLEEP)
@@ -556,7 +556,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
-#ifdef CONFIG_PPC_T1040
+#ifdef CONFIG_ARCH_T1040
 #define CONFIG_PCIE4		/* PCIE controller 4 */
 #endif
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
@@ -858,7 +858,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_BAUDRATE		115200
 #define __USB_PHY_TYPE		utmi
 
-#ifdef CONFIG_PPC_T1024
+#ifdef CONFIG_ARCH_T1024
 #define CONFIG_BOARDNAME t1024rdb
 #define BANK_INTLV cs0_cs1
 #else

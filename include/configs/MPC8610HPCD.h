@@ -12,8 +12,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MPC8610		1	/* MPC8610 specific */
-#define CONFIG_MPC8610HPCD	1	/* MPC8610HPCD board specific */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000

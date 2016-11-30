@@ -8,9 +8,6 @@
  * P5040 DS board configuration file
  *
  */
-#define CONFIG_P5040DS
-#define CONFIG_PPC_P5040
-
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_MMC

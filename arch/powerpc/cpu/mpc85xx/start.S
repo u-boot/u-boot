@@ -311,7 +311,7 @@ l2_disabled:
 #endif
 	mtspr	HID0,r0
 
-#if !defined(CONFIG_E500MC) && !defined(CONFIG_QEMU_E500)
+#if !defined(CONFIG_E500MC) && !defined(CONFIG_ARCH_QEMU_E500)
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
 	mfspr	r3,PVR
 	andi.	r3,r3, 0xff
@@ -345,7 +345,7 @@ l2_disabled:
 	mtspr	DBCR0,r0
 #endif
 
-#ifdef CONFIG_MPC8569
+#ifdef CONFIG_ARCH_MPC8569
 #define CONFIG_SYS_LBC_ADDR (CONFIG_SYS_CCSRBAR_DEFAULT + 0x5000)
 #define CONFIG_SYS_LBCR_ADDR (CONFIG_SYS_LBC_ADDR + 0xd0)
 
@@ -376,7 +376,7 @@ l2_disabled:
 	tlbivax	0,r4
 	isync
 
-#endif /* CONFIG_MPC8569 */
+#endif /* CONFIG_ARCH_MPC8569 */
 
 /*
  * Search for the TLB that covers the code we're executing, and shrink it

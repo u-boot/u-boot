@@ -79,13 +79,13 @@ enum law_trgt_if {
 enum law_trgt_if {
 	LAW_TRGT_IF_PCI = 0x00,
 	LAW_TRGT_IF_PCI_2 = 0x01,
-#ifndef CONFIG_MPC8641
+#ifndef CONFIG_ARCH_MPC8641
 	LAW_TRGT_IF_PCIE_1 = 0x02,
 #endif
-#if defined(CONFIG_BSC9131) || defined(CONFIG_BSC9132)
+#if defined(CONFIG_ARCH_BSC9131) || defined(CONFIG_ARCH_BSC9132)
 	LAW_TRGT_IF_OCN_DSP = 0x03,
 #else
-#if !defined(CONFIG_MPC8572) && !defined(CONFIG_P2020)
+#if !defined(CONFIG_ARCH_MPC8572) && !defined(CONFIG_ARCH_P2020)
 	LAW_TRGT_IF_PCIE_3 = 0x03,
 #endif
 #endif
@@ -95,7 +95,7 @@ enum law_trgt_if {
 	LAW_TRGT_IF_PLATFORM_SRAM = 0x0a,
 	LAW_TRGT_IF_DDR_INTRLV = 0x0b,
 	LAW_TRGT_IF_RIO = 0x0c,
-#if defined(CONFIG_BSC9132)
+#if defined(CONFIG_ARCH_BSC9132)
 	LAW_TRGT_IF_CLASS_DSP = 0x0d,
 #else
 	LAW_TRGT_IF_RIO_2 = 0x0d,
@@ -117,11 +117,11 @@ enum law_trgt_if {
 #define LAW_TRGT_IF_RIO_1	LAW_TRGT_IF_RIO
 #define LAW_TRGT_IF_IFC		LAW_TRGT_IF_LBC
 
-#ifdef CONFIG_MPC8641
+#ifdef CONFIG_ARCH_MPC8641
 #define LAW_TRGT_IF_PCIE_1	LAW_TRGT_IF_PCI
 #endif
 
-#if defined(CONFIG_MPC8572) || defined(CONFIG_P2020)
+#if defined(CONFIG_ARCH_MPC8572) || defined(CONFIG_ARCH_P2020)
 #define LAW_TRGT_IF_PCIE_3	LAW_TRGT_IF_PCI
 #endif
 #endif /* CONFIG_FSL_CORENET */

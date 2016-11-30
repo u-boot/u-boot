@@ -77,7 +77,7 @@
  */
 #define CPM_DATAONLY_BASE	((uint)128)
 #define CPM_DP_NOSPACE		((uint)0x7FFFFFFF)
-#if defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#if defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
 #define CPM_FCC_SPECIAL_BASE	((uint)0x00009000)
 #define CPM_DATAONLY_SIZE	((uint)(8 * 1024) - CPM_DATAONLY_BASE)
 #else	/* MPC8540, MPC8560 */

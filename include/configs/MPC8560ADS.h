@@ -22,8 +22,6 @@
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_CPM2		1	/* has CPM2 */
-#define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific */
-#define CONFIG_MPC8560		1
 
 /*
  * default CCARBAR is at 0xff700000
