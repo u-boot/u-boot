@@ -15,8 +15,11 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <mmc.h>
+#include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <jffs2/load_kernel.h>
 #include <miiphy.h>
+#include <mtd_node.h>
 #include <netdev.h>
 #include <i2c.h>
 #include <g_dnl.h>
@@ -532,6 +535,16 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	static struct node_info nodes[] = {
+		{ "fsl,vf610-nfc", MTD_DEV_TYPE_NAND, }, /* NAND flash */
+	};
+
+	/* Update partition nodes using info from mtdparts env var */
+	puts("   Updating MTD partitions...\n");
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif
