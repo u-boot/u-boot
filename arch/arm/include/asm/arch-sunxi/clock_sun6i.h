@@ -142,6 +142,8 @@ struct sunxi_ccm_reg {
 	u32 apb2_reset_cfg;	/* 0x2d8 APB2 Reset config */
 	u32 reserved25[5];
 	u32 ccu_sec_switch;	/* 0x2f0 CCU Security Switch, H3 only */
+	u32 reserved26[11];
+	u32 pll_lock_ctrl;	/* 0x320 PLL lock control, R40 only */
 };
 
 /* apb2 bit field */

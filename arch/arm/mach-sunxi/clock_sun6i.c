@@ -35,6 +35,11 @@ void clock_init_safe(void)
 	clrbits_le32(&prcm->pll_ctrl1, PRCM_PLL_CTRL_LDO_KEY_MASK);
 #endif
 
+#ifdef CONFIG_MACH_SUN8I_R40
+	/* Set PLL lock enable bits and switch to old lock mode */
+	writel(GENMASK(12, 0), &ccm->pll_lock_ctrl);
+#endif
+
 	clock_set_pll1(408000000);
 
 	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
