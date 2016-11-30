@@ -269,87 +269,6 @@ __weak void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[0] = spl_boot_device();
 }
 
-#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
-__weak void spl_board_announce_boot_device(void) { }
-#endif
-
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-struct boot_device_name {
-	u32 boot_dev;
-	const char *name;
-};
-
-struct boot_device_name boot_name_table[] = {
-#ifdef CONFIG_SPL_RAM_DEVICE
-	{ BOOT_DEVICE_RAM, "RAM" },
-#endif
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	{ BOOT_DEVICE_MMC1, "MMC1" },
-	{ BOOT_DEVICE_MMC2, "MMC2" },
-	{ BOOT_DEVICE_MMC2_2, "MMC2_2" },
-#endif
-#ifdef CONFIG_SPL_NAND_SUPPORT
-	{ BOOT_DEVICE_NAND, "NAND" },
-#endif
-#ifdef CONFIG_SPL_ONENAND_SUPPORT
-	{ BOOT_DEVICE_ONENAND, "OneNAND" },
-#endif
-#ifdef CONFIG_SPL_NOR_SUPPORT
-	{ BOOT_DEVICE_NOR, "NOR" },
-#endif
-#ifdef CONFIG_SPL_YMODEM_SUPPORT
-	{ BOOT_DEVICE_UART, "UART" },
-#endif
-#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-	{ BOOT_DEVICE_SPI, "SPI" },
-#endif
-#ifdef CONFIG_SPL_ETH_SUPPORT
-#ifdef CONFIG_SPL_ETH_DEVICE
-	{ BOOT_DEVICE_CPGMAC, "eth device" },
-#else
-	{ BOOT_DEVICE_CPGMAC, "net" },
-#endif
-#endif
-#ifdef CONFIG_SPL_USBETH_SUPPORT
-	{ BOOT_DEVICE_USBETH, "USB eth" },
-#endif
-#ifdef CONFIG_SPL_USB_SUPPORT
-	{ BOOT_DEVICE_USB, "USB" },
-#endif
-#ifdef CONFIG_SPL_DFU_SUPPORT
-	{ BOOT_DEVICE_DFU, "USB DFU" },
-#endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
-	{ BOOT_DEVICE_SATA, "SATA" },
-#endif
-	/* Keep this entry last */
-	{ BOOT_DEVICE_NONE, "unknown boot device" },
-};
-
-static void announce_boot_device(u32 boot_device)
-{
-	int i;
-
-	puts("Trying to boot from ");
-
-#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
-	if (boot_device == BOOT_DEVICE_BOARD) {
-		spl_board_announce_boot_device();
-		puts("\n");
-		return;
-	}
-#endif
-	for (i = 0; i < ARRAY_SIZE(boot_name_table) - 1; i++) {
-		if (boot_name_table[i].boot_dev == boot_device)
-			break;
-	}
-
-	printf("%s\n", boot_name_table[i].name);
-}
-#else
-static inline void announce_boot_device(u32 boot_device) { }
-#endif
-
 static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
 {
 	struct spl_image_loader *drv =
@@ -394,10 +313,11 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 	for (i = 0; i < count && spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
 		struct spl_image_loader *loader;
 
-		announce_boot_device(spl_boot_list[i]);
 		loader = spl_ll_find_loader(spl_boot_list[i]);
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		if (!loader)
+		if (loader)
+			printf("Trying to boot from %s", loader->name);
+		else
 			puts("SPL: Unsupported Boot Device!\n");
 #endif
 		if (loader && !spl_load_image(spl_image, loader))
