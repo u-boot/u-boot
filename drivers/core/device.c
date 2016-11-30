@@ -693,6 +693,28 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
+fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
+				   fdt_size_t *size)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	/*
+	 * Only get the size in this first call. We'll get the addr in the
+	 * next call to the exisiting dev_get_xxx function which handles
+	 * all config options.
+	 */
+	fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, dev->of_offset,
+					   "reg", index, size, false);
+
+	/*
+	 * Get the base address via the existing function which handles
+	 * all Kconfig cases
+	 */
+	return dev_get_addr_index(dev, index);
+#else
+	return FDT_ADDR_T_NONE;
+#endif
+}
+
 fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
