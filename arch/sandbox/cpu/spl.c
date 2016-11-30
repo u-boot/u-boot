@@ -25,19 +25,6 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_BOARD;
 }
 
-void spl_board_announce_boot_device(void)
-{
-	char fname[256];
-	int ret;
-
-	ret = os_find_u_boot(fname, sizeof(fname));
-	if (ret) {
-		printf("(%s not found, error %d)\n", fname, ret);
-		return;
-	}
-	printf("%s\n", fname);
-}
-
 static int spl_board_load_image(struct spl_image_info *spl_image,
 				struct spl_boot_device *bootdev)
 {
@@ -45,8 +32,10 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	int ret;
 
 	ret = os_find_u_boot(fname, sizeof(fname));
-	if (ret)
+	if (ret) {
+		printf("(%s not found, error %d)\n", fname, ret);
 		return ret;
+	}
 
 	/* Hopefully this will not return */
 	return os_spl_to_uboot(fname);
