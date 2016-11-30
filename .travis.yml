@@ -125,8 +125,11 @@ matrix:
     - env:
         - BUILDMAN="denx"
     - env:
-        - JOB="Freescale ARM"
-          BUILDMAN="freescale -x powerpc,m68k"
+        - JOB="Freescale ARM32"
+          BUILDMAN="freescale -x powerpc,m68k,aarch64"
+    - env:
+        - JOB="Freescale AArch64"
+          BUILDMAN="freescale -x powerpc,m68k,armv7,arm9,arm11"
     - env:
         - JOB="i.MX (non-Freescale)"
           BUILDMAN="mx -x freescale"
