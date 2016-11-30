@@ -12,11 +12,6 @@
 
 #include "../soc-info.h"
 
-void spl_board_announce_boot_device(void)
-{
-	printf("eMMC");
-}
-
 struct uniphier_romfunc_table {
 	void *mmc_send_cmd;
 	void *mmc_card_blockaddr;
