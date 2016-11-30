@@ -422,12 +422,15 @@ static void scsi_setup_test_unit_ready(ccb *pccb)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
-static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
+/**
+ * scsi_init_dev_desc_priv - initialize only SCSI specific blk_desc properties
+ *
+ * @dev_desc: Block device description pointer
+ */
+static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 {
 	dev_desc->target = 0xff;
 	dev_desc->lun = 0xff;
-	dev_desc->lba = 0;
-	dev_desc->blksz = 0;
 	dev_desc->log2blksz =
 		LOG2_INVALID(typeof(dev_desc->log2blksz));
 	dev_desc->type = DEV_TYPE_UNKNOWN;
@@ -435,15 +438,28 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
 	dev_desc->product[0] = 0;
 	dev_desc->revision[0] = 0;
 	dev_desc->removable = false;
-	dev_desc->if_type = IF_TYPE_SCSI;
-	dev_desc->devnum = devnum;
-	dev_desc->part_type = PART_TYPE_UNKNOWN;
 #ifndef CONFIG_BLK
 	dev_desc->block_read = scsi_read;
 	dev_desc->block_write = scsi_write;
 #endif
 }
 
+/**
+ * scsi_init_dev_desc - initialize all SCSI specific blk_desc properties
+ *
+ * @dev_desc: Block device description pointer
+ * @devnum: Device number
+ */
+static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
+{
+	dev_desc->lba = 0;
+	dev_desc->blksz = 0;
+	dev_desc->if_type = IF_TYPE_SCSI;
+	dev_desc->devnum = devnum;
+	dev_desc->part_type = PART_TYPE_UNKNOWN;
+
+	scsi_init_dev_desc_priv(dev_desc);
+}
 
 /**
  * scsi_detect_dev - Detect scsi device
