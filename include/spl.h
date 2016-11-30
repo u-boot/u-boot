@@ -172,15 +172,15 @@ struct spl_image_loader {
 	ll_entry_declare(struct spl_image_loader, __name, spl_image_loader)
 
 /*
- * __priority is the priority of this method, 0 meaning it will be the top
+ * _priority is the priority of this method, 0 meaning it will be the top
  * choice for this device, 9 meaning it is the bottom choice.
- * __boot_device is the BOOT_DEVICE_... value
- * __method is the load_image function to call
+ * _boot_device is the BOOT_DEVICE_... value
+ * _method is the load_image function to call
  */
-#define SPL_LOAD_IMAGE_METHOD(__priority, __boot_device, __method) \
-	SPL_LOAD_IMAGE(__method ## __priority ## __boot_device) = { \
-		.boot_device = __boot_device, \
-		.load_image = __method, \
+#define SPL_LOAD_IMAGE_METHOD(_priority, _boot_device, _method) \
+	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+		.boot_device = _boot_device, \
+		.load_image = _method, \
 	}
 
 /* SPL FAT image functions */
