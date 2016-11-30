@@ -374,12 +374,36 @@ static int spl_load_image(struct spl_image_info *spl_image, u32 boot_device)
 
 	bootdev.boot_device = boot_device;
 	bootdev.boot_device_name = NULL;
-	if (loader)
-		return loader->load_image(spl_image, &bootdev);
 
+	return loader->load_image(spl_image, &bootdev);
+}
+
+/**
+ * boot_from_devices() - Try loading an booting U-Boot from a list of devices
+ *
+ * @spl_image: Place to put the image details if successful
+ * @spl_boot_list: List of boot devices to try
+ * @count: Number of elements in spl_boot_list
+ * @return 0 if OK, -ve on error
+ */
+static int boot_from_devices(struct spl_image_info *spl_image,
+			     u32 spl_boot_list[], int count)
+{
+	int i;
+
+	for (i = 0; i < count && spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
+		struct spl_image_loader *loader;
+
+		announce_boot_device(spl_boot_list[i]);
+		loader = spl_ll_find_loader(spl_boot_list[i]);
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-	puts("SPL: Unsupported Boot Device!\n");
+		if (!loader)
+			puts("SPL: Unsupported Boot Device!\n");
 #endif
+		if (loader && !spl_load_image(spl_image, spl_boot_list[i]))
+			return 0;
+	}
+
 	return -ENODEV;
 }
 
@@ -393,7 +417,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		BOOT_DEVICE_NONE,
 	};
 	struct spl_image_info spl_image;
-	int i;
 
 	debug(">>spl:board_init_r()\n");
 
@@ -420,15 +443,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	memset(&spl_image, '\0', sizeof(spl_image));
 	board_boot_order(spl_boot_list);
-	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
-			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
-		announce_boot_device(spl_boot_list[i]);
-		if (!spl_load_image(&spl_image, spl_boot_list[i]))
-			break;
-	}
 
-	if (i == ARRAY_SIZE(spl_boot_list) ||
-	    spl_boot_list[i] == BOOT_DEVICE_NONE) {
+	if (boot_from_devices(&spl_image, spl_boot_list,
+			      ARRAY_SIZE(spl_boot_list))) {
 		puts("SPL: failed to boot from all boot devices\n");
 		hang();
 	}
