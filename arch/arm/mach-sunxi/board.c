@@ -270,7 +270,7 @@ void board_init_f(ulong dummy)
 
 void reset_cpu(ulong addr)
 {
-#ifdef CONFIG_SUNXI_GEN_SUN4I
+#if defined(CONFIG_SUNXI_GEN_SUN4I) || defined(CONFIG_MACH_SUN8I_R40)
 	static const struct sunxi_wdog *wdog =
 		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -282,8 +282,7 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#endif
-#ifdef CONFIG_SUNXI_GEN_SUN6I
+#elif defined(CONFIG_SUNXI_GEN_SUN6I)
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
