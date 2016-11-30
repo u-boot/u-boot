@@ -173,7 +173,7 @@ void scsi_low_level_init(int busdevfunc);
  * functions residing inside cmd_scsi.c
  */
 void scsi_init(void);
-void scsi_scan(int mode);
+int scsi_scan(int mode);
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 

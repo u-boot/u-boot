@@ -524,7 +524,7 @@ removable:
  * (re)-scan the scsi bus and reports scsi device info
  * to the user if mode = 1
  */
-void scsi_scan(int mode)
+int scsi_scan(int mode)
 {
 	unsigned char i, lun;
 	int ret;
@@ -558,6 +558,7 @@ void scsi_scan(int mode)
 #ifndef CONFIG_SPL_BUILD
 	setenv_ulong("scsidevs", scsi_max_devs);
 #endif
+	return 0;
 }
 
 #ifdef CONFIG_BLK

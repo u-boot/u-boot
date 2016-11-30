@@ -27,6 +27,8 @@ int do_scsiboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
  */
 int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	int ret;
+
 	switch (argc) {
 	case 0:
 	case 1:
@@ -35,8 +37,10 @@ int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (strncmp(argv[1], "res", 3) == 0) {
 			printf("\nReset SCSI\n");
 			scsi_bus_reset();
-			scsi_scan(1);
-			return 0;
+			ret = scsi_scan(1);
+			if (ret)
+				return CMD_RET_FAILURE;
+			return ret;
 		}
 		if (strncmp(argv[1], "inf", 3) == 0) {
 			blk_list_devices(IF_TYPE_SCSI);
@@ -51,8 +55,10 @@ int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			return 0;
 		}
 		if (strncmp(argv[1], "scan", 4) == 0) {
-			scsi_scan(1);
-			return 0;
+			ret = scsi_scan(1);
+			if (ret)
+				return CMD_RET_FAILURE;
+			return ret;
 		}
 		if (strncmp(argv[1], "part", 4) == 0) {
 			if (blk_list_part(IF_TYPE_SCSI))
