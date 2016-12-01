@@ -176,7 +176,7 @@ int board_mmc_init(bd_t *bis)
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 
-char *board_string(void)
+static char *board_string(void)
 {
 	switch (get_board_value()) {
 	case UDOO_NEO_TYPE_BASIC:
