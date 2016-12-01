@@ -81,16 +81,6 @@ static iomux_v3_cfg_t const board_recognition_pads[] = {
 	MX6_PAD_NAND_ALE__GPIO4_IO_0 | BOARD_DETECT_PAD_CFG,
 };
 
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-    /* Configured for WLAN */
-	MX6_PAD_SD3_CLK__USDHC3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_CMD__USDHC3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA0__USDHC3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA1__USDHC3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA2__USDHC3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA3__USDHC3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const wdog_b_pad = {
 	MX6_PAD_GPIO1_IO13__GPIO1_IO_13 | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
@@ -171,91 +161,19 @@ static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 
 int board_mmc_getcd(struct mmc *mmc)
 {
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		ret = !gpio_get_value(USDHC2_CD_GPIO);
-		break;
-	}
-
-	return ret;
+	return !gpio_get_value(USDHC2_CD_GPIO);
 }
 
 int board_mmc_init(bd_t *bis)
 {
-#ifndef CONFIG_SPL_BUILD
-	int i, ret;
-
-	/*
-	 * According to the board_mmc_init() the following map is done:
-	 * (U-boot device node)    (Physical Port)
-	 * mmc0                    USDHC2
-	 */
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		switch (i) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-			gpio_direction_input(USDHC2_CD_GPIO);
-			gpio_direction_output(USDHC2_PWR_GPIO, 1);
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers\
-				(%d) than supported by the board\n", i + 1);
-			return -EINVAL;
-			}
-
-			ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-			if (ret) {
-				printf("Warning:\
-					failed to initialize mmc dev %d\n", i);
-				return ret;
-			}
-	}
-
-	return 0;
-#else
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 val;
-	u32 port;
-
-	val = readl(&src_regs->sbmr1);
-
-	if ((val & 0xc0) != 0x40) {
-		printf("Not boot from USDHC!\n");
-		return -EINVAL;
-	}
-
-	port = (val >> 11) & 0x3;
-	printf("port %d\n", port);
-	switch (port) {
-	case 1:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
-		gpio_direction_input(USDHC2_CD_GPIO);
-		gpio_direction_output(USDHC2_PWR_GPIO, 1);
-		break;
-	case 2:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		usdhc_cfg[1].esdhc_base = USDHC3_BASE_ADDR;
-		break;
-	}
+	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
+	gpio_direction_input(USDHC2_CD_GPIO);
+	gpio_direction_output(USDHC2_PWR_GPIO, 1);
 
 	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif
 }
 
 char *board_string(void)
