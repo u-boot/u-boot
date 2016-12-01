@@ -360,6 +360,12 @@ int ns16550_serial_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+enum {
+	PORT_NS16550 = 0,
+};
+#endif
+
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
@@ -453,16 +459,16 @@ const struct dm_serial_ops ns16550_serial_ops = {
  * compatible string to your dts.
  */
 static const struct udevice_id ns16550_serial_ids[] = {
-	{ .compatible = "ns16550" },
-	{ .compatible = "ns16550a" },
-	{ .compatible = "nvidia,tegra20-uart" },
-	{ .compatible = "snps,dw-apb-uart" },
-	{ .compatible = "ti,omap2-uart" },
-	{ .compatible = "ti,omap3-uart" },
-	{ .compatible = "ti,omap4-uart" },
-	{ .compatible = "ti,am3352-uart" },
-	{ .compatible = "ti,am4372-uart" },
-	{ .compatible = "ti,dra742-uart" },
+	{ .compatible = "ns16550",		.data = PORT_NS16550 },
+	{ .compatible = "ns16550a",		.data = PORT_NS16550 },
+	{ .compatible = "nvidia,tegra20-uart",	.data = PORT_NS16550 },
+	{ .compatible = "snps,dw-apb-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,omap2-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,omap3-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,omap4-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,am3352-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,am4372-uart",	.data = PORT_NS16550 },
+	{ .compatible = "ti,dra742-uart",	.data = PORT_NS16550 },
 	{}
 };
 #endif
