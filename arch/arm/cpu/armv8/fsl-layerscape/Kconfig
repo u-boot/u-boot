@@ -76,6 +76,13 @@ config SECURE_BOOT
 	help
 		Enable Freescale Secure Boot feature
 
+config QSPI_AHB_INIT
+	bool "Init the QSPI AHB bus"
+	help
+	  The default setting for QSPI AHB bus just support 3bytes addressing.
+	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
+	  bus for those flashes to support the full QSPI flash size.
+
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
 	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A

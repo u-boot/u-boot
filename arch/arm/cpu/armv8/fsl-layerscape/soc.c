@@ -373,6 +373,45 @@ void fsl_lsch2_early_init_f(void)
 }
 #endif
 
+#ifdef CONFIG_QSPI_AHB_INIT
+/* Enable 4bytes address support and fast read */
+int qspi_ahb_init(void)
+{
+	u32 *qspi_lut, lut_key, *qspi_key;
+
+	qspi_key = (void *)SYS_FSL_QSPI_ADDR + 0x300;
+	qspi_lut = (void *)SYS_FSL_QSPI_ADDR + 0x310;
+
+	lut_key = in_be32(qspi_key);
+
+	if (lut_key == 0x5af05af0) {
+		/* That means the register is BE */
+		out_be32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_be32(qspi_key + 1, 0x00000002);
+		out_be32(qspi_lut, 0x0820040c);
+		out_be32(qspi_lut + 1, 0x1c080c08);
+		out_be32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_be32(qspi_key, 0x5af05af0);
+		out_be32(qspi_key + 1, 0x00000001);
+	} else {
+		/* That means the register is LE */
+		out_le32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_le32(qspi_key + 1, 0x00000002);
+		out_le32(qspi_lut, 0x0820040c);
+		out_le32(qspi_lut + 1, 0x1c080c08);
+		out_le32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_le32(qspi_key, 0x5af05af0);
+		out_le32(qspi_key + 1, 0x00000001);
+	}
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -381,6 +420,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 	fsl_setenv_chain_of_trust();
+#endif
+#ifdef CONFIG_QSPI_AHB_INIT
+	qspi_ahb_init();
 #endif
 
 	return 0;
