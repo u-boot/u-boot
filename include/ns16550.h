@@ -57,6 +57,7 @@ struct ns16550_platdata {
 	int reg_shift;
 	int clock;
 	int reg_offset;
+	u32 fcr;
 };
 
 struct udevice;
