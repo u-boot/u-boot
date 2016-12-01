@@ -471,6 +471,56 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
+config SYS_CCSRBAR_DEFAULT
+	hex "Default CCSRBAR address"
+	default	0xff700000 if	ARCH_BSC9131	|| \
+				ARCH_BSC9132	|| \
+				ARCH_C29X	|| \
+				ARCH_MPC8536	|| \
+				ARCH_MPC8540	|| \
+				ARCH_MPC8541	|| \
+				ARCH_MPC8544	|| \
+				ARCH_MPC8548	|| \
+				ARCH_MPC8555	|| \
+				ARCH_MPC8560	|| \
+				ARCH_MPC8568	|| \
+				ARCH_MPC8569	|| \
+				ARCH_MPC8572	|| \
+				ARCH_P1010	|| \
+				ARCH_P1011	|| \
+				ARCH_P1020	|| \
+				ARCH_P1021	|| \
+				ARCH_P1022	|| \
+				ARCH_P1024	|| \
+				ARCH_P1025	|| \
+				ARCH_P2020
+	default 0xff600000 if	ARCH_P1023
+	default 0xfe000000 if	ARCH_B4420	|| \
+				ARCH_B4860	|| \
+				ARCH_P2041	|| \
+				ARCH_P3041	|| \
+				ARCH_P4080	|| \
+				ARCH_P5020	|| \
+				ARCH_P5040	|| \
+				ARCH_T1013	|| \
+				ARCH_T1014	|| \
+				ARCH_T1020	|| \
+				ARCH_T1022	|| \
+				ARCH_T1023	|| \
+				ARCH_T1024	|| \
+				ARCH_T1040	|| \
+				ARCH_T1042	|| \
+				ARCH_T2080	|| \
+				ARCH_T2081	|| \
+				ARCH_T4160	|| \
+				ARCH_T4240
+	default 0xe0000000 if ARCH_QEMU_E500
+	help
+		Default value of CCSRBAR comes from power-on-reset. It
+		is fixed on each SoC. Some SoCs can have different value
+		if changed by pre-boot regime. The value here must match
+		the current value in SoC. If not sure, do not change.
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"
