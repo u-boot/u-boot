@@ -272,8 +272,8 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 }
 #endif
 
-static int spl_mmc_load_image(struct spl_image_info *spl_image,
-			      struct spl_boot_device *bootdev)
+int spl_mmc_load_image(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev)
 {
 	struct mmc *mmc = NULL;
 	u32 boot_mode;
