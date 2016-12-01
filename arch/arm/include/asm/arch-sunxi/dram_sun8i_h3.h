@@ -15,7 +15,8 @@
 
 struct sunxi_mctl_com_reg {
 	u32 cr;			/* 0x00 control register */
-	u8 res0[0x8];		/* 0x04 */
+	u32 cr_r1;		/* 0x04 rank 1 control register (R40 only) */
+	u8 res0[0x4];		/* 0x08 */
 	u32 tmr;		/* 0x0c (unused on H3) */
 	u32 mcr[16][2];		/* 0x10 */
 	u32 bwcr;		/* 0x90 bandwidth control register */
@@ -63,6 +64,17 @@ struct sunxi_mctl_com_reg {
 #define MCTL_CR_DUAL_RANK	(0x1 << 0)
 #define MCTL_CR_SINGLE_RANK	(0x0 << 0)
 
+/*
+ * CR_R1 is a register found in the R40's DRAM controller. It sets various
+ * parameters for rank 1. Bits [11:0] have the same meaning as the bits in
+ * MCTL_CR, but they apply to rank 1 only. This implies we can have
+ * different chips for rank 1 than rank 0.
+ *
+ * As address line A15 and CS1 chip select for rank 1 are muxed on the same
+ * pin, if single rank is used, A15 must be muxed in.
+ */
+#define MCTL_CR_R1_MUX_A15	(0x1 << 21)
+
 #define PROTECT_MAGIC		(0x94be6fa3)
 
 struct sunxi_mctl_ctl_reg {
@@ -72,7 +84,8 @@ struct sunxi_mctl_ctl_reg {
 	u32 clken;		/* 0x0c */
 	u32 pgsr[2];		/* 0x10 PHY general status registers */
 	u32 statr;		/* 0x18 */
-	u8 res1[0x14];		/* 0x1c */
+	u8 res1[0x10];		/* 0x1c */
+	u32 lp3mr11;		/* 0x2c */
 	u32 mr[4];		/* 0x30 mode registers */
 	u32 pllgcr;		/* 0x40 */
 	u32 ptr[5];		/* 0x44 PHY timing registers */
@@ -120,7 +133,8 @@ struct sunxi_mctl_ctl_reg {
 	struct {		/* 0x300 DATX8 modules*/
 		u32 mdlr;		/* 0x00 master delay line register */
 		u32 lcdlr[3];		/* 0x04 local calibrated delay line registers */
-		u32 bdlr[12];		/* 0x10 bit delay line registers */
+		u32 bdlr[11];		/* 0x10 bit delay line registers */
+		u32 sdlr;		/* 0x3c output enable bit delay registers */
 		u32 gtr;		/* 0x40 general timing register */
 		u32 gcr;		/* 0x44 general configuration register */
 		u32 gsr[3];		/* 0x48 general status registers */
