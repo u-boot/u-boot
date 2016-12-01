@@ -47,6 +47,12 @@ config SYS_CCSRBAR_DEFAULT
 		is fixed on each SoC. Some SoCs can have different value
 		if changed by pre-boot regime. The value here must match
 		the current value in SoC. If not sure, do not change.
+config SYS_FSL_NUM_LAWS
+	int "Number of local access windows"
+	default 10 if ARCH_MPC8610 || ARCH_MPC8641
+	help
+		Number of local access windows. This is fixed per SoC.
+		If not sure, do not change.
 
 source "board/freescale/mpc8610hpcd/Kconfig"
 source "board/freescale/mpc8641hpcn/Kconfig"
