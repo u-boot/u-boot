@@ -88,4 +88,6 @@
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
 
+#define CONFIG_IMX_THERMAL
+
 #endif				/* __CONFIG_H */
