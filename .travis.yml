@@ -151,12 +151,14 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
     - env:
         - BUILDMAN="kirkwood"
+    - env:
+        - BUILDMAN="mvebu"
     - env:
         - BUILDMAN="pxa"
     - env:
@@ -208,7 +210,7 @@ matrix:
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - BUILDMAN="aarch64 -x tegra,freescale,uniphier,sunxi,samsung,rockchip"
+        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
           TOOLCHAIN="aarch64"
     - env:
         - BUILDMAN="rockchip"
