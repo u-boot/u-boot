@@ -415,7 +415,6 @@ int board_eth_init(bd_t *bis)
 	int rv, n = 0;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
-	__maybe_unused struct am335x_baseboard_id header;
 
 	/*
 	 * Note here that we're using CPSW1 since that has a 1Gbit PHY while
