@@ -31,9 +31,6 @@
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 #endif
 
-/* Armada XP PLL frequency (used for NAND clock generation) */
-#define CONFIG_SYS_MVEBU_PLL_CLOCK	2000000000
-
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
