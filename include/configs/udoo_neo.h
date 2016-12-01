@@ -40,7 +40,6 @@
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4\0" \
-	"mmcautodetect=no\0" \
 	"findfdt="\
 		"if test $board_name = BASIC; then " \
 			"setenv fdt_file imx6sx-udoo-neo-basic.dtb; fi; " \
