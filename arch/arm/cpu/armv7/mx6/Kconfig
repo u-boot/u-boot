@@ -217,6 +217,7 @@ config TARGET_UDOO
 config TARGET_UDOO_NEO
 	bool "UDOO Neo"
 	select SUPPORT_SPL
+	select MX6SX
 
 config TARGET_SAMTEC_VINING_2000
 	bool "samtec VIN|ING 2000"
