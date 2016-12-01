@@ -515,6 +515,7 @@ void print_mmc_devices(char separator);
  * @return 0 if there is no MMC device, else the number of devices
  */
 int get_mmc_num(void);
+int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
 int mmc_hwpart_config(struct mmc *mmc, const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode);
 

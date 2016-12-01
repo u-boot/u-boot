@@ -13,6 +13,7 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 struct mmc *find_mmc_device(int dev_num)
 {
 	struct mmc *m;
@@ -62,6 +63,7 @@ void mmc_do_preinit(void)
 			mmc_start_init(m);
 	}
 }
+#endif
 
 void mmc_list_init(void)
 {
@@ -109,6 +111,35 @@ void print_mmc_devices(char separator)
 void print_mmc_devices(char separator) { }
 #endif
 
+#if CONFIG_IS_ENABLED(MMC_TINY)
+static struct mmc mmc_static = {
+	.dsr_imp		= 0,
+	.dsr			= 0xffffffff,
+	.block_dev = {
+		.if_type	= IF_TYPE_MMC,
+		.removable	= 1,
+		.devnum		= 0,
+		.block_read	= mmc_bread,
+		.block_write	= mmc_bwrite,
+		.block_erase	= mmc_berase,
+		.part_type	= 0,
+	},
+};
+
+struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
+{
+	struct mmc *mmc = &mmc_static;
+
+	mmc->cfg = cfg;
+	mmc->priv = priv;
+
+	return mmc;
+}
+
+void mmc_destroy(struct mmc *mmc)
+{
+}
+#else
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct blk_desc *bdesc;
@@ -157,6 +188,7 @@ void mmc_destroy(struct mmc *mmc)
 	/* only freeing memory for now */
 	free(mmc);
 }
+#endif
 
 static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
 {

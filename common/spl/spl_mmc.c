@@ -306,7 +306,11 @@ static int spl_mmc_load_image(struct spl_image_info *spl_image,
 			if (part == 7)
 				part = 0;
 
-			err = blk_dselect_hwpart(mmc_get_blk_desc(mmc), part);
+			if (CONFIG_IS_ENABLED(MMC_TINY))
+				err = mmc_switch_part(mmc, part);
+			else
+				err = blk_dselect_hwpart(mmc_get_blk_desc(mmc), part);
+
 			if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 				puts("spl: mmc partition switch failed\n");
