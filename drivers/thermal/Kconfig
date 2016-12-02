@@ -10,7 +10,7 @@ if DM_THERMAL
 
 config IMX_THERMAL
 	bool "Temperature sensor driver for Freescale i.MX SoCs"
-	depends on MX6
+	depends on MX6 || MX7
 	help
 	  Support for Temperature Monitor (TEMPMON) found on Freescale i.MX SoCs.
           It supports one critical trip point and one passive trip point.  The
