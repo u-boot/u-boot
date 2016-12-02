@@ -28,9 +28,16 @@ endchoice
 
 config ARCH_MPC8610
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8641
 	bool
+	select FSL_LAW
+
+config FSL_LAW
+	bool
+	help
+		Use Freescale common code for Local Access Window
 
 config SYS_CCSRBAR_DEFAULT
 	hex "Default CCSRBAR address"
