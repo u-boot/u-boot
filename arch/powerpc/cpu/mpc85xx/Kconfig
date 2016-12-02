@@ -435,6 +435,12 @@ config ARCH_T4160
 config ARCH_T4240
 	bool
 
+config SECURE_BOOT
+	bool	"Secure Boot"
+	help
+		Enable Freescale Secure Boot feature. Normally selected
+		by defconfig. If unsure, do not change.
+
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for MPC85xx"
 	default 12 if ARCH_T4240
