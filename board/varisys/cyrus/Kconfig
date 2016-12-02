@@ -1,4 +1,4 @@
-if TARGET_CYRUS
+if TARGET_CYRUS_P5020 || TARGET_CYRUS_P5040
 
 config SYS_BOARD
 	default "cyrus"

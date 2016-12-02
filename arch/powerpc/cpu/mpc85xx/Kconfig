@@ -309,8 +309,14 @@ config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
 
-config TARGET_CYRUS
-	bool "Support Varisys Cyrus"
+config TARGET_CYRUS_P5020
+	bool "Support Varisys Cyrus P5020"
+	select ARCH_P5020
+	select PHYS_64BIT
+
+config TARGET_CYRUS_P5040
+	 bool "Support Varisys Cyrus P5040"
+	select ARCH_P5040
 	select PHYS_64BIT
 
 endchoice
