@@ -71,6 +71,11 @@ config NUM_DDR_CONTROLLERS
 	default 3 if ARCH_LS2080A
 	default 1
 
+config SECURE_BOOT
+	bool
+	help
+		Enable Freescale Secure Boot feature
+
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
 	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
