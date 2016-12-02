@@ -25,8 +25,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
-
 #define CONFIG_FSL_VIA
 
 #ifndef __ASSEMBLY__

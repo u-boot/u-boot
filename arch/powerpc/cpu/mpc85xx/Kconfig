@@ -323,117 +323,159 @@ endchoice
 
 config ARCH_B4420
 	bool
+	select FSL_LAW
 
 config ARCH_B4860
 	bool
+	select FSL_LAW
 
 config ARCH_BSC9131
 	bool
+	select FSL_LAW
 
 config ARCH_BSC9132
 	bool
+	select FSL_LAW
 
 config ARCH_C29X
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8536
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8540
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8541
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8544
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8548
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8555
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8560
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8568
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8569
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8572
 	bool
+	select FSL_LAW
 
 config ARCH_P1010
 	bool
+	select FSL_LAW
 
 config ARCH_P1011
 	bool
+	select FSL_LAW
 
 config ARCH_P1020
 	bool
+	select FSL_LAW
 
 config ARCH_P1021
 	bool
+	select FSL_LAW
 
 config ARCH_P1022
 	bool
+	select FSL_LAW
 
 config ARCH_P1023
 	bool
+	select FSL_LAW
 
 config ARCH_P1024
 	bool
+	select FSL_LAW
 
 config ARCH_P1025
 	bool
+	select FSL_LAW
 
 config ARCH_P2020
 	bool
+	select FSL_LAW
 
 config ARCH_P2041
 	bool
+	select FSL_LAW
 
 config ARCH_P3041
 	bool
+	select FSL_LAW
 
 config ARCH_P4080
 	bool
+	select FSL_LAW
 
 config ARCH_P5020
 	bool
+	select FSL_LAW
 
 config ARCH_P5040
 	bool
+	select FSL_LAW
 
 config ARCH_QEMU_E500
 	bool
 
 config ARCH_T1023
 	bool
+	select FSL_LAW
 
 config ARCH_T1024
 	bool
+	select FSL_LAW
 
 config ARCH_T1040
 	bool
+	select FSL_LAW
 
 config ARCH_T1042
 	bool
+	select FSL_LAW
 
 config ARCH_T2080
 	bool
+	select FSL_LAW
 
 config ARCH_T2081
 	bool
+	select FSL_LAW
 
 config ARCH_T4160
 	bool
+	select FSL_LAW
 
 config ARCH_T4240
 	bool
+	select FSL_LAW
+
+config FSL_LAW
+	bool
+	help
+		Use Freescale common code for Local Access Window
 
 config SECURE_BOOT
 	bool	"Secure Boot"

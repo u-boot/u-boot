@@ -19,7 +19,6 @@
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW                 /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SPL_TEXT_BASE		0xD0001000
 #define CONFIG_SPL_PAD_TO		0x18000
@@ -45,7 +44,6 @@
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW         /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE			0x11001000
 #define CONFIG_SPL_TEXT_BASE			0xD0001000
 #define CONFIG_SPL_PAD_TO			0x18000
@@ -201,7 +199,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_TSEC_ENET
 #define CONFIG_ENV_OVERWRITE
 

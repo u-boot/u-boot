@@ -46,8 +46,6 @@
 
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
-
 /* Environment in SPI Flash */
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_SPI_FLASH

@@ -58,8 +58,6 @@
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
-
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH

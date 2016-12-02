@@ -103,7 +103,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_TSEC_ENET /* ethernet */
 
