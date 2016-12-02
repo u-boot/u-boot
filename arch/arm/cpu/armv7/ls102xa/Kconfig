@@ -28,6 +28,12 @@ config NUM_DDR_CONTROLLERS
 	int "Maximum DDR controllers"
 	default 1
 
+config SECURE_BOOT
+	bool	"Secure Boot"
+	help
+		Enable Freescale Secure Boot feature. Normally selected
+		by defconfig. If unsure, do not change.
+
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
 
