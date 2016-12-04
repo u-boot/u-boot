@@ -299,9 +299,8 @@ config SYS_CLK_FREQ
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
-config ARCH_FIXUP_FDT
-	bool "Enable arch_fixup_fdt() call"
-	depends on ARM || MIPS
+config ARCH_FIXUP_FDT_MEMORY
+	bool "Enable arch_fixup_memory_banks() call"
 	default y
 	help
 	  Enable FDT memory map syncup before OS boot. This feature can be

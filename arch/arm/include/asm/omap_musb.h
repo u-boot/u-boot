@@ -15,9 +15,10 @@ extern const struct musb_platform_ops omap2430_ops;
 
 struct omap_musb_board_data {
 	u8 interface_type;
-	void (*set_phy_power)(u8 on);
-	void (*clear_irq)(void);
-	void (*reset)(void);
+	struct udevice *dev;
+	void (*set_phy_power)(struct udevice *dev, u8 on);
+	void (*clear_irq)(struct udevice *dev);
+	void (*reset)(struct udevice *dev);
 };
 
 enum musb_interface    {MUSB_INTERFACE_ULPI, MUSB_INTERFACE_UTMI};

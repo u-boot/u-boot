@@ -206,7 +206,17 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 		working_fdt = newaddr;
+#ifdef CONFIG_OF_SYSTEM_SETUP
+	/* Call the board-specific fixup routine */
+	} else if (strncmp(argv[1], "sys", 3) == 0) {
+		int err = ft_system_setup(working_fdt, gd->bd);
 
+		if (err) {
+			printf("Failed to add system information to FDT: %s\n",
+			       fdt_strerror(err));
+			return CMD_RET_FAILURE;
+		}
+#endif
 	/*
 	 * Make a new node
 	 */
@@ -572,18 +582,6 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (err) {
 			printf("Failed to update board information in FDT: %s\n",
-			       fdt_strerror(err));
-			return CMD_RET_FAILURE;
-		}
-	}
-#endif
-#ifdef CONFIG_OF_SYSTEM_SETUP
-	/* Call the board-specific fixup routine */
-	else if (strncmp(argv[1], "sys", 3) == 0) {
-		int err = ft_system_setup(working_fdt, gd->bd);
-
-		if (err) {
-			printf("Failed to add system information to FDT: %s\n",
 			       fdt_strerror(err));
 			return CMD_RET_FAILURE;
 		}

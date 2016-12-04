@@ -21,6 +21,16 @@ struct udevice;
  */
 struct udevice *dm_root(void);
 
+struct global_data;
+/**
+ * dm_fixup_for_gd_move() - Handle global_data moving to a new place
+ *
+ * The uclass list is part of global_data. Due to the way lists work, moving
+ * the list will cause it to become invalid. This function fixes that up so
+ * that the uclass list will work correctly.
+ */
+void dm_fixup_for_gd_move(struct global_data *new_gd);
+
 /**
  * dm_scan_platdata() - Scan all platform data and bind drivers
  *

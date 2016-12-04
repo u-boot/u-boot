@@ -156,6 +156,8 @@ static int get_desc(enum if_type if_type, int devnum, struct blk_desc **descp)
 				if (ret)
 					return ret;
 
+				*descp = desc;
+				return 0;
 			} else if (desc->devnum > devnum) {
 				found_more = true;
 			}

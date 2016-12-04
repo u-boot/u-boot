@@ -28,6 +28,8 @@ def ParseArgs():
     parser.add_option('-d', '--detail', dest='show_detail',
           action='store_true', default=False,
           help='Show detailed information for each board in summary')
+    parser.add_option('-D', '--config-only', action='store_true', default=False,
+          help="Don't build, just configure each commit")
     parser.add_option('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
     parser.add_option('-f', '--force-build', dest='force_build',
@@ -57,6 +59,8 @@ def ParseArgs():
           default=False, help='Keep all build output files (e.g. binaries)')
     parser.add_option('-K', '--show-config', action='store_true',
           default=False, help='Show configuration changes in summary (both board config files and Kconfig)')
+    parser.add_option('--preserve-config-y', action='store_true',
+          default=False, help="Don't convert y to 1 in configs")
     parser.add_option('-l', '--list-error-boards', action='store_true',
           default=False, help='Show a list of boards next to each error/warning')
     parser.add_option('--list-tool-chains', action='store_true', default=False,

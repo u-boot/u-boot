@@ -13,4 +13,10 @@ config DM_RTC
 	  drivers to perform the actual functions. See rtc.h for a
 	  description of the API.
 
+config RTC_PCF2127
+	bool "Enable PCF2127 driver"
+	depends on DM_RTC
+	help
+	  Enable pcf2127 driver which provides rtc get and set function
+
 endmenu

@@ -336,7 +336,7 @@ eoi:
 	if (ret == IRQ_HANDLED || epintr || usbintr) {
 		/* clear level interrupt */
 		if (data->clear_irq)
-			data->clear_irq();
+			data->clear_irq(data->dev);
 		/* write EOI */
 		musb_writel(reg_base, USB_END_OF_INTR_REG, 0);
 	}
@@ -401,14 +401,14 @@ static int am35x_musb_init(struct musb *musb)
 
 	/* Reset the musb */
 	if (data->reset)
-		data->reset();
+		data->reset(data->dev);
 
 	/* Reset the controller */
 	musb_writel(reg_base, USB_CTRL_REG, AM35X_SOFT_RESET_MASK);
 
 	/* Start the on-chip PHY and its PLL. */
 	if (data->set_phy_power)
-		data->set_phy_power(1);
+		data->set_phy_power(data->dev, 1);
 
 	msleep(5);
 
@@ -416,7 +416,7 @@ static int am35x_musb_init(struct musb *musb)
 
 	/* clear level interrupt */
 	if (data->clear_irq)
-		data->clear_irq();
+		data->clear_irq(data->dev);
 
 	return 0;
 }
@@ -439,7 +439,7 @@ static int am35x_musb_exit(struct musb *musb)
 
 	/* Shutdown the on-chip PHY and its PLL. */
 	if (data->set_phy_power)
-		data->set_phy_power(0);
+		data->set_phy_power(data->dev, 0);
 
 #ifndef __UBOOT__
 	usb_put_phy(musb->xceiv);
@@ -630,7 +630,7 @@ static int am35x_suspend(struct device *dev)
 
 	/* Shutdown the on-chip PHY and its PLL. */
 	if (data->set_phy_power)
-		data->set_phy_power(0);
+		data->set_phy_power(data->dev, 0);
 
 	clk_disable(glue->phy_clk);
 	clk_disable(glue->clk);
@@ -647,7 +647,7 @@ static int am35x_resume(struct device *dev)
 
 	/* Start the on-chip PHY and its PLL. */
 	if (data->set_phy_power)
-		data->set_phy_power(1);
+		data->set_phy_power(data->dev, 1);
 
 	ret = clk_enable(glue->phy_clk);
 	if (ret) {
