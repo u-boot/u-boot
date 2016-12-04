@@ -309,125 +309,179 @@ config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
 
-config TARGET_CYRUS
-	bool "Support Varisys Cyrus"
+config TARGET_CYRUS_P5020
+	bool "Support Varisys Cyrus P5020"
+	select ARCH_P5020
+	select PHYS_64BIT
+
+config TARGET_CYRUS_P5040
+	 bool "Support Varisys Cyrus P5040"
+	select ARCH_P5040
 	select PHYS_64BIT
 
 endchoice
 
 config ARCH_B4420
 	bool
+	select FSL_LAW
 
 config ARCH_B4860
 	bool
+	select FSL_LAW
 
 config ARCH_BSC9131
 	bool
+	select FSL_LAW
 
 config ARCH_BSC9132
 	bool
+	select FSL_LAW
 
 config ARCH_C29X
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8536
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8540
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8541
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8544
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8548
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8555
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8560
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8568
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8569
 	bool
+	select FSL_LAW
 
 config ARCH_MPC8572
 	bool
+	select FSL_LAW
 
 config ARCH_P1010
 	bool
+	select FSL_LAW
 
 config ARCH_P1011
 	bool
+	select FSL_LAW
 
 config ARCH_P1020
 	bool
+	select FSL_LAW
 
 config ARCH_P1021
 	bool
+	select FSL_LAW
 
 config ARCH_P1022
 	bool
+	select FSL_LAW
 
 config ARCH_P1023
 	bool
+	select FSL_LAW
 
 config ARCH_P1024
 	bool
+	select FSL_LAW
 
 config ARCH_P1025
 	bool
+	select FSL_LAW
 
 config ARCH_P2020
 	bool
+	select FSL_LAW
 
 config ARCH_P2041
 	bool
+	select FSL_LAW
 
 config ARCH_P3041
 	bool
+	select FSL_LAW
 
 config ARCH_P4080
 	bool
+	select FSL_LAW
 
 config ARCH_P5020
 	bool
+	select FSL_LAW
 
 config ARCH_P5040
 	bool
+	select FSL_LAW
 
 config ARCH_QEMU_E500
 	bool
 
 config ARCH_T1023
 	bool
+	select FSL_LAW
 
 config ARCH_T1024
 	bool
+	select FSL_LAW
 
 config ARCH_T1040
 	bool
+	select FSL_LAW
 
 config ARCH_T1042
 	bool
+	select FSL_LAW
 
 config ARCH_T2080
 	bool
+	select FSL_LAW
 
 config ARCH_T2081
 	bool
+	select FSL_LAW
 
 config ARCH_T4160
 	bool
+	select FSL_LAW
 
 config ARCH_T4240
 	bool
+	select FSL_LAW
+
+config FSL_LAW
+	bool
+	help
+		Use Freescale common code for Local Access Window
+
+config SECURE_BOOT
+	bool	"Secure Boot"
+	help
+		Enable Freescale Secure Boot feature. Normally selected
+		by defconfig. If unsure, do not change.
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for MPC85xx"
@@ -464,6 +518,104 @@ config MAX_CPUS
 	  ports. If some ports are reserved but higher ports are used for
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
+
+config SYS_CCSRBAR_DEFAULT
+	hex "Default CCSRBAR address"
+	default	0xff700000 if	ARCH_BSC9131	|| \
+				ARCH_BSC9132	|| \
+				ARCH_C29X	|| \
+				ARCH_MPC8536	|| \
+				ARCH_MPC8540	|| \
+				ARCH_MPC8541	|| \
+				ARCH_MPC8544	|| \
+				ARCH_MPC8548	|| \
+				ARCH_MPC8555	|| \
+				ARCH_MPC8560	|| \
+				ARCH_MPC8568	|| \
+				ARCH_MPC8569	|| \
+				ARCH_MPC8572	|| \
+				ARCH_P1010	|| \
+				ARCH_P1011	|| \
+				ARCH_P1020	|| \
+				ARCH_P1021	|| \
+				ARCH_P1022	|| \
+				ARCH_P1024	|| \
+				ARCH_P1025	|| \
+				ARCH_P2020
+	default 0xff600000 if	ARCH_P1023
+	default 0xfe000000 if	ARCH_B4420	|| \
+				ARCH_B4860	|| \
+				ARCH_P2041	|| \
+				ARCH_P3041	|| \
+				ARCH_P4080	|| \
+				ARCH_P5020	|| \
+				ARCH_P5040	|| \
+				ARCH_T1013	|| \
+				ARCH_T1014	|| \
+				ARCH_T1020	|| \
+				ARCH_T1022	|| \
+				ARCH_T1023	|| \
+				ARCH_T1024	|| \
+				ARCH_T1040	|| \
+				ARCH_T1042	|| \
+				ARCH_T2080	|| \
+				ARCH_T2081	|| \
+				ARCH_T4160	|| \
+				ARCH_T4240
+	default 0xe0000000 if ARCH_QEMU_E500
+	help
+		Default value of CCSRBAR comes from power-on-reset. It
+		is fixed on each SoC. Some SoCs can have different value
+		if changed by pre-boot regime. The value here must match
+		the current value in SoC. If not sure, do not change.
+
+config SYS_FSL_NUM_LAWS
+	int "Number of local access windows"
+	depends on FSL_LAW
+	default 32 if	ARCH_B4420	|| \
+			ARCH_B4860	|| \
+			ARCH_P2041	|| \
+			ARCH_P3041	|| \
+			ARCH_P4080	|| \
+			ARCH_P5020	|| \
+			ARCH_P5040	|| \
+			ARCH_T2080	|| \
+			ARCH_T2081	|| \
+			ARCH_T4160	|| \
+			ARCH_T4240
+	default 16 if	ARCH_T1013	|| \
+			ARCH_T1014	|| \
+			ARCH_T1020	|| \
+			ARCH_T1022	|| \
+			ARCH_T1023	|| \
+			ARCH_T1024	|| \
+			ARCH_T1040	|| \
+			ARCH_T1042
+	default 12 if	ARCH_BSC9131	|| \
+			ARCH_BSC9132	|| \
+			ARCH_C29X	|| \
+			ARCH_MPC8536	|| \
+			ARCH_MPC8572	|| \
+			ARCH_P1010	|| \
+			ARCH_P1011	|| \
+			ARCH_P1020	|| \
+			ARCH_P1021	|| \
+			ARCH_P1022	|| \
+			ARCH_P1023	|| \
+			ARCH_P1024	|| \
+			ARCH_P1025	|| \
+			ARCH_P2020
+	default 10 if	ARCH_MPC8544	|| \
+			ARCH_MPC8548	|| \
+			ARCH_MPC8568	|| \
+			ARCH_MPC8569
+	default 8 if	ARCH_MPC8540	|| \
+			ARCH_MPC8541	|| \
+			ARCH_MPC8555	|| \
+			ARCH_MPC8560
+	help
+		Number of local access windows. This is fixed per SoC.
+		If not sure, do not change.
 
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"

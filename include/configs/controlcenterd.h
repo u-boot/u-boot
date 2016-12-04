@@ -42,7 +42,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENABLE_36BIT_PHYS
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP

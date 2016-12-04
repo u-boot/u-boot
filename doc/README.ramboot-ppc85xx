@@ -90,8 +90,8 @@ In the 2nd case bootloader has already re-located CCSRBAR to 0xffe00000
 
    This will finally use the CONFIG_SYS_RAMBOOT.
 
-3. File name-> arch/powerpc/include/asm/config_mpc85xx.h
-   In the section of the particular SOC, for example P1020,
+3. Change CONFIG_SYS_CCSRBAR_DEFAULT in menuconfig accordingly.
+   In the section of the particular SOC, for example P1020, pseudo code
 
    #if defined(CONFIG_GO)
    #define CONFIG_SYS_CCSRBAR_DEFAULT	0xffe00000

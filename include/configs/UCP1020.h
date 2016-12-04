@@ -124,8 +124,6 @@
 
 #define CONFIG_MP
 
-#define CONFIG_FSL_LAW
-
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_CMD_SATA

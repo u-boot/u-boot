@@ -69,8 +69,6 @@
 
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
-
 /*
  * Below assumes that CCB:SYSCLK remains unchanged at 6:1 via SW2:[1-4]
  */

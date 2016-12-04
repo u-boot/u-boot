@@ -34,7 +34,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy() */
 
 /*
