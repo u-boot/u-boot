@@ -1165,12 +1165,21 @@ int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
 
 #else
 
+static int fecmxc_read_rom_hwaddr(struct udevice *dev)
+{
+	struct fec_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	return fec_get_hwaddr(priv->dev_id, pdata->enetaddr);
+}
+
 static const struct eth_ops fecmxc_ops = {
 	.start			= fecmxc_init,
 	.send			= fecmxc_send,
 	.recv			= fecmxc_recv,
 	.stop			= fecmxc_halt,
 	.write_hwaddr		= fecmxc_set_hwaddr,
+	.read_rom_hwaddr	= fecmxc_read_rom_hwaddr,
 };
 
 static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
@@ -1200,7 +1209,6 @@ static int fecmxc_probe(struct udevice *dev)
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
 	int dev_id = -1;
-	unsigned char ethaddr[6];
 	uint32_t start;
 	int ret;
 
@@ -1234,14 +1242,6 @@ static int fecmxc_probe(struct udevice *dev)
 	fec_reg_setup(priv);
 	fec_set_dev_name((char *)dev->name, dev_id);
 	priv->dev_id = (dev_id == -1) ? 0 : dev_id;
-
-	ret = fec_get_hwaddr(dev_id, ethaddr);
-	if (!ret) {
-		debug("got MAC%d address from fuse: %pM\n", dev_id, ethaddr);
-		memcpy(pdata->enetaddr, ethaddr, 6);
-		if (!getenv("ethaddr"))
-			eth_setenv_enetaddr("ethaddr", ethaddr);
-	}
 
 	return 0;
 
