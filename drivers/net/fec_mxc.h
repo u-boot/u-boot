@@ -264,6 +264,10 @@ struct fec_priv {
 	int phy_id;
 	int (*mii_postcall)(int);
 #endif
+
+#ifdef CONFIG_DM_ETH
+	u32 interface;
+#endif
 };
 
 /**
