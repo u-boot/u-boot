@@ -406,6 +406,7 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
+	select DM_I2C
 	select DM_SPI_FLASH
 	select DM_SERIAL
 	select DM_SPI
@@ -418,6 +419,7 @@ config ARCH_S5PC1XX
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select DM_I2C
 
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"

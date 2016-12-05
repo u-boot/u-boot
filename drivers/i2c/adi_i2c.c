@@ -4,6 +4,9 @@
  * Copyright (c) 2006-2014 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
+ *
+ * NOTE: This driver should be converted to driver model before June 2017.
+ * Please see doc/driver-model/i2c-howto.txt for instructions.
  */
 
 #include <common.h>
