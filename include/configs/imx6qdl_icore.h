@@ -149,6 +149,18 @@
 # define CONFIG_PHY_SMSC
 #endif
 
+/* Framebuffer */
+#ifdef CONFIG_VIDEO_IPUV3
+# define CONFIG_IPUV3_CLK		260000000
+# define CONFIG_IMX_VIDEO_SKIP
+
+# define CONFIG_SPLASH_SCREEN
+# define CONFIG_BMP_16BPP
+# define CONFIG_VIDEO_BMP_RLE8
+# define CONFIG_VIDEO_LOGO
+# define CONFIG_VIDEO_BMP_LOGO
+#endif
+
 /* SPL */
 #ifdef CONFIG_SPL
 # ifdef CONFIG_NAND_MXS
