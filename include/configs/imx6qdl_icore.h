@@ -37,6 +37,7 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
+	"splashpos=m,m\0" \
 	"image=zImage\0" \
 	"console=ttymxc3\0" \
 	"fdt_high=0xffffffff\0" \
@@ -155,6 +156,7 @@
 # define CONFIG_IMX_VIDEO_SKIP
 
 # define CONFIG_SPLASH_SCREEN
+# define CONFIG_SPLASH_SCREEN_ALIGN
 # define CONFIG_BMP_16BPP
 # define CONFIG_VIDEO_BMP_RLE8
 # define CONFIG_VIDEO_LOGO
