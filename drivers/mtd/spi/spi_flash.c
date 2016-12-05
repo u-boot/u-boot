@@ -1000,7 +1000,7 @@ int spi_flash_scan(struct spi_flash *flash)
 {
 	struct spi_slave *spi = flash->spi;
 	const struct spi_flash_info *info = NULL;
-	int ret = -1;
+	int ret;
 
 	info = spi_flash_read_id(flash);
 	if (IS_ERR_OR_NULL(info))
@@ -1166,5 +1166,5 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 #endif
 
-	return ret;
+	return 0;
 }
