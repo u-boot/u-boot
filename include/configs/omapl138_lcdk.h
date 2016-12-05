@@ -173,6 +173,7 @@
 #undef CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
 #define CONFIG_SYS_NAND_HW_ECC_OOBFIRST
+#define CONFIG_NAND_6BYTES_OOB_FREE_10BYTES_ECC
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_SIZE	(2 << 10)
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)
@@ -184,11 +185,10 @@
 					CONFIG_SYS_MALLOC_LEN -       \
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS		{				\
-				24, 25, 26, 27, 28, \
-				29, 30, 31, 32, 33, 34, 35, 36, 37, 38, \
-				39, 40, 41, 42, 43, 44, 45, 46, 47, 48, \
-				49, 50, 51, 52, 53, 54, 55, 56, 57, 58, \
-				59, 60, 61, 62, 63 }
+				6, 7, 8, 9, 10, 11, 12, 13, 14, 15,	\
+				22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
+				38, 39, 40, 41, 42, 43, 44, 45, 46, 47, \
+				54, 55, 56, 57, 58, 59, 60, 61, 62, 63 }
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_ECCSIZE		512
