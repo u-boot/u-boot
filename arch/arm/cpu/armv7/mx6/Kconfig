@@ -126,6 +126,7 @@ config TARGET_MX6Q_ICORE
 	select MX6QDL
 	select OF_CONTROL
 	select DM
+	select DM_ETH
 	select DM_GPIO
 	select DM_MMC
 	select DM_THERMAL
