@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Socionext Inc.
  *
- * based on commit a7a36122aa072fe1bb06e02b73b3634b7a6c555a of Diag
+ * based on commit 5e1cb0f1caeabc6c99469dd997cb6b4f46834443 of Diag
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -264,8 +264,8 @@ static int ddrphy_ip_dq_shift_val[DRAM_BOARD_NR][DRAM_CH_NR][32] = {
 static void ddrphy_select_lane(void __iomem *phy_base, unsigned int lane,
 			       unsigned int bit)
 {
-	WARN_ON(lane >= (1 << PHY_LANE_SEL_LANE_WIDTH));
-	WARN_ON(bit >= (1 << PHY_LANE_SEL_BIT_WIDTH));
+	WARN_ON(lane >= 1 << PHY_LANE_SEL_LANE_WIDTH);
+	WARN_ON(bit >= 1 << PHY_LANE_SEL_BIT_WIDTH);
 
 	writel((bit << PHY_LANE_SEL_BIT_SHIFT) |
 	       (lane << PHY_LANE_SEL_LANE_SHIFT),
