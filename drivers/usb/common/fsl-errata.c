@@ -139,6 +139,10 @@ bool has_erratum_a005697(void)
 	case SVR_9132:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
 #endif
+#ifdef ONFIG_ARM64
+	case SVR_LS1012A:
+		return IS_SVR_REV(svr, 1, 0);
+#endif
 	}
 	return false;
 }

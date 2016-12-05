@@ -45,7 +45,9 @@
 #include <nand.h>
 #include <errno.h>
 #endif
-
+#ifndef CONFIG_ARCH_QEMU_E500
+#include <fsl_ddr.h>
+#endif
 #include "../../../../drivers/block/fsl_sata.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
@@ -946,6 +948,10 @@ int cpu_init_r(void)
 #endif
 
 #endif /* CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE */
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	erratum_a009942_check_cpo();
+#endif
 
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();

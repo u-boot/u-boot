@@ -22,7 +22,7 @@
 #include <spl.h>
 #include <fsl_devdis.h>
 #include <fsl_validate.h>
-
+#include <fsl_ddr.h>
 #include "../common/sleep.h"
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
@@ -433,7 +433,9 @@ int board_init(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010315
 	erratum_a010315();
 #endif
-
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	erratum_a009942_check_cpo();
+#endif
 	major = get_soc_major_rev();
 	if (major == SOC_MAJOR_VER_1_0) {
 		/* Set CCI-400 control override register to
