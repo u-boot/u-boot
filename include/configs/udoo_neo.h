@@ -58,7 +58,8 @@
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0)
+	func(MMC, mmc, 0) \
+	func(DHCP, dhcp, na)
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
@@ -102,5 +103,19 @@
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 #define PFUZE3000_I2C_BUS	0
+
+/* Network */
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+
+#define CONFIG_FEC_ENET_DEV 0
+#define IMX_FEC_BASE			ENET_BASE_ADDR
+#define CONFIG_FEC_MXC_PHYADDR          0x0
+
+#define CONFIG_FEC_XCV_TYPE             RMII
+#define CONFIG_ETHPRIME                 "FEC0"
+
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
 
 #endif				/* __CONFIG_H */
