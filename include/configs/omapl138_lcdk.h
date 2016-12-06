@@ -247,7 +247,7 @@
  */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOOTFILE		"uImage" /* Boot file name */
+#define CONFIG_BOOTFILE		"zImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
@@ -276,19 +276,20 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdtaddr=0xc0600000\0" \
 	"fdtfile=da850-lcdk.dtb\0" \
-	"fdtboot=bootm 0xc0700000 - ${fdtaddr};\0" \
+	"fdtboot=bootz 0xc0700000 - ${fdtaddr};\0" \
 	"mmcboot=" \
 		"if fatload mmc 0 0xc0600000 boot.scr; then " \
 			"source 0xc0600000; " \
 		"else " \
-			"fatload mmc 0 0xc0700000 uImage; " \
+			"fatload mmc 0 0xc0700000 " \
+				__stringify(CONFIG_BOOTFILE) "; " \
 			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
 			"run fdtboot; " \
 		"fi;\0" \
 	"spiboot=" \
 		"sf probe 0; " \
 		"sf read 0xc0700000 0x80000 0x220000; " \
-		"bootm 0xc0700000;\0"
+		"bootz 0xc0700000;\0"
 
 /*
  * U-Boot commands
