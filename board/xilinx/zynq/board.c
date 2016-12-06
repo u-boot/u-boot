@@ -135,6 +135,34 @@ static const void *get_memory_reg_prop(const void *fdt, int *lenp)
 	return fdt_getprop(fdt, offset, "reg", lenp);
 }
 
+int dram_init(void)
+{
+	const void *fdt = gd->fdt_blob;
+	const fdt32_t *val;
+	int ac, sc, len;
+
+	ac = fdt_address_cells(fdt, 0);
+	sc = fdt_size_cells(fdt, 0);
+	if (ac < 0 || sc < 1 || sc > 2) {
+		printf("invalid address/size cells\n");
+		return -EINVAL;
+	}
+
+	val = get_memory_reg_prop(fdt, &len);
+	if (len / sizeof(*val) < ac + sc)
+		return -EINVAL;
+
+	val += ac;
+
+	gd->ram_size = fdtdec_get_number(val, sc);
+
+	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
+
+	zynq_ddrc_init();
+
+	return 0;
+}
+
 void dram_init_banksize(void)
 {
 	const void *fdt = gd->fdt_blob;
@@ -167,34 +195,6 @@ void dram_init_banksize(void)
 		      i, (unsigned long)gd->bd->bi_dram[i].start,
 		      (unsigned long)gd->bd->bi_dram[i].size);
 	}
-}
-
-int dram_init(void)
-{
-	const void *fdt = gd->fdt_blob;
-	const fdt32_t *val;
-	int ac, sc, len;
-
-	ac = fdt_address_cells(fdt, 0);
-	sc = fdt_size_cells(fdt, 0);
-	if (ac < 0 || sc < 1 || sc > 2) {
-		printf("invalid address/size cells\n");
-		return -EINVAL;
-	}
-
-	val = get_memory_reg_prop(fdt, &len);
-	if (len / sizeof(*val) < ac + sc)
-		return -EINVAL;
-
-	val += ac;
-
-	gd->ram_size = fdtdec_get_number(val, sc);
-
-	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
-
-	zynq_ddrc_init();
-
-	return 0;
 }
 #else
 int dram_init(void)
