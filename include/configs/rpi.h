@@ -83,7 +83,6 @@
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SDHCI_IO_ACCESSORS
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2

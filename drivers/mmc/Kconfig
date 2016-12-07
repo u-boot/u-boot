@@ -132,6 +132,13 @@ config MMC_SDHCI
 
 	  If unsure, say N.
 
+config MMC_SDHCI_IO_ACCESSORS
+	bool
+	depends on MMC_SDHCI
+	help
+	  This is silent Kconfig symbol that is selected by the drivers that
+	  need to overwrite SDHCI IO memory accessors.
+
 config MMC_SDHCI_SDMA
 	bool "Support SDHCI SDMA"
 	depends on MMC_SDHCI
@@ -143,6 +150,7 @@ config MMC_SDHCI_BCM2835
 	tristate "SDHCI support for the BCM2835 SD/MMC Controller"
 	depends on ARCH_BCM283X
 	depends on MMC_SDHCI
+	select MMC_SDHCI_IO_ACCESSORS
 	help
 	  This selects the BCM2835 SD/MMC controller.
 
