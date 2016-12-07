@@ -10,8 +10,6 @@ language: c
 
 addons:
   apt:
-    sources:
-    - sourceline: 'ppa:gns3/qemu'
     packages:
     - cppcheck
     - sloccount
@@ -21,10 +19,6 @@ addons:
     - libsdl1.2-dev
     - python
     - python-virtualenv
-    - qemu-system-arm
-    - qemu-system-mips
-    - qemu-system-ppc
-    - qemu-system-x86
     - gcc-powerpc-linux-gnu
     - gcc-arm-linux-gnueabihf
     - gcc-aarch64-linux-gnu
@@ -54,7 +48,7 @@ install:
 
 env:
   global:
-    - PATH=/tmp/dtc:/tmp/uboot-test-hooks/bin:$PATH
+    - PATH=/tmp/dtc:/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:$PATH
     - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"
@@ -74,6 +68,15 @@ before_script:
       echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
+  - if [[ "${QEMU_TARGET}" != "" ]]; then
+       git clone git://git.qemu.org/qemu.git /tmp/qemu;
+       pushd /tmp/qemu;
+       git submodule update --init dtc &&
+       git checkout v2.8.0-rc3 &&
+       ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
+       make -j4 all install;
+       popd;
+    fi
 
 script:
  # Comments must be outside the command strings below, or the Travis parser
@@ -254,43 +257,52 @@ matrix:
     - env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca15_tc2$"
     - env:
         - TEST_PY_BD="vexpress_ca9x4"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca9x4$"
     - env:
         - TEST_PY_BD="integratorcp_cm926ejs"
           TEST_PY_TEST_SPEC="not sleep"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^integratorcp_cm926ejs$"
     - env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips-softmmu"
           BUILDMAN="^qemu_mips$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mipsel"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mipsel-softmmu"
           BUILDMAN="^qemu_mipsel$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mips64"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips64-softmmu"
           BUILDMAN="^qemu_mips64$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mips64el"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips64el-softmmu"
           BUILDMAN="^qemu_mips64el$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu-ppce500"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
     - env:
         - TEST_PY_BD="qemu-x86"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="i386-softmmu"
           BUILDMAN="^qemu-x86$"
           TOOLCHAIN="x86_64"
           BUILD_ROM="yes"
