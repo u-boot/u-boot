@@ -27,7 +27,6 @@
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SATA}
 
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SDMA
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

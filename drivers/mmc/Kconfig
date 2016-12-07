@@ -132,6 +132,70 @@ config MMC_SDHCI
 
 	  If unsure, say N.
 
+config MMC_SDHCI_SDMA
+	bool "Support SDHCI SDMA"
+	depends on MMC_SDHCI
+	help
+	  This enables support for the SDMA (Single Operation DMA) defined
+	  in the SD Host Controller Standard Specification Version 1.00 .
+
+config MMC_SDHCI_BCM2835
+	tristate "SDHCI support for the BCM2835 SD/MMC Controller"
+	depends on ARCH_BCM283X
+	depends on MMC_SDHCI
+	help
+	  This selects the BCM2835 SD/MMC controller.
+
+	  If you have a BCM2835 platform with SD or MMC devices,
+	  say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_KONA
+	bool "SDHCI support on Broadcom KONA platform"
+	depends on MMC_SDHCI
+	help
+	  This selects the Broadcom Kona Secure Digital Host Controller
+	  Interface(SDHCI) support.
+	  This is used in Broadcom mobile SoCs.
+
+	  If you have a controller with this interface, say Y here.
+
+config MMC_SDHCI_MV
+	bool "SDHCI support on Marvell platform"
+	depends on ARCH_MVEBU
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface on
+	  Marvell platform.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_S5P
+	bool "SDHCI support on Samsung S5P SoC"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  on Samsung S5P SoCs.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_SPEAR
+	bool "SDHCI support on ST SPEAr platform"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  often referrered to as the HSMMC block in some of the ST SPEAR range
+	  of SoC
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 endif
 
 endmenu

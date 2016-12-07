@@ -31,7 +31,6 @@
 
 /* SD/MMC support */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SDMA
 
 /* 10/100M Ethernet support */
 #define CONFIG_DESIGNWARE_ETH

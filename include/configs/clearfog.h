@@ -43,9 +43,7 @@
 /*
  * SDIO/MMC Card Configuration
  */
-#define CONFIG_MMC_SDMA
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MV_SDHCI
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
 
 /* Partition support */
