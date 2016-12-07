@@ -86,7 +86,6 @@
 /* MMC */
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_GENERIC_MMC
-# define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI_MAX_FREQ	52000000
 #endif
 

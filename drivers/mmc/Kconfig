@@ -50,6 +50,7 @@ config SPL_MMC_TINY
 config MSM_SDHCI
 	bool "Qualcomm SDHCI controller"
 	depends on DM_MMC && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
           Snapdragon devices. This device is compatible with eMMC v4.5 and
@@ -59,6 +60,7 @@ config MSM_SDHCI
 config ATMEL_SDHCI
 	bool "Atmel SDHCI controller support"
 	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	depends on MMC_SDHCI
 	help
 	  This enables support for the Atmel SDHCI controller, which supports
 	  the embedded MultiMedia Card (e.MMC) Specification V4.51, the SD
@@ -84,18 +86,21 @@ config SH_SDHI
 config PIC32_SDHCI
 	bool "Microchip PIC32 on-chip SDHCI support"
 	depends on DM_MMC && MACH_PIC32
+	depends on MMC_SDHCI
 	help
 	  Support for Microchip PIC32 SDHCI controller.
 
 config ZYNQ_SDHCI
 	bool "Arasan SDHCI controller support"
 	depends on DM_MMC && OF_CONTROL && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
 
 config ROCKCHIP_SDHCI
 	bool "Arasan SDHCI controller for Rockchip support"
 	depends on DM_MMC && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
 
@@ -115,6 +120,17 @@ config SANDBOX_MMC
 	  other than allow sandbox to be build with MMC support. This
 	  improves build coverage for sandbox and makes it easier to detect
 	  MMC build errors with sandbox.
+
+config MMC_SDHCI
+	bool "Secure Digital Host Controller Interface support"
+	help
+	  This selects the generic Secure Digital Host Controller Interface.
+	  It is used by manufacturers such as Texas Instruments(R), Ricoh(R)
+	  and Toshiba(R). Most controllers found in laptops are of this type.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
 
 endif
 

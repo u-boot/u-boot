@@ -48,7 +48,7 @@ ifdef CONFIG_GENERIC_MMC
 obj-$(CONFIG_SANDBOX) += sandbox_mmc.o
 endif
 endif
-obj-$(CONFIG_SDHCI) += sdhci.o
+obj-$(CONFIG_MMC_SDHCI) += sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
 obj-$(CONFIG_SOCFPGA_DWMMC) += socfpga_dw_mmc.o

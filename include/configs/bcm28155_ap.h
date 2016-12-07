@@ -30,7 +30,6 @@
 #define CONFIG_KONA_GPIO
 
 /* MMC/SD Driver */
-#define CONFIG_SDHCI
 #define CONFIG_MMC_SDMA
 #define CONFIG_KONA_SDHCI
 #define CONFIG_GENERIC_MMC
