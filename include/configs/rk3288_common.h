@@ -40,7 +40,6 @@
 #define CONFIG_SPL_TEXT_BASE		0xff704004
 
 /* MMC/SD IP block */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DWMMC
 #define CONFIG_BOUNCE_BUFFER

@@ -508,7 +508,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC

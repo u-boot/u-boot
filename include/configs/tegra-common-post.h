@@ -115,9 +115,6 @@
 #endif
 
 /* remove MMC support */
-#ifdef CONFIG_MMC
-#undef CONFIG_MMC
-#endif
 #ifdef CONFIG_GENERIC_MMC
 #undef CONFIG_GENERIC_MMC
 #endif

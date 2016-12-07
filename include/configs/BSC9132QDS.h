@@ -482,7 +482,6 @@ combinations. this should be removed later
 
 #endif	/* CONFIG_TSEC_ENET */
 
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC

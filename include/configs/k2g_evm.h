@@ -61,7 +61,6 @@
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 /* MMC/SD */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
 

@@ -466,8 +466,6 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
-#define CONFIG_MMC     1
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX

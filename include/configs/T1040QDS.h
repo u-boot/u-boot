@@ -551,8 +551,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 #endif
 
-#define CONFIG_MMC
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK

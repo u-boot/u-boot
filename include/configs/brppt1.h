@@ -48,7 +48,6 @@
 
 /* MMC/SD IP block */
 #if defined(CONFIG_EMMC_BOOT)
- #define CONFIG_MMC
  #define CONFIG_GENERIC_MMC
  #define CONFIG_OMAP_HSMMC
  #define CONFIG_SUPPORT_EMMC_BOOT

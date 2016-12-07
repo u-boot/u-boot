@@ -13,7 +13,6 @@
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
 
-#define CONFIG_MMC
 #define CONFIG_SDCARD
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE3

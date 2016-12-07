@@ -7,7 +7,6 @@
 #ifndef __CONFIG_PEPPER_H
 #define __CONFIG_PEPPER_H
 
-#define CONFIG_MMC
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_BOARD_LATE_INIT

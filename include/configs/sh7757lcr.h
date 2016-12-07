@@ -89,7 +89,6 @@
 #define CONFIG_SH_SPI_BASE		0xfe002000
 
 /* MMCIF */
-#define CONFIG_MMC			1
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_SH_MMCIF			1
 #define CONFIG_SH_MMCIF_ADDR		0xffcb0000

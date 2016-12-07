@@ -10,7 +10,6 @@
  */
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
-#define CONFIG_MMC
 #define CONFIG_PCIE3
 
 #define CONFIG_CMD_SATA

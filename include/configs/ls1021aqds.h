@@ -393,7 +393,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * MMC
  */
-#define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 

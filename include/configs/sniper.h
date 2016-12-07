@@ -95,7 +95,6 @@
  * MMC
  */
 
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
 

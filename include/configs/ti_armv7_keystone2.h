@@ -306,7 +306,6 @@
 /* We wont be loading up OS from SPL for now.. */
 
 /* We do not have MMC support.. yet.. */
-#undef CONFIG_MMC
 #undef CONFIG_GENERIC_MMC
 
 /* And no support for GPIO, yet.. */

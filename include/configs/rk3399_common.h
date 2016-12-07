@@ -27,7 +27,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 /* MMC/SD IP block */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DWMMC
 #define CONFIG_SDHCI

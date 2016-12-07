@@ -609,8 +609,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
 
-#define CONFIG_MMC
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR

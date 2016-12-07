@@ -25,7 +25,6 @@
 #define CONFIG_SYS_I2C_TEGRA
 
 /* SD/MMC */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 

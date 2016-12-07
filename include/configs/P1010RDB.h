@@ -673,7 +673,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_LBA48
 #endif /* #ifdef CONFIG_FSL_SATA  */
 
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC

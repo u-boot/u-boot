@@ -168,7 +168,6 @@
 #endif
 
 /* MMC/SD IP block */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 
 /* McSPI IP block */

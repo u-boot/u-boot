@@ -92,7 +92,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 
 /* MMC */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 
 /* Module stop status bits */
