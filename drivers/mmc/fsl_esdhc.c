@@ -104,8 +104,10 @@ struct fsl_esdhc_priv {
 	struct udevice *dev;
 	int non_removable;
 	int wp_enable;
+#ifdef CONFIG_DM_GPIO
 	struct gpio_desc cd_gpio;
 	struct gpio_desc wp_gpio;
+#endif
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -687,9 +689,10 @@ static int esdhc_getcd(struct mmc *mmc)
 #ifdef CONFIG_DM_MMC
 	if (priv->non_removable)
 		return 1;
-
+#ifdef CONFIG_DM_GPIO
 	if (dm_gpio_is_valid(&priv->cd_gpio))
 		return dm_gpio_get_value(&priv->cd_gpio);
+#endif
 #endif
 
 	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
@@ -967,17 +970,20 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		priv->non_removable = 1;
 	 } else {
 		priv->non_removable = 0;
+#ifdef CONFIG_DM_GPIO
 		gpio_request_by_name_nodev(fdt, node, "cd-gpios", 0,
 					   &priv->cd_gpio, GPIOD_IS_IN);
+#endif
 	}
 
 	priv->wp_enable = 1;
 
+#ifdef CONFIG_DM_GPIO
 	ret = gpio_request_by_name_nodev(fdt, node, "wp-gpios", 0,
 					 &priv->wp_gpio, GPIOD_IS_IN);
 	if (ret)
 		priv->wp_enable = 0;
-
+#endif
 	/*
 	 * TODO:
 	 * Because lack of clk driver, if SDHC clk is not enabled,
