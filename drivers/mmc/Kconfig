@@ -30,6 +30,8 @@ config DM_MMC_OPS
 	  option will be removed as soon as all DM_MMC drivers use it, as it
 	  will the only supported behaviour.
 
+if MMC
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	help
@@ -113,5 +115,7 @@ config SANDBOX_MMC
 	  other than allow sandbox to be build with MMC support. This
 	  improves build coverage for sandbox and makes it easier to detect
 	  MMC build errors with sandbox.
+
+endif
 
 endmenu
