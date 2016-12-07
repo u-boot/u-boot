@@ -186,6 +186,10 @@ config TARGET_PICO_IMX6UL
 	bool "PICO-IMX6UL-EMMC"
 	select MX6UL
 
+config TARGET_LITEBOARD
+	bool "Grinn liteBoard (i.MX6UL)"
+	select LITESOM
+
 config TARGET_PLATINUM_PICON
 	bool "platinum-picon"
 	select SUPPORT_SPL
@@ -279,6 +283,7 @@ source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
+source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
