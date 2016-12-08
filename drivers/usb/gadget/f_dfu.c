@@ -654,7 +654,7 @@ static int dfu_prepare_function(struct f_dfu *f_dfu, int n)
 	struct usb_interface_descriptor *d;
 	int i = 0;
 
-	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n + 1);
+	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n + 2);
 	if (!f_dfu->function)
 		goto enomem;
 
@@ -673,6 +673,14 @@ static int dfu_prepare_function(struct f_dfu *f_dfu, int n)
 
 		f_dfu->function[i] = (struct usb_descriptor_header *)d;
 	}
+
+	/* add DFU Functional Descriptor */
+	f_dfu->function[i] = calloc(sizeof(dfu_func), 1);
+	if (!f_dfu->function[i])
+		goto enomem;
+	memcpy(f_dfu->function[i], &dfu_func, sizeof(dfu_func));
+
+	i++;
 	f_dfu->function[i] = NULL;
 
 	return 0;
