@@ -976,6 +976,40 @@ struct display_timing {
  */
 int fdtdec_decode_display_timing(const void *blob, int node, int index,
 				 struct display_timing *config);
+
+/**
+ * fdtdec_setup_memory_size() - decode and setup gd->ram_size
+ *
+ * Decode the /memory 'reg' property to determine the size of the first memory
+ * bank, populate the global data with the size of the first bank of memory.
+ *
+ * This function should be called from a boards dram_init(). This helper
+ * function allows for boards to query the device tree for DRAM size instead of
+ * hard coding the value in the case where the memory size cannot be detected
+ * automatically.
+ *
+ * @return 0 if OK, -EINVAL if the /memory node or reg property is missing or
+ * invalid
+ */
+int fdtdec_setup_memory_size(void);
+
+/**
+ * fdtdec_setup_memory_banksize() - decode and populate gd->bd->bi_dram
+ *
+ * Decode the /memory 'reg' property to determine the address and size of the
+ * memory banks. Use this data to populate the global data board info with the
+ * phys address and size of memory banks.
+ *
+ * This function should be called from a boards dram_init_banksize(). This
+ * helper function allows for boards to query the device tree for memory bank
+ * information instead of hard coding the information in cases where it cannot
+ * be detected automatically.
+ *
+ * @return 0 if OK, -EINVAL if the /memory node or reg property is missing or
+ * invalid
+ */
+int fdtdec_setup_memory_banksize(void);
+
 /**
  * Set up the device tree ready for use
  */
