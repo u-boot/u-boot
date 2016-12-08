@@ -58,6 +58,16 @@ config ARMV8_PSCI_NR_CPUS
 	  It is no problem to set a larger value than the number of CPUs in
 	  the actual hardware implementation.
 
+config ARMV8_PSCI_CPUS_PER_CLUSTER
+	int "Number of CPUs per cluster"
+	depends on ARMV8_PSCI
+	default 0
+	help
+	  The number of CPUs per cluster, suppose each cluster has same number
+	  of CPU cores, platforms with asymmetric clusters don't apply here.
+	  A value 0 or no definition of it works for single cluster system.
+	  System with multi-cluster should difine their own exact value.
+
 if SYS_HAS_ARMV8_SECURE_BASE
 
 config ARMV8_SECURE_BASE
