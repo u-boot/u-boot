@@ -316,6 +316,9 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	announce_and_cleanup(fake);
 
 	if (!fake) {
+#ifdef CONFIG_ARMV8_PSCI
+		armv8_setup_psci();
+#endif
 		do_nonsec_virt_switch();
 
 		update_os_arch_secondary_cores(images->os.arch);
