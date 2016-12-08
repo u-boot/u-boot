@@ -81,6 +81,25 @@
 					"cps-usb3dev", "cps-eip150", "cps-eip197";
 			};
 
+			cps_pinctl: cps-pinctl@440000 {
+				compatible = "marvell,mvebu-pinctrl",
+					     "marvell,a80x0-cp1-pinctrl";
+				bank-name ="cp1-110";
+				reg = <0x440000 0x20>;
+				pin-count = <63>;
+				max-func = <0xf>;
+
+				cps_ge1_rgmii_pins: cps-ge-rgmii-pins-0 {
+					marvell,pins = < 0  1  2  3  4  5  6  7
+							 8  9  10 11 >;
+					marvell,function = <3>;
+				};
+				cps_spi1_pins: cps-spi-pins-1 {
+					marvell,pins = < 13 14 15 16 >;
+					marvell,function = <3>;
+				};
+			};
+
 			cps_sata0: sata@540000 {
 				compatible = "marvell,armada-8k-ahci";
 				reg = <0x540000 0x30000>;

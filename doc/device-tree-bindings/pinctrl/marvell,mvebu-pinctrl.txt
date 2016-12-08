@@ -37,10 +37,10 @@ Example:
 				pin-count = <20>;
 				max-func = <3>;
 				/* MPP Bus:
-					SPI0 [0-3]
-					I2C0 [4-5]
-					UART0 [11,19]
-				*/
+				 * SPI0 [0-3]
+				 * I2C0 [4-5]
+				 * UART0 [11,19]
+				 */
 					  /* 0 1 2 3 4 5 6 7 8 9 */
 				pin-func = < 3 3 3 3 3 3 0 0 0 0
 					     0 3 0 0 0 0 0 0 0 3>;
@@ -59,20 +59,20 @@ Example:
 				pin-count = <63>;
 				max-func = <0xf>;
 				/* MPP Bus:
-				   [0-31] = 0xff: Keep default CP0_shared_pins:
-				   [11] CLKOUT_MPP_11 (out)
-				   [23] LINK_RD_IN_CP2CP (in)
-				   [25] CLKOUT_MPP_25 (out)
-				   [29] AVS_FB_IN_CP2CP (in)
-				   [32,34] SMI
-				   [31]    GPIO: push button/Wake
-				   [35-36] GPIO
-				   [37-38] I2C
-				   [40-41] SATA[0/1]_PRESENT_ACTIVEn
-				   [42-43] XSMI
-				   [44-55] RGMII1
-				   [56-62] SD
-				*/
+				 * [0-31] = 0xff: Keep default CP0_shared_pins:
+				 * [11] CLKOUT_MPP_11 (out)
+				 * [23] LINK_RD_IN_CP2CP (in)
+				 * [25] CLKOUT_MPP_25 (out)
+				 * [29] AVS_FB_IN_CP2CP (in)
+				 * [32,34] SMI
+				 * [31]    GPIO: push button/Wake
+				 * [35-36] GPIO
+				 * [37-38] I2C
+				 * [40-41] SATA[0/1]_PRESENT_ACTIVEn
+				 * [42-43] XSMI
+				 * [44-55] RGMII1
+				 * [56-62] SD
+				 */
 					/*   0    1    2    3    4    5    6    7    8    9 */
 				pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 					     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
@@ -95,10 +95,10 @@ Example:
 				pin-count = <63>;
 				max-func = <0xf>;
 				/* MPP Bus:
-				   [0-11]  RGMII0
-				   [27,31] GE_MDIO/MDC
-				   [32-62] = 0xff: Keep default CP1_shared_pins:
-				*/
+				 * [0-11]  RGMII0
+				 * [27,31] GE_MDIO/MDC
+				 * [32-62] = 0xff: Keep default CP1_shared_pins:
+				 */
 					/*   0    1    2    3    4    5    6    7    8    9 */
 				pin-func = < 0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3
 					     0x3  0x3  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
