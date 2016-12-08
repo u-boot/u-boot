@@ -47,6 +47,7 @@ menu "Layerscape architecture"
 menu "Layerscape PPA"
 config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"
+	depends on !ARMV8_PSCI
 	depends on ARCH_LS1043A || ARCH_LS1046A
 	select FSL_PPA_ARMV8_PSCI
 	help
