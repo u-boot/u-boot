@@ -13,7 +13,7 @@
 int psci_update_dt(void *fdt)
 {
 #ifdef CONFIG_MP
-#if defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 	/*
 	 * If the PSCI in SEC Firmware didn't work, avoid to update the

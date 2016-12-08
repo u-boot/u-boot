@@ -209,7 +209,7 @@ __weak bool sec_firmware_is_valid(const void *sec_firmware_img)
 	return true;
 }
 
-#ifdef CONFIG_ARMV8_PSCI
+#ifdef CONFIG_FSL_PPA_ARMV8_PSCI
 /*
  * The PSCI_VERSION function is added from PSCI v0.2. When the PSCI
  * v0.1 received this function, the NOT_SUPPORTED (0xffff_ffff) error
