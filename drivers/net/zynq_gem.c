@@ -647,9 +647,8 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->read = zynq_gem_miiphy_read;
 	priv->bus->write = zynq_gem_miiphy_write;
 	priv->bus->priv = priv;
-	strcpy(priv->bus->name, "gem");
 
-	ret = mdio_register(priv->bus);
+	ret = mdio_register_seq(priv->bus, dev->seq);
 	if (ret)
 		return ret;
 
