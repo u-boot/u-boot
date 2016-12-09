@@ -45,6 +45,9 @@ config PHY_MARVELL
 config PHY_MICREL
 	bool "Micrel Ethernet PHYs support"
 
+config PHY_MSCC
+	bool "Microsemi Corp Ethernet PHYs support"
+
 config PHY_NATSEMI
 	bool "National Semiconductor Ethernet PHYs support"
 
