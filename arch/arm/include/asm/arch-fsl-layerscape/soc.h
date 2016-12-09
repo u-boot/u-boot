@@ -99,6 +99,9 @@ struct ccsr_ahci {
 void fsl_lsch3_early_init_f(void);
 #elif defined(CONFIG_FSL_LSCH2)
 void fsl_lsch2_early_init_f(void);
+int setup_chip_volt(void);
+/* Setup core vdd in unit mV */
+int board_setup_core_volt(u32 vdd);
 #endif
 
 void cpu_name(char *name);
