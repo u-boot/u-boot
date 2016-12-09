@@ -240,12 +240,8 @@ static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
 	FILE *fp;
 	struct zynqmp_reginit reginit;
 	unsigned int reg_count = 0;
-	int r;
+	int r, err;
 	struct stat path_stat;
-
-	stat(filename, &path_stat);
-	if (!S_ISREG(path_stat.st_mode))
-		return;
 
 	/* Expect a table of register-value pairs, e.g. "0x12345678 0x4321" */
 	fp = fopen(filename, "r");
@@ -253,6 +249,14 @@ static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
 		fprintf(stderr, "Cannot open initparams file: %s\n", filename);
 		exit(1);
 	}
+
+	err = fstat(fileno(fp), &path_stat);
+	if (err)
+		return;
+
+	if (!S_ISREG(path_stat.st_mode))
+		return;
+
 	do {
 		r = fscanf(fp, "%x %x", &reginit.address, &reginit.data);
 		if (r == 2) {

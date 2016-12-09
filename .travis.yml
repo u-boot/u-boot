@@ -294,5 +294,10 @@ matrix:
           BUILDMAN="^qemu-x86$"
           TOOLCHAIN="x86_64"
           BUILD_ROM="yes"
+    - env:
+        - TEST_PY_BD="zynq_zc702"
+          TEST_PY_TEST_SPEC="not sleep"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^zynq_zc702$"
 
 # TODO make it perfect ;-r
