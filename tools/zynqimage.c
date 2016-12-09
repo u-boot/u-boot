@@ -225,26 +225,16 @@ static int zynqimage_check_image_types(uint8_t type)
 static void zynqimage_parse_initparams(struct zynq_header *zynqhdr,
 	const char *filename)
 {
-	FILE *fp;
+	/* Expect a table of register-value pairs, e.g. "0x12345678 0x4321" */
+	FILE *fp = fopen(filename, "r");
 	struct zynq_reginit reginit;
 	unsigned int reg_count = 0;
-	int r, err;
-	struct stat path_stat;
+	int r;
 
-	/* Expect a table of register-value pairs, e.g. "0x12345678 0x4321" */
-	fp = fopen(filename, "r");
 	if (!fp) {
 		fprintf(stderr, "Cannot open initparams file: %s\n", filename);
 		exit(1);
 	}
-
-	err = fstat(fileno(fp), &path_stat);
-	if (err)
-		return;
-
-	if (!S_ISREG(path_stat.st_mode))
-		return;
-
 	do {
 		r = fscanf(fp, "%x %x", &reginit.address, &reginit.data);
 		if (r == 2) {

@@ -145,7 +145,7 @@ struct ahci_ioports {
 };
 
 struct ahci_probe_ent {
-#if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
+#ifdef CONFIG_DM_PCI
 	struct udevice *dev;
 #else
 	pci_dev_t	dev;

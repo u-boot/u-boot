@@ -66,7 +66,6 @@ enum uclass_id {
 	UCLASS_REMOTEPROC,	/* Remote Processor device */
 	UCLASS_RESET,		/* Reset controller device */
 	UCLASS_RTC,		/* Real time clock device */
-	UCLASS_SCSI,		/* SCSI device */
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPMI,		/* System Power Management Interface bus */

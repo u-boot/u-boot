@@ -10,10 +10,7 @@
 #include <inttypes.h>
 #include <pci.h>
 #include <scsi.h>
-#include <dm/device-internal.h>
-#include <dm/uclass-internal.h>
 
-#if !defined(CONFIG_DM_SCSI)
 #ifdef CONFIG_SCSI_DEV_LIST
 #define SCSI_DEV_LIST CONFIG_SCSI_DEV_LIST
 #else
@@ -34,7 +31,6 @@
 #endif
 #define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
 #endif
-#endif
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
@@ -43,13 +39,11 @@ static ccb tempccb;	/* temporary scsi command buffer */
 
 static unsigned char tempbuff[512]; /* temporary data buffer */
 
-#if !defined(CONFIG_DM_SCSI)
 static int scsi_max_devs; /* number of highest available scsi device */
 
 static int scsi_curr_dev; /* current device */
 
 static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
-#endif
 
 /* almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_READ_BLK 0xFFFF
@@ -450,7 +444,6 @@ static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 #endif
 }
 
-#if !defined(CONFIG_DM_SCSI)
 /**
  * scsi_init_dev_desc - initialize all SCSI specific blk_desc properties
  *
@@ -467,7 +460,6 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
 
 	scsi_init_dev_desc_priv(dev_desc);
 }
-#endif
 
 /**
  * scsi_detect_dev - Detect scsi device
@@ -548,73 +540,6 @@ removable:
  * (re)-scan the scsi bus and reports scsi device info
  * to the user if mode = 1
  */
-#if defined(CONFIG_DM_SCSI)
-int scsi_scan(int mode)
-{
-	unsigned char i, lun;
-	struct uclass *uc;
-	struct udevice *dev; /* SCSI controller */
-	int ret;
-
-	if (mode == 1)
-		printf("scanning bus for devices...\n");
-
-	ret = uclass_get(UCLASS_SCSI, &uc);
-	if (ret)
-		return ret;
-
-	uclass_foreach_dev(dev, uc) {
-		struct scsi_platdata *plat; /* scsi controller platdata */
-
-		/* probe SCSI controller driver */
-		ret = device_probe(dev);
-		if (ret)
-			return ret;
-
-		/* Get controller platdata */
-		plat = dev_get_platdata(dev);
-
-		for (i = 0; i < plat->max_id; i++) {
-			for (lun = 0; lun < plat->max_lun; lun++) {
-				struct udevice *bdev; /* block device */
-				/* block device description */
-				struct blk_desc *bdesc;
-				char str[10];
-
-				/*
-				 * Create only one block device and do detection
-				 * to make sure that there won't be a lot of
-				 * block devices created
-				 */
-				snprintf(str, sizeof(str), "id%dlun%d", i, lun);
-				ret = blk_create_devicef(dev, "scsi_blk",
-							  str, IF_TYPE_SCSI,
-							  -1, 0, 0, &bdev);
-				if (ret) {
-					debug("Can't create device\n");
-					return ret;
-				}
-				bdesc = dev_get_uclass_platdata(bdev);
-
-				scsi_init_dev_desc_priv(bdesc);
-				bdesc->lun = lun;
-				ret = scsi_detect_dev(i, bdesc);
-				if (ret) {
-					device_unbind(bdev);
-					continue;
-				}
-
-				if (mode == 1) {
-					printf("  Device %d: ", 0);
-					dev_print(bdesc);
-				} /* if mode */
-			} /* next LUN */
-		}
-	}
-
-	return 0;
-}
-#else
 int scsi_scan(int mode)
 {
 	unsigned char i, lun;
@@ -651,7 +576,6 @@ int scsi_scan(int mode)
 #endif
 	return 0;
 }
-#endif
 
 #ifdef CONFIG_BLK
 static const struct blk_ops scsi_blk_ops = {
