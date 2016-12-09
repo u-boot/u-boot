@@ -82,6 +82,21 @@
 #define MIIM_88E1310_PHY_RGMII_CTRL	21
 #define MIIM_88E1310_PHY_PAGE		22
 
+/* 88E151x PHY defines */
+/* Page 3 registers */
+#define MIIM_88E151x_LED_FUNC_CTRL	16
+#define MIIM_88E151x_LED_FLD_SZ		4
+#define MIIM_88E151x_LED0_OFFS		(0 * MIIM_88E151x_LED_FLD_SZ)
+#define MIIM_88E151x_LED1_OFFS		(1 * MIIM_88E151x_LED_FLD_SZ)
+#define MIIM_88E151x_LED0_ACT		3
+#define MIIM_88E151x_LED1_100_1000_LINK	6
+#define MIIM_88E151x_LED_TIMER_CTRL	18
+#define MIIM_88E151x_INT_EN_OFFS	7
+/* Page 18 registers */
+#define MIIM_88E151x_GENERAL_CTRL	20
+#define MIIM_88E151x_MODE_SGMII		1
+#define MIIM_88E151x_RESET_OFFS		15
+
 /* Marvell 88E1011S */
 static int m88e1011s_config(struct phy_device *phydev)
 {
@@ -286,7 +301,7 @@ static int m88e1518_config(struct phy_device *phydev)
 	 */
 
 	/* EEE initialization */
-	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0x00ff);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x00ff);
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0x214B);
 	phy_write(phydev, MDIO_DEVAD_NONE, 16, 0x2144);
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0x0C28);
@@ -295,21 +310,23 @@ static int m88e1518_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, 16, 0x214D);
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0xCC0C);
 	phy_write(phydev, MDIO_DEVAD_NONE, 16, 0x2159);
-	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0x0000);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0000);
 
 	/* SGMII-to-Copper mode initialization */
 	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
 		/* Select page 18 */
-		phy_write(phydev, MDIO_DEVAD_NONE, 22, 18);
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 18);
 
 		/* In reg 20, write MODE[2:0] = 0x1 (SGMII to Copper) */
-		m88e1518_phy_writebits(phydev, 20, 0, 3, 1);
+		m88e1518_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
+				       0, 3, MIIM_88E151x_MODE_SGMII);
 
 		/* PHY reset is necessary after changing MODE[2:0] */
-		m88e1518_phy_writebits(phydev, 20, 15, 1, 1);
+		m88e1518_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
+				       MIIM_88E151x_RESET_OFFS, 1, 1);
 
 		/* Reset page selection */
-		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0);
 
 		udelay(100);
 	}
@@ -321,17 +338,25 @@ static int m88e1518_config(struct phy_device *phydev)
 static int m88e1510_config(struct phy_device *phydev)
 {
 	/* Select page 3 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 22, 3);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE,
+		  MIIM_88E1118_PHY_LED_PAGE);
 
 	/* Enable INTn output on LED[2] */
-	m88e1518_phy_writebits(phydev, 18, 7, 1, 1);
+	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_TIMER_CTRL,
+			       MIIM_88E151x_INT_EN_OFFS, 1, 1);
 
 	/* Configure LEDs */
-	m88e1518_phy_writebits(phydev, 16, 0, 4, 3); /* LED[0]:0011 (ACT) */
-	m88e1518_phy_writebits(phydev, 16, 4, 4, 6); /* LED[1]:0110 (LINK) */
+	/* LED[0]:0011 (ACT) */
+	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_FUNC_CTRL,
+			       MIIM_88E151x_LED0_OFFS, MIIM_88E151x_LED_FLD_SZ,
+			       MIIM_88E151x_LED0_ACT);
+	/* LED[1]:0110 (LINK 100/1000 Mbps) */
+	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_FUNC_CTRL,
+			       MIIM_88E151x_LED1_OFFS, MIIM_88E151x_LED_FLD_SZ,
+			       MIIM_88E151x_LED1_100_1000_LINK);
 
 	/* Reset page selection */
-	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0);
 
 	return m88e1518_config(phydev);
 }
