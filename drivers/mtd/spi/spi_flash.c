@@ -985,7 +985,7 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 		return 0;
 	}
 
-	if (flash->size != size) {
+	if (flash->size > size) {
 		debug("%s: Memory map must cover entire device\n", __func__);
 		return -1;
 	}
