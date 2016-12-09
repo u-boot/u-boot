@@ -164,6 +164,12 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 #define I2C_RETIMER_ADDR			0x18
 
+/* PMIC */
+#define CONFIG_POWER
+#ifdef CONFIG_POWER
+#define CONFIG_POWER_I2C
+#endif
+
 /*
  * Environment
  */
