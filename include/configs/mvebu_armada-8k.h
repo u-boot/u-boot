@@ -116,6 +116,9 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
+/* MMC/SD IP block */
+#define CONFIG_GENERIC_MMC
+
 #define CONFIG_SUPPORT_VFAT
 
 /* DISK Partition support */
