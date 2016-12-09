@@ -287,6 +287,17 @@ config MMC_SDHCI_SPEAR
 
 	  If unsure, say N.
 
+config MMC_SDHCI_XENON
+	bool "SDHCI support for the Xenon SDHCI controller"
+	depends on MMC_SDHCI && DM_MMC && OF_CONTROL
+	help
+	  Support for Xenon SDHCI host controller on Marvell Armada 3700
+	  7k/8k ARM SoCs platforms
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
 	depends on TEGRA
