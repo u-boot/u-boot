@@ -27,6 +27,11 @@ config SPL_POWER_SUPPORT
 config SPL_SERIAL_SUPPORT
 	default y
 
+config SUNXI_DE2
+	bool
+	---help---
+	Select this for SoCs with DE2 instead of DE.
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I
