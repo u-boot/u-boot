@@ -162,5 +162,14 @@ enum {
 #define APS_PFM		0xc
 #define PWM_PFM		0xd
 
+enum swx {
+	SW1 = 0,
+	SW2,
+	SW3,
+	SW4,
+};
+
+int mc34vr500_get_sw_volt(uint8_t sw);
+int mc34vr500_set_sw_volt(uint8_t sw, int sw_volt);
 int power_mc34vr500_init(unsigned char bus);
 #endif /* __MC34VR500_PMIC_H_ */
