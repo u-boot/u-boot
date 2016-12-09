@@ -164,3 +164,10 @@ config PMIC_LP873X
 	---help---
 	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
 	This driver binds the pmic children.
+
+config POWER_MC34VR500
+	bool "Enable driver for Freescale MC34VR500 PMIC"
+	---help---
+	The MC34VR500 is used in conjunction with the FSL T1 and LS1 series
+	SoC. It provides 4 buck DC-DC convertors and 5 LDOs, and it is accessed
+	via an I2C interface.
