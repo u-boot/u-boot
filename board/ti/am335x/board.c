@@ -109,6 +109,16 @@ static const struct emif_regs ddr2_emif_reg_data = {
 	.emif_ddr_phy_ctlr_1 = MT47H128M16RT25E_EMIF_READ_LATENCY,
 };
 
+static const struct emif_regs ddr2_evm_emif_reg_data = {
+	.sdram_config = MT47H128M16RT25E_EMIF_SDCFG,
+	.ref_ctrl = MT47H128M16RT25E_EMIF_SDREF,
+	.sdram_tim1 = MT47H128M16RT25E_EMIF_TIM1,
+	.sdram_tim2 = MT47H128M16RT25E_EMIF_TIM2,
+	.sdram_tim3 = MT47H128M16RT25E_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_AM335X_EVM,
+	.emif_ddr_phy_ctlr_1 = MT47H128M16RT25E_EMIF_READ_LATENCY,
+};
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J128MJT125_RD_DQS,
 	.datawdsratio0 = MT41J128MJT125_WR_DQS,
@@ -198,6 +208,7 @@ static struct emif_regs ddr3_beagleblack_emif_reg_data = {
 	.sdram_tim1 = MT41K256M16HA125E_EMIF_TIM1,
 	.sdram_tim2 = MT41K256M16HA125E_EMIF_TIM2,
 	.sdram_tim3 = MT41K256M16HA125E_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_BEAGLEBONE_BLACK,
 	.zq_config = MT41K256M16HA125E_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41K256M16HA125E_EMIF_READ_LATENCY,
 };
@@ -208,6 +219,7 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 	.sdram_tim1 = MT41J512M8RH125_EMIF_TIM1,
 	.sdram_tim2 = MT41J512M8RH125_EMIF_TIM2,
 	.sdram_tim3 = MT41J512M8RH125_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_AM335X_EVM,
 	.zq_config = MT41J512M8RH125_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41J512M8RH125_EMIF_READ_LATENCY |
 				PHY_EN_DYN_PWRDN,
@@ -486,6 +498,9 @@ void sdram_init(void)
 		config_ddr(400, &ioregs_evmsk, &ddr3_icev2_data,
 			   &ddr3_icev2_cmd_ctrl_data, &ddr3_icev2_emif_reg_data,
 			   0);
+	else if (board_is_gp_evm())
+		config_ddr(266, &ioregs, &ddr2_data,
+			   &ddr2_cmd_ctrl_data, &ddr2_evm_emif_reg_data, 0);
 	else
 		config_ddr(266, &ioregs, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data, 0);
