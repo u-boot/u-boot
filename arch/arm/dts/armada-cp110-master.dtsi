@@ -206,6 +206,14 @@
 				utmi-port = <UTMI_PHY_TO_USB_HOST1>;
 				status = "disabled";
 			};
+
+			cpm_sdhci0: sdhci@780000 {
+				compatible = "marvell,armada-8k-sdhci";
+				reg = <0x780000 0x300>;
+				interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
+				dma-coherent;
+				status = "disabled";
+			};
 		};
 
 		cpm_pcie0: pcie@f2600000 {
