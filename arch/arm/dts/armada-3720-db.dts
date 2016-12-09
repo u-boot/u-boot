@@ -94,6 +94,27 @@
 	status = "okay";
 };
 
+&sdhci0 {
+	bus-width = <4>;
+	status = "okay";
+};
+
+&sdhci1 {
+	non-removable;
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	marvell,pad-type = "fixed-1-8v";
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	mmccard: mmccard@0 {
+		compatible = "mmc-card";
+		reg = <0>;
+	};
+};
+
 &spi0 {
 	status = "okay";
 
