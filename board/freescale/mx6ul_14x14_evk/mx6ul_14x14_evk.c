@@ -600,7 +600,7 @@ static iomux_v3_cfg_t const lcd_pads[] = {
 
 static int setup_lcd(void)
 {
-	enable_lcdif_clock(LCDIF1_BASE_ADDR);
+	enable_lcdif_clock(LCDIF1_BASE_ADDR, 1);
 
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 

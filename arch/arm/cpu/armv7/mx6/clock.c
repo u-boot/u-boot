@@ -707,6 +707,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
 			return;
 
+		enable_lcdif_clock(base_addr, 0);
 		if (!is_mx6sl()) {
 			/* Select pre-lcd clock to PLL5 and set pre divider */
 			clrsetbits_le32(&imx_ccm->cscdr2,
@@ -736,11 +737,14 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 					(((postd - 1)^0x6) <<
 					 MXC_CCM_CSCMR1_LCDIF_PIX_PODF_OFFSET));
 		}
+
+		enable_lcdif_clock(base_addr, 1);
 	} else if (is_mx6sx()) {
 		/* Setting LCDIF2 for i.MX6SX */
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
 			return;
 
+		enable_lcdif_clock(base_addr, 0);
 		/* Select pre-lcd clock to PLL5 and set pre divider */
 		clrsetbits_le32(&imx_ccm->cscdr2,
 				MXC_CCM_CSCDR2_LCDIF2_PRED_SEL_MASK |
@@ -754,10 +758,12 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 				MXC_CCM_CSCMR1_LCDIF2_PODF_MASK,
 				((postd - 1) <<
 				 MXC_CCM_CSCMR1_LCDIF2_PODF_OFFSET));
+
+		enable_lcdif_clock(base_addr, 1);
 	}
 }
 
-int enable_lcdif_clock(u32 base_addr)
+int enable_lcdif_clock(u32 base_addr, bool enable)
 {
 	u32 reg = 0;
 	u32 lcdif_clk_sel_mask, lcdif_ccgr3_mask;
@@ -796,15 +802,17 @@ int enable_lcdif_clock(u32 base_addr)
 			 MXC_CCM_CCGR3_LCDIF_PIX_MASK);
 		writel(reg, &imx_ccm->CCGR3);
 
-		reg = readl(&imx_ccm->cscdr3);
-		reg &= ~MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_MASK;
-		reg |= 1 << MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_OFFSET;
-		writel(reg, &imx_ccm->cscdr3);
+		if (enable) {
+			reg = readl(&imx_ccm->cscdr3);
+			reg &= ~MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_MASK;
+			reg |= 1 << MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_OFFSET;
+			writel(reg, &imx_ccm->cscdr3);
 
-		reg = readl(&imx_ccm->CCGR3);
-		reg |= MXC_CCM_CCGR3_LCDIF_AXI_MASK |
-			MXC_CCM_CCGR3_LCDIF_PIX_MASK;
-		writel(reg, &imx_ccm->CCGR3);
+			reg = readl(&imx_ccm->CCGR3);
+			reg |= MXC_CCM_CCGR3_LCDIF_AXI_MASK |
+				MXC_CCM_CCGR3_LCDIF_PIX_MASK;
+			writel(reg, &imx_ccm->CCGR3);
+		}
 
 		return 0;
 	} else {
@@ -820,19 +828,21 @@ int enable_lcdif_clock(u32 base_addr)
 	reg &= ~MXC_CCM_CCGR2_LCD_MASK;
 	writel(reg, &imx_ccm->CCGR2);
 
-	/* Select pre-mux */
-	reg = readl(&imx_ccm->cscdr2);
-	reg &= ~lcdif_clk_sel_mask;
-	writel(reg, &imx_ccm->cscdr2);
+	if (enable) {
+		/* Select pre-mux */
+		reg = readl(&imx_ccm->cscdr2);
+		reg &= ~lcdif_clk_sel_mask;
+		writel(reg, &imx_ccm->cscdr2);
 
-	/* Enable the LCDIF pix clock */
-	reg = readl(&imx_ccm->CCGR3);
-	reg |= lcdif_ccgr3_mask;
-	writel(reg, &imx_ccm->CCGR3);
+		/* Enable the LCDIF pix clock */
+		reg = readl(&imx_ccm->CCGR3);
+		reg |= lcdif_ccgr3_mask;
+		writel(reg, &imx_ccm->CCGR3);
 
-	reg = readl(&imx_ccm->CCGR2);
-	reg |= MXC_CCM_CCGR2_LCD_MASK;
-	writel(reg, &imx_ccm->CCGR2);
+		reg = readl(&imx_ccm->CCGR2);
+		reg |= MXC_CCM_CCGR2_LCD_MASK;
+		writel(reg, &imx_ccm->CCGR2);
+	}
 
 	return 0;
 }
