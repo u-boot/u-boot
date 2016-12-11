@@ -26,6 +26,10 @@ config MX6SX
 	select ROM_UNIFIED_SECTIONS
 	bool
 
+config MX6SLL
+	select ROM_UNIFIED_SECTIONS
+	bool
+
 config MX6UL
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
