@@ -171,6 +171,8 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 			reg &= ~mask;
 		__raw_writel(reg, &imx_ccm->CCGR2);
 	} else {
+		if (is_mx6sll())
+			return -EINVAL;
 		if (is_mx6sx() || is_mx6ul() || is_mx6ull()) {
 			mask = MXC_CCM_CCGR6_I2C4_MASK;
 			addr = &imx_ccm->CCGR6;
@@ -382,7 +384,7 @@ static u32 get_ipg_per_clk(void)
 	u32 reg, perclk_podf;
 
 	reg = __raw_readl(&imx_ccm->cscmr1);
-	if (is_mx6sl() || is_mx6sx() ||
+	if (is_mx6sll() || is_mx6sl() || is_mx6sx() ||
 	    is_mx6dqp() || is_mx6ul() || is_mx6ull()) {
 		if (reg & MXC_CCM_CSCMR1_PER_CLK_SEL_MASK)
 			return MXC_HCLK; /* OSC 24Mhz */
@@ -400,7 +402,7 @@ static u32 get_uart_clk(void)
 	reg = __raw_readl(&imx_ccm->cscdr1);
 
 	if (is_mx6sl() || is_mx6sx() || is_mx6dqp() || is_mx6ul() ||
-	    is_mx6ull()) {
+	    is_mx6sll() || is_mx6ull()) {
 		if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
 			freq = MXC_HCLK;
 	}
@@ -420,7 +422,7 @@ static u32 get_cspi_clk(void)
 		     MXC_CCM_CSCDR2_ECSPI_CLK_PODF_OFFSET;
 
 	if (is_mx6dqp() || is_mx6sl() || is_mx6sx() || is_mx6ul() ||
-	    is_mx6ull()) {
+	    is_mx6sll() || is_mx6ull()) {
 		if (reg & MXC_CCM_CSCDR2_ECSPI_CLK_SEL_MASK)
 			return MXC_HCLK / (cspi_podf + 1);
 	}
@@ -482,7 +484,8 @@ static u32 get_mmdc_ch0_clk(void)
 
 	u32 freq, podf, per2_clk2_podf, pmu_misc2_audio_div;
 
-	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl()) {
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl() ||
+	    is_mx6sll()) {
 		podf = (cbcdr & MXC_CCM_CBCDR_MMDC_CH1_PODF_MASK) >>
 			MXC_CCM_CBCDR_MMDC_CH1_PODF_OFFSET;
 		if (cbcdr & MXC_CCM_CBCDR_PERIPH2_CLK_SEL) {
@@ -625,7 +628,8 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 
 	debug("mxs_set_lcdclk, freq = %dKHz\n", freq);
 
-	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl()) {
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl() &&
+	    !is_mx6sll()) {
 		debug("This chip not support lcd!\n");
 		return;
 	}
@@ -783,7 +787,7 @@ int enable_lcdif_clock(u32 base_addr, bool enable)
 			 MXC_CCM_CCGR3_DISP_AXI_MASK) :
 			(MXC_CCM_CCGR3_LCDIF1_PIX_MASK |
 			 MXC_CCM_CCGR3_DISP_AXI_MASK);
-	} else if (is_mx6ul() || is_mx6ull()) {
+	} else if (is_mx6ul() || is_mx6ull() || is_mx6sll()) {
 		if (base_addr != LCDIF1_BASE_ADDR) {
 			puts("Wrong LCD interface!\n");
 			return -EINVAL;
@@ -981,6 +985,16 @@ static u32 get_usdhc_clk(u32 port)
 	u32 cscmr1 = __raw_readl(&imx_ccm->cscmr1);
 	u32 cscdr1 = __raw_readl(&imx_ccm->cscdr1);
 
+	if (is_mx6ul() || is_mx6ull()) {
+		if (port > 1)
+			return 0;
+	}
+
+	if (is_mx6sll()) {
+		if (port > 2)
+			return 0;
+	}
+
 	switch (port) {
 	case 0:
 		usdhc_podf = (cscdr1 & MXC_CCM_CSCDR1_USDHC1_PODF_MASK) >>
@@ -1144,7 +1158,7 @@ void hab_caam_clock_enable(unsigned char enable)
 {
 	u32 reg;
 
-	if (is_mx6ull()) {
+	if (is_mx6ull() || is_mx6sll()) {
 		/* CG5, DCP clock */
 		reg = __raw_readl(&imx_ccm->CCGR0);
 		if (enable)
