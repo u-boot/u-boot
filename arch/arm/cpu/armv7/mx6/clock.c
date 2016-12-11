@@ -771,6 +771,16 @@ int enable_lcdif_clock(u32 base_addr)
 		return 0;
 	}
 
+	/* Gate LCDIF clock first */
+	reg = readl(&imx_ccm->CCGR3);
+	reg &= ~lcdif_ccgr3_mask;
+	writel(reg, &imx_ccm->CCGR3);
+
+	reg = readl(&imx_ccm->CCGR2);
+	reg &= ~MXC_CCM_CCGR2_LCD_MASK;
+	writel(reg, &imx_ccm->CCGR2);
+
+	/* Select pre-mux */
 	reg = readl(&imx_ccm->cscdr2);
 	reg &= ~lcdif_clk_sel_mask;
 	writel(reg, &imx_ccm->cscdr2);
