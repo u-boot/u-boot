@@ -625,16 +625,18 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 
 	debug("mxs_set_lcdclk, freq = %dKHz\n", freq);
 
-	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull()) {
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl()) {
 		debug("This chip not support lcd!\n");
 		return;
 	}
 
-	if (base_addr == LCDIF1_BASE_ADDR) {
-		reg = readl(&imx_ccm->cscdr2);
-		/* Can't change clocks when clock not from pre-mux */
-		if ((reg & MXC_CCM_CSCDR2_LCDIF1_CLK_SEL_MASK) != 0)
-			return;
+	if (!is_mx6sl()) {
+		if (base_addr == LCDIF1_BASE_ADDR) {
+			reg = readl(&imx_ccm->cscdr2);
+			/* Can't change clocks when clock not from pre-mux */
+			if ((reg & MXC_CCM_CSCDR2_LCDIF1_CLK_SEL_MASK) != 0)
+				return;
+		}
 	}
 
 	if (is_mx6sx()) {
@@ -705,19 +707,35 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
 			return;
 
-		/* Select pre-lcd clock to PLL5 and set pre divider */
-		clrsetbits_le32(&imx_ccm->cscdr2,
-				MXC_CCM_CSCDR2_LCDIF1_PRED_SEL_MASK |
-				MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_MASK,
-				(0x2 << MXC_CCM_CSCDR2_LCDIF1_PRED_SEL_OFFSET) |
-				((pred - 1) <<
-				 MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_OFFSET));
+		if (!is_mx6sl()) {
+			/* Select pre-lcd clock to PLL5 and set pre divider */
+			clrsetbits_le32(&imx_ccm->cscdr2,
+					MXC_CCM_CSCDR2_LCDIF1_PRED_SEL_MASK |
+					MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_MASK,
+					(0x2 << MXC_CCM_CSCDR2_LCDIF1_PRED_SEL_OFFSET) |
+					((pred - 1) <<
+					 MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_OFFSET));
 
-		/* Set the post divider */
-		clrsetbits_le32(&imx_ccm->cbcmr,
-				MXC_CCM_CBCMR_LCDIF1_PODF_MASK,
-				((postd - 1) <<
-				 MXC_CCM_CBCMR_LCDIF1_PODF_OFFSET));
+			/* Set the post divider */
+			clrsetbits_le32(&imx_ccm->cbcmr,
+					MXC_CCM_CBCMR_LCDIF1_PODF_MASK,
+					((postd - 1) <<
+					MXC_CCM_CBCMR_LCDIF1_PODF_OFFSET));
+		} else {
+			/* Select pre-lcd clock to PLL5 and set pre divider */
+			clrsetbits_le32(&imx_ccm->cscdr2,
+					MXC_CCM_CSCDR2_LCDIF_PIX_CLK_SEL_MASK |
+					MXC_CCM_CSCDR2_LCDIF_PIX_PRE_DIV_MASK,
+					(0x2 << MXC_CCM_CSCDR2_LCDIF_PIX_CLK_SEL_OFFSET) |
+					((pred - 1) <<
+					 MXC_CCM_CSCDR2_LCDIF_PIX_PRE_DIV_OFFSET));
+
+			/* Set the post divider */
+			clrsetbits_le32(&imx_ccm->cscmr1,
+					MXC_CCM_CSCMR1_LCDIF_PIX_PODF_MASK,
+					(((postd - 1)^0x6) <<
+					 MXC_CCM_CSCMR1_LCDIF_PIX_PODF_OFFSET));
+		}
 	} else if (is_mx6sx()) {
 		/* Setting LCDIF2 for i.MX6SX */
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
@@ -767,6 +785,28 @@ int enable_lcdif_clock(u32 base_addr)
 		/* Set to pre-mux clock at default */
 		lcdif_clk_sel_mask = MXC_CCM_CSCDR2_LCDIF1_CLK_SEL_MASK;
 		lcdif_ccgr3_mask =  MXC_CCM_CCGR3_LCDIF1_PIX_MASK;
+	} else if (is_mx6sl()) {
+		if (base_addr != LCDIF1_BASE_ADDR) {
+			puts("Wrong LCD interface!\n");
+			return -EINVAL;
+		}
+
+		reg = readl(&imx_ccm->CCGR3);
+		reg &= ~(MXC_CCM_CCGR3_LCDIF_AXI_MASK |
+			 MXC_CCM_CCGR3_LCDIF_PIX_MASK);
+		writel(reg, &imx_ccm->CCGR3);
+
+		reg = readl(&imx_ccm->cscdr3);
+		reg &= ~MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_MASK;
+		reg |= 1 << MXC_CCM_CSCDR3_LCDIF_AXI_CLK_SEL_OFFSET;
+		writel(reg, &imx_ccm->cscdr3);
+
+		reg = readl(&imx_ccm->CCGR3);
+		reg |= MXC_CCM_CCGR3_LCDIF_AXI_MASK |
+			MXC_CCM_CCGR3_LCDIF_PIX_MASK;
+		writel(reg, &imx_ccm->CCGR3);
+
+		return 0;
 	} else {
 		return 0;
 	}
