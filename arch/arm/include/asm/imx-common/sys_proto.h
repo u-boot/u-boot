@@ -36,6 +36,7 @@
 #define is_mx6solo() (is_cpu_type(MXC_CPU_MX6SOLO))
 #define is_mx6ul() (is_cpu_type(MXC_CPU_MX6UL))
 #define is_mx6ull() (is_cpu_type(MXC_CPU_MX6ULL))
+#define is_mx6sll() (is_cpu_type(MXC_CPU_MX6SLL))
 
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
