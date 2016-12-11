@@ -514,6 +514,11 @@ static u32 get_mmdc_ch0_clk(void)
 				freq = mxc_get_pll_pfd(PLL_BUS, 0);
 				break;
 			case 3:
+				if (is_mx6sl()) {
+					freq = mxc_get_pll_pfd(PLL_BUS, 2) >> 1;
+					break;
+				}
+
 				pmu_misc2_audio_div = PMU_MISC2_AUDIO_DIV(__raw_readl(&imx_ccm->pmu_misc2));
 				switch (pmu_misc2_audio_div) {
 				case 0:
