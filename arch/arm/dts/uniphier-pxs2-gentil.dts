@@ -71,7 +71,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&mio_clk {
+&sd_clk {
 	u-boot,dm-pre-reloc;
 };
 

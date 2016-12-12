@@ -829,7 +829,6 @@ config TARGET_COLIBRI_PXA270
 
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
-	select BLK
 	select CLK_UNIPHIER
 	select DM
 	select DM_GPIO
