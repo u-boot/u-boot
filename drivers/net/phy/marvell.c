@@ -603,10 +603,15 @@ static struct phy_driver M88E1510_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+/*
+ * This supports:
+ *  88E1518, uid 0x1410dd1
+ *  88E1512, uid 0x1410dd4
+ */
 static struct phy_driver M88E1518_driver = {
 	.name = "Marvell 88E1518",
-	.uid = 0x1410dd1,
-	.mask = 0xfffffff,
+	.uid = 0x1410dd0,
+	.mask = 0xffffffa,
 	.features = PHY_GBIT_FEATURES,
 	.config = &m88e1518_config,
 	.startup = &m88e1011s_startup,
