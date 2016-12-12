@@ -163,3 +163,5 @@ obj-$(CONFIG_CMD_BLOB) += blob.o
 
 # core command
 obj-y += nvedit.o
+
+obj-$(CONFIG_ARCH_MVEBU) += mvebu/
