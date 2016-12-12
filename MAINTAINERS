@@ -242,7 +242,7 @@ T:	git git://git.denx.de/u-boot-coldfire.git
 F:	arch/m68k/
 
 DFU
-M:	Lukasz Majewski <l.majewski@samsung.com>
+M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-dfu.git
 F:	drivers/dfu/
