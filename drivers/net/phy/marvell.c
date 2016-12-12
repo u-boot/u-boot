@@ -177,10 +177,7 @@ static int m88e1111s_config(struct phy_device *phydev)
 {
 	int reg;
 
-	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII) ||
-			(phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
-			(phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) ||
-			(phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
+	if (phy_interface_is_rgmii(phydev)) {
 		reg = phy_read(phydev,
 			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_CR);
 		if ((phydev->interface == PHY_INTERFACE_MODE_RGMII) ||
