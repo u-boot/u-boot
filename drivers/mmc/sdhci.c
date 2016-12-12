@@ -458,6 +458,10 @@ static int sdhci_set_ios(struct mmc *mmc)
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
+	/* If available, call the driver specific "post" set_ios() function */
+	if (host->ops && host->ops->set_ios_post)
+		host->ops->set_ios_post(host);
+
 	return 0;
 }
 
