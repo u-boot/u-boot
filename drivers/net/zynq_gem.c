@@ -183,33 +183,17 @@ struct zynq_gem_priv {
 	struct mii_dev *bus;
 };
 
-static inline int mdio_wait(struct zynq_gem_regs *regs)
-{
-	u32 timeout = 20000;
-
-	/* Wait till MDIO interface is ready to accept a new transaction. */
-	while (--timeout) {
-		if (readl(&regs->nwsr) & ZYNQ_GEM_NWSR_MDIOIDLE_MASK)
-			break;
-		WATCHDOG_RESET();
-	}
-
-	if (!timeout) {
-		printf("%s: Timeout\n", __func__);
-		return 1;
-	}
-
-	return 0;
-}
-
 static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 			u32 op, u16 *data)
 {
 	u32 mgtcr;
 	struct zynq_gem_regs *regs = priv->iobase;
+	int err;
 
-	if (mdio_wait(regs))
-		return 1;
+	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
+			    true, 20000, true);
+	if (err)
+		return err;
 
 	/* Construct mgtcr mask for the operation */
 	mgtcr = ZYNQ_GEM_PHYMNTNC_OP_MASK | op |
@@ -219,8 +203,10 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	/* Write mgtcr and wait for completion */
 	writel(mgtcr, &regs->phymntnc);
 
-	if (mdio_wait(regs))
-		return 1;
+	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
+			    true, 20000, true);
+	if (err)
+		return err;
 
 	if (op == ZYNQ_GEM_PHYMNTNC_OP_R_MASK)
 		*data = readl(&regs->phymntnc);
