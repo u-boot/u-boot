@@ -181,6 +181,16 @@ config TARGET_MX6UL_14X14_EVK
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_MX6UL_GEAM
+	bool "Support Engicam GEAM6UL"
+	select MX6UL
+	select OF_CONTROL
+	select DM
+	select DM_GPIO
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6ULL_14X14_EVK
 	bool "Support mx6ull_14x14_evk"
 	select MX6ULL
@@ -286,6 +296,7 @@ source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
+source "board/engicam/geam6ul/Kconfig"
 source "board/engicam/icorem6/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
