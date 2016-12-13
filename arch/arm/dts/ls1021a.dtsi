@@ -374,5 +374,36 @@
 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
 			dr_mode = "host";
 		};
+
+		pcie@3400000 {
+			compatible = "fsl,ls-pcie", "snps,dw-pcie";
+			reg = <0x03400000 0x20000   /* dbi registers */
+			       0x01570000 0x10000   /* pf controls registers */
+			       0x24000000 0x20000>; /* configuration space */
+			reg-names = "dbi", "ctrl", "config";
+			big-endian;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			bus-range = <0x0 0xff>;
+			ranges = <0x81000000 0x0 0x00000000 0x24020000 0x0 0x00010000   /* downstream I/O */
+				  0x82000000 0x0 0x28000000 0x28000000 0x0 0x08000000>; /* non-prefetchable memory */
+		};
+
+		pcie@3500000 {
+			compatible = "fsl,ls-pcie", "snps,dw-pcie";
+			reg = <0x03500000 0x10000    /* dbi registers */
+			       0x01570000 0x10000    /* pf controls registers */
+			       0x34000000 0x20000>;  /* configuration space */
+			reg-names = "dbi", "ctrl", "config";
+			big-endian;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			num-lanes = <2>;
+			bus-range = <0x0 0xff>;
+			ranges = <0x81000000 0x0 0x00000000 0x34020000 0x0 0x00010000   /* downstream I/O */
+				  0x82000000 0x0 0x38000000 0x38000000 0x0 0x08000000>; /* non-prefetchable memory */
+		};
 	};
 };
