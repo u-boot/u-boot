@@ -1,18 +1,16 @@
-How to use U-Boot on Engicam i.CoreM6 DualLite/Solo and Quad/Dual Starter Kit:
+How to use U-Boot on Engicam i.CoreM6 Solo/DualLite and Quad/Dual Starter Kit:
 -----------------------------------------------------------------------------
 
-- Configure U-Boot for Engicam i.CoreM6 QDL:
-
 $ make mrproper
-$ make imx6qdl_icore_mmc_defconfig
 
-- Build for i.CoreM6 DualLite/Solo
+- Configure U-Boot for Engicam i.CoreM6 Quad/Dual:
+$ make imx6q_icore_mmc_defconfig
 
+- Configure U-Boot for Engicam i.CoreM6 Solo/DualLite:
+$ make imx6dl_icore_mmc_defconfig
+
+- Build U-Boot
 $ make
-
-- Build for i.CoreM6 Quad/Dual
-
-$ make DEVICE_TREE=imx6q-icore
 
 This will generate the SPL image called SPL and the u-boot-dtb.img.
 
@@ -33,6 +31,3 @@ MMC Boot: JM3 Closed
 
 - Insert the micro SD card in the board, power it up and U-Boot messages should
 come up.
-
-- Note: For loading Linux on Quad/Dual modules set the dtb as
-  icorem6qdl> setenv fdt_file imx6q-icore.dtb
