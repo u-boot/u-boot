@@ -8,6 +8,7 @@
 #ifndef _PCIE_LAYERSCAPE_H_
 #define _PCIE_LAYERSCAPE_H_
 #include <pci.h>
+#include <dm.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -86,57 +87,6 @@
 #define PCIE_BAR2_SIZE		(4 * 1024) /* 4K */
 #define PCIE_BAR4_SIZE		(1 * 1024 * 1024) /* 1M */
 
-#ifndef CONFIG_DM_PCI
-struct ls_pcie {
-	int idx;
-	void __iomem *dbi;
-	void __iomem *va_cfg0;
-	void __iomem *va_cfg1;
-	int next_lut_index;
-	struct pci_controller hose;
-};
-
-struct ls_pcie_info {
-	unsigned long regs;
-	int pci_num;
-	u64 phys_base;
-	u64 cfg0_phys;
-	u64 cfg0_size;
-	u64 cfg1_phys;
-	u64 cfg1_size;
-	u64 mem_bus;
-	u64 mem_phys;
-	u64 mem_size;
-	u64 io_bus;
-	u64 io_phys;
-	u64 io_size;
-};
-
-#define SET_LS_PCIE_INFO(x, num)			\
-{							\
-	x.regs = CONFIG_SYS_PCIE##num##_ADDR;		\
-	x.phys_base = CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
-	x.cfg0_phys = CONFIG_SYS_PCIE_CFG0_PHYS_OFF +	\
-		      CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
-	x.cfg0_size = CONFIG_SYS_PCIE_CFG0_SIZE;	\
-	x.cfg1_phys = CONFIG_SYS_PCIE_CFG1_PHYS_OFF +	\
-		      CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
-	x.cfg1_size = CONFIG_SYS_PCIE_CFG1_SIZE;	\
-	x.mem_bus = CONFIG_SYS_PCIE_MEM_BUS;		\
-	x.mem_phys = CONFIG_SYS_PCIE_MEM_PHYS_OFF +	\
-		     CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
-	x.mem_size = CONFIG_SYS_PCIE_MEM_SIZE;		\
-	x.io_bus = CONFIG_SYS_PCIE_IO_BUS;		\
-	x.io_phys = CONFIG_SYS_PCIE_IO_PHYS_OFF +	\
-		    CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
-	x.io_size = CONFIG_SYS_PCIE_IO_SIZE;		\
-	x.pci_num = num;				\
-}
-
-#else /* CONFIG_DM_PCI */
-
-#include <dm.h>
-
 /* LUT registers */
 #define PCIE_LUT_UDR(n)		(0x800 + (n) * 8)
 #define PCIE_LUT_LDR(n)		(0x804 + (n) * 8)
@@ -187,5 +137,4 @@ struct ls_pcie {
 
 extern struct list_head ls_pcie_list;
 
-#endif /* CONFIG_DM_PCI */
 #endif /* _PCIE_LAYERSCAPE_H_ */
