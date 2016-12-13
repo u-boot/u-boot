@@ -86,6 +86,7 @@
 #define PCIE_BAR2_SIZE		(4 * 1024) /* 4K */
 #define PCIE_BAR4_SIZE		(1 * 1024 * 1024) /* 1M */
 
+#ifndef CONFIG_DM_PCI
 struct ls_pcie {
 	int idx;
 	void __iomem *dbi;
@@ -132,4 +133,59 @@ struct ls_pcie_info {
 	x.pci_num = num;				\
 }
 
+#else /* CONFIG_DM_PCI */
+
+#include <dm.h>
+
+/* LUT registers */
+#define PCIE_LUT_UDR(n)		(0x800 + (n) * 8)
+#define PCIE_LUT_LDR(n)		(0x804 + (n) * 8)
+#define PCIE_LUT_ENABLE		(1 << 31)
+#define PCIE_LUT_ENTRY_COUNT	32
+
+/* PF Controll registers */
+#define PCIE_PF_VF_CTRL		0x7F8
+#define PCIE_PF_DBG		0x7FC
+
+#define PCIE_SRDS_PRTCL(idx)	(PCIE1 + (idx))
+#define PCIE_SYS_BASE_ADDR	0x3400000
+#define PCIE_CCSR_SIZE		0x0100000
+
+/* CS2 */
+#define PCIE_CS2_OFFSET		0x1000 /* For PCIe without SR-IOV */
+
+#define SVR_LS102XA		0
+#define SVR_VAR_PER_SHIFT	8
+#define SVR_LS102XA_MASK	0x700
+
+/* LS1021a PCIE space */
+#define LS1021_PCIE_SPACE_OFFSET	0x4000000000ULL
+#define LS1021_PCIE_SPACE_SIZE		0x0800000000ULL
+
+/* LS1021a PEX1/2 Misc Ports Status Register */
+#define LS1021_PEXMSCPORTSR(pex_idx)	(0x94 + (pex_idx) * 4)
+#define LS1021_LTSSM_STATE_SHIFT	20
+
+struct ls_pcie {
+	int idx;
+	struct list_head list;
+	struct udevice *bus;
+	struct fdt_resource dbi_res;
+	struct fdt_resource lut_res;
+	struct fdt_resource ctrl_res;
+	struct fdt_resource cfg_res;
+	void __iomem *dbi;
+	void __iomem *lut;
+	void __iomem *ctrl;
+	void __iomem *cfg0;
+	void __iomem *cfg1;
+	bool big_endian;
+	bool enabled;
+	int next_lut_index;
+	struct pci_controller hose;
+};
+
+extern struct list_head ls_pcie_list;
+
+#endif /* CONFIG_DM_PCI */
 #endif /* _PCIE_LAYERSCAPE_H_ */
