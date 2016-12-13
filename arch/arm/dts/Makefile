@@ -111,7 +111,8 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb		\
 	zynqmp-mini-qspi.dtb			\
-	zynqmp-mini-nand.dtb
+	zynqmp-mini-nand.dtb			\
+	zynqmp-mini-emmc.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-draco.dtb \
 	am335x-evm.dtb \
