@@ -197,6 +197,7 @@ config TARGET_MX6UL_GEAM
 	select MX6UL
 	select OF_CONTROL
 	select DM
+	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
