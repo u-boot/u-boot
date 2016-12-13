@@ -139,6 +139,7 @@ config TARGET_MX6Q_ICORE_RQS
 	select OF_CONTROL
 	select DM
 	select DM_GPIO
+	select DM_I2C
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
