@@ -77,9 +77,9 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 						   pcie->dbi_res.start);
 	if (nodeoffset < 0) {
-#ifdef FSL_PCIE_COMPAT /* Compatible with older version of dts node */
+#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		nodeoffset = fdt_node_offset_by_compat_reg(blob,
-				FSL_PCIE_COMPAT, pcie->dbi_res.start);
+				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
 		if (nodeoffset < 0)
 			return;
 #else
@@ -150,9 +150,9 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 					    pcie->dbi_res.start);
 	if (off < 0) {
-#ifdef FSL_PCIE_COMPAT /* Compatible with older version of dts node */
+#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		off = fdt_node_offset_by_compat_reg(blob,
-						    FSL_PCIE_COMPAT,
+						    CONFIG_FSL_PCIE_COMPAT,
 						    pcie->dbi_res.start);
 		if (off < 0)
 			return;

@@ -118,7 +118,6 @@
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
-#define FSL_PCIE_COMPAT "fsl,ls1043a-pcie"
 
 #ifdef CONFIG_PCI
 #define CONFIG_NET_MULTI

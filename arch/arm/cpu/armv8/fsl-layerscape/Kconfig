@@ -75,6 +75,17 @@ config FSL_LSCH3
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
+config FSL_PCIE_COMPAT
+	string "PCIe compatible of Kernel DT"
+	depends on PCIE_LAYERSCAPE
+	default "fsl,ls1012a-pcie" if ARCH_LS1012A
+	default "fsl,ls1043a-pcie" if ARCH_LS1043A
+	default "fsl,ls1046a-pcie" if ARCH_LS1046A
+	default "fsl,ls2080a-pcie" if ARCH_LS2080A
+	help
+	  This compatible is used to find pci controller node in Kernel DT
+	  to complete fixup.
+
 menu "Layerscape PPA"
 config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"

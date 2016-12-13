@@ -500,7 +500,6 @@ unsigned long get_board_ddr_clk(void);
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
-#define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW

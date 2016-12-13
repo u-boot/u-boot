@@ -170,9 +170,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
 
-/* PCIe */
-#define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"
-
 /* Command line configuration */
 #define CONFIG_CMD_ENV
 
