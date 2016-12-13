@@ -347,7 +347,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
-#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW

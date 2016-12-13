@@ -171,29 +171,7 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 /* PCIe */
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE3		/* PCIE controller 3 */
-#define CONFIG_PCIE4		/* PCIE controller 4 */
-#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
-#ifdef CONFIG_LS2080A
 #define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"
-#endif
-
-#define CONFIG_SYS_PCI_64BIT
-
-#define CONFIG_SYS_PCIE_CFG0_PHYS_OFF	0x00000000
-#define CONFIG_SYS_PCIE_CFG0_SIZE	0x00001000	/* 4k */
-#define CONFIG_SYS_PCIE_CFG1_PHYS_OFF	0x00001000
-#define CONFIG_SYS_PCIE_CFG1_SIZE	0x00001000	/* 4k */
-
-#define CONFIG_SYS_PCIE_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE_IO_PHYS_OFF	0x00010000
-#define CONFIG_SYS_PCIE_IO_SIZE		0x00010000	/* 64k */
-
-#define CONFIG_SYS_PCIE_MEM_BUS		0x40000000
-#define CONFIG_SYS_PCIE_MEM_PHYS_OFF	0x40000000
-#define CONFIG_SYS_PCIE_MEM_SIZE	0x40000000	/* 1G */
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
