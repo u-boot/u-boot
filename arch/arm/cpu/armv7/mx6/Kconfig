@@ -133,6 +133,16 @@ config TARGET_MX6Q_ICORE
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_MX6Q_ICORE_RQS
+	bool "Support Engicam i.Core RQS"
+	select MX6QDL
+	select OF_CONTROL
+	select DM
+	select DM_GPIO
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6QSABREAUTO
 	bool "mx6qsabreauto"
 	select DM
@@ -299,6 +309,7 @@ source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/engicam/geam6ul/Kconfig"
 source "board/engicam/icorem6/Kconfig"
+source "board/engicam/icorem6_rqs/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
