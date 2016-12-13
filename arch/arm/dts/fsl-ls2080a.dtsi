@@ -89,4 +89,64 @@
 		interrupts = <0 81 0x4>; /* Level high type */
 		dr_mode = "host";
 	};
+
+	pcie@3400000 {
+		compatible = "fsl,ls-pcie", "snps,dw-pcie";
+		reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */
+		       0x00 0x03480000 0x0 0x80000   /* lut registers */
+		       0x10 0x00000000 0x0 0x20000>; /* configuration space */
+		reg-names = "dbi", "lut", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		num-lanes = <4>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x81000000 0x0 0x00000000 0x10 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x10 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+	};
+
+	pcie@3500000 {
+		compatible = "fsl,ls-pcie", "snps,dw-pcie";
+		reg = <0x00 0x03500000 0x0 0x80000   /* dbi registers */
+		       0x00 0x03580000 0x0 0x80000   /* lut registers */
+		       0x12 0x00000000 0x0 0x20000>; /* configuration space */
+		reg-names = "dbi", "lut", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		num-lanes = <4>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x81000000 0x0 0x00000000 0x12 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x12 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+	};
+
+	pcie@3600000 {
+		compatible = "fsl,ls-pcie", "snps,dw-pcie";
+		reg = <0x00 0x03600000 0x0 0x80000   /* dbi registers */
+		       0x00 0x03680000 0x0 0x80000   /* lut registers */
+		       0x14 0x00000000 0x0 0x20000>; /* configuration space */
+		reg-names = "dbi", "lut", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		num-lanes = <8>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x81000000 0x0 0x00000000 0x14 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x14 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+	};
+
+	pcie@3700000 {
+		compatible = "fsl,ls-pcie", "snps,dw-pcie";
+		reg = <0x00 0x03700000 0x0 0x80000   /* dbi registers */
+		       0x00 0x03780000 0x0 0x80000   /* lut registers */
+		       0x16 0x00000000 0x0 0x20000>; /* configuration space */
+		reg-names = "dbi", "lut", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		num-lanes = <4>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x81000000 0x0 0x00000000 0x16 0x00020000 0x0 0x00010000   /* downstream I/O */
+			  0x82000000 0x0 0x40000000 0x16 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+	};
 };
