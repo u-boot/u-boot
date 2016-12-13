@@ -1,10 +1,13 @@
-How to use U-Boot on Engicam i.CoreM6 RQS Quad/Dual Starter Kit:
-----------------------------------------------------------------
+How to use U-Boot on Engicam i.CoreM6 RQS Solo/DualLite and Quad/Dual Starter Kit:
+----------------------------------------------------------------------------------
 
 $ make mrproper
 
 - Configure U-Boot for Engicam i.CoreM6 RQS Quad/Dual:
 $ make imx6q_icore_rqs_mmc_defconfig
+
+- Configure U-Boot for Engicam i.CoreM6 RQS Solo/DualLite:
+$ make imx6dl_icore_rqs_mmc_defconfig
 
 - Build U-Boot
 $ make
