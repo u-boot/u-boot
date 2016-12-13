@@ -270,7 +270,7 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = *(addr++);
+		msg.data      = addr[alen];
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
@@ -341,7 +341,7 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = *(addr++);
+		msg.data      = addr[alen];
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
