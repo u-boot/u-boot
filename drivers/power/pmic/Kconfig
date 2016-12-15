@@ -54,6 +54,13 @@ config DM_PMIC_MAX77686
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC MAX77686. The driver implements read/write operations.
 
+config DM_PMIC_MAX8998
+	bool "Enable Driver Model for PMIC MAX8998"
+	depends on DM_PMIC
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for PMIC MAX8998. The driver implements read/write operations.
+
 config PMIC_PM8916
 	bool "Enable Driver Model for Qualcomm PM8916 PMIC"
 	depends on DM_PMIC
