@@ -34,21 +34,21 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=undefined\0" \
+	"fdtfile=undefined\0" \
 	"fdt_addr=0x83000000\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4\0" \
 	"findfdt="\
 		"if test $board_name = BASIC; then " \
-			"setenv fdt_file imx6sx-udoo-neo-basic.dtb; fi; " \
+			"setenv fdtfile imx6sx-udoo-neo-basic.dtb; fi; " \
 		"if test $board_name = BASICKS; then " \
-			"setenv fdt_file imx6sx-udoo-neo-basic.dtb; fi; " \
+			"setenv fdtfile imx6sx-udoo-neo-basic.dtb; fi; " \
 		"if test $board_name = FULL; then " \
-			"setenv fdt_file imx6sx-udoo-neo-full.dtb; fi; " \
+			"setenv fdtfile imx6sx-udoo-neo-full.dtb; fi; " \
 		"if test $board_name = EXTENDED; then " \
-			"setenv fdt_file imx6sx-udoo-neo-extended.dtb; fi; " \
-		"if test $fdt_file = UNDEFINED; then " \
+			"setenv fdtfile imx6sx-udoo-neo-extended.dtb; fi; " \
+		"if test $fdtfile = UNDEFINED; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
