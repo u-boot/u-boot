@@ -33,7 +33,7 @@ static int pmic_charger_state(struct pmic *p, int state, int current)
 	u32 val = 0;
 
 	if (pmic_probe(p))
-		return -1;
+		return -ENODEV;
 
 	if (state == PMIC_CHARGER_DISABLE) {
 		puts("Disable the charger.\n");
@@ -41,13 +41,13 @@ static int pmic_charger_state(struct pmic *p, int state, int current)
 		val &= ~(MBCHOSTEN | VCHGR_FC);
 		pmic_reg_write(p, MAX8997_REG_MBCCTRL2, val);
 
-		return -1;
+		return -ENOTSUPP;
 	}
 
 	if (current < CHARGER_MIN_CURRENT || current > CHARGER_MAX_CURRENT) {
 		printf("%s: Wrong charge current: %d [mA]\n",
 		       __func__, current);
-		return -1;
+		return -EINVAL;
 	}
 
 	fc = (current - CHARGER_MIN_CURRENT) / CHARGER_CURRENT_RESOLUTION;
@@ -71,7 +71,7 @@ static int pmic_charger_bat_present(struct pmic *p)
 	u32 val;
 
 	if (pmic_probe(p))
-		return -1;
+		return -ENODEV;
 
 	pmic_reg_read(p, MAX8997_REG_STATUS4, &val);
 

@@ -16,7 +16,7 @@ static int max77693_charger_state(struct pmic *p, int state, int current)
 	unsigned int val;
 
 	if (pmic_probe(p))
-		return -1;
+		return -ENODEV;
 
 	/* unlock write capability */
 	val = MAX77693_CHG_UNLOCK;
@@ -27,13 +27,13 @@ static int max77693_charger_state(struct pmic *p, int state, int current)
 		pmic_reg_read(p, MAX77693_CHG_CNFG_00, &val);
 		val &= ~0x01;
 		pmic_reg_write(p, MAX77693_CHG_CNFG_00, val);
-		return -1;
+		return -ENOTSUPP;
 	}
 
 	if (current < CHARGER_MIN_CURRENT || current > CHARGER_MAX_CURRENT) {
 		printf("%s: Wrong charge current: %d [mA]\n",
 		       __func__, current);
-		return -1;
+		return -EINVAL;
 	}
 
 	/* set charging current */
@@ -59,7 +59,7 @@ static int max77693_charger_bat_present(struct pmic *p)
 	unsigned int val;
 
 	if (pmic_probe(p))
-		return -1;
+		return -ENODEV;
 
 	pmic_reg_read(p, MAX77693_CHG_INT_OK, &val);
 
