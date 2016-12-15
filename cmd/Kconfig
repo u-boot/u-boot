@@ -309,7 +309,7 @@ config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
 	default y
 	help
-	  Memeory commands.
+	  Memory commands.
 	    md - memory display
 	    mm - memory modify (auto-incrementing address)
 	    nm - memory modify (constant address)
@@ -317,7 +317,7 @@ config CMD_MEMORY
 	    cp - memory copy
 	    cmp - memory compare
 	    base - print or set address offset
-	    loop - initinite loop on address range
+	    loop - initialize loop on address range
 
 config CMD_CRC32
 	bool "crc32"
