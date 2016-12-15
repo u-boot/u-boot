@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014      Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -13,7 +15,6 @@
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
-#include <mapmem.h>
 
 struct uniphier_fi2c_regs {
 	u32 cr;				/* control register */
@@ -118,7 +119,7 @@ static int uniphier_fi2c_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->regs = map_sysmem(addr, SZ_128);
+	priv->regs = devm_ioremap(dev, addr, SZ_128);
 	if (!priv->regs)
 		return -ENOMEM;
 
@@ -130,15 +131,6 @@ static int uniphier_fi2c_probe(struct udevice *dev)
 		return ret;
 
 	writel(I2C_BRST_FOEN | I2C_BRST_RSCLO, &priv->regs->brst);
-
-	return 0;
-}
-
-static int uniphier_fi2c_remove(struct udevice *dev)
-{
-	struct uniphier_fi2c_dev *priv = dev_get_priv(dev);
-
-	unmap_sysmem(priv->regs);
 
 	return 0;
 }
@@ -359,7 +351,6 @@ U_BOOT_DRIVER(uniphier_fi2c) = {
 	.id = UCLASS_I2C,
 	.of_match = uniphier_fi2c_of_match,
 	.probe = uniphier_fi2c_probe,
-	.remove = uniphier_fi2c_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_fi2c_dev),
 	.ops = &uniphier_fi2c_ops,
 };

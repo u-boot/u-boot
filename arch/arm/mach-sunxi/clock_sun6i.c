@@ -148,6 +148,12 @@ void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 	const int max_n = 32;
 	int k = 1, m = 2;
 
+#ifdef CONFIG_MACH_SUN8I_H3
+	clrsetbits_le32(&ccm->pll5_tuning_cfg, CCM_PLL5_TUN_LOCK_TIME_MASK |
+			CCM_PLL5_TUN_INIT_FREQ_MASK,
+			CCM_PLL5_TUN_LOCK_TIME(2) | CCM_PLL5_TUN_INIT_FREQ(16));
+#endif
+
 	if (sigma_delta_enable)
 		writel(CCM_PLL5_PATTERN, &ccm->pll5_pattern_cfg);
 

@@ -424,8 +424,6 @@ static void set_spi_speed(void)
 static int lpc_init_extra(struct udevice *dev)
 {
 	struct udevice *pch = dev->parent;
-	const void *blob = gd->fdt_blob;
-	int node;
 
 	debug("pch: lpc_init\n");
 	dm_pci_write_bar32(pch, 0, 0);
@@ -433,10 +431,6 @@ static int lpc_init_extra(struct udevice *dev)
 	dm_pci_write_bar32(pch, 2, 0xfec00000);
 	dm_pci_write_bar32(pch, 3, 0x800);
 	dm_pci_write_bar32(pch, 4, 0x900);
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
-	if (node < 0)
-		return -ENOENT;
 
 	/* Set the value for PCI command register. */
 	dm_pci_write_config16(pch, PCI_COMMAND, 0x000f);

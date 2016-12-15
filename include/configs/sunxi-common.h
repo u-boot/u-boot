@@ -55,7 +55,6 @@
 
 /* CPU */
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*
@@ -100,7 +99,7 @@
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0xA000	/* 40 KiB */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
@@ -134,7 +133,15 @@
 #define CONFIG_SERIAL_TAG
 
 #ifdef CONFIG_NAND_SUNXI
+#define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #define CONFIG_SPL_NAND_SUPPORT 1
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_SYS_MAX_NAND_DEVICE 8
+#endif
+
+#ifdef CONFIG_SPL_SPI_SUNXI
+#define CONFIG_SPL_SPI_FLASH_SUPPORT	1
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 #endif
 
 /* mmc config */
@@ -213,7 +220,8 @@
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
 #if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
-#define LOW_LEVEL_SRAM_STACK		0x0001A000
+/* FIXME: 40 KiB instead of 32 KiB ? */
+#define LOW_LEVEL_SRAM_STACK		0x00018000
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 #else
 /* end of 32 KiB in sram */

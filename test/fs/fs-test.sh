@@ -400,7 +400,7 @@ check_md5() {
 	# md5sum in u-boot has output of form:
 	# md5 for 01000008 ... 01100007 ==> <md5>
 	# the 7th field is the actual md5
-	md5_src=`grep -A3 "$1" "$2" | grep "md5 for"`
+	md5_src=`grep -A3 "$1" "$2" | grep "md5 for" | tr -d '\r'`
 	md5_src=($md5_src)
 	md5_src=${md5_src[6]}
 

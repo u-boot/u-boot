@@ -20,7 +20,7 @@ void gpio_early_init(void);  /* overrideable GPIO config        */
 /*
  * Hooks to allow boards to set up the pinmux for a specific function.
  * Has to be implemented in the board files as we don't yet support pinmux
- * setup from FTD. If a board file does not implement one of those functions
+ * setup from FDT. If a board file does not implement one of those functions
  * an empty stub function will be called.
  */
 

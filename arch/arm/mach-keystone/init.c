@@ -101,9 +101,7 @@ static void msmc_k2hkle_common_setup(void)
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_C6X_0);
 	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_ARM);
 	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_NETCP);
-#ifdef KS2_MSMC_SEGMENT_QM_PDSP
 	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_QM_PDSP);
-#endif
 	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_PCIE0);
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_DEBUG);
 }

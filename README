@@ -151,6 +151,7 @@ Directory Hierarchy:
   /x86			Files generic to x86 architecture
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
+/cmd			U-Boot commands functions
 /common			Misc architecture independent functions
 /configs		Board default configuration files
 /disk			Code for disk drive partition handling
@@ -511,7 +512,7 @@ The following options need to be configured:
 		implemetation.
 
 		CONFIG_SYS_FSL_DDR2
-		Board config to use DDR2. It can be eanbeld for SoCs with
+		Board config to use DDR2. It can be enabled for SoCs with
 		Freescale DDR2 or DDR3 controllers, depending on the board
 		implementation.
 
@@ -840,6 +841,9 @@ The following options need to be configured:
 			CONFIG_CONSOLE_EXTRA_INFO
 						additional board info beside
 						the logo
+			CONFIG_HIDE_LOGO_VERSION
+						do not display bootloader
+						version string
 
 		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
 		a limited number of ANSI escape sequences (cursor control,
@@ -2756,7 +2760,7 @@ CBFS (Coreboot Filesystem) support
 		with a special header) as build targets. By defining
 		CONFIG_BUILD_TARGET in the SoC / board header, this
 		special image will be automatically built upon calling
-		make / MAKEALL.
+		make / buildman.
 
 		CONFIG_IDENT_STRING
 
@@ -3586,6 +3590,10 @@ FIT uImage format:
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
 
+		CONFIG_SPL_UBI
+		Support for a lightweight UBI (fastmap) scanner and
+		loader
+
 		CONFIG_SPL_MTD_SUPPORT
 		Support for the MTD subsystem within SPL.  Useful for
 		environment on NAND support within SPL.
@@ -3769,10 +3777,11 @@ Configuration Settings:
 		You only need to set this if address zero isn't writeable
 
 - CONFIG_SYS_MEM_RESERVE_SECURE
+		Only implemented for ARMv8 for now.
 		If defined, the size of CONFIG_SYS_MEM_RESERVE_SECURE memory
 		is substracted from total RAM and won't be reported to OS.
 		This memory can be used as secure memory. A variable
-		gd->secure_ram is used to track the location. In systems
+		gd->arch.secure_ram is used to track the location. In systems
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
@@ -3837,9 +3846,6 @@ Configuration Settings:
 		is not available. free() is supported but does nothing.
 		The memory will be freed (or in fact just forgotten) when
 		U-Boot relocates itself.
-
-		Pre-relocation malloc() is only supported on ARM and sandbox
-		at present but is fairly easy to enable for other archs.
 
 - CONFIG_SYS_MALLOC_SIMPLE
 		Provides a simple and small malloc() and calloc() for those
@@ -4812,7 +4818,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 		[ARM926EJ-S only] This allows just the call to lowlevel_init()
-		to be skipped. The normal CPU15 init (such as enabling the
+		to be skipped. The normal CP15 init (such as enabling the
 		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
@@ -5081,33 +5087,10 @@ official or latest in the git repository) version of U-Boot sources.
 But before you submit such a patch, please verify that your modifi-
 cation did not break existing code. At least make sure that *ALL* of
 the supported boards compile WITHOUT ANY compiler warnings. To do so,
-just run the "MAKEALL" script, which will configure and build U-Boot
-for ALL supported system. Be warned, this will take a while. You can
-select which (cross) compiler to use by passing a `CROSS_COMPILE'
-environment variable to the script, i. e. to use the ELDK cross tools
-you can type
-
-	CROSS_COMPILE=ppc_8xx- MAKEALL
-
-or to build on a native PowerPC system you can type
-
-	CROSS_COMPILE=' ' MAKEALL
-
-When using the MAKEALL script, the default behaviour is to build
-U-Boot in the source directory. This location can be changed by
-setting the BUILD_DIR environment variable. Also, for each target
-built, the MAKEALL script saves two log files (<target>.ERR and
-<target>.MAKEALL) in the <source dir>/LOG directory. This default
-location can be changed by setting the MAKEALL_LOGDIR environment
-variable. For example:
-
-	export BUILD_DIR=/tmp/build
-	export MAKEALL_LOGDIR=/tmp/log
-	CROSS_COMPILE=ppc_8xx- MAKEALL
-
-With the above settings build objects are saved in the /tmp/build,
-log files are saved in the /tmp/log and the source tree remains clean
-during the whole build process.
+just run the buildman script (tools/buildman/buildman), which will
+configure and build U-Boot for ALL supported system. Be warned, this
+will take a while. Please see the buildman README, or run 'buildman -H'
+for documentation.
 
 
 See also "U-Boot Porting Guide" below.
@@ -6563,7 +6546,7 @@ it:
 
 Notes:
 
-* Before sending the patch, run the MAKEALL script on your patched
+* Before sending the patch, run the buildman script on your patched
   source tree and make sure that no errors or warnings are reported
   for any of the boards.
 

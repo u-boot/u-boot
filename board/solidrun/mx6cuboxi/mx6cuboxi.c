@@ -367,14 +367,6 @@ int checkboard(void)
 	return 0;
 }
 
-static bool is_mx6q(void)
-{
-	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
-		return true;
-	else
-		return false;
-}
-
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -383,7 +375,7 @@ int board_late_init(void)
 	else
 		setenv("board_name", "CUBOXI");
 
-	if (is_mx6q())
+	if (is_mx6dq())
 		setenv("board_rev", "MX6Q");
 	else
 		setenv("board_rev", "MX6DL");
@@ -613,9 +605,11 @@ static void spl_dram_init(int width)
 		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 		.ddr_type = DDR_TYPE_DDR3,
+		.refsel = 1,	/* Refresh cycles at 32KHz */
+		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
-	if (is_cpu_type(MXC_CPU_MX6D) || is_cpu_type(MXC_CPU_MX6Q))
+	if (is_mx6dq())
 		mx6dq_dram_iocfg(width, &mx6q_ddr_ioregs, &mx6q_grp_ioregs);
 	else
 		mx6sdl_dram_iocfg(width, &mx6dl_ddr_ioregs, &mx6sdl_grp_ioregs);

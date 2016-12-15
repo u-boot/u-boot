@@ -57,7 +57,6 @@
 #define CONFIG_CMDLINE_EDITING		/* add command line history     */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
-#define CONFIG_VERSION_VARIABLE		/* include version env variable */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_LOADS_ECHO		/* echo on for serial download  */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change        */

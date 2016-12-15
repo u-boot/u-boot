@@ -9,7 +9,6 @@ head-y := start.o
 obj-y += cache.o
 obj-y += cpu.o
 obj-y += interrupts.o
-obj-y += sections.o
 obj-y += relocate.o
 obj-y += strchr-700.o
 obj-y += strcmp.o

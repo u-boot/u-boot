@@ -312,6 +312,15 @@ config SYS_NS16550
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
 
+config ROCKCHIP_SERIAL
+	bool "Rockchip on-chip UART support"
+	depends on DM_SERIAL && SPL_OF_PLATDATA
+	help
+	  Select this to enable a debug UART for Rockchip devices when using
+	  CONFIG_OF_PLATDATA (i.e. a compiled-in device tree replacemenmt).
+	  This uses the ns16550 driver, converting the platdata from of-platdata
+	  to the ns16550 format.
+
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
 	depends on SANDBOX
@@ -335,6 +344,7 @@ config SANDBOX_SERIAL
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
+	default y
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.

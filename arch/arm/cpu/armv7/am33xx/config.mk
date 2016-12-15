@@ -26,6 +26,7 @@ endif
 else
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 ALL-$(CONFIG_QSPI_BOOT) += u-boot_HS_XIP_X-LOADER
+ALL-$(CONFIG_SPL_LOAD_FIT) += u-boot_HS.img
 endif
 ALL-y	+= u-boot.img
 endif

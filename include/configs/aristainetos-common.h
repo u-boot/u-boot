@@ -17,7 +17,6 @@
 
 #define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
-#define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(64 * SZ_1M)
@@ -213,7 +212,6 @@
 /* USB Configs */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)

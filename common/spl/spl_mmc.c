@@ -158,7 +158,7 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 	disk_partition_t info;
 	int err;
 
-	err = part_get_info(&mmc->block_dev, partition, &info);
+	err = part_get_info(mmc_get_blk_desc(mmc), partition, &info);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: partition error\n");
@@ -187,7 +187,7 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 	unsigned long count;
 	int ret;
 
-	count = mmc->block_dev.block_read(&mmc->block_dev,
+	count = blk_dread(mmc_get_blk_desc(mmc),
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
 		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
@@ -229,7 +229,7 @@ static int mmc_load_fpga_image_fat(struct mmc *mmc)
 	const fpga_desc *const desc = fpga_get_desc(devnum);
 	xilinx_desc *desc_xilinx = desc->devdesc;
 
-	err = spl_load_image_fat(&mmc->block_dev,
+	err = spl_load_image_fat(mmc_get_blk_desc(mmc),
 					CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 					CONFIG_SPL_FPGA_LOAD_ARGS_NAME);
 
@@ -257,13 +257,13 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	if (!spl_start_uboot()) {
-		err = spl_load_image_fat_os(&mmc->block_dev,
+		err = spl_load_image_fat_os(mmc_get_blk_desc(mmc),
 			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
 		if (!err)
 			return err;
 	}
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-	err = spl_load_image_fat(&mmc->block_dev,
+	err = spl_load_image_fat(mmc_get_blk_desc(mmc),
 				 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 	if (!err)

@@ -251,7 +251,7 @@ static int setup_window(struct disp_ctl_win *win,
 /**
  * Register a new display based on device tree configuration.
  *
- * The frame buffer can be positioned by U-Boot or overriden by the fdt.
+ * The frame buffer can be positioned by U-Boot or overridden by the fdt.
  * You should pass in the U-Boot address here, and check the contents of
  * struct tegra_lcd_priv to see what was actually chosen.
  *

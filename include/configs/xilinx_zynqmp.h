@@ -34,9 +34,6 @@
 /* Have release address at the end of 256MB for now */
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 
-/* Cache Definitions */
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #if !defined(CONFIG_IDENT_STRING)
 # define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
@@ -338,7 +335,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
-#define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
 
 #define CONFIG_BOARD_EARLY_INIT_R

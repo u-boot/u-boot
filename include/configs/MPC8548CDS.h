@@ -15,10 +15,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -562,7 +558,7 @@ extern unsigned long get_clock_freq(void);
 	"consoledev=ttyS1\0"			\
 	"ramdiskaddr=2000000\0"			\
 	"ramdiskfile=ramdisk.uboot\0"		\
-	"fdtaddr=c00000\0"			\
+	"fdtaddr=1e00000\0"			\
 	"fdtfile=mpc8548cds.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\

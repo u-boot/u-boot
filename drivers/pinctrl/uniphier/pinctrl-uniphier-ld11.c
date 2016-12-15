@@ -101,7 +101,6 @@ U_BOOT_DRIVER(uniphier_ld11_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(uniphier_ld11_pinctrl_match),
 	.probe = uniphier_ld11_pinctrl_probe,
-	.remove = uniphier_pinctrl_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_pinctrl_priv),
 	.ops = &uniphier_pinctrl_ops,
 };

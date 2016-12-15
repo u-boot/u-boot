@@ -108,26 +108,6 @@ static u_int8_t	num_phy;
 
 phy_t				phy[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 
-static inline void davinci_flush_rx_descs(void)
-{
-	/* flush the whole RX descs area */
-	flush_dcache_range(EMAC_WRAPPER_RAM_ADDR + EMAC_RX_DESC_BASE,
-			EMAC_WRAPPER_RAM_ADDR + EMAC_TX_DESC_BASE);
-}
-
-static inline void davinci_invalidate_rx_descs(void)
-{
-	/* invalidate the whole RX descs area */
-	invalidate_dcache_range(EMAC_WRAPPER_RAM_ADDR + EMAC_RX_DESC_BASE,
-			EMAC_WRAPPER_RAM_ADDR + EMAC_TX_DESC_BASE);
-}
-
-static inline void davinci_flush_desc(emac_desc *desc)
-{
-	flush_dcache_range((unsigned long)desc,
-			(unsigned long)desc + sizeof(*desc));
-}
-
 static int davinci_eth_set_mac_addr(struct eth_device *dev)
 {
 	unsigned long		mac_hi;
@@ -243,11 +223,10 @@ int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
 
 	if (tmp & MDIO_USERACCESS0_ACK) {
 		*data = tmp & 0xffff;
-		return(1);
+		return 1;
 	}
 
-	*data = -1;
-	return(0);
+	return 0;
 }
 
 /* Write to a PHY register via MDIO inteface. Blocks until operation is complete. */
@@ -268,7 +247,7 @@ int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
 	while (readl(&adap_mdio->USERACCESS0) & MDIO_USERACCESS0_GO)
 		;
 
-	return(1);
+	return 1;
 }
 
 /* PHY functions for a generic PHY */
@@ -390,14 +369,19 @@ static int gen_auto_negotiate(int phy_addr)
 
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static int davinci_mii_phy_read(const char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
+static int davinci_mii_phy_read(struct mii_dev *bus, int addr, int devad,
+				int reg)
 {
-	return(davinci_eth_phy_read(addr, reg, value) ? 0 : 1);
+	unsigned short value = 0;
+	int retval = davinci_eth_phy_read(addr, reg, &value);
+
+	return retval ? value : -EIO;
 }
 
-static int davinci_mii_phy_write(const char *devname, unsigned char addr, unsigned char reg, unsigned short value)
+static int davinci_mii_phy_write(struct mii_dev *bus, int addr, int devad,
+				 int reg, u16 value)
 {
-	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
+	return davinci_eth_phy_write(addr, reg, value) ? 0 : 1;
 }
 #endif
 
@@ -490,8 +474,6 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	rx_desc->next = 0;
 	emac_rx_active_tail = rx_desc;
 	emac_rx_queue_active = 1;
-
-	davinci_flush_rx_descs();
 
 	/* Enable TX/RX */
 	writel(EMAC_MAX_ETHERNET_PKT_SIZE, &adap_emac->RXMAXLEN);
@@ -654,8 +636,7 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 				      EMAC_CPPI_EOP_BIT);
 
 	flush_dcache_range((unsigned long)packet,
-			(unsigned long)packet + length);
-	davinci_flush_desc(emac_tx_desc);
+			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
 	/* Send the packet */
 	writel(BD_TO_HW((unsigned long)emac_tx_desc), &adap_emac->TX0HDP);
@@ -689,8 +670,6 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 	volatile emac_desc *tail_desc;
 	int status, ret = -1;
 
-	davinci_invalidate_rx_descs();
-
 	rx_curr_desc = emac_rx_active_head;
 	if (!rx_curr_desc)
 		return 0;
@@ -701,12 +680,12 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			printf ("WARN: emac_rcv_pkt: Error in packet\n");
 		} else {
 			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
+			unsigned short len =
+				rx_curr_desc->buff_off_len & 0xffff;
 
-			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
-			net_process_received_packet(
-				rx_curr_desc->buffer,
-				rx_curr_desc->buff_off_len & 0xffff);
-			ret = rx_curr_desc->buff_off_len & 0xffff;
+			invalidate_dcache_range(tmp, tmp + ALIGN(len, PKTALIGN));
+			net_process_received_packet(rx_curr_desc->buffer, len);
+			ret = len;
 		}
 
 		/* Ack received packet descriptor */
@@ -729,7 +708,6 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 		rx_curr_desc->buff_off_len = EMAC_MAX_ETHERNET_PKT_SIZE;
 		rx_curr_desc->pkt_flag_len = EMAC_CPPI_OWNERSHIP_BIT;
 		rx_curr_desc->next = 0;
-		davinci_flush_desc(rx_curr_desc);
 
 		if (emac_rx_active_head == 0) {
 			printf ("INFO: emac_rcv_pkt: active queue head = 0\n");
@@ -747,13 +725,11 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			tail_desc->next = BD_TO_HW((ulong) curr_desc);
 			status = tail_desc->pkt_flag_len;
 			if (status & EMAC_CPPI_EOQ_BIT) {
-				davinci_flush_desc(tail_desc);
 				writel(BD_TO_HW((ulong)curr_desc),
 				       &adap_emac->RX0HDP);
 				status &= ~EMAC_CPPI_EOQ_BIT;
 				tail_desc->pkt_flag_len = status;
 			}
-			davinci_flush_desc(tail_desc);
 		}
 		return (ret);
 	}
@@ -883,8 +859,17 @@ int davinci_emac_initialize(void)
 
 		debug("Ethernet PHY: %s\n", phy[i].name);
 
-		miiphy_register(phy[i].name, davinci_mii_phy_read,
-						davinci_mii_phy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, phy[i].name, MDIO_NAME_LEN);
+		mdiodev->read = davinci_mii_phy_read;
+		mdiodev->write = davinci_mii_phy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 	}
 
 #if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \

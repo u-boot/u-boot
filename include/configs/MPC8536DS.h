@@ -14,10 +14,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT	1
-#endif
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
 #define CONFIG_SYS_TEXT_BASE	0xf8f40000
@@ -643,7 +639,6 @@
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
 #endif
 #endif
 
@@ -727,7 +722,7 @@
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=8536ds/ramdisk.uboot\0"		\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=8536ds/mpc8536ds.dtb\0"		\
 "bdev=sda3\0"					\
 "hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"

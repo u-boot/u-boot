@@ -503,6 +503,13 @@ int board_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_SPL_BUILD)
+void spl_board_init(void)
+{
+	ls102xa_smmu_stream_id_init();
+}
+#endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {

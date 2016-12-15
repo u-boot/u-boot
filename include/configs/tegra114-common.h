@@ -8,9 +8,6 @@
 #define _TEGRA114_COMMON_H_
 #include "tegra-common.h"
 
-/* Cortex-A15 uses a cache line size of 64 bytes */
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /*
  * NS16550 Configuration
  */

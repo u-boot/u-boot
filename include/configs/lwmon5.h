@@ -381,7 +381,6 @@
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN
 #define CONFIG_EHCI_DESC_BIG_ENDIAN
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET /* re-init HCD after CMD_RESET */
-#define CONFIG_USB_STORAGE
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -437,7 +436,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
 

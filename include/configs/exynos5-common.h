@@ -13,7 +13,6 @@
 
 #include "exynos-common.h"
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
 #ifdef FTRACE
@@ -154,7 +153,6 @@
 /* Enable Time Command */
 
 /* USB */
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 

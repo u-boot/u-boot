@@ -78,9 +78,9 @@ pxe boot
      address of the tftp server from which other files will be retrieved.
 
      kernel_addr_r, initrd_addr_r - locations in RAM at which 'pxe boot' will
-     store the kernel and initrd it retrieves from tftp. These locations will
-     be passed to the bootm command to boot the kernel. These environment
-     variables are required to be set.
+     store the kernel(or FIT image) and initrd it retrieves from tftp. These
+     locations will be passed to the bootm command to boot the kernel. These
+     environment variables are required to be set.
 
      fdt_addr_r - location in RAM at which 'pxe boot' will store the fdt blob it
      retrieves from tftp. The retrieval is possible if 'fdt' label is defined in
@@ -138,9 +138,9 @@ menu default	    - set this label as the default label to boot; this is
 		      specified in a different way
 
 kernel <path>	    - if this label is chosen, use tftp to retrieve the kernel
-		      at <path>. it will be stored at the address indicated in
-		      the kernel_addr_r environment variable, and that address
-		      will be passed to bootm to boot this kernel.
+		      (or FIT image) at <path>. it will be stored at the address
+		      indicated in the kernel_addr_r environment variable, and
+		      that address will be passed to bootm to boot this kernel.
 
 append <string>	    - use <string> as the kernel command line when booting this
 		      label.

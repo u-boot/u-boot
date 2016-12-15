@@ -56,6 +56,7 @@ struct spl_info {
 static struct spl_info spl_infos[] = {
 	{ "rk3036", "RK30", 0x1000 },
 	{ "rk3288", "RK32", 0x8000 },
+	{ "rk3399", "RK33", 0x20000 },
 };
 
 static unsigned char rc4_key[16] = {

@@ -33,7 +33,6 @@ enum uclass_id {
 	UCLASS_CROS_EC,		/* Chrome OS EC */
 	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
 	UCLASS_DMA,		/* Direct Memory Access */
-	UCLASS_RAM,		/* RAM controller */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 	UCLASS_I2C,		/* I2C bus */
@@ -56,11 +55,13 @@ enum uclass_id {
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
-	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PINCONFIG,	/* Pin configuration node device */
+	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PMIC,		/* PMIC I/O device */
 	UCLASS_PWM,		/* Pulse-width modulator */
+	UCLASS_POWER_DOMAIN,	/* (SoC) Power domains */
 	UCLASS_PWRSEQ,		/* Power sequence device */
+	UCLASS_RAM,		/* RAM controller */
 	UCLASS_REGULATOR,	/* Regulator device */
 	UCLASS_REMOTEPROC,	/* Remote Processor device */
 	UCLASS_RESET,		/* Reset controller device */

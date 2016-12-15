@@ -29,7 +29,6 @@
 /*
  * Enable this board for more than 2GB of SDRAM
  */
-#define CONFIG_PHYS_64BIT
 #define	CONFIG_VERY_BIG_RAM
 
 /*

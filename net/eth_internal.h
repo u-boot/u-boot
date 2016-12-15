@@ -13,7 +13,7 @@
 void eth_common_init(void);
 
 /**
- * eth_setenv_enetaddr_by_index() - set the MAC address envrionment variable
+ * eth_setenv_enetaddr_by_index() - set the MAC address environment variable
  *
  * This sets up an environment variable with the given MAC address (@enetaddr).
  * The environment variable to be set is defined by <@base_name><@index>addr.

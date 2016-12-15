@@ -31,6 +31,8 @@ struct efi_disk_obj {
 	struct efi_device_path_file_path *dp;
 	/* Offset into disk for simple partitions */
 	lbaint_t offset;
+	/* Internal block device */
+	const struct blk_desc *desc;
 };
 
 static efi_status_t efi_disk_open_block(void *handle, efi_guid_t *protocol,
@@ -78,8 +80,7 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	unsigned long n;
 
 	diskobj = container_of(this, struct efi_disk_obj, ops);
-	if (!(desc = blk_get_dev(diskobj->ifname, diskobj->dev_index)))
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	desc = (struct blk_desc *) diskobj->desc;
 	blksz = desc->blksz;
 	blocks = buffer_size / blksz;
 	lba += diskobj->offset;
@@ -201,6 +202,10 @@ static void efi_disk_add_dev(const char *name,
 	struct efi_device_path_file_path *dp;
 	int objlen = sizeof(*diskobj) + (sizeof(*dp) * 2);
 
+	/* Don't add empty devices */
+	if (!desc->lba)
+		return;
+
 	diskobj = calloc(1, objlen);
 
 	/* Fill in object data */
@@ -213,13 +218,14 @@ static void efi_disk_add_dev(const char *name,
 	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
 	diskobj->offset = offset;
+	diskobj->desc = desc;
 
 	/* Fill in EFI IO Media info (for read/write callbacks) */
 	diskobj->media.removable_media = desc->removable;
 	diskobj->media.media_present = 1;
 	diskobj->media.block_size = desc->blksz;
 	diskobj->media.io_align = desc->blksz;
-	diskobj->media.last_block = desc->lba;
+	diskobj->media.last_block = desc->lba - offset;
 	diskobj->ops.media = &diskobj->media;
 
 	/* Fill in device path */
@@ -240,7 +246,8 @@ static void efi_disk_add_dev(const char *name,
 
 static int efi_disk_create_eltorito(struct blk_desc *desc,
 				    const char *if_typename,
-				    int diskid)
+				    int diskid,
+				    const char *pdevname)
 {
 	int disks = 0;
 #ifdef CONFIG_ISO_PARTITION
@@ -252,8 +259,8 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 		return 0;
 
 	while (!part_get_info(desc, part, &info)) {
-		snprintf(devname, sizeof(devname), "%s%d:%d", if_typename,
-			 diskid, part);
+		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
+			 part);
 		efi_disk_add_dev(devname, if_typename, desc, diskid,
 				 info.start);
 		part++;
@@ -296,7 +303,7 @@ int efi_disk_register(void)
 		* so let's create them here
 		*/
 		disks += efi_disk_create_eltorito(desc, if_typename,
-						  desc->devnum);
+						  desc->devnum, dev->name);
 	}
 #else
 	int i, if_type;
@@ -331,7 +338,8 @@ int efi_disk_register(void)
 			 * El Torito images show up as block devices
 			 * in an EFI world, so let's create them here
 			 */
-			disks += efi_disk_create_eltorito(desc, if_typename, i);
+			disks += efi_disk_create_eltorito(desc, if_typename,
+							  i, devname);
 		}
 	}
 #endif

@@ -146,8 +146,10 @@ int print_cpuinfo(void)
 	}
 
 	ret = cpu_common_init();
-	if (ret)
+	if (ret) {
+		debug("%s: cpu_common_init() failed\n", __func__);
 		return ret;
+	}
 
 	/* Check PM1_STS[15] to see if we are waking from Sx */
 	pm1_sts = inw(DEFAULT_PMBASE + PM1_STS);

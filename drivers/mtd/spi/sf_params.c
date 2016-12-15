@@ -22,7 +22,8 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"AT45DB161D",	   0x1f2600, 0x0,	64 * 1024,    32, RD_NORM,		    SECT_4K},
 	{"AT45DB321D",	   0x1f2700, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
 	{"AT45DB641D",	   0x1f2800, 0x0,	64 * 1024,   128, RD_NORM,		    SECT_4K},
-	{"AT25DF321",      0x1f4701, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
+	{"AT25DF321A",     0x1f4701, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
+	{"AT25DF321",      0x1f4700, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
 	{"AT26DF081A",     0x1f4501, 0x0,	64 * 1024,    16, RD_NORM,		    SECT_4K},
 #endif
 #ifdef CONFIG_SPI_FLASH_EON		/* EON */
@@ -85,6 +86,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"M25P64",	   0x202017, 0x0,       64 * 1024,   128, RD_NORM,			  0},
 	{"M25P128",	   0x202018, 0x0,      256 * 1024,    64, RD_NORM,			  0},
 	{"M25PX64",	   0x207117, 0x0,       64 * 1024,   128, RD_NORM,		    SECT_4K},
+	{"N25Q016A",       0x20bb15, 0x0,	64 * 1024,    32, RD_NORM,                  SECT_4K},
 	{"N25Q32",	   0x20ba16, 0x0,       64 * 1024,    64, RD_FULL,	   WR_QPP | SECT_4K},
 	{"N25Q32A",	   0x20bb16, 0x0,       64 * 1024,    64, RD_FULL,	   WR_QPP | SECT_4K},
 	{"N25Q64",	   0x20ba17, 0x0,       64 * 1024,   128, RD_FULL,	   WR_QPP | SECT_4K},

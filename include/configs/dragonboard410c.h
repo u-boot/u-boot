@@ -27,8 +27,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x80000)
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* UART */
 #define CONFIG_BAUDRATE			115200
 
@@ -84,8 +82,8 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
-	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
@@ -126,6 +124,8 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"fdtfile=apq8016-sbc.dtb\0" \
 	"fdt_addr_r=0x83000000\0"\
 	"ramdisk_addr_r=0x84000000\0"\
+	"scriptaddr=0x90000000\0"\
+	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
 #define CONFIG_ENV_IS_NOWHERE

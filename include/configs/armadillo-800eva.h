@@ -11,7 +11,7 @@
 
 #undef DEBUG
 #define CONFIG_R8A7740
-#define CONFIG_RMOBILE_BOARD_STRING "Armadillo-800EVA Board\n"
+#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Armadillo-800EVA Board\n"
 #define CONFIG_SH_GPIO_PFC
 
 #include <asm/arch/rmobile.h>
@@ -24,7 +24,6 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		""
 
-#define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_ARCH_CPU_INIT

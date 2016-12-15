@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <usb.h>
 #include <net.h>
 #include <linux/mii.h>
@@ -185,6 +186,7 @@
 #define FLAG_TYPE_SITECOM	(1U << 3)
 #define FLAG_TYPE_SAMSUNG	(1U << 4)
 #define FLAG_TYPE_LENOVO	(1U << 5)
+#define FLAG_TYPE_GX3		(1U << 6)
 
 /* local vars */
 static const struct {
@@ -196,10 +198,18 @@ static const struct {
 	{7, 0xcc, 0x4c, 0x04, 8},
 };
 
+#ifndef CONFIG_DM_ETH
 static int curr_eth_dev; /* index for name of next device detected */
+#endif
 
 /* driver private */
 struct asix_private {
+#ifdef CONFIG_DM_ETH
+	struct ueth_data ueth;
+	unsigned pkt_cnt;
+	uint8_t *pkt_data;
+	uint32_t *pkt_hdr;
+#endif
 	int flags;
 	int rx_urb_size;
 	int maxpacketsize;
@@ -258,36 +268,32 @@ static int asix_read_cmd(struct ueth_data *dev, u8 cmd, u16 value, u16 index,
 	return len == size ? 0 : ECOMM;
 }
 
-static int asix_read_mac(struct eth_device *eth)
+static int asix_read_mac(struct ueth_data *dev, uint8_t *enetaddr)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	u8 buf[ETH_ALEN];
+	int ret;
 
-	asix_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, 6, 6, buf);
-	debug("asix_read_mac() returning %02x:%02x:%02x:%02x:%02x:%02x\n",
-	      buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+	ret = asix_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, 6, 6, enetaddr);
+	if (ret < 0)
+		debug("Failed to read MAC address: %02x\n", ret);
 
-	memcpy(eth->enetaddr, buf, ETH_ALEN);
-
-	return 0;
+	return ret;
 }
 
-static int asix_write_mac(struct eth_device *eth)
+static int asix_write_mac(struct ueth_data *dev, uint8_t *enetaddr)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	int ret;
 
 	ret = asix_write_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN,
-				 ETH_ALEN, eth->enetaddr);
+				 ETH_ALEN, enetaddr);
 	if (ret < 0)
 		debug("Failed to set MAC address: %02x\n", ret);
 
 	return ret;
 }
 
-static int asix_basic_reset(struct ueth_data *dev)
+static int asix_basic_reset(struct ueth_data *dev,
+			struct asix_private *dev_priv)
 {
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
 	u8 buf[5];
 	u16 *tmp16;
 	u8 *tmp;
@@ -386,13 +392,9 @@ static int asix_wait_link(struct ueth_data *dev)
 	}
 }
 
-/*
- * Asix callbacks
- */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_init_common(struct ueth_data *dev,
+			struct asix_private *dev_priv)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
 	u8 buf[2], tmp[5], link_sts;
 	u16 *tmp16, mode;
 
@@ -410,7 +412,7 @@ static int asix_init(struct eth_device *eth, bd_t *bd)
 	if (asix_wait_link(dev) != 0) {
 		/*reset device and try again*/
 		printf("Reset Ethernet Device\n");
-		asix_basic_reset(dev);
+		asix_basic_reset(dev, dev_priv);
 		if (asix_wait_link(dev) != 0)
 			goto out_err;
 	}
@@ -462,11 +464,10 @@ out_err:
 	return -1;
 }
 
-static int asix_send(struct eth_device *eth, void *packet, int length)
+static int asix_send_common(struct ueth_data *dev,
+			struct asix_private *dev_priv,
+			void *packet, int length)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
-
 	int err;
 	u32 packet_len, tx_hdr2;
 	int actual_len, framesize;
@@ -501,6 +502,33 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 	      length + sizeof(packet_len), actual_len, err);
 
 	return err;
+}
+
+#ifndef CONFIG_DM_ETH
+/*
+ * Asix callbacks
+ */
+static int asix_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
+
+	return asix_init_common(dev, dev_priv);
+}
+
+static int asix_write_hwaddr(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+
+	return asix_write_mac(dev, eth->enetaddr);
+}
+
+static int asix_send(struct eth_device *eth, void *packet, int length)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
+
+	return asix_send_common(dev, dev_priv, packet, length);
 }
 
 static int asix_recv(struct eth_device *eth)
@@ -542,7 +570,7 @@ static int asix_recv(struct eth_device *eth)
 
 
 	rx_hdr = *(u32 *)(recv_buf + actual_len - 4);
-	le32_to_cpus(&pkt_hdr);
+	le32_to_cpus(&rx_hdr);
 
 	pkt_cnt = (u16)rx_hdr;
 	hdr_off = (u16)(rx_hdr >> 16);
@@ -596,6 +624,7 @@ static const struct asix_dongle asix_dongles[] = {
 	{ 0x0df6, 0x0072, FLAG_TYPE_SITECOM },
 	{ 0x04e8, 0xa100, FLAG_TYPE_SAMSUNG },
 	{ 0x17ef, 0x304b, FLAG_TYPE_LENOVO },
+	{ 0x04b4, 0x3610, FLAG_TYPE_GX3 },
 	{ 0x0000, 0x0000, FLAG_NONE }	/* END - Do not remove */
 };
 
@@ -691,6 +720,8 @@ int ax88179_eth_probe(struct usb_device *dev, unsigned int ifnum,
 int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 				struct eth_device *eth)
 {
+	struct asix_private *dev_priv = (struct asix_private *)ss->dev_priv;
+
 	if (!eth) {
 		debug("%s: missing parameter.\n", __func__);
 		return 0;
@@ -700,16 +731,190 @@ int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->send = asix_send;
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
-	eth->write_hwaddr = asix_write_mac;
+	eth->write_hwaddr = asix_write_hwaddr;
 	eth->priv = ss;
 
-	if (asix_basic_reset(ss))
+	if (asix_basic_reset(ss, dev_priv))
 		return 0;
 
 	/* Get the MAC address */
-	if (asix_read_mac(eth))
+	if (asix_read_mac(ss, eth->enetaddr))
 		return 0;
 	debug("MAC %pM\n", eth->enetaddr);
 
 	return 1;
 }
+
+#else /* !CONFIG_DM_ETH */
+
+static int ax88179_eth_start(struct udevice *dev)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+
+	return asix_init_common(&priv->ueth, priv);
+}
+
+void ax88179_eth_stop(struct udevice *dev)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	debug("** %s()\n", __func__);
+
+	usb_ether_advance_rxbuf(ueth, -1);
+	priv->pkt_cnt = 0;
+	priv->pkt_data = NULL;
+	priv->pkt_hdr = NULL;
+}
+
+int ax88179_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+
+	return asix_send_common(&priv->ueth, priv, packet, length);
+}
+
+int ax88179_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+	int ret, len;
+	u16 pkt_len;
+
+	/* No packet left, get a new one */
+	if (priv->pkt_cnt == 0) {
+		uint8_t *ptr;
+		u16 pkt_cnt;
+		u16 hdr_off;
+		u32 rx_hdr;
+
+		len = usb_ether_get_rx_bytes(ueth, &ptr);
+		debug("%s: first try, len=%d\n", __func__, len);
+		if (!len) {
+			if (!(flags & ETH_RECV_CHECK_DEVICE))
+				return -EAGAIN;
+
+			ret = usb_ether_receive(ueth, priv->rx_urb_size);
+			if (ret < 0)
+				return ret;
+
+			len = usb_ether_get_rx_bytes(ueth, &ptr);
+			debug("%s: second try, len=%d\n", __func__, len);
+		}
+
+		if (len < 4) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return -EMSGSIZE;
+		}
+
+		rx_hdr = *(u32 *)(ptr + len - 4);
+		le32_to_cpus(&rx_hdr);
+
+		pkt_cnt = (u16)rx_hdr;
+		if (pkt_cnt == 0) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return 0;
+		}
+
+		hdr_off = (u16)(rx_hdr >> 16);
+		if (hdr_off > len - 4) {
+			usb_ether_advance_rxbuf(ueth, -1);
+			return -EIO;
+		}
+
+		priv->pkt_cnt = pkt_cnt;
+		priv->pkt_data = ptr;
+		priv->pkt_hdr = (u32 *)(ptr + hdr_off);
+		debug("%s: %d packets received, pkt header at %d\n",
+		      __func__, (int)priv->pkt_cnt, (int)hdr_off);
+	}
+
+	le32_to_cpus(priv->pkt_hdr);
+	pkt_len = (*priv->pkt_hdr >> 16) & 0x1fff;
+
+	*packetp = priv->pkt_data + 2;
+
+	priv->pkt_data += (pkt_len + 7) & 0xFFF8;
+	priv->pkt_cnt--;
+	priv->pkt_hdr++;
+
+	debug("%s: return packet of %d bytes (%d packets left)\n",
+	      __func__, (int)pkt_len, priv->pkt_cnt);
+	return pkt_len;
+}
+
+static int ax88179_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
+{
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	if (priv->pkt_cnt == 0)
+		usb_ether_advance_rxbuf(ueth, -1);
+
+	return 0;
+}
+
+int ax88179_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct asix_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	return asix_write_mac(ueth, pdata->enetaddr);
+}
+
+static int ax88179_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct asix_private *priv = dev_get_priv(dev);
+	struct usb_device *usb_dev;
+	int ret;
+
+	priv->flags = dev->driver_data;
+	ret = usb_ether_register(dev, &priv->ueth, AX_RX_URB_SIZE);
+	if (ret)
+		return ret;
+
+	usb_dev = priv->ueth.pusb_dev;
+	priv->maxpacketsize = usb_dev->epmaxpacketout[AX_ENDPOINT_OUT];
+
+	/* Get the MAC address */
+	ret = asix_read_mac(&priv->ueth, pdata->enetaddr);
+	if (ret)
+		return ret;
+	debug("MAC %pM\n", pdata->enetaddr);
+
+	return 0;
+}
+
+static const struct eth_ops ax88179_eth_ops = {
+	.start = ax88179_eth_start,
+	.send = ax88179_eth_send,
+	.recv = ax88179_eth_recv,
+	.free_pkt = ax88179_free_pkt,
+	.stop = ax88179_eth_stop,
+	.write_hwaddr = ax88179_write_hwaddr,
+};
+
+U_BOOT_DRIVER(ax88179_eth) = {
+	.name = "ax88179_eth",
+	.id = UCLASS_ETH,
+	.probe = ax88179_eth_probe,
+	.ops = &ax88179_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct asix_private),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+static const struct usb_device_id ax88179_eth_id_table[] = {
+	{ USB_DEVICE(0x0b95, 0x1790), .driver_info = FLAG_TYPE_AX88179 },
+	{ USB_DEVICE(0x0b95, 0x178a), .driver_info = FLAG_TYPE_AX88178a },
+	{ USB_DEVICE(0x2001, 0x4a00), .driver_info = FLAG_TYPE_DLINK_DUB1312 },
+	{ USB_DEVICE(0x0df6, 0x0072), .driver_info = FLAG_TYPE_SITECOM },
+	{ USB_DEVICE(0x04e8, 0xa100), .driver_info = FLAG_TYPE_SAMSUNG },
+	{ USB_DEVICE(0x17ef, 0x304b), .driver_info = FLAG_TYPE_LENOVO },
+	{ USB_DEVICE(0x04b4, 0x3610), .driver_info = FLAG_TYPE_GX3 },
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(ax88179_eth, ax88179_eth_id_table);
+#endif /* !CONFIG_DM_ETH */

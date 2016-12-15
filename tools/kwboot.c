@@ -655,14 +655,6 @@ kwboot_img_patch_hdr(void *img, size_t size)
 
 	hdr->blockid = IBR_HDR_UART_ID;
 
-	/*
-	 * Subtract mkimage header size from destination address
-	 * as this header is not expected by the Marvell BootROM.
-	 * This way, the execution address is identical to the
-	 * one the image is compiled for (TEXT_BASE).
-	 */
-	hdr->destaddr = hdr->destaddr - sizeof(struct image_header);
-
 	if (image_ver == 0) {
 		struct main_hdr_v0 *hdr_v0 = img;
 
@@ -672,6 +664,14 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		hdr_v0->srcaddr = hdr_v0->ext
 			? sizeof(struct kwb_header)
 			: sizeof(*hdr_v0);
+	} else {
+		/*
+		 * Subtract mkimage header size from destination address
+		 * as this header is not expected by the Marvell BootROM.
+		 * This way, the execution address is identical to the
+		 * one the image is compiled for (TEXT_BASE).
+		 */
+		hdr->destaddr = hdr->destaddr - sizeof(struct image_header);
 	}
 
 	hdr->checksum = kwboot_img_csum8(hdr, hdrsz) - csum;

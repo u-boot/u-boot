@@ -63,9 +63,8 @@ executed.
 Build the kernel
 ----------------
 
-Note: these instructions assume a 32-bit kernel. U-Boot does not currently
-support booting a 64-bit kernel as it has no way of going into 64-bit mode on
-x86.
+Note: these instructions assume a 32-bit kernel. U-Boot also supports directly
+booting a 64-bit kernel by jumping into 64-bit mode first (see below).
 
 You can build the kernel as normal with 'make'. This will create a file called
 'vmlinux'. This is a standard ELF file and you can look at it if you like:
@@ -168,8 +167,9 @@ Create a FIT
 ------------
 
 To create a FIT you will need a source file describing what should go in the
-FIT. See kernel.its for an example for x86. Put this into a file called
-image.its.
+FIT. See kernel.its for an example for x86 and also instructions on setting
+the 'arch' value for booting 64-bit kernels if desired. Put this into a file
+called image.its.
 
 Note that setup is loaded to the special address of 0x90000 (a special address
 you just have to know) and the kernel is loaded to 0x01000000 (the address you
@@ -262,10 +262,6 @@ References
 In the Linux kernel, Documentation/x86/boot.txt defines the boot protocol for
 the kernel including the setup.bin format. This is handled in U-Boot in
 arch/x86/lib/zimage.c and arch/x86/lib/bootm.c.
-
-The procedure for entering 64-bit mode on x86 seems to be described here:
-
-   http://wiki.osdev.org/64-bit_Higher_Half_Kernel_with_GRUB_2
 
 Various files in the same directory as this file describe the FIT format.
 

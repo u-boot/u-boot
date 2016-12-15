@@ -191,6 +191,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *dm_plat = dev_get_parent_platdata(dev);
 	void *base = priv->regbase;
 	u8 *cmd_buf = priv->cmd_buf;
 	size_t data_bytes;
@@ -250,7 +251,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		break;
 		case CQSPI_INDIRECT_READ:
 			err = cadence_qspi_apb_indirect_read_setup(plat,
-				priv->cmd_len, cmd_buf);
+				priv->cmd_len, dm_plat->mode_rx, cmd_buf);
 			if (!err) {
 				err = cadence_qspi_apb_indirect_read_execute
 				(plat, data_bytes, din);

@@ -17,7 +17,6 @@
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_BOOTFILE		"/boot/zImage"
 #define CONFIG_LOADADDR		0x8E000000
-#define CONFIG_VERSION_VARIABLE
 
 /* CPU and platform */
 #define CONFIG_CPU_SH7720	1

@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm/device.h>
-#include <mapmem.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -99,7 +99,7 @@ static int uniphier_gpio_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->base = map_sysmem(addr, SZ_8);
+	priv->base = devm_ioremap(dev, addr, SZ_8);
 	if (!priv->base)
 		return -ENOMEM;
 
@@ -119,15 +119,6 @@ static int uniphier_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int uniphier_gpio_remove(struct udevice *dev)
-{
-	struct uniphier_gpio_priv *priv = dev_get_priv(dev);
-
-	unmap_sysmem(priv->base);
-
-	return 0;
-}
-
 /* .data = the number of GPIO banks */
 static const struct udevice_id uniphier_gpio_match[] = {
 	{ .compatible = "socionext,uniphier-gpio" },
@@ -139,7 +130,6 @@ U_BOOT_DRIVER(uniphier_gpio) = {
 	.id	= UCLASS_GPIO,
 	.of_match = uniphier_gpio_match,
 	.probe	= uniphier_gpio_probe,
-	.remove	= uniphier_gpio_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_gpio_priv),
 	.ops	= &uniphier_gpio_ops,
 };

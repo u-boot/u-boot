@@ -6,4 +6,4 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 
-obj-y	:= alt.o qos.o ../rcar-gen2-common/common.o
+obj-y	:= alt.o qos.o ../rcar-common/common.o

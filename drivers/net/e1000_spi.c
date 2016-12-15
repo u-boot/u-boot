@@ -94,17 +94,17 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* Make sure it has an SPI chip */
 	if (hw->eeprom.type != e1000_eeprom_spi) {
-		E1000_ERR(hw->nic, "No attached SPI EEPROM found!\n");
+		E1000_ERR(hw, "No attached SPI EEPROM found!\n");
 		return NULL;
 	}
 
 	/* Argument sanity checks */
 	if (cs != 0) {
-		E1000_ERR(hw->nic, "No such SPI chip: %u\n", cs);
+		E1000_ERR(hw, "No such SPI chip: %u\n", cs);
 		return NULL;
 	}
 	if (mode != SPI_MODE_0) {
-		E1000_ERR(hw->nic, "Only SPI MODE-0 is supported!\n");
+		E1000_ERR(hw, "Only SPI MODE-0 is supported!\n");
 		return NULL;
 	}
 
@@ -124,7 +124,7 @@ int spi_claim_bus(struct spi_slave *spi)
 	struct e1000_hw *hw = e1000_hw_from_spi(spi);
 
 	if (e1000_acquire_eeprom(hw)) {
-		E1000_ERR(hw->nic, "EEPROM SPI cannot be acquired!\n");
+		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
 		return -1;
 	}
 
@@ -342,41 +342,41 @@ static int do_e1000_spi_show(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 
 	/* Extra sanity checks */
 	if (!length) {
-		E1000_ERR(hw->nic, "Requested zero-sized dump!\n");
+		E1000_ERR(hw, "Requested zero-sized dump!\n");
 		return 1;
 	}
 	if ((0x10000 < length) || (0x10000 - length < offset)) {
-		E1000_ERR(hw->nic, "Can't dump past 0xFFFF!\n");
+		E1000_ERR(hw, "Can't dump past 0xFFFF!\n");
 		return 1;
 	}
 
 	/* Allocate a buffer to hold stuff */
 	buffer = malloc(length);
 	if (!buffer) {
-		E1000_ERR(hw->nic, "Out of Memory!\n");
+		E1000_ERR(hw, "Out of Memory!\n");
 		return 1;
 	}
 
 	/* Acquire the EEPROM and perform the dump */
 	if (e1000_acquire_eeprom(hw)) {
-		E1000_ERR(hw->nic, "EEPROM SPI cannot be acquired!\n");
+		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
 		free(buffer);
 		return 1;
 	}
 	err = e1000_spi_eeprom_dump(hw, buffer, offset, length, true);
 	e1000_release_eeprom(hw);
 	if (err) {
-		E1000_ERR(hw->nic, "Interrupted!\n");
+		E1000_ERR(hw, "Interrupted!\n");
 		free(buffer);
 		return 1;
 	}
 
 	/* Now hexdump the result */
 	printf("%s: ===== Intel e1000 EEPROM (0x%04hX - 0x%04hX) =====",
-			hw->nic->name, offset, offset + length - 1);
+			hw->name, offset, offset + length - 1);
 	for (i = 0; i < length; i++) {
 		if ((i & 0xF) == 0)
-			printf("\n%s: %04hX: ", hw->nic->name, offset + i);
+			printf("\n%s: %04hX: ", hw->name, offset + i);
 		else if ((i & 0xF) == 0x8)
 			printf(" ");
 		printf(" %02hx", buffer[i]);
@@ -407,29 +407,29 @@ static int do_e1000_spi_dump(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 
 	/* Extra sanity checks */
 	if (!length) {
-		E1000_ERR(hw->nic, "Requested zero-sized dump!\n");
+		E1000_ERR(hw, "Requested zero-sized dump!\n");
 		return 1;
 	}
 	if ((0x10000 < length) || (0x10000 - length < offset)) {
-		E1000_ERR(hw->nic, "Can't dump past 0xFFFF!\n");
+		E1000_ERR(hw, "Can't dump past 0xFFFF!\n");
 		return 1;
 	}
 
 	/* Acquire the EEPROM */
 	if (e1000_acquire_eeprom(hw)) {
-		E1000_ERR(hw->nic, "EEPROM SPI cannot be acquired!\n");
+		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
 		return 1;
 	}
 
 	/* Perform the programming operation */
 	if (e1000_spi_eeprom_dump(hw, dest, offset, length, true) < 0) {
-		E1000_ERR(hw->nic, "Interrupted!\n");
+		E1000_ERR(hw, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
 	}
 
 	e1000_release_eeprom(hw);
-	printf("%s: ===== EEPROM DUMP COMPLETE =====\n", hw->nic->name);
+	printf("%s: ===== EEPROM DUMP COMPLETE =====\n", hw->name);
 	return 0;
 }
 
@@ -452,19 +452,19 @@ static int do_e1000_spi_program(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 
 	/* Acquire the EEPROM */
 	if (e1000_acquire_eeprom(hw)) {
-		E1000_ERR(hw->nic, "EEPROM SPI cannot be acquired!\n");
+		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
 		return 1;
 	}
 
 	/* Perform the programming operation */
 	if (e1000_spi_eeprom_program(hw, source, offset, length, true) < 0) {
-		E1000_ERR(hw->nic, "Interrupted!\n");
+		E1000_ERR(hw, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
 	}
 
 	e1000_release_eeprom(hw);
-	printf("%s: ===== EEPROM PROGRAMMED =====\n", hw->nic->name);
+	printf("%s: ===== EEPROM PROGRAMMED =====\n", hw->name);
 	return 0;
 }
 
@@ -488,19 +488,19 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	length = sizeof(uint16_t) * (EEPROM_CHECKSUM_REG + 1);
 	buffer = malloc(length);
 	if (!buffer) {
-		E1000_ERR(hw->nic, "Unable to allocate EEPROM buffer!\n");
+		E1000_ERR(hw, "Unable to allocate EEPROM buffer!\n");
 		return 1;
 	}
 
 	/* Acquire the EEPROM */
 	if (e1000_acquire_eeprom(hw)) {
-		E1000_ERR(hw->nic, "EEPROM SPI cannot be acquired!\n");
+		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
 		return 1;
 	}
 
 	/* Read the EEPROM */
 	if (e1000_spi_eeprom_dump(hw, buffer, 0, length, true) < 0) {
-		E1000_ERR(hw->nic, "Interrupted!\n");
+		E1000_ERR(hw, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
 	}
@@ -514,15 +514,15 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	/* Verify it! */
 	if (checksum_reg == checksum) {
 		printf("%s: INFO: EEPROM checksum is correct! (0x%04hx)\n",
-				hw->nic->name, checksum);
+				hw->name, checksum);
 		e1000_release_eeprom(hw);
 		return 0;
 	}
 
 	/* Hrm, verification failed, print an error */
-	E1000_ERR(hw->nic, "EEPROM checksum is incorrect!\n");
-	E1000_ERR(hw->nic, "  ...register was 0x%04hx, calculated 0x%04hx\n",
-			checksum_reg, checksum);
+	E1000_ERR(hw, "EEPROM checksum is incorrect!\n");
+	E1000_ERR(hw, "  ...register was 0x%04hx, calculated 0x%04hx\n",
+		  checksum_reg, checksum);
 
 	/* If they didn't ask us to update it, just return an error */
 	if (!upd) {
@@ -531,11 +531,11 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	}
 
 	/* Ok, correct it! */
-	printf("%s: Reprogramming the EEPROM checksum...\n", hw->nic->name);
+	printf("%s: Reprogramming the EEPROM checksum...\n", hw->name);
 	buffer[i] = cpu_to_le16(checksum);
 	if (e1000_spi_eeprom_program(hw, &buffer[i], i * sizeof(uint16_t),
 			sizeof(uint16_t), true)) {
-		E1000_ERR(hw->nic, "Interrupted!\n");
+		E1000_ERR(hw, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
 	}
@@ -554,7 +554,8 @@ int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 
 	/* Make sure it has an SPI chip */
 	if (hw->eeprom.type != e1000_eeprom_spi) {
-		E1000_ERR(hw->nic, "No attached SPI EEPROM found!\n");
+		E1000_ERR(hw, "No attached SPI EEPROM found (%d)!\n",
+			  hw->eeprom.type);
 		return 1;
 	}
 

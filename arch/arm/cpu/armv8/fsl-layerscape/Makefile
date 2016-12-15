@@ -10,6 +10,7 @@ obj-y += soc.o
 obj-$(CONFIG_MP) += mp.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_SPL) += spl.o
+obj-$(CONFIG_FSL_LS_PPA) += ppa.o
 
 ifneq ($(CONFIG_FSL_LSCH3),)
 obj-y += fsl_lsch3_speed.o
@@ -31,4 +32,8 @@ endif
 
 ifneq ($(CONFIG_LS1012A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1012a_serdes.o
+endif
+
+ifneq ($(CONFIG_LS1046A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += ls1046a_serdes.o
 endif

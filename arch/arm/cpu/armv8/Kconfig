@@ -1,6 +1,24 @@
 if ARM64
 
 config ARMV8_MULTIENTRY
-        boolean "Enable multiple CPUs to enter into U-Boot"
+        bool "Enable multiple CPUs to enter into U-Boot"
+
+config ARMV8_SPIN_TABLE
+	bool "Support spin-table enable method"
+	depends on ARMV8_MULTIENTRY && OF_LIBFDT
+	help
+	  Say Y here to support "spin-table" enable method for booting Linux.
+
+	  To use this feature, you must do:
+	    - Specify enable-method = "spin-table" in each CPU node in the
+	      Device Tree you are using to boot the kernel
+	    - Let secondary CPUs in U-Boot (in a board specific manner)
+	      before the master CPU jumps to the kernel
+
+	  U-Boot automatically does:
+	    - Set "cpu-release-addr" property of each CPU node
+	      (overwrites it if already exists).
+	    - Reserve the code for the spin-table and the release address
+	      via a /memreserve/ region in the Device Tree.
 
 endif

@@ -163,23 +163,41 @@ static int mpc85xx_gpio_get_function(struct udevice *dev, unsigned gpio)
 	return dir ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int mpc85xx_gpio_ofdata_to_platdata(struct udevice *dev) {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc85xx_gpio_plat *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
 
 	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, dev->of_offset,
-						  "reg", 0, &size);
+						  "reg", 0, &size, false);
 
-	data->addr = addr;
-	data->base = map_sysmem(CONFIG_SYS_IMMR + addr, size);
+	plat->addr = addr;
+	plat->size = size;
+	plat->ngpios = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+						  "ngpios", 32);
 
-	if (!data->base)
+	return 0;
+}
+#endif
+
+static int mpc85xx_gpio_platdata_to_priv(struct udevice *dev)
+{
+	struct mpc85xx_gpio_data *priv = dev_get_priv(dev);
+	struct mpc85xx_gpio_plat *plat = dev_get_platdata(dev);
+	unsigned long size = plat->size;
+
+	if (size == 0)
+		size = 0x100;
+
+	priv->addr = plat->addr;
+	priv->base = map_sysmem(CONFIG_SYS_IMMR + plat->addr, size);
+
+	if (!priv->base)
 		return -ENOMEM;
 
-	data->gpio_count = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-					  "ngpios", 32);
-	data->dat_shadow = 0;
+	priv->gpio_count = plat->ngpios;
+	priv->dat_shadow = 0;
 
 	return 0;
 }
@@ -189,6 +207,8 @@ static int mpc85xx_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
 	char name[32], *str;
+
+	mpc85xx_gpio_platdata_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);
@@ -221,8 +241,11 @@ U_BOOT_DRIVER(gpio_mpc85xx) = {
 	.name	= "gpio_mpc85xx",
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mpc85xx_ops,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	.ofdata_to_platdata = mpc85xx_gpio_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct mpc85xx_gpio_plat),
 	.of_match = mpc85xx_gpio_ids,
+#endif
 	.probe	= mpc85xx_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct mpc85xx_gpio_data),
 };

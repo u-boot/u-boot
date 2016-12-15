@@ -334,6 +334,7 @@
 
 #define CONFIG_SYS_OS_BASE	0xfc200000
 #define CONFIG_SYS_FDT_BASE	0xfc1e0000
+#define CONFIG_SYS_FDT_SIZE	(16<<10)
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

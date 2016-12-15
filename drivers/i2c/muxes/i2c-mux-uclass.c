@@ -183,7 +183,6 @@ static const struct dm_i2c_ops i2c_mux_bus_ops = {
 U_BOOT_DRIVER(i2c_mux_bus) = {
 	.name		= "i2c_mux_bus_drv",
 	.id		= UCLASS_I2C,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.ops	= &i2c_mux_bus_ops,
 };
 

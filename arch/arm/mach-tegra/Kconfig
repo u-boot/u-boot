@@ -1,5 +1,13 @@
 if TEGRA
 
+config TEGRA_IVC
+	bool "Tegra IVC protocol"
+	help
+	  IVC (Inter-VM Communication) protocol is a Tegra-specific IPC
+	  (Inter Processor Communication) framework. Within the context of
+	  U-Boot, it is typically used for communication between the main CPU
+	  and various auxiliary processors.
+
 config TEGRA_COMMON
 	bool "Tegra common options"
 	select DM
@@ -56,10 +64,17 @@ config TEGRA210
 
 config TEGRA186
 	bool "Tegra186 family"
+	select CLK
 	select DM_MAILBOX
+	select DM_RESET
+	select MISC
+	select TEGRA186_BPMP
+	select TEGRA186_CLOCK
 	select TEGRA186_GPIO
+	select TEGRA186_RESET
 	select TEGRA_ARMV8_COMMON
 	select TEGRA_HSP
+	select TEGRA_IVC
 
 endchoice
 

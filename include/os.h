@@ -287,6 +287,31 @@ int os_read_ram_buf(const char *fname);
 int os_jump_to_image(const void *dest, int size);
 
 /**
+ * os_find_u_boot() - Determine the path to U-Boot proper
+ *
+ * This function is intended to be called from within sandbox SPL. It uses
+ * a few heuristics to find U-Boot proper. Normally it is either in the same
+ * directory, or the directory above (since u-boot-spl is normally in an
+ * spl/ subdirectory when built).
+ *
+ * @fname:	Place to put full path to U-Boot
+ * @maxlen:	Maximum size of @fname
+ * @return 0 if OK, -NOSPC if the filename is too large, -ENOENT if not found
+ */
+int os_find_u_boot(char *fname, int maxlen);
+
+/**
+ * os_spl_to_uboot() - Run U-Boot proper
+ *
+ * When called from SPL, this runs U-Boot proper. The filename is obtained by
+ * calling os_find_u_boot().
+ *
+ * @fname:	Full pathname to U-Boot executable
+ * @return 0 if OK, -ve on error
+ */
+int os_spl_to_uboot(const char *fname);
+
+/**
  * Read the current system time
  *
  * This reads the current Local Time and places it into the provided

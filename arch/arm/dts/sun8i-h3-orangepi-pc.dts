@@ -63,34 +63,26 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&leds_opc>;
+		pinctrl-0 = <&leds_opc>, <&leds_r_opc>;
 
-		status_led {
-			label = "status:red:user";
-			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
-		};
-	};
-
-	r_leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&leds_r_opc>;
-
-		tx {
-			label = "pwr:green:user";
+		pwr_led {
+			label = "orangepi:green:pwr";
 			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
+		};
+
+		status_led {
+			label = "orangepi:red:status";
+			gpios = <&pio 0 15 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
 	r_gpio_keys {
 		compatible = "gpio-keys";
-		input-name = "sw4";
-
 		pinctrl-names = "default";
 		pinctrl-0 = <&sw_r_opc>;
 
-		sw4@0 {
+		sw4 {
 			label = "sw4";
 			linux,code = <BTN_0>;
 			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
@@ -156,7 +148,7 @@
 	};
 
 	sw_r_opc: key_pins@0 {
-		allwinner,pins = "PL03";
+		allwinner,pins = "PL3";
 		allwinner,function = "gpio_in";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
@@ -172,4 +164,15 @@
 &usbphy {
 	/* USB VBUS is always on */
 	status = "okay";
+};
+
+&emac {
+	phy = <&phy1>;
+	phy-mode = "mii";
+	allwinner,use-internal-phy;
+	allwinner,leds-active-low;
+	status = "okay";
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
 };

@@ -11,7 +11,6 @@
 #define __CONFIG_H
 
 #define CONFIG_T4240RDB
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_FSL_SATA_V2
@@ -715,7 +714,6 @@ unsigned long get_board_ddr_clk(void);
 /*
 * USB
 */
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -770,7 +768,7 @@ unsigned long get_board_ddr_clk(void);
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=t4240rdb/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=t4240rdb/t4240rdb.dtb\0"			\
 	"bdev=sda3\0"
 

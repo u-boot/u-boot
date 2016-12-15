@@ -232,7 +232,7 @@ static int sh_sdhi_error_manage(struct sh_sdhi_host *host)
 	e_state2 = sh_sdhi_readw(host, SDHI_ERR_STS2);
 	if (e_state2 & ERR_STS2_SYS_ERROR) {
 		if (e_state2 & ERR_STS2_RES_STOP_TIMEOUT)
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 		else
 			ret = -EILSEQ;
 		debug("%s: ERR_STS2 = %04x\n",
@@ -246,7 +246,7 @@ static int sh_sdhi_error_manage(struct sh_sdhi_host *host)
 	if (e_state1 & ERR_STS1_CRC_ERROR || e_state1 & ERR_STS1_CMD_ERROR)
 		ret = -EILSEQ;
 	else
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 
 	debug("%s: ERR_STS1 = %04x\n",
 	      DRIVER_NAME, sh_sdhi_readw(host, SDHI_ERR_STS1));
@@ -399,7 +399,6 @@ static void sh_sdhi_get_response(struct sh_sdhi_host *host, struct mmc_cmd *cmd)
 {
 	unsigned short i, j, cnt = 1;
 	unsigned short resp[8];
-	unsigned long *p1, *p2;
 
 	if (cmd->resp_type & MMC_RSP_136) {
 		cnt = 4;
@@ -418,27 +417,29 @@ static void sh_sdhi_get_response(struct sh_sdhi_host *host, struct mmc_cmd *cmd)
 			resp[i] |= (resp[j--] >> 8) & 0x00ff;
 		}
 		resp[0] = (resp[0] << 8) & 0xff00;
-
-		/* SDHI REGISTER SPECIFICATION */
-		p1 = ((unsigned long *)resp) + 3;
-
 	} else {
 		resp[0] = sh_sdhi_readw(host, SDHI_RSP00);
 		resp[1] = sh_sdhi_readw(host, SDHI_RSP01);
-
-		p1 = ((unsigned long *)resp);
 	}
 
-	p2 = (unsigned long *)cmd->response;
 #if defined(__BIG_ENDIAN_BITFIELD)
-	for (i = 0; i < cnt; i++) {
-		*p2++ = ((*p1 >> 16) & 0x0000ffff) |
-				((*p1 << 16) & 0xffff0000);
-		p1--;
+	if (cnt == 4) {
+		cmd->response[0] = (resp[6] << 16) | resp[7];
+		cmd->response[1] = (resp[4] << 16) | resp[5];
+		cmd->response[2] = (resp[2] << 16) | resp[3];
+		cmd->response[3] = (resp[0] << 16) | resp[1];
+	} else {
+		cmd->response[0] = (resp[0] << 16) | resp[1];
 	}
 #else
-	for (i = 0; i < cnt; i++)
-		*p2++ = *p1--;
+	if (cnt == 4) {
+		cmd->response[0] = (resp[7] << 16) | resp[6];
+		cmd->response[1] = (resp[5] << 16) | resp[4];
+		cmd->response[2] = (resp[3] << 16) | resp[2];
+		cmd->response[3] = (resp[1] << 16) | resp[0];
+	} else {
+		cmd->response[0] = (resp[1] << 16) | resp[0];
+	}
 #endif /* __BIG_ENDIAN_BITFIELD */
 }
 
@@ -566,7 +567,7 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		case MMC_CMD_SELECT_CARD:
 		case SD_CMD_SEND_IF_COND:
 		case MMC_CMD_APP_CMD:
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 			break;
 		default:
 			debug(DRIVER_NAME": Cmd(d'%d) err\n", opc);

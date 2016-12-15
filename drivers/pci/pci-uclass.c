@@ -13,7 +13,6 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 #include <dm/device-internal.h>
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
 #include <asm/fsp/fsp_support.h>
@@ -753,27 +752,6 @@ error:
 	return ret;
 }
 
-static int pci_uclass_post_bind(struct udevice *bus)
-{
-	/*
-	 * If there is no pci device listed in the device tree,
-	 * don't bother scanning the device tree.
-	 */
-	if (bus->of_offset == -1)
-		return 0;
-
-	/*
-	 * Scan the device tree for devices. This does not probe the PCI bus,
-	 * as this is not permitted while binding. It just finds devices
-	 * mentioned in the device tree.
-	 *
-	 * Before relocation, only bind devices marked for pre-relocation
-	 * use.
-	 */
-	return dm_scan_fdt_node(bus, gd->fdt_blob, bus->of_offset,
-				gd->flags & GD_FLG_RELOC ? false : true);
-}
-
 static int decode_regions(struct pci_controller *hose, const void *blob,
 			  int parent_node, int node)
 {
@@ -1254,7 +1232,7 @@ UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.post_bind	= pci_uclass_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 	.pre_probe	= pci_uclass_pre_probe,
 	.post_probe	= pci_uclass_post_probe,
 	.child_post_bind = pci_uclass_child_post_bind,

@@ -18,7 +18,6 @@
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
-#define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #ifdef CONFIG_PHYS_64BIT
@@ -676,7 +675,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif

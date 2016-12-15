@@ -10,6 +10,7 @@
 #include <ns16550.h>
 #include <twl4030.h>
 #include <netdev.h>
+#include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -17,21 +18,32 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/nand.h>
+#include <linux/mtd/nand.h>
+#include <linux/mtd/onenand.h>
+#include <jffs2/load_kernel.h>
 #include "igep00x0.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NET)
-/* GPMC definitions for LAN9221 chips */
-static const u32 gpmc_lan_config[] = {
-	NET_LAN9221_GPMC_CONFIG1,
-	NET_LAN9221_GPMC_CONFIG2,
-	NET_LAN9221_GPMC_CONFIG3,
-	NET_LAN9221_GPMC_CONFIG4,
-	NET_LAN9221_GPMC_CONFIG5,
-	NET_LAN9221_GPMC_CONFIG6,
-};
+const omap3_sysinfo sysinfo = {
+	DDR_STACKED,
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
+	"IGEPv2",
 #endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
+	"IGEP COM MODULE/ELECTRON",
+#endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
+	"IGEP COM PROTON",
+#endif
+#if defined(CONFIG_ENV_IS_IN_ONENAND)
+	"ONENAND",
+#else
+	"NAND",
+#endif
+};
 
 static const struct ns16550_platdata igep_serial = {
 	.base = OMAP34XX_UART3,
@@ -50,7 +62,25 @@ U_BOOT_DEVICE(igep_uart) = {
  */
 int board_init(void)
 {
-	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
+	int loops = 100;
+
+	/* find out flash memory type, assume NAND first */
+	gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
+	gpmc_init();
+
+	/* Issue a RESET and then READID */
+	writeb(NAND_CMD_RESET, &gpmc_cfg->cs[0].nand_cmd);
+	writeb(NAND_CMD_STATUS, &gpmc_cfg->cs[0].nand_cmd);
+	while ((readl(&gpmc_cfg->cs[0].nand_dat) & NAND_STATUS_READY)
+	                                        != NAND_STATUS_READY) {
+		udelay(1);
+		if (--loops == 0) {
+			gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
+			gpmc_init();	/* reinitialize for OneNAND */
+			break;
+		}
+	}
+
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
@@ -63,45 +93,60 @@ int board_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 /*
- * Routine: omap_rev_string
- * Description: For SPL builds output board rev
- */
-void omap_rev_string(void)
-{
-}
-
-/*
  * Routine: get_board_mem_timings
  * Description: If we use SPL then there is no x-loader nor config header
  * so we have to setup the DDR timings ourself on both banks.
  */
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
-	timings->mr = MICRON_V_MR_165;
-#ifdef CONFIG_BOOT_NAND
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-	timings->ctrla = MICRON_V_ACTIMA_200;
-	timings->ctrlb = MICRON_V_ACTIMB_200;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
-#else
-	if (get_cpu_family() == CPU_OMAP34XX) {
-		timings->mcfg = NUMONYX_V_MCFG_165(256 << 20);
-		timings->ctrla = NUMONYX_V_ACTIMA_165;
-		timings->ctrlb = NUMONYX_V_ACTIMB_165;
-		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	int mfr, id, err = identify_nand_chip(&mfr, &id);
 
-	} else {
-		timings->mcfg = NUMONYX_V_MCFG_200(256 << 20);
-		timings->ctrla = NUMONYX_V_ACTIMA_200;
-		timings->ctrlb = NUMONYX_V_ACTIMB_200;
+	timings->mr = MICRON_V_MR_165;
+	if (!err && mfr == NAND_MFR_MICRON) {
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
+	} else {
+		if (get_cpu_family() == CPU_OMAP34XX) {
+			timings->mcfg = NUMONYX_V_MCFG_165(256 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_165;
+			timings->ctrlb = NUMONYX_V_ACTIMB_165;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		} else {
+			timings->mcfg = NUMONYX_V_MCFG_200(256 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_200;
+			timings->ctrlb = NUMONYX_V_ACTIMB_200;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		}
+		gpmc_cs0_flash = MTD_DEV_TYPE_ONENAND;
 	}
-#endif
+}
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
 }
 #endif
+#endif
+
+int onenand_board_init(struct mtd_info *mtd)
+{
+	if (gpmc_cs0_flash == MTD_DEV_TYPE_ONENAND) {
+		struct onenand_chip *this = mtd->priv;
+		this->base = (void *)CONFIG_SYS_ONENAND_BASE;
+		return 0;
+	}
+	return 1;
+}
 
 #if defined(CONFIG_CMD_NET)
-
 static void reset_net_chip(int gpio)
 {
 	if (!gpio_request(gpio, "eth nrst")) {
@@ -122,6 +167,14 @@ static void reset_net_chip(int gpio)
 static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
+	static const u32 gpmc_lan_config[] = {
+		NET_LAN9221_GPMC_CONFIG1,
+		NET_LAN9221_GPMC_CONFIG2,
+		NET_LAN9221_GPMC_CONFIG3,
+		NET_LAN9221_GPMC_CONFIG4,
+		NET_LAN9221_GPMC_CONFIG5,
+		NET_LAN9221_GPMC_CONFIG6,
+	};
 
 	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5],
 			CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
@@ -135,6 +188,15 @@ static void setup_net_chip(void)
 		&ctrl_base->gpmc_nadv_ale);
 
 	reset_net_chip(64);
+}
+
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_SMC911X
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#else
+	return 0;
+#endif
 }
 #else
 static inline void setup_net_chip(void) {}
@@ -183,6 +245,23 @@ int misc_init_r(void)
 	return 0;
 }
 
+void board_mtdparts_default(const char **mtdids, const char **mtdparts)
+{
+	struct mtd_info *mtd = get_mtd_device(NULL, 0);
+	if (mtd) {
+		static char ids[24];
+		static char parts[48];
+		const char *linux_name = "omap2-nand";
+		if (strncmp(mtd->name, "onenand0", 8) == 0)
+			linux_name = "omap2-onenand";
+		snprintf(ids, sizeof(ids), "%s=%s", mtd->name, linux_name);
+		snprintf(parts, sizeof(parts), "mtdparts=%s:%dk(SPL),-(UBI)",
+		         linux_name, 4 * mtd->erasesize >> 10);
+		*mtdids = ids;
+		*mtdparts = parts;
+	}
+}
+
 /*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
@@ -201,14 +280,3 @@ void set_muxconf_regs(void)
 	MUX_IGEP0030();
 #endif
 }
-
-#if defined(CONFIG_CMD_NET)
-int board_eth_init(bd_t *bis)
-{
-#ifdef CONFIG_SMC911X
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#else
-	return 0;
-#endif
-}
-#endif

@@ -1,0 +1,6 @@
+EVB-RK3399
+M:      Kever Yang <kever.yang@rock-chips.com>
+S:      Maintained
+F:      board/rockchip/evb_rk3399
+F:      include/configs/evb_rk3399.h
+F:      configs/evb-rk3399_defconfig

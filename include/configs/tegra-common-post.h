@@ -148,9 +148,6 @@
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA
 #endif
-#ifdef CONFIG_USB_STORAGE
-#undef CONFIG_USB_STORAGE
-#endif
 #ifdef CONFIG_CMD_USB
 #endif
 

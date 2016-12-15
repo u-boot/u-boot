@@ -101,6 +101,8 @@ class RunAndLog(object):
         self.logfile = logfile
         self.name = name
         self.chained_file = chained_file
+        self.output = None
+        self.exit_status = None
 
     def close(self):
         """Clean up any resources managed by this object."""
@@ -108,6 +110,9 @@ class RunAndLog(object):
 
     def run(self, cmd, cwd=None, ignore_errors=False):
         """Run a command as a sub-process, and log the results.
+
+        The output is available at self.output which can be useful if there is
+        an exception.
 
         Args:
             cmd: The command to execute.
@@ -119,7 +124,7 @@ class RunAndLog(object):
                 raised if such problems occur.
 
         Returns:
-            Nothing.
+            The output as a string.
         """
 
         msg = '+' + ' '.join(cmd) + '\n'
@@ -159,8 +164,13 @@ class RunAndLog(object):
         self.logfile.write(self, output)
         if self.chained_file:
             self.chained_file.write(output)
+
+        # Store the output so it can be accessed if we raise an exception.
+        self.output = output
+        self.exit_status = exit_status
         if exception:
             raise exception
+        return output
 
 class SectionCtxMgr(object):
     """A context manager for Python's "with" statement, which allows a certain

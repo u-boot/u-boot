@@ -60,9 +60,7 @@
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* USB support */
-#define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
@@ -80,7 +78,6 @@
 /* Enabling L2 Cache */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0x48242000
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
  * Since SPL did pll and ddr initialization for us,
@@ -155,7 +152,6 @@
 
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
-#define CONFIG_SPL_MAX_SIZE		(64 * 1024)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(256 * 1024)

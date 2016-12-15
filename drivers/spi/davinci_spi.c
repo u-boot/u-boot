@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <dm.h>
 
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1
@@ -51,6 +52,7 @@
 /* SPIDEF */
 #define SPIDEF_CSDEF0_MASK	BIT(0)
 
+#ifndef CONFIG_DM_SPI
 #define SPI0_BUS		0
 #define SPI0_BASE		CONFIG_SYS_SPI_BASE
 /*
@@ -83,6 +85,9 @@
 #define SPI2_NUM_CS		CONFIG_SYS_SPI2_NUM_CS
 #define SPI2_BASE		CONFIG_SYS_SPI2_BASE
 #endif
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* davinci spi register set */
 struct davinci_spi_regs {
@@ -114,15 +119,16 @@ struct davinci_spi_regs {
 
 /* davinci spi slave */
 struct davinci_spi_slave {
+#ifndef CONFIG_DM_SPI
 	struct spi_slave slave;
+#endif
 	struct davinci_spi_regs *regs;
-	unsigned int freq;
+	unsigned int freq; /* current SPI bus frequency */
+	unsigned int mode; /* current SPI mode used */
+	u8 num_cs;	   /* total no. of CS available */
+	u8 cur_cs;	   /* CS of current slave */
+	bool half_duplex;  /* true, if master is half-duplex only */
 };
-
-static inline struct davinci_spi_slave *to_davinci_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct davinci_spi_slave, slave);
-}
 
 /*
  * This functions needs to act like a macro to avoid pipeline reloads in the
@@ -144,15 +150,14 @@ static inline u32 davinci_spi_xfer_data(struct davinci_spi_slave *ds, u32 data)
 	return buf_reg_val;
 }
 
-static int davinci_spi_read(struct spi_slave *slave, unsigned int len,
+static int davinci_spi_read(struct davinci_spi_slave *ds, unsigned int len,
 			    u8 *rxp, unsigned long flags)
 {
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 	unsigned int data1_reg_val;
 
 	/* enable CS hold, CS[n] and clear the data bits */
 	data1_reg_val = ((1 << SPIDAT1_CSHOLD_SHIFT) |
-			 (slave->cs << SPIDAT1_CSNR_SHIFT));
+			 (ds->cur_cs << SPIDAT1_CSNR_SHIFT));
 
 	/* wait till TXFULL is deasserted */
 	while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK)
@@ -175,15 +180,14 @@ static int davinci_spi_read(struct spi_slave *slave, unsigned int len,
 	return 0;
 }
 
-static int davinci_spi_write(struct spi_slave *slave, unsigned int len,
+static int davinci_spi_write(struct davinci_spi_slave *ds, unsigned int len,
 			     const u8 *txp, unsigned long flags)
 {
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 	unsigned int data1_reg_val;
 
 	/* enable CS hold and clear the data bits */
 	data1_reg_val = ((1 << SPIDAT1_CSHOLD_SHIFT) |
-			 (slave->cs << SPIDAT1_CSNR_SHIFT));
+			 (ds->cur_cs << SPIDAT1_CSNR_SHIFT));
 
 	/* wait till TXFULL is deasserted */
 	while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK)
@@ -209,16 +213,15 @@ static int davinci_spi_write(struct spi_slave *slave, unsigned int len,
 	return 0;
 }
 
-#ifndef CONFIG_SPI_HALF_DUPLEX
-static int davinci_spi_read_write(struct spi_slave *slave, unsigned int len,
-				  u8 *rxp, const u8 *txp, unsigned long flags)
+static int davinci_spi_read_write(struct davinci_spi_slave *ds, unsigned
+				  int len, u8 *rxp, const u8 *txp,
+				  unsigned long flags)
 {
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 	unsigned int data1_reg_val;
 
 	/* enable CS hold and clear the data bits */
 	data1_reg_val = ((1 << SPIDAT1_CSHOLD_SHIFT) |
-			 (slave->cs << SPIDAT1_CSNR_SHIFT));
+			 (ds->cur_cs << SPIDAT1_CSNR_SHIFT));
 
 	/* wait till TXFULL is deasserted */
 	while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK)
@@ -237,7 +240,115 @@ static int davinci_spi_read_write(struct spi_slave *slave, unsigned int len,
 
 	return 0;
 }
-#endif
+
+
+static int __davinci_spi_claim_bus(struct davinci_spi_slave *ds, int cs)
+{
+	unsigned int mode = 0, scalar;
+
+	/* Enable the SPI hardware */
+	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
+	udelay(1000);
+	writel(SPIGCR0_SPIENA_MASK, &ds->regs->gcr0);
+
+	/* Set master mode, powered up and not activated */
+	writel(SPIGCR1_MASTER_MASK | SPIGCR1_CLKMOD_MASK, &ds->regs->gcr1);
+
+	/* CS, CLK, SIMO and SOMI are functional pins */
+	writel(((1 << cs) | SPIPC0_CLKFUN_MASK |
+		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
+
+	/* setup format */
+	scalar = ((CONFIG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
+
+	/*
+	 * Use following format:
+	 *   character length = 8,
+	 *   MSB shifted out first
+	 */
+	if (ds->mode & SPI_CPOL)
+		mode |= SPI_CPOL;
+	if (!(ds->mode & SPI_CPHA))
+		mode |= SPI_CPHA;
+	writel(8 | (scalar << SPIFMT_PRESCALE_SHIFT) |
+		(mode << SPIFMT_PHASE_SHIFT), &ds->regs->fmt0);
+
+	/*
+	 * Including a minor delay. No science here. Should be good even with
+	 * no delay
+	 */
+	writel((50 << SPI_C2TDELAY_SHIFT) |
+		(50 << SPI_T2CDELAY_SHIFT), &ds->regs->delay);
+
+	/* default chip select register */
+	writel(SPIDEF_CSDEF0_MASK, &ds->regs->def);
+
+	/* no interrupts */
+	writel(0, &ds->regs->int0);
+	writel(0, &ds->regs->lvl);
+
+	/* enable SPI */
+	writel((readl(&ds->regs->gcr1) | SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
+
+	return 0;
+}
+
+static int __davinci_spi_release_bus(struct davinci_spi_slave *ds)
+{
+	/* Disable the SPI hardware */
+	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
+
+	return 0;
+}
+
+static int __davinci_spi_xfer(struct davinci_spi_slave *ds,
+		unsigned int bitlen,  const void *dout, void *din,
+		unsigned long flags)
+{
+	unsigned int len;
+
+	if (bitlen == 0)
+		/* Finish any previously submitted transfers */
+		goto out;
+
+	/*
+	 * It's not clear how non-8-bit-aligned transfers are supposed to be
+	 * represented as a stream of bytes...this is a limitation of
+	 * the current SPI interface - here we terminate on receiving such a
+	 * transfer request.
+	 */
+	if (bitlen % 8) {
+		/* Errors always terminate an ongoing transfer */
+		flags |= SPI_XFER_END;
+		goto out;
+	}
+
+	len = bitlen / 8;
+
+	if (!dout)
+		return davinci_spi_read(ds, len, din, flags);
+	if (!din)
+		return davinci_spi_write(ds, len, dout, flags);
+	if (!ds->half_duplex)
+		return davinci_spi_read_write(ds, len, din, dout, flags);
+
+	printf("SPI full duplex not supported\n");
+	flags |= SPI_XFER_END;
+
+out:
+	if (flags & SPI_XFER_END) {
+		u8 dummy = 0;
+		davinci_spi_write(ds, 1, &dummy, flags);
+	}
+	return 0;
+}
+
+#ifndef CONFIG_DM_SPI
+
+static inline struct davinci_spi_slave *to_davinci_spi(struct spi_slave *slave)
+{
+	return container_of(slave, struct davinci_spi_slave, slave);
+}
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
@@ -313,6 +424,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	ds->freq = max_hz;
+	ds->mode = mode;
 
 	return &ds->slave;
 }
@@ -324,104 +436,143 @@ void spi_free_slave(struct spi_slave *slave)
 	free(ds);
 }
 
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+	     const void *dout, void *din, unsigned long flags)
+{
+	struct davinci_spi_slave *ds = to_davinci_spi(slave);
+
+	ds->cur_cs = slave->cs;
+
+	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
+}
+
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-	unsigned int scalar;
 
-	/* Enable the SPI hardware */
-	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
-	udelay(1000);
-	writel(SPIGCR0_SPIENA_MASK, &ds->regs->gcr0);
-
-	/* Set master mode, powered up and not activated */
-	writel(SPIGCR1_MASTER_MASK | SPIGCR1_CLKMOD_MASK, &ds->regs->gcr1);
-
-	/* CS, CLK, SIMO and SOMI are functional pins */
-	writel(((1 << slave->cs) | SPIPC0_CLKFUN_MASK |
-		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
-
-	/* setup format */
-	scalar = ((CONFIG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
-
-	/*
-	 * Use following format:
-	 *   character length = 8,
-	 *   clock signal delayed by half clk cycle,
-	 *   clock low in idle state - Mode 0,
-	 *   MSB shifted out first
-	 */
-	writel(8 | (scalar << SPIFMT_PRESCALE_SHIFT) |
-		(1 << SPIFMT_PHASE_SHIFT), &ds->regs->fmt0);
-
-	/*
-	 * Including a minor delay. No science here. Should be good even with
-	 * no delay
-	 */
-	writel((50 << SPI_C2TDELAY_SHIFT) |
-		(50 << SPI_T2CDELAY_SHIFT), &ds->regs->delay);
-
-	/* default chip select register */
-	writel(SPIDEF_CSDEF0_MASK, &ds->regs->def);
-
-	/* no interrupts */
-	writel(0, &ds->regs->int0);
-	writel(0, &ds->regs->lvl);
-
-	/* enable SPI */
-	writel((readl(&ds->regs->gcr1) | SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
-
-	return 0;
+#ifdef CONFIG_SPI_HALF_DUPLEX
+	ds->half_duplex = true;
+#else
+	ds->half_duplex = false;
+#endif
+	return __davinci_spi_claim_bus(ds, ds->slave.cs);
 }
 
 void spi_release_bus(struct spi_slave *slave)
 {
 	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 
-	/* Disable the SPI hardware */
-	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
+	__davinci_spi_release_bus(ds);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-	     const void *dout, void *din, unsigned long flags)
-{
-	unsigned int len;
-
-	if (bitlen == 0)
-		/* Finish any previously submitted transfers */
-		goto out;
-
-	/*
-	 * It's not clear how non-8-bit-aligned transfers are supposed to be
-	 * represented as a stream of bytes...this is a limitation of
-	 * the current SPI interface - here we terminate on receiving such a
-	 * transfer request.
-	 */
-	if (bitlen % 8) {
-		/* Errors always terminate an ongoing transfer */
-		flags |= SPI_XFER_END;
-		goto out;
-	}
-
-	len = bitlen / 8;
-
-	if (!dout)
-		return davinci_spi_read(slave, len, din, flags);
-	else if (!din)
-		return davinci_spi_write(slave, len, dout, flags);
-#ifndef CONFIG_SPI_HALF_DUPLEX
-	else
-		return davinci_spi_read_write(slave, len, din, dout, flags);
 #else
-	printf("SPI full duplex transaction requested with "
-	       "CONFIG_SPI_HALF_DUPLEX defined.\n");
-	flags |= SPI_XFER_END;
-#endif
+static int davinci_spi_set_speed(struct udevice *bus, uint max_hz)
+{
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
-out:
-	if (flags & SPI_XFER_END) {
-		u8 dummy = 0;
-		davinci_spi_write(slave, 1, &dummy, flags);
-	}
+	debug("%s speed %u\n", __func__, max_hz);
+	if (max_hz > CONFIG_SYS_SPI_CLK / 2)
+		return -EINVAL;
+
+	ds->freq = max_hz;
+
 	return 0;
 }
+
+static int davinci_spi_set_mode(struct udevice *bus, uint mode)
+{
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
+
+	debug("%s mode %u\n", __func__, mode);
+	ds->mode = mode;
+
+	return 0;
+}
+
+static int davinci_spi_claim_bus(struct udevice *dev)
+{
+	struct dm_spi_slave_platdata *slave_plat =
+		dev_get_parent_platdata(dev);
+	struct udevice *bus = dev->parent;
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
+
+	if (slave_plat->cs >= ds->num_cs) {
+		printf("Invalid SPI chipselect\n");
+		return -EINVAL;
+	}
+	ds->half_duplex = slave_plat->mode & SPI_PREAMBLE;
+
+	return __davinci_spi_claim_bus(ds, slave_plat->cs);
+}
+
+static int davinci_spi_release_bus(struct udevice *dev)
+{
+	struct davinci_spi_slave *ds = dev_get_priv(dev->parent);
+
+	return __davinci_spi_release_bus(ds);
+}
+
+static int davinci_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			    const void *dout, void *din,
+			    unsigned long flags)
+{
+	struct dm_spi_slave_platdata *slave =
+		dev_get_parent_platdata(dev);
+	struct udevice *bus = dev->parent;
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
+
+	if (slave->cs >= ds->num_cs) {
+		printf("Invalid SPI chipselect\n");
+		return -EINVAL;
+	}
+	ds->cur_cs = slave->cs;
+
+	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
+}
+
+static int davinci_spi_probe(struct udevice *bus)
+{
+	/* Nothing to do */
+	return 0;
+}
+
+static int davinci_ofdata_to_platadata(struct udevice *bus)
+{
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
+	const void *blob = gd->fdt_blob;
+	int node = bus->of_offset;
+
+	ds->regs = dev_map_physmem(bus, sizeof(struct davinci_spi_regs));
+	if (!ds->regs) {
+		printf("%s: could not map device address\n", __func__);
+		return -EINVAL;
+	}
+	ds->num_cs = fdtdec_get_int(blob, node, "num-cs", 4);
+
+	return 0;
+}
+
+static const struct dm_spi_ops davinci_spi_ops = {
+	.claim_bus	= davinci_spi_claim_bus,
+	.release_bus	= davinci_spi_release_bus,
+	.xfer		= davinci_spi_xfer,
+	.set_speed	= davinci_spi_set_speed,
+	.set_mode	= davinci_spi_set_mode,
+};
+
+static const struct udevice_id davinci_spi_ids[] = {
+	{ .compatible = "ti,keystone-spi" },
+	{ .compatible = "ti,dm6441-spi" },
+	{ }
+};
+
+U_BOOT_DRIVER(davinci_spi) = {
+	.name = "davinci_spi",
+	.id = UCLASS_SPI,
+	.of_match = davinci_spi_ids,
+	.ops = &davinci_spi_ops,
+	.ofdata_to_platdata = davinci_ofdata_to_platadata,
+	.priv_auto_alloc_size = sizeof(struct davinci_spi_slave),
+	.probe = davinci_spi_probe,
+};
+#endif

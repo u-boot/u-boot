@@ -16,8 +16,6 @@
 #endif
 
 /* Cache options */
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
 # define CONFIG_SYS_L2_PL310

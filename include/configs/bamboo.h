@@ -175,7 +175,6 @@
 #ifdef CONFIG_440EP
 /* USB */
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 
 /*Comment this out to enable USB 1.1 device*/
 #define USB_2_0_DEVICE

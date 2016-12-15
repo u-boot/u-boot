@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Run all tests
+./test/py/test.py --bd sandbox --build

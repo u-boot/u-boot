@@ -7,45 +7,16 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
+#include <fdtdec.h>
+#include <dm/root.h>
 #include <asm/arch/hardware.h>
+#include <asm/gpio.h>
 #include <mach/gpio.h>
 #include <mach/atmel_pio4.h>
 
-#define ATMEL_PIO4_PINS_PER_BANK	32
-
-/*
- * Register Field Definitions
- */
-#define ATMEL_PIO4_CFGR_FUNC	(0x7 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_GPIO	(0x0 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_A	(0x1 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_B	(0x2 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_C	(0x3 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_D	(0x4 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_E	(0x5 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_F	(0x6 << 0)
-#define		ATMEL_PIO4_CFGR_FUNC_PERIPH_G	(0x7 << 0)
-#define ATMEL_PIO4_CFGR_DIR	(0x1 << 8)
-#define ATMEL_PIO4_CFGR_PUEN	(0x1 << 9)
-#define ATMEL_PIO4_CFGR_PDEN	(0x1 << 10)
-#define ATMEL_PIO4_CFGR_IFEN	(0x1 << 12)
-#define ATMEL_PIO4_CFGR_IFSCEN	(0x1 << 13)
-#define ATMEL_PIO4_CFGR_OPD	(0x1 << 14)
-#define ATMEL_PIO4_CFGR_SCHMITT	(0x1 << 15)
-#define ATMEL_PIO4_CFGR_DRVSTR	(0x3 << 16)
-#define		ATMEL_PIO4_CFGR_DRVSTR_LOW0	(0x0 << 16)
-#define		ATMEL_PIO4_CFGR_DRVSTR_LOW1	(0x1 << 16)
-#define		ATMEL_PIO4_CFGR_DRVSTR_MEDIUM	(0x2 << 16)
-#define		ATMEL_PIO4_CFGR_DRVSTR_HIGH	(0x3 << 16)
-#define ATMEL_PIO4_CFGR_EVTSEL	(0x7 << 24)
-#define		ATMEL_PIO4_CFGR_EVTSEL_FALLING	(0x0 << 24)
-#define		ATMEL_PIO4_CFGR_EVTSEL_RISING	(0x1 << 24)
-#define		ATMEL_PIO4_CFGR_EVTSEL_BOTH	(0x2 << 24)
-#define		ATMEL_PIO4_CFGR_EVTSEL_LOW	(0x3 << 24)
-#define		ATMEL_PIO4_CFGR_EVTSEL_HIGH	(0x4 << 24)
-#define ATMEL_PIO4_CFGR_PCFS	(0x1 << 29)
-#define ATMEL_PIO4_CFGR_ICFS	(0x1 << 30)
+DECLARE_GLOBAL_DATA_PTR;
 
 static struct atmel_pio4_port *atmel_pio4_port_base(u32 port)
 {
@@ -79,7 +50,7 @@ static int atmel_pio4_config_io_func(u32 port, u32 pin,
 	struct atmel_pio4_port *port_base;
 	u32 reg, mask;
 
-	if (pin >= ATMEL_PIO4_PINS_PER_BANK)
+	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
 		return -ENODEV;
 
 	port_base = atmel_pio4_port_base(port);
@@ -88,7 +59,7 @@ static int atmel_pio4_config_io_func(u32 port, u32 pin,
 
 	mask = 1 << pin;
 	reg = func;
-	reg |= use_pullup ? ATMEL_PIO4_CFGR_PUEN : 0;
+	reg |= use_pullup ? ATMEL_PIO_PUEN_MASK : 0;
 
 	writel(mask, &port_base->mskr);
 	writel(reg, &port_base->cfgr);
@@ -99,56 +70,56 @@ static int atmel_pio4_config_io_func(u32 port, u32 pin,
 int atmel_pio4_set_gpio(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_GPIO,
+					 ATMEL_PIO_CFGR_FUNC_GPIO,
 					 use_pullup);
 }
 
 int atmel_pio4_set_a_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_A,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_A,
 					 use_pullup);
 }
 
 int atmel_pio4_set_b_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_B,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_B,
 					 use_pullup);
 }
 
 int atmel_pio4_set_c_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_C,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_C,
 					 use_pullup);
 }
 
 int atmel_pio4_set_d_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_D,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_D,
 					 use_pullup);
 }
 
 int atmel_pio4_set_e_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_E,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_E,
 					 use_pullup);
 }
 
 int atmel_pio4_set_f_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_F,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_F,
 					 use_pullup);
 }
 
 int atmel_pio4_set_g_periph(u32 port, u32 pin, u32 use_pullup)
 {
 	return atmel_pio4_config_io_func(port, pin,
-					 ATMEL_PIO4_CFGR_FUNC_PERIPH_G,
+					 ATMEL_PIO_CFGR_FUNC_PERIPH_G,
 					 use_pullup);
 }
 
@@ -157,7 +128,7 @@ int atmel_pio4_set_pio_output(u32 port, u32 pin, u32 value)
 	struct atmel_pio4_port *port_base;
 	u32 reg, mask;
 
-	if (pin >= ATMEL_PIO4_PINS_PER_BANK)
+	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
 		return -ENODEV;
 
 	port_base = atmel_pio4_port_base(port);
@@ -165,7 +136,7 @@ int atmel_pio4_set_pio_output(u32 port, u32 pin, u32 value)
 		return -ENODEV;
 
 	mask = 0x01 << pin;
-	reg = ATMEL_PIO4_CFGR_FUNC_GPIO | ATMEL_PIO4_CFGR_DIR;
+	reg = ATMEL_PIO_CFGR_FUNC_GPIO | ATMEL_PIO_DIR_MASK;
 
 	writel(mask, &port_base->mskr);
 	writel(reg, &port_base->cfgr);
@@ -183,7 +154,7 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 	struct atmel_pio4_port *port_base;
 	u32 reg, mask;
 
-	if (pin >= ATMEL_PIO4_PINS_PER_BANK)
+	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
 		return -ENODEV;
 
 	port_base = atmel_pio4_port_base(port);
@@ -191,7 +162,7 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 		return -ENODEV;
 
 	mask = 0x01 << pin;
-	reg = ATMEL_PIO4_CFGR_FUNC_GPIO;
+	reg = ATMEL_PIO_CFGR_FUNC_GPIO;
 
 	writel(mask, &port_base->mskr);
 	writel(reg, &port_base->cfgr);
@@ -200,15 +171,37 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 }
 
 #ifdef CONFIG_DM_GPIO
+
+struct atmel_pioctrl_data {
+	u32 nbanks;
+};
+
+struct atmel_pio4_platdata {
+	struct atmel_pio4_port *reg_base;
+};
+
+static struct atmel_pio4_port *atmel_pio4_bank_base(struct udevice *dev,
+						    u32 bank)
+{
+	struct atmel_pio4_platdata *plat = dev_get_platdata(dev);
+	struct atmel_pio4_port *port_base =
+			(struct atmel_pio4_port *)((u32)plat->reg_base +
+			ATMEL_PIO_BANK_OFFSET * bank);
+
+	return port_base;
+}
+
 static int atmel_pio4_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct atmel_pio4_port *port_base = (atmel_pio4_port *)plat->base_addr;
-	u32 mask = 0x01 << offset;
-	u32 reg = ATMEL_PIO4_CFGR_FUNC_GPIO;
+	u32 bank = ATMEL_PIO_BANK(offset);
+	u32 line = ATMEL_PIO_LINE(offset);
+	struct atmel_pio4_port *port_base = atmel_pio4_bank_base(dev, bank);
+	u32 mask = BIT(line);
 
 	writel(mask, &port_base->mskr);
-	writel(reg, &port_base->cfgr);
+
+	clrbits_le32(&port_base->cfgr,
+		     ATMEL_PIO_CFGR_FUNC_MASK | ATMEL_PIO_DIR_MASK);
 
 	return 0;
 }
@@ -216,13 +209,15 @@ static int atmel_pio4_direction_input(struct udevice *dev, unsigned offset)
 static int atmel_pio4_direction_output(struct udevice *dev,
 				       unsigned offset, int value)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct atmel_pio4_port *port_base = (atmel_pio4_port *)plat->base_addr;
-	u32 mask = 0x01 << offset;
-	u32 reg = ATMEL_PIO4_CFGR_FUNC_GPIO | ATMEL_PIO4_CFGR_DIR;
+	u32 bank = ATMEL_PIO_BANK(offset);
+	u32 line = ATMEL_PIO_LINE(offset);
+	struct atmel_pio4_port *port_base = atmel_pio4_bank_base(dev, bank);
+	u32 mask = BIT(line);
 
 	writel(mask, &port_base->mskr);
-	writel(reg, &port_base->cfgr);
+
+	clrsetbits_le32(&port_base->cfgr,
+			ATMEL_PIO_CFGR_FUNC_MASK, ATMEL_PIO_DIR_MASK);
 
 	if (value)
 		writel(mask, &port_base->sodr);
@@ -234,9 +229,10 @@ static int atmel_pio4_direction_output(struct udevice *dev,
 
 static int atmel_pio4_get_value(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct atmel_pio4_port *port_base = (atmel_pio4_port *)plat->base_addr;
-	u32 mask = 0x01 << offset;
+	u32 bank = ATMEL_PIO_BANK(offset);
+	u32 line = ATMEL_PIO_LINE(offset);
+	struct atmel_pio4_port *port_base = atmel_pio4_bank_base(dev, bank);
+	u32 mask = BIT(line);
 
 	return (readl(&port_base->pdsr) & mask) ? 1 : 0;
 }
@@ -244,9 +240,10 @@ static int atmel_pio4_get_value(struct udevice *dev, unsigned offset)
 static int atmel_pio4_set_value(struct udevice *dev,
 				unsigned offset, int value)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct atmel_pio4_port *port_base = (atmel_pio4_port *)plat->base_addr;
-	u32 mask = 0x01 << offset;
+	u32 bank = ATMEL_PIO_BANK(offset);
+	u32 line = ATMEL_PIO_LINE(offset);
+	struct atmel_pio4_port *port_base = atmel_pio4_bank_base(dev, bank);
+	u32 mask = BIT(line);
 
 	if (value)
 		writel(mask, &port_base->sodr);
@@ -258,14 +255,15 @@ static int atmel_pio4_set_value(struct udevice *dev,
 
 static int atmel_pio4_get_function(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct atmel_pio4_port *port_base = (atmel_pio4_port *)plat->base_addr;
-	u32 mask = 0x01 << offset;
+	u32 bank = ATMEL_PIO_BANK(offset);
+	u32 line = ATMEL_PIO_LINE(offset);
+	struct atmel_pio4_port *port_base = atmel_pio4_bank_base(dev, bank);
+	u32 mask = BIT(line);
 
 	writel(mask, &port_base->mskr);
 
 	return (readl(&port_base->cfgr) &
-		ATMEL_PIO4_CFGR_DIR) ? GPIOF_OUTPUT : GPIOF_INPUT;
+		ATMEL_PIO_DIR_MASK) ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
 static const struct dm_gpio_ops atmel_pio4_ops = {
@@ -276,21 +274,82 @@ static const struct dm_gpio_ops atmel_pio4_ops = {
 	.get_function		= atmel_pio4_get_function,
 };
 
+static int atmel_pio4_bind(struct udevice *dev)
+{
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
 static int atmel_pio4_probe(struct udevice *dev)
 {
-	struct at91_port_platdata *plat = dev_get_platdata(dev);
+	struct atmel_pio4_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct atmel_pioctrl_data *pioctrl_data;
+	struct udevice *dev_clk;
+	struct clk clk;
+	fdt_addr_t addr_base;
+	u32 nbanks;
+	int periph;
+	int ret;
 
-	uc_priv->bank_name = plat->bank_name;
-	uc_priv->gpio_count = ATMEL_PIO4_PINS_PER_BANK;
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	periph = fdtdec_get_uint(gd->fdt_blob, clk.dev->of_offset, "reg", -1);
+	if (periph < 0)
+		return -EINVAL;
+
+	dev_clk = dev_get_parent(clk.dev);
+	ret = clk_request(dev_clk, &clk);
+	if (ret)
+		return ret;
+
+	clk.id = periph;
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	clk_free(&clk);
+
+	addr_base = dev_get_addr(dev);
+	if (addr_base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg_base = (struct atmel_pio4_port *)addr_base;
+
+	pioctrl_data = (struct atmel_pioctrl_data *)dev_get_driver_data(dev);
+	nbanks = pioctrl_data->nbanks;
+
+	uc_priv->bank_name = fdt_get_name(gd->fdt_blob, dev->of_offset, NULL);
+	uc_priv->gpio_count = nbanks * ATMEL_PIO_NPINS_PER_BANK;
 
 	return 0;
 }
+
+/*
+ * The number of banks can be different from a SoC to another one.
+ * We can have up to 16 banks.
+ */
+static const struct atmel_pioctrl_data atmel_sama5d2_pioctrl_data = {
+	.nbanks	= 4,
+};
+
+static const struct udevice_id atmel_pio4_ids[] = {
+	{
+		.compatible = "atmel,sama5d2-gpio",
+		.data = (ulong)&atmel_sama5d2_pioctrl_data,
+	},
+	{}
+};
 
 U_BOOT_DRIVER(gpio_atmel_pio4) = {
 	.name	= "gpio_atmel_pio4",
 	.id	= UCLASS_GPIO,
 	.ops	= &atmel_pio4_ops,
 	.probe	= atmel_pio4_probe,
+	.bind	= atmel_pio4_bind,
+	.of_match = atmel_pio4_ids,
+	.platdata_auto_alloc_size = sizeof(struct atmel_pio4_platdata),
 };
+
 #endif

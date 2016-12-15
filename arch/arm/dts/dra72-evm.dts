@@ -35,6 +35,15 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	evm_3v3_sd: fixedregulator-sd {
+		compatible = "regulator-fixed";
+		regulator-name = "evm_3v3_sd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpio = <&pcf_gpio_21 5 GPIO_ACTIVE_HIGH>;
+	};
+
 	extcon_usb1: extcon_usb1 {
 		compatible = "linux,extcon-usb-gpio";
 		id-gpio = <&pcf_gpio_21 1 GPIO_ACTIVE_HIGH>;
@@ -348,6 +357,7 @@
 		interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+		u-boot,i2c-offset-len = <0>;
 	};
 };
 
@@ -369,6 +379,7 @@
 		 * VIN6_SEL_S0 is low, thus selecting McASP3 over VIN6
 		 */
 		lines-initial-states = <0x0f2b>;
+		u-boot,i2c-offset-len = <0>;
 	};
 };
 
@@ -497,7 +508,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins_default>;
 
-	vmmc-supply = <&ldo1_reg>;
+	vmmc_aux-supply = <&ldo1_reg>;
+	vmmc-supply = <&evm_3v3_sd>;
 	bus-width = <4>;
 	/*
 	 * SDCD signal is not being used here - using the fact that GPIO mode
@@ -576,9 +588,10 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&cpsw_default>;
 	pinctrl-1 = <&cpsw_sleep>;
+	mode-gpios = <&pcf_gpio_21 4 GPIO_ACTIVE_HIGH>;
 };
 
-&cpsw_emac1 {
+&cpsw_emac0 {
 	phy_id = <&davinci_mdio>, <3>;
 	phy-mode = "rgmii";
 };
@@ -587,7 +600,6 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&davinci_mdio_default>;
 	pinctrl-1 = <&davinci_mdio_sleep>;
-	active_slave = <1>;
 };
 
 &dcan1 {
@@ -603,15 +615,13 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&qspi1_pins>;
 
-	spi-max-frequency = <48000000>;
+	spi-max-frequency = <76800000>;
 	m25p80@0 {
 		compatible = "s25fl256s1","spi-flash";
-		spi-max-frequency = <48000000>;
+		spi-max-frequency = <64000000>;
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
-		spi-cpol;
-		spi-cpha;
 		#address-cells = <1>;
 		#size-cells = <1>;
 

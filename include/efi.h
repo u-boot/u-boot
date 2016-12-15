@@ -27,19 +27,27 @@
 
 struct efi_device_path;
 
+#define EFI_BITS_PER_LONG	BITS_PER_LONG
+
+/* With 64-bit EFI stub, EFI_BITS_PER_LONG has to be 64 */
+#ifdef CONFIG_EFI_STUB_64BIT
+#undef EFI_BITS_PER_LONG
+#define EFI_BITS_PER_LONG	64
+#endif
+
 #define EFI_SUCCESS		0
-#define EFI_LOAD_ERROR		(1 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_INVALID_PARAMETER	(2 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_UNSUPPORTED		(3 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_BAD_BUFFER_SIZE	(4 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_BUFFER_TOO_SMALL	(5 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_NOT_READY		(6 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_DEVICE_ERROR	(7 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_WRITE_PROTECTED	(8 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_OUT_OF_RESOURCES	(9 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_NOT_FOUND		(14 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_ACCESS_DENIED	(15 | (1UL << (BITS_PER_LONG - 1)))
-#define EFI_SECURITY_VIOLATION	(26 | (1UL << (BITS_PER_LONG - 1)))
+#define EFI_LOAD_ERROR		(1 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_INVALID_PARAMETER	(2 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_UNSUPPORTED		(3 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_BAD_BUFFER_SIZE	(4 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_BUFFER_TOO_SMALL	(5 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_NOT_READY		(6 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_DEVICE_ERROR	(7 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_WRITE_PROTECTED	(8 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_OUT_OF_RESOURCES	(9 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_NOT_FOUND		(14 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_ACCESS_DENIED	(15 | (1UL << (EFI_BITS_PER_LONG - 1)))
+#define EFI_SECURITY_VIOLATION	(26 | (1UL << (EFI_BITS_PER_LONG - 1)))
 
 typedef unsigned long efi_status_t;
 typedef u64 efi_physical_addr_t;
@@ -150,6 +158,8 @@ struct efi_mem_desc {
 	u64 num_pages;
 	u64 attribute;
 };
+
+#define EFI_MEMORY_DESCRIPTOR_VERSION 1
 
 /* Allocation types for calls to boottime->allocate_pages*/
 #define EFI_ALLOCATE_ANY_PAGES		0
@@ -278,7 +288,7 @@ struct efi_priv {
 extern char image_base[];
 
 /* Start and end of U-Boot image (for payload) */
-extern char _binary_u_boot_dtb_bin_start[], _binary_u_boot_dtb_bin_end[];
+extern char _binary_u_boot_bin_start[], _binary_u_boot_bin_end[];
 
 /**
  * efi_get_sys_table() - Get access to the main EFI system table

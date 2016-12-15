@@ -1,0 +1,6 @@
+SALVATOR_X BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/renesas/salvator-x/
+F:	include/configs/salvator-x.h
+F:	configs/salvator-x_defconfig

@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -179,7 +180,6 @@ U_BOOT_DRIVER(uniphier_mio_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = uniphier_mio_clk_match,
 	.probe = uniphier_clk_probe,
-	.remove = uniphier_clk_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_clk_priv),
 	.ops = &uniphier_clk_ops,
 };

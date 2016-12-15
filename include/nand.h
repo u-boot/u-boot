@@ -122,6 +122,7 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 int nand_get_lock_status(struct mtd_info *mtd, loff_t offset);
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst);
+int nand_spl_read_block(int block, int offset, int len, void *dst);
 void nand_deselect(void);
 
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
@@ -141,3 +142,6 @@ __attribute__((noreturn)) void nand_boot(void);
 int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result);
 #endif
 int spl_nand_erase_one(int block, int page);
+
+/* platform specific init functions */
+void sunxi_nand_init(void);

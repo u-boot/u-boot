@@ -237,6 +237,4 @@
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 
-#define CONFIG_VERSION_VARIABLE	/* include version env variable */
-
 #endif /* __CONFIG_KEYMILE_H */

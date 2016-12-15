@@ -93,7 +93,10 @@
 	pinctrl-0 = <&i2c1_pins_a>;
 	status = "okay";
 
-	/* FIXME: An as-yet-unknown accelerometer is connected to this i2c bus. */
+	/*
+	 * FIXME: An as-yet-unknown accelerometer is connected to this
+	 * i2c bus.
+	 */
 };
 
 &lradc {

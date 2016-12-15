@@ -12,6 +12,9 @@
 
 /* SCU Control Register */
 #define SCU_CTRL		0x00
+#define SCU_ENABLE		(1 << 0)
+#define SCU_STANDBY_ENABLE	(1 << 5)
+
 /* SCU Configuration Register */
 #define SCU_CONF		0x04
 /* SCU CPU Power Status Register */

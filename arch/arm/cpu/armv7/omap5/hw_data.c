@@ -160,7 +160,7 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 
 static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
 	{32, 0, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 12 MHz   */
-	{96, 4, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 20 MHz   */
+	{96, 4, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 20 MHz   */
 	{160, 6, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 16.8 MHz */
 	{20, 0, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 19.2 MHz */
 	{192, 12, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 26 MHz   */
@@ -318,6 +318,7 @@ struct pmic_data palmas = {
 	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
 	.pmic_bus_init	= sri2c_init,
 	.pmic_write	= omap_vc_bypass_send_value,
+	.gpio_en = 0,
 };
 
 /* The TPS659038 and TPS65917 are software-compatible, use common struct */
@@ -332,6 +333,7 @@ struct pmic_data tps659038 = {
 	.i2c_slave_addr	= TPS659038_I2C_SLAVE_ADDR,
 	.pmic_bus_init	= gpi2c_init,
 	.pmic_write	= palmas_i2c_write_u8,
+	.gpio_en = 0,
 };
 
 struct vcores_data omap5430_volts = {

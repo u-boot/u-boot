@@ -3,7 +3,7 @@ while other board support code dies a silent death caused by
 negligence in combination with ordinary bitrot.  Sometimes this goes
 by unnoticed, but often build errors will result.  If nobody cares any
 more to resolve such problems, then the code is really dead and will
-be removed from the U-Boot source tree.  The remainders rest in piece
+be removed from the U-Boot source tree.  The remainders rest in peace
 in the imperishable depths of the git history.  This document tries to
 maintain a list of such former fellows, so archaeologists can check
 easily if there is something they might want to dig for...

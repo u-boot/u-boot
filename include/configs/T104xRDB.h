@@ -11,14 +11,20 @@
  * T104x RDB board configuration file
  */
 #define CONFIG_T104xRDB
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_E500			/* BOOKE e500 family */
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_RAMBOOT_PBL
+
+#ifndef CONFIG_SECURE_BOOT
 #define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t104xrdb/t104x_pbi.cfg
+#else
+#define CONFIG_SYS_FSL_PBL_PBI \
+		$(SRCTREE)/board/freescale/t104xrdb/t104x_pbi_sb.cfg
+#endif
+
 #ifdef CONFIG_T1040RDB
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1040_rcw.cfg
 #endif
@@ -62,7 +68,17 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_SUPPORT
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image.
+ */
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	((768 << 10) + \
+					 CONFIG_U_BOOT_HDR_SIZE)
+#else
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
+#endif
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
@@ -161,6 +177,10 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 0x800)
 #elif defined(CONFIG_NAND)
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_RAMBOOT_NAND
+#define CONFIG_BOOTSCRIPT_COPY_RAM
+#endif
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			0x2000
@@ -202,8 +222,14 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
  *  Config the L3 Cache as L3 SRAM
  */
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
+/*
+ * For Secure Boot CONFIG_SYS_INIT_L3_ADDR will be redefined and hence
+ * Physical address (CONFIG_SYS_INIT_L3_ADDR) and virtual address
+ * (CONFIG_SYS_INIT_L3_VADDR) will be different.
+ */
+#define CONFIG_SYS_INIT_L3_VADDR	0xFFFC0000
 #define CONFIG_SYS_L3_SIZE		256 << 10
-#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
+#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_VADDR + 32 * 1024)
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 #endif
@@ -617,7 +643,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
@@ -873,7 +898,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=" __stringify(RAMDISKFILE) "\0"		\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"
 

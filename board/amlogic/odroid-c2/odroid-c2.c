@@ -21,23 +21,10 @@ int board_init(void)
 	return 0;
 }
 
-static const struct eth_pdata gxbb_eth_pdata = {
-	.iobase = GXBB_ETH_BASE,
-	.phy_interface = PHY_INTERFACE_MODE_RGMII,
-};
-
-U_BOOT_DEVICE(meson_eth) = {
-	.name = "eth_designware",
-	.platdata = &gxbb_eth_pdata,
-};
-
 int misc_init_r(void)
 {
 	u8 mac_addr[EFUSE_MAC_SIZE];
 	ssize_t len;
-
-	/* Select Ethernet function */
-	setbits_le32(GXBB_PINMUX(6), 0x3fff);
 
 	/* Set RGMII mode */
 	setbits_le32(GXBB_ETH_REG_0, GXBB_ETH_REG_0_PHY_INTF |

@@ -37,7 +37,12 @@
 #endif
 #define	MXS_NAND_METADATA_SIZE			10
 #define	MXS_NAND_BITS_PER_ECC_LEVEL		13
+
+#if !defined(CONFIG_SYS_CACHELINE_SIZE) || CONFIG_SYS_CACHELINE_SIZE < 32
 #define	MXS_NAND_COMMAND_BUFFER_SIZE		32
+#else
+#define	MXS_NAND_COMMAND_BUFFER_SIZE		CONFIG_SYS_CACHELINE_SIZE
+#endif
 
 #define	MXS_NAND_BCH_TIMEOUT			10000
 
@@ -976,7 +981,7 @@ static int mxs_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
  * counted, so we know the physical geometry. This enables us to make some
  * important configuration decisions.
  *
- * The return value of this function propogates directly back to this driver's
+ * The return value of this function propagates directly back to this driver's
  * call to nand_scan(). Anything other than zero will cause this driver to
  * tear everything down and declare failure.
  */

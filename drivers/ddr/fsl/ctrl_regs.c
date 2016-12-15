@@ -709,7 +709,7 @@ static void set_timing_cfg_2(const unsigned int ctrl_num,
 		| ((add_lat_mclk & 0xf) << 28)
 		| ((cpo & 0x1f) << 23)
 		| ((wr_lat & 0xf) << 19)
-		| ((wr_lat & 0x10) << 18)
+		| (((wr_lat & 0x10) >> 4) << 18)
 		| ((rd_to_pre & RD_TO_PRE_MASK) << RD_TO_PRE_SHIFT)
 		| ((wr_data_delay & WR_DATA_DELAY_MASK) << WR_DATA_DELAY_SHIFT)
 		| ((cke_pls & 0x7) << 6)
@@ -2212,7 +2212,7 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int wrlvl_en,
 		 * Write leveling start time
 		 * The value use for the DQS_ADJUST for the first sample
 		 * when write leveling is enabled. It probably needs to be
-		 * overriden per platform.
+		 * overridden per platform.
 		 */
 		wrlvl_start = 0x8;
 		/*

@@ -51,7 +51,8 @@ c) now calculate the SHA1 sum from the memoryrange and write
 
 Now you have a U-Boot-Image for the pcs440ep board with the correct SHA1 sum.
 
-If you do a "./MAKEALL pcs440ep" or a "make all" to get the U-Boot image,
-the correct SHA1 sum will be automagically included in the U-Boot image.
+If you do a "buildman -k pcs440ep" or a "make all" to get the U-Boot image,
+which will be found in ../current/ipam390/ - the correct SHA1 sum will be
+automagically included in the U-Boot image.
 
 Heiko Schocher, 11 Jul 2007

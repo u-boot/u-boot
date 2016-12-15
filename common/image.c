@@ -69,7 +69,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #endif
 
 static const table_entry_t uimage_arch[] = {
-	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
+	{	IH_ARCH_INVALID,	"invalid",	"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
 	{	IH_ARCH_ARM,		"arm",		"ARM",		},
 	{	IH_ARCH_I386,		"x86",		"Intel x86",	},
@@ -93,11 +93,12 @@ static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_ARM64,		"arm64",	"AArch64",	},
 	{	IH_ARCH_ARC,		"arc",		"ARC",		},
 	{	IH_ARCH_X86_64,		"x86_64",	"AMD x86_64",	},
+	{	IH_ARCH_XTENSA,		"xtensa",	"Xtensa",	},
 	{	-1,			"",		"",		},
 };
 
 static const table_entry_t uimage_os[] = {
-	{	IH_OS_INVALID,	NULL,		"Invalid OS",		},
+	{	IH_OS_INVALID,	"invalid",	"Invalid OS",		},
 	{	IH_OS_LINUX,	"linux",	"Linux",		},
 #if defined(CONFIG_LYNXKDI) || defined(USE_HOSTCC)
 	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
@@ -144,7 +145,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_KERNEL_NOLOAD, "kernel_noload",  "Kernel Image (no loading done)", },
 	{	IH_TYPE_KWBIMAGE,   "kwbimage",   "Kirkwood Boot Image",},
 	{	IH_TYPE_IMXIMAGE,   "imximage",   "Freescale i.MX Boot Image",},
-	{	IH_TYPE_INVALID,    NULL,	  "Invalid Image",	},
+	{	IH_TYPE_INVALID,    "invalid",	  "Invalid Image",	},
 	{	IH_TYPE_MULTI,	    "multi",	  "Multi-File Image",	},
 	{	IH_TYPE_OMAPIMAGE,  "omapimage",  "TI OMAP SPL With GP CH",},
 	{	IH_TYPE_PBLIMAGE,   "pblimage",   "Freescale PBL Boot Image",},
@@ -174,6 +175,19 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
 	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
 	{	-1,		"",		"",			},
+};
+
+struct table_info {
+	const char *desc;
+	int count;
+	const table_entry_t *table;
+};
+
+static const struct table_info table_info[IH_COUNT] = {
+	{ "architecture", IH_ARCH_COUNT, uimage_arch },
+	{ "compression", IH_COMP_COUNT, uimage_comp },
+	{ "operating system", IH_OS_COUNT, uimage_os },
+	{ "image type", IH_TYPE_COUNT, uimage_type },
 };
 
 /*****************************************************************************/
@@ -568,6 +582,74 @@ const table_entry_t *get_table_entry(const table_entry_t *table, int id)
 			return table;
 	}
 	return NULL;
+}
+
+static const char *unknown_msg(enum ih_category category)
+{
+	static char msg[30];
+
+	strcpy(msg, "Unknown ");
+	strcat(msg, table_info[category].desc);
+
+	return msg;
+}
+
+/**
+ * get_cat_table_entry_name - translate entry id to long name
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be translated
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @retur long entry name if translation succeeds; error string on failure
+ */
+const char *genimg_get_cat_name(enum ih_category category, uint id)
+{
+	const table_entry_t *entry;
+
+	entry = get_table_entry(table_info[category].table, id);
+	if (!entry)
+		return unknown_msg(category);
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return entry->lname;
+#else
+	return entry->lname + gd->reloc_off;
+#endif
+}
+
+/**
+ * get_cat_table_entry_short_name - translate entry id to short name
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be translated
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @retur short entry name if translation succeeds; error string on failure
+ */
+const char *genimg_get_cat_short_name(enum ih_category category, uint id)
+{
+	const table_entry_t *entry;
+
+	entry = get_table_entry(table_info[category].table, id);
+	if (!entry)
+		return unknown_msg(category);
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return entry->sname;
+#else
+	return entry->sname + gd->reloc_off;
+#endif
+}
+
+int genimg_get_cat_count(enum ih_category category)
+{
+	return table_info[category].count;
+}
+
+const char *genimg_get_cat_desc(enum ih_category category)
+{
+	return table_info[category].desc;
 }
 
 /**

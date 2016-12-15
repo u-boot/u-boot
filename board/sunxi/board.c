@@ -20,12 +20,16 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/spl.h>
 #include <asm/arch/usb_phy.h>
 #ifndef CONFIG_ARM64
 #include <asm/armv7.h>
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <crc.h>
+#include <environment.h>
+#include <libfdt.h>
 #include <nand.h>
 #include <net.h>
 #include <sy8106a.h>
@@ -133,7 +137,7 @@ int dram_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NAND_SUNXI)
 static void nand_pinmux_setup(void)
 {
 	unsigned int pin;
@@ -170,6 +174,9 @@ void board_nand_init(void)
 {
 	nand_pinmux_setup();
 	nand_clock_setup();
+#ifndef CONFIG_SPL_BUILD
+	sunxi_nand_init();
+#endif
 }
 #endif
 
@@ -366,8 +373,7 @@ int board_mmc_init(bd_t *bis)
 	 * are searched there first. Note we only do this for u-boot proper,
 	 * not for the SPL, see spl_boot_device().
 	 */
-	if (!sunxi_mmc_has_egon_boot_signature(mmc0) &&
-	    sunxi_mmc_has_egon_boot_signature(mmc1)) {
+	if (readb(SPL_ADDR + 0x28) == SUNXI_BOOTED_FROM_MMC2) {
 		/* Booting from emmc / mmc2, swap */
 		mmc0->block_dev.devnum = 1;
 		mmc1->block_dev.devnum = 0;
@@ -571,9 +577,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
-#include <asm/arch/spl.h>
-
 /*
  * Check the SPL header for the "sunxi" variant. If found: parse values
  * that might have been passed by the loader ("fel" utility), and update
@@ -582,50 +585,88 @@ void get_board_serial(struct tag_serialnr *serialnr)
 static void parse_spl_header(const uint32_t spl_addr)
 {
 	struct boot_file_head *spl = (void *)(ulong)spl_addr;
-	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) == 0) {
-		uint8_t spl_header_version = spl->spl_signature[3];
-		if (spl_header_version == SPL_HEADER_VERSION) {
-			if (spl->fel_script_address)
-				setenv_hex("fel_scriptaddr",
-					   spl->fel_script_address);
-			return;
-		}
+	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
+		return; /* signature mismatch, no usable header */
+
+	uint8_t spl_header_version = spl->spl_signature[3];
+	if (spl_header_version != SPL_HEADER_VERSION) {
 		printf("sunxi SPL version mismatch: expected %u, got %u\n",
 		       SPL_HEADER_VERSION, spl_header_version);
+		return;
 	}
-}
-#endif
+	if (!spl->fel_script_address)
+		return;
 
-#ifdef CONFIG_MISC_INIT_R
-int misc_init_r(void)
+	if (spl->fel_uEnv_length != 0) {
+		/*
+		 * data is expected in uEnv.txt compatible format, so "env
+		 * import -t" the string(s) at fel_script_address right away.
+		 */
+		himport_r(&env_htab, (char *)(uintptr_t)spl->fel_script_address,
+			  spl->fel_uEnv_length, '\n', H_NOCLEAR, 0, 0, NULL);
+		return;
+	}
+	/* otherwise assume .scr format (mkimage-type script) */
+	setenv_hex("fel_scriptaddr", spl->fel_script_address);
+}
+
+/*
+ * Note this function gets called multiple times.
+ * It must not make any changes to env variables which already exist.
+ */
+static void setup_environment(const void *fdt)
 {
 	char serial_string[17] = { 0 };
 	unsigned int sid[4];
 	uint8_t mac_addr[6];
-	int ret;
-
-#if !defined(CONFIG_SPL_BUILD)
-	setenv("fel_booted", NULL);
-	setenv("fel_scriptaddr", NULL);
-	/* determine if we are running in FEL mode */
-	if (!is_boot0_magic(SPL_ADDR + 4)) { /* eGON.BT0 */
-		setenv("fel_booted", "1");
-		parse_spl_header(SPL_ADDR);
-	}
-#endif
+	char ethaddr[16];
+	int i, ret;
 
 	ret = sunxi_get_sid(sid);
-	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
-		if (!getenv("ethaddr")) {
+	if (ret == 0 && sid[0] != 0) {
+		/*
+		 * The single words 1 - 3 of the SID have quite a few bits
+		 * which are the same on many models, so we take a crc32
+		 * of all 3 words, to get a more unique value.
+		 *
+		 * Note we only do this on newer SoCs as we cannot change
+		 * the algorithm on older SoCs since those have been using
+		 * fixed mac-addresses based on only using word 3 for a
+		 * long time and changing a fixed mac-address with an
+		 * u-boot update is not good.
+		 */
+#if !defined(CONFIG_MACH_SUN4I) && !defined(CONFIG_MACH_SUN5I) && \
+    !defined(CONFIG_MACH_SUN6I) && !defined(CONFIG_MACH_SUN7I) && \
+    !defined(CONFIG_MACH_SUN8I_A23) && !defined(CONFIG_MACH_SUN8I_A33)
+		sid[3] = crc32(0, (unsigned char *)&sid[1], 12);
+#endif
+
+		/* Ensure the NIC specific bytes of the mac are not all 0 */
+		if ((sid[3] & 0xffffff) == 0)
+			sid[3] |= 0x800000;
+
+		for (i = 0; i < 4; i++) {
+			sprintf(ethaddr, "ethernet%d", i);
+			if (!fdt_get_alias(fdt, ethaddr))
+				continue;
+
+			if (i == 0)
+				strcpy(ethaddr, "ethaddr");
+			else
+				sprintf(ethaddr, "eth%daddr", i);
+
+			if (getenv(ethaddr))
+				continue;
+
 			/* Non OUI / registered MAC address */
-			mac_addr[0] = 0x02;
+			mac_addr[0] = (i << 4) | 0x02;
 			mac_addr[1] = (sid[0] >>  0) & 0xff;
 			mac_addr[2] = (sid[3] >> 24) & 0xff;
 			mac_addr[3] = (sid[3] >> 16) & 0xff;
 			mac_addr[4] = (sid[3] >>  8) & 0xff;
 			mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_setenv_enetaddr(ethaddr, mac_addr);
 		}
 
 		if (!getenv("serial#")) {
@@ -635,6 +676,21 @@ int misc_init_r(void)
 			setenv("serial#", serial_string);
 		}
 	}
+}
+
+int misc_init_r(void)
+{
+	__maybe_unused int ret;
+
+	setenv("fel_booted", NULL);
+	setenv("fel_scriptaddr", NULL);
+	/* determine if we are running in FEL mode */
+	if (!is_boot0_magic(SPL_ADDR + 4)) { /* eGON.BT0 */
+		setenv("fel_booted", "1");
+		parse_spl_header(SPL_ADDR);
+	}
+
+	setup_environment(gd->fdt_blob);
 
 #ifndef CONFIG_MACH_SUN9I
 	ret = sunxi_usb_phy_probe();
@@ -645,11 +701,16 @@ int misc_init_r(void)
 
 	return 0;
 }
-#endif
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	int __maybe_unused r;
+
+	/*
+	 * Call setup_environment again in case the boot fdt has
+	 * ethernet aliases the u-boot copy does not have.
+	 */
+	setup_environment(blob);
 
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
 	r = sunxi_simplefb_setup(blob);

@@ -1,6 +1,9 @@
 config CREATE_ARCH_SYMLINK
 	bool
 
+config HAVE_ARCH_IOREMAP
+	bool
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -33,6 +36,7 @@ config MICROBLAZE
 
 config MIPS
 	bool "MIPS architecture"
+	select HAVE_ARCH_IOREMAP
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 
@@ -63,6 +67,7 @@ config SANDBOX
 	select DM_I2C
 	select DM_SPI
 	select DM_GPIO
+	select DM_MMC
 
 config SH
 	bool "SuperH architecture"
@@ -82,6 +87,11 @@ config X86
 	select DM_GPIO
 	select DM_SPI
 	select DM_SPI_FLASH
+
+config XTENSA
+	bool "Xtensa architecture"
+	select CREATE_ARCH_SYMLINK
+	select SUPPORT_OF_CONTROL
 
 endchoice
 
@@ -156,3 +166,4 @@ source "arch/sandbox/Kconfig"
 source "arch/sh/Kconfig"
 source "arch/sparc/Kconfig"
 source "arch/x86/Kconfig"
+source "arch/xtensa/Kconfig"

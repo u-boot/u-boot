@@ -21,7 +21,7 @@
  *   CONFIG_SYS_POST_ETH_LOOPS - Number of test loops. Each loop
  *     is tested with a different frame length. Starting with
  *     MAX_PACKET_LENGTH and going down to MIN_PACKET_LENGTH.
- *     Defaults to 10 and can be overriden in the board config header.
+ *     Defaults to 10 and can be overridden in the board config header.
  */
 
 #include <post.h>

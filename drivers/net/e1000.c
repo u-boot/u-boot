@@ -5513,7 +5513,8 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 	struct udevice *dev;
 	char name[30];
 	int ret;
-#else
+#endif
+#if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
 	struct e1000_hw *hw;
 #endif
 	int cardnum;
@@ -5549,6 +5550,9 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_E1000_SPI
+#ifdef CONFIG_DM_ETH
+	hw = dev_get_priv(dev);
+#endif
 	/* Handle the "SPI" subcommand */
 	if (!strcmp(argv[2], "spi"))
 		return do_e1000_spi(cmdtp, hw, argc - 3, argv + 3);

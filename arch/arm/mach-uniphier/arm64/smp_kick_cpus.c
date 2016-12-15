@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <mapmem.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 
@@ -18,11 +17,11 @@ void uniphier_smp_kick_all_cpus(void)
 {
 	void __iomem *rom_boot_rsv0;
 
-	rom_boot_rsv0 = map_sysmem(UNIPHIER_SMPCTRL_ROM_RSV0, SZ_8);
+	rom_boot_rsv0 = ioremap(UNIPHIER_SMPCTRL_ROM_RSV0, SZ_8);
 
 	writeq((u64)uniphier_secondary_startup, rom_boot_rsv0);
 
-	unmap_sysmem(rom_boot_rsv0);
+	iounmap(rom_boot_rsv0);
 
 	uniphier_smp_setup();
 

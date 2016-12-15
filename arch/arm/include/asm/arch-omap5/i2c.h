@@ -14,9 +14,9 @@ struct i2c {
 	unsigned short revnb_lo;	/* 0x00 */
 	unsigned short res1;
 	unsigned short revnb_hi;	/* 0x04 */
-	unsigned short res2[13];
-	unsigned short sysc;		/* 0x20 */
-	unsigned short res3;
+	unsigned short res2[5];
+	unsigned short sysc;		/* 0x10 */
+	unsigned short res3[9];
 	unsigned short irqstatus_raw;	/* 0x24 */
 	unsigned short res4;
 	unsigned short stat;		/* 0x28 */

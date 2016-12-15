@@ -7,26 +7,6 @@
 #ifndef _IGEP00X0_H_
 #define _IGEP00X0_H_
 
-const omap3_sysinfo sysinfo = {
-	DDR_STACKED,
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-	"IGEPv2",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-	"IGEP COM MODULE/ELECTRON",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
-	"IGEP COM PROTON",
-#endif
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-	"ONENAND",
-#else
-	"NAND",
-#endif
-};
-
-static void setup_net_chip(void);
-
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable

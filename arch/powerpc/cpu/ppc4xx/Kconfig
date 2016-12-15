@@ -30,6 +30,7 @@ config TARGET_CANYONLANDS
 
 config TARGET_KATMAI
 	bool "Support katmai"
+	select PHYS_64BIT
 
 config TARGET_KILAUEA
 	bool "Support kilauea"

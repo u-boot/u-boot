@@ -36,6 +36,11 @@
 /* Non standard (?) SDHCI register */
 #define SDHCI_VENDOR_SPEC_CAPABILITIES0  0x11c
 
+struct msm_sdhc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
 struct msm_sdhc {
 	struct sdhci_host host;
 	void *base;
@@ -81,9 +86,12 @@ static int msm_sdc_clk_init(struct udevice *dev)
 
 static int msm_sdc_probe(struct udevice *dev)
 {
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
+	u32 caps;
 	int ret;
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_BROKEN_R1B;
@@ -127,7 +135,7 @@ static int msm_sdc_probe(struct udevice *dev)
 	 * controller versions and must be explicitly enabled.
 	 */
 	if (core_major >= 1 && core_minor != 0x11 && core_minor != 0x12) {
-		u32 caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
+		caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
 		caps |= SDHCI_CAN_VDD_300 | SDHCI_CAN_DO_8BIT;
 		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
 	}
@@ -135,13 +143,15 @@ static int msm_sdc_probe(struct udevice *dev)
 	/* Set host controller version */
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-	/* automatically detect max and min speed */
-	ret =  add_sdhci(host, 0, 0);
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
+	host->mmc = &plat->mmc;
 	if (ret)
 		return ret;
+	host->mmc->priv = &prv->host;
 	host->mmc->dev = dev;
+	upriv->mmc = host->mmc;
 
-	return 0;
+	return sdhci_probe(dev);
 }
 
 static int msm_sdc_remove(struct udevice *dev)
@@ -168,10 +178,23 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							      parent->of_offset,
 							      dev->of_offset,
-							      "reg", 1, NULL);
+							      "reg", 1, NULL,
+							      false);
 	if (priv->base == (void *)FDT_ADDR_T_NONE ||
 	    host->ioaddr == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	return 0;
+}
+
+static int msm_sdc_bind(struct udevice *dev)
+{
+	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -186,7 +209,10 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= msm_mmc_ids,
 	.ofdata_to_platdata = msm_ofdata_to_platdata,
+	.ops		= &sdhci_ops,
+	.bind		= msm_sdc_bind,
 	.probe		= msm_sdc_probe,
 	.remove		= msm_sdc_remove,
 	.priv_auto_alloc_size = sizeof(struct msm_sdhc),
+	.platdata_auto_alloc_size = sizeof(struct msm_sdhc_plat),
 };

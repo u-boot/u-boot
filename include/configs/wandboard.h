@@ -28,6 +28,18 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
+/* SATA Configs */
+
+#define CONFIG_CMD_SATA
+#ifdef CONFIG_CMD_SATA
+#define CONFIG_DWC_AHSATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_DWC_AHSATA_PORT_ID	0
+#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
+#define CONFIG_LBA48
+#define CONFIG_LIBATA
+#endif
+
 /* Command definition */
 #define CONFIG_CMD_BMODE
 
@@ -49,7 +61,6 @@
 /* USB Configs */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
@@ -181,7 +192,7 @@
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(768 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #endif			       /* __CONFIG_H * */

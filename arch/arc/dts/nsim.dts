@@ -1,0 +1,24 @@
+/*
+ * Copyright (C) 2015-2016 Synopsys, Inc. (www.synopsys.com)
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+
+#include "skeleton.dtsi"
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	aliases {
+		console = &arcuart0;
+	};
+
+	arcuart0: serial@0xc0fc1000 {
+		compatible = "snps,arc-uart";
+		reg = <0xc0fc1000 0x100>;
+		clock-frequency = <80000000>;
+	};
+
+};

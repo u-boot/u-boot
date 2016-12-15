@@ -5,6 +5,20 @@
 
 (Please read 'How to change from MAKEALL' if you are used to that tool)
 
+Quick-start
+===========
+
+If you just want to quickly set up buildman so you can build something (for
+example Raspberry Pi 2):
+
+   cd /path/to/u-boot
+   PATH=$PATH:`pwd`/tools/buildman
+   buildman --fetch-arch arm
+   buildman -k rpi_2
+   ls ../current/rpi_2
+   # u-boot.bin is the output image
+
+
 What is this?
 =============
 
@@ -22,16 +36,14 @@ help for anyone working with >10 patches at a time.
 Caveats
 =======
 
-Buildman is still in its infancy. It is already a very useful tool, but
-expect to find problems and send patches.
-
 Buildman can be stopped and restarted, in which case it will continue
 where it left off. This should happen cleanly and without side-effects.
 If not, it is a bug, for which a patch would be welcome.
 
 Buildman gets so tied up in its work that it can ignore the outside world.
 You may need to press Ctrl-C several times to quit it. Also it will print
-out various exceptions when stopped.
+out various exceptions when stopped. You may have to kill it since the
+Ctrl-C handling is somewhat broken.
 
 
 Theory of Operation
@@ -45,6 +57,13 @@ progress information (except with -v, see below). All the output (errors,
 warnings and binaries if you ask for them) is stored in output
 directories, which you can look at while the build is progressing, or when
 it is finished.
+
+Buildman is designed to build entire git branches, i.e. muliple commits. It
+can be run repeatedly on the same branch. In this case it will automatically
+rebuild commits which have changed (and remove its old results for that
+commit). It is possible to build a branch for one board, then later build it
+for another board. If you want buildman to re-build a commit it has already
+built (e.g. because of a toolchain update), use the -f flag.
 
 Buildman produces a concise summary of which boards succeeded and failed.
 It shows which commit introduced which board failure using a simple
@@ -420,10 +439,7 @@ Tool chain test:  OK
 
 Or download them all from kernel.org and move them to /toolchains directory,
 
-$ for i in aarch64 arm avr32 i386 m68k microblaze mips or32 powerpc sparc
-  do
-  ./tools/buildman/buildman --fetch-arch $i
-  done
+$ ./tools/buildman/buildman --fetch-arch all
 $ sudo mkdir -p /toolchains
 $ sudo mv ~/.buildman-toolchains/*/* /toolchains/
 
@@ -440,8 +456,8 @@ nios2: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/
 sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/
     renesas-4.4-200-sh-linux-gnu-i686-pc-linux-gnu.tar.bz2
 
-Note openrisc kernel.org toolchain is out of date, download latest one from
-http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions, eg:
+Note openrisc kernel.org toolchain is out of date. Download the latest one from
+http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions - eg:
 ftp://ocuser:ocuser@openrisc.opencores.org/toolchain/gcc-or1k-elf-4.8.1-x86.tar.bz2.
 
 Buildman should now be set up to use your new toolchain.
@@ -521,7 +537,7 @@ Building 18 commits for 1059 boards (4 threads, 1 job per thread)
 This means that it is building 19062 board/commit combinations. So far it
 has managed to successfully build 528. Another 36 have built with warnings,
 and 124 more didn't build at all. Buildman expects to complete the process
-in an hour and 15 minutes. Use this time to buy a faster computer.
+in around an hour and a quarter. Use this time to buy a faster computer.
 
 
 To find out how the build went, ask for a summary with -s. You can do this
@@ -556,7 +572,8 @@ the build is still in progress so many boards are not built yet (use -u to
 see which ones). But still we can see a few failures. The galaxy5200_LOWBOOT
 never builds correctly. This could be a problem with our toolchain, or it
 could be a bug in the upstream. The good news is that we probably don't need
-to blame our commits. The bad news is it isn't tested on that board.
+to blame our commits. The bad news is that our commits are not tested on that
+board.
 
 Commit 12 broke lubbock. That's what the '+ lubbock' means. The failure
 is never fixed by a later commit, or you would see lubbock again, in green,
@@ -585,19 +602,20 @@ So the problem is in lcd.c, due to missing cache operations. This information
 should be enough to work out what that commit is doing to break these
 boards. (In this case pxa did not have cache operations defined).
 
-If you see error lines marked with - that means that the errors were fixed
+If you see error lines marked with '-', that means that the errors were fixed
 by that commit. Sometimes commits can be in the wrong order, so that a
 breakage is introduced for a few commits and fixed by later commits. This
 shows up clearly with buildman. You can then reorder the commits and try
 again.
 
-At commit 16, the error moves - you can see that the old error at line 120
+At commit 16, the error moves: you can see that the old error at line 120
 is fixed, but there is a new one at line 126. This is probably only because
 we added some code and moved the broken line further down the file.
 
 If many boards have the same error, then -e will display the error only
 once. This makes the output as concise as possible. To see which boards have
-each error, use -l.
+each error, use -l. So it is safe to omit the board name - you will not get
+lots of repeated output for every board.
 
 Buildman tries to distinguish warnings from errors, and shows warning lines
 separately with a 'w' prefix.
@@ -619,8 +637,8 @@ The full build output in this case is available in:
 
    sizes: Shows image size information.
 
-It is possible to get the build output there also. Use the -k option for
-this. In that case you will also see some output files, like:
+It is possible to get the build binary output there also. Use the -k option
+for this. In that case you will also see some output files, like:
 
    System.map  toolchain  u-boot  u-boot.bin  u-boot.map  autoconf.mk
    (also SPL versions u-boot-spl and u-boot-spl.bin if available)
@@ -631,7 +649,7 @@ Checking Image Sizes
 
 A key requirement for U-Boot is that you keep code/data size to a minimum.
 Where a new feature increases this noticeably it should normally be put
-behind a CONFIG flag so that boards can leave it off and keep the image
+behind a CONFIG flag so that boards can leave it disabled and keep the image
 size more or less the same with each new release.
 
 To check the impact of your commits on image size, use -S. For example:
@@ -670,12 +688,13 @@ A useful option is --step which lets you skip some commits. For example
 --step 2 will show the image sizes for only every 2nd commit (so it will
 compare the image sizes of the 1st, 3rd, 5th... commits). You can also use
 --step 0 which will compare only the first and last commits. This is useful
-for an overview of how your entire series affects code size.
+for an overview of how your entire series affects code size. It will build
+only the upstream commit and your final branch commit.
 
 You can also use -d to see a detailed size breakdown for each board. This
 list is sorted in order from largest growth to largest reduction.
 
-It is possible to go a little further with the -B option (--bloat). This
+It is even possible to go a little further with the -B option (--bloat). This
 shows where U-Boot has bloated, breaking the size change down to the function
 level. Example output is below:
 
@@ -798,9 +817,9 @@ $ ./tools/buildman/buildman -b us-mem4 -sSdB
 ...
 
 
-This shows that commit 19 has increased text size for arm (although only one
-board was built) and by 96 bytes for powerpc. This increase was offset in both
-cases by reductions in rodata and data/bss.
+This shows that commit 19 has reduced codesize for arm slightly and increased
+it for powerpc. This increase was offset in by reductions in rodata and
+data/bss.
 
 Shown below the summary lines are the sizes for each board. Below each board
 are the sizes for each function. This information starts with:
@@ -1063,6 +1082,8 @@ access to log files. Also it would be nice if buildman could 'hunt' for
 problems, perhaps by building a few boards for each arch, or checking
 commits for changed files and building only boards which use those files.
 
+A specific problem to fix is that Ctrl-C does not exit buildman cleanly when
+multiple builder threads are active.
 
 Credits
 =======

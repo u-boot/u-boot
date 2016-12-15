@@ -124,6 +124,10 @@ typedef		__UINT64_TYPE__	u_int64_t;
 typedef		__INT64_TYPE__		int64_t;
 #endif
 
+#ifdef __KERNEL__
+typedef phys_addr_t resource_size_t;
+#endif
+
 /*
  * Below are truly Linux-specific types that should never collide with
  * any application/library that wants linux/types.h.

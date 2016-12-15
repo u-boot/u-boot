@@ -281,7 +281,7 @@ static u32 mxc_get_pll_pfd(enum pll_clocks pll, int pfd_num)
 	case PLL_BUS:
 		if (!is_mx6ul()) {
 			if (pfd_num == 3) {
-				/* No PFD3 on PPL2 */
+				/* No PFD3 on PLL2 */
 				return 0;
 			}
 		}
@@ -433,9 +433,9 @@ static u32 get_axi_clk(void)
 
 	if (cbcdr & MXC_CCM_CBCDR_AXI_SEL) {
 		if (cbcdr & MXC_CCM_CBCDR_AXI_ALT_SEL)
-			root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
-		else
 			root_freq = mxc_get_pll_pfd(PLL_USBOTG, 1);
+		else
+			root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
 	} else
 		root_freq = get_periph_clk();
 

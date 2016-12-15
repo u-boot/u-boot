@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <watchdog.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include "linux/mtd/flashchip.h"
@@ -467,15 +468,18 @@ static int onenand_read_ecc(struct onenand_chip *this)
 static int onenand_wait(struct mtd_info *mtd, int state)
 {
 	struct onenand_chip *this = mtd->priv;
-	unsigned int flags = ONENAND_INT_MASTER;
 	unsigned int interrupt = 0;
 	unsigned int ctrl;
 
-	while (1) {
+	/* Wait at most 20ms ... */
+	u32 timeo = (CONFIG_SYS_HZ * 20) / 1000;
+	u32 time_start = get_timer(0);
+	do {
+		WATCHDOG_RESET();
+		if (get_timer(time_start) > timeo)
+			return -EIO;
 		interrupt = this->read_word(this->base + ONENAND_REG_INTERRUPT);
-		if (interrupt & flags)
-			break;
-	}
+	} while ((interrupt & ONENAND_INT_MASTER) == 0);
 
 	ctrl = this->read_word(this->base + ONENAND_REG_CTRL_STATUS);
 
@@ -1154,15 +1158,18 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from,
 static int onenand_bbt_wait(struct mtd_info *mtd, int state)
 {
 	struct onenand_chip *this = mtd->priv;
-	unsigned int flags = ONENAND_INT_MASTER;
 	unsigned int interrupt;
 	unsigned int ctrl;
 
-	while (1) {
+	/* Wait at most 20ms ... */
+	u32 timeo = (CONFIG_SYS_HZ * 20) / 1000;
+	u32 time_start = get_timer(0);
+	do {
+		WATCHDOG_RESET();
+		if (get_timer(time_start) > timeo)
+			return ONENAND_BBT_READ_FATAL_ERROR;
 		interrupt = this->read_word(this->base + ONENAND_REG_INTERRUPT);
-		if (interrupt & flags)
-			break;
-	}
+	} while ((interrupt & ONENAND_INT_MASTER) == 0);
 
 	/* To get correct interrupt status in timeout case */
 	interrupt = this->read_word(this->base + ONENAND_REG_INTERRUPT);
@@ -2536,7 +2543,8 @@ static int onenand_chip_probe(struct mtd_info *mtd)
 	this->write_word(ONENAND_CMD_RESET, this->base + ONENAND_BOOTRAM);
 
 	/* Wait reset */
-	this->wait(mtd, FL_RESETING);
+	if (this->wait(mtd, FL_RESETING))
+		return -ENXIO;
 
 	/* Restore system configuration 1 */
 	this->write_word(syscfg, this->base + ONENAND_REG_SYS_CFG1);
@@ -2649,6 +2657,7 @@ int onenand_probe(struct mtd_info *mtd)
 	mtd->_sync = onenand_sync;
 	mtd->_block_isbad = onenand_block_isbad;
 	mtd->_block_markbad = onenand_block_markbad;
+	mtd->writebufsize = mtd->writesize;
 
 	return 0;
 }

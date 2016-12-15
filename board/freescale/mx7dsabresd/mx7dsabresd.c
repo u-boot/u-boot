@@ -578,9 +578,7 @@ int power_init_board(void)
 	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_reg_read(p, PFUZE3000_LDOGCTL, &reg);
-	reg |= 0x1;
-	pmic_reg_write(p, PFUZE3000_LDOGCTL, reg);
+	pmic_reg_write(p, PFUZE3000_LDOGCTL, 0x1);
 
 	return 0;
 }
@@ -609,7 +607,14 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: i.MX7D SABRESD\n");
+	char *mode;
+
+	if (IS_ENABLED(CONFIG_ARMV7_BOOT_SEC_DEFAULT))
+		mode = "secure";
+	else
+		mode = "non-secure";
+
+	printf("Board: i.MX7D SABRESD in %s mode\n", mode);
 
 	return 0;
 }

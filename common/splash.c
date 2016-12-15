@@ -24,9 +24,37 @@
 #include <splash.h>
 #include <lcd.h>
 
+static struct splash_location default_splash_locations[] = {
+	{
+		.name = "sf",
+		.storage = SPLASH_STORAGE_SF,
+		.flags = SPLASH_STORAGE_RAW,
+		.offset = 0x0,
+	},
+	{
+		.name = "mmc_fs",
+		.storage = SPLASH_STORAGE_MMC,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
+	{
+		.name = "usb_fs",
+		.storage = SPLASH_STORAGE_USB,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
+	{
+		.name = "sata_fs",
+		.storage = SPLASH_STORAGE_SATA,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
+};
+
 __weak int splash_screen_prepare(void)
 {
-	return 0;
+	return splash_source_load(default_splash_locations,
+				  ARRAY_SIZE(default_splash_locations));
 }
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN

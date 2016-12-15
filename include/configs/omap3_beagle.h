@@ -93,7 +93,6 @@
 					"1920k(u-boot),128k(u-boot-env),"\
 					"4m(kernel),-(fs)"
 
-#define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_LED		/* LED support			*/
 
@@ -274,8 +273,6 @@
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 #define CONFIG_OMAP3_SPI
-
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* Defines for SPL */
 #define CONFIG_SPL_OMAP3_ID_NAND

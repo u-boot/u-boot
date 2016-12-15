@@ -85,20 +85,28 @@
 #define MTDPARTS_DEFAULT
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	DEFAULT_LINUX_BOOT_ENV \
-	"usbtty=cdc_acm\0" \
-	"bootargs=ubi.mtd=4 ubi.mtd=3 root=ubi0:rootfs rootfstype=ubifs " \
-		"rw rootflags=bulk_read vram=6272K omapfb.vram=0:3000K\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan && fatload mmc1 0 ${loadaddr} autoboot.scr || " \
-			"ext2load mmc1 0 ${loadaddr} autoboot.scr; then " \
+	"run distro_bootcmd; " \
+	"setenv bootargs ${bootargs_ubi}; " \
+	"if mmc rescan && load mmc 0:1 ${loadaddr} autoboot.scr; then " \
 		"source ${loadaddr}; " \
 	"fi; " \
 	"ubi part boot && ubifsmount ubi:boot && " \
 		"ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	"usbtty=cdc_acm\0" \
+	"bootargs_ubi=ubi.mtd=4 ubi.mtd=3 root=ubi0:rootfs rootfstype=ubifs " \
+		"rw rootflags=bulk_read vram=6272K omapfb.vram=0:3000K\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	BOOTENV \
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
@@ -118,7 +126,5 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #endif				/* __CONFIG_H */

@@ -6,10 +6,12 @@
  */
 
 #include <common.h>
-#include <malloc.h>
-#include <commproc.h>
-#include <net.h>
 #include <command.h>
+#include <commproc.h>
+#include <malloc.h>
+#include <net.h>
+
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,10 +49,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static int mii_discover_phy(struct eth_device *dev);
 #endif
 
-int fec8xx_miiphy_read(const char *devname, unsigned char addr,
-		unsigned char  reg, unsigned short *value);
-int fec8xx_miiphy_write(const char *devname, unsigned char  addr,
-		unsigned char  reg, unsigned short value);
+int fec8xx_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg);
+int fec8xx_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			u16 value);
 
 static struct ether_fcc_info_s
 {
@@ -170,8 +171,17 @@ int fec_initialize(bd_t *bis)
 		eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		miiphy_register(dev->name,
-			fec8xx_miiphy_read, fec8xx_miiphy_write);
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = fec8xx_miiphy_read;
+		mdiodev->write = fec8xx_miiphy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
 #endif
 	}
 	return 1;
@@ -894,9 +904,9 @@ void mii_init (void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  *****************************************************************************/
 
-int fec8xx_miiphy_read(const char *devname, unsigned char addr,
-		unsigned char  reg, unsigned short *value)
+int fec8xx_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
+	unsigned short value = 0;
 	short rdreg;    /* register working value */
 
 #ifdef MII_DEBUG
@@ -904,15 +914,15 @@ int fec8xx_miiphy_read(const char *devname, unsigned char addr,
 #endif
 	rdreg = mii_send(mk_mii_read(addr, reg));
 
-	*value = rdreg;
+	value = rdreg;
 #ifdef MII_DEBUG
-	printf ("0x%04x\n", *value);
+	printf ("0x%04x\n", value);
 #endif
-	return 0;
+	return value;
 }
 
-int fec8xx_miiphy_write(const char *devname, unsigned char  addr,
-		unsigned char  reg, unsigned short value)
+int fec8xx_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
+			u16 value)
 {
 #ifdef MII_DEBUG
 	printf ("miiphy_write(0x%x) @ 0x%x = ", reg, addr);

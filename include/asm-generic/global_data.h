@@ -28,18 +28,18 @@ typedef struct global_data {
 	bd_t *bd;
 	unsigned long flags;
 	unsigned int baudrate;
-	unsigned long cpu_clk;	/* CPU clock in Hz!		*/
+	unsigned long cpu_clk;		/* CPU clock in Hz!		*/
 	unsigned long bus_clk;
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
 	unsigned long pci_clk;
 	unsigned long mem_clk;
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
-	unsigned long fb_base;	/* Base address of framebuffer mem */
+	unsigned long fb_base;		/* Base address of framebuffer mem */
 #endif
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
-	unsigned long post_log_word;  /* Record POST activities */
-	unsigned long post_log_res; /* success of POST test */
-	unsigned long post_init_f_time;  /* When post_init_f started */
+	unsigned long post_log_word;	/* Record POST activities */
+	unsigned long post_log_res;	/* success of POST test */
+	unsigned long post_init_f_time;	/* When post_init_f started */
 #endif
 #ifdef CONFIG_BOARD_TYPES
 	unsigned long board_type;
@@ -48,28 +48,13 @@ typedef struct global_data {
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 #endif
-	unsigned long env_addr;	/* Address  of Environment struct */
+	unsigned long env_addr;		/* Address  of Environment struct */
 	unsigned long env_valid;	/* Checksum of Environment valid? */
 
-	unsigned long ram_top;	/* Top address of RAM used by U-Boot */
-
+	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
-	phys_size_t ram_size;	/* RAM size */
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-#define MEM_RESERVE_SECURE_SECURED	0x1
-#define MEM_RESERVE_SECURE_MAINTAINED	0x2
-#define MEM_RESERVE_SECURE_ADDR_MASK	(~0x3)
-	/*
-	 * Secure memory addr
-	 * This variable needs maintenance if the RAM base is not zero,
-	 * or if RAM splits into non-consecutive banks. It also has a
-	 * flag indicating the secure memory is marked as secure by MMU.
-	 * Flags used: 0x1 secured
-	 *             0x2 maintained
-	 */
-	phys_addr_t secure_ram;
-#endif
-	unsigned long mon_len;	/* monitor len */
+	phys_size_t ram_size;		/* RAM size */
+	unsigned long mon_len;		/* monitor len */
 	unsigned long irq_sp;		/* irq stack pointer */
 	unsigned long start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long reloc_off;
@@ -81,14 +66,14 @@ typedef struct global_data {
 	struct list_head uclass_root;	/* Head of core tree */
 #endif
 #ifdef CONFIG_TIMER
-	struct udevice	*timer;	/* Timer instance for Driver Model */
+	struct udevice	*timer;		/* Timer instance for Driver Model */
 #endif
 
-	const void *fdt_blob;	/* Our device tree, NULL if none */
-	void *new_fdt;		/* Relocated FDT */
-	unsigned long fdt_size;	/* Space reserved for relocated FDT */
+	const void *fdt_blob;		/* Our device tree, NULL if none */
+	void *new_fdt;			/* Relocated FDT */
+	unsigned long fdt_size;		/* Space reserved for relocated FDT */
 	struct jt_funcs *jt;		/* jump table */
-	char env_buf[32];	/* buffer for getenv() before reloc. */
+	char env_buf[32];		/* buffer for getenv() before reloc. */
 #ifdef CONFIG_TRACE
 	void		*trace_buff;	/* The trace buffer */
 #endif
@@ -139,8 +124,8 @@ typedef struct global_data {
 #define GD_FLG_SERIAL_READY	0x00100	/* Pre-reloc serial console ready  */
 #define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
 #define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
-#define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate */
-#define GD_FLG_RECORD		0x01000	/* Record console */
-#define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag */
+#define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate		   */
+#define GD_FLG_RECORD		0x01000	/* Record console		   */
+#define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag	   */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

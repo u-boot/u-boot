@@ -145,7 +145,7 @@ int set_default_vars(int nvars, char * const vars[])
  * env_aes_cbc_get_key() - Get AES-128-CBC key for the environment
  *
  * This function shall return 16-byte array containing AES-128 key used
- * to encrypt and decrypt the environment. This function must be overriden
+ * to encrypt and decrypt the environment. This function must be overridden
  * by the implementer as otherwise the environment encryption will not
  * work.
  */

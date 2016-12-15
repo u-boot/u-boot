@@ -39,14 +39,9 @@ __weak bool board_should_run_oprom(struct udevice *dev)
 	return true;
 }
 
-static bool should_load_oprom(struct udevice *dev)
+__weak bool board_should_load_oprom(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_ALWAYS_LOAD_OPROM))
-		return 1;
-	if (board_should_run_oprom(dev))
-		return 1;
-
-	return 0;
+	return true;
 }
 
 __weak uint32_t board_map_oprom_vendev(uint32_t vendev)
@@ -278,7 +273,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 		return -ENODEV;
 	}
 
-	if (!should_load_oprom(dev))
+	if (!board_should_load_oprom(dev))
 		return -ENXIO;
 
 	ret = pci_rom_probe(dev, &rom);

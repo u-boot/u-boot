@@ -36,7 +36,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	/* we have only one module, half str should be OK */
 	popts->half_strength_driver_enable = 1;
 
-	/* wrlvl values overriden as recommended by ddr init func */
+	/* wrlvl values overridden as recommended by ddr init func */
 	popts->wrlvl_override = 1;
 	popts->wrlvl_sample = 0xf;
 	popts->wrlvl_start = 0x6;

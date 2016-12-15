@@ -30,7 +30,7 @@ u32 get_my_id()
  */
 int hold_cores_in_reset(int verbose)
 {
-	/* Default to no, overriden by 'y', 'yes', 'Y', 'Yes', or '1' */
+	/* Default to no, overridden by 'y', 'yes', 'Y', 'Yes', or '1' */
 	if (getenv_yesno("mp_holdoff") == 1) {
 		if (verbose) {
 			puts("Secondary cores are being held in reset.\n");

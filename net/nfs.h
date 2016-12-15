@@ -25,7 +25,10 @@
 #define NFS_READLINK    5
 #define NFS_READ        6
 
+#define NFS3PROC_LOOKUP 3
+
 #define NFS_FHSIZE      32
+#define NFS3_FHSIZE     64
 
 #define NFSERR_PERM     1
 #define NFSERR_NOENT    2
@@ -44,7 +47,15 @@
 #define NFS_READ_SIZE 1024 /* biggest power of two that fits Ether frame */
 #endif
 
-#define NFS_MAXLINKDEPTH 16
+/* Values for Accept State flag on RPC answers (See: rfc1831) */
+enum rpc_accept_stat {
+	NFS_RPC_SUCCESS = 0,	/* RPC executed successfully */
+	NFS_RPC_PROG_UNAVAIL = 1,	/* remote hasn't exported program */
+	NFS_RPC_PROG_MISMATCH = 2,	/* remote can't support version # */
+	NFS_RPC_PROC_UNAVAIL = 3,	/* program can't support procedure */
+	NFS_RPC_GARBAGE_ARGS = 4,	/* procedure can't decode params */
+	NFS_RPC_SYSTEM_ERR = 5	/* errors like memory allocation failure */
+};
 
 struct rpc_t {
 	union {
@@ -65,7 +76,7 @@ struct rpc_t {
 			uint32_t verifier;
 			uint32_t v2;
 			uint32_t astatus;
-			uint32_t data[19];
+			uint32_t data[NFS_READ_SIZE];
 		} reply;
 	} u;
 };

@@ -115,8 +115,7 @@ free_dat:
 
 static int set_dev(int dev)
 {
-	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev]->name) {
+	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[dev]) {
 		puts("No such device\n");
 		return -1;
 	}
@@ -192,7 +191,7 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, int argc, char *const argv[])
 	struct mtd_info *mtd = nand_info[0];
 	char *cmd = argv[1];
 
-	if (CONFIG_SYS_MAX_NAND_DEVICE == 0 || !mtd->name) {
+	if (CONFIG_SYS_MAX_NAND_DEVICE == 0 || !mtd) {
 		puts("no devices available\n");
 		return 1;
 	}
@@ -306,7 +305,7 @@ static void nand_print_and_set_info(int idx)
 }
 
 static int raw_access(struct mtd_info *mtd, ulong addr, loff_t off,
-		      ulong count, int read)
+		      ulong count, int read, int no_verify)
 {
 	int ret = 0;
 
@@ -324,7 +323,7 @@ static int raw_access(struct mtd_info *mtd, ulong addr, loff_t off,
 			ret = mtd_read_oob(mtd, off, &ops);
 		} else {
 			ret = mtd_write_oob(mtd, off, &ops);
-			if (!ret)
+			if (!ret && !no_verify)
 				ret = nand_verify_page_oob(mtd, &ops, off);
 		}
 
@@ -399,7 +398,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
-			if (nand_info[i]->name)
+			if (nand_info[i])
 				nand_print_and_set_info(i);
 		}
 		return 0;
@@ -434,7 +433,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * for another device is to be used.
 	 */
 	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev]->name) {
+	    !nand_info[dev]) {
 		puts("\nno devices available\n");
 		return 1;
 	}
@@ -546,6 +545,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ulong pagecount = 1;
 		int read;
 		int raw = 0;
+		int no_verify = 0;
 
 		if (argc < 4)
 			goto usage;
@@ -557,8 +557,11 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		s = strchr(cmd, '.');
 
-		if (s && !strcmp(s, ".raw")) {
+		if (s && !strncmp(s, ".raw", 4)) {
 			raw = 1;
+
+			if (!strcmp(s, ".raw.noverify"))
+				no_verify = 1;
 
 			if (mtd_arg_off(argv[3], &dev, &off, &size, &maxsize,
 					MTD_DEV_TYPE_NAND,
@@ -633,7 +636,8 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			else
 				ret = mtd_write_oob(mtd, off, &ops);
 		} else if (raw) {
-			ret = raw_access(mtd, addr, off, pagecount, read);
+			ret = raw_access(mtd, addr, off, pagecount, read,
+					 no_verify);
 		} else {
 			printf("Unknown nand command suffix '%s'.\n", s);
 			return 1;
@@ -786,7 +790,7 @@ static char nand_help_text[] =
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
 	"nand read.raw - addr off|partition [count]\n"
-	"nand write.raw - addr off|partition [count]\n"
+	"nand write.raw[.noverify] - addr off|partition [count]\n"
 	"    Use read.raw/write.raw to avoid ECC and access the flash as-is.\n"
 #ifdef CONFIG_CMD_NAND_TRIMFFS
 	"nand write.trimffs - addr off|partition size\n"
@@ -987,7 +991,7 @@ usage:
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
-	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx]->name) {
+	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx]) {
 		printf("\n** Device %d not available\n", idx);
 		bootstage_error(BOOTSTAGE_ID_NAND_AVAILABLE);
 		return 1;

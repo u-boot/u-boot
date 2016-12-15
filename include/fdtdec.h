@@ -134,13 +134,10 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
-	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS5_USB3_PHY,/* Exynos phy controller for usb3.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
-	COMPAT_SAMSUNG_EXYNOS_FIMD,	/* Exynos Display controller */
 	COMPAT_SAMSUNG_EXYNOS_MIPI_DSI,	/* Exynos mipi dsi */
-	COMPAT_SAMSUNG_EXYNOS5_DP,	/* Exynos Display port controller */
 	COMPAT_SAMSUNG_EXYNOS_DWMMC,	/* Exynos DWMMC controller */
 	COMPAT_SAMSUNG_EXYNOS_MMC,	/* Exynos MMC controller */
 	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
@@ -149,20 +146,16 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
-	COMPAT_INTEL_PANTHERPOINT_AHCI,	/* Intel Pantherpoint AHCI */
-	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
-	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
-	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
-	COMPAT_INTEL_PCH,		/* Intel PCH */
 	COMPAT_ALTERA_SOCFPGA_DWMAC,	/* SoCFPGA Ethernet controller */
 	COMPAT_ALTERA_SOCFPGA_DWMMC,	/* SoCFPGA DWMMC controller */
 	COMPAT_ALTERA_SOCFPGA_DWC2USB,	/* SoCFPGA DWC2 USB controller */
 	COMPAT_INTEL_BAYTRAIL_FSP,	/* Intel Bay Trail FSP */
 	COMPAT_INTEL_BAYTRAIL_FSP_MDP,	/* Intel FSP memory-down params */
 	COMPAT_INTEL_IVYBRIDGE_FSP,	/* Intel Ivy Bridge FSP */
+	COMPAT_SUNXI_NAND,		/* SUNXI NAND controller */
 
 	COMPAT_COUNT,
 };
@@ -304,11 +297,13 @@ int fdtdec_next_compatible_subnode(const void *blob, int node,
  * @param na	the number of cells used to represent an address
  * @param ns	the number of cells used to represent a size
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 		const char *prop_name, int index, int na, int ns,
-		fdt_size_t *sizep);
+		fdt_size_t *sizep, bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address, and
@@ -324,10 +319,13 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
  * @param prop_name	name of property to find
  * @param index	which address to retrieve from a list of addresses. Often 0.
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
-		int node, const char *prop_name, int index, fdt_size_t *sizep);
+		int node, const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address, and
@@ -347,10 +345,13 @@ fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
  * @param prop_name	name of property to find
  * @param index	which address to retrieve from a list of addresses. Often 0.
  * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @param translate	Indicates whether to translate the returned value
+ *			using the parent node's ranges property.
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
-		const char *prop_name, int index, fdt_size_t *sizep);
+		const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate);
 
 /*
  * Look up an address property in a node and return the parsed address.

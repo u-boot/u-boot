@@ -5,19 +5,20 @@
  * Copyright (C) 2008-2009 Avionic Design GmbH
  *   Thierry Reding <thierry.reding@avionic-design.de>
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
+ * Copyright (C) 2016 Cadence Design Systems Inc.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
-#include <command.h>
+#include <dm/device.h>
+#include <dm/platform_data/net_ethoc.h>
+#include <linux/io.h>
 #include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
-#include <asm/io.h>
 #include <asm/cache.h>
+#include <wait_bit.h>
 
 /* register offsets */
 #define	MODER		0x00
@@ -162,6 +163,7 @@
 #define	ETHOC_BD_BASE		0x400
 #define	ETHOC_TIMEOUT		(HZ / 2)
 #define	ETHOC_MII_TIMEOUT	(1 + (HZ / 5))
+#define	ETHOC_IOSIZE		0x54
 
 /**
  * struct ethoc - driver-private device structure
@@ -177,6 +179,14 @@ struct ethoc {
 	u32 dty_tx;
 	u32 num_rx;
 	u32 cur_rx;
+	void __iomem *iobase;
+	void __iomem *packet;
+	phys_addr_t packet_phys;
+
+#ifdef CONFIG_PHYLIB
+	struct mii_dev *bus;
+	struct phy_device *phydev;
+#endif
 };
 
 /**
@@ -189,65 +199,68 @@ struct ethoc_bd {
 	u32 addr;
 };
 
-static inline u32 ethoc_read(struct eth_device *dev, size_t offset)
+static inline u32 *ethoc_reg(struct ethoc *priv, size_t offset)
 {
-	return readl(dev->iobase + offset);
+	return priv->iobase + offset;
 }
 
-static inline void ethoc_write(struct eth_device *dev, size_t offset, u32 data)
+static inline u32 ethoc_read(struct ethoc *priv, size_t offset)
 {
-	writel(data, dev->iobase + offset);
+	return readl(ethoc_reg(priv, offset));
 }
 
-static inline void ethoc_read_bd(struct eth_device *dev, int index,
+static inline void ethoc_write(struct ethoc *priv, size_t offset, u32 data)
+{
+	writel(data, ethoc_reg(priv, offset));
+}
+
+static inline void ethoc_read_bd(struct ethoc *priv, int index,
 				 struct ethoc_bd *bd)
 {
 	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
-	bd->stat = ethoc_read(dev, offset + 0);
-	bd->addr = ethoc_read(dev, offset + 4);
+	bd->stat = ethoc_read(priv, offset + 0);
+	bd->addr = ethoc_read(priv, offset + 4);
 }
 
-static inline void ethoc_write_bd(struct eth_device *dev, int index,
+static inline void ethoc_write_bd(struct ethoc *priv, int index,
 				  const struct ethoc_bd *bd)
 {
 	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
-	ethoc_write(dev, offset + 0, bd->stat);
-	ethoc_write(dev, offset + 4, bd->addr);
+	ethoc_write(priv, offset + 0, bd->stat);
+	ethoc_write(priv, offset + 4, bd->addr);
 }
 
-static int ethoc_set_mac_address(struct eth_device *dev)
+static int ethoc_write_hwaddr_common(struct ethoc *priv, u8 *mac)
 {
-	u8 *mac = dev->enetaddr;
-
-	ethoc_write(dev, MAC_ADDR0, (mac[2] << 24) | (mac[3] << 16) |
+	ethoc_write(priv, MAC_ADDR0, (mac[2] << 24) | (mac[3] << 16) |
 		    (mac[4] << 8) | (mac[5] << 0));
-	ethoc_write(dev, MAC_ADDR1, (mac[0] << 8) | (mac[1] << 0));
+	ethoc_write(priv, MAC_ADDR1, (mac[0] << 8) | (mac[1] << 0));
 	return 0;
 }
 
-static inline void ethoc_ack_irq(struct eth_device *dev, u32 mask)
+static inline void ethoc_ack_irq(struct ethoc *priv, u32 mask)
 {
-	ethoc_write(dev, INT_SOURCE, mask);
+	ethoc_write(priv, INT_SOURCE, mask);
 }
 
-static inline void ethoc_enable_rx_and_tx(struct eth_device *dev)
+static inline void ethoc_enable_rx_and_tx(struct ethoc *priv)
 {
-	u32 mode = ethoc_read(dev, MODER);
+	u32 mode = ethoc_read(priv, MODER);
 	mode |= MODER_RXEN | MODER_TXEN;
-	ethoc_write(dev, MODER, mode);
+	ethoc_write(priv, MODER, mode);
 }
 
-static inline void ethoc_disable_rx_and_tx(struct eth_device *dev)
+static inline void ethoc_disable_rx_and_tx(struct ethoc *priv)
 {
-	u32 mode = ethoc_read(dev, MODER);
+	u32 mode = ethoc_read(priv, MODER);
 	mode &= ~(MODER_RXEN | MODER_TXEN);
-	ethoc_write(dev, MODER, mode);
+	ethoc_write(priv, MODER, mode);
 }
 
-static int ethoc_init_ring(struct eth_device *dev)
+static int ethoc_init_ring(struct ethoc *priv)
 {
-	struct ethoc *priv = (struct ethoc *)dev->priv;
 	struct ethoc_bd bd;
+	phys_addr_t addr = priv->packet_phys;
 	int i;
 
 	priv->cur_tx = 0;
@@ -256,66 +269,92 @@ static int ethoc_init_ring(struct eth_device *dev)
 
 	/* setup transmission buffers */
 	bd.stat = TX_BD_IRQ | TX_BD_CRC;
+	bd.addr = 0;
 
 	for (i = 0; i < priv->num_tx; i++) {
+		if (addr) {
+			bd.addr = addr;
+			addr += PKTSIZE_ALIGN;
+		}
 		if (i == priv->num_tx - 1)
 			bd.stat |= TX_BD_WRAP;
 
-		ethoc_write_bd(dev, i, &bd);
+		ethoc_write_bd(priv, i, &bd);
 	}
 
 	bd.stat = RX_BD_EMPTY | RX_BD_IRQ;
 
 	for (i = 0; i < priv->num_rx; i++) {
-		bd.addr = (u32)net_rx_packets[i];
+		if (addr) {
+			bd.addr = addr;
+			addr += PKTSIZE_ALIGN;
+		} else {
+			bd.addr = virt_to_phys(net_rx_packets[i]);
+		}
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
-		flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
-		ethoc_write_bd(dev, priv->num_tx + i, &bd);
+		flush_dcache_range((ulong)net_rx_packets[i],
+				   (ulong)net_rx_packets[i] + PKTSIZE_ALIGN);
+		ethoc_write_bd(priv, priv->num_tx + i, &bd);
 	}
 
 	return 0;
 }
 
-static int ethoc_reset(struct eth_device *dev)
+static int ethoc_reset(struct ethoc *priv)
 {
 	u32 mode;
 
 	/* TODO: reset controller? */
 
-	ethoc_disable_rx_and_tx(dev);
+	ethoc_disable_rx_and_tx(priv);
 
 	/* TODO: setup registers */
 
 	/* enable FCS generation and automatic padding */
-	mode = ethoc_read(dev, MODER);
+	mode = ethoc_read(priv, MODER);
 	mode |= MODER_CRC | MODER_PAD;
-	ethoc_write(dev, MODER, mode);
+	ethoc_write(priv, MODER, mode);
 
 	/* set full-duplex mode */
-	mode = ethoc_read(dev, MODER);
+	mode = ethoc_read(priv, MODER);
 	mode |= MODER_FULLD;
-	ethoc_write(dev, MODER, mode);
-	ethoc_write(dev, IPGT, 0x15);
+	ethoc_write(priv, MODER, mode);
+	ethoc_write(priv, IPGT, 0x15);
 
-	ethoc_ack_irq(dev, INT_MASK_ALL);
-	ethoc_enable_rx_and_tx(dev);
+	ethoc_ack_irq(priv, INT_MASK_ALL);
+	ethoc_enable_rx_and_tx(priv);
 	return 0;
 }
 
-static int ethoc_init(struct eth_device *dev, bd_t * bd)
+static int ethoc_init_common(struct ethoc *priv)
 {
-	struct ethoc *priv = (struct ethoc *)dev->priv;
-	printf("ethoc\n");
+	int ret = 0;
 
 	priv->num_tx = 1;
 	priv->num_rx = PKTBUFSRX;
-	ethoc_write(dev, TX_BD_NUM, priv->num_tx);
-	ethoc_init_ring(dev);
-	ethoc_reset(dev);
+	ethoc_write(priv, TX_BD_NUM, priv->num_tx);
+	ethoc_init_ring(priv);
+	ethoc_reset(priv);
 
-	return 0;
+#ifdef CONFIG_PHYLIB
+	ret = phy_startup(priv->phydev);
+	if (ret) {
+		printf("Could not initialize PHY %s\n",
+		       priv->phydev->dev->name);
+		return ret;
+	}
+#endif
+	return ret;
+}
+
+static void ethoc_stop_common(struct ethoc *priv)
+{
+	ethoc_disable_rx_and_tx(priv);
+#ifdef CONFIG_PHYLIB
+	phy_shutdown(priv->phydev);
+#endif
 }
 
 static int ethoc_update_rx_stats(struct ethoc_bd *bd)
@@ -353,37 +392,46 @@ static int ethoc_update_rx_stats(struct ethoc_bd *bd)
 	return ret;
 }
 
-static int ethoc_rx(struct eth_device *dev, int limit)
+static int ethoc_rx_common(struct ethoc *priv, uchar **packetp)
 {
-	struct ethoc *priv = (struct ethoc *)dev->priv;
-	int count;
+	struct ethoc_bd bd;
+	u32 i = priv->cur_rx % priv->num_rx;
+	u32 entry = priv->num_tx + i;
 
-	for (count = 0; count < limit; ++count) {
-		u32 entry;
-		struct ethoc_bd bd;
+	ethoc_read_bd(priv, entry, &bd);
+	if (bd.stat & RX_BD_EMPTY)
+		return -EAGAIN;
 
-		entry = priv->num_tx + (priv->cur_rx % priv->num_rx);
-		ethoc_read_bd(dev, entry, &bd);
-		if (bd.stat & RX_BD_EMPTY)
-			break;
+	debug("%s(): RX buffer %d, %x received\n",
+	      __func__, priv->cur_rx, bd.stat);
+	if (ethoc_update_rx_stats(&bd) == 0) {
+		int size = bd.stat >> 16;
 
-		debug("%s(): RX buffer %d, %x received\n",
-		      __func__, priv->cur_rx, bd.stat);
-		if (ethoc_update_rx_stats(&bd) == 0) {
-			int size = bd.stat >> 16;
-			size -= 4;	/* strip the CRC */
-			net_process_received_packet((void *)bd.addr, size);
-		}
+		size -= 4;	/* strip the CRC */
+		if (priv->packet)
+			*packetp = priv->packet + entry * PKTSIZE_ALIGN;
+		else
+			*packetp = net_rx_packets[i];
+		return size;
+	} else {
+		return 0;
+	}
+}
 
-		/* clear the buffer descriptor so it can be reused */
-		flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
-		bd.stat &= ~RX_BD_STATS;
-		bd.stat |= RX_BD_EMPTY;
-		ethoc_write_bd(dev, entry, &bd);
-		priv->cur_rx++;
+static int ethoc_is_new_packet_received(struct ethoc *priv)
+{
+	u32 pending;
+
+	pending = ethoc_read(priv, INT_SOURCE);
+	ethoc_ack_irq(priv, pending);
+	if (pending & INT_MASK_BUSY)
+		debug("%s(): packet dropped\n", __func__);
+	if (pending & INT_MASK_RX) {
+		debug("%s(): rx irq\n", __func__);
+		return 1;
 	}
 
-	return count;
+	return 0;
 }
 
 static int ethoc_update_tx_stats(struct ethoc_bd *bd)
@@ -403,52 +451,57 @@ static int ethoc_update_tx_stats(struct ethoc_bd *bd)
 	return 0;
 }
 
-static void ethoc_tx(struct eth_device *dev)
+static void ethoc_tx(struct ethoc *priv)
 {
-	struct ethoc *priv = (struct ethoc *)dev->priv;
 	u32 entry = priv->dty_tx % priv->num_tx;
 	struct ethoc_bd bd;
 
-	ethoc_read_bd(dev, entry, &bd);
+	ethoc_read_bd(priv, entry, &bd);
 	if ((bd.stat & TX_BD_READY) == 0)
 		(void)ethoc_update_tx_stats(&bd);
 }
 
-static int ethoc_send(struct eth_device *dev, void *packet, int length)
+static int ethoc_send_common(struct ethoc *priv, void *packet, int length)
 {
-	struct ethoc *priv = (struct ethoc *)dev->priv;
 	struct ethoc_bd bd;
 	u32 entry;
 	u32 pending;
 	int tmo;
 
 	entry = priv->cur_tx % priv->num_tx;
-	ethoc_read_bd(dev, entry, &bd);
+	ethoc_read_bd(priv, entry, &bd);
 	if (unlikely(length < ETHOC_ZLEN))
 		bd.stat |= TX_BD_PAD;
 	else
 		bd.stat &= ~TX_BD_PAD;
-	bd.addr = (u32)packet;
 
-	flush_dcache_range(bd.addr, bd.addr + length);
+	if (priv->packet) {
+		void *p = priv->packet + entry * PKTSIZE_ALIGN;
+
+		memcpy(p, packet, length);
+		packet = p;
+	} else {
+		bd.addr = virt_to_phys(packet);
+	}
+	flush_dcache_range((ulong)packet, (ulong)packet + length);
 	bd.stat &= ~(TX_BD_STATS | TX_BD_LEN_MASK);
 	bd.stat |= TX_BD_LEN(length);
-	ethoc_write_bd(dev, entry, &bd);
+	ethoc_write_bd(priv, entry, &bd);
 
 	/* start transmit */
 	bd.stat |= TX_BD_READY;
-	ethoc_write_bd(dev, entry, &bd);
+	ethoc_write_bd(priv, entry, &bd);
 
 	/* wait for transfer to succeed */
 	tmo = get_timer(0) + 5 * CONFIG_SYS_HZ;
 	while (1) {
-		pending = ethoc_read(dev, INT_SOURCE);
-		ethoc_ack_irq(dev, pending & ~INT_MASK_RX);
+		pending = ethoc_read(priv, INT_SOURCE);
+		ethoc_ack_irq(priv, pending & ~INT_MASK_RX);
 		if (pending & INT_MASK_BUSY)
 			debug("%s(): packet dropped\n", __func__);
 
 		if (pending & INT_MASK_TX) {
-			ethoc_tx(dev);
+			ethoc_tx(priv);
 			break;
 		}
 		if (get_timer(0) >= tmo) {
@@ -461,24 +514,290 @@ static int ethoc_send(struct eth_device *dev, void *packet, int length)
 	return 0;
 }
 
+static int ethoc_free_pkt_common(struct ethoc *priv)
+{
+	struct ethoc_bd bd;
+	u32 i = priv->cur_rx % priv->num_rx;
+	u32 entry = priv->num_tx + i;
+	void *src;
+
+	ethoc_read_bd(priv, entry, &bd);
+
+	if (priv->packet)
+		src = priv->packet + entry * PKTSIZE_ALIGN;
+	else
+		src = net_rx_packets[i];
+	/* clear the buffer descriptor so it can be reused */
+	flush_dcache_range((ulong)src,
+			   (ulong)src + PKTSIZE_ALIGN);
+	bd.stat &= ~RX_BD_STATS;
+	bd.stat |= RX_BD_EMPTY;
+	ethoc_write_bd(priv, entry, &bd);
+	priv->cur_rx++;
+
+	return 0;
+}
+
+#ifdef CONFIG_PHYLIB
+
+static int ethoc_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct ethoc *priv = bus->priv;
+	int rc;
+
+	ethoc_write(priv, MIIADDRESS, MIIADDRESS_ADDR(addr, reg));
+	ethoc_write(priv, MIICOMMAND, MIICOMMAND_READ);
+
+	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
+			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+
+	if (rc == 0) {
+		u32 data = ethoc_read(priv, MIIRX_DATA);
+
+		/* reset MII command register */
+		ethoc_write(priv, MIICOMMAND, 0);
+		return data;
+	}
+	return rc;
+}
+
+static int ethoc_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
+			    u16 val)
+{
+	struct ethoc *priv = bus->priv;
+	int rc;
+
+	ethoc_write(priv, MIIADDRESS, MIIADDRESS_ADDR(addr, reg));
+	ethoc_write(priv, MIITX_DATA, val);
+	ethoc_write(priv, MIICOMMAND, MIICOMMAND_WRITE);
+
+	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
+			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+
+	if (rc == 0) {
+		/* reset MII command register */
+		ethoc_write(priv, MIICOMMAND, 0);
+	}
+	return rc;
+}
+
+static int ethoc_mdio_init(const char *name, struct ethoc *priv)
+{
+	struct mii_dev *bus = mdio_alloc();
+	int ret;
+
+	if (!bus) {
+		printf("Failed to allocate MDIO bus\n");
+		return -ENOMEM;
+	}
+
+	bus->read = ethoc_mdio_read;
+	bus->write = ethoc_mdio_write;
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
+	bus->priv = priv;
+
+	ret = mdio_register(bus);
+	if (ret < 0)
+		return ret;
+
+	priv->bus = miiphy_get_dev_by_name(name);
+	return 0;
+}
+
+static int ethoc_phy_init(struct ethoc *priv, void *dev)
+{
+	struct phy_device *phydev;
+	int mask = 0xffffffff;
+
+#ifdef CONFIG_PHY_ADDR
+	mask = 1 << CONFIG_PHY_ADDR;
+#endif
+
+	phydev = phy_find_by_mask(priv->bus, mask, PHY_INTERFACE_MODE_MII);
+	if (!phydev)
+		return -ENODEV;
+
+	phy_connect_dev(phydev, dev);
+
+	phydev->supported &= PHY_BASIC_FEATURES;
+	phydev->advertising = phydev->supported;
+
+	priv->phydev = phydev;
+	phy_config(phydev);
+
+	return 0;
+}
+
+#else
+
+static inline int ethoc_mdio_init(const char *name, struct ethoc *priv)
+{
+	return 0;
+}
+
+static inline int ethoc_phy_init(struct ethoc *priv, void *dev)
+{
+	return 0;
+}
+
+#endif
+
+#ifdef CONFIG_DM_ETH
+
+static int ethoc_write_hwaddr(struct udevice *dev)
+{
+	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	struct ethoc *priv = dev_get_priv(dev);
+	u8 *mac = pdata->eth_pdata.enetaddr;
+
+	return ethoc_write_hwaddr_common(priv, mac);
+}
+
+static int ethoc_send(struct udevice *dev, void *packet, int length)
+{
+	return ethoc_send_common(dev_get_priv(dev), packet, length);
+}
+
+static int ethoc_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	return ethoc_free_pkt_common(dev_get_priv(dev));
+}
+
+static int ethoc_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct ethoc *priv = dev_get_priv(dev);
+
+	if (flags & ETH_RECV_CHECK_DEVICE)
+		if (!ethoc_is_new_packet_received(priv))
+			return -EAGAIN;
+
+	return ethoc_rx_common(priv, packetp);
+}
+
+static int ethoc_start(struct udevice *dev)
+{
+	return ethoc_init_common(dev_get_priv(dev));
+}
+
+static void ethoc_stop(struct udevice *dev)
+{
+	ethoc_stop_common(dev_get_priv(dev));
+}
+
+static int ethoc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	pdata->eth_pdata.iobase = dev_get_addr(dev);
+	addr = dev_get_addr_index(dev, 1);
+	if (addr != FDT_ADDR_T_NONE)
+		pdata->packet_base = addr;
+	return 0;
+}
+
+static int ethoc_probe(struct udevice *dev)
+{
+	struct ethoc_eth_pdata *pdata = dev_get_platdata(dev);
+	struct ethoc *priv = dev_get_priv(dev);
+
+	priv->iobase = ioremap(pdata->eth_pdata.iobase, ETHOC_IOSIZE);
+	if (pdata->packet_base) {
+		priv->packet_phys = pdata->packet_base;
+		priv->packet = ioremap(pdata->packet_base,
+				       (1 + PKTBUFSRX) * PKTSIZE_ALIGN);
+	}
+
+	ethoc_mdio_init(dev->name, priv);
+	ethoc_phy_init(priv, dev);
+
+	return 0;
+}
+
+static int ethoc_remove(struct udevice *dev)
+{
+	struct ethoc *priv = dev_get_priv(dev);
+
+#ifdef CONFIG_PHYLIB
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+#endif
+	iounmap(priv->iobase);
+	return 0;
+}
+
+static const struct eth_ops ethoc_ops = {
+	.start		= ethoc_start,
+	.stop		= ethoc_stop,
+	.send		= ethoc_send,
+	.recv		= ethoc_recv,
+	.free_pkt	= ethoc_free_pkt,
+	.write_hwaddr	= ethoc_write_hwaddr,
+};
+
+static const struct udevice_id ethoc_ids[] = {
+	{ .compatible = "opencores,ethoc" },
+	{ }
+};
+
+U_BOOT_DRIVER(ethoc) = {
+	.name				= "ethoc",
+	.id				= UCLASS_ETH,
+	.of_match			= ethoc_ids,
+	.ofdata_to_platdata		= ethoc_ofdata_to_platdata,
+	.probe				= ethoc_probe,
+	.remove				= ethoc_remove,
+	.ops				= &ethoc_ops,
+	.priv_auto_alloc_size		= sizeof(struct ethoc),
+	.platdata_auto_alloc_size	= sizeof(struct ethoc_eth_pdata),
+};
+
+#else
+
+static int ethoc_init(struct eth_device *dev, bd_t *bd)
+{
+	struct ethoc *priv = (struct ethoc *)dev->priv;
+
+	return ethoc_init_common(priv);
+}
+
+static int ethoc_write_hwaddr(struct eth_device *dev)
+{
+	struct ethoc *priv = (struct ethoc *)dev->priv;
+	u8 *mac = dev->enetaddr;
+
+	return ethoc_write_hwaddr_common(priv, mac);
+}
+
+static int ethoc_send(struct eth_device *dev, void *packet, int length)
+{
+	return ethoc_send_common(dev->priv, packet, length);
+}
+
 static void ethoc_halt(struct eth_device *dev)
 {
-	ethoc_disable_rx_and_tx(dev);
+	ethoc_disable_rx_and_tx(dev->priv);
 }
 
 static int ethoc_recv(struct eth_device *dev)
 {
-	u32 pending;
+	struct ethoc *priv = (struct ethoc *)dev->priv;
+	int count;
 
-	pending = ethoc_read(dev, INT_SOURCE);
-	ethoc_ack_irq(dev, pending);
-	if (pending & INT_MASK_BUSY)
-		debug("%s(): packet dropped\n", __func__);
-	if (pending & INT_MASK_RX) {
-		debug("%s(): rx irq\n", __func__);
-		ethoc_rx(dev, PKTBUFSRX);
+	if (!ethoc_is_new_packet_received(priv))
+		return 0;
+
+	for (count = 0; count < PKTBUFSRX; ++count) {
+		uchar *packetp;
+		int size = ethoc_rx_common(priv, &packetp);
+
+		if (size < 0)
+			break;
+		if (size > 0)
+			net_process_received_packet(packetp, size);
+		ethoc_free_pkt_common(priv);
 	}
-
 	return 0;
 }
 
@@ -503,9 +822,16 @@ int ethoc_initialize(u8 dev_num, int base_addr)
 	dev->halt = ethoc_halt;
 	dev->send = ethoc_send;
 	dev->recv = ethoc_recv;
-	dev->write_hwaddr = ethoc_set_mac_address;
+	dev->write_hwaddr = ethoc_write_hwaddr;
 	sprintf(dev->name, "%s-%hu", "ETHOC", dev_num);
+	priv->iobase = ioremap(dev->iobase, ETHOC_IOSIZE);
 
 	eth_register(dev);
+
+	ethoc_mdio_init(dev->name, priv);
+	ethoc_phy_init(priv, dev);
+
 	return 1;
 }
+
+#endif

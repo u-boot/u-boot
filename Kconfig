@@ -57,7 +57,8 @@ config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
 	default y if ARCH_SUNXI
 	default n
-	select CMD_BOOTZ
+	select CMD_BOOTZ if ARM && !ARM64
+	select CMD_BOOTI if ARM64
 	select CMD_DHCP
 	select CMD_EXT2
 	select CMD_EXT4
@@ -82,6 +83,7 @@ config SYS_MALLOC_F
 config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
+	default 0x2000 if SPL_DM && SPL_OF_CONTROL
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
@@ -114,7 +116,24 @@ if EXPERT
 	  Warning:
 	  When disabling this, please check if malloc calls, maybe
 	  should be replaced by calloc - if one expects zeroed memory.
+
+config TOOLS_DEBUG
+	bool "Enable debug information for tools"
+	help
+	  Enable generation of debug information for tools such as mkimage.
+	  This can be used for debugging purposes. With debug information
+	  it is possible to set breakpoints on particular lines, single-step
+	  debug through the source code, etc.
+
 endif
+
+config PHYS_64BIT
+	bool "64bit physical address support"
+	help
+	  Say Y here to support 64bit physical memory address.
+	  This can be used not only for 64bit SoCs, but also for
+	  large physical address extention on 32bit SoCs.
+
 endmenu		# General setup
 
 menu "Boot images"
@@ -312,6 +331,34 @@ config SPL_LOAD_FIT
 	  of a FIT (Flat Image Tree) which provides more flexibility. In
 	  particular it can handle selecting from multiple device tree
 	  and passing the correct one to U-Boot.
+
+config SPL_FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by the SPL"
+	depends on SPL_LOAD_FIT && TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from the U-Boot FIT image like stripping off headers or modifying the
+	  size of the blob, verification, authentication, decryption etc. in a
+	  platform or board specific way. In order to use this feature a platform
+	  or board-specific implementation of board_fit_image_post_process() must
+	  be provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
+config FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
+	depends on FIT && TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from FIT images like stripping off headers or modifying the size of the
+	  blob, verification, authentication, decryption etc. in a platform or
+	  board specific way. In order to use this feature a platform or board-
+	  specific implementation of board_fit_image_post_process() must be
+	  provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
 
 config SPL_DFU_SUPPORT
 	bool "Enable SPL with DFU to load binaries to memory device"

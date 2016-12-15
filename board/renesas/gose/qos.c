@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-#if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
+#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 /* QoS version 0.311 */
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
@@ -1196,8 +1196,8 @@ void qos_init(void)
 	writel(0x00000001, &axi_qos->qosthres2);
 	writel(0x00000001, &axi_qos->qosqon);
 }
-#else /* CONFIG_RMOBILE_EXTRAM_BOOT */
+#else /* CONFIG_ARCH_RMOBILE_EXTRAM_BOOT */
 void qos_init(void)
 {
 }
-#endif /* CONFIG_RMOBILE_EXTRAM_BOOT */
+#endif /* CONFIG_ARCH_RMOBILE_EXTRAM_BOOT */

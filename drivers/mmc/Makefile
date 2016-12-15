@@ -25,6 +25,9 @@ obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
 obj-$(CONFIG_FTSDC021) += ftsdc021_sdhci.o
 obj-$(CONFIG_GENERIC_MMC) += mmc.o
+ifdef CONFIG_SUPPORT_EMMC_BOOT
+obj-$(CONFIG_GENERIC_MMC) += mmc_boot.o
+endif
 obj-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
 obj-$(CONFIG_KONA_SDHCI) += kona_sdhci.o
 obj-$(CONFIG_MMC_SPI) += mmc_spi.o
@@ -53,6 +56,7 @@ obj-$(CONFIG_SPEAR_SDHCI) += spear_sdhci.o
 obj-$(CONFIG_TEGRA_MMC) += tegra_mmc.o
 obj-$(CONFIG_MMC_UNIPHIER) += uniphier-sd.o
 obj-$(CONFIG_ZYNQ_SDHCI) += zynq_sdhci.o
+obj-$(CONFIG_ROCKCHIP_SDHCI) += rockchip_sdhci.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o

@@ -239,15 +239,23 @@ int pamu_init(void)
 	spaact_size = sizeof(struct paace) * NUM_SPAACT_ENTRIES;
 
 	/* Allocate space for Primary PAACT Table */
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_PPAACT_ADDR))
+	ppaact = (void *)CONFIG_SPL_PPAACT_ADDR;
+#else
 	ppaact = memalign(PAMU_TABLE_ALIGNMENT, ppaact_size);
 	if (!ppaact)
 		return -1;
+#endif
 	memset(ppaact, 0, ppaact_size);
 
 	/* Allocate space for Secondary PAACT Table */
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SPAACT_ADDR))
+	sec = (void *)CONFIG_SPL_SPAACT_ADDR;
+#else
 	sec = memalign(PAMU_TABLE_ALIGNMENT, spaact_size);
 	if (!sec)
 		return -1;
+#endif
 	memset(sec, 0, spaact_size);
 
 	ppaact_phys = virt_to_phys((void *)ppaact);

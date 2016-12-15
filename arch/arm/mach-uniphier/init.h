@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -20,8 +21,11 @@ struct uniphier_dram_ch {
 struct uniphier_board_data {
 	unsigned int dram_freq;
 	unsigned int dram_nr_ch;
-	bool dram_ddr3plus;
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
+	unsigned int flags;
+#define UNIPHIER_BD_DDR3PLUS		BIT(2)
+#define UNIPHIER_BD_PACKAGE_LD21	1
+#define UNIPHIER_BD_PACKAGE_TYPE(f)	((f) & 0x3)
 };
 
 const struct uniphier_board_data *uniphier_get_board_param(void);

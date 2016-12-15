@@ -10,6 +10,8 @@
 #ifndef _OMAP3_H_
 #define _OMAP3_H_
 
+#include <linux/sizes.h>
+
 /* Stuff on L3 Interconnect */
 #define SMX_APE_BASE			0x68000000
 
@@ -145,7 +147,8 @@ struct gpio {
 
 #define NON_SECURE_SRAM_START		0x40208000 /* Works for GP & EMU */
 #define NON_SECURE_SRAM_END		0x40210000
-#define SRAM_SCRATCH_SPACE_ADDR		0x4020E000
+#define NON_SECURE_SRAM_IMG_END		0x4020F000
+#define SRAM_SCRATCH_SPACE_ADDR		(NON_SECURE_SRAM_IMG_END - SZ_1K)
 
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
 

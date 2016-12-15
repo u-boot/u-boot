@@ -119,7 +119,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_USB_STORAGE
 #ifdef CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USBD_HS
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
@@ -129,9 +128,9 @@
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 #define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_PREBOOT \
+	"usb start; " \
 	"if hdmidet; then " \
-		"usb start; " \
-		"run set_con_usb_hdmi; " \
+		"run set_con_hdmi; " \
 	"else " \
 		"run set_con_serial; " \
 	"fi;"
@@ -181,12 +180,13 @@
 			"bootm 0x10800000 0x10d00000\0" \
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
-	"set_con_serial=setenv stdin serial; " \
-			"setenv stdout serial; " \
+	"set_con_serial=setenv stdout serial; " \
 			"setenv stderr serial;\0" \
-	"set_con_usb_hdmi=setenv stdin serial,usbkbd; " \
-			"setenv stdout serial,vga; " \
-			"setenv stderr serial,vga;\0"
+	"set_con_hdmi=setenv stdout serial,vga; " \
+			"setenv stderr serial,vga;\0" \
+	"stderr=serial,vga;\0" \
+	"stdin=serial,usbkbd;\0" \
+	"stdout=serial,vga;\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc rescan; " \

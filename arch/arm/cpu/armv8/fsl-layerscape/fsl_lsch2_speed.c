@@ -107,6 +107,12 @@ void get_sys_info(struct sys_info *sys_info)
 	case 3:
 		sys_info->freq_fman[0] = freq_c_pll[0] / 3;
 		break;
+	case 4:
+		sys_info->freq_fman[0] = freq_c_pll[0] / 4;
+		break;
+	case 5:
+		sys_info->freq_fman[0] = sys_info->freq_systembus;
+		break;
 	case 6:
 		sys_info->freq_fman[0] = freq_c_pll[1] / 2;
 		break;
@@ -124,8 +130,23 @@ void get_sys_info(struct sys_info *sys_info)
 #ifdef CONFIG_FSL_ESDHC
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	rcw_tmp = in_be32(&gur->rcwsr[15]);
-	rcw_tmp = (rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT;
-	sys_info->freq_sdhc = freq_c_pll[1] / rcw_tmp;
+	switch ((rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_sdhc = freq_c_pll[1];
+		break;
+	case 2:
+		sys_info->freq_sdhc = freq_c_pll[1] / 2;
+		break;
+	case 3:
+		sys_info->freq_sdhc = freq_c_pll[1] / 3;
+		break;
+	case 6:
+		sys_info->freq_sdhc = freq_c_pll[0] / 2;
+		break;
+	default:
+		printf("Error: Unknown ESDHC clock select!\n");
+		break;
+	}
 #else
 	sys_info->freq_sdhc = sys_info->freq_systembus;
 #endif

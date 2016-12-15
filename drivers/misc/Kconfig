@@ -90,6 +90,14 @@ config MXC_OCOTP
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
 
+config NUVOTON_NCT6102D
+	bool "Enable Nuvoton NCT6102D Super I/O driver"
+	help
+	  If you say Y here, you will get support for the Nuvoton
+	  NCT6102D Super I/O driver. This can be used to enable or
+	  disable the legacy UART, the watchdog or other devices
+	  in the Nuvoton Super IO chips on X86 platforms.
+
 config PWRSEQ
 	bool "Enable power-sequencing drivers"
 	depends on DM
@@ -121,14 +129,17 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
-config SYSRESET
-	bool "Enable support for system reset drivers"
-	depends on DM
+config TEGRA186_BPMP
+	bool "Enable support for the Tegra186 BPMP driver"
+	depends on TEGRA186
 	help
-	  Enable system reset drivers which can be used to reset the CPU or
-	  board. Each driver can provide a reset method which will be called
-	  to effect a reset. The uclass will try all available drivers when
-	  reset_walk() is called.
+	  The Tegra BPMP (Boot and Power Management Processor) is a separate
+	  auxiliary CPU embedded into Tegra to perform power management work,
+	  and controls related features such as clocks, resets, power domains,
+	  PMIC I2C bus, etc. This driver provides the core low-level
+	  communication path by which feature-specific drivers (such as clock)
+	  can make requests to the BPMP. This driver is similar to an MFD
+	  driver in the Linux kernel.
 
 config WINBOND_W83627
 	bool "Enable Winbond Super I/O driver"
@@ -144,4 +155,9 @@ config QFW
 	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
 	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
 
+config I2C_EEPROM
+	bool "Enable driver for generic I2C-attached EEPROMs"
+	depends on MISC
+	help
+	  Enable a generic driver for EEPROMs attached via I2C.
 endmenu

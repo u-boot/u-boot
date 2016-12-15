@@ -19,6 +19,7 @@
 #include <ns16550.h>
 #include <netdev.h>
 #include <twl4030.h>
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>
@@ -29,10 +30,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* gpmc_cfg is initialized by gpmc_init and we use it here */
-extern struct gpmc *gpmc_cfg;
-
-/* GPMC definitions for Ethenet Controller LAN9211 */
+/*
+ * gpmc_cfg is initialized by gpmc_init and we use it here.
+ * GPMC definitions for Ethenet Controller LAN9211
+ */
 static const u32 gpmc_lab_enet[] = {
 	ZOOM1_ENET_GPMC_CONF1,
 	ZOOM1_ENET_GPMC_CONF2,

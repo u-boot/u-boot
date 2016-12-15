@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /*
  * High Level Configuration Options
  */
@@ -30,7 +28,6 @@
  * Although the default iss 64, we still define it
  * to be on the safe side once the default is changed.
  */
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
@@ -115,8 +112,6 @@
 #else /* !CONFIG_USB_MUSB_AM35X */
 #define CONFIG_USB_MUSB_PIO_ONLY
 #endif /* CONFIG_USB_MUSB_AM35X */
-
-#define CONFIG_USB_STORAGE
 
 /* commands to include */
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */

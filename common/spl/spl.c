@@ -13,7 +13,6 @@
 #include <nand.h>
 #include <fat.h>
 #include <version.h>
-#include <i2c.h>
 #include <image.h>
 #include <malloc.h>
 #include <dm/root.h>
@@ -56,6 +55,15 @@ __weak int spl_start_uboot(void)
 	puts("SPL: Please implement spl_start_uboot() for your board\n");
 	puts("SPL: Direct Linux boot not active!\n");
 	return 1;
+}
+
+/*
+ * Weak default function for arch specific zImage check. Return zero
+ * and fill start and end address if image is recognized.
+ */
+int __weak bootz_setup(ulong image, ulong *start, ulong *end)
+{
+	 return 1;
 }
 #endif
 
@@ -121,7 +129,24 @@ int spl_parse_image_header(const struct image_header *header)
 		 * is bad, and thus should be skipped silently.
 		 */
 		panic("** no mkimage signature but raw image not supported");
-#elif defined(CONFIG_SPL_ABORT_ON_RAW_IMAGE)
+#endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+		ulong start, end;
+
+		if (!bootz_setup((ulong)header, &start, &end)) {
+			spl_image.name = "Linux";
+			spl_image.os = IH_OS_LINUX;
+			spl_image.load_addr = CONFIG_SYS_LOAD_ADDR;
+			spl_image.entry_point = CONFIG_SYS_LOAD_ADDR;
+			spl_image.size = end - start;
+			debug("spl: payload zImage, load addr: 0x%x size: %d\n",
+			      spl_image.load_addr, spl_image.size);
+			return 0;
+		}
+#endif
+
+#ifdef CONFIG_SPL_ABORT_ON_RAW_IMAGE
 		/* Signature not found, proceed to other boot methods. */
 		return -EINVAL;
 #else
@@ -203,7 +228,7 @@ int spl_init(void)
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
 #endif
-	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
 			debug("fdtdec_setup() returned error %d\n", ret);
@@ -211,7 +236,8 @@ int spl_init(void)
 		}
 	}
 	if (IS_ENABLED(CONFIG_SPL_DM)) {
-		ret = dm_init_and_scan(true);
+		/* With CONFIG_OF_PLATDATA, bring in all devices */
+		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
 		if (ret) {
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;
@@ -270,7 +296,7 @@ struct boot_device_name boot_name_table[] = {
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	{ BOOT_DEVICE_UART, "UART" },
 #endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 	{ BOOT_DEVICE_SPI, "SPI" },
 #endif
 #ifdef CONFIG_SPL_ETH_SUPPORT
@@ -333,6 +359,11 @@ static int spl_load_image(u32 boot_device)
 	case BOOT_DEVICE_MMC2_2:
 		return spl_mmc_load_image(boot_device);
 #endif
+#ifdef CONFIG_SPL_UBI
+	case BOOT_DEVICE_NAND:
+	case BOOT_DEVICE_ONENAND:
+		return spl_ubi_load_image(boot_device);
+#else
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
 		return spl_nand_load_image();
@@ -340,6 +371,7 @@ static int spl_load_image(u32 boot_device)
 #ifdef CONFIG_SPL_ONENAND_SUPPORT
 	case BOOT_DEVICE_ONENAND:
 		return spl_onenand_load_image();
+#endif
 #endif
 #ifdef CONFIG_SPL_NOR_SUPPORT
 	case BOOT_DEVICE_NOR:
@@ -349,7 +381,7 @@ static int spl_load_image(u32 boot_device)
 	case BOOT_DEVICE_UART:
 		return spl_ymodem_load_image();
 #endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 	case BOOT_DEVICE_SPI:
 		return spl_spi_load_image();
 #endif

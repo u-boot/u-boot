@@ -15,6 +15,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_ARCH_MISC_INIT
 
@@ -41,23 +42,24 @@
 #define CONFIG_CMD_BMP
 
 #define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x007fe000
+#define CONFIG_ENV_OFFSET		0x006ef000
 
 #undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
 
 #define CONFIG_BOOTARGS		\
-	"root=/dev/sda1 ro quiet"
+	"root=/dev/sda2 ro quiet"
 #define CONFIG_BOOTCOMMAND	\
-	"load scsi 0:1 03000000 /boot/vmlinuz-4.2.0-26-generic;" \
-	"load scsi 0:1 04000000 /boot/initrd.img-4.2.0-26-generic;" \
+	"load scsi 0:2 03000000 /boot/vmlinuz-${kernel-ver}-generic;"	\
+	"load scsi 0:2 04000000 /boot/initrd.img-${kernel-ver}-generic;" \
 	"run boot"
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS				\
+	"kernel-ver=4.4.0-22\0"					\
 	"boot=zboot 03000000 0 04000000 ${filesize}\0"		\
 	"upd_uboot=tftp 100000 conga/u-boot.rom;"		\
-		"sf probe;sf update 100000 0 7fe000\0"
+		"sf probe;sf update 100000 0 800000;saveenv\0"
 
 #define CONFIG_PREBOOT
 

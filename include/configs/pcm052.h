@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_VF610

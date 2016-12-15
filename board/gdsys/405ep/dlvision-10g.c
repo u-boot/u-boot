@@ -109,7 +109,10 @@ static void print_fpga_info(unsigned dev)
 	    && !((hardware_version == HWVER_101)
 		 && (fpga_state == FPGA_STATE_DONE_FAILED))) {
 		puts("not available\n");
-		print_fpga_state(dev);
+		if (fpga_state & FPGA_STATE_DONE_FAILED)
+			puts("       Waiting for FPGA-DONE timed out.\n");
+		if (fpga_state & FPGA_STATE_REFLECTION_FAILED)
+			puts("       FPGA reflection test failed.\n");
 		return;
 	}
 

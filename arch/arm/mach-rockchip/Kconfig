@@ -1,7 +1,21 @@
 if ARCH_ROCKCHIP
 
+config ROCKCHIP_RK3036
+	bool "Support Rockchip RK3036"
+	select CPU_V7
+	select SUPPORT_SPL
+	select SPL
+	help
+	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
+	  including NEON and GPU, Mali-400 graphics, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
+	select CPU_V7
+	select SUPPORT_SPL
+	select SPL
 	help
 	  The Rockchip RK3288 is a ARM-based SoC with a quad-core Cortex-A17
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
@@ -9,41 +23,26 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART,s, SPI, I2C and PWMs.
 
-config ROCKCHIP_RK3036
-	bool "Support Rockchip RK3036"
+config ROCKCHIP_RK3399
+	bool "Support Rockchip RK3399"
+	select ARM64
 	help
-	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
-	  including NEON and GPU, Mali-400 graphics, several DDR3 options
+	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
+	  and quad-core Cortex-A53.
+	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
+	  video interfaces supporting HDMI and eDP, several DDR3 options
 	  and video codec support. Peripherals include Gigabit Ethernet,
-	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
+	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
-config SYS_MALLOC_F
-	default y
+config ROCKCHIP_SPL_BACK_TO_BROM
+	bool "SPL returns to bootrom"
+	default y if ROCKCHIP_RK3036
+	help
+	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
+          SPL will return to the boot rom, which will then load the U-Boot
+          binary to keep going on.
 
-config SPL_SYS_MALLOC_SIMPLE
-	default y
-
-config SPL_DM
-	default y
-
-config DM_SERIAL
-	default y
-
-config DM_SPI
-	default y
-
-config DM_SPI_FLASH
-	default y
-
-config DM_I2C
-	default y
-
-config DM_GPIO
-	default y
-
-config BLK
-	default y
-
-source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
+source "arch/arm/mach-rockchip/rk3288/Kconfig"
+source "arch/arm/mach-rockchip/rk3399/Kconfig"
 endif

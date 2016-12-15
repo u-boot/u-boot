@@ -27,7 +27,6 @@
 #define CONFIG_VIDEO
 
 /* U-Boot general configurations */
-#define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 
 /* U-Boot environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
@@ -57,7 +56,6 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
-#define PHYS_SDRAM_SIZE			0xF0000000
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -147,7 +145,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP

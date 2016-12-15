@@ -225,7 +225,6 @@
  * USB configuration
  */
 #define CONFIG_USB_OHCI		1
-#define CONFIG_USB_STORAGE	1
 #define CONFIG_USB_CLOCK	0x0001BBBB
 #define CONFIG_USB_CONFIG	0x00001000
 /* Partitions (for USB) */

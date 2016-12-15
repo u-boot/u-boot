@@ -15,7 +15,6 @@
 
 #define CONFIG_BOARD_COMMON
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
 #define CONFIG_REVISION_TAG
 
 /* SD/MMC configuration */

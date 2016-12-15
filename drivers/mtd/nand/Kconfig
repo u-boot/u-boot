@@ -64,12 +64,14 @@ config NAND_PXA3XX
 	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
 
 config NAND_SUNXI
-	bool "Support for NAND on Allwinner SoCs in SPL"
+	bool "Support for NAND on Allwinner SoCs"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	select SYS_NAND_SELF_INIT
 	---help---
-	Enable support for NAND. This option allows SPL to read from
-	sunxi NAND using DMA transfers.
+	Enable support for NAND. This option enables the standard and
+	SPL drivers.
+	The SPL driver only supports reading from the NAND using DMA
+	transfers.
 
 config NAND_ARASAN
 	bool "Configure Arasan Nand"

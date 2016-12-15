@@ -403,6 +403,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	int i;
 	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
 	uint32_t dflt_gusbcfg;
+	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 
 	debug("Reseting OTG controller\n");
 
@@ -467,18 +468,27 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	/* 10. Unmask device IN EP common interrupts*/
 	writel(DIEPMSK_INIT, &reg->diepmsk);
 
+	rx_fifo_sz = RX_FIFO_SIZE;
+	np_tx_fifo_sz = NPTX_FIFO_SIZE;
+	tx_fifo_sz = PTX_FIFO_SIZE;
+
+	if (dev->pdata->rx_fifo_sz)
+		rx_fifo_sz = dev->pdata->rx_fifo_sz;
+	if (dev->pdata->np_tx_fifo_sz)
+		np_tx_fifo_sz = dev->pdata->np_tx_fifo_sz;
+	if (dev->pdata->tx_fifo_sz)
+		tx_fifo_sz = dev->pdata->tx_fifo_sz;
+
 	/* 11. Set Rx FIFO Size (in 32-bit words) */
-	writel(RX_FIFO_SIZE >> 2, &reg->grxfsiz);
+	writel(rx_fifo_sz, &reg->grxfsiz);
 
 	/* 12. Set Non Periodic Tx FIFO Size */
-	writel((NPTX_FIFO_SIZE >> 2) << 16 | ((RX_FIFO_SIZE >> 2)) << 0,
+	writel((np_tx_fifo_sz << 16) | rx_fifo_sz,
 	       &reg->gnptxfsiz);
 
 	for (i = 1; i < DWC2_MAX_HW_ENDPOINTS; i++)
-		writel((PTX_FIFO_SIZE >> 2) << 16 |
-		       ((RX_FIFO_SIZE + NPTX_FIFO_SIZE +
-			 PTX_FIFO_SIZE*(i-1)) >> 2) << 0,
-		       &reg->dieptxf[i-1]);
+		writel((rx_fifo_sz + np_tx_fifo_sz + tx_fifo_sz*(i-1)) |
+			tx_fifo_sz << 16, &reg->dieptxf[i-1]);
 
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);

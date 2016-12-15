@@ -102,6 +102,7 @@ F:	arch/arm/include/asm/arch-imx/
 F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/imx-common/
+F:	board/freescale/*mx*/
 
 ARM HISILICON
 M:	Peter Griffin <peter.griffin@linaro.org>
@@ -124,6 +125,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-pxa.git
 F:	arch/arm/cpu/pxa/
 F:	arch/arm/include/asm/arch-pxa/
+
+ARM RENESAS RMOBILE/R-CAR
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-sh.git
+F:	arch/arm/mach-rmobile/
 
 ARM ROCKCHIP
 M:	Simon Glass <sjg@chromium.org>
@@ -298,7 +305,7 @@ T:	git git://git.denx.de/u-boot-mips.git
 F:	arch/mips/
 
 MMC
-M:	Pantelis Antoniou <panto@antoniou-consulting.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
@@ -452,6 +459,11 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-x86.git
 F:	arch/x86/
+
+XTENSA
+M:	Max Filippov <jcmvbkbc@gmail.com>
+S:	Maintained
+F:	arch/xtensa/
 
 THE REST
 M:	Tom Rini <trini@konsulko.com>

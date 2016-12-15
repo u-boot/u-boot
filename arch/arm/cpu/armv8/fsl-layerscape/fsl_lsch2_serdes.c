@@ -13,6 +13,9 @@
 #ifdef CONFIG_SYS_FSL_SRDS_1
 static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
+#endif
 
 int is_serdes_configured(enum srds_prtcl device)
 {
@@ -20,6 +23,9 @@ int is_serdes_configured(enum srds_prtcl device)
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	ret |= serdes1_prtcl_map[device];
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	ret |= serdes2_prtcl_map[device];
 #endif
 
 	return !!ret;
@@ -36,6 +42,12 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 	case FSL_SRDS_1:
 		cfg &= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
 		cfg >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;
+		break;
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	case FSL_SRDS_2:
+		cfg &= FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_MASK;
+		cfg >>= FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_SHIFT;
 		break;
 #endif
 	default:
@@ -113,5 +125,12 @@ void fsl_serdes_init(void)
 		    FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK,
 		    FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT,
 		    serdes1_prtcl_map);
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	serdes_init(FSL_SRDS_2,
+		    CONFIG_SYS_FSL_SERDES_ADDR,
+		    FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_MASK,
+		    FSL_CHASSIS2_RCWSR4_SRDS2_PRTCL_SHIFT,
+		    serdes2_prtcl_map);
 #endif
 }

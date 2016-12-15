@@ -627,6 +627,12 @@ void recalibrate_iodelay(void);
 
 void omap_smc1(u32 service, u32 val);
 
+/*
+ * Low-level helper function used when performing secure ROM calls on high-
+ * security (HS) device variants by doing a specially-formed smc entry.
+ */
+u32 omap_smc_sec(u32 service, u32 proc_id, u32 flag, u32 *params);
+
 void enable_edma3_clocks(void);
 void disable_edma3_clocks(void);
 

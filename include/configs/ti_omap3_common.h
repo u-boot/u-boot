@@ -18,8 +18,6 @@
  * High Level Configuration Options
  */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
@@ -70,7 +68,6 @@
 
 /* SPL */
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(54 * 1024)
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \

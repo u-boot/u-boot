@@ -214,7 +214,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #endif
 
-#define CONFIG_USB_STORAGE
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
 

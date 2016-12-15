@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
 #include <ram.h>
 #include <regmap.h>
@@ -41,6 +42,19 @@ struct dram_info {
 	struct rk3288_grf *grf;
 	struct rk3288_sgrf *sgrf;
 	struct rk3288_pmu *pmu;
+	bool is_veyron;
+};
+
+struct rk3288_sdram_params {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_dmc of_plat;
+#endif
+	struct rk3288_sdram_channel ch[2];
+	struct rk3288_sdram_pctl_timing pctl_timing;
+	struct rk3288_sdram_phy_timing phy_timing;
+	struct rk3288_base_params base;
+	int num_channels;
+	struct regmap *map;
 };
 
 #ifdef CONFIG_SPL_BUILD
@@ -561,14 +575,14 @@ static void dram_all_config(const struct dram_info *dram,
 			&sdram_params->ch[chan];
 
 		sys_reg |= info->row_3_4 << SYS_REG_ROW_3_4_SHIFT(chan);
-		sys_reg |= chan << SYS_REG_CHINFO_SHIFT(chan);
+		sys_reg |= 1 << SYS_REG_CHINFO_SHIFT(chan);
 		sys_reg |= (info->rank - 1) << SYS_REG_RANK_SHIFT(chan);
 		sys_reg |= (info->col - 9) << SYS_REG_COL_SHIFT(chan);
-		sys_reg |= info->bk == 3 ? 1 << SYS_REG_BK_SHIFT(chan) : 0;
+		sys_reg |= info->bk == 3 ? 0 : 1 << SYS_REG_BK_SHIFT(chan);
 		sys_reg |= (info->cs0_row - 13) << SYS_REG_CS0_ROW_SHIFT(chan);
 		sys_reg |= (info->cs1_row - 13) << SYS_REG_CS1_ROW_SHIFT(chan);
-		sys_reg |= info->bw << SYS_REG_BW_SHIFT(chan);
-		sys_reg |= info->dbw << SYS_REG_DBW_SHIFT(chan);
+		sys_reg |= (2 >> info->bw) << SYS_REG_BW_SHIFT(chan);
+		sys_reg |= (2 >> info->dbw) << SYS_REG_DBW_SHIFT(chan);
 
 		dram_cfg_rbc(&dram->chan[chan], chan, sdram_params);
 	}
@@ -703,7 +717,7 @@ static int sdram_init(struct dram_info *dram,
 
 	return 0;
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 size_t sdram_size_mb(struct rk3288_pmu *pmu)
 {
@@ -720,13 +734,13 @@ size_t sdram_size_mb(struct rk3288_pmu *pmu)
 		rank = 1 + (sys_reg >> SYS_REG_RANK_SHIFT(ch) &
 			SYS_REG_RANK_MASK);
 		col = 9 + (sys_reg >> SYS_REG_COL_SHIFT(ch) & SYS_REG_COL_MASK);
-		bk = sys_reg & (1 << SYS_REG_BK_SHIFT(ch)) ? 3 : 0;
+		bk = 3 - ((sys_reg >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
 		cs0_row = 13 + (sys_reg >> SYS_REG_CS0_ROW_SHIFT(ch) &
 				SYS_REG_CS0_ROW_MASK);
 		cs1_row = 13 + (sys_reg >> SYS_REG_CS1_ROW_SHIFT(ch) &
 				SYS_REG_CS1_ROW_MASK);
-		bw = (sys_reg >> SYS_REG_BW_SHIFT(ch)) &
-			SYS_REG_BW_MASK;
+		bw = (2 >> ((sys_reg >> SYS_REG_BW_SHIFT(ch)) &
+			SYS_REG_BW_MASK));
 		row_3_4 = sys_reg >> SYS_REG_ROW_3_4_SHIFT(ch) &
 			SYS_REG_ROW_3_4_MASK;
 
@@ -770,7 +784,7 @@ static int veyron_init(struct dram_info *priv)
 		return ret;
 	udelay(100);/* Must wait for voltage to stabilize, 2mV/us */
 
-	rkclk_configure_cpu(priv->cru, priv->grf);
+	rk3288_clk_configure_cpu(priv->cru, priv->grf);
 
 	return 0;
 }
@@ -779,18 +793,36 @@ static int veyron_init(struct dram_info *priv)
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
-	struct rk3288_sdram_params params;
+	struct rk3288_sdram_params *params = dev_get_platdata(dev);
+
+# ifdef CONFIG_ROCKCHIP_FAST_SPL
+	if (priv->is_veyron) {
+		int ret;
+
+		ret = veyron_init(priv);
+		if (ret)
+			return ret;
+	}
+# endif
+
+	return sdram_init(priv, params);
+}
+
+static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
+{
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct rk3288_sdram_params *params = dev_get_platdata(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
 	int i, ret;
 
-	params.num_channels = fdtdec_get_int(blob, node,
-					     "rockchip,num-channels", 1);
-	for (i = 0; i < params.num_channels; i++) {
+	params->num_channels = fdtdec_get_int(blob, node,
+					      "rockchip,num-channels", 1);
+	for (i = 0; i < params->num_channels; i++) {
 		ret = fdtdec_get_byte_array(blob, node,
 					    "rockchip,sdram-channel",
-					    (u8 *)&params.ch[i],
-					    sizeof(params.ch[i]));
+					    (u8 *)&params->ch[i],
+					    sizeof(params->ch[i]));
 		if (ret) {
 			debug("%s: Cannot read rockchip,sdram-channel\n",
 			      __func__);
@@ -798,46 +830,82 @@ static int setup_sdram(struct udevice *dev)
 		}
 	}
 	ret = fdtdec_get_int_array(blob, node, "rockchip,pctl-timing",
-				   (u32 *)&params.pctl_timing,
-				   sizeof(params.pctl_timing) / sizeof(u32));
+				   (u32 *)&params->pctl_timing,
+				   sizeof(params->pctl_timing) / sizeof(u32));
 	if (ret) {
 		debug("%s: Cannot read rockchip,pctl-timing\n", __func__);
 		return -EINVAL;
 	}
 	ret = fdtdec_get_int_array(blob, node, "rockchip,phy-timing",
-				   (u32 *)&params.phy_timing,
-				   sizeof(params.phy_timing) / sizeof(u32));
+				   (u32 *)&params->phy_timing,
+				   sizeof(params->phy_timing) / sizeof(u32));
 	if (ret) {
 		debug("%s: Cannot read rockchip,phy-timing\n", __func__);
 		return -EINVAL;
 	}
 	ret = fdtdec_get_int_array(blob, node, "rockchip,sdram-params",
-				   (u32 *)&params.base,
-				   sizeof(params.base) / sizeof(u32));
+				   (u32 *)&params->base,
+				   sizeof(params->base) / sizeof(u32));
 	if (ret) {
 		debug("%s: Cannot read rockchip,sdram-params\n", __func__);
 		return -EINVAL;
 	}
+#ifdef CONFIG_ROCKCHIP_FAST_SPL
+	struct dram_info *priv = dev_get_priv(dev);
 
-# ifdef CONFIG_ROCKCHIP_FAST_SPL
-	if (!fdt_node_check_compatible(blob, 0, "google,veyron")) {
-		ret = veyron_init(priv);
-		if (ret)
-			return ret;
+	priv->is_veyron = !fdt_node_check_compatible(blob, 0, "google,veyron");
+#endif
+	ret = regmap_init_mem(dev, &params->map);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+#endif /* CONFIG_SPL_BUILD */
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+static int conv_of_platdata(struct udevice *dev)
+{
+	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct dtd_rockchip_rk3288_dmc *of_plat = &plat->of_plat;
+	int i, ret;
+
+	for (i = 0; i < 2; i++) {
+		memcpy(&plat->ch[i], of_plat->rockchip_sdram_channel,
+		       sizeof(plat->ch[i]));
 	}
-# endif
+	memcpy(&plat->pctl_timing, of_plat->rockchip_pctl_timing,
+	       sizeof(plat->pctl_timing));
+	memcpy(&plat->phy_timing, of_plat->rockchip_phy_timing,
+	       sizeof(plat->phy_timing));
+	memcpy(&plat->base, of_plat->rockchip_sdram_params, sizeof(plat->base));
+	plat->num_channels = of_plat->rockchip_num_channels;
+	ret = regmap_init_mem_platdata(dev, of_plat->reg,
+				       ARRAY_SIZE(of_plat->reg) / 2,
+				       &plat->map);
+	if (ret)
+		return ret;
 
-	return sdram_init(priv, &params);
+	return 0;
 }
 #endif
 
 static int rk3288_dmc_probe(struct udevice *dev)
 {
+#ifdef CONFIG_SPL_BUILD
+	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+#endif
 	struct dram_info *priv = dev_get_priv(dev);
 	struct regmap *map;
 	int ret;
 	struct udevice *dev_clk;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = conv_of_platdata(dev);
+	if (ret)
+		return ret;
+#endif
 	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_NOC);
 	if (IS_ERR(map))
 		return PTR_ERR(map);
@@ -849,15 +917,13 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	priv->sgrf = syscon_get_first_range(ROCKCHIP_SYSCON_SGRF);
 	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
 
-	ret = regmap_init_mem(dev, &map);
-	if (ret)
-		return ret;
-	priv->chan[0].pctl = regmap_get_range(map, 0);
-	priv->chan[0].publ = regmap_get_range(map, 1);
-	priv->chan[1].pctl = regmap_get_range(map, 2);
-	priv->chan[1].publ = regmap_get_range(map, 3);
-
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev_clk);
+#ifdef CONFIG_SPL_BUILD
+	priv->chan[0].pctl = regmap_get_range(plat->map, 0);
+	priv->chan[0].publ = regmap_get_range(plat->map, 1);
+	priv->chan[1].pctl = regmap_get_range(plat->map, 2);
+	priv->chan[1].publ = regmap_get_range(plat->map, 3);
+#endif
+	ret = rockchip_get_clk(&dev_clk);
 	if (ret)
 		return ret;
 	priv->ddr_clk.id = CLK_DDR;
@@ -898,10 +964,16 @@ static const struct udevice_id rk3288_dmc_ids[] = {
 };
 
 U_BOOT_DRIVER(dmc_rk3288) = {
-	.name = "rk3288_dmc",
+	.name = "rockchip_rk3288_dmc",
 	.id = UCLASS_RAM,
 	.of_match = rk3288_dmc_ids,
 	.ops = &rk3288_dmc_ops,
+#ifdef CONFIG_SPL_BUILD
+	.ofdata_to_platdata = rk3288_dmc_ofdata_to_platdata,
+#endif
 	.probe = rk3288_dmc_probe,
 	.priv_auto_alloc_size = sizeof(struct dram_info),
+#ifdef CONFIG_SPL_BUILD
+	.platdata_auto_alloc_size = sizeof(struct rk3288_sdram_params),
+#endif
 };

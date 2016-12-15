@@ -8,6 +8,7 @@
 #
 
 obj-y	:= cpu.o os.o start.o state.o
+obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
 obj-$(CONFIG_SANDBOX_SDL)	+= sdl.o
 

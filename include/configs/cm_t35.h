@@ -96,7 +96,6 @@
 #define CONFIG_USB_OMAP3
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_MUSB_UDC
 #define CONFIG_TWL4030_USB
 
@@ -344,7 +343,8 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
 
 /*
  * Use 0x80008000 as TEXT_BASE here for compatibility reasons with the

@@ -20,7 +20,6 @@
 #endif
 
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_PHYS_64BIT
 #define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_MAX_MEM_MAPPED		0x80000000
 
@@ -157,7 +156,7 @@
 /* SPI */
 #undef	CONFIG_OMAP3_SPI
 #define CONFIG_TI_SPI_MMAP
-#define CONFIG_SF_DEFAULT_SPEED                64000000
+#define CONFIG_SF_DEFAULT_SPEED                76800000
 #define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_0
 #define CONFIG_QSPI_QUAD_SUPPORT
 
@@ -186,8 +185,6 @@
 /* In SPL, use the environment and discard MMC support for space. */
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_SPL_MMC_SUPPORT
-#undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_MAX_SIZE             (64 << 10) /* 64 KiB */
 #endif
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -210,9 +207,7 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* USB xHCI HOST */
-#define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 
 #define CONFIG_OMAP_USB_PHY

@@ -153,7 +153,6 @@
 	""
 
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION

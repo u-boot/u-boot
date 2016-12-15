@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <wait_bit.h>
+#include <spi.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_REG_POLL_US			(1) /* 1us */
@@ -45,7 +46,6 @@
 #define CQSPI_INST_TYPE_QUAD			(2)
 
 #define CQSPI_STIG_DATA_LEN_MAX			(8)
-#define CQSPI_INDIRECTTRIGGER_ADDR_MASK		(0xFFFFF)
 
 #define CQSPI_DUMMY_CLKS_PER_BYTE		(8)
 #define CQSPI_DUMMY_BYTES_MAX			(4)
@@ -293,8 +293,11 @@ void cadence_qspi_apb_config_baudrate_div(void *reg_base,
 	debug("%s: ref_clk %dHz sclk %dHz Div 0x%x\n", __func__,
 	      ref_clk_hz, sclk_hz, div);
 
-	div = (div & CQSPI_REG_CONFIG_BAUD_MASK) << CQSPI_REG_CONFIG_BAUD_LSB;
-	reg |= div;
+	/* ensure the baud rate doesn't exceed the max value */
+	if (div > CQSPI_REG_CONFIG_BAUD_MASK)
+		div = CQSPI_REG_CONFIG_BAUD_MASK;
+
+	reg |= (div << CQSPI_REG_CONFIG_BAUD_LSB);
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(reg_base);
@@ -549,7 +552,7 @@ int cadence_qspi_apb_command_write(void *reg_base, unsigned int cmdlen,
 
 /* Opcode + Address (3/4 bytes) + dummy bytes (0-4 bytes) */
 int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, const u8 *cmdbuf)
+	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf)
 {
 	unsigned int reg;
 	unsigned int rd_reg;
@@ -573,16 +576,15 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 		addr_bytes = cmdlen - 1;
 
 	/* Setup the indirect trigger address */
-	writel(((u32)plat->ahbbase & CQSPI_INDIRECTTRIGGER_ADDR_MASK),
+	writel((u32)plat->ahbbase,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */
 	rd_reg = cmdbuf[0] << CQSPI_REG_RD_INSTR_OPCODE_LSB;
 
-#if (CONFIG_SPI_FLASH_QUAD == 1)
-	/* Instruction and address at DQ0, data at DQ0-3. */
-	rd_reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
-#endif
+	if (rx_width & SPI_RX_QUAD)
+		/* Instruction and address at DQ0, data at DQ0-3. */
+		rd_reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
 
 	/* Get address */
 	addr_value = cadence_qspi_apb_cmd2addr(&cmdbuf[1], addr_bytes);
@@ -714,7 +716,7 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 		return -EINVAL;
 	}
 	/* Setup the indirect trigger address */
-	writel(((u32)plat->ahbbase & CQSPI_INDIRECTTRIGGER_ADDR_MASK),
+	writel((u32)plat->ahbbase,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */

@@ -58,8 +58,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_VERSION_VARIABLE
-
 #define CONFIG_ENV_IS_IN_MMC		1
 
 /*

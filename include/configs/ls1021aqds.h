@@ -9,7 +9,9 @@
 
 #define CONFIG_LS102XA
 
-#define CONFIG_ARMV7_PSCI
+#define CONFIG_ARMV7_PSCI_1_0
+
+#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
 #define CONFIG_SYS_FSL_CLK
 
@@ -279,6 +281,8 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_SHIFT		0
 #define QIXIS_LBMAP_DFLTBANK		0x00
 #define QIXIS_LBMAP_ALTBANK		0x04
+#define QIXIS_PWR_CTL			0x21
+#define QIXIS_PWR_CTL_POWEROFF		0x80
 #define QIXIS_RST_CTL_RESET		0x44
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
@@ -452,10 +456,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_USB_XHCI_FSL
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		1
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-#endif
-
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
-#define CONFIG_USB_STORAGE
 #endif
 
 /*

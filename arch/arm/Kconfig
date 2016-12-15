@@ -6,62 +6,74 @@ config SYS_ARCH
 
 config ARM64
 	bool
+	select PHYS_64BIT
+	select SYS_CACHE_SHIFT_6
 
 config DMA_ADDR_T_64BIT
 	bool
 	default y if ARM64
 
 config HAS_VBAR
-        bool
+	bool
 
 config HAS_THUMB2
-        bool
+	bool
 
 config CPU_ARM720T
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_ARM920T
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_ARM926EJS
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_ARM946ES
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_ARM1136
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_ARM1176
-        bool
-        select HAS_VBAR
+	bool
+	select HAS_VBAR
+	select SYS_CACHE_SHIFT_5
 
 config CPU_V7
-        bool
-        select HAS_VBAR
-        select HAS_THUMB2
+	bool
+	select HAS_VBAR
+	select HAS_THUMB2
+	select SYS_CACHE_SHIFT_6
 
 config CPU_V7M
 	bool
-        select HAS_THUMB2
+	select HAS_THUMB2
+	select SYS_CACHE_SHIFT_5
 
 config CPU_PXA
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config CPU_SA1100
-        bool
+	bool
+	select SYS_CACHE_SHIFT_5
 
 config SYS_CPU
-        default "arm720t" if CPU_ARM720T
-        default "arm920t" if CPU_ARM920T
-        default "arm926ejs" if CPU_ARM926EJS
-        default "arm946es" if CPU_ARM946ES
-        default "arm1136" if CPU_ARM1136
-        default "arm1176" if CPU_ARM1176
-        default "armv7" if CPU_V7
-        default "armv7m" if CPU_V7M
-        default "pxa" if CPU_PXA
-        default "sa1100" if CPU_SA1100
+	default "arm720t" if CPU_ARM720T
+	default "arm920t" if CPU_ARM920T
+	default "arm926ejs" if CPU_ARM926EJS
+	default "arm946es" if CPU_ARM946ES
+	default "arm1136" if CPU_ARM1136
+	default "arm1176" if CPU_ARM1176
+	default "armv7" if CPU_V7
+	default "armv7m" if CPU_V7M
+	default "pxa" if CPU_PXA
+	default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
 
 config SYS_ARM_ARCH
@@ -77,6 +89,21 @@ config SYS_ARM_ARCH
 	default 5 if CPU_PXA
 	default 4 if CPU_SA1100
 	default 8 if ARM64
+
+config SYS_CACHE_SHIFT_5
+	bool
+
+config SYS_CACHE_SHIFT_6
+	bool
+
+config SYS_CACHE_SHIFT_7
+	bool
+
+config SYS_CACHELINE_SIZE
+	int
+	default 128 if SYS_CACHE_SHIFT_7
+	default 64 if SYS_CACHE_SHIFT_6
+	default 32 if SYS_CACHE_SHIFT_5
 
 config SEMIHOSTING
 	bool "support boot from semihosting"
@@ -371,9 +398,9 @@ config TARGET_RASTABAN
 	select DM_GPIO
 
 config TARGET_ETAMIN
-        bool "Support etamin"
-        select CPU_V7
-        select SUPPORT_SPL
+	bool "Support etamin"
+	select CPU_V7
+	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -432,6 +459,7 @@ config TARGET_AM335X_SL50
 	select CPU_V7
 	select SUPPORT_SPL
 	select DM
+	select DM_GPIO
 	select DM_SERIAL
 
 config TARGET_BAV335X
@@ -553,11 +581,14 @@ config TARGET_MX53SMD
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
+	select SUPPORT_SPL
+	select USE_TINY_PRINTF
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
 	select CPU_V7
 	select SUPPORT_SPL
+	select USE_TINY_PRINTF
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
@@ -575,9 +606,10 @@ config AM43XX
 	  protocols, dual camera support, optional 3D graphics
 	  and an optional customer programmable secure boot.
 
-config RMOBILE
+config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
-	select CPU_V7
+	select DM
+	select DM_SERIAL
 
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
@@ -657,10 +689,13 @@ config ARCH_ZYNQ
 	select DM_GPIO
 	select SPL_DM if SPL
 	select DM_MMC
+	select DM_MMC_OPS
 	select DM_SPI
 	select DM_SERIAL
 	select DM_SPI_FLASH
 	select SPL_SEPARATE_BSS if SPL
+	select DM_USB if USB
+	select BLK
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
@@ -671,6 +706,7 @@ config ARCH_ZYNQMP
 	select SUPPORT_SPL
 	select CLK
 	select SPL_CLK
+	select DM_USB if USB
 
 config TEGRA
 	bool "NVIDIA Tegra"
@@ -781,10 +817,13 @@ config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_SUPPORT_PSCI
+
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
 	select SUPPORT_SPL
+	select ARCH_SUPPORT_PSCI
 
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
@@ -840,16 +879,25 @@ config STM32
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
-	select SUPPORT_SPL
-	select SPL
 	select OF_CONTROL
-	select CPU_V7
+	select BLK
 	select DM
+	select SPL_DM if SPL
+	select SYS_MALLOC_F
+	select SPL_SYS_MALLOC_SIMPLE if SPL
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_MMC_OPS
+	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
 	select ARM64
 	select OF_CONTROL
+	select SYS_CACHE_SHIFT_7
 
 endchoice
 
@@ -881,7 +929,7 @@ source "arch/arm/cpu/armv7/omap-common/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
 
-source "arch/arm/cpu/armv7/rmobile/Kconfig"
+source "arch/arm/mach-rmobile/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
 

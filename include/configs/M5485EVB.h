@@ -71,7 +71,6 @@
 #endif
 
 #ifdef CONFIG_CMD_USB
-#	define CONFIG_USB_STORAGE
 #	define CONFIG_DOS_PARTITION
 #	define CONFIG_USB_OHCI_NEW
 #	ifndef CONFIG_CMD_PCI

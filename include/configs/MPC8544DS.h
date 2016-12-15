@@ -209,7 +209,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3100
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 
@@ -384,7 +384,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_PCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_USB_STORAGE
 #define CONFIG_PCI_EHCI_DEVICE			0
 #endif
 
@@ -462,7 +461,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=8544ds/ramdisk.uboot\0"		\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=8544ds/mpc8544ds.dtb\0"		\
 "bdev=sda3\0"
 

@@ -420,11 +420,13 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 		BN_rshift(num, num, 32); /*  N = N/B */
 	}
 
+	/*
+	 * We try signing with successively increasing size values, so this
+	 * might fail several times
+	 */
 	ret = fdt_setprop(blob, noffset, prop_name, buf, size);
-	if (ret) {
-		fprintf(stderr, "Failed to write public key to FIT\n");
-		return -ENOSPC;
-	}
+	if (ret)
+		return -FDT_ERR_NOSPACE;
 	free(buf);
 	BN_free(tmp);
 	BN_free(big2);
@@ -508,7 +510,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 		ret = fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
 					 info->algo->name);
 	}
-	if (info->require_keys) {
+	if (!ret && info->require_keys) {
 		ret = fdt_setprop_string(keydest, node, "required",
 					 info->require_keys);
 	}

@@ -284,6 +284,19 @@ int fdt_move(const void *fdt, void *buf, int bufsize);
 const char *fdt_string(const void *fdt, int stroffset);
 
 /**
+ * fdt_get_max_phandle - retrieves the highest phandle in a tree
+ * @fdt: pointer to the device tree blob
+ *
+ * fdt_get_max_phandle retrieves the highest phandle in the given
+ * device tree
+ *
+ * returns:
+ *      the highest phandle on success
+ *      0, if an error occurred
+ */
+uint32_t fdt_get_max_phandle(const void *fdt);
+
+/**
  * fdt_num_mem_rsv - retrieve the number of memory reserve map entries
  * @fdt: pointer to the device tree blob
  *
@@ -353,6 +366,17 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
 
 /**
+ * fdt_path_offset_namelen - find a tree node based on substring
+ * @fdt: pointer to the device tree blob
+ * @path: full path of the node to locate
+ * @namelen: number of characters of name to consider
+ *
+ * Identical to fdt_path_offset(), but only examine the first
+ * namelen characters of path for matching the node path.
+ */
+int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
+
+/**
  * fdt_path_offset - find a tree node by its full path
  * @fdt: pointer to the device tree blob
  * @path: full path of the node to locate
@@ -374,7 +398,10 @@ int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_path_offset(const void *fdt, const char *path);
+static inline int fdt_path_offset(const void *fdt, const char *path)
+{
+	return fdt_path_offset_namelen(fdt, path, strlen(path));
+}
 
 /**
  * fdt_get_name - retrieve the name of a given node
@@ -439,6 +466,30 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
 int fdt_next_property_offset(const void *fdt, int offset);
+
+/**
+ * fdt_for_each_property - iterate over all properties of a node
+ * @property_offset:	property offset (int)
+ * @fdt:		FDT blob (const void *)
+ * @node:		node offset (int)
+ *
+ * This is actually a wrapper around a for loop and would be used like so:
+ *
+ *	fdt_for_each_property(fdt, node, property) {
+ *		...
+ *		use property
+ *		...
+ *	}
+ *
+ * Note that this is implemented as a macro and property is used as
+ * iterator in the loop. It should therefore be a locally allocated
+ * variable. The node variable on the other hand is never modified, so
+ * it can be constant or even a literal.
+ */
+#define fdt_for_each_property_offset(property, fdt, node)	\
+	for (property = fdt_first_property_offset(fdt, node);	\
+	     property >= 0;					\
+	     property = fdt_next_property_offset(fdt, property))
 
 /**
  * fdt_get_property_by_offset - retrieve the property at a given offset
@@ -568,6 +619,13 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
  */
 const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
 				const char *name, int namelen, int *lenp);
+static inline void *fdt_getprop_namelen_w(void *fdt, int nodeoffset,
+					  const char *name, int namelen,
+					  int *lenp)
+{
+	return (void *)(uintptr_t)fdt_getprop_namelen(fdt, nodeoffset, name,
+						      namelen, lenp);
+}
 
 /**
  * fdt_getprop - retrieve the value of a given property
@@ -994,6 +1052,27 @@ int fdt_size_cells(const void *fdt, int nodeoffset);
 /**********************************************************************/
 /* Write-in-place functions                                           */
 /**********************************************************************/
+
+/**
+ * fdt_setprop_inplace_namelen_partial - change a property's value,
+ *                                       but not its size
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node whose property to change
+ * @name: name of the property to change
+ * @namelen: number of characters of name to consider
+ * @index: index of the property to change in the array
+ * @val: pointer to data to replace the property value with
+ * @len: length of the property value
+ *
+ * Identical to fdt_setprop_inplace(), but modifies the given property
+ * starting from the given index, and using only the first characters
+ * of the name. It is useful when you want to manipulate only one value of
+ * an array and you have a string that doesn't end with \0.
+ */
+int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
+					const char *name, int namelen,
+					uint32_t index, const void *val,
+					int len);
 
 /**
  * fdt_setprop_inplace - change a property's value, but not its size
@@ -1660,6 +1739,36 @@ int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
 int fdt_del_node(void *fdt, int nodeoffset);
+
+/**
+ * fdt_overlay_apply - Applies a DT overlay on a base DT
+ * @fdt: pointer to the base device tree blob
+ * @fdto: pointer to the device tree overlay blob
+ *
+ * fdt_overlay_apply() will apply the given device tree overlay on the
+ * given base device tree.
+ *
+ * Expect the base device tree to be modified, even if the function
+ * returns an error.
+ *
+ * returns:
+ *	0, on success
+ *	-FDT_ERR_NOSPACE, there's not enough space in the base device tree
+ *	-FDT_ERR_NOTFOUND, the overlay points to some inexistant nodes or
+ *		properties in the base DT
+ *	-FDT_ERR_BADPHANDLE, the phandles in the overlay do not have the right
+ *		magic
+ *	-FDT_ERR_INTERNAL,
+ *	-FDT_ERR_BADLAYOUT,
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADOFFSET,
+ *	-FDT_ERR_BADPATH,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTRUCTURE,
+ *	-FDT_ERR_BADSTATE,
+ *	-FDT_ERR_TRUNCATED, standard meanings
+ */
+int fdt_overlay_apply(void *fdt, void *fdto);
 
 /**********************************************************************/
 /* Debugging / informational functions                                */

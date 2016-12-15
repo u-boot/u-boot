@@ -23,7 +23,6 @@
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
-/*#define CONFIG_PHYS_64BIT	1*/	/* Place devices in 36-bit space */
 #define CONFIG_ADDR_MAP		1	/* Use addr map */
 
 /*
@@ -637,7 +636,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(256 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
     #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -664,7 +664,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_NETMASK		255.255.255.0
 
 /* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
+#define CONFIG_LOADADDR		0x10000000
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
@@ -685,9 +685,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 		"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
 			" $filesize\0"	\
 	"consoledev=ttyS0\0"						\
-	"ramdiskaddr=2000000\0"						\
+	"ramdiskaddr=0x18000000\0"						\
 	"ramdiskfile=your.ramdisk.u-boot\0"				\
-	"fdtaddr=c00000\0"						\
+	"fdtaddr=0x17c00000\0"						\
 	"fdtfile=mpc8641_hpcn.dtb\0"					\
 	"en-wd=mw.b ffdf0010 0x08; echo -expect:- 08; md.b ffdf0010 1\0"			\
 	"dis-wd=mw.b ffdf0010 0x00; echo -expect:- 00; md.b ffdf0010 1\0" \

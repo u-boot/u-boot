@@ -26,9 +26,13 @@ F:	configs/T1042D4RDB_SDCARD_defconfig
 F:	configs/T1042RDB_PI_SDCARD_defconfig
 
 T1040RDB_SECURE_BOOT BOARD
-M:	Aneesh Bansal  <aneesh.bansal@freescale.com>
+M:	Ruchika Gupta <ruchika.gupta@nxp.com>
 S:	Maintained
 F:	configs/T1040RDB_SECURE_BOOT_defconfig
 F:	configs/T1040D4RDB_SECURE_BOOT_defconfig
 F:	configs/T1042RDB_SECURE_BOOT_defconfig
 F:	configs/T1042D4RDB_SECURE_BOOT_defconfig
+
+M:	Sumit Garg <sumit.garg@nxp.com>
+S:	Maintained
+F:	configs/T1042RDB_PI_NAND_SECURE_BOOT_defconfig

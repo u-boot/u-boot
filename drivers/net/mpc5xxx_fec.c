@@ -35,8 +35,10 @@ typedef struct {
     uint8 head[16];             /* MAC header(6 + 6 + 2) + 2(aligned) */
 } NBUF;
 
-int fec5xxx_miiphy_read(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 *retVal);
-int fec5xxx_miiphy_write(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
+int fec5xxx_miiphy_read(struct mii_dev *bus, int phyAddr, int devad,
+			int regAddr);
+int fec5xxx_miiphy_write(struct mii_dev *bus, int phyAddr, int devad,
+			 int regAddr, u16 data);
 
 static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
@@ -917,8 +919,17 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register (dev->name,
-			fec5xxx_miiphy_read, fec5xxx_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = fec5xxx_miiphy_read;
+	mdiodev->write = fec5xxx_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 
 	/*
@@ -941,8 +952,10 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec5xxx_miiphy_read(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
+int fec5xxx_miiphy_read(struct mii_dev *bus, int phyAddr, int devad,
+			int regAddr)
 {
+	uint16 retVal = 0;
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */
 	uint32 phy;		/* convenient holder for the PHY */
@@ -977,13 +990,14 @@ int fec5xxx_miiphy_read(const char *devname, uint8 phyAddr, uint8 regAddr, uint1
 	/*
 	 * it's now safe to read the PHY's register
 	 */
-	*retVal = (uint16) eth->mii_data;
+	retVal = (uint16) eth->mii_data;
 
-	return 0;
+	return retVal;
 }
 
 /********************************************************************/
-int fec5xxx_miiphy_write(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
+int fec5xxx_miiphy_write(struct mii_dev *bus, int phyAddr, int devad,
+			 int regAddr, u16 data)
 {
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */

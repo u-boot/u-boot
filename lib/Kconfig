@@ -139,6 +139,11 @@ config OF_LIBFDT
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
 
+config OF_LIBFDT_OVERLAY
+	bool "Enable the FDT library overlay support"
+	help
+	  This enables the FDT library (libfdt) overlay support.
+
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"
 	default y if SPL_OF_CONTROL

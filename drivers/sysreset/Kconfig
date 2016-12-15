@@ -1,0 +1,16 @@
+#
+# System reset devices
+#
+
+menu "System reset device drivers"
+
+config SYSRESET
+	bool "Enable support for system reset drivers"
+	depends on DM
+	help
+	  Enable system reset drivers which can be used to reset the CPU or
+	  board. Each driver can provide a reset method which will be called
+	  to effect a reset. The uclass will try all available drivers when
+	  reset_walk() is called.
+
+endmenu

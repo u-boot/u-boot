@@ -1,7 +1,9 @@
 /*
  * UniPhier SC (System Control) block registers
  *
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -67,6 +69,10 @@
 #define SC_RSTCTRL4_NRST_UMC32		(0x1 <<  6)	/* UMC ch2 */
 #define SC_RSTCTRL4_NRST_UMC31		(0x1 <<  5)	/* UMC ch1 */
 #define SC_RSTCTRL4_NRST_UMC30		(0x1 <<  4)	/* UMC ch0 */
+
+#define SC_RSTCTRL5			(SC_BASE_ADDR | 0x2010)
+
+#define SC_RSTCTRL6			(SC_BASE_ADDR | 0x2014)
 
 #define SC_CLKCTRL			(SC_BASE_ADDR | 0x2104)
 #define SC_CLKCTRL_CEN_USB31		(0x1 << 17)	/* USB3 #1 */

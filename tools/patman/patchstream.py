@@ -112,6 +112,14 @@ class PatchStream:
         if self.commit and self.is_log:
             self.series.AddCommit(self.commit)
             self.commit = None
+        # If 'END' is missing in a 'Cover-letter' section, and that section
+        # happens to show up at the very end of the commit message, this is
+        # the chance for us to fix it up.
+        if self.in_section == 'cover' and self.is_log:
+            self.series.cover = self.section
+            self.in_section = None
+            self.skip_blank = True
+            self.section = []
 
     def ProcessLine(self, line):
         """Process a single line of a patch file or commit log
@@ -150,6 +158,7 @@ class PatchStream:
         # Handle state transition and skipping blank lines
         series_tag_match = re_series_tag.match(line)
         commit_tag_match = re_commit_tag.match(line)
+        cover_match = re_cover.match(line)
         cover_cc_match = re_cover_cc.match(line)
         signoff_match = re_signoff.match(line)
         tag_match = None
@@ -167,6 +176,33 @@ class PatchStream:
                 self.state += 1
         elif commit_match:
             self.state = STATE_MSG_HEADER
+
+        # If a tag is detected, or a new commit starts
+        if series_tag_match or commit_tag_match or \
+           cover_match or cover_cc_match or signoff_match or \
+           self.state == STATE_MSG_HEADER:
+            # but we are already in a section, this means 'END' is missing
+            # for that section, fix it up.
+            if self.in_section:
+                self.warn.append("Missing 'END' in section '%s'" % self.in_section)
+                if self.in_section == 'cover':
+                    self.series.cover = self.section
+                elif self.in_section == 'notes':
+                    if self.is_log:
+                        self.series.notes += self.section
+                elif self.in_section == 'commit-notes':
+                    if self.is_log:
+                        self.commit.notes += self.section
+                else:
+                    self.warn.append("Unknown section '%s'" % self.in_section)
+                self.in_section = None
+                self.skip_blank = True
+                self.section = []
+            # but we are already in a change list, that means a blank line
+            # is missing, fix it up.
+            if self.in_change:
+                self.warn.append("Missing 'blank line' in section 'Series-changes'")
+                self.in_change = 0
 
         # If we are in a section, keep collecting lines until we see END
         if self.in_section:
@@ -203,7 +239,7 @@ class PatchStream:
             self.skip_blank = False
 
         # Detect the start of a cover letter section
-        elif re_cover.match(line):
+        elif cover_match:
             self.in_section = 'cover'
             self.skip_blank = False
 

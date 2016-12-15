@@ -17,7 +17,6 @@ enum {
 };
 
 int get_fpga_state(unsigned dev);
-void print_fpga_state(unsigned dev);
 
 int fpga_set_reg(u32 fpga, u16 *reg, off_t regoff, u16 data);
 int fpga_get_reg(u32 fpga, u16 *reg, off_t regoff, u16 *data);

@@ -262,6 +262,16 @@
 		};
 	};
 
+	pwrdom: power-domain {
+		compatible = "sandbox,power-domain";
+		#power-domain-cells = <1>;
+	};
+
+	power-domain-test {
+		compatible = "sandbox,power-domain-test";
+		power-domains = <&pwrdom 2>;
+	};
+
 	ram {
 		compatible = "sandbox,ram";
 	};

@@ -17,7 +17,6 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pmu_rk3288.h>
 #include <dm/pinctrl.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -476,6 +475,7 @@ static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 static int rk3288_pinctrl_get_periph_id(struct udevice *dev,
 					struct udevice *periph)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	u32 cell[3];
 	int ret;
 
@@ -506,6 +506,7 @@ static int rk3288_pinctrl_get_periph_id(struct udevice *dev,
 	case 103:
 		return PERIPH_ID_HDMI;
 	}
+#endif
 
 	return -ENOENT;
 }
@@ -587,6 +588,7 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
 	uint shift, ind = index;
 	uint mask;
+	uint value;
 	u32 *addr;
 	int ret;
 
@@ -595,7 +597,18 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 					  &mask);
 	if (ret)
 		return ret;
-	rk_clrsetreg(addr, mask << shift, muxval << shift);
+
+	/*
+	 * PMU_GPIO0 registers cannot be selectively written so we cannot use
+	 * rk_clrsetreg() here.  However, the upper 16 bits are reserved and
+	 * are ignored when written, so we can use the same code as for the
+	 * other GPIO banks providing that we preserve the value of the other
+	 * bits.
+	 */
+	value = readl(addr);
+	value &= ~(mask << shift);
+	value |= (mask << (shift + 16)) | (muxval << shift);
+	writel(value, addr);
 
 	/* Handle pullup/pulldown */
 	if (flags) {
@@ -613,7 +626,12 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 			addr = &priv->grf->gpio1_p[banknum - 1][ind];
 		debug("%s: addr=%p, val=%x, shift=%x\n", __func__, addr, val,
 		      shift);
-		rk_clrsetreg(addr, 3 << shift, val << shift);
+
+		/* As above, rk_clrsetreg() cannot be used here. */
+		value = readl(addr);
+		value &= ~(mask << shift);
+		value |= (3 << (shift + 16)) | (val << shift);
+		writel(value, addr);
 	}
 
 	return 0;
@@ -661,12 +679,6 @@ static struct pinctrl_ops rk3288_pinctrl_ops = {
 	.request	= rk3288_pinctrl_request,
 	.get_periph_id	= rk3288_pinctrl_get_periph_id,
 };
-
-static int rk3288_pinctrl_bind(struct udevice *dev)
-{
-	/* scan child GPIO banks */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
 
 #ifndef CONFIG_SPL_BUILD
 static int rk3288_pinctrl_parse_tables(struct rk3288_pinctrl_priv *priv,
@@ -719,11 +731,13 @@ static const struct udevice_id rk3288_pinctrl_ids[] = {
 };
 
 U_BOOT_DRIVER(pinctrl_rk3288) = {
-	.name		= "pinctrl_rk3288",
+	.name		= "rockchip_rk3288_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk3288_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3288_pinctrl_priv),
 	.ops		= &rk3288_pinctrl_ops,
-	.bind		= rk3288_pinctrl_bind,
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.bind		= dm_scan_fdt_dev,
+#endif
 	.probe		= rk3288_pinctrl_probe,
 };

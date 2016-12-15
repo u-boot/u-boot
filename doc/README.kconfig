@@ -22,7 +22,7 @@ Here are some worth-mentioning configuration targets.
 - silentoldconfig
 
   This target updates .config, include/generated/autoconf.h and
-  include/configs/* as in Linux.  In U-Boot, it also does the followings
+  include/configs/* as in Linux.  In U-Boot, it also does the following
   for the compatibility with the old configuration system:
 
    * create a symbolic link "arch/${ARCH}/include/asm/arch" pointing to

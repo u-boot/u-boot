@@ -6,55 +6,39 @@ choice
 
 config TARGET_AM3517_EVM
 	bool "AM3517 EVM"
-	select SUPPORT_SPL
 
 config TARGET_MT_VENTOUX
 	bool "TeeJet Mt.Ventoux"
-	select SUPPORT_SPL
 
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
-	select SUPPORT_SPL
 
 config TARGET_CM_T3517
 	bool "CompuLab CM-T3517 boards"
 
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_OMAP3_EVM
 	bool "TI OMAP3 EVM"
-	select SUPPORT_SPL
-
-config TARGET_OMAP3_EVM_QUICK_MMC
-	bool "TI OMAP3 EVM Quick MMC"
-	select SUPPORT_SPL
-
-config TARGET_OMAP3_EVM_QUICK_NAND
-	bool "TI OMAP3 EVM Quick NAND"
-	select SUPPORT_SPL
 
 config TARGET_OMAP3_IGEP00X0
 	bool "IGEP"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_OMAP3_OVERO
 	bool "OMAP35xx Gumstix Overo"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -67,51 +51,42 @@ config TARGET_OMAP3_ZOOM1
 
 config TARGET_AM3517_CRANE
 	bool "am3517_crane"
-	select SUPPORT_SPL
 
 config TARGET_OMAP3_PANDORA
 	bool "OMAP3 Pandora"
 
 config TARGET_ECO5PK
 	bool "ECO5PK"
-	select SUPPORT_SPL
 
 config TARGET_TRICORDER
 	bool "Tricorder"
-	select SUPPORT_SPL
 
 config TARGET_MCX
 	bool "MCX"
-	select SUPPORT_SPL
 
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-	select SUPPORT_SPL
 
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
 
 config TARGET_TAO3530
 	bool "TAO3530"
-	select SUPPORT_SPL
 
 config TARGET_TWISTER
 	bool "Twister"
-	select SUPPORT_SPL
 
 config TARGET_OMAP3_CAIRO
 	bool "QUIPOS CAIRO"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_SNIPER
 	bool "LG Optimus Black"
-	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO

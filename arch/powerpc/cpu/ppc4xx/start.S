@@ -144,7 +144,7 @@
 #endif
 
 /*
- * Unless otherwise overriden, enable two 128MB cachable instruction regions
+ * Unless otherwise overridden, enable two 128MB cachable instruction regions
  * at CONFIG_SYS_SDRAM_BASE and another 128MB cacheable instruction region covering
  * NOR flash at CONFIG_SYS_FLASH_BASE. Disable all cacheable data regions.
  */
@@ -743,8 +743,16 @@ _start:
 	/*----------------------------------------------------------------*/
 	/* Setup the stack in internal SRAM */
 	/*----------------------------------------------------------------*/
-	lis	r1,CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@l
+	/*
+	 * Reserve space for globals and store address for initialization
+	 * with board_init_f_init_reserve() in r14
+	 */
+	mr	r3, r1
+	bl	board_init_f_alloc_reserve
+	mr	r1, r3
+	mr	r14, r3
 	li	r0,0
 	stwu	r0,-4(r1)
 	stwu	r0,-4(r1)		/* Terminate call chain */
@@ -760,13 +768,9 @@ _start:
 #endif
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-	mr	r3, r1
-	bl	board_init_f_alloc_reserve
-	mr	r1, r3
+	/* address for globals was stored in r14 */
+	mr	r3, r14
 	bl	board_init_f_init_reserve
-	li	r0,0
-	stwu	r0, -4(r1)
-	stwu	r0, -4(r1)
 	li	r3, 0
 	bl	board_init_f
 	/* NOTREACHED - board_init_f() does not return */
@@ -831,8 +835,16 @@ _start:
 	 * for their primordial stack, setup stack here directly after the
 	 * SDRAM is initialized in ext_bus_cntlr_init.
 	 */
-	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET /* set up the stack in SDRAM */
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@l
+	/*
+	 * Reserve space for globals and store address for initialization
+	 * with board_init_f_init_reserve() in r14
+	 */
+	mr	r3, r1
+	bl	board_init_f_alloc_reserve
+	mr	r1, r3
+	mr	r14, r3
 
 	li	r0, 0			/* Make room for stack frame header and */
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
@@ -972,8 +984,16 @@ _start:
 	 * Load the initial stack pointer and data area and convert the size,
 	 * in bytes, to the number of words to initialize to a known value.
 	 */
-	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r1, r1, CONFIG_SYS_INIT_SP_OFFSET@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@l
+	/*
+	 * Reserve space for globals and store address for initialization
+	 * with board_init_f_init_reserve() in r14
+	 */
+	mr	r3, r1
+	bl	board_init_f_alloc_reserve
+	mr	r1, r3
+	mr	r14, r3
 
 	lis	r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@h
 	ori	r4, r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@l
@@ -993,6 +1013,7 @@ _start:
 	 * Make room for stack frame header and clear final stack frame so
 	 * that stack backtraces terminate cleanly.
 	 */
+	li	r0, 0
 	stwu	r0, -4(r1)
 	stwu	r0, -4(r1)
 
@@ -1011,10 +1032,16 @@ _start:
 	/*
 	 * Stack in OCM.
 	 */
-
-	/* Set up Stack at top of OCM */
-	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)@h
-	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@l
+	/*
+	 * Reserve space for globals and store address for initialization
+	 * with board_init_f_init_reserve() in r14
+	 */
+	mr	r3, r1
+	bl	board_init_f_alloc_reserve
+	mr	r1, r3
+	mr	r14, r3
 
 	/* Set up a zeroized stack frame so that backtrace works right */
 	li	r0, 0
@@ -1035,12 +1062,9 @@ _start:
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-	mr	r3, r1
-	bl	board_init_f_alloc_reserve
-	mr	r1, r3
+	/* address for globals was stored in r14 */
+	mr	r3, r14
 	bl	board_init_f_init_reserve
-	stwu	r0, -4(r1)
-	stwu	r0, -4(r1)
 	li	r3, 0
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
 	/* NOTREACHED - board_init_f() does not return */

@@ -59,7 +59,6 @@
 /* USB support */
 #if USE_GRUSB
 #define CONFIG_USB_UHCI
-#define CONFIG_USB_STORAGE
 /* Enable needed helper functions */
 #define CONFIG_SYS_STDIO_DEREGISTER	/* needs stdio_deregister */
 #endif

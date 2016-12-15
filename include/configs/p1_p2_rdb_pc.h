@@ -12,10 +12,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 #if defined(CONFIG_P1020MBG)
 #define CONFIG_BOARDNAME "P1020MBG-PC"
 #define CONFIG_P1020
@@ -882,7 +878,6 @@
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
 #endif
 #endif
 
@@ -989,7 +984,7 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 "consoledev=ttyS0\0"	\
 "ramdiskaddr=2000000\0"	\
 "ramdiskfile=rootfs.ext2.gz.uboot\0"	\
-"fdtaddr=c00000\0"	\
+"fdtaddr=1e00000\0"	\
 "bdev=sda1\0" \
 "jffs2nor=mtdblock3\0"	\
 "norbootaddr=ef080000\0"	\

@@ -264,7 +264,8 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct omap_nand_info *info = nand_get_controller_data(chip);
-	uint32_t *ptr, val = 0;
+	const uint32_t *ptr;
+	uint32_t val = 0;
 	int8_t i = 0, j;
 
 	switch (info->ecc_scheme) {
@@ -898,7 +899,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device]->name) {
+	    !nand_info[nand_curr_device]) {
 		printf("nand: error: no NAND devices found\n");
 		return -ENODEV;
 	}

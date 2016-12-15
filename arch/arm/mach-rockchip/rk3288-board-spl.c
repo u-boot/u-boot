@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
 	const char *bootdev;
@@ -63,6 +64,7 @@ u32 spl_boot_device(void)
 	}
 
 fallback:
+#endif
 	return BOOT_DEVICE_MMC1;
 }
 
@@ -114,7 +116,8 @@ static void configure_l2ctlr(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 static int configure_emmc(struct udevice *pinctrl)
 {
-#if !defined(CONFIG_TARGET_ROCK2) && !defined(CONFIG_TARGET_FIREFLY_RK3288)
+#if defined(CONFIG_TARGET_CHROMEBOOK_JERRY)
+
 	struct gpio_desc desc;
 	int ret;
 
@@ -145,11 +148,10 @@ static int configure_emmc(struct udevice *pinctrl)
 		return ret;
 	}
 #endif
-
 	return 0;
 }
 #endif
-
+extern void back_to_bootrom(void);
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -187,7 +189,7 @@ void board_init_f(ulong dummy)
 	rockchip_timer_init();
 	configure_l2ctlr();
 
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);
 		return;
@@ -204,6 +206,9 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
+#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+	back_to_bootrom();
+#endif
 }
 
 static int setup_led(void)
@@ -246,6 +251,7 @@ void spl_board_init(void)
 		debug("%s: Cannot find pinctrl device\n", __func__);
 		goto err;
 	}
+
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
 	if (ret) {

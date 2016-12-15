@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <serial.h>
 #include <libfdt.h>
+#include <fdt_support.h>
 #include <fdtdec.h>
 #include <asm/sections.h>
 #include <linux/ctype.h>
@@ -19,6 +20,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * Here are the type we know about. One day we might allow drivers to
  * register. For now we just put them here. The COMPAT macro allows us to
  * turn this into a sparse list later, and keeps the ID with the name.
+ *
+ * NOTE: This list is basically a TODO list for things that need to be
+ * converted to driver model. So don't add new things here unless there is a
+ * good reason why driver-model conversion is infeasible. Examples include
+ * things which are used before driver model is available.
  */
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
@@ -39,13 +45,10 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
 	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
 	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
-	COMPAT(GOOGLE_CROS_EC_KEYB, "google,cros-ec-keyb"),
 	COMPAT(SAMSUNG_EXYNOS_USB_PHY, "samsung,exynos-usb-phy"),
 	COMPAT(SAMSUNG_EXYNOS5_USB3_PHY, "samsung,exynos5250-usb3-phy"),
 	COMPAT(SAMSUNG_EXYNOS_TMU, "samsung,exynos-tmu"),
-	COMPAT(SAMSUNG_EXYNOS_FIMD, "samsung,exynos-fimd"),
 	COMPAT(SAMSUNG_EXYNOS_MIPI_DSI, "samsung,exynos-mipi-dsi"),
-	COMPAT(SAMSUNG_EXYNOS5_DP, "samsung,exynos5-dp"),
 	COMPAT(SAMSUNG_EXYNOS_DWMMC, "samsung,exynos-dwmmc"),
 	COMPAT(SAMSUNG_EXYNOS_MMC, "samsung,exynos-mmc"),
 	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686"),
@@ -54,20 +57,16 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS5_I2C, "samsung,exynos5-hsi2c"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
-	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
-	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
-	COMPAT(INTEL_GMA, "intel,gma"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
-	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
-	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
 	COMPAT(ALTERA_SOCFPGA_DWMMC, "altr,socfpga-dw-mshc"),
 	COMPAT(ALTERA_SOCFPGA_DWC2USB, "snps,dwc2"),
-	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP, "intel,baytrail-fsp"),
-	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
-	COMPAT(COMPAT_INTEL_IVYBRIDGE_FSP, "intel,ivybridge-fsp"),
+	COMPAT(INTEL_BAYTRAIL_FSP, "intel,baytrail-fsp"),
+	COMPAT(INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
+	COMPAT(INTEL_IVYBRIDGE_FSP, "intel,ivybridge-fsp"),
+	COMPAT(COMPAT_SUNXI_NAND, "allwinner,sun4i-a10-nand"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -79,7 +78,7 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 
 fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 		const char *prop_name, int index, int na, int ns,
-		fdt_size_t *sizep)
+		fdt_size_t *sizep, bool translate)
 {
 	const fdt32_t *prop, *prop_end;
 	const fdt32_t *prop_addr, *prop_size, *prop_after_size;
@@ -114,7 +113,12 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 		return FDT_ADDR_T_NONE;
 	}
 
-	addr = fdtdec_get_number(prop_addr, na);
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_OF_LIBFDT)
+	if (translate)
+		addr = fdt_translate_address(blob, node, prop_addr);
+	else
+#endif
+		addr = fdtdec_get_number(prop_addr, na);
 
 	if (sizep) {
 		*sizep = fdtdec_get_number(prop_size, ns);
@@ -128,7 +132,8 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 }
 
 fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
-		int node, const char *prop_name, int index, fdt_size_t *sizep)
+		int node, const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate)
 {
 	int na, ns;
 
@@ -149,11 +154,12 @@ fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
 	debug("na=%d, ns=%d, ", na, ns);
 
 	return fdtdec_get_addr_size_fixed(blob, node, prop_name, index, na,
-					  ns, sizep);
+					  ns, sizep, translate);
 }
 
 fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
-		const char *prop_name, int index, fdt_size_t *sizep)
+		const char *prop_name, int index, fdt_size_t *sizep,
+		bool translate)
 {
 	int parent;
 
@@ -166,7 +172,7 @@ fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
 	}
 
 	return fdtdec_get_addr_size_auto_parent(blob, parent, node, prop_name,
-						index, sizep);
+						index, sizep, translate);
 }
 
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
@@ -176,7 +182,7 @@ fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 
 	return fdtdec_get_addr_size_fixed(blob, node, prop_name, 0,
 					  sizeof(fdt_addr_t) / sizeof(fdt32_t),
-					  ns, sizep);
+					  ns, sizep, false);
 }
 
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,

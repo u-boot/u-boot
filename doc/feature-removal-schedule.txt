@@ -12,7 +12,7 @@ When:	Release v2013.10
 
 Why:	As the 'mtest' command is no longer default, a number of platforms
 	have not opted to turn the command back on and thus provide unused
-	defines (which are likely to be propogated to new platforms from
+	defines (which are likely to be propagated to new platforms from
 	copy/paste).  Remove these defines when unused.
 
 Who:	Tom Rini <trini@ti.com>

@@ -87,7 +87,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/*
 	 * Set the address of the fdt
 	 */
-	if (argv[1][0] == 'a') {
+	if (strncmp(argv[1], "ad", 2) == 0) {
 		unsigned long addr;
 		int control = 0;
 		struct fdt_header *blob;
@@ -639,6 +639,27 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	}
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	/* apply an overlay */
+	else if (strncmp(argv[1], "ap", 2) == 0) {
+		unsigned long addr;
+		struct fdt_header *blob;
+
+		if (argc != 3)
+			return CMD_RET_USAGE;
+
+		if (!working_fdt)
+			return CMD_RET_FAILURE;
+
+		addr = simple_strtoul(argv[2], NULL, 16);
+		blob = map_sysmem(addr, 0);
+		if (!fdt_valid(&blob))
+			return CMD_RET_FAILURE;
+
+		if (fdt_overlay_apply(working_fdt, blob))
+			return CMD_RET_FAILURE;
+	}
+#endif
 	/* resize the fdt */
 	else if (strncmp(argv[1], "re", 2) == 0) {
 		fdt_shrink_to_minimum(working_fdt);
@@ -1025,6 +1046,9 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 #ifdef CONFIG_SYS_LONGHELP
 static char fdt_help_text[] =
 	"addr [-c]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	"fdt apply <addr>                    - Apply overlay to the DT\n"
+#endif
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif

@@ -32,7 +32,18 @@ void pmic_enable_cpu_vdd(void)
 {
 	debug("%s entry\n", __func__);
 
-	/* Don't need to set up VDD_CORE - already done - by OTP */
+#ifdef AS3722_SD1VOLTAGE_DATA
+	/* Set up VDD_CORE, for boards where OTP is incorrect*/
+	debug("%s: Setting VDD_CORE via AS3722 reg 1\n", __func__);
+	/* Configure VDD_CORE via the AS3722 PMIC on the PWR I2C bus */
+	tegra_i2c_ll_write_addr(AS3722_I2C_ADDR, 2);
+	tegra_i2c_ll_write_data(AS3722_SD1VOLTAGE_DATA, I2C_SEND_2_BYTES);
+	/*
+	 * Don't write SDCONTROL - it's already 0x7F, i.e. all SDs enabled.
+	 * tegra_i2c_ll_write_data(AS3722_SD1CONTROL_DATA, I2C_SEND_2_BYTES);
+	 */
+	udelay(10 * 1000);
+#endif
 
 	debug("%s: Setting VDD_CPU to 1.0V via AS3722 reg 0/4D\n", __func__);
 	/*

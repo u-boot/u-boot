@@ -22,10 +22,4 @@ config CONS_INDEX
 	  board you may want something other than UART0 as for example the IDK
 	  uses UART3 so enter 4 here.
 
-config DM_GPIO
-	default y
-
-config DM_SERIAL
-	default y
-
 endif

@@ -319,7 +319,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_USB_XHCI_FSL
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
-#define CONFIG_USB_STORAGE
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS

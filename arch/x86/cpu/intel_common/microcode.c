@@ -43,7 +43,7 @@ static int microcode_decode_node(const void *blob, int node,
 {
 	update->data = fdt_getprop(blob, node, "data", &update->size);
 	if (!update->data)
-		return -EINVAL;
+		return -ENOENT;
 	update->data += UCODE_HEADER_LEN;
 	update->size -= UCODE_HEADER_LEN;
 
@@ -145,6 +145,16 @@ int microcode_update_intel(void)
 		}
 
 		ret = microcode_decode_node(blob, node, &update);
+		if (ret == -ENOENT && ucode_base) {
+			/*
+			 * The microcode has been removed from the device tree
+			 * in the build system. In that case it will have
+			 * already been updated in car_init().
+			 */
+			debug("%s: Microcode data not available\n", __func__);
+			skipped++;
+			continue;
+		}
 		if (ret) {
 			debug("%s: Unable to decode update: %d\n", __func__,
 			      ret);

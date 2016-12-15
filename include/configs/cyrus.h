@@ -11,8 +11,6 @@
 
 #define CONFIG_CYRUS
 
-#define CONFIG_PHYS_64BIT
-
 #if !defined(CONFIG_PPC_P5020) && !defined(CONFIG_PPC_P5040)
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
@@ -446,7 +444,6 @@
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -520,7 +517,7 @@
 "ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"			\
 "consoledev=ttyS0\0"					\
 "ramdiskaddr=2000000\0"					\
-"fdtaddr=c00000\0"					\
+"fdtaddr=1e00000\0"					\
 "bdev=sda3\0"
 
 #define CONFIG_HDBOOT					\

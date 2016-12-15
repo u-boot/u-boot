@@ -31,42 +31,27 @@
 	rte;
 
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
+
 .text
+
 /*
- *	Vector table. This is used for initial platform startup.
- *	These vectors are to catch any un-intended traps.
+ * Vector table. This is used for initial platform startup.
+ * These vectors are to catch any un-intended traps.
  */
 _vectors:
+INITSP:	.long	0x00000000		/* Initial SP	*/
+INITPC:	.long	_START			/* Initial PC		*/
 
-INITSP:		.long	0x00000000	/* Initial SP	*/
-INITPC:		.long	_START	/* Initial PC		*/
-vector02:	.long	_FAULT	/* Access Error		*/
-vector03:	.long	_FAULT	/* Address Error	*/
-vector04:	.long	_FAULT	/* Illegal Instruction	*/
-vector05:	.long	_FAULT	/* Reserved		*/
-vector06:	.long	_FAULT	/* Reserved		*/
-vector07:	.long	_FAULT	/* Reserved		*/
-vector08:	.long	_FAULT	/* Privilege Violation	*/
-vector09:	.long	_FAULT	/* Trace		*/
-vector0A:	.long	_FAULT	/* Unimplemented A-Line	*/
-vector0B:	.long	_FAULT	/* Unimplemented F-Line	*/
-vector0C:	.long	_FAULT	/* Debug Interrupt	*/
-vector0D:	.long	_FAULT	/* Reserved		*/
-vector0E:	.long	_FAULT	/* Format Error		*/
-vector0F:	.long	_FAULT	/* Unitialized Int.	*/
+vector02_0F:
+.long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
+.long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 
 /* Reserved */
 vector10_17:
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 
-vector18:	.long	_FAULT	/* Spurious Interrupt	*/
-vector19:	.long	_FAULT	/* Autovector Level 1	*/
-vector1A:	.long	_FAULT	/* Autovector Level 2	*/
-vector1B:	.long	_FAULT	/* Autovector Level 3	*/
-vector1C:	.long	_FAULT	/* Autovector Level 4	*/
-vector1D:	.long	_FAULT	/* Autovector Level 5	*/
-vector1E:	.long	_FAULT	/* Autovector Level 6	*/
-vector1F:	.long	_FAULT	/* Autovector Level 7	*/
+vector18_1F:
+.long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 
 /* TRAP #0 - #15 */
 vector20_2F:
@@ -109,13 +94,13 @@ vector192_255:
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 #endif /* !defined(CONFIG_MONITOR_IS_IN_RAM) */
 
-	.text
+.text
 
-	.globl	_start
+.globl _start
 _start:
 	nop
 	nop
-	move.w #0x2700,%sr	/* Mask off Interrupt */
+	move.w	#0x2700,%sr	/* Mask off Interrupt */
 
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
 	/* Set vector base register at the beginning of the Flash */
@@ -142,14 +127,14 @@ _start:
 #endif
 
 	/* initialize general use internal ram */
-	move.l #0, %d0
-	move.l #(ICACHE_STATUS), %a1	/* icache */
-	move.l #(DCACHE_STATUS), %a2	/* icache */
-	move.l %d0, (%a1)
-	move.l %d0, (%a2)
+	move.l	#0, %d0
+	move.l	#(ICACHE_STATUS), %a1	/* icache */
+	move.l	#(DCACHE_STATUS), %a2	/* icache */
+	move.l	%d0, (%a1)
+	move.l	%d0, (%a2)
 
 	/* put relocation table address to a5 */
-	move.l #__got_start, %a5
+	move.l	#__got_start, %a5
 
 	/* setup stack initially on top of internal static ram  */
 	move.l  #(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE), %sp
@@ -167,13 +152,14 @@ _start:
 	move.l  %sp, %fp
 
 	/* initialize reserved area */
-	move.l  %d0, -(%sp)
+	move.l	%d0, -(%sp)
 	move.l	#board_init_f_init_reserve, %a1
 	jsr	(%a1)
 
 	/* run low-level CPU init code (from flash) */
-	move.l #cpu_init_f, %a1
-	jsr (%a1)
+	move.l	#cpu_init_f, %a1
+	jsr	(%a1)
+
 	/* run low-level board init code (from flash) */
 	clr.l   %sp@-
 	move.l #board_init_f, %a1
@@ -181,7 +167,7 @@ _start:
 
 	/* board_init_f() does not return */
 
-/*------------------------------------------------------------------------------*/
+/******************************************************************************/
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -194,23 +180,23 @@ _start:
  * r5 = length in bytes
  * r6 = cachelinesize
  */
-	.globl	relocate_code
+.globl relocate_code
 relocate_code:
-	link.w %a6,#0
-	move.l 8(%a6), %sp		/* set new stack pointer */
+	link.w	%a6,#0
+	move.l	8(%a6), %sp		/* set new stack pointer */
 
-	move.l 12(%a6), %d0		/* Save copy of Global Data pointer */
-	move.l 16(%a6), %a0		/* Save copy of Destination Address */
+	move.l	12(%a6), %d0		/* Save copy of Global Data pointer */
+	move.l	16(%a6), %a0		/* Save copy of Destination Address */
 
-	move.l #CONFIG_SYS_MONITOR_BASE, %a1
-	move.l #__init_end, %a2
-	move.l %a0, %a3
+	move.l	#CONFIG_SYS_MONITOR_BASE, %a1
+	move.l	#__init_end, %a2
+	move.l	%a0, %a3
 
 	/* copy the code to RAM */
 1:
-	move.l (%a1)+, (%a3)+
-	cmp.l  %a1,%a2
-	bgt.s	 1b
+	move.l	(%a1)+, (%a3)+
+	cmp.l	%a1,%a2
+	bgt.s	1b
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -240,7 +226,7 @@ clear_bss:
 	 */
 	move.l	%a0, %a1
 	add.l	#(__got_start - CONFIG_SYS_MONITOR_BASE),%a1
-	move.l	%a1,%a5		/* * fix got pointer register a5 */
+	move.l	%a1,%a5			/* fix got pointer register a5 */
 
 	move.l	%a0, %a2
 	add.l	#(__got_end - CONFIG_SYS_MONITOR_BASE),%a2
@@ -254,38 +240,40 @@ clear_bss:
 	bne	7b
 
 	/* calculate relative jump to board_init_r in ram */
-	move.l %a0, %a1
-	add.l #(board_init_r - CONFIG_SYS_MONITOR_BASE), %a1
+	move.l	%a0, %a1
+	add.l	#(board_init_r - CONFIG_SYS_MONITOR_BASE), %a1
 
 	/* set parameters for board_init_r */
-	move.l %a0,-(%sp)		/* dest_addr */
-	move.l %d0,-(%sp)		/* gd */
+	move.l	%a0,-(%sp)		/* dest_addr */
+	move.l	%d0,-(%sp)		/* gd */
 	jsr	(%a1)
 
-/*------------------------------------------------------------------------------*/
+/******************************************************************************/
+
 /* exception code */
-	.globl _fault
+.globl _fault
 _fault:
 	bra _fault
-	.globl	_exc_handler
 
+.globl _exc_handler
 _exc_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr exc_handler
+	bsr	exc_handler
 	addql	#4,%sp
 	RESTORE_ALL
 
-	.globl	_int_handler
+.globl _int_handler
 _int_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr int_handler
+	bsr	int_handler
 	addql	#4,%sp
 	RESTORE_ALL
 
-/*------------------------------------------------------------------------------*/
-	.globl	version_string
+/******************************************************************************/
+
+.globl version_string
 version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
-	.align 4
+.ascii U_BOOT_VERSION_STRING, "\0"
+.align 4

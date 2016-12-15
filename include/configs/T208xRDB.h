@@ -19,7 +19,6 @@
 #define CONFIG_FSL_SATA_V2
 
 /* High Level Configuration Options */
-#define CONFIG_PHYS_64BIT
 #define CONFIG_BOOKE
 #define CONFIG_E500		/* BOOKE e500 family */
 #define CONFIG_E500MC		/* BOOKE e500mc family */
@@ -680,7 +679,6 @@ unsigned long get_board_ddr_clk(void);
  * USB
  */
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
@@ -792,7 +790,7 @@ unsigned long get_board_ddr_clk(void);
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=t2080rdb/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=1e00000\0"					\
 	"fdtfile=t2080rdb/t2080rdb.dtb\0"			\
 	"bdev=sda3\0"
 

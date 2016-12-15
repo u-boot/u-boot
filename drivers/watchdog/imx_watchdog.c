@@ -39,7 +39,7 @@ void hw_watchdog_init(void)
 }
 #endif
 
-void reset_cpu(ulong addr)
+void __attribute__((weak)) reset_cpu(ulong addr)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

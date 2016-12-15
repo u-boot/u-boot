@@ -1,0 +1,21 @@
+menu "Xtensa architecture"
+	depends on XTENSA
+
+config SYS_ARCH
+	string
+	default "xtensa"
+
+config SYS_CPU
+	string "Xtensa Core Variant"
+
+choice
+	prompt "Target select"
+
+config TARGET_XTFPGA
+	bool "Support XTFPGA"
+
+endchoice
+
+source "board/cadence/xtfpga/Kconfig"
+
+endmenu

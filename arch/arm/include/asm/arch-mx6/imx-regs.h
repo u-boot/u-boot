@@ -9,12 +9,6 @@
 
 #define ARCH_MXC
 
-#ifdef CONFIG_MX6UL
-#define CONFIG_SYS_CACHELINE_SIZE	64
-#else
-#define CONFIG_SYS_CACHELINE_SIZE	32
-#endif
-
 #define ROMCP_ARB_BASE_ADDR             0x00000000
 #define ROMCP_ARB_END_ADDR              0x000FFFFF
 

@@ -23,6 +23,7 @@ alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias hs             Heiko Schocher <hs@denx.de>
 alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
 alias jagan          Jagan Teki <jteki@openedev.com>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
@@ -35,7 +36,6 @@ alias marex          Marek Vasut <marex@denx.de>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
-alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias bobenstein     Przemyslaw Marczak <p.marczak@samsung.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
@@ -124,7 +124,7 @@ alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
-alias mmc            uboot, panto
+alias mmc            uboot, jaehoon
 alias nand           uboot, scottwood
 alias net            uboot, jhersh
 alias phy            uboot, jhersh

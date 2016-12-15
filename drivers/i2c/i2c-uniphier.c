@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014      Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -13,7 +15,6 @@
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
-#include <mapmem.h>
 
 struct uniphier_i2c_regs {
 	u32 dtrm;			/* data transmission */
@@ -53,7 +54,7 @@ static int uniphier_i2c_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->regs = map_sysmem(addr, SZ_64);
+	priv->regs = devm_ioremap(dev, addr, SZ_64);
 	if (!priv->regs)
 		return -ENOMEM;
 
@@ -61,15 +62,6 @@ static int uniphier_i2c_probe(struct udevice *dev)
 
 	/* deassert reset */
 	writel(0x3, &priv->regs->brst);
-
-	return 0;
-}
-
-static int uniphier_i2c_remove(struct udevice *dev)
-{
-	struct uniphier_i2c_dev *priv = dev_get_priv(dev);
-
-	unmap_sysmem(priv->regs);
 
 	return 0;
 }
@@ -220,7 +212,6 @@ U_BOOT_DRIVER(uniphier_i2c) = {
 	.id = UCLASS_I2C,
 	.of_match = uniphier_i2c_of_match,
 	.probe = uniphier_i2c_probe,
-	.remove = uniphier_i2c_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_i2c_dev),
 	.ops = &uniphier_i2c_ops,
 };

@@ -244,7 +244,18 @@ int bcm_sf2_eth_register(bd_t *bis, u8 dev_num)
 	eth_register(dev);
 
 #ifdef CONFIG_CMD_MII
-	miiphy_register(dev->name, eth->miiphy_read, eth->miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = eth->miiphy_read;
+	mdiodev->write = eth->miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 
 	/* Initialization */

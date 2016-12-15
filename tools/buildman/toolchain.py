@@ -13,6 +13,7 @@ import urllib2
 
 import bsettings
 import command
+import terminal
 
 (PRIORITY_FULL_PREFIX, PRIORITY_PREFIX_GCC, PRIORITY_PREFIX_GCC_PATH,
     PRIORITY_CALC) = range(4)
@@ -167,18 +168,23 @@ class Toolchains:
         self.paths = []
         self._make_flags = dict(bsettings.GetItems('make-flags'))
 
-    def GetPathList(self):
+    def GetPathList(self, show_warning=True):
         """Get a list of available toolchain paths
+
+        Args:
+            show_warning: True to show a warning if there are no tool chains.
 
         Returns:
             List of strings, each a path to a toolchain mentioned in the
             [toolchain] section of the settings file.
         """
         toolchains = bsettings.GetItems('toolchain')
-        if not toolchains:
-            print ('Warning: No tool chains - please add a [toolchain] section'
-                 ' to your buildman config file %s. See README for details' %
-                 bsettings.config_fname)
+        if show_warning and not toolchains:
+            print ("Warning: No tool chains. Please run 'buildman "
+                   "--fetch-arch all' to download all available toolchains, or "
+                   "add a [toolchain] section to your buildman config file "
+                   "%s. See README for details" %
+                   bsettings.config_fname)
 
         paths = []
         for name, value in toolchains:
@@ -188,9 +194,14 @@ class Toolchains:
                 paths.append(value)
         return paths
 
-    def GetSettings(self):
-      self.prefixes = bsettings.GetItems('toolchain-prefix')
-      self.paths += self.GetPathList()
+    def GetSettings(self, show_warning=True):
+        """Get toolchain settings from the settings file.
+
+        Args:
+            show_warning: True to show a warning if there are no tool chains.
+        """
+        self.prefixes = bsettings.GetItems('toolchain-prefix')
+        self.paths += self.GetPathList(show_warning)
 
     def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
             arch=None):
@@ -286,7 +297,9 @@ class Toolchains:
 
     def List(self):
         """List out the selected toolchains for each architecture"""
-        print 'List of available toolchains (%d):' % len(self.toolchains)
+        col = terminal.Color()
+        print col.Color(col.BLUE, 'List of available toolchains (%d):' %
+                        len(self.toolchains))
         if len(self.toolchains):
             for key, value in sorted(self.toolchains.iteritems()):
                 print '%-10s: %s' % (key, value.gcc)
@@ -474,12 +487,12 @@ class Toolchains:
         return stdout.splitlines()[0][:-1]
 
     def TestSettingsHasPath(self, path):
-        """Check if builmand will find this toolchain
+        """Check if buildman will find this toolchain
 
         Returns:
             True if the path is in settings, False if not
         """
-        paths = self.GetPathList()
+        paths = self.GetPathList(False)
         return path in paths
 
     def ListArchs(self):
@@ -501,6 +514,8 @@ class Toolchains:
             Architecture to fetch, or 'list' to list
         """
         # Fist get the URL for this architecture
+        col = terminal.Color()
+        print col.Color(col.BLUE, "Downloading toolchain for arch '%s'" % arch)
         url = self.LocateArchUrl(arch)
         if not url:
             print ("Cannot find toolchain for arch '%s' - use 'list' to list" %
@@ -515,7 +530,7 @@ class Toolchains:
         tmpdir, tarfile = self.Download(url)
         if not tarfile:
             return 1
-        print 'Unpacking to: %s' % dest,
+        print col.Color(col.GREEN, 'Unpacking to: %s' % dest),
         sys.stdout.flush()
         path = self.Unpack(tarfile, dest)
         os.remove(tarfile)
@@ -523,22 +538,20 @@ class Toolchains:
         print
 
         # Check that the toolchain works
-        print 'Testing'
+        print col.Color(col.GREEN, 'Testing')
         dirpath = os.path.join(dest, path)
         compiler_fname_list = self.ScanPath(dirpath, True)
         if not compiler_fname_list:
             print 'Could not locate C compiler - fetch failed.'
             return 1
         if len(compiler_fname_list) != 1:
-            print ('Internal error, ambiguous toolchains: %s' %
-                   (', '.join(compiler_fname)))
-            return 1
+            print col.Color(col.RED, 'Warning, ambiguous toolchains: %s' %
+                            ', '.join(compiler_fname_list))
         toolchain = Toolchain(compiler_fname_list[0], True, True)
 
         # Make sure that it will be found by buildman
         if not self.TestSettingsHasPath(dirpath):
             print ("Adding 'download' to config file '%s'" %
                    bsettings.config_fname)
-            tools_dir = os.path.dirname(dirpath)
-            bsettings.SetItem('toolchain', 'download', '%s/*' % tools_dir)
+            bsettings.SetItem('toolchain', 'download', '%s/*/*' % dest)
         return 0

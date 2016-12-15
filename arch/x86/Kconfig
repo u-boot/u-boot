@@ -8,11 +8,17 @@ choice
 	prompt "Mainboard vendor"
 	default VENDOR_EMULATION
 
+config VENDOR_ADVANTECH
+	bool "advantech"
+
 config VENDOR_CONGATEC
 	bool "congatec"
 
 config VENDOR_COREBOOT
 	bool "coreboot"
+
+config VENDOR_DFI
+	bool "dfi"
 
 config VENDOR_EFI
 	bool "efi"
@@ -29,8 +35,10 @@ config VENDOR_INTEL
 endchoice
 
 # board-specific options below
+source "board/advantech/Kconfig"
 source "board/congatec/Kconfig"
 source "board/coreboot/Kconfig"
+source "board/dfi/Kconfig"
 source "board/efi/Kconfig"
 source "board/emulation/Kconfig"
 source "board/google/Kconfig"

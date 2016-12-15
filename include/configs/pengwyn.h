@@ -163,7 +163,6 @@
 
 #define CONFIG_CMD_MTDPARTS
 
-#define CONFIG_VERSION_VARIABLE /* monitor functions :  u-boot version */
 #define CONFIG_CMD_DIAG /* monitor functions : Diagnostics */
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
@@ -198,10 +197,6 @@
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
-
-#if defined(CONFIG_USB_MUSB_HOST)
-#define CONFIG_USB_STORAGE
-#endif
 
 #if defined(CONFIG_SPL_BUILD)
 /* disable host part of MUSB in SPL */

@@ -10,20 +10,39 @@ config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
 	help
-	  This enables the MultiMediaCard (MMC) uclass which suports MMC and
+	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
 	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
 	  and non-removable (e.g. eMMC chip) devices are supported. These
 	  appear as block devices in U-Boot and can support filesystems such
 	  as EXT4 and FAT.
 
+config DM_MMC_OPS
+	bool "Support MMC controller operations using Driver Model"
+	depends on DM_MMC
+	help
+	  Driver model provides a means of supporting device operations. This
+	  option moves MMC operations under the control of driver model. The
+	  option will be removed as soon as all DM_MMC drivers use it, as it
+	  will the only supported behaviour.
+
 config MSM_SDHCI
 	bool "Qualcomm SDHCI controller"
-	depends on DM_MMC
+	depends on DM_MMC && BLK && DM_MMC_OPS
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
           Snapdragon devices. This device is compatible with eMMC v4.5 and
           SD 3.0 specifications. Both SD and eMMC devices are supported.
 	  Card-detect gpios are not supported.
+
+config ATMEL_SDHCI
+	bool "Atmel SDHCI controller support"
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	help
+	  This enables support for the Atmel SDHCI controller, which supports
+	  the embedded MultiMedia Card (e.MMC) Specification V4.51, the SD
+	  Memory Card Specification V3.0, and the SDIO V3.0 specification.
+	  It is compliant with the SD Host Controller Standard V3.0
+	  specification.
 
 config ROCKCHIP_DWMMC
 	bool "Rockchip SD/MMC controller support"
@@ -52,9 +71,16 @@ config ZYNQ_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
 
+config ROCKCHIP_SDHCI
+	bool "Arasan SDHCI controller for Rockchip support"
+	depends on DM_MMC && BLK && DM_MMC_OPS
+	help
+	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
+
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
+	select DM_MMC_OPS
 	help
 	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
 

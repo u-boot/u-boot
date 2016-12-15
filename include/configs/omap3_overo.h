@@ -11,10 +11,12 @@
 #define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
-#undef CONFIG_SPL_MAX_SIZE
+/*
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
+ */
 #undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE	0x40200000
-#define CONFIG_SPL_MAX_SIZE    (SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_BCH
 
@@ -44,7 +46,6 @@
 /* USB EHCI */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_STORAGE
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	183
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 
@@ -215,7 +216,6 @@
 /* Initial RAM setup */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT

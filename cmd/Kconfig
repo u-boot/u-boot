@@ -114,6 +114,8 @@ config AUTOBOOT_STOP_STR_SHA256
 
 endmenu
 
+source "cmd/fastboot/Kconfig"
+
 comment "Commands"
 
 menu "Info commands"
@@ -164,6 +166,13 @@ config CMD_BOOTZ
 	bool "bootz"
 	help
 	  Boot the Linux zImage
+
+config CMD_BOOTI
+	bool "booti"
+	depends on ARM64
+	default y
+	help
+	  Boot an AArch64 Linux Kernel image from memory.
 
 config CMD_BOOTEFI
 	bool "bootefi"

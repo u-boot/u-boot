@@ -620,7 +620,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char initrd_str[22];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
-	int bootm_argc = 3;
+	int bootm_argc = 2;
 	int len = 0;
 	ulong kernel_addr;
 	void *buf;
@@ -652,8 +652,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		strcpy(bootm_argv[2], getenv("ramdisk_addr_r"));
 		strcat(bootm_argv[2], ":");
 		strcat(bootm_argv[2], getenv("filesize"));
-	} else {
-		bootm_argv[2] = "-";
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
@@ -785,8 +783,11 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	if (!bootm_argv[3])
 		bootm_argv[3] = getenv("fdt_addr");
 
-	if (bootm_argv[3])
+	if (bootm_argv[3]) {
+		if (!bootm_argv[2])
+			bootm_argv[2] = "-";
 		bootm_argc = 4;
+	}
 
 	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
 	buf = map_sysmem(kernel_addr, 0);

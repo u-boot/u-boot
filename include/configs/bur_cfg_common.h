@@ -33,7 +33,7 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_NET_RETRY_COUNT		2
+#define CONFIG_NET_RETRY_COUNT		10
 
 /* Network console */
 #define CONFIG_NETCONSOLE		1
@@ -48,7 +48,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64

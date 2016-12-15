@@ -33,6 +33,8 @@
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 #undef CONFIG_SPL_EXT_SUPPORT
+#undef CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
@@ -165,7 +167,6 @@
 /* USB Configs */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX
@@ -189,15 +190,15 @@
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_CMD_HDMIDETECT
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_HIDE_LOGO_VERSION  /* Custom config to hide U-boot version */
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
@@ -269,15 +270,14 @@
 /* Environment */
 #define CONFIG_IPADDR             192.168.1.1
 #define CONFIG_SERVERIP           192.168.1.146
-#define HWCONFIG_DEFAULT \
-	"hwconfig=rs232;" \
-	"dio0:mode=gpio;dio1:mode=gpio;dio2:mode=gpio;dio3:mode=gpio\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"pcidisable=1\0" \
+	"splashpos=m,m\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \
-	HWCONFIG_DEFAULT \
+	"hwconfig=_UNKNOWN_\0" \
 	"video=\0" \
 	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \

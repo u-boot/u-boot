@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <env_flags.h>
 #include <fcntl.h>
+#include <linux/fs.h>
 #include <linux/stringify.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -51,7 +52,7 @@ struct env_opts default_opts = {
 
 struct envdev_s {
 	const char *devname;		/* Device name */
-	ulong devoff;			/* Device offset */
+	long long devoff;		/* Device offset */
 	ulong env_size;			/* environment size */
 	ulong erase_size;		/* device erase size */
 	ulong env_sectors;		/* number of environment sectors */
@@ -121,7 +122,6 @@ static unsigned char obsolete_flag = 0;
 #include <env_default.h>
 
 static int flash_io (int mode);
-static char *envmatch (char * s1, char * s2);
 static int parse_config(struct env_opts *opts);
 
 #if defined(CONFIG_FILE)
@@ -147,6 +147,24 @@ static char *skip_blanks(char *s)
 }
 
 /*
+ * s1 is either a simple 'name', or a 'name=value' pair.
+ * s2 is a 'name=value' pair.
+ * If the names match, return the value of s2, else NULL.
+ */
+static char *envmatch(char *s1, char *s2)
+{
+	if (s1 == NULL || s2 == NULL)
+		return NULL;
+
+	while (*s1 == *s2++)
+		if (*s1++ == '=')
+			return s2;
+	if (*s1 == '\0' && *(s2 - 1) == '=')
+		return s2;
+	return NULL;
+}
+
+/**
  * Search the environment for a variable.
  * Return the value, if found, or NULL, if not found.
  */
@@ -232,8 +250,13 @@ int parse_aes_key(char *key, uint8_t *bin_key)
  */
 int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 {
-	char *env, *nxt;
 	int i, rc = 0;
+
+	if (value_only && argc != 1) {
+		fprintf(stderr,
+			"## Error: `-n' option requires exactly one argument\n");
+		return -1;
+	}
 
 	if (!opts)
 		opts = &default_opts;
@@ -242,6 +265,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 		return -1;
 
 	if (argc == 0) {		/* Print all env variables  */
+		char *env, *nxt;
 		for (env = environment.data; *env; env = nxt + 1) {
 			for (nxt = env; *nxt; ++nxt) {
 				if (nxt >= &environment.data[ENV_SIZE]) {
@@ -256,39 +280,23 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 		return 0;
 	}
 
-	if (value_only && argc != 1) {
-		fprintf(stderr,
-			"## Error: `-n' option requires exactly one argument\n");
-		return -1;
-	}
-
-	for (i = 0; i < argc; ++i) {	/* print single env variables   */
+	for (i = 0; i < argc; ++i) {	/* print a subset of env variables */
 		char *name = argv[i];
 		char *val = NULL;
 
-		for (env = environment.data; *env; env = nxt + 1) {
-
-			for (nxt = env; *nxt; ++nxt) {
-				if (nxt >= &environment.data[ENV_SIZE]) {
-					fprintf (stderr, "## Error: "
-						"environment not terminated\n");
-					return -1;
-				}
-			}
-			val = envmatch (name, env);
-			if (val) {
-				if (!value_only) {
-					fputs (name, stdout);
-					putc ('=', stdout);
-				}
-				puts (val);
-				break;
-			}
-		}
+		val = fw_getenv(name);
 		if (!val) {
 			fprintf (stderr, "## Error: \"%s\" not defined\n", name);
 			rc = -1;
+			continue;
 		}
+
+		if (value_only) {
+			puts(val);
+			break;
+		}
+
+		printf("%s=%s\n", name, val);
 	}
 
 	return rc;
@@ -483,7 +491,7 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 	valc = argc - 1;
 
 	if (env_flags_validate_env_set_params(name, valv, valc) < 0)
-		return 1;
+		return -1;
 
 	len = 0;
 	for (i = 0; i < valc; ++i) {
@@ -653,8 +661,8 @@ static int flash_bad_block (int fd, uint8_t mtd_type, loff_t *blockstart)
 
 		if (badblock) {
 #ifdef DEBUG
-			fprintf (stderr, "Bad block at 0x%llx, "
-				 "skipping\n", *blockstart);
+			fprintf (stderr, "Bad block at 0x%llx, skipping\n",
+				(unsigned long long) *blockstart);
 #endif
 			return badblock;
 		}
@@ -741,7 +749,8 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 		}
 #ifdef DEBUG
 		fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
-			 rc, blockstart + block_seek, DEVNAME(dev));
+			rc, (unsigned long long) blockstart + block_seek,
+			DEVNAME(dev));
 #endif
 		processed += readlen;
 		readlen = min (blocklen, count - processed);
@@ -839,8 +848,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (block_seek + count != write_total) {
 			if (block_seek != 0)
 				fprintf(stderr, " and ");
-			fprintf(stderr, "0x%lx - 0x%x",
-				block_seek + count, write_total - 1);
+			fprintf(stderr, "0x%lx - 0x%lx",
+				(unsigned long) block_seek + count,
+				(unsigned long) write_total - 1);
 		}
 		fprintf(stderr, "\n");
 #endif
@@ -903,8 +913,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		}
 
 #ifdef DEBUG
-		fprintf(stderr, "Write 0x%x bytes at 0x%llx\n", erasesize,
-			blockstart);
+		fprintf(stderr, "Write 0x%llx bytes at 0x%llx\n",
+			(unsigned long long) erasesize,
+			(unsigned long long) blockstart);
 #endif
 		if (write (fd, data + processed, erasesize) != erasesize) {
 			fprintf (stderr, "Write error on %s: %s\n",
@@ -994,7 +1005,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "Writing new environment at 0x%lx on %s\n",
+	fprintf(stderr, "Writing new environment at 0x%llx on %s\n",
 		DEVOFFSET (dev_target), DEVNAME (dev_target));
 #endif
 
@@ -1010,7 +1021,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 			offsetof (struct env_image_redundant, flags);
 #ifdef DEBUG
 		fprintf(stderr,
-			"Setting obsolete flag in environment at 0x%lx on %s\n",
+			"Setting obsolete flag in environment at 0x%llx on %s\n",
 			DEVOFFSET (dev_current), DEVNAME (dev_current));
 #endif
 		flash_flag_obsolete (dev_current, fd_current, offset);
@@ -1021,41 +1032,10 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 
 static int flash_read (int fd)
 {
-	struct mtd_info_user mtdinfo;
-	struct stat st;
 	int rc;
 
-	rc = fstat(fd, &st);
-	if (rc < 0) {
-		fprintf(stderr, "Cannot stat the file %s\n",
-			DEVNAME(dev_current));
-		return -1;
-	}
-
-	if (S_ISCHR(st.st_mode)) {
-		rc = ioctl(fd, MEMGETINFO, &mtdinfo);
-		if (rc < 0) {
-			fprintf(stderr, "Cannot get MTD information for %s\n",
-				DEVNAME(dev_current));
-			return -1;
-		}
-		if (mtdinfo.type != MTD_NORFLASH &&
-		    mtdinfo.type != MTD_NANDFLASH &&
-		    mtdinfo.type != MTD_DATAFLASH &&
-		    mtdinfo.type != MTD_UBIVOLUME) {
-			fprintf (stderr, "Unsupported flash type %u on %s\n",
-				 mtdinfo.type, DEVNAME(dev_current));
-			return -1;
-		}
-	} else {
-		memset(&mtdinfo, 0, sizeof(mtdinfo));
-		mtdinfo.type = MTD_ABSENT;
-	}
-
-	DEVTYPE(dev_current) = mtdinfo.type;
-
 	rc = flash_read_buf(dev_current, fd, environment.image, CUR_ENVSIZE,
-			     DEVOFFSET (dev_current), mtdinfo.type);
+			    DEVOFFSET(dev_current), DEVTYPE(dev_current));
 	if (rc != CUR_ENVSIZE)
 		return -1;
 
@@ -1118,25 +1098,6 @@ exit:
 	}
 
 	return rc;
-}
-
-/*
- * s1 is either a simple 'name', or a 'name=value' pair.
- * s2 is a 'name=value' pair.
- * If the names match, return the value of s2, else NULL.
- */
-
-static char *envmatch (char * s1, char * s2)
-{
-	if (s1 == NULL || s2 == NULL)
-		return NULL;
-
-	while (*s1 == *s2++)
-		if (*s1++ == '=')
-			return s2;
-	if (*s1 == '\0' && *(s2 - 1) == '=')
-		return s2;
-	return NULL;
 }
 
 /*
@@ -1328,10 +1289,87 @@ int fw_env_open(struct env_opts *opts)
 	return 0;
 }
 
+static int check_device_config(int dev)
+{
+	struct stat st;
+	int fd, rc = 0;
+
+	if (DEVOFFSET(dev) % DEVESIZE(dev) != 0) {
+		fprintf(stderr, "Environment does not start on (erase) block boundary\n");
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (ENVSIZE(dev) > ENVSECTORS(dev) * DEVESIZE(dev)) {
+		fprintf(stderr, "Environment does not fit into available sectors\n");
+		errno = EINVAL;
+		return -1;
+	}
+
+	fd = open(DEVNAME(dev), O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr,
+			"Cannot open %s: %s\n",
+			DEVNAME(dev), strerror(errno));
+		return -1;
+	}
+
+	rc = fstat(fd, &st);
+	if (rc < 0) {
+		fprintf(stderr, "Cannot stat the file %s\n",
+			DEVNAME(dev));
+		goto err;
+	}
+
+	if (S_ISCHR(st.st_mode)) {
+		struct mtd_info_user mtdinfo;
+		rc = ioctl(fd, MEMGETINFO, &mtdinfo);
+		if (rc < 0) {
+			fprintf(stderr, "Cannot get MTD information for %s\n",
+				DEVNAME(dev));
+			goto err;
+		}
+		if (mtdinfo.type != MTD_NORFLASH &&
+		    mtdinfo.type != MTD_NANDFLASH &&
+		    mtdinfo.type != MTD_DATAFLASH &&
+		    mtdinfo.type != MTD_UBIVOLUME) {
+			fprintf(stderr, "Unsupported flash type %u on %s\n",
+				mtdinfo.type, DEVNAME(dev));
+			goto err;
+		}
+		DEVTYPE(dev) = mtdinfo.type;
+	} else {
+		uint64_t size;
+		DEVTYPE(dev) = MTD_ABSENT;
+
+		/*
+		 * Check for negative offsets, treat it as backwards offset
+		 * from the end of the block device
+		 */
+		if (DEVOFFSET(dev) < 0) {
+			rc = ioctl(fd, BLKGETSIZE64, &size);
+			if (rc < 0) {
+				fprintf(stderr, "Could not get block device size on %s\n",
+					DEVNAME(dev));
+				goto err;
+			}
+
+			DEVOFFSET(dev) = DEVOFFSET(dev) + size;
+#ifdef DEBUG
+			fprintf(stderr, "Calculated device offset 0x%llx on %s\n",
+				DEVOFFSET(dev), DEVNAME(dev));
+#endif
+		}
+	}
+
+err:
+	close(fd);
+	return rc;
+}
 
 static int parse_config(struct env_opts *opts)
 {
-	struct stat st;
+	int rc;
 
 	if (!opts)
 		opts = &default_opts;
@@ -1375,25 +1413,20 @@ static int parse_config(struct env_opts *opts)
 	HaveRedundEnv = 1;
 #endif
 #endif
-	if (stat (DEVNAME (0), &st)) {
-		fprintf (stderr,
-			"Cannot access MTD device %s: %s\n",
-			DEVNAME (0), strerror (errno));
-		return -1;
-	}
+	rc = check_device_config(0);
+	if (rc < 0)
+		return rc;
 
-	if (HaveRedundEnv && stat (DEVNAME (1), &st)) {
-		fprintf (stderr,
-			"Cannot access MTD device %s: %s\n",
-			DEVNAME (1), strerror (errno));
-		return -1;
-	}
+	if (HaveRedundEnv) {
+		rc = check_device_config(1);
+		if (rc < 0)
+			return rc;
 
-	if (HaveRedundEnv && ENVSIZE(0) != ENVSIZE(1)) {
-		ENVSIZE(0) = ENVSIZE(1) = min(ENVSIZE(0), ENVSIZE(1));
-		fprintf(stderr,
-			"Redundant environments have inequal size, set to 0x%08lx\n",
-			ENVSIZE(1));
+		if (ENVSIZE(0) != ENVSIZE(1)) {
+			fprintf(stderr,
+				"Redundant environments have unequal size");
+			return -1;
+		}
 	}
 
 	usable_envsize = CUR_ENVSIZE - sizeof(uint32_t);
@@ -1424,12 +1457,12 @@ static int get_config (char *fname)
 		if (dump[0] == '#')
 			continue;
 
-		rc = sscanf (dump, "%ms %lx %lx %lx %lx",
-			     &devname,
-			     &DEVOFFSET (i),
-			     &ENVSIZE (i),
-			     &DEVESIZE (i),
-			     &ENVSECTORS (i));
+		rc = sscanf(dump, "%ms %lli %lx %lx %lx",
+			    &devname,
+			    &DEVOFFSET(i),
+			    &ENVSIZE(i),
+			    &DEVESIZE(i),
+			    &ENVSECTORS(i));
 
 		if (rc < 3)
 			continue;

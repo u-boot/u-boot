@@ -212,7 +212,7 @@ void ddrmc_ctrl_init_ddr3(struct ddr3_jedec_timings const *timings,
 			cr_setting++;
 		}
 
-	/* perform default PHY settings (may be overriden by custom settings */
+	/* perform default PHY settings (may be overridden by custom settings */
 	phy_setting = default_phy_settings;
 	while (phy_setting->phy_rnum >= 0) {
 		writel(phy_setting->setting,

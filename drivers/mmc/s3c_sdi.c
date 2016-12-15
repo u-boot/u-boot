@@ -133,7 +133,7 @@ s3cmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if (!timeout) {
 		puts("S3C SDI: Command timed out!\n");
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 		goto error;
 	}
 
@@ -196,7 +196,7 @@ s3cmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if (!timeout) {
 		puts("S3C SDI: Command timed out!\n");
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 		goto error;
 	}
 

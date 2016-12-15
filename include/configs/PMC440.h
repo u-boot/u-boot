@@ -249,7 +249,6 @@
 
 /* USB */
 #define CONFIG_USB_OHCI_NEW
-#define CONFIG_USB_STORAGE
 #define CONFIG_SYS_OHCI_BE_CONTROLLER
 
 #define CONFIG_SYS_USB_OHCI_BOARD_INIT 1
@@ -312,7 +311,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history     */
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands      */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * PCI stuff

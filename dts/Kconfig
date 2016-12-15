@@ -85,4 +85,25 @@ config OF_SPL_REMOVE_PROPS
 	  can be discarded. This option defines the list of properties to
 	  discard.
 
+config SPL_OF_PLATDATA
+	bool "Generate platform data for use in SPL"
+	depends on SPL_OF_CONTROL
+	help
+	  For very constrained SPL environments the overhead of decoding
+	  device tree nodes and converting their contents into platform data
+	  is too large. This overhead includes libfdt code as well as the
+	  device tree contents itself. The latter is fairly compact, but the
+	  former can add 3KB or more to a Thumb 2 Image.
+
+	  This option enables generation of platform data from the device
+	  tree as C code. This code creates devices using U_BOOT_DEVICE()
+	  declarations. The benefit is that it allows driver code to access
+	  the platform data directly in C structures, avoidin the libfdt
+	  overhead.
+
+	  This option works by generating C structure declarations for each
+	  compatible string, then adding platform data and U_BOOT_DEVICE
+	  declarations for each node. See README.platdata for more
+	  information.
+
 endmenu

@@ -31,7 +31,7 @@ static void fpga_no_sup(char *fn, char *msg)
 	else if (msg)
 		printf("No support for %s.\n", msg);
 	else
-		printf("No FPGA suport!\n");
+		printf("No FPGA support!\n");
 }
 
 

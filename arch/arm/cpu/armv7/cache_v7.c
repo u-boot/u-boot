@@ -19,23 +19,6 @@
 void v7_flush_dcache_all(void);
 void v7_invalidate_dcache_all(void);
 
-static int check_cache_range(unsigned long start, unsigned long stop)
-{
-	int ok = 1;
-
-	if (start & (CONFIG_SYS_CACHELINE_SIZE - 1))
-		ok = 0;
-
-	if (stop & (CONFIG_SYS_CACHELINE_SIZE - 1))
-		ok = 0;
-
-	if (!ok)
-		debug("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
-			start, stop);
-
-	return ok;
-}
-
 static u32 get_ccsidr(void)
 {
 	u32 ccsidr;
@@ -61,27 +44,8 @@ static void v7_dcache_inval_range(u32 start, u32 stop, u32 line_len)
 {
 	u32 mva;
 
-	/*
-	 * If start address is not aligned to cache-line do not
-	 * invalidate the first cache-line
-	 */
-	if (start & (line_len - 1)) {
-		printf("ERROR: %s - start address is not aligned - 0x%08x\n",
-			__func__, start);
-		/* move to next cache line */
-		start = (start + line_len - 1) & ~(line_len - 1);
-	}
-
-	/*
-	 * If stop address is not aligned to cache-line do not
-	 * invalidate the last cache-line
-	 */
-	if (stop & (line_len - 1)) {
-		printf("ERROR: %s - stop address is not aligned - 0x%08x\n",
-			__func__, stop);
-		/* align to the beginning of this cache line */
-		stop &= ~(line_len - 1);
-	}
+	if (!check_cache_range(start, stop))
+		return;
 
 	for (mva = start; mva < stop; mva = mva + line_len) {
 		/* DCIMVAC - Invalidate data cache by MVA to PoC */
@@ -111,7 +75,7 @@ static void v7_dcache_maint_range(u32 start, u32 stop, u32 range_op)
 	}
 
 	/* DSB to make sure the operation is complete */
-	DSB;
+	dsb();
 }
 
 /* Invalidate TLB */
@@ -124,9 +88,9 @@ static void v7_inval_tlb(void)
 	/* Invalidate entire instruction TLB */
 	asm volatile ("mcr p15, 0, %0, c8, c5, 0" : : "r" (0));
 	/* Full system DSB - make sure that the invalidation is complete */
-	DSB;
+	dsb();
 	/* Full system ISB - make sure the instruction stream sees it */
-	ISB;
+	isb();
 }
 
 void invalidate_dcache_all(void)
@@ -195,6 +159,14 @@ void flush_dcache_all(void)
 {
 }
 
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
 void arm_init_before_mmu(void)
 {
 }
@@ -222,10 +194,10 @@ void invalidate_icache_all(void)
 	asm volatile ("mcr p15, 0, %0, c7, c5, 6" : : "r" (0));
 
 	/* Full system DSB - make sure that the invalidation is complete */
-	DSB;
+	dsb();
 
 	/* ISB - make sure the instruction stream sees it */
-	ISB;
+	isb();
 }
 #else
 void invalidate_icache_all(void)

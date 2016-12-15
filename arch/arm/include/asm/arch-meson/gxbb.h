@@ -20,9 +20,6 @@
 #define GXBB_GPIO_IN(n)		GXBB_PERIPHS_ADDR(_GXBB_GPIO_OFF(n) + 1)
 #define GXBB_GPIO_OUT(n)	GXBB_PERIPHS_ADDR(_GXBB_GPIO_OFF(n) + 2)
 
-/* Pinmux registers 0 to 12 */
-#define GXBB_PINMUX(n)		GXBB_PERIPHS_ADDR(0x2c + (n))
-
 #define GXBB_ETH_REG_0		GXBB_PERIPHS_ADDR(0x50)
 #define GXBB_ETH_REG_1		GXBB_PERIPHS_ADDR(0x51)
 

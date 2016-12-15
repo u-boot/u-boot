@@ -53,6 +53,11 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
+	/* Allow the board to save important registers */
+	b	save_boot_params
+.globl	save_boot_params_ret
+save_boot_params_ret:
+
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
@@ -94,7 +99,11 @@ reset:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#ifdef CONFIG_ARMV8_MULTIENTRY
+#if CONFIG_IS_ENABLED(ARMV8_SPIN_TABLE)
+	branch_if_master x0, x1, master_cpu
+	b	spin_table_secondary_jump
+	/* never return */
+#elif defined(CONFIG_ARMV8_MULTIENTRY)
 	branch_if_master x0, x1, master_cpu
 
 	/*
@@ -106,10 +115,8 @@ slave_cpu:
 	ldr	x0, [x1]
 	cbz	x0, slave_cpu
 	br	x0			/* branch to the given address */
-master_cpu:
-	/* On the master CPU */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
-
+master_cpu:
 	bl	_main
 
 #ifdef CONFIG_SYS_RESET_SCTRL
@@ -280,3 +287,7 @@ ENTRY(c_runtime_cpu_setup)
 
 	ret
 ENDPROC(c_runtime_cpu_setup)
+
+WEAK(save_boot_params)
+	b	save_boot_params_ret	/* back to my caller */
+ENDPROC(save_boot_params)

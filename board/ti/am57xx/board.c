@@ -13,6 +13,7 @@
 #include <sata.h>
 #include <usb.h>
 #include <asm/omap_common.h>
+#include <asm/omap_sec_common.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
@@ -337,7 +338,9 @@ static void setup_board_eeprom_env(void)
 	if (rc)
 		goto invalid_eeprom;
 
-	if (board_is_am572x_evm())
+	if (board_is_x15())
+		name = "beagle_x15";
+	else if (board_is_am572x_evm())
 		name = "am57xx_evm";
 	else if (board_is_am572x_idk())
 		name = "am572x_idk";
@@ -748,5 +751,12 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else
 		return -1;
+}
+#endif
+
+#ifdef CONFIG_TI_SECURE_DEVICE
+void board_fit_image_post_process(void **p_image, size_t *p_size)
+{
+	secure_boot_verify_image(p_image, p_size);
 }
 #endif

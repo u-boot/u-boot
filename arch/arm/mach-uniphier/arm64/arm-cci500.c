@@ -1,13 +1,12 @@
 /*
  * Initialization of ARM Corelink CCI-500 Cache Coherency Interconnect
  *
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <mapmem.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -28,13 +27,13 @@ void cci500_init(unsigned int nr_slaves)
 		void __iomem *base;
 		u32 tmp;
 
-		base = map_sysmem(slave_base, SZ_4K);
+		base = ioremap(slave_base, SZ_4K);
 
 		tmp = readl(base);
 		tmp |= CCI500_SNOOP_CTRL_EN_DVM | CCI500_SNOOP_CTRL_EN_SNOOP;
 		writel(tmp, base);
 
-		unmap_sysmem(base);
+		iounmap(base);
 
 		slave_base += CCI500_SLAVE_OFFSET;
 	}

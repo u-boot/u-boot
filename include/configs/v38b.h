@@ -55,7 +55,7 @@
 #define SDRAM_TAPDELAY		0x10000000
 
 /*
- * PCI - no suport
+ * PCI - no support
  */
 #undef CONFIG_PCI
 
@@ -69,7 +69,6 @@
  * USB
  */
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_CLOCK	0x0001BBBB
 #define CONFIG_USB_CONFIG	0x00001000
 

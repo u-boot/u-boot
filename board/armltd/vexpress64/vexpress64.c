@@ -31,13 +31,15 @@ U_BOOT_DEVICE(vexpress_serials) = {
 
 static struct mm_region vexpress64_mem_map[] = {
 	{
-		.base = 0x0UL,
+		.virt = 0x0UL,
+		.phys = 0x0UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.base = 0x80000000UL,
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
 		.size = 0xff80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE

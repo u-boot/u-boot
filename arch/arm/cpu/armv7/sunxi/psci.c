@@ -17,11 +17,11 @@
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>
+#include <asm/secure.h>
 #include <asm/system.h>
 
 #include <linux/bitops.h>
 
-#define __secure	__attribute__ ((section ("._secure.text")))
 #define __irq		__attribute__ ((interrupt ("IRQ")))
 
 #define	GICD_BASE	(SUNXI_GIC400_BASE + GIC_DIST_OFFSET)
@@ -53,16 +53,16 @@ static void __secure __mdelay(u32 ms)
 	u32 reg = ONE_MS * ms;
 
 	cp15_write_cntp_tval(reg);
-	ISB;
+	isb();
 	cp15_write_cntp_ctl(3);
 
 	do {
-		ISB;
+		isb();
 		reg = cp15_read_cntp_ctl();
 	} while (!(reg & BIT(2)));
 
 	cp15_write_cntp_ctl(0);
-	ISB;
+	isb();
 }
 
 static void __secure clamp_release(u32 __maybe_unused *clamp)
@@ -164,7 +164,7 @@ static u32 __secure cp15_read_scr(void)
 static void __secure cp15_write_scr(u32 scr)
 {
 	asm volatile ("mcr p15, 0, %0, c1, c1, 0" : : "r" (scr));
-	ISB;
+	isb();
 }
 
 /*
@@ -190,7 +190,7 @@ void __secure __irq psci_fiq_enter(void)
 
 	/* End of interrupt */
 	writel(reg, GICC_BASE + GICC_EOIR);
-	DSB;
+	dsb();
 
 	/* Get CPU number */
 	cpu = (reg >> 10) & 0x7;
@@ -209,9 +209,8 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc)
 		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = (mpidr & 0x3);
 
-	/* store target PC at target CPU stack top */
-	writel(pc, psci_get_cpu_stack_top(cpu));
-	DSB;
+	/* store target PC */
+	psci_save_target_pc(cpu, pc);
 
 	/* Set secondary core power on PC */
 	writel((u32)&psci_cpu_entry, &cpucfg->priv0);
@@ -243,14 +242,14 @@ void __secure psci_cpu_off(void)
 
 	/* Ask CPU0 via SGI15 to pull the rug... */
 	writel(BIT(16) | 15, GICD_BASE + GICD_SGIR);
-	DSB;
+	dsb();
 
 	/* Wait to be turned off */
 	while (1)
 		wfi();
 }
 
-void __secure sunxi_gic_init(void)
+void __secure psci_arch_init(void)
 {
 	u32 reg;
 

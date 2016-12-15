@@ -30,11 +30,13 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Override default SPL info to minimize empty space and allow BCH8 in SPL */
+/*
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
+ * order to allow for BCH8 to fit in.
+ */
 #undef CONFIG_SPL_TEXT_BASE
-#undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_TEXT_BASE   0x40200000
-#define CONFIG_SPL_MAX_SIZE    (SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 /* Display CPU and Board information */
 
@@ -82,7 +84,6 @@
 #define CONFIG_ANDROID_BOOT_IMAGE
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* TWL4030 */
 #define CONFIG_TWL4030_PWM

@@ -19,6 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct fixed_regulator_platdata {
 	struct gpio_desc gpio; /* GPIO for regulator enable control */
+	unsigned int startup_delay_us;
 };
 
 static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
@@ -41,6 +42,11 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "gpio", 0, gpio, GPIOD_IS_OUT);
 	if (ret)
 		debug("Fixed regulator gpio - not found! Error: %d", ret);
+
+	/* Get optional ramp up delay */
+	dev_pdata->startup_delay_us = fdtdec_get_uint(gd->fdt_blob,
+						      dev->of_offset,
+						      "startup-delay-us", 0);
 
 	return 0;
 }
@@ -101,6 +107,10 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 		      enable);
 		return ret;
 	}
+
+	if (enable && dev_pdata->startup_delay_us)
+		udelay(dev_pdata->startup_delay_us);
+
 	return 0;
 }
 

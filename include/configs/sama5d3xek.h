@@ -132,7 +132,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"sama5d3"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
 #define CONFIG_DOS_PARTITION
-#define CONFIG_USB_STORAGE
 #endif
 
 /* USB device */

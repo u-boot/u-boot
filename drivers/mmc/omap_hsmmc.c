@@ -231,7 +231,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 	while ((readl(&mmc_base->sysstatus) & RESETDONE) == 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting for cc2!\n", __func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 	writel(readl(&mmc_base->sysctl) | SOFTRESETALL, &mmc_base->sysctl);
@@ -240,7 +240,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting for softresetall!\n",
 				__func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V0, &mmc_base->hctl);
@@ -262,7 +262,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 	while ((readl(&mmc_base->sysctl) & ICS_MASK) == ICS_NOTREADY) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting for ics!\n", __func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
@@ -337,7 +337,7 @@ static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting on cmd inhibit to clear\n",
 					__func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 	writel(0xFFFFFFFF, &mmc_base->stat);
@@ -346,7 +346,7 @@ static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting for STAT (%x) to clear\n",
 				__func__, readl(&mmc_base->stat));
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	}
 	/*
@@ -410,13 +410,13 @@ static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		mmc_stat = readl(&mmc_base->stat);
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s : timeout: No status update\n", __func__);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 	} while (!mmc_stat);
 
 	if ((mmc_stat & IE_CTO) != 0) {
 		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if ((mmc_stat & ERRI_MASK) != 0)
 		return -1;
 
@@ -464,7 +464,7 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 			if (get_timer(0) - start > MAX_RETRY_MS) {
 				printf("%s: timedout waiting for status!\n",
 						__func__);
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 		} while (mmc_stat == 0);
 
@@ -519,7 +519,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			if (get_timer(0) - start > MAX_RETRY_MS) {
 				printf("%s: timedout waiting for status!\n",
 						__func__);
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 		} while (mmc_stat == 0);
 
@@ -801,7 +801,9 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
+#ifdef OMAP_HSMMC_USE_GPIO
 	priv->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
+#endif
 
 	return 0;
 }

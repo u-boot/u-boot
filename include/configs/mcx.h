@@ -25,8 +25,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -96,7 +94,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* EHCI */
-#define CONFIG_USB_STORAGE
 #define CONFIG_OMAP3_GPIO_2
 #define CONFIG_OMAP3_GPIO_5
 #define CONFIG_USB_EHCI

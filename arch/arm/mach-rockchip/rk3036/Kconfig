@@ -12,10 +12,7 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x400
 
-config ROCKCHIP_COMMON
-	bool "Support rk common fuction"
-
-source "board/evb_rk3036/evb_rk3036/Kconfig"
-source "board/kylin/kylin_rk3036/Kconfig"
+source "board/rockchip/evb_rk3036/Kconfig"
+source "board/rockchip/kylin_rk3036/Kconfig"
 
 endif

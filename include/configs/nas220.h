@@ -101,7 +101,6 @@
 #define CONFIG_USB_EHCI			/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_KIRKWOOD	/* on Kirkwood platform	*/
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */

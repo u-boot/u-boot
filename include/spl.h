@@ -71,6 +71,7 @@ void spl_set_header_raw_uboot(void);
 int spl_parse_image_header(const struct image_header *header);
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
+int spl_board_ubi_load_image(u32 boot_device);
 void __noreturn jump_to_image_linux(void *arg);
 int spl_start_uboot(void);
 void spl_display_print(void);
@@ -83,6 +84,9 @@ int spl_onenand_load_image(void);
 
 /* NOR SPL functions */
 int spl_nor_load_image(void);
+
+/* UBI SPL functions */
+int spl_ubi_load_image(u32 boot_device);
 
 /* MMC SPL functions */
 int spl_mmc_load_image(u32 boot_device);

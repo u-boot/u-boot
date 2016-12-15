@@ -23,8 +23,6 @@
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -93,7 +91,6 @@
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	25
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
-#define CONFIG_USB_STORAGE
 
 /* commands to include */
 #define CONFIG_CMD_NAND		/* NAND support			*/
@@ -220,7 +217,8 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x8f000000

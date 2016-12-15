@@ -159,23 +159,23 @@ at91_emac_t *get_emacbase_by_name(const char *devname)
 	return (at91_emac_t *) netdev->iobase;
 }
 
-int  at91emac_mii_read(const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value)
+int at91emac_mii_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
+	unsigned short value = 0;
 	at91_emac_t *emac;
 
-	emac = get_emacbase_by_name(devname);
-	at91emac_read(emac , addr, reg, value);
-	return 0;
+	emac = get_emacbase_by_name(bus->name);
+	at91emac_read(emac , addr, reg, &value);
+	return value;
 }
 
 
-int  at91emac_mii_write(const char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value)
+int at91emac_mii_write(struct mii_dev *bus, int addr, int devad, int reg,
+		       u16 value)
 {
 	at91_emac_t *emac;
 
-	emac = get_emacbase_by_name(devname);
+	emac = get_emacbase_by_name(bus->name);
 	at91emac_write(emac, addr, reg, value);
 	return 0;
 }
@@ -502,7 +502,17 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 	eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register(dev->name, at91emac_mii_read, at91emac_mii_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = at91emac_mii_read;
+	mdiodev->write = at91emac_mii_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 #endif
 	return 1;
 }

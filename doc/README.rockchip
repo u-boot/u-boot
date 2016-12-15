@@ -36,11 +36,15 @@ You will need:
 Building
 ========
 
-At present three RK3288 boards are supported:
+At present seven RK3288 boards are supported:
 
+   - EVB RK3288 - use evb-rk3288 configuration
+   - Fennec RK3288 - use fennec-rk3288 configuration
    - Firefly RK3288 - use firefly-rk3288 configuration
-   - Radxa Rock 2 - use rock2 configuration
    - Hisense Chromebook - use chromebook_jerry configuration
+   - Miniarm RK3288 - use miniarm-rk3288 configuration
+   - PopMetal RK3288 - use popmetal-rk3288 configuration
+   - Radxa Rock 2 - use rock2 configuration
 
 Two RK3036 board are supported:
 
@@ -119,6 +123,20 @@ something like:
    Hit any key to stop autoboot:  0
    =>
 
+The rockchip bootrom can load and boot an initial spl, then continue to
+load a second-level bootloader(ie. U-BOOT) as soon as it returns to bootrom.
+Therefore RK3288 has another loading sequence like RK3036. The option of
+U-Boot is controlled with this setting in U-Boot:
+
+	#define CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+
+You can create the image via the following operations:
+
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
+	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
+   cat firefly-rk3288/u-boot-dtb.bin >> out && \
+   sudo dd if=out of=/dev/sdc seek=64
+
 If you have an HDMI cable attached you should see a video console.
 
 For evb_rk3036 board:
@@ -128,6 +146,32 @@ For evb_rk3036 board:
 
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
       debug uart must be disabled
+
+Using fastboot on rk3288
+========================
+- Define GPT partition layout like kylin_rk3036(see include/configs/kylin_rk3036.h)
+- Write GPT partition layout to mmc device which fastboot want to use it to
+store the image
+
+        => gpt write mmc 1 $partitions
+
+- Invoke fastboot command to prepare
+
+        => fastboot 1
+
+- Start fastboot request on PC
+
+        fastboot -i 0x2207 flash loader evb-rk3288/spl/u-boot-spl-dtb.bin
+
+You should see something like:
+
+        => fastboot 1
+        WARNING: unknown variable: partition-type:loader
+        Starting download of 357796 bytes
+        ..
+        downloading of 357796 bytes finished
+        Flashing Raw Image
+        ........ wrote 357888 bytes to 'loader'
 
 Booting from SPI
 ================

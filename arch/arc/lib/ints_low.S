@@ -149,3 +149,31 @@ ENTRY(EV_Extension)
 	mov	%r0, %sp
 	j	do_extension
 ENDPROC(EV_Extension)
+
+#ifdef CONFIG_ISA_ARCV2
+ENTRY(EV_SWI)
+	SAVE_ALL_SYS
+	mov	%r0, %sp
+	j	do_swi
+ENDPROC(EV_SWI)
+
+ENTRY(EV_DivZero)
+	SAVE_ALL_SYS
+	SAVE_EXCEPTION_SOURCE
+	mov	%r1, %sp
+	j	do_divzero
+ENDPROC(EV_DivZero)
+
+ENTRY(EV_DCError)
+	SAVE_ALL_SYS
+	mov	%r0, %sp
+	j	do_dcerror
+ENDPROC(EV_DCError)
+
+ENTRY(EV_Maligned)
+	SAVE_ALL_SYS
+	SAVE_EXCEPTION_SOURCE
+	mov	%r1, %sp
+	j	do_maligned
+ENDPROC(EV_Maligned)
+#endif

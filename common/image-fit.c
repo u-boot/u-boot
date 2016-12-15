@@ -11,9 +11,9 @@
 
 #ifdef USE_HOSTCC
 #include "mkimage.h"
-#include <image.h>
 #include <time.h>
 #else
+#include <linux/compiler.h>
 #include <common.h>
 #include <errno.h>
 #include <mapmem.h>
@@ -21,6 +21,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
+#include <image.h>
 #include <bootstage.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
@@ -1507,6 +1508,12 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
+#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+	const void *data;
+	size_t size;
+	int ret;
+#endif
+
 	fit_image_print(fit, rd_noffset, "   ");
 
 	if (verify) {
@@ -1517,6 +1524,23 @@ static int fit_image_select(const void *fit, int rd_noffset, int verify)
 		}
 		puts("OK\n");
 	}
+
+#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+	ret = fit_image_get_data(fit, rd_noffset, &data, &size);
+	if (ret)
+		return ret;
+
+	/* perform any post-processing on the image data */
+	board_fit_image_post_process((void **)&data, &size);
+
+	/*
+	 * update U-Boot's understanding of the "data" property start address
+	 * and size according to the performed post-processing
+	 */
+	ret = fdt_setprop((void *)fit, rd_noffset, FIT_DATA_PROP, data, size);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
 }
@@ -1542,7 +1566,7 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 	noffset = fit_conf_get_prop_node(fit_hdr, cfg_noffset, prop_name);
 	if (noffset < 0) {
 		debug("*  %s: no '%s' in config\n", prop_name, prop_name);
-		return -ENOLINK;
+		return -ENOENT;
 	}
 
 	return noffset;
@@ -1684,13 +1708,14 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
 	type_ok = fit_image_check_type(fit, noffset, image_type) ||
-		(image_type == IH_TYPE_KERNEL &&
-			fit_image_check_type(fit, noffset,
-					     IH_TYPE_KERNEL_NOLOAD));
+		  fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE) ||
+		  (image_type == IH_TYPE_KERNEL &&
+		   fit_image_check_type(fit, noffset, IH_TYPE_KERNEL_NOLOAD));
 
 	os_ok = image_type == IH_TYPE_FLATDT ||
 		image_type == IH_TYPE_FPGA ||
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
+		fit_image_check_os(fit, noffset, IH_OS_U_BOOT) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
 
 	/*

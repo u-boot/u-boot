@@ -51,7 +51,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 
 /*
  * Serial Driver
@@ -114,7 +113,6 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#define CONFIG_USB_STORAGE
 
 /* USB device */
 #define CONFIG_USB_ETHER

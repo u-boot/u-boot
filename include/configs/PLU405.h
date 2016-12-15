@@ -118,8 +118,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*
@@ -372,7 +370,6 @@
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS 1
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"ohci_pci"
-#define CONFIG_USB_STORAGE	1
 
 /*
  * UBI

@@ -8,11 +8,6 @@
 #include <common.h>
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-
-#ifndef CONFIG_SYS_CACHELINE_SIZE
-#define CONFIG_SYS_CACHELINE_SIZE	32
-#endif
-
 void invalidate_dcache_all(void)
 {
 	/* Flush/Invalidate I cache */

@@ -20,4 +20,11 @@ config SANDBOX_RESET
 	  simply accepts requests to reset various HW modules without actually
 	  doing anything beyond a little error checking.
 
+config TEGRA186_RESET
+	bool "Enable Tegra186 BPMP-based reset driver"
+	depends on TEGRA186_BPMP
+	help
+	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
+	  requests to the BPMP (Boot and Power Management Processor).
+
 endmenu

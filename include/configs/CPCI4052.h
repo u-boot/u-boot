@@ -121,8 +121,6 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*-----------------------------------------------------------------------

@@ -9,8 +9,6 @@
 #ifndef __RCAR_GEN2_COMMON_H
 #define __RCAR_GEN2_COMMON_H
 
-#define CONFIG_SYS_CACHELINE_SIZE 64
-
 #include <asm/arch/rmobile.h>
 
 #define CONFIG_CMD_DFL
@@ -33,7 +31,6 @@
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_BOOTARGS		""
 
-#define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_ARCH_CPU_INIT

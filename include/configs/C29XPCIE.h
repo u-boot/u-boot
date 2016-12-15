@@ -11,7 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_C29XPCIE
@@ -530,7 +529,7 @@
 	"consoledev=ttyS0\0"				\
 	"ramdiskaddr=2000000\0"				\
 	"ramdiskfile=rootfs.ext2.gz.uboot\0"		\
-	"fdtaddr=c00000\0"				\
+	"fdtaddr=1e00000\0"				\
 	"fdtfile=name/of/device-tree.dtb\0"			\
 	"othbootargs=ramdisk_size=600000\0"		\
 

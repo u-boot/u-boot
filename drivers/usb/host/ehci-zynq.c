@@ -7,55 +7,48 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <usb.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
-#include <usb.h>
 #include <usb/ehci-ci.h>
 #include <usb/ulpi.h>
 
 #include "ehci.h"
 
-#define ZYNQ_USB_USBCMD_RST			0x0000002
-#define ZYNQ_USB_USBCMD_STOP			0x0000000
-#define ZYNQ_USB_NUM_MIO			12
-
-/*
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
- */
-int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
-		  struct ehci_hcor **hcor)
-{
+struct zynq_ehci_priv {
+	struct ehci_ctrl ehcictrl;
 	struct usb_ehci *ehci;
+};
+
+static int ehci_zynq_ofdata_to_platdata(struct udevice *dev)
+{
+	struct zynq_ehci_priv *priv = dev_get_priv(dev);
+
+	priv->ehci = (struct usb_ehci *)dev_get_addr_ptr(dev);
+	if (!priv->ehci)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int ehci_zynq_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct zynq_ehci_priv *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
 	struct ulpi_viewport ulpi_vp;
-	int ret, mio_usb;
 	/* Used for writing the ULPI data address */
 	struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
+	int ret;
 
-	if (!index) {
-		mio_usb = zynq_slcr_get_mio_pin_status("usb0");
-		if (mio_usb != ZYNQ_USB_NUM_MIO) {
-			printf("usb0 wrong num MIO: %d, Index %d\n", mio_usb,
-			       index);
-			return -1;
-		}
-		ehci = (struct usb_ehci *)ZYNQ_USB_BASEADDR0;
-	} else {
-		mio_usb = zynq_slcr_get_mio_pin_status("usb1");
-		if (mio_usb != ZYNQ_USB_NUM_MIO) {
-			printf("usb1 wrong num MIO: %d, Index %d\n", mio_usb,
-			       index);
-			return -1;
-		}
-		ehci = (struct usb_ehci *)ZYNQ_USB_BASEADDR1;
-	}
+	hccr = (struct ehci_hccr *)((uint32_t)&priv->ehci->caplength);
+	hcor = (struct ehci_hcor *)((uint32_t) hccr +
+			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-
-	ulpi_vp.viewport_addr = (u32)&ehci->ulpi_viewpoint;
+	ulpi_vp.viewport_addr = (u32)&priv->ehci->ulpi_viewpoint;
 	ulpi_vp.port_num = 0;
 
 	ret = ulpi_init(&ulpi_vp);
@@ -77,28 +70,34 @@ int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
 	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl_set,
 		   ULPI_OTG_DRVVBUS | ULPI_OTG_DRVVBUS_EXT);
 
-	return 0;
+	return ehci_register(dev, hccr, hcor, NULL, 0, plat->init_type);
 }
 
-/*
- * Destroy the appropriate control structures corresponding
- * the the EHCI host controller.
- */
-int ehci_hcd_stop(int index)
+static int ehci_zynq_remove(struct udevice *dev)
 {
-	struct usb_ehci *ehci;
+	int ret;
 
-	if (!index)
-		ehci = (struct usb_ehci *)ZYNQ_USB_BASEADDR0;
-	else
-		ehci = (struct usb_ehci *)ZYNQ_USB_BASEADDR1;
-
-	/* Stop controller */
-	writel(ZYNQ_USB_USBCMD_STOP, &ehci->usbcmd);
-	udelay(1000);
-
-	/* Initiate controller reset */
-	writel(ZYNQ_USB_USBCMD_RST, &ehci->usbcmd);
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
 
 	return 0;
 }
+
+static const struct udevice_id ehci_zynq_ids[] = {
+	{ .compatible = "xlnx,zynq-usb-2.20a" },
+	{ }
+};
+
+U_BOOT_DRIVER(ehci_zynq) = {
+	.name	= "ehci_zynq",
+	.id	= UCLASS_USB,
+	.of_match = ehci_zynq_ids,
+	.ofdata_to_platdata = ehci_zynq_ofdata_to_platdata,
+	.probe = ehci_zynq_probe,
+	.remove = ehci_zynq_remove,
+	.ops	= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct zynq_ehci_priv),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};

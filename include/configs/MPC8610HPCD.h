@@ -477,7 +477,8 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(256 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -498,7 +499,7 @@
 #define CONFIG_NETMASK		255.255.255.0
 
 /* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
+#define CONFIG_LOADADDR		0x10000000
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
@@ -566,9 +567,9 @@
 	"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
 		" $filesize\0"	\
 "consoledev=ttyS0\0"						\
-"ramdiskaddr=2000000\0"					\
+"ramdiskaddr=0x18000000\0"					\
 "ramdiskfile=8610hpcd/ramdisk.uboot\0"				\
-"fdtaddr=c00000\0"						\
+"fdtaddr=0x17c00000\0"						\
 "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"				\
 "bdev=sda3\0"					\
 "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
@@ -604,9 +605,9 @@
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"consoledev=ttyS0\0"					\
-	"ramdiskaddr=2000000\0"					\
+	"ramdiskaddr=0x18000000\0"				\
 	"ramdiskfile=8610hpcd/ramdisk.uboot\0"			\
-	"fdtaddr=c00000\0"					\
+	"fdtaddr=0x17c00000\0"					\
 	"fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"			\
 	"bdev=sda3\0"
 #endif

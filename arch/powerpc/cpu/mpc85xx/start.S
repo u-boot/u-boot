@@ -1069,17 +1069,23 @@ create_init_ram_area:
 #elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
 	/* create a temp mapping in AS = 1 for Flash mapping
 	 * created by PBL for ISBC code
-	*/
+	 */
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
 		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \
 		CONFIG_SYS_PBI_FLASH_WINDOW & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 
-#elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_SECURE_BOOT)
+/*
+ * For Targets without CONFIG_SPL like P3, P5
+ * and for targets with CONFIG_SPL like T1, T2, T4, only for
+ * u-boot-spl i.e. CONFIG_SPL_BUILD
+ */
+#elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_SECURE_BOOT) && \
+	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	/* create a temp mapping in AS = 1 for mapping CONFIG_SYS_MONITOR_BASE
 	 * to L3 Address configured by PBL for ISBC code
-	*/
+	 */
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
 		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \

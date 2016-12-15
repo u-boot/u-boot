@@ -61,7 +61,12 @@ __weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
+#ifdef CONFIG_ARMV7_LPAE
+	u64 *page_table = (u64 *)gd->arch.tlb_addr;
+#else
 	u32 *page_table = (u32 *)gd->arch.tlb_addr;
+#endif
+	unsigned long startpt, stoppt;
 	unsigned long upto, end;
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
@@ -70,7 +75,18 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	      option);
 	for (upto = start; upto < end; upto++)
 		set_section_dcache(upto, option);
-	mmu_page_table_flush((u32)&page_table[start], (u32)&page_table[end]);
+
+	/*
+	 * Make sure range is cache line aligned
+	 * Only CPU maintains page tables, hence it is safe to always
+	 * flush complete cache lines...
+	 */
+
+	startpt = (unsigned long)&page_table[start];
+	startpt &= ~(CONFIG_SYS_CACHELINE_SIZE - 1);
+	stoppt = (unsigned long)&page_table[end];
+	stoppt = ALIGN(stoppt, CONFIG_SYS_CACHELINE_SIZE);
+	mmu_page_table_flush(startpt, stoppt);
 }
 
 __weak void dram_bank_mmu_setup(int bank)

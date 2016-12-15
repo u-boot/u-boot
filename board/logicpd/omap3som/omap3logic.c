@@ -144,20 +144,8 @@ static struct musb_hdrc_platform_data musb_plat = {
  */
 int misc_init_r(void)
 {
-	t2_t *t2_base = (t2_t *)T2_BASE;
-	u32 pbias_lite;
-	/* set up dual-voltage GPIOs to 1.8V */
-	pbias_lite = readl(&t2_base->pbias_lite);
-	pbias_lite &= ~PBIASLITEVMODE1;
-	pbias_lite |= PBIASLITEPWRDNZ1;
-	writel(pbias_lite, &t2_base->pbias_lite);
-	if (get_cpu_family() == CPU_OMAP36XX)
-		writel(readl(CONTROL_WKUP_CTRL) | GPIO_IO_PWRDNZ,
-				CONTROL_WKUP_CTRL);
 	twl4030_power_init();
-
 	omap_die_id_display();
-	putc('\n');
 
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);

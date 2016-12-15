@@ -9,3 +9,7 @@ F:	configs/ls1021atwr_nor_lpuart_defconfig
 F:	configs/ls1021atwr_sdcard_ifc_defconfig
 F:	configs/ls1021atwr_sdcard_qspi_defconfig
 F:	configs/ls1021atwr_qspi_defconfig
+
+M:	Sumit Garg <sumit.garg@nxp.com>
+S:	Maintained
+F:	configs/ls1021atwr_sdcard_ifc_SECURE_BOOT_defconfig

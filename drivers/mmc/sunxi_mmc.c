@@ -269,18 +269,18 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 	unsigned i;
 	unsigned *buff = (unsigned int *)(reading ? data->dest : data->src);
 	unsigned byte_cnt = data->blocksize * data->blocks;
-	unsigned timeout_msecs = byte_cnt >> 8;
-	if (timeout_msecs < 2000)
-		timeout_msecs = 2000;
+	unsigned timeout_usecs = (byte_cnt >> 8) * 1000;
+	if (timeout_usecs < 2000000)
+		timeout_usecs = 2000000;
 
 	/* Always read / write data through the CPU */
 	setbits_le32(&mmchost->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
 
 	for (i = 0; i < (byte_cnt >> 2); i++) {
 		while (readl(&mmchost->reg->status) & status_bit) {
-			if (!timeout_msecs--)
+			if (!timeout_usecs--)
 				return -1;
-			udelay(1000);
+			udelay(1);
 		}
 
 		if (reading)
@@ -304,7 +304,7 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 		    (status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT)) {
 			debug("%s timeout %x\n", what,
 			      status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT);
-			return TIMEOUT;
+			return -ETIMEDOUT;
 		}
 		udelay(1000);
 	} while (!(status & done_bit));
@@ -375,7 +375,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (ret) {
 			error = readl(&mmchost->reg->rint) & \
 				SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT;
-			error = TIMEOUT;
+			error = -ETIMEDOUT;
 			goto out;
 		}
 	}
@@ -402,7 +402,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			status = readl(&mmchost->reg->status);
 			if (!timeout_msecs--) {
 				debug("busy timeout\n");
-				error = TIMEOUT;
+				error = -ETIMEDOUT;
 				goto out;
 			}
 			udelay(1000);
@@ -443,23 +443,6 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 		return 1;
 
 	return !gpio_get_value(cd_pin);
-}
-
-int sunxi_mmc_has_egon_boot_signature(struct mmc *mmc)
-{
-	char *buf = malloc(512);
-	int valid_signature = 0;
-
-	if (buf == NULL)
-		panic("Failed to allocate memory\n");
-
-	if (mmc_getcd(mmc) && mmc_init(mmc) == 0 &&
-	    mmc->block_dev.block_read(&mmc->block_dev, 16, 1, buf) == 1 &&
-	    strncmp(&buf[4], "eGON.BT0", 8) == 0)
-		valid_signature = 1;
-
-	free(buf);
-	return valid_signature;
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {

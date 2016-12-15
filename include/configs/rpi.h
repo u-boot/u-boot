@@ -14,14 +14,9 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-#ifdef CONFIG_BCM2835
-#define CONFIG_SYS_CACHELINE_SIZE		32
-#else
-#define CONFIG_SYS_CACHELINE_SIZE		64
-#endif
-
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Use SoC timer for AArch32, but architected timer for AArch64 */
 #ifndef CONFIG_ARM64
@@ -103,7 +98,6 @@
 #else
 #define CONFIG_USB_DWC2_REG_ADDR 0x20980000
 #endif
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_TFTP_TSIZE

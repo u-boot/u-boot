@@ -23,8 +23,6 @@
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_798870
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
@@ -156,13 +154,6 @@
 #define CONFIG_SPL_TEXT_BASE	0x40300000
 #endif
 
-/* DRA7xx/AM57xx have 512K of SRAM, OMAP5 only 128K */
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
-#define TI_ROM_BOOT_LOAD_END		0x4037E000
-#else
-#define TI_ROM_BOOT_LOAD_END		0x4031E000
-#endif
-#define CONFIG_SPL_MAX_SIZE     (TI_ROM_BOOT_LOAD_END - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \

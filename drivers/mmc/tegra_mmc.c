@@ -9,6 +9,8 @@
 
 #include <bouncebuf.h>
 #include <common.h>
+#include <dm/device.h>
+#include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #ifndef CONFIG_TEGRA186
@@ -18,6 +20,15 @@
 #include <asm/arch-tegra/mmc.h>
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <mmc.h>
+
+/*
+ * FIXME: TODO: This driver contains a number of ifdef CONFIG_TEGRA186 that
+ * should not be present. These are needed because newer Tegra SoCs support
+ * only the standard clock/reset APIs, whereas older Tegra SoCs support only
+ * a custom Tegra-specific API. ASAP the older Tegra SoCs' code should be
+ * fixed to implement the standard APIs, and all drivers converted to solely
+ * use the new standard APIs, with no ifdefs.
+ */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -216,14 +227,14 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (i == retry) {
 		printf("%s: waiting for status update\n", __func__);
 		writel(mask, &host->reg->norintsts);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	if (mask & TEGRA_MMC_NORINTSTS_CMD_TIMEOUT) {
 		/* Timeout Error */
 		debug("timeout: %08x cmd %d\n", mask, cmd->cmdidx);
 		writel(mask, &host->reg->norintsts);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	} else if (mask & TEGRA_MMC_NORINTSTS_ERR_INTERRUPT) {
 		/* Error Interrupt */
 		debug("error: %08x cmd %d\n", mask, cmd->cmdidx);
@@ -257,7 +268,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 			if (i == retry) {
 				printf("%s: card is still busy\n", __func__);
 				writel(mask, &host->reg->norintsts);
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			}
 
 			cmd->response[0] = readl(&host->reg->rspreg0);
@@ -359,11 +370,14 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	 */
 	if (clock == 0)
 		goto out;
-#ifndef CONFIG_TEGRA186
+#ifdef CONFIG_TEGRA186
+	{
+		ulong rate = clk_set_rate(&host->clk, clock);
+		div = (rate + clock - 1) / clock;
+	}
+#else
 	clock_adjust_periph_pll_div(host->mmc_id, CLOCK_ID_PERIPH, clock,
 				    &div);
-#else
-	div = (20000000 + clock - 1) / clock;
 #endif
 	debug("div = %d\n", div);
 
@@ -538,6 +552,9 @@ static int do_mmc_init(int dev_index, bool removable)
 {
 	struct mmc_host *host;
 	struct mmc *mmc;
+#ifdef CONFIG_TEGRA186
+	int ret;
+#endif
 
 	/* DT should have been read & host config filled in */
 	host = &mmc_host[dev_index];
@@ -549,7 +566,21 @@ static int do_mmc_init(int dev_index, bool removable)
 	      gpio_get_number(&host->cd_gpio));
 
 	host->clock = 0;
-#ifndef CONFIG_TEGRA186
+
+#ifdef CONFIG_TEGRA186
+	ret = reset_assert(&host->reset_ctl);
+	if (ret)
+		return ret;
+	ret = clk_enable(&host->clk);
+	if (ret)
+		return ret;
+	ret = clk_set_rate(&host->clk, 20000000);
+	if (IS_ERR_VALUE(ret))
+		return ret;
+	ret = reset_deassert(&host->reset_ctl);
+	if (ret)
+		return ret;
+#else
 	clock_start_periph_pll(host->mmc_id, CLOCK_ID_PERIPH, 20000000);
 #endif
 
@@ -576,11 +607,7 @@ static int do_mmc_init(int dev_index, bool removable)
 	 *  (actually 52MHz)
 	 */
 	host->cfg.f_min = 375000;
-#ifndef CONFIG_TEGRA186
 	host->cfg.f_max = 48000000;
-#else
-	host->cfg.f_max = 375000;
-#endif
 
 	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
@@ -612,7 +639,27 @@ static int mmc_get_config(const void *blob, int node, struct mmc_host *host,
 		return -FDT_ERR_NOTFOUND;
 	}
 
-#ifndef CONFIG_TEGRA186
+#ifdef CONFIG_TEGRA186
+	{
+		/*
+		 * FIXME: This variable should go away when the MMC device
+		 * actually is a udevice.
+		 */
+		struct udevice dev;
+		int ret;
+		dev.of_offset = node;
+		ret = reset_get_by_name(&dev, "sdhci", &host->reset_ctl);
+		if (ret) {
+			debug("reset_get_by_name() failed: %d\n", ret);
+			return ret;
+		}
+		ret = clk_get_by_index(&dev, 0, &host->clk);
+		if (ret) {
+			debug("clk_get_by_index() failed: %d\n", ret);
+			return ret;
+		}
+	}
+#else
 	host->mmc_id = clock_decode_periph_id(blob, node);
 	if (host->mmc_id == PERIPH_ID_NONE) {
 		debug("%s: could not decode periph id\n", __func__);

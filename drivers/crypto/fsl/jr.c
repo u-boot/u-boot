@@ -599,9 +599,26 @@ int sec_init_idx(uint8_t sec_idx)
 	sec_out32(&sec->mcfgr, mcr);
 
 #ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SPL_BUILD
+	/*
+	 * For SPL Build, Set the Liodns in SEC JR0 for
+	 * creating PAMU entries corresponding to these.
+	 * For normal build, these are set in set_liodns().
+	 */
+	liodn_ns = CONFIG_SPL_JR0_LIODN_NS & JRNSLIODN_MASK;
+	liodn_s = CONFIG_SPL_JR0_LIODN_S & JRSLIODN_MASK;
+
+	liodnr = sec_in32(&sec->jrliodnr[0].ls) &
+		 ~(JRNSLIODN_MASK | JRSLIODN_MASK);
+	liodnr = liodnr |
+		 (liodn_ns << JRNSLIODN_SHIFT) |
+		 (liodn_s << JRSLIODN_SHIFT);
+	sec_out32(&sec->jrliodnr[0].ls, liodnr);
+#else
 	liodnr = sec_in32(&sec->jrliodnr[0].ls);
 	liodn_ns = (liodnr & JRNSLIODN_MASK) >> JRNSLIODN_SHIFT;
 	liodn_s = (liodnr & JRSLIODN_MASK) >> JRSLIODN_SHIFT;
+#endif
 #endif
 
 	ret = jr_init(sec_idx);

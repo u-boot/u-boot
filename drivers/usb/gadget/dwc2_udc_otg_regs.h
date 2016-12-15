@@ -130,9 +130,9 @@ struct dwc2_usbotg_reg {
 #define HIGH_SPEED_CONTROL_PKT_SIZE	64
 #define HIGH_SPEED_BULK_PKT_SIZE	512
 
-#define RX_FIFO_SIZE			(1024*4)
-#define NPTX_FIFO_SIZE			(1024*4)
-#define PTX_FIFO_SIZE			(1536*1)
+#define RX_FIFO_SIZE			(1024)
+#define NPTX_FIFO_SIZE			(1024)
+#define PTX_FIFO_SIZE			(384)
 
 #define DEPCTL_TXFNUM_0		(0x0<<22)
 #define DEPCTL_TXFNUM_1		(0x1<<22)

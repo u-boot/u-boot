@@ -13,6 +13,7 @@
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <100000000>;
+		u-boot,dm-pre-reloc;
 	};
 
 	clk125: clk125 {

@@ -41,26 +41,28 @@ The log is printed for each defconfig as follows:
 <defconfig_name> is the name of the defconfig.
 
 <action*> shows what the tool did for that defconfig.
-It looks like one of the followings:
+It looks like one of the following:
 
  - Move 'CONFIG_... '
    This config option was moved to the defconfig
 
  - CONFIG_... is not defined in Kconfig.  Do nothing.
-   The entry for this CONFIG was not found in Kconfig.
+   The entry for this CONFIG was not found in Kconfig.  The option is not
+   defined in the config header, either.  So, this case can be just skipped.
+
+ - CONFIG_... is not defined in Kconfig (suspicious).  Do nothing.
+   This option is defined in the config header, but its entry was not found
+   in Kconfig.
    There are two common cases:
      - You forgot to create an entry for the CONFIG before running
        this tool, or made a typo in a CONFIG passed to this tool.
      - The entry was hidden due to unmet 'depends on'.
-       This is correct behavior.
+   The tool does not know if the result is reasonable, so please check it
+   manually.
 
  - 'CONFIG_...' is the same as the define in Kconfig.  Do nothing.
    The define in the config header matched the one in Kconfig.
    We do not need to touch it.
-
- - Undefined.  Do nothing.
-   This config option was not found in the config header.
-   Nothing to do.
 
  - Compiler is missing.  Do nothing.
    The compiler specified for this architecture was not found
@@ -136,6 +138,12 @@ Available options
    If not specified, "make savedefconfig" only occurs for cases
    where at least one CONFIG was moved.
 
+ -S, --spl
+   Look for moved config options in spl/include/autoconf.mk instead of
+   include/autoconf.mk.  This is useful for moving options for SPL build
+   because SPL related options (mostly prefixed with CONFIG_SPL_) are
+   sometimes blocked by CONFIG_SPL_BUILD ifdef conditionals.
+
  -H, --headers-only
    Only cleanup the headers; skip the defconfig processing
 
@@ -160,6 +168,8 @@ To see the complete list of supported options, run
 
 """
 
+import copy
+import difflib
 import filecmp
 import fnmatch
 import multiprocessing
@@ -177,7 +187,7 @@ SLEEP_TIME=0.03
 
 # Here is the list of cross-tools I use.
 # Most of them are available at kernel.org
-# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the followings:
+# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the following:
 # arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
 # blackfin: http://sourceforge.net/projects/adi-toolchain/files/
 # nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
@@ -201,7 +211,8 @@ CROSS_COMPILE = {
     'powerpc': 'powerpc-linux-',
     'sh': 'sh-linux-gnu-',
     'sparc': 'sparc-linux-',
-    'x86': 'i386-linux-'
+    'x86': 'i386-linux-',
+    'xtensa': 'xtensa-linux-'
 }
 
 STATE_IDLE = 0
@@ -211,7 +222,8 @@ STATE_SAVEDEFCONFIG = 3
 
 ACTION_MOVE = 0
 ACTION_NO_ENTRY = 1
-ACTION_NO_CHANGE = 2
+ACTION_NO_ENTRY_WARN = 2
+ACTION_NO_CHANGE = 3
 
 COLOR_BLACK        = '0;30'
 COLOR_RED          = '0;31'
@@ -264,6 +276,16 @@ def get_make_cmd():
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
+def get_all_defconfigs():
+    """Get all the defconfig files under the configs/ directory."""
+    defconfigs = []
+    for (dirpath, dirnames, filenames) in os.walk('configs'):
+        dirpath = dirpath[len('configs') + 1:]
+        for filename in fnmatch.filter(filenames, '*_defconfig'):
+            defconfigs.append(os.path.join(dirpath, filename))
+
+    return defconfigs
+
 def color_text(color_enabled, color, string):
     """Return colored string."""
     if color_enabled:
@@ -273,6 +295,28 @@ def color_text(color_enabled, color, string):
                            for s in string.split('\n') ])
     else:
         return string
+
+def show_diff(a, b, file_path, color_enabled):
+    """Show unidified diff.
+
+    Arguments:
+      a: A list of lines (before)
+      b: A list of lines (after)
+      file_path: Path to the file
+      color_enabled: Display the diff in color
+    """
+
+    diff = difflib.unified_diff(a, b,
+                                fromfile=os.path.join('a', file_path),
+                                tofile=os.path.join('b', file_path))
+
+    for line in diff:
+        if line[0] == '-' and line[1] != '-':
+            print color_text(color_enabled, COLOR_RED, line),
+        elif line[0] == '+' and line[1] != '+':
+            print color_text(color_enabled, COLOR_GREEN, line),
+        else:
+            print line,
 
 def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
@@ -319,41 +363,123 @@ def update_cross_compile(color_enabled):
 
         CROSS_COMPILE[arch] = cross_compile
 
-def cleanup_one_header(header_path, patterns, dry_run):
+def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
+                         extend_post):
+    """Extend matched lines if desired patterns are found before/after already
+    matched lines.
+
+    Arguments:
+      lines: A list of lines handled.
+      matched: A list of line numbers that have been already matched.
+               (will be updated by this function)
+      pre_patterns: A list of regular expression that should be matched as
+                    preamble.
+      post_patterns: A list of regular expression that should be matched as
+                     postamble.
+      extend_pre: Add the line number of matched preamble to the matched list.
+      extend_post: Add the line number of matched postamble to the matched list.
+    """
+    extended_matched = []
+
+    j = matched[0]
+
+    for i in matched:
+        if i == 0 or i < j:
+            continue
+        j = i
+        while j in matched:
+            j += 1
+        if j >= len(lines):
+            break
+
+        for p in pre_patterns:
+            if p.search(lines[i - 1]):
+                break
+        else:
+            # not matched
+            continue
+
+        for p in post_patterns:
+            if p.search(lines[j]):
+                break
+        else:
+            # not matched
+            continue
+
+        if extend_pre:
+            extended_matched.append(i - 1)
+        if extend_post:
+            extended_matched.append(j)
+
+    matched += extended_matched
+    matched.sort()
+
+def cleanup_one_header(header_path, patterns, options):
     """Clean regex-matched lines away from a file.
 
     Arguments:
       header_path: path to the cleaned file.
       patterns: list of regex patterns.  Any lines matching to these
                 patterns are deleted.
-      dry_run: make no changes, but still display log.
+      options: option flags.
     """
     with open(header_path) as f:
         lines = f.readlines()
 
     matched = []
     for i, line in enumerate(lines):
+        if i - 1 in matched and lines[i - 1][-2:] == '\\\n':
+            matched.append(i)
+            continue
         for pattern in patterns:
-            m = pattern.search(line)
-            if m:
-                print '%s: %s: %s' % (header_path, i + 1, line),
+            if pattern.search(line):
                 matched.append(i)
                 break
 
-    if dry_run or not matched:
+    if not matched:
+        return
+
+    # remove empty #ifdef ... #endif, successive blank lines
+    pattern_if = re.compile(r'#\s*if(def|ndef)?\W') #  #if, #ifdef, #ifndef
+    pattern_elif = re.compile(r'#\s*el(if|se)\W')   #  #elif, #else
+    pattern_endif = re.compile(r'#\s*endif\W')      #  #endif
+    pattern_blank = re.compile(r'^\s*$')            #  empty line
+
+    while True:
+        old_matched = copy.copy(matched)
+        extend_matched_lines(lines, matched, [pattern_if],
+                             [pattern_endif], True, True)
+        extend_matched_lines(lines, matched, [pattern_elif],
+                             [pattern_elif, pattern_endif], True, False)
+        extend_matched_lines(lines, matched, [pattern_if, pattern_elif],
+                             [pattern_blank], False, True)
+        extend_matched_lines(lines, matched, [pattern_blank],
+                             [pattern_elif, pattern_endif], True, False)
+        extend_matched_lines(lines, matched, [pattern_blank],
+                             [pattern_blank], True, False)
+        if matched == old_matched:
+            break
+
+    tolines = copy.copy(lines)
+
+    for i in reversed(matched):
+        tolines.pop(i)
+
+    show_diff(lines, tolines, header_path, options.color)
+
+    if options.dry_run:
         return
 
     with open(header_path, 'w') as f:
-        for i, line in enumerate(lines):
-            if not i in matched:
-                f.write(line)
+        for line in tolines:
+            f.write(line)
 
-def cleanup_headers(configs, dry_run):
+def cleanup_headers(configs, options):
     """Delete config defines from board headers.
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      dry_run: make no changes, but still display log.
+      options: option flags.
     """
     while True:
         choice = raw_input('Clean up headers? [y/n]: ').lower()
@@ -371,10 +497,85 @@ def cleanup_headers(configs, dry_run):
 
     for dir in 'include', 'arch', 'board':
         for (dirpath, dirnames, filenames) in os.walk(dir):
+            if dirpath == os.path.join('include', 'generated'):
+                continue
             for filename in filenames:
                 if not fnmatch.fnmatch(filename, '*~'):
                     cleanup_one_header(os.path.join(dirpath, filename),
-                                       patterns, dry_run)
+                                       patterns, options)
+
+def cleanup_one_extra_option(defconfig_path, configs, options):
+    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in one defconfig file.
+
+    Arguments:
+      defconfig_path: path to the cleaned defconfig file.
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+
+    start = 'CONFIG_SYS_EXTRA_OPTIONS="'
+    end = '"\n'
+
+    with open(defconfig_path) as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if line.startswith(start) and line.endswith(end):
+            break
+    else:
+        # CONFIG_SYS_EXTRA_OPTIONS was not found in this defconfig
+        return
+
+    old_tokens = line[len(start):-len(end)].split(',')
+    new_tokens = []
+
+    for token in old_tokens:
+        pos = token.find('=')
+        if not (token[:pos] if pos >= 0 else token) in configs:
+            new_tokens.append(token)
+
+    if new_tokens == old_tokens:
+        return
+
+    tolines = copy.copy(lines)
+
+    if new_tokens:
+        tolines[i] = start + ','.join(new_tokens) + end
+    else:
+        tolines.pop(i)
+
+    show_diff(lines, tolines, defconfig_path, options.color)
+
+    if options.dry_run:
+        return
+
+    with open(defconfig_path, 'w') as f:
+        for line in tolines:
+            f.write(line)
+
+def cleanup_extra_options(configs, options):
+    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    while True:
+        choice = raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').lower()
+        print choice
+        if choice == 'y' or choice == 'n':
+            break
+
+    if choice == 'n':
+        return
+
+    configs = [ config[len('CONFIG_'):] for config in configs ]
+
+    defconfigs = get_all_defconfigs()
+
+    for defconfig in defconfigs:
+        cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
+                                 options)
 
 ### classes ###
 class Progress:
@@ -419,6 +620,8 @@ class KconfigParser:
         self.options = options
         self.dotconfig = os.path.join(build_dir, '.config')
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
+        self.spl_autoconf = os.path.join(build_dir, 'spl', 'include',
+                                         'autoconf.mk')
         self.config_autoconf = os.path.join(build_dir, 'include', 'config',
                                             'auto.conf')
         self.defconfig = os.path.join(build_dir, 'defconfig')
@@ -471,14 +674,6 @@ class KconfigParser:
         """
         not_set = '# %s is not set' % config
 
-        for line in dotconfig_lines:
-            line = line.rstrip()
-            if line.startswith(config + '=') or line == not_set:
-                old_val = line
-                break
-        else:
-            return (ACTION_NO_ENTRY, config)
-
         for line in autoconf_lines:
             line = line.rstrip()
             if line.startswith(config + '='):
@@ -486,6 +681,17 @@ class KconfigParser:
                 break
         else:
             new_val = not_set
+
+        for line in dotconfig_lines:
+            line = line.rstrip()
+            if line.startswith(config + '=') or line == not_set:
+                old_val = line
+                break
+        else:
+            if new_val == not_set:
+                return (ACTION_NO_ENTRY, config)
+            else:
+                return (ACTION_NO_ENTRY_WARN, config)
 
         # If this CONFIG is neither bool nor trisate
         if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
@@ -516,11 +722,26 @@ class KconfigParser:
 
         results = []
         updated = False
+        suspicious = False
+        rm_files = [self.config_autoconf, self.autoconf]
+
+        if self.options.spl:
+            if os.path.exists(self.spl_autoconf):
+                autoconf_path = self.spl_autoconf
+                rm_files.append(self.spl_autoconf)
+            else:
+                for f in rm_files:
+                    os.remove(f)
+                return (updated, suspicious,
+                        color_text(self.options.color, COLOR_BROWN,
+                                   "SPL is not enabled.  Skipped.") + '\n')
+        else:
+            autoconf_path = self.autoconf
 
         with open(self.dotconfig) as f:
             dotconfig_lines = f.readlines()
 
-        with open(self.autoconf) as f:
+        with open(autoconf_path) as f:
             autoconf_lines = f.readlines()
 
         for config in self.configs:
@@ -537,10 +758,17 @@ class KconfigParser:
             elif action == ACTION_NO_ENTRY:
                 actlog = "%s is not defined in Kconfig.  Do nothing." % value
                 log_color = COLOR_LIGHT_BLUE
+            elif action == ACTION_NO_ENTRY_WARN:
+                actlog = "%s is not defined in Kconfig (suspicious).  Do nothing." % value
+                log_color = COLOR_YELLOW
+                suspicious = True
             elif action == ACTION_NO_CHANGE:
                 actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
                          % value
                 log_color = COLOR_LIGHT_PURPLE
+            elif action == ACTION_SPL_NOT_EXIST:
+                actlog = "SPL is not enabled for this defconfig.  Skip."
+                log_color = COLOR_PURPLE
             else:
                 sys.exit("Internal Error. This should not happen.")
 
@@ -553,10 +781,10 @@ class KconfigParser:
                     updated = True
 
         self.results = results
-        os.remove(self.config_autoconf)
-        os.remove(self.autoconf)
+        for f in rm_files:
+            os.remove(f)
 
-        return (updated, log)
+        return (updated, suspicious, log)
 
     def check_defconfig(self):
         """Check the defconfig after savedefconfig
@@ -610,8 +838,8 @@ class Slot:
         self.reference_src_dir = reference_src_dir
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
-        self.failed_boards = []
-        self.suspicious_boards = []
+        self.failed_boards = set()
+        self.suspicious_boards = set()
 
     def __del__(self):
         """Delete the working directory
@@ -735,7 +963,9 @@ class Slot:
     def do_savedefconfig(self):
         """Update the .config and run 'make savedefconfig'."""
 
-        (updated, log) = self.parser.update_dotconfig()
+        (updated, suspicious, log) = self.parser.update_dotconfig()
+        if suspicious:
+            self.suspicious_boards.add(self.defconfig)
         self.log += log
 
         if not self.options.force_sync and not updated:
@@ -758,7 +988,7 @@ class Slot:
 
         log = self.parser.check_defconfig()
         if log:
-            self.suspicious_boards.append(self.defconfig)
+            self.suspicious_boards.add(self.defconfig)
             self.log += log
         orig_defconfig = os.path.join('configs', self.defconfig)
         new_defconfig = os.path.join(self.build_dir, 'defconfig')
@@ -792,21 +1022,21 @@ class Slot:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
             # Record the failed board.
-            self.failed_boards.append(self.defconfig)
+            self.failed_boards.add(self.defconfig)
 
         self.progress.inc()
         self.progress.show()
         self.state = STATE_IDLE
 
     def get_failed_boards(self):
-        """Returns a list of failed boards (defconfigs) in this slot.
+        """Returns a set of failed boards (defconfigs) in this slot.
         """
         return self.failed_boards
 
     def get_suspicious_boards(self):
-        """Returns a list of boards (defconfigs) with possible misconversion.
+        """Returns a set of boards (defconfigs) with possible misconversion.
         """
-        return self.suspicious_boards
+        return self.suspicious_boards - self.failed_boards
 
 class Slots:
 
@@ -869,11 +1099,11 @@ class Slots:
 
     def show_failed_boards(self):
         """Display all of the failed boards (defconfigs)."""
-        boards = []
+        boards = set()
         output_file = 'moveconfig.failed'
 
         for slot in self.slots:
-            boards += slot.get_failed_boards()
+            boards |= slot.get_failed_boards()
 
         if boards:
             boards = '\n'.join(boards) + '\n'
@@ -888,11 +1118,11 @@ class Slots:
 
     def show_suspicious_boards(self):
         """Display all boards (defconfigs) with possible misconversion."""
-        boards = []
+        boards = set()
         output_file = 'moveconfig.suspicious'
 
         for slot in self.slots:
-            boards += slot.get_suspicious_boards()
+            boards |= slot.get_suspicious_boards()
 
         if boards:
             boards = '\n'.join(boards) + '\n'
@@ -971,12 +1201,7 @@ def move_config(configs, options):
                 sys.exit('%s - defconfig does not exist. Stopping.' %
                          defconfigs[i])
     else:
-        # All the defconfig files to be processed
-        defconfigs = []
-        for (dirpath, dirnames, filenames) in os.walk('configs'):
-            dirpath = dirpath[len('configs') + 1:]
-            for filename in fnmatch.filter(filenames, '*_defconfig'):
-                defconfigs.append(os.path.join(dirpath, filename))
+        defconfigs = get_all_defconfigs()
 
     progress = Progress(len(defconfigs))
     slots = Slots(configs, options, progress, reference_src_dir)
@@ -1017,6 +1242,8 @@ def main():
                       help='exit immediately on any error')
     parser.add_option('-s', '--force-sync', action='store_true', default=False,
                       help='force sync by savedefconfig')
+    parser.add_option('-S', '--spl', action='store_true', default=False,
+                      help='parse config options defined for SPL build')
     parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
@@ -1040,15 +1267,14 @@ def main():
 
     check_top_directory()
 
-    check_clean_directory()
-
-    update_cross_compile(options.color)
-
     if not options.cleanup_headers_only:
+        check_clean_directory()
+        update_cross_compile(options.color)
         move_config(configs, options)
 
     if configs:
-        cleanup_headers(configs, options.dry_run)
+        cleanup_headers(configs, options)
+        cleanup_extra_options(configs, options)
 
 if __name__ == '__main__':
     main()

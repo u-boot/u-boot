@@ -58,6 +58,16 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_AT91
+	bool "Atmel I2C driver"
+	depends on DM_I2C && ARCH_AT91
+	help
+	  Add support for the Atmel I2C driver. A serious problem is that there
+	  is no documented way to issue repeated START conditions for more than
+	  two messages, as needed to support combined I2C messages. Use the
+	  i2c-gpio driver unless your system can cope with this limitation.
+	  Binding info: doc/device-tree-bindings/i2c/i2c-at91.txt
+
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
        depends on DM_I2C
@@ -153,6 +163,23 @@ config SYS_I2C_UNIPHIER_F
 	help
 	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
+
+config SYS_I2C_MVTWSI
+	bool "Marvell I2C driver"
+	depends on DM_I2C
+	help
+	  Support for Marvell I2C controllers as used on the orion5x and
+	  kirkwood SoC families.
+
+config TEGRA186_BPMP_I2C
+	bool "Enable Tegra186 BPMP-based I2C driver"
+	depends on TEGRA186_BPMP
+	help
+	  Support for Tegra I2C controllers managed by the BPMP (Boot and
+	  Power Management Processor). On Tegra186, some I2C controllers are
+	  directly controlled by the main CPU, whereas others are controlled
+	  by the BPMP, and can only be accessed by the main CPU via IPC
+	  requests to the BPMP. This driver covers the latter case.
 
 source "drivers/i2c/muxes/Kconfig"
 

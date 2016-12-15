@@ -30,7 +30,7 @@ config DWAPB_GPIO
 
 config ATMEL_PIO4
 	bool "ATMEL PIO4 driver"
-	depends on DM
+	depends on DM_GPIO
 	default n
 	help
 	  Say yes here to support the Atmel PIO4 driver.
@@ -78,6 +78,13 @@ config PM8916_GPIO
 	  Default name for GPIO bank is "pm8916".
 	  Power and reset buttons are placed in "pm8916_key" bank and
           have gpio numbers 0 and 1 respectively.
+
+config PCF8575_GPIO
+	bool "PCF8575 I2C GPIO Expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	 Support for PCF8575 I2C 16-bit GPIO expander. Most of these
+	 chips are from NXP and TI.
 
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"

@@ -20,8 +20,8 @@
 
 #define CONFIG_SUNXI_USB_PHYS	3
 
-#define CONFIG_ARMV7_PSCI		1
 #define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
+#define CONFIG_ARMV7_SECURE_MAX_SIZE	(64 * 1024) /* 64 KB */
 
 /*
  * Include common sunxi configuration where most the settings are

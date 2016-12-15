@@ -39,6 +39,9 @@ config ZYNQMP_QSPI
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
+config SYS_MALLOC_F_LEN
+	default 0x600
+
 config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 	bool "Overwrite SPL bootmode"
 	depends on SPL

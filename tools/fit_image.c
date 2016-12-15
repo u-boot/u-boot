@@ -195,7 +195,8 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	fdt_begin_node(fdt, str);
 	fdt_property_string(fdt, "description", params->imagename);
 	fdt_property_string(fdt, "type", typename);
-	fdt_property_string(fdt, "arch", genimg_get_arch_name(params->arch));
+	fdt_property_string(fdt, "arch",
+			    genimg_get_arch_short_name(params->arch));
 	fdt_property_string(fdt, "os", genimg_get_os_short_name(params->os));
 	fdt_property_string(fdt, "compression",
 			    genimg_get_comp_short_name(params->comp));
@@ -650,8 +651,8 @@ static int fit_handle_file(struct image_tool_params *params)
 	}
 
 	if (ret) {
-		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
-			params->cmdname);
+		fprintf(stderr, "%s Can't add hashes to FIT blob: %d\n",
+			params->cmdname, ret);
 		goto err_system;
 	}
 

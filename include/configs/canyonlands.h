@@ -333,7 +333,6 @@
 /* Only Canyonlands (460EX) has USB */
 #ifdef CONFIG_460EX
 #define CONFIG_USB_OHCI_NEW
-#define CONFIG_USB_STORAGE
 #undef CONFIG_SYS_OHCI_BE_CONTROLLER		/* 460EX has little endian descriptors	*/
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	/* 460EX has little endian register	*/
 #define CONFIG_SYS_OHCI_USE_NPS		/* force NoPowerSwitching mode		*/

@@ -123,16 +123,7 @@ config QCA953X_PINCTRL
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
 
-config ROCKCHIP_PINCTRL
-	bool "Rockchip pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip SoCs. The driver is
-	  controlled by a device tree node which contains both the GPIO
-	  definitions and pin control functions for each available multiplex
-	  function.
-
-config ROCKCHIP_3036_PINCTRL
+config ROCKCHIP_RK3036_PINCTRL
 	bool "Rockchip rk3036 pin control driver"
 	depends on DM
 	help
@@ -140,6 +131,22 @@ config ROCKCHIP_3036_PINCTRL
 	  controlled by a device tree node which contains both the GPIO
 	  definitions and pin control functions for each available multiplex
 	  function.
+
+config ROCKCHIP_RK3288_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3288 SoCs. The driver
+	  is controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
+config PINCTRL_AT91PIO4
+	bool "AT91 PIO4 pinctrl driver"
+	depends on DM
+	help
+	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
+	  controller which is available on SAMA5D2 SoC.
 
 config PINCTRL_SANDBOX
 	bool "Sandbox pinctrl driver"
@@ -161,6 +168,7 @@ config PIC32_PINCTRL
 
 endif
 
+source "drivers/pinctrl/meson/Kconfig"
 source "drivers/pinctrl/nxp/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"

@@ -106,7 +106,7 @@ class ConsoleBase(object):
 
         # Array slice removes leading/trailing quotes
         self.prompt = self.config.buildconfig['config_sys_prompt'][1:-1]
-        self.prompt_escaped = re.escape(self.prompt)
+        self.prompt_compiled = re.compile('^' + re.escape(self.prompt), re.MULTILINE)
         self.p = None
         self.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
         self.eval_bad_patterns()
@@ -201,7 +201,7 @@ class ConsoleBase(object):
                                     self.bad_pattern_ids[m - 1])
             if not wait_for_prompt:
                 return
-            m = self.p.expect([self.prompt_escaped] + self.bad_patterns)
+            m = self.p.expect([self.prompt_compiled] + self.bad_patterns)
             if m != 0:
                 self.at_prompt = False
                 raise Exception('Bad pattern found on console: ' +
@@ -215,6 +215,23 @@ class ConsoleBase(object):
             self.log.error(str(ex))
             self.cleanup_spawn()
             raise
+
+    def run_command_list(self, cmds):
+        """Run a list of commands.
+
+        This is a helper function to call run_command() with default arguments
+        for each command in a list.
+
+        Args:
+            cmd: List of commands (each a string).
+        Returns:
+            A list of output strings from each command, one element for each
+            command.
+        """
+        output = []
+        for cmd in cmds:
+            output.append(self.run_command(cmd))
+        return output
 
     def ctrlc(self):
         """Send a CTRL-C character to U-Boot.
@@ -329,7 +346,7 @@ class ConsoleBase(object):
                 m = self.p.expect([pattern_u_boot_spl_signon] +
                                   self.bad_patterns)
                 if m != 0:
-                    raise Exception('Bad pattern found on console: ' +
+                    raise Exception('Bad pattern found on SPL console: ' +
                                     self.bad_pattern_ids[m - 1])
             m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
             if m != 0:
@@ -337,7 +354,7 @@ class ConsoleBase(object):
                                 self.bad_pattern_ids[m - 1])
             self.u_boot_version_string = self.p.after
             while True:
-                m = self.p.expect([self.prompt_escaped,
+                m = self.p.expect([self.prompt_compiled,
                     pattern_stop_autoboot_prompt] + self.bad_patterns)
                 if m == 0:
                     break
@@ -376,6 +393,21 @@ class ConsoleBase(object):
         except:
             pass
         self.p = None
+
+    def restart_uboot(self):
+        """Shut down and restart U-Boot."""
+        self.cleanup_spawn()
+        self.ensure_spawned()
+
+    def get_spawn_output(self):
+        """Return the start-up output from U-Boot
+
+        Returns:
+            The output produced by ensure_spawed(), as a string.
+        """
+        if self.p:
+            return self.p.get_expect_output()
+        return None
 
     def validate_version_string_in_text(self, text):
         """Assert that a command's output includes the U-Boot signon message.

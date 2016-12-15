@@ -18,6 +18,9 @@ class Timeout(Exception):
 class Spawn(object):
     """Represents the stdio of a freshly created sub-process. Commands may be
     sent to the process, and responses waited for.
+
+    Members:
+        output: accumulated output from expect()
     """
 
     def __init__(self, args, cwd=None):
@@ -34,6 +37,7 @@ class Spawn(object):
 
         self.waited = False
         self.buf = ''
+        self.output = ''
         self.logfile_read = None
         self.before = ''
         self.after = ''
@@ -154,6 +158,7 @@ class Spawn(object):
                     posafter = earliest_m.end()
                     self.before = self.buf[:pos]
                     self.after = self.buf[pos:posafter]
+                    self.output += self.buf[:posafter]
                     self.buf = self.buf[posafter:]
                     return earliest_pi
                 tnow_s = time.time()
@@ -198,3 +203,11 @@ class Spawn(object):
             if not self.isalive():
                 break
             time.sleep(0.1)
+
+    def get_expect_output(self):
+        """Return the output read by expect()
+
+        Returns:
+            The output processed by expect(), as a string.
+        """
+        return self.output

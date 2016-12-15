@@ -11,9 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
 #define	CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_P1010
@@ -732,7 +729,6 @@ extern unsigned long get_sdram_size(void);
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_USB_STORAGE
 #endif
 #endif
 
@@ -862,7 +858,7 @@ extern unsigned long get_sdram_size(void);
 	"consoledev=ttyS0\0"				\
 	"ramdiskaddr=2000000\0"			\
 	"ramdiskfile=rootfs.ext2.gz.uboot\0"		\
-	"fdtaddr=c00000\0"				\
+	"fdtaddr=1e00000\0"				\
 	"fdtfile=p1010rdb.dtb\0"		\
 	"bdev=sda1\0"	\
 	"hwconfig=usb1:dr_mode=host,phy_type=utmi\0"	\

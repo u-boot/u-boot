@@ -93,6 +93,54 @@ static int onenand_spl_read_page(uint32_t block, uint32_t page, uint32_t *buf,
 	return 0;
 }
 
+#ifdef CONFIG_SPL_UBI
+/* Temporary storage for non page aligned and non page sized reads. */
+static u8 scratch_buf[PAGE_4K];
+
+/**
+ * onenand_spl_read_block - Read data from physical eraseblock into a buffer
+ * @block:	Number of the physical eraseblock
+ * @offset:	Data offset from the start of @peb
+ * @len:	Data size to read
+ * @dst:	Address of the destination buffer
+ *
+ * Notes:
+ *	@offset + @len are not allowed to be larger than a physical
+ *	erase block. No sanity check done for simplicity reasons.
+ */
+int onenand_spl_read_block(int block, int offset, int len, void *dst)
+{
+	int page, read, psize;
+
+	psize = onenand_spl_get_geometry();
+	/* Calculate the page number */
+	page = offset / psize;
+	/* Offset to the start of a flash page */
+	offset = offset % psize;
+
+	while (len) {
+		/*
+		 * Non page aligned reads go to the scratch buffer.
+		 * Page aligned reads go directly to the destination.
+		 */
+		if (offset || len < psize) {
+			onenand_spl_read_page(block, page,
+			                      (uint32_t *)scratch_buf, psize);
+			read = min(len, psize - offset);
+			memcpy(dst, scratch_buf + offset, read);
+			offset = 0;
+		} else {
+			onenand_spl_read_page(block, page, dst, psize);
+			read = psize;
+		}
+		page++;
+		len -= read;
+		dst += read;
+	}
+	return 0;
+}
+#endif
+
 void onenand_spl_load_image(uint32_t offs, uint32_t size, void *dst)
 {
 	uint32_t *addr = (uint32_t *)dst;

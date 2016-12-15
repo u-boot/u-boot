@@ -8,6 +8,39 @@ config TARGET_FIREFLY_RK3288
 	  also includes on-board eMMC and 1GB of SDRAM. Expansion connectors
 	  provide access to display pins, I2C, SPI, UART and GPIOs.
 
+config TARGET_EVB_RK3288
+	bool "Evb-RK3288"
+	help
+	  EVB-RK3288 is a RK3288-based development board with 2 USB ports,
+	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
+	  also includes on-board eMMC and 2GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_FENNEC_RK3288
+	bool "Fennec-RK3288"
+	help
+	  Fennec is a RK3288-based development board with 2 USB ports,
+	  HDMI, micro-SD card, audio, WiFi and Gigabit Ethernet. It also
+	  includes on-board eMMC and 2GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_POPMETAL_RK3288
+	bool "PopMetal-RK3288"
+	help
+	  PopMetal is a RK3288-based development board with 3 USB host ports,
+	  1 micro USB OTG port, HDMI, VGA, micro-SD card, audio, WiFi, Gigabit
+	  Ethernet and lots of sensors. It also includes on-board 8 GeMMC and
+	  2GB DDR3. Expansion connectors provide access to I2C, SPI, UART,
+	  GPIOs and display interface.
+
+config TARGET_MINIARM_RK3288
+	bool "miniarm-RK3288"
+	help
+	  Miniarm is a RK3288-based development board with 2 USB ports, HDMI,
+	  micro-SD card, audio, Gigabit Ethernet. It also includes on-board
+	  8GB eMMC and 2GB of SDRAM. Expansion connectors provide access to
+	  I2C, SPI, UART, GPIOs.
+
 config TARGET_CHROMEBOOK_JERRY
 	bool "Google/Rockchip Veyron-Jerry Chromebook"
 	help
@@ -39,10 +72,18 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x0800
 
-source "board/google/chromebook_jerry/Kconfig"
+source "board/chipspark/popmetal_rk3288/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"
 
+source "board/google/chromebook_jerry/Kconfig"
+
 source "board/radxa/rock2/Kconfig"
+
+source "board/rockchip/evb_rk3288/Kconfig"
+
+source "board/rockchip/fennec_rk3288/Kconfig"
+
+source "board/rockchip/miniarm_rk3288/Kconfig"
 
 endif

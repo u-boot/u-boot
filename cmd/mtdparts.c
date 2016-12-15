@@ -109,17 +109,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MTD_WRITEABLE_CMD		1
 
 /* default values for mtdids and mtdparts variables */
-#if defined(MTDIDS_DEFAULT)
-static const char *const mtdids_default = MTDIDS_DEFAULT;
-#else
-static const char *const mtdids_default = NULL;
+#if !defined(MTDIDS_DEFAULT)
+#define MTDIDS_DEFAULT NULL
 #endif
-
-#if defined(MTDPARTS_DEFAULT)
-static const char *const mtdparts_default = MTDPARTS_DEFAULT;
-#else
-static const char *const mtdparts_default = NULL;
+#if !defined(MTDPARTS_DEFAULT)
+#define MTDPARTS_DEFAULT NULL
 #endif
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+extern void board_mtdparts_default(const char **mtdids, const char **mtdparts);
+#endif
+static const char *mtdids_default = MTDIDS_DEFAULT;
+static const char *mtdparts_default = MTDPARTS_DEFAULT;
 
 /* copies of last seen 'mtdids', 'mtdparts' and 'partition' env variables */
 #define MTDIDS_MAXLEN		128
@@ -141,6 +141,8 @@ static struct list_head devices;
 /* current active device and partition number */
 struct mtd_device *current_mtd_dev = NULL;
 u8 current_mtd_partnum = 0;
+
+u8 use_defaults;
 
 static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part_num);
 
@@ -1491,7 +1493,7 @@ static int spread_partitions(void)
 			part = list_entry(pentry, struct part_info, link);
 
 			debug("spread_partitions: device = %s%d, partition %d ="
-				" (%s) 0x%08x@0x%08x\n",
+				" (%s) 0x%08llx@0x%08llx\n",
 				MTD_DEV_TYPE(dev->id->type), dev->id->num,
 				part_num, part->name, part->size,
 				part->offset);
@@ -1516,6 +1518,23 @@ static int spread_partitions(void)
 #endif /* CONFIG_CMD_MTDPARTS_SPREAD */
 
 /**
+ * The mtdparts variable tends to be long. If we need to access it
+ * before the env is relocated, then we need to use our own stack
+ * buffer.  gd->env_buf will be too small.
+ *
+ * @param buf temporary buffer pointer MTDPARTS_MAXLEN long
+ * @return mtdparts variable string, NULL if not found
+ */
+static const char *getenv_mtdparts(char *buf)
+{
+	if (gd->flags & GD_FLG_ENV_READY)
+		return getenv("mtdparts");
+	if (getenv_f("mtdparts", buf, MTDPARTS_MAXLEN) != -1)
+		return buf;
+	return NULL;
+}
+
+/**
  * Accept character string describing mtd partitions and call device_parse()
  * for each entry. Add created devices to the global devices list.
  *
@@ -1524,7 +1543,7 @@ static int spread_partitions(void)
  */
 static int parse_mtdparts(const char *const mtdparts)
 {
-	const char *p = mtdparts;
+	const char *p;
 	struct mtd_device *dev;
 	int err = 1;
 	char tmp_parts[MTDPARTS_MAXLEN];
@@ -1538,12 +1557,9 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 
 	/* re-read 'mtdparts' variable, mtd_devices_init may be updating env */
-	if (gd->flags & GD_FLG_ENV_READY) {
-		p = getenv("mtdparts");
-	} else {
-		p = tmp_parts;
-		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
-	}
+	p = getenv_mtdparts(tmp_parts);
+	if (!p)
+		p = mtdparts;
 
 	if (strncmp(p, "mtdparts=", 9) != 0) {
 		printf("mtdparts variable doesn't start with 'mtdparts='\n");
@@ -1551,7 +1567,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 	p += 9;
 
-	while (p && (*p != '\0')) {
+	while (*p != '\0') {
 		err = 1;
 		if ((device_parse(p, &p, &dev) != 0) || (!dev))
 			break;
@@ -1569,12 +1585,10 @@ static int parse_mtdparts(const char *const mtdparts)
 		list_add_tail(&dev->link, &devices);
 		err = 0;
 	}
-	if (err == 1) {
+	if (err == 1)
 		device_delall(&devices);
-		return 1;
-	}
 
-	return 0;
+	return err;
 }
 
 /**
@@ -1688,6 +1702,7 @@ static int parse_mtdids(const char *const ids)
 	return 0;
 }
 
+
 /**
  * Parse and initialize global mtdids mapping and create global
  * device/partition list.
@@ -1710,22 +1725,16 @@ int mtdparts_init(void)
 		memset(last_ids, 0, MTDIDS_MAXLEN);
 		memset(last_parts, 0, MTDPARTS_MAXLEN);
 		memset(last_partition, 0, PARTITION_MAXLEN);
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+		board_mtdparts_default(&mtdids_default, &mtdparts_default);
+#endif
+		use_defaults = 1;
 		initialized = 1;
 	}
 
 	/* get variables */
 	ids = getenv("mtdids");
-	/*
-	 * The mtdparts variable tends to be long. If we need to access it
-	 * before the env is relocated, then we need to use our own stack
-	 * buffer.  gd->env_buf will be too small.
-	 */
-	if (gd->flags & GD_FLG_ENV_READY) {
-		parts = getenv("mtdparts");
-	} else {
-		parts = tmp_parts;
-		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
-	}
+	parts = getenv_mtdparts(tmp_parts);
 	current_partition = getenv("partition");
 
 	/* save it for later parsing, cannot rely on current partition pointer
@@ -1758,10 +1767,16 @@ int mtdparts_init(void)
 		return 1;
 	}
 
-	/* do no try to use defaults when mtdparts variable is not defined,
-	 * just check the length */
-	if (!parts)
-		printf("mtdparts variable not set, see 'help mtdparts'\n");
+	/* use defaults when mtdparts variable is not defined
+	 * once mtdparts is saved environment, drop use_defaults flag */
+	if (!parts) {
+		if (mtdparts_default && use_defaults) {
+			parts = mtdparts_default;
+			if (setenv("mtdparts", (char *)parts) == 0)
+				use_defaults = 0;
+		} else
+			printf("mtdparts variable not set, see 'help mtdparts'\n");
+	}
 
 	if (parts && (strlen(parts) > MTDPARTS_MAXLEN - 1)) {
 		printf("mtdparts too long (> %d)\n", MTDPARTS_MAXLEN);
@@ -1933,9 +1948,10 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {
-			setenv("mtdids", (char *)mtdids_default);
-			setenv("mtdparts", (char *)mtdparts_default);
+			setenv("mtdids", NULL);
+			setenv("mtdparts", NULL);
 			setenv("partition", NULL);
+			use_defaults = 1;
 
 			mtdparts_init();
 			return 0;
@@ -2009,7 +2025,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (!strcmp(&argv[1][3], ".spread")) {
 			spread_partition(mtd, p, &next_offset);
-			debug("increased %s to %d bytes\n", p->name, p->size);
+			debug("increased %s to %llu bytes\n", p->name, p->size);
 		}
 #endif
 

@@ -238,7 +238,7 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 		return ret;
 	}
 
-	ret = uclass_get_device(UCLASS_CLK, 0, &dev_clk);
+	ret = rockchip_get_clk(&dev_clk);
 	if (!ret) {
 		clk.id = DCLK_VOP0 + remote_vop_id;
 		ret = clk_request(dev_clk, &clk);

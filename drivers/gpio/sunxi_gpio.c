@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
+#include <dt-bindings/gpio/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -215,12 +216,27 @@ static int sunxi_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_FUNC;
 }
 
+static int sunxi_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
+			    struct fdtdec_phandle_args *args)
+{
+	int ret;
+
+	ret = device_get_child(dev, args->args[0], &desc->dev);
+	if (ret)
+		return ret;
+	desc->offset = args->args[1];
+	desc->flags = args->args[2] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_sunxi_ops = {
 	.direction_input	= sunxi_gpio_direction_input,
 	.direction_output	= sunxi_gpio_direction_output,
 	.get_value		= sunxi_gpio_get_value,
 	.set_value		= sunxi_gpio_set_value,
 	.get_function		= sunxi_gpio_get_function,
+	.xlate			= sunxi_gpio_xlate,
 };
 
 /**

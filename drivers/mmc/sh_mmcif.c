@@ -168,7 +168,7 @@ static int sh_mmcif_error_manage(struct sh_mmcif_host *host)
 	if (state2 & STS2_CRC_ERR)
 		ret = -EILSEQ;
 	else if (state2 & STS2_TIMEOUT_ERR)
-		ret = TIMEOUT;
+		ret = -ETIMEDOUT;
 	else
 		ret = -EILSEQ;
 	return ret;
@@ -483,7 +483,7 @@ static int sh_mmcif_start_cmd(struct sh_mmcif_host *host,
 		case MMC_CMD_ALL_SEND_CID:
 		case MMC_CMD_SELECT_CARD:
 		case MMC_CMD_APP_CMD:
-			ret = TIMEOUT;
+			ret = -ETIMEDOUT;
 			break;
 		default:
 			printf(DRIVER_NAME": Cmd(d'%d) err\n", cmd->cmdidx);
@@ -520,14 +520,14 @@ static int sh_mmcif_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	switch (cmd->cmdidx) {
 	case MMC_CMD_APP_CMD:
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	case MMC_CMD_SEND_EXT_CSD: /* = SD_SEND_IF_COND (8) */
 		if (data)
 			/* ext_csd */
 			break;
 		else
 			/* send_if_cond cmd (not support) */
-			return TIMEOUT;
+			return -ETIMEDOUT;
 	default:
 		break;
 	}

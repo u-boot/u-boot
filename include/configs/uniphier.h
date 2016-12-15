@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,7 +11,8 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
-#define CONFIG_I2C_EEPROM
+#define CONFIG_ARMV7_PSCI_1_0
+
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
 #define CONFIG_SMC911X
@@ -25,11 +28,6 @@
 /* Comment out the following to enable L1 cache */
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
-
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
-/* Comment out the following to disable L2 cache */
-#define CONFIG_UNIPHIER_L2CACHE_ON
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -184,7 +182,6 @@
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_CMD_BOOTI
 #define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
@@ -225,7 +222,6 @@
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"run boot_common\0" \
 	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
-		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"

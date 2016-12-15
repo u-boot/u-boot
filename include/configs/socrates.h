@@ -420,6 +420,5 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ohci_pci"
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1
 #define CONFIG_DOS_PARTITION		1
-#define CONFIG_USB_STORAGE		1
 
 #endif	/* __CONFIG_H */

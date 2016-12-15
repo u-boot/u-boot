@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,7 +39,6 @@ static const struct uniphier_board_data uniphier_sld3_data = {
 static const struct uniphier_board_data uniphier_ld4_data = {
 	.dram_freq = 1600,
 	.dram_nr_ch = 2,
-	.dram_ddr3plus = true,
 	.dram_ch[0] = {
 		.base = 0x80000000,
 		.size = 0x10000000,
@@ -49,6 +49,7 @@ static const struct uniphier_board_data uniphier_ld4_data = {
 		.size = 0x10000000,
 		.width = 16,
 	},
+	.flags = UNIPHIER_BD_DDR3PLUS,
 };
 #endif
 
@@ -90,7 +91,6 @@ static const struct uniphier_board_data uniphier_pro4_2g_data = {
 static const struct uniphier_board_data uniphier_sld8_data = {
 	.dram_freq = 1333,
 	.dram_nr_ch = 2,
-	.dram_ddr3plus = true,
 	.dram_ch[0] = {
 		.base = 0x80000000,
 		.size = 0x10000000,
@@ -101,6 +101,7 @@ static const struct uniphier_board_data uniphier_sld8_data = {
 		.size = 0x10000000,
 		.width = 16,
 	},
+	.flags = UNIPHIER_BD_DDR3PLUS,
 };
 #endif
 
@@ -202,6 +203,22 @@ static const struct uniphier_board_data uniphier_ld20_data = {
 		.width = 32,
 	},
 };
+
+static const struct uniphier_board_data uniphier_ld21_data = {
+	.dram_freq = 1866,
+	.dram_nr_ch = 2,
+	.dram_ch[0] = {
+		.base = 0x80000000,
+		.size = 0x40000000,
+		.width = 32,
+	},
+	.dram_ch[1] = {
+		.base = 0xc0000000,
+		.size = 0x40000000,
+		.width = 32,
+	},
+	.flags = UNIPHIER_BD_PACKAGE_LD21,
+};
 #endif
 
 struct uniphier_board_id {
@@ -237,6 +254,7 @@ static const struct uniphier_board_id uniphier_boards[] = {
 	{ "socionext,ph1-ld11", &uniphier_ld11_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
+	{ "socionext,ph1-ld21", &uniphier_ld21_data, },
 	{ "socionext,ph1-ld20", &uniphier_ld20_data, },
 #endif
 };

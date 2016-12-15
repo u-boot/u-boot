@@ -405,7 +405,6 @@ RTC configuration
 
 /* USB */
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_STORAGE
 
 /* pass open firmware flat tree */
 #define OF_CPU				"PowerPC,5200@0"

@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -29,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int device_bind_common(struct udevice *parent, const struct driver *drv,
 			      const char *name, void *platdata,
 			      ulong driver_data, int of_offset,
-			      struct udevice **devp)
+			      uint of_platdata_size, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -83,12 +84,29 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		}
 	}
 
-	if (!dev->platdata && drv->platdata_auto_alloc_size) {
-		dev->flags |= DM_FLAG_ALLOC_PDATA;
-		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
-		if (!dev->platdata) {
-			ret = -ENOMEM;
-			goto fail_alloc1;
+	if (drv->platdata_auto_alloc_size) {
+		bool alloc = !platdata;
+
+		if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+			if (of_platdata_size) {
+				dev->flags |= DM_FLAG_OF_PLATDATA;
+				if (of_platdata_size <
+						drv->platdata_auto_alloc_size)
+					alloc = true;
+			}
+		}
+		if (alloc) {
+			dev->flags |= DM_FLAG_ALLOC_PDATA;
+			dev->platdata = calloc(1,
+					       drv->platdata_auto_alloc_size);
+			if (!dev->platdata) {
+				ret = -ENOMEM;
+				goto fail_alloc1;
+			}
+			if (CONFIG_IS_ENABLED(OF_PLATDATA) && platdata) {
+				memcpy(dev->platdata, platdata,
+				       of_platdata_size);
+			}
 		}
 	}
 
@@ -201,14 +219,14 @@ int device_bind_with_driver_data(struct udevice *parent,
 				 struct udevice **devp)
 {
 	return device_bind_common(parent, drv, name, NULL, driver_data,
-				  of_offset, devp);
+				  of_offset, 0, devp);
 }
 
 int device_bind(struct udevice *parent, const struct driver *drv,
 		const char *name, void *platdata, int of_offset,
 		struct udevice **devp)
 {
-	return device_bind_common(parent, drv, name, platdata, 0, of_offset,
+	return device_bind_common(parent, drv, name, platdata, 0, of_offset, 0,
 				  devp);
 }
 
@@ -216,6 +234,7 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			const struct driver_info *info, struct udevice **devp)
 {
 	struct driver *drv;
+	uint platdata_size = 0;
 
 	drv = lists_driver_lookup_name(info->name);
 	if (!drv)
@@ -223,8 +242,11 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 	if (pre_reloc_only && !(drv->flags & DM_FLAG_PRE_RELOC))
 		return -EPERM;
 
-	return device_bind(parent, drv, info->name, (void *)info->platdata,
-			   -1, devp);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	platdata_size = info->platdata_size;
+#endif
+	return device_bind_common(parent, drv, info->name,
+			(void *)info->platdata, 0, -1, platdata_size, devp);
 }
 
 static void *alloc_priv(int size, uint flags)
@@ -607,7 +629,7 @@ const char *dev_get_uclass_name(struct udevice *dev)
 
 fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
@@ -649,7 +671,7 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							dev->parent->of_offset,
 							dev->of_offset, "reg",
-							index, NULL);
+							index, NULL, false);
 		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 			if (device_get_uclass_id(dev->parent) ==
 			    UCLASS_SIMPLE_BUS)
@@ -697,6 +719,16 @@ void *dev_get_addr_ptr(struct udevice *dev)
 	return (void *)(uintptr_t)dev_get_addr_index(dev, 0);
 }
 
+void *dev_map_physmem(struct udevice *dev, unsigned long size)
+{
+	fdt_addr_t addr = dev_get_addr(dev);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_physmem(addr, size, MAP_NOCACHE);
+}
+
 bool device_has_children(struct udevice *dev)
 {
 	return !list_empty(&dev->child_head);
@@ -727,7 +759,7 @@ bool device_is_last_sibling(struct udevice *dev)
 
 void device_set_name_alloced(struct udevice *dev)
 {
-	dev->flags |= DM_NAME_ALLOCED;
+	dev->flags |= DM_FLAG_NAME_ALLOCED;
 }
 
 int device_set_name(struct udevice *dev, const char *name)

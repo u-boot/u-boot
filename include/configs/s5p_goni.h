@@ -17,8 +17,6 @@
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 */
 #define CONFIG_MACH_GONI	1	/* working with Goni */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
@@ -235,8 +233,6 @@
 #define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
-
-#define CONFIG_SYS_CACHELINE_SIZE       64
 
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C

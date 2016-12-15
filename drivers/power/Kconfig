@@ -1,5 +1,7 @@
 menu "Power"
 
+source "drivers/power/domain/Kconfig"
+
 source "drivers/power/pmic/Kconfig"
 
 source "drivers/power/regulator/Kconfig"
@@ -13,12 +15,12 @@ choice
 	default SUNXI_NO_PMIC if MACH_SUN8I_H3 || MACH_SUN50I
 
 config SUNXI_NO_PMIC
-	boolean "board without a pmic"
+	bool "board without a pmic"
 	---help---
 	Select this for boards which do not use a PMIC.
 
 config AXP152_POWER
-	boolean "axp152 pmic support"
+	bool "axp152 pmic support"
 	depends on MACH_SUN5I
 	select CMD_POWEROFF
 	---help---
@@ -26,7 +28,7 @@ config AXP152_POWER
 	A10s boards.
 
 config AXP209_POWER
-	boolean "axp209 pmic support"
+	bool "axp209 pmic support"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	select CMD_POWEROFF
 	---help---
@@ -34,7 +36,7 @@ config AXP209_POWER
 	A10, A13 and A20 boards.
 
 config AXP221_POWER
-	boolean "axp221 / axp223 pmic support"
+	bool "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
 	select CMD_POWEROFF
 	---help---
@@ -42,14 +44,14 @@ config AXP221_POWER
 	A23 and A31 boards.
 
 config AXP809_POWER
-	boolean "axp809 pmic support"
+	bool "axp809 pmic support"
 	depends on MACH_SUN9I
 	select CMD_POWEROFF
 	---help---
 	Say y here to enable support for the axp809 pmic found on A80 boards.
 
 config AXP818_POWER
-	boolean "axp818 pmic support"
+	bool "axp818 pmic support"
 	depends on MACH_SUN8I_A83T
 	select CMD_POWEROFF
 	---help---
@@ -57,7 +59,7 @@ config AXP818_POWER
 	A83T dev board.
 
 config SY8106A_POWER
-	boolean "SY8106A pmic support"
+	bool "SY8106A pmic support"
 	depends on MACH_SUN8I_H3
 	---help---
 	Select this to enable support for the SY8106A pmic found on some

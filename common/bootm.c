@@ -41,6 +41,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+bootm_headers_t images;		/* pointers to os/initrd/fdt images */
+
 static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				   char * const argv[], bootm_headers_t *images,
 				   ulong *os_data, ulong *os_len);
@@ -635,10 +637,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
-#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
-		if (images->os.os == IH_OS_LINUX)
-			fixup_silent_linux();
-#endif
 	}
 
 	/* Relocate the ramdisk */
@@ -678,13 +676,19 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		return 1;
 	}
 
+
 	/* Call various other states that are not generally used */
 	if (!ret && (states & BOOTM_STATE_OS_CMDLINE))
 		ret = boot_fn(BOOTM_STATE_OS_CMDLINE, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
-	if (!ret && (states & BOOTM_STATE_OS_PREP))
+	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
+#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
+		if (images->os.os == IH_OS_LINUX)
+			fixup_silent_linux();
+#endif
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
+	}
 
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */

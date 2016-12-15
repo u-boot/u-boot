@@ -1166,8 +1166,7 @@ void mx6_lpddr2_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mmdc0->mpzqhwctrl = val;
 
 	/* Step 12: Configure and activate periodic refresh */
-	mmdc0->mdref = (0 << 14) | /* REF_SEL: Periodic refresh cycle: 64kHz */
-		       (3 << 11);  /* REFR: Refresh Rate - 4 refreshes */
+	mmdc0->mdref = (sysinfo->refsel << 14) | (sysinfo->refr << 11);
 
 	/* Step 13: Deassert config request - init complete */
 	mmdc0->mdscr = 0x00000000;
@@ -1472,8 +1471,7 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		MMDC1(mpzqhwctrl, val);
 
 	/* Step 12: Configure and activate periodic refresh */
-	mmdc0->mdref = (1 << 14) | /* REF_SEL: Periodic refresh cycle: 32kHz */
-		       (7 << 11);  /* REFR: Refresh Rate - 8 refreshes */
+	mmdc0->mdref = (sysinfo->refsel << 14) | (sysinfo->refr << 11);
 
 	/* Step 13: Deassert config request - init complete */
 	mmdc0->mdscr = 0x00000000;

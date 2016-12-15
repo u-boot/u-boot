@@ -47,6 +47,32 @@ static int _fdt_string_eq(const void *fdt, int stroffset,
 	return (strnlen(p, len + 1) == len) && (memcmp(p, s, len) == 0);
 }
 
+uint32_t fdt_get_max_phandle(const void *fdt)
+{
+	uint32_t max_phandle = 0;
+	int offset;
+
+	for (offset = fdt_next_node(fdt, -1, NULL);;
+	     offset = fdt_next_node(fdt, offset, NULL)) {
+		uint32_t phandle;
+
+		if (offset == -FDT_ERR_NOTFOUND)
+			return max_phandle;
+
+		if (offset < 0)
+			return 0;
+
+		phandle = fdt_get_phandle(fdt, offset);
+		if (phandle == (uint32_t)-1)
+			return 0;
+
+		if (phandle > max_phandle)
+			max_phandle = phandle;
+	}
+
+	return 0;
+}
+
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 {
 	FDT_CHECK_HEADER(fdt);
@@ -114,15 +140,15 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
 }
 
 /*
- * Find the next of path seperator, note we need to search for both '/' and ':'
+ * Find the next of path separator, note we need to search for both '/' and ':'
  * and then take the first one so that we do the right thing for e.g.
  * "foo/bar:option" and "bar:option/otheroption", both of which happen, so
  * first searching for either ':' or '/' does not work.
  */
-static const char *fdt_path_next_seperator(const char *path)
+static const char *fdt_path_next_separator(const char *path, int len)
 {
-	const char *sep1 = strchr(path, '/');
-	const char *sep2 = strchr(path, ':');
+	const void *sep1 = memchr(path, '/', len);
+	const void *sep2 = memchr(path, ':', len);
 
 	if (sep1 && sep2)
 		return (sep1 < sep2) ? sep1 : sep2;
@@ -132,9 +158,9 @@ static const char *fdt_path_next_seperator(const char *path)
 		return sep2;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
 {
-	const char *end = path + strlen(path);
+	const char *end = path + namelen;
 	const char *p = path;
 	int offset = 0;
 
@@ -142,7 +168,7 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	/* see if we have an alias */
 	if (*path != '/') {
-		const char *q = fdt_path_next_seperator(path);
+		const char *q = fdt_path_next_separator(path, namelen);
 
 		if (!q)
 			q = end;
@@ -155,14 +181,16 @@ int fdt_path_offset(const void *fdt, const char *path)
 		p = q;
 	}
 
-	while (*p) {
+	while (*p && (p < end)) {
 		const char *q;
 
 		while (*p == '/')
 			p++;
+
 		if (*p == '\0' || *p == ':')
 			return offset;
-		q = fdt_path_next_seperator(p);
+
+		q = fdt_path_next_separator(p, end - p);
 		if (!q)
 			q = end;
 

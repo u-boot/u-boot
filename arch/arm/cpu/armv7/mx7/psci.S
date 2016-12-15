@@ -9,35 +9,22 @@
 
 	.arch_extension sec
 
-	@ r1 = target CPU
-	@ r2 = target PC
-
-.globl	psci_arch_init
-psci_arch_init:
-	mov	r6, lr
-
-	bl	psci_get_cpu_id
-	bl	psci_get_cpu_stack_top
-	mov	sp, r0
-
-	bx	r6
-
-	@ r1 = target CPU
-	@ r2 = target PC
-
 .globl psci_cpu_on
 psci_cpu_on:
-	push	{lr}
+	push	{r4, r5, lr}
 
+	mov	r4, r0
+	mov	r5, r1
 	mov	r0, r1
-	bl	psci_get_cpu_stack_top
-	str	r2, [r0]
-	dsb
+	mov	r1, r2
+	bl	psci_save_target_pc
 
+	mov	r0, r4
+	mov	r1, r5
 	ldr	r2, =psci_cpu_entry
 	bl	imx_cpu_on
 
-	pop	{pc}
+	pop	{r4, r5, pc}
 
 .globl psci_cpu_off
 psci_cpu_off:
@@ -49,6 +36,4 @@ psci_cpu_off:
 1: 	wfi
 	b 1b
 
-	.globl psci_text_end
-psci_text_end:
 	.popsection

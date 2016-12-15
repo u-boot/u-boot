@@ -9,7 +9,6 @@
  *
  */
 #define CONFIG_P3041DS
-#define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P3041
 
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */

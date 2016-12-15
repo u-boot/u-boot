@@ -15,7 +15,6 @@
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
-#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Timer information */
@@ -47,10 +46,12 @@
  * area between 0x402F0400 and 0x4030B800 as a download area and
  * 0x4030B800 to 0x4030CE00 as a public stack area.  The ROM also
  * supports X-MODEM loading via UART, and we leverage this and then use
- * Y-MODEM to load u-boot.img, when booted over UART.
+ * Y-MODEM to load u-boot.img, when booted over UART.  We must also include
+ * the scratch space that U-Boot uses in SRAM.
  */
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
-#define CONFIG_SPL_MAX_SIZE		(0x4030B800 - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
+					 CONFIG_SPL_TEXT_BASE)
 
 /*
  * Since SPL did pll and ddr initialization for us,

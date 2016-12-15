@@ -26,7 +26,6 @@
 #define CONFIG_SYS_L2_PL310		1
 #define CONFIG_SYS_PL310_BASE	0x48242000
 #endif
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
@@ -152,7 +151,6 @@
  * So moving TEXT_BASE down to non-HS limit.
  */
 #define CONFIG_SPL_TEXT_BASE		0x40300000
-#define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \

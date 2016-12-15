@@ -39,14 +39,18 @@ class ConsoleSandbox(ConsoleBase):
             A u_boot_spawn.Spawn object that is attached to U-Boot.
         """
 
+        bcfg = self.config.buildconfig
+        config_spl = bcfg.get('config_spl', 'n') == 'y'
+        fname = '/spl/u-boot-spl' if config_spl else '/u-boot'
+        print fname
         cmd = []
         if self.config.gdbserver:
             cmd += ['gdbserver', self.config.gdbserver]
         cmd += [
-            self.config.build_dir + '/u-boot',
+            self.config.build_dir + fname,
             '-v',
             '-d',
-            self.config.build_dir + '/arch/sandbox/dts/test.dtb'
+            self.config.dtb
         ]
         return Spawn(cmd, cwd=self.config.source_dir)
 

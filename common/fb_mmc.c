@@ -191,7 +191,7 @@ void fb_mmc_erase(const char *cmd)
 	printf("Erasing blocks " LBAFU " to " LBAFU " due to alignment\n",
 	       blks_start, blks_start + blks_size);
 
-	blks = dev_desc->block_erase(dev_desc, blks_start, blks_size);
+	blks = blk_derase(dev_desc, blks_start, blks_size);
 	if (blks != blks_size) {
 		error("failed erasing from device %d", dev_desc->devnum);
 		fastboot_fail("failed erasing from device");

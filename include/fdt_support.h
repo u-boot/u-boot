@@ -172,9 +172,16 @@ int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_fixup_nor_flash_size(void *blob);
 
+#if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 void fdt_fixup_mtdparts(void *fdt, void *node_info, int node_info_size);
+#else
+static inline void fdt_fixup_mtdparts(void *fdt, void *node_info,
+					int node_info_size) {}
+#endif
+
 void fdt_del_node_and_alias(void *blob, const char *alias);
-u64 fdt_translate_address(void *blob, int node_offset, const __be32 *in_addr);
+u64 fdt_translate_address(const void *blob, int node_offset,
+			  const __be32 *in_addr);
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);
@@ -233,7 +240,7 @@ static inline u64 of_read_number(const fdt32_t *cell, int size)
 	return r;
 }
 
-void of_bus_default_count_cells(void *blob, int parentoffset,
+void of_bus_default_count_cells(const void *blob, int parentoffset,
 					int *addrc, int *sizec);
 int ft_verify_fdt(void *fdt);
 int arch_fixup_memory_node(void *blob);

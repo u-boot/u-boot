@@ -94,7 +94,6 @@
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
-#define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 #define CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
 
@@ -120,7 +119,7 @@
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
-/* Default baudrate can be overriden by board! */
+/* Default baudrate can be overridden by board! */
 #ifndef CONFIG_BAUDRATE
 #define CONFIG_BAUDRATE			115200
 #endif

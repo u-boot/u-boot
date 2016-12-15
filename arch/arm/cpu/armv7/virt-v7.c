@@ -54,10 +54,12 @@ static void relocate_secure_section(void)
 {
 #ifdef CONFIG_ARMV7_SECURE_BASE
 	size_t sz = __secure_end - __secure_start;
+	unsigned long szflush = ALIGN(sz + 1, CONFIG_SYS_CACHELINE_SIZE);
 
 	memcpy((void *)CONFIG_ARMV7_SECURE_BASE, __secure_start, sz);
+
 	flush_dcache_range(CONFIG_ARMV7_SECURE_BASE,
-			   CONFIG_ARMV7_SECURE_BASE + sz + 1);
+			   CONFIG_ARMV7_SECURE_BASE + szflush);
 	protect_secure_section();
 	invalidate_icache_all();
 #endif

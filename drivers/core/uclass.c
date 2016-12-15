@@ -311,6 +311,26 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 }
 #endif
 
+int uclass_get_device_by_driver(enum uclass_id id,
+				const struct driver *find_drv,
+				struct udevice **devp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if (dev->driver == find_drv)
+			return uclass_get_device_tail(dev, 0, devp);
+	}
+
+	return -ENODEV;
+}
+
 int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {

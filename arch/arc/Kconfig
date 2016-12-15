@@ -118,21 +118,21 @@ config SYS_DCACHE_OFF
 
 choice
 	prompt "Target select"
-	default TARGET_AXS101
+	default TARGET_AXS10X
 
 config TARGET_TB100
 	bool "Support tb100"
 
-config TARGET_ARCANGEL4
-	bool "Support arcangel4"
+config TARGET_NSIM
+	bool "Support standalone nSIM & Free nSIM"
 
-config TARGET_AXS101
-	bool "Support axs101"
+config TARGET_AXS10X
+	bool "Support Synopsys Designware SDP board (AXS101 & AXS103)"
 
 endchoice
 
 source "board/abilis/tb100/Kconfig"
 source "board/synopsys/Kconfig"
-source "board/synopsys/axs101/Kconfig"
+source "board/synopsys/axs10x/Kconfig"
 
 endmenu

@@ -443,15 +443,12 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 {
 	u32 offset_code;
 	u32 offset = volt_mv;
-#ifndef	CONFIG_DRA7XX
 	int ret = 0;
-#endif
 
 	if (!volt_mv)
 		return;
 
 	pmic->pmic_bus_init();
-#ifndef	CONFIG_DRA7XX
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -465,7 +462,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	/* Pull the GPIO low to select SET0 register, while we program SET1 */
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 0);
-#endif
+
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
@@ -476,10 +473,8 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 
 	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-#ifndef	CONFIG_DRA7XX
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 1);
-#endif
 }
 
 static u32 optimize_vcore_voltage(struct volts const *v)
@@ -534,7 +529,6 @@ void __weak recalibrate_iodelay(void)
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
-#if defined(CONFIG_DRA7XX)
 	int i;
 	struct volts *pv = (struct volts *)vcores;
 	struct volts *px;
@@ -594,7 +588,16 @@ void scale_vcores(struct vcores_data const *vcores)
 		  vcores->mpu.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
 
-	/* The .mm member is not used for the DRA7xx */
+	debug("mm: %d\n", vcores->mm.value);
+	do_scale_vcore(vcores->mm.addr, vcores->mm.value, vcores->mm.pmic);
+	/* Configure MM ABB LDO after scale */
+	abb_setup(vcores->mm.efuse.reg,
+		  (*ctrl)->control_wkup_ldovbb_mm_voltage_ctrl,
+		  (*prcm)->prm_abbldo_mm_setup,
+		  (*prcm)->prm_abbldo_mm_ctrl,
+		  (*prcm)->prm_irqstatus_mpu,
+		  vcores->mm.abb_tx_done_mask,
+		  OMAP_ABB_FAST_OPP);
 
 	debug("gpu: %d\n", vcores->gpu.value);
 	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value, vcores->gpu.pmic);
@@ -626,56 +629,6 @@ void scale_vcores(struct vcores_data const *vcores)
 		  (*prcm)->prm_irqstatus_mpu,
 		  vcores->iva.abb_tx_done_mask,
 		  OMAP_ABB_FAST_OPP);
-	/* Might need udelay(1000) here if debug is enabled to see all prints */
-#else
-	u32 val;
-
-	val = optimize_vcore_voltage(&vcores->core);
-	do_scale_vcore(vcores->core.addr, val, vcores->core.pmic);
-
-	/*
-	 * IO delay recalibration should be done immediately after
-	 * adjusting AVS voltages for VDD_CORE_L.
-	 * Respective boards should call __recalibrate_iodelay()
-	 * with proper mux, virtual and manual mode configurations.
-	 */
-#ifdef CONFIG_IODELAY_RECALIBRATION
-	recalibrate_iodelay();
-#endif
-
-	val = optimize_vcore_voltage(&vcores->mpu);
-	do_scale_vcore(vcores->mpu.addr, val, vcores->mpu.pmic);
-
-	/* Configure MPU ABB LDO after scale */
-	abb_setup(vcores->mpu.efuse.reg,
-		  (*ctrl)->control_wkup_ldovbb_mpu_voltage_ctrl,
-		  (*prcm)->prm_abbldo_mpu_setup,
-		  (*prcm)->prm_abbldo_mpu_ctrl,
-		  (*prcm)->prm_irqstatus_mpu_2,
-		  vcores->mpu.abb_tx_done_mask,
-		  OMAP_ABB_FAST_OPP);
-
-	val = optimize_vcore_voltage(&vcores->mm);
-	do_scale_vcore(vcores->mm.addr, val, vcores->mm.pmic);
-
-	/* Configure MM ABB LDO after scale */
-	abb_setup(vcores->mm.efuse.reg,
-		  (*ctrl)->control_wkup_ldovbb_mm_voltage_ctrl,
-		  (*prcm)->prm_abbldo_mm_setup,
-		  (*prcm)->prm_abbldo_mm_ctrl,
-		  (*prcm)->prm_irqstatus_mpu,
-		  vcores->mm.abb_tx_done_mask,
-		  OMAP_ABB_FAST_OPP);
-
-	val = optimize_vcore_voltage(&vcores->gpu);
-	do_scale_vcore(vcores->gpu.addr, val, vcores->gpu.pmic);
-
-	val = optimize_vcore_voltage(&vcores->eve);
-	do_scale_vcore(vcores->eve.addr, val, vcores->eve.pmic);
-
-	val = optimize_vcore_voltage(&vcores->iva);
-	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
-#endif
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)

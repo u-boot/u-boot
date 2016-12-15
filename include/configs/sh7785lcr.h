@@ -17,7 +17,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
-#define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 
@@ -28,7 +27,6 @@
 	"bootdevice=0:1\0"						\
 	"usbload=usb reset;usbboot;usb stop;bootm\0"
 
-#define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 /* MEMORY */

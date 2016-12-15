@@ -23,3 +23,41 @@ U_BOOT_DRIVER(syscon_rk3288) = {
 	.id = UCLASS_SYSCON,
 	.of_match = rk3288_syscon_ids,
 };
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+static int rk3288_syscon_bind_of_platdata(struct udevice *dev)
+{
+	dev->driver_data = dev->driver->of_match->data;
+	debug("syscon: %s %d\n", dev->name, (uint)dev->driver_data);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(rockchip_rk3288_noc) = {
+	.name = "rockchip_rk3288_noc",
+	.id = UCLASS_SYSCON,
+	.of_match = rk3288_syscon_ids,
+	.bind = rk3288_syscon_bind_of_platdata,
+};
+
+U_BOOT_DRIVER(rockchip_rk3288_grf) = {
+	.name = "rockchip_rk3288_grf",
+	.id = UCLASS_SYSCON,
+	.of_match = rk3288_syscon_ids + 1,
+	.bind = rk3288_syscon_bind_of_platdata,
+};
+
+U_BOOT_DRIVER(rockchip_rk3288_sgrf) = {
+	.name = "rockchip_rk3288_sgrf",
+	.id = UCLASS_SYSCON,
+	.of_match = rk3288_syscon_ids + 2,
+	.bind = rk3288_syscon_bind_of_platdata,
+};
+
+U_BOOT_DRIVER(rockchip_rk3288_pmu) = {
+	.name = "rockchip_rk3288_pmu",
+	.id = UCLASS_SYSCON,
+	.of_match = rk3288_syscon_ids + 3,
+	.bind = rk3288_syscon_bind_of_platdata,
+};
+#endif

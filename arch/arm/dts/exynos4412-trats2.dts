@@ -29,9 +29,9 @@
 		i2c7 = "/i2c@138d0000";
 		serial0 = "/serial@13800000";
 		console = "/serial@13820000";
-		mmc0 = "sdhci@12510000";
-		mmc2 = "sdhci@12530000";
-		mmc4 = "dwmmc@12550000";
+		mmc0 = "/sdhci@12510000";
+		mmc2 = "/sdhci@12530000";
+		mshc0 = "/dwmmc@12550000";
 	};
 
 	i2c@138d0000 {

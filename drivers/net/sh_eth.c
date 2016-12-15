@@ -566,7 +566,17 @@ int sh_eth_initialize(bd_t *bd)
 	eth_register(dev);
 
 	bb_miiphy_buses[0].priv = eth;
-	miiphy_register(dev->name, bb_miiphy_read, bb_miiphy_write);
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
 
 	if (!eth_getenv_enetaddr("ethaddr", dev->enetaddr))
 		puts("Please set MAC address\n");

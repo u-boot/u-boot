@@ -15,10 +15,6 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_36BIT
-#define CONFIG_PHYS_64BIT
-#endif
-
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
@@ -587,7 +583,6 @@
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_PCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_USB_STORAGE
 #define CONFIG_PCI_EHCI_DEVICE			0
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #endif
@@ -668,7 +663,7 @@
 "consoledev=ttyS0\0"				\
 "ramdiskaddr=2000000\0"			\
 "ramdiskfile=8572ds/ramdisk.uboot\0"		\
-"fdtaddr=c00000\0"				\
+"fdtaddr=1e00000\0"				\
 "fdtfile=8572ds/mpc8572ds.dtb\0"		\
 "bdev=sda3\0"
 

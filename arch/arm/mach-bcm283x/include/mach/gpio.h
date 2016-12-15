@@ -66,4 +66,6 @@ struct bcm2835_gpio_platdata {
 	unsigned long base;
 };
 
+int bcm2835_gpio_get_func_id(struct udevice *dev, unsigned gpio);
+
 #endif /* _BCM2835_GPIO_H_ */

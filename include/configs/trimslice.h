@@ -37,12 +37,12 @@
 #define CONFIG_ENV_SPI_MAX_HZ		48000000
 #define CONFIG_ENV_SPI_MODE		SPI_MODE_0
 #define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET		(512 * 1024)
+/* 1MiB flash, environment located as high as possible */
+#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_STORAGE
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER

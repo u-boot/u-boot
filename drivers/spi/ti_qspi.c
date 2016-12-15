@@ -21,7 +21,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
-#define QSPI_FCLK                       192000000
+#define QSPI_FCLK			192000000
+#define QSPI_DRA7XX_FCLK                76800000
 /* clock control */
 #define QSPI_CLK_EN                     BIT(31)
 #define QSPI_CLK_DIV_MAX                0xffff
@@ -101,6 +102,7 @@ struct ti_qspi_priv {
 #endif
 	struct ti_qspi_regs *base;
 	void *ctrl_mod_mmap;
+	ulong fclk;
 	unsigned int mode;
 	u32 cmd;
 	u32 dc;
@@ -110,12 +112,12 @@ static void ti_spi_set_speed(struct ti_qspi_priv *priv, uint hz)
 {
 	uint clk_div;
 
-	debug("ti_spi_set_speed: hz: %d, clock divider %d\n", hz, clk_div);
-
 	if (!hz)
 		clk_div = 0;
 	else
-		clk_div = (QSPI_FCLK / hz) - 1;
+		clk_div = (priv->fclk / hz) - 1;
+
+	debug("ti_spi_set_speed: hz: %d, clock divider %d\n", hz, clk_div);
 
 	/* disable SCLK */
 	writel(readl(&priv->base->clk_ctrl) & ~QSPI_CLK_EN,
@@ -247,13 +249,9 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 			debug("tx done, status %08x\n", status);
 		}
 		if (rxp) {
-			priv->cmd |= QSPI_RD_SNGL;
 			debug("rx cmd %08x dc %08x\n",
-			      priv->cmd, priv->dc);
-			#ifdef CONFIG_DRA7XX
-				udelay(500);
-			#endif
-			writel(priv->cmd, &priv->base->cmd);
+			      ((u32)(priv->cmd | QSPI_RD_SNGL)), priv->dc);
+			writel(priv->cmd | QSPI_RD_SNGL, &priv->base->cmd);
 			status = readl(&priv->base->status);
 			timeout = QSPI_TIMEOUT;
 			while ((status & QSPI_WC_BUSY) != QSPI_XFER_DONE) {
@@ -370,8 +368,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 #if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 	priv->ctrl_mod_mmap = (void *)CORE_CTRL_IO;
 	priv->slave.memory_map = (void *)MMAP_START_ADDR_DRA;
+	priv->fclk = QSPI_DRA7XX_FCLK;
 #else
 	priv->slave.memory_map = (void *)MMAP_START_ADDR_AM43x;
+	priv->fclk = QSPI_FCLK;
 #endif
 
 	ti_spi_set_speed(priv, max_hz);
@@ -524,7 +524,10 @@ static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int ti_qspi_probe(struct udevice *bus)
 {
-	/* Nothing to do in probe */
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
+
+	priv->fclk = dev_get_driver_data(bus);
+
 	return 0;
 }
 
@@ -576,8 +579,8 @@ static const struct dm_spi_ops ti_qspi_ops = {
 };
 
 static const struct udevice_id ti_qspi_ids[] = {
-	{ .compatible = "ti,dra7xxx-qspi" },
-	{ .compatible = "ti,am4372-qspi" },
+	{ .compatible = "ti,dra7xxx-qspi",	.data = QSPI_DRA7XX_FCLK},
+	{ .compatible = "ti,am4372-qspi",	.data = QSPI_FCLK},
 	{ }
 };
 

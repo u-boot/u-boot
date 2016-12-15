@@ -84,7 +84,7 @@ static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 		}
 	}
 
-	return timeout ? 0 : COMM_ERR;
+	return timeout ? 0 : -ECOMM;
 }
 
 static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
@@ -120,7 +120,7 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 	mxs_dma_desc_append(dmach, priv->desc);
 	if (mxs_dma_go(dmach)) {
 		bounce_buffer_stop(&bbstate);
-		return COMM_ERR;
+		return -ECOMM;
 	}
 
 	bounce_buffer_stop(&bbstate);
@@ -158,13 +158,13 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	if (!timeout) {
 		printf("MMC%d: Bus busy timeout!\n", mmc->block_dev.devnum);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	/* See if card is present */
 	if (!mxsmmc_cd(priv)) {
 		printf("MMC%d: No card detected!\n", mmc->block_dev.devnum);
-		return NO_CARD_ERR;
+		return -ENOMEDIUM;
 	}
 
 	/* Start building CTRL0 contents */
@@ -203,7 +203,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			priv->mmc_is_wp(mmc->block_dev.devnum)) {
 			printf("MMC%d: Can not write a locked card!\n",
 				mmc->block_dev.devnum);
-			return UNUSABLE_ERR;
+			return -EOPNOTSUPP;
 		}
 
 		ctrl0 |= SSP_CTRL0_DATA_XFER;
@@ -244,21 +244,21 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (!timeout) {
 		printf("MMC%d: Command %d busy\n",
 			mmc->block_dev.devnum, cmd->cmdidx);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	/* Check command timeout */
 	if (reg & SSP_STATUS_RESP_TIMEOUT) {
 		printf("MMC%d: Command %d timeout (status 0x%08x)\n",
 			mmc->block_dev.devnum, cmd->cmdidx, reg);
-		return TIMEOUT;
+		return -ETIMEDOUT;
 	}
 
 	/* Check command errors */
 	if (reg & (SSP_STATUS_RESP_CRC_ERR | SSP_STATUS_RESP_ERR)) {
 		printf("MMC%d: Command %d error (status 0x%08x)!\n",
 			mmc->block_dev.devnum, cmd->cmdidx, reg);
-		return COMM_ERR;
+		return -ECOMM;
 	}
 
 	/* Copy response to response buffer */
@@ -298,7 +298,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		SSP_STATUS_FIFO_OVRFLW | SSP_STATUS_FIFO_UNDRFLW)) {
 		printf("MMC%d: Data error with command %d (status 0x%08x)!\n",
 			mmc->block_dev.devnum, cmd->cmdidx, reg);
-		return COMM_ERR;
+		return -ECOMM;
 	}
 
 	return 0;

@@ -1,0 +1,12 @@
+if TARGET_AXS10X
+
+config SYS_BOARD
+	default "axs10x"
+
+config SYS_VENDOR
+	default "synopsys"
+
+config SYS_CONFIG_NAME
+	default "axs10x"
+
+endif

@@ -56,7 +56,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 		printf("## Transferring control to Linux (at address %08lx)...\n",
 		       images->ep);
-		reset_cpu(0);
+		printf("sandbox: continuing, as we cannot run Linux\n");
 	}
 
 	return 0;
