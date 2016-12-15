@@ -49,7 +49,6 @@ enum spi_nor_option_flags {
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_QUAD_PAGE_PROGRAM		0x32
-#define CMD_WRITE_EVCR			0x61
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -63,7 +62,6 @@ enum spi_nor_option_flags {
 #define CMD_READ_STATUS1		0x35
 #define CMD_READ_CONFIG			0x35
 #define CMD_FLAG_STATUS			0x70
-#define CMD_READ_EVCR			0x65
 
 /* Bank addr access commands */
 #ifdef CONFIG_SPI_FLASH_BAR
@@ -78,7 +76,6 @@ enum spi_nor_option_flags {
 #define STATUS_QEB_WINSPAN		BIT(1)
 #define STATUS_QEB_MXIC			BIT(6)
 #define STATUS_PEC			BIT(7)
-#define STATUS_QEB_MICRON		BIT(7)
 #define SR_BP0				BIT(2)  /* Block protect 0 */
 #define SR_BP1				BIT(3)  /* Block protect 1 */
 #define SR_BP2				BIT(4)  /* Block protect 2 */
