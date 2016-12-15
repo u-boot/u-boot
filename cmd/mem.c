@@ -372,10 +372,8 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, dest, count, bytes;
+	ulong	addr, dest, count;
 	int	size;
-	const void *src;
-	void *buf;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -465,29 +463,7 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
-	bytes = size * count;
-	buf = map_sysmem(dest, bytes);
-	src = map_sysmem(addr, bytes);
-	while (count-- > 0) {
-		if (size == 4)
-			*((u32 *)buf) = *((u32  *)src);
-#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-		else if (size == 8)
-			*((u64 *)buf) = *((u64 *)src);
-#endif
-		else if (size == 2)
-			*((u16 *)buf) = *((u16 *)src);
-		else
-			*((u8 *)buf) = *((u8 *)src);
-		src += size;
-		buf += size;
-
-		/* reset watchdog from time to time */
-		if ((count % (64 << 10)) == 0)
-			WATCHDOG_RESET();
-	}
-	unmap_sysmem(buf);
-	unmap_sysmem(src);
+	memcpy((void *)dest, (void *)addr, count * size);
 
 	return 0;
 }
