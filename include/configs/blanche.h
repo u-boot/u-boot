@@ -16,9 +16,6 @@
 
 #include "rcar-gen2-common.h"
 
-#define CONFIG_USE_ARCH_MEMSET
-#define CONFIG_USE_ARCH_MEMCPY
-
 /* STACK */
 #define CONFIG_SYS_INIT_SP_ADDR		0xE817FFFC
 #define STACK_AREA_SIZE			0xC000

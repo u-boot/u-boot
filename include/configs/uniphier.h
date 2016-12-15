@@ -63,11 +63,6 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_ARM64)
-#define CONFIG_USE_ARCH_MEMSET
-#define CONFIG_USE_ARCH_MEMCPY
-#endif
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/

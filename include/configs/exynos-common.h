@@ -20,9 +20,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_USE_ARCH_MEMCPY
-#define CONFIG_USE_ARCH_MEMSET
-
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */

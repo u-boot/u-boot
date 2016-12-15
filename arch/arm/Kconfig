@@ -126,6 +126,24 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  ARM_SOC_BOOT0_HOOK which contains the required assembler
 	  preprocessor code.
 
+config USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy"
+	default y if CPU_V7
+	depends on !ARM64 && !SPL
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset"
+	default y if CPU_V7
+	depends on !ARM64 && !SPL
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such implementation may be faster under some conditions
+	  but may increase the binary size.
+
 config ARCH_OMAP2
 	bool
 	select CPU_V7
