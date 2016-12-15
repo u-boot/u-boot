@@ -467,11 +467,12 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 }
 
 /*
- * Set the entry at index 'entry' in a FAT (16/32) table.
+ * Set the entry at index 'entry' in a FAT (12/16/32) table.
  */
 static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 {
-	__u32 bufnum, offset;
+	__u32 bufnum, offset, off16;
+	__u16 val1, val2;
 
 	switch (mydata->fatsize) {
 	case 32:
@@ -481,6 +482,10 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 	case 16:
 		bufnum = entry / FAT16BUFSIZE;
 		offset = entry - bufnum * FAT16BUFSIZE;
+		break;
+	case 12:
+		bufnum = entry / FAT12BUFSIZE;
+		offset = entry - bufnum * FAT12BUFSIZE;
 		break;
 	default:
 		/* Unsupported FAT size */
@@ -521,6 +526,45 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 	case 16:
 		((__u16 *) mydata->fatbuf)[offset] = cpu_to_le16(entry_value);
 		break;
+	case 12:
+		off16 = (offset * 3) / 4;
+
+		switch (offset & 0x3) {
+		case 0:
+			val1 = cpu_to_le16(entry_value) & 0xfff;
+			((__u16 *)mydata->fatbuf)[off16] &= ~0xfff;
+			((__u16 *)mydata->fatbuf)[off16] |= val1;
+			break;
+		case 1:
+			val1 = cpu_to_le16(entry_value) & 0xf;
+			val2 = (cpu_to_le16(entry_value) >> 4) & 0xff;
+
+			((__u16 *)mydata->fatbuf)[off16] &= ~0xf000;
+			((__u16 *)mydata->fatbuf)[off16] |= (val1 << 12);
+
+			((__u16 *)mydata->fatbuf)[off16 + 1] &= ~0xff;
+			((__u16 *)mydata->fatbuf)[off16 + 1] |= val2;
+			break;
+		case 2:
+			val1 = cpu_to_le16(entry_value) & 0xff;
+			val2 = (cpu_to_le16(entry_value) >> 8) & 0xf;
+
+			((__u16 *)mydata->fatbuf)[off16] &= ~0xff00;
+			((__u16 *)mydata->fatbuf)[off16] |= (val1 << 8);
+
+			((__u16 *)mydata->fatbuf)[off16 + 1] &= ~0xf;
+			((__u16 *)mydata->fatbuf)[off16 + 1] |= val2;
+			break;
+		case 3:
+			val1 = cpu_to_le16(entry_value) & 0xfff;
+			((__u16 *)mydata->fatbuf)[off16] &= ~0xfff0;
+			((__u16 *)mydata->fatbuf)[off16] |= (val1 << 4);
+			break;
+		default:
+			break;
+		}
+
+		break;
 	default:
 		return -1;
 	}
@@ -529,7 +573,7 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 }
 
 /*
- * Determine the next free cluster after 'entry' in a FAT (16/32) table
+ * Determine the next free cluster after 'entry' in a FAT (12/16/32) table
  * and link it to 'entry'. EOC marker is not set on returned entry.
  */
 static __u32 determine_fatent(fsdata *mydata, __u32 entry)
@@ -651,6 +695,8 @@ static void flush_dir_table(fsdata *mydata, dir_entry **dentptr)
 		set_fatent_value(mydata, dir_newclust, 0xffffff8);
 	else if (mydata->fatsize == 16)
 		set_fatent_value(mydata, dir_newclust, 0xfff8);
+	else if (mydata->fatsize == 12)
+		set_fatent_value(mydata, dir_newclust, 0xff8);
 
 	dir_curclust = dir_newclust;
 
@@ -670,14 +716,11 @@ static int clear_fatent(fsdata *mydata, __u32 entry)
 {
 	__u32 fat_val;
 
-	while (1) {
+	while (!CHECK_CLUST(entry, mydata->fatsize)) {
 		fat_val = get_fatent_value(mydata, entry);
 		if (fat_val != 0)
 			set_fatent_value(mydata, entry, 0);
 		else
-			break;
-
-		if (fat_val == 0xfffffff || fat_val == 0xffff)
 			break;
 
 		entry = fat_val;
@@ -750,7 +793,9 @@ set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 		*gotsize += actsize;
 
 		/* Mark end of file in FAT */
-		if (mydata->fatsize == 16)
+		if (mydata->fatsize == 12)
+			newclust = 0xfff;
+		else if (mydata->fatsize == 16)
 			newclust = 0xffff;
 		else if (mydata->fatsize == 32)
 			newclust = 0xfffffff;
