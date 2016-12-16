@@ -209,35 +209,8 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 			info->start = (lbaint_t)(ext_part_sector +
 					le32_to_int(pt->start4));
 			info->size  = (lbaint_t)le32_to_int(pt->size4);
-			switch(dev_desc->if_type) {
-				case IF_TYPE_IDE:
-				case IF_TYPE_SATA:
-				case IF_TYPE_ATAPI:
-					sprintf((char *)info->name, "hd%c%d",
-						'a' + dev_desc->devnum,
-						part_num);
-					break;
-				case IF_TYPE_SCSI:
-					sprintf((char *)info->name, "sd%c%d",
-						'a' + dev_desc->devnum,
-						part_num);
-					break;
-				case IF_TYPE_USB:
-					sprintf((char *)info->name, "usbd%c%d",
-						'a' + dev_desc->devnum,
-						part_num);
-					break;
-				case IF_TYPE_DOC:
-					sprintf((char *)info->name, "docd%c%d",
-						'a' + dev_desc->devnum,
-						part_num);
-					break;
-				default:
-					sprintf((char *)info->name, "xx%c%d",
-						'a' + dev_desc->devnum,
-						part_num);
-					break;
-			}
+			part_set_generic_name(dev_desc, part_num,
+					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			strcpy((char *)info->type, "U-Boot");
 			info->bootable = is_bootable(pt);
@@ -297,9 +270,30 @@ int part_get_info_dos(struct blk_desc *dev_desc, int part,
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
+int is_valid_dos_buf(void *buf)
+{
+	return test_block_type(buf) == DOS_MBR ? 0 : -1;
+}
+
+int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
+{
+	if (is_valid_dos_buf(buf))
+		return -1;
+
+	/* write MBR */
+	if (blk_dwrite(dev_desc, 0, 1, buf) != 1) {
+		printf("%s: failed writing '%s' (1 blks at 0x0)\n",
+		       __func__, "MBR");
+		return 1;
+	}
+
+	return 0;
+}
+
 U_BOOT_PART_TYPE(dos) = {
 	.name		= "DOS",
 	.part_type	= PART_TYPE_DOS,
+	.max_entries	= DOS_ENTRY_NUMBERS,
 	.get_info	= part_get_info_ptr(part_get_info_dos),
 	.print		= part_print_ptr(part_print_dos),
 	.test		= part_test_dos,

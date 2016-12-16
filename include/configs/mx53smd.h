@@ -11,9 +11,6 @@
 
 #define CONFIG_MX53
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_SMD
 
 #include <asm/arch/imx-regs.h>

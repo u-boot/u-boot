@@ -39,10 +39,9 @@
  * MUX_CTRL_OFS:	    0..11 (12)
  * PAD_CTRL_OFS:	   12..23 (12)
  * SEL_INPUT_OFS:	   24..35 (12)
- * MUX_MODE + SION:	   36..40  (5)
- * PAD_CTRL + NO_PAD_CTRL: 41..58 (18)
- * SEL_INP:		   59..62  (4)
- * reserved:		     63    (1)
+ * MUX_MODE + SION + LPSR: 36..41  (6)
+ * PAD_CTRL + NO_PAD_CTRL: 42..59 (18)
+ * SEL_INP:		   60..63  (4)
 */
 
 typedef u64 iomux_v3_cfg_t;
@@ -57,10 +56,10 @@ typedef u64 iomux_v3_cfg_t;
 	MUX_SEL_INPUT_OFS_SHIFT)
 
 #define MUX_MODE_SHIFT		36
-#define MUX_MODE_MASK		((iomux_v3_cfg_t)0x1f << MUX_MODE_SHIFT)
-#define MUX_PAD_CTRL_SHIFT	41
+#define MUX_MODE_MASK		((iomux_v3_cfg_t)0x3f << MUX_MODE_SHIFT)
+#define MUX_PAD_CTRL_SHIFT	42
 #define MUX_PAD_CTRL_MASK	((iomux_v3_cfg_t)0x3ffff << MUX_PAD_CTRL_SHIFT)
-#define MUX_SEL_INPUT_SHIFT	59
+#define MUX_SEL_INPUT_SHIFT	60
 #define MUX_SEL_INPUT_MASK	((iomux_v3_cfg_t)0xf << MUX_SEL_INPUT_SHIFT)
 
 #define MUX_MODE_SION		((iomux_v3_cfg_t)IOMUX_CONFIG_SION << \
@@ -85,12 +84,12 @@ typedef u64 iomux_v3_cfg_t;
 
 #define NO_PAD_CTRL		(1 << 17)
 
+#define IOMUX_CONFIG_LPSR       0x20
+#define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
+				MUX_MODE_SHIFT)
 #ifdef CONFIG_MX7
 
 #define IOMUX_LPSR_SEL_INPUT_OFS 0x70000
-#define IOMUX_CONFIG_LPSR       0x8
-#define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
-				MUX_MODE_SHIFT)
 
 #define PAD_CTL_DSE_1P8V_140OHM   (0x0<<0)
 #define PAD_CTL_DSE_1P8V_35OHM    (0x1<<0)

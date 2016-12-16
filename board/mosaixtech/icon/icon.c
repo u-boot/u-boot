@@ -11,11 +11,12 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <netdev.h>
+#include <video.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
 #include <asm/4xx_pcie.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;

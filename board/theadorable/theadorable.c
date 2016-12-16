@@ -126,6 +126,12 @@ MV_BIN_SERDES_CFG *board_serdes_cfg_get(u8 pex_mode)
 	return &theadorable_serdes_cfg[0];
 }
 
+u8 board_sat_r_get(u8 dev_num, u8 reg)
+{
+	/* Bit 0 enables PCI 2.0 link capabilities instead of PCI 1.x */
+	return 0x01;
+}
+
 int board_early_init_f(void)
 {
 	/* Configure MPP */

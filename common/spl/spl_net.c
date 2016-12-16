@@ -14,7 +14,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int spl_net_load_image(const char *device)
+#if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USBETH_SUPPORT)
+static int spl_net_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
 {
 	int rv;
 
@@ -27,12 +29,38 @@ int spl_net_load_image(const char *device)
 		printf("No Ethernet devices found\n");
 		return -ENODEV;
 	}
-	if (device)
-		setenv("ethact", device);
+	if (bootdev->boot_device_name)
+		setenv("ethact", bootdev->boot_device_name);
 	rv = net_loop(BOOTP);
 	if (rv < 0) {
 		printf("Problem booting with BOOTP\n");
 		return rv;
 	}
-	return spl_parse_image_header((struct image_header *)load_addr);
+	return spl_parse_image_header(spl_image,
+				      (struct image_header *)load_addr);
 }
+#endif
+
+#ifdef CONFIG_SPL_ETH_SUPPORT
+int spl_net_load_image_cpgmac(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
+{
+#ifdef CONFIG_SPL_ETH_DEVICE
+	bootdev->boot_device_name = CONFIG_SPL_ETH_DEVICE;
+#endif
+
+	return spl_net_load_image(spl_image, bootdev);
+}
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_CPGMAC, spl_net_load_image_cpgmac);
+#endif
+
+#ifdef CONFIG_SPL_USBETH_SUPPORT
+int spl_net_load_image_usb(struct spl_image_info *spl_image,
+			   struct spl_boot_device *bootdev)
+{
+	bootdev->boot_device_name = "usb_ether";
+
+	return spl_net_load_image(spl_image, bootdev);
+}
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_USBETH, spl_net_load_image_usb);
+#endif

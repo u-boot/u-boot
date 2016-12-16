@@ -11,11 +11,6 @@
 #define __CONFIG_ASPENITE_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-Aspenite DB"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */

@@ -6,73 +6,13 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
+import os
 import struct
+import sys
+import tempfile
 
-# A list of types we support
-(TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL) = range(4)
-
-def BytesToValue(bytes):
-    """Converts a string of bytes into a type and value
-
-    Args:
-        A string containing bytes
-
-    Return:
-        A tuple:
-            Type of data
-            Data, either a single element or a list of elements. Each element
-            is one of:
-                TYPE_STRING: string value from the property
-                TYPE_INT: a byte-swapped integer stored as a 4-byte string
-                TYPE_BYTE: a byte stored as a single-byte string
-    """
-    size = len(bytes)
-    strings = bytes.split('\0')
-    is_string = True
-    count = len(strings) - 1
-    if count > 0 and not strings[-1]:
-        for string in strings[:-1]:
-            if not string:
-                is_string = False
-                break
-            for ch in string:
-                if ch < ' ' or ch > '~':
-                    is_string = False
-                    break
-    else:
-        is_string = False
-    if is_string:
-        if count == 1:
-            return TYPE_STRING, strings[0]
-        else:
-            return TYPE_STRING, strings[:-1]
-    if size % 4:
-        if size == 1:
-            return TYPE_BYTE, bytes[0]
-        else:
-            return TYPE_BYTE, list(bytes)
-    val = []
-    for i in range(0, size, 4):
-        val.append(bytes[i:i + 4])
-    if size == 4:
-        return TYPE_INT, val[0]
-    else:
-        return TYPE_INT, val
-
-def GetEmpty(type):
-    """Get an empty / zero value of the given type
-
-    Returns:
-        A single value of the given type
-    """
-    if type == TYPE_BYTE:
-        return chr(0)
-    elif type == TYPE_INT:
-        return struct.pack('<I', 0);
-    elif type == TYPE_STRING:
-        return ''
-    else:
-        return True
+import command
+import tools
 
 def fdt32_to_cpu(val):
     """Convert a device tree cell to an integer
@@ -83,4 +23,67 @@ def fdt32_to_cpu(val):
     Return:
         A native-endian integer value
     """
-    return struct.unpack(">I", val)[0]
+    if sys.version_info > (3, 0):
+        val = val.encode('raw_unicode_escape')
+    return struct.unpack('>I', val)[0]
+
+def EnsureCompiled(fname):
+    """Compile an fdt .dts source file into a .dtb binary blob if needed.
+
+    Args:
+        fname: Filename (if .dts it will be compiled). It not it will be
+            left alone
+
+    Returns:
+        Filename of resulting .dtb file
+    """
+    _, ext = os.path.splitext(fname)
+    if ext != '.dts':
+        return fname
+
+    dts_input = tools.GetOutputFilename('source.dts')
+    dtb_output = tools.GetOutputFilename('source.dtb')
+
+    search_paths = [os.path.join(os.getcwd(), 'include')]
+    root, _ = os.path.splitext(fname)
+    args = ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
+    args += ['-Ulinux']
+    for path in search_paths:
+        args.extend(['-I', path])
+    args += ['-o', dts_input, fname]
+    command.Run('cc', *args)
+
+    # If we don't have a directory, put it in the tools tempdir
+    search_list = []
+    for path in search_paths:
+        search_list.extend(['-i', path])
+    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb']
+    args.extend(search_list)
+    args.append(dts_input)
+    command.Run('dtc', *args)
+    return dtb_output
+
+def GetInt(node, propname, default=None):
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = fdt32_to_cpu(prop.value)
+    if type(value) == type(list):
+        raise ValueError("Node '%s' property '%' has list value: expecting"
+                         "a single integer" % (node.name, propname))
+    return value
+
+def GetString(node, propname, default=None):
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if type(value) == type(list):
+        raise ValueError("Node '%s' property '%' has list value: expecting"
+                         "a single string" % (node.name, propname))
+    return value
+
+def GetBool(node, propname, default=False):
+    if propname in node.props:
+        return True
+    return default

@@ -28,22 +28,21 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		void *dst);
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-
-unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
-			 lbaint_t blkcnt);
+#if !(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SAVEENV))
 
 #ifdef CONFIG_BLK
 ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src);
+ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
 #else
 ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src);
+ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt);
 #endif
 
-#else /* CONFIG_SPL_BUILD */
+#else /* CONFIG_SPL_BUILD and CONFIG_SPL_SAVEENV is not defined */
 
-/* SPL will never write or erase, declare dummies to reduce code size. */
+/* declare dummies to reduce code size. */
 
 #ifdef CONFIG_BLK
 static inline unsigned long mmc_berase(struct udevice *dev,

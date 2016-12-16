@@ -50,7 +50,6 @@ Freescale MPC83xx ADS Boards
 
     CONFIG_MPC83xx	    MPC83xx family
     CONFIG_MPC8349	    MPC8349 specific
-    CONFIG_MPC8349ADS	    MPC8349ADS board specific
     CONFIG_TSEC_ENET	    Use on-chip 10/100/1000 ethernet
 
 

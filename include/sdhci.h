@@ -97,6 +97,7 @@
 #define  SDHCI_DIV_MASK	0xFF
 #define  SDHCI_DIV_MASK_LEN	8
 #define  SDHCI_DIV_HI_MASK	0x300
+#define  SDHCI_PROG_CLOCK_MODE  0x0020
 #define  SDHCI_CLOCK_CARD_EN	0x0004
 #define  SDHCI_CLOCK_INT_STABLE	0x0002
 #define  SDHCI_CLOCK_INT_EN	0x0001
@@ -242,6 +243,7 @@ struct sdhci_host {
 	unsigned int quirks;
 	unsigned int host_caps;
 	unsigned int version;
+	unsigned int clk_mul;   /* Clock Multiplier value */
 	unsigned int clock;
 	struct mmc *mmc;
 	const struct sdhci_ops *ops;

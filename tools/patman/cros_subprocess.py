@@ -166,7 +166,7 @@ class Popen(subprocess.Popen):
         while read_set or write_set:
             try:
                 rlist, wlist, _ = select.select(read_set, write_set, [], 0.2)
-            except select.error, e:
+            except select.error as e:
                 if e.args[0] == errno.EINTR:
                     continue
                 raise

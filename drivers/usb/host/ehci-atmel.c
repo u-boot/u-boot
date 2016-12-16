@@ -56,9 +56,7 @@ struct ehci_atmel_priv {
 
 static int ehci_atmel_enable_clk(struct udevice *dev)
 {
-	struct udevice *dev_clk;
 	struct clk clk;
-	int periph;
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &clk);
@@ -73,19 +71,6 @@ static int ehci_atmel_enable_clk(struct udevice *dev)
 	if (ret)
 		return -EINVAL;
 
-	periph = fdtdec_get_uint(gd->fdt_blob, clk.dev->of_offset, "reg", -1);
-	if (periph < 0)
-		return -EINVAL;
-
-	dev_clk = dev_get_parent(clk.dev);
-	if (!dev_clk)
-		return -ENODEV;
-
-	ret = clk_request(dev_clk, &clk);
-	if (ret)
-		return ret;
-
-	clk.id = periph;
 	ret = clk_enable(&clk);
 	if (ret)
 		return ret;
@@ -128,17 +113,6 @@ static int ehci_atmel_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
 
-static int ehci_atmel_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "atmel,at91sam9g45-ehci", },
 	{ }
@@ -149,7 +123,7 @@ U_BOOT_DRIVER(ehci_atmel) = {
 	.id		= UCLASS_USB,
 	.of_match	= ehci_usb_ids,
 	.probe		= ehci_atmel_probe,
-	.remove		= ehci_atmel_remove,
+	.remove		= ehci_deregister,
 	.ops		= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct ehci_atmel_priv),

@@ -19,7 +19,6 @@
 #define CONFIG_VOM405		1	/* ...on a VOM405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC8000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -82,8 +81,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/

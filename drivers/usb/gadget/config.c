@@ -11,7 +11,7 @@
 
 #include <common.h>
 #include <asm/unaligned.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 #include <linux/string.h>
 

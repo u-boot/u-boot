@@ -21,7 +21,6 @@
 
 #include <configs/ti_omap4_common.h>
 
-#undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_EFI_PARTITION
 
 #undef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS

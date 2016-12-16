@@ -251,8 +251,6 @@
  * VIDEO configuration
  */
 
-#define CONFIG_VIDEO
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_VCXK			1
 

@@ -21,14 +21,11 @@
 #define CONFIG_SYS_BOARD_NAME	"XPedite5200"
 #define CONFIG_SYS_FORM_PMC_XMC	1
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xfff80000
 #endif
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
 #define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */

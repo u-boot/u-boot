@@ -159,9 +159,7 @@
 #if defined(CONFIG_CMD_PCI)
 
 /* General PCI */
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
 
 /* Board-specific PCI */

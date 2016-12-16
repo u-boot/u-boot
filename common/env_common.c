@@ -226,7 +226,7 @@ int env_import(const char *buf, int check)
 	return 0;
 }
 
-/* Emport the environment and generate CRC for it. */
+/* Export the environment and generate CRC for it. */
 int env_export(env_t *env_out)
 {
 	char *res;

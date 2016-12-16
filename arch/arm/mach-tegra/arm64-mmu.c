@@ -23,7 +23,7 @@ static struct mm_region tegra_mem_map[] = {
 	}, {
 		.virt = 0x80000000UL,
 		.phys = 0x80000000UL,
-		.size = 0xff80000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {

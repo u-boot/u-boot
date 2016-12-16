@@ -16,8 +16,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
@@ -44,7 +42,6 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (ULI bridge) */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
@@ -353,8 +350,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
@@ -363,8 +358,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  ************************************************************/
 #define CONFIG_PCI_OHCI			1
 #define CONFIG_USB_OHCI_NEW		1
-#define CONFIG_USB_KEYBOARD		1
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL		1
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ohci_pci"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
@@ -377,13 +370,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCIE1_IO_VIRT*/
 
 /* video */
-#define CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_BIOSEMU
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_PCIE2_IO_VIRT

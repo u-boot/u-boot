@@ -65,7 +65,8 @@ int uniphier_rom_get_mmc_funcptr(int (**send_cmd)(u32, u32),
 	return 0;
 }
 
-int spl_board_load_image(void)
+static int spl_board_load_image(struct spl_image_info *spl_image,
+				struct spl_boot_device *bootdev)
 {
 	int (*send_cmd)(u32 cmd, u32 arg);
 	int (*card_blockaddr)(u32 rca);
@@ -113,12 +114,12 @@ int spl_board_load_image(void)
 		return ret;
 	}
 
-	ret = spl_parse_image_header((void *)CONFIG_SYS_TEXT_BASE);
+	ret = spl_parse_image_header(spl_image, (void *)CONFIG_SYS_TEXT_BASE);
 	if (ret)
 		return ret;
 
-	ret = (*load_image)(dev_addr, spl_image.load_addr,
-			    spl_image.size / 512);
+	ret = (*load_image)(dev_addr, spl_image->load_addr,
+			    spl_image->size / 512);
 	if (ret) {
 		printf("failed to load image\n");
 		return ret;
@@ -126,3 +127,4 @@ int spl_board_load_image(void)
 
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_BOARD, spl_board_load_image);

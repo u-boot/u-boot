@@ -13,7 +13,6 @@
 #define __CONFIG_H
 
 #define CONFIG_AC14XX 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the ifm AC14xx board:
@@ -31,11 +30,6 @@
 #define CONFIG_E300		1	/* E300 Family */
 
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000
-
-#if defined(CONFIG_VIDEO)
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#endif
 
 #define CONFIG_SYS_MPC512X_CLKIN	25000000	/* in Hz */
 #define SCFR1_IPS_DIV			2

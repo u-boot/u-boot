@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <bitfield.h>
 #include <asm/arch/sysmap.h>
 #include <asm/kona-common/clk.h>

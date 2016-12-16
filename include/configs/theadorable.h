@@ -63,7 +63,6 @@
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
 
@@ -86,9 +85,7 @@
 /* PCIe support */
 #ifdef CONFIG_CMD_PCI
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI
 #define CONFIG_PCI_MVEBU
-#define CONFIG_PCI_PNP
 #define CONFIG_BOARD_LATE_INIT		/* for PEX switch test */
 #endif
 #endif
@@ -96,9 +93,6 @@
 /* Enable LCD and reserve 512KB from top of memory*/
 #define CONFIG_SYS_MEM_TOP_HIDE		0x80000
 
-#define CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP
 
 /* FPGA programming support */
@@ -149,14 +143,7 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-
 /* SPL related SPI defines */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x1a000
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS

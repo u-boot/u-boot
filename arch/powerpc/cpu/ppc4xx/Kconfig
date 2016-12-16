@@ -104,6 +104,9 @@ config TARGET_ICON
 config TARGET_MIP405
 	bool "Support MIP405"
 
+config TARGET_MIP405T
+	bool "Support MIP405T"
+
 config TARGET_PIP405
 	bool "Support PIP405"
 

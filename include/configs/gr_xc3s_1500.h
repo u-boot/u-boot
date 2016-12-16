@@ -13,8 +13,6 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -271,9 +269,6 @@
 
 /* no DDR2 Controller */
 #undef CONFIG_SYS_GRLIB_GAISLER_DDR2SPA1
-
-/* Identification string */
-#define CONFIG_IDENT_STRING " Gaisler LEON3 GR-XC3S-1500"
 
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"

@@ -19,7 +19,6 @@
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU		*/
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module		*/
 #undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:
@@ -52,7 +51,6 @@
 
 #ifdef CONFIG_FO300
 #define CONFIG_SYS_DEVICE_NULLDEV		1	/* enable null device */
-#define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* used to detect S1 switch position */
 #define CONFIG_USB_BIN_FIXUP		1	/* for a buggy USB device */
 #if 0
@@ -78,8 +76,6 @@
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
 #if defined(CONFIG_CHARON) || defined(CONFIG_STK52XX)
-#define CONFIG_PCI		1
-#define CONFIG_PCI_PNP		1
 /* #define CONFIG_PCI_SCAN_SHOW	1 */
 
 #define CONFIG_PCI_MEM_BUS	0x40000000
@@ -99,22 +95,16 @@
  * Video console
  */
 #ifndef CONFIG_TQM5200S		/* No graphics controller on TQM5200S */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501
 #define CONFIG_VIDEO_SM501_32BPP
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
 
 #ifndef CONFIG_FO300
-#define CONFIG_CONSOLE_EXTRA_INFO
 #else
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif /* #ifndef CONFIG_TQM5200S */
 
 /* Partitions */

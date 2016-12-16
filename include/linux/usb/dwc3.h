@@ -180,10 +180,25 @@ struct dwc3 {					/* offset: 0xC100 */
 
 /* Global USB2 PHY Configuration Register */
 #define DWC3_GUSB2PHYCFG_PHYSOFTRST		(1 << 31)
+#define DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS	(1 << 30)
+#define DWC3_GUSB2PHYCFG_ENBLSLPM		(1 << 8)
 #define DWC3_GUSB2PHYCFG_SUSPHY			(1 << 6)
+#define DWC3_GUSB2PHYCFG_PHYIF			(1 << 3)
+
+/* Global USB2 PHY Configuration Mask */
+#define DWC3_GUSB2PHYCFG_USBTRDTIM_MASK		(0xf << 10)
+
+/* Global USB2 PHY Configuration Offset */
+#define DWC3_GUSB2PHYCFG_USBTRDTIM_OFFSET	10
+
+#define DWC3_GUSB2PHYCFG_USBTRDTIM_16BIT (0x5 << \
+		DWC3_GUSB2PHYCFG_USBTRDTIM_OFFSET)
+#define DWC3_GUSB2PHYCFG_USBTRDTIM_8BIT (0x9 << \
+		DWC3_GUSB2PHYCFG_USBTRDTIM_OFFSET)
 
 /* Global USB3 PIPE Control Register */
 #define DWC3_GUSB3PIPECTL_PHYSOFTRST		(1 << 31)
+#define DWC3_GUSB3PIPECTL_DISRXDETP3		(1 << 28)
 #define DWC3_GUSB3PIPECTL_SUSPHY		(1 << 17)
 
 /* Global TX Fifo Size Register */

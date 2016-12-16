@@ -150,11 +150,23 @@ ENTRY(__asm_invalidate_icache_all)
 	ret
 ENDPROC(__asm_invalidate_icache_all)
 
-ENTRY(__asm_flush_l3_cache)
+ENTRY(__asm_invalidate_l3_dcache)
 	mov	x0, #0			/* return status as success */
 	ret
-ENDPROC(__asm_flush_l3_cache)
-	.weak	__asm_flush_l3_cache
+ENDPROC(__asm_invalidate_l3_dcache)
+	.weak	__asm_invalidate_l3_dcache
+
+ENTRY(__asm_flush_l3_dcache)
+	mov	x0, #0			/* return status as success */
+	ret
+ENDPROC(__asm_flush_l3_dcache)
+	.weak	__asm_flush_l3_dcache
+
+ENTRY(__asm_invalidate_l3_icache)
+	mov	x0, #0			/* return status as success */
+	ret
+ENDPROC(__asm_invalidate_l3_icache)
+	.weak	__asm_invalidate_l3_icache
 
 /*
  * void __asm_switch_ttbr(ulong new_ttbr)

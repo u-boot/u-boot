@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <usb.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <asm/arch-zynqmp/hardware.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>

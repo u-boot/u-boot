@@ -51,7 +51,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
 #endif
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
+	priv->phy_index = ((uintptr_t)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
 	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
 	extra_ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
 	priv->usb_gate_mask <<= priv->phy_index;
@@ -101,6 +101,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	{ .compatible = "allwinner,sun8i-a83t-ohci", },
 	{ .compatible = "allwinner,sun8i-h3-ohci",  },
 	{ .compatible = "allwinner,sun9i-a80-ohci", },
+	{ .compatible = "allwinner,sun50i-a64-ohci", },
 	{ }
 };
 

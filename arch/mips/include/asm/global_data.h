@@ -21,6 +21,13 @@ struct arch_global_data {
 	unsigned long rev;
 	unsigned long ver;
 #endif
+#ifdef CONFIG_SYS_CACHE_SIZE_AUTO
+	unsigned short l1i_line_size;
+	unsigned short l1d_line_size;
+#endif
+#ifdef CONFIG_MIPS_L2_CACHE
+	unsigned short l2_line_size;
+#endif
 };
 
 #include <asm-generic/global_data.h>

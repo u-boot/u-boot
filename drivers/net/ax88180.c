@@ -698,11 +698,7 @@ static void ax88180_read_mac_addr (struct eth_device *dev)
 	}
 }
 
-/*
-===========================================================================
-<<<<<<			Exported SubProgram Bodies		>>>>>>
-===========================================================================
-*/
+/* Exported SubProgram Bodies */
 int ax88180_initialize (bd_t * bis)
 {
 	struct eth_device *dev;

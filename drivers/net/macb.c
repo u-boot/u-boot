@@ -39,7 +39,7 @@
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 #include <asm/arch/clk.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 
 #include "macb.h"
 
@@ -251,33 +251,35 @@ int macb_miiphy_write(struct mii_dev *bus, int phy_adr, int devad, int reg,
 static inline void macb_invalidate_ring_desc(struct macb_device *macb, bool rx)
 {
 	if (rx)
-		invalidate_dcache_range(macb->rx_ring_dma, macb->rx_ring_dma +
-			MACB_RX_DMA_DESC_SIZE);
+		invalidate_dcache_range(macb->rx_ring_dma,
+			ALIGN(macb->rx_ring_dma + MACB_RX_DMA_DESC_SIZE,
+			      PKTALIGN));
 	else
-		invalidate_dcache_range(macb->tx_ring_dma, macb->tx_ring_dma +
-			MACB_TX_DMA_DESC_SIZE);
+		invalidate_dcache_range(macb->tx_ring_dma,
+			ALIGN(macb->tx_ring_dma + MACB_TX_DMA_DESC_SIZE,
+			      PKTALIGN));
 }
 
 static inline void macb_flush_ring_desc(struct macb_device *macb, bool rx)
 {
 	if (rx)
 		flush_dcache_range(macb->rx_ring_dma, macb->rx_ring_dma +
-			MACB_RX_DMA_DESC_SIZE);
+				   ALIGN(MACB_RX_DMA_DESC_SIZE, PKTALIGN));
 	else
 		flush_dcache_range(macb->tx_ring_dma, macb->tx_ring_dma +
-			MACB_TX_DMA_DESC_SIZE);
+				   ALIGN(MACB_TX_DMA_DESC_SIZE, PKTALIGN));
 }
 
 static inline void macb_flush_rx_buffer(struct macb_device *macb)
 {
 	flush_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
-				MACB_RX_BUFFER_SIZE);
+			   ALIGN(MACB_RX_BUFFER_SIZE, PKTALIGN));
 }
 
 static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
 {
 	invalidate_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
-				MACB_RX_BUFFER_SIZE);
+				ALIGN(MACB_RX_BUFFER_SIZE, PKTALIGN));
 }
 
 #if defined(CONFIG_CMD_NET)
@@ -596,7 +598,7 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 	macb->dummy_desc->ctrl = TXBUF_USED;
 	macb->dummy_desc->addr = 0;
 	flush_dcache_range(macb->dummy_desc_dma, macb->dummy_desc_dma +
-			MACB_TX_DUMMY_DMA_DESC_SIZE);
+			ALIGN(MACB_TX_DUMMY_DMA_DESC_SIZE, PKTALIGN));
 
 	for (i = 1; i < num_queues; i++)
 		gem_writel_queue_TBQP(macb, macb->dummy_desc_dma, i - 1);

@@ -381,6 +381,7 @@ static void part_print_amiga(struct blk_desc *dev_desc)
 U_BOOT_PART_TYPE(amiga) = {
 	.name		= "AMIGA",
 	.part_type	= PART_TYPE_AMIGA,
+	.max_entries	= AMIGA_ENTRY_NUMBERS,
 	.get_info	= part_get_info_amiga,
 	.print		= part_print_amiga,
 	.test		= part_test_amiga,

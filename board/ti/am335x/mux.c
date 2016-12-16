@@ -397,7 +397,7 @@ void enable_board_pin_mux(void)
 		configure_module_pin_mux(rmii1_pin_mux);
 		configure_module_pin_mux(spi0_pin_mux);
 	} else {
-		puts("Unknown board, cannot configure pinmux.");
-		hang();
+		/* Unknown board. We might still be able to boot. */
+		puts("Bad EEPROM or unknown board, cannot configure pinmux.");
 	}
 }

@@ -211,6 +211,15 @@ arm: arm-none-eabi-
 
 and buildman will find arm-none-eabi-gcc in /usr/bin if you have it installed.
 
+[toolchain-wrapper]
+wrapper: ccache
+
+This tells buildman to use a compiler wrapper in front of CROSS_COMPILE. In
+this example, ccache. It doesn't affect the toolchain scan. The wrapper is
+added when CROSS_COMPILE environtal variable is set. The name in this
+section is ignored. If more than one line is provided, only the last one
+is taken.
+
 3. Make sure you have the require Python pre-requisites
 
 Buildman uses multiprocessing, Queue, shutil, StringIO, ConfigParser and

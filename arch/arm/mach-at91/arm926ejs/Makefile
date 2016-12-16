@@ -18,6 +18,7 @@ obj-$(CONFIG_AT91SAM9N12)	+= at91sam9n12_devices.o
 obj-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
 obj-$(CONFIG_AT91_EFLASH)	+= eflash.o
 obj-$(CONFIG_AT91_LED)	+= led.o
+obj-y += cache.o
 obj-y += clock.o
 obj-y += cpu.o
 obj-y	+= reset.o

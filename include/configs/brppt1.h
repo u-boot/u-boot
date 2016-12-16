@@ -16,7 +16,6 @@
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
-#define CONFIG_LCD
 #define CONFIG_LCD_ROTATION
 #define CONFIG_LCD_DT_SIMPLEFB
 #define CONFIG_SYS_WHITE_ON_BLACK
@@ -24,9 +23,7 @@
 
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_OMAP_WATCHDOG
-#define CONFIG_SPL_WATCHDOG_SUPPORT
 
-#define CONFIG_SPL_GPIO_SUPPORT
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -58,7 +55,6 @@
 /* RAW SD card / eMMC locations. */
  #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /*addr. 0x60000 */
  #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x200 /* 256 KB */
- #define CONFIG_SPL_MMC_SUPPORT
 #endif /* CONFIG_EMMC_BOOT */
 
 /*
@@ -71,7 +67,6 @@
 #define CONFIG_CMD_MTDPARTS
 #endif /* CONFIG_SPI_BOOT, ... */
 
-#undef CONFIG_SPL_OS_BOOT
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_SPL_ARGS_ADDR		0x80F80000
 
@@ -90,7 +85,6 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_AM33XX_BCH	/* OMAP4 and later ELM support */
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
@@ -257,8 +251,6 @@ MMCARGS
 #define CONFIG_OMAP3_SPI
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #undef CONFIG_ENV_IS_NOWHERE

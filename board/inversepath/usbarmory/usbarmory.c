@@ -15,7 +15,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>

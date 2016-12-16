@@ -312,7 +312,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 				fb_put_word(&fb, &bmap);
 
 			bmap += (padded_width - width) * 2;
-			fb -= width * 2 + lcd_line_length;
+			fb -= width * 2 + priv->line_length;
 		}
 		break;
 #endif /* CONFIG_BMP_16BPP */
@@ -325,7 +325,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 				*(fb++) = *(bmap++);
 				*(fb++) = 0;
 			}
-			fb -= lcd_line_length + width * (bpix / 8);
+			fb -= priv->line_length + width * (bpix / 8);
 		}
 		break;
 #endif /* CONFIG_BMP_24BMP */
@@ -338,7 +338,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 				*(fb++) = *(bmap++);
 				*(fb++) = *(bmap++);
 			}
-			fb -= lcd_line_length + width * (bpix / 8);
+			fb -= priv->line_length + width * (bpix / 8);
 		}
 		break;
 #endif /* CONFIG_BMP_32BPP */

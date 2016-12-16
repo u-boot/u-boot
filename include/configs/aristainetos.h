@@ -18,7 +18,7 @@
 #define CONFIG_BOARDNAME	"aristainetos"
 
 #define CONFIG_MXC_UART_BASE	UART5_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc4"
+#define CONSOLE_DEV	"ttymxc4"
 
 #define CONFIG_FEC_XCV_TYPE		RMII
 

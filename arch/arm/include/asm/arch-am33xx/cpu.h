@@ -43,7 +43,8 @@
 #define HS_DEVICE			0x2
 #define GP_DEVICE			0x3
 
-/* cpu-id for AM33XX and TI81XX family */
+/* cpu-id for AM43XX AM33XX and TI81XX family */
+#define AM437X				0xB98C
 #define AM335X				0xB944
 #define TI81XX				0xB81E
 #define DEVICE_ID			(CTRL_BASE + 0x0600)
@@ -579,6 +580,8 @@ struct pwmss_regs {
 };
 #define ECAP_CLK_EN		BIT(0)
 #define ECAP_CLK_STOP_REQ	BIT(1)
+#define EPWM_CLK_EN		BIT(8)
+#define EPWM_CLK_STOP_REQ	BIT(9)
 
 struct pwmss_ecap_regs {
 	unsigned int tsctr;
@@ -590,6 +593,40 @@ struct pwmss_ecap_regs {
 	unsigned int resv1[4];
 	unsigned short ecctl1;
 	unsigned short ecctl2;
+};
+
+struct pwmss_epwm_regs {
+	unsigned short tbctl;
+	unsigned short tbsts;
+	unsigned short tbphshr;
+	unsigned short tbphs;
+	unsigned short tbcnt;
+	unsigned short tbprd;
+	unsigned short res1;
+	unsigned short cmpctl;
+	unsigned short cmpahr;
+	unsigned short cmpa;
+	unsigned short cmpb;
+	unsigned short aqctla;
+	unsigned short aqctlb;
+	unsigned short aqsfrc;
+	unsigned short aqcsfrc;
+	unsigned short dbctl;
+	unsigned short dbred;
+	unsigned short dbfed;
+	unsigned short tzsel;
+	unsigned short tzctl;
+	unsigned short tzflg;
+	unsigned short tzclr;
+	unsigned short tzfrc;
+	unsigned short etsel;
+	unsigned short etps;
+	unsigned short etflg;
+	unsigned short etclr;
+	unsigned short etfrc;
+	unsigned short pcctl;
+	unsigned int res2[66];
+	unsigned short hrcnfg;
 };
 
 /* Capture Control register 2 */

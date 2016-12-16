@@ -90,8 +90,6 @@
 
 # define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
 # define DFU_DEFAULT_POLL_TIMEOUT	300
-# define CONFIG_USB_FUNCTION_DFU
-# define CONFIG_DFU_RAM
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_CMD_THOR_DOWNLOAD
 # define CONFIG_THOR_RESET_OFF
@@ -106,7 +104,6 @@
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
 # if defined(CONFIG_ZYNQ_SDHCI)
-#  define CONFIG_DFU_MMC
 #  define DFU_ALT_INFO_MMC \
 	"dfu_mmc_info=" \
 	"set dfu_alt_info " \
@@ -318,7 +315,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CLOCKS
 #define CONFIG_CMD_CLK
@@ -394,9 +390,6 @@
 /* SPL part */
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
 
@@ -414,12 +407,9 @@
 
 /* MMC support */
 #ifdef CONFIG_ZYNQ_SDHCI
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS      0x200 /* 256 KB */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 #endif
 
@@ -442,9 +432,7 @@
 
 /* qspi mode is working fine */
 #ifdef CONFIG_ZYNQ_QSPI
-#define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
 #define CONFIG_SYS_SPI_ARGS_OFFS	0x200000
 #define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
@@ -462,7 +450,6 @@
 #endif
 
 /* for booting directly linux */
-#define CONFIG_SPL_OS_BOOT
 
 /* SP location before relocation, must use scratch RAM */
 #define CONFIG_SPL_TEXT_BASE	0x0

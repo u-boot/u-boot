@@ -24,7 +24,6 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA
-#define CONFIG_VIDEO
 
 /* U-Boot general configurations */
 
@@ -72,8 +71,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 
 /* SPL */
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
 /* Ethernet Configuration */
@@ -113,8 +110,6 @@
 
 /* PCI express */
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(3, 29)
@@ -145,8 +140,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
@@ -164,16 +157,12 @@
 /* Video output */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK		260000000
 #define CONFIG_CMD_HDMIDETECT
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #endif

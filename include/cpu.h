@@ -21,6 +21,8 @@ struct cpu_platdata {
 	int cpu_id;
 	int ucode_version;
 	ulong device_id;
+	u16 family;		/* DMTF CPU Family */
+	u32 id[2];		/* DMTF CPU Processor IDs */
 };
 
 /* CPU features - mostly just a placeholder for now */
@@ -71,6 +73,16 @@ struct cpu_ops {
 	 * @return CPU count if OK, -ve on error
 	 */
 	int (*get_count)(struct udevice *dev);
+
+	/**
+	 * get_vendor() - Get vendor name of a CPU
+	 *
+	 * @dev:	Device to check (UCLASS_CPU)
+	 * @buf:	Buffer to place string
+	 * @size:	Size of string space
+	 * @return 0 if OK, -ENOSPC if buffer is too small, other -ve on error
+	 */
+	int (*get_vendor)(struct udevice *dev, char *buf, int size);
 };
 
 #define cpu_get_ops(dev)        ((struct cpu_ops *)(dev)->driver->ops)
@@ -101,5 +113,15 @@ int cpu_get_info(struct udevice *dev, struct cpu_info *info);
  * @return CPU count if OK, -ve on error
  */
 int cpu_get_count(struct udevice *dev);
+
+/**
+ * cpu_get_vendor() - Get vendor name of a CPU
+ *
+ * @dev:	Device to check (UCLASS_CPU)
+ * @buf:	Buffer to place string
+ * @size:	Size of string space
+ * @return 0 if OK, -ENOSPC if buffer is too small, other -ve on error
+ */
+int cpu_get_vendor(struct udevice *dev, char *buf, int size);
 
 #endif

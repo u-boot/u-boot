@@ -7,7 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */
@@ -368,8 +368,18 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	int ret = 0;
 
+#ifdef CONFIG_DM_SPI_FLASH
+	struct udevice *new;
+
+	/* speed and mode will be read from DT */
+	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+				     0, 0, &new);
+
+	ucode_flash = dev_get_uclass_priv(new);
+#else
 	ucode_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+#endif
 	if (!ucode_flash)
 		printf("SF: probe for ucode failed\n");
 	else {

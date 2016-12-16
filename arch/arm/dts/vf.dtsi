@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 /include/ "skeleton.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	aliases {
@@ -20,6 +21,8 @@
 		serial5 = &uart5;
 		spi0 = &dspi0;
 		spi1 = &dspi1;
+		ehci0 = &ehci0;
+		ehci1 = &ehci1;
 	};
 
 	soc {
@@ -80,7 +83,9 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,vf610-qspi";
-				reg = <0x40044000 0x1000>;
+				reg = <0x40044000 0x1000>,
+					  <0x20000000 0x10000000>;
+				reg-names = "QuadSPI", "QuadSPI-memory";
 				status = "disabled";
 			};
 
@@ -113,6 +118,12 @@
 				reg = <0x400ff100 0x40>;
 				#gpio-cells = <2>;
 			};
+
+			ehci0: ehci@40034000 {
+				compatible = "fsl,vf610-usb";
+				reg = <0x40034000 0x800>;
+				status = "disabled";
+			};
 		};
 
 		aips1: aips-bus@40080000 {
@@ -133,6 +144,11 @@
 				status = "disabled";
 			};
 
+			ehci1: ehci@400b4000 {
+				compatible = "fsl,vf610-usb";
+				reg = <0x400b4000 0x800>;
+				status = "disabled";
+			};
 		};
 	};
 };

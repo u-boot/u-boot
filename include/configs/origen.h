@@ -37,8 +37,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
@@ -86,8 +84,6 @@
 		"fi; " \
 	"fi;" \
 	"load mmc ${mmcdev} ${loadaddr} uImage; bootm ${loadaddr} "
-
-#define CONFIG_IDENT_STRING		" for ORIGEN"
 
 #define CONFIG_CLK_1000_400_200
 

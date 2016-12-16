@@ -10,7 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/iomux-v3.h>
@@ -56,6 +56,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 #define DISP0_PWR_EN	IMX_GPIO_NR(1, 21)
+
+#define KEY_VOL_UP	IMX_GPIO_NR(1, 4)
 
 int dram_init(void)
 {
@@ -359,6 +361,39 @@ int board_mmc_init(bd_t *bis)
 #endif
 }
 #endif
+
+static int ar8031_phy_fixup(struct phy_device *phydev)
+{
+	unsigned short val;
+
+	/* To enable AR8031 ouput a 125MHz clk from CLK_25M */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
+	val &= 0xffe3;
+	val |= 0x18;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
+
+	/* introduce tx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+	val |= 0x0100;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	ar8031_phy_fixup(phydev);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+	return 0;
+}
 
 #if defined(CONFIG_VIDEO_IPUV3)
 static void disable_lvds(struct display_info_t const *dev)
@@ -682,124 +717,15 @@ int checkboard(void)
 #include <spl.h>
 #include <libfdt.h>
 
-const struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
-	.dram_sdclk_0 =  0x00020030,
-	.dram_sdclk_1 =  0x00020030,
-	.dram_cas =  0x00020030,
-	.dram_ras =  0x00020030,
-	.dram_reset =  0x00020030,
-	.dram_sdcke0 =  0x00003000,
-	.dram_sdcke1 =  0x00003000,
-	.dram_sdba2 =  0x00000000,
-	.dram_sdodt0 =  0x00003030,
-	.dram_sdodt1 =  0x00003030,
-	.dram_sdqs0 =  0x00000030,
-	.dram_sdqs1 =  0x00000030,
-	.dram_sdqs2 =  0x00000030,
-	.dram_sdqs3 =  0x00000030,
-	.dram_sdqs4 =  0x00000030,
-	.dram_sdqs5 =  0x00000030,
-	.dram_sdqs6 =  0x00000030,
-	.dram_sdqs7 =  0x00000030,
-	.dram_dqm0 =  0x00020030,
-	.dram_dqm1 =  0x00020030,
-	.dram_dqm2 =  0x00020030,
-	.dram_dqm3 =  0x00020030,
-	.dram_dqm4 =  0x00020030,
-	.dram_dqm5 =  0x00020030,
-	.dram_dqm6 =  0x00020030,
-	.dram_dqm7 =  0x00020030,
-};
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	gpio_direction_input(KEY_VOL_UP);
 
-const struct mx6dq_iomux_ddr_regs mx6dqp_ddr_ioregs = {
-	.dram_sdclk_0 =  0x00000030,
-	.dram_sdclk_1 =  0x00000030,
-	.dram_cas =  0x00000030,
-	.dram_ras =  0x00000030,
-	.dram_reset =  0x00000030,
-	.dram_sdcke0 =  0x00003000,
-	.dram_sdcke1 =  0x00003000,
-	.dram_sdba2 =  0x00000000,
-	.dram_sdodt0 =  0x00003030,
-	.dram_sdodt1 =  0x00003030,
-	.dram_sdqs0 =  0x00000030,
-	.dram_sdqs1 =  0x00000030,
-	.dram_sdqs2 =  0x00000030,
-	.dram_sdqs3 =  0x00000030,
-	.dram_sdqs4 =  0x00000030,
-	.dram_sdqs5 =  0x00000030,
-	.dram_sdqs6 =  0x00000030,
-	.dram_sdqs7 =  0x00000030,
-	.dram_dqm0 =  0x00000030,
-	.dram_dqm1 =  0x00000030,
-	.dram_dqm2 =  0x00000030,
-	.dram_dqm3 =  0x00000030,
-	.dram_dqm4 =  0x00000030,
-	.dram_dqm5 =  0x00000030,
-	.dram_dqm6 =  0x00000030,
-	.dram_dqm7 =  0x00000030,
-};
-
-const struct mx6dq_iomux_grp_regs mx6_grp_ioregs = {
-	.grp_ddr_type =  0x000C0000,
-	.grp_ddrmode_ctl =  0x00020000,
-	.grp_ddrpke =  0x00000000,
-	.grp_addds =  0x00000030,
-	.grp_ctlds =  0x00000030,
-	.grp_ddrmode =  0x00020000,
-	.grp_b0ds =  0x00000030,
-	.grp_b1ds =  0x00000030,
-	.grp_b2ds =  0x00000030,
-	.grp_b3ds =  0x00000030,
-	.grp_b4ds =  0x00000030,
-	.grp_b5ds =  0x00000030,
-	.grp_b6ds =  0x00000030,
-	.grp_b7ds =  0x00000030,
-};
-
-const struct mx6_mmdc_calibration mx6_mmcd_calib = {
-	.p0_mpwldectrl0 =  0x001F001F,
-	.p0_mpwldectrl1 =  0x001F001F,
-	.p1_mpwldectrl0 =  0x00440044,
-	.p1_mpwldectrl1 =  0x00440044,
-	.p0_mpdgctrl0 =  0x434B0350,
-	.p0_mpdgctrl1 =  0x034C0359,
-	.p1_mpdgctrl0 =  0x434B0350,
-	.p1_mpdgctrl1 =  0x03650348,
-	.p0_mprddlctl =  0x4436383B,
-	.p1_mprddlctl =  0x39393341,
-	.p0_mpwrdlctl =  0x35373933,
-	.p1_mpwrdlctl =  0x48254A36,
-};
-
-const struct mx6_mmdc_calibration mx6dqp_mmcd_calib = {
-	.p0_mpwldectrl0 =  0x001B001E,
-	.p0_mpwldectrl1 =  0x002E0029,
-	.p1_mpwldectrl0 =  0x001B002A,
-	.p1_mpwldectrl1 =  0x0019002C,
-	.p0_mpdgctrl0 =  0x43240334,
-	.p0_mpdgctrl1 =  0x0324031A,
-	.p1_mpdgctrl0 =  0x43340344,
-	.p1_mpdgctrl1 =  0x03280276,
-	.p0_mprddlctl =  0x44383A3E,
-	.p1_mprddlctl =  0x3C3C3846,
-	.p0_mpwrdlctl =  0x2E303230,
-	.p1_mpwrdlctl =  0x38283E34,
-};
-
-/* MT41K128M16JT-125 */
-static struct mx6_ddr3_cfg mem_ddr = {
-	.mem_speed = 1600,
-	.density = 2,
-	.width = 16,
-	.banks = 8,
-	.rowaddr = 14,
-	.coladdr = 10,
-	.pagesz = 2,
-	.trcd = 1375,
-	.trcmin = 4875,
-	.trasmin = 3500,
-};
+	/* Only enter in Falcon mode if KEY_VOL_UP is pressed */
+	return gpio_get_value(KEY_VOL_UP);
+}
+#endif
 
 static void ccgr_init(void)
 {
@@ -831,44 +757,209 @@ static void gpr_init(void)
 	}
 }
 
-/*
- * This section requires the differentiation between iMX6 Sabre boards, but
- * for now, it will configure only for the mx6q variant.
- */
+static int mx6q_dcd_table[] = {
+	0x020e0798, 0x000C0000,
+	0x020e0758, 0x00000000,
+	0x020e0588, 0x00000030,
+	0x020e0594, 0x00000030,
+	0x020e056c, 0x00000030,
+	0x020e0578, 0x00000030,
+	0x020e074c, 0x00000030,
+	0x020e057c, 0x00000030,
+	0x020e058c, 0x00000000,
+	0x020e059c, 0x00000030,
+	0x020e05a0, 0x00000030,
+	0x020e078c, 0x00000030,
+	0x020e0750, 0x00020000,
+	0x020e05a8, 0x00000030,
+	0x020e05b0, 0x00000030,
+	0x020e0524, 0x00000030,
+	0x020e051c, 0x00000030,
+	0x020e0518, 0x00000030,
+	0x020e050c, 0x00000030,
+	0x020e05b8, 0x00000030,
+	0x020e05c0, 0x00000030,
+	0x020e0774, 0x00020000,
+	0x020e0784, 0x00000030,
+	0x020e0788, 0x00000030,
+	0x020e0794, 0x00000030,
+	0x020e079c, 0x00000030,
+	0x020e07a0, 0x00000030,
+	0x020e07a4, 0x00000030,
+	0x020e07a8, 0x00000030,
+	0x020e0748, 0x00000030,
+	0x020e05ac, 0x00000030,
+	0x020e05b4, 0x00000030,
+	0x020e0528, 0x00000030,
+	0x020e0520, 0x00000030,
+	0x020e0514, 0x00000030,
+	0x020e0510, 0x00000030,
+	0x020e05bc, 0x00000030,
+	0x020e05c4, 0x00000030,
+	0x021b0800, 0xa1390003,
+	0x021b080c, 0x001F001F,
+	0x021b0810, 0x001F001F,
+	0x021b480c, 0x001F001F,
+	0x021b4810, 0x001F001F,
+	0x021b083c, 0x43270338,
+	0x021b0840, 0x03200314,
+	0x021b483c, 0x431A032F,
+	0x021b4840, 0x03200263,
+	0x021b0848, 0x4B434748,
+	0x021b4848, 0x4445404C,
+	0x021b0850, 0x38444542,
+	0x021b4850, 0x4935493A,
+	0x021b081c, 0x33333333,
+	0x021b0820, 0x33333333,
+	0x021b0824, 0x33333333,
+	0x021b0828, 0x33333333,
+	0x021b481c, 0x33333333,
+	0x021b4820, 0x33333333,
+	0x021b4824, 0x33333333,
+	0x021b4828, 0x33333333,
+	0x021b08b8, 0x00000800,
+	0x021b48b8, 0x00000800,
+	0x021b0004, 0x00020036,
+	0x021b0008, 0x09444040,
+	0x021b000c, 0x555A7975,
+	0x021b0010, 0xFF538F64,
+	0x021b0014, 0x01FF00DB,
+	0x021b0018, 0x00001740,
+	0x021b001c, 0x00008000,
+	0x021b002c, 0x000026d2,
+	0x021b0030, 0x005A1023,
+	0x021b0040, 0x00000027,
+	0x021b0000, 0x831A0000,
+	0x021b001c, 0x04088032,
+	0x021b001c, 0x00008033,
+	0x021b001c, 0x00048031,
+	0x021b001c, 0x09408030,
+	0x021b001c, 0x04008040,
+	0x021b0020, 0x00005800,
+	0x021b0818, 0x00011117,
+	0x021b4818, 0x00011117,
+	0x021b0004, 0x00025576,
+	0x021b0404, 0x00011006,
+	0x021b001c, 0x00000000,
+};
+
+static int mx6qp_dcd_table[] = {
+	0x020e0798, 0x000c0000,
+	0x020e0758, 0x00000000,
+	0x020e0588, 0x00000030,
+	0x020e0594, 0x00000030,
+	0x020e056c, 0x00000030,
+	0x020e0578, 0x00000030,
+	0x020e074c, 0x00000030,
+	0x020e057c, 0x00000030,
+	0x020e058c, 0x00000000,
+	0x020e059c, 0x00000030,
+	0x020e05a0, 0x00000030,
+	0x020e078c, 0x00000030,
+	0x020e0750, 0x00020000,
+	0x020e05a8, 0x00000030,
+	0x020e05b0, 0x00000030,
+	0x020e0524, 0x00000030,
+	0x020e051c, 0x00000030,
+	0x020e0518, 0x00000030,
+	0x020e050c, 0x00000030,
+	0x020e05b8, 0x00000030,
+	0x020e05c0, 0x00000030,
+	0x020e0774, 0x00020000,
+	0x020e0784, 0x00000030,
+	0x020e0788, 0x00000030,
+	0x020e0794, 0x00000030,
+	0x020e079c, 0x00000030,
+	0x020e07a0, 0x00000030,
+	0x020e07a4, 0x00000030,
+	0x020e07a8, 0x00000030,
+	0x020e0748, 0x00000030,
+	0x020e05ac, 0x00000030,
+	0x020e05b4, 0x00000030,
+	0x020e0528, 0x00000030,
+	0x020e0520, 0x00000030,
+	0x020e0514, 0x00000030,
+	0x020e0510, 0x00000030,
+	0x020e05bc, 0x00000030,
+	0x020e05c4, 0x00000030,
+	0x021b0800, 0xa1390003,
+	0x021b080c, 0x001b001e,
+	0x021b0810, 0x002e0029,
+	0x021b480c, 0x001b002a,
+	0x021b4810, 0x0019002c,
+	0x021b083c, 0x43240334,
+	0x021b0840, 0x0324031a,
+	0x021b483c, 0x43340344,
+	0x021b4840, 0x03280276,
+	0x021b0848, 0x44383A3E,
+	0x021b4848, 0x3C3C3846,
+	0x021b0850, 0x2e303230,
+	0x021b4850, 0x38283E34,
+	0x021b081c, 0x33333333,
+	0x021b0820, 0x33333333,
+	0x021b0824, 0x33333333,
+	0x021b0828, 0x33333333,
+	0x021b481c, 0x33333333,
+	0x021b4820, 0x33333333,
+	0x021b4824, 0x33333333,
+	0x021b4828, 0x33333333,
+	0x021b08c0, 0x24912249,
+	0x021b48c0, 0x24914289,
+	0x021b08b8, 0x00000800,
+	0x021b48b8, 0x00000800,
+	0x021b0004, 0x00020036,
+	0x021b0008, 0x24444040,
+	0x021b000c, 0x555A7955,
+	0x021b0010, 0xFF320F64,
+	0x021b0014, 0x01ff00db,
+	0x021b0018, 0x00001740,
+	0x021b001c, 0x00008000,
+	0x021b002c, 0x000026d2,
+	0x021b0030, 0x005A1023,
+	0x021b0040, 0x00000027,
+	0x021b0400, 0x14420000,
+	0x021b0000, 0x831A0000,
+	0x021b0890, 0x00400C58,
+	0x00bb0008, 0x00000000,
+	0x00bb000c, 0x2891E41A,
+	0x00bb0038, 0x00000564,
+	0x00bb0014, 0x00000040,
+	0x00bb0028, 0x00000020,
+	0x00bb002c, 0x00000020,
+	0x021b001c, 0x04088032,
+	0x021b001c, 0x00008033,
+	0x021b001c, 0x00048031,
+	0x021b001c, 0x09408030,
+	0x021b001c, 0x04008040,
+	0x021b0020, 0x00005800,
+	0x021b0818, 0x00011117,
+	0x021b4818, 0x00011117,
+	0x021b0004, 0x00025576,
+	0x021b0404, 0x00011006,
+	0x021b001c, 0x00000000,
+};
+
+static void ddr_init(int *table, int size)
+{
+	int i;
+
+	for (i = 0; i < size / 2 ; i++)
+		writel(table[2 * i + 1], table[2 * i]);
+}
+
 static void spl_dram_init(void)
 {
-	struct mx6_ddr_sysinfo sysinfo = {
-		/* width of data bus:0=16,1=32,2=64 */
-		.dsize = 2,
-		/* config for full 4GB range so that get_mem_size() works */
-		.cs_density = 32, /* 32Gb per CS */
-		/* single chip select */
-		.ncs = 1,
-		.cs1_mirror = 0,
-		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
-		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
-		.walat = 1,	/* Write additional latency */
-		.ralat = 5,	/* Read additional latency */
-		.mif3_mode = 3,	/* Command prediction working mode */
-		.bi_on = 1,	/* Bank interleaving enabled */
-		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
-		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
-		.ddr_type = DDR_TYPE_DDR3,
-		.refsel = 1,	/* Refresh cycles at 32KHz */
-		.refr = 7,	/* 8 refresh commands per refresh cycle */
-	};
-
-	if (is_mx6dqp()) {
-		mx6dq_dram_iocfg(64, &mx6dqp_ddr_ioregs, &mx6_grp_ioregs);
-		mx6_dram_cfg(&sysinfo, &mx6dqp_mmcd_calib, &mem_ddr);
-	} else {
-		mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
-		mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
-	}
+	if (is_mx6dq())
+		ddr_init(mx6q_dcd_table, ARRAY_SIZE(mx6q_dcd_table));
+	else if (is_mx6dqp())
+		ddr_init(mx6qp_dcd_table, ARRAY_SIZE(mx6qp_dcd_table));
 }
 
 void board_init_f(ulong dummy)
 {
+	/* DDR initialization */
+	spl_dram_init();
+
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
 
@@ -883,9 +974,6 @@ void board_init_f(ulong dummy)
 
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
-
-	/* DDR initialization */
-	spl_dram_init();
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);

@@ -105,10 +105,7 @@
 
 #define DFU_ALT_INFO_QSPI \
 	"dfu_alt_info_qspi=" \
-	"MLO raw 0x0 0x010000;" \
-	"MLO.backup1 raw 0x010000 0x010000;" \
-	"MLO.backup2 raw 0x020000 0x010000;" \
-	"MLO.backup3 raw 0x030000 0x010000;" \
+	"MLO raw 0x0 0x040000;" \
 	"u-boot.img raw 0x040000 0x0100000;" \
 	"u-boot-spl-os raw 0x140000 0x080000;" \
 	"u-boot-env raw 0x1C0000 0x010000;" \
@@ -121,15 +118,31 @@
 	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_QSPI
+#else
+/* Discard fastboot in SPL build, to spare some space */
+#undef CONFIG_FASTBOOT
+#undef CONFIG_USB_FUNCTION_FASTBOOT
+#undef CONFIG_CMD_FASTBOOT
+#undef CONFIG_ANDROID_BOOT_IMAGE
+#undef CONFIG_FASTBOOT_BUF_ADDR
+#undef CONFIG_FASTBOOT_BUF_SIZE
+#undef CONFIG_FASTBOOT_FLASH
+#endif
 
-/* Fastboot */
-#define CONFIG_USB_FUNCTION_FASTBOOT
-#define CONFIG_CMD_FASTBOOT
-#define CONFIG_ANDROID_BOOT_IMAGE
-#define CONFIG_FASTBOOT_BUF_ADDR    CONFIG_SYS_LOAD_ADDR
-#define CONFIG_FASTBOOT_BUF_SIZE    0x2F000000
-#define CONFIG_FASTBOOT_FLASH
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_CMD_BOOTD
+#ifdef CONFIG_SPL_DFU_SUPPORT
+#define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
+#define CONFIG_SPL_HASH_SUPPORT
+#define DFU_ALT_INFO_RAM \
+	"dfu_alt_info_ram=" \
+	"kernel ram 0x80200000 0x4000000;" \
+	"fdt ram 0x80f80000 0x80000;" \
+	"ramdisk ram 0x81000000 0x4000000\0"
+#define DFUARGS \
+	"dfu_bufsiz=0x10000\0" \
+	DFU_ALT_INFO_RAM
+#endif
 #endif
 
 #include <configs/ti_omap5_common.h>
@@ -167,10 +180,7 @@
 
 /*
  * Default to using SPI for environment, etc.
- * 0x000000 - 0x010000 : QSPI.SPL (64KiB)
- * 0x010000 - 0x020000 : QSPI.SPL.backup1 (64KiB)
- * 0x020000 - 0x030000 : QSPI.SPL.backup2 (64KiB)
- * 0x030000 - 0x040000 : QSPI.SPL.backup3 (64KiB)
+ * 0x000000 - 0x040000 : QSPI.SPL (256KiB)
  * 0x040000 - 0x140000 : QSPI.u-boot (1MiB)
  * 0x140000 - 0x1C0000 : QSPI.u-boot-spl-os (512KiB)
  * 0x1C0000 - 0x1D0000 : QSPI.u-boot-env (64KiB)
@@ -182,11 +192,6 @@
 #define CONFIG_SYS_SPI_ARGS_OFFS	0x140000
 #define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
 #if defined(CONFIG_QSPI_BOOT)
-/* In SPL, use the environment and discard MMC support for space. */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SPL_MMC_SUPPORT
-#endif
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
@@ -197,11 +202,8 @@
 #endif
 
 /* SPI SPL */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_DMA_SUPPORT
 #define CONFIG_TI_EDMA3
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 #define CONFIG_SUPPORT_EMMC_BOOT
@@ -212,14 +214,6 @@
 
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_OMAP_USB2PHY2_HOST
-
-/* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_RAM
-
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_RAM
-#define CONFIG_DFU_SF
 
 /* SATA */
 #define CONFIG_BOARD_LATE_INIT

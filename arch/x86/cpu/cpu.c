@@ -135,7 +135,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	struct gdt_ptr gdt;
 
 	gdt.len = (num_entries * X86_GDT_ENTRY_SIZE) - 1;
-	gdt.ptr = (u32)boot_gdt;
+	gdt.ptr = (ulong)boot_gdt;
 
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
@@ -630,13 +630,11 @@ static void build_pagetable(uint32_t *pgtable)
 	memset(pgtable, '\0', PAGETABLE_SIZE);
 
 	/* Level 4 needs a single entry */
-	pgtable[0] = (uint32_t)&pgtable[1024] + 7;
+	pgtable[0] = (ulong)&pgtable[1024] + 7;
 
 	/* Level 3 has one 64-bit entry for each GiB of memory */
-	for (i = 0; i < 4; i++) {
-		pgtable[1024 + i * 2] = (uint32_t)&pgtable[2048] +
-							0x1000 * i + 7;
-	}
+	for (i = 0; i < 4; i++)
+		pgtable[1024 + i * 2] = (ulong)&pgtable[2048] + 0x1000 * i + 7;
 
 	/* Level 2 has 2048 64-bit entries, each repesenting 2MiB */
 	for (i = 0; i < 2048; i++)

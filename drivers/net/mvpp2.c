@@ -22,7 +22,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
@@ -4153,7 +4153,7 @@ static int mvpp2_base_bind(struct udevice *parent)
 		return -ENOENT;
 	}
 
-	fdt_for_each_subnode(blob, subnode, node) {
+	fdt_for_each_subnode(subnode, blob, node) {
 		/* Skip disabled ports */
 		if (!fdtdec_get_is_enabled(blob, subnode))
 			continue;

@@ -153,13 +153,73 @@ static int ft_hs_fixup_sram(void *fdt, bd_t *bd)
 static int ft_hs_fixup_sram(void *fdt, bd_t *bd) { return 0; }
 #endif
 
+#if (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE != 0)
+static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
+{
+	const char *path, *subpath;
+	int offs;
+	u32 sec_mem_start = CONFIG_TI_SECURE_EMIF_REGION_START;
+	u32 sec_mem_size = CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE;
+	fdt64_t temp[2];
+
+	/* If start address is zero, place at end of DRAM */
+	if (0 == sec_mem_start)
+		sec_mem_start =
+			(CONFIG_SYS_SDRAM_BASE +
+			(omap_sdram_size() - sec_mem_size));
+
+	/* Delete any original secure_reserved node */
+	path = "/reserved-memory/secure_reserved";
+	offs = fdt_path_offset(fdt, path);
+	if (offs >= 0)
+		fdt_del_node(fdt, offs);
+
+	/* Add new secure_reserved node */
+	path = "/reserved-memory";
+	offs = fdt_path_offset(fdt, path);
+	if (offs < 0) {
+		debug("Node %s not found\n", path);
+		path = "/";
+		subpath = "reserved-memory";
+		fdt_path_offset(fdt, path);
+		offs = fdt_add_subnode(fdt, offs, subpath);
+		if (offs < 0) {
+			printf("Could not create %s%s node.\n", path, subpath);
+			return 1;
+		}
+		path = "/reserved-memory";
+		offs = fdt_path_offset(fdt, path);
+	}
+
+	subpath = "secure_reserved";
+	offs = fdt_add_subnode(fdt, offs, subpath);
+	if (offs < 0) {
+		printf("Could not create %s%s node.\n", path, subpath);
+		return 1;
+	}
+
+	temp[0] = cpu_to_fdt64(((u64)sec_mem_start));
+	temp[1] = cpu_to_fdt64(((u64)sec_mem_size));
+	fdt_setprop_string(fdt, offs, "compatible",
+			   "ti,dra7-secure-memory");
+	fdt_setprop_string(fdt, offs, "status", "okay");
+	fdt_setprop(fdt, offs, "no-map", NULL, 0);
+	fdt_setprop(fdt, offs, "reg", temp, sizeof(temp));
+
+	return 0;
+}
+#else
+static int ft_hs_fixup_dram(void *fdt, bd_t *bd) { return 0; }
+#endif
+
 static void ft_hs_fixups(void *fdt, bd_t *bd)
 {
 	/* Check we are running on an HS/EMU device type */
 	if (GP_DEVICE != get_device_type()) {
 		if ((ft_hs_fixup_crossbar(fdt, bd) == 0) &&
 		    (ft_hs_disable_rng(fdt, bd) == 0) &&
-		    (ft_hs_fixup_sram(fdt, bd) == 0))
+		    (ft_hs_fixup_sram(fdt, bd) == 0) &&
+		    (ft_hs_fixup_dram(fdt, bd) == 0))
 			return;
 	} else {
 		printf("ERROR: Incorrect device type (GP) detected!");
@@ -171,7 +231,7 @@ static void ft_hs_fixups(void *fdt, bd_t *bd)
 static void ft_hs_fixups(void *fdt, bd_t *bd)
 {
 }
-#endif
+#endif /* #ifdef CONFIG_TI_SECURE_DEVICE */
 
 /*
  * Place for general cpu/SoC FDT fixups. Board specific

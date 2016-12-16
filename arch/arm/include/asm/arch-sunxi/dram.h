@@ -26,6 +26,8 @@
 #include <asm/arch/dram_sun8i_a83t.h>
 #elif defined(CONFIG_MACH_SUN8I_H3)
 #include <asm/arch/dram_sun8i_h3.h>
+#elif defined(CONFIG_MACH_SUN9I)
+#include <asm/arch/dram_sun9i.h>
 #else
 #include <asm/arch/dram_sun4i.h>
 #endif

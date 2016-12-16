@@ -29,10 +29,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* Uncomment to enable secure boot support */
-/* #define CONFIG_SECURE_BOOT */
-#define CONFIG_CSF_SIZE			0x4000
-
 #define CONFIG_CMD_BMODE
 
 /* Network */
@@ -44,9 +40,9 @@
 
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
-#define CONFIG_TFTP_TSIZE
 #define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE		16384
+#define CONFIG_TFTP_BLOCKSIZE		16352
+#define CONFIG_TFTP_TSIZE
 
 /* ENET1 */
 #define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
@@ -59,9 +55,7 @@
 #undef CONFIG_BOOTM_RTEMS
 
 /* I2C configs */
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
 #define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_IPADDR			192.168.10.2
@@ -188,8 +182,6 @@
 /* UBI stuff */
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_CMD_UBI
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 
 /* Dynamic MTD partition support */
@@ -222,19 +214,12 @@
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
-#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_CMD_BMP

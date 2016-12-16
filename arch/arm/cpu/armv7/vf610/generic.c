@@ -322,7 +322,7 @@ int arch_misc_init(void)
 {
 	char soc[6];
 
-	strcat(soc, "vf");
+	strcpy(soc, "vf");
 	strcat(soc, soc_type);
 	setenv("soc", soc);
 

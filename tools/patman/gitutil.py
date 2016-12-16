@@ -139,7 +139,7 @@ def GetUpstream(git_dir, branch):
         leaf = merge.split('/')[-1]
         return '%s/%s' % (remote, leaf), None
     else:
-        raise ValueError, ("Cannot determine upstream branch for branch "
+        raise ValueError("Cannot determine upstream branch for branch "
                 "'%s' remote='%s', merge='%s'" % (branch, remote, merge))
 
 
@@ -224,7 +224,7 @@ def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     result = command.RunPipe([pipe], capture=True, raise_on_error=False,
                              capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git checkout (%s): %s' % (pipe, result.stderr)
+        raise OSError('git checkout (%s): %s' % (pipe, result.stderr))
 
 def Clone(git_dir, output_dir):
     """Checkout the selected commit for this build
@@ -236,7 +236,7 @@ def Clone(git_dir, output_dir):
     result = command.RunPipe([pipe], capture=True, cwd=output_dir,
                              capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git clone: %s' % result.stderr
+        raise OSError('git clone: %s' % result.stderr)
 
 def Fetch(git_dir=None, work_tree=None):
     """Fetch from the origin repo
@@ -252,7 +252,7 @@ def Fetch(git_dir=None, work_tree=None):
     pipe.append('fetch')
     result = command.RunPipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
-        raise OSError, 'git fetch: %s' % result.stderr
+        raise OSError('git fetch: %s' % result.stderr)
 
 def CreatePatches(start, count, series):
     """Create a series of patches from the top of the current branch.
@@ -391,7 +391,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     """
     to = BuildEmailList(series.get('to'), '--to', alias, raise_on_error)
     if not to:
-        git_config_to = command.Output('git', 'config', 'sendemail.to')
+        git_config_to = command.Output('git', 'config', 'sendemail.to',
+                                       raise_on_error=False)
         if not git_config_to:
             print ("No recipient.\n"
                    "Please add something like this to a commit\n"
@@ -488,18 +489,18 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     if level > 10:
         msg = "Recursive email alias at '%s'" % lookup_name
         if raise_on_error:
-            raise OSError, msg
+            raise OSError(msg)
         else:
-            print col.Color(col.RED, msg)
+            print(col.Color(col.RED, msg))
             return out_list
 
     if lookup_name:
         if not lookup_name in alias:
             msg = "Alias '%s' not found" % lookup_name
             if raise_on_error:
-                raise ValueError, msg
+                raise ValueError(msg)
             else:
-                print col.Color(col.RED, msg)
+                print(col.Color(col.RED, msg))
                 return out_list
         for item in alias[lookup_name]:
             todo = LookupEmail(item, alias, raise_on_error, level + 1)
@@ -507,7 +508,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
                 if not new_item in out_list:
                     out_list.append(new_item)
 
-    #print "No match for alias '%s'" % lookup_name
+    #print("No match for alias '%s'" % lookup_name)
     return out_list
 
 def GetTopLevel():

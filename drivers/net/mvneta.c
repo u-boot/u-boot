@@ -20,7 +20,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
@@ -91,7 +91,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVNETA_WIN_BASE(w)                      (0x2200 + ((w) << 3))
 #define MVNETA_WIN_SIZE(w)                      (0x2204 + ((w) << 3))
 #define MVNETA_WIN_REMAP(w)                     (0x2280 + ((w) << 2))
+#define MVNETA_WIN_SIZE_MASK			(0xffff0000)
 #define MVNETA_BASE_ADDR_ENABLE                 0x2290
+#define      MVNETA_BASE_ADDR_ENABLE_BIT	0x1
+#define MVNETA_PORT_ACCESS_PROTECT              0x2294
+#define      MVNETA_PORT_ACCESS_PROTECT_WIN0_RW	0x3
 #define MVNETA_PORT_CONFIG                      0x2400
 #define      MVNETA_UNI_PROMISC_MODE            BIT(0)
 #define      MVNETA_DEF_RXQ(q)                  ((q) << 1)
@@ -1022,7 +1026,7 @@ static int mvneta_txq_init(struct mvneta_port *pp,
 	txq->size = pp->tx_ring_size;
 
 	/* Allocate memory for TX descriptors */
-	txq->descs_phys = (u32)txq->descs;
+	txq->descs_phys = (dma_addr_t)txq->descs;
 	if (txq->descs == NULL)
 		return -ENOMEM;
 
@@ -1241,6 +1245,32 @@ static int mvneta_init2(struct mvneta_port *pp)
 }
 
 /* platform glue : initialize decoding windows */
+
+/*
+ * Not like A380, in Armada3700, there are two layers of decode windows for GBE:
+ * First layer is:  GbE Address window that resides inside the GBE unit,
+ * Second layer is: Fabric address window which is located in the NIC400
+ *                  (South Fabric).
+ * To simplify the address decode configuration for Armada3700, we bypass the
+ * first layer of GBE decode window by setting the first window to 4GB.
+ */
+static void mvneta_bypass_mbus_windows(struct mvneta_port *pp)
+{
+	/*
+	 * Set window size to 4GB, to bypass GBE address decode, leave the
+	 * work to MBUS decode window
+	 */
+	mvreg_write(pp, MVNETA_WIN_SIZE(0), MVNETA_WIN_SIZE_MASK);
+
+	/* Enable GBE address decode window 0 by set bit 0 to 0 */
+	clrbits_le32(pp->base + MVNETA_BASE_ADDR_ENABLE,
+		     MVNETA_BASE_ADDR_ENABLE_BIT);
+
+	/* Set GBE address decode window 0 to full Access (read or write) */
+	setbits_le32(pp->base + MVNETA_PORT_ACCESS_PROTECT,
+		     MVNETA_PORT_ACCESS_PROTECT_WIN0_RW);
+}
+
 static void mvneta_conf_mbus_windows(struct mvneta_port *pp)
 {
 	const struct mbus_dram_target_info *dram;
@@ -1504,9 +1534,10 @@ static int mvneta_send(struct udevice *dev, void *packet, int length)
 	/* Get a descriptor for the first part of the packet */
 	tx_desc = mvneta_txq_next_desc_get(txq);
 
-	tx_desc->buf_phys_addr = (u32)packet;
+	tx_desc->buf_phys_addr = (u32)(uintptr_t)packet;
 	tx_desc->data_size = length;
-	flush_dcache_range((u32)packet, (u32)packet + length);
+	flush_dcache_range((ulong)packet,
+			   (ulong)packet + ALIGN(length, PKTALIGN));
 
 	/* First and Last descriptor */
 	tx_desc->command = MVNETA_TX_L4_CSUM_NOT | MVNETA_TXD_FLZ_DESC;
@@ -1562,7 +1593,7 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		rx_bytes = rx_desc->data_size - 6;
 
 		/* give packet to stack - skip on first 2 bytes */
-		data = (u8 *)rx_desc->buf_cookie + 2;
+		data = (u8 *)(uintptr_t)rx_desc->buf_cookie + 2;
 		/*
 		 * No cache invalidation needed here, since the rx_buffer's are
 		 * located in a uncached memory region
@@ -1588,18 +1619,18 @@ static int mvneta_probe(struct udevice *dev)
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
 	 * done once for all interfaces. As only one interface can
-	 * be active. Make this area DMA save by disabling the D-cache
+	 * be active. Make this area DMA safe by disabling the D-cache
 	 */
 	if (!buffer_loc.tx_descs) {
 		/* Align buffer area for descs and rx_buffers to 1MiB */
 		bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-		mmu_set_region_dcache_behaviour((u32)bd_space, BD_SPACE,
+		mmu_set_region_dcache_behaviour((phys_addr_t)bd_space, BD_SPACE,
 						DCACHE_OFF);
 		buffer_loc.tx_descs = (struct mvneta_tx_desc *)bd_space;
 		buffer_loc.rx_descs = (struct mvneta_rx_desc *)
-			((u32)bd_space +
+			((phys_addr_t)bd_space +
 			 MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc));
-		buffer_loc.rx_buffers = (u32)
+		buffer_loc.rx_buffers = (phys_addr_t)
 			(bd_space +
 			 MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc) +
 			 MVNETA_MAX_RXD * sizeof(struct mvneta_rx_desc));
@@ -1608,7 +1639,10 @@ static int mvneta_probe(struct udevice *dev)
 	pp->base = (void __iomem *)pdata->iobase;
 
 	/* Configure MBUS address windows */
-	mvneta_conf_mbus_windows(pp);
+	if (of_device_is_compatible(dev, "marvell,armada-3700-neta"))
+		mvneta_bypass_mbus_windows(pp);
+	else
+		mvneta_conf_mbus_windows(pp);
 
 	/* PHY interface is already decoded in mvneta_ofdata_to_platdata() */
 	pp->phy_interface = pdata->phy_interface;
@@ -1671,6 +1705,7 @@ static int mvneta_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id mvneta_ids[] = {
 	{ .compatible = "marvell,armada-370-neta" },
 	{ .compatible = "marvell,armada-xp-neta" },
+	{ .compatible = "marvell,armada-3700-neta" },
 	{ }
 };
 

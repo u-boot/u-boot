@@ -3,7 +3,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/imx-common/video.h>
 
 int board_video_skip(void)

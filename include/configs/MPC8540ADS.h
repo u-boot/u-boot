@@ -18,8 +18,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -36,7 +34,6 @@
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */
 #endif
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -258,9 +255,6 @@
 #define CONFIG_SYS_PCI1_IO_SIZE	0x100000	/* 1M */
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 

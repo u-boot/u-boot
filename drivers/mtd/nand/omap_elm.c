@@ -15,7 +15,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/mtd/omap_elm.h>
 #include <asm/arch/hardware.h>
 

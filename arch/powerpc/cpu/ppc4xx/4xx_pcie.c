@@ -18,7 +18,7 @@
 #include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \

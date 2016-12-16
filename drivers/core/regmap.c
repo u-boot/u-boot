@@ -13,6 +13,8 @@
 #include <mapmem.h>
 #include <regmap.h>
 
+#include <asm/io.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct regmap *regmap_alloc_count(int count)
@@ -114,6 +116,24 @@ int regmap_uninit(struct regmap *map)
 	if (map->range_count > 1)
 		free(map->range);
 	free(map);
+
+	return 0;
+}
+
+int regmap_read(struct regmap *map, uint offset, uint *valp)
+{
+	uint32_t *ptr = map_physmem(map->base + offset, 4, MAP_NOCACHE);
+
+	*valp = le32_to_cpu(readl(ptr));
+
+	return 0;
+}
+
+int regmap_write(struct regmap *map, uint offset, uint val)
+{
+	uint32_t *ptr = map_physmem(map->base + offset, 4, MAP_NOCACHE);
+
+	writel(cpu_to_le32(val), ptr);
 
 	return 0;
 }

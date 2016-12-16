@@ -10,9 +10,9 @@
 #include <image.h>
 
 #ifdef CONFIG_SPL_EXT_SUPPORT
-int spl_load_image_ext(struct blk_desc *block_dev,
-						int partition,
-						const char *filename)
+int spl_load_image_ext(struct spl_image_info *spl_image,
+		       struct blk_desc *block_dev, int partition,
+		       const char *filename)
 {
 	s32 err;
 	struct image_header *header;
@@ -48,13 +48,13 @@ int spl_load_image_ext(struct blk_desc *block_dev,
 		goto end;
 	}
 
-	err = spl_parse_image_header(header);
+	err = spl_parse_image_header(spl_image, header);
 	if (err < 0) {
 		puts("spl: ext: failed to parse image header\n");
 		goto end;
 	}
 
-	err = ext4fs_read((char *)spl_image.load_addr, filelen, &actlen);
+	err = ext4fs_read((char *)spl_image->load_addr, filelen, &actlen);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -67,7 +67,8 @@ end:
 }
 
 #ifdef CONFIG_SPL_OS_BOOT
-int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
+int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct blk_desc *block_dev, int partition)
 {
 	int err;
 	__maybe_unused loff_t filelen, actlen;
@@ -104,7 +105,8 @@ int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
 		}
 		file = getenv("falcon_image_file");
 		if (file) {
-			err = spl_load_image_ext(block_dev, partition, file);
+			err = spl_load_image_ext(spl_image, block_dev,
+						 partition, file);
 			if (err != 0) {
 				puts("spl: falling back to default\n");
 				goto defaults;
@@ -134,11 +136,12 @@ defaults:
 		return -1;
 	}
 
-	return spl_load_image_ext(block_dev, partition,
+	return spl_load_image_ext(spl_image, block_dev, partition,
 			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
 }
 #else
-int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
+int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct blk_desc *block_dev, int partition)
 {
 	return -ENOSYS;
 }

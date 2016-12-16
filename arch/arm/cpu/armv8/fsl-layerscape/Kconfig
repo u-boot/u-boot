@@ -1,0 +1,138 @@
+config ARCH_LS1012A
+	bool
+	select FSL_LSCH2
+	select SYS_FSL_DDR_BE
+	select SYS_FSL_MMDC
+	select SYS_FSL_ERRATUM_A010315
+
+config ARCH_LS1043A
+	bool
+	select FSL_LSCH2
+	select SYS_FSL_DDR_BE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_ERRATUM_A010315
+	select SYS_FSL_ERRATUM_A010539
+
+config ARCH_LS1046A
+	bool
+	select FSL_LSCH2
+	select SYS_FSL_DDR_BE
+	select SYS_FSL_DDR4
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_SRDS_2
+
+config ARCH_LS2080A
+	bool
+	select FSL_LSCH3
+	select SYS_FSL_DDR4
+	select SYS_FSL_DDR_LE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_HAS_DP_DDR
+	select SYS_FSL_SRDS_2
+
+config FSL_LSCH2
+	bool
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+
+config FSL_LSCH3
+	bool
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+
+menu "Layerscape architecture"
+	depends on FSL_LSCH2 || FSL_LSCH3
+
+config SYS_FSL_MMDC
+	bool
+
+config SYS_FSL_ERRATUM_A010315
+	bool "Workaround for PCIe erratum A010315"
+
+config SYS_FSL_ERRATUM_A010539
+	bool "Workaround for PIN MUX erratum A010539"
+
+config MAX_CPUS
+	int "Maximum number of CPUs permitted for Layerscape"
+	default 4 if ARCH_LS1043A
+	default 4 if ARCH_LS1046A
+	default 16 if ARCH_LS2080A
+	default 1
+	help
+	  Set this number to the maximum number of possible CPUs in the SoC.
+	  SoCs may have multiple clusters with each cluster may have multiple
+	  ports. If some ports are reserved but higher ports are used for
+	  cores, count the reserved ports. This will allocate enough memory
+	  in spin table to properly handle all cores.
+
+config NUM_DDR_CONTROLLERS
+	int "Maximum DDR controllers"
+	default 3 if ARCH_LS2080A
+	default 1
+
+config SYS_FSL_IFC_BANK_COUNT
+	int "Maximum banks of Integrated flash controller"
+	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
+	default 4 if ARCH_LS1043A
+	default 4 if ARCH_LS1046A
+	default 8 if ARCH_LS2080A
+
+config SYS_FSL_HAS_DP_DDR
+	bool
+
+config SYS_FSL_SRDS_1
+	bool
+
+config SYS_FSL_SRDS_2
+	bool
+
+config SYS_HAS_SERDES
+	bool
+
+config SYS_FSL_DDR
+	bool "Freescale DDR driver"
+	help
+	  Select Freescale General DDR driver, shared between most Freescale
+	  PowerPC- based SoCs (such as mpc83xx, mpc85xx, mpc86xx) and ARM-
+	  based Layerscape SoCs (such as ls2080a).
+
+config SYS_FSL_DDR_BE
+	bool
+	help
+	  Access DDR registers in big-endian.
+
+config SYS_FSL_DDR_LE
+	bool
+	help
+	  Access DDR registers in little-endian.
+
+config SYS_FSL_DDR_VER
+	int
+	default 50 if SYS_FSL_DDR_VER_50
+
+config SYS_FSL_DDR_VER_50
+	bool
+
+config SYS_FSL_DDRC_ARM_GEN3
+	bool
+
+config SYS_FSL_DDRC_GEN4
+	bool
+
+config SYS_FSL_DDR3
+	bool "Freescale DDR3 controller"
+	depends on !SYS_FSL_DDR4
+	select SYS_FSL_DDR
+	select SYS_FSL_DDRC_ARM_GEN3
+	help
+	  Enable Freescale DDR3 controller on ARM-based SoCs.
+
+config SYS_FSL_DDR4
+	bool "Freescale DDR4 controller"
+	select SYS_FSL_DDR
+	select SYS_FSL_DDRC_GEN4
+	help
+	  Enable Freescale DDR4 controller.
+
+endmenu

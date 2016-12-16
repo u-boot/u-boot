@@ -9,6 +9,7 @@
 #include <config.h>
 #include <linux/linkage.h>
 
+.align 8
 .globl	nvtboot_boot_x0
 nvtboot_boot_x0:
 	.dword 0

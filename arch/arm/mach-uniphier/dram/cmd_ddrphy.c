@@ -22,89 +22,107 @@
 /* field separator */
 #define FS "   "
 
-static unsigned long uniphier_ld4_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+#define ptr_to_uint(p)	((unsigned int)(unsigned long)(p))
+
+struct phy_param {
+	resource_size_t base;
+	unsigned int nr_dx;
 };
 
-static unsigned long uniphier_pro4_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+static const struct phy_param uniphier_ld4_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ /* sentinel */ }
 };
 
-static unsigned long uniphier_sld8_base[] = {
-	0x5bc01000,
-	0x5be01000,
-	0 /* sentinel */
+static const struct phy_param uniphier_pro4_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5bc02000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ .base = 0x5be02000, .nr_dx = 2, },
+	{ /* sentinel */ }
 };
 
-static u32 read_bdl(struct ddrphy_datx8 __iomem *dx, int index)
+static const struct phy_param uniphier_sld8_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 2, },
+	{ .base = 0x5be01000, .nr_dx = 2, },
+	{ /* sentinel */ }
+};
+
+static const struct phy_param uniphier_ld11_phy_param[] = {
+	{ .base = 0x5bc01000, .nr_dx = 4, },
+	{ /* sentinel */ }
+};
+
+static void print_bdl(void __iomem *reg, int n)
 {
-	return (readl(&dx->bdlr[index / 5]) >> (index % 5 * 6)) & 0x3f;
+	u32 val = readl(reg);
+	int i;
+
+	for (i = 0; i < n; i++)
+		printf(FS PRINTF_FORMAT, (val >> i * 6) & 0x3f);
 }
 
-static void dump_loop(unsigned long *base,
-		      void (*callback)(struct ddrphy_datx8 __iomem *))
+static void dump_loop(const struct phy_param *phy_param,
+		      void (*callback)(void __iomem *))
 {
-	struct ddrphy __iomem *phy;
+	void __iomem *phy_base, *dx_base;
 	int p, dx;
 
-	for (p = 0; *base; base++, p++) {
-		phy = ioremap(*base, SZ_4K);
+	for (p = 0; phy_param->base; phy_param++, p++) {
+		phy_base = ioremap(phy_param->base, SZ_4K);
+		dx_base = phy_base + PHY_DX_BASE;
 
-		for (dx = 0; dx < NR_DATX8_PER_DDRPHY; dx++) {
+		for (dx = 0; dx < phy_param->nr_dx; dx++) {
 			printf("PHY%dDX%d:", p, dx);
-			(*callback)(&phy->dx[dx]);
+			(*callback)(dx_base);
+			dx_base += PHY_DX_STRIDE;
 			printf("\n");
 		}
 
-		iounmap(phy);
+		iounmap(phy_base);
 	}
 }
 
-static void __wbdl_dump(struct ddrphy_datx8 __iomem *dx)
+static void __wbdl_dump(void __iomem *dx_base)
 {
-	int i;
+	print_bdl(dx_base + PHY_DX_BDLR0, 5);
+	print_bdl(dx_base + PHY_DX_BDLR1, 5);
 
-	for (i = 0; i < 10; i++)
-		printf(FS PRINTF_FORMAT, read_bdl(dx, i));
-
-	printf(FS "(+" PRINTF_FORMAT ")", readl(&dx->lcdlr[1]) & 0xff);
+	printf(FS "(+" PRINTF_FORMAT ")",
+	       readl(dx_base + PHY_DX_LCDLR1) & 0xff);
 }
 
-static void wbdl_dump(unsigned long *base)
+static void wbdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Write Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  DQS  (WDQD)\n");
 
-	dump_loop(base, &__wbdl_dump);
+	dump_loop(phy_param, &__wbdl_dump);
 }
 
-static void __rbdl_dump(struct ddrphy_datx8 __iomem *dx)
+static void __rbdl_dump(void __iomem *dx_base)
 {
-	int i;
+	print_bdl(dx_base + PHY_DX_BDLR3, 5);
+	print_bdl(dx_base + PHY_DX_BDLR4, 4);
 
-	for (i = 15; i < 24; i++)
-		printf(FS PRINTF_FORMAT, read_bdl(dx, i));
-
-	printf(FS "(+" PRINTF_FORMAT ")", (readl(&dx->lcdlr[1]) >> 8) & 0xff);
+	printf(FS "(+" PRINTF_FORMAT ")",
+	       (readl(dx_base + PHY_DX_LCDLR1) >> 8) & 0xff);
 }
 
-static void rbdl_dump(unsigned long *base)
+static void rbdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Read Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  (RDQSD)\n");
 
-	dump_loop(base, &__rbdl_dump);
+	dump_loop(phy_param, &__rbdl_dump);
 }
 
-static void __wld_dump(struct ddrphy_datx8 __iomem *dx)
+static void __wld_dump(void __iomem *dx_base)
 {
 	int rank;
-	u32 lcdlr0 = readl(&dx->lcdlr[0]);
-	u32 gtr = readl(&dx->gtr);
+	u32 lcdlr0 = readl(dx_base + PHY_DX_LCDLR0);
+	u32 gtr = readl(dx_base + PHY_DX_GTR);
 
 	for (rank = 0; rank < 4; rank++) {
 		u32 wld = (lcdlr0 >> (8 * rank)) & 0xff; /* Delay */
@@ -115,19 +133,19 @@ static void __wld_dump(struct ddrphy_datx8 __iomem *dx)
 	}
 }
 
-static void wld_dump(unsigned long *base)
+static void wld_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Write Leveling Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
 
-	dump_loop(base, &__wld_dump);
+	dump_loop(phy_param, &__wld_dump);
 }
 
-static void __dqsgd_dump(struct ddrphy_datx8 __iomem *dx)
+static void __dqsgd_dump(void __iomem *dx_base)
 {
 	int rank;
-	u32 lcdlr2 = readl(&dx->lcdlr[2]);
-	u32 gtr = readl(&dx->gtr);
+	u32 lcdlr2 = readl(dx_base + PHY_DX_LCDLR2);
+	u32 gtr = readl(dx_base + PHY_DX_GTR);
 
 	for (rank = 0; rank < 4; rank++) {
 		u32 dqsgd = (lcdlr2 >> (8 * rank)) & 0xff; /* Delay */
@@ -137,94 +155,108 @@ static void __dqsgd_dump(struct ddrphy_datx8 __iomem *dx)
 	}
 }
 
-static void dqsgd_dump(unsigned long *base)
+static void dqsgd_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- DQS Gating Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
 
-	dump_loop(base, &__dqsgd_dump);
+	dump_loop(phy_param, &__dqsgd_dump);
 }
 
-static void __mdl_dump(struct ddrphy_datx8 __iomem *dx)
+static void __mdl_dump(void __iomem *dx_base)
 {
 	int i;
-	u32 mdl = readl(&dx->mdlr);
+	u32 mdl = readl(dx_base + PHY_DX_MDLR);
 	for (i = 0; i < 3; i++)
 		printf(FS PRINTF_FORMAT, (mdl >> (8 * i)) & 0xff);
 }
 
-static void mdl_dump(unsigned long *base)
+static void mdl_dump(const struct phy_param *phy_param)
 {
 	printf("\n--- Master Delay Line ---\n");
 	printf("          IPRD TPRD MDLD\n");
 
-	dump_loop(base, &__mdl_dump);
+	dump_loop(phy_param, &__mdl_dump);
 }
 
-#define REG_DUMP(x) \
-	{ u32 __iomem *p = &phy->x; printf("%3d: %-10s: %p : %08x\n", \
-					p - (u32 *)phy, #x, p, readl(p)); }
+#define REG_DUMP(x)							\
+	{ int ofst = PHY_ ## x; void __iomem *reg = phy_base + ofst;	\
+		printf("%3d: %-10s: %08x : %08x\n",			\
+		       ofst >> PHY_REG_SHIFT, #x,			\
+		       ptr_to_uint(reg), readl(reg)); }
 
-static void reg_dump(unsigned long *base)
+#define DX_REG_DUMP(dx, x)						\
+	{ int ofst = PHY_DX_BASE + PHY_DX_STRIDE * (dx) +		\
+			PHY_DX_## x;					\
+		void __iomem *reg = phy_base + ofst;			\
+		printf("%3d: DX%d%-7s: %08x : %08x\n",			\
+		       ofst >> PHY_REG_SHIFT, (dx), #x,			\
+		       ptr_to_uint(reg), readl(reg)); }
+
+static void reg_dump(const struct phy_param *phy_param)
 {
-	struct ddrphy __iomem *phy;
-	int p;
+	void __iomem *phy_base;
+	int p, dx;
 
 	printf("\n--- DDR PHY registers ---\n");
 
-	for (p = 0; *base; base++, p++) {
-		phy = ioremap(*base, SZ_4K);
+	for (p = 0; phy_param->base; phy_param++, p++) {
+		phy_base = ioremap(phy_param->base, SZ_4K);
 
-		printf("== PHY%d (base: %p) ==\n", p, phy);
+		printf("== PHY%d (base: %08x) ==\n", p, ptr_to_uint(phy_base));
 		printf(" No: Name      : Address  : Data\n");
 
-		REG_DUMP(ridr);
-		REG_DUMP(pir);
-		REG_DUMP(pgcr[0]);
-		REG_DUMP(pgcr[1]);
-		REG_DUMP(pgsr[0]);
-		REG_DUMP(pgsr[1]);
-		REG_DUMP(pllcr);
-		REG_DUMP(ptr[0]);
-		REG_DUMP(ptr[1]);
-		REG_DUMP(ptr[2]);
-		REG_DUMP(ptr[3]);
-		REG_DUMP(ptr[4]);
-		REG_DUMP(acmdlr);
-		REG_DUMP(acbdlr);
-		REG_DUMP(dxccr);
-		REG_DUMP(dsgcr);
-		REG_DUMP(dcr);
-		REG_DUMP(dtpr[0]);
-		REG_DUMP(dtpr[1]);
-		REG_DUMP(dtpr[2]);
-		REG_DUMP(mr0);
-		REG_DUMP(mr1);
-		REG_DUMP(mr2);
-		REG_DUMP(mr3);
-		REG_DUMP(dx[0].gcr);
-		REG_DUMP(dx[0].gtr);
-		REG_DUMP(dx[1].gcr);
-		REG_DUMP(dx[1].gtr);
+		REG_DUMP(RIDR);
+		REG_DUMP(PIR);
+		REG_DUMP(PGCR0);
+		REG_DUMP(PGCR1);
+		REG_DUMP(PGSR0);
+		REG_DUMP(PGSR1);
+		REG_DUMP(PLLCR);
+		REG_DUMP(PTR0);
+		REG_DUMP(PTR1);
+		REG_DUMP(PTR2);
+		REG_DUMP(PTR3);
+		REG_DUMP(PTR4);
+		REG_DUMP(ACMDLR);
+		REG_DUMP(ACBDLR);
+		REG_DUMP(DXCCR);
+		REG_DUMP(DSGCR);
+		REG_DUMP(DCR);
+		REG_DUMP(DTPR0);
+		REG_DUMP(DTPR1);
+		REG_DUMP(DTPR2);
+		REG_DUMP(MR0);
+		REG_DUMP(MR1);
+		REG_DUMP(MR2);
+		REG_DUMP(MR3);
 
-		iounmap(phy);
+		for (dx = 0; dx < phy_param->nr_dx; dx++) {
+			DX_REG_DUMP(dx, GCR);
+			DX_REG_DUMP(dx, GTR);
+		}
+
+		iounmap(phy_base);
 	}
 }
 
 static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *cmd = argv[1];
-	unsigned long *base;
+	const struct phy_param *phy_param;
 
 	switch (uniphier_get_soc_type()) {
 	case SOC_UNIPHIER_LD4:
-		base = uniphier_ld4_base;
+		phy_param = uniphier_ld4_phy_param;
 		break;
 	case SOC_UNIPHIER_PRO4:
-		base = uniphier_pro4_base;
+		phy_param = uniphier_pro4_phy_param;
 		break;
 	case SOC_UNIPHIER_SLD8:
-		base = uniphier_sld8_base;
+		phy_param = uniphier_sld8_phy_param;
+		break;
+	case SOC_UNIPHIER_LD11:
+		phy_param = uniphier_ld11_phy_param;
 		break;
 	default:
 		printf("unsupported SoC\n");
@@ -235,22 +267,22 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		cmd = "all";
 
 	if (!strcmp(cmd, "wbdl") || !strcmp(cmd, "all"))
-		wbdl_dump(base);
+		wbdl_dump(phy_param);
 
 	if (!strcmp(cmd, "rbdl") || !strcmp(cmd, "all"))
-		rbdl_dump(base);
+		rbdl_dump(phy_param);
 
 	if (!strcmp(cmd, "wld") || !strcmp(cmd, "all"))
-		wld_dump(base);
+		wld_dump(phy_param);
 
 	if (!strcmp(cmd, "dqsgd") || !strcmp(cmd, "all"))
-		dqsgd_dump(base);
+		dqsgd_dump(phy_param);
 
 	if (!strcmp(cmd, "mdl") || !strcmp(cmd, "all"))
-		mdl_dump(base);
+		mdl_dump(phy_param);
 
 	if (!strcmp(cmd, "reg") || !strcmp(cmd, "all"))
-		reg_dump(base);
+		reg_dump(phy_param);
 
 	return CMD_RET_SUCCESS;
 }

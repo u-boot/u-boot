@@ -94,6 +94,11 @@ M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
 F:	configs/A33-OLinuXino_defconfig
 
+A80 OPTIMUS BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Merrii_A80_Optimus_defconfig
+
 AINOL AW1 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
@@ -116,6 +121,11 @@ S:	Maintained
 F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
+
+CUBIEBOARD4 BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Cubieboard4_defconfig
 
 CUBIETRUCK-PLUS BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
@@ -216,6 +226,11 @@ MSI-PRIMO81 BOARD
 M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
+
+NANOPI-NEO BOARD
+M:	Jelle van der Waa <jelle@vdwaa.nl>
+S:	Maintained
+F:	configs/nanopi_neo_defconfig
 
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>

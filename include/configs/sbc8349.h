@@ -15,8 +15,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -331,8 +329,6 @@
 #undef PCI_TWO_PCI1
 #undef PCI_ONE_PCI1
 #endif
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP

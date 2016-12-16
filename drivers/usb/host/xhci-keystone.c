@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
 #include <asm/arch/xhci-keystone.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 #include "xhci.h"
 

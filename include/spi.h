@@ -85,13 +85,11 @@ struct dm_spi_bus {
  * @cs:		Chip select number (0..n-1)
  * @max_hz:	Maximum bus speed that this slave can tolerate
  * @mode:	SPI mode to use for this device (see SPI mode flags)
- * @mode_rx:	SPI RX mode to use for this slave (see SPI mode_rx flags)
  */
 struct dm_spi_slave_platdata {
 	unsigned int cs;
 	uint max_hz;
 	uint mode;
-	u8 mode_rx;
 };
 
 #endif /* CONFIG_DM_SPI */
@@ -118,7 +116,6 @@ struct dm_spi_slave_platdata {
  *			bus (bus->seq) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
- * @mode_rx:		SPI RX mode to use for this slave (see SPI mode_rx flags)
  * @wordlen:		Size of SPI word in number of bits
  * @op_mode_rx:		SPI RX operation mode.
  * @op_mode_tx:		SPI TX operation mode.
@@ -138,7 +135,6 @@ struct spi_slave {
 	unsigned int cs;
 #endif
 	uint mode;
-	u8 mode_rx;
 	unsigned int wordlen;
 	u8 op_mode_rx;
 	u8 op_mode_tx;

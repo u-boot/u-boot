@@ -29,7 +29,7 @@
  *     2  data record with 24-bit address
  *     3  data record with 32-bit address
  *     4  symbol record (LSI extension)
- *     5  number of data records in preceeding block
+ *     5  number of data records in preceding block
  *     6  unused
  *     7  ending record for S3 records
  *     8  ending record for S2 records

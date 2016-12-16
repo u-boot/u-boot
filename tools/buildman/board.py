@@ -92,9 +92,9 @@ class Board:
         self.board_name = board_name
         self.vendor = vendor
         self.soc = soc
-        self.props = [self.target, self.arch, self.cpu, self.board_name,
-                      self.vendor, self.soc]
         self.options = options
+        self.props = [self.target, self.arch, self.cpu, self.board_name,
+                      self.vendor, self.soc, self.options]
         self.build_it = False
 
 

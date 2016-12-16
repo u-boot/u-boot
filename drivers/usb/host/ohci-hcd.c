@@ -682,7 +682,7 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 		ed->hwNextED = 0;
 		flush_dcache_ed(ed);
 		if (ohci->ed_controltail == NULL)
-			ohci_writel(ed, &ohci->regs->ed_controlhead);
+			ohci_writel((uintptr_t)ed, &ohci->regs->ed_controlhead);
 		else
 			ohci->ed_controltail->hwNextED =
 						   m32_swap((unsigned long)ed);
@@ -700,7 +700,7 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 		ed->hwNextED = 0;
 		flush_dcache_ed(ed);
 		if (ohci->ed_bulktail == NULL)
-			ohci_writel(ed, &ohci->regs->ed_bulkhead);
+			ohci_writel((uintptr_t)ed, &ohci->regs->ed_bulkhead);
 		else
 			ohci->ed_bulktail->hwNextED =
 						   m32_swap((unsigned long)ed);
@@ -753,7 +753,7 @@ static void periodic_unlink(struct ohci *ohci, volatile struct ed *ed,
 
 		/* ED might have been unlinked through another path */
 		while (*ed_p != 0) {
-			if (((struct ed *)
+			if (((struct ed *)(uintptr_t)
 					m32_swap((unsigned long)ed_p)) == ed) {
 				*ed_p = ed->hwNextED;
 				aligned_ed_p = (unsigned long)ed_p;
@@ -762,7 +762,7 @@ static void periodic_unlink(struct ohci *ohci, volatile struct ed *ed,
 					aligned_ed_p + ARCH_DMA_MINALIGN);
 				break;
 			}
-			ed_p = &(((struct ed *)
+			ed_p = &(((struct ed *)(uintptr_t)
 				     m32_swap((unsigned long)ed_p))->hwNextED);
 		}
 	}
@@ -798,7 +798,7 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_controltail == ed) {
 			ohci->ed_controltail = ed->ed_prev;
 		} else {
-			((ed_t *)m32_swap(
+			((ed_t *)(uintptr_t)m32_swap(
 			    *((__u32 *)&ed->hwNextED)))->ed_prev = ed->ed_prev;
 		}
 		break;
@@ -819,7 +819,7 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_bulktail == ed) {
 			ohci->ed_bulktail = ed->ed_prev;
 		} else {
-			((ed_t *)m32_swap(
+			((ed_t *)(uintptr_t)m32_swap(
 			     *((__u32 *)&ed->hwNextED)))->ed_prev = ed->ed_prev;
 		}
 		break;
@@ -914,12 +914,13 @@ static void td_fill(ohci_t *ohci, unsigned int info,
 
 	/* fill the old dummy TD */
 	td = urb_priv->td [index] =
-			     (td_t *)(m32_swap(urb_priv->ed->hwTailP) & ~0xf);
+			     (td_t *)(uintptr_t)
+			     (m32_swap(urb_priv->ed->hwTailP) & ~0xf);
 
 	td->ed = urb_priv->ed;
 	td->next_dl_td = NULL;
 	td->index = index;
-	td->data = (__u32)data;
+	td->data = (uintptr_t)data;
 #ifdef OHCI_FILL_TRACE
 	if (usb_pipebulk(urb_priv->pipe) && usb_pipeout(urb_priv->pipe)) {
 		for (i = 0; i < len; i++)
@@ -963,7 +964,7 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 	flush_dcache_buffer(buffer, data_len);
 
 	/* OHCI handles the DATA-toggles itself, we just use the USB-toggle
-	 * bits for reseting */
+	 * bits for resetting */
 	if (usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe))) {
 		toggle = TD_T_TOGGLE;
 	} else {
@@ -1099,7 +1100,7 @@ static void check_status(td_t *td_list)
  * we reverse the reversed done-list */
 static td_t *dl_reverse_done_list(ohci_t *ohci)
 {
-	__u32 td_list_hc;
+	uintptr_t td_list_hc;
 	td_t *td_rev = NULL;
 	td_t *td_list = NULL;
 
@@ -1862,7 +1863,7 @@ static int hc_start(ohci_t *ohci)
 	ohci_writel(0, &ohci->regs->ed_controlhead);
 	ohci_writel(0, &ohci->regs->ed_bulkhead);
 
-	ohci_writel((__u32)ohci->hcca,
+	ohci_writel((uintptr_t)ohci->hcca,
 		    &ohci->regs->hcca); /* reset clears this */
 
 	fminterval = 0x2edf;

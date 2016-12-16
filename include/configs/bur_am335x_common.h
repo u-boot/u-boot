@@ -21,7 +21,6 @@
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC	/* enable 32kHz OSC at bootime */
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_POWER_TPS65217
 
 #define CONFIG_SYS_NO_FLASH		/* have no NOR-flash */
@@ -113,12 +112,7 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 
 /* General parts of the framework, required. */
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_YMODEM_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #endif	/* ! __BUR_AM335X_COMMON_H__ */

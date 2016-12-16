@@ -142,7 +142,7 @@ int checkboard(void)
 void ddrmc_init(void)
 {
 	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CONFIG_SYS_FSL_DDR_ADDR;
-	u32 temp_sdram_cfg;
+	u32 temp_sdram_cfg, tmp;
 
 	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG);
 
@@ -189,6 +189,11 @@ void ddrmc_init(void)
 	out_be32(&ddr->ddr_zq_cntl, DDR_DDR_ZQ_CNTL);
 
 	out_be32(&ddr->cs0_config_2, DDR_CS0_CONFIG_2);
+
+	/* DDR erratum A-009942 */
+	tmp = in_be32(&ddr->debug[28]);
+	out_be32(&ddr->debug[28], tmp | 0x0070006f);
+
 	udelay(1);
 
 #ifdef CONFIG_DEEP_SLEEP
@@ -480,6 +485,10 @@ void ls1twr_program_regulator(void)
 
 int board_init(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+	erratum_a010315();
+#endif
+
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
@@ -488,10 +497,6 @@ int board_init(void)
 #endif
 
 	ls102xa_smmu_stream_id_init();
-
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
 
 #ifdef CONFIG_U_QE
 	u_qe_init();

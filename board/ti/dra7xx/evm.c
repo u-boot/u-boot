@@ -36,10 +36,10 @@
 
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
 #define board_is_dra72x_evm()		board_ti_is("DRA72x-T")
-#define board_is_dra74x_revh_or_later() board_is_dra74x_evm() &&	\
-				(strncmp("H", board_ti_get_rev(), 1) <= 0)
-#define board_is_dra72x_revc_or_later() board_is_dra72x_evm() &&	\
-				(strncmp("C", board_ti_get_rev(), 1) <= 0)
+#define board_is_dra74x_revh_or_later() (board_is_dra74x_evm() &&	\
+				(strncmp("H", board_ti_get_rev(), 1) <= 0))
+#define board_is_dra72x_revc_or_later() (board_is_dra72x_evm() &&	\
+				(strncmp("C", board_ti_get_rev(), 1) <= 0))
 #define board_ti_get_emif_size()	board_ti_get_emif1_size() +	\
 					board_ti_get_emif2_size()
 
@@ -828,12 +828,18 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	if (is_dra72x() && !strcmp(name, "dra72-evm"))
+	if (is_dra72x()) {
+		if (board_is_dra72x_revc_or_later()) {
+			if (!strcmp(name, "dra72-evm-revc"))
+				return 0;
+		} else if (!strcmp(name, "dra72-evm")) {
+			return 0;
+		}
+	} else if (!is_dra72x() && !strcmp(name, "dra7-evm")) {
 		return 0;
-	else if (!is_dra72x() && !strcmp(name, "dra7-evm"))
-		return 0;
-	else
-		return -1;
+	}
+
+	return -1;
 }
 #endif
 

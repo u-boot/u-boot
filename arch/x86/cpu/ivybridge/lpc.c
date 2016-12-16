@@ -213,10 +213,10 @@ static int pch_power_options(struct udevice *pch)
 	dm_pci_read_config16(pch, 0x40, &pmbase);
 	pmbase &= 0xfffe;
 
-	writel(pmbase + GPE0_EN, fdtdec_get_int(blob, node,
-						"intel,gpe0-enable", 0));
-	writew(pmbase + ALT_GP_SMI_EN, fdtdec_get_int(blob, node,
-						"intel,alt-gp-smi-enable", 0));
+	writel(fdtdec_get_int(blob, node, "intel,gpe0-enable", 0),
+	       (ulong)pmbase + GPE0_EN);
+	writew(fdtdec_get_int(blob, node, "intel,alt-gp-smi-enable", 0),
+	       (ulong)pmbase + ALT_GP_SMI_EN);
 
 	/* Set up power management block and determine sleep mode */
 	reg32 = inl(pmbase + 0x04); /* PM1_CNT */
@@ -355,10 +355,10 @@ static void enable_clock_gating(struct udevice *pch)
 	reg16 |= (1 << 2) | (1 << 11);
 	dm_pci_write_config16(pch, GEN_PMCON_1, reg16);
 
-	pch_iobp_update(pch, 0xEB007F07, ~0UL, (1 << 31));
-	pch_iobp_update(pch, 0xEB004000, ~0UL, (1 << 7));
-	pch_iobp_update(pch, 0xEC007F07, ~0UL, (1 << 31));
-	pch_iobp_update(pch, 0xEC004000, ~0UL, (1 << 7));
+	pch_iobp_update(pch, 0xeb007f07, ~0U, 1 << 31);
+	pch_iobp_update(pch, 0xeb004000, ~0U, 1 << 7);
+	pch_iobp_update(pch, 0xec007f07, ~0U, 1 << 31);
+	pch_iobp_update(pch, 0xec004000, ~0U, 1 << 7);
 
 	reg32 = readl(RCB_REG(CG));
 	reg32 |= (1 << 31);

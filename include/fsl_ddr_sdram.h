@@ -299,7 +299,7 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_cdr2;
 	unsigned int err_disable;
 	unsigned int err_int_en;
-	unsigned int debug[32];
+	unsigned int debug[64];
 } fsl_ddr_cfg_regs_t;
 
 typedef struct memctl_options_partial_s {

@@ -162,7 +162,13 @@ int at91_clock_init(unsigned long main_clock)
 	gd->arch.mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_MCKR_CSS_MASK);
 	freq = gd->arch.mck_rate_hz;
 
+#if defined(CONFIG_AT91SAM9X5)
+	/* different in prescale on at91sam9x5 */
+	freq /= (1 << ((mckr & AT91_PMC_MCKR_PRES_MASK) >> 4));
+#else
 	freq /= (1 << ((mckr & AT91_PMC_MCKR_PRES_MASK) >> 2));	/* prescale */
+#endif
+
 #if defined(CONFIG_AT91SAM9G20)
 	/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
 	gd->arch.mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) ?

@@ -45,12 +45,6 @@
 #define CONFIG_ENABLE_36BIT_PHYS
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 
-#ifdef CONFIG_TRAILBLAZER
-#define CONFIG_IDENT_STRING	" controlcenterd trailblazer 0.01"
-#else
-#define CONFIG_IDENT_STRING	" controlcenterd 0.01"
-#endif
-
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
@@ -231,19 +225,14 @@
  */
 #define CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
-#define CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP
 
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 #define CONFIG_CMD_PCI
@@ -345,8 +334,6 @@
 #endif
 
 #define CONFIG_SYS_EXTRA_ENV_RELOC
-
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
  * Command line configuration.

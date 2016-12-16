@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/compat.h>
 #ifdef CONFIG_DM_I2C
@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <asm/arch/orion5x.h>
 #elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
 #include <asm/arch/soc.h>
-#elif defined(CONFIG_SUNXI)
+#elif defined(CONFIG_ARCH_SUNXI)
 #include <asm/arch/i2c.h>
 #else
 #error Driver mvtwsi not supported by SoC or board
@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * TWSI register structure
  */
 
-#ifdef CONFIG_SUNXI
+#ifdef CONFIG_ARCH_SUNXI
 
 struct  mvtwsi_registers {
 	u32 slave_address;
@@ -399,7 +399,7 @@ static int twsi_stop(struct mvtwsi_registers *twsi, uint tick)
  */
 static uint twsi_calc_freq(const int n, const int m)
 {
-#ifdef CONFIG_SUNXI
+#ifdef CONFIG_ARCH_SUNXI
 	return CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n));
 #else
 	return CONFIG_SYS_TCLK / (10 * (m + 1) * (2 << n));
@@ -830,6 +830,7 @@ static const struct dm_i2c_ops mvtwsi_i2c_ops = {
 
 static const struct udevice_id mvtwsi_i2c_ids[] = {
 	{ .compatible = "marvell,mv64xxx-i2c", },
+	{ .compatible = "marvell,mv78230-i2c", },
 	{ /* sentinel */ }
 };
 

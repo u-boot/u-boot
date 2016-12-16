@@ -304,10 +304,6 @@ class BuilderThread(threading.Thread):
                 print >>fd, 'arch', result.toolchain.arch
                 fd.write('%s' % result.return_code)
 
-            with open(os.path.join(build_dir, 'toolchain'), 'w') as fd:
-                print >>fd, 'gcc', result.toolchain.gcc
-                print >>fd, 'path', result.toolchain.path
-
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
             lines = []
@@ -470,17 +466,7 @@ class BuilderThread(threading.Thread):
         This thread picks a job from the queue, runs it, and then goes to the
         next job.
         """
-        alive = True
         while True:
             job = self.builder.queue.get()
-            if self.builder.active and alive:
-                self.RunJob(job)
-            '''
-            try:
-                if self.builder.active and alive:
-                    self.RunJob(job)
-            except Exception as err:
-                alive = False
-                print err
-            '''
+            self.RunJob(job)
             self.builder.queue.task_done()

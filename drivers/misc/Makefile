@@ -16,7 +16,6 @@ obj-$(CONFIG_CROS_EC_LPC) += cros_ec_lpc.o
 obj-$(CONFIG_CROS_EC_I2C) += cros_ec_i2c.o
 obj-$(CONFIG_CROS_EC_SANDBOX) += cros_ec_sandbox.o
 obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
-obj-$(CONFIG_FSL_DEBUG_SERVER) += fsl_debug_server.o
 endif
 obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_GPIO_LED) += gpio_led.o
@@ -43,6 +42,7 @@ obj-$(CONFIG_SANDBOX) += spltest_sandbox.o
 endif
 endif
 obj-$(CONFIG_SANDBOX) += syscon_sandbox.o
+obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
 obj-$(CONFIG_TEGRA186_BPMP) += tegra186_bpmp.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o

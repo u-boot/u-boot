@@ -18,14 +18,4 @@ config SYS_CONFIG_NAME
 	default "sandbox_spl" if SANDBOX_SPL
 	default "sandbox" if !SANDBOX_SPL
 
-config PCI
-	bool "PCI support"
-	help
-	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
-	  used on some devices to allow the CPU to communicate with its
-	  peripherals.
-
-config DM_KEYBOARD
-	default y
-
 endmenu

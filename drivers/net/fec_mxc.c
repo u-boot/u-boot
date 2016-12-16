@@ -20,7 +20,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/sys_proto.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1024,7 +1024,7 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 	start = get_timer(0);
 	while (readl(&fec->eth->ecntrl) & FEC_ECNTRL_RESET) {
 		if (get_timer(start) > (CONFIG_SYS_HZ * 5)) {
-			printf("FEC MXC: Timeout reseting chip\n");
+			printf("FEC MXC: Timeout resetting chip\n");
 			goto err4;
 		}
 		udelay(10);

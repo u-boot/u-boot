@@ -10,7 +10,6 @@
 #define __PIC32MZDASK_CONFIG_H
 
 /* System Configuration */
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*--------------------------------------------
  * CPU configuration

@@ -1,5 +1,29 @@
 if ARCH_ZYNQMP
 
+config SPL_FAT_SUPPORT
+	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y
+
+config SPL_LIBGENERIC_SUPPORT
+	default y
+
+config SPL_MMC_SUPPORT
+	default y
+
+config SPL_SERIAL_SUPPORT
+	default y
+
+config SPL_SPI_FLASH_SUPPORT
+	default y if ZYNQ_QSPI
+
+config SPL_SPI_SUPPORT
+	default y if ZYNQ_QSPI
+
 config SYS_BOARD
 	default "zynqmp"
 
@@ -98,5 +122,18 @@ config SW_SATA_MODE
 	bool "SW SATA_MODE"
 
 endchoice
+
+# Temporary Kconfig options which needs to be fixed
+config MINI_EMMC
+	bool
+
+config MINI_QSPI
+	bool
+
+config MINI_NAND
+	bool
+
+config SPI_GENERIC
+	bool
 
 endif

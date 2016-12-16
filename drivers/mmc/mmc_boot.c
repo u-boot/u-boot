@@ -85,16 +85,10 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
  */
 int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode)
 {
-	int err;
-
-	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_BUS_WIDTH,
-			 EXT_CSD_BOOT_BUS_WIDTH_MODE(mode) |
-			 EXT_CSD_BOOT_BUS_WIDTH_RESET(reset) |
-			 EXT_CSD_BOOT_BUS_WIDTH_WIDTH(width));
-
-	if (err)
-		return err;
-	return 0;
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_BUS_WIDTH,
+			  EXT_CSD_BOOT_BUS_WIDTH_MODE(mode) |
+			  EXT_CSD_BOOT_BUS_WIDTH_RESET(reset) |
+			  EXT_CSD_BOOT_BUS_WIDTH_WIDTH(width));
 }
 
 /*
@@ -106,16 +100,10 @@ int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode)
  */
 int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 {
-	int err;
-
-	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
-			 EXT_CSD_BOOT_ACK(ack) |
-			 EXT_CSD_BOOT_PART_NUM(part_num) |
-			 EXT_CSD_PARTITION_ACCESS(access));
-
-	if (err)
-		return err;
-	return 0;
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
+			  EXT_CSD_BOOT_ACK(ack) |
+			  EXT_CSD_BOOT_PART_NUM(part_num) |
+			  EXT_CSD_PARTITION_ACCESS(access));
 }
 
 /*

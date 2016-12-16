@@ -103,11 +103,12 @@ static int create_pirq_routing_table(struct udevice *dev)
 	/* extract the bdf from fdt_pci_addr */
 	priv->bdf = dm_pci_get_bdf(dev->parent);
 
-	ret = fdt_find_string(blob, node, "intel,pirq-config", "pci");
+	ret = fdt_stringlist_search(blob, node, "intel,pirq-config", "pci");
 	if (!ret) {
 		priv->config = PIRQ_VIA_PCI;
 	} else {
-		ret = fdt_find_string(blob, node, "intel,pirq-config", "ibase");
+		ret = fdt_stringlist_search(blob, node, "intel,pirq-config",
+					    "ibase");
 		if (!ret)
 			priv->config = PIRQ_VIA_IBASE;
 		else

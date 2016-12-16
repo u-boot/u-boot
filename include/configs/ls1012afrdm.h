@@ -9,18 +9,27 @@
 
 #include "ls1012a_common.h"
 
+/* DDR */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
-
-#define CONFIG_SYS_MMDC_CORE_CONTROL_1		0x04180000
-#define CONFIG_SYS_MMDC_CORE_CONTROL_2		0x84180000
-
+#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
+
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS              \
+       "verify=no\0"                           \
+       "loadaddr=0x80100000\0"                 \
+       "kernel_addr=0x100000\0"                \
+       "fdt_high=0xffffffffffffffff\0"         \
+       "initrd_high=0xffffffffffffffff\0"      \
+       "kernel_start=0xa00000\0"               \
+       "kernel_load=0x96000000\0"              \
+       "kernel_size=0x2800000\0"
 
 /*
 * USB

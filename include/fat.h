@@ -169,6 +169,7 @@ typedef struct {
 	int	fatsize;	/* Size of FAT in bits */
 	__u32	fatlength;	/* Length of FAT in sectors */
 	__u16	fat_sect;	/* Starting sector of the FAT */
+	__u8	fat_dirty;      /* Set if fatbuf has been modified */
 	__u32	rootdir_sect;	/* Start sector of root directory */
 	__u16	sect_size;	/* Size of sectors in bytes */
 	__u16	clust_size;	/* Size of clusters in sectors */

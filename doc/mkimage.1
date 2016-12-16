@@ -70,7 +70,7 @@ Set compression type.
 Pass \-h as the compression to see the list of supported compression type.
 
 .TP
-.BI "\-a [" "load addess" "]"
+.BI "\-a [" "load address" "]"
 Set load address with a hex number.
 
 .TP
@@ -136,6 +136,10 @@ Indicates that an existing FIT image should be modified. No dtc
 compilation is performed and the \-f flag should not be given.
 This can be used to sign images with additional keys after initial image
 creation.
+
+.TP
+.BI "\-i [" "ramdisk_file" "]"
+Appends the ramdisk file to the FIT.
 
 .TP
 .BI "\-k [" "key_directory" "]"

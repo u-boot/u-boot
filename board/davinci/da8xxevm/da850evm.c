@@ -21,7 +21,7 @@
 #include <asm/arch/pinmux_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <hwconfig.h>
 
 #ifdef CONFIG_DAVINCI_MMC

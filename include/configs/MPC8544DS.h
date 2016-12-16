@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -23,7 +21,6 @@
 #define CONFIG_SYS_TEXT_BASE	0xfff80000
 #endif
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
@@ -277,19 +274,13 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_VIRT*/
 
 /* video */
-#define CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_BIOSEMU
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP

@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <usb.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/usb/xhci-fsl.h>
 #include <linux/usb/dwc3.h>
@@ -58,6 +58,13 @@ static void fsl_apply_xhci_errata(void)
 	}
 }
 
+static void fsl_xhci_set_beat_burst_length(struct dwc3 *dwc3_reg)
+{
+	clrsetbits_le32(&dwc3_reg->g_sbuscfg0, USB3_ENABLE_BEAT_BURST_MASK,
+			USB3_ENABLE_BEAT_BURST);
+	setbits_le32(&dwc3_reg->g_sbuscfg1, USB3_SET_BEAT_BURST_LIMIT);
+}
+
 static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 {
 	int ret = 0;
@@ -73,6 +80,22 @@ static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 
 	/* Set GFLADJ_30MHZ as 20h as per XHCI spec default value */
 	dwc3_set_fladj(fsl_xhci->dwc3_reg, GFLADJ_30MHZ_DEFAULT);
+
+	/* Change beat burst and outstanding pipelined transfers requests */
+	fsl_xhci_set_beat_burst_length(fsl_xhci->dwc3_reg);
+
+	/*
+	 * A-010151: The dwc3 phy TSMC 28-nm HPM 0.9/1.8 V does not
+	 * reliably support Rx Detect in P3 mode(P3 is the default
+	 * setting). Therefore, some USB3.0 devices may not be detected
+	 * reliably in Super Speed mode. So, USB controller to configure
+	 * USB in P2 mode whenever the Receive Detect feature is required.
+	 * whenever the Receive Detect feature is required.
+	 */
+	if (has_erratum_a010151())
+		clrsetbits_le32(&fsl_xhci->dwc3_reg->g_usb3pipectl[0],
+				DWC3_GUSB3PIPECTL_DISRXDETP3,
+				DWC3_GUSB3PIPECTL_DISRXDETP3);
 
 	return ret;
 }
@@ -129,15 +152,10 @@ static int xhci_fsl_probe(struct udevice *dev)
 static int xhci_fsl_remove(struct udevice *dev)
 {
 	struct xhci_fsl_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	fsl_xhci_core_exit(&priv->ctx);
 
-	ret = xhci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
+	return xhci_deregister(dev);
 }
 
 static const struct udevice_id xhci_usb_ids[] = {

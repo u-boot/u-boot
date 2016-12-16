@@ -14,7 +14,6 @@
  */
 #define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
 #define CONFIG_V38B			1	/* ...on V38B board */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE		0xFF000000
 
@@ -57,7 +56,6 @@
 /*
  * PCI - no support
  */
-#undef CONFIG_PCI
 
 /*
  * Partitions

@@ -17,8 +17,6 @@
  */
 #define CONFIG_OMAP4430		1	/* which is in a 4430 */
 #define CONFIG_MISC_INIT_R
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
 
 #define CONFIG_SYS_THUMB_BUILD
 
@@ -75,7 +73,6 @@
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /*
  * Environment setup
@@ -151,7 +148,6 @@
  * So moving TEXT_BASE down to non-HS limit.
  */
 #define CONFIG_SPL_TEXT_BASE		0x40300000
-#define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
@@ -164,7 +160,6 @@
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */
 #undef CONFIG_SYS_I2C
 #undef CONFIG_SYS_I2C_OMAP24XX
-#undef CONFIG_SPL_I2C_SUPPORT
 #endif
 
 #endif /* __CONFIG_TI_OMAP4_COMMON_H */

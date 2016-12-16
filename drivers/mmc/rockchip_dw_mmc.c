@@ -129,8 +129,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 			return ret;
 	}
 #endif
-	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
-			priv->minmax[1], priv->minmax[0]);
+	dwmci_setup_cfg(&plat->cfg, host, priv->minmax[1], priv->minmax[0]);
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;
@@ -142,13 +141,8 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 static int rockchip_dwmmc_bind(struct udevice *dev)
 {
 	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
-	int ret;
 
-	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
-	if (ret)
-		return ret;
-
-	return 0;
+	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id rockchip_dwmmc_ids[] = {

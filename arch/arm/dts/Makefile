@@ -67,27 +67,30 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2571.dtb
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-3720-db.dtb			\
 	armada-375-db.dtb			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
+	armada-385-amc.dtb			\
+	armada-7040-db.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
-	uniphier-ph1-ld11-ref.dtb \
-	uniphier-ph1-ld20-ref.dtb \
-	uniphier-ph1-ld4-ref.dtb \
-	uniphier-ph1-ld6b-ref.dtb \
-	uniphier-ph1-pro4-ace.dtb \
-	uniphier-ph1-pro4-ref.dtb \
-	uniphier-ph1-pro4-sanji.dtb \
-	uniphier-ph1-pro5-4kbox.dtb \
-	uniphier-ph1-sld3-ref.dtb \
-	uniphier-ph1-sld8-ref.dtb \
-	uniphier-proxstream2-gentil.dtb \
-	uniphier-proxstream2-vodka.dtb
+	uniphier-ld11-ref.dtb \
+	uniphier-ld20-ref.dtb \
+	uniphier-ld4-ref.dtb \
+	uniphier-ld6b-ref.dtb \
+	uniphier-pro4-ace.dtb \
+	uniphier-pro4-ref.dtb \
+	uniphier-pro4-sanji.dtb \
+	uniphier-pro5-4kbox.dtb \
+	uniphier-pxs2-gentil.dtb \
+	uniphier-pxs2-vodka.dtb \
+	uniphier-sld3-ref.dtb \
+	uniphier-sld8-ref.dtb
 dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \
@@ -138,7 +141,8 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_cyclone5_sr1500.dtb			\
 	socfpga_cyclone5_vining_fpga.dtb
 
-dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb
+dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb	\
+	dra72-evm-revc.dtb
 dtb-$(CONFIG_TARGET_AM57XX_EVM) += am57xx-beagle-x15.dtb \
 	am572x-idk.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
@@ -151,6 +155,8 @@ dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
 	fsl-ls1043a-rdb.dtb \
+	fsl-ls1046a-qds-duart.dtb \
+	fsl-ls1046a-rdb.dtb \
 	fsl-ls1012a-qds.dtb \
 	fsl-ls1012a-rdb.dtb \
 	fsl-ls1012a-frdm.dtb
@@ -269,7 +275,8 @@ dtb-$(CONFIG_MACH_SUN8I_H3) += \
 	sun8i-h3-orangepi-pc.dtb \
 	sun8i-h3-orangepi-pc-plus.dtb \
 	sun8i-h3-orangepi-plus.dtb \
-	sun8i-h3-orangepi-plus2e.dtb
+	sun8i-h3-orangepi-plus2e.dtb \
+	sun8i-h3-nanopi-neo.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-pine64-plus.dtb \
 	sun50i-a64-pine64.dtb
@@ -280,7 +287,14 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \
 	vf610-twr.dtb \
-	pcm052.dtb
+	pcm052.dtb \
+	bk4r1.dtb
+
+dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
+	imx6dl-icore.dtb \
+	imx6q-icore.dtb
+
+dtb-$(CONFIG_MX7) += imx7-colibri.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 	k2l-evm.dtb \

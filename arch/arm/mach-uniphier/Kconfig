@@ -99,7 +99,8 @@ config CMD_PINMON
 
 config CMD_DDRPHY_DUMP
 	bool "Enable dump command of DDR PHY parameters"
-	depends on ARCH_UNIPHIER_LD4 || ARCH_UNIPHIER_PRO4 || ARCH_UNIPHIER_SLD8
+	depends on ARCH_UNIPHIER_LD4 || ARCH_UNIPHIER_PRO4 || \
+		ARCH_UNIPHIER_SLD8 || ARCH_UNIPHIER_LD11
 	default y
 	help
 	  The command "ddrphy" shows the resulting parameters of DDR PHY

@@ -18,10 +18,6 @@
 #define CONFIG_MACH_TYPE	4122
 
 #ifdef CONFIG_SPL
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #define CONFIG_SPL_SPI_LOAD
 #include "imx6_spl.h"
@@ -78,17 +74,11 @@
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2 /* Enabled USB controller number */
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 #define CONFIG_USBD_HS
 
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-
-/* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_MMC
-#define CONFIG_DFU_SF
 
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_CMD_FASTBOOT
@@ -97,12 +87,7 @@
 #define CONFIG_FASTBOOT_BUF_SIZE   0x07000000
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -138,7 +123,7 @@
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc1"
+#define CONSOLE_DEV	"ttymxc1"
 #define CONFIG_MMCROOT		"/dev/mmcblk0p2"
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
@@ -150,7 +135,7 @@
 	"fdt_addr_r=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"dfuspi=dfu 0 sf 0:0:10000000:0\0" \
 	"dfu_alt_info_spl=spl raw 0x400\0" \
 	"dfu_alt_info_img=u-boot raw 0x10000\0" \

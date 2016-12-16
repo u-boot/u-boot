@@ -101,6 +101,15 @@ config VIDCONSOLE_AS_LCD
 	  to update the environment, the breakage may be confusing for users.
 	  This option will be removed around the end of 2016.
 
+config VIDEO_COREBOOT
+	bool "Enable coreboot framebuffer driver support"
+	depends on X86 && SYS_COREBOOT
+	help
+	  Turn on this option to enable a framebuffer driver when U-Boot is
+	  loaded by coreboot where the graphics device is configured by
+	  coreboot already. This can in principle be used with any platform
+	  that coreboot supports.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -366,7 +375,19 @@ config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
 	depends on X86
 	help
-	  This enabled support for integrated graphics on Intel broadwell
+	  This enables support for integrated graphics on Intel broadwell
+	  devices. Initialisation is mostly performed by a VGA boot ROM, with
+	  some setup handled by U-Boot itself. The graphics adaptor works as
+	  a VESA device and supports LCD panels, eDP and LVDS outputs.
+	  Configuration of most aspects of device operation is performed using
+	  a special tool which configures the VGA ROM, but the graphics
+	  resolution can be selected in U-Boot.
+
+config VIDEO_IVYBRIDGE_IGD
+	bool "Enable Intel Ivybridge integration graphics support"
+	depends on X86
+	help
+	  This enables support for integrated graphics on Intel ivybridge
 	  devices. Initialisation is mostly performed by a VGA boot ROM, with
 	  some setup handled by U-Boot itself. The graphics adaptor works as
 	  a VESA device and supports LCD panels, eDP and LVDS outputs.
@@ -412,5 +433,161 @@ config VIDEO_TEGRA124
 	   have an eDP display connected.
 
 source "drivers/video/bridge/Kconfig"
+
+config VIDEO
+	bool "Enable legacy video support"
+	depends on !DM_VIDEO
+	help
+	  Define this for video support, without using driver model. Some
+	  drivers use this because they are not yet converted to driver
+	  model. Video drivers typically provide a colour text console and
+	  cursor.
+
+config CFB_CONSOLE
+	bool "Enable colour frame buffer console"
+	depends on VIDEO
+	default y if VIDEO
+	help
+	  Enables the colour frame buffer driver. This supports colour
+	  output on a bitmap display from an in-memory frame buffer.
+	  Several colour devices are supported along with various options to
+	  adjust the supported features. The driver is implemented in
+	  cfb_console.c
+
+	  The following defines are needed (cf. smiLynxEM, i8042)
+		VIDEO_FB_LITTLE_ENDIAN	graphic memory organisation
+					(default big endian)
+		VIDEO_HW_RECTFILL	graphic chip supports
+					rectangle fill (cf. smiLynxEM)
+		VIDEO_HW_BITBLT		graphic chip supports
+					bit-blit (cf. smiLynxEM)
+		VIDEO_VISIBLE_COLS	visible pixel columns (cols=pitch)
+		VIDEO_VISIBLE_ROWS	visible pixel rows
+		VIDEO_PIXEL_SIZE	bytes per pixel
+		VIDEO_DATA_FORMAT	graphic data format
+					(0-5, cf. cfb_console.c)
+		VIDEO_FB_ADRS		framebuffer address
+		VIDEO_KBD_INIT_FCT	keyboard int fct (i.e. rx51_kp_init())
+		VIDEO_TSTC_FCT		test char fct (i.e. rx51_kp_tstc)
+		VIDEO_GETC_FCT		get char fct (i.e. rx51_kp_getc)
+		CONFIG_VIDEO_LOGO	display Linux logo in upper left corner
+		CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of linux_logo.h
+					for logo. Requires CONFIG_VIDEO_LOGO
+		CONFIG_CONSOLE_EXTRA_INFO
+					additional board info beside
+					the logo
+		CONFIG_HIDE_LOGO_VERSION
+					do not display bootloader
+					version string
+
+	  When CONFIG_CFB_CONSOLE is defined, the video console is the
+	  default console. The serial console can be forced by setting the
+	  environment 'console=serial'.
+
+config CFB_CONSOLE_ANSI
+	bool "Support ANSI escape sequences"
+	depends on CFB_CONSOLE
+	help
+	  This allows the colour buffer frame buffer driver to support
+	  a limited number of ANSI escape sequences (cursor control,
+	  erase functions and limited graphics rendition control). Normal
+	  output from U-Boot will pass through this filter.
+
+config VGA_AS_SINGLE_DEVICE
+	bool "Set the video as an output-only device"
+	depends on CFB_CONSOLE
+	default y
+	help
+	  If enable the framebuffer device will be initialized as an
+	  output-only device. The Keyboard driver will not be set up. This
+	  may be used if you have no keyboard device, or more than one
+	  (USB Keyboard, AT Keyboard).
+
+config VIDEO_SW_CURSOR
+	bool "Enable a software cursor"
+	depends on CFB_CONSOLE
+	default y if CFB_CONSOLE
+	help
+	  This draws a cursor after the last character. No blinking is
+	  provided. This makes it possible to see the current cursor
+	  position when entering text on the console. It is recommended to
+	  enable this.
+
+config CONSOLE_EXTRA_INFO
+	bool "Display additional board information"
+	depends on CFB_CONSOLE
+	help
+	  Display additional board information strings that normally go to
+	  the serial port. When this option is enabled, a board-specific
+	  function video_get_info_str() is called to get the string for
+	  each line of the display. The function should return the string,
+	  which can be empty if there is nothing to display for that line.
+
+config CONSOLE_SCROLL_LINES
+	int "Number of lines to scroll the console by"
+	depends on CFB_CONSOLE || DM_VIDEO || LCD
+	default 1
+	help
+	  When the console need to be scrolled, this is the number of
+	  lines to scroll by. It defaults to 1. Increasing this makes the
+	  console jump but can help speed up operation when scrolling
+	  is slow.
+
+config VIDEO_CT69000
+	bool "Enable Chips & Technologies 69000 video driver"
+	depends on VIDEO
+	help
+	  This enables a frame buffer driver for the Chips & Technologies
+	  ct69000, a fairly old graphics device (circa 2000) which is used
+	  on some hardware. It operates over the ISA bus, and supports
+	  some acceleration features.
+
+	  For the CT69000 and SMI_LYNXEM drivers, videomode is
+		selected via environment 'videomode'. Two different ways
+		are possible:
+		- "videomode=num"   'num' is a standard LiLo mode numbers.
+		Following standard modes are supported	(* is default):
+
+		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
+		-------------+---------------------------------------------
+		      8 bits |	0x301*	0x303	 0x305	  0x161	    0x307
+		     15 bits |	0x310	0x313	 0x316	  0x162	    0x319
+		     16 bits |	0x311	0x314	 0x317	  0x163	    0x31A
+		     24 bits |	0x312	0x315	 0x318	    ?	    0x31B
+		-------------+---------------------------------------------
+		(i.e. setenv videomode 317; saveenv; reset;)
+
+		- "videomode=bootargs" all the video parameters are parsed
+		from the bootargs. (See drivers/video/videomodes.c)
+
+config SYS_CONSOLE_BG_COL
+	hex "Background colour"
+	depends on CFB_CONSOLE || VIDEO_CT69000
+	default 0x00
+	help
+	  Defines the background colour for the console. The value is from
+	  0x00 to 0xff and the meaning depends on the graphics card.
+	  Typically, 0x00 means black and 0xff means white. Do not set
+	  the background and foreground to the same colour or you will see
+	  nothing.
+
+config SYS_CONSOLE_FG_COL
+	hex "Foreground colour"
+	depends on CFB_CONSOLE || VIDEO_CT69000
+	default 0xa0
+	help
+	  Defines the foreground colour for the console. The value is from
+	  0x00 to 0xff and the meaning depends on the graphics card.
+	  Typically, 0x00 means black and 0xff means white. Do not set
+	  the background and foreground to the same colour or you will see
+	  nothing.
+
+config LCD
+	bool "Enable legacy LCD support"
+	help
+	  Define this to enable LCD support (for output to LCD display).
+	  You will also need to select an LCD driver using an additional
+	  CONFIG option. See the README for details. Drives which have been
+	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
 endmenu

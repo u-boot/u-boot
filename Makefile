@@ -3,7 +3,7 @@
 #
 
 VERSION = 2016
-PATCHLEVEL = 09
+PATCHLEVEL = 11
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -655,6 +655,7 @@ libs-y += drivers/power/ \
 libs-y += drivers/spi/
 libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
+libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/
 libs-$(CONFIG_ALTERA_SDRAM) += drivers/ddr/altera/
 libs-y += drivers/serial/
 libs-y += drivers/usb/dwc3/
@@ -740,7 +741,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg binary_size_check
+ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -819,6 +820,11 @@ ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo "before sending patches to the mailing list."
 	@echo "===================================================="
 endif
+	@# Check that this build does not use CONFIG options that we do not
+	@# know about unless they are in Kconfig. All the existing CONFIG
+	@# options are whitelisted, so new ones should not be added.
+	$(srctree)/scripts/check-config.sh u-boot.cfg \
+		$(srctree)/scripts/config_whitelist.txt ${srctree} 1>&2
 
 PHONY += dtbs
 dtbs: dts/dt.dtb
@@ -842,6 +848,12 @@ endif
 
 %.imx: %.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+
+%.vyb: %.imx
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/armv7/vf610 $@
+
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
 
 u-boot.dtb: dts/dt.dtb
 	$(call cmd,copy)
@@ -934,9 +946,6 @@ u-boot.sha1:	u-boot.bin
 
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
-
-u-boot.cfg:	include/config.h FORCE
-	$(call if_changed,cpp_cfg)
 
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
@@ -1087,7 +1096,7 @@ u-boot-x86-16bit.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 endif
 
-ifneq ($(CONFIG_SUNXI),)
+ifneq ($(CONFIG_ARCH_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
 u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE

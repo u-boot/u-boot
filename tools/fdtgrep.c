@@ -405,7 +405,7 @@ static int display_fdt_by_regions(struct display_info *disp, const void *blob,
  * The output of this function may or may not be a valid FDT. To ensure it
  * is, these disp->flags must be set:
  *
- *   FDT_REG_SUPERNODES: ensures that subnodes are preceeded by their
+ *   FDT_REG_SUPERNODES: ensures that subnodes are preceded by their
  *		parents. Without this option, fragments of subnode data may be
  *		output without the supernodes above them. This is useful for
  *		hashing but cannot produce a valid FDT.

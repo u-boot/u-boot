@@ -25,7 +25,6 @@
 #define CONFIG_BOOTCOMMAND	"run mmcload; run mmcboot"
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 
 /* Ethernet on SoC (EMAC) */
 #define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII

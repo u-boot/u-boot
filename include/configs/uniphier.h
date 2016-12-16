@@ -15,12 +15,6 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#define CONFIG_SMC911X
-
-/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
-#define CONFIG_SMC911X_BASE	0
-#define CONFIG_SMC911X_32_BIT
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -29,11 +23,6 @@
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_MISC_INIT_F
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
@@ -43,10 +32,15 @@
 /* FLASH related */
 #define CONFIG_MTD_DEVICE
 
-/*
- * uncomment the following to disable FLASH related code.
- */
-/* #define CONFIG_SYS_NO_FLASH */
+#define CONFIG_SMC911X_32_BIT
+/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
+#define CONFIG_SMC911X_BASE	0
+
+#ifdef CONFIG_MICRO_SUPPORT_CARD
+#define CONFIG_SMC911X
+#else
+#define CONFIG_SYS_NO_FLASH
+#endif
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -57,7 +51,7 @@
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
- * flash_toggle does not work for out supoort card.
+ * flash_toggle does not work for our support card.
  * We need to use flash_status_poll.
  */
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL
@@ -132,7 +126,6 @@
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS			0
 
 /* USB */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	4
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
@@ -277,17 +270,9 @@
 #define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NOR_SUPPORT
 #ifdef CONFIG_ARM64
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
-#else
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #endif
-
-#define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 #define CONFIG_SPL_BOARD_INIT
 

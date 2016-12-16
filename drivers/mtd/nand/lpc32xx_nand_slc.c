@@ -15,7 +15,7 @@
 #include <common.h>
 #include <nand.h>
 #include <linux/mtd/nand_ecc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/config.h>
 #include <asm/arch/clk.h>

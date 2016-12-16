@@ -1,0 +1,89 @@
+config ARCH_LS1021A
+	bool
+	select SYS_FSL_ERRATUM_A010315
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+	select SYS_FSL_DDR_BE
+	select SYS_FSL_DDR_VER_50
+
+menu "LS102xA architecture"
+	depends on ARCH_LS1021A
+
+config LS1_DEEP_SLEEP
+	bool "Deep sleep"
+	depends on ARCH_LS1021A
+
+config MAX_CPUS
+	int "Maximum number of CPUs permitted for LS102xA"
+	depends on ARCH_LS1021A
+	default 2
+	help
+	  Set this number to the maximum number of possible CPUs in the SoC.
+	  SoCs may have multiple clusters with each cluster may have multiple
+	  ports. If some ports are reserved but higher ports are used for
+	  cores, count the reserved ports. This will allocate enough memory
+	  in spin table to properly handle all cores.
+
+config NUM_DDR_CONTROLLERS
+	int "Maximum DDR controllers"
+	default 1
+
+config SYS_FSL_ERRATUM_A010315
+	bool "Workaround for PCIe erratum A010315"
+
+config SYS_FSL_SRDS_1
+	bool
+
+config SYS_FSL_SRDS_2
+	bool
+
+config SYS_HAS_SERDES
+	bool
+
+config SYS_FSL_DDR
+	bool "Freescale DDR driver"
+	help
+	  Select Freescale General DDR driver, shared between most Freescale
+	  PowerPC- based SoCs (such as mpc83xx, mpc85xx, mpc86xx) and ARM-
+	  based Layerscape SoCs (such as ls2080a).
+
+config SYS_FSL_DDR_BE
+	bool
+	default y
+	help
+	  Access DDR registers in big-endian.
+
+config SYS_FSL_DDR_VER
+	int
+	default 50 if SYS_FSL_DDR_VER_50
+
+config SYS_FSL_DDR_VER_50
+	bool
+
+config SYS_FSL_DDRC_ARM_GEN3
+	bool
+
+config SYS_FSL_DDRC_GEN4
+	bool
+
+config SYS_FSL_DDR3
+	bool "Freescale DDR3 controller"
+	depends on !SYS_FSL_DDR4
+	select SYS_FSL_DDR
+	select SYS_FSL_DDRC_ARM_GEN3
+	help
+	  Enable Freescale DDR3 controller on ARM-based SoCs.
+
+config SYS_FSL_DDR4
+	bool "Freescale DDR4 controller"
+	select SYS_FSL_DDR
+	select SYS_FSL_DDRC_GEN4
+	help
+	  Enable Freescale DDR4 controller.
+
+config SYS_FSL_IFC_BANK_COUNT
+	int "Maximum banks of Integrated flash controller"
+	depends on ARCH_LS1021A
+	default 8
+
+endmenu

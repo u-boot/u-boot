@@ -17,7 +17,6 @@
  * (easy to change)
  ***********************************************************/
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_MIP405		1	/* ...on a MIP405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
@@ -56,9 +55,6 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_BSP
-
-#if !defined(CONFIG_MIP405T)
-#endif
 
 /**************************************************************
  * I2C Stuff:
@@ -107,19 +103,12 @@
 #define CONFIG_SERVERIP		10.0.0.1
 #define CONFIG_PREBOOT
 /***************************************************************
- * defines if the console is stored in the environment
- ***************************************************************/
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
-/***************************************************************
  * defines if an overwrite_console function exists
  *************************************************************/
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 /***************************************************************
  * defines if the overwrite_console should be stored in the
  * environment
  **************************************************************/
-#undef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
 /**************************************************************
  * loads config
@@ -168,10 +157,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST PCI_HOST_FORCE	/* configure as pci-host	*/
-#define CONFIG_PCI_PNP			/* pci plug-and-play		*/
 					/* resource configuration	*/
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x0000	/* PCI Vendor ID: to-do!!!	*/
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: to-do!!!	*/
@@ -312,7 +299,7 @@
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
-#if defined(CONFIG_MIP405T)
+#if defined(CONFIG_TARGET_MIP405T)
 #define CONFIG_SYS_IDE_MAXBUS		1   /* MIP405T has only one IDE bus	*/
 #else
 #define CONFIG_SYS_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
@@ -347,23 +334,15 @@
 /************************************************************
  * Video support
  ************************************************************/
-#define CONFIG_VIDEO			/*To enable video controller support */
-#define CONFIG_VIDEO_CT69000
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
 #undef CONFIG_VIDEO_ONBOARD
 /************************************************************
  * USB support EXPERIMENTAL
  ************************************************************/
-#if !defined(CONFIG_MIP405T)
+#if !defined(CONFIG_TARGET_MIP405T)
 #define CONFIG_USB_UHCI
-#define CONFIG_USB_KEYBOARD
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_STDIO_DEREGISTER		/* needs stdio_deregister */
 #endif
 /************************************************************
  * Debug support
@@ -376,22 +355,5 @@
  * support BZIP2 compression
  ************************************************************/
 #define CONFIG_BZIP2		1
-
-/************************************************************
- * Ident
- ************************************************************/
-
-#define VERSION_TAG "released"
-#if !defined(CONFIG_MIP405T)
-#define CONFIG_ISO_STRING "MEV-10072-001"
-#else
-#define CONFIG_ISO_STRING "MEV-10082-001"
-#endif
-
-#if !defined(CONFIG_BOOT_PCI)
-#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
-#else
-#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, PCI_BOOT Version"
-#endif
 
 #endif	/* __CONFIG_H */

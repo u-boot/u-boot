@@ -53,7 +53,8 @@ bool has_erratum_a006261(void)
 	case SVR_P2041:
 	case SVR_P2040:
 		return IS_SVR_REV(svr, 1, 0) ||
-			IS_SVR_REV(svr, 1, 1) || IS_SVR_REV(svr, 2, 1);
+			IS_SVR_REV(svr, 1, 1) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
 	case SVR_P3041:
 		return IS_SVR_REV(svr, 1, 0) ||
 			IS_SVR_REV(svr, 1, 1) ||
@@ -63,16 +64,10 @@ bool has_erratum_a006261(void)
 	case SVR_P5021:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
 	case SVR_T4240:
-	case SVR_T4160:
-	case SVR_T4080:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
-	case SVR_T1040:
-		return IS_SVR_REV(svr, 1, 0);
-	case SVR_T2080:
-	case SVR_T2081:
-		return IS_SVR_REV(svr, 1, 0);
 	case SVR_P5040:
-		return IS_SVR_REV(svr, 1, 0);
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
 #endif
 	}
 
@@ -185,6 +180,32 @@ bool has_erratum_a008751(void)
 	case SVR_LS2080A:
 	case SVR_LS2085A:
 		return IS_SVR_REV(svr, 1, 0);
+#endif
+	}
+	return false;
+}
+
+bool has_erratum_a010151(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+#ifdef CONFIG_ARM64
+	case SVR_LS2080A:
+	case SVR_LS2085A:
+	case SVR_LS1046A:
+	case SVR_LS1012A:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_LS1043A:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+#endif
+#ifdef CONFIG_LS102XA
+	case SOC_VER_LS1020:
+	case SOC_VER_LS1021:
+	case SOC_VER_LS1022:
+	case SOC_VER_SLS1020:
+		return IS_SVR_REV(svr, 2, 0);
 #endif
 	}
 	return false;

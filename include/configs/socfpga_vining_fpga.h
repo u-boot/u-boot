@@ -192,9 +192,7 @@
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
 
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define MTDPARTS_DEFAULT			\
@@ -216,10 +214,6 @@
 
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
-
-/* Enable DFU to SF and RAM */
-#define CONFIG_DFU_RAM
-#define CONFIG_DFU_SF
 
 /* Support changing the prompt string */
 #define CONFIG_CMDLINE_PS_SUPPORT

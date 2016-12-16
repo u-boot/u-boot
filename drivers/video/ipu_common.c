@@ -16,7 +16,7 @@
 #include <linux/types.h>
 #include <linux/err.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <div64.h>

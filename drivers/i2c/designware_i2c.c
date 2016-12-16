@@ -249,6 +249,7 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 			 int alen, u8 *buffer, int len)
 {
 	unsigned long start_time_rx;
+	unsigned int active = 0;
 
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
@@ -274,18 +275,28 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 
 	start_time_rx = get_timer(0);
 	while (len) {
-		if (len == 1)
-			writel(IC_CMD | IC_STOP, &i2c_base->ic_cmd_data);
-		else
-			writel(IC_CMD, &i2c_base->ic_cmd_data);
+		if (!active) {
+			/*
+			 * Avoid writing to ic_cmd_data multiple times
+			 * in case this loop spins too quickly and the
+			 * ic_status RFNE bit isn't set after the first
+			 * write. Subsequent writes to ic_cmd_data can
+			 * trigger spurious i2c transfer.
+			 */
+			if (len == 1)
+				writel(IC_CMD | IC_STOP, &i2c_base->ic_cmd_data);
+			else
+				writel(IC_CMD, &i2c_base->ic_cmd_data);
+			active = 1;
+		}
 
 		if (readl(&i2c_base->ic_status) & IC_STATUS_RFNE) {
 			*buffer++ = (uchar)readl(&i2c_base->ic_cmd_data);
 			len--;
 			start_time_rx = get_timer(0);
-
+			active = 0;
 		} else if (get_timer(start_time_rx) > I2C_BYTE_TO) {
-				return 1;
+			return 1;
 		}
 	}
 

@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 /* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
 #define KM_XLX_PROGRAM_B_PIN    39

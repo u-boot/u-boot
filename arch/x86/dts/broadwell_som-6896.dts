@@ -4,6 +4,7 @@
 /include/ "serial.dtsi"
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
+/include/ "coreboot_fb.dtsi"
 
 / {
 	model = "Advantech SOM-6896";

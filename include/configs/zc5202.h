@@ -10,10 +10,8 @@
 #define __EL_ZC5202_H
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
+#define CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
-
-#define CONFIG_DEFAULT_FDT_FILE	"imx6q-zc5202.dtb"
 
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
@@ -29,8 +27,6 @@
 #define CONFIG_MV88E6352_SWITCH
 
 #define CONFIG_CMD_PCI
-#define CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCIE_IMX
 

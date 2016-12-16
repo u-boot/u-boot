@@ -15,11 +15,20 @@
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
+#include <power/regulator.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/list.h>
 #include <div64.h>
 #include "mmc_private.h"
+
+static const unsigned int sd_au_size[] = {
+	0,		SZ_16K / 512,		SZ_32K / 512,
+	SZ_64K / 512,	SZ_128K / 512,		SZ_256K / 512,
+	SZ_512K / 512,	SZ_1M / 512,		SZ_2M / 512,
+	SZ_4M / 512,	SZ_8M / 512,		(SZ_8M + SZ_4M) / 512,
+	SZ_16M / 512,	(SZ_16M + SZ_8M) / 512,	SZ_32M / 512,	SZ_64M / 512,
+};
 
 #ifndef CONFIG_DM_MMC_OPS
 __weak int board_mmc_getwp(struct mmc *mmc)
@@ -945,6 +954,62 @@ retry_scr:
 	return 0;
 }
 
+static int sd_read_ssr(struct mmc *mmc)
+{
+	int err, i;
+	struct mmc_cmd cmd;
+	ALLOC_CACHE_ALIGN_BUFFER(uint, ssr, 16);
+	struct mmc_data data;
+	int timeout = 3;
+	unsigned int au, eo, et, es;
+
+	cmd.cmdidx = MMC_CMD_APP_CMD;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.cmdarg = mmc->rca << 16;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		return err;
+
+	cmd.cmdidx = SD_CMD_APP_SD_STATUS;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.cmdarg = 0;
+
+retry_ssr:
+	data.dest = (char *)ssr;
+	data.blocksize = 64;
+	data.blocks = 1;
+	data.flags = MMC_DATA_READ;
+
+	err = mmc_send_cmd(mmc, &cmd, &data);
+	if (err) {
+		if (timeout--)
+			goto retry_ssr;
+
+		return err;
+	}
+
+	for (i = 0; i < 16; i++)
+		ssr[i] = be32_to_cpu(ssr[i]);
+
+	au = (ssr[2] >> 12) & 0xF;
+	if ((au <= 9) || (mmc->version == SD_VERSION_3)) {
+		mmc->ssr.au = sd_au_size[au];
+		es = (ssr[3] >> 24) & 0xFF;
+		es |= (ssr[2] & 0xFF) << 8;
+		et = (ssr[3] >> 18) & 0x3F;
+		if (es && et) {
+			eo = (ssr[3] >> 16) & 0x3;
+			mmc->ssr.erase_timeout = (et * 1000) / es;
+			mmc->ssr.erase_offset = eo * 1000;
+		}
+	} else {
+		debug("Invalid Allocation Unit Size.\n");
+	}
+
+	return 0;
+}
+
 /* frequency bases */
 /* divided by 10 to be nice to platforms without floating point */
 static const int fbase[] = {
@@ -1350,6 +1415,10 @@ static int mmc_startup(struct mmc *mmc)
 			mmc_set_bus_width(mmc, 4);
 		}
 
+		err = sd_read_ssr(mmc);
+		if (err)
+			return err;
+
 		if (mmc->card_caps & MMC_MODE_HS)
 			mmc->tran_speed = 50000000;
 		else
@@ -1514,6 +1583,31 @@ __weak void board_mmc_power_init(void)
 {
 }
 
+static int mmc_power_init(struct mmc *mmc)
+{
+	board_mmc_power_init();
+
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_DM_REGULATOR) && \
+	!defined(CONFIG_SPL_BUILD)
+	struct udevice *vmmc_supply;
+	int ret;
+
+	ret = device_get_supply_regulator(mmc->dev, "vmmc-supply",
+					  &vmmc_supply);
+	if (ret) {
+		debug("%s: No vmmc supply\n", mmc->dev->name);
+		return 0;
+	}
+
+	ret = regulator_set_enable(vmmc_supply, true);
+	if (ret) {
+		puts("Error enabling VMMC supply\n");
+		return ret;
+	}
+#endif
+	return 0;
+}
+
 int mmc_start_init(struct mmc *mmc)
 {
 	bool no_card;
@@ -1538,7 +1632,9 @@ int mmc_start_init(struct mmc *mmc)
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 	mmc_adapter_card_type_ident();
 #endif
-	board_mmc_power_init();
+	err = mmc_power_init(mmc);
+	if (err)
+		return err;
 
 #ifdef CONFIG_DM_MMC_OPS
 	/* The device has already been probed ready for use */

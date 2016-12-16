@@ -19,7 +19,6 @@
 
 #define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
 #define CONFIG_TQM855L		1	/* ...on a TQM8xxL module	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 

@@ -881,11 +881,7 @@ void exynos_dp_set_lane_count(struct exynos_dp *dp_regs, unsigned char count)
 
 unsigned int exynos_dp_get_lane_count(struct exynos_dp *dp_regs)
 {
-	unsigned int reg;
-
-	reg = readl(&dp_regs->lane_count_set);
-
-	return reg;
+	return readl(&dp_regs->lane_count_set);
 }
 
 unsigned char exynos_dp_get_lanex_pre_emphasis(struct exynos_dp *dp_regs,

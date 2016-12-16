@@ -13,7 +13,6 @@
 #define __CONFIG_H
 
 #define CONFIG_ARIA 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the ARIA board:
@@ -38,12 +37,6 @@
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /* video */
-#undef CONFIG_VIDEO
-
-#if defined(CONFIG_VIDEO)
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#endif
 
 /* CONFIG_PCI is defined at config time */
 
@@ -343,8 +336,6 @@
 #define CONFIG_SYS_PCI_IO_BASE		0x00000000
 #define CONFIG_SYS_PCI_IO_PHYS		0x84000000
 #define CONFIG_SYS_PCI_IO_SIZE		0x01000000	/* 16M */
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 

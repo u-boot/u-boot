@@ -16,12 +16,12 @@
 #ifndef __LINUX_MTD_NAND_H
 #define __LINUX_MTD_NAND_H
 
-#include "config.h"
+#include <config.h>
 
-#include "linux/compat.h"
-#include "linux/mtd/mtd.h"
-#include "linux/mtd/flashchip.h"
-#include "linux/mtd/bbm.h"
+#include <linux/compat.h>
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/flashchip.h>
+#include <linux/mtd/bbm.h>
 
 struct mtd_info;
 struct nand_flash_dev;

@@ -233,7 +233,7 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		/* Read the data from RX FIFO */
 		status = readl(&regs->isr);
-		while (status & ZYNQ_SPI_IXR_RXNEMPTY_MASK) {
+		while ((status & ZYNQ_SPI_IXR_RXNEMPTY_MASK) && rx_len) {
 			buf = readl(&regs->rxdr);
 			if (rx_buf)
 				*rx_buf++ = buf;

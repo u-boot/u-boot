@@ -28,8 +28,8 @@ obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
+obj-y	+= sections.o
 obj-y += sfi.o
-obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
 ifndef CONFIG_QEMU
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o

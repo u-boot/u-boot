@@ -8,16 +8,20 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <usb.h>
 #include <errno.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
+#include <asm-generic/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/regs-usbphy.h>
 #include <usb/ehci-ci.h>
+#include <libfdt.h>
+#include <fdtdec.h>
 
 #include "ehci.h"
 
@@ -31,6 +35,8 @@
 /* USBCMD */
 #define UCMD_RUN_STOP		(1 << 0) /* controller run/stop */
 #define UCMD_RESET			(1 << 1) /* controller reset */
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static const unsigned phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
@@ -131,24 +137,39 @@ int __weak board_ehci_hcd_init(int port)
 	return 0;
 }
 
+int ehci_vf_common_init(struct usb_ehci *ehci, int index)
+{
+	int ret;
+
+	/* Do board specific initialisation */
+	ret = board_ehci_hcd_init(index);
+	if (ret)
+		return ret;
+
+	usb_power_config(index);
+	usb_oc_config(index);
+	usb_internal_phy_clock_gate(index);
+	usb_phy_enable(index, ehci);
+
+	return 0;
+}
+
+#ifndef CONFIG_DM_USB
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 	enum usb_init_type type;
+	int ret;
 
 	if (index >= ARRAY_SIZE(nc_reg_bases))
 		return -EINVAL;
 
 	ehci = (struct usb_ehci *)nc_reg_bases[index];
 
-	/* Do board specific initialisation */
-	board_ehci_hcd_init(index);
-
-	usb_power_config(index);
-	usb_oc_config(index);
-	usb_internal_phy_clock_gate(index);
-	usb_phy_enable(index, ehci);
+	ret = ehci_vf_common_init(index);
+	if (ret)
+		return ret;
 
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
@@ -175,3 +196,165 @@ int ehci_hcd_stop(int index)
 {
 	return 0;
 }
+#else
+/* Possible port types (dual role mode) */
+enum dr_mode {
+	DR_MODE_NONE = 0,
+	DR_MODE_HOST,		/* supports host operation */
+	DR_MODE_DEVICE,		/* supports device operation */
+	DR_MODE_OTG,		/* supports both */
+};
+
+struct ehci_vf_priv_data {
+	struct ehci_ctrl ctrl;
+	struct usb_ehci *ehci;
+	struct gpio_desc cdet_gpio;
+	enum usb_init_type init_type;
+	enum dr_mode dr_mode;
+	u32 portnr;
+};
+
+static int vf_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
+	const void *dt_blob = gd->fdt_blob;
+	int node = dev->of_offset;
+	const char *mode;
+
+	priv->portnr = dev->seq;
+
+	priv->ehci = (struct usb_ehci *)dev_get_addr(dev);
+	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
+	if (mode) {
+		if (0 == strcmp(mode, "host")) {
+			priv->dr_mode = DR_MODE_HOST;
+			priv->init_type = USB_INIT_HOST;
+		} else if (0 == strcmp(mode, "peripheral")) {
+			priv->dr_mode = DR_MODE_DEVICE;
+			priv->init_type = USB_INIT_DEVICE;
+		} else if (0 == strcmp(mode, "otg")) {
+			priv->dr_mode = DR_MODE_OTG;
+			/*
+			 * We set init_type to device by default when OTG
+			 * mode is requested. If a valid gpio is provided
+			 * we will switch the init_type based on the state
+			 * of the gpio pin.
+			 */
+			priv->init_type = USB_INIT_DEVICE;
+		} else {
+			debug("%s: Cannot decode dr_mode '%s'\n",
+			      __func__, mode);
+			return -EINVAL;
+		}
+	} else {
+		priv->dr_mode = DR_MODE_HOST;
+		priv->init_type = USB_INIT_HOST;
+	}
+
+	if (priv->dr_mode == DR_MODE_OTG) {
+		gpio_request_by_name_nodev(dt_blob, node, "fsl,cdet-gpio", 0,
+					   &priv->cdet_gpio, GPIOD_IS_IN);
+		if (dm_gpio_is_valid(&priv->cdet_gpio)) {
+			if (dm_gpio_get_value(&priv->cdet_gpio))
+				priv->init_type = USB_INIT_DEVICE;
+			else
+				priv->init_type = USB_INIT_HOST;
+		}
+	}
+
+	return 0;
+}
+
+static int vf_init_after_reset(struct ehci_ctrl *dev)
+{
+	struct ehci_vf_priv_data *priv = dev->priv;
+	enum usb_init_type type = priv->init_type;
+	struct usb_ehci *ehci = priv->ehci;
+	int ret;
+
+	ret = ehci_vf_common_init(priv->ehci, priv->portnr);
+	if (ret)
+		return ret;
+
+	if (type == USB_INIT_DEVICE)
+		return 0;
+
+	setbits_le32(&ehci->usbmode, CM_HOST);
+	writel((PORT_PTS_UTMI | PORT_PTS_PTW), &ehci->portsc);
+	setbits_le32(&ehci->portsc, USB_EN);
+
+	mdelay(10);
+
+	return 0;
+}
+
+static const struct ehci_ops vf_ehci_ops = {
+	.init_after_reset = vf_init_after_reset
+};
+
+static int vf_usb_bind(struct udevice *dev)
+{
+	static int num_controllers;
+
+	/*
+	 * Without this hack, if we return ENODEV for USB Controller 0, on
+	 * probe for the next controller, USB Controller 1 will be given a
+	 * sequence number of 0. This conflicts with our requirement of
+	 * sequence numbers while initialising the peripherals.
+	 */
+	dev->req_seq = num_controllers;
+	num_controllers++;
+
+	return 0;
+}
+
+static int ehci_usb_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
+	struct usb_ehci *ehci = priv->ehci;
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+	int ret;
+
+	ret = ehci_vf_common_init(ehci, priv->portnr);
+	if (ret)
+		return ret;
+
+	if (priv->init_type != plat->init_type)
+		return -ENODEV;
+
+	if (priv->init_type == USB_INIT_HOST) {
+		setbits_le32(&ehci->usbmode, CM_HOST);
+		writel((PORT_PTS_UTMI | PORT_PTS_PTW), &ehci->portsc);
+		setbits_le32(&ehci->portsc, USB_EN);
+	}
+
+	mdelay(10);
+
+	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+				HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
+	return ehci_register(dev, hccr, hcor, &vf_ehci_ops, 0, priv->init_type);
+}
+
+static const struct udevice_id vf_usb_ids[] = {
+	{ .compatible = "fsl,vf610-usb" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_ehci) = {
+	.name = "ehci_vf",
+	.id = UCLASS_USB,
+	.of_match = vf_usb_ids,
+	.bind = vf_usb_bind,
+	.probe = ehci_usb_probe,
+	.remove = ehci_deregister,
+	.ops = &ehci_usb_ops,
+	.ofdata_to_platdata = vf_usb_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct ehci_vf_priv_data),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif

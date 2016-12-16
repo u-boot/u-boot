@@ -42,6 +42,16 @@ config DM_REGULATOR_PFUZE100
 	features for REGULATOR PFUZE100. The driver implements get/set api for:
 	value, enable and mode.
 
+config REGULATOR_PWM
+	bool "Enable driver for PWM regulators"
+	depends on DM_REGULATOR
+	---help---
+	Enable support for the PWM regulator functions which voltage are
+	controlled by PWM duty ratio. Some of Rockchip board using this kind
+	of regulator. The driver implements get/set api for the various BUCKS.
+	This driver is controlled by a device tree node
+	which includes voltage limits.
+
 config DM_REGULATOR_MAX77686
 	bool "Enable Driver Model for REGULATOR MAX77686"
 	depends on DM_REGULATOR && DM_PMIC_MAX77686
@@ -57,6 +67,14 @@ config DM_REGULATOR_FIXED
 	This config enables implementation of driver-model regulator uclass
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
+
+config DM_REGULATOR_GPIO
+	bool "Enable Driver Model for GPIO REGULATOR"
+	depends on DM_REGULATOR
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for gpio regulators. The driver implements get/set for
+	voltage value.
 
 config REGULATOR_RK808
 	bool "Enable driver for RK808 regulators"
@@ -115,3 +133,19 @@ config REGULATOR_TPS65090
 	regulators, one for each FET. The standard regulator interface is
 	supported, but it is only possible to turn the regulators on or off.
 	There is no voltage/current control.
+
+config DM_REGULATOR_PALMAS
+	bool "Enable driver for PALMAS PMIC regulators"
+       depends on PMIC_PALMAS
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR PALMAS and the family of PALMAS PMICs.
+	The driver implements get/set api for: value and enable.
+
+config DM_REGULATOR_LP873X
+	bool "Enable driver for LP873X PMIC regulators"
+        depends on PMIC_LP873X
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP873X and the family of LP873X PMICs.
+	The driver implements get/set api for: value and enable.

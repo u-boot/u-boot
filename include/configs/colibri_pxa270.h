@@ -39,7 +39,6 @@
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-#define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
  * Serial Console Configuration
@@ -67,7 +66,6 @@
 #define CONFIG_PXA_LCD
 #define CONFIG_PXA_VGA
 #define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CONSOLE_SCROLL_LINES	10
 #define CONFIG_CMD_BMP
 #define CONFIG_LCD_LOGO
 #endif

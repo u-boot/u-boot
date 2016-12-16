@@ -292,10 +292,7 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 				sbsf->data->nr_sectors;
 		} else if (sbsf->cmd == CMD_ERASE_4K && (flags & SECT_4K)) {
 			sbsf->erase_size = 4 << 10;
-		} else if (sbsf->cmd == CMD_ERASE_32K && (flags & SECT_32K)) {
-			sbsf->erase_size = 32 << 10;
-		} else if (sbsf->cmd == CMD_ERASE_64K &&
-			   !(flags & (SECT_4K | SECT_32K))) {
+		} else if (sbsf->cmd == CMD_ERASE_64K && !(flags & SECT_4K)) {
 			sbsf->erase_size = 64 << 10;
 		} else {
 			debug(" cmd unknown: %#x\n", sbsf->cmd);

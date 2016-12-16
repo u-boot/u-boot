@@ -93,7 +93,9 @@ void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
-int __asm_flush_l3_cache(void);
+int __asm_invalidate_l3_dcache(void);
+int __asm_flush_l3_dcache(void);
+int __asm_invalidate_l3_icache(void);
 void __asm_switch_ttbr(u64 new_ttbr);
 
 void armv8_switch_to_el2(void);
@@ -107,15 +109,6 @@ void smp_kick_all_cpus(void);
 void flush_l3_cache(void);
 
 /*
- *Issue a hypervisor call in accordance with ARM "SMC Calling convention",
- * DEN0028A
- *
- * @args: input and output arguments
- *
- */
-void hvc_call(struct pt_regs *args);
-
-/*
  *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
  * DEN0028A
  *
@@ -124,7 +117,8 @@ void hvc_call(struct pt_regs *args);
  */
 void smc_call(struct pt_regs *args);
 
-void __noreturn psci_system_reset(bool smc);
+void __noreturn psci_system_reset(void);
+void __noreturn psci_system_off(void);
 
 #endif	/* __ASSEMBLY__ */
 
@@ -222,6 +216,10 @@ void __noreturn psci_system_reset(bool smc);
  * should use 'b' or 'bx' to return to save_boot_params_ret.
  */
 void save_boot_params_ret(void);
+
+#ifdef CONFIG_ARMV7_LPAE
+void switch_to_hypervisor_ret(void);
+#endif
 
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
 
@@ -333,7 +331,7 @@ static inline void set_dacr(unsigned int val)
 
 /* options available for data cache on each page */
 enum dcache_option {
-	DCACHE_OFF = TTB_SECT | TTB_SECT_MAIR(0),
+	DCACHE_OFF = TTB_SECT | TTB_SECT_MAIR(0) | TTB_SECT_XN_MASK,
 	DCACHE_WRITETHROUGH = TTB_SECT | TTB_SECT_MAIR(1),
 	DCACHE_WRITEBACK = TTB_SECT | TTB_SECT_MAIR(2),
 	DCACHE_WRITEALLOC = TTB_SECT | TTB_SECT_MAIR(3),

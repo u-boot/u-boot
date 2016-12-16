@@ -25,9 +25,6 @@
 
 #define CONFIG_ARCH_CPU_INIT
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		12000000
 
@@ -167,7 +164,6 @@
 #define CONFIG_SYS_NO_FLASH		1
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
-#define CONFIG_IDENT_STRING		" for SMDKC100"
 
 #if !defined(CONFIG_NAND_SPL) && (CONFIG_SYS_TEXT_BASE >= 0xc0000000)
 #define CONFIG_ENABLE_MMU

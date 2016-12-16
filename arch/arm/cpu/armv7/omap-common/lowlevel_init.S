@@ -24,6 +24,30 @@ ENTRY(save_boot_params)
 	str	r0, [r1]
 	b	save_boot_params_ret
 ENDPROC(save_boot_params)
+
+#if !defined(CONFIG_TI_SECURE_DEVICE) && defined(CONFIG_ARMV7_LPAE)
+ENTRY(switch_to_hypervisor)
+
+/*
+ * Switch to hypervisor mode
+ */
+	adr	r0, save_sp
+	str	sp, [r0]
+	adr	r1, restore_from_hyp
+	ldr	r0, =0x102
+	b	omap_smc1
+restore_from_hyp:
+	adr	r0, save_sp
+	ldr	sp, [r0]
+	MRC p15, 4, R0, c1, c0, 0
+	ldr     r1, =0X1004	@Set cache enable bits for hypervisor mode
+	orr     r0, r0, r1
+	MCR p15, 4, R0, c1, c0, 0
+	b	switch_to_hypervisor_ret
+save_sp:
+	.word	0x0
+ENDPROC(switch_to_hypervisor)
+#endif
 #endif
 
 ENTRY(omap_smc1)

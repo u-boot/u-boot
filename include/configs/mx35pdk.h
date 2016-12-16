@@ -18,7 +18,6 @@
  /* High Level Configuration Options */
 #define CONFIG_MX35
 
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_FSL_CLK
 
 /* Set TEXT at the beginning of the NOR flash */

@@ -13,8 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -33,7 +31,6 @@
 #endif
 
 #ifdef CONFIG_PCISLAVE
-#define CONFIG_PCI
 #define CONFIG_83XX_PCICLK	66666666	/* in Hz */
 #endif /* CONFIG_PCISLAVE */
 
@@ -393,7 +390,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100

@@ -17,9 +17,6 @@
 #ifndef __CONFIG_TI_OMAP5_COMMON_H
 #define __CONFIG_TI_OMAP5_COMMON_H
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_798870
 
@@ -64,7 +61,6 @@
 #define DFUARGS
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -128,7 +124,6 @@
 	"setenv mmcroot /dev/mmcblk0p2 rw; " \
 	"run mmcboot;" \
 	""
-#endif
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
@@ -146,6 +141,14 @@
  */
 #define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ	0x1000
 #define CONFIG_SPL_TEXT_BASE	0x40301350
+/* If no specific start address is specified then the secure EMIF
+ * region will be placed at the end of the DDR space. In order to prevent
+ * the main u-boot relocation from clobbering that memory and causing a
+ * firewall violation, we tell u-boot that memory is protected RAM (PRAM)
+ */
+#if (CONFIG_TI_SECURE_EMIF_REGION_START == 0)
+#define CONFIG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
+#endif
 #else
 /*
  * For all booting on GP parts, the flash loader image is
@@ -154,7 +157,6 @@
 #define CONFIG_SPL_TEXT_BASE	0x40300000
 #endif
 
-#define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))

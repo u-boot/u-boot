@@ -47,7 +47,7 @@ void __weak board_init_f(ulong dummy)
  * arg: Pointer to paramter image in RAM
  */
 #ifdef CONFIG_SPL_OS_BOOT
-void __noreturn jump_to_image_linux(void *arg)
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image, void *arg)
 {
 	unsigned long machid = 0xffffffff;
 #ifdef CONFIG_MACH_TYPE
@@ -58,7 +58,7 @@ void __noreturn jump_to_image_linux(void *arg)
 	typedef void (*image_entry_arg_t)(int, int, void *)
 		__attribute__ ((noreturn));
 	image_entry_arg_t image_entry =
-		(image_entry_arg_t)(uintptr_t) spl_image.entry_point;
+		(image_entry_arg_t)(uintptr_t) spl_image->entry_point;
 	cleanup_before_linux();
 	image_entry(0, machid, arg);
 }

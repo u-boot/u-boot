@@ -186,13 +186,6 @@ int ctrlc (void)
 	}
 	return 0;
 }
-void * memset(void * s,int c,size_t count)
-{
-	char *xs = (char *) s;
-	while (count--)
-		*xs++ = c;
-	return s;
-}
 int memcmp(const void * cs,const void * ct,size_t count)
 {
 	const unsigned char *su1, *su2;

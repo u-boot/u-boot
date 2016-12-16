@@ -60,7 +60,7 @@
 #define CONFIG_SYS_PCIE2_PHYS_ADDR		0x4800000000ULL
 #define CONFIG_SYS_PCIE3_PHYS_ADDR		0x5000000000ULL
 /* LUT registers */
-#ifdef CONFIG_LS1012A
+#ifdef CONFIG_ARCH_LS1012A
 #define PCIE_LUT_BASE				0xC0000
 #else
 #define PCIE_LUT_BASE				0x10000
@@ -168,6 +168,8 @@ struct sys_info {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
 
 /* Device Configuration and Pin Control */
+#define DCFG_DCSR_PORCR1		0x0
+
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
 #define FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK	0xFF800000
@@ -335,6 +337,8 @@ struct ccsr_gur {
 
 #define SCFG_SNPCNFGCR_SECRDSNP		0x80000000
 #define SCFG_SNPCNFGCR_SECWRSNP		0x40000000
+#define SCFG_SNPCNFGCR_SATARDSNP	0x00800000
+#define SCFG_SNPCNFGCR_SATAWRSNP	0x00400000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {

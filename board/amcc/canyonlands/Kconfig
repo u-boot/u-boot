@@ -30,8 +30,4 @@ config ARCHES
 
 endchoice
 
-config DISPLAY_BOARDINFO
-	bool
-	default y
-
 endif

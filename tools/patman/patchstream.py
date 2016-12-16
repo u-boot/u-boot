@@ -480,12 +480,12 @@ def FixPatches(series, fnames):
         commit.patch = fname
         result = FixPatch(backup_dir, fname, series, commit)
         if result:
-            print '%d warnings for %s:' % (len(result), fname)
+            print('%d warnings for %s:' % (len(result), fname))
             for warn in result:
-                print '\t', warn
+                print('\t', warn)
             print
         count += 1
-    print 'Cleaned %d patches' % count
+    print('Cleaned %d patches' % count)
     return series
 
 def InsertCoverLetter(fname, series, count):

@@ -119,8 +119,6 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_boot();
-#elif defined(CONFIG_SPL_SPI_BOOT)
-	spi_boot();
 #elif defined(CONFIG_SPL_NAND_BOOT)
 	nand_boot();
 #endif

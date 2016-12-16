@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * B4860 QDS board configuration file
  */
@@ -21,15 +19,8 @@
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #else
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_FSL_LAW                 /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
@@ -37,7 +28,6 @@
 #define CONFIG_SPL_MAX_SIZE		0x28000
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
@@ -81,7 +71,6 @@
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
@@ -493,9 +482,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
-#endif
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -697,7 +683,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION

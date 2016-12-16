@@ -25,8 +25,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CPU_CLOCK_RATE			324000000 /* Clock for the MIPS core */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE / 2)
 
@@ -142,7 +140,6 @@
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_TIMESTAMP			/* Print image info with timestamp */
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
-#define CONFIG_SYS_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
 
 /*
  * FLASH and environment organization
@@ -246,7 +243,6 @@ int vct_gpio_get(int pin);
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_SYS_USE_UBI
 #define	CONFIG_CMD_JFFS2
-#define	CONFIG_CMD_UBI
 #define	CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS

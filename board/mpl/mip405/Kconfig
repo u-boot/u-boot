@@ -1,4 +1,4 @@
-if TARGET_MIP405
+if TARGET_MIP405 || TARGET_MIP405T
 
 config SYS_BOARD
 	default "mip405"
@@ -8,5 +8,10 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "MIP405"
+
+config ISO_STRING
+	string
+	default "MEV-10082-001" if TARGET_MIP405T
+	default "MEV-10072-001" if TARGET_MIP405
 
 endif

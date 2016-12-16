@@ -47,7 +47,6 @@
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CONSOLE_SCROLL_LINES	10
 #define CONFIG_CMD_BMP
 #define CONFIG_LCD_LOGO
 
@@ -74,10 +73,8 @@
 #define CONFIG_ENV_SIZE			(SZ_64K)
 
 /* UBI */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 #define CONFIG_LZO
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_RBTREE
 
 /* Debug commands */

@@ -404,6 +404,7 @@ config CMD_USB
 
 config CMD_DFU
 	bool "dfu"
+	select USB_FUNCTION_DFU
 	help
 	  Enables the command "dfu" which is used to have U-Boot create a DFU
 	  class device via USB.
@@ -688,6 +689,19 @@ config CMD_TPM_TEST
 
 endmenu
 
+menu "Firmware commands"
+config CMD_CROS_EC
+	bool "Enable crosec command"
+	depends on CROS_EC
+	default y
+	help
+	  Enable command-line access to the Chrome OS EC (Embedded
+	  Controller). This provides the 'crosec' command which has
+	  a number of sub-commands for performing EC tasks such as
+	  updating its flash, accessing a small saved context area
+	  and talking to the I2C bus behind the EC (if there is one).
+endmenu
+
 menu "Filesystem commands"
 config CMD_EXT2
 	bool "ext2 command support"
@@ -716,5 +730,17 @@ config CMD_FS_GENERIC
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
 endmenu
+
+config CMD_UBI
+	tristate "Enable UBI - Unsorted block images commands"
+	select CRC32
+	select MTD_UBI
+	help
+	  UBI is a software layer above MTD layer which admits use of LVM-like
+	  logical volumes on top of MTD devices, hides some complexities of
+	  flash chips like wear and bad blocks and provides some other useful
+	  capabilities. Please, consult the MTD web site for more details
+	  (www.linux-mtd.infradead.org). Activate this option if you want
+	  to use U-Boot UBI commands.
 
 endmenu

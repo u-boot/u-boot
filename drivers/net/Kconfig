@@ -64,6 +64,17 @@ config ALTERA_TSE
 	  Please find details on the "Triple-Speed Ethernet MegaCore Function
 	  Resource Center" of Altera.
 
+config DWC_ETH_QOS
+	bool "Synopsys DWC Ethernet QOS device support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Synopsys Designware Ethernet QOS (Quality
+	  Of Service) IP block. The IP supports many options for bus type,
+	  clocking/reset structure, and feature list. This driver currently
+	  supports the specific configuration used in NVIDIA's Tegra186 chip,
+	  but should be extensible to other combinations quite easily.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	help
@@ -129,6 +140,13 @@ config ETHOC
 	help
 	  This MAC is present in OpenRISC and Xtensa XTFPGA boards.
 
+config FEC_MXC
+	bool "FEC Ethernet controller"
+	depends on MX6
+	help
+	  This driver supports the 10/100 Fast Ethernet controller for
+	  NXP i.MX processors.
+
 config MVPP2
 	bool "Marvell Armada 375 network interface support"
 	depends on ARMADA_375
@@ -175,7 +193,7 @@ config XILINX_AXIEMAC
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config XILINX_EMACLITE
-	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || MIPS)
 	select PHYLIB
 	select MII
 	bool "Xilinx Ethernetlite"

@@ -137,7 +137,6 @@
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
 /*
@@ -193,16 +192,12 @@
 
 /* Use the framework and generic lib */
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
 
 /* SPL will use serial */
-#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* SPL loads an image from NAND */
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_RAW_ONLY
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_DRIVERS
 
 #define CONFIG_SPL_NAND_ECC

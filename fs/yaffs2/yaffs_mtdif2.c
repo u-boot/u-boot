@@ -15,16 +15,16 @@
 
 /* XXX U-BOOT XXX */
 #include <common.h>
-#include "asm/errno.h"
+#include <linux/errno.h>
 
 #include "yportenv.h"
 #include "yaffs_trace.h"
 
 #include "yaffs_mtdif2.h"
 
-#include "linux/mtd/mtd.h"
-#include "linux/types.h"
-#include "linux/time.h"
+#include <linux/mtd/mtd.h>
+#include <linux/types.h>
+#include <linux/time.h>
 
 #include "yaffs_trace.h"
 #include "yaffs_packedtags2.h"

@@ -20,10 +20,6 @@
 
 #define CONFIG_BCH
 
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* call misc_init_r */
 #define CONFIG_MISC_INIT_R
 
@@ -59,7 +55,6 @@
 /* commands to include */
 
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS	/* Read-only UBI volume operations */
 
 #define CONFIG_RBTREE		/* required by CONFIG_CMD_UBI */

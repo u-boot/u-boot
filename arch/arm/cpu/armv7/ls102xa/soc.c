@@ -7,9 +7,11 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
+#include <asm/arch/fsl_serdes.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <fsl_csu.h>
 
 struct liodn_id_table sec_liodn_tbl[] = {
 	SET_SEC_JR_LIODN_ENTRY(0, 0x10, 0x10),
@@ -58,11 +60,32 @@ unsigned int get_soc_major_rev(void)
 	return major;
 }
 
+void s_init(void)
+{
+}
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010315
+void erratum_a010315(void)
+{
+	int i;
+
+	for (i = PCIE1; i <= PCIE2; i++)
+		if (!is_serdes_configured(i)) {
+			debug("PCIe%d: disabled all R/W permission!\n", i);
+			set_pcie_ns_access(i, 0);
+		}
+}
+#endif
+
 int arch_soc_init(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 	unsigned int major;
+
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
+#endif
 
 #ifdef CONFIG_FSL_QSPI
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);

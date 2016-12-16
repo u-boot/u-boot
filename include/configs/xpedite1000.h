@@ -22,7 +22,6 @@
 #define CONFIG_440GX		1		/* 440 GX */
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_pre_init	*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll */
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
@@ -144,9 +143,7 @@ extern void out32(unsigned int, unsigned long);
  * PCI
  */
 /* General PCI */
-#define CONFIG_PCI				/* include pci support */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP				/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW			/* show pci devices on startup */
 #define CONFIG_SYS_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE */
 

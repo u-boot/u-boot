@@ -18,14 +18,6 @@
 #ifndef _VIDEO_FB_H_
 #define _VIDEO_FB_H_
 
-#if defined(CONFIG_SYS_CONSOLE_FG_COL) && defined(CONFIG_SYS_CONSOLE_BG_COL)
-#define CONSOLE_BG_COL            CONFIG_SYS_CONSOLE_BG_COL
-#define CONSOLE_FG_COL            CONFIG_SYS_CONSOLE_FG_COL
-#else
-#define CONSOLE_BG_COL            0x00
-#define CONSOLE_FG_COL            0xa0
-#endif
-
 /*
  * Graphic Data Format (GDF) bits for VIDEO_DATA_FORMAT
  */
@@ -96,9 +88,5 @@ void video_set_lut (
     unsigned char g,              /* green */
     unsigned char b               /* blue */
     );
-#ifdef CONFIG_VIDEO_HW_CURSOR
-void video_set_hw_cursor(int x, int y); /* x y in pixel */
-void video_init_hw_cursor(int font_width, int font_height);
-#endif
 
 #endif /*_VIDEO_FB_H_ */

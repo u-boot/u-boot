@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000
 #define CONFIG_SYS_NAND_U_BOOT_START 0x00100100
@@ -359,11 +357,8 @@
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xD1000000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #define CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */

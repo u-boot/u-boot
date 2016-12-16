@@ -80,8 +80,6 @@
 #define CONFIG_POWER_TPS65910
 
 /* SPL */
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -91,16 +89,11 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #ifndef CONFIG_SPL_USBETH_SUPPORT
-/* To support eMMC booting */
-#define CONFIG_STORAGE_EMMC
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* Remove other SPL modes. */
-#undef CONFIG_SPL_YMODEM_SUPPORT
-#undef CONFIG_SPL_NAND_SUPPORT
-#undef CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_ENV_IS_NOWHERE
 #undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */
@@ -108,16 +101,11 @@
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/* General network SPL  */
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
 #if defined(CONFIG_EMMC_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0

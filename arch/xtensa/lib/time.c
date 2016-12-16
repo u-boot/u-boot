@@ -104,10 +104,7 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk(void)
 {
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
+	return CONFIG_SYS_HZ;
 }
 
 #if XCHAL_HAVE_CCOUNT

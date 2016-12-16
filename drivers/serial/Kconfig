@@ -98,6 +98,13 @@ config DEBUG_UART_AR933X
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_UART_ATMEL
+	bool "Atmel USART"
+	help
+	  Select this to enable a debug UART using the atmel usart driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -146,6 +153,13 @@ config DEBUG_UART_ARM_DCC
 	  Every ARM core has own DCC port which is the part of debug interface.
 	  This port is available at least on ARMv6, ARMv7, ARMv8 and XScale
 	  architectures.
+
+config DEBUG_MVEBU_A3700_UART
+	bool "Marvell Armada 3700"
+	help
+	  Select this to enable a debug UART using the serial_mvebu driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
 
 config DEBUG_UART_ZYNQ
 	bool "Xilinx Zynq"
@@ -289,11 +303,32 @@ config AR933X_UART
 	  tree binding to operate, please refer to the document at
 	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
 
+config ATMEL_USART
+	bool "Atmel USART support"
+	help
+	  Select this to enable USART support for Atmel SoCs. It can be
+	  configured in the device tree, and input clock frequency can
+	  be got from the clk node.
+
 config FSL_LPUART
 	bool "Freescale LPUART support"
 	help
 	  Select this to enable a Low Power UART for Freescale VF610 and
 	  QorIQ Layerscape devices.
+
+config MVEBU_A3700_UART
+	bool "UART support for Armada 3700"
+	default n
+	help
+	  Choose this option to add support for UART driver on the Marvell
+	  Armada 3700 SoC. The base address is configured via DT.
+
+config MXC_UART
+	bool "IMX serial port support"
+	depends on MX6
+	help
+	  If you have a machine based on a Motorola IMX CPU you
+	  can enable its onboard serial port by enabling this option.
 
 config PIC32_SERIAL
 	bool "Support for Microchip PIC32 on-chip UART"
@@ -371,4 +406,5 @@ config MSM_SERIAL
 	  It should support all Qualcomm devices with UARTDM version 1.4,
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
+
 endmenu

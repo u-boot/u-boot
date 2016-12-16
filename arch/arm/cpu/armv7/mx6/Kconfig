@@ -31,6 +31,10 @@ config MX6UL
 	select ROM_UNIFIED_SECTIONS
 	bool
 
+config MX6ULL
+	bool
+	select MX6UL
+
 choice
 	prompt "MX6 board select"
 	optional
@@ -91,6 +95,16 @@ config TARGET_MX6CUBOXI
 config TARGET_MX6QARM2
 	bool "mx6qarm2"
 
+config TARGET_MX6Q_ICORE
+	bool "Support Engicam i.Core"
+	select MX6QDL
+	select OF_CONTROL
+	select DM
+	select DM_GPIO
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6QSABREAUTO
 	bool "mx6qsabreauto"
 	select DM
@@ -132,6 +146,12 @@ config TARGET_MX6UL_14X14_EVK
 	select DM
 	select DM_THERMAL
 	select SUPPORT_SPL
+
+config TARGET_MX6ULL_14X14_EVK
+	bool "Support mx6ull_14x14_evk"
+	select MX6ULL
+	select DM
+	select DM_THERMAL
 
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
@@ -215,6 +235,7 @@ source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
+source "board/engicam/icorem6/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
@@ -222,6 +243,7 @@ source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
+source "board/freescale/mx6ullevk/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"

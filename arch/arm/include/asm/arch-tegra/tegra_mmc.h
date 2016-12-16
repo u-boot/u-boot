@@ -132,26 +132,5 @@ struct tegra_mmc {
 #define AUTO_CAL_PD_OFFSET	(0x70 << 8)
 #define AUTO_CAL_PU_OFFSET	(0x62 << 0)
 
-struct mmc_host {
-	struct tegra_mmc *reg;
-	int id;			/* device id/number, 0-3 */
-	int enabled;		/* 1 to enable, 0 to disable */
-	int width;		/* Bus Width, 1, 4 or 8 */
-#ifdef CONFIG_TEGRA186
-	struct reset_ctl reset_ctl;
-	struct clk clk;
-#else
-	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
-#endif
-	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
-	struct gpio_desc pwr_gpio;	/* Power GPIO */
-	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
-	unsigned int version;	/* SDHCI spec. version */
-	unsigned int clock;	/* Current clock (MHz) */
-	struct mmc_config cfg;	/* mmc configuration */
-};
-
-void pad_init_mmc(struct mmc_host *host);
-
 #endif	/* __ASSEMBLY__ */
 #endif	/* __TEGRA_MMC_H_ */

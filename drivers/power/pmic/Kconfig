@@ -127,6 +127,14 @@ config PMIC_S5M8767
 	driver provides basic register access and sets up the attached
 	regulators if regulator support is enabled.
 
+config PMIC_RN5T567
+	bool "Enable driver for Ricoh RN5T567 PMIC"
+	depends on DM_PMIC
+	---help---
+	The RN5T567 is a PMIC with 4 step-down DC/DC converters, 5 LDO
+	regulators Real-Time Clock and 4 GPIOs. This driver provides
+	register access only.
+
 config PMIC_TPS65090
 	bool "Enable driver for Texas Instruments TPS65090 PMIC"
 	depends on DM_PMIC
@@ -135,3 +143,17 @@ config PMIC_TPS65090
 	FETs and a battery charger. This driver provides register access
 	only, and you can enable the regulator/charger drivers separately if
 	required.
+
+config PMIC_PALMAS
+	bool "Enable driver for Texas Instruments PALMAS PMIC"
+	depends on DM_PMIC
+	---help---
+	The PALMAS is a PMIC containing several LDOs, SMPS.
+	This driver binds the pmic children.
+
+config PMIC_LP873X
+	bool "Enable driver for Texas Instruments LP873X PMIC"
+	depends on DM_PMIC
+	---help---
+	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
+	This driver binds the pmic children.

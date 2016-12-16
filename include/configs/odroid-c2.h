@@ -8,8 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_IDENT_STRING		" odroid-c2"
-
 /* Serial setup */
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200

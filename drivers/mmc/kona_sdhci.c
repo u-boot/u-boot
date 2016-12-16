@@ -7,7 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/kona-common/clk.h>
 
 #define SDHCI_CORECTRL_OFFSET		0x00008000
@@ -27,7 +27,7 @@ static int init_kona_mmc_core(struct sdhci_host *host)
 
 	if (sdhci_readb(host, SDHCI_SOFTWARE_RESET) & SDHCI_RESET_ALL) {
 		printf("%s: sd host controller reset error\n", __func__);
-		return 1;
+		return -EBUSY;
 	}
 
 	/* For kona a hardware reset before anything else. */
@@ -39,7 +39,7 @@ static int init_kona_mmc_core(struct sdhci_host *host)
 	do {
 		if (timeout == 0) {
 			printf("%s: reset timeout error\n", __func__);
-			return 1;
+			return -ETIMEDOUT;
 		}
 		timeout--;
 		udelay(100);
@@ -67,7 +67,7 @@ static int init_kona_mmc_core(struct sdhci_host *host)
 	while (!(sdhci_readl(host, SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT)) {
 		if (timeout == 0) {
 			printf("%s: CARD DETECT timeout error\n", __func__);
-			return 1;
+			return -ETIMEDOUT;
 		}
 		timeout--;
 		udelay(100);
@@ -126,11 +126,6 @@ int kona_sdhci_init(int dev_index, u32 min_clk, u32 quirks)
 		free(host);
 		return -EINVAL;
 	}
-
-	if (quirks & SDHCI_QUIRK_REG32_RW)
-		host->version = sdhci_readl(host, SDHCI_HOST_VERSION - 2) >> 16;
-	else
-		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	add_sdhci(host, max_clk, min_clk);
 	return ret;

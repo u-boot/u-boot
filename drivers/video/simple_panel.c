@@ -42,7 +42,7 @@ static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 		ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 						   "power-supply", &priv->reg);
 		if (ret) {
-			debug("%s: Warning: cnnot get power supply: ret=%d\n",
+			debug("%s: Warning: cannot get power supply: ret=%d\n",
 			      __func__, ret);
 			if (ret != -ENOENT)
 				return ret;

@@ -618,7 +618,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		/*
 		 * Send NOP, MRS and ZQINIT commands
 		 * Sending MRS command will reset the DRAM. We should not be
-		 * reseting the DRAM after resume, this will lead to memory
+		 * resetting the DRAM after resume, this will lead to memory
 		 * corruption as DRAM content is lost after DRAM reset
 		 */
 		dmc_config_mrs(mem, &drex0->directcmd);

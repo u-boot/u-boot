@@ -26,6 +26,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USB_WINDOW_BASE(i)	(0x324 + ((i) << 4))
 #define USB_TARGET_DRAM		0x0
 
+#define USB2_SBUSCFG_OFF	0x90
+
+#define USB_SBUSCFG_BAWR_OFF	0x6
+#define USB_SBUSCFG_BARD_OFF	0x3
+#define USB_SBUSCFG_AHBBRST_OFF	0x0
+
+#define USB_SBUSCFG_BAWR_ALIGN_64B	0x4
+#define USB_SBUSCFG_BARD_ALIGN_64B	0x4
+#define USB_SBUSCFG_AHBBRST_INCR16	0x7
+
 /*
  * USB 2.0 Bridge Address Decoding registers setup
  */
@@ -41,7 +51,7 @@ struct ehci_mvebu_priv {
  * to the common mvebu archticture including the mbus setup, this
  * will be the only function needed to configure the access windows
  */
-static void usb_brg_adrdec_setup(u32 base)
+static void usb_brg_adrdec_setup(void *base)
 {
 	const struct mbus_dram_target_info *dram;
 	int i;
@@ -66,6 +76,29 @@ static void usb_brg_adrdec_setup(u32 base)
 	}
 }
 
+static void marvell_ehci_powerup_fixup(struct ehci_ctrl *ctrl,
+				       uint32_t *status_reg, uint32_t *reg)
+{
+	struct ehci_mvebu_priv *priv = ctrl->priv;
+
+	/*
+	 * Set default value for reg SBUSCFG, which is Control for the AMBA
+	 * system bus interface:
+	 * BAWR = BARD = 4 : Align rd/wr bursts packets larger than 64 bytes
+	 * AHBBRST = 7     : Align AHB burst for packets larger than 64 bytes
+	 */
+	writel((USB_SBUSCFG_BAWR_ALIGN_64B << USB_SBUSCFG_BAWR_OFF) |
+	       (USB_SBUSCFG_BARD_ALIGN_64B << USB_SBUSCFG_BARD_OFF) |
+	       (USB_SBUSCFG_AHBBRST_INCR16 << USB_SBUSCFG_AHBBRST_OFF),
+	       priv->hcd_base + USB2_SBUSCFG_OFF);
+
+	mdelay(50);
+}
+
+static struct ehci_ops marvell_ehci_ops = {
+	.powerup_fixup	= NULL,
+};
+
 static int ehci_mvebu_probe(struct udevice *dev)
 {
 	struct ehci_mvebu_priv *priv = dev_get_priv(dev);
@@ -81,32 +114,33 @@ static int ehci_mvebu_probe(struct udevice *dev)
 		return -ENXIO;
 	}
 
-	usb_brg_adrdec_setup(priv->hcd_base);
+	/*
+	 * For SoCs without hlock like Armada3700 we need to program the sbuscfg
+	 * reg to guarantee AHB master's burst will not overrun or underrun
+	 * the FIFO. Otherwise all USB2 write option will fail.
+	 * Also, the address decoder doesn't need to get setup with this
+	 * SoC, so don't call usb_brg_adrdec_setup().
+	 */
+	if (of_device_is_compatible(dev, "marvell,armada3700-ehci"))
+		marvell_ehci_ops.powerup_fixup = marvell_ehci_powerup_fixup;
+	else
+		usb_brg_adrdec_setup((void *)priv->hcd_base);
 
 	hccr = (struct ehci_hccr *)(priv->hcd_base + 0x100);
 	hcor = (struct ehci_hcor *)
-		((u32)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		((uintptr_t)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	debug("ehci-marvell: init hccr %x and hcor %x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
-	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	debug("ehci-marvell: init hccr %lx and hcor %lx hc_length %ld\n",
+	      (uintptr_t)hccr, (uintptr_t)hcor,
+	      (uintptr_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
-}
-
-static int ehci_mvebu_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
+	return ehci_register(dev, hccr, hcor, &marvell_ehci_ops, 0,
+			     USB_INIT_HOST);
 }
 
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "marvell,orion-ehci", },
+	{ .compatible = "marvell,armada3700-ehci", },
 	{ }
 };
 
@@ -115,7 +149,7 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
 	.probe = ehci_mvebu_probe,
-	.remove = ehci_mvebu_remove,
+	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),

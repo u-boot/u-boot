@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -340,7 +338,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100

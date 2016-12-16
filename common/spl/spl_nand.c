@@ -13,14 +13,15 @@
 #include <fdt.h>
 
 #if defined(CONFIG_SPL_NAND_RAW_ONLY)
-int spl_nand_load_image(void)
+int spl_nand_load_image(struct spl_image_info *spl_image,
+			struct spl_boot_device *bootdev)
 {
 	nand_init();
 
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			    CONFIG_SYS_NAND_U_BOOT_SIZE,
 			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
-	spl_set_header_raw_uboot();
+	spl_set_header_raw_uboot(spl_image);
 	nand_deselect();
 
 	return 0;
@@ -39,7 +40,8 @@ static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
 		return 0;
 }
 
-static int spl_nand_load_element(int offset, struct image_header *header)
+static int spl_nand_load_element(struct spl_image_info *spl_image,
+				 int offset, struct image_header *header)
 {
 	int err;
 
@@ -57,17 +59,18 @@ static int spl_nand_load_element(int offset, struct image_header *header)
 		load.filename = NULL;
 		load.bl_len = 1;
 		load.read = spl_nand_fit_read;
-		return spl_load_simple_fit(&load, offset, header);
+		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else {
-		err = spl_parse_image_header(header);
+		err = spl_parse_image_header(spl_image, header);
 		if (err)
 			return err;
-		return nand_spl_load_image(offset, spl_image.size,
-					   (void *)(ulong)spl_image.load_addr);
+		return nand_spl_load_image(offset, spl_image->size,
+					   (void *)(ulong)spl_image->load_addr);
 	}
 }
 
-int spl_nand_load_image(void)
+static int spl_nand_load_image(struct spl_image_info *spl_image,
+			       struct spl_boot_device *bootdev)
 {
 	int err;
 	struct image_header *header;
@@ -107,15 +110,15 @@ int spl_nand_load_image(void)
 		/* load linux */
 		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
 			sizeof(*header), (void *)header);
-		err = spl_parse_image_header(header);
+		err = spl_parse_image_header(spl_image, header);
 		if (err)
 			return err;
 		if (header->ih_os == IH_OS_LINUX) {
 			/* happy - was a linux */
 			err = nand_spl_load_image(
 				CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
-				spl_image.size,
-				(void *)spl_image.load_addr);
+				spl_image->size,
+				(void *)spl_image->load_addr);
 			nand_deselect();
 			return err;
 		} else {
@@ -127,17 +130,19 @@ int spl_nand_load_image(void)
 	}
 #endif
 #ifdef CONFIG_NAND_ENV_DST
-	spl_nand_load_element(CONFIG_ENV_OFFSET, header);
+	spl_nand_load_element(spl_image, CONFIG_ENV_OFFSET, header);
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	spl_nand_load_element(CONFIG_ENV_OFFSET_REDUND, header);
+	spl_nand_load_element(spl_image, CONFIG_ENV_OFFSET_REDUND, header);
 #endif
 #endif
 	/* Load u-boot */
-	err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS, header);
+	err = spl_nand_load_element(spl_image, CONFIG_SYS_NAND_U_BOOT_OFFS,
+				    header);
 #ifdef CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
 #if CONFIG_SYS_NAND_U_BOOT_OFFS != CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
 	if (err)
-		err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND,
+		err = spl_nand_load_element(spl_image,
+					    CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND,
 					    header);
 #endif
 #endif
@@ -145,3 +150,5 @@ int spl_nand_load_image(void)
 	return err;
 }
 #endif
+/* Use priorty 1 so that Ubi can override this */
+SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_NAND, spl_nand_load_image);

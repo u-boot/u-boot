@@ -24,12 +24,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 #endif
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 
 /* Environment */
@@ -66,21 +60,16 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_STDIO_DEREGISTER
-#endif
-
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it
  */
-#define CONFIG_SYS_CBSIZE		(256 * 2) /* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		(1024 * 2) /* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		32	/* max number of command args */
+#define CONFIG_SYS_MAXARGS		64	/* max number of command args */
+
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
@@ -121,11 +110,6 @@
 #define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
-
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT

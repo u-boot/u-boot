@@ -1,5 +1,29 @@
 if ARCH_ZYNQ
 
+config SPL_FAT_SUPPORT
+	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y
+
+config SPL_LIBGENERIC_SUPPORT
+	default y
+
+config SPL_MMC_SUPPORT
+	default y if ZYNQ_SDHCI
+
+config SPL_SERIAL_SUPPORT
+	default y
+
+config SPL_SPI_FLASH_SUPPORT
+	default y if ZYNQ_QSPI
+
+config SPL_SPI_SUPPORT
+	default y if ZYNQ_QSPI
+
 config SYS_BOARD
 	default "zynq"
 
@@ -26,5 +50,15 @@ config BOOT_INIT_FILE
 	help
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
+
+# Temporary Kconfig options which needs to be fixed
+config ZYNQ_M29EW_WB_HACK
+	bool
+
+config SYS_I2C_MUX_ADDR
+	int
+
+config SYS_I2C_MUX_EEPROM_SEL
+	int
 
 endif

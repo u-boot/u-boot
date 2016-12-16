@@ -24,10 +24,8 @@
 #define CONFIG_460EX		1	/* Specific PPC460EX		*/
 #ifdef CONFIG_DEVCONCENTER
 #define CONFIG_HOSTNAME		devconcenter
-#define CONFIG_IDENT_STRING	" devconcenter 0.06"
 #else
 #define CONFIG_HOSTNAME		intip
-#define CONFIG_IDENT_STRING	" intip 0.06"
 #endif
 #define CONFIG_440		1
 
@@ -290,9 +288,7 @@
  * PCI stuff
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play   */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup  */
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_PCI_DISABLE_PCIE

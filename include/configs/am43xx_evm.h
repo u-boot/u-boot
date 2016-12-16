@@ -39,8 +39,6 @@
 #define CONFIG_SPL_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Enabling L2 Cache */
 #define CONFIG_SYS_L2_PL310
@@ -87,9 +85,6 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 /* SPL USB Support */
-#ifdef CONFIG_SPL_USB_HOST_SUPPORT
-#define CONFIG_SPL_USB_SUPPORT
-#endif
 
 #if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
@@ -127,10 +122,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_RAM
 
-#define CONFIG_DFU_MMC
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \
@@ -146,14 +138,12 @@
 	"MLO raw 0x100 0x100 mmcpart 0;" \
 	"u-boot.img raw 0x300 0x1000 mmcpart 0\0"
 
-#define CONFIG_DFU_RAM
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
 	"kernel ram 0x80200000 0x4000000;" \
 	"fdt ram 0x80f80000 0x80000;" \
 	"ramdisk ram 0x81000000 0x4000000\0"
 
-#define CONFIG_DFU_SF
 #define DFU_ALT_INFO_QSPI \
 	"dfu_alt_info_qspi=" \
 	"u-boot.bin raw 0x0 0x080000;" \
@@ -318,13 +308,9 @@
 #define CONFIG_PHYLIB
 #define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ETH_SUPPORT)
 #undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SPL_NET_SUPPORT
 #endif
 
 #define CONFIG_SYS_RX_ETH_BUFFER	64

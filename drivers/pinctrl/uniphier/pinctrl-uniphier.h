@@ -13,10 +13,6 @@
 #include <linux/kernel.h>
 #include <linux/types.h>
 
-#define UNIPHIER_PINCTRL_PINMUX_BASE	0x1000
-#define UNIPHIER_PINCTRL_LOAD_PINMUX	0x1700
-#define UNIPHIER_PINCTRL_IECTRL		0x1d00
-
 #define UNIPHIER_PIN_ATTR_PACKED(iectrl)	(iectrl)
 
 static inline unsigned int uniphier_pin_get_iectrl(unsigned long data)
@@ -71,8 +67,9 @@ struct uniphier_pinctrl_socdata {
 	const char * const *functions;
 	int functions_count;
 	unsigned caps;
-#define UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL	BIT(1)
-#define UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE	BIT(0)
+#define UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL	BIT(2)
+#define UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE	BIT(1)
+#define UNIPHIER_PINCTRL_CAPS_MUX_4BIT		BIT(0)
 };
 
 #define UNIPHIER_PINCTRL_PIN(a, b)					\
@@ -94,7 +91,12 @@ struct uniphier_pinctrl_socdata {
 #define __UNIPHIER_PINMUX_FUNCTION(func)	#func
 
 #ifdef CONFIG_SPL_BUILD
-#define UNIPHIER_PINCTRL_GROUP(grp)		{ .name = NULL }
+	/*
+	 * a tricky way to drop unneeded *_pins and *_muxvals arrays from SPL,
+	 * suppressing "defined but not used" warnings.
+	 */
+#define UNIPHIER_PINCTRL_GROUP(grp)					\
+	{ .num_pins = ARRAY_SIZE(grp##_pins) + ARRAY_SIZE(grp##_muxvals) }
 #define UNIPHIER_PINMUX_FUNCTION(func)		NULL
 #else
 #define UNIPHIER_PINCTRL_GROUP(grp)		__UNIPHIER_PINCTRL_GROUP(grp)

@@ -15,7 +15,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 
 #include "sh_eth.h"

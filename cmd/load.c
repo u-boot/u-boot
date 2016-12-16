@@ -997,7 +997,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	xyzModem_stream_terminate(false, &getcxmodem);
 
 
-	flush_cache(offset, size);
+	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
 	setenv_hex("filesize", size);

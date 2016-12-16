@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2015 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,9 +23,6 @@ void uniphier_pro4_clk_init(void)
 #endif
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_RSTCTRL_NRST_ETHER;
-#endif
-#ifdef CONFIG_USB_EHCI
-	tmp |= SC_RSTCTRL_NRST_STDMAC;
 #endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_RSTCTRL_NRST_NAND;

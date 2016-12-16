@@ -15,10 +15,10 @@
 		i2c3 = "/i2c@7000c500";
 		i2c4 = "/i2c@7000c700";
 		i2c5 = "/i2c@7000d100";
-		rtc0 = "/i2c@0,7000d000/pmic@40";
-		rtc1 = "/rtc@0,7000e000";
-		sdhci0 = "/sdhci@700b0600";
-		sdhci1 = "/sdhci@700b0400";
+		rtc0 = "/i2c@7000d000/pmic@40";
+		rtc1 = "/rtc@7000e000";
+		mmc0 = "/sdhci@700b0600";
+		mmc1 = "/sdhci@700b0400";
 		spi0 = "/spi@7000d400";
 		spi1 = "/spi@7000da00";
 		usb0 = "/usb@7d000000";
@@ -58,7 +58,7 @@
 		ddc-i2c-bus = <&dpaux>;
 	};
 
-	sdhci@0,700b0400 { /* SD Card on this bus */
+	sdhci@700b0400 { /* SD Card on this bus */
 		wp-gpios = <&gpio TEGRA_GPIO(Q, 4) GPIO_ACTIVE_LOW>;
 	};
 
@@ -69,7 +69,7 @@
 		nvidia,model = "GoogleNyanBig";
 	};
 
-	pinmux@0,70000868 {
+	pinmux@70000868 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinmux_default>;
 

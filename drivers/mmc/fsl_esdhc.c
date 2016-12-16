@@ -1010,6 +1010,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	}
 
 	upriv->mmc = priv->mmc;
+	priv->mmc->dev = dev;
 
 	return 0;
 }

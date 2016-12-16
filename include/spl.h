@@ -49,6 +49,7 @@ struct spl_load_info {
 
 /**
  * spl_load_simple_fit() - Loads a fit image from a device.
+ * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
  * @sector:	Sector number where FIT image is located in the device
  * @fdt:	Pointer to the copied FIT header.
@@ -57,66 +58,146 @@ struct spl_load_info {
  * specified load address and copies the dtb to end of u-boot image.
  * Returns 0 on success.
  */
-int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fdt);
+int spl_load_simple_fit(struct spl_image_info *spl_image,
+			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
-
-extern struct spl_image_info spl_image;
 
 /* SPL common functions */
 void preloader_console_init(void);
 u32 spl_boot_device(void);
 u32 spl_boot_mode(const u32 boot_device);
-void spl_set_header_raw_uboot(void);
-int spl_parse_image_header(const struct image_header *header);
+
+/**
+ * spl_set_header_raw_uboot() - Set up a standard SPL image structure
+ *
+ * This sets up the given spl_image which the standard values obtained from
+ * config options: CONFIG_SYS_MONITOR_LEN, CONFIG_SYS_UBOOT_START,
+ * CONFIG_SYS_TEXT_BASE.
+ *
+ * @spl_image: Image description to set up
+ */
+void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
+
+/**
+ * spl_parse_image_header() - parse the image header and set up info
+ *
+ * This parses the legacy image header information at @header and sets up
+ * @spl_image according to what is found. If no image header is found, then
+ * a raw image or bootz is assumed. If CONFIG_SPL_PANIC_ON_RAW_IMAGE is
+ * enabled, then this causes a panic. If CONFIG_SPL_ABORT_ON_RAW_IMAGE is
+ * enabled then U-Boot gives up. Otherwise U-Boot sets up the image using
+ * spl_set_header_raw_uboot(), or possibly the bootz header.
+ *
+ * @spl_image: Image description to set up
+ * @header image header to parse
+ * @return 0 if a header was correctly parsed, -ve on error
+ */
+int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct image_header *header);
+
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
-void __noreturn jump_to_image_linux(void *arg);
+
+/**
+ * jump_to_image_linux() - Jump to a Linux kernel from SPL
+ *
+ * This jumps into a Linux kernel using the information in @spl_image.
+ *
+ * @spl_image: Image description to set up
+ * @arg: Argument to pass to Linux (typically a device tree pointer)
+ */
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
+				    void *arg);
+
+/**
+ * spl_start_uboot() - Check if SPL should start the kernel or U-Boot
+ *
+ * This is called by the various SPL loaders to determine whether the board
+ * wants to load the kernel or U-Boot. This function should be provided by
+ * the board.
+ *
+ * @return 0 if SPL should start the kernel, 1 if U-Boot must be started
+ */
 int spl_start_uboot(void);
+
+/**
+ * spl_display_print() - Display a board-specific message in SPL
+ *
+ * If CONFIG_SPL_DISPLAY_PRINT is enabled, U-Boot will call this function
+ * immediately after displaying the SPL console banner ("U-Boot SPL ...").
+ * This function should be provided by the board.
+ */
 void spl_display_print(void);
 
-/* NAND SPL functions */
-int spl_nand_load_image(void);
+/**
+ * struct spl_boot_device - Describes a boot device used by SPL
+ *
+ * @boot_device: A number indicating the BOOT_DEVICE type. There are various
+ * BOOT_DEVICE... #defines and enums in U-Boot and they are not consistently
+ * numbered.
+ * @boot_device_name: Named boot device, or NULL if none.
+ *
+ * Note: Additional fields can be added here, bearing in mind that SPL is
+ * size-sensitive and common fields will be present on all boards. This
+ * struct can also be used to return additional information about the load
+ * process if that becomes useful.
+ */
+struct spl_boot_device {
+	uint boot_device;
+	const char *boot_device_name;
+};
 
-/* OneNAND SPL functions */
-int spl_onenand_load_image(void);
+/**
+ * Holds information about a way of loading an SPL image
+ *
+ * @boot_device: Boot device that this loader supports
+ * @load_image: Function to call to load image
+ */
+struct spl_image_loader {
+	uint boot_device;
+	/**
+	 * load_image() - Load an SPL image
+	 *
+	 * @spl_image: place to put image information
+	 * @bootdev: describes the boot device to load from
+	 */
+	int (*load_image)(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev);
+};
 
-/* NOR SPL functions */
-int spl_nor_load_image(void);
+/* Declare an SPL image loader */
+#define SPL_LOAD_IMAGE(__name)					\
+	ll_entry_declare(struct spl_image_loader, __name, spl_image_loader)
 
-/* UBI SPL functions */
-int spl_ubi_load_image(u32 boot_device);
-
-/* MMC SPL functions */
-int spl_mmc_load_image(u32 boot_device);
-
-/* YMODEM SPL functions */
-int spl_ymodem_load_image(void);
-
-/* SPI SPL functions */
-int spl_spi_load_image(void);
-
-/* Ethernet SPL functions */
-int spl_net_load_image(const char *device);
-
-/* USB SPL functions */
-int spl_usb_load_image(void);
-
-/* SATA SPL functions */
-int spl_sata_load_image(void);
+/*
+ * __priority is the priority of this method, 0 meaning it will be the top
+ * choice for this device, 9 meaning it is the bottom choice.
+ * __boot_device is the BOOT_DEVICE_... value
+ * __method is the load_image function to call
+ */
+#define SPL_LOAD_IMAGE_METHOD(__priority, __boot_device, __method) \
+	SPL_LOAD_IMAGE(__method ## __priority ## __boot_device) = { \
+		.boot_device = __boot_device, \
+		.load_image = __method, \
+	}
 
 /* SPL FAT image functions */
-int spl_load_image_fat(struct blk_desc *block_dev, int partition,
+int spl_load_image_fat(struct spl_image_info *spl_image,
+		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
-int spl_load_image_fat_os(struct blk_desc *block_dev, int partition);
+int spl_load_image_fat_os(struct spl_image_info *spl_image,
+			  struct blk_desc *block_dev, int partition);
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 
 /* SPL EXT image functions */
-int spl_load_image_ext(struct blk_desc *block_dev, int partition,
+int spl_load_image_ext(struct spl_image_info *spl_image,
+		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
-int spl_load_image_ext_os(struct blk_desc *block_dev, int partition);
+int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct blk_desc *block_dev, int partition);
 
 /**
  * spl_init() - Set up device tree and driver model in SPL if enabled
@@ -152,4 +233,5 @@ bool spl_was_boot_source(void);
  * @return 0 on success, otherwise error code
  */
 int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
+
 #endif

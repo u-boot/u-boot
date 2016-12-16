@@ -461,9 +461,6 @@
 #endif
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 

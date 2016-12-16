@@ -11,7 +11,7 @@
 
 #include <common.h>
 #include <usb.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include <asm/omap_common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>

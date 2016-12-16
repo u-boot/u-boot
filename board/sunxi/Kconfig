@@ -1,5 +1,32 @@
 if ARCH_SUNXI
 
+config IDENT_STRING
+	default " Allwinner Technology"
+
+config PRE_CONSOLE_BUFFER
+	default y
+
+config SPL_GPIO_SUPPORT
+	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y
+
+config SPL_LIBGENERIC_SUPPORT
+	default y
+
+config SPL_MMC_SUPPORT
+	default y
+
+config SPL_POWER_SUPPORT
+	default y
+
+config SPL_SERIAL_SUPPORT
+	default y
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I
@@ -92,6 +119,7 @@ config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
 	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
@@ -114,11 +142,13 @@ config DRAM_TYPE
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
+	default 792 if MACH_SUN9I
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
-	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24.
+	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
+	must be a multiple of 24. For the sun9i (A80), the tested values
+	(for DDR3-1600) are 312 to 792.
 
 if MACH_SUN5I || MACH_SUN7I
 config DRAM_MBUS_CLK
@@ -133,6 +163,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 4145117 if MACH_SUN9I
 	---help---
 	Set the dram zq value.
 
@@ -225,7 +256,7 @@ endif
 config SYS_CLK_FREQ
 	default 816000000 if MACH_SUN50I
 	default 912000000 if MACH_SUN7I
-	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I

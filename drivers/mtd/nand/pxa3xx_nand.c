@@ -10,7 +10,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <nand.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <linux/mtd/mtd.h>

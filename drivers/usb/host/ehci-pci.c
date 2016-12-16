@@ -32,8 +32,8 @@ static void ehci_pci_init(struct udevice *dev, struct ehci_hccr **ret_hccr,
 	hcor = (struct ehci_hcor *)((uintptr_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	debug("EHCI-PCI init hccr 0x%x and hcor 0x%x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
+	debug("EHCI-PCI init hccr %#lx and hcor %#lx hc_length %d\n",
+	      (ulong)hccr, (ulong)hcor,
 	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	*ret_hccr = hccr;
@@ -126,17 +126,6 @@ static int ehci_pci_probe(struct udevice *dev)
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
 
-static int ehci_pci_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = ehci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id ehci_pci_ids[] = {
 	{ .compatible = "ehci-pci" },
 	{ }
@@ -146,7 +135,7 @@ U_BOOT_DRIVER(ehci_pci) = {
 	.name	= "ehci_pci",
 	.id	= UCLASS_USB,
 	.probe = ehci_pci_probe,
-	.remove = ehci_pci_remove,
+	.remove = ehci_deregister,
 	.of_match = ehci_pci_ids,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),

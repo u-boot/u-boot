@@ -16,7 +16,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 
@@ -25,7 +24,6 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define	CONFIG_VIDEO
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -46,7 +44,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_RBTREE

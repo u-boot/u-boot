@@ -30,12 +30,6 @@ struct rk3288_clk_plat {
 #endif
 };
 
-struct rk3288_clk_priv {
-	struct rk3288_grf *grf;
-	struct rk3288_cru *cru;
-	ulong rate;
-};
-
 struct pll_div {
 	u32 nr;
 	u32 nf;
@@ -139,21 +133,6 @@ enum {
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
-
-void *rockchip_get_cru(void)
-{
-	struct rk3288_clk_priv *priv;
-	struct udevice *dev;
-	int ret;
-
-	ret = rockchip_get_clk(&dev);
-	if (ret)
-		return ERR_PTR(ret);
-
-	priv = dev_get_priv(dev);
-
-	return priv->cru;
-}
 
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 			 const struct pll_div *div)
@@ -695,6 +674,8 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 	case PCLK_I2C4:
 	case PCLK_I2C5:
 		return gclk_rate;
+	case PCLK_PWM:
+		return PD_BUS_PCLK_HZ;
 	default:
 		return -ENOENT;
 	}

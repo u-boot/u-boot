@@ -86,8 +86,9 @@ static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 	return node_offset;
 }
 
-static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
-				 const char *controller_type, int start_offset)
+static int fsl_fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
+				     const char *controller_type,
+				     int start_offset)
 {
 	int node_offset, err;
 	const char *node_type = NULL;
@@ -114,24 +115,24 @@ static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
 	return node_offset;
 }
 
-static int fdt_fixup_erratum(int *usb_erratum_off, void *blob,
-			     const char *controller_type, char *str,
-			     bool (*has_erratum)(void))
+static int fsl_fdt_fixup_erratum(int *usb_erratum_off, void *blob,
+				 const char *controller_type, char *str,
+				 bool (*has_erratum)(void))
 {
 	char buf[32] = {0};
 
 	snprintf(buf, sizeof(buf), "fsl,usb-erratum-%s", str);
 	if (!has_erratum())
 		return -EINVAL;
-	*usb_erratum_off = fdt_fixup_usb_erratum(blob, buf, controller_type,
-						 *usb_erratum_off);
+	*usb_erratum_off = fsl_fdt_fixup_usb_erratum(blob, buf, controller_type,
+						     *usb_erratum_off);
 	if (*usb_erratum_off < 0)
 		return -ENOSPC;
 	debug("Adding USB erratum %s\n", str);
 	return 0;
 }
 
-void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+void fsl_fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	static const char * const modes[] = { "host", "peripheral", "otg" };
 	static const char * const phys[] = { "ulpi", "utmi", "utmi_dual" };
@@ -198,29 +199,29 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 		if (usb_phy_off < 0)
 			return;
 
-		ret = fdt_fixup_erratum(&usb_erratum_a006261_off, blob,
-					CHIPIDEA_USB2, "a006261",
-					has_erratum_a006261);
+		ret = fsl_fdt_fixup_erratum(&usb_erratum_a006261_off, blob,
+					    CHIPIDEA_USB2, "a006261",
+					    has_erratum_a006261);
 		if (ret == -ENOSPC)
 			return;
-		ret = fdt_fixup_erratum(&usb_erratum_a007075_off, blob,
-					CHIPIDEA_USB2, "a007075",
-					has_erratum_a007075);
+		ret = fsl_fdt_fixup_erratum(&usb_erratum_a007075_off, blob,
+					    CHIPIDEA_USB2, "a007075",
+					    has_erratum_a007075);
 		if (ret == -ENOSPC)
 			return;
-		ret = fdt_fixup_erratum(&usb_erratum_a007792_off, blob,
-					CHIPIDEA_USB2, "a007792",
-					has_erratum_a007792);
+		ret = fsl_fdt_fixup_erratum(&usb_erratum_a007792_off, blob,
+					    CHIPIDEA_USB2, "a007792",
+					    has_erratum_a007792);
 		if (ret == -ENOSPC)
 			return;
-		ret = fdt_fixup_erratum(&usb_erratum_a005697_off, blob,
-					CHIPIDEA_USB2, "a005697",
-					has_erratum_a005697);
+		ret = fsl_fdt_fixup_erratum(&usb_erratum_a005697_off, blob,
+					    CHIPIDEA_USB2, "a005697",
+					    has_erratum_a005697);
 		if (ret == -ENOSPC)
 			return;
-		ret = fdt_fixup_erratum(&usb_erratum_a008751_off, blob,
-					SNPS_DWC3, "a008751",
-					has_erratum_a008751);
+		ret = fsl_fdt_fixup_erratum(&usb_erratum_a008751_off, blob,
+					    SNPS_DWC3, "a008751",
+					    has_erratum_a008751);
 		if (ret == -ENOSPC)
 			return;
 

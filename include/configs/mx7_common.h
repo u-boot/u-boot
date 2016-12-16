@@ -31,8 +31,6 @@
 
 #define CONFIG_ARCH_MISC_INIT
 
-#define CONFIG_DISPLAY_CPUINFO
-
 #define CONFIG_LOADADDR                 0x80800000
 #define CONFIG_SYS_TEXT_BASE            0x87800000
 
@@ -73,5 +71,14 @@
 #define CONFIG_MXC_OCOTP
 
 #define CONFIG_ARMV7_SECURE_BASE	0x00900000
+
+/* Secure boot (HAB) support */
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CSF_SIZE			0x2000
+#define CONFIG_SYS_FSL_SEC_COMPAT	4
+#define CONFIG_FSL_CAAM
+#define CONFIG_CMD_DEKBLOB
+#define CONFIG_SYS_FSL_SEC_LE
+#endif
 
 #endif

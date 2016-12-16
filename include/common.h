@@ -866,17 +866,20 @@ int	getc(void);
 int	tstc(void);
 
 /* stdout */
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SERIAL_SUPPORT)
-#define	putc(...) do { } while (0)
-#define puts(...) do { } while (0)
-#define printf(...) do { } while (0)
-#define vprintf(...) do { } while (0)
-#else
+#if !defined(CONFIG_SPL_BUILD) || \
+	(defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_SERIAL_SUPPORT)) || \
+	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD) && \
+		defined(CONFIG_SPL_SERIAL_SUPPORT))
 void	putc(const char c);
 void	puts(const char *s);
 int	printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 int	vprintf(const char *fmt, va_list args);
+#else
+#define	putc(...) do { } while (0)
+#define puts(...) do { } while (0)
+#define printf(...) do { } while (0)
+#define vprintf(...) do { } while (0)
 #endif
 
 /* stderr */

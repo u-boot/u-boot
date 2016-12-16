@@ -346,7 +346,7 @@ static int serial_post_probe(struct udevice *dev)
 
 static int serial_pre_remove(struct udevice *dev)
 {
-#ifdef CONFIG_SYS_STDIO_DEREGISTER
+#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 
 	if (stdio_deregister_dev(upriv->sdev, 0))

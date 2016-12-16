@@ -10,7 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/clk.h>
 
 /*

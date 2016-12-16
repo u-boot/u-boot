@@ -11,14 +11,9 @@
 
 static int ptn3460_attach(struct udevice *dev)
 {
-	int ret;
-
 	debug("%s: %s\n", __func__, dev->name);
-	ret = video_bridge_set_active(dev, true);
-	if (ret)
-		return ret;
 
-	return 0;
+	return video_bridge_set_active(dev, true);
 }
 
 struct video_bridge_ops ptn3460_ops = {

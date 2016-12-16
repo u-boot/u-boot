@@ -48,7 +48,6 @@
 #define CONFIG_SCSI		/* SCSI Support			*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
 #define CONFIG_CMD_TERMINAL	/* built-in Serial Terminal	*/
-#define CONFIG_CMD_UBI		/* UBI Support			*/
 #define CONFIG_CMD_UBIFS	/* UBIFS Support		*/
 #define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/
 #define CONFIG_CMD_UNZIP	/* unzip from memory to memory	*/

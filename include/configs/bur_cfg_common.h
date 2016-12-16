@@ -39,10 +39,7 @@
 #define CONFIG_NETCONSOLE		1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 
 /* As stated above, the following choices are optional. */
 #define CONFIG_SYS_LONGHELP

@@ -18,7 +18,6 @@
 
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU	*/
 #define CONFIG_INKA4X0		1	/* INKA4x0 board		*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:
@@ -48,8 +47,6 @@
  * 0x40000000 - 0x4fffffff - PCI Memory
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
-#define CONFIG_PCI		1
-#define CONFIG_PCI_PNP		1
 #define CONFIG_PCI_SCAN_SHOW	1
 #define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE	1
 

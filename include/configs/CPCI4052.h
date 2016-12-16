@@ -23,7 +23,6 @@
 #undef  CONFIG_CPCI405_6U               /* enable this for 6U boards    */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	 1	/* call misc_init_r()		*/
@@ -98,8 +97,6 @@
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
-
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
@@ -110,11 +107,6 @@
 
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
 #define CONFIG_SYS_BASE_BAUD	    691200
-
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-	 57600, 115200, 230400, 460800, 921600 }
 
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -131,10 +123,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */

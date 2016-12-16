@@ -10,11 +10,6 @@
 #define _CONFIG_IB62x0_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	" RaidSonic ICY BOX IB-NAS62x0"
-
-/*
  * High level configuration options
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */

@@ -15,7 +15,7 @@
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
 #include <asm/ppc4xx-gpio.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <usb.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
@@ -63,11 +63,7 @@ u32 ddr_clktr(u32 default_val) {
  */
 static inline int board_fpga_read(int offset)
 {
-	int data;
-
-	data = in_8((void *)(CONFIG_SYS_FPGA_BASE + offset));
-
-	return data;
+	return in_8((void *)(CONFIG_SYS_FPGA_BASE + offset));
 }
 
 static inline void board_fpga_write(int offset, int data)

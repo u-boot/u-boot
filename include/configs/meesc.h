@@ -52,8 +52,6 @@
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 #define CONFIG_MISC_INIT_R			/* Call misc_init_r */
 
-#define CONFIG_DISPLAY_BOARDINFO		/* call checkboard() */
-#define CONFIG_DISPLAY_CPUINFO			/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 
 /*

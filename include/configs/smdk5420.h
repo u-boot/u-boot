@@ -13,7 +13,6 @@
 #include <configs/exynos5-dt-common.h>
 #include <configs/exynos5-common.h>
 
-#undef CONFIG_LCD
 #undef CONFIG_EXYNOS_FB
 #undef CONFIG_EXYNOS_DP
 
@@ -31,7 +30,6 @@
 #define CONFIG_SERIAL3		/* use SERIAL 3 */
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
-#define CONFIG_IDENT_STRING	" for SMDK5420"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 /* USB */

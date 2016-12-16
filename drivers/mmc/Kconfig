@@ -19,6 +19,7 @@ config DM_MMC
 config DM_MMC_OPS
 	bool "Support MMC controller operations using Driver Model"
 	depends on DM_MMC
+	default y if DM_MMC
 	help
 	  Driver model provides a means of supporting device operations. This
 	  option moves MMC operations under the control of driver model. The
@@ -80,6 +81,7 @@ config ROCKCHIP_SDHCI
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
+	depends on BLK
 	select DM_MMC_OPS
 	help
 	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.

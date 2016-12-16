@@ -26,7 +26,7 @@
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <ata.h>

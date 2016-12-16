@@ -85,6 +85,8 @@ int efi_disk_register(void);
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
 int efi_net_register(void **handle);
+/* Called by bootefi to make SMBIOS tables available */
+void efi_smbios_register(void);
 
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
@@ -93,7 +95,7 @@ void efi_net_set_dhcp_ack(void *pkt, int len);
  * Stub implementation for a protocol opener that just returns the handle as
  * interface
  */
-efi_status_t efi_return_handle(void *handle,
+efi_status_t EFIAPI efi_return_handle(void *handle,
 		efi_guid_t *protocol, void **protocol_interface,
 		void *agent_handle, void *controller_handle,
 		uint32_t attributes);
@@ -117,8 +119,13 @@ void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
 efi_status_t efi_allocate_pages(int type, int memory_type, unsigned long pages,
 				uint64_t *memory);
-/* EFI memory free function. Not implemented today */
+/* EFI memory free function. */
 efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
+/* EFI memory allocator for small allocations */
+efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+			       void **buffer);
+/* EFI pool memory free function. */
+efi_status_t efi_free_pool(void *buffer);
 /* Returns the EFI memory map */
 efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 				struct efi_mem_desc *memory_map,
@@ -130,6 +137,8 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			    bool overlap_only_ram);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
+/* Adds new or overrides configuration table entry to the system table */
+efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
@@ -147,14 +156,32 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
  */
-#define EFI_RUNTIME_DATA __attribute__ ((section ("efi_runtime_data")))
-#define EFI_RUNTIME_TEXT __attribute__ ((section ("efi_runtime_text")))
+#define __efi_runtime_data __attribute__ ((section ("efi_runtime_data")))
+#define __efi_runtime __attribute__ ((section ("efi_runtime_text")))
+
+/* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
+ * to make it available at runtime */
+void efi_add_runtime_mmio(void *mmio_ptr, u64 len);
+
+/* Boards may provide the functions below to implement RTS functionality */
+
+void __efi_runtime EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data);
+void efi_reset_system_init(void);
+
+efi_status_t __efi_runtime EFIAPI efi_get_time(
+			struct efi_time *time,
+			struct efi_time_cap *capabilities);
+void efi_get_time_init(void);
 
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
-#define EFI_RUNTIME_DATA
-#define EFI_RUNTIME_TEXT
+#define __efi_runtime_data
+#define __efi_runtime
+static inline void efi_add_runtime_mmio(void **mmio_ptr, u64 len) { }
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }

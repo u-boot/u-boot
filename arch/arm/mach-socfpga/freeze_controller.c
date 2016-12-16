@@ -9,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/freeze_controller.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

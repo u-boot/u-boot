@@ -438,11 +438,7 @@ int checkboard(void)
 
 phys_size_t initdram (int board_type)
 {
-	long dram_size;
-
-	dram_size = spd_sdram();
-
-	return dram_size;
+	return spd_sdram();
 }
 
 /*----------------------------------------------------------------------------+

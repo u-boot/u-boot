@@ -114,10 +114,10 @@ void fsl_erratum_a006261_workaround(struct ccsr_usb_phy __iomem *usb_phy)
 	setbits_be32(&usb_phy->config2,
 		     CONFIG_SYS_FSL_USB_RX_AUTO_CAL_RD_WR_SEL);
 
-	temp = squelch_prog_rd_0_2 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
+	temp = squelch_prog_rd_0_2 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 
-	temp = squelch_prog_rd_3_5 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
+	temp = squelch_prog_rd_3_5 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 #endif
 }

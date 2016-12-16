@@ -59,6 +59,44 @@ To define a partition alias add an environment variable similar to:
 fastboot_partition_alias_<alias partition name>=<actual partition name>
 Example: fastboot_partition_alias_boot=LNX
 
+Partition Names
+===============
+The Fastboot implementation in U-boot allows to write images into disk
+partitions (currently on eMMC). Target partitions are referred on the host
+computer by their names.
+
+For GPT/EFI the respective partition name is used.
+
+For MBR the partitions are referred by generic names according to the
+following schema:
+
+  <device type> <device index letter> <partition index>
+
+Example: hda3, sdb1, usbda1
+
+The device type is as follows:
+
+  * IDE, ATAPI and SATA disks: hd
+  * SCSI disks: sd
+  * USB media: usbd
+  * MMC and SD cards: mmcsd
+  * Disk on chip: docd
+  * other: xx
+
+The device index starts from 'a' and refers to the interface (e.g. USB
+controller, SD/MMC controller) or disk index. The partition index starts
+from 1 and describes the partition number on the particular device.
+
+Writing Partition Table
+=======================
+Fastboot also allows to write the partition table to the media. This can be
+done by writing the respective partition table image to a special target
+"gpt" or "mbr". These names can be customized by defining the following
+configuration options:
+
+CONFIG_FASTBOOT_GPT_NAME
+CONFIG_FASTBOOT_MBR_NAME
+
 In Action
 =========
 Enter into fastboot by executing the fastboot command in u-boot and you

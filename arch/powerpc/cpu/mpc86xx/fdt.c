@@ -30,13 +30,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 			     "bus-frequency", bd->bi_busfreq, 1);
 
-#if defined(CONFIG_MPC8641)
-	do_fixup_by_compat_u32(blob, "fsl,mpc8641-localbus",
-			       "bus-frequency", gd->arch.lbc_clk, 1);
-#endif
-	do_fixup_by_compat_u32(blob, "fsl,elbc",
-			       "bus-frequency", gd->arch.lbc_clk, 1);
-
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) \

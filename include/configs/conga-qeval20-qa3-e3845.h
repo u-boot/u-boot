@@ -19,8 +19,6 @@
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_ARCH_MISC_INIT
 
-#define CONFIG_PCI_PNP
-
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"

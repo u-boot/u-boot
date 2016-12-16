@@ -29,8 +29,6 @@
 #define CONFIG_SYS_TEXT_BASE	0xFFF90000
 #endif
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_CLK_FREQ	33333400
 
 #if 0 /* temporary disabled because OS/9 does not like dcache on startup */
@@ -286,8 +284,6 @@
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x7fff0000	/* free virtual address     */
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* Otherwise it catches logbuffer as output */
-
 #define CONFIG_SUPPORT_VFAT
 
 /*-----------------------------------------------------------------------
@@ -316,9 +312,7 @@
  * PCI stuff
  *----------------------------------------------------------------------*/
 /* General PCI */
-#define CONFIG_PCI		/* include pci support          */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP		/* do (not) pci plug-and-play   */
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	0	/* to avoid problems with PNP   */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup  */
 #define CONFIG_SYS_PCI_TARGBASE	0x80000000 /* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE */

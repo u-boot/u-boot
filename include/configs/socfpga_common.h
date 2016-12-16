@@ -14,7 +14,6 @@
 /*
  * High level configuration
  */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_ARCH_EARLY_INIT_R
@@ -241,10 +240,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
-#define CONFIG_USB_FUNCTION_DFU
-#ifdef CONFIG_DM_MMC
-#define CONFIG_DFU_MMC
-#endif
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(32 * 1024 * 1024)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
@@ -256,9 +251,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * U-Boot environment
  */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-#define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 #if !defined(CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE			4096
 #endif
@@ -300,7 +292,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 /* UBI and UBIFS support */
 #if defined(CONFIG_CMD_SF) || defined(CONFIG_CMD_NAND)
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
@@ -322,36 +313,19 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#ifdef CONFIG_DM_MMC
-#define CONFIG_SPL_MMC_SUPPORT
-#endif
-#ifdef CONFIG_DM_SPI
-#define CONFIG_SPL_SPI_SUPPORT
-#endif
-#ifdef CONFIG_SPL_NAND_DENALI
-#define CONFIG_SPL_NAND_SUPPORT
-#endif
-
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	2
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #else
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	1
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x200 /* offset 512 sect (256k) */
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #endif
 #endif
 
 /* SPL QSPI boot support */
 #ifdef CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
 #endif

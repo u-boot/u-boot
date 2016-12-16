@@ -45,7 +45,7 @@ u32 g_dev_id = -1;
 
 u32 mv_board_id_get(void)
 {
-#if defined(CONFIG_DB_88F6820_GP)
+#if defined(CONFIG_TARGET_DB_88F6820_GP)
 	return DB_GP_68XX_ID;
 #else
 	/*

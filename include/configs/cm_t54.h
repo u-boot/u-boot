@@ -16,8 +16,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-#undef CONFIG_SPL_OS_BOOT
-
 /* EEPROM related defines */
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
@@ -56,7 +54,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* SATA Boot related defines */
-#define CONFIG_SPL_SATA_SUPPORT
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
 

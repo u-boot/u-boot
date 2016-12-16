@@ -12,8 +12,6 @@
 #include <config_distro_defaults.h>
 #include "mx6_common.h"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
 #define MACH_TYPE_WANDBOARD		4412
@@ -76,12 +74,7 @@
 #define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -118,32 +111,6 @@
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
 			"fi; "	\
 		"fi\0" \
-	"videoargs=" \
-		"setenv nextcon 0; " \
-		"if hdmidet; then " \
-			"setenv bootargs ${bootargs} " \
-				"video=mxcfb${nextcon}:dev=hdmi,1280x720M@60," \
-					"if=RGB24; " \
-			"setenv fbmen fbmem=28M; " \
-			"setexpr nextcon ${nextcon} + 1; " \
-		"else " \
-			"echo - no HDMI monitor;" \
-		"fi; " \
-		"i2c dev 1; " \
-		"if i2c probe 0x10; then " \
-			"setenv bootargs ${bootargs} " \
-				"video=mxcfb${nextcon}:dev=lcd,800x480@60," \
-					"if=RGB666,bpp=32; " \
-			"if test 0 -eq ${nextcon}; then " \
-				"setenv fbmem fbmem=10M; " \
-			"else " \
-				"setenv fbmem ${fbmem},10M; " \
-			"fi; " \
-			"setexpr nextcon ${nextcon} + 1; " \
-		"else " \
-			"echo '- no FWBADAPT-7WVGA-LCD-F07A-0102 display';" \
-		"fi; " \
-		"setenv bootargs ${bootargs} ${fbmem}\0" \
 	"findfdt="\
 		"if test $board_name = C1 && test $board_rev = MX6Q ; then " \
 			"setenv fdtfile imx6q-wandboard.dtb; fi; " \

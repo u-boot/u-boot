@@ -271,8 +271,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	if (err)
 		return err;
 
-	dwmci_setup_cfg(&plat->cfg, host->name, host->buswidth, host->caps,
-			DWMMC_MAX_FREQ, DWMMC_MIN_FREQ);
+	dwmci_setup_cfg(&plat->cfg, host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ);
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
 	host->priv = dev;
@@ -284,13 +283,8 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 static int exynos_dwmmc_bind(struct udevice *dev)
 {
 	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
-	int ret;
 
-	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
-	if (ret)
-		return ret;
-
-	return 0;
+	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id exynos_dwmmc_ids[] = {

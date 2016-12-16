@@ -45,7 +45,7 @@ typedef struct global_data {
 	unsigned long board_type;
 #endif
 	unsigned long have_console;	/* serial_init() was called */
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
+#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 #endif
 	unsigned long env_addr;		/* Address  of Environment struct */

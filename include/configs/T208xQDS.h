@@ -11,7 +11,6 @@
 #ifndef __T208xQDS_H
 #define __T208xQDS_H
 
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
 #define CONFIG_USB_EHCI
@@ -47,21 +46,9 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
-#if defined(CONFIG_PPC_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_rcw.cfg
-#endif
 
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
@@ -77,19 +64,21 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_nand_rcw.cfg
+#endif
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
 #define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x00200000)
@@ -99,12 +88,16 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_spi_rcw.cfg
+#endif
 #define CONFIG_SPL_SPI_BOOT
 #endif
 
 #ifdef CONFIG_SDCARD
 #define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x00200000)
@@ -113,6 +106,11 @@
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
+#endif
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_sd_rcw.cfg
 #endif
 #define CONFIG_SPL_MMC_BOOT
 #endif
@@ -552,7 +550,6 @@ unsigned long get_board_ddr_clk(void);
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_PCI		/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
@@ -602,7 +599,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_PCIE_RESET	   /* need PCIe reset errata */
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif

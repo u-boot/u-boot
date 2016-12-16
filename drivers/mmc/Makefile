@@ -60,6 +60,7 @@ obj-$(CONFIG_ROCKCHIP_SDHCI) += rockchip_sdhci.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
+obj-$(CONFIG_SPL_SAVEENV) += mmc_write.o
 else
 obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
 endif

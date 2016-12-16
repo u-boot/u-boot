@@ -27,24 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const omap3_sysinfo sysinfo = {
-	DDR_STACKED,
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-	"IGEPv2",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-	"IGEP COM MODULE/ELECTRON",
-#endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
-	"IGEP COM PROTON",
-#endif
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-	"ONENAND",
-#else
-	"NAND",
-#endif
-};
-
 static const struct ns16550_platdata igep_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
@@ -102,10 +84,22 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	int mfr, id, err = identify_nand_chip(&mfr, &id);
 
 	timings->mr = MICRON_V_MR_165;
-	if (!err && mfr == NAND_MFR_MICRON) {
-		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-		timings->ctrla = MICRON_V_ACTIMA_200;
-		timings->ctrlb = MICRON_V_ACTIMB_200;
+	if (!err) {
+		switch (mfr) {
+		case NAND_MFR_HYNIX:
+			timings->mcfg = HYNIX_V_MCFG_200(256 << 20);
+			timings->ctrla = HYNIX_V_ACTIMA_200;
+			timings->ctrlb = HYNIX_V_ACTIMB_200;
+			break;
+		case NAND_MFR_MICRON:
+			timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+			timings->ctrla = MICRON_V_ACTIMA_200;
+			timings->ctrlb = MICRON_V_ACTIMB_200;
+			break;
+		default:
+			/* Should not happen... */
+			break;
+		}
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 		gpmc_cs0_flash = MTD_DEV_TYPE_NAND;
 	} else {

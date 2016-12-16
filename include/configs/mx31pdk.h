@@ -19,9 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MX31			/* This is a mx31 */
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -31,9 +28,6 @@
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 
 #define CONFIG_SPL_TEXT_BASE	0x87dc0000
 #define CONFIG_SYS_TEXT_BASE	0x87e00000

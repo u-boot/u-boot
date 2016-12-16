@@ -42,11 +42,9 @@
 /* General networking support */
 
 /* USB keyboard */
-#define CONFIG_USB_KEYBOARD
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CONSOLE_SCROLL_LINES	10
 
 #include "tegra-common-post.h"
 

@@ -865,6 +865,7 @@ static inline struct fsl_qspi *to_qspi_spi(struct spi_slave *slave)
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
+	u32 mcr_val;
 	struct fsl_qspi *qspi;
 	struct fsl_qspi_regs *regs;
 	u32 total_size;
@@ -896,8 +897,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	qspi->slave.max_write_size = TX_BUFFER_SIZE;
 
+	mcr_val = qspi_read32(qspi->priv.flags, &regs->mcr);
 	qspi_write32(qspi->priv.flags, &regs->mcr,
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK);
+		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK |
+		     (mcr_val & QSPI_MCR_END_CFD_MASK));
 
 	qspi_cfg_smpr(&qspi->priv,
 		      ~(QSPI_SMPR_FSDLY_MASK | QSPI_SMPR_DDRSMP_MASK |
@@ -975,6 +978,7 @@ static int fsl_qspi_child_pre_probe(struct udevice *dev)
 
 static int fsl_qspi_probe(struct udevice *bus)
 {
+	u32 mcr_val;
 	u32 amba_size_per_chip;
 	struct fsl_qspi_platdata *plat = dev_get_platdata(bus);
 	struct fsl_qspi_priv *priv = dev_get_priv(bus);
@@ -999,8 +1003,10 @@ static int fsl_qspi_probe(struct udevice *bus)
 	priv->flash_num = plat->flash_num;
 	priv->num_chipselect = plat->num_chipselect;
 
+	mcr_val = qspi_read32(priv->flags, &priv->regs->mcr);
 	qspi_write32(priv->flags, &priv->regs->mcr,
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK);
+		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK |
+		     (mcr_val & QSPI_MCR_END_CFD_MASK));
 
 	qspi_cfg_smpr(priv, ~(QSPI_SMPR_FSDLY_MASK | QSPI_SMPR_DDRSMP_MASK |
 		QSPI_SMPR_FSPHS_MASK | QSPI_SMPR_HSENA_MASK), 0);
@@ -1092,7 +1098,7 @@ static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 	}
 
 	/* Count flash numbers */
-	fdt_for_each_subnode(blob, subnode, node)
+	fdt_for_each_subnode(subnode, blob, node)
 		++flash_num;
 
 	if (flash_num == 0) {

@@ -381,9 +381,16 @@ To enable video you must enable these options in coreboot:
    - Set framebuffer graphics resolution (1280x1024 32k-color (1:5:5))
    - Keep VESA framebuffer
 
+And include coreboot_fb.dtsi in your board's device tree source file, like:
+
+   /include/ "coreboot_fb.dtsi"
+
 At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
+
+Note: coreboot framebuffer driver does not work on QEMU. The reason is unknown
+at this point. Patches are welcome if you figure out anything wrong.
 
 Test with QEMU for bare mode
 ----------------------------
@@ -446,7 +453,7 @@ loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
 Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
-=> zboot 02000000 - 04000000 1b1ab50
+=> zboot 01000000 - 04000000 1b1ab50
 
 CPU Microcode
 -------------

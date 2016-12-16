@@ -8,7 +8,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <fsl_sec.h>
-#include <asm-generic/errno.h>
+#include <linux/errno.h>
 #include "jobdesc.h"
 #include "desc.h"
 #include "jr.h"

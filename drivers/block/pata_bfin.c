@@ -14,7 +14,7 @@
 #include <asm/byteorder.h>
 #include <asm/clock.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/pata.h>
 #include <ata.h>

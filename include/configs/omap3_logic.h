@@ -38,10 +38,6 @@
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
-/* Display CPU and Board information */
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R		/* misc_init_r dumps the die id */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
@@ -93,7 +89,6 @@
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 
-#define CONFIG_CMD_UBI			/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
 #define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
 #define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */
@@ -133,27 +128,7 @@
 
 /* Environment information */
 
-/*
- * PREBOOT assumes the 4.3" display is attached.  User can interrupt
- * and modify display variable to suit their needs.
- */
 #define CONFIG_PREBOOT \
-	"echo ======================NOTICE============================;"\
-	"echo \"The u-boot environment is not set.\";"			\
-	"echo \"If using a display a valid display variable for your panel\";" \
-	"echo \"needs to be set.\";"					\
-	"echo \"Valid display options are:\";"				\
-	"echo \"  2 == LQ121S1DG31     TFT SVGA    (12.1)  Sharp\";"	\
-	"echo \"  3 == LQ036Q1DA01     TFT QVGA    (3.6)   Sharp w/ASIC\";" \
-	"echo \"  5 == LQ064D343       TFT VGA     (6.4)   Sharp\";"	\
-	"echo \"  7 == LQ10D368        TFT VGA     (10.4)  Sharp\";"	\
-	"echo \" 15 == LQ043T1DG01     TFT WQVGA   (4.3)   Sharp (DEFAULT)\";" \
-	"echo \" vga[-dvi or -hdmi]    LCD VGA     640x480\";"          \
-	"echo \" svga[-dvi or -hdmi]   LCD SVGA    800x600\";"          \
-	"echo \" xga[-dvi or -hdmi]    LCD XGA     1024x768\";"         \
-	"echo \" 720p[-dvi or -hdmi]   LCD 720P    1280x720\";"         \
-	"echo \"Defaulting to 4.3 LCD panel (display=15).\";"		\
-	"setenv display 15;"						\
 	"setenv preboot;"						\
 	"nand unlock;"							\
 	"saveenv;"
@@ -214,6 +189,12 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
+	"nfsargs=run setconsole; setenv serverip ${tftpserver}; " \
+		"setenv bootargs console=${console} root=/dev/nfs " \
+		"nfsroot=${nfsrootpath} " \
+		"ip=${ipaddr}:${tftpserver}:${gatewayip}:${netmask}::eth0:off\0" \
+	"nfsrootpath=/opt/nfs-exports/omap\0" \
+	"autoload=no\0" \
 	"fdtaddr=0x86000000\0" \
 	"loadfdtimage=mmc rescan; " \
 		"fatload mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
@@ -238,14 +219,21 @@
 		"run loadzimage; " \
 		"run loadramdisk; " \
 		"run loadfdtimage; " \
-		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr}\0; " \
+		"bootz ${loadaddr} ${ramdiskaddr} ${fdtaddr};\0" \
 	"tftpboot=echo 'Booting kernel/ramdisk rootfs from tftp...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
-		"tftpboot ${loadaddr} ${uimage}; " \
+		"tftpboot ${loadaddr} ${zimage}; " \
 		"tftpboot ${ramdiskaddr} ${ramdiskimage}; " \
-		"bootm ${loadaddr} ${ramdiskaddr}\0"
+		"bootm ${loadaddr} ${ramdiskaddr}\0" \
+	"tftpbootz=echo 'Booting kernel NFS rootfs...'; " \
+		"dhcp;" \
+		"run nfsargs;" \
+		"run common_bootargs;" \
+		"run dump_bootargs;" \
+		"tftpboot $loadaddr zImage;" \
+		"bootz $loadaddr\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run autoboot"

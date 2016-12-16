@@ -187,6 +187,16 @@ void clock_ll_set_source_divisor(enum periph_id periph_id, unsigned source,
 		unsigned divisor);
 
 /**
+ * Returns the current parent clock ID of a given peripheral. This can be
+ * useful in order to call clock_*_periph_*() from generic code that has no
+ * specific knowledge of system-level clock tree structure.
+ *
+ * @param periph_id	peripheral to query
+ * @return clock ID of the peripheral's current parent clock
+ */
+enum clock_id clock_get_periph_parent(enum periph_id periph_id);
+
+/**
  * Start a peripheral PLL clock at the given rate. This also resets the
  * peripheral.
  *
@@ -284,6 +294,36 @@ u32 *get_periph_source_reg(enum periph_id periph_id);
 /* Returns a pointer to the given 'simple' PLL */
 struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid);
 
+/*
+ * Given a peripheral ID, determine where the mux bits are in the peripheral
+ * clock's register, the number of divider bits the clock has, and the SoC-
+ * specific clock type.
+ *
+ * This is an internal API between the core Tegra clock code and the SoC-
+ * specific clock code.
+ *
+ * @param periph_id     peripheral to query
+ * @param mux_bits      Set to number of bits in mux register
+ * @param divider_bits  Set to the relevant MASK_BITS_* value
+ * @param type          Set to the SoC-specific clock type
+ * @return 0 on success, -1 on error
+ */
+int get_periph_clock_info(enum periph_id periph_id, int *mux_bits,
+			  int *divider_bits, int *type);
+
+/*
+ * Given a peripheral ID and clock source mux value, determine the clock_id
+ * of that peripheral's parent.
+ *
+ * This is an internal API between the core Tegra clock code and the SoC-
+ * specific clock code.
+ *
+ * @param periph_id     peripheral to query
+ * @param source        raw clock source mux value
+ * @return the CLOCK_ID_* value @source represents
+ */
+enum clock_id get_periph_clock_id(enum periph_id periph_id, int source);
+
 /**
  * Given a peripheral ID and the required source clock, this returns which
  * value should be programmed into the source mux for that peripheral.
@@ -361,6 +401,12 @@ struct clk_pll_info {
 	u32	rsvd2:6;
 };
 extern struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT];
+
+struct periph_clk_init {
+	enum periph_id periph_id;
+	enum clock_id parent_clock_id;
+};
+extern struct periph_clk_init periph_clk_init_table[];
 
 /**
  * Enable output clock for external peripherals

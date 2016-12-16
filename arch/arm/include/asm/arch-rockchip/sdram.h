@@ -16,6 +16,11 @@ enum {
 };
 
 struct rk3288_sdram_channel {
+	/*
+	 * bit width in address, eg:
+	 * 8 banks using 3 bit to address,
+	 * 2 cs using 1 bit to address.
+	 */
 	u8 rank;
 	u8 col;
 	u8 bk;
@@ -24,12 +29,16 @@ struct rk3288_sdram_channel {
 	u8 row_3_4;
 	u8 cs0_row;
 	u8 cs1_row;
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
 	/*
 	 * For of-platdata, which would otherwise convert this into two
 	 * byte-swapped integers. With a size of 9 bytes, this struct will
 	 * appear in of-platdata as a byte array.
+	 *
+	 * If OF_PLATDATA enabled, need to add a dummy byte in dts.(i.e 0xff)
 	 */
 	u8 dummy;
+#endif
 };
 
 struct rk3288_sdram_pctl_timing {
@@ -83,6 +92,16 @@ struct rk3288_base_params {
 	u32 ddrconfig;
 	u32 ddr_freq;
 	u32 dramtype;
+	/*
+	 * DDR Stride is address mapping for DRAM space
+	 * Stride	Ch 0 range	Ch1 range	Total
+	 * 0x00		0-256MB		256MB-512MB	512MB
+	 * 0x05		0-1GB		0-1GB		1GB
+	 * 0x09		0-2GB		0-2GB		2GB
+	 * 0x0d		0-4GB		0-4GB		4GB
+	 * 0x17		N/A		0-4GB		4GB
+	 * 0x1a		0-4GB		4GB-8GB		8GB
+	 */
 	u32 stride;
 	u32 odt;
 };

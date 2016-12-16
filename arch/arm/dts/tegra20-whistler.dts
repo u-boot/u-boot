@@ -13,8 +13,8 @@
 	aliases {
 		i2c0 = "/i2c@7000d000";
 		usb0 = "/usb@c5008000";
-		sdhci0 = "/sdhci@c8000600";
-		sdhci1 = "/sdhci@c8000400";
+		mmc0 = "/sdhci@c8000600";
+		mmc1 = "/sdhci@c8000400";
 	};
 
 	memory {
@@ -58,6 +58,7 @@
 	sdhci@c8000600 {
 		status = "okay";
 		bus-width = <8>;
+		non-removable;
 	};
 
 	clocks {

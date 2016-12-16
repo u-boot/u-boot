@@ -14,7 +14,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/mxc_i2c.h>
 

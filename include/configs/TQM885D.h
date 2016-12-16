@@ -22,7 +22,6 @@
 
 #define CONFIG_MPC885		1	/* This is a MPC885 CPU		*/
 #define CONFIG_TQM885D		1	/* ...on a TQM88D module	*/
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 

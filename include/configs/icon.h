@@ -126,18 +126,13 @@
 /*
  * Video options
  */
-#define CONFIG_VIDEO
 
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501
 #define CONFIG_VIDEO_SM501_32BPP
 #define CONFIG_VIDEO_SM501_PCI
 #define VIDEO_FB_LITTLE_ENDIAN
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CFG_CONSOLE_IS_IN_ENV
@@ -211,9 +206,7 @@
  * PCI stuff
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_PCI_BOOTDELAY	1000	/* enable pci bootdelay variable*/

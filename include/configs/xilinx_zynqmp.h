@@ -34,10 +34,6 @@
 /* Have release address at the end of 256MB for now */
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 
-#if !defined(CONFIG_IDENT_STRING)
-# define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
-#endif
-
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
@@ -131,8 +127,6 @@
 
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_RAM
 #define CONFIG_USB_CABLE_CHECK
 #define CONFIG_CMD_THOR_DOWNLOAD
 #define CONFIG_USB_FUNCTION_THOR
@@ -316,7 +310,6 @@
 #endif
 
 #ifdef CONFIG_SATA_CEVA
-#define CONFIG_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
@@ -326,10 +319,6 @@
 					 CONFIG_SYS_SCSI_MAX_LUN)
 #define CONFIG_SCSI
 #endif
-
-#define CONFIG_FPGA_ZYNQMPPL
-#define CONFIG_FPGA_XILINX
-#define CONFIG_FPGA
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
@@ -402,13 +391,9 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
 
-#define CONFIG_SPL_OS_BOOT
 /* u-boot is like dtb */
 #define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
@@ -421,13 +406,10 @@
 
 /* MMC support */
 #ifdef CONFIG_ZYNQ_SDHCI
-# define CONFIG_SPL_MMC_SUPPORT
 # define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
-# define CONFIG_SPL_LIBDISK_SUPPORT
-# define CONFIG_SPL_FAT_SUPPORT
 # define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif
 

@@ -18,7 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_DAVINCI_MMC
 #include <mmc.h>
@@ -333,15 +333,17 @@ int misc_init_r(void)
 			get_mac_addr(addr);
 		}
 
-		if (is_multicast_ethaddr(addr) || is_zero_ethaddr(addr)) {
-			printf("Invalid MAC address read.\n");
-			return -EINVAL;
-		}
-		sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x", addr[0],
-				addr[1], addr[2], addr[3], addr[4], addr[5]);
+		if (!is_multicast_ethaddr(addr) && !is_zero_ethaddr(addr)) {
+			sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x",
+				addr[0], addr[1], addr[2], addr[3], addr[4],
+				addr[5]);
 
-		setenv("ethaddr", (char *)tmp);
+			setenv("ethaddr", (char *)tmp);
+		} else {
+			printf("Invalid MAC address read.\n");
+		}
 	}
+
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	/* Select RMII fucntion through the expander */
 	if (rmii_hw_init())

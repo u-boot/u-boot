@@ -26,6 +26,8 @@ config TARGET_MALTA
 	select DM
 	select DM_SERIAL
 	select DYNAMIC_IO_PORT_BASE
+	select MIPS_CM
+	select MIPS_L2_CACHE
 	select OF_CONTROL
 	select OF_ISA_BUS
 	select SUPPORTS_BIG_ENDIAN
@@ -73,10 +75,43 @@ config MACH_PIC32
 	select OF_CONTROL
 	select DM
 
+config TARGET_BOSTON
+	bool "Support Boston"
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select MIPS_CM
+	select MIPS_L1_CACHE_SHIFT_6
+	select MIPS_L2_CACHE
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select SUPPORTS_CPU_MIPS32_R6
+	select SUPPORTS_CPU_MIPS64_R1
+	select SUPPORTS_CPU_MIPS64_R2
+	select SUPPORTS_CPU_MIPS64_R6
+
+config TARGET_XILFPGA
+	bool "Support Imagination Xilfpga"
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
+	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select MIPS_L1_CACHE_SHIFT_4
+	help
+	  This supports IMGTEC MIPSfpga platform
+
 endchoice
 
 source "board/dbau1x00/Kconfig"
+source "board/imgtec/boston/Kconfig"
 source "board/imgtec/malta/Kconfig"
+source "board/imgtec/xilfpga/Kconfig"
 source "board/micronas/vct/Kconfig"
 source "board/pb1x00/Kconfig"
 source "board/qemu-mips/Kconfig"
@@ -300,8 +335,30 @@ config MIPS_L1_CACHE_SHIFT
 	default "4" if MIPS_L1_CACHE_SHIFT_4
 	default "5"
 
+config MIPS_L2_CACHE
+	bool
+	help
+	  Select this if your system includes an L2 cache and you want U-Boot
+	  to initialise & maintain it.
+
 config DYNAMIC_IO_PORT_BASE
 	bool
+
+config MIPS_CM
+	bool
+	help
+	  Select this if your system contains a MIPS Coherence Manager and you
+	  wish U-Boot to configure it or make use of it to retrieve system
+	  information such as cache configuration.
+
+config MIPS_CM_BASE
+	hex
+	default 0x1fbf8000
+	help
+	  The physical base address at which to map the MIPS Coherence Manager
+	  Global Configuration Registers (GCRs). This should be set such that
+	  the GCRs occupy a region of the physical address space which is
+	  otherwise unused, or at minimum that software doesn't need to access.
 
 endif
 

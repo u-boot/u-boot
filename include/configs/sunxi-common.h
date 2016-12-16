@@ -35,7 +35,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SUNXI		/* sunxi family */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif
@@ -54,7 +53,6 @@
 #endif
 
 /* CPU */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*
@@ -69,7 +67,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x2a000000
-#define CONFIG_PRE_CON_BUF_ADDR		0x2f000000
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -80,7 +77,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x4a000000
-#define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -134,13 +130,11 @@
 
 #ifdef CONFIG_NAND_SUNXI
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
-#define CONFIG_SPL_NAND_SUPPORT 1
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
 #ifdef CONFIG_SPL_SPI_SUNXI
-#define CONFIG_SPL_SPI_FLASH_SUPPORT	1
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 #endif
 
@@ -180,8 +174,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
-#define CONFIG_IDENT_STRING		" Allwinner Technology"
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
@@ -189,9 +181,6 @@
 #define CONFIG_FAT_WRITE	/* enable write access */
 
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
@@ -204,12 +193,6 @@
 #else
 #define CONFIG_SPL_TEXT_BASE		0x40		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
-#endif
-
-#define CONFIG_SPL_LIBDISK_SUPPORT
-
-#ifdef CONFIG_MMC
-#define CONFIG_SPL_MMC_SUPPORT
 #endif
 
 #ifndef CONFIG_ARM64
@@ -232,7 +215,6 @@
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
     defined CONFIG_SY8106A_POWER
-#define CONFIG_SPL_I2C_SUPPORT
 #endif
 
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
@@ -266,7 +248,6 @@ extern int soft_i2c_gpio_scl;
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
     defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
     defined CONFIG_SY8106A_POWER
-#define CONFIG_SPL_POWER_SUPPORT
 #endif
 
 #ifndef CONFIG_CONS_INDEX
@@ -293,7 +274,6 @@ extern int soft_i2c_gpio_scl;
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
-#define CONFIG_SPL_GPIO_SUPPORT
 
 #ifdef CONFIG_VIDEO
 /*
@@ -307,17 +287,13 @@ extern int soft_i2c_gpio_scl;
 
 #define CONFIG_VIDEO_SUNXI
 
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_STD_TIMINGS
 #define CONFIG_I2C_EDID
 #define VIDEO_LINE_LEN (pGD->plnSizeX)
 
 /* allow both serial and cfb console. */
-#define CONFIG_CONSOLE_MUX
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 
 #endif /* CONFIG_VIDEO */
 
@@ -347,13 +323,8 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#endif
-
-#ifdef CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_RAM
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_FASTBOOT
@@ -374,9 +345,7 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_PREBOOT
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 #endif
 
@@ -388,14 +357,9 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #define CONFIG_MISC_INIT_R
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
-
-/* Enable pre-console buffer to get complete log on the VGA console */
-#define CONFIG_PRE_CONSOLE_BUFFER
-#define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
 #ifdef CONFIG_ARM64
 /*

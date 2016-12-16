@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_HZ                   1000

@@ -49,10 +49,6 @@
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
 
 /* Memory sizes */
 #define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
@@ -147,11 +143,7 @@
 
 /* LCD */
 #ifdef CONFIG_VIDEO
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MXS
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif
 
 /* MMC */

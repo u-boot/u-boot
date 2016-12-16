@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <watchdog.h>
 #include <serial.h>
+#include <debug_uart.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
@@ -225,4 +226,25 @@ U_BOOT_DRIVER(serial_atmel) = {
 	.flags = DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
 };
+#endif
+
+#ifdef CONFIG_DEBUG_UART_ATMEL
+static inline void _debug_uart_init(void)
+{
+	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_DEBUG_UART_BASE;
+
+	atmel_serial_setbrg_internal(usart, 0, CONFIG_BAUDRATE);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_DEBUG_UART_BASE;
+
+	while (!(readl(&usart->csr) & USART3_BIT(TXRDY)))
+		;
+
+	writel(ch, &usart->thr);
+}
+
+DEBUG_UART_FUNCS
 #endif

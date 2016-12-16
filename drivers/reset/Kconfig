@@ -20,11 +20,27 @@ config SANDBOX_RESET
 	  simply accepts requests to reset various HW modules without actually
 	  doing anything beyond a little error checking.
 
+config TEGRA_CAR_RESET
+	bool "Enable Tegra CAR-based reset driver"
+	depends on TEGRA_CAR
+	help
+	  Enable support for manipulating Tegra's on-SoC reset signals via
+	  direct register access to the Tegra CAR (Clock And Reset controller).
+
 config TEGRA186_RESET
 	bool "Enable Tegra186 BPMP-based reset driver"
 	depends on TEGRA186_BPMP
 	help
 	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
+
+config RESET_UNIPHIER
+	bool "Reset controller driver for UniPhier SoCs"
+	depends on ARCH_UNIPHIER
+	default y
+	help
+	  Support for reset controllers on UniPhier SoCs.
+	  Say Y if you want to control reset signals provided by System Control
+	  block, Media I/O block, Peripheral Block.
 
 endmenu

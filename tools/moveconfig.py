@@ -122,8 +122,13 @@ Available options
    Surround each portion of the log with escape sequences to display it
    in color on the terminal.
 
+ -C, --commit
+   Create a git commit with the changes when the operation is complete. A
+   standard commit message is used which may need to be edited.
+
  -d, --defconfigs
-  Specify a file containing a list of defconfigs to move
+  Specify a file containing a list of defconfigs to move.  The defconfig
+  files can be given with shell-style wildcards.
 
  -n, --dry-run
    Perform a trial run that does not make any changes.  It is useful to
@@ -162,6 +167,10 @@ Available options
  -v, --verbose
    Show any build errors as boards are built
 
+ -y, --yes
+   Instead of prompting, automatically go ahead with all operations. This
+   includes cleaning up headers and CONFIG_SYS_EXTRA_OPTIONS.
+
 To see the complete list of supported options, run
 
   $ tools/moveconfig.py -h
@@ -172,6 +181,7 @@ import copy
 import difflib
 import filecmp
 import fnmatch
+import glob
 import multiprocessing
 import optparse
 import os
@@ -275,6 +285,24 @@ def get_make_cmd():
     if process.returncode:
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
+
+def get_matched_defconfigs(defconfigs_file):
+    """Get all the defconfig files that match the patterns in a file."""
+    defconfigs = []
+    for i, line in enumerate(open(defconfigs_file)):
+        line = line.strip()
+        if not line:
+            continue # skip blank lines silently
+        pattern = os.path.join('configs', line)
+        matched = glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+        if not matched:
+            print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
+                                                 (defconfigs_file, i + 1, line)
+
+        defconfigs += matched
+
+    # use set() to drop multiple matching
+    return [ defconfig[len('configs') + 1:]  for defconfig in set(defconfigs) ]
 
 def get_all_defconfigs():
     """Get all the defconfig files under the configs/ directory."""
@@ -481,14 +509,15 @@ def cleanup_headers(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    while True:
-        choice = raw_input('Clean up headers? [y/n]: ').lower()
-        print choice
-        if choice == 'y' or choice == 'n':
-            break
+    if not options.yes:
+        while True:
+            choice = raw_input('Clean up headers? [y/n]: ').lower()
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
 
-    if choice == 'n':
-        return
+        if choice == 'n':
+            return
 
     patterns = []
     for config in configs:
@@ -560,14 +589,16 @@ def cleanup_extra_options(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    while True:
-        choice = raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').lower()
-        print choice
-        if choice == 'y' or choice == 'n':
-            break
+    if not options.yes:
+        while True:
+            choice = (raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').
+                      lower())
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
 
-    if choice == 'n':
-        return
+        if choice == 'n':
+            return
 
     configs = [ config[len('CONFIG_'):] for config in configs ]
 
@@ -1193,13 +1224,7 @@ def move_config(configs, options):
         reference_src_dir = None
 
     if options.defconfigs:
-        defconfigs = [line.strip() for line in open(options.defconfigs)]
-        for i, defconfig in enumerate(defconfigs):
-            if not defconfig.endswith('_defconfig'):
-                defconfigs[i] = defconfig + '_defconfig'
-            if not os.path.exists(os.path.join('configs', defconfigs[i])):
-                sys.exit('%s - defconfig does not exist. Stopping.' %
-                         defconfigs[i])
+        defconfigs = get_matched_defconfigs(options.defconfigs)
     else:
         defconfigs = get_all_defconfigs()
 
@@ -1233,6 +1258,8 @@ def main():
     # Add options here
     parser.add_option('-c', '--color', action='store_true', default=False,
                       help='display the log in color')
+    parser.add_option('-C', '--commit', action='store_true', default=False,
+                      help='Create a git commit for the operation')
     parser.add_option('-d', '--defconfigs', type='string',
                       help='a file containing a list of defconfigs to move')
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
@@ -1251,6 +1278,8 @@ def main():
                       help='the number of jobs to run simultaneously')
     parser.add_option('-r', '--git-ref', type='string',
                       help='the git ref to clone for building the autoconf.mk')
+    parser.add_option('-y', '--yes', action='store_true', default=False,
+                      help="respond 'yes' to any prompts")
     parser.add_option('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
     parser.usage += ' CONFIG ...'
@@ -1275,6 +1304,18 @@ def main():
     if configs:
         cleanup_headers(configs, options)
         cleanup_extra_options(configs, options)
+
+    if options.commit:
+        subprocess.call(['git', 'add', '-u'])
+        if configs:
+            msg = 'Convert %s %sto Kconfig' % (configs[0],
+                    'et al ' if len(configs) > 1 else '')
+            msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
+                    '\n   '.join(configs))
+        else:
+            msg = 'configs: Resync with savedefconfig'
+            msg += '\n\nRsync all defconfig files using moveconfig.py'
+        subprocess.call(['git', 'commit', '-s', '-m', msg])
 
 if __name__ == '__main__':
     main()

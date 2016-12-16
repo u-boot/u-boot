@@ -59,7 +59,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
-	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
 	COMPAT(ALTERA_SOCFPGA_DWMMC, "altr,socfpga-dw-mshc"),
 	COMPAT(ALTERA_SOCFPGA_DWC2USB, "snps,dwc2"),
@@ -837,7 +836,7 @@ int fdtdec_get_child_count(const void *blob, int node)
 	int subnode;
 	int num = 0;
 
-	fdt_for_each_subnode(blob, subnode, node)
+	fdt_for_each_subnode(subnode, blob, node)
 		num++;
 
 	return num;
@@ -1015,7 +1014,7 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 {
 	int index;
 
-	index = fdt_find_string(fdt, node, prop_names, name);
+	index = fdt_stringlist_search(fdt, node, prop_names, name);
 	if (index < 0)
 		return index;
 

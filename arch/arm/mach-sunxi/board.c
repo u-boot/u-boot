@@ -133,13 +133,17 @@ static int gpio_init(void)
 	return 0;
 }
 
-int spl_board_load_image(void)
+#ifdef CONFIG_SPL_BUILD
+static int spl_board_load_image(struct spl_image_info *spl_image,
+				struct spl_boot_device *bootdev)
 {
 	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
 	return_to_fel(fel_stash.sp, fel_stash.lr);
 
 	return 0;
 }
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_BOARD, spl_board_load_image);
+#endif
 
 void s_init(void)
 {
@@ -178,7 +182,8 @@ void s_init(void)
 
 #if defined CONFIG_MACH_SUN6I || \
     defined CONFIG_MACH_SUN7I || \
-    defined CONFIG_MACH_SUN8I
+    defined CONFIG_MACH_SUN8I || \
+    defined CONFIG_MACH_SUN9I
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"

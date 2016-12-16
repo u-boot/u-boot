@@ -11,7 +11,6 @@
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_BOARD_LATE_INIT
-#undef CONFIG_SPL_OS_BOOT
 
 /* Clock defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
@@ -25,8 +24,6 @@
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_IS_NOWHERE
-/* Display cpuinfo */
-#define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \

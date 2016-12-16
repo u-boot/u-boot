@@ -8,7 +8,7 @@
 #ifndef __DWC2_UDC_OTG_PRIV__
 #define __DWC2_UDC_OTG_PRIV__
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/sizes.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

@@ -35,8 +35,6 @@
 #define CONFIG_MX6
 #endif
 
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_FSL_CLK
 
 /* ATAGs */
@@ -92,5 +90,14 @@
 /* Fuses */
 #define CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
+
+/* Secure boot (HAB) support */
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CSF_SIZE			0x2000
+#define CONFIG_SYS_FSL_SEC_COMPAT	4
+#define CONFIG_FSL_CAAM
+#define CONFIG_CMD_DEKBLOB
+#define CONFIG_SYS_FSL_SEC_LE
+#endif
 
 #endif

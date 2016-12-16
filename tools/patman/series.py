@@ -3,6 +3,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+from __future__ import print_function
+
 import itertools
 import os
 
@@ -101,38 +103,38 @@ class Series(dict):
         cc_set = set(gitutil.BuildEmailList(self.cc));
 
         col = terminal.Color()
-        print 'Dry run, so not doing much. But I would do this:'
-        print
-        print 'Send a total of %d patch%s with %scover letter.' % (
+        print('Dry run, so not doing much. But I would do this:')
+        print()
+        print('Send a total of %d patch%s with %scover letter.' % (
                 len(args), '' if len(args) == 1 else 'es',
-                self.get('cover') and 'a ' or 'no ')
+                self.get('cover') and 'a ' or 'no '))
 
         # TODO: Colour the patches according to whether they passed checks
         for upto in range(len(args)):
             commit = self.commits[upto]
-            print col.Color(col.GREEN, '   %s' % args[upto])
+            print(col.Color(col.GREEN, '   %s' % args[upto]))
             cc_list = list(self._generated_cc[commit.patch])
             for email in set(cc_list) - to_set - cc_set:
                 if email == None:
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
                             % tag)
                 if email:
-                    print '      Cc: ',email
+                    print('      Cc: ', email)
         print
         for item in to_set:
-            print 'To:\t ', item
+            print('To:\t ', item)
         for item in cc_set - to_set:
-            print 'Cc:\t ', item
-        print 'Version: ', self.get('version')
-        print 'Prefix:\t ', self.get('prefix')
+            print('Cc:\t ', item)
+        print('Version: ', self.get('version'))
+        print('Prefix:\t ', self.get('prefix'))
         if self.cover:
-            print 'Cover: %d lines' % len(self.cover)
+            print('Cover: %d lines' % len(self.cover))
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
             all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
             for email in set(all_ccs) - to_set - cc_set:
-                    print '      Cc: ',email
+                    print('      Cc: ', email)
         if cmd:
-            print 'Git command: %s' % cmd
+            print('Git command: %s' % cmd)
 
     def MakeChangeLog(self, commit):
         """Create a list of changes for each version.
@@ -191,13 +193,13 @@ class Series(dict):
                 else:
                     if version > 1:
                         str = 'Change log missing for v%d' % version
-                        print col.Color(col.RED, str)
+                        print(col.Color(col.RED, str))
             for version in changes_copy:
                 str = 'Change log for unknown version v%d' % version
-                print col.Color(col.RED, str)
+                print(col.Color(col.RED, str))
         elif self.changes:
             str = 'Change log exists, but no version is set'
-            print col.Color(col.RED, str)
+            print(col.Color(col.RED, str))
 
     def MakeCcFile(self, process_tags, cover_fname, raise_on_error,
                    add_maintainers):
@@ -225,15 +227,15 @@ class Series(dict):
                                                raise_on_error=raise_on_error)
             list += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-	    if add_maintainers:
+            if add_maintainers:
                 list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
-            print >>fd, commit.patch, ', '.join(set(list))
+            print(commit.patch, ', '.join(set(list)), file=fd)
             self._generated_cc[commit.patch] = list
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            print >>fd, cover_fname, ', '.join(set(cover_cc + all_ccs))
+            print(cover_fname, ', '.join(set(cover_cc + all_ccs)), file=fd)
 
         fd.close()
         return fname
@@ -259,7 +261,7 @@ class Series(dict):
         """
         git_prefix = gitutil.GetDefaultSubjectPrefix()
         if git_prefix:
-	    git_prefix = '%s][' % git_prefix
+            git_prefix = '%s][' % git_prefix
         else:
             git_prefix = ''
 

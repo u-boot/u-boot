@@ -42,6 +42,9 @@ config ROCKCHIP_SPL_BACK_TO_BROM
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
+config SPL_MMC_SUPPORT
+	default y if !ROCKCHIP_SPL_BACK_TO_BROM
+
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"

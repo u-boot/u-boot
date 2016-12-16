@@ -71,7 +71,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	const void *fdt = gd->fdt_blob;
 	int node = config->of_offset;
-	unsigned int count, idx, pin_num, ret;
+	unsigned int count, idx, pin_num;
 	unsigned int pinfunc, pinpud, pindrv;
 	unsigned long reg, value;
 	const char *name;
@@ -80,7 +80,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	 * refer to the following document for the pinctrl bindings
 	 * linux/Documentation/devicetree/bindings/pinctrl/samsung-pinctrl.txt
 	 */
-	count = fdt_count_strings(fdt, node, "samsung,pins");
+	count = fdt_stringlist_count(fdt, node, "samsung,pins");
 	if (count <= 0)
 		return -EINVAL;
 
@@ -89,9 +89,8 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	pindrv = fdtdec_get_int(fdt, node, "samsung,pin-drv", -1);
 
 	for (idx = 0; idx < count; idx++) {
-		ret = fdt_get_string_index(fdt, node, "samsung,pins",
-						idx, &name);
-		if (ret < 0)
+		name = fdt_stringlist_get(fdt, node, "samsung,pins", idx, NULL);
+		if (!name)
 			continue;
 		reg = pin_to_bank_base(dev, name, &pin_num);
 

@@ -1419,14 +1419,14 @@ int spi_flash_scan(struct spi_flash *flash)
 		flash->size <<= 1;
 #endif
 
+#ifdef CONFIG_SPI_FLASH_USE_4K_SECTORS
 	/* Compute erase sector and command */
 	if (params->flags & SECT_4K) {
 		flash->erase_cmd = CMD_ERASE_4K;
 		flash->erase_size = 4096 << flash->shift;
-	} else if (params->flags & SECT_32K) {
-		flash->erase_cmd = CMD_ERASE_32K;
-		flash->erase_size = 32768 << flash->shift;
-	} else {
+	} else
+#endif
+	{
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;
 	}

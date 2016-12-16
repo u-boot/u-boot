@@ -10,13 +10,7 @@
 
 int arch_cpu_init(void)
 {
-	int ret;
-
 	post_code(POST_CPU_INIT);
 
-	ret = x86_cpu_init_f();
-	if (ret)
-		return ret;
-
-	return 0;
+	return x86_cpu_init_f();
 }

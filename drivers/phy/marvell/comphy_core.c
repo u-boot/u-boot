@@ -1,0 +1,200 @@
+/*
+ * Copyright (C) 2015-2016 Marvell International Ltd.
+ *
+ * Copyright (C) 2016 Stefan Roese <sr@denx.de>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <common.h>
+#include <dm.h>
+#include <fdtdec.h>
+#include <linux/errno.h>
+#include <asm/io.h>
+
+#include "comphy.h"
+
+#define COMPHY_MAX_CHIP 4
+
+DECLARE_GLOBAL_DATA_PTR;
+
+static char *get_speed_string(u32 speed)
+{
+	char *speed_strings[] = {"1.25 Gbps", "1.5 Gbps", "2.5 Gbps",
+				 "3.0 Gbps", "3.125 Gbps", "5 Gbps", "6 Gbps",
+				 "6.25 Gbps", "10.31 Gbps" };
+
+	if (speed < 0 || speed > PHY_SPEED_MAX)
+		return "invalid";
+
+	return speed_strings[speed];
+}
+
+static char *get_type_string(u32 type)
+{
+	char *type_strings[] = {"UNCONNECTED", "PEX0", "PEX1", "PEX2", "PEX3",
+				"SATA0", "SATA1", "SATA2", "SATA3", "SGMII0",
+				"SGMII1", "SGMII2", "SGMII3", "QSGMII",
+				"USB3_HOST0", "USB3_HOST1", "USB3_DEVICE",
+				"XAUI0", "XAUI1", "XAUI2", "XAUI3",
+				"RXAUI0", "RXAUI1", "KR"};
+
+	if (type < 0 || type > PHY_TYPE_MAX)
+		return "invalid";
+
+	return type_strings[type];
+}
+
+void reg_set(void __iomem *addr, u32 data, u32 mask)
+{
+	debug("Write to address = %#010lx, data = %#010x (mask = %#010x) - ",
+	      (unsigned long)addr, data, mask);
+	debug("old value = %#010x ==> ", readl(addr));
+	reg_set_silent(addr, data, mask);
+	debug("new value %#010x\n", readl(addr));
+}
+
+void reg_set_silent(void __iomem *addr, u32 data, u32 mask)
+{
+	u32 reg_data;
+
+	reg_data = readl(addr);
+	reg_data &= ~mask;
+	reg_data |= data;
+	writel(reg_data, addr);
+}
+
+void reg_set16(void __iomem *addr, u16 data, u16 mask)
+{
+	debug("Write to address = %#010lx, data = %#06x (mask = %#06x) - ",
+	      (unsigned long)addr, data, mask);
+	debug("old value = %#06x ==> ", readw(addr));
+	reg_set_silent16(addr, data, mask);
+	debug("new value %#06x\n", readw(addr));
+}
+
+void reg_set_silent16(void __iomem *addr, u16 data, u16 mask)
+{
+	u16 reg_data;
+
+	reg_data = readw(addr);
+	reg_data &= ~mask;
+	reg_data |= data;
+	writew(reg_data, addr);
+}
+
+void comphy_print(struct chip_serdes_phy_config *chip_cfg,
+		  struct comphy_map *comphy_map_data)
+{
+	u32 lane;
+
+	for (lane = 0; lane < chip_cfg->comphy_lanes_count;
+	     lane++, comphy_map_data++) {
+		if (comphy_map_data->type == PHY_TYPE_UNCONNECTED)
+			continue;
+
+		if (comphy_map_data->speed == PHY_SPEED_INVALID) {
+			printf("Comphy-%d: %-13s\n", lane,
+			       get_type_string(comphy_map_data->type));
+		} else {
+			printf("Comphy-%d: %-13s %-10s\n", lane,
+			       get_type_string(comphy_map_data->type),
+			       get_speed_string(comphy_map_data->speed));
+		}
+	}
+}
+
+static int comphy_probe(struct udevice *dev)
+{
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
+	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
+	int subnode;
+	int lane;
+
+	/* Save base addresses for later use */
+	chip_cfg->comphy_base_addr = (void *)dev_get_addr_index(dev, 0);
+	if (IS_ERR(chip_cfg->comphy_base_addr))
+		return PTR_ERR(chip_cfg->comphy_base_addr);
+
+	chip_cfg->hpipe3_base_addr = (void *)dev_get_addr_index(dev, 1);
+	if (IS_ERR(chip_cfg->hpipe3_base_addr))
+		return PTR_ERR(chip_cfg->hpipe3_base_addr);
+
+	chip_cfg->comphy_lanes_count = fdtdec_get_int(blob, node,
+						      "max-lanes", 0);
+	if (chip_cfg->comphy_lanes_count <= 0) {
+		dev_err(&dev->dev, "comphy max lanes is wrong\n");
+		return -EINVAL;
+	}
+
+	chip_cfg->comphy_mux_bitcount = fdtdec_get_int(blob, node,
+						       "mux-bitcount", 0);
+	if (chip_cfg->comphy_mux_bitcount <= 0) {
+		dev_err(&dev->dev, "comphy mux bit count is wrong\n");
+		return -EINVAL;
+	}
+
+	if (of_device_is_compatible(dev, "marvell,comphy-armada-3700"))
+		chip_cfg->ptr_comphy_chip_init = comphy_a3700_init;
+
+	if (of_device_is_compatible(dev, "marvell,comphy-cp110"))
+		chip_cfg->ptr_comphy_chip_init = comphy_cp110_init;
+
+	/*
+	 * Bail out if no chip_init function is defined, e.g. no
+	 * compatible node is found
+	 */
+	if (!chip_cfg->ptr_comphy_chip_init) {
+		dev_err(&dev->dev, "comphy: No compatible DT node found\n");
+		return -ENODEV;
+	}
+
+	lane = 0;
+	fdt_for_each_subnode(subnode, blob, node) {
+		/* Skip disabled ports */
+		if (!fdtdec_get_is_enabled(blob, subnode))
+			continue;
+
+		comphy_map_data[lane].speed = fdtdec_get_int(
+			blob, subnode, "phy-speed", PHY_TYPE_INVALID);
+		comphy_map_data[lane].type = fdtdec_get_int(
+			blob, subnode, "phy-type", PHY_SPEED_INVALID);
+		comphy_map_data[lane].invert = fdtdec_get_int(
+			blob, subnode, "phy-invert", PHY_POLARITY_NO_INVERT);
+		comphy_map_data[lane].clk_src = fdtdec_get_bool(blob, subnode,
+								"clk-src");
+		if (comphy_map_data[lane].type == PHY_TYPE_INVALID) {
+			printf("no phy type for lane %d, setting lane as unconnected\n",
+			       lane + 1);
+		}
+
+		lane++;
+	}
+
+	/* Save comphy index for MultiCP devices (A8K) */
+	chip_cfg->comphy_index = dev->seq;
+	/* PHY power UP sequence */
+	chip_cfg->ptr_comphy_chip_init(chip_cfg, comphy_map_data);
+	/* PHY print SerDes status */
+	comphy_print(chip_cfg, comphy_map_data);
+
+	/* Initialize dedicated PHYs (not muxed SerDes lanes) */
+	comphy_dedicated_phys_init();
+
+	return 0;
+}
+
+static const struct udevice_id comphy_ids[] = {
+	{ .compatible = "marvell,mvebu-comphy" },
+	{ }
+};
+
+U_BOOT_DRIVER(mvebu_comphy) = {
+	.name	= "mvebu_comphy",
+	.id	= UCLASS_MISC,
+	.of_match = comphy_ids,
+	.probe	= comphy_probe,
+	.priv_auto_alloc_size = sizeof(struct chip_serdes_phy_config),
+};

@@ -28,7 +28,7 @@
 
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #undef	RNDIS_PM
 #undef	RNDIS_WAKEUP
@@ -41,8 +41,6 @@
 #define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
 #define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
 #define ETH_FRAME_LEN	PKTSIZE_ALIGN	/* Max. octets in frame sans FCS */
-#define ENOTSUPP        524     /* Operation is not supported */
-
 
 /*
  * The driver for your USB chip needs to support ep0 OUT to work with

@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/sysmap.h>
 #include "clk-core.h"
 

@@ -9,8 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "yucca"
 
-config DISPLAY_BOARDINFO
-	bool
-	default y
-
 endif

@@ -15,16 +15,10 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_DEEP_SLEEP
-#if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_SILENT_CONSOLE
-#endif
 
 /*
  * Size of malloc() pool
@@ -67,15 +61,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x600
 
@@ -105,15 +90,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_PBL_RCW	board/freescale/ls1021aqds/ls102xa_rcw_nand.cfg
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000
@@ -146,7 +122,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
@@ -160,8 +135,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
-
-#define CONFIG_SYS_HAS_SERDES
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
@@ -287,6 +260,13 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
+#define QIXIS_CTL_SYS			0x5
+#define QIXIS_CTL_SYS_EVTSW_MASK	0x0c
+#define QIXIS_CTL_SYS_EVTSW_IRQ		0x04
+#define QIXIS_RST_FORCE_3		0x45
+#define QIXIS_RST_FORCE_3_PCIESLOT1	0x80
+#define QIXIS_PWR_CTL2			0x21
+#define QIXIS_PWR_CTL2_PCTL		0x2
 
 #define CONFIG_SYS_FPGA_CSPR_EXT	(0x0)
 #define CONFIG_SYS_FPGA_CSPR		(CSPR_PHYS_ADDR(QIXIS_BASE_PHYS) | \
@@ -464,13 +444,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_DCU_FB
 
 #ifdef CONFIG_FSL_DCU_FB
-#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_I2C_DVI_BUS_NUM	0
@@ -525,7 +501,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* PCIe */
-#define CONFIG_PCI		/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
@@ -547,7 +522,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
 
 #ifdef CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
@@ -555,8 +529,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_ARMV7_NONSEC
-#define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200

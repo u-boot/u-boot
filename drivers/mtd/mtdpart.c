@@ -20,7 +20,7 @@
 
 #include <common.h>
 #include <malloc.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/compat.h>
 #include <ubi_uboot.h>
 

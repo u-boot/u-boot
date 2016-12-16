@@ -7,8 +7,6 @@
 #ifndef __CONFIG_TQMA6_WRU4_H
 #define __CONFIG_TQMA6_WRU4_H
 
-#define CONFIG_DEFAULT_FDT_FILE		"imx6s-wru4.dtb"
-
 /* DTT sensors */
 #define CONFIG_DTT_SENSORS		{ 0, 1 }
 #define CONFIG_SYS_DTT_BUS_NUM		2
@@ -21,7 +19,7 @@
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc3"
+#define CONSOLE_DEV		"ttymxc3"
 
 #define CONFIG_MISC_INIT_R
 

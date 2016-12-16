@@ -13,6 +13,7 @@ CONFIG_CMD_NET = y
 CONFIG_XWAY_SWAP_BYTES = y
 CONFIG_NETCONSOLE = y
 CONFIG_SHA1_CHECK_UB_IMG = y
+CONFIG_ARCH_SUNXI = y
 endif
 
 subdir-$(HOST_TOOLS_ALL) += easylogo
@@ -89,6 +90,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			os_support.o \
 			pblimage.o \
 			pbl_crc32.o \
+			vybridimage.o \
 			$(ROCKCHIP_OBS) \
 			socfpgaimage.o \
 			lib/sha1.o \
@@ -168,7 +170,7 @@ hostprogs-$(CONFIG_MX23) += mxsboot
 hostprogs-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic
 
-hostprogs-$(CONFIG_SUNXI) += mksunxiboot
+hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1

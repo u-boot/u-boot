@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/immap_ls102xa.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include "fsl_ls1_serdes.h"
 
@@ -23,9 +23,15 @@ int is_serdes_configured(enum srds_prtcl device)
 	u64 ret = 0;
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
+	if (!(serdes1_prtcl_map & (1ULL << NONE)))
+		fsl_serdes_init();
+
 	ret |= (1ULL << device) & serdes1_prtcl_map;
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
+	if (!(serdes2_prtcl_map & (1ULL << NONE)))
+		fsl_serdes_init();
+
 	ret |= (1ULL << device) & serdes2_prtcl_map;
 #endif
 
@@ -87,19 +93,24 @@ u64 serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift)
 		serdes_prtcl_map |= (1ULL << lane_prtcl);
 	}
 
+	/* Set the first bit to indicate serdes has been initialized */
+	serdes_prtcl_map |= (1ULL << NONE);
+
 	return serdes_prtcl_map;
 }
 
 void fsl_serdes_init(void)
 {
 #ifdef CONFIG_SYS_FSL_SRDS_1
-	serdes1_prtcl_map = serdes_init(FSL_SRDS_1,
+	if (!(serdes1_prtcl_map & (1ULL << NONE)))
+		serdes1_prtcl_map = serdes_init(FSL_SRDS_1,
 					CONFIG_SYS_FSL_SERDES_ADDR,
 					RCWSR4_SRDS1_PRTCL_MASK,
 					RCWSR4_SRDS1_PRTCL_SHIFT);
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
-	serdes2_prtcl_map = serdes_init(FSL_SRDS_2,
+	if (!(serdes2_prtcl_map & (1ULL << NONE)))
+		serdes2_prtcl_map = serdes_init(FSL_SRDS_2,
 					CONFIG_SYS_FSL_SERDES_ADDR +
 					FSL_SRDS_2 * 0x1000,
 					RCWSR4_SRDS2_PRTCL_MASK,

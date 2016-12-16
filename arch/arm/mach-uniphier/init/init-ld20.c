@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,7 +15,9 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 {
 	uniphier_sbc_init_savepin(bd);
 	uniphier_pxs2_sbc_init(bd);
-	uniphier_ld20_early_pin_init(bd);
+	/* pins for NAND and System Bus are multiplexed */
+	if (spl_boot_device() != BOOT_DEVICE_NAND)
+		uniphier_pin_init("system_bus_grp");
 
 	support_card_reset();
 
@@ -31,11 +34,13 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 
 	led_puts("L2");
 
-	led_puts("L3");
-
 #ifdef CONFIG_SPL_SERIAL_SUPPORT
 	preloader_console_init();
 #endif
+
+	led_puts("L3");
+
+	uniphier_ld20_dpll_init(bd);
 
 	led_puts("L4");
 

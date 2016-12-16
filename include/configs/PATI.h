@@ -57,7 +57,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
 #define CONFIG_PREBOOT
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
@@ -251,10 +250,5 @@
  * Initialise to zero
  */
 #define CONFIG_SYS_DER			0x00000000
-
-#define VERSION_TAG "released"
-#define CONFIG_ISO_STRING "MEV-10084-001"
-
-#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
 
 #endif	/* __CONFIG_H */

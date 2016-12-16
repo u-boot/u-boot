@@ -23,8 +23,6 @@
 #ifndef __CONFIG_KM8321_COMMON_H
 #define __CONFIG_KM8321_COMMON_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */

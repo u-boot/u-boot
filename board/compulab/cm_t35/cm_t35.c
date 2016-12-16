@@ -24,7 +24,7 @@
 #include <linux/compiler.h>
 
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/mmc_host_def.h>

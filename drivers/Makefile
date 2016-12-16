@@ -40,8 +40,22 @@ obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += block/
+endif
 
-else
+ifdef CONFIG_TPL_BUILD
+
+obj-$(CONFIG_TPL_I2C_SUPPORT) += i2c/
+obj-$(CONFIG_TPL_DRIVERS_MISC_SUPPORT) += misc/ sysreset/
+obj-$(CONFIG_TPL_MMC_SUPPORT) += mmc/
+obj-$(CONFIG_TPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
+obj-$(CONFIG_TPL_NAND_SUPPORT) += mtd/nand/
+obj-$(CONFIG_TPL_SERIAL_SUPPORT) += serial/
+obj-$(CONFIG_TPL_SPI_FLASH_SUPPORT) += mtd/spi/
+obj-$(CONFIG_TPL_SPI_SUPPORT) += spi/
+
+endif
+
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 
 obj-y += adc/
 obj-$(CONFIG_DM_DEMO) += demo/
@@ -56,6 +70,7 @@ obj-y += misc/
 obj-y += pcmcia/
 obj-y += dfu/
 obj-$(CONFIG_X86) += pch/
+obj-y += phy/marvell/
 obj-y += rtc/
 obj-y += sound/
 obj-y += spmi/

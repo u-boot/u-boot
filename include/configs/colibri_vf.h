@@ -21,8 +21,6 @@
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_ARCH_MISC_INIT
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -70,8 +68,6 @@
 
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_CMD_UBI
-#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 
 #define CONFIG_FEC_MXC
@@ -218,9 +214,6 @@
 #define CONFIG_TRDX_PID_COLIBRI_VF50IT   0x0019
 
 /* USB DFU */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_NAND
-#define CONFIG_DFU_MMC
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)
 
 /* USB Storage */

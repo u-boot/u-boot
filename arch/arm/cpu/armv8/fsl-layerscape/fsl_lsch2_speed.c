@@ -60,7 +60,7 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_ddrbus = sysclk;
 #endif
 
-#ifdef CONFIG_LS1012A
+#ifdef CONFIG_ARCH_LS1012A
 	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_MASK;
@@ -91,7 +91,7 @@ void get_sys_info(struct sys_info *sys_info)
 			freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
 	}
 
-#ifdef CONFIG_LS1012A
+#ifdef CONFIG_ARCH_LS1012A
 	sys_info->freq_systembus = sys_info->freq_ddrbus / 2;
 	sys_info->freq_ddrbus *= 2;
 #endif

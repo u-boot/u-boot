@@ -12,12 +12,10 @@
  * Version number information
  */
 #if defined(CONFIG_LSCHLV2)
-#define CONFIG_IDENT_STRING " LS-CHLv2"
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lschl.cfg
 #define CONFIG_MACH_TYPE 3006
 #define CONFIG_SYS_TCLK 166666667 /* 166 MHz */
 #elif defined(CONFIG_LSXHL)
-#define CONFIG_IDENT_STRING " LS-XHL"
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lsxhl.cfg
 #define CONFIG_MACH_TYPE 2663
 /* CONFIG_SYS_TCLK is 200000000 by default */
@@ -38,8 +36,6 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /*
  * Enable u-boot API for standalone programs.

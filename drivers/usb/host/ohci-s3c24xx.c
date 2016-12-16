@@ -677,7 +677,7 @@ static void td_submit_job(struct usb_device *dev, unsigned long pipe,
 	unsigned int toggle = 0;
 
 	/* OHCI handles the DATA-toggles itself, we just
-	   use the USB-toggle bits for reseting */
+	   use the USB-toggle bits for resetting */
 	if (usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe))) {
 		toggle = TD_T_TOGGLE;
 	} else {

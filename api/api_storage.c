@@ -41,7 +41,7 @@ struct stor_spec {
 	char		*name;
 };
 
-static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, "" }, };
+static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, NULL }, };
 
 
 void dev_stor_init(void)
@@ -104,6 +104,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 	int i;
 
 	struct blk_desc *dd;
+
+	/* Wasn't configured for this type, return 0 directly */
+	if (specs[type].name == NULL)
+		return 0;
 
 	if (first) {
 		di->cookie = (void *)blk_get_dev(specs[type].name, 0);

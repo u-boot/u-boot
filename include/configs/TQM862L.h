@@ -20,7 +20,6 @@
 #define CONFIG_MPC860		1
 #define CONFIG_MPC860T		1
 #define CONFIG_MPC862		1
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_TQM862L		1	/* ...on a TQM8xxL module	*/
 

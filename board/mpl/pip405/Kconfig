@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "PIP405"
 
+config ISO_STRING
+	string
+	default "MEV-10066-001"
 endif

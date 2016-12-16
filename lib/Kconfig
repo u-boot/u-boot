@@ -154,6 +154,48 @@ config SPL_OF_LIBFDT
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
 
+config FDT_FIXUP_PARTITIONS
+	bool "overwrite MTD partitions in DTS through defined in 'mtdparts'"
+	depends on OF_LIBFDT
+	default n
+	help
+	  Allow overwriting defined partitions in the device tree blob
+	  using partition info defined in the 'mtdparts' environment
+	  variable.
+
+menu "System tables"
+	depends on (!EFI && !SYS_COREBOOT) || (ARM && EFI_LOADER)
+
+config GENERATE_SMBIOS_TABLE
+	bool "Generate an SMBIOS (System Management BIOS) table"
+	default y
+	depends on X86 || EFI_LOADER
+	help
+	  The System Management BIOS (SMBIOS) specification addresses how
+	  motherboard and system vendors present management information about
+	  their products in a standard format by extending the BIOS interface
+	  on Intel architecture systems.
+
+	  Check http://www.dmtf.org/standards/smbios for details.
+
+config SMBIOS_MANUFACTURER
+	string "SMBIOS Manufacturer"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_VENDOR
+	help
+	  The board manufacturer to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_VENDOR).
+
+config SMBIOS_PRODUCT_NAME
+	string "SMBIOS Product Name"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_BOARD
+	help
+	  The product name to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_BOARD).
+
+endmenu
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 

@@ -152,57 +152,6 @@ static struct ddrmc_phy_setting pcm052_phy_settings[] = {
 
 int dram_init(void)
 {
-	static const struct ddr3_jedec_timings pcm052_ddr_timings = {
-		.tinit             = 5,
-		.trst_pwron        = 80000,
-		.cke_inactive      = 200000,
-		.wrlat             = 5,
-		.caslat_lin        = 12,
-		.trc               = 6,
-		.trrd              = 4,
-		.tccd              = 4,
-		.tbst_int_interval = 4,
-		.tfaw              = 18,
-		.trp               = 6,
-		.twtr              = 4,
-		.tras_min          = 15,
-		.tmrd              = 4,
-		.trtp              = 4,
-		.tras_max          = 14040,
-		.tmod              = 12,
-		.tckesr            = 4,
-		.tcke              = 3,
-		.trcd_int          = 6,
-		.tras_lockout      = 1,
-		.tdal              = 10,
-		.bstlen            = 3,
-		.tdll              = 512,
-		.trp_ab            = 6,
-		.tref              = 1542,
-		.trfc              = 64,
-		.tref_int          = 5,
-		.tpdex             = 3,
-		.txpdll            = 10,
-		.txsnr             = 68,
-		.txsr              = 506,
-		.cksrx             = 5,
-		.cksre             = 5,
-		.freq_chg_en       = 1,
-		.zqcl              = 256,
-		.zqinit            = 512,
-		.zqcs              = 64,
-		.ref_per_zq        = 64,
-		.zqcs_rotate       = 1,
-		.aprebit           = 10,
-		.cmd_age_cnt       = 255,
-		.age_cnt           = 255,
-		.q_fullness        = 0,
-		.odt_rd_mapcs0     = 1,
-		.odt_wr_mapcs0     = 1,
-		.wlmrd             = 40,
-		.wldqsen           = 25,
-	};
-
 	static const iomux_v3_cfg_t pcm052_pads[] = {
 		PCM052_VF610_PAD_DDR_A15__DDR_A_15,
 		PCM052_VF610_PAD_DDR_A14__DDR_A_14,
@@ -256,10 +205,125 @@ int dram_init(void)
 		PCM052_VF610_PAD_DDR_RESETB,
 	};
 
-	imx_iomux_v3_setup_multiple_pads(pcm052_pads, ARRAY_SIZE(pcm052_pads));
+#if defined(CONFIG_TARGET_PCM052)
+
+	static const struct ddr3_jedec_timings pcm052_ddr_timings = {
+		.tinit             = 5,
+		.trst_pwron        = 80000,
+		.cke_inactive      = 200000,
+		.wrlat             = 5,
+		.caslat_lin        = 12,
+		.trc               = 6,
+		.trrd              = 4,
+		.tccd              = 4,
+		.tbst_int_interval = 4,
+		.tfaw              = 18,
+		.trp               = 6,
+		.twtr              = 4,
+		.tras_min          = 15,
+		.tmrd              = 4,
+		.trtp              = 4,
+		.tras_max          = 14040,
+		.tmod              = 12,
+		.tckesr            = 4,
+		.tcke              = 3,
+		.trcd_int          = 6,
+		.tras_lockout      = 1,
+		.tdal              = 10,
+		.bstlen            = 3,
+		.tdll              = 512,
+		.trp_ab            = 6,
+		.tref              = 1542,
+		.trfc              = 64,
+		.tref_int          = 5,
+		.tpdex             = 3,
+		.txpdll            = 10,
+		.txsnr             = 68,
+		.txsr              = 506,
+		.cksrx             = 5,
+		.cksre             = 5,
+		.freq_chg_en       = 1,
+		.zqcl              = 256,
+		.zqinit            = 512,
+		.zqcs              = 64,
+		.ref_per_zq        = 64,
+		.zqcs_rotate       = 1,
+		.aprebit           = 10,
+		.cmd_age_cnt       = 255,
+		.age_cnt           = 255,
+		.q_fullness        = 0,
+		.odt_rd_mapcs0     = 1,
+		.odt_wr_mapcs0     = 1,
+		.wlmrd             = 40,
+		.wldqsen           = 25,
+	};
 
 	ddrmc_ctrl_init_ddr3(&pcm052_ddr_timings, pcm052_cr_settings,
 			     pcm052_phy_settings, 1, 2);
+
+#elif defined(CONFIG_TARGET_BK4R1)
+
+	static const struct ddr3_jedec_timings pcm052_ddr_timings = {
+		.tinit             = 5,
+		.trst_pwron        = 80000,
+		.cke_inactive      = 200000,
+		.wrlat             = 5,
+		.caslat_lin        = 12,
+		.trc               = 6,
+		.trrd              = 4,
+		.tccd              = 4,
+		.tbst_int_interval = 0,
+		.tfaw              = 16,
+		.trp               = 6,
+		.twtr              = 4,
+		.tras_min          = 15,
+		.tmrd              = 4,
+		.trtp              = 4,
+		.tras_max          = 28080,
+		.tmod              = 12,
+		.tckesr            = 4,
+		.tcke              = 3,
+		.trcd_int          = 6,
+		.tras_lockout      = 1,
+		.tdal              = 12,
+		.bstlen            = 3,
+		.tdll              = 512,
+		.trp_ab            = 6,
+		.tref              = 3120,
+		.trfc              = 104,
+		.tref_int          = 0,
+		.tpdex             = 3,
+		.txpdll            = 10,
+		.txsnr             = 108,
+		.txsr              = 512,
+		.cksrx             = 5,
+		.cksre             = 5,
+		.freq_chg_en       = 1,
+		.zqcl              = 256,
+		.zqinit            = 512,
+		.zqcs              = 64,
+		.ref_per_zq        = 64,
+		.zqcs_rotate       = 1,
+		.aprebit           = 10,
+		.cmd_age_cnt       = 255,
+		.age_cnt           = 255,
+		.q_fullness        = 0,
+		.odt_rd_mapcs0     = 1,
+		.odt_wr_mapcs0     = 1,
+		.wlmrd             = 40,
+		.wldqsen           = 25,
+	};
+
+	ddrmc_ctrl_init_ddr3(&pcm052_ddr_timings, pcm052_cr_settings,
+			     pcm052_phy_settings, 1, 1);
+
+#else /* Unknown PCM052 variant */
+
+#error DDR characteristics undefined for this target. Please define them.
+
+#endif
+
+	imx_iomux_v3_setup_multiple_pads(pcm052_pads, ARRAY_SIZE(pcm052_pads));
 
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
@@ -513,3 +577,41 @@ int checkboard(void)
 
 	return 0;
 }
+
+static int do_m4go(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	ulong addr;
+
+	/* Consume 'm4go' */
+	argc--; argv++;
+
+	/*
+	 * Parse provided address - default to load_addr in case not provided.
+	 */
+
+	if (argc)
+		addr = simple_strtoul(argv[0], NULL, 16);
+	else
+		addr = load_addr;
+
+	/*
+	 * Write boot address in PERSISTENT_ENTRY1[31:0] aka SRC_GPR2[31:0]
+	 */
+	writel(addr + 0x401, 0x4006E028);
+
+	/*
+	 * Start secondary processor by enabling its clock
+	 */
+	writel(0x15a5a, 0x4006B08C);
+
+	return 1;
+}
+
+U_BOOT_CMD(
+	m4go, 2 /* one arg max */, 1 /* repeatable */, do_m4go,
+	"start the secondary Cortex-M4 from scatter file image",
+	"[<addr>]\n"
+	"    - start secondary Cortex-M4 core using a scatter file image\n"
+	"The argument needs to be a scatter file\n"
+);

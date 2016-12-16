@@ -252,14 +252,10 @@
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
-
 /*-----------------------------------------------------------------------
  * PCI stuff
  *----------------------------------------------------------------------*/
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 

@@ -313,21 +313,23 @@ void os_dirent_free(struct os_dirent_node *node)
 
 int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 {
-	struct dirent entry, *result;
+	struct dirent *entry;
 	struct os_dirent_node *head, *node, *next;
 	struct stat buf;
 	DIR *dir;
 	int ret;
 	char *fname;
 	int len;
+	int dirlen;
 
 	*headp = NULL;
 	dir = opendir(dirname);
 	if (!dir)
 		return -1;
 
-	/* Create a buffer for the maximum filename length */
-	len = sizeof(entry.d_name) + strlen(dirname) + 2;
+	/* Create a buffer upfront, with typically sufficient size */
+	dirlen = strlen(dirname) + 2;
+	len = dirlen + 256;
 	fname = malloc(len);
 	if (!fname) {
 		ret = -ENOMEM;
@@ -335,18 +337,26 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	}
 
 	for (node = head = NULL;; node = next) {
-		ret = readdir_r(dir, &entry, &result);
-		if (ret || !result)
+		errno = 0;
+		entry = readdir(dir);
+		if (!entry) {
+			ret = errno;
 			break;
-		next = malloc(sizeof(*node) + strlen(entry.d_name) + 1);
-		if (!next) {
+		}
+		next = malloc(sizeof(*node) + strlen(entry->d_name) + 1);
+		if (dirlen + strlen(entry->d_name) > len) {
+			len = dirlen + strlen(entry->d_name);
+			fname = realloc(fname, len);
+		}
+		if (!next || !fname) {
+			free(next);
 			os_dirent_free(head);
 			ret = -ENOMEM;
 			goto done;
 		}
 		next->next = NULL;
-		strcpy(next->name, entry.d_name);
-		switch (entry.d_type) {
+		strcpy(next->name, entry->d_name);
+		switch (entry->d_type) {
 		case DT_REG:
 			next->type = OS_FILET_REG;
 			break;
@@ -356,6 +366,8 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 		case DT_LNK:
 			next->type = OS_FILET_LNK;
 			break;
+		default:
+			next->type = OS_FILET_UNKNOWN;
 		}
 		next->size = 0;
 		snprintf(fname, len, "%s/%s", dirname, next->name);
@@ -363,8 +375,8 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			next->size = buf.st_size;
 		if (node)
 			node->next = next;
-		if (!head)
-			head = node;
+		else
+			head = next;
 	}
 	*headp = head;
 

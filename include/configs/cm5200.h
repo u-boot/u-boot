@@ -8,8 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -35,7 +33,6 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		57600	/* ... at 57600 bps */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
-#define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
 
 /*
  * Ethernet configuration

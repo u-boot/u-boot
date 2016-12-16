@@ -63,7 +63,8 @@ def CheckPatch(fname, verbose=False):
     result.problems = []
     chk = FindCheckPatch()
     item = {}
-    result.stdout = command.Output(chk, '--no-tree', fname)
+    result.stdout = command.Output(chk, '--no-tree', fname,
+                                   raise_on_error=False)
     #pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     #stdout, stderr = pipe.communicate()
 
@@ -82,7 +83,7 @@ def CheckPatch(fname, verbose=False):
 
     for line in result.stdout.splitlines():
         if verbose:
-            print line
+            print(line)
 
         # A blank line indicates the end of a message
         if not line and item:
@@ -150,17 +151,17 @@ def CheckPatches(verbose, args):
             error_count += result.errors
             warning_count += result.warnings
             check_count += result.checks
-            print '%d errors, %d warnings, %d checks for %s:' % (result.errors,
-                    result.warnings, result.checks, col.Color(col.BLUE, fname))
+            print('%d errors, %d warnings, %d checks for %s:' % (result.errors,
+                    result.warnings, result.checks, col.Color(col.BLUE, fname)))
             if (len(result.problems) != result.errors + result.warnings +
                     result.checks):
-                print "Internal error: some problems lost"
+                print("Internal error: some problems lost")
             for item in result.problems:
-                print GetWarningMsg(col, item.get('type', '<unknown>'),
+                print(GetWarningMsg(col, item.get('type', '<unknown>'),
                         item.get('file', '<unknown>'),
-                        item.get('line', 0), item.get('msg', 'message'))
+                        item.get('line', 0), item.get('msg', 'message')))
             print
-            #print stdout
+            #print(stdout)
     if error_count or warning_count or check_count:
         str = 'checkpatch.pl found %d error(s), %d warning(s), %d checks(s)'
         color = col.GREEN
@@ -168,6 +169,6 @@ def CheckPatches(verbose, args):
             color = col.YELLOW
         if error_count:
             color = col.RED
-        print col.Color(color, str % (error_count, warning_count, check_count))
+        print(col.Color(color, str % (error_count, warning_count, check_count)))
         return False
     return True

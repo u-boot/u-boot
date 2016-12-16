@@ -16,8 +16,6 @@
 #include <configs/x86-common.h>
 #include <configs/x86-chromebook.h>
 
-#undef CONFIG_CFB_CONSOLE
-
 #undef CONFIG_STD_DEVICES_SETTINGS
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vidconsole,serial\0" \

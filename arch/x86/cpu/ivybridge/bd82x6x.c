@@ -9,14 +9,12 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <pch.h>
-#include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/lpc_common.h>
 #include <asm/pci.h>
-#include <asm/arch/bd82x6x.h>
 #include <asm/arch/model_206ax.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
@@ -155,21 +153,11 @@ void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
 
 static int bd82x6x_probe(struct udevice *dev)
 {
-	struct udevice *gma_dev;
-	int ret;
-
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 
 	/* Cause the SATA device to do its init */
 	uclass_first_device(UCLASS_AHCI, &dev);
-
-	ret = syscon_get_by_driver_data(X86_SYSCON_GMA, &gma_dev);
-	if (ret)
-		return ret;
-	ret = gma_func0_init(gma_dev);
-	if (ret)
-		return ret;
 
 	return 0;
 }

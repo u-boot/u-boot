@@ -67,7 +67,6 @@
 #define PHYS_SDRAM_4_SIZE	SDRAM_BANK_SIZE
 
 /* FLASH and environment organization */
-#define CONFIG_IDENT_STRING		" for SMDKC210/V310"
 
 #define CONFIG_CLK_1000_400_200
 

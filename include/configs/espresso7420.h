@@ -24,7 +24,6 @@
 /* select serial console configuration */
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
-#define CONFIG_IDENT_STRING	" for ESPRESSO7420"
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
 /* DRAM Memory Banks */

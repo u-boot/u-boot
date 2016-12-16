@@ -17,7 +17,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/system.h>
 #include <asm/byteorder.h>
@@ -174,25 +174,6 @@ static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
 	MVGBE_REG_WR(MVGBE_SMI_REG, smi_reg);
 
 	return 0;
-}
-#endif
-
-#if defined(CONFIG_PHYLIB)
-int mvgbe_phy_read(struct mii_dev *bus, int phy_addr, int dev_addr,
-		   int reg_addr)
-{
-	u16 data;
-	int ret;
-	ret = smi_reg_read(bus->name, phy_addr, reg_addr, &data);
-	if (ret)
-		return ret;
-	return data;
-}
-
-int mvgbe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
-		    int reg_addr, u16 data)
-{
-	return smi_reg_write(bus->name, phy_addr, reg_addr, data);
 }
 #endif
 
@@ -676,8 +657,8 @@ int mvgbe_phylib_init(struct eth_device *dev, int phyid)
 		printf("mdio_alloc failed\n");
 		return -ENOMEM;
 	}
-	bus->read = mvgbe_phy_read;
-	bus->write = mvgbe_phy_write;
+	bus->read = smi_reg_read;
+	bus->write = smi_reg_write;
 	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);
@@ -688,7 +669,7 @@ int mvgbe_phylib_init(struct eth_device *dev, int phyid)
 	}
 
 	/* Set phy address of the port */
-	mvgbe_phy_write(bus, MV_PHY_ADR_REQUEST, 0, MV_PHY_ADR_REQUEST, phyid);
+	smi_reg_write(bus, MV_PHY_ADR_REQUEST, 0, MV_PHY_ADR_REQUEST, phyid);
 
 	phydev = phy_connect(bus, phyid, dev, PHY_INTERFACE_MODE_RGMII);
 	if (!phydev) {

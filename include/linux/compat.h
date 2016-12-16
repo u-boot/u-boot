@@ -151,8 +151,6 @@ typedef unsigned long sector_t;
 typedef unsigned long blkcnt_t;
 #endif
 
-#define ENOTSUPP	524	/* Operation is not supported */
-
 /* module */
 #define THIS_MODULE		0
 #define try_module_get(...)	1

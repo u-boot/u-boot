@@ -12,17 +12,17 @@
 #include <asm/gpio.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fsl_esdhc.h>
-#include <i2c.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <power/pmic.h>
+#include <power/rn5t567_pmic.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -38,45 +38,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
 
-#define I2C_PAD_CTRL    (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
-
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_PU100KOHM | \
 	PAD_CTL_DSE_3P3V_49OHM)
 
 #define NAND_PAD_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU5KOHM)
-
-#ifdef CONFIG_SYS_I2C_MXC
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1 for PMIC */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO04__I2C1_SCL | PC,
-		.gpio_mode = MX7D_PAD_GPIO1_IO04__GPIO1_IO4 | PC,
-		.gp = IMX_GPIO_NR(1, 4),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO05__I2C1_SDA | PC,
-		.gpio_mode = MX7D_PAD_GPIO1_IO05__GPIO1_IO5 | PC,
-		.gp = IMX_GPIO_NR(1, 5),
-	},
-};
-/* I2C4 for Colibri I2C */
-static struct i2c_pads_info i2c_pad_info4 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_ENET1_RGMII_TD2__I2C4_SCL | PC,
-		.gpio_mode = MX7D_PAD_ENET1_RGMII_TD2__GPIO7_IO8 | PC,
-		.gp = IMX_GPIO_NR(7, 8),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_ENET1_RGMII_TD3__I2C4_SDA | PC,
-		.gpio_mode = MX7D_PAD_ENET1_RGMII_TD3__GPIO7_IO9 | PC,
-		.gp = IMX_GPIO_NR(7, 9),
-	},
-};
-#endif
 
 int dram_init(void)
 {
@@ -331,11 +298,6 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
-#endif
-
 	return 0;
 }
 
@@ -377,6 +339,46 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DM_PMIC
+int power_init_board(void)
+{
+	struct udevice *dev;
+	int reg, ver;
+	int ret;
+
+
+	ret = pmic_get("rn5t567", &dev);
+	if (ret)
+		return ret;
+	ver = pmic_reg_read(dev, RN5T567_LSIVER);
+	reg = pmic_reg_read(dev, RN5T567_OTPVER);
+
+	printf("PMIC:  RN5T567 LSIVER=0x%02x OTPVER=0x%02x\n", ver, reg);
+
+	/* set judge and press timer of N_OE to minimal values */
+	pmic_clrsetbits(dev, RN5T567_NOETIMSETCNT, 0x7, 0);
+
+	return 0;
+}
+
+void reset_cpu(ulong addr)
+{
+	struct udevice *dev;
+
+	pmic_get("rn5t567", &dev);
+
+	/* Use PMIC to reset, set REPWRTIM to 0 and REPWRON to 1 */
+	pmic_reg_write(dev, RN5T567_REPCNT, 0x1);
+	pmic_reg_write(dev, RN5T567_SLPCNT, 0x1);
+
+	/*
+	 * Re-power factor detection on PMIC side is not instant. 1ms
+	 * proved to be enough time until reset takes effect.
+	 */
+	mdelay(1);
+}
+#endif
+
 int checkboard(void)
 {
 	printf("Model: Toradex Colibri iMX7%c\n",
@@ -408,13 +410,3 @@ int board_ehci_hcd_init(int port)
 	return 0;
 }
 #endif
-
-static struct mxc_serial_platdata mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART1_IPS_BASE_ADDR,
-	.use_dte = true,
-};
-
-U_BOOT_DEVICE(mxc_serial) = {
-	.name = "serial_mxc",
-	.platdata = &mxc_serial_plat,
-};

@@ -12,14 +12,12 @@
 /*
  * BOARD/CPU
  */
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
  * SERIAL
  */
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 #define CONFIG_SYS_NS16550_MEM32
 
 /*

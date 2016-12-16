@@ -461,33 +461,6 @@ config GENERATE_ACPI_TABLE
 	  by the operating system. It defines platform-independent interfaces
 	  for configuration and power management monitoring.
 
-config GENERATE_SMBIOS_TABLE
-	bool "Generate an SMBIOS (System Management BIOS) table"
-	default y
-	help
-	  The System Management BIOS (SMBIOS) specification addresses how
-	  motherboard and system vendors present management information about
-	  their products in a standard format by extending the BIOS interface
-	  on Intel architecture systems.
-
-	  Check http://www.dmtf.org/standards/smbios for details.
-
-config SMBIOS_MANUFACTURER
-	string "SMBIOS Manufacturer"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_VENDOR
-	help
-	  The board manufacturer to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_VENDOR).
-
-config SMBIOS_PRODUCT_NAME
-	string "SMBIOS Product Name"
-	depends on GENERATE_SMBIOS_TABLE
-	default SYS_BOARD
-	help
-	  The product name to store in SMBIOS structures.
-	  Change this to override the default one (CONFIG_SYS_BOARD).
-
 endmenu
 
 config MAX_PIRQ_LINKS
@@ -545,12 +518,6 @@ config I8254_TIMER
 	help
 	  Intel 8254 timer contains three counters which have fixed uses.
 	  Include this to have U-Boot set up the timer correctly.
-
-config I8042_KEYB
-	default y
-
-config DM_KEYBOARD
-	default y
 
 config SEABIOS
 	bool "Support booting SeaBIOS"

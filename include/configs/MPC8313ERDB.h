@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -22,8 +20,6 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
@@ -58,7 +54,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_ELBC 1
 
@@ -398,7 +393,6 @@
 #define CONFIG_SYS_PCI1_IO_PHYS	0xE2000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057	/* Motorola */
 
 /*

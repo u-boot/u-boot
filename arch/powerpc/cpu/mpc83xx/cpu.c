@@ -173,11 +173,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 unsigned long get_tbclk(void)
 {
-	ulong tbclk;
-
-	tbclk = (gd->bus_clk + 3L) / 4L;
-
-	return tbclk;
+	return (gd->bus_clk + 3L) / 4L;
 }
 
 

@@ -94,6 +94,7 @@ int sandbox_fs_ls(const char *dirname)
 		printf("%s %10lu %s\n", os_dirent_get_typename(node->type),
 		       node->size, node->name);
 	}
+	os_dirent_free(head);
 
 	return 0;
 }

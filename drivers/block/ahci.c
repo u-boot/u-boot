@@ -13,7 +13,7 @@
 #include <dm.h>
 #include <pci.h>
 #include <asm/processor.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -45,7 +45,7 @@ u16 *ataid[AHCI_MAX_PORTS];
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	200
 
-static inline void __iomem *ahci_port_base(void __iomem *base, u32 port)
+__weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
 	return base + 0x100 + (port * 0x80);
 }

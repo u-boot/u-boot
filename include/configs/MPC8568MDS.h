@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -23,7 +21,6 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCI controller */
 #define CONFIG_PCIE1		1	/* PCIE controller */
 #define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
@@ -317,9 +314,6 @@ extern unsigned long get_clock_freq(void);
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 

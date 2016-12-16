@@ -12,7 +12,7 @@
 #define ESPI_BOOT_IMAGE_ADDR	0x50
 #define CONFIG_CFG_DATA_SECTOR	0
 
-void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
+void fsl_spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
 {
 	struct spi_flash *flash;
 
@@ -31,7 +31,7 @@ void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
  * configured and available since this code loads the main U-Boot image
  * from SPI into SDRAM and starts it from there.
  */
-void spi_boot(void)
+void fsl_spi_boot(void)
 {
 	void (*uboot)(void) __noreturn;
 	u32 offset, code_len, copy_len = 0;

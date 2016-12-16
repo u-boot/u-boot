@@ -40,7 +40,7 @@ def GetMaintainer(fname, verbose=False):
     get_maintainer = FindGetMaintainer()
     if not get_maintainer:
         if verbose:
-            print "WARNING: Couldn't find get_maintainer.pl"
+            print("WARNING: Couldn't find get_maintainer.pl")
         return []
 
     stdout = command.Output(get_maintainer, '--norolestats', fname)

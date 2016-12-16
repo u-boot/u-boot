@@ -7,6 +7,8 @@
 #ifndef _RESET_H
 #define _RESET_H
 
+#include <linux/errno.h>
+
 /**
  * A reset is a hardware signal indicating that a HW module (or IP block, or
  * sometimes an entire off-CPU chip) reset all of its internal state to some
@@ -58,6 +60,7 @@ struct reset_ctl {
 	unsigned long id;
 };
 
+#ifdef CONFIG_DM_RESET
 /**
  * reset_get_by_index - Get/request a reset signal by integer index.
  *
@@ -131,5 +134,34 @@ int reset_assert(struct reset_ctl *reset_ctl);
  * @return 0 if OK, or a negative error code.
  */
 int reset_deassert(struct reset_ctl *reset_ctl);
+
+#else
+static inline int reset_get_by_index(struct udevice *dev, int index,
+				     struct reset_ctl *reset_ctl)
+{
+	return -ENOTSUPP;
+}
+
+static inline int reset_get_by_name(struct udevice *dev, const char *name,
+				    struct reset_ctl *reset_ctl)
+{
+	return -ENOTSUPP;
+}
+
+static inline int reset_free(struct reset_ctl *reset_ctl)
+{
+	return 0;
+}
+
+static inline int reset_assert(struct reset_ctl *reset_ctl)
+{
+	return 0;
+}
+
+static inline int reset_deassert(struct reset_ctl *reset_ctl)
+{
+	return 0;
+}
+#endif
 
 #endif

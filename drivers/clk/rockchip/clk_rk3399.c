@@ -18,9 +18,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct rk3399_clk_priv {
-	struct rk3399_cru *cru;
-	ulong rate;
+struct rk3399_pmuclk_priv {
+	struct rk3399_pmucru *pmucru;
 };
 
 struct pll_div {
@@ -95,11 +94,11 @@ enum {
 
 	/* PMUCRU_CLKSEL_CON2 */
 	I2C_DIV_CON_MASK		= 0x7f,
-	I2C8_DIV_CON_SHIFT		= 8,
-	I2C0_DIV_CON_SHIFT		= 0,
+	CLK_I2C8_DIV_CON_SHIFT		= 8,
+	CLK_I2C0_DIV_CON_SHIFT		= 0,
 
 	/* PMUCRU_CLKSEL_CON3 */
-	I2C4_DIV_CON_SHIFT		= 0,
+	CLK_I2C4_DIV_CON_SHIFT		= 0,
 
 	/* CLKSEL_CON0 */
 	ACLKM_CORE_L_DIV_CON_SHIFT	= 8,
@@ -507,6 +506,14 @@ void rk3399_configure_cpu(struct rk3399_cru *cru,
 			(con >> CLK_I2C ##bus## _DIV_CON_SHIFT) & \
 				I2C_DIV_CON_MASK;
 
+#define I2C_PMUCLK_REG_MASK(bus) \
+			(I2C_DIV_CON_MASK << \
+			 CLK_I2C ##bus## _DIV_CON_SHIFT)
+
+#define I2C_PMUCLK_REG_VALUE(bus, clk_div) \
+				((clk_div - 1) << \
+				CLK_I2C ##bus## _DIV_CON_SHIFT)
+
 static ulong rk3399_i2c_get_clk(struct rk3399_cru *cru, ulong clk_id)
 {
 	u32 div, con;
@@ -754,7 +761,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
-		rate = rk3399_vop_set_clk(priv->cru, clk->id, rate);
+		ret = rk3399_vop_set_clk(priv->cru, clk->id, rate);
 		break;
 	default:
 		return -ENOENT;
@@ -767,23 +774,6 @@ static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
 };
-
-void *rockchip_get_cru(void)
-{
-	struct udevice *dev;
-	fdt_addr_t *addr;
-	int ret;
-
-	ret = uclass_get_device_by_name(UCLASS_CLK, "clk_rk3399", &dev);
-	if (ret)
-		return ERR_PTR(ret);
-
-	addr = dev_get_addr_ptr(dev);
-	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
-		return ERR_PTR(-EINVAL);
-
-	return addr;
-}
 
 static int rk3399_clk_probe(struct udevice *dev)
 {
@@ -829,4 +819,161 @@ U_BOOT_DRIVER(clk_rk3399) = {
 	.ops		= &rk3399_clk_ops,
 	.bind		= rk3399_clk_bind,
 	.probe		= rk3399_clk_probe,
+};
+
+static ulong rk3399_i2c_get_pmuclk(struct rk3399_pmucru *pmucru, ulong clk_id)
+{
+	u32 div, con;
+
+	switch (clk_id) {
+	case SCLK_I2C0_PMU:
+		con = readl(&pmucru->pmucru_clksel[2]);
+		div = I2C_CLK_DIV_VALUE(con, 0);
+		break;
+	case SCLK_I2C4_PMU:
+		con = readl(&pmucru->pmucru_clksel[3]);
+		div = I2C_CLK_DIV_VALUE(con, 4);
+		break;
+	case SCLK_I2C8_PMU:
+		con = readl(&pmucru->pmucru_clksel[2]);
+		div = I2C_CLK_DIV_VALUE(con, 8);
+		break;
+	default:
+		printf("do not support this i2c bus\n");
+		return -EINVAL;
+	}
+
+	return DIV_TO_RATE(PPLL_HZ, div);
+}
+
+static ulong rk3399_i2c_set_pmuclk(struct rk3399_pmucru *pmucru, ulong clk_id,
+				   uint hz)
+{
+	int src_clk_div;
+
+	src_clk_div = PPLL_HZ / hz;
+	assert(src_clk_div - 1 < 127);
+
+	switch (clk_id) {
+	case SCLK_I2C0_PMU:
+		rk_clrsetreg(&pmucru->pmucru_clksel[2], I2C_PMUCLK_REG_MASK(0),
+			     I2C_PMUCLK_REG_VALUE(0, src_clk_div));
+		break;
+	case SCLK_I2C4_PMU:
+		rk_clrsetreg(&pmucru->pmucru_clksel[3], I2C_PMUCLK_REG_MASK(4),
+			     I2C_PMUCLK_REG_VALUE(4, src_clk_div));
+		break;
+	case SCLK_I2C8_PMU:
+		rk_clrsetreg(&pmucru->pmucru_clksel[2], I2C_PMUCLK_REG_MASK(8),
+			     I2C_PMUCLK_REG_VALUE(8, src_clk_div));
+		break;
+	default:
+		printf("do not support this i2c bus\n");
+		return -EINVAL;
+	}
+
+	return DIV_TO_RATE(PPLL_HZ, src_clk_div);
+}
+
+static ulong rk3399_pwm_get_clk(struct rk3399_pmucru *pmucru)
+{
+	u32 div, con;
+
+	/* PWM closk rate is same as pclk_pmu */
+	con = readl(&pmucru->pmucru_clksel[0]);
+	div = con & PMU_PCLK_DIV_CON_MASK;
+
+	return DIV_TO_RATE(PPLL_HZ, div);
+}
+
+static ulong rk3399_pmuclk_get_rate(struct clk *clk)
+{
+	struct rk3399_pmuclk_priv *priv = dev_get_priv(clk->dev);
+	ulong rate = 0;
+
+	switch (clk->id) {
+	case PCLK_RKPWM_PMU:
+		rate = rk3399_pwm_get_clk(priv->pmucru);
+		break;
+	case SCLK_I2C0_PMU:
+	case SCLK_I2C4_PMU:
+	case SCLK_I2C8_PMU:
+		rate = rk3399_i2c_get_pmuclk(priv->pmucru, clk->id);
+		break;
+	default:
+		return -ENOENT;
+	}
+
+	return rate;
+}
+
+static ulong rk3399_pmuclk_set_rate(struct clk *clk, ulong rate)
+{
+	struct rk3399_pmuclk_priv *priv = dev_get_priv(clk->dev);
+	ulong ret = 0;
+
+	switch (clk->id) {
+	case SCLK_I2C0_PMU:
+	case SCLK_I2C4_PMU:
+	case SCLK_I2C8_PMU:
+		ret = rk3399_i2c_set_pmuclk(priv->pmucru, clk->id, rate);
+		break;
+	default:
+		return -ENOENT;
+	}
+
+	return ret;
+}
+
+static struct clk_ops rk3399_pmuclk_ops = {
+	.get_rate = rk3399_pmuclk_get_rate,
+	.set_rate = rk3399_pmuclk_set_rate,
+};
+
+static void pmuclk_init(struct rk3399_pmucru *pmucru)
+{
+	u32 pclk_div;
+
+	/*  configure pmu pll(ppll) */
+	rkclk_set_pll(&pmucru->ppll_con[0], &ppll_init_cfg);
+
+	/*  configure pmu pclk */
+	pclk_div = PPLL_HZ / PMU_PCLK_HZ - 1;
+	assert((pclk_div + 1) * PMU_PCLK_HZ == PPLL_HZ && pclk_div < 0x1f);
+	rk_clrsetreg(&pmucru->pmucru_clksel[0],
+		     PMU_PCLK_DIV_CON_MASK,
+		     pclk_div << PMU_PCLK_DIV_CON_SHIFT);
+}
+
+static int rk3399_pmuclk_probe(struct udevice *dev)
+{
+	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
+
+	pmuclk_init(priv->pmucru);
+
+	return 0;
+}
+
+static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
+{
+	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
+
+	priv->pmucru = (struct rk3399_pmucru *)dev_get_addr(dev);
+
+	return 0;
+}
+
+static const struct udevice_id rk3399_pmuclk_ids[] = {
+	{ .compatible = "rockchip,rk3399-pmucru" },
+	{ }
+};
+
+U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
+	.name		= "pmuclk_rk3399",
+	.id		= UCLASS_CLK,
+	.of_match	= rk3399_pmuclk_ids,
+	.priv_auto_alloc_size = sizeof(struct rk3399_pmuclk_priv),
+	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
+	.ops		= &rk3399_pmuclk_ops,
+	.probe		= rk3399_pmuclk_probe,
 };

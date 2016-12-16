@@ -12,27 +12,20 @@
  */
 #if defined(CONFIG_INETSPACE_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_INETSPACE_V2
-#define CONFIG_IDENT_STRING		" IS v2"
 #elif defined(CONFIG_NETSPACE_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_V2
-#define CONFIG_IDENT_STRING		" NS v2"
 #elif defined(CONFIG_NETSPACE_LITE_V2)
 #define MACH_TYPE_NETSPACE_LITE_V2	2983 /* missing in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_LITE_V2
-#define CONFIG_IDENT_STRING		" NS v2 Lite"
 #elif defined(CONFIG_NETSPACE_MINI_V2)
 #define MACH_TYPE_NETSPACE_MINI_V2	2831 /* missing in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MINI_V2
-#define CONFIG_IDENT_STRING		" NS v2 Mini"
 #elif defined(CONFIG_NETSPACE_MAX_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
-#define CONFIG_IDENT_STRING		" NS Max v2"
 #elif defined(CONFIG_D2NET_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_D2NET_V2
-#define CONFIG_IDENT_STRING		" D2 v2"
 #elif defined(CONFIG_NET2BIG_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
-#define CONFIG_IDENT_STRING		" 2Big v2"
 #else
 #error "Unknown board"
 #endif
@@ -148,12 +141,6 @@
 /*
  * File systems support
  */
-
-/*
- * Console configuration
- */
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
  * Environment variables configurations

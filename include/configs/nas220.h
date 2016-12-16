@@ -17,7 +17,6 @@
  */
 #define MACH_TYPE_NAS220		MACH_TYPE_RD88F6192_NAS
 #define CONFIG_MACH_TYPE		MACH_TYPE_NAS220
-#define CONFIG_IDENT_STRING		"\nNAS 220"
 
 /*
  * High Level Configuration Options (easy to change)
@@ -111,7 +110,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_NAND
 #define CONFIG_JFFS2_LZO
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */

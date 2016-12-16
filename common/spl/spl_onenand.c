@@ -14,7 +14,8 @@
 #include <asm/io.h>
 #include <onenand_uboot.h>
 
-int spl_onenand_load_image(void)
+static int spl_onenand_load_image(struct spl_image_info *spl_image,
+				  struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	int ret;
@@ -26,11 +27,13 @@ int spl_onenand_load_image(void)
 	/* Load u-boot */
 	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
 		CONFIG_SYS_ONENAND_PAGE_SIZE, (void *)header);
-	ret = spl_parse_image_header(header);
+	ret = spl_parse_image_header(spl_image, header);
 	if (ret)
 		return ret;
 	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
-		spl_image.size, (void *)spl_image.load_addr);
+		spl_image->size, (void *)spl_image->load_addr);
 
 	return 0;
 }
+/* Use priorty 1 so that Ubi can override this */
+SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_ONENAND, spl_onenand_load_image);

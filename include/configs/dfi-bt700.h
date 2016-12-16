@@ -21,8 +21,6 @@
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED
 #endif
 
-#define CONFIG_PCI_PNP
-
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"

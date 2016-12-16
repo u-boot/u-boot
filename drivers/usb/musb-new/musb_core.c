@@ -79,7 +79,7 @@
 #else
 #include <common.h>
 #include <usb.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>

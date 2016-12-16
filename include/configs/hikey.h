@@ -21,8 +21,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_IDENT_STRING		"hikey"
-
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Physical Memory Map */

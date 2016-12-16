@@ -31,11 +31,9 @@ SECTIONS
 
 	.got : {
 		__got_start = .;
-		 *(.got.plt) *(.got)
+		*(.got.plt) *(.got)
 		__got_end = .;
 	}
-
-	. = .;
 
 	. = ALIGN(4);
 	.u_boot_list : {
@@ -43,13 +41,18 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-
+	/DISCARD/ : { *(.rela.plt*) }
+	.rela.dyn : {
+		__rel_dyn_start = .;
+		*(.rela*)
+		__rel_dyn_end = .;
+ }
 	_end = .;
 
 	.bss : {
 		__bss_start = .;
 		*(.bss)
-		 . = ALIGN(4);
+		. = ALIGN(4);
 		__bss_end = .;
 	}
 

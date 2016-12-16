@@ -47,7 +47,6 @@
 #define CONFIG_INITRD_TAG		/* pass initrd param to kernel */
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY	/* U-Boot is loaded by a bootloader */
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f() */
-#define CONFIG_DISPLAY_CPUINFO		/* display CPU Info at startup */
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS    32
@@ -166,8 +165,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_USB_FUNCTION_DFU
-#define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 #endif
@@ -239,13 +236,8 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE      CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_LDSCRIPT	arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_USE_NANDFLASH	1
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
@@ -283,6 +275,5 @@
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
 #endif
 #endif /* __CONFIG_H */

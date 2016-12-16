@@ -14,10 +14,11 @@
 
 #include <common.h>
 #include <fuse.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/imx-common/sys_proto.h>
 
 #define BO_CTRL_WR_UNLOCK		16
 #define BM_CTRL_WR_UNLOCK		0xffff0000
@@ -61,6 +62,8 @@
 #define FUSE_BANK_SIZE	0x80
 #ifdef CONFIG_MX6SL
 #define FUSE_BANKS	8
+#elif defined(CONFIG_MX6ULL)
+#define FUSE_BANKS	9
 #else
 #define FUSE_BANKS	16
 #endif
@@ -72,11 +75,11 @@
 #endif
 
 #if defined(CONFIG_MX6)
-#include <asm/arch/sys_proto.h>
 
 /*
  * There is a hole in shadow registers address map of size 0x100
- * between bank 5 and bank 6 on iMX6QP, iMX6DQ, iMX6SDL, iMX6SX and iMX6UL.
+ * between bank 5 and bank 6 on iMX6QP, iMX6DQ, iMX6SDL, iMX6SX,
+ * iMX6UL and i.MX6ULL.
  * Bank 5 ends at 0x6F0 and Bank 6 starts at 0x800. When reading the fuses,
  * we should account for this hole in address space.
  *
@@ -97,7 +100,10 @@ u32 fuse_bank_physical(int index)
 
 	if (is_mx6sl()) {
 		phy_index = index;
-	} else if (is_mx6ul()) {
+	} else if (is_mx6ul() || is_mx6ull()) {
+		if (is_mx6ull() && index == 8)
+			index = 7;
+
 		if (index >= 6)
 			phy_index = fuse_bank_physical(5) + (index - 6) + 3;
 		else
@@ -112,11 +118,27 @@ u32 fuse_bank_physical(int index)
 	}
 	return phy_index;
 }
+
+u32 fuse_word_physical(u32 bank, u32 word_index)
+{
+	if (is_mx6ull()) {
+		if (bank == 8)
+			word_index = word_index + 4;
+	}
+
+	return word_index;
+}
 #else
 u32 fuse_bank_physical(int index)
 {
 	return index;
 }
+
+u32 fuse_word_physical(u32 bank, u32 word_index)
+{
+	return word_index;
+}
+
 #endif
 
 static void wait_busy(struct ocotp_regs *regs, unsigned int delay_us)
@@ -140,6 +162,14 @@ static int prepare_access(struct ocotp_regs **regs, u32 bank, u32 word,
 	    !assert) {
 		printf("mxc_ocotp %s(): Invalid argument\n", caller);
 		return -EINVAL;
+	}
+
+	if (is_mx6ull()) {
+		if ((bank == 7 || bank == 8) &&
+		    word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 3) {
+			printf("mxc_ocotp %s(): Invalid argument on 6ULL\n", caller);
+			return -EINVAL;
+		}
 	}
 
 	enable_ocotp_clk(1);
@@ -176,14 +206,16 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 	struct ocotp_regs *regs;
 	int ret;
 	u32 phy_bank;
+	u32 phy_word;
 
 	ret = prepare_read(&regs, bank, word, val, __func__);
 	if (ret)
 		return ret;
 
 	phy_bank = fuse_bank_physical(bank);
+	phy_word = fuse_word_physical(bank, word);
 
-	*val = readl(&regs->bank[phy_bank].fuse_regs[word << 2]);
+	*val = readl(&regs->bank[phy_bank].fuse_regs[phy_word << 2]);
 
 	return finish_access(regs, __func__);
 }
@@ -237,7 +269,13 @@ static void setup_direct_access(struct ocotp_regs *regs, u32 bank, u32 word,
 #ifdef CONFIG_MX7
 	u32 addr = bank;
 #else
-	u32 addr = bank << 3 | word;
+	u32 addr;
+	/* Bank 7 and Bank 8 only supports 4 words each for i.MX6ULL */
+	if ((is_mx6ull()) && (bank > 7)) {
+		bank = bank - 1;
+		word += 4;
+	}
+	addr = bank << 3 | word;
 #endif
 
 	set_timing(regs);
@@ -325,14 +363,16 @@ int fuse_override(u32 bank, u32 word, u32 val)
 	struct ocotp_regs *regs;
 	int ret;
 	u32 phy_bank;
+	u32 phy_word;
 
 	ret = prepare_write(&regs, bank, word, __func__);
 	if (ret)
 		return ret;
 
 	phy_bank = fuse_bank_physical(bank);
+	phy_word = fuse_word_physical(bank, word);
 
-	writel(val, &regs->bank[phy_bank].fuse_regs[word << 2]);
+	writel(val, &regs->bank[phy_bank].fuse_regs[phy_word << 2]);
 
 	return finish_access(regs, __func__);
 }

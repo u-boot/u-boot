@@ -17,7 +17,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/io.h>
 #include <i2c.h>
@@ -773,7 +773,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 	 * See Documentation/devicetree/bindings/i2c/i2c-imx.txt
 	 * Use gpio to force bus idle when necessary.
 	 */
-	ret = fdt_find_string(fdt, node, "pinctrl-names", "gpio");
+	ret = fdt_stringlist_search(fdt, node, "pinctrl-names", "gpio");
 	if (ret < 0) {
 		dev_info(dev, "i2c bus %d at %lu, no gpio pinctrl state.\n", bus->seq, i2c_bus->base);
 	} else {

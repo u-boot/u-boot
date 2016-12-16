@@ -181,9 +181,7 @@
  *-----------------------------------------------------------------------
  */
 /* General PCI */
-#define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 

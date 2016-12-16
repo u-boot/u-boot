@@ -17,7 +17,7 @@ extern char * strchr(const char * s, int c);
 #define __HAVE_ARCH_MEMCPY
 extern void * memcpy(void *, const void *, __kernel_size_t);
 
-#undef __HAVE_ARCH_MEMMOVE
+#define __HAVE_ARCH_MEMMOVE
 extern void * memmove(void *, const void *, __kernel_size_t);
 
 #undef __HAVE_ARCH_MEMCHR

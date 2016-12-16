@@ -53,7 +53,6 @@ enum {
 enum {
 	X86_NONE,
 	X86_SYSCON_ME,		/* Intel Management Engine */
-	X86_SYSCON_GMA,		/* Intel Graphics Media Accelerator */
 	X86_SYSCON_PINCONF,	/* Intel x86 pin configuration */
 };
 

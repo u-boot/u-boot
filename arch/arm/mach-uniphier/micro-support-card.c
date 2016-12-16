@@ -49,7 +49,7 @@ static int support_card_show_revision(void)
 	return 0;
 }
 
-int check_support_card(void)
+int checkboard(void)
 {
 	printf("SC:    Micro Support Card ");
 	return support_card_show_revision();
@@ -60,9 +60,8 @@ void support_card_init(void)
 	/*
 	 * After power on, we need to keep the LAN controller in reset state
 	 * for a while. (200 usec)
-	 * Fortunately, enough wait time is already inserted in pll_init()
-	 * function. So we do not have to wait here.
 	 */
+	udelay(200);
 	support_card_reset_deassert();
 }
 

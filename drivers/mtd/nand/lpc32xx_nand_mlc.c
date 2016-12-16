@@ -22,7 +22,7 @@
 
 #include <common.h>
 #include <nand.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <nand.h>
 #include <asm/arch/clk.h>

@@ -854,7 +854,7 @@ int ubifs_read(const char *filename, void *buf, loff_t offset,
 	*actread = 0;
 
 	if (offset & (PAGE_SIZE - 1)) {
-		printf("ubifs: Error offset must be a multple of %d\n",
+		printf("ubifs: Error offset must be a multiple of %d\n",
 		       PAGE_SIZE);
 		return -1;
 	}

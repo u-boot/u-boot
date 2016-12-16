@@ -9,16 +9,12 @@
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_FSL_LSCH3
 #define CONFIG_MP
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 
 #include <asm/arch/ls2080a_stream_id.h>
 #include <asm/arch/config.h>
-#if (defined(CONFIG_SYS_FSL_SRDS_1) || defined(CONFIG_SYS_FSL_SRDS_2))
-#define	CONFIG_SYS_HAS_SERDES
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
@@ -50,7 +46,6 @@
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #endif
 #ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
 
@@ -153,11 +148,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE			0x530000000ULL
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
-/* Debug Server firmware */
-#define CONFIG_FSL_DEBUG_SERVER
-/* 2 sec timeout */
-#define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
-
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
@@ -175,8 +165,7 @@ unsigned long long get_qixis_addr(void);
  * It will be used by MC and Debug Server. The MC region must be
  * 512MB aligned, so the min size to hide is 512MB.
  */
-#if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(254UL * 1024 * 1024)
+#ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
 #define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
@@ -222,8 +211,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-#define CONFIG_DISPLAY_CPUINFO
-
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -265,17 +252,9 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv8/u-boot-spl.lds"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_MAX_SIZE		0x16000
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_STACK		(CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_TEXT_BASE		0x1800a000

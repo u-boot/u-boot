@@ -89,6 +89,8 @@ void psci_cpu_off_common(void);
 int psci_update_dt(void *fdt);
 void psci_board_init(void);
 int fdt_psci(void *fdt);
+
+void psci_v7_flush_dcache_all(void);
 #endif /* ! __ASSEMBLY__ */
 
 #endif /* __ARM_PSCI_H__ */

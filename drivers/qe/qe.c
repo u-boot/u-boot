@@ -7,11 +7,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "common.h"
+#include <common.h>
 #include <command.h>
-#include "asm/errno.h"
-#include "asm/io.h"
-#include "linux/immap_qe.h"
+#include <linux/errno.h>
+#include <asm/io.h>
+#include <linux/immap_qe.h>
 #include <fsl_qe.h>
 #ifdef CONFIG_LS102XA
 #include <asm/arch/immap_ls102xa.h>

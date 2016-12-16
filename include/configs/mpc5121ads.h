@@ -12,7 +12,6 @@
 #define __CONFIG_H
 
 #define CONFIG_MPC5121ADS 1
-#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Memory map for the MPC5121ADS board:
@@ -37,11 +36,7 @@
 /* video */
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_IMMR + 0x2100)
-#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
@@ -52,7 +47,6 @@
 #define CONFIG_SYS_MPC512X_CLKIN	66000000	/* in Hz */
 #else
 #define CONFIG_SYS_MPC512X_CLKIN	33333333	/* in Hz */
-#define CONFIG_PCI
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f() */
@@ -331,8 +325,6 @@
 #define CONFIG_SYS_PCI_IO_BASE		0x00000000
 #define CONFIG_SYS_PCI_IO_PHYS		0x84000000
 #define CONFIG_SYS_PCI_IO_SIZE		0x01000000	/* 16M */
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 

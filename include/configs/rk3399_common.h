@@ -7,6 +7,8 @@
 #ifndef __CONFIG_RK3399_COMMON_H
 #define __CONFIG_RK3399_COMMON_H
 
+#include "rockchip-common.h"
+
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_ENV_SIZE			0x2000
@@ -15,7 +17,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_NS16550_MEM32
 
@@ -53,7 +54,6 @@
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
@@ -62,19 +62,6 @@
 	"kernel_addr_r=0x02000000\0" \
 	"ramdisk_addr_r=0x04000000\0"
 
-#define CONFIG_CMD_GPT
-#define CONFIG_RANDOM_UUID
-#define CONFIG_PARTITION_UUIDS
-#define PARTS_DEFAULT \
-	"uuid_disk=${uuid_gpt_disk};" \
-	"name=boot,start=16M,size=32M,bootable;" \
-	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs};\0" \
-
-/* First try to boot from SD (index 0), then eMMC (index 1) */
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1)
-
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
@@ -82,5 +69,17 @@
 	BOOTENV
 
 #endif
+
+/* enable usb config for usb ether */
+#define CONFIG_USB_HOST_ETHER
+
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_ASIX88179
+#define CONFIG_USB_ETHER_MCS7830
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_USB_ETHER_RTL8152
+
+/* rockchip xhci host driver */
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 
 #endif

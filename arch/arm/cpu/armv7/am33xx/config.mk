@@ -12,16 +12,32 @@ ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 # For booting from SPI use
 # u-boot-spl_HS_SPI_X-LOADER to program flash
 #
-# For booting spl from all other  media
-# use u-boot-spl_HS_ISSW
+# On AM43XX:
+#
+# For booting spl from all other media use
+# u-boot-spl_HS_ISSW
+#
+# On AM33XX:
+#
+# For booting spl from NAND flash use
+# u-boot-spl_HS_X-LOADER
+#
+# For booting spl from SD/MMC/eMMC media use
+# u-boot-spl_HS_MLO
+#
+# For booting spl over UART, USB, or Ethernet use
+# u-boot-spl_HS_2ND
 #
 # Refer to README.ti-secure for more info
 #
 ALL-y	+= u-boot-spl_HS_ISSW
-ALL-$(CONFIG_SPL_SPI_SUPPORT) += u-boot-spl_HS_SPI_X-LOADER
+ALL-y += u-boot-spl_HS_SPI_X-LOADER
+ALL-y += u-boot-spl_HS_X-LOADER
+ALL-y += u-boot-spl_HS_MLO
+ALL-y += u-boot-spl_HS_2ND
 else
 ALL-y	+= MLO
-ALL-$(CONFIG_SPL_SPI_SUPPORT) += MLO.byteswap
+ALL-y += MLO.byteswap
 endif
 else
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)

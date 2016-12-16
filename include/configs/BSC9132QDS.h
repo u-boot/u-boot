@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_BSC9132QDS
 #define CONFIG_BSC9132
 #endif
@@ -44,8 +42,6 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
@@ -83,7 +79,6 @@
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #if defined(CONFIG_PCI)
 #define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
@@ -107,8 +102,6 @@
 #define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xC0010000
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
@@ -413,8 +406,6 @@ combinations. this should be removed later
 #define CONFIG_NS16550_MIN_FUNCTIONS
 #endif
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
-
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
@@ -608,14 +599,6 @@ combinations. this should be removed later
 			"55m(fs),1m(uboot);ff800000.flash:1m(uboot)," \
 			"8m(kernel),512k(dtb),-(fs)"
 #endif
-/*
- * Override partitions in device tree using info
- * in "mtdparts" environment variable
- */
-#ifdef CONFIG_CMD_MTDPARTS
-#define CONFIG_FDT_FIXUP_PARTITIONS
-#endif
-
 /*
  * Environment Configuration
  */

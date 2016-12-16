@@ -36,12 +36,6 @@
 
 #define CONFIG_MACH_TYPE                MACH_TYPE_CM_T3517
 
-/*
- * Display CPU and Board information
- */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
@@ -85,7 +79,6 @@
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 #define CONFIG_SERIAL3			3	/* UART3 */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -288,7 +281,6 @@
 #define CONFIG_VIDEO_OMAP3
 #define LCD_BPP		LCD_COLOR16
 
-#define CONFIG_LCD
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASHIMAGE_GUARD
 #define CONFIG_CMD_BMP

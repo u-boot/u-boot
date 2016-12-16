@@ -1,7 +1,8 @@
 /*
  * Device Tree Source commonly used by UniPhier ARM SoCs
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -9,6 +10,11 @@
 /include/ "skeleton.dtsi"
 
 / {
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
 	clocks {
 		refclk: ref {
 			#clock-cells = <0>;
@@ -31,7 +37,7 @@
 			interrupts = <0 33 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart0>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 0>;
 		};
 
 		serial1: serial@54006900 {
@@ -41,7 +47,7 @@
 			interrupts = <0 35 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart1>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 1>;
 		};
 
 		serial2: serial@54006a00 {
@@ -51,7 +57,7 @@
 			interrupts = <0 37 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart2>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 2>;
 		};
 
 		serial3: serial@54006b00 {
@@ -61,7 +67,7 @@
 			interrupts = <0 177 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart3>;
-			clocks = <&uart_clk>;
+			clocks = <&peri_clk 3>;
 		};
 
 		system_bus: system-bus@58c00000 {
@@ -79,16 +85,33 @@
 			reg = <0x59801000 0x400>;
 		};
 
-		mio: mioctrl@59810000 {
-			/* specify compatible in each SoC DTSI */
+		mioctrl@59810000 {
+			compatible = "socionext,uniphier-mioctrl",
+				     "simple-mfd", "syscon";
 			reg = <0x59810000 0x800>;
-			#clock-cells = <1>;
+			u-boot,dm-pre-reloc;
+
+			mio_clk: clock {
+				#clock-cells = <1>;
+			};
+
+			mio_rst: reset {
+				#reset-cells = <1>;
+			};
 		};
 
-		peri: perictrl@59820000 {
-			/* specify compatible in each SoC DTSI */
+		perictrl@59820000 {
+			compatible = "socionext,uniphier-perictrl",
+				     "simple-mfd", "syscon";
 			reg = <0x59820000 0x200>;
-			#clock-cells = <1>;
+
+			peri_clk: clock {
+				#clock-cells = <1>;
+			};
+
+			peri_rst: reset {
+				#reset-cells = <1>;
+			};
 		};
 
 		timer@60000200 {
@@ -114,7 +137,8 @@
 		};
 
 		soc-glue@5f800000 {
-			compatible = "simple-mfd", "syscon";
+			compatible = "socionext,uniphier-soc-glue",
+				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
 			u-boot,dm-pre-reloc;
 
@@ -124,12 +148,18 @@
 			};
 		};
 
-		sysctrl: sysctrl@61840000 {
-			/* specify compatible in each SoC DTSI */
+		sysctrl@61840000 {
+			compatible = "socionext,uniphier-sysctrl",
+				     "simple-mfd", "syscon";
 			reg = <0x61840000 0x4000>;
-			#clock-cells = <1>;
-			clock-names = "ref";
-			clocks = <&refclk>;
+
+			sys_clk: clock {
+				#clock-cells = <1>;
+			};
+
+			sys_rst: reset {
+				#reset-cells = <1>;
+			};
 		};
 
 		nand: nand@68000000 {

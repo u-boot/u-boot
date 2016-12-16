@@ -29,8 +29,6 @@
 #error ("Board unsupported")
 #endif
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
 #define CONFIG_MISC_INIT_R

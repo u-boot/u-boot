@@ -160,7 +160,7 @@ Configuration Options:
 
 	/*
 	 * devnum is the device number to be used in nand commands
-	 * and in mtd->name.  Must be less than CONFIG_SYS_NAND_MAX_DEVICE.
+	 * and in mtd->name.  Must be less than CONFIG_SYS_MAX_NAND_DEVICE.
 	 */
 	if (nand_register(devnum, mtd))
 		error out

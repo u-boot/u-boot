@@ -146,12 +146,13 @@ __maybe_unused static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 	}
 }
 
-#if defined CONFIG_MACH_SUN8I_H3
+#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
 static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 {
+#if defined CONFIG_MACH_SUN8I_H3
 	if (phy->id == 0)
 		clrbits_le32(SUNXI_USBPHY_BASE + REG_PHY_UNK_H3, 0x01);
-
+#endif
 	clrbits_le32(phy->base + REG_PMU_UNK_H3, 0x02);
 }
 #elif defined CONFIG_MACH_SUN8I_A83T
@@ -294,13 +295,6 @@ void sunxi_usb_phy_power_off(int index)
 
 	if (phy->gpio_vbus >= 0)
 		gpio_set_value(phy->gpio_vbus, 0);
-}
-
-int sunxi_usb_phy_power_is_on(int index)
-{
-	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
-
-	return phy->power_on_count > 0;
 }
 
 int sunxi_usb_phy_vbus_detect(int index)

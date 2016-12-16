@@ -12,7 +12,7 @@
 #include <mmc.h>
 
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/byteorder.h>
 #include <asm/blackfin.h>
 #include <asm/clock.h>

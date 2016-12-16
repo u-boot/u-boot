@@ -179,6 +179,21 @@ ENTRY(lowlevel_init)
 	isb
 	dsb	sy
 #endif
+
+#ifdef CONFIG_ARCH_LS1046A
+	/* Initialize the L2 RAM latency */
+	mrs   x1, S3_1_c11_c0_2
+	mov   x0, #0x1C7
+	/* Clear L2 Tag RAM latency and L2 Data RAM latency */
+	bic   x1, x1, x0
+	/* Set L2 data ram latency bits [2:0] */
+	orr   x1, x1, #0x2
+	/* set L2 tag ram latency bits [8:6] */
+	orr   x1,  x1, #0x80
+	msr   S3_1_c11_c0_2, x1
+	isb
+#endif
+
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
@@ -230,7 +245,7 @@ hnf_set_pstate:
 
 	ret
 
-ENTRY(__asm_flush_l3_cache)
+ENTRY(__asm_flush_l3_dcache)
 	/*
 	 * Return status in x0
 	 *    success 0
@@ -260,7 +275,7 @@ ENTRY(__asm_flush_l3_cache)
 	mov	x0, x8
 	mov	lr, x29
 	ret
-ENDPROC(__asm_flush_l3_cache)
+ENDPROC(__asm_flush_l3_dcache)
 #endif
 
 #ifdef CONFIG_MP

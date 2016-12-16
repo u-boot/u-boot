@@ -32,7 +32,7 @@ obj-y				+= clock_sun8i_a83t.o
 else
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 endif
-obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o
+obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o gtbus_sun9i.o
 
 obj-$(CONFIG_AXP152_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP209_POWER)	+= pmic_bus.o
@@ -49,4 +49,5 @@ obj-$(CONFIG_MACH_SUN8I_A23)	+= dram_sun8i_a23.o
 obj-$(CONFIG_MACH_SUN8I_A33)	+= dram_sun8i_a33.o
 obj-$(CONFIG_MACH_SUN8I_A83T)	+= dram_sun8i_a83t.o
 obj-$(CONFIG_MACH_SUN8I_H3)	+= dram_sun8i_h3.o
+obj-$(CONFIG_MACH_SUN9I)	+= dram_sun9i.o
 endif

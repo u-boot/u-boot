@@ -5,3 +5,16 @@ config DM_THERMAL
 	  temperature sensors to permit warnings, speed throttling or even
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
+
+if DM_THERMAL
+
+config IMX_THERMAL
+	bool "Temperature sensor driver for Freescale i.MX SoCs"
+	depends on MX6
+	help
+	  Support for Temperature Monitor (TEMPMON) found on Freescale i.MX SoCs.
+          It supports one critical trip point and one passive trip point.  The
+          cpufreq is used as the cooling device to throttle CPUs when the
+          passive trip is crossed.
+
+endif # if DM_THERMAL

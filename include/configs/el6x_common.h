@@ -25,10 +25,6 @@
 #define CONFIG_MXC_UART
 
 #ifdef CONFIG_SPL
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #define CONFIG_SPL_SPI_LOAD
 #include "imx6_spl.h"
@@ -77,7 +73,7 @@
 	"board="__stringify(CONFIG_BOARD_NAME)"\0"                              \
 	"cma_size="__stringify(EL6Q_CMA_SIZE)"\0"                               \
 	"chp_size="__stringify(EL6Q_COHERENT_POOL_SIZE)"\0"                     \
-	"console=" CONFIG_CONSOLE_DEV "\0" 					\
+	"console=" CONSOLE_DEV "\0"					\
 	"fdtfile=undefined\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \

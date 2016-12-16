@@ -27,7 +27,6 @@
  * T1040 QDS board configuration file
  */
 #define CONFIG_T1040QDS
-#define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
@@ -46,7 +45,6 @@
 /* support deep sleep */
 #define CONFIG_DEEP_SLEEP
 #if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_SILENT_CONSOLE
 #define CONFIG_BOARD_EARLY_INIT_F
 #endif
 
@@ -62,7 +60,6 @@
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
@@ -408,18 +405,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 
 /* Video */
 #define CONFIG_FSL_DIU_FB
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
@@ -523,8 +515,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
 #define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000	/* 64k */
 #endif
-
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION

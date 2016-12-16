@@ -8,7 +8,7 @@
 
 #include <asm/io.h>
 #include <common.h>
-#include <clk_client.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -176,37 +176,21 @@ static void at91_calc_i2c_clock(struct udevice *dev, int i2c_clk)
 static int at91_i2c_enable_clk(struct udevice *dev)
 {
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
-	struct udevice *dev_clk;
 	struct clk clk;
 	ulong clk_rate;
-	int periph;
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return -EINVAL;
 
-	periph = fdtdec_get_uint(gd->fdt_blob, clk.dev->of_offset, "reg", -1);
-	if (periph < 0)
-		return -EINVAL;
-
-	dev_clk = dev_get_parent(clk.dev);
-	ret = clk_request(dev_clk, &clk);
-	if (ret)
-		return ret;
-
-	clk.id = periph;
 	ret = clk_enable(&clk);
-	if (ret)
-		return ret;
-
-	ret = clk_get_by_index(dev_clk, 0, &clk);
 	if (ret)
 		return ret;
 
 	clk_rate = clk_get_rate(&clk);
 	if (!clk_rate)
-		return -ENODEV;
+		return -EINVAL;
 
 	bus->bus_clk_rate = clk_rate;
 

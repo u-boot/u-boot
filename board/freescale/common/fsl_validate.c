@@ -301,27 +301,15 @@ static inline u32 get_key_len(struct fsl_secboot_img_priv *img)
  */
 static void fsl_secboot_header_verification_failure(void)
 {
-	struct ccsr_sec_mon_regs *sec_mon_regs = (void *)
-						(CONFIG_SYS_SEC_MON_ADDR);
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
-	u32 sts = sec_mon_in32(&sec_mon_regs->hp_stat);
 
 	/* 29th bit of OSPR is ITS */
 	u32 its = sfp_in32(&sfp_regs->ospr) >> 2;
 
-	/*
-	 * Read the SEC_MON status register
-	 * Read SSM_ST field
-	 */
-	sts = sec_mon_in32(&sec_mon_regs->hp_stat);
-	if ((sts & HPSR_SSM_ST_MASK) == HPSR_SSM_ST_TRUST) {
-		if (its == 1)
-			change_sec_mon_state(HPSR_SSM_ST_TRUST,
-					     HPSR_SSM_ST_SOFT_FAIL);
-		else
-			change_sec_mon_state(HPSR_SSM_ST_TRUST,
-					     HPSR_SSM_ST_NON_SECURE);
-	}
+	if (its == 1)
+		set_sec_mon_state(HPSR_SSM_ST_SOFT_FAIL);
+	else
+		set_sec_mon_state(HPSR_SSM_ST_NON_SECURE);
 
 	printf("Generating reset request\n");
 	do_reset(NULL, 0, 0, NULL);
@@ -338,32 +326,20 @@ static void fsl_secboot_header_verification_failure(void)
  */
 static void fsl_secboot_image_verification_failure(void)
 {
-	struct ccsr_sec_mon_regs *sec_mon_regs = (void *)
-						(CONFIG_SYS_SEC_MON_ADDR);
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
-	u32 sts = sec_mon_in32(&sec_mon_regs->hp_stat);
 
 	u32 its = (sfp_in32(&sfp_regs->ospr) & ITS_MASK) >> ITS_BIT;
 
-	/*
-	 * Read the SEC_MON status register
-	 * Read SSM_ST field
-	 */
-	sts = sec_mon_in32(&sec_mon_regs->hp_stat);
-	if ((sts & HPSR_SSM_ST_MASK) == HPSR_SSM_ST_TRUST) {
-		if (its == 1) {
-			change_sec_mon_state(HPSR_SSM_ST_TRUST,
-					     HPSR_SSM_ST_SOFT_FAIL);
+	if (its == 1) {
+		set_sec_mon_state(HPSR_SSM_ST_SOFT_FAIL);
 
-			printf("Generating reset request\n");
-			do_reset(NULL, 0, 0, NULL);
-			/* If reset doesn't coocur, halt execution */
-			do_esbc_halt(NULL, 0, 0, NULL);
+		printf("Generating reset request\n");
+		do_reset(NULL, 0, 0, NULL);
+		/* If reset doesn't coocur, halt execution */
+		do_esbc_halt(NULL, 0, 0, NULL);
 
-		} else {
-			change_sec_mon_state(HPSR_SSM_ST_TRUST,
-					     HPSR_SSM_ST_NON_SECURE);
-		}
+	} else {
+		set_sec_mon_state(HPSR_SSM_ST_NON_SECURE);
 	}
 }
 

@@ -15,7 +15,7 @@
 #undef	PACKET_TRACE
 
 #include <common.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/hardware.h>

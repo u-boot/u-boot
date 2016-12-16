@@ -29,8 +29,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"

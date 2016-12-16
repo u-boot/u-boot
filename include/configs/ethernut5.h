@@ -23,7 +23,6 @@
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
 
 /* CPU information */
-#define CONFIG_DISPLAY_CPUINFO		/* Display at console. */
 #define CONFIG_ARCH_CPU_INIT
 
 /* ARM asynchronous clock */
@@ -96,7 +95,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_UNZIP
 #endif

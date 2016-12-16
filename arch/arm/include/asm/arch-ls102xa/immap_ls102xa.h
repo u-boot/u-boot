@@ -161,6 +161,17 @@ struct ccsr_gur {
 #define SCFG_SNPCNFGCR_DBG_RD_WR	0x000c0000
 #define SCFG_SNPCNFGCR_EDMA_SNP		0x00020000
 #define SCFG_ENDIANCR_LE		0x80000000
+#define SCFG_DPSLPCR_WDRR_EN		0x00000001
+#define SCFG_PMCINTECR_LPUART		0x40000000
+#define SCFG_PMCINTECR_FTM		0x20000000
+#define SCFG_PMCINTECR_GPIO		0x10000000
+#define SCFG_PMCINTECR_IRQ0		0x08000000
+#define SCFG_PMCINTECR_IRQ1		0x04000000
+#define SCFG_PMCINTECR_ETSECRXG0	0x00800000
+#define SCFG_PMCINTECR_ETSECRXG1	0x00400000
+#define SCFG_PMCINTECR_ETSECERRG0	0x00080000
+#define SCFG_PMCINTECR_ETSECERRG1	0x00040000
+#define SCFG_CLUSTERPMCR_WFIL2EN	0x80000000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
@@ -226,7 +237,7 @@ struct ccsr_scfg {
 	u32 debug_streamid;
 	u32 resv10[5];
 	u32 snpcnfgcr;
-	u32 resv11[1];
+	u32 hrstcr;
 	u32 intpcr;
 	u32 resv12[20];
 	u32 scfgrevcr;
@@ -243,6 +254,9 @@ struct ccsr_scfg {
 	u32 sdhciovserlcr;
 	u32 resv14[61];
 	u32 sparecr[8];
+	u32 resv15[248];
+	u32 core0sftrstsr;
+	u32 clusterpmcr;
 };
 
 /* Clocking */
@@ -431,6 +445,42 @@ struct ccsr_ahci {
 	u32 ppcs;	/* port phy control status */
 	u32 pberr;	/* port 0/1 BIST error */
 	u32 cmds;	/* port 0/1 CMD status error */
+};
+
+#define RCPM_POWMGTCSR			0x130
+#define RCPM_POWMGTCSR_SERDES_PW	0x80000000
+#define RCPM_POWMGTCSR_LPM20_REQ	0x00100000
+#define RCPM_POWMGTCSR_LPM20_ST		0x00000200
+#define RCPM_POWMGTCSR_P_LPM20_ST	0x00000100
+#define RCPM_IPPDEXPCR0			0x140
+#define RCPM_IPPDEXPCR0_ETSEC		0x80000000
+#define RCPM_IPPDEXPCR0_GPIO		0x00000040
+#define RCPM_IPPDEXPCR1			0x144
+#define RCPM_IPPDEXPCR1_LPUART		0x40000000
+#define RCPM_IPPDEXPCR1_FLEXTIMER	0x20000000
+#define RCPM_IPPDEXPCR1_OCRAM1		0x10000000
+#define RCPM_NFIQOUTR			0x15c
+#define RCPM_NIRQOUTR			0x16c
+#define RCPM_DSIMSKR			0x18c
+#define RCPM_CLPCL10SETR		0x1c4
+#define RCPM_CLPCL10SETR_C0		0x00000001
+
+struct ccsr_rcpm {
+	u8 rev1[0x4c];
+	u32 twaitsr;
+	u8 rev2[0xe0];
+	u32 powmgtcsr;
+	u8 rev3[0xc];
+	u32 ippdexpcr0;
+	u32 ippdexpcr1;
+	u8 rev4[0x14];
+	u32 nfiqoutr;
+	u8 rev5[0xc];
+	u32 nirqoutr;
+	u8 rev6[0x1c];
+	u32 dsimskr;
+	u8 rev7[0x34];
+	u32 clpcl10setr;
 };
 
 uint get_svr(void);

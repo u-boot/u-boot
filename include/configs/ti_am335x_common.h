@@ -12,7 +12,6 @@
 #ifndef __CONFIG_TI_AM335X_COMMON_H__
 #define __CONFIG_TI_AM335X_COMMON_H__
 
-#define CONFIG_AM33XX
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
@@ -62,7 +61,6 @@
 					 (128 << 20))
 
 /* Enable the watchdog inside of SPL */
-#define CONFIG_SPL_WATCHDOG_SUPPORT
 
 /*
  * Since SPL did pll and ddr initialization for us,

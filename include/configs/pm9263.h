@@ -19,8 +19,6 @@
 #include <asm/hardware.h>
 
 /* ARM asynchronous clock */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		6
 #define MASTER_PLL_MUL		65
@@ -164,7 +162,6 @@
 #define	CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LCD */
-#define CONFIG_LCD			1
 #define LCD_BPP				LCD_COLOR8
 #define CONFIG_LCD_LOGO			1
 #undef LCD_TEST_PATTERN
@@ -173,7 +170,6 @@
 #define CONFIG_SYS_WHITE_ON_BLACK	1
 #define CONFIG_ATMEL_LCD		1
 #define CONFIG_ATMEL_LCD_BGR555		1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 #define CONFIG_LCD_IN_PSRAM		1
 

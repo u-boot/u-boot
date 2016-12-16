@@ -619,10 +619,8 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(cmdtp, flag, argc, argv);
 
-	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
+	if (!ret && (states & BOOTM_STATE_FINDOTHER))
 		ret = bootm_find_other(cmdtp, flag, argc, argv);
-		argc = 0;	/* consume the args */
-	}
 
 	/* Load the OS */
 	if (!ret && (states & BOOTM_STATE_LOADOS)) {

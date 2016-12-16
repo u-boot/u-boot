@@ -40,10 +40,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_REVISION_TAG		1
@@ -199,7 +195,6 @@
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-#undef CONFIG_SPL_MTD_SUPPORT
 
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/

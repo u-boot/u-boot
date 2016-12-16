@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_CYRUS
 
 #if !defined(CONFIG_PPC_P5020) && !defined(CONFIG_PPC_P5040)
@@ -56,7 +54,6 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
-#define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
@@ -388,7 +385,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_NET_MULTI
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -448,12 +444,8 @@
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL
  /* _VIA_CONTROL_EP  */
-#define CONFIG_CONSOLE_MUX
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif
 
 #ifdef CONFIG_MMC

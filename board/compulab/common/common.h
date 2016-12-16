@@ -9,7 +9,7 @@
 #ifndef _CL_COMMON_
 #define _CL_COMMON_
 
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 void cl_print_pcb_info(void);
 

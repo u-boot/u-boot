@@ -23,7 +23,7 @@
 #include <fdtdec.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <malloc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

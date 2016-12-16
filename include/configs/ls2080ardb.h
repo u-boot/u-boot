@@ -12,8 +12,6 @@
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX       2
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define I2C_MUX_CH_VOL_MONITOR		0xa
 #define I2C_VOL_MONITOR_ADDR		0x38
 #define CONFIG_VOL_MONITOR_IR36021_READ
@@ -292,11 +290,9 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
-#define CONFIG_PCI		/* Enable PCIE */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 
 #ifdef CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif

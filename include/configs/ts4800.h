@@ -16,9 +16,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MX51
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #define CONFIG_SYS_NO_FLASH		/* No NOR Flash */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage bootloader */
 

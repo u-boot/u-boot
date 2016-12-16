@@ -1302,7 +1302,7 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 		}
 
 		if (mem_mask != 0) {
-			/* motib redundent in KW28 */
+			/* motib redundant in KW28 */
 			CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type,
 						       if_id,
 						       CS_ENABLE_REG, 0, 0x8));

@@ -60,11 +60,11 @@ uint32_t fdt_get_max_phandle(const void *fdt)
 			return max_phandle;
 
 		if (offset < 0)
-			return 0;
+			return (uint32_t)-1;
 
 		phandle = fdt_get_phandle(fdt, offset);
 		if (phandle == (uint32_t)-1)
-			return 0;
+			continue;
 
 		if (phandle > max_phandle)
 			max_phandle = phandle;
@@ -202,6 +202,11 @@ int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
 	}
 
 	return offset;
+}
+
+int fdt_path_offset(const void *fdt, const char *path)
+{
+	return fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
 const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
@@ -538,80 +543,104 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
 	return 0;
 }
 
-int fdt_count_strings(const void *fdt, int node, const char *property)
+int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
 {
-	int length, i, count = 0;
-	const char *list;
+	const char *list, *end;
+	int length, count = 0;
 
-	list = fdt_getprop(fdt, node, property, &length);
+	list = fdt_getprop(fdt, nodeoffset, property, &length);
 	if (!list)
 		return length;
 
-	for (i = 0; i < length; i++) {
-		int len = strlen(list);
+	end = list + length;
 
-		list += len + 1;
-		i += len;
+	while (list < end) {
+		length = strnlen(list, end - list) + 1;
+
+		/* Abort if the last string isn't properly NUL-terminated. */
+		if (list + length > end)
+			return -FDT_ERR_BADVALUE;
+
+		list += length;
 		count++;
 	}
 
 	return count;
 }
 
-int fdt_find_string(const void *fdt, int node, const char *property,
-		    const char *string)
+int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+			  const char *string)
 {
+	int length, len, idx = 0;
 	const char *list, *end;
-	int len, index = 0;
 
-	list = fdt_getprop(fdt, node, property, &len);
+	list = fdt_getprop(fdt, nodeoffset, property, &length);
 	if (!list)
-		return len;
+		return length;
 
-	end = list + len;
-	len = strlen(string);
+	len = strlen(string) + 1;
+	end = list + length;
 
 	while (list < end) {
-		int l = strlen(list);
+		length = strnlen(list, end - list) + 1;
 
-		if (l == len && memcmp(list, string, len) == 0)
-			return index;
+		/* Abort if the last string isn't properly NUL-terminated. */
+		if (list + length > end)
+			return -FDT_ERR_BADVALUE;
 
-		list += l + 1;
-		index++;
+		if (length == len && memcmp(list, string, length) == 0)
+			return idx;
+
+		list += length;
+		idx++;
 	}
 
 	return -FDT_ERR_NOTFOUND;
 }
 
-int fdt_get_string_index(const void *fdt, int node, const char *property,
-			 int index, const char **output)
+const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
+			       const char *property, int idx,
+			       int *lenp)
 {
-	const char *list;
-	int length, i;
+	const char *list, *end;
+	int length;
 
-	list = fdt_getprop(fdt, node, property, &length);
+	list = fdt_getprop(fdt, nodeoffset, property, &length);
+	if (!list) {
+		if (lenp)
+			*lenp = length;
 
-	for (i = 0; i < length; i++) {
-		int len = strlen(list);
+		return NULL;
+	}
 
-		if (index == 0) {
-			*output = list;
-			return 0;
+	end = list + length;
+
+	while (list < end) {
+		length = strnlen(list, end - list) + 1;
+
+		/* Abort if the last string isn't properly NUL-terminated. */
+		if (list + length > end) {
+			if (lenp)
+				*lenp = -FDT_ERR_BADVALUE;
+
+			return NULL;
 		}
 
-		list += len + 1;
-		i += len;
-		index--;
+		if (idx == 0) {
+			if (lenp)
+				*lenp = length - 1;
+
+			return list;
+		}
+
+		list += length;
+		idx--;
 	}
 
-	return -FDT_ERR_NOTFOUND;
-}
+	if (lenp)
+		*lenp = -FDT_ERR_NOTFOUND;
 
-int fdt_get_string(const void *fdt, int node, const char *property,
-		   const char **output)
-{
-	return fdt_get_string_index(fdt, node, property, 0, output);
+	return NULL;
 }
 
 int fdt_node_check_compatible(const void *fdt, int nodeoffset,
@@ -623,10 +652,8 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
 	if (!prop)
 		return len;
-	if (fdt_stringlist_contains(prop, len, compatible))
-		return 0;
-	else
-		return 1;
+
+	return !fdt_stringlist_contains(prop, len, compatible);
 }
 
 int fdt_node_offset_by_compatible(const void *fdt, int startoffset,

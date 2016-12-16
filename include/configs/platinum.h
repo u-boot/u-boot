@@ -8,8 +8,6 @@
 #define __PLATINUM_CONFIG_H__
 
 /* SPL */
-#define CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
@@ -25,7 +23,6 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
 /*

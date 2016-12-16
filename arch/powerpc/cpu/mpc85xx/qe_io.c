@@ -7,10 +7,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "common.h"
-#include "asm/errno.h"
-#include "asm/io.h"
-#include "asm/immap_85xx.h"
+#include <common.h>
+#include <linux/errno.h>
+#include <asm/io.h>
+#include <asm/immap_85xx.h>
 
 #if defined(CONFIG_QE) && !defined(CONFIG_U_QE)
 #define	NUM_OF_PINS	32

@@ -146,12 +146,7 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#ifdef CONFIG_DFU_MMC
-#define CONFIG_SYS_MALLOC_LEN	((16 << 20) + CONFIG_SYS_DFU_DATA_BUF_SIZE)
-#else
-#define CONFIG_SYS_MALLOC_LEN	(16 << 20)
-#endif
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
+#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_ENV_VARS_UBOOT_CONFIG	/* Strongly encouraged */
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
@@ -197,16 +192,18 @@
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily
- * memory) enough for full U-Boot to be loaded.  We also support Falcon
- * Mode so that the Linux kernel can be booted directly from SPL
- * instead, if desired.  We make use of the general SPL framework found
- * under common/spl/.  Given our generally common memory map, we set a
- * number of related defaults and sizes here.
+ * memory) enough for full U-Boot to be loaded. We make use of the general
+ * SPL framework found under common/spl/.  Given our generally common memory
+ * map, we set a number of related defaults and sizes here.
  */
 #if !defined(CONFIG_NOR_BOOT) && \
 	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_OS_BOOT
+
+/*
+ * We also support Falcon Mode so that the Linux kernel can be booted
+ * directly from SPL. This is not currently available on HS devices.
+ */
 
 /*
  * Place the image at the start of the ROM defined image space (per
@@ -230,7 +227,7 @@
 #ifndef CONFIG_SYS_SPL_MALLOC_START
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
 					 CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_8M
 #endif
 #ifndef CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
@@ -260,30 +257,15 @@
 #define CONFIG_CMD_SPL
 #endif
 
-#ifdef CONFIG_MMC
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_EXT_SUPPORT
-#endif
-
 #define CONFIG_SYS_THUMB_BUILD
 
 /* General parts of the framework, required. */
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_MTD_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #endif
 #endif /* !CONFIG_NOR_BOOT */

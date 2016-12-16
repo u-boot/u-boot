@@ -11,11 +11,6 @@
 #define _CONFIG_SHEEVAPLUG_H
 
 /*
- * Version number information
- */
-#define CONFIG_IDENT_STRING	"\nMarvell-Sheevaplug"
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */

@@ -9,6 +9,7 @@
 #define _IMXIMAGE_H_
 
 #define MAX_HW_CFG_SIZE_V2 220 /* Max number of registers imx can set for v2 */
+#define MAX_PLUGIN_CODE_SIZE (64 * 1024)
 #define MAX_HW_CFG_SIZE_V1 60  /* Max number of registers imx can set for v1 */
 #define APP_CODE_BARKER	0xB1
 #define DCD_BARKER	0xB17219E9
@@ -64,6 +65,7 @@ enum imximage_cmd {
 	CMD_CHECK_BITS_SET,
 	CMD_CHECK_BITS_CLR,
 	CMD_CSF,
+	CMD_PLUGIN,
 };
 
 enum imximage_fld_types {
@@ -164,7 +166,10 @@ typedef struct {
 typedef struct {
 	flash_header_v2_t fhdr;
 	boot_data_t boot_data;
-	dcd_v2_t dcd_table;
+	union {
+		dcd_v2_t dcd_table;
+		char plugin_code[MAX_PLUGIN_CODE_SIZE];
+	} data;
 } imx_header_v2_t;
 
 /* The header must be aligned to 4k on MX53 for NAND boot */

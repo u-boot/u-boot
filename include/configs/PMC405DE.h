@@ -12,7 +12,6 @@
 #define CONFIG_PMC405DE		1	/* ...on a PMC405DE board	*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -74,7 +73,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console info */
 
 #define CONFIG_SYS_MEMTEST_START	0x0100000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x3000000 /* 1 ... 48 MB in DRAM */
@@ -100,10 +98,8 @@
 #define PCI_HOST_FORCE		1	/* configure as pci host	*/
 #define PCI_HOST_AUTO		2	/* detected via arbiter enable	*/
 
-#define CONFIG_PCI		/* include pci support			*/
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO  /* select pci host function	*/
-#define CONFIG_PCI_PNP		/* do (not) pci plug-and-play		*/
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup		*/
 

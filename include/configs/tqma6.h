@@ -12,11 +12,6 @@
 #include <linux/kconfig.h>
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
-
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-
 /* common IMX6 SPL configuration */
 #include "imx6_spl.h"
 
@@ -300,7 +295,7 @@
 	"uboot=u-boot.imx\0"                                                   \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0"                               \
 	"fdt_addr="__stringify(TQMA6_FDT_ADDRESS)"\0"                          \
-	"console=" CONFIG_CONSOLE_DEV "\0"                                     \
+	"console=" CONSOLE_DEV "\0"                                     \
 	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
 	"addtty=setenv bootargs ${bootargs} console=${console},${baudrate}\0"  \

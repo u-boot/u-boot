@@ -83,11 +83,9 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_init_f for early inits */
-#define CONFIG_DISPLAY_CPUINFO	/* Display cpu info */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
 #define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
 #define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
@@ -137,7 +135,6 @@
  */
 #ifdef CONFIG_SYS_MVFS
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */

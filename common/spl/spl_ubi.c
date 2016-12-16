@@ -12,14 +12,15 @@
 #include <ubispl.h>
 #include <spl.h>
 
-int spl_ubi_load_image(u32 boot_device)
+int spl_ubi_load_image(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev)
 {
 	struct image_header *header;
 	struct ubispl_info info;
 	struct ubispl_load volumes[2];
 	int ret = 1;
 
-	switch (boot_device) {
+	switch (bootdev->boot_device) {
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
 		nand_init();
@@ -54,7 +55,7 @@ int spl_ubi_load_image(u32 boot_device)
 		ret = ubispl_load_volumes(&info, volumes, 2);
 		if (!ret) {
 			header = (struct image_header *)volumes[0].load_addr;
-			spl_parse_image_header(header);
+			spl_parse_image_header(spl_image, header);
 			puts("Linux loaded.\n");
 			goto out;
 		}
@@ -68,11 +69,14 @@ int spl_ubi_load_image(u32 boot_device)
 
 	ret = ubispl_load_volumes(&info, volumes, 1);
 	if (!ret)
-		spl_parse_image_header(header);
+		spl_parse_image_header(spl_image, header);
 out:
 #ifdef CONFIG_SPL_NAND_SUPPORT
-	if (boot_device == BOOT_DEVICE_NAND)
+	if (bootdev->boot_device == BOOT_DEVICE_NAND)
 		nand_deselect();
 #endif
 	return ret;
 }
+/* Use priorty 0 so that Ubi will override NAND and ONENAND methods */
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_NAND, spl_ubi_load_image);
+SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_ONENAND, spl_ubi_load_image);

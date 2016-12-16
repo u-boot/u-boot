@@ -170,6 +170,8 @@ config BOOTDELAY
 
 	  See doc/README.autoboot for details.
 
+menu "Console"
+
 config CONSOLE_RECORD
 	bool "Console recording"
 	help
@@ -199,10 +201,155 @@ config CONSOLE_RECORD_IN_SIZE
 	  ready.
 
 config IDENT_STRING
-	string "String to be added to uboot version"
+	string "Board specific string to be added to uboot version string"
 	help
-	  This string will be added to the U-Boot version
-	  information (U_BOOT_VERSION).
+	  This options adds the board specific name to u-boot version.
+
+config SILENT_CONSOLE
+	bool "Support a silent console"
+	help
+	  This option allows the console to be silenced, meaning that no
+	  output will appear on the console devices. This is controlled by
+	  setting the environment vaariable 'silent' to a non-empty value.
+	  Note this also silences the console when booting Linux.
+
+	  When the console is set up, the variable is checked, and the
+	  GD_FLG_SILENT flag is set. Changing the environment variable later
+	  will update the flag.
+
+config SILENT_U_BOOT_ONLY
+	bool "Only silence the U-Boot console"
+	depends on SILENT_CONSOLE
+	help
+	  Normally when the U-Boot console is silenced, Linux's console is
+	  also silenced (assuming the board boots into Linux). This option
+	  allows the linux console to operate normally, even if U-Boot's
+	  is silenced.
+
+config SILENT_CONSOLE_UPDATE_ON_SET
+	bool "Changes to the 'silent' environment variable update immediately"
+	depends on SILENT_CONSOLE
+	default y if SILENT_CONSOLE
+	help
+	  When the 'silent' environment variable is changed, update the
+	  console silence flag immediately. This allows 'setenv' to be used
+	  to silence or un-silence the console.
+
+	  The effect is that any change to the variable will affect the
+	  GD_FLG_SILENT flag.
+
+config SILENT_CONSOLE_UPDATE_ON_RELOC
+	bool "Allow flags to take effect on relocation"
+	depends on SILENT_CONSOLE
+	help
+	  In some cases the environment is not available until relocation
+	  (e.g. NAND). This option makes the value of the 'silent'
+	  environment variable take effect at relocation.
+
+config PRE_CONSOLE_BUFFER
+	bool "Buffer characters before the console is available"
+	help
+	  Prior to the console being initialised (i.e. serial UART
+	  initialised etc) all console output is silently discarded.
+	  Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
+	  buffer any console messages prior to the console being
+	  initialised to a buffer. The buffer is a circular buffer, so
+	  if it overflows, earlier output is discarded.
+
+	  Note that this is not currently supported in SPL. It would be
+	  useful to be able to share the pre-console buffer with SPL.
+
+config PRE_CON_BUF_SZ
+	int "Sets the size of the pre-console buffer"
+	depends on PRE_CONSOLE_BUFFER
+	default 4096
+	help
+	  The size of the pre-console buffer affects how much console output
+	  can be held before it overflows and starts discarding earlier
+	  output. Normally there is very little output at this early stage,
+	  unless debugging is enabled, so allow enough for ~10 lines of
+	  text.
+
+	  This is a useful feature if you are using a video console and
+	  want to see the full boot output on the console. Without this
+	  option only the post-relocation output will be displayed.
+
+config PRE_CON_BUF_ADDR
+	hex "Address of the pre-console buffer"
+	depends on PRE_CONSOLE_BUFFER
+	default 0x2f000000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x4f000000 if ARCH_SUNXI && !MACH_SUN9I
+	help
+	  This sets the start address of the pre-console buffer. This must
+	  be in available memory and is accessed before relocation and
+	  possibly before DRAM is set up. Therefore choose an address
+	  carefully.
+
+	  We should consider removing this option and allocating the memory
+	  in board_init_f_init_reserve() instead.
+
+config CONSOLE_MUX
+	bool "Enable console multiplexing"
+	default y if DM_VIDEO || VIDEO || LCD
+	help
+	  This allows multiple devices to be used for each console 'file'.
+	  For example, stdout can be set to go to serial and video.
+	  Similarly, stdin can be set to come from serial and keyboard.
+	  Input can be provided from either source. Console multiplexing
+	  adds a small amount of size to U-Boot.  Changes to the environment
+	  variables stdout, stdin and stderr will take effect immediately.
+
+config SYS_CONSOLE_IS_IN_ENV
+	bool "Select console devices from the environment"
+	default y if CONSOLE_MUX
+	help
+	  This allows multiple input/output devices to be set at boot time.
+	  For example, if stdout is set to "serial,video" then output will
+	  be sent to both the serial and video devices on boot. The
+	  environment variables can be updated after boot to change the
+	  input/output devices.
+
+config SYS_CONSOLE_OVERWRITE_ROUTINE
+	bool "Allow board control over console overwriting"
+	help
+	  If this is enabled, and the board-specific function
+	  overwrite_console() returns 1, the stdin, stderr and stdout are
+	  switched to the serial port, else the settings in the environment
+	  are used. If this is not enabled, the console will not be switched
+	  to serial.
+
+config SYS_CONSOLE_ENV_OVERWRITE
+	bool "Update environment variables during console init"
+	help
+	  The console environment variables (stdout, stdin, stderr) can be
+	  used to determine the correct console devices on start-up. This
+	  option writes the console devices to these variables on console
+	  start-up (after relocation). This causes the environment to be
+	  updated to match the console devices actually chosen.
+
+config SYS_CONSOLE_INFO_QUIET
+	bool "Don't display the console devices on boot"
+	help
+	  Normally U-Boot displays the current settings for stdout, stdin
+	  and stderr on boot when the post-relocation console is set up.
+	  Enable this option to supress this output. It can be obtained by
+	  calling stdio_print_current_devices() from board code.
+
+config SYS_STDIO_DEREGISTER
+	bool "Allow deregistering stdio devices"
+	default y if USB_KEYBOARD
+	help
+	  Generally there is no need to deregister stdio devices since they
+	  are never deactivated. But if a stdio device is used which can be
+	  removed (for example a USB keyboard) then this option can be
+	  enabled to ensure this is handled correctly.
+
+endmenu
+
+config DEFAULT_FDT_FILE
+	string "Default fdt file"
+	help
+	  This option is used to set the default fdt file to boot OS.
 
 config SYS_NO_FLASH
 	bool "Disable support for parallel NOR flash"
@@ -219,3 +366,21 @@ config VERSION_VARIABLE
 	  version as printed by the "version" command.
 	  Any change to this variable will be reverted at the
 	  next reset.
+
+config DISPLAY_CPUINFO
+	bool "Display information about the CPU during start up"
+	default y if ARM || BLACKFIN || NIOS2 || X86 || XTENSA
+	help
+	  Display information about the CPU that U-Boot is running on
+	  when U-Boot starts up. The function print_cpuinfo() is called
+	  to do this.
+
+config DISPLAY_BOARDINFO
+	bool "Display information about the board during start up"
+	default y if ARM || M68K || MIPS || PPC || SPARC || XTENSA
+	help
+	  Display information about the board that U-Boot is running on
+	  when U-Boot starts up. The board function checkboard() is called
+	  to do this.
+
+source "common/spl/Kconfig"

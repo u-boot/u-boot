@@ -164,9 +164,7 @@ config KIRKWOOD
 	select CPU_ARM926EJS
 
 config ARCH_MVEBU
-	bool "Marvell MVEBU family (Armada XP/375/38x)"
-	select CPU_V7
-	select SUPPORT_SPL
+	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
 	select OF_CONTROL
 	select OF_SEPARATE
 	select DM
@@ -174,10 +172,6 @@ config ARCH_MVEBU
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select SPL_DM
-	select SPL_DM_SEQ_ALIAS
-	select SPL_OF_CONTROL
-	select SPL_SIMPLE_BUS
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -341,38 +335,6 @@ config TARGET_BRPPT1
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_CM_T335
-	bool "Support cm_t335"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PEPPER
-	bool "Support pepper"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_IGEP0033
-	bool "Support am335x_igep0033"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PCM051
-	bool "Support pcm051"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
 config TARGET_DRACO
 	bool "Support draco"
 	select CPU_V7
@@ -420,62 +382,6 @@ config TARGET_RUT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-
-config TARGET_PENGWYN
-	bool "Support pengwyn"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_BALTOS
-	bool "Support am335x_baltos"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_EVM
-	bool "Support am335x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-	select TI_I2C_BOARD_DETECT
-
-config TARGET_AM335X_SHC
-	bool "Support am335x based shc board from bosch"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_AM335X_SL50
-	bool "Support am335x_sl50"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-
-config TARGET_BAV335X
-	bool "Support bav335x"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	help
-	  The BAV335x OEM Network Processor integrates all the functions of an
-	  embedded network computer in a small, easy to use SODIMM module which
-	  incorporates the popular Texas Instruments Sitara 32bit ARM Coretex-A8
-	  processor, with fast DDR3 512MB SDRAM, 4GB of embedded MMC and a Gigabit
-	  ethernet with simple connection to external connectors.
-
-	  For more information, visit: http://birdland.com/oem
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
@@ -606,6 +512,17 @@ config AM43XX
 	  protocols, dual camera support, optional 3D graphics
 	  and an optional customer programmable secure boot.
 
+config AM33XX
+	bool "AM33XX SoC"
+	select CPU_V7
+	select SUPPORT_SPL
+	help
+	  Support for AM335x SOC from Texas Instruments.
+	  The AM335x high performance SOC features a Cortex-A8
+	  ARM core, a dual core PRU-ICSS for industrial Ethernet
+	  protocols, optional 3D graphics and an optional customer
+	  programmable secure boot.
+
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select DM
@@ -678,6 +595,10 @@ config TARGET_PCM052
 	bool "Support pcm-052"
 	select CPU_V7
 
+config TARGET_BK4R1
+	bool "Support BK4r1"
+	select CPU_V7
+
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
@@ -735,6 +656,7 @@ config TARGET_VEXPRESS64_JUNO
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	help
@@ -745,6 +667,7 @@ config TARGET_LS2080A_EMU
 
 config TARGET_LS2080A_SIMU
 	bool "Support ls2080a_simu"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	help
@@ -755,6 +678,7 @@ config TARGET_LS2080A_SIMU
 
 config TARGET_LS2080AQDS
 	bool "Support ls2080aqds"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -766,6 +690,7 @@ config TARGET_LS2080AQDS
 
 config TARGET_LS2080ARDB
 	bool "Support ls2080ardb"
+	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -788,6 +713,7 @@ config TARGET_HIKEY
 
 config TARGET_LS1012AQDS
 	bool "Support ls1012aqds"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012AQDS platform.
@@ -797,6 +723,7 @@ config TARGET_LS1012AQDS
 
 config TARGET_LS1012ARDB
 	bool "Support ls1012ardb"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012ARDB platform.
@@ -806,6 +733,7 @@ config TARGET_LS1012ARDB
 
 config TARGET_LS1012AFRDM
 	bool "Support ls1012afrdm"
+	select ARCH_LS1012A
 	select ARM64
 	help
 	  Support for Freescale LS1012AFRDM platform.
@@ -816,17 +744,26 @@ config TARGET_LS1012AFRDM
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
+	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
+	select LS1_DEEP_SLEEP
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
+	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
+	select LS1_DEEP_SLEEP
 
 config TARGET_LS1043AQDS
 	bool "Support ls1043aqds"
+	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
@@ -835,11 +772,38 @@ config TARGET_LS1043AQDS
 
 config TARGET_LS1043ARDB
 	bool "Support ls1043ardb"
+	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
 	help
 	  Support for Freescale LS1043ARDB platform.
+
+config TARGET_LS1046AQDS
+	bool "Support ls1046aqds"
+	select ARCH_LS1046A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	select DM_SPI_FLASH if DM_SPI
+	help
+	  Support for Freescale LS1046AQDS platform.
+	  The LS1046A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS1046A
+	  Layerscape Architecture processor.
+
+config TARGET_LS1046ARDB
+	bool "Support ls1046ardb"
+	select ARCH_LS1046A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	select DM_SPI_FLASH if DM_SPI
+	help
+	  Support for Freescale LS1046ARDB platform.
+	  The LS1046A Reference Design Board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS1046A
+	  Layerscape Architecture processor.
 
 config TARGET_H2200
 	bool "Support h2200"
@@ -855,18 +819,25 @@ config TARGET_COLIBRI_PXA270
 
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
+	select BLK
 	select CLK_UNIPHIER
-	select SUPPORT_SPL
-	select SPL
-	select OF_CONTROL
-	select SPL_OF_CONTROL
-	select OF_LIBFDT
 	select DM
-	select SPL_DM
 	select DM_GPIO
-	select DM_SERIAL
 	select DM_I2C
 	select DM_MMC
+	select DM_RESET
+	select DM_SERIAL
+	select DM_USB
+	select OF_CONTROL
+	select OF_LIBFDT
+	select PINCTRL
+	select SPL
+	select SPL_DM
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_OF_CONTROL
+	select SPL_PINCTRL
+	select SUPPORT_SPL
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
@@ -892,6 +863,9 @@ config ARCH_ROCKCHIP
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select DM_USB if USB
+	select DM_PWM
+	select DM_REGULATOR
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
@@ -919,6 +893,8 @@ source "arch/arm/mach-kirkwood/Kconfig"
 
 source "arch/arm/mach-mvebu/Kconfig"
 
+source "arch/arm/cpu/armv7/ls102xa/Kconfig"
+
 source "arch/arm/cpu/armv7/mx7/Kconfig"
 
 source "arch/arm/cpu/armv7/mx6/Kconfig"
@@ -926,6 +902,8 @@ source "arch/arm/cpu/armv7/mx6/Kconfig"
 source "arch/arm/cpu/armv7/mx5/Kconfig"
 
 source "arch/arm/cpu/armv7/omap-common/Kconfig"
+
+source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
 
@@ -984,7 +962,9 @@ source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
+source "board/freescale/ls1046ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"

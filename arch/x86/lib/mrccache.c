@@ -198,11 +198,13 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 
 	/* Find the flash chip within the SPI controller node */
 	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
-	if (node < 0)
+	if (node < 0) {
+		debug("%s: Cannot find SPI flash\n", __func__);
 		return -ENOENT;
+	}
 
 	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2))
-		return -FDT_ERR_NOTFOUND;
+		return -EINVAL;
 	entry->base = reg[0];
 
 	/* Find the place where we put the MRC cache */
@@ -211,7 +213,7 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 		return -EPERM;
 
 	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2))
-		return -FDT_ERR_NOTFOUND;
+		return -EINVAL;
 	entry->offset = reg[0];
 	entry->length = reg[1];
 

@@ -17,6 +17,7 @@ config CROS_EC_KEYB
 config I8042_KEYB
 	bool "Enable Intel i8042 keyboard support"
 	depends on DM_KEYBOARD
+	default X86
 	help
 	  This adds a driver for the i8042 keyboard controller, allowing the
 	  keyboard to be used on devices which support this controller. The

@@ -41,7 +41,7 @@ uint32_t secmem_set_cmd(uint32_t sec_mem_cmd)
 /*!
  * CAAM page allocation:
  * Allocates a partition from secure memory, with the id
- * equal to partion_num. This will de-allocate the page
+ * equal to partition_num. This will de-allocate the page
  * if it is already allocated. The partition will have
  * full access permissions. The permissions are set before,
  * running a job descriptor. A memory page of secure RAM

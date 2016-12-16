@@ -127,7 +127,7 @@ releases in "stable" maintenance trees.
 Examples:
 	U-Boot v2009.11	    - Release November 2009
 	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
-	U-Boot v2010.09-rc1 - Release candiate 1 for September 2010 release
+	U-Boot v2010.09-rc1 - Release candidate 1 for September 2010 release
 
 
 Directory Hierarchy:
@@ -324,27 +324,6 @@ The following options need to be configured:
 
 - CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
 		Define exactly one, e.g. CONFIG_ATSTK1002
-
-- CPU Module Type: (if CONFIG_COGENT is defined)
-		Define exactly one of
-		CONFIG_CMA286_60_OLD
---- FIXME --- not tested yet:
-		CONFIG_CMA286_60, CONFIG_CMA286_21, CONFIG_CMA286_60P,
-		CONFIG_CMA287_23, CONFIG_CMA287_50
-
-- Motherboard Type: (if CONFIG_COGENT is defined)
-		Define exactly one of
-		CONFIG_CMA101, CONFIG_CMA102
-
-- Motherboard I/O Modules: (if CONFIG_COGENT is defined)
-		Define one or more of
-		CONFIG_CMA302
-
-- Motherboard Options: (if CONFIG_CMA101 or CONFIG_CMA102 are defined)
-		Define one or more of
-		CONFIG_LCD_HEARTBEAT	- update a character position on
-					  the LCD display every second with
-					  a "rotator" |\-/|\-/
 
 - Marvell Family Member
 		CONFIG_SYS_MVFS		- define it if you want to enable
@@ -578,20 +557,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_SEC_LE
 		Defines the SEC controller register space as Little Endian
 
-- Intel Monahans options:
-		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
-
-		Defines the Monahans run mode to oscillator
-		ratio. Valid values are 8, 16, 24, 31. The core
-		frequency is this value multiplied by 13 MHz.
-
-		CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO
-
-		Defines the Monahans turbo mode to oscillator
-		ratio. Valid values are 1 (default if undefined) and
-		2. The core frequency as calculated above is multiplied
-		by this value.
-
 - MIPS CPU options:
 		CONFIG_SYS_INIT_SP_OFFSET
 
@@ -730,11 +695,6 @@ The following options need to be configured:
 		This causes ft_system_setup() to be called before booting
 		the kernel.
 
-		CONFIG_OF_BOOT_CPU
-
-		This define fills in the correct boot CPU in the boot
-		param header, the default value is zero if undefined.
-
 		CONFIG_OF_IDE_FIXUP
 
 		U-Boot can detect if an IDE device is present or not.
@@ -810,59 +770,6 @@ The following options need to be configured:
 		port routines must be defined elsewhere
 		(i.e. serial_init(), serial_getc(), ...)
 
-		CONFIG_CFB_CONSOLE
-		Enables console device for a color framebuffer. Needs following
-		defines (cf. smiLynxEM, i8042)
-			VIDEO_FB_LITTLE_ENDIAN	graphic memory organisation
-						(default big endian)
-			VIDEO_HW_RECTFILL	graphic chip supports
-						rectangle fill
-						(cf. smiLynxEM)
-			VIDEO_HW_BITBLT		graphic chip supports
-						bit-blit (cf. smiLynxEM)
-			VIDEO_VISIBLE_COLS	visible pixel columns
-						(cols=pitch)
-			VIDEO_VISIBLE_ROWS	visible pixel rows
-			VIDEO_PIXEL_SIZE	bytes per pixel
-			VIDEO_DATA_FORMAT	graphic data format
-						(0-5, cf. cfb_console.c)
-			VIDEO_FB_ADRS		framebuffer address
-			VIDEO_KBD_INIT_FCT	keyboard int fct
-						(i.e. rx51_kp_init())
-			VIDEO_TSTC_FCT		test char fct
-						(i.e. rx51_kp_tstc)
-			VIDEO_GETC_FCT		get char fct
-						(i.e. rx51_kp_getc)
-			CONFIG_VIDEO_LOGO	display Linux logo in
-						upper left corner
-			CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of
-						linux_logo.h for logo.
-						Requires CONFIG_VIDEO_LOGO
-			CONFIG_CONSOLE_EXTRA_INFO
-						additional board info beside
-						the logo
-			CONFIG_HIDE_LOGO_VERSION
-						do not display bootloader
-						version string
-
-		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
-		a limited number of ANSI escape sequences (cursor control,
-		erase functions and limited graphics rendition control).
-
-		When CONFIG_CFB_CONSOLE is defined, video console is
-		default i/o. Serial console can be forced with
-		environment 'console=serial'.
-
-		When CONFIG_SILENT_CONSOLE is defined, all console
-		messages (by U-Boot and Linux!) can be silenced with
-		the "silent" environment variable. See
-		doc/README.silent for more information.
-
-		CONFIG_SYS_CONSOLE_BG_COL: define the backgroundcolor, default
-			is 0x00.
-		CONFIG_SYS_CONSOLE_FG_COL: define the foregroundcolor, default
-			is 0xa0.
-
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
@@ -876,23 +783,6 @@ The following options need to be configured:
 		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
-
-- Pre-Console Buffer:
-		Prior to the console being initialised (i.e. serial UART
-		initialised etc) all console output is silently discarded.
-		Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
-		buffer any console messages prior to the console being
-		initialised to a buffer of size CONFIG_PRE_CON_BUF_SZ
-		bytes located at CONFIG_PRE_CON_BUF_ADDR. The buffer is
-		a circular buffer, so if more than CONFIG_PRE_CON_BUF_SZ
-		bytes are output before the console is initialised, the
-		earlier bytes are discarded.
-
-		Note that when printing the buffer a copy is made on the
-		stack so CONFIG_PRE_CON_BUF_SZ must fit on the stack.
-
-		'Sane' compilers will generate smaller code if
-		CONFIG_PRE_CON_BUF_SZ is a power of 2
 
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND
@@ -1340,10 +1230,6 @@ The following options need to be configured:
 		CONFIG_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
-			CONFIG_LAN91C96_BASE
-			Define this to hold the physical address
-			of the LAN91C96's I/O space
-
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
@@ -1408,7 +1294,7 @@ The following options need to be configured:
 
 - PWM Support:
 		CONFIG_PWM_IMX
-		Support for PWM modul on the imx6.
+		Support for PWM module on the imx6.
 
 - TPM Support:
 		CONFIG_TPM
@@ -1527,10 +1413,6 @@ The following options need to be configured:
 				CONFIG_SYS_USB_EXTC_CLK 0xBLAH
 				Derive USB clock from external clock "blah"
 				- CONFIG_SYS_USB_EXTC_CLK 0x02
-
-				CONFIG_SYS_USB_BRG_CLK 0xBLAH
-				Derive USB clock from brgclk
-				- CONFIG_SYS_USB_BRG_CLK 0x04
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -1684,25 +1566,22 @@ The following options need to be configured:
 		to generate and write the Backup GUID Partition Table.)
 		This occurs when the specified "partition name" on the
 		"fastboot flash" command line matches this value.
-		Default is GPT_ENTRY_NAME (currently "gpt") if undefined.
+		The default is "gpt" if undefined.
+
+		CONFIG_FASTBOOT_MBR_NAME
+		The fastboot "flash" command supports writing the downloaded
+		image to DOS MBR.
+		This occurs when the "partition name" specified on the
+		"fastboot flash" command line matches this value.
+		If not defined the default value "mbr" is used.
 
 - Journaling Flash filesystem support:
-		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
-		CONFIG_JFFS2_NAND_DEV
+		CONFIG_JFFS2_NAND
 		Define these for a default partition on a NAND device
 
 		CONFIG_SYS_JFFS2_FIRST_SECTOR,
 		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
 		Define these for a default partition on a NOR device
-
-		CONFIG_SYS_JFFS_CUSTOM_PART
-		Define this to create an own partition. You have to provide a
-		function struct part_info* jffs2_part_info(int part_num)
-
-		If you define only one JFFS2 partition you may also want to
-		#define CONFIG_SYS_JFFS_SINGLE_PART	1
-		to disable the command chpart. This is the default when you
-		have not defined a custom partition
 
 - FAT(File Allocation Table) filesystem write function support:
 		CONFIG_FAT_WRITE
@@ -1713,7 +1592,7 @@ The following options need to be configured:
 		This will also enable the command "fatwrite" enabling the
 		user to write files to FAT.
 
-CBFS (Coreboot Filesystem) support
+- CBFS (Coreboot Filesystem) support:
 		CONFIG_CMD_CBFS
 
 		Define this to enable support for reading from a Coreboot
@@ -1738,45 +1617,6 @@ CBFS (Coreboot Filesystem) support
 		instead.
 
 - Video support:
-		CONFIG_VIDEO
-
-		Define this to enable video support (for output to
-		video).
-
-		CONFIG_VIDEO_CT69000
-
-		Enable Chips & Technologies 69000 Video chip
-
-		CONFIG_VIDEO_SMI_LYNXEM
-		Enable Silicon Motion SMI 712/710/810 Video chip. The
-		video output is selected via environment 'videoout'
-		(1 = LCD and 2 = CRT). If videoout is undefined, CRT is
-		assumed.
-
-		For the CT69000 and SMI_LYNXEM drivers, videomode is
-		selected via environment 'videomode'. Two different ways
-		are possible:
-		- "videomode=num"   'num' is a standard LiLo mode numbers.
-		Following standard modes are supported	(* is default):
-
-		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
-		-------------+---------------------------------------------
-		      8 bits |	0x301*	0x303	 0x305	  0x161	    0x307
-		     15 bits |	0x310	0x313	 0x316	  0x162	    0x319
-		     16 bits |	0x311	0x314	 0x317	  0x163	    0x31A
-		     24 bits |	0x312	0x315	 0x318	    ?	    0x31B
-		-------------+---------------------------------------------
-		(i.e. setenv videomode 317; saveenv; reset;)
-
-		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/video/videomodes.c)
-
-
-		CONFIG_VIDEO_SED13806
-		Enable Epson SED13806 driver. This driver supports 8bpp
-		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
-		or CONFIG_VIDEO_SED13806_16BPP
-
 		CONFIG_FSL_DIU_FB
 		Enable the Freescale DIU video driver.	Reference boards for
 		SOCs that have a DIU should define this macro to enable DIU
@@ -1856,12 +1696,6 @@ CBFS (Coreboot Filesystem) support
 		here, since it is cheaper to change data cache settings on
 		a per-section basis.
 
-		CONFIG_CONSOLE_SCROLL_LINES
-
-		When the console need to be scrolled, this is the number of
-		lines to scroll by. It defaults to 1. Increasing this makes
-		the console jump but can help speed up operation when scrolling
-		is slow.
 
 		CONFIG_LCD_ROTATION
 
@@ -2334,8 +2168,6 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_SH_SPEED3 for for the speed channel 3
 		  - CONFIG_SYS_I2C_SH_BASE4 for setting the register channel 4
 		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
-		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
-		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
 		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
 
 		- drivers/i2c/omap24xx_i2c.c
@@ -2389,10 +2221,7 @@ CBFS (Coreboot Filesystem) support
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
-		Hold the number of i2c buses you want to use. If you
-		don't use/have i2c muxes on your i2c bus, this
-		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
-		omit this define.
+		Hold the number of i2c buses you want to use.
 
 		CONFIG_SYS_I2C_DIRECT_BUS
 		define this, if you don't use i2c muxes on your hardware.
@@ -2606,7 +2435,7 @@ CBFS (Coreboot Filesystem) support
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
 
 			#define CONFIG_I2C_MULTI_BUS
-			#define CONFIG_SYS_I2C_MULTI_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
+			#define CONFIG_SYS_I2C_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
@@ -3512,21 +3341,6 @@ FIT uImage format:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SPL_LIBCOMMON_SUPPORT
-		Support for common/libcommon.o in SPL binary
-
-		CONFIG_SPL_LIBDISK_SUPPORT
-		Support for disk/libdisk.o in SPL binary
-
-		CONFIG_SPL_I2C_SUPPORT
-		Support for drivers/i2c/libi2c.o in SPL binary
-
-		CONFIG_SPL_GPIO_SUPPORT
-		Support for drivers/gpio/libgpio.o in SPL binary
-
-		CONFIG_SPL_MMC_SUPPORT
-		Support for drivers/mmc/libmmc.o in SPL binary
-
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
 		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
 		Address and partition on the MMC to load U-Boot from
@@ -3549,12 +3363,6 @@ FIT uImage format:
 		CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
 		Partition on the MMC to load U-Boot from when the MMC is being
 		used in fs mode
-
-		CONFIG_SPL_FAT_SUPPORT
-		Support for fs/fat/libfat.o in SPL binary
-
-		CONFIG_SPL_EXT_SUPPORT
-		Support for EXT filesystem in SPL binary
 
 		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from filesystem
@@ -3594,17 +3402,9 @@ FIT uImage format:
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
 
-		CONFIG_SPL_MTD_SUPPORT
-		Support for the MTD subsystem within SPL.  Useful for
-		environment on NAND support within SPL.
-
 		CONFIG_SPL_NAND_RAW_ONLY
 		Support to boot only raw u-boot.bin images. Use this only
 		if you need to save space.
-
-		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-		Set for the SPL on PPC mpc8xxx targets, support for
-		drivers/ddr/fsl/libddr.o in SPL binary.
 
 		CONFIG_SPL_COMMON_INIT_DDR
 		Set for common ddr init with serial presence detect in
@@ -3641,28 +3441,8 @@ FIT uImage format:
 		Support for an OMAP3-specific set of functions to return the
 		ID and MFR of the first attached NAND chip, if present.
 
-		CONFIG_SPL_SERIAL_SUPPORT
-		Support for drivers/serial/libserial.o in SPL binary
-
-		CONFIG_SPL_SPI_FLASH_SUPPORT
-		Support for drivers/mtd/spi/libspi_flash.o in SPL binary
-
-		CONFIG_SPL_SPI_SUPPORT
-		Support for drivers/spi/libspi.o in SPL binary
-
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
-
-		CONFIG_SPL_LIBGENERIC_SUPPORT
-		Support for lib/libgeneric.o in SPL binary
-
-		CONFIG_SPL_ENV_SUPPORT
-		Support for the environment operating in SPL binary
-
-		CONFIG_SPL_NET_SUPPORT
-		Support for the net/libnet.o in SPL binary.
-		It conflicts with SPL env from storage medium specified by
-		CONFIG_ENV_IS_xxx but CONFIG_ENV_IS_NOWHERE
 
 		CONFIG_SPL_PAD_TO
 		Image offset to which the SPL should be padded before appending
@@ -3750,21 +3530,6 @@ Configuration Settings:
 - CONFIG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
 
-- CONFIG_SYS_CONSOLE_INFO_QUIET
-		Suppress display of console information at boot.
-
-- CONFIG_SYS_CONSOLE_IS_IN_ENV
-		If the board specific function
-			extern int overwrite_console (void);
-		returns 1, the stdin, stderr and stdout are switched to the
-		serial port, else the settings in the environment are used.
-
-- CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-		Enable the call to overwrite_console().
-
-- CONFIG_SYS_CONSOLE_ENV_OVERWRITE
-		Enable overwrite of previous console environment settings.
-
 - CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END:
 		Begin and End addresses of the area used by the
 		simple memory test.
@@ -3811,10 +3576,6 @@ Configuration Settings:
 
 - CONFIG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.
-
-- CONFIG_SYS_MBIO_BASE:
-		Physical start address of Motherboard I/O (if using a
-		Cogent motherboard)
 
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
@@ -4247,7 +4008,7 @@ to save the current settings.
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data, so
 	  that there is a valid backup copy in case there is a power failure
-	  during a "saveenv" operation. CONFIG_ENV_OFFSET_RENDUND must be
+	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
 	- CONFIG_ENV_SPI_BUS (optional):
@@ -4298,7 +4059,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data, so
 	  that there is a valid backup copy in case there is a power failure
-	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_RENDUND must be
+	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase block boundary.
 
 	- CONFIG_ENV_RANGE (optional):
@@ -4599,7 +4360,7 @@ Low Level (hardware related) configuration options:
 		CONFIG_SYS_GBL_DATA_OFFSET is chosen such that the initial
 		data is located at the end of the available space
 		(sometimes written as (CONFIG_SYS_INIT_RAM_SIZE -
-		CONFIG_SYS_INIT_DATA_SIZE), and the initial stack is just
+		GENERATED_GBL_DATA_SIZE), and the initial stack is just
 		below that area (growing from (CONFIG_SYS_INIT_RAM_ADDR +
 		CONFIG_SYS_GBL_DATA_OFFSET) downward.
 
@@ -4657,11 +4418,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_SPI_UCODE_PATCH, CONFIG_SYS_SPI_DPMEM_OFFSET [0x1FC0]:
 		enable SPI microcode relocation patch (MPC8xx);
 		define relocation offset in DPRAM [SCC4]
-
-- CONFIG_SYS_USE_OSCCLK:
-		Use OSCM clock mode on MBX8xx board. Be careful,
-		wrong setting might damage your board. Read
-		doc/README.MBX before setting this variable!
 
 - CONFIG_SYS_CPM_POST_WORD_ADDR: (MPC8xx, MPC8260 only)
 		Offset of the bootmode word in DPRAM used by post
@@ -4906,10 +4662,6 @@ within that device.
 	Specifies that QE/FMAN firmware is located on the primary SD/MMC
 	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
 
-- CONFIG_SYS_QE_FMAN_FW_IN_SPIFLASH
-	Specifies that QE/FMAN firmware is located on the primary SPI
-	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
-
 - CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 	Specifies that QE/FMAN firmware is located in the remote (master)
 	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
@@ -4928,33 +4680,11 @@ within that device.
 - CONFIG_FSL_MC_ENET
 	Enable the MC driver for Layerscape SoCs.
 
-- CONFIG_SYS_LS_MC_FW_ADDR
-	The address in the storage device where the firmware is located.  The
-	meaning of this address depends on which CONFIG_SYS_LS_MC_FW_IN_xxx macro
-	is also specified.
-
-- CONFIG_SYS_LS_MC_FW_LENGTH
-	The maximum possible size of the firmware.  The firmware binary format
-	has a field that specifies the actual size of the firmware, but it
-	might not be possible to read any part of the firmware unless some
-	local storage is allocated to hold the entire firmware first.
-
-- CONFIG_SYS_LS_MC_FW_IN_NOR
-	Specifies that MC firmware is located in NOR flash, mapped as
-	normal addressable memory via the LBC. CONFIG_SYS_LS_MC_FW_ADDR is the
-	virtual address in NOR flash.
-
 Freescale Layerscape Debug Server Support:
 -------------------------------------------
 The Freescale Layerscape Debug Server Support supports the loading of
 "Debug Server firmware" and triggering SP boot-rom.
 This firmware often needs to be loaded during U-Boot booting.
-
-- CONFIG_FSL_DEBUG_SERVER
-	Enable the Debug Server for Layerscape SoCs.
-
-- CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
-	Define minimum DDR size required for debug server image
 
 - CONFIG_SYS_MC_RSV_MEM_ALIGN
 	Define alignment of reserved memory MC requires

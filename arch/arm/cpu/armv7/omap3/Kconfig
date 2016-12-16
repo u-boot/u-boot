@@ -1,5 +1,38 @@
 if OMAP34XX
 
+config SPL_EXT_SUPPORT
+	default y
+
+config SPL_FAT_SUPPORT
+	default y
+
+config SPL_GPIO_SUPPORT
+	default y
+
+config SPL_I2C_SUPPORT
+	default y
+
+config SPL_LIBCOMMON_SUPPORT
+	default y
+
+config SPL_LIBDISK_SUPPORT
+	default y
+
+config SPL_LIBGENERIC_SUPPORT
+	default y
+
+config SPL_MMC_SUPPORT
+	default y
+
+config SPL_NAND_SUPPORT
+	default y
+
+config SPL_POWER_SUPPORT
+	default y
+
+config SPL_SERIAL_SUPPORT
+	default y
+
 choice
 	prompt "OMAP3 board select"
 	optional

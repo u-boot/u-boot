@@ -26,13 +26,8 @@
 #define CONFIG_FSL_CAAM
 #endif
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_DM			1
-#define CONFIG_SPL_CRYPTO_SUPPORT
-#define CONFIG_SPL_HASH_SUPPORT
-#define CONFIG_SPL_RSA
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+#ifdef CONFIG_SPL_BUILD
 /*
  * Define the key hash for U-Boot here if public/private key pair used to
  * sign U-boot are different from the SRK hash put in the fuse
@@ -125,6 +120,24 @@
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_DEVICE
 /* BOOTSCRIPT_ADDR is not required */
 #endif
+
+#ifdef CONFIG_FSL_LS_PPA
+#ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
+#ifdef CONFIG_LS1043A
+#define CONFIG_SYS_LS_PPA_ESBC_ADDR	0x600c0000
+#endif
+#else
+#error "No CONFIG_SYS_LS_PPA_FW_IN_xxx defined"
+#endif /* ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP */
+
+/* Define the key hash here if SRK used for signing PPA image is
+ * different from SRK hash put in SFP used for U-Boot.
+ * Example
+ * #define CONFIG_PPA_KEY_HASH \
+ *	"41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
+ */
+#define CONFIG_PPA_KEY_HASH		NULL
+#endif /* ifdef CONFIG_FSL_LS_PPA */
 
 #include <config_fsl_chain_trust.h>
 #endif /* #ifndef CONFIG_SPL_BUILD */

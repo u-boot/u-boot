@@ -42,9 +42,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -140,7 +137,6 @@
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_BCH
-#define CONFIG_CMD_UBI			/* UBI-formated MTD partition support */
 #define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
 #define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
 #define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */
@@ -344,19 +340,9 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_MTD_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #endif /* __CONFIG_H */

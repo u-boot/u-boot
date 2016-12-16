@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <post.h>
 #include <flash.h>
+#include <video.h>
 #include <mtd/cfi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;

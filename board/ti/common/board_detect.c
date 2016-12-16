@@ -131,6 +131,7 @@ int __maybe_unused ti_i2c_eeprom_am_get(int bus_addr, int dev_addr)
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
+	ep->config[0] = 0x0;
 
 	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, TI_EEPROM_HEADER_MAGIC,
 			       sizeof(am_ep), (uint8_t *)&am_ep);
@@ -171,10 +172,11 @@ int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
 		goto already_read;
 
 	/* Initialize with a known bad marker for i2c fails.. */
-	ep->header = 0xADEAD12C;
+	ep->header = TI_DEAD_EEPROM_MAGIC;
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
+	ep->config[0] = 0x0;
 	ep->emif1_size = 0;
 	ep->emif2_size = 0;
 
@@ -229,9 +231,7 @@ char * __maybe_unused board_ti_get_rev(void)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
 
-	if (ep->header == TI_DEAD_EEPROM_MAGIC)
-		return NULL;
-
+	/* if ep->header == TI_DEAD_EEPROM_MAGIC, this is empty already */
 	return ep->version;
 }
 
@@ -239,9 +239,7 @@ char * __maybe_unused board_ti_get_config(void)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
 
-	if (ep->header == TI_DEAD_EEPROM_MAGIC)
-		return NULL;
-
+	/* if ep->header == TI_DEAD_EEPROM_MAGIC, this is empty already */
 	return ep->config;
 }
 
@@ -249,9 +247,7 @@ char * __maybe_unused board_ti_get_name(void)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
 
-	if (ep->header == TI_DEAD_EEPROM_MAGIC)
-		return NULL;
-
+	/* if ep->header == TI_DEAD_EEPROM_MAGIC, this is empty already */
 	return ep->name;
 }
 

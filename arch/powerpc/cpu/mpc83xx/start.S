@@ -14,9 +14,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
-#ifndef  CONFIG_IDENT_STRING
-#define  CONFIG_IDENT_STRING "MPC83XX"
-#endif
 #include <version.h>
 
 #define CONFIG_83XX	1		/* needed for Linux kernel header files*/

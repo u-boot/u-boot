@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /*
  * High Level Configuration Options
  */
@@ -19,8 +17,6 @@
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
-#define CONFIG_PCI		1
 
 /*
  * System Clock Setup
@@ -258,7 +254,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_SKIP_HOST_BRIDGE
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */

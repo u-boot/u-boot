@@ -20,7 +20,6 @@
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
@@ -75,8 +74,6 @@
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
-
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
@@ -108,10 +105,8 @@
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
-#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */

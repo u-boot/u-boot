@@ -12,11 +12,6 @@
 #define __CONFIG_H
 
 /*
- * Liebherr extra version info
- */
-#define CONFIG_IDENT_STRING	" - v2.0"
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_LWMON5		1		/* Board is lwmon5	*/
@@ -260,7 +255,6 @@
 /* Reserve GPT0_COMP1-COMP5 for logbuffer header */
 #define CONFIG_ALT_LH_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + GPT0_COMP1)
 #define CONFIG_ALT_LB_ADDR	(CONFIG_SYS_OCM_BASE)
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*
  * I2C
@@ -359,17 +353,12 @@
 #define CONFIG_PHY1_ADDR	1
 
 /* Video console */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_MB862xx
 #define CONFIG_VIDEO_MB862xx_ACCEL
-#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
 #define VIDEO_FB_16BPP_PIXEL_SWAP
 #define VIDEO_FB_16BPP_WORD_SWAP
 
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 
 /*
@@ -436,8 +425,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
 
 #ifndef DEBUG
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/

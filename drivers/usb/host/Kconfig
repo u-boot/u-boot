@@ -15,18 +15,27 @@ config USB_XHCI_HCD
 
 if USB_XHCI_HCD
 
-config USB_XHCI_UNIPHIER
-	bool "Support for UniPhier on-chip xHCI USB controller"
-	depends on ARCH_UNIPHIER
-	default y
-	---help---
-	  Enables support for the on-chip xHCI controller on UniPhier SoCs.
-
 config USB_XHCI_DWC3
 	bool "DesignWare USB3 DRD Core Support"
 	help
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
+
+config USB_XHCI_MVEBU
+	bool "MVEBU USB 3.0 support"
+	default y
+	depends on ARCH_MVEBU
+	help
+	  Choose this option to add support for USB 3.0 driver on mvebu
+	  SoCs, which includes Armada8K, Armada3700 and other Armada
+	  family SoCs.
+
+config USB_XHCI_ROCKCHIP
+	bool "Support for Rockchip on-chip xHCI USB controller"
+	depends on ARCH_ROCKCHIP
+	default y
+	help
+	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
 
 endif # USB_XHCI_HCD
 

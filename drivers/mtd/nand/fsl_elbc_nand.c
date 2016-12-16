@@ -17,7 +17,7 @@
 #include <linux/mtd/nand_ecc.h>
 
 #include <asm/io.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 #ifdef VERBOSE_DEBUG
 #define DEBUG_ELBC

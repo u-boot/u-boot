@@ -15,31 +15,28 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
 
+#define BX50V3_BOOTARGS_EXTRA
 #if defined(CONFIG_TARGET_GE_B450V3)
 #define CONFIG_BOARD_NAME	"General Electric B450v3"
-#define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-b450v3.dtb"
 #elif defined(CONFIG_TARGET_GE_B650V3)
 #define CONFIG_BOARD_NAME	"General Electric B650v3"
-#define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-b650v3.dtb"
 #elif defined(CONFIG_TARGET_GE_B850V3)
 #define CONFIG_BOARD_NAME	"General Electric B850v3"
-#define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-b850v3.dtb"
+#undef BX50V3_BOOTARGS_EXTRA
+#define BX50V3_BOOTARGS_EXTRA	"video=DP-1:1024x768@60 " \
+				"video=HDMI-A-1:1024x768@60 "
 #else
 #define CONFIG_BOARD_NAME	"General Electric BA16 Generic"
-#define CONFIG_DEFAULT_FDT_FILE	"/boot/imx6q-ba16.dtb"
 #endif
 
 #define CONFIG_MXC_UART_BASE	UART3_BASE
-#define CONFIG_CONSOLE_DEV	"ttymxc2"
+#define CONSOLE_DEV	"ttymxc2"
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 
 #include "mx6_common.h"
 #include <linux/sizes.h>
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -83,7 +80,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 #define CONFIG_CI_UDC
@@ -139,7 +135,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=yes\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
 	"sddev=0\0" \
@@ -166,7 +162,8 @@
 			"echo 'U-Boot upgraded. Please reset'; " \
 		"fi\0" \
 	"setargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/${rootdev} rw rootwait cma=128M\0" \
+		"root=/dev/${rootdev} rw rootwait cma=128M " \
+		BX50V3_BOOTARGS_EXTRA "\0" \
 	"loadbootscript=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from ${dev}:${devnum}:${partnum};" \
@@ -302,14 +299,9 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-
 /* Framebuffer */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -326,8 +318,6 @@
 
 #undef CONFIG_CMD_PCI
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI
-#define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)

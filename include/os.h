@@ -215,9 +215,18 @@ struct os_dirent_node {
 int os_dirent_ls(const char *dirname, struct os_dirent_node **headp);
 
 /**
+ * Free directory list
+ *
+ * This frees a linked list containing a directory listing.
+ *
+ * @param node		Pointer to head of linked list
+ */
+void os_dirent_free(struct os_dirent_node *node);
+
+/**
  * Get the name of a directory entry type
  *
- * @param type		Type to cehck
+ * @param type		Type to check
  * @return string containing the name of that type, or "???" if none/invalid
  */
 const char *os_dirent_get_typename(enum os_dirent_t type);

@@ -482,7 +482,7 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
-	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM" };
+	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM", "SF" };
 	return dev_t[t];
 }
 

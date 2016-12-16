@@ -19,10 +19,9 @@
 
 #define CONFIG_SMSC_LPC47M
 
-#define CONFIG_PCI_PNP
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
-					"stdout=vga,serial\0" \
-					"stderr=vga,serial\0"
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,serial\0" \
+					"stdout=vidconsole,serial\0" \
+					"stderr=vidconsole,serial\0"
 
 #define CONFIG_SCSI_DEV_LIST		\
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SATA}, \

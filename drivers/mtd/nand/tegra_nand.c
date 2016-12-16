@@ -14,7 +14,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch-tegra/clk_rst.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>
 #include <bouncebuf.h>

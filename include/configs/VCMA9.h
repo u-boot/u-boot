@@ -100,11 +100,9 @@
 /* USB support (currently only works with D-cache off) */
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_OHCI_S3C24XX
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_DOS_PARTITION
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_STDIO_DEREGISTER	/* needs stdio_deregister */
 
 /* RTC */
 #define CONFIG_RTC_S3C24X0
@@ -135,9 +133,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_DISPLAY_CPUINFO				/* Display cpu info */
-#define CONFIG_DISPLAY_BOARDINFO			/* Display board info */
-
 #define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x31FFFFFF	/* 32 MB in DRAM */
 
@@ -150,12 +145,6 @@
 #define CONFIG_BZIP2
 #define CONFIG_LZO
 #define CONFIG_LZMA
-
-/* Ident */
-/*#define VERSION_TAG "released"*/
-#define VERSION_TAG "unstable"
-#define CONFIG_IDENT_STRING "\n(c) 2003 - 2011 by MPL AG Switzerland, " \
-			    "MEV-10080-001 " VERSION_TAG
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
@@ -198,7 +187,6 @@
 #define MULTI_PURPOSE_SOCKET_ADDR	0x08000000
 
 /* File system */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_JFFS2
 #define CONFIG_YAFFS2

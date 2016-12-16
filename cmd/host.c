@@ -9,7 +9,7 @@
 #include <fs.h>
 #include <part.h>
 #include <sandboxblockdev.h>
-#include <asm/errno.h>
+#include <linux/errno.h>
 
 static int host_curr_device = -1;
 
@@ -23,6 +23,12 @@ static int do_host_ls(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
+}
+
+static int do_host_size(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
+{
+	return do_size(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
 static int do_host_save(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -138,6 +144,7 @@ static cmd_tbl_t cmd_host_sub[] = {
 	U_BOOT_CMD_MKENT(load, 7, 0, do_host_load, "", ""),
 	U_BOOT_CMD_MKENT(ls, 3, 0, do_host_ls, "", ""),
 	U_BOOT_CMD_MKENT(save, 6, 0, do_host_save, "", ""),
+	U_BOOT_CMD_MKENT(size, 3, 0, do_host_size, "", ""),
 	U_BOOT_CMD_MKENT(bind, 3, 0, do_host_bind, "", ""),
 	U_BOOT_CMD_MKENT(info, 3, 0, do_host_info, "", ""),
 	U_BOOT_CMD_MKENT(dev, 0, 1, do_host_dev, "", ""),
@@ -174,6 +181,7 @@ U_BOOT_CMD(
 	"host ls hostfs - <filename>                    - list files on host\n"
 	"host save hostfs - <addr> <filename> <bytes> [<offset>] - "
 		"save a file to host\n"
+	"host size hostfs - <filename> - determine size of file on host"
 	"host bind <dev> [<filename>] - bind \"host\" device to file\n"
 	"host info [<dev>]            - show device binding & info\n"
 	"host dev [<dev>] - Set or retrieve the current host device\n"

@@ -147,6 +147,9 @@ int ddr3_init(const unsigned int base,
 #define ATMEL_MPDDRC_TPR2_TFAW_MASK		0xf
 
 /* Bit field in Memory Device Register */
+#define ATMEL_MPDDRC_MD_SDR_SDRAM	0x0
+#define ATMEL_MPDDRC_MD_LP_SDR_SDRAM	0x1
+#define ATMEL_MPDDRC_MD_DDR_SDRAM	0x2
 #define ATMEL_MPDDRC_MD_LPDDR_SDRAM	0x3
 #define ATMEL_MPDDRC_MD_DDR3_SDRAM	0x4
 #define ATMEL_MPDDRC_MD_LPDDR3_SDRAM	0x5

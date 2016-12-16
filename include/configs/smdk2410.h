@@ -50,7 +50,6 @@
  ************************************************************/
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_OHCI_S3C24XX
-#define CONFIG_USB_KEYBOARD
 #define CONFIG_DOS_PARTITION
 
 /************************************************************
@@ -100,8 +99,6 @@
 				sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
-#define CONFIG_DISPLAY_CPUINFO				/* Display cpu info */
 
 #define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x33F00000	/* 63 MB in DRAM */
@@ -166,7 +163,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE

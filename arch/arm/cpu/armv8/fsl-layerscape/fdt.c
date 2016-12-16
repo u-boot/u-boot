@@ -108,6 +108,24 @@ remove_psci_node:
 }
 #endif
 
+void fsl_fdt_disable_usb(void *blob)
+{
+	int off;
+	/*
+	 * SYSCLK is used as a reference clock for USB. When the USB
+	 * controller is used, SYSCLK must meet the additional requirement
+	 * of 100 MHz.
+	 */
+	if (CONFIG_SYS_CLK_FREQ != 100000000) {
+		off = fdt_node_offset_by_compatible(blob, -1, "snps,dwc3");
+		while (off != -FDT_ERR_NOTFOUND) {
+			fdt_status_disabled(blob, off);
+			off = fdt_node_offset_by_compatible(blob, off,
+							    "snps,dwc3");
+		}
+	}
+}
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_FSL_LSCH2
@@ -150,4 +168,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_fman_firmware(blob);
 #endif
+	fsl_fdt_disable_usb(blob);
+
 }

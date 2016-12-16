@@ -20,12 +20,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_HRCON_DH
-#define CONFIG_IDENT_STRING	" hrcon dh 0.01"
-#else
-#define CONFIG_IDENT_STRING	" hrcon 0.01"
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
@@ -480,11 +474,8 @@ void fpga_control_clear(unsigned int bus, int pin);
 /* enable PCIE clock */
 #define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
-#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
-
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #define CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES 1
@@ -544,8 +535,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
-
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
