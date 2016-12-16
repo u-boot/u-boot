@@ -187,6 +187,8 @@
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+
+/* cc108 requires to be 0xF00000 to have boot.bin with bitstream included */
 # ifndef CONFIG_ENV_OFFSET
 #  define CONFIG_ENV_OFFSET		0xE0000
 # endif
