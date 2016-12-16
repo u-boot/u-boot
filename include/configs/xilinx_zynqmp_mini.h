@@ -41,7 +41,6 @@
 #undef CONFIG_CMD_EXT4
 #undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_FS_GENERIC
-#undef CONFIG_CMD_MEMORY
 #undef CONFIG_DOS_PARTITION
 #undef CONFIG_CMD_ELF
 #undef CONFIG_MP
@@ -70,9 +69,6 @@
 /* PXE */
 #undef CONFIG_CMD_PXE
 #undef CONFIG_MENU
-
-/* Define needed configs */
-#define CONFIG_CMD_MEMORY
 
 #undef CONFIG_NR_DRAM_BANKS
 #define CONFIG_NR_DRAM_BANKS	1
