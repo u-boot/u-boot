@@ -235,9 +235,6 @@
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
 #define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
-#define	CONFIG_IPADDR		192.168.0.3
-#define	CONFIG_SERVERIP		192.168.0.5
-#define	CONFIG_GATEWAYIP	192.168.0.1
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
