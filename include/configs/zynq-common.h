@@ -247,9 +247,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-/* Physical Memory map */
-#define CONFIG_SYS_TEXT_BASE		0x4000000
-
 #ifndef CONFIG_NR_DRAM_BANKS
 # define CONFIG_NR_DRAM_BANKS		1
 #endif
