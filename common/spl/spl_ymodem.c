@@ -132,4 +132,4 @@ end_stream:
 	printf("Loaded %d bytes\n", size);
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_UART, spl_ymodem_load_image);
+SPL_LOAD_IMAGE_METHOD("UART", 0, BOOT_DEVICE_UART, spl_ymodem_load_image);

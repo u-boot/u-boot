@@ -5,6 +5,9 @@
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
  *
  * SPDX-License-Identifier:	GPL-2.0+
+ *
+ * NOTE: This driver should be converted to driver model before June 2017.
+ * Please see doc/driver-model/i2c-howto.txt for instructions.
  */
 
 #include <common.h>

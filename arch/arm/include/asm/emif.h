@@ -1171,6 +1171,7 @@ struct emif_regs {
 	u32 sdram_tim1;
 	u32 sdram_tim2;
 	u32 sdram_tim3;
+	u32 ocp_config;
 	u32 read_idle_ctrl;
 	u32 zq_config;
 	u32 temp_alert_config;

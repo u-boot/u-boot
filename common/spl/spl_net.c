@@ -51,7 +51,8 @@ int spl_net_load_image_cpgmac(struct spl_image_info *spl_image,
 
 	return spl_net_load_image(spl_image, bootdev);
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_CPGMAC, spl_net_load_image_cpgmac);
+SPL_LOAD_IMAGE_METHOD("eth device", 0, BOOT_DEVICE_CPGMAC,
+		      spl_net_load_image_cpgmac);
 #endif
 
 #ifdef CONFIG_SPL_USBETH_SUPPORT
@@ -62,5 +63,5 @@ int spl_net_load_image_usb(struct spl_image_info *spl_image,
 
 	return spl_net_load_image(spl_image, bootdev);
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_USBETH, spl_net_load_image_usb);
+SPL_LOAD_IMAGE_METHOD("USB eth", 0, BOOT_DEVICE_USBETH, spl_net_load_image_usb);
 #endif

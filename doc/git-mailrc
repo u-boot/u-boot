@@ -19,6 +19,7 @@ alias alisonwang     Alison Wang <alison.wang@freescale.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
+alias dinh	     Dinh Nguyen <dinguyen@kernel.org>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias hs             Heiko Schocher <hs@denx.de>
 alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
@@ -70,7 +71,7 @@ alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
-alias socfpga        uboot, marex, Dinh Nguyen <dinguyen@opensource.altera.com>
+alias socfpga        uboot, marex, dinh
 alias sunxi          uboot, jagan, maxime
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra

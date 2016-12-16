@@ -138,4 +138,6 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 void update_spd_address(unsigned int ctrl_num,
 			unsigned int slot,
 			unsigned int *addr);
+
+void erratum_a009942_check_cpo(void);
 #endif

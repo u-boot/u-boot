@@ -1,0 +1,7 @@
+MVEBU_ARMADA_8K BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/Marvell/mvebu_armada-8k/
+F:	include/configs/mvebu_armada-8k.h
+F:	configs/mvebu_db-88f7040_defconfig
+F:	configs/mvebu_db-88f8040_defconfig

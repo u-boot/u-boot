@@ -1,6 +1,14 @@
 #!/bin/sh
 
 #
+# helper function to convert from DOS to Unix, if necessary, and handle
+# lines ending in '\'.
+#
+fix_newlines_in_macros() {
+	sed -n ':next;s/\r$//;/[^\\]\\$/ {N;s/\\\n//;b next};p' $1
+}
+
+#
 # Process iocsr_config_*.[ch]
 # $1:	SoC type
 # $2:	Input handoff directory
@@ -27,14 +35,16 @@ process_iocsr_config() {
 EOF
 
 	# Retrieve the scan chain lengths
-	grep 'CONFIG_HPS_IOCSR_SCANCHAIN[0-9]\+_LENGTH'			\
-		${in_bsp_dir}/generated/iocsr_config_${soc}.h | tr -d "()"
+	fix_newlines_in_macros \
+		${in_bsp_dir}/generated/iocsr_config_${soc}.h |
+	grep 'CONFIG_HPS_IOCSR_SCANCHAIN[0-9]\+_LENGTH'	| tr -d "()"
 
 	echo ""
 
 	# Retrieve the scan chain config and zap the ad-hoc length encoding
-	sed -n '/^const/ !b; :next {/^const/ s/(.*)//;p;n;b next}'	\
-		${in_bsp_dir}/generated/iocsr_config_${soc}.c
+	fix_newlines_in_macros \
+		${in_bsp_dir}/generated/iocsr_config_${soc}.c |
+	sed -n '/^const/ !b; :next {/^const/ s/(.*)//;p;n;b next}'
 
 	cat << EOF
 
@@ -69,8 +79,9 @@ process_pinmux_config() {
 EOF
 
 	# Retrieve the pinmux config and zap the ad-hoc length encoding
-	sed -n '/^unsigned/ !b; :next {/^unsigned/ {s/\[.*\]/[]/;s/unsigned long/const u8/};p;n;b next}' \
-		${in_bsp_dir}/generated/pinmux_config_${soc}.c
+	fix_newlines_in_macros \
+		${in_bsp_dir}/generated/pinmux_config_${soc}.c |
+	sed -n '/^unsigned/ !b; :next {/^unsigned/ {s/\[.*\]/[]/;s/unsigned long/const u8/};p;n;b next}'
 
 	cat << EOF
 
@@ -105,8 +116,9 @@ process_pll_config() {
 EOF
 
 	# Retrieve the pll config and zap parenthesis
-	sed -n '/CONFIG_HPS/ !b; :next {/CONFIG_HPS/ s/[()]//g;/endif/ b;p;n;b next}' \
-		${in_bsp_dir}/generated/pll_config.h
+	fix_newlines_in_macros \
+		${in_bsp_dir}/generated/pll_config.h |
+	sed -n '/CONFIG_HPS/ !b; :next {/CONFIG_HPS/ s/[()]//g;/endif/ b;p;n;b next}'
 
 	cat << EOF
 
@@ -149,32 +161,37 @@ EOF
 
 	echo "/* SDRAM configuration */"
 	# Retrieve the sdram config, zap broken lines and zap parenthesis
-	sed -n "/\\\\$/ {N;s/ \\\\\n/\t/};p"		\
+	fix_newlines_in_macros \
 		${in_bsp_dir}/generated/sdram/sdram_config.h |
+	sed -n "/\\\\$/ {N;s/ \\\\\n/\t/};p" |
 	sed -n '/CONFIG_HPS/ !b; :next {/CONFIG_HPS/ s/[()]//g;/endif/ b;p;n;b next}' |
 		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer auto configuration */"
-	sed -n "/__RW_MGR/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}"		\
+	fix_newlines_in_macros \
 		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto.h |
+	sed -n "/__RW_MGR/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}" |
 		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer defines configuration */"
-	sed -n "/^#define [^_]/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}"	\
+	fix_newlines_in_macros \
 		${in_qts_dir}/hps_isw_handoff/*/sequencer_defines.h |
+	sed -n "/^#define [^_]/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}" |
 		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer ac_rom_init configuration */"
-	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'\
-		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_ac_init.c
+	fix_newlines_in_macros \
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_ac_init.c |
+	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'
 
 	echo ""
 	echo "/* Sequencer inst_rom_init configuration */"
-	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'\
-		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_inst_init.c
+	fix_newlines_in_macros \
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_inst_init.c |
+	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'
 
 	cat << EOF
 

@@ -151,8 +151,6 @@ int exynos_early_init_f(void)
 	return 0;
 }
 
-static int pmic_init_max77686(void);
-
 int exynos_init(void)
 {
 	struct exynos4_power *pwr =
@@ -176,6 +174,7 @@ int exynos_init(void)
 
 int exynos_power_init(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int chrg;
 	struct power_battery *pb;
 	struct pmic *p_chrg, *p_muic, *p_fg, *p_bat;
@@ -236,13 +235,14 @@ int exynos_power_init(void)
 
 	if (pb->bat->state == CHARGE && chrg == CHARGER_USB)
 		puts("CHARGE Battery !\n");
-
+#endif
 	return 0;
 }
 
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	unsigned int val;
 	struct pmic *p, *p_pmic, *p_muic;
@@ -299,7 +299,7 @@ static int s5pc210_phy_control(int on)
 
 	if (ret)
 		return -1;
-
+#endif
 	return 0;
 }
 
@@ -319,14 +319,19 @@ int board_usb_init(int index, enum usb_init_type init)
 
 int g_dnl_board_usb_cable_connected(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *muic = pmic_get("MAX77693_MUIC");
 	if (!muic)
 		return 0;
 
 	return !!muic->chrg->chrg_type(muic);
+#else
+	return false;
+#endif
 }
 #endif
 
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 static int pmic_init_max77686(void)
 {
 	struct pmic *p = pmic_get("MAX77686_PMIC");
@@ -379,6 +384,7 @@ static int pmic_init_max77686(void)
 
 	return 0;
 }
+#endif
 
 /*
  * LCD
@@ -387,18 +393,21 @@ static int pmic_init_max77686(void)
 #ifdef CONFIG_LCD
 int mipi_power(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
 	/* LDO8 VMIPI_1.0V_AP */
 	max77686_set_ldo_mode(p, 8, OPMODE_ON);
 	/* LDO10 VMIPI_1.8V_AP */
 	max77686_set_ldo_mode(p, 10, OPMODE_ON);
+#endif
 
 	return 0;
 }
 
 void exynos_lcd_power_on(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
 	/* LCD_2.2V_EN: GPC0[1] */
@@ -410,6 +419,7 @@ void exynos_lcd_power_on(void)
 	pmic_probe(p);
 	max77686_set_ldo_voltage(p, 25, 3100000);
 	max77686_set_ldo_mode(p, 25, OPMODE_LPM);
+#endif
 }
 
 void exynos_reset_lcd(void)

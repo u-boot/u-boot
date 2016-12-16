@@ -47,24 +47,15 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 {
 	unsigned int i, bus_width;
 	struct ccsr_ddr __iomem *ddr;
-	u32 temp_sdram_cfg;
+	u32 temp32;
 	u32 total_gb_size_per_controller;
 	int timeout;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008511) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A009801)
-	u32 temp32;
-#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	u32 mr6;
 	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
 	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
 	u32 *vref_seq = vref_seq1;
-#endif
-#if defined(CONFIG_SYS_FSL_ERRATUM_A009942) | \
-	defined(CONFIG_SYS_FSL_ERRATUM_A010165)
-	ulong ddr_freq;
-	u32 tmp;
 #endif
 #ifdef CONFIG_FSL_DDR_BIST
 	u32 mtcr, err_detect, err_sbe;
@@ -73,7 +64,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #ifdef CONFIG_FSL_DDR_BIST
 	char buffer[CONFIG_SYS_CBSIZE];
 #endif
-
 	switch (ctrl_num) {
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
@@ -230,16 +220,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			ddr_out32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008378
-	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
-#define IS_ACC_ECC_EN(v) ((v) & 0x4)
-#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
-	if (has_erratum_a008378()) {
-		if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
-		    IS_DBI(regs->ddr_sdram_cfg_3))
-			ddr_setbits32(&ddr->debug[28], 0x9 << 20);
-	}
-#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	/* Part 1 of 2 */
@@ -277,24 +257,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->debug[25], temp32);
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
-	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
-	tmp = ddr_in32(&ddr->debug[28]);
-	if (ddr_freq <= 1333)
-		ddr_out32(&ddr->debug[28], tmp | 0x0080006a);
-	else if (ddr_freq <= 1600)
-		ddr_out32(&ddr->debug[28], tmp | 0x0070006f);
-	else if (ddr_freq <= 1867)
-		ddr_out32(&ddr->debug[28], tmp | 0x00700076);
-	else if (ddr_freq <= 2133)
-		ddr_out32(&ddr->debug[28], tmp | 0x0060007b);
-#endif
-
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010165
-	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
-	if ((ddr_freq > 1900) && (ddr_freq < 2300)) {
-		tmp = ddr_in32(&ddr->debug[28]);
-		ddr_out32(&ddr->debug[28], tmp | 0x000a0000);
+	temp32 = get_ddr_freq(ctrl_num) / 1000000;
+	if ((temp32 > 1900) && (temp32 < 2300)) {
+		temp32 = ddr_in32(&ddr->debug[28]);
+		ddr_out32(&ddr->debug[28], temp32 | 0x000a0000);
 	}
 #endif
 	/*
@@ -312,9 +279,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 
 step2:
 	/* Set, but do not enable the memory */
-	temp_sdram_cfg = regs->ddr_sdram_cfg;
-	temp_sdram_cfg &= ~(SDRAM_CFG_MEM_EN);
-	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg);
+	temp32 = regs->ddr_sdram_cfg;
+	temp32 &= ~(SDRAM_CFG_MEM_EN);
+	ddr_out32(&ddr->sdram_cfg, temp32);
 
 	/*
 	 * 500 painful micro-seconds must elapse between
@@ -329,18 +296,18 @@ step2:
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
 		/* enter self-refresh */
-		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg_2);
-		temp_sdram_cfg |= SDRAM_CFG2_FRC_SR;
-		ddr_out32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+		temp32 = ddr_in32(&ddr->sdram_cfg_2);
+		temp32 |= SDRAM_CFG2_FRC_SR;
+		ddr_out32(&ddr->sdram_cfg_2, temp32);
 		/* do board specific memory setup */
 		board_mem_sleep_setup();
 
-		temp_sdram_cfg = (ddr_in32(&ddr->sdram_cfg) | SDRAM_CFG_BI);
+		temp32 = (ddr_in32(&ddr->sdram_cfg) | SDRAM_CFG_BI);
 	} else
 #endif
-		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
+		temp32 = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	/* Let the controller go */
-	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
+	ddr_out32(&ddr->sdram_cfg, temp32 | SDRAM_CFG_MEM_EN);
 	mb();
 	isb();
 
@@ -483,9 +450,9 @@ step2:
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
 		/* exit self-refresh */
-		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg_2);
-		temp_sdram_cfg &= ~SDRAM_CFG2_FRC_SR;
-		ddr_out32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+		temp32 = ddr_in32(&ddr->sdram_cfg_2);
+		temp32 &= ~SDRAM_CFG2_FRC_SR;
+		ddr_out32(&ddr->sdram_cfg_2, temp32);
 	}
 #endif
 

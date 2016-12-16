@@ -83,8 +83,8 @@ config TARGET_DB_88F6820_AMC
 	bool "Support DB-88F6820-AMC"
 	select 88F6820
 
-config TARGET_MVEBU_DB_88F7040
-	bool "Support DB-88F7040 Armada 7040"
+config TARGET_MVEBU_ARMADA_8K
+	bool "Support Armada 7k/8k platforms"
 	select ARMADA_8K
 
 config TARGET_DB_MV784MP_GP
@@ -111,7 +111,7 @@ config SYS_BOARD
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
-	default "mvebu_db-88f7040" if TARGET_MVEBU_DB_88F7040
+	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
@@ -123,7 +123,7 @@ config SYS_CONFIG_NAME
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
-	default "mvebu_db-88f7040" if TARGET_MVEBU_DB_88F7040
+	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
@@ -135,7 +135,7 @@ config SYS_VENDOR
 	default "Marvell" if TARGET_DB_88F6720
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "Marvell" if TARGET_DB_88F6820_AMC
-	default "Marvell" if TARGET_MVEBU_DB_88F7040
+	default "Marvell" if TARGET_MVEBU_ARMADA_8K
 	default "solidrun" if TARGET_CLEARFOG
 	default "Synology" if TARGET_DS414
 

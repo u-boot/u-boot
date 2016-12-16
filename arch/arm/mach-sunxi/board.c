@@ -142,7 +142,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("FEL", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 #endif
 
 void s_init(void)
@@ -245,15 +245,6 @@ u32 spl_boot_device(void)
 
 	panic("Unknown boot source %d\n", boot_source);
 	return -1;		/* Never reached */
-}
-
-/*
- * Properly announce BOOT_DEVICE_BOARD as "FEL".
- * Overrides weak function from common/spl/spl.c
- */
-void spl_board_announce_boot_device(void)
-{
-	printf("FEL");
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

@@ -5,14 +5,14 @@
  */
 
 /*
- * Generic driver for Freescale DDR/DDR2/DDR3 memory controller.
+ * Generic driver for Freescale DDR/DDR2/DDR3/DDR4 memory controller.
  * Based on code from spd_sdram.c
  * Author: James Yang [at freescale.com]
  */
 
 #include <common.h>
 #include <fsl_ddr_sdram.h>
-
+#include <fsl_errata.h>
 #include <fsl_ddr.h>
 #include <fsl_immap.h>
 #include <asm/io.h>
@@ -2306,6 +2306,38 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	unsigned int ip_rev = 0;
 	unsigned int unq_mrs_en = 0;
 	int cs_en = 1;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	unsigned int ddr_freq;
+#endif
+#if (defined(CONFIG_SYS_FSL_ERRATUM_A008378) && \
+	defined(CONFIG_SYS_FSL_DDRC_GEN4)) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A009942)
+	struct ccsr_ddr __iomem *ddrc;
+
+	switch (ctrl_num) {
+	case 0:
+		ddrc = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+		break;
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	case 1:
+		ddrc = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+	case 2:
+		ddrc = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+	case 3:
+		ddrc = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+		break;
+#endif
+	default:
+		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
+		return 1;
+	}
+#endif
 
 	memset(ddr, 0, sizeof(fsl_ddr_cfg_regs_t));
 
@@ -2526,5 +2558,105 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 		ddr->debug[2] |= 0x00000200;	/* set bit 22 */
 #endif
 
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008378) && defined(CONFIG_SYS_FSL_DDRC_GEN4)
+	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
+#define IS_ACC_ECC_EN(v) ((v) & 0x4)
+#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
+	if (has_erratum_a008378()) {
+		if (IS_ACC_ECC_EN(ddr->ddr_sdram_cfg) ||
+		    IS_DBI(ddr->ddr_sdram_cfg_3)) {
+			ddr->debug[28] = ddr_in32(&ddrc->debug[28]);
+			ddr->debug[28] |= (0x9 << 20);
+		}
+	}
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
+	ddr->debug[28] |= ddr_in32(&ddrc->debug[28]);
+	ddr->debug[28] &= 0xff0fff00;
+	if (ddr_freq <= 1333)
+		ddr->debug[28] |= 0x0080006a;
+	else if (ddr_freq <= 1600)
+		ddr->debug[28] |= 0x0070006f;
+	else if (ddr_freq <= 1867)
+		ddr->debug[28] |= 0x00700076;
+	else if (ddr_freq <= 2133)
+		ddr->debug[28] |= 0x0060007b;
+	if (popts->cpo_sample)
+		ddr->debug[28] = (ddr->debug[28] & 0xffffff00) |
+				  popts->cpo_sample;
+#endif
+
 	return check_fsl_memctl_config_regs(ddr);
 }
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+/*
+ * This additional workaround of A009942 checks the condition to determine if
+ * the CPO value set by the existing A009942 workaround needs to be updated.
+ * If need, print a warning to prompt user reconfigure DDR debug_29[24:31] with
+ * expected optimal value, the optimal value is highly board dependent.
+ */
+void erratum_a009942_check_cpo(void)
+{
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
+	u32 cpo, cpo_e, cpo_o, cpo_target, cpo_optimal;
+	u32 cpo_min = ddr_in32(&ddr->debug[9]) >> 24;
+	u32 cpo_max = cpo_min;
+	u32 sdram_cfg, i, tmp, lanes, ddr_type;
+	bool update_cpo = false, has_ecc = false;
+
+	sdram_cfg = ddr_in32(&ddr->sdram_cfg);
+	if (sdram_cfg & SDRAM_CFG_32_BE)
+		lanes = 4;
+	else if (sdram_cfg & SDRAM_CFG_16_BE)
+		lanes = 2;
+	else
+		lanes = 8;
+
+	if (sdram_cfg & SDRAM_CFG_ECC_EN)
+		has_ecc = true;
+
+	/* determine the maximum and minimum CPO values */
+	for (i = 9; i < 9 + lanes / 2; i++) {
+		cpo = ddr_in32(&ddr->debug[i]);
+		cpo_e = cpo >> 24;
+		cpo_o = (cpo >> 8) & 0xff;
+		tmp = min(cpo_e, cpo_o);
+		if (tmp < cpo_min)
+			cpo_min = tmp;
+		tmp = max(cpo_e, cpo_o);
+		if (tmp > cpo_max)
+			cpo_max = tmp;
+	}
+
+	if (has_ecc) {
+		cpo = ddr_in32(&ddr->debug[13]);
+		cpo = cpo >> 24;
+		if (cpo < cpo_min)
+			cpo_min = cpo;
+		if (cpo > cpo_max)
+			cpo_max = cpo;
+	}
+
+	cpo_target = ddr_in32(&ddr->debug[28]) & 0xff;
+	cpo_optimal = ((cpo_max + cpo_min) >> 1) + 0x27;
+	debug("cpo_optimal = 0x%x, cpo_target = 0x%x\n", cpo_optimal,
+	      cpo_target);
+	debug("cpo_max = 0x%x, cpo_min = 0x%x\n", cpo_max, cpo_min);
+
+	ddr_type = (sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) >>
+		    SDRAM_CFG_SDRAM_TYPE_SHIFT;
+	if (ddr_type == SDRAM_TYPE_DDR4)
+		update_cpo = (cpo_min + 0x3b) < cpo_target ? true : false;
+	else if (ddr_type == SDRAM_TYPE_DDR3)
+		update_cpo = (cpo_min + 0x3f) < cpo_target ? true : false;
+
+	if (update_cpo) {
+		printf("WARN: pls set popts->cpo_sample = 0x%x ", cpo_optimal);
+		printf("in <board>/ddr.c to optimize cpo\n");
+	}
+}
+#endif

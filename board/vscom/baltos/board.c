@@ -39,6 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO that controls power to DDR on EVM-SK */
 #define GPIO_DDR_VTT_EN		7
 #define DIP_S1			44
+#define MPCIE_SW		100
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -330,6 +331,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+static struct module_pin_mux pcie_sw_pin_mux[] = {
+	{OFFSET(mii1_rxdv), (MODE(7) | PULLUDEN )},     /* GPIO3_4 */
+	{-1},
+};
+
 static struct module_pin_mux dip_pin_mux[] = {
 	{OFFSET(gpmc_ad12), (MODE(7) | RXACTIVE )},	/* GPIO1_12 */
 	{OFFSET(gpmc_ad13), (MODE(7)  | RXACTIVE )},	/* GPIO1_13 */
@@ -355,6 +361,18 @@ int board_late_init(void)
 			baltos_set_console();
 		}
 	}
+
+	/* turn power for the mPCIe slot */
+	configure_module_pin_mux(pcie_sw_pin_mux);
+	if (gpio_request(MPCIE_SW, "mpcie_sw")) {
+		printf("failed to export GPIO %d\n", MPCIE_SW);
+		return -ENODEV;
+	}
+	if (gpio_direction_output(MPCIE_SW, 1)) {
+		printf("failed to set GPIO %d direction\n", MPCIE_SW);
+		return -ENODEV;
+	}
+
 	setenv("board_name", model);
 #endif
 
@@ -415,7 +433,6 @@ int board_eth_init(bd_t *bis)
 	int rv, n = 0;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
-	__maybe_unused struct am335x_baseboard_id header;
 
 	/*
 	 * Note here that we're using CPSW1 since that has a 1Gbit PHY while

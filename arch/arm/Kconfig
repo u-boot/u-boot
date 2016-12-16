@@ -406,6 +406,7 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
+	select DM_I2C
 	select DM_SPI_FLASH
 	select DM_SERIAL
 	select DM_SPI
@@ -418,6 +419,7 @@ config ARCH_S5PC1XX
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select DM_I2C
 
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
@@ -540,6 +542,7 @@ config ARCH_SOCFPGA
 	select DM
 	select DM_SPI_FLASH
 	select DM_SPI
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 
 config TARGET_CM_T43
 	bool "Support cm_t43"
@@ -826,7 +829,6 @@ config TARGET_COLIBRI_PXA270
 
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
-	select BLK
 	select CLK_UNIPHIER
 	select DM
 	select DM_GPIO

@@ -174,9 +174,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			out_be32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
-#ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
-	out_be32(&ddr->debug[28], 0x30003000);
-#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003474
 	out_be32(&ddr->debug[12], 0x00000015);

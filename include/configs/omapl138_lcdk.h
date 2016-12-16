@@ -75,7 +75,7 @@
 #define CONFIG_SYS_DA850_PLL1_PLLDIV2  0x8001
 #define CONFIG_SYS_DA850_PLL1_PLLDIV3  0x8003
 
-#define CONFIG_SYS_DA850_PLL0_PLLM     24
+#define CONFIG_SYS_DA850_PLL0_PLLM     37
 #define CONFIG_SYS_DA850_PLL1_PLLM     21
 
 /*
@@ -173,10 +173,11 @@
 #undef CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
 #define CONFIG_SYS_NAND_HW_ECC_OOBFIRST
+#define CONFIG_NAND_6BYTES_OOB_FREE_10BYTES_ECC
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_SIZE	(2 << 10)
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200 /*0x60000*/
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	SZ_512K
 #define CONFIG_SYS_NAND_U_BOOT_DST	0xc1080000
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 #define CONFIG_SYS_NAND_U_BOOT_RELOC_SP	(CONFIG_SYS_NAND_U_BOOT_DST - \
@@ -184,11 +185,10 @@
 					CONFIG_SYS_MALLOC_LEN -       \
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS		{				\
-				24, 25, 26, 27, 28, \
-				29, 30, 31, 32, 33, 34, 35, 36, 37, 38, \
-				39, 40, 41, 42, 43, 44, 45, 46, 47, 48, \
-				49, 50, 51, 52, 53, 54, 55, 56, 57, 58, \
-				59, 60, 61, 62, 63 }
+				6, 7, 8, 9, 10, 11, 12, 13, 14, 15,	\
+				22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
+				38, 39, 40, 41, 42, 43, 44, 45, 46, 47, \
+				54, 55, 56, 57, 58, 59, 60, 61, 62, 63 }
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_ECCSIZE		512
@@ -247,7 +247,7 @@
  */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOOTFILE		"uImage" /* Boot file name */
+#define CONFIG_BOOTFILE		"zImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
@@ -276,19 +276,20 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdtaddr=0xc0600000\0" \
 	"fdtfile=da850-lcdk.dtb\0" \
-	"fdtboot=bootm 0xc0700000 - ${fdtaddr};\0" \
+	"fdtboot=bootz 0xc0700000 - ${fdtaddr};\0" \
 	"mmcboot=" \
 		"if fatload mmc 0 0xc0600000 boot.scr; then " \
 			"source 0xc0600000; " \
 		"else " \
-			"fatload mmc 0 0xc0700000 uImage; " \
+			"fatload mmc 0 0xc0700000 " \
+				__stringify(CONFIG_BOOTFILE) "; " \
 			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
 			"run fdtboot; " \
 		"fi;\0" \
 	"spiboot=" \
 		"sf probe 0; " \
 		"sf read 0xc0700000 0x80000 0x220000; " \
-		"bootm 0xc0700000;\0"
+		"bootz 0xc0700000;\0"
 
 /*
  * U-Boot commands

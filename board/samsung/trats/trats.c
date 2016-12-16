@@ -53,6 +53,7 @@ int exynos_init(void)
 
 void i2c_init_board(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int err;
 
 	/* I2C_5 -> PMIC */
@@ -67,8 +68,10 @@ void i2c_init_board(void)
 	gpio_request(EXYNOS4_GPIO_Y41, "i2c_data");
 	gpio_direction_output(EXYNOS4_GPIO_Y40, 1);
 	gpio_direction_output(EXYNOS4_GPIO_Y41, 1);
+#endif
 }
 
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 static void trats_low_power_mode(void)
 {
 	struct exynos4_clock *clk =
@@ -273,11 +276,14 @@ static int pmic_init_max8997(void)
 		puts("MAX8997 PMIC setting error!\n");
 		return -1;
 	}
+
 	return 0;
 }
+#endif
 
 int exynos_power_init(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int chrg, ret;
 	struct power_battery *pb;
 	struct pmic *p_fg, *p_chrg, *p_muic, *p_bat;
@@ -341,6 +347,7 @@ int exynos_power_init(void)
 
 	if (pb->bat->state == CHARGE && chrg == CHARGER_USB)
 		puts("CHARGE Battery !\n");
+#endif
 
 	return 0;
 }
@@ -384,6 +391,7 @@ static void check_hw_revision(void)
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	u32 val = 0;
 	struct pmic *p = pmic_get("MAX8997_PMIC");
@@ -415,6 +423,7 @@ static int s5pc210_phy_control(int on)
 		puts("MAX8997 LDO setting error!\n");
 		return -1;
 	}
+#endif
 
 	return 0;
 }
@@ -435,11 +444,16 @@ int board_usb_init(int index, enum usb_init_type init)
 
 int g_dnl_board_usb_cable_connected(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *muic = pmic_get("MAX8997_MUIC");
 	if (!muic)
 		return 0;
 
 	return !!muic->chrg->chrg_type(muic);
+#else
+	return false;
+#endif
+
 }
 #endif
 
@@ -552,6 +566,7 @@ void exynos_reset_lcd(void)
 
 int lcd_power(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	struct pmic *p = pmic_get("MAX8997_PMIC");
 	if (!p)
@@ -569,12 +584,13 @@ int lcd_power(void)
 		puts("MAX8997 LDO setting error!\n");
 		return -1;
 	}
-
+#endif
 	return 0;
 }
 
 int mipi_power(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	struct pmic *p = pmic_get("MAX8997_PMIC");
 	if (!p)
@@ -592,7 +608,7 @@ int mipi_power(void)
 		puts("MAX8997 LDO setting error!\n");
 		return -1;
 	}
-
+#endif
 	return 0;
 }
 

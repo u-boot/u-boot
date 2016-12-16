@@ -39,10 +39,26 @@ static struct mm_region mvebu_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE
 	},
 	{
-		/* SRAM, MMIO regions - CP110 region */
+		/* SRAM, MMIO regions - CP110 master region */
 		.phys = 0xf2000000UL,
 		.virt = 0xf2000000UL,
 		.size = 0x02000000UL,	/* 32MiB internal registers */
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	},
+	{
+		/* SRAM, MMIO regions - CP110 slave region */
+		.phys = 0xf4000000UL,
+		.virt = 0xf4000000UL,
+		.size = 0x02000000UL,	/* 32MiB internal registers */
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	},
+	{
+		/* PCI regions */
+		.phys = 0xf8000000UL,
+		.virt = 0xf8000000UL,
+		.size = 0x08000000UL,	/* 128MiB PCI space (master & slave) */
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	},

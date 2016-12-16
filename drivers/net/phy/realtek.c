@@ -9,13 +9,16 @@
  */
 #include <config.h>
 #include <common.h>
+#include <linux/bitops.h>
 #include <phy.h>
+
+#define PHY_RTL8211x_FORCE_MASTER BIT(1)
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 
 /* RTL8211x 1000BASE-T Control Register */
-#define MIIM_RTL8211x_CTRL1000T_MSCE (1 << 12);
-#define MIIM_RTL8211X_CTRL1000T_MASTER (1 << 11);
+#define MIIM_RTL8211x_CTRL1000T_MSCE BIT(12);
+#define MIIM_RTL8211x_CTRL1000T_MASTER BIT(11);
 
 /* RTL8211x PHY Status Register */
 #define MIIM_RTL8211x_PHY_STATUS       0x11
@@ -48,6 +51,15 @@
 #define MIIM_RTL8211F_TX_DELAY		0x100
 #define MIIM_RTL8211F_LCR		0x10
 
+static int rtl8211b_probe(struct phy_device *phydev)
+{
+#ifdef CONFIG_RTL8211X_PHY_FORCE_MASTER
+	phydev->flags |= PHY_RTL8211x_FORCE_MASTER;
+#endif
+
+	return 0;
+}
+
 /* RealTek RTL8211x */
 static int rtl8211x_config(struct phy_device *phydev)
 {
@@ -58,14 +70,17 @@ static int rtl8211x_config(struct phy_device *phydev)
 	 */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER,
 		  MIIM_RTL8211x_PHY_INTR_DIS);
-#ifdef CONFIG_RTL8211X_PHY_FORCE_MASTER
-	unsigned int reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_CTRL1000);
-	/* force manual master/slave configuration */
-	reg |= MIIM_RTL8211x_CTRL1000T_MSCE;
-	/* force master mode */
-	reg |= MIIM_RTL8211X_CTRL1000T_MASTER;
-	phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, reg);
-#endif
+
+	if (phydev->flags & PHY_RTL8211x_FORCE_MASTER) {
+		unsigned int reg;
+
+		reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_CTRL1000);
+		/* force manual master/slave configuration */
+		reg |= MIIM_RTL8211x_CTRL1000T_MSCE;
+		/* force master mode */
+		reg |= MIIM_RTL8211x_CTRL1000T_MASTER;
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, reg);
+	}
 	/* read interrupt status just to clear it */
 	phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER);
 
@@ -248,6 +263,7 @@ static struct phy_driver RTL8211B_driver = {
 	.uid = 0x1cc912,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
+	.probe = &rtl8211b_probe,
 	.config = &rtl8211x_config,
 	.startup = &rtl8211x_startup,
 	.shutdown = &genphy_shutdown,

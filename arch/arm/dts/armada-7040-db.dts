@@ -66,36 +66,14 @@
 	};
 };
 
-&i2c0 {
-	status = "okay";
-	clock-frequency = <100000>;
-};
-
-&spi0 {
-	status = "okay";
-
-	spi-flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
-		reg = <0>;
-		spi-max-frequency = <10000000>;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "U-Boot";
-				reg = <0 0x200000>;
-			};
-			partition@400000 {
-				label = "Filesystem";
-				reg = <0x200000 0xce0000>;
-			};
-		};
-	};
+&ap_pinctl {
+	   /* MPP Bus:
+	    * SDIO  [0-5]
+	    * UART0 [11,19]
+	    */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 1 1 1 1 1 1 0 0 0 0
+		     0 3 0 0 0 0 0 0 0 3 >;
 };
 
 &uart0 {
@@ -108,11 +86,37 @@
 };
 
 &cpm_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cpm_i2c0_pins>;
 	status = "okay";
 	clock-frequency = <100000>;
 };
 
+&cpm_pinctl {
+		/* MPP Bus:
+		 * TDM	 [0-11]
+		 * SPI   [13-16]
+		 * SATA1 [28]
+		 * UART0 [29-30]
+		 * SMI	 [32,34]
+		 * XSMI  [35-36]
+		 * I2C	 [37-38]
+		 * RGMII1[44-55]
+		 * SD	 [56-62]
+		 */
+		/*   0   1   2   3   4   5   6   7   8   9 */
+	pin-func = < 4   4   4   4   4   4   4   4   4   4
+		     4   4   0   3   3   3   3   0   0   0
+		     0   0   0   0   0   0   0   0   9   0xA
+		     0xA 0   7   0   7   7   7   2   2   0
+		     0   0   0   0   1   1   1   1   1   1
+		     1   1   1   1   1   1   0xE 0xE 0xE 0xE
+		     0xE 0xE 0xE >;
+};
+
 &cpm_spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cpm_spi0_pins>;
 	status = "okay";
 
 	spi-flash@0 {
@@ -152,7 +156,7 @@
 	status = "okay";
 };
 
-&comphy_cp110 {
+&cpm_comphy {
 	phy0 {
 		phy-type = <PHY_TYPE_SGMII2>;
 		phy-speed = <PHY_SPEED_3_125G>;
@@ -184,10 +188,10 @@
 	};
 };
 
-&utmi0 {
+&cpm_utmi0 {
 	status = "okay";
 };
 
-&utmi1 {
+&cpm_utmi1 {
 	status = "okay";
 };

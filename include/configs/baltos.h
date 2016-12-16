@@ -102,7 +102,9 @@
 	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
+	"usbroot=/dev/sda2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"usbrootfstype=ext4 rootwait\0" \
 	"rootpath=/export/rootfs\0" \
 	"nfsopts=nolock\0" \
 	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
@@ -114,6 +116,11 @@
 		"${mtdparts} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"usbargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"${mtdparts} " \
+		"root=${usbroot} " \
+		"rootfstype=${usbrootfstype}\0" \
 	"spiroot=/dev/mtdblock4 rw\0" \
 	"spirootfstype=jffs2\0" \
 	"spisrcaddr=0xe0000\0" \
@@ -130,7 +137,10 @@
 		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"usbloadbootenv=load usb 0:1 ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
+	"usbimportbootenv=echo Importing environment from USB ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
@@ -138,7 +148,14 @@
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"usbloadimage=load usb 0:1 ${loadaddr} kernel-fit.itb\0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"usbloados=run usbargs; " \
+		"bootm ${loadaddr}#conf${board_name}; " \
+		"if test $? -ne 0; then " \
+			"echo Using default FIT configuration; " \
+			"bootm ${loadaddr}; " \
+		"fi;\0" \
 	"mmcloados=run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
@@ -152,6 +169,21 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
+		"fi;\0" \
+	"usbboot=usb reset; " \
+		"if usb storage; then " \
+			"echo USB drive found;" \
+			"if run usbloadbootenv; then " \
+				"echo Loaded environment from ${bootenv};" \
+				"run usbimportbootenv;" \
+			"fi;" \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+			"if run usbloadimage; then " \
+				"run usbloados;" \
+			"fi;" \
 		"fi;\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
@@ -190,6 +222,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run usbboot;" \
 	"run mmcboot;" \
 	"setenv mmcdev 1; " \
 	"setenv bootpart 1:2; " \

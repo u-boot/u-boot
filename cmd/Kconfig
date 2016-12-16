@@ -653,6 +653,9 @@ config CMD_QFW
 	  This provides access to the QEMU firmware interface.  The main
 	  feature is to allow easy loading of files passed to qemu-system
 	  via -kernel / -initrd
+
+source "cmd/mvebu/Kconfig"
+
 endmenu
 
 config CMD_BOOTSTAGE
