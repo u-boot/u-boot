@@ -178,7 +178,7 @@ static inline int dfu_get_manifest_timeout(struct dfu_entity *dfu)
 		DFU_MANIFEST_POLL_TIMEOUT;
 }
 
-static void handle_getstatus(struct usb_request *req)
+static int handle_getstatus(struct usb_request *req)
 {
 	struct dfu_status *dstat = (struct dfu_status *)req->buf;
 	struct f_dfu *f_dfu = req->context;
@@ -210,6 +210,8 @@ static void handle_getstatus(struct usb_request *req)
 	dstat->bStatus = f_dfu->dfu_status;
 	dstat->bState = f_dfu->dfu_state;
 	dstat->iString = 0;
+
+	return sizeof(struct dfu_status);
 }
 
 static int handle_getstate(struct usb_request *req)
@@ -268,8 +270,7 @@ static int state_app_idle(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -296,8 +297,7 @@ static int state_app_detach(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -341,8 +341,7 @@ static int state_dfu_idle(struct f_dfu *f_dfu,
 		value = RET_ZLP;
 		break;
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -381,8 +380,7 @@ static int state_dfu_dnload_sync(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -405,8 +403,7 @@ static int state_dfu_dnbusy(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	default:
 		f_dfu->dfu_state = DFU_STATE_dfuERROR;
@@ -437,8 +434,7 @@ static int state_dfu_dnload_idle(struct f_dfu *f_dfu,
 		value = RET_ZLP;
 		break;
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -463,9 +459,8 @@ static int state_dfu_manifest_sync(struct f_dfu *f_dfu,
 	case USB_REQ_DFU_GETSTATUS:
 		/* We're MainfestationTolerant */
 		f_dfu->dfu_state = DFU_STATE_dfuMANIFEST;
-		handle_getstatus(req);
+		value = handle_getstatus(req);
 		f_dfu->blk_seq_num = 0;
-		value = RET_STAT_LEN;
 		req->complete = dnload_request_flush;
 		break;
 	case USB_REQ_DFU_GETSTATE:
@@ -491,9 +486,8 @@ static int state_dfu_manifest(struct f_dfu *f_dfu,
 	case USB_REQ_DFU_GETSTATUS:
 		/* We're MainfestationTolerant */
 		f_dfu->dfu_state = DFU_STATE_dfuIDLE;
-		handle_getstatus(req);
+		value = handle_getstatus(req);
 		f_dfu->blk_seq_num = 0;
-		value = RET_STAT_LEN;
 		puts("DOWNLOAD ... OK\nCtrl+C to exit ...\n");
 		break;
 	case USB_REQ_DFU_GETSTATE:
@@ -530,8 +524,7 @@ static int state_dfu_upload_idle(struct f_dfu *f_dfu,
 		value = RET_ZLP;
 		break;
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
@@ -554,8 +547,7 @@ static int state_dfu_error(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
-		handle_getstatus(req);
-		value = RET_STAT_LEN;
+		value = handle_getstatus(req);
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		value = handle_getstate(req);
