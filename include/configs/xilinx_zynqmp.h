@@ -327,8 +327,6 @@
 #define CONFIG_SCSI
 #endif
 
-#define CONFIG_ARM_SMC
-
 #define CONFIG_FPGA_ZYNQMPPL
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA
