@@ -612,6 +612,7 @@ config CMD_ZYNQ_AES
 
 config CMD_ZYNQ_RSA
 	bool "Zynq RSA"
+	select RSA
 	help
 	  Verifies the authenticated and encrypted zynq images.
 

@@ -370,9 +370,6 @@
 
 /* Commands */
 #if defined(CONFIG_CMD_ZYNQ_RSA)
-# ifndef CONFIG_RSA
-#  define CONFIG_RSA
-# endif
 #define CONFIG_SHA256
 #endif
 
