@@ -52,9 +52,6 @@ config BOOT_INIT_FILE
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
 
 # Temporary Kconfig options which needs to be fixed
-config ZYNQ_M29EW_WB_HACK
-	bool
-
 config SYS_I2C_MUX_ADDR
 	int
 
