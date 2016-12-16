@@ -374,7 +374,6 @@
 #define CONFIG_SHA256
 #endif
 
-#define CONFIG_CMD_BOOTZ
 #undef CONFIG_BOOTM_NETBSD
 
 #define CONFIG_SYS_HZ			1000
