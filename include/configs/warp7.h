@@ -38,6 +38,7 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
+	"ethact=usb_ether\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7s-warp.dtb\0" \
@@ -144,5 +145,11 @@
 /* USB Device Firmware Update support */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
+
+#define CONFIG_USB_ETHER
+#define CONFIG_USB_ETH_CDC
+#define CONFIG_USB_ETH_RNDIS
+#define CONFIG_USBNET_HOST_ADDR		"de:ad:be:af:00:00"
+#define CONFIG_USBNET_DEV_ADDR		"de:ad:be:af:00:01"
 
 #endif

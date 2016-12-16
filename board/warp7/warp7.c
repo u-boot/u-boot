@@ -19,6 +19,7 @@
 #include <mmc.h>
 #include <asm/arch/crm_regs.h>
 #include <usb.h>
+#include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../freescale/common/pfuze.h"
@@ -137,6 +138,19 @@ int power_init_board(void)
 	return 0;
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	int ret = 0;
+
+#ifdef CONFIG_USB_ETHER
+	ret = usb_eth_initialize(bis);
+	if (ret < 0)
+		printf("Error %d registering USB ether.\n", ret);
+#endif
+
+	return ret;
+}
 
 int board_init(void)
 {
