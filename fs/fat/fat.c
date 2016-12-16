@@ -202,6 +202,7 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
 
+		/* Cap length if fatlength is not a multiple of FATBUFBLOCKS */
 		if (startblock + getsize > fatlength)
 			getsize = fatlength - startblock;
 

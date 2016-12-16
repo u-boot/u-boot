@@ -117,10 +117,11 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
 	if ((!mydata->fat_dirty) || (mydata->fatbufnum == -1))
 		return 0;
 
-	startblock += mydata->fat_sect;
+	/* Cap length if fatlength is not a multiple of FATBUFBLOCKS */
+	if (startblock + getsize > fatlength)
+		getsize = fatlength - startblock;
 
-	if (getsize > fatlength)
-		getsize = fatlength;
+	startblock += mydata->fat_sect;
 
 	/* Write FAT buf */
 	if (disk_write(startblock, getsize, bufptr) < 0) {
@@ -187,8 +188,9 @@ static __u32 get_fatent_value(fsdata *mydata, __u32 entry)
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
 
-		if (getsize > fatlength)
-			getsize = fatlength;
+		/* Cap length if fatlength is not a multiple of FATBUFBLOCKS */
+		if (startblock + getsize > fatlength)
+			getsize = fatlength - startblock;
 
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
 
@@ -499,14 +501,14 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
 
-		fatlength *= mydata->sect_size;
-		startblock += mydata->fat_sect;
-
-		if (getsize > fatlength)
-			getsize = fatlength;
+		/* Cap length if fatlength is not a multiple of FATBUFBLOCKS */
+		if (startblock + getsize > fatlength)
+			getsize = fatlength - startblock;
 
 		if (flush_dirty_fat_buffer(mydata) < 0)
 			return -1;
+
+		startblock += mydata->fat_sect;
 
 		if (disk_read(startblock, getsize, bufptr) < 0) {
 			debug("Error reading FAT blocks\n");
