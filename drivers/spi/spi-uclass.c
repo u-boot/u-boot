@@ -418,7 +418,7 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		mode |= SPI_TX_QUAD;
 		break;
 	default:
-		error("spi-tx-bus-width %d not supported\n", value);
+		warn_non_spl("spi-tx-bus-width %d not supported\n", value);
 		break;
 	}
 
@@ -433,7 +433,7 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		mode |= SPI_RX_QUAD;
 		break;
 	default:
-		error("spi-rx-bus-width %d not supported\n", value);
+		warn_non_spl("spi-rx-bus-width %d not supported\n", value);
 		break;
 	}
 
