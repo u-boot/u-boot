@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/system.h>
+#include <asm/secure.h>
 #include <linux/compiler.h>
 
 int cleanup_before_linux(void)
@@ -41,3 +42,24 @@ int cleanup_before_linux(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ARMV8_PSCI
+static void relocate_secure_section(void)
+{
+#ifdef CONFIG_ARMV8_SECURE_BASE
+	size_t sz = __secure_end - __secure_start;
+
+	memcpy((void *)CONFIG_ARMV8_SECURE_BASE, __secure_start, sz);
+	flush_dcache_range(CONFIG_ARMV8_SECURE_BASE,
+			   CONFIG_ARMV8_SECURE_BASE + sz + 1);
+	invalidate_icache_all();
+#endif
+}
+
+void armv8_setup_psci(void)
+{
+	relocate_secure_section();
+	secure_ram_addr(psci_setup_vectors)();
+	secure_ram_addr(psci_arch_init)();
+}
+#endif

@@ -182,11 +182,17 @@ lr	.req	x30
 
 	/*
 	 * The next lower exception level is AArch64, 64bit EL2 | HCE |
-	 * SMD | RES1 (Bits[5:4]) | Non-secure EL0/EL1.
+	 * RES1 (Bits[5:4]) | Non-secure EL0/EL1.
+	 * and the SMD depends on requirements.
 	 */
+#ifdef CONFIG_ARMV8_PSCI
+	ldr	\tmp, =(SCR_EL3_RW_AARCH64 | SCR_EL3_HCE_EN |\
+			SCR_EL3_RES1 | SCR_EL3_NS_EN)
+#else
 	ldr	\tmp, =(SCR_EL3_RW_AARCH64 | SCR_EL3_HCE_EN |\
 			SCR_EL3_SMD_DIS | SCR_EL3_RES1 |\
 			SCR_EL3_NS_EN)
+#endif
 	msr	scr_el3, \tmp
 
 	/* Return to the EL2_SP2 mode from EL3 */

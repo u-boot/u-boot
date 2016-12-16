@@ -77,6 +77,8 @@ found:
 	 */
 #ifdef CONFIG_SYS_FSL_DDR4
 	popts->half_strength_driver_enable = 1;
+	/* optimize cpo for erratum A-009942 */
+	popts->cpo_sample = 0x59;
 #else
 	popts->half_strength_driver_enable = 0;
 #endif

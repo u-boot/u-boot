@@ -91,6 +91,9 @@ found:
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm) |
 			  DDR_CDR2_VREF_TRAIN_EN | DDR_CDR2_VREF_RANGE_2;
+
+	/* optimize cpo for erratum A-009942 */
+	popts->cpo_sample = 0x70;
 }
 
 phys_size_t initdram(int board_type)

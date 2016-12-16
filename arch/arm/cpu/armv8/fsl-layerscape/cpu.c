@@ -410,7 +410,8 @@ int arch_early_init_r(void)
 	erratum_a009942_check_cpo();
 #endif
 #ifdef CONFIG_MP
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 	/* Check the psci version to determine if the psci is supported */
 	psci_ver = sec_firmware_support_psci_version();
 #endif

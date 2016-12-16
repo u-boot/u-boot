@@ -16,7 +16,8 @@
 
 int fdt_psci(void *fdt)
 {
-#if defined(CONFIG_ARMV8_PSCI) || defined(CONFIG_ARMV7_PSCI)
+#if defined(CONFIG_ARMV7_PSCI) || defined(CONFIG_ARMV8_PSCI) || \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 	int nodeoff;
 	unsigned int psci_ver = 0;
 	int tmp;
@@ -65,7 +66,7 @@ int fdt_psci(void *fdt)
 init_psci_node:
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 	psci_ver = sec_firmware_support_psci_version();
-#elif defined(CONFIG_ARMV7_PSCI_1_0)
+#elif defined(CONFIG_ARMV7_PSCI_1_0) || defined(CONFIG_ARMV8_PSCI)
 	psci_ver = ARM_PSCI_VER_1_0;
 #endif
 	switch (psci_ver) {

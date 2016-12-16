@@ -42,7 +42,8 @@ void ft_fixup_cpu(void *blob)
 	int addr_cells;
 	u64 val, core_id;
 	size_t *boot_code_size = &(__secondary_boot_code_size);
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 	int node;
 	u32 psci_ver;
 

@@ -237,6 +237,17 @@ void smc_call(struct pt_regs *args);
 void __noreturn psci_system_reset(void);
 void __noreturn psci_system_off(void);
 
+#ifdef CONFIG_ARMV8_PSCI
+extern char __secure_start[];
+extern char __secure_end[];
+extern char __secure_stack_start[];
+extern char __secure_stack_end[];
+
+void armv8_setup_psci(void);
+void psci_setup_vectors(void);
+void psci_arch_init(void);
+#endif
+
 #endif	/* __ASSEMBLY__ */
 
 #else /* CONFIG_ARM64 */

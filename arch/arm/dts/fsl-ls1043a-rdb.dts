@@ -47,12 +47,12 @@
 		compatible = "adi,adt7461a";
 		reg = <0x4c>;
 	};
-	eeprom@56 {
+	eeprom@52 {
 		compatible = "at24,24c512";
 		reg = <0x52>;
 	};
 
-	eeprom@57 {
+	eeprom@53 {
 		compatible = "at24,24c512";
 		reg = <0x53>;
 	};
@@ -69,8 +69,8 @@
 	#size-cells = <1>;
 	/* NOR, NAND Flashes and FPGA on board */
 	ranges = <0x0 0x0 0x0 0x60000000 0x08000000
-		  0x2 0x0 0x0 0x7e800000 0x00010000
-		  0x3 0x0 0x0 0x7fb00000 0x00000100>;
+		  0x1 0x0 0x0 0x7e800000 0x00010000
+		  0x2 0x0 0x0 0x7fb00000 0x00000100>;
 
 		nor@0,0 {
 			compatible = "cfi-flash";

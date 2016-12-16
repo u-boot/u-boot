@@ -8,11 +8,17 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
+#include <asm/psci.h>
+
 OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64")
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
 SECTIONS
 {
+#ifdef CONFIG_ARMV8_SECURE_BASE
+	/DISCARD/ : { *(.rela._secure*) }
+#endif
 	. = 0x00000000;
 
 	. = ALIGN(8);
@@ -22,6 +28,57 @@ SECTIONS
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
+
+#ifdef CONFIG_ARMV8_PSCI
+	.__secure_start :
+#ifndef CONFIG_ARMV8_SECURE_BASE
+		ALIGN(CONSTANT(COMMONPAGESIZE))
+#endif
+	{
+		KEEP(*(.__secure_start))
+	}
+
+#ifndef CONFIG_ARMV8_SECURE_BASE
+#define CONFIG_ARMV8_SECURE_BASE
+#define __ARMV8_PSCI_STACK_IN_RAM
+#endif
+	.secure_text CONFIG_ARMV8_SECURE_BASE :
+		AT(ADDR(.__secure_start) + SIZEOF(.__secure_start))
+	{
+		*(._secure.text)
+	}
+
+	.secure_data : AT(LOADADDR(.secure_text) + SIZEOF(.secure_text))
+	{
+		*(._secure.data)
+	}
+
+	.secure_stack ALIGN(ADDR(.secure_data) + SIZEOF(.secure_data),
+			    CONSTANT(COMMONPAGESIZE)) (NOLOAD) :
+#ifdef __ARMV8_PSCI_STACK_IN_RAM
+		AT(ADDR(.secure_stack))
+#else
+		AT(LOADADDR(.secure_data) + SIZEOF(.secure_data))
+#endif
+	{
+		KEEP(*(.__secure_stack_start))
+
+		. = . + CONFIG_ARMV8_PSCI_NR_CPUS * ARM_PSCI_STACK_SIZE;
+
+		. = ALIGN(CONSTANT(COMMONPAGESIZE));
+
+		KEEP(*(.__secure_stack_end))
+	}
+
+#ifndef __ARMV8_PSCI_STACK_IN_RAM
+	. = LOADADDR(.secure_stack);
+#endif
+
+	.__secure_end : AT(ADDR(.__secure_end)) {
+		KEEP(*(.__secure_end))
+		LONG(0x1d1071c);	/* Must output something to reset LMA */
+	}
+#endif
 
 	. = ALIGN(8);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
