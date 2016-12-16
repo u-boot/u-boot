@@ -94,9 +94,6 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zybo.dtb \
 	zynq-microzed.dtb \
 	zynq-cc108.dtb \
-	zynq-afx-nand.dtb \
-	zynq-afx-nor.dtb \
-	zynq-afx-qspi.dtb \
 	zynq-picozed.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm011.dtb \
