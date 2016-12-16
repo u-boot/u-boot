@@ -162,6 +162,16 @@ static void get_name(dir_entry *dirent, char *s_name)
 	downcase(s_name);
 }
 
+static int flush_dirty_fat_buffer(fsdata *mydata);
+#if !defined(CONFIG_FAT_WRITE)
+/* Stub for read only operation */
+int flush_dirty_fat_buffer(fsdata *mydata)
+{
+	(void)(mydata);
+	return 0;
+}
+#endif
+
 /*
  * Get the entry at index 'entry' in a FAT (12/16/32) table.
  * On failure 0x00 is returned.
@@ -172,6 +182,11 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 	__u32 off16, offset;
 	__u32 ret = 0x00;
 	__u16 val1, val2;
+
+	if (CHECK_CLUST(entry, mydata->fatsize)) {
+		printf("Error: Invalid FAT entry: 0x%08x\n", entry);
+		return ret;
+	}
 
 	switch (mydata->fatsize) {
 	case 32:
@@ -192,7 +207,7 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		return ret;
 	}
 
-	debug("FAT%d: entry: 0x%04x = %d, offset: 0x%04x = %d\n",
+	debug("FAT%d: entry: 0x%08x = %d, offset: 0x%04x = %d\n",
 	       mydata->fatsize, entry, entry, offset, offset);
 
 	/* Read a new block of FAT entries into the cache. */
@@ -207,6 +222,10 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 			getsize = fatlength - startblock;
 
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
+
+		/* Write back the fatbuf to the disk */
+		if (flush_dirty_fat_buffer(mydata) < 0)
+			return -1;
 
 		if (disk_read(startblock, getsize, bufptr) < 0) {
 			debug("Error reading FAT blocks\n");
@@ -254,8 +273,8 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		}
 		break;
 	}
-	debug("FAT%d: ret: %08x, offset: %04x\n",
-	       mydata->fatsize, ret, offset);
+	debug("FAT%d: ret: 0x%08x, entry: 0x%08x, offset: 0x%04x\n",
+	       mydata->fatsize, ret, entry, offset);
 
 	return ret;
 }
