@@ -28,7 +28,6 @@
 #undef CONFIG_BOOTCOMMAND
 #undef CONFIG_SYS_HUSH_PARSER
 #undef CONFIG_SYS_PROMPT_HUSH_PS2
-#undef CONFIG_BOOTDELAY
 #undef CONFIG_PREBOOT
 #undef CONFIG_SYS_MALLOC_LEN
 #undef CONFIG_ENV_SIZE
@@ -74,7 +73,6 @@
 
 /* Define needed configs */
 #define CONFIG_CMD_MEMORY
-#define CONFIG_BOOTDELAY	-1 /* -1 to Disable autoboot */
 
 #undef CONFIG_NR_DRAM_BANKS
 #define CONFIG_NR_DRAM_BANKS	1
