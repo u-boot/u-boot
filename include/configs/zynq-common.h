@@ -328,11 +328,7 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Physical Memory map */
-#if defined(CONFIG_CSE_QSPI) || defined(CONFIG_CSE_NOR)
-# define CONFIG_SYS_TEXT_BASE		0xFFFC0000
-#elif defined(CONFIG_CSE_NAND)
-# define CONFIG_SYS_TEXT_BASE		0x00100000
-#elif defined(CONFIG_ZYNQ_OCM)
+#if defined(CONFIG_ZYNQ_OCM)
 # define CONFIG_SYS_TEXT_BASE		0xFFFC0000
 #else
 # define CONFIG_SYS_TEXT_BASE		0x4000000
