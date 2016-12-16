@@ -1375,11 +1375,10 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 						img_len, BIT_PARTIAL);
 		}
 
-		printf("   Programming %s bitstream... ", name);
 		if (err)
-			printf("failed\n");
-		else
-			printf("OK\n");
+			return err;
+
+		printf("   Programming %s bitstream... OK\n", name);
 		break;
 	default:
 		printf("The given image format is not supported (corrupt?)\n");
