@@ -181,7 +181,6 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 	__u32 bufnum;
 	__u32 off16, offset;
 	__u32 ret = 0x00;
-	__u16 val1, val2;
 
 	if (CHECK_CLUST(entry, mydata->fatsize)) {
 		printf("Error: Invalid FAT entry: 0x%08x\n", entry);
@@ -243,35 +242,12 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		ret = FAT2CPU16(((__u16 *) mydata->fatbuf)[offset]);
 		break;
 	case 12:
-		off16 = (offset * 3) / 4;
+		off16 = (offset * 3) / 2;
+		ret = FAT2CPU16(*(__u16 *)(mydata->fatbuf + off16));
 
-		switch (offset & 0x3) {
-		case 0:
-			ret = FAT2CPU16(((__u16 *) mydata->fatbuf)[off16]);
-			ret &= 0xfff;
-			break;
-		case 1:
-			val1 = FAT2CPU16(((__u16 *)mydata->fatbuf)[off16]);
-			val1 &= 0xf000;
-			val2 = FAT2CPU16(((__u16 *)mydata->fatbuf)[off16 + 1]);
-			val2 &= 0x00ff;
-			ret = (val2 << 4) | (val1 >> 12);
-			break;
-		case 2:
-			val1 = FAT2CPU16(((__u16 *)mydata->fatbuf)[off16]);
-			val1 &= 0xff00;
-			val2 = FAT2CPU16(((__u16 *)mydata->fatbuf)[off16 + 1]);
-			val2 &= 0x000f;
-			ret = (val2 << 8) | (val1 >> 8);
-			break;
-		case 3:
-			ret = FAT2CPU16(((__u16 *)mydata->fatbuf)[off16]);
-			ret = (ret & 0xfff0) >> 4;
-			break;
-		default:
-			break;
-		}
-		break;
+		if (offset & 0x1)
+			ret >>= 4;
+		ret &= 0xfff;
 	}
 	debug("FAT%d: ret: 0x%08x, entry: 0x%08x, offset: 0x%04x\n",
 	       mydata->fatsize, ret, entry, offset);
