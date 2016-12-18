@@ -7,8 +7,6 @@
  */
 
 #include <common.h>
-#include <miiphy.h>
-#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -20,6 +18,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,79 +26,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
-	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
-
 static iomux_v3_cfg_t const uart4_pads[] = {
 	IOMUX_PADS(PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
-
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_ENET_CRS_DV__ENET_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_GPIO_16__ENET_REF_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL | PAD_CTL_SRE_FAST)),
-	IOMUX_PADS(PAD_ENET_TX_EN__ENET_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_RXD1__ENET_RX_DATA1	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_RXD0__ENET_RX_DATA0	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_TXD1__ENET_TX_DATA1	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_TXD0__ENET_TX_DATA0	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-#ifdef CONFIG_FEC_MXC
-#define ENET_PHY_RST		IMX_GPIO_NR(7, 12)
-static int setup_fec(void)
-{
-	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	s32 timeout = 100000;
-	u32 reg = 0;
-	int ret;
-
-	/* Enable fec clock */
-	setbits_le32(&ccm->CCGR1, MXC_CCM_CCGR1_ENET_MASK);
-
-	/* use 50MHz */
-	ret = enable_fec_anatop_clock(0, ENET_50MHZ);
-	if (ret)
-		return ret;
-
-	/* Enable PLLs */
-	reg = readl(&anatop->pll_enet);
-	reg &= ~BM_ANADIG_PLL_SYS_POWERDOWN;
-	writel(reg, &anatop->pll_enet);
-	reg = readl(&anatop->pll_enet);
-	reg |= BM_ANADIG_PLL_SYS_ENABLE;
-	while (timeout--) {
-		if (readl(&anatop->pll_enet) & BM_ANADIG_PLL_SYS_LOCK)
-			break;
-	}
-	if (timeout <= 0)
-		return -EIO;
-	reg &= ~BM_ANADIG_PLL_SYS_BYPASS;
-	writel(reg, &anatop->pll_enet);
-
-	/* reset the phy */
-	gpio_direction_output(ENET_PHY_RST, 0);
-	udelay(10000);
-	gpio_set_value(ENET_PHY_RST, 1);
-
-	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	int ret;
-
-	SETUP_IOMUX_PADS(enet_pads);
-	setup_fec();
-
-	return ret = cpu_eth_init(bis);
-}
-#endif
 
 #ifdef CONFIG_NAND_MXS
 
@@ -161,6 +91,113 @@ static void setup_gpmi_nand(void)
 }
 #endif
 
+#if defined(CONFIG_VIDEO_IPUV3)
+static iomux_v3_cfg_t const rgb_pads[] = {
+	IOMUX_PADS(PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK),
+	IOMUX_PADS(PAD_DI0_PIN15__IPU1_DI0_PIN15),
+	IOMUX_PADS(PAD_DI0_PIN2__IPU1_DI0_PIN02),
+	IOMUX_PADS(PAD_DI0_PIN3__IPU1_DI0_PIN03),
+	IOMUX_PADS(PAD_DISP0_DAT0__IPU1_DISP0_DATA00),
+	IOMUX_PADS(PAD_DISP0_DAT1__IPU1_DISP0_DATA01),
+	IOMUX_PADS(PAD_DISP0_DAT2__IPU1_DISP0_DATA02),
+	IOMUX_PADS(PAD_DISP0_DAT3__IPU1_DISP0_DATA03),
+	IOMUX_PADS(PAD_DISP0_DAT4__IPU1_DISP0_DATA04),
+	IOMUX_PADS(PAD_DISP0_DAT5__IPU1_DISP0_DATA05),
+	IOMUX_PADS(PAD_DISP0_DAT6__IPU1_DISP0_DATA06),
+	IOMUX_PADS(PAD_DISP0_DAT7__IPU1_DISP0_DATA07),
+	IOMUX_PADS(PAD_DISP0_DAT8__IPU1_DISP0_DATA08),
+	IOMUX_PADS(PAD_DISP0_DAT9__IPU1_DISP0_DATA09),
+	IOMUX_PADS(PAD_DISP0_DAT10__IPU1_DISP0_DATA10),
+	IOMUX_PADS(PAD_DISP0_DAT11__IPU1_DISP0_DATA11),
+	IOMUX_PADS(PAD_DISP0_DAT12__IPU1_DISP0_DATA12),
+	IOMUX_PADS(PAD_DISP0_DAT13__IPU1_DISP0_DATA13),
+	IOMUX_PADS(PAD_DISP0_DAT14__IPU1_DISP0_DATA14),
+	IOMUX_PADS(PAD_DISP0_DAT15__IPU1_DISP0_DATA15),
+	IOMUX_PADS(PAD_DISP0_DAT16__IPU1_DISP0_DATA16),
+	IOMUX_PADS(PAD_DISP0_DAT17__IPU1_DISP0_DATA17),
+};
+
+static void enable_rgb(struct display_info_t const *dev)
+{
+	SETUP_IOMUX_PADS(rgb_pads);
+}
+
+struct display_info_t const displays[] = {
+	{
+		.bus	= -1,
+		.addr	= 0,
+		.pixfmt	= IPU_PIX_FMT_RGB666,
+		.detect	= NULL,
+		.enable	= enable_rgb,
+		.mode	= {
+			.name           = "Amp-WD",
+			.refresh        = 60,
+			.xres           = 800,
+			.yres           = 480,
+			.pixclock       = 30000,
+			.left_margin    = 30,
+			.right_margin   = 30,
+			.upper_margin   = 5,
+			.lower_margin   = 5,
+			.hsync_len      = 64,
+			.vsync_len      = 20,
+			.sync           = FB_SYNC_EXT,
+			.vmode          = FB_VMODE_NONINTERLACED
+		}
+	},
+};
+
+size_t display_count = ARRAY_SIZE(displays);
+
+static void setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int reg;
+
+	enable_ipu_clock();
+
+	/* Turn on LDB0,IPU,IPU DI0 clocks */
+	reg = __raw_readl(&mxc_ccm->CCGR3);
+	reg |=  (MXC_CCM_CCGR3_LDB_DI0_MASK | 0xffff);
+	writel(reg, &mxc_ccm->CCGR3);
+
+	/* set LDB0, LDB1 clk select to 011/011 */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK |
+		MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET) |
+		(3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	reg = readl(&mxc_ccm->cscmr2);
+	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
+	writel(reg, &mxc_ccm->cscmr2);
+
+	reg = readl(&mxc_ccm->chsccdr);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0 <<
+		MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->chsccdr);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+		IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH |
+		IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+		IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+		IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT |
+		IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+		IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT |
+		IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED |
+		IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK) |
+		(IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+		IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+}
+#endif /* CONFIG_VIDEO_IPUV3 */
+
 int board_early_init_f(void)
 {
 	SETUP_IOMUX_PADS(uart4_pads);
@@ -176,6 +213,11 @@ int board_init(void)
 #ifdef CONFIG_NAND_MXS
 	setup_gpmi_nand();
 #endif
+
+#ifdef CONFIG_VIDEO_IPUV3
+	setup_display();
+#endif
+
 	return 0;
 }
 

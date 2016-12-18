@@ -27,13 +27,11 @@
 
 /* Command definition */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
-#define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC2*/
 
 /* Linux only */
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=ttymxc0,115200\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=undefined\0" \
@@ -41,7 +39,6 @@
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4\0" \
-	"mmcautodetect=no\0" \
 	"findfdt="\
 		"if test $board_name = BASIC; then " \
 			"setenv fdt_file imx6sx-udoo-neo-basic.dtb; fi; " \
@@ -61,7 +58,8 @@
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0)
+	func(MMC, mmc, 0) \
+	func(DHCP, dhcp, na)
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
@@ -90,5 +88,34 @@
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
+
+#define CONFIG_IMX_THERMAL
+
+/* I2C configs */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1
+#define CONFIG_SYS_I2C_SPEED		100000
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE3000
+#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+#define PFUZE3000_I2C_BUS	0
+
+/* Network */
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+
+#define CONFIG_FEC_ENET_DEV 0
+#define IMX_FEC_BASE			ENET_BASE_ADDR
+#define CONFIG_FEC_MXC_PHYADDR          0x0
+
+#define CONFIG_FEC_XCV_TYPE             RMII
+#define CONFIG_ETHPRIME                 "FEC0"
+
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
 
 #endif				/* __CONFIG_H */

@@ -15,13 +15,17 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <mmc.h>
+#include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <jffs2/load_kernel.h>
 #include <miiphy.h>
+#include <mtd_node.h>
 #include <netdev.h>
 #include <i2c.h>
 #include <g_dnl.h>
 #include <asm/gpio.h>
 #include <usb.h>
+#include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -364,12 +368,18 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
 			CCM_CCGR10_NFC_CTRL_MASK);
 
-#ifdef CONFIG_CI_UDC
+#ifdef CONFIG_USB_EHCI_VF
 	setbits_le32(&ccm->ccgr1, CCM_CCGR1_USBC0_CTRL_MASK);
-#endif
-
-#ifdef CONFIG_USB_EHCI
 	setbits_le32(&ccm->ccgr7, CCM_CCGR7_USBC1_CTRL_MASK);
+
+	clrsetbits_le32(&anadig->pll3_ctrl, ANADIG_PLL3_CTRL_BYPASS |
+			ANADIG_PLL3_CTRL_POWERDOWN |
+			ANADIG_PLL3_CTRL_DIV_SELECT,
+			ANADIG_PLL3_CTRL_ENABLE);
+	clrsetbits_le32(&anadig->pll7_ctrl, ANADIG_PLL7_CTRL_BYPASS |
+			ANADIG_PLL7_CTRL_POWERDOWN |
+			ANADIG_PLL7_CTRL_DIV_SELECT,
+			ANADIG_PLL7_CTRL_ENABLE);
 #endif
 
 	clrsetbits_le32(&anadig->pll5_ctrl, ANADIG_PLL5_CTRL_BYPASS |
@@ -418,7 +428,7 @@ static void clock_init(void)
 			CCM_CSCDR2_ESDHC1_EN | CCM_CSCDR2_ESDHC1_CLK_DIV(0) |
 			CCM_CSCDR2_NFC_EN);
 	clrsetbits_le32(&ccm->cscdr3, CCM_REG_CTRL_MASK,
-			CCM_CSCDR3_NFC_PRE_DIV(5));
+			CCM_CSCDR3_NFC_PRE_DIV(3));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 			CCM_CSCMR2_RMII_CLK_SEL(2));
 }
@@ -527,6 +537,23 @@ int checkboard(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	static struct node_info nodes[] = {
+		{ "fsl,vf610-nfc", MTD_DEV_TYPE_NAND, }, /* NAND flash */
+	};
+
+	/* Update partition nodes using info from mtdparts env var */
+	puts("   Updating MTD partitions...\n");
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+
+	return ft_common_board_setup(blob, bd);
+}
+#endif
 
 #ifdef CONFIG_USB_EHCI_VF
 int board_ehci_hcd_init(int port)

@@ -108,7 +108,7 @@ int show_board_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_USBDOWNLOAD_GADGET
+#ifdef CONFIG_USB_GADGET_DOWNLOAD
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	unsigned short usb_pid;
@@ -118,10 +118,10 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
-#endif /* CONFIG_USBDOWNLOAD_GADGET */
+#endif
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_OF_LIBFDT)
+int ft_common_board_setup(void *blob, bd_t *bd)
 {
 	if (tdx_serial) {
 		fdt_setprop(blob, 0, "serial-number", tdx_serial_str,
@@ -158,11 +158,9 @@ u32 get_board_serial(void)
 }
 #endif /* CONFIG_SERIAL_TAG */
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_common_board_setup(void *blob, bd_t *bd)
 {
 	return 0;
 }
-#endif
 
 #endif /* CONFIG_TDX_CFG_BLOCK */

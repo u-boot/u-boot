@@ -109,6 +109,14 @@ config SYS_I2C_INTEL
 	  the I2C API meaning that any I2C operations will immediately fail
 	  for now.
 
+config SYS_I2C_MXC
+	bool "NXP i.MX I2C driver"
+	depends on MX6
+	help
+	  Add support for the NXP i.MX I2C driver. This supports upto for bus
+	  channels and operating on standard mode upto 100 kbits/s and fast
+	  mode upto 400 kbits/s.
+
 config SYS_I2C_ROCKCHIP
 	bool "Rockchip I2C driver"
 	depends on DM_I2C

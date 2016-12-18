@@ -1,6 +1,20 @@
 config PINCTRL_IMX
 	bool
 
+config PINCTRL_IMX5
+	bool "IMX5 pinctrl driver"
+	depends on ARCH_MX5 && PINCTRL_FULL
+	select DEVRES
+	select PINCTRL_IMX
+	help
+	  Say Y here to enable the imx5 pinctrl driver
+
+	  This provides a simple pinctrl driver for i.MX 53SoC familiy,
+	  i.MX53. This feature depends on device tree
+	  configuration. This driver is different from the linux one,
+	  this is a simple implementation, only parses the 'fsl,pins'
+	  property and configure related registers.
+
 config PINCTRL_IMX6
 	bool "IMX6 pinctrl driver"
 	depends on ARCH_MX6 && PINCTRL_FULL

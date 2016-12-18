@@ -1,0 +1,110 @@
+/*
+ * Copyright 2016 Beckhoff Automation
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+#include "skeleton.dtsi"
+#include "imx53-pinfunc.h"
+#include <dt-bindings/clock/imx5-clock.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	aliases {
+		serial1 = &uart2;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		aips@50000000 { /* AIPS1 */
+			compatible = "fsl,aips-bus", "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x50000000 0x10000000>;
+			ranges;
+
+			iomuxc: iomuxc@53fa8000 {
+				compatible = "fsl,imx53-iomuxc";
+				reg = <0x53fa8000 0x4000>;
+			};
+
+			gpr: iomuxc-gpr@53fa8000 {
+				compatible = "fsl,imx53-iomuxc-gpr", "syscon";
+				reg = <0x53fa8000 0xc>;
+			};
+
+			uart2: serial@53fc0000 {
+				compatible = "fsl,imx7d-uart", "fsl,imx53-uart", "fsl,imx21-uart";
+				reg = <0x53fc0000 0x4000>;
+				interrupts = <32>;
+				clocks = <&clks IMX5_CLK_UART2_IPG_GATE>,
+				         <&clks IMX5_CLK_UART2_PER_GATE>;
+				clock-names = "ipg", "per";
+				dmas = <&sdma 12 4 0>, <&sdma 13 4 0>;
+				dma-names = "rx", "tx";
+				status = "disabled";
+			};
+
+			clks: ccm@53fd4000{
+				compatible = "fsl,imx53-ccm";
+				reg = <0x53fd4000 0x4000>;
+				interrupts = <0 71 0x04 0 72 0x04>;
+				#clock-cells = <1>;
+			};
+
+			gpio7: gpio@53fe4000 {
+				compatible = "fsl,imx53-gpio", "fsl,imx35-gpio";
+				reg = <0x53fe4000 0x4000>;
+				interrupts = <107 108>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+			};
+		};
+
+		aips@60000000 {	/* AIPS2 */
+			compatible = "fsl,aips-bus", "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x60000000 0x10000000>;
+			ranges;
+
+			sdma: sdma@63fb0000 {
+				compatible = "fsl,imx53-sdma", "fsl,imx35-sdma";
+				reg = <0x63fb0000 0x4000>;
+				interrupts = <6>;
+				clocks = <&clks IMX5_CLK_SDMA_GATE>,
+				         <&clks IMX5_CLK_SDMA_GATE>;
+				clock-names = "ipg", "ahb";
+				#dma-cells = <3>;
+				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx53.bin";
+			};
+
+
+			fec: ethernet@63fec000 {
+				compatible = "fsl,imx53-fec", "fsl,imx25-fec";
+				reg = <0x63fec000 0x4000>;
+				interrupts = <87>;
+				clocks = <&clks IMX5_CLK_FEC_GATE>,
+				         <&clks IMX5_CLK_FEC_GATE>,
+				         <&clks IMX5_CLK_FEC_GATE>;
+				clock-names = "ipg", "ahb", "ptp";
+				status = "disabled";
+			};
+		};
+	};
+};

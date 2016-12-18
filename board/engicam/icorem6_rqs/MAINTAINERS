@@ -1,0 +1,7 @@
+ICOREM6QDL_RQS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	board/engicam/icorem6_rqs
+F:	include/configs/imx6qdl_icore_rqs.h
+F:	configs/imx6q_icore_rqs_mmc_defconfig
+F:	configs/imx6dl_icore_rqs_mmc_defconfig

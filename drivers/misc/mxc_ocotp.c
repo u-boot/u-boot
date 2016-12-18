@@ -62,7 +62,7 @@
 #define FUSE_BANK_SIZE	0x80
 #ifdef CONFIG_MX6SL
 #define FUSE_BANKS	8
-#elif defined(CONFIG_MX6ULL)
+#elif defined(CONFIG_MX6ULL) || defined(CONFIG_MX6SLL)
 #define FUSE_BANKS	9
 #else
 #define FUSE_BANKS	16
@@ -79,7 +79,7 @@
 /*
  * There is a hole in shadow registers address map of size 0x100
  * between bank 5 and bank 6 on iMX6QP, iMX6DQ, iMX6SDL, iMX6SX,
- * iMX6UL and i.MX6ULL.
+ * iMX6UL, i.MX6ULL and i.MX6SLL.
  * Bank 5 ends at 0x6F0 and Bank 6 starts at 0x800. When reading the fuses,
  * we should account for this hole in address space.
  *
@@ -100,8 +100,8 @@ u32 fuse_bank_physical(int index)
 
 	if (is_mx6sl()) {
 		phy_index = index;
-	} else if (is_mx6ul() || is_mx6ull()) {
-		if (is_mx6ull() && index == 8)
+	} else if (is_mx6ul() || is_mx6ull() || is_mx6sll()) {
+		if ((is_mx6ull() || is_mx6sll()) && index == 8)
 			index = 7;
 
 		if (index >= 6)
@@ -121,7 +121,7 @@ u32 fuse_bank_physical(int index)
 
 u32 fuse_word_physical(u32 bank, u32 word_index)
 {
-	if (is_mx6ull()) {
+	if (is_mx6ull() || is_mx6sll()) {
 		if (bank == 8)
 			word_index = word_index + 4;
 	}
@@ -164,10 +164,10 @@ static int prepare_access(struct ocotp_regs **regs, u32 bank, u32 word,
 		return -EINVAL;
 	}
 
-	if (is_mx6ull()) {
+	if (is_mx6ull() || is_mx6sll()) {
 		if ((bank == 7 || bank == 8) &&
 		    word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 3) {
-			printf("mxc_ocotp %s(): Invalid argument on 6ULL\n", caller);
+			printf("mxc_ocotp %s(): Invalid argument\n", caller);
 			return -EINVAL;
 		}
 	}
@@ -271,7 +271,7 @@ static void setup_direct_access(struct ocotp_regs *regs, u32 bank, u32 word,
 #else
 	u32 addr;
 	/* Bank 7 and Bank 8 only supports 4 words each for i.MX6ULL */
-	if ((is_mx6ull()) && (bank > 7)) {
+	if ((is_mx6ull() || is_mx6sll()) && (bank > 7)) {
 		bank = bank - 1;
 		word += 4;
 	}

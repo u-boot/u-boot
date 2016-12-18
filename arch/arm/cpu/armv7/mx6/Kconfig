@@ -26,6 +26,10 @@ config MX6SX
 	select ROM_UNIFIED_SECTIONS
 	bool
 
+config MX6SLL
+	select ROM_UNIFIED_SECTIONS
+	bool
+
 config MX6UL
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
@@ -51,6 +55,13 @@ config TARGET_ADVANTECH_DMS_BA16
 	bool "Advantech dms-ba16"
 	select MX6Q
 
+config TARGET_APALIS_IMX6
+	bool "Toradex Apalis iMX6 board"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_THERMAL
+
 config TARGET_ARISTAINETOS
 	bool "aristainetos"
 
@@ -72,6 +83,13 @@ config TARGET_CM_FX6
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+
+config TARGET_COLIBRI_IMX6
+	bool "Toradex Colibri iMX6 board"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_THERMAL
 
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
@@ -108,7 +126,21 @@ config TARGET_MX6Q_ICORE
 	select MX6QDL
 	select OF_CONTROL
 	select DM
+	select DM_ETH
 	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
+config TARGET_MX6Q_ICORE_RQS
+	bool "Support Engicam i.Core RQS"
+	select MX6QDL
+	select OF_CONTROL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
@@ -127,6 +159,12 @@ config TARGET_MX6SABRESD
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
 	select SUPPORT_SPL
+
+config TARGET_MX6SLLEVK
+        bool "mx6sll evk"
+        select MX6SLL
+        select DM
+        select DM_THERMAL
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
@@ -155,6 +193,18 @@ config TARGET_MX6UL_14X14_EVK
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_MX6UL_GEAM
+	bool "Support Engicam GEAM6UL"
+	select MX6UL
+	select OF_CONTROL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6ULL_14X14_EVK
 	bool "Support mx6ull_14x14_evk"
 	select MX6ULL
@@ -171,6 +221,10 @@ config TARGET_OT1200
 config TARGET_PICO_IMX6UL
 	bool "PICO-IMX6UL-EMMC"
 	select MX6UL
+
+config TARGET_LITEBOARD
+	bool "Grinn liteBoard (i.MX6UL)"
+	select LITESOM
 
 config TARGET_PLATINUM_PICON
 	bool "platinum-picon"
@@ -203,6 +257,9 @@ config TARGET_UDOO
 config TARGET_UDOO_NEO
 	bool "UDOO Neo"
 	select SUPPORT_SPL
+	select MX6SX
+	select DM
+	select DM_THERMAL
 
 config TARGET_SAMTEC_VINING_2000
 	bool "samtec VIN|ING 2000"
@@ -253,15 +310,19 @@ source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
+source "board/engicam/geam6ul/Kconfig"
 source "board/engicam/icorem6/Kconfig"
+source "board/engicam/icorem6_rqs/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
+source "board/freescale/mx6sllevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
+source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
@@ -271,6 +332,8 @@ source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
+source "board/toradex/apalis_imx6/Kconfig"
+source "board/toradex/colibri_imx6/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"

@@ -18,6 +18,7 @@
 #include <netdev.h>
 #include <serial.h>
 #include <usb.h>
+#include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +43,13 @@ int checkboard(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	return ft_common_board_setup(blob, bd);
+}
+#endif
 
 int dram_init(void)
 {
