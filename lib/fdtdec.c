@@ -1174,6 +1174,62 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	return ret;
 }
 
+int fdtdec_setup_memory_size(void)
+{
+	int ret, mem;
+	struct fdt_resource res;
+
+	mem = fdt_path_offset(gd->fdt_blob, "/memory");
+	if (mem < 0) {
+		debug("%s: Missing /memory node\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = fdt_get_resource(gd->fdt_blob, mem, "reg", 0, &res);
+	if (ret != 0) {
+		debug("%s: Unable to decode first memory bank\n", __func__);
+		return -EINVAL;
+	}
+
+	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
+	debug("%s: Initial DRAM size %llx\n", __func__, (u64)gd->ram_size);
+
+	return 0;
+}
+
+#if defined(CONFIG_NR_DRAM_BANKS)
+int fdtdec_setup_memory_banksize(void)
+{
+	int bank, ret, mem;
+	struct fdt_resource res;
+
+	mem = fdt_path_offset(gd->fdt_blob, "/memory");
+	if (mem < 0) {
+		debug("%s: Missing /memory node\n", __func__);
+		return -EINVAL;
+	}
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", bank, &res);
+		if (ret == -FDT_ERR_NOTFOUND)
+			break;
+		if (ret != 0)
+			return -EINVAL;
+
+		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
+		gd->bd->bi_dram[bank].size =
+			(phys_size_t)(res.end - res.start + 1);
+
+		debug("%s: DRAM Bank #%d: start = 0x%llx, size = 0x%llx\n",
+		      __func__, bank,
+		      (unsigned long long)gd->bd->bi_dram[bank].start,
+		      (unsigned long long)gd->bd->bi_dram[bank].size);
+	}
+
+	return 0;
+}
+#endif
+
 int fdtdec_setup(void)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
