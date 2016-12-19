@@ -366,6 +366,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-ppc4xx.git
 F:	arch/powerpc/cpu/ppc4xx/
 
+POWER
+M:	Jaehoon Chung <jh80.chung@samsung.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-pmic.git
+F:	drivers/power/
+
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
