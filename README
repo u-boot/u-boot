@@ -4593,12 +4593,6 @@ Low Level (hardware related) configuration options:
 		addressable memory. This option causes some memory accesses
 		to be mapped through map_sysmem() / unmap_sysmem().
 
-- CONFIG_USE_ARCH_MEMCPY
-  CONFIG_USE_ARCH_MEMSET
-		If these options are used a optimized version of memcpy/memset will
-		be used if available. These functions may be faster under some
-		conditions but may increase the binary size.
-
 - CONFIG_X86_RESET_VECTOR
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
