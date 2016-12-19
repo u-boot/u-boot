@@ -16,7 +16,7 @@
 		i2c2 = "/i2c@7000c400";
 		mmc0 = "/sdhci@c8000600";
 		usb0 = "/usb@c5000000";
-		usb1 = "/usb@c5004000"; /* on-module only, for ASIX */
+		usb1 = "/usb@c5004000"; /* On-module only, for ASIX */
 		usb2 = "/usb@c5008000";
 	};
 
@@ -92,8 +92,10 @@
 	/* EHCI instance 1: ULPI -> USB3340 -> AX88772B */
 	usb@c5004000 {
 		status = "okay";
+		/* ULPI_RESET */
+		nvidia,phy-reset-gpio =
+				<&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_LOW>;
 		/* VBUS_LAN */
-		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 
