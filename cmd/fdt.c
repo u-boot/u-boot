@@ -642,6 +642,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else if (strncmp(argv[1], "ap", 2) == 0) {
 		unsigned long addr;
 		struct fdt_header *blob;
+		int ret;
 
 		if (argc != 3)
 			return CMD_RET_USAGE;
@@ -654,8 +655,11 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!fdt_valid(&blob))
 			return CMD_RET_FAILURE;
 
-		if (fdt_overlay_apply(working_fdt, blob))
+		ret = fdt_overlay_apply(working_fdt, blob);
+		if (ret) {
+			printf("fdt_overlay_apply(): %s\n", fdt_strerror(ret));
 			return CMD_RET_FAILURE;
+		}
 	}
 #endif
 	/* resize the fdt */
