@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <netdev.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -73,10 +74,9 @@
 #define DRV_NAME	"ahci-ceva"
 #define CEVA_FLAG_BROKEN_GEN2	1
 
-int init_sata(int dev)
+static int ceva_init_sata(ulong mmio)
 {
 	ulong tmp;
-	ulong mmio = ZYNQMP_SATA_BASEADDR;
 	int i;
 
 	/*
@@ -111,3 +111,40 @@ int init_sata(int dev)
 	}
 	return 0;
 }
+
+static int sata_ceva_probe(struct udevice *dev)
+{
+	struct scsi_platdata *plat = dev_get_platdata(dev);
+
+	ceva_init_sata(plat->base);
+	return 0;
+}
+
+static const struct udevice_id sata_ceva_ids[] = {
+	{ .compatible = "ceva,ahci-1v84" },
+	{ }
+};
+
+static int sata_ceva_ofdata_to_platdata(struct udevice *dev)
+{
+	struct scsi_platdata *plat = dev_get_platdata(dev);
+
+	plat->base = dev_get_addr(dev);
+	if (plat->base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	/* Hardcode number for ceva sata controller */
+	plat->max_lun = 1; /* Actually two but untested */
+	plat->max_id = 2;
+
+	return 0;
+}
+
+U_BOOT_DRIVER(ceva_host_blk) = {
+	.name = "ceva_sata",
+	.id = UCLASS_SCSI,
+	.of_match = sata_ceva_ids,
+	.probe = sata_ceva_probe,
+	.ofdata_to_platdata = sata_ceva_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct scsi_platdata),
+};

@@ -107,6 +107,18 @@ int mdio_register(struct mii_dev *bus)
 	return 0;
 }
 
+int mdio_register_seq(struct mii_dev *bus, int seq)
+{
+	int ret;
+
+	/* Setup a unique name for each mdio bus */
+	ret = snprintf(bus->name, MDIO_NAME_LEN, "eth%d", seq);
+	if (ret < 0)
+		return ret;
+
+	return mdio_register(bus);
+}
+
 int mdio_unregister(struct mii_dev *bus)
 {
 	if (!bus)

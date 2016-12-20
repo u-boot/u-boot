@@ -26,7 +26,7 @@ static const char *if_typename_str[IF_TYPE_COUNT] = {
 
 static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
 	[IF_TYPE_IDE]		= UCLASS_INVALID,
-	[IF_TYPE_SCSI]		= UCLASS_INVALID,
+	[IF_TYPE_SCSI]		= UCLASS_SCSI,
 	[IF_TYPE_ATAPI]		= UCLASS_INVALID,
 	[IF_TYPE_USB]		= UCLASS_MASS_STORAGE,
 	[IF_TYPE_DOC]		= UCLASS_INVALID,

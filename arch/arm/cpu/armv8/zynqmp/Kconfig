@@ -43,6 +43,7 @@ config SYS_CONFIG_NAME
 
 config BOOT_INIT_FILE
 	string "boot.bin init register filename"
+	depends on SPL
 	default ""
 	help
 	  Add register writes to boot.bin format (max 256 pairs).
