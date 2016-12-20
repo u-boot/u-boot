@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2016 Google, Inc
+ * Written by Simon Glass <sjg@chromium.org>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <config.h>
+
+#ifdef CONFIG_ROM_SIZE
+/ {
+	binman {
+		filename = "u-boot.rom";
+		end-at-4gb;
+		sort-by-pos;
+		pad-byte = <0xff>;
+		size = <CONFIG_ROM_SIZE>;
+#ifdef CONFIG_HAVE_INTEL_ME
+		intel-descriptor {
+		};
+		intel-me {
+		};
+#endif
+		u-boot-with-ucode-ptr {
+			pos = <CONFIG_SYS_TEXT_BASE>;
+		};
+		u-boot-dtb-with-ucode {
+		};
+		u-boot-ucode {
+			align = <16>;
+		};
+#ifdef CONFIG_HAVE_MRC
+		intel-mrc {
+			pos = <CONFIG_X86_MRC_ADDR>;
+		};
+#endif
+#ifdef CONFIG_HAVE_FSP
+		intel-fsp {
+			pos = <CONFIG_FSP_ADDR>;
+		};
+#endif
+#ifdef CONFIG_HAVE_CMC
+		intel-cmc {
+			pos = <CONFIG_CMC_ADDR>;
+		};
+#endif
+#ifdef CONFIG_HAVE_VGA_BIOS
+		intel-vga {
+			pos = <CONFIG_VGA_BIOS_ADDR>;
+		};
+#endif
+#ifdef CONFIG_HAVE_REFCODE
+		intel-refcode {
+			pos = <CONFIG_X86_REFCODE_ADDR>;
+		};
+#endif
+		x86-start16 {
+			pos = <CONFIG_SYS_X86_START16>;
+		};
+	};
+};
+#endif

@@ -10,7 +10,6 @@
 	interrupt-parent = <&lic>;
 
 	host1x@50000000 {
-		u-boot,dm-pre-reloc;
 		compatible = "nvidia,tegra20-host1x", "simple-bus";
 		reg = <0x50000000 0x00024000>;
 		interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>, /* syncpt */
@@ -78,7 +77,6 @@
 		};
 
 		dc@54200000 {
-			u-boot,dm-pre-reloc;
 			compatible = "nvidia,tegra20-dc";
 			reg = <0x54200000 0x00040000>;
 			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
