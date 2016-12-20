@@ -300,11 +300,15 @@ static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
 	}
 
 	err = fstat(fileno(fp), &path_stat);
-	if (err)
+	if (err) {
+		fclose(fp);
 		return;
+	}
 
-	if (!S_ISREG(path_stat.st_mode))
+	if (!S_ISREG(path_stat.st_mode)) {
+		fclose(fp);
 		return;
+	}
 
 	do {
 		r = fscanf(fp, "%x %x", &reginit.address, &reginit.data);
