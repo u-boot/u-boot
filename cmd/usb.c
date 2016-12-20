@@ -571,11 +571,11 @@ static void do_usb_start(void)
 		return;
 
 	/* Driver model will probe the devices as they are found */
-#ifndef CONFIG_DM_USB
 # ifdef CONFIG_USB_STORAGE
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
 # endif
+#ifndef CONFIG_DM_USB
 # ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
 # endif
