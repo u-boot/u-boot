@@ -319,6 +319,7 @@ int checkboard(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 #ifdef CONFIG_USB_DWC3
 static struct dwc3_device dwc3_device_data0 = {
 	.maximum_speed = USB_SPEED_HIGH,
@@ -361,6 +362,12 @@ int board_usb_init(int index, enum usb_init_type init)
 int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	dwc3_uboot_exit(index);
+	return 0;
+}
+#endif
+#else
+int usb_gadget_handle_interrupts(int index)
+{
 	return 0;
 }
 #endif
