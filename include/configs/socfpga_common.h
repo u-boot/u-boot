@@ -207,6 +207,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
 #endif
 #define CONFIG_CQSPI_DECODER		0
+#define CONFIG_BOUNCE_BUFFER
 
 /*
  * Designware SPI support
