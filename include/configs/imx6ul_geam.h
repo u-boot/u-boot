@@ -88,16 +88,15 @@
 # define CONFIG_BOOTCOMMAND		"run nandboot"
 #else
 # define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
+	"if mmc rescan; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
 			"if run loadimage; then " \
 				"run mmcboot; " \
 			"fi; " \
-		   "fi; " \
-	   "fi"
+		"fi; " \
+	"fi"
 #endif
 
 /* Miscellaneous configurable options */
