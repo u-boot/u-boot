@@ -34,6 +34,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=uImage\0" \
+	"fit_image=fit.itb\0" \
 	"console=ttymxc3\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
@@ -51,6 +52,10 @@
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadfit=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${fit_image}\0" \
+	"fitboot=echo Booting FIT image from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
@@ -73,8 +78,12 @@
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
+			"if run loadfit; then " \
+				"run fitboot; " \
+			"else " \
+				"if run loadimage; then " \
+					"run mmcboot; " \
+				"fi; " \
 			"fi; " \
 		"fi; " \
 	"fi"
