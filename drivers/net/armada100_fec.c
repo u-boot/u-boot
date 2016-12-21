@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
- * Written-by: Ajay Bhargav <ajay.bhargav@einfochips.com>
+ * Written-by: Ajay Bhargav <contact@8051projects.net>
  *
  * (C) Copyright 2010
  * Marvell Semiconductor <www.marvell.com>

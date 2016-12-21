@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2012
  * eInfochips Ltd. <www.einfochips.com>
- * Written-by: Ajay Bhargav <ajay.bhargav@einfochips.com>
+ * Written-by: Ajay Bhargav <contact@8051projects.net>
  *
  * This driver is based on Kirkwood echi driver
  * (C) Copyright 2009
