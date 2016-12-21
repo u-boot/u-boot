@@ -133,6 +133,11 @@
 # define MTDPARTS_DEFAULT		"mtdparts=gpmi-nand:2m(spl),2m(uboot)," \
 					"1m(env),8m(kernel),1m(dtb),-(rootfs)"
 
+/* UBI */
+# define CONFIG_CMD_UBIFS
+# define CONFIG_RBTREE
+# define CONFIG_LZO
+
 # define CONFIG_APBH_DMA
 # define CONFIG_APBH_DMA_BURST
 # define CONFIG_APBH_DMA_BURST8
