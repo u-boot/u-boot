@@ -634,6 +634,8 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 {
 	unsigned int remaining = n_rx;
 	unsigned int bytes_to_read = 0;
+	struct bounce_buffer bb;
+	u8 *bb_rxbuf;
 	int ret;
 
 	writel(n_rx, plat->regbase + CQSPI_REG_INDIRECTRDBYTES);
@@ -641,6 +643,11 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	/* Start the indirect read transfer */
 	writel(CQSPI_REG_INDIRECTRD_START,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
+
+	ret = bounce_buffer_start(&bb, (void *)rxbuf, n_rx, GEN_BB_WRITE);
+	if (ret)
+		return ret;
+	bb_rxbuf = bb.bounce_buffer;
 
 	while (remaining > 0) {
 		ret = cadence_qspi_wait_for_data(plat);
@@ -655,12 +662,13 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 			bytes_to_read *= CQSPI_FIFO_WIDTH;
 			bytes_to_read = bytes_to_read > remaining ?
 					remaining : bytes_to_read;
-			/* Handle non-4-byte aligned access to avoid data abort. */
-			if (((uintptr_t)rxbuf % 4) || (bytes_to_read % 4))
-				readsb(plat->ahbbase, rxbuf, bytes_to_read);
-			else
-				readsl(plat->ahbbase, rxbuf, bytes_to_read >> 2);
-			rxbuf += bytes_to_read;
+			readsl(plat->ahbbase, bb_rxbuf, bytes_to_read >> 2);
+			if (bytes_to_read % 4)
+				readsb(plat->ahbbase,
+				       bb_rxbuf + rounddown(bytes_to_read, 4),
+				       bytes_to_read % 4);
+
+			bb_rxbuf += bytes_to_read;
 			remaining -= bytes_to_read;
 			bytes_to_read = cadence_qspi_get_rd_sram_level(plat);
 		}
@@ -677,6 +685,7 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTRD_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
+	bounce_buffer_stop(&bb);
 
 	return 0;
 
@@ -684,6 +693,7 @@ failrd:
 	/* Cancel the indirect read */
 	writel(CQSPI_REG_INDIRECTRD_CANCEL,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
+	bounce_buffer_stop(&bb);
 	return ret;
 }
 
