@@ -303,7 +303,6 @@ void usb_stor_reset(void)
 	usb_max_devs = 0;
 }
 
-#ifndef CONFIG_DM_USB
 /*******************************************************************************
  * scan the usb and reports device info
  * to the user if mode = 1
@@ -311,10 +310,11 @@ void usb_stor_reset(void)
  */
 int usb_stor_scan(int mode)
 {
-	unsigned char i;
-
 	if (mode == 1)
 		printf("       scanning usb for storage devices... ");
+
+#ifndef CONFIG_DM_USB
+	unsigned char i;
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
@@ -329,12 +329,12 @@ int usb_stor_scan(int mode)
 	} /* for */
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
+#endif
 	printf("%d Storage Device(s) found\n", usb_max_devs);
 	if (usb_max_devs > 0)
 		return 0;
 	return -1;
 }
-#endif
 
 static int usb_stor_irq(struct usb_device *dev)
 {
