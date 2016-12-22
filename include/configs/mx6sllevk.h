@@ -149,4 +149,12 @@
 
 #define CONFIG_IOMUX_LPSR
 
+/* USB Configs */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_RTL8152
+#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#endif
+
 #endif				/* __CONFIG_H */
