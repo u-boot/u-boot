@@ -17,6 +17,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/sys_proto.h>
 #include <dm.h>
+#include <power/regulator.h>
 
 #include "ehci.h"
 
@@ -388,6 +389,7 @@ int ehci_hcd_stop(int index)
 struct ehci_mx6_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
+	struct udevice *vbus_supply;
 	enum usb_init_type init_type;
 	int portnr;
 };
@@ -403,7 +405,15 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	if (ret)
 		return ret;
 
-	board_ehci_power(priv->portnr, (type == USB_INIT_DEVICE) ? 0 : 1);
+	if (priv->vbus_supply) {
+		ret = regulator_set_enable(priv->vbus_supply,
+					   (type == USB_INIT_DEVICE) ?
+					   false : true);
+		if (ret) {
+			puts("Error enabling VBUS supply\n");
+			return ret;
+		}
+	}
 
 	if (type == USB_INIT_DEVICE)
 		return 0;
@@ -496,19 +506,33 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct usb_platdata *plat = dev_get_platdata(dev);
 	struct usb_ehci *ehci = (struct usb_ehci *)dev_get_addr(dev);
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
+	enum usb_init_type type = plat->init_type;
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
 
 	priv->ehci = ehci;
 	priv->portnr = dev->seq;
-	priv->init_type = plat->init_type;
+	priv->init_type = type;
+
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &priv->vbus_supply);
+	if (ret)
+		debug("%s: No vbus supply\n", dev->name);
 
 	ret = ehci_mx6_common_init(ehci, priv->portnr);
 	if (ret)
 		return ret;
 
-	board_ehci_power(priv->portnr, (priv->init_type == USB_INIT_DEVICE) ? 0 : 1);
+	if (priv->vbus_supply) {
+		ret = regulator_set_enable(priv->vbus_supply,
+					   (type == USB_INIT_DEVICE) ?
+					   false : true);
+		if (ret) {
+			puts("Error enabling VBUS supply\n");
+			return ret;
+		}
+	}
 
 	if (priv->init_type == USB_INIT_HOST) {
 		setbits_le32(&ehci->usbmode, CM_HOST);
