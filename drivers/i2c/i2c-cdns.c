@@ -366,6 +366,7 @@ static const struct dm_i2c_ops cdns_i2c_ops = {
 
 static const struct udevice_id cdns_i2c_of_match[] = {
 	{ .compatible = "cdns,i2c-r1p10" },
+	{ .compatible = "cdns,i2c-r1p14" },
 	{ /* end of table */ }
 };
 
