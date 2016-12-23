@@ -250,9 +250,6 @@ static inline void exbo_hw_init(void) {}
 
 int board_early_init_r(void)
 {
-#ifdef CONFIG_MPC52XX_SPI
-	struct mpc5xxx_gpt *gpt = (struct mpc5xxx_gpt*)MPC5XXX_GPT;
-#endif
 	/*
 	 * Now, when we are in RAM, enable flash write access for detection
 	 * process.  Note that CS_BOOT cannot be cleared when executing in
@@ -268,12 +265,6 @@ int board_early_init_r(void)
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 	/* Low level USB init, required for proper kernel operation */
 	usb_cpu_init();
-#endif
-#ifdef CONFIG_MPC52XX_SPI
-	/* GPT 6 Output Enable */
-	out_be32(&gpt[6].emsr, 0x00000034);
-	/* GPT 7 Output Enable */
-	out_be32(&gpt[7].emsr, 0x00000034);
 #endif
 
 	return (0);

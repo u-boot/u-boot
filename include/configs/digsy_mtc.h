@@ -216,12 +216,6 @@
 #define CONFIG_BOOTCOMMAND	"run mtcb_start"
 
 /*
- * SPI configuration
- */
-#define CONFIG_HARD_SPI		1
-#define CONFIG_MPC52XX_SPI	1
-
-/*
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1
