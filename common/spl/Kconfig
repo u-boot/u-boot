@@ -449,6 +449,15 @@ config SPL_POWER_SUPPORT
 	  in drivers/power, drivers/power/pmic and drivers/power/regulator
 	  as part of an SPL build.
 
+config SPL_RAM_DEVICE
+	bool "Support booting from preloaded image in RAM"
+	depends on SPL
+	default y if MICROBLAZE || ARCH_SOCFPGA || TEGRA || ARCH_ZYNQ
+	help
+	  Enable booting of an image already loaded in RAM. The image has to
+	  be already in memory when SPL takes over, e.g. loaded by the boot
+	  ROM.
+
 config SPL_SATA_SUPPORT
 	bool "Support loading from SATA"
 	depends on SPL

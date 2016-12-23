@@ -283,7 +283,6 @@
 
 #define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
 
-#define CONFIG_SPL_RAM_DEVICE
 #ifdef CONFIG_SYS_FLASH_BASE
 # define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
 #endif
