@@ -190,13 +190,13 @@ void dev_print (struct blk_desc *dev_desc)
 			printf ("            Supports 48-bit addressing\n");
 #endif
 #if defined(CONFIG_SYS_64BIT_LBA)
-		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%Ld x %ld)\n",
+		printf ("            Capacity: %lu.%lu MB = %lu.%lu GB (%llu x %lu)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,
 			lba,
 			dev_desc->blksz);
 #else
-		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%ld x %ld)\n",
+		printf ("            Capacity: %lu.%lu MB = %lu.%lu GB (%lu x %lu)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,
 			(ulong)lba,
