@@ -449,9 +449,17 @@ config SPL_POWER_SUPPORT
 	  in drivers/power, drivers/power/pmic and drivers/power/regulator
 	  as part of an SPL build.
 
+config SPL_RAM_SUPPORT
+	bool "Support booting from RAM"
+	depends on SPL
+	default y if MICROBLAZE || ARCH_SOCFPGA || TEGRA || ARCH_ZYNQ
+	help
+	  Enable booting of an image in RAM. The image can be preloaded or
+	  it can be loaded by SPL directly into RAM (e.g. using USB).
+
 config SPL_RAM_DEVICE
 	bool "Support booting from preloaded image in RAM"
-	depends on SPL
+	depends on SPL_RAM_SUPPORT
 	default y if MICROBLAZE || ARCH_SOCFPGA || TEGRA || ARCH_ZYNQ
 	help
 	  Enable booting of an image already loaded in RAM. The image has to
@@ -558,7 +566,7 @@ choice
 
 config SPL_DFU_RAM
 	bool "RAM device"
-	depends on SPL_DFU_SUPPORT
+	depends on SPL_DFU_SUPPORT && SPL_RAM_SUPPORT
 	help
 	 select RAM/DDR memory device for loading binary images
 	 (u-boot/kernel) to the selected device partition using
