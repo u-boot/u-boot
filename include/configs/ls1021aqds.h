@@ -397,6 +397,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_GENERIC_MMC
 
 #define CONFIG_DOS_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_GPT
 
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)

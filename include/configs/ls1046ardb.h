@@ -237,6 +237,10 @@
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_GPT
+
 #define CONFIG_BOOTCOMMAND		"sf probe 0:0;sf read $kernel_load" \
 					"$kernel_start $kernel_size;" \
 					"bootm $kernel_load"
