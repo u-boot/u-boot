@@ -36,16 +36,19 @@
 #endif
 #ifdef CONFIG_HAVE_FSP
 		intel-fsp {
+			filename = CONFIG_FSP_FILE;
 			pos = <CONFIG_FSP_ADDR>;
 		};
 #endif
 #ifdef CONFIG_HAVE_CMC
 		intel-cmc {
+			filename = CONFIG_CMC_FILE;
 			pos = <CONFIG_CMC_ADDR>;
 		};
 #endif
 #ifdef CONFIG_HAVE_VGA_BIOS
 		intel-vga {
+			filename = CONFIG_VGA_BIOS_FILE;
 			pos = <CONFIG_VGA_BIOS_ADDR>;
 		};
 #endif
