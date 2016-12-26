@@ -12,6 +12,3 @@ from blob import Entry_blob
 class Entry_intel_vga(Entry_blob):
     def __init__(self, image, etype, node):
         Entry_blob.__init__(self, image, etype, node)
-
-    def GetDefaultFilename(self):
-        return 'vga.bin'
