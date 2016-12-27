@@ -118,5 +118,20 @@
 			ranges = <0x81000000 0x0 0x00000000 0x40 0x00020000 0x0 0x00010000   /* downstream I/O */
 				  0x82000000 0x0 0x40000000 0x40 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 		};
+
+		usb0: usb2@8600000 {
+			compatible = "fsl-usb2-dr-v2.5", "fsl-usb2-dr";
+			reg = <0x0 0x8600000 0x0 0x1000>;
+			interrupts = <0 139 0x4>;
+			dr_mode = "host";
+			fsl,usb-erratum-a005697;
+		};
+
+		usb1: usb3@2f00000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x2f00000 0x0 0x10000>;
+			interrupts = <0 61 0x4>;
+			dr_mode = "host";
+		};
 	};
 };
