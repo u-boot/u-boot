@@ -98,7 +98,7 @@ save_boot_params_ret:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#if CONFIG_IS_ENABLED(ARMV8_SPIN_TABLE)
+#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_SPL_BUILD)
 	branch_if_master x0, x1, master_cpu
 	b	spin_table_secondary_jump
 	/* never return */
