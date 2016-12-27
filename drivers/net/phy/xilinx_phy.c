@@ -101,11 +101,10 @@ static int xilinxphy_startup(struct phy_device *phydev)
 
 static int xilinxphy_of_init(struct phy_device *phydev)
 {
-	struct udevice *dev = (struct udevice *)&phydev->dev;
 	u32 phytype;
 
 	debug("%s\n", __func__);
-	phytype = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "phy-type", -1);
+	phytype = fdtdec_get_int(gd->fdt_blob, phydev->dev->of_offset, "phy-type", -1);
 	if (phytype == XAE_PHY_TYPE_1000BASE_X)
 		phydev->flags |= XAE_PHY_TYPE_1000BASE_X;
 
