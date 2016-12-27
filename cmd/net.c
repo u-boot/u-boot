@@ -136,7 +136,7 @@ static void netboot_update_env(void)
 	}
 #if !defined(CONFIG_BOOTP_SERVERIP)
 	/*
-	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
+	 * Only attempt to change serverip if net/bootp.c:store_net_params()
 	 * could have set it
 	 */
 	if (net_server_ip.s_addr) {
