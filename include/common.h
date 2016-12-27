@@ -22,6 +22,7 @@ typedef volatile unsigned char	vu_char;
 #include <errno.h>
 #include <asm-offsets.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/string.h>
 #include <linux/stringify.h>
@@ -779,7 +780,6 @@ uint64_t get_ticks(void);
 void	wait_ticks    (unsigned long);
 
 /* arch/$(ARCH)/lib/time.c */
-void	__udelay      (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 int	init_timebase (void);
@@ -835,10 +835,6 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
 int strcmp_compar(const void *, const void *);
-
-/* lib/time.c */
-void	udelay        (unsigned long);
-void mdelay(unsigned long);
 
 /* lib/uuid.c */
 #include <uuid.h>
