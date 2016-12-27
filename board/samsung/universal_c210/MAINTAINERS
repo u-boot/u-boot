@@ -1,5 +1,5 @@
 UNIVERSAL_C210 BOARD
-M:	Przemyslaw Marczak <p.marczak@samsung.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 F:	board/samsung/universal_c210/
 F:	include/configs/s5pc210_universal.h
