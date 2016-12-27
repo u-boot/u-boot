@@ -20,6 +20,7 @@ typedef volatile unsigned char	vu_char;
 
 #include <config.h>
 #include <errno.h>
+#include <time.h>
 #include <asm-offsets.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -580,12 +581,6 @@ void ddr_enable_ecc(unsigned int dram_size);
 #endif
 #endif
 
-/*
- * Return the current value of a monotonically increasing microsecond timer.
- * Granularity may be larger than 1us if hardware does not support this.
- */
-ulong timer_get_us(void);
-
 /* $(CPU)/cpu.c */
 static inline int cpumask_next(int cpu, unsigned int mask)
 {
@@ -724,7 +719,6 @@ void	external_interrupt (struct pt_regs *);
 void	irq_install_handler(int, interrupt_handler_t *, void *);
 void	irq_free_handler   (int);
 void	reset_timer	   (void);
-ulong	get_timer	   (ulong base);
 
 /* Return value of monotonic microsecond timer */
 unsigned long timer_get_us(void);
