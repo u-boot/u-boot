@@ -42,6 +42,12 @@ config SUNXI_GEN_SUN6I
 	separate ahb reset control registers, custom pmic bus, new style
 	watchdog, etc.
 
+config SUNXI_H3_DW_DRAM
+	bool
+	---help---
+	Select this for sunxi SoCs which uses a DRAM controller like the
+	DesignWare controller used in H3, mainly SoCs after H3, which do
+	not have official open-source DRAM initialization code.
 
 choice
 	prompt "Sunxi SoC Variant"
@@ -113,6 +119,7 @@ config MACH_SUN8I_H3
 	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SUNXI_H3_DW_DRAM
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN9I
