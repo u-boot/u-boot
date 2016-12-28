@@ -348,6 +348,7 @@ config ARCH_B4860
 config ARCH_BSC9131
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -356,6 +357,7 @@ config ARCH_BSC9131
 config ARCH_BSC9132
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -365,6 +367,7 @@ config ARCH_BSC9132
 config ARCH_C29X
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -455,6 +458,7 @@ config ARCH_MPC8572
 config ARCH_P1010
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -464,6 +468,7 @@ config ARCH_P1010
 config ARCH_P1011
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -473,6 +478,7 @@ config ARCH_P1011
 config ARCH_P1020
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -482,6 +488,7 @@ config ARCH_P1020
 config ARCH_P1021
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -491,6 +498,7 @@ config ARCH_P1021
 config ARCH_P1022
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -508,6 +516,7 @@ config ARCH_P1023
 config ARCH_P1024
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -517,6 +526,7 @@ config ARCH_P1024
 config ARCH_P1025
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -526,6 +536,8 @@ config ARCH_P1025
 config ARCH_P2020
 	bool
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
+	select SYS_FSL_ERRATUM_ESDHC_A001
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -536,6 +548,7 @@ config ARCH_P2041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -545,6 +558,7 @@ config ARCH_P3041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -554,6 +568,9 @@ config ARCH_P4080
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
+	select SYS_FSL_ERRATUM_ESDHC13
+	select SYS_FSL_ERRATUM_ESDHC135
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -563,6 +580,7 @@ config ARCH_P5020
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -572,6 +590,7 @@ config ARCH_P5040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -584,6 +603,7 @@ config ARCH_T1023
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
@@ -594,6 +614,7 @@ config ARCH_T1024
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
@@ -604,6 +625,7 @@ config ARCH_T1040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
@@ -614,6 +636,7 @@ config ARCH_T1042
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
@@ -624,6 +647,7 @@ config ARCH_T2080
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -633,6 +657,7 @@ config ARCH_T2081
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE

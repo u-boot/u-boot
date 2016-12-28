@@ -546,6 +546,7 @@ config ARCH_RMOBILE
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
 	select ARM64
+	select SYS_FSL_ERRATUM_ESDHC111
 
 config ARCH_SNAPDRAGON
 	bool "Qualcomm Snapdragon SoCs"
@@ -602,22 +603,31 @@ config TARGET_TS4600
 config TARGET_TS4800
 	bool "Support TS4800"
 	select CPU_V7
+	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config TARGET_VF610TWR
 	bool "Support vf610twr"
 	select CPU_V7
+	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_COLIBRI_VF
 	bool "Support Colibri VF50/61"
 	select CPU_V7
+	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_PCM052
 	bool "Support pcm-052"
 	select CPU_V7
+	select SYS_FSL_ERRATUM_ESDHC111
+	select SYS_FSL_ERRATUM_ESDHC135
+	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config TARGET_BK4R1
 	bool "Support BK4r1"
 	select CPU_V7
+	select SYS_FSL_ERRATUM_ESDHC111
+	select SYS_FSL_ERRATUM_ESDHC135
+	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"

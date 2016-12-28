@@ -207,3 +207,15 @@ config MMC_SDHCI_SPEAR
 endif
 
 endmenu
+
+config SYS_FSL_ERRATUM_ESDHC111
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC13
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC135
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC_A001
+	bool
