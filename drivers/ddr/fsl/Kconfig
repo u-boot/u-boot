@@ -120,3 +120,24 @@ config SYS_FSL_DDR1
 endchoice
 
 endmenu
+
+config SYS_FSL_ERRATUM_A008378
+	bool
+
+config SYS_FSL_ERRATUM_A008511
+	bool
+
+config SYS_FSL_ERRATUM_A009663
+	bool
+
+config SYS_FSL_ERRATUM_A009801
+	bool
+
+config SYS_FSL_ERRATUM_A009803
+	bool
+
+config SYS_FSL_ERRATUM_A009942
+	bool
+
+config SYS_FSL_ERRATUM_A010165
+	bool
