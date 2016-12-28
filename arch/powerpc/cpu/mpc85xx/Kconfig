@@ -647,6 +647,14 @@ config SYS_FSL_NUM_LAWS
 		Number of local access windows. This is fixed per SoC.
 		If not sure, do not change.
 
+config SYS_NUM_TLBCAMS
+	int "Number of TLB CAM entries"
+	default 64 if E500MC
+	default 16
+	help
+		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
+		16 for other E500 SoCs.
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"

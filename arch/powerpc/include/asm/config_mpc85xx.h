@@ -24,13 +24,6 @@
 #define CONFIG_SYS_FSL_SFP_BE
 #define CONFIG_SYS_FSL_SEC_MON_BE
 
-/* Number of TLB CAM entries we have on FSL Book-E chips */
-#if defined(CONFIG_E500MC)
-#define CONFIG_SYS_NUM_TLBCAMS		64
-#elif defined(CONFIG_E500)
-#define CONFIG_SYS_NUM_TLBCAMS		16
-#endif
-
 #if defined(CONFIG_ARCH_MPC8536)
 #define CONFIG_SYS_PPC_E500_DEBUG_TLB	1
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
