@@ -22,24 +22,12 @@
 #define CONFIG_SYS_FSL_SFP_BE
 #define CONFIG_SYS_FSL_SEC_MON_BE
 
-#if defined(CONFIG_ARCH_MPC8536)
-
-#elif defined(CONFIG_ARCH_MPC8540)
-
-#elif defined(CONFIG_ARCH_MPC8541)
-
-#elif defined(CONFIG_ARCH_MPC8544)
-
-#elif defined(CONFIG_ARCH_MPC8548)
+#if defined(CONFIG_ARCH_MPC8548)
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
 #define CONFIG_SYS_FSL_SRIO_OB_WIN_NUM	9
 #define CONFIG_SYS_FSL_SRIO_IB_WIN_NUM	5
 #define CONFIG_SYS_FSL_RMU
 #define CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
-
-#elif defined(CONFIG_ARCH_MPC8555)
-
-#elif defined(CONFIG_ARCH_MPC8560)
 
 #elif defined(CONFIG_ARCH_MPC8568)
 #define QE_MURAM_SIZE			0x10000UL
@@ -60,8 +48,6 @@
 #define CONFIG_SYS_FSL_SRIO_IB_WIN_NUM	5
 #define CONFIG_SYS_FSL_RMU
 #define CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
-
-#elif defined(CONFIG_ARCH_MPC8572)
 
 #elif defined(CONFIG_ARCH_P1010)
 #define CONFIG_FSL_SDHC_V2_3
@@ -463,10 +449,6 @@
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	3
 #define CONFIG_SYS_FSL_SEC_IDX_OFFSET	0x20000
 
-#elif defined(CONFIG_ARCH_QEMU_E500)
-
-#else
-#error Processor type not defined for this platform
 #endif
 
 #ifdef CONFIG_E6500
