@@ -167,6 +167,14 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 		(image_entry_noargs_t)spl_image->entry_point;
 
 	debug("image entry point: 0x%lX\n", spl_image->entry_point);
+#if defined(CONFIG_ARMV8_SPIN_TABLE) && defined(CONFIG_ARMV8_MULTIENTRY)
+	/*
+	 * Release all slave cores from CPU_RELEASE_ADDR so they could
+	 * arrive to the spin-table code in start.S of the u-boot
+	 */
+	*(ulong *)CPU_RELEASE_ADDR = (ulong)spl_image->entry_point;
+#endif
+
 	image_entry();
 }
 
