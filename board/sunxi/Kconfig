@@ -260,6 +260,17 @@ config DRAM_ODT_CORRECTION
 	then the correction is negative. Usually the value for this is 0.
 endif
 
+if SUNXI_H3_DW_DRAM
+config SUNXI_H3_DRAM_DDR2
+	bool "Board uses DDR2 DRAM"
+	default no
+	---help---
+	Only select this option when your board uses DDR2 DRAM chips instead
+	of DDR3 ones.
+	DDR2 chips needs some special probing logic, which will be included by
+	selecting this option.
+endif
+
 config SYS_CLK_FREQ
 	default 816000000 if MACH_SUN50I
 	default 912000000 if MACH_SUN7I
