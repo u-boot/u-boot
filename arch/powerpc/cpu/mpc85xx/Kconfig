@@ -323,10 +323,12 @@ endchoice
 
 config ARCH_B4420
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_B4860
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_BSC9131
@@ -419,22 +421,27 @@ config ARCH_P2020
 
 config ARCH_P2041
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_P3041
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_P4080
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_P5020
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_P5040
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_QEMU_E500
@@ -442,35 +449,58 @@ config ARCH_QEMU_E500
 
 config ARCH_T1023
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T1024
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T1040
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T1042
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T2080
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T2081
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T4160
 	bool
+	select E500MC
 	select FSL_LAW
 
 config ARCH_T4240
 	bool
+	select E500MC
 	select FSL_LAW
+
+config BOOKE
+	bool
+	default y
+
+config E500
+	bool
+	default y
+	help
+		Enable PowerPC E500 cores, including e500v1, e500v2, e500mc
+
+config E500MC
+	bool
+	help
+		Enble PowerPC E500MC core
 
 config FSL_LAW
 	bool

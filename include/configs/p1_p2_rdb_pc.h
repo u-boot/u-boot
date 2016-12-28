@@ -258,10 +258,6 @@
 #endif
 #endif
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500
-
 #define CONFIG_MP
 
 #define CONFIG_FSL_ELBC

@@ -12,10 +12,6 @@
 
 #define CONFIG_CMD_REGINFO
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
-
 #undef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xf01000 /* 15 MB */
 

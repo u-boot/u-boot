@@ -10,10 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE		1	/* BOOKE */
-#define CONFIG_E500		1	/* BOOKE e500 family */
-
 #define CONFIG_FSL_ELBC		1	/* Has Enhance localbus controller */
 
 #define CONFIG_SYS_SRIO

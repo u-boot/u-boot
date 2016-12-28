@@ -115,11 +115,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500
-/* #define CONFIG_MPC85xx */
-
 #define CONFIG_MP
 
 #define CONFIG_ENV_OVERWRITE

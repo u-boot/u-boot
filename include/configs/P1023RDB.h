@@ -23,8 +23,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE		/* BOOKE */
-#define CONFIG_E500		/* BOOKE e500 family */
 #define CONFIG_MP		/* support multiple processors */
 
 #define CONFIG_FSL_ELBC		/* Has Enhanced localbus controller */
