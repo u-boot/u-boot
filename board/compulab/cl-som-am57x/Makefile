@@ -13,3 +13,5 @@ obj-y	+= spl.o mux.o
 else
 obj-y	+= cl-som-am57x.o mux.o
 endif
+
+obj-$(CONFIG_DRIVER_TI_CPSW)	+= eth.o

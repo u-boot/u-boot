@@ -83,6 +83,28 @@ static const struct pad_conf_entry cl_som_am57x_padconf_usb[] = {
 	{USB1_DRVVBUS, (M0 | FSC) }, /* USB1_DRVVBUS.USB1_DRVVBUS */
 };
 
+/* Ethernet */
+static const struct pad_conf_entry cl_som_am57x_padconf_ethernet[] = {
+	/* MDIO bus */
+	{VIN2A_D10,  (PDIS | PTU  |	  M3) }, /* VIN2A_D10.MDIO_MCLK  */
+	{VIN2A_D11,  (IEN  | PDIS | PTU | M3) }, /* VIN2A_D11.MDIO_D  */
+	/* EMAC Slave 1 at addr 0x1 - Default interface */
+	{VIN2A_D12,  (IDIS | PEN  |	  M3) }, /* VIN2A_D12.RGMII1_TXC */
+	{VIN2A_D13,  (IDIS | PEN  |	  M3) }, /* VIN2A_D13.RGMII1_TXCTL */
+	{VIN2A_D14,  (IDIS | PEN  |	  M3) }, /* VIN2A_D14.RGMII1_TXD3 */
+	{VIN2A_D15,  (IDIS | PEN  |	  M3) }, /* VIN2A_D15.RGMII1_TXD2 */
+	{VIN2A_D16,  (IDIS | PEN  |	  M3) }, /* VIN2A_D16.RGMII1_TXD1 */
+	{VIN2A_D17,  (IDIS | PEN  |	  M3) }, /* VIN2A_D17.RGMII1_TXD0 */
+	{VIN2A_D18,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D18.RGMII1_RXC */
+	{VIN2A_D19,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D19.RGMII1_RXCTL */
+	{VIN2A_D20,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D20.RGMII1_RXD3 */
+	{VIN2A_D21,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D21.RGMII1_RXD2 */
+	{VIN2A_D22,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D22.RGMII1_RXD1 */
+	{VIN2A_D23,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D23.RGMII1_RXD0 */
+	/* Eth PHY1 reset GPIOs*/
+	{VIN1B_CLK1, (IDIS | PDIS | PTD | M14)}, /* VIN1B_CLK1.GPIO2_31 */
+};
+
 #define SET_MUX(mux_array) do_set_mux32((*ctrl)->control_padconf_core_base, \
 					mux_array, ARRAY_SIZE(mux_array))
 
@@ -97,4 +119,5 @@ void set_muxconf_regs(void)
 	SET_MUX(cl_som_am57x_padconf_i2c_gpio);
 	SET_MUX(cl_som_am57x_padconf_emmc);
 	SET_MUX(cl_som_am57x_padconf_usb);
+	SET_MUX(cl_som_am57x_padconf_ethernet);
 }
