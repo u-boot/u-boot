@@ -29,7 +29,7 @@
 	defined(CONFIG_TARGET_B4420QDS) || \
 	defined(CONFIG_TARGET_T4160QDS) || \
 	defined(CONFIG_TARGET_T4240QDS) || \
-	defined(CONFIG_T2080QDS) || \
+	defined(CONFIG_TARGET_T2080QDS) || \
 	defined(CONFIG_T2080RDB) || \
 	defined(CONFIG_TARGET_T1040QDS) || \
 	defined(CONFIG_T104xD4QDS) || \

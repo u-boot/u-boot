@@ -14,7 +14,6 @@
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_USB_EHCI
 #if defined(CONFIG_ARCH_T2080)
-#define CONFIG_T2080QDS
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
 #define CONFIG_SRIO1		/* SRIO port 1 */
