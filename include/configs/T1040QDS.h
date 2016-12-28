@@ -26,7 +26,6 @@
 /*
  * T1040 QDS board configuration file
  */
-#define CONFIG_T1040QDS
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
