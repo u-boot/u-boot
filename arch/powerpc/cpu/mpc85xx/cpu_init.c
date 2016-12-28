@@ -975,7 +975,7 @@ int cpu_init_r(void)
 #endif
 #endif
 
-#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
+#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_SYS_FSL_ERRATUM_SATA_A001)
 	/*
 	 * For P1022/1013 Rev1.0 silicon, after power on SATA host
 	 * controller is configured in legacy mode instead of the

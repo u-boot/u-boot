@@ -136,7 +136,7 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	__maybe_unused u32 svr = get_svr();
 
-#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
+#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_SYS_FSL_ERRATUM_SATA_A001)
 	if (IS_SVR_REV(svr, 1, 0)) {
 		switch (SVR_SOC_VER(svr)) {
 		case SVR_P1013:
