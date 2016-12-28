@@ -23,6 +23,20 @@ config SYS_FSL_DDR_LE
 menu "Freescale DDR controllers"
 	depends on SYS_FSL_DDR
 
+config NUM_DDR_CONTROLLERS
+	int "Maximum DDR controllers"
+	default 3 if	ARCH_LS2080A	|| \
+			ARCH_T4240
+	default 2 if	ARCH_B4860	|| \
+			ARCH_BSC9132	|| \
+			ARCH_MPC8572	|| \
+			ARCH_MPC8641	|| \
+			ARCH_P4080	|| \
+			ARCH_P5020	|| \
+			ARCH_P5040	|| \
+			ARCH_T4160
+	default 1
+
 config SYS_FSL_DDR_VER
 	int
 	default 50 if SYS_FSL_DDR_VER_50

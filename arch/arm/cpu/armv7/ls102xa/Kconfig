@@ -33,10 +33,6 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
-config NUM_DDR_CONTROLLERS
-	int "Maximum DDR controllers"
-	default 1
-
 config SECURE_BOOT
 	bool	"Secure Boot"
 	help

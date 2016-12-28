@@ -41,7 +41,6 @@
 #define SPD_EEPROM_ADDRESS1		0x54	/* Both channels use the */
 #define SPD_EEPROM_ADDRESS2		0x54	/* same SPD data         */
 #define SPD_EEPROM_OFFSET		0x200	/* OFFSET of SPD in EEPROM */
-#define CONFIG_NUM_DDR_CONTROLLERS	2
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_DDR_ECC
