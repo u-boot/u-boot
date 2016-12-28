@@ -81,7 +81,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_512M
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1

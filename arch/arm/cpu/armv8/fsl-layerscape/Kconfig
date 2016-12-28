@@ -8,28 +8,33 @@ config ARCH_LS1012A
 config ARCH_LS1043A
 	bool
 	select FSL_LSCH2
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A010315
 	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 
 config ARCH_LS1046A
 	bool
 	select FSL_LSCH2
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
-	select SYS_FSL_DDR4
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SRDS_2
 
 config ARCH_LS2080A
 	bool
 	select FSL_LSCH3
-	select SYS_FSL_DDR4
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_HAS_DP_DDR
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
 	select SYS_FSL_SRDS_2
@@ -70,9 +75,6 @@ config FSL_PPA_ARMV8_PSCI
 	  This is a private PSCI implementation and different from those
 	  implemented under the common ARMv8 PSCI framework.
 endmenu
-
-config SYS_FSL_MMDC
-	bool
 
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
@@ -128,50 +130,5 @@ config SYS_FSL_SRDS_2
 
 config SYS_HAS_SERDES
 	bool
-
-config SYS_FSL_DDR
-	bool "Freescale DDR driver"
-	help
-	  Select Freescale General DDR driver, shared between most Freescale
-	  PowerPC- based SoCs (such as mpc83xx, mpc85xx, mpc86xx) and ARM-
-	  based Layerscape SoCs (such as ls2080a).
-
-config SYS_FSL_DDR_BE
-	bool
-	help
-	  Access DDR registers in big-endian.
-
-config SYS_FSL_DDR_LE
-	bool
-	help
-	  Access DDR registers in little-endian.
-
-config SYS_FSL_DDR_VER
-	int
-	default 50 if SYS_FSL_DDR_VER_50
-
-config SYS_FSL_DDR_VER_50
-	bool
-
-config SYS_FSL_DDRC_ARM_GEN3
-	bool
-
-config SYS_FSL_DDRC_GEN4
-	bool
-
-config SYS_FSL_DDR3
-	bool "Freescale DDR3 controller"
-	depends on !SYS_FSL_DDR4
-	select SYS_FSL_DDR
-	select SYS_FSL_DDRC_ARM_GEN3
-	help
-	  Enable Freescale DDR3 controller on ARM-based SoCs.
-
-config SYS_FSL_DDR4
-	bool "Freescale DDR4 controller"
-	select SYS_FSL_DDR
-	select SYS_FSL_DDRC_GEN4
-	help
-	  Enable Freescale DDR4 controller.
 
 endmenu

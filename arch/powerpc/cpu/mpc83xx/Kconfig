@@ -38,6 +38,9 @@ config TARGET_MPC832XEMDS
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
+	select SYS_FSL_DDR
+	select SYS_FSL_HAS_DDR2
+	select SYS_FSL_DDR_BE
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"

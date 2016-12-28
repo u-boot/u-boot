@@ -29,10 +29,14 @@ endchoice
 config ARCH_MPC8610
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
+	select SYS_FSL_HAS_DDR2
 
 config ARCH_MPC8641
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
+	select SYS_FSL_HAS_DDR2
 
 config FSL_LAW
 	bool

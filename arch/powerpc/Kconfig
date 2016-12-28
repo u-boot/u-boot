@@ -30,9 +30,13 @@ config MPC83xx
 config MPC85xx
 	bool "MPC85xx"
 	select CREATE_ARCH_SYMLINK
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_BE
 
 config MPC86xx
 	bool "MPC86xx"
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_BE
 
 config 8xx
 	bool "MPC8xx"

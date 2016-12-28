@@ -68,6 +68,8 @@ config TARGET_P5040DS
 config TARGET_MPC8536DS
 	bool "Support MPC8536DS"
 	select ARCH_MPC8536
+# Use DDR3 controller with DDR2 DIMMs on this board
+	select SYS_FSL_DDRC_GEN3
 
 config TARGET_MPC8540ADS
 	bool "Support MPC8540ADS"
@@ -104,6 +106,8 @@ config TARGET_MPC8569MDS
 config TARGET_MPC8572DS
 	bool "Support MPC8572DS"
 	select ARCH_MPC8572
+# Use DDR3 controller with DDR2 DIMMs on this board
+	select SYS_FSL_DDRC_GEN3
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
@@ -300,6 +304,8 @@ config TARGET_XPEDITE520X
 config TARGET_XPEDITE537X
 	bool "Support xpedite537x"
 	select ARCH_MPC8572
+# Use DDR3 controller with DDR2 DIMMs on this board
+	select SYS_FSL_DDRC_GEN3
 
 config TARGET_XPEDITE550X
 	bool "Support xpedite550x"
@@ -325,6 +331,7 @@ config ARCH_B4420
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -333,6 +340,7 @@ config ARCH_B4860
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -340,6 +348,7 @@ config ARCH_B4860
 config ARCH_BSC9131
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -347,6 +356,7 @@ config ARCH_BSC9131
 config ARCH_BSC9132
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -355,6 +365,7 @@ config ARCH_BSC9132
 config ARCH_C29X
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_6
@@ -363,6 +374,8 @@ config ARCH_C29X
 config ARCH_MPC8536
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR2
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -371,10 +384,12 @@ config ARCH_MPC8536
 config ARCH_MPC8540
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
 
 config ARCH_MPC8541
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -382,6 +397,7 @@ config ARCH_MPC8541
 config ARCH_MPC8544
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -390,6 +406,8 @@ config ARCH_MPC8544
 config ARCH_MPC8548
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR2
+	select SYS_FSL_HAS_DDR1
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -398,6 +416,7 @@ config ARCH_MPC8548
 config ARCH_MPC8555
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -405,10 +424,12 @@ config ARCH_MPC8555
 config ARCH_MPC8560
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR1
 
 config ARCH_MPC8568
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -416,6 +437,7 @@ config ARCH_MPC8568
 config ARCH_MPC8569
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -423,14 +445,17 @@ config ARCH_MPC8569
 config ARCH_MPC8572
 	bool
 	select FSL_LAW
-	select SYS_PPC_E500_USE_DEBUG_TLB
+	select SYS_FSL_HAS_DDR2
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1010
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -439,6 +464,7 @@ config ARCH_P1010
 config ARCH_P1011
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -447,6 +473,7 @@ config ARCH_P1011
 config ARCH_P1020
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -455,6 +482,7 @@ config ARCH_P1020
 config ARCH_P1021
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -463,6 +491,7 @@ config ARCH_P1021
 config ARCH_P1022
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -471,6 +500,7 @@ config ARCH_P1022
 config ARCH_P1023
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -478,6 +508,7 @@ config ARCH_P1023
 config ARCH_P1024
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -486,6 +517,7 @@ config ARCH_P1024
 config ARCH_P1025
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -494,6 +526,7 @@ config ARCH_P1025
 config ARCH_P2020
 	bool
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
@@ -503,6 +536,7 @@ config ARCH_P2041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -511,6 +545,7 @@ config ARCH_P3041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -519,6 +554,7 @@ config ARCH_P4080
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -527,6 +563,7 @@ config ARCH_P5020
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -535,6 +572,7 @@ config ARCH_P5040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -546,6 +584,8 @@ config ARCH_T1023
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
@@ -554,6 +594,8 @@ config ARCH_T1024
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
@@ -562,6 +604,8 @@ config ARCH_T1040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
@@ -570,6 +614,8 @@ config ARCH_T1042
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
@@ -578,6 +624,7 @@ config ARCH_T2080
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -586,6 +633,7 @@ config ARCH_T2081
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -594,6 +642,7 @@ config ARCH_T4160
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
@@ -602,6 +651,7 @@ config ARCH_T4240
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4

@@ -125,7 +125,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x01ffffff
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS1		0x54 /* I2C access */
 #define SPD_EEPROM_ADDRESS2		0x56 /* I2C access */

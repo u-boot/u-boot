@@ -770,6 +770,7 @@ config TARGET_LS1021AQDS
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
+	select SYS_FSL_DDR
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"

@@ -273,12 +273,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_DDR_INTERACTIVE
 #if defined(CONFIG_TARGET_T1024RDB)
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 #elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_SDRAM_SIZE   2048
 #endif

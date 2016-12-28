@@ -133,7 +133,6 @@
 #define CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 
 /*
  * IFC Definitions

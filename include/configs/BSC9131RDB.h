@@ -70,7 +70,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x01ffffff
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 #undef CONFIG_SYS_DDR_RAW_TIMING
 #undef CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0

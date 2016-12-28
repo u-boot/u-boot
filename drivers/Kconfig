@@ -16,6 +16,8 @@ source "drivers/crypto/Kconfig"
 
 source "drivers/demo/Kconfig"
 
+source "drivers/ddr/fsl/Kconfig"
+
 source "drivers/dfu/Kconfig"
 
 source "drivers/dma/Kconfig"

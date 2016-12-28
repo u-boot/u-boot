@@ -228,7 +228,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_FSL_DDR3
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_FSL_DDR_INTERACTIVE
 #endif

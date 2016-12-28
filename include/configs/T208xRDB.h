@@ -205,7 +205,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
