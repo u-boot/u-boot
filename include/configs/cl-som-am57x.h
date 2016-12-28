@@ -133,4 +133,65 @@
 
 #endif /* !CONFIG_SPL_BUILD */
 
+/* Default environment */
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	"autoload=no\0" \
+	"baudrate=115200\0" \
+	"console=ttyO2,115200n8\0" \
+	"bootdelay=3\0" \
+	"fdtfile=am57xx-sbc-am57x.dtb\0" \
+	"kernel=zImage-cl-som-am57x\0" \
+	"bootscr=bootscr.img\0" \
+	"displaytype=hdmi\0" \
+	"bootkernel=bootz ${loadaddr} - ${fdtaddr}\0" \
+	"mmcloadfdt=load mmc ${mmcdev} ${fdtaddr} ${fdtfile}\0" \
+	"mmcloadkernel=load mmc ${mmcdev} ${loadaddr} ${kernel}\0" \
+	"load_mmc=mmc dev ${mmcdev} && mmc rescan && " \
+		"run mmcloadkernel run mmcloadfdt\0" \
+	"mmcroot=/dev/mmcblk1p2\0" \
+	"mmcrootfstype=ext4 rw rootwait\0" \
+	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
+	"mmcbootscript=setenv mmcdev 0; mmc dev ${mmcdev} && mmc rescan && " \
+		"load mmc ${mmcdev} ${loadaddr} ${bootscr} && " \
+		"echo Running bootscript from MMC/SD Card ... && " \
+		"source ${loadaddr}\0" \
+	"mmcboot=setenv mmcdev 0 && run load_mmc && " \
+		"run mmcargs && echo Booting from MMC/SD Card ... && " \
+		"run bootkernel\0" \
+	"emmcroot=/dev/mmcblk0p2\0" \
+	"emmcrootfstype=ext4 rw rootwait\0" \
+	"emmcargs=setenv bootargs console=${console} " \
+		"root=${emmcroot} " \
+		"rootfstype=${emmcrootfstype}\0" \
+	"emmcbootscript=setenv mmcdev 1; mmc dev ${mmcdev} && mmc rescan && " \
+		"load mmc ${mmcdev} ${loadaddr} ${bootscr} && " \
+		"echo Running bootscript from eMMC ... && " \
+		"source ${loadaddr}\0" \
+	"emmcboot=setenv mmcdev 1 && run load_mmc && " \
+		"run emmcargs && echo Booting from eMMC ... && " \
+		"run bootkernel\0" \
+	"sataroot=/dev/sda2\0" \
+	"satarootfstype=ext4 rw rootwait\0" \
+	"load_sata=load scsi 0 ${loadaddr} ${kernel} && " \
+		"load scsi 0 ${fdtaddr} ${fdtfile}\0" \
+	"sataargs=setenv bootargs console=${console} " \
+		"root=${sataroot} " \
+		"rootfstype=${satarootfstype}\0" \
+	"satabootscript=load scsi 0 ${loadaddr} ${bootscr} && " \
+		"echo Running bootscript from SATA ... && " \
+		"source ${loadaddr}\0" \
+	"sataboot=run load_sata && run sataargs && " \
+		"echo Booting from SATA ... && " \
+		"run bootkernel\0" \
+
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND \
+	"run mmcbootscript || run mmcboot || " \
+	"run satabootscript || run sataboot || " \
+	"run emmcbootscript || run emmcboot"
+
+
 #endif /* __CONFIG_CL_SOM_AM57X_H */
