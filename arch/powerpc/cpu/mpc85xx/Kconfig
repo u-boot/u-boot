@@ -330,6 +330,7 @@ endchoice
 config ARCH_B4420
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
@@ -350,6 +351,7 @@ config ARCH_B4420
 config ARCH_B4860
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
@@ -806,6 +808,7 @@ config ARCH_T1042
 config ARCH_T2080
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A006379
@@ -822,6 +825,7 @@ config ARCH_T2080
 config ARCH_T2081
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A006379
@@ -838,6 +842,7 @@ config ARCH_T2081
 config ARCH_T4160
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004468
@@ -855,6 +860,7 @@ config ARCH_T4160
 config ARCH_T4240
 	bool
 	select E500MC
+	select E6500
 	select FSL_LAW
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004468
@@ -884,6 +890,11 @@ config E500MC
 	bool
 	help
 		Enble PowerPC E500MC core
+
+config E6500
+	bool
+	help
+		Enable PowerPC E6500 core
 
 config FSL_LAW
 	bool
@@ -1164,6 +1175,11 @@ config SYS_FSL_NUM_LAWS
 	help
 		Number of local access windows. This is fixed per SoC.
 		If not sure, do not change.
+
+config SYS_FSL_THREADS_PER_CORE
+	int
+	default 2 if E6500
+	default 1
 
 config SYS_NUM_TLBCAMS
 	int "Number of TLB CAM entries"

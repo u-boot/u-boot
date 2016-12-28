@@ -238,7 +238,6 @@
 #define CONFIG_ESDHC_HC_BLK_ADDR
 
 #elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
-#define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
@@ -284,7 +283,6 @@
 #define CONFIG_SYS_FSL_PCI_VER_3_X
 
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
-#define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
@@ -399,7 +397,6 @@
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
-#define CONFIG_E6500
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
@@ -449,12 +446,6 @@
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	3
 #define CONFIG_SYS_FSL_SEC_IDX_OFFSET	0x20000
 
-#endif
-
-#ifdef CONFIG_E6500
-#define CONFIG_SYS_FSL_THREADS_PER_CORE 2
-#else
-#define CONFIG_SYS_FSL_THREADS_PER_CORE 1
 #endif
 
 #if !defined(CONFIG_ARCH_C29X)
