@@ -376,15 +376,6 @@ The following options need to be configured:
 		Defines the string to utilize when trying to match PCIe device
 		tree nodes for the given platform.
 
-		CONFIG_SYS_PPC_E500_DEBUG_TLB
-
-		Enables a temporary TLB entry to be used during boot to work
-		around limitations in e500v1 and e500v2 external debugger
-		support. This reduces the portions of the boot code where
-		breakpoints and single stepping do not work.  The value of this
-		symbol should be set to the TLB1 entry to be used for this
-		purpose.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,

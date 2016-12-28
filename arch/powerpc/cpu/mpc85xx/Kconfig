@@ -338,14 +338,17 @@ config ARCH_BSC9131
 config ARCH_BSC9132
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_C29X
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_MPC8536
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_MPC8540
 	bool
@@ -358,10 +361,12 @@ config ARCH_MPC8541
 config ARCH_MPC8544
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_MPC8548
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_MPC8555
 	bool
@@ -382,26 +387,32 @@ config ARCH_MPC8569
 config ARCH_MPC8572
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1010
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1011
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1020
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1021
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1022
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1023
 	bool
@@ -410,14 +421,17 @@ config ARCH_P1023
 config ARCH_P1024
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P1025
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P2020
 	bool
 	select FSL_LAW
+	select SYS_PPC_E500_USE_DEBUG_TLB
 
 config ARCH_P2041
 	bool
@@ -654,6 +668,33 @@ config SYS_NUM_TLBCAMS
 	help
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
+
+config SYS_PPC_E500_USE_DEBUG_TLB
+	bool
+
+config SYS_PPC_E500_DEBUG_TLB
+	int "Temporary TLB entry for external debugger"
+	depends on SYS_PPC_E500_USE_DEBUG_TLB
+	default 0 if	ARCH_MPC8544 || ARCH_MPC8548
+	default 1 if	ARCH_MPC8536
+	default 2 if	ARCH_MPC8572	|| \
+			ARCH_P1011	|| \
+			ARCH_P1020	|| \
+			ARCH_P1021	|| \
+			ARCH_P1022	|| \
+			ARCH_P1024	|| \
+			ARCH_P1025	|| \
+			ARCH_P2020
+	default 3 if	ARCH_P1010	|| \
+			ARCH_BSC9132	|| \
+			ARCH_C29X
+	help
+		Select a temporary TLB entry to be used during boot to work
+                around limitations in e500v1 and e500v2 external debugger
+                support. This reduces the portions of the boot code where
+                breakpoints and single stepping do not work. The value of this
+                symbol should be set to the TLB1 entry to be used for this
+                purpose. If unsure, do not change.
 
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
