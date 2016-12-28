@@ -19,7 +19,7 @@
 #include "t102xrdb.h"
 #ifdef CONFIG_T1024RDB
 #include "cpld.h"
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #include <i2c.h>
 #include <mmc.h>
 #endif
@@ -27,7 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_T1023RDB
+#ifdef CONFIG_TARGET_T1023RDB
 enum {
 	GPIO1_SD_SEL    = 0x00020000, /* GPIO1_14, 0: eMMC, 1:SD/MMC */
 	GPIO1_EMMC_SEL,
@@ -54,7 +54,7 @@ int checkboard(void)
 #if defined(CONFIG_T1024RDB)
 	printf("Board rev: 0x%02x CPLD ver: 0x%02x, ",
 	       CPLD_READ(hw_ver), CPLD_READ(sw_ver));
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 	printf("Rev%c, ", t1023rdb_ctrl(GPIO3_GET_VERSION) + 'B');
 #endif
 	printf("boot from ");
@@ -74,7 +74,7 @@ int checkboard(void)
 		reg = ((reg & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
 		printf("NOR vBank%d\n", reg);
 	}
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #ifdef CONFIG_NAND
 	puts("NAND\n");
 #else
@@ -196,7 +196,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_board_enet(blob);
 #endif
 
-#ifdef CONFIG_T1023RDB
+#ifdef CONFIG_TARGET_T1023RDB
 	if (t1023rdb_ctrl(GPIO3_GET_VERSION) > 0)
 		fdt_enable_nor(blob);
 #endif
@@ -204,7 +204,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
-#ifdef CONFIG_T1023RDB
+#ifdef CONFIG_TARGET_T1023RDB
 /* Enable NOR flash for RevC */
 static void fdt_enable_nor(void *blob)
 {

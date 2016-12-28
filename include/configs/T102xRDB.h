@@ -62,7 +62,7 @@
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_nand_rcw.cfg
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_nand_rcw.cfg
 #endif
 #define CONFIG_SPL_NAND_BOOT
@@ -81,7 +81,7 @@
 #endif
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_spi_rcw.cfg
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_spi_rcw.cfg
 #endif
 #define CONFIG_SPL_SPI_BOOT
@@ -100,7 +100,7 @@
 #endif
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_sd_rcw.cfg
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_sd_rcw.cfg
 #endif
 #define CONFIG_SPL_MMC_BOOT
@@ -177,7 +177,7 @@
 #define CONFIG_ENV_OFFSET		0x100000	/* 1MB */
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_ENV_SECT_SIZE		0x10000
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #endif
 #elif defined(CONFIG_SDCARD)
@@ -192,7 +192,7 @@
 #define CONFIG_ENV_SIZE			0x2000
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_ENV_OFFSET		(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #endif
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
@@ -277,7 +277,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_SDRAM_SIZE   2048
@@ -303,7 +303,7 @@ unsigned long get_board_ddr_clk(void);
 /* NOR Flash Timing Params */
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_NOR_CSOR	CSOR_NAND_TRHZ_80
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_NOR_CSOR    (CSOR_NOR_ADM_SHIFT(0) | \
 				CSOR_NAND_TRHZ_80 | CSOR_NOR_ADM_SHFT_MODE_EN)
 #endif
@@ -378,7 +378,7 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
 				| CSOR_NAND_ECC_MODE_4	/* 4-bit ECC */ \
@@ -733,7 +733,7 @@ unsigned long get_board_ddr_clk(void);
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_SYS_QE_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FMAN_FW_ADDR		(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_SYS_QE_FW_ADDR		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #endif
@@ -766,7 +766,7 @@ unsigned long get_board_ddr_clk(void);
 #define RGMII_PHY2_ADDR		0x6
 #define SGMII_AQR_PHY_ADDR	0x2
 #define FM1_10GEC1_PHY_ADDR	0x1
-#elif defined(CONFIG_T1023RDB)
+#elif defined(CONFIG_TARGET_T1023RDB)
 #define RGMII_PHY1_ADDR		0x1
 #define SGMII_RTK_PHY_ADDR	0x3
 #define SGMII_AQR_PHY_ADDR	0x2

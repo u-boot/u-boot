@@ -73,7 +73,7 @@ int board_eth_init(bd_t *bis)
 	case 0x135:
 		/* set the on-board 2.5G SGMII AQR105 PHY */
 		fm_info_set_phy_address(FM1_DTSEC3, SGMII_AQR_PHY_ADDR);
-#ifdef CONFIG_T1023RDB
+#ifdef CONFIG_TARGET_T1023RDB
 		/* set the on-board 1G SGMII RTL8211F PHY */
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_RTK_PHY_ADDR);
 #endif
@@ -92,7 +92,7 @@ int board_eth_init(bd_t *bis)
 			fm_info_set_mdio(i, dev);
 			break;
 		case PHY_INTERFACE_MODE_SGMII:
-#if defined(CONFIG_T1023RDB)
+#if defined(CONFIG_TARGET_T1023RDB)
 			dev = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
 #elif defined(CONFIG_T1024RDB)
 			dev = miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME);
