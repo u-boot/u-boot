@@ -57,7 +57,6 @@
 
 /* SEC */
 #define CONFIG_SYS_FSL_SEC_LE
-#define CONFIG_SYS_FSL_SEC_COMPAT	5
 
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
@@ -135,7 +134,6 @@
 
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #elif defined(CONFIG_FSL_LSCH2)
-#define CONFIG_SYS_FSL_SEC_COMPAT		5
 #define CONFIG_SYS_FSL_OCRAM_BASE		0x10000000 /* initial RAM */
 #define CONFIG_SYS_FSL_OCRAM_SIZE		0x00200000 /* 2M */
 

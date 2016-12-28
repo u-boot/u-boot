@@ -72,7 +72,6 @@
  */
 #if defined(CONFIG_MPC83xx)
 #define CONFIG_SYS_FSL_SEC_BE
-#define CONFIG_SYS_FSL_SEC_COMPAT	2
 #endif
 
 /* Since so many PPC SOCs have a semi-common LBC, define this here */

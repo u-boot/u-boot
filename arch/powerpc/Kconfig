@@ -23,6 +23,8 @@ config MPC8260
 config MPC83xx
 	bool "MPC83xx"
 	select CREATE_ARCH_SYMLINK
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_2
 
 config MPC85xx
 	bool "MPC85xx"
