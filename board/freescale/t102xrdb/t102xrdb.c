@@ -17,7 +17,7 @@
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 #include "t102xrdb.h"
-#ifdef CONFIG_T1024RDB
+#ifdef CONFIG_TARGET_T1024RDB
 #include "cpld.h"
 #elif defined(CONFIG_TARGET_T1023RDB)
 #include <i2c.h>
@@ -51,7 +51,7 @@ int checkboard(void)
 	srds_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	printf("Board: %sRDB, ", cpu->name);
-#if defined(CONFIG_T1024RDB)
+#if defined(CONFIG_TARGET_T1024RDB)
 	printf("Board rev: 0x%02x CPLD ver: 0x%02x, ",
 	       CPLD_READ(hw_ver), CPLD_READ(sw_ver));
 #elif defined(CONFIG_TARGET_T1023RDB)
@@ -63,7 +63,7 @@ int checkboard(void)
 	puts("SD/MMC\n");
 #elif CONFIG_SPIFLASH
 	puts("SPI\n");
-#elif defined(CONFIG_T1024RDB)
+#elif defined(CONFIG_TARGET_T1024RDB)
 	u8 reg;
 
 	reg = CPLD_READ(flash_csr);
@@ -91,7 +91,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_T1024RDB
+#ifdef CONFIG_TARGET_T1024RDB
 static void board_mux_lane(void)
 {
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -150,7 +150,7 @@ int board_early_init_r(void)
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 #endif
 
-#ifdef CONFIG_T1024RDB
+#ifdef CONFIG_TARGET_T1024RDB
 	board_mux_lane();
 #endif
 
