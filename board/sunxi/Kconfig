@@ -122,6 +122,17 @@ config MACH_SUN8I_H3
 	select SUNXI_H3_DW_DRAM
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
+config MACH_SUN8I_V3S
+	bool "sun8i (Allwinner V3s)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+	select SUNXI_H3_DW_DRAM
+	select SUNXI_H3_DRAM_DDR2
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
@@ -138,7 +149,7 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
-	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
+	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T || MACH_SUN8I_V3S
 
 config DRAM_TYPE
 	int "sunxi dram type"

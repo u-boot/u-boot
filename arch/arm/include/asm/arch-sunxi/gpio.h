@@ -161,6 +161,7 @@ enum sunxi_gpio_number {
 #define SUN8I_GPB_UART2		2
 #define SUN8I_A33_GPB_UART0	3
 #define SUN8I_A83T_GPB_UART0	2
+#define SUN8I_V3S_GPB_UART0	3
 #define SUN50I_GPB_UART0	4
 
 #define SUNXI_GPC_NAND		2

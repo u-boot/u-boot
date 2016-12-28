@@ -110,6 +110,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(10), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_V3S)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(8), SUN8I_V3S_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_V3S_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(9), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
@@ -180,10 +184,11 @@ void s_init(void)
 	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
 
-#if defined CONFIG_MACH_SUN6I || \
+#if (defined CONFIG_MACH_SUN6I || \
     defined CONFIG_MACH_SUN7I || \
     defined CONFIG_MACH_SUN8I || \
-    defined CONFIG_MACH_SUN9I
+    defined CONFIG_MACH_SUN9I) && \
+    !defined CONFIG_MACH_SUN8I_V3S
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"
