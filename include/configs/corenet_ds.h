@@ -58,7 +58,7 @@
 #endif
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCIE1			/* PCIE controller 1 */

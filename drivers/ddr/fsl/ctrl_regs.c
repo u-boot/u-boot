@@ -2318,17 +2318,17 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	case 0:
 		ddrc = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 		break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 	case 1:
 		ddrc = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
 		break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
 	case 2:
 		ddrc = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
 		break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)
 	case 3:
 		ddrc = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
 		break;

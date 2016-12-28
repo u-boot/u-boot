@@ -213,7 +213,7 @@ unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
 
 		debug("rank density is 0x%llx, ctlr density is 0x%llx\n",
 		      rank_density, ctlr_density);
-		for (i = CONFIG_NUM_DDR_CONTROLLERS - 1; i >= 0; i--) {
+		for (i = CONFIG_SYS_NUM_DDR_CTLRS - 1; i >= 0; i--) {
 			switch (pinfo->memctl_opts[i].memctl_interleaving_mode) {
 			case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			case FSL_DDR_PAGE_INTERLEAVING:
@@ -237,7 +237,7 @@ unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
 		 * Simple linear assignment if memory
 		 * controllers are not interleaved.
 		 */
-		for (i = CONFIG_NUM_DDR_CONTROLLERS - 1; i >= 0; i--) {
+		for (i = CONFIG_SYS_NUM_DDR_CTLRS - 1; i >= 0; i--) {
 			total_ctlr_mem = 0;
 			pinfo->common_timing_params[i].base_address =
 						current_mem_base;

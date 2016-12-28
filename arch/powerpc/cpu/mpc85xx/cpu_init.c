@@ -378,10 +378,10 @@ void fsl_erratum_a007212_workaround(void)
 	u32 __iomem *plldgdcr1 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c20);
 	u32 __iomem *plldadcr1 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c28);
 	u32 __iomem *dpdovrcr4 = (void *)(CONFIG_SYS_DCSRBAR + 0x21e80);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 2)
 	u32 __iomem *plldgdcr2 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c40);
 	u32 __iomem *plldadcr2 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c48);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 3)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 3)
 	u32 __iomem *plldgdcr3 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c60);
 	u32 __iomem *plldadcr3 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c68);
 #endif
@@ -409,25 +409,25 @@ void fsl_erratum_a007212_workaround(void)
 	ddr_pll_ratio >>= 1;
 
 	setbits_be32(plldadcr1, 0x02000001);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 2)
 	setbits_be32(plldadcr2, 0x02000001);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 3)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 3)
 	setbits_be32(plldadcr3, 0x02000001);
 #endif
 #endif
 	setbits_be32(dpdovrcr4, 0xe0000000);
 	out_be32(plldgdcr1, 0x08000001 | (ddr_pll_ratio << 1));
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 2)
 	out_be32(plldgdcr2, 0x08000001 | (ddr_pll_ratio << 1));
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 3)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 3)
 	out_be32(plldgdcr3, 0x08000001 | (ddr_pll_ratio << 1));
 #endif
 #endif
 	udelay(100);
 	clrbits_be32(plldadcr1, 0x02000001);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 2)
 	clrbits_be32(plldadcr2, 0x02000001);
-#if (CONFIG_NUM_DDR_CONTROLLERS >= 3)
+#if (CONFIG_SYS_NUM_DDR_CTLRS >= 3)
 	clrbits_be32(plldadcr3, 0x02000001);
 #endif
 #endif
