@@ -191,7 +191,7 @@ int brd_mux_lane_to_slot(void)
 		 */
 		 QIXIS_WRITE(brdcfg[12], 0x1a);
 		 break;
-#elif defined(CONFIG_T2081QDS)
+#elif defined(CONFIG_TARGET_T2081QDS)
 	case 0x50:
 	case 0x51:
 		/* SD1(A:D) => SLOT2 XAUI

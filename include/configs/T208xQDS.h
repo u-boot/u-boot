@@ -19,7 +19,6 @@
 #define CONFIG_SRIO1		/* SRIO port 1 */
 #define CONFIG_SRIO2		/* SRIO port 2 */
 #elif defined(CONFIG_ARCH_T2081)
-#define CONFIG_T2081QDS
 #endif
 
 /* High Level Configuration Options */
