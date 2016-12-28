@@ -348,6 +348,7 @@ config ARCH_B4420
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_B4860
 	bool
@@ -370,6 +371,7 @@ config ARCH_B4860
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_BSC9131
 	bool
@@ -727,6 +729,7 @@ config ARCH_P5020
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_P5040
 	bool
@@ -746,6 +749,7 @@ config ARCH_P5040
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_QEMU_E500
 	bool
@@ -833,6 +837,7 @@ config ARCH_T2080
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_T2081
 	bool
@@ -851,6 +856,7 @@ config ARCH_T2081
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_T4160
 	bool
@@ -870,6 +876,7 @@ config ARCH_T4160
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config ARCH_T4240
 	bool
@@ -890,6 +897,7 @@ config ARCH_T4240
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_PPC64
 
 config BOOKE
 	bool
@@ -1209,6 +1217,9 @@ config SYS_NUM_TLBCAMS
 	help
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
+
+config SYS_PPC64
+	bool
 
 config SYS_PPC_E500_USE_DEBUG_TLB
 	bool
