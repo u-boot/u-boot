@@ -117,7 +117,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 
 #elif defined(CONFIG_ARCH_P2041) /* also supports P2040 */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_NUM_FMAN		1
@@ -136,7 +135,6 @@
 #define CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xf0000000
 
 #elif defined(CONFIG_ARCH_P3041)
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_NUM_FMAN		1
@@ -155,7 +153,6 @@
 #define CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xf0000000
 
 #elif defined(CONFIG_ARCH_P4080) /* also supports P4040 */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	4
 #define CONFIG_SYS_NUM_FMAN		2
@@ -176,7 +173,6 @@
 
 #elif defined(CONFIG_ARCH_P5020) /* also supports P5010 */
 #define CONFIG_SYS_PPC64		/* 64-bit core */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_NUM_FMAN		1
@@ -196,7 +192,6 @@
 
 #elif defined(CONFIG_ARCH_P5040)
 #define CONFIG_SYS_PPC64
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	3
 #define CONFIG_SYS_NUM_FMAN		2
@@ -240,7 +235,6 @@
 #elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #ifdef CONFIG_ARCH_T4240
@@ -285,7 +279,6 @@
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_HETROGENOUS_CLUSTERS     /* DSP/SC3900 core clusters */
 #define CONFIG_PPC_CLUSTER_START	0 /*Start index of ppc clusters*/
@@ -334,7 +327,6 @@
 #elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
@@ -367,7 +359,6 @@
 #elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS2  /* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3	 /* QMAN version 3 */
 #define CONFIG_SYS_FMAN_V3
@@ -399,7 +390,6 @@
 #elif defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
-#define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_FSL_QMAN_V3
