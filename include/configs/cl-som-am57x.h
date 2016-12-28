@@ -24,6 +24,10 @@
 
 #include <configs/ti_omap5_common.h>
 
+/* misc */
+#define CONFIG_MISC_INIT_R
+#define CONFIG_REVISION_TAG
+
 /* Status LED */
 #define CONFIG_STATUS_LED		/* Status LED enabled */
 #define CONFIG_GPIO_LED
@@ -64,6 +68,16 @@
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 #define CONFIG_ENV_SPI_MAX_HZ		48000000
+
+/* EEPROM */
+#define CONFIG_SYS_I2C_EEPROM_ADDR      0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN  1
+#define CONFIG_SYS_I2C_EEPROM_BUS       3
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_EEPROM_LAYOUT
+#define CONFIG_ENV_EEPROM_IS_ON_I2C
+#define CONFIG_SYS_EEPROM_SIZE		256
 
 #ifndef CONFIG_SPL_BUILD
 /* SATA */

@@ -14,6 +14,8 @@
 #include <asm/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+#include "../common/common.h"
+#include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -60,3 +62,15 @@ int board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 #endif /* CONFIG_USB_XHCI_OMAP */
+
+int misc_init_r(void)
+{
+	cl_print_pcb_info();
+
+	return 0;
+}
+
+u32 get_board_rev(void)
+{
+	return cl_eeprom_get_board_rev(CONFIG_SYS_I2C_EEPROM_BUS);
+}
