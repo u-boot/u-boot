@@ -656,8 +656,6 @@ config MAX_CPUS
 		     ARCH_P1025 || \
 		     ARCH_P2020 || \
 		     ARCH_P5020 || \
-		     ARCH_T1020 || \
-		     ARCH_T1022 || \
 		     ARCH_T1023 || \
 		     ARCH_T1024
 	default 1
@@ -699,10 +697,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P4080	|| \
 				ARCH_P5020	|| \
 				ARCH_P5040	|| \
-				ARCH_T1013	|| \
-				ARCH_T1014	|| \
-				ARCH_T1020	|| \
-				ARCH_T1022	|| \
 				ARCH_T1023	|| \
 				ARCH_T1024	|| \
 				ARCH_T1040	|| \
@@ -732,11 +726,7 @@ config SYS_FSL_NUM_LAWS
 			ARCH_T2081	|| \
 			ARCH_T4160	|| \
 			ARCH_T4240
-	default 16 if	ARCH_T1013	|| \
-			ARCH_T1014	|| \
-			ARCH_T1020	|| \
-			ARCH_T1022	|| \
-			ARCH_T1023	|| \
+	default 16 if	ARCH_T1023	|| \
 			ARCH_T1024	|| \
 			ARCH_T1040	|| \
 			ARCH_T1042

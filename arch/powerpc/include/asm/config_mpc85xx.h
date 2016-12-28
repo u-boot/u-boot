@@ -538,8 +538,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #endif
 
-#elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042) ||\
-defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
+#elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
@@ -582,8 +581,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_SYS_FSL_ERRATUM_A009663
 #define CONFIG_SYS_FSL_ERRATUM_A009942
 
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023) ||\
-defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
+#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2  /* Freescale Chassis generation 2 */
