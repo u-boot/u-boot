@@ -326,6 +326,7 @@ config ARCH_B4420
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_B4860
@@ -333,18 +334,21 @@ config ARCH_B4860
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_BSC9131
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_BSC9132
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -352,6 +356,7 @@ config ARCH_C29X
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_6
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -359,6 +364,7 @@ config ARCH_MPC8536
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -370,12 +376,14 @@ config ARCH_MPC8541
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8544
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -383,6 +391,7 @@ config ARCH_MPC8548
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -390,6 +399,7 @@ config ARCH_MPC8555
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8560
@@ -400,12 +410,14 @@ config ARCH_MPC8568
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8569
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8572
@@ -413,12 +425,14 @@ config ARCH_MPC8572
 	select FSL_LAW
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_P1010
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -426,6 +440,7 @@ config ARCH_P1011
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -433,6 +448,7 @@ config ARCH_P1020
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -440,6 +456,7 @@ config ARCH_P1021
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -447,6 +464,7 @@ config ARCH_P1022
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -454,12 +472,14 @@ config ARCH_P1023
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_P1024
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -467,6 +487,7 @@ config ARCH_P1025
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -474,6 +495,7 @@ config ARCH_P2020
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 
@@ -482,6 +504,7 @@ config ARCH_P2041
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_P3041
@@ -489,6 +512,7 @@ config ARCH_P3041
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_P4080
@@ -496,6 +520,7 @@ config ARCH_P4080
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_P5020
@@ -503,6 +528,7 @@ config ARCH_P5020
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_P5040
@@ -510,6 +536,7 @@ config ARCH_P5040
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_QEMU_E500
@@ -520,6 +547,7 @@ config ARCH_T1023
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 
 config ARCH_T1024
@@ -527,6 +555,7 @@ config ARCH_T1024
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 
 config ARCH_T1040
@@ -534,6 +563,7 @@ config ARCH_T1040
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 
 config ARCH_T1042
@@ -541,6 +571,7 @@ config ARCH_T1042
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 
 config ARCH_T2080
@@ -548,6 +579,7 @@ config ARCH_T2080
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_T2081
@@ -555,6 +587,7 @@ config ARCH_T2081
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_T4160
@@ -562,6 +595,7 @@ config ARCH_T4160
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config ARCH_T4240
@@ -569,6 +603,7 @@ config ARCH_T4240
 	select E500MC
 	select FSL_LAW
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 
 config BOOKE

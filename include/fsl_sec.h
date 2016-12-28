@@ -24,7 +24,7 @@
 #define sec_in16(a)       in_be16(a)
 #define sec_clrbits32     clrbits_be32
 #define sec_setbits32     setbits_be32
-#else
+#elif defined(CONFIG_SYS_FSL_HAS_SEC)
 #error Neither CONFIG_SYS_FSL_SEC_LE nor CONFIG_SYS_FSL_SEC_BE is defined
 #endif
 

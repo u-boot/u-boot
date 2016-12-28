@@ -30,6 +30,9 @@ config SYS_FSL_SEC_COMPAT_6
 	help
 		Secure boot and trust architecture compatible version 6
 
+config SYS_FSL_SEC_BE
+	bool "Big-endian access to Freescale Secure Boot"
+
 config SYS_FSL_SEC_COMPAT
 	int "Freescale Secure Boot compatibility"
 	depends on SYS_FSL_HAS_SEC
@@ -37,3 +40,6 @@ config SYS_FSL_SEC_COMPAT
 	default 4 if SYS_FSL_SEC_COMPAT_4
 	default 5 if SYS_FSL_SEC_COMPAT_5
 	default 6 if SYS_FSL_SEC_COMPAT_6
+
+config SYS_FSL_SEC_LE
+	bool "Little-endian access to Freescale Secure Boot"

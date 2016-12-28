@@ -67,13 +67,6 @@
 #endif
 #endif
 
-/*
- * SEC (crypto unit) major compatible version determination
- */
-#if defined(CONFIG_MPC83xx)
-#define CONFIG_SYS_FSL_SEC_BE
-#endif
-
 /* Since so many PPC SOCs have a semi-common LBC, define this here */
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
 	defined(CONFIG_MPC83xx)

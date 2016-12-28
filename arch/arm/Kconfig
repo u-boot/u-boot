@@ -466,12 +466,14 @@ config ARCH_MX7
 	select CPU_V7
 	select SYS_FSL_HAS_SEC if SECURE_BOOT
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_FSL_SEC_LE
 
 config ARCH_MX6
 	bool "Freescale MX6"
 	select CPU_V7
 	select SYS_FSL_HAS_SEC if SECURE_BOOT
 	select SYS_FSL_SEC_COMPAT_4
+	select SYS_FSL_SEC_LE
 
 config ARCH_MX5
 	bool "Freescale MX5"

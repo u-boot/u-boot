@@ -31,12 +31,14 @@ config ARCH_LS2080A
 	select SYS_FSL_HAS_DP_DDR
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
 	select SYS_FSL_SRDS_2
 
 config FSL_LSCH2
 	bool
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 

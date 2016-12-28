@@ -55,9 +55,6 @@
 #define CONFIG_SYS_FSL_SFP_LE
 #define CONFIG_SYS_FSL_SRK_LE
 
-/* SEC */
-#define CONFIG_SYS_FSL_SEC_LE
-
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
 
@@ -144,7 +141,6 @@
 #define CONFIG_SYS_FSL_QSPI_BE
 #define CONFIG_SYS_FSL_CCSR_GUR_BE
 #define CONFIG_SYS_FSL_PEX_LUT_BE
-#define CONFIG_SYS_FSL_SEC_BE
 
 /* SoC related */
 #ifdef CONFIG_LS1043A

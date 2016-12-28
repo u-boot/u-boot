@@ -76,7 +76,6 @@
 #define CONFIG_CSF_SIZE			0x2000
 #define CONFIG_FSL_CAAM
 #define CONFIG_CMD_DEKBLOB
-#define CONFIG_SYS_FSL_SEC_LE
 #endif
 
 #endif
