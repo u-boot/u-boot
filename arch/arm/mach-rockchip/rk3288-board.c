@@ -13,6 +13,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/pmu_rk3288.h>
+#include <asm/arch/qos_rk3288.h>
 #include <asm/arch/boot_mode.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
@@ -51,9 +52,28 @@ __weak int rk_board_late_init(void)
 	return 0;
 }
 
+int rk3288_qos_init(void)
+{
+	int val = 2 << PRIORITY_HIGH_SHIFT | 2 << PRIORITY_LOW_SHIFT;
+	/* set vop qos to higher priority */
+	writel(val, CPU_AXI_QOS_PRIORITY + VIO0_VOP_QOS);
+	writel(val, CPU_AXI_QOS_PRIORITY + VIO1_VOP_QOS);
+
+	if (!fdt_node_check_compatible(gd->fdt_blob, 0,
+				       "rockchip,rk3288-miniarm"))
+	{
+		/* set isp qos to higher priority */
+		writel(val, CPU_AXI_QOS_PRIORITY + VIO1_ISP_R_QOS);
+		writel(val, CPU_AXI_QOS_PRIORITY + VIO1_ISP_W0_QOS);
+		writel(val, CPU_AXI_QOS_PRIORITY + VIO1_ISP_W1_QOS);
+	}
+	return 0;
+}
+
 int board_late_init(void)
 {
 	setup_boot_mode();
+	rk3288_qos_init();
 
 	return rk_board_late_init();
 }
