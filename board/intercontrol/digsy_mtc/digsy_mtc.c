@@ -41,7 +41,7 @@ extern int usb_cpu_init(void);
 
 #if defined(CONFIG_DIGSY_REV5)
 /*
- * The M29W128GH needs a specail reset command function,
+ * The M29W128GH needs a special reset command function,
  * details see the doc/README.cfi file
  */
 void flash_cmd_reset(flash_info_t *info)
@@ -76,7 +76,7 @@ static void sdram_start(int hi_addr)
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
  *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if
- *            CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
+ *            CONFIG_SYS_SDRAM_BASE is something other than 0x00000000.
  */
 
 phys_size_t initdram(int board_type)
