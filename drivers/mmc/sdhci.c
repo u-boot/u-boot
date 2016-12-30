@@ -594,13 +594,12 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 
 	cfg->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
-		if (caps & SDHCI_CAN_DO_8BIT)
-			cfg->host_caps |= MMC_MODE_8BIT;
+		if (!(caps & SDHCI_CAN_DO_8BIT))
+			cfg->host_caps &= ~MMC_MODE_8BIT;
 	}
 
 	if (host->host_caps)
 		cfg->host_caps |= host->host_caps;
-
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
