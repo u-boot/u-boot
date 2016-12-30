@@ -572,25 +572,22 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->voltages |= host->voltages;
 
 	cfg->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
+
+	/* Since Host Controller Version3.0 */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (!(caps & SDHCI_CAN_DO_8BIT))
 			cfg->host_caps &= ~MMC_MODE_8BIT;
+
+		/* Find out whether clock multiplier is supported */
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
+				SDHCI_CLOCK_MUL_SHIFT;
 	}
 
 	if (host->host_caps)
 		cfg->host_caps |= host->host_caps;
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-
-	/*
-	 * In case of Host Controller v3.00, find out whether clock
-	 * multiplier is supported.
-	 */
-	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
-		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
-		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
-				SDHCI_CLOCK_MUL_SHIFT;
-	}
 
 	return 0;
 }
