@@ -159,6 +159,18 @@ config MMC_SDHCI_BCM2835
 
 	  If unsure, say N.
 
+config MMC_SDHCI_CADENCE
+	bool "SDHCI support for the Cadence SD/SDIO/eMMC controller"
+	depends on BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
+	depends on OF_CONTROL
+	help
+	  This selects the Cadence SD/SDIO/eMMC driver.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_KONA
 	bool "SDHCI support on Broadcom KONA platform"
 	depends on MMC_SDHCI
