@@ -73,6 +73,12 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 	sdhci_writel(host, ctrl, SDHCI_CONTROL2);
 }
 
+static void s5p_set_clock(struct sdhci_host *host, u32 div)
+{
+	/* ToDo : Use the Clock Framework */
+	set_mmc_clk(host->index, div);
+}
+
 static int s5p_sdhci_core_init(struct sdhci_host *host)
 {
 	host->name = S5P_NAME;
@@ -83,7 +89,7 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 
 	host->set_control_reg = &s5p_sdhci_set_control_reg;
-	host->set_clock = set_mmc_clk;
+	host->set_clock = &s5p_set_clock;
 
 	if (host->bus_width == 8)
 		host->host_caps |= MMC_MODE_8BIT;
