@@ -58,6 +58,17 @@ void clock_init_sec(void)
 #endif
 }
 
+void clock_init_quirk(void)
+{
+	/* without this quirk, the USB PHY cannot be used in Linux */
+#ifdef CONFIG_MACH_SUN8I_V3S
+       struct sunxi_ccm_reg * const ccm =
+               (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+       setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+       setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_OTG);
+#endif
+}
+
 void clock_init_uart(void)
 {
 #if CONFIG_CONS_INDEX < 5

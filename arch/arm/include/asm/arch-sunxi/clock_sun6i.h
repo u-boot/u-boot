@@ -376,6 +376,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL11_PATTERN		0xf5860000
 
 /* ahb_reset0 offsets */
+#define AHB_RESET_OFFSET_OTG		24
 #define AHB_RESET_OFFSET_GMAC		17
 #define AHB_RESET_OFFSET_MCTL		14
 #define AHB_RESET_OFFSET_MMC3		11

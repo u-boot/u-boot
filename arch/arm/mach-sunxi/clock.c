@@ -20,6 +20,10 @@ __weak void clock_init_sec(void)
 {
 }
 
+__weak void clock_init_quirk(void)
+{
+}
+
 __weak void gtbus_init(void)
 {
 }
@@ -32,6 +36,7 @@ int clock_init(void)
 #endif
 	clock_init_uart();
 	clock_init_sec();
+	clock_init_quirk();
 
 	return 0;
 }
