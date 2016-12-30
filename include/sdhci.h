@@ -235,6 +235,7 @@ struct sdhci_ops {
 	void            (*write_w)(struct sdhci_host *host, u16 val, int reg);
 	void            (*write_b)(struct sdhci_host *host, u8 val, int reg);
 #endif
+	int		(*get_cd)(struct sdhci_host *host);
 };
 
 struct sdhci_host {
