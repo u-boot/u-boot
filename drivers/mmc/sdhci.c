@@ -490,17 +490,6 @@ static int sdhci_init(struct mmc *mmc)
 		 * - set CD_TEST and clear CD_TEST_INS bit
 		 */
 		sdhci_writeb(host, SDHCI_CTRL_CD_TEST, SDHCI_HOST_CONTROL);
-#else
-		unsigned int status;
-
-		sdhci_writeb(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
-			SDHCI_HOST_CONTROL);
-
-		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
-		while ((!(status & SDHCI_CARD_PRESENT)) ||
-		    (!(status & SDHCI_CARD_STATE_STABLE)) ||
-		    (!(status & SDHCI_CARD_DETECT_PIN_LEVEL)))
-			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
 #endif
 	}
 
