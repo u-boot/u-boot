@@ -227,14 +227,16 @@ struct sdhci_host;
 #define SDHCI_DEFAULT_BOUNDARY_ARG	(7)
 struct sdhci_ops {
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
-	u32             (*read_l)(struct sdhci_host *host, int reg);
-	u16             (*read_w)(struct sdhci_host *host, int reg);
-	u8              (*read_b)(struct sdhci_host *host, int reg);
-	void            (*write_l)(struct sdhci_host *host, u32 val, int reg);
-	void            (*write_w)(struct sdhci_host *host, u16 val, int reg);
-	void            (*write_b)(struct sdhci_host *host, u8 val, int reg);
+	u32	(*read_l)(struct sdhci_host *host, int reg);
+	u16	(*read_w)(struct sdhci_host *host, int reg);
+	u8	(*read_b)(struct sdhci_host *host, int reg);
+	void	(*write_l)(struct sdhci_host *host, u32 val, int reg);
+	void	(*write_w)(struct sdhci_host *host, u16 val, int reg);
+	void	(*write_b)(struct sdhci_host *host, u8 val, int reg);
 #endif
-	int		(*get_cd)(struct sdhci_host *host);
+	int	(*get_cd)(struct sdhci_host *host);
+	void	(*set_control_reg)(struct sdhci_host *host);
+	void	(*set_clock)(struct sdhci_host *host, u32 div);
 };
 
 struct sdhci_host {
@@ -253,8 +255,6 @@ struct sdhci_host {
 	struct gpio_desc pwr_gpio;	/* Power GPIO */
 	struct gpio_desc cd_gpio;		/* Card Detect GPIO */
 
-	void (*set_control_reg)(struct sdhci_host *host);
-	void (*set_clock)(int dev_index, unsigned int div);
 	uint	voltages;
 
 	struct mmc_config cfg;

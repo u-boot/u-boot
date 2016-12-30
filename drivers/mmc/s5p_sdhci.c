@@ -79,6 +79,11 @@ static void s5p_set_clock(struct sdhci_host *host, u32 div)
 	set_mmc_clk(host->index, div);
 }
 
+static const struct sdhci_ops s5p_sdhci_ops = {
+	.set_clock	= &s5p_set_clock,
+	.set_control_reg = &s5p_sdhci_set_control_reg,
+};
+
 static int s5p_sdhci_core_init(struct sdhci_host *host)
 {
 	host->name = S5P_NAME;
@@ -87,9 +92,7 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 		SDHCI_QUIRK_32BIT_DMA_ADDR |
 		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_USE_WIDE8;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-
-	host->set_control_reg = &s5p_sdhci_set_control_reg;
-	host->set_clock = &s5p_set_clock;
+	host->ops = &s5p_sdhci_ops;
 
 	if (host->bus_width == 8)
 		host->host_caps |= MMC_MODE_8BIT;

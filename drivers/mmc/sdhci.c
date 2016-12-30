@@ -359,8 +359,8 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		div >>= 1;
 	}
 
-	if (host->set_clock)
-		host->set_clock(host->index, div);
+	if (host->ops->set_clock)
+		host->ops->set_clock(host, div);
 
 	clk |= (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
@@ -430,8 +430,8 @@ static int sdhci_set_ios(struct mmc *mmc)
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
 
-	if (host->set_control_reg)
-		host->set_control_reg(host);
+	if (host->ops->set_control_reg)
+		host->ops->set_control_reg(host);
 
 	if (mmc->clock != host->clock)
 		sdhci_set_clock(mmc, mmc->clock);
