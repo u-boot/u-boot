@@ -44,7 +44,7 @@ static int pic32_sdhci_probe(struct udevice *dev)
 
 	host->ioaddr	= ioremap(addr, size);
 	host->name	= dev->name;
-	host->quirks	= SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_NO_CD;
+	host->quirks	= SDHCI_QUIRK_NO_HISPD_BIT;
 	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					"bus-width", 4);
 	host->ops = &pic32_sdhci_ops;

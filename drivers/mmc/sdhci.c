@@ -484,10 +484,8 @@ static int sdhci_init(struct mmc *mmc)
 
 	sdhci_set_power(host, fls(mmc->cfg->voltages) - 1);
 
-	if (host->quirks & SDHCI_QUIRK_NO_CD) {
-		if (host->ops->get_cd)
-			host->ops->get_cd(host);
-	}
+	if (host->ops->get_cd)
+		host->ops->get_cd(host);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
