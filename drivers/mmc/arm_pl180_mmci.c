@@ -275,7 +275,7 @@ static int mmc_host_reset(struct mmc *dev)
 	return 0;
 }
 
-static void host_set_ios(struct mmc *dev)
+static int  host_set_ios(struct mmc *dev)
 {
 	struct pl180_mmc_host *host = dev->priv;
 	u32 sdi_clkcr;
@@ -333,6 +333,8 @@ static void host_set_ios(struct mmc *dev)
 
 	writel(sdi_clkcr, &host->base->clock);
 	udelay(CLK_CHANGE_DELAY);
+
+	return 0;
 }
 
 static const struct mmc_ops arm_pl180_mmci_ops = {

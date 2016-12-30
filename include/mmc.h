@@ -376,7 +376,7 @@ int mmc_getwp(struct mmc *mmc);
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
 			struct mmc_cmd *cmd, struct mmc_data *data);
-	void (*set_ios)(struct mmc *mmc);
+	int (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);

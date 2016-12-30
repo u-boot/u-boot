@@ -592,7 +592,7 @@ static void esdhc_clock_control(struct mmc *mmc, bool enable)
 }
 #endif
 
-static void esdhc_set_ios(struct mmc *mmc)
+static int esdhc_set_ios(struct mmc *mmc)
 {
 	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
@@ -614,6 +614,7 @@ static void esdhc_set_ios(struct mmc *mmc)
 	else if (mmc->bus_width == 8)
 		esdhc_setbits32(&regs->proctl, PROCTL_DTW_8);
 
+	return 0;
 }
 
 static int esdhc_init(struct mmc *mmc)

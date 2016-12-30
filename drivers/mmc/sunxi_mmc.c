@@ -227,7 +227,7 @@ static int mmc_config_clock(struct mmc *mmc)
 	return 0;
 }
 
-static void sunxi_mmc_set_ios(struct mmc *mmc)
+static int sunxi_mmc_set_ios(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -237,7 +237,7 @@ static void sunxi_mmc_set_ios(struct mmc *mmc)
 	/* Change clock first */
 	if (mmc->clock && mmc_config_clock(mmc) != 0) {
 		mmchost->fatal_err = 1;
-		return;
+		return -EINVAL;
 	}
 
 	/* Change bus width */
@@ -247,6 +247,8 @@ static void sunxi_mmc_set_ios(struct mmc *mmc)
 		writel(0x1, &mmchost->reg->width);
 	else
 		writel(0x0, &mmchost->reg->width);
+
+	return 0;
 }
 
 static int sunxi_mmc_core_init(struct mmc *mmc)

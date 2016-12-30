@@ -207,7 +207,7 @@ error:
 	return ret;
 }
 
-static void s3cmmc_set_ios(struct mmc *mmc)
+static int s3cmmc_set_ios(struct mmc *mmc)
 {
 	struct s3c24x0_sdi *sdi_regs = s3c24x0_get_base_sdi();
 	uint32_t divider = 0;
@@ -215,7 +215,7 @@ static void s3cmmc_set_ios(struct mmc *mmc)
 	wide_bus = (mmc->bus_width == 4);
 
 	if (!mmc->clock)
-		return;
+		return 0;
 
 	divider = DIV_ROUND_UP(get_PCLK(), mmc->clock);
 	if (divider)
@@ -223,6 +223,8 @@ static void s3cmmc_set_ios(struct mmc *mmc)
 
 	writel(divider, &sdi_regs->sdipre);
 	mdelay(125);
+
+	return 0;
 }
 
 static int s3cmmc_init(struct mmc *mmc)

@@ -388,7 +388,7 @@ static int dwmci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 #else
-static void dwmci_set_ios(struct mmc *mmc)
+static int dwmci_set_ios(struct mmc *mmc)
 {
 #endif
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
@@ -421,9 +421,8 @@ static void dwmci_set_ios(struct mmc *mmc)
 
 	if (host->clksel)
 		host->clksel(host);
-#ifdef CONFIG_DM_MMC_OPS
+
 	return 0;
-#endif
 }
 
 static int dwmci_init(struct mmc *mmc)

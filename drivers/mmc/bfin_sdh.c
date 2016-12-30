@@ -234,7 +234,7 @@ static void sdh_set_clk(unsigned long clk)
 		bfin_write_SDH_CLK_CTL(clk_ctl & ~CLK_E);
 }
 
-static void bfin_sdh_set_ios(struct mmc *mmc)
+static int bfin_sdh_set_ios(struct mmc *mmc)
 {
 	u16 cfg = 0;
 	u16 clk_ctl = 0;
@@ -250,6 +250,8 @@ static void bfin_sdh_set_ios(struct mmc *mmc)
 	}
 	bfin_write_SDH_CLK_CTL(clk_ctl);
 	sdh_set_clk(mmc->clock);
+
+	return 0;
 }
 
 static int bfin_sdh_init(struct mmc *mmc)

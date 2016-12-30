@@ -424,7 +424,7 @@ static int sdhci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 #else
-static void sdhci_set_ios(struct mmc *mmc)
+static int sdhci_set_ios(struct mmc *mmc)
 {
 #endif
 	u32 ctrl;
@@ -462,9 +462,8 @@ static void sdhci_set_ios(struct mmc *mmc)
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
-#ifdef CONFIG_DM_MMC_OPS
+
 	return 0;
-#endif
 }
 
 static int sdhci_init(struct mmc *mmc)

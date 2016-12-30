@@ -511,7 +511,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	return 0;
 }
 
-static void omap_hsmmc_set_ios(struct mmc *mmc)
+static int omap_hsmmc_set_ios(struct mmc *mmc)
 {
 	struct hsmmc *mmc_base;
 	unsigned int dsor = 0;
@@ -559,10 +559,12 @@ static void omap_hsmmc_set_ios(struct mmc *mmc)
 	while ((readl(&mmc_base->sysctl) & ICS_MASK) == ICS_NOTREADY) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting for ics!\n", __func__);
-			return;
+			return -ETIMEDOUT;
 		}
 	}
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
+
+	return 0;
 }
 
 #ifdef OMAP_HSMMC_USE_GPIO

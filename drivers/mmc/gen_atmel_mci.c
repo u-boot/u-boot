@@ -336,7 +336,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 }
 
 /* Entered into mmc structure during driver init */
-static void mci_set_ios(struct mmc *mmc)
+static int mci_set_ios(struct mmc *mmc)
 {
 	struct atmel_mci_priv *priv = mmc->priv;
 	atmel_mci_t *mci = priv->mci;
@@ -370,6 +370,8 @@ static void mci_set_ios(struct mmc *mmc)
 
 		writel(busw << 7 | MMCI_BF(SCDSEL, MCI_BUS), &mci->sdcr);
 	}
+
+	return 0;
 }
 
 /* Entered into mmc structure during driver init */

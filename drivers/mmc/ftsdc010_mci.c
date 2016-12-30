@@ -251,7 +251,7 @@ static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-static void ftsdc010_set_ios(struct mmc *mmc)
+static int ftsdc010_set_ios(struct mmc *mmc)
 {
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
@@ -270,6 +270,8 @@ static void ftsdc010_set_ios(struct mmc *mmc)
 		setbits_le32(&regs->bwr, FTSDC010_BWR_MODE_1BIT);
 		break;
 	}
+
+	return 0;
 }
 
 static int ftsdc010_init(struct mmc *mmc)
