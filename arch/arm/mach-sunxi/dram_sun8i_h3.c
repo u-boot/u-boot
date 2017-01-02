@@ -414,6 +414,11 @@ static void mctl_sys_init(uint16_t socid, struct dram_para *para)
 	udelay(500);
 }
 
+/* These are more guessed based on some Allwinner code. */
+#define DX_GCR_ODT_DYNAMIC	(0x0 << 4)
+#define DX_GCR_ODT_ALWAYS_ON	(0x1 << 4)
+#define DX_GCR_ODT_OFF		(0x2 << 4)
+
 static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
@@ -443,7 +448,8 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 		clrsetbits_le32(&mctl_ctl->dx[i].gcr, (0x3 << 4) |
 				(0x1 << 1) | (0x3 << 2) | (0x3 << 12) |
 				(0x3 << 14),
-				IS_ENABLED(CONFIG_DRAM_ODT_EN) ? 0x0 : 0x2);
+				IS_ENABLED(CONFIG_DRAM_ODT_EN) ?
+					DX_GCR_ODT_DYNAMIC : DX_GCR_ODT_OFF);
 
 	/* AC PDR should always ON */
 	setbits_le32(&mctl_ctl->aciocr, 0x1 << 1);
