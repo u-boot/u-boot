@@ -168,6 +168,7 @@ config DRAM_CLK
 	default 792 if MACH_SUN9I
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default 672 if MACH_SUN50I
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -187,6 +188,7 @@ config DRAM_ZQ
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
 	default 4145117 if MACH_SUN9I
+	default 3881915 if MACH_SUN50I
 	---help---
 	Set the dram zq value.
 
