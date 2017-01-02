@@ -224,7 +224,7 @@ void clock_set_pll11(unsigned int clk, bool sigma_delta_enable)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	if (sigma_delta_enable)
-		writel(CCM_PLL11_PATTERN, &ccm->pll5_pattern_cfg);
+		writel(CCM_PLL11_PATTERN, &ccm->pll11_pattern_cfg0);
 
 	writel(CCM_PLL11_CTRL_EN | CCM_PLL11_CTRL_UPD |
 	       (sigma_delta_enable ? CCM_PLL11_CTRL_SIGMA_DELTA_EN : 0) |
