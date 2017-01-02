@@ -142,6 +142,20 @@ config RESERVE_ALLWINNER_BOOT0_HEADER
 	blob relies on this information to load and execute U-Boot.
 	Only needed on 64-bit Allwinner boards so far when using boot0.
 
+config ARM_BOOT_HOOK_RMR
+	bool
+	depends on ARM64
+	default y
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	---help---
+	Insert some ARM32 code at the very beginning of the U-Boot binary
+	which uses an RMR register write to bring the core into AArch64 mode.
+	The very first instruction acts as a switch, since it's carefully
+	chosen to be a NOP in one mode and a branch in the other, so the
+	code would only be executed if not already in AArch64.
+	This allows both the SPL and the U-Boot proper to be entered in
+	either mode and switch to AArch64 if needed.
+
 config DRAM_TYPE
 	int "sunxi dram type"
 	depends on MACH_SUN8I_A83T
