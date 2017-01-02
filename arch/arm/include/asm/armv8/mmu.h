@@ -8,14 +8,6 @@
 #ifndef _ASM_ARMV8_MMU_H_
 #define _ASM_ARMV8_MMU_H_
 
-#ifdef __ASSEMBLY__
-#define _AC(X, Y)	X
-#else
-#define _AC(X, Y)	(X##Y)
-#endif
-
-#define UL(x)		_AC(x, UL)
-
 /***************************************************************/
 /*
  * The following definitions are related each other, shoud be
