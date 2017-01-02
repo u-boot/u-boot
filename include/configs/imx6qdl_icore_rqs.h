@@ -33,7 +33,8 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"image=zImage\0" \
+	"image=uImage\0" \
+	"fit_image=fit.itb\0" \
 	"console=ttymxc3\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
@@ -51,33 +52,41 @@
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadfit=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${fit_image}\0" \
+	"fitboot=echo Booting FIT image from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
+					"bootm; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi; " \
 			"fi; " \
 		"else " \
-			"bootz; " \
+			"bootm; " \
 		"fi\0"
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
+	"mmc dev ${mmcdev};" \
+	"if mmc rescan; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loadfit; then " \
+				"run fitboot; " \
+			"else " \
+				"if run loadimage; then " \
+					"run mmcboot; " \
+				"fi; " \
 			"fi; " \
-		   "fi; " \
-	   "fi"
+		"fi; " \
+	"fi"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -98,6 +107,14 @@
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_SP_OFFSET)
+
+/* FIT */
+#ifdef CONFIG_FIT
+# define CONFIG_HASH_VERIFY
+# define CONFIG_SHA1
+# define CONFIG_SHA256
+# define CONFIG_IMAGE_FORMAT_LEGACY
+#endif
 
 /* UART */
 #ifdef CONFIG_MXC_UART

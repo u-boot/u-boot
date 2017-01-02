@@ -487,6 +487,7 @@ cmd_xzmisc = (cat $(filter-out FORCE,$^) | \
 #
 # mkimage
 # ---------------------------------------------------------------------------
+MKIMAGEOUTPUT ?= /dev/null
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
+	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))

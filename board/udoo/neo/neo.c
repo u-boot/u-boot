@@ -349,9 +349,9 @@ int board_init(void)
 	/* Active high for ncp692 */
 	gpio_direction_output(IMX_GPIO_NR(4, 16) , 1);
 
-	#ifdef CONFIG_SYS_I2C_MXC
+#ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	#endif
+#endif
 
 	return 0;
 }
@@ -389,9 +389,8 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg[2] = {
+static struct fsl_esdhc_cfg usdhc_cfg[1] = {
 	{USDHC2_BASE_ADDR, 0, 4},
-	{USDHC3_BASE_ADDR, 0, 4},
 };
 
 #define USDHC2_PWR_GPIO IMX_GPIO_NR(6, 1)

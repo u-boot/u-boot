@@ -110,6 +110,10 @@
  * +------------+ + CSF_PAD_SIZE
  */
 
+static bool is_hab_enabled(void);
+
+#if !defined(CONFIG_SPL_BUILD)
+
 #define MAX_RECORD_BYTES     (8*1024) /* 4 kbytes */
 
 struct record {
@@ -257,22 +261,6 @@ uint8_t hab_engines[16] = {
 	-1
 };
 
-bool is_hab_enabled(void)
-{
-	struct imx_sec_config_fuse_t *fuse =
-		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
-	uint32_t reg;
-	int ret;
-
-	ret = fuse_read(fuse->bank, fuse->word, &reg);
-	if (ret) {
-		puts("\nSecure boot fuse read error\n");
-		return ret;
-	}
-
-	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
-}
-
 static inline uint8_t get_idx(uint8_t *list, uint8_t tgt)
 {
 	uint8_t idx = 0;
@@ -359,6 +347,68 @@ int get_hab_status(void)
 	return 0;
 }
 
+int do_hab_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if ((argc != 1)) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	get_hab_status();
+
+	return 0;
+}
+
+static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	ulong	addr, ivt_offset;
+	int	rcode = 0;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[1], NULL, 16);
+	ivt_offset = simple_strtoul(argv[2], NULL, 16);
+
+	rcode = authenticate_image(addr, ivt_offset);
+
+	return rcode;
+}
+
+U_BOOT_CMD(
+		hab_status, CONFIG_SYS_MAXARGS, 1, do_hab_status,
+		"display HAB status",
+		""
+	  );
+
+U_BOOT_CMD(
+		hab_auth_img, 3, 0, do_authenticate_image,
+		"authenticate image via HAB",
+		"addr ivt_offset\n"
+		"addr - image hex address\n"
+		"ivt_offset - hex offset of IVT in the image"
+	  );
+
+
+#endif /* !defined(CONFIG_SPL_BUILD) */
+
+static bool is_hab_enabled(void)
+{
+	struct imx_sec_config_fuse_t *fuse =
+		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	uint32_t reg;
+	int ret;
+
+	ret = fuse_read(fuse->bank, fuse->word, &reg);
+	if (ret) {
+		puts("\nSecure boot fuse read error\n");
+		return ret;
+	}
+
+	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
+}
+
 uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 {
 	uint32_t load_addr = 0;
@@ -400,7 +450,9 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 				     (void *)(ddr_start + ivt_offset+IVT_SIZE),
 				     4, 0x10, 0);
 
+#if  !defined(CONFIG_SPL_BUILD)
 			get_hab_status();
+#endif
 
 			puts("\nCalling authenticate_image in ROM\n");
 			printf("\tivt_offset = 0x%x\n", ivt_offset);
@@ -449,7 +501,9 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 
 		hab_caam_clock_enable(0);
 
+#if !defined(CONFIG_SPL_BUILD)
 		get_hab_status();
+#endif
 	} else {
 		puts("hab fuse not enabled\n");
 	}
@@ -459,46 +513,3 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 
 	return result;
 }
-
-int do_hab_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	if ((argc != 1)) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
-
-	get_hab_status();
-
-	return 0;
-}
-
-static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
-				char * const argv[])
-{
-	ulong	addr, ivt_offset;
-	int	rcode = 0;
-
-	if (argc < 3)
-		return CMD_RET_USAGE;
-
-	addr = simple_strtoul(argv[1], NULL, 16);
-	ivt_offset = simple_strtoul(argv[2], NULL, 16);
-
-	rcode = authenticate_image(addr, ivt_offset);
-
-	return rcode;
-}
-
-U_BOOT_CMD(
-		hab_status, CONFIG_SYS_MAXARGS, 1, do_hab_status,
-		"display HAB status",
-		""
-	  );
-
-U_BOOT_CMD(
-		hab_auth_img, 3, 0, do_authenticate_image,
-		"authenticate image via HAB",
-		"addr ivt_offset\n"
-		"addr - image hex address\n"
-		"ivt_offset - hex offset of IVT in the image"
-	  );

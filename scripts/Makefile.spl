@@ -119,9 +119,11 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
+MKIMAGEOUTPUT ?= /dev/null
+
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
+	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
 
 MKIMAGEFLAGS_MLO = -T omapimage -a $(CONFIG_SPL_TEXT_BASE)
 
