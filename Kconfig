@@ -127,7 +127,7 @@ config TOOLS_DEBUG
 	  it is possible to set breakpoints on particular lines, single-step
 	  debug through the source code, etc.
 
-endif
+endif # EXPERT
 
 config PHYS_64BIT
 	bool "64bit physical address support"
@@ -143,35 +143,26 @@ menu "Boot images"
 config FIT
 	bool "Support Flattened Image Tree"
 	help
-	  This option allows to boot the new uImage structrure,
+	  This option allows you to boot the new uImage structure,
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
 	  images of various types (kernel, FDT blob, ramdisk, etc.)
 	  in a single blob.  To boot this new uImage structure,
 	  pass the address of the blob to the "bootm" command.
 	  FIT is very flexible, supporting compression, multiple images,
 	  multiple configurations, verification through hashing and also
-	  verified boot (secure boot using RSA). This option enables that
-	  feature.
+	  verified boot (secure boot using RSA).
 
-config SPL_FIT
-	bool "Support Flattened Image Tree within SPL"
-	depends on FIT
-	depends on SPL
-
-config FIT_VERBOSE
-	bool "Display verbose messages on FIT boot"
-	depends on FIT
+if FIT
 
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
-	depends on FIT
 	depends on DM
 	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA. If
 	  CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
-	  hashing is available using hardware, then then RSA library will use
+	  hashing is available using hardware, then the RSA library will use
 	  it. See doc/uImage.FIT/signature.txt for more details.
 
 	  WARNING: When relying on signed FIT images with a required signature
@@ -180,15 +171,16 @@ config FIT_SIGNATURE
 	  format support in this case, enable it using
 	  CONFIG_IMAGE_FORMAT_LEGACY.
 
-config SPL_FIT_SIGNATURE
-	bool "Enable signature verification of FIT firmware within SPL"
-	depends on SPL_FIT
-	depends on SPL_DM
-	select SPL_RSA
+config FIT_VERBOSE
+	bool "Show verbose messages when FIT images fail"
+	help
+	  Generally a system will have valid FIT images so debug messages
+	  are a waste of code space. If you are debugging your images then
+	  you can enable this option to get more verbose information about
+	  failures.
 
 config FIT_BEST_MATCH
 	bool "Select the best match for the kernel device tree"
-	depends on FIT
 	help
 	  When no configuration is explicitly selected, default to the
 	  one whose fdt's compatibility field best matches that of
@@ -196,14 +188,55 @@ config FIT_BEST_MATCH
 	  most specific compatibility entry of U-Boot's fdt's root node.
 	  The order of entries in the configuration's fdt is ignored.
 
-config FIT_VERBOSE
-	bool "Show verbose messages when FIT images fails"
-	depends on FIT
+config FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
+	depends on TI_SECURE_DEVICE
 	help
-	  Generally a system will have valid FIT images so debug messages
-	  are a waste of code space. If you are debugging your images then
-	  you can enable this option to get more verbose information about
-	  failures.
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from FIT images like stripping off headers or modifying the size of the
+	  blob, verification, authentication, decryption etc. in a platform or
+	  board specific way. In order to use this feature a platform or board-
+	  specific implementation of board_fit_image_post_process() must be
+	  provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
+config SPL_FIT
+	bool "Support Flattened Image Tree within SPL"
+	depends on SPL
+
+config SPL_FIT_SIGNATURE
+	bool "Enable signature verification of FIT firmware within SPL"
+	depends on SPL_FIT
+	depends on SPL_DM
+	select SPL_RSA
+
+config SPL_LOAD_FIT
+	bool "Enable SPL loading U-Boot as a FIT"
+	help
+	  Normally with the SPL framework a legacy image is generated as part
+	  of the build. This contains U-Boot along with information as to
+	  where it should be loaded. This option instead enables generation
+	  of a FIT (Flat Image Tree) which provides more flexibility. In
+	  particular it can handle selecting from multiple device tree
+	  and passing the correct one to U-Boot.
+
+config SPL_FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by the SPL"
+	depends on SPL_LOAD_FIT && TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from the U-Boot FIT image like stripping off headers or modifying the
+	  size of the blob, verification, authentication, decryption etc. in a
+	  platform or board specific way. In order to use this feature a platform
+	  or board-specific implementation of board_fit_image_post_process() must
+	  be provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
+endif # FIT
 
 config OF_BOARD_SETUP
 	bool "Set up board-specific details in device tree before boot"
@@ -256,44 +289,6 @@ config SYS_TEXT_BASE
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
 
-config SPL_LOAD_FIT
-	bool "Enable SPL loading U-Boot as a FIT"
-	depends on FIT
-	help
-	  Normally with the SPL framework a legacy image is generated as part
-	  of the build. This contains U-Boot along with information as to
-	  where it should be loaded. This option instead enables generation
-	  of a FIT (Flat Image Tree) which provides more flexibility. In
-	  particular it can handle selecting from multiple device tree
-	  and passing the correct one to U-Boot.
-
-config SPL_FIT_IMAGE_POST_PROCESS
-	bool "Enable post-processing of FIT artifacts after loading by the SPL"
-	depends on SPL_LOAD_FIT && TI_SECURE_DEVICE
-	help
-	  Allows doing any sort of manipulation to blobs after they got extracted
-	  from the U-Boot FIT image like stripping off headers or modifying the
-	  size of the blob, verification, authentication, decryption etc. in a
-	  platform or board specific way. In order to use this feature a platform
-	  or board-specific implementation of board_fit_image_post_process() must
-	  be provided. Also, anything done during this post-processing step would
-	  need to be comprehended in how the images were prepared before being
-	  injected into the FIT creation (i.e. the blobs would have been pre-
-	  processed before being added to the FIT image).
-
-config FIT_IMAGE_POST_PROCESS
-	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
-	depends on FIT && TI_SECURE_DEVICE
-	help
-	  Allows doing any sort of manipulation to blobs after they got extracted
-	  from FIT images like stripping off headers or modifying the size of the
-	  blob, verification, authentication, decryption etc. in a platform or
-	  board specific way. In order to use this feature a platform or board-
-	  specific implementation of board_fit_image_post_process() must be
-	  provided. Also, anything done during this post-processing step would
-	  need to be comprehended in how the images were prepared before being
-	  injected into the FIT creation (i.e. the blobs would have been pre-
-	  processed before being added to the FIT image).
 
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI
