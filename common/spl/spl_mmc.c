@@ -36,7 +36,7 @@ static int mmc_load_legacy(struct spl_image_info *spl_image, struct mmc *mmc,
 	/* Read the header too to avoid extra memcpy */
 	count = blk_dread(mmc_get_blk_desc(mmc), sector, image_size_sectors,
 			  (void *)(ulong)spl_image->load_addr);
-	debug("read %x sectors to %x\n", image_size_sectors,
+	debug("read %x sectors to %lx\n", image_size_sectors,
 	      spl_image->load_addr);
 	if (count != image_size_sectors)
 		return -EIO;
