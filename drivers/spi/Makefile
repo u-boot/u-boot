@@ -23,7 +23,6 @@ obj-$(CONFIG_BFIN_SPI) += bfin_spi.o
 obj-$(CONFIG_BFIN_SPI6XX) += bfin_spi6xx.o
 obj-$(CONFIG_CADENCE_QSPI) += cadence_qspi.o cadence_qspi_apb.o
 obj-$(CONFIG_CF_SPI) += cf_spi.o
-obj-$(CONFIG_CF_QSPI) += cf_qspi.o
 obj-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
 obj-$(CONFIG_DESIGNWARE_SPI) += designware_spi.o
 obj-$(CONFIG_EXYNOS_SPI) += exynos_spi.o

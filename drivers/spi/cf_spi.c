@@ -279,10 +279,6 @@ static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
 }
 #endif				/* CONFIG_CF_DSPI */
 
-#ifdef CONFIG_CF_QSPI
-/* 52xx, 53xx */
-#endif				/* CONFIG_CF_QSPI */
-
 #ifdef CONFIG_CMD_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
