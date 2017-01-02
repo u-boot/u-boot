@@ -94,6 +94,58 @@ static void mctl_dq_delay(u32 read, u32 write)
 	udelay(1);
 }
 
+enum {
+	MBUS_PORT_CPU           = 0,
+	MBUS_PORT_GPU           = 1,
+	MBUS_PORT_UNUSED	= 2,
+	MBUS_PORT_DMA           = 3,
+	MBUS_PORT_VE            = 4,
+	MBUS_PORT_CSI           = 5,
+	MBUS_PORT_NAND          = 6,
+	MBUS_PORT_SS            = 7,
+	MBUS_PORT_TS            = 8,
+	MBUS_PORT_DI            = 9,
+	MBUS_PORT_DE            = 10,
+	MBUS_PORT_DE_CFD        = 11,
+};
+
+enum {
+	MBUS_QOS_LOWEST = 0,
+	MBUS_QOS_LOW,
+	MBUS_QOS_HIGH,
+	MBUS_QOS_HIGHEST
+};
+
+inline void mbus_configure_port(u8 port,
+				bool bwlimit,
+				bool priority,
+				u8 qos,         /* MBUS_QOS_LOWEST .. MBUS_QOS_HIGEST */
+				u8 waittime,    /* 0 .. 0xf */
+				u8 acs,         /* 0 .. 0xff */
+				u16 bwl0,       /* 0 .. 0xffff, bandwidth limit in MB/s */
+				u16 bwl1,
+				u16 bwl2)
+{
+	struct sunxi_mctl_com_reg * const mctl_com =
+			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
+
+	const u32 cfg0 = ( (bwlimit ? (1 << 0) : 0)
+			   | (priority ? (1 << 1) : 0)
+			   | ((qos & 0x3) << 2)
+			   | ((waittime & 0xf) << 4)
+			   | ((acs & 0xff) << 8)
+			   | (bwl0 << 16) );
+	const u32 cfg1 = ((u32)bwl2 << 16) | (bwl1 & 0xffff);
+
+	debug("MBUS port %d cfg0 %08x cfg1 %08x\n", port, cfg0, cfg1);
+	writel(cfg0, &mctl_com->mcr[port][0]);
+	writel(cfg1, &mctl_com->mcr[port][1]);
+}
+
+#define MBUS_CONF(port, bwlimit, qos, acs, bwl0, bwl1, bwl2)	\
+	mbus_configure_port(MBUS_PORT_ ## port, bwlimit, false, \
+			    MBUS_QOS_ ## qos, 0, acs, bwl0, bwl1, bwl2)
+
 static void mctl_set_master_priority(void)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
@@ -105,30 +157,18 @@ static void mctl_set_master_priority(void)
 	/* set cpu high priority */
 	writel(0x00000001, &mctl_com->mapr);
 
-	writel(0x0200000d, &mctl_com->mcr[0][0]);
-	writel(0x00800100, &mctl_com->mcr[0][1]);
-	writel(0x06000009, &mctl_com->mcr[1][0]);
-	writel(0x01000400, &mctl_com->mcr[1][1]);
-	writel(0x0200000d, &mctl_com->mcr[2][0]);
-	writel(0x00600100, &mctl_com->mcr[2][1]);
-	writel(0x0100000d, &mctl_com->mcr[3][0]);
-	writel(0x00200080, &mctl_com->mcr[3][1]);
-	writel(0x07000009, &mctl_com->mcr[4][0]);
-	writel(0x01000640, &mctl_com->mcr[4][1]);
-	writel(0x0100000d, &mctl_com->mcr[5][0]);
-	writel(0x00200080, &mctl_com->mcr[5][1]);
-	writel(0x01000009, &mctl_com->mcr[6][0]);
-	writel(0x00400080, &mctl_com->mcr[6][1]);
-	writel(0x0100000d, &mctl_com->mcr[7][0]);
-	writel(0x00400080, &mctl_com->mcr[7][1]);
-	writel(0x0100000d, &mctl_com->mcr[8][0]);
-	writel(0x00400080, &mctl_com->mcr[8][1]);
-	writel(0x04000009, &mctl_com->mcr[9][0]);
-	writel(0x00400100, &mctl_com->mcr[9][1]);
-	writel(0x2000030d, &mctl_com->mcr[10][0]);
-	writel(0x04001800, &mctl_com->mcr[10][1]);
-	writel(0x04000009, &mctl_com->mcr[11][0]);
-	writel(0x00400120, &mctl_com->mcr[11][1]);
+	MBUS_CONF(   CPU,  true, HIGHEST, 0,  512,  256,  128);
+	MBUS_CONF(   GPU,  true,    HIGH, 0, 1536, 1024,  256);
+	MBUS_CONF(UNUSED,  true, HIGHEST, 0,  512,  256,   96);
+	MBUS_CONF(   DMA,  true, HIGHEST, 0,  256,  128,   32);
+	MBUS_CONF(    VE,  true,    HIGH, 0, 1792, 1600,  256);
+	MBUS_CONF(   CSI,  true, HIGHEST, 0,  256,  128,   32);
+	MBUS_CONF(  NAND,  true,    HIGH, 0,  256,  128,   64);
+	MBUS_CONF(    SS,  true, HIGHEST, 0,  256,  128,   64);
+	MBUS_CONF(    TS,  true, HIGHEST, 0,  256,  128,   64);
+	MBUS_CONF(    DI,  true,    HIGH, 0, 1024,  256,   64);
+	MBUS_CONF(    DE,  true, HIGHEST, 3, 8192, 6120, 1024);
+	MBUS_CONF(DE_CFD,  true,    HIGH, 0, 1024,  288,   64);
 }
 
 static void mctl_set_timing_params(struct dram_para *para)
