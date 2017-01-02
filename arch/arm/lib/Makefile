@@ -77,8 +77,10 @@ ifndef CONFIG_HAS_THUMB2
 
 # for C files, just apend -marm, which will override previous -mthumb*
 
+ifndef CONFIG_ARM64
 CFLAGS_cache.o := -marm
 CFLAGS_cache-cp15.o := -marm
+endif
 
 # For .S, drop -mthumb* and other thumb-related options.
 # CFLAGS_REMOVE_* would not have an effet, so AFLAGS_REMOVE_*
