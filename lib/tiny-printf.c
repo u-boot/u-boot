@@ -69,6 +69,9 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 			bool islong = false;
 
 			ch = *(fmt++);
+			if (ch == '-')
+				ch = *(fmt++);
+
 			if (ch == '0') {
 				ch = *(fmt++);
 				lz = 1;
