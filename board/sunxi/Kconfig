@@ -133,6 +133,15 @@ config MACH_SUN8I
 	bool
 	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
 
+config RESERVE_ALLWINNER_BOOT0_HEADER
+	bool "reserve space for Allwinner boot0 header"
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	---help---
+	Prepend a 1536 byte (empty) header to the U-Boot image file, to be
+	filled with magic values post build. The Allwinner provided boot0
+	blob relies on this information to load and execute U-Boot.
+	Only needed on 64-bit Allwinner boards so far when using boot0.
+
 config DRAM_TYPE
 	int "sunxi dram type"
 	depends on MACH_SUN8I_A83T
