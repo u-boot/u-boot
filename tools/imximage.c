@@ -300,8 +300,7 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	hdr_base = entry_point - 4096;
+	hdr_base = entry_point - imximage_init_loadsize + flash_offset;
 	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
 	fhdr_v1->app_code_jump_vector = entry_point;
 
@@ -833,17 +832,18 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
-	if (imximage_version == IMXIMAGE_V2) {
+	if (imximage_version == IMXIMAGE_V1)
+		header_size = sizeof(flash_header_v1_t);
+	else {
 		header_size = sizeof(flash_header_v2_t) + sizeof(boot_data_t);
 		if (!plugin_image)
 			header_size += sizeof(dcd_v2_t);
 		else
 			header_size += MAX_PLUGIN_CODE_SIZE;
-
-		if (imximage_init_loadsize < imximage_ivt_offset + header_size)
-				imximage_init_loadsize = imximage_ivt_offset +
-					header_size;
 	}
+
+	if (imximage_init_loadsize < imximage_ivt_offset + header_size)
+			imximage_init_loadsize = imximage_ivt_offset + header_size;
 
 	/* Set the imx header */
 	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imximage_ivt_offset);
@@ -913,22 +913,20 @@ static int imximage_generate(struct image_tool_params *params,
 	/* Parse dcd configuration file */
 	parse_cfg_file(&imximage_header, params->imagename);
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	if (imximage_version == IMXIMAGE_V1) {
-		alloc_len = 4096;
-		header_size = 4096;
-	} else {
+	if (imximage_version == IMXIMAGE_V1)
+		header_size = sizeof(imx_header_v1_t);
+	else {
 		header_size = sizeof(flash_header_v2_t) + sizeof(boot_data_t);
 		if (!plugin_image)
 			header_size += sizeof(dcd_v2_t);
 		else
 			header_size += MAX_PLUGIN_CODE_SIZE;
-
-		if (imximage_init_loadsize < imximage_ivt_offset + header_size)
-				imximage_init_loadsize = imximage_ivt_offset +
-					header_size;
-		alloc_len = imximage_init_loadsize - imximage_ivt_offset;
 	}
+
+	if (imximage_init_loadsize < imximage_ivt_offset + header_size)
+			imximage_init_loadsize = imximage_ivt_offset + header_size;
+
+	alloc_len = imximage_init_loadsize - imximage_ivt_offset;
 
 	if (alloc_len < header_size) {
 		fprintf(stderr, "%s: header error\n",
@@ -959,11 +957,7 @@ static int imximage_generate(struct image_tool_params *params,
 
 	pad_len = ROUND(sbuf.st_size, 4096) - sbuf.st_size;
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	if (imximage_version == IMXIMAGE_V1)
-		return 0;
-	else
-		return pad_len;
+	return pad_len;
 }
 
 
