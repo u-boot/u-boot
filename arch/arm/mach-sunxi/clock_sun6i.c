@@ -21,6 +21,8 @@ void clock_init_safe(void)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+#if !defined(CONFIG_MACH_SUN8I_H3) && !defined(CONFIG_MACH_SUN50I)
 	struct sunxi_prcm_reg * const prcm =
 		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
@@ -31,6 +33,7 @@ void clock_init_safe(void)
 		PRCM_PLL_CTRL_LDO_DIGITAL_EN | PRCM_PLL_CTRL_LDO_ANALOG_EN |
 		PRCM_PLL_CTRL_EXT_OSC_EN | PRCM_PLL_CTRL_LDO_OUT_L(1140));
 	clrbits_le32(&prcm->pll_ctrl1, PRCM_PLL_CTRL_LDO_KEY_MASK);
+#endif
 
 	clock_set_pll1(408000000);
 
@@ -41,7 +44,8 @@ void clock_init_safe(void)
 	writel(AHB1_ABP1_DIV_DEFAULT, &ccm->ahb1_apb1_div);
 
 	writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
-	writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
+	if (IS_ENABLED(CONFIG_MACH_SUN6I))
+		writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
 }
 #endif
 
