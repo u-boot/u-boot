@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
+#include <asm/arch/cpu.h>
 #include <linux/kconfig.h>
 
 /*
@@ -40,30 +41,6 @@ static inline int ns_to_t(int nanoseconds)
 	const unsigned int ctrl_freq = CONFIG_DRAM_CLK / 2;
 
 	return DIV_ROUND_UP(ctrl_freq * nanoseconds, 1000);
-}
-
-static u32 bin_to_mgray(int val)
-{
-	static const u8 lookup_table[32] = {
-		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05,
-		0x0c, 0x0d, 0x0e, 0x0f, 0x0a, 0x0b, 0x08, 0x09,
-		0x18, 0x19, 0x1a, 0x1b, 0x1e, 0x1f, 0x1c, 0x1d,
-		0x14, 0x15, 0x16, 0x17, 0x12, 0x13, 0x10, 0x11,
-	};
-
-	return lookup_table[clamp(val, 0, 31)];
-}
-
-static int mgray_to_bin(u32 val)
-{
-	static const u8 lookup_table[32] = {
-		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05,
-		0x0e, 0x0f, 0x0c, 0x0d, 0x08, 0x09, 0x0a, 0x0b,
-		0x1e, 0x1f, 0x1c, 0x1d, 0x18, 0x19, 0x1a, 0x1b,
-		0x10, 0x11, 0x12, 0x13, 0x16, 0x17, 0x14, 0x15,
-	};
-
-	return lookup_table[val & 0x1f];
 }
 
 static void mctl_phy_init(u32 val)
@@ -148,13 +125,13 @@ inline void mbus_configure_port(u8 port,
 	mbus_configure_port(MBUS_PORT_ ## port, bwlimit, false, \
 			    MBUS_QOS_ ## qos, 0, acs, bwl0, bwl1, bwl2)
 
-static void mctl_set_master_priority(void)
+static void mctl_set_master_priority_h3(void)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 
 	/* enable bandwidth limit windows and set windows size 1us */
-	writel(0x00010190, &mctl_com->bwcr);
+	writel((1 << 16) | (400 << 0), &mctl_com->bwcr);
 
 	/* set cpu high priority */
 	writel(0x00000001, &mctl_com->mapr);
@@ -173,7 +150,46 @@ static void mctl_set_master_priority(void)
 	MBUS_CONF(DE_CFD,  true,    HIGH, 0, 1024,  288,   64);
 }
 
-static void mctl_set_timing_params(struct dram_para *para)
+static void mctl_set_master_priority_a64(void)
+{
+	struct sunxi_mctl_com_reg * const mctl_com =
+			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
+
+	/* enable bandwidth limit windows and set windows size 1us */
+	writel(399, &mctl_com->tmr);
+	writel((1 << 16), &mctl_com->bwcr);
+
+	/* Port 2 is reserved per Allwinner's linux-3.10 source, yet they
+	 * initialise it */
+	MBUS_CONF(   CPU,  true, HIGHEST, 0,  160,  100,   80);
+	MBUS_CONF(   GPU, false,    HIGH, 0, 1536, 1400,  256);
+	MBUS_CONF(UNUSED,  true, HIGHEST, 0,  512,  256,   96);
+	MBUS_CONF(   DMA,  true,    HIGH, 0,  256,   80,  100);
+	MBUS_CONF(    VE,  true,    HIGH, 0, 1792, 1600,  256);
+	MBUS_CONF(   CSI,  true,    HIGH, 0,  256,  128,    0);
+	MBUS_CONF(  NAND,  true,    HIGH, 0,  256,  128,   64);
+	MBUS_CONF(    SS,  true, HIGHEST, 0,  256,  128,   64);
+	MBUS_CONF(    TS,  true, HIGHEST, 0,  256,  128,   64);
+	MBUS_CONF(    DI,  true,    HIGH, 0, 1024,  256,   64);
+	MBUS_CONF(    DE,  true,    HIGH, 2, 8192, 6144, 2048);
+	MBUS_CONF(DE_CFD,  true,    HIGH, 0, 1280,  144,   64);
+
+	writel(0x81000004, &mctl_com->mdfs_bwlr[2]);
+}
+
+static void mctl_set_master_priority(uint16_t socid)
+{
+	switch (socid) {
+	case SOCID_H3:
+		mctl_set_master_priority_h3();
+		return;
+	case SOCID_A64:
+		mctl_set_master_priority_a64();
+		return;
+	}
+}
+
+static void mctl_set_timing_params(uint16_t socid, struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
@@ -254,7 +270,31 @@ static void mctl_set_timing_params(struct dram_para *para)
 	writel(RFSHTMG_TREFI(trefi) | RFSHTMG_TRFC(trfc), &mctl_ctl->rfshtmg);
 }
 
-static void mctl_zq_calibration(struct dram_para *para)
+static u32 bin_to_mgray(int val)
+{
+	static const u8 lookup_table[32] = {
+		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05,
+		0x0c, 0x0d, 0x0e, 0x0f, 0x0a, 0x0b, 0x08, 0x09,
+		0x18, 0x19, 0x1a, 0x1b, 0x1e, 0x1f, 0x1c, 0x1d,
+		0x14, 0x15, 0x16, 0x17, 0x12, 0x13, 0x10, 0x11,
+	};
+
+	return lookup_table[clamp(val, 0, 31)];
+}
+
+static int mgray_to_bin(u32 val)
+{
+	static const u8 lookup_table[32] = {
+		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05,
+		0x0e, 0x0f, 0x0c, 0x0d, 0x08, 0x09, 0x0a, 0x0b,
+		0x1e, 0x1f, 0x1c, 0x1d, 0x18, 0x19, 0x1a, 0x1b,
+		0x10, 0x11, 0x12, 0x13, 0x16, 0x17, 0x14, 0x15,
+	};
+
+	return lookup_table[val & 0x1f];
+}
+
+static void mctl_h3_zq_calibration_quirk(struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
@@ -324,7 +364,7 @@ static void mctl_set_cr(struct dram_para *para)
 	       MCTL_CR_ROW_BITS(para->row_bits), &mctl_com->cr);
 }
 
-static void mctl_sys_init(struct dram_para *para)
+static void mctl_sys_init(uint16_t socid, struct dram_para *para)
 {
 	struct sunxi_ccm_reg * const ccm =
 			(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -336,16 +376,30 @@ static void mctl_sys_init(struct dram_para *para)
 	clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MCTL);
 	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MCTL);
 	clrbits_le32(&ccm->pll5_cfg, CCM_PLL5_CTRL_EN);
+	if (socid == SOCID_A64)
+		clrbits_le32(&ccm->pll11_cfg, CCM_PLL11_CTRL_EN);
 	udelay(10);
 
 	clrbits_le32(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_RST);
 	udelay(1000);
 
-	clock_set_pll5(CONFIG_DRAM_CLK * 2 * 1000000, false);
-	clrsetbits_le32(&ccm->dram_clk_cfg,
-			CCM_DRAMCLK_CFG_DIV_MASK | CCM_DRAMCLK_CFG_SRC_MASK,
-			CCM_DRAMCLK_CFG_DIV(1) | CCM_DRAMCLK_CFG_SRC_PLL5 |
-			CCM_DRAMCLK_CFG_UPD);
+	if (socid == SOCID_A64) {
+		clock_set_pll11(CONFIG_DRAM_CLK * 2 * 1000000, false);
+		clrsetbits_le32(&ccm->dram_clk_cfg,
+				CCM_DRAMCLK_CFG_DIV_MASK |
+				CCM_DRAMCLK_CFG_SRC_MASK,
+				CCM_DRAMCLK_CFG_DIV(1) |
+				CCM_DRAMCLK_CFG_SRC_PLL11 |
+				CCM_DRAMCLK_CFG_UPD);
+	} else if (socid == SOCID_H3) {
+		clock_set_pll5(CONFIG_DRAM_CLK * 2 * 1000000, false);
+		clrsetbits_le32(&ccm->dram_clk_cfg,
+				CCM_DRAMCLK_CFG_DIV_MASK |
+				CCM_DRAMCLK_CFG_SRC_MASK,
+				CCM_DRAMCLK_CFG_DIV(1) |
+				CCM_DRAMCLK_CFG_SRC_PLL5 |
+				CCM_DRAMCLK_CFG_UPD);
+	}
 	mctl_await_completion(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_UPD, 0);
 
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MCTL);
@@ -360,7 +414,7 @@ static void mctl_sys_init(struct dram_para *para)
 	udelay(500);
 }
 
-static int mctl_channel_init(struct dram_para *para)
+static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -370,8 +424,8 @@ static int mctl_channel_init(struct dram_para *para)
 	unsigned int i;
 
 	mctl_set_cr(para);
-	mctl_set_timing_params(para);
-	mctl_set_master_priority();
+	mctl_set_timing_params(socid, para);
+	mctl_set_master_priority(socid);
 
 	/* setting VTC, default disable all VT */
 	clrbits_le32(&mctl_ctl->pgcr[0], (1 << 30) | 0x3f);
@@ -397,12 +451,18 @@ static int mctl_channel_init(struct dram_para *para)
 	/* set DQS auto gating PD mode */
 	setbits_le32(&mctl_ctl->pgcr[2], 0x3 << 6);
 
-	/* dx ddr_clk & hdr_clk dynamic mode */
-	clrbits_le32(&mctl_ctl->pgcr[0], (0x3 << 14) | (0x3 << 12));
+	if (socid == SOCID_H3) {
+		/* dx ddr_clk & hdr_clk dynamic mode */
+		clrbits_le32(&mctl_ctl->pgcr[0], (0x3 << 14) | (0x3 << 12));
 
-	/* dphy & aphy phase select 270 degree */
-	clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
-			(0x1 << 10) | (0x2 << 8));
+		/* dphy & aphy phase select 270 degree */
+		clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
+				(0x1 << 10) | (0x2 << 8));
+	} else if (socid == SOCID_A64) {
+		/* dphy & aphy phase select ? */
+		clrsetbits_le32(&mctl_ctl->pgcr[2], (0x3 << 10) | (0x3 << 8),
+				(0x0 << 10) | (0x3 << 8));
+	}
 
 	/* set half DQ */
 	if (para->bus_width != 32) {
@@ -417,10 +477,17 @@ static int mctl_channel_init(struct dram_para *para)
 	mctl_set_bit_delays(para);
 	udelay(50);
 
-	mctl_zq_calibration(para);
+	if (socid == SOCID_H3) {
+		mctl_h3_zq_calibration_quirk(para);
 
-	mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST | PIR_DRAMRST |
-		      PIR_DRAMINIT | PIR_QSGATE);
+		mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST |
+			      PIR_DRAMRST | PIR_DRAMINIT | PIR_QSGATE);
+	} else if (socid == SOCID_A64) {
+		clrsetbits_le32(&mctl_ctl->zqcr, 0xffffff, CONFIG_DRAM_ZQ);
+
+		mctl_phy_init(PIR_ZCAL | PIR_PLLINIT | PIR_DCAL | PIR_PHYRST |
+			      PIR_DRAMRST | PIR_DRAMINIT | PIR_QSGATE);
+	}
 
 	/* detect ranks and bus width */
 	if (readl(&mctl_ctl->pgsr[0]) & (0xfe << 20)) {
@@ -458,7 +525,10 @@ static int mctl_channel_init(struct dram_para *para)
 	udelay(10);
 
 	/* set PGCR3, CKE polarity */
-	writel(0x00aa0060, &mctl_ctl->pgcr[3]);
+	if (socid == SOCID_H3)
+		writel(0x00aa0060, &mctl_ctl->pgcr[3]);
+	else if (socid == SOCID_A64)
+		writel(0xc0aa0060, &mctl_ctl->pgcr[3]);
 
 	/* power down zq calibration module for power save */
 	setbits_le32(&mctl_ctl->zqcr, ZQCR_PWRDOWN);
@@ -512,6 +582,22 @@ static void mctl_auto_detect_dram_size(struct dram_para *para)
 	   0,  0,  0,  0,  0,  0,  0,  0,			\
 	   0,  0,  0,  0,  0,  0,  0      }
 
+#define SUN50I_A64_DX_READ_DELAYS				\
+	{{ 16, 16, 16, 16, 17, 16, 16, 17, 16,  1,  0 },	\
+	 { 17, 17, 17, 17, 17, 17, 17, 17, 17,  1,  0 },	\
+	 { 16, 17, 17, 16, 16, 16, 16, 16, 16,  0,  0 },	\
+	 { 17, 17, 17, 17, 17, 17, 17, 17, 17,  1,  0 }}
+#define SUN50I_A64_DX_WRITE_DELAYS				\
+	{{  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15 },	\
+	 {  0,  0,  0,  0,  1,  1,  1,  1,  0, 10, 10 },	\
+	 {  1,  0,  1,  1,  1,  1,  1,  1,  0, 11, 11 },	\
+	 {  1,  0,  0,  1,  1,  1,  1,  1,  0, 12, 12 }}
+#define SUN50I_A64_AC_DELAYS					\
+	{  5,  5, 13, 10,  2,  5,  3,  3,			\
+	   0,  3,  3,  3,  1,  0,  0,  0,			\
+	   3,  4,  0,  3,  4,  1,  4,  0,			\
+	   1,  1,  0,  1, 13,  5,  4      }
+
 unsigned long sunxi_dram_init(void)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
@@ -524,13 +610,30 @@ unsigned long sunxi_dram_init(void)
 		.bus_width = 32,
 		.row_bits = 15,
 		.page_size = 4096,
+
+#if defined(CONFIG_MACH_SUN8I_H3)
 		.dx_read_delays  = SUN8I_H3_DX_READ_DELAYS,
 		.dx_write_delays = SUN8I_H3_DX_WRITE_DELAYS,
 		.ac_delays	 = SUN8I_H3_AC_DELAYS,
+#elif defined(CONFIG_MACH_SUN50I)
+		.dx_read_delays  = SUN50I_A64_DX_READ_DELAYS,
+		.dx_write_delays = SUN50I_A64_DX_WRITE_DELAYS,
+		.ac_delays	 = SUN50I_A64_AC_DELAYS,
+#endif
 	};
+/*
+ * Let the compiler optimize alternatives away by passing this value into
+ * the static functions. This saves us #ifdefs, but still keeps the binary
+ * small.
+ */
+#if defined(CONFIG_MACH_SUN8I_H3)
+	uint16_t socid = SOCID_H3;
+#elif defined(CONFIG_MACH_SUN50I)
+	uint16_t socid = SOCID_A64;
+#endif
 
-	mctl_sys_init(&para);
-	if (mctl_channel_init(&para))
+	mctl_sys_init(socid, &para);
+	if (mctl_channel_init(socid, &para))
 		return 0;
 
 	if (para.dual_rank)
@@ -540,7 +643,13 @@ unsigned long sunxi_dram_init(void)
 	udelay(1);
 
 	/* odt delay */
-	writel(0x0c000400, &mctl_ctl->odtcfg);
+	if (socid == SOCID_H3)
+		writel(0x0c000400, &mctl_ctl->odtcfg);
+
+	if (socid == SOCID_A64) {
+		setbits_le32(&mctl_ctl->vtfcr, 2 << 8);
+		clrbits_le32(&mctl_ctl->pgcr[2], (1 << 13));
+	}
 
 	/* clear credit value */
 	setbits_le32(&mctl_com->cccr, 1 << 31);

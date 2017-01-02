@@ -15,7 +15,8 @@
 
 struct sunxi_mctl_com_reg {
 	u32 cr;			/* 0x00 control register */
-	u8 res0[0xc];		/* 0x04 */
+	u8 res0[0x8];		/* 0x04 */
+	u32 tmr;		/* 0x0c (unused on H3) */
 	u32 mcr[16][2];		/* 0x10 */
 	u32 bwcr;		/* 0x90 bandwidth control register */
 	u32 maer;		/* 0x94 master enable register */
@@ -32,7 +33,9 @@ struct sunxi_mctl_com_reg {
 	u32 swoffr;		/* 0xc4 */
 	u8 res2[0x8];		/* 0xc8 */
 	u32 cccr;		/* 0xd0 */
-	u8 res3[0x72c];		/* 0xd4 */
+	u8 res3[0x54];		/* 0xd4 */
+	u32 mdfs_bwlr[3];	/* 0x128 (unused on H3) */
+	u8 res4[0x6cc];		/* 0x134 */
 	u32 protect;		/* 0x800 */
 };
 
@@ -81,7 +84,8 @@ struct sunxi_mctl_ctl_reg {
 	u32 rfshtmg;		/* 0x90 refresh timing */
 	u32 rfshctl1;		/* 0x94 */
 	u32 pwrtmg;		/* 0x98 */
-	u8  res3[0x20];		/* 0x9c */
+	u8 res3[0x1c];		/* 0x9c */
+	u32 vtfcr;		/* 0xb8 (unused on H3) */
 	u32 dqsgmr;		/* 0xbc */
 	u32 dtcr;		/* 0xc0 */
 	u32 dtar[4];		/* 0xc4 */

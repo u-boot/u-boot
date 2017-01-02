@@ -322,6 +322,7 @@ struct sunxi_ccm_reg {
 #define CCM_DRAMCLK_CFG_DIV0_MASK	(0xf << 8)
 #define CCM_DRAMCLK_CFG_SRC_PLL5	(0x0 << 20)
 #define CCM_DRAMCLK_CFG_SRC_PLL6x2	(0x1 << 20)
+#define CCM_DRAMCLK_CFG_SRC_PLL11	(0x1 << 20) /* A64 only */
 #define CCM_DRAMCLK_CFG_SRC_MASK	(0x3 << 20)
 #define CCM_DRAMCLK_CFG_UPD		(0x1 << 16)
 #define CCM_DRAMCLK_CFG_RST		(0x1 << 31)
