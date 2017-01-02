@@ -664,6 +664,6 @@ unsigned long sunxi_dram_init(void)
 	mctl_auto_detect_dram_size(&para);
 	mctl_set_cr(&para);
 
-	return (1 << (para.row_bits + 3)) * para.page_size *
+	return (1UL << (para.row_bits + 3)) * para.page_size *
 						(para.dual_rank ? 2 : 1);
 }
