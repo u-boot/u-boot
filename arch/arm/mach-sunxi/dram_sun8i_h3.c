@@ -72,21 +72,21 @@ static void mctl_dq_delay(u32 read, u32 write)
 	u32 val;
 
 	for (i = 0; i < 4; i++) {
-		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
+		val = DXBDLR_WRITE_DELAY((write >> (i * 4)) & 0xf) |
+		      DXBDLR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
 
-		for (j = DATX_IOCR_DQ(0); j <= DATX_IOCR_DM; j++)
-			writel(val, &mctl_ctl->datx[i].iocr[j]);
+		for (j = DXBDLR_DQ(0); j <= DXBDLR_DM; j++)
+			writel(val, &mctl_ctl->dx[i].bdlr[j]);
 	}
 
 	clrbits_le32(&mctl_ctl->pgcr[0], 1 << 26);
 
 	for (i = 0; i < 4; i++) {
-		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
+		val = DXBDLR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) |
+		      DXBDLR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
 
-		writel(val, &mctl_ctl->datx[i].iocr[DATX_IOCR_DQS]);
-		writel(val, &mctl_ctl->datx[i].iocr[DATX_IOCR_DQSN]);
+		writel(val, &mctl_ctl->dx[i].bdlr[DXBDLR_DQS]);
+		writel(val, &mctl_ctl->dx[i].bdlr[DXBDLR_DQSN]);
 	}
 
 	setbits_le32(&mctl_ctl->pgcr[0], 1 << 26);
@@ -384,7 +384,7 @@ static int mctl_channel_init(struct dram_para *para)
 
 	/* set dramc odt */
 	for (i = 0; i < 4; i++)
-		clrsetbits_le32(&mctl_ctl->datx[i].gcr, (0x3 << 4) |
+		clrsetbits_le32(&mctl_ctl->dx[i].gcr, (0x3 << 4) |
 				(0x1 << 1) | (0x3 << 2) | (0x3 << 12) |
 				(0x3 << 14),
 				IS_ENABLED(CONFIG_DRAM_ODT_EN) ? 0x0 : 0x2);
@@ -404,8 +404,8 @@ static int mctl_channel_init(struct dram_para *para)
 
 	/* set half DQ */
 	if (para->bus_width != 32) {
-		writel(0x0, &mctl_ctl->datx[2].gcr);
-		writel(0x0, &mctl_ctl->datx[3].gcr);
+		writel(0x0, &mctl_ctl->dx[2].gcr);
+		writel(0x0, &mctl_ctl->dx[3].gcr);
 	}
 
 	/* data training configuration */
@@ -426,17 +426,17 @@ static int mctl_channel_init(struct dram_para *para)
 	/* detect ranks and bus width */
 	if (readl(&mctl_ctl->pgsr[0]) & (0xfe << 20)) {
 		/* only one rank */
-		if (((readl(&mctl_ctl->datx[0].gsr[0]) >> 24) & 0x2) ||
-		    ((readl(&mctl_ctl->datx[1].gsr[0]) >> 24) & 0x2)) {
+		if (((readl(&mctl_ctl->dx[0].gsr[0]) >> 24) & 0x2) ||
+		    ((readl(&mctl_ctl->dx[1].gsr[0]) >> 24) & 0x2)) {
 			clrsetbits_le32(&mctl_ctl->dtcr, 0xf << 24, 0x1 << 24);
 			para->dual_rank = 0;
 		}
 
 		/* only half DQ width */
-		if (((readl(&mctl_ctl->datx[2].gsr[0]) >> 24) & 0x1) ||
-		    ((readl(&mctl_ctl->datx[3].gsr[0]) >> 24) & 0x1)) {
-			writel(0x0, &mctl_ctl->datx[2].gcr);
-			writel(0x0, &mctl_ctl->datx[3].gcr);
+		if (((readl(&mctl_ctl->dx[2].gsr[0]) >> 24) & 0x1) ||
+		    ((readl(&mctl_ctl->dx[3].gsr[0]) >> 24) & 0x1)) {
+			writel(0x0, &mctl_ctl->dx[2].gcr);
+			writel(0x0, &mctl_ctl->dx[3].gcr);
 			para->bus_width = 16;
 		}
 
