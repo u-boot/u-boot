@@ -131,7 +131,7 @@ config MAX_CPUS
 	  in spin table to properly handle all cores.
 
 config SECURE_BOOT
-	bool
+	bool "Secure Boot"
 	help
 		Enable Freescale Secure Boot feature
 
