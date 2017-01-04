@@ -148,62 +148,61 @@
 		"omapfb.rotate=${rotation}; " \
 		"fi\0" \
 	"optargs=ignore_loglevel early_printk no_console_suspend\0" \
-	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0" \
-	"common_bootargs=setenv bootargs ${bootargs} " \
-		"${optargs};" \
-		"run addmtdparts; " \
+	"common_bootargs=run setconsole; setenv bootargs " \
+		"${bootargs} "\
+		"console=${console} " \
+		"${mtdparts} "\
+		"${optargs}; " \
 		"run vrfb_arg\0" \
 	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo 'Running bootscript from mmc ...'; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=mmc rescan; " \
-		"load mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"loadzimage=mmc rescan; " \
-		"load mmc ${mmcdev} ${loadaddr} zImage\0" \
+	"loadimage=mmc rescan; " \
+		"load mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
 	"ramdisksize=64000\0" \
 	"ramdiskimage=rootfs.ext2.gz.uboot\0" \
 	"loadramdisk=mmc rescan; " \
 		"load mmc ${mmcdev} ${rdaddr} ${ramdiskimage}\0" \
-	"ramargs=run setconsole; setenv bootargs console=${console} " \
+	"ramargs=setenv bootargs "\
 		"root=/dev/ram rw ramdisk_size=${ramdisksize}\0" \
-	"mmcargs=run setconsole; setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
-	"nandargs=run setconsole; setenv bootargs console=${console} " \
-		"${optargs} " \
+	"mmcargs=setenv bootargs "\
+		"root=${mmcroot} rootfstype=${mmcrootfstype}\0" \
+	"nandargs=setenv bootargs "\
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"nfsargs=run setconsole; setenv serverip ${tftpserver}; " \
-		"setenv bootargs console=${console} root=/dev/nfs " \
+	"nfsargs=setenv serverip ${tftpserver}; " \
+		"setenv bootargs root=/dev/nfs " \
 		"nfsroot=${nfsrootpath} " \
 		"ip=${ipaddr}:${tftpserver}:${gatewayip}:${netmask}::eth0:off\0" \
 	"nfsrootpath=/opt/nfs-exports/omap\0" \
 	"autoload=no\0" \
 	"loadfdt=mmc rescan; " \
 		"load mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
-	"mmcbootz=echo Booting with DT from mmc${mmcdev} ...; " \
+	"mmcbootcommon=echo Booting with DT from mmc${mmcdev} ...; " \
 		"run mmcargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
-		"run loadzimage; " \
-		"run loadfdt; " \
+		"run loadimage; " \
+		"run loadfdt;\0 " \
+	"mmcbootz=setenv bootfile zImage; " \
+		"run mmcbootcommon; "\
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
-	"mmcramboot=echo 'Booting uImage kernel from mmc w/ramdisk...'; " \
+	"mmcboot=setenv bootfile uImage; "\
+		"run mmcbootcommon; "\
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
+	"mmcrambootcommon=echo 'Booting kernel from MMC w/ramdisk...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
-		"run loaduimage; " \
-		"run loadramdisk; " \
-		"bootm ${loadaddr} ${rdaddr}\0" \
-	"mmcrambootz=echo 'Booting zImage kernel from mmc w/ramdisk...'; " \
-		"run ramargs; " \
-		"run common_bootargs; " \
-		"run dump_bootargs; " \
-		"run loadzimage; " \
-		"run loadramdisk; " \
+		"run loadimage; " \
 		"run loadfdt; " \
-		"bootz ${loadaddr} ${rdaddr} ${fdtaddr};\0" \
+		"run loadramdisk\0" \
+	"mmcramboot=setenv bootfile uImage; " \
+		"run mmcrambootcommon; " \
+		"bootm ${loadaddr} ${rdaddr} ${fdtimage}\0" \
+	"mmcrambootz=setenv bootfile zImage; " \
+		"run mmcrambootcommon; " \
+		"bootz ${loadaddr} ${rdaddr} ${fdtimage}\0" \
 	"tftpboot=echo 'Booting kernel/ramdisk rootfs from tftp...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
@@ -217,7 +216,18 @@
 		"run common_bootargs;" \
 		"run dump_bootargs;" \
 		"tftpboot $loadaddr zImage;" \
-		"bootz $loadaddr\0"
+		"bootz $loadaddr\0" \
+	"nandbootcommon=echo 'Booting kernel from NAND...';" \
+		"nand unlock;" \
+		"run nandargs;" \
+		"run common_bootargs;" \
+		"run dump_bootargs;" \
+		"nand read ${loadaddr} kernel;" \
+		"nand read ${fdtaddr} spl-os;\0" \
+	"nandbootz=run nandbootcommon; "\
+		"bootz ${loadaddr} - ${fdtaddr}\0"\
+	"nandboot=run nandbootcommon; "\
+		"bootm ${loadaddr} - ${fdtaddr}\0"\
 
 #define CONFIG_BOOTCOMMAND \
 	"run autoboot"
