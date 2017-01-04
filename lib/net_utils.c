@@ -28,6 +28,10 @@ struct in_addr string_to_ip(const char *s)
 			addr.s_addr = 0;
 			return addr;
 		}
+		if (i != 3 && *e != '.') {
+			addr.s_addr = 0;
+			return addr;
+		}
 		addr.s_addr <<= 8;
 		addr.s_addr |= (val & 0xFF);
 		if (s) {
