@@ -270,7 +270,7 @@
 		};
 
 		emmc: sdhc@5a000000 {
-			compatible = "cdns,sd4hc";
+			compatible = "socionext,uniphier-sd4hc", "cdns,sd4hc";
 			reg = <0x5a000000 0x400>;
 			interrupts = <0 78 4>;
 			pinctrl-names = "default";
@@ -279,7 +279,6 @@
 			bus-width = <8>;
 			mmc-ddr-1_8v;
 			mmc-hs200-1_8v;
-			/* mmc-hs400-1_8v; support depends on board design */
 		};
 
 		usb0: usb@5a800100 {
