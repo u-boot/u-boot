@@ -561,7 +561,7 @@ void genimg_print_size(uint32_t size)
 	printf("%d Bytes = ", size);
 	print_size(size, "\n");
 #else
-	printf("%d Bytes = %.2f kB = %.2f MB\n",
+	printf("%d Bytes = %.2f KiB = %.2f MiB\n",
 			size, (double)size / 1.024e3,
 			(double)size / 1.048576e6);
 #endif
