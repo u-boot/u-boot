@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/freescale/mx6ullevk/
 F:	include/configs/mx6ullevk.h
 F:	configs/mx6ull_14x14_evk_defconfig
+F:	configs/mx6ull_14x14_evk_plugin_defconfig
