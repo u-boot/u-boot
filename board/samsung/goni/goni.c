@@ -138,7 +138,7 @@ static int s5pc1xx_phy_control(int on)
 	static int status;
 	int reg, ret;
 
-	ret = pmic_get("max8998_pmic", &dev);
+	ret = pmic_get("max8998-pmic", &dev);
 	if (ret)
 		return ret;
 
