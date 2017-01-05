@@ -2,10 +2,9 @@ High Assurance Boot (HAB) for i.MX6 CPUs
 
 To enable the authenticated or encrypted boot mode of U-Boot, it is
 required to set the proper configuration for the target board. This
-is done by adding the following configuration in in the proper config
-file (e.g. include/configs/mx6qarm2.h)
+is done by adding the following configuration in the defconfig file:
 
-#define CONFIG_SECURE_BOOT
+CONFIG_SECURE_BOOT=y
 
 In addition, the U-Boot image to be programmed into the
 boot media needs to be properly constructed, i.e. it must contain a
