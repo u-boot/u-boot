@@ -9,7 +9,7 @@ menuconfig PCI
 if PCI
 
 config DM_PCI
-	bool "Enable driver mode for PCI"
+	bool "Enable driver model for PCI"
 	depends on DM
 	help
 	  Use driver model for PCI. Driver model is the new method for

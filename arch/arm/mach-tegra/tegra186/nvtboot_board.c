@@ -11,6 +11,19 @@
 
 extern unsigned long nvtboot_boot_x0;
 
+static int set_fdt_addr(void)
+{
+	int ret;
+
+	ret = setenv_hex("fdt_addr", nvtboot_boot_x0);
+	if (ret) {
+		printf("Failed to set fdt_addr to point at DTB: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 /*
  * Attempt to use /chosen/nvidia,ether-mac in the nvtboot DTB to U-Boot's
  * ethaddr environment variable if possible.
@@ -47,6 +60,11 @@ static int set_ethaddr_from_nvtboot(void)
 
 int tegra_soc_board_init_late(void)
 {
+	/*
+	 * Ignore errors here; the value may not be used depending on
+	 * extlinux.conf or boot script content.
+	 */
+	set_fdt_addr();
 	/* Ignore errors here; not all cases care about Ethernet addresses */
 	set_ethaddr_from_nvtboot();
 
