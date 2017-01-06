@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-quiet_cmd_mkomapsecimg = MKIMAGE $@
+quiet_cmd_mkomapsecimg = SECURE  $@
 ifneq ($(TI_SECURE_DEV_PKG),)
 ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh),)
 ifneq ($(CONFIG_SPL_BUILD),)
@@ -18,11 +18,12 @@ endif
 else
 cmd_mkomapsecimg = echo "WARNING:" \
 	"$(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh not found." \
-	"$@ was NOT created!"
+	"$@ was NOT secured!"; cp $< $@
 endif
 else
 cmd_mkomapsecimg = echo "WARNING: TI_SECURE_DEV_PKG environment" \
-	"variable must be defined for TI secure devices. $@ was NOT created!"
+	"variable must be defined for TI secure devices. \
+	$@ was NOT secured!"; cp $< $@
 endif
 
 ifdef CONFIG_SPL_LOAD_FIT
@@ -35,51 +36,51 @@ cmd_omapsecureimg = $(TI_SECURE_DEV_PKG)/scripts/secure-binary-image.sh \
 else
 cmd_omapsecureimg = echo "WARNING:" \
 	"$(TI_SECURE_DEV_PKG)/scripts/secure-binary-image.sh not found." \
-	"$@ was NOT created!"; cp $< $@
+	"$@ was NOT secured!"; cp $< $@
 endif
 else
 cmd_omapsecureimg = echo "WARNING: TI_SECURE_DEV_PKG environment" \
 	"variable must be defined for TI secure devices." \
-	"$@ was NOT created!"; cp $< $@
+	"$@ was NOT secured!"; cp $< $@
 endif
 endif
 
 
 # Standard X-LOADER target (QPSI, NOR flash)
-u-boot-spl_HS_X-LOADER: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_X-LOADER: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # For MLO targets (SD card boot) the final file name that is copied to the SD
 # card FAT partition must be MLO, so we make a copy of the output file to a new
 # file with that name
-u-boot-spl_HS_MLO: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_MLO: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 	@if [ -f $@ ]; then \
 		cp -f $@ MLO; \
 	fi
 
 # Standard 2ND target (certain peripheral boot modes)
-u-boot-spl_HS_2ND: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_2ND: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # Standard ULO target (certain peripheral boot modes)
-u-boot-spl_HS_ULO: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_ULO: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # Standard ISSW target (certain devices, various boot modes)
-u-boot-spl_HS_ISSW: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_ISSW: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # For SPI flash on AM335x and AM43xx, these require special byte swap handling
 # so we use the SPI_X-LOADER target instead of X-LOADER and let the
 # create-boot-image.sh script handle that
-u-boot-spl_HS_SPI_X-LOADER: $(obj)/u-boot-spl.bin
+u-boot-spl_HS_SPI_X-LOADER: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # For supporting single stage XiP QSPI on AM43xx, the image is a full u-boot
 # file, not an SPL. In this case the mkomapsecimg command looks for a
 # u-boot-HS_* prefix
-u-boot_HS_XIP_X-LOADER: $(obj)/u-boot.bin
+u-boot_HS_XIP_X-LOADER: $(obj)/u-boot.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
 # For supporting the SPL loading and interpreting of FIT images whose
@@ -90,21 +91,18 @@ ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot_HS.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
-	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb_HS,$(subst ",,$(CONFIG_OF_LIST)))
 
 OF_LIST_TARGETS = $(patsubst %,arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
 $(OF_LIST_TARGETS): dtbs
 
-%_HS.dtb: %.dtb
-	$(call if_changed,omapsecureimg)
-	$(Q)if [ -f $@ ]; then \
-		cp -f $@ $<; \
-	fi
-
-u-boot-nodtb_HS.bin: u-boot-nodtb.bin
+%.dtb_HS: %.dtb FORCE
 	$(call if_changed,omapsecureimg)
 
-u-boot_HS.img: u-boot-nodtb_HS.bin u-boot.img $(patsubst %.dtb,%_HS.dtb,$(OF_LIST_TARGETS))
+u-boot-nodtb_HS.bin: u-boot-nodtb.bin FORCE
+	$(call if_changed,omapsecureimg)
+
+u-boot_HS.img: u-boot-nodtb_HS.bin u-boot.img $(patsubst %.dtb,%.dtb_HS,$(OF_LIST_TARGETS)) FORCE
 	$(call if_changed,mkimage)
 	$(Q)if [ -f $@ ]; then \
 		cp -f $@ u-boot.img; \
