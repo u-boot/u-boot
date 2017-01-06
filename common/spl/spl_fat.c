@@ -19,7 +19,6 @@
 
 static int fat_registered;
 
-#ifdef CONFIG_SPL_FAT_SUPPORT
 static int spl_register_fat_device(struct blk_desc *block_dev, int partition)
 {
 	int err = 0;
@@ -159,5 +158,4 @@ int spl_load_image_fat_os(struct spl_image_info *spl_image,
 {
 	return -ENOSYS;
 }
-#endif
 #endif

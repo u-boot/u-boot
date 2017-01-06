@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <image.h>
 
-#ifdef CONFIG_SPL_EXT_SUPPORT
 int spl_load_image_ext(struct spl_image_info *spl_image,
 		       struct blk_desc *block_dev, int partition,
 		       const char *filename)
@@ -145,5 +144,4 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 {
 	return -ENOSYS;
 }
-#endif
 #endif
