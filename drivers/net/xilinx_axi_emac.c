@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
+#include <wait_bit.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -350,7 +351,7 @@ static void axiemac_stop(struct udevice *dev)
 static int axi_ethernet_init(struct axidma_priv *priv)
 {
 	struct axi_regs *regs = priv->iobase;
-	u32 timeout = 200;
+	int err;
 
 	/*
 	 * Check the status of the MgtRdy bit in the interrupt status
@@ -359,11 +360,9 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	 * will be valid until this bit is valid.
 	 * The bit is always a 1 for all other PHY interfaces.
 	 */
-	while (timeout && (!(in_be32(&regs->is) & XAE_INT_MGTRDY_MASK))) {
-		timeout--;
-		udelay(1);
-	}
-	if (!timeout) {
+	err = wait_for_bit(__func__, (const u32 *)&regs->is,
+			   XAE_INT_MGTRDY_MASK, true, 200, false);
+	if (err) {
 		printf("%s: Timeout\n", __func__);
 		return 1;
 	}
