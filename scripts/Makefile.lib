@@ -363,10 +363,17 @@ cmd_S_efi=						\
 $(obj)/%_efi.S: $(obj)/%.efi
 	$(call cmd,S_efi)
 
-$(obj)/%.efi: $(obj)/%.so
-	$(OBJCOPY) -j .header -j .text -j .sdata -j .data -j .dynamic \
-		-j .dynsym  -j .rel* -j .rela* -j .reloc \
+quiet_cmd_efi_objcopy = OBJCOPY $@
+cmd_efi_objcopy = $(OBJCOPY) -j .header -j .text -j .sdata -j .data -j \
+		.dynamic -j .dynsym  -j .rel* -j .rela* -j .reloc \
 		$(if $(EFI_TARGET),$(EFI_TARGET),-O binary) $^ $@
+
+$(obj)/%.efi: $(obj)/%.so
+	$(call cmd,efi_objcopy)
+
+quiet_cmd_efi_ld = LD      $@
+cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
+		-Bsymbolic $^ -o $@
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 
@@ -374,8 +381,7 @@ $(obj)/helloworld.so: $(EFI_LDS_PATH)
 
 $(obj)/helloworld.so: $(obj)/helloworld.o arch/$(ARCH)/lib/$(EFI_CRT0) \
 		arch/$(ARCH)/lib/$(EFI_RELOC)
-	$(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared -Bsymbolic \
-		$^ -o $@
+	$(call cmd,efi_ld)
 
 # ACPI
 # ---------------------------------------------------------------------------
