@@ -51,6 +51,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define XAE_MDIO_DIV_DFT	29	/* Default MDIO clock divisor */
 
+#define XAXIDMA_BD_STS_ACTUAL_LEN_MASK	0x007FFFFF /* Actual len */
+
 /* DMA macros */
 /* Bitmasks of XAXIDMA_CR_OFFSET register */
 #define XAXIDMA_CR_RUNSTOP_MASK	0x00000001 /* Start/stop DMA channel */
@@ -90,6 +92,7 @@ struct axidma_priv {
 	phy_interface_t interface;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	u8 eth_hasnobuf;
 };
 
 /* BD descriptors */
@@ -359,17 +362,23 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	 * for the Sgmii and 1000BaseX PHY interfaces. No other register reads
 	 * will be valid until this bit is valid.
 	 * The bit is always a 1 for all other PHY interfaces.
+	 * Interrupt status and enable registers are not available in non
+	 * processor mode and hence bypass in this mode
 	 */
-	err = wait_for_bit(__func__, (const u32 *)&regs->is,
-			   XAE_INT_MGTRDY_MASK, true, 200, false);
-	if (err) {
-		printf("%s: Timeout\n", __func__);
-		return 1;
-	}
+	if (!priv->eth_hasnobuf) {
+		err = wait_for_bit(__func__, (const u32 *)&regs->is,
+				   XAE_INT_MGTRDY_MASK, true, 200, false);
+		if (err) {
+			printf("%s: Timeout\n", __func__);
+			return 1;
+		}
 
-	/* Stop the device and reset HW */
-	/* Disable interrupts */
-	out_be32(&regs->ie, 0);
+		/*
+		 * Stop the device and reset HW
+		 * Disable interrupts
+		 */
+		out_be32(&regs->ie, 0);
+	}
 
 	/* Disable the receiver */
 	out_be32(&regs->rcw1, in_be32(&regs->rcw1) & ~XAE_RCW1_RX_MASK);
@@ -378,8 +387,10 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	 * Stopping the receiver in mid-packet causes a dropped packet
 	 * indication from HW. Clear it.
 	 */
-	/* Set the interrupt status register to clear the interrupt */
-	out_be32(&regs->is, XAE_INT_RXRJECT_MASK);
+	if (!priv->eth_hasnobuf) {
+		/* Set the interrupt status register to clear the interrupt */
+		out_be32(&regs->is, XAE_INT_RXRJECT_MASK);
+	}
 
 	/* Setup HW */
 	/* Set default MDIO divisor */
@@ -579,8 +590,11 @@ static int axiemac_recv(struct udevice *dev, int flags, uchar **packetp)
 	temp = in_be32(&priv->dmarx->control);
 	temp &= ~XAXIDMA_IRQ_ALL_MASK;
 	out_be32(&priv->dmarx->control, temp);
+	if (!priv->eth_hasnobuf)
+		length = rx_bd.app4 & 0xFFFF; /* max length mask */
+	else
+		length = rx_bd.status & XAXIDMA_BD_STS_ACTUAL_LEN_MASK;
 
-	length = rx_bd.app4 & 0xFFFF; /* max length mask */
 #ifdef DEBUG
 	print_buffer(&rxframe, &rxframe[0], 1, length, 16);
 #endif
@@ -717,6 +731,9 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
+
+	priv->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
+					     "xlnx,eth-hasnobuf");
 
 	printf("AXI EMAC: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
