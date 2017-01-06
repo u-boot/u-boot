@@ -59,7 +59,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 	if (!ret) {
 		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
 						params->comment,
-						params->require_keys);
+						params->require_keys,
+						params->engine_id);
 	}
 
 	if (dest_blob) {

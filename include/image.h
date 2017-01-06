@@ -965,6 +965,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  * @fit:	Pointer to the FIT format image header
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'
+ * @engine_id:	Engine to use for signing
  *
  * Adds hash values for all component images in the FIT blob.
  * Hashes are calculated for all component images which have hash subnodes
@@ -977,7 +978,8 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  *     libfdt error code, on failure
  */
 int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
-			      const char *comment, int require_keys);
+			      const char *comment, int require_keys,
+			      const char *engine_id);
 
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
@@ -1057,6 +1059,7 @@ struct image_sign_info {
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
+	const char *engine_id;		/* Engine to use for signing */
 };
 #endif /* Allow struct image_region to always be defined for rsa.h */
 
