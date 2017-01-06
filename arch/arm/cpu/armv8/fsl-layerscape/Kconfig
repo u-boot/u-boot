@@ -1,5 +1,6 @@
 config ARCH_LS1012A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_MMDC
@@ -7,6 +8,7 @@ config ARCH_LS1012A
 
 config ARCH_LS1043A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
@@ -23,6 +25,7 @@ config ARCH_LS1043A
 
 config ARCH_LS1046A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
@@ -38,6 +41,7 @@ config ARCH_LS1046A
 
 config ARCH_LS2080A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
