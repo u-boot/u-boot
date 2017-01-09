@@ -355,9 +355,6 @@ void exynos_enable_ldo(unsigned int onoff)
 
 int exynos_init(void)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
-	char buf[16];
-#endif
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 
 	switch (get_hwrev()) {
@@ -382,14 +379,6 @@ int exynos_init(void)
 		break;
 	}
 
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
-	/* Request soft I2C gpios */
-	strcpy(buf, "soft_i2c_scl");
-	gpio_request(CONFIG_SOFT_I2C_GPIO_SCL, buf);
-
-	strcpy(buf, "soft_i2c_sda");
-	gpio_request(CONFIG_SOFT_I2C_GPIO_SDA, buf);
-#endif
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
 
