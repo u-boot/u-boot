@@ -155,6 +155,11 @@ config SYS_I2C_SANDBOX
 		};
 	};
 
+config SYS_I2C_S3C24X0
+	bool "Samsung I2C driver"
+	depends on ARCH_EXYNOS4 && DM_I2C
+	help
+	  Support for Samsung I2C controller as Samsung SoCs.
 
 config SYS_I2C_UNIPHIER
 	bool "UniPhier I2C driver"
