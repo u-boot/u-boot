@@ -656,14 +656,14 @@ static int omap_correct_data_bch_sw(struct mtd_info *mtd, u_char *data,
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct omap_nand_info *info = nand_get_controller_data(chip);
 
-	count = decode_bch(info->control, NULL, 512, read_ecc, calc_ecc,
-							NULL, errloc);
+	count = decode_bch(info->control, NULL, SECTOR_BYTES,
+				read_ecc, calc_ecc, NULL, errloc);
 	if (count > 0) {
 		/* correct errors */
 		for (i = 0; i < count; i++) {
 			/* correct data only, not ecc bytes */
-			if (errloc[i] < 8*512)
-				data[errloc[i]/8] ^= 1 << (errloc[i] & 7);
+			if (errloc[i] < SECTOR_BYTES << 3)
+				data[errloc[i] >> 3] ^= 1 << (errloc[i] & 7);
 			debug("corrected bitflip %u\n", errloc[i]);
 #ifdef DEBUG
 			puts("read_ecc: ");
