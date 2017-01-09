@@ -475,12 +475,15 @@ int clk_get(enum davinci_clk_ids id);
 /* Boot config */
 struct davinci_syscfg_regs {
 	dv_reg	revid;
-	dv_reg	rsvd[13];
+	dv_reg	rsvd[7];
+	dv_reg	bootcfg;
+	dv_reg	chiprevidr;
+	dv_reg	rsvd2[4];
 	dv_reg	kick0;
 	dv_reg	kick1;
 	dv_reg	rsvd1[52];
 	dv_reg	mstpri[3];
-	dv_reg  rsvd2;
+	dv_reg  rsvd3;
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;
@@ -494,6 +497,15 @@ struct davinci_syscfg_regs {
 
 #define davinci_syscfg_regs \
 	((struct davinci_syscfg_regs *)DAVINCI_BOOTCFG_BASE)
+
+enum {
+	DAVINCI_NAND8_BOOT	= 0b001110,
+	DAVINCI_NAND16_BOOT	= 0b010000,
+	DAVINCI_SD_OR_MMC_BOOT	= 0b011100,
+	DAVINCI_MMC_ONLY_BOOT	= 0b111100,
+	DAVINCI_SPI0_FLASH_BOOT	= 0b001010,
+	DAVINCI_SPI1_FLASH_BOOT	= 0b001100,
+};
 
 #define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
