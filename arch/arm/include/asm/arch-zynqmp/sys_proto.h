@@ -21,4 +21,6 @@ unsigned int zynqmp_get_silicon_version(void);
 
 void psu_init(void);
 
+void handoff_setup(void);
+
 #endif /* _ASM_ARCH_SYS_PROTO_H */
