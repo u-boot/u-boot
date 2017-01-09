@@ -124,6 +124,8 @@ __weak void psu_init(void)
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
+	handoff_setup();
+
 	return 0;
 }
 #endif
