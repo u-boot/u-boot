@@ -315,9 +315,6 @@
 #define CONFIG_CMD_UBIFS
 #endif
 
-#ifdef CONFIG_USE_SPIFLASH
-#endif
-
 #if !defined(CONFIG_USE_NAND) && \
 	!defined(CONFIG_SYS_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
