@@ -23,6 +23,8 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/onenand.h>
 #include <jffs2/load_kernel.h>
+#include <mtd_node.h>
+#include <fdt_support.h>
 #include "igep00x0.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -207,6 +209,21 @@ int board_mmc_init(bd_t *bis)
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+int ft_board_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	static struct node_info nodes[] = {
+		{ "ti,omap2-nand", MTD_DEV_TYPE_NAND, },
+		{ "ti,omap2-onenand", MTD_DEV_TYPE_ONENAND, },
+	};
+
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+	return 0;
 }
 #endif
 
