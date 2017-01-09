@@ -758,6 +758,25 @@ unsigned long psu_pll_init_data() {
 	/*############################################################################################################################ */
 
 		// : VIDEO FRAC CFG
+		// : VIDEO FRAC CFG
+		/*Register : VPLL_FRAC_CFG @ 0XFD1A0040</p>
+
+		  Fractional SDM bypass control. When 0, PLL is in integer mode and it ignores all fractional data. When 1, PLL is in fractiona
+		  mode and uses DATA of this register for the fractional portion of the feedback divider.
+		  PSU_CRF_APB_VPLL_FRAC_CFG_ENABLED                                               0x1
+
+		  Fractional value for the Feedback value.
+		  PSU_CRF_APB_VPLL_FRAC_CFG_DATA                                                  0x820c
+
+		  Fractional control for the PLL
+		  (OFFSET, MASK, VALUE)      (0XFD1A0040, 0x8000FFFFU ,0x8000820CU)
+		  RegMask = (CRF_APB_VPLL_FRAC_CFG_ENABLED_MASK | CRF_APB_VPLL_FRAC_CFG_DATA_MASK |  0 );
+
+		  RegVal = ((0x00000001U << CRF_APB_VPLL_FRAC_CFG_ENABLED_SHIFT
+		  | 0x0000820CU << CRF_APB_VPLL_FRAC_CFG_DATA_SHIFT
+		  |  0 ) & RegMask); */
+		PSU_Mask_Write (CRF_APB_VPLL_FRAC_CFG_OFFSET ,0x8000FFFFU ,0x8000820CU);
+		/*############################################################################################################################ */
 
   return 1;
 }
@@ -1302,7 +1321,7 @@ unsigned long psu_clock_init_data() {
 			| 0x00000002U << CRF_APB_DP_VIDEO_REF_CTRL_SRCSEL_SHIFT
 			| 0x00000001U << CRF_APB_DP_VIDEO_REF_CTRL_CLKACT_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_DP_VIDEO_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010402U);
+		PSU_Mask_Write (CRF_APB_DP_VIDEO_REF_CTRL_OFFSET ,0x013F3F07U ,0x01010300U);
 	/*############################################################################################################################ */
 
 		/*Register : DP_AUDIO_REF_CTRL @ 0XFD1A0074</p>
@@ -1329,7 +1348,7 @@ unsigned long psu_clock_init_data() {
 			| 0x00000000U << CRF_APB_DP_AUDIO_REF_CTRL_SRCSEL_SHIFT
 			| 0x00000001U << CRF_APB_DP_AUDIO_REF_CTRL_CLKACT_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_DP_AUDIO_REF_CTRL_OFFSET ,0x013F3F07U ,0x01012A00U);
+		PSU_Mask_Write (CRF_APB_DP_AUDIO_REF_CTRL_OFFSET ,0x013F3F07U ,0x01011402U);
 	/*############################################################################################################################ */
 
 		/*Register : DP_STC_REF_CTRL @ 0XFD1A007C</p>
@@ -1356,7 +1375,7 @@ unsigned long psu_clock_init_data() {
 			| 0x00000000U << CRF_APB_DP_STC_REF_CTRL_SRCSEL_SHIFT
 			| 0x00000001U << CRF_APB_DP_STC_REF_CTRL_CLKACT_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_DP_STC_REF_CTRL_OFFSET ,0x013F3F07U ,0x01012700U);
+		PSU_Mask_Write (CRF_APB_DP_STC_REF_CTRL_OFFSET ,0x013F3F07U ,0x01021402U);
 	/*############################################################################################################################ */
 
 		/*Register : ACPU_CTRL @ 0XFD1A0060</p>
@@ -1549,7 +1568,7 @@ unsigned long psu_clock_init_data() {
 			| 0x00000002U << CRF_APB_TOPSW_MAIN_CTRL_SRCSEL_SHIFT
 			| 0x00000001U << CRF_APB_TOPSW_MAIN_CTRL_CLKACT_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (CRF_APB_TOPSW_MAIN_CTRL_OFFSET ,0x01003F07U ,0x01000202U);
+		PSU_Mask_Write (CRF_APB_TOPSW_MAIN_CTRL_OFFSET ,0x01003F07U ,0x01000203U);
 	/*############################################################################################################################ */
 
 		/*Register : TOPSW_LSBUS_CTRL @ 0XFD1A00C4</p>

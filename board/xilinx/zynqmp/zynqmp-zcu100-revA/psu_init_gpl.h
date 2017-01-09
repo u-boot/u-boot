@@ -97,6 +97,8 @@
 #define CRF_APB_VPLL_CTRL_OFFSET                                                   0XFD1A0038
 #undef CRF_APB_VPLL_TO_LPD_CTRL_OFFSET
 #define CRF_APB_VPLL_TO_LPD_CTRL_OFFSET                                            0XFD1A0050
+#undef CRF_APB_VPLL_FRAC_CFG_OFFSET
+#define CRF_APB_VPLL_FRAC_CFG_OFFSET                                               0XFD1A0040
 
 /*PLL loop filter resistor control*/
 #undef CRL_APB_RPLL_CFG_RES_DEFVAL
