@@ -10,6 +10,17 @@
 #include "skeleton.dtsi"
 
 / {
+	aliases {
+		i2c0 = &i2c_0;
+		i2c1 = &i2c_1;
+		i2c2 = &i2c_2;
+		i2c3 = &i2c_3;
+		i2c4 = &i2c_4;
+		i2c5 = &i2c_5;
+		i2c6 = &i2c_6;
+		i2c7 = &i2c_7;
+	};
+
 	combiner: interrupt-controller@10440000 {
 		compatible = "samsung,exynos4210-combiner";
 		#interrupt-cells = <2>;
@@ -47,7 +58,7 @@
 		id = <4>;
 	};
 
-	i2c@13860000 {
+	i2c_0: i2c@13860000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -55,7 +66,7 @@
 		interrupts = <0 56 0>;
 	};
 
-	i2c@13870000 {
+	i2c_1: i2c@13870000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -63,7 +74,7 @@
 		interrupts = <1 57 0>;
 	};
 
-	i2c@13880000 {
+	i2c_2: i2c@13880000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -71,7 +82,7 @@
 		interrupts = <2 58 0>;
 	};
 
-	i2c@13890000 {
+	i2c_3: i2c@13890000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -79,7 +90,7 @@
 		interrupts = <3 59 0>;
 	};
 
-	i2c@138a0000 {
+	i2c_4: i2c@138a0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -87,7 +98,7 @@
 		interrupts = <4 60 0>;
 	};
 
-	i2c@138b0000 {
+	i2c_5: i2c@138b0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -95,7 +106,7 @@
 		interrupts = <5 61 0>;
 	};
 
-	i2c@138c0000 {
+	i2c_6: i2c@138c0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
@@ -103,7 +114,7 @@
 		interrupts = <6 62 0>;
 	};
 
-	i2c@138d0000 {
+	i2c_7: i2c@138d0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
