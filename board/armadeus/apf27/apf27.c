@@ -119,7 +119,7 @@ static int apf27_devices_init(void)
 	mx27_fec_init_pins();
 #endif
 
-#ifdef CONFIG_MXC_MMC
+#ifdef CONFIG_MMC_MXC
 	mx27_sd2_init_pins();
 	imx_gpio_mode((GPIO_PORTF | GPIO_OUT | GPIO_PUEN | GPIO_GPIO | 16));
 	gpio_request(PC_PWRON, "pc_pwron");

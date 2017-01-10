@@ -82,7 +82,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-#ifdef CONFIG_TEGRA_MMC
+#ifdef CONFIG_MMC_SDHCI_TEGRA
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

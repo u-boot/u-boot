@@ -28,7 +28,6 @@
 
 /* SD/MMC support */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA_MMC
 
 /* USB host support */
 #define CONFIG_USB_EHCI

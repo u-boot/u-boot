@@ -25,7 +25,6 @@
 
 /* SD/MMC */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA_MMC
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC

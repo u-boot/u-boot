@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/davinci_misc.h>
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
 #include <asm/arch/sdmmc_defs.h>
 #endif
@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 /* MMC0 pin muxer settings */
 const struct pinmux_config mmc0_pins[] = {
 	/* GP0[11] is required for SD to work on Rev 3 EVMs */
@@ -130,7 +130,7 @@ const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	{ DAVINCI_LPSC_MMC_SD },
 #endif
 };
@@ -210,7 +210,7 @@ int board_init(void)
 #endif
 
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	if (davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins)) != 0)
 		return 1;
 #endif
@@ -355,7 +355,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */

@@ -138,7 +138,6 @@
  * SD/MMC
  */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MXC_MMC
 #define CONFIG_DOS_PARTITION
 
 /*

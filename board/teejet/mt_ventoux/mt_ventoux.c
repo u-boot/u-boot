@@ -291,7 +291,7 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#if defined(CONFIG_OMAP_HSMMC) && \
+#if defined(CONFIG_MMC_OMAP_HS) && \
 	!defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {

@@ -15,7 +15,7 @@
 #include <asm/gpio.h>
 #include <i2c.h>
 
-#ifdef CONFIG_TEGRA_MMC
+#ifdef CONFIG_MMC_SDHCI_TEGRA
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

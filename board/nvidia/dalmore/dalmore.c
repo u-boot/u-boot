@@ -34,7 +34,7 @@ void pinmux_init(void)
 		ARRAY_SIZE(dalmore_padctrl));
 }
 
-#if defined(CONFIG_TEGRA_MMC)
+#if defined(CONFIG_MMC_SDHCI_TEGRA)
 /*
  * Do I2C/PMU writes to bring up SD card bus power
  *

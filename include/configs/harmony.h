@@ -28,7 +28,6 @@
 
 /* SD/MMC */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA_MMC
 
 /* NAND support */
 #define CONFIG_CMD_NAND

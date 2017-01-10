@@ -68,6 +68,15 @@ config ATMEL_SDHCI
 	  It is compliant with the SD Host Controller Standard V3.0
 	  specification.
 
+config MMC_DAVINCI
+	bool "TI DAVINCI Multimedia Card Interface support"
+	depends on ARCH_DAVINCI
+	default y
+	help
+	  This selects the TI DAVINCI Multimedia card Interface.
+	  If you have an DAVINCI board with a Multimedia Card slot,
+	  say Y here.  If unsure, say N.
+
 config MMC_DW
 	bool "Synopsys DesignWare Memory Card Interface"
 	help
@@ -112,6 +121,32 @@ config MMC_DW_SOCFPGA
 	  This selects support for Altera SOCFPGA specific extensions to the
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on Altera SOCFPGA.
+
+config MMC_MXC
+	bool "Freescale i.MX21/27/31 or MPC512x Multimedia Card support"
+	help
+	  This selects the Freescale i.MX21, i.MX27, i.MX31 or MPC512x
+	  Multimedia Card Interface. If you have an i.MX or MPC512x platform
+	  with a Multimedia Card slot, say Y here.
+
+	  If unsure, say N.
+
+config MMC_MXS
+	bool "Freescale MXS Multimedia Card Interface support"
+	help
+	  This selects the Freescale SSP MMC controller found on MXS based
+	  platforms like mx23/28.
+
+	  If unsure, say N.
+
+config MMC_OMAP_HS
+	bool "TI OMAP High Speed Multimedia Card Interface support"
+	help
+	  This selects the TI OMAP High Speed Multimedia card Interface.
+	  If you have an omap2plus board with a Multimedia Card slot,
+	  say Y here.
+
+	  If unsure, say N.
 
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
@@ -251,6 +286,24 @@ config MMC_SDHCI_SPEAR
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_TEGRA
+	bool "SDHCI platform support for the Tegra SD/MMC Controller"
+	depends on TEGRA
+	default y
+	help
+	  This selects the Tegra SD/MMC controller. If you have a Tegra
+	  platform with SD or MMC devices, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SUNXI
+	bool "Allwinner sunxi SD/MMC Host Controller support"
+	depends on ARCH_SUNXI
+	default y
+	help
+	  This selects support for the SD/MMC Host Controller on
+	  Allwinner sunxi SoCs.
 
 endif
 

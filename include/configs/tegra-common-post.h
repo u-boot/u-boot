@@ -118,9 +118,6 @@
 #ifdef CONFIG_GENERIC_MMC
 #undef CONFIG_GENERIC_MMC
 #endif
-#ifdef CONFIG_TEGRA_MMC
-#undef CONFIG_TEGRA_MMC
-#endif
 #ifdef CONFIG_CMD_MMC
 #endif
 

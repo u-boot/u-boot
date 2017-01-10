@@ -150,7 +150,6 @@
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_MXS_MMC
 #endif
 
 /* NAND */

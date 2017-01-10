@@ -20,9 +20,6 @@
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP24XX
 
-/* MMC/SD IP block */
-#define CONFIG_OMAP_HSMMC
-
 /* SPI IP Block */
 #define CONFIG_OMAP3_SPI
 

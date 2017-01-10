@@ -26,7 +26,7 @@
 #include <linux/errno.h>
 #include <hwconfig.h>
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
 #include <asm/arch/sdmmc_defs.h>
 #endif
@@ -39,7 +39,7 @@ u8 board_rev;
 #define EEPROM_REV_OFFSET	0x3F00
 #define EEPROM_MAC_OFFSET	0x3F06
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */

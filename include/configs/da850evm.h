@@ -314,7 +314,6 @@
 /* SD/MMC configuration */
 #ifndef CONFIG_USE_NOR
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DAVINCI_MMC
 #endif
 
 /*

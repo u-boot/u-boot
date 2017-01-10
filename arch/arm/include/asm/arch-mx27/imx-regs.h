@@ -22,10 +22,10 @@ extern void mx27_uart1_init_pins(void);
 extern void mx27_fec_init_pins(void);
 #endif /* CONFIG_FEC_MXC */
 
-#ifdef CONFIG_MXC_MMC
+#ifdef CONFIG_MMC_MXC
 extern void mx27_sd1_init_pins(void);
 extern void mx27_sd2_init_pins(void);
-#endif /* CONFIG_MXC_MMC */
+#endif /* CONFIG_MMC_MXC */
 
 /* AIPI */
 struct aipi_regs {

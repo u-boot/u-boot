@@ -24,7 +24,7 @@
 #include <linux/errno.h>
 #include <hwconfig.h>
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
 #include <asm/arch/sdmmc_defs.h>
 #endif
@@ -197,7 +197,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
@@ -219,7 +219,7 @@ static const struct pinmux_config gpio_pins[] = {
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
 	{ pinmux(0), 8, 4 },	/* GP0[11] */
 #endif
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	/* GP0[11] is required for SD to work on Rev 3 EVMs */
 	{ pinmux(0),  8, 4 },	/* GP0[11] */
 #endif
@@ -250,7 +250,7 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
 	PINMUX_ITEM(gpio_pins),
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	PINMUX_ITEM(mmc0_pins),
 #endif
 };
@@ -263,7 +263,7 @@ const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	{ DAVINCI_LPSC_MMC_SD },
 #endif
 };
@@ -368,7 +368,7 @@ int board_init(void)
 	writel(0x01 << 11, GPIO_BANK0_REG_CLR_ADDR);
 #endif
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
 

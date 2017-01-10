@@ -44,7 +44,6 @@
 
 /* MMC/SD IP block */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Always 64 KiB env size */

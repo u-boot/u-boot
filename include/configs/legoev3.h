@@ -216,7 +216,6 @@
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DAVINCI_MMC
 
 /*
  * Enable MMC commands only when

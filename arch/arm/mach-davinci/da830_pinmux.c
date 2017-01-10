@@ -121,7 +121,7 @@ const struct pinmux_config usb_pins[] = {
 	{ pinmux(9), 1, 1 }    /* USB0_DRVVBUS */
 };
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 /* MMC0 pin muxer settings */
 const struct pinmux_config mmc0_pins_8bit[] = {
 	{ pinmux(15), 2, 7 },  /* MMCSD0_CLK */
