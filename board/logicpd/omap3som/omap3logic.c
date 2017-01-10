@@ -60,25 +60,28 @@ U_BOOT_DEVICE(omap3logic_uart) = {
 static struct board_id {
 	char *name;
 	int machine_id;
+	char *fdtfile;
 } boards[2][2] = {
 	{
 		{
 			.name		= "OMAP35xx SOM LV",
 			.machine_id	= MACH_TYPE_OMAP3530_LV_SOM,
+			.fdtfile	= "logicpd-som-lv-35xx-devkit.dtb",
 		},
 		{
 			.name		= "OMAP35xx Torpedo",
 			.machine_id	= MACH_TYPE_OMAP3_TORPEDO,
+			.fdtfile	= "logicpd-torpedo-35xx-devkit.dtb",
 		},
 	},
 	{
 		{
 			.name		= "DM37xx SOM LV",
-			.machine_id	= MACH_TYPE_DM3730_SOM_LV,
+			.fdtfile	= "logicpd-som-lv-37xx-devkit.dtb",
 		},
 		{
 			.name		= "DM37xx Torpedo",
-			.machine_id	= MACH_TYPE_DM3730_TORPEDO,
+			.fdtfile	= "logicpd-torpedo-37xx-devkit.dtb",
 		},
 	},
 };
@@ -165,13 +168,19 @@ int misc_init_r(void)
  */
 int board_init(void)
 {
-	struct board_id *board;
-	unsigned int val;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+	return 0;
+}
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	struct board_id *board;
+	unsigned int val;
 
 	/*
 	 * To identify between a SOM LV and Torpedo module,
@@ -207,39 +216,16 @@ int board_init(void)
 		printf("Board: %s\n", board->name);
 
 		/* Set the machine_id passed to Linux */
-		gd->bd->bi_arch_number = board->machine_id;
+		if (board->machine_id)
+			gd->bd->bi_arch_number = board->machine_id;
+
+		/* If the user has not set fdtimage, set the default */
+		if (!getenv("fdtimage"))
+			setenv("fdtimage", board->fdtfile);
 	}
 
 	/* restore hsusb0_data5 pin as hsusb0_data5 */
 	MUX_VAL(CP(HSUSB0_DATA5),	(IEN  | PTD | DIS | M0));
-
-	return 0;
-}
-
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
-{
-	/* If we do not have an fdtimage, let's autodetect it*/
-	if (getenv("fdtimage"))
-		return 0;
-
-	switch (gd->bd->bi_arch_number) {
-	case MACH_TYPE_DM3730_TORPEDO:
-		setenv("fdtimage", "logicpd-torpedo-37xx-devkit.dtb");
-		break;
-	case MACH_TYPE_DM3730_SOM_LV:
-		setenv("fdtimage", "logicpd-som-lv-37xx-devkit.dtb");
-		break;
-	case MACH_TYPE_OMAP3_TORPEDO:
-		setenv("fdtimage", "logicpd-torpedo-35xx-devkit.dtb");
-		break;
-	case MACH_TYPE_OMAP3530_LV_SOM:
-		setenv("fdtimage", "logicpd-som-lv-35xx-devkit.dtb");
-		break;
-	default:
-		/* unknown machine type */
-		break;
-	}
 	return 0;
 }
 #endif
