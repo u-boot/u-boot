@@ -68,9 +68,17 @@ config ATMEL_SDHCI
 	  It is compliant with the SD Host Controller Standard V3.0
 	  specification.
 
+config MMC_DW
+	bool "Synopsys DesignWare Memory Card Interface"
+	help
+	  This selects support for the Synopsys DesignWare Mobile Storage IP
+	  block, this provides host support for SD and MMC interfaces, in both
+	  PIO, internal DMA mode and external DMA mode.
+
 config MMC_DW_ROCKCHIP
 	bool "Rockchip SD/MMC controller support"
 	depends on DM_MMC && OF_CONTROL
+	depends on MMC_DW
 	help
 	  This enables support for the Rockchip SD/MMM controller, which is
 	  based on Designware IP. The device is compatible with at least

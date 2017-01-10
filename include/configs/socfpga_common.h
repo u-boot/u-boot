@@ -144,7 +144,6 @@
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DWMMC
 #define CONFIG_SOCFPGA_DWMMC
 /* FIXME */
 /* using smaller max blk cnt to avoid flooding the limited stack we have */

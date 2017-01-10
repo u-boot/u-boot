@@ -41,7 +41,6 @@
 
 /* MMC/SD IP block */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DWMMC
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_FAT_WRITE

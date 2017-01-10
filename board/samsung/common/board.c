@@ -260,7 +260,7 @@ static int init_mmc(void)
 
 static int init_dwmmc(void)
 {
-#ifdef CONFIG_DWMMC
+#ifdef CONFIG_MMC_DW
 	return exynos_dwmmc_init(gd->fdt_blob);
 #else
 	return 0;

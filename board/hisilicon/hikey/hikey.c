@@ -347,7 +347,7 @@ static int init_dwmmc(void)
 {
 	int ret;
 
-#ifdef CONFIG_DWMMC
+#ifdef CONFIG_MMC_DW
 
 	/* mmc0 clocks are already configured by ATF */
 	ret = hi6220_pinmux_config(PERIPH_ID_SDMMC0);

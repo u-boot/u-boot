@@ -20,8 +20,5 @@ controller support within SOCFPGA
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
 -> Using smaller max blk cnt to avoid flooding the limited stack in OCRAM
 
-#define CONFIG_DWMMC
--> Enable the common DesignWare SDMMC controller framework
-
 #define CONFIG_SOCFPGA_DWMMC
 -> Enable the SOCFPGA specific driver for DesignWare SDMMC controller
