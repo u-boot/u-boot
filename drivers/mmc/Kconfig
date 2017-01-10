@@ -75,6 +75,24 @@ config MMC_DW
 	  block, this provides host support for SD and MMC interfaces, in both
 	  PIO, internal DMA mode and external DMA mode.
 
+config MMC_DW_EXYNOS
+	bool "Exynos specific extensions for Synopsys DW Memory Card Interface"
+	depends on ARCH_EXYNOS
+	depends on MMC_DW
+	default y
+	help
+	  This selects support for Samsung Exynos SoC specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Exynos4 and Exynos5 SoC's.
+
+config MMC_DW_K3
+	bool "K3 specific extensions for Synopsys DW Memory Card Interface"
+	depends on MMC_DW
+	help
+	  This selects support for Hisilicon K3 SoC specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Hisilicon K3 SoC's.
+
 config MMC_DW_ROCKCHIP
 	bool "Rockchip SD/MMC controller support"
 	depends on DM_MMC && OF_CONTROL
@@ -84,6 +102,16 @@ config MMC_DW_ROCKCHIP
 	  based on Designware IP. The device is compatible with at least
 	  SD 3.0, SDIO 3.0 and MMC 4.5 and supports common eMMC chips as well
 	  as removeable SD and micro-SD cards.
+
+config MMC_DW_SOCFPGA
+	bool "SOCFPGA specific extensions for Synopsys DW Memory Card Interface"
+	depends on ARCH_SOCFPGA
+	depends on MMC_DW
+	default y
+	help
+	  This selects support for Altera SOCFPGA specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Altera SOCFPGA.
 
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"

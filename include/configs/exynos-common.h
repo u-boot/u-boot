@@ -39,7 +39,6 @@
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_EXYNOS_DWMMC
 #define CONFIG_BOUNCE_BUFFER
 
 /* PWM */
