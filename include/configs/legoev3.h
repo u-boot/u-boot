@@ -215,7 +215,6 @@
 #define CONFIG_ENV_SIZE		(16 << 10)
 
 /* SD/MMC configuration */
-#define CONFIG_DAVINCI_MMC_SD1
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DAVINCI_MMC
 
