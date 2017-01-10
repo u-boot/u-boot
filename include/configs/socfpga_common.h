@@ -146,7 +146,6 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DWMMC
 #define CONFIG_SOCFPGA_DWMMC
-#define CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH	1024
 /* FIXME */
 /* using smaller max blk cnt to avoid flooding the limited stack we have */
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256	/* FIXME -- SPL only? */
