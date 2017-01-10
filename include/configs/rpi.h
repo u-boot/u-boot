@@ -24,21 +24,6 @@
 	(&((struct bcm2835_timer_regs *)BCM2835_TIMER_PHYSADDR)->clo)
 #endif
 
-/*
- * 2835 is a SKU in a series for which the 2708 is the first or primary SoC,
- * so 2708 has historically been used rather than a dedicated 2835 ID.
- *
- * We don't define a machine type for bcm2709/bcm2836 since the RPi Foundation
- * chose to use someone else's previously registered machine ID (3139, MX51_GGC)
- * rather than obtaining a valid ID:-/
- *
- * For the bcm2837, hopefully a machine type is not needed, since everything
- * is DT.
- */
-#ifdef CONFIG_BCM2835
-#define CONFIG_MACH_TYPE		MACH_TYPE_BCM2708
-#endif
-
 /* Memory layout */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x00000000

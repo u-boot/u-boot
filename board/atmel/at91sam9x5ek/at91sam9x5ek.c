@@ -256,9 +256,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* arch number of AT91SAM9X5EK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9X5EK;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 

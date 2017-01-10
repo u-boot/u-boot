@@ -277,9 +277,6 @@ int overwrite_console(void)
 
 int board_init(void)
 {
-	/* arch number of the board */
-	gd->bd->bi_arch_number = MACH_TYPE_EA20;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 

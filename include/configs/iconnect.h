@@ -17,11 +17,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Machine type
- */
-#define CONFIG_MACH_TYPE	MACH_TYPE_ICONNECT
-
-/*
  * Compression configuration
  */
 #define CONFIG_BZIP2
