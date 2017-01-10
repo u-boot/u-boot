@@ -52,7 +52,6 @@
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"ramdisk_addr_r=0x83000000\0" \
-	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	BOOTENV
 
