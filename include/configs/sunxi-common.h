@@ -35,7 +35,7 @@
 /*
  * High Level Configuration Options
  */
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_ARM64)
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif
 
@@ -183,7 +183,9 @@
 
 #define CONFIG_SPL_FRAMEWORK
 
+#ifndef CONFIG_ARM64		/* AArch64 FEL support is not ready yet */
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
+#endif
 
 #if defined(CONFIG_MACH_SUN9I)
 #define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */

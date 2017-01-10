@@ -19,8 +19,6 @@
 
 .globl	_start
 _start:
-	b	reset
-
 #ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
 /*
  * Various SoCs need something special and SoC-specific up front in
@@ -28,7 +26,8 @@ _start:
  * use it here.
  */
 #include <asm/arch/boot0.h>
-ARM_SOC_BOOT0_HOOK
+#else
+	b	reset
 #endif
 
 	.align 3

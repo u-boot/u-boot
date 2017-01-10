@@ -38,8 +38,8 @@ static void out_dgt(struct printf_info *info, char dgt)
 	info->zs = 1;
 }
 
-static void div_out(struct printf_info *info, unsigned int *num,
-		    unsigned int div)
+static void div_out(struct printf_info *info, unsigned long *num,
+		    unsigned long div)
 {
 	unsigned char dgt = 0;
 
@@ -56,9 +56,9 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 {
 	char ch;
 	char *p;
-	unsigned int num;
+	unsigned long num;
 	char buf[12];
-	unsigned int div;
+	unsigned long div;
 
 	while ((ch = *(fmt++))) {
 		if (ch != '%') {
@@ -66,8 +66,12 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 		} else {
 			bool lz = false;
 			int width = 0;
+			bool islong = false;
 
 			ch = *(fmt++);
+			if (ch == '-')
+				ch = *(fmt++);
+
 			if (ch == '0') {
 				ch = *(fmt++);
 				lz = 1;
@@ -80,6 +84,11 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 					ch = *fmt++;
 				}
 			}
+			if (ch == 'l') {
+				ch = *(fmt++);
+				islong = true;
+			}
+
 			info->bf = buf;
 			p = info->bf;
 			info->zs = 0;
@@ -89,24 +98,43 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				goto abort;
 			case 'u':
 			case 'd':
-				num = va_arg(va, unsigned int);
-				if (ch == 'd' && (int)num < 0) {
-					num = -(int)num;
-					out(info, '-');
+				div = 1000000000;
+				if (islong) {
+					num = va_arg(va, unsigned long);
+					if (sizeof(long) > 4)
+						div *= div * 10;
+				} else {
+					num = va_arg(va, unsigned int);
+				}
+
+				if (ch == 'd') {
+					if (islong && (long)num < 0) {
+						num = -(long)num;
+						out(info, '-');
+					} else if (!islong && (int)num < 0) {
+						num = -(int)num;
+						out(info, '-');
+					}
 				}
 				if (!num) {
 					out_dgt(info, 0);
 				} else {
-					for (div = 1000000000; div; div /= 10)
+					for (; div; div /= 10)
 						div_out(info, &num, div);
 				}
 				break;
 			case 'x':
-				num = va_arg(va, unsigned int);
+				if (islong) {
+					num = va_arg(va, unsigned long);
+					div = 1UL << (sizeof(long) * 8 - 4);
+				} else {
+					num = va_arg(va, unsigned int);
+					div = 0x10000000;
+				}
 				if (!num) {
 					out_dgt(info, 0);
 				} else {
-					for (div = 0x10000000; div; div /= 0x10)
+					for (; div; div /= 0x10)
 						div_out(info, &num, div);
 				}
 				break;

@@ -42,7 +42,7 @@ u32 spl_boot_device(void)
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
-	debug("image entry point: 0x%X\n", spl_image->entry_point);
+	debug("image entry point: 0x%lX\n", spl_image->entry_point);
 
 	start_cpu((u32)spl_image->entry_point);
 	halt_avp();

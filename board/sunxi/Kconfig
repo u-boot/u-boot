@@ -125,6 +125,7 @@ config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
 
 endchoice
 
@@ -132,6 +133,29 @@ endchoice
 config MACH_SUN8I
 	bool
 	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
+
+config RESERVE_ALLWINNER_BOOT0_HEADER
+	bool "reserve space for Allwinner boot0 header"
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	---help---
+	Prepend a 1536 byte (empty) header to the U-Boot image file, to be
+	filled with magic values post build. The Allwinner provided boot0
+	blob relies on this information to load and execute U-Boot.
+	Only needed on 64-bit Allwinner boards so far when using boot0.
+
+config ARM_BOOT_HOOK_RMR
+	bool
+	depends on ARM64
+	default y
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	---help---
+	Insert some ARM32 code at the very beginning of the U-Boot binary
+	which uses an RMR register write to bring the core into AArch64 mode.
+	The very first instruction acts as a switch, since it's carefully
+	chosen to be a NOP in one mode and a branch in the other, so the
+	code would only be executed if not already in AArch64.
+	This allows both the SPL and the U-Boot proper to be entered in
+	either mode and switch to AArch64 if needed.
 
 config DRAM_TYPE
 	int "sunxi dram type"
@@ -145,6 +169,7 @@ config DRAM_CLK
 	default 792 if MACH_SUN9I
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default 672 if MACH_SUN50I
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -164,6 +189,7 @@ config DRAM_ZQ
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
 	default 4145117 if MACH_SUN9I
+	default 3881915 if MACH_SUN50I
 	---help---
 	Set the dram zq value.
 
@@ -171,6 +197,7 @@ config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
 	default n if !MACH_SUN8I_A23
 	default y if MACH_SUN8I_A23
+	default y if MACH_SUN50I
 	---help---
 	Select this to enable dram odt (on die termination).
 

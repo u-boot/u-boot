@@ -67,7 +67,6 @@ _start:
  * use it here.
  */
 #include <asm/arch/boot0.h>
-ARM_SOC_BOOT0_HOOK
 #endif
 
 /*
