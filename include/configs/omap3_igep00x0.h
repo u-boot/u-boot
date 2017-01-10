@@ -28,7 +28,8 @@
 #define CONFIG_REVISION_TAG		1
 
 /* Status LED available for IGEP0020 and IGEP0030 but not IGEP0032 */
-#if (CONFIG_MACH_TYPE != MACH_TYPE_IGEP0032)
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
+		       (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
 #define CONFIG_STATUS_LED
 #define CONFIG_BOARD_SPECIFIC_LED
 #define CONFIG_GPIO_LED
@@ -36,8 +37,6 @@
 #define RED_LED_GPIO 27
 #elif (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
 #define RED_LED_GPIO 16
-#else
-#error "status LED not defined for this machine."
 #endif
 #define RED_LED_DEV			0
 #define STATUS_LED_BIT			RED_LED_GPIO
