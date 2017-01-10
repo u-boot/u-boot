@@ -163,6 +163,83 @@ config SYS_HAS_SERDES
 
 endmenu
 
+menu "Layerscape clock tree configuration"
+	depends on FSL_LSCH2 || FSL_LSCH3
+
+config SYS_FSL_CLK
+	bool "Enable clock tree initialization"
+	default y
+
+config CLUSTER_CLK_FREQ
+	int "Reference clock of core cluster"
+	depends on ARCH_LS1012A
+	default 100000000
+	help
+	  This number is the reference clock frequency of core PLL.
+	  For most platforms, the core PLL and Platform PLL have the same
+	  reference clock, but for some platforms, LS1012A for instance,
+	  they are provided sepatately.
+
+config SYS_FSL_PCLK_DIV
+	int "Platform clock divider"
+	default 1 if ARCH_LS1043A
+	default 1 if ARCH_LS1046A
+	default 2
+	help
+	  This is the divider that is used to derive Platform clock from
+	  Platform PLL, in another word:
+		Platform_clk = Platform_PLL_freq / this_divider
+
+config SYS_FSL_DSPI_CLK_DIV
+	int "DSPI clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive DSPI clock from Platform
+	  PLL, in another word DSPI_clk = Platform_PLL_freq / this_divider.
+
+config SYS_FSL_DUART_CLK_DIV
+	int "DUART clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive DUART clock from Platform
+	  clock, in another word DUART_clk = Platform_clk / this_divider.
+
+config SYS_FSL_I2C_CLK_DIV
+	int "I2C clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive I2C clock from Platform
+	  clock, in another word I2C_clk = Platform_clk / this_divider.
+
+config SYS_FSL_IFC_CLK_DIV
+	int "IFC clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive IFC clock from Platform
+	  clock, in another word IFC_clk = Platform_clk / this_divider.
+
+config SYS_FSL_LPUART_CLK_DIV
+	int "LPUART clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive LPUART clock from Platform
+	  clock, in another word LPUART_clk = Platform_clk / this_divider.
+
+config SYS_FSL_SDHC_CLK_DIV
+	int "SDHC clock divider"
+	default 1 if ARCH_LS1043A
+	default 1 if ARCH_LS1012A
+	default 2
+	help
+	  This is the divider that is used to derive SDHC clock from Platform
+	  clock, in another word SDHC_clk = Platform_clk / this_divider.
+endmenu
+
 config SYS_FSL_ERRATUM_A008336
 	bool
 

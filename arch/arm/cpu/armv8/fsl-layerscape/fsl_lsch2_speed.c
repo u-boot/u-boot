@@ -52,22 +52,28 @@ void get_sys_info(struct sys_info *sys_info)
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
+	unsigned long cluster_clk;
 
 	sys_info->freq_systembus = sysclk;
+#ifndef CONFIG_CLUSTER_CLK_FREQ
+#define CONFIG_CLUSTER_CLK_FREQ	CONFIG_SYS_CLK_FREQ
+#endif
+	cluster_clk = CONFIG_CLUSTER_CLK_FREQ;
+
 #ifdef CONFIG_DDR_CLK_FREQ
 	sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
 #else
 	sys_info->freq_ddrbus = sysclk;
 #endif
 
-#ifdef CONFIG_ARCH_LS1012A
-	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
-			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_SHIFT) &
-			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_MASK;
-#else
+	/* The freq_systembus is used to record frequency of platform PLL */
 	sys_info->freq_systembus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_MASK;
+
+#ifdef CONFIG_ARCH_LS1012A
+	sys_info->freq_ddrbus = 2 * sys_info->freq_systembus;
+#else
 	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS2_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS2_RCWSR0_MEM_PLL_RAT_MASK;
@@ -76,7 +82,7 @@ void get_sys_info(struct sys_info *sys_info)
 	for (i = 0; i < CONFIG_SYS_FSL_NUM_CC_PLLS; i++) {
 		ratio[i] = (in_be32(&clk->pllcgsr[i].pllcngsr) >> 1) & 0xff;
 		if (ratio[i] > 4)
-			freq_c_pll[i] = sysclk * ratio[i];
+			freq_c_pll[i] = cluster_clk * ratio[i];
 		else
 			freq_c_pll[i] = sys_info->freq_systembus * ratio[i];
 	}
@@ -90,11 +96,6 @@ void get_sys_info(struct sys_info *sys_info)
 		sys_info->freq_processor[cpu] =
 			freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
 	}
-
-#ifdef CONFIG_ARCH_LS1012A
-	sys_info->freq_systembus = sys_info->freq_ddrbus / 2;
-	sys_info->freq_ddrbus *= 2;
-#endif
 
 #define HWA_CGA_M1_CLK_SEL	0xe0000000
 #define HWA_CGA_M1_CLK_SHIFT	29
@@ -148,7 +149,9 @@ void get_sys_info(struct sys_info *sys_info)
 		break;
 	}
 #else
-	sys_info->freq_sdhc = sys_info->freq_systembus;
+	sys_info->freq_sdhc = (sys_info->freq_systembus /
+				CONFIG_SYS_FSL_PCLK_DIV) /
+				CONFIG_SYS_FSL_SDHC_CLK_DIV;
 #endif
 #endif
 
@@ -166,7 +169,7 @@ int get_clocks(void)
 
 	get_sys_info(&sys_info);
 	gd->cpu_clk = sys_info.freq_processor[0];
-	gd->bus_clk = sys_info.freq_systembus;
+	gd->bus_clk = sys_info.freq_systembus / CONFIG_SYS_FSL_PCLK_DIV;
 	gd->mem_clk = sys_info.freq_ddrbus;
 
 #ifdef CONFIG_FSL_ESDHC
@@ -179,41 +182,73 @@ int get_clocks(void)
 		return 1;
 }
 
+/********************************************
+ * get_bus_freq
+ * return platform clock in Hz
+ *********************************************/
 ulong get_bus_freq(ulong dummy)
 {
+	if (!gd->bus_clk)
+		get_clocks();
+
 	return gd->bus_clk;
 }
 
 ulong get_ddr_freq(ulong dummy)
 {
+	if (!gd->mem_clk)
+		get_clocks();
+
 	return gd->mem_clk;
 }
 
 #ifdef CONFIG_FSL_ESDHC
 int get_sdhc_freq(ulong dummy)
 {
+	if (!gd->arch.sdhc_clk)
+		get_clocks();
+
 	return gd->arch.sdhc_clk;
 }
 #endif
 
 int get_serial_clock(void)
 {
-	return gd->bus_clk;
+	return get_bus_freq(0) / CONFIG_SYS_FSL_DUART_CLK_DIV;
 }
+
+int get_i2c_freq(ulong dummy)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_I2C_CLK_DIV;
+}
+
+int get_dspi_freq(ulong dummy)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_DSPI_CLK_DIV;
+}
+
+#ifdef CONFIG_FSL_LPUART
+int get_uart_freq(ulong dummy)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_LPUART_CLK_DIV;
+}
+#endif
 
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
 	case MXC_I2C_CLK:
-		return get_bus_freq(0);
+		return get_i2c_freq(0);
 #if defined(CONFIG_FSL_ESDHC)
 	case MXC_ESDHC_CLK:
 		return get_sdhc_freq(0);
 #endif
 	case MXC_DSPI_CLK:
-		return get_bus_freq(0);
+		return get_dspi_freq(0);
+#ifdef CONFIG_FSL_LPUART
 	case MXC_UART_CLK:
-		return get_bus_freq(0);
+		return get_uart_freq(0);
+#endif
 	default:
 		printf("Unsupported clock\n");
 	}

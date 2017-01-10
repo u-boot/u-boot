@@ -345,8 +345,9 @@ int print_cpuinfo(void)
 		       (type == TY_ITYP_VER_A72 ? "A72" : "   "))),
 		       strmhz(buf, sysinfo.freq_processor[core]));
 	}
+	/* Display platform clock as Bus frequency. */
 	printf("\n       Bus:      %-4s MHz  ",
-	       strmhz(buf, sysinfo.freq_systembus));
+	       strmhz(buf, sysinfo.freq_systembus / CONFIG_SYS_FSL_PCLK_DIV));
 	printf("DDR:      %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus));
 #ifdef CONFIG_SYS_DPAA_FMAN
 	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));

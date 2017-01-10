@@ -32,7 +32,6 @@
 unsigned long get_board_sys_clk(void);
 #endif
 
-#define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		133333333
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)

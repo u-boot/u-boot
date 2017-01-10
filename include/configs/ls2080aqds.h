@@ -14,8 +14,6 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
-#define CONFIG_SYS_FSL_CLK
-
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_SYS_NO_FLASH
 #undef CONFIG_CMD_IMLS
