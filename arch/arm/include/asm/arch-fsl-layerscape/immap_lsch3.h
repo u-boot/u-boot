@@ -151,6 +151,7 @@
 #ifndef __ASSEMBLY__
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
+	/* frequency of platform PLL */
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
