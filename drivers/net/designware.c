@@ -628,7 +628,7 @@ static int designware_eth_bind(struct udevice *dev)
 	return 0;
 }
 
-static int designware_eth_probe(struct udevice *dev)
+int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
@@ -678,7 +678,7 @@ static int designware_eth_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct eth_ops designware_eth_ops = {
+const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,
 	.recv			= designware_eth_recv,
@@ -687,7 +687,7 @@ static const struct eth_ops designware_eth_ops = {
 	.write_hwaddr		= designware_eth_write_hwaddr,
 };
 
-static int designware_eth_ofdata_to_platdata(struct udevice *dev)
+int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
 #ifdef CONFIG_DM_GPIO

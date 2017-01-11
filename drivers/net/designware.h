@@ -245,6 +245,10 @@ struct dw_eth_dev {
 };
 
 #ifdef CONFIG_DM_ETH
+int designware_eth_ofdata_to_platdata(struct udevice *dev);
+int designware_eth_probe(struct udevice *dev);
+extern const struct eth_ops designware_eth_ops;
+
 struct dw_eth_pdata {
 	struct eth_pdata eth_pdata;
 	u32 reset_delays[3];
