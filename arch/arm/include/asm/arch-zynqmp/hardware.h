@@ -144,4 +144,13 @@ struct csu_regs {
 
 #define csu_base ((struct csu_regs *)ZYNQMP_CSU_BASEADDR)
 
+#define ZYNQMP_PMU_BASEADDR	0xFFD80000
+
+struct pmu_regs {
+	u32 reserved[18];
+	u32 gen_storage6; /* 0x48 */
+};
+
+#define pmu_base ((struct pmu_regs *)ZYNQMP_PMU_BASEADDR)
+
 #endif /* _ASM_ARCH_HARDWARE_H */

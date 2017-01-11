@@ -43,7 +43,6 @@
 # define CONFIG_PHY_MARVELL
 # define CONFIG_PHY_REALTEK
 # define CONFIG_PHY_XILINX
-# define CONFIG_BOOTP_SERVERIP
 # define CONFIG_BOOTP_BOOTPATH
 # define CONFIG_BOOTP_GATEWAY
 # define CONFIG_BOOTP_HOSTNAME
@@ -246,9 +245,6 @@
 #define CONFIG_SYS_CBSIZE		256 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/* Physical Memory map */
-#define CONFIG_SYS_TEXT_BASE		0x4000000
 
 #ifndef CONFIG_NR_DRAM_BANKS
 # define CONFIG_NR_DRAM_BANKS		1

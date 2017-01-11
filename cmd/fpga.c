@@ -18,15 +18,17 @@
 static int fpga_get_op(char *opstr);
 
 /* Local defines */
-#define FPGA_NONE   -1
-#define FPGA_INFO   0
-#define FPGA_LOAD   1
-#define FPGA_LOADB  2
-#define FPGA_DUMP   3
-#define FPGA_LOADMK 4
-#define FPGA_LOADP  5
-#define FPGA_LOADBP 6
-#define FPGA_LOADFS 7
+enum {
+	FPGA_NONE = -1,
+	FPGA_INFO,
+	FPGA_LOAD,
+	FPGA_LOADB,
+	FPGA_DUMP,
+	FPGA_LOADMK,
+	FPGA_LOADP,
+	FPGA_LOADBP,
+	FPGA_LOADFS,
+};
 
 /* ------------------------------------------------------------------------- */
 /* command form:

@@ -177,7 +177,6 @@
 			interrupts = <0 26 4>;
 			clocks = <&clkc 25>, <&clkc 34>;
 			clock-names = "ref_clk", "pclk";
-			spi-max-frequency = <166666700>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -190,7 +189,6 @@
 			interrupts = <0 49 4>;
 			clocks = <&clkc 26>, <&clkc 35>;
 			clock-names = "ref_clk", "pclk";
-			spi-max-frequency = <166666700>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};

@@ -86,6 +86,10 @@
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
 # endif
+# define CONFIG_ENV_IS_IN_FAT
+# define FAT_ENV_DEVICE_AND_PART	"0:auto"
+# define FAT_ENV_FILE			"uboot.env"
+# define FAT_ENV_INTERFACE		"mmc"
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
@@ -123,17 +127,43 @@
 
 #define DFU_ALT_INFO  \
 		DFU_ALT_INFO_RAM
+
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_USB_FUNCTION_FASTBOOT
+# define CONFIG_CMD_FASTBOOT
+# define CONFIG_ANDROID_BOOT_IMAGE
+# define CONFIG_FASTBOOT_BUF_ADDR 0x100000
+# define CONFIG_FASTBOOT_BUF_SIZE 0x6000000
+# define CONFIG_FASTBOOT_FLASH
+# ifdef CONFIG_ZYNQ_SDHCI
+#  define CONFIG_FASTBOOT_FLASH_MMC_DEV 0
+# endif
+# define CONFIG_PARTITION_UUIDS
+# define CONFIG_CMD_GPT
+
+# define CONFIG_RANDOM_UUID
+# define PARTS_DEFAULT \
+	"partitions=uuid_disk=${uuid_gpt_disk};" \
+	"name=""boot"",size=16M,uuid=${uuid_gpt_boot};" \
+	"name=""Linux"",size=-M,uuid=${uuid_gpt_Linux}\0"
+#endif
 #endif
 
 #if !defined(DFU_ALT_INFO)
 # define DFU_ALT_INFO
 #endif
 
+#if !defined(PARTS_DEFAULT)
+# define PARTS_DEFAULT
+#endif
+
 #define CONFIG_BOARD_LATE_INIT
 
 /* Do not preserve environment */
+#if !defined(CONFIG_ENV_IS_IN_FAT)
 #define CONFIG_ENV_IS_NOWHERE		1
-#define CONFIG_ENV_SIZE			0x1000
+#endif
+#define CONFIG_ENV_SIZE			0x8000
 
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */

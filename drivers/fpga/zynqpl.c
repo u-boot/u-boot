@@ -38,11 +38,6 @@
 #define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
-static int zynq_info(xilinx_desc *desc)
-{
-	return FPGA_SUCCESS;
-}
-
 #define DUMMY_WORD	0xffffffff
 
 /* Xilinx binary format header */
@@ -481,16 +476,9 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 }
 #endif
 
-static int zynq_dump(xilinx_desc *desc, const void *buf, size_t bsize)
-{
-	return FPGA_FAIL;
-}
-
 struct xilinx_fpga_op zynq_op = {
 	.load = zynq_load,
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	.loadfs = zynq_loadfs,
 #endif
-	.dump = zynq_dump,
-	.info = zynq_info,
 };
