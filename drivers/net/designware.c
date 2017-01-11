@@ -230,14 +230,14 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 	return 0;
 }
 
-static void dw_adjust_link(struct eth_mac_regs *mac_p,
-			   struct phy_device *phydev)
+static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
+			  struct phy_device *phydev)
 {
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
-		return;
+		return 0;
 	}
 
 	if (phydev->speed != 1000)
@@ -256,6 +256,8 @@ static void dw_adjust_link(struct eth_mac_regs *mac_p,
 	printf("Speed: %d, %s duplex%s\n", phydev->speed,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+
+	return 0;
 }
 
 static void _dw_eth_halt(struct dw_eth_dev *priv)
@@ -321,7 +323,9 @@ static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		return ret;
 	}
 
-	dw_adjust_link(mac_p, priv->phydev);
+	ret = dw_adjust_link(priv, mac_p, priv->phydev);
+	if (ret)
+		return ret;
 
 	if (!priv->phydev->link)
 		return -EIO;
