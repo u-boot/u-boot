@@ -410,7 +410,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		cpu_to_le32(payloadsz - headersz + sizeof(uint32_t));
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
-	main_hdr->destaddr     = cpu_to_le32(params->addr);
+	main_hdr->destaddr     = cpu_to_le32(params->addr)
+				 - sizeof(image_header_t);
 	main_hdr->execaddr     = cpu_to_le32(params->ep);
 	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
