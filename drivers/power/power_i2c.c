@@ -19,7 +19,6 @@
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 {
 	unsigned char buf[4] = { 0 };
-	int ret;
 
 	if (check_reg(p, reg))
 		return -EINVAL;
