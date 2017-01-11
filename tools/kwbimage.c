@@ -103,6 +103,7 @@ struct image_cfg_element {
 static const char *image_boot_mode_name(unsigned int id)
 {
 	int i;
+
 	for (i = 0; boot_modes[i].name; i++)
 		if (boot_modes[i].id == id)
 			return boot_modes[i].name;
@@ -112,6 +113,7 @@ static const char *image_boot_mode_name(unsigned int id)
 int image_boot_mode_id(const char *boot_mode_name)
 {
 	int i;
+
 	for (i = 0; boot_modes[i].name; i++)
 		if (!strcmp(boot_modes[i].name, boot_mode_name))
 			return boot_modes[i].id;
@@ -122,6 +124,7 @@ int image_boot_mode_id(const char *boot_mode_name)
 int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
 {
 	int i;
+
 	for (i = 0; nand_ecc_modes[i].name; i++)
 		if (!strcmp(nand_ecc_modes[i].name, nand_ecc_mode_name))
 			return nand_ecc_modes[i].id;
@@ -359,14 +362,14 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 
 #if defined(CONFIG_SYS_U_BOOT_OFFS)
 	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
-		fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
+		fprintf(stderr,
+			"Error: Image header (incl. SPL image) too big!\n");
 		fprintf(stderr, "header=0x%x CONFIG_SYS_U_BOOT_OFFS=0x%x!\n",
 			(int)headersz, CONFIG_SYS_U_BOOT_OFFS);
 		fprintf(stderr, "Increase CONFIG_SYS_U_BOOT_OFFS!\n");
 		return 0;
-	} else {
-		headersz = CONFIG_SYS_U_BOOT_OFFS;
 	}
+	headersz = CONFIG_SYS_U_BOOT_OFFS;
 #endif
 
 	/*
@@ -514,11 +517,13 @@ static int image_create_config_parse_oneline(char *line,
 	keyword = strtok_r(line, deliminiters, &saveptr);
 	if (!strcmp(keyword, "VERSION")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
+
 		el->type = IMAGE_CFG_VERSION;
 		el->version = atoi(value);
 	} else if (!strcmp(keyword, "BOOT_FROM")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
 		int ret = image_boot_mode_id(value);
+
 		if (ret < 0) {
 			fprintf(stderr,
 				"Invalid boot media '%s'\n", value);
@@ -528,16 +533,19 @@ static int image_create_config_parse_oneline(char *line,
 		el->bootfrom = ret;
 	} else if (!strcmp(keyword, "NAND_BLKSZ")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
+
 		el->type = IMAGE_CFG_NAND_BLKSZ;
 		el->nandblksz = strtoul(value, NULL, 16);
 	} else if (!strcmp(keyword, "NAND_BADBLK_LOCATION")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
+
 		el->type = IMAGE_CFG_NAND_BADBLK_LOCATION;
 		el->nandbadblklocation =
 			strtoul(value, NULL, 16);
 	} else if (!strcmp(keyword, "NAND_ECC_MODE")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
 		int ret = image_nand_ecc_mode_id(value);
+
 		if (ret < 0) {
 			fprintf(stderr,
 				"Invalid NAND ECC mode '%s'\n", value);
@@ -547,6 +555,7 @@ static int image_create_config_parse_oneline(char *line,
 		el->nandeccmode = ret;
 	} else if (!strcmp(keyword, "NAND_PAGE_SIZE")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
+
 		el->type = IMAGE_CFG_NAND_PAGESZ;
 		el->nandpagesz = strtoul(value, NULL, 16);
 	} else if (!strcmp(keyword, "BINARY")) {
@@ -800,8 +809,8 @@ static int kwbimage_check_image_types(uint8_t type)
 {
 	if (type == IH_TYPE_KWBIMAGE)
 		return EXIT_SUCCESS;
-	else
-		return EXIT_FAILURE;
+
+	return EXIT_FAILURE;
 }
 
 static int kwbimage_verify_header(unsigned char *ptr, int image_size,
@@ -874,9 +883,9 @@ static int kwbimage_generate(struct image_tool_params *params,
 static int kwbimage_check_params(struct image_tool_params *params)
 {
 	if (!strlen(params->imagename)) {
-		fprintf(stderr, "Error:%s - Configuration file not specified, "
-			"it is needed for kwbimage generation\n",
-			params->cmdname);
+		char *msg = "Configuration file for kwbimage creation omitted";
+
+		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
 		return CFG_INVALID;
 	}
 
