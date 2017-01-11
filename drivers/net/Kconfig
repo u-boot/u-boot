@@ -215,4 +215,11 @@ config PIC32_ETH
 	  This driver implements 10/100 Mbps Ethernet and MAC layer for
 	  Microchip PIC32 microcontrollers.
 
+config GMAC_ROCKCHIP
+	bool "Rockchip Synopsys Designware Ethernet MAC"
+	depends on DM_ETH && ETH_DESIGNWARE
+	help
+	  This driver provides Rockchip SoCs network support based on the
+	  Synopsys Designware driver.
+
 endif # NETDEVICES
