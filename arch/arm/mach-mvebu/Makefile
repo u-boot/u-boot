@@ -27,6 +27,7 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_38X) += ../../../drivers/ddr/marvell/a38x/xor.o
 obj-$(CONFIG_ARMADA_XP) += ../../../drivers/ddr/marvell/axp/xor.o
+obj-$(CONFIG_MVEBU_EFUSE) += efuse.o
 endif # CONFIG_SPL_BUILD
 obj-y	+= gpio.o
 obj-y	+= mbus.o

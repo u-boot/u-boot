@@ -1,28 +1,45 @@
 /*
  * Image manipulator for Marvell SoCs
- *  supports Kirkwood, Dove, Armada 370, and Armada XP
+ *  supports Kirkwood, Dove, Armada 370, Armada XP, and Armada 38x
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
- * Not implemented: support for the register headers and secure
- * headers in v1 images
+ * Not implemented: support for the register headers in v1 images
  */
 
 #include "imagetool.h"
 #include <limits.h>
 #include <image.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include "kwbimage.h"
 
+#ifdef CONFIG_KWB_SECURE
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#endif
+
 static struct image_cfg_element *image_cfg;
 static int cfgn;
+#ifdef CONFIG_KWB_SECURE
+static int verbose_mode;
+#endif
 
 struct boot_mode {
 	unsigned int id;
 	const char *name;
+};
+
+/*
+ * SHA2-256 hash
+ */
+struct hash_v1 {
+	uint8_t hash[32];
 };
 
 struct boot_mode boot_modes[] = {
@@ -70,6 +87,16 @@ enum image_cfg_type {
 	IMAGE_CFG_DATA,
 	IMAGE_CFG_BAUDRATE,
 	IMAGE_CFG_DEBUG,
+	IMAGE_CFG_KAK,
+	IMAGE_CFG_CSK,
+	IMAGE_CFG_CSK_INDEX,
+	IMAGE_CFG_JTAG_DELAY,
+	IMAGE_CFG_BOX_ID,
+	IMAGE_CFG_FLASH_ID,
+	IMAGE_CFG_SEC_COMMON_IMG,
+	IMAGE_CFG_SEC_SPECIALIZED_IMG,
+	IMAGE_CFG_SEC_BOOT_DEV,
+	IMAGE_CFG_SEC_FUSE_DUMP,
 
 	IMAGE_CFG_COUNT
 } type;
@@ -88,6 +115,16 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_DATA] = "DATA",
 	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
 	[IMAGE_CFG_DEBUG] = "DEBUG",
+	[IMAGE_CFG_KAK] = "KAK",
+	[IMAGE_CFG_CSK] = "CSK",
+	[IMAGE_CFG_CSK_INDEX] = "CSK_INDEX",
+	[IMAGE_CFG_JTAG_DELAY] = "JTAG_DELAY",
+	[IMAGE_CFG_BOX_ID] = "BOX_ID",
+	[IMAGE_CFG_FLASH_ID] = "FLASH_ID",
+	[IMAGE_CFG_SEC_COMMON_IMG] = "SEC_COMMON_IMG",
+	[IMAGE_CFG_SEC_SPECIALIZED_IMG] = "SEC_SPECIALIZED_IMG",
+	[IMAGE_CFG_SEC_BOOT_DEV] = "SEC_BOOT_DEV",
+	[IMAGE_CFG_SEC_FUSE_DUMP] = "SEC_FUSE_DUMP"
 };
 
 struct image_cfg_element {
@@ -110,6 +147,14 @@ struct image_cfg_element {
 		struct ext_hdr_v0_reg regdata;
 		unsigned int baudrate;
 		unsigned int debug;
+		const char *key_name;
+		int csk_idx;
+		uint8_t jtag_delay;
+		uint32_t boxid;
+		uint32_t flashid;
+		bool sec_specialized_img;
+		unsigned int sec_boot_dev;
+		const char *name;
 	};
 };
 
@@ -178,6 +223,32 @@ image_count_options(unsigned int optiontype)
 	return count;
 }
 
+#if defined(CONFIG_KWB_SECURE)
+
+static int image_get_csk_index(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_CSK_INDEX);
+	if (!e)
+		return -1;
+
+	return e->csk_idx;
+}
+
+static bool image_get_spezialized_img(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_SEC_SPECIALIZED_IMG);
+	if (!e)
+		return false;
+
+	return e->sec_specialized_img;
+}
+
+#endif
+
 /*
  * Compute a 8-bit checksum of a memory area. This algorithm follows
  * the requirements of the Marvell SoC BootROM specifications.
@@ -244,6 +315,493 @@ static uint8_t baudrate_to_option(unsigned int baudrate)
 		return MAIN_HDR_V1_OPT_BAUD_DEFAULT;
 	}
 }
+
+#if defined(CONFIG_KWB_SECURE)
+static void kwb_msg(const char *fmt, ...)
+{
+	if (verbose_mode) {
+		va_list ap;
+
+		va_start(ap, fmt);
+		vfprintf(stdout, fmt, ap);
+		va_end(ap);
+	}
+}
+
+static int openssl_err(const char *msg)
+{
+	unsigned long ssl_err = ERR_get_error();
+
+	fprintf(stderr, "%s", msg);
+	fprintf(stderr, ": %s\n",
+		ERR_error_string(ssl_err, 0));
+
+	return -1;
+}
+
+static int kwb_load_rsa_key(const char *keydir, const char *name, RSA **p_rsa)
+{
+	char path[PATH_MAX];
+	RSA *rsa;
+	FILE *f;
+
+	if (!keydir)
+		keydir = ".";
+
+	snprintf(path, sizeof(path), "%s/%s.key", keydir, name);
+	f = fopen(path, "r");
+	if (!f) {
+		fprintf(stderr, "Couldn't open RSA private key: '%s': %s\n",
+			path, strerror(errno));
+		return -ENOENT;
+	}
+
+	rsa = PEM_read_RSAPrivateKey(f, 0, NULL, "");
+	if (!rsa) {
+		openssl_err("Failure reading private key");
+		fclose(f);
+		return -EPROTO;
+	}
+	fclose(f);
+	*p_rsa = rsa;
+
+	return 0;
+}
+
+static int kwb_load_cfg_key(struct image_tool_params *params,
+			    unsigned int cfg_option, const char *key_name,
+			    RSA **p_key)
+{
+	struct image_cfg_element *e_key;
+	RSA *key;
+	int res;
+
+	*p_key = NULL;
+
+	e_key = image_find_option(cfg_option);
+	if (!e_key) {
+		fprintf(stderr, "%s not configured\n", key_name);
+		return -ENOENT;
+	}
+
+	res = kwb_load_rsa_key(params->keydir, e_key->key_name, &key);
+	if (res < 0) {
+		fprintf(stderr, "Failed to load %s\n", key_name);
+		return -ENOENT;
+	}
+
+	*p_key = key;
+
+	return 0;
+}
+
+static int kwb_load_kak(struct image_tool_params *params, RSA **p_kak)
+{
+	return kwb_load_cfg_key(params, IMAGE_CFG_KAK, "KAK", p_kak);
+}
+
+static int kwb_load_csk(struct image_tool_params *params, RSA **p_csk)
+{
+	return kwb_load_cfg_key(params, IMAGE_CFG_CSK, "CSK", p_csk);
+}
+
+static int kwb_compute_pubkey_hash(struct pubkey_der_v1 *pk,
+				   struct hash_v1 *hash)
+{
+	EVP_MD_CTX *ctx;
+	unsigned int key_size;
+	unsigned int hash_size;
+	int ret = 0;
+
+	if (!pk || !hash || pk->key[0] != 0x30 || pk->key[1] != 0x82)
+		return -EINVAL;
+
+	key_size = (pk->key[2] << 8) + pk->key[3] + 4;
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx)
+		return openssl_err("EVP context creation failed");
+
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_DigestInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Digest setup failed");
+		goto hash_err_ctx;
+	}
+
+	if (!EVP_DigestUpdate(ctx, pk->key, key_size)) {
+		ret = openssl_err("Hashing data failed");
+		goto hash_err_ctx;
+	}
+
+	if (!EVP_DigestFinal(ctx, hash->hash, &hash_size)) {
+		ret = openssl_err("Could not obtain hash");
+		goto hash_err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+
+hash_err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+	return ret;
+}
+
+static int kwb_import_pubkey(RSA **key, struct pubkey_der_v1 *src, char *keyname)
+{
+	RSA *rsa;
+	const unsigned char *ptr;
+
+	if (!key || !src)
+		goto fail;
+
+	ptr = src->key;
+	rsa = d2i_RSAPublicKey(key, &ptr, sizeof(src->key));
+	if (!rsa) {
+		openssl_err("error decoding public key");
+		goto fail;
+	}
+
+	return 0;
+fail:
+	fprintf(stderr, "Failed to decode %s pubkey\n", keyname);
+	return -EINVAL;
+}
+
+static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
+			     char *keyname)
+{
+	int size_exp, size_mod, size_seq;
+	uint8_t *cur;
+	char *errmsg = "Failed to encode %s\n";
+
+	if (!key || !key->e || !key->n || !dst) {
+		fprintf(stderr, "export pk failed: (%p, %p, %p, %p)",
+			key, key->e, key->n, dst);
+		fprintf(stderr, errmsg, keyname);
+		return -EINVAL;
+	}
+
+	/*
+	 * According to the specs, the key should be PKCS#1 DER encoded.
+	 * But unfortunately the really required encoding seems to be different;
+	 * it violates DER...! (But it still conformes to BER.)
+	 * (Length always in long form w/ 2 byte length code; no leading zero
+	 * when MSB of first byte is set...)
+	 * So we cannot use the encoding func provided by OpenSSL and have to
+	 * do the encoding manually.
+	 */
+
+	size_exp = BN_num_bytes(key->e);
+	size_mod = BN_num_bytes(key->n);
+	size_seq = 4 + size_mod + 4 + size_exp;
+
+	if (size_mod > 256) {
+		fprintf(stderr, "export pk failed: wrong mod size: %d\n",
+			size_mod);
+		fprintf(stderr, errmsg, keyname);
+		return -EINVAL;
+	}
+
+	if (4 + size_seq > sizeof(dst->key)) {
+		fprintf(stderr, "export pk failed: seq too large (%d, %lu)\n",
+			4 + size_seq, sizeof(dst->key));
+		fprintf(stderr, errmsg, keyname);
+		return -ENOBUFS;
+	}
+
+	cur = dst->key;
+
+	/* PKCS#1 (RFC3447) RSAPublicKey structure */
+	*cur++ = 0x30;		/* SEQUENCE */
+	*cur++ = 0x82;
+	*cur++ = (size_seq >> 8) & 0xFF;
+	*cur++ = size_seq & 0xFF;
+	/* Modulus */
+	*cur++ = 0x02;		/* INTEGER */
+	*cur++ = 0x82;
+	*cur++ = (size_mod >> 8) & 0xFF;
+	*cur++ = size_mod & 0xFF;
+	BN_bn2bin(key->n, cur);
+	cur += size_mod;
+	/* Exponent */
+	*cur++ = 0x02;		/* INTEGER */
+	*cur++ = 0x82;
+	*cur++ = (size_exp >> 8) & 0xFF;
+	*cur++ = size_exp & 0xFF;
+	BN_bn2bin(key->e, cur);
+
+	if (hashf) {
+		struct hash_v1 pk_hash;
+		int i;
+		int ret = 0;
+
+		ret = kwb_compute_pubkey_hash(dst, &pk_hash);
+		if (ret < 0) {
+			fprintf(stderr, errmsg, keyname);
+			return ret;
+		}
+
+		fprintf(hashf, "SHA256 = ");
+		for (i = 0 ; i < sizeof(pk_hash.hash); ++i)
+			fprintf(hashf, "%02X", pk_hash.hash[i]);
+		fprintf(hashf, "\n");
+	}
+
+	return 0;
+}
+
+int kwb_sign(RSA *key, void *data, int datasz, struct sig_v1 *sig, char *signame)
+{
+	EVP_PKEY *evp_key;
+	EVP_MD_CTX *ctx;
+	unsigned int sig_size;
+	int size;
+	int ret = 0;
+
+	evp_key = EVP_PKEY_new();
+	if (!evp_key)
+		return openssl_err("EVP_PKEY object creation failed");
+
+	if (!EVP_PKEY_set1_RSA(evp_key, key)) {
+		ret = openssl_err("EVP key setup failed");
+		goto err_key;
+	}
+
+	size = EVP_PKEY_size(evp_key);
+	if (size > sizeof(sig->sig)) {
+		fprintf(stderr, "Buffer to small for signature (%d bytes)\n",
+			size);
+		ret = -ENOBUFS;
+		goto err_key;
+	}
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx) {
+		ret = openssl_err("EVP context creation failed");
+		goto err_key;
+	}
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_SignInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Signer setup failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_SignUpdate(ctx, data, datasz)) {
+		ret = openssl_err("Signing data failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_SignFinal(ctx, sig->sig, &sig_size, evp_key)) {
+		ret = openssl_err("Could not obtain signature");
+		goto err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+	EVP_MD_CTX_destroy(ctx);
+	EVP_PKEY_free(evp_key);
+
+	return 0;
+
+err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+err_key:
+	EVP_PKEY_free(evp_key);
+	fprintf(stderr, "Failed to create %s signature\n", signame);
+	return ret;
+}
+
+int kwb_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+	       char *signame)
+{
+	EVP_PKEY *evp_key;
+	EVP_MD_CTX *ctx;
+	int size;
+	int ret = 0;
+
+	evp_key = EVP_PKEY_new();
+	if (!evp_key)
+		return openssl_err("EVP_PKEY object creation failed");
+
+	if (!EVP_PKEY_set1_RSA(evp_key, key)) {
+		ret = openssl_err("EVP key setup failed");
+		goto err_key;
+	}
+
+	size = EVP_PKEY_size(evp_key);
+	if (size > sizeof(sig->sig)) {
+		fprintf(stderr, "Invalid signature size (%d bytes)\n",
+			size);
+		ret = -EINVAL;
+		goto err_key;
+	}
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx) {
+		ret = openssl_err("EVP context creation failed");
+		goto err_key;
+	}
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_VerifyInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Verifier setup failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_VerifyUpdate(ctx, data, datasz)) {
+		ret = openssl_err("Hashing data failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_VerifyFinal(ctx, sig->sig, sizeof(sig->sig), evp_key)) {
+		ret = openssl_err("Could not verify signature");
+		goto err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+	EVP_MD_CTX_destroy(ctx);
+	EVP_PKEY_free(evp_key);
+
+	return 0;
+
+err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+err_key:
+	EVP_PKEY_free(evp_key);
+	fprintf(stderr, "Failed to verify %s signature\n", signame);
+	return ret;
+}
+
+int kwb_sign_and_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+			char *signame)
+{
+	if (kwb_sign(key, data, datasz, sig, signame) < 0)
+		return -1;
+
+	if (kwb_verify(key, data, datasz, sig, signame) < 0)
+		return -1;
+
+	return 0;
+}
+
+
+int kwb_dump_fuse_cmds_38x(FILE *out, struct secure_hdr_v1 *sec_hdr)
+{
+	struct hash_v1 kak_pub_hash;
+	struct image_cfg_element *e;
+	unsigned int fuse_line;
+	int i, idx;
+	uint8_t *ptr;
+	uint32_t val;
+	int ret = 0;
+
+	if (!out || !sec_hdr)
+		return -EINVAL;
+
+	ret = kwb_compute_pubkey_hash(&sec_hdr->kak, &kak_pub_hash);
+	if (ret < 0)
+		goto done;
+
+	fprintf(out, "# burn KAK pub key hash\n");
+	ptr = kak_pub_hash.hash;
+	for (fuse_line = 26; fuse_line <= 30; ++fuse_line) {
+		fprintf(out, "fuse prog -y %u 0 ", fuse_line);
+
+		for (i = 4; i-- > 0;)
+			fprintf(out, "%02hx", (ushort)ptr[i]);
+		ptr += 4;
+		fprintf(out, " 00");
+
+		if (fuse_line < 30) {
+			for (i = 3; i-- > 0;)
+				fprintf(out, "%02hx", (ushort)ptr[i]);
+			ptr += 3;
+		} else {
+			fprintf(out, "000000");
+		}
+
+		fprintf(out, " 1\n");
+	}
+
+	fprintf(out, "# burn CSK selection\n");
+
+	idx = image_get_csk_index();
+	if (idx < 0 || idx > 15) {
+		ret = -EINVAL;
+		goto done;
+	}
+	if (idx > 0) {
+		for (fuse_line = 31; fuse_line < 31 + idx; ++fuse_line)
+			fprintf(out, "fuse prog -y %u 0 00000001 00000000 1\n",
+				fuse_line);
+	} else {
+		fprintf(out, "# CSK index is 0; no mods needed\n");
+	}
+
+	e = image_find_option(IMAGE_CFG_BOX_ID);
+	if (e) {
+		fprintf(out, "# set box ID\n");
+		fprintf(out, "fuse prog -y 48 0 %08x 00000000 1\n", e->boxid);
+	}
+
+	e = image_find_option(IMAGE_CFG_FLASH_ID);
+	if (e) {
+		fprintf(out, "# set flash ID\n");
+		fprintf(out, "fuse prog -y 47 0 %08x 00000000 1\n", e->flashid);
+	}
+
+	fprintf(out, "# enable secure mode ");
+	fprintf(out, "(must be the last fuse line written)\n");
+
+	val = 1;
+	e = image_find_option(IMAGE_CFG_SEC_BOOT_DEV);
+	if (!e) {
+		fprintf(stderr, "ERROR: secured mode boot device not given\n");
+		ret = -EINVAL;
+		goto done;
+	}
+
+	if (e->sec_boot_dev > 0xff) {
+		fprintf(stderr, "ERROR: secured mode boot device invalid\n");
+		ret = -EINVAL;
+		goto done;
+	}
+
+	val |= (e->sec_boot_dev << 8);
+
+	fprintf(out, "fuse prog -y 24 0 %08x 0103e0a9 1\n", val);
+
+	fprintf(out, "# lock (unused) fuse lines (0-23)s\n");
+	for (fuse_line = 0; fuse_line < 24; ++fuse_line)
+		fprintf(out, "fuse prog -y %u 2 1\n", fuse_line);
+
+	fprintf(out, "# OK, that's all :-)\n");
+
+done:
+	return ret;
+}
+
+static int kwb_dump_fuse_cmds(struct secure_hdr_v1 *sec_hdr)
+{
+	int ret = 0;
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_SEC_FUSE_DUMP);
+	if (!e)
+		return 0;
+
+	if (!strcmp(e->name, "a38x")) {
+		FILE *out = fopen("kwb_fuses_a38x.txt", "w+");
+
+		kwb_dump_fuse_cmds_38x(out, sec_hdr);
+		fclose(out);
+		goto done;
+	}
+
+	ret = -ENOSYS;
+
+done:
+	return ret;
+}
+
+#endif
 
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
@@ -381,6 +939,14 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
+#if defined(CONFIG_KWB_SECURE)
+	if (image_get_csk_index() >= 0) {
+		headersz += sizeof(struct secure_hdr_v1);
+		if (hasext)
+			*hasext = 1;
+	}
+#endif
+
 #if defined(CONFIG_SYS_U_BOOT_OFFS)
 	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
 		fprintf(stderr,
@@ -476,14 +1042,129 @@ int add_binary_header_v1(uint8_t *cur)
 	return 0;
 }
 
+#if defined(CONFIG_KWB_SECURE)
+
+int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
+{
+	FILE *hashf;
+	int res;
+
+	hashf = fopen("pub_kak_hash.txt", "w");
+
+	res = kwb_export_pubkey(kak, &secure_hdr->kak, hashf, "KAK");
+
+	fclose(hashf);
+
+	return res < 0 ? 1 : 0;
+}
+
+int kwb_sign_csk_with_kak(struct image_tool_params *params,
+			  struct secure_hdr_v1 *secure_hdr, RSA *csk)
+{
+	RSA *kak = NULL;
+	RSA *kak_pub = NULL;
+	int csk_idx = image_get_csk_index();
+	struct sig_v1 tmp_sig;
+
+	if (csk_idx >= 16) {
+		fprintf(stderr, "Invalid CSK index %d\n", csk_idx);
+		return 1;
+	}
+
+	if (kwb_load_kak(params, &kak) < 0)
+		return 1;
+
+	if (export_pub_kak_hash(kak, secure_hdr))
+		return 1;
+
+	if (kwb_import_pubkey(&kak_pub, &secure_hdr->kak, "KAK") < 0)
+		return 1;
+
+	if (kwb_export_pubkey(csk, &secure_hdr->csk[csk_idx], NULL, "CSK") < 0)
+		return 1;
+
+	if (kwb_sign_and_verify(kak, &secure_hdr->csk,
+				sizeof(secure_hdr->csk) +
+				sizeof(secure_hdr->csksig),
+				&tmp_sig, "CSK") < 0)
+		return 1;
+
+	if (kwb_verify(kak_pub, &secure_hdr->csk,
+		       sizeof(secure_hdr->csk) +
+		       sizeof(secure_hdr->csksig),
+		       &tmp_sig, "CSK (2)") < 0)
+		return 1;
+
+	secure_hdr->csksig = tmp_sig;
+
+	return 0;
+}
+
+int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
+			 int payloadsz, size_t headersz, uint8_t *image,
+			 struct secure_hdr_v1 *secure_hdr)
+{
+	struct image_cfg_element *e_jtagdelay;
+	struct image_cfg_element *e_boxid;
+	struct image_cfg_element *e_flashid;
+	RSA *csk = NULL;
+	unsigned char *image_ptr;
+	size_t image_size;
+	struct sig_v1 tmp_sig;
+	bool specialized_img = image_get_spezialized_img();
+
+	kwb_msg("Create secure header content\n");
+
+	e_jtagdelay = image_find_option(IMAGE_CFG_JTAG_DELAY);
+	e_boxid = image_find_option(IMAGE_CFG_BOX_ID);
+	e_flashid = image_find_option(IMAGE_CFG_FLASH_ID);
+
+	if (kwb_load_csk(params, &csk) < 0)
+		return 1;
+
+	secure_hdr->headertype = OPT_HDR_V1_SECURE_TYPE;
+	secure_hdr->headersz_msb = 0;
+	secure_hdr->headersz_lsb = cpu_to_le16(sizeof(struct secure_hdr_v1));
+	if (e_jtagdelay)
+		secure_hdr->jtag_delay = e_jtagdelay->jtag_delay;
+	if (e_boxid && specialized_img)
+		secure_hdr->boxid = cpu_to_le32(e_boxid->boxid);
+	if (e_flashid && specialized_img)
+		secure_hdr->flashid = cpu_to_le32(e_flashid->flashid);
+
+	if (kwb_sign_csk_with_kak(params, secure_hdr, csk))
+		return 1;
+
+	image_ptr = ptr + headersz;
+	image_size = payloadsz - headersz;
+
+	if (kwb_sign_and_verify(csk, image_ptr, image_size,
+				&secure_hdr->imgsig, "image") < 0)
+		return 1;
+
+	if (kwb_sign_and_verify(csk, image, headersz, &tmp_sig, "header") < 0)
+		return 1;
+
+	secure_hdr->hdrsig = tmp_sig;
+
+	kwb_dump_fuse_cmds(secure_hdr);
+
+	return 0;
+}
+#endif
+
 static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
-			     int payloadsz)
+			     uint8_t *ptr, int payloadsz)
 {
 	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
+#if defined(CONFIG_KWB_SECURE)
+	struct secure_hdr_v1 *secure_hdr = NULL;
+#endif
 	size_t headersz;
 	uint8_t *image, *cur;
 	int hasext = 0;
+	uint8_t *next_ext = NULL;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -502,7 +1183,9 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	memset(image, 0, headersz);
 
 	main_hdr = (struct main_hdr_v1 *)image;
-	cur = image + sizeof(struct main_hdr_v1);
+	cur = image;
+	cur += sizeof(struct main_hdr_v1);
+	next_ext = &main_hdr->ext;
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
@@ -531,8 +1214,27 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
 
+#if defined(CONFIG_KWB_SECURE)
+	if (image_get_csk_index() >= 0) {
+		/*
+		 * only reserve the space here; we fill the header later since
+		 * we need the header to be complete to compute the signatures
+		 */
+		secure_hdr = (struct secure_hdr_v1 *)cur;
+		cur += sizeof(struct secure_hdr_v1);
+		next_ext = &secure_hdr->next;
+	}
+#endif
+	*next_ext = 1;
+
 	if (add_binary_header_v1(cur))
 		return NULL;
+
+#if defined(CONFIG_KWB_SECURE)
+	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
+					       headersz, image, secure_hdr))
+		return NULL;
+#endif
 
 	/* Calculate and set the header checksum */
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
@@ -644,6 +1346,36 @@ static int image_create_config_parse_oneline(char *line,
 		break;
 	case IMAGE_CFG_DEBUG:
 		el->debug = strtoul(value1, NULL, 10);
+		break;
+	case IMAGE_CFG_KAK:
+		el->key_name = strdup(value1);
+		break;
+	case IMAGE_CFG_CSK:
+		el->key_name = strdup(value1);
+		break;
+	case IMAGE_CFG_CSK_INDEX:
+		el->csk_idx = strtol(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_JTAG_DELAY:
+		el->jtag_delay = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_BOX_ID:
+		el->boxid = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_FLASH_ID:
+		el->flashid = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_SEC_SPECIALIZED_IMG:
+		el->sec_specialized_img = true;
+		break;
+	case IMAGE_CFG_SEC_COMMON_IMG:
+		el->sec_specialized_img = false;
+		break;
+	case IMAGE_CFG_SEC_BOOT_DEV:
+		el->sec_boot_dev = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_SEC_FUSE_DUMP:
+		el->name = strdup(value1);
 		break;
 	default:
 		fprintf(stderr, unknown_msg, line);
@@ -804,7 +1536,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		break;
 
 	case 1:
-		image = image_create_v1(&headersz, params, sbuf->st_size);
+		image = image_create_v1(&headersz, params, ptr, sbuf->st_size);
 		break;
 
 	default:
