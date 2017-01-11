@@ -17,6 +17,7 @@
 #define __CONFIG_AM335X_EVM_H
 
 #include <configs/ti_am335x_common.h>
+#include <environment/ti/dfu.h>
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
@@ -90,6 +91,9 @@
 	func(DHCP, dhcp, na)
 
 #define CONFIG_BOOTCOMMAND \
+	"if test ${boot_fit} -eq 1; then "	\
+		"run update_to_fit;"	\
+	"fi;"	\
 	"run findfdt; " \
 	"run init_console; " \
 	"run envboot; " \
@@ -101,7 +105,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
-	"boot_fdt=try\0" \
+	DEFAULT_FIT_TI_ARGS \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
@@ -127,30 +131,6 @@
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
-	"mmcloados=run args_mmc; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdtaddr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0" \
-	"mmcboot=mmc dev ${mmcdev}; " \
-		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${mmcdev};" \
-			"run envboot; " \
-			"if run loadimage; then " \
-				"run mmcloados;" \
-			"fi;" \
-		"fi;\0" \
 	"spiboot=echo Booting from spi ...; " \
 		"run spiargs; " \
 		"sf probe ${spibusno}:0; " \
@@ -213,7 +193,7 @@
 
 /* USB gadget RNDIS */
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 #endif
 
 #ifdef CONFIG_NAND
@@ -316,6 +296,7 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
+#undef CONFIG_DM_USB
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
@@ -330,38 +311,6 @@
 
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
-#define DFU_ALT_INFO_MMC \
-	"dfu_alt_info_mmc=" \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"MLO fat 0 1;" \
-	"MLO.raw raw 0x100 0x100;" \
-	"u-boot.img.raw raw 0x300 0x400;" \
-	"spl-os-args.raw raw 0x80 0x80;" \
-	"spl-os-image.raw raw 0x900 0x2000;" \
-	"spl-os-args fat 0 1;" \
-	"spl-os-image fat 0 1;" \
-	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1\0"
-#ifdef CONFIG_NAND
-#define DFU_ALT_INFO_NAND \
-	"dfu_alt_info_nand=" \
-	"SPL part 0 1;" \
-	"SPL.backup1 part 0 2;" \
-	"SPL.backup2 part 0 3;" \
-	"SPL.backup3 part 0 4;" \
-	"u-boot part 0 5;" \
-	"u-boot-spl-os part 0 6;" \
-	"kernel part 0 8;" \
-	"rootfs part 0 9\0"
-#else
-#define DFU_ALT_INFO_NAND ""
-#endif
-#define DFU_ALT_INFO_RAM \
-	"dfu_alt_info_ram=" \
-	"kernel ram 0x80200000 0xD80000;" \
-	"fdt ram 0x80F80000 0x80000;" \
-	"ramdisk ram 0x81000000 0x4000000\0"
 #define DFUARGS \
 	"dfu_alt_info_emmc=rawemmc raw 0 3751936\0" \
 	DFU_ALT_INFO_MMC \

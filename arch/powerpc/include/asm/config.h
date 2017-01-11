@@ -9,16 +9,13 @@
 
 #ifdef CONFIG_MPC85xx
 #include <asm/config_mpc85xx.h>
-#define CONFIG_SYS_FSL_DDR
 #endif
 
 #ifdef CONFIG_MPC86xx
 #include <asm/config_mpc86xx.h>
-#define CONFIG_SYS_FSL_DDR
 #endif
 
 #ifdef CONFIG_MPC83xx
-#define CONFIG_SYS_FSL_DDR
 #endif
 
 #ifndef HWCONFIG_BUFFER_SIZE
@@ -57,10 +54,6 @@
 #endif
 #endif
 
-#ifndef CONFIG_MAX_CPUS
-#define CONFIG_MAX_CPUS		1
-#endif
-
 /*
  * Provide a default boot page translation virtual address that lines up with
  * Freescale's default e500 reset page.
@@ -69,14 +62,6 @@
 #ifndef CONFIG_BPTR_VIRT_ADDR
 #define CONFIG_BPTR_VIRT_ADDR	0xfffff000
 #endif
-#endif
-
-/*
- * SEC (crypto unit) major compatible version determination
- */
-#if defined(CONFIG_MPC83xx)
-#define CONFIG_SYS_FSL_SEC_BE
-#define CONFIG_SYS_FSL_SEC_COMPAT	2
 #endif
 
 /* Since so many PPC SOCs have a semi-common LBC, define this here */

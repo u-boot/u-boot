@@ -3,8 +3,6 @@
 
 #if defined(CONFIG_CPU_SH4)
 
-int cache_control(unsigned int cmd);
-
 #define L1_CACHE_BYTES 32
 
 struct __large_struct { unsigned long buf[100]; };

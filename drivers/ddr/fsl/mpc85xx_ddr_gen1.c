@@ -47,7 +47,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2);
 	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
-#if defined(CONFIG_MPC8555) || defined(CONFIG_MPC8541)
+#if defined(CONFIG_ARCH_MPC8555) || defined(CONFIG_ARCH_MPC8541)
 	out_be32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
 #endif
 

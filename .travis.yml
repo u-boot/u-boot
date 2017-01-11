@@ -10,8 +10,6 @@ language: c
 
 addons:
   apt:
-    sources:
-    - sourceline: 'ppa:gns3/qemu'
     packages:
     - cppcheck
     - sloccount
@@ -21,14 +19,13 @@ addons:
     - libsdl1.2-dev
     - python
     - python-virtualenv
-    - qemu-system-arm
-    - qemu-system-mips
-    - qemu-system-ppc
-    - qemu-system-x86
     - gcc-powerpc-linux-gnu
     - gcc-arm-linux-gnueabihf
     - gcc-aarch64-linux-gnu
     - iasl
+    - grub-efi-ia32-bin
+    - rpm2cpio
+    - wget
 
 install:
  # install latest device tree compiler
@@ -45,10 +42,14 @@ install:
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
  - pip install pytest
+ - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+ - mkdir ~/grub2-arm
+ - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
 
 env:
   global:
-    - PATH=/tmp/dtc:/tmp/uboot-test-hooks/bin:$PATH
+    - PATH=/tmp/dtc:/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:$PATH
+    - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"
     - HOSTCXX="c++"
@@ -67,6 +68,15 @@ before_script:
       echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
+  - if [[ "${QEMU_TARGET}" != "" ]]; then
+       git clone git://git.qemu.org/qemu.git /tmp/qemu;
+       pushd /tmp/qemu;
+       git submodule update --init dtc &&
+       git checkout v2.8.0-rc3 &&
+       ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
+       make -j4 all install;
+       popd;
+    fi
 
 script:
  # Comments must be outside the command strings below, or the Travis parser
@@ -86,10 +96,13 @@ script:
  # never prevent any test from running. That way, we can always pass
  # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
  # value.
- - if [[ "${TEST_PY_BD}" != "" ]]; then
+ - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+   cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   cp ~/grub2-arm/usr/lib/grub2/arm-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi;
+   if [[ "${TEST_PY_BD}" != "" ]]; then
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
        -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
-       --build-dir `cd .. && pwd`/.bm-work/${TEST_PY_BD};
+       --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
    fi
 
 matrix:
@@ -115,11 +128,16 @@ matrix:
     - env:
         - BUILDMAN="denx"
     - env:
-        - JOB="Freescale ARM"
-          BUILDMAN="freescale -x powerpc,m68k"
+        - JOB="Freescale ARM32"
+          BUILDMAN="freescale -x powerpc,m68k,aarch64"
+    - env:
+        - JOB="Freescale AArch64"
+          BUILDMAN="freescale -x powerpc,m68k,armv7,arm9,arm11"
     - env:
         - JOB="i.MX (non-Freescale)"
           BUILDMAN="mx -x freescale"
+    - env:
+        - BUILDMAN="samsung"
     - env:
         - BUILDMAN="sun4i"
     - env:
@@ -136,12 +154,14 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,siemens,tegra,uniphier,mx,sunxi,am33xx,omap3,omap4,omap5,pxa"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
     - env:
         - BUILDMAN="kirkwood"
+    - env:
+        - BUILDMAN="mvebu"
     - env:
         - BUILDMAN="pxa"
     - env:
@@ -193,8 +213,10 @@ matrix:
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - BUILDMAN="aarch64 -x tegra,freescale,uniphier,sunxi"
+        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
           TOOLCHAIN="aarch64"
+    - env:
+        - BUILDMAN="rockchip"
     - env:
         - BUILDMAN="sh4"
           TOOLCHAIN="sh4"
@@ -235,44 +257,60 @@ matrix:
     - env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca15_tc2$"
     - env:
         - TEST_PY_BD="vexpress_ca9x4"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca9x4$"
     - env:
         - TEST_PY_BD="integratorcp_cm926ejs"
+          TEST_PY_TEST_SPEC="not sleep"
           TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
           BUILDMAN="^integratorcp_cm926ejs$"
     - env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips-softmmu"
           BUILDMAN="^qemu_mips$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mipsel"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mipsel-softmmu"
           BUILDMAN="^qemu_mipsel$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mips64"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips64-softmmu"
           BUILDMAN="^qemu_mips64$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu_mips64el"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="mips64el-softmmu"
           BUILDMAN="^qemu_mips64el$"
           TOOLCHAIN="mips"
     - env:
         - TEST_PY_BD="qemu-ppce500"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
     - env:
         - TEST_PY_BD="qemu-x86"
           TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="i386-softmmu"
           BUILDMAN="^qemu-x86$"
           TOOLCHAIN="x86_64"
           BUILD_ROM="yes"
+    - env:
+        - TEST_PY_BD="zynq_zc702"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="arm-softmmu"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^zynq_zc702$"
 
 # TODO make it perfect ;-r

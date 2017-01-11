@@ -1,12 +1,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG
-
 #define CONFIG_CPU_SH7751	1
 #define CONFIG_CPU_SH_TYPE_R	1
 #define CONFIG_R2DPLUS		1
 #define __LITTLE_ENDIAN__	1
+
+#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Command line configuration.
@@ -26,10 +26,10 @@
 #define CONFIG_ENV_OVERWRITE	1
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE		(0x8C000000)
-#define CONFIG_SYS_SDRAM_SIZE		(0x04000000)
+#define CONFIG_SYS_SDRAM_BASE		0x8C000000
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
-#define CONFIG_SYS_TEXT_BASE	0x0FFC0000
+#define CONFIG_SYS_TEXT_BASE		0x8FE00000
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
@@ -91,7 +91,6 @@
 #define CONFIG_SH4_PCI
 #define CONFIG_SH7751_PCI
 #define CONFIG_PCI_SCAN_SHOW	1
-#define __io
 #define __mem_pci
 
 #define CONFIG_PCI_MEM_BUS	0xFD000000	/* Memory space base addr */
@@ -100,8 +99,8 @@
 #define CONFIG_PCI_IO_BUS	0xFE240000	/* IO space base address */
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x00040000	/* Size of IO window */
-#define CONFIG_PCI_SYS_BUS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
-#define CONFIG_PCI_SYS_PHYS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
+#define CONFIG_PCI_SYS_BUS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_PCI_SYS_PHYS	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
 #endif /* __CONFIG_H */

@@ -63,7 +63,6 @@
 /* Command definition */
 
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOARD_NAME	EL6Q

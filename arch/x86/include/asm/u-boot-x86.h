@@ -74,6 +74,7 @@ static inline __attribute__((no_instrument_function)) uint64_t rdtsc(void)
 /* board/... */
 void timer_set_tsc_base(uint64_t new_base);
 uint64_t timer_get_tsc(void);
+void board_quiesce_devices(void);
 
 void quick_ram_check(void);
 

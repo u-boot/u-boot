@@ -26,8 +26,8 @@ int checkboard (void)
 {
 	u8 sw;
 	struct cpu_type *cpu = gd->arch.cpu;
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) || \
-	defined(CONFIG_P5040DS)
+#if defined(CONFIG_TARGET_P3041DS) || defined(CONFIG_TARGET_P5020DS) || \
+	defined(CONFIG_TARGET_P5040DS)
 	unsigned int i;
 #endif
 	static const char * const freq[] = {"100", "125", "156.25", "212.5" };
@@ -56,15 +56,15 @@ int checkboard (void)
 	 * don't match.
 	 */
 	puts("SERDES Reference Clocks: ");
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) \
-	|| defined(CONFIG_P5040DS)
+#if defined(CONFIG_TARGET_P3041DS) || defined(CONFIG_TARGET_P5020DS) || \
+	defined(CONFIG_TARGET_P5040DS)
 	sw = in_8(&PIXIS_SW(5));
 	for (i = 0; i < 3; i++) {
 		unsigned int clock = (sw >> (6 - (2 * i))) & 3;
 
 		printf("Bank%u=%sMhz ", i+1, freq[clock]);
 	}
-#ifdef CONFIG_P5040DS
+#ifdef CONFIG_TARGET_P5040DS
 	/* On P5040DS, SW11[7:8] determines the Bank 4 frequency */
 	sw = in_8(&PIXIS_SW(9));
 	printf("Bank4=%sMhz ", freq[sw & 3]);
@@ -136,8 +136,8 @@ int misc_init_r(void)
 	unsigned int i;
 	u8 sw;
 
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) \
-	|| defined(CONFIG_P5040DS)
+#if defined(CONFIG_TARGET_P3041DS) || defined(CONFIG_TARGET_P5020DS) || \
+	defined(CONFIG_TARGET_P5040DS)
 	sw = in_8(&PIXIS_SW(5));
 	for (i = 0; i < 3; i++) {
 		unsigned int clock = (sw >> (6 - (2 * i))) & 3;

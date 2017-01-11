@@ -376,15 +376,6 @@ The following options need to be configured:
 		Defines the string to utilize when trying to match PCIe device
 		tree nodes for the given platform.
 
-		CONFIG_SYS_PPC_E500_DEBUG_TLB
-
-		Enables a temporary TLB entry to be used during boot to work
-		around limitations in e500v1 and e500v2 external debugger
-		support. This reduces the portions of the boot code where
-		breakpoints and single stepping do not work.  The value of this
-		symbol should be set to the TLB1 entry to be used for this
-		purpose.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,
@@ -3341,11 +3332,6 @@ FIT uImage format:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
-		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
-		Address and partition on the MMC to load U-Boot from
-		when the MMC is being used in raw mode.
-
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 		Partition on the MMC to load U-Boot from when the MMC is being
 		used in raw mode
@@ -4118,7 +4104,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
          Define this to a string that is the name of the block device.
 
-       - FAT_ENV_DEV_AND_PART:
+       - FAT_ENV_DEVICE_AND_PART:
 
          Define this to a string to specify the partition of the device. It can
          be as following:
@@ -4600,12 +4586,6 @@ Low Level (hardware related) configuration options:
 		it maintains its own little RAM buffer which contains all
 		addressable memory. This option causes some memory accesses
 		to be mapped through map_sysmem() / unmap_sysmem().
-
-- CONFIG_USE_ARCH_MEMCPY
-  CONFIG_USE_ARCH_MEMSET
-		If these options are used a optimized version of memcpy/memset will
-		be used if available. These functions may be faster under some
-		conditions but may increase the binary size.
 
 - CONFIG_X86_RESET_VECTOR
 		If defined, the x86 reset vector code is included. This is not

@@ -7,10 +7,14 @@ choice
 config TARGET_IPAM390
 	bool "IPAM390 board"
 	select SUPPORT_SPL
+	select SYS_DA850_PLL_INIT
+	select SYS_DA850_DDR_INIT
 
 config TARGET_DA850EVM
 	bool "DA850 EVM board"
 	select SUPPORT_SPL
+	select SYS_DA850_PLL_INIT
+	select SYS_DA850_DDR_INIT
 
 config TARGET_EA20
 	bool "EA20 board"
@@ -18,17 +22,29 @@ config TARGET_EA20
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
 	select SUPPORT_SPL
+	select SYS_DA850_PLL_INIT
+	select SYS_DA850_DDR_INIT
 
 config TARGET_CALIMAIN
 	bool "Calimain board"
+	select SYS_DA850_PLL_INIT
+	select SYS_DA850_DDR_INIT
 
 config TARGET_LEGOEV3
 	bool "LEGO MINDSTORMS EV3"
+	select SYS_DA850_PLL_INIT
+	select SYS_DA850_DDR_INIT
 
 endchoice
 
 config SYS_SOC
 	default "davinci"
+
+config SYS_DA850_PLL_INIT
+	bool
+
+config SYS_DA850_DDR_INIT
+	bool
 
 source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"

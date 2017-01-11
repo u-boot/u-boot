@@ -292,14 +292,16 @@ void fdt_fixup_board_enet(void *fdt)
 	else
 		fdt_status_fail(fdt, offset);
 }
+
+void board_quiesce_devices(void)
+{
+	fsl_mc_ldpaa_exit(gd->bd);
+}
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
-#ifdef CONFIG_FSL_MC_ENET
-	int err;
-#endif
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -317,9 +319,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
-	err = fsl_mc_ldpaa_exit(bd);
-	if (err)
-		return err;
 #endif
 
 	return 0;

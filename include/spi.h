@@ -57,10 +57,6 @@
 #define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(3)			/* receive with 4 wires */
 
-/* SPI bus connection options - see enum spi_dual_flash */
-#define SPI_CONN_DUAL_SHARED		(1 << 0)
-#define SPI_CONN_DUAL_SEPARATED	(1 << 1)
-
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
@@ -117,12 +113,9 @@ struct dm_spi_slave_platdata {
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @wordlen:		Size of SPI word in number of bits
- * @op_mode_rx:		SPI RX operation mode.
- * @op_mode_tx:		SPI TX operation mode.
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
  * @memory_map:		Address of read-only SPI flash access.
- * @option:		Varies SPI bus options - separate, shared bus.
  * @flags:		Indication of SPI flags.
  */
 struct spi_slave {
@@ -136,8 +129,6 @@ struct spi_slave {
 #endif
 	uint mode;
 	unsigned int wordlen;
-	u8 op_mode_rx;
-	u8 op_mode_tx;
 	unsigned int max_write_size;
 	void *memory_map;
 	u8 option;

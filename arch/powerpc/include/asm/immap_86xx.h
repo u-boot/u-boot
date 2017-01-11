@@ -1195,7 +1195,7 @@ extern immap_t  *immr;
 
 
 #define CONFIG_SYS_MPC86xx_PCI1_OFFSET		0x8000
-#ifdef CONFIG_MPC8610
+#ifdef CONFIG_ARCH_MPC8610
 #define CONFIG_SYS_MPC86xx_PCIE1_OFFSET         0xa000
 #else
 #define CONFIG_SYS_MPC86xx_PCIE1_OFFSET         0x8000

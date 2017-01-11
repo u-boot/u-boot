@@ -51,4 +51,10 @@ int secure_emif_reserve(void);
  */
 int secure_emif_firewall_lock(void);
 
+/*
+ * Invoke a secure HAL API to authenticate and install a Trusted Execution
+ * Environment (TEE) image.
+ */
+int secure_tee_install(u32 tee_image);
+
 #endif /* _OMAP_SEC_COMMON_H_ */

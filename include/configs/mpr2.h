@@ -22,6 +22,8 @@
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MPR2		1
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 /* U-Boot internals */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */

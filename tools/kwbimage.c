@@ -68,6 +68,8 @@ struct image_cfg_element {
 		IMAGE_CFG_BINARY,
 		IMAGE_CFG_PAYLOAD,
 		IMAGE_CFG_DATA,
+		IMAGE_CFG_BAUDRATE,
+		IMAGE_CFG_DEBUG,
 	} type;
 	union {
 		unsigned int version;
@@ -85,6 +87,8 @@ struct image_cfg_element {
 		unsigned int nandeccmode;
 		unsigned int nandpagesz;
 		struct ext_hdr_v0_reg regdata;
+		unsigned int baudrate;
+		unsigned int debug;
 	};
 };
 
@@ -193,6 +197,28 @@ static uint32_t image_checksum32(void *start, uint32_t len)
 	} while (len > 0);
 
 	return csum;
+}
+
+static uint8_t baudrate_to_option(unsigned int baudrate)
+{
+	switch (baudrate) {
+	case 2400:
+		return MAIN_HDR_V1_OPT_BAUD_2400;
+	case 4800:
+		return MAIN_HDR_V1_OPT_BAUD_4800;
+	case 9600:
+		return MAIN_HDR_V1_OPT_BAUD_9600;
+	case 19200:
+		return MAIN_HDR_V1_OPT_BAUD_19200;
+	case 38400:
+		return MAIN_HDR_V1_OPT_BAUD_38400;
+	case 57600:
+		return MAIN_HDR_V1_OPT_BAUD_57600;
+	case 115200:
+		return MAIN_HDR_V1_OPT_BAUD_115200;
+	default:
+		return MAIN_HDR_V1_OPT_BAUD_DEFAULT;
+	}
 }
 
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
@@ -398,6 +424,12 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_NAND_BADBLK_LOCATION);
 	if (e)
 		main_hdr->nandbadblklocation = e->nandbadblklocation;
+	e = image_find_option(IMAGE_CFG_BAUDRATE);
+	if (e)
+		main_hdr->options = baudrate_to_option(e->baudrate);
+	e = image_find_option(IMAGE_CFG_DEBUG);
+	if (e)
+		main_hdr->flags = e->debug ? 0x1 : 0;
 
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
@@ -548,6 +580,14 @@ static int image_create_config_parse_oneline(char *line,
 		el->type = IMAGE_CFG_DATA;
 		el->regdata.raddr = strtoul(value1, NULL, 16);
 		el->regdata.rdata = strtoul(value2, NULL, 16);
+	} else if (!strcmp(keyword, "BAUDRATE")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_BAUDRATE;
+		el->baudrate = strtoul(value, NULL, 10);
+	} else if (!strcmp(keyword, "DEBUG")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_DEBUG;
+		el->debug = strtoul(value, NULL, 10);
 	} else {
 		fprintf(stderr, "Ignoring unknown line '%s'\n", line);
 	}

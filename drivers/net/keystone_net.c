@@ -56,13 +56,16 @@ struct rx_buff_desc net_rx_buffs = {
 #ifdef CONFIG_DM_ETH
 
 enum link_type {
-	LINK_TYPE_MAC_TO_MAC_AUTO = 0,
-	LINK_TYPE_MAC_TO_PHY_MODE = 1,
-	LINK_TYPE_MAC_TO_MAC_FORCED_MODE = 2,
-	LINK_TYPE_MAC_TO_FIBRE_MODE = 3,
-	LINK_TYPE_MAC_TO_PHY_NO_MDIO_MODE = 4,
-	LINK_TYPE_10G_MAC_TO_PHY_MODE = 10,
-	LINK_TYPE_10G_MAC_TO_MAC_FORCED_MODE = 11,
+	LINK_TYPE_SGMII_MAC_TO_MAC_AUTO		= 0,
+	LINK_TYPE_SGMII_MAC_TO_PHY_MODE		= 1,
+	LINK_TYPE_SGMII_MAC_TO_MAC_FORCED_MODE	= 2,
+	LINK_TYPE_SGMII_MAC_TO_FIBRE_MODE	= 3,
+	LINK_TYPE_SGMII_MAC_TO_PHY_NO_MDIO_MODE	= 4,
+	LINK_TYPE_RGMII_LINK_MAC_PHY		= 5,
+	LINK_TYPE_RGMII_LINK_MAC_MAC_FORCED	= 6,
+	LINK_TYPE_RGMII_LINK_MAC_PHY_NO_MDIO	= 7,
+	LINK_TYPE_10G_MAC_TO_PHY_MODE		= 10,
+	LINK_TYPE_10G_MAC_TO_MAC_FORCED_MODE	= 11,
 };
 
 #define mac_hi(mac)     (((mac)[0] << 0) | ((mac)[1] << 8) |    \
@@ -1077,10 +1080,14 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 		priv->mdio_base = (void *)fdtdec_get_addr(fdt, mdio, "reg");
 	}
 
-	if (priv->link_type == LINK_TYPE_MAC_TO_PHY_MODE) {
+	if (priv->link_type == LINK_TYPE_SGMII_MAC_TO_PHY_MODE) {
 		priv->phy_if = PHY_INTERFACE_MODE_SGMII;
 		pdata->phy_interface = priv->phy_if;
 		priv->sgmii_link_type = SGMII_LINK_MAC_PHY;
+		priv->has_mdio = true;
+	} else if (priv->link_type == LINK_TYPE_RGMII_LINK_MAC_PHY) {
+		priv->phy_if = PHY_INTERFACE_MODE_RGMII;
+		pdata->phy_interface = priv->phy_if;
 		priv->has_mdio = true;
 	}
 

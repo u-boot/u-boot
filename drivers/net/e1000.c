@@ -1522,11 +1522,10 @@ e1000_initialize_hardware_bits(struct e1000_hw *hw)
 		reg_txdctl1 |= E1000_TXDCTL_COUNT_DESC;
 		E1000_WRITE_REG(hw, TXDCTL1, reg_txdctl1);
 
-	/* IGB is cool */
-	if (hw->mac_type == e1000_igb)
-		return;
 
 		switch (hw->mac_type) {
+		case e1000_igb:			/* IGB is cool */
+			return;
 		case e1000_82571:
 		case e1000_82572:
 			/* Clear PHY TX compatible mode bits */

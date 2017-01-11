@@ -9,12 +9,10 @@
 #ifndef __SH7752EVB_H
 #define __SH7752EVB_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7752	1
 #define CONFIG_SH7752EVB	1
 
 #define CONFIG_SYS_TEXT_BASE	0x5ff80000
-#define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7752evb/u-boot.lds"
 
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
@@ -26,6 +24,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -89,7 +88,6 @@
 #define CONFIG_SH_SPI_BASE		0xfe002000
 
 /* MMCIF */
-#define CONFIG_MMC			1
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_SH_MMCIF			1
 #define CONFIG_SH_MMCIF_ADDR		0xffcb0000

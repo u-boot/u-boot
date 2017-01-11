@@ -13,4 +13,13 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1043ardb"
 
+config SYS_HAS_ARMV8_SECURE_BASE
+	bool "Enable secure address for PSCI image"
+	depends on ARMV8_PSCI
+	default n
+	help
+	  PSCI image can be re-located to secure RAM.
+	  If enabled, please also define the value for ARMV8_SECURE_BASE,
+	  for LS1043ARDB, it could be some address in OCRAM.
+
 endif

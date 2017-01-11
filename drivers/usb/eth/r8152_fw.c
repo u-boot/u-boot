@@ -871,10 +871,10 @@ void r8153_firmware(struct r8152 *tp)
 	} else if (tp->version == RTL_VER_04) {
 		r8153_pre_ram_code(tp, 0x7001);
 
-	for (i = 0; i < ARRAY_SIZE(r8153_ram_code_bc); i += 2)
-		ocp_write_word(tp, MCU_TYPE_PLA,
-			       r8153_ram_code_bc[i],
-			       r8153_ram_code_bc[i+1]);
+		for (i = 0; i < ARRAY_SIZE(r8153_ram_code_bc); i += 2)
+			ocp_write_word(tp, MCU_TYPE_PLA,
+				       r8153_ram_code_bc[i],
+				       r8153_ram_code_bc[i+1]);
 
 		r8153_post_ram_code(tp);
 

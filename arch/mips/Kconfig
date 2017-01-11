@@ -20,6 +20,7 @@ config TARGET_QEMU_MIPS
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_CPU_MIPS64_R1
 	select SUPPORTS_CPU_MIPS64_R2
+	select ROM_EXCEPTION_VECTORS
 
 config TARGET_MALTA
 	bool "Support malta"
@@ -40,6 +41,7 @@ config TARGET_MALTA
 	select SUPPORTS_CPU_MIPS64_R6
 	select SWAP_IO_SPACE
 	select MIPS_L1_CACHE_SHIFT_6
+	select ROM_EXCEPTION_VECTORS
 
 config TARGET_VCT
 	bool "Support vct"
@@ -47,6 +49,7 @@ config TARGET_VCT
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
+	select ROM_EXCEPTION_VECTORS
 
 config TARGET_DBAU1X00
 	bool "Support dbau1x00"
@@ -55,6 +58,7 @@ config TARGET_DBAU1X00
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
+	select ROM_EXCEPTION_VECTORS
 	select MIPS_TUNE_4KC
 
 config TARGET_PB1X00
@@ -63,6 +67,7 @@ config TARGET_PB1X00
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
+	select ROM_EXCEPTION_VECTORS
 	select MIPS_TUNE_4KC
 
 config ARCH_ATH79
@@ -91,6 +96,7 @@ config TARGET_BOSTON
 	select SUPPORTS_CPU_MIPS64_R1
 	select SUPPORTS_CPU_MIPS64_R2
 	select SUPPORTS_CPU_MIPS64_R6
+	select ROM_EXCEPTION_VECTORS
 
 config TARGET_XILFPGA
 	bool "Support Imagination Xilfpga"
@@ -103,6 +109,7 @@ config TARGET_XILFPGA
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select MIPS_L1_CACHE_SHIFT_4
+	select ROM_EXCEPTION_VECTORS
 	help
 	  This supports IMGTEC MIPSfpga platform
 
@@ -192,6 +199,20 @@ config CPU_MIPS64_R6
 
 endchoice
 
+menu "General setup"
+
+config ROM_EXCEPTION_VECTORS
+	bool "Build U-Boot image with exception vectors"
+	help
+	  Enable this to include exception vectors in the U-Boot image. This is
+	  required if the U-Boot entry point is equal to the address of the
+	  CPU reset exception vector (e.g. U-Boot as ROM loader in Qemu,
+	  U-Boot booted from parallel NOR flash).
+	  Disable this, if the U-Boot image is booted from DRAM (e.g. by SPL).
+	  In that case the image size will be reduced by 0x500 bytes.
+
+endmenu
+
 menu "OS boot interface"
 
 config MIPS_BOOT_CMDLINE_LEGACY
@@ -280,6 +301,17 @@ config SWAP_IO_SPACE
 
 config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
+
+config MIPS_INIT_STACK_IN_SRAM
+	bool
+	default n
+	help
+	  Select this if the initial stack frame could be setup in SRAM.
+	  Normally the initial stack frame is set up in DRAM which is often
+	  only available after lowlevel_init. With this option the initial
+	  stack frame and the early C environment is set up before
+	  lowlevel_init. Thus lowlevel_init does not need to be implemented
+	  in assembler.
 
 config SYS_DCACHE_SIZE
 	int

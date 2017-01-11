@@ -262,4 +262,12 @@ extern void __die_if_kernel(const char *, struct pt_regs *, const char *where,
 #define die_if_kernel(msg, regs)					\
 	__die_if_kernel(msg, regs, __FILE__ ":"__FUNCTION__, __LINE__)
 
+static inline void execution_hazard_barrier(void)
+{
+	__asm__ __volatile__(
+		".set noreorder\n"
+		"ehb\n"
+		".set reorder");
+}
+
 #endif /* _ASM_SYSTEM_H */

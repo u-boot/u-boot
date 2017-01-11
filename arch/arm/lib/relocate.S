@@ -8,6 +8,7 @@
 
 #include <asm-offsets.h>
 #include <config.h>
+#include <elf.h>
 #include <linux/linkage.h>
 #ifdef CONFIG_CPU_V7M
 #include <asm/armv7m.h>
@@ -96,7 +97,7 @@ copy_loop:
 fixloop:
 	ldmia	r2!, {r0-r1}		/* (r0,r1) <- (SRC location,fixup) */
 	and	r1, r1, #0xff
-	cmp	r1, #23			/* relative fixup? */
+	cmp	r1, #R_ARM_RELATIVE
 	bne	fixnext
 
 	/* relative fix: increase location by offset */

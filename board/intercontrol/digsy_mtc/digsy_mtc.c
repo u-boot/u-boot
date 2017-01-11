@@ -41,7 +41,7 @@ extern int usb_cpu_init(void);
 
 #if defined(CONFIG_DIGSY_REV5)
 /*
- * The M29W128GH needs a specail reset command function,
+ * The M29W128GH needs a special reset command function,
  * details see the doc/README.cfi file
  */
 void flash_cmd_reset(flash_info_t *info)
@@ -76,7 +76,7 @@ static void sdram_start(int hi_addr)
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
  *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if
- *            CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
+ *            CONFIG_SYS_SDRAM_BASE is something other than 0x00000000.
  */
 
 phys_size_t initdram(int board_type)
@@ -250,9 +250,6 @@ static inline void exbo_hw_init(void) {}
 
 int board_early_init_r(void)
 {
-#ifdef CONFIG_MPC52XX_SPI
-	struct mpc5xxx_gpt *gpt = (struct mpc5xxx_gpt*)MPC5XXX_GPT;
-#endif
 	/*
 	 * Now, when we are in RAM, enable flash write access for detection
 	 * process.  Note that CS_BOOT cannot be cleared when executing in
@@ -268,12 +265,6 @@ int board_early_init_r(void)
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 	/* Low level USB init, required for proper kernel operation */
 	usb_cpu_init();
-#endif
-#ifdef CONFIG_MPC52XX_SPI
-	/* GPT 6 Output Enable */
-	out_be32(&gpt[6].emsr, 0x00000034);
-	/* GPT 7 Output Enable */
-	out_be32(&gpt[7].emsr, 0x00000034);
 #endif
 
 	return (0);

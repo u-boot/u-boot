@@ -27,7 +27,6 @@
 #define CONFIG_UCP1020_REV_1_3
 
 #define CONFIG_BOARDNAME "uCP1020-64EE512-0U1-XR-T1"
-#define CONFIG_P1020
 
 #define CONFIG_TSEC_ENET
 #define CONFIG_TSEC1
@@ -46,7 +45,6 @@
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_MMC
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #define CONFIG_LAST_STAGE_INIT
@@ -59,7 +57,6 @@
 #define CONFIG_UCP1020_REV_1_3
 
 #define CONFIG_BOARDNAME_LOCAL "uCP1020-64EEE512-OU1-XR"
-#define CONFIG_P1020
 
 #define CONFIG_TSEC_ENET
 #define CONFIG_TSEC1
@@ -83,7 +80,6 @@
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_MMC
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #define CONFIG_LAST_STAGE_INIT
@@ -119,14 +115,7 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500
-/* #define CONFIG_MPC85xx */
-
 #define CONFIG_MP
-
-#define CONFIG_FSL_LAW
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -187,7 +176,6 @@
 
 /* DDR Setup */
 #define CONFIG_DDR_ECC_ENABLE
-#define CONFIG_SYS_FSL_DDR3
 #ifndef CONFIG_DDR_ECC_ENABLE
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD
@@ -201,7 +189,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 /* Default settings for DDR3 */

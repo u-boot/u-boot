@@ -65,7 +65,6 @@ static const int qspi1_dio_pins[] = {
 	9, 10, 11
 };
 
-
 static const int nand8_pins[] = {
 	0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 };

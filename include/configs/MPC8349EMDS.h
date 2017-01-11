@@ -60,21 +60,16 @@
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
 /*
- * define CONFIG_SYS_FSL_DDR2 to use unified DDR driver
- * undefine it to use old spd_sdram.c
+ * SYS_FSL_DDR2 is selected in Kconfig to use unified DDR driver
+ * unselect it to use old spd_sdram.c
  */
-#define CONFIG_SYS_FSL_DDR2
-#ifdef CONFIG_SYS_FSL_DDR2
-#define CONFIG_SYS_FSL_DDRC_GEN2
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x52
 #define SPD_EEPROM_ADDRESS2	0x51
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
-#endif
 
 /*
  * 32-bit data path mode.

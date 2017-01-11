@@ -26,6 +26,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define COMMAND_LINE_OFFSET 0x9000
 
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
+__weak void board_quiesce_devices(void)
+{
+}
+
 void bootm_announce_and_cleanup(void)
 {
 	printf("\nStarting kernel ...\n\n");

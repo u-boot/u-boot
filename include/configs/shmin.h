@@ -26,6 +26,7 @@
  * you should set undef.
  */
 #undef  CONFIG_SHOW_BOOT_PROGRESS
+#define CONFIG_DISPLAY_BOARDINFO
 
 /* system */
 #define SHMIN_SDRAM_BASE		(0x8C000000)

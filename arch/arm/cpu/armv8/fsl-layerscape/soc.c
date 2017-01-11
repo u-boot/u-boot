@@ -31,8 +31,10 @@ bool soc_has_dp_ddr(void)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
-	/* LS2085A has DP_DDR */
-	if (SVR_SOC_VER(svr) == SVR_LS2085A)
+	/* LS2085A, LS2088A, LS2048A has DP_DDR */
+	if ((SVR_SOC_VER(svr) == SVR_LS2085A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2088A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2048A))
 		return true;
 
 	return false;
@@ -50,16 +52,16 @@ bool soc_has_aiop(void)
 	return false;
 }
 
-#ifdef CONFIG_LS2080A
+#if defined(CONFIG_FSL_LSCH3)
 /*
  * This erratum requires setting a value to eddrtqcr1 to
  * optimal the DDR performance.
  */
 static void erratum_a008336(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 #ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
 	if (fsl_ddr_get_version(0) == 0x50200)
@@ -79,9 +81,9 @@ static void erratum_a008336(void)
  */
 static void erratum_a008514(void)
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 #ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
 	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
 	out_le32(eddrtqcr1, 0x63b20002);
@@ -176,6 +178,7 @@ static void erratum_a009203(void)
 #endif
 #endif
 }
+
 void bypass_smmu(void)
 {
 	u32 val;
@@ -370,6 +373,45 @@ void fsl_lsch2_early_init_f(void)
 }
 #endif
 
+#ifdef CONFIG_QSPI_AHB_INIT
+/* Enable 4bytes address support and fast read */
+int qspi_ahb_init(void)
+{
+	u32 *qspi_lut, lut_key, *qspi_key;
+
+	qspi_key = (void *)SYS_FSL_QSPI_ADDR + 0x300;
+	qspi_lut = (void *)SYS_FSL_QSPI_ADDR + 0x310;
+
+	lut_key = in_be32(qspi_key);
+
+	if (lut_key == 0x5af05af0) {
+		/* That means the register is BE */
+		out_be32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_be32(qspi_key + 1, 0x00000002);
+		out_be32(qspi_lut, 0x0820040c);
+		out_be32(qspi_lut + 1, 0x1c080c08);
+		out_be32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_be32(qspi_key, 0x5af05af0);
+		out_be32(qspi_key + 1, 0x00000001);
+	} else {
+		/* That means the register is LE */
+		out_le32(qspi_key, 0x5af05af0);
+		/* Unlock the lut table */
+		out_le32(qspi_key + 1, 0x00000002);
+		out_le32(qspi_lut, 0x0820040c);
+		out_le32(qspi_lut + 1, 0x1c080c08);
+		out_le32(qspi_lut + 2, 0x00002400);
+		/* Lock the lut table */
+		out_le32(qspi_key, 0x5af05af0);
+		out_le32(qspi_key + 1, 0x00000001);
+	}
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -378,6 +420,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 	fsl_setenv_chain_of_trust();
+#endif
+#ifdef CONFIG_QSPI_AHB_INIT
+	qspi_ahb_init();
 #endif
 
 	return 0;

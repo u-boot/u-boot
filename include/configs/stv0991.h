@@ -74,6 +74,7 @@
 #ifdef CONFIG_OF_CONTROL		/* QSPI is controlled via DT */
 #define CONFIG_CQSPI_DECODER		0
 #define CONFIG_CQSPI_REF_CLK		((30/4)/2)*1000*1000
+#define CONFIG_BOUNCE_BUFFER
 
 #endif
 

@@ -49,7 +49,6 @@
  * Serial Console Configuration
  * STUART - the lower serial port on Colibri board
  */
-#define	CONFIG_PXA_SERIAL
 #define	CONFIG_STUART			1
 #define CONFIG_CONS_INDEX		2
 #define	CONFIG_BAUDRATE			115200
@@ -63,7 +62,6 @@
  * MMC Card Configuration
  */
 #ifdef	CONFIG_CMD_MMC
-#define	CONFIG_MMC
 #define	CONFIG_GENERIC_MMC
 #define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000

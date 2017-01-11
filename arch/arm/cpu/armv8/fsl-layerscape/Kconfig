@@ -8,31 +8,62 @@ config ARCH_LS1012A
 config ARCH_LS1043A
 	bool
 	select FSL_LSCH2
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_ERRATUM_A009660
+	select SYS_FSL_ERRATUM_A009663
+	select SYS_FSL_ERRATUM_A009929
+	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_A010315
 	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
 
 config ARCH_LS1046A
 	bool
 	select FSL_LSCH2
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
-	select SYS_FSL_DDR4
 	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_ERRATUM_A008511
+	select SYS_FSL_ERRATUM_A009801
+	select SYS_FSL_ERRATUM_A009803
+	select SYS_FSL_ERRATUM_A009942
+	select SYS_FSL_ERRATUM_A010165
 	select SYS_FSL_ERRATUM_A010539
+	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SRDS_2
 
 config ARCH_LS2080A
 	bool
 	select FSL_LSCH3
-	select SYS_FSL_DDR4
+	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_HAS_DP_DDR
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
 	select SYS_FSL_SRDS_2
+	select SYS_FSL_ERRATUM_A008336
+	select SYS_FSL_ERRATUM_A008511
+	select SYS_FSL_ERRATUM_A008514
+	select SYS_FSL_ERRATUM_A008585
+	select SYS_FSL_ERRATUM_A009635
+	select SYS_FSL_ERRATUM_A009663
+	select SYS_FSL_ERRATUM_A009801
+	select SYS_FSL_ERRATUM_A009803
+	select SYS_FSL_ERRATUM_A009942
+	select SYS_FSL_ERRATUM_A010165
 
 config FSL_LSCH2
 	bool
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_BE
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 
@@ -44,8 +75,26 @@ config FSL_LSCH3
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
-config SYS_FSL_MMDC
-	bool
+menu "Layerscape PPA"
+config FSL_LS_PPA
+	bool "FSL Layerscape PPA firmware support"
+	depends on !ARMV8_PSCI
+	depends on ARCH_LS1043A || ARCH_LS1046A
+	select FSL_PPA_ARMV8_PSCI
+	help
+	  The FSL Primary Protected Application (PPA) is a software component
+	  which is loaded during boot stage, and then remains resident in RAM
+	  and runs in the TrustZone after boot.
+	  Say y to enable it.
+
+config FSL_PPA_ARMV8_PSCI
+	bool "PSCI implementation in PPA firmware"
+	depends on FSL_LS_PPA
+	help
+	  This config enables the ARMv8 PSCI implementation in PPA firmware.
+	  This is a private PSCI implementation and different from those
+	  implemented under the common ARMv8 PSCI framework.
+endmenu
 
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
@@ -66,10 +115,17 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
-config NUM_DDR_CONTROLLERS
-	int "Maximum DDR controllers"
-	default 3 if ARCH_LS2080A
-	default 1
+config SECURE_BOOT
+	bool
+	help
+		Enable Freescale Secure Boot feature
+
+config QSPI_AHB_INIT
+	bool "Init the QSPI AHB bus"
+	help
+	  The default setting for QSPI AHB bus just support 3bytes addressing.
+	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
+	  bus for those flashes to support the full QSPI flash size.
 
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
@@ -90,49 +146,25 @@ config SYS_FSL_SRDS_2
 config SYS_HAS_SERDES
 	bool
 
-config SYS_FSL_DDR
-	bool "Freescale DDR driver"
-	help
-	  Select Freescale General DDR driver, shared between most Freescale
-	  PowerPC- based SoCs (such as mpc83xx, mpc85xx, mpc86xx) and ARM-
-	  based Layerscape SoCs (such as ls2080a).
-
-config SYS_FSL_DDR_BE
-	bool
-	help
-	  Access DDR registers in big-endian.
-
-config SYS_FSL_DDR_LE
-	bool
-	help
-	  Access DDR registers in little-endian.
-
-config SYS_FSL_DDR_VER
-	int
-	default 50 if SYS_FSL_DDR_VER_50
-
-config SYS_FSL_DDR_VER_50
-	bool
-
-config SYS_FSL_DDRC_ARM_GEN3
-	bool
-
-config SYS_FSL_DDRC_GEN4
-	bool
-
-config SYS_FSL_DDR3
-	bool "Freescale DDR3 controller"
-	depends on !SYS_FSL_DDR4
-	select SYS_FSL_DDR
-	select SYS_FSL_DDRC_ARM_GEN3
-	help
-	  Enable Freescale DDR3 controller on ARM-based SoCs.
-
-config SYS_FSL_DDR4
-	bool "Freescale DDR4 controller"
-	select SYS_FSL_DDR
-	select SYS_FSL_DDRC_GEN4
-	help
-	  Enable Freescale DDR4 controller.
-
 endmenu
+
+config SYS_FSL_ERRATUM_A008336
+	bool
+
+config SYS_FSL_ERRATUM_A008514
+	bool
+
+config SYS_FSL_ERRATUM_A008585
+	bool
+
+config SYS_FSL_ERRATUM_A008850
+	bool
+
+config SYS_FSL_ERRATUM_A009635
+	bool
+
+config SYS_FSL_ERRATUM_A009660
+	bool
+
+config SYS_FSL_ERRATUM_A009929
+	bool

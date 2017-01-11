@@ -77,25 +77,20 @@
 
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-#define CONFIG_SYS_FSL_ERRATUM_ESDHC111
-
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 /* #define CONFIG_CMD_EXT2 EXT2 Support */
-#define CONFIG_CMD_FAT		/* FAT support */
 #define CONFIG_DOS_PARTITION
 
 #if 0
 
 /* Ethernet config */
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -132,8 +127,6 @@
 #define CONFIG_SYS_NAND_SELECT_DEVICE
 #define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
-
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_LOADADDR			0xC307FFC0
 #define CONFIG_BOOTARGS			"console=ttyLF0 root=/dev/ram rw"
@@ -218,7 +211,6 @@
 
 #if 0
 /* Configure PXE */
-#define CONFIG_CMD_PXE
 #define CONFIG_BOOTP_PXE
 #define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 #endif

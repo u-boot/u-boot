@@ -20,8 +20,8 @@ static struct input_config config;
 
 static int kbd_read_keys(struct input_config *config)
 {
-#if defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC8540) || \
-		defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_ARCH_MPC8540) || \
+		defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
 	/* no ISR is used, so received chars must be polled */
 	ps2ser_check();
 #endif

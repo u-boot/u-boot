@@ -11,6 +11,9 @@
  * This has been changed substantially by Gerald Van Baren, Custom IDEAS,
  * vanbaren@cideas.com.  It was heavily influenced by LiMon, written by
  * Neil Russell.
+ *
+ * NOTE: This driver should be converted to driver model before June 2017.
+ * Please see doc/driver-model/i2c-howto.txt for instructions.
  */
 
 #include <common.h>

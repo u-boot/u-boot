@@ -21,7 +21,6 @@
 #undef CONFIG_CMD_EXT4_WRITE
 #undef CONFIG_CMD_MMC_SPI
 #undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_PXE
 
 #define CONFIG_CMD_CACHE
 
@@ -280,7 +279,7 @@
 
 /* SPL */
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 #ifndef CONFIG_SPL_USBETH_SUPPORT
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1

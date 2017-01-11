@@ -63,11 +63,6 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_ARM64)
-#define CONFIG_USE_ARCH_MEMSET
-#define CONFIG_USE_ARCH_MEMCPY
-#endif
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
@@ -280,7 +275,6 @@
 
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
 
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000

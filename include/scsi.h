@@ -166,17 +166,32 @@ typedef struct SCSI_cmd_block{
 void scsi_print_error(ccb *pccb);
 int scsi_exec(ccb *pccb);
 void scsi_bus_reset(void);
+#if !defined(CONFIG_DM_SCSI)
 void scsi_low_level_init(int busdevfunc);
-
+#else
+void scsi_low_level_init(int busdevfunc, struct udevice *dev);
+#endif
 
 /***************************************************************************
  * functions residing inside cmd_scsi.c
  */
 void scsi_init(void);
-void scsi_scan(int mode);
+int scsi_scan(int mode);
 
-/** @return the number of scsi disks */
-int scsi_get_disk_count(void);
+#if defined(CONFIG_DM_SCSI)
+/**
+ * struct scsi_platdata - stores information about SCSI controller
+ *
+ * @base: Controller base address
+ * @max_lun: Maximum number of logical units
+ * @max_id: Maximum number of target ids
+ */
+struct scsi_platdata {
+	unsigned long base;
+	unsigned long max_lun;
+	unsigned long max_id;
+};
+#endif
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 

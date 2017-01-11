@@ -74,9 +74,10 @@ int enable_spi_clk(unsigned char enable, unsigned spi_num);
 void enable_ipu_clock(void);
 int enable_fec_anatop_clock(int fec_id, enum enet_freq freq);
 void enable_enet_clk(unsigned char enable);
-int enable_lcdif_clock(u32 base_addr);
+int enable_lcdif_clock(u32 base_addr, bool enable);
 void enable_qspi_clk(int qspi_num);
 void enable_thermal_clk(void);
 void mxs_set_lcdclk(u32 base_addr, u32 freq);
 void select_ldb_di_clock_source(enum ldb_di_clock clk);
+void enable_eim_clk(unsigned char enable);
 #endif /* __ASM_ARCH_CLOCK_H */

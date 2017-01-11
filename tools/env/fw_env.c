@@ -1291,18 +1291,6 @@ static int check_device_config(int dev)
 	struct stat st;
 	int fd, rc = 0;
 
-	if (DEVOFFSET(dev) % DEVESIZE(dev) != 0) {
-		fprintf(stderr, "Environment does not start on (erase) block boundary\n");
-		errno = EINVAL;
-		return -1;
-	}
-
-	if (ENVSIZE(dev) > ENVSECTORS(dev) * DEVESIZE(dev)) {
-		fprintf(stderr, "Environment does not fit into available sectors\n");
-		errno = EINVAL;
-		return -1;
-	}
-
 	fd = open(DEVNAME(dev), O_RDONLY);
 	if (fd < 0) {
 		fprintf(stderr,
@@ -1335,9 +1323,15 @@ static int check_device_config(int dev)
 			goto err;
 		}
 		DEVTYPE(dev) = mtdinfo.type;
+		if (DEVESIZE(dev) == 0)
+			/* Assume the erase size is the same as the env-size */
+			DEVESIZE(dev) = ENVSIZE(dev);
 	} else {
 		uint64_t size;
 		DEVTYPE(dev) = MTD_ABSENT;
+		if (DEVESIZE(dev) == 0)
+			/* Assume the erase size to be 512 bytes */
+			DEVESIZE(dev) = 0x200;
 
 		/*
 		 * Check for negative offsets, treat it as backwards offset
@@ -1357,6 +1351,22 @@ static int check_device_config(int dev)
 				DEVOFFSET(dev), DEVNAME(dev));
 #endif
 		}
+	}
+
+	if (ENVSECTORS(dev) == 0)
+		/* Assume enough sectors to cover the environment */
+		ENVSECTORS(dev) = DIV_ROUND_UP(ENVSIZE(dev), DEVESIZE(dev));
+
+	if (DEVOFFSET(dev) % DEVESIZE(dev) != 0) {
+		fprintf(stderr, "Environment does not start on (erase) block boundary\n");
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (ENVSIZE(dev) > ENVSECTORS(dev) * DEVESIZE(dev)) {
+		fprintf(stderr, "Environment does not fit into available sectors\n");
+		errno = EINVAL;
+		return -1;
 	}
 
 err:
@@ -1382,10 +1392,10 @@ static int parse_config(struct env_opts *opts)
 	DEVNAME (0) = DEVICE1_NAME;
 	DEVOFFSET (0) = DEVICE1_OFFSET;
 	ENVSIZE (0) = ENV1_SIZE;
-	/* Default values are: erase-size=env-size */
-	DEVESIZE (0) = ENVSIZE (0);
-	/* #sectors=env-size/erase-size (rounded up) */
-	ENVSECTORS (0) = (ENVSIZE(0) + DEVESIZE(0) - 1) / DEVESIZE(0);
+
+	/* Set defaults for DEVESIZE, ENVSECTORS later once we
+	 * know DEVTYPE
+	 */
 #ifdef DEVICE1_ESIZE
 	DEVESIZE (0) = DEVICE1_ESIZE;
 #endif
@@ -1397,10 +1407,10 @@ static int parse_config(struct env_opts *opts)
 	DEVNAME (1) = DEVICE2_NAME;
 	DEVOFFSET (1) = DEVICE2_OFFSET;
 	ENVSIZE (1) = ENV2_SIZE;
-	/* Default values are: erase-size=env-size */
-	DEVESIZE (1) = ENVSIZE (1);
-	/* #sectors=env-size/erase-size (rounded up) */
-	ENVSECTORS (1) = (ENVSIZE(1) + DEVESIZE(1) - 1) / DEVESIZE(1);
+
+	/* Set defaults for DEVESIZE, ENVSECTORS later once we
+	 * know DEVTYPE
+	 */
 #ifdef DEVICE2_ESIZE
 	DEVESIZE (1) = DEVICE2_ESIZE;
 #endif
@@ -1466,13 +1476,9 @@ static int get_config (char *fname)
 
 		DEVNAME(i) = devname;
 
-		if (rc < 4)
-			/* Assume the erase size is the same as the env-size */
-			DEVESIZE(i) = ENVSIZE(i);
-
-		if (rc < 5)
-			/* Assume enough env sectors to cover the environment */
-			ENVSECTORS (i) = (ENVSIZE(i) + DEVESIZE(i) - 1) / DEVESIZE(i);
+		/* Set defaults for DEVESIZE, ENVSECTORS later once we
+		 * know DEVTYPE
+		 */
 
 		i++;
 	}

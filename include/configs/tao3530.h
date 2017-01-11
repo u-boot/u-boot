@@ -19,7 +19,6 @@
 #define CONFIG_OMAP			/* in a TI OMAP core */
 
 #define CONFIG_OMAP_GPIO
-#define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -72,7 +71,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_DOS_PARTITION
 
@@ -276,8 +274,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
@@ -286,7 +282,7 @@
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_OMAP3_ID_NAND
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

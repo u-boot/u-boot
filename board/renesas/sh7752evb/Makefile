@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 
 obj-y	:= sh7752evb.o spi-boot.o
-obj-y	+= lowlevel_init.o
+extra-y	+= lowlevel_init.o

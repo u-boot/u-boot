@@ -1,6 +1,0 @@
-MVEBU_DB_88F7040 BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/Marvell/mvebu_db-88f7040/
-F:	include/configs/mvebu_db-88f7040.h
-F:	configs/mvebu_db-88f7040_defconfig

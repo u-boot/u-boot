@@ -64,10 +64,16 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 /*
  * Read header information from EEPROM into global structure.
  */
-static inline int __maybe_unused read_eeprom(void)
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
+void do_board_detect(void)
 {
-	return ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR);
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+
+	if (ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR))
+		printf("ti_i2c_eeprom_init failed\n");
 }
+#endif
 
 #ifndef CONFIG_DM_SERIAL
 struct serial_device *default_serial_console(void)
@@ -100,6 +106,16 @@ static const struct emif_regs ddr2_emif_reg_data = {
 	.sdram_tim1 = MT47H128M16RT25E_EMIF_TIM1,
 	.sdram_tim2 = MT47H128M16RT25E_EMIF_TIM2,
 	.sdram_tim3 = MT47H128M16RT25E_EMIF_TIM3,
+	.emif_ddr_phy_ctlr_1 = MT47H128M16RT25E_EMIF_READ_LATENCY,
+};
+
+static const struct emif_regs ddr2_evm_emif_reg_data = {
+	.sdram_config = MT47H128M16RT25E_EMIF_SDCFG,
+	.ref_ctrl = MT47H128M16RT25E_EMIF_SDREF,
+	.sdram_tim1 = MT47H128M16RT25E_EMIF_TIM1,
+	.sdram_tim2 = MT47H128M16RT25E_EMIF_TIM2,
+	.sdram_tim3 = MT47H128M16RT25E_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_AM335X_EVM,
 	.emif_ddr_phy_ctlr_1 = MT47H128M16RT25E_EMIF_READ_LATENCY,
 };
 
@@ -192,6 +208,7 @@ static struct emif_regs ddr3_beagleblack_emif_reg_data = {
 	.sdram_tim1 = MT41K256M16HA125E_EMIF_TIM1,
 	.sdram_tim2 = MT41K256M16HA125E_EMIF_TIM2,
 	.sdram_tim3 = MT41K256M16HA125E_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_BEAGLEBONE_BLACK,
 	.zq_config = MT41K256M16HA125E_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41K256M16HA125E_EMIF_READ_LATENCY,
 };
@@ -202,6 +219,7 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 	.sdram_tim1 = MT41J512M8RH125_EMIF_TIM1,
 	.sdram_tim2 = MT41J512M8RH125_EMIF_TIM2,
 	.sdram_tim3 = MT41J512M8RH125_EMIF_TIM3,
+	.ocp_config = EMIF_OCP_CONFIG_AM335X_EVM,
 	.zq_config = MT41J512M8RH125_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41J512M8RH125_EMIF_READ_LATENCY |
 				PHY_EN_DYN_PWRDN,
@@ -247,9 +265,6 @@ const struct dpll_params dpll_ddr_bone_black = {
 void am33xx_spl_board_init(void)
 {
 	int mpu_vdd;
-
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
 
 	/* Get the frequency */
 	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
@@ -388,11 +403,6 @@ void am33xx_spl_board_init(void)
 
 const struct dpll_params *get_dpll_ddr_params(void)
 {
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	if (board_is_evm_sk())
 		return &dpll_ddr_evm_sk;
 	else if (board_is_bone_lt() || board_is_icev2())
@@ -422,9 +432,6 @@ void set_uart_mux_conf(void)
 
 void set_mux_conf_regs(void)
 {
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	enable_board_pin_mux();
 }
 
@@ -462,9 +469,6 @@ const struct ctrl_ioregs ioregs = {
 
 void sdram_init(void)
 {
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	if (board_is_evm_sk()) {
 		/*
 		 * EVM SK 1.2A and later use gpio0_7 to enable DDR3.
@@ -494,6 +498,9 @@ void sdram_init(void)
 		config_ddr(400, &ioregs_evmsk, &ddr3_icev2_data,
 			   &ddr3_icev2_cmd_ctrl_data, &ddr3_icev2_emif_reg_data,
 			   0);
+	else if (board_is_gp_evm())
+		config_ddr(266, &ioregs, &ddr2_data,
+			   &ddr2_cmd_ctrl_data, &ddr2_evm_emif_reg_data, 0);
 	else
 		config_ddr(266, &ioregs, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data, 0);
@@ -642,16 +649,18 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	int rc;
 	char *name = NULL;
-
-	rc = read_eeprom();
-	if (rc)
-		puts("Could not get board ID.\n");
 
 	if (board_is_bbg1())
 		name = "BBG1";
 	set_board_info_env(name);
+
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
 #endif
 
 #if !defined(CONFIG_SPL_BUILD)
@@ -779,9 +788,6 @@ int board_eth_init(bd_t *bis)
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 
 #ifdef CONFIG_DRIVER_TI_CPSW
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	if (board_is_bone() || board_is_bone_lt() ||
 	    board_is_idk()) {
 		writel(MII_MODE_ENABLE, &cdev->miisel);

@@ -1,8 +1,8 @@
 /*
+ * (C) Copyright 2016 Xilinx, Inc.
+ *
  * Xilinx Zynq NAND Flash Controller Driver
  * This driver is based on plat_nand.c and mxc_nand.c drivers
- *
- * Copyright (C) 2009 - 2013 Xilinx, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,12 +17,18 @@
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sys_proto.h>
 
 /* The NAND flash driver defines */
-#define ZYNQ_NAND_CMD_PHASE	1	/* End command valid in command phase */
-#define ZYNQ_NAND_DATA_PHASE	2	/* End command valid in data phase */
-#define ZYNQ_NAND_ECC_SIZE	512	/* Size of data for ECC operation */
+#define ZYNQ_NAND_CMD_PHASE		1
+#define ZYNQ_NAND_DATA_PHASE		2
+#define ZYNQ_NAND_ECC_SIZE		512
+#define ZYNQ_NAND_SET_OPMODE_8BIT	(0 << 0)
+#define ZYNQ_NAND_SET_OPMODE_16BIT	(1 << 0)
+#define ZYNQ_NAND_ECC_STATUS		(1 << 6)
+#define ZYNQ_MEMC_CLRCR_INT_CLR1	(1 << 4)
+#define ZYNQ_MEMC_SR_RAW_INT_ST1	(1 << 6)
+#define ZYNQ_MEMC_SR_INT_ST1		(1 << 4)
+#define ZYNQ_MEMC_NAND_ECC_MODE_MASK	0xC
 
 /* Flash memory controller operating parameters */
 #define ZYNQ_NAND_CLR_CONFIG	((0x1 << 1)  |	/* Disable interrupt */ \
@@ -38,7 +44,6 @@
 				(0x5 << 4)   |	/* t_wc from nand_cycles */ \
 				(0x5 << 0))	/* t_rc from nand_cycles */
 
-#define ZYNQ_NAND_SET_OPMODE	0x0
 
 #define ZYNQ_NAND_DIRECT_CMD	((0x4 << 23) |	/* Chip 0 from interface 1 */ \
 				(0x2 << 21))	/* UpdateRegs operation */
@@ -58,14 +63,16 @@
 				(0x1 << 24))	/* Read col change
 							end cmd valid */
 /* AXI Address definitions */
-#define START_CMD_SHIFT		3
-#define END_CMD_SHIFT		11
-#define END_CMD_VALID_SHIFT	20
-#define ADDR_CYCLES_SHIFT	21
-#define CLEAR_CS_SHIFT		21
-#define ECC_LAST_SHIFT		10
-#define COMMAND_PHASE		(0 << 19)
-#define DATA_PHASE		(1 << 19)
+#define START_CMD_SHIFT			3
+#define END_CMD_SHIFT			11
+#define END_CMD_VALID_SHIFT		20
+#define ADDR_CYCLES_SHIFT		21
+#define CLEAR_CS_SHIFT			21
+#define ECC_LAST_SHIFT			10
+#define COMMAND_PHASE			(0 << 19)
+#define DATA_PHASE			(1 << 19)
+#define ONDIE_ECC_FEATURE_ADDR		0x90
+#define ONDIE_ECC_FEATURE_ENABLE	0x08
 
 #define ZYNQ_NAND_ECC_LAST	(1 << ECC_LAST_SHIFT)	/* Set ECC_Last */
 #define ZYNQ_NAND_CLEAR_CS	(1 << CLEAR_CS_SHIFT)	/* Clear chip select */
@@ -74,19 +81,6 @@
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
-#define ZYNQ_NAND_ROW_ADDR_CYCL_MASK	0x0F
-#define ZYNQ_NAND_COL_ADDR_CYCL_MASK	0xF0
-
-/* NAND MIO buswidth count*/
-#define ZYNQ_NAND_MIO_NUM_NAND_8BIT	13
-#define ZYNQ_NAND_MIO_NUM_NAND_16BIT	8
-
-/* NAND buswidth */
-enum zynq_nand_bus_width {
-	NAND_BW_UNKNOWN = -1,
-	NAND_BW_8BIT,
-	NAND_BW_16BIT,
-};
 
 /* SMC register set */
 struct zynq_nand_smc_regs {
@@ -99,27 +93,13 @@ struct zynq_nand_smc_regs {
 	u32 reserved1[249];
 	u32 esr;		/* 0x400 */
 	u32 emcr;		/* 0x404 */
-	u32 emcmd1r;	/* 0x408 */
-	u32 emcmd2r;	/* 0x40C */
+	u32 emcmd1r;		/* 0x408 */
+	u32 emcmd2r;		/* 0x40C */
 	u32 reserved2[2];
 	u32 eval0r;		/* 0x418 */
 };
-
-#define zynq_nand_smc_base	((struct zynq_nand_smc_regs *)ZYNQ_SMC_BASEADDR)
-
-/*
- * struct zynq_nand_command_format - Defines NAND flash command format
- * @start_cmd:		First cycle command (Start command)
- * @end_cmd:		Second cycle command (Last command)
- * @addr_cycles:	Number of address cycles required to send the address
- * @end_cmd_valid:	The second cycle command is valid for cmd or data phase
- */
-struct zynq_nand_command_format {
-	int start_cmd;
-	int end_cmd;
-	u8 addr_cycles;
-	u8 end_cmd_valid;
-};
+#define zynq_nand_smc_base	((struct zynq_nand_smc_regs __iomem *)\
+				ZYNQ_SMC_BASEADDR)
 
 /*
  * struct zynq_nand_info - Defines the NAND flash driver instance
@@ -129,47 +109,48 @@ struct zynq_nand_command_format {
  * @end_cmd:		End command
  */
 struct zynq_nand_info {
-#ifdef CONFIG_MTD_PARTITIONS
-	struct mtd_partition	*parts;
-#endif
-	void __iomem		*nand_base;
-	unsigned long		end_cmd_pending;
-	unsigned long		end_cmd;
+	void __iomem	*nand_base;
+	u8		end_cmd_pending;
+	u8		end_cmd;
 };
 
-#define ONDIE_ECC_FEATURE_ADDR	0x90
+/*
+ * struct zynq_nand_command_format - Defines NAND flash command format
+ * @start_cmd:		First cycle command (Start command)
+ * @end_cmd:		Second cycle command (Last command)
+ * @addr_cycles:	Number of address cycles required to send the address
+ * @end_cmd_valid:	The second cycle command is valid for cmd or data phase
+ */
+struct zynq_nand_command_format {
+	u8 start_cmd;
+	u8 end_cmd;
+	u8 addr_cycles;
+	u8 end_cmd_valid;
+};
 
 /*  The NAND flash operations command format */
 static const struct zynq_nand_command_format zynq_nand_commands[] = {
 	{NAND_CMD_READ0, NAND_CMD_READSTART, 5, ZYNQ_NAND_CMD_PHASE},
 	{NAND_CMD_RNDOUT, NAND_CMD_RNDOUTSTART, 2, ZYNQ_NAND_CMD_PHASE},
-	{NAND_CMD_READID, NAND_CMD_NONE, 1, NAND_CMD_NONE},
-	{NAND_CMD_STATUS, NAND_CMD_NONE, 0, NAND_CMD_NONE},
+	{NAND_CMD_READID, NAND_CMD_NONE, 1, 0},
+	{NAND_CMD_STATUS, NAND_CMD_NONE, 0, 0},
 	{NAND_CMD_SEQIN, NAND_CMD_PAGEPROG, 5, ZYNQ_NAND_DATA_PHASE},
-	{NAND_CMD_RNDIN, NAND_CMD_NONE, 2, NAND_CMD_NONE},
+	{NAND_CMD_RNDIN, NAND_CMD_NONE, 2, 0},
 	{NAND_CMD_ERASE1, NAND_CMD_ERASE2, 3, ZYNQ_NAND_CMD_PHASE},
-	{NAND_CMD_RESET, NAND_CMD_NONE, 0, NAND_CMD_NONE},
-	{NAND_CMD_PARAM, NAND_CMD_NONE, 1, NAND_CMD_NONE},
-	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
-	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
+	{NAND_CMD_RESET, NAND_CMD_NONE, 0, 0},
+	{NAND_CMD_PARAM, NAND_CMD_NONE, 1, 0},
+	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, 0},
+	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, 0},
 	{NAND_CMD_NONE, NAND_CMD_NONE, 0, 0},
-	/* Add all the flash commands supported by the flash device and Linux
-	 * The cache program command is not supported by driver because driver
-	 * cant differentiate between page program and cached page program from
-	 * start command, these commands can be differentiated through end
-	 * command, which doesn't fit in to the driver design. The cache program
-	 * command is not supported by NAND subsystem also, look at 1612 line
-	 * number (in nand_write_page function) of nand_base.c file.
-	 * {NAND_CMD_SEQIN, NAND_CMD_CACHEDPROG, 5, ZYNQ_NAND_YES}
-	 */
+	/* Add all the flash commands supported by the flash device */
 };
 
 /* Define default oob placement schemes for large and small page devices */
 static struct nand_ecclayout nand_oob_16 = {
 	.eccbytes = 3,
-	.eccpos = {13, 14, 15},
+	.eccpos = {0, 1, 2},
 	.oobfree = {
-		{ .offset = 0, .length = 12 }
+		{ .offset = 8, .length = 8 }
 	}
 };
 
@@ -201,7 +182,8 @@ static struct nand_ecclayout ondie_nand_oob_64 = {
 	}
 };
 
-/* Generic flash bbt decriptors */
+/* bbt decriptors for chips with on-die ECC and
+   chips with 64-byte OOB */
 static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
 static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
 
@@ -235,7 +217,7 @@ static int zynq_nand_waitfor_ecc_completion(void)
 	unsigned long timeout;
 	u32 status;
 
-	/* Wait max 10ms */
+	/* Wait max 10us */
 	timeout = 10;
 	status = readl(&zynq_nand_smc_base->esr);
 	while (status & ZYNQ_NAND_ECC_BUSY) {
@@ -266,9 +248,9 @@ static int zynq_nand_init_nand_flash(int option)
 	/* Initialize the NAND interface by setting cycles and operation mode */
 	writel(ZYNQ_NAND_SET_CYCLES, &zynq_nand_smc_base->scr);
 	if (option & NAND_BUSWIDTH_16)
-		writel((ZYNQ_NAND_SET_OPMODE | 0x1), &zynq_nand_smc_base->sor);
+		writel(ZYNQ_NAND_SET_OPMODE_16BIT, &zynq_nand_smc_base->sor);
 	else
-		writel(ZYNQ_NAND_SET_OPMODE, &zynq_nand_smc_base->sor);
+		writel(ZYNQ_NAND_SET_OPMODE_8BIT, &zynq_nand_smc_base->sor);
 
 	writel(ZYNQ_NAND_DIRECT_CMD, &zynq_nand_smc_base->dcr);
 
@@ -314,9 +296,12 @@ static int zynq_nand_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 	for (ecc_reg = 0; ecc_reg < 4; ecc_reg++) {
 		/* Read ECC value for each block */
 		ecc_value = readl(&zynq_nand_smc_base->eval0r + ecc_reg);
+
+		/* Get the ecc status from ecc read value */
 		ecc_status = (ecc_value >> 24) & 0xFF;
+
 		/* ECC value valid */
-		if (ecc_status & 0x40) {
+		if (ecc_status & ZYNQ_NAND_ECC_STATUS) {
 			for (ecc_byte = 0; ecc_byte < 3; ecc_byte++) {
 				/* Copy ECC bytes to MTD buffer */
 				*ecc_code = ecc_value & 0xFF;
@@ -327,6 +312,7 @@ static int zynq_nand_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 			debug("%s: ecc status failed\n", __func__);
 		}
 	}
+
 	return 0;
 }
 
@@ -335,12 +321,16 @@ static int zynq_nand_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
  * @value:	value to check for onehot
  *
  * This function checks whether a value is onehot or not.
- * onehot is if and only if onebit is set.
+ * onehot is if and only if one bit is set.
  *
+ * FIXME: Try to move this in common.h
  */
-static int onehot(unsigned short value)
+static bool onehot(unsigned short value)
 {
-	return ((value & (value-1)) == 0);
+	bool onehot;
+
+	onehot = value && !(value & (value - 1));
+	return onehot;
 }
 
 /*
@@ -376,7 +366,8 @@ static int zynq_nand_correct_data(struct mtd_info *mtd, unsigned char *buf,
 
 	if ((ecc_odd == 0) && (ecc_even == 0))
 		return 0;       /* no error */
-	else if (ecc_odd == (~ecc_even & 0xfff)) {
+
+	if (ecc_odd == (~ecc_even & 0xfff)) {
 		/* bits [11:3] of error code is byte offset */
 		byte_addr = (ecc_odd >> 3) & 0x1ff;
 		/* bits [2:0] of error code is bit offset */
@@ -384,11 +375,12 @@ static int zynq_nand_correct_data(struct mtd_info *mtd, unsigned char *buf,
 		/* Toggling error bit */
 		buf[byte_addr] ^= (1 << bit_addr);
 		return 1;
-	} else if (onehot(ecc_odd | ecc_even) == 1) {
-		return 1; /* one error in parity */
-	} else {
-		return -1; /* Uncorrectable error */
 	}
+
+	if (onehot(ecc_odd | ecc_even))
+		return 1; /* one error in parity */
+
+	return -1; /* Uncorrectable error */
 }
 
 /*
@@ -401,15 +393,15 @@ static int zynq_nand_correct_data(struct mtd_info *mtd, unsigned char *buf,
 static int zynq_nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			int page)
 {
-	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
+	int data_width = 4;
 	u8 *p;
 
 	chip->cmdfunc(mtd, NAND_CMD_READOOB, 0, page);
 
 	p = chip->oob_poi;
 	chip->read_buf(mtd, p, (mtd->oobsize - data_width));
-	p += (mtd->oobsize - data_width);
+	p += mtd->oobsize - data_width;
 
 	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr |= ZYNQ_NAND_CLEAR_CS;
@@ -428,15 +420,14 @@ static int zynq_nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 static int zynq_nand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			     int page)
 {
-	int status = 0;
+	int status = 0, data_width = 4;
 	const u8 *buf = chip->oob_poi;
-	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
 
 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, mtd->writesize, page);
 
 	chip->write_buf(mtd, buf, (mtd->oobsize - data_width));
-	buf += (mtd->oobsize - data_width);
+	buf += mtd->oobsize - data_width;
 
 	data_phase_addr = (unsigned long)chip->IO_ADDR_W;
 	data_phase_addr |= ZYNQ_NAND_CLEAR_CS;
@@ -488,15 +479,15 @@ static int zynq_nand_read_page_raw_nooob(struct mtd_info *mtd,
 }
 
 static int zynq_nand_read_subpage_raw(struct mtd_info *mtd,
-				    struct nand_chip *chip, uint32_t offs,
-				    uint32_t len, uint8_t *buf, int page)
+				    struct nand_chip *chip, u32 data_offs,
+				    u32 readlen, u8 *buf, int page)
 {
-	if (offs != 0) {
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, offs, -1);
-		buf += offs;
+	if (data_offs != 0) {
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_offs, -1);
+		buf += data_offs;
 	}
+	chip->read_buf(mtd, buf, readlen);
 
-	chip->read_buf(mtd, buf, len);
 	return 0;
 }
 
@@ -542,8 +533,7 @@ static int zynq_nand_write_page_raw(struct mtd_info *mtd,
 static int zynq_nand_write_page_hwecc(struct mtd_info *mtd,
 	struct nand_chip *chip, const u8 *buf, int oob_required, int page)
 {
-	int i, eccsize = chip->ecc.size;
-	int eccsteps = chip->ecc.steps;
+	int i, eccsteps, eccsize = chip->ecc.size;
 	u8 *ecc_calc = chip->buffers->ecccalc;
 	const u8 *p = buf;
 	u32 *eccpos = chip->ecc.layout->eccpos;
@@ -551,12 +541,12 @@ static int zynq_nand_write_page_hwecc(struct mtd_info *mtd,
 	unsigned long data_width = 4;
 	u8 *oob_ptr;
 
-	for (; (eccsteps - 1); eccsteps--) {
+	for (eccsteps = chip->ecc.steps; (eccsteps - 1); eccsteps--) {
 		chip->write_buf(mtd, p, eccsize);
 		p += eccsize;
 	}
 	chip->write_buf(mtd, p, (eccsize - data_width));
-	p += (eccsize - data_width);
+	p += eccsize - data_width;
 
 	/* Set ECC Last bit to 1 */
 	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
@@ -634,9 +624,8 @@ static int zynq_nand_write_page_swecc(struct mtd_info *mtd,
 static int zynq_nand_read_page_hwecc(struct mtd_info *mtd,
 	struct nand_chip *chip, u8 *buf, int oob_required, int page)
 {
-	int i, stat, eccsize = chip->ecc.size;
+	int i, stat, eccsteps, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
-	int eccsteps = chip->ecc.steps;
 	u8 *p = buf;
 	u8 *ecc_calc = chip->buffers->ecccalc;
 	u8 *ecc_code = chip->buffers->ecccode;
@@ -645,12 +634,12 @@ static int zynq_nand_read_page_hwecc(struct mtd_info *mtd,
 	unsigned long data_width = 4;
 	u8 *oob_ptr;
 
-	for (; (eccsteps - 1); eccsteps--) {
+	for (eccsteps = chip->ecc.steps; (eccsteps - 1); eccsteps--) {
 		chip->read_buf(mtd, p, eccsize);
 		p += eccsize;
 	}
 	chip->read_buf(mtd, p, (eccsize - data_width));
-	p += (eccsize - data_width);
+	p += eccsize - data_width;
 
 	/* Set ECC Last bit to 1 */
 	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
@@ -748,7 +737,7 @@ static int zynq_nand_read_page_swecc(struct mtd_info *mtd,
  */
 static void zynq_nand_select_chip(struct mtd_info *mtd, int chip)
 {
-	return;
+	/* Not support multiple chips yet */
 }
 
 /*
@@ -761,19 +750,17 @@ static void zynq_nand_select_chip(struct mtd_info *mtd, int chip)
 static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				 int column, int page_addr)
 {
-	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct nand_chip *chip = mtd->priv;
 	const struct zynq_nand_command_format *curr_cmd = NULL;
-	u8 addr_cycles = 0;
-	struct zynq_nand_info *xnand;
+	struct zynq_nand_info *xnand = (struct zynq_nand_info *)chip->priv;
 	void *cmd_addr;
 	unsigned long cmd_data = 0;
 	unsigned long cmd_phase_addr = 0;
 	unsigned long data_phase_addr = 0;
-	unsigned long end_cmd = 0;
-	unsigned long end_cmd_valid = 0;
-	unsigned long i;
+	u8 end_cmd = 0;
+	u8 end_cmd_valid = 0;
+	u32 index;
 
-	xnand = nand_get_controller_data(chip);
 	if (xnand->end_cmd_pending) {
 		/* Check for end command if this command request is same as the
 		 * pending command then return
@@ -793,16 +780,18 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	}
 
 	/* Get the command format */
-	for (i = 0; (zynq_nand_commands[i].start_cmd != NAND_CMD_NONE ||
-		zynq_nand_commands[i].end_cmd != NAND_CMD_NONE); i++) {
-		if (command == zynq_nand_commands[i].start_cmd)
-			curr_cmd = &zynq_nand_commands[i];
-	}
-	if (curr_cmd == NULL)
+	for (index = 0; index < ARRAY_SIZE(zynq_nand_commands); index++)
+		if (command == zynq_nand_commands[index].start_cmd)
+			break;
+
+	if (index == ARRAY_SIZE(zynq_nand_commands)) {
+		printf("%s: Unsupported start cmd %02x\n", __func__, command);
 		return;
+	}
+	curr_cmd = &zynq_nand_commands[index];
 
 	/* Clear interrupt */
-	writel((1 << 4), &zynq_nand_smc_base->cfr);
+	writel(ZYNQ_MEMC_CLRCR_INT_CLR1, &zynq_nand_smc_base->cfr);
 
 	/* Get the command phase address */
 	if (curr_cmd->end_cmd_valid == ZYNQ_NAND_CMD_PHASE)
@@ -813,18 +802,8 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else
 		end_cmd = curr_cmd->end_cmd;
 
-	if ((command == NAND_CMD_READ0) ||
-            (command == NAND_CMD_SEQIN)) {
-		addr_cycles = chip->onfi_params.addr_cycles &
-				ZYNQ_NAND_ROW_ADDR_CYCL_MASK;
-		addr_cycles += ((chip->onfi_params.addr_cycles &
-				ZYNQ_NAND_COL_ADDR_CYCL_MASK) >> 4);
-	} else {
-		addr_cycles = curr_cmd->addr_cycles;
-	}
-
 	cmd_phase_addr = (unsigned long)xnand->nand_base	|
-			(addr_cycles << ADDR_CYCLES_SHIFT)	|
+			(curr_cmd->addr_cycles << ADDR_CYCLES_SHIFT)	|
 			(end_cmd_valid << END_CMD_VALID_SHIFT)		|
 			(COMMAND_PHASE)					|
 			(end_cmd << END_CMD_SHIFT)			|
@@ -861,12 +840,9 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 		} else {
 			cmd_data |= page_addr << 8;
 		}
-	}
-	/* Erase */
-	else if (page_addr != -1)
+	} else if (page_addr != -1)  { /* Erase */
 		cmd_data = page_addr;
-	/* Change read/write column, read id etc */
-	else if (column != -1) {
+	} else if (column != -1) { /* Change read/write column, read id etc */
 		/* Adjust columns for 16 bit bus width */
 		if ((chip->options & NAND_BUSWIDTH_16) &&
 		    ((command == NAND_CMD_READ0) ||
@@ -875,8 +851,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 		     (command == NAND_CMD_RNDIN)))
 			column >>= 1;
 		cmd_data = column;
-	} else
-		;
+	}
 
 	writel(cmd_data, cmd_addr);
 
@@ -890,11 +865,9 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	if ((command == NAND_CMD_READ0) ||
 	    (command == NAND_CMD_RESET) ||
 	    (command == NAND_CMD_PARAM) ||
-	    (command == NAND_CMD_GET_FEATURES)) {
-		while (!chip->dev_ready(mtd))
-				;
-		return;
-	}
+	    (command == NAND_CMD_GET_FEATURES))
+		/* wait until command is processed */
+		nand_wait_ready(mtd);
 }
 
 /*
@@ -905,22 +878,21 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
  */
 static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 {
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	const u32 *nand = chip->IO_ADDR_R;
+	struct nand_chip *chip = mtd->priv;
 
 	/* Make sure that buf is 32 bit aligned */
-	if (((int)buf & 0x3) != 0) {
-		if (((int)buf & 0x1) != 0) {
+	if (((unsigned long)buf & 0x3) != 0) {
+		if (((unsigned long)buf & 0x1) != 0) {
 			if (len) {
-				*buf = readb(nand);
+				*buf = readb(chip->IO_ADDR_R);
 				buf += 1;
 				len--;
 			}
 		}
 
-		if (((int)buf & 0x3) != 0) {
+		if (((unsigned long)buf & 0x3) != 0) {
 			if (len >= 2) {
-				*(u16 *)buf = readw(nand);
+				*(u16 *)buf = readw(chip->IO_ADDR_R);
 				buf += 2;
 				len -= 2;
 			}
@@ -929,7 +901,7 @@ static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 
 	/* copy aligned data */
 	while (len >= 4) {
-		*(u32 *)buf = readl(nand);
+		*(u32 *)buf = readl(chip->IO_ADDR_R);
 		buf += 4;
 		len -= 4;
 	}
@@ -937,13 +909,12 @@ static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 	/* mop up any remaining bytes */
 	if (len) {
 		if (len >= 2) {
-			*(u16 *)buf = readw(nand);
+			*(u16 *)buf = readw(chip->IO_ADDR_R);
 			buf += 2;
 			len -= 2;
 		}
-
 		if (len)
-			*buf = readb(nand);
+			*buf = readb(chip->IO_ADDR_R);
 	}
 }
 
@@ -955,12 +926,12 @@ static void zynq_nand_read_buf(struct mtd_info *mtd, u8 *buf, int len)
  */
 static void zynq_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 {
-	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct nand_chip *chip = mtd->priv;
 	const u32 *nand = chip->IO_ADDR_W;
 
 	/* Make sure that buf is 32 bit aligned */
-	if (((int)buf & 0x3) != 0) {
-		if (((int)buf & 0x1) != 0) {
+	if (((unsigned long)buf & 0x3) != 0) {
+		if (((unsigned long)buf & 0x1) != 0) {
 			if (len) {
 				writeb(*buf, nand);
 				buf += 1;
@@ -968,7 +939,7 @@ static void zynq_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 			}
 		}
 
-		if (((int)buf & 0x3) != 0) {
+		if (((unsigned long)buf & 0x3) != 0) {
 			if (len >= 2) {
 				writew(*(u16 *)buf, nand);
 				buf += 2;
@@ -1005,42 +976,17 @@ static void zynq_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
  */
 static int zynq_nand_device_ready(struct mtd_info *mtd)
 {
+	u32 csr_val;
+
+	csr_val = readl(&zynq_nand_smc_base->csr);
 	/* Check the raw_int_status1 bit */
-	if ((readl(&zynq_nand_smc_base->csr)) & 0x40) {
+	if (csr_val & ZYNQ_MEMC_SR_RAW_INT_ST1) {
 		/* Clear the interrupt condition */
-		writel((1 << 4), &zynq_nand_smc_base->cfr);
+		writel(ZYNQ_MEMC_SR_INT_ST1, &zynq_nand_smc_base->cfr);
 		return 1;
 	}
+
 	return 0;
-}
-
-/*
- * zynq_nand_check_is_16bit_bw_flash - checking for 16 or 8 bit buswidth nand
- *
- * This function will check nand buswidth whether it supports 16 or 8 bit
- * based on the MIO configuration done by FSBL.
- *
- * User needs to correctly configure the MIO's based on the
- * buswidth supported by the nand flash which is present on the board.
- *
- * function will return -1, if there is no MIO configuration for
- * nand flash.
- */
-static int zynq_nand_check_is_16bit_bw_flash(void)
-{
-	int is_16bit_bw = NAND_BW_UNKNOWN;
-	int mio_num_8bit = 0, mio_num_16bit = 0;
-
-	mio_num_8bit = zynq_slcr_get_mio_pin_status("nand8");
-	if (mio_num_8bit == ZYNQ_NAND_MIO_NUM_NAND_8BIT)
-		is_16bit_bw = NAND_BW_8BIT;
-
-	mio_num_16bit = zynq_slcr_get_mio_pin_status("nand16");
-	if ((mio_num_8bit == ZYNQ_NAND_MIO_NUM_NAND_8BIT) &&
-	    (mio_num_16bit == ZYNQ_NAND_MIO_NUM_NAND_16BIT))
-		is_16bit_bw = NAND_BW_16BIT;
-
-	return is_16bit_bw;
 }
 
 static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
@@ -1048,23 +994,24 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	struct zynq_nand_info *xnand;
 	struct mtd_info *mtd;
 	unsigned long ecc_page_size;
-	int err = -1;
 	u8 maf_id, dev_id, i;
 	u8 get_feature[4];
-	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
+	u8 set_feature[4] = {ONDIE_ECC_FEATURE_ENABLE, 0x00, 0x00, 0x00};
 	unsigned long ecc_cfg;
 	int ondie_ecc_enabled = 0;
-	int is_16bit_bw;
+	int err = -1;
 
 	xnand = calloc(1, sizeof(struct zynq_nand_info));
 	if (!xnand) {
 		printf("%s: failed to allocate\n", __func__);
-		goto free;
+		goto fail;
 	}
 
-	xnand->nand_base = (void *)ZYNQ_NAND_BASEADDR;
-	mtd = nand_to_mtd(nand_chip);
-	nand_set_controller_data(nand_chip, xnand);
+	xnand->nand_base = (void __iomem *)ZYNQ_NAND_BASEADDR;
+	mtd = (struct mtd_info *)&nand_info[0];
+
+	nand_chip->priv = xnand;
+	mtd->priv = nand_chip;
 
 	/* Set address of NAND IO lines */
 	nand_chip->IO_ADDR_R = xnand->nand_base;
@@ -1082,22 +1029,12 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	nand_chip->read_buf = zynq_nand_read_buf;
 	nand_chip->write_buf = zynq_nand_write_buf;
 
-	/* Check the NAND buswidth */
-	/* FIXME this will be changed by using NAND_BUSWIDTH_AUTO */
-	is_16bit_bw = zynq_nand_check_is_16bit_bw_flash();
-	if (is_16bit_bw == NAND_BW_UNKNOWN) {
-		printf("%s: Unable detect NAND based on MIO settings\n",
-		       __func__);
-		goto free;
-	} else if (is_16bit_bw == NAND_BW_16BIT) {
-		nand_chip->options = NAND_BUSWIDTH_16;
-	}
 	nand_chip->bbt_options = NAND_BBT_USE_FLASH;
 
 	/* Initialize the NAND flash interface on NAND controller */
 	if (zynq_nand_init_nand_flash(nand_chip->options) < 0) {
 		printf("%s: nand flash init failed\n", __func__);
-		goto free;
+		goto fail;
 	}
 
 	/* first scan to find the device and get the page size */
@@ -1105,7 +1042,6 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 		printf("%s: nand_scan_ident failed\n", __func__);
 		goto fail;
 	}
-
 	/* Send the command for reading device ID */
 	nand_chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
 	nand_chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
@@ -1124,18 +1060,17 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 				 (dev_id == 0xd3) || (dev_id == 0xc3))) {
 		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
-
 		for (i = 0; i < 4; i++)
 			writeb(set_feature[i], nand_chip->IO_ADDR_W);
 
-		/* wait for 1us after writing data with SET_FEATURES command */
+		/* Wait for 1us after writing data with SET_FEATURES command */
 		ndelay(1000);
 
 		nand_chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
 		nand_chip->read_buf(mtd, get_feature, 4);
 
-		if (get_feature[0] & 0x08) {
+		if (get_feature[0] & ONDIE_ECC_FEATURE_ENABLE) {
 			debug("%s: OnDie ECC flash\n", __func__);
 			ondie_ecc_enabled = 1;
 		} else {
@@ -1144,9 +1079,9 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	if (ondie_ecc_enabled) {
-		/* bypass the controller ECC block */
+		/* Bypass the controller ECC block */
 		ecc_cfg = readl(&zynq_nand_smc_base->emcr);
-		ecc_cfg &= ~0xc;
+		ecc_cfg &= ~ZYNQ_MEMC_NAND_ECC_MODE_MASK;
 		writel(ecc_cfg, &zynq_nand_smc_base->emcr);
 
 		/* The software ECC routines won't work
@@ -1210,22 +1145,12 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 			       &zynq_nand_smc_base->emcr);
 			break;
 		default:
-			/* The software ECC routines won't work with
-			 * the SMC controller
-			 */
-			nand_chip->ecc.mode = NAND_ECC_HW;
+			nand_chip->ecc.mode = NAND_ECC_SOFT;
 			nand_chip->ecc.calculate = nand_calculate_ecc;
 			nand_chip->ecc.correct = nand_correct_data;
 			nand_chip->ecc.read_page = zynq_nand_read_page_swecc;
-			/* nand_chip->ecc.read_subpage = nand_read_subpage; */
 			nand_chip->ecc.write_page = zynq_nand_write_page_swecc;
-			nand_chip->ecc.read_page_raw = zynq_nand_read_page_raw;
-			nand_chip->ecc.write_page_raw =
-						zynq_nand_write_page_raw;
-			nand_chip->ecc.read_oob = zynq_nand_read_oob;
-			nand_chip->ecc.write_oob = zynq_nand_write_oob;
 			nand_chip->ecc.size = 256;
-			nand_chip->ecc.bytes = 3;
 			break;
 		}
 
@@ -1234,22 +1159,19 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 		else if (mtd->oobsize == 64)
 			nand_chip->ecc.layout = &nand_oob_64;
 		else
-			;
+			printf("%s: No oob layout found\n", __func__);
 	}
 
-	/* second phase scan */
+	/* Second phase scan */
 	if (nand_scan_tail(mtd)) {
-		printf("%s: nand_scan_tailfailed\n", __func__);
+		printf("%s: nand_scan_tail failed\n", __func__);
 		goto fail;
 	}
-
 	if (nand_register(devnum, mtd))
 		goto fail;
-
 	return 0;
 fail:
-free:
-	kfree(xnand);
+	free(xnand);
 	return err;
 }
 

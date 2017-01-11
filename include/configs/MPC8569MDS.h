@@ -10,12 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE		1	/* BOOKE */
-#define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC8569		1	/* MPC8569 specific */
-#define CONFIG_MPC8569MDS	1	/* MPC8569MDS board specific */
-
 #define CONFIG_FSL_ELBC		1	/* Has Enhance localbus controller */
 
 #define CONFIG_SYS_SRIO
@@ -28,7 +22,6 @@
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -84,7 +77,6 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
@@ -96,7 +88,6 @@ extern unsigned long get_clock_freq(void);
 					/* DDR is system memory*/
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
@@ -468,8 +459,6 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
-
-#define CONFIG_MMC     1
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC

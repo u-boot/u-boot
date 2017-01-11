@@ -1456,8 +1456,8 @@ static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 				cmd = FLASH_CMD_PROTECT_SET;
 			else
 				cmd = FLASH_CMD_PROTECT_CLEAR;
-				flash_write_cmd(info, sector, 0,
-					  FLASH_CMD_PROTECT);
+
+			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT);
 			flash_write_cmd(info, sector, 0, cmd);
 			/* re-enable interrupts if necessary */
 			if (flag)

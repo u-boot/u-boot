@@ -4,6 +4,7 @@ SoC overview
 	2. LS2080A
 	3. LS1012A
 	4. LS1046A
+	5. LS2088A
 
 LS1043A
 ---------
@@ -169,3 +170,60 @@ The LS1046A SoC includes the following function and features:
    - Two DUARTs
    - Integrated flash controller (IFC) supporting NAND and NOR flash
  - QorIQ platform's trust architecture 2.1
+
+LS2088A
+--------
+The LS2088A integrated multicore processor combines eight ARM Cortex-A72
+processor cores with high-performance data path acceleration logic and network
+and peripheral bus interfaces required for networking, telecom/datacom,
+wireless infrastructure, and mil/aerospace applications.
+
+The LS2088A SoC includes the following function and features:
+
+ - Eight 64-bit ARM Cortex-A72 CPUs
+ - 1 MB platform cache with ECC
+ - Two 64-bit DDR4 SDRAM memory controllers with ECC and interleaving support
+ - One secondary 32-bit DDR4 SDRAM memory controller, intended for use by
+   the AIOP
+ - Data path acceleration architecture (DPAA2) incorporating acceleration for
+   the following functions:
+   - Packet parsing, classification, and distribution (WRIOP)
+   - Queue and Hardware buffer management for scheduling, packet sequencing, and
+     congestion management, buffer allocation and de-allocation (QBMan)
+   - Cryptography acceleration (SEC) at up to 10 Gbps
+   - RegEx pattern matching acceleration (PME) at up to 10 Gbps
+   - Decompression/compression acceleration (DCE) at up to 20 Gbps
+   - Accelerated I/O processing (AIOP) at up to 20 Gbps
+   - QDMA engine
+ - 16 SerDes lanes at up to 10.3125 GHz
+ - Ethernet interfaces
+   - Up to eight 10 Gbps Ethernet MACs
+   - Up to eight 1 / 2.5 Gbps Ethernet MACs
+ - High-speed peripheral interfaces
+   - Four PCIe 3.0 controllers, one supporting SR-IOV
+ - Additional peripheral interfaces
+   - Two serial ATA (SATA 3.0) controllers
+   - Two high-speed USB 3.0 controllers with integrated PHY
+   - Enhanced secure digital host controller (eSDXC/eMMC)
+   - Serial peripheral interface (SPI) controller
+   - Quad Serial Peripheral Interface (QSPI) Controller
+   - Four I2C controllers
+   - Two DUARTs
+   - Integrated flash controller (IFC 2.0) supporting NAND and NOR flash
+ - Support for hardware virtualization and partitioning enforcement
+ - QorIQ platform's trust architecture 3.0
+ - Service processor (SP) provides pre-boot initialization and secure-boot
+ capabilities
+
+LS2088A SoC has 3 more similar SoC personalities
+1)LS2048A, few difference w.r.t. LS2088A:
+       a) Four 64-bit ARM v8 Cortex-A72 CPUs
+
+2)LS2084A, few difference w.r.t. LS2088A:
+       a) No AIOP
+       b) No 32-bit DDR3 SDRAM memory
+       c) 5 * 1/10G + 5 *1G WRIOP
+       d) No L2 switch
+
+3)LS2044A, few difference w.r.t. LS2084A:
+       a) Four 64-bit ARM v8 Cortex-A72 CPUs

@@ -44,10 +44,12 @@
 		hvdd-pex-supply = <&sys_3v3_reg>;
 
 		pci@1,0 {
+			/* TS_DIFF1/2/3/4 left disabled */
 			nvidia,num-lanes = <4>;
 		};
 
 		pci@2,0 {
+			/* PCIE1_RX/TX left disabled */
 			nvidia,num-lanes = <1>;
 		};
 

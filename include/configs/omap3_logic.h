@@ -15,19 +15,6 @@
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.  We use this rather than the inherited defines from
- * ti_armv7_common.h for backwards compatibility.
- */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE		(512 << 10)	/* 512 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-
 #include <configs/ti_omap3_common.h>
 
 /*
@@ -121,9 +108,12 @@
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(MLO),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
+#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:"\
+							"512k(MLO),"\
+							"1792k(u-boot),"\
+							"128k(spl-os)," \
+							"128k(u-boot-env),"\
+							"6m(kernel),-(fs)"
 #endif
 
 /* Environment information */
@@ -153,7 +143,6 @@
 		"else run defaultboot; fi\0" \
 	"defaultboot=run mmcramboot\0" \
 	"consoledevice=ttyO0\0" \
-	"display=15\0" \
 	"setconsole=setenv console ${consoledevice},${baudrate}n8\0" \
 	"dump_bootargs=echo 'Bootargs: '; echo $bootargs\0" \
 	"rotation=0\0" \
@@ -163,7 +152,7 @@
 		"fi\0" \
 	"optargs=ignore_loglevel early_printk no_console_suspend\0" \
 	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0" \
-	"common_bootargs=setenv bootargs ${bootargs} display=${display} " \
+	"common_bootargs=setenv bootargs ${bootargs} " \
 		"${optargs};" \
 		"run addmtdparts; " \
 		"run vrfb_arg\0" \
@@ -251,8 +240,6 @@
 /* **** PISMO SUPPORT *** */
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
-#elif defined(CONFIG_CMD_ONENAND)
-#define CONFIG_SYS_FLASH_BASE		ONENAND_MAP
 #endif
 
 /* Monitor at start of flash */
@@ -260,7 +247,6 @@
 
 #define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */

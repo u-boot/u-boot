@@ -54,7 +54,8 @@
 	"ramdisk_addr_r=0x88080000\0" \
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
-	"bootm_size=0x10000000\0"
+	"bootm_size=0x10000000\0" \
+	"boot_fdt=try\0"
 
 #define DEFAULT_MMC_TI_ARGS \
 	"mmcdev=0\0" \
@@ -71,6 +72,8 @@
 	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}\0" \
+	"loadimage=load ${devtype} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"envboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
@@ -87,6 +90,42 @@
 				"fi;" \
 			"fi;" \
 		"fi;\0" \
+	"mmcloados=run args_mmc; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if run loadfdt; then " \
+				"bootz ${loadaddr} - ${fdtaddr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootz; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootz; " \
+		"fi;\0" \
+	"mmcboot=mmc dev ${mmcdev}; " \
+		"setenv devnum ${mmcdev}; " \
+		"setenv devtype mmc; " \
+		"if mmc rescan; then " \
+			"echo SD/MMC found on device ${mmcdev};" \
+			"if run loadimage; then " \
+				"if test ${boot_fit} -eq 1; then " \
+					"run loadfit; " \
+				"else " \
+					"run mmcloados;" \
+				"fi;" \
+			"fi;" \
+		"fi;\0" \
+
+#define DEFAULT_FIT_TI_ARGS \
+	"boot_fit=0\0" \
+	"fit_loadaddr=0x88000000\0" \
+	"fit_bootfile=fitImage.itb\0" \
+	"update_to_fit=setenv loadaddr ${fit_loadaddr}; setenv bootfile ${fit_bootfile}\0" \
+	"args_fit=setenv bootargs console=${console} \0" \
+	"loadfit=run args_fit; bootm ${loadaddr}:kernel@1 " \
+		"${loadaddr}:ramdisk@1 ${loadaddr}:${fdtfile};\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
@@ -129,7 +168,6 @@
 #endif
 
 /* MMC/SD IP block */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 
 /* McSPI IP block */
@@ -160,7 +198,7 @@
 #define CONFIG_SYS_MAXARGS		64
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
+#define CONFIG_SYS_CBSIZE		1024
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
 					+ sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -234,10 +272,6 @@
 					 CONFIG_SPL_TEXT_BASE)
 #endif
 
-
-/* RAW SD card / eMMC locations. */
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 
 /* FAT sd card locations. */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1

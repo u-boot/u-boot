@@ -596,6 +596,57 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+void pmic_init(void)
+{
+#define I2C_PMIC                0x2
+#define DA9063_I2C_ADDR         0x58
+#define DA9063_REG_BCORE2_CFG   0x9D
+#define DA9063_REG_BCORE1_CFG   0x9E
+#define DA9063_REG_BPRO_CFG     0x9F
+#define DA9063_REG_BIO_CFG      0xA0
+#define DA9063_REG_BMEM_CFG     0xA1
+#define DA9063_REG_BPERI_CFG    0xA2
+#define DA9063_BUCK_MODE_MASK   0xC0
+#define DA9063_BUCK_MODE_MANUAL 0x00
+#define DA9063_BUCK_MODE_SLEEP  0x40
+#define DA9063_BUCK_MODE_SYNC   0x80
+#define DA9063_BUCK_MODE_AUTO   0xC0
+
+	uchar val;
+
+	i2c_set_bus_num(I2C_PMIC);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BCORE2_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BCORE2_CFG, 1, &val, 1);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BCORE1_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BCORE1_CFG, 1, &val, 1);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BPRO_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BPRO_CFG, 1, &val, 1);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BIO_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BIO_CFG, 1, &val, 1);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BMEM_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BMEM_CFG, 1, &val, 1);
+
+	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BPERI_CFG, 1, &val, 1);
+	val &= ~DA9063_BUCK_MODE_MASK;
+	val |= DA9063_BUCK_MODE_SYNC;
+	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BPERI_CFG, 1, &val, 1);
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
@@ -618,6 +669,9 @@ int board_late_init(void)
 
 	pwm_enable(0);
 #endif
+
+	/* board specific pmic init */
+	pmic_init();
 
 	return 0;
 }

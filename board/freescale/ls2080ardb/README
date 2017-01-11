@@ -1,13 +1,13 @@
 Overview
 --------
 The LS2080A Reference Design (RDB) is a high-performance computing,
-evaluation, and development platform that supports the QorIQ LS2080A
+evaluation, and development platform that supports the QorIQ LS2080A, LS2088A
 Layerscape Architecture processor.
 
-LS2080A SoC Overview
+LS2080A, LS2088A SoC Overview
 --------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A
-SoC overview.
+Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A,
+LS2088A SoC overview.
 
  LS2080ARDB board Overview
  -----------------------

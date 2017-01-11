@@ -11,9 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_P2041RDB
-#define CONFIG_PPC_P2041
-
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
@@ -31,9 +28,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
 
@@ -46,7 +40,7 @@
 #endif
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
@@ -60,8 +54,6 @@
 #define CONFIG_SRIO2			/* SRIO port 2 */
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -173,7 +165,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x52
@@ -613,8 +604,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
-
-#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC

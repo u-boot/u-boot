@@ -11,10 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_C29XPCIE
-#define CONFIG_PPC_C29X
-#endif
-
 #ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_SYS_TEXT_BASE		0x11000000
@@ -72,8 +68,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE			/* BOOKE */
-#define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
@@ -106,7 +100,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_TSEC_ENET
 #define CONFIG_ENV_OVERWRITE
 
@@ -133,7 +126,6 @@
 #define CONFIG_PANIC_HANG
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x50

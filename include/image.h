@@ -279,6 +279,8 @@ enum {
 	IH_TYPE_ZYNQMPIMAGE,		/* Xilinx ZynqMP Boot Image */
 	IH_TYPE_FPGA,			/* FPGA Image */
 	IH_TYPE_VYBRIDIMAGE,	/* VYBRID .vyb Image */
+	IH_TYPE_TEE,            /* Trusted Execution Environment OS Image */
+	IH_TYPE_FIRMWARE_IVT,		/* Firmware Image with HABv4 IVT */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
@@ -1049,7 +1051,9 @@ struct image_sign_info {
 	const char *keyname;		/* Name of key to use */
 	void *fit;			/* Pointer to FIT blob */
 	int node_offset;		/* Offset of signature node */
-	struct image_sig_algo *algo;	/* Algorithm information */
+	const char *name;		/* Algorithm name */
+	struct checksum_algo *checksum;	/* Checksum algorithm information */
+	struct crypto_algo *crypto;	/* Crypto algorithm information */
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
@@ -1070,18 +1074,19 @@ struct image_region {
 struct checksum_algo {
 	const char *name;
 	const int checksum_len;
-	const int pad_len;
+	const int der_len;
+	const uint8_t *der_prefix;
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
 	int (*calculate)(const char *name,
 			 const struct image_region region[],
 			 int region_count, uint8_t *checksum);
-	const uint8_t *rsa_padding;
 };
 
-struct image_sig_algo {
+struct crypto_algo {
 	const char *name;		/* Name of algorithm */
+	const int key_len;
 
 	/**
 	 * sign() - calculate and return signature for given input data
@@ -1130,18 +1135,23 @@ struct image_sig_algo {
 	int (*verify)(struct image_sign_info *info,
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
-
-	/* pointer to checksum algorithm */
-	struct checksum_algo *checksum;
 };
 
 /**
- * image_get_sig_algo() - Look up a signature algortihm
+ * image_get_checksum_algo() - Look up a checksum algorithm
  *
- * @param name		Name of algorithm
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
  * @return pointer to algorithm information, or NULL if not found
  */
-struct image_sig_algo *image_get_sig_algo(const char *name);
+struct checksum_algo *image_get_checksum_algo(const char *full_name);
+
+/**
+ * image_get_crypto_algo() - Look up a cryptosystem algorithm
+ *
+ * @param full_name	Name of algorithm in the form "checksum,crypto"
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct crypto_algo *image_get_crypto_algo(const char *full_name);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
@@ -1262,5 +1272,35 @@ int board_fit_config_name_match(const char *name);
  */
 void board_fit_image_post_process(void **p_image, size_t *p_size);
 #endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
+
+/**
+ * Mapping of image types to function handlers to be invoked on the associated
+ * loaded images
+ *
+ * @type: Type of image, I.E. IH_TYPE_*
+ * @handler: Function to call on loaded image
+ */
+struct fit_loadable_tbl {
+	int type;
+	/**
+	 * handler() - Process a loaded image
+	 *
+	 * @data: Pointer to start of loaded image data
+	 * @size: Size of loaded image data
+	 */
+	void (*handler)(ulong data, size_t size);
+};
+
+/*
+ * Define a FIT loadable image type handler
+ *
+ * _type is a valid uimage_type ID as defined in the "Image Type" enum above
+ * _handler is the handler function to call after this image type is loaded
+ */
+#define U_BOOT_FIT_LOADABLE_HANDLER(_type, _handler) \
+	ll_entry_declare(struct fit_loadable_tbl, _function, fit_loadable) = { \
+		.type = _type, \
+		.handler = _handler, \
+	}
 
 #endif	/* __IMAGE_H__ */

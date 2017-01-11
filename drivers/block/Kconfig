@@ -19,6 +19,15 @@ config AHCI
 	  operations at present. The block device interface has not been converted
 	  to driver model.
 
+config DM_SCSI
+	bool "Support SCSI controllers with driver model"
+	depends on BLK
+	help
+	  This option enables the SCSI (Small Computer System Interface) uclass
+	  which supports SCSI and SATA HDDs. For every device configuration
+	  (IDs/LUNs) a block device is created with RAW read/write and
+	  filesystem support.
+
 config BLOCK_CACHE
 	bool "Use block device cache"
 	default n
@@ -27,3 +36,16 @@ config BLOCK_CACHE
 	  This is most useful when accessing filesystems under U-Boot since
 	  it will prevent repeated reads from directory structures and other
 	  filesystem data structures.
+
+menu "SATA/SCSI device support"
+
+config SATA_CEVA
+	bool "Ceva Sata controller"
+	depends on AHCI
+	depends on DM_SCSI
+	help
+	  This option enables Ceva Sata controller hard IP available on Xilinx
+	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
+	  AHCI 1.3 specifications with hot-plug detect feature.
+
+endmenu

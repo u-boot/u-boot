@@ -14,7 +14,7 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T20"
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
@@ -27,7 +27,6 @@
 #define CONFIG_SYS_I2C_TEGRA
 
 /* SD/MMC support */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 

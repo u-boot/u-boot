@@ -1,0 +1,14 @@
+#include <config.h>
+
+/ {
+	binman {
+		filename = "u-boot-sunxi-with-spl.bin";
+		pad-byte = <0xff>;
+		blob {
+			filename = "spl/sunxi-spl.bin";
+		};
+		u-boot-img {
+			pos = <CONFIG_SPL_PAD_TO>;
+		};
+	};
+};

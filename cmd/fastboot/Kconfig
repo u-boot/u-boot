@@ -1,10 +1,9 @@
 comment "FASTBOOT"
 
-config FASTBOOT
-	bool ""
+menuconfig FASTBOOT
+	bool "Fastboot support"
 
-menu "Fastboot support"
-	depends on FASTBOOT
+if FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
@@ -40,6 +39,14 @@ config FASTBOOT_BUF_SIZE
 	  The fastboot protocol requires a large memory buffer for
 	  downloads. This buffer should be as large as possible for a
 	  platform. Define this to the size available RAM for fastboot.
+
+config FASTBOOT_USB_DEV
+	int "USB controller number"
+	default 0
+	help
+	  Some boards have USB OTG controller other than 0. Define this
+	  option so it can be used in compiled environment (e.g. in
+	  CONFIG_BOOTCOMMAND).
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
@@ -81,4 +88,4 @@ config FASTBOOT_MBR_NAME
 
 endif # USB_FUNCTION_FASTBOOT
 
-endmenu
+endif # FASTBOOT

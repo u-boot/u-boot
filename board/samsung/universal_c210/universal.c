@@ -38,10 +38,9 @@ static int get_hwrev(void)
 	return board_rev & 0xFF;
 }
 
-static void init_pmic_lcd(void);
-
 int exynos_power_init(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret;
 
 	/*
@@ -53,7 +52,7 @@ int exynos_power_init(void)
 		return ret;
 
 	init_pmic_lcd();
-
+#endif
 	return 0;
 }
 
@@ -84,6 +83,7 @@ static unsigned short get_adc_value(int channel)
 
 static int adc_power_control(int on)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret;
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 	if (!p)
@@ -97,6 +97,9 @@ static int adc_power_control(int on)
 			      MAX8998_LDO4, !!on);
 
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 static unsigned int get_hw_revision(void)
@@ -144,6 +147,7 @@ static void check_hw_revision(void)
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret = 0;
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 	if (!p)
@@ -175,7 +179,7 @@ static int s5pc210_phy_control(int on)
 		puts("MAX8998 LDO setting error!\n");
 		return -1;
 	}
-
+#endif
 	return 0;
 }
 
@@ -201,6 +205,7 @@ int exynos_early_init_f(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 static void init_pmic_lcd(void)
 {
 	unsigned char val;
@@ -248,6 +253,7 @@ static void init_pmic_lcd(void)
 	if (ret)
 		puts("LCD pmic initialisation error!\n");
 }
+#endif
 
 void exynos_cfg_lcd_gpio(void)
 {
@@ -304,6 +310,7 @@ void exynos_reset_lcd(void)
 
 void exynos_lcd_power_on(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 
 	if (!p)
@@ -314,6 +321,7 @@ void exynos_lcd_power_on(void)
 
 	pmic_set_output(p, MAX8998_REG_ONOFF3, MAX8998_LDO17, LDO_ON);
 	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
+#endif
 }
 
 void exynos_cfg_ldo(void)
@@ -328,8 +336,9 @@ void exynos_enable_ldo(unsigned int onoff)
 
 int exynos_init(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	char buf[16];
-
+#endif
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 
 	switch (get_hwrev()) {
@@ -354,13 +363,14 @@ int exynos_init(void)
 		break;
 	}
 
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	/* Request soft I2C gpios */
 	strcpy(buf, "soft_i2c_scl");
 	gpio_request(CONFIG_SOFT_I2C_GPIO_SCL, buf);
 
 	strcpy(buf, "soft_i2c_sda");
 	gpio_request(CONFIG_SOFT_I2C_GPIO_SDA, buf);
-
+#endif
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
 

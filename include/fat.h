@@ -33,6 +33,8 @@
 #define FAT16BUFSIZE	(FATBUFSIZE/2)
 #define FAT32BUFSIZE	(FATBUFSIZE/4)
 
+/* Maximum number of entry for long file name according to spec */
+#define MAX_LFN_SLOT	20
 
 /* Filesystem identifiers */
 #define FAT12_SIGN	"FAT12   "

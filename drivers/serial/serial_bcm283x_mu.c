@@ -25,6 +25,8 @@
 #include <linux/compiler.h>
 #include <fdtdec.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct bcm283x_mu_regs {
 	u32 io;
 	u32 iir;
@@ -57,7 +59,7 @@ static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 divider;
 
-	if (plat->skip_init)
+	if (plat->disabled || plat->skip_init)
 		return 0;
 
 	divider = plat->clock / (baudrate * 8);
@@ -83,9 +85,13 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 
 static int bcm283x_mu_serial_getc(struct udevice *dev)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 data;
+
+	if (plat->disabled)
+		return -EAGAIN;
 
 	/* Wait until there is data in the FIFO */
 	if (!(readl(&regs->lsr) & BCM283X_MU_LSR_RX_READY))
@@ -98,8 +104,12 @@ static int bcm283x_mu_serial_getc(struct udevice *dev)
 
 static int bcm283x_mu_serial_putc(struct udevice *dev, const char data)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
+
+	if (plat->disabled)
+		return 0;
 
 	/* Wait until there is space in the FIFO */
 	if (!(readl(&regs->lsr) & BCM283X_MU_LSR_TX_EMPTY))
@@ -113,9 +123,15 @@ static int bcm283x_mu_serial_putc(struct udevice *dev, const char data)
 
 static int bcm283x_mu_serial_pending(struct udevice *dev, bool input)
 {
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
-	unsigned int lsr = readl(&regs->lsr);
+	unsigned int lsr;
+
+	if (plat->disabled)
+		return 0;
+
+	lsr = readl(&regs->lsr);
 
 	if (input) {
 		WATCHDOG_RESET();
@@ -132,9 +148,35 @@ static const struct dm_serial_ops bcm283x_mu_serial_ops = {
 	.setbrg = bcm283x_mu_serial_setbrg,
 };
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id bcm283x_mu_serial_id[] = {
+	{.compatible = "brcm,bcm2835-aux-uart"},
+	{}
+};
+
+static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
+{
+	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = addr;
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "clock", 1);
+	plat->skip_init = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	                                  "skip-init");
+	plat->disabled = false;
+	return 0;
+}
+#endif
+
 U_BOOT_DRIVER(serial_bcm283x_mu) = {
 	.name = "serial_bcm283x_mu",
 	.id = UCLASS_SERIAL,
+	.of_match = of_match_ptr(bcm283x_mu_serial_id),
+	.ofdata_to_platdata = of_match_ptr(bcm283x_mu_serial_ofdata_to_platdata),
 	.platdata_auto_alloc_size = sizeof(struct bcm283x_mu_serial_platdata),
 	.probe = bcm283x_mu_serial_probe,
 	.ops = &bcm283x_mu_serial_ops,

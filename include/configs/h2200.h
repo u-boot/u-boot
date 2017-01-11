@@ -107,8 +107,6 @@
 /*
  * Serial port
  */
-
-#define CONFIG_PXA_SERIAL
 #define CONFIG_FFUART
 #define CONFIG_CONS_INDEX		3
 

@@ -18,7 +18,6 @@
 #define CONFIG_REVISION_TAG
 
 /* SD/MMC configuration */
-#define CONFIG_MMC_SDMA
 #define CONFIG_MMC_DEFAULT_DEV	0
 
 #undef CONFIG_CMD_ONENAND

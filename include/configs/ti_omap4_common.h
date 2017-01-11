@@ -98,6 +98,9 @@
 	func(DHCP, dhcp, na)
 
 #define CONFIG_BOOTCOMMAND \
+	"if test ${boot_fit} -eq 1; then "	\
+		"run update_to_fit;"	\
+	"fi;"	\
 	"run findfdt; " \
 	"run envboot; " \
 	"run distro_bootcmd"
@@ -107,6 +110,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
+	DEFAULT_FIT_TI_ARGS \
 	"console=ttyO2,115200n8\0" \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
@@ -114,14 +118,7 @@
 	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"loaduimage=load mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
-		"run args_mmc; " \
-		"if run loadimage; then " \
-			"run loadfdt; " \
-			"bootz ${loadaddr} - ${fdtaddr}; " \
-		"fi;\0" \
 	"uimageboot=echo Booting from mmc${mmcdev} ...; " \
 		"run args_mmc; " \
 		"bootm ${loadaddr}\0" \
@@ -138,7 +135,6 @@
 			"setenv fdtfile omap4-duovero-parlor.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	BOOTENV
 
 /*
@@ -148,7 +144,7 @@
  * So moving TEXT_BASE down to non-HS limit.
  */
 #define CONFIG_SPL_TEXT_BASE		0x40300000
-#define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT "arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 

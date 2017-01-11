@@ -60,7 +60,7 @@ struct arch_global_data {
 	unsigned long tlb_allocated;
 #endif
 
-#ifdef CONFIG_OMAP_COMMON
+#ifdef CONFIG_ARCH_OMAP2
 	u32 omap_boot_device;
 	u32 omap_boot_mode;
 	u8 omap_ch_flags;

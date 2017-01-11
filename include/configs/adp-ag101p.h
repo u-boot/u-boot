@@ -100,7 +100,6 @@
 /*
  * SD (MMC) controller
  */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FTSDC010

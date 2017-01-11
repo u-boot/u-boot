@@ -10,7 +10,6 @@
 #ifndef __AP325RXA_H
 #define __AP325RXA_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7723	1
 #define CONFIG_AP325RXA	1
 
@@ -21,6 +20,7 @@
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_BOOTARGS		"console=ttySC2,38400"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* SMC9118 */

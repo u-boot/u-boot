@@ -81,6 +81,38 @@
 					"cpm-usb3dev", "cpm-eip150", "cpm-eip197";
 			};
 
+			cpm_pinctl: cpm-pinctl@440000 {
+				compatible = "marvell,mvebu-pinctrl",
+					     "marvell,a70x0-pinctrl",
+					     "marvell,a80x0-cp0-pinctrl";
+				bank-name ="cp0-110";
+				reg = <0x440000 0x20>;
+				pin-count = <63>;
+				max-func = <0xf>;
+
+				cpm_i2c0_pins: cpm-i2c-pins-0 {
+					marvell,pins = < 37 38 >;
+					marvell,function = <2>;
+				};
+				cpm_ge2_rgmii_pins: cpm-ge-rgmii-pins-0 {
+					marvell,pins = < 44 45 46 47 48 49 50 51
+							 52 53 54 55 >;
+					marvell,function = <1>;
+				};
+				pca0_pins: cpm-pca0_pins {
+					marvell,pins = <62>;
+					marvell,function = <0>;
+				};
+				cpm_sdhci_pins: cpm-sdhi-pins-0 {
+					marvell,pins = < 56 57 58 59 60 61 >;
+					marvell,function = <14>;
+				};
+				cpm_spi0_pins: cpm-spi-pins-0 {
+					marvell,pins = < 13 14 15 16 >;
+					marvell,function = <3>;
+				};
+			};
+
 			cpm_sata0: sata@540000 {
 				compatible = "marvell,armada-8k-ahci";
 				reg = <0x540000 0x30000>;
@@ -149,7 +181,7 @@
 				status = "disabled";
 			};
 
-			comphy_cp110: comphy@441000 {
+			cpm_comphy: comphy@441000 {
 				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
 				reg = <0x441000 0x8>,
 				      <0x120000 0x8>;
@@ -157,7 +189,7 @@
 				max-lanes = <6>;
 			};
 
-			utmi0: utmi@580000 {
+			cpm_utmi0: utmi@580000 {
 				compatible = "marvell,mvebu-utmi-2.6.0";
 				reg = <0x580000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */
@@ -166,7 +198,7 @@
 				status = "disabled";
 			};
 
-			utmi1: utmi@581000 {
+			cpm_utmi1: utmi@581000 {
 				compatible = "marvell,mvebu-utmi-2.6.0";
 				reg = <0x581000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */

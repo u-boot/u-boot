@@ -91,8 +91,6 @@
 /*-----------------------------------------------------------------------
  * SDHC Configuration
  */
-#define CONFIG_SDHCI
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 
 /*--------------------------------------------------

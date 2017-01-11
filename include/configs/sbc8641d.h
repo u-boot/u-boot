@@ -21,7 +21,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
@@ -47,7 +46,6 @@
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -59,7 +57,6 @@
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-#define CONFIG_NUM_DDR_CONTROLLERS     2
 #define CACHE_LINE_INTERLEAVING		0x20000000
 #define PAGE_INTERLEAVING		0x21000000
 #define BANK_INTERLEAVING		0x22000000
@@ -88,7 +85,6 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
@@ -106,7 +102,6 @@
 #define CONFIG_SYS_MAX_DDR_BAT_SIZE	0x80000000	/* BAT mapping size */
 #define CONFIG_VERY_BIG_RAM
 
-#define CONFIG_NUM_DDR_CONTROLLERS	2
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 

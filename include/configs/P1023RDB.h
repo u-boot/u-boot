@@ -23,9 +23,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE		/* BOOKE */
-#define CONFIG_E500		/* BOOKE e500 family */
-#define CONFIG_P1023
 #define CONFIG_MP		/* support multiple processors */
 
 #define CONFIG_FSL_ELBC		/* Has Enhanced localbus controller */
@@ -36,7 +33,6 @@
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
-#define CONFIG_FSL_LAW		/* Use common FSL init code */
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -72,7 +68,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SDRAM_SIZE		512u	/* DDR is 512M */
 #define CONFIG_SYS_SPD_BUS_NUM          0

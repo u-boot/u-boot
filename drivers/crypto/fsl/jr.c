@@ -21,7 +21,7 @@
 
 uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
 	0,
-#if defined(CONFIG_PPC_C29X)
+#if defined(CONFIG_ARCH_C29X)
 	CONFIG_SYS_FSL_SEC_IDX_OFFSET,
 	2 * CONFIG_SYS_FSL_SEC_IDX_OFFSET
 #endif

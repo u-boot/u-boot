@@ -48,6 +48,15 @@ void miiphy_listdev(void);
 struct mii_dev *mdio_alloc(void);
 void mdio_free(struct mii_dev *bus);
 int mdio_register(struct mii_dev *bus);
+
+/**
+ * mdio_register_seq - Register mdio bus with sequence number
+ * @bus: mii device structure
+ * @seq: sequence number
+ *
+ * Return: 0 if success, negative value if error
+ */
+int mdio_register_seq(struct mii_dev *bus, int seq);
 int mdio_unregister(struct mii_dev *bus);
 void mdio_list_devices(void);
 

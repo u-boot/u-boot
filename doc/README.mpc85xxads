@@ -136,9 +136,7 @@ Updated 13-July-2004 Jon Loeliger
     CONFIG_BOOKE	    BOOKE(e.g. Motorola MPC85xx, AMCC 440, etc)
     CONFIG_E500		    BOOKE e500 family(Motorola)
     CONFIG_MPC85xx	    MPC8540,MPC8560 and their derivatives
-    CONFIG_MPC8540	    MPC8540 specific
-    CONFIG_MPC8540ADS	    MPC8540ADS board specific
-    CONFIG_MPC8560ADS	    MPC8560ADS board specific
+    CONFIG_ARCH_MPC8540	    MPC8540 specific
     CONFIG_TSEC_ENET	    Use on-chip 10/100/1000 ethernet for networking
     CONFIG_SPD_EEPROM	    Use SPD EEPROM for DDR auto configuration, you can
 			    also manual config the DDR after undef this

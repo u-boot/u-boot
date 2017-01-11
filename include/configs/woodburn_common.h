@@ -60,7 +60,6 @@
 #define CONFIG_RTC_MC13XXX
 
 /* mmc driver */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

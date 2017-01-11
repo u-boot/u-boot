@@ -153,7 +153,7 @@ static int mxs_nand_init(void)
 	nand_chip.numchips = 1;
 
 	/* identify flash device */
-	puts("NAND : ");
+	puts(": ");
 	if (mxs_flash_ident(mtd)) {
 		printf("Failed to identify\n");
 		return -1;

@@ -69,8 +69,7 @@ ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
 S:	Maintainted
 T:	git git://git.denx.de/u-boot-socfpga.git
-F:	arch/arm/cpu/armv7/socfpga/
-F:	board/altera/socfpga/
+F:	arch/arm/mach-socfpga/
 
 ARM ATMEL AT91
 M:	Andreas Bießmann <andreas@biessmann.org>
@@ -167,7 +166,8 @@ F:	arch/arm/cpu/armv7/stv0991/
 F:	arch/arm/include/asm/arch-stv0991/
 
 ARM SUNXI
-S:	Orphan
+M:	Jagan Teki <jagan@openedev.com>
+M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 T:	git git://git.denx.de/u-boot-sunxi.git
 F:	arch/arm/cpu/armv7/sunxi/
 F:	arch/arm/include/asm/arch-sunxi/
@@ -242,7 +242,7 @@ T:	git git://git.denx.de/u-boot-coldfire.git
 F:	arch/m68k/
 
 DFU
-M:	Lukasz Majewski <l.majewski@samsung.com>
+M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-dfu.git
 F:	drivers/dfu/
@@ -271,7 +271,7 @@ F:	lib/fdtdec*
 F:	lib/libfdt/
 F:	include/fdt*
 F:	include/libfdt*
-F.	common/cmd_fdt.c
+F:	cmd/fdt.c
 F:	common/fdt_support.c
 
 FREEBSD
@@ -366,6 +366,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-ppc4xx.git
 F:	arch/powerpc/cpu/ppc4xx/
 
+POWER
+M:	Jaehoon Chung <jh80.chung@samsung.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-pmic.git
+F:	drivers/power/
+
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
@@ -392,8 +398,8 @@ T:	git git://git.denx.de/u-boot-nios.git
 F:	arch/nios2/
 
 ONENAND
-M:	Lukasz Majewski <l.majewski@samsung.com>
-S:	Maintained
+#M:	Lukasz Majewski <l.majewski@majess.pl>
+S:	Orphaned (Since 2017-01)
 T:	git git://git.denx.de/u-boot-onenand.git
 F:	drivers/mtd/onenand/
 

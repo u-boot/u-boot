@@ -120,7 +120,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 
 	pci_register_hose(hose);
 
-#if defined(CONFIG_MPC8555CDS) || defined(CONFIG_MPC8541CDS)
+#if defined(CONFIG_TARGET_MPC8555CDS) || defined(CONFIG_TARGET_MPC8541CDS)
 	/*
 	 * This is a SW workaround for an apparent HW problem
 	 * in the PCI controller on the MPC85555/41 CDS boards.

@@ -239,16 +239,18 @@ static inline uint32_t qbman_set_swp_cfg(uint8_t max_fill, uint8_t wn,
 {
 	uint32_t reg;
 
-	reg = e32_uint8_t(20, 3, max_fill) | e32_uint8_t(16, 3, est) |
-		e32_uint8_t(12, 2, rpm) | e32_uint8_t(10, 2, dcm) |
-		e32_uint8_t(8, 2, epm) | e32_int(5, 1, sd) |
-		e32_int(4, 1, sp) | e32_int(3, 1, se) | e32_int(2, 1, dp) |
-		e32_int(1, 1, de) | e32_int(0, 1, ep) |	e32_uint8_t(14, 1, wn);
+	reg = e32_uint8_t(20, (uint32_t)(3 + (max_fill >> 3)), max_fill) |
+		e32_uint8_t(16, 3, est) | e32_uint8_t(12, 2, rpm) |
+		e32_uint8_t(10, 2, dcm) | e32_uint8_t(8, 2, epm) |
+		e32_int(5, 1, sd) | e32_int(4, 1, sp) | e32_int(3, 1, se) |
+		e32_int(2, 1, dp) | e32_int(1, 1, de) | e32_int(0, 1, ep) |
+		e32_uint8_t(14, 1, wn);
 	return reg;
 }
 
 static inline int qbman_swp_sys_init(struct qbman_swp_sys *s,
-				     const struct qbman_swp_desc *d)
+				     const struct qbman_swp_desc *d,
+				     uint8_t dqrr_size)
 {
 	uint32_t reg;
 
@@ -270,9 +272,9 @@ static inline int qbman_swp_sys_init(struct qbman_swp_sys *s,
 	BUG_ON(reg);
 #endif
 #ifdef QBMAN_CINH_ONLY
-	reg = qbman_set_swp_cfg(4, 1, 0, 3, 2, 3, 0, 1, 0, 1, 0, 0);
+	reg = qbman_set_swp_cfg(dqrr_size, 1, 0, 3, 2, 3, 0, 1, 0, 1, 0, 0);
 #else
-	reg = qbman_set_swp_cfg(4, 0, 0, 3, 2, 3, 0, 1, 0, 1, 0, 0);
+	reg = qbman_set_swp_cfg(dqrr_size, 0, 0, 3, 2, 3, 0, 1, 0, 1, 0, 0);
 #endif
 	qbman_cinh_write(s, QBMAN_CINH_SWP_CFG, reg);
 	reg = qbman_cinh_read(s, QBMAN_CINH_SWP_CFG);

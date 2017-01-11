@@ -1,5 +1,5 @@
 SOCFPGA BOARD
-M:	Dinh Nguyen <dinguyen@opensource.altera.com>
+M:	Dinh Nguyen <dinguyen@kernel.org>
 M:	Chin-Liang See <clsee@altera.com>
 S:	Maintained
 F:	board/altera/cyclone5-socdk/

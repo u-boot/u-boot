@@ -21,7 +21,7 @@ config ROCKCHIP_RK3288
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
 	  video interfaces supporting HDMI and eDP, several DDR3 options
 	  and video codec support. Peripherals include Gigabit Ethernet,
-	  USB2 host and OTG, SDIO, I2S, UART,s, SPI, I2C and PWMs.
+	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"

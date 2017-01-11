@@ -19,8 +19,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GPIO_SWPORTA_DR		0x00
-#define GPIO_SWPORTA_DDR	0x04
+#define GPIO_SWPORT_DR(p)	(0x00 + (p) * 0xc)
+#define GPIO_SWPORT_DDR(p)	(0x04 + (p) * 0xc)
 #define GPIO_INTEN		0x30
 #define GPIO_INTMASK		0x34
 #define GPIO_INTTYPE_LEVEL	0x38
@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_INTSTATUS		0x40
 #define GPIO_PORTA_DEBOUNCE	0x48
 #define GPIO_PORTA_EOI		0x4c
-#define GPIO_EXT_PORTA		0x50
+#define GPIO_EXT_PORT(p)	(0x50 + (p) * 4)
 
 struct gpio_dwapb_platdata {
 	const char	*name;
@@ -41,7 +41,7 @@ static int dwapb_gpio_direction_input(struct udevice *dev, unsigned pin)
 {
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
 
-	clrbits_le32(plat->base + GPIO_SWPORTA_DDR, 1 << pin);
+	clrbits_le32(plat->base + GPIO_SWPORT_DDR(plat->bank), 1 << pin);
 	return 0;
 }
 
@@ -50,12 +50,12 @@ static int dwapb_gpio_direction_output(struct udevice *dev, unsigned pin,
 {
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
 
-	setbits_le32(plat->base + GPIO_SWPORTA_DDR, 1 << pin);
+	setbits_le32(plat->base + GPIO_SWPORT_DDR(plat->bank), 1 << pin);
 
 	if (val)
-		setbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
+		setbits_le32(plat->base + GPIO_SWPORT_DR(plat->bank), 1 << pin);
 	else
-		clrbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
+		clrbits_le32(plat->base + GPIO_SWPORT_DR(plat->bank), 1 << pin);
 
 	return 0;
 }
@@ -63,7 +63,7 @@ static int dwapb_gpio_direction_output(struct udevice *dev, unsigned pin,
 static int dwapb_gpio_get_value(struct udevice *dev, unsigned pin)
 {
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
-	return !!(readl(plat->base + GPIO_EXT_PORTA) & (1 << pin));
+	return !!(readl(plat->base + GPIO_EXT_PORT(plat->bank)) & (1 << pin));
 }
 
 
@@ -72,9 +72,9 @@ static int dwapb_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
 
 	if (val)
-		setbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
+		setbits_le32(plat->base + GPIO_SWPORT_DR(plat->bank), 1 << pin);
 	else
-		clrbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
+		clrbits_le32(plat->base + GPIO_SWPORT_DR(plat->bank), 1 << pin);
 
 	return 0;
 }

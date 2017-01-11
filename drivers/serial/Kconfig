@@ -325,7 +325,7 @@ config MVEBU_A3700_UART
 
 config MXC_UART
 	bool "IMX serial port support"
-	depends on MX6
+	depends on MX5 || MX6
 	help
 	  If you have a machine based on a Motorola IMX CPU you
 	  can enable its onboard serial port by enabling this option.
@@ -406,5 +406,11 @@ config MSM_SERIAL
 	  It should support all Qualcomm devices with UARTDM version 1.4,
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
+
+config PXA_SERIAL
+	bool "PXA serial port support"
+	help
+	  If you have a machine based on a Marvell XScale PXA2xx CPU you
+	  can enable its onboard serial ports by enabling this option.
 
 endmenu

@@ -39,10 +39,13 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 /*
  * Read header information from EEPROM into global structure.
  */
-static inline int __maybe_unused read_eeprom(void)
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
+void do_board_detect(void)
 {
-	return ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR);
+	if (ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR))
+		printf("ti_i2c_eeprom_init failed\n");
 }
+#endif
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -337,9 +340,6 @@ const struct dpll_params *get_dpll_ddr_params(void)
 {
 	int ind = get_sys_clk_index();
 
-	if (read_eeprom() < 0)
-		return NULL;
-
 	if (board_is_eposevm())
 		return &epos_evm_dpll_ddr[ind];
 	else if (board_is_evm() || board_is_sk())
@@ -495,9 +495,6 @@ void scale_vcores(void)
 {
 	const struct dpll_params *mpu_params;
 
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	/* Ensure I2C is initialized for PMIC configuration */
 	gpi2c_init();
 
@@ -537,8 +534,6 @@ static void enable_vtt_regulator(void)
 
 void sdram_init(void)
 {
-	if (read_eeprom() < 0)
-		return;
 	/*
 	 * EPOS EVM has 1GB LPDDR2 connected to EMIF.
 	 * GP EMV has 1GB DDR3 connected to EMIF
@@ -637,6 +632,13 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
+
+	/*
+	 * Default FIT boot on HS devices. Non FIT images are not allowed
+	 * on HS devices.
+	 */
+	if (get_device_type() == HS_DEVICE)
+		setenv("boot_fit", "1");
 #endif
 	return 0;
 }

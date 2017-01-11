@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_T4240QDS
-
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
@@ -26,7 +24,6 @@
 #else
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW                 /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -519,8 +516,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
 
-#define CONFIG_MMC
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
@@ -544,7 +539,7 @@ unsigned long get_board_ddr_clk(void);
  * interleaving. It can be cacheline, page, bank, superbank.
  * See doc/README.fsl-ddr for details.
  */
-#ifdef CONFIG_PPC_T4240
+#ifdef CONFIG_ARCH_T4240
 #define CTRL_INTLV_PREFERED 3way_4KB
 #else
 #define CTRL_INTLV_PREFERED cacheline

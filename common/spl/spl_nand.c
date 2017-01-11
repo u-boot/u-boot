@@ -151,4 +151,4 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 }
 #endif
 /* Use priorty 1 so that Ubi can override this */
-SPL_LOAD_IMAGE_METHOD(1, BOOT_DEVICE_NAND, spl_nand_load_image);
+SPL_LOAD_IMAGE_METHOD("NAND", 1, BOOT_DEVICE_NAND, spl_nand_load_image);

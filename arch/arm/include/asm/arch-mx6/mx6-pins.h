@@ -33,6 +33,8 @@ enum {
 	MX6_PAD_DECLARE(MX6_PAD_,name, pco, mc, mm, sio, si, pc),
 #include "mx6dl_pins.h"
 };
+#elif defined(CONFIG_MX6SLL)
+#include "mx6sll_pins.h"
 #elif defined(CONFIG_MX6SL)
 #include "mx6sl_pins.h"
 #elif defined(CONFIG_MX6SX)

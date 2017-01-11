@@ -2,18 +2,23 @@
  * Toradex Colibri PXA270 Support
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright (C) 2016 Marcel Ziswiler <marcel.ziswiler@toradex.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/regs-mmc.h>
 #include <asm/arch/pxa.h>
-#include <netdev.h>
+#include <asm/arch/regs-mmc.h>
+#include <asm/arch/regs-uart.h>
 #include <asm/io.h>
+#include <dm/platdata.h>
+#include <dm/platform_data/serial_pxa.h>
+#include <netdev.h>
 #include <serial.h>
 #include <usb.h>
+#include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,6 +36,20 @@ int board_init(void)
 
 	return 0;
 }
+
+int checkboard(void)
+{
+	puts("Model: Toradex Colibri PXA270\n");
+
+	return 0;
+}
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	return ft_common_board_setup(blob, bd);
+}
+#endif
 
 int dram_init(void)
 {
@@ -105,3 +124,14 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+static const struct pxa_serial_platdata serial_platdata = {
+	.base = (struct pxa_uart_regs *)FFUART_BASE,
+	.port = FFUART_INDEX,
+	.baudrate = CONFIG_BAUDRATE,
+};
+
+U_BOOT_DEVICE(pxa_serials) = {
+	.name = "serial_pxa",
+	.platdata = &serial_platdata,
+};

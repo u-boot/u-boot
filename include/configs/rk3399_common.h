@@ -27,10 +27,8 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 /* MMC/SD IP block */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DWMMC
-#define CONFIG_SDHCI
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 
@@ -41,7 +39,6 @@
 #define CONFIG_CMD_PART
 
 /* RAW SD card / eMMC locations. */
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	256
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 
 /* FAT sd card locations. */

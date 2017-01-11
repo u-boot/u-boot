@@ -10,4 +10,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 
 obj-y	:= migo_r.o
-obj-y	+= lowlevel_init.o
+extra-y	+= lowlevel_init.o

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "compiler.h"
 
 #ifndef R_AARCH64_RELATIVE
 #define R_AARCH64_RELATIVE	1027
@@ -49,40 +50,6 @@ static bool supported_rela(Elf64_Rela *rela)
 		return false;
 	}
 }
-
-static inline uint64_t swap64(uint64_t val)
-{
-	return ((val >> 56) & 0x00000000000000ffULL) |
-	       ((val >> 40) & 0x000000000000ff00ULL) |
-	       ((val >> 24) & 0x0000000000ff0000ULL) |
-	       ((val >>  8) & 0x00000000ff000000ULL) |
-	       ((val <<  8) & 0x000000ff00000000ULL) |
-	       ((val << 24) & 0x0000ff0000000000ULL) |
-	       ((val << 40) & 0x00ff000000000000ULL) |
-	       ((val << 56) & 0xff00000000000000ULL);
-}
-
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-static inline uint64_t be64(uint64_t val)
-{
-	return swap64(val);
-}
-
-static inline uint64_t le64(uint64_t val)
-{
-	return val;
-}
-#else
-static inline uint64_t le64(uint64_t val)
-{
-	return swap64(val);
-}
-
-static inline uint64_t be64(uint64_t val)
-{
-	return val;
-}
-#endif
 
 static bool read_num(const char *str, uint64_t *num)
 {
@@ -148,9 +115,9 @@ int main(int argc, char **argv)
 			return 4;
 		}
 
-		swrela.r_offset = le64(rela.r_offset);
-		swrela.r_info = le64(rela.r_info);
-		swrela.r_addend = le64(rela.r_addend);
+		swrela.r_offset = cpu_to_le64(rela.r_offset);
+		swrela.r_info = cpu_to_le64(rela.r_info);
+		swrela.r_addend = cpu_to_le64(rela.r_addend);
 
 		if (!supported_rela(&swrela))
 			continue;

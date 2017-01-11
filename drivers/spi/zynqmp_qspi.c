@@ -311,8 +311,7 @@ static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->option = priv->is_dual;
-	slave->op_mode_rx = SPI_OPM_RX_QOF;
-	slave->op_mode_tx = SPI_OPM_TX_QPP;
+	slave->mode = SPI_RX_QUAD | SPI_TX_QUAD;
 	slave->bytemode = SPI_4BYTE_MODE;
 
 	return 0;

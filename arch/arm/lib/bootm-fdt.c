@@ -25,7 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_ARCH_FIXUP_FDT
 int arch_fixup_fdt(void *blob)
 {
 	bd_t *bd = gd->bd;
@@ -53,7 +52,8 @@ int arch_fixup_fdt(void *blob)
 		return ret;
 #endif
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV8_PSCI) || \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 	ret = psci_update_dt(blob);
 	if (ret)
 		return ret;
@@ -61,4 +61,3 @@ int arch_fixup_fdt(void *blob)
 
 	return 0;
 }
-#endif

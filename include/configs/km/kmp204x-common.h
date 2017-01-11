@@ -8,8 +8,6 @@
 #ifndef _CONFIG_KMP204X_H
 #define _CONFIG_KMP204X_H
 
-#define CONFIG_PPC_P2041
-
 #define CONFIG_SYS_TEXT_BASE	0xfff40000
 
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
@@ -31,15 +29,12 @@
 #define CONFIG_SYS_FSL_PBL_RCW board/keymile/kmp204x/rcw_kmp204x.cfg
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MP			/* support multiple processors */
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE3			/* PCIE controller 3 */
@@ -47,8 +42,6 @@
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 /* Environment in SPI Flash */
 #define CONFIG_SYS_EXTRA_ENV_RELOC
@@ -108,7 +101,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_FSL_DDR_INTERACTIVE
 
 #define CONFIG_SYS_SPD_BUS_NUM	0

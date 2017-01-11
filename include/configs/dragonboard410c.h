@@ -32,9 +32,7 @@
 #define COUNTER_FREQUENCY		19000000
 
 /* This are needed to have proper mmc support */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_SDHCI
 
 #define CONFIG_SYS_LDSCRIPT "board/qualcomm/dragonboard410c/u-boot.lds"
 

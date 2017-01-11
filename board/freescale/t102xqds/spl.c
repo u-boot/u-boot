@@ -66,7 +66,7 @@ void board_init_f(ulong bootflag)
 	u32 plat_ratio, sys_clk, ccb_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
-#if defined(CONFIG_PPC_T1040) && defined(CONFIG_SPL_NAND_BOOT)
+#if defined(CONFIG_ARCH_T1040) && defined(CONFIG_SPL_NAND_BOOT)
 	/*
 	 * There is T1040 SoC issue where NOR, FPGA are inaccessible during
 	 * NAND boot because IFC signals > IFC_AD7 are not enabled.

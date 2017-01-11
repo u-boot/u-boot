@@ -129,7 +129,6 @@
  */
 #if !defined(__ADSPBF512__)
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
 #define CONFIG_BFIN_SDH
 #endif
 

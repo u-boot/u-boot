@@ -28,6 +28,8 @@ static const struct udevice_id imx6_pinctrl_match[] = {
 	{ .compatible = "fsl,imx6q-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
 	{ .compatible = "fsl,imx6dl-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
 	{ .compatible = "fsl,imx6sl-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
+	{ .compatible = "fsl,imx6sll-iomuxc-snvs", .data = (ulong)&imx6_snvs_pinctrl_soc_info },
+	{ .compatible = "fsl,imx6sll-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
 	{ .compatible = "fsl,imx6sx-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
 	{ .compatible = "fsl,imx6ul-iomuxc", .data = (ulong)&imx6_pinctrl_soc_info },
 	{ .compatible = "fsl,imx6ull-iomuxc-snvs", .data = (ulong)&imx6_snvs_pinctrl_soc_info },

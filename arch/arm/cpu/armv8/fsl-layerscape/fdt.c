@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <efi_loader.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <phy.h>
@@ -41,7 +42,8 @@ void ft_fixup_cpu(void *blob)
 	int addr_cells;
 	u64 val, core_id;
 	size_t *boot_code_size = &(__secondary_boot_code_size);
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
+	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
 	int node;
 	u32 psci_ver;
 
@@ -105,6 +107,11 @@ remove_psci_node:
 
 	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
 			*boot_code_size);
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+	efi_add_memory_map((uintptr_t)&secondary_boot_code,
+			   ALIGN(*boot_code_size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE, false);
+#endif
 }
 #endif
 

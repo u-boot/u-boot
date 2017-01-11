@@ -2,8 +2,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-VERSION = 2016
-PATCHLEVEL = 11
+VERSION = 2017
+PATCHLEVEL = 01
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -527,6 +527,15 @@ endif
 endif
 endif
 
+# These are set by the arch-specific config.mk. Make sure they are exported
+# so they can be used when building an EFI application.
+export EFI_LDS		# Filename of EFI link script in arch/$(ARCH)/lib
+export EFI_CRT0		# Filename of EFI CRT0 in arch/$(ARCH)/lib
+export EFI_RELOC	# Filename of EFU relocation code in arch/$(ARCH)/lib
+export CFLAGS_EFI	# Compiler flags to add when building EFI app
+export CFLAGS_NON_EFI	# Compiler flags to remove when building EFI app
+export EFI_TARGET	# binutils target if EFI is natively supported
+
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
@@ -754,7 +763,11 @@ ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 endif
 endif
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
+ifeq ($(CONFIG_MX6)$(CONFIG_SECURE_BOOT), yy)
+ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+else
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
+endif
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
@@ -800,9 +813,11 @@ cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 quiet_cmd_efipayload = OBJCOPY $@
 cmd_efipayload = $(OBJCOPY) -I binary -O $(EFIPAYLOAD_BFDTARGET) -B $(EFIPAYLOAD_BFDARCH) $< $@
 
+MKIMAGEOUTPUT ?= /dev/null
+
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
+	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
 
 quiet_cmd_cat = CAT     $@
 cmd_cat = cat $(filter-out $(PHONY), $^) > $@
@@ -811,6 +826,8 @@ append = cat $(filter-out $< $(PHONY), $^) >> $@
 
 quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
+
+cfg: u-boot.cfg
 
 all:		$(ALL-y)
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
@@ -892,6 +909,12 @@ u-boot.ldr:	u-boot
 		$(LDR) -T $(CONFIG_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
+# binman
+# ---------------------------------------------------------------------------
+quiet_cmd_binman = BINMAN  $@
+cmd_binman = $(srctree)/tools/binman/binman -d u-boot.dtb -O . \
+		-I . -I $(srctree)/board/$(BOARDDIR) $<
+
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 
 OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
@@ -921,6 +944,11 @@ else
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
+MKIMAGEFLAGS_u-boot-ivt.img = -A $(ARCH) -T firmware_ivt -C none -O u-boot \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
+u-boot-ivt.img: MKIMAGEOUTPUT = u-boot-ivt.img.log
+CLEAN_FILES += u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log
 endif
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
@@ -934,7 +962,7 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
-u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl: \
+u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
 		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin dts/dt.dtb,u-boot.bin) FORCE
 	$(call if_changed,mkimage)
 
@@ -1036,49 +1064,10 @@ endif
 
 # x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
-# the middle.
+# the middle. This is handled by binman based on an image description in the
+# board's device tree.
 ifneq ($(CONFIG_X86_RESET_VECTOR),)
 rom: u-boot.rom FORCE
-
-IFDTOOL=$(objtree)/tools/ifdtool
-IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
-IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
-IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-nodtb.bin
-IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
-IFDTOOL_FLAGS += -C
-
-ifneq ($(CONFIG_HAVE_INTEL_ME),)
-IFDTOOL_ME_FLAGS  = -D $(srctree)/board/$(BOARDDIR)/descriptor.bin
-IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
-endif
-
-ifneq ($(CONFIG_HAVE_MRC),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
-endif
-
-ifneq ($(CONFIG_HAVE_FSP),)
-IFDTOOL_FLAGS += -w $(CONFIG_FSP_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_FSP_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_CMC),)
-IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_VGA_BIOS),)
-IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
-endif
-
-ifneq ($(CONFIG_HAVE_REFCODE),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_REFCODE_ADDR):refcode.bin
-endif
-
-quiet_cmd_ifdtool = IFDTOOL $@
-cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
-ifneq ($(CONFIG_HAVE_INTEL_ME),)
-cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_ME_FLAGS) u-boot.tmp;
-endif
-cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
-cmd_ifdtool += mv u-boot.tmp $@
 
 refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
 	$(call if_changed,copy)
@@ -1089,7 +1078,7 @@ cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 
 u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE \
 		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
-	$(call if_changed,ifdtool)
+	$(call if_changed,binman)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
 u-boot-x86-16bit.bin: u-boot FORCE
@@ -1097,10 +1086,8 @@ u-boot-x86-16bit.bin: u-boot FORCE
 endif
 
 ifneq ($(CONFIG_ARCH_SUNXI),)
-OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
-				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
-	$(call if_changed,pad_cat)
+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img u-boot.dtb FORCE
+	$(call if_changed,binman)
 endif
 
 ifneq ($(CONFIG_TEGRA),)
@@ -1131,7 +1118,7 @@ quiet_cmd_u-boot_payload ?= LD      $@
       cmd_u-boot_payload ?= $(LD) $(LDFLAGS_EFI_PAYLOAD) -o $@ \
       -T u-boot-payload.lds arch/x86/cpu/call32.o \
       lib/efi/efi.o lib/efi/efi_stub.o u-boot.bin.o \
-      $(addprefix arch/$(ARCH)/lib/efi/,$(EFISTUB))
+      $(addprefix arch/$(ARCH)/lib/,$(EFISTUB))
 
 u-boot-payload: u-boot.bin.o u-boot-payload.lds FORCE
 	$(call if_changed,u-boot_payload)
@@ -1518,6 +1505,7 @@ help:
 	@echo  '  cscope	  - Generate cscope index'
 	@echo  '  ubootrelease	  - Output the release version string (use with make -s)'
 	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
+	@echo  "  cfg		  - Don't build, just create the .cfg files"
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'

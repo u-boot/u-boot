@@ -8,7 +8,7 @@ ifdef CONFIG_SPL_BUILD
 obj-y	+= spl.o
 else
 obj-y   += t102xrdb.o
-obj-$(CONFIG_T1024RDB)   += cpld.o
+obj-$(CONFIG_TARGET_T1024RDB)   += cpld.o
 obj-y   += eth_t102xrdb.o
 obj-$(CONFIG_PCI)       += pci.o
 endif

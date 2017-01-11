@@ -12,7 +12,6 @@
 
 #define CONFIG_ZYNQ_SDHCI0
 #define CONFIG_ZYNQ_SDHCI1
-#define CONFIG_AHCI
 
 #include <configs/xilinx_zynqmp.h>
 

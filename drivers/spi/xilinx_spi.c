@@ -122,7 +122,7 @@ static int xilinx_spi_child_pre_probe(struct udevice *bus)
 				 -1);
 
 	if (spimode == XILINX_SPI_QUAD_MODE)
-		slave->op_mode_rx = SPI_OPM_RX_QOF;
+		slave->mode = SPI_RX_QUAD;
 
 	return 0;
 }

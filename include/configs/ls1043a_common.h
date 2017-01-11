@@ -52,8 +52,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xf0
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x500
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1d000
@@ -147,11 +145,8 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
-#define CONFIG_MENU
-#define CONFIG_CMD_PXE
 
 /*  MMC  */
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33

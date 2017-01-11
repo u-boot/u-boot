@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2015 Panasonic Corporation
+ * Copyright (C) 2016      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,7 +16,7 @@
 
 int memconf_init(const struct uniphier_board_data *bd)
 {
-	u32 tmp = 0;
+	u32 tmp;
 	unsigned long size_per_word;
 
 	tmp = readl(SG_MEMCONF);

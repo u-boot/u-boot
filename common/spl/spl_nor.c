@@ -71,4 +71,4 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_NOR, spl_nor_load_image);
+SPL_LOAD_IMAGE_METHOD("NOR", 0, BOOT_DEVICE_NOR, spl_nor_load_image);

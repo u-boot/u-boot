@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_T4240RDB
-
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 
@@ -25,7 +23,6 @@
 #else
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW                 /* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -63,9 +60,6 @@
 #define CONFIG_CMD_REGINFO
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
 
@@ -78,7 +72,7 @@
 #endif
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
@@ -86,8 +80,6 @@
 #define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -135,13 +127,11 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-/* CONFIG_NUM_DDR_CONTROLLERS is defined in include/asm/config_mpc85xx.h */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 #define CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 
 /*
  * IFC Definitions
@@ -708,8 +698,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
 
-#define CONFIG_MMC
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
@@ -734,7 +722,7 @@ unsigned long get_board_ddr_clk(void);
  * interleaving. It can be cacheline, page, bank, superbank.
  * See doc/README.fsl-ddr for details.
  */
-#ifdef CONFIG_PPC_T4240
+#ifdef CONFIG_ARCH_T4240
 #define CTRL_INTLV_PREFERED 3way_4KB
 #else
 #define CTRL_INTLV_PREFERED cacheline

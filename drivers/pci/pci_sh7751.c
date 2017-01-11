@@ -66,9 +66,6 @@
 #define SH7751_PCI_IO_BASE		0xFE240000
 #define SH7751_PCI_IO_SIZE		0x00040000
 
-#define SH7751_CS3_BASE_ADDR    0x0C000000
-#define SH7751_P2CS3_BASE_ADDR  0xAC000000
-
 #define SH7751_PCIPAR   (vu_long *)0xFE2001C0
 #define SH7751_PCIPDR   (vu_long *)0xFE200220
 
@@ -153,18 +150,19 @@ int pci_sh7751_init(struct pci_controller *hose)
 
 	/* Set up target memory mappings (for external DMA access) */
 	/* Map both P0 and P2 range to Area 3 RAM for ease of use */
-	p4_out((64 - 1) << 20, SH7751_PCILSR0);
-	p4_out(SH7751_CS3_BASE_ADDR, SH7751_PCILAR0);
+	p4_out(CONFIG_SYS_SDRAM_SIZE - 0x100000, SH7751_PCILSR0);
+	p4_out(CONFIG_SYS_SDRAM_BASE & 0x1FF00000, SH7751_PCILAR0);
+	p4_out(CONFIG_SYS_SDRAM_BASE & 0xFFF00000, SH7751_PCICONF5);
+
 	p4_out(0, SH7751_PCILSR1);
 	p4_out(0, SH7751_PCILAR1);
-	p4_out(SH7751_CS3_BASE_ADDR, SH7751_PCICONF5);
 	p4_out(0xd0000000, SH7751_PCICONF6);
 
 	/* Map memory window to same address on PCI bus */
 	p4_out(SH7751_PCI_MEM_BASE, SH7751_PCIMBR);
 
 	/* Map IO window to same address on PCI bus */
-	p4_out(0x2000 & 0xfffc0000, SH7751_PCIIOBR);
+	p4_out(SH7751_PCI_IO_BASE, SH7751_PCIIOBR);
 
 	/* set BREQEN */
 	p4_out(inl(SH7751_BCR1) | 0x00080000, SH7751_BCR1);

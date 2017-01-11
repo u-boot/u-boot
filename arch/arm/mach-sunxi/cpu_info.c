@@ -99,10 +99,54 @@ int print_cpuinfo(void)
 }
 #endif
 
+#ifdef CONFIG_MACH_SUN8I_H3
+
+#define SIDC_PRCTL 0x40
+#define SIDC_RDKEY 0x60
+
+#define SIDC_OP_LOCK 0xAC
+
+uint32_t sun8i_efuse_read(uint32_t offset)
+{
+	uint32_t reg_val;
+
+	reg_val = readl(SUNXI_SIDC_BASE + SIDC_PRCTL);
+	reg_val &= ~(((0x1ff) << 16) | 0x3);
+	reg_val |= (offset << 16);
+	writel(reg_val, SUNXI_SIDC_BASE + SIDC_PRCTL);
+
+	reg_val &= ~(((0xff) << 8) | 0x3);
+	reg_val |= (SIDC_OP_LOCK << 8) | 0x2;
+	writel(reg_val, SUNXI_SIDC_BASE + SIDC_PRCTL);
+
+	while (readl(SUNXI_SIDC_BASE + SIDC_PRCTL) & 0x2);
+
+	reg_val &= ~(((0x1ff) << 16) | ((0xff) << 8) | 0x3);
+	writel(reg_val, SUNXI_SIDC_BASE + SIDC_PRCTL);
+
+	reg_val = readl(SUNXI_SIDC_BASE + SIDC_RDKEY);
+	return reg_val;
+}
+#endif
+
 int sunxi_get_sid(unsigned int *sid)
 {
 #ifdef CONFIG_AXP221_POWER
 	return axp_get_sid(sid);
+#elif defined CONFIG_MACH_SUN8I_H3
+	/*
+	 * H3 SID controller has a bug, which makes the initial value of
+	 * SUNXI_SID_BASE at boot wrong.
+	 * Read the value directly from SID controller, in order to get
+	 * the correct value, and also refresh the wrong value at
+	 * SUNXI_SID_BASE.
+	 */
+	int i;
+
+	for (i = 0; i< 4; i++)
+		sid[i] = sun8i_efuse_read(i * 4);
+
+	return 0;
 #elif defined SUNXI_SID_BASE
 	int i;
 

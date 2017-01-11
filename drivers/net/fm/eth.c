@@ -45,9 +45,12 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 
 qsgmii_loop:
 	/* SGMII IF mode + AN enable only for 1G SGMII, not for 2.5G */
-	value = PHY_SGMII_IF_MODE_SGMII;
-	if (!sgmii_2500)
-		value |= PHY_SGMII_IF_MODE_AN;
+	if (sgmii_2500)
+		value = PHY_SGMII_CR_PHY_RESET |
+			PHY_SGMII_IF_SPEED_GIGABIT |
+			PHY_SGMII_IF_MODE_SGMII;
+	else
+		value = PHY_SGMII_IF_MODE_SGMII | PHY_SGMII_IF_MODE_AN;
 
 	memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x14, value);
 
@@ -55,15 +58,24 @@ qsgmii_loop:
 	value = PHY_SGMII_DEV_ABILITY_SGMII;
 	memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x4, value);
 
-	/* Adjust link timer for SGMII  -
-	1.6 ms in units of 8 ns = 2 * 10^5 = 0x30d40 */
-	memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x13, 0x3);
-	memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x12, 0xd40);
+	if (sgmii_2500) {
+		/* Adjust link timer for 2.5G SGMII,
+		 * 1.6 ms in units of 3.2 ns:
+		 * 1.6ms / 3.2ns = 5 * 10^5 = 0x7a120.
+		 */
+		memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x13, 0x0007);
+		memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x12, 0xa120);
+	} else {
+		/* Adjust link timer for SGMII,
+		 * 1.6 ms in units of 8 ns:
+		 * 1.6ms / 8ns = 2 * 10^5 = 0x30d40.
+		 */
+		memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x13, 0x0003);
+		memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0x12, 0x0d40);
+	}
 
 	/* Restart AN */
-	value = PHY_SGMII_CR_DEF_VAL;
-	if (!sgmii_2500)
-		value |= PHY_SGMII_CR_RESET_AN;
+	value = PHY_SGMII_CR_DEF_VAL | PHY_SGMII_CR_RESET_AN;
 	memac_mdio_write(&bus, i, MDIO_DEVAD_NONE, 0, value);
 
 	if ((priv->enet_if == PHY_INTERFACE_MODE_QSGMII) && (i < 3)) {
@@ -391,6 +403,7 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 
 	/* For some reason we need to set SPEED_100 */
 	if (((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) ||
+	     (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500) ||
 	     (fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII)) &&
 	      mac->set_if_mode)
 		mac->set_if_mode(mac, fm_eth->enet_if, SPEED_100);

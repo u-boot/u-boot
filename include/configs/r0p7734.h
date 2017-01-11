@@ -9,7 +9,6 @@
 #ifndef __R0P7734_H
 #define __R0P7734_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7734	1
 #define CONFIG_R0P7734		1
 #define CONFIG_400MHZ_MODE	1
@@ -24,6 +23,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC3,115200"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* Ether */

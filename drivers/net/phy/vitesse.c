@@ -30,9 +30,8 @@
 #define MIIM_CIS8204_SLEDCON_INIT	0x1115
 
 /* Vitesse VSC8601 Extended PHY Control Register 1 */
-#define MIIM_VSC8601_EPHY_CON		0x17
-#define MIIM_VSC8601_EPHY_CON_INIT_SKEW	0x1120
-#define MIIM_VSC8601_SKEW_CTRL		0x1c
+#define MII_VSC8601_EPHY_CTL		0x17
+#define MII_VSC8601_EPHY_CTL_RGMII_SKEW	(1 << 8)
 
 #define PHY_EXT_PAGE_ACCESS    0x1f
 #define PHY_EXT_PAGE_ACCESS_GENERAL	0x10
@@ -142,26 +141,32 @@ static int cis8204_config(struct phy_device *phydev)
 }
 
 /* Vitesse VSC8601 */
+/* This adds a skew for both TX and RX clocks, so the skew should only be
+ * applied to "rgmii-id" interfaces. It may not work as expected
+ * on "rgmii-txid", "rgmii-rxid" or "rgmii" interfaces. */
+static int vsc8601_add_skew(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = phy_read(phydev, MDIO_DEVAD_NONE, MII_VSC8601_EPHY_CTL);
+	if (ret < 0)
+		return ret;
+
+	ret |= MII_VSC8601_EPHY_CTL_RGMII_SKEW;
+	return phy_write(phydev, MDIO_DEVAD_NONE, MII_VSC8601_EPHY_CTL, ret);
+}
+
 static int vsc8601_config(struct phy_device *phydev)
 {
-	/* Configure some basic stuff */
-#ifdef CONFIG_SYS_VSC8601_SKEWFIX
-	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8601_EPHY_CON,
-			MIIM_VSC8601_EPHY_CON_INIT_SKEW);
-#if defined(CONFIG_SYS_VSC8601_SKEW_TX) && defined(CONFIG_SYS_VSC8601_SKEW_RX)
-	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 1);
-#define VSC8101_SKEW \
-	((CONFIG_SYS_VSC8601_SKEW_TX << 14) \
-	| (CONFIG_SYS_VSC8601_SKEW_RX << 12))
-	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8601_SKEW_CTRL,
-			VSC8101_SKEW);
-	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
-#endif
-#endif
+	int ret = 0;
 
-	genphy_config_aneg(phydev);
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
+		ret = vsc8601_add_skew(phydev);
 
-	return 0;
+	if (ret < 0)
+		return ret;
+
+	return genphy_config_aneg(phydev);
 }
 
 static int vsc8574_config(struct phy_device *phydev)

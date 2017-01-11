@@ -12,6 +12,9 @@ Optional properties:
 - gpio: GPIO to use for enable control
 - startup-delay-us: startup time in microseconds
 - regulator constraints (binding info: regulator.txt)
+- enable-active-high: Polarity of GPIO is Active high. If this property
+  is missing, the default assumed is Active low.
+
 
 Other kernel-style properties, are currently not used.
 
@@ -36,4 +39,5 @@ fixed_regulator@0 {
 	regulator-max-microamp = <15000>;
 	regulator-always-on;
 	regulator-boot-on;
+	enable-active-high;
 };

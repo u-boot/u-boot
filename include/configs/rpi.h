@@ -16,7 +16,6 @@
 
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Use SoC timer for AArch32, but architected timer for AArch64 */
 #ifndef CONFIG_ARM64
@@ -72,7 +71,7 @@
 #define CONFIG_BCM2835_GPIO
 /* LCD */
 #define CONFIG_LCD_DT_SIMPLEFB
-#define LCD_BPP				LCD_COLOR16
+#define LCD_BPP				LCD_COLOR32
 /*
  * Prevent allocation of RAM for FB; the real FB address is queried
  * dynamically from the VideoCore co-processor, and comes from RAM
@@ -84,10 +83,6 @@
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
-#define CONFIG_SDHCI
-#define CONFIG_MMC_SDHCI_IO_ACCESSORS
-#define CONFIG_BCM2835_SDHCI
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2

@@ -25,8 +25,6 @@
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
 
-#define CONFIG_OMAP_COMMON
-
 #define MACH_TYPE_CM_T335		4586	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_CM_T335
 
@@ -104,7 +102,7 @@
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
 
 /* SPL */
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 /* Network. */
 #define CONFIG_PHY_GIGE

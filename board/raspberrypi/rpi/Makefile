@@ -5,3 +5,4 @@
 #
 
 obj-y	:= rpi.o
+obj-y	+= lowlevel_init.o

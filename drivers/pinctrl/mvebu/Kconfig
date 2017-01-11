@@ -1,0 +1,7 @@
+config PINCTRL_MVEBU
+	depends on ARCH_MVEBU
+	bool
+	default y
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Marvell's Armada-8K SoC.

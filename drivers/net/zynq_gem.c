@@ -665,9 +665,8 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->read = zynq_gem_miiphy_read;
 	priv->bus->write = zynq_gem_miiphy_write;
 	priv->bus->priv = priv;
-	strcpy(priv->bus->name, "gem");
 
-	ret = mdio_register(priv->bus);
+	ret = mdio_register_seq(priv->bus, dev->seq);
 	if (ret)
 		return ret;
 
@@ -724,7 +723,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
 
-	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
+	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
 
 	return 0;

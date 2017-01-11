@@ -45,11 +45,15 @@ void i2c_init_board(void)
 
 int power_init_board(void)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	/*
 	 * For PMIC the I2C bus is named as I2C5, but it is connected
 	 * to logical I2C adapter 0
 	 */
 	return pmic_init(I2C_0);
+#else
+	return 0;
+#endif
 }
 
 int dram_init(void)
@@ -142,6 +146,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_USB_GADGET
 static int s5pc1xx_phy_control(int on)
 {
+#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 	int ret;
 	static int status;
 	struct pmic *p = pmic_get("MAX8998_PMIC");
@@ -173,7 +178,7 @@ static int s5pc1xx_phy_control(int on)
 		status = 0;
 	}
 	udelay(10000);
-
+#endif
 	return 0;
 }
 

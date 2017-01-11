@@ -28,8 +28,9 @@ config PSCI_RESET
 		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
 		   !TARGET_LS2080ARDB && !TARGET_LS1012AQDS && \
 		   !TARGET_LS1012ARDB && !TARGET_LS1012AFRDM && \
-		   !TARGET_LS1043ARDB && !ARCH_UNIPHIER && !ARCH_SNAPDRAGON && \
-		   !TARGET_S32V234EVB
+		   !TARGET_LS1043ARDB && !TARGET_LS1043AQDS && \
+		   !TARGET_LS1046ARDB && !TARGET_LS1046AQDS && \
+		   !ARCH_UNIPHIER && !ARCH_SNAPDRAGON && !TARGET_S32V234EVB
 	help
 	  Most armv8 systems have PSCI support enabled in EL3, either through
 	  ARM Trusted Firmware or other firmware.
@@ -38,5 +39,46 @@ config PSCI_RESET
 	  but can instead rely on higher level firmware to deal with it.
 
 	  Select Y here to make use of PSCI calls for system reset
+
+config ARMV8_PSCI
+	bool "Enable PSCI support" if EXPERT
+	default n
+	help
+	  PSCI is Power State Coordination Interface defined by ARM.
+	  The PSCI in U-boot provides a general framework and each platform
+	  can implement their own specific PSCI functions.
+	  Say Y here to enable PSCI support on ARMv8 platform.
+
+config ARMV8_PSCI_NR_CPUS
+	int "Maximum supported CPUs for PSCI"
+	depends on ARMV8_PSCI
+	default 4
+	help
+	  The maximum number of CPUs supported in the PSCI firmware.
+	  It is no problem to set a larger value than the number of CPUs in
+	  the actual hardware implementation.
+
+config ARMV8_PSCI_CPUS_PER_CLUSTER
+	int "Number of CPUs per cluster"
+	depends on ARMV8_PSCI
+	default 0
+	help
+	  The number of CPUs per cluster, suppose each cluster has same number
+	  of CPU cores, platforms with asymmetric clusters don't apply here.
+	  A value 0 or no definition of it works for single cluster system.
+	  System with multi-cluster should difine their own exact value.
+
+if SYS_HAS_ARMV8_SECURE_BASE
+
+config ARMV8_SECURE_BASE
+	hex "Secure address for PSCI image"
+	depends on ARMV8_PSCI
+	help
+	  Address for placing the PSCI text, data and stack sections.
+	  If not defined, the PSCI sections are placed together with the u-boot
+	  but platform can choose to place PSCI code image separately in other
+	  places such as some secure RAM built-in SOC etc.
+
+endif
 
 endif

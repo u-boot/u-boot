@@ -44,17 +44,17 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 		break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 	case 1:
 		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
 		break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
 	case 2:
 		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
 		break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)
 	case 3:
 		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
 		break;
@@ -174,9 +174,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			out_be32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
-#ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
-	out_be32(&ddr->debug[28], 0x30003000);
-#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003474
 	out_be32(&ddr->debug[12], 0x00000015);

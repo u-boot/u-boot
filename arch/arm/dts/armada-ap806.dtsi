@@ -140,6 +140,24 @@
 				marvell,spi-base = <128>, <136>, <144>, <152>;
 			};
 
+			ap_pinctl: ap-pinctl@6F4000 {
+				compatible = "marvell,armada-ap806-pinctrl";
+				bank-name ="apn-806";
+				reg = <0x6F4000 0x10>;
+				pin-count = <20>;
+				max-func = <3>;
+
+				ap_i2c0_pins: i2c-pins-0 {
+					marvell,pins = < 4 5 >;
+					marvell,function = <3>;
+				};
+				ap_emmc_pins: emmc-pins-0 {
+					marvell,pins = < 0 1 2 3 4 5 6 7
+							 8 9 10 >;
+					marvell,function = <1>;
+				};
+			};
+
 			xor@400000 {
 				compatible = "marvell,mv-xor-v2";
 				reg = <0x400000 0x1000>,

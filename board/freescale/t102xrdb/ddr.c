@@ -136,9 +136,13 @@ found:
 	popts->data_bus_width = DDR_DATA_BUS_WIDTH_32;
 #endif
 
-#ifdef CONFIG_T1023RDB
+#ifdef CONFIG_TARGET_T1023RDB
 	popts->wrlvl_ctl_2 = 0x07070606;
 	popts->half_strength_driver_enable = 1;
+	popts->cpo_sample = 0x43;
+#elif defined(CONFIG_TARGET_T1024RDB)
+	/* optimize cpo for erratum A-009942 */
+	popts->cpo_sample = 0x52;
 #endif
 }
 

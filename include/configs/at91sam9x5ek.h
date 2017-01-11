@@ -111,7 +111,6 @@
 
 /* MMC */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
@@ -236,8 +235,6 @@
 
 #ifdef CONFIG_SYS_USE_MMC
 #define CONFIG_SPL_LDSCRIPT		arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x400
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x200
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 

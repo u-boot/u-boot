@@ -12,11 +12,6 @@
 
 #include "../soc-info.h"
 
-void spl_board_announce_boot_device(void)
-{
-	printf("eMMC");
-}
-
 struct uniphier_romfunc_table {
 	void *mmc_send_cmd;
 	void *mmc_card_blockaddr;
@@ -127,4 +122,4 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("eMMC", 0, BOOT_DEVICE_BOARD, spl_board_load_image);

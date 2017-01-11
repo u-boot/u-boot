@@ -1077,7 +1077,7 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 	 * if CONFIG_SYS_FSL_DDR_INTLV_256B is defined, mandatory interleaving
 	 * with 256 Byte is enabled.
 	 */
-#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 	if (!hwconfig_sub_f("fsl_ddr", "ctlr_intlv", buf))
 #ifdef CONFIG_SYS_FSL_DDR_INTLV_256B
 		;
@@ -1107,39 +1107,39 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 					"ctlr_intlv",
 					"cacheline", buf)) {
 		popts->memctl_interleaving_mode =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : FSL_DDR_CACHE_LINE_INTERLEAVING;
 		popts->memctl_interleaving =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : 1;
 	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
 					"ctlr_intlv",
 					"page", buf)) {
 		popts->memctl_interleaving_mode =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : FSL_DDR_PAGE_INTERLEAVING;
 		popts->memctl_interleaving =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : 1;
 	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
 					"ctlr_intlv",
 					"bank", buf)) {
 		popts->memctl_interleaving_mode =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : FSL_DDR_BANK_INTERLEAVING;
 		popts->memctl_interleaving =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : 1;
 	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
 					"ctlr_intlv",
 					"superbank", buf)) {
 		popts->memctl_interleaving_mode =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : FSL_DDR_SUPERBANK_INTERLEAVING;
 		popts->memctl_interleaving =
-			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			((CONFIG_SYS_NUM_DDR_CTLRS == 3) && ctrl_num == 2) ?
 			0 : 1;
-#if (CONFIG_NUM_DDR_CONTROLLERS == 3)
+#if (CONFIG_SYS_NUM_DDR_CTLRS == 3)
 	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
 					"ctlr_intlv",
 					"3way_1KB", buf)) {
@@ -1155,7 +1155,7 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 					"3way_8KB", buf)) {
 		popts->memctl_interleaving_mode =
 			FSL_DDR_3WAY_8KB_INTERLEAVING;
-#elif (CONFIG_NUM_DDR_CONTROLLERS == 4)
+#elif (CONFIG_SYS_NUM_DDR_CTLRS == 4)
 	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
 					"ctlr_intlv",
 					"4way_1KB", buf)) {
@@ -1178,7 +1178,7 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 	}
 #endif	/* CONFIG_SYS_FSL_DDR_INTLV_256B */
 done:
-#endif /* CONFIG_NUM_DDR_CONTROLLERS > 1 */
+#endif /* CONFIG_SYS_NUM_DDR_CTLRS > 1 */
 	if ((hwconfig_sub_f("fsl_ddr", "bank_intlv", buf)) &&
 		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
 		/* test null first. if CONFIG_HWCONFIG is not defined,
@@ -1356,10 +1356,10 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 		case FSL_DDR_PAGE_INTERLEAVING:
 		case FSL_DDR_BANK_INTERLEAVING:
 		case FSL_DDR_SUPERBANK_INTERLEAVING:
-#if (3 == CONFIG_NUM_DDR_CONTROLLERS)
+#if (3 == CONFIG_SYS_NUM_DDR_CTLRS)
 				k = 2;
 #else
-				k = CONFIG_NUM_DDR_CONTROLLERS;
+				k = CONFIG_SYS_NUM_DDR_CTLRS;
 #endif
 			break;
 		case FSL_DDR_3WAY_1KB_INTERLEAVING:
@@ -1369,7 +1369,7 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 		case FSL_DDR_4WAY_4KB_INTERLEAVING:
 		case FSL_DDR_4WAY_8KB_INTERLEAVING:
 		default:
-			k = CONFIG_NUM_DDR_CONTROLLERS;
+			k = CONFIG_SYS_NUM_DDR_CTLRS;
 			break;
 		}
 		debug("%d of %d controllers are interleaving.\n", j, k);

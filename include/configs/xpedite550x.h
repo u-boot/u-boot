@@ -14,9 +14,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_BOOKE		1	/* BOOKE */
-#define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_P2020		1
 #define CONFIG_XPEDITE550X	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5500"
 #define CONFIG_SYS_FORM_PMC_XMC	1
@@ -33,7 +30,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_FSL_ELBC		1
 
 /*
@@ -46,13 +42,11 @@
 /*
  * DDR config
  */
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS			0x54
 #define SPD_EEPROM_OFFSET		0x200	/* OFFSET of SPD in EEPROM */
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL 2
 #define CONFIG_DDR_ECC

@@ -1,0 +1,17 @@
+/*
+ * Topic Miami Plus board DTS
+ *
+ * Copyright (C) 2016 Topic Embedded Products
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+#include "zynq-topic-miami.dts"
+
+/ {
+	model = "Topic Miami+ Zynq Board";
+	compatible = "topic,miamiplus", "xlnx,zynq-7000";
+};
+
+&qspi {
+	is-dual = <1>;
+};

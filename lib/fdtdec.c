@@ -1197,6 +1197,7 @@ int fdtdec_setup_memory_size(void)
 	return 0;
 }
 
+#if defined(CONFIG_NR_DRAM_BANKS)
 int fdtdec_setup_memory_banksize(void)
 {
 	int bank, ret, mem;
@@ -1227,6 +1228,7 @@ int fdtdec_setup_memory_banksize(void)
 
 	return 0;
 }
+#endif
 
 int fdtdec_setup(void)
 {

@@ -33,9 +33,9 @@
 #define rb_pin_pu_tx			BIT(18)
 #define rb_pin_tx_idle			BIT(19)
 #define rf_gen_rx_sel_shift		22
-#define rf_gen_rx_select		(0xFF << rf_gen_rx_sel_shift)
+#define rf_gen_rx_select		(0x0F << rf_gen_rx_sel_shift)
 #define rf_gen_tx_sel_shift		26
-#define rf_gen_tx_select		(0xFF << rf_gen_tx_sel_shift)
+#define rf_gen_tx_select		(0x0F << rf_gen_tx_sel_shift)
 #define rb_phy_rx_init			BIT(30)
 
 #define COMPHY_PHY_STAT1_ADDR(lane)	MVEBU_REG(0x018318 + (lane) * 0x28)

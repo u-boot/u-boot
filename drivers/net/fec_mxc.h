@@ -14,21 +14,14 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
 #ifndef __FEC_MXC_H
 #define __FEC_MXC_H
 
-void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
-
-/**
- * Layout description of the FEC
- */
+/* Layout description of the FEC */
 struct ethernet_regs {
+	/* [10:2]addr = 00 */
 
-/* [10:2]addr = 00 */
-
-/*  Control and status Registers (offset 000-1FF) */
-
+	/*  Control and status Registers (offset 000-1FF) */
 	uint32_t res0[1];		/* MBAR_ETH + 0x000 */
 	uint32_t ievent;		/* MBAR_ETH + 0x004 */
 	uint32_t imask;			/* MBAR_ETH + 0x008 */
@@ -71,8 +64,7 @@ struct ethernet_regs {
 	uint32_t emrbr;			/* MBAR_ETH + 0x188 */
 	uint32_t res12[29];		/* MBAR_ETH + 0x18C-1FC */
 
-/*  MIB COUNTERS (Offset 200-2FF) */
-
+	/*  MIB COUNTERS (Offset 200-2FF) */
 	uint32_t rmon_t_drop;		/* MBAR_ETH + 0x200 */
 	uint32_t rmon_t_packets;	/* MBAR_ETH + 0x204 */
 	uint32_t rmon_t_bc_pkt;		/* MBAR_ETH + 0x208 */
@@ -174,7 +166,6 @@ struct ethernet_regs {
 #define FEC_IMASKT_RL			0x00100000
 #define FEC_IMASK_UN			0x00080000
 
-
 #define FEC_RCNTRL_MAX_FL_SHIFT		16
 #define FEC_RCNTRL_LOOP			0x00000001
 #define FEC_RCNTRL_DRT			0x00000002
@@ -233,9 +224,7 @@ struct fec_bd {
 	uint32_t data_pointer;		/* payload's buffer address */
 };
 
-/**
- * Supported phy types on this platform
- */
+/* Supported phy types on this platform */
 enum xceiver_type {
 	SEVENWIRE,	/* 7-wire       */
 	MII10,		/* MII 10Mbps   */
@@ -244,9 +233,7 @@ enum xceiver_type {
 	RGMII,		/* RGMII */
 };
 
-/**
- * @brief i.MX27-FEC private structure
- */
+/* @brief i.MX27-FEC private structure */
 struct fec_priv {
 	struct ethernet_regs *eth;	/* pointer to register'S base */
 	enum xceiver_type xcv_type;	/* transceiver type */
@@ -264,7 +251,13 @@ struct fec_priv {
 	int phy_id;
 	int (*mii_postcall)(int);
 #endif
+
+#ifdef CONFIG_DM_ETH
+	u32 interface;
+#endif
 };
+
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
 /**
  * @brief Numbers of buffer descriptors for receiving

@@ -729,6 +729,31 @@ static int do_mmc_setdsr(cmd_tbl_t *cmdtp, int flag,
 	return ret;
 }
 
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+static int do_mmc_bkops_enable(cmd_tbl_t *cmdtp, int flag,
+				   int argc, char * const argv[])
+{
+	int dev;
+	struct mmc *mmc;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	dev = simple_strtoul(argv[1], NULL, 10);
+
+	mmc = init_mmc_device(dev, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
+	if (IS_SD(mmc)) {
+		puts("BKOPS_EN only exists on eMMC\n");
+		return CMD_RET_FAILURE;
+	}
+
+	return mmc_set_bkops_enable(mmc);
+}
+#endif
+
 static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
@@ -749,6 +774,9 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(rpmb, CONFIG_SYS_MAXARGS, 1, do_mmcrpmb, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(setdsr, 2, 0, do_mmc_setdsr, "", ""),
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+	U_BOOT_CMD_MKENT(bkops-enable, 2, 0, do_mmc_bkops_enable, "", ""),
+#endif
 };
 
 static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -813,6 +841,10 @@ U_BOOT_CMD(
 	"mmc rpmb counter - read the value of the write counter\n"
 #endif
 	"mmc setdsr <value> - set DSR register value\n"
+#ifdef CONFIG_CMD_BKOPS_ENABLE
+	"mmc bkops-enable <dev> - enable background operations handshake on device\n"
+	"   WARNING: This is a write-once setting.\n"
+#endif
 	);
 
 /* Old command kept for compatibility. Same as 'mmc info' */

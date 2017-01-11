@@ -16,7 +16,7 @@
 struct bcm2835_wdog_regs {
 	u32 unknown0[7];
 	u32 rstc;
-	u32 unknown1;
+	u32 rsts;
 	u32 wdog;
 };
 

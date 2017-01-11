@@ -25,7 +25,6 @@
 #include "rndis.h"
 
 #include <dm.h>
-#include <dm/lists.h>
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
@@ -81,7 +80,6 @@ unsigned packet_received, packet_sent;
 /* Based on linux 2.6.27 version */
 #define DRIVER_VERSION		"May Day 2005"
 
-static const char shortname[] = "ether";
 static const char driver_desc[] = DRIVER_DESC;
 
 #define RX_EXTRA	20		/* guard against rx overflows */
@@ -148,11 +146,7 @@ struct eth_dev {
 /*-------------------------------------------------------------------------*/
 struct ether_priv {
 	struct eth_dev ethdev;
-#ifndef CONFIG_DM_ETH
 	struct eth_device netdev;
-#else
-	struct udevice *netdev;
-#endif
 	struct usb_gadget_driver eth_driver;
 };
 
@@ -2204,11 +2198,7 @@ autoconf_fail:
 
 
 	/* network device setup */
-#ifndef CONFIG_DM_ETH
 	dev->net = &l_priv->netdev;
-#else
-	dev->net = l_priv->netdev;
-#endif
 
 	dev->cdc = cdc;
 	dev->zlp = zlp;
@@ -2545,12 +2535,13 @@ void _usb_eth_halt(struct ether_priv *priv)
 	}
 
 	usb_gadget_unregister_driver(&priv->eth_driver);
-#ifndef CONFIG_DM_USB
+#ifdef CONFIG_DM_USB
+	device_remove(dev->usb_udev);
+#else
 	board_usb_cleanup(0, USB_INIT_DEVICE);
 #endif
 }
 
-#ifndef CONFIG_DM_ETH
 static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct ether_priv *priv = (struct ether_priv *)netdev->priv;

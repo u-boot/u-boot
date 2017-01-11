@@ -12,7 +12,6 @@
 
 #if defined(CONFIG_TWR_P1025)
 #define CONFIG_BOARDNAME "TWR-P1025"
-#define CONFIG_P1025
 #define CONFIG_PHY_ATHEROS
 #define CONFIG_QE
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Conversion of LBC addr */
@@ -39,10 +38,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-/* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500
-
 #define CONFIG_MP
 
 #define CONFIG_FSL_ELBC
@@ -53,7 +48,6 @@
 #define CONFIG_FSL_PCIE_RESET	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 
-#define CONFIG_FSL_LAW
 #define CONFIG_TSEC_ENET	/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
@@ -87,7 +81,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_512M
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
@@ -96,7 +89,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 /* Default settings for DDR3 */
@@ -413,8 +405,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_USB_EHCI_FSL
 #endif
 #endif
-
-#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC

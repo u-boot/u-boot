@@ -35,8 +35,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS       6       /* 64 byte pages */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS   10      /* take up to 10 msec */
 
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200
-
 #define CONFIG_PHY_NATSEMI
 
 #define CONFIG_FACTORYSET

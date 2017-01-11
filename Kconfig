@@ -55,11 +55,13 @@ config CC_OPTIMIZE_FOR_SIZE
 
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
-	default y if ARCH_SUNXI
+	default y if ARCH_SUNXI || TEGRA
+	default y if ARCH_LS2080A
 	default n
 	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
 	select CMD_DHCP
+	select CMD_PXE
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
@@ -291,42 +293,14 @@ config FIT_IMAGE_POST_PROCESS
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
 
-config SPL_DFU_SUPPORT
-	bool "Enable SPL with DFU to load binaries to memory device"
-	depends on USB
-	help
-	  Currently the SPL does not have capability to load the
-	  binaries or boot images to boot devices like ram,eMMC,SPI,etc.
-	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
-	  RAM memory device support. The ROM code will load and execute
-	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
-	  selected device partition from host-pc using dfu-utils.
-		This feature will be useful to flash the binaries to factory
-	  or bare-metal boards using USB interface.
-
-choice
-	bool "DFU device selection"
-	depends on SPL_DFU_SUPPORT
-
-config SPL_DFU_RAM
-	bool "RAM device"
-	depends on SPL_DFU_SUPPORT
-	help
-	 select RAM/DDR memory device for loading binary images
-	 (u-boot/kernel) to the selected device partition using
-	 DFU and execute the u-boot/kernel from RAM.
-
-endchoice
-
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI
 	int "CPU clock frequency"
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
-config ARCH_FIXUP_FDT
-	bool "Enable arch_fixup_fdt() call"
-	depends on ARM || MIPS
+config ARCH_FIXUP_FDT_MEMORY
+	bool "Enable arch_fixup_memory_banks() call"
 	default y
 	help
 	  Enable FDT memory map syncup before OS boot. This feature can be

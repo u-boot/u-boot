@@ -109,7 +109,6 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)
 			size += res;
 	} else {
-		spl_parse_image_header(spl_image, (struct image_header *)buf);
 		ret = spl_parse_image_header(spl_image,
 					     (struct image_header *)buf);
 		if (ret)
@@ -133,4 +132,4 @@ end_stream:
 	printf("Loaded %d bytes\n", size);
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_UART, spl_ymodem_load_image);
+SPL_LOAD_IMAGE_METHOD("UART", 0, BOOT_DEVICE_UART, spl_ymodem_load_image);

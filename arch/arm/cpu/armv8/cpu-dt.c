@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/psci.h>
+#include <asm/system.h>
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
 #endif
@@ -13,7 +14,8 @@
 int psci_update_dt(void *fdt)
 {
 #ifdef CONFIG_MP
-#if defined(CONFIG_ARMV8_PSCI)
+#if defined(CONFIG_ARMV8_PSCI) || defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 	/*
 	 * If the PSCI in SEC Firmware didn't work, avoid to update the
@@ -25,6 +27,13 @@ int psci_update_dt(void *fdt)
 		return 0;
 #endif
 	fdt_psci(fdt);
+
+#if defined(CONFIG_ARMV8_PSCI) && !defined(CONFIG_ARMV8_SECURE_BASE)
+	/* secure code lives in RAM, keep it alive */
+	fdt_add_mem_rsv(fdt, (unsigned long)__secure_start,
+			__secure_end - __secure_start);
+#endif
+
 #endif
 #endif
 	return 0;

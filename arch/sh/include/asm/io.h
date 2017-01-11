@@ -68,22 +68,12 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
 #define __raw_base_readl(base, off)	__arch_base_getl(base, off)
 
 /*
- * Now, pick up the machine-defined IO definitions
- */
-#if 0	/* XXX###XXX */
-#include <asm/arch/io.h>
-#endif	/* XXX###XXX */
-
-/*
  *  IO port access primitives
  *  -------------------------
  *
  * The SH doesn't have special IO access instructions; all IO is memory
  * mapped.  Note that these are defined to perform little endian accesses
  * only.  Their primary purpose is to access PCI and ISA peripherals.
- *
- * The machine specific io.h include defines __io to translate an "IO"
- * address to a memory address.
  *
  * Note that we prevent GCC re-ordering or caching values in expressions
  * by introducing sequence points into the in*() definitions.  Note that

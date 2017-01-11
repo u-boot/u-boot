@@ -40,17 +40,17 @@ void early_delay(int delay)
 		;
 }
 
+#if defined(CONFIG_MX23)
 #define	MUX_CONFIG_BOOTMODE_PAD	(MXS_PAD_3V3 | MXS_PAD_4MA | MXS_PAD_NOPULL)
 static const iomux_cfg_t iomux_boot[] = {
-#if defined(CONFIG_MX23)
 	MX23_PAD_LCD_D00__GPIO_1_0 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D01__GPIO_1_1 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D02__GPIO_1_2 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D03__GPIO_1_3 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D04__GPIO_1_4 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
-#endif
 };
+#endif
 
 static uint8_t mxs_get_bootmode_index(void)
 {

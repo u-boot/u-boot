@@ -343,7 +343,7 @@ static int display_init(struct udevice *dev, void *lcdbase,
 
 	/*
 	 * Before we probe the display device (eDP), tell it that this device
-	 * is are the source of the display data.
+	 * is the source of the display data.
 	 */
 	ret = uclass_find_first_device(UCLASS_DISPLAY, &dp_dev);
 	if (ret) {

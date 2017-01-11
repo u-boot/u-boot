@@ -37,6 +37,11 @@ void arch_lmb_reserve(struct lmb *lmb)
 	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
 }
 
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
 static int cleanup_before_linux(void)
 {
 	disable_interrupts();

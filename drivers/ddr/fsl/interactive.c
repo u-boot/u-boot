@@ -763,7 +763,7 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 	debug("fsl_ddr_regs_edit: ctrl_num = %u, "
 		"regname = %s, value = %s\n",
 		ctrl_num, regname, value_str);
-	if (ctrl_num > CONFIG_NUM_DDR_CONTROLLERS)
+	if (ctrl_num > CONFIG_SYS_NUM_DDR_CTLRS)
 		return;
 
 	ddr = &(pinfo->fsl_ddr_config_reg[ctrl_num]);
@@ -1685,7 +1685,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 1:  DIMM SPD data */
 	if (do_mask & STEP_GET_SPD) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 
@@ -1706,7 +1706,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 2:  DIMM Parameters */
 	if (do_mask & STEP_COMPUTE_DIMM_PARMS) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
@@ -1725,7 +1725,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 3:  Common Parameters */
 	if (do_mask & STEP_COMPUTE_COMMON_PARMS) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 			printf("\"lowest common\" DIMM parameters:  "
@@ -1739,7 +1739,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 4:  User Configuration Options */
 	if (do_mask & STEP_GATHER_OPTS) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 			printf("User Config Options: Controller=%u\n", i);
@@ -1751,7 +1751,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 5:  Address assignment */
 	if (do_mask & STEP_ASSIGN_ADDRESSES) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
@@ -1766,7 +1766,7 @@ static void fsl_ddr_printinfo(const fsl_ddr_info_t *pinfo,
 
 	/* STEP 6:  computed controller register values */
 	if (do_mask & STEP_COMPUTE_REGS) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 			if (!(ctrl_mask & (1 << i)))
 				continue;
 			printf("Computed Register Values: Controller=%u\n", i);

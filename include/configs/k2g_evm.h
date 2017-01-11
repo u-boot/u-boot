@@ -12,7 +12,6 @@
 
 /* Platform type */
 #define CONFIG_SOC_K2G
-#define CONFIG_K2G_EVM
 
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
@@ -62,7 +61,6 @@
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 /* MMC/SD */
-#define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
 
@@ -79,6 +77,7 @@
 #define CONFIG_CADENCE_QSPI
 #define CONFIG_CQSPI_REF_CLK 384000000
 #define CONFIG_CQSPI_DECODER 0x0
+#define CONFIG_BOUNCE_BUFFER
 #endif
 
 #endif /* __CONFIG_K2G_EVM_H */

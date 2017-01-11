@@ -310,8 +310,7 @@ static int zynq_qspi_child_pre_probe(struct udevice *bus)
 
 	slave->option = priv->is_dual;
 	slave->dio = priv->is_dio;
-	slave->op_mode_rx = SPI_OPM_RX_QOF;
-	slave->op_mode_tx = SPI_OPM_TX_QPP;
+	slave->mode = SPI_RX_QUAD | SPI_TX_QUAD;
 
 	return 0;
 }

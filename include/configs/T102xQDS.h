@@ -12,9 +12,6 @@
 #define __T1024QDS_H
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -25,10 +22,9 @@
 #endif
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_DEEP_SLEEP
@@ -42,7 +38,6 @@
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xqds/t1024_pbi.cfg
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -253,9 +248,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #define CONFIG_DDR_SPD
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_FSL_DDR3
-#endif
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -497,7 +489,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* Video */
-#ifdef CONFIG_PPC_T1024		/* no DIU on T1023 */
+#ifdef CONFIG_ARCH_T1024		/* no DIU on T1023 */
 #define CONFIG_FSL_DIU_FB
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_FSL_DIU_CH7301
@@ -664,7 +656,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * SDHC
  */
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR

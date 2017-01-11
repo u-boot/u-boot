@@ -13,6 +13,7 @@
 *      uint64_t entry_addr;
 *      uint64_t status;
 *      uint64_t lpid;
+*      uint64_t os_arch;
 * };
 * we pad this struct to 64 bytes so each entry is in its own cacheline
 * the actual spin table is an array of these structures
@@ -20,6 +21,7 @@
 #define SPIN_TABLE_ELEM_ENTRY_ADDR_IDX	0
 #define SPIN_TABLE_ELEM_STATUS_IDX	1
 #define SPIN_TABLE_ELEM_LPID_IDX	2
+#define SPIN_TABLE_ELEM_OS_ARCH_IDX	3
 #define WORDS_PER_SPIN_TABLE_ENTRY	8	/* pad to 64 bytes */
 #define SPIN_TABLE_ELEM_SIZE		64
 
@@ -36,4 +38,8 @@ void secondary_boot_func(void);
 int is_core_online(u64 cpu_id);
 u32 cpu_pos_mask(void);
 #endif
+
+#define IH_ARCH_ARM		2	/* ARM */
+#define IH_ARCH_ARM64		22	/* ARM64 */
+
 #endif /* _FSL_LAYERSCAPE_MP_H */

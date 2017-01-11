@@ -134,6 +134,9 @@ found:
 	/* Enable ZQ calibration */
 	popts->zq_en = 1;
 
+	/* optimize cpo for erratum A-009942 */
+	popts->cpo_sample = 0x6e;
+
 	if (ddr_freq < 2350) {
 		if (pdimm[0].n_ranks == 2 && pdimm[1].n_ranks == 2) {
 			/* four chip-selects */

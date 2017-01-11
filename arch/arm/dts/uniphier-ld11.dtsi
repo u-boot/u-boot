@@ -7,7 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
 
-/memreserve/ 0x80000000 0x00000008;	/* cpu-release-addr */
+/memreserve/ 0x80000000 0x00080000;
 
 / {
 	compatible = "socionext,uniphier-ld11";
@@ -34,17 +34,58 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a53", "arm,armv8";
 			reg = <0 0x000>;
-			enable-method = "spin-table";
-			cpu-release-addr = <0 0x80000000>;
+			clocks = <&sys_clk 33>;
+			enable-method = "psci";
+			operating-points-v2 = <&cluster0_opp>;
 		};
 
 		cpu1: cpu@1 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53", "arm,armv8";
 			reg = <0 0x001>;
-			enable-method = "spin-table";
-			cpu-release-addr = <0 0x80000000>;
+			clocks = <&sys_clk 33>;
+			enable-method = "psci";
+			operating-points-v2 = <&cluster0_opp>;
 		};
+	};
+
+	cluster0_opp: opp_table {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp@245000000 {
+			opp-hz = /bits/ 64 <245000000>;
+			clock-latency-ns = <300>;
+		};
+		opp@250000000 {
+			opp-hz = /bits/ 64 <250000000>;
+			clock-latency-ns = <300>;
+		};
+		opp@490000000 {
+			opp-hz = /bits/ 64 <490000000>;
+			clock-latency-ns = <300>;
+		};
+		opp@500000000 {
+			opp-hz = /bits/ 64 <500000000>;
+			clock-latency-ns = <300>;
+		};
+		opp@653334000 {
+			opp-hz = /bits/ 64 <653334000>;
+			clock-latency-ns = <300>;
+		};
+		opp@666667000 {
+			opp-hz = /bits/ 64 <666667000>;
+			clock-latency-ns = <300>;
+		};
+		opp@980000000 {
+			opp-hz = /bits/ 64 <980000000>;
+			clock-latency-ns = <300>;
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "smc";
 	};
 
 	clocks {
@@ -52,12 +93,6 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <25000000>;
-		};
-
-		i2c_clk: i2c_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <50000000>;
 		};
 	};
 
@@ -129,7 +164,7 @@
 			interrupts = <0 41 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c0>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 4>;
 			clock-frequency = <100000>;
 		};
 
@@ -142,7 +177,7 @@
 			interrupts = <0 42 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c1>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 5>;
 			clock-frequency = <100000>;
 		};
 
@@ -152,7 +187,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 43 4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 6>;
 			clock-frequency = <400000>;
 		};
 
@@ -165,7 +200,7 @@
 			interrupts = <0 44 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c3>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 7>;
 			clock-frequency = <100000>;
 		};
 
@@ -178,7 +213,7 @@
 			interrupts = <0 45 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 8>;
 			clock-frequency = <100000>;
 		};
 
@@ -188,7 +223,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 25 4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 9>;
 			clock-frequency = <400000>;
 		};
 
@@ -207,8 +242,19 @@
 			reg = <0x59801000 0x400>;
 		};
 
+		sdctrl@59810000 {
+			compatible = "socionext,uniphier-ld11-sdctrl",
+				     "simple-mfd", "syscon";
+			reg = <0x59810000 0x400>;
+
+			sd_rst: reset {
+				compatible = "socionext,uniphier-ld11-sd-reset";
+				#reset-cells = <1>;
+			};
+		};
+
 		perictrl@59820000 {
-			compatible = "socionext,uniphier-perictrl",
+			compatible = "socionext,uniphier-ld11-perictrl",
 				     "simple-mfd", "syscon";
 			reg = <0x59820000 0x200>;
 
@@ -221,6 +267,19 @@
 				compatible = "socionext,uniphier-ld11-peri-reset";
 				#reset-cells = <1>;
 			};
+		};
+
+		emmc: sdhc@5a000000 {
+			compatible = "cdns,sd4hc";
+			reg = <0x5a000000 0x400>;
+			interrupts = <0 78 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_emmc_1v8>;
+			clocks = <&sys_clk 4>;
+			bus-width = <8>;
+			mmc-ddr-1_8v;
+			mmc-hs200-1_8v;
+			/* mmc-hs400-1_8v; support depends on board design */
 		};
 
 		usb0: usb@5a800100 {
@@ -277,7 +336,7 @@
 		};
 
 		soc-glue@5f800000 {
-			compatible = "socionext,uniphier-soc-glue",
+			compatible = "socionext,uniphier-ld11-soc-glue",
 				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
 			u-boot,dm-pre-reloc;
@@ -305,7 +364,7 @@
 		sysctrl@61840000 {
 			compatible = "socionext,uniphier-ld11-sysctrl",
 				     "simple-mfd", "syscon";
-			reg = <0x61840000 0x4000>;
+			reg = <0x61840000 0x10000>;
 
 			sys_clk: clock {
 				compatible = "socionext,uniphier-ld11-clock";
@@ -316,6 +375,18 @@
 				compatible = "socionext,uniphier-ld11-reset";
 				#reset-cells = <1>;
 			};
+		};
+
+		nand: nand@68000000 {
+			compatible = "socionext,denali-nand-v5b";
+			status = "disabled";
+			reg-names = "nand_data", "denali_reg";
+			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
+			interrupts = <0 65 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_nand>;
+			clocks = <&sys_clk 2>;
+			nand-ecc-strength = <8>;
 		};
 	};
 };

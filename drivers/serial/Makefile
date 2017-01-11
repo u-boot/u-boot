@@ -31,7 +31,6 @@ obj-$(CONFIG_MESON_SERIAL) += serial_meson.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_ROCKCHIP_SERIAL) += serial_rockchip.o
 endif
-obj-$(CONFIG_S3C24X0_SERIAL) += serial_s3c24x0.o
 obj-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 obj-$(CONFIG_SANDBOX_SERIAL) += sandbox.o
 obj-$(CONFIG_SCIF_CONSOLE) += serial_sh.o

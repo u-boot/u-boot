@@ -10,9 +10,10 @@
 #ifndef __RSK7269_H
 #define __RSK7269_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7269	1
 #define CONFIG_RSK7269		1
+
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC7,115200"

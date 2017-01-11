@@ -96,44 +96,6 @@ static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 }
 #endif
 
-#if defined(CONFIG_OMAP44XX)
-static void omap4_vmmc_pbias_config(struct mmc *mmc)
-{
-	u32 value = 0;
-
-	value = readl((*ctrl)->control_pbiaslite);
-	value &= ~(MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ);
-	writel(value, (*ctrl)->control_pbiaslite);
-	value = readl((*ctrl)->control_pbiaslite);
-	value |= MMC1_PBIASLITE_VMODE | MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ;
-	writel(value, (*ctrl)->control_pbiaslite);
-}
-#endif
-
-#if defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
-static void omap5_pbias_config(struct mmc *mmc)
-{
-	u32 value = 0;
-
-	value = readl((*ctrl)->control_pbias);
-	value &= ~SDCARD_PWRDNZ;
-	writel(value, (*ctrl)->control_pbias);
-	udelay(10); /* wait 10 us */
-	value &= ~SDCARD_BIAS_PWRDNZ;
-	writel(value, (*ctrl)->control_pbias);
-
-	palmas_mmc1_poweron_ldo();
-
-	value = readl((*ctrl)->control_pbias);
-	value |= SDCARD_BIAS_PWRDNZ;
-	writel(value, (*ctrl)->control_pbias);
-	udelay(150); /* wait 150 us */
-	value |= SDCARD_PWRDNZ;
-	writel(value, (*ctrl)->control_pbias);
-	udelay(150); /* wait 150 us */
-}
-#endif
-
 static unsigned char mmc_board_init(struct mmc *mmc)
 {
 #if defined(CONFIG_OMAP34XX)
@@ -173,14 +135,10 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 		&prcm_base->iclken1_core);
 #endif
 
-#if defined(CONFIG_OMAP44XX)
+#if defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)
 	/* PBIAS config needed for MMC1 only */
 	if (mmc->block_dev.devnum == 0)
-		omap4_vmmc_pbias_config(mmc);
-#endif
-#if defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
-	if (mmc->block_dev.devnum == 0)
-		omap5_pbias_config(mmc);
+		vmmc_pbias_config(LDO_VOLT_3V0);
 #endif
 
 	return 0;
@@ -213,7 +171,6 @@ void mmc_init_stream(struct hsmmc *mmc_base)
 	}
 	writel(readl(&mmc_base->con) & ~INIT_INITSTREAM, &mmc_base->con);
 }
-
 
 static int omap_hsmmc_init_setup(struct mmc *mmc)
 {
@@ -700,8 +657,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	case 1:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
-	defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX) || \
-	defined(CONFIG_AM33XX) || \
+	defined(CONFIG_DRA7XX) || defined(CONFIG_AM33XX) || \
 	defined(CONFIG_AM43XX) || defined(CONFIG_SOC_KEYSTONE)) && \
 		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
@@ -712,7 +668,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC3_BASE;
-#if (defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)) && defined(CONFIG_HSMMC3_8BIT)
+#if defined(CONFIG_DRA7XX) && defined(CONFIG_HSMMC3_8BIT)
 		/* Enable 8-bit interface for eMMC on DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
 #endif

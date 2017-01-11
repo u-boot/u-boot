@@ -1,0 +1,17 @@
+/*
+ * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <u-boot.dtsi>
+
+#ifdef CONFIG_ROM_SIZE
+/ {
+	binman {
+		u-boot-with-ucode-ptr {
+			optional-ucode;
+		};
+	};
+};
+#endif

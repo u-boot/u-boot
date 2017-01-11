@@ -12,22 +12,16 @@
 #define __T208xQDS_H
 
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#define CONFIG_MMC
 #define CONFIG_USB_EHCI
-#if defined(CONFIG_PPC_T2080)
-#define CONFIG_T2080QDS
+#if defined(CONFIG_ARCH_T2080)
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
 #define CONFIG_SRIO1		/* SRIO port 1 */
 #define CONFIG_SRIO2		/* SRIO port 2 */
-#elif defined(CONFIG_PPC_T2081)
-#define CONFIG_T2081QDS
+#elif defined(CONFIG_ARCH_T2081)
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE
-#define CONFIG_E500		/* BOOKE e500 family */
-#define CONFIG_E500MC		/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
 #define CONFIG_MP		/* support multiple processors */
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -38,10 +32,9 @@
 #endif
 
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
-#define CONFIG_SYS_NUM_CPC	CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_FSL_IFC		/* Enable IFC Support */
 #define CONFIG_FSL_CAAM		/* Enable SEC/CAAM */
-#define CONFIG_FSL_LAW		/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_RAMBOOT_PBL
@@ -49,7 +42,6 @@
 
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -69,9 +61,9 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
+#elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_nand_rcw.cfg
 #endif
 #define CONFIG_SPL_NAND_BOOT
@@ -88,9 +80,9 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
+#elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_spi_rcw.cfg
 #endif
 #define CONFIG_SPL_SPI_BOOT
@@ -107,9 +99,9 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
+#elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_sd_rcw.cfg
 #endif
 #define CONFIG_SPL_MMC_BOOT
@@ -228,7 +220,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #define CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */

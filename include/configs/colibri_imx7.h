@@ -15,16 +15,18 @@
 #include "mx7_common.h"
 
 #define CONFIG_SYS_THUMB_BUILD
-#define CONFIG_USE_ARCH_MEMCPY
-#define CONFIG_USE_ARCH_MEMSET
 
 /*#define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
 
+#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
+
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)

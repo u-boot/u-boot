@@ -96,7 +96,6 @@
 #ifndef CONFIG_CMDLINE
 #undef CONFIG_CMDLINE_EDITING
 #undef CONFIG_SYS_LONGHELP
-#undef CONFIG_MENU
 #endif
 
 #endif	/* __CONFIG_FALLBACKS_H */

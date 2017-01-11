@@ -374,7 +374,8 @@ typedef struct memctl_options_s {
 	unsigned int additive_latency_override_value;
 
 	unsigned int clk_adjust;		/* */
-	unsigned int cpo_override;
+	unsigned int cpo_override;		/* override timing_cfg_2[CPO]*/
+	unsigned int cpo_sample;		/* optimize debug_29[24:31] */
 	unsigned int write_data_delay;		/* DQS adjust */
 
 	unsigned int cswl_override;

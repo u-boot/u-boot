@@ -39,7 +39,7 @@
 #define GPIO_SLIC_PIN		30
 #define GPIO_SLIC_DATA		(1 << (31 - GPIO_SLIC_PIN))
 
-#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
 #define GPIO_DDR_RST_PORT	1
 #define GPIO_DDR_RST_PIN	8
 #define GPIO_DDR_RST_DATA	(1 << (31 - GPIO_DDR_RST_PIN))
@@ -47,7 +47,7 @@
 #define GPIO_2BIT_MASK		(0x3 << (32 - (GPIO_DDR_RST_PIN + 1) * 2))
 #endif
 
-#if defined(CONFIG_P1025RDB) || defined(CONFIG_P1021RDB)
+#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
 #define PCA_IOPORT_I2C_ADDR		0x23
 #define PCA_IOPORT_OUTPUT_CMD		0x2
 #define PCA_IOPORT_CFG_CMD		0x6
@@ -58,14 +58,14 @@
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GPIO */
 	{1,   1, 2, 0, 0}, /* GPIO7/PB1   - LOAD_DEFAULT_N */
-#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
 	{1,   8, 1, 1, 0}, /* GPIO10/PB8  - DDR_RST */
 #endif
 	{0,  15, 1, 0, 0}, /* GPIO11/A15  - WDI */
 	{GPIO_GETH_SW_PORT, GPIO_GETH_SW_PIN, 1, 0, 0},	/* RST_GETH_SW_N */
 	{GPIO_SLIC_PORT, GPIO_SLIC_PIN, 1, 0, 0},	/* RST_SLIC_N */
 
-#ifdef CONFIG_P1025RDB
+#ifdef CONFIG_TARGET_P1025RDB
 	/* QE_MUX_MDC */
 	{1,  19, 1, 0, 1}, /* QE_MUX_MDC               */
 
@@ -150,7 +150,7 @@ void board_gpio_init(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	par_io_t *par_io = (par_io_t *) &(gur->qe_par_io);
 
-#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_TARGET_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
 	/* reset DDR3 */
 	setbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
 	udelay(1000);
@@ -379,7 +379,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_QE) && \
-	(defined(CONFIG_P1025RDB) || defined(CONFIG_P1021RDB))
+	(defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB))
 static void fdt_board_fixup_qe_pins(void *blob)
 {
 	unsigned int oldbus;
@@ -428,7 +428,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
-#if defined(CONFIG_P1020RDB_PD) || defined(CONFIG_P1020RDB_PC)
+#if defined(CONFIG_TARGET_P1020RDB_PD) || defined(CONFIG_TARGET_P1020RDB_PC)
 	const char *soc_usb_compat = "fsl-usb2-dr";
 	int usb_err, usb1_off, usb2_off;
 #endif
@@ -448,7 +448,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
 			sizeof("okay"), 0);
-#if defined(CONFIG_P1025RDB) || defined(CONFIG_P1021RDB)
+#if defined(CONFIG_TARGET_P1025RDB) || defined(CONFIG_TARGET_P1021RDB)
 	fdt_board_fixup_qe_pins(blob);
 #endif
 #endif
@@ -478,7 +478,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 #endif
 
-#if defined(CONFIG_P1020RDB_PD) || defined(CONFIG_P1020RDB_PC)
+#if defined(CONFIG_TARGET_P1020RDB_PD) || defined(CONFIG_TARGET_P1020RDB_PC)
 /* Delete USB2 node as it is muxed with eLBC */
 	usb1_off = fdt_node_offset_by_compatible(blob, -1,
 		soc_usb_compat);

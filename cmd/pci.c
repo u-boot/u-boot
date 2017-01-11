@@ -92,6 +92,77 @@ static void pci_show_regs(pci_dev_t dev, struct pci_reg_info *regs)
 }
 #endif
 
+#ifdef CONFIG_DM_PCI
+int pci_bar_show(struct udevice *dev)
+{
+	u8 header_type;
+	int bar_cnt, bar_id, mem_type;
+	bool is_64, is_io;
+	u32 base_low, base_high;
+	u32 size_low, size_high;
+	u64 base, size;
+	u32 reg_addr;
+	int prefetchable;
+
+	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+
+	if (header_type == PCI_HEADER_TYPE_CARDBUS) {
+		printf("CardBus doesn't support BARs\n");
+		return -ENOSYS;
+	}
+
+	bar_cnt = (header_type == PCI_HEADER_TYPE_NORMAL) ? 6 : 2;
+
+	printf("ID   Base                Size                Width  Type\n");
+	printf("----------------------------------------------------------\n");
+
+	bar_id = 0;
+	reg_addr = PCI_BASE_ADDRESS_0;
+	while (bar_cnt) {
+		dm_pci_read_config32(dev, reg_addr, &base_low);
+		dm_pci_write_config32(dev, reg_addr, 0xffffffff);
+		dm_pci_read_config32(dev, reg_addr, &size_low);
+		dm_pci_write_config32(dev, reg_addr, base_low);
+		reg_addr += 4;
+
+		base = base_low & ~0xf;
+		size = size_low & ~0xf;
+		base_high = 0x0;
+		size_high = 0xffffffff;
+		is_64 = 0;
+		prefetchable = base_low & PCI_BASE_ADDRESS_MEM_PREFETCH;
+		is_io = base_low & PCI_BASE_ADDRESS_SPACE_IO;
+		mem_type = base_low & PCI_BASE_ADDRESS_MEM_TYPE_MASK;
+
+		if (mem_type == PCI_BASE_ADDRESS_MEM_TYPE_64) {
+			dm_pci_read_config32(dev, reg_addr, &base_high);
+			dm_pci_write_config32(dev, reg_addr, 0xffffffff);
+			dm_pci_read_config32(dev, reg_addr, &size_high);
+			dm_pci_write_config32(dev, reg_addr, base_high);
+			bar_cnt--;
+			reg_addr += 4;
+			is_64 = 1;
+		}
+
+		base = base | ((u64)base_high << 32);
+		size = size | ((u64)size_high << 32);
+
+		if ((!is_64 && size_low) || (is_64 && size)) {
+			size = ~size + 1;
+			printf(" %d   %#016llx  %#016llx  %d     %s   %s\n",
+			       bar_id, base, size, is_64 ? 64 : 32,
+			       is_io ? "I/O" : "MEM",
+			       prefetchable ? "Prefetchable" : "");
+		}
+
+		bar_id++;
+		bar_cnt--;
+	}
+
+	return 0;
+}
+#endif
+
 static struct pci_reg_info regs_start[] = {
 	{ "vendor ID", PCI_SIZE_16, PCI_VENDOR_ID },
 	{ "device ID", PCI_SIZE_16, PCI_DEVICE_ID },
@@ -573,6 +644,9 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc > 4)
 			value = simple_strtoul(argv[4], NULL, 16);
 	case 'h':		/* header */
+#ifdef CONFIG_DM_PCI
+	case 'b':		/* bars */
+#endif
 		if (argc < 3)
 			goto usage;
 		if ((bdf = get_pci_dev(argv[2])) == -1)
@@ -641,6 +715,11 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ret = pci_cfg_write(dev, addr, size, value);
 #endif
 		break;
+#ifdef CONFIG_DM_PCI
+
+	case 'b':		/* bars */
+		return pci_bar_show(dev);
+#endif
 	default:
 		ret = CMD_RET_USAGE;
 		break;
@@ -663,6 +742,10 @@ static char pci_help_text[] =
 #endif
 	"pci header b.d.f\n"
 	"    - show header of PCI device 'bus.device.function'\n"
+#ifdef CONFIG_DM_PCI
+	"pci bar b.d.f\n"
+	"    - show BARs base and size for device b.d.f'\n"
+#endif
 	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"
 	"    - display PCI configuration space (CFG)\n"
 	"pci next[.b, .w, .l] b.d.f address\n"

@@ -15,7 +15,6 @@ endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
 obj-$(CONFIG_ATMEL_SDHCI) += atmel_sdhci.o
-obj-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
 obj-$(CONFIG_BFIN_SDH) += bfin_sdh.o
 obj-$(CONFIG_DAVINCI_MMC) += davinci_mmc.o
 obj-$(CONFIG_DWMMC) += dw_mmc.o
@@ -29,10 +28,8 @@ ifdef CONFIG_SUPPORT_EMMC_BOOT
 obj-$(CONFIG_GENERIC_MMC) += mmc_boot.o
 endif
 obj-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
-obj-$(CONFIG_KONA_SDHCI) += kona_sdhci.o
 obj-$(CONFIG_MMC_SPI) += mmc_spi.o
 obj-$(CONFIG_MMC_SUNXI) += sunxi_mmc.o
-obj-$(CONFIG_MV_SDHCI) += mv_sdhci.o
 obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
 obj-$(CONFIG_MXC_MMC) += mxcmmc.o
 obj-$(CONFIG_MXS_MMC) += mxsmmc.o
@@ -42,17 +39,14 @@ obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_ROCKCHIP_DWMMC) += rockchip_dw_mmc.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
 obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
-obj-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
 ifdef CONFIG_BLK
 ifdef CONFIG_GENERIC_MMC
 obj-$(CONFIG_SANDBOX) += sandbox_mmc.o
 endif
 endif
-obj-$(CONFIG_SDHCI) += sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
 obj-$(CONFIG_SOCFPGA_DWMMC) += socfpga_dw_mmc.o
-obj-$(CONFIG_SPEAR_SDHCI) += spear_sdhci.o
 obj-$(CONFIG_TEGRA_MMC) += tegra_mmc.o
 obj-$(CONFIG_MMC_UNIPHIER) += uniphier-sd.o
 obj-$(CONFIG_ZYNQ_SDHCI) += zynq_sdhci.o
@@ -66,3 +60,11 @@ obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
 endif
 obj-$(CONFIG_PIC32_SDHCI) += pic32_sdhci.o
 obj-$(CONFIG_MSM_SDHCI) += msm_sdhci.o
+
+# SDHCI
+obj-$(CONFIG_MMC_SDHCI)			+= sdhci.o
+obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_MV)		+= mv_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_S5P)		+= s5p_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_SPEAR)		+= spear_sdhci.o

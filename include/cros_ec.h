@@ -250,15 +250,6 @@ void cros_ec_dump_data(const char *name, int cmd, const uint8_t *data, int len);
  */
 int cros_ec_calc_checksum(const uint8_t *data, int size);
 
-/**
- * Decode a flash region parameter
- *
- * @param argc	Number of params remaining
- * @param argv	List of remaining parameters
- * @return flash region (EC_FLASH_REGION_...) or -1 on error
- */
-int cros_ec_decode_region(int argc, char * const argv[]);
-
 int cros_ec_flash_erase(struct cros_ec_dev *dev, uint32_t offset,
 		uint32_t size);
 

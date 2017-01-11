@@ -37,7 +37,9 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"image=zImage\0" \
+	"splashpos=m,m\0" \
+	"image=uImage\0" \
+	"fit_image=fit.itb\0" \
 	"console=ttymxc3\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
@@ -46,42 +48,67 @@
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
+	"nandroot=ubi0:rootfs rootfstype=ubifs\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
+	"ubiargs=setenv bootargs console=${console},${baudrate} " \
+		"ubi.mtd=5 root=${nandroot} ${mtdparts}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadfit=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${fit_image}\0" \
+	"fitboot=echo Booting FIT image from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
+					"bootm; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi; " \
 			"fi; " \
 		"else " \
-			"bootz; " \
-		"fi\0"
+			"bootm; " \
+		"fi\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"if mtdparts; then " \
+			"echo Starting nand boot ...; " \
+		"else " \
+			"mtdparts default; " \
+		"fi; " \
+		"run ubiargs; " \
+		"nand read ${loadaddr} kernel 0x800000; " \
+		"nand read ${fdt_addr} dtb 0x100000; " \
+		"bootm ${loadaddr} - ${fdt_addr}\0"
 
-#define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
+#ifdef CONFIG_NAND_MXS
+# define CONFIG_BOOTCOMMAND		"run nandboot"
+#else
+# define CONFIG_BOOTCOMMAND \
+	"mmc dev ${mmcdev};" \
+	"if mmc rescan; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loadfit; then " \
+				"run fitboot; " \
+			"else " \
+				"if run loadimage; then " \
+					"run mmcboot; " \
+				"fi; " \
 			"fi; " \
-		   "fi; " \
-	   "fi"
+		"fi; " \
+	"fi"
+#endif
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -102,6 +129,14 @@
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_SP_OFFSET)
+
+/* FIT */
+#ifdef CONFIG_FIT
+# define CONFIG_HASH_VERIFY
+# define CONFIG_SHA1
+# define CONFIG_SHA256
+# define CONFIG_IMAGE_FORMAT_LEGACY
+#endif
 
 /* UART */
 #ifdef CONFIG_MXC_UART
@@ -128,9 +163,14 @@
 # define CONFIG_MTD_DEVICE
 # define CONFIG_CMD_MTDPARTS
 # define CONFIG_MTD_PARTITIONS
-# define MTDIDS_DEFAULT			"nand0=nand"
-# define MTDPARTS_DEFAULT		"mtdparts=nand:2m(spl),2m(uboot)," \
-					"1m(env),4m(kernel),1m(dtb),-(rootfs)"
+# define MTDIDS_DEFAULT			"nand0=gpmi-nand"
+# define MTDPARTS_DEFAULT		"mtdparts=gpmi-nand:2m(spl),2m(uboot)," \
+					"1m(env),8m(kernel),1m(dtb),-(rootfs)"
+
+/* UBI */
+# define CONFIG_CMD_UBIFS
+# define CONFIG_RBTREE
+# define CONFIG_LZO
 
 # define CONFIG_APBH_DMA
 # define CONFIG_APBH_DMA_BURST
@@ -147,6 +187,19 @@
 # define CONFIG_MII
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_SMSC
+#endif
+
+/* Framebuffer */
+#ifdef CONFIG_VIDEO_IPUV3
+# define CONFIG_IPUV3_CLK		260000000
+# define CONFIG_IMX_VIDEO_SKIP
+
+# define CONFIG_SPLASH_SCREEN
+# define CONFIG_SPLASH_SCREEN_ALIGN
+# define CONFIG_BMP_16BPP
+# define CONFIG_VIDEO_BMP_RLE8
+# define CONFIG_VIDEO_LOGO
+# define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 /* SPL */

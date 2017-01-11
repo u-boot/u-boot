@@ -1,0 +1,12 @@
+if TARGET_CL_SOM_AM57X
+
+config SYS_BOARD
+	default "cl-som-am57x"
+
+config SYS_VENDOR
+	default "compulab"
+
+config SYS_CONFIG_NAME
+	default "cl-som-am57x"
+
+endif

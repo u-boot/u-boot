@@ -38,6 +38,11 @@ static void set_clocks_in_mhz (bd_t *kbd);
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
 
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
 static void boot_jump_linux(bootm_headers_t *images)
 {
 	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,

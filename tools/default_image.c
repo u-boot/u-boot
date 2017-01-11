@@ -25,7 +25,7 @@ static image_header_t header;
 static int image_check_image_types(uint8_t type)
 {
 	if (((type > IH_TYPE_INVALID) && (type < IH_TYPE_FLATDT)) ||
-	    (type == IH_TYPE_KERNEL_NOLOAD))
+	    (type == IH_TYPE_KERNEL_NOLOAD) || (type == IH_TYPE_FIRMWARE_IVT))
 		return EXIT_SUCCESS;
 	else
 		return EXIT_FAILURE;
@@ -89,6 +89,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 {
 	uint32_t checksum;
 	time_t time;
+	uint32_t imagesize;
 
 	image_header_t * hdr = (image_header_t *)ptr;
 
@@ -98,11 +99,16 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 			sbuf->st_size - sizeof(image_header_t));
 
 	time = imagetool_get_source_date(params, sbuf->st_mtime);
+	if (params->type == IH_TYPE_FIRMWARE_IVT)
+		/* Add size of CSF minus IVT */
+		imagesize = sbuf->st_size - sizeof(image_header_t) + 0x1FE0;
+	else
+		imagesize = sbuf->st_size - sizeof(image_header_t);
 
 	/* Build new header */
 	image_set_magic(hdr, IH_MAGIC);
 	image_set_time(hdr, time);
-	image_set_size(hdr, sbuf->st_size - sizeof(image_header_t));
+	image_set_size(hdr, imagesize);
 	image_set_load(hdr, params->addr);
 	image_set_ep(hdr, params->ep);
 	image_set_dcrc(hdr, checksum);

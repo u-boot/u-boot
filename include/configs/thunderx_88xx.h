@@ -49,9 +49,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-/* Command line configuration */
-#define CONFIG_MENU
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_BOOTPATH

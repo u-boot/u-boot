@@ -11,10 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_BSC9132QDS
-#define CONFIG_BSC9132
-#endif
-
 #define CONFIG_MISC_INIT_R
 
 #ifdef CONFIG_SDCARD
@@ -24,7 +20,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x11000000
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
-#define CONFIG_SYS_FSL_ERRATUM_IFC_A002769	1
 #ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_SYS_RAMBOOT
@@ -73,8 +68,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_BOOKE			/* BOOKE */
-#define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
@@ -107,7 +100,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_TSEC_ENET /* ethernet */
 
@@ -132,7 +124,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x01ffffff
 
 /* DDR Setup */
-#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS1		0x54 /* I2C access */
 #define SPD_EEPROM_ADDRESS2		0x56 /* I2C access */
@@ -487,7 +478,6 @@ combinations. this should be removed later
 
 #endif	/* CONFIG_TSEC_ENET */
 
-#define CONFIG_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC

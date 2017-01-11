@@ -90,6 +90,7 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode |= (IF_MODE_GMII | IF_MODE_RM);
 		break;
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 	case PHY_INTERFACE_MODE_QSGMII:
 		if_mode &= ~IF_MODE_MASK;
 		if_mode |= (IF_MODE_GMII);

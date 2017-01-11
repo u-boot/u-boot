@@ -158,9 +158,10 @@ static void spi0_disable_clock(void)
 			     (1 << AHB_RESET_SPI0_SHIFT));
 }
 
-static int spi0_init(void)
+static void spi0_init(void)
 {
 	unsigned int pin_function = SUNXI_GPC_SPI0;
+
 	if (IS_ENABLED(CONFIG_MACH_SUN50I))
 		pin_function = SUN50I_GPC_SPI0;
 
@@ -283,4 +284,4 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	return 0;
 }
 /* Use priorty 0 to override the default if it happens to be linked in */
-SPL_LOAD_IMAGE_METHOD(0, BOOT_DEVICE_SPI, spl_spi_load_image);
+SPL_LOAD_IMAGE_METHOD("sunxi SPI" 0, BOOT_DEVICE_SPI, spl_spi_load_image);

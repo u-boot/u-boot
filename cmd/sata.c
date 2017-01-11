@@ -32,9 +32,12 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* If the user has not yet run `sata init`, do it now */
-	if (sata_curr_device == -1)
-		if (sata_initialize())
-			return 1;
+	if (sata_curr_device == -1) {
+		rc = sata_initialize();
+		if (rc == -1)
+			return rc;
+		sata_curr_device = rc;
+	}
 
 	switch (argc) {
 	case 0:

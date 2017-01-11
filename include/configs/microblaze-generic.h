@@ -252,7 +252,7 @@
 					"serial=setenv stdout serial;"\
 					"setenv stdin serial\0"
 #endif
-					
+
 #define CONFIG_CMDLINE_EDITING
 
 /* Enable flat device tree support */

@@ -180,6 +180,39 @@ static inline void ft_fixup_l3cache(void *blob, int off)
 #define ft_fixup_l3cache(x, y)
 #endif
 
+#if defined(CONFIG_L2_CACHE) || \
+	defined(CONFIG_BACKSIDE_L2_CACHE) || \
+	defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
+static inline void ft_fixup_l2cache_compatible(void *blob, int off)
+{
+	int len;
+	struct cpu_type *cpu = identify_cpu(SVR_SOC_VER(get_svr()));
+
+	if (cpu) {
+		char buf[40];
+
+		if (isdigit(cpu->name[0])) {
+			/* MPCxxxx, where xxxx == 4-digit number */
+			len = sprintf(buf, "fsl,mpc%s-l2-cache-controller",
+				cpu->name) + 1;
+		} else {
+			/* Pxxxx or Txxxx, where xxxx == 4-digit number */
+			len = sprintf(buf, "fsl,%c%s-l2-cache-controller",
+			tolower(cpu->name[0]), cpu->name + 1) + 1;
+		}
+
+		/*
+		 * append "cache" after the NULL character that the previous
+		 * sprintf wrote.  This is how a device tree stores multiple
+		 * strings in a property.
+		 */
+		len += sprintf(buf + len, "cache") + 1;
+
+		fdt_setprop(blob, off, "compatible", buf, len);
+	}
+}
+#endif
+
 #if defined(CONFIG_L2_CACHE)
 /* return size in kilobytes */
 static inline u32 l2cache_size(void)
@@ -215,9 +248,8 @@ static inline u32 l2cache_size(void)
 
 static inline void ft_fixup_l2cache(void *blob)
 {
-	int len, off;
+	int off;
 	u32 *ph;
-	struct cpu_type *cpu = identify_cpu(SVR_SOC_VER(get_svr()));
 
 	const u32 line_size = 32;
 	const u32 num_ways = 8;
@@ -243,28 +275,7 @@ static inline void ft_fixup_l2cache(void *blob)
 		return ;
 	}
 
-	if (cpu) {
-		char buf[40];
-
-		if (isdigit(cpu->name[0])) {
-			/* MPCxxxx, where xxxx == 4-digit number */
-			len = sprintf(buf, "fsl,mpc%s-l2-cache-controller",
-				cpu->name) + 1;
-		} else {
-			/* Pxxxx or Txxxx, where xxxx == 4-digit number */
-			len = sprintf(buf, "fsl,%c%s-l2-cache-controller",
-				tolower(cpu->name[0]), cpu->name + 1) + 1;
-		}
-
-		/*
-		 * append "cache" after the NULL character that the previous
-		 * sprintf wrote.  This is how a device tree stores multiple
-		 * strings in a property.
-		 */
-		len += sprintf(buf + len, "cache") + 1;
-
-		fdt_setprop(blob, off, "compatible", buf, len);
-	}
+	ft_fixup_l2cache_compatible(blob, off);
 	fdt_setprop(blob, off, "cache-unified", NULL, 0);
 	fdt_setprop_cell(blob, off, "cache-block-size", line_size);
 	fdt_setprop_cell(blob, off, "cache-size", size);
@@ -337,7 +348,7 @@ static inline void ft_fixup_l2cache(void *blob)
 			fdt_setprop_cell(blob, l2_off, "cache-size", size);
 			fdt_setprop_cell(blob, l2_off, "cache-sets", num_sets);
 			fdt_setprop_cell(blob, l2_off, "cache-level", 2);
-			fdt_setprop(blob, l2_off, "compatible", "cache", 6);
+			ft_fixup_l2cache_compatible(blob, l2_off);
 		}
 
 		if (l3_off < 0) {
@@ -490,7 +501,7 @@ static void ft_fixup_qe_snum(void *blob)
 }
 #endif
 
-#if defined(CONFIG_PPC_P4080)
+#if defined(CONFIG_ARCH_P4080)
 static void fdt_fixup_usb(void *fdt)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -511,8 +522,8 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
-#if defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T4240) || \
-	defined(CONFIG_PPC_T4160) || defined(CONFIG_PPC_T4080)
+#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T4240) || \
+	defined(CONFIG_ARCH_T4160)
 void fdt_fixup_dma3(void *blob)
 {
 	/* the 3rd DMA is not functional if SRIO2 is chosen */
@@ -520,7 +531,7 @@ void fdt_fixup_dma3(void *blob)
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 #define CONFIG_SYS_ELO3_DMA3 (0xffe000000 + 0x102300)
-#if defined(CONFIG_PPC_T2080)
+#if defined(CONFIG_ARCH_T2080)
 	u32 srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
 				    FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
@@ -529,8 +540,7 @@ void fdt_fixup_dma3(void *blob)
 	case 0x29:
 	case 0x2d:
 	case 0x2e:
-#elif defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
-	defined(CONFIG_PPC_T4080)
+#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
 	u32 srds_prtcl_s4 = in_be32(&gur->rcwsr[4]) &
 				    FSL_CORENET2_RCWSR4_SRDS4_PRTCL;
 	srds_prtcl_s4 >>= FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT;
@@ -556,7 +566,7 @@ void fdt_fixup_dma3(void *blob)
 #define fdt_fixup_dma3(x)
 #endif
 
-#if defined(CONFIG_PPC_T1040)
+#if defined(CONFIG_ARCH_T1040)
 static void fdt_fixup_l2_switch(void *blob)
 {
 	uchar l2swaddr[6];

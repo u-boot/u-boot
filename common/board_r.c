@@ -191,7 +191,7 @@ static int initr_serial(void)
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 static int initr_trap(void)
 {
 	/*
@@ -620,7 +620,7 @@ static int initr_ambapp_print(void)
 }
 #endif
 
-#if defined(CONFIG_SCSI)
+#if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
 static int initr_scsi(void)
 {
 	puts("SCSI:  ");
@@ -807,7 +807,7 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 	initr_trap,
 #endif
 #ifdef CONFIG_ADDR_MAP
@@ -923,7 +923,7 @@ init_fnc_t init_sequence_r[] = {
 	initr_ambapp_print,
 #endif
 #endif
-#ifdef CONFIG_SCSI
+#if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
 	INIT_FUNC_WATCHDOG_RESET
 	initr_scsi,
 #endif

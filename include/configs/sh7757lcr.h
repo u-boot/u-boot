@@ -9,13 +9,11 @@
 #ifndef __SH7757LCR_H
 #define __SH7757LCR_H
 
-#undef DEBUG
 #define CONFIG_CPU_SH7757	1
 #define CONFIG_SH7757LCR	1
 #define CONFIG_SH7757LCR_DDR_ECC	1
 
 #define CONFIG_SYS_TEXT_BASE	0x8ef80000
-#define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7757lcr/u-boot.lds"
 
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_MD5SUM
@@ -26,6 +24,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 /* MEMORY */
@@ -90,7 +89,6 @@
 #define CONFIG_SH_SPI_BASE		0xfe002000
 
 /* MMCIF */
-#define CONFIG_MMC			1
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_SH_MMCIF			1
 #define CONFIG_SH_MMCIF_ADDR		0xffcb0000

@@ -14,9 +14,6 @@
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_I2C1
 
-#define CONFIG_AHCI
-#define CONFIG_SATA_CEVA
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM017_DC3_H */

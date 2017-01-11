@@ -1,0 +1,12 @@
+if TARGET_MX6UL_GEAM
+
+config SYS_BOARD
+	default "geam6ul"
+
+config SYS_VENDOR
+	default "engicam"
+
+config SYS_CONFIG_NAME
+	default "imx6ul_geam"
+
+endif

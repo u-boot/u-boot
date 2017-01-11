@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 Toradex, Inc.
+ * Copyright 2015-2016 Toradex, Inc.
  *
- * Configuration settings for the Toradex VF50/VF61 module.
+ * Configuration settings for the Toradex VF50/VF61 modules.
  *
  * Based on vf610twr.h:
  * Copyright 2013 Freescale Semiconductor, Inc.
@@ -16,11 +16,10 @@
 
 #define CONFIG_VF610
 #define CONFIG_SYS_THUMB_BUILD
-#define CONFIG_USE_ARCH_MEMCPY
-#define CONFIG_USE_ARCH_MEMSET
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_ARCH_MISC_INIT
+#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -36,6 +35,7 @@
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_BAUDRATE			115200
 
@@ -56,12 +56,9 @@
 				"512k(u-boot-env),"		\
 				"-(ubi)"
 
-#define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
-
-#define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
@@ -97,7 +94,7 @@
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
 	"load mmc 0:2 ${kernel_addr_r} /boot/${kernel_file} && " \
 	"load mmc 0:2 ${fdt_addr_r} /boot/${soc}-colibri-${fdt_board}.dtb && " \
-	"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0"	\
@@ -106,7 +103,7 @@
 	"${setupargs} ${vidargs}; echo Booting from NFS...;" \
 	"dhcp ${kernel_addr_r} && "	\
 	"tftp ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define UBI_BOOTCMD	\
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs " \
@@ -114,10 +111,10 @@
 	"ubiboot=run setup; " \
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} "   \
 	"${setupargs} ${vidargs}; echo Booting from NAND...; " \
-	"ubi part ubi && ubifsmount ubi0:rootfs && " \
-	"ubifsload ${kernel_addr_r} /boot/${kernel_file} && " \
-	"ubifsload ${fdt_addr_r} /boot/${soc}-colibri-${fdt_board}.dtb && " \
-	"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"ubi part ubi && " \
+	"ubi read ${kernel_addr_r} kernel && " \
+	"ubi read ${fdt_addr_r} dtb && " \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define CONFIG_BOOTCOMMAND "run ubiboot; run sdboot; run nfsboot"
 
@@ -129,6 +126,7 @@
 	"kernel_file=zImage\0" \
 	"fdt_file=${soc}-colibri-${fdt_board}.dtb\0" \
 	"fdt_board=eval-v3\0" \
+	"fdt_fixup=;\0" \
 	"defargs=\0" \
 	"console=ttyLP0\0" \
 	"setup=setenv setupargs " \
@@ -205,13 +203,6 @@
 #define CONFIG_USB_EHCI_VF
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
-/* USB Client Support */
-#define CONFIG_TRDX_VID                  0x1B67
-#define CONFIG_TRDX_PID_COLIBRI_VF50     0x0016
-#define CONFIG_TRDX_PID_COLIBRI_VF61     0x0017
-#define CONFIG_TRDX_PID_COLIBRI_VF61IT   0x0018
-#define CONFIG_TRDX_PID_COLIBRI_VF50IT   0x0019
 
 /* USB DFU */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)

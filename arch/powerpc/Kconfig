@@ -23,13 +23,20 @@ config MPC8260
 config MPC83xx
 	bool "MPC83xx"
 	select CREATE_ARCH_SYMLINK
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_BE
+	select SYS_FSL_SEC_COMPAT_2
 
 config MPC85xx
 	bool "MPC85xx"
 	select CREATE_ARCH_SYMLINK
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_BE
 
 config MPC86xx
 	bool "MPC86xx"
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_BE
 
 config 8xx
 	bool "MPC8xx"

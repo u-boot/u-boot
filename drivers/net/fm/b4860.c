@@ -47,7 +47,7 @@ void fman_enable_port(enum fm_port port)
 
 phy_interface_t fman_port_enet_if(enum fm_port port)
 {
-#if defined(CONFIG_B4860QDS)
+#if defined(CONFIG_TARGET_B4860QDS) || defined(CONFIG_TARGET_B4420QDS)
 	u32 serdes2_prtcl;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
@@ -60,7 +60,8 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	/*B4860 has two 10Gig Mac*/
 	if ((port == FM1_10GEC1 || port == FM1_10GEC2)	&&
 	    ((is_serdes_configured(XAUI_FM1_MAC9))	||
-	     #if !defined(CONFIG_B4860QDS)
+	     #if (!defined(CONFIG_TARGET_B4860QDS) && \
+		  !defined(CONFIG_TARGET_B4R420QDS))
 	     (is_serdes_configured(XFI_FM1_MAC9))	||
 	     (is_serdes_configured(XFI_FM1_MAC10))	||
 	     #endif
@@ -68,7 +69,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	     ))
 		return PHY_INTERFACE_MODE_XGMII;
 
-#if defined(CONFIG_B4860QDS)
+#if defined(CONFIG_TARGET_B4860QDS) || defined(CONFIG_TARGET_B4420QDS)
 	serdes2_prtcl = in_be32(&gur->rcwsr[4]) &
 			FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 

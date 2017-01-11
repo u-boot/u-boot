@@ -22,6 +22,7 @@ config TARGET_VME8349
 
 config TARGET_MPC8308RDB
 	bool "Support MPC8308RDB"
+	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_MPC8313ERDB
 	bool "Support MPC8313ERDB"
@@ -38,6 +39,9 @@ config TARGET_MPC832XEMDS
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
+	select SYS_FSL_DDR
+	select SYS_FSL_HAS_DDR2
+	select SYS_FSL_DDR_BE
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
@@ -66,9 +70,11 @@ config TARGET_TQM834X
 
 config TARGET_HRCON
 	bool "Support hrcon"
+	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_STRIDER
 	bool "Support strider"
+	select SYS_FSL_ERRATUM_ESDHC111
 
 endchoice
 

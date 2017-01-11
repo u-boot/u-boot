@@ -23,14 +23,12 @@ obj-$(CONFIG_ARMV7_PSCI)	+= psci.o psci-common.o
 
 obj-$(CONFIG_IPROC) += iproc-common/
 obj-$(CONFIG_KONA) += kona-common/
-obj-$(CONFIG_OMAP_COMMON) += omap-common/
 obj-$(CONFIG_SYS_ARCH_TIMER) += arch_timer.o
 
 ifneq (,$(filter s5pc1xx exynos,$(SOC)))
 obj-y += s5p-common/
 endif
 
-obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
 obj-$(if $(filter bcm235xx,$(SOC)),y) += bcm235xx/
 obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
 obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
@@ -39,9 +37,6 @@ obj-$(if $(filter ls102xa,$(SOC)),y) += ls102xa/
 obj-$(if $(filter mx5,$(SOC)),y) += mx5/
 obj-$(CONFIG_MX6) += mx6/
 obj-$(CONFIG_MX7) += mx7/
-obj-$(CONFIG_OMAP34XX) += omap3/
-obj-$(CONFIG_OMAP44XX) += omap4/
-obj-$(CONFIG_OMAP54XX) += omap5/
 obj-$(CONFIG_RMOBILE) += rmobile/
 obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/

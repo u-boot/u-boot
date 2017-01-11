@@ -165,6 +165,8 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_ZYNQIMAGE,  "zynqimage",  "Xilinx Zynq Boot Image" },
 	{	IH_TYPE_ZYNQMPIMAGE, "zynqmpimage", "Xilinx ZynqMP Boot Image" },
 	{	IH_TYPE_FPGA,       "fpga",       "FPGA Image" },
+	{       IH_TYPE_TEE,        "tee",        "Trusted Execution Environment Image",},
+	{	IH_TYPE_FIRMWARE_IVT, "firmware_ivt", "Firmware with HABv4 IVT" },
 	{	-1,		    "",		  "",			},
 };
 
@@ -364,6 +366,11 @@ void image_print_contents(const void *ptr)
 				printf("%s    Offset = 0x%08lx\n", p, data);
 			}
 		}
+	} else if (image_check_type(hdr, IH_TYPE_FIRMWARE_IVT)) {
+		printf("HAB Blocks:   0x%08x   0x0000   0x%08x\n",
+				image_get_load(hdr) - image_get_header_size(),
+				image_get_size(hdr) + image_get_header_size()
+						- 0x1FE0);
 	}
 }
 
@@ -1374,11 +1381,10 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 						img_len, BIT_PARTIAL);
 		}
 
-		printf("   Programming %s bitstream... ", name);
 		if (err)
-			printf("failed\n");
-		else
-			printf("OK\n");
+			return err;
+
+		printf("   Programming %s bitstream... OK\n", name);
 		break;
 	default:
 		printf("The given image format is not supported (corrupt?)\n");
@@ -1388,6 +1394,23 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 	return 0;
 }
 #endif
+
+static void fit_loadable_process(uint8_t img_type,
+				 ulong img_data,
+				 ulong img_len)
+{
+	int i;
+	const unsigned int count =
+			ll_entry_count(struct fit_loadable_tbl, fit_loadable);
+	struct fit_loadable_tbl *fit_loadable_handler =
+			ll_entry_start(struct fit_loadable_tbl, fit_loadable);
+	/* For each loadable handler */
+	for (i = 0; i < count; i++, fit_loadable_handler++)
+		/* matching this type */
+		if (fit_loadable_handler->type == img_type)
+			/* call that handler with this image data */
+			fit_loadable_handler->handler(img_data, img_len);
+}
 
 int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, const ulong *ld_start, ulong * const ld_len)
@@ -1407,6 +1430,7 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 	int conf_noffset;
 	int fit_img_result;
 	const char *uname;
+	uint8_t img_type;
 
 	/* Check to see if the images struct has a FIT configuration */
 	if (!genimg_has_config(images)) {
@@ -1447,6 +1471,21 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 				/* Something went wrong! */
 				return fit_img_result;
 			}
+
+			fit_img_result = fit_image_get_node(buf, uname);
+			if (fit_img_result < 0) {
+				/* Something went wrong! */
+				return fit_img_result;
+			}
+			fit_img_result = fit_image_get_type(buf,
+							    fit_img_result,
+							    &img_type);
+			if (fit_img_result < 0) {
+				/* Something went wrong! */
+				return fit_img_result;
+			}
+
+			fit_loadable_process(img_type, img_data, img_len);
 		}
 		break;
 	default:

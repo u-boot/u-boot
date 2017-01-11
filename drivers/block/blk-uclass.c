@@ -26,7 +26,7 @@ static const char *if_typename_str[IF_TYPE_COUNT] = {
 
 static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
 	[IF_TYPE_IDE]		= UCLASS_INVALID,
-	[IF_TYPE_SCSI]		= UCLASS_INVALID,
+	[IF_TYPE_SCSI]		= UCLASS_SCSI,
 	[IF_TYPE_ATAPI]		= UCLASS_INVALID,
 	[IF_TYPE_USB]		= UCLASS_MASS_STORAGE,
 	[IF_TYPE_DOC]		= UCLASS_INVALID,
@@ -156,6 +156,8 @@ static int get_desc(enum if_type if_type, int devnum, struct blk_desc **descp)
 				if (ret)
 					return ret;
 
+				*descp = desc;
+				return 0;
 			} else if (desc->devnum > devnum) {
 				found_more = true;
 			}

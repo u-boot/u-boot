@@ -17,8 +17,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MPC8641		1	/* MPC8641 specific */
-#define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 #define CONFIG_ADDR_MAP		1	/* Use addr map */
@@ -46,7 +44,6 @@
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_FSL_LAW		1	/* Use common FSL law init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -89,7 +86,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
@@ -105,7 +101,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
@@ -118,7 +113,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_MAX_DDR_BAT_SIZE	0x80000000	/* BAT mapping size */
 #define CONFIG_VERY_BIG_RAM
 
-#define CONFIG_NUM_DDR_CONTROLLERS	2
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 

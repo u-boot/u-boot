@@ -22,7 +22,6 @@
  *  0x1800_0000  MFI              16bit
  */
 
-#undef DEBUG
 #define CONFIG_CPU_SH7724	1
 #define CONFIG_BOARD_LATE_INIT		1
 #define CONFIG_ECOVEC		1
@@ -38,6 +37,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 
+#define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* I2C */

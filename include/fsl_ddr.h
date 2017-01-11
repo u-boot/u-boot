@@ -15,7 +15,7 @@
 
 #ifndef CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
 /* All controllers are for main memory */
-#define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	CONFIG_SYS_NUM_DDR_CTLRS
 #endif
 
 #ifdef CONFIG_SYS_FSL_DDR_LE
@@ -54,7 +54,6 @@ compute_dimm_parameters(const unsigned int ctrl_num,
  *
  * All data structures have to be on the stack
  */
-#define CONFIG_SYS_NUM_DDR_CTLRS CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_SYS_DIMM_SLOTS_PER_CTLR CONFIG_DIMM_SLOTS_PER_CTLR
 
 typedef struct {
@@ -138,4 +137,6 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 void update_spd_address(unsigned int ctrl_num,
 			unsigned int slot,
 			unsigned int *addr);
+
+void erratum_a009942_check_cpo(void);
 #endif

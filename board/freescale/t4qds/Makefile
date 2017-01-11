@@ -7,7 +7,8 @@
 ifdef CONFIG_SPL_BUILD
 obj-y	+= spl.o
 else
-obj-$(CONFIG_T4240QDS)	+= t4240qds.o eth.o
+obj-$(CONFIG_TARGET_T4160QDS)	+= t4240qds.o eth.o
+obj-$(CONFIG_TARGET_T4240QDS)	+= t4240qds.o eth.o
 obj-$(CONFIG_PCI)	+= pci.o
 endif
 

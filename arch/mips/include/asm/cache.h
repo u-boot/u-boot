@@ -19,6 +19,7 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE ARCH_DMA_MINALIGN
 
+#ifndef __ASSEMBLY__
 /**
  * mips_cache_probe() - Probe the properties of the caches
  *
@@ -27,5 +28,6 @@
  * functions such as flush_cache may be called.
  */
 void mips_cache_probe(void);
+#endif
 
 #endif /* __MIPS_CACHE_H__ */

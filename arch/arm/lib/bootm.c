@@ -64,6 +64,10 @@ void arch_lmb_reserve(struct lmb *lmb)
 		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
 }
 
+__weak void board_quiesce_devices(void)
+{
+}
+
 /**
  * announce_and_cleanup() - Print message and prepare for kernel boot
  *
@@ -84,6 +88,9 @@ static void announce_and_cleanup(int fake)
 #ifdef CONFIG_USB_DEVICE
 	udc_disconnect();
 #endif
+
+	board_quiesce_devices();
+
 	cleanup_before_linux();
 }
 
@@ -193,10 +200,6 @@ static void do_nonsec_virt_switch(void)
 {
 	smp_kick_all_cpus();
 	dcache_disable();	/* flush cache before swtiching to EL2 */
-	armv8_switch_to_el2();
-#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	armv8_switch_to_el1();
-#endif
 }
 #endif
 
@@ -273,6 +276,28 @@ bool armv7_boot_nonsec(void)
 }
 #endif
 
+#ifdef CONFIG_ARM64
+__weak void update_os_arch_secondary_cores(uint8_t os_arch)
+{
+}
+
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+static void switch_to_el1(void)
+{
+	if ((IH_ARCH_DEFAULT == IH_ARCH_ARM64) &&
+	    (images.os.arch == IH_ARCH_ARM))
+		armv8_switch_to_el1(0, (u64)gd->bd->bi_arch_number,
+				    (u64)images.ft_addr,
+				    (u64)images.ep,
+				    ES_TO_AARCH32);
+	else
+		armv8_switch_to_el1((u64)images.ft_addr, 0, 0,
+				    images.ep,
+				    ES_TO_AARCH64);
+}
+#endif
+#endif
+
 /* Subcommand: GO */
 static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
@@ -291,8 +316,28 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	announce_and_cleanup(fake);
 
 	if (!fake) {
+#ifdef CONFIG_ARMV8_PSCI
+		armv8_setup_psci();
+#endif
 		do_nonsec_virt_switch();
-		kernel_entry(images->ft_addr, NULL, NULL, NULL);
+
+		update_os_arch_secondary_cores(images->os.arch);
+
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+		armv8_switch_to_el2((u64)images->ft_addr, 0, 0,
+				    (u64)switch_to_el1, ES_TO_AARCH64);
+#else
+		if ((IH_ARCH_DEFAULT == IH_ARCH_ARM64) &&
+		    (images->os.arch == IH_ARCH_ARM))
+			armv8_switch_to_el2(0, (u64)gd->bd->bi_arch_number,
+					    (u64)images->ft_addr,
+					    (u64)images->ep,
+					    ES_TO_AARCH32);
+		else
+			armv8_switch_to_el2((u64)images->ft_addr, 0, 0,
+					    images->ep,
+					    ES_TO_AARCH64);
+#endif
 	}
 #else
 	unsigned long machid = gd->bd->bi_arch_number;
@@ -372,10 +417,8 @@ void boot_prep_vxworks(bootm_headers_t *images)
 	if (images->ft_addr) {
 		off = fdt_path_offset(images->ft_addr, "/memory");
 		if (off < 0) {
-#ifdef CONFIG_ARCH_FIXUP_FDT
 			if (arch_fixup_fdt(images->ft_addr))
 				puts("## WARNING: fixup memory failed!\n");
-#endif
 		}
 	}
 #endif

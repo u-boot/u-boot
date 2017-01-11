@@ -25,7 +25,7 @@
 #define QBMAN_CENA_SWP_VDQCR   0x780
 
 /* Reverse mapping of QBMAN_CENA_SWP_DQRR() */
-#define QBMAN_IDX_FROM_DQRR(p) (((unsigned long)p & 0xff) >> 6)
+#define QBMAN_IDX_FROM_DQRR(p) (((unsigned long)p & 0x1ff) >> 6)
 
 /*******************************/
 /* Pre-defined attribute codes */
@@ -65,6 +65,7 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
 {
 	int ret;
 	struct qbman_swp *p = malloc(sizeof(struct qbman_swp));
+	u32 major = 0, minor = 0;
 
 	if (!p)
 		return NULL;
@@ -80,8 +81,20 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
 	atomic_set(&p->vdq.busy, 1);
 	p->vdq.valid_bit = QB_VALID_BIT;
 	p->dqrr.next_idx = 0;
+
+	qbman_version(&major, &minor);
+	if (!major) {
+		printf("invalid qbman version\n");
+		return NULL;
+	}
+
+	if (major >= 4 && minor >= 1)
+		p->dqrr.dqrr_size = QBMAN_VER_4_1_DQRR_SIZE;
+	else
+		p->dqrr.dqrr_size = QBMAN_VER_4_0_DQRR_SIZE;
+
 	p->dqrr.valid_bit = QB_VALID_BIT;
-	ret = qbman_swp_sys_init(&p->sys, d);
+	ret = qbman_swp_sys_init(&p->sys, d, p->dqrr.dqrr_size);
 	if (ret) {
 		free(p);
 		printf("qbman_swp_sys_init() failed %d\n", ret);
@@ -380,7 +393,7 @@ const struct ldpaa_dq *qbman_swp_dqrr_next(struct qbman_swp *s)
 	/* There's something there. Move "next_idx" attention to the next ring
 	 * entry (and prefetch it) before returning what we found. */
 	s->dqrr.next_idx++;
-	s->dqrr.next_idx &= QBMAN_DQRR_SIZE - 1; /* Wrap around at 4 */
+	s->dqrr.next_idx &= s->dqrr.dqrr_size - 1;/* Wrap around at dqrr_size */
 	/* TODO: it's possible to do all this without conditionals, optimise it
 	 * later. */
 	if (!s->dqrr.next_idx)

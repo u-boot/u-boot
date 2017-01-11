@@ -3,4 +3,7 @@ M:	Paul Burton <paul.burton@imgtec.com>
 S:	Maintained
 F:	board/imgtec/boston/
 F:	include/configs/boston.h
-F:	configs/boston_defconfig
+F:	configs/boston32r2_defconfig
+F:	configs/boston32r2el_defconfig
+F:	configs/boston64r2_defconfig
+F:	configs/boston64r2el_defconfig

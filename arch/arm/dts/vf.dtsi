@@ -35,6 +35,7 @@
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
+			reg = <0x40000000 0x00070000>;
 			ranges;
 
 			uart0: serial@40027000 {
@@ -130,6 +131,7 @@
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
+			reg = <0x40080000 0x0007f000>;
 			ranges;
 
 			uart4: serial@400a9000 {

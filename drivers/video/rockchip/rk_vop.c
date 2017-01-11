@@ -195,7 +195,6 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 	struct udevice *disp;
 	int ret, remote, i, offset;
 	struct display_plat *disp_uc_plat;
-	struct udevice *dev_clk;
 	struct clk clk;
 
 	vop_id = fdtdec_get_int(blob, ep_node, "reg", -1);
@@ -222,6 +221,11 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 
 	disp_uc_plat = dev_get_uclass_platdata(disp);
 	debug("Found device '%s', disp_uc_priv=%p\n", disp->name, disp_uc_plat);
+	if (display_in_use(disp)) {
+		debug("   - device in use\n");
+		return -EBUSY;
+	}
+
 	disp_uc_plat->source_id = remote_vop_id;
 	disp_uc_plat->src_dev = dev;
 
@@ -238,11 +242,7 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 		return ret;
 	}
 
-	ret = rockchip_get_clk(&dev_clk);
-	if (!ret) {
-		clk.id = DCLK_VOP0 + remote_vop_id;
-		ret = clk_request(dev_clk, &clk);
-	}
+	ret = clk_get_by_index(dev, 1, &clk);
 	if (!ret)
 		ret = clk_set_rate(&clk, timing.pixelclock.typ);
 	if (ret) {
@@ -316,6 +316,10 @@ static int rk_vop_probe(struct udevice *dev)
 	/*
 	 * Try all the ports until we find one that works. In practice this
 	 * tries EDP first if available, then HDMI.
+	 *
+	 * Note that rockchip_vop_set_clk() always uses NPLL as the source
+	 * clock so it is currently not possible to use more than one display
+	 * device simultaneously.
 	 */
 	port = fdt_subnode_offset(blob, dev->of_offset, "port");
 	if (port < 0)

@@ -73,7 +73,7 @@ struct kwb_header {
 /* Structure of the main header, version 1 (Armada 370, Armada XP) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0 */
-	uint8_t  reserved1;             /* 1 */
+	uint8_t  flags;                 /* 1 */
 	uint16_t reserved2;             /* 2-3 */
 	uint32_t blocksize;             /* 4-7 */
 	uint8_t  version;               /* 8 */
@@ -82,7 +82,7 @@ struct main_hdr_v1 {
 	uint32_t srcaddr;               /* C-F */
 	uint32_t destaddr;              /* 10-13 */
 	uint32_t execaddr;              /* 14-17 */
-	uint8_t  reserved3;             /* 18 */
+	uint8_t  options;               /* 18 */
 	uint8_t  nandblocksize;         /* 19 */
 	uint8_t  nandbadblklocation;    /* 1A */
 	uint8_t  reserved4;             /* 1B */
@@ -90,6 +90,18 @@ struct main_hdr_v1 {
 	uint8_t  ext;                   /* 1E */
 	uint8_t  checksum;              /* 1F */
 };
+
+/*
+ * Main header options
+ */
+#define MAIN_HDR_V1_OPT_BAUD_DEFAULT	0
+#define MAIN_HDR_V1_OPT_BAUD_2400	0x1
+#define MAIN_HDR_V1_OPT_BAUD_4800	0x2
+#define MAIN_HDR_V1_OPT_BAUD_9600	0x3
+#define MAIN_HDR_V1_OPT_BAUD_19200	0x4
+#define MAIN_HDR_V1_OPT_BAUD_38400	0x5
+#define MAIN_HDR_V1_OPT_BAUD_57600	0x6
+#define MAIN_HDR_V1_OPT_BAUD_115200	0x7
 
 /*
  * Header for the optional headers, version 1 (Armada 370, Armada XP)

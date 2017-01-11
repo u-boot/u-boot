@@ -16,10 +16,25 @@
 		stdout-path = &uart2;
 	};
 
-	usb_control {
-		compatible = "rockchip,rk3036-usb-control";
-		host_drv_gpio = <&gpio2 23 GPIO_ACTIVE_LOW>;
-		otg_drv_gpio = <&gpio0 26 GPIO_ACTIVE_LOW>;
+	vcc5v0_otg: vcc5v0-otg-drv {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_otg";
+		gpio = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&otg_vbus_drv>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
+	vcc5v0_host: vcc5v0-host-drv {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_host";
+		gpio = <&gpio2 23 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&host_vbus_drv>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
 	};
 };
 
@@ -41,4 +56,18 @@
 
 &usb_otg {
 	status = "okay";
+};
+
+&pinctrl {
+	usb_otg {
+		otg_vbus_drv: host-vbus-drv {
+			rockchip,pins = <0 26 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	usb_host {
+		host_vbus_drv: host-vbus-drv {
+			rockchip,pins = <2 23 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
 };

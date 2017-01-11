@@ -112,6 +112,7 @@ static int comphy_probe(struct udevice *dev)
 	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
 	int subnode;
 	int lane;
+	int last_idx = 0;
 
 	/* Save base addresses for later use */
 	chip_cfg->comphy_base_addr = (void *)dev_get_addr_index(dev, 0);
@@ -178,10 +179,20 @@ static int comphy_probe(struct udevice *dev)
 	/* PHY power UP sequence */
 	chip_cfg->ptr_comphy_chip_init(chip_cfg, comphy_map_data);
 	/* PHY print SerDes status */
+	if (of_machine_is_compatible("marvell,armada8040"))
+		printf("Comphy chip #%d:\n", chip_cfg->comphy_index);
 	comphy_print(chip_cfg, comphy_map_data);
 
-	/* Initialize dedicated PHYs (not muxed SerDes lanes) */
-	comphy_dedicated_phys_init();
+	/*
+	 * Only run the dedicated PHY init code once, in the last PHY init call
+	 */
+	if (of_machine_is_compatible("marvell,armada8040"))
+		last_idx = 1;
+
+	if (chip_cfg->comphy_index == last_idx) {
+		/* Initialize dedicated PHYs (not muxed SerDes lanes) */
+		comphy_dedicated_phys_init();
+	}
 
 	return 0;
 }

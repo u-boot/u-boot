@@ -1,10 +1,14 @@
 menu "MMC Host controller Support"
 
 config MMC
-	bool "Enable MMC support"
-	depends on ARCH_SUNXI || SANDBOX
+	bool "MMC/SD/SDIO card support"
+	default ARM || PPC || SANDBOX
 	help
-	  TODO: Move all architectures to use this option
+	  This selects MultiMediaCard, Secure Digital and Secure
+	  Digital I/O support.
+
+	  If you want MMC/SD/SDIO support, you should say Y here and
+	  also to your specific host controller driver.
 
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
@@ -26,9 +30,27 @@ config DM_MMC_OPS
 	  option will be removed as soon as all DM_MMC drivers use it, as it
 	  will the only supported behaviour.
 
+if MMC
+
+config SPL_MMC_TINY
+	bool "Tiny MMC framework in SPL"
+	help
+	  Enable MMC framework tinification support. This option is useful if
+	  if your SPL is extremely size constrained. Heed the warning, enable
+	  this option if and only if you know exactly what you are doing, if
+	  you are reading this help text, you most likely have no idea :-)
+
+	  The MMC framework is reduced to bare minimum to be useful. No malloc
+	  support is needed for the MMC framework operation with this option
+	  enabled. The framework supports exactly one MMC device and exactly
+	  one MMC driver. The MMC driver can be adjusted to avoid any malloc
+	  operations too, which can remove the need for malloc support in SPL
+	  and thus further reduce footprint.
+
 config MSM_SDHCI
 	bool "Qualcomm SDHCI controller"
 	depends on DM_MMC && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
           Snapdragon devices. This device is compatible with eMMC v4.5 and
@@ -38,6 +60,7 @@ config MSM_SDHCI
 config ATMEL_SDHCI
 	bool "Atmel SDHCI controller support"
 	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	depends on MMC_SDHCI
 	help
 	  This enables support for the Atmel SDHCI controller, which supports
 	  the embedded MultiMedia Card (e.MMC) Specification V4.51, the SD
@@ -63,18 +86,21 @@ config SH_SDHI
 config PIC32_SDHCI
 	bool "Microchip PIC32 on-chip SDHCI support"
 	depends on DM_MMC && MACH_PIC32
+	depends on MMC_SDHCI
 	help
 	  Support for Microchip PIC32 SDHCI controller.
 
 config ZYNQ_SDHCI
 	bool "Arasan SDHCI controller support"
-	depends on DM_MMC && OF_CONTROL
+	depends on DM_MMC && OF_CONTROL && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
 
 config ROCKCHIP_SDHCI
 	bool "Arasan SDHCI controller for Rockchip support"
 	depends on DM_MMC && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
 
@@ -95,4 +121,101 @@ config SANDBOX_MMC
 	  improves build coverage for sandbox and makes it easier to detect
 	  MMC build errors with sandbox.
 
+config MMC_SDHCI
+	bool "Secure Digital Host Controller Interface support"
+	help
+	  This selects the generic Secure Digital Host Controller Interface.
+	  It is used by manufacturers such as Texas Instruments(R), Ricoh(R)
+	  and Toshiba(R). Most controllers found in laptops are of this type.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_IO_ACCESSORS
+	bool
+	depends on MMC_SDHCI
+	help
+	  This is silent Kconfig symbol that is selected by the drivers that
+	  need to overwrite SDHCI IO memory accessors.
+
+config MMC_SDHCI_SDMA
+	bool "Support SDHCI SDMA"
+	depends on MMC_SDHCI
+	help
+	  This enables support for the SDMA (Single Operation DMA) defined
+	  in the SD Host Controller Standard Specification Version 1.00 .
+
+config MMC_SDHCI_BCM2835
+	tristate "SDHCI support for the BCM2835 SD/MMC Controller"
+	depends on ARCH_BCM283X
+	depends on MMC_SDHCI
+	select MMC_SDHCI_IO_ACCESSORS
+	help
+	  This selects the BCM2835 SD/MMC controller.
+
+	  If you have a BCM2835 platform with SD or MMC devices,
+	  say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_KONA
+	bool "SDHCI support on Broadcom KONA platform"
+	depends on MMC_SDHCI
+	help
+	  This selects the Broadcom Kona Secure Digital Host Controller
+	  Interface(SDHCI) support.
+	  This is used in Broadcom mobile SoCs.
+
+	  If you have a controller with this interface, say Y here.
+
+config MMC_SDHCI_MV
+	bool "SDHCI support on Marvell platform"
+	depends on ARCH_MVEBU
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface on
+	  Marvell platform.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_S5P
+	bool "SDHCI support on Samsung S5P SoC"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  on Samsung S5P SoCs.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SDHCI_SPEAR
+	bool "SDHCI support on ST SPEAr platform"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  often referrered to as the HSMMC block in some of the ST SPEAR range
+	  of SoC
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
+endif
+
 endmenu
+
+config SYS_FSL_ERRATUM_ESDHC111
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC13
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC135
+	bool
+
+config SYS_FSL_ERRATUM_ESDHC_A001
+	bool

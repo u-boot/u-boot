@@ -281,7 +281,6 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 			d = (struct dcd_v2_cmd *)(((char *)d) + len);
 
 		len = (char *)d - (char *)&dcd_v2->header;
-
 		dcd_v2->header.tag = DCD_HEADER_TAG;
 		dcd_v2->header.length = cpu_to_be16(len);
 		dcd_v2->header.version = DCD_VERSION;
@@ -501,10 +500,19 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 		printf("Entry Point:  %08x\n", (uint32_t)fhdr_v2->entry);
 		if (fhdr_v2->csf && (imximage_ivt_offset != UNDEFINED) &&
 		    (imximage_csf_size != UNDEFINED)) {
+			uint16_t dcdlen;
+			int offs;
+
+			dcdlen = hdr_v2->data.dcd_table.header.length;
+			offs = (char *)&hdr_v2->data.dcd_table
+				- (char *)hdr_v2;
+
 			printf("HAB Blocks:   %08x %08x %08x\n",
 			       (uint32_t)fhdr_v2->self, 0,
 			       hdr_v2->boot_data.size - imximage_ivt_offset -
 			       imximage_csf_size);
+			printf("DCD Blocks:   00910000 %08x %08x\n",
+			       offs, be16_to_cpu(dcdlen));
 		}
 	} else {
 		imx_header_v2_t *next_hdr_v2;

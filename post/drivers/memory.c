@@ -234,7 +234,7 @@ static int memory_post_dataline(unsigned long long * pmem)
 			hi = (temp64>>32) & 0xffffffff;
 			lo = temp64 & 0xffffffff;
 
-			post_log("Memory (date line) error at %08x, "
+			post_log("Memory (data line) error at %08x, "
 				  "wrote %08x%08x, read %08x%08x !\n",
 					  pmem, pathi, patlo, hi, lo);
 			ret = -1;
