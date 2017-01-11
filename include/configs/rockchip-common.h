@@ -14,7 +14,9 @@
 /* First try to boot from SD (index 0), then eMMC (index 1 */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1)
+	func(MMC, mmc, 1) \
+	func(PXE, pxe, na) \
+	func(DHCP, dchp, na)
 
  /* Enable gpt partition table */
 #define CONFIG_CMD_GPT
