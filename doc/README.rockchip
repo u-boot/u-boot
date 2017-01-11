@@ -219,7 +219,6 @@ Immediate priorities are:
 - USB host
 - USB device
 - Run CPU at full speed (code exists but we only see ~60 DMIPS maximum)
-- Ethernet
 - NAND flash
 - Support for other Rockchip parts
 - Boot U-Boot proper over USB OTG (at present only SPL works)
