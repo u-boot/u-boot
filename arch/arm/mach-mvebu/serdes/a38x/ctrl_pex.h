@@ -83,4 +83,6 @@ int pex_local_bus_num_set(u32 pex_if, u32 bus_num);
 int pex_local_dev_num_set(u32 pex_if, u32 dev_num);
 u32 pex_config_read(u32 pex_if, u32 bus, u32 dev, u32 func, u32 reg_off);
 
+void board_pex_config(void);
+
 #endif
