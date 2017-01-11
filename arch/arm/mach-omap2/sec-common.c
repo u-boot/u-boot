@@ -21,7 +21,11 @@
 #include <spl.h>
 
 /* Index for signature verify ROM API */
+#ifdef CONFIG_AM33XX
+#define API_HAL_KM_VERIFYCERTIFICATESIGNATURE_INDEX	(0x0000000C)
+#else
 #define API_HAL_KM_VERIFYCERTIFICATESIGNATURE_INDEX	(0x0000000E)
+#endif
 
 static uint32_t secure_rom_call_args[5] __aligned(ARCH_DMA_MINALIGN);
 
