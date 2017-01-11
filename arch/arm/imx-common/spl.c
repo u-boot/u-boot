@@ -101,7 +101,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry_noargs_t image_entry =
 		(image_entry_noargs_t)(unsigned long)spl_image->entry_point;
 
-	debug("image entry point: 0x%X\n", spl_image->entry_point);
+	debug("image entry point: 0x%lX\n", spl_image->entry_point);
 
 	/* HAB looks for the CSF at the end of the authenticated data therefore,
 	 * we need to subtract the size of the CSF from the actual filesize */
