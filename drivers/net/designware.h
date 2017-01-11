@@ -253,6 +253,15 @@ struct dw_eth_pdata {
 	struct eth_pdata eth_pdata;
 	u32 reset_delays[3];
 };
+
+int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr);
+int designware_eth_enable(struct dw_eth_dev *priv);
+int designware_eth_send(struct udevice *dev, void *packet, int length);
+int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp);
+int designware_eth_free_pkt(struct udevice *dev, uchar *packet,
+				   int length);
+void designware_eth_stop(struct udevice *dev);
+int designware_eth_write_hwaddr(struct udevice *dev);
 #endif
 
 #endif
