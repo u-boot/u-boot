@@ -230,7 +230,6 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	struct image_cfg_element *e;
 	size_t headersz;
 	struct main_hdr_v0 *main_hdr;
-	struct ext_hdr_v0 *ext_hdr;
 	uint8_t *image;
 	int has_ext = 0;
 
@@ -282,6 +281,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	/* Generate the ext header */
 	if (has_ext) {
+		struct ext_hdr_v0 *ext_hdr;
 		int cfgi, datai;
 
 		ext_hdr = (struct ext_hdr_v0 *)
@@ -313,7 +313,6 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 {
 	struct image_cfg_element *binarye;
 	size_t headersz;
-	int ret;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -333,6 +332,7 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
+		int ret;
 		struct stat s;
 
 		ret = stat(binarye->binary.file, &s);
@@ -388,7 +388,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	size_t headersz;
 	uint8_t *image, *cur;
 	int hasext = 0;
-	int ret;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -444,6 +443,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		struct stat s;
 		int argi;
 		FILE *bin;
+		int ret;
 
 		hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
 
@@ -818,7 +818,6 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 				  struct image_tool_params *params)
 {
 	struct main_hdr_v0 *main_hdr;
-	struct ext_hdr_v0 *ext_hdr;
 	uint8_t checksum;
 
 	main_hdr = (struct main_hdr_v0 *)ptr;
@@ -830,6 +829,8 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 
 	/* Only version 0 extended header has checksum */
 	if (image_version((void *)ptr) == 0) {
+		struct ext_hdr_v0 *ext_hdr;
+
 		ext_hdr = (struct ext_hdr_v0 *)
 				(ptr + sizeof(struct main_hdr_v0));
 		checksum = image_checksum8(ext_hdr,
