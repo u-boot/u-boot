@@ -480,6 +480,49 @@ static int m88e1310_config(struct phy_device *phydev)
 	return genphy_config_aneg(phydev);
 }
 
+static int m88e1680_config(struct phy_device *phydev)
+{
+	/*
+	 * As per Marvell Release Notes - Alaska V 88E1680 Rev A2
+	 * Errata Section 4.1
+	 */
+	u16 reg;
+	int res;
+
+	/* Matrix LED mode (not neede if single LED mode is used */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0004);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, 27);
+	reg |= (1 << 5);
+	phy_write(phydev, MDIO_DEVAD_NONE, 27, reg);
+
+	/* QSGMII TX amplitude change */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x00fd);
+	phy_write(phydev, MDIO_DEVAD_NONE,  8, 0x0b53);
+	phy_write(phydev, MDIO_DEVAD_NONE,  7, 0x200d);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0000);
+
+	/* EEE initialization */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x00ff);
+	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0xb030);
+	phy_write(phydev, MDIO_DEVAD_NONE, 16, 0x215c);
+	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0x00fc);
+	phy_write(phydev, MDIO_DEVAD_NONE, 24, 0x888c);
+	phy_write(phydev, MDIO_DEVAD_NONE, 25, 0x888c);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0000);
+	phy_write(phydev, MDIO_DEVAD_NONE,  0, 0x9140);
+
+	res = genphy_config_aneg(phydev);
+	if (res < 0)
+		return res;
+
+	/* soft reset */
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+	reg |= BMCR_RESET;
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, reg);
+
+	return 0;
+}
+
 static struct phy_driver M88E1011S_driver = {
 	.name = "Marvell 88E1011S",
 	.uid = 0x1410c60,
@@ -580,6 +623,16 @@ static struct phy_driver M88E1310_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E1680_driver = {
+	.name = "Marvell 88E1680",
+	.uid = 0x1410ed0,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &m88e1680_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_marvell_init(void)
 {
 	phy_register(&M88E1310_driver);
@@ -592,6 +645,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1011S_driver);
 	phy_register(&M88E1510_driver);
 	phy_register(&M88E1518_driver);
+	phy_register(&M88E1680_driver);
 
 	return 0;
 }
