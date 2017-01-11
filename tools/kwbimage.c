@@ -231,7 +231,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	size_t headersz;
 	struct main_hdr_v0 *main_hdr;
 	struct ext_hdr_v0 *ext_hdr;
-	void *image;
+	uint8_t *image;
 	int has_ext = 0;
 
 	/*
@@ -258,7 +258,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	memset(image, 0, headersz);
 
-	main_hdr = image;
+	main_hdr = (struct main_hdr_v0 *)image;
 
 	/* Fill in the main header */
 	main_hdr->blocksize =
@@ -284,7 +284,8 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	if (has_ext) {
 		int cfgi, datai;
 
-		ext_hdr = image + sizeof(struct main_hdr_v0);
+		ext_hdr = (struct ext_hdr_v0 *)
+				(image + sizeof(struct main_hdr_v0));
 		ext_hdr->offset = cpu_to_le32(0x40);
 
 		for (cfgi = 0, datai = 0; cfgi < cfgn; cfgi++) {
@@ -385,7 +386,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	struct image_cfg_element *e, *binarye;
 	struct main_hdr_v1 *main_hdr;
 	size_t headersz;
-	void *image, *cur;
+	uint8_t *image, *cur;
 	int hasext = 0;
 	int ret;
 
@@ -405,8 +406,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	memset(image, 0, headersz);
 
-	cur = main_hdr = image;
-	cur += sizeof(struct main_hdr_v1);
+	main_hdr = (struct main_hdr_v1 *)image;
+	cur = image + sizeof(struct main_hdr_v1);
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
@@ -437,7 +438,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
-		struct opt_hdr_v1 *hdr = cur;
+		struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)cur;
 		uint32_t *args;
 		size_t binhdrsz;
 		struct stat s;
@@ -470,7 +471,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 		cur += sizeof(struct opt_hdr_v1);
 
-		args = cur;
+		args = (uint32_t *)cur;
 		*args = cpu_to_le32(binarye->binary.nargs);
 		args++;
 		for (argi = 0; argi < binarye->binary.nargs; argi++)
@@ -820,7 +821,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	struct ext_hdr_v0 *ext_hdr;
 	uint8_t checksum;
 
-	main_hdr = (void *)ptr;
+	main_hdr = (struct main_hdr_v0 *)ptr;
 	checksum = image_checksum8(ptr,
 				   sizeof(struct main_hdr_v0)
 				   - sizeof(uint8_t));
@@ -829,7 +830,8 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 
 	/* Only version 0 extended header has checksum */
 	if (image_version((void *)ptr) == 0) {
-		ext_hdr = (void *)ptr + sizeof(struct main_hdr_v0);
+		ext_hdr = (struct ext_hdr_v0 *)
+				(ptr + sizeof(struct main_hdr_v0));
 		checksum = image_checksum8(ext_hdr,
 					   sizeof(struct ext_hdr_v0)
 					   - sizeof(uint8_t));
