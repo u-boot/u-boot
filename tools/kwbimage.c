@@ -308,8 +308,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	return image;
 }
 
-static size_t image_headersz_v1(struct image_tool_params *params,
-				int *hasext)
+static size_t image_headersz_v1(int *hasext)
 {
 	struct image_cfg_element *binarye;
 	size_t headersz;
@@ -393,7 +392,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	 * Calculate the size of the header and the size of the
 	 * payload
 	 */
-	headersz = image_headersz_v1(params, &hasext);
+	headersz = image_headersz_v1(&hasext);
 	if (headersz == 0)
 		return NULL;
 
@@ -855,7 +854,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 		alloc_len = sizeof(struct main_hdr_v0) +
 			sizeof(struct ext_hdr_v0);
 	} else {
-		alloc_len = image_headersz_v1(params, NULL);
+		alloc_len = image_headersz_v1(NULL);
 	}
 
 	hdr = malloc(alloc_len);
