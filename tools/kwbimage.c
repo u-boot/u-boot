@@ -369,6 +369,7 @@ static size_t image_headersz_v1(int *hasext)
 		fprintf(stderr, "Increase CONFIG_SYS_U_BOOT_OFFS!\n");
 		return 0;
 	}
+
 	headersz = CONFIG_SYS_U_BOOT_OFFS;
 #endif
 
@@ -379,10 +380,85 @@ static size_t image_headersz_v1(int *hasext)
 	return ALIGN_SUP(headersz, 4096);
 }
 
+int add_binary_header_v1(uint8_t *cur)
+{
+	struct image_cfg_element *binarye;
+	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)cur;
+	uint32_t *args;
+	size_t binhdrsz;
+	struct stat s;
+	int argi;
+	FILE *bin;
+	int ret;
+
+	binarye = image_find_option(IMAGE_CFG_BINARY);
+
+	if (!binarye)
+		return 0;
+
+	hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
+
+	bin = fopen(binarye->binary.file, "r");
+	if (!bin) {
+		fprintf(stderr, "Cannot open binary file %s\n",
+			binarye->binary.file);
+		return -1;
+	}
+
+	fstat(fileno(bin), &s);
+
+	binhdrsz = sizeof(struct opt_hdr_v1) +
+		(binarye->binary.nargs + 2) * sizeof(uint32_t) +
+		s.st_size;
+
+	/*
+	 * The size includes the binary image size, rounded
+	 * up to a 4-byte boundary. Plus 4 bytes for the
+	 * next-header byte and 3-byte alignment at the end.
+	 */
+	binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
+	hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
+	hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
+
+	cur += sizeof(struct opt_hdr_v1);
+
+	args = (uint32_t *)cur;
+	*args = cpu_to_le32(binarye->binary.nargs);
+	args++;
+	for (argi = 0; argi < binarye->binary.nargs; argi++)
+		args[argi] = cpu_to_le32(binarye->binary.args[argi]);
+
+	cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
+
+	ret = fread(cur, s.st_size, 1, bin);
+	if (ret != 1) {
+		fprintf(stderr,
+			"Could not read binary image %s\n",
+			binarye->binary.file);
+		return -1;
+	}
+
+	fclose(bin);
+
+	cur += ALIGN_SUP(s.st_size, 4);
+
+	/*
+	 * For now, we don't support more than one binary
+	 * header, and no other header types are
+	 * supported. So, the binary header is necessarily the
+	 * last one
+	 */
+	*((uint32_t *)cur) = 0x00000000;
+
+	cur += sizeof(uint32_t);
+
+	return 0;
+}
+
 static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
-	struct image_cfg_element *e, *binarye;
+	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
 	size_t headersz;
 	uint8_t *image, *cur;
@@ -434,72 +510,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
 
-	binarye = image_find_option(IMAGE_CFG_BINARY);
-	if (binarye) {
-		struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)cur;
-		uint32_t *args;
-		size_t binhdrsz;
-		struct stat s;
-		int argi;
-		FILE *bin;
-		int ret;
-
-		hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
-
-		bin = fopen(binarye->binary.file, "r");
-		if (!bin) {
-			fprintf(stderr, "Cannot open binary file %s\n",
-				binarye->binary.file);
-			return NULL;
-		}
-
-		fstat(fileno(bin), &s);
-
-		binhdrsz = sizeof(struct opt_hdr_v1) +
-			(binarye->binary.nargs + 2) * sizeof(uint32_t) +
-			s.st_size;
-
-		/*
-		 * The size includes the binary image size, rounded
-		 * up to a 4-byte boundary. Plus 4 bytes for the
-		 * next-header byte and 3-byte alignment at the end.
-		 */
-		binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
-		hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
-		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
-
-		cur += sizeof(struct opt_hdr_v1);
-
-		args = (uint32_t *)cur;
-		*args = cpu_to_le32(binarye->binary.nargs);
-		args++;
-		for (argi = 0; argi < binarye->binary.nargs; argi++)
-			args[argi] = cpu_to_le32(binarye->binary.args[argi]);
-
-		cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
-
-		ret = fread(cur, s.st_size, 1, bin);
-		if (ret != 1) {
-			fprintf(stderr,
-				"Could not read binary image %s\n",
-				binarye->binary.file);
-			return NULL;
-		}
-
-		fclose(bin);
-
-		cur += ALIGN_SUP(s.st_size, 4);
-
-		/*
-		 * For now, we don't support more than one binary
-		 * header, and no other header types are
-		 * supported. So, the binary header is necessarily the
-		 * last one
-		 */
-		*((uint32_t *)cur) = 0x00000000;
-
-		cur += sizeof(uint32_t);
-	}
+	if (add_binary_header_v1(cur))
+		return NULL;
 
 	/* Calculate and set the header checksum */
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
