@@ -327,6 +327,13 @@ static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 	if (ret)
 		return ret;
 
+	return 0;
+}
+
+static int designware_eth_enable(struct dw_eth_dev *priv)
+{
+	struct eth_mac_regs *mac_p = priv->mac_regs_p;
+
 	if (!priv->phydev->link)
 		return -EIO;
 
@@ -484,7 +491,13 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 #ifndef CONFIG_DM_ETH
 static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 {
-	return _dw_eth_init(dev->priv, dev->enetaddr);
+	int ret;
+
+	ret = _dw_eth_init(dev->priv, dev->enetaddr);
+	if (!ret)
+		ret = designware_eth_enable(dev->priv);
+
+	return ret;
 }
 
 static int dw_eth_send(struct eth_device *dev, void *packet, int length)
@@ -575,8 +588,17 @@ int designware_initialize(ulong base_addr, u32 interface)
 static int designware_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct dw_eth_dev *priv = dev_get_priv(dev);
+	int ret;
 
-	return _dw_eth_init(dev->priv, pdata->enetaddr);
+	ret = _dw_eth_init(priv, pdata->enetaddr);
+	if (ret)
+		return ret;
+	ret = designware_eth_enable(priv);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 static int designware_eth_send(struct udevice *dev, void *packet, int length)
