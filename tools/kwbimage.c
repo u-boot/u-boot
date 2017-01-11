@@ -55,22 +55,43 @@ struct nand_ecc_mode nand_ecc_modes[] = {
 #define BINARY_MAX_ARGS 8
 
 /* In-memory representation of a line of the configuration file */
+
+enum image_cfg_type {
+	IMAGE_CFG_VERSION = 0x1,
+	IMAGE_CFG_BOOT_FROM,
+	IMAGE_CFG_DEST_ADDR,
+	IMAGE_CFG_EXEC_ADDR,
+	IMAGE_CFG_NAND_BLKSZ,
+	IMAGE_CFG_NAND_BADBLK_LOCATION,
+	IMAGE_CFG_NAND_ECC_MODE,
+	IMAGE_CFG_NAND_PAGESZ,
+	IMAGE_CFG_BINARY,
+	IMAGE_CFG_PAYLOAD,
+	IMAGE_CFG_DATA,
+	IMAGE_CFG_BAUDRATE,
+	IMAGE_CFG_DEBUG,
+
+	IMAGE_CFG_COUNT
+} type;
+
+static const char * const id_strs[] = {
+	[IMAGE_CFG_VERSION] = "VERSION",
+	[IMAGE_CFG_BOOT_FROM] = "BOOT_FROM",
+	[IMAGE_CFG_DEST_ADDR] = "DEST_ADDR",
+	[IMAGE_CFG_EXEC_ADDR] = "EXEC_ADDR",
+	[IMAGE_CFG_NAND_BLKSZ] = "NAND_BLKSZ",
+	[IMAGE_CFG_NAND_BADBLK_LOCATION] = "NAND_BADBLK_LOCATION",
+	[IMAGE_CFG_NAND_ECC_MODE] = "NAND_ECC_MODE",
+	[IMAGE_CFG_NAND_PAGESZ] = "NAND_PAGE_SIZE",
+	[IMAGE_CFG_BINARY] = "BINARY",
+	[IMAGE_CFG_PAYLOAD] = "PAYLOAD",
+	[IMAGE_CFG_DATA] = "DATA",
+	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
+	[IMAGE_CFG_DEBUG] = "DEBUG",
+};
+
 struct image_cfg_element {
-	enum {
-		IMAGE_CFG_VERSION = 0x1,
-		IMAGE_CFG_BOOT_FROM,
-		IMAGE_CFG_DEST_ADDR,
-		IMAGE_CFG_EXEC_ADDR,
-		IMAGE_CFG_NAND_BLKSZ,
-		IMAGE_CFG_NAND_BADBLK_LOCATION,
-		IMAGE_CFG_NAND_ECC_MODE,
-		IMAGE_CFG_NAND_PAGESZ,
-		IMAGE_CFG_BINARY,
-		IMAGE_CFG_PAYLOAD,
-		IMAGE_CFG_DATA,
-		IMAGE_CFG_BAUDRATE,
-		IMAGE_CFG_DEBUG,
-	} type;
+	enum image_cfg_type type;
 	union {
 		unsigned int version;
 		unsigned int bootfrom;
@@ -520,78 +541,94 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	return image;
 }
 
+int recognize_keyword(char *keyword)
+{
+	int kw_id;
+
+	for (kw_id = 1; kw_id < IMAGE_CFG_COUNT; ++kw_id)
+		if (!strcmp(keyword, id_strs[kw_id]))
+			return kw_id;
+
+	return 0;
+}
+
 static int image_create_config_parse_oneline(char *line,
 					     struct image_cfg_element *el)
 {
-	char *keyword, *saveptr;
-	char deliminiters[] = " \t";
+	char *keyword, *saveptr, *value1, *value2;
+	char delimiters[] = " \t";
+	int keyword_id, ret, argi;
+	char *unknown_msg = "Ignoring unknown line '%s'\n";
 
-	keyword = strtok_r(line, deliminiters, &saveptr);
-	if (!strcmp(keyword, "VERSION")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
+	keyword = strtok_r(line, delimiters, &saveptr);
+	keyword_id = recognize_keyword(keyword);
 
-		el->type = IMAGE_CFG_VERSION;
-		el->version = atoi(value);
-	} else if (!strcmp(keyword, "BOOT_FROM")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int ret = image_boot_mode_id(value);
+	if (!keyword_id) {
+		fprintf(stderr, unknown_msg, line);
+		return 0;
+	}
+
+	el->type = keyword_id;
+
+	value1 = strtok_r(NULL, delimiters, &saveptr);
+
+	if (!value1) {
+		fprintf(stderr, "Parameter missing in line '%s'\n", line);
+		return -1;
+	}
+
+	switch (keyword_id) {
+	case IMAGE_CFG_VERSION:
+		el->version = atoi(value1);
+		break;
+	case IMAGE_CFG_BOOT_FROM:
+		ret = image_boot_mode_id(value1);
 
 		if (ret < 0) {
-			fprintf(stderr,
-				"Invalid boot media '%s'\n", value);
+			fprintf(stderr, "Invalid boot media '%s'\n", value1);
 			return -1;
 		}
-		el->type = IMAGE_CFG_BOOT_FROM;
 		el->bootfrom = ret;
-	} else if (!strcmp(keyword, "NAND_BLKSZ")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-
-		el->type = IMAGE_CFG_NAND_BLKSZ;
-		el->nandblksz = strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "NAND_BADBLK_LOCATION")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-
-		el->type = IMAGE_CFG_NAND_BADBLK_LOCATION;
-		el->nandbadblklocation =
-			strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "NAND_ECC_MODE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int ret = image_nand_ecc_mode_id(value);
+		break;
+	case IMAGE_CFG_NAND_BLKSZ:
+		el->nandblksz = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_NAND_BADBLK_LOCATION:
+		el->nandbadblklocation = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_NAND_ECC_MODE:
+		ret = image_nand_ecc_mode_id(value1);
 
 		if (ret < 0) {
-			fprintf(stderr,
-				"Invalid NAND ECC mode '%s'\n", value);
+			fprintf(stderr, "Invalid NAND ECC mode '%s'\n", value1);
 			return -1;
 		}
-		el->type = IMAGE_CFG_NAND_ECC_MODE;
 		el->nandeccmode = ret;
-	} else if (!strcmp(keyword, "NAND_PAGE_SIZE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		break;
+	case IMAGE_CFG_NAND_PAGESZ:
+		el->nandpagesz = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_BINARY:
+		argi = 0;
 
-		el->type = IMAGE_CFG_NAND_PAGESZ;
-		el->nandpagesz = strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "BINARY")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int argi = 0;
-
-		el->type = IMAGE_CFG_BINARY;
-		el->binary.file = strdup(value);
+		el->binary.file = strdup(value1);
 		while (1) {
-			value = strtok_r(NULL, deliminiters, &saveptr);
+			char *value = strtok_r(NULL, delimiters, &saveptr);
+
 			if (!value)
 				break;
 			el->binary.args[argi] = strtoul(value, NULL, 16);
 			argi++;
 			if (argi >= BINARY_MAX_ARGS) {
 				fprintf(stderr,
-					"Too many argument for binary\n");
+					"Too many arguments for BINARY\n");
 				return -1;
 			}
 		}
 		el->binary.nargs = argi;
-	} else if (!strcmp(keyword, "DATA")) {
-		char *value1 = strtok_r(NULL, deliminiters, &saveptr);
-		char *value2 = strtok_r(NULL, deliminiters, &saveptr);
+		break;
+	case IMAGE_CFG_DATA:
+		value2 = strtok_r(NULL, delimiters, &saveptr);
 
 		if (!value1 || !value2) {
 			fprintf(stderr,
@@ -599,19 +636,17 @@ static int image_create_config_parse_oneline(char *line,
 			return -1;
 		}
 
-		el->type = IMAGE_CFG_DATA;
 		el->regdata.raddr = strtoul(value1, NULL, 16);
 		el->regdata.rdata = strtoul(value2, NULL, 16);
-	} else if (!strcmp(keyword, "BAUDRATE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_BAUDRATE;
-		el->baudrate = strtoul(value, NULL, 10);
-	} else if (!strcmp(keyword, "DEBUG")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_DEBUG;
-		el->debug = strtoul(value, NULL, 10);
-	} else {
-		fprintf(stderr, "Ignoring unknown line '%s'\n", line);
+		break;
+	case IMAGE_CFG_BAUDRATE:
+		el->baudrate = strtoul(value1, NULL, 10);
+		break;
+	case IMAGE_CFG_DEBUG:
+		el->debug = strtoul(value1, NULL, 10);
+		break;
+	default:
+		fprintf(stderr, unknown_msg, line);
 	}
 
 	return 0;
