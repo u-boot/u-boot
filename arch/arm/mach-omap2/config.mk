@@ -6,7 +6,7 @@
 include  $(srctree)/arch/arm/mach-omap2/config_secure.mk
 
 ifdef CONFIG_SPL_BUILD
-ifeq ($(CONFIG_AM33XX)$(CONFIG_TI_SECURE_DEVICE),yy)
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 #
 # For booting from SPI use
 # u-boot-spl_HS_SPI_X-LOADER to program flash
@@ -35,13 +35,9 @@ ALL-y += u-boot-spl_HS_X-LOADER
 ALL-y += u-boot-spl_HS_MLO
 ALL-y += u-boot-spl_HS_2ND
 else
-ifeq ($(CONFIG_OMAP54XX)$(CONFIG_TI_SECURE_DEVICE),yy)
-ALL-y += u-boot-spl_HS_MLO u-boot-spl_HS_X-LOADER
-else
 ALL-y += MLO
 ifeq ($(CONFIG_AM33XX),y)
 ALL-y += MLO.byteswap
-endif
 endif
 endif
 else
