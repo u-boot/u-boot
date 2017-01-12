@@ -30,12 +30,12 @@ obj-$(CONFIG_CMD_BOOTI) += bootm.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o zimage.o
 obj-$(CONFIG_SYS_L2_PL310) += cache-pl310.o
-obj-$(CONFIG_USE_ARCH_MEMSET) += memset.o
-obj-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
 else
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
 obj-$(CONFIG_SPL_FRAMEWORK) += zimage.o
 endif
+obj-$(CONFIG_$(SPL_)USE_ARCH_MEMSET) += memset.o
+obj-$(CONFIG_$(SPL_)USE_ARCH_MEMCPY) += memcpy.o
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= sections.o

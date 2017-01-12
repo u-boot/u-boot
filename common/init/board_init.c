@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #if !defined(CONFIG_SPL_BUILD) || \
 		(defined(CONFIG_SPL_LIBGENERIC_SUPPORT) && \
-		!defined(CONFIG_USE_ARCH_MEMSET))
+		!defined(CONFIG_SPL_USE_ARCH_MEMCPY))
 #define _USE_MEMCPY
 #endif
 
