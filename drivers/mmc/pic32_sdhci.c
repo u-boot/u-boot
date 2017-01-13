@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int pci32_sdhci_get_cd(struct sdhci_host *host)
+static int pic32_sdhci_get_cd(struct sdhci_host *host)
 {
 	/* PIC32 SDHCI CD errata:
 	 * - set CD_TEST and clear CD_TEST_INS bit
@@ -26,7 +26,7 @@ static int pci32_sdhci_get_cd(struct sdhci_host *host)
 }
 
 static const struct sdhci_ops pic32_sdhci_ops = {
-	.get_cd	= pci32_sdhci_get_cd,
+	.get_cd	= pic32_sdhci_get_cd,
 };
 
 static int pic32_sdhci_probe(struct udevice *dev)
