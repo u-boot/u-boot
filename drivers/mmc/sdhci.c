@@ -359,7 +359,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		div >>= 1;
 	}
 
-	if (host->ops->set_clock)
+	if (host->ops && host->ops->set_clock)
 		host->ops->set_clock(host, div);
 
 	clk |= (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
@@ -427,7 +427,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
 
-	if (host->ops->set_control_reg)
+	if (host->ops && host->ops->set_control_reg)
 		host->ops->set_control_reg(host);
 
 	if (mmc->clock != host->clock)
@@ -480,7 +480,7 @@ static int sdhci_init(struct mmc *mmc)
 
 	sdhci_set_power(host, fls(mmc->cfg->voltages) - 1);
 
-	if (host->ops->get_cd)
+	if (host->ops && host->ops->get_cd)
 		host->ops->get_cd(host);
 
 	/* Enable only interrupts served by the SD controller */
