@@ -10,6 +10,7 @@
 #include <bmp_layout.h>
 #include <errno.h>
 #include <fs.h>
+#include <fdt_support.h>
 #include <image.h>
 #include <nand.h>
 #include <sata.h>
@@ -296,6 +297,72 @@ static struct splash_location *select_splash_location(
 	return NULL;
 }
 
+#ifdef CONFIG_FIT
+static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
+{
+	int res;
+	int node_offset;
+	int splash_offset;
+	int splash_size;
+	struct image_header *img_header;
+	const u32 *fit_header;
+	u32 fit_size;
+	const size_t header_size = sizeof(struct image_header);
+
+	/* Read in image header */
+	res = splash_storage_read_raw(location, bmp_load_addr, header_size);
+	if (res < 0)
+		return res;
+
+	img_header = (struct image_header *)bmp_load_addr;
+	fit_size = fdt_totalsize(img_header);
+
+	/* Read in entire FIT */
+	fit_header = (const u32 *)(bmp_load_addr + header_size);
+	res = splash_storage_read_raw(location, (u32)fit_header, fit_size);
+	if (res < 0)
+		return res;
+
+	res = fit_check_format(fit_header);
+	if (!res) {
+		debug("Could not find valid FIT image\n");
+		return -EINVAL;
+	}
+
+	node_offset = fit_image_get_node(fit_header, location->name);
+	if (node_offset < 0) {
+		debug("Could not find splash image '%s' in FIT\n",
+		      location->name);
+		return -ENOENT;
+	}
+
+	res = fit_image_get_data_offset(fit_header, node_offset,
+					&splash_offset);
+	if (res < 0) {
+		printf("Failed to load splash image (err=%d)\n", res);
+		return res;
+	}
+
+	res = fit_image_get_data_size(fit_header, node_offset, &splash_size);
+	if (res < 0) {
+		printf("Failed to load splash image (err=%d)\n", res);
+		return res;
+	}
+
+	/* Align data offset to 4-byte boundrary */
+	fit_size = fdt_totalsize(fit_header);
+	fit_size = (fit_size + 3) & ~3;
+
+	/* Read in the splash data */
+	location->offset = (location->offset + fit_size + splash_offset);
+	res = splash_storage_read_raw(location, bmp_load_addr , splash_size);
+	if (res < 0)
+		return res;
+
+	return 0;
+}
+#endif /* CONFIG_FIT */
+
 /**
  * splash_source_load - load splash image from a supported location.
  *
@@ -332,6 +399,9 @@ int splash_source_load(struct splash_location *locations, uint size)
 		return splash_load_raw(splash_location, bmp_load_addr);
 	else if (splash_location->flags & SPLASH_STORAGE_FS)
 		return splash_load_fs(splash_location, bmp_load_addr);
-
+#ifdef CONFIG_FIT
+	else if (splash_location->flags == SPLASH_STORAGE_FIT)
+		return splash_load_fit(splash_location, bmp_load_addr);
+#endif
 	return -EINVAL;
 }
