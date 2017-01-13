@@ -188,6 +188,7 @@
 		interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
 		assigned-clocks = <&cru SCLK_EMMC>;
 		assigned-clock-rates = <200000000>;
+		max-frequency = <200000000>;
 		clocks = <&cru SCLK_EMMC>, <&cru ACLK_EMMC>;
 		clock-names = "clk_xin", "clk_ahb";
 		phys = <&emmc_phy>;

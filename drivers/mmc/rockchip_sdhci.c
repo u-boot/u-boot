@@ -12,7 +12,9 @@
 #include <libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <clk.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define EMMC_MIN_FREQ	400000
 
@@ -32,11 +34,24 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct rockchip_sdhc_plat *plat = dev_get_platdata(dev);
 	struct rockchip_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
-	int ret;
+	int max_frequency, ret;
+	struct clk clk;
+
+
+	max_frequency = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+			"max-frequency", 0);
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (!ret) {
+		ret = clk_set_rate(&clk, max_frequency);
+		if (IS_ERR_VALUE(ret))
+			printf("%s clk set rate fail!\n", __func__);
+	} else {
+		printf("%s fail to get clk\n", __func__);
+	}
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ROCKCHIP_SDHCI_MAX_FREQ,
+	ret = sdhci_setup_cfg(&plat->cfg, host, max_frequency,
 			EMMC_MIN_FREQ);
 
 	host->mmc = &plat->mmc;

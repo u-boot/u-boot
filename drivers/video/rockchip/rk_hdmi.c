@@ -85,13 +85,13 @@ struct hdmi_phy_config {
 
 static const struct hdmi_phy_config rockchip_phy_config[] = {
 	{
-		.mpixelclock = 74250,
+		.mpixelclock = 74250000,
 		.sym_ctr = 0x8009, .term = 0x0004, .vlev_ctr = 0x0272,
 	}, {
-		.mpixelclock = 148500,
+		.mpixelclock = 148500000,
 		.sym_ctr = 0x802b, .term = 0x0004, .vlev_ctr = 0x028d,
 	}, {
-		.mpixelclock = 297000,
+		.mpixelclock = 297000000,
 		.sym_ctr = 0x8039, .term = 0x0005, .vlev_ctr = 0x028d,
 	}, {
 		.mpixelclock = ~0ul,
@@ -101,22 +101,22 @@ static const struct hdmi_phy_config rockchip_phy_config[] = {
 
 static const struct hdmi_mpll_config rockchip_mpll_cfg[] = {
 	{
-		.mpixelclock = 40000,
+		.mpixelclock = 40000000,
 		.cpce = 0x00b3, .gmp = 0x0000, .curr = 0x0018,
 	}, {
-		.mpixelclock = 65000,
+		.mpixelclock = 65000000,
 		.cpce = 0x0072, .gmp = 0x0001, .curr = 0x0028,
 	}, {
-		.mpixelclock = 66000,
+		.mpixelclock = 66000000,
 		.cpce = 0x013e, .gmp = 0x0003, .curr = 0x0038,
 	}, {
-		.mpixelclock = 83500,
+		.mpixelclock = 835000000,
 		.cpce = 0x0072, .gmp = 0x0001, .curr = 0x0028,
 	}, {
-		.mpixelclock = 146250,
+		.mpixelclock = 146250000,
 		.cpce = 0x0051, .gmp = 0x0002, .curr = 0x0038,
 	}, {
-		.mpixelclock = 148500,
+		.mpixelclock = 148500000,
 		.cpce = 0x0051, .gmp = 0x0003, .curr = 0x0000,
 	}, {
 		.mpixelclock = ~0ul,
@@ -870,7 +870,7 @@ static int rk_hdmi_probe(struct udevice *dev)
 		clk_free(&clk);
 	}
 	if (ret) {
-		debug("%s: Failed to set EDP clock: ret=%d\n", __func__, ret);
+		debug("%s: Failed to set hdmi clock: ret=%d\n", __func__, ret);
 		return ret;
 	}
 

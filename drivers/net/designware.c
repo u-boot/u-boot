@@ -230,14 +230,14 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 	return 0;
 }
 
-static void dw_adjust_link(struct eth_mac_regs *mac_p,
-			   struct phy_device *phydev)
+static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
+			  struct phy_device *phydev)
 {
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
-		return;
+		return 0;
 	}
 
 	if (phydev->speed != 1000)
@@ -256,6 +256,8 @@ static void dw_adjust_link(struct eth_mac_regs *mac_p,
 	printf("Speed: %d, %s duplex%s\n", phydev->speed,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+
+	return 0;
 }
 
 static void _dw_eth_halt(struct dw_eth_dev *priv)
@@ -269,7 +271,7 @@ static void _dw_eth_halt(struct dw_eth_dev *priv)
 	phy_shutdown(priv->phydev);
 }
 
-static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
+int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 {
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
@@ -321,7 +323,16 @@ static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		return ret;
 	}
 
-	dw_adjust_link(mac_p, priv->phydev);
+	ret = dw_adjust_link(priv, mac_p, priv->phydev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+int designware_eth_enable(struct dw_eth_dev *priv)
+{
+	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 
 	if (!priv->phydev->link)
 		return -EIO;
@@ -480,7 +491,13 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 #ifndef CONFIG_DM_ETH
 static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 {
-	return _dw_eth_init(dev->priv, dev->enetaddr);
+	int ret;
+
+	ret = designware_eth_init(dev->priv, dev->enetaddr);
+	if (!ret)
+		ret = designware_eth_enable(dev->priv);
+
+	return ret;
 }
 
 static int dw_eth_send(struct eth_device *dev, void *packet, int length)
@@ -571,40 +588,48 @@ int designware_initialize(ulong base_addr, u32 interface)
 static int designware_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct dw_eth_dev *priv = dev_get_priv(dev);
+	int ret;
 
-	return _dw_eth_init(dev->priv, pdata->enetaddr);
+	ret = designware_eth_init(priv, pdata->enetaddr);
+	if (ret)
+		return ret;
+	ret = designware_eth_enable(priv);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
-static int designware_eth_send(struct udevice *dev, void *packet, int length)
+int designware_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_send(priv, packet, length);
 }
 
-static int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_recv(priv, packetp);
 }
 
-static int designware_eth_free_pkt(struct udevice *dev, uchar *packet,
-				   int length)
+int designware_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_free_pkt(priv);
 }
 
-static void designware_eth_stop(struct udevice *dev)
+void designware_eth_stop(struct udevice *dev)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_halt(priv);
 }
 
-static int designware_eth_write_hwaddr(struct udevice *dev)
+int designware_eth_write_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
@@ -628,7 +653,7 @@ static int designware_eth_bind(struct udevice *dev)
 	return 0;
 }
 
-static int designware_eth_probe(struct udevice *dev)
+int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
@@ -678,7 +703,7 @@ static int designware_eth_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct eth_ops designware_eth_ops = {
+const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,
 	.recv			= designware_eth_recv,
@@ -687,7 +712,7 @@ static const struct eth_ops designware_eth_ops = {
 	.write_hwaddr		= designware_eth_write_hwaddr,
 };
 
-static int designware_eth_ofdata_to_platdata(struct udevice *dev)
+int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
 #ifdef CONFIG_DM_GPIO

@@ -145,6 +145,18 @@
 		regulator-always-on;
 		vin-supply = <&vcc_io>;
 	};
+
+	vcc5v0_host: usb-host-regulator {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio0 14 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&host_vbus_drv>;
+		regulator-name = "vcc5v0_host";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+	};
 };
 
 &cpu0 {
@@ -471,6 +483,12 @@
 			rockchip,pins = <7 11 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
+
+	usb_host {
+		host_vbus_drv: host-vbus-drv {
+			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
 };
 
 &tsadc {
@@ -512,6 +530,11 @@
 };
 
 &uart4 {
+	status = "okay";
+};
+
+&usb_host1 {
+	vbus-supply = <&vcc5v0_host>;
 	status = "okay";
 };
 
