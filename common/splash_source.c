@@ -7,15 +7,16 @@
  */
 
 #include <common.h>
-#include <nand.h>
-#include <errno.h>
-#include <splash.h>
-#include <spi_flash.h>
-#include <spi.h>
-#include <usb.h>
-#include <sata.h>
 #include <bmp_layout.h>
+#include <errno.h>
 #include <fs.h>
+#include <image.h>
+#include <nand.h>
+#include <sata.h>
+#include <spi.h>
+#include <spi_flash.h>
+#include <splash.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
