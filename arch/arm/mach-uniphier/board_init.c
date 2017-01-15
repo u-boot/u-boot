@@ -81,6 +81,7 @@ static void uniphier_ld20_misc_init(void)
 struct uniphier_initdata {
 	enum uniphier_soc_id soc_id;
 	bool nand_2cs;
+	void (*sbc_init)(void);
 	void (*pll_init)(void);
 	void (*clk_init)(void);
 	void (*misc_init)(void);
@@ -91,6 +92,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_SLD3,
 		.nand_2cs = true,
+		.sbc_init = uniphier_sbc_init_admulti,
 		.pll_init = uniphier_sld3_pll_init,
 		.clk_init = uniphier_ld4_clk_init,
 	},
@@ -99,6 +101,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_LD4,
 		.nand_2cs = true,
+		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
 		.clk_init = uniphier_ld4_clk_init,
 	},
@@ -107,6 +110,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_PRO4,
 		.nand_2cs = false,
+		.sbc_init = uniphier_sbc_init_savepin,
 		.pll_init = uniphier_pro4_pll_init,
 		.clk_init = uniphier_pro4_clk_init,
 	},
@@ -115,6 +119,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_SLD8,
 		.nand_2cs = true,
+		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
 		.clk_init = uniphier_ld4_clk_init,
 	},
@@ -123,6 +128,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_PRO5,
 		.nand_2cs = true,
+		.sbc_init = uniphier_sbc_init_savepin,
 		.clk_init = uniphier_pro5_clk_init,
 	},
 #endif
@@ -130,6 +136,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_PXS2,
 		.nand_2cs = true,
+		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
 	},
 #endif
@@ -137,6 +144,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_LD6B,
 		.nand_2cs = true,
+		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
 	},
 #endif
@@ -144,6 +152,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_LD11,
 		.nand_2cs = false,
+		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld11_pll_init,
 		.clk_init = uniphier_ld11_clk_init,
 		.misc_init = uniphier_ld11_misc_init,
@@ -153,6 +162,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 	{
 		.soc_id = SOC_UNIPHIER_LD20,
 		.nand_2cs = false,
+		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld20_pll_init,
 		.misc_init = uniphier_ld20_misc_init,
 	},
@@ -186,6 +196,12 @@ int board_init(void)
 		pr_err("unsupported board\n");
 		return -EINVAL;
 	}
+
+	initdata->sbc_init();
+
+	support_card_init();
+
+	led_puts("U0");
 
 	if (IS_ENABLED(CONFIG_NAND_DENALI)) {
 		ret = uniphier_pin_init(initdata->nand_2cs ?
