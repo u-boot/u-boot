@@ -77,9 +77,9 @@ static inline int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd)
 int uniphier_sld3_bcu_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
 
-int memconf_init(const struct uniphier_board_data *bd);
-int uniphier_sld3_memconf_init(const struct uniphier_board_data *bd);
-int uniphier_pxs2_memconf_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_2ch_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_3ch_no_disbit_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_3ch_init(const struct uniphier_board_data *bd);
 
 int uniphier_sld3_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_dpll_init(const struct uniphier_board_data *bd);

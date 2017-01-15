@@ -26,8 +26,7 @@ int uniphier_sld3_init(const struct uniphier_board_data *bd)
 
 	led_puts("L0");
 
-	memconf_init(bd);
-	uniphier_sld3_memconf_init(bd);
+	uniphier_memconf_3ch_no_disbit_init(bd);
 
 	led_puts("L1");
 

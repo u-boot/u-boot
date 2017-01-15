@@ -23,8 +23,7 @@ int uniphier_pxs2_init(const struct uniphier_board_data *bd)
 
 	led_puts("L0");
 
-	memconf_init(bd);
-	uniphier_pxs2_memconf_init(bd);
+	uniphier_memconf_3ch_init(bd);
 
 	led_puts("L1");
 

@@ -20,7 +20,7 @@ int uniphier_pro5_init(const struct uniphier_board_data *bd)
 
 	led_puts("L0");
 
-	memconf_init(bd);
+	uniphier_memconf_2ch_init(bd);
 
 	led_puts("L1");
 
