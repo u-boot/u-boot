@@ -14,7 +14,7 @@
 
 int uniphier_pro4_init(const struct uniphier_board_data *bd)
 {
-	uniphier_sbc_init_savepin(bd);
+	uniphier_sbc_init_savepin();
 
 	support_card_reset();
 

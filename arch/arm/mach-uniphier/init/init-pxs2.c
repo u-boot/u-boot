@@ -14,8 +14,7 @@ int uniphier_pxs2_init(const struct uniphier_board_data *bd)
 {
 	int ret;
 
-	uniphier_sbc_init_savepin(bd);
-	uniphier_pxs2_sbc_init(bd);
+	uniphier_pxs2_sbc_init();
 
 	support_card_reset();
 

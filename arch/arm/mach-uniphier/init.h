@@ -46,31 +46,30 @@ int uniphier_ld11_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_init(const struct uniphier_board_data *bd);
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
-int uniphier_sbc_init_admulti(const struct uniphier_board_data *bd);
-int uniphier_sbc_init_savepin(const struct uniphier_board_data *bd);
-int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd);
-int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd);
+void uniphier_sbc_init_admulti(void);
+void uniphier_sbc_init_savepin(void);
+void uniphier_ld4_sbc_init(void);
+void uniphier_pxs2_sbc_init(void);
+void uniphier_ld11_sbc_init(void);
 #else
-static inline int uniphier_sbc_init_admulti(
-					const struct uniphier_board_data *bd)
+static inline void uniphier_sbc_init_admulti(void)
 {
-	return 0;
 }
 
-static inline int uniphier_sbc_init_savepin(
-					const struct uniphier_board_data *bd)
+static inline void uniphier_sbc_init_savepin(void)
 {
-	return 0;
 }
 
-static inline int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd)
+static inline void uniphier_ld4_sbc_init(void)
 {
-	return 0;
 }
 
-static inline int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd)
+static inline void uniphier_pxs2_sbc_init(void)
 {
-	return 0;
+}
+
+static inline void uniphier_ld11_sbc_init(void)
+{
 }
 #endif
 
