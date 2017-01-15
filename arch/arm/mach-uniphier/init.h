@@ -105,7 +105,7 @@ void uniphier_sld3_pll_init(void);
 void uniphier_ld4_pll_init(void);
 void uniphier_pro4_pll_init(void);
 void uniphier_ld11_pll_init(void);
-int uniphier_ld20_pll_init(const struct uniphier_board_data *bd);
+void uniphier_ld20_pll_init(void);
 
 void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);

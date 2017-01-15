@@ -58,13 +58,7 @@ static void uniphier_nand_pin_init(bool cs2)
 
 int board_init(void)
 {
-	const struct uniphier_board_data *bd;
-
 	led_puts("U0");
-
-	bd = uniphier_get_board_param();
-	if (!bd)
-		return -ENODEV;
 
 	switch (uniphier_get_soc_type()) {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
@@ -147,7 +141,7 @@ int board_init(void)
 		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
 		sg_set_iectrl(153);
 		led_puts("U1");
-		uniphier_ld20_pll_init(bd);
+		uniphier_ld20_pll_init();
 		uniphier_ld20_clk_init();
 		cci500_init(2);
 		break;
