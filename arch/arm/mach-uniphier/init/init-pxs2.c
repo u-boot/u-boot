@@ -16,8 +16,6 @@ int uniphier_pxs2_init(const struct uniphier_board_data *bd)
 
 	uniphier_pxs2_sbc_init();
 
-	support_card_reset();
-
 	support_card_init();
 
 	led_puts("L0");

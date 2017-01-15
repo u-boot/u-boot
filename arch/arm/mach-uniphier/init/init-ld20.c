@@ -15,8 +15,6 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 {
 	uniphier_ld11_sbc_init();
 
-	support_card_reset();
-
 	support_card_init();
 
 	led_puts("L0");

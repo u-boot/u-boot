@@ -18,11 +18,9 @@ int uniphier_ld4_init(const struct uniphier_board_data *bd)
 
 	uniphier_ld4_sbc_init();
 
-	support_card_reset();
+	support_card_init();
 
 	uniphier_ld4_dpll_init(bd);
-
-	support_card_init();
 
 	led_puts("L0");
 

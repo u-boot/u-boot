@@ -18,11 +18,9 @@ int uniphier_sld3_init(const struct uniphier_board_data *bd)
 
 	uniphier_sbc_init_admulti();
 
-	support_card_reset();
+	support_card_init();
 
 	uniphier_sld3_dpll_init(bd);
-
-	support_card_init();
 
 	led_puts("L0");
 
