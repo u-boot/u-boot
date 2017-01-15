@@ -39,4 +39,18 @@
 
 #include <config_distro_defaults.h>
 
+#define BOOT_TARGET_DEVICES(func) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_addr_r=0x01000000\0" \
+	"scriptaddr=0x1f000000\0" \
+	"kernel_addr_r=0x01080000\0" \
+	"pxefile_addr_r=0x01080000\0" \
+	"ramdisk_addr_r=0x10000000\0" \
+	MESON_FDTFILE_SETTING \
+	BOOTENV
+
 #endif /* __MESON_GXBB_COMMON_CONFIG_H */
