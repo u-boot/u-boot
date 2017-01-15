@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2016 Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016-2017 Socionext Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,7 +9,7 @@
 #include "../init.h"
 #include "../sc64-regs.h"
 
-int uniphier_ld11_early_clk_init(const struct uniphier_board_data *bd)
+void uniphier_ld11_dram_clk_init(void)
 {
 	u32 tmp;
 
@@ -20,13 +19,7 @@ int uniphier_ld11_early_clk_init(const struct uniphier_board_data *bd)
 	writel(tmp, SC_RSTCTRL7);
 
 	/* provide clocks */
-	tmp = readl(SC_CLKCTRL4);
-	tmp |= SC_CLKCTRL4_PERI;
-	writel(tmp, SC_CLKCTRL4);
-
 	tmp = readl(SC_CLKCTRL7);
 	tmp |= SC_CLKCTRL7_UMC31 | SC_CLKCTRL7_UMC30;
 	writel(tmp, SC_CLKCTRL7);
-
-	return 0;
 }

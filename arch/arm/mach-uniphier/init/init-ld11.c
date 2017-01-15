@@ -29,7 +29,8 @@ int uniphier_ld11_init(const struct uniphier_board_data *bd)
 
 	led_puts("L1");
 
-	uniphier_ld11_early_clk_init(bd);
+	uniphier_ld11_early_clk_init();
+	uniphier_ld11_dram_clk_init();
 
 	led_puts("L2");
 

@@ -28,7 +28,8 @@ int uniphier_pxs2_init(const struct uniphier_board_data *bd)
 
 	led_puts("L1");
 
-	uniphier_pxs2_early_clk_init(bd);
+	uniphier_sld3_early_clk_init();
+	uniphier_pxs2_dram_clk_init();
 
 	led_puts("L2");
 
