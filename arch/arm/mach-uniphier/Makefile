@@ -4,8 +4,9 @@
 
 ifdef CONFIG_SPL_BUILD
 
+obj-y += spl_board_init.o
 obj-y += memconf.o
-obj-y += init/ bcu/
+obj-y += bcu/
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/
 
 else

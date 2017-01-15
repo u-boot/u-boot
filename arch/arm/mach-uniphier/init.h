@@ -84,6 +84,8 @@ int uniphier_sld3_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_dpll_init(const struct uniphier_board_data *bd);
+int uniphier_pro5_dpll_init(const struct uniphier_board_data *bd);
+int uniphier_pxs2_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_dpll_init(const struct uniphier_board_data *bd);
 
@@ -96,9 +98,11 @@ void uniphier_pxs2_dram_clk_init(void);
 void uniphier_ld11_dram_clk_init(void);
 void uniphier_ld20_dram_clk_init(void);
 
+int uniphier_sld3_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_umc_init(const struct uniphier_board_data *bd);
+int uniphier_pro5_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
