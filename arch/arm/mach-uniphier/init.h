@@ -73,8 +73,8 @@ static inline void uniphier_ld11_sbc_init(void)
 }
 #endif
 
-int uniphier_sld3_bcu_init(const struct uniphier_board_data *bd);
-int uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
+void uniphier_sld3_bcu_init(const struct uniphier_board_data *bd);
+void uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
 
 int uniphier_memconf_2ch_init(const struct uniphier_board_data *bd);
 int uniphier_memconf_3ch_no_disbit_init(const struct uniphier_board_data *bd);

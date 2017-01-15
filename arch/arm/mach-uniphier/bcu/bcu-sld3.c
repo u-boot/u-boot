@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2015-2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,7 +13,7 @@
 
 #define ch(x) ((x) >= 32 ? 0 : (x) < 0 ? 0x11111111 : 0x11111111 << (x))
 
-int uniphier_sld3_bcu_init(const struct uniphier_board_data *bd)
+void uniphier_sld3_bcu_init(const struct uniphier_board_data *bd)
 {
 	int shift;
 
@@ -34,6 +36,4 @@ int uniphier_sld3_bcu_init(const struct uniphier_board_data *bd)
 
 	shift -= 32;
 	writel(ch(shift), BCIPPCCHR4); /* 0xc0000000-0xdfffffff */
-
-	return 0;
 }
