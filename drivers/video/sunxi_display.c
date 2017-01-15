@@ -1663,9 +1663,11 @@ int sunxi_simplefb_setup(void *blob)
 	const char *pipeline = NULL;
 
 #ifdef CONFIG_MACH_SUN4I
-#define PIPELINE_PREFIX "de_fe0-"
+#define PIPELINE_PREFIX "de_fe0-de_be0-"
+#elif defined CONFIG_SUNXI_DE2
+#define PIPELINE_PREFIX "de0-"
 #else
-#define PIPELINE_PREFIX
+#define PIPELINE_PREFIX "de_be0-"
 #endif
 
 	switch (sunxi_display.monitor) {
@@ -1673,16 +1675,16 @@ int sunxi_simplefb_setup(void *blob)
 		return 0;
 	case sunxi_monitor_dvi:
 	case sunxi_monitor_hdmi:
-		pipeline = PIPELINE_PREFIX "de_be0-lcd0-hdmi";
+		pipeline = PIPELINE_PREFIX "lcd0-hdmi";
 		break;
 	case sunxi_monitor_lcd:
-		pipeline = PIPELINE_PREFIX "de_be0-lcd0";
+		pipeline = PIPELINE_PREFIX "lcd0";
 		break;
 	case sunxi_monitor_vga:
 #ifdef CONFIG_VIDEO_VGA
-		pipeline = PIPELINE_PREFIX "de_be0-lcd0-tve0";
+		pipeline = PIPELINE_PREFIX "lcd0-tve0";
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
-		pipeline = PIPELINE_PREFIX "de_be0-lcd0";
+		pipeline = PIPELINE_PREFIX "lcd0";
 #endif
 		break;
 	case sunxi_monitor_composite_pal:
