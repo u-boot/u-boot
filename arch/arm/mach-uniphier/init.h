@@ -114,7 +114,6 @@ void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);
 void uniphier_ld11_clk_init(void);
-void uniphier_ld20_clk_init(void);
 
 int uniphier_pin_init(const char *pinconfig_name);
 void uniphier_smp_kick_all_cpus(void);

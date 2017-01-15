@@ -48,115 +48,176 @@ static void uniphier_setup_xirq(void)
 	writel(tmp, 0x55000090);
 }
 
-static void uniphier_nand_pin_init(bool cs2)
+#ifdef CONFIG_ARCH_UNIPHIER_LD11
+static void uniphier_ld11_misc_init(void)
 {
-#ifdef CONFIG_NAND_DENALI
-	if (uniphier_pin_init(cs2 ? "nand2cs_grp" : "nand_grp"))
-		pr_err("failed to init NAND pins\n");
+	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
+	sg_set_iectrl(149);
+	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
+	sg_set_iectrl(153);
+}
 #endif
+
+#ifdef CONFIG_ARCH_UNIPHIER_LD20
+static void uniphier_ld20_misc_init(void)
+{
+	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
+	sg_set_iectrl(149);
+	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
+	sg_set_iectrl(153);
+
+	/* ES1 errata: increase VDD09 supply to suppress VBO noise */
+	if (uniphier_get_soc_revision() == 1) {
+		writel(0x00000003, 0x6184e004);
+		writel(0x00000100, 0x6184e040);
+		writel(0x0000b500, 0x6184e024);
+		writel(0x00000001, 0x6184e000);
+	}
+
+	cci500_init(2);
+}
+#endif
+
+struct uniphier_initdata {
+	enum uniphier_soc_id soc_id;
+	bool nand_2cs;
+	void (*pll_init)(void);
+	void (*clk_init)(void);
+	void (*misc_init)(void);
+};
+
+struct uniphier_initdata uniphier_initdata[] = {
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
+	{
+		.soc_id = SOC_UNIPHIER_SLD3,
+		.nand_2cs = true,
+		.pll_init = uniphier_sld3_pll_init,
+		.clk_init = uniphier_ld4_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD4)
+	{
+		.soc_id = SOC_UNIPHIER_LD4,
+		.nand_2cs = true,
+		.pll_init = uniphier_ld4_pll_init,
+		.clk_init = uniphier_ld4_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
+	{
+		.soc_id = SOC_UNIPHIER_PRO4,
+		.nand_2cs = false,
+		.pll_init = uniphier_pro4_pll_init,
+		.clk_init = uniphier_pro4_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
+	{
+		.soc_id = SOC_UNIPHIER_SLD8,
+		.nand_2cs = true,
+		.pll_init = uniphier_ld4_pll_init,
+		.clk_init = uniphier_ld4_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
+	{
+		.soc_id = SOC_UNIPHIER_PRO5,
+		.nand_2cs = true,
+		.clk_init = uniphier_pro5_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
+	{
+		.soc_id = SOC_UNIPHIER_PXS2,
+		.nand_2cs = true,
+		.clk_init = uniphier_pxs2_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
+	{
+		.soc_id = SOC_UNIPHIER_LD6B,
+		.nand_2cs = true,
+		.clk_init = uniphier_pxs2_clk_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+	{
+		.soc_id = SOC_UNIPHIER_LD11,
+		.nand_2cs = false,
+		.pll_init = uniphier_ld11_pll_init,
+		.clk_init = uniphier_ld11_clk_init,
+		.misc_init = uniphier_ld11_misc_init,
+	},
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+	{
+		.soc_id = SOC_UNIPHIER_LD20,
+		.nand_2cs = false,
+		.pll_init = uniphier_ld20_pll_init,
+		.misc_init = uniphier_ld20_misc_init,
+	},
+#endif
+};
+
+static struct uniphier_initdata *uniphier_get_initdata(
+						enum uniphier_soc_id soc_id)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(uniphier_initdata); i++) {
+		if (uniphier_initdata[i].soc_id == soc_id)
+			return &uniphier_initdata[i];
+	}
+
+	return NULL;
 }
 
 int board_init(void)
 {
+	struct uniphier_initdata *initdata;
+	enum uniphier_soc_id soc_id;
+	int ret;
+
 	led_puts("U0");
 
-	switch (uniphier_get_soc_type()) {
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	case SOC_UNIPHIER_SLD3:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_sld3_pll_init();
-		uniphier_ld4_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD4)
-	case SOC_UNIPHIER_LD4:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_ld4_pll_init();
-		uniphier_ld4_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
-	case SOC_UNIPHIER_PRO4:
-		uniphier_nand_pin_init(false);
-		led_puts("U1");
-		uniphier_pro4_pll_init();
-		uniphier_pro4_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
-	case SOC_UNIPHIER_SLD8:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_ld4_pll_init();
-		uniphier_ld4_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
-	case SOC_UNIPHIER_PRO5:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_pro5_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
-	case SOC_UNIPHIER_PXS2:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_pxs2_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
-	case SOC_UNIPHIER_LD6B:
-		uniphier_nand_pin_init(true);
-		led_puts("U1");
-		uniphier_pxs2_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD11)
-	case SOC_UNIPHIER_LD11:
-		uniphier_nand_pin_init(false);
-		sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
-		sg_set_iectrl(149);
-		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
-		sg_set_iectrl(153);
-		led_puts("U1");
-		uniphier_ld11_pll_init();
-		uniphier_ld11_clk_init();
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
-	case SOC_UNIPHIER_LD20:
-		/* ES1 errata: increase VDD09 supply to suppress VBO noise */
-		if (uniphier_get_soc_revision() == 1) {
-			writel(0x00000003, 0x6184e004);
-			writel(0x00000100, 0x6184e040);
-			writel(0x0000b500, 0x6184e024);
-			writel(0x00000001, 0x6184e000);
-		}
-		uniphier_nand_pin_init(false);
-		sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
-		sg_set_iectrl(149);
-		sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
-		sg_set_iectrl(153);
-		led_puts("U1");
-		uniphier_ld20_pll_init();
-		uniphier_ld20_clk_init();
-		cci500_init(2);
-		break;
-#endif
-	default:
-		break;
+	soc_id = uniphier_get_soc_type();
+	initdata = uniphier_get_initdata(soc_id);
+	if (!initdata) {
+		pr_err("unsupported board\n");
+		return -EINVAL;
 	}
 
-	uniphier_setup_xirq();
+	if (IS_ENABLED(CONFIG_NAND_DENALI)) {
+		ret = uniphier_pin_init(initdata->nand_2cs ?
+					"nand2cs_grp" : "nand_grp");
+		if (ret)
+			pr_err("failed to init NAND pins\n");
+	}
+
+	led_puts("U1");
+
+	if (initdata->pll_init)
+		initdata->pll_init();
 
 	led_puts("U2");
 
-	support_card_late_init();
+	if (initdata->clk_init)
+		initdata->clk_init();
 
 	led_puts("U3");
+
+	if (initdata->misc_init)
+		initdata->misc_init();
+
+	led_puts("U4");
+
+	uniphier_setup_xirq();
+
+	led_puts("U5");
+
+	support_card_late_init();
+
+	led_puts("U6");
 
 #ifdef CONFIG_ARM64
 	uniphier_smp_kick_all_cpus();
