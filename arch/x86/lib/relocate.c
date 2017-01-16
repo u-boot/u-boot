@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int copy_uboot_to_ram(void)
 {
-	size_t len = (size_t)&__data_end - (size_t)&__text_start;
+	size_t len = (uintptr_t)&__data_end - (uintptr_t)&__text_start;
 
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
@@ -38,7 +38,7 @@ int copy_uboot_to_ram(void)
 int clear_bss(void)
 {
 	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
-	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
+	size_t len = (uintptr_t)&__bss_end - (uintptr_t)&__bss_start;
 
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
