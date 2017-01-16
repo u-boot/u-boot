@@ -226,26 +226,6 @@ static int cdns_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 	return 0;
 }
 
-/* Probe to see if a chip is present. */
-static int cdns_i2c_probe_chip(struct udevice *bus, uint chip_addr,
-				uint chip_flags)
-{
-	struct i2c_cdns_bus *i2c_bus = dev_get_priv(bus);
-	struct cdns_i2c_regs *regs = i2c_bus->regs;
-
-	/* Attempt to read a byte */
-	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO |
-		CDNS_I2C_CONTROL_RW);
-	clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
-	writel(0xFF, &regs->interrupt_status);
-	writel(chip_addr, &regs->address);
-	writel(1, &regs->transfer_size);
-
-	return (cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
-		CDNS_I2C_INTERRUPT_NACK) &
-		CDNS_I2C_INTERRUPT_COMP) ? 0 : -ETIMEDOUT;
-}
-
 static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 			       u32 len)
 {
@@ -453,7 +433,6 @@ static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
 
 static const struct dm_i2c_ops cdns_i2c_ops = {
 	.xfer = cdns_i2c_xfer,
-	.probe_chip = cdns_i2c_probe_chip,
 	.set_bus_speed = cdns_i2c_set_bus_speed,
 };
 
