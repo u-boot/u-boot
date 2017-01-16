@@ -234,7 +234,7 @@ int disable_interrupts(void)
 {
 	long flags;
 
-#ifdef CONFIG_X86_64
+#if CONFIG_IS_ENABLED(X86_64)
 	asm volatile ("pushfq ; popq %0 ; cli\n" : "=g" (flags) : );
 #else
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
