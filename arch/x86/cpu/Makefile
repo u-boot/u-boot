@@ -9,7 +9,7 @@
 #
 
 extra-y	= start.o
-obj-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
+extra-$(CONFIG_$(SPL_)X86_16BIT_INIT) += resetvec.o start16.o
 obj-y	+= interrupts.o cpu.o cpu_x86.o call64.o setjmp.o
 
 AFLAGS_REMOVE_call32.o := -mregparm=3 \
