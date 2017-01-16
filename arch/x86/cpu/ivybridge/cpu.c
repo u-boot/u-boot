@@ -169,8 +169,10 @@ int print_cpuinfo(void)
 
 	/* Enable SPD ROMs and DDR-III DRAM */
 	ret = uclass_first_device_err(UCLASS_I2C, &dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Failed to get I2C (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	/* Prepare USB controller early in S3 resume */
 	if (boot_mode == PEI_BOOT_RESUME) {

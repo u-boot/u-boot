@@ -207,8 +207,10 @@ static int copy_spd(struct udevice *dev, struct pei_data *peid)
 	int ret;
 
 	ret = mrc_locate_spd(dev, sizeof(peid->spd_data[0]), &data);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not locate SPD (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	memcpy(peid->spd_data[0], data, sizeof(peid->spd_data[0]));
 
@@ -460,18 +462,27 @@ int dram_init(void)
 
 	/* We need the pinctrl set up early */
 	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get pinconf (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get northbridge (ret=%d)\n", __func__,
+		      ret);
 		return ret;
+	}
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get ME (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	ret = copy_spd(dev, pei_data);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get SPD (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	pei_data->boot_mode = gd->arch.pei_boot_mode;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data->mrc_input);
@@ -498,19 +509,27 @@ int dram_init(void)
 
 	/* Wait for ME to be ready */
 	ret = intel_early_me_init(me_dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not init ME (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	ret = intel_early_me_uma_size(me_dev);
-	if (ret < 0)
+	if (ret < 0) {
+		debug("%s: Could not get UMA size (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = mrc_common_init(dev, pei_data, false);
-	if (ret)
+	if (ret) {
+		debug("%s: mrc_common_init() failed (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = sdram_find(dev);
-	if (ret)
+	if (ret) {
+		debug("%s: sdram_find() failed (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	gd->ram_size = gd->arch.meminfo.total_32bit_memory;
 
 	debug("MRC output data length %#x at %p\n", pei_data->mrc_output_len,
