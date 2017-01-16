@@ -10,7 +10,9 @@ obj-y += bios.o
 obj-y += bios_asm.o
 obj-y += bios_interrupts.o
 endif
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
+endif
 obj-y	+= cmd_boot.o
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
 obj-$(CONFIG_EFI) += efi/
@@ -37,7 +39,9 @@ ifndef CONFIG_QEMU
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
+endif
 obj-$(CONFIG_HAVE_FSP) += fsp/
 obj-$(CONFIG_SPL_BUILD) += spl.o
 
