@@ -47,6 +47,46 @@ int clear_bss(void)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(X86_64)
+static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
+				  Elf64_Rela *re_src, Elf64_Rela *re_end)
+{
+	Elf64_Addr *offset_ptr_rom, *last_offset = NULL;
+	Elf64_Addr *offset_ptr_ram;
+
+	do {
+		/* Get the location from the relocation entry */
+		offset_ptr_rom = (Elf64_Addr *)(uintptr_t)re_src->r_offset;
+
+		/* Check that the location of the relocation is in .text */
+		if (offset_ptr_rom >= (Elf64_Addr *)(uintptr_t)text_base &&
+		    offset_ptr_rom > last_offset) {
+			/* Switch to the in-RAM version */
+			offset_ptr_ram = (Elf64_Addr *)((ulong)offset_ptr_rom +
+							gd->reloc_off);
+
+			/* Check that the target points into .text */
+			if (*offset_ptr_ram >= text_base &&
+			    *offset_ptr_ram <= text_base + size) {
+				*offset_ptr_ram = gd->reloc_off +
+							re_src->r_addend;
+			} else {
+				debug("   %p: %lx: rom reloc %lx, ram %p, value %lx, limit %"
+				      PRIXPTR "\n",
+				      re_src, (ulong)re_src->r_info,
+				      (ulong)re_src->r_offset, offset_ptr_ram,
+				      (ulong)*offset_ptr_ram, text_base + size);
+			}
+		} else {
+			debug("   %p: %lx: rom reloc %lx, last %p\n", re_src,
+			      (ulong)re_src->r_info, (ulong)re_src->r_offset,
+			      last_offset);
+		}
+		last_offset = offset_ptr_rom;
+
+	} while (++re_src < re_end);
+}
+#else
 static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 				  Elf32_Rel *re_src, Elf32_Rel *re_end)
 {
@@ -84,6 +124,7 @@ static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 
 	} while (++re_src < re_end);
 }
+#endif
 
 /*
  * This function has more error checking than you might expect. Please see
@@ -109,7 +150,11 @@ int do_elf_reloc_fixups(void)
 #else
 	panic("No CONFIG_SYS_TEXT_BASE");
 #endif
+#if CONFIG_IS_ENABLED(X86_64)
+	do_elf_reloc_fixups64(text_base, size, re_src, re_end);
+#else
 	do_elf_reloc_fixups32(text_base, size, re_src, re_end);
+#endif
 
 	return 0;
 }
