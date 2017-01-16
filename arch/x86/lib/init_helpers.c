@@ -19,7 +19,7 @@ __weak ulong board_get_usable_ram_top(ulong total_size)
 
 int init_cache_f_r(void)
 {
-#if defined(CONFIG_X86_RESET_VECTOR) & !defined(CONFIG_HAVE_FSP)
+#if CONFIG_IS_ENABLED(X86_32BIT_INIT) && !defined(CONFIG_HAVE_FSP)
 	int ret;
 
 	ret = mtrr_commit(false);
