@@ -54,6 +54,7 @@ def Conv_name_to_c(name):
     str = name.replace('@', '_at_')
     str = str.replace('-', '_')
     str = str.replace(',', '_')
+    str = str.replace('.', '_')
     str = str.replace('/', '__')
     return str
 
