@@ -47,38 +47,18 @@ int clear_bss(void)
 	return 0;
 }
 
-/*
- * This function has more error checking than you might expect. Please see
- * the commit message for more informaiton.
- */
-int do_elf_reloc_fixups(void)
+static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
+				  Elf32_Rel *re_src, Elf32_Rel *re_end)
 {
-	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
-	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
-
 	Elf32_Addr *offset_ptr_rom, *last_offset = NULL;
 	Elf32_Addr *offset_ptr_ram;
-	unsigned int text_base = 0;
 
-	/* The size of the region of u-boot that runs out of RAM. */
-	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
-
-	if (gd->flags & GD_FLG_SKIP_RELOC)
-		return 0;
-	if (re_src == re_end)
-		panic("No relocation data");
-
-#ifdef CONFIG_SYS_TEXT_BASE
-	text_base = CONFIG_SYS_TEXT_BASE;
-#else
-	panic("No CONFIG_SYS_TEXT_BASE");
-#endif
 	do {
 		/* Get the location from the relocation entry */
-		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
+		offset_ptr_rom = (Elf32_Addr *)(uintptr_t)re_src->r_offset;
 
 		/* Check that the location of the relocation is in .text */
-		if (offset_ptr_rom >= (Elf32_Addr *)text_base &&
+		if (offset_ptr_rom >= (Elf32_Addr *)(uintptr_t)text_base &&
 		    offset_ptr_rom > last_offset) {
 
 			/* Switch to the in-RAM version */
@@ -103,6 +83,33 @@ int do_elf_reloc_fixups(void)
 		last_offset = offset_ptr_rom;
 
 	} while (++re_src < re_end);
+}
+
+/*
+ * This function has more error checking than you might expect. Please see
+ * this commit message for more information:
+ *    62f7970a x86: Add error checking to x86 relocation code
+ */
+int do_elf_reloc_fixups(void)
+{
+	void *re_src = (void *)(&__rel_dyn_start);
+	void *re_end = (void *)(&__rel_dyn_end);
+	uint text_base;
+
+	/* The size of the region of u-boot that runs out of RAM. */
+	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
+
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
+	if (re_src == re_end)
+		panic("No relocation data");
+
+#ifdef CONFIG_SYS_TEXT_BASE
+	text_base = CONFIG_SYS_TEXT_BASE;
+#else
+	panic("No CONFIG_SYS_TEXT_BASE");
+#endif
+	do_elf_reloc_fixups32(text_base, size, re_src, re_end);
 
 	return 0;
 }
