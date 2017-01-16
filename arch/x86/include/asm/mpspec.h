@@ -224,9 +224,9 @@ struct mp_ext_compat_address_space {
  * @mc:		configuration table header address
  * @return:	configuration table end address
  */
-static inline u32 mp_next_mpc_entry(struct mp_config_table *mc)
+static inline ulong mp_next_mpc_entry(struct mp_config_table *mc)
 {
-	return (u32)mc + mc->mpc_length;
+	return (ulong)mc + mc->mpc_length;
 }
 
 /**
@@ -254,9 +254,9 @@ static inline void mp_add_mpc_entry(struct mp_config_table *mc, uint length)
  * @mc:		configuration table header address
  * @return:	configuration table end address
  */
-static inline u32 mp_next_mpe_entry(struct mp_config_table *mc)
+static inline ulong mp_next_mpe_entry(struct mp_config_table *mc)
 {
-	return (u32)mc + mc->mpc_length + mc->mpe_length;
+	return (ulong)mc + mc->mpc_length + mc->mpe_length;
 }
 
 /**
