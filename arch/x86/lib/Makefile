@@ -48,7 +48,9 @@ OBJCOPYFLAGS := --prefix-symbols=__normal_
 $(obj)/lib.a: $(NORMAL_LIBGCC) FORCE
 	$(call if_changed,objcopy)
 
+ifeq ($(CONFIG_$(SPL_)X86_64),)
 obj-$(CONFIG_EFI_APP) += crt0_ia32_efi.o reloc_ia32_efi.o
+endif
 
 ifneq ($(CONFIG_EFI_STUB),)
 
@@ -68,5 +70,7 @@ extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
 endif
 
 ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+ifeq ($(CONFIG_$(SPL_)X86_64),)
 extra-y += $(EFI_CRT0) $(EFI_RELOC)
+endif
 endif
