@@ -17,8 +17,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct irq_routing_table *pirq_routing_table;
-
 bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 {
 	struct irq_router *priv = dev_get_priv(dev);
@@ -219,7 +217,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 	/* Fix up the table checksum */
 	rt->checksum = table_compute_checksum(rt, rt->size);
 
-	pirq_routing_table = rt;
+	gd->arch.pirq_routing_table = rt;
 
 	return 0;
 }
@@ -250,8 +248,8 @@ int irq_router_common_init(struct udevice *dev)
 		return ret;
 	}
 	/* Route PIRQ */
-	pirq_route_irqs(dev, pirq_routing_table->slots,
-			get_irq_slot_count(pirq_routing_table));
+	pirq_route_irqs(dev, gd->arch.pirq_routing_table->slots,
+			get_irq_slot_count(gd->arch.pirq_routing_table));
 
 	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
 		irq_enable_sci(dev);
@@ -266,10 +264,10 @@ int irq_router_probe(struct udevice *dev)
 
 ulong write_pirq_routing_table(ulong addr)
 {
-	if (!pirq_routing_table)
+	if (!gd->arch.pirq_routing_table)
 		return addr;
 
-	return copy_pirq_routing_table(addr, pirq_routing_table);
+	return copy_pirq_routing_table(addr, gd->arch.pirq_routing_table);
 }
 
 static const struct udevice_id irq_router_ids[] = {

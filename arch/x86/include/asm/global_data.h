@@ -93,6 +93,7 @@ struct arch_global_data {
 	char *mrc_output;
 	unsigned int mrc_output_len;
 	ulong table;			/* Table pointer from previous loader */
+	struct irq_routing_table *pirq_routing_table;
 #ifdef CONFIG_SEABIOS
 	u32 high_table_ptr;
 	u32 high_table_limit;
