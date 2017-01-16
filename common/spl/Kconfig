@@ -537,6 +537,15 @@ config SPL_SPI_SUPPORT
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
 
+config SPL_TIMER_SUPPORT
+	bool "Support timer drivers"
+	depends on SPL
+	help
+	  Enable support for timer drivers in SPL. These can be used to get
+	  a timer value when in SPL, or perhaps for implementing a delay
+	  function. This enables the drivers in drivers/timer as part of an
+	  SPL build.
+
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
 	depends on SPL
