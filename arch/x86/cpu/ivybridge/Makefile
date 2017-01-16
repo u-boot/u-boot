@@ -12,7 +12,9 @@ obj-y += early_me.o
 obj-y += lpc.o
 obj-y += model_206ax.o
 obj-y += northbridge.o
+ifndef CONFIG_SPL_BUILD
 obj-y += sata.o
+endif
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += sdram.o
 endif
 obj-y += bd82x6x.o
