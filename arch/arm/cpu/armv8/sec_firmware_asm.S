@@ -23,12 +23,12 @@ WEAK(_sec_firmware_entry)
 	/* Set exception return address hold pointer */
         adr	x4, 1f
         mov	x3, x4
-#ifdef SEC_FIRMWARE_ERET_ADDR_REVERT
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT
         rev	w3, w3
 #endif
         str	w3, [x1]
         lsr	x3, x4, #32
-#ifdef SEC_FIRMWARE_ERET_ADDR_REVERT
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT
         rev	w3, w3
 #endif
         str	w3, [x2]

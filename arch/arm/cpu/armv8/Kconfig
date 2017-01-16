@@ -39,6 +39,39 @@ config ARMV8_SPIN_TABLE
 	    - Reserve the code for the spin-table and the release address
 	      via a /memreserve/ region in the Device Tree.
 
+menu "ARMv8 secure monitor firmware"
+config ARMV8_SEC_FIRMWARE_SUPPORT
+	bool "Enable ARMv8 secure monitor firmware framework support"
+	select OF_LIBFDT
+	select FIT
+	help
+	  This framework is aimed at making secure monitor firmware load
+	  process brief.
+	  Note: Only FIT format image is supported.
+	  You should prepare and provide the below information:
+	    - Address of secure firmware.
+	    - Address to hold the return address from secure firmware.
+	    - Secure firmware FIT image related information.
+	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMEWARE_FIT_CNF_NAME
+	    - The target exception level that secure monitor firmware will
+	      return to.
+
+config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
+	bool "Enable ARMv8 secure monitor firmware framework support for SPL"
+	select SPL_OF_LIBFDT
+	select SPL_FIT
+	help
+	  Say Y here to support this framework in SPL phase.
+
+config ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT
+	bool "ARMv8 secure monitor firmware ERET address byteorder swap"
+	depends on ARMV8_SEC_FIRMWARE_SUPPORT || SPL_ARMV8_SEC_FIRMWARE_SUPPORT
+	help
+	  Say Y here when the endianness of the register or memory holding the
+	  Secure firmware exception return address is different with core's.
+
+endmenu
+
 config PSCI_RESET
 	bool "Use PSCI for reset and shutdown"
 	default y
