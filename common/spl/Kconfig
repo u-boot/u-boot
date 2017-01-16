@@ -435,6 +435,15 @@ config SYS_OS_BASE
 
 endif # SPL_OS_BOOT
 
+config SPL_PCI_SUPPORT
+	bool "Support PCI drivers"
+	depends on SPL
+	help
+	  Enable support for PCI in SPL. For platforms that need PCI to boot,
+	  or must perform some init using PCI in SPL, this provides the
+	  necessary driver support. This enables the drivers in drivers/pci
+	  as part of an SPL build.
+
 config SPL_POST_MEM_SUPPORT
 	bool "Support POST drivers"
 	depends on SPL
