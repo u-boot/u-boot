@@ -456,6 +456,6 @@ int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq);
  * @addr:	start address to write MP table
  * @return:	end address of MP table
  */
-u32 write_mp_table(u32 addr);
+ulong write_mp_table(ulong addr);
 
 #endif /* __ASM_MPSPEC_H */

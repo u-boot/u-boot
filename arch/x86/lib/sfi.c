@@ -38,14 +38,14 @@ static void *get_entry_start(struct table_info *tab)
 	tab->table[tab->count] = tab->entry_start;
 	tab->entry_start += sizeof(struct sfi_table_header);
 
-	return (void *)tab->entry_start;
+	return (void *)(uintptr_t)tab->entry_start;
 }
 
 static void finish_table(struct table_info *tab, const char *sig, void *entry)
 {
 	struct sfi_table_header *hdr;
 
-	hdr = (struct sfi_table_header *)(tab->base + tab->ptr);
+	hdr = (struct sfi_table_header *)(uintptr_t)(tab->base + tab->ptr);
 	strcpy(hdr->sig, sig);
 	hdr->len = sizeof(*hdr) + ((ulong)entry - tab->entry_start);
 	hdr->rev = 1;
@@ -131,7 +131,7 @@ static int sfi_write_xsdt(struct table_info *tab)
 	return 0;
 }
 
-u32 write_sfi_table(u32 base)
+ulong write_sfi_table(ulong base)
 {
 	struct table_info table;
 

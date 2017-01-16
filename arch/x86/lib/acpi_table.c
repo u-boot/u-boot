@@ -327,7 +327,7 @@ static void enter_acpi_mode(int pm1_cnt)
  * QEMU's version of write_acpi_tables is defined in
  * arch/x86/cpu/qemu/acpi_table.c
  */
-u32 write_acpi_tables(u32 start)
+ulong write_acpi_tables(ulong start)
 {
 	u32 current;
 	struct acpi_rsdp *rsdp;
@@ -345,7 +345,7 @@ u32 write_acpi_tables(u32 start)
 	/* Align ACPI tables to 16 byte */
 	current = ALIGN(current, 16);
 
-	debug("ACPI: Writing ACPI tables at %x\n", start);
+	debug("ACPI: Writing ACPI tables at %lx\n", start);
 
 	/* We need at least an RSDP and an RSDT Table */
 	rsdp = (struct acpi_rsdp *)current;

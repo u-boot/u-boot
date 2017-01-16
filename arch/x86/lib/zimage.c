@@ -165,7 +165,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 		 * A very old kernel MUST have its real-mode code
 		 * loaded at 0x90000
 		 */
-		if ((u32)setup_base != 0x90000) {
+		if ((ulong)setup_base != 0x90000) {
 			/* Copy the real-mode kernel */
 			memmove((void *)0x90000, setup_base, setup_size);
 

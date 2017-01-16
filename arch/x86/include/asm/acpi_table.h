@@ -316,4 +316,4 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			       u8 cpu, u16 flags, u8 lint);
 u32 acpi_fill_madt(u32 current);
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
-u32 write_acpi_tables(u32 start);
+ulong write_acpi_tables(ulong start);

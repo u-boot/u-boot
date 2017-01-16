@@ -264,7 +264,7 @@ int irq_router_probe(struct udevice *dev)
 	return irq_router_common_init(dev);
 }
 
-u32 write_pirq_routing_table(u32 addr)
+ulong write_pirq_routing_table(ulong addr)
 {
 	if (!pirq_routing_table)
 		return addr;

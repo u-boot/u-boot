@@ -365,7 +365,7 @@ static void mptable_add_lintsrc(struct mp_config_table *mc, int bus_isa)
 			 bus_isa, 0, MP_APIC_ALL, 1);
 }
 
-u32 write_mp_table(u32 addr)
+ulong write_mp_table(ulong addr)
 {
 	struct mp_config_table *mc;
 	int ioapic_id, ioapic_ver;
