@@ -846,7 +846,7 @@ __weak int arch_cpu_init_dm(void)
 	return 0;
 }
 
-static init_fnc_t init_sequence_f[] = {
+static const init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
 #endif
@@ -1098,7 +1098,7 @@ void board_init_f(ulong boot_flags)
  * NOTE: At present only x86 uses this route, but it is intended that
  * all archs will move to this when generic relocation is implemented.
  */
-static init_fnc_t init_sequence_f_r[] = {
+static const init_fnc_t init_sequence_f_r[] = {
 #if !CONFIG_IS_ENABLED(X86_64)
 	init_cache_f_r,
 #endif
