@@ -111,7 +111,7 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # Build a libfdt Python module if swig is available
 # Use 'sudo apt-get install swig libpython-dev' to enable this
-hostprogs-$(CONFIG_SPL_OF_PLATDATA) += \
+hostprogs-y += \
 	$(if $(shell which swig 2> /dev/null),_libfdt.so)
 _libfdt.so-sharedobjs += $(LIBFDT_OBJS)
 libfdt:
