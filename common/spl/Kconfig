@@ -484,6 +484,16 @@ config SPL_RAM_DEVICE
 	  be already in memory when SPL takes over, e.g. loaded by the boot
 	  ROM.
 
+config SPL_RTC_SUPPORT
+	bool "Support RTC drivers"
+	depends on SPL
+	help
+	  Enable RTC (Real-time Clock) support in SPL. This includes support
+	  for reading and setting the time. Some RTC devices also have some
+	  non-volatile (battery-backed) memory which is accessible if
+	  needed. This enables the drivers in drivers/rtc as part of an SPL
+	  build.
+
 config SPL_SATA_SUPPORT
 	bool "Support loading from SATA"
 	depends on SPL
