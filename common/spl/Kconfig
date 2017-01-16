@@ -149,6 +149,16 @@ config SPL_SHA256_SUPPORT
 	  SHA256 variant is supported: SHA512 and others are not currently
 	  supported in U-Boot.
 
+config SPL_CPU_SUPPORT
+	bool "Support CPU drivers"
+	depends on SPL
+	help
+	  Enable this to support CPU drivers in SPL. These drivers can set
+	  up CPUs and provide information about them such as the model and
+	  name. This can be useful in SPL since setting up the CPUs earlier
+	  may improve boot performance. Enable this option to build the
+	  drivers in drivers/cpu as part of an SPL build.
+
 config SPL_CRYPTO_SUPPORT
 	bool "Support crypto drivers"
 	depends on SPL
