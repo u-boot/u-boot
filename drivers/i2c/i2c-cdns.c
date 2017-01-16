@@ -67,6 +67,7 @@ struct cdns_i2c_regs {
 
 #define CDNS_I2C_FIFO_DEPTH		16
 #define CDNS_I2C_TRANSFER_SIZE_MAX	255 /* Controller transfer limit */
+#define CDNS_I2C_BROKEN_HOLD_BIT	BIT(0)
 
 #ifdef DEBUG
 static void cdns_i2c_debug_status(struct cdns_i2c_regs *cdns_i2c)
@@ -114,6 +115,13 @@ struct i2c_cdns_bus {
 	int id;
 	unsigned int input_freq;
 	struct cdns_i2c_regs __iomem *regs;	/* register base */
+
+	int hold_flag;
+	u32 quirks;
+};
+
+struct cdns_i2c_platform_data {
+	u32 quirks;
 };
 
 /* Wait for an interrupt */
@@ -236,18 +244,14 @@ static int cdns_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 }
 
 static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
-			       u32 len, bool next_is_read)
+			       u32 len)
 {
 	u8 *cur_data = data;
 
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
 
-	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO |
-		CDNS_I2C_CONTROL_HOLD);
+	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO);
 
-	/* if next is a read, we need to clear HOLD, doesn't work */
-	if (next_is_read)
-		clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 	clrbits_le32(&regs->control, CDNS_I2C_CONTROL_RW);
 
@@ -267,7 +271,9 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	}
 
 	/* All done... release the bus */
-	clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
+	if (!i2c_bus->hold_flag)
+		clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
+
 	/* Wait for the address and data to be sent */
 	if (!cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP))
 		return -ETIMEDOUT;
@@ -285,7 +291,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
 
 	/* Check the hardware can handle the requested bytes */
-	if ((len < 0) || (len > CDNS_I2C_TRANSFER_SIZE_MAX))
+	if ((len < 0))
 		return -EINVAL;
 
 	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO |
@@ -310,7 +316,8 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 			*(cur_data++) = readl(&regs->data);
 	} while (readl(&regs->transfer_size) != 0);
 	/* All done... release the bus */
-	clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
+	if (!i2c_bus->hold_flag)
+		clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 #ifdef DEBUG
 	cdns_i2c_debug_status(regs);
@@ -322,19 +329,41 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			 int nmsgs)
 {
 	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
-	int ret;
+	int ret, count;
+	bool hold_quirk;
+
+	hold_quirk = !!(i2c_bus->quirks & CDNS_I2C_BROKEN_HOLD_BIT);
+
+	if (nmsgs > 1) {
+		/*
+		 * This controller does not give completion interrupt after a
+		 * master receive message if HOLD bit is set (repeated start),
+		 * resulting in SW timeout. Hence, if a receive message is
+		 * followed by any other message, an error is returned
+		 * indicating that this sequence is not supported.
+		 */
+		for (count = 0; (count < nmsgs - 1) && hold_quirk; count++) {
+			if (msg[count].flags & I2C_M_RD) {
+				printf("Can't do repeated start after a receive message\n");
+				return -EOPNOTSUPP;
+			}
+		}
+
+		i2c_bus->hold_flag = 1;
+		setbits_le32(&i2c_bus->regs->control, CDNS_I2C_CONTROL_HOLD);
+	} else {
+		i2c_bus->hold_flag = 0;
+	}
 
 	debug("i2c_xfer: %d messages\n", nmsgs);
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		bool next_is_read = nmsgs > 1 && (msg[1].flags & I2C_M_RD);
-
 		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
 		if (msg->flags & I2C_M_RD) {
 			ret = cdns_i2c_read_data(i2c_bus, msg->addr, msg->buf,
 						 msg->len);
 		} else {
 			ret = cdns_i2c_write_data(i2c_bus, msg->addr, msg->buf,
-						  msg->len, next_is_read);
+						  msg->len);
 		}
 		if (ret) {
 			debug("i2c_write: error sending\n");
@@ -348,10 +377,15 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
 {
 	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
+	struct cdns_i2c_platform_data *pdata =
+		(struct cdns_i2c_platform_data *)dev_get_driver_data(dev);
 
 	i2c_bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
 	if (!i2c_bus->regs)
 		return -ENOMEM;
+
+	if (pdata)
+		i2c_bus->quirks = pdata->quirks;
 
 	i2c_bus->input_freq = 100000000; /* TODO hardcode input freq for now */
 
@@ -364,8 +398,12 @@ static const struct dm_i2c_ops cdns_i2c_ops = {
 	.set_bus_speed = cdns_i2c_set_bus_speed,
 };
 
+static const struct cdns_i2c_platform_data r1p10_i2c_def = {
+	.quirks = CDNS_I2C_BROKEN_HOLD_BIT,
+};
+
 static const struct udevice_id cdns_i2c_of_match[] = {
-	{ .compatible = "cdns,i2c-r1p10" },
+	{ .compatible = "cdns,i2c-r1p10", .data = (ulong)&r1p10_i2c_def },
 	{ .compatible = "cdns,i2c-r1p14" },
 	{ /* end of table */ }
 };
