@@ -701,6 +701,7 @@
 		};
 
 		qspi: spi@ff0f0000 {
+			u-boot,dm-pre-reloc;
 			compatible = "xlnx,zynqmp-qspi-1.0";
 			status = "disabled";
 			clock-names = "ref_clk", "pclk";
