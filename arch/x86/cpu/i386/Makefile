@@ -3,5 +3,6 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
+obj-y += call64.o
 obj-y += cpu.o
 obj-y += interrupt.o
