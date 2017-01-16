@@ -81,6 +81,9 @@ lret_target:
 	jmp	*%eax			/* Jump to the 64-bit target */
 
 	.data
+	.align	16
+	.globl	gdt64
+gdt64:
 gdt:
 	.word	gdt_end - gdt - 1
 	.long	gdt			/* Fixed up by code above */

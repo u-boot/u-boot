@@ -264,6 +264,15 @@ void cpu_call32(ulong code_seg32, ulong target, ulong table);
 int cpu_jump_to_64bit(ulong setup_base, ulong target);
 
 /**
+ * cpu_jump_to_64bit_uboot() - special function to jump from SPL to U-Boot
+ *
+ * This handles calling from 32-bit SPL to 64-bit U-Boot.
+ *
+ * @target:	Address of U-Boot in RAM
+ */
+int cpu_jump_to_64bit_uboot(ulong target);
+
+/**
  * cpu_get_family_model() - Get the family and model for the CPU
  *
  * @return the CPU ID masked with 0x0fff0ff0

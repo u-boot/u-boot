@@ -503,6 +503,70 @@ int cpu_jump_to_64bit(ulong setup_base, ulong target)
 	return -EFAULT;
 }
 
+/*
+ * Jump from SPL to U-Boot
+ *
+ * This function is work-in-progress with many issues to resolve.
+ *
+ * It works by setting up several regions:
+ *   ptr      - a place to put the code that jumps into 64-bit mode
+ *   gdt      - a place to put the global descriptor table
+ *   pgtable  - a place to put the page tables
+ *
+ * The cpu_call64() code is copied from ROM and then manually patched so that
+ * it has the correct GDT address in RAM. U-Boot is copied from ROM into
+ * its pre-relocation address. Then we jump to the cpu_call64() code in RAM,
+ * which changes to 64-bit mode and starts U-Boot.
+ */
+int cpu_jump_to_64bit_uboot(ulong target)
+{
+	typedef void (*func_t)(ulong pgtable, ulong setup_base, ulong target);
+	uint32_t *pgtable;
+	func_t func;
+
+	/* TODO(sjg@chromium.org): Find a better place for this */
+	pgtable = (uint32_t *)0x1000000;
+	if (!pgtable)
+		return -ENOMEM;
+
+	build_pagetable(pgtable);
+
+	/* TODO(sjg@chromium.org): Find a better place for this */
+	char *ptr = (char *)0x3000000;
+	char *gdt = (char *)0x3100000;
+
+	extern char gdt64[];
+
+	memcpy(ptr, cpu_call64, 0x1000);
+	memcpy(gdt, gdt64, 0x100);
+
+	/*
+	 * TODO(sjg@chromium.org): This manually inserts the pointers into
+	 * the code. Tidy this up to avoid this.
+	 */
+	func = (func_t)ptr;
+	ulong ofs = (ulong)cpu_call64 - (ulong)ptr;
+	*(ulong *)(ptr + 7) = (ulong)gdt;
+	*(ulong *)(ptr + 0xc) = (ulong)gdt + 2;
+	*(ulong *)(ptr + 0x13) = (ulong)gdt;
+	*(ulong *)(ptr + 0x117 - 0xd4) -= ofs;
+
+	/*
+	 * Copy U-Boot from ROM
+	 * TODO(sjg@chromium.org): Figure out a way to get the text base
+	 * correctly here, and in the device-tree binman definition.
+	 *
+	 * Also consider using FIT so we get the correct image length and
+	 * parameters.
+	 */
+	memcpy((char *)target, (char *)0xfff00000, 0x100000);
+
+	/* Jump to U-Boot */
+	func((ulong)pgtable, 0, (ulong)target);
+
+	return -EFAULT;
+}
+
 #ifdef CONFIG_SMP
 static int enable_smis(struct udevice *cpu, void *unused)
 {
