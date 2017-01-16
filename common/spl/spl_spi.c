@@ -96,8 +96,11 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		/* Load u-boot, mkimage header is 64 bytes. */
 		err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40,
 				     (void *)header);
-		if (err)
+		if (err) {
+			debug("%s: Failed to read from SPI flash (err=%d)\n",
+			      __func__, err);
 			return err;
+		}
 
 		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 			image_get_magic(header) == FDT_MAGIC) {
