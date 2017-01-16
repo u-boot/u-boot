@@ -5,9 +5,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifndef CONFIG_X86_64
 obj-y += bios.o
 obj-y += bios_asm.o
 obj-y += bios_interrupts.o
+endif
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cmd_boot.o
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
