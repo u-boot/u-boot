@@ -191,7 +191,8 @@ quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
 ifeq ($(CONFIG_SPL_OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_SPL_OF_PLATDATA),yy)
-$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin $(obj)/$(SPL_BIN)-pad.bin \
+$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin \
+		$(if $(CONFIG_SPL_SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
 		$(obj)/$(SPL_BIN).dtb FORCE
 	$(call if_changed,cat)
 
