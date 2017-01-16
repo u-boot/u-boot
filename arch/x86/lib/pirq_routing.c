@@ -114,14 +114,14 @@ u32 copy_pirq_routing_table(u32 addr, struct irq_routing_table *rt)
 	addr = ALIGN(addr, 16);
 
 	debug("Copying Interrupt Routing Table to 0x%x\n", addr);
-	memcpy((void *)addr, rt, rt->size);
+	memcpy((void *)(uintptr_t)addr, rt, rt->size);
 
 	/*
 	 * We do the sanity check here against the copied table after memcpy,
 	 * as something might go wrong after the memcpy, which is normally
 	 * due to the F segment decode is not turned on to systeam RAM.
 	 */
-	rom_rt = (struct irq_routing_table *)addr;
+	rom_rt = (struct irq_routing_table *)(uintptr_t)addr;
 	if (rom_rt->signature != PIRQ_SIGNATURE ||
 	    rom_rt->version != PIRQ_VERSION || rom_rt->size % 16) {
 		printf("Interrupt Routing Table not valid\n");

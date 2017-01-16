@@ -104,7 +104,7 @@ static int ich6_pinctrl_cfg_pin(s32 gpiobase, s32 iobase, int pin_node)
 
 	/* if iobase is present, let's configure the pad */
 	if (iobase != -1) {
-		int iobase_addr;
+		ulong iobase_addr;
 
 		/*
 		 * The offset for the same pin for the IOBASE and GPIOBASE are
