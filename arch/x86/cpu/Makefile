@@ -20,11 +20,13 @@ endif
 
 obj-y	+= cpu.o cpu_x86.o
 
+ifndef CONFIG_$(SPL_)X86_64
 AFLAGS_REMOVE_call32.o := -mregparm=3 \
 	$(if $(CONFIG_EFI_STUB_64BIT),-march=i386 -m32)
 AFLAGS_call32.o := -fpic -fshort-wchar
 
 extra-y += call32.o
+endif
 
 obj-y += intel_common/
 obj-$(CONFIG_INTEL_BAYTRAIL) += baytrail/
@@ -35,11 +37,16 @@ obj-$(CONFIG_QEMU) += qemu/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_INTEL_QUARK) += quark/
 obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
-obj-y += irq.o lapic.o ioapic.o
+obj-y += lapic.o ioapic.o
+ifndef CONFIG_$(SPL_)X86_64
+obj-y += irq.o
 obj-$(CONFIG_SMP) += mp_init.o
+endif
 obj-y += mtrr.o
 obj-$(CONFIG_PCI) += pci.o
+ifndef CONFIG_$(SPL_)X86_64
 obj-$(CONFIG_SMP) += sipi_vector.o
+endif
 obj-y += turbo.o
 
 ifeq ($(CONFIG_$(SPL_)X86_64),y)
