@@ -90,4 +90,7 @@ int mp_init(struct mp_params *params);
 /* Probes the CPU device */
 int mp_init_cpu(struct udevice *cpu, void *unused);
 
+/* Set up additional CPUs */
+int x86_mp_init(void);
+
 #endif /* _X86_MP_H_ */

@@ -14,7 +14,7 @@ else
 extra-y	= start.o
 endif
 extra-$(CONFIG_$(SPL_)X86_16BIT_INIT) += resetvec.o start16.o
-obj-y	+= interrupts.o cpu.o cpu_x86.o call64.o setjmp.o
+obj-y	+= cpu.o cpu_x86.o call64.o setjmp.o
 
 AFLAGS_REMOVE_call32.o := -mregparm=3 \
 	$(if $(CONFIG_EFI_STUB_64BIT),-march=i386 -m32)
@@ -37,3 +37,7 @@ obj-y += mtrr.o
 obj-$(CONFIG_PCI) += pci.o
 obj-$(CONFIG_SMP) += sipi_vector.o
 obj-y += turbo.o
+
+ifeq ($(CONFIG_$(SPL_)X86_64),)
+obj-y += i386/
+endif

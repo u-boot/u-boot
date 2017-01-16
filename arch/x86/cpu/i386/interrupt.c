@@ -13,16 +13,12 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/cache.h>
 #include <asm/control_regs.h>
 #include <asm/i8259.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
-#include <asm/msr.h>
 #include <asm/processor-flags.h>
-#include <asm/processor.h>
-#include <asm/u-boot-x86.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
