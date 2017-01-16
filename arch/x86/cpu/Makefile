@@ -38,6 +38,8 @@ obj-$(CONFIG_PCI) += pci.o
 obj-$(CONFIG_SMP) += sipi_vector.o
 obj-y += turbo.o
 
-ifeq ($(CONFIG_$(SPL_)X86_64),)
+ifeq ($(CONFIG_$(SPL_)X86_64),y)
+obj-y += x86_64/
+else
 obj-y += i386/
 endif
