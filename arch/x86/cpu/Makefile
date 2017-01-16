@@ -8,7 +8,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifeq ($(CONFIG_$(SPL_)X86_64),y)
+extra-y	= start64.o
+else
 extra-y	= start.o
+endif
 extra-$(CONFIG_$(SPL_)X86_16BIT_INIT) += resetvec.o start16.o
 obj-y	+= interrupts.o cpu.o cpu_x86.o call64.o setjmp.o
 
