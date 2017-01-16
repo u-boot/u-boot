@@ -18,6 +18,8 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct gt_powermeter {
 	u16 reg;
 	u32 value;

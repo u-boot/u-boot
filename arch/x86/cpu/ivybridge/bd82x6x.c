@@ -19,6 +19,8 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define GPIO_BASE	0x48
 #define BIOS_CTRL	0xdc
 

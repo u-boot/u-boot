@@ -20,6 +20,8 @@
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define NMI_OFF				0
 
 #define ENABLE_ACPI_MODE_IN_COREBOOT	0

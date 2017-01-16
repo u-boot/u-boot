@@ -19,6 +19,8 @@
 #include <asm/arch/model_206ax.h>
 #include <asm/arch/sandybridge.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int bridge_silicon_revision(struct udevice *dev)
 {
 	struct cpuid_result result;

@@ -22,6 +22,8 @@
 #include <asm/turbo.h>
 #include <asm/arch/model_206ax.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void enable_vmx(void)
 {
 	struct cpuid_result regs;
