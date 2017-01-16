@@ -1033,8 +1033,8 @@ static const init_fnc_t init_sequence_f[] = {
 	setup_reloc,
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
 	copy_uboot_to_ram,
-	clear_bss,
 	do_elf_reloc_fixups,
+	clear_bss,
 #endif
 #if defined(CONFIG_XTENSA)
 	clear_bss,
