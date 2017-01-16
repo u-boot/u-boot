@@ -5,6 +5,52 @@ config SYS_ARCH
 	default "x86"
 
 choice
+	prompt "Run U-Boot in 32/64-bit mode"
+	default X86_RUN_32BIT
+	help
+	  U-Boot can be built as a 32-bit binary which runs in 32-bit mode
+	  even on 64-bit machines. In this case SPL is not used, and U-Boot
+	  runs directly from the reset vector (via 16-bit start-up).
+
+	  Alternatively it can be run as a 64-bit binary, thus requiring a
+	  64-bit machine. In this case SPL runs in 32-bit mode (via 16-bit
+	  start-up) then jumps to U-Boot in 64-bit mode.
+
+	  For now, 32-bit mode is recommended, as 64-bit is still
+	  experimental and is missing a lot of features.
+
+config X86_RUN_32BIT
+	bool "32-bit"
+	help
+	  Build U-Boot as a 32-bit binary with no SPL. This is the currently
+	  supported normal setup. U-Boot will stay in 32-bit mode even on
+	  64-bit machines. When booting a 64-bit kernel, U-Boot will switch
+	  to 64-bit just before starting the kernel. Only the bottom 4GB of
+	  memory can be accessed through normal means, although
+	  arch_phys_memset() can be used for basic access to other memory.
+
+config X86_RUN_64BIT
+	bool "64-bit"
+	select X86_64
+	select SUPPORT_SPL
+	select SPL
+	select SPL_SEPARATE_BSS
+	help
+	  Build U-Boot as a 64-bit binary with a 32-bit SPL. This is
+	  experimental and many features are missing. U-Boot SPL starts up,
+	  runs through the 16-bit and 32-bit init, then switches to 64-bit
+	  mode and jumps to U-Boot proper.
+
+endchoice
+
+config X86_64
+	bool
+
+config SPL_X86_64
+	bool
+	depends on SPL
+
+choice
 	prompt "Mainboard vendor"
 	default VENDOR_EMULATION
 
