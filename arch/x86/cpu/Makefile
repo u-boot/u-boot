@@ -14,9 +14,6 @@ else
 extra-y	= start.o
 endif
 extra-$(CONFIG_$(SPL_)X86_16BIT_INIT) += resetvec.o start16.o
-ifndef CONFIG_$(SPL_)X86_64
-obj-y	+= setjmp.o
-endif
 
 obj-y	+= cpu.o cpu_x86.o
 

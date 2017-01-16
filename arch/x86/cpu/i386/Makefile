@@ -6,3 +6,4 @@
 obj-y += call64.o
 obj-y += cpu.o
 obj-y += interrupt.o
+obj-y += setjmp.o
