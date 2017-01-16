@@ -26,12 +26,14 @@
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "intel,core-gen3";
 			reg = <0>;
 			intel,apic-id = <0>;
+			u-boot,dm-pre-reloc;
 		};
 
 		cpu@1 {
@@ -39,6 +41,7 @@
 			compatible = "intel,core-gen3";
 			reg = <1>;
 			intel,apic-id = <1>;
+			u-boot,dm-pre-reloc;
 		};
 
 		cpu@2 {
@@ -46,6 +49,7 @@
 			compatible = "intel,core-gen3";
 			reg = <2>;
 			intel,apic-id = <2>;
+			u-boot,dm-pre-reloc;
 		};
 
 		cpu@3 {
@@ -53,6 +57,7 @@
 			compatible = "intel,core-gen3";
 			reg = <3>;
 			intel,apic-id = <3>;
+			u-boot,dm-pre-reloc;
 		};
 
 	};
@@ -229,14 +234,16 @@
 
 		northbridge@0,0 {
 			reg = <0x00000000 0 0 0 0>;
+			u-boot,dm-pre-reloc;
 			compatible = "intel,bd82x6x-northbridge";
 			board-id-gpios = <&gpio_b 9 0>, <&gpio_b 10 0>,
 					<&gpio_b 11 0>, <&gpio_a 10 0>;
-			u-boot,dm-pre-reloc;
 			spd {
+				u-boot,dm-pre-reloc;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				elpida_4Gb_1600_x16 {
+					u-boot,dm-pre-reloc;
 					reg = <0>;
 					data = [92 10 0b 03 04 19 02 02
 						03 52 01 08 0a 00 fe 00
@@ -272,6 +279,7 @@
 						00 00 00 00 00 00 00 00];
 				};
 				samsung_4Gb_1600_1.35v_x16 {
+					u-boot,dm-pre-reloc;
 					reg = <1>;
 					data = [92 11 0b 03 04 19 02 02
 						03 11 01 08 0a 00 fe 00
@@ -391,9 +399,11 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
+				u-boot,dm-pre-reloc;
 				spi-flash@0 {
 					#size-cells = <1>;
 					#address-cells = <1>;
+					u-boot,dm-pre-reloc;
 					reg = <0>;
 					compatible = "winbond,w25q64",
 							"spi-flash";
@@ -401,6 +411,7 @@
 					rw-mrc-cache {
 						label = "rw-mrc-cache";
 						reg = <0x003e0000 0x00010000>;
+						u-boot,dm-pre-reloc;
 					};
 				};
 			};
@@ -478,7 +489,9 @@
 	};
 
 	microcode {
+		u-boot,dm-pre-reloc;
 		update@0 {
+			u-boot,dm-pre-reloc;
 #include "microcode/m12306a9_0000001b.dtsi"
 		};
 	};
