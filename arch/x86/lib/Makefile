@@ -37,6 +37,7 @@ endif
 obj-y	+= tables.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
+obj-$(CONFIG_SPL_BUILD) += spl.o
 
 extra-$(CONFIG_USE_PRIVATE_LIBGCC) += lib.a
 
