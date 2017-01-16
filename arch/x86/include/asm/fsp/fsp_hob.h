@@ -139,7 +139,7 @@ struct hob_guid {
  */
 static inline const struct hob_header *get_next_hob(const struct hob_header *hdr)
 {
-	return (const struct hob_header *)((u32)hdr + hdr->len);
+	return (const struct hob_header *)((uintptr_t)hdr + hdr->len);
 }
 
 /**
@@ -172,7 +172,7 @@ static inline bool end_of_hob(const struct hob_header *hdr)
  */
 static inline void *get_guid_hob_data(const struct hob_header *hdr)
 {
-	return (void *)((u32)hdr + sizeof(struct hob_guid));
+	return (void *)((uintptr_t)hdr + sizeof(struct hob_guid));
 }
 
 /**
