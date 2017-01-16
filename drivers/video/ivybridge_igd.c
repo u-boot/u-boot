@@ -802,7 +802,7 @@ static int gma_func0_init(struct udevice *dev)
 	mtrr_add_request(MTRR_TYPE_WRCOMB, base, 256 << 20);
 	mtrr_commit(true);
 
-	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
+	gtt_bar = (void *)(ulong)dm_pci_read_bar32(dev, 0);
 	debug("GT bar %p\n", gtt_bar);
 	ret = gma_pm_init_pre_vbios(gtt_bar, rev);
 	if (ret)
@@ -824,7 +824,7 @@ static int bd82x6x_video_probe(struct udevice *dev)
 		return ret;
 
 	/* Post VBIOS init */
-	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
+	gtt_bar = (void *)(ulong)dm_pci_read_bar32(dev, 0);
 	ret = gma_pm_init_post_vbios(dev, rev, gtt_bar);
 	if (ret)
 		return ret;
