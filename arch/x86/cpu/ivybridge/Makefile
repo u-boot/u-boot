@@ -16,5 +16,8 @@ ifndef CONFIG_SPL_BUILD
 obj-y += sata.o
 endif
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += sdram.o
+ifndef CONFIG_$(SPL_)X86_32BIT_INIT
+obj-y += sdram_nop.o
+endif
 endif
 obj-y += bd82x6x.o

@@ -59,3 +59,13 @@ int x86_mp_init(void)
 	/* Not implemented */
 	return 0;
 }
+
+int misc_init_r(void)
+{
+	return 0;
+}
+
+int print_cpuinfo(void)
+{
+	return 0;
+}
