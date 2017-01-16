@@ -9,13 +9,6 @@
 
 #include "ls1046a_common.h"
 
-#if defined(CONFIG_FSL_LS_PPA)
-#define CONFIG_SYS_LS_PPA_FW_IN_XIP
-#ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
-#define	CONFIG_SYS_LS_PPA_FW_ADDR	0x40500000
-#endif
-#endif
-
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #else

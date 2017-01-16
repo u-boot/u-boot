@@ -102,13 +102,37 @@ menu "Layerscape PPA"
 config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"
 	depends on !ARMV8_PSCI
-	depends on ARCH_LS1043A || ARCH_LS1046A
+	select ARMV8_SEC_FIRMWARE_SUPPORT
 	select SEC_FIRMWARE_ARMV8_PSCI
+	select ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT if FSL_LSCH2
 	help
 	  The FSL Primary Protected Application (PPA) is a software component
 	  which is loaded during boot stage, and then remains resident in RAM
 	  and runs in the TrustZone after boot.
 	  Say y to enable it.
+choice
+	prompt "FSL Layerscape PPA firmware loading-media select"
+	depends on FSL_LS_PPA
+	default SYS_LS_PPA_FW_IN_XIP
+
+config SYS_LS_PPA_FW_IN_XIP
+	bool "XIP"
+	help
+	  Say Y here if the PPA firmware locate at XIP flash, such
+	  as NOR or QSPI flash.
+
+endchoice
+
+config SYS_LS_PPA_FW_ADDR
+	hex "Address of PPA firmware loading from"
+	depends on FSL_LS_PPA
+	default 0x40500000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x60500000 if SYS_LS_PPA_FW_IN_XIP
+	help
+	  If the PPA firmware locate at XIP flash, such as NOR or
+	  QSPI flash, this address is a directly memory-mapped.
+	  If it is in a serial accessed flash, such as NAND and SD
+	  card, it is a byte offset.
 endmenu
 
 config SYS_FSL_ERRATUM_A010315

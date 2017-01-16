@@ -9,13 +9,6 @@
 
 #include "ls1043a_common.h"
 
-#if defined(CONFIG_FSL_LS_PPA)
-#define CONFIG_SYS_LS_PPA_FW_IN_XIP
-#ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
-#define	CONFIG_SYS_LS_PPA_FW_ADDR	0x60500000
-#endif
-#endif
-
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #else
