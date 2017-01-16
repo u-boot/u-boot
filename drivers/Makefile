@@ -34,6 +34,7 @@ obj-$(CONFIG_SPL_ETH_SUPPORT) += net/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_USBETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_PCI_SUPPORT) += pci/
+obj-$(CONFIG_SPL_PCH_SUPPORT) += pch/
 obj-$(CONFIG_SPL_RTC_SUPPORT) += rtc/
 obj-$(CONFIG_SPL_TIMER_SUPPORT) += timer/
 obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/

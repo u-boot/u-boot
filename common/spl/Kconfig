@@ -444,6 +444,15 @@ config SPL_PCI_SUPPORT
 	  necessary driver support. This enables the drivers in drivers/pci
 	  as part of an SPL build.
 
+config SPL_PCH_SUPPORT
+	bool "Support PCH drivers"
+	depends on SPL
+	help
+	  Enable support for PCH (Platform Controller Hub) devices in SPL.
+	  These are used to set up GPIOs and the SPI peripheral early in
+	  boot. This enables the drivers in drivers/pch as part of an SPL
+	  build.
+
 config SPL_POST_MEM_SUPPORT
 	bool "Support POST drivers"
 	depends on SPL
