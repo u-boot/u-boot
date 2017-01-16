@@ -135,6 +135,46 @@ config X86_RESET_VECTOR
 	bool
 	default n
 
+# The following options control where the 16-bit and 32-bit init lies
+# If SPL is enabled then it normally holds this init code, and U-Boot proper
+# is normally a 64-bit build.
+#
+# The 16-bit init refers to the reset vector and the small amount of code to
+# get the processor into 32-bit mode. It may be in SPL or in U-Boot proper,
+# or missing altogether if U-Boot is started from EFI or coreboot.
+#
+# The 32-bit init refers to processor init, running binary blobs including
+# FSP, setting up interrupts and anything else that needs to be done in
+# 32-bit code. It is normally in the same place as 16-bit init if that is
+# enabled (i.e. they are both in SPL, or both in U-Boot proper).
+config X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && !SPL
+	help
+	  This is enabled when 16-bit init is in U-Boot proper
+
+config SPL_X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && SPL
+	help
+	  This is enabled when 16-bit init is in SPL
+
+config X86_32BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && !SPL
+	help
+	  This is enabled when 32-bit init is in U-Boot proper
+
+config SPL_X86_32BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && SPL
+	help
+	  This is enabled when 32-bit init is in SPL
+
 config RESET_SEG_START
 	hex
 	depends on X86_RESET_VECTOR
