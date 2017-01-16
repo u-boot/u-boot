@@ -159,6 +159,8 @@ static inline unsigned int cpuid_edx(unsigned int op)
 	return edx;
 }
 
+#if !CONFIG_IS_ENABLED(X86_64)
+
 /* Standard macro to see if a specific flag is changeable */
 static inline int flag_is_changeable_p(uint32_t flag)
 {
@@ -179,6 +181,7 @@ static inline int flag_is_changeable_p(uint32_t flag)
 		: "ir" (flag));
 	return ((f1^f2) & flag) != 0;
 }
+#endif
 
 static inline void mfence(void)
 {
