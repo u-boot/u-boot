@@ -11,9 +11,8 @@
 #include <asm/pci.h>
 #include <asm/pirq_routing.h>
 
-static bool irq_already_routed[16];
-
-static u8 pirq_get_next_free_irq(struct udevice *dev, u8 *pirq, u16 bitmap)
+static u8 pirq_get_next_free_irq(struct udevice *dev, u8 *pirq, u16 bitmap,
+				 bool irq_already_routed[])
 {
 	int i, link;
 	u8 irq = 0;
@@ -55,9 +54,11 @@ void pirq_route_irqs(struct udevice *dev, struct irq_info *irq, int num)
 {
 	unsigned char irq_slot[MAX_INTX_ENTRIES];
 	unsigned char pirq[CONFIG_MAX_PIRQ_LINKS];
+	bool irq_already_routed[16];
 	int i, intx;
 
 	memset(pirq, 0, CONFIG_MAX_PIRQ_LINKS);
+	memset(irq_already_routed, '\0', sizeof(irq_already_routed));
 
 	/* Set PCI IRQs */
 	for (i = 0; i < num; i++) {
@@ -83,7 +84,8 @@ void pirq_route_irqs(struct udevice *dev, struct irq_info *irq, int num)
 
 			/* yet not routed */
 			if (!pirq[link]) {
-				irq = pirq_get_next_free_irq(dev, pirq, bitmap);
+				irq = pirq_get_next_free_irq(dev, pirq, bitmap,
+						irq_already_routed);
 				pirq[link] = irq;
 			} else {
 				irq = pirq[link];
