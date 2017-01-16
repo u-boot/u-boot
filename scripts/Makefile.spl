@@ -35,6 +35,12 @@ else
 SPL_BIN := u-boot-spl
 endif
 
+ifdef CONFIG_SPL_BUILD
+SPL_ := SPL_
+else
+SPL_ :=
+endif
+
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
 
