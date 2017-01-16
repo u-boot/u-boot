@@ -1,5 +1,6 @@
 / {
 	serial: serial {
+		u-boot,dm-pre-reloc;
 		compatible = "ns16550";
 		reg = <0x3f8 8>;
 		reg-shift = <0>;
