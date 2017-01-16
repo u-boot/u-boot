@@ -947,6 +947,16 @@ static init_fnc_t init_sequence_r[] = {
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
+	/*
+	 * Set up the new global data pointer. So far only x86 does this
+	 * here.
+	 * TODO(sjg@chromium.org): Consider doing this for all archs, or
+	 * dropping the new_gd parameter.
+	 */
+#if CONFIG_IS_ENABLED(X86_64)
+	arch_setup_gd(new_gd);
+#endif
+
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	int i;
 #endif
