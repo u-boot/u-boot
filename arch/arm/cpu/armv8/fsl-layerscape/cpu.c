@@ -412,7 +412,7 @@ int arch_early_init_r(void)
 #endif
 #ifdef CONFIG_MP
 #if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
-	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	/* Check the psci version to determine if the psci is supported */
 	psci_ver = sec_firmware_support_psci_version();
 #endif

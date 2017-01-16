@@ -63,6 +63,14 @@ config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	help
 	  Say Y here to support this framework in SPL phase.
 
+config SEC_FIRMWARE_ARMV8_PSCI
+	bool "PSCI implementation in secure monitor firmware"
+	depends on ARMV8_SEC_FIRMWARE_SUPPORT || SPL_ARMV8_SEC_FIRMWARE_SUPPORT
+	help
+	  This config enables the ARMv8 PSCI implementation in secure monitor
+	  firmware. This is a private PSCI implementation and different from
+	  those implemented under the common ARMv8 PSCI framework.
+
 config ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT
 	bool "ARMv8 secure monitor firmware ERET address byteorder swap"
 	depends on ARMV8_SEC_FIRMWARE_SUPPORT || SPL_ARMV8_SEC_FIRMWARE_SUPPORT

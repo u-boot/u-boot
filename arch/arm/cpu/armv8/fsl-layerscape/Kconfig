@@ -103,20 +103,12 @@ config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"
 	depends on !ARMV8_PSCI
 	depends on ARCH_LS1043A || ARCH_LS1046A
-	select FSL_PPA_ARMV8_PSCI
+	select SEC_FIRMWARE_ARMV8_PSCI
 	help
 	  The FSL Primary Protected Application (PPA) is a software component
 	  which is loaded during boot stage, and then remains resident in RAM
 	  and runs in the TrustZone after boot.
 	  Say y to enable it.
-
-config FSL_PPA_ARMV8_PSCI
-	bool "PSCI implementation in PPA firmware"
-	depends on FSL_LS_PPA
-	help
-	  This config enables the ARMv8 PSCI implementation in PPA firmware.
-	  This is a private PSCI implementation and different from those
-	  implemented under the common ARMv8 PSCI framework.
 endmenu
 
 config SYS_FSL_ERRATUM_A010315

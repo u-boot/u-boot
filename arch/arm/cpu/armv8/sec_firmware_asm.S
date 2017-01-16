@@ -41,7 +41,7 @@ WEAK(_sec_firmware_entry)
         ret
 ENDPROC(_sec_firmware_entry)
 
-#ifdef CONFIG_FSL_PPA_ARMV8_PSCI
+#ifdef CONFIG_SEC_FIRMWARE_ARMV8_PSCI
 ENTRY(_sec_firmware_support_psci_version)
 	mov	x0, 0x84000000
 	mov	x1, 0x0
