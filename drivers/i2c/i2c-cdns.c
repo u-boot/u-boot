@@ -130,10 +130,10 @@ static u32 cdns_i2c_wait(struct cdns_i2c_regs *cdns_i2c, u32 mask)
 	int timeout, int_status;
 
 	for (timeout = 0; timeout < 100; timeout++) {
-		udelay(100);
 		int_status = readl(&cdns_i2c->interrupt_status);
 		if (int_status & mask)
 			break;
+		udelay(100);
 	}
 
 	/* Clear interrupt status flags */
