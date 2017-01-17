@@ -205,8 +205,7 @@ void cpu_init_f (volatile immap_t * im)
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
+	/* global data region was cleared in start.S */
 
 	/* system performance tweaking */
 	clrsetbits_be32(&im->arbiter.acr, acr_mask, acr_val);

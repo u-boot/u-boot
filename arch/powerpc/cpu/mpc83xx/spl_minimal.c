@@ -18,14 +18,10 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 void cpu_init_f (volatile immap_t * im)
 {
-	int i;
-
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
-	/* Clear initial global data */
-	for (i = 0; i < sizeof(gd_t); i++)
-		((char *)gd)[i] = 0;
+	/* global data region was cleared in start.S */
 
 	/* system performance tweaking */
 
