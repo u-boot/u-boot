@@ -90,6 +90,11 @@ config FSL_PCIE_COMPAT
 	  This compatible is used to find pci controller node in Kernel DT
 	  to complete fixup.
 
+config HAS_FEATURE_GIC64K_ALIGN
+	bool
+	default y if ARCH_LS1043A
+
+
 menu "Layerscape PPA"
 config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"

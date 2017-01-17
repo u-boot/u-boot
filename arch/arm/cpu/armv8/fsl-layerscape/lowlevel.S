@@ -10,14 +10,65 @@
 #include <linux/linkage.h>
 #include <asm/gic.h>
 #include <asm/macro.h>
+#include <asm/arch-fsl-layerscape/soc.h>
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
 #ifdef CONFIG_FSL_LSCH3
 #include <asm/arch-fsl-layerscape/immap_lsch3.h>
-#include <asm/arch-fsl-layerscape/soc.h>
 #endif
 #include <asm/u-boot.h>
+
+/* Get GIC offset
+* For LS1043a rev1.0, GIC base address align with 4k.
+* For LS1043a rev1.1, if DCFG_GIC400_ALIGN[GIC_ADDR_BIT]
+* is set, GIC base address align with 4K, or else align
+* with 64k.
+* output:
+*	x0: the base address of GICD
+*	x1: the base address of GICC
+*/
+ENTRY(get_gic_offset)
+	ldr     x0, =GICD_BASE
+#ifdef CONFIG_GICV2
+	ldr     x1, =GICC_BASE
+#endif
+#ifdef CONFIG_HAS_FEATURE_GIC64K_ALIGN
+	ldr     x2, =DCFG_CCSR_SVR
+	ldr	w2, [x2]
+	rev	w2, w2
+	mov	w3, w2
+	ands	w3, w3, #SVR_WO_E << 8
+	mov	w4, #SVR_LS1043A << 8
+	cmp	w3, w4
+	b.ne	1f
+	ands	w2, w2, #0xff
+	cmp	w2, #REV1_0
+	b.eq	1f
+	ldr	x2, =SCFG_GIC400_ALIGN
+	ldr	w2, [x2]
+	rev	w2, w2
+	tbnz	w2, #GIC_ADDR_BIT, 1f
+	ldr     x0, =GICD_BASE_64K
+#ifdef CONFIG_GICV2
+	ldr     x1, =GICC_BASE_64K
+#endif
+1:
+#endif
+	ret
+ENDPROC(get_gic_offset)
+
+ENTRY(smp_kick_all_cpus)
+	/* Kick secondary cpus up by SGI 0 interrupt */
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
+	mov	x29, lr			/* Save LR */
+	bl	get_gic_offset
+	bl	gic_kick_secondary_cpus
+	mov	lr, x29			/* Restore LR */
+#endif
+	ret
+ENDPROC(smp_kick_all_cpus)
+
 
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
@@ -130,15 +181,14 @@ ENTRY(lowlevel_init)
 	/* Initialize GIC Secure Bank Status */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
-	ldr	x0, =GICD_BASE
+	bl	get_gic_offset
 	bl	gic_init_secure
 1:
 #ifdef CONFIG_GICV3
 	ldr	x0, =GICR_BASE
 	bl	gic_init_secure_percpu
 #elif defined(CONFIG_GICV2)
-	ldr	x0, =GICD_BASE
-	ldr	x1, =GICC_BASE
+	bl	get_gic_offset
 	bl	gic_init_secure_percpu
 #endif
 #endif
@@ -413,7 +463,8 @@ ENTRY(secondary_boot_func)
 #if defined(CONFIG_GICV3)
 	gic_wait_for_interrupt_m x0
 #elif defined(CONFIG_GICV2)
-        ldr     x0, =GICC_BASE
+	bl	get_gic_offset
+	mov	x0, x1
         gic_wait_for_interrupt_m x0, w1
 #endif
 
