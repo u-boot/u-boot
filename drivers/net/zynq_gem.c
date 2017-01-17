@@ -175,7 +175,6 @@ struct zynq_gem_priv {
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
-	u32 emio;
 	int init;
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
@@ -457,15 +456,13 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
-	/* Change the rclk and clk only not using EMIO interface */
-	if (!priv->emio)
 #ifndef CONFIG_CLK_ZYNQMP
-		zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
-					ZYNQ_GEM_BASEADDR0, clk_rate);
+	zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
+				ZYNQ_GEM_BASEADDR0, clk_rate);
 #else
-		ret = clk_set_rate(&priv->clk, clk_rate);
-		if (IS_ERR_VALUE(ret))
-			return -1;
+	ret = clk_set_rate(&priv->clk, clk_rate);
+	if (IS_ERR_VALUE(ret))
+		return -1;
 #endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
@@ -690,7 +687,6 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
-	priv->emio = 0;
 	priv->phyaddr = -1;
 
 	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, node,
@@ -707,8 +703,6 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
-
-	priv->emio = fdtdec_get_bool(gd->fdt_blob, node, "xlnx,emio");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));

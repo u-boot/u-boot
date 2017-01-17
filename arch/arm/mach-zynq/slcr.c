@@ -140,13 +140,6 @@ void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
 	if (ret)
 		goto out;
 
-	if (gem_id) {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem1_rclk_ctrl);
-	} else {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem0_rclk_ctrl);
-	}
 	udelay(100000);
 out:
 	zynq_slcr_lock();
