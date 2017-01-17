@@ -28,17 +28,6 @@ struct vcores_data const **omap_vcores =
 struct omap_sys_ctrl_regs const **ctrl =
 	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
-/* OPP HIGH FREQUENCY for ES2.0 */
-static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
-	{125, 0, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{625, 6, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{625, 7, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{750, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{625, 15, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
 /* OPP NOM FREQUENCY for ES1.0 */
 static const struct dpll_params mpu_dpll_params_800mhz[NUM_SYS_CLKS] = {
 	{200, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -48,28 +37,6 @@ static const struct dpll_params mpu_dpll_params_800mhz[NUM_SYS_CLKS] = {
 	{400, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{375, 17, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
-/* OPP LOW FREQUENCY for ES1.0 */
-static const struct dpll_params mpu_dpll_params_400mhz[NUM_SYS_CLKS] = {
-	{200, 2, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{1000, 20, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{375, 8, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{400, 12, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{375, 17, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
-/* OPP LOW FREQUENCY for ES2.0 */
-static const struct dpll_params mpu_dpll_params_499mhz[NUM_SYS_CLKS] = {
-	{499, 11, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{297, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{493, 18, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{499, 25, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{493, 37, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
 /* OPP NOM FREQUENCY for OMAP5 ES2.0, and DRA7 ES1.0 */
@@ -114,28 +81,6 @@ static const struct dpll_params
 	{368, 8, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{277, 9, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 38.4 MHz */
-};
-
-static const struct dpll_params
-			core_dpll_params_2128mhz_ddr266[NUM_SYS_CLKS] = {
-	{266, 2, 4, 8, 8, 8, 62, 10, -1, 10, 14, -1},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{443, 6, 4, 8, 8, 8, 62, 10, -1, 10, 14, -1},		/* 16.8 MHz */
-	{277, 4, 4, 8, 8, 8, 62, 10, -1, 10, 14, -1},		/* 19.2 MHz */
-	{368, 8, 4, 8, 8, 8, 62, 10, -1, 10, 14, -1},		/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{277, 9, 4, 8, 8, 8, 62, 10, -1, 10, 14, -1}		/* 38.4 MHz */
-};
-
-static const struct dpll_params
-			core_dpll_params_2128mhz_ddr266_es2[NUM_SYS_CLKS] = {
-	{266, 2, 4, 8, 8, 8, 62, 5, 12, 10, 14, 12},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{443, 6, 4, 8, 8, 8, 62, 5, 12, 10, 14, 12},		/* 16.8 MHz */
-	{277, 4, 4, 8, 8, 8, 62, 5, 12, 10, 14, 12},		/* 19.2 MHz */
-	{368, 8, 4, 8, 8, 8, 62, 5, 12, 10, 14, 12},		/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{277, 9, 4, 8, 8, 8, 62, 5, 12, 10, 14, 12}		/* 38.4 MHz */
 };
 
 static const struct dpll_params per_dpll_params_768mhz[NUM_SYS_CLKS] = {
@@ -189,6 +134,7 @@ static const struct dpll_params iva_dpll_params_2330mhz_dra7xx[NUM_SYS_CLKS] = {
 };
 
 /* ABE M & N values with sys_clk as source */
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 static const struct dpll_params
 		abe_dpll_params_sysclk_196608khz[NUM_SYS_CLKS] = {
 	{49, 5, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
@@ -199,11 +145,14 @@ static const struct dpll_params
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{64, 24, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
 };
+#endif
 
 /* ABE M & N values with 32K clock as source */
+#ifndef CONFIG_SYS_OMAP_ABE_SYSCK
 static const struct dpll_params abe_dpll_params_32k_196608khz = {
 	750, 0, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1
 };
+#endif
 
 /* ABE M & N values with sysclk2(22.5792 MHz) as input */
 static const struct dpll_params
