@@ -91,6 +91,7 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 	host->quirks = SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_BROKEN_VOLTAGE |
 		SDHCI_QUIRK_32BIT_DMA_ADDR |
 		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_USE_WIDE8;
+	host->max_clk = 52000000;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	host->ops = &s5p_sdhci_ops;
 
@@ -98,7 +99,7 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 		host->host_caps |= MMC_MODE_8BIT;
 
 #ifndef CONFIG_BLK
-	return add_sdhci(host, 52000000, 400000);
+	return add_sdhci(host, 0, 400000);
 #else
 	return 0;
 #endif
@@ -254,7 +255,7 @@ static int s5p_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, 52000000, 400000);
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 400000);
 	if (ret)
 		return ret;
 

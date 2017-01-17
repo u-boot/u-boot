@@ -35,8 +35,9 @@ int atmel_sdhci_init(void *regbase, u32 id)
 		free(host);
 		return -ENODEV;
 	}
+	host->max_clk = max_clk;
 
-	add_sdhci(host, max_clk, min_clk);
+	add_sdhci(host, 0, min_clk);
 
 	return 0;
 }
@@ -95,7 +96,9 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	if (!max_clk)
 		return -EINVAL;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, max_clk, ATMEL_SDHC_MIN_FREQ);
+	host->max_clk = max_clk;
+
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, ATMEL_SDHC_MIN_FREQ);
 	if (ret)
 		return ret;
 

@@ -181,10 +181,11 @@ int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq)
 	host->ioaddr = (void *)(unsigned long)regbase;
 	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B |
 		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_NO_HISPD_BIT;
+	host->max_clk = emmc_freq;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	host->ops = &bcm2835_ops;
 
-	add_sdhci(host, emmc_freq, MIN_FREQ);
+	add_sdhci(host, 0, MIN_FREQ);
 
 	return 0;
 }

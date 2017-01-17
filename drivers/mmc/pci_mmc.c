@@ -32,6 +32,7 @@ int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported)
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		mmc_host->ioaddr = (void *)(ulong)iobase;
 		mmc_host->quirks = 0;
+		mmc_host->max_clk = 0;
 		ret = add_sdhci(mmc_host, 0, 0);
 		if (ret)
 			return ret;

@@ -50,9 +50,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	}
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
+	host->max_clk = max_frequency;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, max_frequency,
-			EMMC_MIN_FREQ);
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, EMMC_MIN_FREQ);
 
 	host->mmc = &plat->mmc;
 	if (ret)

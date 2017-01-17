@@ -325,7 +325,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		 */
 		if (host->clk_mul) {
 			for (div = 1; div <= 1024; div++) {
-				if ((mmc->cfg->f_max * host->clk_mul / div)
+				if ((host->max_clk * host->clk_mul / div)
 					<= clock)
 					break;
 			}
@@ -338,13 +338,13 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 			div--;
 		} else {
 			/* Version 3.00 divisors must be a multiple of 2. */
-			if (mmc->cfg->f_max <= clock) {
+			if (host->max_clk <= clock) {
 				div = 1;
 			} else {
 				for (div = 2;
 				     div < SDHCI_MAX_DIV_SPEC_300;
 				     div += 2) {
-					if ((mmc->cfg->f_max / div) <= clock)
+					if ((host->max_clk / div) <= clock)
 						break;
 				}
 			}
@@ -353,7 +353,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	} else {
 		/* Version 2.00 divisors must be a power of 2. */
 		for (div = 1; div < SDHCI_MAX_DIV_SPEC_200; div *= 2) {
-			if ((mmc->cfg->f_max / div) <= clock)
+			if ((host->max_clk / div) <= clock)
 				break;
 		}
 		div >>= 1;
@@ -513,7 +513,7 @@ static const struct mmc_ops sdhci_ops = {
 #endif
 
 int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
-		u32 max_clk, u32 min_clk)
+		u32 f_max, u32 f_min)
 {
 	u32 caps, caps_1;
 
@@ -536,24 +536,26 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 #ifndef CONFIG_DM_MMC_OPS
 	cfg->ops = &sdhci_ops;
 #endif
-	if (max_clk)
-		cfg->f_max = max_clk;
-	else {
+	if (host->max_clk == 0) {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-			cfg->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
+			host->max_clk = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
 		else
-			cfg->f_max = (caps & SDHCI_CLOCK_BASE_MASK) >>
+			host->max_clk = (caps & SDHCI_CLOCK_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
-		cfg->f_max *= 1000000;
+		host->max_clk *= 1000000;
 	}
-	if (cfg->f_max == 0) {
+	if (host->max_clk == 0) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",
 		       __func__);
 		return -EINVAL;
 	}
-	if (min_clk)
-		cfg->f_min = min_clk;
+	if (f_max && (f_max < host->max_clk))
+		cfg->f_max = f_max;
+	else
+		cfg->f_max = host->max_clk;
+	if (f_min)
+		cfg->f_min = f_min;
 	else {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			cfg->f_min = cfg->f_max / SDHCI_MAX_DIV_SPEC_300;
@@ -598,11 +600,11 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 	return mmc_bind(dev, mmc, cfg);
 }
 #else
-int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
+int add_sdhci(struct sdhci_host *host, u32 f_max, u32 f_min)
 {
 	int ret;
 
-	ret = sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk);
+	ret = sdhci_setup_cfg(&host->cfg, host, f_max, f_min);
 	if (ret)
 		return ret;
 

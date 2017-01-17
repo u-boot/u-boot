@@ -56,7 +56,9 @@ static int pic32_sdhci_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = add_sdhci(host, f_min_max[1], f_min_max[0]);
+	host->max_clk   = f_min_max[1];
+
+	ret = add_sdhci(host, 0, f_min_max[0]);
 	if (ret)
 		return ret;
 	host->mmc->dev = dev;

@@ -96,6 +96,8 @@ static int msm_sdc_probe(struct udevice *dev)
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_BROKEN_R1B;
 
+	host->max_clk = 0;
+
 	/* Init clocks */
 	ret = msm_sdc_clk_init(dev);
 	if (ret)

@@ -244,6 +244,7 @@ struct sdhci_host {
 	unsigned int quirks;
 	unsigned int host_caps;
 	unsigned int version;
+	unsigned int max_clk;   /* Maximum Base Clock frequency */
 	unsigned int clk_mul;   /* Clock Multiplier value */
 	unsigned int clock;
 	struct mmc *mmc;
@@ -371,11 +372,11 @@ static inline u8 sdhci_readb(struct sdhci_host *host, int reg)
  *
  * @cfg:	Configuration structure to fill in (generally &plat->mmc)
  * @host:	SDHCI host structure
- * @max_clk:	Maximum supported clock speed in HZ (0 for default)
- * @min_clk:	Minimum supported clock speed in HZ (0 for default)
+ * @f_max:	Maximum supported clock frequency in HZ (0 for default)
+ * @f_min:	Minimum supported clock frequency in HZ (0 for default)
  */
 int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
-		    u32 max_clk, u32 min_clk);
+		    u32 f_max, u32 f_min);
 
 /**
  * sdhci_bind() - Set up a new MMC block device
@@ -401,11 +402,11 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
  * This is used when you are not using CONFIG_BLK. Convert your driver over!
  *
  * @host:	SDHCI host structure
- * @max_clk:	Maximum supported clock speed in HZ (0 for default)
- * @min_clk:	Minimum supported clock speed in HZ (0 for default)
+ * @f_max:	Maximum supported clock frequency in HZ (0 for default)
+ * @f_min:	Minimum supported clock frequency in HZ (0 for default)
  * @return 0 if OK, -ve on error
  */
-int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk);
+int add_sdhci(struct sdhci_host *host, u32 f_max, u32 f_min);
 #endif /* !CONFIG_BLK */
 
 #ifdef CONFIG_DM_MMC_OPS
