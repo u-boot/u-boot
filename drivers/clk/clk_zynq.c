@@ -48,6 +48,9 @@ enum zynq_clk_rclk {mio_clk, emio_clk};
 
 struct zynq_clk_priv {
 	ulong ps_clk_freq;
+#ifndef CONFIG_SPL_BUILD
+	struct clk gem_emio_clk[2];
+#endif
 };
 
 static void *zynq_clk_get_register(enum zynq_clk id)
@@ -267,8 +270,14 @@ static ulong zynq_clk_get_peripheral_rate(struct zynq_clk_priv *priv,
 #ifndef CONFIG_SPL_BUILD
 static ulong zynq_clk_get_gem_rate(struct zynq_clk_priv *priv, enum zynq_clk id)
 {
+	struct clk *parent;
+
 	if (zynq_clk_get_gem_rclk(id) == mio_clk)
 		return zynq_clk_get_peripheral_rate(priv, id, true);
+
+	parent = &priv->gem_emio_clk[id - gem0_clk];
+	if (parent->dev)
+		return clk_get_rate(parent);
 
 	debug("%s: gem%d emio rx clock source unknown\n", __func__,
 	      id - gem0_clk);
@@ -340,8 +349,14 @@ static ulong zynq_clk_set_peripheral_rate(struct zynq_clk_priv *priv,
 static ulong zynq_clk_set_gem_rate(struct zynq_clk_priv *priv, enum zynq_clk id,
 				   ulong rate)
 {
+	struct clk *parent;
+
 	if (zynq_clk_get_gem_rclk(id) == mio_clk)
 		return zynq_clk_set_peripheral_rate(priv, id, rate, true);
+
+	parent = &priv->gem_emio_clk[id - gem0_clk];
+	if (parent->dev)
+		return clk_set_rate(parent, rate);
 
 	debug("%s: gem%d emio rx clock source unknown\n", __func__,
 	      id - gem0_clk);
@@ -436,6 +451,20 @@ static struct clk_ops zynq_clk_ops = {
 static int zynq_clk_probe(struct udevice *dev)
 {
 	struct zynq_clk_priv *priv = dev_get_priv(dev);
+#ifndef CONFIG_SPL_BUILD
+	unsigned int i;
+	char name[16];
+	int ret;
+
+	for (i = 0; i < 2; i++) {
+		sprintf(name, "gem%d_emio_clk", i);
+		ret = clk_get_by_name(dev, name, &priv->gem_emio_clk[i]);
+		if (ret < 0 && ret != -FDT_ERR_NOTFOUND) {
+			dev_err(dev, "failed to get %s clock\n", name);
+			return ret;
+		}
+	}
+#endif
 
 	priv->ps_clk_freq = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
 					    "ps-clk-frequency", 33333333UL);
