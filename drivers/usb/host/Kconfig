@@ -37,6 +37,12 @@ config USB_XHCI_ROCKCHIP
 	help
 	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
 
+config USB_XHCI_ZYNQMP
+	bool "Support for Xilinx ZynqMP on-chip xHCI USB controller"
+	depends on ARCH_ZYNQMP
+	help
+	  Enables support for the on-chip xHCI controller on Xilinx ZynqMP SoCs.
+
 endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
