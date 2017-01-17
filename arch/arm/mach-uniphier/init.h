@@ -46,57 +46,63 @@ int uniphier_ld11_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_init(const struct uniphier_board_data *bd);
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
-int uniphier_sbc_init_admulti(const struct uniphier_board_data *bd);
-int uniphier_sbc_init_savepin(const struct uniphier_board_data *bd);
-int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd);
-int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd);
+void uniphier_sbc_init_admulti(void);
+void uniphier_sbc_init_savepin(void);
+void uniphier_ld4_sbc_init(void);
+void uniphier_pxs2_sbc_init(void);
+void uniphier_ld11_sbc_init(void);
 #else
-static inline int uniphier_sbc_init_admulti(
-					const struct uniphier_board_data *bd)
+static inline void uniphier_sbc_init_admulti(void)
 {
-	return 0;
 }
 
-static inline int uniphier_sbc_init_savepin(
-					const struct uniphier_board_data *bd)
+static inline void uniphier_sbc_init_savepin(void)
 {
-	return 0;
 }
 
-static inline int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd)
+static inline void uniphier_ld4_sbc_init(void)
 {
-	return 0;
 }
 
-static inline int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd)
+static inline void uniphier_pxs2_sbc_init(void)
 {
-	return 0;
+}
+
+static inline void uniphier_ld11_sbc_init(void)
+{
 }
 #endif
 
-int uniphier_sld3_bcu_init(const struct uniphier_board_data *bd);
-int uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
+void uniphier_sld3_bcu_init(const struct uniphier_board_data *bd);
+void uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
 
-int memconf_init(const struct uniphier_board_data *bd);
-int uniphier_sld3_memconf_init(const struct uniphier_board_data *bd);
-int uniphier_pxs2_memconf_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_2ch_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_3ch_no_disbit_init(const struct uniphier_board_data *bd);
+int uniphier_memconf_3ch_init(const struct uniphier_board_data *bd);
 
 int uniphier_sld3_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_dpll_init(const struct uniphier_board_data *bd);
+int uniphier_pro5_dpll_init(const struct uniphier_board_data *bd);
+int uniphier_pxs2_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_dpll_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_dpll_init(const struct uniphier_board_data *bd);
 
-int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd);
-int uniphier_pro5_early_clk_init(const struct uniphier_board_data *bd);
-int uniphier_pxs2_early_clk_init(const struct uniphier_board_data *bd);
-int uniphier_ld11_early_clk_init(const struct uniphier_board_data *bd);
-int uniphier_ld20_early_clk_init(const struct uniphier_board_data *bd);
+void uniphier_sld3_early_clk_init(void);
+void uniphier_ld11_early_clk_init(void);
 
+void uniphier_sld3_dram_clk_init(void);
+void uniphier_pro5_dram_clk_init(void);
+void uniphier_pxs2_dram_clk_init(void);
+void uniphier_ld11_dram_clk_init(void);
+void uniphier_ld20_dram_clk_init(void);
+
+int uniphier_sld3_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_umc_init(const struct uniphier_board_data *bd);
+int uniphier_pro5_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
@@ -105,14 +111,13 @@ void uniphier_sld3_pll_init(void);
 void uniphier_ld4_pll_init(void);
 void uniphier_pro4_pll_init(void);
 void uniphier_ld11_pll_init(void);
-int uniphier_ld20_pll_init(const struct uniphier_board_data *bd);
+void uniphier_ld20_pll_init(void);
 
 void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);
 void uniphier_ld11_clk_init(void);
-void uniphier_ld20_clk_init(void);
 
 int uniphier_pin_init(const char *pinconfig_name);
 void uniphier_smp_kick_all_cpus(void);

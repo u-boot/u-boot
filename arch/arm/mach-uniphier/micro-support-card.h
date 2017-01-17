@@ -10,15 +10,10 @@
 #define MICRO_SUPPORT_CARD_H
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
-void support_card_reset(void);
 void support_card_init(void);
 void support_card_late_init(void);
 void led_puts(const char *s);
 #else
-static inline void support_card_reset(void)
-{
-}
-
 static inline void support_card_init(void)
 {
 }

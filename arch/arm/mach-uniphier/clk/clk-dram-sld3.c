@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2011-2015 Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2015-2017 Socionext Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,24 +12,19 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd)
+void uniphier_sld3_dram_clk_init(void)
 {
 	u32 tmp;
 
 	/* deassert reset */
 	tmp = readl(SC_RSTCTRL);
-
 	tmp |= SC_RSTCTRL_NRST_UMC1 | SC_RSTCTRL_NRST_UMC0;
-	if (spl_boot_device() != BOOT_DEVICE_NAND)
-		tmp &= ~SC_RSTCTRL_NRST_NAND;
 	writel(tmp, SC_RSTCTRL);
 	readl(SC_RSTCTRL); /* dummy read */
 
 	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
-	tmp |= SC_CLKCTRL_CEN_UMC | SC_CLKCTRL_CEN_SBC | SC_CLKCTRL_CEN_PERI;
+	tmp |= SC_CLKCTRL_CEN_UMC;
 	writel(tmp, SC_CLKCTRL);
 	readl(SC_CLKCTRL); /* dummy read */
-
-	return 0;
 }
