@@ -94,6 +94,9 @@ config HAS_FEATURE_GIC64K_ALIGN
 	bool
 	default y if ARCH_LS1043A
 
+config HAS_FEATURE_ENHANCED_MSI
+	bool
+	default y if ARCH_LS1043A
 
 menu "Layerscape PPA"
 config FSL_LS_PPA

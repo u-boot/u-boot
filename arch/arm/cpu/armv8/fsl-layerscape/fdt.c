@@ -194,6 +194,157 @@ static void fdt_fixup_gic(void *blob)
 }
 #endif
 
+#ifdef CONFIG_HAS_FEATURE_ENHANCED_MSI
+static int _fdt_fixup_msi_node(void *blob, const char *name,
+				  int irq_0, int irq_1, int rev)
+{
+	int err, offset, len;
+	u32 tmp[4][3];
+	void *p;
+
+	offset = fdt_path_offset(blob, name);
+	if (offset < 0) {
+		printf("WARNING: fdt_path_offset can't find path %s: %s\n",
+		       name, fdt_strerror(offset));
+		return 0;
+	}
+
+	/*fixup the property of interrupts*/
+
+	tmp[0][0] = cpu_to_fdt32(0x0);
+	tmp[0][1] = cpu_to_fdt32(irq_0);
+	tmp[0][2] = cpu_to_fdt32(0x4);
+
+	if (rev > REV1_0) {
+		tmp[1][0] = cpu_to_fdt32(0x0);
+		tmp[1][1] = cpu_to_fdt32(irq_1);
+		tmp[1][2] = cpu_to_fdt32(0x4);
+		tmp[2][0] = cpu_to_fdt32(0x0);
+		tmp[2][1] = cpu_to_fdt32(irq_1 + 1);
+		tmp[2][2] = cpu_to_fdt32(0x4);
+		tmp[3][0] = cpu_to_fdt32(0x0);
+		tmp[3][1] = cpu_to_fdt32(irq_1 + 2);
+		tmp[3][2] = cpu_to_fdt32(0x4);
+		len = sizeof(tmp);
+	} else {
+		len = sizeof(tmp[0]);
+	}
+
+	err = fdt_setprop(blob, offset, "interrupts", tmp, len);
+	if (err < 0) {
+		printf("WARNING: fdt_setprop can't set %s from node %s: %s\n",
+		       "interrupts", name, fdt_strerror(err));
+		return 0;
+	}
+
+	/*fixup the property of reg*/
+	p = (char *)fdt_getprop(blob, offset, "reg", &len);
+	if (!p) {
+		printf("WARNING: fdt_getprop can't get %s from node %s\n",
+		       "reg", name);
+		return 0;
+	}
+
+	memcpy((char *)tmp, p, len);
+
+	if (rev > REV1_0)
+		*((u32 *)tmp + 3) = cpu_to_fdt32(0x1000);
+	else
+		*((u32 *)tmp + 3) = cpu_to_fdt32(0x8);
+
+	err = fdt_setprop(blob, offset, "reg", tmp, len);
+	if (err < 0) {
+		printf("WARNING: fdt_setprop can't set %s from node %s: %s\n",
+		       "reg", name, fdt_strerror(err));
+		return 0;
+	}
+
+	/*fixup the property of compatible*/
+	if (rev > REV1_0)
+		err = fdt_setprop_string(blob, offset, "compatible",
+					 "fsl,ls1043a-v1.1-msi");
+	else
+		err = fdt_setprop_string(blob, offset, "compatible",
+					 "fsl,ls1043a-msi");
+	if (err < 0) {
+		printf("WARNING: fdt_setprop can't set %s from node %s: %s\n",
+		       "compatible", name, fdt_strerror(err));
+		return 0;
+	}
+
+	return 1;
+}
+
+static int _fdt_fixup_pci_msi(void *blob, const char *name, int rev)
+{
+	int offset, len, err;
+	void *p;
+	int val;
+	u32 tmp[4][8];
+
+	offset = fdt_path_offset(blob, name);
+	if (offset < 0) {
+		printf("WARNING: fdt_path_offset can't find path %s: %s\n",
+		       name, fdt_strerror(offset));
+		return 0;
+	}
+
+	p = (char *)fdt_getprop(blob, offset, "interrupt-map", &len);
+	if (!p || len != sizeof(tmp)) {
+		printf("WARNING: fdt_getprop can't get %s from node %s\n",
+		       "interrupt-map", name);
+		return 0;
+	}
+
+	memcpy((char *)tmp, p, len);
+
+	val = fdt32_to_cpu(tmp[0][6]);
+	if (rev > REV1_0) {
+		tmp[1][6] = cpu_to_fdt32(val + 1);
+		tmp[2][6] = cpu_to_fdt32(val + 2);
+		tmp[3][6] = cpu_to_fdt32(val + 3);
+	} else {
+		tmp[1][6] = cpu_to_fdt32(val);
+		tmp[2][6] = cpu_to_fdt32(val);
+		tmp[3][6] = cpu_to_fdt32(val);
+	}
+
+	err = fdt_setprop(blob, offset, "interrupt-map", tmp, sizeof(tmp));
+	if (err < 0) {
+		printf("WARNING: fdt_setprop can't set %s from node %s: %s.\n",
+		       "interrupt-map", name, fdt_strerror(err));
+		return 0;
+	}
+	return 1;
+}
+
+/* Fixup msi node for ls1043a rev1.1*/
+
+static void fdt_fixup_msi(void *blob)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int rev;
+
+	rev = gur_in32(&gur->svr);
+
+	if (SVR_SOC_VER(rev) != SVR_LS1043A)
+		return;
+
+	rev = SVR_REV(rev);
+
+	_fdt_fixup_msi_node(blob, "/soc/msi-controller1@1571000",
+			    116, 111, rev);
+	_fdt_fixup_msi_node(blob, "/soc/msi-controller2@1572000",
+			    126, 121, rev);
+	_fdt_fixup_msi_node(blob, "/soc/msi-controller3@1573000",
+			    160, 155, rev);
+
+	_fdt_fixup_pci_msi(blob, "/soc/pcie@3400000", rev);
+	_fdt_fixup_pci_msi(blob, "/soc/pcie@3500000", rev);
+	_fdt_fixup_pci_msi(blob, "/soc/pcie@3600000", rev);
+}
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_FSL_LSCH2
@@ -240,5 +391,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_HAS_FEATURE_GIC64K_ALIGN
 	fdt_fixup_gic(blob);
+#endif
+#ifdef CONFIG_HAS_FEATURE_ENHANCED_MSI
+	fdt_fixup_msi(blob);
 #endif
 }
