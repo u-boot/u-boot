@@ -57,7 +57,8 @@ ENDPROC(_sec_firmware_support_psci_version)
  * x0: argument, zero
  * x1: machine nr
  * x2: fdt address
- * x3: kernel entry point
+ * x3: input argument
+ * x4: kernel entry point
  * @param outputs for secure firmware:
  * x0: function id
  * x1: kernel entry point
@@ -65,10 +66,9 @@ ENDPROC(_sec_firmware_support_psci_version)
  * x3: fdt address
 */
 ENTRY(armv8_el2_to_aarch32)
-	mov	x0, x3
 	mov	x3, x2
 	mov	x2, x1
-	mov	x1, x0
+	mov	x1, x4
 	ldr	x0, =0xc000ff04
 	smc	#0
 	ret

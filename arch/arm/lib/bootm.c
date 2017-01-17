@@ -287,11 +287,11 @@ static void switch_to_el1(void)
 	if ((IH_ARCH_DEFAULT == IH_ARCH_ARM64) &&
 	    (images.os.arch == IH_ARCH_ARM))
 		armv8_switch_to_el1(0, (u64)gd->bd->bi_arch_number,
-				    (u64)images.ft_addr,
+				    (u64)images.ft_addr, 0,
 				    (u64)images.ep,
 				    ES_TO_AARCH32);
 	else
-		armv8_switch_to_el1((u64)images.ft_addr, 0, 0,
+		armv8_switch_to_el1((u64)images.ft_addr, 0, 0, 0,
 				    images.ep,
 				    ES_TO_AARCH64);
 }
@@ -324,17 +324,17 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		update_os_arch_secondary_cores(images->os.arch);
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-		armv8_switch_to_el2((u64)images->ft_addr, 0, 0,
+		armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
 				    (u64)switch_to_el1, ES_TO_AARCH64);
 #else
 		if ((IH_ARCH_DEFAULT == IH_ARCH_ARM64) &&
 		    (images->os.arch == IH_ARCH_ARM))
 			armv8_switch_to_el2(0, (u64)gd->bd->bi_arch_number,
-					    (u64)images->ft_addr,
+					    (u64)images->ft_addr, 0,
 					    (u64)images->ep,
 					    ES_TO_AARCH32);
 		else
-			armv8_switch_to_el2((u64)images->ft_addr, 0, 0,
+			armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
 					    images->ep,
 					    ES_TO_AARCH64);
 #endif

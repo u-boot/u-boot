@@ -486,29 +486,29 @@ cpu_is_le:
 	b.eq	1f
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x3, secondary_switch_to_el1
-	ldr	x4, =ES_TO_AARCH64
+	adr	x4, secondary_switch_to_el1
+	ldr	x5, =ES_TO_AARCH64
 #else
-	ldr	x3, [x11]
-	ldr	x4, =ES_TO_AARCH32
+	ldr	x4, [x11]
+	ldr	x5, =ES_TO_AARCH32
 #endif
 	bl	secondary_switch_to_el2
 
 1:
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x3, secondary_switch_to_el1
+	adr	x4, secondary_switch_to_el1
 #else
-	ldr	x3, [x11]
+	ldr	x4, [x11]
 #endif
-	ldr	x4, =ES_TO_AARCH64
+	ldr	x5, =ES_TO_AARCH64
 	bl	secondary_switch_to_el2
 
 ENDPROC(secondary_boot_func)
 
 ENTRY(secondary_switch_to_el2)
-	switch_el x5, 1f, 0f, 0f
+	switch_el x6, 1f, 0f, 0f
 0:	ret
-1:	armv8_switch_to_el2_m x3, x4, x5
+1:	armv8_switch_to_el2_m x4, x5, x6
 ENDPROC(secondary_switch_to_el2)
 
 ENTRY(secondary_switch_to_el1)
@@ -522,22 +522,22 @@ ENTRY(secondary_switch_to_el1)
 	/* physical address of this cpus spin table element */
 	add	x11, x1, x0
 
-	ldr	x3, [x11]
+	ldr	x4, [x11]
 
 	ldr	x5, [x11, #24]
 	ldr	x6, =IH_ARCH_DEFAULT
 	cmp	x6, x5
 	b.eq	2f
 
-	ldr	x4, =ES_TO_AARCH32
+	ldr	x5, =ES_TO_AARCH32
 	bl	switch_to_el1
 
-2:	ldr	x4, =ES_TO_AARCH64
+2:	ldr	x5, =ES_TO_AARCH64
 
 switch_to_el1:
-	switch_el x5, 0f, 1f, 0f
+	switch_el x6, 0f, 1f, 0f
 0:	ret
-1:	armv8_switch_to_el1_m x3, x4, x5
+1:	armv8_switch_to_el1_m x4, x5, x6
 ENDPROC(secondary_switch_to_el1)
 
 	/* Ensure that the literals used by the secondary boot code are

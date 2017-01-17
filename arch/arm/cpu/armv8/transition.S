@@ -11,9 +11,9 @@
 #include <asm/macro.h>
 
 ENTRY(armv8_switch_to_el2)
-	switch_el x5, 1f, 0f, 0f
+	switch_el x6, 1f, 0f, 0f
 0:
-	cmp x4, #ES_TO_AARCH64
+	cmp x5, #ES_TO_AARCH64
 	b.eq 2f
 	/*
 	 * When loading 32-bit kernel, it will jump
@@ -22,23 +22,23 @@ ENTRY(armv8_switch_to_el2)
 	bl armv8_el2_to_aarch32
 2:
 	/*
-	 * x3 is kernel entry point or switch_to_el1
+	 * x4 is kernel entry point or switch_to_el1
 	 * if CONFIG_ARMV8_SWITCH_TO_EL1 is defined.
          * When running in EL2 now, jump to the
-	 * address saved in x3.
+	 * address saved in x4.
 	 */
-	br x3
-1:	armv8_switch_to_el2_m x3, x4, x5
+	br x4
+1:	armv8_switch_to_el2_m x4, x5, x6
 ENDPROC(armv8_switch_to_el2)
 
 ENTRY(armv8_switch_to_el1)
-	switch_el x5, 0f, 1f, 0f
+	switch_el x6, 0f, 1f, 0f
 0:
-	/* x3 is kernel entry point. When running in EL1
-	 * now, jump to the address saved in x3.
+	/* x4 is kernel entry point. When running in EL1
+	 * now, jump to the address saved in x4.
 	 */
-	br x3
-1:	armv8_switch_to_el1_m x3, x4, x5
+	br x4
+1:	armv8_switch_to_el1_m x4, x5, x6
 ENDPROC(armv8_switch_to_el1)
 
 WEAK(armv8_el2_to_aarch32)

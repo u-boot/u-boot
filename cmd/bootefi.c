@@ -246,7 +246,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 
 		/* Move into EL2 and keep running there */
 		armv8_switch_to_el2((ulong)entry, (ulong)&loaded_image_info,
-				    (ulong)&systab, (ulong)efi_run_in_el2,
+				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
 		/* Should never reach here, efi exits with longjmp */
