@@ -778,6 +778,54 @@ int fit_image_get_data(const void *fit, int noffset,
 }
 
 /**
+ * Get 'data-offset' property from a given image node.
+ *
+ * @fit: pointer to the FIT image header
+ * @noffset: component image node offset
+ * @data_offset: holds the data-offset property
+ *
+ * returns:
+ *     0, on success
+ *     -ENOENT if the property could not be found
+ */
+int fit_image_get_data_offset(const void *fit, int noffset, int *data_offset)
+{
+	const fdt32_t *val;
+
+	val = fdt_getprop(fit, noffset, FIT_DATA_OFFSET_PROP, NULL);
+	if (!val)
+		return -ENOENT;
+
+	*data_offset = fdt32_to_cpu(*val);
+
+	return 0;
+}
+
+/**
+ * Get 'data-size' property from a given image node.
+ *
+ * @fit: pointer to the FIT image header
+ * @noffset: component image node offset
+ * @data_size: holds the data-size property
+ *
+ * returns:
+ *     0, on success
+ *     -ENOENT if the property could not be found
+ */
+int fit_image_get_data_size(const void *fit, int noffset, int *data_size)
+{
+	const fdt32_t *val;
+
+	val = fdt_getprop(fit, noffset, FIT_DATA_SIZE_PROP, NULL);
+	if (!val)
+		return -ENOENT;
+
+	*data_size = fdt32_to_cpu(*val);
+
+	return 0;
+}
+
+/**
  * fit_image_hash_get_algo - get hash algorithm name
  * @fit: pointer to the FIT format image header
  * @noffset: hash node offset

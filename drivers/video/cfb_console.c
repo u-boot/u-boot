@@ -1861,14 +1861,16 @@ static void *video_logo(void)
 	__maybe_unused int y_off = 0;
 	__maybe_unused ulong addr;
 	__maybe_unused char *s;
-	__maybe_unused int len, space;
+	__maybe_unused int len, ret, space;
 
 	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN
 	s = getenv("splashimage");
 	if (s != NULL) {
-		splash_screen_prepare();
+		ret = splash_screen_prepare();
+		if (ret < 0)
+			return video_fb_address;
 		addr = simple_strtoul(s, NULL, 16);
 
 		if (video_display_bitmap(addr,
