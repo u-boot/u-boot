@@ -288,6 +288,16 @@
 		#size-cells = <2>;
 	};
 
+	nvmem_firmware {
+		compatible = "xlnx,zynqmp-nvmem-fw";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		soc_revision: soc_revision@0 {
+			reg = <0x0 0x4>;
+		};
+	};
+
 	pcap: pcap {
 		compatible = "xlnx,zynqmp-pcap-fpga";
 	};
