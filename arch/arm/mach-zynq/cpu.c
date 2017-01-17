@@ -35,7 +35,6 @@ int arch_cpu_init(void)
 	writel(0xC, &slcr_base->ddr_urgent);
 #endif
 #endif
-	zynq_clk_early_init();
 	zynq_slcr_lock();
 
 	return 0;

@@ -20,9 +20,6 @@
 #define CONFIG_DISPLAY
 #define CONFIG_I2C_EDID
 
-/* Define ZYBO PS Clock Frequency to 50MHz */
-#define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
-
 #include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_ZYBO_H */

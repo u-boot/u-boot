@@ -15,7 +15,6 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
-#include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -111,7 +110,6 @@ int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 	struct zynq_uart_priv *priv = dev_get_priv(dev);
 	unsigned long clock;
 
-#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
 	int ret;
 	struct clk clk;
 
@@ -133,9 +131,7 @@ int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
-#else
-	clock = get_uart_clk(0);
-#endif
+
 	_uart_zynq_serial_setbrg(priv->regs, clock, baudrate);
 
 	return 0;

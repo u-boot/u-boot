@@ -61,7 +61,6 @@ int timer_init(void)
 			(TIMER_PRESCALE << SCUTIMER_CONTROL_PRESCALER_SHIFT) |
 			SCUTIMER_CONTROL_ENABLE_MASK;
 
-#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
 	struct udevice *dev;
 	struct clk clk;
 	int ret;
@@ -79,7 +78,6 @@ int timer_init(void)
 	gd->cpu_clk = clk_get_rate(&clk);
 
 	clk_free(&clk);
-#endif
 
 	gd->arch.timer_rate_hz = (gd->cpu_clk / 2) / (TIMER_PRESCALE + 1);
 

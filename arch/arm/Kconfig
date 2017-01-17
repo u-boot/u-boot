@@ -714,6 +714,9 @@ config ARCH_ZYNQ
 	select SPL_SEPARATE_BSS if SPL
 	select DM_USB if USB
 	select BLK
+	select CLK
+	select SPL_CLK
+	select CLK_ZYNQ
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"

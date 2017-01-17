@@ -181,9 +181,7 @@ struct zynq_gem_priv {
 	struct phy_device *phydev;
 	int phy_of_handle;
 	struct mii_dev *bus;
-#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
 	struct clk clk;
-#endif
 };
 
 static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -456,7 +454,6 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
-#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
 	ret = clk_set_rate(&priv->clk, clk_rate);
 	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
 		dev_err(dev, "failed to set tx clock rate\n");
@@ -468,10 +465,6 @@ static int zynq_gem_init(struct udevice *dev)
 		dev_err(dev, "failed to enable tx clock\n");
 		return ret;
 	}
-#else
-	zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
-				ZYNQ_GEM_BASEADDR0, clk_rate);
-#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -644,13 +637,11 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->tx_bd = (struct emac_bd *)bd_space;
 	priv->rx_bd = (struct emac_bd *)((ulong)bd_space + BD_SEPRN_SPACE);
 
-#if defined(CONFIG_CLK) || defined(CONFIG_SPL_CLK)
 	ret = clk_get_by_name(dev, "tx_clk", &priv->clk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get clock\n");
 		return -EINVAL;
 	}
-#endif
 
 	priv->bus = mdio_alloc();
 	priv->bus->read = zynq_gem_miiphy_read;
