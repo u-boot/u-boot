@@ -258,14 +258,17 @@ in_flash:
 #endif
 
 	/* set up the stack pointer in our newly created
-	 * cache-ram (r1) */
-	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
+	 * cache-ram; use r3 to keep the new SP for now to
+	 * avoid overiding the SP it uselessly */
+	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
+	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
 
 	li	r0, 0		/* Make room for stack frame header and	*/
-	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
-	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
+	stwu	r0, -4(r3)	/* clear final stack frame so that	*/
+	stwu	r0, -4(r3)	/* stack backtraces terminate cleanly	*/
 
+	/* Finally, actually set SP */
+	mr	r1, r3
 
 	/* let the C-code set up the rest	                    */
 	/*				                            */
