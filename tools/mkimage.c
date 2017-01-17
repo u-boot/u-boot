@@ -526,7 +526,7 @@ int main(int argc, char **argv)
 							+ 0x20, 0 };
 			int i = params.file_size;
 			for (; i < aligned_filesize; i++) {
-				if (write(ifd, &i, 1) != 1) {
+				if (write(ifd, (char *) &i, 1) != 1) {
 					fprintf(stderr,
 							"%s: Write error on %s: %s\n",
 							params.cmdname,
