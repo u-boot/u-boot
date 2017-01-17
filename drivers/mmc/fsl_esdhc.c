@@ -911,17 +911,26 @@ void mmc_adapter_card_type_ident(void)
 #endif
 
 #ifdef CONFIG_OF_LIBFDT
+__weak int esdhc_status_fixup(void *blob, const char *compat)
+{
+#ifdef CONFIG_FSL_ESDHC_PIN_MUX
+	if (!hwconfig("esdhc")) {
+		do_fixup_by_compat(blob, compat, "status", "disabled",
+				sizeof("disabled"), 1);
+		return 1;
+	}
+#endif
+	do_fixup_by_compat(blob, compat, "status", "okay",
+			   sizeof("okay"), 1);
+	return 0;
+}
+
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *compat = "fsl,esdhc";
 
-#ifdef CONFIG_FSL_ESDHC_PIN_MUX
-	if (!hwconfig("esdhc")) {
-		do_fixup_by_compat(blob, compat, "status", "disabled",
-				8 + 1, 1);
+	if (esdhc_status_fixup(blob, compat))
 		return;
-	}
-#endif
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	do_fixup_by_compat_u32(blob, compat, "peripheral-frequency",
@@ -934,8 +943,6 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, compat, "adapter-type",
 			       (u32)(gd->arch.sdhc_adapter), 1);
 #endif
-	do_fixup_by_compat(blob, compat, "status", "okay",
-			   4 + 1, 1);
 }
 #endif
 
