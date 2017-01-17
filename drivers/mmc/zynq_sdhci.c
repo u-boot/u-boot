@@ -14,6 +14,8 @@
 #include <malloc.h>
 #include <sdhci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
 # define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
 #endif
@@ -21,6 +23,7 @@
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
+	unsigned int f_max;
 };
 
 static int arasan_sdhci_probe(struct udevice *dev)
@@ -60,7 +63,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 	host->max_clk = clock;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
+	ret = sdhci_setup_cfg(&plat->cfg, host, plat->f_max,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
 	if (ret)
@@ -74,10 +77,14 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 {
+	struct arasan_sdhci_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = dev->name;
 	host->ioaddr = (void *)dev_get_addr(dev);
+
+	plat->f_max = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				"max-frequency", CONFIG_ZYNQ_SDHCI_MAX_FREQ);
 
 	return 0;
 }
