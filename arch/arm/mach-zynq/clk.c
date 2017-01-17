@@ -632,16 +632,6 @@ int zynq_clk_set_rate(enum zynq_clk clk, unsigned long rate)
 }
 
 /**
- * zynq_clk_get_name() - Get clock name
- * @clk:	Clock identifier
- * Returns the name of @clk.
- */
-const char *zynq_clk_get_name(enum zynq_clk clk)
-{
-	return clk_names[clk];
-}
-
-/**
  * soc_clk_dump() - Print clock frequencies
  * Returns zero on success
  *
@@ -653,7 +643,7 @@ int soc_clk_dump(void)
 
 	printf("clk\t\tfrequency\n");
 	for (i = 0; i < clk_max; i++) {
-		const char *name = zynq_clk_get_name(i);
+		const char *name = clk_names[i];
 		if (name)
 			printf("%10s%20lu\n", name, zynq_clk_get_rate(i));
 	}

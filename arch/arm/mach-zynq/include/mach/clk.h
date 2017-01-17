@@ -23,7 +23,6 @@ enum zynq_clk {
 void zynq_clk_early_init(void);
 int zynq_clk_set_rate(enum zynq_clk clk, unsigned long rate);
 unsigned long zynq_clk_get_rate(enum zynq_clk clk);
-const char *zynq_clk_get_name(enum zynq_clk clk);
 unsigned long get_uart_clk(int dev_id);
 
 #endif
