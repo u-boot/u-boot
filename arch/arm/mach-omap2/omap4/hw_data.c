@@ -132,6 +132,7 @@ static const struct dpll_params iva_dpll_params_1862mhz[NUM_SYS_CLKS] = {
 };
 
 /* ABE M & N values with sys_clk as source */
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 static const struct dpll_params
 		abe_dpll_params_sysclk_196608khz[NUM_SYS_CLKS] = {
 	{49, 5, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -142,11 +143,12 @@ static const struct dpll_params
 	{29, 7, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{64, 24, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
-
+#else
 /* ABE M & N values with 32K clock as source */
 static const struct dpll_params abe_dpll_params_32k_196608khz = {
 	750, 0, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1
 };
+#endif
 
 static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{80, 0, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
