@@ -58,7 +58,6 @@ struct zynq_clk_ops {
 
 /**
  * struct clk:
- * @name:	Clock name
  * @frequency:	Currenct frequency
  * @parent:	Parent clock
  * @flags:	Clock flags
@@ -66,7 +65,6 @@ struct zynq_clk_ops {
  * @ops:	Clock operations
  */
 struct clk {
-	char		*name;
 	unsigned long	frequency;
 	enum zynq_clk	parent;
 	unsigned int	flags;
@@ -76,6 +74,20 @@ struct clk {
 #define ZYNQ_CLK_FLAGS_HAS_2_DIVS	1
 
 static struct clk clks[clk_max];
+
+static const char * const clk_names[clk_max] = {
+	"armpll", "ddrpll", "iopll",
+	"cpu_6or4x", "cpu_3or2x", "cpu_2x", "cpu_1x",
+	"ddr2x", "ddr3x", "dci",
+	"lqspi", "smc", "pcap", "gem0", "gem1",
+	"fclk0", "fclk1", "fclk2", "fclk3", "can0", "can1",
+	"sdio0", "sdio1", "uart0", "uart1", "spi0", "spi1", "dma",
+	"usb0_aper", "usb1_aper", "gem0_aper", "gem1_aper",
+	"sdio0_aper", "sdio1_aper", "spi0_aper", "spi1_aper",
+	"can0_aper", "can1_aper", "i2c0_aper", "i2c1_aper",
+	"uart0_aper", "uart1_aper", "gpio_aper", "lqspi_aper",
+	"smc_aper", "swdt", "dbg_trc", "dbg_apb"
+};
 
 /**
  * __zynq_clk_cpu_get_parent() - Decode clock multiplexer
@@ -140,14 +152,12 @@ static void init_ddr_clocks(void)
 	/* DDR2x */
 	clks[ddr2x_clk].reg = &slcr_base->ddr_clk_ctrl;
 	clks[ddr2x_clk].parent = ddrpll_clk;
-	clks[ddr2x_clk].name = "ddr_2x";
 	clks[ddr2x_clk].frequency = ddr2x_get_rate(&clks[ddr2x_clk]);
 	clks[ddr2x_clk].ops.get_rate = ddr2x_get_rate;
 
 	/* DDR3x */
 	clks[ddr3x_clk].reg = &slcr_base->ddr_clk_ctrl;
 	clks[ddr3x_clk].parent = ddrpll_clk;
-	clks[ddr3x_clk].name = "ddr_3x";
 	clks[ddr3x_clk].frequency = ddr3x_get_rate(&clks[ddr3x_clk]);
 	clks[ddr3x_clk].ops.get_rate = ddr3x_get_rate;
 
@@ -159,7 +169,6 @@ static void init_ddr_clocks(void)
 	clks[dci_clk].parent = ddrpll_clk;
 	clks[dci_clk].frequency = DIV_ROUND_CLOSEST(
 			DIV_ROUND_CLOSEST(prate, div0), div1);
-	clks[dci_clk].name = "dci";
 
 	gd->bd->bi_ddr_freq = clks[ddr3x_clk].frequency / 1000000;
 }
@@ -181,24 +190,20 @@ static void init_cpu_clocks(void)
 	clks[cpu_6or4x_clk].parent = parent;
 	clks[cpu_6or4x_clk].frequency = DIV_ROUND_CLOSEST(
 			zynq_clk_get_rate(parent), div);
-	clks[cpu_6or4x_clk].name = "cpu_6or4x";
 
 	clks[cpu_3or2x_clk].reg = &slcr_base->arm_clk_ctrl;
 	clks[cpu_3or2x_clk].parent = cpu_6or4x_clk;
 	clks[cpu_3or2x_clk].frequency = zynq_clk_get_rate(cpu_6or4x_clk) / 2;
-	clks[cpu_3or2x_clk].name = "cpu_3or2x";
 
 	clks[cpu_2x_clk].reg = &slcr_base->arm_clk_ctrl;
 	clks[cpu_2x_clk].parent = cpu_6or4x_clk;
 	clks[cpu_2x_clk].frequency = zynq_clk_get_rate(cpu_6or4x_clk) /
 			(2 + clk_621);
-	clks[cpu_2x_clk].name = "cpu_2x";
 
 	clks[cpu_1x_clk].reg = &slcr_base->arm_clk_ctrl;
 	clks[cpu_1x_clk].parent = cpu_6or4x_clk;
 	clks[cpu_1x_clk].frequency = zynq_clk_get_rate(cpu_6or4x_clk) /
 			(4 + 2 * clk_621);
-	clks[cpu_1x_clk].name = "cpu_1x";
 }
 
 /**
@@ -338,13 +343,11 @@ static enum zynq_clk zynq_clk_periph_get_parent(struct clk *clk)
  * zynq_clk_register_periph_clk() - Set up a peripheral clock with the framework
  * @clk:	Pointer to struct clk for the clock
  * @ctrl:	Clock control register
- * @name:	PLL name
  * @two_divs:	Indicates whether the clock features one or two dividers
  */
-static int zynq_clk_register_periph_clk(struct clk *clk, u32 *ctrl, char *name,
+static int zynq_clk_register_periph_clk(struct clk *clk, u32 *ctrl,
 		bool two_divs)
 {
-	clk->name = name;
 	clk->reg = ctrl;
 	if (two_divs)
 		clk->flags = ZYNQ_CLK_FLAGS_HAS_2_DIVS;
@@ -358,59 +361,57 @@ static int zynq_clk_register_periph_clk(struct clk *clk, u32 *ctrl, char *name,
 
 static void init_periph_clocks(void)
 {
-	zynq_clk_register_periph_clk(&clks[gem0_clk], &slcr_base->gem0_clk_ctrl,
-				     "gem0", 1);
-	zynq_clk_register_periph_clk(&clks[gem1_clk], &slcr_base->gem1_clk_ctrl,
-				     "gem1", 1);
+	zynq_clk_register_periph_clk(&clks[gem0_clk],
+				     &slcr_base->gem0_clk_ctrl, 1);
+	zynq_clk_register_periph_clk(&clks[gem1_clk],
+				     &slcr_base->gem1_clk_ctrl, 1);
 
-	zynq_clk_register_periph_clk(&clks[smc_clk], &slcr_base->smc_clk_ctrl,
-				     "smc", 0);
+	zynq_clk_register_periph_clk(&clks[smc_clk],
+				     &slcr_base->smc_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[lqspi_clk],
-				     &slcr_base->lqspi_clk_ctrl, "lqspi", 0);
+				     &slcr_base->lqspi_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[sdio0_clk],
-				     &slcr_base->sdio_clk_ctrl, "sdio0", 0);
+				     &slcr_base->sdio_clk_ctrl, 0);
 	zynq_clk_register_periph_clk(&clks[sdio1_clk],
-				     &slcr_base->sdio_clk_ctrl, "sdio1", 0);
+				     &slcr_base->sdio_clk_ctrl, 0);
 
-	zynq_clk_register_periph_clk(&clks[spi0_clk], &slcr_base->spi_clk_ctrl,
-				     "spi0", 0);
-	zynq_clk_register_periph_clk(&clks[spi1_clk], &slcr_base->spi_clk_ctrl,
-				     "spi1", 0);
+	zynq_clk_register_periph_clk(&clks[spi0_clk],
+				     &slcr_base->spi_clk_ctrl, 0);
+	zynq_clk_register_periph_clk(&clks[spi1_clk],
+				     &slcr_base->spi_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[uart0_clk],
-				     &slcr_base->uart_clk_ctrl, "uart0", 0);
+				     &slcr_base->uart_clk_ctrl, 0);
 	zynq_clk_register_periph_clk(&clks[uart1_clk],
-				     &slcr_base->uart_clk_ctrl, "uart1", 0);
+				     &slcr_base->uart_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[dbg_trc_clk],
-				     &slcr_base->dbg_clk_ctrl, "dbg_trc", 0);
+				     &slcr_base->dbg_clk_ctrl, 0);
 	zynq_clk_register_periph_clk(&clks[dbg_apb_clk],
-				     &slcr_base->dbg_clk_ctrl, "dbg_apb", 0);
+				     &slcr_base->dbg_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[pcap_clk],
-				     &slcr_base->pcap_clk_ctrl, "pcap", 0);
+				     &slcr_base->pcap_clk_ctrl, 0);
 
 	zynq_clk_register_periph_clk(&clks[fclk0_clk],
-				     &slcr_base->fpga0_clk_ctrl, "fclk0", 1);
+				     &slcr_base->fpga0_clk_ctrl, 1);
 	zynq_clk_register_periph_clk(&clks[fclk1_clk],
-				     &slcr_base->fpga1_clk_ctrl, "fclk1", 1);
+				     &slcr_base->fpga1_clk_ctrl, 1);
 	zynq_clk_register_periph_clk(&clks[fclk2_clk],
-				     &slcr_base->fpga2_clk_ctrl, "fclk2", 1);
+				     &slcr_base->fpga2_clk_ctrl, 1);
 	zynq_clk_register_periph_clk(&clks[fclk3_clk],
-				     &slcr_base->fpga3_clk_ctrl, "fclk3", 1);
+				     &slcr_base->fpga3_clk_ctrl, 1);
 }
 
 /**
  * zynq_clk_register_aper_clk() - Set up a APER clock with the framework
  * @clk:	Pointer to struct clk for the clock
  * @ctrl:	Clock control register
- * @name:	PLL name
  */
-static void zynq_clk_register_aper_clk(struct clk *clk, u32 *ctrl, char *name)
+static void zynq_clk_register_aper_clk(struct clk *clk, u32 *ctrl)
 {
-	clk->name = name;
 	clk->reg = ctrl;
 	clk->parent = cpu_1x_clk;
 	clk->frequency = zynq_clk_get_rate(clk->parent);
@@ -419,48 +420,48 @@ static void zynq_clk_register_aper_clk(struct clk *clk, u32 *ctrl, char *name)
 static void init_aper_clocks(void)
 {
 	zynq_clk_register_aper_clk(&clks[usb0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "usb0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[usb1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "usb1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[gem0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "gem0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[gem1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "gem1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[sdio0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "sdio0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[sdio1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "sdio1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[spi0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "spi0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[spi1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "spi1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[can0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "can0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[can1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "can1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[i2c0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "i2c0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[i2c1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "i2c1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[uart0_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "uart0_aper");
+				   &slcr_base->aper_clk_ctrl);
 	zynq_clk_register_aper_clk(&clks[uart1_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "uart1_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[gpio_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "gpio_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[lqspi_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "lqspi_aper");
+				   &slcr_base->aper_clk_ctrl);
 
 	zynq_clk_register_aper_clk(&clks[smc_aper_clk],
-				   &slcr_base->aper_clk_ctrl, "smc_aper");
+				   &slcr_base->aper_clk_ctrl);
 }
 
 /**
@@ -496,13 +497,11 @@ static unsigned long zynq_clk_pll_get_rate(struct clk *pll)
  * zynq_clk_register_pll() - Set up a PLL with the framework
  * @clk:	Pointer to struct clk for the PLL
  * @ctrl:	PLL control register
- * @name:	PLL name
  * @prate:	PLL input clock rate
  */
-static void zynq_clk_register_pll(struct clk *clk, u32 *ctrl, char *name,
+static void zynq_clk_register_pll(struct clk *clk, u32 *ctrl,
 		unsigned long prate)
 {
-	clk->name = name;
 	clk->reg = ctrl;
 	clk->frequency = zynq_clk_pll_get_rate(clk);
 	clk->ops.get_rate = zynq_clk_pll_get_rate;
@@ -583,11 +582,11 @@ unsigned long get_uart_clk(int dev_index)
 int set_cpu_clk_info(void)
 {
 	zynq_clk_register_pll(&clks[armpll_clk], &slcr_base->arm_pll_ctrl,
-			      "armpll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      CONFIG_ZYNQ_PS_CLK_FREQ);
 	zynq_clk_register_pll(&clks[ddrpll_clk], &slcr_base->ddr_pll_ctrl,
-			      "ddrpll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      CONFIG_ZYNQ_PS_CLK_FREQ);
 	zynq_clk_register_pll(&clks[iopll_clk], &slcr_base->io_pll_ctrl,
-			      "iopll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      CONFIG_ZYNQ_PS_CLK_FREQ);
 
 	init_ddr_clocks();
 	init_cpu_clocks();
@@ -639,7 +638,7 @@ int zynq_clk_set_rate(enum zynq_clk clk, unsigned long rate)
  */
 const char *zynq_clk_get_name(enum zynq_clk clk)
 {
-	return clks[clk].name;
+	return clk_names[clk];
 }
 
 /**
