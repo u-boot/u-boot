@@ -507,6 +507,7 @@ static const struct usb_cdc_mdlm_desc mdlm_desc = {
  * can't really use its struct.  All we do here is say that we're using
  * the submode of "SAFE" which directly matches the CDC Subset.
  */
+#ifdef CONFIG_USB_ETH_SUBSET
 static const u8 mdlm_detail_desc[] = {
 	6,
 	USB_DT_CS_INTERFACE,
@@ -516,6 +517,7 @@ static const u8 mdlm_detail_desc[] = {
 	0,	/* network control capabilities (none) */
 	0,	/* network data capabilities ("raw" encapsulation) */
 };
+#endif
 
 #endif
 
