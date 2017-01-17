@@ -55,7 +55,7 @@ static int timer_pre_probe(struct udevice *dev)
 		uc_priv->clock_rate = ret;
 	} else
 		uc_priv->clock_rate = fdtdec_get_int(gd->fdt_blob,
-				dev->of_offset,	"clock-frequency", 0);
+				dev_of_offset(dev),	"clock-frequency", 0);
 
 	return 0;
 }

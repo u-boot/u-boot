@@ -517,7 +517,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 static int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	u32 reg32, cycle_delay;
 
 	debug("GT Power Management Init (post VBIOS)\n");

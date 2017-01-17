@@ -41,7 +41,7 @@ int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
 
 	debug("%s(dev=%p, power_domain=%p)\n", __func__, dev, power_domain);
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     "power-domains",
 					     "#power-domain-cells", 0, 0,
 					     &args);

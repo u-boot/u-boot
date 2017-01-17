@@ -981,7 +981,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 
 #ifdef CONFIG_DM_ETH
 	if (slave->data->phy_of_handle)
-		phydev->dev->of_offset = slave->data->phy_of_handle;
+		dev_set_of_offset(phydev->dev, slave->data->phy_of_handle);
 #endif
 
 	priv->phydev = phydev;
@@ -1286,7 +1286,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 	const char *phy_sel_compat = NULL;
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int subnode;
 	int slave_index = 0;
 	int active_slave;

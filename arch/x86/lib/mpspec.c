@@ -304,7 +304,8 @@ static int mptable_add_intsrc(struct mp_config_table *mc,
 	}
 
 	/* Get I/O interrupt information from device tree */
-	cell = fdt_getprop(blob, dev->of_offset, "intel,pirq-routing", &len);
+	cell = fdt_getprop(blob, dev_of_offset(dev), "intel,pirq-routing",
+			   &len);
 	if (!cell)
 		return -ENOENT;
 

@@ -59,24 +59,24 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = (void *)dev_get_addr(dev);
-	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
 	/* use non-removeable as sdcard and emmc as judgement */
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "non-removable"))
+	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev), "non-removable"))
 		host->dev_index = 0;
 	else
 		host->dev_index = 1;
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				    "fifo-depth", 0);
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
-	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					  "fifo-mode");
-	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
 				 "clock-freq-min-max", priv->minmax, 2))
 		return -EINVAL;
 #endif

@@ -880,7 +880,7 @@ static int exynos_dp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_dp_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	unsigned int node = dev->of_offset;
+	unsigned int node = dev_of_offset(dev);
 	fdt_addr_t addr;
 
 	addr = dev_get_addr(dev);

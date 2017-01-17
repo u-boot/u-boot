@@ -553,7 +553,7 @@ static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct ti_qspi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	fdt_addr_t addr;
 	void *mmap;
 

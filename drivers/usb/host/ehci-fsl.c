@@ -61,7 +61,7 @@ static int ehci_fsl_ofdata_to_platdata(struct udevice *dev)
 	struct ehci_fsl_priv *priv = dev_get_priv(dev);
 	const void *prop;
 
-	prop = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy_type",
+	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy_type",
 			   NULL);
 	if (prop) {
 		priv->phy_type = (char *)prop;

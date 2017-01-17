@@ -345,7 +345,7 @@ nodev:
 static int adc_vdd_platdata_set(struct udevice *dev)
 {
 	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
-	int ret, offset = dev->of_offset;
+	int ret, offset = dev_of_offset(dev);
 	const void *fdt = gd->fdt_blob;
 	char *prop;
 
@@ -366,7 +366,7 @@ static int adc_vdd_platdata_set(struct udevice *dev)
 static int adc_vss_platdata_set(struct udevice *dev)
 {
 	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
-	int ret, offset = dev->of_offset;
+	int ret, offset = dev_of_offset(dev);
 	const void *fdt = gd->fdt_blob;
 	char *prop;
 

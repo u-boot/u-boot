@@ -39,7 +39,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 {
 	unsigned int port_map, speed_support, port_tx;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *mode;
 	u32 reg32;
 	u16 reg16;
@@ -190,7 +190,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 static void bd82x6x_sata_enable(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	unsigned port_map;
 	const char *mode;
 	u16 map = 0;

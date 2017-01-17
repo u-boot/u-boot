@@ -30,7 +30,7 @@ static int gpio_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct gpio_regulator_platdata *dev_pdata;
 	struct gpio_desc *gpio;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret, count, i, j;
 	u32 states_array[8];
 

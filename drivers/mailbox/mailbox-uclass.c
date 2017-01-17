@@ -41,7 +41,7 @@ int mbox_get_by_index(struct udevice *dev, int index, struct mbox_chan *chan)
 
 	debug("%s(dev=%p, index=%d, chan=%p)\n", __func__, dev, index, chan);
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     "mboxes", "#mbox-cells", 0,
 					     index, &args);
 	if (ret) {
@@ -85,7 +85,7 @@ int mbox_get_by_name(struct udevice *dev, const char *name,
 
 	debug("%s(dev=%p, name=%s, chan=%p)\n", __func__, dev, name, chan);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "mbox-names", name);
 	if (index < 0) {
 		debug("fdt_stringlist_search() failed: %d\n", index);

@@ -52,7 +52,7 @@ static int act8846_bind(struct udevice *dev)
 	int regulators_node;
 	int children;
 
-	regulators_node = fdt_subnode_offset(blob, dev->of_offset,
+	regulators_node = fdt_subnode_offset(blob, dev_of_offset(dev),
 					     "regulators");
 	if (regulators_node <= 0) {
 		debug("%s: %s regulators subnode not found!", __func__,

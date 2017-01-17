@@ -34,7 +34,7 @@ static int cros_ec_i2c_ofdata_to_platdata(struct udevice *dev)
 {
 	struct cros_ec_i2c_bus *i2c_bus = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	i2c_bus->remote_bus = fdtdec_get_uint(blob, node, "google,remote-bus",
 					      0);

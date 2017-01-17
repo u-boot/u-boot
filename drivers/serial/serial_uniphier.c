@@ -105,7 +105,7 @@ static int uniphier_serial_probe(struct udevice *dev)
 
 	priv->membase = port;
 
-	priv->uartclk = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	priv->uartclk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				       "clock-frequency", 0);
 
 	tmp = readl(&port->lcr_mcr);

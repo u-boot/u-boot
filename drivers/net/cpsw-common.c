@@ -20,7 +20,7 @@ static int davinci_emac_3517_get_macid(struct udevice *dev, u16 offset,
 				       int slave, u8 *mac_addr)
 {
 	void *fdt = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	u32 macid_lsb;
 	u32 macid_msb;
 	fdt32_t gmii = 0;
@@ -60,7 +60,7 @@ static int cpsw_am33xx_cm_get_macid(struct udevice *dev, u16 offset, int slave,
 				    u8 *mac_addr)
 {
 	void *fdt = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	u32 macid_lo;
 	u32 macid_hi;
 	fdt32_t gmii = 0;

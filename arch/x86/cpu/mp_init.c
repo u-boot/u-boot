@@ -568,7 +568,8 @@ int mp_init_cpu(struct udevice *cpu, void *unused)
 	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
 	 * this, set req_seq to the reg number in the device tree in advance.
 	 */
-	cpu->req_seq = fdtdec_get_int(gd->fdt_blob, cpu->of_offset, "reg", -1);
+	cpu->req_seq = fdtdec_get_int(gd->fdt_blob, dev_of_offset(cpu), "reg",
+				      -1);
 	plat->ucode_version = microcode_read_rev();
 	plat->device_id = gd->arch.x86_device;
 

@@ -1099,7 +1099,7 @@ static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const void *fdt = gd->fdt_blob;
-	int slave = dev->of_offset;
+	int slave = dev_of_offset(dev);
 	int interfaces;
 	int gbe;
 	int netcp_devices;
@@ -1126,13 +1126,13 @@ static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
 	int netcp_devices;
 	int gbe;
 
-	netcp_devices = fdt_subnode_offset(fdt, dev->of_offset,
+	netcp_devices = fdt_subnode_offset(fdt, dev_of_offset(dev),
 					   "netcp-devices");
 	gbe = fdt_subnode_offset(fdt, netcp_devices, "gbe");
 
 	ks2_eth_bind_slaves(dev, gbe, &gbe_0);
 
-	ks2_eth_parse_slave_interface(dev->of_offset, gbe_0, priv, pdata);
+	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
 
 	pdata->iobase = dev_get_addr(dev);
 

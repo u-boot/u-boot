@@ -1199,8 +1199,8 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	priv->regs = (struct dwc2_core_regs *)addr;
 
-	prop = fdt_getprop(gd->fdt_blob, dev->of_offset, "disable-over-current",
-			   NULL);
+	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
+			   "disable-over-current", NULL);
 	if (prop)
 		priv->oc_disable = true;
 

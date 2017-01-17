@@ -218,7 +218,7 @@ static int vf_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
 	const void *dt_blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *mode;
 
 	priv->portnr = dev->seq;

@@ -43,7 +43,7 @@ int reset_get_by_index(struct udevice *dev, int index,
 	debug("%s(dev=%p, index=%d, reset_ctl=%p)\n", __func__, dev, index,
 	      reset_ctl);
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     "resets", "#reset-cells", 0,
 					     index, &args);
 	if (ret) {
@@ -88,7 +88,7 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 	debug("%s(dev=%p, name=%s, reset_ctl=%p)\n", __func__, dev, name,
 	      reset_ctl);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "reset-names", name);
 	if (index < 0) {
 		debug("fdt_stringlist_search() failed: %d\n", index);

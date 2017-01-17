@@ -58,7 +58,7 @@ static int s5m8767_bind(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int children;
 
-	node = fdt_subnode_offset(blob, dev->of_offset, "regulators");
+	node = fdt_subnode_offset(blob, dev_of_offset(dev), "regulators");
 	if (node <= 0) {
 		debug("%s: %s regulators subnode not found!", __func__,
 		      dev->name);

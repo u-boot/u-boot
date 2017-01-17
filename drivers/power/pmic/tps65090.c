@@ -56,7 +56,7 @@ static int tps65090_bind(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int children;
 
-	regulators_node = fdt_subnode_offset(blob, dev->of_offset,
+	regulators_node = fdt_subnode_offset(blob, dev_of_offset(dev),
 					     "regulators");
 	if (regulators_node <= 0) {
 		debug("%s: %s regulators subnode not found!", __func__,

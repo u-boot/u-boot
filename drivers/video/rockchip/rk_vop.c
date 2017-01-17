@@ -321,7 +321,7 @@ static int rk_vop_probe(struct udevice *dev)
 	 * clock so it is currently not possible to use more than one display
 	 * device simultaneously.
 	 */
-	port = fdt_subnode_offset(blob, dev->of_offset, "port");
+	port = fdt_subnode_offset(blob, dev_of_offset(dev), "port");
 	if (port < 0)
 		return -EINVAL;
 	for (node = fdt_first_subnode(blob, port);

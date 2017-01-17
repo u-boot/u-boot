@@ -154,9 +154,8 @@ static int generic_clk_ofdata_to_platdata(struct udevice *dev)
 	u32 num_parents;
 
 	num_parents = fdtdec_get_int_array_count(gd->fdt_blob,
-						 dev_get_parent(dev)->of_offset,
-						 "clocks", cells,
-						 GENERATED_SOURCE_MAX);
+			dev_of_offset(dev_get_parent(dev)), "clocks", cells,
+			GENERATED_SOURCE_MAX);
 
 	if (!num_parents)
 		return -1;

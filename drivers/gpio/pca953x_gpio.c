@@ -265,7 +265,7 @@ static int pca953x_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	addr = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", 0);
+	addr = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", 0);
 	if (addr == 0)
 		return -ENODEV;
 

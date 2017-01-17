@@ -83,7 +83,7 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ti_musb_platdata *platdata = dev_get_platdata(dev);
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int phys;
 	int ctrl_mod;
 	int usb_index;
@@ -178,7 +178,7 @@ static int ti_musb_host_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ti_musb_platdata *platdata = dev_get_platdata(dev);
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	ret = ti_musb_ofdata_to_platdata(dev);
@@ -209,7 +209,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 	int node;
 	int ret;
 
-	for (node = fdt_first_subnode(fdt, parent->of_offset); node > 0;
+	for (node = fdt_first_subnode(fdt, dev_of_offset(parent)); node > 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		struct udevice *dev;
 		const char *name = fdt_get_name(fdt, node, NULL);

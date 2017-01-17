@@ -90,11 +90,11 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 	/* Set dwc3 usb2 phy config */
 	reg = readl(&dwc3_reg->g_usb2phycfg[0]);
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
+	if (fdtdec_get_bool(blob, dev_of_offset(dev),
 			    "snps,dis-enblslpm-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
 
-	utmi_bits = fdtdec_get_int(blob, dev->of_offset,
+	utmi_bits = fdtdec_get_int(blob, dev_of_offset(dev),
 				   "snps,phyif-utmi-bits", -1);
 	if (utmi_bits == 16) {
 		reg |= DWC3_GUSB2PHYCFG_PHYIF;
@@ -106,11 +106,11 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_8BIT;
 	}
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
+	if (fdtdec_get_bool(blob, dev_of_offset(dev),
 			    "snps,dis-u2-freeclk-exists-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS;
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
+	if (fdtdec_get_bool(blob, dev_of_offset(dev),
 			    "snps,dis-u2-susphy-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 

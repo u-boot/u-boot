@@ -75,7 +75,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	host->ioaddr = (void *)dev_get_addr(dev);
 
 	host->quirks = 0;
-	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "bus-width", 4);
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);

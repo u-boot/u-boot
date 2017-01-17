@@ -2441,7 +2441,7 @@ unsigned long flash_init (void)
 static int cfi_flash_probe(struct udevice *dev)
 {
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const fdt32_t *cell;
 	phys_addr_t addr;
 	int parent, addrc, sizec;

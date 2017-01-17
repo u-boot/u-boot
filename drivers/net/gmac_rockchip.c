@@ -36,9 +36,9 @@ static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
 {
 	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
 
-	pdata->tx_delay = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	pdata->tx_delay = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "tx-delay", 0x30);
-	pdata->rx_delay = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	pdata->rx_delay = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "rx-delay", 0x10);
 
 	return designware_eth_ofdata_to_platdata(dev);

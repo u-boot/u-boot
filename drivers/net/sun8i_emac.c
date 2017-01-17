@@ -442,7 +442,7 @@ static int parse_phy_pins(struct udevice *dev)
 	const char *pin_name;
 	int drive, pull, i;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "pinctrl-0");
 	if (offset < 0) {
 		printf("WARNING: emac: cannot find pinctrl-0 node\n");
@@ -716,6 +716,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;
+	int node = dev_of_offset(dev);
 	int offset = 0;
 
 	pdata->iobase = dev_get_addr_name(dev, "emac");
@@ -725,13 +726,13 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	priv->phyaddr = -1;
 	priv->use_internal_phy = false;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
 				       "phy");
 	if (offset > 0)
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg",
 					       -1);
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
@@ -751,7 +752,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		if (fdt_getprop(gd->fdt_blob, dev->of_offset,
+		if (fdt_getprop(gd->fdt_blob, node,
 				"allwinner,use-internal-phy", NULL))
 			priv->use_internal_phy = true;
 	}

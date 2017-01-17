@@ -44,7 +44,8 @@ int board_prepare_usb(enum usb_init_type type)
 
 	/* Try to request gpios needed to start usb host on dragonboard */
 	if (!dm_gpio_is_valid(&hub_reset)) {
-		node = fdt_subnode_offset(gd->fdt_blob, pmic_gpio->of_offset,
+		node = fdt_subnode_offset(gd->fdt_blob,
+					  dev_of_offset(pmic_gpio),
 					  "usb_hub_reset_pm");
 		if (node < 0) {
 			printf("Failed to find usb_hub_reset_pm dt node.\n");
@@ -59,7 +60,8 @@ int board_prepare_usb(enum usb_init_type type)
 	}
 
 	if (!dm_gpio_is_valid(&usb_sel)) {
-		node = fdt_subnode_offset(gd->fdt_blob, pmic_gpio->of_offset,
+		node = fdt_subnode_offset(gd->fdt_blob,
+					  dev_of_offset(pmic_gpio),
 					  "usb_sw_sel_pm");
 		if (node < 0) {
 			printf("Failed to find usb_sw_sel_pm dt node.\n");
@@ -110,7 +112,8 @@ int misc_init_r(void)
 		return 0;
 	}
 
-	node = fdt_subnode_offset(gd->fdt_blob, pon->of_offset, "key_vol_down");
+	node = fdt_subnode_offset(gd->fdt_blob, dev_of_offset(pon),
+				  "key_vol_down");
 	if (node < 0) {
 		printf("Failed to find key_vol_down node. Check device tree\n");
 		return 0;

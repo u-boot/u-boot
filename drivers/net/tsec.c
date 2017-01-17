@@ -783,7 +783,7 @@ int tsec_probe(struct udevice *dev)
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
 	priv->regs = (struct tsec *)pdata->iobase;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "phy-handle");
 	if (offset > 0) {
 		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
@@ -802,7 +802,7 @@ int tsec_probe(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "tbi-handle");
 	if (offset > 0) {
 		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg",
@@ -812,7 +812,7 @@ int tsec_probe(struct udevice *dev)
 		priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	}
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 			       "phy-connection-type", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);

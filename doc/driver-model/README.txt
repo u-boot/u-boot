@@ -684,7 +684,7 @@ steps (see device_probe()):
 
    g. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
-   do various calls like fdtdec_get_int(gd->fdt_blob, dev->of_offset, ...)
+   do various calls like fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), ...)
    to access the node and store the resulting information into dev->platdata.
    After this point, the device works the same way whether it was bound
    using a device tree node or U_BOOT_DEVICE() structure. In either case,

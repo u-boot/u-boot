@@ -71,12 +71,12 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 	int parent;
 	int len;
 
-	parent = dev->parent->of_offset;
+	parent = dev_of_offset(dev->parent);
 	addr_len = fdt_address_cells(blob, parent);
 	size_len = fdt_size_cells(blob, parent);
 	both_len = addr_len + size_len;
 
-	cell = fdt_getprop(blob, dev->of_offset, "reg", &len);
+	cell = fdt_getprop(blob, dev_of_offset(dev), "reg", &len);
 	len /= sizeof(*cell);
 	count = len / both_len;
 	if (!cell || !count)

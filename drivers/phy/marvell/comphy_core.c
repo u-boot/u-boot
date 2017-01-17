@@ -107,7 +107,7 @@ void comphy_print(struct chip_serdes_phy_config *chip_cfg,
 static int comphy_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
 	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
 	int subnode;

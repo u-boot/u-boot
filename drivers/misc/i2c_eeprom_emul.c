@@ -115,9 +115,9 @@ static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
 
-	plat->size = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->size = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				    "sandbox,size", 32);
-	plat->filename = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	plat->filename = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 				     "sandbox,filename", NULL);
 	if (!plat->filename) {
 		debug("%s: No filename for device '%s'\n", __func__,

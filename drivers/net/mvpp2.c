@@ -4047,7 +4047,7 @@ static int mvpp2_probe(struct udevice *dev)
 		return err;
 	}
 
-	return mvpp2_port_probe(dev, port, dev->of_offset, priv,
+	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv,
 				&buffer_loc.first_rxq);
 }
 
@@ -4138,7 +4138,7 @@ static int mvpp2_base_probe(struct udevice *dev)
 static int mvpp2_base_bind(struct udevice *parent)
 {
 	const void *blob = gd->fdt_blob;
-	int node = parent->of_offset;
+	int node = dev_of_offset(parent);
 	struct uclass_driver *drv;
 	struct udevice *dev;
 	struct eth_pdata *plat;
@@ -4169,7 +4169,7 @@ static int mvpp2_base_bind(struct udevice *parent)
 
 		/* Create child device UCLASS_ETH and bind it */
 		device_bind(parent, &mvpp2_driver, name, plat, subnode, &dev);
-		dev->of_offset = subnode;
+		dev_set_of_offset(dev, subnode);
 	}
 
 	return 0;

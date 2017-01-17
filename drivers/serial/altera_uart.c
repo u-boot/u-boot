@@ -92,7 +92,7 @@ static int altera_uart_ofdata_to_platdata(struct udevice *dev)
 	plat->regs = map_physmem(dev_get_addr(dev),
 				 sizeof(struct altera_uart_regs),
 				 MAP_NOCACHE);
-	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 		"clock-frequency", 0);
 
 	return 0;

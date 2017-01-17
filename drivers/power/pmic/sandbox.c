@@ -51,7 +51,7 @@ static int sandbox_pmic_read(struct udevice *dev, uint reg,
 
 static int sandbox_pmic_bind(struct udevice *dev)
 {
-	if (!pmic_bind_children(dev, dev->of_offset, pmic_children_info))
+	if (!pmic_bind_children(dev, dev_of_offset(dev), pmic_children_info))
 		error("%s:%d PMIC: %s - no child found!", __func__, __LINE__,
 							  dev->name);
 

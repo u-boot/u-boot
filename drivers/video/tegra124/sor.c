@@ -757,7 +757,7 @@ int tegra_dc_sor_attach(struct udevice *dc_dev, struct udevice *dev,
 
 	/* Use the first display controller */
 	debug("%s\n", __func__);
-	node = dc_dev->of_offset;
+	node = dev_of_offset(dc_dev);
 	disp_ctrl = (struct dc_ctlr *)fdtdec_get_addr(blob, node, "reg");
 
 	tegra_dc_sor_enable_dc(disp_ctrl);
@@ -973,7 +973,7 @@ int tegra_dc_sor_detach(struct udevice *dc_dev, struct udevice *dev)
 
 	debug("%s\n", __func__);
 	/* Use the first display controller */
-	node = dc_dev->of_offset;
+	node = dev_of_offset(dc_dev);
 	disp_ctrl = (struct dc_ctlr *)fdtdec_get_addr(blob, node, "reg");
 
 	/* Sleep mode */
@@ -1045,7 +1045,7 @@ static int tegra_sor_ofdata_to_platdata(struct udevice *dev)
 	int node;
 	int ret;
 
-	priv->base = (void *)fdtdec_get_addr(blob, dev->of_offset, "reg");
+	priv->base = (void *)fdtdec_get_addr(blob, dev_of_offset(dev), "reg");
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_PMC);
 	if (node < 0) {

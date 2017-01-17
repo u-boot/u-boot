@@ -216,12 +216,13 @@ static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 	struct sh_serial_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	addr = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev), "reg");
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clk = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "clock", 1);
+	plat->clk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "clock",
+				   1);
 	plat->type = dev_get_driver_data(dev);
 	return 0;
 }

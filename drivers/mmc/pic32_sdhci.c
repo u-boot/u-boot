@@ -38,18 +38,18 @@ static int pic32_sdhci_probe(struct udevice *dev)
 	fdt_size_t size;
 	int ret;
 
-	addr = fdtdec_get_addr_size(fdt, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(fdt, dev_of_offset(dev), "reg", &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	host->ioaddr	= ioremap(addr, size);
 	host->name	= dev->name;
 	host->quirks	= SDHCI_QUIRK_NO_HISPD_BIT;
-	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"bus-width", 4);
 	host->ops = &pic32_sdhci_ops;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
 				   "clock-freq-min-max", f_min_max, 2);
 	if (ret) {
 		printf("sdhci: clock-freq-min-max not found\n");

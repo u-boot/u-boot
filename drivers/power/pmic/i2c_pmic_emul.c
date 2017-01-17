@@ -108,9 +108,9 @@ static int sandbox_i2c_pmic_ofdata_to_platdata(struct udevice *emul)
 
 	debug("%s:%d Setting PMIC default registers\n", __func__, __LINE__);
 
-	reg_defaults = fdtdec_locate_byte_array(gd->fdt_blob, emul->of_offset,
-						"reg-defaults",
-						SANDBOX_PMIC_REG_COUNT);
+	reg_defaults = fdtdec_locate_byte_array(gd->fdt_blob,
+			dev_of_offset(emul), "reg-defaults",
+			SANDBOX_PMIC_REG_COUNT);
 
 	if (!reg_defaults) {
 		error("Property \"reg-defaults\" not found for device: %s!",

@@ -363,9 +363,9 @@ static int display_init(struct udevice *dev, void *lcdbase,
 		return ret;
 	}
 
-	dc_ctlr = (struct dc_ctlr *)fdtdec_get_addr(blob, dev->of_offset,
+	dc_ctlr = (struct dc_ctlr *)fdtdec_get_addr(blob, dev_of_offset(dev),
 						    "reg");
-	if (fdtdec_decode_display_timing(blob, dev->of_offset, 0, timing)) {
+	if (fdtdec_decode_display_timing(blob, dev_of_offset(dev), 0, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;
 	}

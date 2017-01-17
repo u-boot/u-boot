@@ -437,7 +437,7 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 	void *__iomem addr = (void *__iomem)dev_get_addr(dev);
 	void *__iomem phy_ctrl, *__iomem phy_status;
 	const void *blob = gd->fdt_blob;
-	int offset = dev->of_offset, phy_off;
+	int offset = dev_of_offset(dev), phy_off;
 	u32 val;
 
 	/*
@@ -484,7 +484,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct usb_platdata *plat = dev_get_platdata(dev);
 	const char *mode;
 
-	mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "dr_mode", NULL);
+	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
 	if (mode) {
 		if (strcmp(mode, "peripheral") == 0)
 			plat->init_type = USB_INIT_DEVICE;

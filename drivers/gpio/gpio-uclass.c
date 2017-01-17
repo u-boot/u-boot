@@ -707,7 +707,7 @@ int gpio_request_by_name(struct udevice *dev,  const char *list_name, int index,
 	 * calls in gpio_request_by_name(), but we can do this until
 	 * gpio_request_by_name_nodev() can be dropped.
 	 */
-	return gpio_request_by_name_nodev(gd->fdt_blob, dev->of_offset,
+	return gpio_request_by_name_nodev(gd->fdt_blob, dev_of_offset(dev),
 					  list_name, index, desc, flags);
 }
 
@@ -746,7 +746,7 @@ int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
 	 * calls in gpio_request_by_name(), but we can do this until
 	 * gpio_request_list_by_name_nodev() can be dropped.
 	 */
-	return gpio_request_list_by_name_nodev(gd->fdt_blob, dev->of_offset,
+	return gpio_request_list_by_name_nodev(gd->fdt_blob, dev_of_offset(dev),
 					       list_name, desc, max_count,
 					       flags);
 }
@@ -755,7 +755,7 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 {
 	int ret;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     list_name, "#gpio-cells", 0, -1,
 					     NULL);
 	if (ret) {

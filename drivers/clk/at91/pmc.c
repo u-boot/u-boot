@@ -47,7 +47,7 @@ int at91_pmc_core_probe(struct udevice *dev)
 int at91_clk_sub_device_bind(struct udevice *dev, const char *drv_name)
 {
 	const void *fdt = gd->fdt_blob;
-	int offset = dev->of_offset;
+	int offset = dev_of_offset(dev);
 	bool pre_reloc_only = !(gd->flags & GD_FLG_RELOC);
 	const char *name;
 	int ret;
@@ -90,7 +90,8 @@ int at91_clk_of_xlate(struct clk *clk, struct fdtdec_phandle_args *args)
 		return -EINVAL;
 	}
 
-	periph = fdtdec_get_uint(gd->fdt_blob, clk->dev->of_offset, "reg", -1);
+	periph = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(clk->dev), "reg",
+				 -1);
 	if (periph < 0)
 		return -EINVAL;
 

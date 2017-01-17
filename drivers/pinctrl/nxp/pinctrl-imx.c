@@ -19,7 +19,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct imx_pinctrl_soc_info *info = priv->info;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	const struct fdt_property *prop;
 	u32 *pin_data;
 	int npins, size, pin_size;
@@ -176,7 +176,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 		      struct imx_pinctrl_soc_info *info)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
-	int node = dev->of_offset, ret;
+	int node = dev_of_offset(dev), ret;
 	struct fdtdec_phandle_args arg;
 	fdt_addr_t addr;
 	fdt_size_t size;
@@ -189,7 +189,8 @@ int imx_pinctrl_probe(struct udevice *dev,
 	priv->dev = dev;
 	priv->info = info;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
+				    &size);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;

@@ -169,13 +169,13 @@ static int mpc85xx_gpio_ofdata_to_platdata(struct udevice *dev) {
 	fdt_addr_t addr;
 	fdt_size_t size;
 
-	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, dev->of_offset,
-						  "reg", 0, &size, false);
+	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob,
+			dev_of_offset(dev), "reg", 0, &size, false);
 
 	plat->addr = addr;
 	plat->size = size;
-	plat->ngpios = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-						  "ngpios", 32);
+	plat->ngpios = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				      "ngpios", 32);
 
 	return 0;
 }

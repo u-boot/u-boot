@@ -315,7 +315,7 @@ static int i8042_kbd_probe(struct udevice *dev)
 	struct input_config *input = &uc_priv->input;
 	int ret;
 
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 			    "intel,duplicate-por"))
 		priv->quirks |= QUIRK_DUP_POR;
 
