@@ -1,4 +1,4 @@
-if TARGET_QEMU_X86
+if TARGET_QEMU_X86 || TARGET_QEMU_X86_64
 
 config SYS_BOARD
 	default "qemu-x86"
