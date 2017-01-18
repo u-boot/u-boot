@@ -62,6 +62,12 @@ class Entry_u_boot_ucode(Entry_blob):
             self.data = ''
             return True
 
+        # Handle microcode in SPL image as well
+        ucode_dest_entry = self.image.FindEntryType('u-boot-spl-with-ucode-ptr')
+        if ucode_dest_entry and not ucode_dest_entry.target_pos:
+            self.data = ''
+            return True
+
         # Get the microcode from the device tree entry
         fdt_entry = self.image.FindEntryType('u-boot-dtb-with-ucode')
         if not fdt_entry or not fdt_entry.ucode_data:
