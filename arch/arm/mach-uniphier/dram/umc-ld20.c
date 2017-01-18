@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Socionext Inc.
  *
- * based on commit 5e1cb0f1caeabc6c99469dd997cb6b4f46834443 of Diag
+ * based on commit 1f6feb76e7f9753f51955444e422486521f9b3a3 of Diag
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -581,7 +581,7 @@ static int umc_dc_init(void __iomem *dc_base, unsigned int freq,
 	writel(umc_memconf0a[freq_e][size_e], dc_base + UMC_MEMCONF0A);
 	writel(umc_memconf0b[freq_e][size_e], dc_base + UMC_MEMCONF0B);
 	writel(umc_memconfch[freq_e][size_e], dc_base + UMC_MEMCONFCH);
-	writel(0x00000008, dc_base + UMC_MEMMAPSET);
+	writel(0x00000000, dc_base + UMC_MEMMAPSET);
 
 	writel(umc_cmdctla[freq_e], dc_base + UMC_CMDCTLA);
 	writel(umc_cmdctlb[freq_e], dc_base + UMC_CMDCTLB);
