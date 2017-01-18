@@ -46,4 +46,16 @@ config OMAP_TIMER
 	help
 	  Select this to enable an timer for Omap devices.
 
+config AST_TIMER
+	bool "Aspeed ast2400/ast2500 timer support"
+	depends on TIMER
+	default y if ARCH_ASPEED
+	help
+	  Select this to enable timer for Aspeed ast2400/ast2500 devices.
+	  This is a simple sys timer driver, it is compatible with lib/time.c,
+	  but does not support any interrupts. Even though SoC has 8 hardware
+	  counters, they are all treated as a single device by this driver.
+	  This is mostly because they all share several registers which
+	  makes it difficult to completely separate them.
+
 endmenu

@@ -14,3 +14,4 @@ obj-$(CONFIG_ROCKCHIP_RK3399) += sysreset_rk3399.o
 obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
 obj-$(CONFIG_ARCH_SNAPDRAGON) += sysreset_snapdragon.o
 obj-$(CONFIG_TARGET_XTFPGA) += sysreset_xtfpga.o
+obj-$(CONFIG_ARCH_ASPEED) += sysreset_ast.o
