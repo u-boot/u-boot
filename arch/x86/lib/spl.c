@@ -15,6 +15,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak int arch_cpu_init_dm(void)
+{
+	return 0;
+}
+
 static int x86_spl_init(void)
 {
 	/*
