@@ -11,4 +11,6 @@ config TARGET_EVB_AST2500
 	  4 Serial ports, 4 USB ports, VGA port, PCIe, SD card slot,
 	  20 pin JTAG, pinouts for 14 I2Cs, 3 SPIs and eSPI, 8 PWMs.
 
+source "board/aspeed/evb_ast2500/Kconfig"
+
 endif
