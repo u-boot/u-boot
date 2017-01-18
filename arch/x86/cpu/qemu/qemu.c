@@ -47,7 +47,7 @@ static void qemu_x86_fwcfg_read_entry_pio(uint16_t entry,
 static void qemu_x86_fwcfg_read_entry_dma(struct fw_cfg_dma_access *dma)
 {
 	/* the DMA address register is big endian */
-	outl(cpu_to_be32((uint32_t)dma), FW_DMA_PORT_HIGH);
+	outl(cpu_to_be32((uintptr_t)dma), FW_DMA_PORT_HIGH);
 
 	while (be32_to_cpu(dma->control) & ~FW_CFG_DMA_ERROR)
 		__asm__ __volatile__ ("pause");

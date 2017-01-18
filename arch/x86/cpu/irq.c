@@ -26,7 +26,7 @@ bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 	if (priv->config == PIRQ_VIA_PCI)
 		dm_pci_read_config8(dev->parent, LINK_N2V(link, base), &pirq);
 	else
-		pirq = readb(priv->ibase + LINK_N2V(link, base));
+		pirq = readb((uintptr_t)priv->ibase + LINK_N2V(link, base));
 
 	pirq &= 0xf;
 
@@ -56,7 +56,7 @@ void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
 	if (priv->config == PIRQ_VIA_PCI)
 		dm_pci_write_config8(dev->parent, LINK_N2V(link, base), irq);
 	else
-		writeb(irq, priv->ibase + LINK_N2V(link, base));
+		writeb(irq, (uintptr_t)priv->ibase + LINK_N2V(link, base));
 }
 
 static struct irq_info *check_dup_entry(struct irq_info *slot_base,
@@ -234,7 +234,7 @@ static void irq_enable_sci(struct udevice *dev)
 		if (priv->config == PIRQ_VIA_PCI)
 			dm_pci_write_config32(dev->parent, priv->actl_addr, 0);
 		else
-			writel(0, priv->ibase + priv->actl_addr);
+			writel(0, (uintptr_t)priv->ibase + priv->actl_addr);
 	}
 }
 
