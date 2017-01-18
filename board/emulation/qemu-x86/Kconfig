@@ -13,8 +13,8 @@ config SYS_CONFIG_NAME
 	default "qemu-x86"
 
 config SYS_TEXT_BASE
-	default 0xfff00000 if !EFI_STUB
-	default 0x01110000 if EFI_STUB
+	default 0xfff00000 if !EFI_STUB && !SUPPORT_SPL
+	default 0x01110000 if EFI_STUB || SUPPORT_SPL
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
