@@ -137,14 +137,17 @@ static void qemu_chipset_init(void)
 #endif
 }
 
+#if !CONFIG_IS_ENABLED(SPL_X86_32BIT_INIT)
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
 
 	return x86_cpu_init_f();
 }
+#endif
 
-#ifndef CONFIG_EFI_STUB
+#if !CONFIG_IS_ENABLED(EFI_STUB) && \
+	!CONFIG_IS_ENABLED(SPL_X86_32BIT_INIT)
 int print_cpuinfo(void)
 {
 	post_code(POST_CPU_INFO);
