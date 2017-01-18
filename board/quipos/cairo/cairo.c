@@ -93,7 +93,8 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 static const struct ns16550_platdata cairo_serial = {
 	.base = OMAP34XX_UART2,
 	.reg_shift = 2,
-	.clock = V_NS16550_CLK
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
 };
 
 U_BOOT_DEVICE(cairo_uart) = {

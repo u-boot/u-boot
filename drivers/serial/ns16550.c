@@ -20,9 +20,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART_LCRVAL UART_LCR_8N1		/* 8 data, 1 stop, no parity */
 #define UART_MCRVAL (UART_MCR_DTR | \
 		     UART_MCR_RTS)		/* RTS/DTR */
-#define UART_FCRVAL (UART_FCR_FIFO_EN |	\
-		     UART_FCR_RXSR |	\
-		     UART_FCR_TXSR)		/* Clear & enable FIFOs */
 
 #ifndef CONFIG_DM_SERIAL
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
@@ -138,7 +135,7 @@ static u32 ns16550_getfcr(NS16550_t port)
 #else
 static u32 ns16550_getfcr(NS16550_t port)
 {
-	return UART_FCRVAL;
+	return UART_FCR_DEFVAL;
 }
 #endif
 
@@ -275,7 +272,7 @@ static inline void _debug_uart_init(void)
 					    CONFIG_BAUDRATE);
 	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
 	serial_dout(&com_port->mcr, UART_MCRVAL);
-	serial_dout(&com_port->fcr, UART_FCRVAL);
+	serial_dout(&com_port->fcr, UART_FCR_DEFVAL);
 
 	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
 	serial_dout(&com_port->dll, baud_divisor & 0xff);
@@ -440,7 +437,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	plat->fcr = UART_FCRVAL;
+	plat->fcr = UART_FCR_DEFVAL;
 	if (port_type == PORT_JZ4780)
 		plat->fcr |= UART_FCR_UME;
 

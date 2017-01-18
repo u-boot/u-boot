@@ -31,7 +31,8 @@ const omap3_sysinfo sysinfo = {
 static const struct ns16550_platdata serial_omap_platdata = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
-	.clock = V_NS16550_CLK
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
 };
 
 U_BOOT_DEVICE(sniper_serial) = {

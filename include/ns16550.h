@@ -121,6 +121,11 @@ typedef struct NS16550 *NS16550_t;
 /* Ingenic JZ47xx specific UART-enable bit. */
 #define UART_FCR_UME		0x10
 
+/* Clear & enable FIFOs */
+#define UART_FCR_DEFVAL (UART_FCR_FIFO_EN | \
+			UART_FCR_RXSR |	\
+			UART_FCR_TXSR)
+
 /*
  * These are the definitions for the Modem Control Register
  */

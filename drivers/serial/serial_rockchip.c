@@ -27,6 +27,7 @@ static int rockchip_serial_probe(struct udevice *dev)
 	plat->plat.base = plat->dtplat.reg[0];
 	plat->plat.reg_shift = plat->dtplat.reg_shift;
 	plat->plat.clock = plat->dtplat.clock_frequency;
+	plat->plat.fcr = UART_FCR_DEFVAL;
 	dev->platdata = &plat->plat;
 
 	return ns16550_serial_probe(dev);
