@@ -36,7 +36,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-rock2-square.dtb \
 	rk3288-evb.dtb \
 	rk3288-fennec.dtb \
-	rk3288-miniarm.dtb \
+	rk3288-tinker.dtb \
 	rk3288-popmetal.dtb \
 	rk3399-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \

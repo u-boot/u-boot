@@ -1,6 +1,0 @@
-MINIARM-RK3288
-M:	Lin Huang <hl@rock-chips.com>
-S:	Maintained
-F:	board/rockchip/miniarm_rk3288
-F:	include/configs/miniarm_rk3288.h
-F:	configs/miniarm-rk3288_defconfig

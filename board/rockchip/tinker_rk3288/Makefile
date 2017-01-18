@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= miniarm-rk3288.o
+obj-y	+= tinker-rk3288.o
