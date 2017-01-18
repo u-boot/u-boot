@@ -40,10 +40,12 @@
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "cpu-qemu";
+			u-boot,dm-pre-reloc;
 			reg = <0>;
 			intel,apic-id = <0>;
 		};
@@ -65,9 +67,11 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch9";
+			u-boot,dm-pre-reloc;
 
 			irq-router {
 				compatible = "intel,irq-router";
+				u-boot,dm-pre-reloc;
 				intel,pirq-config = "pci";
 				intel,actl-8bit;
 				intel,actl-addr = <0x44>;

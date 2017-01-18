@@ -29,10 +29,12 @@
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "cpu-qemu";
+			u-boot,dm-pre-reloc;
 			reg = <0>;
 			intel,apic-id = <0>;
 		};
@@ -54,9 +56,11 @@
 		pch@1,0 {
 			reg = <0x00000800 0 0 0 0>;
 			compatible = "intel,pch7";
+			u-boot,dm-pre-reloc;
 
 			irq-router {
 				compatible = "intel,irq-router";
+				u-boot,dm-pre-reloc;
 				intel,pirq-config = "pci";
 				intel,pirq-link = <0x60 4>;
 				intel,pirq-mask = <0x0e40>;
