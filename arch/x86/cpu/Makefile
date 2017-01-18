@@ -35,8 +35,8 @@ obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_INTEL_QUARK) += quark/
 obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
 obj-y += lapic.o ioapic.o
-ifndef CONFIG_$(SPL_)X86_64
 obj-y += irq.o
+ifndef CONFIG_$(SPL_)X86_64
 obj-$(CONFIG_SMP) += mp_init.o
 endif
 obj-y += mtrr.o
