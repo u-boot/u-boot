@@ -10,9 +10,15 @@
 #ifdef CONFIG_ROM_SIZE
 / {
 	binman {
+#ifdef CONFIG_SPL
+		u-boot-spl-with-ucode-ptr {
+			optional-ucode;
+		};
+#else
 		u-boot-with-ucode-ptr {
 			optional-ucode;
 		};
+#endif
 	};
 };
 #endif
