@@ -1,0 +1,53 @@
+#include <dt-bindings/clock/ast2500-scu.h>
+
+#include "ast2500.dtsi"
+
+/ {
+	scu: clock-controller@1e6e2000 {
+		compatible = "aspeed,ast2500-scu";
+		reg = <0x1e6e2000 0x1000>;
+		u-boot,dm-pre-reloc;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	sdrammc: sdrammc@1e6e0000 {
+		u-boot,dm-pre-reloc;
+		compatible = "aspeed,ast2500-sdrammc";
+		reg = <0x1e6e0000 0x174
+			0x1e6e0200 0x1d4 >;
+		clocks = <&scu PLL_MPLL>;
+	};
+
+	ahb {
+		u-boot,dm-pre-reloc;
+
+		apb {
+			u-boot,dm-pre-reloc;
+
+			timer: timer@1e782000 {
+				u-boot,dm-pre-reloc;
+			};
+
+			uart1: serial@1e783000 {
+				clocks = <&scu PCLK_UART1>;
+			};
+
+			uart2: serial@1e78d000 {
+				clocks = <&scu PCLK_UART2>;
+			};
+
+			uart3: serial@1e78e000 {
+				clocks = <&scu PCLK_UART3>;
+			};
+
+			uart4: serial@1e78f000 {
+				clocks = <&scu PCLK_UART4>;
+			};
+
+			uart5: serial@1e784000 {
+				clocks = <&scu PCLK_UART5>;
+			};
+		};
+	};
+};

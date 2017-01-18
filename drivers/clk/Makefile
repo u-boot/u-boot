@@ -17,3 +17,5 @@ obj-$(CONFIG_CLK_UNIPHIER) += uniphier/
 obj-$(CONFIG_CLK_EXYNOS) += exynos/
 obj-$(CONFIG_CLK_AT91) += at91/
 obj-$(CONFIG_CLK_BOSTON) += clk_boston.o
+
+obj-$(CONFIG_ARCH_ASPEED) += aspeed/

@@ -24,4 +24,6 @@ config WDT_NUM
 	  The number of Watchdot Timers on a SoC.
 	  AST2500 has three WDTsk earlier versions have two or fewer.
 
+source "arch/arm/mach-aspeed/ast2500/Kconfig"
+
 endif
