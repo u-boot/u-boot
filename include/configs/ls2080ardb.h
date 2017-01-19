@@ -32,7 +32,6 @@
 unsigned long get_board_sys_clk(void);
 #endif
 
-#define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		133333333
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
@@ -71,6 +70,9 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_GPT
 
 /* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 
@@ -291,7 +293,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
-#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW
@@ -328,6 +329,7 @@ unsigned long get_board_sys_clk(void);
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
+#ifdef CONFIG_SECURE_BOOT
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"scriptaddr=0x80800000\0"		\
@@ -345,9 +347,34 @@ unsigned long get_board_sys_clk(void);
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580300000"	\
-	" 0x580800000 \0"			\
+	"mcinitcmd=esbc_validate 0x580c80000;"  \
+	"esbc_validate 0x580cc0000;"            \
+	"fsl_mc start mc 0x580300000"           \
+	" 0x580800000 \0"                       \
 	BOOTENV
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"scriptaddr=0x80800000\0"		\
+	"kernel_addr_r=0x81000000\0"		\
+	"pxefile_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x88000000\0"		\
+	"ramdisk_addr_r=0x89000000\0"		\
+	"loadaddr=0x80100000\0"			\
+	"kernel_addr=0x100000\0"		\
+	"ramdisk_addr=0x800000\0"		\
+	"ramdisk_size=0x2000000\0"		\
+	"fdt_high=0xa0000000\0"			\
+	"initrd_high=0xffffffffffffffff\0"	\
+	"kernel_start=0x581100000\0"		\
+	"kernel_load=0xa0000000\0"		\
+	"kernel_size=0x2800000\0"		\
+	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000" \
+	" 0x580800000 \0"                       \
+	BOOTENV
+#endif
+
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \

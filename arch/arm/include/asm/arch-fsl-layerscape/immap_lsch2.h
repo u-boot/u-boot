@@ -137,6 +137,7 @@ CONFIG_SYS_CCSRBAR_PHYS_LOW and/or CONFIG_SYS_CCSRBAR_PHYS_HIGH instead."
 
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
+	/* frequency of platform PLL */
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
 	unsigned long freq_localbus;
@@ -360,7 +361,8 @@ struct ccsr_scfg {
 	u32 qspi_cfg;
 	u8 res_160[0x180-0x160];
 	u32 dmamcr;
-	u8 res_184[0x18c-0x184];
+	u8 res_184[0x188-0x184];
+	u32 gic_align;
 	u32 debug_icid;
 	u8 res_190[0x1a4-0x190];
 	u32 snpcnfgcr;

@@ -9,17 +9,6 @@
 
 #include "ls1046a_common.h"
 
-#if defined(CONFIG_FSL_LS_PPA)
-#define CONFIG_ARMV8_PSCI
-#define CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
-#define CONFIG_SYS_LS_PPA_DRAM_BLOCK_MIN_SIZE		(1UL * 1024 * 1024)
-
-#define CONFIG_SYS_LS_PPA_FW_IN_XIP
-#ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
-#define	CONFIG_SYS_LS_PPA_FW_ADDR	0x40500000
-#endif
-#endif
-
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 #else
@@ -164,6 +153,12 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 #define I2C_RETIMER_ADDR			0x18
 
+/* PMIC */
+#define CONFIG_POWER
+#ifdef CONFIG_POWER
+#define CONFIG_POWER_I2C
+#endif
+
 /*
  * Environment
  */
@@ -211,6 +206,18 @@
 #define CONFIG_SPI_FLASH_BAR
 #endif
 
+/* USB */
+#define CONFIG_HAS_FSL_XHCI_USB
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI_HCD
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT         3
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#endif
+
 /* SATA */
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
@@ -225,6 +232,10 @@
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_GPT
+
 #define CONFIG_BOOTCOMMAND		"sf probe 0:0;sf read $kernel_load" \
 					"$kernel_start $kernel_size;" \
 					"bootm $kernel_load"

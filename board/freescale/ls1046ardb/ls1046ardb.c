@@ -19,6 +19,7 @@
 #include <fm_eth.h>
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
+#include <power/mc34vr500_pmic.h>
 #include "cpld.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -83,6 +84,39 @@ int board_init(void)
 
 	/* invert AQR105 IRQ pins polarity */
 	out_be32(&scfg->intpcr, AQR105_IRQ_MASK);
+
+	return 0;
+}
+
+int board_setup_core_volt(u32 vdd)
+{
+	bool en_0v9;
+
+	en_0v9 = (vdd == 900) ? true : false;
+	cpld_select_core_volt(en_0v9);
+
+	return 0;
+}
+
+int get_serdes_volt(void)
+{
+	return mc34vr500_get_sw_volt(SW4);
+}
+
+int set_serdes_volt(int svdd)
+{
+	return mc34vr500_set_sw_volt(SW4, svdd);
+}
+
+int power_init_board(void)
+{
+	int ret;
+
+	ret = power_mc34vr500_init(0);
+	if (ret)
+		return ret;
+
+	setup_chip_volt();
 
 	return 0;
 }

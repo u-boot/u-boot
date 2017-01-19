@@ -213,10 +213,12 @@ int sata_init(void)
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
 	scsi_scan(0);
@@ -334,6 +336,95 @@ static void erratum_a010539(void)
 	out_be32((void *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
 		 porsr1);
 #endif
+}
+
+/* Get VDD in the unit mV from voltage ID */
+int get_core_volt_from_fuse(void)
+{
+	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	int vdd;
+	u32 fusesr;
+	u8 vid;
+
+	fusesr = in_be32(&gur->dcfg_fusesr);
+	debug("%s: fusesr = 0x%x\n", __func__, fusesr);
+	vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS2_DCFG_FUSESR_VID_MASK;
+	}
+	debug("%s: VID = 0x%x\n", __func__, vid);
+	switch (vid) {
+	case 0x00: /* VID isn't supported */
+		vdd = -EINVAL;
+		debug("%s: The VID feature is not supported\n", __func__);
+		break;
+	case 0x08: /* 0.9V silicon */
+		vdd = 900;
+		break;
+	case 0x10: /* 1.0V silicon */
+		vdd = 1000;
+		break;
+	default:  /* Other core voltage */
+		vdd = -EINVAL;
+		printf("%s: The VID(%x) isn't supported\n", __func__, vid);
+		break;
+	}
+	debug("%s: The required minimum volt of CORE is %dmV\n", __func__, vdd);
+
+	return vdd;
+}
+
+__weak int board_switch_core_volt(u32 vdd)
+{
+	return 0;
+}
+
+static int setup_core_volt(u32 vdd)
+{
+	return board_setup_core_volt(vdd);
+}
+
+#ifdef CONFIG_SYS_FSL_DDR
+static void ddr_enable_0v9_volt(bool en)
+{
+	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+	u32 tmp;
+
+	tmp = ddr_in32(&ddr->ddr_cdr1);
+
+	if (en)
+		tmp |= DDR_CDR1_V0PT9_EN;
+	else
+		tmp &= ~DDR_CDR1_V0PT9_EN;
+
+	ddr_out32(&ddr->ddr_cdr1, tmp);
+}
+#endif
+
+int setup_chip_volt(void)
+{
+	int vdd;
+
+	vdd = get_core_volt_from_fuse();
+	/* Nothing to do for silicons doesn't support VID */
+	if (vdd < 0)
+		return vdd;
+
+	if (setup_core_volt(vdd))
+		printf("%s: Switch core VDD to %dmV failed\n", __func__, vdd);
+#ifdef CONFIG_SYS_HAS_SERDES
+	if (setup_serdes_volt(vdd))
+		printf("%s: Switch SVDD to %dmV failed\n", __func__, vdd);
+#endif
+
+#ifdef CONFIG_SYS_FSL_DDR
+	if (vdd == 900)
+		ddr_enable_0v9_volt(true);
+#endif
+
+	return 0;
 }
 
 void fsl_lsch2_early_init_f(void)

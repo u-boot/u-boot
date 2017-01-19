@@ -80,18 +80,18 @@
 
 /* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
  * Non-XIP Memory (Nand/SD)*/
-#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A) || \
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_FSL_LSCH3) || \
 	defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
 /* The address needs to be modified according to NOR, NAND, SD and
  * DDR memory map
  */
-#ifdef CONFIG_LS2080A
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x583920000
-#define CONFIG_BS_ADDR_DEVICE		0x583900000
-#define CONFIG_BS_HDR_ADDR_RAM		0xa3920000
-#define CONFIG_BS_ADDR_RAM		0xa3900000
+#ifdef CONFIG_FSL_LSCH3
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x580d00000
+#define CONFIG_BS_ADDR_DEVICE		0x580e00000
+#define CONFIG_BS_HDR_ADDR_RAM		0xa0d00000
+#define CONFIG_BS_ADDR_RAM		0xa0e00000
 #define CONFIG_BS_HDR_SIZE		0x00002000
 #define CONFIG_BS_SIZE			0x00001000
 #else

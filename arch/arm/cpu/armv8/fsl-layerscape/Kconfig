@@ -1,5 +1,6 @@
 config ARCH_LS1012A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_MMDC
@@ -7,6 +8,7 @@ config ARCH_LS1012A
 
 config ARCH_LS1043A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
@@ -23,6 +25,7 @@ config ARCH_LS1043A
 
 config ARCH_LS1046A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
@@ -38,6 +41,7 @@ config ARCH_LS1046A
 
 config ARCH_LS2080A
 	bool
+	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
@@ -75,25 +79,60 @@ config FSL_LSCH3
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
+config FSL_PCIE_COMPAT
+	string "PCIe compatible of Kernel DT"
+	depends on PCIE_LAYERSCAPE
+	default "fsl,ls1012a-pcie" if ARCH_LS1012A
+	default "fsl,ls1043a-pcie" if ARCH_LS1043A
+	default "fsl,ls1046a-pcie" if ARCH_LS1046A
+	default "fsl,ls2080a-pcie" if ARCH_LS2080A
+	help
+	  This compatible is used to find pci controller node in Kernel DT
+	  to complete fixup.
+
+config HAS_FEATURE_GIC64K_ALIGN
+	bool
+	default y if ARCH_LS1043A
+
+config HAS_FEATURE_ENHANCED_MSI
+	bool
+	default y if ARCH_LS1043A
+
 menu "Layerscape PPA"
 config FSL_LS_PPA
 	bool "FSL Layerscape PPA firmware support"
 	depends on !ARMV8_PSCI
-	depends on ARCH_LS1043A || ARCH_LS1046A
-	select FSL_PPA_ARMV8_PSCI
+	select ARMV8_SEC_FIRMWARE_SUPPORT
+	select SEC_FIRMWARE_ARMV8_PSCI
+	select ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT if FSL_LSCH2
 	help
 	  The FSL Primary Protected Application (PPA) is a software component
 	  which is loaded during boot stage, and then remains resident in RAM
 	  and runs in the TrustZone after boot.
 	  Say y to enable it.
-
-config FSL_PPA_ARMV8_PSCI
-	bool "PSCI implementation in PPA firmware"
+choice
+	prompt "FSL Layerscape PPA firmware loading-media select"
 	depends on FSL_LS_PPA
+	default SYS_LS_PPA_FW_IN_XIP
+
+config SYS_LS_PPA_FW_IN_XIP
+	bool "XIP"
 	help
-	  This config enables the ARMv8 PSCI implementation in PPA firmware.
-	  This is a private PSCI implementation and different from those
-	  implemented under the common ARMv8 PSCI framework.
+	  Say Y here if the PPA firmware locate at XIP flash, such
+	  as NOR or QSPI flash.
+
+endchoice
+
+config SYS_LS_PPA_FW_ADDR
+	hex "Address of PPA firmware loading from"
+	depends on FSL_LS_PPA
+	default 0x40500000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x60500000 if SYS_LS_PPA_FW_IN_XIP
+	help
+	  If the PPA firmware locate at XIP flash, such as NOR or
+	  QSPI flash, this address is a directly memory-mapped.
+	  If it is in a serial accessed flash, such as NAND and SD
+	  card, it is a byte offset.
 endmenu
 
 config SYS_FSL_ERRATUM_A010315
@@ -116,7 +155,7 @@ config MAX_CPUS
 	  in spin table to properly handle all cores.
 
 config SECURE_BOOT
-	bool
+	bool "Secure Boot"
 	help
 		Enable Freescale Secure Boot feature
 
@@ -146,6 +185,83 @@ config SYS_FSL_SRDS_2
 config SYS_HAS_SERDES
 	bool
 
+endmenu
+
+menu "Layerscape clock tree configuration"
+	depends on FSL_LSCH2 || FSL_LSCH3
+
+config SYS_FSL_CLK
+	bool "Enable clock tree initialization"
+	default y
+
+config CLUSTER_CLK_FREQ
+	int "Reference clock of core cluster"
+	depends on ARCH_LS1012A
+	default 100000000
+	help
+	  This number is the reference clock frequency of core PLL.
+	  For most platforms, the core PLL and Platform PLL have the same
+	  reference clock, but for some platforms, LS1012A for instance,
+	  they are provided sepatately.
+
+config SYS_FSL_PCLK_DIV
+	int "Platform clock divider"
+	default 1 if ARCH_LS1043A
+	default 1 if ARCH_LS1046A
+	default 2
+	help
+	  This is the divider that is used to derive Platform clock from
+	  Platform PLL, in another word:
+		Platform_clk = Platform_PLL_freq / this_divider
+
+config SYS_FSL_DSPI_CLK_DIV
+	int "DSPI clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive DSPI clock from Platform
+	  PLL, in another word DSPI_clk = Platform_PLL_freq / this_divider.
+
+config SYS_FSL_DUART_CLK_DIV
+	int "DUART clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive DUART clock from Platform
+	  clock, in another word DUART_clk = Platform_clk / this_divider.
+
+config SYS_FSL_I2C_CLK_DIV
+	int "I2C clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive I2C clock from Platform
+	  clock, in another word I2C_clk = Platform_clk / this_divider.
+
+config SYS_FSL_IFC_CLK_DIV
+	int "IFC clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive IFC clock from Platform
+	  clock, in another word IFC_clk = Platform_clk / this_divider.
+
+config SYS_FSL_LPUART_CLK_DIV
+	int "LPUART clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive LPUART clock from Platform
+	  clock, in another word LPUART_clk = Platform_clk / this_divider.
+
+config SYS_FSL_SDHC_CLK_DIV
+	int "SDHC clock divider"
+	default 1 if ARCH_LS1043A
+	default 1 if ARCH_LS1012A
+	default 2
+	help
+	  This is the divider that is used to derive SDHC clock from Platform
+	  clock, in another word SDHC_clk = Platform_clk / this_divider.
 endmenu
 
 config SYS_FSL_ERRATUM_A008336

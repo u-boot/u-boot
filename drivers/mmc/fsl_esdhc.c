@@ -104,8 +104,10 @@ struct fsl_esdhc_priv {
 	struct udevice *dev;
 	int non_removable;
 	int wp_enable;
+#ifdef CONFIG_DM_GPIO
 	struct gpio_desc cd_gpio;
 	struct gpio_desc wp_gpio;
+#endif
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -688,9 +690,10 @@ static int esdhc_getcd(struct mmc *mmc)
 #ifdef CONFIG_DM_MMC
 	if (priv->non_removable)
 		return 1;
-
+#ifdef CONFIG_DM_GPIO
 	if (dm_gpio_is_valid(&priv->cd_gpio))
 		return dm_gpio_get_value(&priv->cd_gpio);
+#endif
 #endif
 
 	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
@@ -909,17 +912,26 @@ void mmc_adapter_card_type_ident(void)
 #endif
 
 #ifdef CONFIG_OF_LIBFDT
+__weak int esdhc_status_fixup(void *blob, const char *compat)
+{
+#ifdef CONFIG_FSL_ESDHC_PIN_MUX
+	if (!hwconfig("esdhc")) {
+		do_fixup_by_compat(blob, compat, "status", "disabled",
+				sizeof("disabled"), 1);
+		return 1;
+	}
+#endif
+	do_fixup_by_compat(blob, compat, "status", "okay",
+			   sizeof("okay"), 1);
+	return 0;
+}
+
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *compat = "fsl,esdhc";
 
-#ifdef CONFIG_FSL_ESDHC_PIN_MUX
-	if (!hwconfig("esdhc")) {
-		do_fixup_by_compat(blob, compat, "status", "disabled",
-				8 + 1, 1);
+	if (esdhc_status_fixup(blob, compat))
 		return;
-	}
-#endif
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	do_fixup_by_compat_u32(blob, compat, "peripheral-frequency",
@@ -932,8 +944,6 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, compat, "adapter-type",
 			       (u32)(gd->arch.sdhc_adapter), 1);
 #endif
-	do_fixup_by_compat(blob, compat, "status", "okay",
-			   4 + 1, 1);
 }
 #endif
 
@@ -968,17 +978,20 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		priv->non_removable = 1;
 	 } else {
 		priv->non_removable = 0;
+#ifdef CONFIG_DM_GPIO
 		gpio_request_by_name_nodev(fdt, node, "cd-gpios", 0,
 					   &priv->cd_gpio, GPIOD_IS_IN);
+#endif
 	}
 
 	priv->wp_enable = 1;
 
+#ifdef CONFIG_DM_GPIO
 	ret = gpio_request_by_name_nodev(fdt, node, "wp-gpios", 0,
 					 &priv->wp_gpio, GPIOD_IS_IN);
 	if (ret)
 		priv->wp_enable = 0;
-
+#endif
 	/*
 	 * TODO:
 	 * Because lack of clk driver, if SDHC clk is not enabled,
@@ -1022,6 +1035,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6sl-usdhc", },
 	{ .compatible = "fsl,imx6q-usdhc", },
 	{ .compatible = "fsl,imx7d-usdhc", },
+	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };
 

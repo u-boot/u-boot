@@ -121,6 +121,34 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
+int esdhc_status_fixup(void *blob, const char *compat)
+{
+	char esdhc0_path[] = "/soc/esdhc@1560000";
+	char esdhc1_path[] = "/soc/esdhc@1580000";
+	u8 card_id;
+
+	do_fixup_by_path(blob, esdhc0_path, "status", "okay",
+			 sizeof("okay"), 1);
+
+	/*
+	 * The Presence Detect 2 register detects the installation
+	 * of cards in various PCI Express or SGMII slots.
+	 *
+	 * STAT_PRS2[7:5]: Specifies the type of card installed in the
+	 * SDHC2 Adapter slot. 0b111 indicates no adapter is installed.
+	 */
+	card_id = (QIXIS_READ(present2) & 0xe0) >> 5;
+
+	/* If no adapter is installed in SDHC2, disable SDHC2 */
+	if (card_id == 0x7)
+		do_fixup_by_path(blob, esdhc1_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+	else
+		do_fixup_by_path(blob, esdhc1_path, "status", "okay",
+				 sizeof("okay"), 1);
+	return 0;
+}
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {

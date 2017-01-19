@@ -11,7 +11,6 @@
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_LS1043A
 #define CONFIG_MP
-#define CONFIG_SYS_FSL_CLK
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
@@ -42,7 +41,7 @@
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0))
+#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -118,27 +117,9 @@
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
-#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
-#define FSL_PCIE_COMPAT "fsl,ls1043a-pcie"
-
-#define CONFIG_SYS_PCI_64BIT
-
-#define CONFIG_SYS_PCIE_CFG0_PHYS_OFF	0x00000000
-#define CONFIG_SYS_PCIE_CFG0_SIZE	0x00001000	/* 4k */
-#define CONFIG_SYS_PCIE_CFG1_PHYS_OFF	0x00001000
-#define CONFIG_SYS_PCIE_CFG1_SIZE	0x00001000	/* 4k */
-
-#define CONFIG_SYS_PCIE_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE_IO_PHYS_OFF	0x00010000
-#define CONFIG_SYS_PCIE_IO_SIZE		0x00010000	/* 64k */
-
-#define CONFIG_SYS_PCIE_MEM_BUS		0x40000000
-#define CONFIG_SYS_PCIE_MEM_PHYS_OFF	0x40000000
-#define CONFIG_SYS_PCIE_MEM_SIZE	0x40000000	/* 1G */
 
 #ifdef CONFIG_PCI
 #define CONFIG_NET_MULTI
-#define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif

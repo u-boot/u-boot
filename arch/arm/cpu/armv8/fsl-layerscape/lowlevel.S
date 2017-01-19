@@ -10,14 +10,65 @@
 #include <linux/linkage.h>
 #include <asm/gic.h>
 #include <asm/macro.h>
+#include <asm/arch-fsl-layerscape/soc.h>
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
 #ifdef CONFIG_FSL_LSCH3
 #include <asm/arch-fsl-layerscape/immap_lsch3.h>
-#include <asm/arch-fsl-layerscape/soc.h>
 #endif
 #include <asm/u-boot.h>
+
+/* Get GIC offset
+* For LS1043a rev1.0, GIC base address align with 4k.
+* For LS1043a rev1.1, if DCFG_GIC400_ALIGN[GIC_ADDR_BIT]
+* is set, GIC base address align with 4K, or else align
+* with 64k.
+* output:
+*	x0: the base address of GICD
+*	x1: the base address of GICC
+*/
+ENTRY(get_gic_offset)
+	ldr     x0, =GICD_BASE
+#ifdef CONFIG_GICV2
+	ldr     x1, =GICC_BASE
+#endif
+#ifdef CONFIG_HAS_FEATURE_GIC64K_ALIGN
+	ldr     x2, =DCFG_CCSR_SVR
+	ldr	w2, [x2]
+	rev	w2, w2
+	mov	w3, w2
+	ands	w3, w3, #SVR_WO_E << 8
+	mov	w4, #SVR_LS1043A << 8
+	cmp	w3, w4
+	b.ne	1f
+	ands	w2, w2, #0xff
+	cmp	w2, #REV1_0
+	b.eq	1f
+	ldr	x2, =SCFG_GIC400_ALIGN
+	ldr	w2, [x2]
+	rev	w2, w2
+	tbnz	w2, #GIC_ADDR_BIT, 1f
+	ldr     x0, =GICD_BASE_64K
+#ifdef CONFIG_GICV2
+	ldr     x1, =GICC_BASE_64K
+#endif
+1:
+#endif
+	ret
+ENDPROC(get_gic_offset)
+
+ENTRY(smp_kick_all_cpus)
+	/* Kick secondary cpus up by SGI 0 interrupt */
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
+	mov	x29, lr			/* Save LR */
+	bl	get_gic_offset
+	bl	gic_kick_secondary_cpus
+	mov	lr, x29			/* Restore LR */
+#endif
+	ret
+ENDPROC(smp_kick_all_cpus)
+
 
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
@@ -29,6 +80,26 @@ ENTRY(lowlevel_init)
 	ldr	x0, =CCI_AUX_CONTROL_BASE(20)
 	ldr	x1, =0x00000010
 	bl	ccn504_set_aux
+
+	/*
+	 * Set forced-order mode in RNI-6, RNI-20
+	 * This is required for performance optimization on LS2088A
+	 * LS2080A family does not support setting forced-order mode,
+	 * so skip this operation for LS2080A family
+	 */
+	bl	get_svr
+	lsr	w0, w0, #16
+	ldr	w1, =SVR_DEV_LS2080A
+	cmp	w0, w1
+	b.eq	1f
+
+	ldr	x0, =CCI_AUX_CONTROL_BASE(6)
+	ldr	x1, =0x00000020
+	bl	ccn504_set_aux
+	ldr	x0, =CCI_AUX_CONTROL_BASE(20)
+	ldr	x1, =0x00000020
+	bl	ccn504_set_aux
+1:
 #endif
 
 	/* Add fully-coherent masters to DVM domain */
@@ -110,15 +181,14 @@ ENTRY(lowlevel_init)
 	/* Initialize GIC Secure Bank Status */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
-	ldr	x0, =GICD_BASE
+	bl	get_gic_offset
 	bl	gic_init_secure
 1:
 #ifdef CONFIG_GICV3
 	ldr	x0, =GICR_BASE
 	bl	gic_init_secure_percpu
 #elif defined(CONFIG_GICV2)
-	ldr	x0, =GICD_BASE
-	ldr	x1, =GICC_BASE
+	bl	get_gic_offset
 	bl	gic_init_secure_percpu
 #endif
 #endif
@@ -209,9 +279,46 @@ ENTRY(lowlevel_init)
 	isb
 #endif
 
+#if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD)
+	bl	fsl_ocram_init
+#endif
+
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
+
+#if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD)
+ENTRY(fsl_ocram_init)
+	mov	x28, lr			/* Save LR */
+	bl	fsl_clear_ocram
+	bl	fsl_ocram_clear_ecc_err
+	mov	lr, x28			/* Restore LR */
+	ret
+ENDPROC(fsl_ocram_init)
+
+ENTRY(fsl_clear_ocram)
+/* Clear OCRAM */
+	ldr	x0, =CONFIG_SYS_FSL_OCRAM_BASE
+	ldr	x1, =(CONFIG_SYS_FSL_OCRAM_BASE + CONFIG_SYS_FSL_OCRAM_SIZE)
+	mov	x2, #0
+clear_loop:
+	str	x2, [x0]
+	add	x0, x0, #8
+	cmp	x0, x1
+	b.lo	clear_loop
+	ret
+ENDPROC(fsl_clear_ocram)
+
+ENTRY(fsl_ocram_clear_ecc_err)
+	/* OCRAM1/2 ECC status bit */
+	mov	w1, #0x60
+	ldr	x0, =DCSR_DCFG_SBEESR2
+	str	w1, [x0]
+	ldr	x0, =DCSR_DCFG_MBEESR2
+	str	w1, [x0]
+	ret
+ENDPROC(fsl_ocram_init)
+#endif
 
 #ifdef CONFIG_FSL_LSCH3
 	.globl get_svr
@@ -356,7 +463,8 @@ ENTRY(secondary_boot_func)
 #if defined(CONFIG_GICV3)
 	gic_wait_for_interrupt_m x0
 #elif defined(CONFIG_GICV2)
-        ldr     x0, =GICC_BASE
+	bl	get_gic_offset
+	mov	x0, x1
         gic_wait_for_interrupt_m x0, w1
 #endif
 
@@ -378,29 +486,29 @@ cpu_is_le:
 	b.eq	1f
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x3, secondary_switch_to_el1
-	ldr	x4, =ES_TO_AARCH64
+	adr	x4, secondary_switch_to_el1
+	ldr	x5, =ES_TO_AARCH64
 #else
-	ldr	x3, [x11]
-	ldr	x4, =ES_TO_AARCH32
+	ldr	x4, [x11]
+	ldr	x5, =ES_TO_AARCH32
 #endif
 	bl	secondary_switch_to_el2
 
 1:
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x3, secondary_switch_to_el1
+	adr	x4, secondary_switch_to_el1
 #else
-	ldr	x3, [x11]
+	ldr	x4, [x11]
 #endif
-	ldr	x4, =ES_TO_AARCH64
+	ldr	x5, =ES_TO_AARCH64
 	bl	secondary_switch_to_el2
 
 ENDPROC(secondary_boot_func)
 
 ENTRY(secondary_switch_to_el2)
-	switch_el x5, 1f, 0f, 0f
+	switch_el x6, 1f, 0f, 0f
 0:	ret
-1:	armv8_switch_to_el2_m x3, x4, x5
+1:	armv8_switch_to_el2_m x4, x5, x6
 ENDPROC(secondary_switch_to_el2)
 
 ENTRY(secondary_switch_to_el1)
@@ -414,22 +522,22 @@ ENTRY(secondary_switch_to_el1)
 	/* physical address of this cpus spin table element */
 	add	x11, x1, x0
 
-	ldr	x3, [x11]
+	ldr	x4, [x11]
 
 	ldr	x5, [x11, #24]
 	ldr	x6, =IH_ARCH_DEFAULT
 	cmp	x6, x5
 	b.eq	2f
 
-	ldr	x4, =ES_TO_AARCH32
+	ldr	x5, =ES_TO_AARCH32
 	bl	switch_to_el1
 
-2:	ldr	x4, =ES_TO_AARCH64
+2:	ldr	x5, =ES_TO_AARCH64
 
 switch_to_el1:
-	switch_el x5, 0f, 1f, 0f
+	switch_el x6, 0f, 1f, 0f
 0:	ret
-1:	armv8_switch_to_el1_m x3, x4, x5
+1:	armv8_switch_to_el1_m x4, x5, x6
 ENDPROC(secondary_switch_to_el1)
 
 	/* Ensure that the literals used by the secondary boot code are

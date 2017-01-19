@@ -59,6 +59,7 @@ struct cpu_type {
 
 #define SVR_MAJ(svr)		(((svr) >> 4) & 0xf)
 #define SVR_MIN(svr)		(((svr) >> 0) & 0xf)
+#define SVR_REV(svr)		(((svr) >> 0) & 0xff)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & SVR_WO_E)
 #define IS_E_PROCESSOR(svr)	(!((svr >> 8) & 0x1))
 #define IS_SVR_REV(svr, maj, min) \
@@ -99,6 +100,9 @@ struct ccsr_ahci {
 void fsl_lsch3_early_init_f(void);
 #elif defined(CONFIG_FSL_LSCH2)
 void fsl_lsch2_early_init_f(void);
+int setup_chip_volt(void);
+/* Setup core vdd in unit mV */
+int board_setup_core_volt(u32 vdd);
 #endif
 
 void cpu_name(char *name);

@@ -17,7 +17,7 @@
 int fdt_psci(void *fdt)
 {
 #if defined(CONFIG_ARMV7_PSCI) || defined(CONFIG_ARMV8_PSCI) || \
-	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	int nodeoff;
 	unsigned int psci_ver = 0;
 	int tmp;

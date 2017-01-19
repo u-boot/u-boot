@@ -844,6 +844,7 @@ config TARGET_LS1046ARDB
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if DM_SPI
+	select POWER_MC34VR500
 	help
 	  Support for Freescale LS1046ARDB platform.
 	  The LS1046A Reference Design Board (RDB) is a high-performance

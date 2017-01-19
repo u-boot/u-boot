@@ -162,6 +162,14 @@ int is_serdes_prtcl_valid(int serdes, u32 prtcl);
 #ifdef CONFIG_FSL_LSCH2
 const char *serdes_clock_to_string(u32 clock);
 int get_serdes_protocol(void);
+#ifdef CONFIG_SYS_HAS_SERDES
+/* Get the volt of SVDD in unit mV */
+int get_serdes_volt(void);
+/* Set the volt of SVDD in unit mV */
+int set_serdes_volt(int svdd);
+/* The target volt of SVDD in unit mV */
+int setup_serdes_volt(u32 svdd);
+#endif
 #endif
 
 #endif /* __FSL_SERDES_H__ */
