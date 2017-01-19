@@ -99,12 +99,6 @@ struct lmb;
 
 #endif /* IMAGE_ENABLE_FIT */
 
-#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
-# define IMAGE_ENABLE_RAMDISK_HIGH	1
-#else
-# define IMAGE_ENABLE_RAMDISK_HIGH	0
-#endif
-
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 # define IMAGE_BOOT_GET_CMDLINE		1
 #else

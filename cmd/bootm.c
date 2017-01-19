@@ -126,6 +126,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
+		BOOTM_STATE_RAMDISK |
+#endif
 #if defined(CONFIG_PPC) || defined(CONFIG_MIPS)
 		BOOTM_STATE_OS_CMDLINE |
 #endif

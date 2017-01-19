@@ -1576,10 +1576,7 @@ int image_setup_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
-	ulong *initrd_start = &images->initrd_start;
-	ulong *initrd_end = &images->initrd_end;
 	struct lmb *lmb = &images->lmb;
-	ulong rd_len;
 	int ret;
 
 	if (IMAGE_ENABLE_OF_LIBFDT)
@@ -1592,13 +1589,6 @@ int image_setup_linux(bootm_headers_t *images)
 			puts("ERROR with allocation of cmdline\n");
 			return ret;
 		}
-	}
-	if (IMAGE_ENABLE_RAMDISK_HIGH) {
-		rd_len = images->rd_end - images->rd_start;
-		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
-				initrd_start, initrd_end);
-		if (ret)
-			return ret;
 	}
 
 	if (IMAGE_ENABLE_OF_LIBFDT) {
