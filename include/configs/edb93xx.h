@@ -102,20 +102,7 @@
 #define CONFIG_PL01x_PORTS	{(void *)CONFIG_SYS_SERIAL0}
 
 /* Status LED */
-#define CONFIG_STATUS_LED		1 /* Status LED enabled	*/
-#define CONFIG_BOARD_SPECIFIC_LED	1
-#define STATUS_LED_GREEN		0
-#define STATUS_LED_RED			1
-/* Green */
-#define STATUS_LED_BIT			STATUS_LED_GREEN
-#define STATUS_LED_STATE		STATUS_LED_ON
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-/* Red */
-#define STATUS_LED_BIT1			STATUS_LED_RED
-#define STATUS_LED_STATE1		STATUS_LED_OFF
-#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
 /* Optional value */
-#define STATUS_LED_BOOT			STATUS_LED_BIT
 
 /* Network hardware configuration */
 #define CONFIG_DRIVER_EP93XX_MAC

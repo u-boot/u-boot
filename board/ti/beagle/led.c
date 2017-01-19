@@ -15,26 +15,26 @@
 #define BEAGLE_LED_USR0	150
 #define BEAGLE_LED_USR1	149
 
-#ifdef STATUS_LED_GREEN
+#ifdef CONFIG_LED_STATUS_GREEN
 void green_led_off(void)
 {
-	__led_set (STATUS_LED_GREEN, 0);
+	__led_set(CONFIG_LED_STATUS_GREEN, 0);
 }
 
 void green_led_on(void)
 {
-	__led_set (STATUS_LED_GREEN, 1);
+	__led_set(CONFIG_LED_STATUS_GREEN, 1);
 }
 #endif
 
 static int get_led_gpio(led_id_t mask)
 {
-#ifdef STATUS_LED_BIT
-	if (STATUS_LED_BIT & mask)
+#ifdef CONFIG_LED_STATUS0
+	if (CONFIG_LED_STATUS_BIT & mask)
 		return BEAGLE_LED_USR0;
 #endif
-#ifdef STATUS_LED_BIT1
-	if (STATUS_LED_BIT1 & mask)
+#ifdef CONFIG_LED_STATUS1
+	if (CONFIG_LED_STATUS_BIT1 & mask)
 		return BEAGLE_LED_USR1;
 #endif
 

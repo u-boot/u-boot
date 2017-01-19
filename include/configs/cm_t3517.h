@@ -257,18 +257,10 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Status LED */
-#define CONFIG_STATUS_LED		/* Status LED enabled */
-#define CONFIG_BOARD_SPECIFIC_LED
-#define CONFIG_GPIO_LED
 #define GREEN_LED_GPIO			186 /* CM-T3517 Green LED is GPIO186 */
-#define GREEN_LED_DEV			0
-#define STATUS_LED_BIT			GREEN_LED_GPIO
-#define STATUS_LED_STATE		STATUS_LED_ON
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-#define STATUS_LED_BOOT			GREEN_LED_DEV
 
 /* GPIO banks */
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 #define CONFIG_OMAP3_GPIO_6	/* GPIO186 is in GPIO bank 6  */
 #endif
 

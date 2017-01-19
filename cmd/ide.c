@@ -25,7 +25,7 @@
 #include <ide.h>
 #include <ata.h>
 
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 # include <status_led.h>
 #endif
 

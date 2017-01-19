@@ -69,8 +69,6 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
-
 #undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
 
 /*

@@ -15,9 +15,9 @@
 #include <miiphy.h>
 #include <libfdt.h>
 
-#if defined(CONFIG_STATUS_LED)
+#if defined(CONFIG_LED_STATUS)
 #include <status_led.h>
-#endif /* CONFIG_STATUS_LED */
+#endif /* CONFIG_LED_STATUS */
 
 /* Kollmorgen DPR initialization data */
 struct init_elem {
@@ -194,27 +194,46 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif /* CONFIG_OF_BOARD_SETUP */
 
 
-#if defined(CONFIG_STATUS_LED)
-void __led_init(led_id_t regaddr, int state)
+#if defined(CONFIG_LED_STATUS)
+vu_long *regcode_to_regaddr(led_id_t regcode)
 {
-	*((vu_long *) regaddr) |= ENABLE_GPIO_OUT;
+	/* GPT Enable and Mode Select Register address */
+	vu_long *reg_translate[] = {
+					(vu_long *)MPC5XXX_GPT6_ENABLE,
+					(vu_long *)MPC5XXX_GPT7_ENABLE,
+				   };
 
-	if (state == STATUS_LED_ON)
+	if (ARRAY_SIZE(reg_translate) <= regcode)
+		return NULL;
+	return reg_translate[regcode];
+}
+
+void __led_init(led_id_t regcode, int state)
+{
+	vu_long *regaddr = regcode_to_regaddr(regcode);
+
+	*regaddr |= ENABLE_GPIO_OUT;
+
+	if (state == CONFIG_LED_STATUS_ON)
 		*((vu_long *) regaddr) |= LED_ON;
 	else
 		*((vu_long *) regaddr) &= ~LED_ON;
 }
 
-void __led_set(led_id_t regaddr, int state)
+void __led_set(led_id_t regcode, int state)
 {
-	if (state == STATUS_LED_ON)
-		*((vu_long *) regaddr) |= LED_ON;
+	vu_long *regaddr = regcode_to_regaddr(regcode);
+
+	if (state == CONFIG_LED_STATUS_ON)
+		*regaddr |= LED_ON;
 	else
-		*((vu_long *) regaddr) &= ~LED_ON;
+		*regaddr &= ~LED_ON;
 }
 
-void __led_toggle(led_id_t regaddr)
+void __led_toggle(led_id_t regcode)
 {
-	*((vu_long *) regaddr) ^= LED_ON;
+	vu_long *regaddr = regcode_to_regaddr(regcode);
+
+	*regaddr ^= LED_ON;
 }
-#endif /* CONFIG_STATUS_LED */
+#endif /* CONFIG_LED_STATUS */

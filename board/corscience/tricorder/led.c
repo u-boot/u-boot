@@ -23,16 +23,16 @@ void __led_init(led_id_t mask, int state)
 void __led_toggle(led_id_t mask)
 {
 	int toggle_gpio = 0;
-#ifdef STATUS_LED_BIT
-	if (!toggle_gpio && STATUS_LED_BIT & mask)
+#ifdef CONFIG_LED_STATUS0
+	if (!toggle_gpio && CONFIG_LED_STATUS_BIT & mask)
 		toggle_gpio = TRICORDER_STATUS_LED_GREEN;
 #endif
-#ifdef STATUS_LED_BIT1
-	if (!toggle_gpio && STATUS_LED_BIT1 & mask)
+#ifdef CONFIG_LED_STATUS1
+	if (!toggle_gpio && CONFIG_LED_STATUS_BIT1 & mask)
 		toggle_gpio = TRICORDER_STATUS_LED_YELLOW;
 #endif
-#ifdef STATUS_LED_BIT2
-	if (!toggle_gpio && STATUS_LED_BIT2 & mask) {
+#ifdef CONFIG_LED_STATUS2
+	if (!toggle_gpio && CONFIG_LED_STATUS_BIT2 & mask) {
 		uint8_t val;
 		twl4030_i2c_read_u8(TWL4030_CHIP_LED, TWL4030_LED_LEDEN,
 				    &val);
@@ -51,23 +51,23 @@ void __led_toggle(led_id_t mask)
 
 void __led_set(led_id_t mask, int state)
 {
-#ifdef STATUS_LED_BIT
-	if (STATUS_LED_BIT & mask) {
+#ifdef CONFIG_LED_STATUS0
+	if (CONFIG_LED_STATUS_BIT & mask) {
 		gpio_request(TRICORDER_STATUS_LED_GREEN, "");
 		gpio_direction_output(TRICORDER_STATUS_LED_GREEN, 0);
 		gpio_set_value(TRICORDER_STATUS_LED_GREEN, state);
 	}
 #endif
-#ifdef STATUS_LED_BIT1
-	if (STATUS_LED_BIT1 & mask) {
+#ifdef CONFIG_LED_STATUS1
+	if (CONFIG_LED_STATUS_BIT1 & mask) {
 		gpio_request(TRICORDER_STATUS_LED_YELLOW, "");
 		gpio_direction_output(TRICORDER_STATUS_LED_YELLOW, 0);
 		gpio_set_value(TRICORDER_STATUS_LED_YELLOW, state);
 	}
 #endif
-#ifdef STATUS_LED_BIT2
-	if (STATUS_LED_BIT2 & mask) {
-		if (STATUS_LED_OFF == state)
+#ifdef CONFIG_LED_STATUS2
+	if (CONFIG_LED_STATUS_BIT2 & mask) {
+		if (CONFIG_LED_STATUS_OFF == state)
 			twl4030_i2c_write_u8(TWL4030_CHIP_LED,
 					     TWL4030_LED_LEDEN, 0);
 		else

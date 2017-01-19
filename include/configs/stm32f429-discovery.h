@@ -42,7 +42,6 @@
 #define CONFIG_ENV_SECT_SIZE		(128 << 10)
 #define CONFIG_ENV_SIZE			(8 << 10)
 
-#define CONFIG_BOARD_SPECIFIC_LED
 #define CONFIG_RED_LED			110
 #define CONFIG_GREEN_LED		109
 

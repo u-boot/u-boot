@@ -6,4 +6,4 @@
 #
 
 obj-y	:= beagle.o
-obj-$(CONFIG_STATUS_LED) += led.o
+obj-$(CONFIG_LED_STATUS) += led.o

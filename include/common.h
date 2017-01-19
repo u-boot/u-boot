@@ -911,7 +911,7 @@ static inline struct in_addr getenv_ip(char *var)
 
 int	pcmcia_init (void);
 
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 # include <status_led.h>
 #endif
 

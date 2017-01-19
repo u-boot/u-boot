@@ -291,8 +291,6 @@
 /*
  * Status LED
  */
-#define  CONFIG_STATUS_LED		/* Status LED enabled */
-#define  CONFIG_BOARD_SPECIFIC_LED	/* version has board specific leds */
 
 #define CONFIG_SYS_LED_BASE	MPC5XXX_GPT7_ENABLE	/* Timer 7 GPIO */
 #ifndef __ASSEMBLY__

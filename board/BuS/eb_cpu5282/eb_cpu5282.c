@@ -174,7 +174,7 @@ void __led_init(led_id_t mask, int state)
 
 void __led_set(led_id_t mask, int state)
 {
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		MCFGPTA_GPTPORT |= (1 << 3);
 	else
 		MCFGPTA_GPTPORT &= ~(1 << 3);

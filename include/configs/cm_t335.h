@@ -152,14 +152,7 @@
 #define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)
 
 /* Status LED */
-#define CONFIG_STATUS_LED
-#define CONFIG_GPIO_LED
-#define CONFIG_BOARD_SPECIFIC_LED
-#define STATUS_LED_BIT			GPIO_PIN(2, 0)
 /* Status LED polarity is inversed, so init it in the "off" state */
-#define STATUS_LED_STATE		STATUS_LED_OFF
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-#define STATUS_LED_BOOT			0
 
 /* EEPROM */
 #define CONFIG_CMD_EEPROM

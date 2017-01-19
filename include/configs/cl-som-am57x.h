@@ -28,17 +28,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_REVISION_TAG
 
-/* Status LED */
-#define CONFIG_STATUS_LED		/* Status LED enabled */
-#define CONFIG_GPIO_LED
-#define CONFIG_BOARD_SPECIFIC_LED
-#define GREEN_LED_DEV			0
-					/* cl_som_am57x Green LED is GPIO2_5 */
-#define GREEN_LED_GPIO			37
-#define STATUS_LED_BIT			GREEN_LED_GPIO
-#define STATUS_LED_STATE		STATUS_LED_ON
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-
 /* PMIC I2C bus number */
 #define CONFIG_SYS_SPD_BUS_NUM 3
 

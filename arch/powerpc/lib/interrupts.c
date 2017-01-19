@@ -11,7 +11,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <watchdog.h>
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
 
@@ -112,9 +112,9 @@ void timer_interrupt (struct pt_regs *regs)
 		WATCHDOG_RESET ();
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 	status_led_tick (timestamp);
-#endif /* CONFIG_STATUS_LED */
+#endif /* CONFIG_LED_STATUS */
 
 #ifdef CONFIG_SHOW_ACTIVITY
 	board_show_activity (timestamp);

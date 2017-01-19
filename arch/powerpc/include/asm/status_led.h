@@ -8,7 +8,7 @@
 #define __ASM_STATUS_LED_H__
 
 /* if not overridden */
-#ifndef CONFIG_BOARD_SPECIFIC_LED
+#ifndef CONFIG_LED_STATUS_BOARD_SPECIFIC
 # if defined(CONFIG_8xx)
 #  include <mpc8xx.h>
 # elif defined(CONFIG_MPC8260)
@@ -34,12 +34,12 @@ static inline void __led_init (led_id_t mask, int state)
 #endif
 
 #if (STATUS_LED_ACTIVE == 0)
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		immr->STATUS_LED_DAT &= ~mask;
 	else
 		immr->STATUS_LED_DAT |= mask;
 #else
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		immr->STATUS_LED_DAT |= mask;
 	else
 		immr->STATUS_LED_DAT &= ~mask;
@@ -59,12 +59,12 @@ static inline void __led_set (led_id_t mask, int state)
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #if (STATUS_LED_ACTIVE == 0)
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		immr->STATUS_LED_DAT &= ~mask;
 	else
 		immr->STATUS_LED_DAT |= mask;
 #else
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		immr->STATUS_LED_DAT |= mask;
 	else
 		immr->STATUS_LED_DAT &= ~mask;

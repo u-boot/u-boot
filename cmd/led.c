@@ -26,37 +26,38 @@ struct led_tbl_s {
 typedef struct led_tbl_s led_tbl_t;
 
 static const led_tbl_t led_commands[] = {
-#ifdef CONFIG_BOARD_SPECIFIC_LED
-#ifdef STATUS_LED_BIT
-	{ "0", STATUS_LED_BIT, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS_BOARD_SPECIFIC
+#ifdef CONFIG_LED_STATUS0
+	{ "0", CONFIG_LED_STATUS_BIT, NULL, NULL, NULL },
 #endif
-#ifdef STATUS_LED_BIT1
-	{ "1", STATUS_LED_BIT1, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS1
+	{ "1", CONFIG_LED_STATUS_BIT1, NULL, NULL, NULL },
 #endif
-#ifdef STATUS_LED_BIT2
-	{ "2", STATUS_LED_BIT2, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS2
+	{ "2", CONFIG_LED_STATUS_BIT2, NULL, NULL, NULL },
 #endif
-#ifdef STATUS_LED_BIT3
-	{ "3", STATUS_LED_BIT3, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS3
+	{ "3", CONFIG_LED_STATUS_BIT3, NULL, NULL, NULL },
 #endif
-#ifdef STATUS_LED_BIT4
-	{ "4", STATUS_LED_BIT4, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS4
+	{ "4", CONFIG_LED_STATUS_BIT4, NULL, NULL, NULL },
 #endif
-#ifdef STATUS_LED_BIT5
-	{ "5", STATUS_LED_BIT5, NULL, NULL, NULL },
+#ifdef CONFIG_LED_STATUS5
+	{ "5", CONFIG_LED_STATUS_BIT5, NULL, NULL, NULL },
 #endif
 #endif
-#ifdef STATUS_LED_GREEN
-	{ "green", STATUS_LED_GREEN, green_led_off, green_led_on, NULL },
+#ifdef CONFIG_LED_STATUS_GREEN
+	{ "green", CONFIG_LED_STATUS_GREEN, green_led_off, green_led_on, NULL },
 #endif
-#ifdef STATUS_LED_YELLOW
-	{ "yellow", STATUS_LED_YELLOW, yellow_led_off, yellow_led_on, NULL },
+#ifdef CONFIG_LED_STATUS_YELLOW
+	{ "yellow", CONFIG_LED_STATUS_YELLOW, yellow_led_off, yellow_led_on,
+	  NULL },
 #endif
-#ifdef STATUS_LED_RED
-	{ "red", STATUS_LED_RED, red_led_off, red_led_on, NULL },
+#ifdef CONFIG_LED_STATUS_RED
+	{ "red", CONFIG_LED_STATUS_RED, red_led_off, red_led_on, NULL },
 #endif
-#ifdef STATUS_LED_BLUE
-	{ "blue", STATUS_LED_BLUE, blue_led_off, blue_led_on, NULL },
+#ifdef CONFIG_LED_STATUS_BLUE
+	{ "blue", CONFIG_LED_STATUS_BLUE, blue_led_off, blue_led_on, NULL },
 #endif
 	{ NULL, 0, NULL, NULL, NULL }
 };
@@ -110,14 +111,14 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					led_commands[i].on();
 				else
 					__led_set(led_commands[i].mask,
-							  STATUS_LED_ON);
+							  CONFIG_LED_STATUS_ON);
 				break;
 			case LED_OFF:
 				if (led_commands[i].off)
 					led_commands[i].off();
 				else
 					__led_set(led_commands[i].mask,
-							  STATUS_LED_OFF);
+						  CONFIG_LED_STATUS_OFF);
 				break;
 			case LED_TOGGLE:
 				if (led_commands[i].toggle)
@@ -149,36 +150,36 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	led, 4, 1, do_led,
 	"["
-#ifdef CONFIG_BOARD_SPECIFIC_LED
-#ifdef STATUS_LED_BIT
+#ifdef CONFIG_LED_STATUS_BOARD_SPECIFIC
+#ifdef CONFIG_LED_STATUS0
 	"0|"
 #endif
-#ifdef STATUS_LED_BIT1
+#ifdef CONFIG_LED_STATUS1
 	"1|"
 #endif
-#ifdef STATUS_LED_BIT2
+#ifdef CONFIG_LED_STATUS2
 	"2|"
 #endif
-#ifdef STATUS_LED_BIT3
+#ifdef CONFIG_LED_STATUS3
 	"3|"
 #endif
-#ifdef STATUS_LED_BIT4
+#ifdef CONFIG_LED_STATUS4
 	"4|"
 #endif
-#ifdef STATUS_LED_BIT5
+#ifdef CONFIG_LED_STATUS5
 	"5|"
 #endif
 #endif
-#ifdef STATUS_LED_GREEN
+#ifdef CONFIG_LED_STATUS_GREEN
 	"green|"
 #endif
-#ifdef STATUS_LED_YELLOW
+#ifdef CONFIG_LED_STATUS_YELLOW
 	"yellow|"
 #endif
-#ifdef STATUS_LED_RED
+#ifdef CONFIG_LED_STATUS_RED
 	"red|"
 #endif
-#ifdef STATUS_LED_BLUE
+#ifdef CONFIG_LED_STATUS_BLUE
 	"blue|"
 #endif
 	"all] [on|off|toggle|blink] [blink-freq in ms]",

@@ -27,45 +27,45 @@ typedef struct {
 } led_dev_t;
 
 led_dev_t led_dev[] = {
-    {	STATUS_LED_BIT,
-	STATUS_LED_STATE,
-	STATUS_LED_PERIOD,
-	0,
-    },
-#if defined(STATUS_LED_BIT1)
-    {	STATUS_LED_BIT1,
-	STATUS_LED_STATE1,
-	STATUS_LED_PERIOD1,
-	0,
-    },
+	{	CONFIG_LED_STATUS_BIT,
+		CONFIG_LED_STATUS_STATE,
+		LED_STATUS_PERIOD,
+		0,
+	},
+#if defined(CONFIG_LED_STATUS1)
+	{	CONFIG_LED_STATUS_BIT1,
+		CONFIG_LED_STATUS_STATE1,
+		LED_STATUS_PERIOD1,
+		0,
+	},
 #endif
-#if defined(STATUS_LED_BIT2)
-    {	STATUS_LED_BIT2,
-	STATUS_LED_STATE2,
-	STATUS_LED_PERIOD2,
-	0,
-    },
+#if defined(CONFIG_LED_STATUS2)
+	{	CONFIG_LED_STATUS_BIT2,
+		CONFIG_LED_STATUS_STATE2,
+		LED_STATUS_PERIOD2,
+		0,
+	},
 #endif
-#if defined(STATUS_LED_BIT3)
-    {	STATUS_LED_BIT3,
-	STATUS_LED_STATE3,
-	STATUS_LED_PERIOD3,
-	0,
-    },
+#if defined(CONFIG_LED_STATUS3)
+	{	CONFIG_LED_STATUS_BIT3,
+		CONFIG_LED_STATUS_STATE3,
+		LED_STATUS_PERIOD3,
+		0,
+	},
 #endif
-#if defined(STATUS_LED_BIT4)
-    {	STATUS_LED_BIT4,
-	STATUS_LED_STATE4,
-	STATUS_LED_PERIOD4,
-	0,
-    },
+#if defined(CONFIG_LED_STATUS4)
+	{	CONFIG_LED_STATUS_BIT4,
+		CONFIG_LED_STATUS_STATE4,
+		LED_STATUS_PERIOD4,
+		0,
+	},
 #endif
-#if defined(STATUS_LED_BIT5)
-    {	STATUS_LED_BIT5,
-	STATUS_LED_STATE5,
-	STATUS_LED_PERIOD5,
-	0,
-    },
+#if defined(CONFIG_LED_STATUS5)
+	{	CONFIG_LED_STATUS_BIT5,
+		CONFIG_LED_STATUS_STATE5,
+		LED_STATUS_PERIOD5,
+		0,
+	},
 #endif
 };
 
@@ -93,7 +93,7 @@ void status_led_tick (ulong timestamp)
 
 	for (i = 0, ld = led_dev; i < MAX_LED_DEV; i++, ld++) {
 
-		if (ld->state != STATUS_LED_BLINKING)
+		if (ld->state != CONFIG_LED_STATUS_BLINKING)
 			continue;
 
 		if (++ld->cnt >= ld->period) {
@@ -117,9 +117,9 @@ void status_led_set (int led, int state)
 	ld = &led_dev[led];
 
 	ld->state = state;
-	if (state == STATUS_LED_BLINKING) {
+	if (state == CONFIG_LED_STATUS_BLINKING) {
 		ld->cnt = 0;		/* always start with full period    */
-		state = STATUS_LED_ON;	/* always start with LED _ON_       */
+		state = CONFIG_LED_STATUS_ON;	/* always start with LED _ON_ */
 	}
 	__led_set (ld->mask, state);
 }

@@ -21,8 +21,8 @@ int board_late_init(void)
 	const unsigned int usb_nrst_gpio = 35;
 	int ret;
 
-	status_led_set(1, STATUS_LED_ON);
-	status_led_set(2, STATUS_LED_ON);
+	status_led_set(1, CONFIG_LED_STATUS_ON);
+	status_led_set(2, CONFIG_LED_STATUS_ON);
 
 	/* Address of boot parameters for ATAG (if ATAG is used) */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;

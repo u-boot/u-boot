@@ -50,8 +50,6 @@
 
 #define CONFIG_WATCHDOG				/* turn on platform specific watchdog	*/
 
-/*#define CONFIG_STATUS_LED	1		*/ /* Enable status led */
-
 #define CONFIG_LOADS_ECHO	1		/* Echo on for serial download */
 
 /*
