@@ -177,21 +177,23 @@ struct ccsr_gur {
 	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
 	u32	gpporcr2;	/* General-purpose POR configuration 2 */
+	u32	gpporcr3;
+	u32	gpporcr4;
+	u8	res_030[0x60-0x30];
 #define FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT	25
 #define FSL_CHASSIS3_DCFG_FUSESR_VID_MASK	0x1F
 #define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT	20
 #define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK	0x1F
 	u32	dcfg_fusesr;	/* Fuse status register */
-	u32	gpporcr3;
-	u32	gpporcr4;
-	u8	res_034[0x70-0x34];
-	u32	devdisr;	/* Device disable control */
+	u8	res_064[0x70-0x64];
+	u32	devdisr;	/* Device disable control 1 */
 	u32	devdisr2;	/* Device disable control 2 */
 	u32	devdisr3;	/* Device disable control 3 */
 	u32	devdisr4;	/* Device disable control 4 */
 	u32	devdisr5;	/* Device disable control 5 */
 	u32	devdisr6;	/* Device disable control 6 */
-	u32	devdisr7;	/* Device disable control 7 */
+	u8	res_088[0x94-0x88];
+	u32	coredisr;	/* Device disable control 7 */
 #define FSL_CHASSIS3_DEVDISR2_DPMAC1	0x00000001
 #define FSL_CHASSIS3_DEVDISR2_DPMAC2	0x00000002
 #define FSL_CHASSIS3_DEVDISR2_DPMAC3	0x00000004
@@ -216,15 +218,11 @@ struct ccsr_gur {
 #define FSL_CHASSIS3_DEVDISR2_DPMAC22	0x00200000
 #define FSL_CHASSIS3_DEVDISR2_DPMAC23	0x00400000
 #define FSL_CHASSIS3_DEVDISR2_DPMAC24	0x00800000
-	u8	res_08c[0x90-0x8c];
-	u32	coredisru;	/* uppper portion for support of 64 cores */
-	u32	coredisrl;	/* lower portion for support of 64 cores */
 	u8	res_098[0xa0-0x98];
 	u32	pvr;		/* Processor version */
 	u32	svr;		/* System version */
-	u32	mvr;		/* Manufacturing version */
-	u8	res_0ac[0x100-0xac];
-	u32	rcwsr[32];	/* Reset control word status */
+	u8	res_0a8[0x100-0xa8];
+	u32	rcwsr[30];	/* Reset control word status */
 
 #define FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_SHIFT	2
 #define FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_MASK	0x1f
@@ -239,23 +237,52 @@ struct ccsr_gur {
 #define RCW_SB_EN_REG_INDEX	9
 #define RCW_SB_EN_MASK		0x00000400
 
-	u8	res_180[0x200-0x180];
-	u32	scratchrw[32];	/* Scratch Read/Write */
-	u8	res_280[0x300-0x280];
+	u8	res_178[0x200-0x178];
+	u32	scratchrw[16];	/* Scratch Read/Write */
+	u8	res_240[0x300-0x240];
 	u32	scratchw1r[4];	/* Scratch Read (Write once) */
 	u8	res_310[0x400-0x310];
 	u32	bootlocptrl;	/* Boot location pointer low-order addr */
 	u32	bootlocptrh;	/* Boot location pointer high-order addr */
-	u8	res_408[0x500-0x408];
-	u8	res_500[0x740-0x500];	/* add more registers when needed */
+	u8	res_408[0x520-0x408];
+	u32	usb1_amqr;
+	u32	usb2_amqr;
+	u8	res_528[0x530-0x528];	/* add more registers when needed */
+	u32	sdmm1_amqr;
+	u8	res_534[0x550-0x534];	/* add more registers when needed */
+	u32	sata1_amqr;
+	u32	sata2_amqr;
+	u8	res_558[0x570-0x558];	/* add more registers when needed */
+	u32	misc1_amqr;
+	u8	res_574[0x590-0x574];	/* add more registers when needed */
+	u32	spare1_amqr;
+	u32	spare2_amqr;
+	u8	res_598[0x620-0x598];	/* add more registers when needed */
+	u32	gencr[7];	/* General Control Registers */
+	u8	res_63c[0x640-0x63c];	/* add more registers when needed */
+	u32	cgensr1;	/* Core General Status Register */
+	u8	res_644[0x660-0x644];	/* add more registers when needed */
+	u32	cgencr1;	/* Core General Control Register */
+	u8	res_664[0x740-0x664];	/* add more registers when needed */
 	u32	tp_ityp[64];	/* Topology Initiator Type Register */
 	struct {
 		u32	upper;
 		u32	lower;
-	} tp_cluster[3];	/* Core Cluster n Topology Register */
-	u8	res_858[0x1000-0x858];
+	} tp_cluster[4];	/* Core cluster n Topology Register */
+	u8	res_864[0x920-0x864];	/* add more registers when needed */
+	u32 ioqoscr[8];	/*I/O Quality of Services Register */
+	u32 uccr;
+	u8	res_944[0x960-0x944];	/* add more registers when needed */
+	u32 ftmcr;
+	u8	res_964[0x990-0x964];	/* add more registers when needed */
+	u32 coredisablesr;
+	u8	res_994[0xa00-0x994];	/* add more registers when needed */
+	u32 sdbgcr; /*Secure Debug Confifuration Register */
+	u8	res_a04[0xbf8-0xa04];	/* add more registers when needed */
+	u32 ipbrr1;
+	u32 ipbrr2;
+	u8	res_858[0x1000-0xc00];
 };
-
 
 struct ccsr_clk_cluster_group {
 	struct {
