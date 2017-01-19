@@ -110,21 +110,10 @@ static unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
 	unsigned long ret;
 
 	/*
-	 * QNX images require the data cache is disabled.
-	 * Data cache is already flushed, so just turn it off.
-	 */
-	int dcache = dcache_status();
-	if (dcache)
-		dcache_disable();
-
-	/*
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
 	ret = entry(argc, argv);
-
-	if (dcache)
-		dcache_enable();
 
 	return ret;
 }
