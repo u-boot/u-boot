@@ -317,3 +317,15 @@ void clock_set_de_mod_clock(u32 *clk_cfg, unsigned int hz)
 	writel(CCM_DE_CTRL_GATE | CCM_DE_CTRL_PLL6_2X | CCM_DE_CTRL_M(div),
 	       clk_cfg);
 }
+
+void clock_set_de2_mod_clock(u32 *clk_cfg, unsigned int hz)
+{
+	int pll = clock_get_pll6() * 2;
+	int div = 1;
+
+	while ((pll / div) > hz)
+		div++;
+
+	writel(CCM_DE2_CTRL_GATE | CCM_DE2_CTRL_PLL6_2X | CCM_DE2_CTRL_M(div),
+	       clk_cfg);
+}

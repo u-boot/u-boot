@@ -157,6 +157,89 @@ struct sunxi_de_be_reg {
 	u32 output_color_coef[12];	/* 0x9d0 */
 };
 
+/*
+ * The following structures are for DE2.
+ * DE2 is a new generation of "composer" in some new Allwinner SoCs, such as
+ * A83T, H3, V3s, A64.
+ */
+
+/* internal clock settings */
+struct de_clk {
+	u32 gate_cfg;
+	u32 bus_cfg;
+	u32 rst_cfg;
+	u32 div_cfg;
+	u32 sel_cfg;
+};
+
+/* global control */
+struct de_glb {
+	u32 ctl;
+	u32 status;
+	u32 dbuff;
+	u32 size;
+};
+
+/* alpha blending */
+struct de_bld {
+	u32 fcolor_ctl;			/* 00 */
+	struct {
+		u32 fcolor;
+		u32 insize;
+		u32 offset;
+		u32 dum;
+	} attr[4];
+	u32 dum0[15];			/* (end of clear offset) */
+	u32 route;			/* 80 */
+	u32 premultiply;
+	u32 bkcolor;
+	u32 output_size;
+	u32 bld_mode[4];
+	u32 dum1[4];
+	u32 ck_ctl;			/* b0 */
+	u32 ck_cfg;
+	u32 dum2[2];
+	u32 ck_max[4];			/* c0 */
+	u32 dum3[4];
+	u32 ck_min[4];			/* e0 */
+	u32 dum4[3];
+	u32 out_ctl;			/* fc */
+};
+
+/* VI channel */
+struct de_vi {
+	struct {
+		u32 attr;
+		u32 size;
+		u32 coord;
+		u32 pitch[3];
+		u32 top_laddr[3];
+		u32 bot_laddr[3];
+	} cfg[4];
+	u32 fcolor[4];			/* c0 */
+	u32 top_haddr[3];		/* d0 */
+	u32 bot_haddr[3];		/* dc */
+	u32 ovl_size[2];		/* e8 */
+	u32 hori[2];			/* f0 */
+	u32 vert[2];			/* f8 */
+};
+
+struct de_ui {
+	struct {
+		u32 attr;
+		u32 size;
+		u32 coord;
+		u32 pitch;
+		u32 top_laddr;
+		u32 bot_laddr;
+		u32 fcolor;
+		u32 dum;
+	} cfg[4];			/* 00 */
+	u32 top_haddr;			/* 80 */
+	u32 bot_haddr;
+	u32 ovl_size;			/* 88 */
+};
+
 struct sunxi_lcdc_reg {
 	u32 ctrl;			/* 0x00 */
 	u32 int0;			/* 0x04 */
@@ -345,6 +428,42 @@ struct sunxi_tve_reg {
 #define SUNXI_DE_BE_LAYER_ATTR0_SRC_FE0		0x00000002
 #define SUNXI_DE_BE_LAYER_ATTR1_FMT_XRGB8888	(0x09 << 8)
 #define SUNXI_DE_BE_OUTPUT_COLOR_CTRL_ENABLE	1
+
+/*
+ * DE2 register constants.
+ */
+#define SUNXI_DE2_MUX0_BASE			(u8 *)(SUNXI_DE2_BASE + 0x100000)
+
+#define SUNXI_DE2_MUX_GLB_REGS			0x00000
+#define SUNXI_DE2_MUX_BLD_REGS			0x01000
+#define SUNXI_DE2_MUX_CHAN_REGS			0x02000
+#define	SUNXI_DE2_MUX_CHAN_SZ			0x1000
+#define SUNXI_DE2_MUX_VSU_REGS			0x20000
+#define SUNXI_DE2_MUX_GSU1_REGS			0x30000
+#define SUNXI_DE2_MUX_GSU2_REGS			0x40000
+#define SUNXI_DE2_MUX_GSU3_REGS			0x50000
+#define SUNXI_DE2_MUX_FCE_REGS			0xa0000
+#define SUNXI_DE2_MUX_BWS_REGS			0xa2000
+#define SUNXI_DE2_MUX_LTI_REGS			0xa4000
+#define SUNXI_DE2_MUX_PEAK_REGS			0xa6000
+#define SUNXI_DE2_MUX_ASE_REGS			0xa8000
+#define SUNXI_DE2_MUX_FCC_REGS			0xaa000
+#define SUNXI_DE2_MUX_DCSC_REGS			0xb0000
+
+#define SUNXI_DE2_FORMAT_ARGB_8888		0
+#define SUNXI_DE2_FORMAT_BGRA_8888		3
+#define SUNXI_DE2_FORMAT_XRGB_8888		4
+#define SUNXI_DE2_FORMAT_RGB_888		8
+#define SUNXI_DE2_FORMAT_BGR_888		9
+
+#define SUNXI_DE2_MUX_GLB_CTL_RT_EN		(1 << 0)
+
+#define SUNXI_DE2_UI_CFG_ATTR_EN		(1 << 0)
+#define SUNXI_DE2_UI_CFG_ATTR_ALPMOD(m)		((m & 3) << 1)
+#define SUNXI_DE2_UI_CFG_ATTR_FMT(f)		((f & 0xf) << 8)
+#define SUNXI_DE2_UI_CFG_ATTR_ALPHA(a)		((a & 0xff) << 24)
+
+#define SUNXI_DE2_WH(w, h)			(((h - 1) << 16) | (w - 1))
 
 /*
  * LCDC register constants.

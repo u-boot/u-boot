@@ -18,6 +18,8 @@
 #define SUNXI_SRAM_D_BASE		0x00010000	/* 4 kiB */
 #define SUNXI_SRAM_B_BASE		0x00020000	/* 64 kiB (secure) */
 
+#define SUNXI_DE2_BASE			0x01000000
+
 #ifdef CONFIG_MACH_SUN8I_A83T
 #define SUNXI_CPUCFG_BASE		0x01700000
 #endif

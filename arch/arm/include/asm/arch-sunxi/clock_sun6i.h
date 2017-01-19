@@ -449,9 +449,13 @@ struct sunxi_ccm_reg {
 /* CCM bits common to all Display Engine 2.0 clock ctrl regs */
 #define CCM_DE2_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
 #define CCM_DE2_CTRL_PLL_MASK		(3 << 24)
+#ifndef CONFIG_MACH_SUN8I_V3S
 #define CCM_DE2_CTRL_PLL6_2X		(0 << 24)
 #define CCM_DE2_CTRL_PLL10		(1 << 24)
-#define CCM_DE2_CTRL_PLL3		(1 << 24) /* for V3s */
+#else
+#define CCM_DE2_CTRL_PLL3		(0 << 24) /* for V3s */
+#define CCM_DE2_CTRL_PLL6_2X		(2 << 24)
+#endif
 #define CCM_DE2_CTRL_GATE		(1 << 31)
 
 /* CCU security switch, H3 only */
@@ -470,6 +474,7 @@ void clock_set_mipi_pll(unsigned int hz);
 unsigned int clock_get_pll3(void);
 unsigned int clock_get_pll6(void);
 unsigned int clock_get_mipi_pll(void);
+void clock_set_de2_mod_clock(u32 *clk_cfg, unsigned int hz);
 #endif
 
 #endif /* _SUNXI_CLOCK_SUN6I_H */
