@@ -230,6 +230,14 @@ struct gpio {
 #define AM3517			0x1c00
 
 #define OMAP3730		0x0c00
+#define OMAP3725		0x4c00
+#define AM3715			0x1c00
+#define AM3703			0x5c00
+
+#define OMAP3730_1GHZ		0x0e00
+#define OMAP3725_1GHZ		0x4e00
+#define AM3715_1GHZ		0x1e00
+#define AM3703_1GHZ		0x5e00
 
 /*
  * ROM code API related flags
