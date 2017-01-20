@@ -292,7 +292,7 @@ int print_cpuinfo (void)
 			cpu_s = "35XX";
 			break;
 		}
-		max_clk = "600 Mhz";
+		max_clk = "600 MHz";
 		break;
 	case CPU_OMAP36XX:
 		cpu_family_s = "OMAP";
@@ -304,12 +304,12 @@ int print_cpuinfo (void)
 			cpu_s = "36XX/37XX";
 			break;
 		}
-		max_clk = "1 Ghz";
+		max_clk = "1 GHz";
 		break;
 	default:
 		cpu_family_s = "OMAP";
 		cpu_s = "35XX";
-		max_clk = "600 Mhz";
+		max_clk = "600 MHz";
 	}
 
 	switch (get_device_type()) {
