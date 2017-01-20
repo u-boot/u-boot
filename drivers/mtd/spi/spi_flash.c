@@ -1219,7 +1219,20 @@ int spi_flash_scan(struct spi_flash *flash)
 	if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ATMEL ||
 	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX ||
 	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST)
+#ifdef CONFIG_SPI_GENERIC
+	{
+		flash->dual_flash = flash->spi->option;
+		if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+			flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 		write_sr(flash, 0);
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+			flash->spi->flags |= SPI_XFER_UPPER;
+			write_sr(flash, 0);
+		}
+	}
+#endif
 
 	flash->name = info->name;
 	flash->memory_map = spi->memory_map;
