@@ -1045,9 +1045,21 @@ static int macronix_quad_enable(struct spi_flash *flash)
 	) {
 		debug("SF: mxic: QEB is already set\n");
 	} else {
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+			flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 		ret = write_sr(flash, STATUS_QEB_MXIC);
 		if (ret < 0)
 			return ret;
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+			flash->spi->flags |= SPI_XFER_UPPER;
+			ret = write_sr(flash, STATUS_QEB_MXIC);
+			if (ret < 0)
+				return ret;
+		}
+#endif
 	}
 
 	return ret;
