@@ -30,8 +30,10 @@ config ARMV8_SPIN_TABLE
 	  To use this feature, you must do:
 	    - Specify enable-method = "spin-table" in each CPU node in the
 	      Device Tree you are using to boot the kernel
-	    - Let secondary CPUs in U-Boot (in a board specific manner)
-	      before the master CPU jumps to the kernel
+	    - Bring secondary CPUs into U-Boot proper in a board specific
+	      manner.  This must be done *after* relocation.  Otherwise, the
+	      secondary CPUs will spin in unprotected memory area because the
+	      master CPU protects the relocated spin code.
 
 	  U-Boot automatically does:
 	    - Set "cpu-release-addr" property of each CPU node
