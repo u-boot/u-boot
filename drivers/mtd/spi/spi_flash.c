@@ -376,6 +376,9 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	struct spi_slave *spi = flash->spi;
 	unsigned long timeout = SPI_FLASH_PROG_TIMEOUT;
 	int ret;
+#ifdef CONFIG_SPI_GENERIC
+	u32 flags = 0;
+#endif
 
 	if (buf == NULL)
 		timeout = SPI_FLASH_PAGE_ERASE_TIMEOUT;
@@ -386,12 +389,20 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 		return ret;
 	}
 
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
+		flags = flash->spi->flags;
+#endif
 	ret = spi_flash_cmd_write_enable(flash);
 	if (ret < 0) {
 		debug("SF: enabling write failed\n");
 		return ret;
 	}
 
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
+		flash->spi->flags = flags;
+#endif
 	ret = spi_flash_cmd_write(spi, cmd, cmd_len, buf, buf_len);
 	if (ret < 0) {
 		debug("SF: write cmd failed\n");
