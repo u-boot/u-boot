@@ -5,8 +5,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 
