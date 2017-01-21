@@ -73,8 +73,9 @@ static void uniphier_ld20_misc_init(void)
 		writel(0x0000b500, 0x6184e024);
 		writel(0x00000001, 0x6184e000);
 	}
-
+#ifdef CONFIG_ARMV8_MULTIENTRY
 	cci500_init(2);
+#endif
 }
 #endif
 
@@ -235,7 +236,7 @@ int board_init(void)
 
 	led_puts("U6");
 
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_ARMV8_MULTIENTRY
 	uniphier_smp_kick_all_cpus();
 #endif
 

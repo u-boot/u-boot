@@ -83,7 +83,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_ARMV8_MULTIENTRY
 #define CPU_RELEASE_ADDR			0x80000000
 #define COUNTER_FREQUENCY			50000000
 #define CONFIG_GICV3
@@ -93,7 +93,7 @@
 #elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define GICR_BASE				0x5fe80000
 #endif
-#else
+#elif !defined(CONFIG_ARM64)
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
 #endif
@@ -274,6 +274,7 @@
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
 
+#ifdef CONFIG_SPL
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 #define CONFIG_SPL_MAX_SIZE			0x10000
@@ -283,5 +284,6 @@
 #define CONFIG_SPL_BSS_START_ADDR		0x30016000
 #endif
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
+#endif
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */
