@@ -98,6 +98,8 @@ dtb-$(CONFIG_ARCH_UNIPHIER_PRO5) += \
 dtb-$(CONFIG_ARCH_UNIPHIER_PXS2) += \
 	uniphier-pxs2-gentil.dtb \
 	uniphier-pxs2-vodka.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_PXS3) += \
+	uniphier-pxs3-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_SLD3) += \
 	uniphier-sld3-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
