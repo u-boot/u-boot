@@ -14,7 +14,7 @@
 #include "soc-info.h"
 
 struct uniphier_spl_initdata {
-	enum uniphier_soc_id soc_id;
+	unsigned int soc_id;
 	void (*bcu_init)(const struct uniphier_board_data *bd);
 	void (*early_clk_init)(void);
 	int (*dpll_init)(const struct uniphier_board_data *bd);
@@ -26,7 +26,7 @@ struct uniphier_spl_initdata {
 static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	{
-		.soc_id = SOC_UNIPHIER_SLD3,
+		.soc_id = UNIPHIER_SLD3_ID,
 		.bcu_init = uniphier_sld3_bcu_init,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_sld3_dpll_init,
@@ -37,7 +37,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{
-		.soc_id = SOC_UNIPHIER_LD4,
+		.soc_id = UNIPHIER_LD4_ID,
 		.bcu_init = uniphier_ld4_bcu_init,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_ld4_dpll_init,
@@ -48,7 +48,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	{
-		.soc_id = SOC_UNIPHIER_PRO4,
+		.soc_id = UNIPHIER_PRO4_ID,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_pro4_dpll_init,
 		.memconf_init = uniphier_memconf_2ch_init,
@@ -58,7 +58,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	{
-		.soc_id = SOC_UNIPHIER_SLD8,
+		.soc_id = UNIPHIER_SLD8_ID,
 		.bcu_init = uniphier_ld4_bcu_init,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_sld8_dpll_init,
@@ -69,7 +69,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	{
-		.soc_id = SOC_UNIPHIER_PRO5,
+		.soc_id = UNIPHIER_PRO5_ID,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_pro5_dpll_init,
 		.memconf_init = uniphier_memconf_2ch_init,
@@ -79,7 +79,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 	{
-		.soc_id = SOC_UNIPHIER_PXS2,
+		.soc_id = UNIPHIER_PXS2_ID,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_pxs2_dpll_init,
 		.memconf_init = uniphier_memconf_3ch_init,
@@ -89,7 +89,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	{
-		.soc_id = SOC_UNIPHIER_LD6B,
+		.soc_id = UNIPHIER_LD6B_ID,
 		.early_clk_init = uniphier_sld3_early_clk_init,
 		.dpll_init = uniphier_pxs2_dpll_init,
 		.memconf_init = uniphier_memconf_3ch_init,
@@ -99,7 +99,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	{
-		.soc_id = SOC_UNIPHIER_LD11,
+		.soc_id = UNIPHIER_LD11_ID,
 		.early_clk_init = uniphier_ld11_early_clk_init,
 		.dpll_init = uniphier_ld11_dpll_init,
 		.memconf_init = uniphier_memconf_2ch_init,
@@ -109,7 +109,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	{
-		.soc_id = SOC_UNIPHIER_LD20,
+		.soc_id = UNIPHIER_LD20_ID,
 		.early_clk_init = uniphier_ld11_early_clk_init,
 		.dpll_init = uniphier_ld20_dpll_init,
 		.memconf_init = uniphier_memconf_3ch_init,
@@ -120,7 +120,7 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 };
 
 static const struct uniphier_spl_initdata *uniphier_get_spl_initdata(
-						enum uniphier_soc_id soc_id)
+							unsigned int soc_id)
 {
 	int i;
 
@@ -136,7 +136,7 @@ void spl_board_init(void)
 {
 	const struct uniphier_board_data *bd;
 	const struct uniphier_spl_initdata *initdata;
-	enum uniphier_soc_id soc_id;
+	unsigned int soc_id;
 	int ret;
 
 #ifdef CONFIG_DEBUG_UART
@@ -147,7 +147,7 @@ void spl_board_init(void)
 	if (!bd)
 		hang();
 
-	soc_id = uniphier_get_soc_type();
+	soc_id = uniphier_get_soc_id();
 	initdata = uniphier_get_spl_initdata(soc_id);
 	if (!initdata)
 		hang();

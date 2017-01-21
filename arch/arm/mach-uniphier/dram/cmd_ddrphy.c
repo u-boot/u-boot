@@ -245,17 +245,17 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *cmd = argv[1];
 	const struct phy_param *phy_param;
 
-	switch (uniphier_get_soc_type()) {
-	case SOC_UNIPHIER_LD4:
+	switch (uniphier_get_soc_id()) {
+	case UNIPHIER_LD4_ID:
 		phy_param = uniphier_ld4_phy_param;
 		break;
-	case SOC_UNIPHIER_PRO4:
+	case UNIPHIER_PRO4_ID:
 		phy_param = uniphier_pro4_phy_param;
 		break;
-	case SOC_UNIPHIER_SLD8:
+	case UNIPHIER_SLD8_ID:
 		phy_param = uniphier_sld8_phy_param;
 		break;
-	case SOC_UNIPHIER_LD11:
+	case UNIPHIER_LD11_ID:
 		phy_param = uniphier_ld11_phy_param;
 		break;
 	default:

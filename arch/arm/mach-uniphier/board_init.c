@@ -80,7 +80,7 @@ static void uniphier_ld20_misc_init(void)
 #endif
 
 struct uniphier_initdata {
-	enum uniphier_soc_id soc_id;
+	unsigned int soc_id;
 	bool nand_2cs;
 	void (*sbc_init)(void);
 	void (*pll_init)(void);
@@ -91,7 +91,7 @@ struct uniphier_initdata {
 static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	{
-		.soc_id = SOC_UNIPHIER_SLD3,
+		.soc_id = UNIPHIER_SLD3_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_sbc_init_admulti,
 		.pll_init = uniphier_sld3_pll_init,
@@ -100,7 +100,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{
-		.soc_id = SOC_UNIPHIER_LD4,
+		.soc_id = UNIPHIER_LD4_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
@@ -109,7 +109,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	{
-		.soc_id = SOC_UNIPHIER_PRO4,
+		.soc_id = UNIPHIER_PRO4_ID,
 		.nand_2cs = false,
 		.sbc_init = uniphier_sbc_init_savepin,
 		.pll_init = uniphier_pro4_pll_init,
@@ -118,7 +118,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	{
-		.soc_id = SOC_UNIPHIER_SLD8,
+		.soc_id = UNIPHIER_SLD8_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
@@ -127,7 +127,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	{
-		.soc_id = SOC_UNIPHIER_PRO5,
+		.soc_id = UNIPHIER_PRO5_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_sbc_init_savepin,
 		.clk_init = uniphier_pro5_clk_init,
@@ -135,7 +135,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 	{
-		.soc_id = SOC_UNIPHIER_PXS2,
+		.soc_id = UNIPHIER_PXS2_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
@@ -143,7 +143,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	{
-		.soc_id = SOC_UNIPHIER_LD6B,
+		.soc_id = UNIPHIER_LD6B_ID,
 		.nand_2cs = true,
 		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
@@ -151,7 +151,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	{
-		.soc_id = SOC_UNIPHIER_LD11,
+		.soc_id = UNIPHIER_LD11_ID,
 		.nand_2cs = false,
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld11_pll_init,
@@ -161,7 +161,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	{
-		.soc_id = SOC_UNIPHIER_LD20,
+		.soc_id = UNIPHIER_LD20_ID,
 		.nand_2cs = false,
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld20_pll_init,
@@ -171,7 +171,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 };
 
 static const struct uniphier_initdata *uniphier_get_initdata(
-						enum uniphier_soc_id soc_id)
+							unsigned int soc_id)
 {
 	int i;
 
@@ -186,12 +186,12 @@ static const struct uniphier_initdata *uniphier_get_initdata(
 int board_init(void)
 {
 	const struct uniphier_initdata *initdata;
-	enum uniphier_soc_id soc_id;
+	unsigned int soc_id;
 	int ret;
 
 	led_puts("U0");
 
-	soc_id = uniphier_get_soc_type();
+	soc_id = uniphier_get_soc_id();
 	initdata = uniphier_get_initdata(soc_id);
 	if (!initdata) {
 		pr_err("unsupported board\n");

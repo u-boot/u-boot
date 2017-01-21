@@ -97,7 +97,7 @@ int ft_board_setup(void *fdt, bd_t *bd)
 	const unsigned long rsv_size = 64;
 	int ch, ret;
 
-	if (uniphier_get_soc_type() != SOC_UNIPHIER_LD20)
+	if (uniphier_get_soc_id() != UNIPHIER_LD20_ID)
 		return 0;
 
 	param = uniphier_get_board_param();

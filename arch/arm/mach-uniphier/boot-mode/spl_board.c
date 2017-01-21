@@ -40,11 +40,11 @@ int uniphier_rom_get_mmc_funcptr(int (**send_cmd)(u32, u32),
 {
 	const struct uniphier_romfunc_table *table;
 
-	switch (uniphier_get_soc_type()) {
-	case SOC_UNIPHIER_LD11:
+	switch (uniphier_get_soc_id()) {
+	case UNIPHIER_LD11_ID:
 		table = &uniphier_ld11_romfunc_table;
 		break;
-	case SOC_UNIPHIER_LD20:
+	case UNIPHIER_LD20_ID:
 		table = &uniphier_ld20_romfunc_table;
 		break;
 	default:
