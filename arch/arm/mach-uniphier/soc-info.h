@@ -8,6 +8,9 @@
 #ifndef __UNIPHIER_SOC_INFO_H__
 #define __UNIPHIER_SOC_INFO_H__
 
+#include <linux/kernel.h>
+#include <linux/stddef.h>
+
 #define UNIPHIER_SLD3_ID	0x25
 #define UNIPHIER_LD4_ID		0x26
 #define UNIPHIER_PRO4_ID	0x28
@@ -21,5 +24,20 @@
 unsigned int uniphier_get_soc_id(void);
 unsigned int uniphier_get_soc_model(void);
 unsigned int uniphier_get_soc_revision(void);
+
+#define UNIPHIER_DEFINE_SOCDATA_FUNC(__func_name, __table)	\
+static typeof(&__table[0]) __func_name(void)			\
+{								\
+	unsigned int soc_id;					\
+	int i;							\
+								\
+	soc_id = uniphier_get_soc_id();				\
+	for (i = 0; i < ARRAY_SIZE(__table); i++) {		\
+		if (__table[i].soc_id == soc_id)		\
+			return &__table[i];			\
+	}							\
+								\
+	return NULL;						\
+}
 
 #endif /* __UNIPHIER_SOC_INFO_H__ */

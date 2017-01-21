@@ -169,32 +169,18 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 	},
 #endif
 };
-
-static const struct uniphier_initdata *uniphier_get_initdata(
-							unsigned int soc_id)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(uniphier_initdata); i++) {
-		if (uniphier_initdata[i].soc_id == soc_id)
-			return &uniphier_initdata[i];
-	}
-
-	return NULL;
-}
+UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_initdata, uniphier_initdata)
 
 int board_init(void)
 {
 	const struct uniphier_initdata *initdata;
-	unsigned int soc_id;
 	int ret;
 
 	led_puts("U0");
 
-	soc_id = uniphier_get_soc_id();
-	initdata = uniphier_get_initdata(soc_id);
+	initdata = uniphier_get_initdata();
 	if (!initdata) {
-		pr_err("unsupported board\n");
+		pr_err("unsupported SoC\n");
 		return -EINVAL;
 	}
 

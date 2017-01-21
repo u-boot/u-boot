@@ -118,25 +118,12 @@ static const struct uniphier_spl_initdata uniphier_spl_initdata[] = {
 	},
 #endif
 };
-
-static const struct uniphier_spl_initdata *uniphier_get_spl_initdata(
-							unsigned int soc_id)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(uniphier_spl_initdata); i++) {
-		if (uniphier_spl_initdata[i].soc_id == soc_id)
-			return &uniphier_spl_initdata[i];
-	}
-
-	return NULL;
-}
+UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_spl_initdata, uniphier_spl_initdata)
 
 void spl_board_init(void)
 {
 	const struct uniphier_board_data *bd;
 	const struct uniphier_spl_initdata *initdata;
-	unsigned int soc_id;
 	int ret;
 
 #ifdef CONFIG_DEBUG_UART
@@ -147,8 +134,7 @@ void spl_board_init(void)
 	if (!bd)
 		hang();
 
-	soc_id = uniphier_get_soc_id();
-	initdata = uniphier_get_spl_initdata(soc_id);
+	initdata = uniphier_get_spl_initdata();
 	if (!initdata)
 		hang();
 
