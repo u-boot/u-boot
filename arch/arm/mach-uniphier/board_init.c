@@ -87,7 +87,7 @@ struct uniphier_initdata {
 	void (*misc_init)(void);
 };
 
-struct uniphier_initdata uniphier_initdata[] = {
+static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	{
 		.soc_id = SOC_UNIPHIER_SLD3,
@@ -169,7 +169,7 @@ struct uniphier_initdata uniphier_initdata[] = {
 #endif
 };
 
-static struct uniphier_initdata *uniphier_get_initdata(
+static const struct uniphier_initdata *uniphier_get_initdata(
 						enum uniphier_soc_id soc_id)
 {
 	int i;
@@ -184,7 +184,7 @@ static struct uniphier_initdata *uniphier_get_initdata(
 
 int board_init(void)
 {
-	struct uniphier_initdata *initdata;
+	const struct uniphier_initdata *initdata;
 	enum uniphier_soc_id soc_id;
 	int ret;
 
