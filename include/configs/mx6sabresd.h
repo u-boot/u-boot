@@ -11,7 +11,6 @@
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
-#undef CONFIG_SPL_EXT_SUPPORT
 #endif
 
 #define CONFIG_MACH_TYPE	3980
@@ -24,8 +23,9 @@
 #include "mx6sabre_common.h"
 
 /* Falcon Mode */
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
 #define CONFIG_CMD_SPL
-#define CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_SPL_ARGS_ADDR       0x18000000
 #define CONFIG_CMD_SPL_WRITE_SIZE      (128 * SZ_1K)
 
