@@ -7,7 +7,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <spl.h>
-#include <linux/err.h>
+#include <linux/errno.h>
 
 #include "../sbc/sbc-regs.h"
 #include "../soc-info.h"

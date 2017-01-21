@@ -7,7 +7,7 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdtdec.h>
-#include <linux/err.h>
+#include <linux/errno.h>
 
 #include "init.h"
 #include "soc-info.h"
