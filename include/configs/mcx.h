@@ -22,7 +22,6 @@
 
 #define MACH_TYPE_MCX			3656
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 

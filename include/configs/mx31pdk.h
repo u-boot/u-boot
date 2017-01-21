@@ -76,8 +76,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
 
-#define CONFIG_BOARD_LATE_INIT
-
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"	\

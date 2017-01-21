@@ -21,7 +21,6 @@
 
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 

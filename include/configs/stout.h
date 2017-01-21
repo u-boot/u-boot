@@ -18,8 +18,6 @@
 
 #include "rcar-gen2-common.h"
 
-/* #define CONFIG_BOARD_LATE_INIT */
-
 #if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_TEXT_BASE	0xB0000000
 #else

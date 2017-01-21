@@ -159,7 +159,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 #define CONFIG_ARCH_EARLY_INIT_R
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

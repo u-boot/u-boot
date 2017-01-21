@@ -16,7 +16,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-#undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_SPI
 #undef CONFIG_OMAP3_SPI
 #undef CONFIG_BOOTCOUNT_LIMIT

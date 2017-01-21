@@ -26,8 +26,6 @@
 
 #define CONFIG_PREBOOT			"run cfgscr; run brdefaultip"
 
-#define CONFIG_BOARD_LATE_INIT
-
 /* Network defines */
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_SEND_HOSTNAME

@@ -50,9 +50,6 @@
 #elif defined CONFIG_SERIES
 # define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC
 #endif /* #ifdef CONFIG_B_SAMPLE */
-
-#define CONFIG_BOARD_LATE_INIT
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

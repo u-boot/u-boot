@@ -23,8 +23,6 @@
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
 
-#define CONFIG_BOARD_LATE_INIT
-
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP

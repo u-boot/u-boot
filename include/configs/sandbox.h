@@ -137,8 +137,6 @@
 
 #define CONFIG_BOOTARGS ""
 
-#define CONFIG_BOARD_LATE_INIT
-
 #ifndef SANDBOX_NO_SDL
 #define CONFIG_SANDBOX_SDL
 #endif

@@ -156,8 +156,6 @@
 # define PARTS_DEFAULT
 #endif
 
-#define CONFIG_BOARD_LATE_INIT
-
 /* Do not preserve environment */
 #if !defined(CONFIG_ENV_IS_IN_FAT)
 #define CONFIG_ENV_IS_NOWHERE		1

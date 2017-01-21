@@ -24,7 +24,6 @@
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
 
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_REVISION_TAG

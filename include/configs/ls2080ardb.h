@@ -61,7 +61,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SCSI
 #define CONFIG_DOS_PARTITION
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
 #define CONFIG_SYS_SATA2			AHCI_BASE_ADDR2

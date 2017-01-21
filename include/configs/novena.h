@@ -11,7 +11,6 @@
 
 /* System configurations */
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
 #define CONFIG_KEYBOARD
 

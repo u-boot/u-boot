@@ -102,7 +102,6 @@
 	BOOTENV
 #endif
 
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_PREBOOT
 
 #endif

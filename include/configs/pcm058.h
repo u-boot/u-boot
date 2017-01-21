@@ -30,7 +30,6 @@
 
 /* Early setup */
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 
