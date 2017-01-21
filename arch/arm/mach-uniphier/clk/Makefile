@@ -25,6 +25,7 @@ obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= clk-ld11.o pll-ld11.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= pll-ld20.o
+obj-$(CONFIG_ARCH_UNIPHIER_PXS3)	+= pll-pxs3.o
 
 endif
 

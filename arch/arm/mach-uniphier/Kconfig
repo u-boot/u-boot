@@ -88,6 +88,11 @@ config ARCH_UNIPHIER_LD20
 	select OF_BOARD_SETUP
 	default y
 
+config ARCH_UNIPHIER_PXS3
+	bool "Enable UniPhier PXs3 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
+	default y
+
 config CACHE_UNIPHIER
 	bool "Enable the UniPhier L2 cache controller"
 	depends on ARCH_UNIPHIER_32BIT

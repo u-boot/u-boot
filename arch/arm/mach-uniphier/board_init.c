@@ -168,6 +168,14 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.misc_init = uniphier_ld20_misc_init,
 	},
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PXS3)
+	{
+		.soc_id = UNIPHIER_PXS3_ID,
+		.nand_2cs = false,
+		.sbc_init = uniphier_pxs2_sbc_init,
+		.pll_init = uniphier_pxs3_pll_init,
+	},
+#endif
 };
 UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_initdata, uniphier_initdata)
 
