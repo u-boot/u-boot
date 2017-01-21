@@ -373,6 +373,16 @@ config VERSION_VARIABLE
 	  Any change to this variable will be reverted at the
 	  next reset.
 
+config BOARD_LATE_INIT
+	bool "Enable Board late init code"
+	help
+	  Sometimes board require some initialization code that might
+	  require once the actual init done, example saving board specific env,
+	  boot-modes etc. which eventually done at late.
+
+	  So this config enable the late init code with the help of board_late_init
+	  function which should defined on respective boards.
+
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
 	default y if ARM || BLACKFIN || NIOS2 || X86 || XTENSA
