@@ -190,7 +190,9 @@ matrix:
     - env:
         - BUILDMAN="t208xrdb t4qds t102*"
     - env:
-        - BUILDMAN="p1_p2_rdb_pc p1010rdb"
+        - BUILDMAN="p1_p2_rdb_pc"
+    - env:
+        - BUILDMAN="p1010rdb"
     - env:
         - BUILDMAN="corenet_ds b4860qds sbc8548 bsc91*"
     - env:
