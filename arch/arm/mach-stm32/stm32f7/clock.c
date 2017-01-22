@@ -261,6 +261,11 @@ void clock_setup(int peripheral)
 	case FMC_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->ahb3enr, RCC_AHB3ENR_FMC_EN);
 		break;
+	case STMMAC_CLOCK_CFG:
+		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_EN);
+		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_RX_EN);
+		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_TX_EN);
+		break;
 	default:
 		break;
 	}

@@ -36,6 +36,7 @@ enum periph_clock {
 	SYSCFG_CLOCK_CFG,
 	TIMER2_CLOCK_CFG,
 	FMC_CLOCK_CFG,
+	STMMAC_CLOCK_CFG,
 };
 
 #endif /* __ASM_ARM_ARCH_PERIPH_H */

@@ -15,6 +15,7 @@
 #include <dm/platform_data/serial_stm32x7.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_defs.h>
+#include <asm/arch/syscfg.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -276,6 +277,55 @@ U_BOOT_DEVICE(stm32x7_serials) = {
 	.platdata = &serial_platdata,
 };
 
+#ifdef CONFIG_ETH_DESIGNWARE
+const struct stm32_gpio_ctl gpio_ctl_eth = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_100M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF11
+};
+
+static const struct stm32_gpio_dsc eth_gpio[] = {
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_1},	/* ETH_RMII_REF_CLK */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_2},	/* ETH_MDIO */
+	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_7},	/* ETH_RMII_CRS_DV */
+
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_1},	/* ETH_MDC */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_4},	/* ETH_RMII_RXD0 */
+	{STM32_GPIO_PORT_C, STM32_GPIO_PIN_5},	/* ETH_RMII_RXD1 */
+
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_11},	/* ETH_RMII_TX_EN */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_13},	/* ETH_RMII_TXD0 */
+	{STM32_GPIO_PORT_G, STM32_GPIO_PIN_14},	/* ETH_RMII_TXD1 */
+};
+
+static int stmmac_setup(void)
+{
+	int res = 0;
+	int i;
+
+	clock_setup(SYSCFG_CLOCK_CFG);
+
+	/* Set >RMII mode */
+	STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
+
+	clock_setup(GPIO_A_CLOCK_CFG);
+	clock_setup(GPIO_C_CLOCK_CFG);
+	clock_setup(GPIO_G_CLOCK_CFG);
+
+	for (i = 0; i < ARRAY_SIZE(eth_gpio); i++) {
+		res = stm32_gpio_config(&eth_gpio[i], &gpio_ctl_eth);
+		if (res)
+			return res;
+	}
+
+	clock_setup(STMMAC_CLOCK_CFG);
+
+	return 0;
+}
+#endif
+
 u32 get_board_rev(void)
 {
 	return 0;
@@ -289,6 +339,12 @@ int board_early_init_f(void)
 	clock_setup(USART1_CLOCK_CFG);
 	if (res)
 		return res;
+
+#ifdef CONFIG_ETH_DESIGNWARE
+	res = stmmac_setup();
+	if (res)
+		return res;
+#endif
 
 	return 0;
 }
