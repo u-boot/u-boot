@@ -24,8 +24,7 @@ struct stm32_fmc_regs {
 /*
  * FMC registers base
  */
-#define STM32_SDRAM_FMC_BASE	0xA0000140
-#define STM32_SDRAM_FMC		((struct stm32_fmc_regs *)STM32_SDRAM_FMC_BASE)
+#define STM32_SDRAM_FMC		((struct stm32_fmc_regs *)SDRAM_FMC_BASE)
 
 /* Control register SDCR */
 #define FMC_SDCR_RPIPE_SHIFT	13	/* RPIPE bit shift */
