@@ -326,6 +326,60 @@ static int stmmac_setup(void)
 }
 #endif
 
+#ifdef CONFIG_STM32_QSPI
+const struct stm32_gpio_ctl gpio_ctl_qspi_9 = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_100M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF9
+};
+
+const struct stm32_gpio_ctl gpio_ctl_qspi_10 = {
+	.mode = STM32_GPIO_MODE_AF,
+	.otype = STM32_GPIO_OTYPE_PP,
+	.speed = STM32_GPIO_SPEED_100M,
+	.pupd = STM32_GPIO_PUPD_NO,
+	.af = STM32_GPIO_AF10
+};
+
+static const struct stm32_gpio_dsc qspi_af9_gpio[] = {
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_2},	/* QUADSPI_CLK */
+	{STM32_GPIO_PORT_D, STM32_GPIO_PIN_11},	/* QUADSPI_BK1_IO0 */
+	{STM32_GPIO_PORT_D, STM32_GPIO_PIN_12},	/* QUADSPI_BK1_IO1 */
+	{STM32_GPIO_PORT_D, STM32_GPIO_PIN_13},	/* QUADSPI_BK1_IO3 */
+	{STM32_GPIO_PORT_E, STM32_GPIO_PIN_2},	/* QUADSPI_BK1_IO2 */
+};
+
+static const struct stm32_gpio_dsc qspi_af10_gpio[] = {
+	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_6},	/* QUADSPI_BK1_NCS */
+};
+
+static int qspi_setup(void)
+{
+	int res = 0;
+	int i;
+
+	clock_setup(GPIO_B_CLOCK_CFG);
+	clock_setup(GPIO_D_CLOCK_CFG);
+	clock_setup(GPIO_E_CLOCK_CFG);
+
+	for (i = 0; i < ARRAY_SIZE(qspi_af9_gpio); i++) {
+		res = stm32_gpio_config(&qspi_af9_gpio[i], &gpio_ctl_qspi_9);
+		if (res)
+			return res;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(qspi_af10_gpio); i++) {
+		res = stm32_gpio_config(&qspi_af10_gpio[i], &gpio_ctl_qspi_10);
+		if (res)
+			return res;
+	}
+
+	return 0;
+}
+#endif
+
 u32 get_board_rev(void)
 {
 	return 0;
@@ -342,6 +396,12 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_ETH_DESIGNWARE
 	res = stmmac_setup();
+	if (res)
+		return res;
+#endif
+
+#ifdef CONFIG_STM32_QSPI
+	res = qspi_setup();
 	if (res)
 		return res;
 #endif

@@ -15,8 +15,9 @@
  *
  */
 enum periph_id {
-	UART1_GPIOA_9_10 = 0,
-	UART2_GPIOD_5_6,
+	PERIPH_ID_USART1 = 37,
+
+	PERIPH_ID_QUADSPI = 92,
 };
 
 enum periph_clock {
@@ -37,6 +38,7 @@ enum periph_clock {
 	TIMER2_CLOCK_CFG,
 	FMC_CLOCK_CFG,
 	STMMAC_CLOCK_CFG,
+	QSPI_CLOCK_CFG,
 };
 
 #endif /* __ASM_ARM_ARCH_PERIPH_H */

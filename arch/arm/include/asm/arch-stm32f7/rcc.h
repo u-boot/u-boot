@@ -31,6 +31,7 @@
  * RCC AHB3ENR specific definitions
  */
 #define RCC_AHB3ENR_FMC_EN		BIT(0)
+#define RCC_AHB3ENR_QSPI_EN             BIT(1)
 
 /*
  * RCC APB1ENR specific definitions
