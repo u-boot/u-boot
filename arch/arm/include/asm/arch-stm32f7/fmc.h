@@ -58,12 +58,12 @@ struct stm32_fmc_regs {
 #define FMC_SDCMR_MODE_SELFREFRESH	5
 #define FMC_SDCMR_MODE_POWERDOWN	6
 
-#define FMC_SDCMR_BANK_1		(1 << 4)
-#define FMC_SDCMR_BANK_2		(1 << 3)
+#define FMC_SDCMR_BANK_1		BIT(4)
+#define FMC_SDCMR_BANK_2		BIT(3)
 
 #define FMC_SDCMR_MODE_REGISTER_SHIFT	9
 
-#define FMC_SDSR_BUSY			(1 << 5)
+#define FMC_SDSR_BUSY			BIT(5)
 
 #define FMC_BUSY_WAIT()		do { \
 		__asm__ __volatile__ ("dsb" : : : "memory"); \

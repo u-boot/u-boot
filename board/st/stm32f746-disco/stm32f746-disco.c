@@ -114,11 +114,6 @@ out:
 	return rv;
 }
 
-/*
- * STM32 RCC FMC specific definitions
- */
-#define RCC_ENR_FMC	(1 << 0)	/* FMC module clock  */
-
 static inline u32 _ns2clk(u32 ns, u32 freq)
 {
 	u32 tmp = freq/1000000;
@@ -176,7 +171,7 @@ int dram_init(void)
 	if (rv)
 		return rv;
 
-	setbits_le32(RCC_BASE + RCC_AHB3ENR, RCC_ENR_FMC);
+	setbits_le32(&STM32_RCC->ahb3enr, RCC_AHB3ENR_FMC_EN);
 
 	/*
 	 * Get frequency for NS2CLK calculation.
