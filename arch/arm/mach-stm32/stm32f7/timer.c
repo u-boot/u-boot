@@ -8,8 +8,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
+#include <asm/arch/stm32_defs.h>
 #include <asm/arch/gpt.h>
-#include <asm/arch/rcc.h>
 
 #define READ_TIMER()	(readl(&gpt1_regs_ptr->cnt) & GPT_FREE_RUNNING)
 #define GPT_RESOLUTION	(CONFIG_SYS_HZ_CLOCK/CONFIG_STM32_HZ)
@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int timer_init(void)
 {
 	/* Timer2 clock configuration */
-	setbits_le32(RCC_BASE + RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+	clock_setup(TIMER2_CLOCK_CFG);
 	/* Stop the timer */
 	writel(readl(&gpt1_regs_ptr->cr1) & ~GPT_CR1_CEN, &gpt1_regs_ptr->cr1);
 

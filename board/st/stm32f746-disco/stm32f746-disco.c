@@ -10,7 +10,6 @@
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/rcc.h>
 #include <asm/arch/fmc.h>
 #include <dm/platdata.h>
 #include <dm/platform_data/serial_stm32x7.h>
@@ -171,7 +170,7 @@ int dram_init(void)
 	if (rv)
 		return rv;
 
-	setbits_le32(&STM32_RCC->ahb3enr, RCC_AHB3ENR_FMC_EN);
+	clock_setup(FMC_CLOCK_CFG);
 
 	/*
 	 * Get frequency for NS2CLK calculation.
