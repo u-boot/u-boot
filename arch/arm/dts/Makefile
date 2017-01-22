@@ -176,6 +176,8 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 
 dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb
 
+dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb
+
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
 	sun4i-a10-ba10-tvbox.dtb \
