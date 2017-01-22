@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016-2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -57,14 +58,14 @@ u32 uniphier_ld20_boot_device(void)
 	int boot_mode;
 	u32 usb_boot_mask;
 
-	switch (uniphier_get_soc_type()) {
+	switch (uniphier_get_soc_id()) {
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
-	case SOC_UNIPHIER_LD11:
+	case UNIPHIER_LD11_ID:
 		usb_boot_mask = 0x00000080;
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
-	case SOC_UNIPHIER_LD20:
+	case UNIPHIER_LD20_ID:
 		usb_boot_mask = 0x00000780;
 		break;
 #endif

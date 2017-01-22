@@ -62,6 +62,10 @@ LD20 reference board:
     $ make uniphier_ld20_defconfig
     $ make CROSS_COMPILE=aarch64-linux-gnu-
 
+PXs3 reference board:
+    $ make uniphier_v8_defconfig
+    $ make CROSS_COMPILE=aarch64-linux-gnu- DEVICE_TREE=uniphier-pxs3-ref
+
 You may wish to change the "CROSS_COMPILE=..." to use your favorite compiler.
 
 

@@ -81,19 +81,30 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb
 
-dtb-$(CONFIG_ARCH_UNIPHIER) += \
-	uniphier-ld11-ref.dtb \
-	uniphier-ld20-ref.dtb \
-	uniphier-ld4-ref.dtb \
-	uniphier-ld6b-ref.dtb \
+dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
+	uniphier-ld11-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_LD20) += \
+	uniphier-ld20-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_LD4) += \
+	uniphier-ld4-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_LD6B) += \
+	uniphier-ld6b-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_PRO4) += \
 	uniphier-pro4-ace.dtb \
 	uniphier-pro4-ref.dtb \
-	uniphier-pro4-sanji.dtb \
-	uniphier-pro5-4kbox.dtb \
+	uniphier-pro4-sanji.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_PRO5) += \
+	uniphier-pro5-4kbox.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_PXS2) += \
 	uniphier-pxs2-gentil.dtb \
-	uniphier-pxs2-vodka.dtb \
-	uniphier-sld3-ref.dtb \
+	uniphier-pxs2-vodka.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_PXS3) += \
+	uniphier-pxs3-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_SLD3) += \
+	uniphier-sld3-ref.dtb
+dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
 	uniphier-sld8-ref.dtb
+
 dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \

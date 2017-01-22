@@ -10,7 +10,7 @@ obj-y += bcu/
 
 else
 
-obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
+obj-$(CONFIG_DISPLAY_CPUINFO) += cpu-info.o
 obj-y += dram_init.o
 obj-y += board_init.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
@@ -22,7 +22,7 @@ obj-y += pinctrl-glue.o
 endif
 
 obj-y += boards.o
-obj-y += soc_info.o
+obj-y += soc-info.o
 obj-y += boot-mode/
 obj-y += clk/
 obj-y += dram/

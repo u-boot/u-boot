@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <linux/err.h>
+#include <linux/errno.h>
 #include <linux/io.h>
 
 #include "../init.h"
