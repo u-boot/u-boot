@@ -69,7 +69,7 @@ int get_clocks (void)
 	return (0);
 }
 
-int prt_mpc5xxx_clks (void)
+int print_cpuinfo(void)
 {
 	char buf1[32], buf2[32], buf3[32];
 
