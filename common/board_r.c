@@ -262,17 +262,6 @@ static int initr_pci(void)
 }
 #endif
 
-#ifdef CONFIG_WINBOND_83C553
-static int initr_w83c553f(void)
-{
-	/*
-	 * Initialise the ISA bridge
-	 */
-	initialise_w83c553f();
-	return 0;
-}
-#endif
-
 static int initr_barrier(void)
 {
 #ifdef CONFIG_PPC
@@ -833,9 +822,6 @@ init_fnc_t init_sequence_r[] = {
 	 * because PCU ressources are crucial for flash access on some boards.
 	 */
 	initr_pci,
-#endif
-#ifdef CONFIG_WINBOND_83C553
-	initr_w83c553f,
 #endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
