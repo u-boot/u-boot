@@ -168,7 +168,7 @@
 #define CONFIG_JFFS2_DEV	"nor0"
 
 /* EET platform additions */
-#ifdef CONFIG_IMX31_PHYCORE_EET
+#ifdef CONFIG_TARGET_IMX31_PHYCORE_EET
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_HARD_SPI

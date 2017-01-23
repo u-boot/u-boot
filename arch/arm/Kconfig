@@ -315,7 +315,11 @@ config TARGET_X600
 	select SUPPORT_SPL
 
 config TARGET_IMX31_PHYCORE
-	bool "Support imx31_phycore"
+	bool "Support imx31_phycore_eet"
+	select CPU_ARM1136
+
+config TARGET_IMX31_PHYCORE_EET
+	bool "Support imx31_phycore_eet"
 	select CPU_ARM1136
 
 config TARGET_MX31ADS
