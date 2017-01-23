@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "cyrus"
 
+source "board/freescale/common/Kconfig"
+
 endif

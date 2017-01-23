@@ -9,11 +9,6 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_SECURE_BOOT
-
-#ifndef CONFIG_FIT_SIGNATURE
-#define CONFIG_CHAIN_OF_TRUST
-#endif
-
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
 #elif defined(CONFIG_TARGET_BSC9132QDS)

@@ -22,4 +22,6 @@ config SYS_HAS_ARMV8_SECURE_BASE
 	  If enabled, please also define the value for ARMV8_SECURE_BASE,
 	  for LS1043ARDB, it could be some address in OCRAM.
 
+source "board/freescale/common/Kconfig"
+
 endif

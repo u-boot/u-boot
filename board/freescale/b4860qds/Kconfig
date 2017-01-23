@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "B4860QDS"
 
+source "board/freescale/common/Kconfig"
+
 endif

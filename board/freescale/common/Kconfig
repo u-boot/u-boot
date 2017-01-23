@@ -1,0 +1,4 @@
+config CHAIN_OF_TRUST
+	depends on !FIT_SIGNATURE && SECURE_BOOT
+	bool
+	default y

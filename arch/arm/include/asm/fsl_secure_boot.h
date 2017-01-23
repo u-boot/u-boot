@@ -7,14 +7,6 @@
 #ifndef __FSL_SECURE_BOOT_H
 #define __FSL_SECURE_BOOT_H
 
-#ifdef CONFIG_SECURE_BOOT
-
-#ifndef CONFIG_FIT_SIGNATURE
-#define CONFIG_CHAIN_OF_TRUST
-#endif
-
-#endif
-
 #ifdef CONFIG_CHAIN_OF_TRUST
 #define CONFIG_CMD_ESBC_VALIDATE
 #define CONFIG_FSL_SEC_MON
