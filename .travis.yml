@@ -19,6 +19,8 @@ addons:
     - libsdl1.2-dev
     - python
     - python-virtualenv
+    - swig
+    - libpython-dev
     - gcc-powerpc-linux-gnu
     - gcc-arm-linux-gnueabihf
     - gcc-aarch64-linux-gnu
