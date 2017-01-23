@@ -600,7 +600,17 @@ int	cpu_num_dspcores(void);
 u32	cpu_mask      (void);
 u32	cpu_dsp_mask(void);
 int	is_core_valid (unsigned int);
-int	probecpu      (void);
+
+/**
+ * arch_cpu_init() - basic cpu-dependent setup for an architecture
+ *
+ * This is called after early malloc is available. It should handle any
+ * CPU- or SoC- specific init needed to continue the init sequence. See
+ * board_f.c for where it is called. If this is not provided, a default
+ * version (which does nothing) will be used.
+ */
+int arch_cpu_init(void);
+
 int	checkcpu      (void);
 int	checkicache   (void);
 int	checkdcache   (void);

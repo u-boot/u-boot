@@ -858,10 +858,6 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	initf_malloc,
 	initf_console_record,
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
-	/* TODO: can this go into arch_cpu_init()? */
-	probecpu,
-#endif
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
 	x86_fsp_init,
 #endif
