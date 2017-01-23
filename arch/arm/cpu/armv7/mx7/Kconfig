@@ -18,18 +18,21 @@ choice
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
+	select BOARD_LATE_INIT
 	select MX7D
 	select DM
 	select DM_THERMAL
 
 config TARGET_WARP7
 	bool "warp7"
+	select BOARD_LATE_INIT
 	select MX7D
 	select DM
 	select DM_THERMAL
 
 config TARGET_COLIBRI_IMX7
 	bool "Support Colibri iMX7S/iMX7D modules"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL

@@ -12,6 +12,7 @@ choice
 
 config TARGET_CONGA_QEVAL20_QA3_E3845
 	bool "congatec QEVAL 2.0 & conga-QA3/E3845"
+	select BOARD_LATE_INIT
 	help
 	  This is the congatec Qseven 2.0 evaluation carrier board
 	  (conga-QEVAL) equipped with the conga-QA3/E3845-4G SoM.

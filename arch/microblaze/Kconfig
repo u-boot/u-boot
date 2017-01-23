@@ -10,6 +10,7 @@ choice
 
 config TARGET_MICROBLAZE_GENERIC
 	bool "Support microblaze-generic"
+	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select DM

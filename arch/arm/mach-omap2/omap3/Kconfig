@@ -96,9 +96,11 @@ config TARGET_TRICORDER
 
 config TARGET_MCX
 	bool "MCX"
+	select BOARD_LATE_INIT
 
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO

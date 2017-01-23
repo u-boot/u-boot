@@ -86,6 +86,7 @@ config TARGET_DB_88F6820_AMC
 config TARGET_MVEBU_ARMADA_8K
 	bool "Support Armada 7k/8k platforms"
 	select ARMADA_8K
+	select BOARD_LATE_INIT
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
@@ -101,6 +102,7 @@ config TARGET_MAXBCM
 
 config TARGET_THEADORABLE
 	bool "Support theadorable Armada XP"
+	select BOARD_LATE_INIT if USB
 	select MV78260
 
 endchoice

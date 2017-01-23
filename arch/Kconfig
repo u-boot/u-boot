@@ -60,6 +60,7 @@ config PPC
 
 config SANDBOX
 	bool "Sandbox"
+	select BOARD_LATE_INIT
 	select SUPPORT_OF_CONTROL
 	select DM
 	select DM_KEYBOARD

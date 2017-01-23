@@ -20,6 +20,7 @@ config TARGET_USBARMORY
 
 config TARGET_MX53CX9020
 	bool "Support CX9020"
+	select BOARD_LATE_INIT
 	select CPU_V7
 	select MX53
 	select DM

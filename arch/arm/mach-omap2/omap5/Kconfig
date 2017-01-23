@@ -51,11 +51,13 @@ config TARGET_OMAP5_UEVM
 
 config TARGET_DRA7XX_EVM
 	bool "TI DRA7XX"
+	select BOARD_LATE_INIT
 	select TI_I2C_BOARD_DETECT
 	select PHYS_64BIT
 
 config TARGET_AM57XX_EVM
 	bool "AM57XX"
+	select BOARD_LATE_INIT
 	select TI_I2C_BOARD_DETECT
 
 endchoice

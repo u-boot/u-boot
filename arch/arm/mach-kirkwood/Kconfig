@@ -33,6 +33,7 @@ config TARGET_ICONNECT
 
 config TARGET_KM_KIRKWOOD
 	bool "KM_KIRKWOOD Board"
+	select BOARD_LATE_INIT
 
 config TARGET_NET2BIG_V2
 	bool "LaCie 2Big Network v2 NAS Board"

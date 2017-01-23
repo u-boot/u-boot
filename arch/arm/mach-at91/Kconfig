@@ -25,6 +25,7 @@ config TARGET_SNAPPER9260
 
 config TARGET_GURNARD
 	bool "Support gurnard"
+	select BOARD_LATE_INIT
 	select CPU_ARM926EJS
 	select DM
 	select DM_SERIAL
@@ -96,6 +97,7 @@ config TARGET_SAMA5D3_XPLAINED
 
 config TARGET_SAMA5D3XEK
 	bool "SAMA5D3X-EK board"
+	select BOARD_LATE_INIT
 	select CPU_V7
 	select SUPPORT_SPL
 
