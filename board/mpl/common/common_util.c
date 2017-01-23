@@ -622,15 +622,6 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return cmd_usage(cmdtp);
 }
 
-
-#if defined(CONFIG_CMD_DOC)
-void doc_init (void)
-{
-  doc_probe(MULTI_PURPOSE_SOCKET_ADDR);
-}
-#endif
-
-
 #ifdef CONFIG_VIDEO
 /******************************************************
  * Routines to display the Board information

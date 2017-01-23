@@ -20,7 +20,6 @@
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
 #define CONFIG_CMD_DIAG		/* Diagnostics			*/
 #define CONFIG_CMD_DISPLAY	/* Display support		*/
-#define CONFIG_CMD_DOC		/* Disk-On-Chip Support		*/
 #define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/

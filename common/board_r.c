@@ -619,15 +619,6 @@ static int initr_scsi(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_DOC)
-static int initr_doc(void)
-{
-	puts("DOC:   ");
-	doc_init();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_BITBANGMII
 static int initr_bbmii(void)
 {
@@ -912,10 +903,6 @@ init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
 	INIT_FUNC_WATCHDOG_RESET
 	initr_scsi,
-#endif
-#ifdef CONFIG_CMD_DOC
-	INIT_FUNC_WATCHDOG_RESET
-	initr_doc,
 #endif
 #ifdef CONFIG_BITBANGMII
 	initr_bbmii,

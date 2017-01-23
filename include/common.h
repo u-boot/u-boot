@@ -346,9 +346,6 @@ extern ulong load_addr;		/* Default Load Address */
 extern ulong save_addr;		/* Default Save Address */
 extern ulong save_size;		/* Default Save Size */
 
-/* common/cmd_doc.c */
-void	doc_probe(unsigned long physadr);
-
 /* common/cmd_net.c */
 int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 

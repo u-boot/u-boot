@@ -23,8 +23,5 @@ int get_boot_mode(void);
 void setup_cs_reloc(void);
 
 void check_env(void);
-#if defined(CONFIG_CMD_DOC)
-void doc_init (void);
-#endif
 
 #endif /* _COMMON_UTIL_H_ */
