@@ -175,7 +175,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
-#define CONFIG_ARCH_EARLY_INIT_R
 
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */

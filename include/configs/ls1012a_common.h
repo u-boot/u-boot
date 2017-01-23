@@ -89,8 +89,6 @@
 #define CONFIG_CMD_ENV
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_ARCH_EARLY_INIT_R
-
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_HWCONFIG

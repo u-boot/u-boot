@@ -15,7 +15,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_ARCH_MISC_INIT
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \

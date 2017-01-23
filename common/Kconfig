@@ -399,4 +399,17 @@ config DISPLAY_BOARDINFO
 	  when U-Boot starts up. The board function checkboard() is called
 	  to do this.
 
+menu "Start-up hooks"
+
+config ARCH_EARLY_INIT_R
+	bool "Call arch-specific init soon after relocation"
+	default y if X86
+	help
+	  With this option U-Boot will call arch_early_init_r() soon after
+	  relocation. Driver model is running by this point, and the cache
+	  is on. Note that board_early_init_r() is called first, if
+	  enabled. This can be used to set up architecture-specific devices.
+
+endmenu
+
 source "common/spl/Kconfig"

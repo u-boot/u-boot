@@ -12,6 +12,7 @@ config ARC
 	bool "ARC architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select ARCH_EARLY_INIT_R
 
 config ARM
 	bool "ARM architecture"
