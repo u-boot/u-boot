@@ -102,7 +102,6 @@
  * Misc Settings
  */
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	1
 #define CONFIG_BOOTCOMMAND	"run flashboot"

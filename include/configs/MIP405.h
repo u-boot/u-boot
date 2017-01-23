@@ -246,7 +246,6 @@
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
 #define FLASH_SIZE_PRELIM	 3  /* maximal flash FLASH size bank #0	*/
 
-#define CONFIG_BOARD_EARLY_INIT_F 1
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /* Peripheral Bus Mapping */

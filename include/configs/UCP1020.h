@@ -157,8 +157,6 @@
 #define CONFIG_L2_CACHE
 #define CONFIG_BTB
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */

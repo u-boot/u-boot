@@ -27,7 +27,6 @@
 #define CONFIG_NETCONSOLE		1
 
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* do board-specific init */
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* do board-specific init */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_XLB_PIPELINING		1	/* gives better performance */

@@ -27,30 +27,36 @@ config TARGET_MPC8308RDB
 config TARGET_MPC8313ERDB
 	bool "Support MPC8313ERDB"
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8315ERDB
 	bool "Support MPC8315ERDB"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8323ERDB
 	bool "Support MPC8323ERDB"
 
 config TARGET_MPC832XEMDS
 	bool "Support MPC832XEMDS"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
 	select SYS_FSL_DDR
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_DDR_BE
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
 
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_IDS8313
 	bool "Support ids8313"

@@ -20,8 +20,6 @@
 #define CONFIG_IODELAY_RECALIBRATION
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_NR_DRAM_BANKS		2
 
 #define CONFIG_ENV_SIZE			(64 << 10)

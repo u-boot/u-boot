@@ -19,7 +19,6 @@
 #define CONFIG_HOSTNAME		dlvision
 #include "amcc-common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
 #define CONFIG_MISC_INIT_R		/* call misc_init_r */
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */

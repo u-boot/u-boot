@@ -32,8 +32,6 @@
 /* Reclaim some space. */
 #undef CONFIG_SYS_LONGHELP
 
-#define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/
-
 /*
  * Please note that, if NAND support is enabled, the 2nd ethernet port
  * can't be used because of pin multiplexing. So, if you want to use the

@@ -18,8 +18,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
 #define CONFIG_SUPPORT_EMMC_BOOT

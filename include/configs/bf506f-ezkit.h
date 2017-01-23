@@ -78,7 +78,6 @@
 /*
  * Misc Settings
  */
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ICACHE_OFF
 #define CONFIG_DCACHE_OFF
 #define CONFIG_UART_CONSOLE	0

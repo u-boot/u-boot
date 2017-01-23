@@ -40,7 +40,6 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F	1
 
 #ifndef CONFIG_SPL
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */

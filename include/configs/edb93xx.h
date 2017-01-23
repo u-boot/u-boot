@@ -223,8 +223,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ep93xx-ohci"
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x80020000
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* Define to disable flash configuration*/
 /* #define CONFIG_EP93XX_NO_FLASH_CFG */
 

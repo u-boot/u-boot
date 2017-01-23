@@ -15,7 +15,6 @@
 #include <environment/ti/dfu.h>
 
 #define CONFIG_DRA7XX
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_IODELAY_RECALIBRATION

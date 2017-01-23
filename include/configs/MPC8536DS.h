@@ -61,8 +61,6 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #ifdef CONFIG_PHYS_64BIT

@@ -22,7 +22,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
-#define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
 #define CONFIG_SYS_CLK_FREQ     33333400 /* external frequency to pll   */

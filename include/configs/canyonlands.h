@@ -47,7 +47,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	66666667	/* external freq to pll	*/
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* Call board_early_init_f */
 #define CONFIG_BOARD_EARLY_INIT_R		/* Call board_early_init_r */
 #define CONFIG_MISC_INIT_R			/* Call misc_init_r */
 #define CONFIG_BOARD_TYPES			/* support board types */

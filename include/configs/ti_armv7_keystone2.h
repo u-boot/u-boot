@@ -14,7 +14,6 @@
 
 /* U-Boot Build Configuration */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT

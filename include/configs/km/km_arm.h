@@ -305,7 +305,6 @@ int get_scl(void);
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 /* Do early setups now in board_init_f() */
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * resereved pram area at the end of memroy [hex]

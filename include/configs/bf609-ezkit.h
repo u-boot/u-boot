@@ -132,7 +132,6 @@
 /*
  * Misc Settings
  */
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_UART_CONSOLE	0
 
 #define CONFIG_CMD_SOFTSWITCH

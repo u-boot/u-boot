@@ -72,7 +72,6 @@
  */
 #define CONFIG_SYS_SICRL		0x00000000
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* call board_pre_init */
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /*

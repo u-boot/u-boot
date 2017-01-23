@@ -38,7 +38,6 @@
  * This board might be of different versions so handle it
  */
 #define CONFIG_BOARD_TYPES
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * NAND Flash configuration

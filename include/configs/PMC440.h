@@ -35,7 +35,6 @@
 #define CONFIG_4xx_DCACHE		/* enable dcache        */
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_F	1
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r     */
 #define CONFIG_BOARD_TYPES	1	/* support board types  */

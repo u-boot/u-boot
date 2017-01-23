@@ -162,6 +162,7 @@ config TARGET_MX6QSABREAUTO
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6SABRESD
 	bool "mx6sabresd"
@@ -169,6 +170,7 @@ config TARGET_MX6SABRESD
 	select SUPPORT_SPL
 	select DM
 	select DM_THERMAL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
@@ -187,6 +189,7 @@ config TARGET_MX6SXSABRESD
 	select SUPPORT_SPL
 	select DM
 	select DM_THERMAL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6SXSABREAUTO
         bool "mx6sxsabreauto"
@@ -194,6 +197,7 @@ config TARGET_MX6SXSABREAUTO
 	select MX6SX
         select DM
         select DM_THERMAL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6UL_9X9_EVK
 	bool "mx6ul_9x9_evk"

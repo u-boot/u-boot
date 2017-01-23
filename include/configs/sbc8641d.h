@@ -75,8 +75,6 @@
 #define CONFIG_SYS_CLK_FREQ     get_board_sys_clk(0)
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #undef	CONFIG_SYS_DRAM_TEST				/* memory test, takes time */
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x00400000

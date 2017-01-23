@@ -151,7 +151,6 @@
 
 #undef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_USER_LOWLEVEL_INIT	1
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * Hardware drivers

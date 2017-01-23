@@ -19,8 +19,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_MII

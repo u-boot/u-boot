@@ -54,7 +54,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 #define CONFIG_BOARD_EARLY_INIT_R	1
 #define CONFIG_HWCONFIG
 

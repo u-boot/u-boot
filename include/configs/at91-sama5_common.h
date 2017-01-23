@@ -24,8 +24,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* general purpose I/O */

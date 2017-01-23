@@ -49,7 +49,6 @@
 #define CONFIG_SYS_MPC512X_CLKIN	33333333	/* in Hz */
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f() */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_IMMR		0x80000000

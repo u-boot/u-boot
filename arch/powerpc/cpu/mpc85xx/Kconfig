@@ -33,12 +33,14 @@ config TARGET_BSC9131RDB
 	bool "Support BSC9131RDB"
 	select ARCH_BSC9131
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_BSC9132QDS
 	bool "Support BSC9132QDS"
 	select ARCH_BSC9132
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"

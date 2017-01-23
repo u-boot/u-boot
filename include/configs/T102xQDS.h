@@ -28,9 +28,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_DEEP_SLEEP
-#if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif
 
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 

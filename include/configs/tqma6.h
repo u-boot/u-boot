@@ -32,8 +32,6 @@
 #define PHYS_SDRAM_SIZE			(1024u * SZ_1M)
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_MXC_UART
 
 /* SPI */

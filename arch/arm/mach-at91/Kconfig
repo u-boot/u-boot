@@ -11,6 +11,7 @@ config TARGET_AT91RM9200EK
 config TARGET_AT91SAM9260EK
 	bool "Atmel at91sam9260 reference board"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_ETHERNUT5
 	bool "Ethernut5 board"
@@ -43,6 +44,7 @@ config TARGET_PM9261
 config TARGET_AT91SAM9263EK
 	bool "Atmel at91sam9263 reference board"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_USB_A9263
 	bool "Caloa USB A9260 board"
@@ -56,6 +58,7 @@ config TARGET_AT91SAM9M10G45EK
 	bool "Atmel AT91SAM9M10G45-EK board"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"
@@ -70,46 +73,55 @@ config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_AT91SAM9RLEK
 	bool "Atmel at91sam9rl reference board"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_AT91SAM9X5EK
 	bool "Atmel AT91SAM9X5-EK board"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D2_PTC
 	bool "SAMA5D2 PTC board"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D2_XPLAINED
 	bool "SAMA5D2 Xplained board"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D3XEK
 	bool "SAMA5D3X-EK board"
 	select BOARD_LATE_INIT
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D4_XPLAINED
 	bool "SAMA5D4 Xplained board"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D4EK
 	bool "SAMA5D4 Evaluation Kit"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MA5D4EVK
 	bool "DENX MA5D4EVK Evaluation Kit"

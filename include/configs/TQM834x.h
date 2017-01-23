@@ -41,7 +41,6 @@
 #define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_8
 
 /* board pre init: do not call, nothing to do */
-#undef CONFIG_BOARD_EARLY_INIT_F
 
 /* detect the number of flash banks */
 #define CONFIG_BOARD_EARLY_INIT_R

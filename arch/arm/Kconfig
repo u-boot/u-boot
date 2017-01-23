@@ -201,6 +201,7 @@ config ARCH_DAVINCI
 config KIRKWOOD
 	bool "Marvell Kirkwood"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
@@ -226,6 +227,7 @@ config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select BOARD_LATE_INIT
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_ZMX25
 	bool "Support zmx25"
@@ -256,16 +258,19 @@ config TARGET_MX23EVK
 	bool "Support mx23evk"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX23_OLINUXINO
 	bool "Support mx23_olinuxino"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_BG0900
 	bool "Support bg0900"
@@ -289,18 +294,22 @@ config ORION5X
 config TARGET_SPEAR300
 	bool "Support spear300"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SPEAR310
 	bool "Support spear310"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SPEAR320
 	bool "Support spear320"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_SPEAR600
 	bool "Support spear600"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_STV0991
 	bool "Support stv0991"
@@ -320,21 +329,25 @@ config TARGET_X600
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore_eet"
 	select CPU_ARM1136
+	select BOARD_EARLY_INIT_F
 
 config TARGET_IMX31_PHYCORE_EET
 	bool "Support imx31_phycore_eet"
 	select BOARD_LATE_INIT
 	select CPU_ARM1136
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX31ADS
 	bool "Support mx31ads"
 	select CPU_ARM1136
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX31PDK
 	bool "Support mx31pdk"
 	select BOARD_LATE_INIT
 	select CPU_ARM1136
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_WOODBURN
 	bool "Support woodburn"
@@ -503,6 +516,7 @@ config ARCH_MX7
 	select SYS_FSL_HAS_SEC if SECURE_BOOT
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
+	select BOARD_EARLY_INIT_F
 
 config ARCH_MX6
 	bool "Freescale MX6"
@@ -514,34 +528,41 @@ config ARCH_MX6
 config ARCH_MX5
 	bool "Freescale MX5"
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config TARGET_M53EVK
 	bool "Support m53evk"
 	select CPU_V7
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX51EVK
 	bool "Support mx51evk"
 	select BOARD_LATE_INIT
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX53ARD
 	bool "Support mx53ard"
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX53EVK
 	bool "Support mx53evk"
 	select BOARD_LATE_INIT
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX53LOCO
 	bool "Support mx53loco"
 	select BOARD_LATE_INIT
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MX53SMD
 	bool "Support mx53smd"
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
@@ -581,6 +602,7 @@ config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select DM
 	select DM_SERIAL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
@@ -829,6 +851,7 @@ config TARGET_LS1021AQDS
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
 	select SYS_FSL_DDR
+	select BOARD_EARLY_INIT_F
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
@@ -840,6 +863,7 @@ config TARGET_LS1021ATWR
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
+	select BOARD_EARLY_INIT_F
 
 config TARGET_LS1021AIOT
 	bool "Support ls1021aiot"
@@ -863,6 +887,7 @@ config TARGET_LS1043AQDS
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 	help
 	  Support for Freescale LS1043AQDS platform.
 
@@ -873,6 +898,7 @@ config TARGET_LS1043ARDB
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 	help
 	  Support for Freescale LS1043ARDB platform.
 
@@ -884,6 +910,7 @@ config TARGET_LS1046AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if DM_SPI
+	select BOARD_EARLY_INIT_F
 	help
 	  Support for Freescale LS1046AQDS platform.
 	  The LS1046A Development System (QDS) is a high-performance
@@ -899,6 +926,7 @@ config TARGET_LS1046ARDB
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if DM_SPI
 	select POWER_MC34VR500
+	select BOARD_EARLY_INIT_F
 	help
 	  Support for Freescale LS1046ARDB platform.
 	  The LS1046A Reference Design Board (RDB) is a high-performance

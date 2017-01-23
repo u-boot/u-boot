@@ -410,6 +410,16 @@ config ARCH_EARLY_INIT_R
 	  is on. Note that board_early_init_r() is called first, if
 	  enabled. This can be used to set up architecture-specific devices.
 
+config BOARD_EARLY_INIT_F
+	bool "Call board-specific init before relocation"
+	default y if X86
+	help
+	  Some boards need to perform initialisation as soon as possible
+	  after boot. With this option, U-Boot calls board_early_init_f()
+	  after driver model is ready in the pre-relocation init sequence.
+	  Note that the normal serial console is not yet set up, but the
+	  debug UART will be available if enabled.
+
 endmenu
 
 source "common/spl/Kconfig"

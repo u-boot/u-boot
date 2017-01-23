@@ -71,8 +71,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_L2_CACHE
 #define CONFIG_BTB
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
-
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x1fffffff
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */

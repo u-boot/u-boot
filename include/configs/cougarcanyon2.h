@@ -10,7 +10,6 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(2 << 20)
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SMSC_SIO1007
 

@@ -36,7 +36,6 @@
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /* Needed to fill the ccsrbar pointer */
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Virtual address to CCSRBAR */
 #define CONFIG_SYS_CCSRBAR		0xe0000000

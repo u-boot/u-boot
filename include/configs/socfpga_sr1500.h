@@ -8,8 +8,6 @@
 
 #include <asm/arch/base_addr_ac5.h>
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE

@@ -14,7 +14,6 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #ifndef CONFIG_INTERNAL_UART
 /* Use BayTrail internal HS UART which is memory-mapped */

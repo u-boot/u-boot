@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /*
  * Size of malloc() pool
  */

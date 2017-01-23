@@ -117,7 +117,6 @@
  */
 
 /* Board startup config */
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM

@@ -27,8 +27,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
 

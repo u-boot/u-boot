@@ -15,8 +15,6 @@
 
 #include "at91-sama5_common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_MISC_INIT_R
 
 /* SDRAM */

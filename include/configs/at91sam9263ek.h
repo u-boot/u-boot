@@ -41,8 +41,6 @@
 #define CONFIG_SYS_USE_NORFLASH
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /*
  * Hardware drivers
  */

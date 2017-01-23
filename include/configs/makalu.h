@@ -31,7 +31,6 @@
 #define CONFIG_ADDMISC	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"
 #include "amcc-common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
 
 /*-----------------------------------------------------------------------

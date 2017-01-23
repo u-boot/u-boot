@@ -21,8 +21,6 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* Physical Memory Map */
 
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */

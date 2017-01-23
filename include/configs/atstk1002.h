@@ -94,7 +94,6 @@
 #define CONFIG_BOOTP_GATEWAY
 
 /* generic board */
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /*

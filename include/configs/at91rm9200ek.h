@@ -56,8 +56,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /*
  * Memory Configuration
  */

@@ -50,8 +50,6 @@
 #endif
 #endif
 
-#undef CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
-
 #define CONFIG_SYS_IMMR		0xE0000000
 
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */

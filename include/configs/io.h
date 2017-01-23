@@ -19,7 +19,6 @@
 #define CONFIG_HOSTNAME		io
 #include "amcc-common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT

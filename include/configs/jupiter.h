@@ -28,7 +28,6 @@
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_BOARD_EARLY_INIT_R	1
-#define CONFIG_BOARD_EARLY_INIT_F	1
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 

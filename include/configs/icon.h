@@ -30,7 +30,6 @@
 #define CONFIG_HOSTNAME		icon
 #include "amcc-common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init	*/
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_early_init_r */
 
 /*

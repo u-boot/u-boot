@@ -18,7 +18,6 @@
 #include <linux/sizes.h>
 
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Size of malloc() pool before and after relocation */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))

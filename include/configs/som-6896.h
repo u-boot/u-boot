@@ -14,7 +14,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SCSI_DEV_LIST	\

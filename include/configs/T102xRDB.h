@@ -33,9 +33,6 @@
 #ifdef CONFIG_ARCH_T1024
 #define CONFIG_DEEP_SLEEP
 #endif
-#if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xrdb/t1024_pbi.cfg

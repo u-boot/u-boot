@@ -291,8 +291,6 @@
 #define CONFIG_L2_CACHE
 #define CONFIG_BTB
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #ifdef CONFIG_PHYS_64BIT
