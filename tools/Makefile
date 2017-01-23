@@ -117,7 +117,8 @@ _libfdt.so-sharedobjs += $(LIBFDT_OBJS)
 libfdt:
 
 tools/_libfdt.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) tools/libfdt_wrap.c
-	python $(srctree)/lib/libfdt/setup.py "$(_hostc_flags)" $^
+	LDFLAGS="$(HOSTLDFLAGS)" python $(srctree)/lib/libfdt/setup.py \
+		"$(_hostc_flags)" $^
 	mv _libfdt.so $@
 
 tools/libfdt_wrap.c: $(srctree)/lib/libfdt/libfdt.swig
