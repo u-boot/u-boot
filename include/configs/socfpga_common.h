@@ -15,7 +15,6 @@
  * High level configuration
  */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_CLOCKS
 

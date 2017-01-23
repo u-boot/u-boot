@@ -29,8 +29,6 @@
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
 
-#define CONFIG_ARCH_MISC_INIT
-
 #define CONFIG_LOADADDR                 0x80800000
 #define CONFIG_SYS_TEXT_BASE            0x87800000
 

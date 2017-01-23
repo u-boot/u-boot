@@ -79,7 +79,6 @@
  * to enable certain macros
  */
 #include "mv-common.h"
-#undef CONFIG_ARCH_MISC_INIT
 
 #ifdef CONFIG_SYS_NS16550_COM1
 #undef CONFIG_SYS_NS16550_COM1

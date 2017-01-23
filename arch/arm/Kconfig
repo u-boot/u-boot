@@ -202,6 +202,7 @@ config KIRKWOOD
 	bool "Marvell Kirkwood"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
+	select ARCH_MISC_INIT
 
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
@@ -517,6 +518,7 @@ config ARCH_MX7
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select BOARD_EARLY_INIT_F
+	select ARCH_MISC_INIT
 
 config ARCH_MX6
 	bool "Freescale MX6"
@@ -630,6 +632,7 @@ config ARCH_SOCFPGA
 	select DM_SPI
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select ARCH_EARLY_INIT_R
+	select ARCH_MISC_INIT
 
 config TARGET_CM_T43
 	bool "Support cm_t43"
@@ -754,6 +757,7 @@ config TARGET_LS2080A_EMU
 	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_MISC_INIT
 	help
 	  Support for Freescale LS2080A_EMU platform
 	  The LS2080A Development System (EMULATOR) is a pre silicon
@@ -765,6 +769,7 @@ config TARGET_LS2080A_SIMU
 	select ARCH_LS2080A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_MISC_INIT
 	help
 	  Support for Freescale LS2080A_SIMU platform
 	  The LS2080A Development System (QDS) is a pre silicon
@@ -778,6 +783,7 @@ config TARGET_LS2080AQDS
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select ARCH_MISC_INIT
 	help
 	  Support for Freescale LS2080AQDS platform
 	  The LS2080A Development System (QDS) is a high-performance
@@ -791,6 +797,7 @@ config TARGET_LS2080ARDB
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select ARCH_MISC_INIT
 	help
 	  Support for Freescale LS2080ARDB platform.
 	  The LS2080A Reference design board (RDB) is a high-performance

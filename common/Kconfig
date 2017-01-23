@@ -410,6 +410,14 @@ config ARCH_EARLY_INIT_R
 	  is on. Note that board_early_init_r() is called first, if
 	  enabled. This can be used to set up architecture-specific devices.
 
+config ARCH_MISC_INIT
+	bool "Call arch-specific init after relocation, when console is ready"
+	help
+	  With this option U-Boot will call arch_misc_init() after
+	  relocation to allow miscellaneous arch-dependent initialisation
+	  to be performed. This function should be defined by the board
+	  and will be called after the console is set up, after relocaiton.
+
 config BOARD_EARLY_INIT_F
 	bool "Call board-specific init before relocation"
 	default y if X86

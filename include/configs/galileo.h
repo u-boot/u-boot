@@ -14,7 +14,6 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_ARCH_MISC_INIT
 
 /* ns16550 UART is memory-mapped in Quark SoC */
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED

@@ -26,6 +26,7 @@ config AVR32
 
 config BLACKFIN
 	bool "Blackfin architecture"
+	select ARCH_MISC_INIT
 
 config M68K
 	bool "M68000 architecture"

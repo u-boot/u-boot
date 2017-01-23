@@ -209,7 +209,6 @@
  * Other required minimal configurations
  */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
-#define CONFIG_ARCH_MISC_INIT		/* call arch_misc_init() */
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_LOAD_ADDR		0x00800000

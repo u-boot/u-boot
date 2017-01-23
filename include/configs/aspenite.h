@@ -35,7 +35,6 @@
  * to enable certain macros
  */
 #include "mv-common.h"
-#undef CONFIG_ARCH_MISC_INIT
 
 /*
  * Environment variables configurations

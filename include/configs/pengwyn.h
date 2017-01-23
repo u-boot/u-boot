@@ -183,7 +183,6 @@
  * add mass storage support.
  */
 #define CONFIG_USB_MUSB_DSPS
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0

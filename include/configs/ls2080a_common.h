@@ -20,7 +20,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 
 /* We need architecture specific misc initializations */
-#define CONFIG_ARCH_MISC_INIT
 
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 

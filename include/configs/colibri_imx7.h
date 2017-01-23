@@ -19,8 +19,6 @@
 /*#define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-#define CONFIG_ARCH_MISC_INIT
-
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_ENV_VARS_UBOOT_CONFIG

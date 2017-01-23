@@ -11,8 +11,6 @@
 
 #include "tegra20-common.h"
 
-#define CONFIG_ARCH_MISC_INIT
-
 /* High-level configuration options */
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 

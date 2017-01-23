@@ -18,7 +18,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT

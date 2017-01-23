@@ -9,6 +9,7 @@ config ARMADA_32BIT
 	select SPL_OF_CONTROL
 	select SPL_SIMPLE_BUS
 	select BOARD_EARLY_INIT_F
+	select ARCH_MISC_INIT
 
 config ARMADA_64BIT
 	bool
