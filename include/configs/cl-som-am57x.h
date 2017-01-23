@@ -103,6 +103,8 @@
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_MCS7830
 
+#endif /* !CONFIG_SPL_BUILD */
+
 /* CPSW Ethernet */
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
@@ -119,8 +121,6 @@
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT		10
-
-#endif /* !CONFIG_SPL_BUILD */
 
 /* Default environment */
 #undef CONFIG_EXTRA_ENV_SETTINGS

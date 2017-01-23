@@ -102,7 +102,7 @@ static const struct pad_conf_entry cl_som_am57x_padconf_ethernet[] = {
 	{VIN2A_D22,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D22.RGMII1_RXD1 */
 	{VIN2A_D23,  (IEN  | PDIS | PTD | M3) }, /* VIN2A_D23.RGMII1_RXD0 */
 	/* Eth PHY1 reset GPIOs*/
-	{VIN1B_CLK1, (IDIS | PDIS | PTD | M14)}, /* VIN1B_CLK1.GPIO2_31 */
+	{VIN2A_CLK0, (IDIS | PDIS | PTD | M14)}, /* VIN2A_CLK0.GPIO3_28 */
 };
 
 #define SET_MUX(mux_array) do_set_mux32((*ctrl)->control_padconf_core_base, \
