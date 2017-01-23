@@ -532,8 +532,8 @@
 			clock-names = "clk_sys", "clk_flash";
 			interrupt-parent = <&gic>;
 			interrupts = <0 14 4>;
-			#address-cells = <2>;
-			#size-cells = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x872>;
 		};
