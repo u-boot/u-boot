@@ -181,14 +181,7 @@ void spi_init_f (void)
 	spi->spi_tbc	= 0;
 	spi->spi_txtmp	= 0;
 
-	/* Allocate space for one transmit and one receive buffer
-	 * descriptor in the DP ram
-	 */
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	dpaddr = m8260_cpm_dpalloc (sizeof(cbd_t)*2, 8);
-#else
 	dpaddr = CPM_SPI_BASE;
-#endif
 
 /* 3 */
 	/* Set up the SPI parameters in the parameter ram */

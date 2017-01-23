@@ -103,12 +103,7 @@ static void smc_init (int smc_index)
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */
-
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	dpaddr = dpram_alloc_align (sizeof (cbd_t) * 2 + 2, 8);
-#else
 	dpaddr = CPM_POST_BASE;
-#endif
 
 	/* Allocate space for two buffer descriptors in the DP ram.
 	 * For now, this address seems OK, but it may have to
@@ -276,15 +271,7 @@ static void scc_init (int scc_index)
 	 */
 	sp->scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 
-
-	/* Allocate space for two buffer descriptors in the DP ram.
-	 */
-
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	dpaddr = dpram_alloc_align (sizeof (cbd_t) * 2 + 2, 8);
-#else
 	dpaddr = CPM_POST_BASE;
-#endif
 
 	/* Enable SDMA.
 	 */

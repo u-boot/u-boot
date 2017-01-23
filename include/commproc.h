@@ -51,20 +51,6 @@
 /*
  * DPRAM defines and allocation functions
  */
-
-/* The dual ported RAM is multi-functional.  Some areas can be (and are
- * being) used for microcode.  There is an area that can only be used
- * as data ram for buffer descriptors, which is all we use right now.
- * Currently the first 512 and last 256 bytes are used for microcode.
- */
-#ifdef  CONFIG_SYS_ALLOC_DPRAM
-
-#define CPM_DATAONLY_BASE	((uint)0x0800)
-#define CPM_DATAONLY_SIZE	((uint)0x0700)
-#define CPM_DP_NOSPACE		((uint)0x7fffffff)
-
-#else
-
 #define CPM_SERIAL_BASE		0x0800
 #define CPM_I2C_BASE		0x0820
 #define CPM_SPI_BASE		0x0840
@@ -73,8 +59,6 @@
 #define CPM_SCC_BASE		0x0900
 #define CPM_POST_BASE		0x0980
 #define CPM_WLKBD_BASE		0x0a00
-
-#endif
 
 #ifndef CONFIG_SYS_CPM_POST_WORD_ADDR
 #define CPM_POST_WORD_ADDR	0x07FC

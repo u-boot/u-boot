@@ -10,7 +10,6 @@
 extra-y += start.o
 extra-y += traps.o
 obj-y	+= bedbug_860.o
-obj-y	+= commproc.o
 obj-y	+= cpu.o
 obj-y	+= cpu_init.o
 obj-y	+= fec.o

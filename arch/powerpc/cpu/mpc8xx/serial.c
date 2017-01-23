@@ -176,15 +176,7 @@ static int smc_init (void)
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */
-
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	/* allocate
-	 * size of struct serialbuffer with bd rx/tx, buffer rx/tx and rx index
-	 */
-	dpaddr = dpram_alloc_align((sizeof(serialbuffer_t)), 8);
-#else
-	dpaddr = CPM_SERIAL_BASE ;
-#endif
+	dpaddr = CPM_SERIAL_BASE;
 
 	rtx = (serialbuffer_t *)&cp->cp_dpmem[dpaddr];
 	/* Allocate space for two buffer descriptors in the DP ram.
@@ -421,12 +413,7 @@ static int scc_init (void)
 #endif
 
 	/* Allocate space for two buffer descriptors in the DP ram. */
-
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
-#else
-	dpaddr = CPM_SERIAL2_BASE ;
-#endif
+	dpaddr = dpram_alloc_align(sizeof(cbd_t)*2 + 2, 8);
 
 	/* Enable SDMA.	*/
 	im->im_siu_conf.sc_sdcr = 0x0001;

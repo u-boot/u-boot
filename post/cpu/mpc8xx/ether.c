@@ -119,12 +119,7 @@ static void scc_init (int scc_index)
 	rxIdx = 0;
 	txIdx = 0;
 
-#ifdef CONFIG_SYS_ALLOC_DPRAM
-	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
-					 dpram_alloc_align (sizeof (RTXBD), 8));
-#else
 	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
-#endif
 
 #if 0
 
