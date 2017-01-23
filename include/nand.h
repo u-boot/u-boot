@@ -132,8 +132,6 @@ void board_nand_select_device(struct nand_chip *nand, int chip);
 
 __attribute__((noreturn)) void nand_boot(void);
 
-#endif
-
 #ifdef CONFIG_ENV_OFFSET_OOB
 #define ENV_OOB_MARKER 0x30425645 /*"EVB0" in little-endian -- offset is stored
 				    as block number*/
@@ -146,3 +144,5 @@ int spl_nand_erase_one(int block, int page);
 
 /* platform specific init functions */
 void sunxi_nand_init(void);
+
+#endif /* _NAND_H_ */
