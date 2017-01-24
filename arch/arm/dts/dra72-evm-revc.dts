@@ -67,7 +67,7 @@
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_250_PS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_8_B_NIB>;
-		ti,min-output-imepdance;
+		ti,min-output-impedance;
 	};
 
 	dp83867_1: ethernet-phy@3 {
@@ -75,6 +75,6 @@
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_250_PS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_8_B_NIB>;
-		ti,min-output-imepdance;
+		ti,min-output-impedance;
 	};
 };
