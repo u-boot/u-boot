@@ -224,6 +224,11 @@ int env_import(const char *buf, int check);
 /* Export from hash table into binary representation */
 int env_export(env_t *env_out);
 
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+/* Select and import one of two redundant environments */
+int env_import_redund(const char *buf1, const char *buf2);
+#endif
+
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */

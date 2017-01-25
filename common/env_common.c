@@ -226,6 +226,53 @@ int env_import(const char *buf, int check)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+static unsigned char env_flags;
+
+int env_import_redund(const char *buf1, const char *buf2)
+{
+	int crc1_ok, crc2_ok;
+	env_t *ep, *tmp_env1, *tmp_env2;
+
+	tmp_env1 = (env_t *)buf1;
+	tmp_env2 = (env_t *)buf2;
+
+	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
+			tmp_env1->crc;
+	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) ==
+			tmp_env2->crc;
+
+	if (!crc1_ok && !crc2_ok) {
+		set_default_env("!bad CRC");
+		return 0;
+	} else if (crc1_ok && !crc2_ok) {
+		gd->env_valid = 1;
+	} else if (!crc1_ok && crc2_ok) {
+		gd->env_valid = 2;
+	} else {
+		/* both ok - check serial */
+		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
+			gd->env_valid = 2;
+		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
+			gd->env_valid = 1;
+		else if (tmp_env1->flags > tmp_env2->flags)
+			gd->env_valid = 1;
+		else if (tmp_env2->flags > tmp_env1->flags)
+			gd->env_valid = 2;
+		else /* flags are equal - almost impossible */
+			gd->env_valid = 1;
+	}
+
+	if (gd->env_valid == 1)
+		ep = tmp_env1;
+	else
+		ep = tmp_env2;
+
+	env_flags = ep->flags;
+	return env_import((char *)ep, 0);
+}
+#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+
 /* Export the environment and generate CRC for it. */
 int env_export(env_t *env_out)
 {
@@ -246,6 +293,10 @@ int env_export(env_t *env_out)
 		return ret;
 
 	env_out->crc = crc32(0, env_out->data, ENV_SIZE);
+
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+	env_out->flags = ++env_flags; /* increase the serial */
+#endif
 
 	return 0;
 }
