@@ -20,3 +20,5 @@ obj-y	+= board.o
 obj-y	+= mux.o
 
 obj-$(CONFIG_CLOCK_SYNTHESIZER)	+= clk_synthesizer.o
+
+obj-$(CONFIG_AM33XX_CHILISOM) += chilisom.o

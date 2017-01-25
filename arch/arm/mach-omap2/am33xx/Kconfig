@@ -1,5 +1,9 @@
 if AM33XX
 
+config AM33XX_CHILISOM
+	bool
+	select SUPPORT_SPL
+
 choice
 	prompt "AM33xx board select"
 	optional
