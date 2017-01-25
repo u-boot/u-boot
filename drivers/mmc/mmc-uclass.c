@@ -254,6 +254,17 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	return mmc_switch_part(mmc, hwpart);
 }
 
+static int mmc_blk_probe(struct udevice *dev)
+{
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	int dev_num = block_dev->devnum;
+	struct mmc *mmc = find_mmc_device(dev_num);
+
+	if (!mmc)
+		return -ENODEV;
+	return mmc_init(mmc);
+}
+
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
 #ifndef CONFIG_SPL_BUILD
@@ -267,6 +278,7 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.name		= "mmc_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
+	.probe		= mmc_blk_probe,
 };
 #endif /* CONFIG_BLK */
 
