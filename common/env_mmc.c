@@ -160,10 +160,6 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-#ifdef CONFIG_ENV_OFFSET_REDUND
-static unsigned char env_flags;
-#endif
-
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
@@ -184,8 +180,6 @@ int saveenv(void)
 		goto fini;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	env_new->flags	= ++env_flags; /* increase the serial */
-
 	if (gd->env_valid == 1)
 		copy = 1;
 #endif
@@ -236,8 +230,6 @@ void env_relocate_spec(void)
 	struct mmc *mmc;
 	u32 offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
-	int crc1_ok = 0, crc2_ok = 0;
-	env_t *ep;
 	int ret;
 	int dev = mmc_get_env_dev();
 	const char *errmsg = NULL;
@@ -268,42 +260,20 @@ void env_relocate_spec(void)
 		puts("*** Warning - some problems detected "
 		     "reading environment; recovered successfully\n");
 
-	crc1_ok = !read1_fail &&
-		(crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
-	crc2_ok = !read2_fail &&
-		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
-
-	if (!crc1_ok && !crc2_ok) {
+	if (read1_fail && read2_fail) {
 		errmsg = "!bad CRC";
 		ret = 1;
 		goto fini;
-	} else if (crc1_ok && !crc2_ok) {
+	} else if (!read1_fail && read2_fail) {
 		gd->env_valid = 1;
-	} else if (!crc1_ok && crc2_ok) {
+		env_import((char *)tmp_env1, 1);
+	} else if (read1_fail && !read2_fail) {
 		gd->env_valid = 2;
+		env_import((char *)tmp_env2, 1);
 	} else {
-		/* both ok - check serial */
-		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
-			gd->env_valid = 2;
-		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
-			gd->env_valid = 1;
-		else if (tmp_env1->flags > tmp_env2->flags)
-			gd->env_valid = 1;
-		else if (tmp_env2->flags > tmp_env1->flags)
-			gd->env_valid = 2;
-		else /* flags are equal - almost impossible */
-			gd->env_valid = 1;
+		env_import_redund((char *)tmp_env1, (char *)tmp_env2);
 	}
 
-	free(env_ptr);
-
-	if (gd->env_valid == 1)
-		ep = tmp_env1;
-	else
-		ep = tmp_env2;
-
-	env_flags = ep->flags;
-	env_import((char *)ep, 0);
 	ret = 0;
 
 fini:
