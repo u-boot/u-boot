@@ -9,6 +9,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/litesom.h>
 #include <asm/arch/mx6ul_pins.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
@@ -20,7 +21,6 @@
 #include <fsl_esdhc.h>
 #include <linux/sizes.h>
 #include <linux/fb.h>
-#include <mach/litesom.h>
 #include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>
