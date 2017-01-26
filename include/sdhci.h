@@ -235,6 +235,7 @@ struct sdhci_ops {
 #endif
 	int	(*get_cd)(struct sdhci_host *host);
 	void	(*set_control_reg)(struct sdhci_host *host);
+	void	(*set_ios_post)(struct sdhci_host *host);
 	void	(*set_clock)(struct sdhci_host *host, u32 div);
 };
 

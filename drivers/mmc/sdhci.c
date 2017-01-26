@@ -295,7 +295,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
-	unsigned int div, clk = 0, timeout, reg;
+	unsigned int div, clk = 0, timeout;
 
 	/* Wait max 20 ms */
 	timeout = 200;
@@ -311,9 +311,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		udelay(100);
 	}
 
-	reg = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
-	reg &= ~(SDHCI_CLOCK_CARD_EN | SDHCI_CLOCK_INT_EN);
-	sdhci_writew(host, reg, SDHCI_CLOCK_CONTROL);
+	sdhci_writew(host, 0, SDHCI_CLOCK_CONTROL);
 
 	if (clock == 0)
 		return 0;
@@ -459,6 +457,10 @@ static int sdhci_set_ios(struct mmc *mmc)
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
+
+	/* If available, call the driver specific "post" set_ios() function */
+	if (host->ops && host->ops->set_ios_post)
+		host->ops->set_ios_post(host);
 
 	return 0;
 }
