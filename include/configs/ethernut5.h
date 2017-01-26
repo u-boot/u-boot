@@ -19,7 +19,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Set our official architecture number. */
-#define MACH_TYPE_ETHERNUT5 1971
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
 
 /* CPU information */

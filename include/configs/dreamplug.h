@@ -13,19 +13,6 @@
 #define _CONFIG_DREAMPLUG_H
 
 /*
- * FIXME: This belongs in mach-types.h.  However, we only pull mach-types
- * from Linus' kernel.org tree.  This hasn't been updated primarily due to
- * the recent arch/arm reshuffling.  So, in the meantime, we'll place it
- * here.
- */
-#include <asm/mach-types.h>
-#ifdef MACH_TYPE_DREAMPLUG
-#error "MACH_TYPE_DREAMPLUG has been defined properly, please remove this."
-#else
-#define MACH_TYPE_DREAMPLUG            3550
-#endif
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */

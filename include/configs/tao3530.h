@@ -24,8 +24,6 @@
 #define CONFIG_ARM_ERRATA_430973
 #define CONFIG_ARM_ERRATA_621766
 
-#define MACH_TYPE_OMAP3_TAO3530		2836
-
 #define CONFIG_SDRC			/* Has an SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */

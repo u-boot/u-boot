@@ -16,7 +16,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 
 /* Mach type */
-#define MACH_TYPE_PEPPER		4207	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_PEPPER
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */

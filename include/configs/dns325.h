@@ -16,7 +16,6 @@
 /*
  * Machine number definition
  */
-#define MACH_TYPE_DNS325		3800
 #define CONFIG_MACH_TYPE		MACH_TYPE_DNS325
 
 /*

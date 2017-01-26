@@ -24,7 +24,6 @@
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
 
-#define MACH_TYPE_CM_T335		4586	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_CM_T335
 
 /* Clock Defines */

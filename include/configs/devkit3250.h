@@ -13,10 +13,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 
-/*
- * Define DevKit3250 machine type by hand until it lands in mach-types
- */
-#define MACH_TYPE_DEVKIT3250		3697
 #define CONFIG_MACH_TYPE		MACH_TYPE_DEVKIT3250
 
 #define CONFIG_SYS_ICACHE_OFF

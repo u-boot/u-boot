@@ -9,7 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define MACH_TYPE_H2200			341
 #define CONFIG_MACH_TYPE		MACH_TYPE_H2200
 
 #define CONFIG_CPU_PXA25X		1

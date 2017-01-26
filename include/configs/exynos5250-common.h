@@ -15,8 +15,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE		0x43E00000
 
-/* MACH_TYPE_SMDK5250 macro will be removed once added to mach-types */
-#define MACH_TYPE_SMDK5250		3774
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMDK5250
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)

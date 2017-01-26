@@ -32,8 +32,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
-#define MACH_TYPE_DALMORE	4304	/* not yet in mach-types.h */
-
 /* SPI */
 #define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED        24000000

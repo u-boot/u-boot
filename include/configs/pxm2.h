@@ -15,7 +15,6 @@
 #define __CONFIG_PXM2_H
 
 #define CONFIG_SIEMENS_PXM2
-#define MACH_TYPE_PXM2			4309
 #define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_PXM2
 
 #include "siemens-am33x-common.h"

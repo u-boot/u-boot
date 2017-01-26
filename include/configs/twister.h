@@ -14,7 +14,6 @@
 
 #include "tam3517-common.h"
 
-#define MACH_TYPE_TAM3517	2818
 #define CONFIG_MACH_TYPE	MACH_TYPE_TAM3517
 
 #define CONFIG_TAM3517_SW3_SETTINGS

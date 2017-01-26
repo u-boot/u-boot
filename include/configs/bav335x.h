@@ -29,8 +29,7 @@
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
-#define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
-#define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
+#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */

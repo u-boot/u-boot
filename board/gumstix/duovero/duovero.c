@@ -47,7 +47,7 @@ int board_init(void)
 {
 	gpmc_init();
 
-	gd->bd->bi_arch_number = MACH_TYPE_OMAP4_DUOVERO;
+	gd->bd->bi_arch_number = MACH_TYPE_DUOVERO;
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;

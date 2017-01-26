@@ -75,7 +75,7 @@ int board_init(void)
 	/*
 	 * arch number of board
 	 */
-	gd->bd->bi_arch_number = MACH_TYPE_NAS220;
+	gd->bd->bi_arch_number = MACH_TYPE_RD88F6192_NAS;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;

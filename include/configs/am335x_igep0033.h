@@ -18,7 +18,6 @@
 #include <configs/ti_am335x_common.h>
 
 /* Mach type */
-#define MACH_TYPE_IGEP0033		4521	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_IGEP0033
 
 /* Clock defines */

@@ -14,8 +14,7 @@
 
 #include "imx6_spl.h"
 
-#define MACH_TYPE_WANDBOARD		4412
-#define CONFIG_MACH_TYPE		MACH_TYPE_WANDBOARD
+#define CONFIG_MACH_TYPE		MACH_TYPE_WANDBOARD_IMX6
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)

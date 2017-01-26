@@ -16,22 +16,12 @@
 #define __CONFIG_GPLUGD_H
 
 /*
- * FIXME: fix for error caused due to recent update to mach-types.h
- */
-#include <asm/mach-types.h>
-#ifdef MACH_TYPE_SHEEVAD
-#error "MACH_TYPE_SHEEVAD has been defined properly, please remove this."
-#else
-#define MACH_TYPE_SHEEVAD	2625
-#endif
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */
 #define CONFIG_ARMADA100		1	/* SOC Family Name */
 #define CONFIG_ARMADA168		1	/* SOC Used on this Board */
-#define CONFIG_MACH_TYPE		MACH_TYPE_SHEEVAD /* Machine type */
+#define CONFIG_MACH_TYPE		MACH_TYPE_GPLUGD /* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 #define	CONFIG_SYS_TEXT_BASE	0x00f00000

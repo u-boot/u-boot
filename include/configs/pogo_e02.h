@@ -16,7 +16,6 @@
 /*
  * Machine type definition and ID
  */
-#define MACH_TYPE_POGO_E02		3542
 #define CONFIG_MACH_TYPE		MACH_TYPE_POGO_E02
 
 /*

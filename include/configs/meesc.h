@@ -29,14 +29,6 @@
  */
 #define CONFIG_SYS_TEXT_BASE		0x21F00000
 
-/*
- * since a number of boards are not being listed in linux
- * arch/arm/tools/mach-types any more, the mach-types have to be
- * defined here
- */
-#define MACH_TYPE_MEESC			2165
-#define MACH_TYPE_ETHERCAN2		2407
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */

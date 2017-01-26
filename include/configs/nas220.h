@@ -13,10 +13,9 @@
 #define _CONFIG_NAS220_H
 
 /*
- * Machine type definition and ID
+ * Machine type ID
  */
-#define MACH_TYPE_NAS220		MACH_TYPE_RD88F6192_NAS
-#define CONFIG_MACH_TYPE		MACH_TYPE_NAS220
+#define CONFIG_MACH_TYPE		MACH_TYPE_RD88F6192_NAS
 
 /*
  * High Level Configuration Options (easy to change)
