@@ -455,7 +455,7 @@ $ sudo mv ~/.buildman-toolchains/*/* /toolchains/
 For those not available from kernel.org, download from the following links.
 
 arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/
-    arc_gnu_2015.06_prebuilt_uclibc_le_archs_linux_install.tar.gz
+    download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz
 blackfin: http://sourceforge.net/projects/adi-toolchain/files/
     blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
 nds32: http://osdk.andestech.com/packages/
