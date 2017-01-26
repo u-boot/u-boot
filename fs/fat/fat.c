@@ -179,7 +179,7 @@ int flush_dirty_fat_buffer(fsdata *mydata)
 static __u32 get_fatent(fsdata *mydata, __u32 entry)
 {
 	__u32 bufnum;
-	__u32 off16, offset;
+	__u32 offset, off8;
 	__u32 ret = 0x00;
 
 	if (CHECK_CLUST(entry, mydata->fatsize)) {
@@ -242,8 +242,9 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		ret = FAT2CPU16(((__u16 *) mydata->fatbuf)[offset]);
 		break;
 	case 12:
-		off16 = (offset * 3) / 2;
-		ret = FAT2CPU16(*(__u16 *)(mydata->fatbuf + off16));
+		off8 = (offset * 3) / 2;
+		/* fatbut + off8 may be unaligned, read in byte granularity */
+		ret = mydata->fatbuf[off8] + (mydata->fatbuf[off8 + 1] << 8);
 
 		if (offset & 0x1)
 			ret >>= 4;
