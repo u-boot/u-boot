@@ -13,8 +13,8 @@
 
 #include "imx6_spl.h"
 
-#define MACH_TYPE_UDOO		4800
-#define CONFIG_MACH_TYPE	MACH_TYPE_UDOO
+/* Provide the MACH_TYPE value that the vendor kernel requires. */
+#define CONFIG_MACH_TYPE		4800
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * SZ_1M)

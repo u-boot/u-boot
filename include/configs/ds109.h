@@ -12,24 +12,13 @@
 #ifndef _CONFIG_DS109_H
 #define _CONFIG_DS109_H
 
-/*
- * FIXME: This belongs in mach-types.h.  However, we only pull mach-types
- * from Linus' kernel.org tree.  This hasn't been updated primarily due to
- * the recent arch/arm reshuffling.  So, in the meantime, we'll place it
- * here.
- */
-#include <asm/mach-types.h>
-#ifdef MACH_TYPE_SYNOLOGY
-#error "MACH_TYPE_SYNOLOGY has been defined properly, please remove this."
-#else
-#define MACH_TYPE_SYNOLOGY             527
-#endif
+/* Provide the MACH_TYPE value that the vendor kernel requires. */
+#define CONFIG_MACH_TYPE		527
 
 /*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_MACH_TYPE	MACH_TYPE_SYNOLOGY
 
 /*
  * Commands configuration

@@ -17,8 +17,8 @@
 
 #define CONFIG_MX6Q
 
-#define MACH_TYPE_TITANIUM		3769
-#define CONFIG_MACH_TYPE		MACH_TYPE_TITANIUM
+/* Provide the MACH_TYPE value that the vendor kernel requires. */
+#define CONFIG_MACH_TYPE		3769
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * 1024 * 1024)

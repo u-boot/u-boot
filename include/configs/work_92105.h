@@ -18,8 +18,7 @@
  * Define work_92105 machine type by hand -- done only for compatibility
  * with original board code
  */
-#define MACH_TYPE_WORK_92105		736
-#define CONFIG_MACH_TYPE		MACH_TYPE_WORK_92105
+#define CONFIG_MACH_TYPE		736
 
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF

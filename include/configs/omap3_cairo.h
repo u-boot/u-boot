@@ -228,9 +228,8 @@
 #define CONFIG_SERIAL2
 #endif
 
-/* Provide MACH_TYPE for compatibility with non-DT kernels */
-#define MACH_TYPE_OMAP3_CAIRO	3063
-#define CONFIG_MACH_TYPE	MACH_TYPE_OMAP3_CAIRO
+/* Provide the MACH_TYPE value the vendor kernel requires */
+#define CONFIG_MACH_TYPE	3063
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
