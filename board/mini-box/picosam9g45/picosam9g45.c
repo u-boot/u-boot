@@ -252,6 +252,8 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	gd->bd->bi_arch_number = MACH_TYPE_PICOSAM9G45;
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 

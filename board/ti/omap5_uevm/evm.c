@@ -138,6 +138,7 @@ int usb_gadget_handle_interrupts(int index)
 int board_init(void)
 {
 	gpmc_init();
+	gd->bd->bi_arch_number = MACH_TYPE_OMAP5_SEVM;
 	gd->bd->bi_boot_params = (0x80000000 + 0x100); /* boot param addr */
 
 	tca642x_set_inital_state(CONFIG_SYS_I2C_TCA642X_ADDR, tca642x_init);

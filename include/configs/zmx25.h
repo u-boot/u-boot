@@ -19,6 +19,7 @@
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_ZMX25
 /*
  * Environment settings
  */

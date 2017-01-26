@@ -51,6 +51,7 @@
 #define CONFIG_SYS_MAXARGS    32
 
 /* setting board specific options */
+#define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
 #define CONFIG_AUTO_COMPLETE

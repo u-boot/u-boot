@@ -175,6 +175,9 @@ int board_init(void)
 	irq_init();
 #endif
 
+	/* arch number of the board */
+	gd->bd->bi_arch_number = MACH_TYPE_OMAPL138_LCDK;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 

@@ -24,6 +24,7 @@
 #define CONFIG_ARM_ERRATA_430973
 #define CONFIG_ARM_ERRATA_621766
 
+#define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
  * 64 bytes before this address should be set aside for u-boot.img's
