@@ -23,7 +23,7 @@
 
 	aliases {
 		gpio0 = &gpio;
-		i2c0 = &i2c0;
+		i2c0 = &i2c1;
 		rtc0 = &rtc;
 		serial0 = &uart1;
 		serial1 = &dcc;
@@ -141,7 +141,7 @@
 	status = "okay";
 };
 
-&i2c0 {
+&i2c1 {
 	status = "okay";
 	clock-frequency = <100000>;
 	i2cswitch@75 { /* u11 */
