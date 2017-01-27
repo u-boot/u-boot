@@ -202,8 +202,12 @@
 	"norboot=setexpr kernel_addr_nor $nor_base + $kernel_addr && " \
 		"setexpr kernel_size_div4 $kernel_size / 4 && " \
 		"cp $kernel_addr_nor $kernel_addr_load $kernel_size_div4 && " \
-		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
-		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
+		"setexpr ramdisk_addr_nor $nor_base + $ramdisk_addr && " \
+		"setexpr ramdisk_size_div4 $ramdisk_size / 4 && " \
+		"cp $ramdisk_addr_nor $ramdisk_addr_r $ramdisk_size_div4 && " \
+		"setexpr fdt_addr_nor $nor_base + $fdt_addr && " \
+		"setexpr fdt_size_div4 $fdt_size / 4 && " \
+		"cp $fdt_addr_nor $fdt_addr_r $fdt_size_div4 && " \
 		"run boot_common\0" \
 	"nandboot=nand read $kernel_addr_load $kernel_addr $kernel_size && " \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
@@ -222,6 +226,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
+	"initrd_high=0xffffffffffffffff\0"			\
 	"nor_base=0x42000000\0"					\
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
