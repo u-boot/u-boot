@@ -98,7 +98,6 @@
 #define CONFIG_SYS_TIMER_RATE			1000000
 #endif
 
-
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
 #define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -240,6 +239,11 @@
 /* for LD20; the last 64 byte is used for dynamic DDR PHY training */
 #define CONFIG_SYS_MEM_TOP_HIDE		64
 
+#define CONFIG_PANIC_HANG
+
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
+
+/* only for SPL */
 #if defined(CONFIG_ARM64)
 #define CONFIG_SPL_TEXT_BASE		0x30000000
 #elif defined(CONFIG_ARCH_UNIPHIER_SLD3) || \
@@ -257,9 +261,6 @@
 #else
 #define CONFIG_SPL_STACK		(0x00100000)
 #endif
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
-
-#define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
 #ifdef CONFIG_ARM64
@@ -273,7 +274,6 @@
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
 
-#ifdef CONFIG_SPL
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 #define CONFIG_SPL_MAX_SIZE			0x10000
@@ -283,6 +283,5 @@
 #define CONFIG_SPL_BSS_START_ADDR		0x30016000
 #endif
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
-#endif
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */
