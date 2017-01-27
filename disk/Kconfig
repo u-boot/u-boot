@@ -56,4 +56,16 @@ config SPL_ISO_PARTITION
 	depends on SPL && PARTITIONS
 	default y if ISO_PARTITION
 
+config AMIGA_PARTITION
+	bool "Enable AMIGA partition table"
+	depends on PARTITIONS
+	help
+	  Say Y here if you would like to use device under U-Boot which
+	  were partitioned under AmigaOS.
+
+config SPL_AMIGA_PARTITION
+	bool "Enable AMIGA partition table for SPL"
+	depends on SPL && PARTITIONS
+	default y if AMIGA_PARTITION
+
 endmenu

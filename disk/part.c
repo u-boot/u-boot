@@ -237,7 +237,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 #if CONFIG_IS_ENABLED(MAC_PARTITION) || \
 	CONFIG_IS_ENABLED(DOS_PARTITION) || \
 	CONFIG_IS_ENABLED(ISO_PARTITION) || \
-	defined(CONFIG_AMIGA_PARTITION) || \
+	CONFIG_IS_ENABLED(AMIGA_PARTITION) || \
 	defined(CONFIG_EFI_PARTITION)
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
