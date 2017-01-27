@@ -248,22 +248,15 @@ void dram_init_banksize(void)
  */
 int ft_board_setup(void *fdt, bd_t *bd)
 {
-	const struct uniphier_board_data *param;
 	unsigned long rsv_addr;
 	const unsigned long rsv_size = 64;
-	int ch, ret;
+	int i, ret;
 
 	if (uniphier_get_soc_id() != UNIPHIER_LD20_ID)
 		return 0;
 
-	param = uniphier_get_board_param();
-	if (!param) {
-		printf("failed to get board parameter\n");
-		return -ENODEV;
-	}
-
-	for (ch = 0; ch < param->dram_nr_ch; ch++) {
-		rsv_addr = param->dram_ch[ch].base + param->dram_ch[ch].size;
+	for (i = 0; i < ARRAY_SIZE(gd->bd->bi_dram); i++) {
+		rsv_addr = gd->bd->bi_dram[i].start + gd->bd->bi_dram[i].size;
 		rsv_addr -= rsv_size;
 
 		ret = fdt_add_mem_rsv(fdt, rsv_addr, rsv_size);
