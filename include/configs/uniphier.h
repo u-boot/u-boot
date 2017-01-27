@@ -15,6 +15,10 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
+#ifdef CONFIG_ARM64
+#define CONFIG_CMD_UNZIP
+#endif
+
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -166,46 +170,50 @@
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_BOOTFILE			"Image"
+#define CONFIG_BOOTFILE			"Image.gz"
 #define LINUXBOOT_CMD			"booti"
+#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x84200000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
-#define KERNEL_SIZE			"kernel_size=0x00c00000\0"
-#define RAMDISK_ADDR			"ramdisk_addr=0x00e00000\0"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
+#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x80208000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
-#define KERNEL_SIZE			"kernel_size=0x00800000\0"
-#define RAMDISK_ADDR			"ramdisk_addr=0x00a00000\0"
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
 	"kernel_addr=0x00200000\0" \
+	KERNEL_ADDR_LOAD \
 	KERNEL_ADDR_R \
-	KERNEL_SIZE \
-	RAMDISK_ADDR \
+	"kernel_size=0x00800000\0" \
+	"ramdisk_addr=0x00a00000\0" \
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
+		"if test $kernel_addr_load = $kernel_addr_r; then " \
+			"true; " \
+		"else " \
+			"unzip $kernel_addr_load $kernel_addr_r; " \
+		"fi && " \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"setexpr kernel_size $kernel_size / 4 &&" \
-		"cp $kernel_addr $kernel_addr_r $kernel_size &&" \
+	"norboot=setexpr kernel_addr_nor $nor_base + $kernel_addr && " \
+		"setexpr kernel_size_div4 $kernel_size / 4 && " \
+		"cp $kernel_addr_nor $kernel_addr_load $kernel_size_div4 && " \
 		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
 		"run boot_common\0" \
-	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"nandboot=nand read $kernel_addr_load $kernel_addr $kernel_size && " \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
 		"run boot_common\0" \
-	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"run boot_common\0" \
-	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
+	"__nfsboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"
