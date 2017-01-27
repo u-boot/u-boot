@@ -117,9 +117,8 @@ relocation_return:
  */
 	ldr	x0, =__bss_start		/* this is auto-relocated! */
 	ldr	x1, =__bss_end			/* this is auto-relocated! */
-	mov	x2, #0
 clear_loop:
-	str	x2, [x0]
+	str	xzr, [x0]
 	add	x0, x0, #8
 	cmp	x0, x1
 	b.lo	clear_loop
