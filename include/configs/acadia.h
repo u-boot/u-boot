@@ -154,7 +154,6 @@
 #define CONFIG_USB_OHCI
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 #define CONFIG_SUPPORT_VFAT
 

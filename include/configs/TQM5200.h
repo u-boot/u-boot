@@ -107,7 +107,6 @@
 #endif /* #ifndef CONFIG_TQM5200S */
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 /* USB */
 #if defined(CONFIG_CHARON) || defined(CONFIG_FO300) || \

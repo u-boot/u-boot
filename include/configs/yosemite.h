@@ -157,7 +157,6 @@
 #define CONFIG_PHY1_ADDR        3
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 #ifdef CONFIG_440EP
 /* USB */

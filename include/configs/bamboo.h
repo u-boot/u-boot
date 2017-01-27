@@ -192,7 +192,6 @@
 #define CONFIG_SUPPORT_VFAT
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 /*-----------------------------------------------------------------------
  * PCI stuff

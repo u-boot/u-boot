@@ -371,7 +371,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET /* re-init HCD after CMD_RESET */
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 /*
  * BOOTP options

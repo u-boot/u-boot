@@ -321,7 +321,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	char *colon;
 
-#if defined(CONFIG_BLK) || defined(CONFIG_ISO_PARTITION)
+#if defined(CONFIG_BLK) || CONFIG_IS_ENABLED(ISO_PARTITION)
 	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
 #endif
 
@@ -338,7 +338,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 
 	colon = strchr(devname, ':');
 
-#ifdef CONFIG_ISO_PARTITION
+#if CONFIG_IS_ENABLED(ISO_PARTITION)
 	/* For ISOs we create partition block devices */
 	if (desc && (desc->type != DEV_TYPE_UNKNOWN) &&
 	    (desc->part_type == PART_TYPE_ISO)) {

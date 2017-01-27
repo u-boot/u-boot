@@ -251,7 +251,7 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 				    const char *pdevname)
 {
 	int disks = 0;
-#ifdef CONFIG_ISO_PARTITION
+#if CONFIG_IS_ENABLED(ISO_PARTITION)
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	disk_partition_t info;
 	int part = 1;

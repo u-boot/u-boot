@@ -51,7 +51,6 @@
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_AMIGA_PARTITION
 #define CONFIG_EFI_PARTITION
-#define CONFIG_ISO_PARTITION
 
 /*
  * Size of malloc() pool, before and after relocation

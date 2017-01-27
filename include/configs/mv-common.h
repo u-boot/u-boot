@@ -123,7 +123,6 @@
  */
 #if defined(CONFIG_CMD_USB) && !defined(CONFIG_DM)
 #define CONFIG_USB_EHCI		/* Enable EHCI USB support */
-#define CONFIG_ISO_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
 

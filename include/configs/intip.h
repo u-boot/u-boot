@@ -279,7 +279,6 @@
 #define CONFIG_CMD_SDRAM
 
 /* Partitions */
-#define CONFIG_ISO_PARTITION
 
 /*
  * PCI stuff

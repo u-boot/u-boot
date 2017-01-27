@@ -396,10 +396,6 @@
 #define CONFIG_CMD_PCI
 #endif
 
-#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2)
-#define CONFIG_ISO_PARTITION
-#endif /* defined(CONFIG_CMD_IDE) */
-
 /*
  * Miscellaneous configurable options
  */

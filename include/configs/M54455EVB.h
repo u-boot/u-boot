@@ -119,7 +119,6 @@
 #endif
 
 /* ATA configuration */
-#define CONFIG_ISO_PARTITION
 #define CONFIG_IDE_RESET	1
 #define CONFIG_IDE_PREINIT	1
 #define CONFIG_ATAPI

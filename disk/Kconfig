@@ -45,4 +45,15 @@ config SPL_DOS_PARTITION
 	depends on SPL && PARTITIONS
 	default y if DOS_PARTITION
 
+config ISO_PARTITION
+	bool "Enable ISO partition table"
+	depends on PARTITIONS
+	default y if DISTRO_DEFAULTS
+	default y if SPARC || MIPS || TEGRA
+
+config SPL_ISO_PARTITION
+	bool "Enable ISO partition table for SPL"
+	depends on SPL && PARTITIONS
+	default y if ISO_PARTITION
+
 endmenu
