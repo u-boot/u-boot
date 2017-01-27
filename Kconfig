@@ -311,6 +311,8 @@ source "common/Kconfig"
 
 source "cmd/Kconfig"
 
+source "disk/Kconfig"
+
 source "dts/Kconfig"
 
 source "net/Kconfig"
