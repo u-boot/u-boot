@@ -55,13 +55,13 @@ static void dump_loop(void (*callback)(void __iomem *))
 	nr_ch = get_nr_ch();
 
 	for (ch = 0; ch < nr_ch; ch++) {
-		dx_base = get_phy_base(ch) + DMPHY_DX_BASE;
+		dx_base = get_phy_base(ch) + MPHY_DX_BASE;
 		nr_dx = get_nr_datx8(ch);
 
 		for (dx = 0; dx < nr_dx; dx++) {
 			printf("CH%dDX%d:", ch, dx);
 			(*callback)(dx_base);
-			dx_base += DMPHY_DX_STRIDE;
+			dx_base += MPHY_DX_STRIDE;
 			printf("\n");
 		}
 	}
@@ -79,25 +79,25 @@ static void zq_dump(void)
 	nr_ch = get_nr_ch();
 
 	for (ch = 0; ch < nr_ch; ch++) {
-		zq_base = get_phy_base(ch) + DMPHY_ZQ_BASE;
+		zq_base = get_phy_base(ch) + MPHY_ZQ_BASE;
 		nr_zq = 3;
 
 		for (zq = 0; zq < nr_zq; zq++) {
 			printf("CH%dZQ%d:", ch, zq);
 
-			dr = readl(zq_base + DMPHY_ZQ_DR);
+			dr = readl(zq_base + MPHY_ZQ_DR);
 			for (i = 0; i < 4; i++) {
 				printf(FS PRINTF_FORMAT, dr & 0x7f);
 				dr >>= 7;
 			}
 
-			pr = readl(zq_base + DMPHY_ZQ_PR);
+			pr = readl(zq_base + MPHY_ZQ_PR);
 			for (i = 0; i < 2; i++) {
 				printf(FS PRINTF_FORMAT, pr & 0xf);
 				pr >>= 4;
 			}
 
-			zq_base += DMPHY_ZQ_STRIDE;
+			zq_base += MPHY_ZQ_STRIDE;
 			printf("\n");
 		}
 	}
@@ -105,12 +105,12 @@ static void zq_dump(void)
 
 static void __wbdl_dump(void __iomem *dx_base)
 {
-	print_bdl(dx_base + DMPHY_DX_BDLR0, 4);
-	print_bdl(dx_base + DMPHY_DX_BDLR1, 4);
-	print_bdl(dx_base + DMPHY_DX_BDLR2, 2);
+	print_bdl(dx_base + MPHY_DX_BDLR0, 4);
+	print_bdl(dx_base + MPHY_DX_BDLR1, 4);
+	print_bdl(dx_base + MPHY_DX_BDLR2, 2);
 
 	printf(FS "(+" PRINTF_FORMAT ")",
-	       readl(dx_base + DMPHY_DX_LCDLR1) & 0xff);
+	       readl(dx_base + MPHY_DX_LCDLR1) & 0xff);
 }
 
 static void wbdl_dump(void)
@@ -123,15 +123,15 @@ static void wbdl_dump(void)
 
 static void __rbdl_dump(void __iomem *dx_base)
 {
-	print_bdl(dx_base + DMPHY_DX_BDLR3, 4);
-	print_bdl(dx_base + DMPHY_DX_BDLR4, 4);
-	print_bdl(dx_base + DMPHY_DX_BDLR5, 1);
+	print_bdl(dx_base + MPHY_DX_BDLR3, 4);
+	print_bdl(dx_base + MPHY_DX_BDLR4, 4);
+	print_bdl(dx_base + MPHY_DX_BDLR5, 1);
 
 	printf(FS "(+" PRINTF_FORMAT ")",
-	       (readl(dx_base + DMPHY_DX_LCDLR1) >> 8) & 0xff);
+	       (readl(dx_base + MPHY_DX_LCDLR1) >> 8) & 0xff);
 
 	printf(FS "(+" PRINTF_FORMAT ")",
-	       (readl(dx_base + DMPHY_DX_LCDLR1) >> 16) & 0xff);
+	       (readl(dx_base + MPHY_DX_LCDLR1) >> 16) & 0xff);
 }
 
 static void rbdl_dump(void)
@@ -145,8 +145,8 @@ static void rbdl_dump(void)
 static void __wld_dump(void __iomem *dx_base)
 {
 	int rank;
-	u32 lcdlr0 = readl(dx_base + DMPHY_DX_LCDLR0);
-	u32 gtr = readl(dx_base + DMPHY_DX_GTR);
+	u32 lcdlr0 = readl(dx_base + MPHY_DX_LCDLR0);
+	u32 gtr = readl(dx_base + MPHY_DX_GTR);
 
 	for (rank = 0; rank < 4; rank++) {
 		u32 wld = (lcdlr0 >> (8 * rank)) & 0xff; /* Delay */
@@ -168,8 +168,8 @@ static void wld_dump(void)
 static void __dqsgd_dump(void __iomem *dx_base)
 {
 	int rank;
-	u32 lcdlr2 = readl(dx_base + DMPHY_DX_LCDLR2);
-	u32 gtr = readl(dx_base + DMPHY_DX_GTR);
+	u32 lcdlr2 = readl(dx_base + MPHY_DX_LCDLR2);
+	u32 gtr = readl(dx_base + MPHY_DX_GTR);
 
 	for (rank = 0; rank < 4; rank++) {
 		u32 dqsgd = (lcdlr2 >> (8 * rank)) & 0xff; /* Delay */
@@ -190,7 +190,7 @@ static void dqsgd_dump(void)
 static void __mdl_dump(void __iomem *dx_base)
 {
 	int i;
-	u32 mdl = readl(dx_base + DMPHY_DX_MDLR);
+	u32 mdl = readl(dx_base + MPHY_DX_MDLR);
 
 	for (i = 0; i < 3; i++)
 		printf(FS PRINTF_FORMAT, (mdl >> (8 * i)) & 0xff);
@@ -205,16 +205,16 @@ static void mdl_dump(void)
 }
 
 #define REG_DUMP(x)							\
-	{ int ofst = DMPHY_ ## x; void __iomem *reg = phy_base + ofst;	\
+	{ int ofst = MPHY_ ## x; void __iomem *reg = phy_base + ofst;	\
 		printf("%3d: %-10s: %p : %08x\n",			\
-		       ofst >> DMPHY_SHIFT, #x, reg, readl(reg)); }
+		       ofst >> MPHY_SHIFT, #x, reg, readl(reg)); }
 
 #define DX_REG_DUMP(dx, x)						\
-	{ int ofst = DMPHY_DX_BASE + DMPHY_DX_STRIDE * (dx) +		\
-			DMPHY_DX_## x;					\
+	{ int ofst = MPHY_DX_BASE + MPHY_DX_STRIDE * (dx) +		\
+			MPHY_DX_## x;					\
 		void __iomem *reg = phy_base + ofst;			\
 		printf("%3d: DX%d%-7s: %p : %08x\n",			\
-		       ofst >> DMPHY_SHIFT, (dx), #x, reg, readl(reg)); }
+		       ofst >> MPHY_SHIFT, (dx), #x, reg, readl(reg)); }
 
 static void reg_dump(void)
 {
