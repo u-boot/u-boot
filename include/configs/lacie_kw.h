@@ -135,7 +135,6 @@
 /*
  * Partition support
  */
-#define CONFIG_EFI_PARTITION
 
 /*
  * File systems support

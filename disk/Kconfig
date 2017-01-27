@@ -68,4 +68,20 @@ config SPL_AMIGA_PARTITION
 	depends on SPL && PARTITIONS
 	default y if AMIGA_PARTITION
 
+config EFI_PARTITION
+	bool "Enable EFI GPT partition table"
+	depends on PARTITIONS
+	default y if DISTRO_DEFAULTS
+	default y if TEGRA
+	help
+	  Say Y here if you would like to use device under U-Boot which
+	  were partitioned using EFI GPT.
+	  common when EFI is the bootloader.  Note 2TB partition limit;
+	  see disk/part_efi.c
+
+config SPL_EFI_PARTITION
+	bool "Enable EFI GPT partition table for SPL"
+	depends on  SPL && PARTITIONS
+	default y if EFI_PARTITION
+
 endmenu

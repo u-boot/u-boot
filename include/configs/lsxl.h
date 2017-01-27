@@ -48,8 +48,6 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
 
-#define CONFIG_EFI_PARTITION
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

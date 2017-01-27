@@ -255,7 +255,7 @@ struct part_driver {
 #define U_BOOT_PART_TYPE(__name)					\
 	ll_entry_declare(struct part_driver, __name, part_driver)
 
-#ifdef CONFIG_EFI_PARTITION
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
 #include <part_efi.h>
 /* disk/part_efi.c */
 /**

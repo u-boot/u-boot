@@ -76,7 +76,6 @@
 #define CONFIG_SATA_MV
 #define CONFIG_LIBATA
 #define CONFIG_LBA48
-#define CONFIG_EFI_PARTITION
 
 /* Additional FS support/configuration */
 #define CONFIG_SUPPORT_VFAT

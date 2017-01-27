@@ -24,7 +24,7 @@
 #include <usb.h>
 #endif
 
-#if !CONFIG_IS_ENABLED(DOS_PARTITION) && !defined(CONFIG_EFI_PARTITION)
+#if !CONFIG_IS_ENABLED(DOS_PARTITION) && !CONFIG_IS_ENABLED(EFI_PARTITION)
 #error DOS or EFI partition support must be selected
 #endif
 

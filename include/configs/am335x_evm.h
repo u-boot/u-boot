@@ -41,7 +41,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 
 #ifdef CONFIG_NAND
 #define NANDARGS \
@@ -301,7 +300,6 @@
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
-#undef CONFIG_EFI_PARTITION
 #endif
 
 /* USB Device Firmware Update support */

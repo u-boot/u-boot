@@ -82,7 +82,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 #ifndef CONFIG_SHC_ICT
 /*
  * In builds other than ICT, reset to retry after timeout

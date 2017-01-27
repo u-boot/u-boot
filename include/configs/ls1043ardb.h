@@ -299,7 +299,6 @@
 #define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
 
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_GPT
 
 #include <asm/fsl_secure_boot.h>

@@ -107,7 +107,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \

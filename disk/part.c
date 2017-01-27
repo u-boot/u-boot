@@ -238,7 +238,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	CONFIG_IS_ENABLED(DOS_PARTITION) || \
 	CONFIG_IS_ENABLED(ISO_PARTITION) || \
 	CONFIG_IS_ENABLED(AMIGA_PARTITION) || \
-	defined(CONFIG_EFI_PARTITION)
+	CONFIG_IS_ENABLED(EFI_PARTITION)
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
 	case IF_TYPE_IDE:

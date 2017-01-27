@@ -29,7 +29,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
@@ -99,7 +98,6 @@
 #undef CONFIG_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
-#undef CONFIG_EFI_PARTITION
 #endif
 
 #if defined(CONFIG_EMMC_BOOT)

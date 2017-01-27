@@ -87,7 +87,6 @@
 
 /* GPT */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 
 /* USB xHCI HOST */
 #define CONFIG_USB_XHCI_OMAP

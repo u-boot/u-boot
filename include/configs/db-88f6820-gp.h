@@ -58,7 +58,6 @@
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
 /* Partition support */
-#define CONFIG_EFI_PARTITION
 
 /* Additional FS support/configuration */
 #define CONFIG_SUPPORT_VFAT

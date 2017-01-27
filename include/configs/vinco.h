@@ -65,7 +65,6 @@
 /* For generating MMC partitions */
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_RANDOM_UUID
-#define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_GPT
 
 #endif

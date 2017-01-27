@@ -112,7 +112,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
-#ifdef CONFIG_EFI_PARTITION
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
 		printf("%s: updating MBR, Primary and Backup GPT(s)\n",
 		       __func__);

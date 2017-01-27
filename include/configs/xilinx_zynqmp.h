@@ -56,7 +56,6 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
-#define CONFIG_EFI_PARTITION
 #define CONFIG_MP
 
 /* BOOTP options */

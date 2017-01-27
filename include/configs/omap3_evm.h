@@ -54,7 +54,6 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 /* Partition tables */
-#define CONFIG_EFI_PARTITION
 
 /* USB
  *

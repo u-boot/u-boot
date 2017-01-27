@@ -104,7 +104,6 @@
  * This is necessary for the fatls command to work on an SD card
  * for example.
  */
-#define CONFIG_EFI_PARTITION
 
 /* version string, parser, etc */
 #define CONFIG_AUTO_COMPLETE

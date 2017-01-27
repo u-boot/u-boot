@@ -396,7 +396,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_GENERIC_MMC
 
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_GPT
 
 /* SPI */

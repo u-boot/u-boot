@@ -49,7 +49,6 @@
 
 #define CONFIG_CMD_GPT
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_EFI_PARTITION
 
 /*
  * Size of malloc() pool, before and after relocation

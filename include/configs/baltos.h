@@ -34,7 +34,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
 
@@ -310,7 +309,6 @@
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
-#undef CONFIG_EFI_PARTITION
 /*
  * Disable CPSW SPL support so we fit within the 101KiB limit.
  */

@@ -171,7 +171,7 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
 	gpt_h->header_crc32 = cpu_to_le32(calc_crc32);
 }
 
-#ifdef CONFIG_EFI_PARTITION
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
 /*
  * Public Functions (include/part.h)
  */

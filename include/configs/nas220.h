@@ -127,7 +127,6 @@
 /*
  * EFI partition
  */
-#define CONFIG_EFI_PARTITION
 
 /*
  *  Date Time
