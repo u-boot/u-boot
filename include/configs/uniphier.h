@@ -230,19 +230,19 @@
 	"nor_base=0x42000000\0"					\
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
-		"setexpr tmp_addr $nor_base + 0x60000 &&"	\
+		"setexpr tmp_addr $nor_base + 0x70000 && " \
 		"tftpboot $tmp_addr u-boot.bin\0"		\
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
 		"tftpboot u-boot-spl.bin &&"			\
-		"mmc write $loadaddr 0 80 &&"			\
+		"mmc write $loadaddr 0 100 && " \
 		"tftpboot u-boot.bin &&"			\
-		"mmc write $loadaddr 80 780\0"			\
+		"mmc write $loadaddr 100 700\0" \
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
-		"nand write $loadaddr 0 0x00010000 &&"		\
+		"nand write $loadaddr 0 0x00020000 && " \
 		"tftpboot u-boot.bin &&"			\
-		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
+		"nand write $loadaddr 0x00020000 0x000e0000\0" \
 	LINUXBOOT_ENV_SETTINGS
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
@@ -282,19 +282,25 @@
 
 #define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */
-#define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
+#define CONFIG_SYS_UBOOT_BASE			(0x70000 - 0x40)
 
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#define CONFIG_SPL_MAX_SIZE			0x14000
+#else
 #define CONFIG_SPL_MAX_SIZE			0x10000
+#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 #define CONFIG_SPL_BSS_START_ADDR		0x30012000
 #elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define CONFIG_SPL_BSS_START_ADDR		0x30016000
 #endif
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
+
+#define CONFIG_SPL_PAD_TO			0x20000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */
