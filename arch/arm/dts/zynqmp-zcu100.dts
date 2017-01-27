@@ -26,7 +26,8 @@
 		i2c0 = &i2c1;
 		rtc0 = &rtc;
 		serial0 = &uart1;
-		serial1 = &dcc;
+		serial1 = &uart0;
+		serial2 = &dcc;
 		spi0 = &spi0;
 		spi1 = &spi1;
 		usb0 = &usb0;
@@ -118,6 +119,32 @@
 	sdio_pwrseq: sdio_pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&gpio 7 GPIO_ACTIVE_LOW>; /* WIFI_EN */
+	};
+
+	kim { /* Bluetooth driver for connection */
+		compatible = "kim";
+		status = "okay";
+		/*
+		 * FIXME: The following is complete CRAP since
+		 * the vendor driver doesn't follow the gpio
+		 * binding. Passing in a magic Linux gpio number
+		 * here until we fix the vendor driver.
+		 */
+		/* FIXME BT_EN*/
+		/* nshutdown_gpio = <&gpio 8 GPIO_ACTIVE_HIGH>; */
+		nshutdown_gpio = <346>; /* 338 base + MIO8 */
+		dev_name = "/dev/ttyPS1"; /* MIO2/3 */
+		flow_cntrl = <1>;
+		baud_rate = <3000000>;
+	};
+	/*
+	 * CONFIG_BT_WILINK - depends on
+	 * btwilink: add minimal device tree support
+	 * commit b3ef820a9310743d62cf50341f529ca17319dd77
+	 */
+	btwilink { /* Bluetooth driver itself */
+		status = "okay";
+		compatible = "btwilink";
 	};
 };
 
@@ -393,6 +420,10 @@
 };
 
 &spi1 { /* High Speed connector */
+	status = "okay";
+};
+
+&uart0 {
 	status = "okay";
 };
 
