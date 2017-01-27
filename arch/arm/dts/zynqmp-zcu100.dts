@@ -119,14 +119,6 @@
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&gpio 7 GPIO_ACTIVE_LOW>; /* WIFI_EN */
 	};
-
-	/* FIXME - not tested */
-	dp_clk_wiz: dp_clk_wiz {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <267439000>;
-		clock-accuracy = <0x64>;
-	};
 };
 
 &dcc {
@@ -436,7 +428,6 @@
 
 &xilinx_drm {
 	status = "okay";
-	clocks = <&dp_clk_wiz>;
 };
 
 &xlnx_dp {
