@@ -146,6 +146,17 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 
+#if defined(CONFIG_ARM64) && !defined(CONFIG_ARMV8_MULTIENTRY)
+/* ARM Trusted Firmware */
+#define BOOT_IMAGES \
+	"second_image=bl1.bin\0" \
+	"third_image=fip.bin\0"
+#else
+#define BOOT_IMAGES \
+	"second_image=u-boot-spl.bin\0" \
+	"third_image=u-boot.bin\0"
+#endif
+
 #define CONFIG_BOOTCOMMAND		"run $bootmode"
 
 #define CONFIG_ROOTPATH			"/nfs/root/path"
@@ -229,20 +240,21 @@
 	"initrd_high=0xffffffffffffffff\0"			\
 	"nor_base=0x42000000\0"					\
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
-		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
+		"tftpboot $tmp_addr $second_image && " \
 		"setexpr tmp_addr $nor_base + 0x70000 && " \
-		"tftpboot $tmp_addr u-boot.bin\0"		\
+		"tftpboot $tmp_addr $third_image\0" \
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
-		"tftpboot u-boot-spl.bin &&"			\
+		"tftpboot $second_image && " \
 		"mmc write $loadaddr 0 100 && " \
-		"tftpboot u-boot.bin &&"			\
+		"tftpboot $third_image && " \
 		"mmc write $loadaddr 100 700\0" \
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl.bin &&"			\
+		"tftpboot $second_image && " \
 		"nand write $loadaddr 0 0x00020000 && " \
-		"tftpboot u-boot.bin &&"			\
+		"tftpboot $third_image && " \
 		"nand write $loadaddr 0x00020000 0x000e0000\0" \
+	BOOT_IMAGES \
 	LINUXBOOT_ENV_SETTINGS
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
