@@ -12,7 +12,6 @@
 #include <linux/sizes.h>
 #include <linux/errno.h>
 #include <dm/device.h>
-#include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
 
