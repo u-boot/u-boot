@@ -441,6 +441,7 @@ F:	arch/arm/mach-omap2/omap5/sec_entry_cpu1.S
 F:	arch/arm/mach-omap2/omap5/sec-fxns.c
 F:	arch/arm/mach-omap2/sec-common.c
 F:	arch/arm/mach-omap2/config_secure.mk
+F:	configs/am335x_hs_evm_defconfig
 F:	configs/am43xx_hs_evm_defconfig
 F:	configs/am57xx_hs_evm_defconfig
 F:	configs/dra7xx_hs_evm_defconfig
