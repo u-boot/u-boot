@@ -39,10 +39,14 @@ void *memalign_simple(size_t align, size_t bytes)
 
 	addr = ALIGN(gd->malloc_base + gd->malloc_ptr, align);
 	new_ptr = addr + bytes - gd->malloc_base;
-	if (new_ptr > gd->malloc_limit)
+	if (new_ptr > gd->malloc_limit) {
+		debug("space exhausted\n");
 		return NULL;
+	}
+
 	ptr = map_sysmem(addr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+	debug("%lx\n", (ulong)ptr);
 
 	return ptr;
 }
