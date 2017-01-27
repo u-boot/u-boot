@@ -4,6 +4,7 @@
 
 ifdef CONFIG_SPL_BUILD
 
+obj-y += boards.o
 obj-y += spl_board_init.o
 obj-y += memconf.o
 obj-y += bcu/
@@ -21,7 +22,6 @@ obj-y += pinctrl-glue.o
 
 endif
 
-obj-y += boards.o
 obj-y += soc-info.o
 obj-y += boot-mode/
 obj-y += clk/
