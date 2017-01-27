@@ -20,10 +20,6 @@
 #include <div64.h>
 #include <memalign.h>
 
-#ifndef CONFIG_PARTITION_UUIDS
-#error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_GPT to be enabled
-#endif
-
 /**
  * extract_env(): Expand env name from string format '&{env_name}'
  *                and return pointer to the env (if the env is set)

@@ -43,12 +43,8 @@
 #define CONFIG_EXT4_WRITE
 #define CONFIG_CMD_CBFS
 #define CONFIG_CMD_CRAMFS
-#define CONFIG_CMD_PART
 #define CONFIG_HOST_MAX_DEVICES 4
 #define CONFIG_CMD_MD5SUM
-
-#define CONFIG_CMD_GPT
-#define CONFIG_PARTITION_UUIDS
 
 /*
  * Size of malloc() pool, before and after relocation

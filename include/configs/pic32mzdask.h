@@ -102,11 +102,9 @@
  * File System Configuration
  */
 /* FAT FS */
-#define CONFIG_PARTITION_UUIDS
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_FAT
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_PART
 
 /* EXT4 FS */
 #define CONFIG_FS_EXT4

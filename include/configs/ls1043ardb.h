@@ -298,9 +298,6 @@
 #define SCSI_DEV_ID  0x9170
 #define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
 
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_GPT
-
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043ARDB_H__ */

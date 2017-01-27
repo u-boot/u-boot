@@ -39,9 +39,6 @@
 /* Always 128 KiB env size */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-
 #ifdef CONFIG_NAND
 #define NANDARGS \
 	"mtdids=" MTDIDS_DEFAULT "\0" \
@@ -299,7 +296,6 @@
 #undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
-#undef CONFIG_PARTITION_UUIDS
 #endif
 
 /* USB Device Firmware Update support */

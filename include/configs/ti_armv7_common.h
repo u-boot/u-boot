@@ -222,8 +222,6 @@
  */
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
 #define CONFIG_FAT_WRITE
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 #endif
 
 /*

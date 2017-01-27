@@ -103,13 +103,6 @@
 #define CONFIG_TWL6030_INPUT
 
 /*
- * Partitions
- */
-
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
-/*
  * SPL
  */
 

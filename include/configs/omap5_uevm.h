@@ -43,7 +43,6 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 /* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
 #define CONFIG_HSMMC2_8BIT
 #define CONFIG_SUPPORT_EMMC_BOOT
 

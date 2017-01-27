@@ -296,9 +296,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_GPT
-
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 /* QSPI */

@@ -32,11 +32,6 @@
 /* Always 128 KiB env size */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
 /* FIT support */
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
@@ -308,7 +303,6 @@
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
-#undef CONFIG_PARTITION_UUIDS
 /*
  * Disable CPSW SPL support so we fit within the 101KiB limit.
  */

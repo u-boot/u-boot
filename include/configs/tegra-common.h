@@ -54,10 +54,6 @@
 /* turn on command-line edit/hist/auto */
 #define CONFIG_COMMAND_HISTORY
 
-/* turn on commonly used storage-related commands */
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
 #define CONFIG_SYS_NO_FLASH
 
 /*

@@ -112,10 +112,6 @@
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_COMMAND_HISTORY
 
-/* Commands */
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG

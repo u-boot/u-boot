@@ -164,9 +164,6 @@
 #define CONFIG_QSPI_QUAD_SUPPORT
 #define CONFIG_TI_EDMA3
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

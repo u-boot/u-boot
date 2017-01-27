@@ -48,10 +48,8 @@
 
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_PART
 
 /* Filesystems / image support */
-#define CONFIG_PARTITION_UUIDS
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

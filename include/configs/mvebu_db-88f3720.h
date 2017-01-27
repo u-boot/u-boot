@@ -131,9 +131,4 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-/* DISK Partition support */
-
-#define CONFIG_CMD_PART
-#define CONFIG_PARTITION_UUIDS
-
 #endif /* _CONFIG_MVEBU_DB_88F3720_H */

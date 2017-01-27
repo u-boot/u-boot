@@ -57,7 +57,6 @@
 
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_GPT
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
@@ -219,7 +218,6 @@
 #define CONFIG_EXT4_WRITE
 
 /* GPT */
-#define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 

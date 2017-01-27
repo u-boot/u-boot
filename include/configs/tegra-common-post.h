@@ -139,15 +139,6 @@
 #ifdef CONFIG_CMD_USB
 #endif
 
-/* remove part command support */
-#ifdef CONFIG_PARTITION_UUIDS
-#undef CONFIG_PARTITION_UUIDS
-#endif
-
-#ifdef CONFIG_CMD_PART
-#undef CONFIG_CMD_PART
-#endif
-
 #endif /* CONFIG_SPL_BUILD */
 
 #endif /* __TEGRA_COMMON_POST_H */

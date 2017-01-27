@@ -105,9 +105,6 @@
 
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x81200000\0" \

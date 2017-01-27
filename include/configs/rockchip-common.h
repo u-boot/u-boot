@@ -18,10 +18,7 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dchp, na)
 
- /* Enable gpt partition table */
-#define CONFIG_CMD_GPT
 #define CONFIG_RANDOM_UUID
-#define CONFIG_PARTITION_UUIDS
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=loader1,start=32K,size=4000K,uuid=${uuid_gpt_loader1};" \

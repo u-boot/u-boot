@@ -44,8 +44,6 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_FAT_WRITE
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)

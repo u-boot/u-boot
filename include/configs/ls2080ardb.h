@@ -68,8 +68,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_GPT
 
 /* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 

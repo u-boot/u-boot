@@ -279,7 +279,7 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 			print_efiname(&gpt_pte[part - 1]));
 	strcpy((char *)info->type, "U-Boot");
 	info->bootable = is_bootable(&gpt_pte[part - 1]);
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
 			UUID_STR_FORMAT_GUID);
 #endif
@@ -397,7 +397,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			le64_to_cpu(gpt_h->last_usable_lba);
 	int i, k;
 	size_t efiname_len, dosname_len;
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	char *str_uuid;
 	unsigned char *bin_uuid;
 #endif
@@ -452,7 +452,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			&PARTITION_BASIC_DATA_GUID, 16);
 #endif
 
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		str_uuid = partitions[i].uuid;
 		bin_uuid = gpt_e[i].unique_partition_guid.b;
 

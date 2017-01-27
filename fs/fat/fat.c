@@ -110,7 +110,7 @@ int fat_register_device(struct blk_desc *dev_desc, int part_no)
 		info.name[0] = 0;
 		info.type[0] = 0;
 		info.bootable = 0;
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		info.uuid[0] = 0;
 #endif
 	}

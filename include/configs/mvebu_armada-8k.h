@@ -119,11 +119,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-/* DISK Partition support */
-
-#define CONFIG_CMD_PART
-#define CONFIG_PARTITION_UUIDS
-
 /*
  * PCI configuration
  */

@@ -80,8 +80,6 @@
 #define CONFIG_ENV_OFFSET_REDUND    0x9000 /* 36 kB */
 #define CONFIG_ENV_SIZE_REDUND      CONFIG_ENV_SIZE
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
 #ifndef CONFIG_SHC_ICT
 /*
  * In builds other than ICT, reset to retry after timeout

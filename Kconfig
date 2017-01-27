@@ -70,6 +70,7 @@ config DISTRO_DEFAULTS
 	select CMD_FS_GENERIC
 	select CMD_MII
 	select CMD_PING
+	select CMD_PART
 	select HUSH_PARSER
 	help
 	  Select this to enable various options and commands which are suitable

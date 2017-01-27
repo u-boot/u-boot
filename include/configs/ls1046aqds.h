@@ -141,9 +141,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SCSI
 
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_GPT
-
 /* EEPROM */
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID

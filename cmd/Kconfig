@@ -394,6 +394,14 @@ config CMD_FLASH
 	    erase - FLASH memory
 	    protect - enable or disable FLASH write protection
 
+config CMD_GPT
+	bool "GPT (GUID Partition Table) command"
+	select PARTITION_UUIDS
+	select EFI_PARTITION
+	help
+	  Enable the 'gpt' command to ready and write GPT style partition
+	  tables.
+
 config CMD_ARMFLASH
 	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
@@ -409,6 +417,13 @@ config CMD_NAND
 	bool "nand"
 	help
 	  NAND support.
+
+config CMD_PART
+	bool "part"
+	select PARTITION_UUIDS
+	help
+	  Read and display information about the partition table on
+	  various media.
 
 config CMD_SF
 	bool "sf"

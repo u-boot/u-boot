@@ -84,4 +84,17 @@ config SPL_EFI_PARTITION
 	depends on  SPL && PARTITIONS
 	default y if EFI_PARTITION
 
+config PARTITION_UUIDS
+	bool "Enable support of UUID for partition"
+	depends on PARTITIONS
+	default y if DISTRO_DEFAULTS
+	default y if EFI_PARTITION
+	help
+	  Activate the configuration of UUID for partition
+
+config SPL_PARTITION_UUIDS
+	bool "Enable support of UUID for partition in SPL"
+	depends on SPL && PARTITIONS
+	default y if SPL_EFI_PARTITION
+
 endmenu

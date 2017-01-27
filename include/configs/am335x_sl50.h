@@ -27,9 +27,6 @@
 /* Always 128 KiB env size */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #ifndef CONFIG_SPL_BUILD
@@ -97,7 +94,6 @@
 /* disable host part of MUSB in SPL */
 #undef CONFIG_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
-#undef CONFIG_PARTITION_UUIDS
 #endif
 
 #if defined(CONFIG_EMMC_BOOT)

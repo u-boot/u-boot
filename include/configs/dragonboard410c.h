@@ -54,19 +54,16 @@
 
 /* Extra Commands */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_GPT
 #define CONFIG_CMD_MD5SUM
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
-#define CONFIG_CMD_PART
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_TFTP
 #define CONFIG_CMD_UNZIP
 
 /* Partition table support */
 #define HAVE_BLOCK_DEVICE /* Needed for partition commands */
-#define CONFIG_PARTITION_UUIDS
 
 #include <config_distro_defaults.h>
 

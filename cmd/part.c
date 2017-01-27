@@ -22,10 +22,6 @@
 #include <part.h>
 #include <vsprintf.h>
 
-#ifndef CONFIG_PARTITION_UUIDS
-#error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_PART to be enabled
-#endif
-
 static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;

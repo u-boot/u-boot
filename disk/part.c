@@ -299,7 +299,7 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 #ifdef HAVE_BLOCK_DEVICE
 	struct part_driver *drv;
 
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	/* The common case is no UUID support */
 	info->uuid[0] = 0;
 #endif
@@ -416,7 +416,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		info->bootable = 0;
 		strcpy((char *)info->type, BOOT_PART_TYPE);
 		strcpy((char *)info->name, "Sandbox host");
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		info->uuid[0] = 0;
 #endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
@@ -442,7 +442,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		memset(info, 0, sizeof(*info));
 		strcpy((char *)info->type, BOOT_PART_TYPE);
 		strcpy((char *)info->name, "UBI");
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		info->uuid[0] = 0;
 #endif
 		return 0;
@@ -526,7 +526,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		info->bootable = 0;
 		strcpy((char *)info->type, BOOT_PART_TYPE);
 		strcpy((char *)info->name, "Whole Disk");
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		info->uuid[0] = 0;
 #endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
