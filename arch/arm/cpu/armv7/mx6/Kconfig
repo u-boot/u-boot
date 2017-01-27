@@ -132,6 +132,10 @@ config TARGET_KOSAGI_NOVENA
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
+config TARGET_MCCMON6
+	bool "mccmon6"
+	select SUPPORT_SPL
+
 config TARGET_MX6CUBOXI
 	bool "Solid-run mx6 boards"
 	select BOARD_LATE_INIT
@@ -368,6 +372,7 @@ source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
+source "board/liebherr/mccmon6/Kconfig"
 source "board/seco/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
