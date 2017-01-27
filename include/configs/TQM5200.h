@@ -107,7 +107,6 @@
 #endif /* #ifndef CONFIG_TQM5200S */
 
 /* Partitions */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
 /* USB */

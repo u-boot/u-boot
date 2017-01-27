@@ -97,7 +97,6 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xfffc00000ull
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_TSEC_ENET

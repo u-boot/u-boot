@@ -97,7 +97,6 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xC0010000
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_ENV_OVERWRITE
@@ -478,7 +477,6 @@ combinations. this should be removed later
 #endif	/* CONFIG_TSEC_ENET */
 
 #ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
@@ -534,10 +532,6 @@ combinations. this should be removed later
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
-#define CONFIG_DOS_PARTITION
-#endif
 
 /* Hash command with SHA acceleration supported in hardware */
 #ifdef CONFIG_FSL_CAAM

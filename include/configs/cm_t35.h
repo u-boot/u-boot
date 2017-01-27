@@ -81,7 +81,6 @@
 					115200}
 
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 
 /* USB */
 #define CONFIG_USB_OMAP3

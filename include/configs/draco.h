@@ -31,8 +31,6 @@
 	"led0=103,1,0\0" \
 	"led1=64,0,1\0"
 
-#undef CONFIG_DOS_PARTITION
-
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 

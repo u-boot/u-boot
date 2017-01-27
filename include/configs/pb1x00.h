@@ -104,7 +104,6 @@
 /*---USB -------------------------------------------*/
 #if 0
 #define CONFIG_USB_OHCI
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*---ATA PCMCIA ------------------------------------*/

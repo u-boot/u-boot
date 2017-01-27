@@ -50,7 +50,6 @@
 #define CONFIG_CMD_IDE
 
 /* ATA */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_IDE_RESET	1
 #define CONFIG_IDE_PREINIT	1
 #define CONFIG_ATAPI

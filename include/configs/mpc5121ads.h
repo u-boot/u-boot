@@ -438,7 +438,6 @@
 
 #if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
 
-#define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
 #define CONFIG_SUPPORT_VFAT

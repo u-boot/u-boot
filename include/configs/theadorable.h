@@ -77,7 +77,6 @@
 #define CONFIG_LIBATA
 #define CONFIG_LBA48
 #define CONFIG_EFI_PARTITION
-#define CONFIG_DOS_PARTITION
 
 /* Additional FS support/configuration */
 #define CONFIG_SUPPORT_VFAT

@@ -345,7 +345,6 @@ int get_scl(void);
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 
 /* RGMII (FM1@DTESC5) is used as debug itf, it's the only one configured */
 #define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x11

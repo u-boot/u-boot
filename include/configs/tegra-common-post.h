@@ -122,9 +122,6 @@
 #endif
 
 /* remove partitions/filesystems */
-#ifdef CONFIG_DOS_PARTITION
-#undef CONFIG_DOS_PARTITION
-#endif
 #ifdef CONFIG_EFI_PARTITION
 #undef CONFIG_EFI_PARTITION
 #endif

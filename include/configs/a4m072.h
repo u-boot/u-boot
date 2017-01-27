@@ -60,9 +60,6 @@
 
 #undef CONFIG_EEPRO100
 
-/* Partitions */
-#define CONFIG_DOS_PARTITION
-
 /* USB */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_OHCI_BE_CONTROLLER

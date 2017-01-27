@@ -83,10 +83,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "L+G VInCo"
 
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* Ethernet Hardware */
 #define CONFIG_PHY_SMSC
 #define CONFIG_MACB

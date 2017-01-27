@@ -55,7 +55,6 @@
 
 /* Partition tables */
 #define CONFIG_EFI_PARTITION
-#define CONFIG_DOS_PARTITION
 
 /* USB
  *

@@ -696,7 +696,6 @@
 #define CONFIG_CMD_PCI
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
@@ -842,11 +841,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_GENERIC_MMC
-#endif
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) \
-		 || defined(CONFIG_FSL_SATA)
-#define CONFIG_DOS_PARTITION
 #endif
 
 #undef CONFIG_WATCHDOG	/* watchdog disabled */

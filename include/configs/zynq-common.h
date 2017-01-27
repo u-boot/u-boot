@@ -132,7 +132,6 @@
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_SUPPORT_VFAT
 # define CONFIG_FAT_WRITE
-# define CONFIG_DOS_PARTITION
 #endif
 
 #if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)

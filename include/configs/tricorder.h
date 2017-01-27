@@ -76,7 +76,6 @@
 
 /* MMC */
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 
 /* I2C */
 #define CONFIG_SYS_I2C

@@ -374,7 +374,6 @@
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
-#define CONFIG_DOS_PARTITION
 
 /*
  * For booting Linux, the board info and command line data

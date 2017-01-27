@@ -365,7 +365,7 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte);
 #endif
 
-#ifdef CONFIG_DOS_PARTITION
+#if CONFIG_IS_ENABLED(DOS_PARTITION)
 /**
  * is_valid_dos_buf() - Ensure that a DOS MBR image is valid
  *

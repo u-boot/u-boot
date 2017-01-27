@@ -149,11 +149,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
-/* FAT */
-#ifdef CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* NOR flash - no real flash on this board */
 #define CONFIG_SYS_NO_FLASH			1
 

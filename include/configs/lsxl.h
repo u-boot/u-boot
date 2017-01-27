@@ -48,7 +48,6 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
 
-#define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 
 /*

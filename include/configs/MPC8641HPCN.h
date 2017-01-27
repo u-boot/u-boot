@@ -374,7 +374,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SCSI_AHCI
 
 #ifdef CONFIG_SCSI_AHCI

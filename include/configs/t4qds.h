@@ -208,7 +208,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
 
 /* SATA */
@@ -226,7 +225,6 @@
 
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 #ifdef CONFIG_FMAN_ENET

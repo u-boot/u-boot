@@ -114,11 +114,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
-/* FAT */
-#ifdef CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII

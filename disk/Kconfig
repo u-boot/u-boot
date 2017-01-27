@@ -32,4 +32,17 @@ config SPL_MAC_PARTITION
 	depends on SPL && PARTITIONS
 	default y if MAC_PARTITION
 
+config DOS_PARTITION
+	bool "Enable MS Dos partition table"
+	depends on PARTITIONS
+	default y if DISTRO_DEFAULTS
+	default y if x86 || SPARC || CMD_FAT || USB_STORAGE
+	help
+	  traditional on the Intel architecture, USB sticks, etc.
+
+config SPL_DOS_PARTITION
+	bool "Enable MS Dos partition table for SPL"
+	depends on SPL && PARTITIONS
+	default y if DOS_PARTITION
+
 endmenu

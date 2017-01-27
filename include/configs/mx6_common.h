@@ -65,7 +65,6 @@
 
 /* Filesystems and image support */
 #define CONFIG_SUPPORT_RAW_INITRD
-#define CONFIG_DOS_PARTITION
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP

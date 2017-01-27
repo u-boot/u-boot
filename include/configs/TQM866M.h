@@ -123,8 +123,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_DOS_PARTITION
-
 #undef CONFIG_RTC_MPC8xx		/* MPC866 does not support RTC	*/
 
 #define	CONFIG_TIMESTAMP		/* but print image timestmps	*/

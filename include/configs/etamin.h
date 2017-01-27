@@ -88,7 +88,6 @@
 	"led4=60,0,1\0" \
 	"led5=63,0,1\0"
 
-#undef CONFIG_DOS_PARTITION
 #undef CONFIG_CMD_FAT
 
 /* Physical Memory Map */

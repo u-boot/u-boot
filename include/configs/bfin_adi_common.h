@@ -21,10 +21,8 @@
 # endif
 # ifdef CONFIG_LIBATA
 #  define CONFIG_CMD_SATA
-#  define CONFIG_DOS_PARTITION
 # endif
 # ifdef CONFIG_MMC
-#  define CONFIG_DOS_PARTITION
 #  define CONFIG_SYS_MMC_MAX_BLK_COUNT 127
 # endif
 # ifdef CONFIG_MMC_SPI
@@ -32,7 +30,6 @@
 # endif
 # ifdef CONFIG_USB
 #  define CONFIG_CMD_USB_STORAGE
-#  define CONFIG_DOS_PARTITION
 # endif
 # if defined(CONFIG_NAND_PLAT) || defined(CONFIG_DRIVER_NAND_BFIN)
 #  define CONFIG_CMD_NAND

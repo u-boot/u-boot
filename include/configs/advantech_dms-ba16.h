@@ -54,7 +54,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_DOS_PARTITION
 
 /* USB Configs */
 #define CONFIG_USB_EHCI

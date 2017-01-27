@@ -53,7 +53,6 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
 #define CONFIG_HAS_ETH1

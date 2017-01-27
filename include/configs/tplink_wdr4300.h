@@ -62,8 +62,6 @@
 #define CONFIG_EHCI_DESC_BIG_ENDIAN
 #define CONFIG_EHCI_IS_TDI
 
-#define CONFIG_DOS_PARTITION
-
 /*
  * Diagnostics
  */

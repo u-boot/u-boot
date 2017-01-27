@@ -378,7 +378,6 @@
 #define CONFIG_CMD_PCI
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif /* CONFIG_PCI */
 
 /*
@@ -475,10 +474,6 @@
 #define CONFIG_MMC_SPI
 #define CONFIG_CMD_MMC_SPI
 #define CONFIG_GENERIC_MMC
-#endif
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) || defined(CONFIG_FSL_SATA)
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Misc Extra Settings */

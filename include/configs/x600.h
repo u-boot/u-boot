@@ -120,7 +120,6 @@
 
 /* Filesystem support (for USB key) */
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_DOS_PARTITION
 
 
 /*

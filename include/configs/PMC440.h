@@ -258,7 +258,6 @@
 #define USB_2_0_DEVICE
 
 /* Partitions */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
 #define CONFIG_CMD_BSP

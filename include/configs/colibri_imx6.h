@@ -68,7 +68,6 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FAT_WRITE
-#define CONFIG_DOS_PARTITION
 
 /* Network */
 #define CONFIG_FEC_MXC

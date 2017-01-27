@@ -84,7 +84,6 @@
 
 #if defined(CONFIG_CMD_USB)
 #define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Ethernet Hardware */

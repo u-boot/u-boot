@@ -193,7 +193,6 @@
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_TSEC_ENET
@@ -669,7 +668,6 @@ extern unsigned long get_sdram_size(void);
 #endif /* #ifdef CONFIG_FSL_SATA  */
 
 #ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
@@ -744,7 +742,6 @@ extern unsigned long get_sdram_size(void);
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) \
 		 || defined(CONFIG_FSL_SATA)
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Hash command with SHA acceleration supported in hardware */

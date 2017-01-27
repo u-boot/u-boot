@@ -51,10 +51,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D2 XPlained"
 
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* I2C */
 #define AT24MAC_ADDR		0x5c
 #define AT24MAC_REG		0x9a

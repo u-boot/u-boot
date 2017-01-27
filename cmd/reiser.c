@@ -18,7 +18,7 @@
 #include <reiserfs.h>
 #include <part.h>
 
-#ifndef CONFIG_DOS_PARTITION
+#if !CONFIG_IS_ENABLED(DOS_PARTITION)
 #error DOS partition support must be selected
 #endif
 

@@ -136,7 +136,6 @@
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_DOS_PARTITION
 
 /*
  * Pass open firmware flat tree

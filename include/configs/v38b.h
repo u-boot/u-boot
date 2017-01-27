@@ -57,11 +57,6 @@
  */
 
 /*
- * Partitions
- */
-#define CONFIG_DOS_PARTITION	1
-
-/*
  * USB
  */
 #define CONFIG_USB_OHCI

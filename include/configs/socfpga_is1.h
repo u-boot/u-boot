@@ -11,7 +11,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
 

@@ -193,10 +193,6 @@
 #define MTDIDS_DEFAULT		"nand0=atmel_nand"
 #define MTDPARTS_DEFAULT	"mtdparts=atmel_nand:-(root)"
 #endif
-#if defined(CONFIG_CMD_REISER) || defined(CONFIG_CMD_EXT2) || \
-	defined(CONFIG_CMD_USB) || defined(CONFIG_MMC)
-#define CONFIG_DOS_PARTITION
-#endif
 #define CONFIG_LZO
 #define CONFIG_RBTREE
 

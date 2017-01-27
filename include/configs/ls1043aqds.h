@@ -97,7 +97,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SCSI
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_EFI_PARTITION

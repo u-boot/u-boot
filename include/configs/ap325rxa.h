@@ -15,7 +15,6 @@
 
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_IDE
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_BOOTARGS		"console=ttySC2,38400"

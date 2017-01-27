@@ -675,7 +675,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_FMAN_ENET

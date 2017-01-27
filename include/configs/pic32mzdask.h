@@ -102,7 +102,6 @@
  * File System Configuration
  */
 /* FAT FS */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_FAT

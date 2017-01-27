@@ -47,7 +47,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_USART1
 #define CONFIG_USART_ID			1
 /* User serviceable stuff */
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

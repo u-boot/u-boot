@@ -95,10 +95,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII

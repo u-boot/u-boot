@@ -327,7 +327,6 @@
 #define CONFIG_GENERIC_MMC
 
 #ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
 #undef CONFIG_ENV_IS_IN_MMC
 #endif
 

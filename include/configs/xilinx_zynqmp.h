@@ -56,7 +56,6 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
-#define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_ISO_PARTITION

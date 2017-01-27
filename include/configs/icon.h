@@ -223,7 +223,6 @@
 #define CONFIG_SYSTEMACE		/* Enable SystemACE support	*/
 #define CONFIG_SYS_SYSTEMACE_WIDTH	16	/* Data bus width is 16	*/
 #define CONFIG_SYS_SYSTEMACE_BASE	CONFIG_SYS_ACE_BASE
-#define CONFIG_DOS_PARTITION
 
 /*
  * External Bus Controller (EBC) Setup

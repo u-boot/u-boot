@@ -60,7 +60,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SCSI
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
 #define CONFIG_SYS_SATA2			AHCI_BASE_ADDR2
@@ -303,7 +302,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_MISC_INIT_R

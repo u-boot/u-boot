@@ -39,7 +39,6 @@
 #define CONFIG_GENERIC_MMC
 
 /* bootz: zImage/initrd.img support */
-#define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
 #define CONFIG_MII

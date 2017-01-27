@@ -396,9 +396,6 @@ RTC configuration
 #define CONFIG_SYS_ATA_STRIDE		4
 #define CONFIG_ATAPI			1
 
-/* we enable IDE and FAT support, so we also need partition support */
-#define CONFIG_DOS_PARTITION 1
-
 /* USB */
 #define CONFIG_USB_OHCI
 

@@ -294,7 +294,6 @@
 #undef CONFIG_CMD_FUSE
 #undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_DOS_PARTITION
 
 /*
  * Watchdog timeout = CONFIG_SYS_WATCHDOG_VALUE * 65536 / IPS clock.

@@ -27,7 +27,6 @@
 #define CONFIG_SYS_FSL_ESDHC_USE_PIO
 
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*

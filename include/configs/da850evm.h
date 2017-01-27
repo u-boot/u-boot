@@ -315,14 +315,6 @@
 #define CONFIG_GENERIC_MMC
 #endif
 
-/*
- * Enable MMC commands only when
- * MMC support is present
- */
-#ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
-#endif
-
 #ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SPL_FRAMEWORK

@@ -133,7 +133,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 	}
 #endif
 
-#ifdef CONFIG_DOS_PARTITION
+#if CONFIG_IS_ENABLED(DOS_PARTITION)
 	if (strcmp(cmd, CONFIG_FASTBOOT_MBR_NAME) == 0) {
 		printf("%s: updating MBR\n", __func__);
 		if (is_valid_dos_buf(download_buffer)) {

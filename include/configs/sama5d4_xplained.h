@@ -82,10 +82,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D4EK"
 
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* Ethernet Hardware */
 #define CONFIG_MACB
 #define CONFIG_RMII

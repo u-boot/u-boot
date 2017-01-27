@@ -61,10 +61,6 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
 
-/*
- *  Partitions
- */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_BZIP2
 
 /*

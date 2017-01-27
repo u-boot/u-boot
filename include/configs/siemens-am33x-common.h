@@ -77,7 +77,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI

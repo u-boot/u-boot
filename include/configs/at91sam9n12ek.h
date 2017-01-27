@@ -126,11 +126,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
-/* FAT */
-#ifdef CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-#endif
-
 /* Ethernet */
 #define CONFIG_KS8851_MLL
 #define CONFIG_KS8851_MLL_BASEADDR	0x30000000 /* use NCS2 */

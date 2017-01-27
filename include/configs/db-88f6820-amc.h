@@ -41,7 +41,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 /* Partition support */
-#define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 
 /* Additional FS support/configuration */

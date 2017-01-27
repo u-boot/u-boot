@@ -16,8 +16,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
-#define CONFIG_DOS_PARTITION
-
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC1,115200 root=/dev/nfs ip=dhcp"
 

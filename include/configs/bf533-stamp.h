@@ -152,7 +152,6 @@
 /* #define CONFIG_STAMP_CF */
 #if defined(CONFIG_STAMP_CF)
 #define CONFIG_MISC_INIT_R
-#define CONFIG_DOS_PARTITION	1
 #undef  CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
 #undef  CONFIG_IDE_LED			/* no led for ide supported */
 #undef  CONFIG_IDE_RESET		/* no reset for ide supported */

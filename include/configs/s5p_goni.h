@@ -214,8 +214,6 @@
 #define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xB0000000
 
-#define CONFIG_DOS_PARTITION		1
-
 /* write support for filesystems */
 #define CONFIG_FAT_WRITE
 #define CONFIG_EXT4_WRITE

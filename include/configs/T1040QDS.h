@@ -504,7 +504,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
 
 /* SATA */
@@ -523,7 +522,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -545,7 +543,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 

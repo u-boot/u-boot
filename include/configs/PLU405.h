@@ -63,8 +63,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 
-#define CONFIG_DOS_PARTITION
-
 #define CONFIG_SUPPORT_VFAT
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/

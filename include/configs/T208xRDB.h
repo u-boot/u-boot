@@ -529,7 +529,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_PCIE_RESET           /* need PCIe reset errata LSZ ADD */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Qman/Bman */
@@ -652,7 +651,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -673,7 +671,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*

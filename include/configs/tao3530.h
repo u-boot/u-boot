@@ -71,7 +71,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 
 /* GPIO banks */
 #define CONFIG_OMAP3_GPIO_2		/* GPIO32 ..63  is in GPIO bank 2 */
