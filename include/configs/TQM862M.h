@@ -85,7 +85,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/

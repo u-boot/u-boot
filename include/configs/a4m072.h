@@ -61,7 +61,6 @@
 #undef CONFIG_EEPRO100
 
 /* Partitions */
-#define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 /* USB */

@@ -59,7 +59,6 @@
 /*
  * Partitions
  */
-#define CONFIG_MAC_PARTITION	1
 #define CONFIG_DOS_PARTITION	1
 
 /*

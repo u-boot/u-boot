@@ -19,4 +19,17 @@ config PARTITIONS
 	  you must configure support for at least one non-MTD partition type
 	  as well.
 
+config MAC_PARTITION
+	bool "Enable Apple's MacOS partition table"
+	depends on PARTITIONS
+	default y if SPARC
+	help
+	  Say Y here if you would like to use device under U-Boot which
+	  were partitioned on a Macintosh.
+
+config SPL_MAC_PARTITION
+	bool "Enable Apple's MacOS partition table for SPL"
+	depends on SPL && PARTITIONS
+	default y if MAC_PARTITION
+
 endmenu

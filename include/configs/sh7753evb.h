@@ -19,7 +19,6 @@
 #define CONFIG_CMD_MD5SUM
 #define CONFIG_MD5
 #define CONFIG_DOS_PARTITION
-#define CONFIG_MAC_PARTITION
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"

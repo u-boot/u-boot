@@ -63,7 +63,6 @@
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 
 /* Partitions */
-#define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 

@@ -173,7 +173,6 @@
 #define CONFIG_PCMCIA_SLOT_A
 
 #define CONFIG_ATAPI 1
-#define CONFIG_MAC_PARTITION 1
 
 /* We run CF in "true ide" mode or a harddrive via pcmcia */
 #define CONFIG_IDE_PCMCIA 1
