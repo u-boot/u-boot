@@ -15,6 +15,10 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
+#ifdef CONFIG_ARM64
+#define CONFIG_CMD_UNZIP
+#endif
+
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -76,7 +80,7 @@
 /* #define CONFIG_ENV_IS_NOWHERE */
 /* #define CONFIG_ENV_IS_IN_NAND */
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET			0x80000
+#define CONFIG_ENV_OFFSET			0x100000
 #define CONFIG_ENV_SIZE				0x2000
 /* #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
 
@@ -97,7 +101,6 @@
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
 #endif
-
 
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
@@ -143,6 +146,17 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 
+#if defined(CONFIG_ARM64) && !defined(CONFIG_ARMV8_MULTIENTRY)
+/* ARM Trusted Firmware */
+#define BOOT_IMAGES \
+	"second_image=bl1.bin\0" \
+	"third_image=fip.bin\0"
+#else
+#define BOOT_IMAGES \
+	"second_image=u-boot-spl.bin\0" \
+	"third_image=u-boot.bin\0"
+#endif
+
 #define CONFIG_BOOTCOMMAND		"run $bootmode"
 
 #define CONFIG_ROOTPATH			"/nfs/root/path"
@@ -167,46 +181,54 @@
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_BOOTFILE			"Image"
+#define CONFIG_BOOTFILE			"Image.gz"
 #define LINUXBOOT_CMD			"booti"
+#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x84200000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
-#define KERNEL_SIZE			"kernel_size=0x00c00000\0"
-#define RAMDISK_ADDR			"ramdisk_addr=0x00e00000\0"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
+#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x80208000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
-#define KERNEL_SIZE			"kernel_size=0x00800000\0"
-#define RAMDISK_ADDR			"ramdisk_addr=0x00a00000\0"
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
 	"kernel_addr=0x00200000\0" \
+	KERNEL_ADDR_LOAD \
 	KERNEL_ADDR_R \
-	KERNEL_SIZE \
-	RAMDISK_ADDR \
+	"kernel_size=0x00800000\0" \
+	"ramdisk_addr=0x00a00000\0" \
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
+		"if test $kernel_addr_load = $kernel_addr_r; then " \
+			"true; " \
+		"else " \
+			"unzip $kernel_addr_load $kernel_addr_r; " \
+		"fi && " \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"setexpr kernel_size $kernel_size / 4 &&" \
-		"cp $kernel_addr $kernel_addr_r $kernel_size &&" \
-		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
-		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
+	"norboot=setexpr kernel_addr_nor $nor_base + $kernel_addr && " \
+		"setexpr kernel_size_div4 $kernel_size / 4 && " \
+		"cp $kernel_addr_nor $kernel_addr_load $kernel_size_div4 && " \
+		"setexpr ramdisk_addr_nor $nor_base + $ramdisk_addr && " \
+		"setexpr ramdisk_size_div4 $ramdisk_size / 4 && " \
+		"cp $ramdisk_addr_nor $ramdisk_addr_r $ramdisk_size_div4 && " \
+		"setexpr fdt_addr_nor $nor_base + $fdt_addr && " \
+		"setexpr fdt_size_div4 $fdt_size / 4 && " \
+		"cp $fdt_addr_nor $fdt_addr_r $fdt_size_div4 && " \
 		"run boot_common\0" \
-	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"nandboot=nand read $kernel_addr_load $kernel_addr $kernel_size && " \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
 		"run boot_common\0" \
-	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"run boot_common\0" \
-	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
+	"__nfsboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"
@@ -215,31 +237,38 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
+	"initrd_high=0xffffffffffffffff\0"			\
 	"nor_base=0x42000000\0"					\
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
-		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
-		"setexpr tmp_addr $nor_base + 0x60000 &&"	\
-		"tftpboot $tmp_addr u-boot.bin\0"		\
+		"tftpboot $tmp_addr $second_image && " \
+		"setexpr tmp_addr $nor_base + 0x70000 && " \
+		"tftpboot $tmp_addr $third_image\0" \
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
-		"tftpboot u-boot-spl.bin &&"			\
-		"mmc write $loadaddr 0 80 &&"			\
-		"tftpboot u-boot.bin &&"			\
-		"mmc write $loadaddr 80 780\0"			\
+		"tftpboot $second_image && " \
+		"mmc write $loadaddr 0 100 && " \
+		"tftpboot $third_image && " \
+		"mmc write $loadaddr 100 700\0" \
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl.bin &&"			\
-		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot.bin &&"			\
-		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
+		"tftpboot $second_image && " \
+		"nand write $loadaddr 0 0x00020000 && " \
+		"tftpboot $third_image && " \
+		"nand write $loadaddr 0x00020000 0x000e0000\0" \
+	BOOT_IMAGES \
 	LINUXBOOT_ENV_SETTINGS
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_NR_DRAM_BANKS		2
+#define CONFIG_NR_DRAM_BANKS		3
 /* for LD20; the last 64 byte is used for dynamic DDR PHY training */
 #define CONFIG_SYS_MEM_TOP_HIDE		64
 
+#define CONFIG_PANIC_HANG
+
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
+
+/* only for SPL */
 #if defined(CONFIG_ARM64)
 #define CONFIG_SPL_TEXT_BASE		0x30000000
 #elif defined(CONFIG_ARCH_UNIPHIER_SLD3) || \
@@ -257,9 +286,6 @@
 #else
 #define CONFIG_SPL_STACK		(0x00100000)
 #endif
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
-
-#define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
 #ifdef CONFIG_ARM64
@@ -268,21 +294,25 @@
 
 #define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */
-#define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
+#define CONFIG_SYS_UBOOT_BASE			(0x70000 - 0x40)
 
-#ifdef CONFIG_SPL
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#define CONFIG_SPL_MAX_SIZE			0x14000
+#else
 #define CONFIG_SPL_MAX_SIZE			0x10000
+#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 #define CONFIG_SPL_BSS_START_ADDR		0x30012000
 #elif defined(CONFIG_ARCH_UNIPHIER_LD20)
 #define CONFIG_SPL_BSS_START_ADDR		0x30016000
 #endif
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
-#endif
+
+#define CONFIG_SPL_PAD_TO			0x20000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

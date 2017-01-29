@@ -163,11 +163,11 @@ static const struct udevice_id uniphier_clk_match[] = {
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,uniphier-pro5-mio-clock",
+		.compatible = "socionext,uniphier-pro5-sd-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,uniphier-pxs2-mio-clock",
+		.compatible = "socionext,uniphier-pxs2-sd-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
@@ -175,7 +175,7 @@ static const struct udevice_id uniphier_clk_match[] = {
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
-		.compatible = "socionext,uniphier-ld20-mio-clock",
+		.compatible = "socionext,uniphier-ld20-sd-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{ /* sentinel */ }

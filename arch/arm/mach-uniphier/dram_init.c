@@ -1,87 +1,243 @@
 /*
- * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015-2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <libfdt.h>
 #include <fdtdec.h>
 #include <linux/errno.h>
+#include <linux/sizes.h>
 
 #include "init.h"
+#include "sg-regs.h"
 #include "soc-info.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const void *get_memory_reg_prop(const void *fdt, int *lenp)
+struct uniphier_memif_data {
+	unsigned int soc_id;
+	unsigned long sparse_ch1_base;
+	int have_ch2;
+};
+
+static const struct uniphier_memif_data uniphier_memif_data[] = {
+	{
+		.soc_id = UNIPHIER_SLD3_ID,
+		.sparse_ch1_base = 0xc0000000,
+		/*
+		 * In fact, SLD3 has DRAM ch2, but the memory regions for ch1
+		 * and ch2 overlap, and host cannot get access to them at the
+		 * same time.  Hide the ch2 from U-Boot.
+		 */
+	},
+	{
+		.soc_id = UNIPHIER_LD4_ID,
+		.sparse_ch1_base = 0xc0000000,
+	},
+	{
+		.soc_id = UNIPHIER_PRO4_ID,
+		.sparse_ch1_base = 0xa0000000,
+	},
+	{
+		.soc_id = UNIPHIER_SLD8_ID,
+		.sparse_ch1_base = 0xc0000000,
+	},
+	{
+		.soc_id = UNIPHIER_PRO5_ID,
+		.sparse_ch1_base = 0xc0000000,
+	},
+	{
+		.soc_id = UNIPHIER_PXS2_ID,
+		.sparse_ch1_base = 0xc0000000,
+		.have_ch2 = 1,
+	},
+	{
+		.soc_id = UNIPHIER_LD6B_ID,
+		.sparse_ch1_base = 0xc0000000,
+		.have_ch2 = 1,
+	},
+	{
+		.soc_id = UNIPHIER_LD11_ID,
+		.sparse_ch1_base = 0xc0000000,
+	},
+	{
+		.soc_id = UNIPHIER_LD20_ID,
+		.sparse_ch1_base = 0xc0000000,
+		.have_ch2 = 1,
+	},
+	{
+		.soc_id = UNIPHIER_PXS3_ID,
+		.sparse_ch1_base = 0xc0000000,
+		.have_ch2 = 1,
+	},
+};
+UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_memif_data, uniphier_memif_data)
+
+static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 {
-	int offset;
+	const struct uniphier_memif_data *data;
+	unsigned long size;
+	u32 val;
 
-	offset = fdt_path_offset(fdt, "/memory");
-	if (offset < 0)
-		return NULL;
+	data = uniphier_get_memif_data();
+	if (!data) {
+		pr_err("unsupported SoC\n");
+		return -EINVAL;
+	}
 
-	return fdt_getprop(fdt, offset, "reg", lenp);
+	val = readl(SG_MEMCONF);
+
+	/* set up ch0 */
+	dram_ch[0].base = CONFIG_SYS_SDRAM_BASE;
+
+	switch (val & SG_MEMCONF_CH0_SZ_MASK) {
+	case SG_MEMCONF_CH0_SZ_64M:
+		size = SZ_64M;
+		break;
+	case SG_MEMCONF_CH0_SZ_128M:
+		size = SZ_128M;
+		break;
+	case SG_MEMCONF_CH0_SZ_256M:
+		size = SZ_256M;
+		break;
+	case SG_MEMCONF_CH0_SZ_512M:
+		size = SZ_512M;
+		break;
+	case SG_MEMCONF_CH0_SZ_1G:
+		size = SZ_1G;
+		break;
+	default:
+		pr_err("error: invald value is set to MEMCONF ch0 size\n");
+		return -EINVAL;
+	}
+
+	if ((val & SG_MEMCONF_CH0_NUM_MASK) == SG_MEMCONF_CH0_NUM_2)
+		size *= 2;
+
+	dram_ch[0].size = size;
+
+	/* set up ch1 */
+	dram_ch[1].base = dram_ch[0].base + size;
+
+	if (val & SG_MEMCONF_SPARSEMEM) {
+		if (dram_ch[1].base > data->sparse_ch1_base) {
+			pr_warn("Sparse mem is enabled, but ch0 and ch1 overlap\n");
+			pr_warn("Only ch0 is available\n");
+			dram_ch[1].base = 0;
+			return 0;
+		}
+
+		dram_ch[1].base = data->sparse_ch1_base;
+	}
+
+	switch (val & SG_MEMCONF_CH1_SZ_MASK) {
+	case SG_MEMCONF_CH1_SZ_64M:
+		size = SZ_64M;
+		break;
+	case SG_MEMCONF_CH1_SZ_128M:
+		size = SZ_128M;
+		break;
+	case SG_MEMCONF_CH1_SZ_256M:
+		size = SZ_256M;
+		break;
+	case SG_MEMCONF_CH1_SZ_512M:
+		size = SZ_512M;
+		break;
+	case SG_MEMCONF_CH1_SZ_1G:
+		size = SZ_1G;
+		break;
+	default:
+		pr_err("error: invald value is set to MEMCONF ch1 size\n");
+		return -EINVAL;
+	}
+
+	if ((val & SG_MEMCONF_CH1_NUM_MASK) == SG_MEMCONF_CH1_NUM_2)
+		size *= 2;
+
+	dram_ch[1].size = size;
+
+	if (!data->have_ch2)
+		return 0;
+
+	/* set up ch2 */
+	dram_ch[2].base = dram_ch[1].base + size;
+
+	switch (val & SG_MEMCONF_CH2_SZ_MASK) {
+	case SG_MEMCONF_CH2_SZ_64M:
+		size = SZ_64M;
+		break;
+	case SG_MEMCONF_CH2_SZ_128M:
+		size = SZ_128M;
+		break;
+	case SG_MEMCONF_CH2_SZ_256M:
+		size = SZ_256M;
+		break;
+	case SG_MEMCONF_CH2_SZ_512M:
+		size = SZ_512M;
+		break;
+	case SG_MEMCONF_CH2_SZ_1G:
+		size = SZ_1G;
+		break;
+	default:
+		pr_err("error: invald value is set to MEMCONF ch2 size\n");
+		return -EINVAL;
+	}
+
+	if ((val & SG_MEMCONF_CH2_NUM_MASK) == SG_MEMCONF_CH2_NUM_2)
+		size *= 2;
+
+	dram_ch[2].size = size;
+
+	return 0;
 }
 
 int dram_init(void)
 {
-	const void *fdt = gd->fdt_blob;
-	const fdt32_t *val;
-	int ac, sc, len;
+	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH] = {};
+	int ret, i;
 
-	ac = fdt_address_cells(fdt, 0);
-	sc = fdt_size_cells(fdt, 0);
-	if (ac < 0 || sc < 1 || sc > 2) {
-		printf("invalid address/size cells\n");
-		return -EINVAL;
+	gd->ram_size = 0;
+
+	ret = uniphier_memconf_decode(dram_ch);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < ARRAY_SIZE(dram_ch); i++) {
+
+		if (!dram_ch[i].size)
+			break;
+
+		/*
+		 * U-Boot relocates itself to the tail of the memory region,
+		 * but it does not expect sparse memory.  We use the first
+		 * contiguous chunk here.
+		 */
+		if (i > 0 &&
+		    dram_ch[i - 1].base + dram_ch[i - 1].size < dram_ch[i].base)
+			break;
+
+		gd->ram_size += dram_ch[i].size;
 	}
-
-	val = get_memory_reg_prop(fdt, &len);
-	if (len / sizeof(*val) < ac + sc)
-		return -EINVAL;
-
-	val += ac;
-
-	gd->ram_size = fdtdec_get_number(val, sc);
-
-	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
 
 	return 0;
 }
 
 void dram_init_banksize(void)
 {
-	const void *fdt = gd->fdt_blob;
-	const fdt32_t *val;
-	int ac, sc, cells, len, i;
+	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH] = {};
+	int i;
 
-	val = get_memory_reg_prop(fdt, &len);
-	if (len < 0)
-		return;
+	uniphier_memconf_decode(dram_ch);
 
-	ac = fdt_address_cells(fdt, 0);
-	sc = fdt_size_cells(fdt, 0);
-	if (ac < 1 || sc > 2 || sc < 1 || sc > 2) {
-		printf("invalid address/size cells\n");
-		return;
-	}
+	for (i = 0; i < ARRAY_SIZE(dram_ch); i++) {
+		if (i >= ARRAY_SIZE(gd->bd->bi_dram))
+			break;
 
-	cells = ac + sc;
-
-	len /= sizeof(*val);
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS && len >= cells;
-	     i++, len -= cells) {
-		gd->bd->bi_dram[i].start = fdtdec_get_number(val, ac);
-		val += ac;
-		gd->bd->bi_dram[i].size = fdtdec_get_number(val, sc);
-		val += sc;
-
-		debug("DRAM bank %d: start = %08lx, size = %08lx\n",
-		      i, (unsigned long)gd->bd->bi_dram[i].start,
-		      (unsigned long)gd->bd->bi_dram[i].size);
+		gd->bd->bi_dram[i].start = dram_ch[i].base;
+		gd->bd->bi_dram[i].size = dram_ch[i].size;
 	}
 }
 
@@ -92,22 +248,15 @@ void dram_init_banksize(void)
  */
 int ft_board_setup(void *fdt, bd_t *bd)
 {
-	const struct uniphier_board_data *param;
 	unsigned long rsv_addr;
 	const unsigned long rsv_size = 64;
-	int ch, ret;
+	int i, ret;
 
 	if (uniphier_get_soc_id() != UNIPHIER_LD20_ID)
 		return 0;
 
-	param = uniphier_get_board_param();
-	if (!param) {
-		printf("failed to get board parameter\n");
-		return -ENODEV;
-	}
-
-	for (ch = 0; ch < param->dram_nr_ch; ch++) {
-		rsv_addr = param->dram_ch[ch].base + param->dram_ch[ch].size;
+	for (i = 0; i < ARRAY_SIZE(gd->bd->bi_dram); i++) {
+		rsv_addr = gd->bd->bi_dram[i].start + gd->bd->bi_dram[i].size;
 		rsv_addr -= rsv_size;
 
 		ret = fdt_add_mem_rsv(fdt, rsv_addr, rsv_size);

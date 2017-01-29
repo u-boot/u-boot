@@ -124,6 +124,7 @@ int uniphier_pin_init(const char *pinconfig_name);
 void uniphier_smp_kick_all_cpus(void);
 void cci500_init(int nr_slaves);
 
+#define pr_warn(fmt, args...)	printf(fmt, ##args)
 #define pr_err(fmt, args...)	printf(fmt, ##args)
 
 #endif /* __MACH_INIT_H */
