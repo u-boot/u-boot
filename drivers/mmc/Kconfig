@@ -51,16 +51,6 @@ config SPL_MMC_TINY
 	  operations too, which can remove the need for malloc support in SPL
 	  and thus further reduce footprint.
 
-config MSM_SDHCI
-	bool "Qualcomm SDHCI controller"
-	depends on DM_MMC && BLK && DM_MMC_OPS
-	depends on MMC_SDHCI
-	help
-	  Enables support for SDHCI 2.0 controller present on some Qualcomm
-          Snapdragon devices. This device is compatible with eMMC v4.5 and
-          SD 3.0 specifications. Both SD and eMMC devices are supported.
-	  Card-detect gpios are not supported.
-
 config ATMEL_SDHCI
 	bool "Atmel SDHCI controller support"
 	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
@@ -242,6 +232,16 @@ config MMC_SDHCI_KONA
 	  This is used in Broadcom mobile SoCs.
 
 	  If you have a controller with this interface, say Y here.
+
+config MMC_SDHCI_MSM
+	bool "Qualcomm SDHCI controller"
+	depends on BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
+	help
+	  Enables support for SDHCI 2.0 controller present on some Qualcomm
+          Snapdragon devices. This device is compatible with eMMC v4.5 and
+          SD 3.0 specifications. Both SD and eMMC devices are supported.
+	  Card-detect gpios are not supported.
 
 config MMC_SDHCI_MV
 	bool "SDHCI support on Marvell platform"
