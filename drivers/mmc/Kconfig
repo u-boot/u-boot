@@ -148,13 +148,6 @@ config SH_SDHI
 	help
 	  Support for the on-chip SDHI host controller on SuperH/Renesas ARM SoCs platform
 
-config PIC32_SDHCI
-	bool "Microchip PIC32 on-chip SDHCI support"
-	depends on DM_MMC && MACH_PIC32
-	depends on MMC_SDHCI
-	help
-	  Support for Microchip PIC32 SDHCI controller.
-
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
@@ -254,6 +247,13 @@ config MMC_SDHCI_MV
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_PIC32
+	bool "Microchip PIC32 on-chip SDHCI support"
+	depends on DM_MMC && MACH_PIC32
+	depends on MMC_SDHCI
+	help
+	  Support for Microchip PIC32 SDHCI controller.
 
 config MMC_SDHCI_ROCKCHIP
 	bool "Arasan SDHCI controller for Rockchip support"
