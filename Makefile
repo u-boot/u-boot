@@ -482,6 +482,13 @@ else
 # Build targets only - this includes vmlinux, arch specific targets, clean
 # targets and others. In general all targets except *config targets.
 
+# Additional helpers built in scripts/
+# Carefully list dependencies so we do not try to build scripts twice
+# in parallel
+PHONY += scripts
+scripts: scripts_basic include/config/auto.conf
+	$(Q)$(MAKE) $(build)=$(@)
+
 ifeq ($(dot-config),1)
 # Read in config
 -include include/config/auto.conf
@@ -1538,11 +1545,6 @@ tests:
 %docs: scripts_basic FORCE
 	$(Q)$(MAKE) $(build)=scripts build_docproc
 	$(Q)$(MAKE) $(build)=doc/DocBook $@
-
-# Dummies...
-PHONY += prepare scripts
-prepare: ;
-scripts: ;
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)

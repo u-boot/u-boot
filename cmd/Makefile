@@ -31,6 +31,7 @@ obj-$(CONFIG_CMD_BOOTI) += booti.o
 obj-$(CONFIG_CMD_CACHE) += cache.o
 obj-$(CONFIG_CMD_CBFS) += cbfs.o
 obj-$(CONFIG_CMD_CLK) += clk.o
+obj-$(CONFIG_CMD_CONFIG) += config.o
 obj-$(CONFIG_CMD_CONSOLE) += console.o
 obj-$(CONFIG_CMD_CPLBINFO) += cplbinfo.o
 obj-$(CONFIG_CMD_CPU) += cpu.o
@@ -165,3 +166,24 @@ obj-$(CONFIG_CMD_BLOB) += blob.o
 obj-y += nvedit.o
 
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
+
+filechk_data_gz = (echo "static const char data_gz[] ="; cat $< | scripts/bin2c; echo ";")
+
+filechk_data_size = \
+	(echo "static const size_t data_size = "; \
+	cat $< | wc -c; echo ";")
+
+# "config" command
+$(obj)/config.o: $(obj)/config_data_gz.h $(obj)/config_data_size.h
+
+targets += config_data.gz
+$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
+	$(call if_changed,gzip)
+
+targets += config_data_gz.h
+$(obj)/config_data_gz.h: $(obj)/config_data.gz FORCE
+	$(call filechk,data_gz)
+
+targets += config_data_size.h
+$(obj)/config_data_size.h: $(KCONFIG_CONFIG) FORCE
+	$(call filechk,data_size)

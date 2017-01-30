@@ -126,6 +126,18 @@ config CMD_BDI
 	help
 	  Print board info
 
+config CMD_CONFIG
+	bool "config"
+	select BUILD_BIN2C
+	default SANDBOX
+	help
+	  Print ".config" contents.
+
+	  If this option is enabled, the ".config" file contents are embedded
+	  in the U-Boot image and can be printed on the console by the "config"
+	  command.  This provides information of which options are enabled on
+	  the running U-Boot.
+
 config CMD_CONSOLE
 	bool "coninfo"
 	default y
