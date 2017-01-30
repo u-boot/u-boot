@@ -6,31 +6,36 @@
  */
 
 #include <common.h>
-
-/* Licenses/gpl-2.0.txt is currently 18092 bytes in size */
-#define LICENSE_MAX	20480
-
 #include <command.h>
 #include <malloc.h>
-#include <license.h>
 
-int do_license(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+#include "license_data_gz.h"
+#include "license_data_size.h"
+
+static int do_license(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char *dst = malloc(LICENSE_MAX);
-	unsigned long len = LICENSE_MAX;
+	char *dst;
+	unsigned long len = data_size;
+	int ret = CMD_RET_SUCCESS;
 
+	dst = malloc(data_size + 1);
 	if (!dst)
-		return -1;
+		return CMD_RET_FAILURE;
 
-	if (gunzip(dst, LICENSE_MAX, license_gzip, &len) != 0) {
+	ret = gunzip(dst, data_size, (unsigned char *)data_gz, &len);
+	if (ret) {
 		printf("Error uncompressing license text\n");
-		free(dst);
-		return -1;
+		ret = CMD_RET_FAILURE;
+		goto free;
 	}
+
+	dst[data_size] = 0;
 	puts(dst);
+
+free:
 	free(dst);
 
-	return 0;
+	return ret;
 }
 
 U_BOOT_CMD(

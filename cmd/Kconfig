@@ -154,6 +154,7 @@ config CMD_CPU
 
 config CMD_LICENSE
 	bool "license"
+	select BUILD_BIN2C
 	help
 	  Print GPL license text
 

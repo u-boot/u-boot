@@ -187,3 +187,18 @@ $(obj)/config_data_gz.h: $(obj)/config_data.gz FORCE
 targets += config_data_size.h
 $(obj)/config_data_size.h: $(KCONFIG_CONFIG) FORCE
 	$(call filechk,data_size)
+
+# "license" command
+$(obj)/license.o: $(obj)/license_data_gz.h $(obj)/license_data_size.h
+
+targets += license_data.gz
+$(obj)/license_data.gz: $(srctree)/Licenses/gpl-2.0.txt FORCE
+	$(call if_changed,gzip)
+
+targets += license_data_gz.h
+$(obj)/license_data_gz.h: $(obj)/license_data.gz FORCE
+	$(call filechk,data_gz)
+
+targets += license_data_size.h
+$(obj)/license_data_size.h: $(srctree)/Licenses/gpl-2.0.txt FORCE
+	$(call filechk,data_size)
