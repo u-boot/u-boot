@@ -35,7 +35,7 @@ static ulong ast2500_get_mpll_rate(ulong clkin, u32 mpll_reg)
 	const ulong post_div = (mpll_reg >> SCU_MPLL_POST_SHIFT)
 			& SCU_MPLL_POST_MASK;
 
-	return (clkin * ((num + 1) / (denum + 1))) / post_div;
+	return (clkin * ((num + 1) / (denum + 1))) / (post_div + 1);
 }
 
 /*
@@ -50,7 +50,7 @@ static ulong ast2500_get_hpll_rate(ulong clkin, u32 hpll_reg)
 	const ulong post_div = (hpll_reg >> SCU_HPLL_POST_SHIFT)
 			& SCU_HPLL_POST_MASK;
 
-	return (clkin * ((num + 1) / (denum + 1))) / post_div;
+	return (clkin * ((num + 1) / (denum + 1))) / (post_div + 1);
 }
 
 static ulong ast2500_get_clkin(struct ast2500_scu *scu)
