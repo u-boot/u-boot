@@ -310,11 +310,6 @@
 #undef CONFIG_CMD_ENV
 #endif
 
-/* SD/MMC configuration */
-#ifndef CONFIG_USE_NOR
-#define CONFIG_GENERIC_MMC
-#endif
-
 #ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SPL_FRAMEWORK

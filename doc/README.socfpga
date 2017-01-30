@@ -14,8 +14,5 @@ socfpga_dw_mmc
 Here are macro and detailed configuration required to enable DesignWare SDMMC
 controller support within SOCFPGA
 
-#define CONFIG_GENERIC_MMC
--> Enable the generic MMC driver
-
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
 -> Using smaller max blk cnt to avoid flooding the limited stack in OCRAM

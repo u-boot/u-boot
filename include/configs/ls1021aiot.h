@@ -156,7 +156,6 @@
  */
 #define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
 
 /* SATA */
 #define CONFIG_CMD_SCSI

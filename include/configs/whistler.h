@@ -24,9 +24,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 
-/* SD/MMC */
-#define CONFIG_GENERIC_MMC
-
 /*
  * Environment in eMMC, at the end of 2nd "boot sector". Note: This assumes
  * the user plugged the standard 8GB MoviNAND card into J29/HSMMC/POP. If

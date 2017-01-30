@@ -26,9 +26,6 @@
 #undef CONFIG_SCSI_AHCI
 #undef CONFIG_SCSI
 
-/* SD/MMC support */
-#define CONFIG_GENERIC_MMC
-
 /* 10/100M Ethernet support */
 #define CONFIG_DESIGNWARE_ETH
 #define CONFIG_DW_ALTDESCRIPTOR

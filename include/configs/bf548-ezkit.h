@@ -142,7 +142,6 @@
  * SDH Settings
  */
 #if !defined(__ADSPBF544__)
-#define CONFIG_GENERIC_MMC
 #define CONFIG_BFIN_SDH
 #endif
 

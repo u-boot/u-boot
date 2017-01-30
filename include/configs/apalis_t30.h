@@ -25,9 +25,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 
-/* SD/MMC support */
-#define CONFIG_GENERIC_MMC
-
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \

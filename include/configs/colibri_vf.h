@@ -57,8 +57,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-#define CONFIG_GENERIC_MMC
-
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */

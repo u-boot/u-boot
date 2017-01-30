@@ -37,7 +37,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 
 /* PWM */

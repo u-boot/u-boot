@@ -307,7 +307,6 @@
  * SD/MMC
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_MXC_MCI_REGS_BASE	0x10014000
 #endif
 

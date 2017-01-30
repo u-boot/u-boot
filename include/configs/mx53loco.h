@@ -36,8 +36,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_GENERIC_MMC
-
 /* Eth Configs */
 #define CONFIG_MII
 

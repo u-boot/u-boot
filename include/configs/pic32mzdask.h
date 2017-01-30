@@ -88,11 +88,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*-----------------------------------------------------------------------
- * SDHC Configuration
- */
-#define CONFIG_GENERIC_MMC
-
 /*--------------------------------------------------
  * USB Configuration
  */

@@ -124,9 +124,6 @@
  * SPI_MMC Settings
  */
 #define CONFIG_MMC_SPI
-#ifdef CONFIG_MMC_SPI
-#define CONFIG_GENERIC_MMC
-#endif
 
 /*
  * NAND Settings

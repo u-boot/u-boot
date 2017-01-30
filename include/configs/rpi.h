@@ -81,9 +81,6 @@
 #define CONFIG_VIDEO_BCM2835
 #define CONFIG_SYS_WHITE_ON_BLACK
 
-/* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
-
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
 #ifndef CONFIG_BCM2835

@@ -87,8 +87,6 @@
 
 #define CONFIG_OMAP_GPIO
 
-#define CONFIG_GENERIC_MMC
-
 /* USB */
 #define CONFIG_USB_MUSB_AM35X
 

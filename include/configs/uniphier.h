@@ -127,7 +127,6 @@
 
 /* SD/MMC */
 #define CONFIG_SUPPORT_EMMC_BOOT
-#define CONFIG_GENERIC_MMC
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE

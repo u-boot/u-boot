@@ -27,9 +27,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 
-/* SD/MMC */
-#define CONFIG_GENERIC_MMC
-
 /* Environment in SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MAX_HZ		48000000

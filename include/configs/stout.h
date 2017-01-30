@@ -89,9 +89,6 @@
 #define CONFIG_USB_EHCI_RMOBILE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 
-/* MMC */
-#define CONFIG_GENERIC_MMC
-
 /* Module stop status bits */
 /* INTC-RT */
 #define CONFIG_SMSTP0_ENA	0x00400000

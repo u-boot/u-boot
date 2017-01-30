@@ -324,8 +324,6 @@
 #endif
 
 /* SD/MMC */
-#define CONFIG_GENERIC_MMC
-
 #ifdef CONFIG_MMC
 #undef CONFIG_ENV_IS_IN_MMC
 #endif

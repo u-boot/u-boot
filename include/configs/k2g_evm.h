@@ -60,9 +60,6 @@
 #define CONFIG_PHY_MICREL
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
-/* MMC/SD */
-#define CONFIG_GENERIC_MMC
-
 #undef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE		"mmc"

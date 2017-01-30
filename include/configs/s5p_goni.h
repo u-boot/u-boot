@@ -47,7 +47,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* MMC */
-#define CONFIG_GENERIC_MMC
 #define SDHCI_MAX_HOSTS		4
 
 /* PWM */

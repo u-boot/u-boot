@@ -52,7 +52,6 @@
 
 #define CONFIG_CMD_ASKEN
 #define CONFIG_OMAP_GPIO
-#define CONFIG_GENERIC_MMC
 
 #define CONFIG_FS_FAT
 

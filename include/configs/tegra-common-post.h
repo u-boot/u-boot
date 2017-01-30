@@ -114,13 +114,6 @@
 #ifdef CONFIG_CMD_I2C
 #endif
 
-/* remove MMC support */
-#ifdef CONFIG_GENERIC_MMC
-#undef CONFIG_GENERIC_MMC
-#endif
-#ifdef CONFIG_CMD_MMC
-#endif
-
 /* remove partitions/filesystems */
 #ifdef CONFIG_FS_EXT4
 #undef CONFIG_FS_EXT4

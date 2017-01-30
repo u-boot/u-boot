@@ -22,9 +22,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
 
-/* SD/MMC */
-#define CONFIG_GENERIC_MMC
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET (-CONFIG_ENV_SIZE)

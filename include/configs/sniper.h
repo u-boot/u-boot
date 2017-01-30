@@ -92,12 +92,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /*
- * MMC
- */
-
-#define CONFIG_GENERIC_MMC
-
-/*
  * Power
  */
 

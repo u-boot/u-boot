@@ -485,7 +485,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
-#define CONFIG_GENERIC_MMC
 #endif
 
 /*

@@ -166,9 +166,6 @@
 #define CONFIG_DM_I2C_COMPAT
 #endif
 
-/* MMC/SD IP block */
-#define CONFIG_GENERIC_MMC
-
 /* McSPI IP block */
 #define CONFIG_SPI
 

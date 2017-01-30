@@ -393,7 +393,6 @@ unsigned long get_board_ddr_clk(void);
  * MMC
  */
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
 
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)

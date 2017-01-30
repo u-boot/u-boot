@@ -69,7 +69,6 @@
 #define CONFIG_HIKEY_GPIO
 
 /* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_FS_EXT4

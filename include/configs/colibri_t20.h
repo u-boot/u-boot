@@ -24,9 +24,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 
-/* SD/MMC support */
-#define CONFIG_GENERIC_MMC
-
 /* USB host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA

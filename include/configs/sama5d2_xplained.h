@@ -41,11 +41,6 @@
 /* NAND flash */
 #undef CONFIG_CMD_NAND
 
-/* MMC */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#endif
-
 /* USB device */
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS

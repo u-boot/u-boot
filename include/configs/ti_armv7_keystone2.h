@@ -301,13 +301,6 @@
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
-/* We wont be loading up OS from SPL for now.. */
-
-/* We do not have MMC support.. yet.. */
-#undef CONFIG_GENERIC_MMC
-
-/* And no support for GPIO, yet.. */
-
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>

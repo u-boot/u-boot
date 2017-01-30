@@ -75,7 +75,6 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-#define CONFIG_GENERIC_MMC		1
 
 /*
  * USB configuration

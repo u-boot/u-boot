@@ -61,7 +61,6 @@
  * MMC Card Configuration
  */
 #ifdef	CONFIG_CMD_MMC
-#define	CONFIG_GENERIC_MMC
 #define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
 #endif

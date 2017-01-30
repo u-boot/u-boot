@@ -95,8 +95,6 @@
 /* USB */
 #undef CONFIG_CMD_USB
 
-#define CONFIG_GENERIC_MMC
-
 /* Module stop status bits */
 /* INTC-RT */
 #define CONFIG_SMSTP0_ENA	0x00400000

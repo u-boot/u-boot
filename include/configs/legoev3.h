@@ -213,9 +213,6 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
 
-/* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
-
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 

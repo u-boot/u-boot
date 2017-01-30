@@ -82,11 +82,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	64
 
 /*
- * SD/MMC configuration
- */
-#define CONFIG_GENERIC_MMC
-
-/*
  * Ethernet PHY configuration
  */
 #define CONFIG_MII

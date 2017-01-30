@@ -113,7 +113,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000	/* Default */
 
 #define CONFIG_OMAP_GPIO
-#define CONFIG_GENERIC_MMC
 
 /**
  * Physical Memory Map

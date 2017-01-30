@@ -478,7 +478,6 @@ combinations. this should be removed later
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 

@@ -1457,9 +1457,6 @@ The following options need to be configured:
 			CONFIG_SH_MMCIF_CLK
 			Define the clock frequency for MMCIF
 
-		CONFIG_GENERIC_MMC
-		Enable the generic MMC driver
-
 		CONFIG_SUPPORT_EMMC_BOOT
 		Enable some additional features of the eMMC boot partitions.
 

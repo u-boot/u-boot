@@ -353,7 +353,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#define CONFIG_GENERIC_MMC
 #endif
 
 /* Initial environment variables */

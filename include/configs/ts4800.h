@@ -59,8 +59,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 
-#define CONFIG_GENERIC_MMC
-
 /*
  * Eth Configs
  */

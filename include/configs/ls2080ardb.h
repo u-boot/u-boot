@@ -298,7 +298,6 @@ unsigned long get_board_sys_clk(void);
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#define CONFIG_GENERIC_MMC
 #endif
 
 #define CONFIG_MISC_INIT_R

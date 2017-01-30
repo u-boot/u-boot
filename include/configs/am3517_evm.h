@@ -76,9 +76,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 
-/* SD/MMC */
-#define CONFIG_GENERIC_MMC
-
 /*
  * USB configuration
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
