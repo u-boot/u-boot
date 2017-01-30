@@ -75,7 +75,7 @@
 #endif
 #define CONFIG_AUTO_COMPLETE
 
-#if defined(CONFIG_ZYNQ_SDHCI)
+#if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define CONFIG_SUPPORT_EMMC_BOOT
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
@@ -86,7 +86,7 @@
 # define FAT_ENV_INTERFACE		"mmc"
 #endif
 
-#if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
+#if defined(CONFIG_MMC_SDHCI_ZYNQ) || defined(CONFIG_ZYNQMP_USB)
 # define CONFIG_FAT_WRITE
 #endif
 
@@ -128,7 +128,7 @@
 # define CONFIG_FASTBOOT_BUF_ADDR 0x100000
 # define CONFIG_FASTBOOT_BUF_SIZE 0x6000000
 # define CONFIG_FASTBOOT_FLASH
-# ifdef CONFIG_ZYNQ_SDHCI
+# ifdef CONFIG_MMC_SDHCI_ZYNQ
 #  define CONFIG_FASTBOOT_FLASH_MMC_DEV 0
 # endif
 
@@ -221,7 +221,7 @@
 	"scriptaddr=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 
-#if defined(CONFIG_ZYNQ_SDHCI)
+#if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
 #else
 # define BOOT_TARGET_DEVICES_MMC(func)
@@ -289,7 +289,7 @@
 #define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
 
 /* MMC support */
-#ifdef CONFIG_ZYNQ_SDHCI
+#ifdef CONFIG_MMC_SDHCI_ZYNQ
 # define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */

@@ -83,7 +83,7 @@
 #endif
 
 /* MMC */
-#if defined(CONFIG_ZYNQ_SDHCI)
+#if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define CONFIG_ZYNQ_SDHCI_MAX_FREQ	52000000
 #endif
 
@@ -105,7 +105,7 @@
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
-# if defined(CONFIG_ZYNQ_SDHCI)
+# if defined(CONFIG_MMC_SDHCI_ZYNQ)
 #  define DFU_ALT_INFO_MMC \
 	"dfu_mmc_info=" \
 	"set dfu_alt_info " \
@@ -128,7 +128,7 @@
 # define DFU_ALT_INFO
 #endif
 
-#if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
+#if defined(CONFIG_MMC_SDHCI_ZYNQ) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_SUPPORT_VFAT
 # define CONFIG_FAT_WRITE
 #endif
@@ -291,7 +291,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-zynq/u-boot-spl.lds"
 
 /* MMC support */
-#ifdef CONFIG_ZYNQ_SDHCI
+#ifdef CONFIG_MMC_SDHCI_ZYNQ
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 #endif

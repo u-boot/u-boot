@@ -165,13 +165,6 @@ config PIC32_SDHCI
 	help
 	  Support for Microchip PIC32 SDHCI controller.
 
-config ZYNQ_SDHCI
-	bool "Arasan SDHCI controller support"
-	depends on DM_MMC && OF_CONTROL && BLK && DM_MMC_OPS
-	depends on MMC_SDHCI
-	help
-	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
-
 config ROCKCHIP_SDHCI
 	bool "Arasan SDHCI controller for Rockchip support"
 	depends on DM_MMC && BLK && DM_MMC_OPS
@@ -312,6 +305,14 @@ config MMC_SDHCI_TEGRA
 	  platform with SD or MMC devices, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_ZYNQ
+	bool "Arasan SDHCI controller support"
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP
+	depends on DM_MMC && OF_CONTROL && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
+	help
+	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
 
 config MMC_SUNXI
 	bool "Allwinner sunxi SD/MMC Host Controller support"
