@@ -10,6 +10,9 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
+#ifdef CONFIG_FSL_LS_PPA
+#include <asm/arch/ppa.h>
+#endif
 #include <asm/arch/fdt.h>
 #include <asm/arch/soc.h>
 #include <ahci.h>
@@ -112,6 +115,10 @@ int board_init(void)
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
+#endif
+
+#ifdef CONFIG_FSL_LS_PPA
+	ppa_init();
 #endif
 	return 0;
 }
