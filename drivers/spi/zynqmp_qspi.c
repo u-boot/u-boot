@@ -371,26 +371,6 @@ static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 	return 0;
 }
 
-static void zynqmp_qspi_check_is_dual_flash(struct zynqmp_qspi_priv *priv)
-{
-	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
-
-	lower_mio = zynq_slcr_get_mio_pin_status("qspi0");
-	if (lower_mio == ZYNQMP_QSPI_MIO_NUM_QSPI0)
-		priv->is_dual = SF_SINGLE_FLASH;
-
-	upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs");
-	if ((lower_mio == ZYNQMP_QSPI_MIO_NUM_QSPI0) &&
-	    (upper_mio_cs1 == ZYNQMP_QSPI_MIO_NUM_QSPI1_CS))
-		priv->is_dual = SF_DUAL_STACKED_FLASH;
-
-	upper_mio = zynq_slcr_get_mio_pin_status("qspi1");
-	if ((lower_mio == ZYNQMP_QSPI_MIO_NUM_QSPI0) &&
-	    (upper_mio_cs1 == ZYNQMP_QSPI_MIO_NUM_QSPI1_CS) &&
-	    (upper_mio == ZYNQMP_QSPI_MIO_NUM_QSPI1))
-		priv->is_dual = SF_DUAL_PARALLEL_FLASH;
-}
-
 static int zynqmp_qspi_probe(struct udevice *bus)
 {
 	struct zynqmp_qspi_platdata *plat = dev_get_platdata(bus);
@@ -400,7 +380,6 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 
 	priv->regs = plat->regs;
 	priv->dma_regs = plat->dma_regs;
-	zynqmp_qspi_check_is_dual_flash(priv);
 	priv->is_dual = plat->is_dual;
 
 	if (priv->is_dual == -1) {
