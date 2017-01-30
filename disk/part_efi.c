@@ -324,6 +324,13 @@ static int set_protective_mbr(struct blk_desc *dev_desc)
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
 	}
+
+	/* Read MBR to backup boot code if it exists */
+	if (blk_dread(dev_desc, 0, 1, p_mbr) != 1) {
+		error("** Can't read from device %d **\n", dev_desc->devnum);
+		return -1;
+	}
+
 	/* Append signature */
 	p_mbr->signature = MSDOS_MBR_SIGNATURE;
 	p_mbr->partition_record[0].sys_ind = EFI_PMBR_OSTYPE_EFI_GPT;
