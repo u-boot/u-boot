@@ -43,7 +43,6 @@ obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_MMC_SANDBOX)		+= sandbox_mmc.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
-obj-$(CONFIG_ROCKCHIP_SDHCI) += rockchip_sdhci.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
@@ -60,6 +59,7 @@ obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_CADENCE)		+= sdhci-cadence.o
 obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MV)		+= mv_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_ROCKCHIP)	+= rockchip_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_S5P)		+= s5p_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_SPEAR)		+= spear_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_TEGRA)		+= tegra_mmc.o

@@ -165,13 +165,6 @@ config PIC32_SDHCI
 	help
 	  Support for Microchip PIC32 SDHCI controller.
 
-config ROCKCHIP_SDHCI
-	bool "Arasan SDHCI controller for Rockchip support"
-	depends on DM_MMC && BLK && DM_MMC_OPS
-	depends on MMC_SDHCI
-	help
-	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
-
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
@@ -261,6 +254,14 @@ config MMC_SDHCI_MV
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_ROCKCHIP
+	bool "Arasan SDHCI controller for Rockchip support"
+	depends on ARCH_ROCKCHIP
+	depends on DM_MMC && BLK && DM_MMC_OPS
+	depends on MMC_SDHCI
+	help
+	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
 
 config MMC_SDHCI_S5P
 	bool "SDHCI support on Samsung S5P SoC"
