@@ -18,6 +18,8 @@
 #include <asm/arch/clk.h>
 #include "../mtd/spi/sf_internal.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* QSPI Transmit Data Register */
 #define ZYNQ_QSPI_TXD_00_00_OFFSET	0x1C /* Transmit 4-byte inst, WO */
 #define ZYNQ_QSPI_TXD_00_01_OFFSET	0x80 /* Transmit 1-byte inst, WO */
@@ -127,7 +129,8 @@ struct zynq_qspi_platdata {
 	struct zynq_qspi_regs *regs;
 	u32 frequency;          /* input frequency */
 	u32 speed_hz;
-//	u32 is_dual;
+	u32 is_dual;
+	u32 tx_rx_mode;
 };
 
 struct zynq_qspi_priv {
@@ -149,9 +152,55 @@ struct zynq_qspi_priv {
 static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct zynq_qspi_platdata *plat = bus->platdata;
+	int is_dual;
+	u32 mode = 0;
+	int offset;
+	u32 value;
 
 	debug("%s\n", __func__);
 	plat->regs = (struct zynq_qspi_regs *)ZYNQ_QSPI_BASEADDR;
+
+	is_dual = fdtdec_get_int(gd->fdt_blob, bus->of_offset, "is-dual", -1);
+	if (is_dual < 0)
+		plat->is_dual = SF_SINGLE_FLASH;
+	else if (is_dual == 1)
+		plat->is_dual = SF_DUAL_PARALLEL_FLASH;
+	else
+		plat->is_dual = SF_DUAL_STACKED_FLASH;
+
+	offset = fdt_first_subnode(gd->fdt_blob, bus->of_offset);
+
+	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-rx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_RX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_RX_QUAD;
+		break;
+	default:
+		printf("Invalid spi-rx-bus-width %d\n", value);
+		break;
+	}
+
+	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-tx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_TX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_TX_QUAD;
+		break;
+	default:
+		printf("Invalid spi-tx-bus-width %d\n", value);
+		break;
+	}
+
+	plat->tx_rx_mode = mode;
 
 	plat->frequency = 166666666;
 	plat->speed_hz = plat->frequency / 2;
@@ -307,10 +356,11 @@ static int zynq_qspi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parent_priv(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus->parent);
+	struct zynq_qspi_platdata *plat = dev_get_platdata(bus->parent);
 
 	slave->option = priv->is_dual;
 	slave->dio = priv->is_dio;
-	slave->mode = SPI_RX_QUAD | SPI_TX_QUAD;
+	slave->mode = plat->tx_rx_mode;
 
 	return 0;
 }
@@ -324,6 +374,7 @@ static int zynq_qspi_probe(struct udevice *bus)
 
 	priv->regs = plat->regs;
 	zynq_qspi_check_is_dual_flash(priv);
+	priv->is_dual = plat->is_dual;
 
 	if (priv->is_dual == -1) {
 		debug("%s: No QSPI device detected based on MIO settings\n",
