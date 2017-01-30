@@ -187,9 +187,10 @@ config MMC_UNIPHIER
 	help
 	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
 
-config SANDBOX_MMC
+config MMC_SANDBOX
 	bool "Sandbox MMC support"
-	depends on MMC && SANDBOX
+	depends on SANDBOX
+	depends on BLK && DM_MMC_OPS && OF_CONTROL
 	help
 	  This select a dummy sandbox MMC driver. At present this does nothing
 	  other than allow sandbox to be build with MMC support. This
