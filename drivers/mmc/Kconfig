@@ -51,17 +51,6 @@ config SPL_MMC_TINY
 	  operations too, which can remove the need for malloc support in SPL
 	  and thus further reduce footprint.
 
-config ATMEL_SDHCI
-	bool "Atmel SDHCI controller support"
-	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
-	depends on MMC_SDHCI
-	help
-	  This enables support for the Atmel SDHCI controller, which supports
-	  the embedded MultiMedia Card (e.MMC) Specification V4.51, the SD
-	  Memory Card Specification V3.0, and the SDIO V3.0 specification.
-	  It is compliant with the SD Host Controller Standard V3.0
-	  specification.
-
 config MMC_DAVINCI
 	bool "TI DAVINCI Multimedia Card Interface support"
 	depends on ARCH_DAVINCI
@@ -190,6 +179,18 @@ config MMC_SDHCI_SDMA
 	help
 	  This enables support for the SDMA (Single Operation DMA) defined
 	  in the SD Host Controller Standard Specification Version 1.00 .
+
+config MMC_SDHCI_ATMEL
+	bool "Atmel SDHCI controller support"
+	depends on ARCH_AT91
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	depends on MMC_SDHCI
+	help
+	  This enables support for the Atmel SDHCI controller, which supports
+	  the embedded MultiMedia Card (e.MMC) Specification V4.51, the SD
+	  Memory Card Specification V3.0, and the SDIO V3.0 specification.
+	  It is compliant with the SD Host Controller Standard V3.0
+	  specification.
 
 config MMC_SDHCI_BCM2835
 	tristate "SDHCI support for the BCM2835 SD/MMC Controller"

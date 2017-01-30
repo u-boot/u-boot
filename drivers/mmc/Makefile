@@ -14,7 +14,6 @@ obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
-obj-$(CONFIG_ATMEL_SDHCI) += atmel_sdhci.o
 obj-$(CONFIG_BFIN_SDH) += bfin_sdh.o
 obj-$(CONFIG_MMC_DAVINCI)		+= davinci_mmc.o
 
@@ -53,6 +52,7 @@ endif
 
 # SDHCI
 obj-$(CONFIG_MMC_SDHCI)			+= sdhci.o
+obj-$(CONFIG_MMC_SDHCI_ATMEL)		+= atmel_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_CADENCE)		+= sdhci-cadence.o
 obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
