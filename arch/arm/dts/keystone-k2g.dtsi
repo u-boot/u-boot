@@ -1,7 +1,7 @@
 /*
  * Copyright 2014 Texas Instruments, Inc.
  *
- * Keystone 2 Galileo soc device tree
+ * Device Tree Source for K2G SOC
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,7 +12,7 @@
 #include "skeleton.dtsi"
 
 / {
-	model = "Texas Instruments Keystone 2 SoC";
+	model = "Texas Instruments K2G SoC";
 	#address-cells = <1>;
 	#size-cells = <1>;
 	interrupt-parent = <&gic>;
@@ -98,7 +98,7 @@
 			status = "disabled";
 		};
 
-		#include "k2g-netcp.dtsi"
+		#include "keystone-k2g-netcp.dtsi"
 
 		pmmc: pmmc@2900000 {
 			compatible = "ti,power-processor";

@@ -1,7 +1,7 @@
 /*
- * Copyright 2013-2014 Texas Instruments, Inc.
+ * Copyright 2014 Texas Instruments, Inc.
  *
- * Keystone 2 Edison EVM device tree
+ * Keystone 2 Lamarr EVM device tree
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,34 +10,19 @@
 /dts-v1/;
 
 #include "keystone.dtsi"
-#include "k2e.dtsi"
+#include "keystone-k2l.dtsi"
 
 / {
-	compatible =  "ti,k2e-evm","ti,keystone";
-	model = "Texas Instruments Keystone 2 Edison EVM";
+	compatible =  "ti,k2l-evm","ti,keystone";
+	model = "Texas Instruments Keystone 2 Lamarr EVM";
 
 	soc {
-
 		clocks {
 			refclksys: refclksys {
 				#clock-cells = <0>;
 				compatible = "fixed-clock";
-				clock-frequency = <100000000>;
+				clock-frequency = <122880000>;
 				clock-output-names = "refclk-sys";
-			};
-
-			refclkpass: refclkpass {
-				#clock-cells = <0>;
-				compatible = "fixed-clock";
-				clock-frequency = <100000000>;
-				clock-output-names = "refclk-pass";
-			};
-
-			refclkddr3a: refclkddr3a {
-				#clock-cells = <0>;
-				compatible = "fixed-clock";
-				clock-frequency = <100000000>;
-				clock-output-names = "refclk-ddr3a";
 			};
 		};
 	};
@@ -48,14 +33,6 @@
 };
 
 &usb {
-	status = "okay";
-};
-
-&usb1_phy {
-	status = "okay";
-};
-
-&usb1 {
 	status = "okay";
 };
 
@@ -112,14 +89,14 @@
 
 			partition@180000 {
 				label = "ubifs";
-				reg = <0x180000 0x1FE80000>;
+				reg = <0x180000 0x7FE80000>;
 			};
 		};
 	};
 };
 
 &spi0 {
-	status = "okay";
+	status ="okay";
 	nor_flash: n25q128a11@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;

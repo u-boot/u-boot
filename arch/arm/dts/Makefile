@@ -320,10 +320,10 @@ dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
 
 dtb-$(CONFIG_MX7) += imx7-colibri.dtb
 
-dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
-	k2l-evm.dtb \
-	k2e-evm.dtb \
-	k2g-evm.dtb
+dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
+	keystone-k2l-evm.dtb \
+	keystone-k2e-evm.dtb \
+	keystone-k2g-evm.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb

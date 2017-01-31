@@ -41,7 +41,7 @@
 	};
 
 	soc {
-		/include/ "k2hk-clocks.dtsi"
+		/include/ "keystone-k2hk-clocks.dtsi"
 
 		dspgpio0: keystone_dsp_gpio@02620240 {
 			compatible = "ti,keystone-dsp-gpio";
@@ -109,6 +109,6 @@
 			clock-names = "fck";
 			bus_freq	= <2500000>;
 		};
-		/include/ "k2hk-netcp.dtsi"
+		/include/ "keystone-k2hk-netcp.dtsi"
 	};
 };

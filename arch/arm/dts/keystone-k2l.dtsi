@@ -29,7 +29,7 @@
 	};
 
 	soc {
-		/include/ "k2l-clocks.dtsi"
+		/include/ "keystone-k2l-clocks.dtsi"
 
 		uart2: serial@02348400 {
 			compatible = "ns16550a";
@@ -89,7 +89,7 @@
 			clock-names = "fck";
 			bus_freq	= <2500000>;
 		};
-		/include/ "k2l-netcp.dtsi"
+		/include/ "keystone-k2l-netcp.dtsi"
 	};
 };
 
