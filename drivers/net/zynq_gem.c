@@ -185,6 +185,7 @@ struct zynq_gem_priv {
 #ifdef CONFIG_CLK_ZYNQMP
 	struct clk clk;
 #endif
+	bool int_pcs;
 };
 
 static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -432,7 +433,12 @@ static int zynq_gem_init(struct udevice *dev)
 
 	nwconfig = ZYNQ_GEM_NWCFG_INIT;
 
-	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+	/*
+	 * Set SGMII enable PCS selection only if internal PCS/PMA
+	 * core is used and interface is SGMII.
+	 */
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII &&
+	    priv->int_pcs) {
 		nwconfig |= ZYNQ_GEM_NWCFG_SGMII_ENBL |
 			    ZYNQ_GEM_NWCFG_PCS_SEL;
 #ifdef CONFIG_ARM64
@@ -708,6 +714,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 
 	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
+	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+					"is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
