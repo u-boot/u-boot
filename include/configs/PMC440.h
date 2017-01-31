@@ -385,6 +385,4 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
 
-#define CONFIG_API		1
-
 #endif /* __CONFIG_H */

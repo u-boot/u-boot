@@ -38,11 +38,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /*
- * Enable u-boot API for standalone programs.
- */
-#define CONFIG_API
-
-/*
  * Commands configuration
  */
 #define CONFIG_CMD_ENV
