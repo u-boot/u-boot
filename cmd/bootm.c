@@ -390,7 +390,7 @@ static int nand_imls_legacyimage(struct mtd_info *mtd, int nand_dev,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, NULL, mtd->size, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
@@ -430,7 +430,7 @@ static int nand_imls_fitimage(struct mtd_info *mtd, int nand_dev, loff_t off,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, NULL, mtd->size, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
