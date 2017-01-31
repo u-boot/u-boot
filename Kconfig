@@ -308,6 +308,8 @@ config ARCH_FIXUP_FDT_MEMORY
 
 endmenu		# Boot images
 
+source "api/Kconfig"
+
 source "common/Kconfig"
 
 source "cmd/Kconfig"
