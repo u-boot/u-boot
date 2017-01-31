@@ -599,6 +599,27 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	u32 remain_len, read_len, read_addr, bank_addr;
 	int bank_sel = 0;
 	int ret = -1;
+#ifdef CONFIG_SF_DUAL_FLASH
+	u8 moveoffs = 0;
+	void *tempbuf = NULL;
+	size_t length = len;
+#endif
+
+#ifdef CONFIG_SF_DUAL_FLASH
+	/*
+	 * Incase of dual parallel, if odd offset is received
+	 * decrease it by 1 and read extra byte, otherwise
+	 * any read with odd offset fails
+	 */
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+		if (offset & 1) {
+			offset -= 1;
+			len += 1;
+			moveoffs = 1;
+			tempbuf = data;
+		}
+	}
+#endif
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
@@ -680,6 +701,15 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		len -= read_len;
 		data += read_len;
 	}
+
+#ifdef CONFIG_SF_DUAL_FLASH
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+		if (moveoffs) {
+			data = tempbuf + 1;
+			memcpy(tempbuf, data, length);
+		}
+	}
+#endif
 
 	free(cmd);
 	return ret;
