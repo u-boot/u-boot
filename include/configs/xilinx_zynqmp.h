@@ -111,6 +111,25 @@
 # define CONFIG_MTD_DEVICE
 #endif
 
+#if !defined(CONFIG_SPL_BUILD)
+#define CONFIG_CMD_UBI
+#define CONFIG_RBTREE
+#define CONFIG_CMD_UBIFS
+#define CONFIG_LZO
+
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+
+#define CONFIG_MTD_UBI_WL_THRESHOLD 4096
+#define CONFIG_MTD_UBI_BEB_LIMIT 0
+
+#if defined(CONFIG_ZYNQMP_QSPI)
+/* SPI layer registers with MTD */
+#define CONFIG_SPI_FLASH_MTD
+#endif
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
