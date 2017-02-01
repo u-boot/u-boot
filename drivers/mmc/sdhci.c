@@ -536,7 +536,8 @@ static const struct mmc_ops sdhci_ops = {
 int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		u32 max_clk, u32 min_clk)
 {
-	u32 caps, caps_1;
+	u32 caps;
+	u32 caps_1 = 0;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 
@@ -598,9 +599,36 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 			cfg->host_caps |= MMC_MODE_8BIT;
 	}
 
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+
+	if (!(cfg->voltages & MMC_VDD_165_195))
+		caps_1 &= ~(SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
+			    SDHCI_SUPPORT_DDR50);
+
+	if (caps_1 & (SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
+		      SDHCI_SUPPORT_DDR50))
+		cfg->host_caps |= MMC_MODE_UHS_SDR12 | MMC_MODE_UHS_SDR25;
+
+	if (caps_1 & SDHCI_SUPPORT_SDR104) {
+		cfg->host_caps |= MMC_MODE_UHS_SDR104 | MMC_MODE_UHS_SDR50;
+		/*
+		 * SD3.0: SDR104 is supported so (for eMMC) the caps2
+		 * field can be promoted to support HS200.
+		 */
+		cfg->host_caps |= MMC_MODE_HS200;
+	} else if (caps_1 & SDHCI_SUPPORT_SDR50) {
+		cfg->host_caps |= MMC_MODE_UHS_SDR50;
+	}
+
+	if (caps_1 & SDHCI_SUPPORT_DDR50)
+		cfg->host_caps |= MMC_MODE_UHS_DDR50;
+
+	if (caps_1 & SDHCI_USE_SDR50_TUNING)
+		cfg->host_caps |= MMC_MODE_NEEDS_TUNING;
+
 	if (host->host_caps)
 		cfg->host_caps |= host->host_caps;
-
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 

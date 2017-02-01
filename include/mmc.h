@@ -58,6 +58,13 @@
 #define MMC_MODE_8BIT		(1 << 3)
 #define MMC_MODE_SPI		(1 << 4)
 #define MMC_MODE_DDR_52MHz	(1 << 5)
+#define MMC_MODE_UHS_SDR12	(1 << 6)
+#define MMC_MODE_UHS_SDR25	(1 << 7)
+#define MMC_MODE_UHS_SDR50	(1 << 8)
+#define MMC_MODE_UHS_SDR104	(1 << 9)
+#define MMC_MODE_UHS_DDR50	(1 << 10)
+#define MMC_MODE_NEEDS_TUNING	(1 << 11)
+#define MMC_MODE_HS200		(1 << 12)
 
 #define SD_DATA_4BIT	0x00040000
 
