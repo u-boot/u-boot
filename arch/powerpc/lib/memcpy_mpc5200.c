@@ -31,7 +31,7 @@ void *memcpy(void *trg, const void *src, size_t len)
 	extern void* __memcpy(void *, const void *, size_t);
 	char *s = (char *)src;
 	char *t = (char *)trg;
-	void *dest = (void *)src;
+	void *dest = (void *)trg;
 
 	/*
 	 * Check is source address is in flash:
