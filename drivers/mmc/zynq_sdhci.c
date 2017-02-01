@@ -12,10 +12,17 @@
 #include <libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <mmc.h>
+#include <asm/arch/hardware.h>
+#include <asm/io.h>
+#include <zynqmp_tap_delay.h>
+#include "mmc_private.h"
 
 #ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
 # define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
 #endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
@@ -24,7 +31,130 @@ struct arasan_sdhci_plat {
 
 struct arasan_sdhci_priv {
 	struct sdhci_host *host;
+	u8 deviceid;
+	u8 bank;
 };
+
+#if defined(CONFIG_ARCH_ZYNQMP)
+static void arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
+{
+	u16 clk;
+	unsigned long timeout;
+
+	clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
+	clk &= ~(SDHCI_CLOCK_CARD_EN);
+	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+
+	/* Issue DLL Reset */
+	zynqmp_dll_reset(deviceid);
+
+	/* Wait max 20 ms */
+	timeout = 100;
+	while (!((clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL))
+				& SDHCI_CLOCK_INT_STABLE)) {
+		if (timeout == 0) {
+			dev_err(mmc_dev(host->mmc),
+				": Internal clock never stabilised.\n");
+			return;
+		}
+		timeout--;
+		udelay(1000);
+	}
+
+	clk |= SDHCI_CLOCK_CARD_EN;
+	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+}
+
+static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
+{
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	u32 ctrl;
+	struct sdhci_host *host;
+	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 tuning_loop_counter = 40;
+	u8 deviceid;
+
+	debug("%s\n", __func__);
+
+	host = priv->host;
+	deviceid = priv->deviceid;
+
+	ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
+	ctrl |= SDHCI_CTRL_EXEC_TUNING;
+	sdhci_writew(host, ctrl, SDHCI_HOST_CTRL2);
+
+	mdelay(1);
+
+	arasan_zynqmp_dll_reset(host, deviceid);
+
+	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
+	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
+
+	do {
+		cmd.cmdidx = opcode;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = 0;
+
+		data.blocksize = 64;
+		data.blocks = 1;
+		data.flags = MMC_DATA_READ;
+
+		if (tuning_loop_counter-- == 0)
+			break;
+
+		if (cmd.cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200 &&
+		    mmc->bus_width == 8)
+			data.blocksize = 128;
+
+		sdhci_writew(host, SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG,
+						    data.blocksize),
+			     SDHCI_BLOCK_SIZE);
+		sdhci_writew(host, data.blocks, SDHCI_BLOCK_COUNT);
+		sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE);
+
+		mmc_send_cmd(mmc, &cmd, NULL);
+		ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
+
+		if (cmd.cmdidx == MMC_CMD_SEND_TUNING_BLOCK)
+			udelay(1);
+
+	} while (ctrl & SDHCI_CTRL_EXEC_TUNING);
+
+	if (tuning_loop_counter < 0) {
+		ctrl &= ~SDHCI_CTRL_TUNED_CLK;
+		sdhci_writel(host, ctrl, SDHCI_HOST_CTRL2);
+	}
+
+	if (!(ctrl & SDHCI_CTRL_TUNED_CLK)) {
+		debug("%s:Tuning failed\n", __func__);
+		return -1;
+	} else {
+		udelay(1);
+		arasan_zynqmp_dll_reset(host, deviceid);
+	}
+
+	/* Enable only interrupts served by the SD controller */
+	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
+		     SDHCI_INT_ENABLE);
+	/* Mask all sdhci interrupt sources */
+	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
+
+	return 0;
+}
+
+static void arasan_sdhci_set_tapdelay(struct sdhci_host *host, u8 uhsmode)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
+
+	debug("%s, %d:%d, mode:%d\n", __func__, priv->deviceid, priv->bank,
+	      uhsmode);
+	if ((uhsmode >= MMC_TIMING_UHS_SDR25) &&
+	    (uhsmode <= MMC_TIMING_UHS_DDR50))
+		arasan_zynqmp_set_tapdelay(priv->deviceid, uhsmode,
+					   priv->bank);
+}
+#endif
 
 static int arasan_sdhci_probe(struct udevice *dev)
 {
@@ -52,6 +182,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
+#if defined(CONFIG_ARCH_ZYNQMP)
+	host->set_delay = arasan_sdhci_set_tapdelay;
+	host->platform_execute_tuning = arasan_sdhci_execute_tuning;
+#endif
+
 	return sdhci_probe(dev);
 }
 
@@ -65,6 +200,11 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 	priv->host->name = dev->name;
 	priv->host->ioaddr = (void *)dev_get_addr(dev);
+
+	priv->deviceid = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					"xlnx,device_id", -1);
+	priv->bank = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				    "xlnx,mio_bank", -1);
 
 	return 0;
 }
@@ -89,6 +229,6 @@ U_BOOT_DRIVER(arasan_sdhci_drv) = {
 	.ops		= &sdhci_ops,
 	.bind		= arasan_sdhci_bind,
 	.probe		= arasan_sdhci_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
+	.priv_auto_alloc_size = sizeof(struct arasan_sdhci_priv),
 	.platdata_auto_alloc_size = sizeof(struct arasan_sdhci_plat),
 };
