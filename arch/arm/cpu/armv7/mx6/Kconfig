@@ -35,6 +35,13 @@ config MX6UL
 	select ROM_UNIFIED_SECTIONS
 	bool
 
+config MX6UL_LITESOM
+	bool
+	select MX6UL
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config MX6ULL
 	bool
 	select MX6UL
@@ -123,6 +130,10 @@ config TARGET_GW_VENTANA
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"
 	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+
+config TARGET_MCCMON6
+	bool "mccmon6"
 	select SUPPORT_SPL
 
 config TARGET_MX6CUBOXI
@@ -248,7 +259,7 @@ config TARGET_PICO_IMX6UL
 config TARGET_LITEBOARD
 	bool "Grinn liteBoard (i.MX6UL)"
 	select BOARD_LATE_INIT
-	select LITESOM
+	select MX6UL_LITESOM
 
 config TARGET_PLATINUM_PICON
 	bool "platinum-picon"
@@ -361,6 +372,7 @@ source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
+source "board/liebherr/mccmon6/Kconfig"
 source "board/seco/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"

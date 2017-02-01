@@ -34,6 +34,7 @@
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr=0x83000000\0" \
+	"fdt_addr_r=0x83000000\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4\0" \
@@ -47,11 +48,10 @@
 		"if test $board_name = EXTENDED; then " \
 			"setenv fdtfile imx6sx-udoo-neo-extended.dtb; fi; " \
 		"if test $fdtfile = UNDEFINED; then " \
-			"echo WARNING: Could not determine dtb to use; fi; \0" \
+			"echo WARNING: Could not determine dtb to use; fi\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"ramdisk_addr_r=0x83000000\0" \
-	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	BOOTENV
 

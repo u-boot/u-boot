@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __ARCH_ARM_MACH_LITESOM_SOM_H__
-#define __ARCH_ARM_MACH_LITESOM_SOM_H__
+#ifndef __ARCH_ARM_MX6UL_LITESOM_H__
+#define __ARCH_ARM_MX6UL_LITESOM_H__
 
 int litesom_mmc_init(bd_t *bis);
 

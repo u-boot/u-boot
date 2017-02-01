@@ -27,8 +27,7 @@ u32 spl_boot_device(void)
 	 * Check for BMODE if serial downloader is enabled
 	 * BOOT_MODE - see IMX6DQRM Table 8-1
 	 */
-	if ((((bmode >> 24) & 0x03)  == 0x01) || /* Serial Downloader */
-		(gpr10_boot && (reg == 1)))
+	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
 		return BOOT_DEVICE_UART;
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & 0x000000FF) >> 4) {
@@ -40,6 +39,9 @@ u32 spl_boot_device(void)
 		else
 			return BOOT_DEVICE_NOR;
 		break;
+	/* Reserved: Used to force Serial Downloader */
+	case 0x1:
+		return BOOT_DEVICE_UART;
 	/* SATA: See 8.5.4, Table 8-20 */
 	case 0x2:
 		return BOOT_DEVICE_SATA;

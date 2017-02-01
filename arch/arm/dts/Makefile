@@ -315,6 +315,7 @@ dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
 	imx6dl-icore-rqs.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-rqs.dtb \
+	imx6sx-sabreauto.dtb \
 	imx6ul-geam-kit.dtb
 
 dtb-$(CONFIG_MX7) += imx7-colibri.dtb
