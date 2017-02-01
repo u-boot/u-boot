@@ -407,6 +407,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
+	if (mmc->is_uhs && host->set_delay)
+		host->set_delay(host, mmc->uhsmode);
+
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*
 		 * Check if the Host Controller supports Programmable Clock

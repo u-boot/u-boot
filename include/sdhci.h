@@ -270,6 +270,7 @@ struct sdhci_host {
 	void (*set_control_reg)(struct sdhci_host *host);
 	void (*set_clock)(int dev_index, unsigned int div);
 	int (*platform_execute_tuning)(struct mmc *host, u8 opcode);
+	void (*set_delay)(struct sdhci_host *host, u8 uhsmode);
 	uint	voltages;
 
 	struct mmc_config cfg;
