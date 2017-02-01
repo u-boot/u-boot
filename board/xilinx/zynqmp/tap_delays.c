@@ -235,6 +235,7 @@ void arasan_zynqmp_set_tapdelay(u8 deviceid, u8 timing, u8 bank)
 		arasan_zynqmp_tap_sdr50(deviceid, timing, bank);
 		break;
 	case MMC_TIMING_UHS_SDR104:
+	case MMC_TIMING_MMC_HS200:
 		arasan_zynqmp_tap_sdr104(deviceid, timing, bank);
 		break;
 	case MMC_TIMING_UHS_DDR50:
