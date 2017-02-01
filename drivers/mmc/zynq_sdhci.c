@@ -33,6 +33,7 @@ struct arasan_sdhci_priv {
 	struct sdhci_host *host;
 	u8 deviceid;
 	u8 bank;
+	u8 no_1p8;
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)
@@ -173,6 +174,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
 #endif
 
+	if (priv->no_1p8)
+		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
+
 	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
@@ -205,6 +209,10 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 					"xlnx,device_id", -1);
 	priv->bank = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				    "xlnx,mio_bank", -1);
+	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "no-1-8-v", NULL))
+		priv->no_1p8 = 1;
+	else
+		priv->no_1p8 = 0;
 
 	return 0;
 }
