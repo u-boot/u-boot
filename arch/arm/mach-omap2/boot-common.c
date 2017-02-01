@@ -205,21 +205,6 @@ void spl_board_init(void)
 #endif
 }
 
-__weak int board_mmc_init(bd_t *bis)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0, 0, 0, -1, -1);
-		break;
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		omap_mmc_init(0, 0, 0, -1, -1);
-		omap_mmc_init(1, 0, 0, -1, -1);
-		break;
-	}
-	return 0;
-}
-
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(u32 *);

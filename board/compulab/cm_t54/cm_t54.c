@@ -96,7 +96,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 }
 #endif
 
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_GENERIC_MMC)
 #define SB_T54_CD_GPIO 228
 #define SB_T54_WP_GPIO 229
 

@@ -684,7 +684,7 @@ int board_eth_init(bd_t *bis)
 	return rv;
 }
 #endif /* defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD) */
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_GENERIC_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(1, 0, 0, -1, -1);
