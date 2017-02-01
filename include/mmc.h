@@ -300,6 +300,7 @@
 #define MMC_TIMING_UHS_SDR50	2
 #define MMC_TIMING_UHS_SDR104	3
 #define MMC_TIMING_UHS_DDR50	4
+#define MMC_TIMING_HS200	5
 #define MMC_TIMING_HS		1
 
 /* Driver model support */

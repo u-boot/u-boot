@@ -157,7 +157,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* We shouldn't wait for data inihibit for stop commands, even
 	   though they might use busy signaling */
 	if ((cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION) ||
-	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK))
+	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK) ||
+	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK_HS200))
 		mask &= ~SDHCI_DATA_INHIBIT;
 
 	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
@@ -179,7 +180,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	mask = SDHCI_INT_RESPONSE;
 
 	/* only buffer read ready interrupt whil tuning */
-	if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK)
+	if ((cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK) ||
+	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK_HS200))
 		mask = SDHCI_INT_DATA_AVAIL;
 
 	if (!(cmd->resp_type & MMC_RSP_PRESENT))
@@ -197,7 +199,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags |= SDHCI_CMD_CRC;
 	if (cmd->resp_type & MMC_RSP_OPCODE)
 		flags |= SDHCI_CMD_INDEX;
-	if (data || (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK))
+	if (data || (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK) ||
+	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK_HS200))
 		flags |= SDHCI_CMD_DATA;
 
 	/* Set Transfer mode regarding to data flag */
@@ -407,8 +410,13 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if (mmc->is_uhs && host->set_delay)
-		host->set_delay(host, mmc->uhsmode);
+	if (((mmc->card_caps & MMC_MODE_HS200) || mmc->is_uhs) &&
+	    host->set_delay) {
+		if (mmc->is_uhs)
+			host->set_delay(host, mmc->uhsmode);
+		else
+			host->set_delay(host, MMC_TIMING_HS200);
+	}
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*
