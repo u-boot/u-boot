@@ -309,10 +309,18 @@ static int sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	u32 ctrl;
+	int err;
 	u8 tuning_loop_counter = 40;
 	struct sdhci_host *host = mmc->priv;
 
 	debug("%s\n", __func__);
+
+	if (host->platform_execute_tuning) {
+		err = host->platform_execute_tuning(mmc, opcode);
+		if (err)
+			return err;
+		return 0;
+	}
 
 	ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
 	ctrl |= SDHCI_CTRL_EXEC_TUNING;
