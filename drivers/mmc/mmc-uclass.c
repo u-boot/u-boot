@@ -77,6 +77,58 @@ int mmc_getcd(struct mmc *mmc)
 {
 	return dm_mmc_get_cd(mmc->dev);
 }
+
+int dm_mmc_set_voltage(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->set_voltage)
+		return -ENOSYS;
+
+	return ops->set_voltage(dev);
+}
+
+int mmc_set_voltage(struct mmc *mmc)
+{
+	return dm_mmc_set_voltage(mmc->dev);
+}
+
+int dm_mmc_set_uhs(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->set_uhs)
+		return -ENOSYS;
+
+	return ops->set_uhs(dev);
+}
+
+int mmc_switch_uhs(struct mmc *mmc)
+{
+	return dm_mmc_set_uhs(mmc->dev);
+}
+
+int dm_mmc_execute_tuning(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+	u8 opcode;
+
+	if (!ops->execute_tuning)
+		return -ENOSYS;
+
+	if (IS_SD(mmc))
+		opcode = MMC_CMD_SEND_TUNING_BLOCK;
+	else
+		opcode = MMC_CMD_SEND_TUNING_BLOCK_HS200;
+
+	return ops->execute_tuning(dev, opcode);
+}
+
+int mmc_execute_tuning(struct mmc *mmc)
+{
+	return dm_mmc_execute_tuning(mmc->dev);
+}
 #endif
 
 struct mmc *mmc_get_mmc_dev(struct udevice *dev)

@@ -66,6 +66,9 @@
 #define MMC_MODE_NEEDS_TUNING	(1 << 11)
 #define MMC_MODE_HS200		(1 << 12)
 
+#define MMC_MODE_UHS	(MMC_MODE_UHS_SDR12 | MMC_MODE_UHS_SDR25 |	\
+			 MMC_MODE_UHS_SDR50 | MMC_MODE_UHS_SDR104 |	\
+			 MMC_MODE_UHS_DDR50)
 #define SD_DATA_4BIT	0x00040000
 
 #define IS_SD(x)	((x)->version & SD_VERSION_SD)
@@ -89,6 +92,8 @@
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_SEND_TUNING_BLOCK	19
+#define MMC_CMD_SEND_TUNING_BLOCK_HS200	21
 #define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
@@ -119,11 +124,17 @@
 /* SCR definitions in different words */
 #define SD_HIGHSPEED_BUSY	0x00020000
 #define SD_HIGHSPEED_SUPPORTED	0x00020000
+#define SD_UHS_SPEED_SDR104	0x00080000
+#define SD_UHS_SPEED_SDR50	0x00040000
+#define SD_UHS_SPEED_DDR50	0x00100000
+#define SD_UHS_SPEED_SDR25	0x00020000
 
 #define OCR_BUSY		0x80000000
 #define OCR_HCS			0x40000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
 #define OCR_ACCESS_MODE		0x60000000
+
+#define SD_OCR_S18R		(1 << 24)
 
 #define MMC_ERASE_ARG		0x00000000
 #define MMC_SECURE_ERASE_ARG	0x80000000
@@ -277,6 +288,13 @@
 #define MMC_NUM_BOOT_PARTITION	2
 #define MMC_PART_RPMB           3       /* RPMB partition number */
 
+#define MMC_TIMING_UHS_SDR12	0
+#define MMC_TIMING_UHS_SDR25	1
+#define MMC_TIMING_UHS_SDR50	2
+#define MMC_TIMING_UHS_SDR104	3
+#define MMC_TIMING_UHS_DDR50	4
+#define MMC_TIMING_HS		1
+
 /* Driver model support */
 
 /**
@@ -364,6 +382,31 @@ struct dm_mmc_ops {
 	 * @return 0 if write-enabled, 1 if write-protected, -ve on error
 	 */
 	int (*get_wp)(struct udevice *dev);
+
+	/**
+	* set_volatge() - Switches host for new voltage
+	* @dev:>-------Device to check
+	*
+	* @return 0 on success otherwise error value
+	*/
+	int (*set_voltage)(struct udevice *dev);
+
+	/**
+	 * set_uhs() - Sets the controller for specific uhs mode
+	 * @dev:>-------Device to check
+	 *
+	 * @return 0 after setting uhs mode
+	 */
+	int (*set_uhs)(struct udevice *dev);
+
+	/**
+	* execute_tuning() - Executes the required tuning sequence
+	* @dev:>-------Device to check
+	* @opcode:>----Command to be sent for tuning
+	*
+	* @return 0 on success otherwise error value
+	*/
+	int (*execute_tuning)(struct udevice *dev, u8 opcode);
 };
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
@@ -373,12 +416,17 @@ int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 int dm_mmc_set_ios(struct udevice *dev);
 int dm_mmc_get_cd(struct udevice *dev);
 int dm_mmc_get_wp(struct udevice *dev);
+int dm_mmc_set_voltage(struct udevice *dev);
+int dm_mmc_set_uhs(struct udevice *dev);
+int dm_mmc_execute_tuning(struct udevice *dev);
 
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
-
+int mmc_set_voltage(struct mmc *mmc);
+int mmc_switch_uhs(struct mmc *mmc);
+int mmc_execute_tuning(struct mmc *mmc);
 #else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
@@ -387,6 +435,9 @@ struct mmc_ops {
 	int (*init)(struct mmc *mmc);
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
+	int (*set_voltage)(struct mmc *mmc);
+	int (*set_uhs)(struct mmc *mmc);
+	int (*execute_tuning)(struct mmc *mmc, u8 opcode);
 };
 #endif
 
@@ -461,6 +512,8 @@ struct mmc {
 #ifdef CONFIG_DM_MMC
 	struct udevice *dev;	/* Device for this MMC controller */
 #endif
+	u8 is_uhs;
+	u8 uhsmode;
 };
 
 struct mmc_hwpart_conf {
