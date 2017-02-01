@@ -38,7 +38,8 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 		return err;
 
 	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS,
-		       spl_image->size, (void *)spl_image->load_addr);
+		       spl_image->size,
+		       (void *)(uintptr_t)spl_image->load_addr);
 
 	/* Read device tree. */
 	spi_flash_read(flash, CONFIG_SYS_SPI_ARGS_OFFS,
@@ -118,7 +119,8 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 				return err;
 			err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
 					     spl_image->size,
-					     (void *)spl_image->load_addr);
+					     (void *)
+					     (uintptr_t)spl_image->load_addr);
 		}
 	}
 
