@@ -1,5 +1,9 @@
 if ARCH_MVEBU
 
+config HAVE_MVEBU_EFUSE
+	bool
+	default n
+
 config ARMADA_32BIT
 	bool
 	select CPU_V7
@@ -23,6 +27,7 @@ config ARMADA_375
 config ARMADA_38X
 	bool
 	select ARMADA_32BIT
+	select HAVE_MVEBU_EFUSE
 
 config ARMADA_XP
 	bool
@@ -145,5 +150,35 @@ config SYS_VENDOR
 
 config SYS_SOC
 	default "mvebu"
+
+config MVEBU_EFUSE
+	bool "Enable eFuse support"
+	default n
+	depends on HAVE_MVEBU_EFUSE
+	help
+	  Enable support for reading and writing eFuses on mvebu SoCs.
+
+config MVEBU_EFUSE_FAKE
+	bool "Fake eFuse access (dry run)"
+	default n
+	depends on MVEBU_EFUSE
+	help
+	  This enables a "dry run" mode where eFuses are not really programmed.
+	  Instead the eFuse accesses are emulated by writing to and reading
+	  from a memory block.
+	  This is can be used for testing prog scripts.
+
+config SECURED_MODE_IMAGE
+	bool "Build image for trusted boot"
+	default false
+	depends on 88F6820
+	help
+	  Build an image that employs the ARMADA SoC's trusted boot framework
+	  for securely booting images.
+
+config SECURED_MODE_CSK_INDEX
+	int "Index of active CSK"
+	default 0
+	depends on SECURED_MODE_IMAGE
 
 endif

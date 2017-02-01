@@ -43,15 +43,6 @@
 #define CCDM_AUTO_FIRST_STAGE
 #endif
 
-/* enums from TCG specs */
-enum {
-	/* capability areas */
-	TPM_CAP_NV_INDEX	= 0x00000011,
-	TPM_CAP_HANDLE		= 0x00000014,
-	/* resource types */
-	TPM_RT_KEY	= 0x00000001,
-};
-
 /* CCDM specific contants */
 enum {
 	/* NV indices */

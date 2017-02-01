@@ -114,6 +114,43 @@ struct opt_hdr_v1 {
 };
 
 /*
+ * Public Key data in DER format
+ */
+struct pubkey_der_v1 {
+	uint8_t key[524];
+};
+
+/*
+ * Signature (RSA 2048)
+ */
+struct sig_v1 {
+	uint8_t sig[256];
+};
+
+/*
+ * Structure of secure header (Armada 38x)
+ */
+struct secure_hdr_v1 {
+	uint8_t  headertype;		/* 0x0 */
+	uint8_t  headersz_msb;		/* 0x1 */
+	uint16_t headersz_lsb;		/* 0x2 - 0x3 */
+	uint32_t reserved1;		/* 0x4 - 0x7 */
+	struct pubkey_der_v1 kak;	/* 0x8 - 0x213 */
+	uint8_t  jtag_delay;		/* 0x214 */
+	uint8_t  reserved2;		/* 0x215 */
+	uint16_t reserved3;		/* 0x216 - 0x217 */
+	uint32_t boxid;			/* 0x218 - 0x21B */
+	uint32_t flashid;		/* 0x21C - 0x21F */
+	struct sig_v1 hdrsig;		/* 0x220 - 0x31F */
+	struct sig_v1 imgsig;		/* 0x320 - 0x41F */
+	struct pubkey_der_v1 csk[16];	/* 0x420 - 0x24DF */
+	struct sig_v1 csksig;		/* 0x24E0 - 0x25DF */
+	uint8_t  next;			/* 0x25E0 */
+	uint8_t  reserved4;		/* 0x25E1 */
+	uint16_t reserved5;		/* 0x25E2 - 0x25E3 */
+};
+
+/*
  * Various values for the opt_hdr_v1->headertype field, describing the
  * different types of optional headers. The "secure" header contains
  * informations related to secure boot (encryption keys, etc.). The

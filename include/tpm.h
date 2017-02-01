@@ -47,6 +47,42 @@ enum tpm_nv_index {
 	TPM_NV_INDEX_DIR	= 0x10000001,
 };
 
+enum tpm_resource_type {
+	TPM_RT_KEY	= 0x00000001,
+	TPM_RT_AUTH	= 0x00000002,
+	TPM_RT_HASH	= 0x00000003,
+	TPM_RT_TRANS	= 0x00000004,
+	TPM_RT_CONTEXT	= 0x00000005,
+	TPM_RT_COUNTER	= 0x00000006,
+	TPM_RT_DELEGATE	= 0x00000007,
+	TPM_RT_DAA_TPM	= 0x00000008,
+	TPM_RT_DAA_V0	= 0x00000009,
+	TPM_RT_DAA_V1	= 0x0000000A,
+};
+
+enum tpm_capability_areas {
+	TPM_CAP_ORD		= 0x00000001,
+	TPM_CAP_ALG		= 0x00000002,
+	TPM_CAP_PID		= 0x00000003,
+	TPM_CAP_FLAG		= 0x00000004,
+	TPM_CAP_PROPERTY	= 0x00000005,
+	TPM_CAP_VERSION		= 0x00000006,
+	TPM_CAP_KEY_HANDLE	= 0x00000007,
+	TPM_CAP_CHECK_LOADED	= 0x00000008,
+	TPM_CAP_SYM_MODE	= 0x00000009,
+	TPM_CAP_KEY_STATUS	= 0x0000000C,
+	TPM_CAP_NV_LIST		= 0x0000000D,
+	TPM_CAP_MFR		= 0x00000010,
+	TPM_CAP_NV_INDEX	= 0x00000011,
+	TPM_CAP_TRANS_ALG	= 0x00000012,
+	TPM_CAP_HANDLE		= 0x00000014,
+	TPM_CAP_TRANS_ES	= 0x00000015,
+	TPM_CAP_AUTH_ENCRYPT	= 0x00000017,
+	TPM_CAP_SELECT_SIZE	= 0x00000018,
+	TPM_CAP_DA_LOGIC	= 0x00000019,
+	TPM_CAP_VERSION_VAL	= 0x0000001A,
+};
+
 #define TPM_NV_PER_GLOBALLOCK		(1U << 15)
 #define TPM_NV_PER_PPWRITE		(1U << 0)
 #define TPM_NV_PER_READ_STCLEAR		(1U << 31)
@@ -593,5 +629,14 @@ uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
  * @return return code of the operation
  */
 uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
+
+/**
+ * Flush a resource with a given handle and type from the TPM
+ *
+ * @param key_handle           handle of the resource
+ * @param resource_type                type of the resource
+ * @return return code of the operation
+ */
+uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
 
 #endif /* __TPM_H */

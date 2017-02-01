@@ -645,6 +645,35 @@ uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm)
 	return 0;
 }
 
+#ifdef CONFIG_TPM_FLUSH_RESOURCES
+uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type)
+{
+	const uint8_t command[18] = {
+		0x00, 0xc1,             /* TPM_TAG */
+		0x00, 0x00, 0x00, 0x12, /* parameter size */
+		0x00, 0x00, 0x00, 0xba, /* TPM_COMMAND_CODE */
+		0x00, 0x00, 0x00, 0x00, /* key handle */
+		0x00, 0x00, 0x00, 0x00, /* resource type */
+	};
+	const size_t key_handle_offset = 10;
+	const size_t resource_type_offset = 14;
+	uint8_t buf[COMMAND_BUFFER_SIZE], response[COMMAND_BUFFER_SIZE];
+	size_t response_length = sizeof(response);
+	uint32_t err;
+
+	if (pack_byte_string(buf, sizeof(buf), "sdd",
+			     0, command, sizeof(command),
+			     key_handle_offset, key_handle,
+			     resource_type_offset, resource_type))
+		return TPM_LIB_ERROR;
+
+	err = tpm_sendrecv_command(buf, response, &response_length);
+	if (err)
+		return err;
+	return 0;
+}
+#endif /* CONFIG_TPM_FLUSH_RESOURCES */
+
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 
 /**

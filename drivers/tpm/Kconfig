@@ -82,4 +82,10 @@ config TPM_ST33ZP24_SPI
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol
 
+config TPM_FLUSH_RESOURCES
+	bool "Enable TPM resource flushing support"
+	depends on TPM
+	help
+	  Enable support to flush specific resources (e.g. keys) from the TPM.
+	  The functionality is available via the 'tpm' command as well.
 endmenu
