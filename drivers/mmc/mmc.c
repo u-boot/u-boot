@@ -621,6 +621,9 @@ static int mmc_change_freq(struct mmc *mmc)
 
 	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
 
+	if (mmc->forcehs)
+		cardtype &= ~EXT_CSD_CARD_TYPE_HS200;
+
 	if (cardtype & EXT_CSD_CARD_TYPE_HS200)
 		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				 EXT_CSD_HS_TIMING,
@@ -685,9 +688,64 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
+static int mmc_boot_part_access_chk(struct mmc *mmc, unsigned int part_num)
+{
+	int ret;
+
+	if (((part_num & PART_ACCESS_MASK) == PART_ACCESS_BOOT0) &&
+	    (mmc->card_caps == MMC_MODE_HS200)) {
+		mmc->forcehs = 1;
+		ret = mmc_change_freq(mmc);
+		if (ret)
+			return ret;
+
+		mmc->card_caps &= mmc->cfg->host_caps;
+		if (mmc->card_caps & MMC_MODE_HS) {
+			if (mmc->card_caps & MMC_MODE_HS_52MHz)
+				mmc->tran_speed = 52000000;
+			else
+				mmc->tran_speed = 26000000;
+		}
+		mmc_set_clock(mmc, mmc->tran_speed);
+	}
+
+	if (((part_num & PART_ACCESS_MASK) != PART_ACCESS_BOOT0) &&
+	    mmc->forcehs) {
+		mmc->forcehs = 0;
+		ret = mmc_change_freq(mmc);
+		if (ret)
+			return ret;
+
+		mmc->card_caps &= mmc->cfg->host_caps;
+		if (mmc->card_caps & MMC_MODE_HS200) {
+			mmc->tran_speed = 200000000;
+		} else if (mmc->card_caps & MMC_MODE_HS) {
+			if (mmc->card_caps & MMC_MODE_HS_52MHz)
+				mmc->tran_speed = 52000000;
+			else
+				mmc->tran_speed = 26000000;
+		}
+
+		mmc_set_clock(mmc, mmc->tran_speed);
+
+		if ((mmc->card_caps &  MMC_MODE_HS200) &&
+		    (mmc->cfg->host_caps & MMC_MODE_NEEDS_TUNING)) {
+			ret = mmc_execute_tuning(mmc);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
 	int ret;
+
+	ret = mmc_boot_part_access_chk(mmc, part_num);
+	if (ret)
+		return ret;
 
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)

@@ -282,6 +282,7 @@
 
 #define MMCPART_NOAVAILABLE	(0xff)
 #define PART_ACCESS_MASK	(0x7)
+#define PART_ACCESS_BOOT0	(0x2)
 #define PART_SUPPORT		(0x1)
 #define ENHNCD_SUPPORT		(0x2)
 #define PART_ENH_ATTRIB		(0x1f)
@@ -522,6 +523,7 @@ struct mmc {
 #endif
 	u8 is_uhs;
 	u8 uhsmode;
+	u8 forcehs;
 };
 
 struct mmc_hwpart_conf {
