@@ -260,7 +260,7 @@ struct sdhci_host {
 	unsigned int clk_mul;   /* Clock Multiplier value */
 	unsigned int clock;
 	struct mmc *mmc;
-	const struct sdhci_ops *ops;
+	struct sdhci_ops *ops;
 	int index;
 
 	int bus_width;
