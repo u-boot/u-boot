@@ -619,9 +619,16 @@ static int mmc_change_freq(struct mmc *mmc)
 	if (err)
 		return err;
 
-	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
+	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
 
-	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
+	if (cardtype & EXT_CSD_CARD_TYPE_HS200)
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_HS_TIMING,
+				 EXT_CSD_HS_TIMING_HS200);
+	else
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_HS_TIMING,
+				 EXT_CSD_HS_TIMING_HIGH_SPEED);
 
 	if (err)
 		return err;
@@ -636,8 +643,10 @@ static int mmc_change_freq(struct mmc *mmc)
 	if (!ext_csd[EXT_CSD_HS_TIMING])
 		return 0;
 
-	/* High Speed is set, there are two types: 52MHz and 26MHz */
-	if (cardtype & EXT_CSD_CARD_TYPE_52) {
+	/* High Speed is set, there are three types: 200MHZ, 52MHz and 26MHz */
+	if (cardtype & EXT_CSD_CARD_TYPE_HS200) {
+		mmc->card_caps |= MMC_MODE_HS200;
+	} else if (cardtype & EXT_CSD_CARD_TYPE_52) {
 		if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_8V)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
 		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
@@ -1659,7 +1668,9 @@ static int mmc_startup(struct mmc *mmc)
 		if (err)
 			return err;
 
-		if (mmc->card_caps & MMC_MODE_HS) {
+		if (mmc->card_caps & MMC_MODE_HS200) {
+			mmc->tran_speed = 200000000;
+		} else if (mmc->card_caps & MMC_MODE_HS) {
 			if (mmc->card_caps & MMC_MODE_HS_52MHz)
 				mmc->tran_speed = 52000000;
 			else
@@ -1670,7 +1681,8 @@ static int mmc_startup(struct mmc *mmc)
 	mmc_set_clock(mmc, mmc->tran_speed);
 
 	if ((mmc->card_caps & (MMC_MODE_UHS_SDR50 |
-			       MMC_MODE_UHS_SDR104)) &&
+			       MMC_MODE_UHS_SDR104 |
+			       MMC_MODE_HS200)) &&
 	    (mmc->cfg->host_caps & MMC_MODE_NEEDS_TUNING)) {
 		err = mmc_execute_tuning(mmc);
 		if (err)
