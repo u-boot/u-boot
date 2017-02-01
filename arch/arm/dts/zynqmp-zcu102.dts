@@ -637,6 +637,18 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
 };
 
+&xilinx_ams {
+	status = "okay";
+};
+
+&ams_ps {
+	status = "okay";
+};
+
+&ams_pl {
+	status = "okay";
+};
+
 &xilinx_drm {
 	status = "okay";
 	clocks = <&si570_1>;
