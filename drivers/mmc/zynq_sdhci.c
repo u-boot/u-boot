@@ -17,6 +17,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define ZYNQMP_ITAP_DELAYS		{0x0, 0x15, 0x0, 0x0, 0x3D, 0x0,\
+					 0x15, 0x12, 0x15}
+#define ZYNQMP_OTAP_DELAYS		{0x0, 0x5, 0x3, 0x3, 0x4, 0x3,\
+					 0x5, 0x6, 0x6}
+
+#define MMC_BANK2			0x2
+
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -25,6 +32,8 @@ struct arasan_sdhci_plat {
 
 struct arasan_sdhci_priv {
 	struct sdhci_host *host;
+	u32 itapdly[MMC_MAX_BUS_SPEED];
+	u32 otapdly[MMC_MAX_BUS_SPEED];
 	u8 deviceid;
 	u8 bank;
 	u8 no_1p8;
@@ -32,6 +41,13 @@ struct arasan_sdhci_priv {
 
 #if defined(CONFIG_ARCH_ZYNQMP)
 #define MMC_HS200_BUS_SPEED	5
+
+#define MMC_TIMING_UHS_SDR12    0
+#define MMC_TIMING_UHS_SDR25    1
+#define MMC_TIMING_UHS_SDR50    2
+#define MMC_TIMING_UHS_SDR104   3
+#define MMC_TIMING_UHS_DDR50    4
+#define MMC_TIMING_HS200        5
 
 static const u8 mode2timing[] = {
 	[MMC_LEGACY] = UHS_SDR12_BUS_SPEED,
@@ -162,12 +178,98 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 uhsmode;
+	u32 itap_delay;
+	u32 otap_delay;
 
 	uhsmode = mode2timing[mmc->selected_mode];
 
-	if (uhsmode >= UHS_SDR25_BUS_SPEED)
-		arasan_zynqmp_set_tapdelay(priv->deviceid, uhsmode,
-					   priv->bank);
+	debug("%s, %d:%d, mode:%d\n", __func__, priv->deviceid, priv->bank,
+	      uhsmode);
+	if ((uhsmode >= MMC_TIMING_UHS_SDR25) &&
+	    (uhsmode <= MMC_TIMING_HS200)) {
+		itap_delay = priv->itapdly[uhsmode];
+		otap_delay = priv->otapdly[uhsmode];
+		arasan_zynqmp_set_tapdelay(priv->deviceid, itap_delay,
+					   otap_delay);
+	}
+}
+
+static void arasan_dt_read_tap_delay(struct udevice *dev, u32 *tapdly,
+				     u8 mode, const char *prop)
+{
+	/*
+	 * Read Tap Delay values from DT, if the DT does not contain the
+	 * Tap Values then use the pre-defined values
+	 */
+	if (dev_read_u32(dev, prop, &tapdly[mode])) {
+		dev_dbg(dev, "Using predefined tapdly for %s = %d\n",
+			prop, tapdly[mode]);
+	}
+}
+
+/**
+ * arasan_zynqmp_dt_parse_tap_delays - Read Tap Delay values from DT
+ *
+ * Called at initialization to parse the values of Tap Delays.
+ *
+ * @dev:                Pointer to our struct udevice.
+ */
+static void arasan_zynqmp_dt_parse_tap_delays(struct udevice *dev)
+{
+	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
+	u32 *itapdly;
+	u32 *otapdly;
+	int i;
+
+	if (ofnode_device_is_compatible(dev_ofnode(dev), "xlnx,zynqmp-8.9a")) {
+		itapdly = (u32 [MMC_MAX_BUS_SPEED]) ZYNQMP_ITAP_DELAYS;
+		otapdly = (u32 [MMC_MAX_BUS_SPEED]) ZYNQMP_OTAP_DELAYS;
+	}
+
+	if (priv->bank == MMC_BANK2) {
+		itapdly[MMC_TIMING_UHS_SDR104] = 0x0;
+		otapdly[MMC_TIMING_UHS_SDR104] = 0x2;
+		itapdly[MMC_TIMING_HS200] = 0x0;
+		otapdly[MMC_TIMING_HS200] = 0x2;
+	}
+
+	arasan_dt_read_tap_delay(dev, itapdly, SD_HS_BUS_SPEED,
+				 "xlnx,itap-delay-sd-hsd");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_TIMING_UHS_SDR25,
+				 "xlnx,itap-delay-sdr25");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_TIMING_UHS_SDR50,
+				 "xlnx,itap-delay-sdr50");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_TIMING_UHS_SDR104,
+				 "xlnx,itap-delay-sdr104");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_TIMING_UHS_DDR50,
+				 "xlnx,itap-delay-sd-ddr50");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_HS_BUS_SPEED,
+				 "xlnx,itap-delay-mmc-hsd");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_DDR52_BUS_SPEED,
+				 "xlnx,itap-delay-mmc-ddr52");
+	arasan_dt_read_tap_delay(dev, itapdly, MMC_TIMING_HS200,
+				 "xlnx,itap-delay-mmc-hs200");
+	arasan_dt_read_tap_delay(dev, otapdly, SD_HS_BUS_SPEED,
+				 "xlnx,otap-delay-sd-hsd");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_TIMING_UHS_SDR25,
+				 "xlnx,otap-delay-sdr25");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_TIMING_UHS_SDR50,
+				 "xlnx,otap-delay-sdr50");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_TIMING_UHS_SDR104,
+				 "xlnx,otap-delay-sdr104");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_TIMING_UHS_DDR50,
+				 "xlnx,otap-delay-sd-ddr50");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_HS_BUS_SPEED,
+				 "xlnx,otap-delay-mmc-hsd");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_DDR52_BUS_SPEED,
+				 "xlnx,otap-delay-mmc-ddr52");
+	arasan_dt_read_tap_delay(dev, otapdly, MMC_TIMING_HS200,
+				 "xlnx,otap-delay-mmc-hs200");
+
+	for (i = 0; i < MMC_MAX_BUS_SPEED; i++) {
+		priv->itapdly[i] = itapdly[i];
+		priv->otapdly[i] = otapdly[i];
+	}
 }
 
 static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
@@ -268,6 +370,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 #if defined(CONFIG_ARCH_ZYNQMP)
 	priv->host->ops = &arasan_ops;
+	arasan_zynqmp_dt_parse_tap_delays(dev);
 #endif
 
 	priv->host->ioaddr = (void *)dev_read_addr(dev);

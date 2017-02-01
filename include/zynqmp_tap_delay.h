@@ -10,10 +10,11 @@
 
 #ifdef CONFIG_ARCH_ZYNQMP
 void zynqmp_dll_reset(u8 deviceid);
-void arasan_zynqmp_set_tapdelay(u8 device_id, u8 uhsmode, u8 bank);
+void arasan_zynqmp_set_tapdelay(u8 device_id, u32 itap_delay, u32 otap_delay);
 #else
 inline void zynqmp_dll_reset(u8 deviceid) {}
-inline void arasan_zynqmp_set_tapdelay(u8 device_id, u8 uhsmode, u8 bank) {}
+inline void arasan_zynqmp_set_tapdelay(u8 device_id, u32 itap_delay,
+				       u32 otap_delay) {}
 #endif
 
 #endif

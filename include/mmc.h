@@ -354,6 +354,12 @@ enum mmc_voltage {
 #define MMC_NUM_BOOT_PARTITION	2
 #define MMC_PART_RPMB           3       /* RPMB partition number */
 
+#define MMC_TIMING_HS		1
+#define SD_HS_BUS_SPEED		6
+#define MMC_DDR52_BUS_SPEED	7
+#define MMC_HS_BUS_SPEED	8
+#define MMC_MAX_BUS_SPEED	9
+
 /* Driver model support */
 
 /**
