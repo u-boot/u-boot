@@ -766,7 +766,8 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
 
-	if (!(cfg->voltages & MMC_VDD_165_195))
+	if (!(cfg->voltages & MMC_VDD_165_195) ||
+	    (host->quirks & SDHCI_QUIRK_NO_1_8_V))
 		caps_1 &= ~(SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
 			    SDHCI_SUPPORT_DDR50);
 
