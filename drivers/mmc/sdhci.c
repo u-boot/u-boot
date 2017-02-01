@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <sdhci.h>
+#include <wait_bit.h>
 
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
 void *aligned_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
@@ -155,7 +156,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	/* We shouldn't wait for data inihibit for stop commands, even
 	   though they might use busy signaling */
-	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+	if ((cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION) ||
+	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK))
 		mask &= ~SDHCI_DATA_INHIBIT;
 
 	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
@@ -175,6 +177,11 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	mask = SDHCI_INT_RESPONSE;
+
+	/* only buffer read ready interrupt whil tuning */
+	if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK)
+		mask = SDHCI_INT_DATA_AVAIL;
+
 	if (!(cmd->resp_type & MMC_RSP_PRESENT))
 		flags = SDHCI_CMD_RESP_NONE;
 	else if (cmd->resp_type & MMC_RSP_136)
@@ -190,7 +197,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags |= SDHCI_CMD_CRC;
 	if (cmd->resp_type & MMC_RSP_OPCODE)
 		flags |= SDHCI_CMD_INDEX;
-	if (data)
+	if (data || (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK))
 		flags |= SDHCI_CMD_DATA;
 
 	/* Set Transfer mode regarding to data flag */
@@ -291,6 +298,80 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	else
 		return -ECOMM;
 }
+#ifdef CONFIG_DM_MMC_OPS
+static int sdhci_execute_tuning(struct udevice *dev, u8 opcode)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else
+static int sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
+{
+#endif
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	u32 ctrl;
+	u8 tuning_loop_counter = 40;
+	struct sdhci_host *host = mmc->priv;
+
+	debug("%s\n", __func__);
+
+	ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
+	ctrl |= SDHCI_CTRL_EXEC_TUNING;
+	sdhci_writew(host, ctrl, SDHCI_HOST_CTRL2);
+
+	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
+	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
+
+	do {
+		cmd.cmdidx = opcode;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = 0;
+
+		data.blocksize = 64;
+		data.blocks = 1;
+		data.flags = MMC_DATA_READ;
+
+		if (tuning_loop_counter == 0)
+			break;
+
+		tuning_loop_counter--;
+
+		if (cmd.cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200 &&
+		    mmc->bus_width == 8) {
+			data.blocksize = 128;
+		}
+
+		sdhci_writew(host, SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG,
+						    data.blocksize),
+			     SDHCI_BLOCK_SIZE);
+		sdhci_writew(host, data.blocks, SDHCI_BLOCK_COUNT);
+		sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE);
+
+		sdhci_send_command(dev, &cmd, &data);
+		ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
+
+		if (cmd.cmdidx == MMC_CMD_SEND_TUNING_BLOCK)
+			udelay(1);
+
+	} while (ctrl & SDHCI_CTRL_EXEC_TUNING);
+
+	if (tuning_loop_counter < 0) {
+		ctrl &= ~SDHCI_CTRL_TUNED_CLK;
+		sdhci_writel(host, ctrl, SDHCI_HOST_CTRL2);
+	}
+
+	if (!(ctrl & SDHCI_CTRL_TUNED_CLK)) {
+		debug("%s:Tuning failed\n", __func__);
+		return -1;
+	}
+
+	/* Enable only interrupts served by the SD controller */
+	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
+		     SDHCI_INT_ENABLE);
+	/* Mask all sdhci interrupt sources */
+	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
+
+	return 0;
+}
 
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
@@ -383,6 +464,72 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	clk |= SDHCI_CLOCK_CARD_EN;
 	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+	return 0;
+}
+
+#ifdef CONFIG_DM_MMC_OPS
+static int sdhci_set_voltage(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else
+static int sdhci_set_voltage(struct mmc *mmc)
+{
+#endif
+	struct sdhci_host *host = mmc->priv;
+	u32 reg;
+	int err;
+
+	debug("%s\n", __func__);
+
+	reg = (unsigned long)host->ioaddr + SDHCI_PRESENT_STATE;
+	/* Wait max 20ms for the bits to clear*/
+	err = wait_for_bit(__func__, (const u32 *)(uintptr_t)reg,
+			   (SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT),
+			   false, 20, false);
+	if (err < 0)
+		return err;
+
+	reg = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
+	reg &= ~(SDHCI_CLOCK_CARD_EN | SDHCI_CLOCK_INT_EN);
+	sdhci_writew(host, reg, SDHCI_CLOCK_CONTROL);
+
+	/* keep clock gated for 5 msec as per spec */
+	udelay(5000);
+
+	reg = sdhci_readw(host, SDHCI_HOST_CTRL2);
+	reg |= SDHCI_18V_SIGNAL;
+	sdhci_writew(host, reg, SDHCI_HOST_CTRL2);
+
+	sdhci_set_clock(mmc, mmc->cfg->f_min);
+
+	reg = (unsigned long)host->ioaddr + SDHCI_PRESENT_STATE;
+	/* Wait max 20ms for bits to be clear */
+	err = wait_for_bit(__func__, (const u32 *)(uintptr_t)reg,
+			   (SDHCI_CMD_BUSY | SDHCI_DATA_BUSY),
+			   true, 20, false);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+#ifdef CONFIG_DM_MMC_OPS
+static int sdhci_set_uhs(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else
+static int sdhci_set_uhs(struct mmc *mmc)
+{
+#endif
+	struct sdhci_host *host = mmc->priv;
+	u32 reg;
+
+	debug("%s\n", __func__);
+	reg = sdhci_readw(host, SDHCI_HOST_CTRL2);
+	reg &= ~SDHCI_CTRL2_MODE_MASK;
+	reg |= mmc->uhsmode;
+	sdhci_writew(host, reg, SDHCI_HOST_CTRL2);
+
 	return 0;
 }
 
@@ -524,12 +671,18 @@ int sdhci_probe(struct udevice *dev)
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
+	.set_voltage	= sdhci_set_voltage,
+	.set_uhs	= sdhci_set_uhs,
+	.execute_tuning	= sdhci_execute_tuning,
 };
 #else
 static const struct mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
 	.init		= sdhci_init,
+	.set_voltage	= sdhci_set_voltage,
+	.set_uhs	= sdhci_set_uhs,
+	.execute_tuning	= sdhci_execute_tuning,
 };
 #endif
 
