@@ -1337,6 +1337,24 @@ config SYS_FSL_IFC_CLK_DIV
 		Defines divider of platform clock(clock input to
 		IFC controller).
 
+config SYS_FSL_LBC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_ELBC || ARCH_MPC8540 || \
+		ARCH_MPC8548 || ARCH_MPC8541 || \
+		ARCH_MPC8555 || ARCH_MPC8560 || \
+		ARCH_MPC8568
+
+	default 2 if	ARCH_P2041	|| \
+			ARCH_P3041	|| \
+			ARCH_P4080	|| \
+			ARCH_P5020	|| \
+			ARCH_P5040
+	default 1
+
+	help
+		Defines divider of platform clock(clock input to
+		eLBC controller).
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"
