@@ -1240,7 +1240,6 @@ static int fecmxc_probe(struct udevice *dev)
 	}
 
 	fec_reg_setup(priv);
-	fec_set_dev_name((char *)dev->name, dev_id);
 	priv->dev_id = (dev_id == -1) ? 0 : dev_id;
 
 	return 0;
