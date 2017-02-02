@@ -22,10 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void get_sys_info(struct sys_info *sys_info)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-#ifdef CONFIG_FSL_IFC
-	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
-	u32 ccr;
-#endif
 #if (defined(CONFIG_FSL_ESDHC) &&\
 	defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)) ||\
 	defined(CONFIG_SYS_DPAA_FMAN)
@@ -156,10 +152,8 @@ void get_sys_info(struct sys_info *sys_info)
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
-	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
-
-	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
+	sys_info->freq_localbus = sys_info->freq_systembus /
+						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
 }
 
