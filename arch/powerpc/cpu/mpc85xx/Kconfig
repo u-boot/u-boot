@@ -455,6 +455,7 @@ config ARCH_MPC8536
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_MPC8540
 	bool
@@ -478,6 +479,7 @@ config ARCH_MPC8544
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_MPC8548
 	bool
@@ -524,6 +526,7 @@ config ARCH_MPC8569
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
+	select FSL_ELBC
 
 config ARCH_MPC8572
 	bool
@@ -538,6 +541,7 @@ config ARCH_MPC8572
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1010
 	bool
@@ -572,6 +576,7 @@ config ARCH_P1011
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1020
 	bool
@@ -585,6 +590,7 @@ config ARCH_P1020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1021
 	bool
@@ -598,6 +604,7 @@ config ARCH_P1021
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1022
 	bool
@@ -613,6 +620,7 @@ config ARCH_P1022
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1023
 	bool
@@ -624,6 +632,7 @@ config ARCH_P1023
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P1024
 	bool
@@ -637,6 +646,7 @@ config ARCH_P1024
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1025
 	bool
@@ -650,6 +660,7 @@ config ARCH_P1025
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P2020
 	bool
@@ -664,6 +675,7 @@ config ARCH_P2020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P2041
 	bool
@@ -685,6 +697,7 @@ config ARCH_P2041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P3041
 	bool
@@ -708,6 +721,7 @@ config ARCH_P3041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P4080
 	bool
@@ -742,6 +756,7 @@ config ARCH_P4080
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P5020
 	bool
@@ -762,6 +777,7 @@ config ARCH_P5020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
 
 config ARCH_P5040
 	bool
@@ -782,6 +798,7 @@ config ARCH_P5040
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
 
 config ARCH_QEMU_E500
 	bool
@@ -1275,6 +1292,9 @@ config SYS_PPC_E500_USE_DEBUG_TLB
 	bool
 
 config FSL_IFC
+	bool
+
+config FSL_ELBC
 	bool
 
 config SYS_PPC_E500_DEBUG_TLB
