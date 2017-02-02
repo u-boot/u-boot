@@ -1301,6 +1301,22 @@ config SYS_PPC_E500_DEBUG_TLB
                 symbol should be set to the TLB1 entry to be used for this
                 purpose. If unsure, do not change.
 
+config SYS_FSL_IFC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_IFC
+	default 2 if	ARCH_B4420	|| \
+			ARCH_B4860	|| \
+			ARCH_T1024	|| \
+			ARCH_T1023	|| \
+			ARCH_T1040	|| \
+			ARCH_T1042	|| \
+			ARCH_T4160	|| \
+			ARCH_T4240
+	default 1
+	help
+		Defines divider of platform clock(clock input to
+		IFC controller).
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"

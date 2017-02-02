@@ -504,6 +504,9 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_IFC_LE
 		Defines the IFC controller register space as Little Endian
 
+		CONFIG_SYS_FSL_IFC_CLK_DIV
+		Defines divider of platform clock(clock input to IFC controller).
+
 		CONFIG_SYS_FSL_PBL_PBI
 		It enables addition of RCW (Power on reset configuration) in built image.
 		Please refer doc/README.pblimage for more details
