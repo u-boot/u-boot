@@ -374,6 +374,7 @@ config ARCH_B4420
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_B4860
 	bool
@@ -398,6 +399,7 @@ config ARCH_B4860
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_BSC9131
 	bool
@@ -410,6 +412,7 @@ config ARCH_BSC9131
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_IFC
 
 config ARCH_BSC9132
 	bool
@@ -426,6 +429,7 @@ config ARCH_BSC9132
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_C29X
 	bool
@@ -438,6 +442,7 @@ config ARCH_C29X
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_6
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_MPC8536
 	bool
@@ -553,6 +558,7 @@ config ARCH_P1010
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_P1011
 	bool
@@ -795,6 +801,7 @@ config ARCH_T1023
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1024
 	bool
@@ -811,6 +818,7 @@ config ARCH_T1024
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1040
 	bool
@@ -828,6 +836,7 @@ config ARCH_T1040
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1042
 	bool
@@ -845,6 +854,7 @@ config ARCH_T1042
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T2080
 	bool
@@ -866,6 +876,7 @@ config ARCH_T2080
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T2081
 	bool
@@ -885,6 +896,7 @@ config ARCH_T2081
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T4160
 	bool
@@ -905,6 +917,7 @@ config ARCH_T4160
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T4240
 	bool
@@ -928,6 +941,7 @@ config ARCH_T4240
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config BOOKE
 	bool
@@ -1258,6 +1272,9 @@ config SYS_PPC64
 	bool
 
 config SYS_PPC_E500_USE_DEBUG_TLB
+	bool
+
+config FSL_IFC
 	bool
 
 config SYS_PPC_E500_DEBUG_TLB

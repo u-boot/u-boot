@@ -46,7 +46,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 #define CONFIG_TSEC_ENET
