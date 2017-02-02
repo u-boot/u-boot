@@ -13,6 +13,8 @@
 #include <dm/root.h>
 #include "mmc_private.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_DM_MMC_OPS
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
@@ -192,10 +194,15 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 {
 	struct blk_desc *bdesc;
 	struct udevice *bdev;
-	int ret;
+	int ret, devnum = -1;
 
-	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC, -1, 512,
-				 0, &bdev);
+#ifndef CONFIG_SPL_BUILD
+	/* Use the fixed index with aliase node's index */
+	fdtdec_get_alias_seq(gd->fdt_blob, "mmc", dev->of_offset, &devnum);
+#endif
+
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
+			devnum, 512, 0, &bdev);
 	if (ret) {
 		debug("Cannot create block device\n");
 		return ret;
