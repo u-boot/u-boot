@@ -224,6 +224,9 @@ int board_init(void)
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	rtc_enable_32khz_output();
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 
 	return 0;
 }
@@ -266,9 +269,6 @@ void detail_board_ddr_info(void)
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
-#endif
 	return 0;
 }
 #endif
