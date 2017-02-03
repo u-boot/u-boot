@@ -356,7 +356,7 @@ static int palmas_smps_probe(struct udevice *dev)
 		case 8:
 		case 9:
 		case 10:
-			idx = dev->driver_data - 4;
+			idx = dev->driver_data - 3;
 			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
 			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
 			break;
