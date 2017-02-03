@@ -234,27 +234,6 @@ static void mba6_setup_i2c(void)
 		printf("setup I2C1 failed: %d\n", ret);
 }
 
-
-static iomux_v3_cfg_t const mba6_ecspi1_pads[] = {
-	NEW_PAD_CTRL(MX6_PAD_EIM_D24__GPIO3_IO24, SPI_PAD_CTRL),
-	NEW_PAD_CTRL(MX6_PAD_EIM_D25__GPIO3_IO25, SPI_PAD_CTRL),
-};
-
-static unsigned const mba6_ecspi1_cs[] = {
-	IMX_GPIO_NR(3, 24),
-	IMX_GPIO_NR(3, 25),
-};
-
-static void mba6_setup_iomuxc_spi(void)
-{
-	unsigned i;
-
-	for (i = 0; i < ARRAY_SIZE(mba6_ecspi1_cs); ++i)
-		gpio_direction_output(mba6_ecspi1_cs[i], 1);
-	imx_iomux_v3_setup_multiple_pads(mba6_ecspi1_pads,
-					 ARRAY_SIZE(mba6_ecspi1_pads));
-}
-
 int board_phy_config(struct phy_device *phydev)
 {
 /*
@@ -341,7 +320,6 @@ int tqma6_bb_board_early_init_f(void)
 int tqma6_bb_board_init(void)
 {
 	mba6_setup_i2c();
-	mba6_setup_iomuxc_spi();
 	/* do it here - to have reset completed */
 	mba6_setup_iomuxc_enet();
 
