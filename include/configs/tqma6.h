@@ -295,6 +295,7 @@
 	"cma_size="__stringify(TQMA6_CMA_SIZE)"\0"                             \
 	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
+	"rootfsmode=ro\0"                                                      \
 	"addcma=setenv bootargs ${bootargs} cma=${cma_size}\0"                 \
 	"addtty=setenv bootargs ${bootargs} console=${console},${baudrate}\0"  \
 	"addfb=setenv bootargs ${bootargs} "                                   \
@@ -303,7 +304,8 @@
 	"mmcblkdev=0\0"                                                        \
 	"mmcargs=run addmmc addtty addfb addcma\0"                             \
 	"addmmc=setenv bootargs ${bootargs} "                                  \
-		"root=/dev/mmcblk${mmcblkdev}p${mmcpart} rw rootwait\0"        \
+		"root=/dev/mmcblk${mmcblkdev}p${mmcpart} ${rootfsmode} "       \
+		"rootwait\0"                                                   \
 	"mmcboot=echo Booting from mmc ...; "                                  \
 		"setenv bootargs; "                                            \
 		"run mmcargs; "                                                \
