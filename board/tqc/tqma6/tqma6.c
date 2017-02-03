@@ -232,24 +232,26 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
-int board_late_init(void)
+/* setup board specific PMIC */
+int power_init_board(void)
 {
 	struct pmic *p;
-	u32 reg;
+	u32 reg, rev;
 
-	setenv("board_name", tqma6_get_boardname());
-
-	/*
-	 * configure PFUZE100 PMIC:
-	 * TODO: should go to power_init_board if bus switching is
-	 * fixed in generic power code
-	 */
 	power_pfuze100_init(TQMA6_PFUZE100_I2C_BUS);
 	p = pmic_get("PFUZE100");
 	if (p && !pmic_probe(p)) {
 		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-		printf("PMIC: PFUZE100 ID=0x%02x\n", reg);
+		pmic_reg_read(p, PFUZE100_REVID, &rev);
+		printf("PMIC: PFUZE100 ID=0x%02x REV=0x%02x\n", reg, rev);
 	}
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	setenv("board_name", tqma6_get_boardname());
 
 	tqma6_bb_board_late_init();
 
