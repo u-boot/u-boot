@@ -281,6 +281,9 @@
 /* 128 MiB offset as in ARM related docu for linux suggested */
 #define TQMA6_FDT_ADDRESS		0x18000000
 
+/* set to a resonable value, changeable by user */
+#define TQMA6_CMA_SIZE                 160M
+
 #define CONFIG_EXTRA_ENV_SETTINGS                                              \
 	"board=tqma6\0"                                                        \
 	"uimage=uImage\0"                                                      \
@@ -293,14 +296,16 @@
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0"                               \
 	"fdt_addr="__stringify(TQMA6_FDT_ADDRESS)"\0"                          \
 	"console=" CONSOLE_DEV "\0"                                     \
+	"cma_size="__stringify(TQMA6_CMA_SIZE)"\0"                             \
 	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
+	"addcma=setenv bootargs ${bootargs} cma=${cma_size}\0"                 \
 	"addtty=setenv bootargs ${bootargs} console=${console},${baudrate}\0"  \
 	"addfb=setenv bootargs ${bootargs} "                                   \
 		"imx-fbdev.legacyfb_depth=32 consoleblank=0\0"                 \
 	"mmcpart=2\0"                                                          \
 	"mmcblkdev=0\0"                                                        \
-	"mmcargs=run addmmc addtty addfb\0"                                    \
+	"mmcargs=run addmmc addtty addfb addcma\0"                             \
 	"addmmc=setenv bootargs ${bootargs} "                                  \
 		"root=/dev/mmcblk${mmcblkdev}p${mmcpart} rw rootwait\0"        \
 	"mmcboot=echo Booting from mmc ...; "                                  \
@@ -317,7 +322,7 @@
 	"netdev=eth0\0"                                                        \
 	"rootpath=/srv/nfs/tqma6\0"                                            \
 	"ipmode=static\0"                                                      \
-	"netargs=run addnfs addip addtty addfb\0"                              \
+	"netargs=run addnfs addip addtty addfb addcma\0"                       \
 	"addnfs=setenv bootargs ${bootargs} "                                  \
 		"root=/dev/nfs rw "                                            \
 		"nfsroot=${serverip}:${rootpath},v3,tcp;\0"                    \
