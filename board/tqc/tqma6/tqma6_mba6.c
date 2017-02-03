@@ -125,7 +125,7 @@ static void mba6_setup_iomuxc_enet(void)
 	/* Reset PHY */
 	gpio_direction_output(ENET_PHY_RESET_GPIO , 0);
 	/* Need delay 10ms after power on according to KSZ9031 spec */
-	udelay(1000 * 10);
+	mdelay(10);
 	gpio_set_value(ENET_PHY_RESET_GPIO, 1);
 	/*
 	 * KSZ9031 manual: 100 usec wait time after reset before communication
@@ -133,7 +133,7 @@ static void mba6_setup_iomuxc_enet(void)
 	 * BUGBUG: hardware has an RC const that needs > 10 msec from 0->1 on
 	 * reset before the phy sees a high level
 	 */
-	udelay(200);
+	mdelay(15);
 }
 
 static iomux_v3_cfg_t const mba6_uart2_pads[] = {
