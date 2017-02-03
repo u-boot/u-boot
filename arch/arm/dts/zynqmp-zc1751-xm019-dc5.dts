@@ -12,7 +12,7 @@
 /dts-v1/;
 
 #include "zynqmp.dtsi"
-#include "zynqmp-clk.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
 / {
 	model = "ZynqMP zc1751-xm019-dc5 RevA";
 	compatible = "xlnx,zynqmp-zc1751", "xlnx,zynqmp";
