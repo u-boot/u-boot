@@ -262,7 +262,7 @@
 			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
 		"setexpr offset ${fdt_start} * "                               \
 			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
-		"sf read ${${fdt_addr}} ${offset} ${size}; "                   \
+		"sf read ${fdt_addr} ${offset} ${size}; "                      \
 		"setenv size ; setenv offset\0"                                \
 
 #define CONFIG_BOOTCOMMAND                                                     \
