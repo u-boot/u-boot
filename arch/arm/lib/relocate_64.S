@@ -68,7 +68,7 @@ relocate_done:
 	b	0f
 1:	mrs	x0, sctlr_el1
 0:	tbz	w0, #2, 5f	/* skip flushing cache if disabled */
-	tbz	w0, #12, 4f	/* invalide i-cache is enabled */
+	tbz	w0, #12, 4f	/* skip invalidating i-cache if disabled */
 	ic	iallu		/* i-cache invalidate all */
 	isb	sy
 4:	ldp	x0, x1, [sp, #16]
