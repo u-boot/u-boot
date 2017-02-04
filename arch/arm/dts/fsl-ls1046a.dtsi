@@ -217,6 +217,27 @@
 			status = "disabled";
 		};
 
+		usb0: usb@2f00000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x2f00000 0x0 0x10000>;
+			interrupts = <0 60 4>;
+			dr_mode = "host";
+		};
+
+		usb1: usb@3000000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x3000000 0x0 0x10000>;
+			interrupts = <0 61 4>;
+			dr_mode = "host";
+		};
+
+		usb2: usb@3100000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x3100000 0x0 0x10000>;
+			interrupts = <0 63 4>;
+			dr_mode = "host";
+		};
+
 		pcie@3400000 {
 			compatible = "fsl,ls-pcie", "snps,dw-pcie";
 			reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */

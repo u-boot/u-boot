@@ -27,10 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void get_sys_info(sys_info_t *sys_info)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#ifdef CONFIG_FSL_IFC
-	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
-	u32 ccr;
-#endif
 #ifdef CONFIG_FSL_CORENET
 	volatile ccsr_clk_t *clk = (void *)(CONFIG_SYS_FSL_CORENET_CLK_ADDR);
 	unsigned int cpu;
@@ -611,39 +607,13 @@ void get_sys_info(sys_info_t *sys_info)
 #endif /* CONFIG_FSL_CORENET */
 
 #if defined(CONFIG_FSL_LBC)
-	uint lcrr_div;
-#if defined(CONFIG_SYS_LBC_LCRR)
-	/* We will program LCRR to this value later */
-	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
-#else
-	lcrr_div = in_be32(&(LBC_BASE_ADDR)->lcrr) & LCRR_CLKDIV;
-#endif
-	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
-#if defined(CONFIG_FSL_CORENET)
-		/* If this is corenet based SoC, bit-representation
-		 * for four times the clock divider values.
-		 */
-		lcrr_div *= 4;
-#elif !defined(CONFIG_ARCH_MPC8540) && !defined(CONFIG_ARCH_MPC8541) && \
-	!defined(CONFIG_ARCH_MPC8555) && !defined(CONFIG_ARCH_MPC8560)
-		/*
-		 * Yes, the entire PQ38 family use the same
-		 * bit-representation for twice the clock divider values.
-		 */
-		lcrr_div *= 2;
-#endif
-		sys_info->freq_localbus = sys_info->freq_systembus / lcrr_div;
-	} else {
-		/* In case anyone cares what the unknown value is */
-		sys_info->freq_localbus = lcrr_div;
-	}
+	sys_info->freq_localbus = sys_info->freq_systembus /
+						CONFIG_SYS_FSL_LBC_CLK_DIV;
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
-	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
-
-	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
+	sys_info->freq_localbus = sys_info->freq_systembus /
+						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
 }
 

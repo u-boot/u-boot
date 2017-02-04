@@ -25,7 +25,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MP		/* support multiple processors */
 
-#define CONFIG_FSL_ELBC		/* Has Enhanced localbus controller */
 #define CONFIG_PCI_INDIRECT_BRIDGE     /* indirect PCI bridge support */
 #define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2		/* PCIE controller 2 (slot 2) */

@@ -374,6 +374,7 @@ config ARCH_B4420
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_B4860
 	bool
@@ -398,6 +399,7 @@ config ARCH_B4860
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_BSC9131
 	bool
@@ -410,6 +412,7 @@ config ARCH_BSC9131
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_IFC
 
 config ARCH_BSC9132
 	bool
@@ -426,6 +429,7 @@ config ARCH_BSC9132
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_C29X
 	bool
@@ -438,6 +442,7 @@ config ARCH_C29X
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_6
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_MPC8536
 	bool
@@ -450,6 +455,7 @@ config ARCH_MPC8536
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_MPC8540
 	bool
@@ -473,6 +479,7 @@ config ARCH_MPC8544
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_MPC8548
 	bool
@@ -519,6 +526,7 @@ config ARCH_MPC8569
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
+	select FSL_ELBC
 
 config ARCH_MPC8572
 	bool
@@ -533,6 +541,7 @@ config ARCH_MPC8572
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1010
 	bool
@@ -553,6 +562,7 @@ config ARCH_P1010
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
 
 config ARCH_P1011
 	bool
@@ -566,6 +576,7 @@ config ARCH_P1011
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1020
 	bool
@@ -579,6 +590,7 @@ config ARCH_P1020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1021
 	bool
@@ -592,6 +604,7 @@ config ARCH_P1021
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1022
 	bool
@@ -607,6 +620,7 @@ config ARCH_P1022
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1023
 	bool
@@ -618,6 +632,7 @@ config ARCH_P1023
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P1024
 	bool
@@ -631,6 +646,7 @@ config ARCH_P1024
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1025
 	bool
@@ -644,6 +660,7 @@ config ARCH_P1025
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P2020
 	bool
@@ -658,6 +675,7 @@ config ARCH_P2020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P2041
 	bool
@@ -679,6 +697,7 @@ config ARCH_P2041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P3041
 	bool
@@ -702,6 +721,7 @@ config ARCH_P3041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P4080
 	bool
@@ -736,6 +756,7 @@ config ARCH_P4080
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P5020
 	bool
@@ -756,6 +777,7 @@ config ARCH_P5020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
 
 config ARCH_P5040
 	bool
@@ -776,6 +798,7 @@ config ARCH_P5040
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
 
 config ARCH_QEMU_E500
 	bool
@@ -795,6 +818,7 @@ config ARCH_T1023
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1024
 	bool
@@ -811,6 +835,7 @@ config ARCH_T1024
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1040
 	bool
@@ -828,6 +853,7 @@ config ARCH_T1040
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T1042
 	bool
@@ -845,6 +871,7 @@ config ARCH_T1042
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
 
 config ARCH_T2080
 	bool
@@ -866,6 +893,7 @@ config ARCH_T2080
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T2081
 	bool
@@ -885,6 +913,7 @@ config ARCH_T2081
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T4160
 	bool
@@ -905,6 +934,7 @@ config ARCH_T4160
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config ARCH_T4240
 	bool
@@ -928,6 +958,7 @@ config ARCH_T4240
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
 
 config BOOKE
 	bool
@@ -1260,6 +1291,12 @@ config SYS_PPC64
 config SYS_PPC_E500_USE_DEBUG_TLB
 	bool
 
+config FSL_IFC
+	bool
+
+config FSL_ELBC
+	bool
+
 config SYS_PPC_E500_DEBUG_TLB
 	int "Temporary TLB entry for external debugger"
 	depends on SYS_PPC_E500_USE_DEBUG_TLB
@@ -1283,6 +1320,40 @@ config SYS_PPC_E500_DEBUG_TLB
                 breakpoints and single stepping do not work. The value of this
                 symbol should be set to the TLB1 entry to be used for this
                 purpose. If unsure, do not change.
+
+config SYS_FSL_IFC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_IFC
+	default 2 if	ARCH_B4420	|| \
+			ARCH_B4860	|| \
+			ARCH_T1024	|| \
+			ARCH_T1023	|| \
+			ARCH_T1040	|| \
+			ARCH_T1042	|| \
+			ARCH_T4160	|| \
+			ARCH_T4240
+	default 1
+	help
+		Defines divider of platform clock(clock input to
+		IFC controller).
+
+config SYS_FSL_LBC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_ELBC || ARCH_MPC8540 || \
+		ARCH_MPC8548 || ARCH_MPC8541 || \
+		ARCH_MPC8555 || ARCH_MPC8560 || \
+		ARCH_MPC8568
+
+	default 2 if	ARCH_P2041	|| \
+			ARCH_P3041	|| \
+			ARCH_P4080	|| \
+			ARCH_P5020	|| \
+			ARCH_P5040
+	default 1
+
+	help
+		Defines divider of platform clock(clock input to
+		eLBC controller).
 
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"

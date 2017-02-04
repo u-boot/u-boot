@@ -8,6 +8,7 @@
 #include <linux/bug.h>
 #include <asm/io.h>
 #include <libfdt.h>
+#include <net.h>
 #include <fdt_support.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/fsl_mc_sys.h>
@@ -195,10 +196,81 @@ static int calculate_mc_private_ram_params(u64 mc_private_ram_start_addr,
 	return 0;
 }
 
+static int mc_fixup_dpc_mac_addr(void *blob, int noff, int dpmac_id,
+		struct eth_device *eth_dev)
+{
+	int nodeoffset, err = 0;
+	char mac_name[10];
+	const char link_type_mode[] = "FIXED_LINK";
+	unsigned char env_enetaddr[6];
+
+	sprintf(mac_name, "mac@%d", dpmac_id);
+
+	/* node not found - create it */
+	nodeoffset = fdt_subnode_offset(blob, noff, (const char *) mac_name);
+	if (nodeoffset < 0) {
+		err = fdt_increase_size(blob, 200);
+		if (err) {
+			printf("fdt_increase_size: err=%s\n",
+				fdt_strerror(err));
+			return err;
+		}
+
+		nodeoffset = fdt_add_subnode(blob, noff, mac_name);
+
+		/* add default property of fixed link */
+		err = fdt_appendprop_string(blob, nodeoffset,
+					    "link_type", link_type_mode);
+		if (err) {
+			printf("fdt_appendprop_string: err=%s\n",
+				fdt_strerror(err));
+			return err;
+		}
+	}
+
+	/* port_mac_address property present in DPC */
+	if (fdt_get_property(blob, nodeoffset, "port_mac_address", NULL)) {
+		/* MAC addr randomly assigned - leave the one in DPC */
+		eth_getenv_enetaddr_by_index("eth", eth_dev->index,
+						env_enetaddr);
+		if (is_zero_ethaddr(env_enetaddr))
+			return err;
+
+		/* replace DPC MAC address with u-boot env one */
+		err = fdt_setprop(blob, nodeoffset, "port_mac_address",
+				  eth_dev->enetaddr, 6);
+		if (err) {
+			printf("fdt_setprop mac: err=%s\n", fdt_strerror(err));
+			return err;
+		}
+
+		return 0;
+	}
+
+	/* append port_mac_address property to mac node in DPC */
+	err = fdt_increase_size(blob, 80);
+	if (err) {
+		printf("fdt_increase_size: err=%s\n", fdt_strerror(err));
+		return err;
+	}
+
+	err = fdt_appendprop(blob, nodeoffset,
+			     "port_mac_address", eth_dev->enetaddr, 6);
+	if (err) {
+		printf("fdt_appendprop: err=%s\n", fdt_strerror(err));
+		return err;
+	}
+
+	return err;
+}
+
 static int mc_fixup_dpc(u64 dpc_addr)
 {
 	void *blob = (void *)dpc_addr;
-	int nodeoffset;
+	int nodeoffset, err = 0;
+	char ethname[10];
+	struct eth_device *eth_dev;
+	int i;
 
 	/* delete any existing ICID pools */
 	nodeoffset = fdt_path_offset(blob, "/resources/icid_pools");
@@ -220,9 +292,36 @@ static int mc_fixup_dpc(u64 dpc_addr)
 			     FSL_DPAA2_STREAM_ID_END -
 			     FSL_DPAA2_STREAM_ID_START + 1, 1);
 
+	/* fixup MAC addresses for dpmac ports */
+	nodeoffset = fdt_path_offset(blob, "/board_info/ports");
+	if (nodeoffset < 0)
+		goto out;
+
+	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++) {
+		/* port not enabled */
+		if ((wriop_is_enabled_dpmac(i) != 1) ||
+		    (wriop_get_phy_address(i) == -1))
+			continue;
+
+		sprintf(ethname, "DPMAC%d@%s", i,
+			phy_interface_strings[wriop_get_enet_if(i)]);
+
+		eth_dev = eth_get_dev_by_name(ethname);
+		if (eth_dev == NULL)
+			continue;
+
+		err = mc_fixup_dpc_mac_addr(blob, nodeoffset, i, eth_dev);
+		if (err) {
+			printf("mc_fixup_dpc_mac_addr failed: err=%s\n",
+			fdt_strerror(err));
+			goto out;
+		}
+	}
+
+out:
 	flush_dcache_range(dpc_addr, dpc_addr + fdt_totalsize(blob));
 
-	return 0;
+	return err;
 }
 
 static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpc_addr)

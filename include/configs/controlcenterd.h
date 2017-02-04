@@ -137,7 +137,6 @@
 /*
  * Local Bus Definitions
  */
-#define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 
 #define CONFIG_SYS_ELBC_BASE		0xe0000000
 #ifdef CONFIG_PHYS_64BIT

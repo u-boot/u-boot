@@ -27,7 +27,6 @@
 
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_FSL_IFC		/* Enable IFC Support */
 #define CONFIG_FSL_CAAM		/* Enable SEC/CAAM */
 #define CONFIG_ENV_OVERWRITE
 
