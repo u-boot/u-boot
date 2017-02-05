@@ -195,6 +195,14 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
+config X86_LOAD_FROM_32_BIT
+	bool "Boot from a 32-bit program"
+	help
+	  Define this to boot U-Boot from a 32-bit program which sets
+	  the GDT differently. This can be used to boot directly from
+	  any stage of coreboot, for example, bypassing the normal
+	  payload-loading feature.
+
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024
