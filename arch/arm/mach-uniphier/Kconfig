@@ -13,6 +13,7 @@ config ARCH_UNIPHIER_32BIT
 config ARCH_UNIPHIER_64BIT
 	bool
 	select ARM64
+	select CMD_UNZIP
 	select SPL_SEPARATE_BSS if SPL
 	select ARMV8_MULTIENTRY if SPL
 	select ARMV8_SPIN_TABLE if SPL

@@ -95,7 +95,6 @@
 #define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_UNZIP
 #endif
 
 /* NAND flash */

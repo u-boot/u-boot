@@ -31,6 +31,7 @@ CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_CRC32 is not set
+CONFIG_CMD_UNZIP=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_FLASH is not set

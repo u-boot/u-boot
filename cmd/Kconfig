@@ -359,6 +359,16 @@ config CMD_MEMINFO
 	help
 	  Display memory information.
 
+config CMD_UNZIP
+	bool "unzip"
+	help
+	  Uncompress a zip-compressed memory region.
+
+config CMD_ZIP
+	bool "zip"
+	help
+	  Compress a memory region with zlib deflate method.
+
 endmenu
 
 menu "Device access commands"

@@ -15,10 +15,6 @@
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#ifdef CONFIG_ARM64
-#define CONFIG_CMD_UNZIP
-#endif
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/

@@ -126,7 +126,6 @@
 #endif
 
 /*#define CONFIG_MENU_SHOW*/
-#define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_ENV
 
 /* BOOTP options */

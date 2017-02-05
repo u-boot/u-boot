@@ -57,7 +57,6 @@
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_TFTP
-#define CONFIG_CMD_UNZIP
 
 /* Partition table support */
 #define HAVE_BLOCK_DEVICE /* Needed for partition commands */
