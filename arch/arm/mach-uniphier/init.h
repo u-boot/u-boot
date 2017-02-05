@@ -13,7 +13,6 @@
 #define UNIPHIER_MAX_NR_DRAM_CH		3
 
 struct uniphier_dram_ch {
-	unsigned long base;
 	unsigned long size;
 	unsigned int width;
 };
@@ -24,7 +23,8 @@ struct uniphier_board_data {
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
 
-#define UNIPHIER_BD_DDR3PLUS			BIT(2)
+#define UNIPHIER_BD_DRAM_SPARSE			BIT(9)
+#define UNIPHIER_BD_DDR3PLUS			BIT(8)
 
 #define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x7)
 #define UNIPHIER_BD_BOARD_LD20_REF		0	/* LD20 reference */
