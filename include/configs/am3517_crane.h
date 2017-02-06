@@ -88,8 +88,6 @@
 
 #ifdef CONFIG_USB_MUSB_HCD
 
-#define CONGIG_CMD_STORAGE
-
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL
 #define CONFIG_PREBOOT "usb start"
