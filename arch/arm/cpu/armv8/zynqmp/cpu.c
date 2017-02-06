@@ -109,6 +109,7 @@ unsigned int zynqmp_get_silicon_version(void)
 #define ZYNQMP_MMIO_READ	0xC2000014
 #define ZYNQMP_MMIO_WRITE	0xC2000013
 
+#ifndef CONFIG_SPL_BUILD
 static int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
 			u32 *ret_payload)
 {
@@ -155,3 +156,18 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 
 	return ret;
 }
+#else
+int zynqmp_mmio_write(const u32 address,
+		      const u32 mask,
+		      const u32 value)
+{
+	panic_str("MMIO write not implemented\n");
+	return 0;
+}
+
+int zynqmp_mmio_read(const u32 address, u32 *value)
+{
+	*value = readl((ulong)address);
+	return 0;
+}
+#endif
