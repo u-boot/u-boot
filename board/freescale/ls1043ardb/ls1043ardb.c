@@ -23,9 +23,7 @@
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
 #endif
-#ifdef CONFIG_FSL_LS_PPA
 #include <asm/arch/ppa.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
