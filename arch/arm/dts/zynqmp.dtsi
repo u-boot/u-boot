@@ -302,6 +302,11 @@
 		compatible = "xlnx,zynqmp-pcap-fpga";
 	};
 
+	rst: reset-controller {
+		compatible = "xlnx,zynqmp-reset";
+		#reset-cells = <1>;
+	};
+
 	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -786,6 +791,14 @@
 			reg-names = "serdes", "siou", "fpd", "lpd";
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
+			resets = <&rst 16>, <&rst 59>, <&rst 60>,
+				 <&rst 61>, <&rst 62>, <&rst 63>,
+				 <&rst 64>, <&rst 3>, <&rst 29>,
+				 <&rst 30>, <&rst 31>, <&rst 32>;
+			reset-names = "sata_rst", "usb0_crst", "usb1_crst",
+				      "usb0_hibrst", "usb1_hibrst", "usb0_apbrst",
+				      "usb1_apbrst", "dp_rst", "gem0_rst",
+				      "gem1_rst", "gem2_rst", "gem3_rst";
 			lane0: lane0 {
 				#phy-cells = <4>;
 			};
