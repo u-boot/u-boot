@@ -21,6 +21,13 @@
 			compatible = "arm,cortex-a53", "arm,armv8";
 			device_type = "cpu";
 			enable-method = "psci";
+			operating-points = <
+				/* kHz    uV */
+				1100000  1000000
+				 550000  1000000
+				 366666  1000000
+				 275000  1000000
+			>;
 			reg = <0x0>;
 			cpu-idle-states = <&CPU_SLEEP_0>;
 		};
