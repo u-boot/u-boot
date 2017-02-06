@@ -131,6 +131,18 @@ config MMC_OMAP_HS
 
 	  If unsure, say N.
 
+config MMC_OMAP36XX_PINS
+	bool "Enable MMC1 on OMAP36xx/37xx"
+	depends on OMAP34XX && MMC_OMAP_HS
+	help
+	  This enables extended-drain in the MMC/SD/SDIO1I/O and
+	  GPIO-associated I/O cells (gpio_126, gpio_127, and gpio_129)
+	  specific to the OMAP36xx/37xx using MMC1
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
 	depends on RMOBILE
