@@ -337,6 +337,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
+#define CONFIG_CMD_CLK
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=10000000\0" \
