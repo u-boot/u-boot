@@ -174,7 +174,7 @@ void db8500_gpio_set_output(unsigned gpio, int val)
 
 /**
  * config_pin - configure a pin's mux attributes
- * @cfg: pin confguration
+ * @cfg: pin configuration
  *
  * Configures a pin's mode (alternate function or GPIO), its pull up status,
  * and its sleep mode based on the specified configuration.  The @cfg is
