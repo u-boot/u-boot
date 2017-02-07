@@ -213,11 +213,9 @@ static struct musb_hdrc_platform_data otg1_plat = {
 	.board_data	= &otg1_board_data,
 };
 #endif
-#endif
 
 int arch_misc_init(void)
 {
-#ifndef CONFIG_DM_USB
 #ifdef CONFIG_AM335X_USB0
 	musb_register(&otg0_plat, &otg0_board_data,
 		(void *)USB0_OTG_BASE);
@@ -226,7 +224,13 @@ int arch_misc_init(void)
 	musb_register(&otg1_plat, &otg1_board_data,
 		(void *)USB1_OTG_BASE);
 #endif
-#else
+	return 0;
+}
+
+#else	/* CONFIG_USB_MUSB_* && CONFIG_AM335X_USB* && !CONFIG_DM_USB */
+
+int arch_misc_init(void)
+{
 	struct udevice *dev;
 	int ret;
 
@@ -241,9 +245,11 @@ int arch_misc_init(void)
 		return ret;
 	}
 #endif
-#endif
+
 	return 0;
 }
+
+#endif /* CONFIG_USB_MUSB_* && CONFIG_AM335X_USB* && !CONFIG_DM_USB */
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /*
