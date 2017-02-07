@@ -129,6 +129,41 @@ int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
 	return regs.regs[0];
 }
 
+#define ZYNQMP_SIP_SVC_GET_API_VERSION		0xC2000001
+
+#define ZYNQMP_PM_VERSION_MAJOR		0
+#define ZYNQMP_PM_VERSION_MINOR		3
+#define ZYNQMP_PM_VERSION_MAJOR_SHIFT	16
+#define ZYNQMP_PM_VERSION_MINOR_MASK	0xFFFF
+
+#define ZYNQMP_PM_VERSION	\
+	((ZYNQMP_PM_VERSION_MAJOR << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | \
+				 ZYNQMP_PM_VERSION_MINOR)
+
+#if defined(CONFIG_CLK_ZYNQMP)
+void zynqmp_pmufw_version(void)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u32 pm_api_version;
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0, 0, 0,
+			 ret_payload);
+	pm_api_version = ret_payload[1];
+
+	if (ret)
+		panic("PMUFW is not found - Please load it!\n");
+
+	printf("PMUFW:\tv%d.%d\n",
+	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
+	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);
+
+	if (pm_api_version != ZYNQMP_PM_VERSION)
+		panic("PMUFW version error. Expected: v%d.%d\n",
+		      ZYNQMP_PM_VERSION_MAJOR, ZYNQMP_PM_VERSION_MINOR);
+}
+#endif
+
 int zynqmp_mmio_write(const u32 address,
 		      const u32 mask,
 		      const u32 value)

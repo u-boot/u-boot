@@ -296,4 +296,6 @@
 #endif
 #endif
 
+#define CONFIG_BOARD_EARLY_INIT_F
+
 #endif /* __XILINX_ZYNQMP_H */
