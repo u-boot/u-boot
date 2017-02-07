@@ -1,3 +1,5 @@
+source "drivers/net/phy/Kconfig"
+
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
 	depends on DM
@@ -7,32 +9,6 @@ config DM_ETH
 	  The eth_*() interface will be implemented by the UC_ETH class
 	  This is currently implemented in net/eth.c
 	  Look in include/net.h for details.
-
-config PHYLIB
-	bool "Ethernet PHY (physical media interface) support"
-	help
-	  Enable Ethernet PHY (physical media interface) support.
-
-config RTL8211X_PHY_FORCE_MASTER
-	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"
-	depends on PHYLIB
-	help
-	  Force master mode for 1000BASE-T on RTl8211x PHYs (except for RTL8211F).
-	  This can work around link stability and data corruption issues on gigabit
-	  links which can occur in slave mode on certain PHYs, e.g. on the
-	  RTL8211C(L).
-
-	  Please note that two directly connected devices (i.e. via crossover cable)
-	  will not be able to establish a link between each other if they both force
-	  master mode. Multiple devices forcing master mode when connected by a
-	  network switch do not pose a problem as the switch configures its affected
-	  ports into slave mode.
-
-	  This option only affects gigabit links. If you must establish a direct
-	  connection between two devices which both force master mode, try forcing
-	  the link speed to 100MBit/s.
-
-	  If unsure, say N.
 
 menuconfig NETDEVICES
 	bool "Network device support"
