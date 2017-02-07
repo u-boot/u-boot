@@ -113,6 +113,14 @@ static char *zynqmp_get_silicon_idcode_name(void)
 }
 #endif
 
+int board_early_init_f(void)
+{
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
+	zynqmp_pmufw_version();
+#endif
+	return 0;
+}
+
 #define ZYNQMP_VERSION_SIZE	9
 
 int board_init(void)
