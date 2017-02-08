@@ -158,6 +158,14 @@
 				};
 			};
 
+			ap_gpio0: gpio@6F5040 {
+				compatible = "marvell,orion-gpio";
+				reg = <0x6F5040 0x40>;
+				ngpios = <20>;
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
 			xor@400000 {
 				compatible = "marvell,mv-xor-v2";
 				reg = <0x400000 0x1000>,
