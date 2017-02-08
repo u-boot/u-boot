@@ -90,7 +90,7 @@ static int tegra186_bpmp_i2c_probe(struct udevice *dev)
 {
 	struct tegra186_bpmp_i2c *priv = dev_get_priv(dev);
 
-	priv->bpmp_bus_id = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+	priv->bpmp_bus_id = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 					    "nvidia,bpmp-bus-id", U32_MAX);
 	if (priv->bpmp_bus_id == U32_MAX) {
 		debug("%s: could not parse nvidia,bpmp-bus-id\n", __func__);

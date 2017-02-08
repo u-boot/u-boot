@@ -62,7 +62,7 @@ static int led_gpio_bind(struct udevice *parent)
 	int node;
 	int ret;
 
-	for (node = fdt_first_subnode(blob, parent->of_offset);
+	for (node = fdt_first_subnode(blob, dev_of_offset(parent));
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
 		struct led_uclass_plat *uc_plat;

@@ -249,15 +249,15 @@ class Boards:
             exclude: List of boards to exclude, regardless of 'args'
 
         Returns:
-            Dictionary which holds the number of boards which were selected
+            Dictionary which holds the list of boards which were selected
             due to each argument, arranged by argument.
         """
         result = {}
         terms = self._BuildTerms(args)
 
-        result['all'] = 0
+        result['all'] = []
         for term in terms:
-            result[str(term)] = 0
+            result[str(term)] = []
 
         exclude_list = []
         for expr in exclude:
@@ -285,7 +285,7 @@ class Boards:
             if build_it:
                 board.build_it = True
                 if matching_term:
-                    result[matching_term] += 1
-                result['all'] += 1
+                    result[matching_term].append(board.target)
+                result['all'].append(board.target)
 
         return result

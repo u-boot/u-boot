@@ -40,7 +40,7 @@ static int i2c_mux_child_post_bind(struct udevice *dev)
 	struct i2c_mux_bus *plat = dev_get_parent_platdata(dev);
 	int channel;
 
-	channel = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
+	channel = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (channel < 0)
 		return -EINVAL;
 	plat->channel = channel;
@@ -60,7 +60,7 @@ static int i2c_mux_post_bind(struct udevice *mux)
 	 * There is no compatible string in the sub-nodes, so we must manually
 	 * bind these
 	 */
-	for (offset = fdt_first_subnode(blob, mux->of_offset);
+	for (offset = fdt_first_subnode(blob, dev_of_offset(mux));
 	     offset > 0;
 	     offset = fdt_next_subnode(blob, offset)) {
 		struct udevice *dev;

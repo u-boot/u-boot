@@ -197,7 +197,7 @@ static int tegra186_gpio_bind(struct udevice *parent)
 				  -1, &dev);
 		if (ret)
 			return ret;
-		dev->of_offset = parent->of_offset;
+		dev_set_of_offset(dev, dev_of_offset(parent));
 	}
 
 	return 0;

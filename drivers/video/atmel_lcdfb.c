@@ -276,7 +276,7 @@ static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
 	struct display_timing *timing = &priv->timing;
 	const void *blob = gd->fdt_blob;
 
-	if (fdtdec_decode_display_timing(blob, dev->of_offset,
+	if (fdtdec_decode_display_timing(blob, dev_of_offset(dev),
 					 plat->timing_index, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;

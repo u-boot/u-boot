@@ -46,7 +46,7 @@ static int sandbox_sdl_bind(struct udevice *dev)
 	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
 	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret = 0;
 
 	plat->xres = fdtdec_get_int(blob, node, "xres", LCD_MAX_WIDTH);

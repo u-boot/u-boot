@@ -189,7 +189,7 @@ static int cros_ec_kbd_probe(struct udevice *dev)
 	struct stdio_dev *sdev = &uc_priv->sdev;
 	struct input_config *input = &uc_priv->input;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	if (cros_ec_keyb_decode_fdt(blob, node, priv))

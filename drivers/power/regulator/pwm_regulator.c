@@ -88,7 +88,7 @@ static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct pwm_regulator_info *priv = dev_get_priv(dev);
 	struct fdtdec_phandle_args args;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	ret = fdtdec_parse_phandle_with_args(blob, node, "pwms", "#pwm-cells",

@@ -728,7 +728,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	struct mmc_config *cfg;
 	int val;
 

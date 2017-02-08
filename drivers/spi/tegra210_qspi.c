@@ -97,7 +97,7 @@ static int tegra210_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 
 	plat->base = dev_get_addr(bus);
 	plat->periph_id = clock_decode_periph_id(blob, node);

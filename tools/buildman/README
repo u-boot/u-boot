@@ -141,7 +141,7 @@ means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
 It is convenient to use the -n option to see what will be built based on
-the subset given.
+the subset given. Use -v as well to get an actual list of boards.
 
 Buildman does not store intermediate object files. It optionally copies
 the binary output into a directory when a build is successful. Size

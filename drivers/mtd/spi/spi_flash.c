@@ -919,7 +919,7 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 #ifdef CONFIG_DM_SPI_FLASH
 	fdt_addr_t addr;
 	fdt_size_t size;
-	int node = flash->dev->of_offset;
+	int node = dev_of_offset(flash->dev);
 
 	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
 	if (addr == FDT_ADDR_T_NONE) {

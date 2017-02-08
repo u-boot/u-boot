@@ -164,7 +164,7 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	int ret;
 
 	plat->base = dev_get_addr(bus);

@@ -999,7 +999,8 @@ static int macb_eth_probe(struct udevice *dev)
 #ifdef CONFIG_DM_ETH
 	const char *phy_mode;
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		macb->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (macb->phy_interface == -1) {

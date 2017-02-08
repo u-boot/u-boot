@@ -65,7 +65,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
 	assert(clk);
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     "clocks", "#clock-cells", 0, index,
 					     &args);
 	if (ret) {
@@ -104,7 +104,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	debug("%s(dev=%p, name=%s, clk=%p)\n", __func__, dev, name, clk);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
+	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "clock-names", name);
 	if (index < 0) {
 		debug("fdt_stringlist_search() failed: %d\n", index);

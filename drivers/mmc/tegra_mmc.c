@@ -578,8 +578,8 @@ static int tegra_mmc_probe(struct udevice *dev)
 	priv->cfg.name = "Tegra SD/MMC";
 	priv->cfg.ops = &tegra_mmc_ops;
 
-	bus_width = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width",
-				   1);
+	bus_width = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				   "bus-width", 1);
 
 	priv->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	priv->cfg.host_caps = 0;

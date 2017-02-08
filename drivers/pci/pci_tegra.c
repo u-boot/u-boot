@@ -1099,7 +1099,7 @@ static int pci_tegra_ofdata_to_platdata(struct udevice *dev)
 
 	INIT_LIST_HEAD(&pcie->ports);
 
-	if (tegra_pcie_parse_dt(gd->fdt_blob, dev->of_offset, id, pcie))
+	if (tegra_pcie_parse_dt(gd->fdt_blob, dev_of_offset(dev), id, pcie))
 		return -EINVAL;
 
 	return 0;

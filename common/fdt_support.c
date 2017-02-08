@@ -903,13 +903,8 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 {
 	struct node_info *ni = node_info;
 	struct mtd_device *dev;
-	char *parts;
 	int i, idx;
 	int noff;
-
-	parts = getenv("mtdparts");
-	if (!parts)
-		return;
 
 	if (mtdparts_init() != 0)
 		return;

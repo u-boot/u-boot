@@ -1078,7 +1078,7 @@ static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 	struct fdt_resource res_regs, res_mem;
 	struct fsl_qspi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	int ret, flash_num = 0, subnode;
 
 	if (fdtdec_get_bool(blob, node, "big-endian"))

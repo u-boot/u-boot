@@ -33,7 +33,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 	int ret;
 
 	debug("%s for '%s' at node offset: %d\n", __func__, pmic->name,
-	      pmic->of_offset);
+	      dev_of_offset(pmic));
 
 	for (node = fdt_first_subnode(blob, offset);
 	     node > 0;

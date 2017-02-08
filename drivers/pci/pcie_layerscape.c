@@ -438,7 +438,7 @@ static int ls_pcie_probe(struct udevice *dev)
 {
 	struct ls_pcie *pcie = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	u8 header_type;
 	u16 link_sta;
 	bool ep_mode;

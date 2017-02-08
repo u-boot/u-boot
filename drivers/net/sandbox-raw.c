@@ -26,7 +26,7 @@ static int sb_eth_raw_start(struct udevice *dev)
 
 	debug("eth_sandbox_raw: Start\n");
 
-	interface = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	interface = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 					    "host-raw-interface", NULL);
 	if (interface == NULL)
 		return -EINVAL;

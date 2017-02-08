@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int mvebu_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	const void *blob = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	struct mvebu_pinctrl_priv *priv;
 	u32 pin_arr[MVEBU_MAX_PINS_PER_BANK];
 	u32 function;
@@ -82,7 +82,7 @@ static int mvebu_pinctrl_set_state_all(struct udevice *dev,
 				       struct udevice *config)
 {
 	const void *blob = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	struct mvebu_pinctrl_priv *priv;
 	u32 func_arr[MVEBU_MAX_PINS_PER_BANK];
 	int pin, err;
@@ -128,7 +128,7 @@ static int mvebu_pinctrl_set_state_all(struct udevice *dev,
 int mvebu_pinctl_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	struct mvebu_pinctrl_priv *priv;
 
 	priv = dev_get_priv(dev);

@@ -94,14 +94,14 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
+	offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (offset == -1) {
 		debug("%s: Invalid register offset %d\n", __func__, offset);
 		return -EINVAL;
 	}
 	plat->offset = offset;
 	plat->base_addr = gpiobase + offset;
-	plat->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	plat->bank_name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 				      "bank-name", NULL);
 
 	return 0;

@@ -278,7 +278,7 @@ static bool regulator_name_is_unique(struct udevice *check_dev,
 static int regulator_post_bind(struct udevice *dev)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int offset = dev->of_offset;
+	int offset = dev_of_offset(dev);
 	const void *blob = gd->fdt_blob;
 	const char *property = "regulator-name";
 
@@ -308,7 +308,7 @@ static int regulator_post_bind(struct udevice *dev)
 static int regulator_pre_probe(struct udevice *dev)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int offset = dev->of_offset;
+	int offset = dev_of_offset(dev);
 
 	uc_pdata = dev_get_uclass_platdata(dev);
 	if (!uc_pdata)

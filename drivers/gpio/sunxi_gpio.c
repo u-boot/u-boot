@@ -312,7 +312,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 					plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
-		dev->of_offset = parent->of_offset;
+		dev_set_of_offset(dev, dev_of_offset(parent));
 	}
 
 	return 0;

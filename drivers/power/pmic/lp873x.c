@@ -49,7 +49,7 @@ static int lp873x_bind(struct udevice *dev)
 	int regulators_node;
 	const void *blob = gd->fdt_blob;
 	int children;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	regulators_node = fdt_subnode_offset(blob, node, "regulators");
 

@@ -405,7 +405,8 @@ static int xenon_sdhci_probe(struct udevice *dev)
 		armada_3700_soc_pad_voltage_set(host);
 
 	host->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_DDR_52MHz;
-	switch (fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width", 1)) {
+	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
+		1)) {
 	case 8:
 		host->host_caps |= MMC_MODE_8BIT;
 		break;
@@ -455,7 +456,7 @@ static int xenon_sdhci_ofdata_to_platdata(struct udevice *dev)
 	if (of_device_is_compatible(dev, "marvell,armada-3700-sdhci"))
 		priv->pad_ctrl_reg = (void *)dev_get_addr_index(dev, 1);
 
-	name = fdt_getprop(gd->fdt_blob, dev->of_offset, "marvell,pad-type",
+	name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "marvell,pad-type",
 			   NULL);
 	if (name) {
 		if (0 == strncmp(name, "sd", 2)) {

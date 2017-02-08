@@ -227,10 +227,10 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 
 int dm_scan_fdt_dev(struct udevice *dev)
 {
-	if (dev->of_offset == -1)
+	if (dev_of_offset(dev) == -1)
 		return 0;
 
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset,
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev_of_offset(dev),
 				gd->flags & GD_FLG_RELOC ? false : true);
 }
 

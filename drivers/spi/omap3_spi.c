@@ -627,7 +627,7 @@ static int omap3_spi_probe(struct udevice *dev)
 {
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	struct omap2_mcspi_platform_config* data =
 		(struct omap2_mcspi_platform_config*)dev_get_driver_data(dev);

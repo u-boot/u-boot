@@ -728,7 +728,8 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->iobase = dev_get_addr(dev);
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -737,19 +738,19 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	pdata->max_speed = 0;
-	cell = fdt_getprop(gd->fdt_blob, dev->of_offset, "max-speed", NULL);
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
 
 #ifdef CONFIG_DM_GPIO
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 			    "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
 	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
 		&priv->reset_gpio, reset_flags);
 	if (ret == 0) {
-		ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+		ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
 			"snps,reset-delays-us", dw_pdata->reset_delays, 3);
 	} else if (ret == -ENOENT) {
 		ret = 0;

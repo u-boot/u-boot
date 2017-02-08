@@ -256,8 +256,8 @@ static void initialize_vr_config(struct udevice *dev)
 	/* Set the slow ramp rate */
 	msr.hi &= ~(0x3 << (53 - 32));
 	/* Configure the C-state exit ramp rate */
-	ramp = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "intel,slow-ramp",
-			      -1);
+	ramp = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+			      "intel,slow-ramp", -1);
 	if (ramp != -1) {
 		/* Configured slow ramp rate */
 		msr.hi |= ((ramp & 0x3) << (53 - 32));
@@ -271,8 +271,8 @@ static void initialize_vr_config(struct udevice *dev)
 	}
 	/* Set MIN_VID (31:24) to allow CPU to have full control */
 	msr.lo &= ~0xff000000;
-	min_vid = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "intel,min-vid",
-				 0);
+	min_vid = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				 "intel,min-vid", 0);
 	msr.lo |= (min_vid & 0xff) << 24;
 	msr_write(MSR_VR_MISC_CONFIG, msr);
 
@@ -562,7 +562,7 @@ static void configure_thermal_target(struct udevice *dev)
 	int tcc_offset;
 	msr_t msr;
 
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				    "intel,tcc-offset", 0);
 
 	/* Set TCC activaiton offset if supported */

@@ -349,7 +349,7 @@ static int altera_qspi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *list, *end;
 	const fdt32_t *cell;
 	void *base;

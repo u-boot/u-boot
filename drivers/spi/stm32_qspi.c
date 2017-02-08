@@ -411,7 +411,7 @@ static int stm32_qspi_ofdata_to_platdata(struct udevice *bus)
 	struct fdt_resource res_regs, res_mem;
 	struct stm32_qspi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	int ret;
 
 	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",

@@ -132,7 +132,7 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 
 	plat->regs = (struct dw_spi *)dev_get_addr(bus);
 

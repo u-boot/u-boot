@@ -516,7 +516,7 @@ int sandbox_sf_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	pdata->filename = fdt_getprop(blob, node, "sandbox,filename", NULL);
 	pdata->device_name = fdt_getprop(blob, node, "compatible", NULL);
@@ -641,7 +641,7 @@ int sandbox_spi_get_emul(struct sandbox_state *state,
 		debug("%s: busnum=%u, cs=%u: binding SPI flash emulation: ",
 		      __func__, busnum, cs);
 		ret = sandbox_sf_bind_emul(state, busnum, cs, bus,
-					   slave->of_offset, slave->name);
+					   dev_of_offset(slave), slave->name);
 		if (ret) {
 			debug("failed (err=%d)\n", ret);
 			return ret;

@@ -242,7 +242,7 @@ static int at91_i2c_ofdata_to_platdata(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	bus->regs = (struct at91_i2c_regs *)dev_get_addr(dev);
 	bus->pdata = (struct at91_i2c_pdata *)dev_get_driver_data(dev);

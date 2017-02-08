@@ -38,7 +38,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct clk clk;
 
 
-	max_frequency = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	max_frequency = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 			"max-frequency", 0);
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (!ret) {

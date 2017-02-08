@@ -247,7 +247,7 @@ static int s5p_sdhci_probe(struct udevice *dev)
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
 
-	ret = sdhci_get_config(gd->fdt_blob, dev->of_offset, host);
+	ret = sdhci_get_config(gd->fdt_blob, dev_of_offset(dev), host);
 	if (ret)
 		return ret;
 

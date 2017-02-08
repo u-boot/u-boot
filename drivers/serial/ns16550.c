@@ -383,13 +383,13 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		int ret;
 
 		/* we prefer to use a memory-mapped register */
-		ret = fdtdec_get_pci_addr(gd->fdt_blob, dev->of_offset,
+		ret = fdtdec_get_pci_addr(gd->fdt_blob, dev_of_offset(dev),
 					  FDT_PCI_SPACE_MEM32, "reg",
 					  &pci_addr);
 		if (ret) {
 			/* try if there is any i/o-mapped register */
 			ret = fdtdec_get_pci_addr(gd->fdt_blob,
-						  dev->of_offset,
+						  dev_of_offset(dev),
 						  FDT_PCI_SPACE_IO,
 						  "reg", &pci_addr);
 			if (ret)
@@ -413,9 +413,9 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->base = (unsigned long)map_physmem(addr, 0, MAP_NOCACHE);
 #endif
 
-	plat->reg_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->reg_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				     "reg-offset", 0);
-	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "reg-shift", 0);
 
 	err = clk_get_by_index(dev, 0, &clk);
@@ -429,7 +429,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (!plat->clock)
-		plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+		plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					     "clock-frequency",
 					     CONFIG_SYS_NS16550_CLK);
 	if (!plat->clock) {

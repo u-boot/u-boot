@@ -696,7 +696,7 @@ static void config_clock(const u32 timing[])
 static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *phy, *mode;
 
 	config->reg = (struct usb_ctlr *)dev_get_addr(dev);

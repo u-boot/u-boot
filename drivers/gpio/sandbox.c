@@ -197,9 +197,9 @@ static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					     "num-gpios", 0);
-	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 					 "gpio-bank-name", NULL);
 
 	return 0;
@@ -209,7 +209,7 @@ static int gpio_sandbox_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	if (dev->of_offset == -1) {
+	if (dev_of_offset(dev) == -1) {
 		/* Tell the uclass how many GPIOs we have */
 		uc_priv->gpio_count = CONFIG_SANDBOX_GPIO_COUNT;
 	}

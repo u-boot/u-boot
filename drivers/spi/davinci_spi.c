@@ -540,7 +540,7 @@ static int davinci_ofdata_to_platadata(struct udevice *bus)
 {
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 
 	ds->regs = dev_map_physmem(bus, sizeof(struct davinci_spi_regs));
 	if (!ds->regs) {

@@ -109,7 +109,7 @@ static int atmel_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct atmel_pio4_port *bank_base;
 	const void *blob = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	u32 offset, func, bank, line;
 	u32 cells[MAX_PINMUX_ENTRIES];
 	u32 i, conf;

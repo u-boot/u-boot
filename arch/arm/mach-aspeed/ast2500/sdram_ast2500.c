@@ -392,7 +392,7 @@ static int ast2500_sdrammc_ofdata_to_platdata(struct udevice *dev)
 	priv->regs = regmap_get_range(map, 0);
 	priv->phy = regmap_get_range(map, 1);
 
-	priv->clock_rate = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	priv->clock_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					  "clock-frequency", 0);
 
 	if (!priv->clock_rate) {

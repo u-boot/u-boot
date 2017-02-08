@@ -75,7 +75,7 @@ static int ar933x_pinctrl_get_periph_id(struct udevice *dev,
 	u32 cell[2];
 	int ret;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, periph->of_offset,
+	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(periph),
 				   "interrupts", cell, ARRAY_SIZE(cell));
 	if (ret < 0)
 		return -EINVAL;

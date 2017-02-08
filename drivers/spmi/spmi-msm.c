@@ -147,18 +147,14 @@ static int msm_spmi_probe(struct udevice *dev)
 {
 	struct udevice *parent = dev->parent;
 	struct msm_spmi_priv *priv = dev_get_priv(dev);
+	int node = dev_of_offset(dev);
 	int i;
 
 	priv->arb_chnl = dev_get_addr(dev);
 	priv->spmi_core = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-							   parent->of_offset,
-							   dev->of_offset,
-							   "reg", 1, NULL,
-							   false);
+			dev_of_offset(parent), node, "reg", 1, NULL, false);
 	priv->spmi_obs = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-							  parent->of_offset,
-							  dev->of_offset, "reg",
-							  2, NULL, false);
+			dev_of_offset(parent), node, "reg", 2, NULL, false);
 	if (priv->arb_chnl == FDT_ADDR_T_NONE ||
 	    priv->spmi_core == FDT_ADDR_T_NONE ||
 	    priv->spmi_obs == FDT_ADDR_T_NONE)

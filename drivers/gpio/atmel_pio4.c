@@ -276,7 +276,7 @@ static const struct dm_gpio_ops atmel_pio4_ops = {
 
 static int atmel_pio4_bind(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev_of_offset(dev), false);
 }
 
 static int atmel_pio4_probe(struct udevice *dev)
@@ -308,7 +308,8 @@ static int atmel_pio4_probe(struct udevice *dev)
 	pioctrl_data = (struct atmel_pioctrl_data *)dev_get_driver_data(dev);
 	nbanks = pioctrl_data->nbanks;
 
-	uc_priv->bank_name = fdt_get_name(gd->fdt_blob, dev->of_offset, NULL);
+	uc_priv->bank_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev),
+					  NULL);
 	uc_priv->gpio_count = nbanks * ATMEL_PIO_NPINS_PER_BANK;
 
 	return 0;

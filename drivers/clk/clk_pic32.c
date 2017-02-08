@@ -330,7 +330,7 @@ static void pic32_clk_init(struct udevice *dev)
 	for (i = REF1CLK; i <= REF5CLK; i++) {
 		snprintf(propname, sizeof(propname),
 			 "microchip,refo%d-frequency", i - REF1CLK + 1);
-		rate = fdtdec_get_int(blob, dev->of_offset, propname, 0);
+		rate = fdtdec_get_int(blob, dev_of_offset(dev), propname, 0);
 		if (rate)
 			pic32_set_refclk(priv, i, pll_hz, rate, ROCLK_SRC_SPLL);
 	}
@@ -393,7 +393,8 @@ static int pic32_clk_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t size;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
+				    &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

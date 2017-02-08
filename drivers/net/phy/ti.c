@@ -167,13 +167,13 @@ static int dp83867_of_init(struct phy_device *phydev)
 	struct dp83867_private *dp83867 = phydev->priv;
 	struct udevice *dev = phydev->dev;
 
-	dp83867->rx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+	dp83867->rx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 				 "ti,rx-internal-delay", -1);
 
-	dp83867->tx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+	dp83867->tx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 				 "ti,tx-internal-delay", -1);
 
-	dp83867->fifo_depth = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+	dp83867->fifo_depth = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 				 "ti,fifo-depth", -1);
 
 	return 0;

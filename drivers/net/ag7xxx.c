@@ -857,7 +857,7 @@ static int ag7xxx_get_phy_iface_offset(struct udevice *dev)
 {
 	int offset;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset, "phy");
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev), "phy");
 	if (offset <= 0) {
 		debug("%s: PHY OF node not found (ret=%i)\n", __func__, offset);
 		return -EINVAL;

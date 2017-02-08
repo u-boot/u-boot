@@ -522,7 +522,7 @@ int cros_ec_probe(struct udevice *dev)
 	int err;
 
 	memcpy(ec, &s_state, sizeof(*ec));
-	err = cros_ec_decode_ec_flash(blob, dev->of_offset, &ec->ec_config);
+	err = cros_ec_decode_ec_flash(blob, dev_of_offset(dev), &ec->ec_config);
 	if (err)
 		return err;
 
@@ -531,7 +531,7 @@ int cros_ec_probe(struct udevice *dev)
 	     keyb_dev;
 	     device_find_next_child(&keyb_dev)) {
 		if (device_get_uclass_id(keyb_dev) == UCLASS_KEYBOARD) {
-			node = keyb_dev->of_offset;
+			node = dev_of_offset(keyb_dev);
 			break;
 		}
 	}

@@ -187,7 +187,7 @@ static int ich6_pinctrl_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	for (pin_node = fdt_first_subnode(gd->fdt_blob, dev->of_offset);
+	for (pin_node = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
 	     pin_node > 0;
 	     pin_node = fdt_next_subnode(gd->fdt_blob, pin_node)) {
 		/* Configure the pin */

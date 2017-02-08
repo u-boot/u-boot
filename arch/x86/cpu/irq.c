@@ -96,7 +96,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 	int i;
 	int ret;
 
-	node = dev->of_offset;
+	node = dev_of_offset(dev);
 
 	/* extract the bdf from fdt_pci_addr */
 	priv->bdf = dm_pci_get_bdf(dev->parent);

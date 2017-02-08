@@ -1611,7 +1611,7 @@ static int mvneta_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	struct mii_dev *bus;
 	unsigned long addr;
 	void *bd_space;
@@ -1691,7 +1691,8 @@ static int mvneta_ofdata_to_platdata(struct udevice *dev)
 
 	/* Get phy-mode / phy_interface from DT */
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {

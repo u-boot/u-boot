@@ -682,13 +682,14 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
+	int node = dev_of_offset(dev);
 	int offset = 0;
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
 	priv->iobase = (struct axi_regs *)pdata->iobase;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
 				       "axistream-connected");
 	if (offset <= 0) {
 		printf("%s: axistream is not found\n", __func__);
@@ -705,12 +706,11 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 
 	priv->phyaddr = -1;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
-				       "phy-handle");
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
 	if (offset > 0)
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {

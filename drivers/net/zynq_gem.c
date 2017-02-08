@@ -345,7 +345,7 @@ static int zynq_phy_init(struct udevice *dev)
 	priv->phydev->advertising = priv->phydev->supported;
 
 	if (priv->phy_of_handle > 0)
-		priv->phydev->dev->of_offset = priv->phy_of_handle;
+		dev_set_of_offset(priv->phydev->dev, priv->phy_of_handle);
 
 	return phy_config(priv->phydev);
 }
@@ -684,6 +684,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int node = dev_of_offset(dev);
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
@@ -692,13 +693,13 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->emio = 0;
 	priv->phyaddr = -1;
 
-	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob,
-					dev->of_offset, "phy-handle");
+	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, node,
+						    "phy-handle");
 	if (priv->phy_of_handle > 0)
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
 					priv->phy_of_handle, "reg", -1);
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -707,7 +708,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
+	priv->emio = fdtdec_get_bool(gd->fdt_blob, node, "xlnx,emio");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));

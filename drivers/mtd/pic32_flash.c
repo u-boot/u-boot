@@ -371,7 +371,7 @@ static void pic32_flash_bank_init(flash_info_t *info,
 static int pic32_flash_probe(struct udevice *dev)
 {
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *list, *end;
 	const fdt32_t *cell;
 	unsigned long addr, size;

@@ -775,11 +775,11 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 	if (!dev->base)
 		return -ENOMEM;
 
-	dev->index = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->index = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				    "cell-index", -1);
-	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				       "u-boot,i2c-slave-addr", 0x0);
-	dev->speed = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->speed = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				    "clock-frequency", 100000);
 	return 0;
 }

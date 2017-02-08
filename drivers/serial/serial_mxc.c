@@ -359,7 +359,7 @@ static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->reg = (struct mxc_uart *)addr;
 
-	plat->use_dte = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	plat->use_dte = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					"fsl,dte-mode");
 	return 0;
 }

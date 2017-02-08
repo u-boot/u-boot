@@ -998,7 +998,7 @@ int cros_ec_register(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	char id[MSG_BYTES];
 
 	cdev->dev = dev;

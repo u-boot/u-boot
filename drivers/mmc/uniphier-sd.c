@@ -705,7 +705,8 @@ static int uniphier_sd_probe(struct udevice *dev)
 	plat->cfg.name = dev->name;
 	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
-	switch (fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width", 1)) {
+	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
+			       1)) {
 	case 8:
 		plat->cfg.host_caps |= MMC_MODE_8BIT;
 		break;
@@ -719,7 +720,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "non-removable",
+	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "non-removable",
 			     NULL))
 		priv->caps |= UNIPHIER_SD_CAP_NONREMOVABLE;
 

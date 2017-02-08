@@ -37,9 +37,9 @@ static int testfdt_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dm_test_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"ping-add", -1);
-	pdata->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset,
+	pdata->base = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev),
 				      "ping-expect");
 
 	return 0;
@@ -121,10 +121,10 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 		 * want to test the code that sets that up
 		 * (testfdt_drv_probe()).
 		 */
-		base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset,
+		base = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev),
 				       "ping-expect");
 		debug("dev=%d, base=%d: %s\n", i, base,
-		      fdt_get_name(gd->fdt_blob, dev->of_offset, NULL));
+		      fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL));
 
 		ut_assert(!dm_check_operations(uts, dev, base,
 					       dev_get_priv(dev)));

@@ -49,7 +49,7 @@ static int palmas_bind(struct udevice *dev)
 	int pmic_node = -1, regulators_node;
 	const void *blob = gd->fdt_blob;
 	int children;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int subnode, len;
 
 	fdt_for_each_subnode(subnode, blob, node) {

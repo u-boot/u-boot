@@ -112,19 +112,19 @@ static int tegra186_bpmp_bind(struct udevice *dev)
 	debug("%s(dev=%p)\n", __func__, dev);
 
 	ret = device_bind_driver_to_node(dev, "tegra186_clk", "tegra186_clk",
-					 dev->of_offset, &child);
+					 dev_of_offset(dev), &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_reset",
-					 "tegra186_reset", dev->of_offset,
+					 "tegra186_reset", dev_of_offset(dev),
 					 &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_power_domain",
 					 "tegra186_power_domain",
-					 dev->of_offset, &child);
+					 dev_of_offset(dev), &child);
 	if (ret)
 		return ret;
 
@@ -141,7 +141,7 @@ static ulong tegra186_bpmp_get_shmem(struct udevice *dev, int index)
 	struct fdtdec_phandle_args args;
 	fdt_addr_t reg;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					      "shmem", NULL, 0, index, &args);
 	if (ret < 0) {
 		error("fdtdec_parse_phandle_with_args() failed: %d\n", ret);

@@ -290,7 +290,7 @@ static int tegra_kbd_probe(struct udevice *dev)
 	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stdio_dev *sdev = &uc_priv->sdev;
 	struct input_config *input = &uc_priv->input;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	priv->kbc = (struct kbc_tegra *)dev_get_addr(dev);

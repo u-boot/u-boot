@@ -28,7 +28,7 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 	struct fixed_regulator_platdata *dev_pdata;
 	struct gpio_desc *gpio;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset, flags = GPIOD_IS_OUT;
+	int node = dev_of_offset(dev), flags = GPIOD_IS_OUT;
 	int ret;
 
 	dev_pdata = dev_get_platdata(dev);
@@ -54,7 +54,7 @@ static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
 
 	/* Get optional ramp up delay */
 	dev_pdata->startup_delay_us = fdtdec_get_uint(gd->fdt_blob,
-						      dev->of_offset,
+						      dev_of_offset(dev),
 						      "startup-delay-us", 0);
 
 	return 0;

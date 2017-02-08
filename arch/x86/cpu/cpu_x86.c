@@ -17,7 +17,7 @@ int cpu_x86_bind(struct udevice *dev)
 	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
 	struct cpuid_result res;
 
-	plat->cpu_id = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->cpu_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				      "intel,apic-id", -1);
 	plat->family = gd->arch.x86;
 	res = cpuid(1);
