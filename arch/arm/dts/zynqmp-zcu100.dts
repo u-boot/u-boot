@@ -341,7 +341,6 @@
 				};
 	       		};
 			*/
-
 		};
 		i2csw_5: i2c@5 { /* i2c mw 75 0 20 */
 			#address-cells = <1>;
@@ -354,9 +353,6 @@
 				shunt-resistor = <10000>;
 				/* MIO31 is alert which should be routed to PMUFW */
 			};
-
-
-
 		};
 		i2csw_6: i2c@6 { /* i2c mw 75 0 40 */
 			#address-cells = <1>;
