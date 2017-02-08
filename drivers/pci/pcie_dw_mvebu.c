@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <asm-generic/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -461,6 +462,25 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc reset_gpio;
+
+	gpio_request_by_name(dev, "marvell,reset-gpio", 0, &reset_gpio,
+			     GPIOD_IS_OUT);
+	/*
+	 * Issue reset to add-in card trough the dedicated GPIO.
+	 * Some boards are connecting the card reset pin to common system
+	 * reset wire and others are using separate GPIO port.
+	 * In the last case we have to release a reset of the addon card
+	 * using this GPIO.
+	 */
+	if (dm_gpio_is_valid(&reset_gpio)) {
+		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(200);
+	}
+#else
+	debug("PCIE Reset on GPIO support is missing\n");
+#endif /* CONFIG_DM_GPIO */
 
 	pcie->first_busno = dev->seq;
 
