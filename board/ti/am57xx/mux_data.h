@@ -212,7 +212,7 @@ const struct pad_conf_entry core_padconf_array_essential_x15[] = {
 	{MCASP5_FSX, (M3 | PIN_OUTPUT_PULLDOWN)},	/* mcasp5_fsx.uart9_txd */
 	{MCASP5_AXR0, (M3 | PIN_INPUT_PULLDOWN)},	/* mcasp5_axr0.uart9_ctsn */
 	{MCASP5_AXR1, (M3 | PIN_OUTPUT_PULLUP)},	/* mcasp5_axr1.uart9_rtsn */
-	{MMC1_CLK, (M0 | PIN_OUTPUT_PULLUP)},	/* mmc1_clk.mmc1_clk */
+	{MMC1_CLK, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_clk.mmc1_clk */
 	{MMC1_CMD, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_cmd.mmc1_cmd */
 	{MMC1_DAT0, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat0.mmc1_dat0 */
 	{MMC1_DAT1, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat1.mmc1_dat1 */
@@ -221,7 +221,7 @@ const struct pad_conf_entry core_padconf_array_essential_x15[] = {
 	{MMC1_SDCD, (M14 | PIN_INPUT_PULLUP)},	/* mmc1_sdcd.gpio6_27 */
 	{GPIO6_10, (M10 | PIN_OUTPUT_PULLDOWN)},	/* gpio6_10.ehrpwm2A */
 	{GPIO6_11, (M0 | PIN_INPUT_PULLUP)},	/* gpio6_11.gpio6_11 */
-	{MMC3_CLK, (M0 | PIN_OUTPUT_PULLUP | MANUAL_MODE)},	/* mmc3_clk.mmc3_clk */
+	{MMC3_CLK, (M0 | PIN_INPUT_PULLUP | MANUAL_MODE)},	/* mmc3_clk.mmc3_clk */
 	{MMC3_CMD, (M0 | PIN_INPUT_PULLUP | MANUAL_MODE)},	/* mmc3_cmd.mmc3_cmd */
 	{MMC3_DAT0, (M0 | PIN_INPUT_PULLUP | MANUAL_MODE)},	/* mmc3_dat0.mmc3_dat0 */
 	{MMC3_DAT1, (M0 | PIN_INPUT_PULLUP | MANUAL_MODE)},	/* mmc3_dat1.mmc3_dat1 */
