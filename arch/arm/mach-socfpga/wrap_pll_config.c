@@ -116,6 +116,9 @@ static const struct cm_config cm_default_cfg = {
 		CLKMGR_SDRPLLGRP_S2FUSER2CLK_PHASE_OFFSET) |
 	(CONFIG_HPS_SDRPLLGRP_S2FUSER2CLK_CNT <<
 		CLKMGR_SDRPLLGRP_S2FUSER2CLK_CNT_OFFSET),
+
+	/* altera group */
+	CONFIG_HPS_ALTERAGRP_MPUCLK,
 };
 
 const struct cm_config * const cm_get_default_config(void)

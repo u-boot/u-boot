@@ -55,6 +55,9 @@ struct cm_config {
 	uint32_t ddr2xdqsclk;
 	uint32_t ddrdqclk;
 	uint32_t s2fuser2clk;
+
+	/* altera group */
+	uint32_t altera_grp_mpuclk;
 };
 
 void cm_basic_init(const struct cm_config * const cfg);
