@@ -38,11 +38,11 @@
  * in boot ROM of the SoC.
  * The feature is only applicable in case of NOR boot and is
  * not applicable in case of RAMBOOT (NAND, SD, SPI).
+ * For LS, this feature is available for all device if IE Table
+ * is copied to XIP memory
+ * Also, for LS, ISBC doesn't verify this table.
  */
-#ifndef CONFIG_ESBC_HDR_LS
-/* Current Key EXT feature not available in LS ESBC Header */
 #define CONFIG_FSL_ISBC_KEY_EXT
-#endif
 
 #endif
 
