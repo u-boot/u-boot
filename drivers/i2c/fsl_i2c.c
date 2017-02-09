@@ -53,6 +53,7 @@ static const struct fsl_i2c_base *i2c_base[4] = {
 
 /* I2C speed map for a DFSR value of 1 */
 
+#ifdef __M68K__
 /*
  * Map I2C frequency dividers to FDR and DFSR values
  *
@@ -84,7 +85,6 @@ static const struct {
 	unsigned short divider;
 	u8 fdr;
 } fsl_i2c_speed_map[] = {
-#ifdef __M68K__
 	{20, 32}, {22, 33}, {24, 34}, {26, 35},
 	{28, 0}, {28, 36}, {30, 1}, {32, 37},
 	{34, 2}, {36, 38}, {40, 3}, {40, 39},
@@ -102,8 +102,8 @@ static const struct {
 	{1536, 61}, {1792, 62}, {1920, 27}, {2048, 63},
 	{2304, 28}, {2560, 29}, {3072, 30}, {3840, 31},
 	{-1, 31}
-#endif
 };
+#endif
 
 /**
  * Set the I2C bus speed for a given I2C device
