@@ -37,8 +37,10 @@
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #endif
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+#include <asm/arch/mux.h>
+#endif
 #include <dm.h>
-#include <asm/arch-omap3/mux.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
