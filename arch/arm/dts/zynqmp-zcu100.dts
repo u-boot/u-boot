@@ -339,7 +339,7 @@
 						regulator-always-on;
 					};
 				};
-	       		};
+			};
 			*/
 		};
 		i2csw_5: i2c@5 { /* i2c mw 75 0 20 */

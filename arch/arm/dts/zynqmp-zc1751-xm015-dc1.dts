@@ -191,7 +191,6 @@
 	snps,usb3_lpm_capable;
 	phy-names = "usb3-phy";
 	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
-	dr_mode = "host";
 };
 
 &xilinx_drm {
