@@ -42,6 +42,10 @@ envcrc-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
 HOSTCFLAGS_gen_eth_addr.o := -pedantic
 
+hostprogs-$(CONFIG_CMD_NET) += gen_ethaddr_crc
+gen_ethaddr_crc-objs := gen_ethaddr_crc.o lib/crc8.o
+HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
+
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
 
@@ -195,6 +199,7 @@ fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.
 HOSTCFLAGS_crc32.o := -pedantic
+HOSTCFLAGS_crc8.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic

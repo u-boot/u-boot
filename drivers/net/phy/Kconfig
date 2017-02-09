@@ -1,0 +1,93 @@
+
+config BITBANGMII
+	bool "Bit-banged ethernet MII management channel support"
+
+config MV88E6352_SWITCH
+	bool "Marvell 88E6352 switch support"
+
+menuconfig PHYLIB
+	bool "Ethernet PHY (physical media interface) support"
+	help
+	  Enable Ethernet PHY (physical media interface) support.
+
+if PHYLIB
+
+config MV88E61XX_SWITCH
+	bool "Marvel MV88E61xx Ethernet switch PHY support."
+
+config PHYLIB_10G
+	bool "Generic 10G PHY support"
+
+config PHY_AQUANTIA
+	bool "Aquantia Ethernet PHYs support"
+
+config PHY_ATHEROS
+	bool "Atheros Ethernet PHYs support"
+
+config PHY_BROADCOM
+	bool "Broadcom Ethernet PHYs support"
+
+config PHY_CORTINA
+	bool "Cortina Ethernet PHYs support"
+
+config PHY_DAVICOM
+	bool "Davicom Ethernet PHYs support"
+
+config PHY_ET1011C
+	bool "LSI TruePHY ET1011C support"
+
+config PHY_LXT
+	bool "LXT971 Ethernet PHY support"
+
+config PHY_MARVELL
+	bool "Marvell Ethernet PHYs support"
+
+config PHY_MICREL
+	bool "Micrel Ethernet PHYs support"
+
+config PHY_MSCC
+	bool "Microsemi Corp Ethernet PHYs support"
+
+config PHY_NATSEMI
+	bool "National Semiconductor Ethernet PHYs support"
+
+config PHY_REALTEK
+	bool "Realtek Ethernet PHYs support"
+
+config RTL8211X_PHY_FORCE_MASTER
+	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"
+	depends on PHY_REALTEK
+	help
+	  Force master mode for 1000BASE-T on RTl8211x PHYs (except for RTL8211F).
+	  This can work around link stability and data corruption issues on gigabit
+	  links which can occur in slave mode on certain PHYs, e.g. on the
+	  RTL8211C(L).
+
+	  Please note that two directly connected devices (i.e. via crossover cable)
+	  will not be able to establish a link between each other if they both force
+	  master mode. Multiple devices forcing master mode when connected by a
+	  network switch do not pose a problem as the switch configures its affected
+	  ports into slave mode.
+
+	  This option only affects gigabit links. If you must establish a direct
+	  connection between two devices which both force master mode, try forcing
+	  the link speed to 100MBit/s.
+
+	  If unsure, say N.
+
+config PHY_SMSC
+	bool  "Microchip(SMSC) Ethernet PHYs support"
+
+config PHY_TERANETICS
+	bool "Teranetics Ethernet PHYs support"
+
+config PHY_TI
+	bool "Texas Instruments Ethernet PHYs support"
+
+config PHY_VITESSE
+	bool "Vitesse Ethernet PHYs support"
+
+config PHY_XILINX
+	bool "Xilinx Ethernet PHYs support"
+
+endif #PHYLIB
