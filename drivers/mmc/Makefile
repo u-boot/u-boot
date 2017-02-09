@@ -24,7 +24,6 @@ obj-$(CONFIG_MMC_DW_ROCKCHIP)		+= rockchip_dw_mmc.o
 obj-$(CONFIG_MMC_DW_SOCFPGA)		+= socfpga_dw_mmc.o
 obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
-obj-$(CONFIG_FTSDC021) += ftsdc021_sdhci.o
 obj-$(CONFIG_GENERIC_MMC) += mmc.o
 ifdef CONFIG_SUPPORT_EMMC_BOOT
 obj-$(CONFIG_GENERIC_MMC) += mmc_boot.o

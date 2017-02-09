@@ -13,6 +13,8 @@
 #include <dm/root.h>
 #include "mmc_private.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_DM_MMC_OPS
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
@@ -192,10 +194,15 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 {
 	struct blk_desc *bdesc;
 	struct udevice *bdev;
-	int ret;
+	int ret, devnum = -1;
 
-	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC, -1, 512,
-				 0, &bdev);
+#ifndef CONFIG_SPL_BUILD
+	/* Use the fixed index with aliase node's index */
+	fdtdec_get_alias_seq(gd->fdt_blob, "mmc", dev->of_offset, &devnum);
+#endif
+
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
+			devnum, 512, 0, &bdev);
 	if (ret) {
 		debug("Cannot create block device\n");
 		return ret;
@@ -247,6 +254,17 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	return mmc_switch_part(mmc, hwpart);
 }
 
+static int mmc_blk_probe(struct udevice *dev)
+{
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	int dev_num = block_dev->devnum;
+	struct mmc *mmc = find_mmc_device(dev_num);
+
+	if (!mmc)
+		return -ENODEV;
+	return mmc_init(mmc);
+}
+
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
 #ifndef CONFIG_SPL_BUILD
@@ -260,6 +278,7 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.name		= "mmc_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
+	.probe		= mmc_blk_probe,
 };
 #endif /* CONFIG_BLK */
 
