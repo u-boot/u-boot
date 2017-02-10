@@ -42,7 +42,7 @@
  * Hardware drivers
  */
 #define CONFIG_SYS_NS16550_CLK		48000000
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
+#if !defined(CONFIG_DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #endif
@@ -160,14 +160,8 @@
 #define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
 #endif
 
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
-#undef CONFIG_DM_ETH
 #endif
 
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */
