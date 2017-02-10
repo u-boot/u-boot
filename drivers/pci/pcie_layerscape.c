@@ -409,6 +409,11 @@ static void ls_pcie_ep_setup_bars(void *bar_base)
 	ls_pcie_ep_setup_bar(bar_base, 4, PCIE_BAR4_SIZE);
 }
 
+static void ls_pcie_ep_enable_cfg(struct ls_pcie *pcie)
+{
+	ctrl_writel(pcie, PCIE_CONFIG_READY, PCIE_PF_CONFIG);
+}
+
 static void ls_pcie_setup_ep(struct ls_pcie *pcie)
 {
 	u32 sriov;
@@ -432,6 +437,8 @@ static void ls_pcie_setup_ep(struct ls_pcie *pcie)
 		ls_pcie_ep_setup_bars(pcie->dbi + PCIE_NO_SRIOV_BAR_BASE);
 		ls_pcie_ep_setup_atu(pcie);
 	}
+
+	ls_pcie_ep_enable_cfg(pcie);
 }
 
 static int ls_pcie_probe(struct udevice *dev)

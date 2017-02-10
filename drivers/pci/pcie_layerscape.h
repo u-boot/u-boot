@@ -94,8 +94,10 @@
 #define PCIE_LUT_ENTRY_COUNT	32
 
 /* PF Controll registers */
+#define PCIE_PF_CONFIG		0x14
 #define PCIE_PF_VF_CTRL		0x7F8
 #define PCIE_PF_DBG		0x7FC
+#define PCIE_CONFIG_READY	(1 << 0)
 
 #define PCIE_SRDS_PRTCL(idx)	(PCIE1 + (idx))
 #define PCIE_SYS_BASE_ADDR	0x3400000
