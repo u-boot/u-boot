@@ -136,4 +136,10 @@ config MINI_NAND
 config SPI_GENERIC
 	bool
 
+config ZYNQ_I2C0
+	bool "Xilinx I2C0 controller"
+
+config ZYNQ_I2C1
+	bool "Xilinx I2C1 controller"
+
 endif

@@ -11,7 +11,6 @@
 #define __CONFIG_ZYNQMP_ZCU100_H
 
 /* FIXME Will go away soon */
-#define CONFIG_ZYNQ_I2C1
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_NUM_I2C_BUSES	9
 #define CONFIG_SYS_I2C_BUSES	{ \
