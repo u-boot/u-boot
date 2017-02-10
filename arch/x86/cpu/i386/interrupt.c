@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	".type irq_"#x", @function\n" \
 	"irq_"#x":\n" \
 	"pushl $"#x"\n" \
-	"jmp irq_common_entry\n"
+	"jmp.d32 irq_common_entry\n"
 
 static char *exceptions[] = {
 	"Divide Error",
