@@ -23,6 +23,7 @@
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 #endif
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -455,6 +456,9 @@ static void rpi_disable_inactive_uart(void)
 
 int board_init(void)
 {
+#ifdef CONFIG_HW_WATCHDOG
+	hw_watchdog_init();
+#endif
 #ifndef CONFIG_PL01X_SERIAL
 	rpi_disable_inactive_uart();
 #endif
