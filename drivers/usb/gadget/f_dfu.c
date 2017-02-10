@@ -159,7 +159,7 @@ static void dnload_request_complete(struct usb_ep *ep, struct usb_request *req)
 	int ret;
 
 	ret = dfu_write(dfu_get_entity(f_dfu->altsetting), req->buf,
-			req->length, f_dfu->blk_seq_num);
+			req->actual, f_dfu->blk_seq_num);
 	if (ret) {
 		f_dfu->dfu_status = DFU_STATUS_errUNKNOWN;
 		f_dfu->dfu_state = DFU_STATE_dfuERROR;
