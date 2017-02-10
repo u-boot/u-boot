@@ -94,7 +94,6 @@
 
 &gem2 {
 	status = "okay";
-	local-mac-address = [00 0a 35 00 02 90];
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
 	phy0: phy@5 {
