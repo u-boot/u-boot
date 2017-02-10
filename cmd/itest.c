@@ -80,7 +80,8 @@ static long evalexp(char *s, int w)
 		l = simple_strtoul(s, NULL, 16);
 	}
 
-	return l & ((1UL << (w * 8)) - 1);
+	/* avoid overflow on mask calculus */
+	return (w >= sizeof(long)) ? l : (l & ((1UL << (w * 8)) - 1));
 }
 
 static char * evalstr(char *s)
