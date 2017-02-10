@@ -116,11 +116,6 @@
 #define CONFIG_SYS_SPI_ARGS_OFFS        0x140000
 #define CONFIG_SYS_SPI_ARGS_SIZE        0x80000
 
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
-
 /* SPI SPL */
 #define CONFIG_TI_EDMA3
 #define CONFIG_SPL_SPI_LOAD
