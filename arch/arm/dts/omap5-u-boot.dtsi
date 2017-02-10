@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ * Based on "dra7.dtsi"
+ */
+
+/{
+	ocp {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart3 {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc2 {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_cfg {
+	u-boot,dm-pre-reloc;
+};
+
+&scm {
+	u-boot,dm-pre-reloc;
+};
+
+&scm_conf {
+	u-boot,dm-pre-reloc;
+};
+
+&qspi {
+	u-boot,dm-pre-reloc;
+
+	m25p80@0 {
+		u-boot,dm-pre-reloc;
+	};
+};
