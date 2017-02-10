@@ -161,6 +161,7 @@ static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
 	u32 sec_mem_start = CONFIG_TI_SECURE_EMIF_REGION_START;
 	u32 sec_mem_size = CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE;
 	fdt64_t temp[2];
+	fdt32_t two;
 
 	/* If start address is zero, place at end of DRAM */
 	if (0 == sec_mem_start)
@@ -181,7 +182,7 @@ static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
 		debug("Node %s not found\n", path);
 		path = "/";
 		subpath = "reserved-memory";
-		fdt_path_offset(fdt, path);
+		offs = fdt_path_offset(fdt, path);
 		offs = fdt_add_subnode(fdt, offs, subpath);
 		if (offs < 0) {
 			printf("Could not create %s%s node.\n", path, subpath);
@@ -189,6 +190,10 @@ static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
 		}
 		path = "/reserved-memory";
 		offs = fdt_path_offset(fdt, path);
+		two = cpu_to_fdt32(2);
+		fdt_setprop(fdt, offs, "#address-cells", &two, sizeof(two));
+		fdt_setprop(fdt, offs, "#size-cells", &two, sizeof(two));
+		fdt_setprop(fdt, offs, "ranges", NULL, 0);
 	}
 
 	subpath = "secure_reserved";
