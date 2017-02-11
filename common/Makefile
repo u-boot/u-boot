@@ -67,7 +67,7 @@ endif
 # others
 obj-$(CONFIG_BOOTSTAGE) += bootstage.o
 obj-$(CONFIG_CONSOLE_MUX) += iomux.o
-obj-y += flash.o
+obj-$(CONFIG_MTD_NOR_FLASH) += flash.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
 obj-$(CONFIG_I2C_EDID) += edid.o
 obj-$(CONFIG_KALLSYMS) += kallsyms.o
