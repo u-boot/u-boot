@@ -96,6 +96,20 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	  Address on the MMC to load U-Boot from, when the MMC is being used
 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	bool "MMC Raw mode: by partition"
+	depends on SPL
+	help
+	  Use a partition for loading U-Boot when using MMC/SD in raw mode.
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+	hex "Partition to use to load U-Boot from"
+	depends on SPL && SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	default 1
+	help
+	  Partition on the MMC to load U-Boot from when the MMC is being
+	  used in raw mode
+
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	bool "MMC raw mode: by partition type"
 	depends on SPL && DOS_PARTITION && \

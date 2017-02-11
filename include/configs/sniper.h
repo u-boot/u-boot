@@ -115,8 +115,6 @@
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	2
-
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME			"u-boot.img"
 

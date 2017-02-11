@@ -310,8 +310,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	2
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
-#else
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	1
 #endif
 #endif
 
