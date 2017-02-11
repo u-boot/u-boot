@@ -132,28 +132,7 @@ config SYS_I2C_SANDBOX
 	help
 	  Enable I2C support for sandbox. This is an emulation of a real I2C
 	  bus. Devices can be attached to the bus using the device tree
-	  which specifies the driver to use. As an example, see this device
-	  tree fragment from sandbox.dts. It shows that the I2C bus has a
-	  single EEPROM at address 0x2c (7-bit address) which is emulated by
-	  the driver for "sandbox,i2c-eeprom", which is in
-	  drivers/misc/i2c_eeprom_emul.c.
-
-	  i2c@0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0>;
-		compatible = "sandbox,i2c";
-		clock-frequency = <400000>;
-		eeprom@2c {
-			reg = <0x2c>;
-			compatible = "i2c-eeprom";
-			emul {
-				compatible = "sandbox,i2c-eeprom";
-				sandbox,filename = "i2c.bin";
-				sandbox,size = <128>;
-			};
-		};
-	};
+	  which specifies the driver to use.  See sandbox.dts as an example.
 
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
