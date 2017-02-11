@@ -60,7 +60,7 @@ int rk3288_qos_init(void)
 	writel(val, CPU_AXI_QOS_PRIORITY + VIO1_VOP_QOS);
 
 	if (!fdt_node_check_compatible(gd->fdt_blob, 0,
-				       "rockchip,rk3288-miniarm"))
+				       "rockchip,rk3288-tinker"))
 	{
 		/* set isp qos to higher priority */
 		writel(val, CPU_AXI_QOS_PRIORITY + VIO1_ISP_R_QOS);
