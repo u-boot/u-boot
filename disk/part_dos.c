@@ -217,6 +217,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
 #endif
+			info->sys_ind = pt->sys_ind;
 			return 0;
 		}
 
