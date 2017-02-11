@@ -51,8 +51,6 @@
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_IS_NOWHERE
 
-#define CONFIG_SYS_NO_FLASH	/* Not using NAND/NOR unmanaged flash */
-
 /* console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

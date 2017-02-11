@@ -24,7 +24,6 @@
 
 /* [A] Hyper Flash */
 /* use to RPC(SPI Multi I/O Bus Controller) */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 
 /* Board Clock */

@@ -60,7 +60,7 @@
 #endif
 
 /* NOR */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 # define CONFIG_SYS_FLASH_BASE		0xE2000000
 # define CONFIG_SYS_FLASH_SIZE		(16 * 1024 * 1024)
 # define CONFIG_SYS_MAX_FLASH_BANKS	1
@@ -162,13 +162,13 @@
 
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
-# ifndef CONFIG_SYS_NO_FLASH
+# ifdef CONFIG_MTD_NOR_FLASH
 /* Environment in NOR flash */
 #  define CONFIG_ENV_IS_IN_FLASH
 # elif defined(CONFIG_ZYNQ_QSPI)
 /* Environment in Serial Flash */
 #  define CONFIG_ENV_IS_IN_SPI_FLASH
-# elif defined(CONFIG_SYS_NO_FLASH)
+# elif !defined(CONFIG_MTD_NOR_FLASH)
 #  define CONFIG_ENV_IS_NOWHERE
 # endif
 

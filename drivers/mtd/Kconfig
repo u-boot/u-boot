@@ -8,6 +8,11 @@ config MTD
 	  flash, RAM and similar chips, often used for solid state file
 	  systems on embedded devices.
 
+config MTD_NOR_FLASH
+	bool "Enable parallel NOR flash support"
+	help
+	  Enable support for parallel NOR flash.
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on MTD

@@ -143,10 +143,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x40010000
 #endif
 
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SYS_NO_FLASH
-#endif
-
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x60100000
 #endif

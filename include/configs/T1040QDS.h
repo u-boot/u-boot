@@ -63,7 +63,7 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_SYS_NO_FLASH
+#ifndef CONFIG_MTD_NOR_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 #else
 #define CONFIG_FLASH_CFI_DRIVER
@@ -71,7 +71,7 @@
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -99,7 +99,7 @@
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
-#else /* CONFIG_SYS_NO_FLASH */
+#else /* CONFIG_MTD_NOR_FLASH */
 #define CONFIG_ENV_SIZE                0x2000
 #define CONFIG_ENV_SECT_SIZE   0x20000 /* 128K (one sector) */
 #endif
@@ -640,7 +640,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS

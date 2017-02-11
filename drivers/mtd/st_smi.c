@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 
 static struct smi_regs *const smicntl =
     (struct smi_regs * const)CONFIG_SYS_SMI_BASE;

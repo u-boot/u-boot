@@ -148,9 +148,6 @@
 #define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
-/* NOR flash - no real flash on this board */
-#define CONFIG_SYS_NO_FLASH			1
-
 /* Ethernet */
 #define CONFIG_MACB			1
 #define CONFIG_RMII			1

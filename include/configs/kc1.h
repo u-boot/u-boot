@@ -79,12 +79,6 @@
 #define CONFIG_I2C_MULTI_BUS
 
 /*
- * Flash
- */
-
-#define CONFIG_SYS_NO_FLASH
-
-/*
  * Power
  */
 

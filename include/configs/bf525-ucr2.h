@@ -62,9 +62,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(320 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(320 * 1024)
 
-/* We don't have a parallel flash chip */
-#define CONFIG_SYS_NO_FLASH
-
 /* support for serial flash */
 #define CONFIG_BFIN_SPI
 #define CONFIG_SF_DEFAULT_HZ	30000000

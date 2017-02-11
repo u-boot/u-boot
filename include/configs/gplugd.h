@@ -36,7 +36,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 
 /* Disable DCACHE */
 #define CONFIG_SYS_DCACHE_OFF

@@ -68,7 +68,7 @@ void sama5d3xek_nand_hw_init(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 static void sama5d3xek_nor_hw_init(void)
 {
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
@@ -236,7 +236,7 @@ int board_init(void)
 #ifdef CONFIG_NAND_ATMEL
 	sama5d3xek_nand_hw_init();
 #endif
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	sama5d3xek_nor_hw_init();
 #endif
 #ifdef CONFIG_CMD_USB

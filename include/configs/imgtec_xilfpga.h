@@ -42,11 +42,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-/*-------------------------------------------------
- * FLASH configuration
- */
-#define CONFIG_SYS_NO_FLASH
-
 /*------------------------------------------------------------
  * Console Configuration
  */

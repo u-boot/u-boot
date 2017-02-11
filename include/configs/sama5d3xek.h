@@ -13,10 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * If has No NOR flash, please put the definition: CONFIG_SYS_NO_FLASH
- * before the common header.
- */
 #include "at91-sama5_common.h"
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -51,7 +47,7 @@
 #define CONFIG_SAMA5D3_LCD_BASE		0x23E00000
 
 /* NOR flash */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_PROTECTION

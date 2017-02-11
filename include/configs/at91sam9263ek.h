@@ -234,9 +234,6 @@
 		 AT91_WDT_MR_WDD(0xfff))
 
 #endif
-
-#else
-#define CONFIG_SYS_NO_FLASH			1
 #endif
 
 /* NAND flash */

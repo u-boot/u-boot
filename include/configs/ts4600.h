@@ -18,7 +18,6 @@
 #define CONFIG_MX28				/* i.MX28 SoC */
 
 /* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH			/* No NOR Flash */
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

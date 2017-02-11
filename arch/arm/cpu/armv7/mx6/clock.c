@@ -1463,7 +1463,7 @@ void select_ldb_di_clock_source(enum ldb_di_clock clk)
 }
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 void enable_eim_clk(unsigned char enable)
 {
 	u32 reg;

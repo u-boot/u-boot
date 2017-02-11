@@ -75,7 +75,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 
 #include <mtd/cfi_flash.h>
 
@@ -157,11 +157,11 @@ static void detect_num_flash_banks(void)
 
 	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
 }
-#else /* CONFIG_SYS_NO_FLASH */
+#else /* CONFIG_MTD_NOR_FLASH */
 static void detect_num_flash_banks(void)
 {
 };
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 void support_card_late_init(void)
 {

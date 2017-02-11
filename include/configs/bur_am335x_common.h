@@ -22,8 +22,6 @@
 #define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC	/* enable 32kHz OSC at bootime */
 #define CONFIG_POWER_TPS65217
 
-#define CONFIG_SYS_NO_FLASH		/* have no NOR-flash */
-
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */

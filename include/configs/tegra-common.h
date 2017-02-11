@@ -54,8 +54,6 @@
 /* turn on command-line edit/hist/auto */
 #define CONFIG_COMMAND_HISTORY
 
-#define CONFIG_SYS_NO_FLASH
-
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it

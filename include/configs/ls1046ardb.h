@@ -49,9 +49,6 @@
 #endif
 #endif
 
-/* No NOR flash */
-#define CONFIG_SYS_NO_FLASH
-
 /* IFC */
 #define CONFIG_FSL_IFC
 

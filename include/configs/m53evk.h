@@ -14,7 +14,6 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_REVISION_TAG
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */

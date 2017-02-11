@@ -36,8 +36,6 @@
 
 #ifdef CONFIG_MICRO_SUPPORT_CARD
 #define CONFIG_SMC911X
-#else
-#define CONFIG_SYS_NO_FLASH
 #endif
 
 #define CONFIG_FLASH_CFI_DRIVER

@@ -219,10 +219,8 @@
 #define CONFIG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
- * FLASH and environment organization
+ * environment organization
  */
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC

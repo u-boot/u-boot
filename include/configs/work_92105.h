@@ -108,12 +108,6 @@
 #define CONFIG_CMDLINE_EDITING
 
 /*
- * No NOR
- */
-
-#define CONFIG_SYS_NO_FLASH
-
-/*
  * NAND chip timings for FIXME: which one?
  */
 

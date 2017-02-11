@@ -9,7 +9,6 @@
 #include <asm/arch/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x2000

@@ -29,7 +29,6 @@
 
 #include "mx6sabre_common.h"
 
-#undef CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
 #define CONFIG_SYS_FLASH_SECT_SIZE      (128 * 1024)
 #define CONFIG_SYS_MAX_FLASH_BANKS 1    /* max number of memory banks */

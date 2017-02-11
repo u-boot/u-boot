@@ -41,7 +41,6 @@
 #define CONFIG_SCIF_CONSOLE
 
 /* FLASH */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_SPI
 #define CONFIG_SH_QSPI
 

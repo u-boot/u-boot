@@ -14,7 +14,6 @@
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_FAT_WRITE
 
 #define CONFIG_CMD_BMP

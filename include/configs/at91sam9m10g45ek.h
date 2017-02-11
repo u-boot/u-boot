@@ -68,8 +68,6 @@
  * Command line configuration.
  */
 
-/* No NOR flash */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_CMD_NAND
 
 /* SDRAM */

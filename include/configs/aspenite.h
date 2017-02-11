@@ -29,7 +29,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

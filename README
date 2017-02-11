@@ -2780,19 +2780,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- Parallel Flash support:
-		CONFIG_SYS_NO_FLASH
-
-		Traditionally U-Boot was run on systems with parallel NOR
-		flash. This option is used to disable support for parallel NOR
-		flash. This option should be defined if the board does not have
-		parallel flash.
-
-		If this option is not defined one of the generic flash drivers
-		(e.g.  CONFIG_FLASH_CFI_DRIVER or CONFIG_ST_SMI) must be
-		selected or the board must provide an implementation of the
-		flash API (see include/flash.h).
-
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 

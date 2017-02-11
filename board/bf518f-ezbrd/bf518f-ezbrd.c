@@ -29,7 +29,7 @@ int checkboard(void)
 #if defined(CONFIG_BFIN_MAC)
 static void board_init_enetaddr(uchar *mac_addr)
 {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* we cram the MAC in the last flash sector */
 	uchar *board_mac_addr = (uchar *)0x203F0096;
 	if (is_valid_ethaddr(board_mac_addr)) {
@@ -136,7 +136,7 @@ int misc_init_r(void)
 		board_init_enetaddr(enetaddr);
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	/* we use the last sector for the MAC address / POST LDR */
 	extern flash_info_t flash_info[];
 	flash_protect(FLAG_PROTECT_SET, 0x203F0000, 0x203FFFFF, &flash_info[0]);

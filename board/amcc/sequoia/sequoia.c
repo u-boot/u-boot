@@ -21,7 +21,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 #endif
 
@@ -124,7 +124,7 @@ int board_early_init_f(void)
 
 int misc_init_r(void)
 {
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	uint pbcr;
 	int size_val = 0;
 #endif
@@ -136,7 +136,7 @@ int misc_init_r(void)
 #endif
 	u32 reg;
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	/* Re-do flash sizing to get full correct info */
 
 	/* adjust flash start and offset */
@@ -176,7 +176,7 @@ int misc_init_r(void)
 			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[0]);
 #endif
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 	/*
 	 * USB suff...

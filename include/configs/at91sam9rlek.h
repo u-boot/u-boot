@@ -84,9 +84,6 @@
 #define DATAFLASH_TCSS				(0x1a << 16)
 #define DATAFLASH_TCHS				(0x1 << 24)
 
-/* NOR flash - not present */
-#define CONFIG_SYS_NO_FLASH			1
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL

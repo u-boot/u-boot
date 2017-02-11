@@ -460,7 +460,6 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
   #define CONFIG_ENV_SIZE	0x2000
 #else
-  #define CONFIG_SYS_NO_FLASH	/* Flash is not usable now */
   #undef  CONFIG_FLASH_CFI_DRIVER
   #define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - 0x1000)

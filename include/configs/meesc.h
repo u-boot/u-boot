@@ -111,9 +111,6 @@
 # define DATAFLASH_TCHS				(0x1 << 24)
 #endif
 
-/* NOR flash is not populated, disable it */
-#define CONFIG_SYS_NO_FLASH
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 # define CONFIG_NAND_ATMEL

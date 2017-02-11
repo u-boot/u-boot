@@ -17,8 +17,6 @@
 
 #define CONFIG_OMAP
 
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
 /* Common ARM Erratas */

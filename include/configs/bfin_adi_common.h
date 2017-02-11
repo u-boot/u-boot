@@ -49,7 +49,7 @@
 # if defined(CONFIG_SYS_I2C) || defined(CONFIG_SYS_I2C_SOFT)
 #  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
-# ifndef CONFIG_SYS_NO_FLASH
+# ifdef CONFIG_MTD_NOR_FLASH
 #  define CONFIG_CMD_JFFS2
 # endif
 # ifdef CONFIG_CMD_JFFS2

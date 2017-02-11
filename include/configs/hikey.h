@@ -127,6 +127,4 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
-#define CONFIG_SYS_NO_FLASH
-
 #endif /* __HIKEY_H */

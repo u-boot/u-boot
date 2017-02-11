@@ -52,9 +52,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/* no NOR flash */
-#define CONFIG_SYS_NO_FLASH
-
 /*
  * Command line configuration.
  */

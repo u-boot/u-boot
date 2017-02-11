@@ -47,8 +47,6 @@
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		27777777 /* for fast SPL booting */
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3

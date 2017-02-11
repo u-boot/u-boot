@@ -63,9 +63,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00200000
 #define CONFIG_LOADADDR			0x00200000
 
-/* Flash */
-#define CONFIG_SYS_NO_FLASH
-
 /* Devices */
 /* GPIO */
 #define CONFIG_BCM2835_GPIO

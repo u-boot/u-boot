@@ -84,12 +84,6 @@
 #define CONFIG_ROOTPATH		"/romfs"
 
 /*
- * Flash Settings
- */
-/* We don't have a parallel flash chip there */
-#define CONFIG_SYS_NO_FLASH
-
-/*
  * SPI Settings
  */
 #define CONFIG_BFIN_SPI

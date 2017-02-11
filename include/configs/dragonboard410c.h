@@ -120,7 +120,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
-#define CONFIG_SYS_NO_FLASH
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)

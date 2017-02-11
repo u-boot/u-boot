@@ -53,9 +53,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
 #include <config_distro_defaults.h>
 
 #endif	/* __CONFIG_H */

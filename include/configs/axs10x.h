@@ -42,7 +42,6 @@
 /*
  * NAND Flash configuration
  */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_NAND_BASE		(ARC_FPGA_PERIPHERAL_BASE + 0x16000)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 

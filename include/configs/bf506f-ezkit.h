@@ -60,7 +60,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	71
 #define CONFIG_MONITOR_IS_IN_RAM
 */
-#define CONFIG_SYS_NO_FLASH
 
 /*
  * SPI Settings

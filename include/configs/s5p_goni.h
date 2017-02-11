@@ -52,8 +52,6 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-#define CONFIG_SYS_NO_FLASH		1
-
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
 

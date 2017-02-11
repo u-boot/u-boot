@@ -95,7 +95,6 @@
 #define CONFIG_ENV_SIZE			(8 << 10)
 #define CONFIG_ENV_OFFSET		0x80000
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
-#define CONFIG_SYS_NO_FLASH
 #endif
 
 #if defined(CONFIG_VIDEO)
@@ -173,7 +172,6 @@
 	!defined(CONFIG_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
 #undef CONFIG_CMD_ENV
 #endif

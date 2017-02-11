@@ -38,8 +38,6 @@
 
 #if !defined(CONFIG_VCT_NAND) && !defined(CONFIG_VCT_ONENAND)
 #define CONFIG_VCT_NOR
-#else
-#define CONFIG_SYS_NO_FLASH
 #endif
 
 /*

@@ -110,9 +110,6 @@
 
 #endif
 
-/* NOR flash - no real flash on this board */
-#define CONFIG_SYS_NO_FLASH
-
 /* Ethernet */
 #define CONFIG_DRIVER_DM9000
 #define CONFIG_DM9000_BASE		0x30000000

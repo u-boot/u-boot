@@ -22,7 +22,6 @@
 /*
  * Enable the call to miscellaneous platform dependent initialization.
  */
-#define CONFIG_SYS_NO_FLASH
 
 /*
  * SPL

@@ -147,7 +147,6 @@ extern unsigned long get_sdram_size(void);
 /*
  * IFC Definitions
  */
-#define CONFIG_SYS_NO_FLASH
 
 /* NAND Flash on IFC */
 #define CONFIG_SYS_NAND_BASE		0xff800000

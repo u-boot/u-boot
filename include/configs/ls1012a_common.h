@@ -11,7 +11,6 @@
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
-#define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_SUPPORT_RAW_INITRD
 

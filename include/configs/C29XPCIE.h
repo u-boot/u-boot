@@ -150,10 +150,6 @@
 			(0xf00000000ull | CONFIG_SYS_PLATFORM_SRAM_BASE)
 #define CONFIG_SYS_PLATFORM_SRAM_SIZE	(512 << 10)
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NO_FLASH
-#endif
-
 /*
  * IFC Definitions
  */

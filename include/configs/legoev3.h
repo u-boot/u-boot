@@ -210,7 +210,6 @@
 #endif
 
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
 
 /* additions for new relocation code, must added to all boards */

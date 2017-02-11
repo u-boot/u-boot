@@ -219,9 +219,6 @@ combinations. this should be removed later
  */
 /* NOR Flash on IFC */
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NO_FLASH
-#endif
 #define CONFIG_SYS_FLASH_BASE		0x88000000
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* Max number of sector: 32M */
 
@@ -570,7 +567,7 @@ combinations. this should be removed later
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS

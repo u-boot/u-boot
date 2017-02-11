@@ -42,7 +42,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND

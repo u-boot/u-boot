@@ -139,7 +139,6 @@
  *               0xFF000000 for 16 MB
  *               0xFF800000 for  8 MB
  */
-#define CONFIG_SYS_NO_FLASH		1
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 #define CONFIG_SYS_FLASH_SIZE		0x00800000
 #define CONFIG_ENV_SIZE		0x8000

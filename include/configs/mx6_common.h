@@ -23,8 +23,6 @@
 #define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_MXC_GPT_HCLK
 
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_SYS_BOOTM_LEN	0x1000000
 
 #include <linux/sizes.h>

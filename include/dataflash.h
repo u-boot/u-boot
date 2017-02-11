@@ -23,7 +23,7 @@
 /*number of protected area*/
 #define NB_DATAFLASH_AREA		5
 
-#ifdef CONFIG_SYS_NO_FLASH
+#ifndef CONFIG_MTD_NOR_FLASH
 
 /*-----------------------------------------------------------------------
  * return codes from flash_write():
@@ -49,7 +49,7 @@
  * Set Environment according to label:
  */
 # define	FLAG_SETENV		0x80
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 /*define the area structure*/
 typedef struct {

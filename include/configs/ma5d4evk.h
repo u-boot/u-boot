@@ -8,8 +8,6 @@
 #ifndef __MA5D4EVK_CONFIG_H__
 #define __MA5D4EVK_CONFIG_H__
 
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #include "at91-sama5_common.h"

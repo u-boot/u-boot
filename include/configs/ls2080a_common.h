@@ -32,10 +32,6 @@
 #endif
 #endif
 
-#ifdef CONFIG_EMU
-#define CONFIG_SYS_NO_FLASH
-#endif
-
 #define CONFIG_SUPPORT_RAW_INITRD
 
 #define CONFIG_SKIP_LOWLEVEL_INIT

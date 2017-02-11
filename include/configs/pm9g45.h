@@ -81,9 +81,6 @@
 #define PHYS_SDRAM			0x70000000
 #define PHYS_SDRAM_SIZE			0x08000000	/* 128 megs */
 
-/* NOR flash, not available */
-#define CONFIG_SYS_NO_FLASH		1
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL

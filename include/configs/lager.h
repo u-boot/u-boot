@@ -43,7 +43,6 @@
 /* SPI */
 #define CONFIG_SPI
 #define CONFIG_SH_QSPI
-#define CONFIG_SYS_NO_FLASH
 
 /* SH Ether */
 #define CONFIG_SH_ETHER

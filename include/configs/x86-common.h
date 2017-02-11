@@ -125,7 +125,6 @@
 /*-----------------------------------------------------------------------
  * FLASH configuration
  */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_SPI
 

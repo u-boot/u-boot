@@ -357,12 +357,6 @@ config DEFAULT_FDT_FILE
 	help
 	  This option is used to set the default fdt file to boot OS.
 
-config SYS_NO_FLASH
-	bool "Disable support for parallel NOR flash"
-	default n
-	help
-	  This option is used to disable support for parallel NOR flash.
-
 config VERSION_VARIABLE
 	bool "add U-Boot environment variable vers"
 	default n

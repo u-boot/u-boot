@@ -13,8 +13,8 @@
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
 #endif
 
-#if defined(CONFIG_UPDATE_TFTP) && defined(CONFIG_SYS_NO_FLASH)
-#error "CONFIG_UPDATE_TFTP and CONFIG_SYS_NO_FLASH needed for legacy behaviour"
+#if defined(CONFIG_UPDATE_TFTP) && !defined(CONFIG_MTD_NOR_FLASH)
+#error "CONFIG_UPDATE_TFTP and !CONFIG_MTD_NOR_FLASH needed for legacy behaviour"
 #endif
 
 #include <command.h>
@@ -44,7 +44,7 @@
 extern ulong tftp_timeout_ms;
 extern int tftp_timeout_count_max;
 extern ulong load_addr;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 extern flash_info_t flash_info[];
 static uchar *saved_prot_info;
 #endif
@@ -96,7 +96,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	return rv;
 }
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 {
 	uchar *sp_info_ptr;
@@ -172,7 +172,7 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	ulong addr_last = addr_first + size - 1;
 
 	/* round last address to the sector boundary */

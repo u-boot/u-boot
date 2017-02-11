@@ -35,8 +35,6 @@
 
 #define CONFIG_KIRKWOOD_GPIO
 
-#define CONFIG_SYS_NO_FLASH
-
 /*
  * Commands configuration
  */

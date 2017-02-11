@@ -126,12 +126,9 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + \
 						CONFIG_SYS_INIT_RAM_SIZE)
 
-/*-----------------------------------------------------------------------
- * FLASH and environment organization
+/*
+ * environment organization
  */
-/* No NOR flash present */
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_OFFSET_REDUND	0x60000

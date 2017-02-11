@@ -17,12 +17,6 @@
 #ifndef __CONFIG_TI_ARMV7_COMMON_H__
 #define __CONFIG_TI_ARMV7_COMMON_H__
 
-/*
- * We typically do not contain NOR flash.  In the cases where we do, we
- * undefine this later.
- */
-#define CONFIG_SYS_NO_FLASH
-
 /* Support both device trees and ATAGs. */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

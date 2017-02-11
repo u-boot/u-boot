@@ -11,7 +11,6 @@
 #define CONFIG_MACH_TYPE	4105
 
 /* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

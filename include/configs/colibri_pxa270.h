@@ -146,7 +146,6 @@
 #define CONFIG_ENV_IS_IN_FLASH		1
 
 #else	/* No flash */
-#define	CONFIG_SYS_NO_FLASH
 #define	CONFIG_ENV_IS_NOWHERE
 #endif
 

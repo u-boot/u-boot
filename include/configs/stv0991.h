@@ -12,8 +12,6 @@
 
 #define CONFIG_SYS_CORTEX_R4
 
-#define CONFIG_SYS_NO_FLASH
-
 /* ram memory-related information */
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000

@@ -107,8 +107,6 @@
 #define CONFIG_USBD_MANUFACTURER	"Nokia"
 #define CONFIG_USBD_PRODUCT_NAME	"N900"
 
-#define CONFIG_SYS_NO_FLASH
-
 /* commands to include */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */

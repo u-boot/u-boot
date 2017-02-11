@@ -121,11 +121,6 @@
 #define CONFIG_CMD_MTDPARTS
 
 /*
- * Without NOR FLASH we need this
- */
-#define CONFIG_SYS_NO_FLASH
-
-/*
  * NAND Flash configuration
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -292,7 +287,7 @@ int get_scl(void);
 	"arch=arm\0"							\
 	""
 
-#if defined(CONFIG_SYS_NO_FLASH)
+#if !defined(CONFIG_MTD_NOR_FLASH)
 #undef	CONFIG_FLASH_CFI_MTD
 #undef	CONFIG_JFFS2_CMDLINE
 #endif

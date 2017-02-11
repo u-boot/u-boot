@@ -92,9 +92,6 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
 
-/* NOR flash - no real flash on this board */
-#define CONFIG_SYS_NO_FLASH			1
-
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_PHYLIB

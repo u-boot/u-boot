@@ -77,7 +77,6 @@
  * Flash Settings
  */
 #define CONFIG_ENV_OVERWRITE	1
-#define CONFIG_SYS_NO_FLASH		/* we have only NAND */
 
 /*
  * SPI Settings

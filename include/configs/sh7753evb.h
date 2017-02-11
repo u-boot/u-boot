@@ -59,9 +59,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
-/* FLASH */
-#define CONFIG_SYS_NO_FLASH
-
 /* Ether */
 #define CONFIG_SH_ETHER			1
 #define CONFIG_SH_ETHER_USE_PORT	0

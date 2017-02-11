@@ -15,7 +15,6 @@
  * High level configuration
  */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_CLOCKS
 
 #define CONFIG_CRC32_VERIFY

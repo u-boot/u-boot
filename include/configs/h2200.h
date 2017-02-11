@@ -14,8 +14,6 @@
 #define CONFIG_CPU_PXA25X		1
 #define CONFIG_BOARD_H2200
 
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0xa0000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		0x04000000 /* 64 MB */

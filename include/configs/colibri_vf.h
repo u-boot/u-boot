@@ -174,7 +174,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_SYS_NO_FLASH
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
@@ -187,8 +186,6 @@
 #define CONFIG_ENV_RANGE		(4 * 64 * 2048)
 #define CONFIG_ENV_OFFSET		(12 * 64 * 2048)
 #endif
-
-#define CONFIG_SYS_NO_FLASH
 
 /* USB Host Support */
 #define CONFIG_USB_EHCI
