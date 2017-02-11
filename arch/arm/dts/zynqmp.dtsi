@@ -954,7 +954,6 @@
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dwc3";
 			clock-names = "bus_clk", "ref_clk";
-			clocks = <&clk125>, <&clk125>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x860>;
 			power-domains = <&pd_usb0>;
@@ -977,7 +976,6 @@
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dwc3";
 			clock-names = "bus_clk", "ref_clk";
-			clocks = <&clk125>, <&clk125>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x861>;
 			power-domains = <&pd_usb1>;
