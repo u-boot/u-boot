@@ -78,6 +78,7 @@
 
 &mac {
 	status = "okay";
+	pinctrl-0 = <&ethernet_mii>;
 	phy-mode = "rmii";
 	phy-handle = <&phy0>;
 
