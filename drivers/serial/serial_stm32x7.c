@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <serial.h>
@@ -76,6 +77,22 @@ static int stm32_serial_probe(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev->platdata;
 	struct stm32_usart *const usart = plat->base;
+
+#ifdef CONFIG_CLK
+	int ret;
+	struct clk clk;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+#endif
+
 	setbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
 
 	return 0;
@@ -98,6 +115,7 @@ static int stm32_serial_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = (struct stm32_usart *)addr;
+
 	return 0;
 }
 #endif
