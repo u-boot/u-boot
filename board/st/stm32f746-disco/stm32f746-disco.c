@@ -380,7 +380,6 @@ int board_early_init_f(void)
 	int res;
 
 	res = uart_setup_gpio();
-	clock_setup(USART1_CLOCK_CFG);
 	if (res)
 		return res;
 

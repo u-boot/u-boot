@@ -228,9 +228,6 @@ static int stm32_clk_enable(struct clk *clk)
 void clock_setup(int peripheral)
 {
 	switch (peripheral) {
-	case USART1_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->apb2enr, RCC_APB2ENR_USART1EN);
-		break;
 	case GPIO_A_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_A_EN);
 		break;
