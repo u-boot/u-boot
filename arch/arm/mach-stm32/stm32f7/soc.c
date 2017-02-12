@@ -17,8 +17,6 @@ u32 get_cpu_rev(void)
 
 int arch_cpu_init(void)
 {
-	configure_clocks();
-
 	/*
 		* Configure the memory protection unit (MPU)
 		* 0x00000000 - 0xffffffff: Strong-order, Shareable

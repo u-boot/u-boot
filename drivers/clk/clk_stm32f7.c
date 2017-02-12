@@ -1,11 +1,12 @@
 /*
- * (C) Copyright 2016
+ * (C) Copyright 2017
  * Vikas Manocha, <vikas.manocha@st.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
 #include <common.h>
+#include <clk-uclass.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/rcc.h>
 #include <asm/arch/stm32.h>
@@ -212,6 +213,17 @@ unsigned long clock_get(enum clock clck)
 	}
 }
 
+static int stm32_clk_enable(struct clk *clk)
+{
+	u32 offset = clk->id / 32;
+	u32 bit_index = clk->id % 32;
+
+	debug("%s: clkid = %ld, offset from AHB1ENR is %d, bit_index = %d\n",
+	      __func__, clk->id, offset, bit_index);
+	setbits_le32(&STM32_RCC->ahb1enr + offset, BIT(bit_index));
+
+	return 0;
+}
 
 void clock_setup(int peripheral)
 {
@@ -273,3 +285,48 @@ void clock_setup(int peripheral)
 		break;
 	}
 }
+
+static int stm32_clk_probe(struct udevice *dev)
+{
+	debug("%s: stm32_clk_probe\n", __func__);
+	configure_clocks();
+
+	return 0;
+}
+
+static int stm32_clk_of_xlate(struct clk *clk,
+			struct fdtdec_phandle_args *args)
+{
+	debug("%s(clk=%p)\n", __func__, clk);
+
+	if (args->args_count != 2) {
+		debug("Invaild args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = args->args[1];
+	else
+		clk->id = 0;
+
+	return 0;
+}
+
+static struct clk_ops stm32_clk_ops = {
+	.of_xlate	= stm32_clk_of_xlate,
+	.enable		= stm32_clk_enable,
+};
+
+static const struct udevice_id stm32_clk_ids[] = {
+	{ .compatible = "st,stm32f42xx-rcc"},
+	{}
+};
+
+U_BOOT_DRIVER(stm32f7_clk) = {
+	.name		= "stm32f7_clk",
+	.id		= UCLASS_CLK,
+	.of_match	= stm32_clk_ids,
+	.ops		= &stm32_clk_ops,
+	.probe		= stm32_clk_probe,
+	.flags		= DM_FLAG_PRE_RELOC,
+};
