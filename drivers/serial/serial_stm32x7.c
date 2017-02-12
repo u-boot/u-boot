@@ -81,6 +81,27 @@ static int stm32_serial_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id stm32_serial_id[] = {
+	{.compatible = "st,stm32-usart"},
+	{.compatible = "st,stm32-uart"},
+	{}
+};
+
+static int stm32_serial_ofdata_to_platdata(struct udevice *dev)
+{
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = (struct stm32_usart *)addr;
+	return 0;
+}
+#endif
+
 static const struct dm_serial_ops stm32_serial_ops = {
 	.putc = stm32_serial_putc,
 	.pending = stm32_serial_pending,
@@ -91,6 +112,9 @@ static const struct dm_serial_ops stm32_serial_ops = {
 U_BOOT_DRIVER(serial_stm32) = {
 	.name = "serial_stm32x7",
 	.id = UCLASS_SERIAL,
+	.of_match = of_match_ptr(stm32_serial_id),
+	.ofdata_to_platdata = of_match_ptr(stm32_serial_ofdata_to_platdata),
+	.platdata_auto_alloc_size = sizeof(struct stm32x7_serial_platdata),
 	.ops = &stm32_serial_ops,
 	.probe = stm32_serial_probe,
 	.flags = DM_FLAG_PRE_RELOC,

@@ -267,16 +267,6 @@ out:
 	return rv;
 }
 
-static const struct stm32x7_serial_platdata serial_platdata = {
-	.base = (struct stm32_usart *)USART1_BASE,
-	.clock = CONFIG_SYS_CLK_FREQ,
-};
-
-U_BOOT_DEVICE(stm32x7_serials) = {
-	.name = "serial_stm32x7",
-	.platdata = &serial_platdata,
-};
-
 #ifdef CONFIG_ETH_DESIGNWARE
 const struct stm32_gpio_ctl gpio_ctl_eth = {
 	.mode = STM32_GPIO_MODE_AF,
