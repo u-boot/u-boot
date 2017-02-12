@@ -25,6 +25,7 @@ config USB_XHCI_MVEBU
 	bool "MVEBU USB 3.0 support"
 	default y
 	depends on ARCH_MVEBU
+	select DM_REGULATOR
 	help
 	  Choose this option to add support for USB 3.0 driver on mvebu
 	  SoCs, which includes Armada8K, Armada3700 and other Armada

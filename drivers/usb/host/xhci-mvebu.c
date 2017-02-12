@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <usb.h>
+#include <power/regulator.h>
 #include <asm/gpio.h>
 
 #include "xhci.h"
@@ -44,11 +45,21 @@ static int xhci_usb_probe(struct udevice *dev)
 	struct mvebu_xhci_platdata *plat = dev_get_platdata(dev);
 	struct mvebu_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
-	int len;
+	int len, ret;
+	struct udevice *regulator;
 
 	ctx->hcd = (struct xhci_hccr *)plat->hcd_base;
 	len = HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase));
 	hcor = (struct xhci_hcor *)((uintptr_t)ctx->hcd + len);
+
+	ret = device_get_supply_regulator(dev, "vbus-supply", &regulator);
+	if (!ret) {
+		ret = regulator_set_enable(regulator, true);
+		if (ret) {
+			printf("Failed to turn ON the VBUS regulator\n");
+			return ret;
+		}
+	}
 
 	/* Enable USB xHCI (VBUS, reset etc) in board specific code */
 	board_xhci_enable();
