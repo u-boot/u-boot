@@ -104,6 +104,19 @@
 			ranges = <0 0x40020000 0x3000>;
 			u-boot,dm-pre-reloc;
 			pins-are-numbered;
+
+			usart1_pins_a: usart1@0 {
+				pins1 {
+					pinmux = <STM32F746_PA9_FUNC_USART1_TX>;
+					bias-disable;
+					drive-push-pull;
+					slew-rate = <2>;
+				};
+				pins2 {
+					pinmux = <STM32F746_PB7_FUNC_USART1_RX>;
+					bias-disable;
+				};
+			};
 		};
 	};
 };

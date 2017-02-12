@@ -27,14 +27,6 @@ const struct stm32_gpio_ctl gpio_ctl_gpout = {
 	.af = STM32_GPIO_AF0
 };
 
-const struct stm32_gpio_ctl gpio_ctl_usart = {
-	.mode = STM32_GPIO_MODE_AF,
-	.otype = STM32_GPIO_OTYPE_PP,
-	.speed = STM32_GPIO_SPEED_50M,
-	.pupd = STM32_GPIO_PUPD_UP,
-	.af = STM32_GPIO_AF7
-};
-
 const struct stm32_gpio_ctl gpio_ctl_fmc = {
 	.mode = STM32_GPIO_MODE_AF,
 	.otype = STM32_GPIO_OTYPE_PP,
@@ -245,26 +237,11 @@ int dram_init(void)
 	return rv;
 }
 
-static const struct stm32_gpio_dsc usart_gpio[] = {
-	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},	/* TX */
-	{STM32_GPIO_PORT_B, STM32_GPIO_PIN_7},	/* RX */
-};
-
 int uart_setup_gpio(void)
 {
-	int i;
-	int rv = 0;
-
 	clock_setup(GPIO_A_CLOCK_CFG);
 	clock_setup(GPIO_B_CLOCK_CFG);
-	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {
-		rv = stm32_gpio_config(&usart_gpio[i], &gpio_ctl_usart);
-		if (rv)
-			goto out;
-	}
-
-out:
-	return rv;
+	return 0;
 }
 
 #ifdef CONFIG_ETH_DESIGNWARE
