@@ -22,7 +22,7 @@ struct printf_info {
 	void (*putc)(struct printf_info *info, char ch);
 };
 
-void putc_normal(struct printf_info *info, char ch)
+static void putc_normal(struct printf_info *info, char ch)
 {
 	putc(ch);
 }
@@ -52,7 +52,7 @@ static void div_out(struct printf_info *info, unsigned long *num,
 		out_dgt(info, dgt);
 }
 
-int _vprintf(struct printf_info *info, const char *fmt, va_list va)
+static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 {
 	char ch;
 	char *p;
