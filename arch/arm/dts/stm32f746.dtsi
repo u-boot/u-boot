@@ -97,7 +97,14 @@
 			u-boot,dm-pre-reloc;
 		};
 
-
+		pinctrl: pin-controller {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "st,stm32f746-pinctrl";
+			ranges = <0 0x40020000 0x3000>;
+			u-boot,dm-pre-reloc;
+			pins-are-numbered;
+		};
 	};
 };
 
