@@ -48,7 +48,16 @@
 #include <dt-bindings/pinctrl/stm32f746-pinfunc.h>
 
 / {
+	clocks {
+		clk_hse: clk-hse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0>;
+		};
+};
+
 	soc {
+		u-boot,dm-pre-reloc;
 		mac: ethernet@40028000 {
 			compatible = "st,stm32-dwmac";
 			reg = <0x40028000 0x8000>;
@@ -71,6 +80,24 @@
 			spi-max-frequency = <108000000>;
 			status = "disabled";
 		};
+		usart1: serial@40011000 {
+			compatible = "st,stm32-usart", "st,stm32-uart";
+			reg = <0x40011000 0x400>;
+			interrupts = <37>;
+			clocks = <&rcc 0 164>;
+			status = "disabled";
+			u-boot,dm-pre-reloc;
+		};
+		rcc: rcc@40023810 {
+			#reset-cells = <1>;
+			#clock-cells = <2>;
+			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
+			reg = <0x40023800 0x400>;
+			clocks = <&clk_hse>;
+			u-boot,dm-pre-reloc;
+		};
+
+
 	};
 };
 
