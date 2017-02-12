@@ -93,6 +93,7 @@
 };
 
 &qspi {
+	pinctrl-0 = <&qspi_pins>;
 	status = "okay";
 
 	qflash0: n25q128a {

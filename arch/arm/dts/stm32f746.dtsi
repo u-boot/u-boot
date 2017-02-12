@@ -131,6 +131,17 @@
 					slew-rate = <2>;
 				};
 			};
+			qspi_pins: qspi@0{
+				pins {
+					pinmux = <STM32F746_PB2_FUNC_QUADSPI_CLK>,
+						 <STM32F746_PB6_FUNC_QUADSPI_BK1_NCS>,
+						 <STM32F746_PD11_FUNC_QUADSPI_BK1_IO0>,
+						 <STM32F746_PD12_FUNC_QUADSPI_BK1_IO1>,
+						 <STM32F746_PD13_FUNC_QUADSPI_BK1_IO3>,
+						 <STM32F746_PE2_FUNC_QUADSPI_BK1_IO2>;
+					slew-rate = <2>;
+				};
+			};
 		};
 	};
 };
