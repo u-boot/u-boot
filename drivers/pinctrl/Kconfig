@@ -185,6 +185,15 @@ config PINCTRL_STI
 	  the GPIO definitions and pin control functions for each available multiplex
 	  function.
 
+config PINCTRL_STM32
+	bool "ST STM32 pin control driver"
+	depends on DM
+	help
+	  Supports pin multiplexing control on stm32 SoCs. The driver is
+	  controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
 endif
 
 source "drivers/pinctrl/meson/Kconfig"
