@@ -15,6 +15,7 @@
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
 #include <dt-bindings/phy/phy.h>
 
 / {
@@ -370,6 +371,49 @@
 	};
 };
 
+&pinctrl0 {
+	pinctrl_sdhci0_default: sdhci0-default {
+		mux {
+			groups = "sdio0_4bit_0_0_grp";
+			function = "sdio0";
+		};
+
+		conf {
+			groups = "sdio0_4bit_0_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+			bias-disable;
+		};
+
+		mux-cd {
+			groups = "sdio0_0_cd_grp";
+			function = "sdio0_cd";
+		};
+
+		conf-cd {
+			groups = "sdio0_0_cd_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+
+	pinctrl_sdhci1_default: sdhci1-default {
+		mux {
+			groups = "sdio1_4bit_0_1_grp";
+			function = "sdio1";
+		};
+
+		conf {
+			groups = "sdio1_4bit_0_1_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+			bias-disable;
+		};
+	};
+};
+
 &rtc {
 	status = "okay";
 };
@@ -380,12 +424,16 @@
 	no-1-8-v;
 	broken-cd; /* CD has to be enabled by default */
 	disable-wp;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci0_default>;
 	xlnx,mio_bank = <0>;
 };
 
 &sdhci1 {
 	status = "okay";
 	bus-width = <0x4>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	xlnx,mio_bank = <0>;
 	non-removable;
 	disable-wp;
