@@ -110,7 +110,7 @@
 	"bootscript=autorun.scr\0" \
 	"loadbit_addr=0x100000\0"	\
 	"loadbootenv_addr=0x2000000\0" \
-	"kernel_size=0x400000\0"	\
+	"kernel_size=0x440000\0"	\
 	"devicetree_size=0x10000\0"	\
 	"boot_size=0xF00000\0"	\
 	"fdt_high=0x20000000\0"	\
