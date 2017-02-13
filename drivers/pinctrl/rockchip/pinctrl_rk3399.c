@@ -253,6 +253,7 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 					struct udevice *periph)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	u32 cell[3];
 	int ret;
 
@@ -283,7 +284,7 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 	case 65:
 		return PERIPH_ID_SDMMC1;
 	}
-
+#endif
 	return -ENOENT;
 }
 
@@ -328,6 +329,8 @@ U_BOOT_DRIVER(pinctrl_rk3399) = {
 	.of_match	= rk3399_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3399_pinctrl_priv),
 	.ops		= &rk3399_pinctrl_ops,
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,
+#endif
 	.probe		= rk3399_pinctrl_probe,
 };
