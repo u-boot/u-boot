@@ -163,6 +163,11 @@
 
 &i2c1 {
 	status = "okay";
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c1_default>;
+	pinctrl-1 = <&pinctrl_i2c1_gpio>;
+	scl-gpios = <&gpio 4 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
 	clock-frequency = <100000>;
 	i2cswitch@75 { /* u11 */
 		compatible = "nxp,pca9548";
@@ -372,6 +377,33 @@
 };
 
 &pinctrl0 {
+	pinctrl_i2c1_default: i2c1-default {
+		mux {
+			groups = "i2c1_1_grp";
+			function = "i2c1";
+		};
+
+		conf {
+			groups = "i2c1_1_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+
+	pinctrl_i2c1_gpio: i2c1-gpio {
+		mux {
+			groups = "gpio0_4_grp", "gpio0_5_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_4_grp", "gpio0_5_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+
 	pinctrl_sdhci0_default: sdhci0-default {
 		mux {
 			groups = "sdio0_4bit_0_0_grp";
