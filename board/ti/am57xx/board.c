@@ -487,6 +487,8 @@ int board_late_init(void)
 	palmas_i2c_write_u8(TPS65903X_CHIP_P1, TPS65903X_PRIMARY_SECONDARY_PAD2,
 			    val);
 
+	omap_die_id_serial();
+
 	return 0;
 }
 
