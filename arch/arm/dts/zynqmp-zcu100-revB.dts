@@ -53,7 +53,7 @@
 		autorepeat;
 		sw4 {
 			label = "sw4";
-			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 23 GPIO_ACTIVE_LOW>; /* shared with pmic IRQ */
 			linux,code = <108>; /* down */
 			gpio-key,wakeup; /* FIXME test this */
 			autorepeat;
@@ -203,7 +203,7 @@
 		i2csw_4: i2c@4 { /* i2c mw 75 0 10 */
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x5e>;
+			reg = <0x4>;
 
 			/* Also RTC, GPIO and regulators */
 			/*
@@ -219,18 +219,16 @@
 
 			/* Comment it out because will be pre-programmed
 			   at the factory */
-			/*
-			pmu: tps6586x@34 { // Custom TI PMIC u33
-				compatible = "ti,tps6586x";
-				reg = <0x34>;
-				interrupt-parent = <&gpio>;
-				interrupts = <39 GPIO_ACTIVE_LOW>; shared with gpio switch
 
+			pmic: tps65086x@5e { // Custom TI PMIC u33
+				compatible = "ti,tps65086";
+				reg = <0x5e>;
+				interrupt-parent = <&gpio>;
+				interrupts = <23 GPIO_ACTIVE_LOW>; /* shared with pmic IRQ */
 				#gpio-cells = <2>;
 				gpio-controller;
 
-				ti,system-power-controller;
-
+/*
 				sys-supply = <&some_reg>;
 				// spec 12V
 
@@ -240,8 +238,6 @@
 				buck4 3V3
 				buck5 1V2
 				buck6 VCC_PSAUX 1V8
-
-
 
 				vin-sm0-supply = <&some_reg>;
 				vin-sm1-supply = <&some_reg>;
@@ -339,8 +335,8 @@
 						regulator-always-on;
 					};
 				};
+				*/
 			};
-			*/
 		};
 		i2csw_5: i2c@5 { /* i2c mw 75 0 20 */
 			#address-cells = <1>;
