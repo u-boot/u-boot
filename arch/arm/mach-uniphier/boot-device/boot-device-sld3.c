@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014      Panasonic Corporation
+ * Copyright (C) 2015-2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -7,11 +9,11 @@
 #include <common.h>
 #include <spl.h>
 #include <linux/io.h>
+#include <linux/kernel.h>
 
-#include "../sg-regs.h"
 #include "boot-device.h"
 
-static struct boot_device_info boot_device_table[] = {
+const struct uniphier_boot_device uniphier_sld3_boot_device_table[] = {
 	{BOOT_DEVICE_NOR,  "NOR  (XECS0)"},
 	{BOOT_DEVICE_NONE, "External Master"},
 	{BOOT_DEVICE_NONE, "Reserved"},
@@ -78,29 +80,5 @@ static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},
 };
 
-static int get_boot_mode_sel(void)
-{
-	return readl(SG_PINMON0) & 0x3f;
-}
-
-u32 uniphier_sld3_boot_device(void)
-{
-	int boot_mode;
-
-	boot_mode = get_boot_mode_sel();
-
-	return boot_device_table[boot_mode].type;
-}
-
-void uniphier_sld3_boot_mode_show(void)
-{
-	int mode_sel, i;
-
-	mode_sel = get_boot_mode_sel();
-
-	puts("Boot Mode Pin:\n");
-
-	for (i = 0; i < ARRAY_SIZE(boot_device_table); i++)
-		printf(" %c %02x %s\n", i == mode_sel ? '*' : ' ', i,
-		       boot_device_table[i].info);
-}
+const unsigned uniphier_sld3_boot_device_count =
+				ARRAY_SIZE(uniphier_sld3_boot_device_table);

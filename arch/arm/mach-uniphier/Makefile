@@ -25,7 +25,7 @@ obj-$(CONFIG_MMC) += mmc-first-dev.o
 endif
 
 obj-y += soc-info.o
-obj-y += boot-mode/
+obj-y += boot-device/
 obj-y += clk/
 obj-y += dram/
 
