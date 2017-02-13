@@ -47,6 +47,29 @@ U-Boot > sf erase 0 +320000
 U-Boot > tftp u-boot.ais
 U-Boot > sf write c0700000 0 $filesize
 
+Flashing the images to MMC
+==========================
+If the boot pins are set to boot from mmc, the RBL will try to load the
+next boot stage form the first couple of sectors of an external mmc card.
+As sector 0 is usually used for storing the partition information, the
+AIS image should be written at least after the first sector, but before the
+first partition begins. (e.g: make sure to leave at least 500KB of unallocated
+space at the start of the mmc when creating the partitions)
+
+CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR is used by SPL, and should
+point to the sector were the u-boot image is located. (eg. After SPL)
+
+There are 2 ways to copy the AIS image to the mmc card:
+
+ 1 - Using the TI tool "uflash"
+	$ uflash -d /dev/mmcblk0  -b ./u-boot.ais -p OMAPL138  -vv
+
+ 2 - using the "dd" command
+	$ dd if=u-boot.ais of=/dev/mmcblk0 seek=117 bs=512 conv=fsync
+
+uflash writes the AIS image at offset 117. For compatibility with uflash,
+CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR is set to take into account this
+offset, and the dd command is adjusted accordingly.
 
 Recovery
 ========
