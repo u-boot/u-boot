@@ -19,6 +19,7 @@ obj-y += reset.o
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/ micro-support-card.o
 obj-y += pinctrl-glue.o
+obj-$(CONFIG_MMC) += mmc-first-dev.o
 
 endif
 
