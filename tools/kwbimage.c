@@ -992,7 +992,11 @@ int add_binary_header_v1(uint8_t *cur)
 		return -1;
 	}
 
-	fstat(fileno(bin), &s);
+	if (fstat(fileno(bin), &s)) {
+		fprintf(stderr, "Cannot stat binary file %s\n",
+			binarye->binary.file);
+		goto err_close;
+	}
 
 	binhdrsz = sizeof(struct opt_hdr_v1) +
 		(binarye->binary.nargs + 2) * sizeof(uint32_t) +
@@ -1022,7 +1026,7 @@ int add_binary_header_v1(uint8_t *cur)
 		fprintf(stderr,
 			"Could not read binary image %s\n",
 			binarye->binary.file);
-		return -1;
+		goto err_close;
 	}
 
 	fclose(bin);
@@ -1040,6 +1044,11 @@ int add_binary_header_v1(uint8_t *cur)
 	cur += sizeof(uint32_t);
 
 	return 0;
+
+err_close:
+	fclose(bin);
+
+	return -1;
 }
 
 #if defined(CONFIG_KWB_SECURE)
