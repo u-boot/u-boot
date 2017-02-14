@@ -448,6 +448,12 @@ config CMD_FPGA
 	help
 	  FPGA support.
 
+config CMD_FPGA_LOAD_SECURE
+	bool "fpga loads"
+	help
+	  Enables the fpga loade command which is used to load encrypted
+	  bitstreams on to FPGA.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC
