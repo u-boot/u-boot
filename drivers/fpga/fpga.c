@@ -208,6 +208,34 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 }
 #endif
 
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+int fpga_loads(int devnum, const void *buf, size_t size,
+	       fpga_secure_info *fpga_sec_info)
+{
+	int ret_val = FPGA_FAIL;           /* assume failure */
+	const fpga_desc *desc = fpga_validate(devnum, buf, size,
+					      (char *)__func__);
+
+	if (desc) {
+		switch (desc->devtype) {
+		case fpga_xilinx:
+#if defined(CONFIG_FPGA_XILINX)
+			ret_val = xilinx_loads(desc->devdesc, buf, size,
+					       fpga_sec_info);
+#else
+			fpga_no_sup((char *)__func__, "Xilinx devices");
+#endif
+			break;
+		default:
+			printf("%s: Invalid or unsupported device type %d\n",
+			       __func__, desc->devtype);
+		}
+	}
+
+	return ret_val;
+}
+#endif
+
 /*
  * Generic multiplexing code
  */

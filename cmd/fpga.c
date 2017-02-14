@@ -27,6 +27,7 @@ static int fpga_get_op(char *opstr);
 #define FPGA_LOADP  5
 #define FPGA_LOADBP 6
 #define FPGA_LOADFS 7
+#define FPGA_LOADS  8
 
 /* ------------------------------------------------------------------------- */
 /* command form:
@@ -53,6 +54,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	fpga_fs_info fpga_fsinfo;
 	fpga_fsinfo.fstype = FS_TYPE_ANY;
 #endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	fpga_secure_info fpga_sec_info;
+	memset(&fpga_sec_info, 0, sizeof(fpga_sec_info));
+#endif
 
 	if (devstr)
 		dev = (int) simple_strtoul(devstr, NULL, 16);
@@ -67,6 +72,11 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		fpga_fsinfo.interface = argv[6];
 		fpga_fsinfo.dev_part = argv[7];
 		fpga_fsinfo.filename = argv[8];
+#endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case 7:
+		fpga_sec_info.ivaddr_size = argv[6];
+		fpga_sec_info.keyaddr_size = argv[5];
 #endif
 	case 5:		/* fpga <op> <dev> <data> <datasize> */
 		data_size = simple_strtoul(argv[4], NULL, 16);
@@ -143,6 +153,11 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		    !fpga_fsinfo.filename)
 			wrong_parms = 1;
 #endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case FPGA_LOADS:
+		if (!fpga_sec_info.keyaddr_size || !fpga_sec_info.keyaddr_size)
+			wrong_parms = 1;
+#endif
 	case FPGA_LOAD:
 	case FPGA_LOADP:
 	case FPGA_LOADB:
@@ -195,6 +210,12 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	case FPGA_LOADFS:
 		rc = fpga_fsload(dev, fpga_data, data_size, &fpga_fsinfo);
+		break;
+#endif
+
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case FPGA_LOADS:
+		rc = fpga_loads(dev, fpga_data, data_size, &fpga_sec_info);
 		break;
 #endif
 
@@ -331,6 +352,10 @@ static int fpga_get_op(char *opstr)
 #endif
 	else if (!strcmp("dump", opstr))
 		op = FPGA_DUMP;
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	else if (!strcmp("loads", opstr))
+		op = FPGA_LOADS;
+#endif
 
 	if (op == FPGA_NONE)
 		printf("Unknown fpga operation \"%s\"\n", opstr);
@@ -341,7 +366,7 @@ static int fpga_get_op(char *opstr)
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 U_BOOT_CMD(fpga, 9, 1, do_fpga,
 #else
-U_BOOT_CMD(fpga, 6, 1, do_fpga,
+U_BOOT_CMD(fpga, 7, 1, do_fpga,
 #endif
 	   "loadable FPGA image support",
 	   "[operation type] [device number] [image address] [image size]\n"
@@ -372,5 +397,9 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "\tFor loadmk operating on FIT format uImage address must include\n"
 	   "\tsubimage unit name in the form of addr:<subimg_uname>"
 #endif
+#endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	   "Load encrypted bitstream (Xilinx only)\n"
+	   "  loads [dev] [address] [size] [keyaddr:size] [IVaddr:size]\n"
 #endif
 );

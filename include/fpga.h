@@ -43,6 +43,11 @@ typedef struct {                /* typedef fpga_desc */
 	int fstype;
 } fpga_fs_info;
 
+typedef struct {
+	char *keyaddr_size;
+	char *ivaddr_size;
+} fpga_secure_info;
+
 typedef enum {
 	BIT_FULL = 0,
 	BIT_PARTIAL,
@@ -58,6 +63,8 @@ int fpga_load(int devnum, const void *buf, size_t bsize,
 	      bitstream_type bstype);
 int fpga_fsload(int devnum, const void *buf, size_t size,
 		fpga_fs_info *fpga_fsinfo);
+int fpga_loads(int devnum, const void *buf, size_t size,
+	       fpga_secure_info *fpga_sec_info);
 int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 		       bitstream_type bstype);
 int fpga_dump(int devnum, const void *buf, size_t bsize);
