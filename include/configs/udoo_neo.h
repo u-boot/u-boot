@@ -52,7 +52,7 @@
 			"echo WARNING: Could not determine dtb to use; fi\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"ramdisk_addr_r=0x83000000\0" \
+	"ramdisk_addr_r=0x84000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	BOOTENV
 
