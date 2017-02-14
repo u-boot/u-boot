@@ -436,7 +436,14 @@ int arch_early_init_r(void)
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
-	erratum_a009635();
+	u32 svr_dev_id;
+	/*
+	 * erratum A009635 is valid only for LS2080A SoC and
+	 * its personalitiesi
+	 */
+	svr_dev_id = get_svr() >> 16;
+	if (svr_dev_id == SVR_DEV_LS2080A)
+		erratum_a009635();
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
 	erratum_a009942_check_cpo();
