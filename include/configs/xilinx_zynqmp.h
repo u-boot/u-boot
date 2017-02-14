@@ -229,7 +229,7 @@
 	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
 		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
-	"xen_prepare_dt=fdt addr $fdt_addr && fdt resize && " \
+	"xen_prepare_dt=fdt addr $fdt_addr && fdt resize 128 && " \
 		"fdt set /chosen \\\\#address-cells <1> && " \
 		"fdt set /chosen \\\\#size-cells <1> && " \
 		"fdt mknod /chosen dom0 && " \
