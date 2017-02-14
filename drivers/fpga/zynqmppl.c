@@ -233,6 +233,85 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return ret;
 }
 
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
+static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
+		       fpga_secure_info *fpga_sec_info)
+{
+	u32 keyaddr, keysize, ivaddr, ivsize;
+	char *key_str, *size_str, *dup_str;
+	u32 *tmpbuf = (u32 *)buf;
+	ulong bitsize = bsize;
+	ulong key_iv_size;
+	int ret;
+	ulong flags;
+
+	size_str = strchr(fpga_sec_info->keyaddr_size, ':');
+	if (size_str) {
+		dup_str = strdup(fpga_sec_info->keyaddr_size);
+		dup_str[size_str - fpga_sec_info->keyaddr_size] = 0;
+		key_str = dup_str;
+		size_str++;
+	} else {
+		debug("No Key Size mentioned\n");
+		return FPGA_FAIL;
+	}
+
+	keyaddr = simple_strtoul(key_str, NULL, 16);
+	keysize = simple_strtoul(size_str, NULL, 16);
+
+	size_str = strchr(fpga_sec_info->ivaddr_size, ':');
+	if (size_str) {
+		dup_str = strdup(fpga_sec_info->ivaddr_size);
+		dup_str[size_str - fpga_sec_info->ivaddr_size] = 0;
+		key_str = dup_str;
+		size_str++;
+	} else {
+		debug("No IV Size mentioned\n");
+		return FPGA_FAIL;
+	}
+
+	ivaddr = simple_strtoul(key_str, NULL, 16);
+	ivsize = simple_strtoul(size_str, NULL, 16);
+
+	debug("Keyaddr:0x%x, keysize:P0x%x\n", keyaddr, keysize);
+	debug("ivaddr:0x%x, ivsize:P0x%x\n", ivaddr, ivsize);
+
+	key_iv_size = keysize + ivsize;
+
+	if (bsize % 4)
+		bsize = bsize / 4 + 1;
+	else
+		bsize = bsize / 4;
+
+	tmpbuf += bsize;
+
+	memcpy(tmpbuf, (const void *)(uintptr_t)keyaddr, keysize);
+
+	if (keysize % 4)
+		keysize = keysize / 4 + 1;
+	else
+		keysize = keysize / 4;
+
+	tmpbuf += keysize;
+
+	memcpy(tmpbuf, (const void *)(uintptr_t)ivaddr, ivsize);
+
+	debug("%s called!\n", __func__);
+	flush_dcache_range((ulong)buf, (ulong)buf + bitsize + key_iv_size);
+
+	flags = (u32)bsize | ((u64)ZYNQMP_FPGA_FLAG_ENCRYPTED << 32);
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, (ulong)buf, flags, 0);
+	if (ret)
+		debug("PL FPGA LOAD fail\n");
+
+	return ret;
+}
+#endif
+
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
+#if defined CONFIG_CMD_FPGA_LOAD_SECURE
+	.loads = zynqmp_loads,
+#endif
 };
