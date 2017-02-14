@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016-2017 Socionext Inc.
  *
- * based on commit e732175d0b0dbc2a3855cb8ac791c538666b6fd4 of Diag
+ * based on commit 5ffd75ecd4929f22361ef65a35f0331d2fbc0f35 of Diag
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -177,12 +177,18 @@ static void ddrphy_select_lane(void __iomem *phy_base, unsigned int lane,
 	       phy_base + PHY_LANE_SEL);
 }
 
+#define DDRPHY_EFUSEMON		(void *)0x5f900118
+
 static void ddrphy_init(void __iomem *phy_base, enum dram_board board, int ch)
 {
 	writel(0x0C001001, phy_base + PHY_UNIQUIFY_TSMC_IO_1);
 	while (!(readl(phy_base + PHY_UNIQUIFY_TSMC_IO_1) & BIT(1)))
 		cpu_relax();
-	writel(0x0C001000, phy_base + PHY_UNIQUIFY_TSMC_IO_1);
+
+	if (readl(DDRPHY_EFUSEMON) & BIT(ch))
+		writel(0x00000000, phy_base + PHY_UNIQUIFY_TSMC_IO_1);
+	else
+		writel(0x0C001000, phy_base + PHY_UNIQUIFY_TSMC_IO_1);
 
 	writel(0x00000000, phy_base + PHY_DLL_INCR_TRIM_3);
 	writel(0x00000000, phy_base + PHY_DLL_INCR_TRIM_1);
