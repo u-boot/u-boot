@@ -113,7 +113,9 @@ struct macb_device {
 	struct mii_dev		*bus;
 
 #ifdef CONFIG_DM_ETH
+#ifdef CONFIG_CLK
 	unsigned long		pclk_rate;
+#endif
 	phy_interface_t		phy_interface;
 #endif
 };
@@ -756,7 +758,7 @@ static int _macb_write_hwaddr(struct macb_device *macb, unsigned char *enetaddr)
 static u32 macb_mdc_clk_div(int id, struct macb_device *macb)
 {
 	u32 config;
-#ifdef CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && defined(CONFIG_CLK)
 	unsigned long macb_hz = macb->pclk_rate;
 #else
 	unsigned long macb_hz = get_macb_pclk_rate(id);
@@ -778,7 +780,7 @@ static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
 {
 	u32 config;
 
-#ifdef CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && defined(CONFIG_CLK)
 	unsigned long macb_hz = macb->pclk_rate;
 #else
 	unsigned long macb_hz = get_macb_pclk_rate(id);
@@ -1002,6 +1004,7 @@ static const struct eth_ops macb_eth_ops = {
 	.write_hwaddr	= macb_write_hwaddr,
 };
 
+#ifdef CONFIG_CLK
 static int macb_enable_clk(struct udevice *dev)
 {
 	struct macb_device *macb = dev_get_priv(dev);
@@ -1025,13 +1028,13 @@ static int macb_enable_clk(struct udevice *dev)
 
 	return 0;
 }
+#endif
 
 static int macb_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	const char *phy_mode;
-	int ret;
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);
@@ -1044,9 +1047,11 @@ static int macb_eth_probe(struct udevice *dev)
 
 	macb->regs = (void *)pdata->iobase;
 
-	ret = macb_enable_clk(dev);
+#ifdef CONFIG_CLK
+	int ret = macb_enable_clk(dev);
 	if (ret)
 		return ret;
+#endif
 
 	_macb_eth_initialize(macb);
 
