@@ -83,6 +83,7 @@ u32 spl_boot_device(void)
 	case JTAG_MODE:
 		return BOOT_DEVICE_RAM;
 #ifdef CONFIG_SPL_MMC_SUPPORT
+	case SD1_LSHFT_MODE:
 	case EMMC_MODE:
 	case SD_MODE:
 	case SD_MODE1:
