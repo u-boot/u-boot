@@ -23,6 +23,11 @@ int xfi_dpmac[XFI8 + 1];
 int sgmii_dpmac[SGMII16 + 1];
 #endif
 
+__weak void wriop_init_dpmac_qsgmii(int sd, int lane_prtcl)
+{
+	return;
+}
+
 int is_serdes_configured(enum srds_prtcl device)
 {
 	int ret = 0;
@@ -106,28 +111,10 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 #ifdef CONFIG_FSL_MC_ENET
 			switch (lane_prtcl) {
 			case QSGMII_A:
-				wriop_init_dpmac(sd, 5, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 6, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 7, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 8, (int)lane_prtcl);
-				break;
 			case QSGMII_B:
-				wriop_init_dpmac(sd, 1, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 2, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 3, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 4, (int)lane_prtcl);
-				break;
 			case QSGMII_C:
-				wriop_init_dpmac(sd, 13, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 14, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 15, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 16, (int)lane_prtcl);
-				break;
 			case QSGMII_D:
-				wriop_init_dpmac(sd, 9, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 10, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 11, (int)lane_prtcl);
-				wriop_init_dpmac(sd, 12, (int)lane_prtcl);
+				wriop_init_dpmac_qsgmii(sd, (int)lane_prtcl);
 				break;
 			default:
 				if (lane_prtcl >= XFI1 && lane_prtcl <= XFI8)

@@ -79,3 +79,33 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 
 	return PHY_INTERFACE_MODE_NONE;
 }
+
+void wriop_init_dpmac_qsgmii(int sd, int lane_prtcl)
+{
+	switch (lane_prtcl) {
+	case QSGMII_A:
+		wriop_init_dpmac(sd, 5, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 6, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 7, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 8, (int)lane_prtcl);
+		break;
+	case QSGMII_B:
+		wriop_init_dpmac(sd, 1, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 2, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 3, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 4, (int)lane_prtcl);
+		break;
+	case QSGMII_C:
+		wriop_init_dpmac(sd, 13, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 14, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 15, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 16, (int)lane_prtcl);
+		break;
+	case QSGMII_D:
+		wriop_init_dpmac(sd, 9, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 10, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 11, (int)lane_prtcl);
+		wriop_init_dpmac(sd, 12, (int)lane_prtcl);
+		break;
+	}
+}
