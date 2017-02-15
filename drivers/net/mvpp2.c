@@ -2219,7 +2219,8 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 	if (!bm_pool->virt_addr)
 		return -ENOMEM;
 
-	if (!IS_ALIGNED((u32)bm_pool->virt_addr, MVPP2_BM_POOL_PTR_ALIGN)) {
+	if (!IS_ALIGNED((unsigned long)bm_pool->virt_addr,
+			MVPP2_BM_POOL_PTR_ALIGN)) {
 		dev_err(&pdev->dev, "BM pool %d is not %d bytes aligned\n",
 			bm_pool->id, MVPP2_BM_POOL_PTR_ALIGN);
 		return -ENOMEM;
@@ -2359,14 +2360,15 @@ static inline u32 mvpp2_bm_cookie_pool_set(u32 cookie, int pool)
 }
 
 /* Get pool number from a BM cookie */
-static inline int mvpp2_bm_cookie_pool_get(u32 cookie)
+static inline int mvpp2_bm_cookie_pool_get(unsigned long cookie)
 {
 	return (cookie >> MVPP2_BM_COOKIE_POOL_OFFS) & 0xFF;
 }
 
 /* Release buffer to BM */
 static inline void mvpp2_bm_pool_put(struct mvpp2_port *port, int pool,
-				     u32 buf_phys_addr, u32 buf_virt_addr)
+				     dma_addr_t buf_phys_addr,
+				     unsigned long buf_virt_addr)
 {
 	mvpp2_write(port->priv, MVPP2_BM_VIRT_RLS_REG, buf_virt_addr);
 	mvpp2_write(port->priv, MVPP2_BM_PHY_RLS_REG(pool), buf_phys_addr);
@@ -2397,8 +2399,8 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 
 	for (i = 0; i < buf_num; i++) {
 		mvpp2_bm_pool_put(port, bm_pool->id,
-				  (u32)buffer_loc.rx_buffer[i],
-				  (u32)buffer_loc.rx_buffer[i]);
+				  (dma_addr_t)buffer_loc.rx_buffer[i],
+				  (unsigned long)buffer_loc.rx_buffer[i]);
 
 	}
 
@@ -3333,7 +3335,7 @@ static int mvpp2_rx_refill(struct mvpp2_port *port,
 			   struct mvpp2_bm_pool *bm_pool,
 			   u32 bm, u32 phys_addr)
 {
-	mvpp2_pool_refill(port, bm, phys_addr, phys_addr);
+	mvpp2_pool_refill(port, bm, phys_addr, (unsigned long)phys_addr);
 	return 0;
 }
 
