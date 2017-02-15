@@ -143,7 +143,7 @@ static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	toc++;
 	memset(toc, 0xff, sizeof(*toc));
 
-	gph_set_header(gph, sbuf->st_size - OMAP_FILE_HDR_SIZE,
+	gph_set_header(gph, sbuf->st_size - OMAP_CH_HDR_SIZE + GPIMAGE_HDR_SIZE,
 		       params->addr, 0);
 
 	if (strncmp(params->imagename, "byteswap", 8) == 0) {
