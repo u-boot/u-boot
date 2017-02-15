@@ -1016,6 +1016,65 @@ static u32 mvpp2_read(struct mvpp2 *priv, u32 offset)
 	return readl(priv->base + offset);
 }
 
+static void mvpp2_txdesc_dma_addr_set(struct mvpp2_port *port,
+				      struct mvpp2_tx_desc *tx_desc,
+				      dma_addr_t dma_addr)
+{
+	tx_desc->buf_dma_addr = dma_addr;
+}
+
+static void mvpp2_txdesc_size_set(struct mvpp2_port *port,
+				  struct mvpp2_tx_desc *tx_desc,
+				  size_t size)
+{
+	tx_desc->data_size = size;
+}
+
+static void mvpp2_txdesc_txq_set(struct mvpp2_port *port,
+				 struct mvpp2_tx_desc *tx_desc,
+				 unsigned int txq)
+{
+	tx_desc->phys_txq = txq;
+}
+
+static void mvpp2_txdesc_cmd_set(struct mvpp2_port *port,
+				 struct mvpp2_tx_desc *tx_desc,
+				 unsigned int command)
+{
+	tx_desc->command = command;
+}
+
+static void mvpp2_txdesc_offset_set(struct mvpp2_port *port,
+				    struct mvpp2_tx_desc *tx_desc,
+				    unsigned int offset)
+{
+	tx_desc->packet_offset = offset;
+}
+
+static dma_addr_t mvpp2_rxdesc_dma_addr_get(struct mvpp2_port *port,
+					    struct mvpp2_rx_desc *rx_desc)
+{
+	return rx_desc->buf_dma_addr;
+}
+
+static unsigned long mvpp2_rxdesc_cookie_get(struct mvpp2_port *port,
+					     struct mvpp2_rx_desc *rx_desc)
+{
+	return rx_desc->buf_cookie;
+}
+
+static size_t mvpp2_rxdesc_size_get(struct mvpp2_port *port,
+				    struct mvpp2_rx_desc *rx_desc)
+{
+	return rx_desc->data_size;
+}
+
+static u32 mvpp2_rxdesc_status_get(struct mvpp2_port *port,
+				   struct mvpp2_rx_desc *rx_desc)
+{
+	return rx_desc->status;
+}
+
 static void mvpp2_txq_inc_get(struct mvpp2_txq_pcpu *txq_pcpu)
 {
 	txq_pcpu->txq_get_index++;
@@ -2779,11 +2838,15 @@ static void mvpp2_rxq_offset_set(struct mvpp2_port *port,
 }
 
 /* Obtain BM cookie information from descriptor */
-static u32 mvpp2_bm_cookie_build(struct mvpp2_rx_desc *rx_desc)
+static u32 mvpp2_bm_cookie_build(struct mvpp2_port *port,
+				 struct mvpp2_rx_desc *rx_desc)
 {
-	int pool = (rx_desc->status & MVPP2_RXD_BM_POOL_ID_MASK) >>
-		   MVPP2_RXD_BM_POOL_ID_OFFS;
 	int cpu = smp_processor_id();
+	int pool;
+
+	pool = (mvpp2_rxdesc_status_get(port, rx_desc) &
+		MVPP2_RXD_BM_POOL_ID_MASK) >>
+		MVPP2_RXD_BM_POOL_ID_OFFS;
 
 	return ((pool & 0xFF) << MVPP2_BM_COOKIE_POOL_OFFS) |
 	       ((cpu & 0xFF) << MVPP2_BM_COOKIE_CPU_OFFS);
@@ -3005,10 +3068,11 @@ static void mvpp2_rxq_drop_pkts(struct mvpp2_port *port,
 
 	for (i = 0; i < rx_received; i++) {
 		struct mvpp2_rx_desc *rx_desc = mvpp2_rxq_next_desc_get(rxq);
-		u32 bm = mvpp2_bm_cookie_build(rx_desc);
+		u32 bm = mvpp2_bm_cookie_build(port, rx_desc);
 
-		mvpp2_pool_refill(port, bm, rx_desc->buf_dma_addr,
-				  rx_desc->buf_cookie);
+		mvpp2_pool_refill(port, bm,
+				  mvpp2_rxdesc_dma_addr_get(port, rx_desc),
+				  mvpp2_rxdesc_cookie_get(port, rx_desc));
 	}
 	mvpp2_rxq_status_update(port, rxq->id, rx_received, rx_received);
 }
@@ -3302,20 +3366,21 @@ static void mvpp2_link_event(struct mvpp2_port *port)
 static void mvpp2_rx_error(struct mvpp2_port *port,
 			   struct mvpp2_rx_desc *rx_desc)
 {
-	u32 status = rx_desc->status;
+	u32 status = mvpp2_rxdesc_status_get(port, rx_desc);
+	size_t sz = mvpp2_rxdesc_size_get(port, rx_desc);
 
 	switch (status & MVPP2_RXD_ERR_CODE_MASK) {
 	case MVPP2_RXD_ERR_CRC:
-		netdev_err(port->dev, "bad rx status %08x (crc error), size=%d\n",
-			   status, rx_desc->data_size);
+		netdev_err(port->dev, "bad rx status %08x (crc error), size=%zu\n",
+			   status, sz);
 		break;
 	case MVPP2_RXD_ERR_OVERRUN:
-		netdev_err(port->dev, "bad rx status %08x (overrun error), size=%d\n",
-			   status, rx_desc->data_size);
+		netdev_err(port->dev, "bad rx status %08x (overrun error), size=%zu\n",
+			   status, sz);
 		break;
 	case MVPP2_RXD_ERR_RESOURCE:
-		netdev_err(port->dev, "bad rx status %08x (resource error), size=%d\n",
-			   status, rx_desc->data_size);
+		netdev_err(port->dev, "bad rx status %08x (resource error), size=%zu\n",
+			   status, sz);
 		break;
 	}
 }
@@ -3873,11 +3938,12 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 		return 0;
 
 	rx_desc = mvpp2_rxq_next_desc_get(rxq);
-	rx_status = rx_desc->status;
-	rx_bytes = rx_desc->data_size - MVPP2_MH_SIZE;
-	dma_addr = rx_desc->buf_dma_addr;
+	rx_status = mvpp2_rxdesc_status_get(port, rx_desc);
+	rx_bytes = mvpp2_rxdesc_size_get(port, rx_desc);
+	rx_bytes -= MVPP2_MH_SIZE;
+	dma_addr = mvpp2_rxdesc_dma_addr_get(port, rx_desc);
 
-	bm = mvpp2_bm_cookie_build(rx_desc);
+	bm = mvpp2_bm_cookie_build(port, rx_desc);
 	pool = mvpp2_bm_cookie_pool_get(bm);
 	bm_pool = &port->priv->bm_pools[pool];
 
@@ -3889,8 +3955,7 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	if (rx_status & MVPP2_RXD_ERR_SUMMARY) {
 		mvpp2_rx_error(port, rx_desc);
 		/* Return the buffer to the pool */
-		mvpp2_pool_refill(port, bm, rx_desc->buf_dma_addr,
-				  rx_desc->buf_cookie);
+		mvpp2_pool_refill(port, bm, dma_addr, dma_addr);
 		return 0;
 	}
 
@@ -3947,13 +4012,16 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 
 	/* Get a descriptor for the first part of the packet */
 	tx_desc = mvpp2_txq_next_desc_get(aggr_txq);
-	tx_desc->phys_txq = txq->id;
-	tx_desc->data_size = length;
-	tx_desc->packet_offset = (unsigned long)packet & MVPP2_TX_DESC_ALIGN;
-	tx_desc->buf_dma_addr = (unsigned long)packet & ~MVPP2_TX_DESC_ALIGN;
+	mvpp2_txdesc_txq_set(port, tx_desc, txq->id);
+	mvpp2_txdesc_size_set(port, tx_desc, length);
+	mvpp2_txdesc_offset_set(port, tx_desc,
+				(dma_addr_t)packet & MVPP2_TX_DESC_ALIGN);
+	mvpp2_txdesc_dma_addr_set(port, tx_desc,
+				  (dma_addr_t)packet & ~MVPP2_TX_DESC_ALIGN);
 	/* First and Last descriptor */
-	tx_desc->command = MVPP2_TXD_L4_CSUM_NOT | MVPP2_TXD_IP_CSUM_DISABLE
-		| MVPP2_TXD_F_DESC | MVPP2_TXD_L_DESC;
+	mvpp2_txdesc_cmd_set(port, tx_desc,
+			     MVPP2_TXD_L4_CSUM_NOT | MVPP2_TXD_IP_CSUM_DISABLE
+			     | MVPP2_TXD_F_DESC | MVPP2_TXD_L_DESC);
 
 	/* Flush tx data */
 	flush_dcache_range((unsigned long)packet,
