@@ -1,7 +1,7 @@
 /******************************************************************************
 *
 * Copyright (C) 2015 Xilinx, Inc.  All rights reserved.
-* 
+*
 *  This program is free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
 *  the Free Software Foundation; either version 2 of the License, or
@@ -11,12 +11,12 @@
 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *  GNU General Public License for more details.
-* 
+*
 *  You should have received a copy of the GNU General Public License along
 *  with this program; if not, see <http://www.gnu.org/licenses/>
-* 
-* 
-******************************************************************************/ 
+*
+*
+******************************************************************************/
 
 #include <xil_io.h>
 #include "psu_init_gpl.h"
@@ -50,7 +50,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CFG_LOCK_DLY                                                   0x3f
 
 		Helper data. Values are to be looked up in a table from Data Sheet
-		(OFFSET, MASK, VALUE)      (0XFF5E0034, 0xFE7FEDEFU ,0x7E4B0C62U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0034, 0xFE7FEDEFU ,0x7E4B0C62U)
 		RegMask = (CRL_APB_RPLL_CFG_RES_MASK | CRL_APB_RPLL_CFG_CP_MASK | CRL_APB_RPLL_CFG_LFHF_MASK | CRL_APB_RPLL_CFG_LOCK_CNT_MASK | CRL_APB_RPLL_CFG_LOCK_DLY_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRL_APB_RPLL_CFG_RES_SHIFT
@@ -76,7 +76,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CTRL_DIV2                                                      0x1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00717F00U ,0x00014E00U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00717F00U ,0x00014E00U)
 		RegMask = (CRL_APB_RPLL_CTRL_PRE_SRC_MASK | CRL_APB_RPLL_CTRL_FBDIV_MASK | CRL_APB_RPLL_CTRL_DIV2_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RPLL_CTRL_PRE_SRC_SHIFT
@@ -94,7 +94,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CTRL_BYPASS                                                    1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000008U ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000008U ,0x00000008U)
 		RegMask = (CRL_APB_RPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_RPLL_CTRL_BYPASS_SHIFT
@@ -109,7 +109,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CTRL_RESET                                                     1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000001U ,0x00000001U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000001U ,0x00000001U)
 		RegMask = (CRL_APB_RPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_RPLL_CTRL_RESET_SHIFT
@@ -124,7 +124,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CTRL_RESET                                                     0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000001U ,0x00000000U)
 		RegMask = (CRL_APB_RPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RPLL_CTRL_RESET_SHIFT
@@ -150,7 +150,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_CTRL_BYPASS                                                    0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0030, 0x00000008U ,0x00000000U)
 		RegMask = (CRL_APB_RPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RPLL_CTRL_BYPASS_SHIFT
@@ -164,7 +164,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_RPLL_TO_FPD_CTRL_DIVISOR0                                           0x3
 
 		Control for a clock that will be generated in the LPD, but used in the FPD as a clock source for the peripheral clock muxes.
-		(OFFSET, MASK, VALUE)      (0XFF5E0048, 0x00003F00U ,0x00000300U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0048, 0x00003F00U ,0x00000300U)
 		RegMask = (CRL_APB_RPLL_TO_FPD_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000003U << CRL_APB_RPLL_TO_FPD_CTRL_DIVISOR0_SHIFT
@@ -192,7 +192,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CFG_LOCK_DLY                                                  0x3f
 
 		Helper data. Values are to be looked up in a table from Data Sheet
-		(OFFSET, MASK, VALUE)      (0XFF5E0024, 0xFE7FEDEFU ,0x7E4E2C62U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0024, 0xFE7FEDEFU ,0x7E4E2C62U)
 		RegMask = (CRL_APB_IOPLL_CFG_RES_MASK | CRL_APB_IOPLL_CFG_CP_MASK | CRL_APB_IOPLL_CFG_LFHF_MASK | CRL_APB_IOPLL_CFG_LOCK_CNT_MASK | CRL_APB_IOPLL_CFG_LOCK_DLY_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRL_APB_IOPLL_CFG_RES_SHIFT
@@ -218,7 +218,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CTRL_DIV2                                                     0x1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00717F00U ,0x00013C00U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00717F00U ,0x00013C00U)
 		RegMask = (CRL_APB_IOPLL_CTRL_PRE_SRC_MASK | CRL_APB_IOPLL_CTRL_FBDIV_MASK | CRL_APB_IOPLL_CTRL_DIV2_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_IOPLL_CTRL_PRE_SRC_SHIFT
@@ -236,7 +236,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CTRL_BYPASS                                                   1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000008U ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000008U ,0x00000008U)
 		RegMask = (CRL_APB_IOPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_IOPLL_CTRL_BYPASS_SHIFT
@@ -251,7 +251,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CTRL_RESET                                                    1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000001U ,0x00000001U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000001U ,0x00000001U)
 		RegMask = (CRL_APB_IOPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_IOPLL_CTRL_RESET_SHIFT
@@ -266,7 +266,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CTRL_RESET                                                    0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000001U ,0x00000000U)
 		RegMask = (CRL_APB_IOPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_IOPLL_CTRL_RESET_SHIFT
@@ -292,7 +292,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_CTRL_BYPASS                                                   0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0020, 0x00000008U ,0x00000000U)
 		RegMask = (CRL_APB_IOPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_IOPLL_CTRL_BYPASS_SHIFT
@@ -306,7 +306,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRL_APB_IOPLL_TO_FPD_CTRL_DIVISOR0                                          0x2
 
 		Control for a clock that will be generated in the LPD, but used in the FPD as a clock source for the peripheral clock muxes.
-		(OFFSET, MASK, VALUE)      (0XFF5E0044, 0x00003F00U ,0x00000200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0044, 0x00003F00U ,0x00000200U)
 		RegMask = (CRL_APB_IOPLL_TO_FPD_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRL_APB_IOPLL_TO_FPD_CTRL_DIVISOR0_SHIFT
@@ -334,7 +334,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CFG_LOCK_DLY                                                   0x3f
 
 		Helper data. Values are to be looked up in a table from Data Sheet
-		(OFFSET, MASK, VALUE)      (0XFD1A0024, 0xFE7FEDEFU ,0x7E76CC6CU)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0024, 0xFE7FEDEFU ,0x7E76CC6CU)
 		RegMask = (CRF_APB_APLL_CFG_RES_MASK | CRF_APB_APLL_CFG_CP_MASK | CRF_APB_APLL_CFG_LFHF_MASK | CRF_APB_APLL_CFG_LOCK_CNT_MASK | CRF_APB_APLL_CFG_LOCK_DLY_MASK |  0 );
 
 		RegVal = ((0x0000000CU << CRF_APB_APLL_CFG_RES_SHIFT
@@ -360,7 +360,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CTRL_DIV2                                                      0x1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00717F00U ,0x00012700U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00717F00U ,0x00012700U)
 		RegMask = (CRF_APB_APLL_CTRL_PRE_SRC_MASK | CRF_APB_APLL_CTRL_FBDIV_MASK | CRF_APB_APLL_CTRL_DIV2_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_APLL_CTRL_PRE_SRC_SHIFT
@@ -378,7 +378,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CTRL_BYPASS                                                    1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000008U ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000008U ,0x00000008U)
 		RegMask = (CRF_APB_APLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_APLL_CTRL_BYPASS_SHIFT
@@ -393,7 +393,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CTRL_RESET                                                     1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000001U ,0x00000001U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000001U ,0x00000001U)
 		RegMask = (CRF_APB_APLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_APLL_CTRL_RESET_SHIFT
@@ -408,7 +408,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CTRL_RESET                                                     0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000001U ,0x00000000U)
 		RegMask = (CRF_APB_APLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_APLL_CTRL_RESET_SHIFT
@@ -434,7 +434,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_CTRL_BYPASS                                                    0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0020, 0x00000008U ,0x00000000U)
 		RegMask = (CRF_APB_APLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_APLL_CTRL_BYPASS_SHIFT
@@ -448,7 +448,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_APLL_TO_LPD_CTRL_DIVISOR0                                           0x2
 
 		Control for a clock that will be generated in the FPD, but used in the LPD as a clock source for the peripheral clock muxes.
-		(OFFSET, MASK, VALUE)      (0XFD1A0048, 0x00003F00U ,0x00000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0048, 0x00003F00U ,0x00000200U)
 		RegMask = (CRF_APB_APLL_TO_LPD_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRF_APB_APLL_TO_LPD_CTRL_DIVISOR0_SHIFT
@@ -476,7 +476,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CFG_LOCK_DLY                                                   0x3f
 
 		Helper data. Values are to be looked up in a table from Data Sheet
-		(OFFSET, MASK, VALUE)      (0XFD1A0030, 0xFE7FEDEFU ,0x7E76CC6CU)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0030, 0xFE7FEDEFU ,0x7E76CC6CU)
 		RegMask = (CRF_APB_DPLL_CFG_RES_MASK | CRF_APB_DPLL_CFG_CP_MASK | CRF_APB_DPLL_CFG_LFHF_MASK | CRF_APB_DPLL_CFG_LOCK_CNT_MASK | CRF_APB_DPLL_CFG_LOCK_DLY_MASK |  0 );
 
 		RegVal = ((0x0000000CU << CRF_APB_DPLL_CFG_RES_SHIFT
@@ -502,7 +502,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CTRL_DIV2                                                      0x1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00717F00U ,0x00012700U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00717F00U ,0x00012700U)
 		RegMask = (CRF_APB_DPLL_CTRL_PRE_SRC_MASK | CRF_APB_DPLL_CTRL_FBDIV_MASK | CRF_APB_DPLL_CTRL_DIV2_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_DPLL_CTRL_PRE_SRC_SHIFT
@@ -520,7 +520,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CTRL_BYPASS                                                    1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000008U ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000008U ,0x00000008U)
 		RegMask = (CRF_APB_DPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_DPLL_CTRL_BYPASS_SHIFT
@@ -535,7 +535,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CTRL_RESET                                                     1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000001U ,0x00000001U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000001U ,0x00000001U)
 		RegMask = (CRF_APB_DPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_DPLL_CTRL_RESET_SHIFT
@@ -550,7 +550,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CTRL_RESET                                                     0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000001U ,0x00000000U)
 		RegMask = (CRF_APB_DPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_DPLL_CTRL_RESET_SHIFT
@@ -576,7 +576,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_CTRL_BYPASS                                                    0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A002C, 0x00000008U ,0x00000000U)
 		RegMask = (CRF_APB_DPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_DPLL_CTRL_BYPASS_SHIFT
@@ -590,7 +590,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_DPLL_TO_LPD_CTRL_DIVISOR0                                           0x2
 
 		Control for a clock that will be generated in the FPD, but used in the LPD as a clock source for the peripheral clock muxes.
-		(OFFSET, MASK, VALUE)      (0XFD1A004C, 0x00003F00U ,0x00000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A004C, 0x00003F00U ,0x00000200U)
 		RegMask = (CRF_APB_DPLL_TO_LPD_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRF_APB_DPLL_TO_LPD_CTRL_DIVISOR0_SHIFT
@@ -618,7 +618,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CFG_LOCK_DLY                                                   0x3f
 
 		Helper data. Values are to be looked up in a table from Data Sheet
-		(OFFSET, MASK, VALUE)      (0XFD1A003C, 0xFE7FEDEFU ,0x7E4B0C62U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A003C, 0xFE7FEDEFU ,0x7E4B0C62U)
 		RegMask = (CRF_APB_VPLL_CFG_RES_MASK | CRF_APB_VPLL_CFG_CP_MASK | CRF_APB_VPLL_CFG_LFHF_MASK | CRF_APB_VPLL_CFG_LOCK_CNT_MASK | CRF_APB_VPLL_CFG_LOCK_DLY_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRF_APB_VPLL_CFG_RES_SHIFT
@@ -644,7 +644,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CTRL_DIV2                                                      0x1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00717F00U ,0x00015100U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00717F00U ,0x00015100U)
 		RegMask = (CRF_APB_VPLL_CTRL_PRE_SRC_MASK | CRF_APB_VPLL_CTRL_FBDIV_MASK | CRF_APB_VPLL_CTRL_DIV2_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_VPLL_CTRL_PRE_SRC_SHIFT
@@ -662,7 +662,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CTRL_BYPASS                                                    1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000008U ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000008U ,0x00000008U)
 		RegMask = (CRF_APB_VPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_VPLL_CTRL_BYPASS_SHIFT
@@ -677,7 +677,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CTRL_RESET                                                     1
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000001U ,0x00000001U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000001U ,0x00000001U)
 		RegMask = (CRF_APB_VPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_VPLL_CTRL_RESET_SHIFT
@@ -692,7 +692,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CTRL_RESET                                                     0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000001U ,0x00000000U)
 		RegMask = (CRF_APB_VPLL_CTRL_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_VPLL_CTRL_RESET_SHIFT
@@ -718,7 +718,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_CTRL_BYPASS                                                    0
 
 		PLL Basic Control
-		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0038, 0x00000008U ,0x00000000U)
 		RegMask = (CRF_APB_VPLL_CTRL_BYPASS_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_VPLL_CTRL_BYPASS_SHIFT
@@ -732,7 +732,7 @@ unsigned long psu_pll_init_data() {
 		PSU_CRF_APB_VPLL_TO_LPD_CTRL_DIVISOR0                                           0x3
 
 		Control for a clock that will be generated in the FPD, but used in the LPD as a clock source for the peripheral clock muxes.
-		(OFFSET, MASK, VALUE)      (0XFD1A0050, 0x00003F00U ,0x00000300U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0050, 0x00003F00U ,0x00000300U)
 		RegMask = (CRF_APB_VPLL_TO_LPD_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000003U << CRF_APB_VPLL_TO_LPD_CTRL_DIVISOR0_SHIFT
@@ -765,7 +765,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_GEM0_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0050, 0x063F3F07U ,0x06012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0050, 0x063F3F07U ,0x06012800U)
 		RegMask = (CRL_APB_GEM0_REF_CTRL_RX_CLKACT_MASK | CRL_APB_GEM0_REF_CTRL_CLKACT_MASK | CRL_APB_GEM0_REF_CTRL_DIVISOR1_MASK | CRL_APB_GEM0_REF_CTRL_DIVISOR0_MASK | CRL_APB_GEM0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_GEM0_REF_CTRL_RX_CLKACT_SHIFT
@@ -796,7 +796,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_GEM1_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0054, 0x063F3F07U ,0x06012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0054, 0x063F3F07U ,0x06012800U)
 		RegMask = (CRL_APB_GEM1_REF_CTRL_RX_CLKACT_MASK | CRL_APB_GEM1_REF_CTRL_CLKACT_MASK | CRL_APB_GEM1_REF_CTRL_DIVISOR1_MASK | CRL_APB_GEM1_REF_CTRL_DIVISOR0_MASK | CRL_APB_GEM1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_GEM1_REF_CTRL_RX_CLKACT_SHIFT
@@ -827,7 +827,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_GEM2_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0058, 0x063F3F07U ,0x06012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0058, 0x063F3F07U ,0x06012800U)
 		RegMask = (CRL_APB_GEM2_REF_CTRL_RX_CLKACT_MASK | CRL_APB_GEM2_REF_CTRL_CLKACT_MASK | CRL_APB_GEM2_REF_CTRL_DIVISOR1_MASK | CRL_APB_GEM2_REF_CTRL_DIVISOR0_MASK | CRL_APB_GEM2_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_GEM2_REF_CTRL_RX_CLKACT_SHIFT
@@ -858,7 +858,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_GEM3_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E005C, 0x063F3F07U ,0x06012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E005C, 0x063F3F07U ,0x06012800U)
 		RegMask = (CRL_APB_GEM3_REF_CTRL_RX_CLKACT_MASK | CRL_APB_GEM3_REF_CTRL_CLKACT_MASK | CRL_APB_GEM3_REF_CTRL_DIVISOR1_MASK | CRL_APB_GEM3_REF_CTRL_DIVISOR0_MASK | CRL_APB_GEM3_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_GEM3_REF_CTRL_RX_CLKACT_SHIFT
@@ -886,7 +886,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_GEM_TSU_REF_CTRL_CLKACT                                             0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0100, 0x013F3F07U ,0x01010402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0100, 0x013F3F07U ,0x01010402U)
 		RegMask = (CRL_APB_GEM_TSU_REF_CTRL_DIVISOR0_MASK | CRL_APB_GEM_TSU_REF_CTRL_SRCSEL_MASK | CRL_APB_GEM_TSU_REF_CTRL_DIVISOR1_MASK | CRL_APB_GEM_TSU_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000004U << CRL_APB_GEM_TSU_REF_CTRL_DIVISOR0_SHIFT
@@ -913,7 +913,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_USB0_BUS_REF_CTRL_SRCSEL                                            0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0060, 0x023F3F07U ,0x02011900U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0060, 0x023F3F07U ,0x02011900U)
 		RegMask = (CRL_APB_USB0_BUS_REF_CTRL_CLKACT_MASK | CRL_APB_USB0_BUS_REF_CTRL_DIVISOR1_MASK | CRL_APB_USB0_BUS_REF_CTRL_DIVISOR0_MASK | CRL_APB_USB0_BUS_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_USB0_BUS_REF_CTRL_CLKACT_SHIFT
@@ -940,7 +940,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_USB1_BUS_REF_CTRL_SRCSEL                                            0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0064, 0x023F3F07U ,0x02011900U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0064, 0x023F3F07U ,0x02011900U)
 		RegMask = (CRL_APB_USB1_BUS_REF_CTRL_CLKACT_MASK | CRL_APB_USB1_BUS_REF_CTRL_DIVISOR1_MASK | CRL_APB_USB1_BUS_REF_CTRL_DIVISOR0_MASK | CRL_APB_USB1_BUS_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_USB1_BUS_REF_CTRL_CLKACT_SHIFT
@@ -967,7 +967,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_USB3_DUAL_REF_CTRL_SRCSEL                                           0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E004C, 0x023F3F07U ,0x02013200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E004C, 0x023F3F07U ,0x02013200U)
 		RegMask = (CRL_APB_USB3_DUAL_REF_CTRL_CLKACT_MASK | CRL_APB_USB3_DUAL_REF_CTRL_DIVISOR1_MASK | CRL_APB_USB3_DUAL_REF_CTRL_DIVISOR0_MASK | CRL_APB_USB3_DUAL_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_USB3_DUAL_REF_CTRL_CLKACT_SHIFT
@@ -994,7 +994,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_QSPI_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0068, 0x013F3F07U ,0x01013200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0068, 0x013F3F07U ,0x01013200U)
 		RegMask = (CRL_APB_QSPI_REF_CTRL_CLKACT_MASK | CRL_APB_QSPI_REF_CTRL_DIVISOR1_MASK | CRL_APB_QSPI_REF_CTRL_DIVISOR0_MASK | CRL_APB_QSPI_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_QSPI_REF_CTRL_CLKACT_SHIFT
@@ -1021,7 +1021,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_SDIO0_REF_CTRL_SRCSEL                                               0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E006C, 0x013F3F07U ,0x01050D02U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E006C, 0x013F3F07U ,0x01050D02U)
 		RegMask = (CRL_APB_SDIO0_REF_CTRL_CLKACT_MASK | CRL_APB_SDIO0_REF_CTRL_DIVISOR1_MASK | CRL_APB_SDIO0_REF_CTRL_DIVISOR0_MASK | CRL_APB_SDIO0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_SDIO0_REF_CTRL_CLKACT_SHIFT
@@ -1048,7 +1048,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_SDIO1_REF_CTRL_SRCSEL                                               0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0070, 0x013F3F07U ,0x01050D02U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0070, 0x013F3F07U ,0x01050D02U)
 		RegMask = (CRL_APB_SDIO1_REF_CTRL_CLKACT_MASK | CRL_APB_SDIO1_REF_CTRL_DIVISOR1_MASK | CRL_APB_SDIO1_REF_CTRL_DIVISOR0_MASK | CRL_APB_SDIO1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_SDIO1_REF_CTRL_CLKACT_SHIFT
@@ -1068,7 +1068,7 @@ unsigned long psu_clock_init_data() {
 		PSU_IOU_SLCR_SDIO_CLK_CTRL_SDIO1_RX_SRC_SEL                                     0
 
 		SoC Debug Clock Control
-		(OFFSET, MASK, VALUE)      (0XFF18030C, 0x00020003U ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF18030C, 0x00020003U ,0x00000002U)
 		RegMask = (IOU_SLCR_SDIO_CLK_CTRL_SDIO0_RX_SRC_SEL_MASK | IOU_SLCR_SDIO_CLK_CTRL_SDIO1_RX_SRC_SEL_MASK |  0 );
 
 		RegVal = ((0x00000002U << IOU_SLCR_SDIO_CLK_CTRL_SDIO0_RX_SRC_SEL_SHIFT
@@ -1093,7 +1093,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_UART0_REF_CTRL_SRCSEL                                               0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0074, 0x013F3F07U ,0x01012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0074, 0x013F3F07U ,0x01012800U)
 		RegMask = (CRL_APB_UART0_REF_CTRL_CLKACT_MASK | CRL_APB_UART0_REF_CTRL_DIVISOR1_MASK | CRL_APB_UART0_REF_CTRL_DIVISOR0_MASK | CRL_APB_UART0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_UART0_REF_CTRL_CLKACT_SHIFT
@@ -1120,7 +1120,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_UART1_REF_CTRL_SRCSEL                                               0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0078, 0x013F3F07U ,0x01012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0078, 0x013F3F07U ,0x01012800U)
 		RegMask = (CRL_APB_UART1_REF_CTRL_CLKACT_MASK | CRL_APB_UART1_REF_CTRL_DIVISOR1_MASK | CRL_APB_UART1_REF_CTRL_DIVISOR0_MASK | CRL_APB_UART1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_UART1_REF_CTRL_CLKACT_SHIFT
@@ -1147,7 +1147,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_I2C0_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0120, 0x013F3F07U ,0x01012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0120, 0x013F3F07U ,0x01012800U)
 		RegMask = (CRL_APB_I2C0_REF_CTRL_CLKACT_MASK | CRL_APB_I2C0_REF_CTRL_DIVISOR1_MASK | CRL_APB_I2C0_REF_CTRL_DIVISOR0_MASK | CRL_APB_I2C0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_I2C0_REF_CTRL_CLKACT_SHIFT
@@ -1174,7 +1174,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_I2C1_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0124, 0x013F3F07U ,0x01053200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0124, 0x013F3F07U ,0x01053200U)
 		RegMask = (CRL_APB_I2C1_REF_CTRL_CLKACT_MASK | CRL_APB_I2C1_REF_CTRL_DIVISOR1_MASK | CRL_APB_I2C1_REF_CTRL_DIVISOR0_MASK | CRL_APB_I2C1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_I2C1_REF_CTRL_CLKACT_SHIFT
@@ -1201,7 +1201,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_SPI0_REF_CTRL_SRCSEL                                                0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E007C, 0x013F3F07U ,0x01013402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E007C, 0x013F3F07U ,0x01013402U)
 		RegMask = (CRL_APB_SPI0_REF_CTRL_CLKACT_MASK | CRL_APB_SPI0_REF_CTRL_DIVISOR1_MASK | CRL_APB_SPI0_REF_CTRL_DIVISOR0_MASK | CRL_APB_SPI0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_SPI0_REF_CTRL_CLKACT_SHIFT
@@ -1228,7 +1228,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_SPI1_REF_CTRL_SRCSEL                                                0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0080, 0x013F3F07U ,0x010D1902U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0080, 0x013F3F07U ,0x010D1902U)
 		RegMask = (CRL_APB_SPI1_REF_CTRL_CLKACT_MASK | CRL_APB_SPI1_REF_CTRL_DIVISOR1_MASK | CRL_APB_SPI1_REF_CTRL_DIVISOR0_MASK | CRL_APB_SPI1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_SPI1_REF_CTRL_CLKACT_SHIFT
@@ -1255,7 +1255,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_CAN0_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0084, 0x013F3F07U ,0x01012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0084, 0x013F3F07U ,0x01012800U)
 		RegMask = (CRL_APB_CAN0_REF_CTRL_CLKACT_MASK | CRL_APB_CAN0_REF_CTRL_DIVISOR1_MASK | CRL_APB_CAN0_REF_CTRL_DIVISOR0_MASK | CRL_APB_CAN0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_CAN0_REF_CTRL_CLKACT_SHIFT
@@ -1282,7 +1282,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_CAN1_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0088, 0x013F3F07U ,0x01012800U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0088, 0x013F3F07U ,0x01012800U)
 		RegMask = (CRL_APB_CAN1_REF_CTRL_CLKACT_MASK | CRL_APB_CAN1_REF_CTRL_DIVISOR1_MASK | CRL_APB_CAN1_REF_CTRL_DIVISOR0_MASK | CRL_APB_CAN1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_CAN1_REF_CTRL_CLKACT_SHIFT
@@ -1307,7 +1307,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_CPU_R5_CTRL_SRCSEL                                                  0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0090, 0x01003F07U ,0x01003F02U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0090, 0x01003F07U ,0x01003F02U)
 		RegMask = (CRL_APB_CPU_R5_CTRL_CLKACT_MASK | CRL_APB_CPU_R5_CTRL_DIVISOR0_MASK | CRL_APB_CPU_R5_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_CPU_R5_CTRL_CLKACT_SHIFT
@@ -1330,7 +1330,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_IOU_SWITCH_CTRL_SRCSEL                                              0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E009C, 0x01003F07U ,0x01000500U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E009C, 0x01003F07U ,0x01000500U)
 		RegMask = (CRL_APB_IOU_SWITCH_CTRL_CLKACT_MASK | CRL_APB_IOU_SWITCH_CTRL_DIVISOR0_MASK | CRL_APB_IOU_SWITCH_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_IOU_SWITCH_CTRL_CLKACT_SHIFT
@@ -1353,7 +1353,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_CSU_PLL_CTRL_SRCSEL                                                 0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00A0, 0x01003F07U ,0x01000200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00A0, 0x01003F07U ,0x01000200U)
 		RegMask = (CRL_APB_CSU_PLL_CTRL_CLKACT_MASK | CRL_APB_CSU_PLL_CTRL_DIVISOR0_MASK | CRL_APB_CSU_PLL_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_CSU_PLL_CTRL_CLKACT_SHIFT
@@ -1376,7 +1376,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_PCAP_CTRL_SRCSEL                                                    0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00A4, 0x01003F07U ,0x01000602U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00A4, 0x01003F07U ,0x01000602U)
 		RegMask = (CRL_APB_PCAP_CTRL_CLKACT_MASK | CRL_APB_PCAP_CTRL_DIVISOR0_MASK | CRL_APB_PCAP_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_PCAP_CTRL_CLKACT_SHIFT
@@ -1399,7 +1399,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_LPD_SWITCH_CTRL_SRCSEL                                              0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00A8, 0x01003F07U ,0x01000202U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00A8, 0x01003F07U ,0x01000202U)
 		RegMask = (CRL_APB_LPD_SWITCH_CTRL_CLKACT_MASK | CRL_APB_LPD_SWITCH_CTRL_DIVISOR0_MASK | CRL_APB_LPD_SWITCH_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_LPD_SWITCH_CTRL_CLKACT_SHIFT
@@ -1422,7 +1422,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_LPD_LSBUS_CTRL_SRCSEL                                               0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00AC, 0x01003F07U ,0x01000A02U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00AC, 0x01003F07U ,0x01000A02U)
 		RegMask = (CRL_APB_LPD_LSBUS_CTRL_CLKACT_MASK | CRL_APB_LPD_LSBUS_CTRL_DIVISOR0_MASK | CRL_APB_LPD_LSBUS_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_LPD_LSBUS_CTRL_CLKACT_SHIFT
@@ -1445,7 +1445,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_DBG_LPD_CTRL_SRCSEL                                                 0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00B0, 0x01003F07U ,0x01000600U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00B0, 0x01003F07U ,0x01000600U)
 		RegMask = (CRL_APB_DBG_LPD_CTRL_CLKACT_MASK | CRL_APB_DBG_LPD_CTRL_DIVISOR0_MASK | CRL_APB_DBG_LPD_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_DBG_LPD_CTRL_CLKACT_SHIFT
@@ -1471,7 +1471,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_NAND_REF_CTRL_SRCSEL                                                0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00B4, 0x013F3F07U ,0x01013200U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00B4, 0x013F3F07U ,0x01013200U)
 		RegMask = (CRL_APB_NAND_REF_CTRL_CLKACT_MASK | CRL_APB_NAND_REF_CTRL_DIVISOR1_MASK | CRL_APB_NAND_REF_CTRL_DIVISOR0_MASK | CRL_APB_NAND_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_NAND_REF_CTRL_CLKACT_SHIFT
@@ -1495,7 +1495,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_ADMA_REF_CTRL_SRCSEL                                                0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00B8, 0x01003F07U ,0x01000202U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00B8, 0x01003F07U ,0x01000202U)
 		RegMask = (CRL_APB_ADMA_REF_CTRL_CLKACT_MASK | CRL_APB_ADMA_REF_CTRL_DIVISOR0_MASK | CRL_APB_ADMA_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_ADMA_REF_CTRL_CLKACT_SHIFT
@@ -1521,7 +1521,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_PL0_REF_CTRL_SRCSEL                                                 0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00C0, 0x013F3F07U ,0x01010402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00C0, 0x013F3F07U ,0x01010402U)
 		RegMask = (CRL_APB_PL0_REF_CTRL_CLKACT_MASK | CRL_APB_PL0_REF_CTRL_DIVISOR1_MASK | CRL_APB_PL0_REF_CTRL_DIVISOR0_MASK | CRL_APB_PL0_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_PL0_REF_CTRL_CLKACT_SHIFT
@@ -1548,7 +1548,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_PL1_REF_CTRL_SRCSEL                                                 0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00C4, 0x013F3F07U ,0x01010402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00C4, 0x013F3F07U ,0x01010402U)
 		RegMask = (CRL_APB_PL1_REF_CTRL_CLKACT_MASK | CRL_APB_PL1_REF_CTRL_DIVISOR1_MASK | CRL_APB_PL1_REF_CTRL_DIVISOR0_MASK | CRL_APB_PL1_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_PL1_REF_CTRL_CLKACT_SHIFT
@@ -1575,7 +1575,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_PL2_REF_CTRL_SRCSEL                                                 0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00C8, 0x013F3F07U ,0x01010402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00C8, 0x013F3F07U ,0x01010402U)
 		RegMask = (CRL_APB_PL2_REF_CTRL_CLKACT_MASK | CRL_APB_PL2_REF_CTRL_DIVISOR1_MASK | CRL_APB_PL2_REF_CTRL_DIVISOR0_MASK | CRL_APB_PL2_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_PL2_REF_CTRL_CLKACT_SHIFT
@@ -1602,7 +1602,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_PL3_REF_CTRL_SRCSEL                                                 0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E00CC, 0x013F3F07U ,0x01010402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E00CC, 0x013F3F07U ,0x01010402U)
 		RegMask = (CRL_APB_PL3_REF_CTRL_CLKACT_MASK | CRL_APB_PL3_REF_CTRL_DIVISOR1_MASK | CRL_APB_PL3_REF_CTRL_DIVISOR0_MASK | CRL_APB_PL3_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_PL3_REF_CTRL_CLKACT_SHIFT
@@ -1629,7 +1629,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_AMS_REF_CTRL_CLKACT                                                 0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0108, 0x013F3F07U ,0x01011402U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0108, 0x013F3F07U ,0x01011402U)
 		RegMask = (CRL_APB_AMS_REF_CTRL_DIVISOR1_MASK | CRL_APB_AMS_REF_CTRL_DIVISOR0_MASK | CRL_APB_AMS_REF_CTRL_SRCSEL_MASK | CRL_APB_AMS_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRL_APB_AMS_REF_CTRL_DIVISOR1_SHIFT
@@ -1647,7 +1647,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_DLL_REF_CTRL_SRCSEL                                                 0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0104, 0x00000007U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0104, 0x00000007U ,0x00000000U)
 		RegMask = (CRL_APB_DLL_REF_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_DLL_REF_CTRL_SRCSEL_SHIFT
@@ -1660,7 +1660,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRL_APB_TIMESTAMP_REF_CTRL_DIVISOR0                                         0xa
 
-		1XX = pss_ref_clk; 000 = IOPLL; 010 = RPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 
+		1XX = pss_ref_clk; 000 = IOPLL; 010 = RPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and
 		 cycles of the new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRL_APB_TIMESTAMP_REF_CTRL_SRCSEL                                           0x0
 
@@ -1668,7 +1668,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT                                           0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFF5E0128, 0x01003F07U ,0x01000A00U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0128, 0x01003F07U ,0x01000A00U)
 		RegMask = (CRL_APB_TIMESTAMP_REF_CTRL_DIVISOR0_MASK | CRL_APB_TIMESTAMP_REF_CTRL_SRCSEL_MASK | CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x0000000AU << CRL_APB_TIMESTAMP_REF_CTRL_DIVISOR0_SHIFT
@@ -1680,7 +1680,7 @@ unsigned long psu_clock_init_data() {
 
 		/*Register : SATA_REF_CTRL @ 0XFD1A00A0</p>
 
-		000 = IOPLL_TO_FPD; 010 = APLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = APLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_SATA_REF_CTRL_SRCSEL                                                0x0
 
@@ -1691,7 +1691,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_SATA_REF_CTRL_DIVISOR0                                              0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00A0, 0x01003F07U ,0x01000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00A0, 0x01003F07U ,0x01000200U)
 		RegMask = (CRF_APB_SATA_REF_CTRL_SRCSEL_MASK | CRF_APB_SATA_REF_CTRL_CLKACT_MASK | CRF_APB_SATA_REF_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_SATA_REF_CTRL_SRCSEL_SHIFT
@@ -1714,7 +1714,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_PCIE_REF_CTRL_DIVISOR0                                              0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00B4, 0x01003F07U ,0x01000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00B4, 0x01003F07U ,0x01000200U)
 		RegMask = (CRF_APB_PCIE_REF_CTRL_SRCSEL_MASK | CRF_APB_PCIE_REF_CTRL_CLKACT_MASK | CRF_APB_PCIE_REF_CTRL_DIVISOR0_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_PCIE_REF_CTRL_SRCSEL_SHIFT
@@ -1732,7 +1732,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DP_VIDEO_REF_CTRL_DIVISOR0                                          0x2d
 
-		000 = VPLL; 010 = DPLL; 011 = RPLL_TO_FPD - might be using extra mux; (This signal may only be toggled after 4 cycles of the 
+		000 = VPLL; 010 = DPLL; 011 = RPLL_TO_FPD - might be using extra mux; (This signal may only be toggled after 4 cycles of the
 		ld clock and 4 cycles of the new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DP_VIDEO_REF_CTRL_SRCSEL                                            0x0
 
@@ -1740,7 +1740,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DP_VIDEO_REF_CTRL_CLKACT                                            0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0070, 0x013F3F07U ,0x010F2D00U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0070, 0x013F3F07U ,0x010F2D00U)
 		RegMask = (CRF_APB_DP_VIDEO_REF_CTRL_DIVISOR1_MASK | CRF_APB_DP_VIDEO_REF_CTRL_DIVISOR0_MASK | CRF_APB_DP_VIDEO_REF_CTRL_SRCSEL_MASK | CRF_APB_DP_VIDEO_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x0000000FU << CRF_APB_DP_VIDEO_REF_CTRL_DIVISOR1_SHIFT
@@ -1759,7 +1759,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DP_AUDIO_REF_CTRL_DIVISOR0                                          0x36
 
-		000 = VPLL; 010 = DPLL; 011 = RPLL_TO_FPD - might be using extra mux; (This signal may only be toggled after 4 cycles of the 
+		000 = VPLL; 010 = DPLL; 011 = RPLL_TO_FPD - might be using extra mux; (This signal may only be toggled after 4 cycles of the
 		ld clock and 4 cycles of the new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DP_AUDIO_REF_CTRL_SRCSEL                                            0x0
 
@@ -1767,7 +1767,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DP_AUDIO_REF_CTRL_CLKACT                                            0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0074, 0x013F3F07U ,0x01013600U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0074, 0x013F3F07U ,0x01013600U)
 		RegMask = (CRF_APB_DP_AUDIO_REF_CTRL_DIVISOR1_MASK | CRF_APB_DP_AUDIO_REF_CTRL_DIVISOR0_MASK | CRF_APB_DP_AUDIO_REF_CTRL_SRCSEL_MASK | CRF_APB_DP_AUDIO_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_DP_AUDIO_REF_CTRL_DIVISOR1_SHIFT
@@ -1794,7 +1794,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DP_STC_REF_CTRL_CLKACT                                              0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A007C, 0x013F3F07U ,0x01013600U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A007C, 0x013F3F07U ,0x01013600U)
 		RegMask = (CRF_APB_DP_STC_REF_CTRL_DIVISOR1_MASK | CRF_APB_DP_STC_REF_CTRL_DIVISOR0_MASK | CRF_APB_DP_STC_REF_CTRL_SRCSEL_MASK | CRF_APB_DP_STC_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_DP_STC_REF_CTRL_DIVISOR1_SHIFT
@@ -1810,7 +1810,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_ACPU_CTRL_DIVISOR0                                                  0x3f
 
-		000 = APLL; 010 = DPLL; 011 = VPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new 
+		000 = APLL; 010 = DPLL; 011 = VPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		lock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_ACPU_CTRL_SRCSEL                                                    0x0
 
@@ -1822,7 +1822,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_ACPU_CTRL_CLKACT_FULL                                               0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0060, 0x03003F07U ,0x03003F00U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0060, 0x03003F07U ,0x03003F00U)
 		RegMask = (CRF_APB_ACPU_CTRL_DIVISOR0_MASK | CRF_APB_ACPU_CTRL_SRCSEL_MASK | CRF_APB_ACPU_CTRL_CLKACT_HALF_MASK | CRF_APB_ACPU_CTRL_CLKACT_FULL_MASK |  0 );
 
 		RegVal = ((0x0000003FU << CRF_APB_ACPU_CTRL_DIVISOR0_SHIFT
@@ -1838,7 +1838,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DBG_TRACE_CTRL_DIVISOR0                                             0x2
 
-		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DBG_TRACE_CTRL_SRCSEL                                               0x0
 
@@ -1846,7 +1846,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DBG_TRACE_CTRL_CLKACT                                               0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0064, 0x01003F07U ,0x01000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0064, 0x01003F07U ,0x01000200U)
 		RegMask = (CRF_APB_DBG_TRACE_CTRL_DIVISOR0_MASK | CRF_APB_DBG_TRACE_CTRL_SRCSEL_MASK | CRF_APB_DBG_TRACE_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRF_APB_DBG_TRACE_CTRL_DIVISOR0_SHIFT
@@ -1861,7 +1861,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DBG_FPD_CTRL_DIVISOR0                                               0x2
 
-		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DBG_FPD_CTRL_SRCSEL                                                 0x0
 
@@ -1869,7 +1869,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DBG_FPD_CTRL_CLKACT                                                 0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0068, 0x01003F07U ,0x01000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0068, 0x01003F07U ,0x01000200U)
 		RegMask = (CRF_APB_DBG_FPD_CTRL_DIVISOR0_MASK | CRF_APB_DBG_FPD_CTRL_SRCSEL_MASK | CRF_APB_DBG_FPD_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000002U << CRF_APB_DBG_FPD_CTRL_DIVISOR0_SHIFT
@@ -1884,12 +1884,12 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DDR_CTRL_DIVISOR0                                                   0x4
 
-		000 = DPLL; 001 = VPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new clock. This 
+		000 = DPLL; 001 = VPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new clock. This
 		s not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DDR_CTRL_SRCSEL                                                     0x0
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0080, 0x00003F07U ,0x00000400U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0080, 0x00003F07U ,0x00000400U)
 		RegMask = (CRF_APB_DDR_CTRL_DIVISOR0_MASK | CRF_APB_DDR_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000004U << CRF_APB_DDR_CTRL_DIVISOR0_SHIFT
@@ -1903,7 +1903,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_GPU_REF_CTRL_DIVISOR0                                               0x3f
 
-		000 = IOPLL_TO_FPD; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_GPU_REF_CTRL_SRCSEL                                                 0x3
 
@@ -1917,7 +1917,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_GPU_REF_CTRL_PP1_CLKACT                                             0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A0084, 0x07003F07U ,0x07003F03U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0084, 0x07003F07U ,0x07003F03U)
 		RegMask = (CRF_APB_GPU_REF_CTRL_DIVISOR0_MASK | CRF_APB_GPU_REF_CTRL_SRCSEL_MASK | CRF_APB_GPU_REF_CTRL_CLKACT_MASK | CRF_APB_GPU_REF_CTRL_PP0_CLKACT_MASK | CRF_APB_GPU_REF_CTRL_PP1_CLKACT_MASK |  0 );
 
 		RegVal = ((0x0000003FU << CRF_APB_GPU_REF_CTRL_DIVISOR0_SHIFT
@@ -1934,7 +1934,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_GDMA_REF_CTRL_DIVISOR0                                              0x1
 
-		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new 
+		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		lock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_GDMA_REF_CTRL_SRCSEL                                                0x3
 
@@ -1942,7 +1942,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_GDMA_REF_CTRL_CLKACT                                                0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00B8, 0x01003F07U ,0x01000103U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00B8, 0x01003F07U ,0x01000103U)
 		RegMask = (CRF_APB_GDMA_REF_CTRL_DIVISOR0_MASK | CRF_APB_GDMA_REF_CTRL_SRCSEL_MASK | CRF_APB_GDMA_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_GDMA_REF_CTRL_DIVISOR0_SHIFT
@@ -1957,7 +1957,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DPDMA_REF_CTRL_DIVISOR0                                             0x1
 
-		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new 
+		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		lock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DPDMA_REF_CTRL_SRCSEL                                               0x3
 
@@ -1965,7 +1965,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_DPDMA_REF_CTRL_CLKACT                                               0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00BC, 0x01003F07U ,0x01000103U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00BC, 0x01003F07U ,0x01000103U)
 		RegMask = (CRF_APB_DPDMA_REF_CTRL_DIVISOR0_MASK | CRF_APB_DPDMA_REF_CTRL_SRCSEL_MASK | CRF_APB_DPDMA_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_DPDMA_REF_CTRL_DIVISOR0_SHIFT
@@ -1980,7 +1980,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_TOPSW_MAIN_CTRL_DIVISOR0                                            0x1
 
-		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new 
+		000 = APLL; 010 = VPLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of the new
 		lock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_TOPSW_MAIN_CTRL_SRCSEL                                              0x3
 
@@ -1988,7 +1988,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_TOPSW_MAIN_CTRL_CLKACT                                              0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00C0, 0x01003F07U ,0x01000103U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00C0, 0x01003F07U ,0x01000103U)
 		RegMask = (CRF_APB_TOPSW_MAIN_CTRL_DIVISOR0_MASK | CRF_APB_TOPSW_MAIN_CTRL_SRCSEL_MASK | CRF_APB_TOPSW_MAIN_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000001U << CRF_APB_TOPSW_MAIN_CTRL_DIVISOR0_SHIFT
@@ -2003,7 +2003,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_TOPSW_LSBUS_CTRL_DIVISOR0                                           0x5
 
-		000 = APLL; 010 = IOPLL_TO_FPD; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = APLL; 010 = IOPLL_TO_FPD; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_TOPSW_LSBUS_CTRL_SRCSEL                                             0x2
 
@@ -2011,7 +2011,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_TOPSW_LSBUS_CTRL_CLKACT                                             0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00C4, 0x01003F07U ,0x01000502U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00C4, 0x01003F07U ,0x01000502U)
 		RegMask = (CRF_APB_TOPSW_LSBUS_CTRL_DIVISOR0_MASK | CRF_APB_TOPSW_LSBUS_CTRL_SRCSEL_MASK | CRF_APB_TOPSW_LSBUS_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000005U << CRF_APB_TOPSW_LSBUS_CTRL_DIVISOR0_SHIFT
@@ -2026,7 +2026,7 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_GTGREF0_REF_CTRL_DIVISOR0                                           0x4
 
-		000 = IOPLL_TO_FPD; 010 = APLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = APLL; 011 = DPLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_GTGREF0_REF_CTRL_SRCSEL                                             0x0
 
@@ -2034,7 +2034,7 @@ unsigned long psu_clock_init_data() {
 		PSU_CRF_APB_GTGREF0_REF_CTRL_CLKACT                                             0x1
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00C8, 0x01003F07U ,0x01000400U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00C8, 0x01003F07U ,0x01000400U)
 		RegMask = (CRF_APB_GTGREF0_REF_CTRL_DIVISOR0_MASK | CRF_APB_GTGREF0_REF_CTRL_SRCSEL_MASK | CRF_APB_GTGREF0_REF_CTRL_CLKACT_MASK |  0 );
 
 		RegVal = ((0x00000004U << CRF_APB_GTGREF0_REF_CTRL_DIVISOR0_SHIFT
@@ -2049,12 +2049,12 @@ unsigned long psu_clock_init_data() {
 		6 bit divider
 		PSU_CRF_APB_DBG_TSTMP_CTRL_DIVISOR0                                             0x3
 
-		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of 
+		000 = IOPLL_TO_FPD; 010 = DPLL; 011 = APLL; (This signal may only be toggled after 4 cycles of the old clock and 4 cycles of
 		he new clock. This is not usually an issue, but designers must be aware.)
 		PSU_CRF_APB_DBG_TSTMP_CTRL_SRCSEL                                               0x2
 
 		This register controls this reference clock
-		(OFFSET, MASK, VALUE)      (0XFD1A00F8, 0x00003F07U ,0x00000302U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A00F8, 0x00003F07U ,0x00000302U)
 		RegMask = (CRF_APB_DBG_TSTMP_CTRL_DIVISOR0_MASK | CRF_APB_DBG_TSTMP_CTRL_SRCSEL_MASK |  0 );
 
 		RegVal = ((0x00000003U << CRF_APB_DBG_TSTMP_CTRL_DIVISOR0_SHIFT
@@ -2082,7 +2082,7 @@ unsigned long psu_clock_init_data() {
 		PSU_IOU_SLCR_IOU_TTC_APB_CLK_TTC3_SEL                                           0
 
 		TTC APB clock select
-		(OFFSET, MASK, VALUE)      (0XFF180380, 0x000000FFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180380, 0x000000FFU ,0x00000000U)
 		RegMask = (IOU_SLCR_IOU_TTC_APB_CLK_TTC0_SEL_MASK | IOU_SLCR_IOU_TTC_APB_CLK_TTC1_SEL_MASK | IOU_SLCR_IOU_TTC_APB_CLK_TTC2_SEL_MASK | IOU_SLCR_IOU_TTC_APB_CLK_TTC3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_IOU_TTC_APB_CLK_TTC0_SEL_SHIFT
@@ -2099,7 +2099,7 @@ unsigned long psu_clock_init_data() {
 		PSU_FPD_SLCR_WDT_CLK_SEL_SELECT                                                 0
 
 		SWDT clock source select
-		(OFFSET, MASK, VALUE)      (0XFD610100, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD610100, 0x00000001U ,0x00000000U)
 		RegMask = (FPD_SLCR_WDT_CLK_SEL_SELECT_MASK |  0 );
 
 		RegVal = ((0x00000000U << FPD_SLCR_WDT_CLK_SEL_SELECT_SHIFT
@@ -2109,12 +2109,12 @@ unsigned long psu_clock_init_data() {
 
 		/*Register : WDT_CLK_SEL @ 0XFF180300</p>
 
-		System watchdog timer clock source selection: 0: internal clock APB clock 1: external clock from PL via EMIO, or from pinout 
+		System watchdog timer clock source selection: 0: internal clock APB clock 1: external clock from PL via EMIO, or from pinout
 		ia MIO
 		PSU_IOU_SLCR_WDT_CLK_SEL_SELECT                                                 0
 
 		SWDT clock source select
-		(OFFSET, MASK, VALUE)      (0XFF180300, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180300, 0x00000001U ,0x00000000U)
 		RegMask = (IOU_SLCR_WDT_CLK_SEL_SELECT_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_WDT_CLK_SEL_SELECT_SHIFT
@@ -2128,7 +2128,7 @@ unsigned long psu_clock_init_data() {
 		PSU_LPD_SLCR_CSUPMU_WDT_CLK_SEL_SELECT                                          0
 
 		SWDT clock source select
-		(OFFSET, MASK, VALUE)      (0XFF410050, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF410050, 0x00000001U ,0x00000000U)
 		RegMask = (LPD_SLCR_CSUPMU_WDT_CLK_SEL_SELECT_MASK |  0 );
 
 		RegVal = ((0x00000000U << LPD_SLCR_CSUPMU_WDT_CLK_SEL_SELECT_SHIFT
@@ -2143,7 +2143,7 @@ unsigned long psu_clock_init_data() {
 		PSU_IOU_SLCR_GEM_CLK_CTRL_GEM3_RX_SRC_SEL                                       1
 
 		SoC Debug Clock Control
-		(OFFSET, MASK, VALUE)      (0XFF180308, 0x00008000U ,0x00008000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180308, 0x00008000U ,0x00008000U)
 		RegMask = (IOU_SLCR_GEM_CLK_CTRL_GEM3_RX_SRC_SEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_GEM_CLK_CTRL_GEM3_RX_SRC_SEL_SHIFT
@@ -2162,7 +2162,7 @@ unsigned long psu_ddr_init_data() {
 		PSU_CRF_APB_RST_DDR_SS_DDR_RESET                                                0X0
 
 		DDR sub system block level reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0108, 0x00000008U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0108, 0x00000008U ,0x00000000U)
 		RegMask = (CRF_APB_RST_DDR_SS_DDR_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_RST_DDR_SS_DDR_RESET_SHIFT
@@ -2195,7 +2195,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_0_L3_SEL                                                   0
 
 		Configures MIO Pin 0 peripheral interface mapping. S
-		(OFFSET, MASK, VALUE)      (0XFF180000, 0x000000FEU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF180000, 0x000000FEU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_PIN_0_L0_SEL_MASK | IOU_SLCR_MIO_PIN_0_L1_SEL_MASK | IOU_SLCR_MIO_PIN_0_L2_SEL_MASK | IOU_SLCR_MIO_PIN_0_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_MIO_PIN_0_L0_SEL_SHIFT
@@ -2227,7 +2227,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_1_L3_SEL                                                   0
 
 		Configures MIO Pin 1 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180004, 0x000000FEU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF180004, 0x000000FEU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_PIN_1_L0_SEL_MASK | IOU_SLCR_MIO_PIN_1_L1_SEL_MASK | IOU_SLCR_MIO_PIN_1_L2_SEL_MASK | IOU_SLCR_MIO_PIN_1_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_MIO_PIN_1_L0_SEL_SHIFT
@@ -2257,7 +2257,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_2_L3_SEL                                                   0
 
 		Configures MIO Pin 2 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180008, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180008, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_2_L0_SEL_MASK | IOU_SLCR_MIO_PIN_2_L1_SEL_MASK | IOU_SLCR_MIO_PIN_2_L2_SEL_MASK | IOU_SLCR_MIO_PIN_2_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_2_L0_SEL_SHIFT
@@ -2288,7 +2288,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_3_L3_SEL                                                   0
 
 		Configures MIO Pin 3 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18000C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18000C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_3_L0_SEL_MASK | IOU_SLCR_MIO_PIN_3_L1_SEL_MASK | IOU_SLCR_MIO_PIN_3_L2_SEL_MASK | IOU_SLCR_MIO_PIN_3_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_3_L0_SEL_SHIFT
@@ -2315,12 +2315,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[4]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[4]- (GPIO bank 0) 1= can
 		, Output, can1_phy_tx- (Can TX signal) 2= i2c1, Input, i2c1_scl_input- (SCL signal) 2= i2c1, Output, i2c1_scl_out- (SCL signa
 		) 3= swdt1, Input, swdt1_clk_in- (Watch Dog Timer Input clock) 4= spi0, Input, spi0_mi- (MISO signal) 4= spi0, Output, spi0_s
-		- (MISO signal) 5= ttc1, Input, ttc1_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= trace, 
+		- (MISO signal) 5= ttc1, Input, ttc1_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= trace,
 		utput, tracedq[2]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_4_L3_SEL                                                   0
 
 		Configures MIO Pin 4 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180010, 0x000000FEU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF180010, 0x000000FEU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_PIN_4_L0_SEL_MASK | IOU_SLCR_MIO_PIN_4_L1_SEL_MASK | IOU_SLCR_MIO_PIN_4_L2_SEL_MASK | IOU_SLCR_MIO_PIN_4_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_MIO_PIN_4_L0_SEL_SHIFT
@@ -2351,7 +2351,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_5_L3_SEL                                                   0
 
 		Configures MIO Pin 5 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180014, 0x000000FEU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF180014, 0x000000FEU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_PIN_5_L0_SEL_MASK | IOU_SLCR_MIO_PIN_5_L1_SEL_MASK | IOU_SLCR_MIO_PIN_5_L2_SEL_MASK | IOU_SLCR_MIO_PIN_5_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_MIO_PIN_5_L0_SEL_SHIFT
@@ -2382,7 +2382,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_6_L3_SEL                                                   0
 
 		Configures MIO Pin 6 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180018, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180018, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_6_L0_SEL_MASK | IOU_SLCR_MIO_PIN_6_L1_SEL_MASK | IOU_SLCR_MIO_PIN_6_L2_SEL_MASK | IOU_SLCR_MIO_PIN_6_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_6_L0_SEL_SHIFT
@@ -2407,13 +2407,13 @@ unsigned long psu_mio_init_data() {
 
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[7]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[7]- (GPIO bank 0) 1= can
 		, Output, can0_phy_tx- (Can TX signal) 2= i2c0, Input, i2c0_sda_input- (SDA signal) 2= i2c0, Output, i2c0_sda_out- (SDA signa
-		) 3= swdt0, Output, swdt0_rst_out- (Watch Dog Timer Output clock) 4= spi1, Output, spi1_n_ss_out[2]- (SPI Master Selects) 5= 
-		tc0, Output, ttc0_wave_out- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output, 
+		) 3= swdt0, Output, swdt0_rst_out- (Watch Dog Timer Output clock) 4= spi1, Output, spi1_n_ss_out[2]- (SPI Master Selects) 5=
+		tc0, Output, ttc0_wave_out- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output,
 		racedq[5]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_7_L3_SEL                                                   0
 
 		Configures MIO Pin 7 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18001C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18001C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_7_L0_SEL_MASK | IOU_SLCR_MIO_PIN_7_L1_SEL_MASK | IOU_SLCR_MIO_PIN_7_L2_SEL_MASK | IOU_SLCR_MIO_PIN_7_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_7_L0_SEL_SHIFT
@@ -2445,7 +2445,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_8_L3_SEL                                                   0
 
 		Configures MIO Pin 8 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180020, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180020, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_8_L0_SEL_MASK | IOU_SLCR_MIO_PIN_8_L1_SEL_MASK | IOU_SLCR_MIO_PIN_8_L2_SEL_MASK | IOU_SLCR_MIO_PIN_8_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_8_L0_SEL_SHIFT
@@ -2471,13 +2471,13 @@ unsigned long psu_mio_init_data() {
 
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[9]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[9]- (GPIO bank 0) 1= can
 		, Input, can1_phy_rx- (Can RX signal) 2= i2c1, Input, i2c1_sda_input- (SDA signal) 2= i2c1, Output, i2c1_sda_out- (SDA signal
-		 3= swdt1, Output, swdt1_rst_out- (Watch Dog Timer Output clock) 4= spi1, Input, spi1_n_ss_in- (SPI Master Selects) 4= spi1, 
+		 3= swdt1, Output, swdt1_rst_out- (Watch Dog Timer Output clock) 4= spi1, Input, spi1_n_ss_in- (SPI Master Selects) 4= spi1,
 		utput, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc3, Output, ttc3_wave_out- (TTC Waveform Clock) 6= ua1, Input, ua1_rxd- (U
 		RT receiver serial input) 7= trace, Output, tracedq[7]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_9_L3_SEL                                                   0
 
 		Configures MIO Pin 9 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180024, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180024, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_9_L0_SEL_MASK | IOU_SLCR_MIO_PIN_9_L1_SEL_MASK | IOU_SLCR_MIO_PIN_9_L2_SEL_MASK | IOU_SLCR_MIO_PIN_9_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_9_L0_SEL_SHIFT
@@ -2509,7 +2509,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_10_L3_SEL                                                  0
 
 		Configures MIO Pin 10 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180028, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180028, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_10_L0_SEL_MASK | IOU_SLCR_MIO_PIN_10_L1_SEL_MASK | IOU_SLCR_MIO_PIN_10_L2_SEL_MASK | IOU_SLCR_MIO_PIN_10_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_10_L0_SEL_SHIFT
@@ -2541,7 +2541,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_11_L3_SEL                                                  0
 
 		Configures MIO Pin 11 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18002C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18002C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_11_L0_SEL_MASK | IOU_SLCR_MIO_PIN_11_L1_SEL_MASK | IOU_SLCR_MIO_PIN_11_L2_SEL_MASK | IOU_SLCR_MIO_PIN_11_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_11_L0_SEL_SHIFT
@@ -2558,7 +2558,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_12_L0_SEL                                                  0
 
 		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dqs_in- (NAND Strobe) 1= nand, Output, nfc_dqs_out- (NAND Strobe
-		
+
 		PSU_IOU_SLCR_MIO_PIN_12_L1_SEL                                                  0
 
 		Level 2 Mux Select 0= Level 3 Mux Output 1= Not Used 2= test_scan, Input, test_scan_in[12]- (Test Scan Port) = test_scan, Out
@@ -2573,7 +2573,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_12_L3_SEL                                                  0
 
 		Configures MIO Pin 12 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180030, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180030, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_12_L0_SEL_MASK | IOU_SLCR_MIO_PIN_12_L1_SEL_MASK | IOU_SLCR_MIO_PIN_12_L2_SEL_MASK | IOU_SLCR_MIO_PIN_12_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_12_L0_SEL_SHIFT
@@ -2605,7 +2605,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_13_L3_SEL                                                  0
 
 		Configures MIO Pin 13 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180034, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180034, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_13_L0_SEL_MASK | IOU_SLCR_MIO_PIN_13_L1_SEL_MASK | IOU_SLCR_MIO_PIN_13_L2_SEL_MASK | IOU_SLCR_MIO_PIN_13_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_13_L0_SEL_SHIFT
@@ -2636,7 +2636,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_14_L3_SEL                                                  0
 
 		Configures MIO Pin 14 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180038, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180038, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_14_L0_SEL_MASK | IOU_SLCR_MIO_PIN_14_L1_SEL_MASK | IOU_SLCR_MIO_PIN_14_L2_SEL_MASK | IOU_SLCR_MIO_PIN_14_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_14_L0_SEL_SHIFT
@@ -2668,7 +2668,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_15_L3_SEL                                                  0
 
 		Configures MIO Pin 15 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18003C, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF18003C, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_15_L0_SEL_MASK | IOU_SLCR_MIO_PIN_15_L1_SEL_MASK | IOU_SLCR_MIO_PIN_15_L2_SEL_MASK | IOU_SLCR_MIO_PIN_15_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_15_L0_SEL_SHIFT
@@ -2684,7 +2684,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_16_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[0]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[0]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[0]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[0]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_16_L1_SEL                                                  1
 
@@ -2701,7 +2701,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_16_L3_SEL                                                  0
 
 		Configures MIO Pin 16 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180040, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180040, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_16_L0_SEL_MASK | IOU_SLCR_MIO_PIN_16_L1_SEL_MASK | IOU_SLCR_MIO_PIN_16_L2_SEL_MASK | IOU_SLCR_MIO_PIN_16_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_16_L0_SEL_SHIFT
@@ -2717,7 +2717,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_17_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[1]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[1]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[1]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[1]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_17_L1_SEL                                                  1
 
@@ -2734,7 +2734,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_17_L3_SEL                                                  0
 
 		Configures MIO Pin 17 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180044, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180044, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_17_L0_SEL_MASK | IOU_SLCR_MIO_PIN_17_L1_SEL_MASK | IOU_SLCR_MIO_PIN_17_L2_SEL_MASK | IOU_SLCR_MIO_PIN_17_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_17_L0_SEL_SHIFT
@@ -2750,7 +2750,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_18_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[2]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[2]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[2]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[2]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_18_L1_SEL                                                  1
 
@@ -2766,7 +2766,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_18_L3_SEL                                                  0
 
 		Configures MIO Pin 18 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180048, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180048, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_18_L0_SEL_MASK | IOU_SLCR_MIO_PIN_18_L1_SEL_MASK | IOU_SLCR_MIO_PIN_18_L2_SEL_MASK | IOU_SLCR_MIO_PIN_18_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_18_L0_SEL_SHIFT
@@ -2782,7 +2782,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_19_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[3]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[3]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[3]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[3]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_19_L1_SEL                                                  1
 
@@ -2798,7 +2798,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_19_L3_SEL                                                  0
 
 		Configures MIO Pin 19 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18004C, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF18004C, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_19_L0_SEL_MASK | IOU_SLCR_MIO_PIN_19_L1_SEL_MASK | IOU_SLCR_MIO_PIN_19_L2_SEL_MASK | IOU_SLCR_MIO_PIN_19_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_19_L0_SEL_SHIFT
@@ -2814,7 +2814,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_20_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[4]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[4]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[4]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[4]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_20_L1_SEL                                                  1
 
@@ -2830,7 +2830,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_20_L3_SEL                                                  0
 
 		Configures MIO Pin 20 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180050, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180050, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_20_L0_SEL_MASK | IOU_SLCR_MIO_PIN_20_L1_SEL_MASK | IOU_SLCR_MIO_PIN_20_L2_SEL_MASK | IOU_SLCR_MIO_PIN_20_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_20_L0_SEL_SHIFT
@@ -2846,24 +2846,24 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_21_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[5]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[5]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[5]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[5]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_21_L1_SEL                                                  1
 
 		Level 2 Mux Select 0= Level 3 Mux Output 1= sd0, Input, sd0_cmd_in- (Command Indicator) = sd0, Output, sdio0_cmd_out- (Comman
-		 Indicator) 2= test_scan, Input, test_scan_in[21]- (Test Scan Port) = test_scan, Output, test_scan_out[21]- (Test Scan Port) 
+		 Indicator) 2= test_scan, Input, test_scan_in[21]- (Test Scan Port) = test_scan, Output, test_scan_out[21]- (Test Scan Port)
 		= csu, Input, csu_ext_tamper- (CSU Ext Tamper)
 		PSU_IOU_SLCR_MIO_PIN_21_L2_SEL                                                  0
 
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[21]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[21]- (GPIO bank 0) 1= c
 		n1, Input, can1_phy_rx- (Can RX signal) 2= i2c1, Input, i2c1_sda_input- (SDA signal) 2= i2c1, Output, i2c1_sda_out- (SDA sign
 		l) 3= swdt1, Output, swdt1_rst_out- (Watch Dog Timer Output clock) 4= spi1, Input, spi1_n_ss_in- (SPI Master Selects) 4= spi1
-		 Output, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc1, Output, ttc1_wave_out- (TTC Waveform Clock) 6= ua1, Input, ua1_rxd- 
+		 Output, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc1, Output, ttc1_wave_out- (TTC Waveform Clock) 6= ua1, Input, ua1_rxd-
 		UART receiver serial input) 7= Not Used
 		PSU_IOU_SLCR_MIO_PIN_21_L3_SEL                                                  0
 
 		Configures MIO Pin 21 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180054, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180054, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_21_L0_SEL_MASK | IOU_SLCR_MIO_PIN_21_L1_SEL_MASK | IOU_SLCR_MIO_PIN_21_L2_SEL_MASK | IOU_SLCR_MIO_PIN_21_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_21_L0_SEL_SHIFT
@@ -2889,12 +2889,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[22]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[22]- (GPIO bank 0) 1= c
 		n0, Input, can0_phy_rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0, Output, i2c0_scl_out- (SCL sign
 		l) 3= swdt0, Input, swdt0_clk_in- (Watch Dog Timer Input clock) 4= spi1, Input, spi1_sclk_in- (SPI Clock) 4= spi1, Output, sp
-		1_sclk_out- (SPI Clock) 5= ttc0, Input, ttc0_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= Not 
+		1_sclk_out- (SPI Clock) 5= ttc0, Input, ttc0_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= Not
 		sed
 		PSU_IOU_SLCR_MIO_PIN_22_L3_SEL                                                  0
 
 		Configures MIO Pin 22 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180058, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180058, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_22_L0_SEL_MASK | IOU_SLCR_MIO_PIN_22_L1_SEL_MASK | IOU_SLCR_MIO_PIN_22_L2_SEL_MASK | IOU_SLCR_MIO_PIN_22_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_22_L0_SEL_SHIFT
@@ -2910,13 +2910,13 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_23_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[6]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[6]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[6]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[6]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_23_L1_SEL                                                  1
 
 		Level 2 Mux Select 0= Level 3 Mux Output 1= sd0, Output, sdio0_bus_pow- (SD card bus power) 2= test_scan, Input, test_scan_in
 		23]- (Test Scan Port) = test_scan, Output, test_scan_out[23]- (Test Scan Port) 3= csu, Input, csu_ext_tamper- (CSU Ext Tamper
-		
+
 		PSU_IOU_SLCR_MIO_PIN_23_L2_SEL                                                  0
 
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[23]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[23]- (GPIO bank 0) 1= c
@@ -2927,7 +2927,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_23_L3_SEL                                                  0
 
 		Configures MIO Pin 23 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18005C, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF18005C, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_23_L0_SEL_MASK | IOU_SLCR_MIO_PIN_23_L1_SEL_MASK | IOU_SLCR_MIO_PIN_23_L2_SEL_MASK | IOU_SLCR_MIO_PIN_23_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_23_L0_SEL_SHIFT
@@ -2943,7 +2943,7 @@ unsigned long psu_mio_init_data() {
 		Level 0 Mux Select 0= Level 1 Mux Output 1= Not Used
 		PSU_IOU_SLCR_MIO_PIN_24_L0_SEL                                                  0
 
-		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[7]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[7]- (NAND 
+		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dq_in[7]- (NAND Data Bus) 1= nand, Output, nfc_dq_out[7]- (NAND
 		ata Bus)
 		PSU_IOU_SLCR_MIO_PIN_24_L1_SEL                                                  1
 
@@ -2959,7 +2959,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_24_L3_SEL                                                  0
 
 		Configures MIO Pin 24 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180060, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180060, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_24_L0_SEL_MASK | IOU_SLCR_MIO_PIN_24_L1_SEL_MASK | IOU_SLCR_MIO_PIN_24_L2_SEL_MASK | IOU_SLCR_MIO_PIN_24_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_24_L0_SEL_SHIFT
@@ -2985,12 +2985,12 @@ unsigned long psu_mio_init_data() {
 
 		Level 3 Mux Select 0= gpio0, Input, gpio_0_pin_in[25]- (GPIO bank 0) 0= gpio0, Output, gpio_0_pin_out[25]- (GPIO bank 0) 1= c
 		n1, Input, can1_phy_rx- (Can RX signal) 2= i2c1, Input, i2c1_sda_input- (SDA signal) 2= i2c1, Output, i2c1_sda_out- (SDA sign
-		l) 3= swdt1, Output, swdt1_rst_out- (Watch Dog Timer Output clock) 4= Not Used 5= ttc3, Output, ttc3_wave_out- (TTC Waveform 
+		l) 3= swdt1, Output, swdt1_rst_out- (Watch Dog Timer Output clock) 4= Not Used 5= ttc3, Output, ttc3_wave_out- (TTC Waveform
 		lock) 6= ua1, Input, ua1_rxd- (UART receiver serial input) 7= Not Used
 		PSU_IOU_SLCR_MIO_PIN_25_L3_SEL                                                  0
 
 		Configures MIO Pin 25 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180064, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF180064, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_25_L0_SEL_MASK | IOU_SLCR_MIO_PIN_25_L1_SEL_MASK | IOU_SLCR_MIO_PIN_25_L2_SEL_MASK | IOU_SLCR_MIO_PIN_25_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_25_L0_SEL_SHIFT
@@ -3016,12 +3016,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[0]- (GPIO bank 1) 0= gpio1, Output, gpio_1_pin_out[0]- (GPIO bank 1) 1= can
 		, Input, can0_phy_rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0, Output, i2c0_scl_out- (SCL signal
 		 3= pjtag, Input, pjtag_tck- (PJTAG TCK) 4= spi0, Input, spi0_sclk_in- (SPI Clock) 4= spi0, Output, spi0_sclk_out- (SPI Clock
-		 5= ttc2, Input, ttc2_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= trace, Output, tracedq[4]- 
+		 5= ttc2, Input, ttc2_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= trace, Output, tracedq[4]-
 		Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_26_L3_SEL                                                  0
 
 		Configures MIO Pin 26 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180068, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180068, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_26_L0_SEL_MASK | IOU_SLCR_MIO_PIN_26_L1_SEL_MASK | IOU_SLCR_MIO_PIN_26_L2_SEL_MASK | IOU_SLCR_MIO_PIN_26_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_26_L0_SEL_SHIFT
@@ -3048,12 +3048,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[1]- (GPIO bank 1) 0= gpio1, Output, gpio_1_pin_out[1]- (GPIO bank 1) 1= can
 		, Output, can0_phy_tx- (Can TX signal) 2= i2c0, Input, i2c0_sda_input- (SDA signal) 2= i2c0, Output, i2c0_sda_out- (SDA signa
 		) 3= pjtag, Input, pjtag_tdi- (PJTAG TDI) 4= spi0, Output, spi0_n_ss_out[2]- (SPI Master Selects) 5= ttc2, Output, ttc2_wave_
-		ut- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output, tracedq[5]- (Trace Port 
+		ut- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output, tracedq[5]- (Trace Port
 		atabus)
 		PSU_IOU_SLCR_MIO_PIN_27_L3_SEL                                                  0
 
 		Configures MIO Pin 27 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18006C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18006C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_27_L0_SEL_MASK | IOU_SLCR_MIO_PIN_27_L1_SEL_MASK | IOU_SLCR_MIO_PIN_27_L2_SEL_MASK | IOU_SLCR_MIO_PIN_27_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_27_L0_SEL_SHIFT
@@ -3083,7 +3083,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_28_L3_SEL                                                  0
 
 		Configures MIO Pin 28 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180070, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180070, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_28_L0_SEL_MASK | IOU_SLCR_MIO_PIN_28_L1_SEL_MASK | IOU_SLCR_MIO_PIN_28_L2_SEL_MASK | IOU_SLCR_MIO_PIN_28_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_28_L0_SEL_SHIFT
@@ -3115,7 +3115,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_29_L3_SEL                                                  4
 
 		Configures MIO Pin 29 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180074, 0x000000FEU ,0x00000080U)  
+		(OFFSET, MASK, VALUE)      (0XFF180074, 0x000000FEU ,0x00000080U)
 		RegMask = (IOU_SLCR_MIO_PIN_29_L0_SEL_MASK | IOU_SLCR_MIO_PIN_29_L1_SEL_MASK | IOU_SLCR_MIO_PIN_29_L2_SEL_MASK | IOU_SLCR_MIO_PIN_29_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_29_L0_SEL_SHIFT
@@ -3146,7 +3146,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_30_L3_SEL                                                  0
 
 		Configures MIO Pin 30 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180078, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180078, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_30_L0_SEL_MASK | IOU_SLCR_MIO_PIN_30_L1_SEL_MASK | IOU_SLCR_MIO_PIN_30_L2_SEL_MASK | IOU_SLCR_MIO_PIN_30_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_30_L0_SEL_SHIFT
@@ -3177,7 +3177,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_31_L3_SEL                                                  0
 
 		Configures MIO Pin 31 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18007C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18007C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_31_L0_SEL_MASK | IOU_SLCR_MIO_PIN_31_L1_SEL_MASK | IOU_SLCR_MIO_PIN_31_L2_SEL_MASK | IOU_SLCR_MIO_PIN_31_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_31_L0_SEL_SHIFT
@@ -3194,7 +3194,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_32_L0_SEL                                                  0
 
 		Level 1 Mux Select 0= Level 2 Mux Output 1= nand, Input, nfc_dqs_in- (NAND Strobe) 1= nand, Output, nfc_dqs_out- (NAND Strobe
-		
+
 		PSU_IOU_SLCR_MIO_PIN_32_L1_SEL                                                  0
 
 		Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Output, pmu_gpo[0]- (PMU GPI) 2= test_scan, Input, test_scan_in[32]- (Test S
@@ -3204,12 +3204,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[6]- (GPIO bank 1) 0= gpio1, Output, gpio_1_pin_out[6]- (GPIO bank 1) 1= can
 		, Output, can1_phy_tx- (Can TX signal) 2= i2c1, Input, i2c1_scl_input- (SCL signal) 2= i2c1, Output, i2c1_scl_out- (SCL signa
 		) 3= swdt1, Input, swdt1_clk_in- (Watch Dog Timer Input clock) 4= spi1, Input, spi1_sclk_in- (SPI Clock) 4= spi1, Output, spi
-		_sclk_out- (SPI Clock) 5= ttc3, Input, ttc3_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= 
+		_sclk_out- (SPI Clock) 5= ttc3, Input, ttc3_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7=
 		race, Output, tracedq[10]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_32_L3_SEL                                                  0
 
 		Configures MIO Pin 32 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180080, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180080, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_32_L0_SEL_MASK | IOU_SLCR_MIO_PIN_32_L1_SEL_MASK | IOU_SLCR_MIO_PIN_32_L2_SEL_MASK | IOU_SLCR_MIO_PIN_32_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_32_L0_SEL_SHIFT
@@ -3240,7 +3240,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_33_L3_SEL                                                  0
 
 		Configures MIO Pin 33 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180084, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180084, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_33_L0_SEL_MASK | IOU_SLCR_MIO_PIN_33_L1_SEL_MASK | IOU_SLCR_MIO_PIN_33_L2_SEL_MASK | IOU_SLCR_MIO_PIN_33_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_33_L0_SEL_SHIFT
@@ -3272,7 +3272,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_34_L3_SEL                                                  0
 
 		Configures MIO Pin 34 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180088, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180088, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_34_L0_SEL_MASK | IOU_SLCR_MIO_PIN_34_L1_SEL_MASK | IOU_SLCR_MIO_PIN_34_L2_SEL_MASK | IOU_SLCR_MIO_PIN_34_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_34_L0_SEL_SHIFT
@@ -3298,12 +3298,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[9]- (GPIO bank 1) 0= gpio1, Output, gpio_1_pin_out[9]- (GPIO bank 1) 1= can
 		, Output, can0_phy_tx- (Can TX signal) 2= i2c0, Input, i2c0_sda_input- (SDA signal) 2= i2c0, Output, i2c0_sda_out- (SDA signa
 		) 3= swdt0, Output, swdt0_rst_out- (Watch Dog Timer Output clock) 4= spi1, Input, spi1_n_ss_in- (SPI Master Selects) 4= spi1,
-		Output, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc2, Output, ttc2_wave_out- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- 
+		Output, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc2, Output, ttc2_wave_out- (TTC Waveform Clock) 6= ua0, Output, ua0_txd-
 		UART transmitter serial output) 7= trace, Output, tracedq[13]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_35_L3_SEL                                                  4
 
 		Configures MIO Pin 35 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18008C, 0x000000FEU ,0x00000080U)  
+		(OFFSET, MASK, VALUE)      (0XFF18008C, 0x000000FEU ,0x00000080U)
 		RegMask = (IOU_SLCR_MIO_PIN_35_L0_SEL_MASK | IOU_SLCR_MIO_PIN_35_L1_SEL_MASK | IOU_SLCR_MIO_PIN_35_L2_SEL_MASK | IOU_SLCR_MIO_PIN_35_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_35_L0_SEL_SHIFT
@@ -3335,7 +3335,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_36_L3_SEL                                                  0
 
 		Configures MIO Pin 36 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180090, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180090, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_36_L0_SEL_MASK | IOU_SLCR_MIO_PIN_36_L1_SEL_MASK | IOU_SLCR_MIO_PIN_36_L2_SEL_MASK | IOU_SLCR_MIO_PIN_36_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_36_L0_SEL_SHIFT
@@ -3366,7 +3366,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_37_L3_SEL                                                  0
 
 		Configures MIO Pin 37 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180094, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180094, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_37_L0_SEL_MASK | IOU_SLCR_MIO_PIN_37_L1_SEL_MASK | IOU_SLCR_MIO_PIN_37_L2_SEL_MASK | IOU_SLCR_MIO_PIN_37_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_37_L0_SEL_SHIFT
@@ -3396,7 +3396,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_38_L3_SEL                                                  0
 
 		Configures MIO Pin 38 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180098, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180098, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_38_L0_SEL_MASK | IOU_SLCR_MIO_PIN_38_L1_SEL_MASK | IOU_SLCR_MIO_PIN_38_L2_SEL_MASK | IOU_SLCR_MIO_PIN_38_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_38_L0_SEL_SHIFT
@@ -3427,7 +3427,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_39_L3_SEL                                                  0
 
 		Configures MIO Pin 39 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18009C, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF18009C, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_39_L0_SEL_MASK | IOU_SLCR_MIO_PIN_39_L1_SEL_MASK | IOU_SLCR_MIO_PIN_39_L2_SEL_MASK | IOU_SLCR_MIO_PIN_39_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_39_L0_SEL_SHIFT
@@ -3457,7 +3457,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_40_L3_SEL                                                  0
 
 		Configures MIO Pin 40 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800A0, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800A0, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_40_L0_SEL_MASK | IOU_SLCR_MIO_PIN_40_L1_SEL_MASK | IOU_SLCR_MIO_PIN_40_L2_SEL_MASK | IOU_SLCR_MIO_PIN_40_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_40_L0_SEL_SHIFT
@@ -3488,7 +3488,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_41_L3_SEL                                                  0
 
 		Configures MIO Pin 41 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800A4, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800A4, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_41_L0_SEL_MASK | IOU_SLCR_MIO_PIN_41_L1_SEL_MASK | IOU_SLCR_MIO_PIN_41_L2_SEL_MASK | IOU_SLCR_MIO_PIN_41_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_41_L0_SEL_SHIFT
@@ -3519,7 +3519,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_42_L3_SEL                                                  0
 
 		Configures MIO Pin 42 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800A8, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800A8, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_42_L0_SEL_MASK | IOU_SLCR_MIO_PIN_42_L1_SEL_MASK | IOU_SLCR_MIO_PIN_42_L2_SEL_MASK | IOU_SLCR_MIO_PIN_42_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_42_L0_SEL_SHIFT
@@ -3550,7 +3550,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_43_L3_SEL                                                  0
 
 		Configures MIO Pin 43 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800AC, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800AC, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_43_L0_SEL_MASK | IOU_SLCR_MIO_PIN_43_L1_SEL_MASK | IOU_SLCR_MIO_PIN_43_L2_SEL_MASK | IOU_SLCR_MIO_PIN_43_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_43_L0_SEL_SHIFT
@@ -3581,7 +3581,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_44_L3_SEL                                                  0
 
 		Configures MIO Pin 44 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800B0, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800B0, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_44_L0_SEL_MASK | IOU_SLCR_MIO_PIN_44_L1_SEL_MASK | IOU_SLCR_MIO_PIN_44_L2_SEL_MASK | IOU_SLCR_MIO_PIN_44_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_44_L0_SEL_SHIFT
@@ -3611,7 +3611,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_45_L3_SEL                                                  0
 
 		Configures MIO Pin 45 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800B4, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800B4, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_45_L0_SEL_MASK | IOU_SLCR_MIO_PIN_45_L1_SEL_MASK | IOU_SLCR_MIO_PIN_45_L2_SEL_MASK | IOU_SLCR_MIO_PIN_45_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_45_L0_SEL_SHIFT
@@ -3641,7 +3641,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_46_L3_SEL                                                  0
 
 		Configures MIO Pin 46 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800B8, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800B8, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_46_L0_SEL_MASK | IOU_SLCR_MIO_PIN_46_L1_SEL_MASK | IOU_SLCR_MIO_PIN_46_L2_SEL_MASK | IOU_SLCR_MIO_PIN_46_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_46_L0_SEL_SHIFT
@@ -3672,7 +3672,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_47_L3_SEL                                                  0
 
 		Configures MIO Pin 47 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800BC, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800BC, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_47_L0_SEL_MASK | IOU_SLCR_MIO_PIN_47_L1_SEL_MASK | IOU_SLCR_MIO_PIN_47_L2_SEL_MASK | IOU_SLCR_MIO_PIN_47_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_47_L0_SEL_SHIFT
@@ -3703,7 +3703,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_48_L3_SEL                                                  0
 
 		Configures MIO Pin 48 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800C0, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800C0, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_48_L0_SEL_MASK | IOU_SLCR_MIO_PIN_48_L1_SEL_MASK | IOU_SLCR_MIO_PIN_48_L2_SEL_MASK | IOU_SLCR_MIO_PIN_48_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_48_L0_SEL_SHIFT
@@ -3734,7 +3734,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_49_L3_SEL                                                  0
 
 		Configures MIO Pin 49 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800C4, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800C4, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_49_L0_SEL_MASK | IOU_SLCR_MIO_PIN_49_L1_SEL_MASK | IOU_SLCR_MIO_PIN_49_L2_SEL_MASK | IOU_SLCR_MIO_PIN_49_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_49_L0_SEL_SHIFT
@@ -3764,7 +3764,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_50_L3_SEL                                                  0
 
 		Configures MIO Pin 50 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800C8, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800C8, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_50_L0_SEL_MASK | IOU_SLCR_MIO_PIN_50_L1_SEL_MASK | IOU_SLCR_MIO_PIN_50_L2_SEL_MASK | IOU_SLCR_MIO_PIN_50_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_50_L0_SEL_SHIFT
@@ -3794,7 +3794,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_51_L3_SEL                                                  0
 
 		Configures MIO Pin 51 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800CC, 0x000000FEU ,0x00000010U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800CC, 0x000000FEU ,0x00000010U)
 		RegMask = (IOU_SLCR_MIO_PIN_51_L0_SEL_MASK | IOU_SLCR_MIO_PIN_51_L1_SEL_MASK | IOU_SLCR_MIO_PIN_51_L2_SEL_MASK | IOU_SLCR_MIO_PIN_51_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_51_L0_SEL_SHIFT
@@ -3824,7 +3824,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_52_L3_SEL                                                  0
 
 		Configures MIO Pin 52 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800D0, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800D0, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_52_L0_SEL_MASK | IOU_SLCR_MIO_PIN_52_L1_SEL_MASK | IOU_SLCR_MIO_PIN_52_L2_SEL_MASK | IOU_SLCR_MIO_PIN_52_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_52_L0_SEL_SHIFT
@@ -3854,7 +3854,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_53_L3_SEL                                                  0
 
 		Configures MIO Pin 53 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800D4, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800D4, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_53_L0_SEL_MASK | IOU_SLCR_MIO_PIN_53_L1_SEL_MASK | IOU_SLCR_MIO_PIN_53_L2_SEL_MASK | IOU_SLCR_MIO_PIN_53_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_53_L0_SEL_SHIFT
@@ -3884,7 +3884,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_54_L3_SEL                                                  0
 
 		Configures MIO Pin 54 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800D8, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800D8, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_54_L0_SEL_MASK | IOU_SLCR_MIO_PIN_54_L1_SEL_MASK | IOU_SLCR_MIO_PIN_54_L2_SEL_MASK | IOU_SLCR_MIO_PIN_54_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_54_L0_SEL_SHIFT
@@ -3914,7 +3914,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_55_L3_SEL                                                  0
 
 		Configures MIO Pin 55 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800DC, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800DC, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_55_L0_SEL_MASK | IOU_SLCR_MIO_PIN_55_L1_SEL_MASK | IOU_SLCR_MIO_PIN_55_L2_SEL_MASK | IOU_SLCR_MIO_PIN_55_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_55_L0_SEL_SHIFT
@@ -3940,12 +3940,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio2, Input, gpio_2_pin_in[4]- (GPIO bank 2) 0= gpio2, Output, gpio_2_pin_out[4]- (GPIO bank 2) 1= can
 		, Output, can1_phy_tx- (Can TX signal) 2= i2c1, Input, i2c1_scl_input- (SCL signal) 2= i2c1, Output, i2c1_scl_out- (SCL signa
 		) 3= swdt1, Input, swdt1_clk_in- (Watch Dog Timer Input clock) 4= spi0, Input, spi0_mi- (MISO signal) 4= spi0, Output, spi0_s
-		- (MISO signal) 5= ttc3, Input, ttc3_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= trace, 
+		- (MISO signal) 5= ttc3, Input, ttc3_clk_in- (TTC Clock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= trace,
 		utput, tracedq[2]- (Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_56_L3_SEL                                                  0
 
 		Configures MIO Pin 56 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800E0, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800E0, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_56_L0_SEL_MASK | IOU_SLCR_MIO_PIN_56_L1_SEL_MASK | IOU_SLCR_MIO_PIN_56_L2_SEL_MASK | IOU_SLCR_MIO_PIN_56_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_56_L0_SEL_SHIFT
@@ -3976,7 +3976,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_57_L3_SEL                                                  0
 
 		Configures MIO Pin 57 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800E4, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800E4, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_57_L0_SEL_MASK | IOU_SLCR_MIO_PIN_57_L1_SEL_MASK | IOU_SLCR_MIO_PIN_57_L2_SEL_MASK | IOU_SLCR_MIO_PIN_57_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_57_L0_SEL_SHIFT
@@ -4001,12 +4001,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio2, Input, gpio_2_pin_in[6]- (GPIO bank 2) 0= gpio2, Output, gpio_2_pin_out[6]- (GPIO bank 2) 1= can
 		, Input, can0_phy_rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0, Output, i2c0_scl_out- (SCL signal
 		 3= pjtag, Input, pjtag_tck- (PJTAG TCK) 4= spi1, Input, spi1_sclk_in- (SPI Clock) 4= spi1, Output, spi1_sclk_out- (SPI Clock
-		 5= ttc2, Input, ttc2_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= trace, Output, tracedq[4]- 
+		 5= ttc2, Input, ttc2_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= trace, Output, tracedq[4]-
 		Trace Port Databus)
 		PSU_IOU_SLCR_MIO_PIN_58_L3_SEL                                                  0
 
 		Configures MIO Pin 58 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800E8, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800E8, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_58_L0_SEL_MASK | IOU_SLCR_MIO_PIN_58_L1_SEL_MASK | IOU_SLCR_MIO_PIN_58_L2_SEL_MASK | IOU_SLCR_MIO_PIN_58_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_58_L0_SEL_SHIFT
@@ -4032,12 +4032,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio2, Input, gpio_2_pin_in[7]- (GPIO bank 2) 0= gpio2, Output, gpio_2_pin_out[7]- (GPIO bank 2) 1= can
 		, Output, can0_phy_tx- (Can TX signal) 2= i2c0, Input, i2c0_sda_input- (SDA signal) 2= i2c0, Output, i2c0_sda_out- (SDA signa
 		) 3= pjtag, Input, pjtag_tdi- (PJTAG TDI) 4= spi1, Output, spi1_n_ss_out[2]- (SPI Master Selects) 5= ttc2, Output, ttc2_wave_
-		ut- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output, tracedq[5]- (Trace Port 
+		ut- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (UART transmitter serial output) 7= trace, Output, tracedq[5]- (Trace Port
 		atabus)
 		PSU_IOU_SLCR_MIO_PIN_59_L3_SEL                                                  0
 
 		Configures MIO Pin 59 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800EC, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800EC, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_59_L0_SEL_MASK | IOU_SLCR_MIO_PIN_59_L1_SEL_MASK | IOU_SLCR_MIO_PIN_59_L2_SEL_MASK | IOU_SLCR_MIO_PIN_59_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_59_L0_SEL_SHIFT
@@ -4067,7 +4067,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_60_L3_SEL                                                  0
 
 		Configures MIO Pin 60 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800F0, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800F0, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_60_L0_SEL_MASK | IOU_SLCR_MIO_PIN_60_L1_SEL_MASK | IOU_SLCR_MIO_PIN_60_L2_SEL_MASK | IOU_SLCR_MIO_PIN_60_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_60_L0_SEL_SHIFT
@@ -4098,7 +4098,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_61_L3_SEL                                                  0
 
 		Configures MIO Pin 61 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800F4, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800F4, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_61_L0_SEL_MASK | IOU_SLCR_MIO_PIN_61_L1_SEL_MASK | IOU_SLCR_MIO_PIN_61_L2_SEL_MASK | IOU_SLCR_MIO_PIN_61_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_61_L0_SEL_SHIFT
@@ -4129,7 +4129,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_62_L3_SEL                                                  0
 
 		Configures MIO Pin 62 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800F8, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800F8, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_62_L0_SEL_MASK | IOU_SLCR_MIO_PIN_62_L1_SEL_MASK | IOU_SLCR_MIO_PIN_62_L2_SEL_MASK | IOU_SLCR_MIO_PIN_62_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_62_L0_SEL_SHIFT
@@ -4160,7 +4160,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_63_L3_SEL                                                  0
 
 		Configures MIO Pin 63 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF1800FC, 0x000000FEU ,0x00000004U)  
+		(OFFSET, MASK, VALUE)      (0XFF1800FC, 0x000000FEU ,0x00000004U)
 		RegMask = (IOU_SLCR_MIO_PIN_63_L0_SEL_MASK | IOU_SLCR_MIO_PIN_63_L1_SEL_MASK | IOU_SLCR_MIO_PIN_63_L2_SEL_MASK | IOU_SLCR_MIO_PIN_63_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_63_L0_SEL_SHIFT
@@ -4190,7 +4190,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_64_L3_SEL                                                  0
 
 		Configures MIO Pin 64 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180100, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180100, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_64_L0_SEL_MASK | IOU_SLCR_MIO_PIN_64_L1_SEL_MASK | IOU_SLCR_MIO_PIN_64_L2_SEL_MASK | IOU_SLCR_MIO_PIN_64_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_64_L0_SEL_SHIFT
@@ -4220,7 +4220,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_65_L3_SEL                                                  0
 
 		Configures MIO Pin 65 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180104, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180104, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_65_L0_SEL_MASK | IOU_SLCR_MIO_PIN_65_L1_SEL_MASK | IOU_SLCR_MIO_PIN_65_L2_SEL_MASK | IOU_SLCR_MIO_PIN_65_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_65_L0_SEL_SHIFT
@@ -4252,7 +4252,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_66_L3_SEL                                                  0
 
 		Configures MIO Pin 66 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180108, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180108, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_66_L0_SEL_MASK | IOU_SLCR_MIO_PIN_66_L1_SEL_MASK | IOU_SLCR_MIO_PIN_66_L2_SEL_MASK | IOU_SLCR_MIO_PIN_66_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_66_L0_SEL_SHIFT
@@ -4283,7 +4283,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_67_L3_SEL                                                  0
 
 		Configures MIO Pin 67 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18010C, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF18010C, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_67_L0_SEL_MASK | IOU_SLCR_MIO_PIN_67_L1_SEL_MASK | IOU_SLCR_MIO_PIN_67_L2_SEL_MASK | IOU_SLCR_MIO_PIN_67_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_67_L0_SEL_SHIFT
@@ -4315,7 +4315,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_68_L3_SEL                                                  0
 
 		Configures MIO Pin 68 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180110, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180110, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_68_L0_SEL_MASK | IOU_SLCR_MIO_PIN_68_L1_SEL_MASK | IOU_SLCR_MIO_PIN_68_L2_SEL_MASK | IOU_SLCR_MIO_PIN_68_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_68_L0_SEL_SHIFT
@@ -4347,7 +4347,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_69_L3_SEL                                                  0
 
 		Configures MIO Pin 69 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180114, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180114, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_69_L0_SEL_MASK | IOU_SLCR_MIO_PIN_69_L1_SEL_MASK | IOU_SLCR_MIO_PIN_69_L2_SEL_MASK | IOU_SLCR_MIO_PIN_69_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_69_L0_SEL_SHIFT
@@ -4373,12 +4373,12 @@ unsigned long psu_mio_init_data() {
 		Level 3 Mux Select 0= gpio2, Input, gpio_2_pin_in[18]- (GPIO bank 2) 0= gpio2, Output, gpio_2_pin_out[18]- (GPIO bank 2) 1= c
 		n0, Input, can0_phy_rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0, Output, i2c0_scl_out- (SCL sign
 		l) 3= swdt0, Input, swdt0_clk_in- (Watch Dog Timer Input clock) 4= spi1, Input, spi1_sclk_in- (SPI Clock) 4= spi1, Output, sp
-		1_sclk_out- (SPI Clock) 5= ttc0, Input, ttc0_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= Not 
+		1_sclk_out- (SPI Clock) 5= ttc0, Input, ttc0_clk_in- (TTC Clock) 6= ua0, Input, ua0_rxd- (UART receiver serial input) 7= Not
 		sed
 		PSU_IOU_SLCR_MIO_PIN_70_L3_SEL                                                  0
 
 		Configures MIO Pin 70 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180118, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180118, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_70_L0_SEL_MASK | IOU_SLCR_MIO_PIN_70_L1_SEL_MASK | IOU_SLCR_MIO_PIN_70_L2_SEL_MASK | IOU_SLCR_MIO_PIN_70_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_70_L0_SEL_SHIFT
@@ -4409,7 +4409,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_71_L3_SEL                                                  0
 
 		Configures MIO Pin 71 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18011C, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF18011C, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_71_L0_SEL_MASK | IOU_SLCR_MIO_PIN_71_L1_SEL_MASK | IOU_SLCR_MIO_PIN_71_L2_SEL_MASK | IOU_SLCR_MIO_PIN_71_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_71_L0_SEL_SHIFT
@@ -4440,7 +4440,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_72_L3_SEL                                                  0
 
 		Configures MIO Pin 72 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180120, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180120, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_72_L0_SEL_MASK | IOU_SLCR_MIO_PIN_72_L1_SEL_MASK | IOU_SLCR_MIO_PIN_72_L2_SEL_MASK | IOU_SLCR_MIO_PIN_72_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_72_L0_SEL_SHIFT
@@ -4471,7 +4471,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_73_L3_SEL                                                  0
 
 		Configures MIO Pin 73 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180124, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180124, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_73_L0_SEL_MASK | IOU_SLCR_MIO_PIN_73_L1_SEL_MASK | IOU_SLCR_MIO_PIN_73_L2_SEL_MASK | IOU_SLCR_MIO_PIN_73_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_73_L0_SEL_SHIFT
@@ -4502,7 +4502,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_74_L3_SEL                                                  0
 
 		Configures MIO Pin 74 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180128, 0x000000FEU ,0x00000008U)  
+		(OFFSET, MASK, VALUE)      (0XFF180128, 0x000000FEU ,0x00000008U)
 		RegMask = (IOU_SLCR_MIO_PIN_74_L0_SEL_MASK | IOU_SLCR_MIO_PIN_74_L1_SEL_MASK | IOU_SLCR_MIO_PIN_74_L2_SEL_MASK | IOU_SLCR_MIO_PIN_74_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_74_L0_SEL_SHIFT
@@ -4533,7 +4533,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_75_L3_SEL                                                  0
 
 		Configures MIO Pin 75 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF18012C, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18012C, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_75_L0_SEL_MASK | IOU_SLCR_MIO_PIN_75_L1_SEL_MASK | IOU_SLCR_MIO_PIN_75_L2_SEL_MASK | IOU_SLCR_MIO_PIN_75_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_75_L0_SEL_SHIFT
@@ -4563,7 +4563,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_76_L3_SEL                                                  0
 
 		Configures MIO Pin 76 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180130, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180130, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_76_L0_SEL_MASK | IOU_SLCR_MIO_PIN_76_L1_SEL_MASK | IOU_SLCR_MIO_PIN_76_L2_SEL_MASK | IOU_SLCR_MIO_PIN_76_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_76_L0_SEL_SHIFT
@@ -4593,7 +4593,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_PIN_77_L3_SEL                                                  0
 
 		Configures MIO Pin 77 peripheral interface mapping
-		(OFFSET, MASK, VALUE)      (0XFF180134, 0x000000FEU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180134, 0x000000FEU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_PIN_77_L0_SEL_MASK | IOU_SLCR_MIO_PIN_77_L1_SEL_MASK | IOU_SLCR_MIO_PIN_77_L2_SEL_MASK | IOU_SLCR_MIO_PIN_77_L3_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_PIN_77_L0_SEL_SHIFT
@@ -4703,7 +4703,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_MST_TRI0_PIN_31_TRI                                            0
 
 		MIO pin Tri-state Enables, 31:0
-		(OFFSET, MASK, VALUE)      (0XFF180204, 0xFFFFFFFFU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF180204, 0xFFFFFFFFU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_MST_TRI0_PIN_00_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_01_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_02_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_03_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_04_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_05_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_06_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_07_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_08_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_09_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_10_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_11_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_12_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_13_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_14_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_15_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_16_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_17_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_18_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_19_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_20_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_21_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_22_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_23_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_24_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_25_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_26_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_27_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_28_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_29_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_30_TRI_MASK | IOU_SLCR_MIO_MST_TRI0_PIN_31_TRI_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_MST_TRI0_PIN_00_TRI_SHIFT
@@ -4841,7 +4841,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_MST_TRI1_PIN_63_TRI                                            0
 
 		MIO pin Tri-state Enables, 63:32
-		(OFFSET, MASK, VALUE)      (0XFF180208, 0xFFFFFFFFU ,0x00B03000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180208, 0xFFFFFFFFU ,0x00B03000U)
 		RegMask = (IOU_SLCR_MIO_MST_TRI1_PIN_32_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_33_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_34_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_35_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_36_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_37_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_38_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_39_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_40_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_41_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_42_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_43_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_44_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_45_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_46_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_47_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_48_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_49_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_50_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_51_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_52_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_53_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_54_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_55_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_56_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_57_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_58_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_59_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_60_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_61_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_62_TRI_MASK | IOU_SLCR_MIO_MST_TRI1_PIN_63_TRI_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_MST_TRI1_PIN_32_TRI_SHIFT
@@ -4925,7 +4925,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_MST_TRI2_PIN_77_TRI                                            0
 
 		MIO pin Tri-state Enables, 77:64
-		(OFFSET, MASK, VALUE)      (0XFF18020C, 0x00003FFFU ,0x00000002U)  
+		(OFFSET, MASK, VALUE)      (0XFF18020C, 0x00003FFFU ,0x00000002U)
 		RegMask = (IOU_SLCR_MIO_MST_TRI2_PIN_64_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_65_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_66_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_67_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_68_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_69_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_70_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_71_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_72_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_73_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_74_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_75_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_76_TRI_MASK | IOU_SLCR_MIO_MST_TRI2_PIN_77_TRI_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_MST_TRI2_PIN_64_TRI_SHIFT
@@ -5027,7 +5027,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_25                                          1
 
 		Drive0 control to MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF180138, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180138, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_0_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_1_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_2_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_3_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_4_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_5_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_6_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_7_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_8_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_9_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_10_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_11_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_12_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_13_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_14_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_15_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_16_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_17_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_18_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_19_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_20_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_21_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_22_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_23_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_24_MASK | IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK0_CTRL0_DRIVE0_BIT_0_SHIFT
@@ -5141,7 +5141,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_25                                          1
 
 		Drive1 control to MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF18013C, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF18013C, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_0_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_1_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_2_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_3_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_4_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_5_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_6_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_7_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_8_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_9_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_10_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_11_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_12_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_13_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_14_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_15_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_16_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_17_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_18_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_19_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_20_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_21_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_22_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_23_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_24_MASK | IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK0_CTRL1_DRIVE1_BIT_0_SHIFT
@@ -5255,7 +5255,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_25                                  0
 
 		Selects either Schmitt or CMOS input for MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF180140, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180140, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_0_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_1_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_2_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_3_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_4_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_5_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_6_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_7_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_8_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_9_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_10_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_11_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_12_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_13_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_14_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_15_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_16_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_17_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_18_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_19_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_20_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_21_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_22_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_23_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_24_MASK | IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK0_CTRL3_SCHMITT_CMOS_N_BIT_0_SHIFT
@@ -5369,7 +5369,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_25                                 1
 
 		When mio_bank0_pull_enable is set, this selects pull up or pull down for MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF180144, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180144, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_0_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_1_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_2_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_3_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_4_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_5_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_6_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_7_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_8_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_9_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_10_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_11_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_12_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_13_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_14_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_15_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_16_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_17_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_18_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_19_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_20_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_21_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_22_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_23_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_24_MASK | IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK0_CTRL4_PULL_HIGH_LOW_N_BIT_0_SHIFT
@@ -5483,7 +5483,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_25                                     1
 
 		When set, this enables mio_bank0_pullupdown to selects pull up or pull down for MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF180148, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180148, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_0_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_1_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_2_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_3_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_4_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_5_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_6_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_7_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_8_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_9_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_10_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_11_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_12_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_13_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_14_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_15_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_16_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_17_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_18_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_19_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_20_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_21_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_22_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_23_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_24_MASK | IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK0_CTRL5_PULL_ENABLE_BIT_0_SHIFT
@@ -5597,7 +5597,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_25                                0
 
 		Slew rate control to MIO Bank 0 - control MIO[25:0]
-		(OFFSET, MASK, VALUE)      (0XFF18014C, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18014C, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_0_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_1_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_2_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_3_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_4_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_5_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_6_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_7_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_8_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_9_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_10_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_11_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_12_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_13_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_14_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_15_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_16_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_17_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_18_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_19_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_20_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_21_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_22_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_23_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_24_MASK | IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK0_CTRL6_SLOW_FAST_SLEW_N_BIT_0_SHIFT
@@ -5711,7 +5711,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_25                                          1
 
 		Drive0 control to MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF180154, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180154, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_0_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_1_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_2_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_3_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_4_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_5_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_6_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_7_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_8_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_9_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_10_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_11_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_12_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_13_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_14_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_15_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_16_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_17_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_18_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_19_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_20_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_21_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_22_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_23_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_24_MASK | IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK1_CTRL0_DRIVE0_BIT_0_SHIFT
@@ -5825,7 +5825,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_25                                          1
 
 		Drive1 control to MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF180158, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180158, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_0_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_1_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_2_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_3_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_4_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_5_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_6_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_7_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_8_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_9_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_10_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_11_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_12_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_13_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_14_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_15_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_16_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_17_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_18_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_19_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_20_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_21_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_22_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_23_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_24_MASK | IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK1_CTRL1_DRIVE1_BIT_0_SHIFT
@@ -5939,7 +5939,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_25                                  0
 
 		Selects either Schmitt or CMOS input for MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF18015C, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18015C, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_0_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_1_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_2_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_3_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_4_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_5_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_6_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_7_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_8_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_9_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_10_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_11_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_12_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_13_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_14_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_15_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_16_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_17_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_18_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_19_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_20_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_21_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_22_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_23_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_24_MASK | IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK1_CTRL3_SCHMITT_CMOS_N_BIT_0_SHIFT
@@ -6053,7 +6053,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_25                                 1
 
 		When mio_bank1_pull_enable is set, this selects pull up or pull down for MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF180160, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180160, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_0_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_1_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_2_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_3_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_4_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_5_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_6_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_7_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_8_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_9_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_10_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_11_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_12_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_13_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_14_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_15_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_16_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_17_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_18_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_19_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_20_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_21_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_22_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_23_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_24_MASK | IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK1_CTRL4_PULL_HIGH_LOW_N_BIT_0_SHIFT
@@ -6167,7 +6167,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_25                                     1
 
 		When set, this enables mio_bank1_pullupdown to selects pull up or pull down for MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF180164, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180164, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_0_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_1_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_2_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_3_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_4_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_5_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_6_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_7_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_8_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_9_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_10_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_11_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_12_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_13_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_14_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_15_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_16_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_17_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_18_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_19_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_20_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_21_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_22_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_23_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_24_MASK | IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK1_CTRL5_PULL_ENABLE_BIT_0_SHIFT
@@ -6281,7 +6281,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_25                                0
 
 		Slew rate control to MIO Bank 1 - control MIO[51:26]
-		(OFFSET, MASK, VALUE)      (0XFF180168, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180168, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_0_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_1_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_2_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_3_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_4_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_5_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_6_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_7_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_8_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_9_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_10_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_11_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_12_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_13_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_14_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_15_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_16_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_17_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_18_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_19_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_20_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_21_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_22_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_23_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_24_MASK | IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK1_CTRL6_SLOW_FAST_SLEW_N_BIT_0_SHIFT
@@ -6395,7 +6395,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_25                                          1
 
 		Drive0 control to MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF180170, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180170, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_0_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_1_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_2_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_3_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_4_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_5_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_6_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_7_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_8_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_9_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_10_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_11_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_12_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_13_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_14_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_15_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_16_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_17_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_18_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_19_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_20_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_21_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_22_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_23_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_24_MASK | IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK2_CTRL0_DRIVE0_BIT_0_SHIFT
@@ -6509,7 +6509,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_25                                          1
 
 		Drive1 control to MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF180174, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180174, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_0_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_1_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_2_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_3_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_4_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_5_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_6_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_7_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_8_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_9_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_10_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_11_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_12_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_13_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_14_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_15_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_16_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_17_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_18_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_19_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_20_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_21_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_22_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_23_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_24_MASK | IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK2_CTRL1_DRIVE1_BIT_0_SHIFT
@@ -6623,7 +6623,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_25                                  0
 
 		Selects either Schmitt or CMOS input for MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF180178, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180178, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_0_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_1_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_2_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_3_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_4_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_5_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_6_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_7_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_8_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_9_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_10_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_11_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_12_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_13_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_14_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_15_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_16_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_17_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_18_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_19_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_20_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_21_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_22_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_23_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_24_MASK | IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK2_CTRL3_SCHMITT_CMOS_N_BIT_0_SHIFT
@@ -6737,7 +6737,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_25                                 1
 
 		When mio_bank2_pull_enable is set, this selects pull up or pull down for MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF18017C, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF18017C, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_0_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_1_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_2_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_3_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_4_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_5_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_6_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_7_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_8_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_9_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_10_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_11_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_12_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_13_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_14_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_15_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_16_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_17_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_18_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_19_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_20_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_21_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_22_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_23_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_24_MASK | IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK2_CTRL4_PULL_HIGH_LOW_N_BIT_0_SHIFT
@@ -6851,7 +6851,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_25                                     1
 
 		When set, this enables mio_bank2_pullupdown to selects pull up or pull down for MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF180180, 0x03FFFFFFU ,0x03FFFFFFU)  
+		(OFFSET, MASK, VALUE)      (0XFF180180, 0x03FFFFFFU ,0x03FFFFFFU)
 		RegMask = (IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_0_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_1_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_2_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_3_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_4_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_5_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_6_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_7_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_8_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_9_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_10_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_11_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_12_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_13_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_14_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_15_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_16_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_17_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_18_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_19_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_20_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_21_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_22_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_23_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_24_MASK | IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000001U << IOU_SLCR_BANK2_CTRL5_PULL_ENABLE_BIT_0_SHIFT
@@ -6965,7 +6965,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_25                                0
 
 		Slew rate control to MIO Bank 2 - control MIO[77:52]
-		(OFFSET, MASK, VALUE)      (0XFF180184, 0x03FFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180184, 0x03FFFFFFU ,0x00000000U)
 		RegMask = (IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_0_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_1_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_2_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_3_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_4_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_5_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_6_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_7_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_8_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_9_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_10_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_11_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_12_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_13_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_14_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_15_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_16_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_17_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_18_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_19_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_20_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_21_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_22_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_23_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_24_MASK | IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_25_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_BANK2_CTRL6_SLOW_FAST_SLEW_N_BIT_0_SHIFT
@@ -7018,7 +7018,7 @@ unsigned long psu_mio_init_data() {
 		PSU_IOU_SLCR_MIO_LOOPBACK_SPI0_LOOP_SPI1                                        0
 
 		Loopback function within MIO
-		(OFFSET, MASK, VALUE)      (0XFF180200, 0x0000000FU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180200, 0x0000000FU ,0x00000000U)
 		RegMask = (IOU_SLCR_MIO_LOOPBACK_I2C0_LOOP_I2C1_MASK | IOU_SLCR_MIO_LOOPBACK_CAN0_LOOP_CAN1_MASK | IOU_SLCR_MIO_LOOPBACK_UA0_LOOP_UA1_MASK | IOU_SLCR_MIO_LOOPBACK_SPI0_LOOP_SPI1_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_MIO_LOOPBACK_I2C0_LOOP_I2C1_SHIFT
@@ -7050,7 +7050,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU0_GEM3_RESET                                             0
 
 		Software controlled reset for the GEMs
-		(OFFSET, MASK, VALUE)      (0XFF5E0230, 0x0000000FU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0230, 0x0000000FU ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU0_GEM0_RESET_MASK | CRL_APB_RST_LPD_IOU0_GEM1_RESET_MASK | CRL_APB_RST_LPD_IOU0_GEM2_RESET_MASK | CRL_APB_RST_LPD_IOU0_GEM3_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU0_GEM0_RESET_SHIFT
@@ -7068,7 +7068,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_QSPI_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000001U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_QSPI_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_QSPI_RESET_SHIFT
@@ -7083,7 +7083,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_NAND_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00010000U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00010000U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_NAND_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_NAND_RESET_SHIFT
@@ -7104,7 +7104,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_TOP_USB0_CORERESET                                          0
 
 		Software control register for the LPD block.
-		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000540U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000540U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_TOP_USB0_APB_RESET_MASK | CRL_APB_RST_LPD_TOP_USB0_HIBERRESET_MASK | CRL_APB_RST_LPD_TOP_USB0_CORERESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_TOP_USB0_APB_RESET_SHIFT
@@ -7136,7 +7136,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRF_APB_RST_FPD_TOP_GT_RESET                                                0
 
 		FPD Block level software controlled reset
-		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x0001803CU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD1A0100, 0x0001803CU ,0x00000000U)
 		RegMask = (CRF_APB_RST_FPD_TOP_DP_RESET_MASK | CRF_APB_RST_FPD_TOP_SWDT_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP0_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_PP1_RESET_MASK | CRF_APB_RST_FPD_TOP_GPU_RESET_MASK | CRF_APB_RST_FPD_TOP_GT_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRF_APB_RST_FPD_TOP_DP_RESET_SHIFT
@@ -7159,7 +7159,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_SDIO1_RESET                                            0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000060U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000060U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_SDIO0_RESET_MASK | CRL_APB_RST_LPD_IOU2_SDIO1_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_SDIO0_RESET_SHIFT
@@ -7177,7 +7177,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_IOU_SLCR_CTRL_REG_SD_SD1_EMMC_SEL                                           0
 
 		SD eMMC selection
-		(OFFSET, MASK, VALUE)      (0XFF180310, 0x00008001U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF180310, 0x00008001U ,0x00000000U)
 		RegMask = (IOU_SLCR_CTRL_REG_SD_SD0_EMMC_SEL_MASK | IOU_SLCR_CTRL_REG_SD_SD1_EMMC_SEL_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_CTRL_REG_SD_SD0_EMMC_SEL_SHIFT
@@ -7215,7 +7215,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_IOU_SLCR_SD_CONFIG_REG2_SD1_3P3V                                            1
 
 		SD Config Register 2
-		(OFFSET, MASK, VALUE)      (0XFF180320, 0x33803380U ,0x02800280U)  
+		(OFFSET, MASK, VALUE)      (0XFF180320, 0x33803380U ,0x02800280U)
 		RegMask = (IOU_SLCR_SD_CONFIG_REG2_SD0_SLOTTYPE_MASK | IOU_SLCR_SD_CONFIG_REG2_SD1_SLOTTYPE_MASK | IOU_SLCR_SD_CONFIG_REG2_SD0_1P8V_MASK | IOU_SLCR_SD_CONFIG_REG2_SD0_3P0V_MASK | IOU_SLCR_SD_CONFIG_REG2_SD0_3P3V_MASK | IOU_SLCR_SD_CONFIG_REG2_SD1_1P8V_MASK | IOU_SLCR_SD_CONFIG_REG2_SD1_3P0V_MASK | IOU_SLCR_SD_CONFIG_REG2_SD1_3P3V_MASK |  0 );
 
 		RegVal = ((0x00000000U << IOU_SLCR_SD_CONFIG_REG2_SD0_SLOTTYPE_SHIFT
@@ -7237,7 +7237,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_IOU_SLCR_SD_CONFIG_REG1_SD0_BASECLK                                         0x14
 
 		SD Config Register 1
-		(OFFSET, MASK, VALUE)      (0XFF18031C, 0x00007F80U ,0x00000A00U)  
+		(OFFSET, MASK, VALUE)      (0XFF18031C, 0x00007F80U ,0x00000A00U)
 		RegMask = (IOU_SLCR_SD_CONFIG_REG1_SD0_BASECLK_MASK |  0 );
 
 		RegVal = ((0x00000014U << IOU_SLCR_SD_CONFIG_REG1_SD0_BASECLK_SHIFT
@@ -7252,7 +7252,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_IOU_SLCR_SD_CONFIG_REG1_SD1_BASECLK                                         0x14
 
 		SD Config Register 1
-		(OFFSET, MASK, VALUE)      (0XFF18031C, 0x7F800000U ,0x0A000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF18031C, 0x7F800000U ,0x0A000000U)
 		RegMask = (IOU_SLCR_SD_CONFIG_REG1_SD1_BASECLK_MASK |  0 );
 
 		RegVal = ((0x00000014U << IOU_SLCR_SD_CONFIG_REG1_SD1_BASECLK_SHIFT
@@ -7270,7 +7270,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_CAN1_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000180U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000180U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_CAN0_RESET_MASK | CRL_APB_RST_LPD_IOU2_CAN1_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_CAN0_RESET_SHIFT
@@ -7289,7 +7289,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_I2C1_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000600U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000600U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_I2C0_RESET_MASK | CRL_APB_RST_LPD_IOU2_I2C1_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_I2C0_RESET_SHIFT
@@ -7305,7 +7305,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_SWDT_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00008000U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00008000U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_SWDT_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_SWDT_RESET_SHIFT
@@ -7323,7 +7323,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_SPI1_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000018U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000018U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_SPI0_RESET_MASK | CRL_APB_RST_LPD_IOU2_SPI1_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_SPI0_RESET_SHIFT
@@ -7348,7 +7348,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_TTC3_RESET                                             0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00007800U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00007800U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_TTC0_RESET_MASK | CRL_APB_RST_LPD_IOU2_TTC1_RESET_MASK | CRL_APB_RST_LPD_IOU2_TTC2_RESET_MASK | CRL_APB_RST_LPD_IOU2_TTC3_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_TTC0_RESET_SHIFT
@@ -7369,7 +7369,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CRL_APB_RST_LPD_IOU2_UART1_RESET                                            0
 
 		Software control register for the IOU block. Each bit will cause a singlerperipheral or part of the peripheral to be reset.
-		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000006U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF5E0238, 0x00000006U ,0x00000000U)
 		RegMask = (CRL_APB_RST_LPD_IOU2_UART0_RESET_MASK | CRL_APB_RST_LPD_IOU2_UART1_RESET_MASK |  0 );
 
 		RegVal = ((0x00000000U << CRL_APB_RST_LPD_IOU2_UART0_RESET_SHIFT
@@ -7385,7 +7385,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART0_BAUD_RATE_DIVIDER_REG0_BDIV                                           0x6
 
 		Baud Rate Divider Register
-		(OFFSET, MASK, VALUE)      (0XFF000034, 0x000000FFU ,0x00000006U)  
+		(OFFSET, MASK, VALUE)      (0XFF000034, 0x000000FFU ,0x00000006U)
 		RegMask = (UART0_BAUD_RATE_DIVIDER_REG0_BDIV_MASK |  0 );
 
 		RegVal = ((0x00000006U << UART0_BAUD_RATE_DIVIDER_REG0_BDIV_SHIFT
@@ -7399,7 +7399,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART0_BAUD_RATE_GEN_REG0_CD                                                 0x1f
 
 		Baud Rate Generator Register.
-		(OFFSET, MASK, VALUE)      (0XFF000018, 0x0000FFFFU ,0x0000001FU)  
+		(OFFSET, MASK, VALUE)      (0XFF000018, 0x0000FFFFU ,0x0000001FU)
 		RegMask = (UART0_BAUD_RATE_GEN_REG0_CD_MASK |  0 );
 
 		RegVal = ((0x0000001FU << UART0_BAUD_RATE_GEN_REG0_CD_SHIFT
@@ -7442,7 +7442,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART0_CONTROL_REG0_RXRES                                                    0x1
 
 		UART Control Register
-		(OFFSET, MASK, VALUE)      (0XFF000000, 0x000001FFU ,0x00000017U)  
+		(OFFSET, MASK, VALUE)      (0XFF000000, 0x000001FFU ,0x00000017U)
 		RegMask = (UART0_CONTROL_REG0_STPBRK_MASK | UART0_CONTROL_REG0_STTBRK_MASK | UART0_CONTROL_REG0_RSTTO_MASK | UART0_CONTROL_REG0_TXDIS_MASK | UART0_CONTROL_REG0_TXEN_MASK | UART0_CONTROL_REG0_RXDIS_MASK | UART0_CONTROL_REG0_RXEN_MASK | UART0_CONTROL_REG0_TXRES_MASK | UART0_CONTROL_REG0_RXRES_MASK |  0 );
 
 		RegVal = ((0x00000000U << UART0_CONTROL_REG0_STPBRK_SHIFT
@@ -7467,7 +7467,7 @@ unsigned long psu_peripherals_init_data() {
 		stop bits 10: 2 stop bits 11: reserved
 		PSU_UART0_MODE_REG0_NBSTOP                                                      0x0
 
-		Parity type select: Defines the expected parity to check on receive and the parity to generate on transmit. 000: even parity 
+		Parity type select: Defines the expected parity to check on receive and the parity to generate on transmit. 000: even parity
 		01: odd parity 010: forced to 0 parity (space) 011: forced to 1 parity (mark) 1xx: no parity
 		PSU_UART0_MODE_REG0_PAR                                                         0x4
 
@@ -7479,7 +7479,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART0_MODE_REG0_CLKS                                                        0x0
 
 		UART Mode Register
-		(OFFSET, MASK, VALUE)      (0XFF000004, 0x000003FFU ,0x00000020U)  
+		(OFFSET, MASK, VALUE)      (0XFF000004, 0x000003FFU ,0x00000020U)
 		RegMask = (UART0_MODE_REG0_CHMODE_MASK | UART0_MODE_REG0_NBSTOP_MASK | UART0_MODE_REG0_PAR_MASK | UART0_MODE_REG0_CHRL_MASK | UART0_MODE_REG0_CLKS_MASK |  0 );
 
 		RegVal = ((0x00000000U << UART0_MODE_REG0_CHMODE_SHIFT
@@ -7497,7 +7497,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART1_BAUD_RATE_DIVIDER_REG0_BDIV                                           0x6
 
 		Baud Rate Divider Register
-		(OFFSET, MASK, VALUE)      (0XFF010034, 0x000000FFU ,0x00000006U)  
+		(OFFSET, MASK, VALUE)      (0XFF010034, 0x000000FFU ,0x00000006U)
 		RegMask = (UART1_BAUD_RATE_DIVIDER_REG0_BDIV_MASK |  0 );
 
 		RegVal = ((0x00000006U << UART1_BAUD_RATE_DIVIDER_REG0_BDIV_SHIFT
@@ -7511,7 +7511,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART1_BAUD_RATE_GEN_REG0_CD                                                 0x1f
 
 		Baud Rate Generator Register.
-		(OFFSET, MASK, VALUE)      (0XFF010018, 0x0000FFFFU ,0x0000001FU)  
+		(OFFSET, MASK, VALUE)      (0XFF010018, 0x0000FFFFU ,0x0000001FU)
 		RegMask = (UART1_BAUD_RATE_GEN_REG0_CD_MASK |  0 );
 
 		RegVal = ((0x0000001FU << UART1_BAUD_RATE_GEN_REG0_CD_SHIFT
@@ -7554,7 +7554,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART1_CONTROL_REG0_RXRES                                                    0x1
 
 		UART Control Register
-		(OFFSET, MASK, VALUE)      (0XFF010000, 0x000001FFU ,0x00000017U)  
+		(OFFSET, MASK, VALUE)      (0XFF010000, 0x000001FFU ,0x00000017U)
 		RegMask = (UART1_CONTROL_REG0_STPBRK_MASK | UART1_CONTROL_REG0_STTBRK_MASK | UART1_CONTROL_REG0_RSTTO_MASK | UART1_CONTROL_REG0_TXDIS_MASK | UART1_CONTROL_REG0_TXEN_MASK | UART1_CONTROL_REG0_RXDIS_MASK | UART1_CONTROL_REG0_RXEN_MASK | UART1_CONTROL_REG0_TXRES_MASK | UART1_CONTROL_REG0_RXRES_MASK |  0 );
 
 		RegVal = ((0x00000000U << UART1_CONTROL_REG0_STPBRK_SHIFT
@@ -7579,7 +7579,7 @@ unsigned long psu_peripherals_init_data() {
 		stop bits 10: 2 stop bits 11: reserved
 		PSU_UART1_MODE_REG0_NBSTOP                                                      0x0
 
-		Parity type select: Defines the expected parity to check on receive and the parity to generate on transmit. 000: even parity 
+		Parity type select: Defines the expected parity to check on receive and the parity to generate on transmit. 000: even parity
 		01: odd parity 010: forced to 0 parity (space) 011: forced to 1 parity (mark) 1xx: no parity
 		PSU_UART1_MODE_REG0_PAR                                                         0x4
 
@@ -7591,7 +7591,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_UART1_MODE_REG0_CLKS                                                        0x0
 
 		UART Mode Register
-		(OFFSET, MASK, VALUE)      (0XFF010004, 0x000003FFU ,0x00000020U)  
+		(OFFSET, MASK, VALUE)      (0XFF010004, 0x000003FFU ,0x00000020U)
 		RegMask = (UART1_MODE_REG0_CHMODE_MASK | UART1_MODE_REG0_NBSTOP_MASK | UART1_MODE_REG0_PAR_MASK | UART1_MODE_REG0_CHRL_MASK | UART1_MODE_REG0_CLKS_MASK |  0 );
 
 		RegVal = ((0x00000000U << UART1_MODE_REG0_CHMODE_SHIFT
@@ -7611,7 +7611,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_LPD_SLCR_SECURE_SLCR_ADMA_TZ                                                0XFF
 
 		RPU TrustZone settings
-		(OFFSET, MASK, VALUE)      (0XFF4B0024, 0x000000FFU ,0x000000FFU)  
+		(OFFSET, MASK, VALUE)      (0XFF4B0024, 0x000000FFU ,0x000000FFU)
 		RegMask = (LPD_SLCR_SECURE_SLCR_ADMA_TZ_MASK |  0 );
 
 		RegVal = ((0x000000FFU << LPD_SLCR_SECURE_SLCR_ADMA_TZ_SHIFT
@@ -7663,7 +7663,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_CSU_TAMPER_STATUS_TAMPER_12                                                 0
 
 		Tamper Response Status
-		(OFFSET, MASK, VALUE)      (0XFFCA5000, 0x00001FFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFFCA5000, 0x00001FFFU ,0x00000000U)
 		RegMask = (CSU_TAMPER_STATUS_TAMPER_0_MASK | CSU_TAMPER_STATUS_TAMPER_1_MASK | CSU_TAMPER_STATUS_TAMPER_2_MASK | CSU_TAMPER_STATUS_TAMPER_3_MASK | CSU_TAMPER_STATUS_TAMPER_4_MASK | CSU_TAMPER_STATUS_TAMPER_5_MASK | CSU_TAMPER_STATUS_TAMPER_6_MASK | CSU_TAMPER_STATUS_TAMPER_7_MASK | CSU_TAMPER_STATUS_TAMPER_8_MASK | CSU_TAMPER_STATUS_TAMPER_9_MASK | CSU_TAMPER_STATUS_TAMPER_10_MASK | CSU_TAMPER_STATUS_TAMPER_11_MASK | CSU_TAMPER_STATUS_TAMPER_12_MASK |  0 );
 
 		RegVal = ((0x00000000U << CSU_TAMPER_STATUS_TAMPER_0_SHIFT
@@ -7696,7 +7696,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_FPD_SLCR_AFI_FS_DW_SS1_SEL                                                  0x2
 
 		afi fs SLCR control register. This register is static and should not be modified during operation.
-		(OFFSET, MASK, VALUE)      (0XFD615000, 0x00000F00U ,0x00000A00U)  
+		(OFFSET, MASK, VALUE)      (0XFD615000, 0x00000F00U ,0x00000A00U)
 		RegMask = (FPD_SLCR_AFI_FS_DW_SS0_SEL_MASK | FPD_SLCR_AFI_FS_DW_SS1_SEL_MASK |  0 );
 
 		RegVal = ((0x00000002U << FPD_SLCR_AFI_FS_DW_SS0_SEL_SHIFT
@@ -7712,7 +7712,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD360000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD360000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM0_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7727,7 +7727,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD370000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD370000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM1_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7742,7 +7742,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD380000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD380000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM2_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7757,7 +7757,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD390000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD390000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM3_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7772,7 +7772,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD3A0000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD3A0000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM4_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7787,7 +7787,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFD3B0000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD3B0000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM5_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7802,7 +7802,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH                                            0x0
 
 		Read Channel Control Register
-		(OFFSET, MASK, VALUE)      (0XFF9B0000, 0x00000003U ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF9B0000, 0x00000003U ,0x00000000U)
 		RegMask = (AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH_MASK |  0 );
 
 		RegVal = ((0x00000000U << AFIFM6_AFIFM_RDCTRL_FABRIC_WIDTH_SHIFT
@@ -7817,7 +7817,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_MASK_DATA_5_MSW_DATA_5_MSW                                             0x8000
 
 		Maskable Output Data (GPIO Bank5, EMIO, Upper 16bits)
-		(OFFSET, MASK, VALUE)      (0XFF0A002C, 0x0000FFFFU ,0x00008000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A002C, 0x0000FFFFU ,0x00008000U)
 		RegMask = (GPIO_MASK_DATA_5_MSW_DATA_5_MSW_MASK |  0 );
 
 		RegVal = ((0x00008000U << GPIO_MASK_DATA_5_MSW_DATA_5_MSW_SHIFT
@@ -7831,7 +7831,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_DIRM_5_DIRECTION_5                                                     0x80000000
 
 		Direction mode (GPIO Bank5, EMIO)
-		(OFFSET, MASK, VALUE)      (0XFF0A0344, 0xFFFFFFFFU ,0x80000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A0344, 0xFFFFFFFFU ,0x80000000U)
 		RegMask = (GPIO_DIRM_5_DIRECTION_5_MASK |  0 );
 
 		RegVal = ((0x80000000U << GPIO_DIRM_5_DIRECTION_5_SHIFT
@@ -7845,7 +7845,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_OEN_5_OP_ENABLE_5                                                      0x80000000
 
 		Output enable (GPIO Bank5, EMIO)
-		(OFFSET, MASK, VALUE)      (0XFF0A0348, 0xFFFFFFFFU ,0x80000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A0348, 0xFFFFFFFFU ,0x80000000U)
 		RegMask = (GPIO_OEN_5_OP_ENABLE_5_MASK |  0 );
 
 		RegVal = ((0x80000000U << GPIO_OEN_5_OP_ENABLE_5_SHIFT
@@ -7859,7 +7859,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_DATA_5_DATA_5                                                          0x80000000
 
 		Output Data (GPIO Bank5, EMIO)
-		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x80000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x80000000U)
 		RegMask = (GPIO_DATA_5_DATA_5_MASK |  0 );
 
 		RegVal = ((0x80000000U << GPIO_DATA_5_DATA_5_SHIFT
@@ -7874,7 +7874,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_DATA_5_DATA_5                                                          0X00000000
 
 		Output Data (GPIO Bank5, EMIO)
-		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x00000000U)
 		RegMask = (GPIO_DATA_5_DATA_5_MASK |  0 );
 
 		RegVal = ((0x00000000U << GPIO_DATA_5_DATA_5_SHIFT
@@ -7889,7 +7889,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_GPIO_DATA_5_DATA_5                                                          0x80000000
 
 		Output Data (GPIO Bank5, EMIO)
-		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x80000000U)  
+		(OFFSET, MASK, VALUE)      (0XFF0A0054, 0xFFFFFFFFU ,0x80000000U)
 		RegMask = (GPIO_DATA_5_DATA_5_MASK |  0 );
 
 		RegVal = ((0x80000000U << GPIO_DATA_5_DATA_5_SHIFT
@@ -7907,7 +7907,7 @@ unsigned long psu_peripherals_init_data() {
 		PSU_APU_ACE_CTRL_ARQOS                                                          0X0
 
 		ACE Control Register
-		(OFFSET, MASK, VALUE)      (0XFD5C0060, 0x000F000FU ,0x00000000U)  
+		(OFFSET, MASK, VALUE)      (0XFD5C0060, 0x000F000FU ,0x00000000U)
 		RegMask = (APU_ACE_CTRL_AWQOS_MASK | APU_ACE_CTRL_ARQOS_MASK |  0 );
 
 		RegVal = ((0x00000000U << APU_ACE_CTRL_AWQOS_SHIFT
@@ -7927,7 +7927,7 @@ unsigned long psu_post_config_data() {
 		PSU_PMU_GLOBAL_REQ_PWRUP_INT_EN_PL                                              1
 
 		Power-up Request Interrupt Enable Register. Writing a 1 to this location will unmask the interrupt.
-		(OFFSET, MASK, VALUE)      (0XFFD80118, 0x00800000U ,0x00800000U)  
+		(OFFSET, MASK, VALUE)      (0XFFD80118, 0x00800000U ,0x00800000U)
 		RegMask = (PMU_GLOBAL_REQ_PWRUP_INT_EN_PL_MASK |  0 );
 
 		RegVal = ((0x00000001U << PMU_GLOBAL_REQ_PWRUP_INT_EN_PL_SHIFT
@@ -7941,7 +7941,7 @@ unsigned long psu_post_config_data() {
 		PSU_PMU_GLOBAL_REQ_PWRUP_TRIG_PL                                                1
 
 		Power-up Request Trigger Register. A write of one to this location will generate a power-up request to the PMU.
-		(OFFSET, MASK, VALUE)      (0XFFD80120, 0x00800000U ,0x00800000U)  
+		(OFFSET, MASK, VALUE)      (0XFFD80120, 0x00800000U ,0x00800000U)
 		RegMask = (PMU_GLOBAL_REQ_PWRUP_TRIG_PL_MASK |  0 );
 
 		RegVal = ((0x00000001U << PMU_GLOBAL_REQ_PWRUP_TRIG_PL_SHIFT
@@ -7982,7 +7982,7 @@ unsigned long psu_resetout_init_data() {
 		PSU_PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY                          0X1
 
 		ATTR_37
-		(OFFSET, MASK, VALUE)      (0XFD480094, 0x00004000U ,0x00004000U)  
+		(OFFSET, MASK, VALUE)      (0XFD480094, 0x00004000U ,0x00004000U)
 		RegMask = (PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY_MASK |  0 );
 
 		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_37_ATTR_LINK_CAP_ASPM_OPTIONALITY_SHIFT
@@ -7997,7 +7997,7 @@ unsigned long psu_resetout_init_data() {
 		PSU_PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED                      0X1
 
 		ATTR_25
-		(OFFSET, MASK, VALUE)      (0XFD480064, 0x00000200U ,0x00000200U)  
+		(OFFSET, MASK, VALUE)      (0XFD480064, 0x00000200U ,0x00000200U)
 		RegMask = (PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_MASK |  0 );
 
 		RegVal = ((0x00000001U << PCIE_ATTRIB_ATTR_25_ATTR_CPL_TIMEOUT_DISABLE_SUPPORTED_SHIFT
@@ -8023,10 +8023,10 @@ unsigned long psu_ddr_phybringup_data() {
 	// PHY BRINGUP SEQ
 	while ((Xil_In32(0xFD080030U) & 0x000000FFU) != 0x0000000FU);
 	prog_reg (0xFD080004U, 0x00000001U, 0x00000000U, 0x00000001U);
-	//poll for PHY initialization to complete 
+	//poll for PHY initialization to complete
 	while ((Xil_In32(0xFD080030U) & 0x000000FFU) != 0x0000001FU);
-	
-	 Xil_Out32(0xFD0804DC, 0x00000000); //PUB_RANKIDR  
+
+	 Xil_Out32(0xFD0804DC, 0x00000000); //PUB_RANKIDR
 	 Xil_Out32(0xFD080788, 0x000000dc); //PUB_DX0LCDLR2
 	 Xil_Out32(0xFD080888, 0x000000dc); //PUB_DX1LCDLR2
 	 Xil_Out32(0xFD080988, 0x000000dc); //PUB_DX2LCDLR2
@@ -8036,7 +8036,7 @@ unsigned long psu_ddr_phybringup_data() {
 	 Xil_Out32(0xFD080D88, 0x000000dc); //PUB_DX6LCDLR2
 	 Xil_Out32(0xFD080E88, 0x000000dc); //PUB_DX7LCDLR2
 	 Xil_Out32(0xFD080F88, 0x000000dc); //PUB_DX8LCDLR2
-	 Xil_Out32(0xFD0804DC, 0x00010001); //PUB_RANKIDR  
+	 Xil_Out32(0xFD0804DC, 0x00010001); //PUB_RANKIDR
 	 Xil_Out32(0xFD080788, 0x000000dc); //PUB_DX0LCDLR2
 	 Xil_Out32(0xFD080888, 0x000000dc); //PUB_DX1LCDLR2
 	 Xil_Out32(0xFD080988, 0x000000dc); //PUB_DX2LCDLR2
@@ -8050,7 +8050,7 @@ unsigned long psu_ddr_phybringup_data() {
 	Xil_Out32(0xFD070320U, 0x00000001U);
 	while ((Xil_In32(0xFD070004U) & 0x0000000FU) != 0x00000001U);
 
-return 1; 
+return 1;
 }
 
 /**
@@ -8083,7 +8083,7 @@ int mask_poll(u32 add , u32 mask ) {
 		}
 		i++;
 	}
-	return 1;   
+	return 1;
 	//xil_printf("MaskPoll : 0x%x --> 0x%x \n \r" , add, *addr);
 }
 
@@ -8103,13 +8103,13 @@ int init_ddrc()
 	Xil_Out32(  0XFD1A0108, 0x0000000F)  ; //#RST_DDR_SS 0xFE500108
 		Xil_Out32(  0xFD070000, 0x41040001)  ; //#MSTR
 		Xil_Out32(  0xFD070034, 0x00404310)  ; //#PWRTMG
-		Xil_Out32(  0xFD070064, 0x0040001E)  ; //#RFSHTMG 
+		Xil_Out32(  0xFD070064, 0x0040001E)  ; //#RFSHTMG
 		Xil_Out32(  0xFD070070, 0x00000010)  ; //#ECCCFG0
 		Xil_Out32(  0xFD070074, 0x00000000)  ; //#ECCCFG1
 		Xil_Out32(  0xFD0700C4, 0x10000200)  ; //#CRCPARCTL1
 		Xil_Out32(  0xFD0700C8, 0x0030051F)  ; //#CRCPARCTL2
-		Xil_Out32(  0xFD0700D0, 0x40020004)  ; //#INIT0  
-		Xil_Out32(  0xFD0700D4, 0x00010000)  ; //#INIT1 
+		Xil_Out32(  0xFD0700D0, 0x40020004)  ; //#INIT0
+		Xil_Out32(  0xFD0700D4, 0x00010000)  ; //#INIT1
 		Xil_Out32(  0xFD0700D8, 0x00001205)  ; //#INIT2
 		Xil_Out32(  0xFD0700DC, 0x09300000)  ; //#INIT3
 		Xil_Out32(  0xFD0700E0, 0x02080000)  ; //#INIT4
@@ -8126,8 +8126,8 @@ int init_ddrc()
 		Xil_Out32(  0xFD070130, 0x00020608)  ; //#DRAMTMG12
 		Xil_Out32(  0xFD070180, 0x00800020)  ; //#ZQCTL0
 		Xil_Out32(  0xFD070184, 0x0200CB52)  ; //#ZQCTL1
-		Xil_Out32(  0xFD070190, 0x02838204)  ; //#DFITMG0 
-		Xil_Out32(  0xFD070194, 0x00020404)  ; //#DFITMG1 
+		Xil_Out32(  0xFD070190, 0x02838204)  ; //#DFITMG0
+		Xil_Out32(  0xFD070194, 0x00020404)  ; //#DFITMG1
 		Xil_Out32(  0xFD0701A4, 0x00010087)  ; //#DFIUPD1
 		Xil_Out32(  0xFD0701B0, 0x00000001)  ; //#DFIMISC #change-reset value
 		Xil_Out32(  0xFD0701B4, 0x00000202)  ; //#DFITMG2
@@ -8137,7 +8137,7 @@ int init_ddrc()
 		Xil_Out32(  0xFD070208, 0x00000000)  ; //#ADDRMAP2
 		Xil_Out32(  0xFD07020C, 0x00000000)  ; //#ADDRMAP3
 		Xil_Out32(  0xFD070210, 0x00000F0F)  ; //#ADDRMAP4
-		Xil_Out32(  0xFD070214, 0x07070707)  ; //#ADDRMAP5 
+		Xil_Out32(  0xFD070214, 0x07070707)  ; //#ADDRMAP5
 		Xil_Out32(  0xFD070218, 0x07070707)  ; //#ADDRMAP6
 		Xil_Out32(  0xFD07021C, 0x00000F0F)  ; //#ADDRMAP7
 		Xil_Out32(  0xFD070220, 0x00000000)  ; //#ADDRMAP8
@@ -8190,10 +8190,10 @@ int init_ddrc()
 		Xil_Out32(  0xFD070F08, 0x00000000)  ; //#SARSIZE0
 		Xil_Out32(  0xFD070F0C, 0x00000010)  ; //#SARBASE1
 		Xil_Out32(  0xFD070F10, 0x0000000F)  ; //#SARSIZE1
-		      
+
 		Xil_In32( 0XFD1A0108)  ; //#RST_DDR_SS 0xFE500108
 		Xil_Out32(  0XFD1A0108, 0x00000000)  ; //#RST_DDR_SS 0xFE500108 0
-		Xil_In32( 0XFD1A0108           )  ; //#RST_DDR_SS 0xFE500108  
+		Xil_In32( 0XFD1A0108           )  ; //#RST_DDR_SS 0xFE500108
 
 	/* Take DDR out of reset */
 	Xil_Out32( CRF_APB_RST_DDR_SS, 0x00000000);
@@ -8225,7 +8225,7 @@ void init_peripheral()
 	Xil_Out32( CRF_APB_RST_FPD_TOP, 0x00000000);
 
 	/* Making DPDMA as secure */
-  unsigned int tmp_regval; 
+  unsigned int tmp_regval;
   tmp_regval = Xil_In32(0xFD690040);
   tmp_regval &= ~0x00000001;
   Xil_Out32(0xFD690040, tmp_regval);
@@ -8236,9 +8236,9 @@ void init_peripheral()
   Xil_Out32(0xFD690030, tmp_regval);
 }
 int
-psu_init() 
+psu_init()
 {
-	int status = 1; 
+	int status = 1;
 	status &= psu_mio_init_data ();
 	status &=   psu_pll_init_data ();
 	status &=   psu_clock_init_data ();
@@ -8248,7 +8248,7 @@ psu_init()
 	status &=  init_ddrc();
 
 	status &=  psu_peripherals_powerdwn_data ();
-   
+
 	if (status == 0) {
 		return 1;
 	}
