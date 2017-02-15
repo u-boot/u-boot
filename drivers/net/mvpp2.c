@@ -959,7 +959,7 @@ struct mvpp2_bm_pool {
 	int pkt_size;
 
 	/* BPPE virtual base address */
-	u32 *virt_addr;
+	unsigned long *virt_addr;
 	/* BPPE physical base address */
 	dma_addr_t phys_addr;
 
@@ -1003,8 +1003,8 @@ struct buffer_location {
 	struct mvpp2_tx_desc *aggr_tx_descs;
 	struct mvpp2_tx_desc *tx_descs;
 	struct mvpp2_rx_desc *rx_descs;
-	u32 *bm_pool[MVPP2_BM_POOLS_NUM];
-	u32 *rx_buffer[MVPP2_BM_LONG_BUF_NUM];
+	unsigned long *bm_pool[MVPP2_BM_POOLS_NUM];
+	unsigned long *rx_buffer[MVPP2_BM_LONG_BUF_NUM];
 	int first_rxq;
 };
 
@@ -3963,8 +3963,8 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 	tx_desc = mvpp2_txq_next_desc_get(aggr_txq);
 	tx_desc->phys_txq = txq->id;
 	tx_desc->data_size = length;
-	tx_desc->packet_offset = (u32)packet & MVPP2_TX_DESC_ALIGN;
-	tx_desc->buf_phys_addr = (u32)packet & ~MVPP2_TX_DESC_ALIGN;
+	tx_desc->packet_offset = (unsigned long)packet & MVPP2_TX_DESC_ALIGN;
+	tx_desc->buf_phys_addr = (unsigned long)packet & ~MVPP2_TX_DESC_ALIGN;
 	/* First and Last descriptor */
 	tx_desc->command = MVPP2_TXD_L4_CSUM_NOT | MVPP2_TXD_IP_CSUM_DISABLE
 		| MVPP2_TXD_F_DESC | MVPP2_TXD_L_DESC;
@@ -4088,24 +4088,29 @@ static int mvpp2_base_probe(struct udevice *dev)
 
 	/* Align buffer area for descs and rx_buffers to 1MiB */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-	mmu_set_region_dcache_behaviour((u32)bd_space, BD_SPACE, DCACHE_OFF);
+	mmu_set_region_dcache_behaviour((unsigned long)bd_space,
+					BD_SPACE, DCACHE_OFF);
 
 	buffer_loc.aggr_tx_descs = (struct mvpp2_tx_desc *)bd_space;
 	size += MVPP2_AGGR_TXQ_SIZE * MVPP2_DESC_ALIGNED_SIZE;
 
-	buffer_loc.tx_descs = (struct mvpp2_tx_desc *)((u32)bd_space + size);
+	buffer_loc.tx_descs =
+		(struct mvpp2_tx_desc *)((unsigned long)bd_space + size);
 	size += MVPP2_MAX_TXD * MVPP2_DESC_ALIGNED_SIZE;
 
-	buffer_loc.rx_descs = (struct mvpp2_rx_desc *)((u32)bd_space + size);
+	buffer_loc.rx_descs =
+		(struct mvpp2_rx_desc *)((unsigned long)bd_space + size);
 	size += MVPP2_MAX_RXD * MVPP2_DESC_ALIGNED_SIZE;
 
 	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
-		buffer_loc.bm_pool[i] = (u32 *)((u32)bd_space + size);
+		buffer_loc.bm_pool[i] =
+			(unsigned long *)((unsigned long)bd_space + size);
 		size += MVPP2_BM_POOL_SIZE_MAX * sizeof(u32);
 	}
 
 	for (i = 0; i < MVPP2_BM_LONG_BUF_NUM; i++) {
-		buffer_loc.rx_buffer[i] = (u32 *)((u32)bd_space + size);
+		buffer_loc.rx_buffer[i] =
+			(unsigned long *)((unsigned long)bd_space + size);
 		size += RX_BUFFER_SIZE;
 	}
 
