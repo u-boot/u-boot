@@ -2390,7 +2390,6 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 			     struct mvpp2_bm_pool *bm_pool, int buf_num)
 {
 	int i;
-	u32 bm;
 
 	if (buf_num < 0 ||
 	    (buf_num + bm_pool->buf_num > bm_pool->size)) {
@@ -2400,10 +2399,11 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 		return 0;
 	}
 
-	bm = mvpp2_bm_cookie_pool_set(0, bm_pool->id);
 	for (i = 0; i < buf_num; i++) {
-		mvpp2_pool_refill(port, bm, (u32)buffer_loc.rx_buffer[i],
+		mvpp2_bm_pool_put(port, bm_pool->id,
+				  (u32)buffer_loc.rx_buffer[i],
 				  (u32)buffer_loc.rx_buffer[i]);
+
 	}
 
 	/* Update BM driver with number of buffers added to pool */
