@@ -33,23 +33,9 @@ int Xil_In32(unsigned long addr)
 	return readl(addr);
 }
 
-__weak void prog_reg(unsigned long addr, unsigned long mask,
-		     unsigned long shift, unsigned long value)
-{
-	int rdata = 0;
-
-	rdata = Xil_In32(addr);
-	rdata = rdata & (~mask);
-	rdata = rdata | (value << shift);
-	Xil_Out32(addr,rdata);
-}
-
-void mask_delay(u32 delay);
 void usleep(u32 sleep)
 {
 	udelay(sleep);
 }
-int mask_poll(u32 add, u32 mask);
-int mask_pollOnValue(u32 add, u32 mask, u32 value);
 
 #endif /* XIL_IO_H */

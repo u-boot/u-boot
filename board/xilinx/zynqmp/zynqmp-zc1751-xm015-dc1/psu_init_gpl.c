@@ -30,6 +30,22 @@ static void PSU_Mask_Write (unsigned long offset, unsigned long mask, unsigned l
 	Xil_Out32 (offset, RegVal);
 }
 
+int mask_pollOnValue(u32 add, u32 mask, u32 value);
+int mask_poll(u32 add, u32 mask);
+void mask_delay(u32 delay);
+u32 mask_read(u32 add, u32 mask);
+
+void prog_reg(unsigned long addr, unsigned long mask,
+		     unsigned long shift, unsigned long value)
+{
+	int rdata = 0;
+
+	rdata = Xil_In32(addr);
+	rdata = rdata & (~mask);
+	rdata = rdata | (value << shift);
+	Xil_Out32(addr,rdata);
+}
+
 unsigned long psu_pll_init_data() {
 		// : RPLL INIT
 		/*Register : RPLL_CFG @ 0XFF5E0034</p>
