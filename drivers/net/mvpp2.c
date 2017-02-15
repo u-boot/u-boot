@@ -707,6 +707,9 @@ struct mvpp2 {
 	/* Tclk value */
 	u32 tclk;
 
+	/* HW version */
+	enum { MVPP21, MVPP22 } hw_version;
+
 	struct mii_dev *bus;
 };
 
@@ -4132,6 +4135,9 @@ static int mvpp2_base_probe(struct udevice *dev)
 	u32 size = 0;
 	int i;
 
+	/* Save hw-version */
+	priv->hw_version = dev_get_driver_data(dev);
+
 	/*
 	 * U-Boot special buffer handling:
 	 *
@@ -4234,7 +4240,10 @@ static int mvpp2_base_bind(struct udevice *parent)
 }
 
 static const struct udevice_id mvpp2_ids[] = {
-	{ .compatible = "marvell,armada-375-pp2" },
+	{
+		.compatible = "marvell,armada-375-pp2",
+		.data = MVPP21,
+	},
 	{ }
 };
 
