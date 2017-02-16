@@ -19,9 +19,33 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2C_IO_REG_0_SATA_OFF	2
 #define I2C_IO_REG_0_USB_H_OFF	1
 
+#define PINCTRL_NB_REG_VALUE	0x000173fa
+#define PINCTRL_SB_REG_VALUE	0x00007a23
+
 int board_early_init_f(void)
 {
-	/* Nothing to do (yet), perhaps later some pin-muxing etc */
+	const void *blob = gd->fdt_blob;
+	const char *bank_name;
+	const char *compat = "marvell,armada-3700-pinctl";
+	int off, len;
+	void __iomem *addr;
+
+	/* FIXME
+	 * Temporary WA for setting correct pin control values
+	 * until the real pin control driver is awailable.
+	 */
+	off = fdt_node_offset_by_compatible(blob, -1, compat);
+	while (off != -FDT_ERR_NOTFOUND) {
+		bank_name = fdt_getprop(blob, off, "bank-name", &len);
+		addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(
+				blob, off, "reg", 0, NULL, true);
+		if (!strncmp(bank_name, "armada-3700-nb", len))
+			writel(PINCTRL_NB_REG_VALUE, addr);
+		else if (!strncmp(bank_name, "armada-3700-sb", len))
+			writel(PINCTRL_SB_REG_VALUE, addr);
+
+		off = fdt_node_offset_by_compatible(blob, off, compat);
+	}
 
 	return 0;
 }
