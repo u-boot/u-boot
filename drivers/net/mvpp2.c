@@ -228,7 +228,21 @@ do {									\
 
 /* Interrupt Cause and Mask registers */
 #define MVPP2_ISR_RX_THRESHOLD_REG(rxq)		(0x5200 + 4 * (rxq))
-#define MVPP2_ISR_RXQ_GROUP_REG(rxq)		(0x5400 + 4 * (rxq))
+#define MVPP21_ISR_RXQ_GROUP_REG(rxq)		(0x5400 + 4 * (rxq))
+
+#define MVPP22_ISR_RXQ_GROUP_INDEX_REG          0x5400
+#define MVPP22_ISR_RXQ_GROUP_INDEX_SUBGROUP_MASK 0xf
+#define MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_MASK   0x380
+#define MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET 7
+
+#define MVPP22_ISR_RXQ_GROUP_INDEX_SUBGROUP_MASK 0xf
+#define MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_MASK   0x380
+
+#define MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG     0x5404
+#define MVPP22_ISR_RXQ_SUB_GROUP_STARTQ_MASK    0x1f
+#define MVPP22_ISR_RXQ_SUB_GROUP_SIZE_MASK      0xf00
+#define MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET    8
+
 #define MVPP2_ISR_ENABLE_REG(port)		(0x5420 + 4 * (port))
 #define     MVPP2_ISR_ENABLE_INTERRUPT(mask)	((mask) & 0xffff)
 #define     MVPP2_ISR_DISABLE_INTERRUPT(mask)	(((mask) << 16) & 0xffff0000)
@@ -3747,7 +3761,19 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 	}
 
 	/* Configure Rx queue group interrupt for this port */
-	mvpp2_write(priv, MVPP2_ISR_RXQ_GROUP_REG(port->id), CONFIG_MV_ETH_RXQ);
+	if (priv->hw_version == MVPP21) {
+		mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(port->id),
+			    CONFIG_MV_ETH_RXQ);
+	} else {
+		u32 val;
+
+		val = (port->id << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
+		mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
+
+		val = (CONFIG_MV_ETH_RXQ <<
+		       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
+		mvpp2_write(priv, MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
+	}
 
 	/* Create Rx descriptor rings */
 	for (queue = 0; queue < rxq_number; queue++) {
@@ -4013,9 +4039,23 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	mvpp2_rx_fifo_init(priv);
 
 	/* Reset Rx queue group interrupt configuration */
-	for (i = 0; i < MVPP2_MAX_PORTS; i++)
-		mvpp2_write(priv, MVPP2_ISR_RXQ_GROUP_REG(i),
-			    CONFIG_MV_ETH_RXQ);
+	for (i = 0; i < MVPP2_MAX_PORTS; i++) {
+		if (priv->hw_version == MVPP21) {
+			mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(i),
+				    CONFIG_MV_ETH_RXQ);
+			continue;
+		} else {
+			u32 val;
+
+			val = (i << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
+			mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
+
+			val = (CONFIG_MV_ETH_RXQ <<
+			       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
+			mvpp2_write(priv,
+				    MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
+		}
+	}
 
 	if (priv->hw_version == MVPP21)
 		writel(MVPP2_EXT_GLOBAL_CTRL_DEFAULT,
