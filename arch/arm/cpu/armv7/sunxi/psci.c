@@ -46,7 +46,7 @@ static u32 __secure cp15_read_cntp_ctl(void)
 	return val;
 }
 
-#define ONE_MS (CONFIG_TIMER_CLK_FREQ / 1000)
+#define ONE_MS (COUNTER_FREQUENCY / 1000)
 
 static void __secure __mdelay(u32 ms)
 {
