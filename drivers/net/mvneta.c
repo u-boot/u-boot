@@ -404,6 +404,15 @@ static struct buffer_location buffer_loc;
  */
 #define BD_SPACE	(1 << 20)
 
+/*
+ * Dummy implementation that can be overwritten by a board
+ * specific function
+ */
+__weak int board_network_enable(struct mii_dev *bus)
+{
+	return 0;
+}
+
 /* Utility/helper methods */
 
 /* Write helper method */
@@ -1615,6 +1624,7 @@ static int mvneta_probe(struct udevice *dev)
 	struct mii_dev *bus;
 	unsigned long addr;
 	void *bd_space;
+	int ret;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1664,7 +1674,11 @@ static int mvneta_probe(struct udevice *dev)
 	bus->priv = (void *)pp;
 	pp->bus = bus;
 
-	return mdio_register(bus);
+	ret = mdio_register(bus);
+	if (ret)
+		return ret;
+
+	return board_network_enable(bus);
 }
 
 static void mvneta_stop(struct udevice *dev)
