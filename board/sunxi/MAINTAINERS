@@ -242,6 +242,11 @@ M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained
 F:	configs/orangepi_zero_defconfig
 
+ORANGEPI PC 2 BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/orangepi_pc2_defconfig
+
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
 S:	Maintained
