@@ -12,7 +12,7 @@
 #define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
 #define SPL_HEADER_VERSION	1
 
-#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
+#ifdef CONFIG_SUNXI_HIGH_SRAM
 #define SPL_ADDR		0x10000
 #else
 #define SPL_ADDR		0x0
