@@ -180,10 +180,7 @@ void s_init(void)
 	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
 
-#if defined CONFIG_MACH_SUN6I || \
-    defined CONFIG_MACH_SUN7I || \
-    defined CONFIG_MACH_SUN8I || \
-    defined CONFIG_MACH_SUN9I
+#if !defined(CONFIG_ARM_CORTEX_CPU_IS_UP) && !defined(CONFIG_ARM64)
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"

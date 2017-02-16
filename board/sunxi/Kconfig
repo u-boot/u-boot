@@ -50,12 +50,14 @@ choice
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7
+	select ARM_CORTEX_CPU_IS_UP
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7
+	select ARM_CORTEX_CPU_IS_UP
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
