@@ -85,7 +85,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
  * This parses the legacy image header information at @header and sets up
  * @spl_image according to what is found. If no image header is found, then
  * a raw image or bootz is assumed. If CONFIG_SPL_PANIC_ON_RAW_IMAGE is
- * enabled, then this causes a panic. If CONFIG_SPL_ABORT_ON_RAW_IMAGE is
+ * enabled, then this causes a panic. If CONFIG_SPL_RAW_IMAGE_SUPPORT is not
  * enabled then U-Boot gives up. Otherwise U-Boot sets up the image using
  * spl_set_header_raw_uboot(), or possibly the bootz header.
  *

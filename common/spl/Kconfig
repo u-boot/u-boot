@@ -13,6 +13,16 @@ config SPL
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
+config SPL_RAW_IMAGE_SUPPORT
+	bool "Support SPL loading and booting of RAW images"
+	depends on SPL
+	default n if (ARCH_MX6 && (SPL_MMC_SUPPORT || SPL_SATA_SUPPORT))
+	default y
+	help
+	  SPL will support loading and booting a RAW image when this option
+	  is y. If this is not set, SPL will move on to other available
+	  boot media to find a suitable image.
+
 config SPL_SYS_MALLOC_SIMPLE
 	bool
 	depends on SPL

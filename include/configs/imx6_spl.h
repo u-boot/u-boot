@@ -45,14 +45,12 @@
 #if defined(CONFIG_SPL_MMC_SUPPORT)
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 /* SATA support */
 #if defined(CONFIG_SPL_SATA_SUPPORT)
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 /* Define the payload for FAT/EXT support */

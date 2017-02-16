@@ -3255,10 +3255,6 @@ FIT uImage format:
 		consider that a completely unreadable NAND block is bad,
 		and thus should be skipped silently.
 
-		CONFIG_SPL_ABORT_ON_RAW_IMAGE
-		When defined, SPL will proceed to another boot method
-		if the image it has loaded does not have a signature.
-
 		CONFIG_SPL_RELOC_STACK
 		Adress of the start of the stack SPL will use after
 		relocation.  If unspecified, this is equal to
