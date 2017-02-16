@@ -40,7 +40,7 @@ struct fel_stash {
 
 struct fel_stash fel_stash __attribute__((section(".data")));
 
-#ifdef CONFIG_MACH_SUN50I
+#ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 
 static struct mm_region sunxi_mem_map[] = {
