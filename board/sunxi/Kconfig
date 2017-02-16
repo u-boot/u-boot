@@ -146,6 +146,12 @@ config MACH_SUN50I
 	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
 
+config MACH_SUN50I_H5
+	bool "sun50i (Allwinner H5)"
+	select ARM64
+	select MACH_SUNXI_H3_H5
+	select SUNXI_HIGH_SRAM
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
