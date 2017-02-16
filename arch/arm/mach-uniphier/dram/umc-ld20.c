@@ -606,15 +606,18 @@ int uniphier_ld20_umc_init(const struct uniphier_board_data *bd)
 		return -EINVAL;
 	}
 
-	for (ch = 0; ch < bd->dram_nr_ch; ch++) {
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
 		unsigned long size = bd->dram_ch[ch].size;
 		unsigned int width = bd->dram_ch[ch].width;
 
-		ret = umc_ch_init(umc_ch_base, phy_ch_base, board,
-				  bd->dram_freq, size / (width / 16), ch);
-		if (ret) {
-			pr_err("failed to initialize UMC ch%d\n", ch);
-			return ret;
+		if (size) {
+			ret = umc_ch_init(umc_ch_base, phy_ch_base, board,
+					  bd->dram_freq, size / (width / 16),
+					  ch);
+			if (ret) {
+				pr_err("failed to initialize UMC ch%d\n", ch);
+				return ret;
+			}
 		}
 
 		umc_ch_base += 0x00200000;

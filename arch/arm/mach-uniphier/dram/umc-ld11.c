@@ -471,7 +471,7 @@ int uniphier_ld11_umc_init(const struct uniphier_board_data *bd)
 
 	ddrphy_init(phy_base, freq);
 
-	for (ch = 0; ch < bd->dram_nr_ch; ch++) {
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
 		unsigned long size = bd->dram_ch[ch].size;
 		unsigned int width = bd->dram_ch[ch].width;
 

@@ -19,7 +19,6 @@ struct uniphier_dram_ch {
 
 struct uniphier_board_data {
 	unsigned int dram_freq;
-	unsigned int dram_nr_ch;
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
 
