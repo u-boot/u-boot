@@ -17,7 +17,7 @@ config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
 	depends on SPL
 	default n if (ARCH_MX6 && (SPL_MMC_SUPPORT || SPL_SATA_SUPPORT))
-	default y
+	default y if !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting a RAW image when this option
 	  is y. If this is not set, SPL will move on to other available
@@ -25,7 +25,7 @@ config SPL_RAW_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of Legacy images"
-	default y
+	default y if !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting Legacy images when this option
 	  is y. If this is not set, SPL will move on to other available
