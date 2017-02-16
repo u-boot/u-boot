@@ -397,7 +397,9 @@ do {									\
 	(((index) < (q)->last_desc) ? ((index) + 1) : 0)
 
 /* SMI: 0xc0054 -> offset 0x54 to lms_base */
-#define MVPP2_SMI				0x0054
+#define MVPP21_SMI				0x0054
+/* PP2.2: SMI: 0x12a200 -> offset 0x1200 to iface_base */
+#define MVPP22_SMI				0x1200
 #define     MVPP2_PHY_REG_MASK			0x1f
 /* SMI register fields */
 #define     MVPP2_SMI_DATA_OFFS			0	/* Data */
@@ -745,6 +747,7 @@ struct mvpp2 {
 	void __iomem *base;
 	void __iomem *lms_base;
 	void __iomem *iface_base;
+	void __iomem *mdio_base;
 
 	/* List of pointers to port structures */
 	struct mvpp2_port **port_list;
@@ -4089,7 +4092,7 @@ static int smi_wait_ready(struct mvpp2 *priv)
 	/* wait till the SMI is not busy */
 	do {
 		/* read smi register */
-		smi_reg = readl(priv->lms_base + MVPP2_SMI);
+		smi_reg = readl(priv->mdio_base);
 		if (timeout-- == 0) {
 			printf("Error: SMI busy timeout\n");
 			return -EFAULT;
@@ -4131,14 +4134,14 @@ static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 		| MVPP2_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	writel(smi_reg, priv->lms_base + MVPP2_SMI);
+	writel(smi_reg, priv->mdio_base);
 
 	/* wait till read value is ready */
 	timeout = MVPP2_SMI_TIMEOUT;
 
 	do {
 		/* read smi register */
-		smi_reg = readl(priv->lms_base + MVPP2_SMI);
+		smi_reg = readl(priv->mdio_base);
 		if (timeout-- == 0) {
 			printf("Err: SMI read ready timeout\n");
 			return -EFAULT;
@@ -4149,7 +4152,7 @@ static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	for (timeout = 0; timeout < MVPP2_SMI_TIMEOUT; timeout++)
 		;
 
-	return readl(priv->lms_base + MVPP2_SMI) & MVPP2_SMI_DATA_MASK;
+	return readl(priv->mdio_base) & MVPP2_SMI_DATA_MASK;
 }
 
 /*
@@ -4186,7 +4189,7 @@ static int mpp2_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	smi_reg &= ~MVPP2_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	writel(smi_reg, priv->lms_base + MVPP2_SMI);
+	writel(smi_reg, priv->mdio_base);
 
 	return 0;
 }
@@ -4469,10 +4472,14 @@ static int mvpp2_base_probe(struct udevice *dev)
 		priv->lms_base = (void *)dev_get_addr_index(dev, 1);
 		if (IS_ERR(priv->lms_base))
 			return PTR_ERR(priv->lms_base);
+
+		priv->mdio_base = priv->lms_base + MVPP21_SMI;
 	} else {
 		priv->iface_base = (void *)dev_get_addr_index(dev, 1);
 		if (IS_ERR(priv->iface_base))
 			return PTR_ERR(priv->iface_base);
+
+		priv->mdio_base = priv->iface_base + MVPP22_SMI;
 	}
 
 	if (priv->hw_version == MVPP21)
