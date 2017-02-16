@@ -342,6 +342,9 @@ do {									\
 #define      MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(v)	(((v) << 6) & \
 					MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK)
 
+#define MVPP22_PORT_BASE			0x30e00
+#define MVPP22_PORT_OFFSET			0x1000
+
 #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
 
 /* Descriptor ring Macros */
@@ -702,6 +705,7 @@ struct mvpp2 {
 	/* Shared registers' base addresses */
 	void __iomem *base;
 	void __iomem *lms_base;
+	void __iomem *iface_base;
 
 	/* List of pointers to port structures */
 	struct mvpp2_port **port_list;
@@ -735,6 +739,11 @@ struct mvpp2_pcpu_stats {
 
 struct mvpp2_port {
 	u8 id;
+
+	/* Index of the port from the "group of ports" complex point
+	 * of view
+	 */
+	int gop_id;
 
 	int irq;
 
@@ -3270,7 +3279,7 @@ static int mvpp2_txq_init(struct mvpp2_port *port,
 
 	mvpp2_write(port->priv, MVPP2_TXQ_PREF_BUF_REG,
 		    MVPP2_PREF_BUF_PTR(desc) | MVPP2_PREF_BUF_SIZE_16 |
-		    MVPP2_PREF_BUF_THRESH(desc_per_txq/2));
+		    MVPP2_PREF_BUF_THRESH(desc_per_txq / 2));
 
 	/* WRR / EJP configuration - indirect access */
 	tx_port_num = mvpp2_egress_port(port);
@@ -3779,11 +3788,24 @@ static int mvpp2_port_probe(struct udevice *dev,
 	port->phy_interface = phy_mode;
 	port->phyaddr = phyaddr;
 
-	port->base = (void __iomem *)dev_get_addr_index(dev->parent,
-							priv_common_regs_num
-							+ id);
-	if (IS_ERR(port->base))
-		return PTR_ERR(port->base);
+	if (priv->hw_version == MVPP21) {
+		port->base = (void __iomem *)dev_get_addr_index(
+			dev->parent, priv_common_regs_num + id);
+		if (IS_ERR(port->base))
+			return PTR_ERR(port->base);
+	} else {
+		u32 gop_id;
+
+		gop_id = fdtdec_get_int(gd->fdt_blob, port_node,
+					"gop-port-id", -1);
+		if (id == -1) {
+			dev_err(&pdev->dev, "missing gop-port-id value\n");
+			return -EINVAL;
+		}
+
+		port->base = priv->iface_base + MVPP22_PORT_BASE +
+			gop_id * MVPP22_PORT_OFFSET;
+	}
 
 	port->tx_ring_size = MVPP2_MAX_TXD;
 	port->rx_ring_size = MVPP2_MAX_RXD;
@@ -4307,9 +4329,15 @@ static int mvpp2_base_probe(struct udevice *dev)
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
-	priv->lms_base = (void *)dev_get_addr_index(dev, 1);
-	if (IS_ERR(priv->lms_base))
-		return PTR_ERR(priv->lms_base);
+	if (priv->hw_version == MVPP21) {
+		priv->lms_base = (void *)dev_get_addr_index(dev, 1);
+		if (IS_ERR(priv->lms_base))
+			return PTR_ERR(priv->lms_base);
+	} else {
+		priv->iface_base = (void *)dev_get_addr_index(dev, 1);
+		if (IS_ERR(priv->iface_base))
+			return PTR_ERR(priv->iface_base);
+	}
 
 	/* Finally create and register the MDIO bus driver */
 	bus = mdio_alloc();
