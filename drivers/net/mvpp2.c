@@ -3972,7 +3972,8 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 		| MVPP2_TXD_F_DESC | MVPP2_TXD_L_DESC;
 
 	/* Flush tx data */
-	flush_dcache_range((u32)packet, (u32)packet + length);
+	flush_dcache_range((unsigned long)packet,
+			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
 	/* Enable transmit */
 	mb();
