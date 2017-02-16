@@ -36,11 +36,6 @@
 #define CONFIG_CMD_EXT2
 #endif
 
-/*
- * Generic Timer Definitions
- */
-#define GENERIC_TIMER_CLK		12500000
-
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 

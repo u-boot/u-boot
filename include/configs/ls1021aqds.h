@@ -27,11 +27,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
-/*
- * Generic Timer Definitions
- */
-#define GENERIC_TIMER_CLK		12500000
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
