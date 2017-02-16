@@ -454,18 +454,12 @@ do {									\
 /* Maximum number of TXQs used by single port */
 #define MVPP2_MAX_TXQ			8
 
-/* Maximum number of RXQs used by single port */
-#define MVPP2_MAX_RXQ			8
-
 /* Default number of TXQs in use */
 #define MVPP2_DEFAULT_TXQ		1
 
 /* Dfault number of RXQs in use */
 #define MVPP2_DEFAULT_RXQ		1
 #define CONFIG_MV_ETH_RXQ		8	/* increment by 8 */
-
-/* Total number of RXQs available to all ports */
-#define MVPP2_RXQ_TOTAL_NUM		(MVPP2_MAX_PORTS * MVPP2_MAX_RXQ)
 
 /* Max number of Rx descriptors */
 #define MVPP2_MAX_RXD			16
@@ -771,6 +765,9 @@ struct mvpp2 {
 
 	/* HW version */
 	enum { MVPP21, MVPP22 } hw_version;
+
+	/* Maximum number of RXQs per port */
+	unsigned int max_port_rxqs;
 
 	struct mii_dev *bus;
 };
@@ -3700,7 +3697,8 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 	struct mvpp2_txq_pcpu *txq_pcpu;
 	int queue, cpu, err;
 
-	if (port->first_rxq + rxq_number > MVPP2_RXQ_TOTAL_NUM)
+	if (port->first_rxq + rxq_number >
+	    MVPP2_MAX_PORTS * priv->max_port_rxqs)
 		return -EINVAL;
 
 	/* Disable port */
@@ -3808,8 +3806,7 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 static int mvpp2_port_probe(struct udevice *dev,
 			    struct mvpp2_port *port,
 			    int port_node,
-			    struct mvpp2 *priv,
-			    int *next_first_rxq)
+			    struct mvpp2 *priv)
 {
 	int phy_node;
 	u32 id;
@@ -3843,7 +3840,10 @@ static int mvpp2_port_probe(struct udevice *dev,
 
 	port->priv = priv;
 	port->id = id;
-	port->first_rxq = *next_first_rxq;
+	if (priv->hw_version == MVPP21)
+		port->first_rxq = port->id * rxq_number;
+	else
+		port->first_rxq = port->id * priv->max_port_rxqs;
 	port->phy_node = phy_node;
 	port->phy_interface = phy_mode;
 	port->phyaddr = phyaddr;
@@ -3877,8 +3877,6 @@ static int mvpp2_port_probe(struct udevice *dev,
 	}
 	mvpp2_port_power_up(port);
 
-	/* Increment the first Rx queue number to be used by the next port */
-	*next_first_rxq += CONFIG_MV_ETH_RXQ;
 	priv->port_list[id] = port;
 	return 0;
 }
@@ -3995,7 +3993,8 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	u32 val;
 
 	/* Checks for hardware constraints (U-Boot uses only one rxq) */
-	if ((rxq_number > MVPP2_MAX_RXQ) || (txq_number > MVPP2_MAX_TXQ)) {
+	if ((rxq_number > priv->max_port_rxqs) ||
+	    (txq_number > MVPP2_MAX_TXQ)) {
 		dev_err(&pdev->dev, "invalid queue size parameter\n");
 		return -EINVAL;
 	}
@@ -4388,8 +4387,7 @@ static int mvpp2_probe(struct udevice *dev)
 		return err;
 	}
 
-	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv,
-				&buffer_loc.first_rxq);
+	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
 }
 
 static const struct eth_ops mvpp2_ops = {
@@ -4476,6 +4474,11 @@ static int mvpp2_base_probe(struct udevice *dev)
 		if (IS_ERR(priv->iface_base))
 			return PTR_ERR(priv->iface_base);
 	}
+
+	if (priv->hw_version == MVPP21)
+		priv->max_port_rxqs = 8;
+	else
+		priv->max_port_rxqs = 32;
 
 	/* Finally create and register the MDIO bus driver */
 	bus = mdio_alloc();
