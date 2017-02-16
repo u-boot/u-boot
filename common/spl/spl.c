@@ -93,9 +93,10 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct image_header *header)
 {
-	u32 header_size = sizeof(struct image_header);
-
 	if (image_get_magic(header) == IH_MAGIC) {
+#ifdef CONFIG_SPL_LEGACY_IMAGE_SUPPORT
+		u32 header_size = sizeof(struct image_header);
+
 		if (spl_image->flags & SPL_COPY_PAYLOAD_ONLY) {
 			/*
 			 * On some system (e.g. powerpc), the load-address and
@@ -118,6 +119,11 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		debug("spl: payload image: %.*s load addr: 0x%lx size: %d\n",
 			(int)sizeof(spl_image->name), spl_image->name,
 			spl_image->load_addr, spl_image->size);
+#else
+		/* LEGACY image not supported */
+		debug("Legacy boot image support not enabled, proceeding to other boot methods");
+		return -EINVAL;
+#endif
 	} else {
 #ifdef CONFIG_SPL_PANIC_ON_RAW_IMAGE
 		/*

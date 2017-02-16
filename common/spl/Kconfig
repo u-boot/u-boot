@@ -23,6 +23,14 @@ config SPL_RAW_IMAGE_SUPPORT
 	  is y. If this is not set, SPL will move on to other available
 	  boot media to find a suitable image.
 
+config SPL_LEGACY_IMAGE_SUPPORT
+	bool "Support SPL loading and booting of Legacy images"
+	default y
+	help
+	  SPL will support loading and booting Legacy images when this option
+	  is y. If this is not set, SPL will move on to other available
+	  boot media to find a suitable image.
+
 config SPL_SYS_MALLOC_SIMPLE
 	bool
 	depends on SPL
