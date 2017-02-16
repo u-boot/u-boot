@@ -22,7 +22,7 @@ void clock_init_safe(void)
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#if !defined(CONFIG_MACH_SUN8I_H3) && !defined(CONFIG_MACH_SUN50I)
+#if !defined(CONFIG_MACH_SUNXI_H3_H5) && !defined(CONFIG_MACH_SUN50I)
 	struct sunxi_prcm_reg * const prcm =
 		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
@@ -51,7 +51,7 @@ void clock_init_safe(void)
 
 void clock_init_sec(void)
 {
-#ifdef CONFIG_MACH_SUN8I_H3
+#ifdef CONFIG_MACH_SUNXI_H3_H5
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
@@ -152,7 +152,7 @@ void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 	const int max_n = 32;
 	int k = 1, m = 2;
 
-#ifdef CONFIG_MACH_SUN8I_H3
+#ifdef CONFIG_MACH_SUNXI_H3_H5
 	clrsetbits_le32(&ccm->pll5_tuning_cfg, CCM_PLL5_TUN_LOCK_TIME_MASK |
 			CCM_PLL5_TUN_INIT_FREQ_MASK,
 			CCM_PLL5_TUN_LOCK_TIME(2) | CCM_PLL5_TUN_INIT_FREQ(16));

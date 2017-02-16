@@ -12,7 +12,7 @@ choice
 	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
 	default AXP818_POWER if MACH_SUN8I_A83T
-	default SUNXI_NO_PMIC if MACH_SUN8I_H3 || MACH_SUN50I
+	default SUNXI_NO_PMIC if MACH_SUNXI_H3_H5 || MACH_SUN50I
 
 config SUNXI_NO_PMIC
 	bool "board without a pmic"
@@ -60,7 +60,7 @@ config AXP818_POWER
 
 config SY8106A_POWER
 	bool "SY8106A pmic support"
-	depends on MACH_SUN8I_H3
+	depends on MACH_SUNXI_H3_H5
 	---help---
 	Select this to enable support for the SY8106A pmic found on some
 	H3 boards.

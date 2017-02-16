@@ -146,10 +146,10 @@ __maybe_unused static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 	}
 }
 
-#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 {
-#if defined CONFIG_MACH_SUN8I_H3
+#if defined CONFIG_MACH_SUNXI_H3_H5
 	if (phy->id == 0)
 		clrbits_le32(SUNXI_USBPHY_BASE + REG_PHY_UNK_H3, 0x01);
 #endif
