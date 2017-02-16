@@ -773,6 +773,8 @@ struct mvpp2 {
 	unsigned int max_port_rxqs;
 
 	struct mii_dev *bus;
+
+	int probe_done;
 };
 
 struct mvpp2_pcpu_stats {
@@ -4377,42 +4379,6 @@ static void mvpp2_stop(struct udevice *dev)
 	mvpp2_cleanup_txqs(port);
 }
 
-static int mvpp2_probe(struct udevice *dev)
-{
-	struct mvpp2_port *port = dev_get_priv(dev);
-	struct mvpp2 *priv = dev_get_priv(dev->parent);
-	int err;
-
-	/* Initialize network controller */
-	err = mvpp2_init(dev, priv);
-	if (err < 0) {
-		dev_err(&pdev->dev, "failed to initialize controller\n");
-		return err;
-	}
-
-	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
-}
-
-static const struct eth_ops mvpp2_ops = {
-	.start		= mvpp2_start,
-	.send		= mvpp2_send,
-	.recv		= mvpp2_recv,
-	.stop		= mvpp2_stop,
-};
-
-static struct driver mvpp2_driver = {
-	.name	= "mvpp2",
-	.id	= UCLASS_ETH,
-	.probe	= mvpp2_probe,
-	.ops	= &mvpp2_ops,
-	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
-};
-
-/*
- * Use a MISC device to bind the n instances (child nodes) of the
- * network base controller in UCLASS_ETH.
- */
 static int mvpp2_base_probe(struct udevice *dev)
 {
 	struct mvpp2 *priv = dev_get_priv(dev);
@@ -4503,6 +4469,47 @@ static int mvpp2_base_probe(struct udevice *dev)
 	return mdio_register(bus);
 }
 
+static int mvpp2_probe(struct udevice *dev)
+{
+	struct mvpp2_port *port = dev_get_priv(dev);
+	struct mvpp2 *priv = dev_get_priv(dev->parent);
+	int err;
+
+	/* Only call the probe function for the parent once */
+	if (!priv->probe_done) {
+		err = mvpp2_base_probe(dev->parent);
+		priv->probe_done = 1;
+	}
+	/* Initialize network controller */
+	err = mvpp2_init(dev, priv);
+	if (err < 0) {
+		dev_err(&pdev->dev, "failed to initialize controller\n");
+		return err;
+	}
+
+	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
+}
+
+static const struct eth_ops mvpp2_ops = {
+	.start		= mvpp2_start,
+	.send		= mvpp2_send,
+	.recv		= mvpp2_recv,
+	.stop		= mvpp2_stop,
+};
+
+static struct driver mvpp2_driver = {
+	.name	= "mvpp2",
+	.id	= UCLASS_ETH,
+	.probe	= mvpp2_probe,
+	.ops	= &mvpp2_ops,
+	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+/*
+ * Use a MISC device to bind the n instances (child nodes) of the
+ * network base controller in UCLASS_ETH.
+ */
 static int mvpp2_base_bind(struct udevice *parent)
 {
 	const void *blob = gd->fdt_blob;
@@ -4560,6 +4567,5 @@ U_BOOT_DRIVER(mvpp2_base) = {
 	.id	= UCLASS_MISC,
 	.of_match = mvpp2_ids,
 	.bind	= mvpp2_base_bind,
-	.probe	= mvpp2_base_probe,
 	.priv_auto_alloc_size = sizeof(struct mvpp2),
 };
