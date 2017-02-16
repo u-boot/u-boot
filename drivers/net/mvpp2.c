@@ -4429,6 +4429,9 @@ static int mvpp2_base_probe(struct udevice *dev)
 		size += RX_BUFFER_SIZE;
 	}
 
+	/* Clear the complete area so that all descriptors are cleared */
+	memset(bd_space, 0, size);
+
 	/* Save base addresses for later use */
 	priv->base = (void *)dev_get_addr_index(dev, 0);
 	if (IS_ERR(priv->base))
