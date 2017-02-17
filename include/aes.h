@@ -91,4 +91,14 @@ void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
  */
 void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
 
+/**
+ * Decrypt the image using hw engine.
+ *
+ * @key_ptr		Key to use
+ * @src_ptr		Source data to decrypt
+ * @dst_ptr		Destination buffer
+ * @len			Length of encrypted image
+ */
+int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len);
+
 #endif /* _AES_REF_H_ */
