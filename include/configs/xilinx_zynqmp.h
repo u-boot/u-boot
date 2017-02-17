@@ -236,7 +236,7 @@
 		"fdt set /chosen/dom0 compatible \"xen,linux-zimage\" \"xen,multiboot-module\" && " \
 		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && " \
 		"fdt set /chosen xen,xen-bootargs \"console=dtuart dtuart=serial0 dom0_mem=512M bootscrub=0 maxcpus=1 timer_slop=0\" && " \
-		"fdt set /chosen xen,dom0-bootargs \"console=serial0 earlycon=xen earlyprintk=xen maxcpus=1\"\0" \
+		"fdt set /chosen xen,dom0-bootargs \"console=serial0 earlycon=xen earlyprintk=xen maxcpus=1 clk_ignore_unused\"\0" \
 	"xen_prepare_dt_qemu=run xen_prepare_dt && " \
 		"fdt set /cpus/cpu@1 device_type \"none\" && " \
 		"fdt set /cpus/cpu@2 device_type \"none\" && " \
