@@ -125,6 +125,10 @@
 	clocks = <&clkc 19>, <&clkc 31>;
 };
 
+&gpu {
+	clocks = <&clkc 24>, <&clkc 25>, <&clkc 26>;
+};
+
 &lpd_dma_chan1 {
 	clocks = <&clkc 68>, <&clkc 31>;
 };
