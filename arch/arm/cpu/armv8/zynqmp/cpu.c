@@ -105,7 +105,6 @@ unsigned int zynqmp_get_silicon_version(void)
 	return ZYNQMP_CSU_VERSION_SILICON;
 }
 
-#define PAYLOAD_ARG_CNT		5
 #define ZYNQMP_MMIO_READ	0xC2000014
 #define ZYNQMP_MMIO_WRITE	0xC2000013
 
