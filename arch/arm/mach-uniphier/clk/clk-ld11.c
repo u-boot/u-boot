@@ -13,6 +13,8 @@
 #include "../sc64-regs.h"
 #include "../sg-regs.h"
 
+#define SDCTRL_EMMC_HW_RESET	0x59810280
+
 void uniphier_ld11_clk_init(void)
 {
 	/* if booted from a device other than USB, without stand-by MPU */
@@ -27,6 +29,9 @@ void uniphier_ld11_clk_init(void)
 		writel(3, SG_ETPHYPSHUT);
 		writel(7, SG_ETPHYCNT);
 	}
+
+	/* TODO: use "mmc-pwrseq-emmc" */
+	writel(1, SDCTRL_EMMC_HW_RESET);
 
 #ifdef CONFIG_USB_EHCI
 	{

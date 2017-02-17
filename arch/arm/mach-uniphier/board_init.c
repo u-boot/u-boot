@@ -165,6 +165,7 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.nand_2cs = false,
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld20_pll_init,
+		.clk_init = uniphier_ld20_clk_init,
 		.misc_init = uniphier_ld20_misc_init,
 	},
 #endif
