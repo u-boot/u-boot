@@ -7,3 +7,5 @@
 
 extra-y := start.o
 obj-y += cpu.o
+
+obj-$(CONFIG_SYS_ARCH_TIMER) += systick-timer.o
