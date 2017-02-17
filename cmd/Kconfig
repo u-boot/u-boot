@@ -576,6 +576,12 @@ endmenu
 
 menu "Misc commands"
 
+config CMD_AES
+	bool "aes"
+	help
+	  Enable comamnd support for encrypting and
+	  decrypting of images.
+
 config CMD_AMBAPP
 	bool "ambapp"
 	depends on LEON3

@@ -67,6 +67,15 @@ config TPM
 	  for the low-level TPM interface, but only one TPM is supported at
 	  a time by the TPM library.
 
+menu "Encryption Support"
+
+config AES
+	bool "Enable encryption and decryption support"
+	help
+	  This config enables support of aes for encryption and
+	  decryption of images.
+endmenu
+
 menu "Hashing Support"
 
 config SHA1
