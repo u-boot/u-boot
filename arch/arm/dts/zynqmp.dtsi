@@ -474,6 +474,7 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>;
 			interrupt-names = "IRQGP", "IRQGPMMU", "IRQPP0", "IRQPPMMU0", "IRQPP1", "IRQPPMMU1";
+			clock-names = "gpu", "gpu_pp0", "gpu_pp1";
 			power-domains = <&pd_gpu>;
 		};
 
