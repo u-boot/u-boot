@@ -110,8 +110,8 @@ unsigned int zynqmp_get_silicon_version(void)
 #define ZYNQMP_MMIO_WRITE	0xC2000013
 
 #ifndef CONFIG_SPL_BUILD
-static int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
-			u32 *ret_payload)
+int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
+	       u32 *ret_payload)
 {
 	/*
 	 * Added SIP service call Function Identifier
