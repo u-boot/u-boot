@@ -21,6 +21,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
+#include <uboot_aes.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
@@ -680,3 +681,39 @@ int checkboard(void)
 	puts("Board: Xilinx ZynqMP\n");
 	return 0;
 }
+
+#if defined(CONFIG_AES)
+
+#define KEY_LEN				64
+#define IV_LEN				24
+#define ZYNQMP_SIP_SVC_PM_SECURE_LOAD	0xC2000019
+#define ZYNQMP_PM_SECURE_AES		0x1
+
+int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
+{
+	int ret;
+	u32 src_lo, src_hi, wlen;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if ((ulong)src_ptr != ALIGN((ulong)src_ptr,
+				    CONFIG_SYS_CACHELINE_SIZE)) {
+		debug("FAIL: Source address not aligned:%p\n", src_ptr);
+		return -EINVAL;
+	}
+
+	src_lo = (u32)(ulong)src_ptr;
+	src_hi = upper_32_bits((ulong)src_ptr);
+	wlen = DIV_ROUND_UP(len, 4);
+
+	memcpy(src_ptr + len, key_ptr, KEY_LEN + IV_LEN);
+	len = ROUND(len + KEY_LEN + IV_LEN, CONFIG_SYS_CACHELINE_SIZE);
+	flush_dcache_range((ulong)src_ptr, (ulong)(src_ptr + len));
+
+	ret = xilinx_pm_request(PM_SECURE_LOAD, src_lo, src_hi, wlen,
+			 ZYNQMP_PM_SECURE_AES, ret_payload);
+	if (ret)
+		printf("Fail: %s: %d\n", __func__, ret);
+
+	return ret;
+}
+#endif
