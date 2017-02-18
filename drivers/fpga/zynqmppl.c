@@ -236,6 +236,7 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	int ret;
 	u32 buf_lo, buf_hi;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u8 flag;
 
 	size_str = strchr(fpga_sec_info->keyaddr_size, ':');
 	if (size_str) {
@@ -293,8 +294,20 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	buf_lo = (u32)(ulong)buf;
 	buf_hi = upper_32_bits((ulong)buf);
+
+	switch (fpga_sec_info->sec_img_type) {
+	case 0:
+		flag = ZYNQMP_FPGA_FLAG_ENCRYPTED;
+		break;
+	case 1:
+		flag = ZYNQMP_FPGA_FLAG_AUTHENTICATED;
+		break;
+	default:
+		return FPGA_FAIL;
+	}
+
 	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi, bsize,
-			 ZYNQMP_FPGA_FLAG_ENCRYPTED, ret_payload);
+			 flag, ret_payload);
 	if (ret)
 		debug("PL FPGA LOAD fail\n");
 
