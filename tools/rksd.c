@@ -41,6 +41,10 @@ static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
 
 	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
 	       RK_SPL_HDR_SIZE);
+
+	if (rkcommon_need_rc4_spl(params))
+		rkcommon_rc4_encode_spl(buf, RK_SPL_START - 4,
+					params->file_size - RK_SPL_START + 4);
 }
 
 static int rksd_extract_subimage(void *buf,  struct image_tool_params *params)
