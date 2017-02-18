@@ -46,6 +46,7 @@ typedef struct {                /* typedef fpga_desc */
 typedef struct {
 	char *keyaddr_size;
 	char *ivaddr_size;
+	char sec_img_type;
 } fpga_secure_info;
 
 typedef enum {

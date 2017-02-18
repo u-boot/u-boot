@@ -74,6 +74,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		fpga_fsinfo.filename = argv[8];
 #endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case 8:
+		fpga_sec_info.sec_img_type = simple_strtoul(argv[7], NULL, 16);
 	case 7:
 		fpga_sec_info.ivaddr_size = argv[6];
 		fpga_sec_info.keyaddr_size = argv[5];
@@ -366,7 +368,7 @@ static int fpga_get_op(char *opstr)
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 U_BOOT_CMD(fpga, 9, 1, do_fpga,
 #else
-U_BOOT_CMD(fpga, 7, 1, do_fpga,
+U_BOOT_CMD(fpga, 8, 1, do_fpga,
 #endif
 	   "loadable FPGA image support",
 	   "[operation type] [device number] [image address] [image size]\n"
@@ -400,6 +402,13 @@ U_BOOT_CMD(fpga, 7, 1, do_fpga,
 #endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	   "Load encrypted bitstream (Xilinx only)\n"
-	   "  loads [dev] [address] [size] [keyaddr:size] [IVaddr:size]\n"
+	   "  loads [dev] [address] [size] [key/sigaddr:size]\n"
+	   "        [IV/PPKaddr:size] [secureimgtype]\n"
+	   "Loads the secure bistreams(authenticated/encrypted)image of\n"
+	   "[size] from [address] using key/signature(key for encrypted\n"
+	   "bitstreams and signature for authenticated bitstreams) from\n"
+	   "address whose :size and IV/PPK at address with size. The secure\n"
+	   "image type specifies whether it is authenticated/encrypted\n"
+	   "(0-enc, 1-auth) type of bitstream\n"
 #endif
 );
