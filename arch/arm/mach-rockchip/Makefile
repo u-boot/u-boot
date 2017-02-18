@@ -16,5 +16,10 @@ ifndef CONFIG_ARM64
 obj-y += rk_timer.o
 endif
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
+
+ifndef CONFIG_TPL_BUILD
+obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188/
+endif
+
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288/
 obj-$(CONFIG_ROCKCHIP_RK3399) += rk3399/

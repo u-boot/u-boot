@@ -11,6 +11,21 @@ config ROCKCHIP_RK3036
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3188
+	bool "Support Rockchip RK3188"
+	select CPU_V7
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+	select SPL
+	select TPL
+	select ROCKCHIP_BROM_HELPER
+	help
+	  The Rockchip RK3188 is a ARM-based SoC with a quad-core Cortex-A9
+	  including NEON and GPU, 512KB L2 cache, Mali-400 graphics, two
+	  video interfaces, several memory options and video codec support.
+	  Peripherals include Fast Ethernet, USB2 host and OTG, SDIO, I2S,
+	  UART, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7
@@ -50,6 +65,7 @@ config SPL_MMC_SUPPORT
 	default y if !ROCKCHIP_SPL_BACK_TO_BROM
 
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
+source "arch/arm/mach-rockchip/rk3188/Kconfig"
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"
 endif
