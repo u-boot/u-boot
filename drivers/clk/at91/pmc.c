@@ -10,6 +10,7 @@
 #include <dm/device.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <dm/util.h>
 #include "pmc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -56,7 +57,7 @@ int at91_clk_sub_device_bind(struct udevice *dev, const char *drv_name)
 	     offset > 0;
 	     offset = fdt_next_subnode(fdt, offset)) {
 		if (pre_reloc_only &&
-		    !fdt_getprop(fdt, offset, "u-boot,dm-pre-reloc", NULL))
+		    !dm_fdt_pre_reloc(fdt, offset))
 			continue;
 		/*
 		 * If this node has "compatible" property, this is not
