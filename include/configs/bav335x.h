@@ -23,8 +23,6 @@
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
-# ifdef CONFIG_ENABLE_VBOOT
-# endif
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
