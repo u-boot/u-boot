@@ -57,6 +57,7 @@ struct spl_info {
 
 static struct spl_info spl_infos[] = {
 	{ "rk3036", "RK30", 0x1000, false },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true },
 	{ "rk3288", "RK32", 0x8000, false },
 	{ "rk3399", "RK33", 0x20000, false },
 };
