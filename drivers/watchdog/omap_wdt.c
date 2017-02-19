@@ -81,9 +81,31 @@ static int omap_wdt_set_timeout(unsigned int timeout)
 	return 0;
 }
 
+void hw_watchdog_disable(void)
+{
+	struct wd_timer *wdt = (struct wd_timer *)WDT_BASE;
+
+	/*
+	 * Disable watchdog
+	 */
+	writel(0xAAAA, &wdt->wdtwspr);
+	while (readl(&wdt->wdtwwps) != 0x0)
+		;
+	writel(0x5555, &wdt->wdtwspr);
+	while (readl(&wdt->wdtwwps) != 0x0)
+		;
+}
+
 void hw_watchdog_init(void)
 {
 	struct wd_timer *wdt = (struct wd_timer *)WDT_BASE;
+
+	/*
+	 * Make sure the watchdog is disabled. This is unfortunately required
+	 * because writing to various registers with the watchdog running has no
+	 * effect.
+	 */
+	hw_watchdog_disable();
 
 	/* initialize prescaler */
 	while (readl(&wdt->wdtwwps) & WDT_WWPS_PEND_WCLR)
@@ -102,20 +124,5 @@ void hw_watchdog_init(void)
 
 	writel(0x4444, &wdt->wdtwspr);
 	while ((readl(&wdt->wdtwwps)) & WDT_WWPS_PEND_WSPR)
-		;
-}
-
-void hw_watchdog_disable(void)
-{
-	struct wd_timer *wdt = (struct wd_timer *)WDT_BASE;
-
-	/*
-	 * Disable watchdog
-	 */
-	writel(0xAAAA, &wdt->wdtwspr);
-	while (readl(&wdt->wdtwwps) != 0x0)
-		;
-	writel(0x5555, &wdt->wdtwspr);
-	while (readl(&wdt->wdtwwps) != 0x0)
 		;
 }
