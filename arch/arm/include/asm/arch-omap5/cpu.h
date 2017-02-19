@@ -46,6 +46,7 @@ struct gptimer {
 /* enable sys_clk NO-prescale /1 */
 #define GPT_EN			((0x0 << 2) | (0x1 << 1) | (0x1 << 0))
 
+#define WDT_BASE                (OMAP54XX_L4_WKUP_BASE + 0x14000)
 /* Watchdog */
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
