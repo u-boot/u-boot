@@ -18,6 +18,8 @@
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
+#include <asm/ti-common/omap_wdt.h>
+
 struct gptimer {
 	u32 tidr;		/* 0x00 r */
 	u8 res1[0xc];
