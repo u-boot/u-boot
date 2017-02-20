@@ -24,6 +24,8 @@
 		serial2 = &uart2;
 		serial3 = &uart3;
 		serial4 = &uart4;
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc;
 	};
 
 	cpus {
