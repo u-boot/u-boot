@@ -110,7 +110,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch0 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch0 size\n");
 		return -EINVAL;
 	}
 
@@ -150,7 +150,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch1 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch1 size\n");
 		return -EINVAL;
 	}
 
@@ -182,7 +182,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch2 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch2 size\n");
 		return -EINVAL;
 	}
 
