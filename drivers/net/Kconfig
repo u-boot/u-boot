@@ -168,7 +168,7 @@ config SUN8I_EMAC
         help
           This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
-	  External and Internal PHY's.
+	  External and Internal PHYs.
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
