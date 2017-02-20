@@ -251,14 +251,23 @@ do {									\
 #define MVPP2_BM_PHY_ALLOC_REG(pool)		(0x6400 + ((pool) * 4))
 #define     MVPP2_BM_PHY_ALLOC_GRNTD_MASK	BIT(0)
 #define MVPP2_BM_VIRT_ALLOC_REG			0x6440
+#define MVPP2_BM_ADDR_HIGH_ALLOC		0x6444
+#define     MVPP2_BM_ADDR_HIGH_PHYS_MASK	0xff
+#define     MVPP2_BM_ADDR_HIGH_VIRT_MASK	0xff00
+#define     MVPP2_BM_ADDR_HIGH_VIRT_SHIFT	8
 #define MVPP2_BM_PHY_RLS_REG(pool)		(0x6480 + ((pool) * 4))
 #define     MVPP2_BM_PHY_RLS_MC_BUFF_MASK	BIT(0)
 #define     MVPP2_BM_PHY_RLS_PRIO_EN_MASK	BIT(1)
 #define     MVPP2_BM_PHY_RLS_GRNTD_MASK		BIT(2)
 #define MVPP2_BM_VIRT_RLS_REG			0x64c0
-#define MVPP2_BM_MC_RLS_REG			0x64c4
+#define MVPP21_BM_MC_RLS_REG			0x64c4
 #define     MVPP2_BM_MC_ID_MASK			0xfff
 #define     MVPP2_BM_FORCE_RELEASE_MASK		BIT(12)
+#define MVPP22_BM_ADDR_HIGH_RLS_REG		0x64c4
+#define     MVPP22_BM_ADDR_HIGH_PHYS_RLS_MASK	0xff
+#define	    MVPP22_BM_ADDR_HIGH_VIRT_RLS_MASK	0xff00
+#define     MVPP22_BM_ADDR_HIGH_VIRT_RLS_SHIFT	8
+#define MVPP22_BM_MC_RLS_REG			0x64d4
 
 /* TX Scheduler registers */
 #define MVPP2_TXP_SCHED_PORT_INDEX_REG		0x8000
@@ -2332,6 +2341,12 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 {
 	u32 val;
 
+	/* Number of buffer pointers must be a multiple of 16, as per
+	 * hardware constraints
+	 */
+	if (!IS_ALIGNED(size, 16))
+		return -EINVAL;
+
 	bm_pool->virt_addr = buffer_loc.bm_pool[bm_pool->id];
 	bm_pool->dma_addr = (dma_addr_t)buffer_loc.bm_pool[bm_pool->id];
 	if (!bm_pool->virt_addr)
@@ -2345,7 +2360,7 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 	}
 
 	mvpp2_write(priv, MVPP2_BM_POOL_BASE_REG(bm_pool->id),
-		    bm_pool->dma_addr);
+		    lower_32_bits(bm_pool->dma_addr));
 	mvpp2_write(priv, MVPP2_BM_POOL_SIZE_REG(bm_pool->id), size);
 
 	val = mvpp2_read(priv, MVPP2_BM_POOL_CTRL_REG(bm_pool->id));
@@ -2488,6 +2503,21 @@ static inline void mvpp2_bm_pool_put(struct mvpp2_port *port, int pool,
 				     dma_addr_t buf_dma_addr,
 				     unsigned long buf_phys_addr)
 {
+	if (port->priv->hw_version == MVPP22) {
+		u32 val = 0;
+
+		if (sizeof(dma_addr_t) == 8)
+			val |= upper_32_bits(buf_dma_addr) &
+				MVPP22_BM_ADDR_HIGH_PHYS_RLS_MASK;
+
+		if (sizeof(phys_addr_t) == 8)
+			val |= (upper_32_bits(buf_phys_addr)
+				<< MVPP22_BM_ADDR_HIGH_VIRT_RLS_SHIFT) &
+				MVPP22_BM_ADDR_HIGH_VIRT_RLS_MASK;
+
+		mvpp2_write(port->priv, MVPP22_BM_ADDR_HIGH_RLS_REG, val);
+	}
+
 	/* MVPP2_BM_VIRT_RLS_REG is not interpreted by HW, and simply
 	 * returned in the "cookie" field of the RX
 	 * descriptor. Instead of storing the virtual address, we
@@ -4237,7 +4267,10 @@ static int mvpp2_base_probe(struct udevice *dev)
 	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
 		buffer_loc.bm_pool[i] =
 			(unsigned long *)((unsigned long)bd_space + size);
-		size += MVPP2_BM_POOL_SIZE_MAX * sizeof(u32);
+		if (priv->hw_version == MVPP21)
+			size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u32);
+		else
+			size += MVPP2_BM_POOL_SIZE_MAX * 2 * sizeof(u64);
 	}
 
 	for (i = 0; i < MVPP2_BM_LONG_BUF_NUM; i++) {
