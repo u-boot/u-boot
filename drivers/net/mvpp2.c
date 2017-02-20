@@ -2352,20 +2352,25 @@ static inline int mvpp2_bm_cookie_pool_get(unsigned long cookie)
 /* Release buffer to BM */
 static inline void mvpp2_bm_pool_put(struct mvpp2_port *port, int pool,
 				     dma_addr_t buf_dma_addr,
-				     unsigned long buf_virt_addr)
+				     unsigned long buf_phys_addr)
 {
-	mvpp2_write(port->priv, MVPP2_BM_VIRT_RLS_REG, buf_virt_addr);
+	/* MVPP2_BM_VIRT_RLS_REG is not interpreted by HW, and simply
+	 * returned in the "cookie" field of the RX
+	 * descriptor. Instead of storing the virtual address, we
+	 * store the physical address
+	 */
+	mvpp2_write(port->priv, MVPP2_BM_VIRT_RLS_REG, buf_phys_addr);
 	mvpp2_write(port->priv, MVPP2_BM_PHY_RLS_REG(pool), buf_dma_addr);
 }
 
 /* Refill BM pool */
 static void mvpp2_pool_refill(struct mvpp2_port *port, u32 bm,
 			      dma_addr_t dma_addr,
-			      u32 cookie)
+			      phys_addr_t phys_addr)
 {
 	int pool = mvpp2_bm_cookie_pool_get(bm);
 
-	mvpp2_bm_pool_put(port, pool, dma_addr, cookie);
+	mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
 }
 
 /* Allocate buffers for the pool */
