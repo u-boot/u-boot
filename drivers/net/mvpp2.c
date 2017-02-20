@@ -342,6 +342,9 @@ do {									\
 #define      MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(v)	(((v) << 6) & \
 					MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK)
 
+#define MVPP22_SMI_MISC_CFG_REG			0x1204
+#define      MVPP22_SMI_POLLING_EN		BIT(10)
+
 #define MVPP22_PORT_BASE			0x30e00
 #define MVPP22_PORT_OFFSET			0x1000
 
@@ -3639,9 +3642,12 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 
 static void mvpp2_port_power_up(struct mvpp2_port *port)
 {
+	struct mvpp2 *priv = port->priv;
+
 	mvpp2_port_mii_set(port);
 	mvpp2_port_periodic_xon_disable(port);
-	mvpp2_port_fc_adv_enable(port);
+	if (priv->hw_version == MVPP21)
+		mvpp2_port_fc_adv_enable(port);
 	mvpp2_port_reset(port);
 }
 
@@ -3892,9 +3898,15 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 		mvpp2_conf_mbus_windows(dram_target_info, priv);
 
 	/* Disable HW PHY polling */
-	val = readl(priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
-	val |= MVPP2_PHY_AN_STOP_SMI0_MASK;
-	writel(val, priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
+	if (priv->hw_version == MVPP21) {
+		val = readl(priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
+		val |= MVPP2_PHY_AN_STOP_SMI0_MASK;
+		writel(val, priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
+	} else {
+		val = readl(priv->iface_base + MVPP22_SMI_MISC_CFG_REG);
+		val &= ~MVPP22_SMI_POLLING_EN;
+		writel(val, priv->iface_base + MVPP22_SMI_MISC_CFG_REG);
+	}
 
 	/* Allocate and initialize aggregated TXQs */
 	priv->aggr_txqs = devm_kcalloc(dev, num_present_cpus(),
@@ -3920,8 +3932,9 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 		mvpp2_write(priv, MVPP2_ISR_RXQ_GROUP_REG(i),
 			    CONFIG_MV_ETH_RXQ);
 
-	writel(MVPP2_EXT_GLOBAL_CTRL_DEFAULT,
-	       priv->lms_base + MVPP2_MNG_EXTENDED_GLOBAL_CTRL_REG);
+	if (priv->hw_version == MVPP21)
+		writel(MVPP2_EXT_GLOBAL_CTRL_DEFAULT,
+		       priv->lms_base + MVPP2_MNG_EXTENDED_GLOBAL_CTRL_REG);
 
 	/* Allow cache snoop when transmiting packets */
 	mvpp2_write(priv, MVPP2_TX_SNOOP_REG, 0x1);
