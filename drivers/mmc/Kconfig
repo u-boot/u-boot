@@ -325,6 +325,20 @@ config MMC_SDHCI_XENON
 
 	  If unsure, say N.
 
+config MMC_SDHCI_TANGIER
+	bool "Tangier SDHCI controller support"
+	depends on DM_MMC && BLK
+	depends on MMC_SDHCI
+	help
+	  This selects support for SDHCI controller on Tanginer
+	  SoC. Note that this controller does not sit on PCI bus and,
+	  hence, cannot be enumerated by standard PCI means.
+
+	  If you're using an Intel Tangier SoC (available on Intel
+	  Edison board), say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
 	depends on TEGRA
