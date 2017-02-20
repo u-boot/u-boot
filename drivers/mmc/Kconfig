@@ -122,6 +122,14 @@ config MMC_MXS
 
 	  If unsure, say N.
 
+config MMC_PCI
+	bool "Support for MMC controllers on PCI"
+	help
+	  This selects PCI-based MMC controllers.
+	  If you have an MMC controller on a PCI bus, say Y here.
+
+	  If unsure, say N.
+
 config MMC_OMAP_HS
 	bool "TI OMAP High Speed Multimedia Card Interface support"
 	help
