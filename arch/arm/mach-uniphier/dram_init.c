@@ -159,7 +159,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 
 	dram_ch[1].size = size;
 
-	if (!data->have_ch2)
+	if (!data->have_ch2 || val & SG_MEMCONF_CH2_DISABLE)
 		return 0;
 
 	/* set up ch2 */
