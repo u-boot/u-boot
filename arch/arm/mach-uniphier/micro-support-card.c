@@ -43,16 +43,11 @@ static int support_card_show_revision(void)
 	revision &= 0xff;
 
 	/* revision 3.6.x card changed the revision format */
-	printf("(CPLD version %s%d.%d)\n", revision >> 4 == 6 ? "3." : "",
+	printf("SC:    Micro Support Card (CPLD version %s%d.%d)\n",
+	       revision >> 4 == 6 ? "3." : "",
 	       revision >> 4, revision & 0xf);
 
 	return 0;
-}
-
-int checkboard(void)
-{
-	printf("SC:    Micro Support Card ");
-	return support_card_show_revision();
 }
 
 void support_card_init(void)
@@ -64,6 +59,8 @@ void support_card_init(void)
 	 */
 	udelay(200);
 	support_card_reset_deassert();
+
+	support_card_show_revision();
 }
 
 #if defined(CONFIG_SMC911X)
