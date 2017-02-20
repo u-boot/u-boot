@@ -81,6 +81,14 @@
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
+/*
+ * Ethernet Driver configuration
+ */
+#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+#define CONFIG_PHY_GIGE		/* GbE speed/duplex detect */
+#define CONFIG_ARP_TIMEOUT	200
+#define CONFIG_NET_RETRY_COUNT	50
+
 /* USB 2.0 */
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 
