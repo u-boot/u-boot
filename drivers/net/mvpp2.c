@@ -970,22 +970,6 @@ struct mvpp2_bm_pool {
 	int in_use_thresh;
 };
 
-struct mvpp2_buff_hdr {
-	u32 next_buff_dma_addr;
-	u32 next_buff_virt_addr;
-	u16 byte_count;
-	u16 info;
-	u8  reserved1;		/* bm_qset (for future use, BM)		*/
-};
-
-/* Buffer header info bits */
-#define MVPP2_B_HDR_INFO_MC_ID_MASK	0xfff
-#define MVPP2_B_HDR_INFO_MC_ID(info)	((info) & MVPP2_B_HDR_INFO_MC_ID_MASK)
-#define MVPP2_B_HDR_INFO_LAST_OFFS	12
-#define MVPP2_B_HDR_INFO_LAST_MASK	BIT(12)
-#define MVPP2_B_HDR_INFO_IS_LAST(info) \
-	   ((info & MVPP2_B_HDR_INFO_LAST_MASK) >> MVPP2_B_HDR_INFO_LAST_OFFS)
-
 /* Static declaractions */
 
 /* Number of RXQs used by single port */
@@ -3891,10 +3875,6 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	bm = mvpp2_bm_cookie_build(rx_desc);
 	pool = mvpp2_bm_cookie_pool_get(bm);
 	bm_pool = &port->priv->bm_pools[pool];
-
-	/* Check if buffer header is used */
-	if (rx_status & MVPP2_RXD_BUF_HDR)
-		return 0;
 
 	/* In case of an error, release the requested buffer pointer
 	 * to the Buffer Manager. This request process is controlled
