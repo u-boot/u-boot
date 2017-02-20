@@ -256,6 +256,9 @@ int ft_board_setup(void *fdt, bd_t *bd)
 		return 0;
 
 	for (i = 0; i < ARRAY_SIZE(gd->bd->bi_dram); i++) {
+		if (!gd->bd->bi_dram[i].size)
+			continue;
+
 		rsv_addr = gd->bd->bi_dram[i].start + gd->bd->bi_dram[i].size;
 		rsv_addr -= rsv_size;
 
