@@ -1037,8 +1037,11 @@ static int fsl_qspi_probe(struct udevice *bus)
 	 * setting the size of these devices to 0.  This would ensure
 	 * that the complete memory map is assigned to only one flash device.
 	 */
-	qspi_write32(priv->flags, &priv->regs->sfa1ad, priv->amba_base[1]);
+	qspi_write32(priv->flags, &priv->regs->sfa1ad,
+		     priv->amba_base[0] + amba_size_per_chip);
 	switch (priv->num_chipselect) {
+	case 1:
+		break;
 	case 2:
 		qspi_write32(priv->flags, &priv->regs->sfa2ad,
 			     priv->amba_base[1]);
