@@ -114,7 +114,7 @@
 			reg = <0x0 0x1550000 0x0 0x10000>,
 				<0x0 0x40000000 0x0 0x4000000>;
 			reg-names = "QuadSPI", "QuadSPI-memory";
-			num-cs = <2>;
+			num-cs = <1>;
 			big-endian;
 			status = "disabled";
 		};
