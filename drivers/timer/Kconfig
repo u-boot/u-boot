@@ -58,4 +58,11 @@ config AST_TIMER
 	  This is mostly because they all share several registers which
 	  makes it difficult to completely separate them.
 
+config STI_TIMER
+	bool "STi timer support"
+	depends on TIMER
+	default y if ARCH_STI
+	help
+	  Select this to enable a timer for STi devices.
+
 endmenu
