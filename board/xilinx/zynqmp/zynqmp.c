@@ -220,6 +220,7 @@ int board_late_init(void)
 	u8 bootmode;
 	const char *mode;
 	char *new_targets;
+	int ret;
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
@@ -240,7 +241,10 @@ int board_late_init(void)
 		setenv("setup", "setenv partid 0");
 	}
 
-	reg = readl(&crlapb_base->boot_mode);
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
+	if (ret)
+		return -EINVAL;
+
 	if (reg >> BOOT_MODE_ALT_SHIFT)
 		reg >>= BOOT_MODE_ALT_SHIFT;
 
