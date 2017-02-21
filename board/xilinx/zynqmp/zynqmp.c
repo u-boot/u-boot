@@ -170,12 +170,6 @@ int board_early_init_r(void)
 		writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
 		       &iou_scntr_secure->counter_control_register);
 	}
-	/* Program freq register in System counter and enable system counter */
-	writel(gd->cpu_clk, &iou_scntr->base_frequency_id_register);
-	writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG |
-	       ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
-	       &iou_scntr->counter_control_register);
-
 	return 0;
 }
 
