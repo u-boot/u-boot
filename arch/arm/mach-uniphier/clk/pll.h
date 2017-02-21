@@ -15,6 +15,7 @@ void uniphier_ld4_dpll_ssc_en(void);
 int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 			      unsigned int ssc_rate, unsigned int divn);
 int uniphier_ld20_sscpll_ssc_en(unsigned long reg_base);
+int uniphier_ld20_sscpll_set_regi(unsigned long reg_base, unsigned regi);
 int uniphier_ld20_vpll27_init(unsigned long reg_base);
 int uniphier_ld20_dspll_init(unsigned long reg_base);
 
