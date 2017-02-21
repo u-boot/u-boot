@@ -413,4 +413,12 @@ config PXA_SERIAL
 	  If you have a machine based on a Marvell XScale PXA2xx CPU you
 	  can enable its onboard serial ports by enabling this option.
 
+config STI_ASC_SERIAL
+	bool "STMicroelectronics on-chip UART"
+	depends on DM_SERIAL && ARCH_STI
+	help
+	  Select this to enable Asynchronous Serial Controller available
+	  on STiH410 SoC. This is a basic implementation,  it supports
+	  following baudrate 9600, 19200, 38400, 57600 and 115200.
+
 endmenu

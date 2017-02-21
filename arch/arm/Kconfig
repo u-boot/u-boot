@@ -1096,6 +1096,8 @@ config STM32
 config ARCH_STI
 	bool "Support STMicrolectronics SoCs"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
 	help
 	  Support for STMicroelectronics STiH407/10 SoC family.
 	  This SoC is used on Linaro 96Board STiH410-B2260

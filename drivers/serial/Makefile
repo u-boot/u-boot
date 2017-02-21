@@ -41,6 +41,7 @@ obj-$(CONFIG_FSL_LINFLEXUART) += serial_linflexuart.o
 obj-$(CONFIG_ARC_SERIAL) += serial_arc.o
 obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
 obj-$(CONFIG_STM32_SERIAL) += serial_stm32.o
+obj-$(CONFIG_STI_ASC_SERIAL) += serial_sti_asc.o
 obj-$(CONFIG_PIC32_SERIAL) += serial_pic32.o
 obj-$(CONFIG_STM32X7_SERIAL) += serial_stm32x7.o
 obj-$(CONFIG_BCM283X_MU_SERIAL) += serial_bcm283x_mu.o
