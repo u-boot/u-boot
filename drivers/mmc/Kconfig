@@ -299,6 +299,13 @@ config MMC_SDHCI_SPEAR
 
 	  If unsure, say N.
 
+config MMC_SDHCI_STI
+	bool "SDHCI support for STMicroelectronics SoC"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  on STMicroelectronics STiH410 SoC.
+
 config MMC_SDHCI_XENON
 	bool "SDHCI support for the Xenon SDHCI controller"
 	depends on MMC_SDHCI && DM_MMC && OF_CONTROL

@@ -61,6 +61,7 @@ obj-$(CONFIG_MMC_SDHCI_PIC32)		+= pic32_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ROCKCHIP)	+= rockchip_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_S5P)		+= s5p_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_SPEAR)		+= spear_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_STI) 		+= sti_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_TEGRA)		+= tegra_mmc.o
 obj-$(CONFIG_MMC_SDHCI_XENON)		+= xenon_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ZYNQ)		+= zynq_sdhci.o
