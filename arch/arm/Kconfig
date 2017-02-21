@@ -1093,6 +1093,13 @@ config STM32
 	select DM
 	select DM_SERIAL
 
+config ARCH_STI
+	bool "Support STMicrolectronics SoCs"
+	select CPU_V7
+	help
+	  Support for STMicroelectronics STiH407/10 SoC family.
+	  This SoC is used on Linaro 96Board STiH410-B2260
+
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
 	select OF_CONTROL
@@ -1170,6 +1177,8 @@ source "arch/arm/mach-s5pc1xx/Kconfig"
 source "arch/arm/mach-snapdragon/Kconfig"
 
 source "arch/arm/mach-socfpga/Kconfig"
+
+source "arch/arm/mach-sti/Kconfig"
 
 source "arch/arm/mach-stm32/Kconfig"
 

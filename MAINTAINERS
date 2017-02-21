@@ -165,6 +165,12 @@ S:	Maintained
 F:	arch/arm/cpu/armv7/stv0991/
 F:	arch/arm/include/asm/arch-stv0991/
 
+ARM STI
+M:	Patrice Chotard <patrice.chotard@st.com>
+S:	Maintained
+F:	arch/arm/mach-sti/
+F:	arch/arm/include/asm/arch-sti*/
+
 ARM SUNXI
 M:	Jagan Teki <jagan@openedev.com>
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>

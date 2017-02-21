@@ -1,0 +1,6 @@
+if ARCH_STI
+
+config SYS_SOC
+	default "stih410"
+
+endif
