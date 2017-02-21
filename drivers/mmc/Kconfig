@@ -301,7 +301,7 @@ config MMC_SDHCI_SPEAR
 
 config MMC_SDHCI_STI
 	bool "SDHCI support for STMicroelectronics SoC"
-	depends on MMC_SDHCI
+	depends on MMC_SDHCI && OF_CONTROL
 	help
 	  This selects the Secure Digital Host Controller Interface (SDHCI)
 	  on STMicroelectronics STiH410 SoC.
