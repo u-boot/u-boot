@@ -112,6 +112,10 @@ config TARGET_THEADORABLE
 	select BOARD_LATE_INIT if USB
 	select MV78260
 
+config TARGET_CONTROLCENTERDC
+	bool "Support CONTROLCENTERDC"
+	select 88F6820
+
 endchoice
 
 config SYS_BOARD
