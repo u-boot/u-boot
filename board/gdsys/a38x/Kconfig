@@ -1,0 +1,36 @@
+if TARGET_CONTROLCENTERDC
+
+config SYS_BOARD
+	default "a38x"
+
+config SYS_VENDOR
+	default "gdsys"
+
+config SYS_SOC
+	default "mvebu"
+
+config SYS_CONFIG_NAME
+	default "controlcenterdc"
+
+menu "Controlcenter DC board options"
+
+choice
+	prompt "Select boot method"
+
+config SPL_BOOT_DEVICE_SPI
+	bool "SPI"
+
+config SPL_BOOT_DEVICE_MMC
+	bool "MMC"
+	select SPL_LIBDISK_SUPPORT
+
+endchoice
+
+#config SPL_BOOT_DEVICE
+#	int
+#	default 1 if SPL_BOOT_DEVICE_SPI
+#	default 2 if SPL_BOOT_DEVICE_MMC
+
+endmenu
+
+endif
