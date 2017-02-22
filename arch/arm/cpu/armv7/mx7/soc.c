@@ -105,6 +105,7 @@ struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 #define OCOTP_TESTER3_SPEED_800MHZ	0
 #define OCOTP_TESTER3_SPEED_500MHZ	1
 #define OCOTP_TESTER3_SPEED_1GHZ	2
+#define OCOTP_TESTER3_SPEED_1P2GHZ	3
 
 u32 get_cpu_speed_grade_hz(void)
 {
@@ -125,6 +126,8 @@ u32 get_cpu_speed_grade_hz(void)
 		return 500000000;
 	case OCOTP_TESTER3_SPEED_1GHZ:
 		return 1000000000;
+	case OCOTP_TESTER3_SPEED_1P2GHZ:
+		return 1200000000;
 	}
 	return 0;
 }
