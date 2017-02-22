@@ -62,8 +62,8 @@ static struct usb_device_descriptor device_desc = {
 
 	.idVendor = __constant_cpu_to_le16(CONFIG_G_DNL_VENDOR_NUM),
 	.idProduct = __constant_cpu_to_le16(CONFIG_G_DNL_PRODUCT_NUM),
-	.iProduct = STRING_PRODUCT,
-	.iSerialNumber = STRING_SERIAL,
+	/* .iProduct = DYNAMIC */
+	/* .iSerialNumber = DYNAMIC */
 	.bNumConfigurations = 1,
 };
 
