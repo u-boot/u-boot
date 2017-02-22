@@ -36,7 +36,7 @@
 #define STRING_USBDOWN 2
 /* Index of String serial */
 #define STRING_SERIAL  3
-#define MAX_STRING_SERIAL	32
+#define MAX_STRING_SERIAL	256
 /* Number of supported configurations */
 #define CONFIGURATION_NUMBER 1
 
