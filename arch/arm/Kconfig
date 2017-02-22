@@ -580,6 +580,11 @@ config ARCH_MESON
 	  targeted at media players and tablet computers. We currently
 	  support the S905 (GXBaby) 64-bit SoC.
 
+config ARCH_MX7ULP
+        bool "NXP MX7ULP"
+        select CPU_V7
+	select ROM_UNIFIED_SECTIONS
+
 config ARCH_MX7
 	bool "Freescale MX7"
 	select CPU_V7
@@ -1157,6 +1162,8 @@ source "arch/arm/mach-kirkwood/Kconfig"
 source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
+
+source "arch/arm/cpu/armv7/mx7ulp/Kconfig"
 
 source "arch/arm/cpu/armv7/mx7/Kconfig"
 

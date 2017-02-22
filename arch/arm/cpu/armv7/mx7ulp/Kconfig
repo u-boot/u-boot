@@ -1,0 +1,6 @@
+if ARCH_MX7ULP
+
+config SYS_SOC
+	default "mx7ulp"
+
+endif
