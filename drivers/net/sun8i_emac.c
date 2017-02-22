@@ -21,6 +21,9 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
+#ifdef CONFIG_DM_GPIO
+#include <asm-generic/gpio.h>
+#endif
 
 #define MDIO_CMD_MII_BUSY		BIT(0)
 #define MDIO_CMD_MII_WRITE		BIT(1)
@@ -128,11 +131,22 @@ struct emac_eth_dev {
 	phys_addr_t sysctl_reg;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc reset_gpio;
+#endif
 };
+
+
+struct sun8i_eth_pdata {
+	struct eth_pdata eth_pdata;
+	u32 reset_delays[3];
+};
+
 
 static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
-	struct emac_eth_dev *priv = bus->priv;
+	struct udevice *dev = bus->priv;
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	ulong start;
 	u32 miiaddr = 0;
 	int timeout = CONFIG_MDIO_TIMEOUT;
@@ -164,7 +178,8 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 			    u16 val)
 {
-	struct emac_eth_dev *priv = bus->priv;
+	struct udevice *dev = bus->priv;
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	ulong start;
 	u32 miiaddr = 0;
 	int ret = -1, timeout = CONFIG_MDIO_TIMEOUT;
@@ -604,7 +619,41 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 	setbits_le32(&ccm->ahb_reset0_cfg, BIT(AHB_RESET_OFFSET_GMAC));
 }
 
-static int sun8i_mdio_init(const char *name, struct  emac_eth_dev *priv)
+#if defined(CONFIG_DM_GPIO)
+static int sun8i_mdio_reset(struct mii_dev *bus)
+{
+	struct udevice *dev = bus->priv;
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	struct sun8i_eth_pdata *pdata = dev_get_platdata(dev);
+	int ret;
+
+	if (!dm_gpio_is_valid(&priv->reset_gpio))
+		return 0;
+
+	/* reset the phy */
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	if (ret)
+		return ret;
+
+	udelay(pdata->reset_delays[0]);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	if (ret)
+		return ret;
+
+	udelay(pdata->reset_delays[1]);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	if (ret)
+		return ret;
+
+	udelay(pdata->reset_delays[2]);
+
+	return 0;
+}
+#endif
+
+static int sun8i_mdio_init(const char *name, struct udevice *priv)
 {
 	struct mii_dev *bus = mdio_alloc();
 
@@ -617,6 +666,9 @@ static int sun8i_mdio_init(const char *name, struct  emac_eth_dev *priv)
 	bus->write = sun8i_mdio_write;
 	snprintf(bus->name, sizeof(bus->name), name);
 	bus->priv = (void *)priv;
+#if defined(CONFIG_DM_GPIO)
+	bus->reset = sun8i_mdio_reset;
+#endif
 
 	return  mdio_register(bus);
 }
@@ -696,7 +748,7 @@ static int sun8i_emac_eth_probe(struct udevice *dev)
 	sun8i_emac_board_setup(priv);
 	sun8i_emac_set_syscon(priv);
 
-	sun8i_mdio_init(dev->name, priv);
+	sun8i_mdio_init(dev->name, dev);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 
 	return sun8i_phy_init(priv, dev);
@@ -713,11 +765,16 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 
 static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;
 	int node = dev_of_offset(dev);
 	int offset = 0;
+#ifdef CONFIG_DM_GPIO
+	int reset_flags = GPIOD_IS_OUT;
+	int ret = 0;
+#endif
 
 	pdata->iobase = dev_get_addr_name(dev, "emac");
 	priv->sysctl_reg = dev_get_addr_name(dev, "syscon");
@@ -762,6 +819,23 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	if (!priv->use_internal_phy)
 		parse_phy_pins(dev);
 
+#ifdef CONFIG_DM_GPIO
+	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+			    "snps,reset-active-low"))
+		reset_flags |= GPIOD_ACTIVE_LOW;
+
+	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
+				   &priv->reset_gpio, reset_flags);
+
+	if (ret == 0) {
+		ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+					   "snps,reset-delays-us",
+					   sun8i_pdata->reset_delays, 3);
+	} else if (ret == -ENOENT) {
+		ret = 0;
+	}
+#endif
+
 	return 0;
 }
 
@@ -782,6 +856,6 @@ U_BOOT_DRIVER(eth_sun8i_emac) = {
 	.probe  = sun8i_emac_eth_probe,
 	.ops    = &sun8i_emac_eth_ops,
 	.priv_auto_alloc_size = sizeof(struct emac_eth_dev),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.platdata_auto_alloc_size = sizeof(struct sun8i_eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
