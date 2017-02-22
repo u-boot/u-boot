@@ -41,6 +41,9 @@ config ROCKCHIP_RK3288
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"
 	select ARM64
+	select SUPPORT_SPL
+	select SPL
+	select SPL_SEPARATE_BSS
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
