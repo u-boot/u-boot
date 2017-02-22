@@ -5,4 +5,4 @@
 #
 #
 
-obj-y	:= iomux.o
+obj-y	:= clock.o iomux.o pcc.o scg.o
