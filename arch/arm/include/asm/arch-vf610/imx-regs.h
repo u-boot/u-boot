@@ -429,34 +429,6 @@ struct fuse_bank4_regs {
 	u32 rsvd7[3];
 };
 
-/* UART */
-struct lpuart_fsl {
-	u8 ubdh;
-	u8 ubdl;
-	u8 uc1;
-	u8 uc2;
-	u8 us1;
-	u8 us2;
-	u8 uc3;
-	u8 ud;
-	u8 uma1;
-	u8 uma2;
-	u8 uc4;
-	u8 uc5;
-	u8 ued;
-	u8 umodem;
-	u8 uir;
-	u8 reserved;
-	u8 upfifo;
-	u8 ucfifo;
-	u8 usfifo;
-	u8 utwfifo;
-	u8 utcfifo;
-	u8 urwfifo;
-	u8 urcfifo;
-	u8 rsvd[28];
-};
-
 /* MSCM Interrupt Router */
 struct mscm_ir {
 	u32 ircp0ir;
