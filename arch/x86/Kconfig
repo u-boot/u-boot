@@ -80,6 +80,20 @@ config VENDOR_INTEL
 
 endchoice
 
+# subarchitectures-specific options below
+config INTEL_MID
+	bool "Intel MID platform support"
+	help
+	  Select to build a U-Boot capable of supporting Intel MID
+	  (Mobile Internet Device) platform systems which do not have
+	  the PCI legacy interfaces.
+
+	  If you are building for a PC class system say N here.
+
+	  Intel MID platforms are based on an Intel processor and
+	  chipset which consume less power than most of the x86
+	  derivatives.
+
 # board-specific options below
 source "board/advantech/Kconfig"
 source "board/congatec/Kconfig"
