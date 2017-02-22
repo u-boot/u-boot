@@ -11,11 +11,13 @@
  * @base: the address to the controller in virtual memory
  * @input_sel_base: the address of the select input in virtual memory.
  * @flags: flags specific for each soc
+ * @mux_mask: Used when SHARE_MUX_CONF_REG flag is added
  */
 struct imx_pinctrl_soc_info {
 	void __iomem *base;
 	void __iomem *input_sel_base;
 	unsigned int flags;
+	unsigned int mux_mask;
 };
 
 /**
@@ -41,6 +43,7 @@ extern const struct pinctrl_ops imx_pinctrl_ops;
 
 #define SHARE_MUX_CONF_REG	0x1
 #define ZERO_OFFSET_VALID	0x2
+#define CONFIG_IBE_OBE		0x4
 
 #define IOMUXC_CONFIG_SION	(0x1 << 4)
 
