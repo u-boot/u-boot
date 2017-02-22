@@ -691,6 +691,7 @@ static int dfu_bind(struct usb_configuration *c, struct usb_function *f)
 {
 	struct usb_composite_dev *cdev = c->cdev;
 	struct f_dfu *f_dfu = func_to_dfu(f);
+	const char *s;
 	int alt_num = dfu_get_alt_number();
 	int rv, id, i;
 
@@ -723,6 +724,10 @@ static int dfu_bind(struct usb_configuration *c, struct usb_function *f)
 	stringtab_dfu.strings = f_dfu->strings;
 
 	cdev->req->context = f_dfu;
+
+	s = getenv("serial#");
+	if (s)
+		g_dnl_set_serialnumber((char *)s);
 
 error:
 	return rv;
