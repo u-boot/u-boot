@@ -444,6 +444,56 @@
 			bias-disable;
 		};
 	};
+
+	pinctrl_spi0_default: spi0-default {
+		mux {
+			groups = "spi0_3_grp";
+			function = "spi0";
+		};
+
+		conf {
+			groups = "spi0_3_grp";
+			bias-disable;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		mux-cs {
+			groups = "spi0_3_ss0_grp";
+			function = "spi0_ss";
+		};
+
+		conf-cs {
+			groups = "spi0_3_ss0_grp";
+			bias-disable;
+		};
+
+	};
+
+	pinctrl_spi1_default: spi1-default {
+		mux {
+			groups = "spi1_0_grp";
+			function = "spi1";
+		};
+
+		conf {
+			groups = "spi1_0_grp";
+			bias-disable;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		mux-cs {
+			groups = "spi1_0_ss0_grp";
+			function = "spi1_ss";
+		};
+
+		conf-cs {
+			groups = "spi1_0_ss0_grp";
+			bias-disable;
+		};
+
+	};
 };
 
 &rtc {
@@ -489,10 +539,14 @@
 
 &spi0 { /* Low Speed connector */
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi0_default>;
 };
 
 &spi1 { /* High Speed connector */
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi1_default>;
 };
 
 &uart0 {
