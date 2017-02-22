@@ -48,6 +48,13 @@ config INTEL_BROADWELL_GPIO
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
 
+config IMX_RGPIO2P
+	bool "i.MX7ULP RGPIO2P driver"
+	depends on DM
+	default n
+	help
+	  This driver supports i.MX7ULP Rapid GPIO2P controller.
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
