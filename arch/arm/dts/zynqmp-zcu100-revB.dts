@@ -494,6 +494,54 @@
 		};
 
 	};
+
+	pinctrl_usb0_default: usb0-default {
+		mux {
+			groups = "usb0_0_grp";
+			function = "usb0";
+		};
+
+		conf {
+			groups = "usb0_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		conf-rx {
+			pins = "MIO52", "MIO53", "MIO55";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO54", "MIO56", "MIO57", "MIO58", "MIO59",
+			       "MIO60", "MIO61", "MIO62", "MIO63";
+			bias-disable;
+		};
+	};
+
+	pinctrl_usb1_default: usb1-default {
+		mux {
+			groups = "usb1_0_grp";
+			function = "usb1";
+		};
+
+		conf {
+			groups = "usb1_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		conf-rx {
+			pins = "MIO64", "MIO65", "MIO67";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO66", "MIO68", "MIO69", "MIO70", "MIO71",
+			       "MIO72", "MIO73", "MIO74", "MIO75";
+			bias-disable;
+		};
+	};
 };
 
 &rtc {
@@ -560,6 +608,8 @@
 /* ULPI SMSC USB3320 */
 &usb0 {
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb0_default>;
 };
 
 &dwc3_0 {
@@ -572,6 +622,8 @@
 /* ULPI SMSC USB3320 */
 &usb1 {
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb1_default>;
 };
 
 &dwc3_1 {
