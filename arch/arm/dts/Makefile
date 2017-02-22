@@ -320,6 +320,8 @@ dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
 
 dtb-$(CONFIG_MX7) += imx7-colibri.dtb
 
+dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-evk.dtb
+
 dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
 	keystone-k2l-evm.dtb \
 	keystone-k2e-evm.dtb \
