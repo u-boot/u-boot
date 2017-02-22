@@ -120,6 +120,12 @@ int secure_boot_verify_image(void **image, size_t *size)
 	result = secure_rom_call(
 		API_HAL_KM_VERIFYCERTIFICATESIGNATURE_INDEX, 0, 0,
 		4, cert_addr, cert_size, sig_addr, 0xFFFFFFFF);
+
+	/* Perform cache writeback on output buffer */
+	flush_dcache_range(
+		(u32)*image,
+		(u32)*image + roundup(*size, ARCH_DMA_MINALIGN));
+
 auth_exit:
 	if (result != 0) {
 		printf("Authentication failed!\n");
