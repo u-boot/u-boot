@@ -7,6 +7,7 @@
 /dts-v1/;
 #include <dt-bindings/pwm/pwm.h>
 #include "rk3399.dtsi"
+#include "rk3399-sdram-lpddr3-4GB-1600.dtsi"
 
 / {
 	model = "Rockchip RK3399 Evaluation Board";
@@ -69,6 +70,7 @@
 };
 
 &sdmmc {
+	bus-width = <4>;
 	status = "okay";
 };
 
