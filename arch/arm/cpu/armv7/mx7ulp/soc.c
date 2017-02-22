@@ -7,8 +7,16 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/imx-common/hab.h>
 
 static char *get_reset_cause(char *);
+
+#if defined(CONFIG_SECURE_BOOT)
+struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+	.bank = 29,
+	.word = 6,
+};
+#endif
 
 u32 get_cpu_rev(void)
 {

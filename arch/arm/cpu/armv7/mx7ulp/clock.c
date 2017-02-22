@@ -313,6 +313,16 @@ void clock_init(void)
 	enable_usboh3_clk(1);
 }
 
+#ifdef CONFIG_SECURE_BOOT
+void hab_caam_clock_enable(unsigned char enable)
+{
+       if (enable)
+	       pcc_clock_enable(PER_CLK_CAAM, true);
+       else
+	       pcc_clock_enable(PER_CLK_CAAM, false);
+}
+#endif
+
 /*
  * Dump some core clockes.
  */

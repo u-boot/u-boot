@@ -39,4 +39,5 @@ void enable_usboh3_clk(unsigned char enable);
 #endif
 void init_clk_usdhc(u32 index);
 void clock_init(void);
+void hab_caam_clock_enable(unsigned char enable);
 #endif
