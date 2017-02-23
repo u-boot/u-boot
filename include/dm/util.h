@@ -72,6 +72,6 @@ static inline void dm_dump_devres(void)
  *
  * Returns true if node is needed in SPL/TL, false otherwise.
  */
-int dm_fdt_pre_reloc(const void *blob, int offset);
+bool dm_fdt_pre_reloc(const void *blob, int offset);
 
 #endif

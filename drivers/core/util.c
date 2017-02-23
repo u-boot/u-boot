@@ -37,17 +37,17 @@ int list_count_items(struct list_head *head)
 	return count;
 }
 
-int dm_fdt_pre_reloc(const void *blob, int offset)
+bool dm_fdt_pre_reloc(const void *blob, int offset)
 {
 	if (fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
-		return 1;
+		return true;
 
 #ifdef CONFIG_TPL_BUILD
 	if (fdt_getprop(blob, offset, "u-boot,dm-tpl", NULL))
-		return 1;
+		return true;
 #elif defined(CONFIG_SPL_BUILD)
 	if (fdt_getprop(blob, offset, "u-boot,dm-spl", NULL))
-		return 1;
+		return true;
 #else
 	/*
 	 * In regular builds individual spl and tpl handling both
@@ -55,8 +55,8 @@ int dm_fdt_pre_reloc(const void *blob, int offset)
 	 */
 	if (fdt_getprop(blob, offset, "u-boot,dm-spl", NULL) ||
 	    fdt_getprop(blob, offset, "u-boot,dm-tpl", NULL))
-		return 1;
+		return true;
 #endif
 
-	return 0;
+	return false;
 }
