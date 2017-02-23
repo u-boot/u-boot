@@ -29,6 +29,7 @@ static struct omap_xhci omap;
 
 __weak int omap_xhci_board_usb_init(int index, enum usb_init_type init)
 {
+	enable_usb_clocks(index);
 	return 0;
 }
 
@@ -39,6 +40,7 @@ int board_usb_init(int index, enum usb_init_type init)
 
 __weak int omap_xhci_board_usb_cleanup(int index, enum usb_init_type init)
 {
+	disable_usb_clocks(index);
 	return 0;
 }
 
