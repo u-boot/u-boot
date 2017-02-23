@@ -11,6 +11,7 @@ else ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036-board-spl.o
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board-spl.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board-spl.o
+obj-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o
 obj-$(CONFIG_ROCKCHIP_BROM_HELPER) += save_boot_param.o
 else
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board.o
