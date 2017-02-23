@@ -168,4 +168,8 @@ void spl_board_init(void)
 		pr_err("failed to init DRAM\n");
 		hang();
 	}
+
+#ifdef CONFIG_ARM64
+	dcache_disable();
+#endif
 }

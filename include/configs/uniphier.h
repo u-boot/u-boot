@@ -142,7 +142,7 @@
 #if defined(CONFIG_ARM64) && !defined(CONFIG_ARMV8_MULTIENTRY)
 /* ARM Trusted Firmware */
 #define BOOT_IMAGES \
-	"second_image=bl1.bin\0" \
+	"second_image=unph_bl.bin\0" \
 	"third_image=fip.bin\0"
 #else
 #define BOOT_IMAGES \

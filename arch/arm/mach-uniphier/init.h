@@ -13,18 +13,17 @@
 #define UNIPHIER_MAX_NR_DRAM_CH		3
 
 struct uniphier_dram_ch {
-	unsigned long base;
 	unsigned long size;
 	unsigned int width;
 };
 
 struct uniphier_board_data {
 	unsigned int dram_freq;
-	unsigned int dram_nr_ch;
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 	unsigned int flags;
 
-#define UNIPHIER_BD_DDR3PLUS			BIT(2)
+#define UNIPHIER_BD_DRAM_SPARSE			BIT(9)
+#define UNIPHIER_BD_DDR3PLUS			BIT(8)
 
 #define UNIPHIER_BD_BOARD_GET_TYPE(f)		((f) & 0x7)
 #define UNIPHIER_BD_BOARD_LD20_REF		0	/* LD20 reference */
@@ -119,12 +118,16 @@ void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);
 void uniphier_ld11_clk_init(void);
+void uniphier_ld20_clk_init(void);
 
+unsigned int uniphier_boot_device_raw(void);
 int uniphier_pin_init(const char *pinconfig_name);
 void uniphier_smp_kick_all_cpus(void);
 void cci500_init(int nr_slaves);
 
+#undef pr_warn
 #define pr_warn(fmt, args...)	printf(fmt, ##args)
+#undef pr_err
 #define pr_err(fmt, args...)	printf(fmt, ##args)
 
 #endif /* __MACH_INIT_H */

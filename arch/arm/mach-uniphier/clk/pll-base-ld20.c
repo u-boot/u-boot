@@ -18,6 +18,8 @@
 #define SC_PLLCTRL_SSC_EN		BIT(31)
 #define SC_PLLCTRL2_NRSTDS		BIT(28)
 #define SC_PLLCTRL2_SSC_JK_MASK		GENMASK(26, 0)
+#define SC_PLLCTRL3_REGI_SHIFT		16
+#define SC_PLLCTRL3_REGI_MASK		GENMASK(19, 16)
 
 /* PLL type: VPLL27 */
 #define SC_VPLL27CTRL_WP		BIT(0)
@@ -71,6 +73,25 @@ int uniphier_ld20_sscpll_ssc_en(unsigned long reg_base)
 	tmp = readl(base);	/* SSCPLLCTRL */
 	tmp |= SC_PLLCTRL_SSC_EN;
 	writel(tmp, base);
+
+	iounmap(base);
+
+	return 0;
+}
+
+int uniphier_ld20_sscpll_set_regi(unsigned long reg_base, unsigned regi)
+{
+	void __iomem *base;
+	u32 tmp;
+
+	base = ioremap(reg_base, SZ_16);
+	if (!base)
+		return -ENOMEM;
+
+	tmp = readl(base + 8);	/* SSCPLLCTRL */
+	tmp &= ~SC_PLLCTRL3_REGI_MASK;
+	tmp |= regi << SC_PLLCTRL3_REGI_SHIFT;
+	writel(tmp, base + 8);
 
 	iounmap(base);
 

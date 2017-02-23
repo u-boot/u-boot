@@ -75,7 +75,7 @@ Burn U-Boot images to NAND
 Write the following to the NAND device:
 
  - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot.bin         at the offset address 0x00010000
+ - u-boot.bin         at the offset address 0x00020000
 
 or
 
@@ -94,7 +94,7 @@ Burn U-Boot images to eMMC
 Write the following to the Boot partition 1 of the eMMC device:
 
  - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot.bin         at the offset address 0x00010000
+ - u-boot.bin         at the offset address 0x00020000
 
 or
 
@@ -179,4 +179,4 @@ newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
 
 --
 Masahiro Yamada <yamada.masahiro@socionext.com>
-Oct. 2016
+Jan. 2017

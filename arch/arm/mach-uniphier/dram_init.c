@@ -11,9 +11,11 @@
 #include <linux/errno.h>
 #include <linux/sizes.h>
 
-#include "init.h"
 #include "sg-regs.h"
 #include "soc-info.h"
+
+#define pr_warn(fmt, args...)	printf(fmt, ##args)
+#define pr_err(fmt, args...)	printf(fmt, ##args)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,7 +78,12 @@ static const struct uniphier_memif_data uniphier_memif_data[] = {
 };
 UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_memif_data, uniphier_memif_data)
 
-static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
+struct uniphier_dram_map {
+	unsigned long base;
+	unsigned long size;
+};
+
+static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
 {
 	const struct uniphier_memif_data *data;
 	unsigned long size;
@@ -91,7 +98,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 	val = readl(SG_MEMCONF);
 
 	/* set up ch0 */
-	dram_ch[0].base = CONFIG_SYS_SDRAM_BASE;
+	dram_map[0].base = CONFIG_SYS_SDRAM_BASE;
 
 	switch (val & SG_MEMCONF_CH0_SZ_MASK) {
 	case SG_MEMCONF_CH0_SZ_64M:
@@ -110,27 +117,27 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch0 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch0 size\n");
 		return -EINVAL;
 	}
 
 	if ((val & SG_MEMCONF_CH0_NUM_MASK) == SG_MEMCONF_CH0_NUM_2)
 		size *= 2;
 
-	dram_ch[0].size = size;
+	dram_map[0].size = size;
 
 	/* set up ch1 */
-	dram_ch[1].base = dram_ch[0].base + size;
+	dram_map[1].base = dram_map[0].base + size;
 
 	if (val & SG_MEMCONF_SPARSEMEM) {
-		if (dram_ch[1].base > data->sparse_ch1_base) {
+		if (dram_map[1].base > data->sparse_ch1_base) {
 			pr_warn("Sparse mem is enabled, but ch0 and ch1 overlap\n");
 			pr_warn("Only ch0 is available\n");
-			dram_ch[1].base = 0;
+			dram_map[1].base = 0;
 			return 0;
 		}
 
-		dram_ch[1].base = data->sparse_ch1_base;
+		dram_map[1].base = data->sparse_ch1_base;
 	}
 
 	switch (val & SG_MEMCONF_CH1_SZ_MASK) {
@@ -150,20 +157,20 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch1 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch1 size\n");
 		return -EINVAL;
 	}
 
 	if ((val & SG_MEMCONF_CH1_NUM_MASK) == SG_MEMCONF_CH1_NUM_2)
 		size *= 2;
 
-	dram_ch[1].size = size;
+	dram_map[1].size = size;
 
-	if (!data->have_ch2)
+	if (!data->have_ch2 || val & SG_MEMCONF_CH2_DISABLE)
 		return 0;
 
 	/* set up ch2 */
-	dram_ch[2].base = dram_ch[1].base + size;
+	dram_map[2].base = dram_map[1].base + size;
 
 	switch (val & SG_MEMCONF_CH2_SZ_MASK) {
 	case SG_MEMCONF_CH2_SZ_64M:
@@ -182,32 +189,32 @@ static int uniphier_memconf_decode(struct uniphier_dram_ch *dram_ch)
 		size = SZ_1G;
 		break;
 	default:
-		pr_err("error: invald value is set to MEMCONF ch2 size\n");
+		pr_err("error: invalid value is set to MEMCONF ch2 size\n");
 		return -EINVAL;
 	}
 
 	if ((val & SG_MEMCONF_CH2_NUM_MASK) == SG_MEMCONF_CH2_NUM_2)
 		size *= 2;
 
-	dram_ch[2].size = size;
+	dram_map[2].size = size;
 
 	return 0;
 }
 
 int dram_init(void)
 {
-	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH] = {};
+	struct uniphier_dram_map dram_map[3] = {};
 	int ret, i;
 
 	gd->ram_size = 0;
 
-	ret = uniphier_memconf_decode(dram_ch);
+	ret = uniphier_memconf_decode(dram_map);
 	if (ret)
 		return ret;
 
-	for (i = 0; i < ARRAY_SIZE(dram_ch); i++) {
+	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
 
-		if (!dram_ch[i].size)
+		if (!dram_map[i].size)
 			break;
 
 		/*
@@ -215,11 +222,11 @@ int dram_init(void)
 		 * but it does not expect sparse memory.  We use the first
 		 * contiguous chunk here.
 		 */
-		if (i > 0 &&
-		    dram_ch[i - 1].base + dram_ch[i - 1].size < dram_ch[i].base)
+		if (i > 0 && dram_map[i - 1].base + dram_map[i - 1].size <
+							dram_map[i].base)
 			break;
 
-		gd->ram_size += dram_ch[i].size;
+		gd->ram_size += dram_map[i].size;
 	}
 
 	return 0;
@@ -227,17 +234,17 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH] = {};
+	struct uniphier_dram_map dram_map[3] = {};
 	int i;
 
-	uniphier_memconf_decode(dram_ch);
+	uniphier_memconf_decode(dram_map);
 
-	for (i = 0; i < ARRAY_SIZE(dram_ch); i++) {
+	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
 		if (i >= ARRAY_SIZE(gd->bd->bi_dram))
 			break;
 
-		gd->bd->bi_dram[i].start = dram_ch[i].base;
-		gd->bd->bi_dram[i].size = dram_ch[i].size;
+		gd->bd->bi_dram[i].start = dram_map[i].base;
+		gd->bd->bi_dram[i].size = dram_map[i].size;
 	}
 }
 
@@ -256,6 +263,9 @@ int ft_board_setup(void *fdt, bd_t *bd)
 		return 0;
 
 	for (i = 0; i < ARRAY_SIZE(gd->bd->bi_dram); i++) {
+		if (!gd->bd->bi_dram[i].size)
+			continue;
+
 		rsv_addr = gd->bd->bi_dram[i].start + gd->bd->bi_dram[i].size;
 		rsv_addr -= rsv_size;
 

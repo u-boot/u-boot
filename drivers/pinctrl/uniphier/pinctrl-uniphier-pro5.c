@@ -147,7 +147,8 @@ static struct uniphier_pinctrl_socdata uniphier_pro5_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(uniphier_pro5_groups),
 	.functions = uniphier_pro5_functions,
 	.functions_count = ARRAY_SIZE(uniphier_pro5_functions),
-	.caps = UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE,
+	.caps = UNIPHIER_PINCTRL_CAPS_PUPD_SIMPLE |
+		UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE,
 };
 
 static int uniphier_pro5_pinctrl_probe(struct udevice *dev)

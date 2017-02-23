@@ -18,6 +18,8 @@ void uniphier_ld11_pll_init(void)
 	uniphier_ld20_sscpll_init(SC_MPLLCTRL, 1600, 1, 2);	/* 1500MHz -> 1600MHz */
 	uniphier_ld20_sscpll_init(SC_VSPLLCTRL, UNIPHIER_PLL_FREQ_DEFAULT, 0, 2);
 
+	uniphier_ld20_sscpll_set_regi(SC_MPLLCTRL, 5);
+
 	mdelay(1);
 
 	uniphier_ld20_sscpll_ssc_en(SC_CPLLCTRL);

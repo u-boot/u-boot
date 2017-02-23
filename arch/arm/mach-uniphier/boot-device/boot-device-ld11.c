@@ -8,12 +8,11 @@
 #include <common.h>
 #include <spl.h>
 #include <linux/io.h>
+#include <linux/kernel.h>
 
-#include "../sg-regs.h"
-#include "../soc-info.h"
 #include "boot-device.h"
 
-static struct boot_device_info boot_device_table[] = {
+const struct uniphier_boot_device uniphier_ld11_boot_device_table[] = {
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC  8, EraseSize 128KB, Addr 4)"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC 16, EraseSize 128KB, Addr 4)"},
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC  8, EraseSize 128KB, Addr 5)"},
@@ -48,48 +47,23 @@ static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NOR,  "NOR  (XECS1)"},
 };
 
-static int get_boot_mode_sel(void)
+const unsigned uniphier_ld11_boot_device_count =
+				ARRAY_SIZE(uniphier_ld11_boot_device_table);
+
+int uniphier_ld11_boot_device_is_usb(u32 pinmon)
 {
-	return (readl(SG_PINMON0) >> 1) & 0x1f;
+	return !!(~pinmon & 0x00000080);
 }
 
-u32 uniphier_ld20_boot_device(void)
+int uniphier_ld20_boot_device_is_usb(u32 pinmon)
 {
-	int boot_mode;
-	u32 usb_boot_mask;
-
-	switch (uniphier_get_soc_id()) {
-#if defined(CONFIG_ARCH_UNIPHIER_LD11)
-	case UNIPHIER_LD11_ID:
-		usb_boot_mask = 0x00000080;
-		break;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
-	case UNIPHIER_LD20_ID:
-		usb_boot_mask = 0x00000780;
-		break;
-#endif
-	default:
-		BUG();
-	}
-
-	if (~readl(SG_PINMON0) & usb_boot_mask)
-		return BOOT_DEVICE_USB;
-
-	boot_mode = get_boot_mode_sel();
-
-	return boot_device_table[boot_mode].type;
+	return !!(~pinmon & 0x00000780);
 }
 
-void uniphier_ld20_boot_mode_show(void)
+unsigned int uniphier_ld11_boot_device_fixup(unsigned int mode)
 {
-	int mode_sel, i;
+	if (mode == BOOT_DEVICE_MMC1 || mode == BOOT_DEVICE_USB)
+		mode = BOOT_DEVICE_BOARD;
 
-	mode_sel = get_boot_mode_sel();
-
-	puts("Boot Mode Pin:\n");
-
-	for (i = 0; i < ARRAY_SIZE(boot_device_table); i++)
-		printf(" %c %02x %s\n", i == mode_sel ? '*' : ' ', i,
-		       boot_device_table[i].info);
+	return mode;
 }

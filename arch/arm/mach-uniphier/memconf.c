@@ -93,7 +93,7 @@ static int __uniphier_memconf_init(const struct uniphier_board_data *bd,
 	}
 
 	/* is sparse mem? */
-	if (bd->dram_ch[0].base + bd->dram_ch[0].size < bd->dram_ch[1].base)
+	if (bd->flags & UNIPHIER_BD_DRAM_SPARSE)
 		val |= SG_MEMCONF_SPARSEMEM;
 
 	if (!have_ch2)
