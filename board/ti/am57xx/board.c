@@ -720,7 +720,7 @@ int usb_gadget_handle_interrupts(int index)
 #endif /* CONFIG_USB_DWC3 */
 
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-int board_usb_init(int index, enum usb_init_type init)
+int omap_xhci_board_usb_init(int index, enum usb_init_type init)
 {
 	enable_usb_clocks(index);
 	switch (index) {
@@ -754,7 +754,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum usb_init_type init)
+int omap_xhci_board_usb_cleanup(int index, enum usb_init_type init)
 {
 #ifdef CONFIG_USB_DWC3
 	switch (index) {

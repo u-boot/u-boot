@@ -750,7 +750,7 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int board_usb_init(int index, enum usb_init_type init)
+int omap_xhci_board_usb_init(int index, enum usb_init_type init)
 {
 	enable_usb_clocks(index);
 	switch (index) {
@@ -787,7 +787,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum usb_init_type init)
+int omap_xhci_board_usb_cleanup(int index, enum usb_init_type init)
 {
 	switch (index) {
 	case 0:
