@@ -153,10 +153,24 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_GPIO1_IO09__GPIO1_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-#define USDHC1_CD_GPIO	IMX_GPIO_NR(1, 19)
+static iomux_v3_cfg_t const usdhc2_pads[] = {
+	MX6_PAD_NAND_ALE__USDHC2_RESET_B | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_RE_B__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_WE_B__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA00__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA01__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA02__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA03__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA04__USDHC2_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA05__USDHC2_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
 
-struct fsl_esdhc_cfg usdhc_cfg[1] = {
+#define USDHC1_CD_GPIO	IMX_GPIO_NR(1, 19)
+#define USDHC2_CD_GPIO	IMX_GPIO_NR(4, 5)
+
+struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC1_BASE_ADDR, 0, 4},
+	{USDHC2_BASE_ADDR, 0, 8},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -167,6 +181,9 @@ int board_mmc_getcd(struct mmc *mmc)
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
 		ret = !gpio_get_value(USDHC1_CD_GPIO);
+		break;
+	case USDHC2_BASE_ADDR:
+		ret = !gpio_get_value(USDHC2_CD_GPIO);
 		break;
 	}
 
@@ -181,6 +198,7 @@ int board_mmc_init(bd_t *bis)
 	* According to the board_mmc_init() the following map is done:
 	* (U-boot device node)    (Physical Port)
 	* mmc0				USDHC1
+	* mmc1				USDHC2
 	*/
 	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
@@ -189,6 +207,12 @@ int board_mmc_init(bd_t *bis)
 				usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
 			gpio_direction_input(USDHC1_CD_GPIO);
 			usdhc_cfg[i].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+			break;
+		case 1:
+			imx_iomux_v3_setup_multiple_pads(
+				usdhc1_pads, ARRAY_SIZE(usdhc2_pads));
+			gpio_direction_input(USDHC2_CD_GPIO);
+			usdhc_cfg[i].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			break;
 		default:
 			printf("Warning - USDHC%d controller not supporting\n",
