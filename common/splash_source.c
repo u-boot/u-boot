@@ -216,6 +216,7 @@ static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
 {
 	int res = 0;
 	loff_t bmp_size;
+	loff_t actread;
 	char *splash_file;
 
 	splash_file = getenv("splashfile");
@@ -251,7 +252,7 @@ static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
 	}
 
 	splash_select_fs_dev(location);
-	res = fs_read(splash_file, bmp_load_addr, 0, 0, NULL);
+	res = fs_read(splash_file, bmp_load_addr, 0, 0, &actread);
 
 out:
 	if (location->ubivol != NULL)
