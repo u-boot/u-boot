@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/spl.h>
 #include <spl.h>
 #include <asm/imx-common/hab.h>
@@ -19,9 +20,8 @@
 u32 spl_boot_device(void)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned int gpr10_boot = readl(&psrc->gpr10) & (1 << 28);
-	unsigned reg = gpr10_boot ? readl(&psrc->gpr9) : readl(&psrc->sbmr1);
 	unsigned int bmode = readl(&psrc->sbmr2);
+	u32 reg = imx6_src_get_boot_mode();
 
 	/*
 	 * Check for BMODE if serial downloader is enabled

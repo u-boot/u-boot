@@ -8,6 +8,7 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 
+#include <asm/io.h>
 #include <asm/imx-common/regs-common.h>
 #include <common.h>
 #include "../arch-imx/cpu.h"
@@ -39,6 +40,19 @@
 #define is_mx6sll() (is_cpu_type(MXC_CPU_MX6SLL))
 
 #define is_mx7ulp() (is_cpu_type(MXC_CPU_MX7ULP))
+
+#ifdef CONFIG_MX6
+#define IMX6_SRC_GPR10_BMODE		BIT(28)
+
+static inline u8 imx6_is_bmode_from_gpr9(void)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+
+	return readl(&psrc->gpr10) & IMX6_SRC_GPR10_BMODE;
+}
+
+u32 imx6_src_get_boot_mode(void);
+#endif /* CONFIG_MX6 */
 
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
