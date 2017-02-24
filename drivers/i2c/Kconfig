@@ -109,6 +109,12 @@ config SYS_I2C_INTEL
 	  the I2C API meaning that any I2C operations will immediately fail
 	  for now.
 
+config SYS_I2C_IMX_LPI2C
+	bool "NXP i.MX LPI2C driver"
+	depends on ARCH_MX7ULP
+	help
+	  Add support for the NXP i.MX LPI2C driver.
+
 config SYS_I2C_MXC
 	bool "NXP i.MX I2C driver"
 	depends on MX6
