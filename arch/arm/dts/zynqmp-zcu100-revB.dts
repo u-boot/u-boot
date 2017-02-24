@@ -153,6 +153,11 @@
 	status = "okay";
 };
 
+&pmufw {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pmu_default>;
+};
+
 &gpio {
 	status = "okay";
 };
@@ -401,6 +406,20 @@
 			groups = "gpio0_4_grp", "gpio0_5_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
 			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+
+	pinctrl_pmu_default: pmu-default {
+		mux {
+			groups = "pmu0_8_grp";
+			function = "pmu0";
+		};
+
+		conf {
+			groups = "pmu0_8_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
 		};
 	};
 
