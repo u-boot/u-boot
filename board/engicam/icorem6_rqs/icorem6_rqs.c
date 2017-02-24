@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <mmc.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -45,6 +46,24 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_ENV_IS_IN_MMC
+static void mmc_late_init(void)
+{
+	char cmd[32];
+	char mmcblk[32];
+	u32 dev_no = mmc_get_env_dev();
+
+	setenv_ulong("mmcdev", dev_no);
+
+	/* Set mmcblk env */
+	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);
+	setenv("mmcroot", mmcblk);
+
+	sprintf(cmd, "mmc dev %d", dev_no);
+	run_command(cmd, 0);
+}
+#endif
+
 int board_late_init(void)
 {
 	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
@@ -53,6 +72,9 @@ int board_late_init(void)
 	case IMX6_BMODE_ESD:
 	case IMX6_BMODE_MMC:
 	case IMX6_BMODE_EMMC:
+#ifdef CONFIG_ENV_IS_IN_MMC
+		mmc_late_init();
+#endif
 		setenv("modeboot", "mmcboot");
 		break;
 	default:
