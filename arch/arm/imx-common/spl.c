@@ -29,42 +29,52 @@ u32 spl_boot_device(void)
 	 */
 	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
 		return BOOT_DEVICE_UART;
+
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
-	switch ((reg & 0x000000FF) >> 4) {
+	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
 	 /* EIM: See 8.5.1, Table 8-9 */
-	case 0x0:
+	case IMX6_BMODE_EMI:
 		/* BOOT_CFG1[3]: NOR/OneNAND Selection */
-		if ((reg & 0x00000008) >> 3)
+		switch ((reg & IMX6_BMODE_EMI_MASK) >> IMX6_BMODE_EMI_SHIFT) {
+		case IMX6_BMODE_ONENAND:
 			return BOOT_DEVICE_ONENAND;
-		else
+		case IMX6_BMODE_NOR:
 			return BOOT_DEVICE_NOR;
 		break;
+		}
 	/* Reserved: Used to force Serial Downloader */
-	case 0x1:
+	case IMX6_BMODE_UART:
 		return BOOT_DEVICE_UART;
 	/* SATA: See 8.5.4, Table 8-20 */
-	case 0x2:
+	case IMX6_BMODE_SATA:
 		return BOOT_DEVICE_SATA;
 	/* Serial ROM: See 8.5.5.1, Table 8-22 */
-	case 0x3:
+	case IMX6_BMODE_SERIAL_ROM:
 		/* BOOT_CFG4[2:0] */
-		switch ((reg & 0x07000000) >> 24) {
-		case 0x0 ... 0x4:
+		switch ((reg & IMX6_BMODE_SERIAL_ROM_MASK) >>
+			IMX6_BMODE_SERIAL_ROM_SHIFT) {
+		case IMX6_BMODE_ECSPI1:
+		case IMX6_BMODE_ECSPI2:
+		case IMX6_BMODE_ECSPI3:
+		case IMX6_BMODE_ECSPI4:
+		case IMX6_BMODE_ECSPI5:
 			return BOOT_DEVICE_SPI;
-		case 0x5 ... 0x7:
+		case IMX6_BMODE_I2C1:
+		case IMX6_BMODE_I2C2:
+		case IMX6_BMODE_I2C3:
 			return BOOT_DEVICE_I2C;
 		}
 		break;
 	/* SD/eSD: 8.5.3, Table 8-15  */
-	case 0x4:
-	case 0x5:
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
 		return BOOT_DEVICE_MMC1;
 	/* MMC/eMMC: 8.5.3 */
-	case 0x6:
-	case 0x7:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
 		return BOOT_DEVICE_MMC1;
 	/* NAND Flash: 8.5.2, Table 8-10 */
-	case 0x8:
+	case IMX6_BMODE_NAND:
 		return BOOT_DEVICE_NAND;
 	}
 	return BOOT_DEVICE_NONE;
