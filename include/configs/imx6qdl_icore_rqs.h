@@ -56,8 +56,7 @@
 	"fitboot=echo Booting FIT image from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
+	"_mmcboot=run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
@@ -70,23 +69,24 @@
 			"fi; " \
 		"else " \
 			"bootm; " \
-		"fi\0"
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev};" \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadfit; then " \
-				"run fitboot; " \
+		"fi\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"mmc dev ${mmcdev};" \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
 			"else " \
-				"if run loadimage; then " \
-					"run mmcboot; " \
+				"if run loadfit; then " \
+					"run fitboot; " \
+				"else " \
+					"if run loadimage; then " \
+						"run _mmcboot; " \
+					"fi; " \
 				"fi; " \
 			"fi; " \
-		"fi; " \
-	"fi"
+		"fi\0"
+
+#define CONFIG_BOOTCOMMAND		"run $modeboot"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000

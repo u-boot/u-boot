@@ -45,6 +45,24 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
+			IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		setenv("modeboot", "mmcboot");
+		break;
+	default:
+		setenv("modeboot", "");
+		break;
+	}
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
