@@ -128,6 +128,16 @@
 # define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #endif
 
+/* Ethernet */
+#ifdef CONFIG_FEC_MXC
+# define CONFIG_FEC_MXC_PHYADDR		0
+# define CONFIG_FEC_XCV_TYPE		RMII
+
+# define CONFIG_MII
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_SMSC
+#endif
+
 /* SPL */
 #ifdef CONFIG_SPL
 # define CONFIG_SPL_MMC_SUPPORT
