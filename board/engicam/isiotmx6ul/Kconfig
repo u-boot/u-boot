@@ -1,0 +1,12 @@
+if TARGET_MX6UL_ISIOT
+
+config SYS_BOARD
+	default "isiotmx6ul"
+
+config SYS_VENDOR
+	default "engicam"
+
+config SYS_CONFIG_NAME
+	default "imx6ul_isiot"
+
+endif

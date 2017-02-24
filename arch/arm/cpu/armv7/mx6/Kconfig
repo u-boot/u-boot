@@ -241,6 +241,15 @@ config TARGET_MX6UL_GEAM
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
+config TARGET_MX6UL_ISIOT
+	bool "Support Engicam Is.IoT MX6UL"
+	select MX6UL
+	select OF_CONTROL
+	select DM
+	select DM_GPIO
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
 
 config TARGET_MX6ULL_14X14_EVK
 	bool "Support mx6ull_14x14_evk"
@@ -362,6 +371,7 @@ source "board/embest/mx6boards/Kconfig"
 source "board/engicam/geam6ul/Kconfig"
 source "board/engicam/icorem6/Kconfig"
 source "board/engicam/icorem6_rqs/Kconfig"
+source "board/engicam/isiotmx6ul/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
