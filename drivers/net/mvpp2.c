@@ -6,7 +6,7 @@
  * Marcin Wojtas <mw@semihalf.com>
  *
  * U-Boot version:
- * Copyright (C) 2016 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2016-2017 Stefan Roese <sr@denx.de>
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2. This program is licensed "as is" without any
@@ -1089,6 +1089,8 @@ struct mvpp2_bm_pool {
 static int rxq_number = MVPP2_DEFAULT_RXQ;
 /* Number of TXQs used by single port */
 static int txq_number = MVPP2_DEFAULT_TXQ;
+
+static int base_id;
 
 #define MVPP2_DRIVER_NAME "mvpp2"
 #define MVPP2_DRIVER_VERSION "1.0"
@@ -4523,6 +4525,7 @@ static int mvpp2_base_bind(struct udevice *parent)
 	char *name;
 	int subnode;
 	u32 id;
+	int base_id_add;
 
 	/* Lookup eth driver */
 	drv = lists_uclass_lookup(UCLASS_ETH);
@@ -4531,7 +4534,12 @@ static int mvpp2_base_bind(struct udevice *parent)
 		return -ENOENT;
 	}
 
+	base_id_add = base_id;
+
 	fdt_for_each_subnode(subnode, blob, node) {
+		/* Increment base_id for all subnodes, also the disabled ones */
+		base_id++;
+
 		/* Skip disabled ports */
 		if (!fdtdec_get_is_enabled(blob, subnode))
 			continue;
@@ -4541,6 +4549,7 @@ static int mvpp2_base_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		id = fdtdec_get_int(blob, subnode, "port-id", -1);
+		id += base_id_add;
 
 		name = calloc(1, 16);
 		sprintf(name, "mvpp2-%d", id);
