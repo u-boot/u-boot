@@ -48,9 +48,12 @@
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
+	"nandroot=ubi0:rootfs rootfstype=ubifs\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
+	"ubiargs=setenv bootargs console=${console},${baudrate} " \
+		"ubi.mtd=5 root=${nandroot} ${mtdparts}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -75,8 +78,21 @@
 			"fi; " \
 		"else " \
 			"bootm; " \
-		"fi\0"
+		"fi\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"if mtdparts; then " \
+			"echo Starting nand boot ...; " \
+		"else " \
+			"mtdparts default; " \
+		"fi; " \
+		"run ubiargs; " \
+		"nand read ${loadaddr} kernel 0x800000; " \
+		"nand read ${fdt_addr} dtb 0x100000; " \
+		"bootm ${loadaddr} - ${fdt_addr}\0"
 
+#ifdef CONFIG_NAND_MXS
+# define CONFIG_BOOTCOMMAND		"run nandboot"
+#else
 # define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
 		"if run loadbootscript; then " \
@@ -91,6 +107,7 @@
 			"fi; " \
 		"fi; " \
 	"fi"
+#endif
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -140,6 +157,19 @@
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 # define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
+
+/* MTD device */
+# define CONFIG_MTD_DEVICE
+# define CONFIG_CMD_MTDPARTS
+# define CONFIG_MTD_PARTITIONS
+# define MTDIDS_DEFAULT			"nand0=gpmi-nand"
+# define MTDPARTS_DEFAULT		"mtdparts=gpmi-nand:2m(spl),2m(uboot)," \
+					"1m(env),8m(kernel),1m(dtb),-(rootfs)"
+
+/* UBI */
+# define CONFIG_CMD_UBIFS
+# define CONFIG_RBTREE
+# define CONFIG_LZO
 
 /* APBH DMA */
 # define CONFIG_APBH_DMA
