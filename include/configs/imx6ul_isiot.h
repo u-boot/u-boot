@@ -27,6 +27,10 @@
 /* Environment in MMC */
 # if defined(CONFIG_ENV_IS_IN_MMC)
 #  define CONFIG_ENV_OFFSET		0x100000
+/* Environment in NAND */
+# elif defined(CONFIG_ENV_IS_IN_NAND)
+#  define CONFIG_ENV_OFFSET		0x400000
+#  define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -128,6 +132,21 @@
 # define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #endif
 
+/* NAND */
+#ifdef CONFIG_NAND_MXS
+# define CONFIG_SYS_MAX_NAND_DEVICE	1
+# define CONFIG_SYS_NAND_BASE		0x40000000
+# define CONFIG_SYS_NAND_5_ADDR_CYCLE
+# define CONFIG_SYS_NAND_ONFI_DETECTION
+# define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+# define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
+
+/* APBH DMA */
+# define CONFIG_APBH_DMA
+# define CONFIG_APBH_DMA_BURST
+# define CONFIG_APBH_DMA_BURST8
+#endif
+
 /* Ethernet */
 #ifdef CONFIG_FEC_MXC
 # define CONFIG_FEC_MXC_PHYADDR		0
@@ -140,7 +159,11 @@
 
 /* SPL */
 #ifdef CONFIG_SPL
-# define CONFIG_SPL_MMC_SUPPORT
+# ifdef CONFIG_NAND_MXS
+#  define CONFIG_SPL_NAND_SUPPORT
+# else
+#  define CONFIG_SPL_MMC_SUPPORT
+# endif
 
 # include "imx6_spl.h"
 # ifdef CONFIG_SPL_BUILD
