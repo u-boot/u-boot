@@ -63,8 +63,8 @@ u32 spl_boot_device(void)
 	case 0x6:
 	case 0x7:
 		return BOOT_DEVICE_MMC1;
-	/* NAND Flash: 8.5.2 */
-	case 0x8 ... 0xf:
+	/* NAND Flash: 8.5.2, Table 8-10 */
+	case 0x8:
 		return BOOT_DEVICE_NAND;
 	}
 	return BOOT_DEVICE_NONE;
