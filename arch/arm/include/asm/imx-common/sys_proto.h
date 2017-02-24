@@ -81,9 +81,7 @@ enum imx6_bmode {
 
 static inline u8 imx6_is_bmode_from_gpr9(void)
 {
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-
-	return readl(&psrc->gpr10) & IMX6_SRC_GPR10_BMODE;
+	return readl(&src_base->gpr10) & IMX6_SRC_GPR10_BMODE;
 }
 
 u32 imx6_src_get_boot_mode(void);

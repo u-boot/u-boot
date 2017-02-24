@@ -19,8 +19,7 @@
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
 {
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned int bmode = readl(&psrc->sbmr2);
+	unsigned int bmode = readl(&src_base->sbmr2);
 	u32 reg = imx6_src_get_boot_mode();
 
 	/*
