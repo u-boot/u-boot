@@ -38,12 +38,6 @@ static struct mm_region zynqmp_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.virt = 0xffe00000UL,
-		.phys = 0xffe00000UL,
-		.size = 0x00200000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
 		.virt = 0x400000000UL,
 		.phys = 0x400000000UL,
 		.size = 0x200000000UL,
