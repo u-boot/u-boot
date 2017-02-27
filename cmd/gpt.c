@@ -54,7 +54,7 @@ static int extract_env(const char *str, char **env)
 	if (e == NULL) {
 #ifdef CONFIG_RANDOM_UUID
 		debug("%s unset. ", str);
-		gen_rand_uuid_str(uuid_str, UUID_STR_FORMAT_STD);
+		gen_rand_uuid_str(uuid_str, UUID_STR_FORMAT_GUID);
 		setenv(s, uuid_str);
 
 		e = getenv(s);

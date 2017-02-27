@@ -463,7 +463,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		str_uuid = partitions[i].uuid;
 		bin_uuid = gpt_e[i].unique_partition_guid.b;
 
-		if (uuid_str_to_bin(str_uuid, bin_uuid, UUID_STR_FORMAT_STD)) {
+		if (uuid_str_to_bin(str_uuid, bin_uuid, UUID_STR_FORMAT_GUID)) {
 			printf("Partition no. %d: invalid guid: %s\n",
 				i, str_uuid);
 			return -1;
