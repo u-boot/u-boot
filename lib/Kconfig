@@ -61,6 +61,9 @@ config SPL_TINY_MEMSET
 	  size-constrained envrionments even this may be too big. Enable this
 	  option to reduce code size slightly at the cost of some speed.
 
+config RBTREE
+	bool
+
 source lib/dhry/Kconfig
 
 source lib/rsa/Kconfig
