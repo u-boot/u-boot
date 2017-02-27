@@ -158,6 +158,75 @@ config SPI_BOOT
 
 endmenu
 
+menu "Environment"
+
+if ARCH_SUNXI
+
+choice
+	prompt "Environment Device"
+	default ENV_IS_IN_MMC if ARCH_SUNXI
+
+config ENV_IS_IN_MMC
+	bool "Environment in an MMC device"
+	depends on CMD_MMC
+	help
+	  Define this if you have an MMC device which you want to use for the
+	  environment.
+
+config ENV_IS_IN_NAND
+	bool "Environment in a NAND device"
+	depends on CMD_NAND
+	help
+	  Define this if you have a NAND device which you want to use for the
+	  environment.
+
+config ENV_IS_IN_UBI
+	bool "Environment in a UBI volume"
+	depends on CMD_UBI
+	depends on CMD_MTDPARTS
+	help
+	  Define this if you have a UBI volume which you want to use for the
+	  environment.
+
+config ENV_IS_NOWHERE
+	bool "Environment is not stored"
+	help
+	  Define this if you don't want to or can't have an environment stored
+	  on a storage medium
+
+endchoice
+
+config ENV_OFFSET
+	hex "Environment Offset"
+	depends on !ENV_IS_IN_UBI
+	depends on !ENV_IS_NOWHERE
+	default 0x88000 if ARCH_SUNXI
+	help
+	  Offset from the start of the device (or partition)
+
+config ENV_SIZE
+	hex "Environment Size"
+	depends on !ENV_IS_NOWHERE
+	default 0x20000 if ARCH_SUNXI
+	help
+	  Size of the environment storage area
+
+config ENV_UBI_PART
+	string "UBI partition name"
+	depends on ENV_IS_IN_UBI
+	help
+	  MTD partition containing the UBI device
+
+config ENV_UBI_VOLUME
+	string "UBI volume name"
+	depends on ENV_IS_IN_UBI
+	help
+	  Name of the volume that you want to store the environment in.
+
+endif
+
+endmenu
+
 config BOOTDELAY
 	int "delay in seconds before automatically booting"
 	default 2

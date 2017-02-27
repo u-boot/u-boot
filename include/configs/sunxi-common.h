@@ -134,7 +134,9 @@
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_MMC_SUNXI_SLOT		0
-#define CONFIG_ENV_IS_IN_MMC
+#endif
+
+#if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
@@ -163,9 +165,6 @@
 /* FLASH and environment organization */
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
-
-#define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -328,13 +327,6 @@ extern int soft_i2c_gpio_scl;
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_PREBOOT
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
-#endif
-
-#if !defined CONFIG_ENV_IS_IN_MMC && \
-    !defined CONFIG_ENV_IS_IN_NAND && \
-    !defined CONFIG_ENV_IS_IN_FAT && \
-    !defined CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define CONFIG_MISC_INIT_R

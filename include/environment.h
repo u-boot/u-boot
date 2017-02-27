@@ -8,6 +8,8 @@
 #ifndef _ENVIRONMENT_H_
 #define _ENVIRONMENT_H_
 
+#include <linux/kconfig.h>
+
 /**************************************************************************
  *
  * The "environment" is stored as a list of '\0' terminated
