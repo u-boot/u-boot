@@ -276,6 +276,7 @@
 };
 
 &pinctrl0 {
+	status = "okay";
 	pinctrl_can0_default: can0-default {
 		mux {
 			function = "can0";

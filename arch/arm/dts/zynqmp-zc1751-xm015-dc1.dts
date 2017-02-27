@@ -249,6 +249,7 @@
 };
 
 &pinctrl0 {
+	status = "okay";
 	pinctrl_i2c1_default: i2c1-default {
 		mux {
 			groups = "i2c1_9_grp";

@@ -574,6 +574,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 };
 
 &pinctrl0 {
+	status = "okay";
 	pinctrl_i2c0_default: i2c0-default {
 		mux {
 			groups = "i2c0_3_grp";
