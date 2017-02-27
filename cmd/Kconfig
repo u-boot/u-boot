@@ -835,4 +835,12 @@ config CMD_UBI
 	  (www.linux-mtd.infradead.org). Activate this option if you want
 	  to use U-Boot UBI commands.
 
+config CMD_UBIFS
+	tristate "Enable UBIFS - Unsorted block images filesystem commands"
+	select CRC32
+	select RBTREE if ARCH_SUNXI
+	select LZO if ARCH_SUNXI
+	help
+	  UBIFS is a file system for flash devices which works on top of UBI.
+
 endmenu
