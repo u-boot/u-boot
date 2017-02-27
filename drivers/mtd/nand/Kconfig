@@ -74,6 +74,22 @@ config NAND_SUNXI
 	The SPL driver only supports reading from the NAND using DMA
 	transfers.
 
+if NAND_SUNXI
+
+config NAND_SUNXI_SPL_ECC_STRENGTH
+	int "Allwinner NAND SPL ECC Strength"
+	default 64
+
+config NAND_SUNXI_SPL_ECC_SIZE
+	int "Allwinner NAND SPL ECC Step Size"
+	default 1024
+
+config NAND_SUNXI_SPL_USABLE_PAGE_SIZE
+	int "Allwinner NAND SPL Usable Page Size"
+	default 1024
+
+endif
+
 config NAND_ARASAN
 	bool "Configure Arasan Nand"
 	help
