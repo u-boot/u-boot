@@ -57,4 +57,10 @@ ifeq ("$(strip $(warning))","")
 endif
 
 KBUILD_CFLAGS += $(warning)
+
+else
+
+# Disable noisy checks by default
+DTC_FLAGS += $(call dtc-option,-Wno-unit_address_vs_reg)
+
 endif
