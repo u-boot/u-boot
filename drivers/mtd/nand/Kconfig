@@ -128,7 +128,7 @@ config SYS_NAND_U_BOOT_LOCATIONS
 
 config SYS_NAND_U_BOOT_OFFS
 	hex "Location in NAND to read U-Boot from"
-	default 0x8000 if NAND_SUNXI
+	default 0x800000 if NAND_SUNXI
 	depends on SYS_NAND_U_BOOT_LOCATIONS
 	help
 	Set the offset from the start of the nand where u-boot should be
