@@ -801,6 +801,26 @@ config CMD_FS_GENERIC
 	help
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
+
+config CMD_MTDPARTS
+	depends on ARCH_SUNXI
+	bool "MTD partition support"
+	help
+	  MTD partition support
+
+config MTDIDS_DEFAULT
+	string "Default MTD IDs"
+	depends on CMD_MTDPARTS
+	help
+	  Defines a default MTD ID
+
+config MTDPARTS_DEFAULT
+	string "Default MTD partition scheme"
+	depends on CMD_MTDPARTS
+	help
+	  Defines a default MTD partitioning scheme in the Linux MTD command
+	  line partitions format
+
 endmenu
 
 config CMD_UBI
