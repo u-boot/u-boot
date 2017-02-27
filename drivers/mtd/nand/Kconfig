@@ -67,6 +67,7 @@ config NAND_SUNXI
 	bool "Support for NAND on Allwinner SoCs"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	select SYS_NAND_SELF_INIT
+	select SYS_NAND_U_BOOT_LOCATIONS
 	---help---
 	Enable support for NAND. This option enables the standard and
 	SPL drivers.
