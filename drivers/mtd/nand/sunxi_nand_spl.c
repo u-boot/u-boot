@@ -245,7 +245,7 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 {
 	dma_addr_t dst = (dma_addr_t)dest;
 	int nsectors = len / conf->ecc_size;
-	u16 rand_seed;
+	u16 rand_seed = 0;
 	u32 val;
 	int page;
 
@@ -258,8 +258,9 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 	/* clear ecc status */
 	writel(0, SUNXI_NFC_BASE + NFC_ECC_ST);
 
-	/* Choose correct seed */
-	rand_seed = random_seed[page % conf->nseeds];
+	/* Choose correct seed if randomized */
+	if (conf->randomize)
+		rand_seed = random_seed[page % conf->nseeds];
 
 	writel((rand_seed << 16) | (conf->ecc_strength << 12) |
 		(conf->randomize ? NFC_ECC_RANDOM_EN : 0) |
