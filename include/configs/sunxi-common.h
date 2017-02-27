@@ -461,6 +461,20 @@ extern int soft_i2c_gpio_scl;
 	"stderr=serial\0"
 #endif
 
+#ifdef CONFIG_MTDIDS_DEFAULT
+#define SUNXI_MTDIDS_DEFAULT \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"
+#else
+#define SUNXI_MTDIDS_DEFAULT
+#endif
+
+#ifdef CONFIG_MTDPARTS_DEFAULT
+#define SUNXI_MTDPARTS_DEFAULT \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define SUNXI_MTDPARTS_DEFAULT
+#endif
+
 #define CONSOLE_ENV_SETTINGS \
 	CONSOLE_STDIN_SETTINGS \
 	CONSOLE_STDOUT_SETTINGS
@@ -471,6 +485,8 @@ extern int soft_i2c_gpio_scl;
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
+	SUNXI_MTDIDS_DEFAULT \
+	SUNXI_MTDPARTS_DEFAULT \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
 
