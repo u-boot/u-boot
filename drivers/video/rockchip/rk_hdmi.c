@@ -110,7 +110,7 @@ static const struct hdmi_mpll_config rockchip_mpll_cfg[] = {
 		.mpixelclock = 66000000,
 		.cpce = 0x013e, .gmp = 0x0003, .curr = 0x0038,
 	}, {
-		.mpixelclock = 835000000,
+		.mpixelclock = 83500000,
 		.cpce = 0x0072, .gmp = 0x0001, .curr = 0x0028,
 	}, {
 		.mpixelclock = 146250000,
