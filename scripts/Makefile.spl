@@ -179,6 +179,10 @@ endif
 
 ifdef CONFIG_ARCH_SUNXI
 ALL-y	+= $(obj)/sunxi-spl.bin
+
+ifdef CONFIG_NAND_SUNXI
+ALL-y	+= $(obj)/sunxi-spl-with-ecc.bin
+endif
 endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
@@ -299,6 +303,17 @@ quiet_cmd_mksunxiboot = MKSUNXI $@
 cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mksunxiboot)
+
+quiet_cmd_sunxi_spl_image_builder = SUNXI_SPL_IMAGE_BUILDER $@
+cmd_sunxi_spl_image_builder = $(objtree)/tools/sunxi-spl-image-builder \
+				-c $(CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH)/$(CONFIG_NAND_SUNXI_SPL_ECC_SIZE) \
+				-p $(CONFIG_SYS_NAND_PAGE_SIZE) \
+				-o $(CONFIG_SYS_NAND_OOBSIZE) \
+				-u $(CONFIG_NAND_SUNXI_SPL_USABLE_PAGE_SIZE) \
+				-e $(CONFIG_SYS_NAND_BLOCK_SIZE) \
+				-s -b $< $@
+$(obj)/sunxi-spl-with-ecc.bin: $(obj)/sunxi-spl.bin
+	$(call if_changed,sunxi_spl_image_builder)
 
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk
