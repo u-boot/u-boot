@@ -455,6 +455,24 @@ config CMD_NAND
 	help
 	  NAND support.
 
+if CMD_NAND
+config CMD_NAND_TRIMFFS
+	bool "nand write.trimffs"
+	help
+	  Allows one to skip empty pages when flashing something on a NAND.
+
+config CMD_NAND_LOCK_UNLOCK
+	bool "nand lock/unlock"
+	help
+	  NAND locking support.
+
+config CMD_NAND_TORTURE
+	bool "nand torture"
+	help
+	  NAND torture support.
+
+endif # CMD_NAND
+
 config CMD_PART
 	bool "part"
 	select PARTITION_UUIDS
