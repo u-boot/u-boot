@@ -82,7 +82,7 @@ config NAND_ARASAN
 
 config NAND_MXS
 	bool "MXS NAND support"
-	depends on MX6
+	depends on MX6 || MX7
 	help
 	  This enables NAND driver for the NAND flash controller on the
 	  MXS processors.
