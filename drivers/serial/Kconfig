@@ -376,6 +376,15 @@ config SYS_NS16550
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
 
+config INTEL_MID_SERIAL
+	bool "Intel MID platform UART support"
+	depends on DM_SERIAL && OF_CONTROL
+	depends on INTEL_MID
+	select SYS_NS16550
+	help
+	  Select this to enable a UART for Intel MID platforms.
+	  This uses the ns16550 driver as a library.
+
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
 	depends on DM_SERIAL && SPL_OF_PLATDATA
