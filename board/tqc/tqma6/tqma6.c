@@ -269,8 +269,15 @@ int checkboard(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+#define MODELSTRLEN 32u
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	char modelstr[MODELSTRLEN];
+
+	snprintf(modelstr, MODELSTRLEN, "TQ %s on %s", tqma6_get_boardname(),
+		 tqma6_bb_get_boardname());
+	do_fixup_by_path_string(blob, "/", "model", modelstr);
+	fdt_fixup_memory(blob, (u64)PHYS_SDRAM, (u64)gd->ram_size);
 	/* bring in eMMC dsr settings */
 	do_fixup_by_path_u32(blob,
 			     "/soc/aips-bus@02100000/usdhc@02198000",
