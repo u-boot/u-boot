@@ -21,8 +21,6 @@
 
 /* We need architecture specific misc initializations */
 
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-
 /* Link Definitions */
 #ifndef CONFIG_QSPI_BOOT
 #ifdef CONFIG_SPL

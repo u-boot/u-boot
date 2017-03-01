@@ -28,8 +28,6 @@
 
 #define CONFIG_DEEP_SLEEP
 
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xqds/t1024_pbi.cfg
 #define CONFIG_SPL_FLUSH_IMAGE

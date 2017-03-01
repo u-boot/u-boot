@@ -26,8 +26,6 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-
 /* support deep sleep */
 #ifdef CONFIG_ARCH_T1024
 #define CONFIG_DEEP_SLEEP

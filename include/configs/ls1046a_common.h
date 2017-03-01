@@ -118,8 +118,6 @@
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-
 #define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
 
 /* FMan ucode */

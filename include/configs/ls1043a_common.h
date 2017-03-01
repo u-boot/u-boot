@@ -145,8 +145,6 @@
 #endif
 #endif
 
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
-
 /* FMan ucode */
 #define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN

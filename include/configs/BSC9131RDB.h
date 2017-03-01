@@ -46,7 +46,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 #define CONFIG_TSEC_ENET
 #define CONFIG_ENV_OVERWRITE
