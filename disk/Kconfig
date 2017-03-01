@@ -79,6 +79,19 @@ config EFI_PARTITION
 	  common when EFI is the bootloader.  Note 2TB partition limit;
 	  see disk/part_efi.c
 
+config EFI_PARTITION_ENTRIES_OFF
+        int "Offset (in bytes) of the EFI partition entries"
+	depends on EFI_PARTITION
+	default 0
+	help
+	  Specify an earliest location (in bytes) where the partition
+	  entries may be located. This is meant to allow "punching a
+	  hole into a device" to create a gap for an SPL, its payload
+	  and the U-Boot environment.
+
+	  If unsure, leave at 0 (which will locate the partition
+	  entries at the first possible LBA following the GPT header).
+
 config SPL_EFI_PARTITION
 	bool "Enable EFI GPT partition table for SPL"
 	depends on  SPL && PARTITIONS
