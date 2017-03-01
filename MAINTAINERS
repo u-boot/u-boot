@@ -174,9 +174,12 @@ F:	arch/arm/include/asm/arch-sti*/
 ARM SUNXI
 M:	Jagan Teki <jagan@openedev.com>
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+S:	Maintained
 T:	git git://git.denx.de/u-boot-sunxi.git
 F:	arch/arm/cpu/armv7/sunxi/
 F:	arch/arm/include/asm/arch-sunxi/
+F:	arch/arm/mach-sunxi/
+F:	board/sunxi/
 
 ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
