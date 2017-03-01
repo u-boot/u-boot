@@ -109,8 +109,18 @@ relocation_return:
  */
 	bl	c_runtime_cpu_setup		/* still call old routine */
 #endif /* !CONFIG_SPL_BUILD */
-
-/* TODO: For SPL, call spl_relocate_stack_gd() to alloc stack relocation */
+#if defined(CONFIG_SPL_BUILD)
+	bl	spl_relocate_stack_gd           /* may return NULL */
+	/*
+	 * Perform 'sp = (x0 != NULL) ? x0 : sp' while working
+	 * around the constraint that conditional moves can not
+	 * have 'sp' as an operand
+	 */
+	mov	x1, sp
+	cmp	x0, #0
+	csel	x0, x0, x1, ne
+	mov	sp, x0
+#endif
 
 /*
  * Clear BSS section
