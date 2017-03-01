@@ -482,9 +482,23 @@ do {									\
 #define MVPP2_TX_DESC_ALIGN		(MVPP2_DESC_ALIGNED_SIZE - 1)
 
 /* RX FIFO constants */
-#define MVPP2_RX_FIFO_PORT_DATA_SIZE	0x2000
-#define MVPP2_RX_FIFO_PORT_ATTR_SIZE	0x80
-#define MVPP2_RX_FIFO_PORT_MIN_PKT	0x80
+#define MVPP21_RX_FIFO_PORT_DATA_SIZE		0x2000
+#define MVPP21_RX_FIFO_PORT_ATTR_SIZE		0x80
+#define MVPP22_RX_FIFO_10GB_PORT_DATA_SIZE	0x8000
+#define MVPP22_RX_FIFO_2_5GB_PORT_DATA_SIZE	0x2000
+#define MVPP22_RX_FIFO_1GB_PORT_DATA_SIZE	0x1000
+#define MVPP22_RX_FIFO_10GB_PORT_ATTR_SIZE	0x200
+#define MVPP22_RX_FIFO_2_5GB_PORT_ATTR_SIZE	0x80
+#define MVPP22_RX_FIFO_1GB_PORT_ATTR_SIZE	0x40
+#define MVPP2_RX_FIFO_PORT_MIN_PKT		0x80
+
+/* TX general registers */
+#define MVPP22_TX_FIFO_SIZE_REG(eth_tx_port)	(0x8860 + ((eth_tx_port) << 2))
+#define MVPP22_TX_FIFO_SIZE_MASK		0xf
+
+/* TX FIFO constants */
+#define MVPP2_TX_FIFO_DATA_SIZE_10KB		0xa
+#define MVPP2_TX_FIFO_DATA_SIZE_3KB		0x3
 
 /* RX buffer constants */
 #define MVPP2_SKB_SHINFO_SIZE \
@@ -3927,15 +3941,58 @@ static void mvpp2_rx_fifo_init(struct mvpp2 *priv)
 	int port;
 
 	for (port = 0; port < MVPP2_MAX_PORTS; port++) {
-		mvpp2_write(priv, MVPP2_RX_DATA_FIFO_SIZE_REG(port),
-			    MVPP2_RX_FIFO_PORT_DATA_SIZE);
-		mvpp2_write(priv, MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
-			    MVPP2_RX_FIFO_PORT_ATTR_SIZE);
+		if (priv->hw_version == MVPP22) {
+			if (port == 0) {
+				mvpp2_write(priv,
+					    MVPP2_RX_DATA_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_10GB_PORT_DATA_SIZE);
+				mvpp2_write(priv,
+					    MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_10GB_PORT_ATTR_SIZE);
+			} else if (port == 1) {
+				mvpp2_write(priv,
+					    MVPP2_RX_DATA_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_2_5GB_PORT_DATA_SIZE);
+				mvpp2_write(priv,
+					    MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_2_5GB_PORT_ATTR_SIZE);
+			} else {
+				mvpp2_write(priv,
+					    MVPP2_RX_DATA_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_1GB_PORT_DATA_SIZE);
+				mvpp2_write(priv,
+					    MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
+					    MVPP22_RX_FIFO_1GB_PORT_ATTR_SIZE);
+			}
+		} else {
+			mvpp2_write(priv, MVPP2_RX_DATA_FIFO_SIZE_REG(port),
+				    MVPP21_RX_FIFO_PORT_DATA_SIZE);
+			mvpp2_write(priv, MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
+				    MVPP21_RX_FIFO_PORT_ATTR_SIZE);
+		}
 	}
 
 	mvpp2_write(priv, MVPP2_RX_MIN_PKT_SIZE_REG,
 		    MVPP2_RX_FIFO_PORT_MIN_PKT);
 	mvpp2_write(priv, MVPP2_RX_FIFO_INIT_REG, 0x1);
+}
+
+/* Initialize Tx FIFO's */
+static void mvpp2_tx_fifo_init(struct mvpp2 *priv)
+{
+	int port, val;
+
+	for (port = 0; port < MVPP2_MAX_PORTS; port++) {
+		/* Port 0 supports 10KB TX FIFO */
+		if (port == 0) {
+			val = MVPP2_TX_FIFO_DATA_SIZE_10KB &
+				MVPP22_TX_FIFO_SIZE_MASK;
+		} else {
+			val = MVPP2_TX_FIFO_DATA_SIZE_3KB &
+				MVPP22_TX_FIFO_SIZE_MASK;
+		}
+		mvpp2_write(priv, MVPP22_TX_FIFO_SIZE_REG(port), val);
+	}
 }
 
 static void mvpp2_axi_init(struct mvpp2 *priv)
@@ -4043,6 +4100,10 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 
 	/* Rx Fifo Init */
 	mvpp2_rx_fifo_init(priv);
+
+	/* Tx Fifo Init */
+	if (priv->hw_version == MVPP22)
+		mvpp2_tx_fifo_init(priv);
 
 	/* Reset Rx queue group interrupt configuration */
 	for (i = 0; i < MVPP2_MAX_PORTS; i++) {
