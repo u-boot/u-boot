@@ -137,6 +137,9 @@ config MACH_SUN8I_H3
 config MACH_SUN8I_R40
 	bool "sun8i (Allwinner R40)"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
