@@ -168,22 +168,6 @@ After board configuration is done, fdt supported u-boot can be build in two ways
     $ make DEVICE_TREE=<dts-file-name>
 
 
-Configuration Options
----------------------
-
-A number of run-time configuration options are provided in the /config node
-of the control device tree. You can access these using fdtdec_get_config_int(),
-fdtdec_get_config_bool() and fdtdec_get_config_string().
-
-Available options are:
-
-silent-console
-	If present and non-zero, the console is silenced by default on boot.
-
-no-keyboard
-	Tells U-Boot not to expect an attached keyboard with a VGA console
-
-
 Limitations
 -----------
 
