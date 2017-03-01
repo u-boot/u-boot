@@ -12,3 +12,11 @@ silent-console
 
 no-keyboard
 	Tells U-Boot not to expect an attached keyboard with a VGA console
+
+u-boot,efi-partition-entries-offset
+	If present, this provides an offset (in bytes, from the start of a
+	device) that should be skipped over before the partition entries.
+	This is used by the EFI/GPT partition implementation when a device
+	is formatted.
+
+	This setting will override any values configured via Kconfig.
