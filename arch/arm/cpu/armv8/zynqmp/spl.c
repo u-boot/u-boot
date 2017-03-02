@@ -84,7 +84,7 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_RAM;
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case SD_MODE1:
-	case SD1_LSHFT_MODE:
+	case SD1_LSHFT_MODE: /* not working on silicon v1 */
 /* if both controllers enabled, then these two are the second controller */
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
 		return BOOT_DEVICE_MMC2;
