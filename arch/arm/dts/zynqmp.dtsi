@@ -1022,6 +1022,8 @@
 			iommus = <&smmu 0x860>;
 			power-domains = <&pd_usb0>;
 			ranges;
+			nvmem-cells = <&soc_revision>;
+			nvmem-cell-names = "soc_revision";
 
 			dwc3_0: dwc3@fe200000 {
 				compatible = "snps,dwc3";
@@ -1045,6 +1047,8 @@
 			iommus = <&smmu 0x861>;
 			power-domains = <&pd_usb1>;
 			ranges;
+			nvmem-cells = <&soc_revision>;
+			nvmem-cell-names = "soc_revision";
 
 			dwc3_1: dwc3@fe300000 {
 				compatible = "snps,dwc3";
