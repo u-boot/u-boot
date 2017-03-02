@@ -683,6 +683,11 @@ config CMD_ZYNQ_RSA
 	help
 	  Verifies the authenticated and encrypted zynq images.
 
+config CMD_RSA
+	bool "RSA command to authenticate"
+	help
+	  Verifies the Authenticated images.
+
 config CMD_QFW
 	bool "qfw"
 	select QFW
