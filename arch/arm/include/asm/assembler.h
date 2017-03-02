@@ -57,17 +57,17 @@
 #define PLD(code...)
 #endif
 
+/*
+ * We only support cores that support at least Thumb-1 and thus we use
+ * 'bx lr'
+ */
 	.irp	c,,eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,hs,lo
 	.macro	ret\c, reg
-#if defined(__ARM_ARCH_5E__)
-	mov\c	pc, \reg
-#else
 	.ifeqs	"\reg", "lr"
 	bx\c	\reg
 	.else
 	mov\c	pc, \reg
 	.endif
-#endif
 	.endm
 	.endr
 
