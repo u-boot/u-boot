@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <aes.h>
+#include <rsa.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -309,11 +310,14 @@ int board_late_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_AES) || defined(CONFIG_CMD_RSA)
+#define ZYNQMP_SIP_SVC_PM_SECURE_LOAD	0xC2000019
+#endif
+
 #if defined(CONFIG_AES)
 
 #define KEY_LEN				64
 #define IV_LEN				24
-#define ZYNQMP_SIP_SVC_PM_SECURE_LOAD	0xC2000019
 #define ZYNQMP_PM_SECURE_AES		0x1
 
 int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
@@ -340,6 +344,41 @@ int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
 			 ZYNQMP_PM_SECURE_AES, ret_payload);
 	if (ret)
 		debug("aes_decrypt_hw fail\n");
+
+	return ret;
+}
+#endif
+
+#if defined(CONFIG_CMD_RSA)
+
+#define SIGNATURE_PPK_LEN	1028
+#define ZYNQMP_PM_SECURE_RSA		0x2
+
+int rsa_hw(u8 *key_ptr, u8 *src_ptr, u32 len)
+{
+	int ret;
+	u32 src_lo, src_hi, img_len;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if ((ulong)src_ptr != ALIGN((ulong)src_ptr,
+				    CONFIG_SYS_CACHELINE_SIZE)) {
+		debug("FAIL: Source address not aligned:%p\n", src_ptr);
+		return -EINVAL;
+	}
+
+	src_lo = (u32)(ulong)src_ptr;
+	src_hi = upper_32_bits((ulong)src_ptr);
+	img_len = len;
+	len = DIV_ROUND_UP(len, 4) * 4;
+
+	memcpy(src_ptr + len, key_ptr, SIGNATURE_PPK_LEN);
+	len = ROUND(len + SIGNATURE_PPK_LEN, CONFIG_SYS_CACHELINE_SIZE);
+	flush_dcache_range((ulong)src_ptr, (ulong)(src_ptr + len));
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_SECURE_LOAD, src_lo, src_hi, img_len,
+			 ZYNQMP_PM_SECURE_RSA, ret_payload);
+	if (ret)
+		debug("rsa_hw fail\n");
 
 	return ret;
 }
