@@ -182,18 +182,6 @@
 			#size-cells = <0>;
 			reg = <0x4>;
 
-			/* Also RTC, GPIO and regulators */
-			/*
-			CONFIG_GPIO_TPS6586X
-			CONFIG_MFD_TPS6586X
-			CONFIG_REGULATOR_TPS6586X
-			CONFIG_RTC_DRV_TPS6586X -- not sure about it
-				 - max addr is 0xcd
-			*/
-			/* rtc0 = "/i2c@7000d000/tps6586x@34"; */
-
-			/* also super fast mode 1M supported */
-
 			/* Comment it out because will be pre-programmed
 			   at the factory */
 
