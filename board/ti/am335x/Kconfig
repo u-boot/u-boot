@@ -1,14 +1,5 @@
 if TARGET_AM335X_EVM
 
-config SPL_ENV_SUPPORT
-	default y
-
-config SPL_WATCHDOG_SUPPORT
-	default y
-
-config SPL_YMODEM_SUPPORT
-	default y
-
 config SYS_BOARD
 	default "am335x"
 

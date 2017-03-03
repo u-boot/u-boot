@@ -15,6 +15,9 @@ config TARGET_AM335X_EVM
 	select DM_SERIAL
 	select DM_GPIO
 	select TI_I2C_BOARD_DETECT
+	imply SPL_YMODEM_SUPPORT
+	imply SPL_ENV_SUPPORT
+	imply SPL_WATCHDOG_SUPPORT
 	help
 	  This option specifies support for the AM335x
 	  GP and HS EVM development platforms. The AM335x
