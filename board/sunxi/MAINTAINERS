@@ -232,6 +232,11 @@ M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_defconfig
 
+NANOPI-NEO-AIR BOARD
+M:	Jelle van der Waa <jelle@vdwaa.nl>
+S:	Maintained
+F:	configs/nanopi_neo_air_defconfig
+
 NINTENDO NES CLASSIC EDITION BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
