@@ -858,6 +858,7 @@ config CMD_UBI
 
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"
+	depends on CMD_UBI
 	select CRC32
 	select RBTREE if ARCH_SUNXI
 	select LZO if ARCH_SUNXI
