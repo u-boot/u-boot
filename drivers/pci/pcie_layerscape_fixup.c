@@ -72,19 +72,26 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 	u32 *prop;
 	u32 phandle;
 	int nodeoffset;
+	uint svr;
+	char *compat = NULL;
 
 	/* find pci controller node */
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 						   pcie->dbi_res.start);
 	if (nodeoffset < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		nodeoffset = fdt_node_offset_by_compat_reg(blob,
-				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+		if (compat)
+			nodeoffset = fdt_node_offset_by_compat_reg(blob,
+					compat, pcie->dbi_res.start);
+#endif
 		if (nodeoffset < 0)
 			return;
-#else
-		return;
-#endif
 	}
 
 	/* get phandle to MSI controller */
@@ -146,19 +153,25 @@ static void fdt_fixup_pcie(void *blob)
 static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 {
 	int off;
+	uint svr;
+	char *compat = NULL;
 
 	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 					    pcie->dbi_res.start);
 	if (off < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		off = fdt_node_offset_by_compat_reg(blob,
-						    CONFIG_FSL_PCIE_COMPAT,
-						    pcie->dbi_res.start);
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+		if (compat)
+			off = fdt_node_offset_by_compat_reg(blob,
+					compat, pcie->dbi_res.start);
+#endif
 		if (off < 0)
 			return;
-#else
-		return;
-#endif
 	}
 
 	if (pcie->enabled)
