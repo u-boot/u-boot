@@ -89,6 +89,49 @@ static inline void early_mmu_setup(void)
 	set_sctlr(get_sctlr() | CR_M);
 }
 
+static void fix_pcie_mmu_map(void)
+{
+#ifdef CONFIG_LS2080A
+	unsigned int i;
+	u32 svr, ver;
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	svr = gur_in32(&gur->svr);
+	ver = SVR_SOC_VER(svr);
+
+	/* Fix PCIE base and size for LS2088A */
+	if ((ver == SVR_LS2088A) || (ver == SVR_LS2084A) ||
+	    (ver == SVR_LS2048A) || (ver == SVR_LS2044A)) {
+		for (i = 0; i < ARRAY_SIZE(final_map); i++) {
+			switch (final_map[i].phys) {
+			case CONFIG_SYS_PCIE1_PHYS_ADDR:
+				final_map[i].phys = 0x2000000000ULL;
+				final_map[i].virt = 0x2000000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE2_PHYS_ADDR:
+				final_map[i].phys = 0x2800000000ULL;
+				final_map[i].virt = 0x2800000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE3_PHYS_ADDR:
+				final_map[i].phys = 0x3000000000ULL;
+				final_map[i].virt = 0x3000000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE4_PHYS_ADDR:
+				final_map[i].phys = 0x3800000000ULL;
+				final_map[i].virt = 0x3800000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+#endif
+}
+
 /*
  * The final tables look similar to early tables, but different in detail.
  * These tables are in DRAM. Sub tables are added to enable cache for
@@ -102,6 +145,9 @@ static inline void final_mmu_setup(void)
 	u64 tlb_addr_save = gd->arch.tlb_addr;
 	unsigned int el = current_el();
 	int index;
+
+	/* fix the final_map before filling in the block entries */
+	fix_pcie_mmu_map();
 
 	mem_map = final_map;
 
