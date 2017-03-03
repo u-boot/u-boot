@@ -892,7 +892,7 @@ class Config(object):
 
                 line_feeder.unget()
 
-            elif t0 == T_SELECT:
+            elif t0 == T_SELECT or t0 == T_IMPLY:
                 target = tokens.get_next()
 
                 stmt.referenced_syms.add(target)
@@ -3406,8 +3406,8 @@ def _internal_error(msg):
  T_OPTIONAL, T_PROMPT, T_DEFAULT,
  T_BOOL, T_TRISTATE, T_HEX, T_INT, T_STRING,
  T_DEF_BOOL, T_DEF_TRISTATE,
- T_SELECT, T_RANGE, T_OPTION, T_ALLNOCONFIG_Y, T_ENV,
- T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(39)
+ T_SELECT, T_IMPLY, T_RANGE, T_OPTION, T_ALLNOCONFIG_Y, T_ENV,
+ T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(40)
 
 # The leading underscore before the function assignments below prevent pydoc
 # from listing them. The constants could be hidden too, but they're fairly
@@ -3424,8 +3424,9 @@ _get_keyword = \
    "prompt": T_PROMPT, "default": T_DEFAULT, "bool": T_BOOL, "boolean": T_BOOL,
    "tristate": T_TRISTATE, "int": T_INT, "hex": T_HEX, "def_bool": T_DEF_BOOL,
    "def_tristate": T_DEF_TRISTATE, "string": T_STRING, "select": T_SELECT,
-   "range": T_RANGE, "option": T_OPTION, "allnoconfig_y": T_ALLNOCONFIG_Y,
-   "env": T_ENV, "defconfig_list": T_DEFCONFIG_LIST, "modules": T_MODULES,
+   "imply": T_IMPLY, "range": T_RANGE, "option": T_OPTION,
+   "allnoconfig_y": T_ALLNOCONFIG_Y, "env": T_ENV,
+   "defconfig_list": T_DEFCONFIG_LIST, "modules": T_MODULES,
    "visible": T_VISIBLE}.get
 
 # Strings to use for True and False
