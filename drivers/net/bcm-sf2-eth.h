@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Broadcom Corporation.
+ * Copyright 2014-2017 Broadcom.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -30,8 +30,6 @@ enum {
 struct eth_dma {
 	void *tx_desc_aligned;
 	void *rx_desc_aligned;
-	void *tx_desc;
-	void *rx_desc;
 
 	uint8_t *tx_buf;
 	uint8_t *rx_buf;
