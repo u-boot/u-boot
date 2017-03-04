@@ -144,9 +144,20 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return 0;
 }
 
-static void arasan_sdhci_set_tapdelay(struct sdhci_host *host, u8 uhsmode)
+static void arasan_sdhci_set_tapdelay(struct sdhci_host *host, u8 uhs_mode)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
+	struct mmc *mmc = (struct mmc *)host->mmc;
+	u8 uhsmode;
+
+	if (mmc->is_uhs)
+		uhsmode = mmc->uhsmode;
+	else if (mmc->card_caps & MMC_MODE_HS)
+		uhsmode = MMC_TIMING_HS;
+	else if (mmc->card_caps & MMC_MODE_HS200)
+		uhsmode = MMC_TIMING_HS200;
+	else
+		return;
 
 	debug("%s, %d:%d, mode:%d\n", __func__, priv->deviceid, priv->bank,
 	      uhsmode);
