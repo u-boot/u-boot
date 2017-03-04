@@ -202,7 +202,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->platform_execute_tuning = arasan_sdhci_execute_tuning;
 #endif
 
-	return sdhci_probe(dev);
+	ret = sdhci_probe(dev);
+	if (ret)
+		return ret;
+
+	return mmc_init(&plat->mmc);
 }
 
 static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
