@@ -145,7 +145,7 @@
 /* Environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
 
-#if defined CONFIG_SYS_BOOT_SPINOR
+#if defined CONFIG_SPI_BOOT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET               (768 * 1024)
 #define CONFIG_ENV_SECT_SIZE            (64 * 1024)
