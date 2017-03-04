@@ -410,13 +410,8 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if (((mmc->card_caps & MMC_MODE_HS200) || mmc->is_uhs) &&
-	    host->set_delay) {
-		if (mmc->is_uhs)
-			host->set_delay(host, mmc->uhsmode);
-		else
-			host->set_delay(host, MMC_TIMING_HS200);
-	}
+	if (host->set_delay)
+		host->set_delay(host);
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*

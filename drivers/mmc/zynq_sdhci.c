@@ -144,7 +144,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return 0;
 }
 
-static void arasan_sdhci_set_tapdelay(struct sdhci_host *host, u8 uhs_mode)
+static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
