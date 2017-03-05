@@ -340,7 +340,7 @@ static int zynq_phy_init(struct udevice *dev)
 	if (!priv->phydev)
 		return -ENODEV;
 
-	priv->phydev->supported = supported | ADVERTISED_Pause |
+	priv->phydev->supported &= supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
 	priv->phydev->advertising = priv->phydev->supported;
 
