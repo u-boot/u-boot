@@ -243,6 +243,7 @@ struct gpio {
  * ROM code API related flags
  */
 #define OMAP3_GP_ROMCODE_API_L2_INVAL		1
+#define OMAP3_GP_ROMCODE_API_WRITE_L2ACR	2
 #define OMAP3_GP_ROMCODE_API_WRITE_ACR		3
 
 /*

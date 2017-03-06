@@ -270,6 +270,19 @@ skip_errata_430973:
 skip_errata_621766:
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_725233
+	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
+	bge	skip_errata_725233
+
+	mrc	p15, 1, r0, c9, c0, 2	@ Read L2ACR
+	orr	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_l2aux_ctrl
+	pop	{r1-r5}			@ Restore the cpu info - fall through
+
+skip_errata_725233:
+#endif
+
 	mov	pc, r5			@ back to my caller
 ENDPROC(cpu_init_cp15)
 

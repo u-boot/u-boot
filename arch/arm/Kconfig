@@ -43,6 +43,9 @@ config ARM_ERRATA_621766
 config ARM_ERRATA_716044
 	bool
 
+config ARM_ERRATA_725233
+	bool
+
 config ARM_ERRATA_742230
 	bool
 
@@ -638,6 +641,7 @@ config OMAP34XX
 	select ARM_ERRATA_430973
 	select ARM_ERRATA_454179
 	select ARM_ERRATA_621766
+	select ARM_ERRATA_725233
 	select USE_TINY_PRINTF
 	imply SPL_EXT_SUPPORT
 	imply SPL_FAT_SUPPORT
