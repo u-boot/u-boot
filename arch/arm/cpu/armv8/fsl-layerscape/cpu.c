@@ -101,11 +101,49 @@ static inline void final_mmu_setup(void)
 {
 	u64 tlb_addr_save = gd->arch.tlb_addr;
 	unsigned int el = current_el();
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	int index;
-#endif
 
 	mem_map = final_map;
+
+	/* Update mapping for DDR to actual size */
+	for (index = 0; index < ARRAY_SIZE(final_map) - 2; index++) {
+		/*
+		 * Find the entry for DDR mapping and update the address and
+		 * size. Zero-sized mapping will be skipped when creating MMU
+		 * table.
+		 */
+		switch (final_map[index].virt) {
+		case CONFIG_SYS_FSL_DRAM_BASE1:
+			final_map[index].virt = gd->bd->bi_dram[0].start;
+			final_map[index].phys = gd->bd->bi_dram[0].start;
+			final_map[index].size = gd->bd->bi_dram[0].size;
+			break;
+#ifdef CONFIG_SYS_FSL_DRAM_BASE2
+		case CONFIG_SYS_FSL_DRAM_BASE2:
+#if (CONFIG_NR_DRAM_BANKS >= 2)
+			final_map[index].virt = gd->bd->bi_dram[1].start;
+			final_map[index].phys = gd->bd->bi_dram[1].start;
+			final_map[index].size = gd->bd->bi_dram[1].size;
+#else
+			final_map[index].size = 0;
+#endif
+		break;
+#endif
+#ifdef CONFIG_SYS_FSL_DRAM_BASE3
+		case CONFIG_SYS_FSL_DRAM_BASE3:
+#if (CONFIG_NR_DRAM_BANKS >= 3)
+			final_map[index].virt = gd->bd->bi_dram[2].start;
+			final_map[index].phys = gd->bd->bi_dram[2].start;
+			final_map[index].size = gd->bd->bi_dram[2].size;
+#else
+			final_map[index].size = 0;
+#endif
+		break;
+#endif
+		default:
+			break;
+		}
+	}
 
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
