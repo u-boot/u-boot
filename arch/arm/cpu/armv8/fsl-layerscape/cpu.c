@@ -753,3 +753,79 @@ void efi_add_known_memory(void)
 	}
 }
 #endif
+
+/*
+ * Before DDR size is known, early MMU table have DDR mapped as device memory
+ * to avoid speculative access. To relocate U-Boot to DDR, "normal memory"
+ * needs to be set for these mappings.
+ * If a special case configures DDR with holes in the mapping, the holes need
+ * to be marked as invalid. This is not implemented in this function.
+ */
+void update_early_mmu_table(void)
+{
+	if (!gd->arch.tlb_addr)
+		return;
+
+	if (gd->ram_size <= CONFIG_SYS_FSL_DRAM_SIZE1) {
+		mmu_change_region_attr(
+					CONFIG_SYS_SDRAM_BASE,
+					gd->ram_size,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+	} else {
+		mmu_change_region_attr(
+					CONFIG_SYS_SDRAM_BASE,
+					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#ifndef CONFIG_SYS_DDR_BLOCK2_SIZE
+#error "Missing CONFIG_SYS_DDR_BLOCK2_SIZE"
+#endif
+		if (gd->ram_size - CONFIG_SYS_DDR_BLOCK1_SIZE >
+		    CONFIG_SYS_DDR_BLOCK2_SIZE) {
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK2_BASE,
+					CONFIG_SYS_DDR_BLOCK2_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK3_BASE,
+					gd->ram_size -
+					CONFIG_SYS_DDR_BLOCK1_SIZE -
+					CONFIG_SYS_DDR_BLOCK2_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+		} else
+#endif
+		{
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK2_BASE,
+					gd->ram_size -
+					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+		}
+	}
+}
+
+__weak int dram_init(void)
+{
+	gd->ram_size = initdram(0);
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
+
+	return 0;
+}

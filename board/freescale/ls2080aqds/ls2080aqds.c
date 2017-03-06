@@ -254,13 +254,6 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-int dram_init(void)
-{
-	gd->ram_size = initdram(0);
-
-	return 0;
-}
-
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {

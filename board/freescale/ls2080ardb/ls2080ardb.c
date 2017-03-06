@@ -17,6 +17,7 @@
 #include <environment.h>
 #include <efi_loader.h>
 #include <i2c.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <fsl_sec.h>
 
@@ -217,13 +218,6 @@ void detail_board_ddr_info(void)
 		print_ddr_info(CONFIG_DP_DDR_CTRL);
 	}
 #endif
-}
-
-int dram_init(void)
-{
-	gd->ram_size = initdram(0);
-
-	return 0;
 }
 
 #if defined(CONFIG_ARCH_MISC_INIT)

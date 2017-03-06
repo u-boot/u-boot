@@ -14,6 +14,7 @@
 #include <asm/arch/ppa.h>
 #endif
 #include <asm/arch/fdt.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <ahci.h>
 #include <hwconfig.h>
@@ -76,6 +77,10 @@ int dram_init(void)
 	mmdc_init(&mparam);
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
 
 	return 0;
 }
