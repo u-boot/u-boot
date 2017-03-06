@@ -199,7 +199,7 @@ static const struct uniphier_board_data uniphier_ld21_data = {
 		.size = 0x40000000,
 		.width = 32,
 	},
-	.flags = UNIPHIER_BD_BOARD_LD21_GLOBAL,
+	.flags = UNIPHIER_BD_DRAM_SPARSE | UNIPHIER_BD_BOARD_LD21_GLOBAL,
 };
 #endif
 
