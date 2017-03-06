@@ -226,6 +226,7 @@ void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
+void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
 
 /*
  *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
