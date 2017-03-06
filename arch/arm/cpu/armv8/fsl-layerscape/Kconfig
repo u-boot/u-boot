@@ -315,3 +315,11 @@ config SYS_FSL_ERRATUM_A009660
 
 config SYS_FSL_ERRATUM_A009929
 	bool
+
+config SYS_MC_RSV_MEM_ALIGN
+	hex "Management Complex reserved memory alignment"
+	depends on RESV_RAM
+	default 0x20000000
+	help
+	  Reserved memory needs to be aligned for MC to use. Default value
+	  is 512MB.
