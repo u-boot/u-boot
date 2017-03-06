@@ -5,6 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+# If clock.c is compiled for Thumb2, then it fails on OMAP3530
+CFLAGS_clock.o += -marm
+
 obj-y	:= lowlevel_init.o
 
 obj-y	+= board.o
