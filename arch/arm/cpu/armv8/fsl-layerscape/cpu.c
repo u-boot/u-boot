@@ -524,15 +524,201 @@ phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
-#ifdef CONFIG_SYS_MEM_TOP_HIDE
-#error CONFIG_SYS_MEM_TOP_HIDE not to be used together with this function
-#endif
-
-/* Carve the MC private DRAM block from the end of DRAM */
 #ifdef CONFIG_FSL_MC_ENET
+	/* The start address of MC reserved memory needs to be aligned. */
 	ram_top -= mc_get_dram_block_size();
 	ram_top &= ~(CONFIG_SYS_MC_RSV_MEM_ALIGN - 1);
 #endif
 
-	return ram_top;
+	return ram_size - ram_top;
 }
+
+phys_size_t get_effective_memsize(void)
+{
+	phys_size_t ea_size, rem = 0;
+
+	/*
+	 * For ARMv8 SoCs, DDR memory is split into two or three regions. The
+	 * first region is 2GB space at 0x8000_0000. If the memory extends to
+	 * the second region (or the third region if applicable), the secure
+	 * memory and Management Complex (MC) memory should be put into the
+	 * highest region, i.e. the end of DDR memory. CONFIG_MAX_MEM_MAPPED
+	 * is set to the size of first region so U-Boot doesn't relocate itself
+	 * into higher address. Should DDR be configured to skip the first
+	 * region, this function needs to be adjusted.
+	 */
+	if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
+		ea_size = CONFIG_MAX_MEM_MAPPED;
+		rem = gd->ram_size - ea_size;
+	} else {
+		ea_size = gd->ram_size;
+	}
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	/* Check if we have enough space for secure memory */
+	if (rem > CONFIG_SYS_MEM_RESERVE_SECURE) {
+		rem -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	} else {
+		if (ea_size > CONFIG_SYS_MEM_RESERVE_SECURE) {
+			ea_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+			rem = 0;	/* Presume MC requires more memory */
+		} else {
+			printf("Error: No enough space for secure memory.\n");
+		}
+	}
+#endif
+	/* Check if we have enough memory for MC */
+	if (rem < board_reserve_ram_top(rem)) {
+		/* Not enough memory in high region to reserve */
+		if (ea_size > board_reserve_ram_top(rem))
+			ea_size -= board_reserve_ram_top(rem);
+		else
+			printf("Error: No enough space for reserved memory.\n");
+	}
+
+	return ea_size;
+}
+
+void dram_init_banksize(void)
+{
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+	phys_size_t dp_ddr_size;
+#endif
+
+	/*
+	 * gd->ram_size has the total size of DDR memory, less reserved secure
+	 * memory. The DDR extends from low region to high region(s) presuming
+	 * no hole is created with DDR configuration. gd->arch.secure_ram tracks
+	 * the location of secure memory. gd->arch.resv_ram tracks the location
+	 * of reserved memory for Management Complex (MC).
+	 */
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
+		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
+		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
+		gd->bd->bi_dram[1].size = gd->ram_size -
+					  CONFIG_SYS_DDR_BLOCK1_SIZE;
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+		if (gd->bi_dram[1].size > CONFIG_SYS_DDR_BLOCK2_SIZE) {
+			gd->bd->bi_dram[2].start = CONFIG_SYS_DDR_BLOCK3_BASE;
+			gd->bd->bi_dram[2].size = gd->bd->bi_dram[1].size -
+						  CONFIG_SYS_DDR_BLOCK2_SIZE;
+			gd->bd->bi_dram[1].size = CONFIG_SYS_DDR_BLOCK2_SIZE;
+		}
+#endif
+	} else {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+	}
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+	if (gd->bd->bi_dram[2].size >= CONFIG_SYS_MEM_RESERVE_SECURE) {
+		gd->bd->bi_dram[2].size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+		gd->arch.secure_ram = gd->bd->bi_dram[2].start +
+				      gd->bd->bi_dram[2].size;
+		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+		gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	} else
+#endif
+	{
+		if (gd->bd->bi_dram[1].size >= CONFIG_SYS_MEM_RESERVE_SECURE) {
+			gd->bd->bi_dram[1].size -=
+					CONFIG_SYS_MEM_RESERVE_SECURE;
+			gd->arch.secure_ram = gd->bd->bi_dram[1].start +
+					      gd->bd->bi_dram[1].size;
+			gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+			gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+		} else if (gd->bd->bi_dram[0].size >
+					CONFIG_SYS_MEM_RESERVE_SECURE) {
+			gd->bd->bi_dram[0].size -=
+					CONFIG_SYS_MEM_RESERVE_SECURE;
+			gd->arch.secure_ram = gd->bd->bi_dram[0].start +
+					      gd->bd->bi_dram[0].size;
+			gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+			gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+		}
+	}
+#endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
+
+#ifdef CONFIG_FSL_MC_ENET
+	/* Assign memory for MC */
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+	if (gd->bd->bi_dram[2].size >=
+	    board_reserve_ram_top(gd->bd->bi_dram[2].size)) {
+		gd->arch.resv_ram = gd->bd->bi_dram[2].start +
+			    gd->bd->bi_dram[2].size -
+			    board_reserve_ram_top(gd->bd->bi_dram[2].size);
+	} else
+#endif
+	{
+		if (gd->bd->bi_dram[1].size >=
+		    board_reserve_ram_top(gd->bd->bi_dram[1].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[1].start +
+				gd->bd->bi_dram[1].size -
+				board_reserve_ram_top(gd->bd->bi_dram[1].size);
+		} else if (gd->bd->bi_dram[0].size >
+			   board_reserve_ram_top(gd->bd->bi_dram[0].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[0].start +
+				gd->bd->bi_dram[0].size -
+				board_reserve_ram_top(gd->bd->bi_dram[0].size);
+		}
+	}
+#endif	/* CONFIG_FSL_MC_ENET */
+
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#error "This SoC shouldn't have DP DDR"
+#endif
+	if (soc_has_dp_ddr()) {
+		/* initialize DP-DDR here */
+		puts("DP-DDR:  ");
+		/*
+		 * DDR controller use 0 as the base address for binding.
+		 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
+		 */
+		dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
+					  CONFIG_DP_DDR_CTRL,
+					  CONFIG_DP_DDR_NUM_CTRLS,
+					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
+					  NULL, NULL, NULL);
+		if (dp_ddr_size) {
+			gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
+			gd->bd->bi_dram[2].size = dp_ddr_size;
+		} else {
+			puts("Not detected");
+		}
+	}
+#endif
+}
+
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+void efi_add_known_memory(void)
+{
+	int i;
+	phys_addr_t ram_start, start;
+	phys_size_t ram_size;
+	u64 pages;
+
+	/* Add RAM */
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#error "This SoC shouldn't have DP DDR"
+#endif
+		if (i == 2)
+			continue;	/* skip DP-DDR */
+#endif
+		ram_start = gd->bd->bi_dram[i].start;
+		ram_size = gd->bd->bi_dram[i].size;
+#ifdef CONFIG_RESV_RAM
+		if (gd->arch.resv_ram >= ram_start &&
+		    gd->arch.resv_ram < ram_start + ram_size)
+			ram_size = gd->arch.resv_ram - ram_start;
+#endif
+		start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+		pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
+				   false);
+	}
+}
+#endif

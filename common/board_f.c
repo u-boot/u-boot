@@ -325,15 +325,6 @@ __weak ulong board_get_usable_ram_top(ulong total_size)
 	return gd->ram_top;
 }
 
-__weak phys_size_t board_reserve_ram_top(phys_size_t ram_size)
-{
-#ifdef CONFIG_SYS_MEM_TOP_HIDE
-	return ram_size - CONFIG_SYS_MEM_TOP_HIDE;
-#else
-	return ram_size;
-#endif
-}
-
 static int setup_dest_addr(void)
 {
 	debug("Monitor len: %08lX\n", gd->mon_len);
@@ -341,26 +332,19 @@ static int setup_dest_addr(void)
 	 * Ram is setup, size stored in gd !!
 	 */
 	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	/* Reserve memory for secure MMU tables, and/or security monitor */
-	gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-	/*
-	 * Record secure memory location. Need recalcuate if memory splits
-	 * into banks, or the ram base is not zero.
-	 */
-	gd->arch.secure_ram = gd->ram_size;
-#endif
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
 	 * get "touched" at all by U-Boot. By fixing up gd->ram_size
 	 * the Linux kernel should now get passed the now "corrected"
-	 * memory size and won't touch it either. This has been used
-	 * by arch/powerpc exclusively. Now ARMv8 takes advantage of
-	 * thie mechanism. If memory is split into banks, addresses
-	 * need to be calculated.
+	 * memory size and won't touch it either. This should work
+	 * for arch/ppc and arch/powerpc. Only Linux board ports in
+	 * arch/powerpc with bootwrapper support, that recalculate the
+	 * memory size from the SDRAM controller setup will have to
+	 * get fixed.
 	 */
-	gd->ram_size = board_reserve_ram_top(gd->ram_size);
-
+	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
+#endif
 #ifdef CONFIG_SYS_SDRAM_BASE
 	gd->ram_top = CONFIG_SYS_SDRAM_BASE;
 #endif

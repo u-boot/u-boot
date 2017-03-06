@@ -714,21 +714,7 @@ int get_dpl_apply_status(void)
  */
 u64 mc_get_dram_addr(void)
 {
-	u64 mc_ram_addr;
-
-	/*
-	 * The MC private DRAM block was already carved at the end of DRAM
-	 * by board_init_f() using CONFIG_SYS_MEM_TOP_HIDE:
-	 */
-	if (gd->bd->bi_dram[1].start) {
-		mc_ram_addr =
-			gd->bd->bi_dram[1].start + gd->bd->bi_dram[1].size;
-	} else {
-		mc_ram_addr =
-			gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
-	}
-
-	return mc_ram_addr;
+	return gd->arch.resv_ram;
 }
 
 /**
