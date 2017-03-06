@@ -29,7 +29,7 @@ void sdelay(unsigned long);
 void gpmc_init(void);
 void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs, u32 base,
 			u32 size);
-void omap_nand_switch_ecc(uint32_t, uint32_t);
+int omap_nand_switch_ecc(uint32_t, uint32_t);
 
 void set_uart_mux_conf(void);
 void set_mux_conf_regs(void);

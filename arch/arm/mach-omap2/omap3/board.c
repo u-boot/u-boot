@@ -269,38 +269,34 @@ void abort(void)
  *****************************************************************************/
 static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
+	int hw, strength = 1;
+
 	if (argc < 2 || argc > 3)
 		goto usage;
 
 	if (strncmp(argv[1], "hw", 2) == 0) {
-		if (argc == 2) {
-			omap_nand_switch_ecc(1, 1);
-		} else {
-			if (strncmp(argv[2], "hamming", 7) == 0)
-				omap_nand_switch_ecc(1, 1);
-			else if (strncmp(argv[2], "bch8", 4) == 0)
-				omap_nand_switch_ecc(1, 8);
+		hw = 1;
+		if (argc == 3) {
+			if (strncmp(argv[2], "bch8", 4) == 0)
+				strength = 8;
 			else if (strncmp(argv[2], "bch16", 5) == 0)
-				omap_nand_switch_ecc(1, 16);
-			else
+				strength = 16;
+			else if (strncmp(argv[2], "hamming", 7) != 0)
 				goto usage;
 		}
 	} else if (strncmp(argv[1], "sw", 2) == 0) {
-		if (argc == 2) {
-			omap_nand_switch_ecc(0, 1);
-		} else {
-			if (strncmp(argv[2], "hamming", 7) == 0)
-				omap_nand_switch_ecc(0, 1);
-			else if (strncmp(argv[2], "bch8", 4) == 0)
-				omap_nand_switch_ecc(0, 8);
-			else
+		hw = 0;
+		if (argc == 3) {
+			if (strncmp(argv[2], "bch8", 4) == 0)
+				strength = 8;
+			else if (strncmp(argv[2], "hamming", 7) != 0)
 				goto usage;
 		}
 	} else {
 		goto usage;
 	}
 
-	return 0;
+	return -omap_nand_switch_ecc(hw, strength);
 
 usage:
 	printf ("Usage: nandecc %s\n", cmdtp->usage);
