@@ -277,6 +277,16 @@ config SYS_FSL_SDHC_CLK_DIV
 	  clock, in another word SDHC_clk = Platform_clk / this_divider.
 endmenu
 
+config RESV_RAM
+	bool
+	help
+	  Reserve memory from the top, tracked by gd->arch.resv_ram. This
+	  reserved RAM can be used by special driver that resides in memory
+	  after U-Boot exits. It's up to implementation to allocate and allow
+	  access to this reserved memory. For example, the reserved RAM can
+	  be at the high end of physical memory. The reserve RAM may be
+	  excluded from memory bank(s) passed to OS, or marked as reserved.
+
 config SYS_FSL_ERRATUM_A008336
 	bool
 
