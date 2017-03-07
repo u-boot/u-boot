@@ -277,7 +277,7 @@ void bootstage_report(void)
 	qsort(record, ARRAY_SIZE(record), sizeof(*rec), h_compare_record);
 
 	for (id = 0; id < BOOTSTAGE_ID_COUNT; id++, rec++) {
-		if (rec->time_us != 0 && !rec->start_us)
+		if ((rec->time_us != 0 && !rec->start_us) || rec->name)
 			prev = print_time_record(rec->id, rec, prev);
 	}
 	if (next_id > BOOTSTAGE_ID_COUNT)
