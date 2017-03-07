@@ -65,10 +65,15 @@ choice
 
 config TEGRA20
 	bool "Tegra20 family"
+	select ARM_ERRATA_716044
+	select ARM_ERRATA_742230
+	select ARM_ERRATA_751472
 	select TEGRA_ARMV7_COMMON
 
 config TEGRA30
 	bool "Tegra30 family"
+	select ARM_ERRATA_743622
+	select ARM_ERRATA_751472
 	select TEGRA_ARMV7_COMMON
 
 config TEGRA114

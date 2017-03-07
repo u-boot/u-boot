@@ -19,10 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_OMAP			/* in a TI OMAP core */
-/* Common ARM Erratas */
-#define CONFIG_ARM_ERRATA_454179
-#define CONFIG_ARM_ERRATA_430973
-#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER
 /*

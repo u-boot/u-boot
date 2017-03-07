@@ -47,10 +47,6 @@
 /* The PERIPHBASE in the CBAR register is wrong on the Arndale, so override it */
 #define CONFIG_ARM_GIC_BASE_ADDRESS	0x10480000
 
-/* CPU Errata */
-#define CONFIG_ARM_ERRATA_773022
-#define CONFIG_ARM_ERRATA_774769
-
 /* Power */
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C

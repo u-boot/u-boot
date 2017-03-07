@@ -19,6 +19,72 @@ config HAS_VBAR
 config HAS_THUMB2
 	bool
 
+# If set, the workarounds for these ARM errata are applied early during U-Boot
+# startup. Note that in general these options force the workarounds to be
+# applied; no CPU-type/version detection exists, unlike the similar options in
+# the Linux kernel. Do not set these options unless they apply!  Also note that
+# the following can be machine specific errata. These do have ability to
+# provide rudimentary version and machine specific checks, but expect no
+# product checks:
+# CONFIG_ARM_ERRATA_430973
+# CONFIG_ARM_ERRATA_454179
+# CONFIG_ARM_ERRATA_621766
+# CONFIG_ARM_ERRATA_798870
+# CONFIG_ARM_ERRATA_801819
+config ARM_ERRATA_430973
+	bool
+
+config ARM_ERRATA_454179
+	bool
+
+config ARM_ERRATA_621766
+	bool
+
+config ARM_ERRATA_716044
+	bool
+
+config ARM_ERRATA_742230
+	bool
+
+config ARM_ERRATA_743622
+	bool
+
+config ARM_ERRATA_751472
+	bool
+
+config ARM_ERRATA_761320
+	bool
+
+config ARM_ERRATA_773022
+	bool
+
+config ARM_ERRATA_774769
+	bool
+
+config ARM_ERRATA_794072
+	bool
+
+config ARM_ERRATA_798870
+	bool
+
+config ARM_ERRATA_801819
+	bool
+
+config ARM_ERRATA_826974
+	bool
+
+config ARM_ERRATA_828024
+	bool
+
+config ARM_ERRATA_829520
+	bool
+
+config ARM_ERRATA_833069
+	bool
+
+config ARM_ERRATA_833471
+	bool
+
 config CPU_ARM720T
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -569,6 +635,9 @@ config TARGET_MX53SMD
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select ARCH_OMAP2
+	select ARM_ERRATA_430973
+	select ARM_ERRATA_454179
+	select ARM_ERRATA_621766
 	select USE_TINY_PRINTF
 	imply SPL_EXT_SUPPORT
 	imply SPL_FAT_SUPPORT
@@ -602,6 +671,7 @@ config OMAP44XX
 config OMAP54XX
 	bool "OMAP54XX SoC"
 	select ARCH_OMAP2
+	select ARM_ERRATA_798870
 	imply SPL_DISPLAY_PRINT
 	imply SPL_ENV_SUPPORT
 	imply SPL_EXT_SUPPORT

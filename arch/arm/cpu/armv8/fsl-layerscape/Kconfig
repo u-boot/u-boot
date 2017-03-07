@@ -49,6 +49,10 @@ config ARCH_LS1046A
 config ARCH_LS2080A
 	bool
 	select ARMV8_SET_SMPEN
+	select ARM_ERRATA_826974
+	select ARM_ERRATA_828024
+	select ARM_ERRATA_829520
+	select ARM_ERRATA_833471
 	select FSL_LSCH3
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE

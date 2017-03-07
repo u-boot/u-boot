@@ -10,12 +10,6 @@
 #include "tegra-common.h"
 
 /*
- * Errata configuration
- */
-#define CONFIG_ARM_ERRATA_743622
-#define CONFIG_ARM_ERRATA_751472
-
-/*
  * NS16550 Configuration
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */

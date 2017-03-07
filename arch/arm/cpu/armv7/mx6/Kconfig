@@ -3,6 +3,10 @@ if ARCH_MX6
 config MX6
 	bool
 	default y
+	select ARM_ERRATA_743622 if !MX6UL
+	select ARM_ERRATA_751472 if !MX6UL
+	select ARM_ERRATA_761320 if !MX6UL
+	select ARM_ERRATA_794072 if !MX6UL
 
 config MX6D
 	bool

@@ -82,6 +82,8 @@ config TARGET_ODROID_XU3
 
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
+	select ARM_ERRATA_773022
+	select ARM_ERRATA_774769
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL

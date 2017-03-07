@@ -17,9 +17,6 @@
 #ifndef __CONFIG_TI_OMAP5_COMMON_H
 #define __CONFIG_TI_OMAP5_COMMON_H
 
-/* Common ARM Erratas */
-#define CONFIG_ARM_ERRATA_798870
-
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
