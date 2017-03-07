@@ -869,7 +869,9 @@ static init_fnc_t init_sequence_f[] = {
 	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
 	arch_cpu_init_dm,
+#ifdef CONFIG_TIMER
 	mark_bootstage,		/* need timer, go after init dm */
+#endif
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
@@ -887,6 +889,9 @@ static init_fnc_t init_sequence_f[] = {
 		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32) || \
 		defined(CONFIG_SH) || defined(CONFIG_SPARC)
 	timer_init,		/* initialize timer */
+#endif
+#ifndef CONFIG_TIMER
+	mark_bootstage,
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 #if !defined(CONFIG_CPM2)
