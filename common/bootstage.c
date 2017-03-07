@@ -271,7 +271,7 @@ void bootstage_report(void)
 	/* Fake the first record - we could get it from early boot */
 	rec->name = "reset";
 	rec->time_us = 0;
-	prev = print_time_record(BOOTSTAGE_ID_AWAKE, rec, 0);
+	prev = 0;
 
 	/* Sort records by increasing time */
 	qsort(record, ARRAY_SIZE(record), sizeof(*rec), h_compare_record);
