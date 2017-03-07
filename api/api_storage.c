@@ -331,10 +331,14 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 	if (!dev_stor_is_valid(type, dd))
 		return 0;
 
+#ifdef CONFIG_BLK
+	return blk_dread(dd, start, len, buf);
+#else
 	if ((dd->block_read) == NULL) {
 		debugf("no block_read() for device 0x%08x\n", cookie);
 		return 0;
 	}
 
 	return dd->block_read(dd, start, len, buf);
+#endif	/* defined(CONFIG_BLK) */
 }
