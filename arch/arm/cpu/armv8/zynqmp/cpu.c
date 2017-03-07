@@ -189,7 +189,14 @@ int zynqmp_mmio_write(const u32 address,
 		      const u32 mask,
 		      const u32 value)
 {
-	panic_str("MMIO write not implemented\n");
+	u32 data;
+	u32 value_local = value;
+
+	zynqmp_mmio_read(address, &data);
+	data &= ~mask;
+	value_local &= mask;
+	value_local |= data;
+	writel(value_local, (ulong)address);
 	return 0;
 }
 
