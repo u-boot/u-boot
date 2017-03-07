@@ -294,16 +294,18 @@ void bootstage_report(void)
 
 ulong __timer_get_boot_us(void)
 {
-	static ulong base_time;
+	static ulong base_time = 1;
 
 	/*
 	 * We can't implement this properly. Return 0 on the first call and
 	 * larger values after that.
 	 */
-	if (base_time)
+	if (base_time != 1)
 		return get_timer(base_time) * 1000;
-	base_time = get_timer(0);
-	return 0;
+	else
+		base_time = get_timer(0);
+
+	return base_time;
 }
 
 ulong timer_get_boot_us(void)
