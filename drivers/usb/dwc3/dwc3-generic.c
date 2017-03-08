@@ -73,7 +73,11 @@ static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	priv->dr_mode = USB_DR_MODE_PERIPHERAL;
+	priv->dr_mode = usb_get_dr_mode(node);
+	if (priv->dr_mode == USB_DR_MODE_UNKNOWN) {
+		error("Invalid usb mode setup\n");
+		return -ENODEV;
+	}
 
 	return 0;
 }
