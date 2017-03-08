@@ -124,12 +124,6 @@ static const struct hdmi_mpll_config rockchip_mpll_cfg[] = {
 	}
 };
 
-static const u32 csc_coeff_default[3][4] = {
-	{ 0x2000, 0x0000, 0x0000, 0x0000 },
-	{ 0x0000, 0x2000, 0x0000, 0x0000 },
-	{ 0x0000, 0x0000, 0x2000, 0x0000 }
-};
-
 static void hdmi_set_clock_regenerator(struct rk3288_hdmi *regs, u32 n, u32 cts)
 {
 	uint cts3;
@@ -218,37 +212,6 @@ static void hdmi_video_sample(struct rk3288_hdmi *regs)
 	writel(0x0, &regs->tx_rcrdata1);
 	writel(0x0, &regs->tx_bcbdata0);
 	writel(0x0, &regs->tx_bcbdata1);
-}
-
-static void hdmi_update_csc_coeffs(struct rk3288_hdmi *regs)
-{
-	u32 i, j;
-	u32 csc_scale = 1;
-
-	/* the csc registers are sequential, alternating msb then lsb */
-	for (i = 0; i < ARRAY_SIZE(csc_coeff_default); i++) {
-		for (j = 0; j < ARRAY_SIZE(csc_coeff_default[0]); j++) {
-			u32 coeff = csc_coeff_default[i][j];
-			writel(coeff >> 8, &regs->csc_coef[i][j].msb);
-			writel(coeff && 0xff, &regs->csc_coef[i][j].lsb);
-		}
-	}
-
-	clrsetbits_le32(&regs->csc_scale, HDMI_CSC_SCALE_CSCSCALE_MASK,
-			csc_scale);
-}
-
-static void hdmi_video_csc(struct rk3288_hdmi *regs)
-{
-	u32 color_depth = HDMI_CSC_SCALE_CSC_COLORDE_PTH_24BPP;
-	u32 interpolation = HDMI_CSC_CFG_INTMODE_DISABLE;
-
-	/* configure the csc registers */
-	writel(interpolation, &regs->csc_cfg);
-	clrsetbits_le32(&regs->csc_scale,
-			HDMI_CSC_SCALE_CSC_COLORDE_PTH_MASK, color_depth);
-
-	hdmi_update_csc_coeffs(regs);
 }
 
 static void hdmi_video_packetize(struct rk3288_hdmi *regs)
@@ -467,7 +430,6 @@ static int hdmi_phy_init(struct rk3288_hdmi *regs, uint mpixelclock)
 		hdmi_phy_enable_tmds(regs, 0);
 		hdmi_phy_enable_power(regs, 0);
 
-		/* enable csc */
 		ret = hdmi_phy_configure(regs, mpixelclock);
 		if (ret) {
 			debug("hdmi phy config failure %d\n", ret);
@@ -837,7 +799,6 @@ static int rk_hdmi_enable(struct udevice *dev, int panel_bpp,
 	hdmi_audio_set_samplerate(regs, edid->pixelclock.typ);
 
 	hdmi_video_packetize(regs);
-	hdmi_video_csc(regs);
 	hdmi_video_sample(regs);
 
 	hdmi_clear_overflow(regs);
