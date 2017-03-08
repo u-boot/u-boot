@@ -58,7 +58,7 @@ enum usb_device_speed usb_get_maximum_speed(int node)
 	max_speed = fdt_getprop(fdt, node, "maximum-speed", NULL);
 	if (!max_speed) {
 		error("usb maximum-speed not found\n");
-		return USB_DR_MODE_UNKNOWN;
+		return USB_SPEED_UNKNOWN;
 	}
 
 	for (i = 0; i < ARRAY_SIZE(speed_names); i++)
