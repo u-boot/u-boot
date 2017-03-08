@@ -242,8 +242,10 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDHCI_SDMA
-	trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
-	flush_cache(start_addr, trans_bytes);
+	if (data != 0) {
+		trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
+		flush_cache(start_addr, trans_bytes);
+	}
 #endif
 	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
 	start = get_timer(0);
