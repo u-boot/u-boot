@@ -1079,8 +1079,8 @@ __weak void video_set_lut(unsigned int index, unsigned char r,
 }
 
 #define FILL_32BIT_X888RGB(r,g,b) {			\
-	*(unsigned long *)fb =				\
-		SWAP32((unsigned long)(((r<<16) |	\
+	*(u32 *)fb =				\
+		SWAP32((unsigned int)(((r<<16) |	\
 					(g<<8)  |	\
 					 b)));		\
 	fb += 4;					\
@@ -1161,7 +1161,7 @@ static void draw_bitmap(uchar **fb, uchar *bm, struct palette *p,
 		break;
 	case GDF_32BIT_X888RGB:
 		for (i = 0; i < cnt; i++) {
-			*(unsigned long *) addr = p[bm[*off]].ce.dw;
+			*(u32 *) addr = p[bm[*off]].ce.dw;
 			addr += 4;
 		}
 		break;
@@ -1825,8 +1825,8 @@ static void plot_logo_or_black(void *screen, int x, int y, int black)
 							 (b >> 3)));
 				break;
 			case GDF_32BIT_X888RGB:
-				*(unsigned long *) dest =
-					SWAP32((unsigned long) (
+				*(u32 *) dest =
+					SWAP32((u32) (
 							(r << 16) |
 							(g <<  8) |
 							 b));
