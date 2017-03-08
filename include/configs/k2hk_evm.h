@@ -10,6 +10,8 @@
 #ifndef __CONFIG_K2HK_EVM_H
 #define __CONFIG_K2HK_EVM_H
 
+#include <environment/ti/spi.h>
+
 /* Platform type */
 #define CONFIG_SOC_K2HK
 
@@ -29,6 +31,8 @@
 
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c200000
+
+#define SPI_MTD_PARTS KEYSTONE_SPI0_MTD_PARTS
 
 /* NAND Configuration */
 #define CONFIG_SYS_NAND_PAGE_2K
