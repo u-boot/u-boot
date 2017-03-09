@@ -4957,14 +4957,15 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	if (priv->hw_version == MVPP22)
 		mvpp2_axi_init(priv);
 
-	/* Disable HW PHY polling */
 	if (priv->hw_version == MVPP21) {
+		/* Disable HW PHY polling */
 		val = readl(priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
 		val |= MVPP2_PHY_AN_STOP_SMI0_MASK;
 		writel(val, priv->lms_base + MVPP2_PHY_AN_CFG0_REG);
 	} else {
+		/* Enable HW PHY polling */
 		val = readl(priv->iface_base + MVPP22_SMI_MISC_CFG_REG);
-		val &= ~MVPP22_SMI_POLLING_EN;
+		val |= MVPP22_SMI_POLLING_EN;
 		writel(val, priv->iface_base + MVPP22_SMI_MISC_CFG_REG);
 	}
 
