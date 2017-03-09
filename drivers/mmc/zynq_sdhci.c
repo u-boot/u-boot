@@ -34,6 +34,7 @@ struct arasan_sdhci_priv {
 	u8 deviceid;
 	u8 bank;
 	u8 no_1p8;
+	bool pwrseq;
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)
@@ -202,6 +203,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->platform_execute_tuning = arasan_sdhci_execute_tuning;
 #endif
 
+	if (priv->pwrseq) {
+		debug("Unsupported mmcpwrseq for %s\n", dev->name);
+		return 0;
+	}
+
 	ret = sdhci_probe(dev);
 	if (ret)
 		return ret;
@@ -228,6 +234,9 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 		priv->no_1p8 = 1;
 	else
 		priv->no_1p8 = 0;
+
+	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "mmc-pwrseq", NULL))
+		priv->pwrseq = true;
 
 	return 0;
 }
