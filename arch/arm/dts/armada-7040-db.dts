@@ -159,7 +159,7 @@
 &cpm_comphy {
 	phy0 {
 		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-speed = <PHY_SPEED_1_25G>;
 	};
 
 	phy1 {
