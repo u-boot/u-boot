@@ -835,6 +835,7 @@
 			compatible = "arm,mmu-500";
 			reg = <0x0 0xfd800000 0x0 0x20000>;
 			#iommu-cells = <1>;
+			status = "disabled";
 			#global-interrupts = <1>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 155 4>,
@@ -842,32 +843,6 @@
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>,
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>,
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>;
-			mmu-masters = < &gem0 0x874
-					&gem1 0x875
-					&gem2 0x876
-					&gem3 0x877
-					&usb0 0x860
-					&usb1 0x861
-					&qspi 0x873
-					&lpd_dma_chan1 0x868
-					&lpd_dma_chan2 0x869
-					&lpd_dma_chan3 0x86a
-					&lpd_dma_chan4 0x86b
-					&lpd_dma_chan5 0x86c
-					&lpd_dma_chan6 0x86d
-					&lpd_dma_chan7 0x86e
-					&lpd_dma_chan8 0x86f
-					&fpd_dma_chan1 0x14e8
-					&fpd_dma_chan2 0x14e9
-					&fpd_dma_chan3 0x14ea
-					&fpd_dma_chan4 0x14eb
-					&fpd_dma_chan5 0x14ec
-					&fpd_dma_chan6 0x14ed
-					&fpd_dma_chan7 0x14ee
-					&fpd_dma_chan8 0x14ef
-					&sdhci0 0x870
-					&sdhci1 0x871
-					&nand0 0x872>;
 		};
 
 		spi0: spi@ff040000 {
