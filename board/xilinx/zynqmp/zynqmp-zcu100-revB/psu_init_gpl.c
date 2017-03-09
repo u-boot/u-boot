@@ -16836,7 +16836,7 @@ unsigned long psu_peripherals_init_data() {
 
 		RegVal = ((0x000000C7U << IOU_SLCR_SD_CONFIG_REG1_SD0_BASECLK_SHIFT
 			|  0 ) & RegMask); */
-		PSU_Mask_Write (IOU_SLCR_SD_CONFIG_REG1_OFFSET ,0x00007F80U ,0x00006380U);
+		PSU_Mask_Write (IOU_SLCR_SD_CONFIG_REG1_OFFSET ,0x00007FFEU ,0x00006450U);
 	/*############################################################################################################################ */
 
 		// : SD1 BASE CLOCK
