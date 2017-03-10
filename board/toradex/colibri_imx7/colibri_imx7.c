@@ -373,6 +373,22 @@ int power_init_board(void)
 	/* set judge and press timer of N_OE to minimal values */
 	pmic_clrsetbits(dev, RN5T567_NOETIMSETCNT, 0x7, 0);
 
+	/* configure sleep slot for 3.3V Ethernet */
+	reg = pmic_reg_read(dev, RN5T567_LDO1_SLOT);
+	reg = (reg & 0xf0) | reg >> 4;
+	pmic_reg_write(dev, RN5T567_LDO1_SLOT, reg);
+
+	/* disable DCDC2 discharge to avoid backfeeding through VFB2 */
+	pmic_clrsetbits(dev, RN5T567_DC2CTL, 0x2, 0);
+
+	/* configure sleep slot for ARM rail */
+	reg = pmic_reg_read(dev, RN5T567_DC2_SLOT);
+	reg = (reg & 0xf0) | reg >> 4;
+	pmic_reg_write(dev, RN5T567_DC2_SLOT, reg);
+
+	/* disable LDO2 discharge to avoid backfeeding from +V3.3_SD */
+	pmic_clrsetbits(dev, RN5T567_LDODIS1, 0x2, 0);
+
 	return 0;
 }
 
