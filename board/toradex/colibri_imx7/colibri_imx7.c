@@ -23,6 +23,7 @@
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/rn5t567_pmic.h>
+#include <usb.h>
 #include <usb/ehci-ci.h>
 #include "../common/tdx-common.h"
 
@@ -45,6 +46,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define NAND_PAD_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU5KOHM)
+
+#define USB_CDET_GPIO	IMX_GPIO_NR(7, 14)
 
 int dram_init(void)
 {
@@ -70,6 +73,12 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 
 	MX7D_PAD_GPIO1_IO00__GPIO1_IO0 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+
+#ifdef CONFIG_USB_EHCI_MX7
+static iomux_v3_cfg_t const usb_cdet_pads[] = {
+	MX7D_PAD_ENET1_CRS__GPIO7_IO14 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+#endif
 
 #ifdef CONFIG_NAND_MXS
 static iomux_v3_cfg_t const gpmi_pads[] = {
@@ -319,6 +328,11 @@ int board_init(void)
 	setup_lcd();
 #endif
 
+#ifdef CONFIG_USB_EHCI_MX7
+	imx_iomux_v3_setup_multiple_pads(usb_cdet_pads, ARRAY_SIZE(usb_cdet_pads));
+	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
+#endif
+
 	return 0;
 }
 
@@ -416,5 +430,19 @@ int board_ehci_hcd_init(int port)
 		return -EINVAL;
 	}
 	return 0;
+}
+
+int board_usb_phy_mode(int port)
+{
+	switch (port) {
+	case 0:
+		if (gpio_get_value(USB_CDET_GPIO))
+			return USB_INIT_DEVICE;
+		else
+			return USB_INIT_HOST;
+	case 1:
+	default:
+		return USB_INIT_HOST;
+	}
 }
 #endif
