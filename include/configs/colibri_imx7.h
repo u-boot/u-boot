@@ -120,7 +120,7 @@
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"setup=setenv setupargs " \
 		"console=tty1 console=${console}" \
-		",${baudrate}n8 ${memargs} consoleblank=0 ${mtdparts}\0" \
+		",${baudrate}n8 ${memargs} consoleblank=0\0" \
 	"setupdate=run setsdupdate || run setusbupdate || run setethupdate\0" \
 	"setusbupdate=usb start && setenv interface usb && " \
 		"fatload ${interface} 0:1 ${loadaddr} " \
