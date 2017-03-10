@@ -115,6 +115,13 @@ MV_BIN_SERDES_CFG theadorable_serdes_cfg[] = {
 	},
 };
 
+/*
+ * Define a board-specific detection pulse-width array for the SerDes PCIe
+ * interfaces. If not defined in the board code, the default of currently 2
+ * is used. Values from 0...3 are possible (2 bits).
+ */
+u8 serdes_pex_pulse_width[4] = { 0, 2, 2, 2 };
+
 MV_DRAM_MODES *ddr3_get_static_ddr_mode(void)
 {
 	/* Only one mode supported for this board */
