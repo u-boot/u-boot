@@ -638,7 +638,6 @@
 
 &xilinx_drm {
 	status = "okay";
-	clocks = <&si570_1>;
 };
 
 &xlnx_dp {
@@ -649,7 +648,6 @@
 
 &xlnx_dp_sub {
 	status = "okay";
-	xlnx,vid-clk-pl;
 };
 
 &xlnx_dp_snd_pcm0 {
