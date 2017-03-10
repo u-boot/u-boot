@@ -294,3 +294,44 @@ int board_late_init(void)
 	return 0;
 }
 #endif
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
+int do_pcie_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	pci_dev_t bdf;
+	u16 ven_id, dev_id;
+
+	if (argc != 3)
+		return cmd_usage(cmdtp);
+
+	ven_id = simple_strtoul(argv[1], NULL, 16);
+	dev_id = simple_strtoul(argv[2], NULL, 16);
+
+	printf("Checking for PCIe device: VendorID 0x%04x, DeviceId 0x%04x\n",
+	       ven_id, dev_id);
+
+	/*
+	 * Check if the PCIe device is detected (somtimes its not available
+	 * on the PCIe bus)
+	 */
+	bdf = pci_find_device(ven_id, dev_id, 0);
+	if (bdf == -1) {
+		/* PCIe device not found! */
+		printf("Failed to find PCIe device\n");
+	} else {
+		/* PCIe device found! */
+		printf("PCIe device found, resetting board...\n");
+
+		/* default handling: SOFT reset */
+		do_reset(NULL, 0, 0, NULL);
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	pcie,   3,   0,     do_pcie_test,
+	"Test for presence of a PCIe device",
+	"<VendorID> <DeviceID>"
+);
+#endif
