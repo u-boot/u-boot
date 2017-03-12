@@ -210,7 +210,9 @@ void efi_timer_check(void)
 		/* Triggering! */
 		if (efi_event.trigger_type == EFI_TIMER_PERIODIC)
 			efi_event.trigger_next += efi_event.trigger_time / 10;
-		efi_event.notify_function(&efi_event, efi_event.notify_context);
+		if (efi_event.type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL))
+			efi_event.notify_function(&efi_event,
+			                          efi_event.notify_context);
 	}
 
 	WATCHDOG_RESET();
