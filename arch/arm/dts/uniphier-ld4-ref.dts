@@ -31,7 +31,7 @@
 		i2c3 = &i2c3;
 	};
 
-	memory {
+	memory@80000000 {
 		device_type = "memory";
 		reg = <0x80000000 0x20000000>;
 	};

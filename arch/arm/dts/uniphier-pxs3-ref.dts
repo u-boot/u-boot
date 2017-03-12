@@ -16,6 +16,10 @@
 	model = "UniPhier PXs3 Reference Board";
 	compatible = "socionext,uniphier-pxs3-ref", "socionext,uniphier-pxs3";
 
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
 	aliases {
 		serial0 = &serial0;
 		serial1 = &serial1;
@@ -28,13 +32,9 @@
 		i2c6 = &i2c6;
 	};
 
-	memory {
+	memory@80000000 {
 		device_type = "memory";
 		reg = <0 0x80000000 0 0xa0000000>;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
 	};
 };
 
