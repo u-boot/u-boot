@@ -318,7 +318,7 @@
 		};
 
 		mioctrl@5b3e0000 {
-			compatible = "socionext,uniphier-mioctrl",
+			compatible = "socionext,uniphier-ld11-mioctrl",
 				     "simple-mfd", "syscon";
 			reg = <0x5b3e0000 0x800>;
 

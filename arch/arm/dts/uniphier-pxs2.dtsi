@@ -112,12 +112,6 @@
 			compatible = "fixed-clock";
 			clock-frequency = <50000000>;
 		};
-
-		i2c_clk: i2c_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <50000000>;
-		};
 	};
 
 	soc {
@@ -389,7 +383,7 @@
 			interrupts = <0 41 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c0>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 4>;
 			clock-frequency = <100000>;
 		};
 
@@ -402,7 +396,7 @@
 			interrupts = <0 42 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c1>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 5>;
 			clock-frequency = <100000>;
 		};
 
@@ -415,7 +409,7 @@
 			interrupts = <0 43 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c2>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 6>;
 			clock-frequency = <100000>;
 		};
 
@@ -428,7 +422,7 @@
 			interrupts = <0 44 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c3>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 7>;
 			clock-frequency = <100000>;
 		};
 
@@ -439,7 +433,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 45 4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 8>;
 			clock-frequency = <400000>;
 		};
 
@@ -450,7 +444,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 25 4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 9>;
 			clock-frequency = <400000>;
 		};
 
@@ -461,7 +455,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			interrupts = <0 26 4>;
-			clocks = <&i2c_clk>;
+			clocks = <&peri_clk 10>;
 			clock-frequency = <400000>;
 		};
 
@@ -590,7 +584,7 @@
 		sysctrl@61840000 {
 			compatible = "socionext,uniphier-pxs2-sysctrl",
 				     "simple-mfd", "syscon";
-			reg = <0x61840000 0x4000>;
+			reg = <0x61840000 0x10000>;
 
 			sys_clk: clock {
 				compatible = "socionext,uniphier-pxs2-clock";
