@@ -14,11 +14,6 @@
 	model = "UniPhier Pro5 4KBOX Board";
 	compatible = "socionext,uniphier-pro5-4kbox", "socionext,uniphier-pro5";
 
-	memory {
-		device_type = "memory";
-		reg = <0x80000000 0x40000000>;
-	};
-
 	chosen {
 		stdout-path = "serial1:115200n8";
 	};
@@ -29,6 +24,11 @@
 		i2c0 = &i2c0;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>;
 	};
 };
 

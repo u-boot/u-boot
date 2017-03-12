@@ -7,10 +7,10 @@
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
 
-/include/ "skeleton.dtsi"
-
 / {
 	compatible = "socionext,uniphier-pro5";
+	#address-cells = <1>;
+	#size-cells = <1>;
 
 	cpus {
 		#address-cells = <1>;
