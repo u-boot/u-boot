@@ -189,6 +189,16 @@ static efi_status_t EFIAPI efi_create_event(
 		return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 	}
 
+	if (event == NULL)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	if ((type & EVT_NOTIFY_SIGNAL) && (type & EVT_NOTIFY_WAIT))
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	if ((type & (EVT_NOTIFY_SIGNAL|EVT_NOTIFY_WAIT)) &&
+	    notify_function == NULL)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	efi_event.type = type;
 	efi_event.notify_tpl = notify_tpl;
 	efi_event.notify_function = notify_function;
