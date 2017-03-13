@@ -296,14 +296,14 @@
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
-	"mmc_root=/dev/mmcblk0p1 rootfstype=${fs} rootwait rw\0" \
+	"mmc_root=mmcblk0p1\0" \
 	"mmc_boot=" \
 		"setenv fsload \"${fs}load mmc ${disk}:${part}\"; " \
 		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/mmcblk0p1 rootfstype=${fs} " \
+				"root=/dev/${mmc_root} rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
