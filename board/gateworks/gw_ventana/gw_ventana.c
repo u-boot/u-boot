@@ -175,9 +175,11 @@ int board_ehci_hcd_init(int port)
 
 int board_ehci_power(int port, int on)
 {
-	if (port)
-		return 0;
-	gpio_set_value(GP_USB_OTG_PWR, on);
+	/* enable OTG VBUS */
+	if (!port && board_type < GW_UNKNOWN) {
+		if (gpio_cfg[board_type].otgpwr_en)
+			gpio_set_value(gpio_cfg[board_type].otgpwr_en, on);
+	}
 	return 0;
 }
 #endif /* CONFIG_USB_EHCI_MX6 */

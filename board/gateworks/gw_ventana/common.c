@@ -586,6 +586,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.rs485en = IMX_GPIO_NR(3, 24),
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW51xx */
@@ -604,6 +605,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.gps_shdn = IMX_GPIO_NR(1, 2),
 		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW52xx */
@@ -626,6 +628,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW53xx */
@@ -647,6 +650,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW54xx */
@@ -670,6 +674,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(5, 17),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW551x */
@@ -715,6 +720,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.pcie_rst = IMX_GPIO_NR(1, 0),
 		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 };
 
@@ -724,10 +730,6 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 
 	/* iomux common to all Ventana boards */
 	SETUP_IOMUX_PADS(gw_gpio_pads);
-
-	/* OTG power off */
-	gpio_request(GP_USB_OTG_PWR, "usbotg_pwr");
-	gpio_direction_output(GP_USB_OTG_PWR, 0);
 
 	if (board >= GW_UNKNOWN)
 		return;
@@ -816,6 +818,12 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	if (gpio_cfg[board].wdis) {
 		gpio_request(gpio_cfg[board].wdis, "wlan_dis");
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
+	}
+
+	/* OTG power off */
+	if (gpio_cfg[board].otgpwr_en) {
+		gpio_request(gpio_cfg[board].otgpwr_en, "usbotg_pwr");
+		gpio_direction_output(gpio_cfg[board].otgpwr_en, 0);
 	}
 
 	/* sense vselect pin to see if we support uhs-i */
