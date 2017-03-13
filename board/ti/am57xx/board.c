@@ -54,6 +54,19 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO 7_11 */
 #define GPIO_DDR_VTT_EN 203
 
+/* Touch screen controller to identify the LCD */
+#define OSD_TS_FT_BUS_ADDRESS	0
+#define OSD_TS_FT_CHIP_ADDRESS	0x38
+#define OSD_TS_FT_REG_ID	0xA3
+/*
+ * Touchscreen IDs for various OSD panels
+ * Ref: http://www.osddisplays.com/TI/OSD101T2587-53TS_A.1.pdf
+ */
+/* Used on newer osd101t2587 Panels */
+#define OSD_TS_FT_ID_5x46	0x54
+/* Used on older osd101t2045 Panels */
+#define OSD_TS_FT_ID_5606	0x08
+
 #define SYSINFO_BOARD_NAME_MAX_LEN	45
 
 #define TPS65903X_PRIMARY_SECONDARY_PAD2	0xFB
@@ -473,10 +486,64 @@ int board_init(void)
 	return 0;
 }
 
+void am57x_idk_lcd_detect(void)
+{
+	int r = -ENODEV;
+	char *idk_lcd = "no";
+	uint8_t buf = 0;
+
+	/* Only valid for IDKs */
+	if (board_is_x15() || board_is_am572x_evm())
+		return;
+
+	/* Only AM571x IDK has gpio control detect.. so check that */
+	if (board_is_am571x_idk() && !am571x_idk_needs_lcd())
+		goto out;
+
+	r = i2c_set_bus_num(OSD_TS_FT_BUS_ADDRESS);
+	if (r) {
+		printf("%s: Failed to set bus address to %d: %d\n",
+		       __func__, OSD_TS_FT_BUS_ADDRESS, r);
+		goto out;
+	}
+	r = i2c_probe(OSD_TS_FT_CHIP_ADDRESS);
+	if (r) {
+		/* AM572x IDK has no explicit settings for optional LCD kit */
+		if (board_is_am571x_idk()) {
+			printf("%s: Touch screen detect failed: %d!\n",
+			       __func__, r);
+		}
+		goto out;
+	}
+
+	/* Read FT ID */
+	r = i2c_read(OSD_TS_FT_CHIP_ADDRESS, OSD_TS_FT_REG_ID, 1, &buf, 1);
+	if (r) {
+		printf("%s: Touch screen ID read %d:0x%02x[0x%02x] failed:%d\n",
+		       __func__, OSD_TS_FT_BUS_ADDRESS, OSD_TS_FT_CHIP_ADDRESS,
+		       OSD_TS_FT_REG_ID, r);
+		goto out;
+	}
+
+	switch (buf) {
+	case OSD_TS_FT_ID_5606:
+		idk_lcd = "osd101t2045";
+		break;
+	case OSD_TS_FT_ID_5x46:
+		idk_lcd = "osd101t2587";
+		break;
+	default:
+		printf("%s: Unidentifed Touch screen ID 0x%02x\n",
+		       __func__, buf);
+		/* we will let default be "no lcd" */
+	}
+out:
+	setenv("idk_lcd", idk_lcd);
+	return;
+}
+
 int board_late_init(void)
 {
-	char *idk_lcd;
-
 	setup_board_eeprom_env();
 	u8 val;
 
@@ -507,12 +574,7 @@ int board_late_init(void)
 
 	omap_die_id_serial();
 
-	/* TBD: Add LCD panel detection once information is available */
-	if (am571x_idk_needs_lcd())
-		idk_lcd = "osd101t2045"; /* Default to legacy LCD */
-	else
-		idk_lcd = "no";
-	setenv("idk_lcd", idk_lcd);
+	am57x_idk_lcd_detect();
 
 #if !defined(CONFIG_SPL_BUILD)
 	board_ti_set_ethaddr(2);
