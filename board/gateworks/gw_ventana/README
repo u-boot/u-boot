@@ -30,7 +30,12 @@ will build the following artifacts from U-Boot source:
 
 To build U-Boot for the Gateworks Ventana product family:
 
- make gwventana_config
+For NAND FLASH based boards:
+ make gwventana_nand_config
+ make
+
+For EMMC FLASH based boards:
+ make gwventana_emmc_config
  make
 
 
@@ -99,11 +104,11 @@ This information is taken from:
 
 More details about the i.MX6 BOOT ROM can be found in the IMX6 reference manual.
 
-3.1. boot from micro-SD
------------------------
+3.1. boot from MMC (eMMC/microSD)
+---------------------------------
 
 When the IMX6 eFUSE settings have been factory programmed to boot from
-micro-SD the SPL will be loaded from offset 0x400 (1KB). Once the SPL is
+MMC the SPL will be loaded from offset 0x400 (1KB). Once the SPL is
 booted, it will load and execute U-Boot (u-boot.img) from offset 69KB
 on the micro-SD (defined by CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR).
 
@@ -111,11 +116,11 @@ While it is technically possible to enable the SPL to be able to load
 U-Boot from a file on a FAT/EXT filesystem on the micro-SD, we chose to
 use raw micro-SD access to keep the code-size and boot time of the SPL down.
 
-For these reasons a micro-SD that will be used as an IMX6 primary boot
+For these reasons an MMC device that will be used as an IMX6 primary boot
 device must be carefully partitioned and prepared.
 
 The following shell commands are executed on a Linux host (adjust DEV to the
-block storage device of your micro-SD):
+block storage device of your MMC, ie /dev/mmcblk0):
 
  DEV=/dev/sdc
  # zero out 1MB of device
