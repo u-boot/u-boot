@@ -355,6 +355,25 @@ static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	.p1_mpwrdlctl = 0X40304239,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_256x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x0048004A,
+	.p0_mpwldectrl1 = 0x003F004A,
+	.p1_mpwldectrl0 = 0x001E0028,
+	.p1_mpwldectrl1 = 0x002C0043,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x02250219,
+	.p0_mpdgctrl1 = 0x01790202,
+	.p1_mpdgctrl0 = 0x02080208,
+	.p1_mpdgctrl1 = 0x016C0175,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x4A4C4D4C,
+	.p1_mprddlctl = 0x494C4A48,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x403F3437,
+	.p1_mpwrdlctl = 0x383A3930,
+};
+
 static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x002A0025,
@@ -366,6 +385,25 @@ static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	.p0_mprddlctl = 0x4B373F42,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
 	.p0_mpwrdlctl = 0x303E3C36,
+};
+
+static struct mx6_mmdc_calibration mx6dq_512x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00230020,
+	.p0_mpwldectrl1 = 0x002F002A,
+	.p1_mpwldectrl0 = 0x001D0027,
+	.p1_mpwldectrl1 = 0x00100023,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x03250339,
+	.p0_mpdgctrl1 = 0x031C0316,
+	.p1_mpdgctrl0 = 0x03210331,
+	.p1_mpdgctrl1 = 0x031C025A,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x40373C40,
+	.p1_mprddlctl = 0x3A373646,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x2E353933,
+	.p1_mpwrdlctl = 0x3C2F3F35,
 };
 
 static void spl_dram_init(int width, int size_mb, int board_model)
@@ -468,7 +506,14 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		mem = &mt41k256m16ha_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
 			calib = &mx6dq_256x64_mmdc_calib;
+		else
+			calib = &mx6sdl_256x64_mmdc_calib;
 		debug("4gB density\n");
+	} else if (width == 64 && size_mb == 4096) {
+		mem = &mt41k512m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_512x64_mmdc_calib;
+		debug("8gB density\n");
 	}
 
 	if (!(mem && calib)) {
