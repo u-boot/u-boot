@@ -738,7 +738,7 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 
 	/* RS232_EN# */
 	if (gpio_cfg[board].rs232_en) {
-		gpio_request(gpio_cfg[board].rs232_en, "rs232_en");
+		gpio_request(gpio_cfg[board].rs232_en, "rs232_en#");
 		gpio_direction_output(gpio_cfg[board].rs232_en, 0);
 	}
 
