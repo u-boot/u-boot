@@ -739,7 +739,7 @@ int misc_init_r(void)
 
 	/* Set a non-initialized hwconfig based on board configuration */
 	if (!strcmp(getenv("hwconfig"), "_UNKNOWN_")) {
-		sprintf(buf, "hwconfig=");
+		buf[0] = 0;
 		if (gpio_cfg[board_type].rs232_en)
 			strcat(buf, "rs232;");
 		for (i = 0; i < gpio_cfg[board_type].dio_num; i++) {
