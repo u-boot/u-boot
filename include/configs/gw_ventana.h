@@ -101,6 +101,10 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
+/* eMMC Configs */
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_SUPPORT_EMMC_RPMB
+
 /* Filesystem support */
 #define CONFIG_CMD_UBIFS
 
