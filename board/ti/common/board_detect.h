@@ -98,7 +98,7 @@ struct ti_common_eeprom {
 };
 
 #define TI_EEPROM_DATA ((struct ti_common_eeprom *)\
-				OMAP_SRAM_SCRATCH_BOARD_EEPROM_START)
+				TI_SRAM_SCRATCH_BOARD_EEPROM_START)
 
 /**
  * ti_i2c_eeprom_am_get() - Consolidated eeprom data collection for AM* TI EVMs
