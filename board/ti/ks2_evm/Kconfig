@@ -49,3 +49,5 @@ config SYS_CONFIG_NAME
 	default "k2g_evm"
 
 endif
+
+source "board/ti/common/Kconfig"

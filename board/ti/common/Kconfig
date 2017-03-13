@@ -3,3 +3,13 @@ config TI_I2C_BOARD_DETECT
 	help
 	   Support for detection board information on Texas Instrument's
 	   Evaluation Boards which have I2C based EEPROM detection
+
+config EEPROM_BUS_ADDRESS
+	int "Board EEPROM's I2C bus address"
+	range 0 8
+	default 0
+
+config EEPROM_CHIP_ADDRESS
+	hex "Board EEPROM's I2C chip address"
+	range 0 0xff
+	default 0x50

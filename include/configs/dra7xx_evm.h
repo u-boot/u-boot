@@ -260,8 +260,4 @@
 #endif
 #endif  /* NOR support */
 
-/* EEPROM */
-#define CONFIG_EEPROM_CHIP_ADDRESS 0x50
-#define CONFIG_EEPROM_BUS_ADDRESS 0
-
 #endif /* __CONFIG_DRA7XX_EVM_H */
