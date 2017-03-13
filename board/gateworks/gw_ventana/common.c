@@ -143,12 +143,6 @@ void setup_ventana_i2c(void)
  * Baseboard specific GPIO
  */
 
-/* common to add baseboards */
-static iomux_v3_cfg_t const gw_gpio_pads[] = {
-	/* SD3_VSELECT */
-	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
-};
-
 /* prototype */
 static iomux_v3_cfg_t const gwproto_gpio_pads[] = {
 	/* RS232_EN# */
@@ -196,6 +190,8 @@ static iomux_v3_cfg_t const gw51xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -229,6 +225,8 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -262,6 +260,8 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -338,11 +338,12 @@ static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* PANLEDG# */
 	IOMUX_PADS(PAD_KEY_COL2__GPIO4_IO10 | DIO_PAD_CFG),
 	/* PANLEDR# */
 	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11 | DIO_PAD_CFG),
-
 	/* VID_PWR */
 	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
 	/* PCI_RST# */
@@ -629,6 +630,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
 		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW53xx */
@@ -651,6 +653,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
 		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW54xx */
@@ -675,6 +678,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
 		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW551x */
@@ -721,15 +725,13 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 };
 
 void setup_iomux_gpio(int board, struct ventana_board_info *info)
 {
 	int i;
-
-	/* iomux common to all Ventana boards */
-	SETUP_IOMUX_PADS(gw_gpio_pads);
 
 	if (board >= GW_UNKNOWN)
 		return;
@@ -827,9 +829,11 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	}
 
 	/* sense vselect pin to see if we support uhs-i */
-	gpio_request(GP_SD3_VSELECT, "sd3_vselect");
-	gpio_direction_input(GP_SD3_VSELECT);
-	gpio_cfg[board].usd_vsel = !gpio_get_value(GP_SD3_VSELECT);
+	if (gpio_cfg[board].vsel_pin) {
+		gpio_request(gpio_cfg[board].vsel_pin, "sd3_vselect");
+		gpio_direction_input(gpio_cfg[board].vsel_pin);
+		gpio_cfg[board].usd_vsel = !gpio_get_value(gpio_cfg[board].vsel_pin);
+	}
 }
 
 /* setup GPIO pinmux and default configuration per baseboard and env */
