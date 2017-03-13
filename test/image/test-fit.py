@@ -11,6 +11,9 @@
 # make O=sandbox sandbox_config
 # make O=sandbox
 # ./test/image/test-fit.py -u sandbox/u-boot
+#
+# Note: The above testing requires the Python development package, typically
+# called python-devel or something similar.
 
 import doctest
 from optparse import OptionParser
@@ -115,8 +118,8 @@ base_fdt = '''
 };
 '''
 
-# This is the U-Boot script that is run for each test. First load the fit,
-# then do the 'bootm' command, then save out memory from the places where
+# This is the U-Boot script that is run for each test. First load the FIT,
+# then run the 'bootm' command, then save out memory from the places where
 # we expect 'bootm' to write things. Then quit.
 base_script = '''
 sb load hostfs 0 %(fit_addr)x %(fit)s
@@ -266,7 +269,7 @@ def find_matching(text, match):
 
     >>> find_matching('first line:10\\nsecond_line:20', 'first line:')
     '10'
-    >>> find_matching('first line:10\\nsecond_line:20', 'second linex')
+    >>> find_matching('first line:10\\nsecond_line:20', 'second line')
     Traceback (most recent call last):
       ...
     ValueError: Test aborted
@@ -389,7 +392,7 @@ def run_fit_test(mkimage, u_boot):
         fail('Ramdisk loaded but should not be', stdout)
 
     # Find out the offset in the FIT where U-Boot has found the FDT
-    line = find_matching(stdout, 'Booting using the fdt blob at ')
+    line = find_matching(stdout, 'Booting using the FDT blob at ')
     fit_offset = int(line, 16) - params['fit_addr']
     fdt_magic = struct.pack('>L', 0xd00dfeed)
     data = read_file(fit)
@@ -469,7 +472,7 @@ def run_tests():
     print '\nTests passed'
     print 'Caveat: this is only a sanity check - test coverage is poor'
 
-    # Remove the tempoerary directory unless we are asked to keep it
+    # Remove the temporary directory unless we are asked to keep it
     if options.keep:
         print "Output files are in '%s'" % base_dir
     else:
