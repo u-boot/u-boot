@@ -1245,9 +1245,6 @@ struct mvpp2_bm_pool {
 
 	/* Ports using BM pool */
 	u32 port_map;
-
-	/* Occupied buffers indicator */
-	int in_use_thresh;
 };
 
 /* Static declaractions */
@@ -2792,7 +2789,6 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 
 	/* Update BM driver with number of buffers added to pool */
 	bm_pool->buf_num += i;
-	bm_pool->in_use_thresh = bm_pool->buf_num / 4;
 
 	return i;
 }
