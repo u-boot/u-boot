@@ -105,7 +105,7 @@ static void _i2c_init(struct i2c_adapter *adap,
 }
 
 /* I2C probe called by cmd_i2c when doing 'i2c probe'. */
-static int lpc32xx_i2c_probe(struct i2c_adapter *adap, u8 dev)
+static int lpc32xx_i2c_probe_chip(struct i2c_adapter *adap, u8 dev)
 {
 	struct lpc32xx_i2c_registers *i2c = lpc32xx_i2c[adap->hwadapnr];
 	int stat;
@@ -246,14 +246,14 @@ static int lpc32xx_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 	return 0;
 }
 
-U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_0, _i2c_init, lpc32xx_i2c_probe,
+U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_0, _i2c_init, lpc32xx_i2c_probe_chip,
 			 lpc32xx_i2c_read, lpc32xx_i2c_write,
 			 lpc32xx_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_LPC32XX_SPEED,
 			 CONFIG_SYS_I2C_LPC32XX_SLAVE,
 			 0)
 
-U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_1, _i2c_init, lpc32xx_i2c_probe,
+U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_1, _i2c_init, lpc32xx_i2c_probe_chip,
 			 lpc32xx_i2c_read, lpc32xx_i2c_write,
 			 lpc32xx_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_LPC32XX_SPEED,
