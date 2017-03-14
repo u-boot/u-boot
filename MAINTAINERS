@@ -414,12 +414,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-sh.git
 F:	arch/sh/
 
-SPARC
-#M:	Francois Retief <fgretief@spaceteq.co.za>
-S:	Orphaned (Since 2016-02)
-T:	git git://git.denx.de/u-boot-sparc.git
-F:	arch/sparc/
-
 SPI
 M:	Jagan Teki <jagan@openedev.com>
 S:	Maintained

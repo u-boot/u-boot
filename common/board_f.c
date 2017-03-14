@@ -364,20 +364,6 @@ static int setup_dest_addr(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPARC)
-static int reserve_prom(void)
-{
-	/* defined in arch/sparc/cpu/leon?/prom.c */
-	extern void *__prom_start_reloc;
-	int size = 8192; /* page table = 2k, prom = 6k */
-	gd->relocaddr -= size;
-	__prom_start_reloc = map_sysmem(gd->relocaddr + 2048, size - 2048);
-	debug("Reserving %dk for PROM and page table at %08lx\n", size,
-		gd->relocaddr);
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_LOGBUFFER) && !defined(CONFIG_ALT_LB_ADDR)
 static int reserve_logbuffer(void)
 {
@@ -871,8 +857,7 @@ static const init_fnc_t init_sequence_f[] = {
 	init_timebase,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
-		defined(CONFIG_NDS32) || defined(CONFIG_SH) || \
-		defined(CONFIG_SPARC)
+		defined(CONFIG_NDS32) || defined(CONFIG_SH)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
@@ -963,9 +948,6 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_XTENSA)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
-#endif
-#if defined(CONFIG_SPARC)
-	reserve_prom,
 #endif
 #if defined(CONFIG_LOGBUFFER) && !defined(CONFIG_ALT_LB_ADDR)
 	reserve_logbuffer,

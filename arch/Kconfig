@@ -76,10 +76,6 @@ config SH
 	bool "SuperH architecture"
 	select HAVE_PRIVATE_LIBGCC
 
-config SPARC
-	bool "SPARC architecture"
-	select CREATE_ARCH_SYMLINK
-
 config X86
 	bool "x86 architecture"
 	select CREATE_ARCH_SYMLINK
@@ -167,6 +163,5 @@ source "arch/openrisc/Kconfig"
 source "arch/powerpc/Kconfig"
 source "arch/sandbox/Kconfig"
 source "arch/sh/Kconfig"
-source "arch/sparc/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"

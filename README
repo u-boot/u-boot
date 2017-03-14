@@ -146,7 +146,6 @@ Directory Hierarchy:
   /powerpc		Files generic to PowerPC architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
-  /sparc		Files generic to SPARC architecture
   /x86			Files generic to x86 architecture
 /api			Machine/arch independent API for external apps
 /board			Board dependent files

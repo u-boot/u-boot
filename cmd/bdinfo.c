@@ -152,8 +152,6 @@ static inline void print_baudrate(void)
 {
 #if defined(CONFIG_PPC)
 	printf("baudrate    = %6u bps\n", gd->baudrate);
-#elif defined(CONFIG_SPARC)
-	printf("baudrate               = %6u bps\n", gd->baudrate);
 #else
 	printf("baudrate    = %u bps\n", gd->baudrate);
 #endif
@@ -274,36 +272,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("new_fdt", (ulong)gd->new_fdt);
 	print_num("fdt_size", (ulong)gd->fdt_size);
 
-	return 0;
-}
-
-#elif defined(CONFIG_SPARC)
-
-int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
-{
-	bd_t *bd = gd->bd;
-
-#ifdef DEBUG
-	print_num("bd address             ", (ulong) bd);
-#endif
-	print_num("memstart               ", bd->bi_memstart);
-	print_lnum("memsize                ", bd->bi_memsize);
-	print_num("flashstart             ", bd->bi_flashstart);
-	print_num("CONFIG_SYS_MONITOR_BASE       ", CONFIG_SYS_MONITOR_BASE);
-	print_num("CONFIG_ENV_ADDR           ", CONFIG_ENV_ADDR);
-	printf("CONFIG_SYS_RELOC_MONITOR_BASE = 0x%x (%d)\n", CONFIG_SYS_RELOC_MONITOR_BASE,
-	       CONFIG_SYS_MONITOR_LEN);
-	printf("CONFIG_SYS_MALLOC_BASE        = 0x%x (%d)\n", CONFIG_SYS_MALLOC_BASE,
-	       CONFIG_SYS_MALLOC_LEN);
-	printf("CONFIG_SYS_INIT_SP_OFFSET     = 0x%x (%d)\n", CONFIG_SYS_INIT_SP_OFFSET,
-	       CONFIG_SYS_STACK_SIZE);
-	printf("CONFIG_SYS_PROM_OFFSET        = 0x%x (%d)\n", CONFIG_SYS_PROM_OFFSET,
-	       CONFIG_SYS_PROM_SIZE);
-	printf("CONFIG_SYS_GBL_DATA_OFFSET    = 0x%x (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
-	       GENERATED_GBL_DATA_SIZE);
-
-	print_eth_ip_addr();
-	print_baudrate();
 	return 0;
 }
 

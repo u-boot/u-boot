@@ -33,7 +33,6 @@ obj-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 obj-$(CONFIG_FTGMAC100) += ftgmac100.o
 obj-$(CONFIG_FTMAC110) += ftmac110.o
 obj-$(CONFIG_FTMAC100) += ftmac100.o
-obj-$(CONFIG_GRETH) += greth.o
 obj-$(CONFIG_GMAC_ROCKCHIP) += gmac_rockchip.o
 obj-$(CONFIG_DRIVER_TI_KEYSTONE_NET) += keystone_net.o
 obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o

@@ -387,7 +387,7 @@ config DISPLAY_CPUINFO
 
 config DISPLAY_BOARDINFO
 	bool "Display information about the board during start up"
-	default y if ARM || M68K || MIPS || PPC || SPARC || XTENSA
+	default y if ARM || M68K || MIPS || PPC || XTENSA
 	help
 	  Display information about the board that U-Boot is running on
 	  when U-Boot starts up. The board function checkboard() is called

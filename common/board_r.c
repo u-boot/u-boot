@@ -49,9 +49,6 @@
 #include <timer.h>
 #include <trace.h>
 #include <watchdog.h>
-#ifdef CONFIG_CMD_AMBAPP
-#include <ambapp.h>
-#endif
 #ifdef CONFIG_ADDR_MAP
 #include <asm/mmu.h>
 #endif
@@ -68,10 +65,6 @@
 #include <efi_loader.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_SPARC)
-extern int prom_init(void);
-#endif
 
 ulong monitor_flash_len;
 
@@ -598,18 +591,6 @@ static int initr_status_led(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_AMBAPP) && defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
-extern int do_ambapp_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
-static int initr_ambapp_print(void)
-{
-	puts("AMBA:\n");
-	do_ambapp_print(NULL, 0, 0, NULL);
-
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
 static int initr_scsi(void)
 {
@@ -823,8 +804,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_flash,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86) || \
-	defined(CONFIG_SPARC)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
@@ -895,12 +875,6 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
 #endif
-#if defined(CONFIG_CMD_AMBAPP)
-	ambapp_init_reloc,
-#if defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
-	initr_ambapp_print,
-#endif
-#endif
 #if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
 	INIT_FUNC_WATCHDOG_RESET
 	initr_scsi,
@@ -939,9 +913,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_PS2KBD
 	initr_kbd,
-#endif
-#if defined(CONFIG_SPARC)
-	prom_init,
 #endif
 	run_main_loop,
 };

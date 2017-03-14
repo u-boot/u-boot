@@ -22,7 +22,6 @@ config PARTITIONS
 config MAC_PARTITION
 	bool "Enable Apple's MacOS partition table"
 	depends on PARTITIONS
-	default y if SPARC
 	help
 	  Say Y here if you would like to use device under U-Boot which
 	  were partitioned on a Macintosh.
@@ -36,7 +35,7 @@ config DOS_PARTITION
 	bool "Enable MS Dos partition table"
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
-	default y if x86 || SPARC || CMD_FAT || USB_STORAGE
+	default y if x86 || CMD_FAT || USB_STORAGE
 	help
 	  traditional on the Intel architecture, USB sticks, etc.
 
@@ -49,7 +48,7 @@ config ISO_PARTITION
 	bool "Enable ISO partition table"
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
-	default y if SPARC || MIPS || TEGRA
+	default y if MIPS || TEGRA
 
 config SPL_ISO_PARTITION
 	bool "Enable ISO partition table for SPL"
