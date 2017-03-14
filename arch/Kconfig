@@ -27,10 +27,6 @@ config AVR32
 	bool "AVR32 architecture"
 	select CREATE_ARCH_SYMLINK
 
-config BLACKFIN
-	bool "Blackfin architecture"
-	select ARCH_MISC_INIT
-
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
@@ -162,7 +158,6 @@ config SYS_CONFIG_NAME
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
 source "arch/avr32/Kconfig"
-source "arch/blackfin/Kconfig"
 source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"

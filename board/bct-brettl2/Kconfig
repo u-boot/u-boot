@@ -1,9 +1,0 @@
-if TARGET_BCT_BRETTL2
-
-config SYS_BOARD
-	default "bct-brettl2"
-
-config SYS_CONFIG_NAME
-	default "bct-brettl2"
-
-endif

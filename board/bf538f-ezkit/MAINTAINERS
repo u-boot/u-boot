@@ -1,6 +1,0 @@
-BF538F-EZKIT BOARD
-M:	Sonic Zhang <sonic.adi@gmail.com>
-S:	Maintained
-F:	board/bf538f-ezkit/
-F:	include/configs/bf538f-ezkit.h
-F:	configs/bf538f-ezkit_defconfig

@@ -1,9 +1,0 @@
-if TARGET_DNP5370
-
-config SYS_BOARD
-	default "dnp5370"
-
-config SYS_CONFIG_NAME
-	default "dnp5370"
-
-endif

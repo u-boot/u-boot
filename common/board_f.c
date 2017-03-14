@@ -116,8 +116,8 @@ __weak void blue_led_off(void) {}
 #if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
 static int init_func_watchdog_init(void)
 {
-# if defined(CONFIG_HW_WATCHDOG) && (defined(CONFIG_BLACKFIN) || \
-	defined(CONFIG_M68K) || defined(CONFIG_MICROBLAZE) || \
+# if defined(CONFIG_HW_WATCHDOG) && \
+	(defined(CONFIG_M68K) || defined(CONFIG_MICROBLAZE) || \
 	defined(CONFIG_SH) || defined(CONFIG_AT91SAM9_WATCHDOG) || \
 	defined(CONFIG_DESIGNWARE_WATCHDOG) || \
 	defined(CONFIG_IMX_WATCHDOG))
@@ -273,8 +273,7 @@ static int setup_mon_len(void)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX) || defined(CONFIG_EFI_APP)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
-#elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2) || \
-	defined(CONFIG_XTENSA)
+#elif defined(CONFIG_NIOS2) || defined(CONFIG_XTENSA)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #elif defined(CONFIG_NDS32) || defined(CONFIG_SH)
 	gd->mon_len = (ulong)(&__bss_end) - (ulong)(&_start);
@@ -471,7 +470,7 @@ static int reserve_lcd(void)
 
 # if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
 		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
-		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
+		!defined(CONFIG_M68K)
 static int reserve_legacy_video(void)
 {
 	/* reserve memory for video display (always full pages) */
@@ -872,8 +871,8 @@ static const init_fnc_t init_sequence_f[] = {
 	init_timebase,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
-		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32) || \
-		defined(CONFIG_SH) || defined(CONFIG_SPARC)
+		defined(CONFIG_NDS32) || defined(CONFIG_SH) || \
+		defined(CONFIG_SPARC)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
@@ -961,7 +960,7 @@ static const init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_BLACKFIN) || defined(CONFIG_XTENSA)
+#if defined(CONFIG_XTENSA)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
 #endif
@@ -988,12 +987,12 @@ static const init_fnc_t init_sequence_f[] = {
 	/* TODO: Why the dependency on CONFIG_8xx? */
 # if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
 		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
-		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
+		!defined(CONFIG_M68K)
 	reserve_legacy_video,
 # endif
 #endif /* CONFIG_DM_VIDEO */
 	reserve_trace,
-#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_XTENSA)
+#if !defined(CONFIG_XTENSA)
 	reserve_uboot,
 #endif
 #ifndef CONFIG_SPL_BUILD

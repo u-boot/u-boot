@@ -172,64 +172,7 @@ static int do_reginfo(cmd_tbl_t *cmdtp, int flag, int argc,
 
 #elif defined(CONFIG_MPC85xx)
 	mpc85xx_reginfo();
-
-#elif defined(CONFIG_BLACKFIN)
-	puts("\nSystem Configuration registers\n");
-#ifndef __ADSPBF60x__
-	puts("\nPLL Registers\n");
-	printf("\tPLL_DIV:   0x%04x   PLL_CTL:      0x%04x\n",
-		bfin_read_PLL_DIV(), bfin_read_PLL_CTL());
-	printf("\tPLL_STAT:  0x%04x   PLL_LOCKCNT:  0x%04x\n",
-		bfin_read_PLL_STAT(), bfin_read_PLL_LOCKCNT());
-	printf("\tVR_CTL:    0x%04x\n", bfin_read_VR_CTL());
-
-	puts("\nEBIU AMC Registers\n");
-	printf("\tEBIU_AMGCTL:   0x%04x\n", bfin_read_EBIU_AMGCTL());
-	printf("\tEBIU_AMBCTL0:  0x%08x   EBIU_AMBCTL1:  0x%08x\n",
-		bfin_read_EBIU_AMBCTL0(), bfin_read_EBIU_AMBCTL1());
-# ifdef EBIU_MODE
-	printf("\tEBIU_MBSCTL:   0x%08x   EBIU_ARBSTAT:  0x%08x\n",
-		bfin_read_EBIU_MBSCTL(), bfin_read_EBIU_ARBSTAT());
-	printf("\tEBIU_MODE:     0x%08x   EBIU_FCTL:     0x%08x\n",
-		bfin_read_EBIU_MODE(), bfin_read_EBIU_FCTL());
-# endif
-
-# ifdef EBIU_RSTCTL
-	puts("\nEBIU DDR Registers\n");
-	printf("\tEBIU_DDRCTL0:  0x%08x   EBIU_DDRCTL1:  0x%08x\n",
-		bfin_read_EBIU_DDRCTL0(), bfin_read_EBIU_DDRCTL1());
-	printf("\tEBIU_DDRCTL2:  0x%08x   EBIU_DDRCTL3:  0x%08x\n",
-		bfin_read_EBIU_DDRCTL2(), bfin_read_EBIU_DDRCTL3());
-	printf("\tEBIU_DDRQUE:   0x%08x   EBIU_RSTCTL    0x%04x\n",
-		bfin_read_EBIU_DDRQUE(), bfin_read_EBIU_RSTCTL());
-	printf("\tEBIU_ERRADD:   0x%08x   EBIU_ERRMST:   0x%04x\n",
-		bfin_read_EBIU_ERRADD(), bfin_read_EBIU_ERRMST());
-# else
-	puts("\nEBIU SDC Registers\n");
-	printf("\tEBIU_SDRRC:   0x%04x   EBIU_SDBCTL:  0x%04x\n",
-		bfin_read_EBIU_SDRRC(), bfin_read_EBIU_SDBCTL());
-	printf("\tEBIU_SDSTAT:  0x%04x   EBIU_SDGCTL:  0x%08x\n",
-		bfin_read_EBIU_SDSTAT(), bfin_read_EBIU_SDGCTL());
-# endif
-#else
-	puts("\nCGU Registers\n");
-	printf("\tCGU_DIV:   0x%08x   CGU_CTL:      0x%08x\n",
-		bfin_read_CGU_DIV(), bfin_read_CGU_CTL());
-	printf("\tCGU_STAT:  0x%08x   CGU_LOCKCNT:  0x%08x\n",
-		bfin_read_CGU_STAT(), bfin_read_CGU_CLKOUTSEL());
-
-	puts("\nSMC DDR Registers\n");
-	printf("\tDDR_CFG:   0x%08x   DDR_TR0:      0x%08x\n",
-		bfin_read_DMC0_CFG(), bfin_read_DMC0_TR0());
-	printf("\tDDR_TR1:   0x%08x   DDR_TR2:      0x%08x\n",
-		bfin_read_DMC0_TR1(), bfin_read_DMC0_TR2());
-	printf("\tDDR_MR:    0x%08x   DDR_EMR1:     0x%08x\n",
-		bfin_read_DMC0_MR(), bfin_read_DMC0_EMR1());
-	printf("\tDDR_CTL:   0x%08x   DDR_STAT:     0x%08x\n",
-		bfin_read_DMC0_CTL(), bfin_read_DMC0_STAT());
-	printf("\tDDR_DLLCTL:0x%08x\n", bfin_read_DMC0_DLLCTL());
 #endif
-#endif /* CONFIG_BLACKFIN */
 
 	return 0;
 }

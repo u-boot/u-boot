@@ -241,7 +241,6 @@ static void nand_write_byte16(struct mtd_info *mtd, uint8_t byte)
 	chip->write_buf(mtd, (uint8_t *)&word, 2);
 }
 
-#if !defined(CONFIG_BLACKFIN)
 static void iowrite8_rep(void *addr, const uint8_t *buf, int len)
 {
 	int i;
@@ -274,7 +273,6 @@ static void iowrite16_rep(void *addr, void *buf, int len)
         for (i = 0; i < len; i++)
                 writew(p[i], addr);
 }
-#endif
 
 /**
  * nand_write_buf - [DEFAULT] write buffer to chip

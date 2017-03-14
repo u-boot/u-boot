@@ -1,9 +1,0 @@
-if TARGET_BF533_STAMP
-
-config SYS_BOARD
-	default "bf533-stamp"
-
-config SYS_CONFIG_NAME
-	default "bf533-stamp"
-
-endif

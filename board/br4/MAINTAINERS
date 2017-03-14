@@ -1,6 +1,0 @@
-BR4 BOARD
-M:	Dimitar Penev <dpn@switchfin.org>
-S:	Maintained
-F:	board/br4/
-F:	include/configs/br4.h
-F:	configs/br4_defconfig

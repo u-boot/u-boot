@@ -1,9 +1,0 @@
-if TARGET_TCM_BF518
-
-config SYS_BOARD
-	default "tcm-bf518"
-
-config SYS_CONFIG_NAME
-	default "tcm-bf518"
-
-endif

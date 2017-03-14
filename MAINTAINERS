@@ -222,12 +222,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-avr32.git
 F:	arch/avr32/
 
-BLACKFIN
-M:	Sonic Zhang <sonic.adi@gmail.com>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-blackfin.git
-F:	arch/blackfin/
-
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

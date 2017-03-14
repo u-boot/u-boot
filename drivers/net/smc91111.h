@@ -253,8 +253,6 @@ struct smc91111_priv{
 
 #ifdef CONFIG_ADNPESC1
 #define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+((r)<<1))))
-#elif CONFIG_BLACKFIN
-#define	SMC_inw(a,r)	({ word __v = (*((volatile word *)((a)->iobase+(r)))); SSYNC(); __v;})
 #elif CONFIG_ARM64
 #define	SMC_inw(a, r)	(*((volatile word*)((a)->iobase+((dword)(r)))))
 #else
@@ -264,11 +262,6 @@ struct smc91111_priv{
 
 #ifdef CONFIG_ADNPESC1
 #define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+((r)<<1))) = d)
-#elif CONFIG_BLACKFIN
-#define	SMC_outw(a, d, r)	\
-			({	(*((volatile word*)((a)->iobase+((r)))) = d); \
-				SSYNC(); \
-			})
 #elif CONFIG_ARM64
 #define	SMC_outw(a, d, r)	\
 			(*((volatile word*)((a)->iobase+((dword)(r)))) = d)

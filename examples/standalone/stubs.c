@@ -141,19 +141,6 @@ gd_t *global_data;
 "	lwi	r5, r5, %1\n"			\
 "	bra	r5\n"				\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r5");
-#elif defined(CONFIG_BLACKFIN)
-/*
- * P3 holds the pointer to the global_data, P0 is a call-clobbered
- * register
- */
-#define EXPORT_FUNC(f, a, x, ...)			\
-	asm volatile (			\
-"	.globl _" #x "\n_"		\
-#x ":\n"				\
-"	P0 = [P3 + %0]\n"		\
-"	P0 = [P0 + %1]\n"		\
-"	JUMP (P0)\n"			\
-	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "P0");
 #elif defined(CONFIG_AVR32)
 /*
  * r6 holds the pointer to the global_data. r8 is call clobbered.

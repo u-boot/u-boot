@@ -1,6 +1,0 @@
-IP04 BOARD
-#M:	Brent Kandetzki <brentk@teleco.com>
-S:	Orphan (since 2014-06)
-F:	board/ip04/
-F:	include/configs/ip04.h
-F:	configs/ip04_defconfig

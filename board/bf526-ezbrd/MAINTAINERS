@@ -1,6 +1,0 @@
-BF526-EZBRD BOARD
-M:	Sonic Zhang <sonic.adi@gmail.com>
-S:	Maintained
-F:	board/bf526-ezbrd/
-F:	include/configs/bf526-ezbrd.h
-F:	configs/bf526-ezbrd_defconfig

@@ -137,7 +137,6 @@ Directory Hierarchy:
   /arc			Files generic to ARC architecture
   /arm			Files generic to ARM architecture
   /avr32		Files generic to AVR32 architecture
-  /blackfin		Files generic to Analog Devices Blackfin architecture
   /m68k			Files generic to m68k architecture
   /microblaze		Files generic to microblaze architecture
   /mips			Files generic to MIPS architecture
@@ -2869,8 +2868,6 @@ The following options need to be configured:
 
 		CONFIG_AT91SAM9XE
 		enable special bootcounter support on at91sam9xe based boards.
-		CONFIG_BLACKFIN
-		enable special bootcounter support on blackfin based boards.
 		CONFIG_SOC_DA8XX
 		enable special bootcounter support on da850 based boards.
 		CONFIG_BOOTCOUNT_RAM
@@ -5910,11 +5907,6 @@ For PowerPC, the following registers have specific use:
     smaller code - although the code savings are not that big (on
     average for all boards 752 bytes for the whole U-Boot image,
     624 text + 127 data).
-
-On Blackfin, the normal C ABI (except for P3) is followed as documented here:
-	http://docs.blackfin.uclinux.org/doku.php?id=application_binary_interface
-
-    ==> U-Boot will use P3 to hold a pointer to the global data
 
 On ARM, the following registers are used:
 

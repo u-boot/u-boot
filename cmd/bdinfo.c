@@ -338,24 +338,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_BLACKFIN)
-
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	bd_t *bd = gd->bd;
-
-	printf("U-Boot      = %s\n", bd->bi_r_version);
-	printf("CPU         = %s\n", bd->bi_cpu);
-	printf("Board       = %s\n", bd->bi_board_name);
-	print_mhz("VCO",	bd->bi_vco);
-	print_mhz("CCLK",	bd->bi_cclk);
-	print_mhz("SCLK",	bd->bi_sclk);
-
-	print_std_bdinfo(bd);
-
-	return 0;
-}
-
 #elif defined(CONFIG_MIPS)
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

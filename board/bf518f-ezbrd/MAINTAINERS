@@ -1,6 +1,0 @@
-BF518F-EZBRD BOARD
-M:	Sonic Zhang <sonic.adi@gmail.com>
-S:	Maintained
-F:	board/bf518f-ezbrd/
-F:	include/configs/bf518f-ezbrd.h
-F:	configs/bf518f-ezbrd_defconfig
