@@ -314,3 +314,65 @@ void __maybe_unused set_board_info_env(char *name)
 	else
 		setenv("board_serial", unknown);
 }
+
+static u64 mac_to_u64(u8 mac[6])
+{
+	int i;
+	u64 addr = 0;
+
+	for (i = 0; i < 6; i++) {
+		addr <<= 8;
+		addr |= mac[i];
+	}
+
+	return addr;
+}
+
+static void u64_to_mac(u64 addr, u8 mac[6])
+{
+	mac[5] = addr;
+	mac[4] = addr >> 8;
+	mac[3] = addr >> 16;
+	mac[2] = addr >> 24;
+	mac[1] = addr >> 32;
+	mac[0] = addr >> 40;
+}
+
+void board_ti_set_ethaddr(int index)
+{
+	uint8_t mac_addr[6];
+	int i;
+	u64 mac1, mac2;
+	u8 mac_addr1[6], mac_addr2[6];
+	int num_macs;
+	/*
+	 * Export any Ethernet MAC addresses from EEPROM.
+	 * The 2 MAC addresses in EEPROM define the address range.
+	 */
+	board_ti_get_eth_mac_addr(0, mac_addr1);
+	board_ti_get_eth_mac_addr(1, mac_addr2);
+
+	if (is_valid_ethaddr(mac_addr1) && is_valid_ethaddr(mac_addr2)) {
+		mac1 = mac_to_u64(mac_addr1);
+		mac2 = mac_to_u64(mac_addr2);
+
+		/* must contain an address range */
+		num_macs = mac2 - mac1 + 1;
+		if (num_macs <= 0)
+			return;
+
+		if (num_macs > 50) {
+			printf("%s: Too many MAC addresses: %d. Limiting to 50\n",
+			       __func__, num_macs);
+			num_macs = 50;
+		}
+
+		for (i = 0; i < num_macs; i++) {
+			u64_to_mac(mac1 + i, mac_addr);
+			if (is_valid_ethaddr(mac_addr)) {
+				eth_setenv_enetaddr_by_index("eth", i + index,
+							     mac_addr);
+			}
+		}
+	}
+}
