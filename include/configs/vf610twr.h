@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_VF610
-
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_MACH_TYPE		4146

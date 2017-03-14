@@ -786,30 +786,10 @@ config TARGET_TS4800
 	select CPU_V7
 	select SYS_FSL_ERRATUM_ESDHC_A001
 
-config TARGET_VF610TWR
-	bool "Support vf610twr"
+config ARCH_VF610
+	bool "Freescale Vybrid"
 	select CPU_V7
 	select SYS_FSL_ERRATUM_ESDHC111
-
-config TARGET_COLIBRI_VF
-	bool "Support Colibri VF50/61"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select SYS_FSL_ERRATUM_ESDHC111
-
-config TARGET_PCM052
-	bool "Support pcm-052"
-	select CPU_V7
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_ESDHC135
-	select SYS_FSL_ERRATUM_ESDHC_A001
-
-config TARGET_BK4R1
-	bool "Support BK4r1"
-	select CPU_V7
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_ESDHC135
-	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
@@ -1197,6 +1177,8 @@ source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
 
+source "arch/arm/cpu/armv7/vf610/Kconfig"
+
 source "arch/arm/mach-zynq/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
@@ -1253,7 +1235,6 @@ source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
-source "board/freescale/vf610twr/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
@@ -1262,7 +1243,6 @@ source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/phytec/pcm051/Kconfig"
-source "board/phytec/pcm052/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
@@ -1286,7 +1266,6 @@ source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
-source "board/toradex/colibri_vf/Kconfig"
 source "board/technologic/ts4600/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
