@@ -1,6 +1,0 @@
-OPENRISC-GENERIC BOARD
-M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-S:	Maintained
-F:	board/openrisc/openrisc-generic/
-F:	include/configs/openrisc-generic.h
-F:	configs/openrisc-generic_defconfig

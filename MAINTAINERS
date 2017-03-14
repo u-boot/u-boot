@@ -308,11 +308,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
 
-OPENRISC
-M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-S:	Maintained
-F:	arch/openrisc/
-
 PATMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

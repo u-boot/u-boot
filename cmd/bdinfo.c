@@ -114,7 +114,7 @@ static inline void print_bi_flash(const bd_t *bd)
 	print_num("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
 
-#elif defined(CONFIG_NIOS2) || defined(CONFIG_OPENRISC)
+#elif defined(CONFIG_NIOS2)
 	print_num("flash start",	(ulong)bd->bi_flashstart);
 	print_num("flash size",		(ulong)bd->bi_flashsize);
 	print_num("flash offset",	(ulong)bd->bi_flashoffset);
@@ -437,20 +437,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("arch_number",	bd->bi_arch_number);
 	print_bi_boot_params(bd);
 	print_bi_dram(bd);
-	print_eth_ip_addr();
-	print_baudrate();
-
-	return 0;
-}
-
-#elif defined(CONFIG_OPENRISC)
-
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	bd_t *bd = gd->bd;
-
-	print_bi_mem(bd);
-	print_bi_flash(bd);
 	print_eth_ip_addr();
 	print_baudrate();
 
