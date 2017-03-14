@@ -12,6 +12,7 @@
 #include <i2c.h>
 #include <linux/errno.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/i2c.h>
 #include <dm.h>
 #include <mapmem.h>
 
@@ -26,33 +27,6 @@
 #if !defined(CONFIG_SYS_I2C_LPC32XX_SLAVE)
 #define CONFIG_SYS_I2C_LPC32XX_SLAVE 0
 #endif
-
-/* i2c register set */
-struct lpc32xx_i2c_base {
-	union {
-		u32 rx;
-		u32 tx;
-	};
-	u32 stat;
-	u32 ctrl;
-	u32 clk_hi;
-	u32 clk_lo;
-	u32 adr;
-	u32 rxfl;
-	u32 txfl;
-	u32 rxb;
-	u32 txb;
-	u32 stx;
-	u32 stxfl;
-};
-
-#ifdef CONFIG_DM_I2C
-struct lpc32xx_i2c_dev {
-	struct lpc32xx_i2c_base *base;
-	int index;
-	uint speed;
-};
-#endif /* CONFIG_DM_I2C */
 
 /* TX register fields */
 #define LPC32XX_I2C_TX_START		0x00000100
