@@ -111,7 +111,7 @@ void link_local_start(void)
 		net_set_state(NETLOOP_FAIL);
 		return;
 	}
-	net_netmask.s_addr = IN_CLASSB_NET;
+	net_netmask.s_addr = htonl(IN_CLASSB_NET);
 
 	seed = seed_mac();
 	if (ip.s_addr == 0)
