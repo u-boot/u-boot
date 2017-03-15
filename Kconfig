@@ -144,6 +144,7 @@ menu "Boot images"
 
 config FIT
 	bool "Support Flattened Image Tree"
+	select MD5
 	help
 	  This option allows you to boot the new uImage structure,
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
