@@ -41,25 +41,36 @@ struct header0_info {
 };
 
 /**
+ * struct header1_info
+ */
+struct header1_info {
+	uint32_t magic;
+	uint32_t first_insn;
+};
+
+/**
  * struct spl_info - spl info for each chip
  *
  * @imagename:		Image name(passed by "mkimage -n")
  * @spl_hdr:		Boot ROM requires a 4-bytes spl header
  * @spl_size:		Spl size(include extra 4-bytes spl header)
  * @spl_rc4:		RC4 encode the SPL binary (same key as header)
+ * @spl_aarch64:        Pad the header with an AArch64 'nop's to 8-bytes
  */
+
 struct spl_info {
 	const char *imagename;
 	const char *spl_hdr;
 	const uint32_t spl_size;
 	const bool spl_rc4;
+	const bool spl_aarch64;
 };
 
 static struct spl_info spl_infos[] = {
-	{ "rk3036", "RK30", 0x1000, false },
-	{ "rk3188", "RK31", 0x8000 - 0x800, true },
-	{ "rk3288", "RK32", 0x8000, false },
-	{ "rk3399", "RK33", 0x20000, false },
+	{ "rk3036", "RK30", 0x1000, false, false },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true, false },
+	{ "rk3288", "RK32", 0x8000, false, false },
+	{ "rk3399", "RK33", 0x20000, false, true },
 };
 
 static unsigned char rc4_key[16] = {
@@ -106,6 +117,16 @@ const char *rkcommon_get_spl_hdr(struct image_tool_params *params)
 	return info->spl_hdr;
 }
 
+const bool rkcommon_get_spl_hdr_padto8(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_aarch64;
+}
+
 int rkcommon_get_spl_size(struct image_tool_params *params)
 {
 	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
@@ -126,16 +147,12 @@ bool rkcommon_need_rc4_spl(struct image_tool_params *params)
 	return info->spl_rc4;
 }
 
-int rkcommon_set_header(void *buf, uint file_size,
-			struct image_tool_params *params)
+static void rkcommon_set_header0(void *buf, uint file_size,
+				 struct image_tool_params *params)
 {
-	struct header0_info *hdr;
+	struct header0_info *hdr = buf;
 
-	if (file_size > rkcommon_get_spl_size(params))
-		return -ENOSPC;
-
-	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
-	hdr = (struct header0_info *)buf;
+	memset(buf, '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
 	hdr->signature = RK_SIGNATURE;
 	hdr->disable_rc4 = !rkcommon_need_rc4_spl(params);
 	hdr->init_offset = RK_INIT_OFFSET;
@@ -145,6 +162,31 @@ int rkcommon_set_header(void *buf, uint file_size,
 	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
+}
+
+int rkcommon_set_header(void *buf, uint file_size,
+			struct image_tool_params *params)
+{
+	struct header1_info *hdr = buf + RK_SPL_HDR_START;
+
+	if (file_size > rkcommon_get_spl_size(params))
+		return -ENOSPC;
+
+	rkcommon_set_header0(buf, file_size, params);
+
+	/* Set up the SPL name and add the AArch64 'nop' padding, if needed */
+	memcpy(&hdr->magic, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
+
+	/*
+	 * Pad the 4-byte header to 8-bytes using an AArch64 'nop'.
+	 * Note that AArch64 insns are always encoded as little-endian.
+	 */
+	if (rkcommon_get_spl_hdr_padto8(params))
+		hdr->first_insn = cpu_to_le32(0xd503201f);
+
+	if (rkcommon_need_rc4_spl(params))
+		rkcommon_rc4_encode_spl(buf, RK_SPL_HDR_START,
+					params->file_size - RK_SPL_HDR_START);
 
 	return 0;
 }
@@ -160,4 +202,35 @@ void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size)
 		offset += RK_BLK_SIZE;
 		remaining -= step;
 	}
+}
+
+void rkcommon_vrec_header(struct image_tool_params *params,
+			  struct image_type_params *tparams)
+{
+	/*
+	 * The SPL image looks as follows:
+	 *
+	 * 0x0    header0 (see rkcommon.c)
+	 * 0x800  spl_name ('RK30', ..., 'RK33')
+	 * 0x804  first instruction to be executed
+	 *        (image start for AArch32, 'nop' for AArch64))
+	 * 0x808  second instruction to be executed
+	 *        (image start for AArch64)
+	 *
+	 * For AArch64 (ARMv8) payloads, we receive an input file that
+	 * needs to start on an 8-byte boundary (natural alignment), so
+	 * we need to put a NOP at 0x804.
+	 *
+	 * Depending on this, the header is either 0x804 or 0x808 bytes
+	 * in length.
+	 */
+	if (rkcommon_get_spl_hdr_padto8(params))
+		tparams->header_size = RK_SPL_HDR_START + 8;
+	else
+		tparams->header_size = RK_SPL_HDR_START + 4;
+
+	/* Allocate, clear and install the header */
+	tparams->hdr = malloc(tparams->header_size);
+	memset(tparams->hdr, 0, tparams->header_size);
+	tparams->header_size = tparams->header_size;
 }

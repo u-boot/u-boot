@@ -17,8 +17,6 @@ enum {
 	RKSPI_SECT_LEN		= RK_BLK_SIZE * 4,
 };
 
-static char dummy_hdr[RK_IMAGE_HEADER_LEN];
-
 static int rkspi_verify_header(unsigned char *buf, int size,
 			       struct image_tool_params *params)
 {
@@ -44,13 +42,6 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 		printf("Warning: SPL image is too large (size %#x) and will not boot\n",
 		       size);
 	}
-
-	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
-	       RK_SPL_HDR_SIZE);
-
-	if (rkcommon_need_rc4_spl(params))
-		rkcommon_rc4_encode_spl(buf, RK_SPL_HDR_START,
-					params->file_size - RK_SPL_HDR_START);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
@@ -86,6 +77,8 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 {
 	int pad_size;
 
+	rkcommon_vrec_header(params, tparams);
+
 	pad_size = (rkcommon_get_spl_size(params) + 0x7ff) / 0x800 * 0x800;
 	params->orig_file_size = pad_size;
 
@@ -94,7 +87,7 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 	pad_size += RK_SPL_HDR_START;
 	debug("pad_size %x\n", pad_size);
 
-	return pad_size - params->file_size;
+	return pad_size - params->file_size - tparams->header_size;
 }
 
 /*
@@ -103,8 +96,8 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 U_BOOT_IMAGE_TYPE(
 	rkspi,
 	"Rockchip SPI Boot Image support",
-	RK_IMAGE_HEADER_LEN,
-	dummy_hdr,
+	0,
+	NULL,
 	rkcommon_check_params,
 	rkspi_verify_header,
 	rkspi_print_header,

@@ -13,8 +13,6 @@
 #include "mkimage.h"
 #include "rkcommon.h"
 
-static char dummy_hdr[RK_IMAGE_HEADER_LEN];
-
 static int rksd_verify_header(unsigned char *buf,  int size,
 				 struct image_tool_params *params)
 {
@@ -38,13 +36,6 @@ static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
 		printf("Warning: SPL image is too large (size %#x) and will not boot\n",
 		       size);
 	}
-
-	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
-	       RK_SPL_HDR_SIZE);
-
-	if (rkcommon_need_rc4_spl(params))
-		rkcommon_rc4_encode_spl(buf, RK_SPL_HDR_START,
-					params->file_size - RK_SPL_HDR_START);
 }
 
 static int rksd_extract_subimage(void *buf,  struct image_tool_params *params)
@@ -66,10 +57,12 @@ static int rksd_vrec_header(struct image_tool_params *params,
 {
 	int pad_size;
 
+	rkcommon_vrec_header(params, tparams);
+
 	pad_size = RK_SPL_HDR_START + rkcommon_get_spl_size(params);
 	debug("pad_size %x\n", pad_size);
 
-	return pad_size - params->file_size;
+	return pad_size - params->file_size - tparams->header_size;
 }
 
 /*
@@ -78,8 +71,8 @@ static int rksd_vrec_header(struct image_tool_params *params,
 U_BOOT_IMAGE_TYPE(
 	rksd,
 	"Rockchip SD Boot Image support",
-	RK_IMAGE_HEADER_LEN,
-	dummy_hdr,
+	0,
+	NULL,
 	rkcommon_check_params,
 	rksd_verify_header,
 	rksd_print_header,
