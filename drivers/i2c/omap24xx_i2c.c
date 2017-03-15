@@ -64,36 +64,52 @@ struct omap_i2c {
 
 static int omap24_i2c_findpsc(u32 *pscl, u32 *psch, uint speed)
 {
-	unsigned int sampleclk, prescaler;
-	int fsscll, fssclh;
+	unsigned long internal_clk = 0, fclk;
+	unsigned int prescaler;
 
-	speed <<= 1;
-	prescaler = 0;
 	/*
-	 * some divisors may cause a precission loss, but shouldn't
-	 * be a big thing, because i2c_clk is then allready very slow.
+	 * This method is only called for Standard and Fast Mode speeds
+	 *
+	 * For some TI SoCs it is explicitly written in TRM (e,g, SPRUHZ6G,
+	 * page 5685, Table 24-7)
+	 * that the internal I2C clock (after prescaler) should be between
+	 * 7-12 MHz (at least for Fast Mode (FS)).
+	 *
+	 * Such approach is used in v4.9 Linux kernel in:
+	 * ./drivers/i2c/busses/i2c-omap.c (omap_i2c_init function).
 	 */
-	while (prescaler <= 0xFF) {
-		sampleclk = I2C_IP_CLK / (prescaler+1);
 
-		fsscll = sampleclk / speed;
-		fssclh = fsscll;
-		fsscll -= I2C_FASTSPEED_SCLL_TRIM;
-		fssclh -= I2C_FASTSPEED_SCLH_TRIM;
+	speed /= 1000; /* convert speed to kHz */
 
-		if (((fsscll > 0) && (fssclh > 0)) &&
-		    ((fsscll <= (255-I2C_FASTSPEED_SCLL_TRIM)) &&
-		    (fssclh <= (255-I2C_FASTSPEED_SCLH_TRIM)))) {
-			if (pscl)
-				*pscl = fsscll;
-			if (psch)
-				*psch = fssclh;
+	if (speed > 100)
+		internal_clk = 9600;
+	else
+		internal_clk = 4000;
 
-			return prescaler;
-		}
-		prescaler++;
+	fclk = I2C_IP_CLK / 1000;
+	prescaler = fclk / internal_clk;
+	prescaler = prescaler - 1;
+
+	if (speed > 100) {
+		unsigned long scl;
+
+		/* Fast mode */
+		scl = internal_clk / speed;
+		*pscl = scl - (scl / 3) - I2C_FASTSPEED_SCLL_TRIM;
+		*psch = (scl / 3) - I2C_FASTSPEED_SCLH_TRIM;
+	} else {
+		/* Standard mode */
+		*pscl = internal_clk / (speed * 2) - I2C_FASTSPEED_SCLL_TRIM;
+		*psch = internal_clk / (speed * 2) - I2C_FASTSPEED_SCLH_TRIM;
 	}
-	return -1;
+
+	debug("%s: speed [kHz]: %d psc: 0x%x sscl: 0x%x ssch: 0x%x\n",
+	      __func__, speed, prescaler, *pscl, *psch);
+
+	if (*pscl <= 0 || *psch <= 0 || prescaler <= 0)
+		return -EINVAL;
+
+	return prescaler;
 }
 
 /*
