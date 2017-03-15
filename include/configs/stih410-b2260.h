@@ -22,9 +22,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
 
-/* Libraries */
-#define CONFIG_MD5
-
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 

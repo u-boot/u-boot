@@ -44,7 +44,6 @@
 #define CONFIG_CMD_CBFS
 #define CONFIG_CMD_CRAMFS
 #define CONFIG_HOST_MAX_DEVICES 4
-#define CONFIG_CMD_MD5SUM
 
 /*
  * Size of malloc() pool, before and after relocation

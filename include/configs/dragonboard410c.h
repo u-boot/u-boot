@@ -46,12 +46,8 @@
 #define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 
-/* Libraries  */
-#define CONFIG_MD5
-
 /* Extra Commands */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MD5SUM
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
