@@ -49,8 +49,8 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	       RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
-		rkcommon_rc4_encode_spl(buf, RK_SPL_START - 4,
-					params->file_size - RK_SPL_START + 4);
+		rkcommon_rc4_encode_spl(buf, RK_SPL_HDR_START,
+					params->file_size - RK_SPL_HDR_START);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
