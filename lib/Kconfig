@@ -101,6 +101,10 @@ config SHA_PROG_HW_ACCEL
 	  SHA1/SHA256 progressive hashing.
 	  Data can be streamed in a block at a time and the hashing
 	  is performed in hardware.
+
+config MD5
+	bool
+
 endmenu
 
 menu "Compression Support"

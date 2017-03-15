@@ -338,6 +338,20 @@ config CMD_CRC32
 	help
 	  Compute CRC32.
 
+config CMD_MD5SUM
+	bool "md5sum"
+	default n
+	select MD5
+	help
+	  Compute MD5 checksum.
+
+config MD5SUM_VERFIY
+	bool "md5sum -v"
+	default n
+	depends on CMD_MD5SUM
+	help
+	  Add -v option to verify data against an MD5 checksum.
+
 config LOOPW
 	bool "loopw"
 	help
