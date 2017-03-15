@@ -45,7 +45,6 @@ struct header0_info {
  */
 struct header1_info {
 	uint32_t magic;
-	uint32_t first_insn;
 };
 
 /**
@@ -55,7 +54,9 @@ struct header1_info {
  * @spl_hdr:		Boot ROM requires a 4-bytes spl header
  * @spl_size:		Spl size(include extra 4-bytes spl header)
  * @spl_rc4:		RC4 encode the SPL binary (same key as header)
- * @spl_aarch64:        Pad the header with an AArch64 'nop's to 8-bytes
+ * @spl_boot0:          A new-style (ARM_SOC_BOOT0_HOOK) image that should
+ *                      have the boot magic (e.g. 'RK33') written to its first
+ *                      word.
  */
 
 struct spl_info {
@@ -63,7 +64,7 @@ struct spl_info {
 	const char *spl_hdr;
 	const uint32_t spl_size;
 	const bool spl_rc4;
-	const bool spl_aarch64;
+	const bool spl_boot0;
 };
 
 static struct spl_info spl_infos[] = {
@@ -117,15 +118,6 @@ const char *rkcommon_get_spl_hdr(struct image_tool_params *params)
 	return info->spl_hdr;
 }
 
-const bool rkcommon_get_spl_hdr_padto8(struct image_tool_params *params)
-{
-	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
-
-	/*
-	 * info would not be NULL, because of we checked params before.
-	 */
-	return info->spl_aarch64;
-}
 
 int rkcommon_get_spl_size(struct image_tool_params *params)
 {
@@ -145,6 +137,16 @@ bool rkcommon_need_rc4_spl(struct image_tool_params *params)
 	 * info would not be NULL, because of we checked params before.
 	 */
 	return info->spl_rc4;
+}
+
+bool rkcommon_spl_is_boot0(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_boot0;
 }
 
 static void rkcommon_set_header0(void *buf, uint file_size,
@@ -176,13 +178,6 @@ int rkcommon_set_header(void *buf, uint file_size,
 
 	/* Set up the SPL name and add the AArch64 'nop' padding, if needed */
 	memcpy(&hdr->magic, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
-
-	/*
-	 * Pad the 4-byte header to 8-bytes using an AArch64 'nop'.
-	 * Note that AArch64 insns are always encoded as little-endian.
-	 */
-	if (rkcommon_get_spl_hdr_padto8(params))
-		hdr->first_insn = cpu_to_le32(0xd503201f);
 
 	if (rkcommon_need_rc4_spl(params))
 		rkcommon_rc4_encode_spl(buf, RK_SPL_HDR_START,
@@ -224,8 +219,8 @@ void rkcommon_vrec_header(struct image_tool_params *params,
 	 * Depending on this, the header is either 0x804 or 0x808 bytes
 	 * in length.
 	 */
-	if (rkcommon_get_spl_hdr_padto8(params))
-		tparams->header_size = RK_SPL_HDR_START + 8;
+	if (rkcommon_spl_is_boot0(params))
+		tparams->header_size = RK_SPL_HDR_START;
 	else
 		tparams->header_size = RK_SPL_HDR_START + 4;
 

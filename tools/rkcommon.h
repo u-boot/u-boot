@@ -34,19 +34,6 @@ int rkcommon_check_params(struct image_tool_params *params);
 const char *rkcommon_get_spl_hdr(struct image_tool_params *params);
 
 /**
- * rkcommon_get_spl_hdr_padto8() - check if we need to pad to 8 bytes
- *
- * Rockchip's bootrom starts execution right after the SPL header (i.e.
- * at offset 4), but we can not reasonably align the test section of
- * an AArch64 SPL at 4 bytes (as this would break natural alignment
- * and any embedded constants might cause an alignment exception, which
- * is illegal in privileged modes).
- *
- * Padding is (for now) assumed to occur with a single AArch64 'nop'.
- */
-const bool rkcommon_get_spl_hdr_padto8(struct image_tool_params *params);
-
-/**
  * rkcommon_get_spl_size() - get spl size for a Rockchip boot image
  *
  * Different chip may have different sram size. And if we want to jump
