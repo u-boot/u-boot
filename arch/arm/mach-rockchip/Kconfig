@@ -54,6 +54,7 @@ config ROCKCHIP_RK3399
 	select SUPPORT_SPL
 	select SPL
 	select SPL_SEPARATE_BSS
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
