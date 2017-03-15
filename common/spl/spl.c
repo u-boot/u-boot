@@ -170,22 +170,20 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry();
 }
 
-int spl_init(void)
+static int spl_common_init(bool setup_malloc)
 {
 	int ret;
 
-	debug("spl_init()\n");
-/*
- * with CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN we set malloc_base and
- * malloc_limit in spl_relocate_stack_gd
- */
-#if defined(CONFIG_SYS_MALLOC_F_LEN) && \
-	!defined(CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN)
+	debug("spl_early_init()\n");
+
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	if (setup_malloc) {
 #ifdef CONFIG_MALLOC_F_ADDR
-	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+		gd->malloc_base = CONFIG_MALLOC_F_ADDR;
 #endif
-	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
-	gd->malloc_ptr = 0;
+		gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
+		gd->malloc_ptr = 0;
+	}
 #endif
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
@@ -201,6 +199,32 @@ int spl_init(void)
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;
 		}
+	}
+
+	return 0;
+}
+
+int spl_early_init(void)
+{
+	int ret;
+
+	ret = spl_common_init(true);
+	if (ret)
+		return ret;
+	gd->flags |= GD_FLG_SPL_EARLY_INIT;
+
+	return 0;
+}
+
+int spl_init(void)
+{
+	int ret;
+
+	if (!(gd->flags & GD_FLG_SPL_EARLY_INIT)) {
+		ret = spl_common_init(
+			!IS_ENABLED(CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN));
+		if (ret)
+			return ret;
 	}
 	gd->flags |= GD_FLG_SPL_INIT;
 
