@@ -151,6 +151,14 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* Timeout unit - ms */
 	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
 
+	if (((host->last_cmd == MMC_CMD_WRITE_MULTIPLE_BLOCK) ||
+	     (host->last_cmd == MMC_CMD_WRITE_SINGLE_BLOCK) ||
+	     (host->last_cmd == MMC_CMD_READ_MULTIPLE_BLOCK) ||
+	     (host->last_cmd == MMC_CMD_READ_SINGLE_BLOCK)) &&
+	    (host->quirks & SDHCI_QUIRK_USE_ACMD12) &&
+	    (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION))
+		return 0;
+
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	mask = SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT;
 
@@ -203,6 +211,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	    (cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK_HS200))
 		flags |= SDHCI_CMD_DATA;
 
+	host->last_cmd = cmd->cmdidx;
+
 	/* Set Transfer mode regarding to data flag */
 	if (data != 0) {
 		sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
@@ -210,6 +220,13 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		trans_bytes = data->blocks * data->blocksize;
 		if (data->blocks > 1)
 			mode |= SDHCI_TRNS_MULTI;
+
+		if (((cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK) ||
+		     (cmd->cmdidx == MMC_CMD_WRITE_SINGLE_BLOCK) ||
+		     (cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK) ||
+		     (cmd->cmdidx == MMC_CMD_READ_SINGLE_BLOCK)) &&
+		    (host->quirks & SDHCI_QUIRK_USE_ACMD12))
+			mode |= SDHCI_TRNS_ACMD12;
 
 		if (data->flags == MMC_DATA_READ)
 			mode |= SDHCI_TRNS_READ;

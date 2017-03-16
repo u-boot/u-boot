@@ -232,6 +232,7 @@
 #define SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER (1 << 7)
 #define SDHCI_QUIRK_USE_WIDE8		(1 << 8)
 #define SDHCI_QUIRK_NO_1_8_V		(1 << 9)
+#define SDHCI_QUIRK_USE_ACMD12		(1 << 10)
 
 /* to make gcc happy */
 struct sdhci_host;
@@ -275,6 +276,7 @@ struct sdhci_host {
 	uint	voltages;
 
 	struct mmc_config cfg;
+	unsigned int last_cmd;
 };
 
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
