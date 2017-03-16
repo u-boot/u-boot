@@ -74,6 +74,10 @@ static char *cpu_revs[] = {
 		"2.0",
 		"2.1"};
 
+static char *cpu_revs_am43xx[] = {
+		"1.0",
+		"1.1",
+		"1.2"};
 
 static char *dev_types[] = {
 		"TST",
@@ -87,6 +91,7 @@ static char *dev_types[] = {
 int print_cpuinfo(void)
 {
 	char *cpu_s, *sec_s, *rev_s;
+	char **cpu_rev_arr = cpu_revs;
 
 	switch (get_cpu_type()) {
 	case AM335X:
@@ -97,6 +102,7 @@ int print_cpuinfo(void)
 		break;
 	case AM437X:
 		cpu_s = "AM437X";
+		cpu_rev_arr = cpu_revs_am43xx;
 		break;
 	default:
 		cpu_s = "Unknown CPU type";
@@ -104,7 +110,7 @@ int print_cpuinfo(void)
 	}
 
 	if (get_cpu_rev() < ARRAY_SIZE(cpu_revs))
-		rev_s = cpu_revs[get_cpu_rev()];
+		rev_s = cpu_rev_arr[get_cpu_rev()];
 	else
 		rev_s = "?";
 
