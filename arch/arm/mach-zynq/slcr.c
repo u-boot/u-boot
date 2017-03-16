@@ -9,7 +9,6 @@
 #include <malloc.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/clk.h>
 
 #define SLCR_LOCK_MAGIC		0x767B
 #define SLCR_UNLOCK_MAGIC	0xDF0D
@@ -122,34 +121,6 @@ void zynq_slcr_cpu_reset(void)
 	clrbits_le32(&slcr_base->reboot_status, 0xF000000);
 
 	writel(1, &slcr_base->pss_rst_ctrl);
-}
-
-/* Setup clk for network */
-void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
-{
-	int ret;
-
-	zynq_slcr_unlock();
-
-	if (gem_id > 1) {
-		printf("Non existing GEM id %d\n", gem_id);
-		goto out;
-	}
-
-	ret = zynq_clk_set_rate(gem0_clk + gem_id, clk_rate);
-	if (ret)
-		goto out;
-
-	if (gem_id) {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem1_rclk_ctrl);
-	} else {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem0_rclk_ctrl);
-	}
-	udelay(100000);
-out:
-	zynq_slcr_lock();
 }
 
 void zynq_slcr_devcfg_disable(void)

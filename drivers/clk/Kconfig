@@ -28,6 +28,14 @@ config CLK_BOSTON
 	help
 	  Enable this to support the clocks
 
+config CLK_ZYNQ
+	bool "Enable clock driver support for Zynq"
+	depends on CLK && ARCH_ZYNQ
+	default y
+	help
+	  This clock driver adds support for clock realted settings for
+	  Zynq platform.
+
 config CLK_ZYNQMP
 	bool "Enable clock driver support for ZynqMP"
 	depends on ARCH_ZYNQMP
