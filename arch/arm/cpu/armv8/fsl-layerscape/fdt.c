@@ -387,8 +387,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_fman_firmware(blob);
 #endif
+#ifndef CONFIG_LS1012A
 	fsl_fdt_disable_usb(blob);
-
+#endif
 #ifdef CONFIG_HAS_FEATURE_GIC64K_ALIGN
 	fdt_fixup_gic(blob);
 #endif
