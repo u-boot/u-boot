@@ -112,32 +112,3 @@ phys_size_t initdram(int board_type)
 
 	return dram_size;
 }
-
-void dram_init_banksize(void)
-{
-	/*
-	 * gd->arch.secure_ram tracks the location of secure memory.
-	 * It was set as if the memory starts from 0.
-	 * The address needs to add the offset of its bank.
-	 */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
-		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
-		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
-		gd->bd->bi_dram[1].size = gd->ram_size -
-					  CONFIG_SYS_DDR_BLOCK1_SIZE;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[1].start +
-				 gd->arch.secure_ram -
-				 CONFIG_SYS_DDR_BLOCK1_SIZE;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	} else {
-		gd->bd->bi_dram[0].size = gd->ram_size;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
-				 gd->arch.secure_ram;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	}
-}

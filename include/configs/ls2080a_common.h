@@ -141,7 +141,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* MC firmware */
-#define CONFIG_FSL_MC_ENET
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
 #define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
@@ -159,7 +158,6 @@ unsigned long long get_qixis_addr(void);
  */
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
-#define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
 
 /* Command line configuration */

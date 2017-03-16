@@ -86,8 +86,8 @@
 /* For SD boot address and size are assigned in terms of sector
  * offset and no. of sectors respectively.
  */
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x00000800
-#define CONFIG_BS_ADDR_DEVICE		0x00000840
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x00000900
+#define CONFIG_BS_ADDR_DEVICE		0x00000940
 #define CONFIG_BS_HDR_SIZE		0x00000010
 #define CONFIG_BS_SIZE			0x00000008
 #else

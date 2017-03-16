@@ -431,11 +431,8 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 	return EFI_SUCCESS;
 }
 
-int efi_memory_init(void)
+__weak void efi_add_known_memory(void)
 {
-	unsigned long runtime_start, runtime_end, runtime_pages;
-	unsigned long uboot_start, uboot_pages;
-	unsigned long uboot_stack_size = 16 * 1024 * 1024;
 	int i;
 
 	/* Add RAM */
@@ -448,6 +445,15 @@ int efi_memory_init(void)
 		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
 				   false);
 	}
+}
+
+int efi_memory_init(void)
+{
+	unsigned long runtime_start, runtime_end, runtime_pages;
+	unsigned long uboot_start, uboot_pages;
+	unsigned long uboot_stack_size = 16 * 1024 * 1024;
+
+	efi_add_known_memory();
 
 	/* Add U-Boot */
 	uboot_start = (gd->start_addr_sp - uboot_stack_size) & ~EFI_PAGE_MASK;

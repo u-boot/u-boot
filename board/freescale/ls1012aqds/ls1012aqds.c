@@ -14,6 +14,7 @@
 #include <asm/arch/ppa.h>
 #endif
 #include <asm/arch/fdt.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <ahci.h>
 #include <hwconfig.h>
@@ -76,6 +77,10 @@ int dram_init(void)
 	mmdc_init(&mparam);
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
 
 	return 0;
 }
@@ -166,32 +171,3 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif
-
-void dram_init_banksize(void)
-{
-	/*
-	 * gd->arch.secure_ram tracks the location of secure memory.
-	 * It was set as if the memory starts from 0.
-	 * The address needs to add the offset of its bank.
-	 */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
-		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
-		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
-		gd->bd->bi_dram[1].size = gd->ram_size -
-			CONFIG_SYS_DDR_BLOCK1_SIZE;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[1].start +
-			gd->arch.secure_ram -
-			CONFIG_SYS_DDR_BLOCK1_SIZE;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	} else {
-		gd->bd->bi_dram[0].size = gd->ram_size;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
-			gd->arch.secure_ram;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	}
-}

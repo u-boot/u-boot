@@ -6,5 +6,5 @@
 
 #ifndef _ASM_ARMV8_FSL_LAYERSCAPE_MMU_H_
 #define _ASM_ARMV8_FSL_LAYERSCAPE_MMU_H_
-#include <asm/arch-armv8/mmu.h>
+void update_early_mmu_table(void);
 #endif /* _ASM_ARMV8_FSL_LAYERSCAPE_MMU_H_ */

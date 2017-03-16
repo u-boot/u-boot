@@ -233,10 +233,8 @@ int sata_init(void)
 {
 	struct ccsr_ahci __iomem *ccsr_ahci = (void *)CONFIG_SYS_SATA;
 
-#ifdef CONFIG_ARCH_LS1046A
 	/* Disable SATA ECC */
 	out_le32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + 0x520, 0x80000000);
-#endif
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);

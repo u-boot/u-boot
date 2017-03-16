@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/fdt.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <ahci.h>
 #include <hwconfig.h>
@@ -153,6 +154,10 @@ int dram_init(void)
 	 */
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	gd->ram_size = initdram(0);
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
 
 	return 0;
 }

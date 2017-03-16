@@ -392,6 +392,10 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 			  gd->arch.secure_ram & MEM_RESERVE_SECURE_ADDR_MASK);
 	}
 #endif
+#ifdef CONFIG_RESV_RAM
+	if (gd->arch.resv_ram)
+		print_num("Reserved ram", gd->arch.resv_ram);
+#endif
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
