@@ -180,7 +180,8 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host = priv->host;
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
-		       SDHCI_QUIRK_BROKEN_R1B;
+		       SDHCI_QUIRK_BROKEN_R1B |
+		       SDHCI_QUIRK_USE_ACMD12;
 
 #ifdef CONFIG_ZYNQ_HISPD_BROKEN
 	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
