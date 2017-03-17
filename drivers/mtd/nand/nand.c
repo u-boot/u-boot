@@ -131,6 +131,11 @@ static void create_mtd_concat(void)
 }
 #endif
 
+unsigned long nand_size(void)
+{
+	return total_nand_size;
+}
+
 void nand_init(void)
 {
 	static int initialized;
@@ -151,8 +156,6 @@ void nand_init(void)
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_init_chip(i);
 #endif
-
-	printf("%lu MiB\n", total_nand_size / 1024);
 
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
 	/*

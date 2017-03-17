@@ -28,6 +28,7 @@
 #endif
 
 extern void nand_init(void);
+unsigned long nand_size(void);
 
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
