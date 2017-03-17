@@ -694,6 +694,7 @@ int checkboard(void)
 static const struct boot_mode board_boot_modes[] = {
 	/* NAND: 64pages per block, 3 row addr cycles, 2 copies of FCB/DBBT */
 	{ "nand", MAKE_CFGVAL(0x80, 0x02, 0x00, 0x00) },
+	{ "emmc2", MAKE_CFGVAL(0x60, 0x48, 0x00, 0x00) }, /* GW5600 */
 	{ NULL, 0 },
 };
 #endif
@@ -745,7 +746,8 @@ int misc_init_r(void)
 			setenv("fdt_file1", fdt);
 			if (board_type != GW551x &&
 			    board_type != GW552x &&
-			    board_type != GW553x)
+			    board_type != GW553x &&
+			    board_type != GW560x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;

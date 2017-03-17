@@ -51,6 +51,20 @@ static iomux_v3_cfg_t const gw5904_emmc_pads[] = {
 	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_RST__SD3_RESET  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
+/* 8-bit eMMC on SD2/NAND */
+static iomux_v3_cfg_t const gw560x_emmc_sd2_pads[] = {
+	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_NANDF_D4__SD2_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_NANDF_D5__SD2_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_NANDF_D6__SD2_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_NANDF_D7__SD2_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+};
+
 static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -365,6 +379,39 @@ static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* CAN_STBY */
+	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
+	/* USB_HUBRST# */
+	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
+	/* PANLEDG# */
+	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
+	/* PANLEDR# */
+	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* IOEXP_PWREN# */
+	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | DIO_PAD_CFG),
+	/* IOEXP_IRQ# */
+	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
+	/* DIOI2C_DIS# */
+	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
+	/* VID_EN */
+	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_DISP0_DAT10__GPIO4_IO31 | DIO_PAD_CFG),
+	/* RS485_EN */
+	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+	/* USBH2_PEN (OTG) */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* 12V0_PWR_EN */
+	IOMUX_PADS(PAD_DISP0_DAT5__GPIO4_IO26 | DIO_PAD_CFG),
+};
+
 static iomux_v3_cfg_t const gw5904_gpio_pads[] = {
 	/* USB_HUBRST# */
 	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
@@ -614,6 +661,33 @@ struct dio_cfg gw553x_dio[] = {
 	},
 };
 
+struct dio_cfg gw560x_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
 struct dio_cfg gw5904_dio[] = {
 	{
 		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
@@ -856,6 +930,27 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mmc_cd = IMX_GPIO_NR(7, 0),
 	},
 
+	/* GW560x */
+	{
+		.gpio_pads = gw560x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw560x_gpio_pads)/2,
+		.dio_cfg = gw560x_dio,
+		.dio_num = ARRAY_SIZE(gw560x_dio),
+		.leds = {
+			IMX_GPIO_NR(4, 6),
+			IMX_GPIO_NR(4, 7),
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(4, 31),
+		.mezz_pwren = IMX_GPIO_NR(2, 19),
+		.mezz_irq = IMX_GPIO_NR(2, 18),
+		.rs232_en = GP_RS232_EN,
+		.vidin_en = IMX_GPIO_NR(3, 31),
+		.wdis = IMX_GPIO_NR(7, 12),
+		.otgpwr_en = IMX_GPIO_NR(4, 15),
+		.mmc_cd = IMX_GPIO_NR(7, 0),
+	},
+
 	/* GW5904 */
 	{
 		.gpio_pads = gw5904_gpio_pads,
@@ -988,6 +1083,10 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 
 	/* Anything else board specific */
 	switch(board) {
+	case GW560x:
+		gpio_request(IMX_GPIO_NR(4, 26), "12p0_en");
+		gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
+		break;
 	case GW5904:
 		gpio_request(IMX_GPIO_NR(5, 11), "skt1_wdis#");
 		gpio_direction_output(IMX_GPIO_NR(5, 11), 1);
@@ -1095,6 +1194,8 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 void setup_pmic(void)
 {
 	struct pmic *p;
+	struct ventana_board_info ventana_info;
+	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 	u32 reg;
 
 	i2c_set_bus_num(CONFIG_I2C_PMIC);
@@ -1127,23 +1228,27 @@ void setup_pmic(void)
 		debug("probed LTC3676@0x%x\n", CONFIG_POWER_LTC3676_I2C_ADDR);
 		power_ltc3676_init(CONFIG_I2C_PMIC);
 		p = pmic_get("LTC3676_PMIC");
-		if (p && !pmic_probe(p)) {
-			puts("PMIC:  LTC3676\n");
-			/*
-			 * set board-specific scalar for max CPU frequency
-			 * per CPU based on the LDO enabled Operating Ranges
-			 * defined in the respective IMX6DQ and IMX6SDL
-			 * datasheets. The voltage resulting from the R1/R2
-			 * feedback inputs on Ventana is 1308mV. Note that this
-			 * is a bit shy of the Vmin of 1350mV in the datasheet
-			 * for LDO enabled mode but is as high as we can go.
-			 *
-			 * We will rely on an OS kernel driver to properly
-			 * regulate these per CPU operating point and use LDO
-			 * bypass mode when using the higher frequency
-			 * operating points to compensate as LDO bypass mode
-			 * allows the rails be 125mV lower.
-			 */
+		if (!p || pmic_probe(p))
+			return;
+		puts("PMIC:  LTC3676\n");
+		/*
+		 * set board-specific scalar for max CPU frequency
+		 * per CPU based on the LDO enabled Operating Ranges
+		 * defined in the respective IMX6DQ and IMX6SDL
+		 * datasheets. The voltage resulting from the R1/R2
+		 * feedback inputs on Ventana is 1308mV. Note that this
+		 * is a bit shy of the Vmin of 1350mV in the datasheet
+		 * for LDO enabled mode but is as high as we can go.
+		 */
+		switch (board) {
+		case GW560x:
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+			break;
+		default:
 			/* mask PGOOD during SW1 transition */
 			pmic_reg_write(p, LTC3676_DVB1B,
 				       0x1f | LTC3676_PGOOD_MASK);
@@ -1160,7 +1265,7 @@ void setup_pmic(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
+static struct fsl_esdhc_cfg usdhc_cfg[2];
 
 int board_mmc_init(bd_t *bis)
 {
@@ -1175,17 +1280,32 @@ int board_mmc_init(bd_t *bis)
 	case GW553x:
 		/* usdhc3: 4bit microSD */
 		SETUP_IOMUX_PADS(usdhc3_pads);
-		usdhc_cfg.esdhc_base = USDHC3_BASE_ADDR;
-		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		usdhc_cfg.max_bus_width = 4;
-		return fsl_esdhc_initialize(bis, &usdhc_cfg);
+		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		usdhc_cfg[0].max_bus_width = 4;
+		return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+	case GW560x:
+		/* usdhc2: 8-bit eMMC */
+		SETUP_IOMUX_PADS(gw560x_emmc_sd2_pads);
+		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		usdhc_cfg[0].max_bus_width = 8;
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+		if (ret)
+			return ret;
+		/* usdhc3: 4-bit microSD */
+		SETUP_IOMUX_PADS(usdhc3_pads);
+		usdhc_cfg[1].esdhc_base = USDHC3_BASE_ADDR;
+		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		usdhc_cfg[1].max_bus_width = 4;
+		return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 	case GW5904:
 		/* usdhc3: 8bit eMMC */
 		SETUP_IOMUX_PADS(gw5904_emmc_pads);
-		usdhc_cfg.esdhc_base = USDHC3_BASE_ADDR;
-		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		usdhc_cfg.max_bus_width = 8;
-		return fsl_esdhc_initialize(bis, &usdhc_cfg);
+		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		usdhc_cfg[0].max_bus_width = 8;
+		return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 	default:
 		/* doesn't have MMC */
 		return -1;
@@ -1201,6 +1321,11 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	/* Card Detect */
 	switch (board) {
+	case GW560x:
+		/* emmc is always present */
+		if (cfg->esdhc_base == USDHC2_BASE_ADDR)
+			return 1;
+		break;
 	case GW5904:
 		/* emmc is always present */
 		if (cfg->esdhc_base == USDHC3_BASE_ADDR)

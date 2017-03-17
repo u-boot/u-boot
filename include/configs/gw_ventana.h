@@ -100,7 +100,6 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_SYS_FSL_USDHC_NUM       1
 
 /* Filesystem support */
 #define CONFIG_CMD_UBIFS
