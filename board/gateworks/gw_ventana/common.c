@@ -51,6 +51,17 @@ static iomux_v3_cfg_t const gw5904_emmc_pads[] = {
 	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_RST__SD3_RESET  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
+/* 4-bit microSD on SD2 */
+static iomux_v3_cfg_t const gw5904_mmc_pads[] = {
+	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	/* CD */
+	IOMUX_PADS(PAD_NANDF_CS0__GPIO6_IO11 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+};
 /* 8-bit eMMC on SD2/NAND */
 static iomux_v3_cfg_t const gw560x_emmc_sd2_pads[] = {
 	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -412,6 +423,39 @@ static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
 	IOMUX_PADS(PAD_DISP0_DAT5__GPIO4_IO26 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw5903_gpio_pads[] = {
+	/* BKLT_12VEN */
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
+	/* EMMY_PDN# */
+	IOMUX_PADS(PAD_NANDF_D2__GPIO2_IO02 | DIO_PAD_CFG),
+	/* EMMY_CFG1# */
+	IOMUX_PADS(PAD_NANDF_D3__GPIO2_IO03 | DIO_PAD_CFG),
+	/* EMMY_CFG1# */
+	IOMUX_PADS(PAD_NANDF_D4__GPIO2_IO04 | DIO_PAD_CFG),
+	/* USBH1_PEN (EHCI) */
+	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
+	/* USBH2_PEN (OTG) */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* USBDPC_PEN */
+	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* TOUCH_RST */
+	IOMUX_PADS(PAD_KEY_COL1__GPIO4_IO08 | DIO_PAD_CFG),
+	/* AUDIO_RST# */
+	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+	/* UART1_TEN# */
+	IOMUX_PADS(PAD_CSI0_DAT12__GPIO5_IO30 | DIO_PAD_CFG),
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
+	/* LVDS_BKLEN # */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+	/* RGMII_PDWN# */
+	IOMUX_PADS(PAD_ENET_CRS_DV__GPIO1_IO25 | DIO_PAD_CFG),
+	/* TOUCH_IRQ# */
+	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
+	/* TOUCH_RST# */
+	IOMUX_PADS(PAD_KEY_COL1__GPIO4_IO08 | DIO_PAD_CFG),
+};
+
 static iomux_v3_cfg_t const gw5904_gpio_pads[] = {
 	/* USB_HUBRST# */
 	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
@@ -688,6 +732,9 @@ struct dio_cfg gw560x_dio[] = {
 	},
 };
 
+struct dio_cfg gw5903_dio[] = {
+};
+
 struct dio_cfg gw5904_dio[] = {
 	{
 		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
@@ -951,6 +998,19 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mmc_cd = IMX_GPIO_NR(7, 0),
 	},
 
+	/* GW5903 */
+	{
+		.gpio_pads = gw5903_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5903_gpio_pads)/2,
+		.dio_cfg = gw5903_dio,
+		.dio_num = ARRAY_SIZE(gw5903_dio),
+		.leds = {
+			IMX_GPIO_NR(6, 14),
+		},
+		.otgpwr_en = IMX_GPIO_NR(4, 15),
+		.mmc_cd = IMX_GPIO_NR(6, 11),
+	},
+
 	/* GW5904 */
 	{
 		.gpio_pads = gw5904_gpio_pads,
@@ -1086,6 +1146,22 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	case GW560x:
 		gpio_request(IMX_GPIO_NR(4, 26), "12p0_en");
 		gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
+		break;
+	case GW5903:
+		gpio_request(IMX_GPIO_NR(3, 31) , "usbh1-ehci_pwr");
+		gpio_direction_output(IMX_GPIO_NR(3, 31), 1);
+		gpio_request(IMX_GPIO_NR(4, 15) , "usbh2-otg_pwr");
+		gpio_direction_output(IMX_GPIO_NR(4, 15), 1);
+		gpio_request(IMX_GPIO_NR(4, 7) , "usbdpc_pwr");
+		gpio_direction_output(IMX_GPIO_NR(4, 15), 1);
+		gpio_request(IMX_GPIO_NR(1, 25) , "rgmii_en");
+		gpio_direction_output(IMX_GPIO_NR(1, 25), 1);
+		gpio_request(IMX_GPIO_NR(4, 6) , "touch_irq#");
+		gpio_direction_input(IMX_GPIO_NR(4, 6));
+		gpio_request(IMX_GPIO_NR(4, 8) , "touch_rst");
+		gpio_direction_output(IMX_GPIO_NR(4, 8), 1);
+		gpio_request(IMX_GPIO_NR(1, 7) , "bklt_12ven");
+		gpio_direction_output(IMX_GPIO_NR(1, 7), 1);
 		break;
 	case GW5904:
 		gpio_request(IMX_GPIO_NR(5, 11), "skt1_wdis#");
@@ -1248,6 +1324,13 @@ void setup_pmic(void)
 			/* set SW3 (VDD_ARM) */
 			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 			break;
+		case GW5903:
+			/* mask PGOOD during SW4 transition */
+			pmic_reg_write(p, LTC3676_DVB4B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW4 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB4A, 0x1f);
+			break;
 		default:
 			/* mask PGOOD during SW1 transition */
 			pmic_reg_write(p, LTC3676_DVB1B,
@@ -1299,6 +1382,21 @@ int board_mmc_init(bd_t *bis)
 		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 		usdhc_cfg[1].max_bus_width = 4;
 		return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
+	case GW5903:
+		/* usdhc3: 8-bit eMMC */
+		SETUP_IOMUX_PADS(gw5904_emmc_pads);
+		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		usdhc_cfg[0].max_bus_width = 8;
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+		if (ret)
+			return ret;
+		/* usdhc2: 4-bit microSD */
+		SETUP_IOMUX_PADS(gw5904_mmc_pads);
+		usdhc_cfg[1].esdhc_base = USDHC2_BASE_ADDR;
+		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		usdhc_cfg[1].max_bus_width = 4;
+		return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 	case GW5904:
 		/* usdhc3: 8bit eMMC */
 		SETUP_IOMUX_PADS(gw5904_emmc_pads);
@@ -1326,6 +1424,7 @@ int board_mmc_getcd(struct mmc *mmc)
 		if (cfg->esdhc_base == USDHC2_BASE_ADDR)
 			return 1;
 		break;
+	case GW5903:
 	case GW5904:
 		/* emmc is always present */
 		if (cfg->esdhc_base == USDHC3_BASE_ADDR)

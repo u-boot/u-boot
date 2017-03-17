@@ -227,6 +227,18 @@ int board_phy_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
 	}
 
+	/* TI DP83867 */
+	else if (phydev->phy_id == 0x2000a231) {
+		/* configure register 0x170 for ref CLKOUT */
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x001f);
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x0170);
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x401f);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, 14);
+		val &= ~0x1f00;
+		val |= 0x0b00; /* chD tx clock*/
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, val);
+	}
+
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 
@@ -695,6 +707,7 @@ static const struct boot_mode board_boot_modes[] = {
 	/* NAND: 64pages per block, 3 row addr cycles, 2 copies of FCB/DBBT */
 	{ "nand", MAKE_CFGVAL(0x80, 0x02, 0x00, 0x00) },
 	{ "emmc2", MAKE_CFGVAL(0x60, 0x48, 0x00, 0x00) }, /* GW5600 */
+	{ "emmc3", MAKE_CFGVAL(0x60, 0x50, 0x00, 0x00) }, /* GW5903/GW5904 */
 	{ NULL, 0 },
 };
 #endif
