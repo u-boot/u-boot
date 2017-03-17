@@ -133,6 +133,16 @@ static void create_mtd_concat(void)
 
 void nand_init(void)
 {
+	static int initialized;
+
+	/*
+	 * Avoid initializing NAND Flash multiple times,
+	 * otherwise it will calculate a wrong total size.
+	 */
+	if (initialized)
+		return;
+	initialized = 1;
+
 #ifdef CONFIG_SYS_NAND_SELF_INIT
 	board_nand_init();
 #else
