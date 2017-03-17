@@ -624,8 +624,6 @@
 
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
-#define CONFIG_BAUDRATE	115200
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1,ecc=off\0"		\
 "netdev=eth0\0"						\

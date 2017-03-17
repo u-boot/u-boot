@@ -28,7 +28,6 @@
 /* UART setup */
 #define CONFIG_CONS_INDEX		4
 #define CONFIG_SYS_NS16550_COM4		UART4_BASE
-#define CONFIG_BAUDRATE			115200
 
 /* MMC ENV related defines */
 #undef CONFIG_ENV_OFFSET

@@ -52,7 +52,6 @@
 
 /* Serial port PL010/PL011 through the device model */
 #define CONFIG_PL01X_SERIAL
-#define CONFIG_BAUDRATE			115200
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2

@@ -103,8 +103,6 @@
  * in u-boot command interface
  */
 
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(2)
 #define CONFIG_SYS_UART2_ALT3_GPIO

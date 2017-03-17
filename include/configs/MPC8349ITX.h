@@ -356,7 +356,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONSOLE			ttyS0
-#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)

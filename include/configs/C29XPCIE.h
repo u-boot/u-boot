@@ -485,9 +485,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_DEF_HWCONFIG	fsl_ddr:ecc=on
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\

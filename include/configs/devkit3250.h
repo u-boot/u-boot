@@ -41,7 +41,6 @@
  * Serial Driver
  */
 #define CONFIG_SYS_LPC32XX_UART		5   /* UART5 */
-#define CONFIG_BAUDRATE			115200
 
 /*
  * DMA

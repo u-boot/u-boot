@@ -114,9 +114,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
 /* Default baudrate can be overridden by board! */
-#ifndef CONFIG_BAUDRATE
-#define CONFIG_BAUDRATE			115200
-#endif
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_FEC_MXC

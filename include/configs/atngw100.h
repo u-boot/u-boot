@@ -54,7 +54,6 @@
 
 #define CONFIG_STACKSIZE		(2048)
 
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2"
 #define CONFIG_BOOTCOMMAND						\

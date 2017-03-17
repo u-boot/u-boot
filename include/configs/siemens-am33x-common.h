@@ -100,8 +100,6 @@
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_SYS_NS16550_COM4		0x481a6000
 
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_SERIAL1                  1
 #define CONFIG_CONS_INDEX               1
 

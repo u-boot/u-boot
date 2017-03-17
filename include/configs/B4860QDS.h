@@ -770,9 +770,6 @@ unsigned long get_board_ddr_clk(void);
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-
-#define CONFIG_BAUDRATE	115200
-
 #define __USB_PHY_TYPE	ulpi
 
 #ifdef CONFIG_ARCH_B4860

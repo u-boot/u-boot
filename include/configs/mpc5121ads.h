@@ -274,7 +274,6 @@
 #if CONFIG_PSC_CONSOLE != 3
 #error CONFIG_PSC_CONSOLE must be 3
 #endif
-#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
@@ -502,8 +501,6 @@
 #define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \

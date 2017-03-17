@@ -133,8 +133,6 @@
 				"2M(linux)ro,-(root) rw " \
 				"rootfstype=jffs2"
 
-#define CONFIG_BAUDRATE			115200
-
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

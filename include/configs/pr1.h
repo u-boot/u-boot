@@ -110,7 +110,6 @@
 /*
  * Misc Settings
  */
-#define CONFIG_BAUDRATE		115200
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BOOTCOMMAND	"run nandboot"

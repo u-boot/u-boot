@@ -73,7 +73,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE		/* disable vendor parameters protection (serial#, ethaddr) */
 #define CONFIG_CONS_INDEX		1 /* use UART0 : used by serial driver */
-#define CONFIG_BAUDRATE			115200
 
 /***********************************************************
  * Command definition

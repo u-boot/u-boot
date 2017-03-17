@@ -92,7 +92,6 @@
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
-#define CONFIG_BAUDRATE			115200
 
 /* I2C Configuration */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */

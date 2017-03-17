@@ -104,7 +104,6 @@
 
 /* NS16550 Configuration: primary UART via FTDI */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
-#define CONFIG_BAUDRATE			115200
 
 /* I2C Configuration */
 #define	CONFIG_SYS_I2C_SPEED		100000

@@ -632,8 +632,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_HAS_ETH0
 #endif
 
-#define CONFIG_BAUDRATE 115200
-
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
 

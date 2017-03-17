@@ -36,7 +36,6 @@
  */
 #define CONFIG_ARC_SERIAL
 #define CONFIG_ARC_UART_BASE		0xC0FC1000
-#define CONFIG_BAUDRATE			115200
 
 /*
  * Command line configuration

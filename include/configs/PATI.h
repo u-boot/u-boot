@@ -25,8 +25,6 @@
 #define	CONFIG_5xx_CONS_SCI1
 #undef	CONFIG_5xx_CONS_SCI2
 
-#define CONFIG_BAUDRATE		9600
-
 /*
  * BOOTP options
  */

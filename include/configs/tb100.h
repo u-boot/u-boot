@@ -35,7 +35,6 @@
  */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		166666666
-#define CONFIG_BAUDRATE			115200
 
 /*
  * Ethernet PHY configuration

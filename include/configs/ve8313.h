@@ -459,8 +459,6 @@
 #define CONFIG_HOSTNAME		ve8313
 #define CONFIG_UBOOTPATH	ve8313/u-boot.bin
 
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
 	"ethprime=" __stringify(CONFIG_TSEC1_NAME) "\0"			\

@@ -663,9 +663,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-
-#define CONFIG_BAUDRATE	115200
-
 #ifdef CONFIG_TARGET_P4080DS
 #define __USB_PHY_TYPE	ulpi
 #else

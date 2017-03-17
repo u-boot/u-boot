@@ -23,7 +23,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"root=/dev/null console=ttySC4,115200"
 
 #undef  CONFIG_SHOW_BOOT_PROGRESS

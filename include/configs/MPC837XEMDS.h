@@ -644,8 +644,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_BAUDRATE 115200
-
 #define CONFIG_LOADADDR 800000	/* default location for tftp and bootm */
 
 #undef CONFIG_BOOTARGS		/* the boot command will set bootargs */

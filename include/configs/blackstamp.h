@@ -172,7 +172,6 @@
 /*
  * Console settings
  */
-#define CONFIG_BAUDRATE		57600
 #define CONFIG_LOADS_ECHO	1
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BFIN_SERIAL

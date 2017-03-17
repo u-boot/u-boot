@@ -71,8 +71,6 @@
 
 #define CONFIG_STACKSIZE		(2048)
 
-#define CONFIG_BAUDRATE			115200
-
 
 /*
  * After booting the board for the first time, new ethernet addresses

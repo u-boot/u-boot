@@ -82,7 +82,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 #endif
-#define CONFIG_BAUDRATE			115200
 
 /* I2C - Bit-bashed */
 #define CONFIG_SYS_I2C

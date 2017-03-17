@@ -134,7 +134,6 @@
  * Misc Settings
  */
 #define CONFIG_UART_CONSOLE			0
-#define CONFIG_BAUDRATE				57600
 
 /*
  * Pull in common ADI header for remaining command/environment setup

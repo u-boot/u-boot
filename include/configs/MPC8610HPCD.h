@@ -485,8 +485,6 @@
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
-#define CONFIG_BAUDRATE	115200
-
 #if defined(CONFIG_PCI1)
 #define PCI_ENV \
  "pcireg=md ${a}000 3; echo o;md ${a}c00 25; echo i; md ${a}da0 15;" \

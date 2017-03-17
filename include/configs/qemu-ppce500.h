@@ -163,8 +163,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BAUDRATE	115200
-
 #define CONFIG_BOOTCOMMAND		\
 	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdt_addr_r\0"
 

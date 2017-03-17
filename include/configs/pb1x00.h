@@ -29,9 +29,6 @@
 #endif
 #endif
 
-
-#define CONFIG_BAUDRATE		115200
-
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 #undef	CONFIG_BOOTARGS
 

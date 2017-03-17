@@ -34,7 +34,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /* select serial console configuration */
-#define CONFIG_BAUDRATE			115200
 
 /* SD/MMC configuration */
 #define CONFIG_BOUNCE_BUFFER

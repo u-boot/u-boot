@@ -23,7 +23,6 @@
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 /* NAND support */
 #define CONFIG_CMD_NAND

@@ -31,7 +31,6 @@
 
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_MISC_INIT_R
 /* MMC ENV related defines */

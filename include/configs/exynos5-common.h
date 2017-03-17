@@ -40,7 +40,6 @@
 #define INFORM3_OFFSET			0x80c
 
 /* select serial console configuration */
-#define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
 #define CONFIG_CMD_HASH

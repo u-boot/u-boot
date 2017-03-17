@@ -63,7 +63,6 @@
 /*
  * Serial driver
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
 /*

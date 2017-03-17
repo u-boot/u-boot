@@ -49,7 +49,6 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 /* turn on command-line edit/hist/auto */
 #define CONFIG_COMMAND_HISTORY

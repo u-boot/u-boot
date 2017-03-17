@@ -43,7 +43,6 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_BAUDRATE			115200
 
 /*
  * BOOTP options

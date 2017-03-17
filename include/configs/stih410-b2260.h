@@ -18,8 +18,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x7D600000
 #define CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1	/* default load addr */
 
-#define CONFIG_BAUDRATE			115200
-
 #define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
 
 #define CONFIG_BOOTARGS							\

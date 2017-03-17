@@ -81,7 +81,6 @@
 
 /* UARTs/Serial console */
 #define CONFIG_ATMEL_USART
-#define CONFIG_BAUDRATE			115200
 
 /* Boot options */
 #define CONFIG_SYS_LOAD_ADDR		0x23000000

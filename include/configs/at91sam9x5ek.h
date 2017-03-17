@@ -191,8 +191,6 @@
 	"rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw"
 #endif
 
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_SYS_CBSIZE	256
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_LONGHELP

@@ -54,7 +54,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONFIG_CONS_INDEX	1	/* use UART2 for console */
-#define CONFIG_BAUDRATE		115200	/* Default baud rate */
 
 /*
  * Ethernet

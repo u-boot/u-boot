@@ -26,8 +26,6 @@
 
 #define CONFIG_SYS_CLK_FREQ     33333400 /* external frequency to pll   */
 
-#define CONFIG_BAUDRATE		9600
-
 #undef	CONFIG_BOOTARGS
 #undef	CONFIG_BOOTCOMMAND
 

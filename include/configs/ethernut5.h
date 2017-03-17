@@ -77,7 +77,6 @@
 /* Serial port */
 #define CONFIG_ATMEL_USART
 #define CONFIG_USART3			/* USART 3 is DBGU */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define	CONFIG_USART_ID			ATMEL_ID_SYS
 

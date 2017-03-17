@@ -208,7 +208,6 @@
 /* Input clk to NS16550 (in Hz; the SYS_CLK_FREQ is in kHz) */
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_CLK_FREQ
 #define CONFIG_CONS_INDEX		1	/* use UART0 for console */
-#define CONFIG_BAUDRATE			115200	/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*======================*/

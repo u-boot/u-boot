@@ -46,8 +46,6 @@
 /* Serial Info */
 #define CONFIG_SYS_NS16550_SERIAL
 
-#define CONFIG_BAUDRATE			115200
-
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_IS_NOWHERE
 

@@ -41,7 +41,6 @@
  * Serial console configuration
  */
 #define CONFIG_PSC_CONSOLE	4	/* console is on PSC4  */
-#define CONFIG_BAUDRATE		115200	/* ... at 115200  bps  */
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 

@@ -47,7 +47,6 @@
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_NETCONSOLE	1	/* network console */
-#define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*

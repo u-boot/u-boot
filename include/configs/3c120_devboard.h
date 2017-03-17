@@ -17,7 +17,6 @@
 /*
  * SERIAL
  */
-#define CONFIG_BAUDRATE			115200
 
 /*
  * CFI Flash

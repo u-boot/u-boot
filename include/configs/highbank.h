@@ -27,8 +27,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
 #define CONFIG_CONS_INDEX		0
 
-#define CONFIG_BAUDRATE			115200
-
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */

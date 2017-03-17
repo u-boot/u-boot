@@ -590,8 +590,6 @@ combinations. this should be removed later
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 
-#define CONFIG_BAUDRATE		115200
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_DEF_HWCONFIG	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"
 #else

@@ -725,8 +725,6 @@
 
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
-#define CONFIG_BAUDRATE	 115200
-
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"

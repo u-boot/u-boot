@@ -39,7 +39,6 @@
 /*
  * Serial console configuration
  */
-#define CONFIG_BAUDRATE		38400	/* ... at 38400 bps */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /* Partitions */

@@ -35,9 +35,6 @@
 #endif
 #endif
 
-
-#define CONFIG_BAUDRATE		115200
-
 /* valid baudrates */
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */

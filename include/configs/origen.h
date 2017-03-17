@@ -34,7 +34,6 @@
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
-#define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"

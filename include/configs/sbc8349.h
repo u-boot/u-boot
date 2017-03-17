@@ -636,8 +636,6 @@
 
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
-#define CONFIG_BAUDRATE	 115200
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=sbc8349\0"						\

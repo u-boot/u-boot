@@ -110,8 +110,6 @@
 #define CONFIG_USART_BASE	ATMEL_BASE_DBGU
 #define CONFIG_USART_ID		0/* ignored in arm */
 
-#define CONFIG_BAUDRATE			115200
-
 /*
  * Command line configuration.
  */

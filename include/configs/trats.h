@@ -38,7 +38,6 @@
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 

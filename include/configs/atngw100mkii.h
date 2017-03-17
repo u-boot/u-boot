@@ -73,7 +73,6 @@
 
 #define CONFIG_STACKSIZE		(2048)
 
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
 	"root=mtd:main rootfstype=jffs2"
 #define CONFIG_BOOTCOMMAND						\

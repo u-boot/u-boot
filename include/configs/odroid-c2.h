@@ -12,7 +12,6 @@
 
 /* Serial setup */
 #define CONFIG_CONS_INDEX		0
-#define CONFIG_BAUDRATE			115200
 
 #define MESON_FDTFILE_SETTING "fdtfile=amlogic/meson-gxbb-odroidc2.dtb\0"
 

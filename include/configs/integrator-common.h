@@ -21,7 +21,6 @@
 
 /* Serial port PL010/PL011 through the device model */
 #define CONFIG_PL01X_SERIAL
-#define CONFIG_BAUDRATE			38400
 #define CONFIG_CONS_INDEX		0
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */

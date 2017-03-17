@@ -57,7 +57,6 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
 
 /* serial console configuration */
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 

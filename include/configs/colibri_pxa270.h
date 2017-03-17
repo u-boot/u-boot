@@ -47,7 +47,6 @@
 /*
  * Serial Console Configuration
  */
-#define	CONFIG_BAUDRATE			115200
 
 /*
  * Bootloader Components Configuration

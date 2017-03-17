@@ -56,7 +56,6 @@
 /*-----------------------------------------------------------------------
  * Serial Configuration
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{300, 600, 1200, 2400, 4800, \
 					 9600, 19200, 38400, 115200}
 #define CONFIG_SYS_NS16550_PORT_MAPPED

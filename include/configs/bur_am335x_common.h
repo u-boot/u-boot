@@ -29,7 +29,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
-#define CONFIG_BAUDRATE			115200
 
 /* Network defines */
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */

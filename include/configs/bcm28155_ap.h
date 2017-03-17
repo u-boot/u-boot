@@ -80,8 +80,6 @@
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_COM1		0x3e000000
 
-#define CONFIG_BAUDRATE			115200
-
 /* must fit into GPT:u-boot-env partition */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0

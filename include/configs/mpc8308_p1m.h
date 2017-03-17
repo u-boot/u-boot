@@ -465,8 +465,6 @@
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_BAUDRATE 115200
-
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
 
