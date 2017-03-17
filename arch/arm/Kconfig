@@ -559,6 +559,14 @@ config TARGET_BCMNSP
 	bool "Support bcmnsp"
 	select CPU_V7
 
+config TARGET_BCMNS2
+	bool "Support Broadcom Northstar2"
+	select ARM64
+	help
+	  Support for Broadcom Northstar 2 SoCs.  NS2 is a quad-core 64-bit
+	  ARMv8 Cortex-A57 processors targeting a broad range of networking
+	  applications
+
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
@@ -1237,6 +1245,7 @@ source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
+source "board/broadcom/bcmns2/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
