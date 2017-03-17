@@ -132,6 +132,15 @@ config ROCKCHIP_RK3036_PINCTRL
 	  definitions and pin control functions for each available multiplex
 	  function.
 
+config ROCKCHIP_RK3188_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3188 SoCs. The driver
+	  is controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
 config ROCKCHIP_RK3288_PINCTRL
 	bool "Rockchip pin control driver"
 	depends on DM
@@ -147,6 +156,15 @@ config PINCTRL_AT91PIO4
 	help
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
+
+config ROCKCHIP_RK3328_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3328 SoCs. The driver
+	  is controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
 
 config ROCKCHIP_RK3399_PINCTRL
 	bool "Rockchip pin control driver"

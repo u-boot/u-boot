@@ -425,6 +425,14 @@ enum {
 
 #define START_CMD			(1u << 31)
 
+/*
+ * DDRCONF
+ * [5:4] row(13+n)
+ * [1:0] col(9+n), assume bw=2
+ */
+#define DDRCONF_ROW_SHIFT		4
+#define DDRCONF_COL_SHIFT		0
+
 /* DEVTODEV */
 #define BUSWRTORD_SHIFT			4
 #define BUSRDTOWR_SHIFT			2

@@ -57,6 +57,26 @@ struct rk3288_sdram_params {
 	struct regmap *map;
 };
 
+const int ddrconf_table[] = {
+	/* row	    col,bw */
+	0,
+	((1 << DDRCONF_ROW_SHIFT) | 1 << DDRCONF_COL_SHIFT),
+	((2 << DDRCONF_ROW_SHIFT) | 1 << DDRCONF_COL_SHIFT),
+	((3 << DDRCONF_ROW_SHIFT) | 1 << DDRCONF_COL_SHIFT),
+	((4 << DDRCONF_ROW_SHIFT) | 1 << DDRCONF_COL_SHIFT),
+	((1 << DDRCONF_ROW_SHIFT) | 2 << DDRCONF_COL_SHIFT),
+	((2 << DDRCONF_ROW_SHIFT) | 2 << DDRCONF_COL_SHIFT),
+	((3 << DDRCONF_ROW_SHIFT) | 2 << DDRCONF_COL_SHIFT),
+	((1 << DDRCONF_ROW_SHIFT) | 0 << DDRCONF_COL_SHIFT),
+	((2 << DDRCONF_ROW_SHIFT) | 0 << DDRCONF_COL_SHIFT),
+	((3 << DDRCONF_ROW_SHIFT) | 0 << DDRCONF_COL_SHIFT),
+	0,
+	0,
+	0,
+	0,
+	((4 << 4) | 2),
+};
+
 #define TEST_PATTEN	0x5aa5f00f
 #define DQS_GATE_TRAINING_ERROR_RANK0	(1 << 4)
 #define DQS_GATE_TRAINING_ERROR_RANK1	(2 << 4)
@@ -100,7 +120,7 @@ static void ddr_phy_ctl_reset(struct rk3288_cru *cru, u32 ch, u32 n)
 
 static void phy_pctrl_reset(struct rk3288_cru *cru,
 			    struct rk3288_ddr_publ *publ,
-			    u32 channel)
+			    int channel)
 {
 	int i;
 
@@ -126,6 +146,7 @@ static void phy_dll_bypass_set(struct rk3288_ddr_publ *publ,
 	u32 freq)
 {
 	int i;
+
 	if (freq <= 250000000) {
 		if (freq <= 150000000)
 			clrbits_le32(&publ->dllgcr, SBIAS_BYPASS);
@@ -217,7 +238,7 @@ static void ddr_set_en_bst_odt(struct rk3288_grf *grf, uint channel,
 				UPCTL0_LPDDR3_ODT_EN_SHIFT));
 }
 
-static void pctl_cfg(u32 channel, struct rk3288_ddr_pctl *pctl,
+static void pctl_cfg(int channel, struct rk3288_ddr_pctl *pctl,
 		     struct rk3288_sdram_params *sdram_params,
 		     struct rk3288_grf *grf)
 {
@@ -267,7 +288,7 @@ static void pctl_cfg(u32 channel, struct rk3288_ddr_pctl *pctl,
 	setbits_le32(&pctl->scfg, 1);
 }
 
-static void phy_cfg(const struct chan_info *chan, u32 channel,
+static void phy_cfg(const struct chan_info *chan, int channel,
 		    struct rk3288_sdram_params *sdram_params)
 {
 	struct rk3288_ddr_publ *publ = chan->publ;
@@ -392,7 +413,8 @@ static void move_to_config_state(struct rk3288_ddr_publ *publ,
 			while ((readl(&publ->pgsr) & PGSR_DLDONE)
 				!= PGSR_DLDONE)
 				;
-			/* if at low power state,need wakeup first,
+			/*
+			 * if at low power state,need wakeup first,
 			 * and then enter the config
 			 * so here no break.
 			 */
@@ -411,7 +433,7 @@ static void move_to_config_state(struct rk3288_ddr_publ *publ,
 	}
 }
 
-static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
+static void set_bandwidth_ratio(const struct chan_info *chan, int channel,
 				u32 n, struct rk3288_grf *grf)
 {
 	struct rk3288_ddr_pctl *pctl = chan->pctl;
@@ -449,7 +471,7 @@ static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
 	setbits_le32(&pctl->dfistcfg0, 1 << 2);
 }
 
-static int data_training(const struct chan_info *chan, u32 channel,
+static int data_training(const struct chan_info *chan, int channel,
 			 struct rk3288_sdram_params *sdram_params)
 {
 	unsigned int j;
@@ -593,25 +615,6 @@ static void dram_all_config(const struct dram_info *dram,
 	writel(sys_reg, &dram->pmu->sys_reg[2]);
 	rk_clrsetreg(&dram->sgrf->soc_con2, 0x1f, sdram_params->base.stride);
 }
-const int ddrconf_table[] = {
-	/* row	    col,bw */
-	0,
-	((1 << 4) | 1),
-	((2 << 4) | 1),
-	((3 << 4) | 1),
-	((4 << 4) | 1),
-	((1 << 4) | 2),
-	((2 << 4) | 2),
-	((3 << 4) | 2),
-	((1 << 4) | 0),
-	((2 << 4) | 0),
-	((3 << 4) | 0),
-	0,
-	0,
-	0,
-	0,
-	((4 << 4) | 2),
-};
 
 static int sdram_rank_bw_detect(struct dram_info *dram, int channel,
 		struct rk3288_sdram_params *sdram_params)
@@ -621,12 +624,12 @@ static int sdram_rank_bw_detect(struct dram_info *dram, int channel,
 	const struct chan_info *chan = &dram->chan[channel];
 	struct rk3288_ddr_publ *publ = chan->publ;
 
-	if (-1 == data_training(chan, channel, sdram_params)) {
+	if (data_training(chan, channel, sdram_params) < 0) {
 		reg = readl(&publ->datx8[0].dxgsr[0]);
 		/* Check the result for rank 0 */
 		if ((channel == 0) && (reg & DQS_GATE_TRAINING_ERROR_RANK0)) {
 			debug("data training fail!\n");
-				return -EIO;
+			return -EIO;
 		} else if ((channel == 1) &&
 			   (reg & DQS_GATE_TRAINING_ERROR_RANK0)) {
 			sdram_params->num_channels = 1;
@@ -652,7 +655,7 @@ static int sdram_rank_bw_detect(struct dram_info *dram, int channel,
 	sdram_params->ch[channel].dbw = sdram_params->ch[channel].bw;
 
 	if (need_trainig &&
-	    (-1 == data_training(chan, channel, sdram_params))) {
+	    (data_training(chan, channel, sdram_params) < 0)) {
 		if (sdram_params->base.dramtype == LPDDR3) {
 			ddr_phy_ctl_reset(dram->cru, channel, 1);
 			udelay(10);

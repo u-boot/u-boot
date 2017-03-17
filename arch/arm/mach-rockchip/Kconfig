@@ -11,6 +11,21 @@ config ROCKCHIP_RK3036
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3188
+	bool "Support Rockchip RK3188"
+	select CPU_V7
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+	select SPL
+	select TPL
+	select ROCKCHIP_BROM_HELPER
+	help
+	  The Rockchip RK3188 is a ARM-based SoC with a quad-core Cortex-A9
+	  including NEON and GPU, 512KB L2 cache, Mali-400 graphics, two
+	  video interfaces, several memory options and video codec support.
+	  Peripherals include Fast Ethernet, USB2 host and OTG, SDIO, I2S,
+	  UART, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7
@@ -23,9 +38,22 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3328
+	bool "Support Rockchip RK3328"
+	select ARM64
+	help
+	  The Rockchip RK3328 is a ARM-based SoC with a quad-core Cortex-A53.
+	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
+	  video interfaces supporting HDMI and eDP, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"
 	select ARM64
+	select SUPPORT_SPL
+	select SPL
+	select SPL_SEPARATE_BSS
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
@@ -37,15 +65,21 @@ config ROCKCHIP_RK3399
 config ROCKCHIP_SPL_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
+	select ROCKCHIP_BROM_HELPER
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
+config ROCKCHIP_BROM_HELPER
+	bool
+
 config SPL_MMC_SUPPORT
 	default y if !ROCKCHIP_SPL_BACK_TO_BROM
 
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
+source "arch/arm/mach-rockchip/rk3188/Kconfig"
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
+source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"
 endif

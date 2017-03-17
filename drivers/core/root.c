@@ -205,7 +205,7 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 	     offset > 0;
 	     offset = fdt_next_subnode(blob, offset)) {
 		if (pre_reloc_only &&
-		    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
+		    !dm_fdt_pre_reloc(blob, offset))
 			continue;
 		if (!fdtdec_get_is_enabled(blob, offset)) {
 			dm_dbg("   - ignoring disabled device\n");

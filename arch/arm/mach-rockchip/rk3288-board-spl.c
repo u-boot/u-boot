@@ -14,6 +14,7 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <asm/arch/bootrom.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
@@ -155,7 +156,7 @@ static int configure_emmc(struct udevice *pinctrl)
 	return 0;
 }
 #endif
-extern void back_to_bootrom(void);
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -184,9 +185,9 @@ void board_init_f(ulong dummy)
 	debug_uart_init();
 #endif
 
-	ret = spl_init();
+	ret = spl_early_init();
 	if (ret) {
-		debug("spl_init() failed: %d\n", ret);
+		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
 

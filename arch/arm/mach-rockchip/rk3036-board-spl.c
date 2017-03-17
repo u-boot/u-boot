@@ -7,6 +7,7 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <asm/io.h>
+#include <asm/arch/bootrom.h>
 #include <asm/arch/grf_rk3036.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sdram_rk3036.h>
@@ -19,8 +20,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct rk3036_grf * const grf = (void *)GRF_BASE;
 
 #define DEBUG_UART_BASE	0x20068000
-
-extern void back_to_bootrom(void);
 
 void board_init_f(ulong dummy)
 {

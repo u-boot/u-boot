@@ -12,6 +12,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass.h>
+#include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -131,7 +132,7 @@ static int pinconfig_post_bind(struct udevice *dev)
 	     offset > 0;
 	     offset = fdt_next_subnode(fdt, offset)) {
 		if (pre_reloc_only &&
-		    !fdt_getprop(fdt, offset, "u-boot,dm-pre-reloc", NULL))
+		    !dm_fdt_pre_reloc(fdt, offset))
 			continue;
 		/*
 		 * If this node has "compatible" property, this is not

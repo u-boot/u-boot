@@ -46,17 +46,20 @@ struct header0_info {
  * @imagename:		Image name(passed by "mkimage -n")
  * @spl_hdr:		Boot ROM requires a 4-bytes spl header
  * @spl_size:		Spl size(include extra 4-bytes spl header)
+ * @spl_rc4:		RC4 encode the SPL binary (same key as header)
  */
 struct spl_info {
 	const char *imagename;
 	const char *spl_hdr;
 	const uint32_t spl_size;
+	const bool spl_rc4;
 };
 
 static struct spl_info spl_infos[] = {
-	{ "rk3036", "RK30", 0x1000 },
-	{ "rk3288", "RK32", 0x8000 },
-	{ "rk3399", "RK33", 0x20000 },
+	{ "rk3036", "RK30", 0x1000, false },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true },
+	{ "rk3288", "RK32", 0x8000, false },
+	{ "rk3399", "RK33", 0x20000, false },
 };
 
 static unsigned char rc4_key[16] = {
@@ -113,6 +116,16 @@ int rkcommon_get_spl_size(struct image_tool_params *params)
 	return info->spl_size;
 }
 
+bool rkcommon_need_rc4_spl(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_rc4;
+}
+
 int rkcommon_set_header(void *buf, uint file_size,
 			struct image_tool_params *params)
 {
@@ -124,7 +137,7 @@ int rkcommon_set_header(void *buf, uint file_size,
 	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
 	hdr = (struct header0_info *)buf;
 	hdr->signature = RK_SIGNATURE;
-	hdr->disable_rc4 = 1;
+	hdr->disable_rc4 = !rkcommon_need_rc4_spl(params);
 	hdr->init_offset = RK_INIT_OFFSET;
 
 	hdr->init_size = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
@@ -134,4 +147,17 @@ int rkcommon_set_header(void *buf, uint file_size,
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 
 	return 0;
+}
+
+void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size)
+{
+	unsigned int remaining = size;
+
+	while (remaining > 0) {
+		int step = (remaining > RK_BLK_SIZE) ? RK_BLK_SIZE : remaining;
+
+		rc4_encode(buf + offset, step, rc4_key);
+		offset += RK_BLK_SIZE;
+		remaining -= step;
+	}
 }

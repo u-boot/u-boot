@@ -30,6 +30,8 @@ PROP_IGNORE_LIST = [
     "status",
     'phandle',
     'u-boot,dm-pre-reloc',
+    'u-boot,dm-tpl',
+    'u-boot,dm-spl',
 ]
 
 # C type declarations for the tyues we support

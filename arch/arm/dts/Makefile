@@ -38,6 +38,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-fennec.dtb \
 	rk3288-tinker.dtb \
 	rk3288-popmetal.dtb \
+	rk3328-evb.dtb \
 	rk3399-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-odroidc2.dtb

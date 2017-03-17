@@ -15,6 +15,11 @@ struct rk3399_clk_priv {
 	ulong rate;
 };
 
+struct rk3399_pmuclk_priv {
+	struct rk3399_pmucru *pmucru;
+	ulong rate;
+};
+
 struct rk3399_pmucru {
 	u32 ppll_con[6];
 	u32 reserved[0x1a];

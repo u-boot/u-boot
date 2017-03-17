@@ -215,8 +215,13 @@ $(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
 # 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
 # pass removes various unused properties from the remaining nodes.
 # The output is typically a much smaller device tree file.
+ifeq ($(CONFIG_TPL_BUILD),y)
+fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-tpl
+else
+fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-spl
+endif
 quiet_cmd_fdtgrep = FDTGREP $@
-      cmd_fdtgrep = $(objtree)/tools/fdtgrep -b u-boot,dm-pre-reloc -RT $< \
+      cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
 		-n /chosen -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
