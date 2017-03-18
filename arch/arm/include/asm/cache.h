@@ -16,7 +16,7 @@
 /*
  * Invalidate L2 Cache using co-proc instruction
  */
-#ifdef CONFIG_SYS_THUMB_BUILD
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 void invalidate_l2_cache(void);
 #else
 static inline void invalidate_l2_cache(void)

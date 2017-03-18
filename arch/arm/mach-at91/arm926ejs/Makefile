@@ -27,3 +27,11 @@ obj-y	+= timer.o
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
 obj-y	+= lowlevel_init.o
 endif
+
+ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD
+ifndef CONFIG_HAS_THUMB2
+
+CFLAGS_cache.o := -marm
+
+endif
+endif

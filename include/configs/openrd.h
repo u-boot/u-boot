@@ -21,7 +21,6 @@
 #define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_OPENRD_BASE	/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_SYS_THUMB_BUILD
 
 /*
  * Commands configuration

@@ -9,8 +9,6 @@
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /*
  * High level configuration
  */

@@ -278,8 +278,6 @@
 #define CONFIG_CMD_SPL
 #endif
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /* General parts of the framework, required. */
 #define CONFIG_SPL_BOARD_INIT
 

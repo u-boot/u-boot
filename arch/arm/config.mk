@@ -31,7 +31,7 @@ PLATFORM_RELFLAGS	+= $(LLVM_RELFLAGS)
 PLATFORM_CPPFLAGS += -D__ARM__
 
 # Choose between ARM/Thumb instruction sets
-ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
 AFLAGS_IMPLICIT_IT	:= $(call as-option,-Wa$(comma)-mimplicit-it=always)
 PF_CPPFLAGS_ARM		:= $(AFLAGS_IMPLICIT_IT) \
 			$(call cc-option, -mthumb -mthumb-interwork,\
@@ -44,8 +44,7 @@ PF_CPPFLAGS_ARM := $(call cc-option,-marm,) \
 endif
 
 # Only test once
-ifneq ($(CONFIG_SPL_BUILD),y)
-ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
 archprepare: checkthumb
 
 checkthumb:
@@ -56,7 +55,6 @@ checkthumb:
 		echo '*** Your board is configured for THUMB mode.'; \
 		false; \
 	fi
-endif
 endif
 
 # Try if EABI is supported, else fall back to old API,
@@ -99,7 +97,7 @@ LDFLAGS_u-boot += -pie
 #
 # http://sourceware.org/bugzilla/show_bug.cgi?id=12532
 #
-ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
 ifeq ($(GAS_BUG_12532),)
 export GAS_BUG_12532:=$(shell if [ $(call binutils-version) -lt 0222 ] ; \
 	then echo y; else echo n; fi)

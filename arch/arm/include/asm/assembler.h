@@ -77,7 +77,7 @@
  * We disable it especially for Thumb builds since those instructions
  * are not made in a Thumb ready way...
  */
-#ifdef CONFIG_SYS_THUMB_BUILD
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 #define CALGN(code...)
 #else
 #define CALGN(code...) code

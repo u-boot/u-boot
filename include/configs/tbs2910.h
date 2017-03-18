@@ -12,7 +12,6 @@
 #include "mx6_common.h"
 
 /* General configuration */
-#define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_MACH_TYPE		3980
 

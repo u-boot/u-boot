@@ -156,7 +156,7 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	mov     r0, r9                  /* gd_t */
 	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
-#if defined(CONFIG_SYS_THUMB_BUILD)
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 	ldr	lr, =board_init_r	/* this is auto-relocated! */
 	bx	lr
 #else

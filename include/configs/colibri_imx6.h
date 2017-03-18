@@ -10,7 +10,6 @@
 #define __CONFIG_H
 
 #include "mx6_common.h"
-#define CONFIG_SYS_THUMB_BUILD
 
 #undef CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */

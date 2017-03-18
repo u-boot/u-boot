@@ -16,8 +16,6 @@
  * Build
  */
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /*
  * CPU
  */

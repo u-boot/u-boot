@@ -14,8 +14,6 @@
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /* Support File sytems */
 #define CONFIG_FAT_WRITE
 #define CONFIG_SUPPORT_VFAT

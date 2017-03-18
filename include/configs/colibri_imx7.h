@@ -14,8 +14,6 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /*#define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
 

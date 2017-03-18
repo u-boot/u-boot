@@ -17,7 +17,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_OMAP			/* in a TI OMAP core */
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER

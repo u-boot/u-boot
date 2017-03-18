@@ -15,7 +15,6 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_VF610
-#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */

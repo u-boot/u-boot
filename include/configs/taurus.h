@@ -23,7 +23,6 @@
 #include <linux/sizes.h>
 
 #if defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 #endif

@@ -10,7 +10,6 @@
 #include <config_distro_defaults.h>
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
 

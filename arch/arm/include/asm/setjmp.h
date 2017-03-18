@@ -39,7 +39,7 @@ static inline int setjmp(jmp_buf jmp)
 		  "x30", "cc", "memory");
 #else
 	asm volatile(
-#ifdef CONFIG_SYS_THUMB_BUILD
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 		".align 2\n"
 		"adr r0, jmp_target\n"
 		"add r0, r0, $1\n"
