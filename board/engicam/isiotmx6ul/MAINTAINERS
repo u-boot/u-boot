@@ -1,0 +1,12 @@
+ISIOTMX6UL BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	board/engicam/isiotmx6ul
+F:	include/configs/imx6ul_isiot.h
+F:	configs/imx6ul_isiot_mmc_defconfig
+F:	configs/imx6ul_isiot_emmc_defconfig
+F:	configs/imx6ul_isiot_nand_defconfig
+F:	arch/arm/dts/imx6ul-isiot.dtsi
+F:	arch/arm/dts/imx6ul-isiot-mmc.dts
+F:	arch/arm/dts/imx6ul-isiot-emmc.dts
+F:	arch/arm/dts/imx6ul-isiot-nand.dts

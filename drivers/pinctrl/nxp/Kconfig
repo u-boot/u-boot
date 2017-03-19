@@ -42,3 +42,17 @@ config PINCTRL_IMX7
 	  configuration. This driver is different from the linux one,
 	  this is a simple implementation, only parses the 'fsl,pins'
 	  property and configure related registers.
+
+config PINCTRL_IMX7ULP
+	bool "IMX7ULP pinctrl driver"
+	depends on ARCH_MX7ULP && PINCTRL_FULL
+	select DEVRES
+	select PINCTRL_IMX
+	help
+	  Say Y here to enable the imx7ulp pinctrl driver
+
+	  This provides a simple pinctrl driver for i.MX7ULP SoC familiy.
+	  This feature depends on device tree configuration. This driver
+	  is different from the linux one, this is a simple implementation,
+	  only parses the 'fsl,pins' property and configure related
+	  registers.

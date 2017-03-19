@@ -99,7 +99,7 @@ ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_MX35)$(filter $(SOC), mx25 mx5 mx6 
 libs-y += arch/arm/imx-common/
 endif
 else
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx31 mx35 mxs vf610))
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs vf610))
 libs-y += arch/arm/imx-common/
 endif
 endif

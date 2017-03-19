@@ -118,7 +118,7 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=ttymxc0,115200\0" \
+	"console=ttymxc0,115200 quiet\0" \
 	"fdtfile=imx6q-mccmon6.dtb\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -148,7 +148,7 @@
 	"boot_nor=" \
 		"setenv kernelnor 0x08180000;" \
 		"setenv dtbnor 0x09980000;" \
-		"setenv bootargs console=${console} quiet " \
+		"setenv bootargs console=${console} " \
 		""MTDPARTS_DEFAULT" " \
 		"root=/dev/mmcblk1 rootfstype=ext4 rw rootwait noinitrd;" \
 		"cp.l ${dtbnor} ${dtbloadaddr} 0x8000;" \

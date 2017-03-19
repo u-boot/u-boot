@@ -68,7 +68,7 @@
   #define CONFIG_SF_DEFAULT_MODE             (SPI_MODE_0)
 #endif
 
-#else
+#elif defined(CONFIG_SPL_NAND_SUPPORT)
 /* Enable NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
@@ -143,6 +143,7 @@
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
+#define CONFIG_CMD_UNZIP         /* gzwrite */
 #define CONFIG_RBTREE
 
 /* Ethernet support */
@@ -226,9 +227,11 @@
 
 /* Persistent Environment Config */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_ENV_IS_IN_SPI_FLASH
+  #define CONFIG_ENV_IS_IN_SPI_FLASH
+#elif defined(CONFIG_SPL_NAND_SUPPORT)
+  #define CONFIG_ENV_IS_IN_NAND
 #else
-#define CONFIG_ENV_IS_IN_NAND
+  #define CONFIG_ENV_IS_IN_MMC
 #endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
   #define CONFIG_SYS_MMC_ENV_DEV         0
@@ -295,14 +298,14 @@
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
-	"mmc_root=/dev/mmcblk0p1 rootfstype=${fs} rootwait rw\0" \
+	"mmc_root=mmcblk0p1\0" \
 	"mmc_boot=" \
 		"setenv fsload \"${fs}load mmc ${disk}:${part}\"; " \
 		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/mmcblk0p1 rootfstype=${fs} " \
+				"root=/dev/${mmc_root} rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \

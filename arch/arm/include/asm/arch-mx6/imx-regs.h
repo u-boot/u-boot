@@ -473,6 +473,8 @@ struct src {
 	u32     gpr10;
 };
 
+#define src_base ((struct src *)SRC_BASE_ADDR)
+
 #define SRC_SCR_M4_ENABLE_OFFSET                22
 #define SRC_SCR_M4_ENABLE_MASK                  (1 << 22)
 #define SRC_SCR_M4C_NON_SCLR_RST_OFFSET         4

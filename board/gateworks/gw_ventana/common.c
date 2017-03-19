@@ -6,10 +6,12 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
+#include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <fsl_esdhc.h>
 #include <hwconfig.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
@@ -34,6 +36,17 @@ void setup_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart1_pads);
 	SETUP_IOMUX_PADS(uart2_pads);
 }
+
+/* MMC */
+static iomux_v3_cfg_t const usdhc3_pads[] = {
+	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+};
 
 /* I2C1: GSC */
 static struct i2c_pads_info mx6q_i2c_pad_info0 = {
@@ -130,12 +143,6 @@ void setup_ventana_i2c(void)
  * Baseboard specific GPIO
  */
 
-/* common to add baseboards */
-static iomux_v3_cfg_t const gw_gpio_pads[] = {
-	/* SD3_VSELECT */
-	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
-};
-
 /* prototype */
 static iomux_v3_cfg_t const gwproto_gpio_pads[] = {
 	/* RS232_EN# */
@@ -183,6 +190,8 @@ static iomux_v3_cfg_t const gw51xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -216,6 +225,8 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -249,6 +260,8 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
@@ -325,11 +338,12 @@ static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 	/* PANLEDG# */
 	IOMUX_PADS(PAD_KEY_COL2__GPIO4_IO10 | DIO_PAD_CFG),
 	/* PANLEDR# */
 	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11 | DIO_PAD_CFG),
-
 	/* VID_PWR */
 	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
 	/* PCI_RST# */
@@ -573,6 +587,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.rs485en = IMX_GPIO_NR(3, 24),
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW51xx */
@@ -591,6 +606,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.gps_shdn = IMX_GPIO_NR(1, 2),
 		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
 
 	/* GW52xx */
@@ -613,6 +629,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW53xx */
@@ -634,6 +652,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW54xx */
@@ -657,6 +677,8 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(5, 17),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 
 	/* GW551x */
@@ -702,19 +724,14 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.pcie_rst = IMX_GPIO_NR(1, 0),
 		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
+		.vsel_pin = IMX_GPIO_NR(6, 14),
 	},
 };
 
 void setup_iomux_gpio(int board, struct ventana_board_info *info)
 {
 	int i;
-
-	/* iomux common to all Ventana boards */
-	SETUP_IOMUX_PADS(gw_gpio_pads);
-
-	/* OTG power off */
-	gpio_request(GP_USB_OTG_PWR, "usbotg_pwr");
-	gpio_direction_output(GP_USB_OTG_PWR, 0);
 
 	if (board >= GW_UNKNOWN)
 		return;
@@ -725,7 +742,7 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 
 	/* RS232_EN# */
 	if (gpio_cfg[board].rs232_en) {
-		gpio_request(gpio_cfg[board].rs232_en, "rs232_en");
+		gpio_request(gpio_cfg[board].rs232_en, "rs232_en#");
 		gpio_direction_output(gpio_cfg[board].rs232_en, 0);
 	}
 
@@ -805,10 +822,18 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
 	}
 
+	/* OTG power off */
+	if (gpio_cfg[board].otgpwr_en) {
+		gpio_request(gpio_cfg[board].otgpwr_en, "usbotg_pwr");
+		gpio_direction_output(gpio_cfg[board].otgpwr_en, 0);
+	}
+
 	/* sense vselect pin to see if we support uhs-i */
-	gpio_request(GP_SD3_VSELECT, "sd3_vselect");
-	gpio_direction_input(GP_SD3_VSELECT);
-	gpio_cfg[board].usd_vsel = !gpio_get_value(GP_SD3_VSELECT);
+	if (gpio_cfg[board].vsel_pin) {
+		gpio_request(gpio_cfg[board].vsel_pin, "sd3_vselect");
+		gpio_direction_input(gpio_cfg[board].vsel_pin);
+		gpio_cfg[board].usd_vsel = !gpio_get_value(gpio_cfg[board].vsel_pin);
+	}
 }
 
 /* setup GPIO pinmux and default configuration per baseboard and env */
@@ -964,3 +989,25 @@ void setup_pmic(void)
 		}
 	}
 }
+
+#ifdef CONFIG_FSL_ESDHC
+static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
+
+int board_mmc_init(bd_t *bis)
+{
+	/* Only one USDHC controller on Ventana */
+	SETUP_IOMUX_PADS(usdhc3_pads);
+	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+	usdhc_cfg.max_bus_width = 4;
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg);
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	/* Card Detect */
+	gpio_request(GP_SD3_CD, "sd_cd");
+	gpio_direction_input(GP_SD3_CD);
+	return !gpio_get_value(GP_SD3_CD);
+}
+#endif /* CONFIG_FSL_ESDHC */

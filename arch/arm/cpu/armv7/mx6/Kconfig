@@ -46,6 +46,16 @@ config MX6UL_LITESOM
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config MX6UL_OPOS6UL
+	bool
+	select MX6UL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_GPIO
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config MX6ULL
 	bool
 	select MX6UL
@@ -241,6 +251,17 @@ config TARGET_MX6UL_GEAM
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
+config TARGET_MX6UL_ISIOT
+	bool "Support Engicam Is.IoT MX6UL"
+	select MX6UL
+	select OF_CONTROL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
 
 config TARGET_MX6ULL_14X14_EVK
 	bool "Support mx6ull_14x14_evk"
@@ -251,6 +272,10 @@ config TARGET_MX6ULL_14X14_EVK
 
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
+
+config TARGET_OPOS6ULDEV
+	bool "Armadeus OPOS6ULDev board"
+	select MX6UL_OPOS6UL
 
 config TARGET_OT1200
 	bool "Bachmann OT1200"
@@ -350,6 +375,7 @@ config SYS_SOC
 source "board/ge/bx50v3/Kconfig"
 source "board/advantech/dms-ba16/Kconfig"
 source "board/aristainetos/Kconfig"
+source "board/armadeus/opos6uldev/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
@@ -362,6 +388,7 @@ source "board/embest/mx6boards/Kconfig"
 source "board/engicam/geam6ul/Kconfig"
 source "board/engicam/icorem6/Kconfig"
 source "board/engicam/icorem6_rqs/Kconfig"
+source "board/engicam/isiotmx6ul/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"

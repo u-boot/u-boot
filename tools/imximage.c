@@ -23,6 +23,7 @@ static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
 	{CMD_WRITE_DATA,        "DATA",                 "Reg Write Data", },
 	{CMD_WRITE_CLR_BIT,     "CLR_BIT",              "Reg clear bit",  },
+	{CMD_WRITE_SET_BIT,     "SET_BIT",              "Reg set bit",  },
 	{CMD_CHECK_BITS_SET,    "CHECK_BITS_SET",   "Reg Check bits set", },
 	{CMD_CHECK_BITS_CLR,    "CHECK_BITS_CLR",   "Reg Check bits clr", },
 	{CMD_CSF,               "CSF",           "Command Sequence File", },
@@ -203,6 +204,15 @@ static void set_dcd_param_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
 		d->write_dcd_command.length = cpu_to_be16(4);
 		d->write_dcd_command.param = DCD_WRITE_CLR_BIT_PARAM;
+		break;
+	case CMD_WRITE_SET_BIT:
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_SET_BIT_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_SET_BIT_PARAM;
 		break;
 	/*
 	 * Check data command only supports one entry,
@@ -636,6 +646,7 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		break;
 	case CMD_WRITE_DATA:
 	case CMD_WRITE_CLR_BIT:
+	case CMD_WRITE_SET_BIT:
 	case CMD_CHECK_BITS_SET:
 	case CMD_CHECK_BITS_CLR:
 		value = get_cfg_value(token, name, lineno);
@@ -686,6 +697,7 @@ static void parse_cfg_fld(struct imx_header *imxhdr, int32_t *cmd,
 		switch(*cmd) {
 		case CMD_WRITE_DATA:
 		case CMD_WRITE_CLR_BIT:
+		case CMD_WRITE_SET_BIT:
 		case CMD_CHECK_BITS_SET:
 		case CMD_CHECK_BITS_CLR:
 

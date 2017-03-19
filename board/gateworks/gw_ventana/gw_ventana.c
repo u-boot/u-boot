@@ -52,17 +52,6 @@ struct ventana_board_info ventana_info;
 
 static int board_type;
 
-/* MMC */
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-};
-
 /* ENET */
 static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -186,34 +175,14 @@ int board_ehci_hcd_init(int port)
 
 int board_ehci_power(int port, int on)
 {
-	if (port)
-		return 0;
-	gpio_set_value(GP_USB_OTG_PWR, on);
+	/* enable OTG VBUS */
+	if (!port && board_type < GW_UNKNOWN) {
+		if (gpio_cfg[board_type].otgpwr_en)
+			gpio_set_value(gpio_cfg[board_type].otgpwr_en, on);
+	}
 	return 0;
 }
 #endif /* CONFIG_USB_EHCI_MX6 */
-
-#ifdef CONFIG_FSL_ESDHC
-static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	/* Card Detect */
-	gpio_request(GP_SD3_CD, "sd_cd");
-	gpio_direction_input(GP_SD3_CD);
-	return !gpio_get_value(GP_SD3_CD);
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	/* Only one USDHC controller on Ventana */
-	SETUP_IOMUX_PADS(usdhc3_pads);
-	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg.max_bus_width = 4;
-
-	return fsl_esdhc_initialize(bis, &usdhc_cfg);
-}
-#endif /* CONFIG_FSL_ESDHC */
 
 #ifdef CONFIG_MXC_SPI
 iomux_v3_cfg_t const ecspi1_pads[] = {
@@ -772,7 +741,7 @@ int misc_init_r(void)
 
 	/* Set a non-initialized hwconfig based on board configuration */
 	if (!strcmp(getenv("hwconfig"), "_UNKNOWN_")) {
-		sprintf(buf, "hwconfig=");
+		buf[0] = 0;
 		if (gpio_cfg[board_type].rs232_en)
 			strcat(buf, "rs232;");
 		for (i = 0; i < gpio_cfg[board_type].dio_num; i++) {

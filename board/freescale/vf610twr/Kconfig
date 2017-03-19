@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "freescale"
 
-config SYS_SOC
-	default "vf610"
-
 config SYS_CONFIG_NAME
 	default "vf610twr"
 

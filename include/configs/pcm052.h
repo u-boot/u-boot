@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_VF610
-
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Enable passing of ATAGs */

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2013, 2014 Markus Niebel <Markus.Niebel@tq-group.com>
+ * Copyright (C) 2013, 2014, 2017 Markus Niebel <Markus.Niebel@tq-group.com>
  *
- * Configuration settings for the TQ Systems TQMa6<Q,S> module.
+ * Configuration settings for the TQ Systems TQMa6<Q,D,DL,S> module.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -18,18 +18,20 @@
 /* #endif */
 
 /* place code in last 4 MiB of RAM */
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
+#if defined(CONFIG_TQMA6S)
 #define CONFIG_SYS_TEXT_BASE		0x2fc00000
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
+#elif defined(CONFIG_TQMA6Q) || defined(CONFIG_TQMA6DL)
 #define CONFIG_SYS_TEXT_BASE		0x4fc00000
 #endif
 
 #include "mx6_common.h"
 
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
+#if defined(CONFIG_TQMA6S)
 #define PHYS_SDRAM_SIZE			(512u * SZ_1M)
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-#define PHYS_SDRAM_SIZE			(1024u * SZ_1M)
+#elif defined(CONFIG_TQMA6DL)
+#define PHYS_SDRAM_SIZE			(SZ_1G)
+#elif defined(CONFIG_TQMA6Q)
+#define PHYS_SDRAM_SIZE			(SZ_1G)
 #endif
 
 #define CONFIG_MXC_UART

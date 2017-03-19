@@ -204,6 +204,11 @@ static u32 get_dspi_clk(void)
 	return get_ipg_clk();
 }
 
+u32 get_lpuart_clk(void)
+{
+	return get_uart_clk();
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {

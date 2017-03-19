@@ -40,9 +40,7 @@
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
-	"mmcdev=0\0" \
 	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
@@ -56,8 +54,7 @@
 	"fitboot=echo Booting FIT image from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
+	"_mmcboot=run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
@@ -70,23 +67,24 @@
 			"fi; " \
 		"else " \
 			"bootm; " \
-		"fi\0"
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev};" \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadfit; then " \
-				"run fitboot; " \
+		"fi\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"mmc dev ${mmcdev};" \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
 			"else " \
-				"if run loadimage; then " \
-					"run mmcboot; " \
+				"if run loadfit; then " \
+					"run fitboot; " \
+				"else " \
+					"if run loadimage; then " \
+						"run _mmcboot; " \
+					"fi; " \
 				"fi; " \
 			"fi; " \
-		"fi; " \
-	"fi"
+		"fi\0"
+
+#define CONFIG_BOOTCOMMAND		"run $modeboot"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -124,7 +122,7 @@
 /* MMC */
 #ifdef CONFIG_FSL_USDHC
 # define CONFIG_SYS_MMC_ENV_DEV		0
-# define CONFIG_SYS_FSL_USDHC_NUM	1
+# define CONFIG_SYS_FSL_USDHC_NUM	2
 # define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #endif
 

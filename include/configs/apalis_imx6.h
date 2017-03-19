@@ -195,6 +195,7 @@
 		"${fdt_file} && setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
 #define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x20000000\0" \
 	"fdt_addr_r=0x12000000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

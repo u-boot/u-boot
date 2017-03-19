@@ -949,6 +949,10 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 
 #ifdef CONFIG_DM_MMC
 #include <asm/arch/clock.h>
+__weak void init_clk_usdhc(u32 index)
+{
+}
+
 static int fsl_esdhc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -1011,6 +1015,9 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	 * correctly get the seq as 2 and 3, then let mxc_get_clock
 	 * work as expected.
 	 */
+
+	init_clk_usdhc(dev->seq);
+
 	priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
 	if (priv->sdhc_clk <= 0) {
 		dev_err(dev, "Unable to get clk for %s\n", dev->name);
@@ -1035,6 +1042,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6sl-usdhc", },
 	{ .compatible = "fsl,imx6q-usdhc", },
 	{ .compatible = "fsl,imx7d-usdhc", },
+	{ .compatible = "fsl,imx7ulp-usdhc", },
 	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };

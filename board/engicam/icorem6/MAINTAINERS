@@ -7,3 +7,6 @@ F:	configs/imx6q_icore_mmc_defconfig
 F:	configs/imx6q_icore_nand_defconfig
 F:	configs/imx6dl_icore_mmc_defconfig
 F:	configs/imx6dl_icore_nand_defconfig
+F:	arch/arm/dts/imx6qdl-icore.dtsi
+F:	arch/arm/dts/imx6q-icore.dts
+F:	arch/arm/dts/imx6dl-icore.dts
