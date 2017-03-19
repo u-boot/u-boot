@@ -152,9 +152,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
 
 	if (((host->last_cmd == MMC_CMD_WRITE_MULTIPLE_BLOCK) ||
-	     (host->last_cmd == MMC_CMD_WRITE_SINGLE_BLOCK) ||
-	     (host->last_cmd == MMC_CMD_READ_MULTIPLE_BLOCK) ||
-	     (host->last_cmd == MMC_CMD_READ_SINGLE_BLOCK)) &&
+	     (host->last_cmd == MMC_CMD_READ_MULTIPLE_BLOCK)) &&
 	    (host->quirks & SDHCI_QUIRK_USE_ACMD12) &&
 	    (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION))
 		return 0;
@@ -222,9 +220,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 			mode |= SDHCI_TRNS_MULTI;
 
 		if (((cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK) ||
-		     (cmd->cmdidx == MMC_CMD_WRITE_SINGLE_BLOCK) ||
-		     (cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK) ||
-		     (cmd->cmdidx == MMC_CMD_READ_SINGLE_BLOCK)) &&
+		     (cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK)) &&
 		    (host->quirks & SDHCI_QUIRK_USE_ACMD12))
 			mode |= SDHCI_TRNS_ACMD12;
 
