@@ -319,7 +319,7 @@ static int dm_test_lifecycle(struct unit_test_state *uts)
 
 	/* Now remove device 3 */
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_PRE_REMOVE]);
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_asserteq(1, dm_testdrv_op_count[DM_TEST_OP_PRE_REMOVE]);
 
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_UNBIND]);
@@ -352,7 +352,7 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(dev_last);
 
 	/* Now remove device 3 */
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev));
 
 	/* The device numbering should have shifted down one */
@@ -371,9 +371,9 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(pingret == 102);
 
 	/* Remove 3 and 4 */
-	ut_assertok(device_remove(dev_penultimate));
+	ut_assertok(device_remove(dev_penultimate, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev_penultimate));
-	ut_assertok(device_remove(dev_last));
+	ut_assertok(device_remove(dev_last, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev_last));
 
 	/* Our device should now be in position 3 */
@@ -381,7 +381,7 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(dev == test_dev);
 
 	/* Now remove device 3 */
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev));
 
 	return 0;
@@ -457,7 +457,7 @@ static int dm_test_remove(struct unit_test_state *uts)
 		ut_assert(dev);
 		ut_assertf(dev->flags & DM_FLAG_ACTIVATED,
 			   "Driver %d/%s not activated", i, dev->name);
-		ut_assertok(device_remove(dev));
+		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s should have deactivated", i,
 			   dev->name);
@@ -611,14 +611,14 @@ static int dm_test_children(struct unit_test_state *uts)
 	ut_asserteq(total, dm_testdrv_op_count[DM_TEST_OP_PROBE]);
 
 	/* Remove a top-level child and check that the children are removed */
-	ut_assertok(device_remove(top[2]));
+	ut_assertok(device_remove(top[2], DM_REMOVE_NORMAL));
 	ut_asserteq(NODE_COUNT + 1, dm_testdrv_op_count[DM_TEST_OP_REMOVE]);
 	dm_testdrv_op_count[DM_TEST_OP_REMOVE] = 0;
 
 	/* Try one with grandchildren */
 	ut_assertok(uclass_get_device(UCLASS_TEST, 5, &dev));
 	ut_asserteq_ptr(dev, top[5]);
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_asserteq(1 + NODE_COUNT * (1 + NODE_COUNT),
 		    dm_testdrv_op_count[DM_TEST_OP_REMOVE]);
 

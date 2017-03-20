@@ -110,7 +110,7 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Remove any existing device */
 		ret = uclass_find_device(UCLASS_CROS_EC, 0, &udev);
 		if (!ret)
-			device_remove(udev);
+			device_remove(udev, DM_REMOVE_NORMAL);
 		ret = uclass_get_device(UCLASS_CROS_EC, 0, &udev);
 		if (ret) {
 			printf("Could not init cros_ec device (err %d)\n", ret);

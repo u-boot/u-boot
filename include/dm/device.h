@@ -46,6 +46,32 @@ struct driver_info;
 
 #define DM_FLAG_OF_PLATDATA		(1 << 8)
 
+/*
+ * Call driver remove function to stop currently active DMA transfers or
+ * give DMA buffers back to the HW / controller. This may be needed for
+ * some drivers to do some final stage cleanup before the OS is called
+ * (U-Boot exit)
+ */
+#define DM_FLAG_ACTIVE_DMA		(1 << 9)
+
+/*
+ * One or multiple of these flags are passed to device_remove() so that
+ * a selective device removal as specified by the remove-stage and the
+ * driver flags can be done.
+ */
+enum {
+	/* Normal remove, remove all devices */
+	DM_REMOVE_NORMAL     = 1 << 0,
+
+	/* Remove devices with active DMA */
+	DM_REMOVE_ACTIVE_DMA = DM_FLAG_ACTIVE_DMA,
+
+	/* Add more use cases here */
+
+	/* Remove devices with any active flag */
+	DM_REMOVE_ACTIVE_ALL = DM_REMOVE_ACTIVE_DMA,
+};
+
 /**
  * struct udevice - An instance of a driver
  *

@@ -116,7 +116,7 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 	for (i = 0; i < DM_TEST_ETH_NUM; i++) {
 		ut_assertok(uclass_find_device_by_name(UCLASS_ETH,
 						       ethname[i], &dev[i]));
-		ut_assertok(device_remove(dev[i]));
+		ut_assertok(device_remove(dev[i], DM_REMOVE_NORMAL));
 
 		/* Invalidate MAC address */
 		strcpy(ethaddr[i], getenv(addrname[i]));

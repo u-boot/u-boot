@@ -378,7 +378,7 @@ int device_probe(struct udevice *dev)
 
 	return 0;
 fail_uclass:
-	if (device_remove(dev)) {
+	if (device_remove(dev, DM_REMOVE_NORMAL)) {
 		dm_warn("%s: Device '%s' failed to remove on error path\n",
 			__func__, dev->name);
 	}

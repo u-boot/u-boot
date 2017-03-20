@@ -178,7 +178,7 @@ int dm_init(void)
 
 int dm_uninit(void)
 {
-	device_remove(dm_root());
+	device_remove(dm_root(), DM_REMOVE_NORMAL);
 	device_unbind(dm_root());
 
 	return 0;

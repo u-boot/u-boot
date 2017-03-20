@@ -222,7 +222,7 @@ static int test_bus_parent_data(struct unit_test_state *uts)
 	/* Check that it starts at 0 and goes away when device is removed */
 	parent_data->sum += 5;
 	ut_asserteq(5, parent_data->sum);
-	device_remove(dev);
+	device_remove(dev, DM_REMOVE_NORMAL);
 	ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 
 	/* Check that we can do this twice */
@@ -323,7 +323,7 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 			continue;
 		parent_data = dev_get_parent_priv(dev);
 		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
-		ut_assertok(device_remove(dev));
+		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 		ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 		ut_asserteq_ptr(dms->removed, dev);
 	}
@@ -360,7 +360,7 @@ static int test_bus_parent_platdata(struct unit_test_state *uts)
 		plat->count++;
 		ut_asserteq(1, plat->count);
 		device_probe(dev);
-		device_remove(dev);
+		device_remove(dev, DM_REMOVE_NORMAL);
 
 		ut_asserteq_ptr(plat, dev_get_parent_platdata(dev));
 		ut_asserteq(1, plat->count);
@@ -370,7 +370,7 @@ static int test_bus_parent_platdata(struct unit_test_state *uts)
 	ut_asserteq(3, child_count);
 
 	/* Removing the bus should also have no effect (it is still bound) */
-	device_remove(bus);
+	device_remove(bus, DM_REMOVE_NORMAL);
 	for (device_find_first_child(bus, &dev), child_count = 0;
 	     dev;
 	     device_find_next_child(&dev)) {

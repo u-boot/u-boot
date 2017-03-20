@@ -154,7 +154,7 @@ int usb_stop(void)
 	uc_priv = uc->priv;
 
 	uclass_foreach_dev(bus, uc) {
-		ret = device_remove(bus);
+		ret = device_remove(bus, DM_REMOVE_NORMAL);
 		if (ret && !err)
 			err = ret;
 	}
@@ -358,7 +358,7 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	ret = uclass_find_device_by_seq(UCLASS_USB, 0, true, &dev);
 	if (ret)
 		return ret;
-	ret = device_remove(dev);
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
 	if (ret)
 		return ret;
 

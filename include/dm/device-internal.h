@@ -96,12 +96,13 @@ int device_probe(struct udevice *dev);
  * children are deactivated first.
  *
  * @dev: Pointer to device to remove
+ * @flags: Flags for selective device removal
  * @return 0 if OK, -ve on error (an error here is normally a very bad thing)
  */
 #if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
-int device_remove(struct udevice *dev);
+int device_remove(struct udevice *dev, uint flags);
 #else
-static inline int device_remove(struct udevice *dev) { return 0; }
+static inline int device_remove(struct udevice *dev, uint flags) { return 0; }
 #endif
 
 /**

@@ -98,7 +98,7 @@ int host_dev_bind(int devnum, char *filename)
 	/* Remove and unbind the old device, if any */
 	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
 	if (ret == 0) {
-		ret = device_remove(dev);
+		ret = device_remove(dev, DM_REMOVE_NORMAL);
 		if (ret)
 			return ret;
 		ret = device_unbind(dev);

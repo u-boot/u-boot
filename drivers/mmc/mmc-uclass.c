@@ -232,7 +232,7 @@ int mmc_unbind(struct udevice *dev)
 
 	device_find_first_child(dev, &bdev);
 	if (bdev) {
-		device_remove(bdev);
+		device_remove(bdev, DM_REMOVE_NORMAL);
 		device_unbind(bdev);
 	}
 
