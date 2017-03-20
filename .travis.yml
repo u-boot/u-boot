@@ -135,10 +135,13 @@ matrix:
           BUILDMAN="freescale -x powerpc,m68k,aarch64"
     - env:
         - JOB="Freescale AArch64"
-          BUILDMAN="freescale -x powerpc,m68k,armv7,arm9,arm11"
+          BUILDMAN="freescale&aarch64"
     - env:
-        - JOB="i.MX (non-Freescale)"
-          BUILDMAN="mx -x freescale"
+        - JOB="i.MX6 (non-Freescale)"
+          BUILDMAN="mx6 -x freescale"
+    - env:
+        - JOB="i.MX (non-Freescale, non-i.MX6)"
+          BUILDMAN="mx -x freescale,mx6"
     - env:
         - BUILDMAN="samsung"
     - env:
