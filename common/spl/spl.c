@@ -227,10 +227,11 @@ int spl_early_init(void)
 int spl_init(void)
 {
 	int ret;
+	bool setup_malloc = !(IS_ENABLED(CONFIG_SPL_STACK_R) &&
+			IS_ENABLED(CONFIG_SPL_SYS_MALLOC_SIMPLE));
 
 	if (!(gd->flags & GD_FLG_SPL_EARLY_INIT)) {
-		ret = spl_common_init(
-			!IS_ENABLED(CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN));
+		ret = spl_common_init(setup_malloc);
 		if (ret)
 			return ret;
 	}
