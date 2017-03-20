@@ -24,6 +24,14 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif
+
 int board_init(void)
 {
 	return 0;
