@@ -482,7 +482,6 @@ void fdt_fixup_ethernet(void *fdt)
 	/* Cycle through all aliases */
 	for (prop = 0; ; prop++) {
 		const char *name;
-		int len = strlen("ethernet");
 
 		/* FDT might have been edited, recompute the offset */
 		offset = fdt_first_property_offset(fdt,
@@ -495,8 +494,13 @@ void fdt_fixup_ethernet(void *fdt)
 			break;
 
 		path = fdt_getprop_by_offset(fdt, offset, &name, NULL);
-		if (!strncmp(name, "ethernet", len)) {
-			i = trailing_strtol(name);
+		if (!strncmp(name, "ethernet", 8)) {
+			/* Treat plain "ethernet" same as "ethernet0". */
+			if (!strcmp(name, "ethernet"))
+				i = 0;
+			else
+				i = trailing_strtol(name);
+
 			if (i != -1) {
 				if (i == 0)
 					strcpy(mac, "ethaddr");
