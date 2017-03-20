@@ -691,31 +691,36 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int type = 0;
 
-	if (argc != 2)
+	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	if (strcasecmp(argv[1], "key"))
+	if (!strcasecmp(argv[1], "key"))
 		type = TPM_RT_KEY;
-	else if (strcasecmp(argv[1], "auth"))
+	else if (!strcasecmp(argv[1], "auth"))
 		type = TPM_RT_AUTH;
-	else if (strcasecmp(argv[1], "hash"))
+	else if (!strcasecmp(argv[1], "hash"))
 		type = TPM_RT_HASH;
-	else if (strcasecmp(argv[1], "trans"))
+	else if (!strcasecmp(argv[1], "trans"))
 		type = TPM_RT_TRANS;
-	else if (strcasecmp(argv[1], "context"))
+	else if (!strcasecmp(argv[1], "context"))
 		type = TPM_RT_CONTEXT;
-	else if (strcasecmp(argv[1], "counter"))
+	else if (!strcasecmp(argv[1], "counter"))
 		type = TPM_RT_COUNTER;
-	else if (strcasecmp(argv[1], "delegate"))
+	else if (!strcasecmp(argv[1], "delegate"))
 		type = TPM_RT_DELEGATE;
-	else if (strcasecmp(argv[1], "daa_tpm"))
+	else if (!strcasecmp(argv[1], "daa_tpm"))
 		type = TPM_RT_DAA_TPM;
-	else if (strcasecmp(argv[1], "daa_v0"))
+	else if (!strcasecmp(argv[1], "daa_v0"))
 		type = TPM_RT_DAA_V0;
-	else if (strcasecmp(argv[1], "daa_v1"))
+	else if (!strcasecmp(argv[1], "daa_v1"))
 		type = TPM_RT_DAA_V1;
 
-	if (strcasecmp(argv[2], "all")) {
+	if (!type) {
+		printf("Resource type %s unknown.\n", argv[1]);
+		return -1;
+	}
+
+	if (!strcasecmp(argv[2], "all")) {
 		uint16_t res_count;
 		uint8_t buf[288];
 		uint8_t *ptr;
@@ -725,8 +730,10 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 		/* fetch list of already loaded resources in the TPM */
 		err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
 					 sizeof(buf));
-		if (err)
+		if (err) {
+			printf("tpm_get_capability returned error %d.\n", err);
 			return -1;
+		}
 		res_count = get_unaligned_be16(buf);
 		ptr = buf + 2;
 		for (i = 0; i < res_count; ++i, ptr += 4)
@@ -734,8 +741,10 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 	} else {
 		uint32_t handle = simple_strtoul(argv[2], NULL, 0);
 
-		if (!handle)
+		if (!handle) {
+			printf("Illegal resource handle %s\n", argv[2]);
 			return -1;
+		}
 		tpm_flush_specific(cpu_to_be32(handle), type);
 	}
 
