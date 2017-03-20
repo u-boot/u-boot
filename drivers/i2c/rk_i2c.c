@@ -380,6 +380,8 @@ static const struct dm_i2c_ops rockchip_i2c_ops = {
 };
 
 static const struct udevice_id rockchip_i2c_ids[] = {
+	{ .compatible = "rockchip,rk3066-i2c" },
+	{ .compatible = "rockchip,rk3188-i2c" },
 	{ .compatible = "rockchip,rk3288-i2c" },
 	{ }
 };
