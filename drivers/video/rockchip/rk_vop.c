@@ -20,7 +20,6 @@
 #include <asm/arch/cru_rk3288.h>
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/edp_rk3288.h>
-#include <asm/arch/hdmi_rk3288.h>
 #include <asm/arch/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
