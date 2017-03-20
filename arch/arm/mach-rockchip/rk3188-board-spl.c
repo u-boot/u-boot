@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
+#include <clk.h>
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
@@ -76,6 +77,27 @@ u32 spl_boot_mode(const u32 boot_device)
 	return MMCSD_MODE_RAW;
 }
 
+static int setup_arm_clock(void)
+{
+	struct udevice *dev;
+	struct clk clk;
+	int ret;
+
+	ret = rockchip_get_clk(&dev);
+	if (ret)
+		return ret;
+
+	clk.id = CLK_ARM;
+	ret = clk_request(dev, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_set_rate(&clk, 600000000);
+
+	clk_free(&clk);
+	return ret;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl, *dev;
@@ -143,6 +165,8 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
+
+	setup_arm_clock();
 
 #if defined(CONFIG_ROCKCHIP_SPL_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom();
