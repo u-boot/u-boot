@@ -422,7 +422,8 @@ static int xenon_sdhci_probe(struct udevice *dev)
 
 	host->ops = &xenon_sdhci_ops;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, XENON_MMC_MAX_CLK, 0);
+	host->max_clk = XENON_MMC_MAX_CLK;
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
 		return ret;
 
