@@ -955,7 +955,7 @@ static int rk3188_dmc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 #endif
-	priv->info.base = 0;
+	priv->info.base = CONFIG_SYS_SDRAM_BASE;
 	priv->info.size = sdram_size_mb(priv->pmu) << 20;
 
 	return 0;
