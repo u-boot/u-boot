@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int rk3188_num_entries __attribute__ ((section(".data")));
 
 #define PMU_BASE	0x20004000
-#define TPL_ENTRY	0x10080C00
+#define SPL_ENTRY	0x10080C00
 
 static void jump_to_spl(void)
 {
@@ -25,9 +25,9 @@ static void jump_to_spl(void)
 
 	struct rk3188_pmu * const pmu = (void *)PMU_BASE;
 	image_entry_noargs_t tpl_entry =
-		(image_entry_noargs_t)(unsigned long)TPL_ENTRY;
+		(image_entry_noargs_t)(unsigned long)SPL_ENTRY;
 
-	/* Store the SAVE_SP_ADDR in a location shared with TPL. */
+	/* Store the SAVE_SP_ADDR in a location shared with SPL. */
 	writel(SAVE_SP_ADDR, &pmu->sys_reg[2]);
 	tpl_entry();
 }
