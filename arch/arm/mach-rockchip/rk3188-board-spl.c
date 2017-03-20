@@ -109,9 +109,9 @@ void board_init_f(ulong dummy)
 	printch('\n');
 #endif
 
-	ret = spl_init();
+	ret = spl_early_init();
 	if (ret) {
-		debug("spl_init() failed: %d\n", ret);
+		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
 
