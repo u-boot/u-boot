@@ -752,6 +752,68 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_TPM_FLUSH_RESOURCES */
 
+#ifdef CONFIG_TPM_LIST_RESOURCES
+static int do_tpm_list(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	int type = 0;
+	uint16_t res_count;
+	uint8_t buf[288];
+	uint8_t *ptr;
+	int err;
+	uint i;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp(argv[1], "key"))
+		type = TPM_RT_KEY;
+	else if (!strcasecmp(argv[1], "auth"))
+		type = TPM_RT_AUTH;
+	else if (!strcasecmp(argv[1], "hash"))
+		type = TPM_RT_HASH;
+	else if (!strcasecmp(argv[1], "trans"))
+		type = TPM_RT_TRANS;
+	else if (!strcasecmp(argv[1], "context"))
+		type = TPM_RT_CONTEXT;
+	else if (!strcasecmp(argv[1], "counter"))
+		type = TPM_RT_COUNTER;
+	else if (!strcasecmp(argv[1], "delegate"))
+		type = TPM_RT_DELEGATE;
+	else if (!strcasecmp(argv[1], "daa_tpm"))
+		type = TPM_RT_DAA_TPM;
+	else if (!strcasecmp(argv[1], "daa_v0"))
+		type = TPM_RT_DAA_V0;
+	else if (!strcasecmp(argv[1], "daa_v1"))
+		type = TPM_RT_DAA_V1;
+
+	if (!type) {
+		printf("Resource type %s unknown.\n", argv[1]);
+		return -1;
+	}
+
+	/* fetch list of already loaded resources in the TPM */
+	err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+				 sizeof(buf));
+	if (err) {
+		printf("tpm_get_capability returned error %d.\n", err);
+		return -1;
+	}
+	res_count = get_unaligned_be16(buf);
+	ptr = buf + 2;
+
+	printf("Resources of type %s (%02x):\n", argv[1], type);
+	if (!res_count) {
+		puts("None\n");
+	} else {
+		for (i = 0; i < res_count; ++i, ptr += 4)
+			printf("Index %d: %08x\n", i, get_unaligned_be32(ptr));
+	}
+
+	return 0;
+}
+#endif /* CONFIG_TPM_LIST_RESOURCES */
+
 #define MAKE_TPM_CMD_ENTRY(cmd) \
 	U_BOOT_CMD_MKENT(cmd, 0, 1, do_tpm_ ## cmd, "", "")
 
@@ -815,6 +877,10 @@ static cmd_tbl_t tpm_commands[] = {
 	U_BOOT_CMD_MKENT(flush, 0, 1,
 			 do_tpm_flush, "", ""),
 #endif /* CONFIG_TPM_FLUSH_RESOURCES */
+#ifdef CONFIG_TPM_LIST_RESOURCES
+	U_BOOT_CMD_MKENT(list, 0, 1,
+			 do_tpm_list, "", ""),
+#endif /* CONFIG_TPM_LIST_RESOURCES */
 };
 
 static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -864,14 +930,22 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "  get_capability cap_area sub_cap addr count\n"
 "    - Read <count> bytes of TPM capability indexed by <cap_area> and\n"
 "      <sub_cap> to memory address <addr>.\n"
-#ifdef CONFIG_TPM_FLUSH_RESOURCES
+#if defined(CONFIG_TPM_FLUSH_RESOURCES) || defined(CONFIG_TPM_LIST_RESOURCES)
 "Resource management functions\n"
+#endif
+#ifdef CONFIG_TPM_FLUSH_RESOURCES
 "  flush resource_type id\n"
 "    - flushes a resource of type <resource_type> (may be one of key, auth,\n"
 "      hash, trans, context, counter, delegate, daa_tpm, daa_v0, daa_v1),\n"
 "      and id <id> from the TPM. Use an <id> of \"all\" to flush all\n"
 "      resources of that type.\n"
 #endif /* CONFIG_TPM_FLUSH_RESOURCES */
+#ifdef CONFIG_TPM_LIST_RESOURCES
+"  list resource_type\n"
+"    - lists resources of type <resource_type> (may be one of key, auth,\n"
+"      hash, trans, context, counter, delegate, daa_tpm, daa_v0, daa_v1),\n"
+"      contained in the TPM.\n"
+#endif /* CONFIG_TPM_LIST_RESOURCES */
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 "Storage functions\n"
 "  loadkey2_oiap parent_handle key_addr key_len usage_auth\n"

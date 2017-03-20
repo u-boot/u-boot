@@ -96,4 +96,11 @@ config TPM_LOAD_KEY_BY_SHA1
 	  Enable support to load keys into the TPM by identifying
 	  their parent via the public key's SHA1 hash.
 	  The functionality is available via the 'tpm' command as well.
+
+config TPM_LIST_RESOURCES
+	bool "Enable TPM resource listing support"
+	depends on TPM
+	help
+	  Enable support to list specific resources (e.g. keys) within the TPM.
+	  The functionality is available via the 'tpm' command as well.
 endmenu
