@@ -996,4 +996,44 @@ uint32_t tpm_get_pub_key_oiap(uint32_t key_handle, const void *usage_auth,
 	return 0;
 }
 
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
+			   pubkey_digest[20], uint32_t *handle)
+{
+	uint16_t key_count;
+	uint32_t key_handles[10];
+	uint8_t buf[288];
+	uint8_t *ptr;
+	uint32_t err;
+	uint8_t digest[20];
+	size_t buf_len;
+	unsigned int i;
+
+	/* fetch list of already loaded keys in the TPM */
+	err = tpm_get_capability(TPM_CAP_HANDLE, TPM_RT_KEY, buf, sizeof(buf));
+	if (err)
+		return -1;
+	key_count = get_unaligned_be16(buf);
+	ptr = buf + 2;
+	for (i = 0; i < key_count; ++i, ptr += 4)
+		key_handles[i] = get_unaligned_be32(ptr);
+
+	/* now search a(/ the) key which we can access with the given auth */
+	for (i = 0; i < key_count; ++i) {
+		buf_len = sizeof(buf);
+		err = tpm_get_pub_key_oiap(key_handles[i], auth, buf, &buf_len);
+		if (err && err != TPM_AUTHFAIL)
+			return -1;
+		if (err)
+			continue;
+		sha1_csum(buf, buf_len, digest);
+		if (!memcmp(digest, pubkey_digest, 20)) {
+			*handle = key_handles[i];
+			return 0;
+		}
+	}
+	return 1;
+}
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
+
 #endif /* CONFIG_TPM_AUTH_SESSIONS */

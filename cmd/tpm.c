@@ -592,6 +592,45 @@ static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(err);
 }
 
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
+				   const argv[])
+{
+	uint32_t parent_handle = 0;
+	uint32_t key_len, key_handle, err;
+	uint8_t usage_auth[DIGEST_LENGTH];
+	uint8_t parent_hash[DIGEST_LENGTH];
+	void *key;
+
+	if (argc < 5)
+		return CMD_RET_USAGE;
+
+	parse_byte_string(argv[1], parent_hash, NULL);
+	key = (void *)simple_strtoul(argv[2], NULL, 0);
+	key_len = simple_strtoul(argv[3], NULL, 0);
+	if (strlen(argv[4]) != 2 * DIGEST_LENGTH)
+		return CMD_RET_FAILURE;
+	parse_byte_string(argv[4], usage_auth, NULL);
+
+	err = tpm_find_key_sha1(usage_auth, parent_hash, &parent_handle);
+	if (err) {
+		printf("Could not find matching parent key (err = %d)\n", err);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Found parent key %08x\n", parent_handle);
+
+	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+				 &key_handle);
+	if (!err) {
+		printf("Key handle is 0x%x\n", key_handle);
+		setenv_hex("key_handle", key_handle);
+	}
+
+	return report_return_code(err);
+}
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
+
 static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
@@ -756,6 +795,10 @@ static cmd_tbl_t tpm_commands[] = {
 			 do_tpm_end_oiap, "", ""),
 	U_BOOT_CMD_MKENT(load_key2_oiap, 0, 1,
 			 do_tpm_load_key2_oiap, "", ""),
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+	U_BOOT_CMD_MKENT(load_key_by_sha1, 0, 1,
+			 do_tpm_load_key_by_sha1, "", ""),
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 	U_BOOT_CMD_MKENT(get_pub_key_oiap, 0, 1,
 			 do_tpm_get_pub_key_oiap, "", ""),
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
@@ -826,6 +869,12 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "    - loads a key data from memory address <key_addr>, <key_len> bytes\n"
 "      into TPM using the parent key <parent_handle> with authorization\n"
 "      <usage_auth> (20 bytes hex string).\n"
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+"  load_key_by_sha1 parent_hash key_addr key_len usage_auth\n"
+"    - loads a key data from memory address <key_addr>, <key_len> bytes\n"
+"      into TPM using the parent hash <parent_hash> (20 bytes hex string)\n"
+"      with authorization <usage_auth> (20 bytes hex string).\n"
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 "  get_pub_key_oiap key_handle usage_auth\n"
 "    - get the public key portion of a loaded key <key_handle> using\n"
 "      authorization <usage auth> (20 bytes hex string)\n"
