@@ -9,6 +9,7 @@
 #define OSC_HZ		(24 * 1000 * 1000)
 
 #define APLL_HZ		(1608 * 1000000)
+#define APLL_SAFE_HZ	(600 * 1000000)
 #define GPLL_HZ		(594 * 1000000)
 #define CPLL_HZ		(384 * 1000000)
 

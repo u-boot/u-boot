@@ -168,6 +168,65 @@ static int rkclk_configure_ddr(struct rk3188_cru *cru, struct rk3188_grf *grf,
 	return 0;
 }
 
+static int rkclk_configure_cpu(struct rk3188_cru *cru, struct rk3188_grf *grf,
+			      unsigned int hz, bool has_bwadj)
+{
+	static const struct pll_div apll_cfg[] = {
+		{.nf = 50, .nr = 1, .no = 2},
+		{.nf = 67, .nr = 1, .no = 1},
+	};
+	int div_core_peri, div_aclk_core, cfg;
+
+	/*
+	 * We support two possible frequencies, the safe 600MHz
+	 * which will work with default pmic settings and will
+	 * be set in SPL to get away from the 24MHz default and
+	 * the maximum of 1.6Ghz, which boards can set if they
+	 * were able to get pmic support for it.
+	 */
+	switch (hz) {
+	case APLL_SAFE_HZ:
+		cfg = 0;
+		div_core_peri = 1;
+		div_aclk_core = 3;
+		break;
+	case APLL_HZ:
+		cfg = 1;
+		div_core_peri = 2;
+		div_aclk_core = 3;
+		break;
+	default:
+		debug("Unsupported ARMCLK frequency");
+		return -EINVAL;
+	}
+
+	/* pll enter slow-mode */
+	rk_clrsetreg(&cru->cru_mode_con, APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     APLL_MODE_SLOW << APLL_MODE_SHIFT);
+
+	rkclk_set_pll(cru, CLK_ARM, &apll_cfg[cfg], has_bwadj);
+
+	/* waiting for pll lock */
+	while (!(readl(&grf->soc_status0) & SOCSTS_APLL_LOCK))
+		udelay(1);
+
+	/* Set divider for peripherals attached to the cpu core. */
+	rk_clrsetreg(&cru->cru_clksel_con[0],
+		CORE_PERI_DIV_MASK << CORE_PERI_DIV_SHIFT,
+		div_core_peri << CORE_PERI_DIV_SHIFT);
+
+	/* set up dependent divisor for aclk_core */
+	rk_clrsetreg(&cru->cru_clksel_con[1],
+		CORE_ACLK_DIV_MASK << CORE_ACLK_DIV_SHIFT,
+		div_aclk_core << CORE_ACLK_DIV_SHIFT);
+
+	/* PLL enter normal-mode */
+	rk_clrsetreg(&cru->cru_mode_con, APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     APLL_MODE_NORMAL << APLL_MODE_SHIFT);
+
+	return hz;
+}
+
 /* Get pll rate by id */
 static uint32_t rkclk_pll_get_rate(struct rk3188_cru *cru,
 				   enum rk_clk_id clk_id)
@@ -435,6 +494,10 @@ static ulong rk3188_clk_set_rate(struct clk *clk, ulong rate)
 	ulong new_rate;
 
 	switch (clk->id) {
+	case PLL_APLL:
+		new_rate = rkclk_configure_cpu(priv->cru, priv->grf, rate,
+					       priv->has_bwadj);
+		break;
 	case CLK_DDR:
 		new_rate = rkclk_configure_ddr(priv->cru, priv->grf, rate,
 					       priv->has_bwadj);
