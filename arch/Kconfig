@@ -13,6 +13,9 @@ config ARC
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 	select ARCH_EARLY_INIT_R
+	select CLK
+	select TIMER
+	select ARC_TIMER
 
 config ARM
 	bool "ARM architecture"

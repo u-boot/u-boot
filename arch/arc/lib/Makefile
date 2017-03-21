@@ -18,7 +18,6 @@ obj-y += memcmp.o
 obj-y += memcpy-700.o
 obj-y += memset.o
 obj-y += reset.o
-obj-y += timer.o
 obj-y += ints_low.o
 obj-y += init_helpers.o
 
