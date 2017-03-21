@@ -65,4 +65,13 @@ config STI_TIMER
 	help
 	  Select this to enable a timer for STi devices.
 
+config ARC_TIMER
+	bool "ARC timer support"
+	depends on TIMER && ARC && CLK
+	help
+	  Select this to enable built-in ARC timers.
+	  ARC cores may have up to 2 built-in timers: timer0 and timer1,
+	  usually at least one of them exists. Either of them is supported
+	  in U-Boot.
+
 endmenu

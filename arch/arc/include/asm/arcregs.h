@@ -33,6 +33,10 @@
 #define ARC_AUX_TIMER0_CTRL	0x22	/* Timer 0 control */
 #define ARC_AUX_TIMER0_LIMIT	0x23	/* Timer 0 limit */
 
+#define ARC_AUX_TIMER1_CNT	0x100	/* Timer 1 count */
+#define ARC_AUX_TIMER1_CTRL	0x101	/* Timer 1 control */
+#define ARC_AUX_TIMER1_LIMIT	0x102	/* Timer 1 limit */
+
 #define ARC_AUX_INTR_VEC_BASE	0x25
 
 /* Data cache related auxiliary registers */
