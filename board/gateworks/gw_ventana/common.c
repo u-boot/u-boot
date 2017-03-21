@@ -1325,6 +1325,12 @@ void setup_pmic(void)
 			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 			break;
 		case GW5903:
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+
 			/* mask PGOOD during SW4 transition */
 			pmic_reg_write(p, LTC3676_DVB4B,
 				       0x1f | LTC3676_PGOOD_MASK);
