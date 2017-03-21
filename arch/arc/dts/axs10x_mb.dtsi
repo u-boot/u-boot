@@ -1,0 +1,66 @@
+/*
+ * Copyright (C) 2017 Synopsys, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/ {
+	axs10x_mb@e0000000 {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x00000000 0xe0000000 0x10000000>;
+		u-boot,dm-pre-reloc;
+
+		clocks {
+			compatible = "simple-bus";
+			u-boot,dm-pre-reloc;
+
+			apbclk: apbclk {
+				compatible = "fixed-clock";
+				clock-frequency = <50000000>;
+				#clock-cells = <0>;
+			};
+
+			uartclk: uartclk {
+				compatible = "fixed-clock";
+				clock-frequency = <33333333>;
+				#clock-cells = <0>;
+				u-boot,dm-pre-reloc;
+			};
+		};
+
+		ethernet@18000 {
+			#interrupt-cells = <1>;
+			compatible = "altr,socfpga-stmmac";
+			reg = < 0x18000 0x2000 >;
+			interrupts = < 25 >;
+			interrupt-names = "macirq";
+			phy-mode = "gmii";
+			snps,pbl = < 32 >;
+			clocks = <&apbclk>;
+			clock-names = "stmmaceth";
+			max-speed = <100>;
+		};
+
+		ehci@0x40000 {
+			compatible = "generic-ehci";
+			reg = < 0x40000 0x100 >;
+			interrupts = < 8 >;
+		};
+
+		ohci@0x60000 {
+			compatible = "generic-ohci";
+			reg = < 0x60000 0x100 >;
+			interrupts = < 8 >;
+		};
+
+		uart0: serial0@22000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x22000 0x100>;
+			clocks = <&uartclk>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+	};
+};

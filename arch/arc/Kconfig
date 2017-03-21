@@ -118,7 +118,7 @@ config SYS_DCACHE_OFF
 
 choice
 	prompt "Target select"
-	default TARGET_AXS10X
+	default TARGET_AXS103
 
 config TARGET_TB100
 	bool "Support tb100"
@@ -126,8 +126,11 @@ config TARGET_TB100
 config TARGET_NSIM
 	bool "Support standalone nSIM & Free nSIM"
 
-config TARGET_AXS10X
-	bool "Support Synopsys Designware SDP board (AXS101 & AXS103)"
+config TARGET_AXS101
+	bool "Support Synopsys Designware SDP board AXS101"
+
+config TARGET_AXS103
+	bool "Support Synopsys Designware SDP board AXS103"
 
 endchoice
 
