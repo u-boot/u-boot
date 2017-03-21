@@ -49,6 +49,20 @@ config I2C_CROS_EC_LDO
 	avoid duplicating the logic in the TPS65090 regulator driver for
 	enabling/disabling an LDO.
 
+config I2C_SET_DEFAULT_BUS_NUM
+	bool "Set default I2C bus number"
+	depends on DM_I2C
+	help
+	  Set default number of I2C bus to be accessed. This option provides
+	  behaviour similar to old (i.e. pre DM) I2C bus driver.
+
+config I2C_DEFAULT_BUS_NUMBER
+	hex "I2C default bus number"
+	depends on I2C_SET_DEFAULT_BUS_NUM
+	default 0x0
+	help
+	  Number of default I2C bus to use
+
 config DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver"
 	depends on DM_I2C && DM_GPIO
