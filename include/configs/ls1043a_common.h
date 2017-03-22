@@ -13,6 +13,7 @@
 #define CONFIG_MP
 #define CONFIG_GICV2
 
+#include <asm/arch/stream_id_lsch2.h>
 #include <asm/arch/config.h>
 
 /* Link Definitions */
