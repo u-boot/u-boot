@@ -110,6 +110,58 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 	fdt_appendprop_u32(blob, nodeoffset, "msi-map", 1);
 }
 
+/*
+ * An iommu-map is a property to be added to the pci controller
+ * node.  It is a table, where each entry consists of 4 fields
+ * e.g.:
+ *
+ *      iommu-map = <[devid] [phandle-to-iommu-ctrl] [stream-id] [count]
+ *                 [devid] [phandle-to-iommu-ctrl] [stream-id] [count]>;
+ */
+static void fdt_pcie_set_iommu_map_entry(void *blob, struct ls_pcie *pcie,
+				       u32 devid, u32 streamid)
+{
+	u32 *prop;
+	u32 iommu_map[4];
+	int nodeoffset;
+	int lenp;
+
+	/* find pci controller node */
+	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
+						   pcie->dbi_res.start);
+	if (nodeoffset < 0) {
+#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
+		nodeoffset = fdt_node_offset_by_compat_reg(blob,
+				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
+		if (nodeoffset < 0)
+			return;
+#else
+		return;
+#endif
+	}
+
+	/* get phandle to iommu controller */
+	prop = fdt_getprop_w(blob, nodeoffset, "iommu-map", &lenp);
+	if (prop == NULL) {
+		debug("\n%s: ERROR: missing iommu-map: PCIe%d\n",
+		      __func__, pcie->idx);
+		return;
+	}
+
+	/* set iommu-map row */
+	iommu_map[0] = cpu_to_fdt32(devid);
+	iommu_map[1] = *++prop;
+	iommu_map[2] = cpu_to_fdt32(streamid);
+	iommu_map[3] = cpu_to_fdt32(1);
+
+	if (devid == 0) {
+		fdt_setprop_inplace(blob, nodeoffset, "iommu-map",
+				    iommu_map, 16);
+	} else {
+		fdt_appendprop(blob, nodeoffset, "iommu-map", iommu_map, 16);
+	}
+}
+
 static void fdt_fixup_pcie(void *blob)
 {
 	struct udevice *dev, *bus;
@@ -146,6 +198,9 @@ static void fdt_fixup_pcie(void *blob)
 		/* update msi-map in device tree */
 		fdt_pcie_set_msi_map_entry(blob, pcie, bdf >> 8,
 					   streamid);
+		/* update iommu-map in device tree */
+		fdt_pcie_set_iommu_map_entry(blob, pcie, bdf >> 8,
+					     streamid);
 	}
 }
 #endif
