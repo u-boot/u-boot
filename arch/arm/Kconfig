@@ -1132,6 +1132,7 @@ config ARCH_STI
 	select DM_SERIAL
 	select BLK
 	select DM_MMC
+	select DM_RESET
 	help
 	  Support for STMicroelectronics STiH407/10 SoC family.
 	  This SoC is used on Linaro 96Board STiH410-B2260
