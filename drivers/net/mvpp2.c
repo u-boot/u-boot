@@ -355,6 +355,7 @@ do {									\
 /* Per-port registers */
 #define MVPP2_GMAC_CTRL_0_REG			0x0
 #define      MVPP2_GMAC_PORT_EN_MASK		BIT(0)
+#define      MVPP2_GMAC_PORT_TYPE_MASK		BIT(1)
 #define      MVPP2_GMAC_MAX_RX_SIZE_OFFS	2
 #define      MVPP2_GMAC_MAX_RX_SIZE_MASK	0x7ffc
 #define      MVPP2_GMAC_MIB_CNTR_EN_MASK	BIT(15)
@@ -366,29 +367,131 @@ do {									\
 #define      MVPP2_GMAC_SA_LOW_OFFS		7
 #define MVPP2_GMAC_CTRL_2_REG			0x8
 #define      MVPP2_GMAC_INBAND_AN_MASK		BIT(0)
+#define      MVPP2_GMAC_SGMII_MODE_MASK		BIT(0)
 #define      MVPP2_GMAC_PCS_ENABLE_MASK		BIT(3)
 #define      MVPP2_GMAC_PORT_RGMII_MASK		BIT(4)
+#define      MVPP2_GMAC_PORT_DIS_PADING_MASK	BIT(5)
 #define      MVPP2_GMAC_PORT_RESET_MASK		BIT(6)
+#define      MVPP2_GMAC_CLK_125_BYPS_EN_MASK	BIT(9)
 #define MVPP2_GMAC_AUTONEG_CONFIG		0xc
 #define      MVPP2_GMAC_FORCE_LINK_DOWN		BIT(0)
 #define      MVPP2_GMAC_FORCE_LINK_PASS		BIT(1)
+#define      MVPP2_GMAC_EN_PCS_AN		BIT(2)
+#define      MVPP2_GMAC_AN_BYPASS_EN		BIT(3)
 #define      MVPP2_GMAC_CONFIG_MII_SPEED	BIT(5)
 #define      MVPP2_GMAC_CONFIG_GMII_SPEED	BIT(6)
 #define      MVPP2_GMAC_AN_SPEED_EN		BIT(7)
 #define      MVPP2_GMAC_FC_ADV_EN		BIT(9)
+#define      MVPP2_GMAC_EN_FC_AN		BIT(11)
 #define      MVPP2_GMAC_CONFIG_FULL_DUPLEX	BIT(12)
 #define      MVPP2_GMAC_AN_DUPLEX_EN		BIT(13)
+#define      MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG	BIT(15)
 #define MVPP2_GMAC_PORT_FIFO_CFG_1_REG		0x1c
 #define      MVPP2_GMAC_TX_FIFO_MIN_TH_OFFS	6
 #define      MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK	0x1fc0
 #define      MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(v)	(((v) << 6) & \
 					MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK)
+#define MVPP2_GMAC_CTRL_4_REG			0x90
+#define      MVPP2_GMAC_CTRL4_EXT_PIN_GMII_SEL_MASK	BIT(0)
+#define      MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK	BIT(5)
+#define      MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK	BIT(6)
+#define      MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK	BIT(7)
 
-#define MVPP22_SMI_MISC_CFG_REG			0x1204
+/*
+ * Per-port XGMAC registers. PPv2.2 only, only for GOP port 0,
+ * relative to port->base.
+ */
+
+/* Port Mac Control0 */
+#define MVPP22_XLG_CTRL0_REG			0x100
+#define      MVPP22_XLG_PORT_EN			BIT(0)
+#define      MVPP22_XLG_MAC_RESETN		BIT(1)
+#define      MVPP22_XLG_RX_FC_EN		BIT(7)
+#define      MVPP22_XLG_MIBCNT_DIS		BIT(13)
+/* Port Mac Control1 */
+#define MVPP22_XLG_CTRL1_REG			0x104
+#define      MVPP22_XLG_MAX_RX_SIZE_OFFS	0
+#define      MVPP22_XLG_MAX_RX_SIZE_MASK	0x1fff
+/* Port Interrupt Mask */
+#define MVPP22_XLG_INTERRUPT_MASK_REG		0x118
+#define      MVPP22_XLG_INTERRUPT_LINK_CHANGE	BIT(1)
+/* Port Mac Control3 */
+#define MVPP22_XLG_CTRL3_REG			0x11c
+#define      MVPP22_XLG_CTRL3_MACMODESELECT_MASK	(7 << 13)
+#define      MVPP22_XLG_CTRL3_MACMODESELECT_GMAC	(0 << 13)
+#define      MVPP22_XLG_CTRL3_MACMODESELECT_10GMAC	(1 << 13)
+/* Port Mac Control4 */
+#define MVPP22_XLG_CTRL4_REG			0x184
+#define      MVPP22_XLG_FORWARD_802_3X_FC_EN	BIT(5)
+#define      MVPP22_XLG_FORWARD_PFC_EN		BIT(6)
+#define      MVPP22_XLG_MODE_DMA_1G		BIT(12)
+#define      MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK	BIT(14)
+
+/* XPCS registers */
+
+/* Global Configuration 0 */
+#define MVPP22_XPCS_GLOBAL_CFG_0_REG		0x0
+#define      MVPP22_XPCS_PCSRESET		BIT(0)
+#define      MVPP22_XPCS_PCSMODE_OFFS		3
+#define      MVPP22_XPCS_PCSMODE_MASK		(0x3 << \
+						 MVPP22_XPCS_PCSMODE_OFFS)
+#define      MVPP22_XPCS_LANEACTIVE_OFFS	5
+#define      MVPP22_XPCS_LANEACTIVE_MASK	(0x3 << \
+						 MVPP22_XPCS_LANEACTIVE_OFFS)
+
+/* MPCS registers */
+
+#define PCS40G_COMMON_CONTROL			0x14
+#define      FORWARD_ERROR_CORRECTION_MASK	BIT(1)
+
+#define PCS_CLOCK_RESET				0x14c
+#define      TX_SD_CLK_RESET_MASK		BIT(0)
+#define      RX_SD_CLK_RESET_MASK		BIT(1)
+#define      MAC_CLK_RESET_MASK			BIT(2)
+#define      CLK_DIVISION_RATIO_OFFS		4
+#define      CLK_DIVISION_RATIO_MASK		(0x7 << CLK_DIVISION_RATIO_OFFS)
+#define      CLK_DIV_PHASE_SET_MASK		BIT(11)
+
+/* System Soft Reset 1 */
+#define GOP_SOFT_RESET_1_REG			0x108
+#define     NETC_GOP_SOFT_RESET_OFFS		6
+#define     NETC_GOP_SOFT_RESET_MASK		(0x1 << \
+						 NETC_GOP_SOFT_RESET_OFFS)
+
+/* Ports Control 0 */
+#define NETCOMP_PORTS_CONTROL_0_REG		0x110
+#define     NETC_BUS_WIDTH_SELECT_OFFS		1
+#define     NETC_BUS_WIDTH_SELECT_MASK		(0x1 << \
+						 NETC_BUS_WIDTH_SELECT_OFFS)
+#define     NETC_GIG_RX_DATA_SAMPLE_OFFS	29
+#define     NETC_GIG_RX_DATA_SAMPLE_MASK	(0x1 << \
+						 NETC_GIG_RX_DATA_SAMPLE_OFFS)
+#define     NETC_CLK_DIV_PHASE_OFFS		31
+#define     NETC_CLK_DIV_PHASE_MASK		(0x1 << NETC_CLK_DIV_PHASE_OFFS)
+/* Ports Control 1 */
+#define NETCOMP_PORTS_CONTROL_1_REG		0x114
+#define     NETC_PORTS_ACTIVE_OFFSET(p)		(0 + p)
+#define     NETC_PORTS_ACTIVE_MASK(p)		(0x1 << \
+						 NETC_PORTS_ACTIVE_OFFSET(p))
+#define     NETC_PORT_GIG_RF_RESET_OFFS(p)	(28 + p)
+#define     NETC_PORT_GIG_RF_RESET_MASK(p)	(0x1 << \
+						 NETC_PORT_GIG_RF_RESET_OFFS(p))
+#define NETCOMP_CONTROL_0_REG			0x120
+#define     NETC_GBE_PORT0_SGMII_MODE_OFFS	0
+#define     NETC_GBE_PORT0_SGMII_MODE_MASK	(0x1 << \
+						 NETC_GBE_PORT0_SGMII_MODE_OFFS)
+#define     NETC_GBE_PORT1_SGMII_MODE_OFFS	1
+#define     NETC_GBE_PORT1_SGMII_MODE_MASK	(0x1 << \
+						 NETC_GBE_PORT1_SGMII_MODE_OFFS)
+#define     NETC_GBE_PORT1_MII_MODE_OFFS	2
+#define     NETC_GBE_PORT1_MII_MODE_MASK	(0x1 << \
+						 NETC_GBE_PORT1_MII_MODE_OFFS)
+
+#define MVPP22_SMI_MISC_CFG_REG			(MVPP22_SMI + 0x04)
 #define      MVPP22_SMI_POLLING_EN		BIT(10)
 
-#define MVPP22_PORT_BASE			0x30e00
-#define MVPP22_PORT_OFFSET			0x1000
+#define MVPP22_SMI_PHY_ADDR_REG(port)		(MVPP22_SMI + 0x04 + \
+						 (0x4 * (port)))
 
 #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
 
@@ -413,6 +516,48 @@ do {									\
 
 #define     MVPP2_PHY_ADDR_MASK			0x1f
 #define     MVPP2_PHY_REG_MASK			0x1f
+
+/* Additional PPv2.2 offsets */
+#define MVPP22_MPCS				0x007000
+#define MVPP22_XPCS				0x007400
+#define MVPP22_PORT_BASE			0x007e00
+#define MVPP22_PORT_OFFSET			0x001000
+#define MVPP22_RFU1				0x318000
+
+/* Maximum number of ports */
+#define MVPP22_GOP_MAC_NUM			4
+
+/* Sets the field located at the specified in data */
+#define MVPP2_RGMII_TX_FIFO_MIN_TH		0x41
+#define MVPP2_SGMII_TX_FIFO_MIN_TH		0x5
+#define MVPP2_SGMII2_5_TX_FIFO_MIN_TH		0xb
+
+/* Net Complex */
+enum mv_netc_topology {
+	MV_NETC_GE_MAC2_SGMII		=	BIT(0),
+	MV_NETC_GE_MAC3_SGMII		=	BIT(1),
+	MV_NETC_GE_MAC3_RGMII		=	BIT(2),
+};
+
+enum mv_netc_phase {
+	MV_NETC_FIRST_PHASE,
+	MV_NETC_SECOND_PHASE,
+};
+
+enum mv_netc_sgmii_xmi_mode {
+	MV_NETC_GBE_SGMII,
+	MV_NETC_GBE_XMII,
+};
+
+enum mv_netc_mii_mode {
+	MV_NETC_GBE_RGMII,
+	MV_NETC_GBE_MII,
+};
+
+enum mv_netc_lanes {
+	MV_NETC_LANE_23,
+	MV_NETC_LANE_45,
+};
 
 /* Various constants */
 
@@ -762,6 +907,12 @@ struct mvpp2 {
 	void __iomem *lms_base;
 	void __iomem *iface_base;
 	void __iomem *mdio_base;
+
+	void __iomem *mpcs_base;
+	void __iomem *xpcs_base;
+	void __iomem *rfu1_base;
+
+	u32 netc_config;
 
 	/* List of pointers to port structures */
 	struct mvpp2_port **port_list;
@@ -2826,6 +2977,570 @@ static inline void mvpp2_gmac_max_rx_size_set(struct mvpp2_port *port)
 	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
 }
 
+/* PPv2.2 GoP/GMAC config */
+
+/* Set the MAC to reset or exit from reset */
+static int gop_gmac_reset(struct mvpp2_port *port, int reset)
+{
+	u32 val;
+
+	/* read - modify - write */
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	if (reset)
+		val |= MVPP2_GMAC_PORT_RESET_MASK;
+	else
+		val &= ~MVPP2_GMAC_PORT_RESET_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	return 0;
+}
+
+/*
+ * gop_gpcs_mode_cfg
+ *
+ * Configure port to working with Gig PCS or don't.
+ */
+static int gop_gpcs_mode_cfg(struct mvpp2_port *port, int en)
+{
+	u32 val;
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	if (en)
+		val |= MVPP2_GMAC_PCS_ENABLE_MASK;
+	else
+		val &= ~MVPP2_GMAC_PCS_ENABLE_MASK;
+	/* enable / disable PCS on this port */
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	return 0;
+}
+
+static int gop_bypass_clk_cfg(struct mvpp2_port *port, int en)
+{
+	u32 val;
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	if (en)
+		val |= MVPP2_GMAC_CLK_125_BYPS_EN_MASK;
+	else
+		val &= ~MVPP2_GMAC_CLK_125_BYPS_EN_MASK;
+	/* enable / disable PCS on this port */
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	return 0;
+}
+
+static void gop_gmac_sgmii2_5_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII2_5_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val |= MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/*
+	 * Configure GIG MAC to 1000Base-X mode connected to a fiber
+	 * transceiver
+	 */
+	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* configure AN 0x9268 */
+	val = MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_CONFIG_MII_SPEED  |
+		MVPP2_GMAC_CONFIG_GMII_SPEED     |
+		MVPP2_GMAC_FC_ADV_EN    |
+		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
+static void gop_gmac_sgmii_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val &= ~MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/* configure GIG MAC to SGMII mode */
+	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* configure AN */
+	val = MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_AN_SPEED_EN  |
+		MVPP2_GMAC_EN_FC_AN     |
+		MVPP2_GMAC_AN_DUPLEX_EN |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
+static void gop_gmac_rgmii_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_RGMII_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val &= ~MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	val |= MVPP2_GMAC_CTRL4_EXT_PIN_GMII_SEL_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	val &= ~MVPP2_GMAC_PORT_DIS_PADING_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/* configure GIG MAC to SGMII mode */
+	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* configure AN 0xb8e8 */
+	val = MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_AN_SPEED_EN   |
+		MVPP2_GMAC_EN_FC_AN      |
+		MVPP2_GMAC_AN_DUPLEX_EN  |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
+/* Set the internal mux's to the required MAC in the GOP */
+static int gop_gmac_mode_cfg(struct mvpp2_port *port)
+{
+	u32 val;
+
+	/* Set TX FIFO thresholds */
+	switch (port->phy_interface) {
+	case PHY_INTERFACE_MODE_SGMII:
+		if (port->phy_speed == 2500)
+			gop_gmac_sgmii2_5_cfg(port);
+		else
+			gop_gmac_sgmii_cfg(port);
+		break;
+
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		gop_gmac_rgmii_cfg(port);
+		break;
+
+	default:
+		return -1;
+	}
+
+	/* Jumbo frame support - 0x1400*2= 0x2800 bytes */
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	val &= ~MVPP2_GMAC_MAX_RX_SIZE_MASK;
+	val |= 0x1400 << MVPP2_GMAC_MAX_RX_SIZE_OFFS;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* PeriodicXonEn disable */
+	val = readl(port->base + MVPP2_GMAC_CTRL_1_REG);
+	val &= ~MVPP2_GMAC_PERIODIC_XON_EN_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_1_REG);
+
+	return 0;
+}
+
+static void gop_xlg_2_gig_mac_cfg(struct mvpp2_port *port)
+{
+	u32 val;
+
+	/* relevant only for MAC0 (XLG0 and GMAC0) */
+	if (port->gop_id > 0)
+		return;
+
+	/* configure 1Gig MAC mode */
+	val = readl(port->base + MVPP22_XLG_CTRL3_REG);
+	val &= ~MVPP22_XLG_CTRL3_MACMODESELECT_MASK;
+	val |= MVPP22_XLG_CTRL3_MACMODESELECT_GMAC;
+	writel(val, port->base + MVPP22_XLG_CTRL3_REG);
+}
+
+static int gop_gpcs_reset(struct mvpp2_port *port, int reset)
+{
+	u32 val;
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
+	if (reset)
+		val &= ~MVPP2_GMAC_SGMII_MODE_MASK;
+	else
+		val |= MVPP2_GMAC_SGMII_MODE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
+
+	return 0;
+}
+
+/*
+ * gop_port_init
+ *
+ * Init physical port. Configures the port mode and all it's elements
+ * accordingly.
+ * Does not verify that the selected mode/port number is valid at the
+ * core level.
+ */
+static int gop_port_init(struct mvpp2_port *port)
+{
+	int mac_num = port->gop_id;
+
+	if (mac_num >= MVPP22_GOP_MAC_NUM) {
+		netdev_err(NULL, "%s: illegal port number %d", __func__,
+			   mac_num);
+		return -1;
+	}
+
+	switch (port->phy_interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		gop_gmac_reset(port, 1);
+
+		/* configure PCS */
+		gop_gpcs_mode_cfg(port, 0);
+		gop_bypass_clk_cfg(port, 1);
+
+		/* configure MAC */
+		gop_gmac_mode_cfg(port);
+		/* pcs unreset */
+		gop_gpcs_reset(port, 0);
+
+		/* mac unreset */
+		gop_gmac_reset(port, 0);
+		break;
+
+	case PHY_INTERFACE_MODE_SGMII:
+		/* configure PCS */
+		gop_gpcs_mode_cfg(port, 1);
+
+		/* configure MAC */
+		gop_gmac_mode_cfg(port);
+		/* select proper Mac mode */
+		gop_xlg_2_gig_mac_cfg(port);
+
+		/* pcs unreset */
+		gop_gpcs_reset(port, 0);
+		/* mac unreset */
+		gop_gmac_reset(port, 0);
+		break;
+
+	default:
+		netdev_err(NULL, "%s: Requested port mode (%d) not supported\n",
+			   __func__, port->phy_interface);
+		return -1;
+	}
+
+	return 0;
+}
+
+static void gop_port_enable(struct mvpp2_port *port, int enable)
+{
+	switch (port->phy_interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_SGMII:
+		if (enable)
+			mvpp2_port_enable(port);
+		else
+			mvpp2_port_disable(port);
+		break;
+
+	default:
+		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
+			   port->phy_interface);
+		return;
+	}
+}
+
+/* RFU1 functions */
+static inline u32 gop_rfu1_read(struct mvpp2 *priv, u32 offset)
+{
+	return readl(priv->rfu1_base + offset);
+}
+
+static inline void gop_rfu1_write(struct mvpp2 *priv, u32 offset, u32 data)
+{
+	writel(data, priv->rfu1_base + offset);
+}
+
+static u32 mvpp2_netc_cfg_create(int gop_id, phy_interface_t phy_type)
+{
+	u32 val = 0;
+
+	if (gop_id == 2) {
+		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+			val |= MV_NETC_GE_MAC2_SGMII;
+	}
+
+	if (gop_id == 3) {
+		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+			val |= MV_NETC_GE_MAC3_SGMII;
+		else if (phy_type == PHY_INTERFACE_MODE_RGMII ||
+			 phy_type == PHY_INTERFACE_MODE_RGMII_ID)
+			val |= MV_NETC_GE_MAC3_RGMII;
+	}
+
+	return val;
+}
+
+static void gop_netc_active_port(struct mvpp2 *priv, int gop_id, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_PORTS_CONTROL_1_REG);
+	reg &= ~(NETC_PORTS_ACTIVE_MASK(gop_id));
+
+	val <<= NETC_PORTS_ACTIVE_OFFSET(gop_id);
+	val &= NETC_PORTS_ACTIVE_MASK(gop_id);
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_PORTS_CONTROL_1_REG, reg);
+}
+
+static void gop_netc_mii_mode(struct mvpp2 *priv, int gop_id, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_CONTROL_0_REG);
+	reg &= ~NETC_GBE_PORT1_MII_MODE_MASK;
+
+	val <<= NETC_GBE_PORT1_MII_MODE_OFFS;
+	val &= NETC_GBE_PORT1_MII_MODE_MASK;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_CONTROL_0_REG, reg);
+}
+
+static void gop_netc_gop_reset(struct mvpp2 *priv, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, GOP_SOFT_RESET_1_REG);
+	reg &= ~NETC_GOP_SOFT_RESET_MASK;
+
+	val <<= NETC_GOP_SOFT_RESET_OFFS;
+	val &= NETC_GOP_SOFT_RESET_MASK;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, GOP_SOFT_RESET_1_REG, reg);
+}
+
+static void gop_netc_gop_clock_logic_set(struct mvpp2 *priv, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_PORTS_CONTROL_0_REG);
+	reg &= ~NETC_CLK_DIV_PHASE_MASK;
+
+	val <<= NETC_CLK_DIV_PHASE_OFFS;
+	val &= NETC_CLK_DIV_PHASE_MASK;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_PORTS_CONTROL_0_REG, reg);
+}
+
+static void gop_netc_port_rf_reset(struct mvpp2 *priv, int gop_id, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_PORTS_CONTROL_1_REG);
+	reg &= ~(NETC_PORT_GIG_RF_RESET_MASK(gop_id));
+
+	val <<= NETC_PORT_GIG_RF_RESET_OFFS(gop_id);
+	val &= NETC_PORT_GIG_RF_RESET_MASK(gop_id);
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_PORTS_CONTROL_1_REG, reg);
+}
+
+static void gop_netc_gbe_sgmii_mode_select(struct mvpp2 *priv, int gop_id,
+					   u32 val)
+{
+	u32 reg, mask, offset;
+
+	if (gop_id == 2) {
+		mask = NETC_GBE_PORT0_SGMII_MODE_MASK;
+		offset = NETC_GBE_PORT0_SGMII_MODE_OFFS;
+	} else {
+		mask = NETC_GBE_PORT1_SGMII_MODE_MASK;
+		offset = NETC_GBE_PORT1_SGMII_MODE_OFFS;
+	}
+	reg = gop_rfu1_read(priv, NETCOMP_CONTROL_0_REG);
+	reg &= ~mask;
+
+	val <<= offset;
+	val &= mask;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_CONTROL_0_REG, reg);
+}
+
+static void gop_netc_bus_width_select(struct mvpp2 *priv, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_PORTS_CONTROL_0_REG);
+	reg &= ~NETC_BUS_WIDTH_SELECT_MASK;
+
+	val <<= NETC_BUS_WIDTH_SELECT_OFFS;
+	val &= NETC_BUS_WIDTH_SELECT_MASK;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_PORTS_CONTROL_0_REG, reg);
+}
+
+static void gop_netc_sample_stages_timing(struct mvpp2 *priv, u32 val)
+{
+	u32 reg;
+
+	reg = gop_rfu1_read(priv, NETCOMP_PORTS_CONTROL_0_REG);
+	reg &= ~NETC_GIG_RX_DATA_SAMPLE_MASK;
+
+	val <<= NETC_GIG_RX_DATA_SAMPLE_OFFS;
+	val &= NETC_GIG_RX_DATA_SAMPLE_MASK;
+
+	reg |= val;
+
+	gop_rfu1_write(priv, NETCOMP_PORTS_CONTROL_0_REG, reg);
+}
+
+static void gop_netc_mac_to_xgmii(struct mvpp2 *priv, int gop_id,
+				  enum mv_netc_phase phase)
+{
+	switch (phase) {
+	case MV_NETC_FIRST_PHASE:
+		/* Set Bus Width to HB mode = 1 */
+		gop_netc_bus_width_select(priv, 1);
+		/* Select RGMII mode */
+		gop_netc_gbe_sgmii_mode_select(priv, gop_id, MV_NETC_GBE_XMII);
+		break;
+
+	case MV_NETC_SECOND_PHASE:
+		/* De-assert the relevant port HB reset */
+		gop_netc_port_rf_reset(priv, gop_id, 1);
+		break;
+	}
+}
+
+static void gop_netc_mac_to_sgmii(struct mvpp2 *priv, int gop_id,
+				  enum mv_netc_phase phase)
+{
+	switch (phase) {
+	case MV_NETC_FIRST_PHASE:
+		/* Set Bus Width to HB mode = 1 */
+		gop_netc_bus_width_select(priv, 1);
+		/* Select SGMII mode */
+		if (gop_id >= 1) {
+			gop_netc_gbe_sgmii_mode_select(priv, gop_id,
+						       MV_NETC_GBE_SGMII);
+		}
+
+		/* Configure the sample stages */
+		gop_netc_sample_stages_timing(priv, 0);
+		/* Configure the ComPhy Selector */
+		/* gop_netc_com_phy_selector_config(netComplex); */
+		break;
+
+	case MV_NETC_SECOND_PHASE:
+		/* De-assert the relevant port HB reset */
+		gop_netc_port_rf_reset(priv, gop_id, 1);
+		break;
+	}
+}
+
+static int gop_netc_init(struct mvpp2 *priv, enum mv_netc_phase phase)
+{
+	u32 c = priv->netc_config;
+
+	if (c & MV_NETC_GE_MAC2_SGMII)
+		gop_netc_mac_to_sgmii(priv, 2, phase);
+	else
+		gop_netc_mac_to_xgmii(priv, 2, phase);
+
+	if (c & MV_NETC_GE_MAC3_SGMII) {
+		gop_netc_mac_to_sgmii(priv, 3, phase);
+	} else {
+		gop_netc_mac_to_xgmii(priv, 3, phase);
+		if (c & MV_NETC_GE_MAC3_RGMII)
+			gop_netc_mii_mode(priv, 3, MV_NETC_GBE_RGMII);
+		else
+			gop_netc_mii_mode(priv, 3, MV_NETC_GBE_MII);
+	}
+
+	/* Activate gop ports 0, 2, 3 */
+	gop_netc_active_port(priv, 0, 1);
+	gop_netc_active_port(priv, 2, 1);
+	gop_netc_active_port(priv, 3, 1);
+
+	if (phase == MV_NETC_SECOND_PHASE) {
+		/* Enable the GOP internal clock logic */
+		gop_netc_gop_clock_logic_set(priv, 1);
+		/* De-assert GOP unit reset */
+		gop_netc_gop_reset(priv, 1);
+	}
+
+	return 0;
+}
+
 /* Set defaults to the MVPP2 port */
 static void mvpp2_defaults_set(struct mvpp2_port *port)
 {
@@ -3602,7 +4317,10 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
 	mvpp2_gmac_max_rx_size_set(port);
 	mvpp2_txp_max_tx_size_set(port);
 
-	mvpp2_port_enable(port);
+	if (port->priv->hw_version == MVPP21)
+		mvpp2_port_enable(port);
+	else
+		gop_port_enable(port, 1);
 }
 
 /* Set hw internals when stopping port */
@@ -3612,7 +4330,11 @@ static void mvpp2_stop_dev(struct mvpp2_port *port)
 	mvpp2_ingress_disable(port);
 
 	mvpp2_egress_disable(port);
-	mvpp2_port_disable(port);
+
+	if (port->priv->hw_version == MVPP21)
+		mvpp2_port_disable(port);
+	else
+		gop_port_enable(port, 0);
 }
 
 static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
@@ -3706,7 +4428,9 @@ static void mvpp2_port_power_up(struct mvpp2_port *port)
 {
 	struct mvpp2 *priv = port->priv;
 
-	mvpp2_port_mii_set(port);
+	/* On PPv2.2 the GoP / interface configuration has already been done */
+	if (priv->hw_version == MVPP21)
+		mvpp2_port_mii_set(port);
 	mvpp2_port_periodic_xon_disable(port);
 	if (priv->hw_version == MVPP21)
 		mvpp2_port_fc_adv_enable(port);
@@ -3726,7 +4450,10 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 
 	/* Disable port */
 	mvpp2_egress_disable(port);
-	mvpp2_port_disable(port);
+	if (priv->hw_version == MVPP21)
+		mvpp2_port_disable(port);
+	else
+		gop_port_enable(port, 0);
 
 	port->txqs = devm_kcalloc(dev, txq_number, sizeof(*port->txqs),
 				  GFP_KERNEL);
@@ -4509,6 +5236,11 @@ static int mvpp2_base_probe(struct udevice *dev)
 			return PTR_ERR(priv->iface_base);
 
 		priv->mdio_base = priv->iface_base + MVPP22_SMI;
+
+		/* Store common base addresses for all ports */
+		priv->mpcs_base = priv->iface_base + MVPP22_MPCS;
+		priv->xpcs_base = priv->iface_base + MVPP22_XPCS;
+		priv->rfu1_base = priv->iface_base + MVPP22_RFU1;
 	}
 
 	if (priv->hw_version == MVPP21)
@@ -4571,6 +5303,9 @@ static int mvpp2_probe(struct udevice *dev)
 
 		port->base = priv->iface_base + MVPP22_PORT_BASE +
 			port->gop_id * MVPP22_PORT_OFFSET;
+
+		/* GoP Init */
+		gop_port_init(port);
 	}
 
 	/* Initialize network controller */
@@ -4580,7 +5315,20 @@ static int mvpp2_probe(struct udevice *dev)
 		return err;
 	}
 
-	return mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
+	err = mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
+	if (err)
+		return err;
+
+	if (priv->hw_version == MVPP22) {
+		priv->netc_config |= mvpp2_netc_cfg_create(port->gop_id,
+							   port->phy_interface);
+
+		/* Netcomplex configurations for all ports */
+		gop_netc_init(priv, MV_NETC_FIRST_PHASE);
+		gop_netc_init(priv, MV_NETC_SECOND_PHASE);
+	}
+
+	return 0;
 }
 
 static const struct eth_ops mvpp2_ops = {
