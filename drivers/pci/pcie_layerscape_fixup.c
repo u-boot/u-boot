@@ -15,7 +15,7 @@
 #include <fdt_support.h>
 #include "pcie_layerscape.h"
 
-#ifdef CONFIG_FSL_LSCH3
+#if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 /*
  * Return next available LUT index.
  */
@@ -188,7 +188,7 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	list_for_each_entry(pcie, &ls_pcie_list, list)
 		ft_pcie_ls_setup(blob, pcie);
 
-#ifdef CONFIG_FSL_LSCH3
+#if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 	fdt_fixup_pcie(blob);
 #endif
 }
