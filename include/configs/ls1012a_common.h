@@ -11,6 +11,7 @@
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
+#include <asm/arch/stream_id_lsch2.h>
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
