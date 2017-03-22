@@ -839,6 +839,8 @@ struct mvpp2_port {
 	unsigned int duplex;
 	unsigned int speed;
 
+	unsigned int phy_speed;		/* SGMII 1Gbps vs 2.5Gbps */
+
 	struct mvpp2_bm_pool *pool_long;
 	struct mvpp2_bm_pool *pool_short;
 
@@ -3851,6 +3853,15 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		dev_err(&pdev->dev, "missing port-id value\n");
 		return -EINVAL;
 	}
+
+	/*
+	 * ToDo:
+	 * Not sure if this DT property "phy-speed" will get accepted, so
+	 * this might change later
+	 */
+	/* Get phy-speed for SGMII 2.5Gbps vs 1Gbps setup */
+	port->phy_speed = fdtdec_get_int(gd->fdt_blob, port_node,
+					 "phy-speed", 1000);
 
 	phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 
