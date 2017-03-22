@@ -3225,6 +3225,130 @@ static int gop_gpcs_reset(struct mvpp2_port *port, int reset)
 	return 0;
 }
 
+/* Set the internal mux's to the required PCS in the PI */
+static int gop_xpcs_mode(struct mvpp2_port *port, int num_of_lanes)
+{
+	u32 val;
+	int lane;
+
+	switch (num_of_lanes) {
+	case 1:
+		lane = 0;
+		break;
+	case 2:
+		lane = 1;
+		break;
+	case 4:
+		lane = 2;
+		break;
+	default:
+		return -1;
+	}
+
+	/* configure XG MAC mode */
+	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
+	val &= ~MVPP22_XPCS_PCSMODE_OFFS;
+	val &= ~MVPP22_XPCS_LANEACTIVE_MASK;
+	val |= (2 * lane) << MVPP22_XPCS_LANEACTIVE_OFFS;
+	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
+
+	return 0;
+}
+
+static int gop_mpcs_mode(struct mvpp2_port *port)
+{
+	u32 val;
+
+	/* configure PCS40G COMMON CONTROL */
+	val = readl(port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+	val &= ~FORWARD_ERROR_CORRECTION_MASK;
+	writel(val, port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+
+	/* configure PCS CLOCK RESET */
+	val = readl(port->priv->mpcs_base + PCS_CLOCK_RESET);
+	val &= ~CLK_DIVISION_RATIO_MASK;
+	val |= 1 << CLK_DIVISION_RATIO_OFFS;
+	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+
+	val &= ~CLK_DIV_PHASE_SET_MASK;
+	val |= MAC_CLK_RESET_MASK;
+	val |= RX_SD_CLK_RESET_MASK;
+	val |= TX_SD_CLK_RESET_MASK;
+	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+
+	return 0;
+}
+
+/* Set the internal mux's to the required MAC in the GOP */
+static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
+{
+	u32 val;
+
+	/* configure 10G MAC mode */
+	val = readl(port->base + MVPP22_XLG_CTRL0_REG);
+	val |= MVPP22_XLG_RX_FC_EN;
+	writel(val, port->base + MVPP22_XLG_CTRL0_REG);
+
+	val = readl(port->base + MVPP22_XLG_CTRL3_REG);
+	val &= ~MVPP22_XLG_CTRL3_MACMODESELECT_MASK;
+	val |= MVPP22_XLG_CTRL3_MACMODESELECT_10GMAC;
+	writel(val, port->base + MVPP22_XLG_CTRL3_REG);
+
+	/* read - modify - write */
+	val = readl(port->base + MVPP22_XLG_CTRL4_REG);
+	val &= ~MVPP22_XLG_MODE_DMA_1G;
+	val |= MVPP22_XLG_FORWARD_PFC_EN;
+	val |= MVPP22_XLG_FORWARD_802_3X_FC_EN;
+	val &= ~MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK;
+	writel(val, port->base + MVPP22_XLG_CTRL4_REG);
+
+	/* Jumbo frame support: 0x1400 * 2 = 0x2800 bytes */
+	val = readl(port->base + MVPP22_XLG_CTRL1_REG);
+	val &= ~MVPP22_XLG_MAX_RX_SIZE_MASK;
+	val |= 0x1400 << MVPP22_XLG_MAX_RX_SIZE_OFFS;
+	writel(val, port->base + MVPP22_XLG_CTRL1_REG);
+
+	/* unmask link change interrupt */
+	val = readl(port->base + MVPP22_XLG_INTERRUPT_MASK_REG);
+	val |= MVPP22_XLG_INTERRUPT_LINK_CHANGE;
+	val |= 1; /* unmask summary bit */
+	writel(val, port->base + MVPP22_XLG_INTERRUPT_MASK_REG);
+
+	return 0;
+}
+
+/* Set PCS to reset or exit from reset */
+static int gop_xpcs_reset(struct mvpp2_port *port, int reset)
+{
+	u32 val;
+
+	/* read - modify - write */
+	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
+	if (reset)
+		val &= ~MVPP22_XPCS_PCSRESET;
+	else
+		val |= MVPP22_XPCS_PCSRESET;
+	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
+
+	return 0;
+}
+
+/* Set the MAC to reset or exit from reset */
+static int gop_xlg_mac_reset(struct mvpp2_port *port, int reset)
+{
+	u32 val;
+
+	/* read - modify - write */
+	val = readl(port->base + MVPP22_XLG_CTRL0_REG);
+	if (reset)
+		val &= ~MVPP22_XLG_MAC_RESETN;
+	else
+		val |= MVPP22_XLG_MAC_RESETN;
+	writel(val, port->base + MVPP22_XLG_CTRL0_REG);
+
+	return 0;
+}
+
 /*
  * gop_port_init
  *
@@ -3236,6 +3360,7 @@ static int gop_gpcs_reset(struct mvpp2_port *port, int reset)
 static int gop_port_init(struct mvpp2_port *port)
 {
 	int mac_num = port->gop_id;
+	int num_of_act_lanes;
 
 	if (mac_num >= MVPP22_GOP_MAC_NUM) {
 		netdev_err(NULL, "%s: illegal port number %d", __func__,
@@ -3276,6 +3401,22 @@ static int gop_port_init(struct mvpp2_port *port)
 		gop_gmac_reset(port, 0);
 		break;
 
+	case PHY_INTERFACE_MODE_SFI:
+		num_of_act_lanes = 2;
+		mac_num = 0;
+		/* configure PCS */
+		gop_xpcs_mode(port, num_of_act_lanes);
+		gop_mpcs_mode(port);
+		/* configure MAC */
+		gop_xlg_mac_mode_cfg(port, num_of_act_lanes);
+
+		/* pcs unreset */
+		gop_xpcs_reset(port, 0);
+
+		/* mac unreset */
+		gop_xlg_mac_reset(port, 0);
+		break;
+
 	default:
 		netdev_err(NULL, "%s: Requested port mode (%d) not supported\n",
 			   __func__, port->phy_interface);
@@ -3283,6 +3424,22 @@ static int gop_port_init(struct mvpp2_port *port)
 	}
 
 	return 0;
+}
+
+static void gop_xlg_mac_port_enable(struct mvpp2_port *port, int enable)
+{
+	u32 val;
+
+	val = readl(port->base + MVPP22_XLG_CTRL0_REG);
+	if (enable) {
+		/* Enable port and MIB counters update */
+		val |= MVPP22_XLG_PORT_EN;
+		val &= ~MVPP22_XLG_MIBCNT_DIS;
+	} else {
+		/* Disable port */
+		val &= ~MVPP22_XLG_PORT_EN;
+	}
+	writel(val, port->base + MVPP22_XLG_CTRL0_REG);
 }
 
 static void gop_port_enable(struct mvpp2_port *port, int enable)
@@ -3297,6 +3454,10 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 			mvpp2_port_disable(port);
 		break;
 
+	case PHY_INTERFACE_MODE_SFI:
+		gop_xlg_mac_port_enable(port, enable);
+
+		break;
 	default:
 		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
 			   port->phy_interface);
