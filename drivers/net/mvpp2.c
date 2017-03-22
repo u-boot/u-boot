@@ -3823,19 +3823,14 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 	return 0;
 }
 
-/* Ports initialization */
-static int mvpp2_port_probe(struct udevice *dev,
-			    struct mvpp2_port *port,
-			    int port_node,
-			    struct mvpp2 *priv)
+static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 {
+	int port_node = dev_of_offset(dev);
+	const char *phy_mode_str;
 	int phy_node;
 	u32 id;
 	u32 phyaddr;
-	const char *phy_mode_str;
 	int phy_mode = -1;
-	int priv_common_regs_num = 2;
-	int err;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 	if (phy_node < 0) {
@@ -3859,46 +3854,37 @@ static int mvpp2_port_probe(struct udevice *dev,
 
 	phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 
-	port->priv = priv;
 	port->id = id;
-	if (priv->hw_version == MVPP21)
+	if (port->priv->hw_version == MVPP21)
 		port->first_rxq = port->id * rxq_number;
 	else
-		port->first_rxq = port->id * priv->max_port_rxqs;
+		port->first_rxq = port->id * port->priv->max_port_rxqs;
 	port->phy_node = phy_node;
 	port->phy_interface = phy_mode;
 	port->phyaddr = phyaddr;
 
-	if (priv->hw_version == MVPP21) {
-		port->base = (void __iomem *)dev_get_addr_index(
-			dev->parent, priv_common_regs_num + id);
-		if (IS_ERR(port->base))
-			return PTR_ERR(port->base);
-	} else {
-		u32 gop_id;
+	return 0;
+}
 
-		gop_id = fdtdec_get_int(gd->fdt_blob, port_node,
-					"gop-port-id", -1);
-		if (id == -1) {
-			dev_err(&pdev->dev, "missing gop-port-id value\n");
-			return -EINVAL;
-		}
-
-		port->base = priv->iface_base + MVPP22_PORT_BASE +
-			gop_id * MVPP22_PORT_OFFSET;
-	}
+/* Ports initialization */
+static int mvpp2_port_probe(struct udevice *dev,
+			    struct mvpp2_port *port,
+			    int port_node,
+			    struct mvpp2 *priv)
+{
+	int err;
 
 	port->tx_ring_size = MVPP2_MAX_TXD;
 	port->rx_ring_size = MVPP2_MAX_RXD;
 
 	err = mvpp2_port_init(dev, port);
 	if (err < 0) {
-		dev_err(&pdev->dev, "failed to init port %d\n", id);
+		dev_err(&pdev->dev, "failed to init port %d\n", port->id);
 		return err;
 	}
 	mvpp2_port_power_up(port);
 
-	priv->port_list[id] = port;
+	priv->port_list[port->id] = port;
 	return 0;
 }
 
@@ -4546,6 +4532,36 @@ static int mvpp2_probe(struct udevice *dev)
 		err = mvpp2_base_probe(dev->parent);
 		priv->probe_done = 1;
 	}
+
+	port->priv = dev_get_priv(dev->parent);
+
+	err = phy_info_parse(dev, port);
+	if (err)
+		return err;
+
+	/*
+	 * We need the port specific io base addresses at this stage, since
+	 * gop_port_init() accesses these registers
+	 */
+	if (priv->hw_version == MVPP21) {
+		int priv_common_regs_num = 2;
+
+		port->base = (void __iomem *)dev_get_addr_index(
+			dev->parent, priv_common_regs_num + port->id);
+		if (IS_ERR(port->base))
+			return PTR_ERR(port->base);
+	} else {
+		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+					      "gop-port-id", -1);
+		if (port->id == -1) {
+			dev_err(&pdev->dev, "missing gop-port-id value\n");
+			return -EINVAL;
+		}
+
+		port->base = priv->iface_base + MVPP22_PORT_BASE +
+			port->gop_id * MVPP22_PORT_OFFSET;
+	}
+
 	/* Initialize network controller */
 	err = mvpp2_init(dev, priv);
 	if (err < 0) {
