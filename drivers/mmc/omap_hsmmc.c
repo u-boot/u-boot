@@ -58,6 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct omap_hsmmc_plat {
 	struct mmc_config cfg;
+	struct mmc mmc;
 };
 
 struct omap_hsmmc_data {
@@ -814,6 +815,15 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_BLK
+
+static int omap_hsmmc_bind(struct udevice *dev)
+{
+	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+#endif
 static int omap_hsmmc_probe(struct udevice *dev)
 {
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
@@ -825,9 +835,13 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	cfg->name = "OMAP SD/MMC";
 	cfg->ops = &omap_hsmmc_ops;
 
+#ifdef CONFIG_BLK
+	mmc = &plat->mmc;
+#else
 	mmc = mmc_create(cfg, priv);
 	if (mmc == NULL)
 		return -1;
+#endif
 
 #ifdef OMAP_HSMMC_USE_GPIO
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
@@ -852,6 +866,9 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 	.id	= UCLASS_MMC,
 	.of_match = omap_hsmmc_ids,
 	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
+#ifdef CONFIG_BLK
+	.bind = omap_hsmmc_bind,
+#endif
 	.probe	= omap_hsmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
 	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
