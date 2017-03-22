@@ -13,6 +13,7 @@
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
+#include <asm/arch/stream_id_lsch2.h>
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
