@@ -2618,6 +2618,13 @@ static void mvpp2_bm_pool_bufsize_set(struct mvpp2 *priv,
 static void mvpp2_bm_bufs_free(struct udevice *dev, struct mvpp2 *priv,
 			       struct mvpp2_bm_pool *bm_pool)
 {
+	int i;
+
+	for (i = 0; i < bm_pool->buf_num; i++) {
+		/* Allocate buffer back from the buffer manager */
+		mvpp2_read(priv, MVPP2_BM_PHY_ALLOC_REG(bm_pool->id));
+	}
+
 	bm_pool->buf_num = 0;
 }
 
@@ -5501,6 +5508,21 @@ static int mvpp2_probe(struct udevice *dev)
 	return 0;
 }
 
+/*
+ * Empty BM pool and stop its activity before the OS is started
+ */
+static int mvpp2_remove(struct udevice *dev)
+{
+	struct mvpp2_port *port = dev_get_priv(dev);
+	struct mvpp2 *priv = port->priv;
+	int i;
+
+	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++)
+		mvpp2_bm_pool_destroy(dev, priv, &priv->bm_pools[i]);
+
+	return 0;
+}
+
 static const struct eth_ops mvpp2_ops = {
 	.start		= mvpp2_start,
 	.send		= mvpp2_send,
@@ -5512,9 +5534,11 @@ static struct driver mvpp2_driver = {
 	.name	= "mvpp2",
 	.id	= UCLASS_ETH,
 	.probe	= mvpp2_probe,
+	.remove = mvpp2_remove,
 	.ops	= &mvpp2_ops,
 	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags	= DM_FLAG_ACTIVE_DMA,
 };
 
 /*
