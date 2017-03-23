@@ -252,4 +252,6 @@
 			"48m(nand_kernel),448m(nand_free)"
 #endif
 
+#include <asm/fsl_secure_boot.h>
+
 #endif /* __LS1046ARDB_H__ */
