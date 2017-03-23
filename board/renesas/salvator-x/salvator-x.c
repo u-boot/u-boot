@@ -44,12 +44,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-/* SYSC */
-/* R/- 32 Power status register 2(3DG) */
-#define	SYSC_PWRSR2	0xE6180100
-/* -/W 32 Power resume control register 2 (3DG) */
-#define	SYSC_PWRONCR2	0xE618010C
-
 /* HSUSB block registers */
 #define HSUSB_REG_LPSTS			0xE6590102
 #define HSUSB_REG_LPSTS_SUSPM_NORMAL	BIT(14)
