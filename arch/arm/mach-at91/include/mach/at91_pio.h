@@ -109,7 +109,11 @@ typedef struct at91_port {
 	u32	wpsr;		/* 0xE8 Write Protect Status Register */
 	u32	reserved11[5];	/* */
 	u32	schmitt;	/* 0x100 Schmitt Trigger Register */
-	u32	reserved12[63];
+	u32	reserved12[4];	/* 0x104 ~ 0x110 */
+	u32	driver1;	/* 0x114 I/O Driver Register1(AT91SAM9x5's driver1) */
+	u32	driver12;	/* 0x118 I/O Driver Register12(AT91SAM9x5's driver2 or SAMA5D3x's driver1 ) */
+	u32	driver2;	/* 0x11C I/O Driver Register2(SAMA5D3x's driver2) */
+	u32	reserved13[12];	/* 0x120 ~ 0x14C */
 } at91_port_t;
 
 typedef union at91_pio {
