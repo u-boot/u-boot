@@ -46,9 +46,10 @@
 
 #endif
 
-#if defined(CONFIG_LS1043A) || defined(CONFIG_LS2080A)
-/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit
- * Similiarly for LS2080
+#if defined(CONFIG_FSL_LAYERSCAPE)
+/*
+ * For fsl layerscape based platforms, ESBC image Address in Header
+ * is 64 bit.
  */
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
@@ -90,12 +91,21 @@
 #define CONFIG_BS_ADDR_DEVICE		0x00000940
 #define CONFIG_BS_HDR_SIZE		0x00000010
 #define CONFIG_BS_SIZE			0x00000008
+#elif defined(CONFIG_QSPI_BOOT)
+#ifdef CONFIG_ARCH_LS1046A
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x40780000
+#define CONFIG_BS_ADDR_DEVICE		0x40800000
 #else
+#error "Platform not supported"
+#endif
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BS_SIZE			0x00001000
+#else /* Default NOR Boot */
 #define CONFIG_BS_HDR_ADDR_DEVICE	0x600a0000
 #define CONFIG_BS_ADDR_DEVICE		0x60060000
 #define CONFIG_BS_HDR_SIZE		0x00002000
 #define CONFIG_BS_SIZE			0x00001000
-#endif /* #ifdef CONFIG_SD_BOOT */
+#endif
 #define CONFIG_BS_HDR_ADDR_RAM		0x81000000
 #define CONFIG_BS_ADDR_RAM		0x81020000
 #endif
