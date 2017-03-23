@@ -600,6 +600,8 @@
 			uart1: serial@f8020000 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xf8020000 0x100>;
+				clocks = <&uart1_clk>;
+				clock-names = "usart";
 				status = "disabled";
 			};
 
