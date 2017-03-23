@@ -12,15 +12,12 @@
 #include <i2c.h>
 #include <lcd.h>
 #include <mmc.h>
-#include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <version.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/atmel_pio4.h>
 #include <asm/arch/atmel_mpddrc.h>
-#include <asm/arch/atmel_usba_udc.h>
 #include <asm/arch/atmel_sdhci.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
@@ -118,22 +115,6 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
 
-static void board_gmac_hw_init(void)
-{
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 14, 0);	/* GTXCK */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 15, 0);	/* GTXEN */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 16, 0);	/* GRXDV */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 17, 0);	/* GRXER */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 18, 0);	/* GRX0 */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 19, 0);	/* GRX1 */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 20, 0);	/* GTX0 */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 21, 0);	/* GTX1 */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 22, 0);	/* GMDC */
-	atmel_pio4_set_f_periph(AT91_PIO_PORTB, 23, 0);	/* GMDIO */
-
-	at91_periph_clk_enable(ATMEL_ID_GMAC);
-}
-
 static void board_uart1_hw_init(void)
 {
 	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, 1);	/* URXD1 */
@@ -167,17 +148,11 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-#ifdef CONFIG_MACB
-	board_gmac_hw_init();
-#endif
 #ifdef CONFIG_LCD
 	board_lcd_hw_init();
 #endif
 #ifdef CONFIG_CMD_USB
 	board_usb_hw_init();
-#endif
-#ifdef CONFIG_USB_GADGET_ATMEL_USBA
-	at91_udp_hw_init();
 #endif
 
 	return 0;
@@ -188,24 +163,6 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_SYS_SDRAM_SIZE);
 	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	int rc = 0;
-
-#ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC, 0x00);
-#endif
-
-#ifdef CONFIG_USB_GADGET_ATMEL_USBA
-	usba_udc_probe(&pdata);
-#ifdef CONFIG_USB_ETH_RNDIS
-	usb_eth_initialize(bis);
-#endif
-#endif
-
-	return rc;
 }
 
 #ifdef CONFIG_CMD_I2C
