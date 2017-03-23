@@ -572,14 +572,29 @@ static int at91_gpio_probe(struct udevice *dev)
 
 	uc_priv->bank_name = plat->bank_name;
 	uc_priv->gpio_count = GPIO_PER_BANK;
+
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	plat->base_addr = (uint32_t)dev_get_addr_ptr(dev);
+#endif
 	port->regs = (struct at91_port *)plat->base_addr;
 
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id at91_gpio_ids[] = {
+	{ .compatible = "atmel,at91rm9200-gpio" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(gpio_at91) = {
 	.name	= "gpio_at91",
 	.id	= UCLASS_GPIO,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = at91_gpio_ids,
+	.platdata_auto_alloc_size = sizeof(struct at91_port_platdata),
+#endif
 	.ops	= &gpio_at91_ops,
 	.probe	= at91_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct at91_port_priv),
