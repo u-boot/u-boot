@@ -230,7 +230,6 @@ static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 		    ATMEL_MPDDRC_CR_NR_ROW_14 |
 		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3 |
 		    ATMEL_MPDDRC_CR_NB_8BANKS |
-		    ATMEL_MPDDRC_CR_NDQS_DISABLED |
 		    ATMEL_MPDDRC_CR_DECOD_INTERLEAVED |
 		    ATMEL_MPDDRC_CR_UNAL_SUPPORTED);
 
@@ -260,12 +259,27 @@ static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 void mem_init(void)
 {
 	struct atmel_mpddrc_config ddr2;
+	const struct atmel_mpddr *mpddr = (struct atmel_mpddr *)ATMEL_BASE_MPDDRC;
+	u32 tmp;
 
 	ddr2_conf(&ddr2);
 
 	/* Enable MPDDR clock */
 	at91_periph_clk_enable(ATMEL_ID_MPDDRC);
 	at91_system_clk_enable(AT91_PMC_DDR);
+
+	tmp = ATMEL_MPDDRC_RD_DATA_PATH_SHIFT_ONE_CYCLE;
+	writel(tmp, &mpddr->rd_data_path);
+
+	tmp = readl(&mpddr->io_calibr);
+	tmp = (tmp & ~(ATMEL_MPDDRC_IO_CALIBR_RDIV |
+	       ATMEL_MPDDRC_IO_CALIBR_TZQIO |
+	       ATMEL_MPDDRC_IO_CALIBR_CALCODEP |
+	       ATMEL_MPDDRC_IO_CALIBR_CALCODEN)) |
+	       ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_52 |
+	       ATMEL_MPDDRC_IO_CALIBR_TZQIO_(8) |
+	       ATMEL_MPDDRC_IO_CALIBR_EN_CALIB;
+	writel(tmp, &mpddr->io_calibr);
 
 	/* DDRAM2 Controller initialize */
 	ddr2_init(ATMEL_BASE_MPDDRC, ATMEL_BASE_DDRCS, &ddr2);
