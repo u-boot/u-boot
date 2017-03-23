@@ -28,7 +28,7 @@ def test_i2c_probe(u_boot_console):
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_probe_zc70x(u_boot_console):
     # Enable i2c mux bridge
-    u_boot_console.run_command("i2c mw 74 0 ff")
+    u_boot_console.run_command("i2c mw 74 0 4")
     u_boot_console.run_command("i2c probe")
     val = format(random.randint(0,255), 'x')
     u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
