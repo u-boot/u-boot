@@ -95,6 +95,9 @@
 #ifdef CONFIG_ARCH_LS1046A
 #define CONFIG_BS_HDR_ADDR_DEVICE	0x40780000
 #define CONFIG_BS_ADDR_DEVICE		0x40800000
+#elif defined(CONFIG_ARCH_LS1012A)
+#define CONFIG_BS_HDR_ADDR_DEVICE      0x400c0000
+#define CONFIG_BS_ADDR_DEVICE          0x40060000
 #else
 #error "Platform not supported"
 #endif

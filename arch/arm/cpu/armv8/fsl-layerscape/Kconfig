@@ -177,6 +177,7 @@ config SYS_LS_PPA_ESBC_ADDR
 	depends on FSL_LS_PPA && CHAIN_OF_TRUST
 	default 0x600c0000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
 	default 0x40740000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
+	default 0x40480000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
 	default 0x580c40000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
 	help
 	  If the PPA header firmware locate at XIP flash, such as NOR or
