@@ -115,6 +115,7 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
 
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void board_uart1_hw_init(void)
 {
 	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, 1);	/* URXD1 */
@@ -123,7 +124,6 @@ static void board_uart1_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_UART1);
 }
 
-#ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {
 	board_uart1_hw_init();
@@ -135,8 +135,6 @@ int board_early_init_f(void)
 {
 #ifdef CONFIG_DEBUG_UART
 	debug_uart_init();
-#else
-	board_uart1_hw_init();
 #endif
 
 	return 0;
