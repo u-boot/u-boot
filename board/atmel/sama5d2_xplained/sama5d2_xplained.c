@@ -11,8 +11,6 @@
 #include <dm.h>
 #include <i2c.h>
 #include <lcd.h>
-#include <mmc.h>
-#include <spi.h>
 #include <version.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
