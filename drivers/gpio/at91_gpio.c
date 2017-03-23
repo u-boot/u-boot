@@ -10,6 +10,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
@@ -569,6 +570,18 @@ static int at91_gpio_probe(struct udevice *dev)
 	struct at91_port_priv *port = dev_get_priv(dev);
 	struct at91_port_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	clk_free(&clk);
 
 	uc_priv->bank_name = plat->bank_name;
 	uc_priv->gpio_count = GPIO_PER_BANK;
