@@ -494,7 +494,6 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 			goto err;
 		}
 	}
-	fdt_fixup_ethernet(blob);
 
 	/* Delete the old LMB reservation */
 	if (lmb)
