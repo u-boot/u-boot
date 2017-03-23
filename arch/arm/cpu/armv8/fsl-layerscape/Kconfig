@@ -171,6 +171,18 @@ config SYS_LS_PPA_FW_ADDR
 	  QSPI flash, this address is a directly memory-mapped.
 	  If it is in a serial accessed flash, such as NAND and SD
 	  card, it is a byte offset.
+
+config SYS_LS_PPA_ESBC_ADDR
+	hex "hdr address of PPA firmware loading from"
+	depends on FSL_LS_PPA && CHAIN_OF_TRUST
+	default 0x600c0000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
+	default 0x580c40000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
+	help
+	  If the PPA header firmware locate at XIP flash, such as NOR or
+	  QSPI flash, this address is a directly memory-mapped.
+	  If it is in a serial accessed flash, such as NAND and SD
+	  card, it is a byte offset.
+
 endmenu
 
 config SYS_FSL_ERRATUM_A010315
