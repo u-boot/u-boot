@@ -28,3 +28,4 @@ obj-$(CONFIG_PHY_TI) += ti.o
 obj-$(CONFIG_PHY_XILINX) += xilinx_phy.o
 obj-$(CONFIG_PHY_VITESSE) += vitesse.o
 obj-$(CONFIG_PHY_MSCC) += mscc.o
+obj-$(CONFIG_PHY_FIXED) += fixed.o

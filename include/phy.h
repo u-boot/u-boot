@@ -15,6 +15,8 @@
 #include <linux/ethtool.h>
 #include <linux/mdio.h>
 
+#define PHY_FIXED_ID		0xa5a55a5a
+
 #define PHY_MAX_ADDR 32
 
 #define PHY_FLAG_BROKEN_RESET	(1 << 0) /* soft reset not supported */
@@ -267,6 +269,7 @@ int phy_ti_init(void);
 int phy_vitesse_init(void);
 int phy_xilinx_init(void);
 int phy_mscc_init(void);
+int phy_fixed_init(void);
 
 int board_phy_config(struct phy_device *phydev);
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);

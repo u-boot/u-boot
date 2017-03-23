@@ -515,7 +515,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_MSCC
 	phy_mscc_init();
 #endif
-
+#ifdef CONFIG_PHY_FIXED
+	phy_fixed_init();
+#endif
 	return 0;
 }
 
@@ -854,9 +856,24 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 		struct eth_device *dev, phy_interface_t interface)
 #endif
 {
-	struct phy_device *phydev;
+	struct phy_device *phydev = NULL;
+#ifdef CONFIG_PHY_FIXED
+	int sn;
+	const char *name;
+	sn = fdt_first_subnode(gd->fdt_blob, dev->of_offset);
+	while (sn > 0) {
+		name = fdt_get_name(gd->fdt_blob, sn, NULL);
+		if (name != NULL && strcmp(name, "fixed-link") == 0) {
+			phydev = phy_device_create(bus,
+						   sn, PHY_FIXED_ID, interface);
+			break;
+		}
+		sn = fdt_next_subnode(gd->fdt_blob, sn);
+	}
+#endif
+	if (phydev == NULL)
+		phydev = phy_find_by_mask(bus, 1 << addr, interface);
 
-	phydev = phy_find_by_mask(bus, 1 << addr, interface);
 	if (phydev)
 		phy_connect_dev(phydev, dev);
 	else

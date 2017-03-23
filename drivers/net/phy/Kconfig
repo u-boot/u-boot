@@ -90,4 +90,14 @@ config PHY_VITESSE
 config PHY_XILINX
 	bool "Xilinx Ethernet PHYs support"
 
+config PHY_FIXED
+	bool "Fixed-Link PHY"
+	depends on DM_ETH
+	help
+	  Fixed PHY is used for having a 'fixed-link' to another MAC with a direct
+	  connection (MII, RGMII, ...).
+	  There is nothing like autoneogation and so
+	  on, the link is always up with fixed speed and fixed duplex-setting.
+	  More information: doc/device-tree-bindings/net/fixed-link.txt
+
 endif #PHYLIB
