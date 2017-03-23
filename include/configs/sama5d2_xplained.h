@@ -38,20 +38,9 @@
 /* NAND flash */
 #undef CONFIG_CMD_NAND
 
-/* USB device */
-#define CONFIG_USB_ETHER
-#define CONFIG_USB_ETH_RNDIS
-#define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D2 XPlained"
-
 /* I2C */
 #define AT24MAC_ADDR		0x5c
 #define AT24MAC_REG		0x9a
-
-/* Ethernet Hardware */
-#define CONFIG_MACB
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_MACB_SEARCH_PHY
 
 /* LCD */
 
