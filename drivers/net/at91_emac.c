@@ -333,7 +333,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 		ATMEL_PMX_AA_ETXEN |	ATMEL_PMX_AA_EREFCK;
 
 	writel(value, &pio->pioa.pdr);
-	writel(value, &pio->pioa.asr);
+	writel(value, &pio->pioa.mux.pio2.asr);
 
 #ifdef CONFIG_RMII
 	value = ATMEL_PMX_BA_ERXCK;
@@ -344,7 +344,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 		ATMEL_PMX_BA_ETX3 |	ATMEL_PMX_BA_ETX2;
 #endif
 	writel(value, &pio->piob.pdr);
-	writel(value, &pio->piob.bsr);
+	writel(value, &pio->piob.mux.pio2.bsr);
 
 	at91_periph_clk_enable(ATMEL_ID_EMAC);
 

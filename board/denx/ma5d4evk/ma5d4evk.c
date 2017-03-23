@@ -44,9 +44,9 @@ void spi_cs_deactivate(struct spi_slave *slave)
 
 static void ma5d4evk_spi0_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* SPI0_MISO */
-	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* SPI0_MOSI */
-	at91_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* SPI0_SPCK */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* SPI0_MISO */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* SPI0_MOSI */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* SPI0_SPCK */
 
 	at91_set_pio_output(AT91_PIO_PORTC, 3, 1);	/* SPI0_CS0 */
 
@@ -90,39 +90,39 @@ unsigned int has_lcdc(void)
 
 static void ma5d4evk_lcd_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTA, 24, 1);	/* LCDPWM */
-	at91_set_a_periph(AT91_PIO_PORTA, 25, 0);	/* LCDDISP */
-	at91_set_a_periph(AT91_PIO_PORTA, 26, 0);	/* LCDVSYNC */
-	at91_set_a_periph(AT91_PIO_PORTA, 27, 0);	/* LCDHSYNC */
-	at91_set_a_periph(AT91_PIO_PORTA, 28, 0);	/* LCDDOTCK */
-	at91_set_a_periph(AT91_PIO_PORTA, 29, 1);	/* LCDDEN */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 24, 1);	/* LCDPWM */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 25, 0);	/* LCDDISP */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 26, 0);	/* LCDVSYNC */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 27, 0);	/* LCDHSYNC */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 28, 0);	/* LCDDOTCK */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 29, 1);	/* LCDDEN */
 
-	at91_set_a_periph(AT91_PIO_PORTA,  0, 0);	/* LCDD0 */
-	at91_set_a_periph(AT91_PIO_PORTA,  1, 0);	/* LCDD1 */
-	at91_set_a_periph(AT91_PIO_PORTA,  2, 0);	/* LCDD2 */
-	at91_set_a_periph(AT91_PIO_PORTA,  3, 0);	/* LCDD3 */
-	at91_set_a_periph(AT91_PIO_PORTA,  4, 0);	/* LCDD4 */
-	at91_set_a_periph(AT91_PIO_PORTA,  5, 0);	/* LCDD5 */
-	at91_set_a_periph(AT91_PIO_PORTA,  6, 0);	/* LCDD6 */
-	at91_set_a_periph(AT91_PIO_PORTA,  7, 0);	/* LCDD7 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  0, 0);	/* LCDD0 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  1, 0);	/* LCDD1 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  2, 0);	/* LCDD2 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  3, 0);	/* LCDD3 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  4, 0);	/* LCDD4 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  5, 0);	/* LCDD5 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  6, 0);	/* LCDD6 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  7, 0);	/* LCDD7 */
 
-	at91_set_a_periph(AT91_PIO_PORTA,  8, 0);	/* LCDD9 */
-	at91_set_a_periph(AT91_PIO_PORTA,  9, 0);	/* LCDD8 */
-	at91_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* LCDD10 */
-	at91_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* LCDD11 */
-	at91_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* LCDD12 */
-	at91_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* LCDD13 */
-	at91_set_a_periph(AT91_PIO_PORTA, 14, 0);	/* LCDD14 */
-	at91_set_a_periph(AT91_PIO_PORTA, 15, 0);	/* LCDD15 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  8, 0);	/* LCDD9 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA,  9, 0);	/* LCDD8 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* LCDD10 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* LCDD11 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* LCDD12 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* LCDD13 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 14, 0);	/* LCDD14 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 15, 0);	/* LCDD15 */
 
-	at91_set_a_periph(AT91_PIO_PORTA, 16, 0);	/* LCDD16 */
-	at91_set_a_periph(AT91_PIO_PORTA, 17, 0);	/* LCDD17 */
-	at91_set_a_periph(AT91_PIO_PORTA, 18, 0);	/* LCDD18 */
-	at91_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* LCDD19 */
-	at91_set_a_periph(AT91_PIO_PORTA, 20, 0);	/* LCDD20 */
-	at91_set_a_periph(AT91_PIO_PORTA, 21, 0);	/* LCDD21 */
-	at91_set_a_periph(AT91_PIO_PORTA, 22, 0);	/* LCDD22 */
-	at91_set_a_periph(AT91_PIO_PORTA, 23, 0);	/* LCDD23 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 16, 0);	/* LCDD16 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 17, 0);	/* LCDD17 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 18, 0);	/* LCDD18 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* LCDD19 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 20, 0);	/* LCDD20 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 21, 0);	/* LCDD21 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 22, 0);	/* LCDD22 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTA, 23, 0);	/* LCDD23 */
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_LCDC);
@@ -134,16 +134,16 @@ static void ma5d4evk_lcd_hw_init(void)
 /* On-SoM eMMC */
 void ma5d4evk_mci0_hw_init(void)
 {
-	at91_set_b_periph(AT91_PIO_PORTC, 5, 1);	/* MCI1 CDA */
-	at91_set_b_periph(AT91_PIO_PORTC, 6, 1);	/* MCI1 DA0 */
-	at91_set_b_periph(AT91_PIO_PORTC, 7, 1);	/* MCI1 DA1 */
-	at91_set_b_periph(AT91_PIO_PORTC, 8, 1);	/* MCI1 DA2 */
-	at91_set_b_periph(AT91_PIO_PORTC, 9, 1);	/* MCI1 DA3 */
-	at91_set_b_periph(AT91_PIO_PORTC, 10, 1);	/* MCI1 DA4 */
-	at91_set_b_periph(AT91_PIO_PORTC, 11, 1);	/* MCI1 DA5 */
-	at91_set_b_periph(AT91_PIO_PORTC, 12, 1);	/* MCI1 DA6 */
-	at91_set_b_periph(AT91_PIO_PORTC, 13, 1);	/* MCI1 DA7 */
-	at91_set_b_periph(AT91_PIO_PORTC, 4, 0);	/* MCI1 CLK */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 5, 1);	/* MCI1 CDA */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 6, 1);	/* MCI1 DA0 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 7, 1);	/* MCI1 DA1 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 8, 1);	/* MCI1 DA2 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 9, 1);	/* MCI1 DA3 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 10, 1);	/* MCI1 DA4 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 11, 1);	/* MCI1 DA5 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 12, 1);	/* MCI1 DA6 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 13, 1);	/* MCI1 DA7 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 4, 0);	/* MCI1 CLK */
 
 	/*
 	 * As the mci io internal pull down is too strong, so if the io needs
@@ -151,16 +151,16 @@ void ma5d4evk_mci0_hw_init(void)
 	 * the power consumption will increase, so disable the internal pull
 	 * down to save the power.
 	 */
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 5, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 6, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 7, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 8, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 9, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 10, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 11, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 12, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 13, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 4, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 5, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 6, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 7, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 8, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 9, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 10, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 11, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 12, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 13, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 4, 0);
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_MCI0);
@@ -169,12 +169,12 @@ void ma5d4evk_mci0_hw_init(void)
 /* On-board MicroSD slot */
 void ma5d4evk_mci1_hw_init(void)
 {
-	at91_set_c_periph(AT91_PIO_PORTE, 19, 1);	/* MCI1 CDA */
-	at91_set_c_periph(AT91_PIO_PORTE, 20, 1);	/* MCI1 DA0 */
-	at91_set_c_periph(AT91_PIO_PORTE, 21, 1);	/* MCI1 DA1 */
-	at91_set_c_periph(AT91_PIO_PORTE, 22, 1);	/* MCI1 DA2 */
-	at91_set_c_periph(AT91_PIO_PORTE, 23, 1);	/* MCI1 DA3 */
-	at91_set_c_periph(AT91_PIO_PORTE, 18, 0);	/* MCI1 CLK */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 19, 1);	/* MCI1 CDA */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 20, 1);	/* MCI1 DA0 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 21, 1);	/* MCI1 DA1 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 22, 1);	/* MCI1 DA2 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 23, 1);	/* MCI1 DA3 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 18, 0);	/* MCI1 CLK */
 
 	/*
 	 * As the mci io internal pull down is too strong, so if the io needs
@@ -182,16 +182,16 @@ void ma5d4evk_mci1_hw_init(void)
 	 * the power consumption will increase, so disable the internal pull
 	 * down to save the power.
 	 */
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 18, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 19, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 20, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 21, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 22, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 23, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 18, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 19, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 20, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 21, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 22, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 23, 0);
 
 	/* Deal with WP pin on the microSD slot. */
 	at91_set_pio_output(AT91_PIO_PORTE, 16, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 16, 1);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 16, 1);
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_MCI1);
@@ -203,7 +203,7 @@ int board_mmc_init(bd_t *bis)
 
 	/* De-assert reset on On-SoM eMMC */
 	at91_set_pio_output(AT91_PIO_PORTE, 15, 1);
-	at91_set_pio_pulldown(AT91_PIO_PORTE, 15, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 15, 0);
 
 	ret = atmel_mci_init((void *)ATMEL_BASE_MCI0);
 	if (ret)	/* eMMC init failed, skip it. */
@@ -223,16 +223,16 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_MACB
 void ma5d4evk_macb0_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* ETXCK_EREFCK */
-	at91_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* ERXDV */
-	at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ERX0 */
-	at91_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* ERX1 */
-	at91_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* ERXER */
-	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* ETXEN */
-	at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX0 */
-	at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ETX1 */
-	at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* EMDIO */
-	at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* EMDC */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* ETXCK_EREFCK */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* ERXDV */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ERX0 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* ERX1 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* ERXER */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* ETXEN */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX0 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ETX1 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* EMDIO */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* EMDC */
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_GMAC0);
@@ -242,17 +242,17 @@ void ma5d4evk_macb0_hw_init(void)
 static void ma5d4evk_serial_hw_init(void)
 {
 	/* USART0 */
-	at91_set_a_periph(AT91_PIO_PORTD, 13, 1);	/* TXD */
-	at91_set_a_periph(AT91_PIO_PORTD, 12, 0);	/* RXD */
-	at91_set_a_periph(AT91_PIO_PORTD, 11, 0);	/* RTS */
-	at91_set_a_periph(AT91_PIO_PORTD, 10, 0);	/* CTS */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 13, 1);	/* TXD */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 12, 0);	/* RXD */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 11, 0);	/* RTS */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 10, 0);	/* CTS */
 	at91_periph_clk_enable(ATMEL_ID_USART0);
 
 	/* USART1 */
-	at91_set_a_periph(AT91_PIO_PORTD, 17, 1);	/* TXD */
-	at91_set_a_periph(AT91_PIO_PORTD, 16, 0);	/* RXD */
-	at91_set_a_periph(AT91_PIO_PORTD, 15, 0);	/* RTS */
-	at91_set_a_periph(AT91_PIO_PORTD, 14, 0);	/* CTS */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 17, 1);	/* TXD */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 16, 0);	/* RXD */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 15, 0);	/* RTS */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 14, 0);	/* CTS */
 	at91_periph_clk_enable(ATMEL_ID_USART1);
 }
 
@@ -273,7 +273,7 @@ int board_early_init_f(void)
 	at91_set_pio_output(AT91_PIO_PORTB, 21, 0);
 	udelay(100);
 	at91_set_pio_output(AT91_PIO_PORTB, 21, 1);
-	at91_set_pio_pulldown(AT91_PIO_PORTB, 21, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTB, 21, 0);
 
 	ma5d4evk_serial_hw_init();
 

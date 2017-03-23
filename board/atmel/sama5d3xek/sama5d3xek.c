@@ -95,31 +95,31 @@ static void sama5d3xek_nor_hw_init(void)
 	       &smc->cs[0].mode);
 
 	/* Address pin (A1 ~ A23) configuration */
-	at91_set_a_periph(AT91_PIO_PORTE, 1, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 2, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 3, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 4, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 5, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 6, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 7, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 8, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 9, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 10, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 11, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 12, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 13, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 14, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 15, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 16, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 17, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 18, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 19, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 20, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 21, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 22, 0);
-	at91_set_a_periph(AT91_PIO_PORTE, 23, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 1, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 2, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 3, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 4, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 5, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 6, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 7, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 8, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 9, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 10, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 11, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 12, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 13, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 14, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 15, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 16, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 17, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 18, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 19, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 20, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 21, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 22, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 23, 0);
 	/* CS0 pin configuration */
-	at91_set_a_periph(AT91_PIO_PORTE, 26, 0);
+	at91_pio3_set_a_periph(AT91_PIO_PORTE, 26, 0);
 }
 #endif
 
@@ -170,14 +170,14 @@ static void sama5d3xek_lcd_hw_init(void)
 	gd->fb_base = CONFIG_SAMA5D3_LCD_BASE;
 
 	/* The higher 8 bit of LCD is board related */
-	at91_set_c_periph(AT91_PIO_PORTC, 14, 0);	/* LCDD16 */
-	at91_set_c_periph(AT91_PIO_PORTC, 13, 0);	/* LCDD17 */
-	at91_set_c_periph(AT91_PIO_PORTC, 12, 0);	/* LCDD18 */
-	at91_set_c_periph(AT91_PIO_PORTC, 11, 0);	/* LCDD19 */
-	at91_set_c_periph(AT91_PIO_PORTC, 10, 0);	/* LCDD20 */
-	at91_set_c_periph(AT91_PIO_PORTC, 15, 0);	/* LCDD21 */
-	at91_set_c_periph(AT91_PIO_PORTE, 27, 0);	/* LCDD22 */
-	at91_set_c_periph(AT91_PIO_PORTE, 28, 0);	/* LCDD23 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 14, 0);	/* LCDD16 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 13, 0);	/* LCDD17 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 12, 0);	/* LCDD18 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 11, 0);	/* LCDD19 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 10, 0);	/* LCDD20 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTC, 15, 0);	/* LCDD21 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 27, 0);	/* LCDD22 */
+	at91_pio3_set_c_periph(AT91_PIO_PORTE, 28, 0);	/* LCDD23 */
 
 	/* Configure lower 16 bit of LCD and enable clock */
 	at91_lcd_hw_init();

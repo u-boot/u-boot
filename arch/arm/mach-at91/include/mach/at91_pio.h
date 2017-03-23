@@ -32,6 +32,8 @@
 #define AT91_ASM_PIOD_ASR	\
 	(ATMEL_BASE_PIO + AT91_PIO_PORTD * AT91_ASM_PIO_RANGE + 0x70)
 
+#define PIO_SCDR_DIV		0x3fff	/* Slow Clock Divider Selection for Debouncing Mask */
+
 #ifndef __ASSEMBLY__
 
 typedef struct at91_port {
@@ -63,28 +65,32 @@ typedef struct at91_port {
 	u32	puer;		/* 0x64 Pull-up Enable Register */
 	u32	pusr;		/* 0x68 Pad Pull-up Status Register */
 	u32	reserved4;
-#if defined(CPU_HAS_PIO3)
-	u32	abcdsr1;	/* 0x70 Peripheral ABCD Select Register 1 */
-	u32	abcdsr2;	/* 0x74 Peripheral ABCD Select Register 2 */
-	u32	reserved5[2];
-	u32	ifscdr;		/* 0x80 Input Filter SCLK Disable Register */
-	u32	ifscer;		/* 0x84 Input Filter SCLK Enable Register */
-	u32	ifscsr;		/* 0x88 Input Filter SCLK Status Register */
-	u32	scdr;		/* 0x8C SCLK Divider Debouncing Register */
-	u32	ppddr;		/* 0x90 Pad Pull-down Disable Register */
-	u32	ppder;		/* 0x94 Pad Pull-down Enable Register */
-	u32	ppdsr;		/* 0x98 Pad Pull-down Status Register */
-	u32	reserved6;	/*  */
-#else
-	u32	asr;		/* 0x70 Select A Register */
-	u32	bsr;		/* 0x74 Select B Register */
-	u32	absr;		/* 0x78 AB Select Status Register */
-	u32	reserved5[9];	/*  */
-#endif
+	union {
+		struct {
+			u32	abcdsr1;	/* 0x70 Peripheral ABCD Select Register 1 */
+			u32	abcdsr2;	/* 0x74 Peripheral ABCD Select Register 2 */
+			u32	reserved5[2];
+			u32	ifscdr;		/* 0x80 Input Filter SCLK Disable Register */
+			u32	ifscer;		/* 0x84 Input Filter SCLK Enable Register */
+			u32	ifscsr;		/* 0x88 Input Filter SCLK Status Register */
+			u32	scdr;		/* 0x8C SCLK Divider Debouncing Register */
+			u32	ppddr;		/* 0x90 Pad Pull-down Disable Register */
+			u32	ppder;		/* 0x94 Pad Pull-down Enable Register */
+			u32	ppdsr;		/* 0x98 Pad Pull-down Status Register */
+			u32	reserved6;	/*  */
+		} pio3;
+
+		struct {
+			u32	asr;		/* 0x70 Select A Register */
+			u32	bsr;		/* 0x74 Select B Register */
+			u32	absr;		/* 0x78 AB Select Status Register */
+			u32	reserved5[9];	/*  */
+		} pio2;
+	} mux;
+
 	u32	ower;		/* 0xA0 Output Write Enable Register */
 	u32	owdr;		/* 0xA4 Output Write Disable Register */
 	u32	owsr;		/* OxA8 Output Write Status Register */
-#if defined(CPU_HAS_PIO3)
 	u32	reserved7;	/*  */
 	u32	aimer;		/* 0xB0 Additional INT Modes Enable Register */
 	u32	aimdr;		/* 0xB4 Additional INT Modes Disable Register */
@@ -104,9 +110,6 @@ typedef struct at91_port {
 	u32	reserved11[5];	/* */
 	u32	schmitt;	/* 0x100 Schmitt Trigger Register */
 	u32	reserved12[63];
-#else
-	u32	reserved6[85];
-#endif
 } at91_port_t;
 
 typedef union at91_pio {
@@ -123,13 +126,6 @@ typedef union at91_pio {
 #ifdef CONFIG_AT91_GPIO
 int at91_set_a_periph(unsigned port, unsigned pin, int use_pullup);
 int at91_set_b_periph(unsigned port, unsigned pin, int use_pullup);
-#if defined(CPU_HAS_PIO3)
-int at91_set_c_periph(unsigned port, unsigned pin, int use_pullup);
-int at91_set_d_periph(unsigned port, unsigned pin, int use_pullup);
-int at91_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div);
-int at91_set_pio_pulldown(unsigned port, unsigned pin, int is_on);
-int at91_set_pio_disable_schmitt_trig(unsigned port, unsigned pin);
-#endif
 int at91_set_pio_input(unsigned port, unsigned pin, int use_pullup);
 int at91_set_pio_multi_drive(unsigned port, unsigned pin, int is_on);
 int at91_set_pio_output(unsigned port, unsigned pin, int value);
@@ -138,6 +134,15 @@ int at91_set_pio_pullup(unsigned port, unsigned pin, int use_pullup);
 int at91_set_pio_deglitch(unsigned port, unsigned pin, int is_on);
 int at91_set_pio_value(unsigned port, unsigned pin, int value);
 int at91_get_pio_value(unsigned port, unsigned pin);
+
+int at91_pio3_set_a_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_pio3_set_b_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_pio3_set_c_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_pio3_set_d_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_pio3_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div);
+int at91_pio3_set_pio_pullup(unsigned port, unsigned pin, int use_pullup);
+int at91_pio3_set_pio_pulldown(unsigned port, unsigned pin, int is_on);
+int at91_pio3_set_pio_disable_schmitt_trig(unsigned port, unsigned pin);
 #endif
 #endif
 
