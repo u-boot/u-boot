@@ -172,6 +172,7 @@ config TARGET_MX6Q_ICORE
 
 config TARGET_MX6Q_ICORE_RQS
 	bool "Support Engicam i.Core RQS"
+	select BOARD_LATE_INIT
 	select MX6QDL
 	select OF_CONTROL
 	select DM
@@ -253,6 +254,7 @@ config TARGET_MX6UL_GEAM
 	select SUPPORT_SPL
 config TARGET_MX6UL_ISIOT
 	bool "Support Engicam Is.IoT MX6UL"
+	select BOARD_LATE_INIT
 	select MX6UL
 	select OF_CONTROL
 	select DM
