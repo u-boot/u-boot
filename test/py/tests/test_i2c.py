@@ -30,7 +30,7 @@ def test_i2c_probe_zc70x(u_boot_console):
     # Enable i2c mux bridge
     u_boot_console.run_command("i2c mw 74 0 4")
     u_boot_console.run_command("i2c probe")
-    val = format(random.randint(0,255), 'x')
+    val = format(random.randint(0,255), '02x')
     u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
     response = u_boot_console.run_command("i2c md 54 0 5")
     expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
@@ -42,7 +42,7 @@ def test_i2c_probe_zcu102(u_boot_console):
     # This is using i2c mux wiring from config file
     u_boot_console.run_command("i2c dev 5")
     u_boot_console.run_command("i2c probe")
-    val = format(random.randint(0,255), 'x')
+    val = format(random.randint(0,255), '02x')
     u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
     response = u_boot_console.run_command("i2c md 54 0 5")
     expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
