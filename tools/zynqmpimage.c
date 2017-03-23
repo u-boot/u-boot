@@ -6,7 +6,7 @@
  *
  * The following Boot Header format/structures and values are defined in the
  * following documents:
- *   * ug1085 ZynqMP TRM (Chapter 9, Table 9-3)
+ *   * ug1085 ZynqMP TRM doc v1.4 (Chapter 11, Table 11-4)
  *
  * Expected Header Size = 0x9C0
  * Forced as 'little' endian, 32-bit words
