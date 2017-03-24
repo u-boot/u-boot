@@ -202,6 +202,39 @@ static void pinctrl_rk3399_sdmmc_config(struct rk3399_grf_regs *grf, int mmc_id)
 	}
 }
 
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+static void pinctrl_rk3399_gmac_config(struct rk3399_grf_regs *grf, int mmc_id)
+{
+	rk_clrsetreg(&grf->gpio3a_iomux,
+		     GRF_GPIO3A0_SEL_MASK | GRF_GPIO3A1_SEL_MASK |
+		     GRF_GPIO3A2_SEL_MASK | GRF_GPIO3A3_SEL_MASK |
+		     GRF_GPIO3A4_SEL_MASK | GRF_GPIO3A5_SEL_MASK |
+		     GRF_GPIO3A6_SEL_MASK | GRF_GPIO3A7_SEL_MASK,
+		     GRF_MAC_TXD2 << GRF_GPIO3A0_SEL_SHIFT |
+		     GRF_MAC_TXD3 << GRF_GPIO3A1_SEL_SHIFT |
+		     GRF_MAC_RXD2 << GRF_GPIO3A2_SEL_SHIFT |
+		     GRF_MAC_RXD3 << GRF_GPIO3A3_SEL_SHIFT |
+		     GRF_MAC_TXD0 << GRF_GPIO3A4_SEL_SHIFT |
+		     GRF_MAC_TXD1 << GRF_GPIO3A5_SEL_SHIFT |
+		     GRF_MAC_RXD0 << GRF_GPIO3A6_SEL_SHIFT |
+		     GRF_MAC_RXD1 << GRF_GPIO3A7_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio3b_iomux,
+		     GRF_GPIO3B0_SEL_MASK | GRF_GPIO3B1_SEL_MASK |
+					    GRF_GPIO3B3_SEL_MASK |
+		     GRF_GPIO3B4_SEL_MASK | GRF_GPIO3B5_SEL_MASK |
+		     GRF_GPIO3B6_SEL_MASK,
+		     GRF_MAC_MDC << GRF_GPIO3B0_SEL_SHIFT |
+		     GRF_MAC_RXDV << GRF_GPIO3B1_SEL_SHIFT |
+		     GRF_MAC_CLK << GRF_GPIO3B3_SEL_SHIFT |
+		     GRF_MAC_TXEN << GRF_GPIO3B4_SEL_SHIFT |
+		     GRF_MAC_MDIO << GRF_GPIO3B5_SEL_SHIFT |
+		     GRF_MAC_RXCLK << GRF_GPIO3B6_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio3c_iomux,
+		     GRF_GPIO3C1_SEL_MASK,
+		     GRF_MAC_TXCLK << GRF_GPIO3C1_SEL_SHIFT);
+}
+#endif
+
 static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk3399_pinctrl_priv *priv = dev_get_priv(dev);
@@ -243,6 +276,11 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk3399_sdmmc_config(priv->grf, func);
 		break;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case PERIPH_ID_GMAC:
+		pinctrl_rk3399_gmac_config(priv->grf, func);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -283,6 +321,10 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_I2C5;
 	case 65:
 		return PERIPH_ID_SDMMC1;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case 12:
+		return PERIPH_ID_GMAC;
+#endif
 	}
 #endif
 	return -ENOENT;
