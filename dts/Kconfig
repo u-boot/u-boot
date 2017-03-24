@@ -14,6 +14,16 @@ config OF_CONTROL
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
 
+config OF_BOARD_FIXUP
+	bool "Board-specific manipulation of Device Tree"
+	help
+	  In certain circumstances it is necessary to be able to modify
+	  U-Boot's device tree (e.g. to delete device from it). This option
+	  make the Device Tree writeable and provides a board-specific
+	  "board_fix_fdt" callback (called during pre-relocation time), which
+	  enables the board initialization to modifiy the Device Tree. The
+	  modified copy is subsequently used by U-Boot after relocation.
+
 config SPL_OF_CONTROL
 	bool "Enable run-time configuration via Device Tree in SPL"
 	depends on SPL && OF_CONTROL

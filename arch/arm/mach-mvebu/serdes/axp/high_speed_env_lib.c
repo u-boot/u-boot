@@ -230,6 +230,20 @@ static int serdes_max_lines_get(void)
 	return 0;
 }
 
+/*
+ * Tests have shown that on some boards the default width of the
+ * configuration pulse for the PEX link detection might lead to
+ * non-established PCIe links (link down). Especially under certain
+ * conditions (higher temperature) and with specific PCIe devices.
+ * To enable a board-specific detection pulse width this weak
+ * array "serdes_pex_pulse_width[4]" is introduced which can be
+ * overwritten if needed by a board-specific version. If the board
+ * code does not provide a non-weak version of this variable, the
+ * default value will be used. So nothing is changed from the
+ * current setup on the supported board.
+ */
+__weak u8 serdes_pex_pulse_width[4] = { 2, 2, 2, 2 };
+
 int serdes_phy_config(void)
 {
 	int status = MV_OK;
@@ -891,6 +905,23 @@ int serdes_phy_config(void)
 			pex_unit = line_num >> 2;
 			pex_line_num = line_num % 4;
 			if (0 == pex_line_num) {
+				/*
+				 * Configure the detection pulse with before
+				 * the reset is deasserted
+				 */
+
+				/* Read the old value (indirect access) */
+				reg_write(PEX_PHY_ACCESS_REG(pex_unit),
+					  (0x48 << 16) | (1 << 31) |
+					  (pex_line_num << 24));
+				tmp = reg_read(PEX_PHY_ACCESS_REG(pex_unit));
+				tmp &= ~(1 << 31);	/* Clear read */
+				tmp &= ~(3 << 6);	/* Mask width */
+				/* Insert new detection pulse width */
+				tmp |= serdes_pex_pulse_width[pex_unit] << 6;
+				/* Write value back */
+				reg_write(PEX_PHY_ACCESS_REG(pex_unit), tmp);
+
 				reg_write(PEX_PHY_ACCESS_REG(pex_unit),
 					  (0xC1 << 16) | 0x24);
 				DEBUG_WR_REG(PEX_PHY_ACCESS_REG(pex_unit),

@@ -71,16 +71,19 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
+	armada-3720-espressobin.dtb		\
 	armada-375-db.dtb			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
 	armada-385-amc.dtb			\
 	armada-7040-db.dtb			\
 	armada-8040-db.dtb			\
+	armada-8040-mcbin.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
-	armada-xp-theadorable.dtb
+	armada-xp-theadorable.dtb		\
+	armada-38x-controlcenterdc.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-ref.dtb

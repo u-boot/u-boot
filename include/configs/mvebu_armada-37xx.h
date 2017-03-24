@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _CONFIG_MVEBU_DB_88F3720_H
-#define _CONFIG_MVEBU_DB_88F3720_H
+#ifndef _CONFIG_MVEBU_ARMADA_37XX_H
+#define _CONFIG_MVEBU_ARMADA_37XX_H
 
 /*
  * High Level Configuration Options (easy to change)
@@ -92,6 +92,7 @@
 #define CONFIG_PHY_GIGE		/* GbE speed/duplex detect */
 #define CONFIG_ARP_TIMEOUT	200
 #define CONFIG_NET_RETRY_COUNT	50
+#define CONFIG_PHY_MARVELL
 
 /* USB 2.0 */
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
@@ -126,4 +127,4 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#endif /* _CONFIG_MVEBU_DB_88F3720_H */
+#endif /* _CONFIG_MVEBU_ARMADA_37XX_H */

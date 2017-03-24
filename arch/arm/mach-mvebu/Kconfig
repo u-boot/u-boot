@@ -74,8 +74,8 @@ config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
 
-config TARGET_MVEBU_DB_88F3720
-	bool "Support DB-88F3720 Armada 3720"
+config TARGET_MVEBU_ARMADA_37XX
+	bool "Support Armada 37xx platforms"
 	select ARMADA_3700
 
 config TARGET_DB_88F6720
@@ -112,11 +112,15 @@ config TARGET_THEADORABLE
 	select BOARD_LATE_INIT if USB
 	select MV78260
 
+config TARGET_CONTROLCENTERDC
+	bool "Support CONTROLCENTERDC"
+	select 88F6820
+
 endchoice
 
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
-	default "mvebu_db-88f3720" if TARGET_MVEBU_DB_88F3720
+	default "mvebu_armada-37xx" if TARGET_MVEBU_ARMADA_37XX
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
@@ -128,7 +132,7 @@ config SYS_BOARD
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
-	default "mvebu_db-88f3720" if TARGET_MVEBU_DB_88F3720
+	default "mvebu_armada-37xx" if TARGET_MVEBU_ARMADA_37XX
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
@@ -140,7 +144,7 @@ config SYS_CONFIG_NAME
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
-	default "Marvell" if TARGET_MVEBU_DB_88F3720
+	default "Marvell" if TARGET_MVEBU_ARMADA_37XX
 	default "Marvell" if TARGET_DB_88F6720
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "Marvell" if TARGET_DB_88F6820_AMC

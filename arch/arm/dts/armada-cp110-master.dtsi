@@ -94,6 +94,10 @@
 					marvell,pins = < 37 38 >;
 					marvell,function = <2>;
 				};
+				cpm_i2c1_pins: cpm-i2c-pins-1 {
+					marvell,pins = < 35 36 >;
+					marvell,function = <2>;
+				};
 				cpm_ge2_rgmii_pins: cpm-ge-rgmii-pins-0 {
 					marvell,pins = < 44 45 46 47 48 49 50 51
 							 52 53 54 55 >;
@@ -111,6 +115,24 @@
 					marvell,pins = < 13 14 15 16 >;
 					marvell,function = <3>;
 				};
+			};
+
+			cpm_gpio0: gpio@440100 {
+				compatible = "marvell,orion-gpio";
+				reg = <0x440100 0x40>;
+				ngpios = <32>;
+				gpiobase = <20>;
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
+			cpm_gpio1: gpio@440140 {
+				compatible = "marvell,orion-gpio";
+				reg = <0x440140 0x40>;
+				ngpios = <31>;
+				gpiobase = <52>;
+				gpio-controller;
+				#gpio-cells = <2>;
 			};
 
 			cpm_sata0: sata@540000 {

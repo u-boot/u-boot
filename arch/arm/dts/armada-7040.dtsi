@@ -45,6 +45,7 @@
  * one CP110.
  */
 
+#include <dt-bindings/gpio/gpio.h>
 #include "armada-ap806-quad.dtsi"
 #include "armada-cp110-master.dtsi"
 
