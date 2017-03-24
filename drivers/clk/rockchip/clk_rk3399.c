@@ -47,9 +47,12 @@ struct pll_div {
 	.fbdiv = (u32)((u64)hz * _refdiv * _postdiv1 * _postdiv2 / OSC_HZ),\
 	.postdiv1 = _postdiv1, .postdiv2 = _postdiv2};
 
+#if defined(CONFIG_SPL_BUILD)
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2, 1);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2, 2);
+#else
 static const struct pll_div ppll_init_cfg = PLL_DIVISORS(PPLL_HZ, 2, 2, 1);
+#endif
 
 static const struct pll_div apll_l_1600_cfg = PLL_DIVISORS(1600*MHz, 3, 1, 1);
 static const struct pll_div apll_l_600_cfg = PLL_DIVISORS(600*MHz, 1, 2, 1);
@@ -1009,7 +1012,9 @@ static void pmuclk_init(struct rk3399_pmucru *pmucru)
 
 static int rk3399_pmuclk_probe(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_PLATDATA) || !defined(CONFIG_SPL_BUILD)
 	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
+#endif
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_pmuclk_plat *plat = dev_get_platdata(dev);
