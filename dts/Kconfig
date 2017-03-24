@@ -83,8 +83,8 @@ config OF_LIST
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
 	depends on SPL_OF_CONTROL
-	default "interrupt-parent" if SPL_PINCTRL_FULL && SPL_CLK
-	default "clocks clock-names interrupt-parent" if SPL_PINCTRL_FULL
+	default "interrupt-parent" if SPL_PINCTRL && SPL_CLK
+	default "clocks clock-names interrupt-parent" if SPL_PINCTRL
 	default "pinctrl-0 pinctrl-names interrupt-parent" if SPL_CLK
 	default "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
 	help
