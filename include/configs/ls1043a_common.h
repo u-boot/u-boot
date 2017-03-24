@@ -187,12 +187,14 @@
 #define MTDPARTS_DEFAULT "mtdparts=spi0.0:1m(uboot)," \
 			"5m(kernel),1m(dtb),9m(file_system)"
 #else
-#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:1m(nor_bank0_rcw)," \
-			"1m(nor_bank0_uboot),1m(nor_bank0_uboot_env)," \
-			"1m(nor_bank0_fman_uconde),40m(nor_bank0_fit)," \
-			"1m(nor_bank4_rcw),1m(nor_bank4_uboot)," \
-			"1m(nor_bank4_uboot_env),1m(nor_bank4_fman_ucode)," \
-			"40m(nor_bank4_fit);7e800000.flash:" \
+#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:" \
+			"2m@0x100000(nor_bank0_uboot),"\
+			"40m@0x1100000(nor_bank0_fit)," \
+			"7m(nor_bank0_user)," \
+			"2m@0x4100000(nor_bank4_uboot)," \
+			"40m@0x5100000(nor_bank4_fit),"\
+			"-(nor_bank4_user);" \
+			"7e800000.flash:" \
 			"1m(nand_uboot),1m(nand_uboot_env)," \
 			"20m(nand_fit);spi0.0:1m(uboot)," \
 			"5m(kernel),1m(dtb),9m(file_system)"
