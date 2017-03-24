@@ -101,6 +101,8 @@ void board_init_f(ulong dummy)
 
 	board_early_init_f();
 
+	mem_init();
+
 	ret = spl_init();
 	if (ret) {
 		debug("spl_init() failed: %d\n", ret);
@@ -109,5 +111,4 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
-	mem_init();
 }
