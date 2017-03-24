@@ -40,6 +40,5 @@ int arch_cpu_init(void)
 	/* Emmc clock generator: disable the clock multipilier */
 	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
 
-	printf("time %x, %x\n", readl(0xff8680a8), readl(0xff8680ac));
 	return 0;
 }
