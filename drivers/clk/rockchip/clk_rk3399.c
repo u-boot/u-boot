@@ -667,7 +667,7 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 
 	if ((con & CLK_EMMC_PLL_MASK) >> CLK_EMMC_PLL_SHIFT
 			== CLK_EMMC_PLL_SEL_24M)
-		return DIV_TO_RATE(24*1024*1024, div);
+		return DIV_TO_RATE(24*1000*1000, div);
 	else
 		return DIV_TO_RATE(GPLL_HZ, div);
 }
@@ -685,7 +685,7 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 
 		if (src_clk_div > 127) {
 			/* use 24MHz source for 400KHz clock */
-			src_clk_div = 24*1024*1024 / set_rate;
+			src_clk_div = 24*1000*1000 / set_rate;
 			rk_clrsetreg(&cru->clksel_con[16],
 				     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,
 				     CLK_EMMC_PLL_SEL_24M << CLK_EMMC_PLL_SHIFT |
