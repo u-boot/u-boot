@@ -802,6 +802,10 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_EMMC:
 		ret = rk3399_mmc_set_clk(priv->cru, clk->id, rate);
 		break;
+	case SCLK_MAC:
+		/* nothing to do, as this is an external clock */
+		ret = rate;
+		break;
 	case SCLK_I2C1:
 	case SCLK_I2C2:
 	case SCLK_I2C3:
