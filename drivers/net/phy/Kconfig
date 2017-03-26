@@ -57,6 +57,40 @@ config PHY_MARVELL
 
 config PHY_MICREL
 	bool "Micrel Ethernet PHYs support"
+	help
+	  Enable support for the GbE PHYs manufactured by Micrel (now
+	  a part of Microchip). This includes drivers for the KSZ804,
+	  KSZ8031, KSZ8051, KSZ8081, KSZ8895, KSZ886x, KSZ8721
+	  either/or KSZ9021 (see the "Micrel KSZ9021 family support"
+	  config option for details), and KSZ9031 (if configured).
+
+if PHY_MICREL
+
+config PHY_MICREL_KSZ9021
+	bool "Micrel KSZ9021 family support"
+	select PHY_GIGE
+	help
+	  Enable support for the Micrel KSZ9021 GbE PHY family.  If
+	  enabled, the extended register read/write for KSZ9021 PHYs
+	  is supported through the 'mdio' command and any RGMII signal
+	  delays configured in the device tree will be applied to the
+	  PHY during initialisation.
+
+	  Note that the KSZ9021 uses the same part number os the
+	  KSZ8921BL, so enabling this option disables support for the
+	  KSZ8721BL.
+
+config PHY_MICREL_KSZ9031
+	bool "Micrel KSZ9031 family support"
+	select PHY_GIGE
+	help
+	  Enable support for the Micrel KSZ9031 GbE PHY family.  If
+	  enabled, the extended register read/write for KSZ9021 PHYs
+	  is supported through the 'mdio' command and any RGMII signal
+	  delays configured in the device tree will be applied to the
+	  PHY during initialisatioin.
+
+endif # PHY_MICREL
 
 config PHY_MSCC
 	bool "Microsemi Corp Ethernet PHYs support"
