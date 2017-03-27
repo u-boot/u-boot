@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/lcdc.h>
 #include <asm/arch/pwm.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
@@ -23,10 +24,10 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <video_fb.h>
-#include "videomodes.h"
-#include "anx9804.h"
-#include "hitachi_tx18d42vm_lcd.h"
-#include "ssd2828.h"
+#include "../videomodes.h"
+#include "../anx9804.h"
+#include "../hitachi_tx18d42vm_lcd.h"
+#include "../ssd2828.h"
 
 #ifdef CONFIG_VIDEO_LCD_BL_PWM_ACTIVE_LOW
 #define PWM_ON 0
@@ -650,45 +651,7 @@ static void sunxi_lcdc_init(void)
 #endif
 #endif
 
-	/* Init lcdc */
-	writel(0, &lcdc->ctrl); /* Disable tcon */
-	writel(0, &lcdc->int0); /* Disable all interrupts */
-
-	/* Disable tcon0 dot clock */
-	clrbits_le32(&lcdc->tcon0_dclk, SUNXI_LCDC_TCON0_DCLK_ENABLE);
-
-	/* Set all io lines to tristate */
-	writel(0xffffffff, &lcdc->tcon0_io_tristate);
-	writel(0xffffffff, &lcdc->tcon1_io_tristate);
-}
-
-static void sunxi_lcdc_enable(void)
-{
-	struct sunxi_lcdc_reg * const lcdc =
-		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-
-	setbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
-#ifdef CONFIG_VIDEO_LCD_IF_LVDS
-	setbits_le32(&lcdc->tcon0_lvds_intf, SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE);
-	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0);
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	udelay(2); /* delay at least 1200 ns */
-	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_EN_MB);
-	udelay(2); /* delay at least 1200 ns */
-	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVC);
-	if (sunxi_display.depth == 18)
-		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0x7));
-	else
-		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0xf));
-#else
-	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
-	udelay(2); /* delay at least 1200 ns */
-	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT1);
-	udelay(1); /* delay at least 120 ns */
-	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT2);
-	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
-#endif
-#endif
+	lcdc_init(lcdc);
 }
 
 static void sunxi_lcdc_panel_enable(void)
@@ -758,25 +721,12 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, PWM_ON);
 }
 
-static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode, int tcon)
-{
-	int delay;
-
-	delay = mode->lower_margin + mode->vsync_len + mode->upper_margin;
-	if (mode->vmode == FB_VMODE_INTERLACED)
-		delay /= 2;
-	if (tcon == 1)
-		delay -= 2;
-
-	return (delay > 30) ? 30 : delay;
-}
-
 static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 				      bool for_ext_vga_dac)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	int bp, clk_delay, clk_div, clk_double, pin, total, val;
+	int clk_div, clk_double, pin;
 
 #if defined CONFIG_MACH_SUN8I && defined CONFIG_VIDEO_LCD_IF_LVDS
 	for (pin = SUNXI_GPD(18); pin <= SUNXI_GPD(27); pin++) {
@@ -796,73 +746,8 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 
 	sunxi_lcdc_pll_set(0, mode->pixclock_khz, &clk_div, &clk_double);
 
-	/* Use tcon0 */
-	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
-			SUNXI_LCDC_CTRL_IO_MAP_TCON0);
-
-	clk_delay = sunxi_lcdc_get_clk_delay(mode, 0);
-	writel(SUNXI_LCDC_TCON0_CTRL_ENABLE |
-	       SUNXI_LCDC_TCON0_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon0_ctrl);
-
-	writel(SUNXI_LCDC_TCON0_DCLK_ENABLE |
-	       SUNXI_LCDC_TCON0_DCLK_DIV(clk_div), &lcdc->tcon0_dclk);
-
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(mode->yres),
-	       &lcdc->tcon0_timing_active);
-
-	bp = mode->hsync_len + mode->left_margin;
-	total = mode->xres + mode->right_margin + bp;
-	writel(SUNXI_LCDC_TCON0_TIMING_H_TOTAL(total) |
-	       SUNXI_LCDC_TCON0_TIMING_H_BP(bp), &lcdc->tcon0_timing_h);
-
-	bp = mode->vsync_len + mode->upper_margin;
-	total = mode->yres + mode->lower_margin + bp;
-	writel(SUNXI_LCDC_TCON0_TIMING_V_TOTAL(total) |
-	       SUNXI_LCDC_TCON0_TIMING_V_BP(bp), &lcdc->tcon0_timing_v);
-
-#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
-	       &lcdc->tcon0_timing_sync);
-
-	writel(0, &lcdc->tcon0_hv_intf);
-	writel(0, &lcdc->tcon0_cpu_intf);
-#endif
-#ifdef CONFIG_VIDEO_LCD_IF_LVDS
-	val = (sunxi_display.depth == 18) ? 1 : 0;
-	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val) |
-	       SUNXI_LCDC_TCON0_LVDS_CLK_SEL_TCON0, &lcdc->tcon0_lvds_intf);
-#endif
-
-	if (sunxi_display.depth == 18 || sunxi_display.depth == 16) {
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[0]);
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[1]);
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[2]);
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[3]);
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[4]);
-		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[5]);
-		writel(SUNXI_LCDC_TCON0_FRM_TAB0, &lcdc->tcon0_frm_table[0]);
-		writel(SUNXI_LCDC_TCON0_FRM_TAB1, &lcdc->tcon0_frm_table[1]);
-		writel(SUNXI_LCDC_TCON0_FRM_TAB2, &lcdc->tcon0_frm_table[2]);
-		writel(SUNXI_LCDC_TCON0_FRM_TAB3, &lcdc->tcon0_frm_table[3]);
-		writel(((sunxi_display.depth == 18) ?
-			SUNXI_LCDC_TCON0_FRM_CTRL_RGB666 :
-			SUNXI_LCDC_TCON0_FRM_CTRL_RGB565),
-		       &lcdc->tcon0_frm_ctrl);
-	}
-
-	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(CONFIG_VIDEO_LCD_DCLK_PHASE);
-	if (!(mode->sync & FB_SYNC_HOR_HIGH_ACT))
-		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
-	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
-		val |= SUNXI_LCDC_TCON_VSYNC_MASK;
-
-#ifdef CONFIG_VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
-	if (for_ext_vga_dac)
-		val = 0;
-#endif
-	writel(val, &lcdc->tcon0_io_polarity);
-
-	writel(0, &lcdc->tcon0_io_tristate);
+	lcdc_tcon0_mode_set(lcdc, mode, clk_div, for_ext_vga_dac,
+			    sunxi_display.depth, CONFIG_VIDEO_LCD_DCLK_PHASE);
 }
 
 #if defined CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_COMPOSITE
@@ -872,64 +757,14 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	int bp, clk_delay, total, val, yres;
 
-	/* Use tcon1 */
-	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
-			SUNXI_LCDC_CTRL_IO_MAP_TCON1);
-
-	clk_delay = sunxi_lcdc_get_clk_delay(mode, 1);
-	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |
-	       ((mode->vmode == FB_VMODE_INTERLACED) ?
-			SUNXI_LCDC_TCON1_CTRL_INTERLACE_ENABLE : 0) |
-	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon1_ctrl);
-
-	yres = mode->yres;
-	if (mode->vmode == FB_VMODE_INTERLACED)
-		yres /= 2;
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
-	       &lcdc->tcon1_timing_source);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
-	       &lcdc->tcon1_timing_scale);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
-	       &lcdc->tcon1_timing_out);
-
-	bp = mode->hsync_len + mode->left_margin;
-	total = mode->xres + mode->right_margin + bp;
-	writel(SUNXI_LCDC_TCON1_TIMING_H_TOTAL(total) |
-	       SUNXI_LCDC_TCON1_TIMING_H_BP(bp), &lcdc->tcon1_timing_h);
-
-	bp = mode->vsync_len + mode->upper_margin;
-	total = mode->yres + mode->lower_margin + bp;
-	if (mode->vmode == FB_VMODE_NONINTERLACED)
-		total *= 2;
-	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(total) |
-	       SUNXI_LCDC_TCON1_TIMING_V_BP(bp), &lcdc->tcon1_timing_v);
-
-	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
-	       &lcdc->tcon1_timing_sync);
+	lcdc_tcon1_mode_set(lcdc, mode, use_portd_hvsync,
+			    sunxi_is_composite());
 
 	if (use_portd_hvsync) {
 		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD_LCD0);
 		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD_LCD0);
-
-		val = 0;
-		if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
-			val |= SUNXI_LCDC_TCON_HSYNC_MASK;
-		if (mode->sync & FB_SYNC_VERT_HIGH_ACT)
-			val |= SUNXI_LCDC_TCON_VSYNC_MASK;
-		writel(val, &lcdc->tcon1_io_polarity);
-
-		clrbits_le32(&lcdc->tcon1_io_tristate,
-			     SUNXI_LCDC_TCON_VSYNC_MASK |
-			     SUNXI_LCDC_TCON_HSYNC_MASK);
 	}
-
-#ifdef CONFIG_MACH_SUN5I
-	if (sunxi_is_composite())
-		clrsetbits_le32(&lcdc->mux_ctrl, SUNXI_LCDC_MUX_CTRL_SRC0_MASK,
-				SUNXI_LCDC_MUX_CTRL_SRC0(1));
-#endif
 
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
@@ -1212,6 +1047,8 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			   unsigned int address)
 {
 	int __maybe_unused clk_div, clk_double;
+	struct sunxi_lcdc_reg * const lcdc =
+		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_none:
@@ -1223,7 +1060,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 0);
 		sunxi_hdmi_mode_set(mode, clk_div, clk_double);
 		sunxi_composer_enable();
-		sunxi_lcdc_enable();
+		lcdc_enable(lcdc, sunxi_display.depth);
 		sunxi_hdmi_enable();
 #endif
 		break;
@@ -1253,7 +1090,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode, false);
 		sunxi_composer_enable();
-		sunxi_lcdc_enable();
+		lcdc_enable(lcdc, sunxi_display.depth);
 #ifdef CONFIG_VIDEO_LCD_SSD2828
 		sunxi_ssd2828_init(mode);
 #endif
@@ -1265,13 +1102,13 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 1);
 		sunxi_tvencoder_mode_set();
 		sunxi_composer_enable();
-		sunxi_lcdc_enable();
+		lcdc_enable(lcdc, sunxi_display.depth);
 		sunxi_tvencoder_enable();
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode, true);
 		sunxi_composer_enable();
-		sunxi_lcdc_enable();
+		lcdc_enable(lcdc, sunxi_display.depth);
 		sunxi_vga_external_dac_enable();
 #endif
 		break;
@@ -1284,7 +1121,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 0);
 		sunxi_tvencoder_mode_set();
 		sunxi_composer_enable();
-		sunxi_lcdc_enable();
+		lcdc_enable(lcdc, sunxi_display.depth);
 		sunxi_tvencoder_enable();
 #endif
 		break;
