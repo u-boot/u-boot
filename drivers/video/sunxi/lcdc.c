@@ -74,9 +74,11 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 {
 	int bp, clk_delay, total, val;
 
+#ifndef CONFIG_SUNXI_DE2
 	/* Use tcon0 */
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
 			SUNXI_LCDC_CTRL_IO_MAP_TCON0);
+#endif
 
 	clk_delay = lcdc_get_clk_delay(mode, 0);
 	writel(SUNXI_LCDC_TCON0_CTRL_ENABLE |
@@ -149,9 +151,11 @@ void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
 {
 	int bp, clk_delay, total, val, yres;
 
+#ifndef CONFIG_SUNXI_DE2
 	/* Use tcon1 */
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
 			SUNXI_LCDC_CTRL_IO_MAP_TCON1);
+#endif
 
 	clk_delay = lcdc_get_clk_delay(mode, 1);
 	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |

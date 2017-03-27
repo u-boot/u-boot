@@ -35,7 +35,7 @@ void clock_init_safe(void)
 	clrbits_le32(&prcm->pll_ctrl1, PRCM_PLL_CTRL_LDO_KEY_MASK);
 #endif
 
-#ifdef CONFIG_MACH_SUN8I_R40
+#if defined(CONFIG_MACH_SUN8I_R40) || defined(CONFIG_MACH_SUN50I)
 	/* Set PLL lock enable bits and switch to old lock mode */
 	writel(GENMASK(12, 0), &ccm->pll_lock_ctrl);
 #endif
@@ -150,6 +150,22 @@ void clock_set_pll3(unsigned int clk)
 	       &ccm->pll3_cfg);
 }
 
+#ifdef CONFIG_SUNXI_DE2
+void clock_set_pll3_factors(int m, int n)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	/* PLL3 rate = 24000000 * n / m */
+	writel(CCM_PLL3_CTRL_EN | CCM_PLL3_CTRL_INTEGER_MODE |
+	       CCM_PLL3_CTRL_N(n) | CCM_PLL3_CTRL_M(m),
+	       &ccm->pll3_cfg);
+
+	while (!(readl(&ccm->pll3_cfg) & CCM_PLL3_CTRL_LOCK))
+		;
+}
+#endif
+
 void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -219,6 +235,28 @@ done:
 	writel(CCM_MIPI_PLL_CTRL_EN | CCM_MIPI_PLL_CTRL_LDO_EN |
 	       CCM_MIPI_PLL_CTRL_N(best_n) | CCM_MIPI_PLL_CTRL_K(best_k) |
 	       CCM_MIPI_PLL_CTRL_M(best_m), &ccm->mipi_pll_cfg);
+}
+#endif
+
+#ifdef CONFIG_SUNXI_DE2
+void clock_set_pll10(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	const int m = 2; /* 12 MHz steps */
+
+	if (clk == 0) {
+		clrbits_le32(&ccm->pll10_cfg, CCM_PLL10_CTRL_EN);
+		return;
+	}
+
+	/* PLL10 rate = 24000000 * n / m */
+	writel(CCM_PLL10_CTRL_EN | CCM_PLL10_CTRL_INTEGER_MODE |
+	       CCM_PLL10_CTRL_N(clk / (24000000 / m)) | CCM_PLL10_CTRL_M(m),
+	       &ccm->pll10_cfg);
+
+	while (!(readl(&ccm->pll10_cfg) & CCM_PLL10_CTRL_LOCK))
+		;
 }
 #endif
 
