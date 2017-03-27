@@ -452,8 +452,7 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.setbrg = ns16550_serial_setbrg,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 /*
  * Please consider existing compatible strings before adding a new
  * one to keep this table compact. Or you may add a generic "ns16550"
@@ -473,13 +472,16 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ti,dra742-uart",	.data = PORT_NS16550 },
 	{}
 };
-#endif
+#endif /* OF_CONTROL && !OF_PLATDATA */
 
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
+
+/* TODO(sjg@chromium.org): Integrate this into a macro like CONFIG_IS_ENABLED */
+#if !defined(CONFIG_TPL_BUILD) || defined(CONFIG_TPL_DM_SERIAL)
 U_BOOT_DRIVER(ns16550_serial) = {
 	.name	= "ns16550_serial",
 	.id	= UCLASS_SERIAL,
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = ns16550_serial_ids,
 	.ofdata_to_platdata = ns16550_serial_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
@@ -490,5 +492,6 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 #endif
-#endif /* !OF_PLATDATA */
+#endif /* SERIAL_PRESENT */
+
 #endif /* CONFIG_DM_SERIAL */
