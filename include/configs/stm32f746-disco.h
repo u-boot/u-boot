@@ -12,9 +12,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x20050000
 #define CONFIG_SYS_TEXT_BASE		0x08000000
 
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
-
 /*
  * Configuration of the external SDRAM memory
  */
@@ -78,4 +75,5 @@
 #define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_CMD_MEM
+#define CONFIG_CMD_CACHE
 #endif /* __CONFIG_H */

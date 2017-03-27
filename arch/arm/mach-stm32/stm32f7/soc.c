@@ -58,6 +58,8 @@ int arch_cpu_init(void)
 		 (V7M_MPU_RASR_XN_ENABLE
 			 | V7M_MPU_RASR_AP_RW_RW
 			 | 0x01 << V7M_MPU_RASR_TEX_SHIFT
+			 | 0x01 << V7M_MPU_RASR_B_SHIFT
+			 | 0x01 << V7M_MPU_RASR_C_SHIFT
 			 | V7M_MPU_RASR_SIZE_8MB
 			 | V7M_MPU_RASR_EN)
 			 , &V7M_MPU->rasr
