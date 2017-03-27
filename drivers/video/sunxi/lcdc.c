@@ -13,15 +13,13 @@
 #include <asm/arch/lcdc.h>
 #include <asm/io.h>
 
-#include "../videomodes.h"
-
-static int lcdc_get_clk_delay(const struct ctfb_res_modes *mode, int tcon)
+static int lcdc_get_clk_delay(const struct display_timing *mode, int tcon)
 {
 	int delay;
 
-	delay = mode->lower_margin + mode->vsync_len +
-		mode->upper_margin;
-	if (mode->vmode == FB_VMODE_INTERLACED)
+	delay = mode->vfront_porch.typ + mode->vsync_len.typ +
+		mode->vback_porch.typ;
+	if (mode->flags & DISPLAY_FLAGS_INTERLACED)
 		delay /= 2;
 	if (tcon == 1)
 		delay -= 2;
@@ -70,7 +68,7 @@ void lcdc_enable(struct sunxi_lcdc_reg * const lcdc, int depth)
 }
 
 void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
-			 const struct ctfb_res_modes *mode,
+			 const struct display_timing *mode,
 			 int clk_div, bool for_ext_vga_dac,
 			 int depth, int dclk_phase)
 {
@@ -87,22 +85,22 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 	writel(SUNXI_LCDC_TCON0_DCLK_ENABLE |
 	       SUNXI_LCDC_TCON0_DCLK_DIV(clk_div), &lcdc->tcon0_dclk);
 
-	writel(SUNXI_LCDC_X(mode->xres) |
-	       SUNXI_LCDC_Y(mode->yres), &lcdc->tcon0_timing_active);
+	writel(SUNXI_LCDC_X(mode->hactive.typ) |
+	       SUNXI_LCDC_Y(mode->vactive.typ), &lcdc->tcon0_timing_active);
 
-	bp = mode->hsync_len + mode->left_margin;
-	total = mode->xres + mode->right_margin + bp;
+	bp = mode->hsync_len.typ + mode->hback_porch.typ;
+	total = mode->hactive.typ + mode->hfront_porch.typ + bp;
 	writel(SUNXI_LCDC_TCON0_TIMING_H_TOTAL(total) |
 	       SUNXI_LCDC_TCON0_TIMING_H_BP(bp), &lcdc->tcon0_timing_h);
 
-	bp = mode->vsync_len + mode->upper_margin;
-	total = mode->yres + mode->lower_margin + bp;
+	bp = mode->vsync_len.typ + mode->vback_porch.typ;
+	total = mode->vactive.typ + mode->vfront_porch.typ + bp;
 	writel(SUNXI_LCDC_TCON0_TIMING_V_TOTAL(total) |
 	       SUNXI_LCDC_TCON0_TIMING_V_BP(bp), &lcdc->tcon0_timing_v);
 
 #ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-	writel(SUNXI_LCDC_X(mode->hsync_len) |
-	       SUNXI_LCDC_Y(mode->vsync_len), &lcdc->tcon0_timing_sync);
+	writel(SUNXI_LCDC_X(mode->hsync_len.typ) |
+	       SUNXI_LCDC_Y(mode->vsync_len.typ), &lcdc->tcon0_timing_sync);
 
 	writel(0, &lcdc->tcon0_hv_intf);
 	writel(0, &lcdc->tcon0_cpu_intf);
@@ -131,9 +129,9 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 	}
 
 	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(dclk_phase);
-	if (!(mode->sync & FB_SYNC_HOR_HIGH_ACT))
+	if (mode->flags & DISPLAY_FLAGS_HSYNC_LOW)
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
-	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
+	if (mode->flags & DISPLAY_FLAGS_VSYNC_LOW)
 		val |= SUNXI_LCDC_TCON_VSYNC_MASK;
 
 #ifdef CONFIG_VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
@@ -146,7 +144,7 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 }
 
 void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
-			 const struct ctfb_res_modes *mode,
+			 const struct display_timing *mode,
 			 bool ext_hvsync, bool is_composite)
 {
 	int bp, clk_delay, total, val, yres;
@@ -157,40 +155,40 @@ void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
 
 	clk_delay = lcdc_get_clk_delay(mode, 1);
 	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |
-	       ((mode->vmode == FB_VMODE_INTERLACED) ?
+	       ((mode->flags & DISPLAY_FLAGS_INTERLACED) ?
 			SUNXI_LCDC_TCON1_CTRL_INTERLACE_ENABLE : 0) |
 	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon1_ctrl);
 
-	yres = mode->yres;
-	if (mode->vmode == FB_VMODE_INTERLACED)
+	yres = mode->vactive.typ;
+	if (mode->flags & DISPLAY_FLAGS_INTERLACED)
 		yres /= 2;
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
+	writel(SUNXI_LCDC_X(mode->hactive.typ) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_source);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
+	writel(SUNXI_LCDC_X(mode->hactive.typ) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_scale);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
+	writel(SUNXI_LCDC_X(mode->hactive.typ) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_out);
 
-	bp = mode->hsync_len + mode->left_margin;
-	total = mode->xres + mode->right_margin + bp;
+	bp = mode->hsync_len.typ + mode->hback_porch.typ;
+	total = mode->hactive.typ + mode->hfront_porch.typ + bp;
 	writel(SUNXI_LCDC_TCON1_TIMING_H_TOTAL(total) |
 	       SUNXI_LCDC_TCON1_TIMING_H_BP(bp), &lcdc->tcon1_timing_h);
 
-	bp = mode->vsync_len + mode->upper_margin;
-	total = mode->yres + mode->lower_margin + bp;
-	if (mode->vmode == FB_VMODE_NONINTERLACED)
+	bp = mode->vsync_len.typ + mode->vback_porch.typ;
+	total = mode->vactive.typ + mode->vfront_porch.typ + bp;
+	if (!(mode->flags & DISPLAY_FLAGS_INTERLACED))
 		total *= 2;
 	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(total) |
 	       SUNXI_LCDC_TCON1_TIMING_V_BP(bp), &lcdc->tcon1_timing_v);
 
-	writel(SUNXI_LCDC_X(mode->hsync_len) |
-	       SUNXI_LCDC_Y(mode->vsync_len), &lcdc->tcon1_timing_sync);
+	writel(SUNXI_LCDC_X(mode->hsync_len.typ) |
+	       SUNXI_LCDC_Y(mode->vsync_len.typ), &lcdc->tcon1_timing_sync);
 
 	if (ext_hvsync) {
 		val = 0;
-		if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
+		if (mode->flags & DISPLAY_FLAGS_HSYNC_HIGH)
 			val |= SUNXI_LCDC_TCON_HSYNC_MASK;
-		if (mode->sync & FB_SYNC_VERT_HIGH_ACT)
+		if (mode->flags & DISPLAY_FLAGS_VSYNC_HIGH)
 			val |= SUNXI_LCDC_TCON_VSYNC_MASK;
 		writel(val, &lcdc->tcon1_io_polarity);
 

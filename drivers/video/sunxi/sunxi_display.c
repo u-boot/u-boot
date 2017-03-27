@@ -721,12 +721,40 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, PWM_ON);
 }
 
+static void sunxi_ctfb_mode_to_display_timing(const struct ctfb_res_modes *mode,
+					      struct display_timing *timing)
+{
+	timing->pixelclock.typ = mode->pixclock_khz * 1000;
+
+	timing->hactive.typ = mode->xres;
+	timing->hfront_porch.typ = mode->right_margin;
+	timing->hback_porch.typ = mode->left_margin;
+	timing->hsync_len.typ = mode->hsync_len;
+
+	timing->vactive.typ = mode->yres;
+	timing->vfront_porch.typ = mode->lower_margin;
+	timing->vback_porch.typ = mode->upper_margin;
+	timing->vsync_len.typ = mode->vsync_len;
+
+	if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
+		timing->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+	else
+		timing->flags |= DISPLAY_FLAGS_HSYNC_LOW;
+	if (mode->sync & FB_SYNC_VERT_HIGH_ACT)
+		timing->flags |= DISPLAY_FLAGS_VSYNC_HIGH;
+	else
+		timing->flags |= DISPLAY_FLAGS_VSYNC_LOW;
+	if (mode->vmode == FB_VMODE_INTERLACED)
+		timing->flags |= DISPLAY_FLAGS_INTERLACED;
+}
+
 static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 				      bool for_ext_vga_dac)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 	int clk_div, clk_double, pin;
+	struct display_timing timing;
 
 #if defined CONFIG_MACH_SUN8I && defined CONFIG_VIDEO_LCD_IF_LVDS
 	for (pin = SUNXI_GPD(18); pin <= SUNXI_GPD(27); pin++) {
@@ -746,7 +774,8 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 
 	sunxi_lcdc_pll_set(0, mode->pixclock_khz, &clk_div, &clk_double);
 
-	lcdc_tcon0_mode_set(lcdc, mode, clk_div, for_ext_vga_dac,
+	sunxi_ctfb_mode_to_display_timing(mode, &timing);
+	lcdc_tcon0_mode_set(lcdc, &timing, clk_div, for_ext_vga_dac,
 			    sunxi_display.depth, CONFIG_VIDEO_LCD_DCLK_PHASE);
 }
 
@@ -757,8 +786,10 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
+	struct display_timing timing;
 
-	lcdc_tcon1_mode_set(lcdc, mode, use_portd_hvsync,
+	sunxi_ctfb_mode_to_display_timing(mode, &timing);
+	lcdc_tcon1_mode_set(lcdc, &timing, use_portd_hvsync,
 			    sunxi_is_composite());
 
 	if (use_portd_hvsync) {

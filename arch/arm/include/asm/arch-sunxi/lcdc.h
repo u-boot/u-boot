@@ -10,7 +10,7 @@
 #ifndef _LCDC_H
 #define _LCDC_H
 
-struct ctfb_res_modes;
+#include <fdtdec.h>
 
 struct sunxi_lcdc_reg {
 	u32 ctrl;			/* 0x00 */
@@ -118,11 +118,11 @@ struct sunxi_lcdc_reg {
 void lcdc_init(struct sunxi_lcdc_reg * const lcdc);
 void lcdc_enable(struct sunxi_lcdc_reg * const lcdc, int depth);
 void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
-			 const struct ctfb_res_modes *mode,
+			 const struct display_timing *mode,
 			 int clk_div, bool for_ext_vga_dac,
 			 int depth, int dclk_phase);
 void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
-			 const struct ctfb_res_modes *mode,
+			 const struct display_timing *mode,
 			 bool ext_hvsync, bool is_composite);
 
 #endif /* _LCDC_H */
