@@ -15,6 +15,8 @@
 #include <i2c.h>
 #include <linux/errno.h>
 #include <asm/arch/clk.h>
+#include <dm.h>
+#include <mapmem.h>
 
 /*
  * Provide default speed and slave if target did not
@@ -47,6 +49,14 @@ struct lpc32xx_i2c_base {
 	u32 stxfl;
 };
 
+#ifdef CONFIG_DM_I2C
+struct lpc32xx_i2c_dev {
+	struct lpc32xx_i2c_base *base;
+	int index;
+	uint speed;
+};
+#endif /* CONFIG_DM_I2C */
+
 /* TX register fields */
 #define LPC32XX_I2C_TX_START		0x00000100
 #define LPC32XX_I2C_TX_STOP		0x00000200
@@ -61,11 +71,13 @@ struct lpc32xx_i2c_base {
 #define LPC32XX_I2C_STAT_NAI		0x00000004
 #define LPC32XX_I2C_STAT_TDI		0x00000001
 
+#ifndef CONFIG_DM_I2C
 static struct lpc32xx_i2c_base *lpc32xx_i2c[] = {
 	(struct lpc32xx_i2c_base *)I2C1_BASE,
 	(struct lpc32xx_i2c_base *)I2C2_BASE,
 	(struct lpc32xx_i2c_base *)(USB_BASE + 0x300)
 };
+#endif
 
 /* Set I2C bus speed */
 static unsigned int __i2c_set_bus_speed(struct lpc32xx_i2c_base *base,
@@ -241,6 +253,7 @@ static int __i2c_write(struct lpc32xx_i2c_base *base, u8 dev, uint addr,
 	return 0;
 }
 
+#ifndef CONFIG_DM_I2C
 static void lpc32xx_i2c_init(struct i2c_adapter *adap,
 			     int requested_speed, int slaveadd)
 {
@@ -294,3 +307,80 @@ U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_2, lpc32xx_i2c_init, NULL,
 			 100000,
 			 0,
 			 2)
+#else /* CONFIG_DM_I2C */
+static int lpc32xx_i2c_probe(struct udevice *bus)
+{
+	struct lpc32xx_i2c_dev *dev = dev_get_platdata(bus);
+
+	__i2c_init(dev->base, dev->speed, 0, dev->index);
+	return 0;
+}
+
+static int lpc32xx_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
+				  u32 chip_flags)
+{
+	struct lpc32xx_i2c_dev *dev = dev_get_platdata(bus);
+	return __i2c_probe_chip(dev->base, chip_addr);
+}
+
+static int lpc32xx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+		int nmsgs)
+{
+	struct lpc32xx_i2c_dev *dev = dev_get_platdata(bus);
+	struct i2c_msg *dmsg, *omsg, dummy;
+	uint i = 0, address = 0;
+
+	memset(&dummy, 0, sizeof(struct i2c_msg));
+
+	/* We expect either two messages (one with an offset and one with the
+	 * actual data) or one message (just data)
+	 */
+	if (nmsgs > 2 || nmsgs == 0) {
+		debug("%s: Only one or two messages are supported.", __func__);
+		return -1;
+	}
+
+	omsg = nmsgs == 1 ? &dummy : msg;
+	dmsg = nmsgs == 1 ? msg : msg + 1;
+
+	/* the address is expected to be a uint, not a array. */
+	address = omsg->buf[0];
+	for (i = 1; i < omsg->len; i++)
+		address = (address << 8) + omsg->buf[i];
+
+	if (dmsg->flags & I2C_M_RD)
+		return __i2c_read(dev->base, dmsg->addr, address,
+				  omsg->len, dmsg->buf, dmsg->len);
+	else
+		return __i2c_write(dev->base, dmsg->addr, address,
+				   omsg->len, dmsg->buf, dmsg->len);
+}
+
+static int lpc32xx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+{
+	struct lpc32xx_i2c_dev *dev = dev_get_platdata(bus);
+	return __i2c_set_bus_speed(dev->base, speed, dev->index);
+}
+
+static int lpc32xx_i2c_reset(struct udevice *bus)
+{
+	struct lpc32xx_i2c_dev *dev = dev_get_platdata(bus);
+
+	__i2c_init(dev->base, dev->speed, 0, dev->index);
+	return 0;
+}
+
+static const struct dm_i2c_ops lpc32xx_i2c_ops = {
+	.xfer          = lpc32xx_i2c_xfer,
+	.probe_chip    = lpc32xx_i2c_probe_chip,
+	.deblock       = lpc32xx_i2c_reset,
+	.set_bus_speed = lpc32xx_i2c_set_bus_speed,
+};
+
+U_BOOT_DRIVER(i2c_lpc32xx) = {
+	.id                   = UCLASS_I2C,
+	.name                 = "i2c_lpc32xx",
+	.probe                = lpc32xx_i2c_probe,
+	.ops                  = &lpc32xx_i2c_ops,
+};
+#endif /* CONFIG_DM_I2C */
