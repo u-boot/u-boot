@@ -54,7 +54,7 @@ struct fsl_xhci {
 	struct dwc3 *dwc3_reg;
 };
 
-#if defined(CONFIG_LS102XA) || defined(CONFIG_ARCH_LS1012A)
+#if defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_ARCH_LS1012A)
 #define CONFIG_SYS_FSL_XHCI_USB1_ADDR CONFIG_SYS_XHCI_USB1_ADDR
 #define CONFIG_SYS_FSL_XHCI_USB2_ADDR 0
 #define CONFIG_SYS_FSL_XHCI_USB3_ADDR 0
