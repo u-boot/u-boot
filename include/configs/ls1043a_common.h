@@ -28,7 +28,6 @@
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_LS1043A
 #define CONFIG_MP
 #define CONFIG_GICV2
 

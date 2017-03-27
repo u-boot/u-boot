@@ -26,7 +26,7 @@ ifneq ($(CONFIG_ARCH_LS2080A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls2080a_serdes.o
 endif
 
-ifneq ($(CONFIG_LS1043A),)
+ifneq ($(CONFIG_ARCH_LS1043A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1043a_serdes.o
 obj-$(CONFIG_ARMV8_PSCI) += ls1043a_psci.o
 endif
