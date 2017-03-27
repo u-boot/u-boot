@@ -828,27 +828,29 @@ void do_enable_clocks(u32 const *clk_domains,
 	u32 i, max = 100;
 
 	/* Put the clock domains in SW_WKUP mode */
-	for (i = 0; (i < max) && clk_domains[i]; i++) {
+	for (i = 0; (i < max) && clk_domains && clk_domains[i]; i++) {
 		enable_clock_domain(clk_domains[i],
 				    CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
 	}
 
 	/* Clock modules that need to be put in HW_AUTO */
-	for (i = 0; (i < max) && clk_modules_hw_auto[i]; i++) {
+	for (i = 0; (i < max) && clk_modules_hw_auto &&
+		     clk_modules_hw_auto[i]; i++) {
 		enable_clock_module(clk_modules_hw_auto[i],
 				    MODULE_CLKCTRL_MODULEMODE_HW_AUTO,
 				    wait_for_enable);
 	};
 
 	/* Clock modules that need to be put in SW_EXPLICIT_EN mode */
-	for (i = 0; (i < max) && clk_modules_explicit_en[i]; i++) {
+	for (i = 0; (i < max) && clk_modules_explicit_en &&
+		     clk_modules_explicit_en[i]; i++) {
 		enable_clock_module(clk_modules_explicit_en[i],
 				    MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN,
 				    wait_for_enable);
 	};
 
 	/* Put the clock domains in HW_AUTO mode now */
-	for (i = 0; (i < max) && clk_domains[i]; i++) {
+	for (i = 0; (i < max) && clk_domains && clk_domains[i]; i++) {
 		enable_clock_domain(clk_domains[i],
 				    CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
 	}
