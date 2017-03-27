@@ -18,6 +18,7 @@
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <asm/io.h>
+#include <power/regulator.h>
 #include "designware.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -660,6 +661,22 @@ int designware_eth_probe(struct udevice *dev)
 	u32 iobase = pdata->iobase;
 	ulong ioaddr;
 	int ret;
+
+#if defined(CONFIG_DM_REGULATOR)
+	struct udevice *phy_supply;
+
+	ret = device_get_supply_regulator(dev, "phy-supply",
+					  &phy_supply);
+	if (ret) {
+		debug("%s: No phy supply\n", dev->name);
+	} else {
+		ret = regulator_set_enable(phy_supply, true);
+		if (ret) {
+			puts("Error enabling phy supply\n");
+			return ret;
+		}
+	}
+#endif
 
 #ifdef CONFIG_DM_PCI
 	/*
