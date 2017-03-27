@@ -65,7 +65,7 @@ void board_init_f(ulong dummy)
 	memset((void *)gd, 0, sizeof(gd_t));
 	board_early_init_f();
 	timer_init();
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	env_init();
 #endif
 	get_clocks();

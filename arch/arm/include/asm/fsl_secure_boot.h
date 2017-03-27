@@ -55,7 +55,7 @@
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 #define CONFIG_EXTRA_ENV \
 	"setenv fdt_high 0xa0000000;"	\
 	"setenv initrd_high 0xcfffffff;"	\

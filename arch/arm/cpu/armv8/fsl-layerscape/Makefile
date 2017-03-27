@@ -22,7 +22,7 @@ obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch2_serdes.o
 endif
 endif
 
-ifneq ($(CONFIG_LS2080A),)
+ifneq ($(CONFIG_ARCH_LS2080A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls2080a_serdes.o
 endif
 

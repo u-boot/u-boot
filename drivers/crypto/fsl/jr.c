@@ -587,7 +587,7 @@ int sec_init_idx(uint8_t sec_idx)
 	 * For AXI Read - Cacheable, Read allocate
 	 * Only For LS2080a, to solve CAAM coherency issues
 	 */
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0xb << MCFGR_AWCACHE_SHIFT);
 	mcr = (mcr & ~MCFGR_ARCACHE_MASK) | (0x6 << MCFGR_ARCACHE_SHIFT);
 #else
