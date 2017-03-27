@@ -1011,11 +1011,12 @@
 			power-domains = <&pd_uart1>;
 		};
 
-		usb0: usb0 {
+		usb0: usb0@ff9d0000 {
 			#address-cells = <2>;
 			#size-cells = <2>;
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dwc3";
+			reg = <0x0 0xff9d0000 0x0 0x100>;
 			clock-names = "bus_clk", "ref_clk";
 			clocks = <&clk125>, <&clk125>;
 			#stream-id-cells = <1>;
@@ -1033,14 +1034,16 @@
 				interrupts = <0 65 4>;
 				/* snps,quirk-frame-length-adjustment = <0x20>; */
 				snps,refclk_fladj;
+				/* dma-coherent; */
 			};
 		};
 
-		usb1: usb1 {
+		usb1: usb1@ff9e0000 {
 			#address-cells = <2>;
 			#size-cells = <2>;
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dwc3";
+			reg = <0x0 0xff9e0000 0x0 0x100>;
 			clock-names = "bus_clk", "ref_clk";
 			clocks = <&clk125>, <&clk125>;
 			#stream-id-cells = <1>;
@@ -1058,6 +1061,7 @@
 				interrupts = <0 70 4>;
 				/* snps,quirk-frame-length-adjustment = <0x20>; */
 				snps,refclk_fladj;
+				/* dma-coherent; */
 			};
 		};
 
