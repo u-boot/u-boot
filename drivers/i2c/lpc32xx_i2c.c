@@ -29,7 +29,7 @@
 #endif
 
 /* i2c register set */
-struct lpc32xx_i2c_registers {
+struct lpc32xx_i2c_base {
 	union {
 		u32 rx;
 		u32 tx;
@@ -61,15 +61,15 @@ struct lpc32xx_i2c_registers {
 #define LPC32XX_I2C_STAT_NAI		0x00000004
 #define LPC32XX_I2C_STAT_TDI		0x00000001
 
-static struct lpc32xx_i2c_registers *lpc32xx_i2c[] = {
-	(struct lpc32xx_i2c_registers *)I2C1_BASE,
-	(struct lpc32xx_i2c_registers *)I2C2_BASE,
-	(struct lpc32xx_i2c_registers *)(USB_BASE + 0x300)
+static struct lpc32xx_i2c_base *lpc32xx_i2c[] = {
+	(struct lpc32xx_i2c_base *)I2C1_BASE,
+	(struct lpc32xx_i2c_base *)I2C2_BASE,
+	(struct lpc32xx_i2c_base *)(USB_BASE + 0x300)
 };
 
 /* Set I2C bus speed */
-static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
-			unsigned int speed)
+static unsigned int __i2c_set_bus_speed(struct lpc32xx_i2c_base *base,
+					unsigned int speed, unsigned int chip)
 {
 	int half_period;
 
@@ -77,7 +77,7 @@ static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
 		return -EINVAL;
 
 	/* OTG I2C clock source and CLK registers are different */
-	if (adap->hwadapnr == 2) {
+	if (chip == 2) {
 		half_period = (get_periph_clk_rate() / speed) / 2;
 		if (half_period > 0xFF)
 			return -EINVAL;
@@ -87,38 +87,35 @@ static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
 			return -EINVAL;
 	}
 
-	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_hi);
-	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_lo);
+	writel(half_period, &base->clk_hi);
+	writel(half_period, &base->clk_lo);
 	return 0;
 }
 
 /* I2C init called by cmd_i2c when doing 'i2c reset'. */
-static void __i2c_init(struct i2c_adapter *adap,
-	int requested_speed, int slaveadd)
+static void __i2c_init(struct lpc32xx_i2c_base *base,
+		       int requested_speed, int slaveadd, unsigned int chip)
 {
-	struct lpc32xx_i2c_registers *i2c = lpc32xx_i2c[adap->hwadapnr];
-
 	/* soft reset (auto-clears) */
-	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
+	writel(LPC32XX_I2C_SOFT_RESET, &base->ctrl);
 	/* set HI and LO periods for half of the default speed */
-	__i2c_set_bus_speed(adap, requested_speed);
+	__i2c_set_bus_speed(base, requested_speed, chip);
 }
 
 /* I2C probe called by cmd_i2c when doing 'i2c probe'. */
-static int __i2c_probe_chip(struct i2c_adapter *adap, u8 dev)
+static int __i2c_probe_chip(struct lpc32xx_i2c_base *base, u8 dev)
 {
-	struct lpc32xx_i2c_registers *i2c = lpc32xx_i2c[adap->hwadapnr];
 	int stat;
 
 	/* Soft-reset the controller */
-	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
-	while (readl(&i2c->ctrl) & LPC32XX_I2C_SOFT_RESET)
+	writel(LPC32XX_I2C_SOFT_RESET, &base->ctrl);
+	while (readl(&base->ctrl) & LPC32XX_I2C_SOFT_RESET)
 		;
 	/* Addre slave for write with start before and stop after */
 	writel((dev<<1) | LPC32XX_I2C_TX_START | LPC32XX_I2C_TX_STOP,
-	       &i2c->tx);
+	       &base->tx);
 	/* wait for end of transation */
-	while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+	while (!((stat = readl(&base->stat)) & LPC32XX_I2C_STAT_TDI))
 		;
 	/* was there no acknowledge? */
 	return (stat & LPC32XX_I2C_STAT_NAI) ? -1 : 0;
@@ -128,20 +125,19 @@ static int __i2c_probe_chip(struct i2c_adapter *adap, u8 dev)
  * I2C read called by cmd_i2c when doing 'i2c read' and by cmd_eeprom.c
  * Begin write, send address byte(s), begin read, receive data bytes, end.
  */
-static int __i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
-			 int alen, u8 *data, int length)
+static int __i2c_read(struct lpc32xx_i2c_base *base, u8 dev, uint addr,
+		      int alen, u8 *data, int length)
 {
-	struct lpc32xx_i2c_registers *i2c = lpc32xx_i2c[adap->hwadapnr];
 	int stat, wlen;
 
 	/* Soft-reset the controller */
-	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
-	while (readl(&i2c->ctrl) & LPC32XX_I2C_SOFT_RESET)
+	writel(LPC32XX_I2C_SOFT_RESET, &base->ctrl);
+	while (readl(&base->ctrl) & LPC32XX_I2C_SOFT_RESET)
 		;
 	/* do we need to write an address at all? */
 	if (alen) {
 		/* Address slave in write mode */
-		writel((dev<<1) | LPC32XX_I2C_TX_START, &i2c->tx);
+		writel((dev<<1) | LPC32XX_I2C_TX_START, &base->tx);
 		/* write address bytes */
 		while (alen--) {
 			/* compute address byte + stop for the last one */
@@ -149,44 +145,44 @@ static int __i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 			if (!alen)
 				a |= LPC32XX_I2C_TX_STOP;
 			/* Send address byte */
-			writel(a, &i2c->tx);
+			writel(a, &base->tx);
 		}
 		/* wait for end of transation */
-		while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+		while (!((stat = readl(&base->stat)) & LPC32XX_I2C_STAT_TDI))
 			;
 		/* clear end-of-transaction flag */
-		writel(1, &i2c->stat);
+		writel(1, &base->stat);
 	}
 	/* do we have to read data at all? */
 	if (length) {
 		/* Address slave in read mode */
-		writel(1 | (dev<<1) | LPC32XX_I2C_TX_START, &i2c->tx);
+		writel(1 | (dev<<1) | LPC32XX_I2C_TX_START, &base->tx);
 		wlen = length;
 		/* get data */
 		while (length | wlen) {
 			/* read status for TFF and RFE */
-			stat = readl(&i2c->stat);
+			stat = readl(&base->stat);
 			/* must we, can we write a trigger byte? */
 			if ((wlen > 0)
 			   & (!(stat & LPC32XX_I2C_STAT_TFF))) {
 				wlen--;
 				/* write trigger byte + stop if last */
 				writel(wlen ? 0 :
-				LPC32XX_I2C_TX_STOP, &i2c->tx);
+				LPC32XX_I2C_TX_STOP, &base->tx);
 			}
 			/* must we, can we read a data byte? */
 			if ((length > 0)
 			   & (!(stat & LPC32XX_I2C_STAT_RFE))) {
 				length--;
 				/* read byte */
-				*(data++) = readl(&i2c->rx);
+				*(data++) = readl(&base->rx);
 			}
 		}
 		/* wait for end of transation */
-		while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+		while (!((stat = readl(&base->stat)) & LPC32XX_I2C_STAT_TDI))
 			;
 		/* clear end-of-transaction flag */
-		writel(1, &i2c->stat);
+		writel(1, &base->stat);
 	}
 	/* success */
 	return 0;
@@ -196,38 +192,37 @@ static int __i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
  * I2C write called by cmd_i2c when doing 'i2c write' and by cmd_eeprom.c
  * Begin write, send address byte(s), send data bytes, end.
  */
-static int __i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
-			  int alen, u8 *data, int length)
+static int __i2c_write(struct lpc32xx_i2c_base *base, u8 dev, uint addr,
+		       int alen, u8 *data, int length)
 {
-	struct lpc32xx_i2c_registers *i2c = lpc32xx_i2c[adap->hwadapnr];
 	int stat;
 
 	/* Soft-reset the controller */
-	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
-	while (readl(&i2c->ctrl) & LPC32XX_I2C_SOFT_RESET)
+	writel(LPC32XX_I2C_SOFT_RESET, &base->ctrl);
+	while (readl(&base->ctrl) & LPC32XX_I2C_SOFT_RESET)
 		;
 	/* do we need to write anything at all? */
 	if (alen | length)
 		/* Address slave in write mode */
-		writel((dev<<1) | LPC32XX_I2C_TX_START, &i2c->tx);
+		writel((dev<<1) | LPC32XX_I2C_TX_START, &base->tx);
 	else
 		return 0;
 	/* write address bytes */
 	while (alen) {
 		/* wait for transmit fifo not full */
-		stat = readl(&i2c->stat);
+		stat = readl(&base->stat);
 		if (!(stat & LPC32XX_I2C_STAT_TFF)) {
 			alen--;
 			int a = (addr >> (8 * alen)) & 0xff;
 			if (!(alen | length))
 				a |= LPC32XX_I2C_TX_STOP;
 			/* Send address byte */
-			writel(a, &i2c->tx);
+			writel(a, &base->tx);
 		}
 	}
 	while (length) {
 		/* wait for transmit fifo not full */
-		stat = readl(&i2c->stat);
+		stat = readl(&base->stat);
 		if (!(stat & LPC32XX_I2C_STAT_TFF)) {
 			/* compute data byte, add stop if length==0 */
 			length--;
@@ -235,44 +230,48 @@ static int __i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 			if (!length)
 				d |= LPC32XX_I2C_TX_STOP;
 			/* Send data byte */
-			writel(d, &i2c->tx);
+			writel(d, &base->tx);
 		}
 	}
 	/* wait for end of transation */
-	while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+	while (!((stat = readl(&base->stat)) & LPC32XX_I2C_STAT_TDI))
 		;
 	/* clear end-of-transaction flag */
-	writel(1, &i2c->stat);
+	writel(1, &base->stat);
 	return 0;
 }
 
 static void lpc32xx_i2c_init(struct i2c_adapter *adap,
 			     int requested_speed, int slaveadd)
 {
-	__i2c_init(adap, requested_speed, slaveadd);
+	__i2c_init(lpc32xx_i2c[adap->hwadapnr], requested_speed, slaveadd,
+		   adap->hwadapnr);
 }
 
 static int lpc32xx_i2c_probe_chip(struct i2c_adapter *adap, u8 dev)
 {
-	return __i2c_probe_chip(adap, dev);
+	return __i2c_probe_chip(lpc32xx_i2c[adap->hwadapnr], dev);
 }
 
 static int lpc32xx_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 			    int alen, u8 *data, int length)
 {
-	return __i2c_read(adap, dev, addr, alen, data, length);
+	return __i2c_read(lpc32xx_i2c[adap->hwadapnr], dev, addr,
+			 alen, data, length);
 }
 
 static int lpc32xx_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 			     int alen, u8 *data, int length)
 {
-	return __i2c_write(adap, dev, addr, alen, data, length);
+	return __i2c_write(lpc32xx_i2c[adap->hwadapnr], dev, addr,
+			  alen, data, length);
 }
 
 static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 					      unsigned int speed)
 {
-	return __i2c_set_bus_speed(adap, speed);
+	return __i2c_set_bus_speed(lpc32xx_i2c[adap->hwadapnr], speed,
+				  adap->hwadapnr);
 }
 
 U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_0, lpc32xx_i2c_init, lpc32xx_i2c_probe_chip,
