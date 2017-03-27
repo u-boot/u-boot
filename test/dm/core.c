@@ -67,6 +67,10 @@ static struct driver_info driver_info_pre_reloc = {
 	.platdata = &test_pdata_pre_reloc,
 };
 
+static struct driver_info driver_info_act_dma = {
+	.name = "test_act_dma_drv",
+};
+
 void dm_leak_check_start(struct unit_test_state *uts)
 {
 	uts->start = mallinfo();
@@ -655,6 +659,68 @@ static int dm_test_pre_reloc(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pre_reloc, 0);
+
+/*
+ * Test that removal of devices, either via the "normal" device_remove()
+ * API or via the device driver selective flag works as expected
+ */
+static int dm_test_remove_active_dma(struct unit_test_state *uts)
+{
+	struct dm_test_state *dms = uts->priv;
+	struct udevice *dev;
+
+	ut_assertok(device_bind_by_name(dms->root, false, &driver_info_act_dma,
+					&dev));
+	ut_assert(dev);
+
+	/* Probe the device */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via selective remove flag */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+
+	/* Test if device is inactive right now */
+	ut_asserteq(false, device_active(dev));
+
+	/* Probe the device again */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via "normal" remove API */
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
+
+	/* Test if device is inactive right now */
+	ut_asserteq(false, device_active(dev));
+
+	/*
+	 * Test if a device without the active DMA flags is not removed upon
+	 * the active DMA remove call
+	 */
+	ut_assertok(device_unbind(dev));
+	ut_assertok(device_bind_by_name(dms->root, false, &driver_info_manual,
+					&dev));
+	ut_assert(dev);
+
+	/* Probe the device */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via selective remove flag */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+
+	/* Test if device is still active right now */
+	ut_asserteq(true, device_active(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_remove_active_dma, 0);
 
 static int dm_test_uclass_before_ready(struct unit_test_state *uts)
 {
