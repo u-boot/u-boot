@@ -708,6 +708,16 @@ config SUNXI_DE2
 	bool
 	default n
 
+config VIDEO_DE2
+	bool "Display Engine 2 video driver"
+	depends on SUNXI_DE2
+	select DM_VIDEO
+	select DISPLAY
+	default y
+	---help---
+	Say y here if you want to build DE2 video driver which is present on
+	newer SoCs. Currently only HDMI output is supported.
+
 
 choice
 	prompt "LCD panel support"
