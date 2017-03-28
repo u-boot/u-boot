@@ -832,10 +832,7 @@ static const init_fnc_t init_sequence_f[] = {
 	/* get CPU and bus clocks according to the environment variable */
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 #endif
-#if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
-		defined(CONFIG_NDS32) || defined(CONFIG_SH)
 	timer_init,		/* initialize timer */
-#endif
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,
 #endif
