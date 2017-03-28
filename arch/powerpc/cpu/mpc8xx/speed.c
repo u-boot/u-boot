@@ -243,7 +243,7 @@ static long init_pll_866 (long clk);
  * contains invalid value).
  * This functions requires an MPC866 or newer series CPU.
  */
-int get_clocks_866 (void)
+int get_clocks(void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	char		  tmp[64];

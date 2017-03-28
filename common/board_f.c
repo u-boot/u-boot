@@ -831,7 +831,7 @@ static const init_fnc_t init_sequence_f[] = {
 	/* TODO: can any of this go into arch_cpu_init()? */
 #if defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	/* get CPU and bus clocks according to the environment variable */
-	get_clocks_866,
+	get_clocks,
 	/* adjust sdram refresh rate according to the new clock */
 	sdram_adjust_866,
 	init_timebase,
