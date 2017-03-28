@@ -275,6 +275,12 @@ int board_run_command(const char *cmdline)
 	return 1;
 }
 
+static void setup_ram_buf(struct sandbox_state *state)
+{
+	gd->arch.ram_buf = state->ram_buf;
+	gd->ram_size = state->ram_size;
+}
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
@@ -302,6 +308,7 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
 #endif
+	setup_ram_buf(state);
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

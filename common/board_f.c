@@ -58,9 +58,6 @@
 #if defined(CONFIG_X86) || defined(CONFIG_ARC) || defined(CONFIG_XTENSA)
 #include <asm/relocate.h>
 #endif
-#ifdef CONFIG_SANDBOX
-#include <asm/state.h>
-#endif
 #include <dm/root.h>
 #include <linux/compiler.h>
 
@@ -293,18 +290,6 @@ __weak int mach_cpu_init(void)
 {
 	return 0;
 }
-
-#ifdef CONFIG_SANDBOX
-static int setup_ram_buf(void)
-{
-	struct sandbox_state *state = state_get_current();
-
-	gd->arch.ram_buf = state->ram_buf;
-	gd->ram_size = state->ram_size;
-
-	return 0;
-}
-#endif
 
 /* Get the top of usable RAM */
 __weak ulong board_get_usable_ram_top(ulong total_size)
@@ -823,9 +808,6 @@ __weak int arch_cpu_init_dm(void)
 }
 
 static const init_fnc_t init_sequence_f[] = {
-#ifdef CONFIG_SANDBOX
-	setup_ram_buf,
-#endif
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_setup,
