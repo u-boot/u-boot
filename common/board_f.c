@@ -828,16 +828,12 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
-	/* TODO: can any of this go into arch_cpu_init()? */
-#if defined(CONFIG_8xx_CPUCLK_DEFAULT)
+#ifdef CONFIG_PPC
 	/* get CPU and bus clocks according to the environment variable */
-	get_clocks,
-	init_timebase,
-#elif defined(CONFIG_PPC)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
-#endif /* CONFIG_8xx_CPUCLK_DEFAULT */
+#endif
 #if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
 		defined(CONFIG_NDS32) || defined(CONFIG_SH)
 	timer_init,		/* initialize timer */
