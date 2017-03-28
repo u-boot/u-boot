@@ -66,6 +66,11 @@ int sandbox_early_getopt_check(void)
 	os_exit(0);
 }
 
+int misc_init_f(void)
+{
+	return sandbox_early_getopt_check();
+}
+
 static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 {
 	/* just flag to sandbox_early_getopt_check to show usage */

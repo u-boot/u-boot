@@ -840,9 +840,6 @@ static const init_fnc_t init_sequence_f[] = {
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
-#ifdef CONFIG_SANDBOX
-	sandbox_early_getopt_check,
-#endif
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
 #if defined(CONFIG_MPC8260)
