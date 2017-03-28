@@ -309,16 +309,17 @@ static int is_spi_active(void)
 #ifdef CONFIG_CMD_NAND
 static int nand_burn_image(size_t image_size)
 {
-	int ret, block_size;
-	nand_info_t *nand;
+	int ret;
+	uint32_t block_size;
+	struct mtd_info *nand;
 	int dev = nand_curr_device;
 
 	if ((dev < 0) || (dev >= CONFIG_SYS_MAX_NAND_DEVICE) ||
-	    (!nand_info[dev].name)) {
+	    (!nand_info[dev]->name)) {
 		puts("\nno devices available\n");
 		return -ENOMEDIUM;
 	}
-	nand = &nand_info[dev];
+	nand = nand_info[dev];
 	block_size = nand->erasesize;
 
 	/* Align U-Boot size to currently used blocksize */
@@ -334,8 +335,8 @@ static int nand_burn_image(size_t image_size)
 	printf("Done!\n");
 
 	/* Write the image to flash */
-	printf("Writing image:...");
-	printf("&image_size = 0x%p\n", (void *)&image_size);
+	printf("Writing %d bytes from 0x%lx to offset 0 ... ",
+	       (int)image_size, get_load_addr());
 	ret = nand_write(nand, 0, &image_size, (void *)get_load_addr());
 	if (ret)
 		printf("Error!\n");
