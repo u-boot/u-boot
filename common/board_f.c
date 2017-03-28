@@ -835,10 +835,6 @@ static const init_fnc_t init_sequence_f[] = {
 	init_timebase,
 #elif defined(CONFIG_PPC)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
-		&& !defined(CONFIG_TQM885D)
-	adjust_sdram_tbs_8xx,
-#endif
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif /* CONFIG_8xx_CPUCLK_DEFAULT */

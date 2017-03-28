@@ -252,6 +252,33 @@ static int sdram_adjust_866(void)
 	return 0;
 }
 
+/*
+ * Adjust sdram refresh rate to actual CPU clock
+ * and set timebase source according to actual CPU clock
+ */
+static int adjust_sdram_tbs_8xx(void)
+{
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) && \
+		!defined(CONFIG_TQM885D)
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	long		  mamr;
+	long              sccr;
+
+	mamr = immr->im_memctl.memc_mamr;
+	mamr &= ~MAMR_PTA_MSK;
+	mamr |= ((gd->cpu_clk / CONFIG_SYS_PTA_PER_CLK) << MAMR_PTA_SHIFT);
+	immr->im_memctl.memc_mamr = mamr;
+
+	if (gd->cpu_clk < 67000000) {
+		sccr = immr->im_clkrst.car_sccr;
+		sccr |= SCCR_TBS;
+		immr->im_clkrst.car_sccr = sccr;
+	}
+#endif /* CONFIG_TQM8xxL/M, !TQM866M, !TQM885D */
+
+	return 0;
+}
+
 /* This function sets up PLL (init_pll_866() is called) and
  * fills gd->cpu_clk and gd->bus_clk according to the environment
  * variable 'cpuclk' or to CONFIG_8xx_CPUCLK_DEFAULT (if 'cpuclk'
@@ -264,6 +291,7 @@ int get_clocks(void)
 	char		  tmp[64];
 	long		  cpuclk = 0;
 	long		  sccr_reg;
+	int ret;
 
 	if (getenv_f("cpuclk", tmp, sizeof (tmp)) > 0)
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
@@ -293,7 +321,11 @@ int get_clocks(void)
 	}
 	immr->im_clkrst.car_sccr = sccr_reg;
 
-	return sdram_adjust_866();
+	ret = sdram_adjust_866();
+	if (ret)
+		return ret;
+
+	return adjust_sdram_tbs_8xx();
 }
 
 /* Configure PLL for MPC866/859/885 CPU series
@@ -369,32 +401,3 @@ static long init_pll_866 (long clk)
 }
 
 #endif /* CONFIG_8xx_CPUCLK_DEFAULT */
-
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
-    && !defined(CONFIG_TQM885D)
-/*
- * Adjust sdram refresh rate to actual CPU clock
- * and set timebase source according to actual CPU clock
- */
-int adjust_sdram_tbs_8xx (void)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	long		  mamr;
-	long              sccr;
-
-	mamr = immr->im_memctl.memc_mamr;
-	mamr &= ~MAMR_PTA_MSK;
-	mamr |= ((gd->cpu_clk / CONFIG_SYS_PTA_PER_CLK) << MAMR_PTA_SHIFT);
-	immr->im_memctl.memc_mamr = mamr;
-
-	if (gd->cpu_clk < 67000000) {
-		sccr = immr->im_clkrst.car_sccr;
-		sccr |= SCCR_TBS;
-		immr->im_clkrst.car_sccr = sccr;
-	}
-
-	return (0);
-}
-#endif /* CONFIG_TQM8xxL/M, !TQM866M, !TQM885D */
-
-/* ------------------------------------------------------------------------- */
