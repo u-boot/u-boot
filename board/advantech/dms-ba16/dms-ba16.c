@@ -304,7 +304,8 @@ static int mx6_rgmii_rework(struct phy_device *phydev)
 	/* set debug port address: SerDes Test and System Mode Control */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	/* enable rgmii tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	/* set the reserved bits to avoid board specific voltage peak issue*/
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
 
 	return 0;
 }
