@@ -39,50 +39,6 @@ struct i2c_bus_hose i2c_bus[CONFIG_SYS_NUM_I2C_BUSES] =
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void i2c_reloc_fixup(void)
-{
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct i2c_adapter *i2c_adap_p = ll_entry_start(struct i2c_adapter,
-						i2c);
-	struct i2c_adapter *tmp = i2c_adap_p;
-	int max = ll_entry_count(struct i2c_adapter, i2c);
-	int		i;
-	unsigned long	addr;
-
-	if (gd->reloc_off == 0)
-		return;
-
-	for (i = 0; i < max; i++) {
-		/* i2c_init() */
-		addr = (unsigned long)i2c_adap_p->init;
-		addr += gd->reloc_off;
-		i2c_adap_p->init = (void *)addr;
-		/* i2c_probe() */
-		addr = (unsigned long)i2c_adap_p->probe;
-		addr += gd->reloc_off;
-		i2c_adap_p->probe = (void *)addr;
-		/* i2c_read() */
-		addr = (unsigned long)i2c_adap_p->read;
-		addr += gd->reloc_off;
-		i2c_adap_p->read = (void *)addr;
-		/* i2c_write() */
-		addr = (unsigned long)i2c_adap_p->write;
-		addr += gd->reloc_off;
-		i2c_adap_p->write = (void *)addr;
-		/* i2c_set_bus_speed() */
-		addr = (unsigned long)i2c_adap_p->set_bus_speed;
-		addr += gd->reloc_off;
-		i2c_adap_p->set_bus_speed = (void *)addr;
-		/* name */
-		addr = (unsigned long)i2c_adap_p->name;
-		addr += gd->reloc_off;
-		i2c_adap_p->name = (char *)addr;
-		tmp++;
-		i2c_adap_p = tmp;
-	}
-#endif
-}
-
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 /*
  * i2c_mux_set()

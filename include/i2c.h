@@ -791,21 +791,6 @@ unsigned int i2c_set_bus_speed(unsigned int speed);
 
 unsigned int i2c_get_bus_speed(void);
 
-/*
- * i2c_reloc_fixup:
- *
- * Adjusts I2C pointers after U-Boot is relocated to DRAM
- */
-void i2c_reloc_fixup(void);
-#if defined(CONFIG_SYS_I2C_SOFT)
-void i2c_soft_init(void);
-void i2c_soft_active(void);
-void i2c_soft_tristate(void);
-int i2c_soft_read(void);
-void i2c_soft_sda(int bit);
-void i2c_soft_scl(int bit);
-void i2c_soft_delay(void);
-#endif
 #else
 
 /*
