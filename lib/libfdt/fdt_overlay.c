@@ -21,14 +21,14 @@
  */
 static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
 {
-	const uint32_t *val;
+	const fdt32_t *val;
 	int len;
 
 	val = fdt_getprop(fdto, fragment, "target", &len);
 	if (!val)
 		return 0;
 
-	if ((len != sizeof(*val)) || (*val == (uint32_t)-1))
+	if ((len != sizeof(*val)) || (fdt32_to_cpu(*val) == (uint32_t)-1))
 		return (uint32_t)-1;
 
 	return fdt32_to_cpu(*val);
@@ -99,7 +99,7 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 static int overlay_phandle_add_offset(void *fdt, int node,
 				      const char *name, uint32_t delta)
 {
-	const uint32_t *val;
+	const fdt32_t *val;
 	uint32_t adj_val;
 	int len;
 
@@ -210,7 +210,7 @@ static int overlay_update_local_node_references(void *fdto,
 	int ret;
 
 	fdt_for_each_property_offset(fixup_prop, fdto, fixup_node) {
-		const uint32_t *fixup_val;
+		const fdt32_t *fixup_val;
 		const char *tree_val;
 		const char *name;
 		int fixup_len;
@@ -234,7 +234,8 @@ static int overlay_update_local_node_references(void *fdto,
 		}
 
 		for (i = 0; i < (fixup_len / sizeof(uint32_t)); i++) {
-			uint32_t adj_val, poffset;
+			fdt32_t adj_val;
+			uint32_t poffset;
 
 			poffset = fdt32_to_cpu(fixup_val[i]);
 
@@ -246,9 +247,7 @@ static int overlay_update_local_node_references(void *fdto,
 			 */
 			memcpy(&adj_val, tree_val + poffset, sizeof(adj_val));
 
-			adj_val = fdt32_to_cpu(adj_val);
-			adj_val += delta;
-			adj_val = cpu_to_fdt32(adj_val);
+			adj_val = cpu_to_fdt32(fdt32_to_cpu(adj_val) + delta);
 
 			ret = fdt_setprop_inplace_namelen_partial(fdto,
 								  tree_node,
@@ -272,7 +271,7 @@ static int overlay_update_local_node_references(void *fdto,
 
 		tree_child = fdt_subnode_offset(fdto, tree_node,
 						fixup_child_name);
-		if (ret == -FDT_ERR_NOTFOUND)
+		if (tree_child == -FDT_ERR_NOTFOUND)
 			return -FDT_ERR_BADOVERLAY;
 		if (tree_child < 0)
 			return tree_child;
@@ -356,6 +355,7 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 {
 	const char *symbol_path;
 	uint32_t phandle;
+	fdt32_t phandle_prop;
 	int symbol_off, fixup_off;
 	int prop_len;
 
@@ -381,10 +381,11 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 	if (fixup_off < 0)
 		return fixup_off;
 
-	phandle = cpu_to_fdt32(phandle);
+	phandle_prop = cpu_to_fdt32(phandle);
 	return fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
 						   name, name_len, poffset,
-						   &phandle, sizeof(phandle));
+						   &phandle_prop,
+						   sizeof(phandle_prop));
 };
 
 /**
