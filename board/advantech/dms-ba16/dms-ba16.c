@@ -534,6 +534,54 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+void pmic_init(void)
+{
+
+#define DA9063_ADDR 0x58
+#define BCORE2_CONF 0x9D
+#define BCORE1_CONF 0x9E
+#define BPRO_CONF 0x9F
+#define BIO_CONF 0xA0
+#define BMEM_CONF 0xA1
+#define BPERI_CONF 0xA2
+#define MODE_BIT_H 7
+#define MODE_BIT_L 6
+
+        uchar val;
+        i2c_set_bus_num(2);
+
+        i2c_read(DA9063_ADDR, BCORE2_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BCORE2_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BCORE1_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BCORE1_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BPRO_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BPRO_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BIO_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BIO_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BMEM_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BMEM_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BPERI_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BPERI_CONF , 1, &val, 1);
+
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
@@ -562,6 +610,9 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_SATA
 	setup_ba16_sata();
 #endif
+
+        /* board specific pmic init */
+        pmic_init();
 
 	return 0;
 }
