@@ -286,6 +286,15 @@ int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 
 /**
+ * arch_fsp_init() - perform firmware support package init
+ *
+ * Where U-Boot relies on binary blobs to handle part of the system init, this
+ * function can be used to set up the blobs. This is used on some Intel
+ * platforms.
+ */
+int arch_fsp_init(void);
+
+/**
  * arch_cpu_init_dm() - init CPU after driver model is available
  *
  * This is called immediately after driver model is available before

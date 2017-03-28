@@ -70,7 +70,7 @@ static __maybe_unused void *fsp_prepare_mrc_cache(void)
 	return cache->data;
 }
 
-int x86_fsp_init(void)
+int arch_fsp_init(void)
 {
 	void *nvs;
 
