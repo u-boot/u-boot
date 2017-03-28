@@ -849,9 +849,6 @@ static const init_fnc_t init_sequence_f[] = {
 	prt_8260_rsr,
 	prt_8260_clks,
 #endif /* CONFIG_MPC8260 */
-#if defined(CONFIG_MPC83xx)
-	prt_83xx_rsr,
-#endif
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SH)
 	checkcpu,
 #endif
