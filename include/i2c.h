@@ -930,13 +930,6 @@ enum {
 	I2C_8, I2C_9, I2C_10,
 };
 
-/* Multi I2C busses handling */
-#ifdef CONFIG_SOFT_I2C_MULTI_BUS
-extern int get_multi_scl_pin(void);
-extern int get_multi_sda_pin(void);
-extern int multi_i2c_init(void);
-#endif
-
 /**
  * Get FDT values for i2c bus.
  *
