@@ -237,6 +237,21 @@ int get_clocks (void)
 
 static long init_pll_866 (long clk);
 
+/* Adjust sdram refresh rate to actual CPU clock.
+ */
+static int sdram_adjust_866(void)
+{
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	long		  mamr;
+
+	mamr = immr->im_memctl.memc_mamr;
+	mamr &= ~MAMR_PTA_MSK;
+	mamr |= ((gd->cpu_clk / CONFIG_SYS_PTA_PER_CLK) << MAMR_PTA_SHIFT);
+	immr->im_memctl.memc_mamr = mamr;
+
+	return 0;
+}
+
 /* This function sets up PLL (init_pll_866() is called) and
  * fills gd->cpu_clk and gd->bus_clk according to the environment
  * variable 'cpuclk' or to CONFIG_8xx_CPUCLK_DEFAULT (if 'cpuclk'
@@ -278,22 +293,7 @@ int get_clocks(void)
 	}
 	immr->im_clkrst.car_sccr = sccr_reg;
 
-	return (0);
-}
-
-/* Adjust sdram refresh rate to actual CPU clock.
- */
-int sdram_adjust_866 (void)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	long		  mamr;
-
-	mamr = immr->im_memctl.memc_mamr;
-	mamr &= ~MAMR_PTA_MSK;
-	mamr |= ((gd->cpu_clk / CONFIG_SYS_PTA_PER_CLK) << MAMR_PTA_SHIFT);
-	immr->im_memctl.memc_mamr = mamr;
-
-	return (0);
+	return sdram_adjust_866();
 }
 
 /* Configure PLL for MPC866/859/885 CPU series

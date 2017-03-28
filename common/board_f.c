@@ -832,8 +832,6 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	/* get CPU and bus clocks according to the environment variable */
 	get_clocks,
-	/* adjust sdram refresh rate according to the new clock */
-	sdram_adjust_866,
 	init_timebase,
 #elif defined(CONFIG_PPC)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
