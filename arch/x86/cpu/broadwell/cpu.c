@@ -131,10 +131,8 @@ int arch_cpu_init(void)
 	return x86_cpu_init_f();
 }
 
-int print_cpuinfo(void)
+int checkcpu(void)
 {
-	char processor_name[CPU_MAX_NAME_LEN];
-	const char *name;
 	int ret;
 
 	set_max_freq();
@@ -143,6 +141,14 @@ int print_cpuinfo(void)
 	if (ret)
 		return ret;
 	gd->arch.pei_boot_mode = PEI_BOOT_NONE;
+
+	return 0;
+}
+
+int print_cpuinfo(void)
+{
+	char processor_name[CPU_MAX_NAME_LEN];
+	const char *name;
 
 	/* Print processor name */
 	name = cpu_get_name(processor_name);

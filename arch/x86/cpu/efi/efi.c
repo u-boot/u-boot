@@ -18,6 +18,11 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int checkcpu(void)
+{
+	return 0;
+}
+
 int print_cpuinfo(void)
 {
 	return default_print_cpuinfo();

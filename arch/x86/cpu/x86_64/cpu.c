@@ -67,6 +67,11 @@ int misc_init_r(void)
 	return 0;
 }
 
+int checkcpu(void)
+{
+	return 0;
+}
+
 int print_cpuinfo(void)
 {
 	return 0;

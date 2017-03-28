@@ -14,6 +14,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int checkcpu(void)
+{
+	return 0;
+}
+
 int print_cpuinfo(void)
 {
 	post_code(POST_CPU_INFO);
