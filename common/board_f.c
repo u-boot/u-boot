@@ -828,16 +828,13 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_SYS_FSL_CLK) || defined(CONFIG_M68K)
 	/* get CPU and bus clocks according to the environment variable */
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 #endif
 	timer_init,		/* initialize timer */
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,
-#endif
-#if defined(CONFIG_SYS_FSL_CLK) || defined(CONFIG_M68K)
-	get_clocks,
 #endif
 	env_init,		/* initialize environment */
 	init_baud_rate,		/* initialze baudrate settings */
