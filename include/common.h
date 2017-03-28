@@ -637,9 +637,7 @@ int serial_stub_tstc(struct stdio_dev *sdev);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);
-#if defined(CONFIG_MPC8260)
-int	prt_8260_clks (void);
-#elif defined(CONFIG_MPC5xxx)
+#if defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
 #ifdef CONFIG_4xx
@@ -710,9 +708,6 @@ ulong cpu_init_f(void);
 #endif
 
 int	cpu_init_r    (void);
-#if defined(CONFIG_MPC8260)
-int	prt_8260_rsr  (void);
-#endif
 
 /* $(CPU)/interrupts.c */
 int	interrupt_init	   (void);

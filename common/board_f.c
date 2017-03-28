@@ -842,10 +842,6 @@ static const init_fnc_t init_sequence_f[] = {
 	console_init_f,		/* stage 1 init of console */
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
-#if defined(CONFIG_MPC8260)
-	prt_8260_rsr,
-	prt_8260_clks,
-#endif /* CONFIG_MPC8260 */
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SH)
 	checkcpu,
 #endif

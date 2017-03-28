@@ -50,7 +50,14 @@ int checkcpu (void)
 	uint pvr = get_pvr ();
 	uint immr, rev, m, k;
 	char buf[32];
+	int ret;
 
+	ret = prt_8260_rsr();
+	if (ret)
+		return ret;
+	ret = prt_8260_clks();
+	if (ret)
+		return ret;
 	puts ("CPU:   ");
 
 	switch (pvr) {
