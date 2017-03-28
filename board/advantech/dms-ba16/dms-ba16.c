@@ -103,8 +103,9 @@ static void setup_iomux_enet(void)
 
 	/* Reset AR8033 PHY */
 	gpio_direction_output(IMX_GPIO_NR(1, 28), 0);
-	udelay(500);
+	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 28), 1);
+	mdelay(1);
 }
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
