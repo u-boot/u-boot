@@ -829,7 +829,13 @@ static const init_fnc_t init_sequence_f[] = {
 	board_early_init_f,
 #endif
 	/* TODO: can any of this go into arch_cpu_init()? */
-#if defined(CONFIG_PPC) && !defined(CONFIG_8xx_CPUCLK_DEFAULT)
+#if defined(CONFIG_8xx_CPUCLK_DEFAULT)
+	/* get CPU and bus clocks according to the environment variable */
+	get_clocks_866,
+	/* adjust sdram refresh rate according to the new clock */
+	sdram_adjust_866,
+	init_timebase,
+#elif defined(CONFIG_PPC)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
 		&& !defined(CONFIG_TQM885D)
@@ -837,7 +843,7 @@ static const init_fnc_t init_sequence_f[] = {
 #endif
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
-#endif
+#endif /* CONFIG_8xx_CPUCLK_DEFAULT */
 #if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
 		defined(CONFIG_NDS32) || defined(CONFIG_SH)
 	timer_init,		/* initialize timer */
@@ -849,13 +855,6 @@ static const init_fnc_t init_sequence_f[] = {
 	get_clocks,
 #endif
 	env_init,		/* initialize environment */
-#if defined(CONFIG_8xx_CPUCLK_DEFAULT)
-	/* get CPU and bus clocks according to the environment variable */
-	get_clocks_866,
-	/* adjust sdram refresh rate according to the new clock */
-	sdram_adjust_866,
-	init_timebase,
-#endif
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
