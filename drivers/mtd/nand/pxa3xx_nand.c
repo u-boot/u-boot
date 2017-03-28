@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <fdtdec.h>
 #include <nand.h>
 #include <linux/errno.h>
 #include <asm/io.h>
@@ -18,6 +19,8 @@
 #include <linux/types.h>
 
 #include "pxa3xx_nand.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
 #define	CHIP_DELAY_TIMEOUT	200
@@ -1510,8 +1513,6 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 		chip->cmdfunc		= nand_cmdfunc;
 	}
 
-	info->mmio_base = (void __iomem *)MVEBU_NAND_BASE;
-
 	/* Allocate a buffer to allow flash detection */
 	info->buf_size = INIT_BUFFER_SIZE;
 	info->data_buff = kmalloc(info->buf_size, GFP_KERNEL);
@@ -1533,17 +1534,62 @@ fail_disable_clk:
 static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_platform_data *pdata;
+	const void *blob = gd->fdt_blob;
+	int node = -1;
 
 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
 
-	pdata->enable_arbiter = 1;
-	pdata->num_cs = 1;
+	/* Get address decoding nodes from the FDT blob */
+	do {
+		node = fdt_node_offset_by_compatible(blob, node,
+						     "marvell,mvebu-pxa3xx-nand");
+		if (node < 0)
+			break;
 
-	info->pdata = pdata;
+		/* Bypass disabeld nodes */
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
 
-	return 0;
+		/* Get the first enabled NAND controler base address */
+		info->mmio_base =
+			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
+					blob, node, "reg", 0, NULL, true);
+
+		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
+		if (pdata->num_cs != 1) {
+			error("pxa3xx driver supports single CS only\n");
+			break;
+		}
+
+		if (fdtdec_get_bool(blob, node, "nand-enable-arbiter"))
+			pdata->enable_arbiter = 1;
+
+		if (fdtdec_get_bool(blob, node, "nand-keep-config"))
+			pdata->keep_config = 1;
+
+		/*
+		 * ECC parameters.
+		 * If these are not set, they will be selected according
+		 * to the detected flash type.
+		 */
+		/* ECC strength */
+		pdata->ecc_strength = fdtdec_get_int(blob, node,
+						     "nand-ecc-strength", 0);
+
+		/* ECC step size */
+		pdata->ecc_step_size = fdtdec_get_int(blob, node,
+						      "nand-ecc-step-size", 0);
+
+		info->pdata = pdata;
+
+		/* Currently support only a single NAND controller */
+		return 0;
+
+	} while (node >= 0);
+
+	return -EINVAL;
 }
 
 static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
@@ -1603,8 +1649,8 @@ void board_nand_init(void)
 	int ret;
 
 	info = kzalloc(sizeof(*info) +
-				sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
-			GFP_KERNEL);
+		       sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
+		       GFP_KERNEL);
 	if (!info)
 		return;
 
