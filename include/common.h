@@ -780,7 +780,6 @@ void	wait_ticks    (unsigned long);
 /* arch/$(ARCH)/lib/time.c */
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
-int	init_timebase (void);
 
 /* lib/gunzip.c */
 int gunzip(void *, int, unsigned char *, unsigned long *);

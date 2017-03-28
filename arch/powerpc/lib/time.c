@@ -60,7 +60,7 @@ unsigned long ticks2usec(unsigned long ticks)
 #endif
 /* ------------------------------------------------------------------------- */
 
-int init_timebase (void)
+int timer_init(void)
 {
 	unsigned long temp;
 

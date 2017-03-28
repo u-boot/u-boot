@@ -43,7 +43,7 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_uimb.uimb_umcr = CONFIG_SYS_UMCR;
 
 	/* Time base and decrementer will be enables (TBE) */
-	/* in init_timebase() in time.c called from board_init_f(). */
+	/* in timer_init() in time.c called from board_init_f(). */
 
 	/* Initialize the PIT. Unlock PISCRK */
 	immr->im_sitk.sitk_piscrk = KAPWR_KEY;
