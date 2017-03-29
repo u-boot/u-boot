@@ -157,6 +157,7 @@ void secure_timer_init(void)
 }
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
+#define SGRF_DDR_RGN_CON16 0xff330040
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -201,6 +202,17 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
+	/*
+	 * Disable DDR security regions.
+	 *
+	 * As we are entered from the BootROM, the region from
+	 * 0x0 through 0xfffff (i.e. the first MB of memory) will
+	 * be protected. This will cause issues with the DW_MMC
+	 * driver, which tries to DMA from/to the stack (likely)
+	 * located in this range.
+	 */
+	rk_clrsetreg(SGRF_DDR_RGN_CON16, 0x1FF, 0);
+
 	secure_timer_init();
 
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
@@ -238,6 +250,7 @@ void spl_board_init(void)
 #ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
 	back_to_bootrom();
 #endif
+
 	return;
 err:
 	printf("spl_board_init: Error %d\n", ret);
