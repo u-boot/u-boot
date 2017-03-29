@@ -42,9 +42,9 @@ At present seven RK3288 boards are supported:
    - Fennec RK3288 - use fennec-rk3288 configuration
    - Firefly RK3288 - use firefly-rk3288 configuration
    - Hisense Chromebook - use chromebook_jerry configuration
-   - Tinker RK3288 - use tinker-rk3288 configuration
    - PopMetal RK3288 - use popmetal-rk3288 configuration
    - Radxa Rock 2 - use rock2 configuration
+   - Tinker RK3288 - use tinker-rk3288 configuration
 
 Two RK3036 board are supported:
 

@@ -1,51 +1,5 @@
 if ROCKCHIP_RK3288
 
-config TARGET_FIREFLY_RK3288
-	bool "Firefly-RK3288"
-	select BOARD_LATE_INIT
-	help
-	  Firefly is a RK3288-based development board with 2 USB ports,
-	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
-	  also includes on-board eMMC and 1GB of SDRAM. Expansion connectors
-	  provide access to display pins, I2C, SPI, UART and GPIOs.
-
-config TARGET_EVB_RK3288
-	bool "Evb-RK3288"
-	select BOARD_LATE_INIT
-	help
-	  EVB-RK3288 is a RK3288-based development board with 2 USB ports,
-	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
-	  also includes on-board eMMC and 2GB of SDRAM. Expansion connectors
-	  provide access to display pins, I2C, SPI, UART and GPIOs.
-
-config TARGET_FENNEC_RK3288
-	bool "Fennec-RK3288"
-	select BOARD_LATE_INIT
-	help
-	  Fennec is a RK3288-based development board with 2 USB ports,
-	  HDMI, micro-SD card, audio, WiFi and Gigabit Ethernet. It also
-	  includes on-board eMMC and 2GB of SDRAM. Expansion connectors
-	  provide access to display pins, I2C, SPI, UART and GPIOs.
-
-config TARGET_POPMETAL_RK3288
-	bool "PopMetal-RK3288"
-	select BOARD_LATE_INIT
-	help
-	  PopMetal is a RK3288-based development board with 3 USB host ports,
-	  1 micro USB OTG port, HDMI, VGA, micro-SD card, audio, WiFi, Gigabit
-	  Ethernet and lots of sensors. It also includes on-board 8 GeMMC and
-	  2GB DDR3. Expansion connectors provide access to I2C, SPI, UART,
-	  GPIOs and display interface.
-
-config TARGET_TINKER_RK3288
-	bool "Tinker-RK3288"
-        select BOARD_LATE_INIT
-	help
-	  Tinker is a RK3288-based development board with 2 USB ports, HDMI,
-	  micro-SD card, audio, Gigabit Ethernet. It also includes on-board
-	  8GB eMMC and 2GB of SDRAM. Expansion connectors provide access to
-	  I2C, SPI, UART, GPIOs.
-
 config TARGET_CHROMEBOOK_JERRY
 	bool "Google/Rockchip Veyron-Jerry Chromebook"
 	select BOARD_LATE_INIT
@@ -76,6 +30,43 @@ config TARGET_CHROMEBOOK_MINNIE
 	  functions. It includes 2 or 4GB of SDRAM and 16 or 32GB of
 	  internal MMC. The product name is ASUS Chromebook Flip.
 
+config TARGET_EVB_RK3288
+	bool "Evb-RK3288"
+	select BOARD_LATE_INIT
+	help
+	  EVB-RK3288 is a RK3288-based development board with 2 USB ports,
+	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
+	  also includes on-board eMMC and 2GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_FENNEC_RK3288
+	bool "Fennec-RK3288"
+	select BOARD_LATE_INIT
+	help
+	  Fennec is a RK3288-based development board with 2 USB ports,
+	  HDMI, micro-SD card, audio, WiFi and Gigabit Ethernet. It also
+	  includes on-board eMMC and 2GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_FIREFLY_RK3288
+	bool "Firefly-RK3288"
+	select BOARD_LATE_INIT
+	help
+	  Firefly is a RK3288-based development board with 2 USB ports,
+	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
+	  also includes on-board eMMC and 1GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_POPMETAL_RK3288
+	bool "PopMetal-RK3288"
+	select BOARD_LATE_INIT
+	help
+	  PopMetal is a RK3288-based development board with 3 USB host ports,
+	  1 micro USB OTG port, HDMI, VGA, micro-SD card, audio, WiFi, Gigabit
+	  Ethernet and lots of sensors. It also includes on-board 8 GeMMC and
+	  2GB DDR3. Expansion connectors provide access to I2C, SPI, UART,
+	  GPIOs and display interface.
+
 config TARGET_ROCK2
 	bool "Radxa Rock 2"
 	select BOARD_LATE_INIT
@@ -84,6 +75,15 @@ config TARGET_ROCK2
 	  includes Ethernet, HDMI, 3 USB, micro-SD, audio, SATA, WiFi and
 	  space for a real-time-clock battery. There is also an expansion
 	  interface which provides access to many pins.
+
+config TARGET_TINKER_RK3288
+	bool "Tinker-RK3288"
+        select BOARD_LATE_INIT
+	help
+	  Tinker is a RK3288-based development board with 2 USB ports, HDMI,
+	  micro-SD card, audio, Gigabit Ethernet. It also includes on-board
+	  8GB eMMC and 2GB of SDRAM. Expansion connectors provide access to
+	  I2C, SPI, UART, GPIOs.
 
 config ROCKCHIP_FAST_SPL
 	bool "Change the CPU to full speed in SPL"
