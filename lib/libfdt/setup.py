@@ -27,7 +27,7 @@ libfdt_module = Extension(
     extra_compile_args =  cflags
 )
 
-sys.argv = [progname, '--quiet', 'build_ext', '--inplace']
+sys.argv = [progname, '--quiet', 'build_ext', '--inplace', '--force']
 
 setup (name = 'libfdt',
        version = '0.1',
