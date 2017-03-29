@@ -239,7 +239,6 @@
 		compatible = "rockchip,rk3399-xhci";
 		reg = <0x0 0xfe800000 0x0 0x100000>;
 		status = "disabled";
-		rockchip,vbus-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
 		snps,dis-enblslpm-quirk;
 		snps,phyif-utmi-bits = <16>;
 		snps,dis-u2-freeclk-exists-quirk;
@@ -261,7 +260,6 @@
 		compatible = "rockchip,rk3399-xhci";
 		reg = <0x0 0xfe900000 0x0 0x100000>;
 		status = "disabled";
-		rockchip,vbus-gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 		snps,dis-enblslpm-quirk;
 		snps,phyif-utmi-bits = <16>;
 		snps,dis-u2-freeclk-exists-quirk;

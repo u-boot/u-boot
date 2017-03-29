@@ -95,6 +95,7 @@
 };
 
 &dwc3_typec0 {
+	rockchip,vbus-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
@@ -107,6 +108,7 @@
 };
 
 &dwc3_typec1 {
+	rockchip,vbus-gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
