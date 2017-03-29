@@ -36,12 +36,13 @@ You will need:
 Building
 ========
 
-At present seven RK3288 boards are supported:
+At present eight RK3288 boards are supported:
 
    - EVB RK3288 - use evb-rk3288 configuration
    - Fennec RK3288 - use fennec-rk3288 configuration
    - Firefly RK3288 - use firefly-rk3288 configuration
    - Hisense Chromebook - use chromebook_jerry configuration
+   - MiQi RK3288 - use miqi-rk3288 configuration
    - PopMetal RK3288 - use popmetal-rk3288 configuration
    - Radxa Rock 2 - use rock2 configuration
    - Tinker RK3288 - use tinker-rk3288 configuration
