@@ -91,7 +91,6 @@
 &sdmmc {
         u-boot,dm-pre-reloc;
 	bus-width = <4>;
-	fifo-mode; /* until we fix DMA in SPL */
 	status = "okay";
 };
 
