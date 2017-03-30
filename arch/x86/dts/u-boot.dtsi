@@ -17,8 +17,10 @@
 		size = <CONFIG_ROM_SIZE>;
 #ifdef CONFIG_HAVE_INTEL_ME
 		intel-descriptor {
+			filename = CONFIG_FLASH_DESCRIPTOR_FILE;
 		};
 		intel-me {
+			filename = CONFIG_INTEL_ME_FILE;
 		};
 #endif
 #ifdef CONFIG_SPL
