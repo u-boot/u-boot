@@ -23,6 +23,7 @@
 #include <power/max8997_muic.h>
 #include <power/battery.h>
 #include <power/max17042_fg.h>
+#include <power/pmic.h>
 #include <libtizen.h>
 #include <usb.h>
 #include <usb_mass_storage.h>
@@ -232,39 +233,59 @@ static void check_hw_revision(void)
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
-	int ret = 0;
-	u32 val = 0;
-	struct pmic *p = pmic_get("MAX8997_PMIC");
-	if (!p)
-		return -ENODEV;
+	struct udevice *dev;
+	int reg, ret;
 
-	if (pmic_probe(p))
-		return -1;
+	ret = pmic_get("max8997-pmic", &dev);
+	if (ret)
+		return ret;
 
 	if (on) {
-		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
-				      ENSAFEOUT1, LDO_ON);
-		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, EN_LDO | val);
-
-		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, EN_LDO | val);
+		reg = pmic_reg_read(dev, MAX8997_REG_SAFEOUTCTRL);
+		reg |= ENSAFEOUT1;
+		ret = pmic_reg_write(dev, MAX8997_REG_SAFEOUTCTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
+		reg = pmic_reg_read(dev, MAX8997_REG_LDO3CTRL);
+		reg |= EN_LDO;
+		ret = pmic_reg_write(dev, MAX8997_REG_LDO3CTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
+		reg = pmic_reg_read(dev, MAX8997_REG_LDO8CTRL);
+		reg |= EN_LDO;
+		ret = pmic_reg_write(dev, MAX8997_REG_LDO8CTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
 	} else {
-		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, DIS_LDO | val);
+		reg = pmic_reg_read(dev, MAX8997_REG_LDO8CTRL);
+		reg &= DIS_LDO;
+		ret = pmic_reg_write(dev, MAX8997_REG_LDO8CTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
+		reg = pmic_reg_read(dev, MAX8997_REG_LDO3CTRL);
+		reg &= DIS_LDO;
+		ret = pmic_reg_write(dev, MAX8997_REG_LDO3CTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
+		reg = pmic_reg_read(dev, MAX8997_REG_SAFEOUTCTRL);
+		reg &= ~ENSAFEOUT1;
+		ret = pmic_reg_write(dev, MAX8997_REG_SAFEOUTCTRL, reg);
+		if (ret) {
+			puts("MAX8997 setting error!\n");
+			return ret;
+		}
 
-		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, DIS_LDO | val);
-		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
-				      ENSAFEOUT1, LDO_OFF);
 	}
-
-	if (ret) {
-		puts("MAX8997 LDO setting error!\n");
-		return -1;
-	}
-#endif
 
 	return 0;
 }
