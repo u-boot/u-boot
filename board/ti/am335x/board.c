@@ -656,6 +656,10 @@ int board_late_init(void)
 		if (!strncmp(board_ti_get_rev(), "BWA", 3)) {
 			name = "BBBW";
 		}
+		/* SeeedStudio BeagleBone Green Wireless */
+		if (!strncmp(board_ti_get_rev(), "GW1", 3)) {
+			name = "BBGW";
+		}
 	}
 
 	if (board_is_bbg1())
