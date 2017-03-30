@@ -138,6 +138,8 @@
 			"setenv fdtfile am335x-bone.dtb; fi; " \
 		"if test $board_name = A335BNLT; then " \
 			"setenv fdtfile am335x-boneblack.dtb; fi; " \
+		"if test $board_name = BBBW; then " \
+			"setenv fdtfile am335x-boneblack-wireless.dtb; fi; " \
 		"if test $board_name = BBG1; then " \
 			"setenv fdtfile am335x-bonegreen.dtb; fi; " \
 		"if test $board_name = A33515BB; then " \
