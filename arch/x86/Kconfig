@@ -316,6 +316,22 @@ config X86_RAMTEST
 	  to work correctly. It is not exhaustive but can save time by
 	  detecting obvious failures.
 
+config FLASH_DESCRIPTOR_FILE
+	string "Flash descriptor binary filename"
+	depends on HAVE_INTEL_ME
+	default "descriptor.bin"
+	help
+	  The filename of the file to use as flash descriptor in the
+	  board directory.
+
+config INTEL_ME_FILE
+	string "Intel Management Engine binary filename"
+	depends on HAVE_INTEL_ME
+	default "me.bin"
+	help
+	  The filename of the file to use as Intel Management Engine in the
+	  board directory.
+
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
 	depends on !EFI
