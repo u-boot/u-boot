@@ -24,6 +24,8 @@ def fdt32_to_cpu(val):
         A native-endian integer value
     """
     if sys.version_info > (3, 0):
+        if isinstance(val, bytes):
+            val = val.decode('utf-8')
         val = val.encode('raw_unicode_escape')
     return struct.unpack('>I', val)[0]
 
