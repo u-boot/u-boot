@@ -61,16 +61,14 @@ void smp_kick_all_cpus(void)
 {
 /* CPU start CREG */
 #define AXC003_CREG_CPU_START	0xF0001400
-
 /* Bits positions in CPU start CREG */
 #define BITS_START	0
-#define BITS_POLARITY	8
+#define BITS_START_MODE	4
 #define BITS_CORE_SEL	9
-#define BITS_MULTICORE	12
 
-#define CMD	(1 << BITS_MULTICORE) | (1 << BITS_CORE_SEL) | \
-		(1 << BITS_POLARITY) | (1 << BITS_START)
-
-	writel(CMD, (void __iomem *)AXC003_CREG_CPU_START);
+	int cmd = readl((void __iomem *)AXC003_CREG_CPU_START);
+	cmd |= (1 << BITS_CORE_SEL) | (1 << BITS_START);
+	cmd &= ~(1 << BITS_START_MODE);
+	writel(cmd, (void __iomem *)AXC003_CREG_CPU_START);
 }
 #endif
