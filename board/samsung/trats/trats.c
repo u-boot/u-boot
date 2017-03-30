@@ -52,19 +52,6 @@ int exynos_init(void)
 	return 0;
 }
 
-void i2c_init_board(void)
-{
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
-	int err;
-
-	/* I2C_8 -> FG */
-	gpio_request(EXYNOS4_GPIO_Y40, "i2c_clk");
-	gpio_request(EXYNOS4_GPIO_Y41, "i2c_data");
-	gpio_direction_output(EXYNOS4_GPIO_Y40, 1);
-	gpio_direction_output(EXYNOS4_GPIO_Y41, 1);
-#endif
-}
-
 #ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
 static void trats_low_power_mode(void)
 {
