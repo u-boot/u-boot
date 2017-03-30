@@ -12,6 +12,3 @@ from blob import Entry_blob
 class Entry_intel_me(Entry_blob):
     def __init__(self, image, etype, node):
         Entry_blob.__init__(self, image, etype, node)
-
-    def GetDefaultFilename(self):
-        return 'me.bin'

@@ -37,9 +37,6 @@ class Entry_intel_descriptor(Entry_blob):
         Entry_blob.__init__(self, image, etype, node)
         self._regions = []
 
-    def GetDefaultFilename(self):
-        return 'descriptor.bin'
-
     def GetPositions(self):
         pos = self.data.find(FD_SIGNATURE)
         if pos == -1:
