@@ -213,7 +213,7 @@
 
 				buck8_reg: BUCK8 {
 					regulator-name = "VCC_P3V3_2.85V";
-					regulator-min-microvolt = <2850000>;
+					regulator-min-microvolt = <750000>;
 					regulator-max-microvolt = <3300000>;
 				};
 			};
