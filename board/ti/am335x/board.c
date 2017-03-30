@@ -660,6 +660,10 @@ int board_late_init(void)
 		if (!strncmp(board_ti_get_rev(), "GW1", 3)) {
 			name = "BBGW";
 		}
+		/* BeagleBoard.org BeagleBone Blue */
+		if (!strncmp(board_ti_get_rev(), "BLA", 3)) {
+			name = "BBBL";
+		}
 	}
 
 	if (board_is_bbg1())
