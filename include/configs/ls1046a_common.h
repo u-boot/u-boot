@@ -7,6 +7,23 @@
 #ifndef __LS1046A_COMMON_H
 #define __LS1046A_COMMON_H
 
+/* SPL build */
+#ifdef CONFIG_SPL_BUILD
+#define SPL_NO_QBMAN
+#define SPL_NO_FMAN
+#define SPL_NO_ENV
+#define SPL_NO_MISC
+#define SPL_NO_QSPI
+#define SPL_NO_USB
+#define SPL_NO_SATA
+#endif
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_BOOT))
+#define SPL_NO_MMC
+#endif
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SD_BOOT))
+#define SPL_NO_IFC
+#endif
+
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_MP
@@ -110,20 +127,28 @@
 #define CONFIG_SYS_I2C_MXC_I2C4
 
 /* Command line configuration */
+#ifndef SPL_NO_ENV
 #define CONFIG_CMD_ENV
+#endif
 
 /* MMC */
+#ifndef SPL_NO_MMC
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
+#endif
 
+#ifndef SPL_NO_QBMAN
 #define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
+#endif
 
 /* FMan ucode */
+#ifndef SPL_NO_FMAN
 #define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
+#endif
 
 #ifdef CONFIG_SD_BOOT
 /*
@@ -157,6 +182,7 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
+#ifndef SPL_NO_MISC
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
@@ -174,13 +200,19 @@
 #define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0 " \
 					"earlycon=uart8250,mmio,0x21c0500 " \
 					MTDPARTS_DEFAULT
+#endif
+
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
+
+#ifndef SPL_NO_MISC
 #define CONFIG_CMDLINE_EDITING		1
+#endif
+
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 

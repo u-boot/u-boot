@@ -24,6 +24,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int board_early_init_f(void)
+{
+	fsl_lsch2_early_init_f();
+
+	return 0;
+}
+
+#ifndef CONFIG_SPL_BUILD
 int checkboard(void)
 {
 	static const char *freq[2] = {"100.00MHZ", "156.25MHZ"};
@@ -52,13 +60,6 @@ int checkboard(void)
 	puts("SERDES Reference Clocks:\n");
 	sd1refclk_sel = CPLD_READ(sd1refclk_sel);
 	printf("SD1_CLK1 = %s, SD1_CLK2 = %s\n", freq[sd1refclk_sel], freq[0]);
-
-	return 0;
-}
-
-int board_early_init_f(void)
-{
-	fsl_lsch2_early_init_f();
 
 	return 0;
 }
@@ -161,3 +162,4 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+#endif
