@@ -85,6 +85,9 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
 	spl_image->entry_point = CONFIG_SYS_UBOOT_START;
+#ifdef CONFIG_CPU_V7M
+	spl_image->entry_point |= 0x1;
+#endif
 	spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
