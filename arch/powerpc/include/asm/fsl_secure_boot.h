@@ -100,11 +100,11 @@
 #endif /* ifdef CONFIG_SPL_BUILD */
 
 #define CONFIG_CMD_ESBC_VALIDATE
-#define CONFIG_CMD_BLOB
 #define CONFIG_FSL_SEC_MON
 #define CONFIG_SHA_PROG_HW_ACCEL
 
 #ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_BLOB
 /*
  * fsl_setenv_chain_of_trust() must be called from
  * board_late_init()
