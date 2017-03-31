@@ -22,21 +22,6 @@
 #include <logbuff.h>
 #include <malloc.h>
 #include <mapmem.h>
-
-/* TODO: Can we move these into arch/ headers? */
-#ifdef CONFIG_8xx
-#include <mpc8xx.h>
-#endif
-#ifdef CONFIG_5xx
-#include <mpc5xx.h>
-#endif
-#ifdef CONFIG_MPC5xxx
-#include <mpc5xxx.h>
-#endif
-#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
-#include <asm/mp.h>
-#endif
-
 #include <os.h>
 #include <post.h>
 #include <relocate.h>
@@ -46,6 +31,9 @@
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
+#if defined(CONFIG_MP) && defined(CONFIG_PPC)
+#include <asm/mp.h>
+#endif
 #include <asm/io.h>
 #include <asm/sections.h>
 #include <dm/root.h>
