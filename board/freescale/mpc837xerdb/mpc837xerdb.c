@@ -16,6 +16,8 @@
 #include <vsc7385.h>
 #include <fsl_esdhc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_SYS_DRAM_TEST)
 int
 testdram(void)
@@ -60,13 +62,13 @@ void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
-		return -1;
+		return -ENXIO;
 
 #if defined(CONFIG_SPD_EEPROM)
 	msize = spd_sdram();
@@ -79,7 +81,9 @@ phys_size_t initdram(void)
 	ddr_enable_ecc(msize * 1024 * 1024);
 #endif
 	/* return total bus DDR size(bytes) */
-	return (msize * 1024 * 1024);
+	gd->ram_size = msize * 1024 * 1024;
+
+	return 0;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)

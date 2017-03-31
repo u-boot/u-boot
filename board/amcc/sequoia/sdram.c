@@ -20,6 +20,8 @@
 #include <asm/io.h>
 #include <asm/ppc440.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*-----------------------------------------------------------------------------+
  * Prototypes
  *-----------------------------------------------------------------------------*/
@@ -31,7 +33,7 @@ extern void denali_core_search_data_eye(void);
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-phys_size_t initdram(void)
+int initdram(void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
 	ulong speed = get_bus_freq(0);
@@ -88,5 +90,7 @@ phys_size_t initdram(void)
 	 */
 	set_mcsr(get_mcsr());
 
-	return (CONFIG_SYS_MBYTES_SDRAM << 20);
+	gd->ram_size = CONFIG_SYS_MBYTES_SDRAM << 20;
+
+	return 0;
 }

@@ -55,6 +55,8 @@
 		asm (GEN_SYMNAME(name) " = " GEN_VALUE(value))
 
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /************************************************************************
  * Early debug routines
  */
@@ -133,7 +135,7 @@ extern int mem_test (unsigned long start, unsigned long ramsize, int quiet);
 /*
  * Get RAM size.
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	unsigned char board_rev;
 	unsigned long reg;
@@ -209,8 +211,10 @@ phys_size_t initdram(void)
 	/* we have a x32 bit bus to the SDRAM, so shift the addr with 2 */
 	lmr<<=2;
 	in32(CONFIG_SYS_SDRAM_BASE + lmr);
-	/* ok, we're done, return SDRAM size */
-	return ((0x400000 << sdram_table[i].sz));		/* log2 value of 4MByte  */
+	/* ok, we're done, set SDRAM size to log2 value of 4MByte*/
+	gd->ram_size = 0x400000 << sdram_table[i].sz;
+
+	return 0;
 }
 
 

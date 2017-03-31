@@ -11,6 +11,7 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard (void) {
 	puts ("Board: ");
@@ -18,7 +19,7 @@ int checkboard (void) {
 	return 0;
 	};
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	sdramctrl_t * sdp = (sdramctrl_t *)(MMAP_SDRAM);
 
@@ -28,7 +29,9 @@ phys_size_t initdram(void)
 	/* Dummy write to start SDRAM */
 	*((volatile unsigned long *)0) = 0;
 
-	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
+	return 0;
 	};
 
 int testdram (void) {

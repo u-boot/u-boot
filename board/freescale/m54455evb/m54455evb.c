@@ -22,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	u32 dramsize;
 #ifdef CONFIG_CF_SBF
@@ -75,7 +75,9 @@ phys_size_t initdram(void)
 
 	udelay(100);
 #endif
-	return (dramsize << 1);
+	gd->ram_size = dramsize << 1;
+
+	return 0;
 };
 
 int testdram(void)

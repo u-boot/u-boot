@@ -10,9 +10,11 @@
 #include <config.h>
 #include <asm/leon.h>
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return 1;
+	/* Does not set gd->ram_size here */
+
+	return 0;
 }
 
 int checkboard(void)

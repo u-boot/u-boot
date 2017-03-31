@@ -158,14 +158,12 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 	return 0;
 }
 #endif
-phys_size_t initdram(void)
+int initdram(void)
 {
-	phys_size_t dram_size;
-
 	puts("Initializing DDR....");
 
 	puts("using SPD\n");
-	dram_size = fsl_ddr_sdram();
+	gd->ram_size = fsl_ddr_sdram();
 
-	return dram_size;
+	return 0;
 }

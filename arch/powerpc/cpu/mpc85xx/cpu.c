@@ -401,17 +401,19 @@ void mpc85xx_reginfo(void)
 #ifndef CONFIG_FSL_CORENET
 #if (defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)) && \
 	!defined(CONFIG_SYS_INIT_L2_ADDR)
-phys_size_t initdram(void)
+int initdram(void)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
 	defined(CONFIG_ARCH_QEMU_E500)
-	return fsl_ddr_sdram_size();
+	gd->ram_size = fsl_ddr_sdram_size();
 #else
-	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 #endif
+
+	return 0;
 }
 #else /* CONFIG_SYS_RAMBOOT */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	phys_size_t dram_size = 0;
 
@@ -460,7 +462,9 @@ phys_size_t initdram(void)
 #endif
 
 	debug("DDR: ");
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 #endif /* CONFIG_SYS_RAMBOOT */
 #endif

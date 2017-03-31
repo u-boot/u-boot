@@ -66,7 +66,7 @@ static void sdram_start(int hi_addr)
  *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if
  *            CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	struct mpc5xxx_mmap_ctl *mmap_ctl =
 		(struct mpc5xxx_mmap_ctl *)CONFIG_SYS_MBAR;
@@ -181,7 +181,9 @@ phys_size_t initdram(void)
 	    (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4))
 		out_be32(&sdram->sdelay, 0x04);
 
-	return dramsize + dramsize2;
+	gd->ram_size = dramsize + dramsize2;
+
+	return 0;
 }
 
 

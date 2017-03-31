@@ -164,7 +164,7 @@ void board_mem_sleep_setup(void)
 }
 #endif
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	phys_size_t dram_size;
 
@@ -179,7 +179,9 @@ phys_size_t initdram(void)
 	fsl_dp_resume();
 #endif
 
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 
 void dram_init_banksize(void)

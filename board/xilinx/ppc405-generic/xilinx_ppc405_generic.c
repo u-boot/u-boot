@@ -10,6 +10,8 @@
 #include <common.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 ulong get_PCI_freq(void)
 {
 	return 0;
@@ -21,10 +23,12 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
+	gd->ram_size = get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
 			    CONFIG_SYS_SDRAM_SIZE_MB * 1024 * 1024);
+
+	return 0;
 }
 
 void get_sys_info(sys_info_t *sys_info)

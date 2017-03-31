@@ -13,6 +13,8 @@
 #include <netdev.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard(void)
 {
 	puts("Board: ");
@@ -20,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	u32 dramsize = 0;
 
@@ -73,7 +75,9 @@ phys_size_t initdram(void)
 		mb();
 	}
 
-	return dramsize;
+	gd->ram_size = dramsize;
+
+	return 0;
 }
 
 int testdram(void)

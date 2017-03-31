@@ -116,9 +116,11 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return spd_sdram();
+	gd->ram_size = spd_sdram();
+
+	return 0;
 }
 
 /*

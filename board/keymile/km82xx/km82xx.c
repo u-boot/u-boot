@@ -15,6 +15,8 @@
 #include <i2c.h>
 #include "../common/common.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 /*
@@ -289,7 +291,7 @@ static long probe_sdram(memctl8260_t *memctl)
 #endif /* CONFIG_SYS_SDRAM_LIST */
 
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl8260_t *memctl = &immap->im_memctl;
@@ -305,7 +307,9 @@ phys_size_t initdram(void)
 
 	icache_enable();
 
-	return psize;
+	gd->ram_size = psize;
+
+	return 0;
 }
 
 int checkboard(void)

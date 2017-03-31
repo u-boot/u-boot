@@ -25,6 +25,8 @@
 #include <asm/ppc440.h>
 #include <watchdog.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
  * region. Right now the cache should still be disabled in U-Boot because of the
@@ -145,7 +147,7 @@ static void program_ecc(u32 start_address,
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-phys_size_t initdram(void)
+int initdram(void)
 {
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);
@@ -241,5 +243,7 @@ phys_size_t initdram(void)
 	 */
 	set_mcsr(get_mcsr());
 
-	return (CONFIG_SYS_MBYTES_SDRAM << 20);
+	gd->ram_size = CONFIG_SYS_MBYTES_SDRAM << 20;
+
+	return 0;
 }

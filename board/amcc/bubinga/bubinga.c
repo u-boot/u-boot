@@ -9,6 +9,8 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 long int spd_sdram(void);
 
 int board_early_init_f(void)
@@ -55,7 +57,9 @@ int checkboard(void)
   initdram() reads EEPROM via I2c. EEPROM contains all of
   the necessary info for SDRAM controller configuration
    ------------------------------------------------------------------------- */
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return spd_sdram();
+	gd->ram_size = spd_sdram();
+
+	return 0;
 }

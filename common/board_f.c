@@ -180,13 +180,7 @@ static int announce_dram_init(void)
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int init_func_ram(void)
 {
-	gd->ram_size = initdram();
-
-	if (gd->ram_size > 0)
-		return 0;
-
-	puts("*** failed ***\n");
-	return 1;
+	return initdram();
 }
 #endif
 

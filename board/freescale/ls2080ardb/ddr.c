@@ -158,17 +158,15 @@ found:
 	}
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	phys_size_t dram_size;
-
 #if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
-	return fsl_ddr_sdram_size();
+	gd->ram_size = fsl_ddr_sdram_size();
 #else
 	puts("Initializing DDR....using SPD\n");
 
-	dram_size = fsl_ddr_sdram();
+	gd->ram_size = fsl_ddr_sdram();
 #endif
 
-	return dram_size;
+	return 0;
 }

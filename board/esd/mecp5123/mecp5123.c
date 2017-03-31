@@ -62,9 +62,11 @@ int board_early_init_f(void)
 	return 0;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return get_ram_size(0, fixed_sdram(NULL, NULL, 0));
+	gd->ram_size = get_ram_size(0, fixed_sdram(NULL, NULL, 0));
+
+	return 0;
 }
 
 int misc_init_r(void)

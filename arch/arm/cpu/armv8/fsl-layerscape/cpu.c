@@ -874,7 +874,7 @@ void update_early_mmu_table(void)
 
 __weak int dram_init(void)
 {
-	gd->ram_size = initdram();
+	initdram();
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();

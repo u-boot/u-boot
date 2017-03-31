@@ -209,7 +209,7 @@ int	timer_init(void);
 int	cpu_init(void);
 
 /* */
-phys_size_t initdram(void);
+int initdram(void);
 
 #include <display_options.h>
 

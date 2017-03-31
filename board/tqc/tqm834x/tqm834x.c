@@ -66,7 +66,7 @@ int board_early_init_r (void) {
 /**************************************************************************
  * DRAM initalization and size detection
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	long bank_size;
 	long size;
@@ -112,7 +112,9 @@ phys_size_t initdram(void)
 		if(size < DDR_MAX_SIZE_PER_CS) break;
 	}
 
-	return size;
+	gd->ram_size = size;
+
+	return 0;
 }
 
 /**************************************************************************

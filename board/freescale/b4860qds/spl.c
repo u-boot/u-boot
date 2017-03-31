@@ -108,7 +108,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 	puts("\n\n");
 
-	gd->ram_size = initdram();
+	initdram();
 
 #ifdef CONFIG_SPL_NAND_BOOT
 	nand_boot();

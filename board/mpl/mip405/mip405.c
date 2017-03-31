@@ -622,7 +622,7 @@ int checkboard (void)
 /* ------------------------------------------------------------------------- */
 static int test_dram (unsigned long ramsize);
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 
 	unsigned long bank_reg[4], tmp, bank_size;
@@ -655,7 +655,9 @@ phys_size_t initdram(void)
 	printf ("ECC ");
 
 	test_dram (TotalSize * MEGA_BYTE);
-	return (TotalSize * MEGA_BYTE);
+	gd->ram_size = TotalSize * MEGA_BYTE;
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */

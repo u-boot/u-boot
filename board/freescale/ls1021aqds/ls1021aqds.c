@@ -162,9 +162,7 @@ int dram_init(void)
 	 * before accessing DDR SPD.
 	 */
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
-	gd->ram_size = initdram();
-
-	return 0;
+	return initdram();
 }
 
 #ifdef CONFIG_FSL_ESDHC

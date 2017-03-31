@@ -19,6 +19,8 @@
 #include <status_led.h>
 #endif /* CONFIG_LED_STATUS */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Kollmorgen DPR initialization data */
 struct init_elem {
 	unsigned long addr;
@@ -116,7 +118,7 @@ static void sdram_start(int hi_addr)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong dramsize = 0;
 #ifndef CONFIG_SYS_RAMBOOT
@@ -172,7 +174,9 @@ phys_size_t initdram(void)
 #endif /* CONFIG_SYS_RAMBOOT */
 
 	/* return total ram size */
-	return dramsize;
+	gd->ram_size = dramsize;
+
+	return 0;
 }
 
 

@@ -18,9 +18,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return fixed_sdram(NULL, NULL, 0);
+	gd->ram_size = fixed_sdram(NULL, NULL, 0);
+
+	return 0;
 }
 
 int misc_init_r(void)

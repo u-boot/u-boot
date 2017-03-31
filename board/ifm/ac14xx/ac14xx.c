@@ -310,9 +310,12 @@ u32 sdram_init_seq[] = {
 	/* EMPTY, optional, we don't do it */
 };
 
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return fixed_sdram(NULL, sdram_init_seq, ARRAY_SIZE(sdram_init_seq));
+	gd->ram_size = fixed_sdram(NULL, sdram_init_seq,
+				   ARRAY_SIZE(sdram_init_seq));
+
+	return 0;
 }
 
 int misc_init_r(void)

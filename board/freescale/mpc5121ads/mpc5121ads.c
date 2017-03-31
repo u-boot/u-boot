@@ -95,7 +95,7 @@ int is_micron(void){
 	return(ismicron);
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	u32 msize = 0;
 	/*
@@ -167,7 +167,9 @@ phys_size_t initdram(void)
 				sizeof(elpida_init_sequence)/sizeof(u32));
 	}
 
-	return msize;
+	gd->ram_size = msize;
+
+	return 0;
 }
 
 int misc_init_r(void)

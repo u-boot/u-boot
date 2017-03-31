@@ -12,6 +12,8 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard(void)
 {
 	puts("Board: ");
@@ -19,7 +21,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	/*
 	 * Check to see if the SDRAM has already been initialized
@@ -66,7 +68,9 @@ phys_size_t initdram(void)
 		*(u32 *) (CONFIG_SYS_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
 	}
 
-	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
+	return 0;
 }
 
 int testdram(void)

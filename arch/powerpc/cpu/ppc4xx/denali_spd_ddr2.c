@@ -30,6 +30,8 @@
 #include <asm/mmu.h>
 #include <asm/cache.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
 
@@ -998,7 +1000,7 @@ static void program_ddr0_44(unsigned long dimm_ranks[],
  *		 banks appropriately. If Auto Memory Configuration is
  *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
-phys_size_t initdram(void)
+int initdram(void)
 {
 	unsigned char const iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned long dimm_ranks[MAXDIMMS];
@@ -1212,7 +1214,9 @@ phys_size_t initdram(void)
 #endif /* defined(CONFIG_ZERO_SDRAM) || defined(CONFIG_DDR_ECC) */
 
 	program_tlb(0, CONFIG_SYS_SDRAM_BASE, dram_size, MY_TLB_WORD2_I_ENABLE);
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 
 void board_add_ram_info(int use_default)

@@ -23,6 +23,8 @@
 
 #include "mt46v32m16.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
@@ -71,7 +73,7 @@ static void sdram_start (int hi_addr)
  *            is something else than 0x00000000.
  */
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong dramsize = 0;
 	uint svr, pvr;
@@ -150,7 +152,9 @@ phys_size_t initdram(void)
 		__asm__ volatile ("sync");
 	}
 
-	return dramsize;
+	gd->ram_size = dramsize;
+
+	return 0;
 }
 
 int checkboard (void)

@@ -133,7 +133,7 @@ static void sdram_start (int hi_addr)
  *	      is something else than 0x00000000.
  */
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
@@ -252,10 +252,12 @@ phys_size_t initdram(void)
 	}
 
 #if defined(CONFIG_TQM5200_B)
-	return dramsize + dramsize2;
+	gd->ram_size = dramsize + dramsize2;
 #else
-	return dramsize;
+	gd->ram_size = dramsize;
 #endif /* CONFIG_TQM5200_B */
+
+	return 0;
 }
 
 int checkboard (void)

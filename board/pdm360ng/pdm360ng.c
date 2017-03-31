@@ -48,7 +48,7 @@ sdram_conf_t mddrc_config[] = {
 	},
 };
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	int i;
 	u32 msize = 0;
@@ -95,7 +95,9 @@ phys_size_t initdram(void)
 			break;
 	}
 
-	return msize;
+	gd->ram_size = msize;
+
+	return 0;
 }
 
 static int set_lcd_brightness(char *);

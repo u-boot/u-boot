@@ -28,6 +28,8 @@
 #define BOARD_NAME_ADD	" NOR"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_early_init_f(void)
 {
 	/*
@@ -59,10 +61,12 @@ void _machine_restart(void)
  * SDRAM is already configured by the bootstrap code, only return the
  * auto-detected size here
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
-	return get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 			    CONFIG_SYS_MBYTES_SDRAM << 20);
+
+	return 0;
 }
 
 int checkboard(void)

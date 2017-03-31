@@ -97,7 +97,7 @@ static mem_conf_t* get_mem_config(int board_type)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong dramsize = 0;
 #ifndef CONFIG_SYS_RAMBOOT
@@ -150,7 +150,9 @@ phys_size_t initdram(void)
 	*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
 	__asm__ volatile ("sync");
 
-	return dramsize;
+	gd->ram_size = dramsize;
+
+	return 0;
 }
 
 

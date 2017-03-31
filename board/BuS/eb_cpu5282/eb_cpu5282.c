@@ -35,7 +35,7 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	int size, i;
 
@@ -92,7 +92,9 @@ phys_size_t initdram(void)
 	*(unsigned int *) (CONFIG_SYS_SDRAM_BASE1 + 0x220) = 0xA5A5;
 	size += CONFIG_SYS_SDRAM_SIZE1 * 1024 * 1024;
 #endif
-	return size;
+	gd->ram_size = size;
+
+	return 0;
 }
 
 #if defined(CONFIG_SYS_DRAM_TEST)

@@ -126,7 +126,7 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -390,7 +390,9 @@ phys_size_t initdram(void)
 	memctl->memc_or5 = CONFIG_SYS_OR5_ISP1362;
 	memctl->memc_br5 = CONFIG_SYS_BR5_ISP1362;
 #endif							/* CONFIG_ISP1362_USB */
-	return (size_b0 + size_b1);
+	gd->ram_size = size_b0 + size_b1;
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */

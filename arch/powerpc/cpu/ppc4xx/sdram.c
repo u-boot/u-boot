@@ -17,6 +17,8 @@
 #include "sdram.h"
 #include "ecc.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_SDRAM_BANK0
 
 #ifndef CONFIG_440
@@ -148,7 +150,7 @@ static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 /*
  * Autodetect onboard SDRAM on 405 platforms
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong speed;
 	ulong sdtr1;
@@ -226,11 +228,13 @@ phys_size_t initdram(void)
 			/*
 			 * OK, size detected -> all done
 			 */
-			return size;
+			gd->ram_size = size;
+
+			return 0;
 		}
 	}
 
-	return 0;
+	return -ENXIO;
 }
 
 #else /* CONFIG_440 */
@@ -349,7 +353,7 @@ static void sdram_tr1_set(int ram_address, int* tr1_value)
  *	 so this should be extended for other future boards
  *	 using this routine!
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	int i;
 	int tr1_bank1;
@@ -440,11 +444,13 @@ phys_size_t initdram(void)
 			/*
 			 * OK, size detected -> all done
 			 */
-			return size;
+			gd->ram_size = size;
+
+			return 0;
 		}
 	}
 
-	return 0;				/* nothing found !		*/
+	return -ENXIO;			/* nothing found !		*/
 }
 
 #endif /* CONFIG_440 */

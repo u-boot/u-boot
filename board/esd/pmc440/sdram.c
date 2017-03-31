@@ -24,6 +24,8 @@
 #include <asm/mmu.h>
 #include <asm/ppc440.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 
@@ -105,7 +107,7 @@ int initdram_by_rb(int rows, int banks)
 	return 0;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	phys_size_t size;
 	int n;
@@ -125,12 +127,14 @@ phys_size_t initdram(void)
 			       sdram_conf[n].banks);
 
 		/* check for suitable configuration */
-		if (get_ram_size(CONFIG_SYS_SDRAM_BASE, size) == size)
-			return size;
+		if (get_ram_size(CONFIG_SYS_SDRAM_BASE, size) == size) {
+			gd->ram_size = size;
+			return 0;
+		}
 
 		/* delete TLB entries */
 		remove_tlb(CONFIG_SYS_SDRAM_BASE, size);
 	}
 
-	return 0;
+	return -ENXIO;
 }

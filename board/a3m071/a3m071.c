@@ -76,7 +76,7 @@ static void sdram_start(int hi_addr)
  * use of CONFIG_SYS_SDRAM_BASE. The code does not work if
  * CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
  */
-phys_size_t initdram(void)
+int initdram(void)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
@@ -153,7 +153,9 @@ phys_size_t initdram(void)
 	if ((SVR_MJREV(svr) >= 2) && (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4))
 		out_be32((void *)MPC5XXX_SDRAM_SDELAY, 0x04);
 
-	return dramsize + dramsize2;
+	gd->ram_size = dramsize + dramsize2;
+
+	return 0;
 }
 
 static void get_revisions(int *failsavelevel, int *digiboardversion,

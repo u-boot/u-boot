@@ -15,6 +15,8 @@
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void board_pll_init_f(void);
 
 static void cram_bcr_write(u32 wr_val)
@@ -41,7 +43,7 @@ static void cram_bcr_write(u32 wr_val)
 	return;
 }
 
-phys_size_t initdram(void)
+int initdram(void)
 {
 	int i;
 	u32 val;
@@ -77,5 +79,7 @@ phys_size_t initdram(void)
 	for (i=0; i<200000; i++)
 		;
 
-	return (CONFIG_SYS_MBYTES_RAM << 20);
+	gd->ram_size = CONFIG_SYS_MBYTES_RAM << 20;
+
+	return 0;
 }
