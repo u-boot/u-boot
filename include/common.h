@@ -203,6 +203,23 @@ typedef void (interrupt_handler_t)(void *);
  */
 int dram_init(void);
 
+/**
+ * dram_init_banksize() - Set up DRAM bank sizes
+ *
+ * This can be implemented by boards to set up the DRAM bank information in
+ * gd->bd->bi_dram(). It is called just before relocation, after dram_init()
+ * is called.
+ *
+ * If this is not provided, a default implementation will try to set up a
+ * single bank. It will do this if CONFIG_NR_DRAM_BANKS and
+ * CONFIG_SYS_SDRAM_BASE are set. The bank will have a start address of
+ * CONFIG_SYS_SDRAM_BASE and the size will be determined by a call to
+ * get_effective_memsize().
+ *
+ * @return 0 if OK, -ve on error
+ */
+int dram_init_banksize(void);
+
 void	hang		(void) __attribute__ ((noreturn));
 
 int	timer_init(void);

@@ -41,7 +41,6 @@ void x86_disable_caches(void);
 int x86_init_cache(void);
 void reset_cpu(ulong addr);
 ulong board_get_usable_ram_top(ulong total_size);
-int dram_init_banksize(void);
 int default_print_cpuinfo(void);
 
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
