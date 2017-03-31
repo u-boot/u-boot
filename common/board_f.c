@@ -11,16 +11,12 @@
  */
 
 #include <common.h>
-#include <linux/compiler.h>
 #include <version.h>
 #include <console.h>
 #include <environment.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <fs.h>
-#if defined(CONFIG_CMD_IDE)
-#include <ide.h>
-#endif
 #include <i2c.h>
 #include <initcall.h>
 #include <logbuff.h>
@@ -59,7 +55,6 @@
 #include <asm/relocate.h>
 #endif
 #include <dm/root.h>
-#include <linux/compiler.h>
 
 /*
  * Pointer to initial global data area
