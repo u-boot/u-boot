@@ -302,6 +302,13 @@ int print_cpuinfo(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 
+/*
+ * setup_board_extra() - Fill in extra details in the bd_t structure
+ *
+ * @return 0 if OK, -ve on error
+ */
+int setup_board_extra(void);
+
 /**
  * arch_fsp_init() - perform firmware support package init
  *

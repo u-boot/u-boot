@@ -17,6 +17,7 @@ MINIMAL=y
 endif
 endif
 
+obj-$(CONFIG_SYS_EXTBDINFO) += setup.o
 ifdef MINIMAL
 obj-y += cache.o time.o
 obj-y += ticks.o
