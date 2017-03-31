@@ -43,13 +43,15 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE + PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+
+	return 0;
 }
 
 void reset_cpu(ulong addr)

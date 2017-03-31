@@ -216,7 +216,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize (void)
+int dram_init_banksize(void)
 {
 	unsigned int size0 = 0, size1 = 0;
 
@@ -227,6 +227,8 @@ void dram_init_banksize (void)
 	gd->bd->bi_dram[0].size = size0;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
 	gd->bd->bi_dram[1].size = size1;
+
+	return 0;
 }
 
 /*

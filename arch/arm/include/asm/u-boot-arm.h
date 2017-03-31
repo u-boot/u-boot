@@ -36,7 +36,7 @@ int	arch_early_init_r(void);
 
 /* board/.../... */
 int	board_init(void);
-void	dram_init_banksize (void);
+int dram_init_banksize(void);
 void	board_quiesce_devices(void);
 
 /* cpu/.../interrupt.c */

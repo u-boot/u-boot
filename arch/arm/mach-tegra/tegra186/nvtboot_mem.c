@@ -72,7 +72,7 @@ int dram_init(void)
 
 extern unsigned long nvtboot_boot_x0;
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	int i;
 
@@ -80,6 +80,8 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[i].start = ram_banks[i].start;
 		gd->bd->bi_dram[i].size = ram_banks[i].size;
 	}
+
+	return 0;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

@@ -193,7 +193,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size  = get_ram_size((void *)PHYS_SDRAM_1,
@@ -204,6 +204,8 @@ void dram_init_banksize(void)
 					     PHYS_SDRAM_2_SIZE);
 	else
 		gd->bd->bi_dram[1].size = 0;
+
+	return 0;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

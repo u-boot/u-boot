@@ -410,7 +410,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	/*
 	 * Reserve regions below from DT memory node (which gets generated
@@ -442,6 +442,8 @@ void dram_init_banksize(void)
 
 	gd->bd->bi_dram[5].start = 0x22000000;
 	gd->bd->bi_dram[5].size = 0x1c000000;
+
+	return 0;
 }
 
 void reset_cpu(ulong addr)

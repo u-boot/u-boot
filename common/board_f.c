@@ -208,12 +208,14 @@ static int show_dram_config(void)
 	return 0;
 }
 
-__weak void dram_init_banksize(void)
+__weak int dram_init_banksize(void)
 {
 #if defined(CONFIG_NR_DRAM_BANKS) && defined(CONFIG_SYS_SDRAM_BASE)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
 #endif
+
+	return 0;
 }
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
@@ -644,14 +646,6 @@ static int init_post(void)
 }
 #endif
 
-static int setup_dram_config(void)
-{
-	/* Ram is board specific, so move it to board code ... */
-	dram_init_banksize();
-
-	return 0;
-}
-
 static int reloc_fdt(void)
 {
 #ifndef CONFIG_OF_EMBED
@@ -891,7 +885,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_fdt,
 	reserve_arch,
 	reserve_stacks,
-	setup_dram_config,
+	dram_init_banksize,
 	show_dram_config,
 #if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \
 	defined(CONFIG_SH)

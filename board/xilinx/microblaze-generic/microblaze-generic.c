@@ -25,10 +25,12 @@ static int reset_pin = -1;
 
 ulong ram_base;
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = ram_base;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
+
+	return 0;
 }
 
 int dram_init(void)

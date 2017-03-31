@@ -273,7 +273,7 @@ int dram_init(void)
  * If this function is not defined here,
  * board.c alters dram bank zero configuration defined above.
  */
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	u64 size = 0;
 	int i;
@@ -287,6 +287,8 @@ void dram_init_banksize(void)
 		if (size > SDRAM_SIZE_MAX)
 			mvebu_sdram_bs_set(i, 0x40000000);
 	}
+
+	return 0;
 }
 
 #if defined(CONFIG_ARCH_MVEBU)

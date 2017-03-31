@@ -48,10 +48,12 @@ int checkboard(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_memstart = PHYSADDR(CONFIG_SYS_SDRAM_BASE);
 	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+
+	return 0;
 }
 
 int board_postclk_init(void)

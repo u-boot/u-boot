@@ -104,7 +104,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	int i, j;
 
@@ -121,4 +121,6 @@ void dram_init_banksize(void)
 			}
 		}
 	}
+
+	return 0;
 }

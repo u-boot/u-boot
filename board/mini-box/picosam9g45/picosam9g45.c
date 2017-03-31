@@ -283,7 +283,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
@@ -291,6 +291,8 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = get_ram_size((long *)PHYS_SDRAM_2,
 							PHYS_SDRAM_2_SIZE);
+
+	return 0;
 }
 
 #ifdef CONFIG_RESET_PHY_R

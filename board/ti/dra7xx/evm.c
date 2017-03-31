@@ -498,7 +498,7 @@ int board_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	u64 ram_size;
 
@@ -510,6 +510,8 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[1].start = 0x200000000;
 		gd->bd->bi_dram[1].size = ram_size - CONFIG_MAX_MEM_MAPPED;
 	}
+
+	return 0;
 }
 
 int board_late_init(void)
