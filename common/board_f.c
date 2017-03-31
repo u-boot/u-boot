@@ -39,6 +39,7 @@
 
 #include <os.h>
 #include <post.h>
+#include <relocate.h>
 #include <spi.h>
 #include <status_led.h>
 #include <timer.h>
@@ -47,9 +48,6 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/sections.h>
-#if defined(CONFIG_X86) || defined(CONFIG_ARC) || defined(CONFIG_XTENSA)
-#include <asm/relocate.h>
-#endif
 #include <dm/root.h>
 #include <linux/errno.h>
 

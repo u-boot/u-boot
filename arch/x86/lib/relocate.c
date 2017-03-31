@@ -17,8 +17,8 @@
 
 #include <common.h>
 #include <inttypes.h>
+#include <relocate.h>
 #include <asm/u-boot-x86.h>
-#include <asm/relocate.h>
 #include <asm/sections.h>
 #include <elf.h>
 
