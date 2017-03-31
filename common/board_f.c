@@ -887,10 +887,6 @@ static const init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_XTENSA)
-	/* Blackfin u-boot monitor should be on top of the ram */
-	reserve_uboot,
-#endif
 #if defined(CONFIG_LOGBUFFER) && !defined(CONFIG_ALT_LB_ADDR)
 	reserve_logbuffer,
 #endif
@@ -916,9 +912,7 @@ static const init_fnc_t init_sequence_f[] = {
 # endif
 #endif /* CONFIG_DM_VIDEO */
 	reserve_trace,
-#if !defined(CONFIG_XTENSA)
 	reserve_uboot,
-#endif
 #ifndef CONFIG_SPL_BUILD
 	reserve_malloc,
 	reserve_board,
