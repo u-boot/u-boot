@@ -48,7 +48,7 @@ sdram_conf_t mddrc_config[] = {
 	},
 };
 
-phys_size_t initdram (int board_type)
+phys_size_t initdram(void)
 {
 	int i;
 	u32 msize = 0;

@@ -76,7 +76,7 @@ static void sdram_start(int hi_addr)
  * use of CONFIG_SYS_SDRAM_BASE. The code does not work if
  * CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;

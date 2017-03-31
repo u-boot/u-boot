@@ -21,7 +21,7 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	return get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
 			    CONFIG_SYS_SDRAM_SIZE_MB * 1024 * 1024);

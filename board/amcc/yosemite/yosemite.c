@@ -286,7 +286,7 @@ void sdram_tr1_set(int ram_address, int* tr1_value)
 	*tr1_value = (first_good + last_bad) / 2;
 }
 
-phys_size_t initdram(int board)
+phys_size_t initdram(void)
 {
 	register uint reg;
 	int tr1_bank1, tr1_bank2;

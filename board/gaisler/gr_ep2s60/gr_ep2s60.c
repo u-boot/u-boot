@@ -10,7 +10,7 @@
 #include <config.h>
 #include <asm/leon.h>
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	return 1;
 }

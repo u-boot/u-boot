@@ -97,14 +97,14 @@ static mem_conf_t* get_mem_config(int board_type)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ulong dramsize = 0;
 #ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 	mem_conf_t *mem_conf;
 
-	mem_conf = get_mem_config(board_type);
+	mem_conf = get_mem_config(gd->board_type);
 
 	/* configure SDRAM start/end for detection */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e; /* 2G at 0x0 */

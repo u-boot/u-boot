@@ -61,7 +61,7 @@ static long fixed_sdram(void)
 	return get_ram_size(CONFIG_SYS_DDR_SDRAM_BASE, msize);
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize;

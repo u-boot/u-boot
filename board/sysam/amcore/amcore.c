@@ -49,7 +49,7 @@ void fudelay(int usec)
 		asm volatile ("nop");
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	u32 dramsize, RC;
 

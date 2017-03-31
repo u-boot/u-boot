@@ -95,7 +95,7 @@ int is_micron(void){
 	return(ismicron);
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	u32 msize = 0;
 	/*

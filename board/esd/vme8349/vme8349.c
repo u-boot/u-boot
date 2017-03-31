@@ -28,7 +28,7 @@
 
 void ddr_enable_ecc(unsigned int dram_size);
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;

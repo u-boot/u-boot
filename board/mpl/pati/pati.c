@@ -133,7 +133,7 @@ extern int mem_test (unsigned long start, unsigned long ramsize, int quiet);
 /*
  * Get RAM size.
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	unsigned char board_rev;
 	unsigned long reg;

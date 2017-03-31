@@ -18,7 +18,8 @@ int checkboard (void) {
 	return 0;
 	};
 
-phys_size_t initdram (int board_type) {
+phys_size_t initdram(void)
+{
 	sdramctrl_t * sdp = (sdramctrl_t *)(MMAP_SDRAM);
 
 	out_be16(&sdp->sdram_sdtr, 0xf539);

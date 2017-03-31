@@ -83,7 +83,7 @@ static enum sys_con malta_sys_con(void)
 	}
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	return CONFIG_SYS_MEM_SIZE;
 }

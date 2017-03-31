@@ -414,7 +414,7 @@ static unsigned char spd_read(uchar chip, uint addr)
  *		 banks appropriately. If Auto Memory Configuration is
  *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	unsigned char iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned long dimm_populated[MAXDIMMS] = {SDRAM_NONE, SDRAM_NONE};
@@ -2855,7 +2855,7 @@ static void test(void)
  *		time parameters.
  * 		Configures the PPC405EX(r) and PPC460EX/GT
  *---------------------------------------------------------------------------*/
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	unsigned long val;
 

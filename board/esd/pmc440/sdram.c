@@ -105,7 +105,7 @@ int initdram_by_rb(int rows, int banks)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	phys_size_t size;
 	int n;

@@ -110,6 +110,12 @@ typedef struct global_data {
 } gd_t;
 #endif
 
+#ifdef CONFIG_BOARD_TYPES
+#define gd_board_type()		gd->board_type
+#else
+#define gd_board_type()		0
+#endif
+
 /*
  * Global Data Flags - the top 16 bits are reserved for arch-specific flags
  */

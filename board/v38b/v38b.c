@@ -56,7 +56,7 @@ static void sdram_start(int hi_addr)
 #endif /* !CONFIG_SYS_RAMBOOT */
 
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;

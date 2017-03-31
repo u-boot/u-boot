@@ -180,13 +180,7 @@ static int announce_dram_init(void)
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int init_func_ram(void)
 {
-#ifdef	CONFIG_BOARD_TYPES
-	int board_type = gd->board_type;
-#else
-	int board_type = 0;	/* use dummy arg */
-#endif
-
-	gd->ram_size = initdram(board_type);
+	gd->ram_size = initdram();
 
 	if (gd->ram_size > 0)
 		return 0;

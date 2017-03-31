@@ -998,7 +998,7 @@ static void program_ddr0_44(unsigned long dimm_ranks[],
  *		 banks appropriately. If Auto Memory Configuration is
  *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	unsigned char const iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned long dimm_ranks[MAXDIMMS];

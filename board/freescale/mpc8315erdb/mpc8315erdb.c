@@ -222,7 +222,7 @@ void board_init_f(ulong bootflag)
 		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 	puts("NAND boot... ");
 	timer_init();
-	initdram(0);
+	initdram();
 	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC + 0x10000, (gd_t *)gd,
 		      CONFIG_SYS_NAND_U_BOOT_RELOC);
 }

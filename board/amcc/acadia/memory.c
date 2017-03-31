@@ -41,7 +41,7 @@ static void cram_bcr_write(u32 wr_val)
 	return;
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	int i;
 	u32 val;

@@ -289,7 +289,7 @@ static long probe_sdram(memctl8260_t *memctl)
 #endif /* CONFIG_SYS_SDRAM_LIST */
 
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl8260_t *memctl = &immap->im_memctl;

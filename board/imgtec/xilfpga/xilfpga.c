@@ -12,7 +12,7 @@
 #include <common.h>
 
 /* initialize the DDR Controller and PHY */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	/* MIG IP block is smart and doesn't need SW
 	 * to do any init */

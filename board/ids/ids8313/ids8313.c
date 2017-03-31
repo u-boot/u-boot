@@ -119,7 +119,7 @@ static int setup_sdram(void)
 	return msize;
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	fsl_lbc_t *lbc = &im->im_lbc;

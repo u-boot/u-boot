@@ -148,7 +148,7 @@ static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 /*
  * Autodetect onboard SDRAM on 405 platforms
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ulong speed;
 	ulong sdtr1;
@@ -349,7 +349,7 @@ static void sdram_tr1_set(int ram_address, int* tr1_value)
  *	 so this should be extended for other future boards
  *	 using this routine!
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	int i;
 	int tr1_bank1;

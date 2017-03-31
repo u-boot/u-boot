@@ -310,7 +310,7 @@ u32 sdram_init_seq[] = {
 	/* EMPTY, optional, we don't do it */
 };
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	return fixed_sdram(NULL, sdram_init_seq, ARRAY_SIZE(sdram_init_seq));
 }

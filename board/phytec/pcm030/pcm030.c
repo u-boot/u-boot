@@ -73,7 +73,7 @@ static void sdram_start(int hi_addr)
  *	is something else than 0x00000000.
  */
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	volatile struct mpc5xxx_mmap_ctl *mm =
 		(struct mpc5xxx_mmap_ctl *)CONFIG_SYS_MBAR;

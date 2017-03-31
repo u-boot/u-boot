@@ -68,7 +68,7 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 
 int fixed_sdram(void);
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;

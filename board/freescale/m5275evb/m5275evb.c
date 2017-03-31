@@ -23,7 +23,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	sdramctrl_t *sdp = (sdramctrl_t *)(MMAP_SDRAM);
 	gpio_t *gpio_reg = (gpio_t *)(MMAP_GPIO);

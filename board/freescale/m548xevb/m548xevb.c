@@ -23,7 +23,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	siu_t *siu = (siu_t *) (MMAP_SIU);
 	sdram_t *sdram = (sdram_t *)(MMAP_SDRAM);

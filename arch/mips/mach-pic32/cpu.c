@@ -110,7 +110,7 @@ static void ddr2_pmd_ungate(void)
 }
 
 /* initialize the DDR2 Controller and DDR2 PHY */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ddr2_pmd_ungate();
 	ddr2_phy_init();

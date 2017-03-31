@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <netdev.h>
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */

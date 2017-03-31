@@ -615,14 +615,14 @@ int checkboard (void)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /*
-  initdram(int board_type) reads EEPROM via I2c. EEPROM contains all of
+  initdram() reads EEPROM via I2c. EEPROM contains all of
   the necessary info for SDRAM controller configuration
 */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 static int test_dram (unsigned long ramsize);
 
-phys_size_t initdram (int board_type)
+phys_size_t initdram(void)
 {
 
 	unsigned long bank_reg[4], tmp, bank_size;

@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-phys_size_t initdram (int board_type)
+phys_size_t initdram(void)
 {
 	return fixed_sdram(NULL, NULL, 0);
 }

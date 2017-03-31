@@ -10,7 +10,7 @@
 
 #include "boston-regs.h"
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	u32 ddrconf0 = __raw_readl((uint32_t *)BOSTON_PLAT_DDRCONF0);
 

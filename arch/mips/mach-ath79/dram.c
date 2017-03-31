@@ -9,7 +9,7 @@
 #include <asm/addrspace.h>
 #include <mach/ddr.h>
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ddr_tap_tuning();
 	return get_ram_size((void *)KSEG1, SZ_256M);

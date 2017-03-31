@@ -94,7 +94,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 	i2c_init_all();
 
-	gd->ram_size = initdram(0);
+	gd->ram_size = initdram();
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("\nTertiary program loader running in sram...");
 #else

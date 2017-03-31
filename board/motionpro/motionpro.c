@@ -116,7 +116,7 @@ static void sdram_start(int hi_addr)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-phys_size_t initdram(int board_type)
+phys_size_t initdram(void)
 {
 	ulong dramsize = 0;
 #ifndef CONFIG_SYS_RAMBOOT

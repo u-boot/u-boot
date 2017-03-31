@@ -26,7 +26,7 @@ void board_init_f(ulong bootflag)
 	 * First we need to initialize the SDRAM, so that the real
 	 * U-Boot or the OS (Linux) can be loaded
 	 */
-	initdram(0);
+	initdram();
 
 	/* Clear bss */
 	memset(__bss_start, '\0', __bss_end - __bss_start);

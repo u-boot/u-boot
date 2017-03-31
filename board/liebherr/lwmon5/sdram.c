@@ -145,7 +145,7 @@ static void program_ecc(u32 start_address,
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-phys_size_t initdram (int board_type)
+phys_size_t initdram(void)
 {
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);
