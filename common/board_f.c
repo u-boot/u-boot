@@ -45,7 +45,6 @@
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
-#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
@@ -55,6 +54,7 @@
 #include <asm/relocate.h>
 #endif
 #include <dm/root.h>
+#include <linux/errno.h>
 
 /*
  * Pointer to initial global data area
