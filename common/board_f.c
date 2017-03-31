@@ -18,6 +18,7 @@
 #include <fs.h>
 #include <i2c.h>
 #include <initcall.h>
+#include <init_helpers.h>
 #include <logbuff.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -46,9 +47,6 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/sections.h>
-#if defined(CONFIG_X86) || defined(CONFIG_ARC)
-#include <asm/init_helpers.h>
-#endif
 #if defined(CONFIG_X86) || defined(CONFIG_ARC) || defined(CONFIG_XTENSA)
 #include <asm/relocate.h>
 #endif

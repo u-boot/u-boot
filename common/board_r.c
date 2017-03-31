@@ -27,6 +27,7 @@
 #include <ide.h>
 #endif
 #include <initcall.h>
+#include <init_helpers.h>
 #ifdef CONFIG_PS2KBD
 #include <keyboard.h>
 #endif
@@ -53,9 +54,6 @@
 #include <asm/mmu.h>
 #endif
 #include <asm/sections.h>
-#ifdef CONFIG_X86
-#include <asm/init_helpers.h>
-#endif
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <linux/err.h>

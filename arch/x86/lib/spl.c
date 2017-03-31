@@ -6,9 +6,9 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <init_helpers.h>
 #include <spl.h>
 #include <asm/cpu.h>
-#include <asm/init_helpers.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm-generic/sections.h>
