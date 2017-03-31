@@ -106,10 +106,6 @@ __weak void blue_led_off(void) {}
  * a structure...
  */
 
-/*
- * Could the CONFIG_SPL_BUILD infection become a flag in gd?
- */
-
 #if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
 static int init_func_watchdog_init(void)
 {
@@ -464,7 +460,6 @@ static int reserve_uboot(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
 /* reserve memory for malloc() area */
 static int reserve_malloc(void)
 {
@@ -486,7 +481,6 @@ static int reserve_board(void)
 	}
 	return 0;
 }
-#endif
 
 static int setup_machine(void)
 {
@@ -890,10 +884,8 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_video,
 	reserve_trace,
 	reserve_uboot,
-#ifndef CONFIG_SPL_BUILD
 	reserve_malloc,
 	reserve_board,
-#endif
 	setup_machine,
 	reserve_global_data,
 	reserve_fdt,
