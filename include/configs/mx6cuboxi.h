@@ -84,7 +84,7 @@
 	"initrd_high=0xffffffff\0" \
 	"fdt_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV ",115200\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"update_sd_firmware=" \
