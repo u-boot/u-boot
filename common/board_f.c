@@ -372,10 +372,10 @@ static int reserve_round_4k(void)
 	return 0;
 }
 
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF)) && \
-		defined(CONFIG_ARM)
+#ifdef CONFIG_ARM
 static int reserve_mmu(void)
 {
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->relocaddr -= gd->arch.tlb_size;
@@ -393,6 +393,7 @@ static int reserve_mmu(void)
 	 * with location within secure ram.
 	 */
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
+#endif
 #endif
 
 	return 0;
@@ -897,8 +898,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_pram,
 #endif
 	reserve_round_4k,
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF)) && \
-		defined(CONFIG_ARM)
+#ifdef CONFIG_ARM
 	reserve_mmu,
 #endif
 #ifdef CONFIG_DM_VIDEO
