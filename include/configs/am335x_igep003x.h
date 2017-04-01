@@ -34,7 +34,6 @@
 	DEFAULT_LINUX_BOOT_ENV \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
-	"dtbfile=am335x-base0033.dtb\0" \
 	"console=ttyO0,115200n8\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
@@ -48,7 +47,7 @@
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"mmcload=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}; " \
-		"load mmc ${mmcdev}:2 ${fdtaddr} ${bootdir}/${dtbfile}\0" \
+		"load mmc ${mmcdev}:2 ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
@@ -79,10 +78,20 @@
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"run nandload; " \
-		"bootz ${loadaddr} - ${fdtaddr} \0"
+		"bootz ${loadaddr} - ${fdtaddr} \0" \
+	"findfdt="\
+		"if test ${board_name} = igep0033; then " \
+			"setenv fdtfile am335x-igep-base0033.dtb; fi; " \
+		"if test ${board_name} = igep0034; then " \
+			"setenv fdtfile am335x-igep-base0040.dtb; fi; " \
+		"if test ${board_name} = igep0034-lite; then " \
+			"setenv fdtfile am335x-igep-base0040-lite.dtb; fi; " \
+		"if test ${fdtfile} = ''; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0"
 #endif
 
 #define CONFIG_BOOTCOMMAND \
+	"run findfdt;" \
 	"run mmcboot;" \
 	"run nandboot;"
 

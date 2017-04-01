@@ -46,6 +46,7 @@ config TARGET_AM335X_BALTOS
 
 config TARGET_AM335X_IGEP003X
 	bool "Support am335x_igep003x"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
