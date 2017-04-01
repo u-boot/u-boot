@@ -83,6 +83,8 @@ endchoice
 # subarchitectures-specific options below
 config INTEL_MID
 	bool "Intel MID platform support"
+	select REGMAP
+	select SYSCON
 	help
 	  Select to build a U-Boot capable of supporting Intel MID
 	  (Mobile Internet Device) platform systems which do not have
