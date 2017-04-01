@@ -31,6 +31,7 @@ obj-y	+= pinctrl_ich6.o
 obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
+obj-$(CONFIG_INTEL_MID) += pmu.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-$(CONFIG_INTEL_MID) += scu.o
 obj-y	+= sections.o
