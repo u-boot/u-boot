@@ -1,7 +1,7 @@
-if TARGET_AM335X_IGEP0033
+if TARGET_AM335X_IGEP003X
 
 config SYS_BOARD
-	default "igep0033"
+	default "igep003x"
 
 config SYS_VENDOR
 	default "isee"
@@ -10,6 +10,6 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "am335x_igep0033"
+	default "am335x_igep003x"
 
 endif

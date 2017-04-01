@@ -11,14 +11,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __CONFIG_IGEP0033_H
-#define __CONFIG_IGEP0033_H
+#ifndef __CONFIG_IGEP003X_H
+#define __CONFIG_IGEP003X_H
 
 #define CONFIG_NAND
 #include <configs/ti_am335x_common.h>
-
-/* Mach type */
-#define CONFIG_MACH_TYPE		MACH_TYPE_IGEP0033
 
 /* Clock defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
@@ -143,4 +140,4 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 
-#endif	/* ! __CONFIG_IGEP0033_H */
+#endif	/* ! __CONFIG_IGEP003X_H */
