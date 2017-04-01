@@ -58,6 +58,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra30-colibri.dtb \
 	tegra30-tec-ng.dtb \
 	tegra114-dalmore.dtb \
+	tegra124-apalis.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \
 	tegra124-cei-tk1-som.dtb \
