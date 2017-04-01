@@ -28,7 +28,7 @@
 #define BOOT_DEVICE_XIP		0x01
 #define BOOT_DEVICE_XIPWAIT	0x02
 #define BOOT_DEVICE_NAND	0x03
-#define BOOT_DEVICE_ONENAD	0x04
+#define BOOT_DEVICE_ONENAND	0x04
 #define BOOT_DEVICE_MMC2	0x05 /* ROM only supports 2nd instance. */
 #define BOOT_DEVICE_MMC1	0x06
 #define BOOT_DEVICE_UART	0x43
