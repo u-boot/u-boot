@@ -13,7 +13,10 @@
 #undef BOOT_TARGET_DEVICES
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1)
+	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dchp, na)
 
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 1
