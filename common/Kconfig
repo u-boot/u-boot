@@ -90,7 +90,7 @@ config BOOTSTAGE_STASH_ADDR
 
 config BOOTSTAGE_STASH_SIZE
 	hex "Size of boot timing stash region"
-	default 4096
+	default 0x1000
 	help
 	  This should be large enough to hold the bootstage stash. A value of
 	  4096 (4KiB) is normally plenty.
