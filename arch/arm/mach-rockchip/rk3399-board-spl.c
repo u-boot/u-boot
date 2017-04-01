@@ -156,20 +156,24 @@ void secure_timer_init(void)
 	writel(TIMER_EN | TIMER_FMODE, TIMER_CHN10_BASE + TIMER_CONTROL_REG);
 }
 
-#define GRF_EMMCCORE_CON11 0xff77f02c
 #define SGRF_DDR_RGN_CON16 0xff330040
-void board_init_f(ulong dummy)
-{
-	struct udevice *pinctrl;
-	struct udevice *dev;
-	int ret;
 
-	/* Example code showing how to enable the debug UART on RK3288 */
+void board_debug_uart_init(void)
+{
 #include <asm/arch/grf_rk3399.h>
-	/* Enable early UART2 channel C on the RK3399 */
 #define GRF_BASE	0xff770000
 	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
 
+#if defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff180000)
+	/* Enable early UART0 on the RK3399 */
+	rk_clrsetreg(&grf->gpio2c_iomux,
+		     GRF_GPIO2C0_SEL_MASK,
+		     GRF_UART0BT_SIN << GRF_GPIO2C0_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio2c_iomux,
+		     GRF_GPIO2C1_SEL_MASK,
+		     GRF_UART0BT_SOUT << GRF_GPIO2C1_SEL_SHIFT);
+#else
+	/* Enable early UART2 channel C on the RK3399 */
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C3_SEL_MASK,
 		     GRF_UART2DGBC_SIN << GRF_GPIO4C3_SEL_SHIFT);
@@ -180,6 +184,16 @@ void board_init_f(ulong dummy)
 	rk_clrsetreg(&grf->soc_con7,
 		     GRF_UART_DBG_SEL_MASK,
 		     GRF_UART_DBG_SEL_C << GRF_UART_DBG_SEL_SHIFT);
+#endif
+}
+
+#define GRF_EMMCCORE_CON11 0xff77f02c
+void board_init_f(ulong dummy)
+{
+	struct udevice *pinctrl;
+	struct udevice *dev;
+	int ret;
+
 #define EARLY_UART
 #ifdef EARLY_UART
 	/*
