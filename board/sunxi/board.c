@@ -80,7 +80,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	__maybe_unused int id_pfr1, ret, satapwr_pin;
+	__maybe_unused int id_pfr1, ret, satapwr_pin, macpwr_pin;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -123,8 +123,9 @@ int board_init(void)
 	gpio_direction_output(satapwr_pin, 1);
 #endif
 #ifdef CONFIG_MACPWR
-	gpio_request(CONFIG_MACPWR, "macpwr");
-	gpio_direction_output(CONFIG_MACPWR, 1);
+	macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
+	gpio_request(macpwr_pin, "macpwr");
+	gpio_direction_output(macpwr_pin, 1);
 #endif
 
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */

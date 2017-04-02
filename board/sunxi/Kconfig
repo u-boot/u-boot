@@ -345,6 +345,13 @@ config OLD_SUNXI_KERNEL_COMPAT
 	Set this to enable various workarounds for old kernels, this results in
 	sub-optimal settings for newer kernels, only enable if needed.
 
+config MACPWR
+	string "MAC power pin"
+	default ""
+	help
+	  Set the pin used to power the MAC. This takes a string in the format
+	  understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config MMC0_CD_PIN
 	string "Card detect pin for mmc0"
 	default "PF6" if MACH_SUN8I_A83T || MACH_SUNXI_H3_H5 || MACH_SUN50I
