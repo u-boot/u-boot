@@ -52,6 +52,15 @@ config LIB_RAND
 	help
 	  This library provides pseudo-random number generator functions.
 
+config SPL_TINY_MEMSET
+	bool "Use a very small memset() in SPL"
+	help
+	  The faster memset() is the arch-specific one (if available) enabled
+	  by CONFIG_USE_ARCH_MEMSET. If that is not enabled, we can still get
+	  better performance by writing a word at a time. But in very
+	  size-constrained envrionments even this may be too big. Enable this
+	  option to reduce code size slightly at the cost of some speed.
+
 source lib/dhry/Kconfig
 
 source lib/rsa/Kconfig

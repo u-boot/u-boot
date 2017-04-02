@@ -437,8 +437,10 @@ char *strswab(const char *s)
 void * memset(void * s,int c,size_t count)
 {
 	unsigned long *sl = (unsigned long *) s;
-	unsigned long cl = 0;
 	char *s8;
+
+#if !CONFIG_IS_ENABLED(TINY_MEMSET)
+	unsigned long cl = 0;
 	int i;
 
 	/* do it one word at a time (32 bits or 64 bits) while possible */
@@ -452,7 +454,7 @@ void * memset(void * s,int c,size_t count)
 			count -= sizeof(*sl);
 		}
 	}
-	/* fill 8 bits at a time */
+#endif	/* fill 8 bits at a time */
 	s8 = (char *)sl;
 	while (count--)
 		*s8++ = c;
