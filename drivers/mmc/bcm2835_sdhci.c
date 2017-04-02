@@ -44,6 +44,7 @@
 
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define MIN_FREQ 400000
+#define SDHCI_BUFFER 0x20
 
 struct bcm2835_sdhci_host {
 	struct sdhci_host host;
@@ -69,8 +70,11 @@ static inline void bcm2835_sdhci_raw_writel(struct sdhci_host *host, u32 val,
 	 * (Which is just as well - otherwise we'd have to nobble the DMA engine
 	 * too)
 	 */
-	while (timer_get_us() - bcm_host->last_write < bcm_host->twoticks_delay)
-		;
+	if (reg != SDHCI_BUFFER) {
+		while (timer_get_us() - bcm_host->last_write <
+		       bcm_host->twoticks_delay)
+			;
+	}
 
 	writel(val, host->ioaddr + reg);
 	bcm_host->last_write = timer_get_us();
