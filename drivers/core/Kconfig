@@ -21,6 +21,20 @@ config SPL_DM
 	  and devices in SPL, so 1KB should be enable. See
 	  CONFIG_SYS_MALLOC_F_LEN for more details on how to enable it.
 
+config TPL_DM
+	bool "Enable Driver Model for TPL"
+	depends on DM && TPL
+	help
+	  Enable driver model in TPL. You will need to provide a
+	  suitable malloc() implementation. If you are not using the
+	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
+	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+	  must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
+	  In most cases driver model will only allocate a few uclasses
+	  and devices in SPL, so 1KB should be enough. See
+	  CONFIG_SYS_MALLOC_F_LEN for more details on how to enable it.
+	  Disable this for very small implementations.
+
 config DM_WARN
 	bool "Enable warnings in driver model"
 	depends on DM
