@@ -635,7 +635,7 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
 			}
 			if (strcmp(name, (const char *)info->name) == 0) {
 				/* matched */
-				return 0;
+				return i;
 			}
 		}
 	}

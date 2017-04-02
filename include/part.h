@@ -163,7 +163,8 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
  * @param gpt_name - the specified table entry name
  * @param info - returns the disk partition info
  *
- * @return - '0' on match, '-1' on no match, otherwise error
+ * @return - the partition number on match (starting on 1), -1 on no match,
+ * otherwise error
  */
 int part_get_info_by_name(struct blk_desc *dev_desc,
 			      const char *name, disk_partition_t *info);
