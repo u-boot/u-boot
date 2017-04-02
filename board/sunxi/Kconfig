@@ -706,6 +706,13 @@ config VIDEO_LCD_TL059WV5C0
 
 endchoice
 
+config SATAPWR
+	string "SATA power pin"
+	default ""
+	help
+	  Set the pins used to power the SATA. This takes a string in the
+	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
+	  port H.
 
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"
