@@ -231,10 +231,6 @@ extern int soft_i2c_gpio_scl;
     defined CONFIG_SY8106A_POWER
 #endif
 
-#ifndef CONFIG_CONS_INDEX
-#define CONFIG_CONS_INDEX              1       /* UART0 */
-#endif
-
 #ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 #if CONFIG_CONS_INDEX == 1
 #ifdef CONFIG_MACH_SUN9I
