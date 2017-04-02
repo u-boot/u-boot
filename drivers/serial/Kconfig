@@ -53,6 +53,26 @@ config DM_SERIAL
 	  implements serial_putc() etc. The uclass interface is
 	  defined in include/serial.h.
 
+config SPL_DM_SERIAL
+	bool "Enable Driver Model for serial drivers"
+	depends on DM_SERIAL
+	default y if SPL && DM_SERIAL
+	help
+	  Enable driver model for serial in SPL. This replaces
+	  drivers/serial/serial.c with the serial uclass, which
+	  implements serial_putc() etc. The uclass interface is
+	  defined in include/serial.h.
+
+config TPL_DM_SERIAL
+	bool "Enable Driver Model for serial drivers"
+	depends on DM_SERIAL
+	default y if TPL && DM_SERIAL
+	help
+	  Enable driver model for serial in TPL. This replaces
+	  drivers/serial/serial.c with the serial uclass, which
+	  implements serial_putc() etc. The uclass interface is
+	  defined in include/serial.h.
+
 config DEBUG_UART
 	bool "Enable an early debug UART for debugging"
 	help

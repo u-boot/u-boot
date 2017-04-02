@@ -6,7 +6,7 @@
 #
 
 ifdef CONFIG_DM_SERIAL
-obj-y += serial-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)DM_SERIAL) += serial-uclass.o
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
 else
 obj-y += serial.o
