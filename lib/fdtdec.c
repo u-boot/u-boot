@@ -1255,6 +1255,9 @@ int fdtdec_setup(void)
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;
 #  endif
+# elif defined(CONFIG_OF_BOARD)
+	/* Allow the board to override the fdt address. */
+	gd->fdt_blob = board_fdt_blob_setup();
 # elif defined(CONFIG_OF_HOSTFILE)
 	if (sandbox_read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");

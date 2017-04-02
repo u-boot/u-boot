@@ -968,7 +968,7 @@ The following options need to be configured:
 		tree is available in the global data as gd->fdt_blob.
 
 		U-Boot needs to get its device tree from somewhere. This can
-		be done using one of the two options below:
+		be done using one of the three options below:
 
 		CONFIG_OF_EMBED
 		If this variable is defined, U-Boot will embed a device tree
@@ -988,6 +988,12 @@ The following options need to be configured:
 		u-boot-dtb.bin which is useful in the common case. You can
 		still use the individual files if you need something more
 		exotic.
+
+		CONFIG_OF_BOARD
+		If this variable is defined, U-Boot will use the device tree
+		provided by the board at runtime instead of embedding one with
+		the image. Only boards defining board_fdt_blob_setup() support
+		this option (see include/fdtdec.h file).
 
 - Watchdog:
 		CONFIG_WATCHDOG

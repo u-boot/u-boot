@@ -470,6 +470,16 @@ int board_init(void)
 	return bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
 }
 
+/*
+ * If the firmware passed a device tree use it for U-Boot.
+ */
+void *board_fdt_blob_setup(void)
+{
+	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
+		return NULL;
+	return (void *)fw_dtb_pointer;
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/*

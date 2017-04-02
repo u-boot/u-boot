@@ -51,6 +51,14 @@ config OF_EMBED
 	  and development only and is not recommended for production devices.
 	  Boards in the mainline U-Boot tree should not use it.
 
+config OF_BOARD
+	bool "Provided by the board at runtime"
+	depends on !SANDBOX
+	help
+	  If this option is enabled, the device tree will be provided by
+	  the board at runtime if the board supports it, instead of being
+	  bundled with the image.
+
 config OF_HOSTFILE
 	bool "Host filed DTB for DT control"
 	depends on SANDBOX

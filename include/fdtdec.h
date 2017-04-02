@@ -1023,4 +1023,10 @@ int fdtdec_setup_memory_banksize(void);
  */
 int fdtdec_setup(void);
 
+/**
+ * Board-specific FDT initialization. Returns the address to a device tree blob.
+ * Called when CONFIG_OF_BOARD is defined.
+ */
+void *board_fdt_blob_setup(void);
+
 #endif
