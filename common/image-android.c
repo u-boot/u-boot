@@ -161,6 +161,9 @@ int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 void android_print_contents(const struct andr_img_hdr *hdr)
 {
 	const char * const p = IMAGE_INDENT_STRING;
+	/* os_version = ver << 11 | lvl */
+	u32 os_ver = hdr->os_version >> 11;
+	u32 os_lvl = hdr->os_version & ((1U << 11) - 1);
 
 	printf("%skernel size:      %x\n", p, hdr->kernel_size);
 	printf("%skernel address:   %x\n", p, hdr->kernel_addr);
@@ -170,6 +173,12 @@ void android_print_contents(const struct andr_img_hdr *hdr)
 	printf("%ssecond address:   %x\n", p, hdr->second_addr);
 	printf("%stags address:     %x\n", p, hdr->tags_addr);
 	printf("%spage size:        %x\n", p, hdr->page_size);
+	/* ver = A << 14 | B << 7 | C         (7 bits for each of A, B, C)
+	 * lvl = ((Y - 2000) & 127) << 4 | M  (7 bits for Y, 4 bits for M) */
+	printf("%sos_version:       %x (ver: %u.%u.%u, level: %u.%u)\n",
+	       p, hdr->os_version,
+	       (os_ver >> 7) & 0x7F, (os_ver >> 14) & 0x7F, os_ver & 0x7F,
+	       (os_lvl >> 4) + 2000, os_lvl & 0x0F);
 	printf("%sname:             %s\n", p, hdr->name);
 	printf("%scmdline:          %s\n", p, hdr->cmdline);
 }
