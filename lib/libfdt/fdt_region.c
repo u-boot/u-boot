@@ -63,6 +63,30 @@ static int region_list_contains_offset(struct fdt_region_state *info,
 	return 0;
 }
 
+/**
+ * fdt_add_alias_regions() - Add regions covering the aliases that we want
+ *
+ * The /aliases node is not automatically included by fdtgrep unless the
+ * command-line arguments cause to be included (or not excluded). However
+ * aliases are special in that we generally want to include those which
+ * reference a node that fdtgrep includes.
+ *
+ * In fact we want to include only aliases for those nodes still included in
+ * the fdt, and drop the other aliases since they point to nodes that will not
+ * be present.
+ *
+ * This function scans the aliases and adds regions for those which we want
+ * to keep.
+ *
+ * @fdt: Device tree to scan
+ * @region: List of regions
+ * @count: Number of regions in the list so far (i.e. starting point for this
+ *	function)
+ * @max_regions: Maximum number of regions in @region list
+ * @info: Place to put the region state
+ * @return number of regions after processing, or -FDT_ERR_NOSPACE if we did
+ * not have enough room in the regions table for the regions we wanted to add.
+ */
 int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 			  int max_regions, struct fdt_region_state *info)
 {
@@ -74,11 +98,17 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 	if (node < 0)
 		return -FDT_ERR_NOTFOUND;
 
-	/* The aliases node must come before the others */
+	/*
+	 * Find the next node so that we know where the /aliases node ends. We
+	 * need special handling if /aliases is the last node.
+	 */
 	node_end = fdt_next_subnode(fdt, node);
-	if (node_end <= 0)
-		return -FDT_ERR_BADLAYOUT;
-	node_end -= sizeof(fdt32_t);
+	if (node_end == -FDT_ERR_NOTFOUND)
+		/* Move back to the FDT_END_NODE tag of '/' */
+		node_end = fdt_size_dt_struct(fdt) - sizeof(fdt32_t) * 2;
+	else if (node_end < 0) /* other error */
+		return node_end;
+	node_end -= sizeof(fdt32_t);  /* Move to FDT_END_NODE tag of /aliases */
 
 	did_alias_header = 0;
 	info->region = region;
@@ -109,7 +139,7 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 		fdt_add_region(info, base + offset, next - offset);
 	}
 
-	/* Add the 'end' tag */
+	/* Add the FDT_END_NODE tag */
 	if (did_alias_header)
 		fdt_add_region(info, base + node_end, sizeof(fdt32_t));
 

@@ -810,9 +810,6 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 				disp->flags);
 		if (count < 0) {
 			report_error("fdt_find_regions", count);
-			if (count == -FDT_ERR_BADLAYOUT)
-				fprintf(stderr,
-					"/aliases node must come before all other nodes\n");
 			return -1;
 		}
 		if (count <= max_regions)
