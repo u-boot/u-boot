@@ -166,6 +166,12 @@ config SUN7I_GMAC
 	help
 	  Enable the support for Sun7i GMAC Ethernet controller
 
+config SUN4I_EMAC
+	bool "Allwinner Sun4i Ethernet MAC support"
+	depends on DM_ETH
+	help
+	  This driver supports the Allwinner based SUN4I Ethernet MAC.
+
 config SUN8I_EMAC
         bool "Allwinner Sun8i Ethernet MAC support"
         depends on DM_ETH
