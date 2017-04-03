@@ -160,8 +160,8 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	else
 		return;
 
-	debug("%s, %d:%d, mode:%d\n", __func__, priv->deviceid, priv->bank,
-	      uhsmode);
+	debug("%s, host:%s devId:%d, bank:%d, mode:%d\n", __func__, host->name,
+	      priv->deviceid, priv->bank, uhsmode);
 	if ((uhsmode >= MMC_TIMING_UHS_SDR25) &&
 	    (uhsmode <= MMC_TIMING_HS200))
 		arasan_zynqmp_set_tapdelay(priv->deviceid, uhsmode,
