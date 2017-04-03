@@ -100,32 +100,6 @@ static void board_external_gpio_init(void)
 	gpio_set_pull(EXYNOS4X12_GPIO_X37, S5P_GPIO_PULL_NONE);	/* HDMI_HPD */
 }
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-static void board_init_i2c(void)
-{
-	int err;
-
-	/* I2C_7 */
-	err = exynos_pinmux_config(PERIPH_ID_I2C7, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("I2C%d not configured\n", (I2C_7));
-		return;
-	}
-
-	/* I2C_8 */
-	gpio_request(EXYNOS4X12_GPIO_F14, "i2c8_clk");
-	gpio_request(EXYNOS4X12_GPIO_F15, "i2c8_data");
-	gpio_direction_output(EXYNOS4X12_GPIO_F14, 1);
-	gpio_direction_output(EXYNOS4X12_GPIO_F15, 1);
-
-	/* I2C_9 */
-	gpio_request(EXYNOS4X12_GPIO_M21, "i2c9_clk");
-	gpio_request(EXYNOS4X12_GPIO_M20, "i2c9_data");
-	gpio_direction_output(EXYNOS4X12_GPIO_M21, 1);
-	gpio_direction_output(EXYNOS4X12_GPIO_M20, 1);
-}
-#endif
-
 #ifdef CONFIG_SYS_I2C_SOFT
 int get_soft_i2c_scl_pin(void)
 {
@@ -179,9 +153,6 @@ int exynos_power_init(void)
 	struct power_battery *pb;
 	struct pmic *p_chrg, *p_muic, *p_fg, *p_bat;
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_init_i2c();
-#endif
 	pmic_init(I2C_7);		/* I2C adapter 7 - bus name s3c24x0_7 */
 	pmic_init_max77686();
 	pmic_init_max77693(I2C_10);	/* I2C adapter 10 - bus name soft1 */
