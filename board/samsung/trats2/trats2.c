@@ -100,24 +100,6 @@ static void board_external_gpio_init(void)
 	gpio_set_pull(EXYNOS4X12_GPIO_X37, S5P_GPIO_PULL_NONE);	/* HDMI_HPD */
 }
 
-#ifdef CONFIG_SYS_I2C_SOFT
-int get_soft_i2c_scl_pin(void)
-{
-	if (I2C_ADAP_HWNR)
-		return EXYNOS4X12_GPIO_M21; /* I2C9 */
-	else
-		return EXYNOS4X12_GPIO_F14; /* I2C8 */
-}
-
-int get_soft_i2c_sda_pin(void)
-{
-	if (I2C_ADAP_HWNR)
-		return EXYNOS4X12_GPIO_M20; /* I2C9 */
-	else
-		return EXYNOS4X12_GPIO_F15; /* I2C8 */
-}
-#endif
-
 int exynos_early_init_f(void)
 {
 	board_external_gpio_init();
