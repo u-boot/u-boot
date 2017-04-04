@@ -20,6 +20,14 @@ config SANDBOX_RESET
 	  simply accepts requests to reset various HW modules without actually
 	  doing anything beyond a little error checking.
 
+config STI_RESET
+	bool "Enable the STi reset"
+	depends on ARCH_STI
+	help
+	  Support for reset controllers on STMicroelectronics STiH407 family SoCs.
+	  Say Y if you want to control reset signals provided by system config
+	  block.
+
 config TEGRA_CAR_RESET
 	bool "Enable Tegra CAR-based reset driver"
 	depends on TEGRA_CAR

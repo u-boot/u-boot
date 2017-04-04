@@ -551,9 +551,10 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
  * pci_match_one_device - Tell if a PCI device structure has a matching
  *                        PCI device id structure
  * @id: single PCI device id structure to match
- * @dev: the PCI device structure to match against
+ * @find: the PCI device id structure to match against
  *
- * Returns the matching pci_device_id structure or %NULL if there is no match.
+ * Returns true if the finding pci_device_id structure matched or false if
+ * there is no match.
  */
 static bool pci_match_one_id(const struct pci_device_id *id,
 			     const struct pci_device_id *find)

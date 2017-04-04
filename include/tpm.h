@@ -639,4 +639,16 @@ uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
  */
 uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
 
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+/**
+ * Search for a key by usage AuthData and the hash of the parent's pub key.
+ *
+ * @param auth	        Usage auth of the key to search for
+ * @param pubkey_digest	SHA1 hash of the pub key structure of the key
+ * @param[out] handle	The handle of the key (Non-null iff found)
+ * @return 0 if key was found in TPM; != 0 if not.
+ */
+uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
+			   pubkey_digest[20], uint32_t *handle);
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 #endif /* __TPM_H */

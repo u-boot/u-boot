@@ -212,6 +212,16 @@ config PINCTRL_STM32
 	  definitions and pin control functions for each available multiplex
 	  function.
 
+config PINCTRL_SINGLE
+	bool "Single register pin-control and pin-multiplex driver"
+	depends on DM
+	help
+	  This enables pinctrl driver for systems using a single register for
+	  pin configuration and multiplexing. TI's AM335X SoCs are examples of
+	  such systems.
+	  Depending on the platform make sure to also enable OF_TRANSLATE and
+	  eventually SPL_OF_TRANSLATE to get correct address translations.
+
 endif
 
 source "drivers/pinctrl/meson/Kconfig"
