@@ -513,6 +513,22 @@ static int tegra_mmc_init(struct mmc *mmc)
 
 	tegra_mmc_reset(priv, mmc);
 
+#if defined(CONFIG_TEGRA124_MMC_DISABLE_EXT_LOOPBACK)
+	/*
+	 * Disable the external clock loopback and use the internal one on
+	 * SDMMC3 as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1
+	 * bits being set to 0xfffd according to the TRM.
+	 *
+	 * TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
+	 * approach once proper kernel integration made it mainline.
+	 */
+	if (priv->reg == (void *)0x700b0400) {
+		mask = readl(&priv->reg->venmiscctl);
+		mask &= ~TEGRA_MMC_MISCON_ENABLE_EXT_LOOPBACK;
+		writel(mask, &priv->reg->venmiscctl);
+	}
+#endif
+
 	priv->version = readw(&priv->reg->hcver);
 	debug("host version = %x\n", priv->version);
 

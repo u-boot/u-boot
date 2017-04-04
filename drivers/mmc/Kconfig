@@ -367,6 +367,17 @@ config MMC_SUNXI
 
 endif
 
+config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
+	bool "Disable external clock loopback"
+	depends on MMC_SDHCI_TEGRA && TEGRA124
+	help
+	  Disable the external clock loopback and use the internal one on SDMMC3
+	  as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1 bits
+	  being set to 0xfffd according to the TRM.
+
+	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
+	  approach once proper kernel integration made it mainline.
+
 endmenu
 
 config SYS_FSL_ERRATUM_ESDHC111
