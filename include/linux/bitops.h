@@ -2,6 +2,7 @@
 #define _LINUX_BITOPS_H
 
 #include <asm/types.h>
+#include <asm-generic/bitsperlong.h>
 #include <linux/compiler.h>
 
 #define BIT(nr)			(1UL << (nr))

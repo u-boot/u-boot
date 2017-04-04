@@ -124,12 +124,12 @@ config FEC_MXC
 	  NXP i.MX processors.
 
 config MVPP2
-	bool "Marvell Armada 375 network interface support"
-	depends on ARMADA_375
+	bool "Marvell Armada 375/7K/8K network interface support"
+	depends on ARMADA_375 || ARMADA_8K
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
-	  Marvell ARMADA 375 SoC.
+	  Marvell ARMADA 375, 7K and 8K SoCs.
 
 config MACB
 	bool "Cadence MACB/GEM Ethernet Interface"
