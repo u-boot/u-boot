@@ -176,16 +176,10 @@ parse_num (char *s, unsigned long *val, char **es, char *delim)
 /*
  * Note: this debug setup works by storing the strings in a fixed buffer
  */
-#define FINAL
-#ifdef FINAL
-static char *zm_out = (char *) 0x00380000;
-static char *zm_out_start = (char *) 0x00380000;
-#else
-static char zm_buf[8192];
-static char *zm_out = zm_buf;
-static char *zm_out_start = zm_buf;
+static char zm_debug_buf[8192];
+static char *zm_out = zm_debug_buf;
+static char *zm_out_start = zm_debug_buf;
 
-#endif
 static int
 zm_dprintf (char *fmt, ...)
 {
