@@ -255,8 +255,36 @@ static void *alloc_priv(int size, uint flags)
 
 	if (flags & DM_FLAG_ALLOC_PRIV_DMA) {
 		priv = memalign(ARCH_DMA_MINALIGN, size);
-		if (priv)
+		if (priv) {
 			memset(priv, '\0', size);
+
+			/*
+			 * Ensure that the zero bytes are flushed to memory.
+			 * This prevents problems if the driver uses this as
+			 * both an input and an output buffer:
+			 *
+			 * 1. Zeroes written to buffer (here) and sit in the
+			 *	cache
+			 * 2. Driver issues a read command to DMA
+			 * 3. CPU runs out of cache space and evicts some cache
+			 *	data in the buffer, writing zeroes to RAM from
+			 *	the memset() above
+			 * 4. DMA completes
+			 * 5. Buffer now has some DMA data and some zeroes
+			 * 6. Data being read is now incorrect
+			 *
+			 * To prevent this, ensure that the cache is clean
+			 * within this range at the start. The driver can then
+			 * use normal flush-after-write, invalidate-before-read
+			 * procedures.
+			 *
+			 * TODO(sjg@chromium.org): Drop this microblaze
+			 * exception.
+			 */
+#ifndef CONFIG_MICROBLAZE
+			flush_dcache_range((ulong)priv, (ulong)priv + size);
+#endif
+		}
 	} else {
 		priv = calloc(1, size);
 	}
