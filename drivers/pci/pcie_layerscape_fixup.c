@@ -15,7 +15,7 @@
 #include <fdt_support.h>
 #include "pcie_layerscape.h"
 
-#ifdef CONFIG_FSL_LSCH3
+#if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 /*
  * Return next available LUT index.
  */
@@ -72,19 +72,26 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 	u32 *prop;
 	u32 phandle;
 	int nodeoffset;
+	uint svr;
+	char *compat = NULL;
 
 	/* find pci controller node */
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 						   pcie->dbi_res.start);
 	if (nodeoffset < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		nodeoffset = fdt_node_offset_by_compat_reg(blob,
-				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+		if (compat)
+			nodeoffset = fdt_node_offset_by_compat_reg(blob,
+					compat, pcie->dbi_res.start);
+#endif
 		if (nodeoffset < 0)
 			return;
-#else
-		return;
-#endif
 	}
 
 	/* get phandle to MSI controller */
@@ -101,6 +108,58 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 	fdt_appendprop_u32(blob, nodeoffset, "msi-map", phandle);
 	fdt_appendprop_u32(blob, nodeoffset, "msi-map", streamid);
 	fdt_appendprop_u32(blob, nodeoffset, "msi-map", 1);
+}
+
+/*
+ * An iommu-map is a property to be added to the pci controller
+ * node.  It is a table, where each entry consists of 4 fields
+ * e.g.:
+ *
+ *      iommu-map = <[devid] [phandle-to-iommu-ctrl] [stream-id] [count]
+ *                 [devid] [phandle-to-iommu-ctrl] [stream-id] [count]>;
+ */
+static void fdt_pcie_set_iommu_map_entry(void *blob, struct ls_pcie *pcie,
+				       u32 devid, u32 streamid)
+{
+	u32 *prop;
+	u32 iommu_map[4];
+	int nodeoffset;
+	int lenp;
+
+	/* find pci controller node */
+	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
+						   pcie->dbi_res.start);
+	if (nodeoffset < 0) {
+#ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
+		nodeoffset = fdt_node_offset_by_compat_reg(blob,
+				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
+		if (nodeoffset < 0)
+			return;
+#else
+		return;
+#endif
+	}
+
+	/* get phandle to iommu controller */
+	prop = fdt_getprop_w(blob, nodeoffset, "iommu-map", &lenp);
+	if (prop == NULL) {
+		debug("\n%s: ERROR: missing iommu-map: PCIe%d\n",
+		      __func__, pcie->idx);
+		return;
+	}
+
+	/* set iommu-map row */
+	iommu_map[0] = cpu_to_fdt32(devid);
+	iommu_map[1] = *++prop;
+	iommu_map[2] = cpu_to_fdt32(streamid);
+	iommu_map[3] = cpu_to_fdt32(1);
+
+	if (devid == 0) {
+		fdt_setprop_inplace(blob, nodeoffset, "iommu-map",
+				    iommu_map, 16);
+	} else {
+		fdt_appendprop(blob, nodeoffset, "iommu-map", iommu_map, 16);
+	}
 }
 
 static void fdt_fixup_pcie(void *blob)
@@ -139,6 +198,9 @@ static void fdt_fixup_pcie(void *blob)
 		/* update msi-map in device tree */
 		fdt_pcie_set_msi_map_entry(blob, pcie, bdf >> 8,
 					   streamid);
+		/* update iommu-map in device tree */
+		fdt_pcie_set_iommu_map_entry(blob, pcie, bdf >> 8,
+					     streamid);
 	}
 }
 #endif
@@ -146,19 +208,25 @@ static void fdt_fixup_pcie(void *blob)
 static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 {
 	int off;
+	uint svr;
+	char *compat = NULL;
 
 	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 					    pcie->dbi_res.start);
 	if (off < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		off = fdt_node_offset_by_compat_reg(blob,
-						    CONFIG_FSL_PCIE_COMPAT,
-						    pcie->dbi_res.start);
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+		if (compat)
+			off = fdt_node_offset_by_compat_reg(blob,
+					compat, pcie->dbi_res.start);
+#endif
 		if (off < 0)
 			return;
-#else
-		return;
-#endif
 	}
 
 	if (pcie->enabled)
@@ -175,7 +243,7 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	list_for_each_entry(pcie, &ls_pcie_list, list)
 		ft_pcie_ls_setup(blob, pcie);
 
-#ifdef CONFIG_FSL_LSCH3
+#if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 	fdt_fixup_pcie(blob);
 #endif
 }

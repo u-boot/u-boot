@@ -485,12 +485,14 @@ unsigned long get_board_ddr_clk(void);
 #define MTDPARTS_DEFAULT "mtdparts=1550000.quadspi:2m(uboot)," \
 			"14m(free)"
 #else
-#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:1m(nor_bank0_rcw)," \
-			"1m(nor_bank0_uboot),1m(nor_bank0_uboot_env)," \
-			"1m(nor_bank0_fman_uconde),40m(nor_bank0_fit)," \
-			"1m(nor_bank4_rcw),1m(nor_bank4_uboot)," \
-			"1m(nor_bank4_uboot_env),1m(nor_bank4_fman_ucode)," \
-			"40m(nor_bank4_fit);7e800000.flash:" \
+#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:" \
+			"2m@0x100000(nor_bank0_uboot),"\
+			"40m@0x1100000(nor_bank0_fit)," \
+			"7m(nor_bank0_user)," \
+			"2m@0x4100000(nor_bank4_uboot)," \
+			"40m@0x5100000(nor_bank4_fit),"\
+			"-(nor_bank4_user);" \
+			"7e800000.flash:" \
 			"4m(nand_uboot),36m(nand_kernel)," \
 			"472m(nand_free);spi0.0:2m(uboot)," \
 			"14m(free)"

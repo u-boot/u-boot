@@ -7,10 +7,6 @@
 #ifndef __SEC_FIRMWARE_H_
 #define __SEC_FIRMWARE_H_
 
-#ifdef CONFIG_FSL_LS_PPA
-#include <asm/arch/ppa.h>
-#endif
-
 int sec_firmware_init(const void *, u32 *, u32 *);
 int _sec_firmware_entry(const void *, u32 *, u32 *);
 bool sec_firmware_is_valid(const void *);

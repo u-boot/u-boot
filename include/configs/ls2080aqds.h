@@ -368,6 +368,7 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"mcmemsize=0x40000000\0"		\
 	"mcinitcmd=esbc_validate 0x580c80000;"  \
 	"esbc_validate 0x580cc0000;"            \
 	"fsl_mc start mc 0x580300000"           \
@@ -384,6 +385,7 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"mcmemsize=0x40000000\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580300000" \
 	" 0x580800000 \0"
 #endif /* CONFIG_SECURE_BOOT */

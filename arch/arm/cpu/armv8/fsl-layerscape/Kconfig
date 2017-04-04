@@ -73,6 +73,7 @@ config ARCH_LS2080A
 	select SYS_FSL_ERRATUM_A009803
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_A010165
+	select SYS_FSL_ERRATUM_A009203
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 
@@ -134,6 +135,8 @@ config FSL_LS_PPA
 choice
 	prompt "FSL Layerscape PPA firmware loading-media select"
 	depends on FSL_LS_PPA
+	default SYS_LS_PPA_FW_IN_MMC if SD_BOOT
+	default SYS_LS_PPA_FW_IN_NAND if NAND_BOOT
 	default SYS_LS_PPA_FW_IN_XIP
 
 config SYS_LS_PPA_FW_IN_XIP
@@ -142,13 +145,27 @@ config SYS_LS_PPA_FW_IN_XIP
 	  Say Y here if the PPA firmware locate at XIP flash, such
 	  as NOR or QSPI flash.
 
+config SYS_LS_PPA_FW_IN_MMC
+	bool "eMMC or SD Card"
+	help
+	  Say Y here if the PPA firmware locate at eMMC/SD card.
+
+config SYS_LS_PPA_FW_IN_NAND
+	bool "NAND"
+	help
+	  Say Y here if the PPA firmware locate at NAND flash.
+
 endchoice
 
 config SYS_LS_PPA_FW_ADDR
 	hex "Address of PPA firmware loading from"
 	depends on FSL_LS_PPA
 	default 0x40500000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x580a00000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
 	default 0x60500000 if SYS_LS_PPA_FW_IN_XIP
+	default 0x500000 if SYS_LS_PPA_FW_IN_MMC
+	default 0x500000 if SYS_LS_PPA_FW_IN_NAND
+
 	help
 	  If the PPA firmware locate at XIP flash, such as NOR or
 	  QSPI flash, this address is a directly memory-mapped.
@@ -305,6 +322,9 @@ config SYS_FSL_ERRATUM_A008585
 	bool
 
 config SYS_FSL_ERRATUM_A008850
+	bool
+
+config SYS_FSL_ERRATUM_A009203
 	bool
 
 config SYS_FSL_ERRATUM_A009635

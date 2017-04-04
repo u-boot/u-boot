@@ -38,11 +38,11 @@
  * in boot ROM of the SoC.
  * The feature is only applicable in case of NOR boot and is
  * not applicable in case of RAMBOOT (NAND, SD, SPI).
+ * For LS, this feature is available for all device if IE Table
+ * is copied to XIP memory
+ * Also, for LS, ISBC doesn't verify this table.
  */
-#ifndef CONFIG_ESBC_HDR_LS
-/* Current Key EXT feature not available in LS ESBC Header */
 #define CONFIG_FSL_ISBC_KEY_EXT
-#endif
 
 #endif
 
@@ -112,6 +112,8 @@
 #ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
 #ifdef CONFIG_LS1043A
 #define CONFIG_SYS_LS_PPA_ESBC_ADDR	0x600c0000
+#elif defined(CONFIG_FSL_LSCH3)
+#define CONFIG_SYS_LS_PPA_ESBC_ADDR     0x580c40000
 #endif
 #else
 #error "No CONFIG_SYS_LS_PPA_FW_IN_xxx defined"

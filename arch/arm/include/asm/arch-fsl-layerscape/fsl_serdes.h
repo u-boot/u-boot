@@ -48,10 +48,10 @@ enum srds_prtcl {
 	SGMII14,
 	SGMII15,
 	SGMII16,
-	QSGMII_A, /* A indicates MACs 1-4 */
-	QSGMII_B, /* B indicates MACs 5-8 */
-	QSGMII_C, /* C indicates MACs 9-12 */
-	QSGMII_D, /* D indicates MACs 12-16 */
+	QSGMII_A,
+	QSGMII_B,
+	QSGMII_C,
+	QSGMII_D,
 	SERDES_PRCTL_COUNT
 };
 

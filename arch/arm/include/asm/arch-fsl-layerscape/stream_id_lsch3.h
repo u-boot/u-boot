@@ -8,11 +8,11 @@
 #define __FSL_STREAM_ID_H
 
 /*
- * Stream IDs on ls2080a devices are not hardwired and are
- * programmed by sw.  There are a limited number of stream IDs
- * available, and the partitioning of them is scenario dependent.
- * This header defines the partitioning between legacy, PCI,
- * and DPAA2 devices.
+ * Stream IDs on NXP Chassis-3 (for example ls2080a, ls1088a, ls2088a)
+ * devices are not hardwired and are programmed by sw. There are a limited
+ * number of stream IDs available, and the partitioning of them is scenario
+ * dependent. This header defines the partitioning between legacy,
+ * PCI, and DPAA2 devices.
  *
  * This partitioning can be customized in this file depending
  * on the specific hardware config:
@@ -29,6 +29,9 @@
  *         -set a msi-map entry in the PEXn controller node in the
  *          device tree (see Documentation/devicetree/bindings/pci/pci-msi.txt
  *          for more info on the msi-map definition)
+ *         -set a iommu-map entry in the PEXn controller node in the
+ *          device tree (see Documentation/devicetree/bindings/pci/pci-iommu.txt
+ *          for more info on the iommu-map definition)
  *
  *  -DPAA2
  *     -u-boot will allocate a range of stream IDs to be used by the Management
@@ -36,7 +39,7 @@
  *     -the MC is responsible for allocating and setting up 'isolation context
  *      IDs (ICIDs) based on the allocated stream IDs for all DPAA2 devices.
  *
- * On ls2080a SoCs stream IDs are programmed in AMQ registers (32-bits) for
+ * On Chasis-3 SoCs stream IDs are programmed in AMQ registers (32-bits) for
  * each of the different bus masters.  The relationship between
  * the AMQ registers and stream IDs is defined in the table below:
  *          AMQ bit    streamID bit

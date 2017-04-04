@@ -13,7 +13,7 @@
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 
-#include <asm/arch/ls2080a_stream_id.h>
+#include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
 
 /* Link Definitions */
