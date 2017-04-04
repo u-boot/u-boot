@@ -371,7 +371,7 @@ config SPL_LIBGENERIC_SUPPORT
 
 config SPL_MMC_SUPPORT
 	bool "Support MMC"
-	depends on SPL
+	depends on SPL && GENERIC_MMC
 	help
 	  Enable support for MMC (Multimedia Card) within SPL. This enables
 	  the MMC protocol implementation and allows any enabled drivers to
