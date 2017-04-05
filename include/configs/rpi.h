@@ -68,13 +68,6 @@
 #define CONFIG_BCM2835_GPIO
 /* LCD */
 #define CONFIG_LCD_DT_SIMPLEFB
-#define LCD_BPP				LCD_COLOR32
-/*
- * Prevent allocation of RAM for FB; the real FB address is queried
- * dynamically from the VideoCore co-processor, and comes from RAM
- * not owned by the ARM CPU.
- */
-#define CONFIG_FB_ADDR			0
 #define CONFIG_VIDEO_BCM2835
 
 #ifdef CONFIG_CMD_USB
@@ -124,8 +117,8 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \
-	"stdout=serial,lcd\0" \
-	"stderr=serial,lcd\0"
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0"
 
 /*
  * Memory layout for where various images get loaded by boot scripts:

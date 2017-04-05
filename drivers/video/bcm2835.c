@@ -5,45 +5,30 @@
  */
 
 #include <common.h>
-#include <lcd.h>
-#include <memalign.h>
-#include <phys2bus.h>
+#include <dm.h>
+#include <video.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/msg.h>
-#include <asm/global_data.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-/* Global variables that lcd.c expects to exist */
-vidinfo_t panel_info;
-
-static int bcm2835_pitch;
-
-void lcd_ctrl_init(void *lcdbase)
+static int bcm2835_video_probe(struct udevice *dev)
 {
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
-	int w, h;
+	int w, h, pitch;
 	ulong fb_base, fb_size, fb_start, fb_end;
 
 	debug("bcm2835: Query resolution...\n");
 	ret = bcm2835_get_video_size(&w, &h);
-	if (ret) {
-		/* FIXME: How to disable the LCD to prevent errors? hang()? */
-		return;
-	}
+	if (ret)
+		return -EIO;
 
 	debug("bcm2835: Setting up display for %d x %d\n", w, h);
 	ret = bcm2835_set_video_params(&w, &h, 32, BCM2835_MBOX_PIXEL_ORDER_RGB,
 				       BCM2835_MBOX_ALPHA_MODE_IGNORED,
-				       &fb_base, &fb_size, &bcm2835_pitch);
+				       &fb_base, &fb_size, &pitch);
 
 	debug("bcm2835: Final resolution is %d x %d\n", w, h);
-
-	panel_info.vl_col = w;
-	panel_info.vl_row = h;
-	panel_info.vl_bpix = LCD_COLOR32;
-
-	gd->fb_base = fb_base;
 
 	/* Enable dcache for the frame buffer */
 	fb_start = fb_base & ~(MMU_SECTION_SIZE - 1);
@@ -51,16 +36,25 @@ void lcd_ctrl_init(void *lcdbase)
 	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
 	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
 					DCACHE_WRITEBACK);
-	lcd_set_flush_dcache(1);
+	video_set_flush_dcache(dev, true);
+
+	uc_priv->xsize = w;
+	uc_priv->ysize = h;
+	uc_priv->bpix = VIDEO_BPP32;
+	plat->base = fb_base;
+	plat->size = fb_size;
+
+	return 0;
 }
 
-void lcd_enable(void)
-{
-}
+static const struct udevice_id bcm2835_video_ids[] = {
+	{ .compatible = "brcm,bcm2835-hdmi" },
+	{ }
+};
 
-int lcd_get_size(int *line_length)
-{
-	*line_length = bcm2835_pitch;
-
-	return *line_length * panel_info.vl_row;
-}
+U_BOOT_DRIVER(bcm2835_video) = {
+	.name	= "bcm2835_video",
+	.id	= UCLASS_VIDEO,
+	.of_match = bcm2835_video_ids,
+	.probe	= bcm2835_video_probe,
+};
