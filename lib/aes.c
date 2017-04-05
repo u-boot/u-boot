@@ -27,7 +27,7 @@
 #else
 #include <string.h>
 #endif
-#include "aes.h"
+#include "uboot_aes.h"
 
 /* forward s-box */
 static const u8 sbox[256] = {

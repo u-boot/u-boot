@@ -140,7 +140,7 @@ int set_default_vars(int nvars, char * const vars[])
 }
 
 #ifdef CONFIG_ENV_AES
-#include <aes.h>
+#include <uboot_aes.h>
 /**
  * env_aes_cbc_get_key() - Get AES-128-CBC key for the environment
  *

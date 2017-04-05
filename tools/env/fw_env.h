@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <aes.h>
+#include <uboot_aes.h>
 #include <stdint.h>
 
 /* Pull in the current config to define the default environment */
