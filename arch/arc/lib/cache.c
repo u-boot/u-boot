@@ -59,10 +59,16 @@ static unsigned int __before_slc_op(const int op)
 
 static void __after_slc_op(const int op, unsigned int reg)
 {
-	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
+	if (op & OP_FLUSH) {	/* flush / flush-n-inv both wait */
+		/*
+		 * Make sure "busy" bit reports correct status,
+		 * see STAR 9001165532
+		 */
+		read_aux_reg(ARC_AUX_SLC_CTRL);
 		while (read_aux_reg(ARC_AUX_SLC_CTRL) &
 		       DC_CTRL_FLUSH_STATUS)
 			;
+	}
 
 	/* Switch back to default Invalidate mode */
 	if (op == OP_INV)
