@@ -43,6 +43,7 @@ config TARGET_SOCFPGA_CYCLONE5
 
 config TARGET_SOCFPGA_GEN5
 	bool
+	select ALTERA_SDRAM
 
 choice
 	prompt "Altera SOCFPGA board select"
