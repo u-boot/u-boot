@@ -14,6 +14,12 @@ struct msg_set_power_state {
 	u32 end_tag;
 };
 
+struct msg_get_clock_rate {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_clock_rate get_clock_rate;
+	u32 end_tag;
+};
+
 int bcm2835_power_on_module(u32 module)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_set_power_state, msg_pwr, 1);
@@ -36,4 +42,26 @@ int bcm2835_power_on_module(u32 module)
 	}
 
 	return 0;
+}
+
+int bcm2835_get_mmc_clock(void)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1);
+	int ret;
+
+	ret = bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);
+	if (ret)
+		return ret;
+
+	BCM2835_MBOX_INIT_HDR(msg_clk);
+	BCM2835_MBOX_INIT_TAG(&msg_clk->get_clock_rate, GET_CLOCK_RATE);
+	msg_clk->get_clock_rate.body.req.clock_id = BCM2835_MBOX_CLOCK_ID_EMMC;
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query eMMC clock rate\n");
+		return -EIO;
+	}
+
+	return msg_clk->get_clock_rate.body.resp.rate_hz;
 }

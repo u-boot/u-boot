@@ -468,23 +468,15 @@ int board_init(void)
 
 int board_mmc_init(bd_t *bis)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1);
 	int ret;
 
 	bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);
 
-	BCM2835_MBOX_INIT_HDR(msg_clk);
-	BCM2835_MBOX_INIT_TAG(&msg_clk->get_clock_rate, GET_CLOCK_RATE);
-	msg_clk->get_clock_rate.body.req.clock_id = BCM2835_MBOX_CLOCK_ID_EMMC;
+	ret = bcm2835_get_mmc_clock();
+	if (ret)
+		return ret;
 
-	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
-	if (ret) {
-		printf("bcm2835: Could not query eMMC clock rate\n");
-		return -1;
-	}
-
-	return bcm2835_sdhci_init(BCM2835_SDHCI_BASE,
-				  msg_clk->get_clock_rate.body.resp.rate_hz);
+	return bcm2835_sdhci_init(BCM2835_SDHCI_BASE, ret);
 }
 
 int ft_board_setup(void *blob, bd_t *bd)

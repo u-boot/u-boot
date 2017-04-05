@@ -15,4 +15,11 @@
  */
 int bcm2835_power_on_module(u32 module);
 
+/**
+ * bcm2835_get_mmc_clock() - get the frequency of the MMC clock
+ *
+ * @return clock frequency, or -ve on error
+ */
+int bcm2835_get_mmc_clock(void);
+
 #endif
