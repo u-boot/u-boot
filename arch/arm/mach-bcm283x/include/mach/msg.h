@@ -31,4 +31,21 @@ int bcm2835_get_mmc_clock(void);
  */
 int bcm2835_get_video_size(int *widthp, int *heightp);
 
+/**
+ * bcm2835_set_video_params() - set the video parameters
+ *
+ * @widthp: Video width to request (returns the actual width selected)
+ * @heightp: Video height to request (returns the actual height selected)
+ * @depth_bpp: Requested bit depth
+ * @pixel_order: Pixel order to use (BCM2835_MBOX_PIXEL_ORDER_...)
+ * @alpha_mode: Alpha transparency mode to use (BCM2835_MBOX_ALPHA_MODE_...)
+ * @fb_basep: Returns base address of frame buffer
+ * @fb_sizep: Returns size of frame buffer
+ * @pitchp: Returns number of bytes in each frame buffer line
+ * @return 0 if OK, -ve on error
+ */
+int bcm2835_set_video_params(int *widthp, int *heightp, int depth_bpp,
+			     int pixel_order, int alpha_mode, ulong *fb_basep,
+			     ulong *fb_sizep, int *pitchp);
+
 #endif
