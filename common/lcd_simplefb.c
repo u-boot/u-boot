@@ -8,9 +8,11 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <lcd.h>
 #include <fdt_support.h>
 #include <libfdt.h>
+#include <video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -20,11 +22,27 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	int bpix; /* log2 of bits per pixel */
 	const char *name;
 	ulong fb_base;
+#ifdef CONFIG_DM_VIDEO
+	struct video_uc_platdata *plat;
+	struct video_priv *uc_priv;
+	struct udevice *dev;
+	int ret;
 
+	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
+	if (ret)
+		return ret;
+	uc_priv = dev_get_uclass_priv(dev);
+	plat = dev_get_uclass_platdata(dev);
+	xsize = uc_priv->xsize;
+	ysize = uc_priv->ysize;
+	bpix = uc_priv->bpix;
+	fb_base = plat->base;
+#else
 	xsize = lcd_get_pixel_width();
 	ysize = lcd_get_pixel_height();
 	bpix = LCD_BPP;
 	fb_base = gd->fb_base;
+#endif
 	switch (bpix) {
 	case 4: /* VIDEO_BPP16 */
 		name = "r5g6b5";
