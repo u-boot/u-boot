@@ -511,16 +511,9 @@ void * memmove(void * dest,const void *src,size_t count)
 {
 	char *tmp, *s;
 
-	if (src == dest)
-		return dest;
-
 	if (dest <= src) {
-		tmp = (char *) dest;
-		s = (char *) src;
-		while (count--)
-			*tmp++ = *s++;
-		}
-	else {
+		memcpy(dest, src, count);
+	} else {
 		tmp = (char *) dest + count;
 		s = (char *) src + count;
 		while (count--)
