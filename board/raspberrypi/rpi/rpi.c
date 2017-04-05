@@ -466,19 +466,6 @@ int board_init(void)
 	return bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
 }
 
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);
-
-	ret = bcm2835_get_mmc_clock();
-	if (ret)
-		return ret;
-
-	return bcm2835_sdhci_init(BCM2835_SDHCI_BASE, ret);
-}
-
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/*
