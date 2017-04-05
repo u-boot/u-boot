@@ -8,6 +8,13 @@
 #include <stdint.h>
 #include <uboot_aes.h>
 
+/*
+ * Programs using the library must check which API is available,
+ * that varies depending on the U-Boot version.
+ * This can be changed in future
+ */
+#define FW_ENV_API_VERSION	1
+
 struct env_opts {
 #ifdef CONFIG_FILE
 	char *config_file;
@@ -139,5 +146,13 @@ int fw_env_write(char *name, char *value);
  *  0 on success, -1 on failure (modifies errno)
  */
 int fw_env_close(struct env_opts *opts);
+
+/**
+ * fw_env_version - return the current version of the library
+ *
+ * Return:
+ *  version string of the library
+ */
+char *fw_env_version(void);
 
 unsigned long crc32(unsigned long, const unsigned char *, unsigned);
