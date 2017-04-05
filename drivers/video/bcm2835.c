@@ -9,6 +9,7 @@
 #include <memalign.h>
 #include <phys2bus.h>
 #include <asm/arch/mbox.h>
+#include <asm/arch/msg.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -17,12 +18,6 @@ DECLARE_GLOBAL_DATA_PTR;
 vidinfo_t panel_info;
 
 static u32 bcm2835_pitch;
-
-struct msg_query {
-	struct bcm2835_mbox_hdr hdr;
-	struct bcm2835_mbox_tag_physical_w_h physical_w_h;
-	u32 end_tag;
-};
 
 struct msg_setup {
 	struct bcm2835_mbox_hdr hdr;
@@ -40,26 +35,17 @@ struct msg_setup {
 
 void lcd_ctrl_init(void *lcdbase)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(struct msg_query, msg_query, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_setup, msg_setup, 1);
 	int ret;
-	u32 w, h;
+	int w, h;
 	u32 fb_start, fb_end;
 
 	debug("bcm2835: Query resolution...\n");
-
-	BCM2835_MBOX_INIT_HDR(msg_query);
-	BCM2835_MBOX_INIT_TAG_NO_REQ(&msg_query->physical_w_h,
-					GET_PHYSICAL_W_H);
-	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_query->hdr);
+	ret = bcm2835_get_video_size(&w, &h);
 	if (ret) {
-		printf("bcm2835: Could not query display resolution\n");
 		/* FIXME: How to disable the LCD to prevent errors? hang()? */
 		return;
 	}
-
-	w = msg_query->physical_w_h.body.resp.width;
-	h = msg_query->physical_w_h.body.resp.height;
 
 	debug("bcm2835: Setting up display for %d x %d\n", w, h);
 
