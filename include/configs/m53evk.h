@@ -1,5 +1,5 @@
 /*
- * DENX M53 configuration
+ * Aries M53 configuration
  * Copyright (C) 2012-2013 Marek Vasut <marex@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+

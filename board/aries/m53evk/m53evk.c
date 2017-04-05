@@ -1,5 +1,5 @@
 /*
- * DENX M53 module
+ * Aries M53 module
  *
  * Copyright (C) 2012-2013 Marek Vasut <marex@denx.de>
  *
@@ -379,7 +379,7 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: DENX M53EVK\n");
+	puts("Board: Aries M53EVK\n");
 
 	return 0;
 }
