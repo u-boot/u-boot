@@ -97,7 +97,6 @@
 #else
 #define CONFIG_PL01X_SERIAL
 #endif
-#define CONFIG_CONS_INDEX		0
 
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024
