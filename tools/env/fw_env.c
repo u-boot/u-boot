@@ -34,6 +34,7 @@
 # include <mtd/mtd-user.h>
 #endif
 
+#include "fw_env_private.h"
 #include "fw_env.h"
 
 struct env_opts default_opts = {

@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include "fw_env_private.h"
 #include "fw_env.h"
 
 #define CMD_PRINTENV	"fw_printenv"
