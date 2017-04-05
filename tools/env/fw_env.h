@@ -53,7 +53,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
  * @opts: how to retrieve environment from flash, defaults are used if NULL
  *
  * Description:
- *  Uses fw_env_open, fw_env_write, fw_env_close
+ *  Uses fw_env_open, fw_env_write, fw_env_flush
  *
  * Return:
  *  0 on success, -1 on failure (modifies errno)
@@ -70,7 +70,7 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts);
  * @opts: encryption key, configuration file, defaults are used if NULL
  *
  * Description:
- *  Uses fw_env_open, fw_env_write, fw_env_close
+ *  Uses fw_env_open, fw_env_write, fw_env_flush
  *
  * Return:
  *  0 success, -1 on failure (modifies errno)
@@ -138,7 +138,17 @@ char *fw_getenv(char *name);
 int fw_env_write(char *name, char *value);
 
 /**
- * fw_env_close - write the environment from RAM cache back to flash
+ * fw_env_flush - write the environment from RAM cache back to flash
+ *
+ * @opts: encryption key, configuration file, defaults are used if NULL
+ *
+ * Return:
+ *  0 on success, -1 on failure (modifies errno)
+ */
+int fw_env_flush(struct env_opts *opts);
+
+/**
+ * fw_env_close - free allocated structure and close env
  *
  * @opts: encryption key, configuration file, defaults are used if NULL
  *
@@ -146,6 +156,7 @@ int fw_env_write(char *name, char *value);
  *  0 on success, -1 on failure (modifies errno)
  */
 int fw_env_close(struct env_opts *opts);
+
 
 /**
  * fw_env_version - return the current version of the library
