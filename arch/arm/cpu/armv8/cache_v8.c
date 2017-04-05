@@ -446,7 +446,7 @@ inline void flush_dcache_all(void)
  */
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
-	__asm_flush_dcache_range(start, stop);
+	__asm_invalidate_dcache_range(start, stop);
 }
 
 /*
