@@ -76,10 +76,21 @@
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
 /* Environment in SPI NOR flash */
+#ifdef CONFIG_MVEBU_SPI_BOOT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
+/* Environment in NAND flash */
+#elif defined(CONFIG_MVEBU_NAND_BOOT)
+#define CONFIG_ENV_IS_IN_NAND
+#endif
+
 #define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
+
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
 
 /*
  * Ethernet Driver configuration
