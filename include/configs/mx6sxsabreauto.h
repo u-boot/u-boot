@@ -182,7 +182,4 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC3*/
 #endif
 
-#define CONFIG_PCA953X
-#define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x30, 8}, {0x32, 8}, {0x34, 8} }
-
 #endif				/* __CONFIG_H */
