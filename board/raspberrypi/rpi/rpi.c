@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* From lowlevel_init.S */
 extern unsigned long fw_dtb_pointer;
 
-
+/* TODO(sjg@chromium.org): Move these to the msg.c file */
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_arm_mem get_arm_mem;
