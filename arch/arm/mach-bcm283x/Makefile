@@ -5,4 +5,4 @@
 #
 
 obj-$(CONFIG_BCM2835) += lowlevel_init.o
-obj-y	+= init.o reset.o mbox.o phys2bus.o
+obj-y	+= init.o reset.o mbox.o msg.o phys2bus.o
