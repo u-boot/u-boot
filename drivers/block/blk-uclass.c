@@ -530,7 +530,7 @@ int blk_unbind_all(int if_type)
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 
 		if (desc->if_type == if_type) {
-			ret = device_remove(dev);
+			ret = device_remove(dev, DM_REMOVE_NORMAL);
 			if (ret)
 				return ret;
 			ret = device_unbind(dev);

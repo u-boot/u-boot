@@ -14,6 +14,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm/device.h>
+#include <dm/root.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
@@ -90,6 +92,13 @@ static void announce_and_cleanup(int fake)
 #endif
 
 	board_quiesce_devices();
+
+	/*
+	 * Call remove function of all devices with a removal flag set.
+	 * This may be useful for last-stage operations, like cancelling
+	 * of DMA operation or releasing device internal buffers.
+	 */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	cleanup_before_linux();
 }

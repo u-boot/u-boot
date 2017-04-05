@@ -178,11 +178,20 @@ int dm_init(void)
 
 int dm_uninit(void)
 {
-	device_remove(dm_root());
+	device_remove(dm_root(), DM_REMOVE_NORMAL);
 	device_unbind(dm_root());
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
+int dm_remove_devices_flags(uint flags)
+{
+	device_remove(dm_root(), flags);
+
+	return 0;
+}
+#endif
 
 int dm_scan_platdata(bool pre_reloc_only)
 {

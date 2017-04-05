@@ -343,7 +343,7 @@ err:
 	debug("%s: Error path, created=%d, device '%s'\n", __func__,
 	      created, dev->name);
 	if (created) {
-		device_remove(dev);
+		device_remove(dev, DM_REMOVE_NORMAL);
 		device_unbind(dev);
 	}
 
@@ -384,7 +384,7 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	device_remove(slave->dev);
+	device_remove(slave->dev, DM_REMOVE_NORMAL);
 	slave->dev = NULL;
 }
 

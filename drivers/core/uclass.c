@@ -116,7 +116,7 @@ int uclass_destroy(struct uclass *uc)
 	while (!list_empty(&uc->dev_head)) {
 		dev = list_first_entry(&uc->dev_head, struct udevice,
 				       uclass_node);
-		ret = device_remove(dev);
+		ret = device_remove(dev, DM_REMOVE_NORMAL);
 		if (ret)
 			return ret;
 		ret = device_unbind(dev);

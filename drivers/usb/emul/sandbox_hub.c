@@ -156,7 +156,7 @@ static int clrset_post_state(struct udevice *hub, int port, int clear, int set)
 			} else if (clear & USB_PORT_STAT_POWER) {
 				debug("%s: %s: power off, removed, ret=%d\n",
 				      __func__, dev->name, ret);
-				ret = device_remove(dev);
+				ret = device_remove(dev, DM_REMOVE_NORMAL);
 				clear |= USB_PORT_STAT_CONNECTION;
 			}
 		}
