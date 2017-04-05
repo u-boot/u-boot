@@ -36,7 +36,7 @@ __weak void mxsfb_system_setup(void)
 }
 
 /*
- * DENX M28EVK:
+ * ARIES M28EVK:
  * setenv videomode
  * video=ctfb:x:800,y:480,depth:18,mode:0,pclk:30066,
  *       le:0,ri:256,up:0,lo:45,hs:1,vs:1,sync:100663296,vmode:0

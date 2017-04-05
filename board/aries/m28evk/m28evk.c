@@ -1,5 +1,5 @@
 /*
- * DENX M28 module
+ * Aries M28 module
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -93,7 +93,7 @@ int board_mmc_init(bd_t *bis)
 
 int fecmxc_mii_postcall(int phy)
 {
-#if	defined(CONFIG_DENX_M28_V11) || defined(CONFIG_DENX_M28_V10)
+#if	defined(CONFIG_ARIES_M28_V11) || defined(CONFIG_ARIES_M28_V10)
 	/* KZ8031 PHY on old boards. */
 	const uint32_t freq = 0x0080;
 #else
@@ -123,7 +123,7 @@ int board_eth_init(bd_t *bis)
 		CLKCTRL_ENET_TIME_SEL_MASK | CLKCTRL_ENET_CLK_OUT_EN,
 		CLKCTRL_ENET_TIME_SEL_RMII_CLK);
 
-#if !defined(CONFIG_DENX_M28_V11) && !defined(CONFIG_DENX_M28_V10)
+#if !defined(CONFIG_ARIES_M28_V11) && !defined(CONFIG_ARIES_M28_V10)
 	/* Reset the new PHY */
 	gpio_direction_output(MX28_PAD_AUART2_RTS__GPIO_3_11, 0);
 	udelay(10000);
