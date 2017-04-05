@@ -1,5 +1,5 @@
-SOCKIT BOARD
-M:	Marek Vasut <marex@denx.de>
+Aries MCVEVK BOARD
+M:	Marek Vasut <marek.vasut@gmail.com>
 S:	Maintained
 F:	include/configs/socfpga_mcvevk.h
 F:	configs/socfpga_mcvevk_defconfig

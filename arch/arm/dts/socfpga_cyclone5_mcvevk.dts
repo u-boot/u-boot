@@ -7,7 +7,7 @@
 #include "socfpga_cyclone5.dtsi"
 
 / {
-	model = "DENX MCVEVK";
+	model = "Aries MCVEVK";
 	compatible = "altr,socfpga-cyclone5", "altr,socfpga";
 
 	chosen {

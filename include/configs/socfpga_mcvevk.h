@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_DENX_MCVEVK_H__
-#define __CONFIG_DENX_MCVEVK_H__
+#ifndef __CONFIG_ARIES_MCVEVK_H__
+#define __CONFIG_ARIES_MCVEVK_H__
 
 #include <asm/arch/base_addr_ac5.h>
 
@@ -105,4 +105,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#endif	/* __CONFIG_DENX_MCVEVK_H__ */
+#endif	/* __CONFIG_ARIES_MCVEVK_H__ */
