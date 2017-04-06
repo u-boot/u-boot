@@ -49,6 +49,13 @@ static int nand_command(int block, int page, uint32_t offs,
 
 	if (cmd == NAND_CMD_RESET) {
 		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+
+		/*
+		 * Apply this short delay always to ensure that we do wait
+		 * tWB in any case on any machine.
+		 */
+		ndelay(150);
+
 		while (!this->dev_ready(mtd))
 			;
 		return 0;
@@ -78,22 +85,43 @@ static int nand_command(int block, int page, uint32_t offs,
 
 	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	if (cmd == NAND_CMD_READ0) {
+
+	/*
+	 * Program and erase have their own busy handlers status, sequential
+	 * in and status need no delay.
+	 */
+	switch (cmd) {
+	case NAND_CMD_CACHEDPROG:
+	case NAND_CMD_PAGEPROG:
+	case NAND_CMD_ERASE1:
+	case NAND_CMD_ERASE2:
+	case NAND_CMD_SEQIN:
+	case NAND_CMD_RNDIN:
+	case NAND_CMD_STATUS:
+		return 0;
+
+	case NAND_CMD_RNDOUT:
+		/* No ready / busy check necessary */
+		hwctrl(mtd, NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
+		       NAND_CTRL_CHANGE);
+		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+		return 0;
+
+	case NAND_CMD_READ0:
 		/* Latch in address */
 		hwctrl(mtd, NAND_CMD_READSTART,
-			   NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
-
-		/*
-		 * Wait a while for the data to be ready
-		 */
-		while (!this->dev_ready(mtd))
-			;
-	} else if (cmd == NAND_CMD_RNDOUT) {
-		hwctrl(mtd, NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
-					NAND_CTRL_CHANGE);
+		       NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 	}
+
+	/*
+	 * Apply this short delay always to ensure that we do wait tWB in
+	 * any case on any machine.
+	 */
+	ndelay(150);
+
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
