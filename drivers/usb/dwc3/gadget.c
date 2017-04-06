@@ -2668,11 +2668,12 @@ void dwc3_gadget_uboot_handle_interrupt(struct dwc3 *dwc)
 		int i;
 		struct dwc3_event_buffer *evt;
 
+		dwc3_thread_interrupt(0, dwc);
+
+		/* Clean + Invalidate the buffers after touching them */
 		for (i = 0; i < dwc->num_event_buffers; i++) {
 			evt = dwc->ev_buffs[i];
 			dwc3_flush_cache((uintptr_t)evt->buf, evt->length);
 		}
-
-		dwc3_thread_interrupt(0, dwc);
 	}
 }
