@@ -477,4 +477,12 @@ typedef struct fixed_ddr_parm{
 	int max_freq;
 	fsl_ddr_cfg_regs_t *ddr_settings;
 } fixed_ddr_parm_t;
+
+/**
+ * fsl_initdram() - Set up the SDRAM
+ *
+ * @return 0 if OK, -ve on error
+ */
+int fsl_initdram(void);
+
 #endif

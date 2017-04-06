@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/system.h>
@@ -876,7 +877,7 @@ void update_early_mmu_table(void)
 
 __weak int dram_init(void)
 {
-	initdram();
+	fsl_initdram();
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();

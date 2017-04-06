@@ -158,7 +158,7 @@ found:
 	}
 }
 
-int initdram(void)
+int fsl_initdram(void)
 {
 #if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
 	gd->ram_size = fsl_ddr_sdram_size();

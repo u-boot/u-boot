@@ -164,7 +164,7 @@ void board_mem_sleep_setup(void)
 }
 #endif
 
-int initdram(void)
+int fsl_initdram(void)
 {
 	phys_size_t dram_size;
 

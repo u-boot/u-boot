@@ -92,7 +92,7 @@ found:
 	popts->cpo_sample = 0x70;
 }
 
-int initdram(void)
+int fsl_initdram(void)
 {
 	phys_size_t dram_size;
 

@@ -170,7 +170,7 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 }
 #endif
 
-int initdram(void)
+int fsl_initdram(void)
 {
 	phys_size_t dram_size;
 
