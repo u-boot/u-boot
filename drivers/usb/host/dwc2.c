@@ -817,12 +817,19 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 	       (*pid << DWC2_HCTSIZ_PID_OFFSET),
 	       &hc_regs->hctsiz);
 
-	if (!in && xfer_len) {
-		memcpy(aligned_buffer, buffer, xfer_len);
-
-		flush_dcache_range((unsigned long)aligned_buffer,
-				   (unsigned long)aligned_buffer +
-				   roundup(xfer_len, ARCH_DMA_MINALIGN));
+	if (xfer_len) {
+		if (in) {
+			invalidate_dcache_range(
+					(uintptr_t)aligned_buffer,
+					(uintptr_t)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+		} else {
+			memcpy(aligned_buffer, buffer, xfer_len);
+			flush_dcache_range(
+					(uintptr_t)aligned_buffer,
+					(uintptr_t)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+		}
 	}
 
 	writel(phys_to_bus((unsigned long)aligned_buffer), &hc_regs->hcdma);
