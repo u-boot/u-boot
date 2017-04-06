@@ -263,9 +263,7 @@
 #define CONFIG_BOOTARGS		"console=ttyS2,115200n8 root=/dev/mmcblk0p2 rw rootwait ip=off"
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
-		"run mmcboot; " \
-	"else " \
-		"run spiboot; " \
+		"run mmcboot; "
 	"fi"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdtaddr=0xc0600000\0" \
@@ -279,11 +277,7 @@
 				__stringify(CONFIG_BOOTFILE) "; " \
 			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
 			"run fdtboot; " \
-		"fi;\0" \
-	"spiboot=" \
-		"sf probe 0; " \
-		"sf read 0xc0700000 0x80000 0x220000; " \
-		"bootz 0xc0700000;\0"
+		"fi;\0"
 
 /*
  * U-Boot commands
