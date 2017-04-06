@@ -1343,23 +1343,25 @@ int spi_flash_scan(struct spi_flash *flash)
 	 * and make sure the chip (> 16MiB) in default 3-byte address mode,
 	 * in case of warm bootup, the chip was set to 4-byte mode in kernel.
 	 */
-	if ((flash->size >> flash->shift) > SPI_FLASH_16MB_BOUN) {
-		if (flash->spi->bytemode == SPI_4BYTE_MODE) {
-			if (spi_flash_cmd_4B_addr_switch(flash, true,
-							 JEDEC_MFR(info)) < 0)
-				printf("SF: enter 4B address mode failed\n");
-		} else {
-			if (spi_flash_cmd_4B_addr_switch(flash, false,
-							 JEDEC_MFR(info)) < 0)
-				printf("SF: enter 3B address mode failed\n");
-		}
-	} else {
+	if (((flash->size >> flash->shift) < SPI_FLASH_16MB_BOUN) &&
+	    (flash->spi->bytemode == SPI_4BYTE_MODE))
 		/*
 		 * Clear the 4-byte support if the flash size is
 		 * less than 16MB
 		 */
-		if (flash->spi->bytemode == SPI_4BYTE_MODE)
 			flash->spi->bytemode = 0;
+
+	if (spi_flash_cmd_4B_addr_switch(flash, flash->spi->bytemode,
+					 JEDEC_MFR(info)) < 0)
+		printf("SF: enter %s address mode failed\n",
+		       flash->spi->bytemode ? "4B" : "3B");
+	if (flash->dual_flash & SF_DUAL_STACKED_FLASH) {
+		flash->spi->flags = SPI_XFER_U_PAGE;
+		if (spi_flash_cmd_4B_addr_switch(flash, flash->spi->bytemode,
+						 JEDEC_MFR(info)) < 0)
+			printf("SF: enter %s address mode failed\n",
+			       flash->spi->bytemode ? "4B" : "3B");
+		flash->spi->flags &= ~SPI_XFER_U_PAGE;
 	}
 
 #ifdef CONFIG_SF_DUAL_FLASH
