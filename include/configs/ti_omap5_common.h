@@ -58,6 +58,8 @@
 #define DFUARGS
 #endif
 
+#include <environment/ti/mmc.h>
+
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

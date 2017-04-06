@@ -10,6 +10,7 @@
 #ifndef __CONFIG_K2G_EVM_H
 #define __CONFIG_K2G_EVM_H
 
+#include <environment/ti/mmc.h>
 #include <environment/ti/spi.h>
 
 /* Platform type */

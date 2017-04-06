@@ -104,6 +104,7 @@
 	"run distro_bootcmd"
 
 #include <config_distro_bootcmd.h>
+#include <environment/ti/mmc.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
