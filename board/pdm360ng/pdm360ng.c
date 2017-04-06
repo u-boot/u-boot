@@ -48,7 +48,7 @@ sdram_conf_t mddrc_config[] = {
 	},
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	int i;
 	u32 msize = 0;

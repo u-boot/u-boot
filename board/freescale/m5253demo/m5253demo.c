@@ -22,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	u32 dramsize = 0;
 

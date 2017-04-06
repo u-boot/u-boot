@@ -126,7 +126,7 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;

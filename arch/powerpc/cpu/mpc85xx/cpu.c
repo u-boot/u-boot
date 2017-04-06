@@ -401,7 +401,7 @@ void mpc85xx_reginfo(void)
 #ifndef CONFIG_FSL_CORENET
 #if (defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)) && \
 	!defined(CONFIG_SYS_INIT_L2_ADDR)
-int initdram(void)
+int dram_init(void)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
 	defined(CONFIG_ARCH_QEMU_E500)
@@ -413,7 +413,7 @@ int initdram(void)
 	return 0;
 }
 #else /* CONFIG_SYS_RAMBOOT */
-int initdram(void)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 

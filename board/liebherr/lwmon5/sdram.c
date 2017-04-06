@@ -144,10 +144,10 @@ static void program_ecc(u32 start_address,
 
 /*************************************************************************
  *
- * initdram -- 440EPx's DDR controller is a DENALI Core
+ * dram_init -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-int initdram(void)
+int dram_init(void)
 {
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);

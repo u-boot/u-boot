@@ -48,7 +48,7 @@ int board_early_init_f (void)
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8349_CLKIN) + 1)
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	phys_size_t msize = 0;

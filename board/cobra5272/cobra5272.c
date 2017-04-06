@@ -17,7 +17,7 @@ int checkboard (void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile sdramctrl_t *sdp = (sdramctrl_t *) (MMAP_SDRAM);
 

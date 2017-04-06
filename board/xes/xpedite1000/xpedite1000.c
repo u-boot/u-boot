@@ -116,7 +116,7 @@ int checkboard(void)
 	return 0;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = spd_sdram();
 

@@ -23,7 +23,7 @@ int checkboard(void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	siu_t *siu = (siu_t *) (MMAP_SIU);
 	sdram_t *sdram = (sdram_t *)(MMAP_SDRAM);

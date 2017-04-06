@@ -10,7 +10,7 @@
 #include <config.h>
 #include <asm/leon.h>
 
-int initdram(void)
+int dram_init(void)
 {
 	/* Does not set gd->ram_size here */
 

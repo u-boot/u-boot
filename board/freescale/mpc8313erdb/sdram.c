@@ -97,7 +97,7 @@ static long fixed_sdram(void)
 	return msize;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile fsl_lbc_t *lbc = &im->im_lbc;

@@ -57,7 +57,7 @@ static void sdram_start(int hi_addr)
 #endif /* !CONFIG_SYS_RAMBOOT */
 
 
-int initdram(void)
+int dram_init(void)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;

@@ -22,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	sdram_t *sdram = (sdram_t *)(MMAP_SDRAM);
 	u32 dramsize, i;

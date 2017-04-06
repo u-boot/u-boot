@@ -61,7 +61,7 @@ void _machine_restart(void)
  * SDRAM is already configured by the bootstrap code, only return the
  * auto-detected size here
  */
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 			    CONFIG_SYS_MBYTES_SDRAM << 20);

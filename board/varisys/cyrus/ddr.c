@@ -168,7 +168,7 @@ found:
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	phys_size_t dram_size;
 

@@ -146,13 +146,6 @@ static int announce_dram_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
-static int init_func_ram(void)
-{
-	return initdram();
-}
-#endif
-
 static int show_dram_config(void)
 {
 	unsigned long long size;
@@ -779,15 +772,7 @@ static const init_fnc_t init_sequence_f[] = {
 	init_func_spi,
 #endif
 	announce_dram_init,
-	/* TODO: unify all these dram functions? */
-#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_NDS32) || \
-		defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32) || \
-		defined(CONFIG_SH)
 	dram_init,		/* configure available RAM banks */
-#endif
-#if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
-	init_func_ram,
-#endif
 #ifdef CONFIG_POST
 	post_init_f,
 #endif

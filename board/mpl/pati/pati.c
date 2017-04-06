@@ -135,7 +135,7 @@ extern int mem_test (unsigned long start, unsigned long ramsize, int quiet);
 /*
  * Get RAM size.
  */
-int initdram(void)
+int dram_init(void)
 {
 	unsigned char board_rev;
 	unsigned long reg;

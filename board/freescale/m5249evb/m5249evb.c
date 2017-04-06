@@ -31,7 +31,7 @@ int checkboard (void) {
 };
 
 
-int initdram(void)
+int dram_init(void)
 {
 	unsigned long	junk = 0xa5a59696;
 

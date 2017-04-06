@@ -74,12 +74,12 @@ static void sdram_start (int hi_addr)
 #endif
 
 /*
- * ATTENTION: Although partially referenced initdram does NOT make real use
+ * ATTENTION: Although partially referenced dram_init does NOT make real use
  *	      use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *	      is something else than 0x00000000.
  */
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile struct mpc5xxx_mmap_ctl *mm =
 		(struct mpc5xxx_mmap_ctl *) CONFIG_SYS_MBAR;

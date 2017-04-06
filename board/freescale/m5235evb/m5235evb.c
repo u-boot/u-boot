@@ -22,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	sdram_t *sdram = (sdram_t *)(MMAP_SDRAM);
 	gpio_t *gpio = (gpio_t *)(MMAP_GPIO);

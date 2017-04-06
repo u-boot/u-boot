@@ -111,7 +111,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
-	initdram();
+	dram_init();
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("Tertiary program loader running in sram...");
 #else

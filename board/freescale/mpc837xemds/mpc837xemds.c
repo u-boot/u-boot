@@ -218,7 +218,7 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;

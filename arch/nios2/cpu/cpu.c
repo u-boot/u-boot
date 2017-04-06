@@ -150,3 +150,9 @@ U_BOOT_DRIVER(altera_nios2) = {
 	.ops		= &altera_nios2_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
 };
+
+/* This is a dummy function on nios2 */
+int dram_init(void)
+{
+	return 0;
+}

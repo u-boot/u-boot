@@ -85,7 +85,7 @@ static enum sys_con malta_sys_con(void)
 	}
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_MEM_SIZE;
 

@@ -110,7 +110,7 @@ static void ddr2_pmd_ungate(void)
 }
 
 /* initialize the DDR2 Controller and DDR2 PHY */
-int initdram(void)
+int dram_init(void)
 {
 	ddr2_pmd_ungate();
 	ddr2_phy_init();

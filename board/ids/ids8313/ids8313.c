@@ -119,7 +119,7 @@ static int setup_sdram(void)
 	return msize;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	fsl_lbc_t *lbc = &im->im_lbc;

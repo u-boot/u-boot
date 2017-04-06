@@ -43,7 +43,7 @@ static void cram_bcr_write(u32 wr_val)
 	return;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	int i;
 	u32 val;

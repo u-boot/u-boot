@@ -67,7 +67,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 	i2c_init_all();
 
-	initdram();
+	dram_init();
 
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("TPL\n");

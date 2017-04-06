@@ -987,20 +987,20 @@ static void program_ddr0_44(unsigned long dimm_ranks[],
 }
 
 /*-----------------------------------------------------------------------------+
- * initdram.  Initializes the 440EPx/GPx DDR SDRAM controller.
+ * dram_init.  Initializes the 440EPx/GPx DDR SDRAM controller.
  * Note: This routine runs from flash with a stack set up in the chip's
  * sram space.  It is important that the routine does not require .sbss, .bss or
  * .data sections.  It also cannot call routines that require these sections.
  *-----------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------
- * Function:	 initdram
+ * Function:	 dram_init
  * Description:  Configures SDRAM memory banks for DDR operation.
  *		 Auto Memory Configuration option reads the DDR SDRAM EEPROMs
  *		 via the IIC bus and then configures the DDR SDRAM memory
  *		 banks appropriately. If Auto Memory Configuration is
  *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
-int initdram(void)
+int dram_init(void)
 {
 	unsigned char const iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned long dimm_ranks[MAXDIMMS];
@@ -1014,7 +1014,7 @@ int initdram(void)
 	unsigned long cas_latency = 0;	/* to quiet initialization warning */
 	unsigned long dram_size;
 
-	debug("\nEntering initdram()\n");
+	debug("\nEntering dram_init()\n");
 
 	/*------------------------------------------------------------------
 	 * Stop the DDR-SDRAM controller.

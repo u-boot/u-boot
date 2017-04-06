@@ -11,7 +11,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int initdram(void)
+int dram_init(void)
 {
 	ddr_tap_tuning();
 	gd->ram_size = get_ram_size((void *)KSEG1, SZ_256M);

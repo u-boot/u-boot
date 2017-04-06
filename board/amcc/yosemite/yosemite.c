@@ -205,7 +205,7 @@ int checkboard(void)
 }
 
 /*************************************************************************
- *  initdram -- doesn't use serial presence detect.
+ *  dram_init -- doesn't use serial presence detect.
  *
  *  Assumes:    256 MB, ECC, non-registered
  *              PLB @ 133 MHz
@@ -286,7 +286,7 @@ void sdram_tr1_set(int ram_address, int* tr1_value)
 	*tr1_value = (first_good + last_bad) / 2;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	register uint reg;
 	int tr1_bank1, tr1_bank2;

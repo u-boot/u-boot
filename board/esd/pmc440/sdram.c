@@ -42,7 +42,7 @@ struct sdram_conf_s sdram_conf[] = {
 };
 
 /*
- * initdram -- 440EPx's DDR controller is a DENALI Core
+ * dram_init -- 440EPx's DDR controller is a DENALI Core
  */
 int initdram_by_rb(int rows, int banks)
 {
@@ -107,7 +107,7 @@ int initdram_by_rb(int rows, int banks)
 	return 0;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	phys_size_t size;
 	int n;

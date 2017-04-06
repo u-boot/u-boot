@@ -225,9 +225,6 @@ void	hang		(void) __attribute__ ((noreturn));
 int	timer_init(void);
 int	cpu_init(void);
 
-/* */
-int initdram(void);
-
 #include <display_options.h>
 
 /* common/main.c */

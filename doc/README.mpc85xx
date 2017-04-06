@@ -156,7 +156,7 @@ B) !defined(CONFIG_SYS_RAMBOOT) i.e. NOR boot
        Disable	  : 15, 14
 
    11) Create DDR's TLB entriy
-       Location	  : Board_init_f -> init_func_ram -> initdram
+       Location	  : Board_init_f -> dram_init
        TLB entry  : Search free TLB entry
 
    12) Update Flash's TLB entry

@@ -330,7 +330,7 @@ static int fixed_sdram(void)
 	return msize;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;

@@ -32,7 +32,7 @@ void board_init_f(ulong bootflag)
 	/*
 	 * On MPC5200, the initial RAM (and gd) is located in the internal
 	 * SRAM. So we can actually call the preloader console init code
-	 * before calling initdram(). This makes serial output (printf)
+	 * before calling dram_init(). This makes serial output (printf)
 	 * available very early, even before SDRAM init, which has been
 	 * an U-Boot priciple from day 1.
 	 */
@@ -62,7 +62,7 @@ void board_init_f(ulong bootflag)
 	 * First we need to initialize the SDRAM, so that the real
 	 * U-Boot or the OS (Linux) can be loaded
 	 */
-	initdram();
+	dram_init();
 
 	/* Clear bss */
 	memset(__bss_start, '\0', __bss_end - __bss_start);

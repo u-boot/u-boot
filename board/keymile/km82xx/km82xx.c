@@ -291,7 +291,7 @@ static long probe_sdram(memctl8260_t *memctl)
 #endif /* CONFIG_SYS_SDRAM_LIST */
 
 
-int initdram(void)
+int dram_init(void)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl8260_t *memctl = &immap->im_memctl;

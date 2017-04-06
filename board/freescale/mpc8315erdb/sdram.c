@@ -92,7 +92,7 @@ static long fixed_sdram(void)
 }
 #endif /* CONFIG_SYS_RAMBOOT */
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	u32 msize;

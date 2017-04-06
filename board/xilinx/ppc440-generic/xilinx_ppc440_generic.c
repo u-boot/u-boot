@@ -19,7 +19,7 @@ int checkboard(void)
 	return 0;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
 			    CONFIG_SYS_SDRAM_SIZE_MB * 1024 * 1024);

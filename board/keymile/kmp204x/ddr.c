@@ -50,7 +50,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR_ODT_75ohm;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 

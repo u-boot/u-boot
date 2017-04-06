@@ -95,7 +95,7 @@ int is_micron(void){
 	return(ismicron);
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	u32 msize = 0;
 	/*

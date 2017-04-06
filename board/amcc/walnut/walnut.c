@@ -73,10 +73,10 @@ int checkboard(void)
 }
 
 /*
- * initdram() reads EEPROM via I2c. EEPROM contains all of
+ * dram_init() reads EEPROM via I2c. EEPROM contains all of
  * the necessary info for SDRAM controller configuration
  */
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = spd_sdram();
 

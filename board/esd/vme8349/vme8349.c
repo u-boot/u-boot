@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void ddr_enable_ecc(unsigned int dram_size);
 
-int initdram(void)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;

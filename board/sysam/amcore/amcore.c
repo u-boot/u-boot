@@ -40,7 +40,7 @@ int checkboard(void)
 }
 
 /*
- * in initdram we are here executing from flash
+ * in dram_init we are here executing from flash
  * case 1:
  * is with no ACR/flash cache enabled
  * nop = 40ns (scope measured)
@@ -51,7 +51,7 @@ void fudelay(int usec)
 		asm volatile ("nop");
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	u32 dramsize, RC;
 

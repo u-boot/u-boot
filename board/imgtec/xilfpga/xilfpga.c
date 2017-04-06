@@ -14,7 +14,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* initialize the DDR Controller and PHY */
-int initdram(void)
+int dram_init(void)
 {
 	/* MIG IP block is smart and doesn't need SW
 	 * to do any init */

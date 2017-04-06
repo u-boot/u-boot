@@ -21,7 +21,7 @@ int checkboard(void)
 	return 0;
 };
 
-int initdram(void)
+int dram_init(void)
 {
 	/*
 	 * Check to see if the SDRAM has already been initialized

@@ -118,7 +118,7 @@ int checkboard(void)
 }
 
 
-int initdram(void)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 

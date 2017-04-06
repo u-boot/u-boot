@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = fixed_sdram(NULL, NULL, 0);
 

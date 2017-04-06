@@ -62,7 +62,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int initdram(void)
+int dram_init(void)
 {
 	gd->ram_size = get_ram_size(0, fixed_sdram(NULL, NULL, 0));
 

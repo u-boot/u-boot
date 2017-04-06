@@ -13,7 +13,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int initdram(void)
+int dram_init(void)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */
