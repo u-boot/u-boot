@@ -265,15 +265,21 @@
 	"if mmc rescan; then " \
 		"run mmcboot; "
 	"fi"
-#define CONFIG_EXTRA_ENV_SETTINGS \
+
+#define DEFAULT_LINUX_BOOT_ENV \
+	"loadaddr=0xc0700000\0" \
 	"fdtaddr=0xc0600000\0" \
+	"scriptaddr=0xc0600000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=da850-lcdk.dtb\0" \
-	"fdtboot=bootz 0xc0700000 - ${fdtaddr};\0" \
+	"fdtboot=bootz ${loadaddr} - ${fdtaddr};\0" \
 	"mmcboot=" \
-		"if fatload mmc 0 0xc0600000 boot.scr; then " \
-			"source 0xc0600000; " \
+		"if fatload mmc 0 ${scriptaddr} boot.scr; then " \
+			"source ${scriptaddr}; " \
 		"else " \
-			"fatload mmc 0 0xc0700000 " \
+			"fatload mmc 0 ${loadaddr} " \
 				__stringify(CONFIG_BOOTFILE) "; " \
 			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
 			"run fdtboot; " \
