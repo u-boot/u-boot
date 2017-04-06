@@ -251,8 +251,10 @@ static void spi_flash_dual(struct spi_flash *flash, u32 *addr)
 		if (*addr >= (flash->size >> 1)) {
 			*addr -= flash->size >> 1;
 			flash->flags |= SNOR_F_USE_UPAGE;
+			flash->spi->flags |= SPI_XFER_U_PAGE;
 		} else {
 			flash->flags &= ~SNOR_F_USE_UPAGE;
+			flash->spi->flags &= ~SPI_XFER_U_PAGE;
 		}
 		break;
 	case SF_DUAL_PARALLEL_FLASH:
