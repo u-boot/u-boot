@@ -260,30 +260,27 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		"console=ttyS2,115200n8 root=/dev/mmcblk0p2 rw rootwait ip=off"
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan; then " \
+		"run envboot; " \
 		"run mmcboot; "
-	"fi"
 
 #define DEFAULT_LINUX_BOOT_ENV \
 	"loadaddr=0xc0700000\0" \
 	"fdtaddr=0xc0600000\0" \
 	"scriptaddr=0xc0600000\0"
 
+#include <environment/ti/mmc.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
+	DEFAULT_MMC_TI_ARGS \
+	"bootpart=0:2\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
 	"fdtfile=da850-lcdk.dtb\0" \
-	"fdtboot=bootz ${loadaddr} - ${fdtaddr};\0" \
-	"mmcboot=" \
-		"if fatload mmc 0 ${scriptaddr} boot.scr; then " \
-			"source ${scriptaddr}; " \
-		"else " \
-			"fatload mmc 0 ${loadaddr} " \
-				__stringify(CONFIG_BOOTFILE) "; " \
-			"fatload mmc 0 ${fdtaddr} ${fdtfile}; " \
-			"run fdtboot; " \
-		"fi;\0"
+	"boot_fdt=yes\0" \
+	"boot_fit=0\0" \
+	"console=ttyS2,115200n8\0"
 
 /*
  * U-Boot commands
