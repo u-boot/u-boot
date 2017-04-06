@@ -24,7 +24,7 @@
 #include <asm/arch/dram_sun8i_a33.h>
 #elif defined(CONFIG_MACH_SUN8I_A83T)
 #include <asm/arch/dram_sun8i_a83t.h>
-#elif defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#elif defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 #include <asm/arch/dram_sun8i_h3.h>
 #elif defined(CONFIG_MACH_SUN9I)
 #include <asm/arch/dram_sun9i.h>

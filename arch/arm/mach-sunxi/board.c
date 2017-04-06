@@ -40,7 +40,7 @@ struct fel_stash {
 
 struct fel_stash fel_stash __attribute__((section(".data")));
 
-#ifdef CONFIG_MACH_SUN50I
+#ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 
 static struct mm_region sunxi_mem_map[] = {
@@ -98,7 +98,7 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN8I_A33_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN8I_A33_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(1), SUNXI_GPIO_PULL_UP);
-#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_H3)
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUNXI_H3_H5)
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(4), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(5), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPA(5), SUNXI_GPIO_PULL_UP);
@@ -180,15 +180,13 @@ void s_init(void)
 	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
 
-#if defined CONFIG_MACH_SUN6I || \
-    defined CONFIG_MACH_SUN7I || \
-    defined CONFIG_MACH_SUN8I || \
-    defined CONFIG_MACH_SUN9I
+#if !defined(CONFIG_ARM_CORTEX_CPU_IS_UP) && !defined(CONFIG_ARM64)
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"
 		"orr r0, r0, #1 << 6\n"
-		"mcr p15, 0, r0, c1, c0, 1\n");
+		"mcr p15, 0, r0, c1, c0, 1\n"
+		::: "r0");
 #endif
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
 	/* Enable non-secure access to some peripherals */

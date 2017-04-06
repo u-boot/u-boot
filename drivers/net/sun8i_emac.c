@@ -62,7 +62,7 @@
 
 #define AHB_GATE_OFFSET_EPHY	0
 
-#if defined(CONFIG_MACH_SUN8I_H3)
+#if defined(CONFIG_MACH_SUNXI_H3_H5)
 #define SUN8I_GPD8_GMAC		2
 #else
 #define SUN8I_GPD8_GMAC		4

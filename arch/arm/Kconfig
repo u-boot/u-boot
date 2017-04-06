@@ -214,6 +214,10 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  ARM_SOC_BOOT0_HOOK which contains the required assembler
 	  preprocessor code.
 
+config ARM_CORTEX_CPU_IS_UP
+	bool
+	default n
+
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
 	default y

@@ -188,11 +188,11 @@ ENTRY(_nonsec_init)
  * we do this here instead.
  * But first check if we have the generic timer.
  */
-#ifdef CONFIG_TIMER_CLK_FREQ
+#ifdef COUNTER_FREQUENCY
 	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
 	and	r0, r0, #CPUID_ARM_GENTIMER_MASK	@ mask arch timer bits
 	cmp	r0, #(1 << CPUID_ARM_GENTIMER_SHIFT)
-	ldreq	r1, =CONFIG_TIMER_CLK_FREQ
+	ldreq	r1, =COUNTER_FREQUENCY
 	mcreq	p15, 0, r1, c14, c0, 0		@ write CNTFRQ
 #endif
 

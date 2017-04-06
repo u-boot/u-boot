@@ -37,7 +37,7 @@
 
 	.align	5
 
-#define	ONE_MS		(GENERIC_TIMER_CLK / 1000)
+#define	ONE_MS		(COUNTER_FREQUENCY / 1000)
 #define	RESET_WAIT	(30 * ONE_MS)
 
 .globl	psci_version

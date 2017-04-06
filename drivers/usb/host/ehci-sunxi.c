@@ -45,7 +45,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	 * clocks resp. phys.
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
-#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #endif
 	priv->phy_index = ((uintptr_t)hccr - SUNXI_USB1_BASE) / BASE_DIST;

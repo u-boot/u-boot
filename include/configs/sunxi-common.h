@@ -46,7 +46,7 @@
 #endif
 
 /* CPU */
-#define CONFIG_TIMER_CLK_FREQ		24000000
+#define COUNTER_FREQUENCY		24000000
 
 /*
  * The DRAM Base differs between some models. We cannot use macros for the
@@ -79,7 +79,7 @@
 
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 
-#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
+#ifdef CONFIG_SUNXI_HIGH_SRAM
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
  * slightly bigger. Note that it is possible to map the first 32 KiB of the
@@ -175,16 +175,17 @@
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 #endif
 
-#if defined(CONFIG_MACH_SUN9I)
+#ifdef CONFIG_SUNXI_HIGH_SRAM
 #define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* ? KiB on sun9i */
-#elif defined(CONFIG_MACH_SUN50I)
-#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x7fc0		/* 32 KiB on sun50i */
+#define CONFIG_SPL_MAX_SIZE		0x7fc0		/* 32 KiB */
+#define LOW_LEVEL_SRAM_STACK		0x00018000
 #else
 #define CONFIG_SPL_TEXT_BASE		0x40		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
+#define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
 #endif
+
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #ifndef CONFIG_ARM64
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
@@ -192,15 +193,6 @@
 
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
-#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
-/* FIXME: 40 KiB instead of 32 KiB ? */
-#define LOW_LEVEL_SRAM_STACK		0x00018000
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
-#else
-/* end of 32 KiB in sram */
-#define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
-#endif
 
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
