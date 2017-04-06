@@ -919,6 +919,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	dr_mode = "host";
 };
 
+&watchdog0 {
+	status = "okay";
+};
+
 &xilinx_ams {
 	status = "okay";
 };
