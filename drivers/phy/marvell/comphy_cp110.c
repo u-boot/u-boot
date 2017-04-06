@@ -715,7 +715,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
  * the init split in 3 parts:
  * 1. Power down transceiver and PLL
  * 2. UTMI PHY configure
- * 3. Powe up transceiver and PLL
+ * 3. Power up transceiver and PLL
  * Note: - Power down/up should be once for both UTMI PHYs
  *       - comphy_dedicated_phys_init call this function if at least there is
  *         one UTMI PHY exists in FDT blob. access to cp110_utmi_data[0] is
@@ -782,45 +782,47 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
 void comphy_dedicated_phys_init(void)
 {
 	struct utmi_phy_data cp110_utmi_data[MAX_UTMI_PHY_COUNT];
-	int node;
-	int i;
+	int node = -1;
+	int node_idx;
 
 	debug_enter();
 	debug("Initialize USB UTMI PHYs\n");
 
-	/* Find the UTMI phy node in device tree and go over them */
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-					     "marvell,mvebu-utmi-2.6.0");
+	for (node_idx = 0; node_idx < MAX_UTMI_PHY_COUNT;) {
+		/* Find the UTMI phy node in device tree */
+		node = fdt_node_offset_by_compatible(gd->fdt_blob, node,
+						     "marvell,mvebu-utmi-2.6.0");
+		if (node <= 0)
+			break;
 
-	i = 0;
-	while (node > 0) {
+		/* check if node is enabled */
+		if (!fdtdec_get_is_enabled(gd->fdt_blob, node))
+			continue;
+
 		/* get base address of UTMI phy */
-		cp110_utmi_data[i].utmi_base_addr =
+		cp110_utmi_data[node_idx].utmi_base_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 0, NULL, true);
-		if (cp110_utmi_data[i].utmi_base_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].utmi_base_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
 		/* get usb config address */
-		cp110_utmi_data[i].usb_cfg_addr =
+		cp110_utmi_data[node_idx].usb_cfg_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 1, NULL, true);
-		if (cp110_utmi_data[i].usb_cfg_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].usb_cfg_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
 		/* get UTMI config address */
-		cp110_utmi_data[i].utmi_cfg_addr =
+		cp110_utmi_data[node_idx].utmi_cfg_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 2, NULL, true);
-		if (cp110_utmi_data[i].utmi_cfg_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].utmi_cfg_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
@@ -828,21 +830,20 @@ void comphy_dedicated_phys_init(void)
 		 * get the port number (to check if the utmi connected to
 		 * host/device)
 		 */
-		cp110_utmi_data[i].utmi_phy_port = fdtdec_get_int(
+		cp110_utmi_data[node_idx].utmi_phy_port = fdtdec_get_int(
 			gd->fdt_blob, node, "utmi-port", UTMI_PHY_INVALID);
-		if (cp110_utmi_data[i].utmi_phy_port == UTMI_PHY_INVALID) {
+		if (cp110_utmi_data[node_idx].utmi_phy_port ==
+							UTMI_PHY_INVALID) {
 			pr_err("UTMI PHY port type is invalid\n");
-			i++;
 			continue;
 		}
 
-		node = fdt_node_offset_by_compatible(
-			gd->fdt_blob, node, "marvell,mvebu-utmi-2.6.0");
-		i++;
+		/* count valid UTMI unit */
+		node_idx++;
 	}
 
-	if (i > 0)
-		comphy_utmi_phy_init(i, cp110_utmi_data);
+	if (node_idx > 0)
+		comphy_utmi_phy_init(node_idx, cp110_utmi_data);
 
 	debug_exit();
 }
