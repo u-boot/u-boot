@@ -229,12 +229,8 @@ ENTRY(lowlevel_init)
 	 * NOTE: As per the CCSR map doc, TZASC 3 and TZASC 4 are just
 	 * 	 placeholders.
 	 */
+#ifdef CONFIG_FSL_TZASC_1
 	ldr	x1, =TZASC_GATE_KEEPER(0)
-	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
-	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
-	str	w0, [x1]
-
-	ldr	x1, =TZASC_GATE_KEEPER(1)
 	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
 	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
 	str	w0, [x1]
@@ -245,22 +241,28 @@ ENTRY(lowlevel_init)
 	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
 	str	w0, [x1]
 
+	ldr	x1, =TZASC_REGION_ID_ACCESS_0(0)
+	ldr	w0, [x1]		/* Region-0 Access Register */
+	mov	w0, #0xFFFFFFFF		/* Set nsaid_wr_en and nsaid_rd_en */
+	str	w0, [x1]
+#endif
+#ifdef CONFIG_FSL_TZASC_2
+	ldr	x1, =TZASC_GATE_KEEPER(1)
+	ldr	w0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	w0, w0, #1 << 0		/* Set open_request for Filter 0 */
+	str	w0, [x1]
+
 	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(1)
 	ldr	w0, [x1]		/* Region-1 Attributes Register */
 	orr	w0, w0, #1 << 31	/* Set Sec global write en, Bit[31] */
 	orr	w0, w0, #1 << 30	/* Set Sec global read en, Bit[30] */
 	str	w0, [x1]
 
-	ldr	x1, =TZASC_REGION_ID_ACCESS_0(0)
-	ldr	w0, [x1]		/* Region-0 Access Register */
-	mov	w0, #0xFFFFFFFF		/* Set nsaid_wr_en and nsaid_rd_en */
-	str	w0, [x1]
-
 	ldr	x1, =TZASC_REGION_ID_ACCESS_0(1)
 	ldr	w0, [x1]		/* Region-1 Attributes Register */
 	mov	w0, #0xFFFFFFFF		/* Set nsaid_wr_en and nsaid_rd_en */
 	str	w0, [x1]
-
+#endif
 	isb
 	dsb	sy
 #endif
