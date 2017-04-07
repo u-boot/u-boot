@@ -1,0 +1,15 @@
+if TARGET_PUMA_RK3399
+
+config SYS_BOARD
+	default "puma_rk3399"
+
+config SYS_VENDOR
+	default "theobroma-systems"
+
+config SYS_CONFIG_NAME
+	default "puma_rk3399"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
