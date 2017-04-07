@@ -117,7 +117,7 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 			divisor = UART_PL010_BAUD_9600;
 			break;
 		case 19200:
-			divisor = UART_PL010_BAUD_9600;
+			divisor = UART_PL010_BAUD_19200;
 			break;
 		case 38400:
 			divisor = UART_PL010_BAUD_38400;
