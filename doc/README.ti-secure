@@ -133,6 +133,26 @@ Booting of U-Boot SPL
 	u-boot-spl_HS_X-LOADER - boot image for all other flash memories
 		including QSPI and NOR flash
 
+	Invoking the script for Keystone2 Secure Devices
+	=============================================
+
+	create-boot-image.sh \
+		<UNUSED> <INPUT_FILE> <OUTPUT_FILE> <UNUSED>
+
+	<UNUSED> is currently ignored and reserved for future use.
+
+	<INPUT_FILE> is the full path and filename of the public world boot
+	loader binary file (only u-boot.bin is currently supported on
+	Keystone2 devices, u-boot-spl.bin is not currently supported).
+
+	<OUTPUT_FILE> is the full path and filename of the final secure image.
+	The output binary images should be used in place of the standard
+	non-secure binary images (see the platform-specific user's guides
+	and releases notes for how the non-secure images are typically used)
+	u-boot_HS_MLO - signed and encrypted boot image that can be used to
+		boot from all media. Secure boot from SPI NOR flash is not
+		currently supported.
+
 Booting of Primary U-Boot (u-boot.img)
 ======================================
 
