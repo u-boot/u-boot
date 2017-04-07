@@ -540,7 +540,6 @@ static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 	dev_desc->blksz = blksz;
 	dev_desc->log2blksz = LOG2(dev_desc->blksz);
 	dev_desc->type = perq;
-	part_init(&dev_desc[0]);
 removable:
 	return 0;
 }
@@ -605,6 +604,7 @@ int scsi_scan(int mode)
 					device_unbind(bdev);
 					continue;
 				}
+				part_init(bdesc);
 
 				if (mode == 1) {
 					printf("  Device %d: ", 0);
@@ -634,6 +634,7 @@ int scsi_scan(int mode)
 					      &scsi_dev_desc[scsi_max_devs]);
 			if (ret)
 				continue;
+			part_init(&scsi_dev_desc[scsi_max_devs]);
 
 			if (mode == 1) {
 				printf("  Device %d: ", 0);
