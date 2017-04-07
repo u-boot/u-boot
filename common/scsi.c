@@ -580,8 +580,18 @@ int scsi_scan(int mode)
 			for (lun = 0; lun < plat->max_lun; lun++) {
 				struct udevice *bdev; /* block device */
 				/* block device description */
+				struct blk_desc _bd;
 				struct blk_desc *bdesc;
 				char str[10];
+
+				scsi_init_dev_desc_priv(&_bd);
+				ret = scsi_detect_dev(i, lun, &_bd);
+				if (ret)
+					/*
+					 * no device detected?
+					 * check the next lun.
+					 */
+					continue;
 
 				/*
 				 * Create only one block device and do detection
@@ -590,20 +600,27 @@ int scsi_scan(int mode)
 				 */
 				snprintf(str, sizeof(str), "id%dlun%d", i, lun);
 				ret = blk_create_devicef(dev, "scsi_blk",
-							  str, IF_TYPE_SCSI,
-							  -1, 0, 0, &bdev);
+						str, IF_TYPE_SCSI,
+						-1,
+						_bd.blksz,
+						_bd.blksz * _bd.lba,
+						&bdev);
 				if (ret) {
 					debug("Can't create device\n");
 					return ret;
 				}
-				bdesc = dev_get_uclass_platdata(bdev);
 
-				scsi_init_dev_desc_priv(bdesc);
-				ret = scsi_detect_dev(i, lun, bdesc);
-				if (ret) {
-					device_unbind(bdev);
-					continue;
-				}
+				bdesc = dev_get_uclass_platdata(bdev);
+				bdesc->target = i;
+				bdesc->lun = lun;
+				bdesc->removable = _bd.removable;
+				bdesc->type = _bd.type;
+				memcpy(&bdesc->vendor, &_bd.vendor,
+				       sizeof(_bd.vendor));
+				memcpy(&bdesc->product, &_bd.product,
+				       sizeof(_bd.product));
+				memcpy(&bdesc->revision, &_bd.revision,
+				       sizeof(_bd.revision));
 				part_init(bdesc);
 
 				if (mode == 1) {
