@@ -27,6 +27,7 @@ struct spl_image_info {
 	ulong entry_point;
 	u32 size;
 	u32 flags;
+	void *arg;
 };
 
 /*
@@ -106,10 +107,8 @@ int spl_board_ubi_load_image(u32 boot_device);
  * This jumps into a Linux kernel using the information in @spl_image.
  *
  * @spl_image: Image description to set up
- * @arg: Argument to pass to Linux (typically a device tree pointer)
  */
-void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
-				    void *arg);
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image);
 
 /**
  * spl_start_uboot() - Check if SPL should start the kernel or U-Boot

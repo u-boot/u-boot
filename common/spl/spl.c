@@ -345,6 +345,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 
 	memset(&spl_image, '\0', sizeof(spl_image));
+#ifdef CONFIG_SYS_SPL_ARGS_ADDR
+	spl_image.arg = (void *)CONFIG_SYS_SPL_ARGS_ADDR;
+#endif
 	board_boot_order(spl_boot_list);
 
 	if (boot_from_devices(&spl_image, spl_boot_list,
@@ -361,8 +364,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
 		spl_board_prepare_for_linux();
-		jump_to_image_linux(&spl_image,
-				    (void *)CONFIG_SYS_SPL_ARGS_ADDR);
+		jump_to_image_linux(&spl_image);
 #endif
 	default:
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
