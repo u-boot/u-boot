@@ -1,0 +1,37 @@
+U-Boot for LogicPD i.MX6 Development Kit
+----------------------------------------
+
+This file contains information for the port of U-Boot to the Logic PD Development kit.
+
+Logic PD has an i.MX6 System On Module (SOM) and a correspondong development
+board.  SOM has a built-in microSD socket, DDR and NAND flash.  The development kit has
+an SMSC Ethernet PHY, serial debug port and a variety of peripherals.
+
+On the intial release, the SOM came with either an i.MX6D or i.MX6Q.
+
+For more details about Logic PD i.MX6 Development kit, visit:
+https://www.logicpd.com/
+
+Building U-Boot for Logic PD Development Kit
+--------------------------------------------
+To build U-Boot for the Dual and Quad variants:
+
+ make imx6q_logic_defconfig
+ make u-boot.imx ARCH=arm CROSS_COMPILE=arm-linux-
+
+
+Flashing U-Boot into the SD card
+--------------------------------
+
+See README.imximage for details on booting from SD
+
+Flashing U-Boot into NAND
+-------------------------
+Once in Linux with MTD support for the NAND on /dev/mtd0, program U-Boot with the following:
+with:
+
+  kobs-ng init -v -x u-boot-dtb.imx
+
+Additional Support Documentation can be found at:
+https://support.logicpd.com/
+
