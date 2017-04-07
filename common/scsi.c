@@ -473,14 +473,15 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
  * scsi_detect_dev - Detect scsi device
  *
  * @target: target id
+ * @lun: target lun
  * @dev_desc: block device description
  *
  * The scsi_detect_dev detects and fills a dev_desc structure when the device is
- * detected. The LUN number is taken from the struct blk_desc *dev_desc.
+ * detected.
  *
  * Return: 0 on success, error value otherwise
  */
-static int scsi_detect_dev(int target, struct blk_desc *dev_desc)
+static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
 	lbaint_t capacity;
@@ -488,7 +489,7 @@ static int scsi_detect_dev(int target, struct blk_desc *dev_desc)
 	ccb *pccb = (ccb *)&tempccb;
 
 	pccb->target = target;
-	pccb->lun = dev_desc->lun;
+	pccb->lun = lun;
 	pccb->pdata = (unsigned char *)&tempbuff;
 	pccb->datalen = 512;
 	scsi_setup_inquiry(pccb);
@@ -599,8 +600,7 @@ int scsi_scan(int mode)
 				bdesc = dev_get_uclass_platdata(bdev);
 
 				scsi_init_dev_desc_priv(bdesc);
-				bdesc->lun = lun;
-				ret = scsi_detect_dev(i, bdesc);
+				ret = scsi_detect_dev(i, lun, bdesc);
 				if (ret) {
 					device_unbind(bdev);
 					continue;
@@ -630,8 +630,8 @@ int scsi_scan(int mode)
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
-			scsi_dev_desc[scsi_max_devs].lun = lun;
-			ret = scsi_detect_dev(i, &scsi_dev_desc[scsi_max_devs]);
+			ret = scsi_detect_dev(i, lun,
+					      &scsi_dev_desc[scsi_max_devs]);
 			if (ret)
 				continue;
 
