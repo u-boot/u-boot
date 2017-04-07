@@ -228,9 +228,6 @@
 # define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
 #endif /* SPI support */
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE

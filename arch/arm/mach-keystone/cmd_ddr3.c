@@ -15,12 +15,13 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define DDR_MIN_ADDR		CONFIG_SYS_SDRAM_BASE
+#define STACKSIZE		(512 << 10)     /* 512 KiB */
 
 #define DDR_REMAP_ADDR		0x80000000
 #define ECC_START_ADDR1		((DDR_MIN_ADDR - DDR_REMAP_ADDR) >> 17)
 
 #define ECC_END_ADDR1		(((gd->start_addr_sp - DDR_REMAP_ADDR - \
-				 CONFIG_STACKSIZE) >> 17) - 2)
+				 STACKSIZE) >> 17) - 2)
 
 #define DDR_TEST_BURST_SIZE	1024
 

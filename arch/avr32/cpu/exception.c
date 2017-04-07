@@ -10,6 +10,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define STACKSIZE	2048
+
 static const char * const cpu_modes[8] = {
 	"Application", "Supervisor", "Interrupt level 0", "Interrupt level 1",
 	"Interrupt level 2", "Interrupt level 3", "Exception", "NMI"
@@ -96,7 +98,7 @@ void do_unknown_exception(unsigned int ecr, struct pt_regs *regs)
 	printf("CPU Mode: %s\n", cpu_modes[mode]);
 
 	/* Avoid exception loops */
-	if (regs->sp < (gd->start_addr_sp - CONFIG_STACKSIZE) ||
+	if (regs->sp < (gd->start_addr_sp - STACKSIZE) ||
 	    regs->sp >= gd->start_addr_sp)
 		printf("\nStack pointer seems bogus, won't do stack dump\n");
 	else

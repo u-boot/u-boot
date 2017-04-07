@@ -117,9 +117,6 @@
 					"1m(uboot),256k(environment),"\
 					"-(filesystem)"
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 /* SPL */
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 

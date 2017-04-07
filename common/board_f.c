@@ -137,11 +137,6 @@ static int display_text_info(void)
 		text_base, bss_start, bss_end);
 #endif
 
-#ifdef CONFIG_USE_IRQ
-	debug("IRQ Stack: %08lx\n", IRQ_STACK_START);
-	debug("FIQ Stack: %08lx\n", FIQ_STACK_START);
-#endif
-
 	return 0;
 }
 

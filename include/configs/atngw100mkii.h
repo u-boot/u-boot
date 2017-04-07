@@ -71,8 +71,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_STACKSIZE		(2048)
-
 #define CONFIG_BOOTARGS							\
 	"root=mtd:main rootfstype=jffs2"
 #define CONFIG_BOOTCOMMAND						\

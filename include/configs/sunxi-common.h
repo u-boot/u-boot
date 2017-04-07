@@ -155,11 +155,6 @@
 /* standalone support */
 #define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 
-/* baudrate */
-
-/* The stack sizes are set up in start.S using the settings below */
-#define CONFIG_STACKSIZE		(256 << 10)	/* 256 KiB */
-
 /* FLASH and environment organization */
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */

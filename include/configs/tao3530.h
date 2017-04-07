@@ -196,13 +196,6 @@
 #define CONFIG_SYS_PTV			2       /* Divisor: 2^(PTV+1) => 8 */
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
-
-/*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */

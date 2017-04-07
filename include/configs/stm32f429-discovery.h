@@ -66,8 +66,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(2 << 20)
 
-#define CONFIG_STACKSIZE		(64 << 10)
-
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 #define CONFIG_BOOTCOMMAND						\

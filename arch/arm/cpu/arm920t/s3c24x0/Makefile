@@ -5,7 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_USE_IRQ) += interrupts.o
 obj-$(CONFIG_DISPLAY_CPUINFO)	+= cpu_info.o
 obj-y	+= speed.o
 obj-y	+= timer.o

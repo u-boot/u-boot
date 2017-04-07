@@ -107,7 +107,6 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 #endif	/* CONFIG_DRIVER_TI_EMAC */
 
 #if defined(CONFIG_SOC_DA8XX)
-#ifndef CONFIG_USE_IRQ
 void irq_init(void)
 {
 	/*
@@ -122,7 +121,6 @@ void irq_init(void)
 	writel(0xffffffff, &davinci_aintc_regs->ecr2);
 	writel(0xffffffff, &davinci_aintc_regs->ecr3);
 }
-#endif
 
 /*
  * Enable PSC for various peripherals.

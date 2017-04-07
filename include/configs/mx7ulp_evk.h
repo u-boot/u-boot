@@ -88,7 +88,6 @@
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_STACKSIZE		SZ_8K
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

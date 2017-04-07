@@ -489,10 +489,6 @@ static void enc_poll(enc_dev_t *enc)
 	u8 eir_reg;
 	u8 pkt_cnt;
 
-#ifdef CONFIG_USE_IRQ
-	/* clear global interrupt enable bit in enc28j60 */
-	enc_bclr(enc, CTL_REG_EIE, ENC_EIE_INTIE);
-#endif
 	(void)enc_r8(enc, CTL_REG_ESTAT);
 	eir_reg = enc_r8(enc, CTL_REG_EIR);
 	if (eir_reg & ENC_EIR_TXIF) {
@@ -520,10 +516,6 @@ static void enc_poll(enc_dev_t *enc)
 		printf("%s: tx error\n", enc->dev->name);
 		enc_bclr(enc, CTL_REG_EIR, ENC_EIR_TXERIF);
 	}
-#ifdef CONFIG_USE_IRQ
-	/* set global interrupt enable bit in enc28j60 */
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_INTIE);
-#endif
 }
 
 /*
@@ -692,15 +684,6 @@ static int enc_setup(enc_dev_t *enc)
 
 	/* Reset PDPXMD-bit => half duplex */
 	enc_phy_write(enc, PHY_REG_PHCON1, 0);
-
-#ifdef CONFIG_USE_IRQ
-	/* enable interrupts */
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_PKTIE);
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_TXIE);
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_RXERIE);
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_TXERIE);
-	enc_bset(enc, CTL_REG_EIE, ENC_EIE_INTIE);
-#endif
 
 	return 0;
 }

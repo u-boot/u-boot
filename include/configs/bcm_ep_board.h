@@ -28,7 +28,6 @@
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-#define CONFIG_STACKSIZE		(256 * 1024)
 
 /* Some commands use this as the default load address */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE

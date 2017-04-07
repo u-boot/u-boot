@@ -145,9 +145,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/* arch number of the board */
 	/* LEGO didn't register for a unique number and uses da850evm */

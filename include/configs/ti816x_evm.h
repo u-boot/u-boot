@@ -137,7 +137,4 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 #endif

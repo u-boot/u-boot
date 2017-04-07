@@ -74,7 +74,6 @@
 #define CONFIG_EP93XX		1		/* This is a Cirrus Logic 93xx SoC */
 
 #define CONFIG_SYS_CLK_FREQ	14745600	/* EP93xx has a 14.7456 clock */
-#undef CONFIG_USE_IRQ				/* Don't need IRQ/FIQ */
 
 /* Monitor configuration */
 #undef CONFIG_CMD_DATE
@@ -161,12 +160,6 @@
 
 /* Run-time memory allocatons */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_STACKSIZE		(128 * 1024)
-
-#if defined(CONFIG_USE_IRQ)
-#define CONFIG_STACKSIZE_IRQ	(4 * 1024)
-#define CONFIG_STACKSIZE_FIQ	(4 * 1024)
-#endif
 
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 

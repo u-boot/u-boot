@@ -69,8 +69,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_STACKSIZE		(2048)
-
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0 root=/dev/mmcblk0p1 fbmem=600k rootwait=1"
 

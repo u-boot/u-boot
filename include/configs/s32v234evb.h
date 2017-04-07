@@ -199,12 +199,6 @@
 #define CONFIG_SYS_MALLOC_BASE		(DDR_BASE_ADDR)
 #endif
 
-/*
- * Stack sizes
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
-
 #if 0
 /* Configure PXE */
 #define CONFIG_BOOTP_PXE

@@ -66,7 +66,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-#define CONFIG_SYS_STACKSIZE		(512 << 10)	/* stack 512KB */
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* heap  256KB */
 
 /* Linux boot param area in RAM (used only when booting linux) */
@@ -110,7 +109,6 @@
 /* U-Boot general configuration */
 /*==============================*/
 
-#undef	CONFIG_USE_IRQ			/* Keep it simple, poll only */
 #define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_MISC_INIT_R
 

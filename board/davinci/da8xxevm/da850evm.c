@@ -323,9 +323,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 	/*

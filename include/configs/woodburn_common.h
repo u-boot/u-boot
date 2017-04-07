@@ -119,13 +119,6 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-
-/*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1

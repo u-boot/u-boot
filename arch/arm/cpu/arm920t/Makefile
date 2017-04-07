@@ -8,7 +8,6 @@
 extra-y	= start.o
 
 obj-y	+= cpu.o
-obj-$(CONFIG_USE_IRQ)	+= interrupts.o
 
 obj-$(CONFIG_EP93XX) += ep93xx/
 obj-$(CONFIG_IMX) += imx/

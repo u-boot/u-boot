@@ -24,7 +24,6 @@
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M	/* see armv7/start.S. */
-#define CONFIG_STACKSIZE		SZ_256K
 
 /* GPIO Driver */
 #define CONFIG_KONA_GPIO

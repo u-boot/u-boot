@@ -179,9 +179,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 /* Ethernet */
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
