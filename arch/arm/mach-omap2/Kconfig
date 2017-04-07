@@ -1,6 +1,6 @@
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"
-	depends on OMAP54XX || AM43XX || AM33XX
+	depends on OMAP54XX || AM43XX || AM33XX || ARCH_KEYSTONE
 	help
 	  If a high secure (HS) device type is being used, this config
 	  must be set. This option impacts various aspects of the
