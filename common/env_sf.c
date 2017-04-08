@@ -313,29 +313,31 @@ void env_relocate_spec(void)
 	char *buf = NULL;
 
 	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
-
-	ret = setup_flash_device();
-	if (ret) {
-		if (buf)
-			free(buf);
+	if (!buf) {
+		set_default_env("!malloc() failed");
 		return;
 	}
+
+	ret = setup_flash_device();
+	if (ret)
+		goto out;
 
 	ret = spi_flash_read(env_flash,
 		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
 	if (ret) {
 		set_default_env("!spi_flash_read() failed");
-		goto out;
+		goto err_read;
 	}
 
 	ret = env_import(buf, 1);
 	if (ret)
 		gd->env_valid = 1;
-out:
+
+err_read:
 	spi_flash_free(env_flash);
-	if (buf)
-		free(buf);
 	env_flash = NULL;
+out:
+	free(buf);
 }
 #endif
 
