@@ -80,7 +80,7 @@ int saveenv(void)
 {
 	env_t	env_new;
 	char	*saved_buffer = NULL, flag = OBSOLETE_FLAG;
-	u32	saved_size, saved_offset, sector = 1;
+	u32	saved_size, saved_offset, sector;
 	int	ret;
 
 	ret = setup_flash_device();
@@ -115,11 +115,7 @@ int saveenv(void)
 			goto done;
 	}
 
-	if (CONFIG_ENV_SIZE > CONFIG_ENV_SECT_SIZE) {
-		sector = CONFIG_ENV_SIZE / CONFIG_ENV_SECT_SIZE;
-		if (CONFIG_ENV_SIZE % CONFIG_ENV_SECT_SIZE)
-			sector++;
-	}
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
 
 	puts("Erasing SPI flash...");
 	ret = spi_flash_erase(env_flash, env_new_offset,
@@ -245,7 +241,7 @@ out:
 #else
 int saveenv(void)
 {
-	u32	saved_size, saved_offset, sector = 1;
+	u32	saved_size, saved_offset, sector;
 	char	*saved_buffer = NULL;
 	int	ret = 1;
 	env_t	env_new;
@@ -268,15 +264,11 @@ int saveenv(void)
 			goto done;
 	}
 
-	if (CONFIG_ENV_SIZE > CONFIG_ENV_SECT_SIZE) {
-		sector = CONFIG_ENV_SIZE / CONFIG_ENV_SECT_SIZE;
-		if (CONFIG_ENV_SIZE % CONFIG_ENV_SECT_SIZE)
-			sector++;
-	}
-
 	ret = env_export(&env_new);
 	if (ret)
 		goto done;
+
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
 
 	puts("Erasing SPI flash...");
 	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
