@@ -45,15 +45,11 @@ char *env_name_spec = "SPI Flash";
 
 static struct spi_flash *env_flash;
 
-#if defined(CONFIG_ENV_OFFSET_REDUND)
-int saveenv(void)
+static int setup_flash_device(void)
 {
-	env_t	env_new;
-	char	*saved_buffer = NULL, flag = OBSOLETE_FLAG;
-	u32	saved_size, saved_offset, sector = 1;
-	int	ret;
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new;
+	int	ret;
 
 	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
@@ -76,6 +72,20 @@ int saveenv(void)
 		}
 	}
 #endif
+	return 0;
+}
+
+#if defined(CONFIG_ENV_OFFSET_REDUND)
+int saveenv(void)
+{
+	env_t	env_new;
+	char	*saved_buffer = NULL, flag = OBSOLETE_FLAG;
+	u32	saved_size, saved_offset, sector = 1;
+	int	ret;
+
+	ret = setup_flash_device();
+	if (ret)
+		return ret;
 
 	ret = env_export(&env_new);
 	if (ret)
@@ -242,30 +252,10 @@ int saveenv(void)
 	char	*saved_buffer = NULL;
 	int	ret = 1;
 	env_t	env_new;
-#ifdef CONFIG_DM_SPI_FLASH
-	struct udevice *new;
 
-	/* speed and mode will be read from DT */
-	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-				     0, 0, &new);
-	if (ret) {
-		set_default_env("!spi_flash_probe_bus_cs() failed");
-		return 1;
-	}
-
-	env_flash = dev_get_uclass_priv(new);
-#else
-
-	if (!env_flash) {
-		env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
-			CONFIG_ENV_SPI_CS,
-			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
-		if (!env_flash) {
-			set_default_env("!spi_flash_probe() failed");
-			return 1;
-		}
-	}
-#endif
+	ret = setup_flash_device();
+	if (ret)
+		return ret;
 
 	/* Is the sector larger than the env (i.e. embedded) */
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
