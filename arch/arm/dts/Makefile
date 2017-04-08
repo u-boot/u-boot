@@ -228,6 +228,7 @@ dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a13-olinuxino-micro.dtb \
 	sun5i-a13-q8-tablet.dtb \
 	sun5i-a13-utoo-p66.dtb \
+	sun5i-gr8-chip-pro.dtb \
 	sun5i-r8-chip.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-app4-evb1.dtb \
@@ -301,7 +302,8 @@ dtb-$(CONFIG_MACH_SUN8I_H3) += \
 	sun8i-h3-orangepi-pc-plus.dtb \
 	sun8i-h3-orangepi-plus.dtb \
 	sun8i-h3-orangepi-plus2e.dtb \
-	sun8i-h3-nanopi-neo.dtb
+	sun8i-h3-nanopi-neo.dtb \
+	sun8i-h3-nanopi-neo-air.dtb
 dtb-$(CONFIG_MACH_SUN50I_H5) += \
 	sun50i-h5-orangepi-pc2.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
@@ -309,7 +311,8 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-pine64.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
-	sun9i-a80-cubieboard4.dtb
+	sun9i-a80-cubieboard4.dtb \
+	sun9i-a80-cx-a99.dtb
 
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \

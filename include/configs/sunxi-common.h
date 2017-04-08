@@ -125,6 +125,9 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
+
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
 #endif
 
 #ifdef CONFIG_SPL_SPI_SUNXI
@@ -134,9 +137,13 @@
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_MMC_SUNXI_SLOT		0
-#define CONFIG_ENV_IS_IN_MMC
+#endif
+
+#if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
+#elif defined(CONFIG_ENV_IS_NOWHERE)
+#define CONFIG_ENV_SIZE			(128 << 10)
 #endif
 
 /* 64MB of malloc() pool */
@@ -158,9 +165,6 @@
 /* FLASH and environment organization */
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
-
-#define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -325,13 +329,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 #endif
 
-#if !defined CONFIG_ENV_IS_IN_MMC && \
-    !defined CONFIG_ENV_IS_IN_NAND && \
-    !defined CONFIG_ENV_IS_IN_FAT && \
-    !defined CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_IS_NOWHERE
-#endif
-
 #define CONFIG_MISC_INIT_R
 
 #ifndef CONFIG_SPL_BUILD
@@ -461,6 +458,20 @@ extern int soft_i2c_gpio_scl;
 	"stderr=serial\0"
 #endif
 
+#ifdef CONFIG_MTDIDS_DEFAULT
+#define SUNXI_MTDIDS_DEFAULT \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"
+#else
+#define SUNXI_MTDIDS_DEFAULT
+#endif
+
+#ifdef CONFIG_MTDPARTS_DEFAULT
+#define SUNXI_MTDPARTS_DEFAULT \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define SUNXI_MTDPARTS_DEFAULT
+#endif
+
 #define CONSOLE_ENV_SETTINGS \
 	CONSOLE_STDIN_SETTINGS \
 	CONSOLE_STDOUT_SETTINGS
@@ -471,6 +482,8 @@ extern int soft_i2c_gpio_scl;
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
+	SUNXI_MTDIDS_DEFAULT \
+	SUNXI_MTDPARTS_DEFAULT \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
 

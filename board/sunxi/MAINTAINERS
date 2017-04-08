@@ -269,6 +269,12 @@ M:	VishnuPatekar <vishnupatekar0510@gmail.com>
 S:	Maintained
 F:	configs/Sinovoip_BPI_M3_defconfig
 
+SUNCHIP CX-A99 BOARD
+M:	Rask Ingemann Lambertsen <rask@formelder.dk>
+S:	Maintained
+F:	configs/Sunchip_CX-A99_defconfig
+W:	https://linux-sunxi.org/Sunchip_CX-A99
+
 WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained

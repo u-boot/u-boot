@@ -452,8 +452,28 @@ config CMD_MMC
 
 config CMD_NAND
 	bool "nand"
+	default y if NAND_SUNXI
 	help
 	  NAND support.
+
+if CMD_NAND
+config CMD_NAND_TRIMFFS
+	bool "nand write.trimffs"
+	default y if ARCH_SUNXI
+	help
+	  Allows one to skip empty pages when flashing something on a NAND.
+
+config CMD_NAND_LOCK_UNLOCK
+	bool "nand lock/unlock"
+	help
+	  NAND locking support.
+
+config CMD_NAND_TORTURE
+	bool "nand torture"
+	help
+	  NAND torture support.
+
+endif # CMD_NAND
 
 config CMD_PART
 	bool "part"
@@ -801,12 +821,33 @@ config CMD_FS_GENERIC
 	help
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
+
+config CMD_MTDPARTS
+	depends on ARCH_SUNXI
+	bool "MTD partition support"
+	help
+	  MTD partition support
+
+config MTDIDS_DEFAULT
+	string "Default MTD IDs"
+	depends on CMD_MTDPARTS
+	help
+	  Defines a default MTD ID
+
+config MTDPARTS_DEFAULT
+	string "Default MTD partition scheme"
+	depends on CMD_MTDPARTS
+	help
+	  Defines a default MTD partitioning scheme in the Linux MTD command
+	  line partitions format
+
 endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
 	select CRC32
 	select MTD_UBI
+	default y if NAND_SUNXI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
 	  logical volumes on top of MTD devices, hides some complexities of
@@ -814,5 +855,15 @@ config CMD_UBI
 	  capabilities. Please, consult the MTD web site for more details
 	  (www.linux-mtd.infradead.org). Activate this option if you want
 	  to use U-Boot UBI commands.
+
+config CMD_UBIFS
+	tristate "Enable UBIFS - Unsorted block images filesystem commands"
+	depends on CMD_UBI
+	select CRC32
+	select RBTREE if ARCH_SUNXI
+	select LZO if ARCH_SUNXI
+	default y if NAND_SUNXI
+	help
+	  UBIFS is a file system for flash devices which works on top of UBI.
 
 endmenu

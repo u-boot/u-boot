@@ -67,11 +67,28 @@ config NAND_SUNXI
 	bool "Support for NAND on Allwinner SoCs"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	select SYS_NAND_SELF_INIT
+	select SYS_NAND_U_BOOT_LOCATIONS
 	---help---
 	Enable support for NAND. This option enables the standard and
 	SPL drivers.
 	The SPL driver only supports reading from the NAND using DMA
 	transfers.
+
+if NAND_SUNXI
+
+config NAND_SUNXI_SPL_ECC_STRENGTH
+	int "Allwinner NAND SPL ECC Strength"
+	default 64
+
+config NAND_SUNXI_SPL_ECC_SIZE
+	int "Allwinner NAND SPL ECC Step Size"
+	default 1024
+
+config NAND_SUNXI_SPL_USABLE_PAGE_SIZE
+	int "Allwinner NAND SPL Usable Page Size"
+	default 1024
+
+endif
 
 config NAND_ARASAN
 	bool "Configure Arasan Nand"
@@ -127,7 +144,7 @@ config SYS_NAND_U_BOOT_LOCATIONS
 
 config SYS_NAND_U_BOOT_OFFS
 	hex "Location in NAND to read U-Boot from"
-	default 0x8000 if NAND_SUNXI
+	default 0x800000 if NAND_SUNXI
 	depends on SYS_NAND_U_BOOT_LOCATIONS
 	help
 	Set the offset from the start of the nand where u-boot should be

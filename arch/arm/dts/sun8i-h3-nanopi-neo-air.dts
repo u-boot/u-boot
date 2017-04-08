@@ -1,7 +1,5 @@
 /*
- * Copyright 2015 Chen-Yu Tsai
- *
- * Chen-Yu Tsai <wens@csie.org>
+ * Copyright (C) 2017 Jelle van der Waa <jelle@vdwaa.nl>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -42,63 +40,58 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * AXP202/209 Integrated Power Management Chip
- * http://www.x-powers.com/product/AXP20X.php
- * http://dl.linux-sunxi.org/AXP/AXP209%20Datasheet%20v1.0_cn.pdf
- */
+/dts-v1/;
+#include "sun8i-h3.dtsi"
+#include "sunxi-common-regulators.dtsi"
 
-&axp209 {
-	compatible = "x-powers,axp209";
-	interrupt-controller;
-	#interrupt-cells = <1>;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/sun4i-a10.h>
 
-	axp_gpio: gpio {
-		compatible = "x-powers,axp209-gpio";
-		gpio-controller;
-		#gpio-cells = <2>;
+/ {
+	model = "FriendlyARM NanoPi NEO Air";
+	compatible = "friendlyarm,nanopi-neo-air", "allwinner,sun8i-h3";
+
+	aliases {
+		serial0 = &uart0;
 	};
 
-	regulators {
-		/* Default work frequency for buck regulators */
-		x-powers,dcdc-freq = <1500>;
-
-		reg_dcdc2: dcdc2 {
-			regulator-name = "dcdc2";
-		};
-
-		reg_dcdc3: dcdc3 {
-			regulator-name = "dcdc3";
-		};
-
-		reg_ldo1: ldo1 {
-			/* LDO1 is a fixed output regulator */
-			regulator-always-on;
-			regulator-min-microvolt = <1300000>;
-			regulator-max-microvolt = <1300000>;
-			regulator-name = "ldo1";
-		};
-
-		reg_ldo2: ldo2 {
-			regulator-name = "ldo2";
-		};
-
-		reg_ldo3: ldo3 {
-			regulator-name = "ldo3";
-		};
-
-		reg_ldo4: ldo4 {
-			regulator-name = "ldo4";
-		};
-
-		reg_ldo5: ldo5 {
-			regulator-name = "ldo5";
-			status = "disabled";
-		};
+	chosen {
+		stdout-path = "serial0:115200n8";
 	};
 
-	usb_power_supply: usb_power_supply {
-		compatible = "x-powers,axp202-usb-power-supply";
-		status = "disabled";
+	leds {
+		compatible = "gpio-leds";
+
+		pwr {
+			label = "nanopi:green:pwr";
+			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
+			default-state = "on";
+		};
+
+		status {
+			label = "nanopi:blue:status";
+			gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
+		};
 	};
+};
+
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 */
+	cd-inverted;
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_a>;
+	status = "okay";
+};
+
+&usbphy {
+	/* USB VBUS is always on */
+	status = "okay";
 };

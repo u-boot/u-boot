@@ -16,6 +16,7 @@
 /mkexynosspl
 /mxsboot
 /mksunxiboot
+/sunxi-spl-image-builder
 /ncb
 /proftool
 /relocate-rela
