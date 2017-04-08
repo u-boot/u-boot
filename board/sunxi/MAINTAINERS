@@ -188,6 +188,11 @@ M:	Jelle de Jong <jelledejong@powercraft.nl>
 S:	Maintained
 F:	configs/Lamobo_R1_defconfig
 
+LICHEEPI-ZERO BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/LicheePi_Zero_defconfig
+
 LINKSPRITE-PCDUINO BOARD
 M:	Zoltan Herpai <wigyori@uid0.hu>
 S:	Maintained
