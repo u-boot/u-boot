@@ -27,11 +27,29 @@
 		i2c5 = "/i2c@138b0000";
 		i2c6 = "/i2c@138c0000";
 		i2c7 = "/i2c@138d0000";
+		i2c8 = &i2c_fg;
+		i2c9 = &i2c_max77693;
 		serial0 = "/serial@13800000";
 		console = "/serial@13820000";
 		mmc0 = "/sdhci@12510000";
 		mmc2 = "/sdhci@12530000";
 		mshc0 = "/dwmmc@12550000";
+	};
+
+	i2c_fg: fuel-gauge {
+		compatible = "i2c-gpio";
+		gpios = <&gpf1 5 0>,	/* sda */
+			<&gpf1 4 0>;	/* scl */
+		i2c-gpio,delay-us = <2>;        /* ~100 kHz */
+		status = "okay";
+	};
+
+	i2c_max77693: max77693 {
+		compatible = "i2c-gpio";
+		gpio = <&gpm2 0 0>,	/* sda */
+		       <&gpm2 1 0>;	/* scl */
+		i2c-gpio,delay-us = <2>;        /* ~100 kHz */
+		status = "okay";
 	};
 
 	i2c@138d0000 {

@@ -23,6 +23,7 @@
 		console = "/serial@13820000";
 		mmc0 = "/sdhci@12510000";
 		mmc2 = "/sdhci@12530000";
+		i2c8 = &i2c_fg;
 	};
 
 	fimd@11c00000 {
@@ -112,6 +113,14 @@
 
 	dwmmc@12550000 {
 		status = "disabled";
+	};
+
+	i2c_fg: fuel-gauge {
+		compatible = "i2c-gpio";
+		gpios = <&gpy4 1 0>,	/* sda */
+			<&gpy4 0 0>;	/* scl */
+		i2c-gpio,delay-us = <2>;        /* ~100 kHz */
+		status = "okay";
 	};
 };
 
