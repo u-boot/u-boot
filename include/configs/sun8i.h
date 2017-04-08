@@ -21,6 +21,8 @@
 	#define CONFIG_SUNXI_USB_PHYS	4
 #elif defined CONFIG_MACH_SUN8I_A83T
 	#define CONFIG_SUNXI_USB_PHYS	3
+#elif defined CONFIG_MACH_SUN8I_V3S
+	#define CONFIG_SUNXI_USB_PHYS	1
 #else
 	#define CONFIG_SUNXI_USB_PHYS	2
 #endif

@@ -144,6 +144,15 @@ config MACH_SUN8I_R40
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+config MACH_SUN8I_V3S
+	bool "sun8i (Allwinner V3s)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+	select SUNXI_GEN_SUN6I
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
@@ -175,6 +184,7 @@ config MACH_SUN8I
 	default y if MACH_SUN8I_A83T
 	default y if MACH_SUNXI_H3_H5
 	default y if MACH_SUN8I_R40
+	default y if MACH_SUN8I_V3S
 
 config RESERVE_ALLWINNER_BOOT0_HEADER
 	bool "reserve space for Allwinner boot0 header"
@@ -544,6 +554,7 @@ config VIDEO
 	depends on !MACH_SUN8I_A83T
 	depends on !MACH_SUNXI_H3_H5
 	depends on !MACH_SUN8I_R40
+	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
 	default y
