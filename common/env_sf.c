@@ -176,12 +176,9 @@ void env_relocate_spec(void)
 		goto out;
 	}
 
-	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
-	if (!env_flash) {
-		set_default_env("!spi_flash_probe() failed");
+	ret = setup_flash_device();
+	if (ret)
 		goto out;
-	}
 
 	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
 				CONFIG_ENV_SIZE, tmp_env1);
@@ -316,10 +313,9 @@ void env_relocate_spec(void)
 	char *buf = NULL;
 
 	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
-	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
-	if (!env_flash) {
-		set_default_env("!spi_flash_probe() failed");
+
+	ret = setup_flash_device();
+	if (ret) {
 		if (buf)
 			free(buf);
 		return;
