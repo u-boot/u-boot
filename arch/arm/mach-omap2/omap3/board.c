@@ -46,7 +46,7 @@ static const struct omap_gpio_platdata omap34xx_gpio[] = {
 	{ 5, OMAP34XX_GPIO6_BASE },
 };
 
-U_BOOT_DEVICES(am33xx_gpios) = {
+U_BOOT_DEVICES(omap34xx_gpios) = {
 	{ "gpio_omap", &omap34xx_gpio[0] },
 	{ "gpio_omap", &omap34xx_gpio[1] },
 	{ "gpio_omap", &omap34xx_gpio[2] },
