@@ -152,7 +152,7 @@ matrix:
     - env:
         - BUILDMAN="sun7i"
     - env:
-        - BUILDMAN="sun8i"
+        - BUILDMAN="sun8i -x orangepi_pc2"
     - env:
         - BUILDMAN="sun9i"
     - env:
