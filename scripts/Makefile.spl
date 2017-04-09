@@ -291,6 +291,10 @@ $(obj)/u-boot-x86-16bit-spl.bin: $(obj)/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
+
+# Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
+LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
+
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
