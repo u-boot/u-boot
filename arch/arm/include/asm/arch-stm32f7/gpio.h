@@ -7,6 +7,7 @@
 
 #ifndef _STM32_GPIO_H_
 #define _STM32_GPIO_H_
+#include <asm/gpio.h>
 
 enum stm32_gpio_port {
 	STM32_GPIO_PORT_A = 0,

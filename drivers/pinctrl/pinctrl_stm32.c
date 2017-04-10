@@ -121,11 +121,16 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 		if (len < 0)
 			return -EINVAL;
 		for (i = 0; i < len; i++) {
+			struct gpio_desc desc;
 			debug("%s: pinmux = %x\n", __func__, *(pin_mux + i));
 			prep_gpio_dsc(&gpio_dsc, *(pin_mux + i));
 			prep_gpio_ctl(&gpio_ctl, *(pin_mux + i), args.node);
-
-			rv = stm32_gpio_config(&gpio_dsc, &gpio_ctl);
+			rv = uclass_get_device_by_seq(UCLASS_GPIO,
+						      gpio_dsc.port, &desc.dev);
+			if (rv)
+				return rv;
+			desc.offset = gpio_dsc.pin;
+			rv = stm32_gpio_config(&desc, &gpio_ctl);
 			debug("%s: rv = %d\n\n", __func__, rv);
 			if (rv)
 				return rv;

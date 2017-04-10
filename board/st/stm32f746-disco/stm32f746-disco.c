@@ -20,36 +20,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const struct stm32_gpio_ctl gpio_ctl_gpout = {
-	.mode = STM32_GPIO_MODE_OUT,
-	.otype = STM32_GPIO_OTYPE_PP,
-	.speed = STM32_GPIO_SPEED_50M,
-	.pupd = STM32_GPIO_PUPD_NO,
-	.af = STM32_GPIO_AF0
-};
-
-static int fmc_setup_gpio(void)
-{
-	clock_setup(GPIO_B_CLOCK_CFG);
-	clock_setup(GPIO_C_CLOCK_CFG);
-	clock_setup(GPIO_D_CLOCK_CFG);
-	clock_setup(GPIO_E_CLOCK_CFG);
-	clock_setup(GPIO_F_CLOCK_CFG);
-	clock_setup(GPIO_G_CLOCK_CFG);
-	clock_setup(GPIO_H_CLOCK_CFG);
-
-	return 0;
-}
-
 int dram_init(void)
 {
 	struct udevice *dev;
 	struct ram_info ram;
 	int rv;
-
-	rv = fmc_setup_gpio();
-	if (rv)
-		return rv;
 
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv) {
@@ -73,66 +48,27 @@ int dram_init(void)
 	return rv;
 }
 
-int uart_setup_gpio(void)
-{
-	clock_setup(GPIO_A_CLOCK_CFG);
-	clock_setup(GPIO_B_CLOCK_CFG);
-	return 0;
-}
-
 #ifdef CONFIG_ETH_DESIGNWARE
-
 static int stmmac_setup(void)
 {
 	clock_setup(SYSCFG_CLOCK_CFG);
 	/* Set >RMII mode */
 	STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
-
-	clock_setup(GPIO_A_CLOCK_CFG);
-	clock_setup(GPIO_C_CLOCK_CFG);
-	clock_setup(GPIO_G_CLOCK_CFG);
 	clock_setup(STMMAC_CLOCK_CFG);
 
 	return 0;
 }
-#endif
 
-#ifdef CONFIG_STM32_QSPI
-
-static int qspi_setup(void)
+int board_early_init_f(void)
 {
-	clock_setup(GPIO_B_CLOCK_CFG);
-	clock_setup(GPIO_D_CLOCK_CFG);
-	clock_setup(GPIO_E_CLOCK_CFG);
+	stmmac_setup();
+
 	return 0;
 }
 #endif
 
 u32 get_board_rev(void)
 {
-	return 0;
-}
-
-int board_early_init_f(void)
-{
-	int res;
-
-	res = uart_setup_gpio();
-	if (res)
-		return res;
-
-#ifdef CONFIG_ETH_DESIGNWARE
-	res = stmmac_setup();
-	if (res)
-		return res;
-#endif
-
-#ifdef CONFIG_STM32_QSPI
-	res = qspi_setup();
-	if (res)
-		return res;
-#endif
-
 	return 0;
 }
 
