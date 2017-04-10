@@ -18,17 +18,20 @@
 #define CAS_1		0x1
 #define CAS_2		0x2
 #define CAS_3		0x3
+#define SDCLK_2		0x2
 #define RD_BURST_EN	0x1
 #define RD_BURST_DIS	0x0
 #define RD_PIPE_DL_0	0x0
 #define RD_PIPE_DL_1	0x1
 #define RD_PIPE_DL_2	0x2
 
-#define TMRD_1		0x1
-#define TXSR_60		60
-#define TRAS_42		42
-#define TRC_60		60
-#define TRP_18		18
-#define TRCD_18		18
+/* Timing = value +1 cycles */
+#define TMRD_2		(2 - 1)
+#define TXSR_6		(6 - 1)
+#define TRAS_4		(4 - 1)
+#define TRC_6		(6 - 1)
+#define TWR_2		(2 - 1)
+#define TRP_2		(2 - 1)
+#define TRCD_2		(2 - 1)
 
 #endif
