@@ -9,11 +9,11 @@
 #define __LED_H
 
 /**
- * struct led_uclass_plat - Platform data the uclass stores about each device
+ * struct led_uc_plat - Platform data the uclass stores about each device
  *
  * @label:	LED label
  */
-struct led_uclass_plat {
+struct led_uc_plat {
 	const char *label;
 };
 

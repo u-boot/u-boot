@@ -30,7 +30,7 @@ static int gpio_led_set_on(struct udevice *dev, int on)
 
 static int led_gpio_probe(struct udevice *dev)
 {
-	struct led_uclass_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
 	struct led_gpio_priv *priv = dev_get_priv(dev);
 
 	/* Ignore the top-level LED node */
@@ -65,7 +65,7 @@ static int led_gpio_bind(struct udevice *parent)
 	for (node = fdt_first_subnode(blob, dev_of_offset(parent));
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
-		struct led_uclass_plat *uc_plat;
+		struct led_uc_plat *uc_plat;
 		const char *label;
 
 		label = fdt_getprop(blob, node, "label", NULL);
