@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 - Michael Kurz <michi.kurz@gmail.com>
+ * Copyright 2016 - Vikas MANOCHA <vikas.manocha@st.com>
  *
  * Based on:
  * stm32f429.dtsi from Linux
@@ -68,6 +69,12 @@
 			snps,mixed-burst;
 			dma-ranges;
 			status = "disabled";
+		};
+
+		fmc: fmc@A0000000 {
+			compatible = "st,stm32-fmc";
+			reg = <0xA0000000 0x1000>;
+			u-boot,dm-pre-reloc;
 		};
 
 		qspi: quadspi@A0001000 {
@@ -143,6 +150,55 @@
 					slew-rate = <2>;
 				};
 			};
+
+			fmc_pins: fmc@0 {
+				pins {
+					pinmux = <STM32F746_PD10_FUNC_FMC_D15>,
+						 <STM32F746_PD9_FUNC_FMC_D14>,
+						 <STM32F746_PD8_FUNC_FMC_D13>,
+						 <STM32F746_PE15_FUNC_FMC_D12>,
+						 <STM32F746_PE14_FUNC_FMC_D11>,
+						 <STM32F746_PE13_FUNC_FMC_D10>,
+						 <STM32F746_PE12_FUNC_FMC_D9>,
+						 <STM32F746_PE11_FUNC_FMC_D8>,
+						 <STM32F746_PE10_FUNC_FMC_D7>,
+						 <STM32F746_PE9_FUNC_FMC_D6>,
+						 <STM32F746_PE8_FUNC_FMC_D5>,
+						 <STM32F746_PE7_FUNC_FMC_D4>,
+						 <STM32F746_PD1_FUNC_FMC_D3>,
+						 <STM32F746_PD0_FUNC_FMC_D2>,
+						 <STM32F746_PD15_FUNC_FMC_D1>,
+						 <STM32F746_PD14_FUNC_FMC_D0>,
+
+						 <STM32F746_PE1_FUNC_FMC_NBL1>,
+						 <STM32F746_PE0_FUNC_FMC_NBL0>,
+
+						 <STM32F746_PG5_FUNC_FMC_A15_FMC_BA1>,
+						 <STM32F746_PG4_FUNC_FMC_A14_FMC_BA0>,
+
+						 <STM32F746_PG1_FUNC_FMC_A11>,
+						 <STM32F746_PG0_FUNC_FMC_A10>,
+						 <STM32F746_PF15_FUNC_FMC_A9>,
+						 <STM32F746_PF14_FUNC_FMC_A8>,
+						 <STM32F746_PF13_FUNC_FMC_A7>,
+						 <STM32F746_PF12_FUNC_FMC_A6>,
+						 <STM32F746_PF5_FUNC_FMC_A5>,
+						 <STM32F746_PF4_FUNC_FMC_A4>,
+						 <STM32F746_PF3_FUNC_FMC_A3>,
+						 <STM32F746_PF2_FUNC_FMC_A2>,
+						 <STM32F746_PF1_FUNC_FMC_A1>,
+						 <STM32F746_PF0_FUNC_FMC_A0>,
+
+						 <STM32F746_PH3_FUNC_FMC_SDNE0>,
+						 <STM32F746_PH5_FUNC_FMC_SDNWE>,
+						 <STM32F746_PF11_FUNC_FMC_SDNRAS>,
+						 <STM32F746_PG15_FUNC_FMC_SDNCAS>,
+						 <STM32F746_PC3_FUNC_FMC_SDCKE0>,
+						 <STM32F746_PG8_FUNC_FMC_SDCLK>;
+					slew-rate = <2>;
+				};
+			};
+
 		};
 	};
 };

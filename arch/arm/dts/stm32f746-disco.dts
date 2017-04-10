@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 - Michael Kurz <michi.kurz@gmail.com>
+ * Copyright 2016 - Vikas MANOCHA <vikas.manocha@st.com>
  *
  * Based on:
  * stm32f469-disco.dts from Linux
@@ -72,6 +73,12 @@
 
 &usart1 {
 	pinctrl-0 = <&usart1_pins_a>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&fmc {
+	pinctrl-0 = <&fmc_pins>;
 	pinctrl-names = "default";
 	status = "okay";
 };
