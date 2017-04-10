@@ -171,6 +171,15 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
+config STM32F7_GPIO
+	bool "ST STM32 GPIO driver"
+	depends on DM_GPIO && STM32
+	default y
+	help
+	  Device model driver support for STM32 GPIO controller. It should be
+	  usable on many stm32 families like stm32f4 & stm32H7.
+	  Tested on STM32F7.
+
 config MVEBU_GPIO
 	bool "Marvell MVEBU GPIO driver"
 	depends on DM_GPIO && ARCH_MVEBU

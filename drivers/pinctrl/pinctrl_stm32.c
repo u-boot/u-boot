@@ -1,10 +1,45 @@
 #include <common.h>
-#include <asm/arch/gpio.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MODE_BITS_MASK			3
+#define OSPEED_MASK			3
+#define PUPD_MASK			3
+#define OTYPE_MSK			1
+#define AFR_MASK			0xF
+
+static int stm32_gpio_config(struct gpio_desc *desc,
+			     const struct stm32_gpio_ctl *ctl)
+{
+	struct stm32_gpio_priv *priv = dev_get_priv(desc->dev);
+	struct stm32_gpio_regs *regs = priv->regs;
+	u32 index;
+
+	if (!ctl || ctl->af > 15 || ctl->mode > 3 || ctl->otype > 1 ||
+	    ctl->pupd > 2 || ctl->speed > 3)
+		return -EINVAL;
+
+	index = (desc->offset & 0x07) * 4;
+	clrsetbits_le32(&regs->afr[desc->offset >> 3], AFR_MASK << index,
+			ctl->af << index);
+
+	index = desc->offset * 2;
+	clrsetbits_le32(&regs->moder, MODE_BITS_MASK << index,
+			ctl->mode << index);
+	clrsetbits_le32(&regs->ospeedr, OSPEED_MASK << index,
+			ctl->speed << index);
+	clrsetbits_le32(&regs->pupdr, PUPD_MASK << index, ctl->pupd << index);
+
+	index = desc->offset;
+	clrsetbits_le32(&regs->otyper, OTYPE_MSK << index, ctl->otype << index);
+
+	return 0;
+}
 static int prep_gpio_dsc(struct stm32_gpio_dsc *gpio_dsc, u32 port_pin)
 {
 	gpio_dsc->port = (port_pin & 0xF000) >> 12;
@@ -18,6 +53,7 @@ static int prep_gpio_dsc(struct stm32_gpio_dsc *gpio_dsc, u32 port_pin)
 static int prep_gpio_ctl(struct stm32_gpio_ctl *gpio_ctl, u32 gpio_fn, int node)
 {
 	gpio_fn &= 0x00FF;
+	gpio_ctl->af = 0;
 
 	switch (gpio_fn) {
 	case 0:
