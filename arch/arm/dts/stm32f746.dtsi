@@ -78,6 +78,7 @@
 			reg-names = "QuadSPI", "QuadSPI-memory";
 			interrupts = <92>;
 			spi-max-frequency = <108000000>;
+			clocks = <&rcc 0 65>;
 			status = "disabled";
 		};
 		usart1: serial@40011000 {
