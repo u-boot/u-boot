@@ -43,9 +43,11 @@ static int dm_test_led_gpio(struct unit_test_state *uts)
 	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
 	ut_assertok(led_set_state(dev, LEDST_ON));
 	ut_asserteq(1, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_ON, led_get_state(dev));
 
 	ut_assertok(led_set_state(dev, LEDST_OFF));
 	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
 
 	return 0;
 }

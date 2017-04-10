@@ -33,6 +33,14 @@ struct led_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*set_state)(struct udevice *dev, enum led_state_t state);
+
+	/**
+	 * led_get_state() - get the state of an LED
+	 *
+	 * @dev:	LED device to change
+	 * @return LED state led_state_t, or -ve on error
+	 */
+	enum led_state_t (*get_state)(struct udevice *dev);
 };
 
 #define led_get_ops(dev)	((struct led_ops *)(dev)->driver->ops)
@@ -54,5 +62,13 @@ int led_get_by_label(const char *label, struct udevice **devp);
  * @return 0 if OK, -ve on error
  */
 int led_set_state(struct udevice *dev, enum led_state_t state);
+
+/**
+ * led_get_state() - get the state of an LED
+ *
+ * @dev:	LED device to change
+ * @return LED state led_state_t, or -ve on error
+ */
+enum led_state_t led_get_state(struct udevice *dev);
 
 #endif

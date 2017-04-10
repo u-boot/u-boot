@@ -42,6 +42,16 @@ int led_set_state(struct udevice *dev, enum led_state_t state)
 	return ops->set_state(dev, state);
 }
 
+enum led_state_t led_get_state(struct udevice *dev)
+{
+	struct led_ops *ops = led_get_ops(dev);
+
+	if (!ops->get_state)
+		return -ENOSYS;
+
+	return ops->get_state(dev);
+}
+
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
