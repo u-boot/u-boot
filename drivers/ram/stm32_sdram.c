@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <ram.h>
 #include <asm/io.h>
 #include <asm/arch/fmc.h>
 #include <asm/arch/stm32.h>
@@ -117,3 +119,32 @@ int stm32_sdram_init(void)
 
 	return 0;
 }
+
+static int stm32_fmc_probe(struct udevice *dev)
+{
+	stm32_sdram_init();
+	return 0;
+}
+
+static int stm32_fmc_get_info(struct udevice *dev, struct ram_info *info)
+{
+	info->size = CONFIG_SYS_RAM_SIZE;
+	return 0;
+}
+
+static struct ram_ops stm32_fmc_ops = {
+	.get_info = stm32_fmc_get_info,
+};
+
+static const struct udevice_id stm32_fmc_ids[] = {
+	{ .compatible = "st,stm32-fmc" },
+	{ }
+};
+
+U_BOOT_DRIVER(stm32_fmc) = {
+	.name = "stm32_fmc",
+	.id = UCLASS_RAM,
+	.of_match = stm32_fmc_ids,
+	.ops = &stm32_fmc_ops,
+	.probe = stm32_fmc_probe,
+};
