@@ -8,6 +8,7 @@
 		size = <16>;
 
 		intel-vga {
+			filename = "vga.bin";
 		};
 	};
 };

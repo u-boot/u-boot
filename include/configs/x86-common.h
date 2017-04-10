@@ -16,7 +16,6 @@
  * (easy to change)
  */
 #define CONFIG_SHOW_BOOT_PROGRESS
-#define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_LAST_STAGE_INIT

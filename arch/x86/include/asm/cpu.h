@@ -54,6 +54,8 @@ enum {
 	X86_NONE,
 	X86_SYSCON_ME,		/* Intel Management Engine */
 	X86_SYSCON_PINCONF,	/* Intel x86 pin configuration */
+	X86_SYSCON_PMU,		/* Power Management Unit */
+	X86_SYSCON_SCU,		/* System Controller Unit */
 };
 
 struct cpuid_result {
