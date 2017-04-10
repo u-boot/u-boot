@@ -9,6 +9,15 @@ config LED
 	  can provide access to board-specific LEDs. Use of the device tree
 	  for configuration is encouraged.
 
+config LED_BLINK
+	bool "Support LED blinking"
+	depends on LED
+	help
+	  Some drivers can support automatic blinking of LEDs with a given
+	  period, without needing timers or extra code to handle the timing.
+	  This option enables support for this which adds slightly to the
+	  code size.
+
 config SPL_LED
 	bool "Enable LED support in SPL"
 	depends on SPL && SPL_DM
