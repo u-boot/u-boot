@@ -21,32 +21,51 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int get_memory_base_size(fdt_addr_t *mr_base, fdt_addr_t *mr_size)
+{
+	int mr_node;
+
+	mr_node = fdt_path_offset(gd->fdt_blob, "/memory");
+	if (mr_node < 0)
+		return mr_node;
+	*mr_base = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, mr_node,
+						      "reg", 0, mr_size, false);
+	debug("mr_base = %lx, mr_size= %lx\n", *mr_base, *mr_size);
+
+	return 0;
+}
 int dram_init(void)
 {
 	struct udevice *dev;
-	struct ram_info ram;
 	int rv;
+	fdt_addr_t mr_base, mr_size;
 
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv) {
 		debug("DRAM init failed: %d\n", rv);
 		return rv;
 	}
-	rv = ram_get_info(dev, &ram);
-	if (rv) {
-		debug("Cannot get DRAM size: %d\n", rv);
-		return rv;
-	}
-	debug("SDRAM base=%lx, size=%x\n", ram.base, ram.size);
-	gd->ram_size = ram.size;
 
+	rv = get_memory_base_size(&mr_base, &mr_size);
+	if (rv)
+		return rv;
+	gd->ram_size = mr_size;
+	gd->ram_top = mr_base;
+
+	return rv;
+}
+
+int dram_init_banksize(void)
+{
+	fdt_addr_t mr_base, mr_size;
+	get_memory_base_size(&mr_base, &mr_size);
 	/*
 	 * Fill in global info with description of SRAM configuration
 	 */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_RAM_BASE;
-	gd->bd->bi_dram[0].size  = ram.size;
+	gd->bd->bi_dram[0].start = mr_base;
+	gd->bd->bi_dram[0].size  = mr_size;
 
-	return rv;
+	return 0;
 }
 
 #ifdef CONFIG_ETH_DESIGNWARE
@@ -111,7 +130,6 @@ int board_late_init(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
+	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
 	return 0;
 }

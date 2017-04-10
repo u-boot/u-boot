@@ -179,7 +179,6 @@ static int stm32_fmc_probe(struct udevice *dev)
 
 static int stm32_fmc_get_info(struct udevice *dev, struct ram_info *info)
 {
-	info->size = CONFIG_SYS_RAM_SIZE;
 	return 0;
 }
 
