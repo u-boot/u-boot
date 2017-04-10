@@ -79,6 +79,7 @@ obj-$(CONFIG_CMD_JFFS2) += jffs2.o
 obj-$(CONFIG_CMD_CRAMFS) += cramfs.o
 obj-$(CONFIG_CMD_LDRINFO) += ldrinfo.o
 obj-$(CONFIG_LED_STATUS_CMD) += legacy_led.o
+obj-$(CONFIG_CMD_LED) += led.o
 obj-$(CONFIG_CMD_LICENSE) += license.o
 obj-y += load.o
 obj-$(CONFIG_LOGBUFFER) += log.o

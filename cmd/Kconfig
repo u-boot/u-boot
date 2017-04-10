@@ -667,6 +667,15 @@ config CMD_CACHE
 	help
 	  Enable the "icache" and "dcache" commands
 
+config CMD_LED
+	bool "led"
+	default y if LED
+	help
+	  Enable the 'led' command which allows for control of LEDs supported
+	  by the board. The LEDs can be listed with 'led list' and controlled
+	  with led on/off/togle/blink. Any LED drivers can be controlled with
+	  this command, e.g. led_gpio.
+
 config CMD_TIME
 	bool "time"
 	help
