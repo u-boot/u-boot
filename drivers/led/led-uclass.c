@@ -32,14 +32,14 @@ int led_get_by_label(const char *label, struct udevice **devp)
 	return -ENODEV;
 }
 
-int led_set_on(struct udevice *dev, int on)
+int led_set_state(struct udevice *dev, enum led_state_t state)
 {
 	struct led_ops *ops = led_get_ops(dev);
 
-	if (!ops->set_on)
+	if (!ops->set_state)
 		return -ENOSYS;
 
-	return ops->set_on(dev, on);
+	return ops->set_state(dev, state);
 }
 
 UCLASS_DRIVER(led) = {

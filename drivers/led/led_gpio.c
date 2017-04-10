@@ -18,14 +18,14 @@ struct led_gpio_priv {
 	struct gpio_desc gpio;
 };
 
-static int gpio_led_set_on(struct udevice *dev, int on)
+static int gpio_led_set_state(struct udevice *dev, enum led_state_t state)
 {
 	struct led_gpio_priv *priv = dev_get_priv(dev);
 
 	if (!dm_gpio_is_valid(&priv->gpio))
 		return -EREMOTEIO;
 
-	return dm_gpio_set_value(&priv->gpio, on);
+	return dm_gpio_set_value(&priv->gpio, state);
 }
 
 static int led_gpio_probe(struct udevice *dev)
@@ -87,7 +87,7 @@ static int led_gpio_bind(struct udevice *parent)
 }
 
 static const struct led_ops gpio_led_ops = {
-	.set_on		= gpio_led_set_on,
+	.set_state	= gpio_led_set_state,
 };
 
 static const struct udevice_id led_gpio_ids[] = {

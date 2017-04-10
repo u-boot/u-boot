@@ -17,15 +17,22 @@ struct led_uc_plat {
 	const char *label;
 };
 
+enum led_state_t {
+	LEDST_OFF = 0,
+	LEDST_ON = 1,
+
+	LEDST_COUNT,
+};
+
 struct led_ops {
 	/**
-	 * set_on() - set the state of an LED
+	 * set_state() - set the state of an LED
 	 *
 	 * @dev:	LED device to change
-	 * @on:		1 to turn the LED on, 0 to turn it off
+	 * @state:	LED state to set
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*set_on)(struct udevice *dev, int on);
+	int (*set_state)(struct udevice *dev, enum led_state_t state);
 };
 
 #define led_get_ops(dev)	((struct led_ops *)(dev)->driver->ops)
@@ -40,12 +47,12 @@ struct led_ops {
 int led_get_by_label(const char *label, struct udevice **devp);
 
 /**
- * led_set_on() - set the state of an LED
+ * led_set_state() - set the state of an LED
  *
  * @dev:	LED device to change
- * @on:		1 to turn the LED on, 0 to turn it off
+ * @state:	LED state to set
  * @return 0 if OK, -ve on error
  */
-int led_set_on(struct udevice *dev, int on);
+int led_set_state(struct udevice *dev, enum led_state_t state);
 
 #endif
