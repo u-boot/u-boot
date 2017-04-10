@@ -21,12 +21,19 @@ struct led_gpio_priv {
 static int gpio_led_set_state(struct udevice *dev, enum led_state_t state)
 {
 	struct led_gpio_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	if (!dm_gpio_is_valid(&priv->gpio))
 		return -EREMOTEIO;
 	switch (state) {
 	case LEDST_OFF:
 	case LEDST_ON:
+		break;
+	case LEDST_TOGGLE:
+		ret = dm_gpio_get_value(&priv->gpio);
+		if (ret < 0)
+			return ret;
+		state = !ret;
 		break;
 	default:
 		return -ENOSYS;

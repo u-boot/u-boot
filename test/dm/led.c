@@ -53,6 +53,31 @@ static int dm_test_led_gpio(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_led_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* Test that we can toggle LEDs */
+static int dm_test_led_toggle(struct unit_test_state *uts)
+{
+	const int offset = 1;
+	struct udevice *dev, *gpio;
+
+	/*
+	 * Check that we can manipulate an LED. LED 1 is connected to GPIO
+	 * bank gpio_a, offset 1.
+	 */
+	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_assertok(led_set_state(dev, LEDST_TOGGLE));
+	ut_asserteq(1, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_ON, led_get_state(dev));
+
+	ut_assertok(led_set_state(dev, LEDST_TOGGLE));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_led_toggle, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test obtaining an LED by label */
 static int dm_test_led_label(struct unit_test_state *uts)
 {

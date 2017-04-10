@@ -20,6 +20,7 @@ struct led_uc_plat {
 enum led_state_t {
 	LEDST_OFF = 0,
 	LEDST_ON = 1,
+	LEDST_TOGGLE,
 
 	LEDST_COUNT,
 };
