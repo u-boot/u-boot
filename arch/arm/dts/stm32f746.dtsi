@@ -74,6 +74,7 @@
 		fmc: fmc@A0000000 {
 			compatible = "st,stm32-fmc";
 			reg = <0xA0000000 0x1000>;
+			clocks = <&rcc 0 64>;
 			u-boot,dm-pre-reloc;
 		};
 

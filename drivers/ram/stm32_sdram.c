@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
@@ -122,6 +123,20 @@ int stm32_sdram_init(void)
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
+#ifdef CONFIG_CLK
+	int ret;
+	struct clk clk;
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&clk);
+
+	if (ret) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+#endif
 	stm32_sdram_init();
 	return 0;
 }

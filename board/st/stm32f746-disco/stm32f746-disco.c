@@ -51,8 +51,6 @@ int dram_init(void)
 	if (rv)
 		return rv;
 
-	clock_setup(FMC_CLOCK_CFG);
-
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv) {
 		debug("DRAM init failed: %d\n", rv);
