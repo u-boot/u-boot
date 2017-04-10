@@ -86,7 +86,7 @@ void __weak __led_blink(led_id_t mask, int freq)
 {
 }
 
-int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_legacy_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, match = 0;
 	enum led_cmd cmd;
@@ -148,7 +148,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	led, 4, 1, do_led,
+	led, 4, 1, do_legacy_led,
 	"["
 #ifdef CONFIG_LED_STATUS_BOARD_SPECIFIC
 #ifdef CONFIG_LED_STATUS0
