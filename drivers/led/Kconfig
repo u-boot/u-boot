@@ -17,6 +17,7 @@ config SPL_LED
 	  If this is acceptable and you have a need to use LEDs in SPL,
 	  enable this option. You will need to enable device tree in SPL
 	  for this to work.
+
 config LED_GPIO
 	bool "LED support for GPIO-connected LEDs"
 	depends on LED && DM_GPIO
