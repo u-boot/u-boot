@@ -7,6 +7,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MAX_PINS_ONE_IP			70
 #define MODE_BITS_MASK			3
 #define OSPEED_MASK			3
 #define PUPD_MASK			3
@@ -95,7 +96,7 @@ static int prep_gpio_ctl(struct stm32_gpio_ctl *gpio_ctl, u32 gpio_fn, int node)
 static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 					  struct udevice *periph)
 {
-	u32 pin_mux[50];
+	u32 pin_mux[MAX_PINS_ONE_IP];
 	struct fdtdec_phandle_args args;
 	int rv, len;
 
