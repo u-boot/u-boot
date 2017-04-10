@@ -114,6 +114,117 @@
 			u-boot,dm-pre-reloc;
 			pins-are-numbered;
 
+			gpioa: gpio@40020000 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x0 0x400>;
+				clocks = <&rcc 0 0>;
+				st,bank-name = "GPIOA";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpiob: gpio@40020400 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x400 0x400>;
+				clocks = <&rcc 0 1>;
+				st,bank-name = "GPIOB";
+				u-boot,dm-pre-reloc;
+			};
+
+
+			gpioc: gpio@40020800 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x800 0x400>;
+				clocks = <&rcc 0 2>;
+				st,bank-name = "GPIOC";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpiod: gpio@40020c00 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0xc00 0x400>;
+				clocks = <&rcc 0 3>;
+				st,bank-name = "GPIOD";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpioe: gpio@40021000 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x1000 0x400>;
+				clocks = <&rcc 0 4>;
+				st,bank-name = "GPIOE";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpiof: gpio@40021400 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x1400 0x400>;
+				clocks = <&rcc 0 5>;
+				st,bank-name = "GPIOF";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpiog: gpio@40021800 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x1800 0x400>;
+				clocks = <&rcc 0 6>;
+				st,bank-name = "GPIOG";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpioh: gpio@40021c00 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x1c00 0x400>;
+				clocks = <&rcc 0 7>;
+				st,bank-name = "GPIOH";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpioi: gpio@40022000 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x2000 0x400>;
+				clocks = <&rcc 0 8>;
+				st,bank-name = "GPIOI";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpioj: gpio@40022400 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x2400 0x400>;
+				clocks = <&rcc 0 9>;
+				st,bank-name = "GPIOJ";
+				u-boot,dm-pre-reloc;
+			};
+
+			gpiok: gpio@40022800 {
+				gpio-controller;
+				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
+				reg = <0x2800 0x400>;
+				clocks = <&rcc 0 10>;
+				st,bank-name = "GPIOK";
+				u-boot,dm-pre-reloc;
+			};
+
 			usart1_pins_a: usart1@0 {
 				pins1 {
 					pinmux = <STM32F746_PA9_FUNC_USART1_TX>;
