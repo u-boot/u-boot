@@ -75,4 +75,5 @@
 
 #define CONFIG_CMD_MEM
 #define CONFIG_CMD_CACHE
+#define CONFIG_BOARD_LATE_INIT
 #endif /* __CONFIG_H */

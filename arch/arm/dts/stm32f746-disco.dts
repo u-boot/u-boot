@@ -78,6 +78,16 @@
 		gpio9 = &gpioj;
 		gpio10 = &gpiok;
 	};
+
+	led1 {
+		compatible = "st,led1";
+		led-gpio = <&gpioi 1 0>;
+	};
+
+	button1 {
+		compatible = "st,button1";
+		button-gpio = <&gpioi 11 0>;
+	};
 };
 
 &clk_hse {
