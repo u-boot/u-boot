@@ -85,6 +85,7 @@ config X86
 	select DM_SPI
 	select DM_SPI_FLASH
 	select USB_EHCI_HCD
+	select DM_MMC if MMC
 
 config XTENSA
 	bool "Xtensa architecture"
