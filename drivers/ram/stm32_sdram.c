@@ -13,6 +13,31 @@
 #include <asm/arch/fmc.h>
 #include <asm/arch/stm32.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+struct stm32_sdram_control {
+	u8 no_columns;
+	u8 no_rows;
+	u8 memory_width;
+	u8 no_banks;
+	u8 cas_latency;
+	u8 rd_burst;
+	u8 rd_pipe_delay;
+};
+
+struct stm32_sdram_timing {
+	u8 tmrd;
+	u8 txsr;
+	u8 tras;
+	u8 trc;
+	u8 trp;
+	u8 trcd;
+};
+struct stm32_sdram_params {
+	u8 no_sdram_banks;
+	struct stm32_sdram_control sdram_control;
+	struct stm32_sdram_timing sdram_timing;
+};
 static inline u32 _ns2clk(u32 ns, u32 freq)
 {
 	u32 tmp = freq/1000000;
@@ -21,73 +46,53 @@ static inline u32 _ns2clk(u32 ns, u32 freq)
 
 #define NS2CLK(ns) (_ns2clk(ns, freq))
 
-/*
- * Following are timings for IS42S16400J, from corresponding datasheet
- */
-#define SDRAM_CAS	3	/* 3 cycles */
-#define SDRAM_NB	1	/* Number of banks */
-#define SDRAM_MWID	1	/* 16 bit memory */
-
-#define SDRAM_NR	0x1	/* 12-bit row */
-#define SDRAM_NC	0x0	/* 8-bit col */
-#define SDRAM_RBURST	0x1	/* Single read requests always as bursts */
-#define SDRAM_RPIPE	0x0	/* No HCLK clock cycle delay */
-
-#define SDRAM_TRRD	NS2CLK(12)
-#define SDRAM_TRCD	NS2CLK(18)
-#define SDRAM_TRP	NS2CLK(18)
-#define SDRAM_TRAS	NS2CLK(42)
-#define SDRAM_TRC	NS2CLK(60)
-#define SDRAM_TRFC	NS2CLK(60)
-#define SDRAM_TCDL	(1 - 1)
-#define SDRAM_TRDL	NS2CLK(12)
-#define SDRAM_TBDL	(1 - 1)
 #define SDRAM_TREF	(NS2CLK(64000000 / 8192) - 20)
-#define SDRAM_TCCD	(1 - 1)
-
-#define SDRAM_TXSR	SDRAM_TRFC	/* Row cycle time after precharge */
-#define SDRAM_TMRD	1		/* Page 10, Mode Register Set */
-
-
-/* Last data in to row precharge, need also comply ineq on page 1648 */
-#define SDRAM_TWR	max(\
-		(int)max((int)SDRAM_TRDL, (int)(SDRAM_TRAS - SDRAM_TRCD)), \
-		(int)(SDRAM_TRC - SDRAM_TRCD - SDRAM_TRP)\
-		)
-
 
 #define SDRAM_MODE_BL_SHIFT	0
 #define SDRAM_MODE_CAS_SHIFT	4
 #define SDRAM_MODE_BL		0
-#define SDRAM_MODE_CAS		SDRAM_CAS
+#define SDRAM_MODE_CAS		3
 
-int stm32_sdram_init(void)
+#define SDRAM_TRDL	12
+
+int stm32_sdram_init(struct udevice *dev)
 {
 	u32 freq;
+	u32 sdram_twr;
+	struct stm32_sdram_params *params = dev_get_platdata(dev);
 
 	/*
 	 * Get frequency for NS2CLK calculation.
 	 */
 	freq = clock_get(CLOCK_AHB) / CONFIG_SYS_RAM_FREQ_DIV;
+	debug("%s, sdram freq = %d\n", __func__, freq);
+
+	/* Last data in to row precharge, need also comply ineq on page 1648 */
+	sdram_twr = max(
+			max(SDRAM_TRDL, params->sdram_timing.tras
+			    - params->sdram_timing.trcd),
+			params->sdram_timing.trc - params->sdram_timing.trcd
+			- params->sdram_timing.trp
+		       );
 
 	writel(CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT
-			| SDRAM_CAS << FMC_SDCR_CAS_SHIFT
-			| SDRAM_NB << FMC_SDCR_NB_SHIFT
-			| SDRAM_MWID << FMC_SDCR_MWID_SHIFT
-			| SDRAM_NR << FMC_SDCR_NR_SHIFT
-			| SDRAM_NC << FMC_SDCR_NC_SHIFT
-			| SDRAM_RPIPE << FMC_SDCR_RPIPE_SHIFT
-			| SDRAM_RBURST << FMC_SDCR_RBURST_SHIFT,
-			&STM32_SDRAM_FMC->sdcr1);
+		| params->sdram_control.cas_latency << FMC_SDCR_CAS_SHIFT
+		| params->sdram_control.no_banks << FMC_SDCR_NB_SHIFT
+		| params->sdram_control.memory_width << FMC_SDCR_MWID_SHIFT
+		| params->sdram_control.no_rows << FMC_SDCR_NR_SHIFT
+		| params->sdram_control.no_columns << FMC_SDCR_NC_SHIFT
+		| params->sdram_control.rd_pipe_delay << FMC_SDCR_RPIPE_SHIFT
+		| params->sdram_control.rd_burst << FMC_SDCR_RBURST_SHIFT,
+		&STM32_SDRAM_FMC->sdcr1);
 
-	writel(SDRAM_TRCD << FMC_SDTR_TRCD_SHIFT
-			| SDRAM_TRP << FMC_SDTR_TRP_SHIFT
-			| SDRAM_TWR << FMC_SDTR_TWR_SHIFT
-			| SDRAM_TRC << FMC_SDTR_TRC_SHIFT
-			| SDRAM_TRAS << FMC_SDTR_TRAS_SHIFT
-			| SDRAM_TXSR << FMC_SDTR_TXSR_SHIFT
-			| SDRAM_TMRD << FMC_SDTR_TMRD_SHIFT,
-			&STM32_SDRAM_FMC->sdtr1);
+	writel(NS2CLK(params->sdram_timing.trcd) << FMC_SDTR_TRCD_SHIFT
+		| NS2CLK(params->sdram_timing.trp) << FMC_SDTR_TRP_SHIFT
+		| NS2CLK(sdram_twr) << FMC_SDTR_TWR_SHIFT
+		| NS2CLK(params->sdram_timing.trc) << FMC_SDTR_TRC_SHIFT
+		| NS2CLK(params->sdram_timing.tras) << FMC_SDTR_TRAS_SHIFT
+		| NS2CLK(params->sdram_timing.txsr) << FMC_SDTR_TXSR_SHIFT
+		| NS2CLK(params->sdram_timing.tmrd) << FMC_SDTR_TMRD_SHIFT,
+		&STM32_SDRAM_FMC->sdtr1);
 
 	writel(FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_START_CLOCK,
 	       &STM32_SDRAM_FMC->sdcmr);
@@ -121,11 +126,39 @@ int stm32_sdram_init(void)
 	return 0;
 }
 
+static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
+{
+	int ret;
+	int node = dev->of_offset;
+	const void *blob = gd->fdt_blob;
+	struct stm32_sdram_params *params = dev_get_platdata(dev);
+
+	params->no_sdram_banks = fdtdec_get_uint(blob, node, "mr-nbanks", 1);
+	debug("%s, no of banks = %d\n", __func__, params->no_sdram_banks);
+
+	fdt_for_each_subnode(node, blob, node) {
+		ret = fdtdec_get_byte_array(blob, node, "st,sdram-control",
+					    (u8 *)&params->sdram_control,
+					    sizeof(params->sdram_control));
+		if (ret)
+			return ret;
+
+		ret = fdtdec_get_byte_array(blob, node, "st,sdram-timing",
+					    (u8 *)&params->sdram_timing,
+					    sizeof(params->sdram_timing));
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static int stm32_fmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_CLK
 	int ret;
 	struct clk clk;
+
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
@@ -137,7 +170,10 @@ static int stm32_fmc_probe(struct udevice *dev)
 		return ret;
 	}
 #endif
-	stm32_sdram_init();
+	ret = stm32_sdram_init(dev);
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
@@ -161,5 +197,7 @@ U_BOOT_DRIVER(stm32_fmc) = {
 	.id = UCLASS_RAM,
 	.of_match = stm32_fmc_ids,
 	.ops = &stm32_fmc_ops,
+	.ofdata_to_platdata = stm32_fmc_ofdata_to_platdata,
 	.probe = stm32_fmc_probe,
+	.platdata_auto_alloc_size = sizeof(struct stm32_sdram_params),
 };

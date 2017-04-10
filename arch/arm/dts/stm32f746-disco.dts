@@ -47,6 +47,7 @@
 
 /dts-v1/;
 #include "stm32f746.dtsi"
+#include <dt-bindings/memory/stm32-sdram.h>
 
 / {
 	model = "STMicroelectronics STM32F746-DISCO board";
@@ -81,6 +82,15 @@
 	pinctrl-0 = <&fmc_pins>;
 	pinctrl-names = "default";
 	status = "okay";
+
+	mr-nbanks = <1>;
+	/* sdram memory configuration from sdram datasheet IS42S16400J */
+	bank1: bank@0 {
+	       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_2
+	       				    CAS_3 RD_BURST_EN RD_PIPE_DL_0>;
+	       st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_60 TRAS_42 TRC_60 TRP_18
+	       				   TRCD_18>;
+       };
 };
 
 &mac {
