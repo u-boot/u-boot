@@ -5,5 +5,5 @@
 #
 
 obj-y += ls1021atwr.o
-obj-$(CONFIG_FSL_DCU_FB) += dcu.o
+obj-$(CONFIG_VIDEO_FSL_DCU_FB) += dcu.o
 obj-$(CONFIG_ARMV7_PSCI) += psci.o

@@ -91,7 +91,7 @@ int arch_soc_init(void)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
-#ifdef CONFIG_FSL_DCU_FB
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
 	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
 #endif
 

@@ -395,6 +395,13 @@ config VIDEO_IVYBRIDGE_IGD
 	  a special tool which configures the VGA ROM, but the graphics
 	  resolution can be selected in U-Boot.
 
+config VIDEO_FSL_DCU_FB
+	bool "Enable Freescale Display Control Unit"
+	depends on VIDEO
+	help
+	 This enables support for Freescale Display Control Unit (DCU4)
+	 module found on Freescale Vybrid and QorIQ family of SoCs.
+
 config VIDEO_ROCKCHIP
 	bool "Enable Rockchip video support"
 	depends on DM_VIDEO
