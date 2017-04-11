@@ -371,6 +371,12 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config ATMEL_HLCD
+	bool "Enable ATMEL video support using HLCDC"
+	depends on DM_VIDEO
+	help
+	   HLCDC supports video output to an attached LCD panel.
+
 config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
 	depends on X86
