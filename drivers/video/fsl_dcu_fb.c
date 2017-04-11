@@ -294,7 +294,7 @@ int fsl_dcu_init(unsigned int xres, unsigned int yres,
 		    DCU_BGND_R(0) | DCU_BGND_G(0) | DCU_BGND_B(0));
 
 	dcu_write32(&regs->mode,
-		    DCU_MODE_BLEND_ITER(DCU_LAYER_MAX_NUM) |
+		    DCU_MODE_BLEND_ITER(2) |
 		    DCU_MODE_RASTER_EN);
 
 	dcu_write32(&regs->threshold,
