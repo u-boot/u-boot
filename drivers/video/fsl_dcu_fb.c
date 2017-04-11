@@ -104,7 +104,7 @@ static struct fb_videomode fsl_dcu_mode_480_272 = {
 /*
  * This setting is used for Siliconimage SiI9022A HDMI
  */
-static struct fb_videomode fsl_dcu_mode_640_480 = {
+static struct fb_videomode fsl_dcu_cea_mode_640_480 = {
 	.name		= "640x480-60",
 	.refresh	= 60,
 	.xres		= 640,
@@ -116,6 +116,54 @@ static struct fb_videomode fsl_dcu_mode_640_480 = {
 	.lower_margin	= 10,
 	.hsync_len	= 96,
 	.vsync_len	= 2,
+	.sync		= 0,
+	.vmode		= FB_VMODE_NONINTERLACED,
+};
+
+static struct fb_videomode fsl_dcu_mode_640_480 = {
+	.name		= "640x480-60",
+	.refresh	= 60,
+	.xres		= 640,
+	.yres		= 480,
+	.pixclock	= 25175,
+	.left_margin	= 40,
+	.right_margin	= 24,
+	.upper_margin	= 32,
+	.lower_margin	= 11,
+	.hsync_len	= 96,
+	.vsync_len	= 2,
+	.sync		= 0,
+	.vmode		= FB_VMODE_NONINTERLACED,
+};
+
+static struct fb_videomode fsl_dcu_mode_800_480 = {
+	.name		= "800x480-60",
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 480,
+	.pixclock	= 33260,
+	.left_margin	= 216,
+	.right_margin	= 40,
+	.upper_margin	= 35,
+	.lower_margin	= 10,
+	.hsync_len	= 128,
+	.vsync_len	= 2,
+	.sync		= 0,
+	.vmode		= FB_VMODE_NONINTERLACED,
+};
+
+static struct fb_videomode fsl_dcu_mode_1024_600 = {
+	.name		= "1024x600-60",
+	.refresh	= 60,
+	.xres		= 1024,
+	.yres		= 600,
+	.pixclock	= 48000,
+	.left_margin	= 104,
+	.right_margin	= 43,
+	.upper_margin	= 24,
+	.lower_margin	= 20,
+	.hsync_len	= 5,
+	.vsync_len	= 5,
 	.sync		= 0,
 	.vmode		= FB_VMODE_NONINTERLACED,
 };
@@ -342,7 +390,16 @@ void *video_hw_init(void)
 		fsl_dcu_mode_db = &fsl_dcu_mode_480_272;
 		break;
 	case RESOLUTION(640, 480):
-		fsl_dcu_mode_db = &fsl_dcu_mode_640_480;
+		if (!strncmp(options, "monitor=hdmi", 12))
+			fsl_dcu_mode_db = &fsl_dcu_cea_mode_640_480;
+		else
+			fsl_dcu_mode_db = &fsl_dcu_mode_640_480;
+		break;
+	case RESOLUTION(800, 480):
+		fsl_dcu_mode_db = &fsl_dcu_mode_800_480;
+		break;
+	case RESOLUTION(1024, 600):
+		fsl_dcu_mode_db = &fsl_dcu_mode_1024_600;
 		break;
 	default:
 		printf("unsupported resolution %ux%u\n",
