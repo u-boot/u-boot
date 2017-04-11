@@ -25,6 +25,17 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
+#define CONFIG_CMD_BMP
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_SYS_FSL_DCU_LE
+
+#define CONFIG_SYS_DCU_ADDR		DCU0_BASE_ADDR
+#define DCU_LAYER_MAX_NUM		64
+#endif
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
@@ -130,6 +141,8 @@
 	"setupdate=run setsdupdate || run setusbupdate\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
+	"video-mode=dcufb:640x480-16@60,monitor=lcd\0" \
+	"splashpos=m,m\0" \
 	SD_BOOTCMD \
 	NFS_BOOTCMD \
 	UBI_BOOTCMD

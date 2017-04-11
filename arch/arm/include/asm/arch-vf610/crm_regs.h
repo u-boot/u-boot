@@ -9,6 +9,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/types.h>
+
 /* Clock Controller Module (CCM) */
 struct ccm_reg {
 	u32 ccr;
@@ -150,6 +152,9 @@ struct anadig_reg {
 #define CCM_CACRR_ARM_CLK_DIV_MASK		0x7
 #define CCM_CACRR_ARM_CLK_DIV(v)		((v) & 0x7)
 
+#define CCM_CSCMR1_DCU1_CLK_SEL			(1 << 29)
+#define CCM_CSCMR1_DCU0_CLK_SEL			(1 << 28)
+
 #define CCM_CSCMR1_QSPI0_CLK_SEL_OFFSET		22
 #define CCM_CSCMR1_QSPI0_CLK_SEL_MASK		(0x3 << 22)
 #define CCM_CSCMR1_QSPI0_CLK_SEL(v)		(((v) & 0x3) << 22)
@@ -174,6 +179,13 @@ struct anadig_reg {
 #define CCM_CSCDR2_ESDHC1_CLK_DIV_MASK		(0xf << 20)
 #define CCM_CSCDR2_ESDHC1_CLK_DIV(v)		(((v) & 0xf) << 20)
 
+#define CCM_CSCDR3_DCU1_EN			(1 << 23)
+#define CCM_CSCDR3_DCU1_DIV_MASK		(0x7 << 20)
+#define CCM_CSCDR3_DCU1_DIV(v)			(((v) & 0x7) << 20)
+#define CCM_CSCDR3_DCU0_EN			(1 << 19)
+#define CCM_CSCDR3_DCU0_DIV_MASK		(0x7 << 16)
+#define CCM_CSCDR3_DCU0_DIV(v)			(((v) & 0x7) << 16)
+
 #define CCM_CSCDR3_NFC_PRE_DIV_OFFSET		13
 #define CCM_CSCDR3_NFC_PRE_DIV_MASK		(0x7 << 13)
 #define CCM_CSCDR3_NFC_PRE_DIV(v)		(((v) & 0x7) << 13)
@@ -193,6 +205,7 @@ struct anadig_reg {
 #define CCM_CCGR0_DSPI1_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR1_USBC0_CTRL_MASK       (0x3 << 8)
 #define CCM_CCGR1_PIT_CTRL_MASK			(0x3 << 14)
+#define CCM_CCGR1_TCON0_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR1_WDOGA5_CTRL_MASK		(0x3 << 28)
 #define CCM_CCGR2_QSPI0_CTRL_MASK		(0x3 << 8)
 #define CCM_CCGR2_IOMUXC_CTRL_MASK		(0x3 << 16)
@@ -203,6 +216,7 @@ struct anadig_reg {
 #define CCM_CCGR2_PORTE_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR3_ANADIG_CTRL_MASK		0x3
 #define CCM_CCGR3_SCSC_CTRL_MASK        (0x3 << 4)
+#define CCM_CCGR3_DCU0_CTRL_MASK		(0x3 << 16)
 #define CCM_CCGR4_WKUP_CTRL_MASK		(0x3 << 20)
 #define CCM_CCGR4_CCM_CTRL_MASK			(0x3 << 22)
 #define CCM_CCGR4_GPC_CTRL_MASK			(0x3 << 24)
