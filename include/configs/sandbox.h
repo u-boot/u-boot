@@ -25,12 +25,6 @@
 #define CONFIG_SYS_TIMER_RATE		1000000
 #endif
 
-/*
- * Number of bits in a C 'long' on this architecture. Set this to 32 when
- * building on a 32-bit machine.
- */
-#define CONFIG_SANDBOX_BITS_PER_LONG	64
-
 #define CONFIG_LMB
 #define CONFIG_ANDROID_BOOT_IMAGE
 
