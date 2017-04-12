@@ -162,7 +162,7 @@ static int cramfs_uncompress (unsigned long begin, unsigned long offset,
 			      unsigned long loadoffset)
 {
 	struct cramfs_inode *inode = (struct cramfs_inode *) (begin + offset);
-	unsigned long *block_ptrs = (unsigned long *)
+	u32 *block_ptrs = (u32 *)
 		(begin + (CRAMFS_GET_OFFSET (inode) << 2));
 	unsigned long curr_block = (CRAMFS_GET_OFFSET (inode) +
 				    (((CRAMFS_24 (inode->size)) +
