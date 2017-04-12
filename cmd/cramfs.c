@@ -13,11 +13,13 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
 #include <jffs2/jffs2.h>
 #include <jffs2/load_kernel.h>
 #include <cramfs/cramfs_fs.h>
+#include <asm/io.h>
 
 /* enable/disable debugging messages */
 #define	DEBUG_CRAMFS
@@ -95,6 +97,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *filename;
 	int size;
 	ulong offset = load_addr;
+	char *offset_virt;
 
 	struct part_info part;
 	struct mtd_device dev;
@@ -111,7 +114,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	dev.id = &id;
 	part.dev = &dev;
 	/* fake the address offset */
-	part.offset = addr - OFFSET_ADJUSTMENT;
+	part.offset = (u64)(uintptr_t) map_sysmem(addr - OFFSET_ADJUSTMENT, 0);
 
 	/* pre-set Boot file name */
 	if ((filename = getenv("bootfile")) == NULL) {
@@ -127,9 +130,10 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		filename = argv[2];
 	}
 
+	offset_virt = map_sysmem(offset, 0);
 	size = 0;
 	if (cramfs_check(&part))
-		size = cramfs_load ((char *) offset, &part, filename);
+		size = cramfs_load (offset_virt, &part, filename);
 
 	if (size > 0) {
 		printf("### CRAMFS load complete: %d bytes loaded to 0x%lx\n",
@@ -138,6 +142,9 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} else {
 		printf("### CRAMFS LOAD ERROR<%x> for %s!\n", size, filename);
 	}
+
+	unmap_sysmem(offset_virt);
+	unmap_sysmem((void *)(uintptr_t)part.offset);
 
 	return !(size > 0);
 }
@@ -172,7 +179,7 @@ int do_cramfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	dev.id = &id;
 	part.dev = &dev;
 	/* fake the address offset */
-	part.offset = addr - OFFSET_ADJUSTMENT;
+	part.offset = (u64)(uintptr_t) map_sysmem(addr - OFFSET_ADJUSTMENT, 0);
 
 	if (argc == 2)
 		filename = argv[1];
@@ -180,6 +187,7 @@ int do_cramfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ret = 0;
 	if (cramfs_check(&part))
 		ret = cramfs_ls (&part, filename);
+	unmap_sysmem((void *)(uintptr_t)part.offset);
 
 	return ret ? 0 : 1;
 }
