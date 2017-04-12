@@ -40,10 +40,9 @@ int board_init(void)
 		goto out;
 	}
 
-	/* rk3399 need init vdd_center to get correct output voltage */
-	ret = regulator_get_by_platname("vdd_center", &regulator);
+	ret = regulators_enable_boot_on(false);
 	if (ret)
-		debug("%s: Cannot get vdd_center regulator\n", __func__);
+		debug("%s: Cannot enable boot on regulator\n", __func__);
 
 	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
 	if (ret) {
