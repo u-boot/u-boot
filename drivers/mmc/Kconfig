@@ -105,6 +105,12 @@ config MMC_DW_SOCFPGA
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on Altera SOCFPGA.
 
+config MMC_MESON_GX
+	bool "Meson GX EMMC controller support"
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_MESON
+	help
+	 Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
+
 config MMC_MXC
 	bool "Freescale i.MX21/27/31 or MPC512x Multimedia Card support"
 	help
