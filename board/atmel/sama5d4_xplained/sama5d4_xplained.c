@@ -15,6 +15,7 @@
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/sama5d4.h>
 #include <atmel_hlcdc.h>
+#include <debug_uart.h>
 #include <lcd.h>
 #include <nand.h>
 #include <version.h>
@@ -165,6 +166,7 @@ void lcd_show_board_info(void)
 
 #endif /* CONFIG_LCD */
 
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void sama5d4_xplained_serial3_hw_init(void)
 {
 	at91_pio3_set_b_periph(AT91_PIO_PORTE, 17, 1);	/* TXD3 */
@@ -174,12 +176,21 @@ static void sama5d4_xplained_serial3_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_USART3);
 }
 
-int board_early_init_f(void)
+void board_debug_uart_init(void)
 {
 	sama5d4_xplained_serial3_hw_init();
+}
+#endif
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
