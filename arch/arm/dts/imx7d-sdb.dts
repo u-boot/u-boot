@@ -1,0 +1,19 @@
+/*
+ * Copyright 2017 NXP
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "imx7d.dtsi"
+
+/ {
+	model = "Freescale i.MX7 SabreSD Board";
+	compatible = "fsl,imx7d-sdb", "fsl,imx7d";
+
+	memory {
+		reg = <0x80000000 0x80000000>;
+	};
+
+};
