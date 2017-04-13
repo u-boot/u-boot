@@ -318,8 +318,10 @@ static ulong zynqmp_clk_get_pll_rate(struct zynqmp_clk_priv *priv,
 	int ret;
 
 	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
-	if (ret)
-		panic("%s mio read fail\n", __func__);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
 
 	if (clk_ctrl & PLLCTRL_BYPASS_MASK)
 		freq = zynqmp_clk_get_pll_src(clk_ctrl, priv, 0);
@@ -346,17 +348,22 @@ static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 	u32 clk_ctrl, div;
 	enum zynqmp_clk pll;
 	int ret;
+	unsigned long pllrate;
 
 	ret = zynqmp_mmio_read(CRF_APB_ACPU_CTRL, &clk_ctrl);
-	if (ret)
-		panic("%s mio read fail\n", __func__);
-
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 
 	pll = zynqmp_clk_get_cpu_pll(clk_ctrl);
+	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pllrate))
+		return pllrate;
 
-	return DIV_ROUND_CLOSEST(zynqmp_clk_get_pll_rate(priv, pll), div);
+	return DIV_ROUND_CLOSEST(pllrate, div);
 }
 
 static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
@@ -364,16 +371,22 @@ static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 	u32 clk_ctrl, div;
 	enum zynqmp_clk pll;
 	int ret;
+	ulong pllrate;
 
 	ret = zynqmp_mmio_read(CRF_APB_DDR_CTRL, &clk_ctrl);
-	if (ret)
-		panic("%s mio read fail\n", __func__);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 
 	pll = zynqmp_clk_get_ddr_pll(clk_ctrl);
+	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pllrate))
+		return pllrate;
 
-	return DIV_ROUND_CLOSEST(zynqmp_clk_get_pll_rate(priv, pll), div);
+	return DIV_ROUND_CLOSEST(pllrate, div);
 }
 
 static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
@@ -383,10 +396,13 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 	u32 clk_ctrl, div0;
 	u32 div1 = 1;
 	int ret;
+	ulong pllrate;
 
 	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
-	if (ret)
-		panic("%s mio read fail\n", __func__);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
 
 	div0 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 	if (!div0)
@@ -399,12 +415,13 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 	}
 
 	pll = zynqmp_clk_get_peripheral_pll(clk_ctrl);
+	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pllrate))
+		return pllrate;
 
 	return
 		DIV_ROUND_CLOSEST(
-			DIV_ROUND_CLOSEST(
-				zynqmp_clk_get_pll_rate(priv, pll), div0),
-			div1);
+			DIV_ROUND_CLOSEST(pllrate, div0), div1);
 }
 
 static unsigned long zynqmp_clk_calc_peripheral_two_divs(ulong rate,
@@ -446,11 +463,16 @@ static ulong zynqmp_clk_set_peripheral_rate(struct zynqmp_clk_priv *priv,
 
 	reg = zynqmp_clk_get_register(id);
 	ret = zynqmp_mmio_read(reg, &clk_ctrl);
-	if (ret)
-		panic("%s mio read fail\n", __func__);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
 
 	pll = zynqmp_clk_get_peripheral_pll(clk_ctrl);
 	pll_rate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pll_rate))
+		return pll_rate;
+
 	clk_ctrl &= ~CLK_CTRL_DIV0_MASK;
 	if (two_divs) {
 		clk_ctrl &= ~CLK_CTRL_DIV1_MASK;
@@ -469,8 +491,10 @@ static ulong zynqmp_clk_set_peripheral_rate(struct zynqmp_clk_priv *priv,
 	       (ZYNQ_CLK_MAXDIV << CLK_CTRL_DIV1_SHIFT);
 
 	ret = zynqmp_mmio_write(reg, mask, clk_ctrl);
-	if (ret)
-		panic("%s mio write fail\n", __func__);
+	if (ret) {
+		printf("%s mio write fail\n", __func__);
+		return -EIO;
+	}
 
 	return new_rate;
 }
@@ -540,7 +564,8 @@ int soc_clk_dump(void)
 			clk_free(&clk);
 
 			if ((rate == (unsigned long)-ENOSYS) ||
-			    (rate == (unsigned long)-ENXIO))
+			    (rate == (unsigned long)-ENXIO) ||
+			    (rate == (unsigned long)-EIO))
 				printf("%10s%20s\n", name, "unknown");
 			else
 				printf("%10s%20lu\n", name, rate);
