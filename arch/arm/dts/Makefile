@@ -349,6 +349,23 @@ dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb
 
+dtb-$(CONFIG_TARGET_SAMA5D3XEK) += \
+	sama5d31ek.dtb \
+	sama5d33ek.dtb \
+	sama5d34ek.dtb \
+	sama5d35ek.dtb \
+	sama5d36ek.dtb \
+	sama5d36ek_cmp.dtb
+
+dtb-$(CONFIG_TARGET_SAMA5D3_XPLAINED) += \
+	at91-sama5d3_xplained.dtb
+
+dtb-$(CONFIG_TARGET_SAMA5D4EK) += \
+	at91-sama5d4ek.dtb
+
+dtb-$(CONFIG_TARGET_SAMA5D4_XPLAINED) += \
+	at91-sama5d4_xplained.dtb
+
 dtb-$(CONFIG_ARCH_BCM283X) += \
 	bcm2835-rpi-a-plus.dtb \
 	bcm2835-rpi-a.dtb \

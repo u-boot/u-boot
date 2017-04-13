@@ -39,12 +39,16 @@ u32 spl_boot_device(void)
 
 #if defined(CONFIG_SYS_USE_MMC)
 	if (dev == ATMEL_SAMA5_BOOT_FROM_MCI) {
+#if defined(CONFIG_SPL_OF_CONTROL)
+		return BOOT_DEVICE_MMC1;
+#else
 		if (off == 0)
 			return BOOT_DEVICE_MMC1;
 		if (off == 1)
 			return BOOT_DEVICE_MMC2;
 		printf("ERROR: MMC controller %i not present!\n", dev);
 		hang();
+#endif
 	}
 #endif
 
@@ -52,6 +56,9 @@ u32 spl_boot_device(void)
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SPI)
 		return BOOT_DEVICE_SPI;
 #endif
+
+	if (dev == ATMEL_SAMA5_BOOT_FROM_SMC)
+		return BOOT_DEVICE_NAND;
 
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SAMBA)
 		return BOOT_DEVICE_USB;

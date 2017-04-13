@@ -27,7 +27,9 @@
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* general purpose I/O */
+#ifndef CONFIG_DM_GPIO
 #define CONFIG_AT91_GPIO
+#endif
 
 
 /*

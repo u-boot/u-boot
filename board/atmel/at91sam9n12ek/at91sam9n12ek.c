@@ -71,10 +71,10 @@ static void at91sam9n12ek_nand_hw_init(void)
 	/* Configure ENABLE pin for NandFlash */
 	at91_set_pio_output(AT91_PIO_PORTD, 4, 1);
 
-	at91_set_a_periph(AT91_PIO_PORTD, 0, 1);    /* NAND OE */
-	at91_set_a_periph(AT91_PIO_PORTD, 1, 1);    /* NAND WE */
-	at91_set_a_periph(AT91_PIO_PORTD, 2, 1);    /* ALE */
-	at91_set_a_periph(AT91_PIO_PORTD, 3, 1);    /* CLE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 0, 1);    /* NAND OE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 1, 1);    /* NAND WE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 2, 1);    /* ALE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 3, 1);    /* CLE */
 }
 #endif
 
@@ -194,7 +194,7 @@ void at91sam9n12ek_ks8851_hw_init(void)
 	       &smc->cs[2].mode);
 
 	/* Configure NCS2 PIN */
-	at91_set_b_periph(AT91_PIO_PORTD, 19, 0);
+	at91_pio3_set_b_periph(AT91_PIO_PORTD, 19, 0);
 }
 #endif
 
