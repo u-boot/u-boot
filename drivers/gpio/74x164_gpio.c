@@ -156,8 +156,7 @@ static int gen_74x164_probe(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "oe-gpios", 0, &priv->oe,
 				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret) {
-		dev_err(dev, "No oe-pins property\n");
-		goto free_buf;
+		dev_dbg(dev, "No oe-pins property\n");
 	}
 
 	uc_priv->bank_name = str;
