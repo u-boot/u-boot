@@ -371,6 +371,15 @@ config MMC_SUNXI
 	  This selects support for the SD/MMC Host Controller on
 	  Allwinner sunxi SoCs.
 
+config GENERIC_ATMEL_MCI
+	bool "Atmel Multimedia Card Interface support"
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	help
+	  This enables support for Atmel High Speed Multimedia Card Interface
+	  (HSMCI), which supports the MultiMedia Card (MMC) Specification V4.3,
+	  the SD Memory Card Specification V2.0, the SDIO V2.0 specification
+	  and CE-ATA V1.1.
+
 endif
 
 config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
