@@ -34,20 +34,12 @@
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
-/* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_PFUZE3000
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
-
 #undef CONFIG_BOOTM_NETBSD
 #undef CONFIG_BOOTM_PLAN9
 #undef CONFIG_BOOTM_RTEMS
 
 /* I2C configs */
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
 #define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
@@ -194,9 +186,6 @@
 /* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
-
-/* MXC SPI driver support */
-#define CONFIG_MXC_SPI
 
 /*
  * If want to use nand, define CONFIG_NAND_MXS and rework board
