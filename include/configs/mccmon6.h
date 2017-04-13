@@ -265,6 +265,14 @@
 		"if tftpboot ${nor_img_addr} ${nor_img_file}; then " \
 		    "run nor_update;" \
 		"fi\0" \
+	"tftp_nor_dtb="\
+		"echo 'Update mccmon6 NOR DTB via TFTP'; " \
+		"setenv nor_img_file imx6q-mccmon6.dtb; " \
+		"setenv nor_img_size 0x20000; " \
+		"setenv nor_bank_start 0x09980000; " \
+		"if tftpboot ${nor_img_addr} ${nor_img_file}; then " \
+		    "run nor_update;" \
+		"fi\0" \
 	"tftp_nor_img="\
 		"echo 'Update mccmon6 NOR image via TFTP'; " \
 		"if tftpboot ${nor_img_addr} ${nor_img_file}; then " \

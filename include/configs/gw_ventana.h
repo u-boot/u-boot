@@ -100,7 +100,10 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_SYS_FSL_USDHC_NUM       1
+
+/* eMMC Configs */
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_SUPPORT_EMMC_RPMB
 
 /* Filesystem support */
 #define CONFIG_CMD_UBIFS
@@ -152,7 +155,6 @@
 #define IMX_FEC_BASE             ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE      RGMII
 #define CONFIG_FEC_MXC_PHYADDR   0
-#define CONFIG_PHYLIB
 #define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
@@ -235,6 +237,7 @@
 #endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
   #define CONFIG_SYS_MMC_ENV_DEV         0
+  #define CONFIG_SYS_MMC_ENV_PART        1
   #define CONFIG_ENV_OFFSET              (709 * SZ_1K)
   #define CONFIG_ENV_SIZE                (128 * SZ_1K)
   #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (128 * SZ_1K))

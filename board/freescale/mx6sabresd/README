@@ -1,17 +1,19 @@
 How to use and build U-Boot on mx6sabresd:
 ----------------------------------
 
-Currently there are three methods for booting mx6sabresd boards:
+Currently there are four methods for booting mx6sabresd boards:
 
-1. Booting via Normal U-Boot (u-boot.imx)
+1. Booting from SD card via normal U-Boot (u-boot.imx)
 
-2. Booting via SPL (SPL and u-boot.img)
+2. Booting from eMMC via normal U-Boot
 
-3. Booting via Falcon mode (SPL launches the kernel directly)
+3. Booting via SPL (SPL and u-boot.img)
+
+4. Booting via Falcon mode (SPL launches the kernel directly)
 
 
-1. Booting via Normal U-Boot
-----------------------------
+1. Booting from SD card via normal U-Boot
+-----------------------------------------
 
 $ make mx6qsabresd_defconfig (If you want to build for mx6qsabresd)
 
@@ -28,7 +30,44 @@ This will generate the image called u-boot.imx.
 $ sudo dd if=u-boot.imx of=/dev/sdb bs=1K seek=1 && sync
 
 
-2. Booting via SPL
+2. Booting from eMMC via normal U-Boot
+--------------------------------------
+
+$ make mx6qsabresd_defconfig (If you want to build for mx6qsabresd)
+
+or
+
+$ make mx6dlsabresd_defconfig (If you want to build for mx6dlsabresd)
+
+$ make
+
+This will generate the image called u-boot.imx.
+
+- Flash the u-boot.imx binary into the eMMC:
+
+Set SW6 to download mode: 00001100
+
+Plug a usb cable to USB-OTG and load the u-boot image using the imx_usb_loader
+tool (https://github.com/boundarydevices/imx_usb_loader):
+
+$ sudo ./imx_usb u-boot.imx
+
+In U-boot change the eMMC partition config:
+
+=> mmc partconf 2 1 0 0
+
+Mount the eMMC in the host PC:
+
+=> ums 0 mmc 2
+
+Flash the u-boot.imx binary
+
+$ sudo dd if=u-boot.imx of=/dev/sdX bs=1K seek=1 && sync
+
+Set SW6 to eMMC 8-bit boot: 11010110
+
+
+3. Booting via SPL
 ------------------
 
 Other method for building U-Boot on mx6qsabresd and mx6qpsabresd is
@@ -48,7 +87,7 @@ $ sudo dd if=SPL of=/dev/sdb bs=1K seek=1 && sync
 $ sudo dd if=u-boot.img of=/dev/sdbbs=1K seek=69 && sync
 
 
-3. Booting via Falcon mode
+4. Booting via Falcon mode
 --------------------------
 
 $ make mx6sabresd_spl_defconfig

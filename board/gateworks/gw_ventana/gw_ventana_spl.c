@@ -374,6 +374,25 @@ static struct mx6_mmdc_calibration mx6sdl_256x64_mmdc_calib = {
 	.p1_mpwrdlctl = 0x383A3930,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_256x64x2_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x001F003F,
+	.p0_mpwldectrl1 = 0x001F001F,
+	.p1_mpwldectrl0 = 0x001F004E,
+	.p1_mpwldectrl1 = 0x0059001F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0   = 0x42220225,
+	.p0_mpdgctrl1   = 0x0213021F,
+	.p1_mpdgctrl0   = 0x022C0242,
+	.p1_mpdgctrl1   = 0x022C0244,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl   = 0x474A4C4A,
+	.p1_mprddlctl   = 0x48494C45,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl   = 0x3F3F3F36,
+	.p1_mpwrdlctl   = 0x3F36363F,
+};
+
 static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x002A0025,
@@ -510,10 +529,25 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 			calib = &mx6sdl_256x64_mmdc_calib;
 		debug("4gB density\n");
 	} else if (width == 64 && size_mb == 4096) {
-		mem = &mt41k512m16ha_125;
-		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &mx6dq_512x64_mmdc_calib;
-		debug("8gB density\n");
+		switch(board_model) {
+		case GW5903:
+			/* 8xMT41K256M16 (4GiB) fly-by mirrored 2-chipsels */
+			mem = &mt41k256m16ha_125;
+			debug("4gB density\n");
+			if (!is_cpu_type(MXC_CPU_MX6Q)) {
+				calib = &mx6sdl_256x64x2_mmdc_calib;
+				sysinfo.ncs = 2;
+				sysinfo.cs_density = 18; /* CS0_END=71 */
+				sysinfo.cs1_mirror = 1; /* mirror enabled */
+			}
+			break;
+		default:
+			mem = &mt41k512m16ha_125;
+			if (is_cpu_type(MXC_CPU_MX6Q))
+				calib = &mx6dq_512x64_mmdc_calib;
+			debug("8gB density\n");
+			break;
+		}
 	}
 
 	if (!(mem && calib)) {
@@ -606,6 +640,20 @@ void board_init_f(ulong dummy)
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
+}
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+	switch (spl_boot_list[0]) {
+	case BOOT_DEVICE_NAND:
+		spl_boot_list[1] = BOOT_DEVICE_MMC1;
+		spl_boot_list[2] = BOOT_DEVICE_UART;
+		break;
+	case BOOT_DEVICE_MMC1:
+		spl_boot_list[1] = BOOT_DEVICE_UART;
+		break;
+	}
 }
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */

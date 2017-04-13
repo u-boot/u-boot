@@ -95,7 +95,7 @@ Next, configure U-Boot for a MXS based board
 
 Examples:
 
-1. For building U-Boot for Denx M28EVK board:
+1. For building U-Boot for Aries M28EVK board:
 
 	$ make m28evk_config
 

@@ -261,6 +261,7 @@
 #define CONFIG_SYS_FSL_USDHC_NUM        3
 
 /* Framebuffer */
+#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
@@ -271,6 +272,7 @@
 #define CONFIG_IPUV3_CLK                260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#endif
 
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK         66000000

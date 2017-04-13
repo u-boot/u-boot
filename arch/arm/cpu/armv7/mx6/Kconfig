@@ -155,6 +155,19 @@ config TARGET_MX6CUBOXI
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
+config TARGET_MX6LOGICPD
+	bool "Logic PD i.MX6 SOM"
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_PMIC
+	select DM_REGULATOR
+	select OF_CONTROL
+
 config TARGET_MX6QARM2
 	bool "mx6qarm2"
 
@@ -172,6 +185,7 @@ config TARGET_MX6Q_ICORE
 
 config TARGET_MX6Q_ICORE_RQS
 	bool "Support Engicam i.Core RQS"
+	select BOARD_LATE_INIT
 	select MX6QDL
 	select OF_CONTROL
 	select DM
@@ -253,6 +267,7 @@ config TARGET_MX6UL_GEAM
 	select SUPPORT_SPL
 config TARGET_MX6UL_ISIOT
 	bool "Support Engicam Is.IoT MX6UL"
+	select BOARD_LATE_INIT
 	select MX6UL
 	select OF_CONTROL
 	select DM
@@ -404,6 +419,7 @@ source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
+source "board/logicpd/imx6/Kconfig"
 source "board/seco/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"

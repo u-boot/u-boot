@@ -1,5 +1,5 @@
 /*
- * DENX M28 Boot setup
+ * ARIES M28 Boot setup
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -56,7 +56,7 @@ const iomux_cfg_t iomux_setup[] = {
 	MX28_PAD_LCD_ENABLE__LCD_ENABLE | MUX_CONFIG_LCD,
 
 	/* UART1 */
-#ifdef	CONFIG_DENX_M28_V10
+#ifdef	CONFIG_ARIES_M28_V10
 	MX28_PAD_AUART0_CTS__DUART_RX,
 	MX28_PAD_AUART0_RTS__DUART_TX,
 #else
@@ -132,7 +132,7 @@ const iomux_cfg_t iomux_setup[] = {
 	MX28_PAD_ENET0_RXD3__ENET1_RXD1 | MUX_CONFIG_ENET,
 	MX28_PAD_ENET0_TXD2__ENET1_TXD0 | MUX_CONFIG_ENET,
 	MX28_PAD_ENET0_TXD3__ENET1_TXD1 | MUX_CONFIG_ENET,
-#if !defined(CONFIG_DENX_M28_V11) && !defined(CONFIG_DENX_M28_V10)
+#if !defined(CONFIG_ARIES_M28_V11) && !defined(CONFIG_ARIES_M28_V10)
 	MX28_PAD_AUART2_RTS__GPIO_3_11,	/* PHY reset */
 #endif
 

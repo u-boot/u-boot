@@ -13,7 +13,6 @@
 
 /* GPIO's common to all baseboards */
 #define GP_PHY_RST	IMX_GPIO_NR(1, 30)
-#define GP_SD3_CD	IMX_GPIO_NR(7, 0)
 #define GP_RS232_EN	IMX_GPIO_NR(2, 11)
 #define GP_MSATA_SEL	IMX_GPIO_NR(2, 8)
 
@@ -79,6 +78,7 @@ struct ventana {
 	int rs232_en;
 	int otgpwr_en;
 	int vsel_pin;
+	int mmc_cd;
 	/* various features */
 	bool usd_vsel;
 };

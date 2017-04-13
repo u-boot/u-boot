@@ -15,6 +15,19 @@ if PHYLIB
 config MV88E61XX_SWITCH
 	bool "Marvel MV88E61xx Ethernet switch PHY support."
 
+if MV88E61XX_SWITCH
+
+config MV88E61XX_CPU_PORT
+	int "CPU Port"
+
+config MV88E61XX_PHY_PORTS
+	hex "Bitmask of PHY Ports"
+
+config MV88E61XX_FIXED_PORTS
+	hex "Bitmask of PHYless serdes Ports"
+
+endif # MV88E61XX_SWITCH
+
 config PHYLIB_10G
 	bool "Generic 10G PHY support"
 

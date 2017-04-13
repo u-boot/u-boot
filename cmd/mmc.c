@@ -710,7 +710,7 @@ static int do_mmc_setdsr(cmd_tbl_t *cmdtp, int flag,
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
-	val = simple_strtoul(argv[2], NULL, 16);
+	val = simple_strtoul(argv[1], NULL, 16);
 
 	mmc = find_mmc_device(curr_device);
 	if (!mmc) {

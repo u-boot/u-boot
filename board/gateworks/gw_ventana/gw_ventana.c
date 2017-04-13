@@ -132,8 +132,9 @@ static void setup_iomux_enet(int gpio)
 	/* toggle PHY_RST# */
 	gpio_request(gpio, "phy_rst#");
 	gpio_direction_output(gpio, 0);
-	mdelay(2);
+	mdelay(10);
 	gpio_set_value(gpio, 1);
+	mdelay(100);
 }
 
 #ifdef CONFIG_USB_EHCI_MX6
@@ -226,11 +227,55 @@ int board_phy_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
 	}
 
+	/* TI DP83867 */
+	else if (phydev->phy_id == 0x2000a231) {
+		/* configure register 0x170 for ref CLKOUT */
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x001f);
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x0170);
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x401f);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, 14);
+		val &= ~0x1f00;
+		val |= 0x0b00; /* chD tx clock*/
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, val);
+	}
+
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 
 	return 0;
 }
+
+#ifdef CONFIG_MV88E61XX_SWITCH
+int mv88e61xx_hw_reset(struct phy_device *phydev)
+{
+	struct mii_dev *bus = phydev->bus;
+
+	/* GPIO[0] output, CLK125 */
+	debug("enabling RGMII_REFCLK\n");
+	bus->write(bus, 0x1c /*MV_GLOBAL2*/, 0,
+		   0x1a /*MV_SCRATCH_MISC*/,
+		   (1 << 15) | (0x62 /*MV_GPIO_DIR*/ << 8) | 0xfe);
+	bus->write(bus, 0x1c /*MV_GLOBAL2*/, 0,
+		   0x1a /*MV_SCRATCH_MISC*/,
+		   (1 << 15) | (0x68 /*MV_GPIO01_CNTL*/ << 8) | 7);
+
+	/* RGMII delay - Physical Control register bit[15:14] */
+	debug("setting port%d RGMII rx/tx delay\n", CONFIG_MV88E61XX_CPU_PORT);
+	/* forced 1000mbps full-duplex link */
+	bus->write(bus, 0x10 + CONFIG_MV88E61XX_CPU_PORT, 0, 1, 0xc0fe);
+	phydev->autoneg = AUTONEG_DISABLE;
+	phydev->speed = SPEED_1000;
+	phydev->duplex = DUPLEX_FULL;
+
+	/* LED configuration: 7:4-green (8=Activity)  3:0 amber (9=10Link) */
+	bus->write(bus, 0x10, 0, 0x16, 0x8089);
+	bus->write(bus, 0x11, 0, 0x16, 0x8089);
+	bus->write(bus, 0x12, 0, 0x16, 0x8089);
+	bus->write(bus, 0x13, 0, 0x16, 0x8089);
+
+	return 0;
+}
+#endif // CONFIG_MV88E61XX_SWITCH
 
 int board_eth_init(bd_t *bis)
 {
@@ -661,6 +706,8 @@ int checkboard(void)
 static const struct boot_mode board_boot_modes[] = {
 	/* NAND: 64pages per block, 3 row addr cycles, 2 copies of FCB/DBBT */
 	{ "nand", MAKE_CFGVAL(0x80, 0x02, 0x00, 0x00) },
+	{ "emmc2", MAKE_CFGVAL(0x60, 0x48, 0x00, 0x00) }, /* GW5600 */
+	{ "emmc3", MAKE_CFGVAL(0x60, 0x50, 0x00, 0x00) }, /* GW5903/GW5904 */
 	{ NULL, 0 },
 };
 #endif
@@ -712,7 +759,8 @@ int misc_init_r(void)
 			setenv("fdt_file1", fdt);
 			if (board_type != GW551x &&
 			    board_type != GW552x &&
-			    board_type != GW553x)
+			    board_type != GW553x &&
+			    board_type != GW560x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
