@@ -232,6 +232,23 @@ int mmc_map_to_kernel_blk(int dev_no)
 int board_eth_init(bd_t *bis)
 {
 	int ret;
+	unsigned int gpio;
+
+	ret = gpio_lookup_name("gpio_spi@0_5", NULL, NULL, &gpio);
+	if (ret) {
+		printf("GPIO: 'gpio_spi@0_5' not found\n");
+		return -ENODEV;
+	}
+
+	ret = gpio_request(gpio, "fec_rst");
+	if (ret && ret != -EBUSY) {
+		printf("gpio: requesting pin %u failed\n", gpio);
+		return ret;
+	}
+
+	gpio_direction_output(gpio, 0);
+	udelay(500);
+	gpio_direction_output(gpio, 1);
 
 	setup_iomux_fec();
 
