@@ -23,8 +23,6 @@
 #include <i2c.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/arch/crm_regs.h>
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -82,14 +80,6 @@ static iomux_v3_cfg_t const wdog_pads[] = {
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX7D_PAD_UART1_TX_DATA__UART1_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX7D_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usb_otg1_pads[] = {
-	MX7D_PAD_GPIO1_IO05__USB_OTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usb_otg2_pads[] = {
-	MX7D_PAD_UART3_CTS_B__USB_OTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 #ifdef CONFIG_NAND_MXS
@@ -315,11 +305,6 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 
-	imx_iomux_v3_setup_multiple_pads(usb_otg1_pads,
-					 ARRAY_SIZE(usb_otg1_pads));
-	imx_iomux_v3_setup_multiple_pads(usb_otg2_pads,
-					 ARRAY_SIZE(usb_otg2_pads));
-
 	return 0;
 }
 
@@ -403,13 +388,3 @@ int checkboard(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_USB_EHCI_MX7
-int board_usb_phy_mode(int port)
-{
-	if (port == 0)
-		return USB_INIT_DEVICE;
-	else
-		return USB_INIT_HOST;
-}
-#endif
