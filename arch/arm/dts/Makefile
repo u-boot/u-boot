@@ -60,7 +60,6 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-tec.dtb \
 	tegra20-trimslice.dtb \
 	tegra20-ventana.dtb \
-	tegra20-whistler.dtb \
 	tegra20-colibri.dtb \
 	tegra30-apalis.dtb \
 	tegra30-beaver.dtb \
