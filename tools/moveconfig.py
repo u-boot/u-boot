@@ -199,28 +199,21 @@ SLEEP_TIME=0.03
 # Most of them are available at kernel.org
 # (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the following:
 # arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
-# blackfin: http://sourceforge.net/projects/adi-toolchain/files/
 # nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
 # nios2: https://sourcery.mentor.com/GNUToolchain/subscription42545
 # sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu
-#
-# openrisc kernel.org toolchain is out of date, download latest one from
-# http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions
 CROSS_COMPILE = {
     'arc': 'arc-linux-',
     'aarch64': 'aarch64-linux-',
     'arm': 'arm-unknown-linux-gnueabi-',
     'avr32': 'avr32-linux-',
-    'blackfin': 'bfin-elf-',
     'm68k': 'm68k-linux-',
     'microblaze': 'microblaze-linux-',
     'mips': 'mips-linux-',
     'nds32': 'nds32le-linux-',
     'nios2': 'nios2-linux-gnu-',
-    'openrisc': 'or1k-elf-',
     'powerpc': 'powerpc-linux-',
     'sh': 'sh-linux-gnu-',
-    'sparc': 'sparc-linux-',
     'x86': 'i386-linux-',
     'xtensa': 'xtensa-linux-'
 }
