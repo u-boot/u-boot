@@ -280,13 +280,13 @@ class BuilderThread(threading.Thread):
         outfile = os.path.join(build_dir, 'log')
         with open(outfile, 'w') as fd:
             if result.stdout:
-                fd.write(result.stdout)
+                fd.write(result.stdout.encode('latin-1', 'ignore'))
 
         errfile = self.builder.GetErrFile(result.commit_upto,
                 result.brd.target)
         if result.stderr:
             with open(errfile, 'w') as fd:
-                fd.write(result.stderr)
+                fd.write(result.stderr.encode('latin-1', 'ignore'))
         elif os.path.exists(errfile):
             os.remove(errfile)
 
