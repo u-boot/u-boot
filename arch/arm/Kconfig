@@ -177,6 +177,7 @@ config SYS_CACHELINE_SIZE
 config ARM_SMCCC
 	bool "Support for ARM SMC Calling Convention (SMCCC)"
 	depends on CPU_V7 || ARM64
+	select ARM_PSCI_FW
 	help
 	  Say Y here if you want to enable ARM SMC Calling Convention.
 	  This should be enabled if U-Boot needs to communicate with system
