@@ -20,7 +20,6 @@ obj-$(CONFIG_IDE_FTIDE020) += ftide020.o
 obj-$(CONFIG_LIBATA) += libata.o
 obj-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
 obj-$(CONFIG_MX51_PATA) += mxc_ata.o
-obj-$(CONFIG_PATA_BFIN) += pata_bfin.o
 obj-$(CONFIG_SATA_CEVA) += sata_ceva.o
 obj-$(CONFIG_SATA_DWC) += sata_dwc.o
 obj-$(CONFIG_SATA_MV) += sata_mv.o
