@@ -105,6 +105,12 @@ config MMC_DW_SOCFPGA
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on Altera SOCFPGA.
 
+config MMC_MESON_GX
+	bool "Meson GX EMMC controller support"
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_MESON
+	help
+	 Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
+
 config MMC_MXC
 	bool "Freescale i.MX21/27/31 or MPC512x Multimedia Card support"
 	help
@@ -364,6 +370,15 @@ config MMC_SUNXI
 	help
 	  This selects support for the SD/MMC Host Controller on
 	  Allwinner sunxi SoCs.
+
+config GENERIC_ATMEL_MCI
+	bool "Atmel Multimedia Card Interface support"
+	depends on DM_MMC && BLK && DM_MMC_OPS && ARCH_AT91
+	help
+	  This enables support for Atmel High Speed Multimedia Card Interface
+	  (HSMCI), which supports the MultiMedia Card (MMC) Specification V4.3,
+	  the SD Memory Card Specification V2.0, the SDIO V2.0 specification
+	  and CE-ATA V1.1.
 
 endif
 

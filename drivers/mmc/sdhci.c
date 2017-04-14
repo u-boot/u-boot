@@ -72,6 +72,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
 	unsigned int stat, rdy, mask, timeout, block = 0;
+	bool transfer_done = false;
 #ifdef CONFIG_MMC_SDHCI_SDMA
 	unsigned char ctrl;
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
@@ -89,17 +90,23 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 			       __func__, stat);
 			return -EIO;
 		}
-		if (stat & rdy) {
+		if (!transfer_done && (stat & rdy)) {
 			if (!(sdhci_readl(host, SDHCI_PRESENT_STATE) & mask))
 				continue;
 			sdhci_writel(host, rdy, SDHCI_INT_STATUS);
 			sdhci_transfer_pio(host, data);
 			data->dest += data->blocksize;
-			if (++block >= data->blocks)
-				break;
+			if (++block >= data->blocks) {
+				/* Keep looping until the SDHCI_INT_DATA_END is
+				 * cleared, even if we finished sending all the
+				 * blocks.
+				 */
+				transfer_done = true;
+				continue;
+			}
 		}
 #ifdef CONFIG_MMC_SDHCI_SDMA
-		if (stat & SDHCI_INT_DMA_END) {
+		if (!transfer_done && (stat & SDHCI_INT_DMA_END)) {
 			sdhci_writel(host, SDHCI_INT_DMA_END, SDHCI_INT_STATUS);
 			start_addr &= ~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 			start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
