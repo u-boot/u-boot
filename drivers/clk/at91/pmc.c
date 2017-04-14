@@ -16,6 +16,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct udevice_id at91_pmc_match[] = {
+	{ .compatible = "atmel,at91rm9200-pmc" },
+	{ .compatible = "atmel,at91sam9260-pmc" },
+	{ .compatible = "atmel,at91sam9g45-pmc" },
+	{ .compatible = "atmel,at91sam9n12-pmc" },
+	{ .compatible = "atmel,at91sam9x5-pmc" },
+	{ .compatible = "atmel,sama5d3-pmc" },
 	{ .compatible = "atmel,sama5d2-pmc" },
 	{}
 };
