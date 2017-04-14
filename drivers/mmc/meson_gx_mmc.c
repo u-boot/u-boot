@@ -244,7 +244,7 @@ static int meson_mmc_probe(struct udevice *dev)
 			MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->f_min = DIV_ROUND_UP(SD_EMMC_CLKSRC_24M, CLK_MAX_DIV);
 	cfg->f_max = 100000000; /* 100 MHz */
-	cfg->b_max = 256; /* max 256 blocks */
+	cfg->b_max = 511; /* max 512 - 1 blocks */
 	cfg->name = dev->name;
 
 	mmc->priv = pdata;
