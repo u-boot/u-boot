@@ -51,7 +51,7 @@
 	"scriptaddr=0x1f000000\0" \
 	"kernel_addr_r=0x01080000\0" \
 	"pxefile_addr_r=0x01080000\0" \
-	"ramdisk_addr_r=0x10000000\0" \
+	"ramdisk_addr_r=0x13000000\0" \
 	MESON_FDTFILE_SETTING \
 	BOOTENV
 
