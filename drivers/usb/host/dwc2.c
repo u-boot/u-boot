@@ -15,6 +15,7 @@
 #include <usbroothubdes.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <power/regulator.h>
 
 #include "dwc2.h"
 
@@ -159,6 +160,33 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 	mdelay(100);
 }
 
+#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
+static int dwc_vbus_supply_init(struct udevice *dev)
+{
+	struct udevice *vbus_supply;
+	int ret;
+
+	ret = device_get_supply_regulator(dev, "vbus-supply", &vbus_supply);
+	if (ret) {
+		debug("%s: No vbus supply\n", dev->name);
+		return 0;
+	}
+
+	ret = regulator_set_enable(vbus_supply, true);
+	if (ret) {
+		error("Error enabling vbus supply\n");
+		return ret;
+	}
+
+	return 0;
+}
+#else
+static int dwc_vbus_supply_init(struct udevice *dev)
+{
+	return 0;
+}
+#endif
+
 /*
  * This function initializes the DWC_otg controller registers for
  * host mode.
@@ -167,10 +195,12 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
  * request queues. Host channels are reset to ensure that they are ready for
  * performing transfers.
  *
+ * @param dev USB Device (NULL if driver model is not being used)
  * @param regs Programming view of DWC_otg controller
  *
  */
-static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
+static void dwc_otg_core_host_init(struct udevice *dev,
+				   struct dwc2_core_regs *regs)
 {
 	uint32_t nptxfifosize = 0;
 	uint32_t ptxfifosize = 0;
@@ -248,6 +278,9 @@ static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
 			writel(hprt0, &regs->hprt0);
 		}
 	}
+
+	if (dev)
+		dwc_vbus_supply_init(dev);
 }
 
 /*
@@ -784,12 +817,19 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 	       (*pid << DWC2_HCTSIZ_PID_OFFSET),
 	       &hc_regs->hctsiz);
 
-	if (!in && xfer_len) {
-		memcpy(aligned_buffer, buffer, xfer_len);
-
-		flush_dcache_range((unsigned long)aligned_buffer,
-				   (unsigned long)aligned_buffer +
-				   roundup(xfer_len, ARCH_DMA_MINALIGN));
+	if (xfer_len) {
+		if (in) {
+			invalidate_dcache_range(
+					(uintptr_t)aligned_buffer,
+					(uintptr_t)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+		} else {
+			memcpy(aligned_buffer, buffer, xfer_len);
+			flush_dcache_range(
+					(uintptr_t)aligned_buffer,
+					(uintptr_t)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+		}
 	}
 
 	writel(phys_to_bus((unsigned long)aligned_buffer), &hc_regs->hcdma);
@@ -1048,7 +1088,7 @@ int _submit_int_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	}
 }
 
-static int dwc2_init_common(struct dwc2_priv *priv)
+static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	uint32_t snpsid;
@@ -1070,7 +1110,7 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 #endif
 
 	dwc_otg_core_init(priv);
-	dwc_otg_core_host_init(regs);
+	dwc_otg_core_host_init(dev, regs);
 
 	clrsetbits_le32(&regs->hprt0, DWC2_HPRT0_PRTENA |
 			DWC2_HPRT0_PRTCONNDET | DWC2_HPRT0_PRTENCHNG |
@@ -1143,7 +1183,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (board_usb_init(index, USB_INIT_HOST))
 		return -1;
 
-	return dwc2_init_common(priv);
+	return dwc2_init_common(NULL, priv);
 }
 
 int usb_lowlevel_stop(int index)
@@ -1214,7 +1254,7 @@ static int dwc2_usb_probe(struct udevice *dev)
 
 	bus_priv->desc_before_addr = true;
 
-	return dwc2_init_common(priv);
+	return dwc2_init_common(dev, priv);
 }
 
 static int dwc2_usb_remove(struct udevice *dev)

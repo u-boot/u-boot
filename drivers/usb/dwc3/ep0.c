@@ -81,8 +81,8 @@ static int dwc3_ep0_start_trans(struct dwc3 *dwc, u8 epnum, dma_addr_t buf_dma,
 		trb->ctrl |= (DWC3_TRB_CTRL_IOC
 				| DWC3_TRB_CTRL_LST);
 
-	dwc3_flush_cache((long)buf_dma, len);
-	dwc3_flush_cache((long)trb, sizeof(*trb));
+	dwc3_flush_cache((uintptr_t)buf_dma, len);
+	dwc3_flush_cache((uintptr_t)trb, sizeof(*trb));
 
 	if (chain)
 		return 0;
@@ -790,7 +790,7 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 	if (!r)
 		return;
 
-	dwc3_flush_cache((long)trb, sizeof(*trb));
+	dwc3_flush_cache((uintptr_t)trb, sizeof(*trb));
 
 	status = DWC3_TRB_SIZE_TRBSTS(trb->size);
 	if (status == DWC3_TRBSTS_SETUP_PENDING) {
@@ -821,7 +821,7 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 			ur->actual += transferred;
 
 			trb++;
-			dwc3_flush_cache((long)trb, sizeof(*trb));
+			dwc3_flush_cache((uintptr_t)trb, sizeof(*trb));
 			length = trb->size & DWC3_TRB_SIZE_MASK;
 
 			ep0->free_slot = 0;
@@ -831,7 +831,7 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 					maxp);
 		transferred = min_t(u32, ur->length - transferred,
 				    transfer_size - length);
-		dwc3_flush_cache((long)dwc->ep0_bounce, DWC3_EP0_BOUNCE_SIZE);
+		dwc3_flush_cache((uintptr_t)dwc->ep0_bounce, DWC3_EP0_BOUNCE_SIZE);
 		memcpy(buf, dwc->ep0_bounce, transferred);
 	} else {
 		transferred = ur->length - length;
