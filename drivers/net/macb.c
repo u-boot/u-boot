@@ -1096,6 +1096,10 @@ static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
+	{ .compatible = "cdns,at91sam9260-macb" },
+	{ .compatible = "atmel,sama5d2-gem" },
+	{ .compatible = "atmel,sama5d3-gem" },
+	{ .compatible = "atmel,sama5d4-gem" },
 	{ }
 };
 
