@@ -1,9 +1,0 @@
-if TARGET_IBF_DSP561
-
-config SYS_BOARD
-	default "ibf-dsp561"
-
-config SYS_CONFIG_NAME
-	default "ibf-dsp561"
-
-endif
