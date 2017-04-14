@@ -331,6 +331,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_ATMEL_SPI
 #include <spi.h>
 
+#ifndef CONFIG_DM_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	return bus == 0 && cs < 4;
@@ -367,6 +368,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 		break;
 	}
 }
+#endif
 #endif /* CONFIG_ATMEL_SPI */
 
 #ifdef CONFIG_BOARD_LATE_INIT
