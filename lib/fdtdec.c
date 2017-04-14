@@ -66,6 +66,14 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
 	COMPAT(INTEL_IVYBRIDGE_FSP, "intel,ivybridge-fsp"),
 	COMPAT(COMPAT_SUNXI_NAND, "allwinner,sun4i-a10-nand"),
+	COMPAT(ALTERA_SOCFPGA_CLK, "altr,clk-mgr"),
+	COMPAT(ALTERA_SOCFPGA_PINCTRL_SINGLE, "pinctrl-single"),
+	COMPAT(ALTERA_SOCFPGA_H2F_BRG, "altr,socfpga-hps2fpga-bridge"),
+	COMPAT(ALTERA_SOCFPGA_LWH2F_BRG, "altr,socfpga-lwhps2fpga-bridge"),
+	COMPAT(ALTERA_SOCFPGA_F2H_BRG, "altr,socfpga-fpga2hps-bridge"),
+	COMPAT(ALTERA_SOCFPGA_F2SDR0, "altr,socfpga-fpga2sdram0-bridge"),
+	COMPAT(ALTERA_SOCFPGA_F2SDR1, "altr,socfpga-fpga2sdram1-bridge"),
+	COMPAT(ALTERA_SOCFPGA_F2SDR2, "altr,socfpga-fpga2sdram2-bridge"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

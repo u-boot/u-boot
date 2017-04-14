@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_DENX_MCVEVK_H__
-#define __CONFIG_DENX_MCVEVK_H__
+#ifndef __CONFIG_ARIES_MCVEVK_H__
+#define __CONFIG_ARIES_MCVEVK_H__
 
 #include <asm/arch/base_addr_ac5.h>
 
@@ -37,6 +37,7 @@
 	"netdev=eth0\0"							\
 	"hostname=mcvevk\0"						\
 	"kernel_addr_r=0x10000000\0"					\
+	"dfu_alt_info=mmc raw 0 3867148288\0"				\
 	"update_filename=u-boot-with-spl.sfp\0"				\
 	"update_sd_offset=0x800\0"					\
 	"update_sd="		/* Update the SD firmware partition */	\
@@ -105,4 +106,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#endif	/* __CONFIG_DENX_MCVEVK_H__ */
+#endif	/* __CONFIG_ARIES_MCVEVK_H__ */

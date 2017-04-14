@@ -8,21 +8,17 @@
 #define __BOOT0_H
 
 #ifdef CONFIG_SPL_BUILD
-#define ARM_SOC_BOOT0_HOOK						\
-	.balignl 64,0xf33db33f;						\
-									\
-	.word	0x1337c0d3;	/* SoCFPGA preloader validation word */	\
-	.word	0xc01df00d;	/* Version, flags, length */		\
-	.word	0xcafec0d3;	/* Checksum, zero-pad */		\
-	nop;								\
-									\
-	b reset;		/* SoCFPGA jumps here */		\
-	nop;								\
-	nop;								\
-	nop;
-#else
-#define ARM_SOC_BOOT0_HOOK
-#endif
+	.balignl 64,0xf33db33f;
 
+	.word	0x1337c0d3;	/* SoCFPGA preloader validation word */
+	.word	0xc01df00d;	/* Version, flags, length */
+	.word	0xcafec0d3;	/* Checksum, zero-pad */
+	nop;
+
+	b reset;		/* SoCFPGA jumps here */
+	nop;
+	nop;
+	nop;
+#endif
 
 #endif /* __BOOT0_H */
