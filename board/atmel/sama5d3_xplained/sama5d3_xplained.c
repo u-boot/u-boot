@@ -136,7 +136,9 @@ int board_mmc_init(bd_t *bis)
 void spl_board_init(void)
 {
 #ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3_xplained_mci0_hw_init();
+#endif
 #elif CONFIG_SYS_USE_NANDFLASH
 	sama5d3_xplained_nand_hw_init();
 #endif
