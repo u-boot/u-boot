@@ -55,4 +55,6 @@
 	MESON_FDTFILE_SETTING \
 	BOOTENV
 
+#define CONFIG_SYS_BOOTM_LEN    (64 << 20)      /* 64 MiB */
+
 #endif /* __MESON_GXBB_COMMON_CONFIG_H */
