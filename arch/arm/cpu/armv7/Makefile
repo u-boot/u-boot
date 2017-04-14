@@ -18,6 +18,7 @@ obj-y	+= lowlevel_init.o
 endif
 endif
 
+obj-$(CONFIG_ARM_SMCCC)		+= smccc-call.o
 obj-$(CONFIG_ARMV7_NONSEC)	+= nonsec_virt.o virt-v7.o virt-dt.o
 obj-$(CONFIG_ARMV7_PSCI)	+= psci.o psci-common.o
 

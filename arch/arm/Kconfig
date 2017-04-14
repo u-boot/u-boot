@@ -174,6 +174,14 @@ config SYS_CACHELINE_SIZE
 	default 64 if SYS_CACHE_SHIFT_6
 	default 32 if SYS_CACHE_SHIFT_5
 
+config ARM_SMCCC
+	bool "Support for ARM SMC Calling Convention (SMCCC)"
+	depends on CPU_V7 || ARM64
+	help
+	  Say Y here if you want to enable ARM SMC Calling Convention.
+	  This should be enabled if U-Boot needs to communicate with system
+	  firmware (for example, PSCI) according to SMCCC.
+
 config SEMIHOSTING
 	bool "support boot from semihosting"
 	help
