@@ -138,6 +138,7 @@ config MMC_PCI
 
 config MMC_OMAP_HS
 	bool "TI OMAP High Speed Multimedia Card Interface support"
+	select DM_MMC_OPS if DM_MMC
 	help
 	  This selects the TI OMAP High Speed Multimedia card Interface.
 	  If you have an omap2plus board with a Multimedia Card slot,
