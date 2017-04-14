@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
@@ -133,9 +134,14 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 
 #ifdef CONFIG_DM_SERIAL
+enum serial_clk_type {
+	CLK_TYPE_NORMAL = 0,
+	CLK_TYPE_DBGU,
+};
 
 struct atmel_serial_priv {
 	atmel_usart3_t *usart;
+	ulong usart_clk_rate;
 };
 
 static void _atmel_serial_set_brg(atmel_usart3_t *usart,
@@ -168,7 +174,7 @@ int atmel_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
 
-	_atmel_serial_set_brg(priv->usart, get_usart_clk_rate(0), baudrate);
+	_atmel_serial_set_brg(priv->usart, priv->usart_clk_rate, baudrate);
 
 	return 0;
 }
@@ -213,10 +219,39 @@ static const struct dm_serial_ops atmel_serial_ops = {
 	.setbrg = atmel_serial_setbrg,
 };
 
+static int atmel_serial_enable_clk(struct udevice *dev)
+{
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+	struct clk clk;
+	ulong clk_rate;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return -EINVAL;
+
+	if (dev_get_driver_data(dev) == CLK_TYPE_NORMAL) {
+		ret = clk_enable(&clk);
+		if (ret)
+			return ret;
+	}
+
+	clk_rate = clk_get_rate(&clk);
+	if (!clk_rate)
+		return -EINVAL;
+
+	priv->usart_clk_rate = clk_rate;
+
+	clk_free(&clk);
+
+	return 0;
+}
+
 static int atmel_serial_probe(struct udevice *dev)
 {
 	struct atmel_serial_platdata *plat = dev->platdata;
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
+	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr_base;
 
@@ -228,14 +263,25 @@ static int atmel_serial_probe(struct udevice *dev)
 #endif
 	priv->usart = (atmel_usart3_t *)plat->base_addr;
 
-	_atmel_serial_init(priv->usart, get_usart_clk_rate(0), gd->baudrate);
+	ret = atmel_serial_enable_clk(dev);
+	if (ret)
+		return ret;
+
+	_atmel_serial_init(priv->usart, priv->usart_clk_rate, gd->baudrate);
 
 	return 0;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id atmel_serial_ids[] = {
-	{ .compatible = "atmel,at91sam9260-usart" },
+	{
+		.compatible = "atmel,at91sam9260-dbgu",
+		.data = CLK_TYPE_DBGU,
+	},
+	{
+		.compatible = "atmel,at91sam9260-usart",
+		.data = CLK_TYPE_NORMAL,
+	},
 	{ }
 };
 #endif
