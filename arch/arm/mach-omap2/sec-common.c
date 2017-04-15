@@ -39,8 +39,10 @@ u32 secure_rom_call(u32 service, u32 proc_id, u32 flag, ...)
 
 	num_args = va_arg(ap, u32);
 
-	if (num_args > 4)
+	if (num_args > 4) {
+		va_end(ap);
 		return 1;
+	}
 
 	/* Copy args to aligned args structure */
 	for (i = 0; i < num_args; i++)
