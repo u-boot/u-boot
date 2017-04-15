@@ -18,7 +18,7 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	void *line;
-	int pixels = VIDEO_FONT_HEIGHT * vid_priv->line_length;
+	int pixels = VIDEO_FONT_HEIGHT * vid_priv->xsize;
 	int i;
 
 	line = vid_priv->fb + row * VIDEO_FONT_HEIGHT * vid_priv->line_length;
