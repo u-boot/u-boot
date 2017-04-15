@@ -124,7 +124,7 @@ int init_sata(int dev)
 	length = sizeof(struct cmd_hdr_tbl);
 	align = SATA_HC_CMD_HDR_TBL_ALIGN;
 	sata->cmd_hdr_tbl_offset = (void *)malloc(length + align);
-	if (!sata) {
+	if (!sata->cmd_hdr_tbl_offset) {
 		printf("alloc the command header failed\n\r");
 		return -1;
 	}
