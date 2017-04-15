@@ -47,8 +47,7 @@ static inline void start_jr0(uint8_t sec_idx)
 		 * VIRT_EN_INCL = 1 & VIRT_EN_POR = 0 & SEC_SCFGR_VIRT_EN = 1
 		 */
 		if ((ctpr_ms & SEC_CTPR_MS_VIRT_EN_POR) ||
-		    (!(ctpr_ms & SEC_CTPR_MS_VIRT_EN_POR) &&
-					(scfgr & SEC_SCFGR_VIRT_EN)))
+		    (scfgr & SEC_SCFGR_VIRT_EN))
 			sec_out32(&sec->jrstartr, CONFIG_JRSTARTR_JR0);
 	} else {
 		/* VIRT_EN_INCL = 0 && VIRT_EN_POR_VALUE = 1 */
