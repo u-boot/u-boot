@@ -18,6 +18,7 @@ Schematics are available on the manufacturer website.
 
 Currently the u-boot port supports the following devices:
  - serial
+ - eMMC, microSD
  - Ethernet
 
 u-boot compilation
