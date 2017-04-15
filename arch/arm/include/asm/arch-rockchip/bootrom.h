@@ -13,10 +13,15 @@
  */
 extern u32 SAVE_SP_ADDR;
 
-/*
+/**
  * Hand control back to the bootrom to load another
  * boot stage.
  */
-extern void back_to_bootrom(void);
+void back_to_bootrom(void);
+
+/**
+ * Assembler component for the above (do not call this directly)
+ */
+void _back_to_bootrom_s(void);
 
 #endif
