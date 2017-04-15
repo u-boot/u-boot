@@ -916,7 +916,7 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 		if ((pdimm[0].data_width >= 64) && \
 			(pdimm[0].data_width <= 72))
 			popts->data_bus_width = 0;
-		else if ((pdimm[0].data_width >= 32) || \
+		else if ((pdimm[0].data_width >= 32) && \
 			(pdimm[0].data_width <= 40))
 			popts->data_bus_width = 1;
 		else {
