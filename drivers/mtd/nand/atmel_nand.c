@@ -1380,34 +1380,6 @@ static int nand_read_page(int block, int page, void *dst)
 }
 #endif /* CONFIG_SPL_NAND_ECC */
 
-int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
-{
-	unsigned int block, lastblock;
-	unsigned int page;
-
-	block = offs / CONFIG_SYS_NAND_BLOCK_SIZE;
-	lastblock = (offs + size - 1) / CONFIG_SYS_NAND_BLOCK_SIZE;
-	page = (offs % CONFIG_SYS_NAND_BLOCK_SIZE) / CONFIG_SYS_NAND_PAGE_SIZE;
-
-	while (block <= lastblock) {
-		if (!nand_is_bad_block(block)) {
-			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
-				nand_read_page(block, page, dst);
-				dst += CONFIG_SYS_NAND_PAGE_SIZE;
-				page++;
-			}
-
-			page = 0;
-		} else {
-			lastblock++;
-		}
-
-		block++;
-	}
-
-	return 0;
-}
-
 int at91_nand_wait_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
@@ -1473,6 +1445,8 @@ void nand_deselect(void)
 	if (nand_chip.select_chip)
 		nand_chip.select_chip(mtd, -1);
 }
+
+#include "nand_spl_loaders.c"
 
 #else
 
