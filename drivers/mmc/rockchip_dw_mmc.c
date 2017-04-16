@@ -44,7 +44,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 
 	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
-		debug("%s: err=%d\n", __func__, ret);
+		printf("%s: err=%d\n", __func__, ret);
 		return ret;
 	}
 
@@ -109,7 +109,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 #else
-	ret = clk_get_by_index(dev, 0, &priv->clk);
+	ret = clk_get_by_name(dev, "ciu", &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif
