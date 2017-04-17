@@ -132,20 +132,6 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
-static void ast2500_scu_unlock(struct ast2500_scu *scu)
-{
-	writel(SCU_UNLOCK_VALUE, &scu->protection_key);
-	while (!readl(&scu->protection_key))
-		;
-}
-
-static void ast2500_scu_lock(struct ast2500_scu *scu)
-{
-	writel(~SCU_UNLOCK_VALUE, &scu->protection_key);
-	while (readl(&scu->protection_key))
-		;
-}
-
 static ulong ast2500_configure_ddr(struct ast2500_scu *scu, ulong rate)
 {
 	ulong clkin = ast2500_get_clkin(scu);
@@ -197,9 +183,9 @@ static ulong ast2500_configure_ddr(struct ast2500_scu *scu, ulong rate)
 	    | (best_num << SCU_MPLL_NUM_SHIFT)
 	    | (best_denum << SCU_MPLL_DENUM_SHIFT);
 
-	ast2500_scu_unlock(scu);
+	ast_scu_unlock(scu);
 	writel(mpll_reg, &scu->m_pll_param);
-	ast2500_scu_lock(scu);
+	ast_scu_lock(scu);
 
 	return ast2500_get_mpll_rate(clkin, mpll_reg);
 }

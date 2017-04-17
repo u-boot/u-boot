@@ -120,6 +120,20 @@ int ast_get_clk(struct udevice **devp);
  */
 void *ast_get_scu(void);
 
+/**
+ * ast_scu_unlock() - unlock protected registers
+ *
+ * @scu, pointer to ast2500_scu
+ */
+void ast_scu_unlock(struct ast2500_scu *scu);
+
+/**
+ * ast_scu_lock() - lock protected registers
+ *
+ * @scu, pointer to ast2500_scu
+ */
+void ast_scu_lock(struct ast2500_scu *scu);
+
 #endif  /* __ASSEMBLY__ */
 
 #endif  /* _ASM_ARCH_SCU_AST2500_H */
