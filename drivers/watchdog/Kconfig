@@ -23,4 +23,15 @@ config WDT_SANDBOX
 		can be probed and supports all of the methods of WDT, but does not
 		really do anything.
 
+config WDT_ASPEED
+	bool "Aspeed ast2400/ast2500 watchdog timer support"
+	depends on WDT
+	default y if ARCH_ASPEED
+	help
+	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
+	  The watchdog timer is stopped when initialized. It performs reset, either
+	  full SoC reset or CPU or just some peripherals, based on the flags.
+	  It currently does not support Boot Flash Addressing Mode Detection or
+	  Second Boot.
+
 endmenu

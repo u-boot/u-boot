@@ -9,6 +9,27 @@
 #include <asm/arch/wdt.h>
 #include <linux/err.h>
 
+u32 ast_reset_mode_from_flags(ulong flags)
+{
+	return flags & WDT_CTRL_RESET_MASK;
+}
+
+u32 ast_reset_mask_from_flags(ulong flags)
+{
+	return flags >> 2;
+}
+
+ulong ast_flags_from_reset_mode_mask(u32 reset_mode, u32 reset_mask)
+{
+	ulong ret = reset_mode & WDT_CTRL_RESET_MASK;
+
+	if (ret == WDT_CTRL_RESET_SOC)
+		ret |= (reset_mask << 2);
+
+	return ret;
+}
+
+#ifndef CONFIG_WDT
 void wdt_stop(struct ast_wdt *wdt)
 {
 	clrbits_le32(&wdt->ctrl, WDT_CTRL_EN);
@@ -26,15 +47,7 @@ void wdt_start(struct ast_wdt *wdt, u32 timeout)
 	setbits_le32(&wdt->ctrl,
 		     WDT_CTRL_EN | WDT_CTRL_RESET | WDT_CTRL_CLK1MHZ);
 }
-
-struct ast_wdt *ast_get_wdt(u8 wdt_number)
-{
-	if (wdt_number > CONFIG_WDT_NUM - 1)
-		return ERR_PTR(-EINVAL);
-
-	return (struct ast_wdt *)(WDT_BASE +
-				  sizeof(struct ast_wdt) * wdt_number);
-}
+#endif  /* CONFIG_WDT */
 
 int ast_wdt_reset_masked(struct ast_wdt *wdt, u32 mask)
 {
@@ -56,4 +69,13 @@ int ast_wdt_reset_masked(struct ast_wdt *wdt, u32 mask)
 #else
 	return -EINVAL;
 #endif
+}
+
+struct ast_wdt *ast_get_wdt(u8 wdt_number)
+{
+	if (wdt_number > CONFIG_WDT_NUM - 1)
+		return ERR_PTR(-EINVAL);
+
+	return (struct ast_wdt *)(WDT_BASE +
+				  sizeof(struct ast_wdt) * wdt_number);
 }
