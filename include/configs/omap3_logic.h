@@ -17,12 +17,28 @@
 
 #include <configs/ti_omap3_common.h>
 
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#undef CONFIG_DM_MMC
+#undef OMAP_HSMMC_USE_GPIO
+
+/* select serial console configuration for SPL */
+#undef CONFIG_CONS_INDEX
+#define CONFIG_CONS_INDEX              1
+#define CONFIG_SYS_NS16550_COM1                OMAP34XX_UART1
+#endif
+
+
 /*
  * We are only ever GP parts and will utilize all of the "downloaded image"
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
  * order to allow for BCH8 to fit in.
  */
 #undef CONFIG_SPL_TEXT_BASE
+#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_MISC_INIT_R		/* misc_init_r dumps the die id */
@@ -34,15 +50,10 @@
 /* Hardware drivers */
 
 /* GPIO banks */
+#define CONFIG_OMAP3_GPIO_4		/* GPIO 96..128 is in GPIO bank 4 */
 #define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 #define CONFIG_USB_OMAP3
-
-/* select serial console configuration */
-#undef CONFIG_CONS_INDEX
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
-#define CONFIG_SERIAL1			1	/* UART1 on OMAP Logic boards */
 
 /* commands to include */
 #define CONFIG_CMD_NAND
@@ -52,8 +63,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
-#define EXPANSION_EEPROM_I2C_BUS	2	/* I2C Bus for AT24C64 */
-#define CONFIG_OMAP3_LOGIC_USE_NEW_PRODUCT_ID
 
 /* USB */
 #define CONFIG_USB_MUSB_OMAP2PLUS

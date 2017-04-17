@@ -1,0 +1,19 @@
+Summary
+=======
+
+The source for omap3som encompases the DM3730 SOM-LV and DM3730 Torpedo platforms.
+
+By default, the Torpedo Device Tree is integrated into U-Boot,but the MMC controller, GPIO and I2C controllers are the same, so for the purposes of loading U-Boot, it should be sufficient.  However this will display the Model as "LogicPD Zoom DM3730 Torpedo + Wireless Development Kit" upon boot.
+
+The actual board remains autodetected and the Board will read "DM37xx SOM LV" when used on the DM37 SOM-LV.  The device tree loaded with Linux is also correct.
+
+Integrating the SOM-LV Device Tree into U-Boot
+==============================================
+
+This step is optional, but should you want to change the default to the SOM-LV, locate the configs/omap3_logic_defconfig file and make the following change.
+
+  CONFIG_DEFAULT_DEVICE_TREE="logicpd-som-lv-37xx-devkit"
+
+  make distclean
+  make omap3_logic_defconfig
+

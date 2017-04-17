@@ -373,6 +373,10 @@ dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
 
 dtb-$(CONFIG_TARGET_AT91SAM9N12EK) += at91sam9n12ek.dtb
 
+dtb-$(CONFIG_TARGET_OMAP3_LOGIC) += \
+	logicpd-torpedo-37xx-devkit.dtb \
+	logicpd-som-lv-37xx-devkit.dts
+
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb
 
