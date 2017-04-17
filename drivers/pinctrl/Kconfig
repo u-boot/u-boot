@@ -248,6 +248,15 @@ config PINCTRL_STM32
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config ASPEED_AST2500_PINCTRL
+  bool "Aspeed AST2500 pin control driver"
+  depends on DM && PINCTRL_GENERIC && ASPEED_AST2500
+  default y
+  help
+    Support pin multiplexing control on Aspeed ast2500 SoC. The driver uses
+	Generic Pinctrl framework and is compatible with the Linux driver,
+	i.e. it uses the same device tree configuration.
+
 endif
 
 source "drivers/pinctrl/meson/Kconfig"

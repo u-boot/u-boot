@@ -10,6 +10,8 @@
 
 #define SCU_HWSTRAP_VGAMEM_MASK		3
 #define SCU_HWSTRAP_VGAMEM_SHIFT	2
+#define SCU_HWSTRAP_MAC1_RGMII		(1 << 6)
+#define SCU_HWSTRAP_MAC2_RGMII		(1 << 7)
 #define SCU_HWSTRAP_DDR4		(1 << 24)
 #define SCU_HWSTRAP_CLKIN_25MHZ		(1 << 23)
 
@@ -58,6 +60,23 @@
 #define SCU_SYSRESET_I2C		(1 << 2)
 #define SCU_SYSRESET_AHB		(1 << 1)
 #define SCU_SYSRESET_SDRAM_WDT		(1 << 0)
+
+/* Bits 16-27 in the register control pin functions for I2C devices 3-14 */
+#define SCU_PINMUX_CTRL5_I2C		(1 << 16)
+
+/*
+ * The values are grouped by function, not by register.
+ * They are actually scattered across multiple loosely related registers.
+ */
+#define SCU_PIN_FUN_MAC1_MDC		(1 << 30)
+#define SCU_PIN_FUN_MAC1_MDIO		(1 << 31)
+#define SCU_PIN_FUN_MAC1_PHY_LINK		(1 << 0)
+#define SCU_PIN_FUN_MAC2_MDIO		(1 << 2)
+#define SCU_PIN_FUN_MAC2_PHY_LINK		(1 << 1)
+#define SCU_PIN_FUN_SCL1		(1 << 12)
+#define SCU_PIN_FUN_SCL2		(1 << 14)
+#define SCU_PIN_FUN_SDA1		(1 << 13)
+#define SCU_PIN_FUN_SDA2		(1 << 15)
 
 #ifndef __ASSEMBLY__
 
