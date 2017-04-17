@@ -79,12 +79,12 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 
 	rkcommon_vrec_header(params, tparams);
 
-	pad_size = (rkcommon_get_spl_size(params) + 0x7ff) / 0x800 * 0x800;
+	pad_size = ROUND(rkcommon_get_spl_size(params), 0x800);
 	params->orig_file_size = pad_size;
 
 	/* We will double the image size due to the SPI format */
-	pad_size *= 2;
 	pad_size += RK_SPL_HDR_START;
+	pad_size *= 2;
 	debug("pad_size %x\n", pad_size);
 
 	return pad_size - params->file_size - tparams->header_size;
