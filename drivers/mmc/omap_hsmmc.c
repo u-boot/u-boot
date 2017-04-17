@@ -61,6 +61,10 @@ struct omap_hsmmc_plat {
 	struct mmc mmc;
 };
 
+struct omap2_mmc_platform_config {
+	u32 reg_offset;
+};
+
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
 #ifndef CONFIG_DM_MMC
@@ -778,12 +782,14 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
 	struct mmc_config *cfg = &plat->cfg;
+	struct omap2_mmc_platform_config *data =
+		(struct omap2_mmc_platform_config *)dev_get_driver_data(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int val;
 
 	priv->base_addr = map_physmem(dev_get_addr(dev), sizeof(struct hsmmc *),
-				      MAP_NOCACHE);
+				      MAP_NOCACHE) + data->reg_offset;
 
 	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	val = fdtdec_get_int(fdt, node, "bus-width", -1);
@@ -854,10 +860,31 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct omap2_mmc_platform_config omap3_mmc_pdata = {
+	.reg_offset = 0,
+};
+
+static const struct omap2_mmc_platform_config am33xx_mmc_pdata = {
+	.reg_offset = 0x100,
+};
+
+static const struct omap2_mmc_platform_config omap4_mmc_pdata = {
+	.reg_offset = 0x100,
+};
+
 static const struct udevice_id omap_hsmmc_ids[] = {
-	{ .compatible = "ti,omap3-hsmmc" },
-	{ .compatible = "ti,omap4-hsmmc" },
-	{ .compatible = "ti,am33xx-hsmmc" },
+	{
+			.compatible = "ti,omap3-hsmmc",
+			.data = (ulong)&omap3_mmc_pdata
+	},
+	{
+			.compatible = "ti,omap4-hsmmc",
+			.data = (ulong)&omap4_mmc_pdata
+	},
+	{
+			.compatible = "ti,am33xx-hsmmc",
+			.data = (ulong)&am33xx_mmc_pdata
+	},
 	{ }
 };
 
