@@ -83,8 +83,14 @@ void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size);
  * @params:     Pointer to the tool params structure
  * @tparams:    Pointer tot the image type structure (for setting
  *              the header and header_size)
+ * @alignment:  Alignment (a power of two) that the image should be
+ *              padded to (e.g. 512 if we want to align with SD/MMC
+ *              blocksizes or 2048 for the SPI format)
+ *
+ * @return bytes of padding required/added (does not include the header_size)
  */
-void rkcommon_vrec_header(struct image_tool_params *params,
-			  struct image_type_params *tparams);
+int rkcommon_vrec_header(struct image_tool_params *params,
+			 struct image_type_params *tparams,
+			 unsigned int alignment);
 
 #endif

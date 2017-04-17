@@ -200,9 +200,13 @@ void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size)
 	}
 }
 
-void rkcommon_vrec_header(struct image_tool_params *params,
-			  struct image_type_params *tparams)
+int rkcommon_vrec_header(struct image_tool_params *params,
+			 struct image_type_params *tparams,
+			 unsigned int alignment)
 {
+	unsigned int  unpadded_size;
+	unsigned int  padded_size;
+
 	/*
 	 * The SPL image looks as follows:
 	 *
@@ -228,4 +232,17 @@ void rkcommon_vrec_header(struct image_tool_params *params,
 	/* Allocate, clear and install the header */
 	tparams->hdr = malloc(tparams->header_size);
 	memset(tparams->hdr, 0, tparams->header_size);
+	tparams->header_size = tparams->header_size;
+
+	/*
+	 * If someone passed in 0 for the alignment, we'd better handle
+	 * it correctly...
+	 */
+	if (!alignment)
+		alignment = 1;
+
+	unpadded_size = tparams->header_size + params->file_size;
+	padded_size = ROUND(unpadded_size, alignment);
+
+	return padded_size - unpadded_size;
 }
