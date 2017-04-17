@@ -31,6 +31,34 @@
 
 #define SCU_MISC_UARTCLK_DIV13		(1 << 12)
 
+/*
+ * SYSRESET is actually more like a Power register,
+ * except that corresponding bit set to 1 means that
+ * the peripheral is off.
+ */
+#define SCU_SYSRESET_XDMA		(1 << 25)
+#define SCU_SYSRESET_MCTP		(1 << 24)
+#define SCU_SYSRESET_ADC		(1 << 23)
+#define SCU_SYSRESET_JTAG		(1 << 22)
+#define SCU_SYSRESET_MIC		(1 << 18)
+#define SCU_SYSRESET_SDIO		(1 << 16)
+#define SCU_SYSRESET_USB11HOST		(1 << 15)
+#define SCU_SYSRESET_USBHUB		(1 << 14)
+#define SCU_SYSRESET_CRT		(1 << 13)
+#define SCU_SYSRESET_MAC2		(1 << 12)
+#define SCU_SYSRESET_MAC1		(1 << 11)
+#define SCU_SYSRESET_PECI		(1 << 10)
+#define SCU_SYSRESET_PWM		(1 << 9)
+#define SCU_SYSRESET_PCI_VGA		(1 << 8)
+#define SCU_SYSRESET_2D			(1 << 7)
+#define SCU_SYSRESET_VIDEO		(1 << 6)
+#define SCU_SYSRESET_LPC		(1 << 5)
+#define SCU_SYSRESET_HAC		(1 << 4)
+#define SCU_SYSRESET_USBHID		(1 << 3)
+#define SCU_SYSRESET_I2C		(1 << 2)
+#define SCU_SYSRESET_AHB		(1 << 1)
+#define SCU_SYSRESET_SDRAM_WDT		(1 << 0)
+
 #ifndef __ASSEMBLY__
 
 struct ast2500_clk_priv {
