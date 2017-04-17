@@ -27,6 +27,14 @@ config PWM_ROCKCHIP
 	  Various options provided in the hardware (such as capture mode and
 	  continuous/single-shot) are not supported by the driver.
 
+config PWM_SANDBOX
+	bool "Enable support for the sandbox PWM"
+	help
+	  This is a sandbox PWM used for testing. It provides 3 channels and
+	  records the settings passed into it, but otherwise does nothing
+	  useful. The PWM can be enabled but is not connected to any outputs
+	  so this is not very useful.
+
 config PWM_TEGRA
 	bool "Enable support for the Tegra PWM"
 	depends on DM_PWM

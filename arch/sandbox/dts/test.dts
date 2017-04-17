@@ -272,6 +272,14 @@
 		power-domains = <&pwrdom 2>;
 	};
 
+	pwm {
+		compatible = "sandbox,pwm";
+	};
+
+	pwm2 {
+		compatible = "sandbox,pwm";
+	};
+
 	ram {
 		compatible = "sandbox,ram";
 	};
