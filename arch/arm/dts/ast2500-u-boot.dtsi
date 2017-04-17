@@ -34,32 +34,33 @@
 
 		apb {
 			u-boot,dm-pre-reloc;
-
-			timer: timer@1e782000 {
-				u-boot,dm-pre-reloc;
-			};
-
-			uart1: serial@1e783000 {
-				clocks = <&scu PCLK_UART1>;
-			};
-
-			uart2: serial@1e78d000 {
-				clocks = <&scu PCLK_UART2>;
-			};
-
-			uart3: serial@1e78e000 {
-				clocks = <&scu PCLK_UART3>;
-			};
-
-			uart4: serial@1e78f000 {
-				clocks = <&scu PCLK_UART4>;
-			};
-
-			uart5: serial@1e784000 {
-				clocks = <&scu PCLK_UART5>;
-			};
 		};
+
 	};
+};
+
+&uart1 {
+	clocks = <&scu PCLK_UART1>;
+};
+
+&uart2 {
+	clocks = <&scu PCLK_UART2>;
+};
+
+&uart3 {
+	clocks = <&scu PCLK_UART3>;
+};
+
+&uart4 {
+	clocks = <&scu PCLK_UART4>;
+};
+
+&uart5 {
+	clocks = <&scu PCLK_UART5>;
+};
+
+&timer {
+	u-boot,dm-pre-reloc;
 };
 
 &mac0 {
