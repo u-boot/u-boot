@@ -100,45 +100,6 @@ u32 ast_reset_mask_from_flags(ulong flags);
  * @reset_mask: Reset Mask
  */
 ulong ast_flags_from_reset_mode_mask(u32 reset_mode, u32 reset_mask);
-
-#ifndef CONFIG_WDT
-/**
- * Stop WDT
- *
- * @wdt: watchdog to stop
- *
- * When using driver model this function has different signature
- */
-void wdt_stop(struct ast_wdt *wdt);
-
-/**
- * Stop WDT
- *
- * @wdt: watchdog to start
- * @timeout	watchdog timeout in number of clock ticks
- *
- * When using driver model this function has different signature
- */
-void wdt_start(struct ast_wdt *wdt, u32 timeout);
-#endif  /* CONFIG_WDT */
-
-/**
- * Reset peripherals specified by mask
- *
- * Note, that this is only supported by ast2500 SoC
- *
- * @wdt: watchdog to use for this reset
- * @mask: reset mask.
- */
-int ast_wdt_reset_masked(struct ast_wdt *wdt, u32 mask);
-
-/**
- * ast_get_wdt() - get a pointer to watchdog registers
- *
- * @wdt_number: 0-based WDT peripheral number
- * @return pointer to registers or -ve error on error
- */
-struct ast_wdt *ast_get_wdt(u8 wdt_number);
 #endif  /* __ASSEMBLY__ */
 
 #endif /* _ASM_ARCH_WDT_H */

@@ -8,21 +8,19 @@
 #include <dm.h>
 #include <errno.h>
 #include <sysreset.h>
+#include <wdt.h>
 #include <asm/io.h>
 #include <asm/arch/wdt.h>
 #include <linux/err.h>
 
-/* Number of Watchdog Timer ticks before reset */
-#define AST_WDT_RESET_TIMEOUT	10
-#define AST_WDT_FOR_RESET	0
-
 static int ast_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
-	struct ast_wdt *wdt = ast_get_wdt(AST_WDT_FOR_RESET);
-	u32 reset_mode = 0;
+	struct udevice *wdt;
+	u32 reset_mode;
+	int ret = uclass_first_device(UCLASS_WDT, &wdt);
 
-	if (IS_ERR(wdt))
-		return PTR_ERR(wdt);
+	if (ret)
+		return ret;
 
 	switch (type) {
 	case SYSRESET_WARM:
@@ -35,11 +33,11 @@ static int ast_sysreset_request(struct udevice *dev, enum sysreset_t type)
 		return -EPROTONOSUPPORT;
 	}
 
-	/* Clear reset mode bits */
-	clrsetbits_le32(&wdt->ctrl,
-			(WDT_CTRL_RESET_MODE_MASK << WDT_CTRL_RESET_MODE_SHIFT),
-			(reset_mode << WDT_CTRL_RESET_MODE_SHIFT));
-	wdt_start(wdt, AST_WDT_RESET_TIMEOUT);
+	ret = wdt_expire_now(wdt, reset_mode);
+	if (ret) {
+		debug("Sysreset failed: %d", ret);
+		return ret;
+	}
 
 	return -EINPROGRESS;
 }
