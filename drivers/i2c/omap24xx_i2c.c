@@ -910,6 +910,7 @@ static const struct dm_i2c_ops omap_i2c_ops = {
 };
 
 static const struct udevice_id omap_i2c_ids[] = {
+	{ .compatible = "ti,omap3-i2c" },
 	{ .compatible = "ti,omap4-i2c" },
 	{ }
 };
