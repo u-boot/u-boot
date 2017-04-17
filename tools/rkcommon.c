@@ -177,7 +177,7 @@ int rkcommon_set_header(void *buf, uint file_size,
 
 	rkcommon_set_header0(buf, file_size, params);
 
-	/* Set up the SPL name and add the AArch64 'nop' padding, if needed */
+	/* Set up the SPL name */
 	memcpy(&hdr->magic, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
@@ -212,17 +212,21 @@ int rkcommon_vrec_header(struct image_tool_params *params,
 	 *
 	 * 0x0    header0 (see rkcommon.c)
 	 * 0x800  spl_name ('RK30', ..., 'RK33')
+	 *        (start of the payload for AArch64 payloads: we expect the
+	 *        first 4 bytes to be available for overwriting with our
+	 *        spl_name)
 	 * 0x804  first instruction to be executed
-	 *        (image start for AArch32, 'nop' for AArch64))
-	 * 0x808  second instruction to be executed
-	 *        (image start for AArch64)
+	 *        (start of the image/payload for 32bit payloads)
 	 *
-	 * For AArch64 (ARMv8) payloads, we receive an input file that
-	 * needs to start on an 8-byte boundary (natural alignment), so
-	 * we need to put a NOP at 0x804.
+	 * For AArch64 (ARMv8) payloads, natural alignment (8-bytes) is
+	 * required for its sections (so the image we receive needs to
+	 * have the first 4 bytes reserved for the spl_name).  Reserving
+	 * these 4 bytes is done using the BOOT0_HOOK infrastructure.
 	 *
-	 * Depending on this, the header is either 0x804 or 0x808 bytes
-	 * in length.
+	 * Depending on this, the header is either 0x800 (if this is a
+	 * 'boot0'-style payload, which has reserved 4 bytes at the
+	 * beginning for the 'spl_name' and expects us to overwrite
+	 * its first 4 bytes) or 0x804 bytes in length.
 	 */
 	if (rkcommon_spl_is_boot0(params))
 		tparams->header_size = RK_SPL_HDR_START;
