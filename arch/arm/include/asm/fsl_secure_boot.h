@@ -27,10 +27,11 @@
 #define CONFIG_SPL_UBOOT_KEY_HASH	NULL
 #endif /* ifdef CONFIG_SPL_BUILD */
 
+#define CONFIG_KEY_REVOCATION
+
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_CMD_BLOB
 #define CONFIG_CMD_HASH
-#define CONFIG_KEY_REVOCATION
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images
  * is picked up from an Extension Table which has
@@ -87,7 +88,11 @@
 /* For SD boot address and size are assigned in terms of sector
  * offset and no. of sectors respectively.
  */
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x00000900
+#if defined(CONFIG_LS1043A)
+#define CONFIG_BS_HDR_ADDR_DEVICE	0x00000920
+#else
+#define CONFIG_BS_HDR_ADDR_DEVICE       0x00000900
+#endif
 #define CONFIG_BS_ADDR_DEVICE		0x00000940
 #define CONFIG_BS_HDR_SIZE		0x00000010
 #define CONFIG_BS_SIZE			0x00000008

@@ -393,6 +393,7 @@ static void fsl_secboot_bootscript_parse_failure(void)
  */
 void fsl_secboot_handle_error(int error)
 {
+#ifndef CONFIG_SPL_BUILD
 	const struct fsl_secboot_errcode *e;
 
 	for (e = fsl_secboot_errcodes; e->errcode != ERROR_ESBC_CLIENT_MAX;
@@ -400,6 +401,9 @@ void fsl_secboot_handle_error(int error)
 		if (e->errcode == error)
 			printf("ERROR :: %x :: %s\n", error, e->name);
 	}
+#else
+	printf("ERROR :: %x\n", error);
+#endif
 
 	/* If Boot Mode is secure, transition the SNVS state and issue
 	 * reset based on type of failure and ITS setting.
