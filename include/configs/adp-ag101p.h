@@ -20,8 +20,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_SYS_GENERIC_GLOBAL_DATA
-
 /*
  * Definitions related to passing arguments to kernel.
  */
@@ -35,6 +33,10 @@
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_TEXT_BASE	0x00500000
+#ifdef CONFIG_OF_CONTROL
+#undef CONFIG_OF_SEPARATE
+#define CONFIG_OF_EMBED
+#endif
 #else
 #ifdef CONFIG_MEM_REMAP
 #define CONFIG_SYS_TEXT_BASE	0x80000000
@@ -87,7 +89,9 @@
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_COM1		CONFIG_FTUART010_02_BASE
+#ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
+#endif
 #define CONFIG_SYS_NS16550_CLK		((18432000 * 20) / 25)	/* AG101P */
 
 /*

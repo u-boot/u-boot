@@ -14,6 +14,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
+
 #if defined(CONFIG_SETUP_MEMORY_TAGS) || \
 	defined(CONFIG_CMDLINE_TAG) || \
 	defined(CONFIG_INITRD_TAG) || \

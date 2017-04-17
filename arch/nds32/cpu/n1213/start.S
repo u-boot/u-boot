@@ -161,9 +161,13 @@ update_gp:
  */
 call_board_init_f:
 	li		$sp, CONFIG_SYS_INIT_SP_ADDR
-	li		$r10, GD_SIZE	/* get GD size */
-	sub		$sp, $sp, $r10	/* GD start addr */
-	move	$r10, $sp
+	move	$r0, $sp
+	bal	board_init_f_alloc_reserve
+	move	$sp, $r0
+	bal	board_init_f_init_reserve
+#ifdef CONFIG_DEBUG_UART
+	bal	debug_uart_init
+#endif
 	li		$r0, 0x00000000
 
 #ifdef __PIC__
