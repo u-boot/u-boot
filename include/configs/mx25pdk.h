@@ -102,6 +102,10 @@
 /* RTC */
 #define CONFIG_RTC_IMXDI
 
+/* Fuse API support */
+#define CONFIG_FSL_IIM
+#define CONFIG_CMD_FUSE
+
 /* Ethernet Configs */
 
 
