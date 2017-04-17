@@ -8,6 +8,7 @@
  */
 #include <common.h>
 #include <usb.h>
+#include <asm/io.h>
 
 #include "ehci.h"
 
