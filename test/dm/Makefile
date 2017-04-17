@@ -42,4 +42,5 @@ obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_DM_VIDEO) += video.o
 obj-$(CONFIG_ADC) += adc.o
 obj-$(CONFIG_SPMI) += spmi.o
+obj-$(CONFIG_WDT) += wdt.o
 endif

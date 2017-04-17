@@ -426,6 +426,10 @@
 			};
 		};
 	};
+
+	wdt0: wdt@0 {
+		compatible = "sandbox,wdt";
+	};
 };
 
 #include "sandbox_pmic.dtsi"
