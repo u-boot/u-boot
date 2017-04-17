@@ -7,11 +7,15 @@
 /dts-v1/;
 #include <dt-bindings/pwm/pwm.h>
 #include "rk3399.dtsi"
-#include "rk3399-sdram-ddr3-1333.dtsi"
+#include "rk3399-sdram-ddr3-1600.dtsi"
 
 / {
 	model = "Theobroma Systems RK3399-Q7 SoM";
 	compatible = "tsd,puma", "rockchip,rk3399";
+
+	config {
+	        u-boot,spl-payload-offset = <204800>;
+	};
 
 	chosen {
 		stdout-path = "serial0:115200n8";
