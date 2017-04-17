@@ -20,3 +20,8 @@ u-boot,efi-partition-entries-offset
 	is formatted.
 
 	This setting will override any values configured via Kconfig.
+
+u-boot,spl-payload-offset
+	If present (and SPL is controlled by the device-tree), this allows
+	to override the CONFIG_SYS_SPI_U_BOOT_OFFS setting using a value
+	from the device-tree.
