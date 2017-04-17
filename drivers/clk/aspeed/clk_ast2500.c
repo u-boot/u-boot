@@ -52,11 +52,11 @@ struct ast2500_div_config {
  */
 static ulong ast2500_get_mpll_rate(ulong clkin, u32 mpll_reg)
 {
-	const ulong num = (mpll_reg >> SCU_MPLL_NUM_SHIFT) & SCU_MPLL_NUM_MASK;
-	const ulong denum = (mpll_reg >> SCU_MPLL_DENUM_SHIFT)
-			& SCU_MPLL_DENUM_MASK;
-	const ulong post_div = (mpll_reg >> SCU_MPLL_POST_SHIFT)
-			& SCU_MPLL_POST_MASK;
+	const ulong num = (mpll_reg & SCU_MPLL_NUM_MASK) >> SCU_MPLL_NUM_SHIFT;
+	const ulong denum = (mpll_reg & SCU_MPLL_DENUM_MASK)
+			>> SCU_MPLL_DENUM_SHIFT;
+	const ulong post_div = (mpll_reg & SCU_MPLL_POST_MASK)
+			>> SCU_MPLL_POST_SHIFT;
 
 	return (clkin * ((num + 1) / (denum + 1))) / (post_div + 1);
 }
@@ -67,11 +67,11 @@ static ulong ast2500_get_mpll_rate(ulong clkin, u32 mpll_reg)
  */
 static ulong ast2500_get_hpll_rate(ulong clkin, u32 hpll_reg)
 {
-	const ulong num = (hpll_reg >> SCU_HPLL_NUM_SHIFT) & SCU_HPLL_NUM_MASK;
-	const ulong denum = (hpll_reg >> SCU_HPLL_DENUM_SHIFT)
-			& SCU_HPLL_DENUM_MASK;
-	const ulong post_div = (hpll_reg >> SCU_HPLL_POST_SHIFT)
-			& SCU_HPLL_POST_MASK;
+	const ulong num = (hpll_reg & SCU_HPLL_NUM_MASK) >> SCU_HPLL_NUM_SHIFT;
+	const ulong denum = (hpll_reg & SCU_HPLL_DENUM_MASK)
+			>> SCU_HPLL_DENUM_SHIFT;
+	const ulong post_div = (hpll_reg & SCU_HPLL_POST_MASK)
+			>> SCU_HPLL_POST_SHIFT;
 
 	return (clkin * ((num + 1) / (denum + 1))) / (post_div + 1);
 }
@@ -136,11 +136,11 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 	case BCLK_PCLK:
 		{
 			ulong apb_div = 4 + 4 * ((readl(&priv->scu->clk_sel1)
-						  >> SCU_PCLK_DIV_SHIFT) &
-						 SCU_PCLK_DIV_MASK);
+						  & SCU_PCLK_DIV_MASK)
+						 >> SCU_PCLK_DIV_SHIFT);
 			rate = ast2500_get_hpll_rate(clkin,
-						     readl(&priv->scu->
-							   h_pll_param));
+						     readl(&priv->
+							   scu->h_pll_param));
 			rate = rate / apb_div;
 		}
 		break;
@@ -223,17 +223,16 @@ static ulong ast2500_configure_ddr(struct ast2500_scu *scu, ulong rate)
 	ulong clkin = ast2500_get_clkin(scu);
 	u32 mpll_reg;
 	struct ast2500_div_config div_cfg = {
-		.num = SCU_MPLL_NUM_MASK,
-		.denum = SCU_MPLL_DENUM_MASK,
-		.post_div = SCU_MPLL_POST_MASK
+		.num = (SCU_MPLL_NUM_MASK >> SCU_MPLL_NUM_SHIFT),
+		.denum = (SCU_MPLL_DENUM_MASK >> SCU_MPLL_DENUM_SHIFT),
+		.post_div = (SCU_MPLL_POST_MASK >> SCU_MPLL_POST_SHIFT),
 	};
 
 	ast2500_calc_clock_config(clkin, rate, &div_cfg);
 
 	mpll_reg = readl(&scu->m_pll_param);
-	mpll_reg &= ~((SCU_MPLL_POST_MASK << SCU_MPLL_POST_SHIFT)
-		      | (SCU_MPLL_NUM_MASK << SCU_MPLL_NUM_SHIFT)
-		      | (SCU_MPLL_DENUM_MASK << SCU_MPLL_DENUM_SHIFT));
+	mpll_reg &= ~(SCU_MPLL_POST_MASK | SCU_MPLL_NUM_MASK
+		      | SCU_MPLL_DENUM_MASK);
 	mpll_reg |= (div_cfg.post_div << SCU_MPLL_POST_SHIFT)
 	    | (div_cfg.num << SCU_MPLL_NUM_SHIFT)
 	    | (div_cfg.denum << SCU_MPLL_DENUM_SHIFT);

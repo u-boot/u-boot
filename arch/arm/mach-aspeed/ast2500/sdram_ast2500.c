@@ -183,9 +183,8 @@ static int ast2500_sdrammc_ddr4_calibrate_vref(struct dram_info *info)
 static size_t ast2500_sdrammc_get_vga_mem_size(struct dram_info *info)
 {
 	size_t vga_mem_size_base = 8 * 1024 * 1024;
-	u32 vga_hwconf = (readl(&info->scu->hwstrap)
-			  >> SCU_HWSTRAP_VGAMEM_SHIFT)
-			& SCU_HWSTRAP_VGAMEM_MASK;
+	u32 vga_hwconf = (readl(&info->scu->hwstrap) & SCU_HWSTRAP_VGAMEM_MASK)
+	    >> SCU_HWSTRAP_VGAMEM_SHIFT;
 
 	return vga_mem_size_base << vga_hwconf;
 }
