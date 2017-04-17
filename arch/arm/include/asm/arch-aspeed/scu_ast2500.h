@@ -21,7 +21,8 @@
 #define SCU_MPLL_NUM_MASK		0xff
 #define SCU_MPLL_POST_SHIFT		13
 #define SCU_MPLL_POST_MASK		0x3f
-
+#define SCU_PCLK_DIV_SHIFT		23
+#define SCU_PCLK_DIV_MASK		7
 #define SCU_HPLL_DENUM_SHIFT		0
 #define SCU_HPLL_DENUM_MASK		0x1f
 #define SCU_HPLL_NUM_SHIFT		5

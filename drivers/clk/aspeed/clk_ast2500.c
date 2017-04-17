@@ -110,6 +110,17 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 		rate = ast2500_get_mpll_rate(clkin,
 					     readl(&priv->scu->m_pll_param));
 		break;
+	case BCLK_PCLK:
+		{
+			ulong apb_div = 4 + 4 * ((readl(&priv->scu->clk_sel1)
+						  >> SCU_PCLK_DIV_SHIFT) &
+						 SCU_PCLK_DIV_MASK);
+			rate = ast2500_get_hpll_rate(clkin,
+						     readl(&priv->scu->
+							   h_pll_param));
+			rate = rate / apb_div;
+		}
+		break;
 	case PCLK_UART1:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 1);
 		break;
