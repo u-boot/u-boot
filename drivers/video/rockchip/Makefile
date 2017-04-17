@@ -5,4 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += rk_edp.o rk_hdmi.o rk_vop.o rk_lvds.o ../dw_hdmi.o
+ifdef CONFIG_VIDEO_ROCKCHIP
+obj-y += rk_vop.o
+obj-$(CONFIG_DISPLAY_ROCKCHIP_EDP) += rk_edp.o
+obj-$(CONFIG_DISPLAY_ROCKCHIP_LVDS) += rk_lvds.o
+obj-$(CONFIG_DISPLAY_ROCKCHIP_HDMI) += rk_hdmi.o ../dw_hdmi.o
+endif
