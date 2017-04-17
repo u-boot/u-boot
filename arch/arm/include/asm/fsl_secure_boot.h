@@ -70,7 +70,7 @@
 /* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
  * Non-XIP Memory (Nand/SD)*/
 #if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_FSL_LSCH3) || \
-	defined(CONFIG_SD_BOOT)
+	defined(CONFIG_SD_BOOT) || defined(CONFIG_NAND_BOOT)
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
 /* The address needs to be modified according to NOR, NAND, SD and
@@ -96,6 +96,11 @@
 #define CONFIG_BS_ADDR_DEVICE		0x00000940
 #define CONFIG_BS_HDR_SIZE		0x00000010
 #define CONFIG_BS_SIZE			0x00000008
+#elif defined(CONFIG_NAND_BOOT)
+#define CONFIG_BS_HDR_ADDR_DEVICE      0x00800000
+#define CONFIG_BS_ADDR_DEVICE          0x00802000
+#define CONFIG_BS_HDR_SIZE             0x00002000
+#define CONFIG_BS_SIZE                 0x00001000
 #elif defined(CONFIG_QSPI_BOOT)
 #ifdef CONFIG_ARCH_LS1046A
 #define CONFIG_BS_HDR_ADDR_DEVICE	0x40780000
