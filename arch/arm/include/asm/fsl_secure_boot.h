@@ -88,7 +88,7 @@
 /* For SD boot address and size are assigned in terms of sector
  * offset and no. of sectors respectively.
  */
-#if defined(CONFIG_LS1043A)
+#if defined(CONFIG_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 #define CONFIG_BS_HDR_ADDR_DEVICE	0x00000920
 #else
 #define CONFIG_BS_HDR_ADDR_DEVICE       0x00000900

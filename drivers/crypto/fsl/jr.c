@@ -342,7 +342,9 @@ static void desc_done(uint32_t status, void *arg)
 {
 	struct result *x = arg;
 	x->status = status;
+#ifndef CONFIG_SPL_BUILD
 	caam_jr_strstatus(status);
+#endif
 	x->done = 1;
 }
 
@@ -436,7 +438,11 @@ static inline int sec_reset_idx(uint8_t sec_idx)
 
 	return 0;
 }
-
+int sec_reset(void)
+{
+	return sec_reset_idx(0);
+}
+#ifndef CONFIG_SPL_BUILD
 static int instantiate_rng(uint8_t sec_idx)
 {
 	struct result op;
@@ -470,11 +476,6 @@ static int instantiate_rng(uint8_t sec_idx)
 		return -1;
 
 	return ret;
-}
-
-int sec_reset(void)
-{
-	return sec_reset_idx(0);
 }
 
 static u8 get_rng_vid(uint8_t sec_idx)
@@ -561,7 +562,7 @@ static int rng_init(uint8_t sec_idx)
 
 	return ret;
 }
-
+#endif
 int sec_init_idx(uint8_t sec_idx)
 {
 	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
@@ -634,7 +635,7 @@ int sec_init_idx(uint8_t sec_idx)
 
 	pamu_enable();
 #endif
-
+#ifndef CONFIG_SPL_BUILD
 	if (get_rng_vid(sec_idx) >= 4) {
 		if (rng_init(sec_idx) < 0) {
 			printf("SEC%u: RNG instantiation failed\n", sec_idx);
@@ -642,7 +643,7 @@ int sec_init_idx(uint8_t sec_idx)
 		}
 		printf("SEC%u: RNG instantiated\n", sec_idx);
 	}
-
+#endif
 	return ret;
 }
 
