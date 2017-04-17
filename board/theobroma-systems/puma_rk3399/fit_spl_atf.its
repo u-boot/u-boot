@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
+ *
+ * Minimal dts for a SPL FIT image payload.
+ *
+ * SPDX-License-Identifier: GPL-2.0+  X11
+ */
+
+/dts-v1/;
+
+/ {
+	description = "FIT image with U-Boot proper, ATF bl31, M0 Firmware, DTB";
+	#address-cells = <1>;
+
+	images {
+		uboot@1 {
+			description = "U-Boot (64-bit)";
+			data = /incbin/("../../../u-boot-nodtb.bin");
+			type = "standalone";
+			arch = "arm64";
+			compression = "none";
+			load = <0x00200000>;
+		};
+		atf@1 {
+			description = "ARM Trusted Firmware";
+			data = /incbin/("../../../bl31.bin");
+			type = "firmware";
+			arch = "arm64";
+			compression = "none";
+			load = <0x00001000>;
+			entry = <0x00001000>;
+		};
+		pmu@1 {
+		        description = "Cortex-M0 firmware";
+			data = /incbin/("../../../rk3399m0.bin");
+			type = "pmu-firmware";
+			compression = "none";
+			load = <0xff8c0000>;
+                };
+		fdt@1 {
+			description = "RK3399-Q7 (Puma) flat device-tree";
+			data = /incbin/("../../../u-boot.dtb");
+			type = "flat_dt";
+			compression = "none";
+		};
+	};
+
+	configurations {
+		default = "conf@1";
+		conf@1 {
+			description = "Theobroma Systems RK3399-Q7 (Puma) SoM";
+			firmware = "uboot@1";
+			loadables = "atf@1";
+			fdt = "fdt@1";
+		};
+	};
+};

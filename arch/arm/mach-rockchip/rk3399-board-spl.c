@@ -156,19 +156,24 @@ void secure_timer_init(void)
 	writel(TIMER_EN | TIMER_FMODE, TIMER_CHN10_BASE + TIMER_CONTROL_REG);
 }
 
-#define GRF_EMMCCORE_CON11 0xff77f02c
-void board_init_f(ulong dummy)
-{
-	struct udevice *pinctrl;
-	struct udevice *dev;
-	int ret;
+#define SGRF_DDR_RGN_CON16 0xff330040
 
-	/* Example code showing how to enable the debug UART on RK3288 */
+void board_debug_uart_init(void)
+{
 #include <asm/arch/grf_rk3399.h>
-	/* Enable early UART2 channel C on the RK3399 */
 #define GRF_BASE	0xff770000
 	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
 
+#if defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff180000)
+	/* Enable early UART0 on the RK3399 */
+	rk_clrsetreg(&grf->gpio2c_iomux,
+		     GRF_GPIO2C0_SEL_MASK,
+		     GRF_UART0BT_SIN << GRF_GPIO2C0_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio2c_iomux,
+		     GRF_GPIO2C1_SEL_MASK,
+		     GRF_UART0BT_SOUT << GRF_GPIO2C1_SEL_SHIFT);
+#else
+	/* Enable early UART2 channel C on the RK3399 */
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C3_SEL_MASK,
 		     GRF_UART2DGBC_SIN << GRF_GPIO4C3_SEL_SHIFT);
@@ -179,6 +184,16 @@ void board_init_f(ulong dummy)
 	rk_clrsetreg(&grf->soc_con7,
 		     GRF_UART_DBG_SEL_MASK,
 		     GRF_UART_DBG_SEL_C << GRF_UART_DBG_SEL_SHIFT);
+#endif
+}
+
+#define GRF_EMMCCORE_CON11 0xff77f02c
+void board_init_f(ulong dummy)
+{
+	struct udevice *pinctrl;
+	struct udevice *dev;
+	int ret;
+
 #define EARLY_UART
 #ifdef EARLY_UART
 	/*
@@ -200,6 +215,17 @@ void board_init_f(ulong dummy)
 		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
+
+	/*
+	 * Disable DDR security regions.
+	 *
+	 * As we are entered from the BootROM, the region from
+	 * 0x0 through 0xfffff (i.e. the first MB of memory) will
+	 * be protected. This will cause issues with the DW_MMC
+	 * driver, which tries to DMA from/to the stack (likely)
+	 * located in this range.
+	 */
+	rk_clrsetreg(SGRF_DDR_RGN_CON16, 0x1FF, 0);
 
 	secure_timer_init();
 
@@ -238,6 +264,7 @@ void spl_board_init(void)
 #ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
 	back_to_bootrom();
 #endif
+
 	return;
 err:
 	printf("spl_board_init: Error %d\n", ret);
