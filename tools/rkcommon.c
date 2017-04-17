@@ -13,6 +13,8 @@
 #include "mkimage.h"
 #include "rkcommon.h"
 
+#define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
+
 enum {
 	RK_SIGNATURE		= 0x0ff0aa55,
 };
@@ -160,9 +162,21 @@ static void rkcommon_set_header0(void *buf, uint file_size,
 	hdr->disable_rc4 = !rkcommon_need_rc4_spl(params);
 	hdr->init_offset = RK_INIT_OFFSET;
 
-	hdr->init_size = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
-	hdr->init_size = (hdr->init_size + 3) & ~3;
-	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
+	hdr->init_size = DIV_ROUND_UP(file_size, RK_BLK_SIZE);
+	/*
+	 * The init_size has to be a multiple of 4 blocks (i.e. of 2K)
+	 * or the BootROM will not boot the image.
+	 *
+	 * Note: To verify that this is not a legacy constraint, we
+	 *       rechecked this against the RK3399 BootROM.
+	 */
+	hdr->init_size = ROUND(hdr->init_size, 4);
+	/*
+	 * The images we create do not contain the stage following the SPL as
+	 * part of the SPL image, so the init_boot_size (which might have been
+	 * read by Rockchip's miniloder) should be the same as the init_size.
+	 */
+	hdr->init_boot_size = hdr->init_size;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 }
