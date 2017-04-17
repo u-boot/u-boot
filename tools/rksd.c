@@ -62,8 +62,11 @@ static int rksd_check_image_type(uint8_t type)
 static int rksd_vrec_header(struct image_tool_params *params,
 			    struct image_type_params *tparams)
 {
-	/* We don't add any additional padding after the end of the image */
-	return rkcommon_vrec_header(params, tparams, 1);
+	/*
+	 * Pad to the RK_BLK_SIZE (512 bytes) to be consistent with init_size
+	 * being encoded in RK_BLK_SIZE units in header0 (see rkcommon.c).
+	 */
+	return rkcommon_vrec_header(params, tparams, RK_BLK_SIZE);
 }
 
 /*
