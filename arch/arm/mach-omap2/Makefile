@@ -29,8 +29,10 @@ obj-y	+= abb.o
 endif
 
 ifneq ($(CONFIG_OMAP54XX),)
+ifeq ($(CONFIG_DM_SCSI),)
 obj-y	+= pipe3-phy.o
 obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
+endif
 endif
 
 ifeq ($(CONFIG_SYS_DCACHE_OFF),)

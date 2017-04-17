@@ -123,6 +123,20 @@
 		yres = <768>;
 	};
 
+	leds {
+		compatible = "gpio-leds";
+
+		iracibble {
+			gpios = <&gpio_a 1 0>;
+			label = "sandbox:red";
+		};
+
+		martinet {
+			gpios = <&gpio_a 2 0>;
+			label = "sandbox:green";
+		};
+	};
+
 	pci: pci-controller {
 		compatible = "sandbox,pci";
 		device_type = "pci";

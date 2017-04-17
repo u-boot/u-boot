@@ -12,11 +12,6 @@
 
 #include "at91-sama5_common.h"
 
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_DBGU
-
 /*
  * This needs to be defined for the OHCI code to work but it is defined as
  * ATMEL_ID_UHPHS in the CPU specific header files.
@@ -34,10 +29,10 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x10000000
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_INIT_SP_ADDR		0x310000
+#define CONFIG_SYS_INIT_SP_ADDR		0x318000
 #else
 #define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
+	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
 /* NAND flash */
@@ -65,21 +60,6 @@
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define CONFIG_CMD_UBIFS
-#endif
-
-/* Ethernet Hardware */
-#define CONFIG_MACB
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_MACB_SEARCH_PHY
-#define CONFIG_RGMII
-#define CONFIG_PHYLIB
-
-/* MMC */
-
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_ATMEL_MCI
-#define CONFIG_ATMEL_MCI_8BIT
 #endif
 
 /* USB */
@@ -111,7 +91,7 @@
 /* SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x300000
-#define CONFIG_SPL_MAX_SIZE		0x10000
+#define CONFIG_SPL_MAX_SIZE		0x18000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 #define CONFIG_SYS_SPL_MALLOC_START	0x20080000
