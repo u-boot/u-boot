@@ -308,7 +308,7 @@ int ubi_volume_begin_write(char *volume, void *buf, size_t size,
 		return ENODEV;
 
 	rsvd_bytes = vol->reserved_pebs * (ubi->leb_size - vol->data_pad);
-	if (size < 0 || size > rsvd_bytes) {
+	if (size > rsvd_bytes) {
 		printf("size > volume size! Aborting!\n");
 		return EINVAL;
 	}
