@@ -327,6 +327,10 @@ void board_init_f(ulong dummy)
 	early_system_init();
 	board_early_init_f();
 	sdram_init();
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size(
+			(void *)CONFIG_SYS_SDRAM_BASE,
+			CONFIG_MAX_RAM_BANK_SIZE);
 }
 #endif
 

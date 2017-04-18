@@ -171,6 +171,7 @@ void board_init_f(ulong dummy)
 #endif
 	/* For regular u-boot sdram_init() is called from dram_init() */
 	sdram_init();
+	gd->ram_size = omap_sdram_size();
 }
 #endif
 
