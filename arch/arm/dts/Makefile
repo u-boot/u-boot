@@ -352,6 +352,8 @@ dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
 	keystone-k2e-evm.dtb \
 	keystone-k2g-evm.dtb
 
+dtb-$(CONFIG_TARGET_AT91SAM9RLEK) += at91sam9rlek.dtb
+
 dtb-$(CONFIG_TARGET_AT91SAM9260EK) += \
 	at91sam9260ek.dtb	\
 	at91sam9g20ek.dtb	\
