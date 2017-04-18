@@ -90,7 +90,9 @@
 /*
  * NAND Flash Definitions
  */
+#ifndef SPL_NO_IFC
 #define CONFIG_NAND_FSL_IFC
+#endif
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
@@ -134,7 +136,7 @@
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(1024 << 10)
 #endif
 
 /*
@@ -213,6 +215,7 @@
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_CPLD_FTIM3
 
 /* EEPROM */
+#ifndef SPL_NO_EEPROM
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
@@ -220,11 +223,14 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+#endif
 
 /*
  * Environment
  */
+#ifndef SPL_NO_ENV
 #define CONFIG_ENV_OVERWRITE
+#endif
 
 #if defined(CONFIG_NAND_BOOT)
 #define CONFIG_ENV_IS_IN_NAND
@@ -243,6 +249,7 @@
 #endif
 
 /* FMan */
+#ifndef SPL_NO_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB
@@ -266,23 +273,29 @@
 
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
+#endif
 
 /* QE */
+#ifndef SPL_NO_QE
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
 	!defined(CONFIG_QSPI_BOOT)
 #define CONFIG_U_QE
 #endif
 #define CONFIG_SYS_QE_FW_ADDR     0x60600000
+#endif
 
 /* USB */
+#ifndef SPL_NO_USB
 #define CONFIG_HAS_FSL_XHCI_USB
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 #define CONFIG_USB_XHCI_FSL
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		3
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #endif
+#endif
 
 /* SATA */
+#ifndef SPL_NO_SATA
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_CMD_SCSI
@@ -299,6 +312,7 @@
 #define SCSI_VEND_ID 0x1b4b
 #define SCSI_DEV_ID  0x9170
 #define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
+#endif
 
 #include <asm/fsl_secure_boot.h>
 

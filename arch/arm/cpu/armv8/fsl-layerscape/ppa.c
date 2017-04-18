@@ -178,7 +178,7 @@ int ppa_init(void)
 	ppa_img_addr = (uintptr_t)ppa_fit_addr;
 	if (fsl_check_boot_mode_secure() != 0) {
 		ret = fsl_secboot_validate(ppa_esbc_hdr,
-					   CONFIG_PPA_KEY_HASH,
+					   PPA_KEY_HASH,
 					   &ppa_img_addr);
 		if (ret != 0)
 			printf("PPA validation failed\n");

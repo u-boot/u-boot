@@ -204,7 +204,7 @@ bool has_erratum_a010151(void)
 	case SVR_LS1043A:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
 #endif
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 	case SOC_VER_LS1020:
 	case SOC_VER_LS1021:
 	case SOC_VER_LS1022:

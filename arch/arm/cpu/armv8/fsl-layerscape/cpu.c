@@ -92,7 +92,7 @@ static inline void early_mmu_setup(void)
 
 static void fix_pcie_mmu_map(void)
 {
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	unsigned int i;
 	u32 svr, ver;
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -523,7 +523,7 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
 	u32 svr_dev_id;
 #endif
@@ -541,7 +541,7 @@ int timer_init(void)
 	out_le32(cltbenr, 0xf);
 #endif
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	/*
 	 * In certain Layerscape SoCs, the clock for each core's
 	 * has an enable bit in the PMU Physical Core Time Base Enable

@@ -51,13 +51,14 @@
 #endif
 #endif
 
+#ifndef SPL_NO_IFC
 /* IFC */
 #define CONFIG_FSL_IFC
-
 /*
  * NAND Flash Definitions
  */
 #define CONFIG_NAND_FSL_IFC
+#endif
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
@@ -161,7 +162,9 @@
 /*
  * Environment
  */
+#ifndef SPL_NO_ENV
 #define CONFIG_ENV_OVERWRITE
+#endif
 
 #if defined(CONFIG_SD_BOOT)
 #define CONFIG_ENV_IS_IN_MMC
@@ -176,6 +179,7 @@
 #endif
 
 /* FMan */
+#ifndef SPL_NO_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB
@@ -196,16 +200,20 @@
 
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
+#endif
 
 /* QSPI device */
+#ifndef SPL_NO_QSPI
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_SPI_FLASH_SPANSION
 #define FSL_QSPI_FLASH_SIZE		(1 << 26)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SPI_FLASH_BAR
 #endif
+#endif
 
 /* USB */
+#ifndef SPL_NO_USB
 #define CONFIG_HAS_FSL_XHCI_USB
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 #define CONFIG_USB_XHCI_HCD
@@ -216,8 +224,10 @@
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
+#endif
 
 /* SATA */
+#ifndef SPL_NO_SATA
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
@@ -229,7 +239,9 @@
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
+#endif
 
+#ifndef SPL_NO_MISC
 #define CONFIG_BOOTCOMMAND		"sf probe 0:0;sf read $kernel_load" \
 					"$kernel_start $kernel_size;" \
 					"bootm $kernel_load"
@@ -238,5 +250,8 @@
 			"15m(u-boot),48m(kernel.itb);" \
 			"7e800000.flash:16m(nand_uboot)," \
 			"48m(nand_kernel),448m(nand_free)"
+#endif
+
+#include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1046ARDB_H__ */

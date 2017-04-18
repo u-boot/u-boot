@@ -22,6 +22,7 @@
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
+#include <fsl_sec.h>
 #include <spl.h>
 
 #include "../common/vid.h"
@@ -265,6 +266,24 @@ int board_init(void)
 
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+#ifdef CONFIG_SECURE_BOOT
+	/*
+	 * In case of Secure Boot, the IBR configures the SMMU
+	 * to allow only Secure transactions.
+	 * SMMU must be reset in bypass mode.
+	 * Set the ClientPD bit and Clear the USFCFG Bit
+	 */
+	u32 val;
+	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_SCR0, val);
+	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_NSCR0, val);
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 
 	return 0;
 }

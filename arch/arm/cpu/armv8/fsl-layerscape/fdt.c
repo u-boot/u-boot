@@ -373,8 +373,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
-	do_fixup_by_compat_u32(blob, "fixed-clock",
-			       "clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
+	do_fixup_by_path_u32(blob, "/sysclk", "clock-frequency",
+			     CONFIG_SYS_CLK_FREQ, 1);
 
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);

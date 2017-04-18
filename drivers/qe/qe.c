@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <linux/immap_qe.h>
 #include <fsl_qe.h>
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 #include <asm/arch/immap_ls102xa.h>
 #endif
 
@@ -355,7 +355,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	size_t length;
 	const struct qe_header *hdr;
 #ifdef CONFIG_DEEP_SLEEP
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 #else
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -494,7 +494,7 @@ int u_qe_upload_firmware(const struct qe_firmware *firmware)
 	size_t length;
 	const struct qe_header *hdr;
 #ifdef CONFIG_DEEP_SLEEP
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 #else
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
