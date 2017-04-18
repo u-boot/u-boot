@@ -12,6 +12,7 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
+#include <debug_uart.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
 #ifdef CONFIG_LCD_INFO
@@ -182,11 +183,22 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
 
-int board_early_init_f(void)
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
 {
 	at91_seriald_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
