@@ -18,10 +18,6 @@
 
 #include <lcd.h>
 #include <atmel_lcdc.h>
-#include <atmel_mci.h>
-#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
-#include <net.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -159,22 +155,8 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif
 
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bis)
-{
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_MCI);
-}
-#endif
-
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOB);
-	at91_periph_clk_enable(ATMEL_ID_PIOC);
-	at91_periph_clk_enable(ATMEL_ID_PIOD);
-
 	return 0;
 }
 
@@ -185,7 +167,6 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91sam9rlek_nand_hw_init();
 #endif
