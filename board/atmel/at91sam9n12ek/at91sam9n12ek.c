@@ -133,6 +133,7 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD */
 
 /* SPI chip select control */
+#ifndef CONFIG_DM_SPI
 #ifdef CONFIG_ATMEL_SPI
 #include <spi.h>
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -164,6 +165,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	}
 }
 #endif /* CONFIG_ATMEL_SPI */
+#endif
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 int board_mmc_init(bd_t *bd)
