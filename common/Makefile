@@ -95,7 +95,7 @@ obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
-obj-$(CONFIG_SPL_OF_TRANSLATE) += fdt_support.o
+obj-$(CONFIG_SPL_OF_LIBFDT) += fdt_support.o
 ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
