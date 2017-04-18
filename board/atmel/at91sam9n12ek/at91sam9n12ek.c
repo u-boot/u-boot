@@ -15,7 +15,6 @@
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
-#include <atmel_mci.h>
 #include <netdev.h>
 
 #ifdef CONFIG_LCD_INFO
@@ -132,50 +131,6 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
 
-/* SPI chip select control */
-#ifndef CONFIG_DM_SPI
-#ifdef CONFIG_ATMEL_SPI
-#include <spi.h>
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs < 2;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 0:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 0);
-		break;
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 0);
-		break;
-	}
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 0:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 1);
-		break;
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 1);
-		break;
-	}
-}
-#endif /* CONFIG_ATMEL_SPI */
-#endif
-
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
-{
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_HSMCI0);
-}
-#endif
-
 #ifdef CONFIG_KS8851_MLL
 void at91sam9n12ek_ks8851_hw_init(void)
 {
@@ -209,10 +164,6 @@ void at91sam9n12ek_usb_hw_init(void)
 
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOAB);
-	at91_periph_clk_enable(ATMEL_ID_PIOCD);
-
-	at91_seriald_hw_init();
 	return 0;
 }
 
@@ -223,10 +174,6 @@ int board_init(void)
 
 #ifdef CONFIG_NAND_ATMEL
 	at91sam9n12ek_nand_hw_init();
-#endif
-
-#ifdef CONFIG_ATMEL_SPI
-	at91_spi0_hw_init(1 << 0);
 #endif
 
 #ifdef CONFIG_LCD
