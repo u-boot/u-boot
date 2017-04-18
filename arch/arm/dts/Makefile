@@ -359,6 +359,8 @@ dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
 	at91sam9x25ek.dtb	\
 	at91sam9x35ek.dtb
 
+dtb-$(CONFIG_TARGET_AT91SAM9N12EK) += at91sam9n12ek.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb
 
