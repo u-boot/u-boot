@@ -167,7 +167,6 @@
 
 /* turn on command-line edit/hist/auto */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
 
 /* Print Buffer Size */

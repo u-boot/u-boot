@@ -118,7 +118,7 @@
 
 /* Shell */
 #define CONFIG_SYS_MAXARGS		16
-#define CONFIG_COMMAND_HISTORY
+#define CONFIG_CMDLINE_EDITING
 
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS

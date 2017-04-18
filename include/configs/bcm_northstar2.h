@@ -49,7 +49,6 @@
 
 /* version string, parser, etc */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_COMMAND_HISTORY
 #define CONFIG_SYS_LONGHELP
 
 #endif /* __BCM_NORTHSTAR2_H */
