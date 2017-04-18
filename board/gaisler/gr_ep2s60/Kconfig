@@ -1,9 +1,0 @@
-if TARGET_GR_EP2S60
-
-config SYS_BOARD
-	default "gr_ep2s60"
-
-config SYS_CONFIG_NAME
-	default "gr_ep2s60"
-
-endif

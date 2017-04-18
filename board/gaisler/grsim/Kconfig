@@ -1,9 +1,0 @@
-if TARGET_GRSIM
-
-config SYS_BOARD
-	default "grsim"
-
-config SYS_CONFIG_NAME
-	default "grsim"
-
-endif
