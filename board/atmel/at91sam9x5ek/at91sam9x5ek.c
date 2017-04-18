@@ -14,17 +14,9 @@
 #include <asm/arch/gpio.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
-#include <atmel_mci.h>
-#ifdef CONFIG_MACB
-#include <net.h>
-#endif
-#include <netdev.h>
 #ifdef CONFIG_LCD_INFO
 #include <nand.h>
 #include <version.h>
-#endif
-#ifdef CONFIG_ATMEL_SPI
-#include <spi.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -91,21 +83,6 @@ static void at91sam9x5ek_nand_hw_init(void)
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 13, 1);
 }
 #endif
-
-int board_eth_init(bd_t *bis)
-{
-	int rc = 0;
-
-#ifdef CONFIG_MACB
-	if (has_emac0())
-		rc = macb_eth_initialize(0,
-			(void *)ATMEL_BASE_EMAC0, 0x00);
-	if (has_emac1())
-		rc = macb_eth_initialize(1,
-			(void *)ATMEL_BASE_EMAC1, 0x00);
-#endif
-	return rc;
-}
 
 #ifdef CONFIG_LCD
 vidinfo_t panel_info = {
@@ -205,51 +182,6 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
 
-#ifndef CONFIG_DM_SPI
-/* SPI chip select control */
-#ifdef CONFIG_ATMEL_SPI
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs < 2;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 0);
-		break;
-	case 0:
-	default:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 0);
-		break;
-	}
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 1);
-		break;
-	case 0:
-	default:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 1);
-		break;
-	}
-}
-#endif /* CONFIG_ATMEL_SPI */
-#endif
-
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
-{
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_HSMCI0);
-}
-#endif
-
 int board_early_init_f(void)
 {
 	at91_seriald_hw_init();
@@ -266,14 +198,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_NAND
 	at91sam9x5ek_nand_hw_init();
-#endif
-
-#ifdef CONFIG_ATMEL_SPI
-	at91_spi0_hw_init(1 << 4);
-#endif
-
-#ifdef CONFIG_MACB
-	at91_macb_hw_init();
 #endif
 
 #if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI)
@@ -302,8 +226,6 @@ void at91_spl_board_init(void)
 	at91_mci_hw_init();
 #elif CONFIG_SYS_USE_NANDFLASH
 	at91sam9x5ek_nand_hw_init();
-#elif CONFIG_SYS_USE_SPIFLASH
-	at91_spi0_hw_init(1 << 4);
 #endif
 }
 
