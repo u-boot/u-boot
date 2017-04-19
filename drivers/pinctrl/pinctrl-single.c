@@ -47,27 +47,27 @@ static int single_configure_pins(struct udevice *dev,
 	int n, reg;
 	u32 val;
 
-	for (n = 0; n < count; n++) {
+	for (n = 0; n < count; n++, pins++) {
 		reg = fdt32_to_cpu(pins->reg);
 		if ((reg < 0) || (reg > pdata->offset)) {
 			dev_dbg(dev, "  invalid register offset 0x%08x\n", reg);
-			pins++;
 			continue;
 		}
 		reg += pdata->base;
+		val = fdt32_to_cpu(pins->val) & pdata->mask;
 		switch (pdata->width) {
+		case 16:
+			writew((readw(reg) & ~pdata->mask) | val, reg);
+			break;
 		case 32:
-			val = readl(reg) & ~pdata->mask;
-			val |= fdt32_to_cpu(pins->val) & pdata->mask;
-			writel(val, reg);
-			dev_dbg(dev, "  reg/val 0x%08x/0x%08x\n",
-				reg, val);
+			writel((readl(reg) & ~pdata->mask) | val, reg);
 			break;
 		default:
 			dev_warn(dev, "unsupported register width %i\n",
 				 pdata->width);
+			continue;
 		}
-		pins++;
+		dev_dbg(dev, "  reg/val 0x%08x/0x%08x\n",reg, val);
 	}
 	return 0;
 }
