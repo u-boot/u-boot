@@ -42,6 +42,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-veyron-minnie.dtb \
 	rk3328-evb.dtb \
 	rk3399-evb.dtb \
+	rk3399-firefly.dtb \
 	rk3399-puma.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-odroidc2.dtb
