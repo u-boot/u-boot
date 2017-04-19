@@ -1386,11 +1386,6 @@ static void at91rm9200_udc_pullup(struct at91_udc *udc, int is_on)
 		gpio_set_value(udc->board.pullup_pin, !active);
 }
 
-static const struct at91_udc_caps at91rm9200_udc_caps = {
-	.init = at91rm9200_udc_init,
-	.pullup = at91rm9200_udc_pullup,
-};
-
 static int at91sam9260_udc_init(struct at91_udc *udc)
 {
 	struct at91_ep *ep;
@@ -1502,11 +1497,6 @@ static int at91sam9263_udc_init(struct at91_udc *udc)
 
 	return 0;
 }
-
-static const struct at91_udc_caps at91sam9263_udc_caps = {
-	.init = at91sam9263_udc_init,
-	.pullup = at91sam9260_udc_pullup,
-};
 
 int usb_gadget_handle_interrupts(int index)
 {
