@@ -105,9 +105,6 @@ int timer_init(void)
 #endif
 	__raw_writel(i, &cur_gpt->control);
 
-	gd->arch.tbl = __raw_readl(&cur_gpt->counter);
-	gd->arch.tbu = 0;
-
 	return 0;
 }
 
