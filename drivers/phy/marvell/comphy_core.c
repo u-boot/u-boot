@@ -113,6 +113,7 @@ static int comphy_probe(struct udevice *dev)
 	int subnode;
 	int lane;
 	int last_idx = 0;
+	static int current_idx;
 
 	/* Save base addresses for later use */
 	chip_cfg->comphy_base_addr = (void *)dev_get_addr_index(dev, 0);
@@ -175,7 +176,7 @@ static int comphy_probe(struct udevice *dev)
 	}
 
 	/* Save comphy index for MultiCP devices (A8K) */
-	chip_cfg->comphy_index = dev->seq;
+	chip_cfg->comphy_index = current_idx++;
 	/* PHY power UP sequence */
 	chip_cfg->ptr_comphy_chip_init(chip_cfg, comphy_map_data);
 	/* PHY print SerDes status */
