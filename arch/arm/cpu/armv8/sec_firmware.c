@@ -227,7 +227,7 @@ unsigned int sec_firmware_support_psci_version(void)
 	if (sec_firmware_addr & SEC_FIRMWARE_RUNNING)
 		return _sec_firmware_support_psci_version();
 
-	return 0xffffffff;
+	return PSCI_INVALID_VER;
 }
 #endif
 
