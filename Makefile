@@ -747,6 +747,9 @@ BOARD_SIZE_CHECK =
 endif
 
 # Statically apply RELA-style relocations (currently arm64 only)
+# This is useful for arm64 where static relocation needs to be performed on
+# the raw binary, but certain simulators only accept an ELF file (but don't
+# do the relocation).
 ifneq ($(CONFIG_STATIC_RELA),)
 # $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
 DO_STATIC_RELA = \
@@ -1180,14 +1183,9 @@ OBJCOPYFLAGS_u-boot-img-spl-at-end.bin := -I binary -O binary \
 u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,pad_cat)
 
-# Create a new ELF from a raw binary file.  This is useful for arm64
-# where static relocation needs to be performed on the raw binary,
-# but certain simulators only accept an ELF file (but don't do the
-# relocation).
-# FIXME refactor dts/Makefile to share target/arch detection
+# Create a new ELF from a raw binary file.
 u-boot.elf: u-boot.bin
-	@$(OBJCOPY)  -B aarch64 -I binary -O elf64-littleaarch64 \
-		$< u-boot-elf.o
+	@$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
 	@$(LD) u-boot-elf.o -o $@ \
 		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
 		-Ttext=$(CONFIG_SYS_TEXT_BASE)
