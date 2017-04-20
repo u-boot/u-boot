@@ -36,6 +36,8 @@ OBJCOPYFLAGS		+= -O $(64bit-bfd)
 endif
 
 PLATFORM_CPPFLAGS += -D__MIPS__
+PLATFORM_ELFENTRY = "__start"
+PLATFORM_ELFFLAGS += -B mips $(OBJCOPYFLAGS)
 
 #
 # From Linux arch/mips/Makefile
