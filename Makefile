@@ -1184,10 +1184,13 @@ u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,pad_cat)
 
 # Create a new ELF from a raw binary file.
+ifndef PLATFORM_ELFENTRY
+  PLATFORM_ELFENTRY = "_start"
+endif
 u-boot.elf: u-boot.bin
 	@$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
 	@$(LD) u-boot-elf.o -o $@ \
-		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
+		--defsym=$(PLATFORM_ELFENTRY)=$(CONFIG_SYS_TEXT_BASE) \
 		-Ttext=$(CONFIG_SYS_TEXT_BASE)
 
 # Rule to link u-boot
