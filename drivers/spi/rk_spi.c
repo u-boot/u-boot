@@ -79,12 +79,31 @@ static void rkspi_enable_chip(struct rockchip_spi *regs, bool enable)
 
 static void rkspi_set_clk(struct rockchip_spi_priv *priv, uint speed)
 {
-	uint clk_div;
+	/*
+	 * We should try not to exceed the speed requested by the caller:
+	 * when selecting a divider, we need to make sure we round up.
+	 */
+	uint clk_div = DIV_ROUND_UP(priv->input_rate, speed);
 
-	clk_div = clk_get_divisor(priv->input_rate, speed);
+	/* The baudrate register (BAUDR) is defined as a 32bit register where
+	 * the upper 16bit are reserved and having 'Fsclk_out' in the lower
+	 * 16bits with 'Fsclk_out' defined as follows:
+	 *
+	 *   Fsclk_out = Fspi_clk/ SCKDV
+	 *   Where SCKDV is any even value between 2 and 65534.
+	 */
+	if (clk_div > 0xfffe) {
+		clk_div = 0xfffe;
+		debug("%s: can't divide down to %d hz (actual will be %d hz)\n",
+		      __func__, speed, priv->input_rate / clk_div);
+	}
+
+	/* Round up to the next even 16bit number */
+	clk_div = (clk_div + 1) & 0xfffe;
+
 	debug("spi speed %u, div %u\n", speed, clk_div);
 
-	writel(clk_div, &priv->regs->baudr);
+	clrsetbits_le32(&priv->regs->baudr, 0xffff, clk_div);
 	priv->last_speed_hz = speed;
 }
 
