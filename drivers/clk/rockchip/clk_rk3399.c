@@ -606,7 +606,7 @@ static ulong rk3399_i2c_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 		return -EINVAL;
 	}
 
-	return DIV_TO_RATE(GPLL_HZ, src_clk_div);
+	return rk3399_i2c_get_clk(cru, clk_id);
 }
 
 /*
@@ -695,8 +695,7 @@ static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 		     ((src_clk_div << spiclk->div_shift) |
 		      (CLK_SPI_PLL_SEL_GPLL << spiclk->sel_shift)));
 
-
-	return DIV_TO_RATE(GPLL_HZ, src_clk_div);
+	return rk3399_spi_get_clk(cru, clk_id);
 }
 
 static ulong rk3399_vop_set_clk(struct rk3399_cru *cru, ulong clk_id, u32 hz)
