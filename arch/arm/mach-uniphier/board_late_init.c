@@ -64,26 +64,32 @@ int board_late_init(void)
 
 	switch (uniphier_boot_device_raw()) {
 	case BOOT_DEVICE_MMC1:
-		printf("eMMC Boot\n");
+		printf("eMMC Boot");
 		setenv("bootmode", "emmcboot");
 		break;
 	case BOOT_DEVICE_NAND:
-		printf("NAND Boot\n");
+		printf("NAND Boot");
 		setenv("bootmode", "nandboot");
 		nand_denali_wp_disable();
 		break;
 	case BOOT_DEVICE_NOR:
-		printf("NOR Boot\n");
+		printf("NOR Boot");
 		setenv("bootmode", "norboot");
 		break;
 	case BOOT_DEVICE_USB:
-		printf("USB Boot\n");
+		printf("USB Boot");
 		setenv("bootmode", "usbboot");
 		break;
 	default:
-		printf("Unknown\n");
+		printf("Unknown");
 		break;
 	}
+
+	if (uniphier_have_internal_stm())
+		printf(" (STM: %s)",
+		       uniphier_boot_from_backend() ? "OFF" : "ON");
+
+	printf("\n");
 
 	if (uniphier_set_fdt_file())
 		printf("fdt_file environment was not set correctly\n");
