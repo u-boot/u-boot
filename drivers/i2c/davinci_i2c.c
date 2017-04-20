@@ -14,10 +14,20 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <dm.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>
 #include "davinci_i2c.h"
+
+#ifdef CONFIG_DM_I2C
+/* Information about i2c controller */
+struct i2c_bus {
+	int			id;
+	uint			speed;
+	struct i2c_regs		*regs;
+};
+#endif
 
 #define CHECK_NACK() \
 	do {\
@@ -26,8 +36,6 @@
 			return 1;\
 		} \
 	} while (0)
-
-static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap);
 
 static int _wait_for_bus(struct i2c_regs *i2c_base)
 {
@@ -331,6 +339,7 @@ static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, uint8_t chip)
 	return rc;
 }
 
+#ifndef CONFIG_DM_I2C
 static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
@@ -420,3 +429,82 @@ U_BOOT_I2C_ADAP_COMPLETE(davinci_2, davinci_i2c_init, davinci_i2c_probe_chip,
 			 CONFIG_SYS_DAVINCI_I2C_SLAVE2,
 			 2)
 #endif
+
+#else /* CONFIG_DM_I2C */
+
+static int davinci_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+			  int nmsgs)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(bus);
+	int ret;
+
+	debug("i2c_xfer: %d messages\n", nmsgs);
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
+		if (msg->flags & I2C_M_RD) {
+			ret = _davinci_i2c_read(i2c_bus->regs, msg->addr,
+				0, 0, msg->buf, msg->len);
+		} else {
+			ret = _davinci_i2c_write(i2c_bus->regs, msg->addr,
+				0, 0, msg->buf, msg->len);
+		}
+		if (ret) {
+			debug("i2c_write: error sending\n");
+			return -EREMOTEIO;
+		}
+	}
+
+	return ret;
+}
+
+static int davinci_i2c_set_speed(struct udevice *dev, uint speed)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->speed = speed;
+	return _davinci_i2c_setspeed(i2c_bus->regs, speed);
+}
+
+static int davinci_i2c_probe(struct udevice *dev)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->id = dev->seq;
+	i2c_bus->regs = (struct i2c_regs *)dev_get_addr(dev);
+
+	i2c_bus->speed = 100000;
+	 _davinci_i2c_init(i2c_bus->regs, i2c_bus->speed, 0);
+
+	return 0;
+}
+
+static int davinci_i2c_probe_chip(struct udevice *bus, uint chip_addr,
+				  uint chip_flags)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(bus);
+
+	return _davinci_i2c_probe_chip(i2c_bus->regs, chip_addr);
+}
+
+static const struct dm_i2c_ops davinci_i2c_ops = {
+	.xfer		= davinci_i2c_xfer,
+	.probe_chip	= davinci_i2c_probe_chip,
+	.set_bus_speed	= davinci_i2c_set_speed,
+};
+
+static const struct udevice_id davinci_i2c_ids[] = {
+	{ .compatible = "ti,davinci-i2c"},
+	{ .compatible = "ti,keystone-i2c"},
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_davinci) = {
+	.name	= "i2c_davinci",
+	.id	= UCLASS_I2C,
+	.of_match = davinci_i2c_ids,
+	.probe	= davinci_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct i2c_bus),
+	.ops	= &davinci_i2c_ops,
+};
+
+#endif /* CONFIG_DM_I2C */
