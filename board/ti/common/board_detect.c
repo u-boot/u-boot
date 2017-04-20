@@ -83,7 +83,17 @@ static int __maybe_unused ti_i2c_eeprom_init(int i2c_bus, int dev_addr)
 static int __maybe_unused ti_i2c_eeprom_read(int dev_addr, int offset,
 					     uchar *ep, int epsize)
 {
-	return i2c_read(dev_addr, offset, 2, ep, epsize);
+	int bus_num, rc, alen;
+
+	bus_num = i2c_get_bus_num();
+
+	alen = 2;
+
+	rc = ti_i2c_set_alen(bus_num, dev_addr, alen);
+	if (rc)
+		return rc;
+
+	return i2c_read(dev_addr, offset, alen, ep, epsize);
 }
 
 /**
@@ -125,6 +135,11 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	 * Read the header first then only read the other contents.
 	 */
 	byte = 2;
+
+	rc = ti_i2c_set_alen(bus_addr, dev_addr, byte);
+	if (rc)
+		return rc;
+
 	rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
 	if (rc)
 		return rc;
@@ -137,9 +152,14 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 		 * 1 byte address (some legacy boards need this..)
 		 */
 		byte = 1;
-		if (rc)
+		if (rc) {
+			rc = ti_i2c_set_alen(bus_addr, dev_addr, byte);
+			if (rc)
+				return rc;
+
 			rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read,
 				      4);
+		}
 		if (rc)
 			return rc;
 	}
