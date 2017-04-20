@@ -74,6 +74,14 @@ config ROCKCHIP_SPL_BACK_TO_BROM
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
+config ROCKCHIP_SPL_RESERVE_IRAM
+	hex "Size of IRAM reserved in SPL"
+	default 0x4000
+	help
+	  SPL may need reserve memory for firmware loaded by SPL, whose load
+	  address is in IRAM and may overlay with SPL text area if not
+	  reserved.
+
 config ROCKCHIP_BROM_HELPER
 	bool
 
