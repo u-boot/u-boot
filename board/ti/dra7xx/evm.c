@@ -438,14 +438,18 @@ struct vcores_data dra718_volts = {
 	 * and are powered by BUCK1 of LP873X PMIC
 	 */
 	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
 	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_HIGH] = STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
 	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.eve.addr	= LP873X_REG_ADDR_BUCK1,
 	.eve.pmic	= &lp8733,
 	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
 
 	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
 	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_HIGH] = STD_FUSE_OPP_VMIN_IVA_HIGH,
 	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.iva.addr	= LP873X_REG_ADDR_BUCK1,
 	.iva.pmic	= &lp8733,
@@ -456,27 +460,44 @@ int get_voltrail_opp(int rail_offset)
 {
 	int opp;
 
-	/*
-	 * DRA71x supports only OPP_NOM.
-	 */
-	if (board_is_dra71x_evm())
-		return OPP_NOM;
-
 	switch (rail_offset) {
 	case VOLT_MPU:
 		opp = DRA7_MPU_OPP;
+		/* DRA71x supports only OPP_NOM for MPU */
+		if (board_is_dra71x_evm())
+			opp = OPP_NOM;
 		break;
 	case VOLT_CORE:
 		opp = DRA7_CORE_OPP;
+		/* DRA71x supports only OPP_NOM for CORE */
+		if (board_is_dra71x_evm())
+			opp = OPP_NOM;
 		break;
 	case VOLT_GPU:
 		opp = DRA7_GPU_OPP;
+		/* DRA71x supports only OPP_NOM for GPU */
+		if (board_is_dra71x_evm())
+			opp = OPP_NOM;
 		break;
 	case VOLT_EVE:
 		opp = DRA7_DSPEVE_OPP;
+		/*
+		 * DRA71x does not support OPP_OD for EVE.
+		 * If OPP_OD is selected by menuconfig, fallback
+		 * to OPP_NOM.
+		 */
+		if (board_is_dra71x_evm() && opp == OPP_OD)
+			opp = OPP_NOM;
 		break;
 	case VOLT_IVA:
 		opp = DRA7_IVA_OPP;
+		/*
+		 * DRA71x does not support OPP_OD for IVA.
+		 * If OPP_OD is selected by menuconfig, fallback
+		 * to OPP_NOM.
+		 */
+		if (board_is_dra71x_evm() && opp == OPP_OD)
+			opp = OPP_NOM;
 		break;
 	default:
 		opp = OPP_NOM;
