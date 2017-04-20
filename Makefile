@@ -1187,11 +1187,13 @@ u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
 ifndef PLATFORM_ELFENTRY
   PLATFORM_ELFENTRY = "_start"
 endif
+quiet_cmd_u-boot-elf ?= LD      $@
+	cmd_u-boot-elf ?= $(LD) u-boot-elf.o -o $@ \
+	--defsym=$(PLATFORM_ELFENTRY)=$(CONFIG_SYS_TEXT_BASE) \
+	-Ttext=$(CONFIG_SYS_TEXT_BASE)
 u-boot.elf: u-boot.bin
-	@$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
-	@$(LD) u-boot-elf.o -o $@ \
-		--defsym=$(PLATFORM_ELFENTRY)=$(CONFIG_SYS_TEXT_BASE) \
-		-Ttext=$(CONFIG_SYS_TEXT_BASE)
+	$(Q)$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
+	$(call if_changed,u-boot-elf)
 
 # Rule to link u-boot
 # May be overridden by arch/$(ARCH)/config.mk
