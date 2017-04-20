@@ -444,6 +444,7 @@ static const struct dm_spi_ops rockchip_spi_ops = {
 
 static const struct udevice_id rockchip_spi_ids[] = {
 	{ .compatible = "rockchip,rk3288-spi" },
+	{ .compatible = "rockchip,rk3399-spi" },
 	{ }
 };
 
