@@ -450,7 +450,6 @@ static void macb_phy_reset(struct macb_device *macb, const char *name)
 		       name, status);
 }
 
-#ifdef CONFIG_MACB_SEARCH_PHY
 static int macb_phy_find(struct macb_device *macb, const char *name)
 {
 	int i;
@@ -471,7 +470,6 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
 
 	return 0;
 }
-#endif /* CONFIG_MACB_SEARCH_PHY */
 
 #ifdef CONFIG_DM_ETH
 static int macb_phy_init(struct udevice *dev, const char *name)
@@ -488,11 +486,9 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	int i;
 
 	arch_get_mdio_control(name);
-#ifdef CONFIG_MACB_SEARCH_PHY
 	/* Auto-detect phy_addr */
 	if (!macb_phy_find(macb, name))
 		return 0;
-#endif /* CONFIG_MACB_SEARCH_PHY */
 
 	/* Check if the PHY is up to snuff... */
 	phy_id = macb_mdio_read(macb, MII_PHYSID1);
@@ -667,7 +663,8 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		 * to select interface between RMII and MII.
 		 */
 #ifdef CONFIG_DM_ETH
-		if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
+		if ((macb->phy_interface == PHY_INTERFACE_MODE_RMII) ||
+		    (macb->phy_interface == PHY_INTERFACE_MODE_RGMII))
 			gem_writel(macb, UR, GEM_BIT(RGMII));
 		else
 			gem_writel(macb, UR, 0);
