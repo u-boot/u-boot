@@ -244,6 +244,24 @@ static void pinctrl_rk3399_gmac_config(struct rk3399_grf_regs *grf, int mmc_id)
 	rk_clrsetreg(&grf->gpio3c_iomux,
 		     GRF_GPIO3C1_SEL_MASK,
 		     GRF_MAC_TXCLK << GRF_GPIO3C1_SEL_SHIFT);
+
+	/* Set drive strength for GMAC tx io, value 3 means 13mA */
+	rk_clrsetreg(&grf->gpio3_e[0],
+		     GRF_GPIO3A0_E_MASK | GRF_GPIO3A1_E_MASK |
+		     GRF_GPIO3A4_E_MASK | GRF_GPIO3A5_E0_MASK,
+		     3 << GRF_GPIO3A0_E_SHIFT |
+		     3 << GRF_GPIO3A1_E_SHIFT |
+		     3 << GRF_GPIO3A4_E_SHIFT |
+		     1 << GRF_GPIO3A5_E0_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[1],
+		     GRF_GPIO3A5_E12_MASK,
+		     1 << GRF_GPIO3A5_E12_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[2],
+		     GRF_GPIO3B4_E_MASK,
+		     3 << GRF_GPIO3B4_E_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[4],
+		     GRF_GPIO3C1_E_MASK,
+		     3 << GRF_GPIO3C1_E_SHIFT);
 }
 #endif
 
