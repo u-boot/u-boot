@@ -145,7 +145,19 @@ static int pinctrl_rk3399_spi_config(struct rk3399_grf_regs *grf,
 			     | GRF_SPI2TPM_CLK << GRF_GPIO2B3_SEL_SHIFT
 			     | GRF_SPI2TPM_CSN0 << GRF_GPIO2B4_SEL_SHIFT);
 		break;
+	case PERIPH_ID_SPI5:
+		if (cs != 0)
+			goto err;
+		rk_clrsetreg(&grf->gpio2c_iomux,
+			     GRF_GPIO2C4_SEL_MASK | GRF_GPIO2C5_SEL_MASK
+			     | GRF_GPIO2C6_SEL_MASK | GRF_GPIO2C7_SEL_MASK,
+			     GRF_SPI5EXPPLUS_RXD << GRF_GPIO2C4_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_TXD << GRF_GPIO2C5_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CLK << GRF_GPIO2C6_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CSN0 << GRF_GPIO2C7_SEL_SHIFT);
+		break;
 	default:
+		printf("%s: spi_id %d is not supported.\n", __func__, spi_id);
 		goto err;
 	}
 
@@ -259,6 +271,9 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SPI0:
 	case PERIPH_ID_SPI1:
 	case PERIPH_ID_SPI2:
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+	case PERIPH_ID_SPI5:
 		pinctrl_rk3399_spi_config(priv->grf, priv->pmugrf, func, flags);
 		break;
 	case PERIPH_ID_UART0:
@@ -307,6 +322,8 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_SPI1;
 	case 52:
 		return PERIPH_ID_SPI2;
+	case 132:
+		return PERIPH_ID_SPI5;
 	case 57:
 		return PERIPH_ID_I2C0;
 	case 59: /* Note strange order */
