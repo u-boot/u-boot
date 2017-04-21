@@ -82,6 +82,7 @@ int arch_fsp_init(void)
 	int boot_mode = BOOT_FULL_CONFIG;
 #ifdef CONFIG_HAVE_ACPI_RESUME
 	int prev_sleep_state = chipset_prev_sleep_state();
+	gd->arch.prev_sleep_state = prev_sleep_state;
 #endif
 
 	if (!gd->arch.hob_list) {

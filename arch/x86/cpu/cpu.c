@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <asm/acpi_s3.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
@@ -178,6 +179,11 @@ int default_print_cpuinfo(void)
 	printf("CPU: %s, vendor %s, device %xh\n",
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
+
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	debug("ACPI previous sleep state: %s\n",
+	      acpi_ss_string(gd->arch.prev_sleep_state));
+#endif
 
 	return 0;
 }

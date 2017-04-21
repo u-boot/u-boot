@@ -99,6 +99,9 @@ struct arch_global_data {
 	u32 high_table_ptr;
 	u32 high_table_limit;
 #endif
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	int prev_sleep_state;		/* Previous sleep state */
+#endif
 };
 
 #endif

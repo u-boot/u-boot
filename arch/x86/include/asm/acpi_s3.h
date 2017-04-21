@@ -37,6 +37,19 @@ enum acpi_sleep_state {
 };
 
 /**
+ * acpi_ss_string() - get ACPI-defined sleep state string
+ *
+ * @pm1_cnt:	ACPI-defined sleep state
+ * @return:	a pointer to the sleep state string.
+ */
+static inline char *acpi_ss_string(enum acpi_sleep_state state)
+{
+	char *ss_string[] = { "S0", "S1", "S2", "S3", "S4", "S5"};
+
+	return ss_string[state];
+}
+
+/**
  * acpi_sleep_from_pm1() - get ACPI-defined sleep state from PM1_CNT register
  *
  * @pm1_cnt:	PM1_CNT register value
