@@ -40,6 +40,7 @@ install:
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
  - echo -e "aarch64 = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu" >> ~/.buildman
  - echo -e "arm = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
  - echo -e "\n[toolchain-alias]\nsh = sh4\nopenrisc = or32" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
@@ -68,6 +69,10 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *x86_64* ]]; then
       ./tools/buildman/buildman --fetch-arch x86_64;
       echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
+    fi
+  - if [[ "${TOOLCHAIN}" == arc ]]; then
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
   # If TOOLCHAIN is unset, we're on some flavour of ARM.
@@ -118,6 +123,9 @@ matrix:
   include:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
+    - env:
+        - BUILDMAN="arc"
+          TOOLCHAIN="arc"
     - env:
         - BUILDMAN="arm11"
     - env:
