@@ -24,6 +24,9 @@ void acpi_resume(struct acpi_fadt *fadt)
 {
 	void *wake_vec;
 
+	/* Turn on ACPI mode for S3 */
+	enter_acpi_mode(fadt->pm1a_cnt_blk);
+
 	wake_vec = acpi_find_wakeup_vector(fadt);
 
 	post_code(POST_OS_RESUME);
