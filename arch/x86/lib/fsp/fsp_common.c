@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <asm/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
@@ -78,6 +79,10 @@ static __maybe_unused void *fsp_prepare_mrc_cache(void)
 int arch_fsp_init(void)
 {
 	void *nvs;
+	int boot_mode = BOOT_FULL_CONFIG;
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	int prev_sleep_state = chipset_prev_sleep_state();
+#endif
 
 	if (!gd->arch.hob_list) {
 #ifdef CONFIG_ENABLE_MRC_CACHE
@@ -85,12 +90,31 @@ int arch_fsp_init(void)
 #else
 		nvs = NULL;
 #endif
+
+#ifdef CONFIG_HAVE_ACPI_RESUME
+		if (prev_sleep_state == ACPI_S3) {
+			if (nvs == NULL) {
+				/* If waking from S3 and no cache then */
+				debug("No MRC cache found in S3 resume path\n");
+				post_code(POST_RESUME_FAILURE);
+				/* Clear Sleep Type */
+				chipset_clear_sleep_state();
+				/* Reboot */
+				debug("Rebooting..\n");
+				reset_cpu(0);
+				/* Should not reach here.. */
+				panic("Reboot System");
+			}
+
+			boot_mode = BOOT_ON_S3_RESUME;
+		}
+#endif
 		/*
 		 * The first time we enter here, call fsp_init().
 		 * Note the execution does not return to this function,
 		 * instead it jumps to fsp_continue().
 		 */
-		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, nvs);
+		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, boot_mode, nvs);
 	} else {
 		/*
 		 * The second time we enter here, adjust the size of malloc()

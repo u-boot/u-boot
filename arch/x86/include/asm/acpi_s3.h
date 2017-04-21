@@ -61,4 +61,22 @@ static inline enum acpi_sleep_state acpi_sleep_from_pm1(u32 pm1_cnt)
 	return -EINVAL;
 }
 
+/**
+ * chipset_prev_sleep_state() - Get chipset previous sleep state
+ *
+ * This returns chipset previous sleep state from ACPI registers.
+ * Platform codes must supply this routine in order to support ACPI S3.
+ *
+ * @return ACPI_S0/S1/S2/S3/S4/S5.
+ */
+enum acpi_sleep_state chipset_prev_sleep_state(void);
+
+/**
+ * chipset_clear_sleep_state() - Clear chipset sleep state
+ *
+ * This clears chipset sleep state in ACPI registers.
+ * Platform codes must supply this routine in order to support ACPI S3.
+ */
+void chipset_clear_sleep_state(void);
+
 #endif /* __ASM_ACPI_S3_H__ */
