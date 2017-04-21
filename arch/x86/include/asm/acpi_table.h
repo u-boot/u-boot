@@ -317,3 +317,13 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 u32 acpi_fill_madt(u32 current);
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
 ulong write_acpi_tables(ulong start);
+
+/**
+ * acpi_find_wakeup_vector() - find OS installed wake up vector address
+ *
+ * This routine parses the ACPI table to locate the wake up vector installed
+ * by the OS previously.
+ *
+ * @return:	wake up vector address installed by the OS
+ */
+void *acpi_find_wakeup_vector(void);

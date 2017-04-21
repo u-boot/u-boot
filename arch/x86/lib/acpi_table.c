@@ -438,3 +438,75 @@ ulong write_acpi_tables(ulong start)
 
 	return current;
 }
+
+static struct acpi_rsdp *acpi_valid_rsdp(struct acpi_rsdp *rsdp)
+{
+	if (strncmp((char *)rsdp, RSDP_SIG, sizeof(RSDP_SIG) - 1) != 0)
+		return NULL;
+
+	debug("Looking on %p for valid checksum\n", rsdp);
+
+	if (table_compute_checksum((void *)rsdp, 20) != 0)
+		return NULL;
+	debug("acpi rsdp checksum 1 passed\n");
+
+	if ((rsdp->revision > 1) &&
+	    (table_compute_checksum((void *)rsdp, rsdp->length) != 0))
+		return NULL;
+	debug("acpi rsdp checksum 2 passed\n");
+
+	return rsdp;
+}
+
+void *acpi_find_wakeup_vector(void)
+{
+	char *p, *end;
+	struct acpi_rsdp *rsdp = NULL;
+	struct acpi_rsdt *rsdt;
+	struct acpi_fadt *fadt = NULL;
+	struct acpi_facs *facs;
+	void *wake_vec;
+	int i;
+
+	debug("Trying to find the wakeup vector...\n");
+
+	/* Find RSDP */
+	for (p = (char *)ROM_TABLE_ADDR; p < (char *)ROM_TABLE_END; p += 16) {
+		rsdp = acpi_valid_rsdp((struct acpi_rsdp *)p);
+		if (rsdp)
+			break;
+	}
+
+	if (rsdp == NULL)
+		return NULL;
+
+	debug("RSDP found at %p\n", rsdp);
+	rsdt = (struct acpi_rsdt *)rsdp->rsdt_address;
+
+	end = (char *)rsdt + rsdt->header.length;
+	debug("RSDT found at %p ends at %p\n", rsdt, end);
+
+	for (i = 0; ((char *)&rsdt->entry[i]) < end; i++) {
+		fadt = (struct acpi_fadt *)rsdt->entry[i];
+		if (strncmp((char *)fadt, "FACP", 4) == 0)
+			break;
+		fadt = NULL;
+	}
+
+	if (fadt == NULL)
+		return NULL;
+
+	debug("FADT found at %p\n", fadt);
+	facs = (struct acpi_facs *)fadt->firmware_ctrl;
+
+	if (facs == NULL) {
+		debug("No FACS found, wake up from S3 not possible.\n");
+		return NULL;
+	}
+
+	debug("FACS found at %p\n", facs);
+	wake_vec = (void *)facs->firmware_waking_vector;
+	debug("OS waking vector is %p\n", wake_vec);
+
+	return wake_vec;
+}

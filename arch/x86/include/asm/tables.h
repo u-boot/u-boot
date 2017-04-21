@@ -15,6 +15,7 @@
  * PIRQ routing table, Multi-Processor table and ACPI table.
  */
 #define ROM_TABLE_ADDR	0xf0000
+#define ROM_TABLE_END	0xfffff
 
 #define ROM_TABLE_ALIGN	1024
 
