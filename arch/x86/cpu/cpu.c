@@ -205,6 +205,8 @@ __weak void board_final_cleanup(void)
 
 int last_stage_init(void)
 {
+	board_final_cleanup();
+
 #if CONFIG_HAVE_ACPI_RESUME
 	void *wake_vector = acpi_find_wakeup_vector();
 
@@ -213,8 +215,6 @@ int last_stage_init(void)
 #endif
 
 	write_tables();
-
-	board_final_cleanup();
 
 	return 0;
 }
