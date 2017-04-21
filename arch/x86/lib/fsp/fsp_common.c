@@ -5,8 +5,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
+#include <rtc.h>
 #include <asm/acpi_s3.h>
+#include <asm/cmos_layout.h>
+#include <asm/early_cmos.h>
 #include <asm/io.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
@@ -76,9 +80,36 @@ static __maybe_unused void *fsp_prepare_mrc_cache(void)
 	return cache->data;
 }
 
+#ifdef CONFIG_HAVE_ACPI_RESUME
+int fsp_save_s3_stack(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	if (gd->arch.prev_sleep_state == ACPI_S3)
+		return 0;
+
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret) {
+		debug("Cannot find RTC: err=%d\n", ret);
+		return -ENODEV;
+	}
+
+	/* Save the stack address to CMOS */
+	ret = rtc_write32(dev, CMOS_FSP_STACK_ADDR, gd->start_addr_sp);
+	if (ret) {
+		debug("Save stack address to CMOS: err=%d\n", ret);
+		return -EIO;
+	}
+
+	return 0;
+}
+#endif
+
 int arch_fsp_init(void)
 {
 	void *nvs;
+	int stack = CONFIG_FSP_TEMP_RAM_ADDR;
 	int boot_mode = BOOT_FULL_CONFIG;
 #ifdef CONFIG_HAVE_ACPI_RESUME
 	int prev_sleep_state = chipset_prev_sleep_state();
@@ -107,6 +138,11 @@ int arch_fsp_init(void)
 				panic("Reboot System");
 			}
 
+			/*
+			 * DM is not avaiable yet at this point, hence call
+			 * CMOS access library which does not depend on DM.
+			 */
+			stack = cmos_read32(CMOS_FSP_STACK_ADDR);
 			boot_mode = BOOT_ON_S3_RESUME;
 		}
 #endif
@@ -115,7 +151,7 @@ int arch_fsp_init(void)
 		 * Note the execution does not return to this function,
 		 * instead it jumps to fsp_continue().
 		 */
-		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, boot_mode, nvs);
+		fsp_init(stack, boot_mode, nvs);
 	} else {
 		/*
 		 * The second time we enter here, adjust the size of malloc()

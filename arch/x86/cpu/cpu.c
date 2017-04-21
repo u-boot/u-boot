@@ -278,6 +278,14 @@ int reserve_arch(void)
 	high_table_reserve();
 #endif
 
+#if defined(CONFIG_HAVE_ACPI_RESUME) && defined(CONFIG_HAVE_FSP)
+	/*
+	 * Save stack address to CMOS so that at next S3 boot,
+	 * we can use it as the stack address for fsp_contiue()
+	 */
+	fsp_save_s3_stack();
+#endif
+
 	return 0;
 }
 #endif
