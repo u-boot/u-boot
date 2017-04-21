@@ -460,17 +460,13 @@ static struct acpi_rsdp *acpi_valid_rsdp(struct acpi_rsdp *rsdp)
 	return rsdp;
 }
 
-void *acpi_find_wakeup_vector(void)
+struct acpi_fadt *acpi_find_fadt(void)
 {
 	char *p, *end;
 	struct acpi_rsdp *rsdp = NULL;
 	struct acpi_rsdt *rsdt;
 	struct acpi_fadt *fadt = NULL;
-	struct acpi_facs *facs;
-	void *wake_vec;
 	int i;
-
-	debug("Trying to find the wakeup vector...\n");
 
 	/* Find RSDP */
 	for (p = (char *)ROM_TABLE_ADDR; p < (char *)ROM_TABLE_END; p += 16) {
@@ -499,6 +495,16 @@ void *acpi_find_wakeup_vector(void)
 		return NULL;
 
 	debug("FADT found at %p\n", fadt);
+	return fadt;
+}
+
+void *acpi_find_wakeup_vector(struct acpi_fadt *fadt)
+{
+	struct acpi_facs *facs;
+	void *wake_vec;
+
+	debug("Trying to find the wakeup vector...\n");
+
 	facs = (struct acpi_facs *)fadt->firmware_ctrl;
 
 	if (facs == NULL) {

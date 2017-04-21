@@ -328,6 +328,15 @@ void enter_acpi_mode(int pm1_cnt);
 ulong write_acpi_tables(ulong start);
 
 /**
+ * acpi_find_fadt() - find ACPI FADT table in the sytem memory
+ *
+ * This routine parses the ACPI table to locate the ACPI FADT table.
+ *
+ * @return:	a pointer to the ACPI FADT table in the system memory
+ */
+struct acpi_fadt *acpi_find_fadt(void);
+
+/**
  * acpi_find_wakeup_vector() - find OS installed wake up vector address
  *
  * This routine parses the ACPI table to locate the wake up vector installed
@@ -335,4 +344,4 @@ ulong write_acpi_tables(ulong start);
  *
  * @return:	wake up vector address installed by the OS
  */
-void *acpi_find_wakeup_vector(void);
+void *acpi_find_wakeup_vector(struct acpi_fadt *);

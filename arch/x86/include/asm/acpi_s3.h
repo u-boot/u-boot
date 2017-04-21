@@ -99,15 +99,16 @@ enum acpi_sleep_state chipset_prev_sleep_state(void);
  */
 void chipset_clear_sleep_state(void);
 
+struct acpi_fadt;
 /**
  * acpi_resume() - Do ACPI S3 resume
  *
  * This calls U-Boot wake up assembly stub and jumps to OS's wake up vector.
  *
- * @wake_vec:	OS wake up vector
+ * @fadt:	FADT table pointer in the ACPI table
  * @return:	Never returns
  */
-void acpi_resume(void *wake_vec);
+void acpi_resume(struct acpi_fadt *fadt);
 
 #endif /* __ASSEMBLY__ */
 

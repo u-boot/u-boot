@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/acpi_s3.h>
+#include <asm/acpi_table.h>
 #include <asm/post.h>
 
 static void asmlinkage (*acpi_do_wakeup)(void *vector) = (void *)WAKEUP_BASE;
@@ -19,8 +20,12 @@ static void acpi_jump_to_wakeup(void *vector)
 	acpi_do_wakeup(vector);
 }
 
-void acpi_resume(void *wake_vec)
+void acpi_resume(struct acpi_fadt *fadt)
 {
+	void *wake_vec;
+
+	wake_vec = acpi_find_wakeup_vector(fadt);
+
 	post_code(POST_OS_RESUME);
 	acpi_jump_to_wakeup(wake_vec);
 }

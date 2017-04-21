@@ -208,10 +208,10 @@ int last_stage_init(void)
 	board_final_cleanup();
 
 #if CONFIG_HAVE_ACPI_RESUME
-	void *wake_vector = acpi_find_wakeup_vector();
+	struct acpi_fadt *fadt = acpi_find_fadt();
 
-	if (wake_vector != NULL && gd->arch.prev_sleep_state == ACPI_S3)
-		acpi_resume(wake_vector);
+	if (fadt != NULL && gd->arch.prev_sleep_state == ACPI_S3)
+		acpi_resume(fadt);
 #endif
 
 	write_tables();
