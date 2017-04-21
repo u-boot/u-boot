@@ -306,6 +306,8 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 
 static void enter_acpi_mode(int pm1_cnt)
 {
+	u16 val = inw(pm1_cnt);
+
 	/*
 	 * PM1_CNT register bit0 selects the power management event to be
 	 * either an SCI or SMI interrupt. When this bit is set, then power
@@ -320,7 +322,7 @@ static void enter_acpi_mode(int pm1_cnt)
 	 * system, and expose ourselves to OSPM as working under ACPI mode
 	 * already, turn this bit on.
 	 */
-	outw(PM1_CNT_SCI_EN, pm1_cnt);
+	outw(val | PM1_CNT_SCI_EN, pm1_cnt);
 }
 
 /*
