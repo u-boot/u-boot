@@ -15,6 +15,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 obj-y	+= cmd_boot.o
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
+obj-y	+= early_cmos.o
 obj-$(CONFIG_EFI) += efi/
 obj-y	+= e820.o
 obj-y	+= gcc.o
