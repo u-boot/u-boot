@@ -7,6 +7,8 @@
 #ifndef __ASM_ACPI_S3_H__
 #define __ASM_ACPI_S3_H__
 
+#define WAKEUP_BASE	0x600
+
 /* PM1_STATUS register */
 #define WAK_STS		(1 << 15)
 #define PCIEXPWAK_STS	(1 << 14)
@@ -26,6 +28,11 @@
 #define SLP_TYP_S3	5
 #define SLP_TYP_S4	6
 #define SLP_TYP_S5	7
+
+#ifndef __ASSEMBLY__
+
+extern char __wakeup[];
+extern int __wakeup_size;
 
 enum acpi_sleep_state {
 	ACPI_S0,
@@ -91,5 +98,7 @@ enum acpi_sleep_state chipset_prev_sleep_state(void);
  * Platform codes must supply this routine in order to support ACPI S3.
  */
 void chipset_clear_sleep_state(void);
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ACPI_S3_H__ */

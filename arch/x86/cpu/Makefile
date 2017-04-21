@@ -45,6 +45,7 @@ ifndef CONFIG_$(SPL_)X86_64
 obj-$(CONFIG_SMP) += sipi_vector.o
 endif
 obj-y += turbo.o
+obj-$(CONFIG_HAVE_ACPI_RESUME) += wakeup.o
 
 ifeq ($(CONFIG_$(SPL_)X86_64),y)
 obj-y += x86_64/
