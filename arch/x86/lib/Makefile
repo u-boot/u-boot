@@ -37,6 +37,7 @@ obj-$(CONFIG_INTEL_MID) += scu.o
 obj-y	+= sections.o
 obj-y += sfi.o
 obj-y	+= string.o
+obj-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.o
 ifndef CONFIG_QEMU
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 endif

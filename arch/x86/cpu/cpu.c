@@ -26,6 +26,7 @@
 #include <malloc.h>
 #include <syscon.h>
 #include <asm/acpi_s3.h>
+#include <asm/acpi_table.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
@@ -204,6 +205,13 @@ __weak void board_final_cleanup(void)
 
 int last_stage_init(void)
 {
+#if CONFIG_HAVE_ACPI_RESUME
+	void *wake_vector = acpi_find_wakeup_vector();
+
+	if (wake_vector != NULL && gd->arch.prev_sleep_state == ACPI_S3)
+		acpi_resume(wake_vector);
+#endif
+
 	write_tables();
 
 	board_final_cleanup();
