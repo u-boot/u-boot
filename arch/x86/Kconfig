@@ -601,6 +601,14 @@ config HAVE_ACPI_RESUME
 	  is done, U-Boot needs to find out the wakeup vector provided by OSes
 	  and jump there.
 
+config STACK_SIZE
+	hex
+	depends on HAVE_ACPI_RESUME
+	default 0x1000
+	help
+	  Estimated U-Boot's runtime stack size that needs to be reserved
+	  during an ACPI S3 resume.
+
 config MAX_PIRQ_LINKS
 	int
 	default 8

@@ -92,5 +92,17 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 	entries[num_entries].type = E820_RESERVED;
 	num_entries++;
 
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	/*
+	 * Everything between U-Boot's stack and ram top needs to be
+	 * reserved in order for ACPI S3 resume to work.
+	 */
+	entries[num_entries].addr = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	entries[num_entries].size = gd->ram_top - gd->start_addr_sp + \
+		CONFIG_STACK_SIZE;
+	entries[num_entries].type = E820_RESERVED;
+	num_entries++;
+#endif
+
 	return num_entries;
 }
