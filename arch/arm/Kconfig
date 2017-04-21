@@ -267,6 +267,7 @@ config ARCH_OMAP2
 	bool
 	select CPU_V7
 	select SUPPORT_SPL
+	imply FIT
 
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
@@ -613,6 +614,7 @@ config ARCH_KEYSTONE
 	select SUPPORT_SPL
 	select SYS_THUMB_BUILD
 	select CMD_POWEROFF
+	imply FIT
 
 config ARCH_MESON
 	bool "Amlogic Meson"
