@@ -589,6 +589,18 @@ config GENERATE_ACPI_TABLE
 
 endmenu
 
+config HAVE_ACPI_RESUME
+	bool "Enable ACPI S3 resume"
+	help
+	  Select this to enable ACPI S3 resume. S3 is an ACPI-defined sleeping
+	  state where all system context is lost except system memory. U-Boot
+	  is responsible for restoring the machine state as it was before sleep.
+	  It needs restore the memory controller, without overwriting memory
+	  which is not marked as reserved. For the peripherals which lose their
+	  registers, U-Boot needs to write the original value. When everything
+	  is done, U-Boot needs to find out the wakeup vector provided by OSes
+	  and jump there.
+
 config MAX_PIRQ_LINKS
 	int
 	default 8
