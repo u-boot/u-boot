@@ -101,6 +101,7 @@ struct arch_global_data {
 #endif
 #ifdef CONFIG_HAVE_ACPI_RESUME
 	int prev_sleep_state;		/* Previous sleep state ACPI_S0/1../5 */
+	ulong backup_mem;		/* Backup memory address for S3 */
 #endif
 };
 

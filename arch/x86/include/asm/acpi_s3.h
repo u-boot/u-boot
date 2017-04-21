@@ -29,6 +29,9 @@
 #define SLP_TYP_S4	6
 #define SLP_TYP_S5	7
 
+/* Memory size reserved for S3 resume */
+#define S3_RESERVE_SIZE	0x1000
+
 #ifndef __ASSEMBLY__
 
 extern char __wakeup[];
@@ -109,6 +112,19 @@ struct acpi_fadt;
  * @return:	Never returns
  */
 void acpi_resume(struct acpi_fadt *fadt);
+
+/**
+ * acpi_s3_reserve() - Reserve memory for ACPI S3 resume
+ *
+ * This copies memory where real mode interrupt handler stubs reside to the
+ * reserved place on the stack.
+ *
+ * This routine should be called by reserve_arch() before U-Boot is relocated
+ * when ACPI S3 resume is enabled.
+ *
+ * @return:	0 always
+ */
+int acpi_s3_reserve(void);
 
 #endif /* __ASSEMBLY__ */
 
