@@ -304,7 +304,7 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
-static void enter_acpi_mode(int pm1_cnt)
+void enter_acpi_mode(int pm1_cnt)
 {
 	u16 val = inw(pm1_cnt);
 
