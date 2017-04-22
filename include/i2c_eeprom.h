@@ -20,4 +20,28 @@ struct i2c_eeprom {
 	unsigned pagewidth;
 };
 
+/*
+ * i2c_eeprom_read() - read bytes from an I2C EEPROM chip
+ *
+ * @dev:	Chip to read from
+ * @offset:	Offset within chip to start reading
+ * @buf:	Place to put data
+ * @size:	Number of bytes to read
+ *
+ * @return 0 on success, -ve on failure
+ */
+int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size);
+
+/*
+ * i2c_eeprom_write() - write bytes to an I2C EEPROM chip
+ *
+ * @dev:	Chip to write to
+ * @offset:	Offset within chip to start writing
+ * @buf:	Buffer containing data to write
+ * @size:	Number of bytes to write
+ *
+ * @return 0 on success, -ve on failure
+ */
+int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size);
+
 #endif
