@@ -257,6 +257,13 @@ config DEBUG_UART_UNIPHIER
 	  driver will be available until the real driver-model serial is
 	  running.
 
+config DEBUG_UART_OMAP
+	bool "OMAP uart"
+	help
+	  Select this to enable a debug UART using the omap ns16550 driver.
+	  You will need to provide parameters to make this work. The driver
+	  will be available until the real driver model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE

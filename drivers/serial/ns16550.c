@@ -246,17 +246,6 @@ int NS16550_tstc(NS16550_t com_port)
 
 #include <debug_uart.h>
 
-#define serial_dout(reg, value)	\
-	serial_out_shift((char *)com_port + \
-		((char *)reg - (char *)com_port) * \
-			(1 << CONFIG_DEBUG_UART_SHIFT), \
-		CONFIG_DEBUG_UART_SHIFT, value)
-#define serial_din(reg) \
-	serial_in_shift((char *)com_port + \
-		((char *)reg - (char *)com_port) * \
-			(1 << CONFIG_DEBUG_UART_SHIFT), \
-		CONFIG_DEBUG_UART_SHIFT)
-
 static inline void _debug_uart_init(void)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
@@ -278,6 +267,42 @@ static inline void _debug_uart_init(void)
 	serial_dout(&com_port->dll, baud_divisor & 0xff);
 	serial_dout(&com_port->dlm, (baud_divisor >> 8) & 0xff);
 	serial_dout(&com_port->lcr, UART_LCRVAL);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+
+	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
+		;
+	serial_dout(&com_port->thr, ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
+
+#ifdef CONFIG_DEBUG_UART_OMAP
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+	int baud_divisor;
+
+	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
+					    CONFIG_BAUDRATE);
+	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
+	serial_dout(&com_port->mdr1, 0x7);
+	serial_dout(&com_port->mcr, UART_MCRVAL);
+	serial_dout(&com_port->fcr, UART_FCR_DEFVAL);
+
+	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
+	serial_dout(&com_port->dll, baud_divisor & 0xff);
+	serial_dout(&com_port->dlm, (baud_divisor >> 8) & 0xff);
+	serial_dout(&com_port->lcr, UART_LCRVAL);
+	serial_dout(&com_port->mdr1, 0x0);
 }
 
 static inline void _debug_uart_putc(int ch)
