@@ -301,6 +301,57 @@ class DtbPlatdata:
                 self.Out(';\n')
             self.Out('};\n')
 
+    def OutputNode(self, node):
+        """Output the C code for a node
+
+        Args:
+            node: node to output
+        """
+        struct_name = self.GetCompatName(node)
+        var_name = Conv_name_to_c(node.name)
+        self.Buf('static struct %s%s %s%s = {\n' %
+            (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
+        for pname, prop in node.props.items():
+            if pname in PROP_IGNORE_LIST or pname[0] == '#':
+                continue
+            ptype = TYPE_NAMES[prop.type]
+            member_name = Conv_name_to_c(prop.name)
+            self.Buf('\t%s= ' % TabTo(3, '.' + member_name))
+
+            # Special handling for lists
+            if type(prop.value) == list:
+                self.Buf('{')
+                vals = []
+                # For phandles, output a reference to the platform data
+                # of the target node.
+                if self.IsPhandle(prop):
+                    # Process the list as pairs of (phandle, id)
+                    it = iter(prop.value)
+                    for phandle_cell, id_cell in zip(it, it):
+                        phandle = fdt_util.fdt32_to_cpu(phandle_cell)
+                        id = fdt_util.fdt32_to_cpu(id_cell)
+                        target_node = self._phandle_node[phandle]
+                        name = Conv_name_to_c(target_node.name)
+                        vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id))
+                else:
+                    for val in prop.value:
+                        vals.append(self.GetValue(prop.type, val))
+                self.Buf(', '.join(vals))
+                self.Buf('}')
+            else:
+                self.Buf(self.GetValue(prop.type, prop.value))
+            self.Buf(',\n')
+        self.Buf('};\n')
+
+        # Add a device declaration
+        self.Buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
+        self.Buf('\t.name\t\t= "%s",\n' % struct_name)
+        self.Buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
+        self.Buf('\t.platdata_size\t= sizeof(%s%s),\n' %
+                    (VAL_PREFIX, var_name))
+        self.Buf('};\n')
+        self.Buf('\n')
+
     def GenerateTables(self):
         """Generate device defintions for the platform data
 
@@ -314,50 +365,7 @@ class DtbPlatdata:
         self.Out('\n')
         node_txt_list = []
         for node in self._valid_nodes:
-            struct_name = self.GetCompatName(node)
-            var_name = Conv_name_to_c(node.name)
-            self.Buf('static struct %s%s %s%s = {\n' %
-                (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
-            for pname, prop in node.props.items():
-                if pname in PROP_IGNORE_LIST or pname[0] == '#':
-                    continue
-                ptype = TYPE_NAMES[prop.type]
-                member_name = Conv_name_to_c(prop.name)
-                self.Buf('\t%s= ' % TabTo(3, '.' + member_name))
-
-                # Special handling for lists
-                if type(prop.value) == list:
-                    self.Buf('{')
-                    vals = []
-                    # For phandles, output a reference to the platform data
-                    # of the target node.
-                    if self.IsPhandle(prop):
-                        # Process the list as pairs of (phandle, id)
-                        it = iter(prop.value)
-                        for phandle_cell, id_cell in zip(it, it):
-                            phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                            id = fdt_util.fdt32_to_cpu(id_cell)
-                            target_node = self._phandle_node[phandle]
-                            name = Conv_name_to_c(target_node.name)
-                            vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id))
-                    else:
-                        for val in prop.value:
-                            vals.append(self.GetValue(prop.type, val))
-                    self.Buf(', '.join(vals))
-                    self.Buf('}')
-                else:
-                    self.Buf(self.GetValue(prop.type, prop.value))
-                self.Buf(',\n')
-            self.Buf('};\n')
-
-            # Add a device declaration
-            self.Buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
-            self.Buf('\t.name\t\t= "%s",\n' % struct_name)
-            self.Buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
-            self.Buf('\t.platdata_size\t= sizeof(%s%s),\n' %
-                     (VAL_PREFIX, var_name))
-            self.Buf('};\n')
-            self.Buf('\n')
+            self.OutputNode(node)
 
             # Output phandle target nodes first, since they may be referenced
             # by others
