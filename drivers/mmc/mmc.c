@@ -1608,17 +1608,17 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
 {
 }
+#endif
 
 static int mmc_power_init(struct mmc *mmc)
 {
-	board_mmc_power_init();
-
-#if defined(CONFIG_DM_MMC) && defined(CONFIG_DM_REGULATOR) && \
-	!defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DM_MMC)
+#if defined(CONFIG_DM_REGULATOR) && !defined(CONFIG_SPL_BUILD)
 	struct udevice *vmmc_supply;
 	int ret;
 
@@ -1634,6 +1634,13 @@ static int mmc_power_init(struct mmc *mmc)
 		puts("Error enabling VMMC supply\n");
 		return ret;
 	}
+#endif
+#else /* !CONFIG_DM_MMC */
+	/*
+	 * Driver model should use a regulator, as above, rather than calling
+	 * out to board code.
+	 */
+	board_mmc_power_init();
 #endif
 	return 0;
 }
