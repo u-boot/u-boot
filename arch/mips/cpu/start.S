@@ -151,8 +151,13 @@ reset:
 	 mfc0	t0, CP0_GLOBALNUMBER
 #endif
 
+#ifdef CONFIG_ARCH_BMIPS
+1:	mfc0	t0, CP0_DIAGNOSTIC, 3
+	and	t0, t0, (1 << 31)
+#else
 1:	mfc0	t0, CP0_EBASE
 	and	t0, t0, EBASE_CPUNUM
+#endif
 
 	/* Hang if this isn't the first CPU in the system */
 2:	beqz	t0, 4f

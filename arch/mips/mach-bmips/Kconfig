@@ -1,0 +1,23 @@
+menu "Broadcom MIPS platforms"
+	depends on ARCH_BMIPS
+
+config SYS_SOC
+	default "none"
+
+choice
+	prompt "Boot mode"
+
+config BMIPS_BOOT_RAM
+	bool "RAM boot"
+	depends on BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  This builds an image that is linked to a RAM address. It can be used
+	  for booting from CFE via TFTP using an ELF image, but it can also be
+	  booted from RAM by other bootloaders using a BIN image.
+
+endchoice
+
+config BMIPS_SUPPORTS_BOOT_RAM
+	bool
+
+endmenu
