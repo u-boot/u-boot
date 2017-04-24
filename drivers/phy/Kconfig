@@ -1,0 +1,36 @@
+
+menu "PHY Subsystem"
+
+config PHY
+	bool "PHY Core"
+	depends on DM
+	help
+	  PHY support.
+
+	  This framework is designed to provide a generic interface for PHY
+	  devices. PHY devices are dedicated hardware that handle the physical
+	  layer of the protocols in the OSI model.
+	  PHYs are commonly used for high speed interfaces such as Serial-ATA
+	  or PCI express.
+	  The API provides functions to initialize/deinitialize the
+	  PHY, power on/off the PHY, and reset the PHY. It's meant to be as
+	  compatible as possible with the equivalent framework found in the
+	  linux kernel.
+
+config SPL_PHY
+	bool "PHY Core in SPL"
+	depends on DM
+	help
+	  PHY support in SPL.
+
+	  This framework is designed to provide a generic interface for PHY
+	  devices. PHY devices are dedicated hardware that handle the physical
+	  layer of the protocols (https://en.wikipedia.org/wiki/OSI_model).
+	  PHYs are commonly used for high speed interfaces such as Serial-ATA
+	  or PCI express.
+	  The API provides functions to initialize/deinitialize the
+	  PHY, power on/off the PHY, and reset the PHY. It's meant to be as
+	  compatible as possible with the equivalent framework found in the
+	  linux kernel.
+
+endmenu

@@ -5,6 +5,7 @@
 obj-$(CONFIG_$(SPL_TPL_)DM)	+= core/
 obj-$(CONFIG_$(SPL_)CLK)	+= clk/
 obj-$(CONFIG_$(SPL_)LED)	+= led/
+obj-$(CONFIG_$(SPL_)PHY)	+= phy/
 obj-$(CONFIG_$(SPL_)PINCTRL)	+= pinctrl/
 obj-$(CONFIG_$(SPL_)RAM)	+= ram/
 
