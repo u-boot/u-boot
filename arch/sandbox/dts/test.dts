@@ -12,6 +12,8 @@
 		eth3 = &eth_3;
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
+		mmc0 = "/mmc0";
+		mmc1 = "/mmc1";
 		pci0 = &pci;
 		remoteproc1 = &rproc_1;
 		remoteproc2 = &rproc_2;
@@ -259,7 +261,15 @@
 		mbox-names = "other", "test";
 	};
 
-	mmc {
+	mmc2 {
+		compatible = "sandbox,mmc";
+	};
+
+	mmc1 {
+		compatible = "sandbox,mmc";
+	};
+
+	mmc0 {
 		compatible = "sandbox,mmc";
 	};
 

@@ -486,6 +486,31 @@ static int blk_next_free_devnum(enum if_type if_type)
 	return ret + 1;
 }
 
+static int blk_claim_devnum(enum if_type if_type, int devnum)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_BLK, &uc);
+	if (ret)
+		return ret;
+	uclass_foreach_dev(dev, uc) {
+		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+		if (desc->if_type == if_type && desc->devnum == devnum) {
+			int next = blk_next_free_devnum(if_type);
+
+			if (next < 0)
+				return next;
+			desc->devnum = next;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
 		      lbaint_t size, struct udevice **devp)
@@ -495,11 +520,14 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 	int ret;
 
 	if (devnum == -1) {
-		ret = blk_next_free_devnum(if_type);
-		if (ret < 0)
+		devnum = blk_next_free_devnum(if_type);
+	} else {
+		ret = blk_claim_devnum(if_type, devnum);
+		if (ret < 0 && ret != -ENOENT)
 			return ret;
-		devnum = ret;
 	}
+	if (devnum < 0)
+		return devnum;
 	ret = device_bind_driver(parent, drv_name, name, &dev);
 	if (ret)
 		return ret;
