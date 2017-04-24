@@ -15,6 +15,7 @@ static const char *cpu_feature_name[CPU_FEAT_COUNT] = {
 	"L1 cache",
 	"MMU",
 	"Microcode",
+	"Device ID",
 };
 
 static int print_cpu_list(bool detail)
