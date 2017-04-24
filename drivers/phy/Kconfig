@@ -41,4 +41,22 @@ config PHY_SANDBOX
 	  This select a dummy sandbox PHY driver. It used only to implement
 	  the unit tests for the phy framework
 
+config PIPE3_PHY
+	bool "Support omap's PIPE3 PHY"
+	depends on PHY && ARCH_OMAP2
+	help
+	  Support for the omap PIPE3 phy for sata
+
+	  This PHY is found on omap devices supporting SATA such as dra7, am57x
+	  and omap5
+
+config SPL_PIPE3_PHY
+	bool "Support omap's PIPE3 PHY in SPL"
+	depends on SPL_PHY && ARCH_OMAP2
+	help
+	  Support for the omap PIPE3 phy for sata in SPL
+
+	  This PHY is found on omap devices supporting SATA such as dra7, am57x
+	  and omap5
+
 endmenu
