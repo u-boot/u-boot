@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <dm/test.h>
 #include <dm/root.h>
+#include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <test/ut.h>
@@ -96,6 +97,36 @@ int testfdt_ping(struct udevice *dev, int pingval, int *pingret)
 UCLASS_DRIVER(testfdt) = {
 	.name		= "testfdt",
 	.id		= UCLASS_TEST_FDT,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+};
+
+struct dm_testprobe_pdata {
+	int probe_err;
+};
+
+static int testprobe_drv_probe(struct udevice *dev)
+{
+	struct dm_testprobe_pdata *pdata = dev_get_platdata(dev);
+
+	return pdata->probe_err;
+}
+
+static const struct udevice_id testprobe_ids[] = {
+	{ .compatible = "denx,u-boot-probe-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(testprobe_drv) = {
+	.name	= "testprobe_drv",
+	.of_match	= testprobe_ids,
+	.id	= UCLASS_TEST_PROBE,
+	.probe	= testprobe_drv_probe,
+	.platdata_auto_alloc_size	= sizeof(struct dm_testprobe_pdata),
+};
+
+UCLASS_DRIVER(testprobe) = {
+	.name		= "testprobe",
+	.id		= UCLASS_TEST_PROBE,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
@@ -267,3 +298,44 @@ static int dm_test_fdt_offset(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdt_offset,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+
+/**
+ * Test various error conditions with uclass_first_device() and
+ * uclass_next_device()
+ */
+static int dm_test_first_next_device(struct unit_test_state *uts)
+{
+	struct dm_testprobe_pdata *pdata;
+	struct udevice *dev, *parent = NULL;
+	int count;
+	int ret;
+
+	/* There should be 4 devices */
+	for (ret = uclass_first_device(UCLASS_TEST_PROBE, &dev), count = 0;
+	     dev;
+	     ret = uclass_next_device(&dev)) {
+		count++;
+		parent = dev_get_parent(dev);
+		}
+	ut_assertok(ret);
+	ut_asserteq(4, count);
+
+	/* Remove them and try again, with an error on the second one */
+	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 1, &dev));
+	pdata = dev_get_platdata(dev);
+	pdata->probe_err = -ENOMEM;
+	device_remove(parent, DM_REMOVE_NORMAL);
+	ut_assertok(uclass_first_device(UCLASS_TEST_PROBE, &dev));
+	ut_asserteq(-ENOMEM, uclass_next_device(&dev));
+	ut_asserteq_ptr(dev, NULL);
+
+	/* Now an error on the first one */
+	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 0, &dev));
+	pdata = dev_get_platdata(dev);
+	pdata->probe_err = -ENOENT;
+	device_remove(parent, DM_REMOVE_NORMAL);
+	ut_asserteq(-ENOENT, uclass_first_device(UCLASS_TEST_PROBE, &dev));
+
+	return 0;
+}
+DM_TEST(dm_test_first_next_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
