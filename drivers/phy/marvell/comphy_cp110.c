@@ -1663,6 +1663,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		}
 		switch (ptr_comphy_map->type) {
 		case PHY_TYPE_UNCONNECTED:
+		case PHY_TYPE_IGNORE:
 			continue;
 			break;
 		case PHY_TYPE_PEX0:

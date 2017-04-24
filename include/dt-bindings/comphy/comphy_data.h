@@ -43,7 +43,8 @@
 #define PHY_TYPE_RXAUI0			21
 #define PHY_TYPE_RXAUI1			22
 #define PHY_TYPE_SFI			23
-#define PHY_TYPE_MAX			24
+#define PHY_TYPE_IGNORE			24
+#define PHY_TYPE_MAX			25
 #define PHY_TYPE_INVALID		0xff
 
 #define PHY_POLARITY_NO_INVERT		0

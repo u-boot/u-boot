@@ -37,7 +37,7 @@ static char *get_type_string(u32 type)
 				"SGMII1", "SGMII2", "SGMII3", "QSGMII",
 				"USB3_HOST0", "USB3_HOST1", "USB3_DEVICE",
 				"XAUI0", "XAUI1", "XAUI2", "XAUI3",
-				"RXAUI0", "RXAUI1", "SFI"};
+				"RXAUI0", "RXAUI1", "SFI", "IGNORE"};
 
 	if (type < 0 || type > PHY_TYPE_MAX)
 		return "invalid";
