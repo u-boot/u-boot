@@ -167,6 +167,8 @@ static int comphy_probe(struct udevice *dev)
 			blob, subnode, "phy-invert", PHY_POLARITY_NO_INVERT);
 		comphy_map_data[lane].clk_src = fdtdec_get_bool(blob, subnode,
 								"clk-src");
+		comphy_map_data[lane].end_point = fdtdec_get_bool(blob, subnode,
+								  "end_point");
 		if (comphy_map_data[lane].type == PHY_TYPE_INVALID) {
 			printf("no phy type for lane %d, setting lane as unconnected\n",
 			       lane + 1);

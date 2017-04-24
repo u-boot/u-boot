@@ -86,6 +86,7 @@ struct comphy_map {
 	u32 speed;
 	u32 invert;
 	bool clk_src;
+	bool end_point;
 };
 
 struct chip_serdes_phy_config {
