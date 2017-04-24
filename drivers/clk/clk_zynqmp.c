@@ -17,7 +17,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const resource_size_t zynqmp_crf_apb_clkc_base = 0xfd1a0020;
 static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
-static const resource_size_t zynqmp_iou_clkc_base = 0xff180000;
 
 /* Full power domain clocks */
 #define CRF_APB_APLL_CTRL		(zynqmp_crf_apb_clkc_base + 0x00)
@@ -91,9 +90,6 @@ static const resource_size_t zynqmp_iou_clkc_base = 0xff180000;
 #define CRL_APB_I2C0_REF_CTRL		(zynqmp_crl_apb_clkc_base + 0x100)
 #define CRL_APB_I2C1_REF_CTRL		(zynqmp_crl_apb_clkc_base + 0x104)
 #define CRL_APB_TIMESTAMP_REF_CTRL	(zynqmp_crl_apb_clkc_base + 0x108)
-#define IOU_SLCR_GEM_CLK_CTRL		(zynqmp_iou_clkc_base + 0x308)
-#define IOU_SLCR_CAN_MIO_CTRL		(zynqmp_iou_clkc_base + 0x304)
-#define IOU_SLCR_WDT_CLK_SEL		(zynqmp_iou_clkc_base + 0x300)
 
 #define ZYNQ_CLK_MAXDIV		0x3f
 #define CLK_CTRL_DIV1_SHIFT	16
