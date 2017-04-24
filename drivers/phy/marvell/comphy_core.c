@@ -90,9 +90,6 @@ void comphy_print(struct chip_serdes_phy_config *chip_cfg,
 
 	for (lane = 0; lane < chip_cfg->comphy_lanes_count;
 	     lane++, comphy_map_data++) {
-		if (comphy_map_data->type == PHY_TYPE_UNCONNECTED)
-			continue;
-
 		if (comphy_map_data->speed == PHY_SPEED_INVALID) {
 			printf("Comphy-%d: %-13s\n", lane,
 			       get_type_string(comphy_map_data->type));
