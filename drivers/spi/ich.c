@@ -617,6 +617,22 @@ static int ich_spi_probe(struct udevice *dev)
 	return 0;
 }
 
+static int ich_spi_remove(struct udevice *bus)
+{
+	struct ich_spi_priv *ctlr = dev_get_priv(bus);
+
+	/*
+	 * Configure SPI controller so that the Linux MTD driver can fully
+	 * access the SPI NOR chip
+	 */
+	ich_writew(ctlr, SPI_OPPREFIX, ctlr->preop);
+	ich_writew(ctlr, SPI_OPTYPE, ctlr->optype);
+	ich_writel(ctlr, SPI_OPMENU_LOWER, ctlr->opmenu);
+	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
+
+	return 0;
+}
+
 static int ich_spi_set_speed(struct udevice *bus, uint speed)
 {
 	struct ich_spi_priv *priv = dev_get_priv(bus);
@@ -700,4 +716,6 @@ U_BOOT_DRIVER(ich_spi) = {
 	.priv_auto_alloc_size = sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,
 	.probe	= ich_spi_probe,
+	.remove	= ich_spi_remove,
+	.flags	= DM_FLAG_OS_PREPARE,
 };
