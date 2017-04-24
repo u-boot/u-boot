@@ -831,6 +831,11 @@ config CMD_FS_GENERIC
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
 
+config CMD_FS_UUID
+	bool "fsuuid command"
+	help
+	  Enables fsuuid command for filesystem UUID.
+
 config CMD_MTDPARTS
 	depends on ARCH_SUNXI
 	bool "MTD partition support"
