@@ -339,3 +339,83 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_first_next_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/**
+ * check_devices() - Check return values and pointers
+ *
+ * This runs through a full sequence of uclass_first_device_check()...
+ * uclass_next_device_check() checking that the return values and devices
+ * are correct.
+ *
+ * @uts: Test state
+ * @devlist: List of expected devices
+ * @mask: Indicates which devices should return an error. Device n should
+ *	  return error (-NOENT - n) if bit n is set, or no error (i.e. 0) if
+ *	  bit n is clear.
+ */
+static int check_devices(struct unit_test_state *uts,
+			 struct udevice *devlist[], int mask)
+{
+	int expected_ret;
+	struct udevice *dev;
+	int i;
+
+	expected_ret = (mask & 1) ? -ENOENT : 0;
+	mask >>= 1;
+	ut_asserteq(expected_ret,
+		    uclass_first_device_check(UCLASS_TEST_PROBE, &dev));
+	for (i = 0; i < 4; i++) {
+		ut_asserteq_ptr(devlist[i], dev);
+		expected_ret = (mask & 1) ? -ENOENT - (i + 1) : 0;
+		mask >>= 1;
+		ut_asserteq(expected_ret, uclass_next_device_check(&dev));
+	}
+	ut_asserteq_ptr(NULL, dev);
+
+	return 0;
+}
+
+/* Test uclass_first_device_check() and uclass_next_device_check() */
+static int dm_test_first_next_ok_device(struct unit_test_state *uts)
+{
+	struct dm_testprobe_pdata *pdata;
+	struct udevice *dev, *parent = NULL, *devlist[4];
+	int count;
+	int ret;
+
+	/* There should be 4 devices */
+	count = 0;
+	for (ret = uclass_first_device_check(UCLASS_TEST_PROBE, &dev);
+	     dev;
+	     ret = uclass_next_device_check(&dev)) {
+		ut_assertok(ret);
+		devlist[count++] = dev;
+		parent = dev_get_parent(dev);
+		}
+	ut_asserteq(4, count);
+	ut_assertok(uclass_first_device_check(UCLASS_TEST_PROBE, &dev));
+	ut_assertok(check_devices(uts, devlist, 0));
+
+	/* Remove them and try again, with an error on the second one */
+	pdata = dev_get_platdata(devlist[1]);
+	pdata->probe_err = -ENOENT - 1;
+	device_remove(parent, DM_REMOVE_NORMAL);
+	ut_assertok(check_devices(uts, devlist, 1 << 1));
+
+	/* Now an error on the first one */
+	pdata = dev_get_platdata(devlist[0]);
+	pdata->probe_err = -ENOENT - 0;
+	device_remove(parent, DM_REMOVE_NORMAL);
+	ut_assertok(check_devices(uts, devlist, 3 << 0));
+
+	/* Now errors on all */
+	pdata = dev_get_platdata(devlist[2]);
+	pdata->probe_err = -ENOENT - 2;
+	pdata = dev_get_platdata(devlist[3]);
+	pdata->probe_err = -ENOENT - 3;
+	device_remove(parent, DM_REMOVE_NORMAL);
+	ut_assertok(check_devices(uts, devlist, 0xf << 0));
+
+	return 0;
+}
+DM_TEST(dm_test_first_next_ok_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
