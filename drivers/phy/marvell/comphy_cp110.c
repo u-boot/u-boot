@@ -49,7 +49,7 @@ struct comphy_mux_data cp110_comphy_phy_mux_data[] = {
 	     {PHY_TYPE_SFI, 0x1}, {PHY_TYPE_XAUI1, 0x1},
 	     {PHY_TYPE_RXAUI1, 0x1}, {PHY_TYPE_SATA1, 0x4} } },
 	{7, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x2}, /* Lane 4 */
-	     {PHY_TYPE_XAUI0, 0x1}, {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x1},
+	     {PHY_TYPE_XAUI0, 0x1}, {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x2},
 	     {PHY_TYPE_SGMII2, 0x1}, {PHY_TYPE_XAUI2, 0x1} } },
 	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_XAUI1, 0x1}, /* Lane 5 */
 	     {PHY_TYPE_RXAUI1, 0x1}, {PHY_TYPE_SGMII3, 0x1},
@@ -1718,7 +1718,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		}
 		if (ret == 0) {
 			/*
-			 * If interface wans't initialiuzed, set the lane to
+			 * If interface wans't initialized, set the lane to
 			 * PHY_TYPE_UNCONNECTED state.
 			 */
 			ptr_comphy_map->type = PHY_TYPE_UNCONNECTED;
