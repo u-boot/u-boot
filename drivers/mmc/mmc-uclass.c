@@ -260,13 +260,18 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 
 static int mmc_blk_probe(struct udevice *dev)
 {
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
-	int dev_num = block_dev->devnum;
-	struct mmc *mmc = find_mmc_device(dev_num);
+	struct udevice *mmc_dev = dev_get_parent(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
+	struct mmc *mmc = upriv->mmc;
+	int ret;
 
-	if (!mmc)
-		return -ENODEV;
-	return mmc_init(mmc);
+	ret = mmc_init(mmc);
+	if (ret) {
+		debug("%s: mmc_init() failed (err=%d)\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
 }
 
 static const struct blk_ops mmc_blk_ops = {
