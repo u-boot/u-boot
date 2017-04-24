@@ -1,0 +1,88 @@
+/*
+ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include "skeleton.dtsi"
+
+/ {
+	compatible = "brcm,bcm6328";
+
+	cpus {
+		reg = <0x10000000 0x4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
+
+		cpu@0 {
+			compatible = "brcm,bcm6328-cpu", "mips,mips4Kc";
+			device_type = "cpu";
+			reg = <0>;
+			u-boot,dm-pre-reloc;
+		};
+
+		cpu@1 {
+			compatible = "brcm,bcm6328-cpu", "mips,mips4Kc";
+			device_type = "cpu";
+			reg = <1>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		u-boot,dm-pre-reloc;
+
+		periph_osc: periph-osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <50000000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	ubus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		u-boot,dm-pre-reloc;
+
+		pll_cntl: syscon@10000068 {
+			compatible = "syscon";
+			reg = <0x10000068 0x4>;
+		};
+
+		syscon-reboot {
+			compatible = "syscon-reboot";
+			regmap = <&pll_cntl>;
+			offset = <0x0>;
+			mask = <0x1>;
+		};
+
+		uart0: serial@10000100 {
+			compatible = "brcm,bcm6345-uart";
+			reg = <0x10000100 0x18>;
+			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+
+		uart1: serial@10000120 {
+			compatible = "brcm,bcm6345-uart";
+			reg = <0x10000120 0x18>;
+			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+
+		memory-controller@10003000 {
+			compatible = "brcm,bcm6328-mc";
+			reg = <0x10003000 0x1000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
