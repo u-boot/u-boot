@@ -13,10 +13,11 @@
 #define PHY_SPEED_3G			3
 #define PHY_SPEED_3_125G		4
 #define PHY_SPEED_5G			5
-#define PHY_SPEED_6G			6
-#define PHY_SPEED_6_25G			7
-#define PHY_SPEED_10_3125G		8
-#define PHY_SPEED_MAX			9
+#define PHY_SPEED_5_15625G		6
+#define PHY_SPEED_6G			7
+#define PHY_SPEED_6_25G			8
+#define PHY_SPEED_10_3125G		9
+#define PHY_SPEED_MAX			10
 #define PHY_SPEED_INVALID		0xff
 
 #define PHY_TYPE_UNCONNECTED		0
