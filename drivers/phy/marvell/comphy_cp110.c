@@ -37,23 +37,20 @@ struct utmi_phy_data {
  * Eth_port_0 that include (SGMII0, XAUI0, RXAUI0, SFI)
  */
 struct comphy_mux_data cp110_comphy_phy_mux_data[] = {
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 0 */
-	     {PHY_TYPE_XAUI2, 0x1}, {PHY_TYPE_SATA1, 0x4} } },
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII3, 0x1}, /* Lane 1 */
-	     {PHY_TYPE_XAUI3, 0x1}, {PHY_TYPE_SATA0, 0x4} } },
+	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII1, 0x1}, /* Lane 0 */
+	     {PHY_TYPE_SATA1, 0x4} } },
+	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 1 */
+	     {PHY_TYPE_SATA0, 0x4} } },
 	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x1}, /* Lane 2 */
-	     {PHY_TYPE_XAUI0, 0x1}, {PHY_TYPE_RXAUI0, 0x1},
-	     {PHY_TYPE_SFI, 0x1}, {PHY_TYPE_SATA0, 0x4} } },
-	{8, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x1}, /* Lane 3 */
-	     {PHY_TYPE_XAUI0, 0x1}, {PHY_TYPE_RXAUI0, 0x1},
-	     {PHY_TYPE_SFI, 0x1}, {PHY_TYPE_XAUI1, 0x1},
-	     {PHY_TYPE_RXAUI1, 0x1}, {PHY_TYPE_SATA1, 0x4} } },
-	{7, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x2}, /* Lane 4 */
-	     {PHY_TYPE_XAUI0, 0x1}, {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x2},
-	     {PHY_TYPE_SGMII2, 0x1}, {PHY_TYPE_XAUI2, 0x1} } },
-	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_XAUI1, 0x1}, /* Lane 5 */
-	     {PHY_TYPE_RXAUI1, 0x1}, {PHY_TYPE_SGMII3, 0x1},
-	     {PHY_TYPE_XAUI3, 0x1}, {PHY_TYPE_SATA1, 0x4} } },
+	     {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x1},
+	     {PHY_TYPE_SATA0, 0x4} } },
+	{8, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_RXAUI1, 0x1}, /* Lane 3 */
+	     {PHY_TYPE_SGMII1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
+	{7, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 4 */
+	     {PHY_TYPE_RXAUI0, 0x2}, {PHY_TYPE_SFI, 0x2},
+	     {PHY_TYPE_SGMII1, 0x2} } },
+	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 5 */
+	     {PHY_TYPE_RXAUI1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
 };
 
 struct comphy_mux_data cp110_comphy_pipe_mux_data[] = {
