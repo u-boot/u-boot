@@ -55,6 +55,12 @@ struct driver_info;
 #define DM_FLAG_ACTIVE_DMA		(1 << 9)
 
 /*
+ * Call driver remove function to do some final configuration, before
+ * U-Boot exits and the OS is started
+ */
+#define DM_FLAG_OS_PREPARE		(1 << 10)
+
+/*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
  * driver flags can be done.
@@ -66,10 +72,13 @@ enum {
 	/* Remove devices with active DMA */
 	DM_REMOVE_ACTIVE_DMA = DM_FLAG_ACTIVE_DMA,
 
+	/* Remove devices which need some final OS preparation steps */
+	DM_REMOVE_OS_PREPARE = DM_FLAG_OS_PREPARE,
+
 	/* Add more use cases here */
 
 	/* Remove devices with any active flag */
-	DM_REMOVE_ACTIVE_ALL = DM_REMOVE_ACTIVE_DMA,
+	DM_REMOVE_ACTIVE_ALL = DM_REMOVE_ACTIVE_DMA | DM_REMOVE_OS_PREPARE,
 };
 
 /**
