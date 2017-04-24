@@ -171,3 +171,12 @@ void twl4030_power_mmc_init(int dev_index)
 		mdelay(100);	/* ramp-up delay from Linux code */
 	}
 }
+
+#ifdef CONFIG_CMD_POWEROFF
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	twl4030_power_off();
+
+	return 0;
+}
+#endif
