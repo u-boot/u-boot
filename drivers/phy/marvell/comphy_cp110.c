@@ -232,6 +232,8 @@ static int comphy_pcie_power_up(u32 lane, u32 pcie_width, bool clk_src,
 		mask |= HPIPE_MISC_REFCLK_SEL_MASK;
 		data |= 0x1 << HPIPE_MISC_REFCLK_SEL_OFFSET;
 	}
+	mask |= HPIPE_MISC_ICP_FORCE_MASK;
+	data |= 0x1 << HPIPE_MISC_ICP_FORCE_OFFSET;
 	reg_set(hpipe_addr + HPIPE_MISC_REG, data, mask);
 	if (pcie_clk) { /* output */
 		/* Set reference frequcency select - 0x2 for 25MHz*/
@@ -267,6 +269,9 @@ static int comphy_pcie_power_up(u32 lane, u32 pcie_width, bool clk_src,
 	/* Set Maximal PHY Generation Setting(8Gbps) */
 	mask = HPIPE_INTERFACE_GEN_MAX_MASK;
 	data = 0x2 << HPIPE_INTERFACE_GEN_MAX_OFFSET;
+	/* Bypass frame detection and sync detection for RX DATA */
+	mask = HPIPE_INTERFACE_DET_BYPASS_MASK;
+	data = 0x1 << HPIPE_INTERFACE_DET_BYPASS_OFFSET;
 	/* Set Link Train Mode (Tx training control pins are used) */
 	mask |= HPIPE_INTERFACE_LINK_TRAIN_MASK;
 	data |= 0x1 << HPIPE_INTERFACE_LINK_TRAIN_OFFSET;
@@ -351,9 +356,9 @@ static int comphy_pcie_power_up(u32 lane, u32 pcie_width, bool clk_src,
 	data = 0x3 << HPIPE_G3_DFE_RES_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G3_SETTING_4_REG, data, mask);
 
-	/* Force DFE resolution (use GEN table value) */
+	/* Use TX/RX training result for DFE */
 	mask = HPIPE_DFE_RES_FORCE_MASK;
-	data = 0x1 << HPIPE_DFE_RES_FORCE_OFFSET;
+	data = 0x0 << HPIPE_DFE_RES_FORCE_OFFSET;
 	reg_set(hpipe_addr + HPIPE_DFE_REG0,  data, mask);
 
 	/* Configure initial and final coefficient value for receiver */
@@ -379,8 +384,63 @@ static int comphy_pcie_power_up(u32 lane, u32 pcie_width, bool clk_src,
 	data = 0x1 << HPIPE_G3_FFE_DEG_RES_LEVEL_OFFSET;
 
 	mask |= HPIPE_G3_FFE_LOAD_RES_LEVEL_MASK;
-	data |= 0x1 << HPIPE_G3_FFE_LOAD_RES_LEVEL_OFFSET;
+	data |= 0x3 << HPIPE_G3_FFE_LOAD_RES_LEVEL_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G3_SETTING_3_REG, data, mask);
+
+	/* Pattern lock lost timeout disable */
+	mask = HPIPE_PATTERN_LOCK_LOST_TIMEOUT_EN_MASK;
+	data = 0x0 << HPIPE_PATTERN_LOCK_LOST_TIMEOUT_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_FRAME_DETECT_CTRL_3_REG, data, mask);
+
+	/* Configure DFE adaptations */
+	mask = HPIPE_CDR_MAX_DFE_ADAPT_1_MASK;
+	data = 0x1 << HPIPE_CDR_MAX_DFE_ADAPT_1_OFFSET;
+	mask |= HPIPE_CDR_MAX_DFE_ADAPT_0_MASK;
+	data |= 0x0 << HPIPE_CDR_MAX_DFE_ADAPT_0_OFFSET;
+	mask |= HPIPE_CDR_RX_MAX_DFE_ADAPT_1_MASK;
+	data |= 0x0 << HPIPE_CDR_RX_MAX_DFE_ADAPT_1_OFFSET;
+	reg_set(hpipe_addr + HPIPE_CDR_CONTROL_REG, data, mask);
+	mask = HPIPE_DFE_TX_MAX_DFE_ADAPT_MASK;
+	data = 0x0 << HPIPE_DFE_TX_MAX_DFE_ADAPT_OFFSET;
+	reg_set(hpipe_addr + HPIPE_DFE_CONTROL_REG, data, mask);
+
+	/* Genration 2 setting 1*/
+	mask = HPIPE_G2_SET_1_G2_RX_SELMUPI_MASK;
+	data = 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUPI_OFFSET;
+	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPP_MASK;
+	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPP_OFFSET;
+	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFI_MASK;
+	data |= 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUFI_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G2_SET_1_REG, data, mask);
+
+	/* DFE enable */
+	mask = HPIPE_G2_DFE_RES_MASK;
+	data = 0x3 << HPIPE_G2_DFE_RES_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G2_SETTINGS_4_REG, data, mask);
+
+	/* Configure DFE Resolution */
+	mask = HPIPE_LANE_CFG4_DFE_EN_SEL_MASK;
+	data = 0x1 << HPIPE_LANE_CFG4_DFE_EN_SEL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_LANE_CFG4_REG, data, mask);
+
+	/* VDD calibration control */
+	mask = HPIPE_EXT_SELLV_RXSAMPL_MASK;
+	data = 0x16 << HPIPE_EXT_SELLV_RXSAMPL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_VDD_CAL_CTRL_REG, data, mask);
+
+	/* Set PLL Charge-pump Current Control */
+	mask = HPIPE_G3_SETTING_5_G3_ICP_MASK;
+	data = 0x4 << HPIPE_G3_SETTING_5_G3_ICP_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G3_SETTING_5_REG, data, mask);
+
+	/* Set lane rqualization remote setting */
+	mask = HPIPE_LANE_CFG_FOM_DIRN_OVERRIDE_MASK;
+	data = 0x1 << HPIPE_LANE_CFG_FOM_DIRN_OVERRIDE_OFFSET;
+	mask |= HPIPE_LANE_CFG_FOM_ONLY_MODE_MASK;
+	data |= 0x1 << HPIPE_LANE_CFG_FOM_ONLY_MODE_OFFFSET;
+	mask |= HPIPE_LANE_CFG_FOM_PRESET_VECTOR_MASK;
+	data |= 0x2 << HPIPE_LANE_CFG_FOM_PRESET_VECTOR_OFFSET;
+	reg_set(hpipe_addr + HPIPE_LANE_EQ_REMOTE_SETTING_REG, data, mask);
 
 	if (!is_end_point) {
 		/* Set phy in root complex mode */
