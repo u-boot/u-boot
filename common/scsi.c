@@ -549,6 +549,52 @@ removable:
  * to the user if mode = 1
  */
 #if defined(CONFIG_DM_SCSI)
+static int do_scsi_scan_one(struct udevice *dev, int id, int lun, int mode)
+{
+	int ret;
+	struct udevice *bdev;
+	struct blk_desc bd;
+	struct blk_desc *bdesc;
+	char str[10];
+
+	/*
+	 * detect the scsi driver to get information about its geometry (block
+	 * size, number of blocks) and other parameters (ids, type, ...)
+	 */
+	scsi_init_dev_desc_priv(&bd);
+	if (scsi_detect_dev(id, lun, &bd))
+		return -ENODEV;
+
+	/*
+	* Create only one block device and do detection
+	* to make sure that there won't be a lot of
+	* block devices created
+	*/
+	snprintf(str, sizeof(str), "id%dlun%d", id, lun);
+	ret = blk_create_devicef(dev, "scsi_blk", str, IF_TYPE_SCSI, -1,
+			bd.blksz, bd.blksz * bd.lba, &bdev);
+	if (ret) {
+		debug("Can't create device\n");
+		return ret;
+	}
+
+	bdesc = dev_get_uclass_platdata(bdev);
+	bdesc->target = id;
+	bdesc->lun = lun;
+	bdesc->removable = bd.removable;
+	bdesc->type = bd.type;
+	memcpy(&bdesc->vendor, &bd.vendor, sizeof(bd.vendor));
+	memcpy(&bdesc->product, &bd.product, sizeof(bd.product));
+	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
+	part_init(bdesc);
+
+	if (mode == 1) {
+		printf("  Device %d: ", 0);
+		dev_print(bdesc);
+	}
+	return 0;
+}
+
 int scsi_scan(int mode)
 {
 	unsigned char i, lun;
@@ -576,59 +622,9 @@ int scsi_scan(int mode)
 		/* Get controller platdata */
 		plat = dev_get_platdata(dev);
 
-		for (i = 0; i < plat->max_id; i++) {
-			for (lun = 0; lun < plat->max_lun; lun++) {
-				struct udevice *bdev; /* block device */
-				/* block device description */
-				struct blk_desc _bd;
-				struct blk_desc *bdesc;
-				char str[10];
-
-				scsi_init_dev_desc_priv(&_bd);
-				ret = scsi_detect_dev(i, lun, &_bd);
-				if (ret)
-					/*
-					 * no device detected?
-					 * check the next lun.
-					 */
-					continue;
-
-				/*
-				 * Create only one block device and do detection
-				 * to make sure that there won't be a lot of
-				 * block devices created
-				 */
-				snprintf(str, sizeof(str), "id%dlun%d", i, lun);
-				ret = blk_create_devicef(dev, "scsi_blk",
-						str, IF_TYPE_SCSI,
-						-1,
-						_bd.blksz,
-						_bd.blksz * _bd.lba,
-						&bdev);
-				if (ret) {
-					debug("Can't create device\n");
-					return ret;
-				}
-
-				bdesc = dev_get_uclass_platdata(bdev);
-				bdesc->target = i;
-				bdesc->lun = lun;
-				bdesc->removable = _bd.removable;
-				bdesc->type = _bd.type;
-				memcpy(&bdesc->vendor, &_bd.vendor,
-				       sizeof(_bd.vendor));
-				memcpy(&bdesc->product, &_bd.product,
-				       sizeof(_bd.product));
-				memcpy(&bdesc->revision, &_bd.revision,
-				       sizeof(_bd.revision));
-				part_init(bdesc);
-
-				if (mode == 1) {
-					printf("  Device %d: ", 0);
-					dev_print(bdesc);
-				} /* if mode */
-			} /* next LUN */
-		}
+		for (i = 0; i < plat->max_id; i++)
+			for (lun = 0; lun < plat->max_lun; lun++)
+				do_scsi_scan_one(dev, i, lun, mode);
 	}
 
 	return 0;
