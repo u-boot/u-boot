@@ -1,0 +1,27 @@
+/*
+ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "brcm,bcm6328.dtsi"
+
+/ {
+	model = "Comtrend AR-5387un";
+	compatible = "comtrend,ar5387-un", "brcm,bcm6328";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

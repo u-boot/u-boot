@@ -8,6 +8,7 @@ dtb-$(CONFIG_TARGET_BOSTON) += img,boston.dtb
 dtb-$(CONFIG_TARGET_MALTA) += mti,malta.dtb
 dtb-$(CONFIG_TARGET_PIC32MZDASK) += pic32mzda_sk.dtb
 dtb-$(CONFIG_TARGET_XILFPGA) += nexys4ddr.dtb
+dtb-$(CONFIG_BOARD_COMTREND_AR5387UN) += comtrend,ar-5387un.dtb
 dtb-$(CONFIG_BOARD_HUAWEI_HG556A) += huawei,hg556a.dtb
 dtb-$(CONFIG_BOARD_TPLINK_WDR4300) += tplink_wdr4300.dtb
 

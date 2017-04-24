@@ -35,6 +35,11 @@ endchoice
 choice
 	prompt "Board select"
 
+config BOARD_COMTREND_AR5387UN
+	bool "Comtrend AR-5387un"
+	depends on SOC_BMIPS_BCM6328
+	select BMIPS_SUPPORTS_BOOT_RAM
+
 config BOARD_HUAWEI_HG556A
 	bool "Huawei EchoLife HG556a"
 	depends on SOC_BMIPS_BCM6358
@@ -58,6 +63,7 @@ endchoice
 config BMIPS_SUPPORTS_BOOT_RAM
 	bool
 
+source "board/comtrend/ar5387un/Kconfig"
 source "board/huawei/hg556a/Kconfig"
 
 endmenu
