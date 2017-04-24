@@ -2,7 +2,23 @@ menu "Broadcom MIPS platforms"
 	depends on ARCH_BMIPS
 
 config SYS_SOC
-	default "none"
+	default "bcm6358" if SOC_BMIPS_BCM6358
+
+choice
+	prompt "Broadcom MIPS SoC select"
+
+config SOC_BMIPS_BCM6358
+	bool "BMIPS BCM6358 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6358 family including BCM6358 and BCM6359.
+
+endchoice
 
 choice
 	prompt "Boot mode"
