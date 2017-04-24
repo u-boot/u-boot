@@ -473,6 +473,19 @@ int blk_find_max_devnum(enum if_type if_type)
 	return max_devnum;
 }
 
+static int blk_next_free_devnum(enum if_type if_type)
+{
+	int ret;
+
+	ret = blk_find_max_devnum(if_type);
+	if (ret == -ENODEV)
+		return 0;
+	if (ret < 0)
+		return ret;
+
+	return ret + 1;
+}
+
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
 		      lbaint_t size, struct udevice **devp)
@@ -482,13 +495,10 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 	int ret;
 
 	if (devnum == -1) {
-		ret = blk_find_max_devnum(if_type);
-		if (ret == -ENODEV)
-			devnum = 0;
-		else if (ret < 0)
+		ret = blk_next_free_devnum(if_type);
+		if (ret < 0)
 			return ret;
-		else
-			devnum = ret + 1;
+		devnum = ret;
 	}
 	ret = device_bind_driver(parent, drv_name, name, &dev);
 	if (ret)
