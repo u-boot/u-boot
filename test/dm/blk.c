@@ -94,3 +94,24 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_blk_usb, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we can find block devices without probing them */
+static int dm_test_blk_find(struct unit_test_state *uts)
+{
+	struct udevice *blk, *dev;
+
+	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
+				      IF_TYPE_HOST, 1, 512, 1024, &blk));
+	ut_asserteq(-ENODEV, blk_find_device(IF_TYPE_HOST, 0, &dev));
+	ut_assertok(blk_find_device(IF_TYPE_HOST, 1, &dev));
+	ut_asserteq_ptr(blk, dev);
+	ut_asserteq(false, device_active(dev));
+
+	/* Now activate it */
+	ut_assertok(blk_get_device(IF_TYPE_HOST, 1, &dev));
+	ut_asserteq_ptr(blk, dev);
+	ut_asserteq(true, device_active(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_blk_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

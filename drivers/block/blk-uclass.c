@@ -363,7 +363,7 @@ int blk_next_device(struct udevice **devp)
 	} while (1);
 }
 
-int blk_get_device(int if_type, int devnum, struct udevice **devp)
+int blk_find_device(int if_type, int devnum, struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;
@@ -379,11 +379,22 @@ int blk_get_device(int if_type, int devnum, struct udevice **devp)
 		      if_type, devnum, dev->name, desc->if_type, desc->devnum);
 		if (desc->if_type == if_type && desc->devnum == devnum) {
 			*devp = dev;
-			return device_probe(dev);
+			return 0;
 		}
 	}
 
 	return -ENODEV;
+}
+
+int blk_get_device(int if_type, int devnum, struct udevice **devp)
+{
+	int ret;
+
+	ret = blk_find_device(if_type, devnum, devp);
+	if (ret)
+		return ret;
+
+	return device_probe(*devp);
 }
 
 unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
