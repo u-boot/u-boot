@@ -1304,7 +1304,7 @@ static void comphy_utmi_power_down(u32 utmi_index, void __iomem *utmi_base_addr,
 	 * If UTMI connected to USB Device, configure mux prior to PHY init
 	 * (Device can be connected to UTMI0 or to UTMI1)
 	 */
-	if (utmi_phy_port == UTMI_PHY_TO_USB_DEVICE0) {
+	if (utmi_phy_port == UTMI_PHY_TO_USB3_DEVICE0) {
 		debug("stage:  UTMI %d - Enable Device mode and configure UTMI mux\n",
 		      utmi_index);
 		/* USB3 Device UTMI enable */
@@ -1496,7 +1496,8 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
 			continue;
 		}
 		printf("UTMI PHY %d initialized to ", i);
-		if (cp110_utmi_data[i].utmi_phy_port == UTMI_PHY_TO_USB_DEVICE0)
+		if (cp110_utmi_data[i].utmi_phy_port ==
+		    UTMI_PHY_TO_USB3_DEVICE0)
 			printf("USB Device\n");
 		else
 			printf("USB Host%d\n",

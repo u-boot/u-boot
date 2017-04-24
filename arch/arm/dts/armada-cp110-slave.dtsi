@@ -254,7 +254,7 @@
 				reg = <0x580000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */
 				      <0x440440 0x4>;		/* utmi-cfg */
-				utmi-port = <UTMI_PHY_TO_USB_HOST0>;
+				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
 				status = "disabled";
 			};
 		};
