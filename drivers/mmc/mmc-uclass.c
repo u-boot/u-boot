@@ -196,6 +196,10 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	struct udevice *bdev;
 	int ret, devnum = -1;
 
+#ifdef CONFIG_DM_MMC_OPS
+	if (!mmc_get_ops(dev))
+		return -ENOSYS;
+#endif
 #ifndef CONFIG_SPL_BUILD
 	/* Use the fixed index with aliase node's index */
 	fdtdec_get_alias_seq(gd->fdt_blob, "mmc", dev_of_offset(dev), &devnum);
