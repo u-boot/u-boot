@@ -21,6 +21,7 @@ struct sandbox_pwm_chan {
 	uint period_ns;
 	uint duty_ns;
 	bool enable;
+	bool polarity;
 };
 
 struct sandbox_pwm_priv {
@@ -56,9 +57,24 @@ static int sandbox_pwm_set_enable(struct udevice *dev, uint channel,
 	return 0;
 }
 
+static int sandbox_pwm_set_invert(struct udevice *dev, uint channel,
+				  bool polarity)
+{
+	struct sandbox_pwm_priv *priv = dev_get_priv(dev);
+	struct sandbox_pwm_chan *chan;
+
+	if (channel >= NUM_CHANNELS)
+		return -ENOSPC;
+	chan = &priv->chan[channel];
+	chan->polarity = polarity;
+
+	return 0;
+}
+
 static const struct pwm_ops sandbox_pwm_ops = {
 	.set_config	= sandbox_pwm_set_config,
 	.set_enable	= sandbox_pwm_set_enable,
+	.set_invert	= sandbox_pwm_set_invert,
 };
 
 static const struct udevice_id sandbox_pwm_ids[] = {
