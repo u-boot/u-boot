@@ -121,9 +121,10 @@ static const char *init_mmc_for_env(struct mmc *mmc)
 	if (!mmc)
 		return "!No MMC card found";
 
+#ifndef CONFIG_BLK
 	if (mmc_init(mmc))
 		return "!MMC init failed";
-
+#endif
 	if (mmc_set_env_part(mmc))
 		return "!MMC partition switch failed";
 
