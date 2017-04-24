@@ -59,6 +59,23 @@
 		ping-add = <3>;
 	};
 
+	phy_provider0: gen_phy@0 {
+		compatible = "sandbox,phy";
+		#phy-cells = <1>;
+	};
+
+	phy_provider1: gen_phy@1 {
+		compatible = "sandbox,phy";
+		#phy-cells = <0>;
+		broken;
+	};
+
+	gen_phy_user: gen_phy_user {
+		compatible = "simple-bus";
+		phys = <&phy_provider0 0>, <&phy_provider0 1>, <&phy_provider1>;
+		phy-names = "phy1", "phy2", "phy3";
+	};
+
 	some-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;

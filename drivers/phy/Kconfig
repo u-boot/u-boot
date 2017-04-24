@@ -33,4 +33,12 @@ config SPL_PHY
 	  compatible as possible with the equivalent framework found in the
 	  linux kernel.
 
+config PHY_SANDBOX
+	bool "Sandbox PHY support"
+	depends on SANDBOX
+	depends on PHY
+	help
+	  This select a dummy sandbox PHY driver. It used only to implement
+	  the unit tests for the phy framework
+
 endmenu

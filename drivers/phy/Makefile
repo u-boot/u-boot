@@ -6,3 +6,4 @@
 #
 
 obj-$(CONFIG_$(SPL_)PHY) += phy-uclass.o
+obj-$(CONFIG_PHY_SANDBOX) += sandbox-phy.o
