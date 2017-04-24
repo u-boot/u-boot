@@ -24,6 +24,12 @@ struct pwm_regulator_info {
 	int pwm_id;
 	/* the period of one PWM cycle */
 	int period_ns;
+	/*
+	 * the polarity of one PWM
+	 * 0: normal polarity
+	 * 1: inverted polarity
+	 */
+	bool polarity;
 	struct udevice *pwm;
 	/* initialize voltage of regulator */
 	unsigned int init_voltage;
@@ -49,7 +55,7 @@ static int pwm_voltage_to_duty_cycle_percentage(struct udevice *dev, int req_uV)
 	int max_uV = priv->max_voltage;
 	int diff = max_uV - min_uV;
 
-	return 100 - (((req_uV * 100) - (min_uV * 100)) / diff);
+	return ((req_uV * 100) - (min_uV * 100)) / diff;
 }
 
 static int pwm_regulator_get_voltage(struct udevice *dev)
@@ -66,6 +72,12 @@ static int pwm_regulator_set_voltage(struct udevice *dev, int uvolt)
 	int ret = 0;
 
 	duty_cycle = pwm_voltage_to_duty_cycle_percentage(dev, uvolt);
+
+	ret = pwm_set_invert(priv->pwm, priv->pwm_id, priv->polarity);
+	if (ret) {
+		dev_err(dev, "Failed to init PWM\n");
+		return ret;
+	}
 
 	ret = pwm_set_config(priv->pwm, priv->pwm_id,
 			(priv->period_ns / 100) * duty_cycle, priv->period_ns);
@@ -97,9 +109,9 @@ static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Cannot get PWM phandle: ret=%d\n", __func__, ret);
 		return ret;
 	}
-	/* TODO: pwm_id here from device tree if needed */
 
 	priv->period_ns = args.args[1];
+	priv->polarity = args.args[2];
 
 	priv->init_voltage = fdtdec_get_int(blob, node,
 			"regulator-init-microvolt", -1);
