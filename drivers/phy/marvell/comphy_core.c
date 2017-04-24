@@ -174,13 +174,13 @@ static int comphy_probe(struct udevice *dev)
 		lane++;
 	}
 
-	/* Save comphy index for MultiCP devices (A8K) */
-	chip_cfg->comphy_index = current_idx++;
+	/* Save CP index for MultiCP devices (A8K) */
+	chip_cfg->cp_index = current_idx++;
 	/* PHY power UP sequence */
 	chip_cfg->ptr_comphy_chip_init(chip_cfg, comphy_map_data);
 	/* PHY print SerDes status */
 	if (of_machine_is_compatible("marvell,armada8040"))
-		printf("Comphy chip #%d:\n", chip_cfg->comphy_index);
+		printf("Comphy chip #%d:\n", chip_cfg->cp_index);
 	comphy_print(chip_cfg, comphy_map_data);
 
 	/*
@@ -189,7 +189,7 @@ static int comphy_probe(struct udevice *dev)
 	if (of_machine_is_compatible("marvell,armada8040"))
 		last_idx = 1;
 
-	if (chip_cfg->comphy_index == last_idx) {
+	if (chip_cfg->cp_index == last_idx) {
 		/* Initialize dedicated PHYs (not muxed SerDes lanes) */
 		comphy_dedicated_phys_init();
 	}
