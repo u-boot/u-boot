@@ -1,0 +1,27 @@
+/*
+ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "brcm,bcm63268.dtsi"
+
+/ {
+	model = "Comtrend VR-3032u";
+	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
