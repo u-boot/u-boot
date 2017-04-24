@@ -1166,8 +1166,11 @@ static int comphy_sfi_power_up(u32 lane, void __iomem *hpipe_base,
 		data |= 1 << HPIPE_SPD_DIV_FORCE_TX_SPD_DIV_OFFSET;
 		mask |= HPIPE_SPD_DIV_FORCE_TX_SPD_DIV_FORCE_MASK;
 		data |= 1 << HPIPE_SPD_DIV_FORCE_TX_SPD_DIV_FORCE_OFFSET;
-		reg_set(hpipe_addr + HPIPE_SPD_DIV_FORCE_REG, data, mask);
+	} else {
+		mask = HPIPE_TXDIGCK_DIV_FORCE_MASK;
+		data = 0x1 << HPIPE_TXDIGCK_DIV_FORCE_OFFSET;
 	}
+	reg_set(hpipe_addr + HPIPE_SPD_DIV_FORCE_REG, data, mask);
 
 	/* Set analog paramters from ETP(HW) */
 	debug("stage: Analog paramters from ETP(HW)\n");
@@ -1213,13 +1216,27 @@ static int comphy_sfi_power_up(u32 lane, void __iomem *hpipe_base,
 	data = 0 << HPIPE_CAL_REG_1_EXT_TXIMP_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G1_SETTING_5_REG, data, mask);
 	/* 0xE-G1_Setting_1 */
-	mask = HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
-	data = 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_DFE_EN_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_DFE_EN_OFFSET;
+	mask = HPIPE_G1_SET_1_G1_RX_DFE_EN_MASK;
+	data = 0x1 << HPIPE_G1_SET_1_G1_RX_DFE_EN_OFFSET;
+	if (speed == PHY_SPEED_5_15625G) {
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
+		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
+		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+	} else {
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
+		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
+		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFI_MASK;
+		data |= 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFF_MASK;
+		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUFF_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_MASK;
+		data |= 0x3 << HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_OFFSET;
+	}
 	reg_set(hpipe_addr + HPIPE_G1_SET_1_REG, data, mask);
+
 	/* 0xA-DFE_Reg3 */
 	mask = HPIPE_DFE_F3_F5_DFE_EN_MASK;
 	data = 0x0 << HPIPE_DFE_F3_F5_DFE_EN_OFFSET;
@@ -1244,6 +1261,63 @@ static int comphy_sfi_power_up(u32 lane, void __iomem *hpipe_base,
 		data |= 0x1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
 	}
 	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
+
+	/* Connfigure RX training timer */
+	mask = HPIPE_RX_TRAIN_TIMER_MASK;
+	data = 0x13 << HPIPE_RX_TRAIN_TIMER_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TX_TRAIN_CTRL_5_REG, data, mask);
+
+	/* Enable TX train peak to peak hold */
+	mask = HPIPE_TX_TRAIN_P2P_HOLD_MASK;
+	data = 0x1 << HPIPE_TX_TRAIN_P2P_HOLD_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TX_TRAIN_CTRL_0_REG, data, mask);
+
+	/* Configure TX preset index */
+	mask = HPIPE_TX_PRESET_INDEX_MASK;
+	data = 0x2 << HPIPE_TX_PRESET_INDEX_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TX_PRESET_INDEX_REG, data, mask);
+
+	/* Disable pattern lock lost timeout */
+	mask = HPIPE_PATTERN_LOCK_LOST_TIMEOUT_EN_MASK;
+	data = 0x0 << HPIPE_PATTERN_LOCK_LOST_TIMEOUT_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_FRAME_DETECT_CTRL_3_REG, data, mask);
+
+	/* Configure TX training pattern and TX training 16bit auto */
+	mask = HPIPE_TX_TRAIN_16BIT_AUTO_EN_MASK;
+	data = 0x1 << HPIPE_TX_TRAIN_16BIT_AUTO_EN_OFFSET;
+	mask |= HPIPE_TX_TRAIN_PAT_SEL_MASK;
+	data |= 0x1 << HPIPE_TX_TRAIN_PAT_SEL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TX_TRAIN_REG, data, mask);
+
+	/* Configure Training patten number */
+	mask = HPIPE_TRAIN_PAT_NUM_MASK;
+	data = 0x88 << HPIPE_TRAIN_PAT_NUM_OFFSET;
+	reg_set(hpipe_addr + HPIPE_FRAME_DETECT_CTRL_0_REG, data, mask);
+
+	/* Configure differencial manchester encoter to ethernet mode */
+	mask = HPIPE_DME_ETHERNET_MODE_MASK;
+	data = 0x1 << HPIPE_DME_ETHERNET_MODE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_DME_REG, data, mask);
+
+	/* Configure VDD Continuous Calibration */
+	mask = HPIPE_CAL_VDD_CONT_MODE_MASK;
+	data = 0x1 << HPIPE_CAL_VDD_CONT_MODE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_VDD_CAL_0_REG, data, mask);
+
+	/* Trigger sampler enable pulse (by toggleing the bit) */
+	mask = HPIPE_RX_SAMPLER_OS_GAIN_MASK;
+	data = 0x3 << HPIPE_RX_SAMPLER_OS_GAIN_OFFSET;
+	mask |= HPIPE_SMAPLER_MASK;
+	data |= 0x1 << HPIPE_SMAPLER_OFFSET;
+	reg_set(hpipe_addr + HPIPE_SAMPLER_N_PROC_CALIB_CTRL_REG, data, mask);
+	mask = HPIPE_SMAPLER_MASK;
+	data = 0x0 << HPIPE_SMAPLER_OFFSET;
+	reg_set(hpipe_addr + HPIPE_SAMPLER_N_PROC_CALIB_CTRL_REG, data, mask);
+
+	/* Set External RX Regulator Control */
+	mask = HPIPE_EXT_SELLV_RXSAMPL_MASK;
+	data = 0x1A << HPIPE_EXT_SELLV_RXSAMPL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_VDD_CAL_CTRL_REG, data, mask);
 
 	debug("stage: RFU configurations- Power Up PLL,Tx,Rx\n");
 	/* SERDES External Configuration */
