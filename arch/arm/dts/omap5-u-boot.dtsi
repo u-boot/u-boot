@@ -10,6 +10,10 @@
 /{
 	ocp {
 		u-boot,dm-pre-reloc;
+
+		ocp2scp@4a090000 {
+			compatible = "ti,omap-ocp2scp", "simple-bus";
+		};
 	};
 };
 
