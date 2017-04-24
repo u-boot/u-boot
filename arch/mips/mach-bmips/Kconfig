@@ -21,6 +21,16 @@ config SOC_BMIPS_BCM6358
 endchoice
 
 choice
+	prompt "Board select"
+
+config BOARD_HUAWEI_HG556A
+	bool "Huawei EchoLife HG556a"
+	depends on SOC_BMIPS_BCM6358
+	select BMIPS_SUPPORTS_BOOT_RAM
+
+endchoice
+
+choice
 	prompt "Boot mode"
 
 config BMIPS_BOOT_RAM
@@ -35,5 +45,7 @@ endchoice
 
 config BMIPS_SUPPORTS_BOOT_RAM
 	bool
+
+source "board/huawei/hg556a/Kconfig"
 
 endmenu
