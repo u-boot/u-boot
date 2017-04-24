@@ -366,8 +366,7 @@ int uclass_get_device_by_driver(enum uclass_id id,
 	return -ENODEV;
 }
 
-int uclass_get_device_tail(struct udevice *dev, int ret,
-				  struct udevice **devp)
+int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp)
 {
 	if (ret)
 		return ret;
