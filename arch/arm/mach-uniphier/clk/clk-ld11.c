@@ -37,9 +37,18 @@ void uniphier_ld11_clk_init(void)
 	{
 		/* FIXME: the current clk driver can not handle parents */
 		u32 tmp;
+		int ch;
+
 		tmp = readl(SC_CLKCTRL4);
 		tmp |= SC_CLKCTRL4_MIO | SC_CLKCTRL4_STDMAC;
 		writel(tmp, SC_CLKCTRL4);
+
+		for (ch = 0; ch < 3; ch++) {
+			void __iomem *phyctrl = (void __iomem *)SG_USBPHYCTRL;
+
+			writel(0x82280600, phyctrl + 8 * ch);
+			writel(0x00000106, phyctrl + 8 * ch + 4);
+		}
 	}
 #endif
 }

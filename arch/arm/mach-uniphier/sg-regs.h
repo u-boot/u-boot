@@ -55,6 +55,7 @@
 
 #define SG_MEMCONF_SPARSEMEM		(0x1 << 4)
 
+#define SG_USBPHYCTRL			(SG_CTRL_BASE | 0x500)
 #define SG_ETPHYPSHUT			(SG_CTRL_BASE | 0x554)
 #define SG_ETPHYCNT			(SG_CTRL_BASE | 0x550)
 
