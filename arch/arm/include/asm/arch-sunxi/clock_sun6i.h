@@ -67,13 +67,22 @@ struct sunxi_ccm_reg {
 	u32 dram_pll_cfg;	/* 0xf8 PLL_DDR cfg register, A33 only */
 	u32 mbus_reset;		/* 0xfc MBUS reset control, A33 only */
 	u32 dram_clk_gate;	/* 0x100 DRAM module gating */
+#ifdef CONFIG_SUNXI_DE2
+	u32 de_clk_cfg;		/* 0x104 DE module clock */
+#else
 	u32 be0_clk_cfg;	/* 0x104 BE0 module clock */
+#endif
 	u32 be1_clk_cfg;	/* 0x108 BE1 module clock */
 	u32 fe0_clk_cfg;	/* 0x10c FE0 module clock */
 	u32 fe1_clk_cfg;	/* 0x110 FE1 module clock */
 	u32 mp_clk_cfg;		/* 0x114 MP module clock */
+#ifdef CONFIG_SUNXI_DE2
+	u32 lcd0_clk_cfg;	/* 0x118 LCD0 module clock */
+	u32 lcd1_clk_cfg;	/* 0x11c LCD1 module clock */
+#else
 	u32 lcd0_ch0_clk_cfg;	/* 0x118 LCD0 CH0 module clock */
 	u32 lcd1_ch0_clk_cfg;	/* 0x11c LCD1 CH0 module clock */
+#endif
 	u32 reserved14[3];
 	u32 lcd0_ch1_clk_cfg;	/* 0x12c LCD0 CH1 module clock */
 	u32 lcd1_ch1_clk_cfg;	/* 0x130 LCD1 CH1 module clock */
@@ -85,7 +94,11 @@ struct sunxi_ccm_reg {
 	u32 dmic_clk_cfg;	/* 0x148 Digital Mic module clock*/
 	u32 reserved15;
 	u32 hdmi_clk_cfg;	/* 0x150 HDMI module clock */
+#ifdef CONFIG_SUNXI_DE2
+	u32 hdmi_slow_clk_cfg;	/* 0x154 HDMI slow module clock */
+#else
 	u32 ps_clk_cfg;		/* 0x154 PS module clock */
+#endif
 	u32 mtc_clk_cfg;	/* 0x158 MTC module clock */
 	u32 mbus0_clk_cfg;	/* 0x15c MBUS0 module clock */
 	u32 mbus1_clk_cfg;	/* 0x160 MBUS1 module clock */
@@ -142,6 +155,8 @@ struct sunxi_ccm_reg {
 	u32 apb2_reset_cfg;	/* 0x2d8 APB2 Reset config */
 	u32 reserved25[5];
 	u32 ccu_sec_switch;	/* 0x2f0 CCU Security Switch, H3 only */
+	u32 reserved26[11];
+	u32 pll_lock_ctrl;	/* 0x320 PLL lock control, R40 only */
 };
 
 /* apb2 bit field */
@@ -191,6 +206,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL3_CTRL_N_MASK		(0x7f << CCM_PLL3_CTRL_N_SHIFT)
 #define CCM_PLL3_CTRL_N(n)		((((n) - 1) & 0x7f) << 8)
 #define CCM_PLL3_CTRL_INTEGER_MODE	(0x1 << 24)
+#define CCM_PLL3_CTRL_LOCK		(0x1 << 28)
 #define CCM_PLL3_CTRL_EN		(0x1 << 31)
 
 #define CCM_PLL5_CTRL_M(n)		((((n) - 1) & 0x3) << 0)
@@ -219,6 +235,16 @@ struct sunxi_ccm_reg {
 #define CCM_MIPI_PLL_CTRL_N(n)		((((n) - 1) & 0xf) << 8)
 #define CCM_MIPI_PLL_CTRL_LDO_EN	(0x3 << 22)
 #define CCM_MIPI_PLL_CTRL_EN		(0x1 << 31)
+
+#define CCM_PLL10_CTRL_M_SHIFT		0
+#define CCM_PLL10_CTRL_M_MASK		(0xf << CCM_PLL10_CTRL_M_SHIFT)
+#define CCM_PLL10_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_PLL10_CTRL_N_SHIFT		8
+#define CCM_PLL10_CTRL_N_MASK		(0x7f << CCM_PLL10_CTRL_N_SHIFT)
+#define CCM_PLL10_CTRL_N(n)		((((n) - 1) & 0x7f) << 8)
+#define CCM_PLL10_CTRL_INTEGER_MODE	(0x1 << 24)
+#define CCM_PLL10_CTRL_LOCK		(0x1 << 28)
+#define CCM_PLL10_CTRL_EN		(0x1 << 31)
 
 #define CCM_PLL11_CTRL_N(n)		((((n) - 1) & 0x3f) << 8)
 #define CCM_PLL11_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
@@ -271,9 +297,15 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_DRC0		25
 #define AHB_GATE_OFFSET_DE_FE0		14
 #define AHB_GATE_OFFSET_DE_BE0		12
+#define AHB_GATE_OFFSET_DE		12
 #define AHB_GATE_OFFSET_HDMI		11
+#ifndef CONFIG_SUNXI_DE2
 #define AHB_GATE_OFFSET_LCD1		5
 #define AHB_GATE_OFFSET_LCD0		4
+#else
+#define AHB_GATE_OFFSET_LCD1		4
+#define AHB_GATE_OFFSET_LCD0		3
+#endif
 
 #define CCM_MMC_CTRL_M(x)		((x) - 1)
 #define CCM_MMC_CTRL_OCLK_DLY(x)	((x) << 8)
@@ -355,6 +387,12 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH1_CTRL_PLL7_2X	(3 << 24)
 #define CCM_LCD_CH1_CTRL_GATE		(0x1 << 31)
 
+#define CCM_LCD0_CTRL_GATE		(0x1 << 31)
+#define CCM_LCD0_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+
+#define CCM_LCD1_CTRL_GATE		(0x1 << 31)
+#define CCM_LCD1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+
 #define CCM_HDMI_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
 #define CCM_HDMI_CTRL_PLL_MASK		(3 << 24)
 #define CCM_HDMI_CTRL_PLL3		(0 << 24)
@@ -363,6 +401,8 @@ struct sunxi_ccm_reg {
 #define CCM_HDMI_CTRL_PLL7_2X		(3 << 24)
 #define CCM_HDMI_CTRL_DDC_GATE		(0x1 << 30)
 #define CCM_HDMI_CTRL_GATE		(0x1 << 31)
+
+#define CCM_HDMI_SLOW_CTRL_DDC_GATE	(1 << 31)
 
 #if defined(CONFIG_MACH_SUN50I)
 #define MBUS_CLK_DEFAULT		0x81000002 /* PLL6x2 / 3 */
@@ -391,9 +431,16 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_DRC0		25
 #define AHB_RESET_OFFSET_DE_FE0		14
 #define AHB_RESET_OFFSET_DE_BE0		12
+#define AHB_RESET_OFFSET_DE		12
 #define AHB_RESET_OFFSET_HDMI		11
+#define AHB_RESET_OFFSET_HDMI2		10
+#ifndef CONFIG_SUNXI_DE2
 #define AHB_RESET_OFFSET_LCD1		5
 #define AHB_RESET_OFFSET_LCD0		4
+#else
+#define AHB_RESET_OFFSET_LCD1		4
+#define AHB_RESET_OFFSET_LCD0		3
+#endif
 
 /* ahb_reset2 offsets */
 #define AHB_RESET_OFFSET_EPHY		2
@@ -416,6 +463,13 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_PLL10		(5 << 24)
 #define CCM_DE_CTRL_GATE		(1 << 31)
 
+/* CCM bits common to all Display Engine 2.0 clock ctrl regs */
+#define CCM_DE2_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_DE2_CTRL_PLL_MASK		(3 << 24)
+#define CCM_DE2_CTRL_PLL6_2X		(0 << 24)
+#define CCM_DE2_CTRL_PLL10		(1 << 24)
+#define CCM_DE2_CTRL_GATE		(0x1 << 31)
+
 /* CCU security switch, H3 only */
 #define CCM_SEC_SWITCH_MBUS_NONSEC	(1 << 2)
 #define CCM_SEC_SWITCH_BUS_NONSEC	(1 << 1)
@@ -424,7 +478,9 @@ struct sunxi_ccm_reg {
 #ifndef __ASSEMBLY__
 void clock_set_pll1(unsigned int hz);
 void clock_set_pll3(unsigned int hz);
+void clock_set_pll3_factors(int m, int n);
 void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
+void clock_set_pll10(unsigned int hz);
 void clock_set_pll11(unsigned int clk, bool sigma_delta_enable);
 void clock_set_mipi_pll(unsigned int hz);
 unsigned int clock_get_pll3(void);

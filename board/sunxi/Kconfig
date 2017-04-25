@@ -58,6 +58,7 @@ config SUNXI_GEN_SUN6I
 
 config MACH_SUNXI_H3_H5
 	bool
+	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
@@ -134,6 +135,24 @@ config MACH_SUN8I_H3
 	select MACH_SUNXI_H3_H5
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
+config MACH_SUN8I_R40
+	bool "sun8i (Allwinner R40)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+
+config MACH_SUN8I_V3S
+	bool "sun8i (Allwinner V3s)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+	select SUNXI_GEN_SUN6I
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
@@ -144,6 +163,7 @@ config MACH_SUN9I
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
+	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
@@ -159,7 +179,12 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
-	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUNXI_H3_H5 || MACH_SUN8I_A83T
+	default y if MACH_SUN8I_A23
+	default y if MACH_SUN8I_A33
+	default y if MACH_SUN8I_A83T
+	default y if MACH_SUNXI_H3_H5
+	default y if MACH_SUN8I_R40
+	default y if MACH_SUN8I_V3S
 
 config RESERVE_ALLWINNER_BOOT0_HEADER
 	bool "reserve space for Allwinner boot0 header"
@@ -194,6 +219,7 @@ config DRAM_TYPE
 config DRAM_CLK
 	int "sunxi dram clock speed"
 	default 792 if MACH_SUN9I
+	default 648 if MACH_SUN8I_R40
 	default 312 if MACH_SUN6I || MACH_SUN8I
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default 672 if MACH_SUN50I
@@ -215,6 +241,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 3881979 if MACH_SUN8I_R40
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
 	---help---
@@ -224,6 +251,7 @@ config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
 	default n if !MACH_SUN8I_A23
 	default y if MACH_SUN8I_A23
+	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	---help---
 	Select this to enable dram odt (on die termination).
@@ -308,9 +336,13 @@ config DRAM_ODT_CORRECTION
 endif
 
 config SYS_CLK_FREQ
-	default 816000000 if MACH_SUN50I
+	default 1008000000 if MACH_SUN4I
+	default 1008000000 if MACH_SUN5I
+	default 1008000000 if MACH_SUN6I
 	default 912000000 if MACH_SUN7I
-	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
+	default 1008000000 if MACH_SUN8I
+	default 1008000000 if MACH_SUN9I
+	default 816000000 if MACH_SUN50I
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -344,6 +376,13 @@ config OLD_SUNXI_KERNEL_COMPAT
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
 	sub-optimal settings for newer kernels, only enable if needed.
+
+config MACPWR
+	string "MAC power pin"
+	default ""
+	help
+	  Set the pin used to power the MAC. This takes a string in the format
+	  understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config MMC0_CD_PIN
 	string "Card detect pin for mmc0"
@@ -453,7 +492,7 @@ config USB3_VBUS_PIN
 
 config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
-	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_R40
 	default n if MACH_SUN6I || MACH_SUN8I
 	select CMD_I2C
 	---help---
@@ -512,7 +551,12 @@ config AXP_GPIO
 
 config VIDEO
 	bool "Enable graphical uboot console on HDMI, LCD or VGA"
-	depends on !MACH_SUN8I_A83T && !MACH_SUNXI_H3_H5 && !MACH_SUN9I && !MACH_SUN50I
+	depends on !MACH_SUN8I_A83T
+	depends on !MACH_SUNXI_H3_H5
+	depends on !MACH_SUN8I_R40
+	depends on !MACH_SUN8I_V3S
+	depends on !MACH_SUN9I
+	depends on !MACH_SUN50I
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD
@@ -658,6 +702,10 @@ config VIDEO_LCD_IF_PARALLEL
 config VIDEO_LCD_IF_LVDS
 	bool
 
+config SUNXI_DE2
+	bool
+	default n
+
 
 choice
 	prompt "LCD panel support"
@@ -706,6 +754,13 @@ config VIDEO_LCD_TL059WV5C0
 
 endchoice
 
+config SATAPWR
+	string "SATA power pin"
+	default ""
+	help
+	  Set the pins used to power the SATA. This takes a string in the
+	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
+	  port H.
 
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"
@@ -714,7 +769,12 @@ config GMAC_TX_DELAY
 	Set the GMAC Transmit Clock Delay Chain value.
 
 config SPL_STACK_R_ADDR
-	default 0x4fe00000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I || MACH_SUN50I
+	default 0x4fe00000 if MACH_SUN4I
+	default 0x4fe00000 if MACH_SUN5I
+	default 0x4fe00000 if MACH_SUN6I
+	default 0x4fe00000 if MACH_SUN7I
+	default 0x4fe00000 if MACH_SUN8I
 	default 0x2fe00000 if MACH_SUN9I
+	default 0x4fe00000 if MACH_SUN50I
 
 endif

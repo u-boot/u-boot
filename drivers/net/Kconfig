@@ -149,6 +149,12 @@ config PCH_GBE
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
 
+config RGMII
+	bool "Enable RGMII"
+	help
+	  Enable the support of the Reduced Gigabit Media-Independent
+	  Interface (RGMII).
+
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
 	help
@@ -160,6 +166,17 @@ config RTL8169
 	help
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.
+
+config SUN7I_GMAC
+	bool "Enable Allwinner GMAC Ethernet support"
+	help
+	  Enable the support for Sun7i GMAC Ethernet controller
+
+config SUN4I_EMAC
+	bool "Allwinner Sun4i Ethernet MAC support"
+	depends on DM_ETH
+	help
+	  This driver supports the Allwinner based SUN4I Ethernet MAC.
 
 config SUN8I_EMAC
         bool "Allwinner Sun8i Ethernet MAC support"

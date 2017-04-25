@@ -69,12 +69,14 @@ struct mm_region *mem_map = sunxi_mem_map;
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || \
+    defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 	/* disable GPB22,23 as uart0 tx,rx to avoid conflict */
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUNXI_GPIO_INPUT);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
 #endif
-#if defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN8I) && !defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0);
 #else
@@ -82,7 +84,9 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0);
 #endif
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
-#elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I))
+#elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || \
+				 defined(CONFIG_MACH_SUN7I) || \
+				 defined(CONFIG_MACH_SUN8I_R40))
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUN4I_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUN4I_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(23), SUNXI_GPIO_PULL_UP);
@@ -110,6 +114,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(10), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_V3S)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(8), SUN8I_V3S_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_V3S_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(9), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
@@ -266,7 +274,7 @@ void board_init_f(ulong dummy)
 
 void reset_cpu(ulong addr)
 {
-#ifdef CONFIG_SUNXI_GEN_SUN4I
+#if defined(CONFIG_SUNXI_GEN_SUN4I) || defined(CONFIG_MACH_SUN8I_R40)
 	static const struct sunxi_wdog *wdog =
 		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -278,8 +286,7 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#endif
-#ifdef CONFIG_SUNXI_GEN_SUN6I
+#elif defined(CONFIG_SUNXI_GEN_SUN6I)
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 

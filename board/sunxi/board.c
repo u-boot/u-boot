@@ -80,7 +80,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	__maybe_unused int id_pfr1, ret;
+	__maybe_unused int id_pfr1, ret, satapwr_pin, macpwr_pin;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -118,12 +118,14 @@ int board_init(void)
 		return ret;
 
 #ifdef CONFIG_SATAPWR
-	gpio_request(CONFIG_SATAPWR, "satapwr");
-	gpio_direction_output(CONFIG_SATAPWR, 1);
+	satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
+	gpio_request(satapwr_pin, "satapwr");
+	gpio_direction_output(satapwr_pin, 1);
 #endif
 #ifdef CONFIG_MACPWR
-	gpio_request(CONFIG_MACPWR, "macpwr");
-	gpio_direction_output(CONFIG_MACPWR, 1);
+	macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
+	gpio_request(macpwr_pin, "macpwr");
+	gpio_direction_output(macpwr_pin, 1);
 #endif
 
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
@@ -199,7 +201,8 @@ static void mmc_pinmux_setup(int sdc)
 	case 1:
 		pins = sunxi_name_to_gpio_bank(CONFIG_MMC1_PINS);
 
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 		if (pins == SUNXI_GPIO_H) {
 			/* SDC1: PH22-PH-27 */
 			for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
@@ -294,6 +297,17 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
 		}
+#elif defined(CONFIG_MACH_SUN8I_R40)
+		/* SDC2: PC6-PC15, PC24 */
+		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_SDC2);
+		sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+		sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
 #elif defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I)
 		/* SDC2: PC5-PC6, PC8-PC16 */
 		for (pin = SUNXI_GPC(5); pin <= SUNXI_GPC(6); pin++) {
@@ -320,7 +334,8 @@ static void mmc_pinmux_setup(int sdc)
 	case 3:
 		pins = sunxi_name_to_gpio_bank(CONFIG_MMC3_PINS);
 
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 		/* SDC3: PI4-PI9 */
 		for (pin = SUNXI_GPI(4); pin <= SUNXI_GPI(9); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUNXI_GPI_SDC3);
@@ -394,7 +409,10 @@ int board_mmc_init(bd_t *bis)
 void i2c_init_board(void)
 {
 #ifdef CONFIG_I2C0_ENABLE
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || \
+    defined(CONFIG_MACH_SUN5I) || \
+    defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN4I_GPB_TWI0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN4I_GPB_TWI0);
 	clock_twi_onoff(0, 1);
@@ -410,7 +428,9 @@ void i2c_init_board(void)
 #endif
 
 #ifdef CONFIG_I2C1_ENABLE
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || \
+    defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(18), SUN4I_GPB_TWI1);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(19), SUN4I_GPB_TWI1);
 	clock_twi_onoff(1, 1);
@@ -430,7 +450,9 @@ void i2c_init_board(void)
 #endif
 
 #ifdef CONFIG_I2C2_ENABLE
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || \
+    defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN4I_GPB_TWI2);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(21), SUN4I_GPB_TWI2);
 	clock_twi_onoff(2, 1);
@@ -454,7 +476,8 @@ void i2c_init_board(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(10), SUN6I_GPG_TWI3);
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(11), SUN6I_GPG_TWI3);
 	clock_twi_onoff(3, 1);
-#elif defined(CONFIG_MACH_SUN7I)
+#elif defined(CONFIG_MACH_SUN7I) || \
+      defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPI(0), SUN7I_GPI_TWI3);
 	sunxi_gpio_set_cfgpin(SUNXI_GPI(1), SUN7I_GPI_TWI3);
 	clock_twi_onoff(3, 1);
@@ -462,7 +485,8 @@ void i2c_init_board(void)
 #endif
 
 #ifdef CONFIG_I2C4_ENABLE
-#if defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 	sunxi_gpio_set_cfgpin(SUNXI_GPI(2), SUN7I_GPI_TWI4);
 	sunxi_gpio_set_cfgpin(SUNXI_GPI(3), SUN7I_GPI_TWI4);
 	clock_twi_onoff(4, 1);
