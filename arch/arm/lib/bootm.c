@@ -356,7 +356,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 
 	kernel_entry = (void (*)(int, int, uint))images->ep;
-
+#ifdef CONFIG_CPU_V7M
+	ulong addr = (ulong)kernel_entry | 1;
+	kernel_entry = (void *)addr;
+#endif
 	s = getenv("machid");
 	if (s) {
 		if (strict_strtoul(s, 16, &machid) < 0) {
