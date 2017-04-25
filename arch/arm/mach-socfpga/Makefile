@@ -12,6 +12,7 @@ obj-y	+= misc.o timer.o reset_manager.o clock_manager.o \
 
 obj-$(CONFIG_TARGET_SOCFPGA_ARRIA10) += clock_manager_arria10.o \
 					pinmux_arria10.o	\
+					misc_arria10.o		\
 					reset_manager_arria10.o
 
 obj-$(CONFIG_SPL_BUILD) += spl.o freeze_controller.o

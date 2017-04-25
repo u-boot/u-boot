@@ -22,4 +22,10 @@ void socfpga_fpga_add(void);
 static inline void socfpga_fpga_add(void) {}
 #endif
 
+#if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+unsigned int dedicated_uart_com_port(const void *blob);
+unsigned int shared_uart_com_port(const void *blob);
+unsigned int uart_com_port(const void *blob);
+#endif
+
 #endif /* _MISC_H_ */
