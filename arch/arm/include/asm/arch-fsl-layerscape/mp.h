@@ -31,7 +31,11 @@ extern u64 __spin_table[];
 extern u64 __real_cntfrq;
 extern u64 *secondary_boot_code;
 extern size_t __secondary_boot_code_size;
+#ifdef CONFIG_MP
 int fsl_layerscape_wake_seconday_cores(void);
+#else
+static inline int fsl_layerscape_wake_seconday_cores(void) { return 0; }
+#endif
 void *get_spin_tbl_addr(void);
 phys_addr_t determine_mp_bootpg(void);
 void secondary_boot_func(void);
