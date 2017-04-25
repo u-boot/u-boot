@@ -1,6 +1,7 @@
 /*
  * LayerScape Internal Memory Map
  *
+ * Copyright (C) 2017 NXP Semiconductors
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -45,6 +46,9 @@
 #define I2C2_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01010000)
 #define I2C3_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01020000)
 #define I2C4_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01030000)
+#define GPIO4_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01330000)
+#define GPIO4_GPDIR_ADDR			(GPIO4_BASE_ADDR + 0x0)
+#define GPIO4_GPDAT_ADDR			(GPIO4_BASE_ADDR + 0x8)
 
 #define CONFIG_SYS_XHCI_USB1_ADDR		(CONFIG_SYS_IMMR + 0x02100000)
 #define CONFIG_SYS_XHCI_USB2_ADDR		(CONFIG_SYS_IMMR + 0x02110000)

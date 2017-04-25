@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017 NXP Semiconductors
  * Copyright 2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -205,6 +206,23 @@ int board_early_init_f(void)
 
 int misc_init_r(void)
 {
+#ifdef CONFIG_FSL_QIXIS
+	u8 sw;
+
+	sw = QIXIS_READ(arch);
+	/*
+	 * LS2080ARDB/LS2088ARDB RevF board has smart voltage translator
+	 * which needs to be programmed to enable high speed SD interface
+	 * by setting GPIO4_10 output to zero
+	 */
+	if ((sw & 0xf) == 0x5) {
+		out_le32(GPIO4_GPDIR_ADDR, (1 << 21 |
+					    in_le32(GPIO4_GPDIR_ADDR)));
+		out_le32(GPIO4_GPDAT_ADDR, (~(1 << 21) &
+					    in_le32(GPIO4_GPDAT_ADDR)));
+	}
+#endif
+
 	if (hwconfig("sdhc"))
 		config_board_mux(MUX_TYPE_SDHC);
 
