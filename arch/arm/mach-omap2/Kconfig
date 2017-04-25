@@ -1,3 +1,152 @@
+if ARCH_OMAP2PLUS
+
+choice
+	prompt "OMAP2+ platform select"
+	default TARGET_BRXRE1
+
+config TARGET_BRXRE1
+	bool "Support BRXRE1"
+	select BOARD_LATE_INIT
+
+config TARGET_BRPPT1
+	bool "Support BRPPT1"
+	select BOARD_LATE_INIT
+
+config TARGET_DRACO
+	bool "Support draco"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_THUBAN
+	bool "Support thuban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RASTABAN
+	bool "Support rastaban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_ETAMIN
+	bool "Support etamin"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_PXM2
+	bool "Support pxm2"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RUT
+	bool "Support rut"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_TI814X_EVM
+	bool "Support ti814x_evm"
+
+config TARGET_TI816X_EVM
+	bool "Support ti816x_evm"
+
+config OMAP34XX
+	bool "OMAP34XX SoC"
+	select ARM_ERRATA_430973
+	select ARM_ERRATA_454179
+	select ARM_ERRATA_621766
+	select ARM_ERRATA_725233
+	select USE_TINY_PRINTF
+	imply SPL_EXT_SUPPORT
+	imply SPL_FAT_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_I2C_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SUPPORT
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SYS_THUMB_BUILD
+
+config OMAP44XX
+	bool "OMAP44XX SoC"
+	select USE_TINY_PRINTF
+	imply SPL_DISPLAY_PRINT
+	imply SPL_EXT_SUPPORT
+	imply SPL_FAT_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_I2C_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SUPPORT
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SYS_THUMB_BUILD
+
+config OMAP54XX
+	bool "OMAP54XX SoC"
+	select ARM_ERRATA_798870
+	select SYS_THUMB_BUILD
+	imply SPL_DISPLAY_PRINT
+	imply SPL_ENV_SUPPORT
+	imply SPL_EXT_SUPPORT
+	imply SPL_FAT_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_I2C_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SUPPORT
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+
+config AM43XX
+	bool "AM43XX SoC"
+	imply SPL_DM
+	imply SPL_DM_SEQ_ALIAS
+	imply SPL_OF_CONTROL
+	imply SPL_OF_TRANSLATE
+	imply SPL_SEPARATE_BSS
+	imply SPL_SYS_MALLOC_SIMPLE
+	imply SYS_THUMB_BUILD
+	help
+	  Support for AM43xx SOC from Texas Instruments.
+	  The AM43xx high performance SOC features a Cortex-A9
+	  ARM core, a quad core PRU-ICSS for industrial Ethernet
+	  protocols, dual camera support, optional 3D graphics
+	  and an optional customer programmable secure boot.
+
+config AM33XX
+	bool "AM33XX SoC"
+	imply SYS_THUMB_BUILD
+	help
+	  Support for AM335x SOC from Texas Instruments.
+	  The AM335x high performance SOC features a Cortex-A8
+	  ARM core, a dual core PRU-ICSS for industrial Ethernet
+	  protocols, optional 3D graphics and an optional customer
+	  programmable secure boot.
+
+config TARGET_CM_T43
+	bool "Support cm_t43"
+
+endchoice
+
+
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"
 	depends on OMAP54XX || AM43XX || AM33XX || ARCH_KEYSTONE
@@ -15,3 +164,17 @@ source "arch/arm/mach-omap2/omap4/Kconfig"
 source "arch/arm/mach-omap2/omap5/Kconfig"
 
 source "arch/arm/mach-omap2/am33xx/Kconfig"
+
+source "board/BuR/brxre1/Kconfig"
+source "board/BuR/brppt1/Kconfig"
+source "board/siemens/draco/Kconfig"
+source "board/siemens/pxm2/Kconfig"
+source "board/siemens/rut/Kconfig"
+source "board/ti/ti814x/Kconfig"
+source "board/ti/ti816x/Kconfig"
+source "board/ti/am43xx/Kconfig"
+source "board/ti/am335x/Kconfig"
+source "board/compulab/cm_t335/Kconfig"
+source "board/compulab/cm_t43/Kconfig"
+
+endif

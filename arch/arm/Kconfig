@@ -263,12 +263,6 @@ config SPL_USE_ARCH_MEMSET
 	  Such implementation may be faster under some conditions
 	  but may increase the binary size.
 
-config ARCH_OMAP2
-	bool
-	select CPU_V7
-	select SUPPORT_SPL
-	imply FIT
-
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
 	default y if ARM64 && !TARGET_THUNDERX_88XX
@@ -491,72 +485,6 @@ config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7
 
-config TARGET_BRXRE1
-	bool "Support BRXRE1"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-
-config TARGET_BRPPT1
-	bool "Support BRPPT1"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-
-config TARGET_DRACO
-	bool "Support draco"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_THUBAN
-	bool "Support thuban"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RASTABAN
-	bool "Support rastaban"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_ETAMIN
-	bool "Support etamin"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PXM2
-	bool "Support pxm2"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RUT
-	bool "Support rut"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_TI814X_EVM
-	bool "Support ti814x_evm"
-	select ARCH_OMAP2
-
-config TARGET_TI816X_EVM
-	bool "Support ti816x_evm"
-	select ARCH_OMAP2
-
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
 	select CPU_V7
@@ -614,6 +542,12 @@ config ARCH_KEYSTONE
 	select SUPPORT_SPL
 	select SYS_THUMB_BUILD
 	select CMD_POWEROFF
+	imply FIT
+
+config ARCH_OMAP2PLUS
+	bool "TI OMAP2+"
+	select CPU_V7
+	select SUPPORT_SPL
 	imply FIT
 
 config ARCH_MESON
@@ -684,92 +618,6 @@ config TARGET_MX53SMD
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
 
-config OMAP34XX
-	bool "OMAP34XX SoC"
-	select ARCH_OMAP2
-	select ARM_ERRATA_430973
-	select ARM_ERRATA_454179
-	select ARM_ERRATA_621766
-	select ARM_ERRATA_725233
-	select USE_TINY_PRINTF
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-	imply SYS_THUMB_BUILD
-
-config OMAP44XX
-	bool "OMAP44XX SoC"
-	select ARCH_OMAP2
-	select USE_TINY_PRINTF
-	imply SPL_DISPLAY_PRINT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-	imply SYS_THUMB_BUILD
-
-config OMAP54XX
-	bool "OMAP54XX SoC"
-	select ARCH_OMAP2
-	select ARM_ERRATA_798870
-	select SYS_THUMB_BUILD
-	imply SPL_DISPLAY_PRINT
-	imply SPL_ENV_SUPPORT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-
-config AM43XX
-	bool "AM43XX SoC"
-	select ARCH_OMAP2
-	imply SPL_DM
-	imply SPL_DM_SEQ_ALIAS
-	imply SPL_OF_CONTROL
-	imply SPL_OF_TRANSLATE
-	imply SPL_SEPARATE_BSS
-	imply SPL_SYS_MALLOC_SIMPLE
-	imply SYS_THUMB_BUILD
-	help
-	  Support for AM43xx SOC from Texas Instruments.
-	  The AM43xx high performance SOC features a Cortex-A9
-	  ARM core, a quad core PRU-ICSS for industrial Ethernet
-	  protocols, dual camera support, optional 3D graphics
-	  and an optional customer programmable secure boot.
-
-config AM33XX
-	bool "AM33XX SoC"
-	select ARCH_OMAP2
-	imply SYS_THUMB_BUILD
-	help
-	  Support for AM335x SOC from Texas Instruments.
-	  The AM335x high performance SOC features a Cortex-A8
-	  ARM core, a dual core PRU-ICSS for industrial Ethernet
-	  protocols, optional 3D graphics and an optional customer
-	  programmable secure boot.
-
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select DM
@@ -806,10 +654,6 @@ config ARCH_SOCFPGA
 	select ARCH_MISC_INIT
 	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	select SYS_THUMB_BUILD
-
-config TARGET_CM_T43
-	bool "Support cm_t43"
-	select ARCH_OMAP2
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -1256,8 +1100,6 @@ source "arch/arm/imx-common/Kconfig"
 source "board/aries/m28evk/Kconfig"
 source "board/aries/m53evk/Kconfig"
 source "board/bosch/shc/Kconfig"
-source "board/BuR/brxre1/Kconfig"
-source "board/BuR/brppt1/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
@@ -1272,8 +1114,6 @@ source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
-source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
@@ -1312,9 +1152,6 @@ source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
-source "board/siemens/draco/Kconfig"
-source "board/siemens/pxm2/Kconfig"
-source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
@@ -1325,11 +1162,7 @@ source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/tcl/sl50/Kconfig"
-source "board/ti/am335x/Kconfig"
-source "board/ti/am43xx/Kconfig"
 source "board/birdland/bav335x/Kconfig"
-source "board/ti/ti814x/Kconfig"
-source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/technologic/ts4600/Kconfig"
