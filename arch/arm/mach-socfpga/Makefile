@@ -7,14 +7,15 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= misc.o timer.o reset_manager.o system_manager.o clock_manager.o \
+obj-y	+= misc.o timer.o reset_manager.o clock_manager.o \
 	   fpga_manager.o board.o
 
 obj-$(CONFIG_SPL_BUILD) += spl.o freeze_controller.o
 
 # QTS-generated config file wrappers
 obj-$(CONFIG_TARGET_SOCFPGA_GEN5)	+= scan_manager.o wrap_pll_config.o \
-					   clock_manager_gen5.o reset_manager_gen5.o
+					   clock_manager_gen5.o reset_manager_gen5.o \
+					   system_manager_gen5.o
 obj-$(CONFIG_SPL_BUILD) += wrap_iocsr_config.o wrap_pinmux_config.o	\
 			   wrap_sdram_config.o
 CFLAGS_wrap_iocsr_config.o	+= -I$(srctree)/board/$(BOARDDIR)
