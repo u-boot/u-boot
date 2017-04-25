@@ -37,6 +37,9 @@ config TARGET_SOCFPGA_ARRIA5
 	bool
 	select TARGET_SOCFPGA_GEN5
 
+config TARGET_SOCFPGA_ARRIA10
+	bool
+
 config TARGET_SOCFPGA_CYCLONE5
 	bool
 	select TARGET_SOCFPGA_GEN5
@@ -48,6 +51,10 @@ config TARGET_SOCFPGA_GEN5
 choice
 	prompt "Altera SOCFPGA board select"
 	optional
+
+config TARGET_SOCFPGA_ARRIA10_SOCDK
+	bool "Altera SOCFPGA SoCDK (Arria 10)"
+	select TARGET_SOCFPGA_ARRIA10
 
 config TARGET_SOCFPGA_ARRIA5_SOCDK
 	bool "Altera SOCFPGA SoCDK (Arria V)"
@@ -98,6 +105,7 @@ endchoice
 
 config SYS_BOARD
 	default "arria5-socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "arria10-socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "cyclone5-socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 	default "de0-nano-soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "de1-soc" if TARGET_SOCFPGA_TERASIC_DE1_SOC
@@ -111,6 +119,7 @@ config SYS_BOARD
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "altera" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 	default "aries" if TARGET_SOCFPGA_ARIES_MCVEVK
 	default "ebv" if TARGET_SOCFPGA_EBV_SOCRATES
@@ -125,6 +134,7 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "socfpga_arria5_socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "socfpga_arria10_socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "socfpga_cyclone5_socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 	default "socfpga_de0_nano_soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "socfpga_de1_soc" if TARGET_SOCFPGA_TERASIC_DE1_SOC
