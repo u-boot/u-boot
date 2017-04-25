@@ -265,7 +265,6 @@ unsigned long get_board_sys_clk(void);
 /* SPI */
 #ifdef CONFIG_FSL_DSPI
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SPI_FLASH_STMICRO
 #endif
 
