@@ -19,7 +19,12 @@ void cm_wait_for_lock(u32 mask)
 	u32 inter_val;
 	u32 retry = 0;
 	do {
+#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 		inter_val = readl(&clock_manager_base->inter) & mask;
+#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+		inter_val = readl(&clock_manager_base->stat) & mask;
+#endif
+		/* Wait for stable lock */
 		if (inter_val == mask)
 			retry++;
 		else
@@ -44,7 +49,12 @@ int set_cpu_clk_info(void)
 
 	gd->bd->bi_arm_freq = cm_get_mpu_clk_hz() / 1000000;
 	gd->bd->bi_dsp_freq = 0;
+
+#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 	gd->bd->bi_ddr_freq = cm_get_sdram_clk_hz() / 1000000;
+#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+	gd->bd->bi_ddr_freq = 0;
+#endif
 
 	return 0;
 }
