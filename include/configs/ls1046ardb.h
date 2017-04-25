@@ -178,18 +178,20 @@
 #define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
 #endif
 
+#define AQR105_IRQ_MASK			0x80000000
 /* FMan */
 #ifndef SPL_NO_FMAN
+
+#ifdef CONFIG_NET
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_REALTEK
+#endif
+
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
-#define CONFIG_PHYLIB
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
-
-#define CONFIG_PHY_REALTEK
 #define CONFIG_PHY_AQUANTIA
-#define AQR105_IRQ_MASK			0x80000000
-
+#define CONFIG_PHYLIB_10G
 #define RGMII_PHY1_ADDR			0x1
 #define RGMII_PHY2_ADDR			0x2
 
@@ -200,6 +202,7 @@
 
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
+
 #endif
 
 /* QSPI device */
