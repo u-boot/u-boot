@@ -13,7 +13,8 @@ obj-y	+= misc.o timer.o reset_manager.o system_manager.o clock_manager.o \
 obj-$(CONFIG_SPL_BUILD) += spl.o freeze_controller.o
 
 # QTS-generated config file wrappers
-obj-$(CONFIG_TARGET_SOCFPGA_GEN5)	+= scan_manager.o wrap_pll_config.o
+obj-$(CONFIG_TARGET_SOCFPGA_GEN5)	+= scan_manager.o wrap_pll_config.o \
+					   clock_manager_gen5.o
 obj-$(CONFIG_SPL_BUILD) += wrap_iocsr_config.o wrap_pinmux_config.o	\
 			   wrap_sdram_config.o
 CFLAGS_wrap_iocsr_config.o	+= -I$(srctree)/board/$(BOARDDIR)
