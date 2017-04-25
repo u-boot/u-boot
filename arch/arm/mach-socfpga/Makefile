@@ -10,6 +10,8 @@
 obj-y	+= misc.o timer.o reset_manager.o clock_manager.o \
 	   fpga_manager.o board.o
 
+obj-$(CONFIG_TARGET_SOCFPGA_ARRIA10) += reset_manager_arria10.o
+
 obj-$(CONFIG_SPL_BUILD) += spl.o freeze_controller.o
 
 # QTS-generated config file wrappers

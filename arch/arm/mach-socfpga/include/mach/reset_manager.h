@@ -43,6 +43,8 @@ void socfpga_per_reset_all(void);
 
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 #include <asm/arch/reset_manager_gen5.h>
+#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#include <asm/arch/reset_manager_arria10.h>
 #endif
 
 #endif /* _RESET_MANAGER_H_ */
