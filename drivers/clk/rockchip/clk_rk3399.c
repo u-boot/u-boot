@@ -747,6 +747,7 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 	u32 div, con;
 
 	switch (clk_id) {
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		con = readl(&cru->clksel_con[16]);
 		break;
@@ -772,6 +773,7 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 	int aclk_emmc = 198*MHz;
 
 	switch (clk_id) {
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		/* Select clk_sdmmc source from GPLL by default */
 		src_clk_div = GPLL_HZ / set_rate;
@@ -861,6 +863,7 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		rate = rk3399_mmc_get_clk(priv->cru, clk->id);
@@ -897,6 +900,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = rk3399_mmc_set_clk(priv->cru, clk->id, rate);
