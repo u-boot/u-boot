@@ -76,9 +76,25 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					  "fifo-mode");
+
+	/*
+	 * 'clock-freq-min-max' is deprecated
+	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
+	 */
 	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				 "clock-freq-min-max", priv->minmax, 2))
-		return -EINVAL;
+				 "clock-freq-min-max", priv->minmax, 2)) {
+		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+					  "max-frequency", -EINVAL);
+
+		if (val < 0)
+			return val;
+
+		priv->minmax[0] = 400000;  /* 400 kHz */
+		priv->minmax[1] = val;
+	} else {
+		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+		      __func__);
+	}
 #endif
 	return 0;
 }
