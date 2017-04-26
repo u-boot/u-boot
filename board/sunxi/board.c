@@ -761,13 +761,19 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	const char *cmp_str;
+	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
+	const char *cmp_str = (void *)(ulong)SPL_ADDR;
 
+	/* Check if there is a DT name stored in the SPL header and use that. */
+	if (spl->dt_name_offset) {
+		cmp_str += spl->dt_name_offset;
+	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
-	cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
+		cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
 #else
-	return 0;
+		return 0;
 #endif
+	};
 
 /* Differentiate the two Pine64 board DTs by their DRAM size. */
 	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
