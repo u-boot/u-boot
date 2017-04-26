@@ -60,9 +60,8 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 	}
 
 	/* Check partition boundaries */
-	if ((sector < 0) ||
-	    ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
-	     >= part_info->size)) {
+	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
+	    >= part_info->size) {
 		printf("%s read outside partition " LBAFU "\n", __func__,
 		       sector);
 		return 0;
