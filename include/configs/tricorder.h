@@ -82,7 +82,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
 
 /* TWL4030 */
-#define CONFIG_TWL4030_POWER
 #define CONFIG_TWL4030_LED
 
 /* Board NAND Info */

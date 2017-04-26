@@ -109,7 +109,6 @@
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_POWER
 #define CONFIG_TWL4030_LED
 
 /*

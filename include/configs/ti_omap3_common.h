@@ -58,9 +58,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
-/* TWL4030 */
-#define CONFIG_TWL4030_POWER
-
 /* SPL */
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"

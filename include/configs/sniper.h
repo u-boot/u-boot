@@ -83,12 +83,6 @@
 #define CONFIG_I2C_MULTI_BUS
 
 /*
- * Power
- */
-
-#define CONFIG_TWL4030_POWER
-
-/*
  * Input
  */
 
