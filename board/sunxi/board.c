@@ -222,6 +222,14 @@ int board_init(void)
 	gpio_direction_output(macpwr_pin, 1);
 #endif
 
+#ifdef CONFIG_DM_I2C
+	/*
+	 * Temporary workaround for enabling I2C clocks until proper sunxi DM
+	 * clk, reset and pinctrl drivers land.
+	 */
+	i2c_init_board();
+#endif
+
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
 	return soft_i2c_board_init();
 }

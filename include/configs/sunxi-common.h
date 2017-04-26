@@ -211,10 +211,12 @@
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
     defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
     defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
+#ifndef CONFIG_DM_I2C
+#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
+#endif
 #endif
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
