@@ -45,7 +45,9 @@ ifdef CONFIG_CPU_V7M
 obj-y	+= interrupts_m.o
 else ifdef CONFIG_ARM64
 obj-y	+= ccn504.o
+ifneq ($(CONFIG_GICV2)$(CONFIG_GICV3),)
 obj-y	+= gic_64.o
+endif
 obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o
