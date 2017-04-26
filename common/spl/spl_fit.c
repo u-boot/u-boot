@@ -22,13 +22,16 @@ static ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
 	return fdt32_to_cpu(*cell);
 }
 
-static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
+/*
+ * Iterate over all /configurations subnodes and call a platform specific
+ * function to find the matching configuration.
+ * Returns the node offset or a negative error number.
+ */
+static int spl_fit_find_config_node(const void *fdt)
 {
-	const char *name, *fdt_name;
-	int conf, node, fdt_node;
-	int len;
+	const char *name;
+	int conf, node, len;
 
-	*fdt_offsetp = 0;
 	conf = fdt_path_offset(fdt, FIT_CONFS_PATH);
 	if (conf < 0) {
 		debug("%s: Cannot find /configurations node: %d\n", __func__,
@@ -50,39 +53,61 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 			continue;
 
 		debug("Selecting config '%s'", name);
-		fdt_name = fdt_getprop(fdt, node, FIT_FDT_PROP, &len);
-		if (!fdt_name) {
-			debug("%s: Cannot find fdt name property: %d\n",
-			      __func__, len);
-			return -EINVAL;
-		}
 
-		debug(", fdt '%s'\n", fdt_name);
-		fdt_node = fdt_subnode_offset(fdt, images, fdt_name);
-		if (fdt_node < 0) {
-			debug("%s: Cannot find fdt node '%s': %d\n",
-			      __func__, fdt_name, fdt_node);
-			return -EINVAL;
-		}
-
-		*fdt_offsetp = fdt_getprop_u32(fdt, fdt_node, "data-offset");
-		len = fdt_getprop_u32(fdt, fdt_node, "data-size");
-		debug("FIT: Selected '%s'\n", name);
-
-		return len;
+		return node;
 	}
-
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	printf("No matching DT out of these options:\n");
-	for (node = fdt_first_subnode(fdt, conf);
-	     node >= 0;
-	     node = fdt_next_subnode(fdt, node)) {
-		name = fdt_getprop(fdt, node, "description", &len);
-		printf("   %s\n", name);
-	}
-#endif
 
 	return -ENOENT;
+}
+
+static int spl_fit_select_index(const void *fit, int images, int *offsetp,
+				const char *type, int index)
+{
+	const char *name, *str;
+	int node, conf_node;
+	int len, i;
+
+	*offsetp = 0;
+	conf_node = spl_fit_find_config_node(fit);
+	if (conf_node < 0) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("No matching DT out of these options:\n");
+		for (node = fdt_first_subnode(fit, conf_node);
+		     node >= 0;
+		     node = fdt_next_subnode(fit, node)) {
+			name = fdt_getprop(fit, node, "description", &len);
+			printf("   %s\n", name);
+		}
+#endif
+		return conf_node;
+	}
+
+	name = fdt_getprop(fit, conf_node, type, &len);
+	if (!name) {
+		debug("cannot find property '%s': %d\n", type, len);
+		return -EINVAL;
+	}
+
+	str = name;
+	for (i = 0; i < index; i++) {
+		str = strchr(str, '\0') + 1;
+		if (!str || (str - name >= len)) {
+			debug("no string for index %d\n", index);
+			return -E2BIG;
+		}
+	}
+
+	debug("%s: '%s'\n", type, str);
+	node = fdt_subnode_offset(fit, images, str);
+	if (node < 0) {
+		debug("cannot find image node '%s': %d\n", str, node);
+		return -EINVAL;
+	}
+
+	*offsetp = fdt_getprop_u32(fit, node, "data-offset");
+	len = fdt_getprop_u32(fit, node, "data-size");
+
+	return len;
 }
 
 static int get_aligned_image_offset(struct spl_load_info *info, int offset)
@@ -218,7 +243,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	memcpy(dst, src, data_size);
 
 	/* Figure out which device tree the board wants to use */
-	fdt_len = spl_fit_select_fdt(fit, images, &fdt_offset);
+	fdt_len = spl_fit_select_index(fit, images, &fdt_offset,
+				       FIT_FDT_PROP, 0);
 	if (fdt_len < 0)
 		return fdt_len;
 
