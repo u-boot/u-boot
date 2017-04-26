@@ -903,5 +903,6 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 #endif
 	.probe	= omap_hsmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+	.flags	= DM_FLAG_PRE_RELOC,
 };
 #endif
