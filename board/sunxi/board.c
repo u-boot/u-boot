@@ -757,3 +757,26 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	const char *cmp_str;
+
+#ifdef CONFIG_DEFAULT_DEVICE_TREE
+	cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
+#else
+	return 0;
+#endif
+
+/* Differentiate the two Pine64 board DTs by their DRAM size. */
+	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
+		if ((gd->ram_size > 512 * 1024 * 1024))
+			return !strstr(name, "plus");
+		else
+			return !!strstr(name, "plus");
+	} else {
+		return strcmp(name, cmp_str);
+	}
+}
+#endif
