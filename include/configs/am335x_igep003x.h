@@ -127,7 +127,7 @@
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(SPL),-(UBI)"
 
 /* SPL */
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* UBI configuration */
 #define CONFIG_SPL_UBI			1

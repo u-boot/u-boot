@@ -86,6 +86,6 @@
 #define CONFIG_PHY_RESET_DELAY 1000
 
 /* SPL */
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 #endif /* __CONFIG_PEPPER_H */
