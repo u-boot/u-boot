@@ -56,11 +56,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SYSCTL_SRC	(1 << 25)
 #define SYSCTL_SRD	(1 << 26)
 
-struct omap_hsmmc_plat {
-	struct mmc_config cfg;
-	struct mmc mmc;
-};
-
 struct omap2_mmc_platform_config {
 	u32 reg_offset;
 };
@@ -777,9 +772,9 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	return 0;
 }
 #else
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	struct omap2_mmc_platform_config *data =
@@ -788,7 +783,7 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int val;
 
-	priv->base_addr = map_physmem(dev_get_addr(dev), sizeof(struct hsmmc *),
+	plat->base_addr = map_physmem(dev_get_addr(dev), sizeof(struct hsmmc *),
 				      MAP_NOCACHE) + data->reg_offset;
 
 	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
@@ -815,11 +810,12 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 #ifdef OMAP_HSMMC_USE_GPIO
-	priv->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
+	plat->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
 #endif
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_BLK
 
@@ -840,6 +836,10 @@ static int omap_hsmmc_probe(struct udevice *dev)
 
 	cfg->name = "OMAP SD/MMC";
 	cfg->ops = &omap_hsmmc_ops;
+	priv->base_addr = plat->base_addr;
+#ifdef OMAP_HSMMC_USE_GPIO
+	priv->cd_inverted = plat->cd_inverted;
+#endif
 
 #ifdef CONFIG_BLK
 	mmc = &plat->mmc;
@@ -849,7 +849,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 		return -1;
 #endif
 
-#ifdef OMAP_HSMMC_USE_GPIO
+#if defined(OMAP_HSMMC_USE_GPIO) && CONFIG_IS_ENABLED(OF_CONTROL)
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
 	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
 #endif
@@ -860,6 +860,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct omap2_mmc_platform_config omap3_mmc_pdata = {
 	.reg_offset = 0,
 };
@@ -887,17 +888,20 @@ static const struct udevice_id omap_hsmmc_ids[] = {
 	},
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(omap_hsmmc) = {
 	.name	= "omap_hsmmc",
 	.id	= UCLASS_MMC,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_hsmmc_ids,
 	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
+#endif
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
 	.probe	= omap_hsmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
-	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
 };
 #endif

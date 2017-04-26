@@ -25,6 +25,8 @@
 #ifndef OMAP_MMC_H_
 #define OMAP_MMC_H_
 
+#include <mmc.h>
+
 struct hsmmc {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
@@ -47,6 +49,13 @@ struct hsmmc {
 	unsigned int ie;		/* 0x134 */
 	unsigned char res4[0x8];
 	unsigned int capa;		/* 0x140 */
+};
+
+struct omap_hsmmc_plat {
+	struct mmc_config cfg;
+	struct hsmmc *base_addr;
+	struct mmc mmc;
+	bool cd_inverted;
 };
 
 /*
