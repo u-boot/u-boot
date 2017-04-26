@@ -135,6 +135,7 @@ config AM43XX
 config AM33XX
 	bool "AM33XX SoC"
 	imply SYS_THUMB_BUILD
+	imply USE_TINY_PRINTF
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
