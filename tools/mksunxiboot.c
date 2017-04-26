@@ -48,8 +48,8 @@ int gen_check_sum(struct boot_file_head *head_p)
 #define ALIGN(x, a) __ALIGN_MASK((x), (typeof(x))(a)-1)
 #define __ALIGN_MASK(x, mask) (((x)+(mask))&~(mask))
 
-#define SUN4I_SRAM_SIZE 0x7600	/* 0x7748+ is used by BROM */
-#define SRAM_LOAD_MAX_SIZE (SUN4I_SRAM_SIZE - sizeof(struct boot_file_head))
+#define SUNXI_SRAM_SIZE 0x8000	/* SoC with smaller size are limited before */
+#define SRAM_LOAD_MAX_SIZE (SUNXI_SRAM_SIZE - sizeof(struct boot_file_head))
 
 /*
  * BROM (at least on A10 and A20) requires NAND-images to be explicitly aligned
