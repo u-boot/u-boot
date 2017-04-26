@@ -332,8 +332,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		 */
 		if (host->clk_mul) {
 			for (div = 1; div <= 1024; div++) {
-				if ((host->max_clk * host->clk_mul / div)
-					<= clock)
+				if ((host->max_clk / div) <= clock)
 					break;
 			}
 
@@ -547,6 +546,14 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 #ifndef CONFIG_DM_MMC_OPS
 	cfg->ops = &sdhci_ops;
 #endif
+
+	/* Check whether the clock multiplier is supported or not */
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
+				SDHCI_CLOCK_MUL_SHIFT;
+	}
+
 	if (host->max_clk == 0) {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			host->max_clk = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
@@ -555,6 +562,8 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 			host->max_clk = (caps & SDHCI_CLOCK_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
 		host->max_clk *= 1000000;
+		if (host->clk_mul)
+			host->max_clk *= host->clk_mul;
 	}
 	if (host->max_clk == 0) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",
@@ -590,11 +599,6 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (!(caps & SDHCI_CAN_DO_8BIT))
 			cfg->host_caps &= ~MMC_MODE_8BIT;
-
-		/* Find out whether clock multiplier is supported */
-		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
-		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
-				SDHCI_CLOCK_MUL_SHIFT;
 	}
 
 	if (host->host_caps)
