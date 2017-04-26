@@ -29,6 +29,11 @@ config TARGET_AM335X_EVM
 	imply SPL_SERIAL_SUPPORT
 	imply SPL_WATCHDOG_SUPPORT
 	imply SPL_YMODEM_SUPPORT
+	imply SPL_SYS_MALLOC_SIMPLE
+	imply SPL_SEPARATE_BSS
+	imply SPL_DM
+	imply SPL_DM_SEQ_ALIAS
+	imply SPL_OF_LIBFDT
 	help
 	  This option specifies support for the AM335x
 	  GP and HS EVM development platforms. The AM335x
