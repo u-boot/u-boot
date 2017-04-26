@@ -234,6 +234,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	struct spl_image_info image_info;
 	int node, images, ret;
 	int base_offset, align_len = ARCH_DMA_MINALIGN - 1;
+	int index = 0;
 
 	/*
 	 * Figure out where the external images start. This is the base for the
@@ -278,6 +279,11 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
 		node = spl_fit_get_image_node(fit, images, "loadables", 0);
+		/*
+		 * If we pick the U-Boot image from "loadables", start at
+		 * the second image when later loading additional images.
+		 */
+		index = 1;
 	}
 	if (node < 0) {
 		debug("%s: Cannot find u-boot image node: %d\n",
@@ -305,6 +311,38 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 * Align the destination address to ARCH_DMA_MINALIGN.
 	 */
 	image_info.load_addr = spl_image->load_addr + spl_image->size;
-	return spl_load_fit_image(info, sector, fit, base_offset, node,
-				  &image_info);
+	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+				 &image_info);
+	if (ret < 0)
+		return ret;
+
+	/* Now check if there are more images for us to load */
+	for (; ; index++) {
+		node = spl_fit_get_image_node(fit, images, "loadables", index);
+		if (node < 0)
+			break;
+
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 &image_info);
+		if (ret < 0)
+			continue;
+
+		/*
+		 * If the "firmware" image did not provide an entry point,
+		 * use the first valid entry point from the loadables.
+		 */
+		if (spl_image->entry_point == FDT_ERROR &&
+		    image_info.entry_point != FDT_ERROR)
+			spl_image->entry_point = image_info.entry_point;
+	}
+
+	/*
+	 * If a platform does not provide CONFIG_SYS_UBOOT_START, U-Boot's
+	 * Makefile will set it to 0 and it will end up as the entry point
+	 * here. What it actually means is: use the load address.
+	 */
+	if (spl_image->entry_point == FDT_ERROR || spl_image->entry_point == 0)
+		spl_image->entry_point = spl_image->load_addr;
+
+	return 0;
 }
