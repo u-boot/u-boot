@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <spl.h>
 #include <serial.h>
@@ -26,6 +27,7 @@
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <asm/omap_sec_common.h>
+#include <asm/omap_mmc.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
@@ -891,4 +893,34 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 {
 	secure_boot_verify_image(p_image, p_size);
 }
+#endif
+
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
+	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
+	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
+	.cfg.f_min = 400000,
+	.cfg.f_max = 52000000,
+	.cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195,
+	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+
+U_BOOT_DEVICE(am335x_mmc0) = {
+	.name = "omap_hsmmc",
+	.platdata = &am335x_mmc0_platdata,
+};
+
+static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
+	.base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE,
+	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT,
+	.cfg.f_min = 400000,
+	.cfg.f_max = 52000000,
+	.cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195,
+	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+
+U_BOOT_DEVICE(am335x_mmc1) = {
+	.name = "omap_hsmmc",
+	.platdata = &am335x_mmc1_platdata,
+};
 #endif
