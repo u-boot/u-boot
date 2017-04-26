@@ -89,22 +89,22 @@
 	 *	Lane 5: PCIe2 (x1)
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_SATA0>;
+		phy-type = <COMPHY_TYPE_SATA0>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_USB3_HOST1>;
+		phy-type = <COMPHY_TYPE_USB3_HOST1>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_PEX2>;
+		phy-type = <COMPHY_TYPE_PEX2>;
 	};
 };
 
@@ -188,22 +188,22 @@
 	 *	Lane 5: PCIe2 (x1)
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_SATA0>;
+		phy-type = <COMPHY_TYPE_SATA0>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_PEX1>;
+		phy-type = <COMPHY_TYPE_PEX1>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_PEX2>;
+		phy-type = <COMPHY_TYPE_PEX2>;
 	};
 };
 

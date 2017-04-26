@@ -160,22 +160,22 @@
 	 * Lane 5: Not connected
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_USB3_HOST1>;
+		phy-type = <COMPHY_TYPE_USB3_HOST1>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 };
 
@@ -272,25 +272,25 @@
 	 * Lane 5: SGMII2 - Connected to Topaz switch
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_SATA1>;
-		phy-invert = <PHY_POLARITY_RXD_INVERT>;
+		phy-type = <COMPHY_TYPE_SATA1>;
+		phy-invert = <COMPHY_POLARITY_RXD_INVERT>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 };
 

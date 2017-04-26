@@ -29,7 +29,7 @@ static const char *get_speed_string(u32 speed)
 		"6.25 Gbps", "10.31 Gbps"
 	};
 
-	if (speed < 0 || speed > PHY_SPEED_MAX)
+	if (speed < 0 || speed > COMPHY_SPEED_MAX)
 		return "invalid";
 
 	return speed_strings[speed];
@@ -46,7 +46,7 @@ static const char *get_type_string(u32 type)
 		"RXAUI0", "RXAUI1", "SFI", "IGNORE"
 	};
 
-	if (type < 0 || type > PHY_TYPE_MAX)
+	if (type < 0 || type > COMPHY_TYPE_MAX)
 		return "invalid";
 
 	return type_strings[type];
@@ -59,7 +59,7 @@ void comphy_print(struct chip_serdes_phy_config *chip_cfg,
 
 	for (lane = 0; lane < chip_cfg->comphy_lanes_count;
 	     lane++, comphy_map_data++) {
-		if (comphy_map_data->speed == PHY_SPEED_INVALID) {
+		if (comphy_map_data->speed == COMPHY_SPEED_INVALID) {
 			printf("Comphy-%d: %-13s\n", lane,
 			       get_type_string(comphy_map_data->type));
 		} else {
@@ -136,16 +136,16 @@ static int comphy_probe(struct udevice *dev)
 			continue;
 
 		comphy_map_data[lane].speed = fdtdec_get_int(
-			blob, subnode, "phy-speed", PHY_TYPE_INVALID);
+			blob, subnode, "phy-speed", COMPHY_TYPE_INVALID);
 		comphy_map_data[lane].type = fdtdec_get_int(
-			blob, subnode, "phy-type", PHY_SPEED_INVALID);
+			blob, subnode, "phy-type", COMPHY_SPEED_INVALID);
 		comphy_map_data[lane].invert = fdtdec_get_int(
-			blob, subnode, "phy-invert", PHY_POLARITY_NO_INVERT);
+			blob, subnode, "phy-invert", COMPHY_POLARITY_NO_INVERT);
 		comphy_map_data[lane].clk_src = fdtdec_get_bool(blob, subnode,
 								"clk-src");
 		comphy_map_data[lane].end_point = fdtdec_get_bool(blob, subnode,
 								  "end_point");
-		if (comphy_map_data[lane].type == PHY_TYPE_INVALID) {
+		if (comphy_map_data[lane].type == COMPHY_TYPE_INVALID) {
 			printf("no phy type for lane %d, setting lane as unconnected\n",
 			       lane + 1);
 		}

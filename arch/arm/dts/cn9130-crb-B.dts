@@ -15,29 +15,29 @@
 
 &cp0_comphy {
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_SATA0>;
+		phy-type = <COMPHY_TYPE_SATA0>;
 	};
 
 	phy3 {
-		phy-type = <PHY_TYPE_USB3_HOST1>;
+		phy-type = <COMPHY_TYPE_USB3_HOST1>;
 	};
 
 	phy4 {
-		phy-type = <PHY_TYPE_SFI>;
-		phy-speed = <PHY_SPEED_10_3125G>;
+		phy-type = <COMPHY_TYPE_SFI>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
 	};
 
 	phy5 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 };
 

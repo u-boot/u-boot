@@ -74,35 +74,47 @@ struct utmi_phy_data {
  * Eth_port_0 that include (SGMII0, RXAUI0, SFI)
  */
 struct comphy_mux_data cp110_comphy_phy_mux_data[] = {
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII1, 0x1}, /* Lane 0 */
-	     {PHY_TYPE_SATA1, 0x4} } },
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 1 */
-	     {PHY_TYPE_SATA0, 0x4} } },
-	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x1}, /* Lane 2 */
-	     {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x1},
-	     {PHY_TYPE_SATA0, 0x4} } },
-	{8, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_RXAUI1, 0x1}, /* Lane 3 */
-	     {PHY_TYPE_SGMII1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
-	{7, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x2}, /* Lane 4 */
-	     {PHY_TYPE_RXAUI0, 0x2}, {PHY_TYPE_SFI, 0x2},
-	     {PHY_TYPE_SGMII1, 0x1} } },
-	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 5 */
-	     {PHY_TYPE_RXAUI1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
+	/* Lane 0 */
+	{4, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII1, 0x1},
+	     {COMPHY_TYPE_SATA1, 0x4} } },
+	/* Lane 1 */
+	{4, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII2, 0x1},
+	     {COMPHY_TYPE_SATA0, 0x4} } },
+	/* Lane 2 */
+	{6, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII0, 0x1},
+	     {COMPHY_TYPE_RXAUI0, 0x1}, {COMPHY_TYPE_SFI, 0x1},
+	     {COMPHY_TYPE_SATA0, 0x4} } },
+	/* Lane 3 */
+	{8, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_RXAUI1, 0x1},
+	     {COMPHY_TYPE_SGMII1, 0x2}, {COMPHY_TYPE_SATA1, 0x4} } },
+	/* Lane 4 */
+	{7, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII0, 0x2},
+	     {COMPHY_TYPE_RXAUI0, 0x2}, {COMPHY_TYPE_SFI, 0x2},
+	     {COMPHY_TYPE_SGMII1, 0x1} } },
+	/* Lane 5 */
+	{6, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII2, 0x1},
+	     {COMPHY_TYPE_RXAUI1, 0x2}, {COMPHY_TYPE_SATA1, 0x4} } },
 };
 
 struct comphy_mux_data cp110_comphy_pipe_mux_data[] = {
-	{2, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_PEX0, 0x4} } }, /* Lane 0 */
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 1 */
-	     {PHY_TYPE_USB3_HOST0, 0x1}, {PHY_TYPE_USB3_DEVICE, 0x2},
-	     {PHY_TYPE_PEX0, 0x4} } },
-	{3, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 2 */
-	     {PHY_TYPE_USB3_HOST0, 0x1}, {PHY_TYPE_PEX0, 0x4} } },
-	{3, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 3 */
-	     {PHY_TYPE_USB3_HOST1, 0x1}, {PHY_TYPE_PEX0, 0x4} } },
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 4 */
-	     {PHY_TYPE_USB3_HOST1, 0x1},
-	     {PHY_TYPE_USB3_DEVICE, 0x2}, {PHY_TYPE_PEX1, 0x4} } },
-	{2, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_PEX2, 0x4} } }, /* Lane 5 */
+	/* Lane 0 */
+	{2, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_PEX0, 0x4} } },
+	/* Lane 1 */
+	{4, {{COMPHY_TYPE_UNCONNECTED, 0x0},
+	     {COMPHY_TYPE_USB3_HOST0, 0x1}, {COMPHY_TYPE_USB3_DEVICE, 0x2},
+	     {COMPHY_TYPE_PEX0, 0x4} } },
+	/* Lane 2 */
+	{3, {{COMPHY_TYPE_UNCONNECTED, 0x0},
+	     {COMPHY_TYPE_USB3_HOST0, 0x1}, {COMPHY_TYPE_PEX0, 0x4} } },
+	/* Lane 3 */
+	{3, {{COMPHY_TYPE_UNCONNECTED, 0x0},
+	     {COMPHY_TYPE_USB3_HOST1, 0x1}, {COMPHY_TYPE_PEX0, 0x4} } },
+	/* Lane 4 */
+	{4, {{COMPHY_TYPE_UNCONNECTED, 0x0},
+	     {COMPHY_TYPE_USB3_HOST1, 0x1},
+	     {COMPHY_TYPE_USB3_DEVICE, 0x2}, {COMPHY_TYPE_PEX1, 0x4} } },
+	/* Lane 5 */
+	{2, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_PEX2, 0x4} } },
 };
 
 static u32 polling_with_timeout(void __iomem *addr, u32 val,
@@ -868,9 +880,9 @@ static void comphy_mux_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 			comphy_base_addr + COMMON_SELECTOR_PIPE_OFFSET);
 	/* Fix the type after check the PHY and PIPE configuration */
 	for (lane = 0; lane < comphy_max_count; lane++) {
-		if ((comphy_map_pipe_data[lane].type == PHY_TYPE_UNCONNECTED) &&
-		    (comphy_map_phy_data[lane].type == PHY_TYPE_UNCONNECTED))
-			serdes_map[lane].type = PHY_TYPE_UNCONNECTED;
+		if ((comphy_map_pipe_data[lane].type == COMPHY_TYPE_UNCONNECTED) &&
+		    (comphy_map_phy_data[lane].type == COMPHY_TYPE_UNCONNECTED))
+			serdes_map[lane].type = COMPHY_TYPE_UNCONNECTED;
 	}
 }
 
@@ -895,7 +907,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 	/* Check if the first 4 lanes configured as By-4 */
 	for (lane = 0, ptr_comphy_map = serdes_map; lane < 4;
 	     lane++, ptr_comphy_map++) {
-		if (ptr_comphy_map->type != PHY_TYPE_PEX0)
+		if (ptr_comphy_map->type != COMPHY_TYPE_PEX0)
 			break;
 		pcie_width++;
 	}
@@ -912,14 +924,14 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 			pcie_width = 1;
 		}
 		switch (ptr_comphy_map->type) {
-		case PHY_TYPE_UNCONNECTED:
-		case PHY_TYPE_IGNORE:
+		case COMPHY_TYPE_UNCONNECTED:
+		case COMPHY_TYPE_IGNORE:
 			continue;
 			break;
-		case PHY_TYPE_PEX0:
-		case PHY_TYPE_PEX1:
-		case PHY_TYPE_PEX2:
-		case PHY_TYPE_PEX3:
+		case COMPHY_TYPE_PEX0:
+		case COMPHY_TYPE_PEX1:
+		case COMPHY_TYPE_PEX2:
+		case COMPHY_TYPE_PEX3:
 			mode = COMPHY_FW_PCIE_FORMAT(pcie_width,
 						     ptr_comphy_map->clk_src,
 						     COMPHY_PCIE_MODE,
@@ -928,30 +940,30 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SATA0:
-		case PHY_TYPE_SATA1:
-		case PHY_TYPE_SATA2:
-		case PHY_TYPE_SATA3:
+		case COMPHY_TYPE_SATA0:
+		case COMPHY_TYPE_SATA1:
+		case COMPHY_TYPE_SATA2:
+		case COMPHY_TYPE_SATA3:
 			mode =  COMPHY_FW_MODE_FORMAT(COMPHY_SATA_MODE);
 			ret = comphy_sata_power_up(lane, hpipe_base_addr,
 						   comphy_base_addr,
 						   ptr_chip_cfg->cp_index,
 						   mode);
 			break;
-		case PHY_TYPE_USB3_HOST0:
-		case PHY_TYPE_USB3_HOST1:
-		case PHY_TYPE_USB3_DEVICE:
+		case COMPHY_TYPE_USB3_HOST0:
+		case COMPHY_TYPE_USB3_HOST1:
+		case COMPHY_TYPE_USB3_DEVICE:
 			ret = comphy_usb3_power_up(lane, hpipe_base_addr,
 						   comphy_base_addr);
 			break;
-		case PHY_TYPE_SGMII0:
-		case PHY_TYPE_SGMII1:
-			if (ptr_comphy_map->speed == PHY_SPEED_INVALID) {
+		case COMPHY_TYPE_SGMII0:
+		case COMPHY_TYPE_SGMII1:
+			if (ptr_comphy_map->speed == COMPHY_SPEED_INVALID) {
 				debug("Warning: ");
 				debug("SGMII PHY speed in lane %d is invalid,",
 				      lane);
 				debug(" set PHY speed to 1.25G\n");
-				ptr_comphy_map->speed = PHY_SPEED_1_25G;
+				ptr_comphy_map->speed = COMPHY_SPEED_1_25G;
 			}
 
 			/*
@@ -965,12 +977,12 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SGMII2:
-		case PHY_TYPE_SGMII3:
-			if (ptr_comphy_map->speed == PHY_SPEED_INVALID) {
+		case COMPHY_TYPE_SGMII2:
+		case COMPHY_TYPE_SGMII3:
+			if (ptr_comphy_map->speed == COMPHY_SPEED_INVALID) {
 				debug("Warning: SGMII PHY speed in lane %d is invalid, set PHY speed to 1.25G\n",
 				      lane);
-				ptr_comphy_map->speed = PHY_SPEED_1_25G;
+				ptr_comphy_map->speed = COMPHY_SPEED_1_25G;
 			}
 
 			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE,
@@ -980,7 +992,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SFI:
+		case COMPHY_TYPE_SFI:
 			mode = COMPHY_FW_FORMAT(COMPHY_SFI_MODE,
 						COMPHY_UNIT_ID0,
 						ptr_comphy_map->speed);
@@ -988,8 +1000,8 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_RXAUI0:
-		case PHY_TYPE_RXAUI1:
+		case COMPHY_TYPE_RXAUI0:
+		case COMPHY_TYPE_RXAUI1:
 			ret = comphy_rxauii_power_up(lane, hpipe_base_addr,
 						     comphy_base_addr);
 			break;
@@ -1001,9 +1013,9 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		if (ret == 0) {
 			/*
 			 * If interface wans't initialized, set the lane to
-			 * PHY_TYPE_UNCONNECTED state.
+			 * COMPHY_TYPE_UNCONNECTED state.
 			 */
-			ptr_comphy_map->type = PHY_TYPE_UNCONNECTED;
+			ptr_comphy_map->type = COMPHY_TYPE_UNCONNECTED;
 			pr_err("PLL is not locked - Failed to initialize lane %d\n",
 			      lane);
 		}

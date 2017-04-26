@@ -171,22 +171,22 @@
 	 * Lane 5: SATA1
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SATA1>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 };
 
@@ -286,22 +286,23 @@
 	 * Lane 5: SGMII3
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_SATA0>;
+		phy-type = <COMPHY_TYPE_SATA0>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SGMII3>;
+		phy-type = <COMPHY_TYPE_SGMII3>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 };

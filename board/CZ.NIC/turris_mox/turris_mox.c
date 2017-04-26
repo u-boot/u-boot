@@ -216,13 +216,13 @@ int comphy_update_map(struct comphy_map *serdes_map, int count)
 
 	if (sfpindex >= 0 && swindex >= 0) {
 		if (sfpindex < swindex)
-			serdes_map[0].speed = PHY_SPEED_1_25G;
+			serdes_map[0].speed = COMPHY_SPEED_1_25G;
 		else
-			serdes_map[0].speed = PHY_SPEED_3_125G;
+			serdes_map[0].speed = COMPHY_SPEED_3_125G;
 	} else if (sfpindex >= 0) {
-		serdes_map[0].speed = PHY_SPEED_1_25G;
+		serdes_map[0].speed = COMPHY_SPEED_1_25G;
 	} else if (swindex >= 0) {
-		serdes_map[0].speed = PHY_SPEED_3_125G;
+		serdes_map[0].speed = COMPHY_SPEED_3_125G;
 	}
 
 	return 0;
