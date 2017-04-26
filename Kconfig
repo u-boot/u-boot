@@ -241,6 +241,23 @@ config SPL_FIT_IMAGE_POST_PROCESS
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
 
+config SPL_FIT_SOURCE
+	string ".its source file for U-Boot FIT image"
+	depends on SPL_FIT
+	help
+	  Specifies a (platform specific) FIT source file to generate the
+	  U-Boot FIT image. This could specify further image to load and/or
+	  execute.
+
+config SPL_FIT_GENERATOR
+	string ".its file generator script for U-Boot FIT image"
+	depends on SPL_FIT
+	help
+	  Specifies a (platform specific) script file to generate the FIT
+	  source file used to build the U-Boot FIT image file. This gets
+	  passed a list of supported device tree file stub names to
+	  include in the generated image.
+
 endif # FIT
 
 config OF_BOARD_SETUP
