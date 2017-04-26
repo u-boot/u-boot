@@ -32,6 +32,10 @@
 # define CONFIG_MACH_TYPE_COMPAT_REV	1
 #endif
 
+#ifdef CONFIG_ARM64
+#define CONFIG_BUILD_TARGET "u-boot.itb"
+#endif
+
 /* Serial & console */
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
