@@ -11,14 +11,17 @@
 #include <libfdt.h>
 #include <spl.h>
 
+#define FDT_ERROR ((ulong)(-1))
+
 static ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
 {
 	const u32 *cell;
 	int len;
 
 	cell = fdt_getprop(fdt, node, prop, &len);
-	if (len != sizeof(*cell))
-		return -1U;
+	if (!cell || len != sizeof(*cell))
+		return FDT_ERROR;
+
 	return fdt32_to_cpu(*cell);
 }
 
@@ -222,7 +225,11 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	/* Get its information and set up the spl_image structure */
 	data_offset = fdt_getprop_u32(fit, node, "data-offset");
+	if (data_offset == FDT_ERROR)
+		return -ENOENT;
 	data_size = fdt_getprop_u32(fit, node, "data-size");
+	if (data_size == FDT_ERROR)
+		return -ENOENT;
 	load = fdt_getprop_u32(fit, node, "load");
 	debug("data_offset=%x, data_size=%x\n", data_offset, data_size);
 	spl_image->load_addr = load;
@@ -265,6 +272,10 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	}
 	fdt_offset = fdt_getprop_u32(fit, node, "data-offset");
 	fdt_len = fdt_getprop_u32(fit, node, "data-size");
+	if (fdt_offset == FDT_ERROR || fdt_len == FDT_ERROR) {
+		debug("%s: cannot load FDT data\n" __func__);
+		return -ENOENT;
+	}
 
 	/*
 	 * Read the device tree and place it after the image. There may be
