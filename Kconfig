@@ -208,15 +208,17 @@ config FIT_IMAGE_POST_PROCESS
 config SPL_FIT
 	bool "Support Flattened Image Tree within SPL"
 	depends on SPL
+	select SPL_OF_LIBFDT
 
 config SPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within SPL"
-	depends on SPL_FIT
 	depends on SPL_DM
+	select SPL_FIT
 	select SPL_RSA
 
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT"
+	select SPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
 	  of the build. This contains U-Boot along with information as to
