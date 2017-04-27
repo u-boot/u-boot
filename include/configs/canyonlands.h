@@ -372,7 +372,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
 #if defined(CONFIG_ARCHES)
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_PCI

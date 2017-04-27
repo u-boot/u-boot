@@ -373,7 +373,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
 
 #define CONFIG_SYS_POST_MEMORY_ON	CONFIG_SYS_POST_MEMORY

@@ -129,6 +129,14 @@ config TARGET_XILINX_PPC440_GENERIC
 
 endchoice
 
+config CMD_CHIP_CONFIG
+	bool "Enable the 'chip_config' command"
+	help
+	  This command programs the I2C bootstrap EEPROM or shows a list of
+	  possible configurations. The configurations are board-specific
+	  and control the CPU and peripehrals clocks. The programmed
+	  configuration is then used when the board boots.
+
 source "board/amcc/acadia/Kconfig"
 source "board/amcc/bamboo/Kconfig"
 source "board/amcc/bubinga/Kconfig"
