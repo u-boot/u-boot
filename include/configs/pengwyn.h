@@ -155,8 +155,6 @@
 
 #define CONFIG_CMD_MTDPARTS
 
-#define CONFIG_CMD_DIAG /* monitor functions : Diagnostics */
-
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 /* Size must be a multiple of Nand erase size (524288 b) */
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(SPL)," \

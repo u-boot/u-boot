@@ -310,7 +310,6 @@ int get_scl(void);
 #define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)
 #define CONFIG_POST_SKIP_ENV_FLAGS
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS
-#define CONFIG_CMD_DIAG
 
 /* we do the whole PCIe FPGA config stuff here */
 

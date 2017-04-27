@@ -86,7 +86,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IRQ

@@ -159,7 +159,6 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NAND
 

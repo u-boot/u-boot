@@ -72,9 +72,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #endif
-#ifdef CONFIG_POST
-#define CONFIG_CMD_DIAG
-#endif
 
 #if (CONFIG_SYS_TEXT_BASE == 0xFC000000) || (CONFIG_SYS_TEXT_BASE == 0xFF000000)
 /* Boot low with 16 or 32 MB Flash */

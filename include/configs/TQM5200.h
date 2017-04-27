@@ -165,10 +165,6 @@
     #define CONFIG_CFG_FAT
 #endif
 
-#ifdef CONFIG_POST
-    #define CONFIG_CMD_DIAG
-#endif
-
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
 #if (CONFIG_SYS_TEXT_BASE != 0xFFF00000)

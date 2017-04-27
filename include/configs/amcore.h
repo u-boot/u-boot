@@ -30,8 +30,6 @@
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
 
-#define CONFIG_CMD_DIAG
-
 /* undef to save memory	*/
 #undef	CONFIG_SYS_LONGHELP
 

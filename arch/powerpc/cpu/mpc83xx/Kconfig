@@ -65,6 +65,7 @@ config TARGET_IDS8313
 config TARGET_KM8360
 	bool "Support km8360"
 	imply CMD_CRAMFS
+	imply CMD_DIAG
 	imply FS_CRAMFS
 
 config TARGET_SUVD3

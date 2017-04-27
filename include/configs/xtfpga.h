@@ -127,7 +127,6 @@
 /* U-Boot commands */
 /*=================*/
 
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_SAVES
 
 /*==============================*/

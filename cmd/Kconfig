@@ -972,6 +972,14 @@ config CMD_BEDBUG
 	  for some PowerPC processors. For details please see the
 	  docuemntation in doc/README.beddbug
 
+config CMD_DIAG
+	bool "diag - Board diagnostics"
+	help
+	  This command provides access to board diagnostic tests. These are
+	  called Power-on Self Tests (POST). The command allows listing of
+	  available tests and running either all the tests, or specific tests
+	  identified by name.
+
 endmenu
 
 config CMD_UBI
