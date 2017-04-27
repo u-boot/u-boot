@@ -1272,14 +1272,15 @@ void setup_pmic(void)
 	struct pmic *p;
 	struct ventana_board_info ventana_info;
 	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	const int i2c_pmic = 1;
 	u32 reg;
 
-	i2c_set_bus_num(CONFIG_I2C_PMIC);
+	i2c_set_bus_num(i2c_pmic);
 
 	/* configure PFUZE100 PMIC */
 	if (!i2c_probe(CONFIG_POWER_PFUZE100_I2C_ADDR)) {
 		debug("probed PFUZE100@0x%x\n", CONFIG_POWER_PFUZE100_I2C_ADDR);
-		power_pfuze100_init(CONFIG_I2C_PMIC);
+		power_pfuze100_init(i2c_pmic);
 		p = pmic_get("PFUZE100");
 		if (p && !pmic_probe(p)) {
 			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
@@ -1302,7 +1303,7 @@ void setup_pmic(void)
 	/* configure LTC3676 PMIC */
 	else if (!i2c_probe(CONFIG_POWER_LTC3676_I2C_ADDR)) {
 		debug("probed LTC3676@0x%x\n", CONFIG_POWER_LTC3676_I2C_ADDR);
-		power_ltc3676_init(CONFIG_I2C_PMIC);
+		power_ltc3676_init(i2c_pmic);
 		p = pmic_get("LTC3676_PMIC");
 		if (!p || pmic_probe(p))
 			return;
