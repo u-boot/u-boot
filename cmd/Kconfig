@@ -387,6 +387,15 @@ endmenu
 
 menu "Device access commands"
 
+config CMD_CLK
+	bool "clk - Show clock frequencies"
+	help
+	  (deprecated)
+	  Shows clock frequences by calling a sock_clk_dump() hook function.
+	  This is depreated in favour of using the CLK uclass and accessing
+	  clock values from associated drivers. However currently no command
+	  exists for this.
+
 config CMD_DM
 	bool "dm - Access to driver model information"
 	depends on DM

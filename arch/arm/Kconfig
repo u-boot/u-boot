@@ -676,6 +676,7 @@ config ARCH_ZYNQ
 	select CLK
 	select SPL_CLK
 	select CLK_ZYNQ
+	imply CMD_CLK
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
