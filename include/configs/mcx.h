@@ -353,7 +353,6 @@
 
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_OMAP3
 
 #endif /* __CONFIG_H */

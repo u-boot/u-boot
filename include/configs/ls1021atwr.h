@@ -299,7 +299,6 @@
  * Video
  */
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 

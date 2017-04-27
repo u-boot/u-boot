@@ -150,10 +150,6 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_BSP
 
-#ifdef CONFIG_VIDEO
-    #define CONFIG_CMD_BMP
-#endif
-
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE	1

@@ -71,10 +71,6 @@
 #define CONFIG_LIB_RAND
 #endif
 
-#if defined(CONFIG_API) && defined(CONFIG_LCD)
-#define CONFIG_CMD_BMP
-#endif
-
 #ifndef CONFIG_SYS_PBSIZE
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + 128)
 #endif

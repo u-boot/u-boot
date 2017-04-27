@@ -373,10 +373,6 @@
 
 #undef CONFIG_CMD_FUSE
 
-#ifdef CONFIG_VIDEO
-#define CONFIG_CMD_BMP
-#endif
-
 /*
  * Miscellaneous configurable options
  */

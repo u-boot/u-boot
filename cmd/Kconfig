@@ -642,6 +642,18 @@ endmenu
 
 menu "Misc commands"
 
+config CMD_BMP
+	bool "Enable 'bmp' command"
+	depends on LCD || DM_VIDEO || VIDEO
+	help
+	  This provides a way to obtain information about a BMP-format iamge
+	  and to display it. BMP (which presumably stands for BitMaP) is a
+	  file format defined by Microsoft which supports images of various
+	  depths, formats and compression methods. Headers on the file
+	  determine the formats used. This command can be used by first loading
+	  the image into RAM, then using this command to look at it or display
+	  it.
+
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC

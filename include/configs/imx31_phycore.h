@@ -177,7 +177,6 @@
 #define CONFIG_VIDEO_MX3
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #endif
 
