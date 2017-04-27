@@ -13,7 +13,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DEFAULTENV_VARS
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
