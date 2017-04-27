@@ -67,7 +67,6 @@
 /* Secure boot (HAB) support */
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CSF_SIZE			0x2000
-#define CONFIG_CMD_DEKBLOB
 #endif
 
 #endif
