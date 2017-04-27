@@ -36,7 +36,6 @@
 
 /* PMIC */
 #define CONFIG_POWER
-#define CONFIG_PMIC
 #define CONFIG_POWER_I2C
 
 #define CONFIG_PREBOOT
