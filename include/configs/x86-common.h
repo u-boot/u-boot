@@ -64,10 +64,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#ifdef CONFIG_SYS_COREBOOT
-#define CONFIG_CMD_CBFS
-#endif
-
 /* x86 GPIOs are accessed through a PCI device */
 #define CONFIG_INTEL_ICH6_GPIO
 

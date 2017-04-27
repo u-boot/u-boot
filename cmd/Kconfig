@@ -880,6 +880,15 @@ config CMD_CROS_EC
 endmenu
 
 menu "Filesystem commands"
+config CMD_CBFS
+	bool "Enable the 'cbfs' command"
+	help
+	  Define this to enable support for reading from a Coreboot
+	  filesystem. This is a ROM-based filesystem used for accessing files
+	  on systems that use coreboot as the first boot-loader and then load
+	  U-Boot to actually boot the Operating System. Available commands are
+	  cbfsinit, cbfsinfo, cbfsls and cbfsload.
+
 config CMD_EXT2
 	bool "ext2 command support"
 	help
