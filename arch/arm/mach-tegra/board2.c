@@ -148,7 +148,7 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
-#ifdef CONFIG_AS3722_POWER
+#ifdef CONFIG_PMIC_AS3722
 	err = as3722_init(NULL);
 	if (err && err != -ENODEV)
 		return err;
