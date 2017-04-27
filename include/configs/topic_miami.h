@@ -142,6 +142,5 @@
 /* Further tweaks to reduce image size */
 #undef CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_NET
-#undef CONFIG_CMD_AES
 
 #endif /* __CONFIG_TOPIC_MIAMI_H */

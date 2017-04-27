@@ -769,6 +769,16 @@ config CMD_REGULATOR
 endmenu
 
 menu "Security commands"
+config CMD_AES
+	bool "Enable the 'aes' command"
+	select AES
+	help
+	  This provides a means to encrypt and decrypt data using the AES
+	  (Advanced Encryption Standard). This algorithm uses a symetric key
+	  and is widely used as a streaming cipher. Different key lengths are
+	  supported by the algorithm but this command only supports 128 bits
+	  at present.
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
 	depends on TPM

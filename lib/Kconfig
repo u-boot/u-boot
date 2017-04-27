@@ -66,6 +66,17 @@ config RBTREE
 
 source lib/dhry/Kconfig
 
+menu "Security support"
+
+config AES
+	bool "Support the AES algorithm"
+	help
+	  This provides a means to encrypt and decrypt data using the AES
+	  (Advanced Encryption Standard). This algorithm uses a symetric key
+	  and is widely used as a streaming cipher. Different key lengths are
+	  supported by the algorithm but only a 128-bit key is supported at
+	  present.
+
 source lib/rsa/Kconfig
 
 config TPM
@@ -78,6 +89,8 @@ config TPM
 	  command to interactive the TPM. Driver model support is provided
 	  for the low-level TPM interface, but only one TPM is supported at
 	  a time by the TPM library.
+
+endmenu
 
 menu "Hashing Support"
 
