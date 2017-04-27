@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  *
@@ -170,7 +171,8 @@ static void ls_pcie_setup_atu(struct ls_pcie *pcie)
 	/* Fix the pcie memory map for LS2088A series SoCs */
 	svr = (svr >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
 	if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-	    svr == SVR_LS2048A || svr == SVR_LS2044A) {
+	    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+	    svr == SVR_LS2081A || svr == SVR_LS2041A) {
 		if (io)
 			io->phys_start = (io->phys_start &
 					 (PCIE_PHYS_SIZE - 1)) +
@@ -531,7 +533,8 @@ static int ls_pcie_probe(struct udevice *dev)
 	svr = get_svr();
 	svr = (svr >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
 	if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-	    svr == SVR_LS2048A || svr == SVR_LS2044A) {
+	    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+	    svr == SVR_LS2081A || svr == SVR_LS2041A) {
 		pcie->cfg_res.start = LS2088A_PCIE1_PHYS_ADDR +
 					LS2088A_PCIE_PHYS_SIZE * pcie->idx;
 		pcie->ctrl = pcie->lut + 0x40000;

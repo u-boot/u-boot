@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  *
@@ -82,7 +83,8 @@ static void fdt_pcie_set_msi_map_entry(void *blob, struct ls_pcie *pcie,
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
 		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+		    svr == SVR_LS2081A || svr == SVR_LS2041A)
 			compat = "fsl,ls2088a-pcie";
 		else
 			compat = CONFIG_FSL_PCIE_COMPAT;
@@ -217,7 +219,8 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
 		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
-		    svr == SVR_LS2048A || svr == SVR_LS2044A)
+		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+		    svr == SVR_LS2081A || svr == SVR_LS2041A)
 			compat = "fsl,ls2088a-pcie";
 		else
 			compat = CONFIG_FSL_PCIE_COMPAT;

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  *
@@ -117,6 +118,8 @@
 #define SVR_LS2084A		0x870910
 #define SVR_LS2048A		0x870920
 #define SVR_LS2044A		0x870930
+#define SVR_LS2081A		0x870919
+#define SVR_LS2041A		0x870915
 
 /* LS1021a PCIE space */
 #define LS1021_PCIE_SPACE_OFFSET	0x4000000000ULL

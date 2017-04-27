@@ -5,6 +5,7 @@ SoC overview
 	3. LS1012A
 	4. LS1046A
 	5. LS2088A
+	6. LS2081A
 
 LS1043A
 ---------
@@ -226,4 +227,14 @@ LS2088A SoC has 3 more similar SoC personalities
        d) No L2 switch
 
 3)LS2044A, few difference w.r.t. LS2084A:
+       a) Four 64-bit ARM v8 Cortex-A72 CPUs
+
+LS2081A
+--------
+LS2081A is 40-pin derivative of LS2084A.
+So feature-wise it is same as LS2084A.
+Refer to LS2084A(LS2088A) section above for details.
+
+It has one more similar SoC personality
+1)LS2041A, few difference w.r.t. LS2081A:
        a) Four 64-bit ARM v8 Cortex-A72 CPUs
