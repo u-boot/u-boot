@@ -86,12 +86,12 @@ save_boot_params_ret:
 0:
 
 	/*
-	 * Enalbe SMPEN bit for coherency.
+	 * Enable SMPEN bit for coherency.
 	 * This register is not architectural but at the moment
 	 * this bit should be set for A53/A57/A72.
 	 */
 #ifdef CONFIG_ARMV8_SET_SMPEN
-	mrs     x0, S3_1_c15_c2_1               /* cpuactlr_el1 */
+	mrs     x0, S3_1_c15_c2_1               /* cpuectlr_el1 */
 	orr     x0, x0, #0x40
 	msr     S3_1_c15_c2_1, x0
 #endif
