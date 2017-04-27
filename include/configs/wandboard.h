@@ -34,9 +34,6 @@
 #define CONFIG_LIBATA
 #endif
 
-/* Command definition */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 500 * SZ_1M)
 

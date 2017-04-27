@@ -86,9 +86,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
-
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8

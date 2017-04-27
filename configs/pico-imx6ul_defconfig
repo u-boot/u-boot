@@ -1,6 +1,7 @@
 CONFIG_ARM=y
 CONFIG_ARCH_MX6=y
 CONFIG_TARGET_PICO_IMX6UL=y
+# CONFIG_CMD_BMODE is not set
 CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/technexion/pico-imx6ul/imximage.cfg"
 CONFIG_BOOTDELAY=3
 CONFIG_DEFAULT_FDT_FILE="imx6ul-pico-hobbit.dtb"

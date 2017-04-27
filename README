@@ -2848,16 +2848,6 @@ The following options need to be configured:
 		This enables 'hdmidet' command which returns true if an
 		HDMI monitor is detected.  This command is i.MX 6 specific.
 
-		CONFIG_CMD_BMODE
-		This enables the 'bmode' (bootmode) command for forcing
-		a boot from specific media.
-
-		This is useful for forcing the ROM's usb downloader to
-		activate upon a watchdog reset which is nice when iterating
-		on U-Boot.  Using the reset button or running bmode normal
-		will set it back to normal.  This command currently
-		supports i.MX53 and i.MX6.
-
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
 

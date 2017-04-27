@@ -102,7 +102,6 @@
 #define CONFIG_DFU_MMC
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 #define CONFIG_MXC_GPIO
 
 /* Framebuffer and LCD */

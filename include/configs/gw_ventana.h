@@ -141,7 +141,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */

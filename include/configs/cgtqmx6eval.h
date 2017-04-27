@@ -43,9 +43,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		20000000
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
-
 /* Thermal support */
 #define CONFIG_IMX_THERMAL
 

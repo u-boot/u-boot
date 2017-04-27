@@ -57,8 +57,6 @@
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
 /* Command definition */
-
-#define CONFIG_CMD_BMODE
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOARD_NAME	EL6Q

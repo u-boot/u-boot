@@ -39,9 +39,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-/* Command definition */
-#define CONFIG_CMD_BMODE
-
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 #define EMMC_ENV \
 	"emmcdev=2\0" \

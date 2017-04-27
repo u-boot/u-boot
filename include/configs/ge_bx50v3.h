@@ -114,9 +114,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
 
-/* Command definition */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_LOADADDR	0x12000000
 #define CONFIG_SYS_TEXT_BASE	0x17800000
 

@@ -65,8 +65,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_ARP_TIMEOUT     200UL
 
 /* Print Buffer Size */
