@@ -48,7 +48,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_BSP
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM

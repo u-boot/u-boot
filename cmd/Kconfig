@@ -654,6 +654,16 @@ config CMD_BMP
 	  the image into RAM, then using this command to look at it or display
 	  it.
 
+config CMD_BSP
+	bool "Enable board-specific commands"
+	help
+	  (deprecated: instead, please define a Kconfig option for each command)
+
+	  Some boards have board-specific commands which are only enabled
+	  during developemnt and need to be turned off for production. This
+	  option provides a way to control this. The commands that are enabled
+	  vary depending on the board.
+
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC

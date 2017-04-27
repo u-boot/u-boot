@@ -54,7 +54,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */

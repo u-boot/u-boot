@@ -42,7 +42,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_BSP
 #define CONFIG_CMD_REGINFO
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP

@@ -258,7 +258,6 @@
 
 /* Partitions */
 
-#define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM

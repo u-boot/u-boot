@@ -54,7 +54,6 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_BSP
 
 /**************************************************************
  * I2C Stuff:

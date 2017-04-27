@@ -19,6 +19,7 @@ CONFIG_SYS_PROMPT="pati=> "
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
+CONFIG_CMD_BSP=y
 # CONFIG_MMC is not set
 CONFIG_MTD_NOR_FLASH=y
 # CONFIG_PCI is not set
