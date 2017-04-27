@@ -83,7 +83,6 @@
  */
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DISPLAY
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

@@ -698,6 +698,14 @@ config CMD_CACHE
 	help
 	  Enable the "icache" and "dcache" commands
 
+config CMD_DISPLAY
+	bool "Enable the 'display' command, for character displays"
+	help
+	  (this needs porting to driver model)
+	  This enables the 'display' command which allows a string to be
+	  displayed on a simple board-specific display. Implement
+	  display_putc() to use it.
+
 config CMD_LED
 	bool "led"
 	default y if LED
