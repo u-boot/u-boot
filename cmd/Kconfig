@@ -867,6 +867,17 @@ config MTDPARTS_DEFAULT
 
 endmenu
 
+menu "Debug commands"
+
+config CMD_BEDBUG
+	bool "bedbug"
+	help
+	  The bedbug (emBEDded deBUGger) command provides debugging features
+	  for some PowerPC processors. For details please see the
+	  docuemntation in doc/README.beddbug
+
+endmenu
+
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
 	select CRC32

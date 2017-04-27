@@ -149,6 +149,5 @@
  */
 
 #undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_BEDBUG
 
 #endif	/* __CONFIG_H */

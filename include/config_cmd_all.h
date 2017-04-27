@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_CLK		/* Clock support		*/
