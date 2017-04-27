@@ -36,11 +36,6 @@
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 
-/* General networking support */
-
-/* LCD support */
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

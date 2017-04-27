@@ -65,7 +65,6 @@
 #ifdef CONFIG_LCD
 #define CONFIG_PXA_LCD
 #define CONFIG_PXA_VGA
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_LCD_LOGO
 #endif
 

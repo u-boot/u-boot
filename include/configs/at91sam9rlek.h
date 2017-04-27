@@ -47,7 +47,6 @@
 #undef LCD_TEST_PATTERN
 #define CONFIG_LCD_INFO			1
 #define CONFIG_LCD_INFO_BELOW_LOGO	1
-#define CONFIG_SYS_WHITE_ON_BLACK	1
 #define CONFIG_ATMEL_LCD		1
 #define CONFIG_ATMEL_LCD_RGB565		1
 /* Let board_init_f handle the framebuffer allocation */

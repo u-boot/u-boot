@@ -76,7 +76,6 @@
  */
 #define CONFIG_FB_ADDR			0
 #define CONFIG_VIDEO_BCM2835
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2

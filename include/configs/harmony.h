@@ -45,11 +45,6 @@
 #define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 
-/* General networking support */
-
-/* LCD support */
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

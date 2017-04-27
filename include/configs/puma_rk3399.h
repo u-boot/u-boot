@@ -22,6 +22,4 @@
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 #endif

@@ -30,9 +30,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
-/* LCD support */
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 /* Align LCD to 1MB boundary */
 #define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
 

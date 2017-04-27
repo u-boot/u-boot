@@ -22,6 +22,4 @@
 
 #define CONFIG_KEYBOARD
 
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 #endif

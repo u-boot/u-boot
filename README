@@ -1638,9 +1638,6 @@ The following options need to be configured:
 
 			320x240. Black & white.
 
-		Normally display is black on white background; define
-		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
-
 		CONFIG_LCD_ALIGNMENT
 
 		Normally the LCD is page-aligned (typically 4KB). If this is

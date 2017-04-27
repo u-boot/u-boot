@@ -89,6 +89,15 @@ config CONSOLE_TRUETYPE_SIZE
 	  method to select the display's physical size, which would allow
 	  U-Boot to calculate the correct font size.
 
+config SYS_WHITE_ON_BLACK
+	bool "Display console as white on a black background"
+	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || TEGRA || X86
+	help
+	 Normally the display is black on a white background, Enable this
+	 option to invert this, i.e. white on a black background. This can be
+	 better in low-light situations or to reduce eye strain in some
+	 cases.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD

@@ -17,7 +17,6 @@
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
 #define CONFIG_LCD_NOSTDOUT
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
 
 #define CONFIG_VIDEO_BMP_GZIP
