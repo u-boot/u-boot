@@ -779,6 +779,50 @@ config CMD_AES
 	  supported by the algorithm but this command only supports 128 bits
 	  at present.
 
+config CMD_BLOB
+	bool "Enable the 'blob' command"
+	help
+	  This is used with the Freescale secure boot mechanism.
+
+	  Freescale's SEC block has built-in Blob Protocol which provides
+	  a method for protecting user-defined data across system power
+	  cycles. SEC block protects data in a data structure called a Blob,
+	  which provides both confidentiality and integrity protection.
+
+	  Encapsulating data as a blob
+	  Each time that the Blob Protocol is used to protect data, a
+	  different randomly generated key is used to encrypt the data.
+	  This random key is itself encrypted using a key which is derived
+	  from SoC's non-volatile secret key and a 16 bit Key identifier.
+	  The resulting encrypted key along with encrypted data is called a
+	  blob. The non-volatile secure key is available for use only during
+	  secure boot.
+
+	  During decapsulation, the reverse process is performed to get back
+	  the original data.
+
+	  Sub-commands:
+            blob enc - encapsulating data as a cryptgraphic blob
+	    blob dec - decapsulating cryptgraphic blob to get the data
+
+	  Syntax:
+
+	  blob enc src dst len km
+
+	  Encapsulate and create blob of data $len bytes long
+	  at address $src and store the result at address $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
+	  blob dec src dst len km
+
+	  Decapsulate the  blob of data at address $src and
+	  store result of $len byte at addr $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
 	depends on TPM

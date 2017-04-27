@@ -152,9 +152,9 @@ obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
-endif # !CONFIG_SPL_BUILD
 
 obj-$(CONFIG_CMD_BLOB) += blob.o
+endif # !CONFIG_SPL_BUILD
 
 # core command
 obj-y += nvedit.o
