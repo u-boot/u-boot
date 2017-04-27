@@ -901,6 +901,7 @@ config CMD_CBFS
 
 config CMD_CRAMFS
 	bool "Enable the 'cramfs' command"
+	depends on FS_CRAMFS
 	help
 	  This provides commands for dealing with CRAMFS (Compressed ROM
 	  filesystem). CRAMFS is useful when space is tight since files are

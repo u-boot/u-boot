@@ -322,6 +322,7 @@ config TARGET_KMP204X
 	select ARCH_P2041
 	select PHYS_64BIT
 	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_XPEDITE520X
 	bool "Support xpedite520x"
