@@ -4,10 +4,14 @@ The LS2080A Reference Design (RDB) is a high-performance computing,
 evaluation, and development platform that supports the QorIQ LS2080A, LS2088A
 Layerscape Architecture processor.
 
-LS2080A, LS2088A SoC Overview
---------------------
+The LS2081A Reference Design (RDB) is a high-performance computing,
+evaluation, and development platform that supports the QorIQ LS2081A
+Layerscape Architecture processor.More details in below sections
+
+LS2080A, LS2088A, LS2081A SoC Overview
+--------------------------------------
 Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A,
-LS2088A SoC overview.
+LS2081A, LS2088A SoC overview.
 
  LS2080ARDB board Overview
  -----------------------
@@ -37,6 +41,16 @@ LS2088A SoC overview.
  - Two SATA onboard connectors
  - UART
  - ARM JTAG support
+
+ LS2081ARDB board Overview
+ -------------------------
+ LS2081ARDB board is similar to LS2080ARDB board
+ with few differences like
+  - Hosts LS2081A SoC
+  - Default boot source is QSPI-boot
+  - Does not have IFC interface
+  - RTC and QSPI flash devices are different
+  - Provides QIXIS access via I2C
 
 Memory map from core's view
 ----------------------------

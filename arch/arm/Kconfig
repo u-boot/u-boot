@@ -781,6 +781,20 @@ config TARGET_LS2080ARDB
 	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
+config TARGET_LS2081ARDB
+	bool "Support ls2081ardb"
+	select ARCH_LS2080A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select ARCH_MISC_INIT
+	help
+	  Support for Freescale LS2081ARDB platform.
+	  The LS2081A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS2081A/LS2041A
+	  Layerscape Architecture processor.
+
 config TARGET_HIKEY
 	bool "Support HiKey 96boards Consumer Edition Platform"
 	select ARM64

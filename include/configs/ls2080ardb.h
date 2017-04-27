@@ -14,6 +14,9 @@
 #define CONFIG_CONS_INDEX       2
 
 #ifdef CONFIG_FSL_QSPI
+#ifdef CONFIG_TARGET_LS2081ARDB
+#define CONFIG_QIXIS_I2C_ACCESS
+#endif
 #define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #endif
@@ -259,9 +262,28 @@ unsigned long get_board_sys_clk(void);
 #endif
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 
+#ifdef CONFIG_TARGET_LS2081ARDB
+#define CONFIG_FSL_QIXIS	/* use common QIXIS code */
+#define QIXIS_QMAP_MASK			0x07
+#define QIXIS_QMAP_SHIFT		5
+#define QIXIS_LBMAP_DFLTBANK		0x00
+#define QIXIS_LBMAP_QSPI		0x00
+#define QIXIS_RCW_SRC_QSPI		0x62
+#define QIXIS_LBMAP_ALTBANK		0x20
+#define QIXIS_RST_CTL_RESET		0x31
+#define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
+#define QIXIS_RCFG_CTL_RECONFIG_START	0x21
+#define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
+#define QIXIS_LBMAP_MASK		0x0f
+#define QIXIS_RST_CTL_RESET_EN		0x30
+#endif
+
 /*
  * I2C
  */
+#ifdef CONFIG_TARGET_LS2081ARDB
+#define CONFIG_SYS_I2C_FPGA_ADDR	0x66
+#endif
 #define I2C_MUX_PCA_ADDR		0x75
 #define I2C_MUX_PCA_ADDR_PRI		0x75 /* Primary Mux*/
 
@@ -275,7 +297,11 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SPI_FLASH_STMICRO
 #endif
 #ifdef CONFIG_FSL_QSPI
+#ifdef CONFIG_TARGET_LS2081ARDB
+#define CONFIG_SPI_FLASH_STMICRO
+#else
 #define CONFIG_SPI_FLASH_SPANSION
+#endif
 #define FSL_QSPI_FLASH_SIZE		SZ_64M	/* 64MB */
 #define FSL_QSPI_FLASH_NUM		2
 #endif
@@ -285,8 +311,13 @@ unsigned long get_board_sys_clk(void);
  * RTC configuration
  */
 #define RTC
+#ifdef CONFIG_TARGET_LS2081ARDB
+#define CONFIG_RTC_PCF8563		1
+#define CONFIG_SYS_I2C_RTC_ADDR         0x51
+#else
 #define CONFIG_RTC_DS3231               1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
+#endif
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM

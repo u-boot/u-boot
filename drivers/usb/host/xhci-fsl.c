@@ -40,7 +40,8 @@ __weak int __board_usb_init(int index, enum usb_init_type init)
 
 static int erratum_a008751(void)
 {
-#if defined(CONFIG_TARGET_LS2080AQDS) || defined(CONFIG_TARGET_LS2080ARDB)
+#if defined(CONFIG_TARGET_LS2080AQDS) || defined(CONFIG_TARGET_LS2080ARDB) ||\
+					defined(CONFIG_TARGET_LS2080AQDS)
 	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
 	writel(SCFG_USB3PRM1CR_INIT, scfg + SCFG_USB3PRM1CR / 4);
 	return 0;

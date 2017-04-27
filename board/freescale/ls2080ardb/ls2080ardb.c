@@ -68,6 +68,44 @@ int checkboard(void)
 	cpu_name(buf);
 	printf("Board: %s-RDB, ", buf);
 
+#ifdef CONFIG_TARGET_LS2081ARDB
+#ifdef CONFIG_FSL_QIXIS
+	sw = QIXIS_READ(arch);
+	printf("Board Arch: V%d, ", sw >> 4);
+	printf("Board version: %c, ", (sw & 0xf) + 'A');
+
+	sw = QIXIS_READ(brdcfg[0]);
+	sw = (sw & QIXIS_QMAP_MASK) >> QIXIS_QMAP_SHIFT;
+	switch (sw) {
+	case 0:
+		puts("boot from QSPI DEV#0\n");
+		puts("QSPI_CSA_1 mapped to QSPI DEV#1\n");
+		break;
+	case 1:
+		puts("boot from QSPI DEV#1\n");
+		puts("QSPI_CSA_1 mapped to QSPI DEV#0\n");
+		break;
+	case 2:
+		puts("boot from QSPI EMU\n");
+		puts("QSPI_CSA_1 mapped to QSPI DEV#0\n");
+		break;
+	case 3:
+		puts("boot from QSPI EMU\n");
+		puts("QSPI_CSA_1 mapped to QSPI DEV#1\n");
+		break;
+	case 4:
+		puts("boot from QSPI DEV#0\n");
+		puts("QSPI_CSA_1 mapped to QSPI EMU\n");
+		break;
+	default:
+		printf("invalid setting of SW%u\n", sw);
+		break;
+	}
+#endif
+	puts("SERDES1 Reference : ");
+	printf("Clock1 = 100MHz ");
+	printf("Clock2 = 161.13MHz");
+#else
 #ifdef CONFIG_FSL_QIXIS
 	sw = QIXIS_READ(arch);
 	printf("Board Arch: V%d, ", sw >> 4);
@@ -88,6 +126,7 @@ int checkboard(void)
 	puts("SERDES1 Reference : ");
 	printf("Clock1 = 156.25MHz ");
 	printf("Clock2 = 156.25MHz");
+#endif
 
 	puts("\nSERDES2 Reference : ");
 	printf("Clock1 = 100MHz ");
@@ -209,6 +248,9 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+	i2c_early_init_f();
+#endif
 	fsl_lsch3_early_init_f();
 	return 0;
 }
@@ -216,6 +258,11 @@ int board_early_init_f(void)
 int misc_init_r(void)
 {
 #ifdef CONFIG_FSL_QIXIS
+	/*
+	 * LS2081ARDB has smart voltage translator which needs
+	 * to be programmed as below
+	 */
+#ifndef CONFIG_TARGET_LS2081ARDB
 	u8 sw;
 
 	sw = QIXIS_READ(arch);
@@ -225,11 +272,14 @@ int misc_init_r(void)
 	 * by setting GPIO4_10 output to zero
 	 */
 	if ((sw & 0xf) == 0x5) {
+#endif
 		out_le32(GPIO4_GPDIR_ADDR, (1 << 21 |
 					    in_le32(GPIO4_GPDIR_ADDR)));
 		out_le32(GPIO4_GPDAT_ADDR, (~(1 << 21) &
 					    in_le32(GPIO4_GPDAT_ADDR)));
+#ifndef CONFIG_TARGET_LS2081ARDB
 	}
+#endif
 #endif
 
 	if (hwconfig("sdhc"))
@@ -350,6 +400,7 @@ void update_spd_address(unsigned int ctrl_num,
 			unsigned int slot,
 			unsigned int *addr)
 {
+#ifndef CONFIG_TARGET_LS2081ARDB
 #ifdef CONFIG_FSL_QIXIS
 	u8 sw;
 
@@ -360,5 +411,6 @@ void update_spd_address(unsigned int ctrl_num,
 		else if (ctrl_num == 1 && slot == 1)
 			*addr = SPD_EEPROM_ADDRESS3;
 	}
+#endif
 #endif
 }
