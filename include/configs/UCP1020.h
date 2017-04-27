@@ -447,7 +447,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_CRAMFS
 
 /*
  * USB

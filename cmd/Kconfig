@@ -899,6 +899,16 @@ config CMD_CBFS
 	  U-Boot to actually boot the Operating System. Available commands are
 	  cbfsinit, cbfsinfo, cbfsls and cbfsload.
 
+config CMD_CRAMFS
+	bool "Enable the 'cramfs' command"
+	help
+	  This provides commands for dealing with CRAMFS (Compressed ROM
+	  filesystem). CRAMFS is useful when space is tight since files are
+	  compressed. Two commands are provided:
+
+	     cramfsls   - lists files in a cramfs image
+	     cramfsload - loads a file from a cramfs image
+
 config CMD_EXT2
 	bool "ext2 command support"
 	help
