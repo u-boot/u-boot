@@ -31,7 +31,6 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* LCD support */
-#define CONFIG_PMIC_AS3722
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_CMD_BMP
 

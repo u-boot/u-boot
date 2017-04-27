@@ -14,9 +14,6 @@
 
 #include <linux/sizes.h>
 
-/* enable PMIC */
-#define CONFIG_PMIC_AS3722
-
 #include "tegra124-common.h"
 
 /* High-level configuration options */
