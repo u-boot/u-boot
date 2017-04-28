@@ -251,7 +251,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x2000
 #endif
@@ -421,13 +421,13 @@ unsigned long get_board_sys_clk(void);
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581100000\0"		\
+	"kernel_start=0x581000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"mcmemsize=0x40000000\0"		\
 	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580300000" \
-	" 0x580800000 \0"                       \
+	"mcinitcmd=fsl_mc start mc 0x580a00000" \
+	" 0x580e00000 \0"                       \
 	BOOTENV
 #endif
 #endif
@@ -447,7 +447,7 @@ unsigned long get_board_sys_clk(void);
 			   " || run distro_bootcmd"
 #else
 /* Try to boot an on-NOR kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580700000" \
+#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580d00000" \
 			   " && cp.b $kernel_start $kernel_load $kernel_size" \
 			   " && bootm $kernel_load" \
 			   " || run distro_bootcmd"
@@ -463,7 +463,7 @@ unsigned long get_board_sys_clk(void);
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_CORTINA_FW_ADDR		0x20980000
 #else
-#define CONFIG_CORTINA_FW_ADDR		0x581000000
+#define CONFIG_CORTINA_FW_ADDR		0x580980000
 #endif
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
 

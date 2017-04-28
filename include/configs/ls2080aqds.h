@@ -265,7 +265,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifndef CONFIG_QSPI_BOOT
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x2000
 #endif
@@ -376,12 +376,12 @@ unsigned long get_board_ddr_clk(void);
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581100000\0"		\
+	"kernel_start=0x581000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"mcmemsize=0x40000000\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580300000" \
-	" 0x580800000 \0"
+	"mcinitcmd=fsl_mc start mc 0x580a00000" \
+	" 0x580e00000 \0"
 #endif /* CONFIG_SECURE_BOOT */
 
 

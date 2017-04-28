@@ -89,6 +89,18 @@ c) NAND boot
 d) SD boot
 e) QSPI boot
 
+Memory map for NOR boot
+-------------------------
+Image				Flash Offset
+RCW+PBI				0x00000000
+Boot firmware (U-Boot)		0x00100000
+Boot firmware Environment	0x00300000
+PPA firmware			0x00400000
+DPAA2 MC			0x00A00000
+DPAA2 DPL			0x00D00000
+DPAA2 DPC			0x00E00000
+Kernel.itb			0x01000000
+
 Environment Variables
 ---------------------
 - mcboottimeout: MC boot timeout in milliseconds. If this variable is not defined
