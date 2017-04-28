@@ -265,6 +265,23 @@ static void pinctrl_rk3399_gmac_config(struct rk3399_grf_regs *grf, int mmc_id)
 }
 #endif
 
+#if !defined(CONFIG_SPL_BUILD)
+static void pinctrl_rk3399_hdmi_config(struct rk3399_grf_regs *grf, int hdmi_id)
+{
+	switch (hdmi_id) {
+	case PERIPH_ID_HDMI:
+		rk_clrsetreg(&grf->gpio4c_iomux,
+			     GRF_GPIO4C0_SEL_MASK | GRF_GPIO4C1_SEL_MASK,
+			     (GRF_HDMII2C_SCL << GRF_GPIO4C0_SEL_SHIFT) |
+			     (GRF_HDMII2C_SDA << GRF_GPIO4C1_SEL_SHIFT));
+		break;
+	default:
+		debug("%s: hdmi_id = %d unsupported\n", __func__, hdmi_id);
+		break;
+	}
+}
+#endif
+
 static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk3399_pinctrl_priv *priv = dev_get_priv(dev);
@@ -314,6 +331,11 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 		pinctrl_rk3399_gmac_config(priv->grf, func);
 		break;
 #endif
+#if !defined(CONFIG_SPL_BUILD)
+	case PERIPH_ID_HDMI:
+		pinctrl_rk3399_hdmi_config(priv->grf, func);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -359,6 +381,10 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case 12:
 		return PERIPH_ID_GMAC;
+#endif
+#if !defined(CONFIG_SPL_BUILD)
+	case 23:
+		return PERIPH_ID_HDMI;
 #endif
 	}
 #endif
