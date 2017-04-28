@@ -882,6 +882,9 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case SCLK_UART0:
 	case SCLK_UART2:
 		return 24000000;
+		break;
+	case PCLK_HDMI_CTRL:
+		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
 		break;
@@ -921,6 +924,10 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case SCLK_SPI0...SCLK_SPI5:
 		ret = rk3399_spi_set_clk(priv->cru, clk->id, rate);
+		break;
+	case PCLK_HDMI_CTRL:
+	case PCLK_VIO_GRF:
+		/* the PCLK gates for video are enabled by default */
 		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
