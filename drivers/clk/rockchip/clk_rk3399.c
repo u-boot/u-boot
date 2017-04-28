@@ -885,6 +885,8 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case DCLK_VOP0:
 	case DCLK_VOP1:
 		break;
+	case PCLK_EFUSE1024NS:
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -926,6 +928,8 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case SCLK_DDRCLK:
 		ret = rk3399_ddr_set_clk(priv->cru, rate);
+		break;
+	case PCLK_EFUSE1024NS:
 		break;
 	default:
 		return -ENOENT;
