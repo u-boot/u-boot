@@ -176,9 +176,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	old_ft_cpu_setup(blob, bd);
 #endif
 	ft_clock_setup(blob, bd);
-#ifdef CONFIG_HAS_ETH0
-	fdt_fixup_ethernet(blob);
-#endif
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #endif

@@ -32,11 +32,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
-#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) \
-    || defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
-	fdt_fixup_ethernet(blob);
-#endif
-
 #ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);

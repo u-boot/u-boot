@@ -8,4 +8,3 @@
 extra-y	= start.o
 obj-y	= exceptions.o
 obj-y	+= cpu.o interrupts.o traps.o
-obj-y	+= fdt.o

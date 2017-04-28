@@ -23,8 +23,5 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, "fsl,cpm-brg", "clock-frequency",
 		gd->arch.brg_clk, 1);
 
-	/* Fixup ethernet MAC addresses */
-	fdt_fixup_ethernet(blob);
-
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
