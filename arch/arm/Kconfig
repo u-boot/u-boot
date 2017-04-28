@@ -636,17 +636,12 @@ config ARCH_ZYNQ
 	select OF_CONTROL
 	select SPL_OF_CONTROL if SPL
 	select DM
-	select DM_ETH
-	select DM_GPIO
 	select SPL_DM if SPL
-	select DM_MMC
-	select DM_MMC_OPS
 	select DM_SPI
 	select DM_SERIAL
 	select DM_SPI_FLASH
 	select SPL_SEPARATE_BSS if SPL
 	select DM_USB if USB
-	select BLK
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
