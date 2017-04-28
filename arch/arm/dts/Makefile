@@ -174,7 +174,8 @@ dtb-$(CONFIG_ARCH_LS1021A) += ls1021a-qds-duart.dtb \
 	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb \
 	ls1021a-iot-duart.dtb
 dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
-	fsl-ls2080a-rdb.dtb
+	fsl-ls2080a-rdb.dtb \
+	fsl-ls2088a-rdb-qspi.dtb
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
 	fsl-ls1043a-rdb.dtb \

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright (C) 2014 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -28,6 +29,12 @@
 #else
 #define CONFIG_SYS_TEXT_BASE		0x30100000
 #endif
+#else
+#define CONFIG_SYS_TEXT_BASE		0x20100000
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
+#define CONFIG_ENV_SECT_SIZE		0x10000
 #endif
 
 #define CONFIG_SUPPORT_RAW_INITRD

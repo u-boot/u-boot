@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -11,6 +12,11 @@
 
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX       2
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SYS_I2C_EARLY_INIT
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+#endif
 
 #define I2C_MUX_CH_VOL_MONITOR		0xa
 #define I2C_VOL_MONITOR_ADDR		0x38
@@ -69,6 +75,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
 
+#ifndef CONFIG_FSL_QSPI
 /* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
@@ -157,7 +164,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
-
 #define CONFIG_FSL_QIXIS	/* use common QIXIS code */
 #define QIXIS_LBMAP_SWITCH		0x06
 #define QIXIS_LBMAP_MASK		0x0f
@@ -250,7 +256,7 @@ unsigned long get_board_sys_clk(void);
 /* Debug Server firmware */
 #define CONFIG_SYS_DEBUG_SERVER_FW_IN_NOR
 #define CONFIG_SYS_DEBUG_SERVER_FW_ADDR	0x580D00000ULL
-
+#endif
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 
 /*
@@ -263,9 +269,16 @@ unsigned long get_board_sys_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /* SPI */
-#ifdef CONFIG_FSL_DSPI
+#if defined(CONFIG_FSL_QSPI) || defined(CONFIG_FSL_DSPI)
 #define CONFIG_SPI_FLASH
+#ifdef CONFIG_FSL_QSPI
 #define CONFIG_SPI_FLASH_STMICRO
+#endif
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		SZ_64M	/* 64MB */
+#define FSL_QSPI_FLASH_NUM		2
+#endif
 #endif
 
 /*
@@ -345,6 +358,25 @@ unsigned long get_board_sys_clk(void);
 	" 0x580800000 \0"                       \
 	BOOTENV
 #else
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"scriptaddr=0x80800000\0"		\
+	"kernel_addr_r=0x81000000\0"		\
+	"pxefile_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x88000000\0"		\
+	"ramdisk_addr_r=0x89000000\0"		\
+	"loadaddr=0x80100000\0"			\
+	"kernel_addr=0x100000\0"		\
+	"ramdisk_size=0x2000000\0"		\
+	"fdt_high=0xa0000000\0"			\
+	"initrd_high=0xffffffffffffffff\0"	\
+	"kernel_start=0x21000000\0"		\
+	"mcmemsize=0x40000000\0"		\
+	"mcinitcmd=fsl_mc start mc 0x20a00000" \
+	" 0x20e00000 \0"                       \
+	BOOTENV
+#else
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"scriptaddr=0x80800000\0"		\
@@ -367,6 +399,7 @@ unsigned long get_board_sys_clk(void);
 	" 0x580800000 \0"                       \
 	BOOTENV
 #endif
+#endif
 
 
 #undef CONFIG_BOOTARGS
@@ -376,11 +409,18 @@ unsigned long get_board_sys_clk(void);
 				" hugepagesz=2m hugepages=256"
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_QSPI_BOOT
+/* Try to boot an on-QSPI kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x20d00000" \
+			   " && bootm $kernel_start" \
+			   " || run distro_bootcmd"
+#else
 /* Try to boot an on-NOR kernel first, then do normal distro boot */
 #define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580700000" \
 			   " && cp.b $kernel_start $kernel_load $kernel_size" \
 			   " && bootm $kernel_load" \
 			   " || run distro_bootcmd"
+#endif
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
@@ -389,7 +429,11 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_PHY_CORTINA
 #define CONFIG_PHYLIB
 #define	CONFIG_SYS_CORTINA_FW_IN_NOR
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_CORTINA_FW_ADDR		0x20980000
+#else
 #define CONFIG_CORTINA_FW_ADDR		0x581000000
+#endif
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
 
 #define CORTINA_PHY_ADDR1	0x10

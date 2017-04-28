@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -262,13 +263,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 
-#if defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_TEXT_BASE		0x20010000
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x100000        /* 1MB */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#else
+#ifndef CONFIG_QSPI_BOOT
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
