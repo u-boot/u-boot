@@ -3,32 +3,6 @@ if ARCH_SUNXI
 config IDENT_STRING
 	default " Allwinner Technology"
 
-# FIXME: Should not redefine these Kconfig symbols
-config PRE_CONSOLE_BUFFER
-	default y
-
-config SPL_GPIO_SUPPORT
-	default y
-
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC_SUPPORT
-	depends on SPL && GENERIC_MMC
-	default y
-
-config SPL_POWER_SUPPORT
-	default y
-
-config SPL_SERIAL_SUPPORT
-	default y
-
 config SUNXI_HIGH_SRAM
 	bool
 	default n
