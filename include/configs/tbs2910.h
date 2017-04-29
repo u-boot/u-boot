@@ -115,7 +115,6 @@
 #endif /* CONFIG_CMD_USB      */
 
 /* RTC */
-#define CONFIG_CMD_DATE
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_DS1307
 #define CONFIG_SYS_RTC_BUS_NUM		2

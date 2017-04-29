@@ -57,7 +57,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CMD_DATE
 
 #define CONFIG_MCFTMR
 

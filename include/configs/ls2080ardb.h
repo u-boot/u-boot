@@ -275,7 +275,6 @@ unsigned long get_board_sys_clk(void);
 #define RTC
 #define CONFIG_RTC_DS3231               1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
-#define CONFIG_CMD_DATE
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM

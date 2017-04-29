@@ -468,7 +468,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING 1

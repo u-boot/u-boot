@@ -162,7 +162,6 @@
 #define CONFIG_LZMA
 
 #define CONFIG_CMD_LZMADEC
-#define CONFIG_CMD_DATE
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_CMD_IDE

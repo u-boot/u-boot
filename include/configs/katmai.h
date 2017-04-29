@@ -170,7 +170,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ECCTEST
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM

@@ -89,7 +89,6 @@
 /* commands to include */
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE

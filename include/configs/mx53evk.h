@@ -55,8 +55,6 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_DATE
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1

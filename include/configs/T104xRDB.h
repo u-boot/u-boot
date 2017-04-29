@@ -774,9 +774,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /*
  * Command line configuration.
  */
-#ifdef CONFIG_TARGET_T1042RDB_PI
-#define CONFIG_CMD_DATE
-#endif
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO

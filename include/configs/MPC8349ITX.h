@@ -479,7 +479,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_SDRAM
 

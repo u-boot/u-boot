@@ -20,7 +20,6 @@
 
 /* U-Boot Commands */
 
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
 
 /* Memory configuration */

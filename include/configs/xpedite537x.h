@@ -354,7 +354,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DS4510
 #define CONFIG_CMD_DS4510_INFO
 #define CONFIG_CMD_DTT

@@ -702,7 +702,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ

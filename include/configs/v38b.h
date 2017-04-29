@@ -77,7 +77,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_DATE
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 

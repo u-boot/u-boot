@@ -200,7 +200,6 @@
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 #define CONFIG_SYS_RTC_BUS_NUM	2
 #define CONFIG_RTC_M41T11
-#define CONFIG_CMD_DATE
 
 /* USB Configs */
 #define CONFIG_USB_EHCI

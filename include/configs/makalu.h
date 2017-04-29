@@ -232,7 +232,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_PCI
 

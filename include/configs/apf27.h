@@ -54,7 +54,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */
 #define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/

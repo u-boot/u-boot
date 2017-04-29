@@ -95,13 +95,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
 
-/***********************************************************
- * Command definition
- ***********************************************************/
-
-#define CONFIG_CMD_DATE
-
-
 #define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x92000000	/* loadaddr env var */

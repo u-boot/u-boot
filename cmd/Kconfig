@@ -715,6 +715,13 @@ config CMD_LED
 	  with led on/off/togle/blink. Any LED drivers can be controlled with
 	  this command, e.g. led_gpio.
 
+config CMD_DATE
+	bool "date"
+	default y if DM_RTC
+	help
+	  Enable the 'date' command for getting/setting the time/date in RTC
+	  devices.
+
 config CMD_TIME
 	bool "time"
 	help

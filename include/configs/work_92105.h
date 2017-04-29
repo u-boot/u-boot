@@ -82,7 +82,6 @@
  * I2C RTC
  */
 
-#define CONFIG_CMD_DATE
 #define CONFIG_RTC_DS1374
 
 /*

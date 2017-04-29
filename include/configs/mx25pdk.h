@@ -101,7 +101,6 @@
 
 /* RTC */
 #define CONFIG_RTC_IMXDI
-#define CONFIG_CMD_DATE
 
 /* Ethernet Configs */
 
