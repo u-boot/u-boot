@@ -136,6 +136,39 @@ static void decode_timing(u8 *buf, struct display_timing *timing)
 	      va + vbl, vborder);
 }
 
+/**
+ * Check if HDMI vendor specific data block is present in CEA block
+ * @param info	CEA extension block
+ * @return true if block is found
+ */
+static bool cea_is_hdmi_vsdb_present(struct edid_cea861_info *info)
+{
+	u8 end, i = 0;
+
+	/* check for end of data block */
+	end = info->dtd_offset;
+	if (end == 0)
+		end = 127;
+	if (end < 4 || end > 127)
+		return false;
+	end -= 4;
+
+	while (i < end) {
+		/* Look for vendor specific data block of appropriate size */
+		if ((EDID_CEA861_DB_TYPE(*info, i) == EDID_CEA861_DB_VENDOR) &&
+		    (EDID_CEA861_DB_LEN(*info, i) >= 5)) {
+			u8 *db = &info->data[i + 1];
+			u32 oui = db[0] | (db[1] << 8) | (db[2] << 16);
+
+			if (oui == HDMI_IEEE_OUI)
+				return true;
+		}
+		i += EDID_CEA861_DB_LEN(*info, i) + 1;
+	}
+
+	return false;
+}
+
 int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
 		    int *panel_bits_per_colourp)
 {
@@ -179,6 +212,15 @@ int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
 	} else  {
 		*panel_bits_per_colourp =
 			((edid->video_input_definition & 0x70) >> 3) + 4;
+	}
+
+	timing->hdmi_monitor = false;
+	if (edid->extension_flag && (buf_size >= EDID_EXT_SIZE)) {
+		struct edid_cea861_info *info =
+			(struct edid_cea861_info *)(buf + sizeof(*edid));
+
+		if (info->extension_tag == EDID_CEA861_EXTENSION_TAG)
+			timing->hdmi_monitor = cea_is_hdmi_vsdb_present(info);
 	}
 
 	return 0;

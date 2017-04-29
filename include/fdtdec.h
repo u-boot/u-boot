@@ -967,6 +967,7 @@ struct display_timing {
 	struct timing_entry vsync_len;		/* ver. sync len */
 
 	enum display_flags flags;		/* display flags */
+	bool hdmi_monitor;			/* is hdmi monitor? */
 };
 
 /**
