@@ -85,6 +85,7 @@ static void decode_timing(u8 *buf, struct display_timing *timing)
 	uint x_mm, y_mm;
 	unsigned int ha, hbl, hso, hspw, hborder;
 	unsigned int va, vbl, vso, vspw, vborder;
+	struct edid_detailed_timing *t = (struct edid_detailed_timing *)buf;
 
 	/* Edid contains pixel clock in terms of 10KHz */
 	set_entry(&timing->pixelclock, (buf[0] + (buf[1] << 8)) * 10000);
@@ -110,6 +111,19 @@ static void decode_timing(u8 *buf, struct display_timing *timing)
 	set_entry(&timing->vfront_porch, vso);
 	set_entry(&timing->vback_porch, vbl - vso - vspw);
 	set_entry(&timing->vsync_len, vspw);
+
+	timing->flags = 0;
+	if (EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(*t))
+		timing->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+	else
+		timing->flags |= DISPLAY_FLAGS_HSYNC_LOW;
+	if (EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(*t))
+		timing->flags |= DISPLAY_FLAGS_VSYNC_HIGH;
+	else
+		timing->flags |= DISPLAY_FLAGS_VSYNC_LOW;
+
+	if (EDID_DETAILED_TIMING_FLAG_INTERLACED(*t))
+		timing->flags = DISPLAY_FLAGS_INTERLACED;
 
 	debug("Detailed mode clock %u Hz, %d mm x %d mm\n"
 	      "               %04x %04x %04x %04x hborder %x\n"
