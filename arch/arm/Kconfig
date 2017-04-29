@@ -584,40 +584,6 @@ config ARCH_MX5
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
 
-config TARGET_M53EVK
-	bool "Support m53evk"
-	select CPU_V7
-	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX51EVK
-	bool "Support mx51evk"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53ARD
-	bool "Support mx53ard"
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53EVK
-	bool "Support mx53evk"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53LOCO
-	bool "Support mx53loco"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53SMD
-	bool "Support mx53smd"
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select DM
@@ -682,11 +648,6 @@ config TARGET_TS4600
 	bool "Support TS4600"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
-
-config TARGET_TS4800
-	bool "Support TS4800"
-	select CPU_V7
-	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
@@ -1098,7 +1059,6 @@ source "arch/arm/cpu/armv8/Kconfig"
 source "arch/arm/imx-common/Kconfig"
 
 source "board/aries/m28evk/Kconfig"
-source "board/aries/m53evk/Kconfig"
 source "board/bosch/shc/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
@@ -1134,11 +1094,6 @@ source "board/freescale/mx28evk/Kconfig"
 source "board/freescale/mx31ads/Kconfig"
 source "board/freescale/mx31pdk/Kconfig"
 source "board/freescale/mx35pdk/Kconfig"
-source "board/freescale/mx51evk/Kconfig"
-source "board/freescale/mx53ard/Kconfig"
-source "board/freescale/mx53evk/Kconfig"
-source "board/freescale/mx53loco/Kconfig"
-source "board/freescale/mx53smd/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/gdsys/a38x/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
@@ -1166,7 +1121,6 @@ source "board/birdland/bav335x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/technologic/ts4600/Kconfig"
-source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"

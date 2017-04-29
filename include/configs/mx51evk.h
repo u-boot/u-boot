@@ -13,8 +13,6 @@
 
  /* High Level Configuration Options */
 
-#define CONFIG_MX51	/* in a mx51 */
-
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 

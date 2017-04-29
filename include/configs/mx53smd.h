@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX53
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_SMD
 
 #include <asm/arch/imx-regs.h>
