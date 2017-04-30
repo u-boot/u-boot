@@ -117,8 +117,8 @@ static void pch_gbe_rx_descs_init(struct udevice *dev)
 
 	memset(rx_desc, 0, sizeof(struct pch_gbe_rx_desc) * PCH_GBE_DESC_NUM);
 	for (i = 0; i < PCH_GBE_DESC_NUM; i++)
-		rx_desc->buffer_addr = dm_pci_phys_to_mem(priv->dev,
-			(ulong)(priv->rx_buff[i]));
+		rx_desc[i].buffer_addr = dm_pci_phys_to_mem(priv->dev,
+			priv->rx_buff[i]);
 
 	writel(dm_pci_phys_to_mem(priv->dev, (ulong)rx_desc),
 	       &mac_regs->rx_dsc_base);
