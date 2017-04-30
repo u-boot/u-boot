@@ -422,6 +422,7 @@ int pch_gbe_probe(struct udevice *dev)
 	struct pch_gbe_priv *priv;
 	struct eth_pdata *plat = dev_get_platdata(dev);
 	void *iobase;
+	int err;
 
 	/*
 	 * The priv structure contains the descriptors and frame buffers which
@@ -443,6 +444,10 @@ int pch_gbe_probe(struct udevice *dev)
 	plat->phy_interface = PHY_INTERFACE_MODE_RGMII;
 	pch_gbe_mdio_init(dev->name, priv->mac_regs);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
+
+	err = pch_gbe_reset(dev);
+	if (err)
+		return err;
 
 	return pch_gbe_phy_init(dev);
 }
