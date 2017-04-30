@@ -614,15 +614,12 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
 
 	/* Impedance Calibration Threshold Setting */
 	reg_set(utmi_base_addr + UTMI_CALIB_CTRL_REG,
-		0x6 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
+		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
 		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
 
 	/* Set LS TX driver strength coarse control */
-	mask = UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
-	data = 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
-	/* Set LS TX driver fine adjustment */
-	mask |= UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK;
-	data |= 0x3 << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET;
+	mask = UTMI_TX_CH_CTRL_AMP_MASK;
+	data = 0x4 << UTMI_TX_CH_CTRL_AMP_OFFSET;
 	reg_set(utmi_base_addr + UTMI_TX_CH_CTRL_REG, data, mask);
 
 	/* Enable SQ */
