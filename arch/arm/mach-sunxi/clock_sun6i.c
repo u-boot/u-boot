@@ -51,6 +51,13 @@ void clock_init_safe(void)
 	writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
 	if (IS_ENABLED(CONFIG_MACH_SUN6I))
 		writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
+
+#if defined(CONFIG_MACH_SUN8I_R40) && defined(CONFIG_SUNXI_AHCI)
+	setbits_le32(&ccm->sata_pll_cfg, CCM_SATA_PLL_DEFAULT);
+	setbits_le32(&ccm->ahb_reset0_cfg, 0x1 << AHB_GATE_OFFSET_SATA);
+	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_SATA);
+	setbits_le32(&ccm->sata_clk_cfg, CCM_SATA_CTRL_ENABLE);
+#endif
 }
 #endif
 

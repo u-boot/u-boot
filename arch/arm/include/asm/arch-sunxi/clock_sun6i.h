@@ -25,7 +25,7 @@ struct sunxi_ccm_reg {
 	u32 pll6_cfg;		/* 0x28 pll6 control */
 	u32 reserved5;
 	u32 pll7_cfg;		/* 0x30 pll7 control */
-	u32 reserved6;
+	u32 sata_pll_cfg;	/* 0x34 SATA pll control (R40 only) */
 	u32 pll8_cfg;		/* 0x38 pll8 control */
 	u32 reserved7;
 	u32 mipi_pll_cfg;	/* 0x40 MIPI pll control */
@@ -58,7 +58,8 @@ struct sunxi_ccm_reg {
 	u32 i2s1_clk_cfg;	/* 0xb4 I2S1 clock control */
 	u32 reserved10[2];
 	u32 spdif_clk_cfg;	/* 0xc0 SPDIF clock control */
-	u32 reserved11[2];
+	u32 reserved11;
+	u32 sata_clk_cfg;	/* 0xc8 SATA clock control (R40 only) */
 	u32 usb_clk_cfg;	/* 0xcc USB clock control */
 	u32 gmac_clk_cfg;	/* 0xd0 GMAC clock control */
 	u32 reserved12[7];
@@ -224,6 +225,8 @@ struct sunxi_ccm_reg {
 #define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
 #define CCM_PLL6_CTRL_LOCK		(1 << 28)
 
+#define CCM_SATA_PLL_DEFAULT		0x90005811 /* 100 MHz */
+
 #define CCM_MIPI_PLL_CTRL_M_SHIFT	0
 #define CCM_MIPI_PLL_CTRL_M_MASK	(0xf << CCM_MIPI_PLL_CTRL_M_SHIFT)
 #define CCM_MIPI_PLL_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
@@ -280,7 +283,12 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
 #endif
+#ifndef CONFIG_MACH_SUN8I_R40
 #define AHB_GATE_OFFSET_USB0		24
+#else
+#define AHB_GATE_OFFSET_USB0		25
+#define AHB_GATE_OFFSET_SATA		24
+#endif
 #define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_GMAC		17
 #define AHB_GATE_OFFSET_NAND0		13
@@ -314,6 +322,9 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
 #define CCM_MMC_CTRL_PLL6		(0x1 << 24)
 #define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
+
+#define CCM_SATA_CTRL_ENABLE		(0x1 << 31)
+#define CCM_SATA_CTRL_USE_EXTCLK	(0x1 << 24)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
@@ -417,6 +428,9 @@ struct sunxi_ccm_reg {
 #define CCM_PLL11_PATTERN		0xf5860000
 
 /* ahb_reset0 offsets */
+#ifdef CONFIG_MACH_SUN8I_R40
+#define AHB_RESET_OFFSET_SATA		24
+#endif
 #define AHB_RESET_OFFSET_GMAC		17
 #define AHB_RESET_OFFSET_MCTL		14
 #define AHB_RESET_OFFSET_MMC3		11
