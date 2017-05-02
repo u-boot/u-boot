@@ -96,6 +96,7 @@ RCW+PBI				0x00000000
 Boot firmware (U-Boot)		0x00100000
 Boot firmware Environment	0x00300000
 PPA firmware			0x00400000
+Secure Headers			0x00600000
 DPAA2 MC			0x00A00000
 DPAA2 DPL			0x00D00000
 DPAA2 DPC			0x00E00000
