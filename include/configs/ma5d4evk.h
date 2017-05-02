@@ -1,5 +1,5 @@
 /*
- * DENX MA5D4 configuration
+ * Aries MA5D4 configuration
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -102,7 +102,7 @@
 /* USB device */
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
-#define CONFIG_USBNET_MANUFACTURER      "DENX"
+#define CONFIG_USBNET_MANUFACTURER      "AriesEmbedded"
 #endif
 
 /*

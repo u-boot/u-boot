@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "ma5d4evk"
 
 config SYS_VENDOR
-	default "denx"
+	default "aries"
 
 config SYS_CONFIG_NAME
 	default "ma5d4evk"

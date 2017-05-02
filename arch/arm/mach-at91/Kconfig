@@ -124,7 +124,7 @@ config TARGET_SAMA5D4EK
 	select BOARD_EARLY_INIT_F
 
 config TARGET_MA5D4EVK
-	bool "DENX MA5D4EVK Evaluation Kit"
+	bool "Aries MA5D4EVK Evaluation Kit"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -169,6 +169,7 @@ endchoice
 config SYS_SOC
 	default "at91"
 
+source "board/aries/ma5d4evk/Kconfig"
 source "board/atmel/at91rm9200ek/Kconfig"
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
@@ -186,7 +187,6 @@ source "board/atmel/sama5d4ek/Kconfig"
 source "board/bluewater/gurnard/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
-source "board/denx/ma5d4evk/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/l+g/vinco/Kconfig"
