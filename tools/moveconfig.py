@@ -618,6 +618,46 @@ def cleanup_whitelist(configs, options):
     with open(os.path.join('scripts', 'config_whitelist.txt'), 'w') as f:
         f.write(''.join(lines))
 
+def find_matching(patterns, line):
+    for pat in patterns:
+        if pat.search(line):
+            return True
+    return False
+
+def cleanup_readme(configs, options):
+    """Delete config description in README
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    if not confirm(options, 'Clean up README?'):
+        return
+
+    patterns = []
+    for config in configs:
+        patterns.append(re.compile(r'^\s+%s' % config))
+
+    with open('README') as f:
+        lines = f.readlines()
+
+    found = False
+    newlines = []
+    for line in lines:
+        if not found:
+            found = find_matching(patterns, line)
+            if found:
+                continue
+
+        if found and re.search(r'^\s+CONFIG', line):
+            found = False
+
+        if not found:
+            newlines.append(line)
+
+    with open('README', 'w') as f:
+        f.write(''.join(newlines))
+
 
 ### classes ###
 class Progress:
@@ -1316,6 +1356,7 @@ def main():
         cleanup_headers(configs, options)
         cleanup_extra_options(configs, options)
         cleanup_whitelist(configs, options)
+        cleanup_readme(configs, options)
 
     if options.commit:
         subprocess.call(['git', 'add', '-u'])
