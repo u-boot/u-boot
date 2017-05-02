@@ -35,14 +35,14 @@ static const struct rk808_reg_info rk808_buck[] = {
 };
 
 static const struct rk808_reg_info rk808_ldo[] = {
-	{ 1800000, 100000, LDO1_ON_VSEL, 5, },
-	{ 1800000, 100000, LDO2_ON_VSEL, 5, },
-	{ 800000, 100000, LDO3_ON_VSEL, 4, },
-	{ 1800000, 100000, LDO4_ON_VSEL, 5, },
-	{ 1800000, 100000, LDO5_ON_VSEL, 5, },
-	{ 800000, 100000, LDO6_ON_VSEL, 5, },
-	{ 800000, 100000, LDO7_ON_VSEL, 5, },
-	{ 1800000, 100000, LDO8_ON_VSEL, 5, },
+	{ 1800000, 100000, REG_LDO1_ON_VSEL, 5, },
+	{ 1800000, 100000, REG_LDO2_ON_VSEL, 5, },
+	{ 800000, 100000, REG_LDO3_ON_VSEL, 4, },
+	{ 1800000, 100000, REG_LDO4_ON_VSEL, 5, },
+	{ 1800000, 100000, REG_LDO5_ON_VSEL, 5, },
+	{ 800000, 100000, REG_LDO6_ON_VSEL, 5, },
+	{ 800000, 100000, REG_LDO7_ON_VSEL, 5, },
+	{ 1800000, 100000, REG_LDO8_ON_VSEL, 5, },
 };
 
 
@@ -69,7 +69,7 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 	buck--;
 	mask = 1 << buck;
 	if (enable) {
-		ret = pmic_clrsetbits(pmic, DCDC_ILMAX, 0, 3 << (buck * 2));
+		ret = pmic_clrsetbits(pmic, REG_DCDC_ILMAX, 0, 3 << (buck * 2));
 		if (ret)
 			return ret;
 		ret = pmic_clrsetbits(pmic, REG_DCDC_UV_ACT, 1 << buck, 0);
