@@ -39,5 +39,12 @@ config DISPLAY_ROCKCHIP_HDMI
 	help
 	  This enables High-Definition Multimedia Interface display support.
 
-endif
+config DISPLAY_ROCKCHIP_MIPI
+	bool "MIPI Port"
+	depends on VIDEO_ROCKCHIP
+	help
+	  This enables Mobile Industry Processor Interface(MIPI) display
+	  support. The mipi controller and dphy on rk3288& rk3399 support
+	  16,18, 24 bits per pixel with upto 2k resolution ratio.
 
+endif
