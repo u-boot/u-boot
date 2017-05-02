@@ -10,24 +10,24 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <libfdt.h>
-#include <power/rk808_pmic.h>
+#include <power/rk8xx_pmic.h>
 #include <power/pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
-	{ .prefix = "DCDC_REG", .driver = "rk808_buck"},
-	{ .prefix = "LDO_REG", .driver = "rk808_ldo"},
-	{ .prefix = "SWITCH_REG", .driver = "rk808_switch"},
+	{ .prefix = "DCDC_REG", .driver = "rk8xx_buck"},
+	{ .prefix = "LDO_REG", .driver = "rk8xx_ldo"},
+	{ .prefix = "SWITCH_REG", .driver = "rk8xx_switch"},
 	{ },
 };
 
-static int rk808_reg_count(struct udevice *dev)
+static int rk8xx_reg_count(struct udevice *dev)
 {
 	return RK808_NUM_OF_REGS;
 }
 
-static int rk808_write(struct udevice *dev, uint reg, const uint8_t *buff,
+static int rk8xx_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	int ret;
@@ -41,7 +41,7 @@ static int rk808_write(struct udevice *dev, uint reg, const uint8_t *buff,
 	return 0;
 }
 
-static int rk808_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
+static int rk8xx_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	int ret;
 
@@ -55,7 +55,7 @@ static int rk808_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 }
 
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
-static int rk808_bind(struct udevice *dev)
+static int rk8xx_bind(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	int regulators_node;
@@ -80,39 +80,39 @@ static int rk808_bind(struct udevice *dev)
 }
 #endif
 
-static int rk808_probe(struct udevice *dev)
+static int rk8xx_probe(struct udevice *dev)
 {
-	struct rk808_priv *priv = dev_get_priv(dev);
+	struct rk8xx_priv *priv = dev_get_priv(dev);
 	uint8_t msb, lsb;
 
 	/* read Chip variant */
-	rk808_read(dev, ID_MSB, &msb, 1);
-	rk808_read(dev, ID_LSB, &lsb, 1);
+	rk8xx_read(dev, ID_MSB, &msb, 1);
+	rk8xx_read(dev, ID_LSB, &lsb, 1);
 
 	priv->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
 
 	return 0;
 }
 
-static struct dm_pmic_ops rk808_ops = {
-	.reg_count = rk808_reg_count,
-	.read = rk808_read,
-	.write = rk808_write,
+static struct dm_pmic_ops rk8xx_ops = {
+	.reg_count = rk8xx_reg_count,
+	.read = rk8xx_read,
+	.write = rk8xx_write,
 };
 
-static const struct udevice_id rk808_ids[] = {
+static const struct udevice_id rk8xx_ids[] = {
 	{ .compatible = "rockchip,rk808" },
 	{ .compatible = "rockchip,rk818" },
 	{ }
 };
 
-U_BOOT_DRIVER(pmic_rk808) = {
-	.name = "rk808 pmic",
+U_BOOT_DRIVER(pmic_rk8xx) = {
+	.name = "rk8xx pmic",
 	.id = UCLASS_PMIC,
-	.of_match = rk808_ids,
+	.of_match = rk8xx_ids,
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
-	.bind = rk808_bind,
+	.bind = rk8xx_bind,
 #endif
-	.probe = rk808_probe,
-	.ops = &rk808_ops,
+	.probe = rk8xx_probe,
+	.ops = &rk8xx_ops,
 };

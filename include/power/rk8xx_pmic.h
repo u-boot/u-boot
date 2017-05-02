@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _PMIC_RK808_H_
-#define _PMIC_RK808_H_
+#ifndef _PMIC_RK8XX_H_
+#define _PMIC_RK8XX_H_
 
 enum {
 	REG_SECONDS			= 0x00,
@@ -178,16 +178,16 @@ enum {
 
 #define RK8XX_ID_MSK	0xfff0
 
-struct rk808_reg_table {
+struct rk8xx_reg_table {
 	char *name;
 	u8 reg_ctl;
 	u8 reg_vol;
 };
 
-struct rk808_priv {
+struct rk8xx_priv {
 	int variant;
 };
 
-int rk808_spl_configure_buck(struct udevice *pmic, int buck, int uvolt);
+int rk8xx_spl_configure_buck(struct udevice *pmic, int buck, int uvolt);
 
 #endif
