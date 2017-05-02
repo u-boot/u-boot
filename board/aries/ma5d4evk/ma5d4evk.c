@@ -337,7 +337,13 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
+#ifdef CONFIG_ATMEL_SPI
 	ma5d4evk_spi0_hw_init();
+#endif
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+	ma5d4evk_mci0_hw_init();
+	ma5d4evk_mci1_hw_init();
+#endif
 }
 
 static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
