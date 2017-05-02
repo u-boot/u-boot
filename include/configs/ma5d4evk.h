@@ -103,6 +103,9 @@
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "AriesEmbedded"
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1 * 1024 * 1024)
+#define DFU_DEFAULT_POLL_TIMEOUT	300
 #endif
 
 /*
@@ -131,6 +134,7 @@
 	"bootpart=1:1\0"						\
 	"rootdev=/dev/mmcblk1p2\0"					\
 	"netdev=eth0\0"							\
+	"dfu_alt_info=mmc raw 0 3867148288\0"				\
 	"kernel_addr_r=0x22000000\0"					\
 	"update_spi_firmware_spl_addr=0x21000000\0"			\
 	"update_spi_firmware_spl_filename=boot.bin\0"			\
