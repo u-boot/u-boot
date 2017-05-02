@@ -22,10 +22,13 @@
 #include <net.h>
 #include <netdev.h>
 #include <spi.h>
+#include <spi_flash.h>
 #include <spl.h>
 #include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static u8 boot_mode_sf;
 
 #ifdef CONFIG_ATMEL_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -201,18 +204,20 @@ void ma5d4evk_mci1_hw_init(void)
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
+	void *mci0 = (void *)ATMEL_BASE_MCI0;
+	void *mci1 = (void *)ATMEL_BASE_MCI1;
 
 	/* De-assert reset on On-SoM eMMC */
 	at91_set_pio_output(AT91_PIO_PORTE, 15, 1);
 	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 15, 0);
 
-	ret = atmel_mci_init((void *)ATMEL_BASE_MCI1);
+	ret = atmel_mci_init(boot_mode_sf ? mci0 : mci1);
 	if (ret)	/* eMMC init failed, skip it. */
 		at91_set_pio_output(AT91_PIO_PORTE, 15, 0);
 
 	/* Enable the power supply to On-board MicroSD */
 	at91_set_pio_output(AT91_PIO_PORTE, 17, 0);
-	ret = atmel_mci_init((void *)ATMEL_BASE_MCI0);
+	ret = atmel_mci_init(boot_mode_sf ? mci1 : mci0);
 	if (ret)	/* uSD init failed, power it down. */
 		at91_set_pio_output(AT91_PIO_PORTE, 17, 1);
 
@@ -274,6 +279,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static void board_identify(void)
+{
+	struct spi_flash *sf;
+	sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
+			     CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
+	boot_mode_sf = (sf != NULL);
+}
+
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -299,12 +312,20 @@ int board_init(void)
 	at91_udp_hw_init();
 #endif
 
+	board_identify();
+
 	/* Reset CAN controllers */
 	at91_set_pio_output(AT91_PIO_PORTB, 21, 0);
 	udelay(100);
 	at91_set_pio_output(AT91_PIO_PORTB, 21, 1);
 	at91_pio3_set_pio_pulldown(AT91_PIO_PORTB, 21, 0);
 
+	return 0;
+}
+
+int board_late_init(void)
+{
+	setenv("bootmode", boot_mode_sf ? "sf" : "emmc");
 	return 0;
 }
 
@@ -344,6 +365,7 @@ void spl_board_init(void)
 	ma5d4evk_mci0_hw_init();
 	ma5d4evk_mci1_hw_init();
 #endif
+	board_identify();
 }
 
 void board_boot_order(u32 *spl_boot_list)

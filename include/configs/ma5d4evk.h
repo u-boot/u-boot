@@ -13,6 +13,7 @@
 #include "at91-sama5_common.h"
 #undef CONFIG_BOOTARGS
 #define CONFIG_SYS_USE_SERIALFLASH	1
+#define CONFIG_BOARD_LATE_INIT
 
 /*
  * Memory configurations
@@ -174,18 +175,23 @@
 	"nfsargs="							\
 		"setenv bootargs root=/dev/nfs rw "			\
 			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+	"fdtimg=if test ${bootmode} = \"sf\" ; then "			\
+			"setenv kernel_fdt 1 ; "			\
+		"else ; "						\
+			"setenv kernel_fdt 2 ; "			\
+		"fi\0"							\
 	"mmc_mmc="							\
-		"run mmcload mmcargs addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run fdtimg mmcload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}:kernel@1 - ${kernel_addr_r}:fdt@${kernel_fdt}\0" \
 	"mmc_nfs="							\
-		"run mmcload nfsargs addip addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run fdtimg mmcload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}:kernel@1 - ${kernel_addr_r}:fdt@${kernel_fdt}\0" \
 	"net_mmc="							\
-		"run netload mmcargs addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run fdtimg netload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}:kernel@1 - ${kernel_addr_r}:fdt@${kernel_fdt}\0" \
 	"net_nfs="							\
-		"run netload nfsargs addip addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run fdtimg netload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}:kernel@1 - ${kernel_addr_r}:fdt@${kernel_fdt}\0" \
 	"try_bootscript="						\
 		"mmc rescan;"						\
 		"if test -e mmc 1:1 ${bootscript} ; then "		\
