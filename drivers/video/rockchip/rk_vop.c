@@ -117,6 +117,10 @@ void rkvop_mode_set(struct rk3288_vop *regs,
 		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
 				V_RGB_OUT_EN(1));
 		break;
+	case VOP_MODE_MIPI:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_MIPI_OUT_EN(1));
+		 break;
 	}
 
 	if (mode == VOP_MODE_HDMI || mode == VOP_MODE_EDP)
@@ -350,6 +354,8 @@ static const struct video_ops rk_vop_ops = {
 };
 
 static const struct udevice_id rk_vop_ids[] = {
+	{ .compatible = "rockchip,rk3399-vop-big" },
+	{ .compatible = "rockchip,rk3399-vop-lit" },
 	{ .compatible = "rockchip,rk3288-vop" },
 	{ }
 };
