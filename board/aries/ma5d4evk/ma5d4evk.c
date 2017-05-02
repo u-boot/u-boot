@@ -349,7 +349,6 @@ static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3 |
 		    ATMEL_MPDDRC_CR_NB_8BANKS |
 		    ATMEL_MPDDRC_CR_NDQS_DISABLED |
-		    ATMEL_MPDDRC_CR_DECOD_INTERLEAVED |
 		    ATMEL_MPDDRC_CR_UNAL_SUPPORTED);
 
 	ddr2->rtr = 0x2b0;
