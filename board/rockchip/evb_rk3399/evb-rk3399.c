@@ -29,6 +29,13 @@ int board_init(void)
 		goto out;
 	}
 
+	/* Enable pwm0 for panel backlight */
+	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM0);
+	if (ret) {
+		debug("%s PWM0 pinctrl init fail! (ret=%d)\n", __func__, ret);
+		goto out;
+	}
+
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM2);
 	if (ret) {
 		debug("%s PWM2 pinctrl init fail!\n", __func__);
