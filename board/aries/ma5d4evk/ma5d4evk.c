@@ -22,6 +22,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <spi.h>
+#include <spl.h>
 #include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -343,6 +344,23 @@ void spl_board_init(void)
 	ma5d4evk_mci0_hw_init();
 	ma5d4evk_mci1_hw_init();
 #endif
+}
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	switch (spl_boot_list[0]) {
+	case BOOT_DEVICE_MMC1:
+	case BOOT_DEVICE_MMC2:
+		spl_boot_list[0] = BOOT_DEVICE_MMC1;
+		break;
+	case BOOT_DEVICE_SPI:
+		break;
+	case BOOT_DEVICE_USB:
+		spl_boot_list[0] = BOOT_DEVICE_MMC2;
+		break;
+	}
 }
 
 static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
