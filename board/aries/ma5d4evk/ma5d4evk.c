@@ -205,14 +205,13 @@ int board_mmc_init(bd_t *bis)
 	at91_set_pio_output(AT91_PIO_PORTE, 15, 1);
 	at91_pio3_set_pio_pulldown(AT91_PIO_PORTE, 15, 0);
 
-	ret = atmel_mci_init((void *)ATMEL_BASE_MCI0);
+	ret = atmel_mci_init((void *)ATMEL_BASE_MCI1);
 	if (ret)	/* eMMC init failed, skip it. */
 		at91_set_pio_output(AT91_PIO_PORTE, 15, 0);
 
 	/* Enable the power supply to On-board MicroSD */
 	at91_set_pio_output(AT91_PIO_PORTE, 17, 0);
-
-	ret = atmel_mci_init((void *)ATMEL_BASE_MCI1);
+	ret = atmel_mci_init((void *)ATMEL_BASE_MCI0);
 	if (ret)	/* uSD init failed, power it down. */
 		at91_set_pio_output(AT91_PIO_PORTE, 17, 1);
 

@@ -130,9 +130,9 @@
 	"consdev=ttyS3\0"						\
 	"baudrate=115200\0"						\
 	"bootscript=boot.scr\0"						\
-	"bootdev=/dev/mmcblk1p1\0"					\
-	"bootpart=1:1\0"						\
-	"rootdev=/dev/mmcblk1p2\0"					\
+	"bootdev=/dev/mmcblk0p1\0"					\
+	"bootpart=0:1\0"						\
+	"rootdev=/dev/mmcblk0p2\0"					\
 	"netdev=eth0\0"							\
 	"dfu_alt_info=mmc raw 0 3867148288\0"				\
 	"kernel_addr_r=0x22000000\0"					\
@@ -189,8 +189,8 @@
 		"bootm ${kernel_addr_r}\0"				\
 	"try_bootscript="						\
 		"mmc rescan;"						\
-		"if test -e mmc ${bootpart} ${bootscript} ; then "	\
-		"if load mmc ${bootpart} ${kernel_addr_r} ${bootscript};"\
+		"if test -e mmc 1:1 ${bootscript} ; then "		\
+		"if load mmc 1:1 ${kernel_addr_r} ${bootscript};"	\
 		"then ; "						\
 			"echo Running bootscript... ; "			\
 			"source ${kernel_addr_r} ; "			\
