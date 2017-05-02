@@ -435,6 +435,20 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
     matched += extended_matched
     matched.sort()
 
+def confirm(options, prompt):
+    if not options.yes:
+        while True:
+            choice = raw_input('{} [y/n]: '.format(prompt))
+            choice = choice.lower()
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
+
+        if choice == 'n':
+            return False
+
+    return True
+
 def cleanup_one_header(header_path, patterns, options):
     """Clean regex-matched lines away from a file.
 
@@ -502,15 +516,8 @@ def cleanup_headers(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    if not options.yes:
-        while True:
-            choice = raw_input('Clean up headers? [y/n]: ').lower()
-            print choice
-            if choice == 'y' or choice == 'n':
-                break
-
-        if choice == 'n':
-            return
+    if not confirm(options, 'Clean up headers?'):
+        return
 
     patterns = []
     for config in configs:
@@ -582,16 +589,8 @@ def cleanup_extra_options(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    if not options.yes:
-        while True:
-            choice = (raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').
-                      lower())
-            print choice
-            if choice == 'y' or choice == 'n':
-                break
-
-        if choice == 'n':
-            return
+    if not confirm(options, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
+        return
 
     configs = [ config[len('CONFIG_'):] for config in configs ]
 
