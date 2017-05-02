@@ -269,12 +269,6 @@ int board_early_init_f(void)
 	at91_set_pio_output(AT91_PIO_PORTD, 29, 0);
 	at91_set_pio_output(AT91_PIO_PORTD, 30, 0);
 
-	/* Reset CAN controllers */
-	at91_set_pio_output(AT91_PIO_PORTB, 21, 0);
-	udelay(100);
-	at91_set_pio_output(AT91_PIO_PORTB, 21, 1);
-	at91_pio3_set_pio_pulldown(AT91_PIO_PORTB, 21, 0);
-
 	ma5d4evk_serial_hw_init();
 
 	return 0;
@@ -304,6 +298,12 @@ int board_init(void)
 #ifdef CONFIG_USB_GADGET_ATMEL_USBA
 	at91_udp_hw_init();
 #endif
+
+	/* Reset CAN controllers */
+	at91_set_pio_output(AT91_PIO_PORTB, 21, 0);
+	udelay(100);
+	at91_set_pio_output(AT91_PIO_PORTB, 21, 1);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTB, 21, 0);
 
 	return 0;
 }
