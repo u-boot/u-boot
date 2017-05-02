@@ -80,6 +80,20 @@ static int rk808_bind(struct udevice *dev)
 }
 #endif
 
+static int rk808_probe(struct udevice *dev)
+{
+	struct rk808_priv *priv = dev_get_priv(dev);
+	uint8_t msb, lsb;
+
+	/* read Chip variant */
+	rk808_read(dev, ID_MSB, &msb, 1);
+	rk808_read(dev, ID_LSB, &lsb, 1);
+
+	priv->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
+
+	return 0;
+}
+
 static struct dm_pmic_ops rk808_ops = {
 	.reg_count = rk808_reg_count,
 	.read = rk808_read,
@@ -88,6 +102,7 @@ static struct dm_pmic_ops rk808_ops = {
 
 static const struct udevice_id rk808_ids[] = {
 	{ .compatible = "rockchip,rk808" },
+	{ .compatible = "rockchip,rk818" },
 	{ }
 };
 
@@ -98,5 +113,6 @@ U_BOOT_DRIVER(pmic_rk808) = {
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 	.bind = rk808_bind,
 #endif
+	.probe = rk808_probe,
 	.ops = &rk808_ops,
 };

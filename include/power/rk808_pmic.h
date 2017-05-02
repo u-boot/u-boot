@@ -170,10 +170,22 @@ enum {
 	RK808_NUM_OF_REGS,
 };
 
+enum {
+	RK805_ID = 0x8050,
+	RK808_ID = 0x0000,
+	RK818_ID = 0x8180,
+};
+
+#define RK8XX_ID_MSK	0xfff0
+
 struct rk808_reg_table {
 	char *name;
 	u8 reg_ctl;
 	u8 reg_vol;
+};
+
+struct rk808_priv {
+	int variant;
 };
 
 int rk808_spl_configure_buck(struct udevice *pmic, int buck, int uvolt);
