@@ -25,6 +25,12 @@
 #define RK808_BUCK4_VSEL_MASK	0xf
 #define RK808_LDO_VSEL_MASK	0x1f
 
+#define RK818_BUCK_VSEL_MASK		0x3f
+#define RK818_BUCK4_VSEL_MASK		0x1f
+#define RK818_LDO_VSEL_MASK		0x1f
+#define RK818_LDO3_ON_VSEL_MASK	0xf
+#define RK818_BOOST_ON_VSEL_MASK	0xe0
+
 struct rk808_reg_info {
 	uint min_uv;
 	uint step_uv;
@@ -50,10 +56,51 @@ static const struct rk808_reg_info rk808_ldo[] = {
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, RK808_LDO_VSEL_MASK, },
 };
 
+static const struct rk808_reg_info rk818_buck[] = {
+	{ 712500, 12500, REG_BUCK1_ON_VSEL, RK818_BUCK_VSEL_MASK, },
+	{ 712500, 12500, REG_BUCK2_ON_VSEL, RK818_BUCK_VSEL_MASK, },
+	{ 712500, 12500, -1, RK818_BUCK_VSEL_MASK, },
+	{ 1800000, 100000, REG_BUCK4_ON_VSEL, RK818_BUCK4_VSEL_MASK, },
+};
+
+static const struct rk808_reg_info rk818_ldo[] = {
+	{ 1800000, 100000, REG_LDO1_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 1800000, 100000, REG_LDO2_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO3_ON_VSEL, RK818_LDO3_ON_VSEL_MASK, },
+	{ 1800000, 100000, REG_LDO4_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 1800000, 100000, REG_LDO5_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO6_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO7_ON_VSEL, RK818_LDO_VSEL_MASK, },
+	{ 1800000, 100000, REG_LDO8_ON_VSEL, RK818_LDO_VSEL_MASK, },
+};
+
+static const struct rk808_reg_info *get_buck_reg(struct udevice *pmic,
+					     int num)
+{
+	struct rk808_priv *rk808 = dev_get_priv(pmic);
+	switch (rk808->variant) {
+	case RK818_ID:
+		return &rk818_buck[num];
+	default:
+		return &rk808_buck[num];
+	}
+}
+
+static const struct rk808_reg_info *get_ldo_reg(struct udevice *pmic,
+					     int num)
+{
+	struct rk808_priv *rk808 = dev_get_priv(pmic);
+	switch (rk808->variant) {
+	case RK818_ID:
+		return &rk818_ldo[num - 1];
+	default:
+		return &rk808_ldo[num - 1];
+	}
+}
 
 static int _buck_set_value(struct udevice *pmic, int buck, int uvolt)
 {
-	const struct rk808_reg_info *info = &rk808_buck[buck - 1];
+	const struct rk808_reg_info *info = get_buck_reg(pmic, buck - 1);
 	int mask = info->vsel_mask;
 	int val;
 
@@ -89,7 +136,7 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 static int buck_get_value(struct udevice *dev)
 {
 	int buck = dev->driver_data - 1;
-	const struct rk808_reg_info *info = &rk808_buck[buck];
+	const struct rk808_reg_info *info = get_buck_reg(dev->parent, buck);
 	int mask = info->vsel_mask;
 	int ret, val;
 
@@ -135,7 +182,7 @@ static bool buck_get_enable(struct udevice *dev)
 static int ldo_get_value(struct udevice *dev)
 {
 	int ldo = dev->driver_data - 1;
-	const struct rk808_reg_info *info = &rk808_ldo[ldo];
+	const struct rk808_reg_info *info = get_ldo_reg(dev->parent, ldo);
 	int mask = info->vsel_mask;
 	int ret, val;
 
@@ -152,7 +199,7 @@ static int ldo_get_value(struct udevice *dev)
 static int ldo_set_value(struct udevice *dev, int uvolt)
 {
 	int ldo = dev->driver_data - 1;
-	const struct rk808_reg_info *info = &rk808_ldo[ldo];
+	const struct rk808_reg_info *info = get_ldo_reg(dev->parent, ldo);
 	int mask = info->vsel_mask;
 	int val;
 
