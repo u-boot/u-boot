@@ -600,6 +600,25 @@ def cleanup_extra_options(configs, options):
         cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
                                  options)
 
+def cleanup_whitelist(configs, options):
+    """Delete config whitelist entries
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    if not confirm(options, 'Clean up whitelist entries?'):
+        return
+
+    with open(os.path.join('scripts', 'config_whitelist.txt')) as f:
+        lines = f.readlines()
+
+    lines = [x for x in lines if x.strip() not in configs]
+
+    with open(os.path.join('scripts', 'config_whitelist.txt'), 'w') as f:
+        f.write(''.join(lines))
+
+
 ### classes ###
 class Progress:
 
@@ -1296,6 +1315,7 @@ def main():
     if configs:
         cleanup_headers(configs, options)
         cleanup_extra_options(configs, options)
+        cleanup_whitelist(configs, options)
 
     if options.commit:
         subprocess.call(['git', 'add', '-u'])
