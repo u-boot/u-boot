@@ -17,7 +17,6 @@
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_LAST_STAGE_INIT
-#define CONFIG_SPL_BOARD_INIT
 
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed

@@ -90,7 +90,6 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(1024 * 1024)
 
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-#define CONFIG_SPL_BOARD_INIT
 
 /*
  * Console

@@ -14,6 +14,7 @@ config ROCKCHIP_RK3036
 config ROCKCHIP_RK3188
 	bool "Support Rockchip RK3188"
 	select CPU_V7
+	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select SPL
@@ -30,6 +31,7 @@ config ROCKCHIP_RK3188
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7
+	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
 	help

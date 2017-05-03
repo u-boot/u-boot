@@ -8,7 +8,6 @@
 #define __CONFIG_H
 
 /* SPL */
-#define CONFIG_SPL_BOARD_INIT
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
 

@@ -43,6 +43,5 @@
 						0x600000)
 
 #define CONFIG_SYS_SPL_ARGS_ADDR	(PHYS_SDRAM_1 + 0x100)
-#define CONFIG_SPL_BOARD_INIT
 
 #endif /* __CONFIG_H */

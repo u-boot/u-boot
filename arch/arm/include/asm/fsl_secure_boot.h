@@ -13,7 +13,6 @@
 #define CONFIG_SHA_HW_ACCEL
 #define CONFIG_SHA_PROG_HW_ACCEL
 
-#define CONFIG_SPL_BOARD_INIT
 #ifdef CONFIG_SPL_BUILD
 /*
  * Define the key hash for U-Boot here if public/private key pair used to

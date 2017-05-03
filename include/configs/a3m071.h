@@ -388,7 +388,6 @@
  * SPL related defines
  */
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_TEXT_BASE	0xfc000000
 
 /* Place BSS for SPL near end of SDRAM */

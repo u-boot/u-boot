@@ -216,7 +216,6 @@
 #endif
 
 /* General parts of the framework, required. */
-#define CONFIG_SPL_BOARD_INIT
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_BASE

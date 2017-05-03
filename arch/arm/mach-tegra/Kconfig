@@ -49,6 +49,7 @@ config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
 	select CPU_V7
 	select SPL
+	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select TEGRA_COMMON
 	select TEGRA_GPIO

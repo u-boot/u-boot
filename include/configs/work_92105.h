@@ -173,7 +173,6 @@
 #define CONFIG_SPL_TEXT_BASE 0x00000000
 /* SPL will use SRAM as stack */
 #define CONFIG_SPL_STACK     0x0000FFF8
-#define CONFIG_SPL_BOARD_INIT
 /* Use the framework and generic lib */
 #define CONFIG_SPL_FRAMEWORK
 /* SPL will use serial */

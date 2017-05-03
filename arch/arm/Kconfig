@@ -281,6 +281,7 @@ choice
 
 config ARCH_AT91
 	bool "Atmel AT91"
+	select SPL_BOARD_INIT if SPL
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
@@ -553,6 +554,7 @@ config ARCH_KEYSTONE
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
 	select CPU_V7
+	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	imply FIT
 
@@ -674,6 +676,7 @@ config ARCH_ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
+	select SPL_BOARD_INIT if SPL
 	select SPL_OF_CONTROL if SPL
 	select DM
 	select DM_ETH
@@ -701,6 +704,7 @@ config ARCH_ZYNQMP
 	select DM_SERIAL
 	select SUPPORT_SPL
 	select CLK
+	select SPL_BOARD_INIT if SPL
 	select SPL_CLK
 	select DM_USB if USB
 
@@ -943,6 +947,7 @@ config ARCH_UNIPHIER
 	select OF_CONTROL
 	select OF_LIBFDT
 	select PINCTRL
+	select SPL_BOARD_INIT if SPL
 	select SPL_DM if SPL
 	select SPL_LIBCOMMON_SUPPORT if SPL
 	select SPL_LIBGENERIC_SUPPORT if SPL

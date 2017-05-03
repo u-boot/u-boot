@@ -25,7 +25,6 @@
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
 #define CONFIG_SYS_NS16550_MEM32
-#define CONFIG_SPL_BOARD_INIT
 
 #ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
 /* Bootrom will load u-boot binary to 0x60000000 once return from SPL */

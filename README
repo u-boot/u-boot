@@ -292,7 +292,7 @@ board_init_r():
 	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
 		CONFIG_SPL_STACK_R_ADDR points into SDRAM
 	- preloader_console_init() can be called here - typically this is
-		done by defining CONFIG_SPL_BOARD_INIT and then supplying a
+		done by selecting CONFIG_SPL_BOARD_INIT and then supplying a
 		spl_board_init() function containing this call
 	- loads U-Boot or (in falcon mode) Linux
 

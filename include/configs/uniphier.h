@@ -289,8 +289,6 @@
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 #endif
 
-#define CONFIG_SPL_BOARD_INIT
-
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */
