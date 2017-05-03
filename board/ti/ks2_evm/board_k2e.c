@@ -14,12 +14,30 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-unsigned int external_clk[ext_clk_count] = {
-	[sys_clk]	= 100000000,
-	[alt_core_clk]	= 100000000,
-	[pa_clk]	= 100000000,
-	[ddr3a_clk]	= 100000000,
-};
+unsigned int get_external_clk(u32 clk)
+{
+	unsigned int clk_freq;
+
+	switch (clk) {
+	case sys_clk:
+		clk_freq = 100000000;
+		break;
+	case alt_core_clk:
+		clk_freq = 100000000;
+		break;
+	case pa_clk:
+		clk_freq = 100000000;
+		break;
+	case ddr3a_clk:
+		clk_freq = 100000000;
+		break;
+	default:
+		clk_freq = 0;
+		break;
+	}
+
+	return clk_freq;
+}
 
 static struct pll_init_data core_pll_config[NUM_SPDS] = {
 	[SPD800]	= CORE_PLL_800,

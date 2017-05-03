@@ -14,8 +14,6 @@
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
 
-#define SYS_CLK		24000000
-
 const unsigned int sysclk_array[MAX_SYSCLK] = {
 	19200000,
 	24000000,
@@ -23,13 +21,34 @@ const unsigned int sysclk_array[MAX_SYSCLK] = {
 	26000000,
 };
 
-unsigned int external_clk[ext_clk_count] = {
-	[sys_clk]	=	SYS_CLK,
-	[pa_clk]	=	SYS_CLK,
-	[tetris_clk]	=	SYS_CLK,
-	[ddr3a_clk]	=	SYS_CLK,
-	[uart_clk]	=	SYS_CLK,
-};
+unsigned int get_external_clk(u32 clk)
+{
+	unsigned int clk_freq;
+	u8 sysclk_index = get_sysclk_index();
+
+	switch (clk) {
+	case sys_clk:
+		clk_freq = sysclk_array[sysclk_index];
+		break;
+	case pa_clk:
+		clk_freq = sysclk_array[sysclk_index];
+		break;
+	case tetris_clk:
+		clk_freq = sysclk_array[sysclk_index];
+		break;
+	case ddr3a_clk:
+		clk_freq = sysclk_array[sysclk_index];
+		break;
+	case uart_clk:
+		clk_freq = sysclk_array[sysclk_index];
+		break;
+	default:
+		clk_freq = 0;
+		break;
+	}
+
+	return clk_freq;
+}
 
 static int arm_speeds[DEVSPEED_NUMSPDS] = {
 	SPD400,

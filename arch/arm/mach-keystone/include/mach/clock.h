@@ -117,7 +117,6 @@ struct pll_init_data {
 	int pll_od;		/* PLL output divider */
 };
 
-extern unsigned int external_clk[ext_clk_count];
 extern const struct keystone_pll_regs keystone_pll_regs[];
 extern s16 divn_val[];
 extern int speeds[];
@@ -129,6 +128,7 @@ unsigned long ks_clk_get_rate(unsigned int clk);
 int get_max_dev_speed(int *spds);
 int get_max_arm_speed(int *spds);
 void pll_pa_clk_sel(void);
+unsigned int get_external_clk(u32 clk);
 
 #endif
 #endif
