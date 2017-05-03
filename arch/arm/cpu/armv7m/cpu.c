@@ -18,6 +18,25 @@
  */
 int cleanup_before_linux(void)
 {
+	/*
+	 * this function is called just before we call linux
+	 * it prepares the processor for linux
+	 *
+	 * disable interrupt and turn off caches etc ...
+	 */
+	disable_interrupts();
+	/*
+	 * turn off D-cache
+	 * dcache_disable() in turn flushes the d-cache
+	 * MPU is still enabled & can't be disabled as the u-boot
+	 * code might be running in sdram which by default is not
+	 * executable area.
+	 */
+	dcache_disable();
+	/* invalidate to make sure no cache line gets dirty between
+	 * dcache flushing and disabling dcache */
+	invalidate_dcache_all();
+
 	return 0;
 }
 
