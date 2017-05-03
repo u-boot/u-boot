@@ -16,6 +16,13 @@
 
 #define SYS_CLK		24000000
 
+const unsigned int sysclk_array[MAX_SYSCLK] = {
+	19200000,
+	24000000,
+	25000000,
+	26000000,
+};
+
 unsigned int external_clk[ext_clk_count] = {
 	[sys_clk]	=	SYS_CLK,
 	[pa_clk]	=	SYS_CLK,
@@ -48,49 +55,116 @@ static int dev_speeds[DEVSPEED_NUMSPDS] = {
 	SPD400,
 };
 
-static struct pll_init_data main_pll_config[NUM_SPDS] = {
-	[SPD400]	= {MAIN_PLL, 100, 3, 2},
-	[SPD600]	= {MAIN_PLL, 300, 6, 2},
-	[SPD800]	= {MAIN_PLL, 200, 3, 2},
-	[SPD900] =	{TETRIS_PLL, 75, 1, 2},
-	[SPD1000] =	{TETRIS_PLL, 250, 3, 2},
+static struct pll_init_data main_pll_config[MAX_SYSCLK][NUM_SPDS] = {
+	[SYSCLK_19MHz] = {
+		[SPD400]	= {MAIN_PLL, 125, 3, 2},
+		[SPD600]	= {MAIN_PLL, 125, 2, 2},
+		[SPD800]	= {MAIN_PLL, 250, 3, 2},
+		[SPD900]	= {TETRIS_PLL, 187, 2, 2},
+		[SPD1000]	= {TETRIS_PLL, 104, 1, 2},
+	},
+	[SYSCLK_24MHz] = {
+		[SPD400]	= {MAIN_PLL, 100, 3, 2},
+		[SPD600]	= {MAIN_PLL, 300, 6, 2},
+		[SPD800]	= {MAIN_PLL, 200, 3, 2},
+		[SPD900]	= {TETRIS_PLL, 75, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 250, 3, 2},
+	},
+	[SYSCLK_25MHz] = {
+		[SPD400]	= {MAIN_PLL, 32, 1, 2},
+		[SPD600]	= {MAIN_PLL, 48, 1, 2},
+		[SPD800]	= {MAIN_PLL, 64, 1, 2},
+		[SPD900]	= {TETRIS_PLL, 72, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 80, 1, 2},
+	},
+	[SYSCLK_26MHz] = {
+		[SPD400]	= {MAIN_PLL, 400, 13, 2},
+		[SPD600]	= {MAIN_PLL, 230, 5, 2},
+		[SPD800]	= {MAIN_PLL, 123, 2, 2},
+		[SPD900]	= {TETRIS_PLL, 69, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 384, 5, 2},
+	},
 };
 
-static struct pll_init_data tetris_pll_config[NUM_SPDS] = {
-	[SPD200] =	{TETRIS_PLL, 250, 3, 10},
-	[SPD400] =	{TETRIS_PLL, 100, 1, 6},
-	[SPD600] =	{TETRIS_PLL, 100, 1, 4},
-	[SPD800] =	{TETRIS_PLL, 400, 3, 4},
-	[SPD900] =	{TETRIS_PLL, 75, 1, 2},
-	[SPD1000] =	{TETRIS_PLL, 250, 3, 2},
+static struct pll_init_data tetris_pll_config[MAX_SYSCLK][NUM_SPDS] = {
+	[SYSCLK_19MHz] = {
+		[SPD200]	= {TETRIS_PLL, 625, 6, 10},
+		[SPD400]	= {TETRIS_PLL, 125, 1, 6},
+		[SPD600]	= {TETRIS_PLL, 125, 1, 4},
+		[SPD800]	= {TETRIS_PLL, 333, 2, 4},
+		[SPD900]	= {TETRIS_PLL, 187, 2, 2},
+		[SPD1000]	= {TETRIS_PLL, 104, 1, 2},
+	},
+	[SYSCLK_24MHz] = {
+		[SPD200]	= {TETRIS_PLL, 250, 3, 10},
+		[SPD400]	= {TETRIS_PLL, 100, 1, 6},
+		[SPD600]	= {TETRIS_PLL, 100, 1, 4},
+		[SPD800]	= {TETRIS_PLL, 400, 3, 4},
+		[SPD900]	= {TETRIS_PLL, 75, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 250, 3, 2},
+	},
+	[SYSCLK_25MHz] = {
+		[SPD200]	= {TETRIS_PLL, 80, 1, 10},
+		[SPD400]	= {TETRIS_PLL, 96, 1, 6},
+		[SPD600]	= {TETRIS_PLL, 96, 1, 4},
+		[SPD800]	= {TETRIS_PLL, 128, 1, 4},
+		[SPD900]	= {TETRIS_PLL, 72, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 80, 1, 2},
+	},
+	[SYSCLK_26MHz] = {
+		[SPD200]	= {TETRIS_PLL, 307, 4, 10},
+		[SPD400]	= {TETRIS_PLL, 369, 4, 6},
+		[SPD600]	= {TETRIS_PLL, 369, 4, 4},
+		[SPD800]	= {TETRIS_PLL, 123, 1, 4},
+		[SPD900]	= {TETRIS_PLL, 69, 1, 2},
+		[SPD1000]	= {TETRIS_PLL, 384, 5, 2},
+	},
 };
 
-static struct pll_init_data uart_pll_config = {UART_PLL, 64, 1, 4};
-static struct pll_init_data nss_pll_config = {NSS_PLL, 250, 3, 2};
-static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 133, 1, 16};
+static struct pll_init_data uart_pll_config[MAX_SYSCLK] = {
+	[SYSCLK_19MHz] = {UART_PLL, 160, 1, 8},
+	[SYSCLK_24MHz] = {UART_PLL, 128, 1, 8},
+	[SYSCLK_25MHz] = {UART_PLL, 768, 5, 10},
+	[SYSCLK_26MHz] = {UART_PLL, 384, 13, 2},
+};
+
+static struct pll_init_data nss_pll_config[MAX_SYSCLK] = {
+	[SYSCLK_19MHz] = {NSS_PLL, 625, 6, 2},
+	[SYSCLK_24MHz] = {NSS_PLL, 250, 3, 2},
+	[SYSCLK_25MHz] = {NSS_PLL, 80, 1, 2},
+	[SYSCLK_26MHz] = {NSS_PLL, 1000, 13, 2},
+};
+
+static struct pll_init_data ddr3_pll_config[MAX_SYSCLK] = {
+	[SYSCLK_19MHz] = {DDR3A_PLL, 167, 1, 16},
+	[SYSCLK_24MHz] = {DDR3A_PLL, 133, 1, 16},
+	[SYSCLK_25MHz] = {DDR3A_PLL, 128, 1, 16},
+	[SYSCLK_26MHz] = {DDR3A_PLL, 123, 1, 16},
+};
 
 struct pll_init_data *get_pll_init_data(int pll)
 {
 	int speed;
 	struct pll_init_data *data = NULL;
+	u8 sysclk_index = get_sysclk_index();
 
 	switch (pll) {
 	case MAIN_PLL:
 		speed = get_max_dev_speed(dev_speeds);
-		data = &main_pll_config[speed];
+		data = &main_pll_config[sysclk_index][speed];
 		break;
 	case TETRIS_PLL:
 		speed = get_max_arm_speed(arm_speeds);
-		data = &tetris_pll_config[speed];
+		data = &tetris_pll_config[sysclk_index][speed];
 		break;
 	case NSS_PLL:
-		data = &nss_pll_config;
+		data = &nss_pll_config[sysclk_index];
 		break;
 	case UART_PLL:
-		data = &uart_pll_config;
+		data = &uart_pll_config[sysclk_index];
 		break;
 	case DDR3_PLL:
-		data = &ddr3_pll_config;
+		data = &ddr3_pll_config[sysclk_index];
 		break;
 	default:
 		data = NULL;
