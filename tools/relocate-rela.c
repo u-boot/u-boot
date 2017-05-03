@@ -27,9 +27,11 @@ static void debug(const char *fmt, ...)
 {
 	va_list args;
 
-	va_start(args, fmt);
-	if (debug_en)
+	if (debug_en) {
+		va_start(args, fmt);
 		vprintf(fmt, args);
+		va_end(args);
+	}
 }
 
 static bool supported_rela(Elf64_Rela *rela)
