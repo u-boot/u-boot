@@ -51,6 +51,7 @@ enum mxc_clock {
 	MXC_CLK_NUM
 };
 
+int imx_set_perclk(enum mxc_clock clk, bool from_upll, unsigned int freq);
 unsigned int mxc_get_clock(enum mxc_clock clk);
 
 #define imx_get_uartclk()	mxc_get_clock(MXC_UART_CLK)
