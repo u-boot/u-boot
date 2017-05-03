@@ -521,7 +521,13 @@ out:
 
 static void set_sysctl(struct mmc *mmc, uint clock)
 {
-	int div, pre_div;
+	int div = 1;
+#ifdef ARCH_MXC
+	int pre_div = 1;
+#else
+	int pre_div = 2;
+#endif
+	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
 	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int sdhc_clk = priv->sdhc_clk;
@@ -530,18 +536,13 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	if (clock < mmc->cfg->f_min)
 		clock = mmc->cfg->f_min;
 
-	if (sdhc_clk / 16 > clock) {
-		for (pre_div = 2; pre_div < 256; pre_div *= 2)
-			if ((sdhc_clk / pre_div) <= (clock * 16))
-				break;
-	} else
-		pre_div = 2;
+	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
+		pre_div *= 2;
 
-	for (div = 1; div <= 16; div++)
-		if ((sdhc_clk / (div * pre_div)) <= clock)
-			break;
+	while (sdhc_clk / (div * pre_div * ddr_pre_div) > clock && div < 16)
+		div++;
 
-	pre_div >>= mmc->ddr_mode ? 2 : 1;
+	pre_div >>= 1;
 	div -= 1;
 
 	clk = (pre_div << 8) | (div << 4);
