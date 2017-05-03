@@ -94,7 +94,7 @@ int dram_init_banksize(void)
 
 	ac = fdt_address_cells(fdt, 0);
 	sc = fdt_size_cells(fdt, 0);
-	if (ac < 1 || sc > 2 || sc < 1 || sc > 2) {
+	if (ac < 1 || ac > 2 || sc < 1 || sc > 2) {
 		printf("invalid address/size cells\n");
 		return -ENXIO;
 	}
