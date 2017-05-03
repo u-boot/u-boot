@@ -253,6 +253,21 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 		return;
 	}
 }
+void flush_dcache_all(void)
+{
+	if (action_dcache_all(FLUSH_SET_WAY)) {
+		printf("ERR: D-cache not flushed\n");
+		return;
+	}
+}
+
+void invalidate_dcache_all(void)
+{
+	if (action_dcache_all(INVALIDATE_SET_WAY)) {
+		printf("ERR: D-cache not invalidated\n");
+		return;
+	}
+}
 #else
 void dcache_enable(void)
 {
@@ -267,6 +282,14 @@ void dcache_disable(void)
 int dcache_status(void)
 {
 	return 0;
+}
+
+void flush_dcache_all(void)
+{
+}
+
+void invalidate_dcache_all(void)
+{
 }
 #endif
 
