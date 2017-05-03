@@ -6,6 +6,7 @@
 
 #include <dt-bindings/clock/bcm6328-clock.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/reset/bcm6328-reset.h>
 #include "skeleton.dtsi"
 
 / {
@@ -57,6 +58,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
+
+		periph_rst: reset-controller@10000010 {
+			compatible = "brcm,bcm6345-reset";
+			reg = <0x10000010 0x4>;
+			#reset-cells = <1>;
+		};
 
 		pll_cntl: syscon@10000068 {
 			compatible = "syscon";
