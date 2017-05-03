@@ -6,6 +6,7 @@
 
 #include <dt-bindings/clock/bcm63268-clock.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/reset/bcm63268-reset.h>
 #include "skeleton.dtsi"
 
 / {
@@ -74,6 +75,12 @@
 			regmap = <&pll_cntl>;
 			offset = <0x0>;
 			mask = <0x1>;
+		};
+
+		periph_rst: reset-controller@10000010 {
+			compatible = "brcm,bcm6345-reset";
+			reg = <0x10000010 0x4>;
+			#reset-cells = <1>;
 		};
 
 		gpio1: gpio-controller@100000c0 {
