@@ -58,6 +58,14 @@ static ulong imx_get_mpllclk(void)
 	return imx_decode_pll(readl(&ccm->mpctl), fref);
 }
 
+static ulong imx_get_upllclk(void)
+{
+	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
+	ulong fref = MXC_HCLK;
+
+	return imx_decode_pll(readl(&ccm->upctl), fref);
+}
+
 static ulong imx_get_armclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
@@ -95,7 +103,8 @@ static ulong imx_get_ipgclk(void)
 static ulong imx_get_perclk(int clk)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong fref = imx_get_ahbclk();
+	ulong fref = readl(&ccm->mcr) & (1 << clk) ? imx_get_upllclk() :
+						     imx_get_ahbclk();
 	ulong div;
 
 	div = readl(&ccm->pcdr[CCM_PERCLK_REG(clk)]);
