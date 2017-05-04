@@ -88,7 +88,7 @@ exit:
 	board_usb_cleanup(usbctrl_index, USB_INIT_DEVICE);
 
 	if (dfu_reset)
-		run_command("reset", 0);
+		do_reset(NULL, 0, 0, NULL);
 
 	g_dnl_clear_detach();
 

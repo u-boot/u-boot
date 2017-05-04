@@ -35,7 +35,11 @@ static struct hash_algo *dfu_hash_algo;
  */
 __weak bool dfu_usb_get_reset(void)
 {
+#ifdef CONFIG_SPL_DFU_NO_RESET
+	return false;
+#else
 	return true;
+#endif
 }
 
 static int dfu_find_alt_num(const char *s)
