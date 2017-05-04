@@ -646,6 +646,7 @@ config SPL_USBETH_SUPPORT
 config SPL_DFU_SUPPORT
 	bool "Support DFU (Device Firmware Upgarde)"
 	select SPL_HASH_SUPPORT
+	depends on SPL_RAM_SUPPORT
 	help
 	  This feature enables the DFU (Device Firmware Upgarde) in SPL with
 	  RAM memory device support. The ROM code will load and execute
