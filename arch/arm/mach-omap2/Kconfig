@@ -150,7 +150,7 @@ endchoice
 
 config SYS_MPUCLK
 	int "MPU CLK speed"
-	default 550
+	default 500
 	help
 	  Defines the MPU clock speed (in MHz).
 

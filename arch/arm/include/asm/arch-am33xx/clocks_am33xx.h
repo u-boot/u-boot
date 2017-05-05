@@ -16,7 +16,7 @@
 #define MPUPLL_M_800	800
 #define MPUPLL_M_720	720
 #define MPUPLL_M_600	600
-#define MPUPLL_M_550	550
+#define MPUPLL_M_500	500
 #define MPUPLL_M_300	300
 
 #define UART_RESET		(0x1 << 1)

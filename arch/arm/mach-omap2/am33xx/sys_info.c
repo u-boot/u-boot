@@ -132,13 +132,21 @@ int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev)
 
 	sil_rev = readl(&cdev->deviceid) >> 28;
 
-	if (sil_rev == 1)
-		/* PG 2.0, efuse may not be set. */
-		return MPUPLL_M_800;
-	else if (sil_rev >= 2) {
+	if (sil_rev == 0) {
+		/* No efuse in PG 1.0. Use max speed */
+		return MPUPLL_M_720;
+	} else if (sil_rev >= 1) {
 		/* Check what the efuse says our max speed is. */
-		int efuse_arm_mpu_max_freq;
+		int efuse_arm_mpu_max_freq, package_type;
 		efuse_arm_mpu_max_freq = readl(&cdev->efuse_sma);
+		package_type = (efuse_arm_mpu_max_freq & PACKAGE_TYPE_MASK) >>
+				PACKAGE_TYPE_SHIFT;
+
+		/* PG 2.0, efuse may not be set. */
+		if (package_type == PACKAGE_TYPE_UNDEFINED || package_type ==
+		    PACKAGE_TYPE_RESERVED)
+			return MPUPLL_M_800;
+
 		switch ((efuse_arm_mpu_max_freq & DEVICE_ID_MASK)) {
 		case AM335X_ZCZ_1000:
 			return MPUPLL_M_1000;
@@ -155,14 +163,14 @@ int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev)
 		}
 	}
 
-	/* PG 1.0 or otherwise unknown, use the PG1.0 max */
+	/* unknown, use the PG1.0 max */
 	return MPUPLL_M_720;
 }
 
 int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency)
 {
-	/* For PG2.1 and later, we have one set of values. */
-	if (sil_rev >= 2) {
+	/* For PG2.0 and later, we have one set of values. */
+	if (sil_rev >= 1) {
 		switch (frequency) {
 		case MPUPLL_M_1000:
 			return TPS65910_OP_REG_SEL_1_3_2_5;
@@ -171,12 +179,13 @@ int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency)
 		case MPUPLL_M_720:
 			return TPS65910_OP_REG_SEL_1_2_0;
 		case MPUPLL_M_600:
+		case MPUPLL_M_500:
 		case MPUPLL_M_300:
-			return TPS65910_OP_REG_SEL_1_1_3;
+			return TPS65910_OP_REG_SEL_1_1_0;
 		}
 	}
 
-	/* Default to PG1.0/PG2.0 values. */
-	return TPS65910_OP_REG_SEL_1_1_3;
+	/* Default to PG1.0 values. */
+	return TPS65910_OP_REG_SEL_1_2_6;
 }
 #endif

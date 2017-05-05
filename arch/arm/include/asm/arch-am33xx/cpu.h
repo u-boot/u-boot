@@ -49,6 +49,14 @@
 #define TI81XX				0xB81E
 #define DEVICE_ID			(CTRL_BASE + 0x0600)
 #define DEVICE_ID_MASK			0x1FFF
+#define PACKAGE_TYPE_SHIFT		16
+#define PACKAGE_TYPE_MASK		(3 << 16)
+
+/* Package Type */
+#define PACKAGE_TYPE_UNDEFINED		0x0
+#define PACKAGE_TYPE_ZCZ		0x1
+#define PACKAGE_TYPE_ZCE		0x2
+#define PACKAGE_TYPE_RESERVED		0x3
 
 /* MPU max frequencies */
 #define AM335X_ZCZ_300			0x1FEF
