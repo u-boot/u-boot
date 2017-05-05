@@ -264,13 +264,13 @@ static int load_devicetree(void)
 #else
 	char *dtbname = getenv("dtb");
 	char *dtbdev = getenv("dtbdev");
-	char *dtppart = getenv("dtbpart");
-	if (!dtbdev || !dtbdev || !dtbname) {
+	char *dtbpart = getenv("dtbpart");
+	if (!dtbdev || !dtbpart || !dtbname) {
 		printf("%s: <dtbdev>/<dtbpart>/<dtb> missing.\n", __func__);
 		return -1;
 	}
 
-	if (fs_set_blk_dev(dtbdev, dtppart, FS_TYPE_EXT)) {
+	if (fs_set_blk_dev(dtbdev, dtbpart, FS_TYPE_EXT)) {
 		puts("load_devicetree: set_blk_dev failed.\n");
 		return -1;
 	}
