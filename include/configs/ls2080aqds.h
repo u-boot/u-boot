@@ -198,7 +198,8 @@ unsigned long get_board_ddr_clk(void);
 					FTIM2_GPCM_TWP(0x3E))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_SPL) && defined(CONFIG_NAND)
+#if defined(CONFIG_SPL)
+#if defined(CONFIG_NAND_BOOT)
 #define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR0_CSPR_EXT
 #define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR0_CSPR_EARLY
 #define CONFIG_SYS_CSPR1_FINAL		CONFIG_SYS_NOR0_CSPR
@@ -234,6 +235,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 * 1024)
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 * 1024)
+#endif
 #else
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR_EARLY

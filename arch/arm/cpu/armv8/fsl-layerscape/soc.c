@@ -134,7 +134,7 @@ void erratum_a009635(void)
 
 static void erratum_rcw_src(void)
 {
-#if defined(CONFIG_SPL)
+#if defined(CONFIG_SPL) && defined(CONFIG_NAND_BOOT)
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 	u32 __iomem *dcfg_dcsr = (u32 __iomem *)DCFG_DCSR_BASE;
 	u32 val;
