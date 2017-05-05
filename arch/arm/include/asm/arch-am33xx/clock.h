@@ -12,6 +12,7 @@
 #define _CLOCKS_H_
 
 #include <asm/arch/clocks_am33xx.h>
+#include <asm/arch/hardware.h>
 
 #ifdef CONFIG_TI81XX
 #include <asm/arch/clock_ti81xx.h>
@@ -103,6 +104,12 @@ extern const struct dpll_regs dpll_mpu_regs;
 extern const struct dpll_regs dpll_core_regs;
 extern const struct dpll_regs dpll_per_regs;
 extern const struct dpll_regs dpll_ddr_regs;
+extern const struct dpll_params dpll_mpu_opp[NUM_CRYSTAL_FREQ][NUM_OPPS];
+extern const struct dpll_params dpll_core_1000MHz[NUM_CRYSTAL_FREQ];
+extern const struct dpll_params dpll_per_192MHz[NUM_CRYSTAL_FREQ];
+extern const struct dpll_params dpll_ddr2_266MHz[NUM_CRYSTAL_FREQ];
+extern const struct dpll_params dpll_ddr3_303MHz[NUM_CRYSTAL_FREQ];
+extern const struct dpll_params dpll_ddr3_400MHz[NUM_CRYSTAL_FREQ];
 
 extern struct cm_wkuppll *const cmwkup;
 

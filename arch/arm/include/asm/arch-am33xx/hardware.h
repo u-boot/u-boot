@@ -61,5 +61,18 @@
 /* CPSW Config space */
 #define CPSW_BASE			0x4A100000
 
+/* Control status register */
+#define CTRL_CRYSTAL_FREQ_SRC_MASK		(1 << 31)
+#define CTRL_CRYSTAL_FREQ_SRC_SHIFT		31
+#define CTRL_CRYSTAL_FREQ_SELECTION_MASK	(0x3 << 29)
+#define CTRL_CRYSTAL_FREQ_SELECTION_SHIFT	29
+#define CTRL_SYSBOOT_15_14_MASK			(0x3 << 22)
+#define CTRL_SYSBOOT_15_14_SHIFT		22
+
+#define CTRL_CRYSTAL_FREQ_SRC_SYSBOOT		0x0
+#define CTRL_CRYSTAL_FREQ_SRC_EFUSE		0x1
+
+#define NUM_CRYSTAL_FREQ			0x4
+
 int clk_get(int clk);
 #endif /* __AM33XX_HARDWARE_H */

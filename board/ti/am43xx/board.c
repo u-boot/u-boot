@@ -49,8 +49,6 @@ void do_board_detect(void)
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 
-#define NUM_OPPS	6
-
 const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 	{	/* 19.2 MHz */
 		{125, 3, 2, -1, -1, -1, -1},	/* OPP 50 */
@@ -315,25 +313,6 @@ void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 	}
 
 	return;
-}
-
-/*
- * get_sys_clk_index : returns the index of the sys_clk read from
- *			ctrl status register. This value is either
- *			read from efuse or sysboot pins.
- */
-static u32 get_sys_clk_index(void)
-{
-	struct ctrl_stat *ctrl = (struct ctrl_stat *)CTRL_BASE;
-	u32 ind = readl(&ctrl->statusreg), src;
-
-	src = (ind & CTRL_CRYSTAL_FREQ_SRC_MASK) >> CTRL_CRYSTAL_FREQ_SRC_SHIFT;
-	if (src == CTRL_CRYSTAL_FREQ_SRC_EFUSE) /* Value read from EFUSE */
-		return ((ind & CTRL_CRYSTAL_FREQ_SELECTION_MASK) >>
-			CTRL_CRYSTAL_FREQ_SELECTION_SHIFT);
-	else /* Value read from SYS BOOT pins */
-		return ((ind & CTRL_SYSBOOT_15_14_MASK) >>
-			CTRL_SYSBOOT_15_14_SHIFT);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)

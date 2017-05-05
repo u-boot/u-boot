@@ -68,6 +68,24 @@ u32 get_sysboot_value(void)
 	return readl(&cstat->statusreg) & SYSBOOT_MASK;
 }
 
+u32 get_sys_clk_index(void)
+{
+	struct ctrl_stat *ctrl = (struct ctrl_stat *)CTRL_BASE;
+	u32 ind = readl(&ctrl->statusreg);
+
+#ifdef CONFIG_AM43XX
+	u32 src;
+	src = (ind & CTRL_CRYSTAL_FREQ_SRC_MASK) >> CTRL_CRYSTAL_FREQ_SRC_SHIFT;
+	if (src == CTRL_CRYSTAL_FREQ_SRC_EFUSE) /* Value read from EFUSE */
+		return ((ind & CTRL_CRYSTAL_FREQ_SELECTION_MASK) >>
+			CTRL_CRYSTAL_FREQ_SELECTION_SHIFT);
+	else /* Value read from SYS BOOT pins */
+#endif
+		return ((ind & CTRL_SYSBOOT_15_14_MASK) >>
+			CTRL_SYSBOOT_15_14_SHIFT);
+}
+
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 static char *cpu_revs[] = {
 		"1.0",

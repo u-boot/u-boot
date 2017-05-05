@@ -242,8 +242,6 @@ int board_early_init_f(void)
  */
 __weak void am33xx_spl_board_init(void)
 {
-	do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
-	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
 }
 
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)

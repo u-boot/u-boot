@@ -26,6 +26,8 @@
 #define CM_DLL_CTRL_NO_OVERRIDE	0x0
 #define CM_DLL_READYST		0x4
 
+#define NUM_OPPS	6
+
 extern void enable_dmm_clocks(void);
 extern const struct dpll_params dpll_core_opp100;
 extern struct dpll_params dpll_mpu_opp100;
