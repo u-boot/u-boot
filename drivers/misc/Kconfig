@@ -20,6 +20,19 @@ config ALTERA_SYSID
 	  Select this to enable a sysid for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config ROCKCHIP_EFUSE
+        bool "Rockchip e-fuse support"
+	depends on MISC
+	help
+	  Enable (read-only) access for the e-fuse block found in Rockchip
+	  SoCs: accesses can either be made using byte addressing and a length
+	  or through child-nodes that are generated based on the e-fuse map
+	  retrieved from the DTS.
+
+	  This driver currently supports the RK3399 only, but can easily be
+	  extended (by porting the read function from the Linux kernel sources)
+	  to support other recent Rockchip devices.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
