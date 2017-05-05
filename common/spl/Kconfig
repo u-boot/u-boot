@@ -693,6 +693,20 @@ config SPL_YMODEM_SUPPORT
 	  means of transmitting U-Boot over a serial line for using in SPL,
 	  with a checksum to ensure correctness.
 
+config SPL_ATF_SUPPORT
+	bool "Support ARM Trusted Firmware"
+	depends on SPL && ARM64
+	help
+	  ATF(ARM Trusted Firmware) is a component for ARM arch64 which which
+	  is loaded by SPL(which is considered as BL2 in ATF terminology).
+	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
+
+config SPL_ATF_TEXT_BASE
+	depends on SPL_ATF_SUPPORT
+	hex "ATF BL31 base address"
+	help
+	  This is the base address in memory for ATF BL31 text and entry point.
+
 config TPL_ENV_SUPPORT
 	bool "Support an environment"
 	depends on TPL
