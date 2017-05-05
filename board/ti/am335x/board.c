@@ -264,145 +264,6 @@ const struct dpll_params dpll_ddr_evm_sk = {
 const struct dpll_params dpll_ddr_bone_black = {
 		400, OSC-1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
-{
-	int mpu_vdd;
-
-	/* Get the frequency */
-	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
-
-	if (board_is_bone() || board_is_bone_lt()) {
-		/* BeagleBone PMIC Code */
-		int usb_cur_lim;
-
-		/*
-		 * Only perform PMIC configurations if board rev > A1
-		 * on Beaglebone White
-		 */
-		if (board_is_bone() && !strncmp(board_ti_get_rev(), "00A1", 4))
-			return;
-
-		if (i2c_probe(TPS65217_CHIP_PM))
-			return;
-
-		/*
-		 * On Beaglebone White we need to ensure we have AC power
-		 * before increasing the frequency.
-		 */
-		if (board_is_bone()) {
-			uchar pmic_status_reg;
-			if (tps65217_reg_read(TPS65217_STATUS,
-					      &pmic_status_reg))
-				return;
-			if (!(pmic_status_reg & TPS65217_PWR_SRC_AC_BITMASK)) {
-				puts("No AC power, disabling frequency switch\n");
-				return;
-			}
-		}
-
-		/*
-		 * Override what we have detected since we know if we have
-		 * a Beaglebone Black it supports 1GHz.
-		 */
-		if (board_is_bone_lt())
-			dpll_mpu_opp100.m = MPUPLL_M_1000;
-
-		/*
-		 * Increase USB current limit to 1300mA or 1800mA and set
-		 * the MPU voltage controller as needed.
-		 */
-		if (dpll_mpu_opp100.m == MPUPLL_M_1000) {
-			usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
-			mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
-		} else {
-			usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
-			mpu_vdd = TPS65217_DCDC_VOLT_SEL_1275MV;
-		}
-
-		if (tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-				       TPS65217_POWER_PATH,
-				       usb_cur_lim,
-				       TPS65217_USB_INPUT_CUR_LIMIT_MASK))
-			puts("tps65217_reg_write failure\n");
-
-		/* Set DCDC3 (CORE) voltage to 1.125V */
-		if (tps65217_voltage_update(TPS65217_DEFDCDC3,
-					    TPS65217_DCDC_VOLT_SEL_1125MV)) {
-			puts("tps65217_voltage_update failure\n");
-			return;
-		}
-
-		/* Set CORE Frequencies to OPP100 */
-		do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
-
-		/* Set DCDC2 (MPU) voltage */
-		if (tps65217_voltage_update(TPS65217_DEFDCDC2, mpu_vdd)) {
-			puts("tps65217_voltage_update failure\n");
-			return;
-		}
-
-		/*
-		 * Set LDO3, LDO4 output voltage to 3.3V for Beaglebone.
-		 * Set LDO3 to 1.8V and LDO4 to 3.3V for Beaglebone Black.
-		 */
-		if (board_is_bone()) {
-			if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
-					       TPS65217_DEFLS1,
-					       TPS65217_LDO_VOLTAGE_OUT_3_3,
-					       TPS65217_LDO_MASK))
-				puts("tps65217_reg_write failure\n");
-		} else {
-			if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
-					       TPS65217_DEFLS1,
-					       TPS65217_LDO_VOLTAGE_OUT_1_8,
-					       TPS65217_LDO_MASK))
-				puts("tps65217_reg_write failure\n");
-		}
-
-		if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
-				       TPS65217_DEFLS2,
-				       TPS65217_LDO_VOLTAGE_OUT_3_3,
-				       TPS65217_LDO_MASK))
-			puts("tps65217_reg_write failure\n");
-	} else {
-		int sil_rev;
-
-		/*
-		 * The GP EVM, IDK and EVM SK use a TPS65910 PMIC.  For all
-		 * MPU frequencies we support we use a CORE voltage of
-		 * 1.1375V.  For MPU voltage we need to switch based on
-		 * the frequency we are running at.
-		 */
-		if (i2c_probe(TPS65910_CTRL_I2C_ADDR))
-			return;
-
-		/*
-		 * Depending on MPU clock and PG we will need a different
-		 * VDD to drive at that speed.
-		 */
-		sil_rev = readl(&cdev->deviceid) >> 28;
-		mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev,
-						      dpll_mpu_opp100.m);
-
-		/* Tell the TPS65910 to use i2c */
-		tps65910_set_i2c_control();
-
-		/* First update MPU voltage. */
-		if (tps65910_voltage_update(MPU, mpu_vdd))
-			return;
-
-		/* Second, update the CORE voltage. */
-		if (tps65910_voltage_update(CORE, TPS65910_OP_REG_SEL_1_1_3))
-			return;
-
-		/* Set CORE Frequencies to OPP100 */
-		do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
-	}
-
-	/* Set MPU Frequency to what we detected now that voltages are set */
-	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
-}
-
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	if (board_is_evm_sk())
@@ -413,6 +274,174 @@ const struct dpll_params *get_dpll_ddr_params(void)
 		return &dpll_ddr_evm_sk;
 	else
 		return &dpll_ddr;
+}
+
+static void scale_vcores_bone(int freq)
+{
+	int usb_cur_lim, mpu_vdd;
+
+	/*
+	 * Only perform PMIC configurations if board rev > A1
+	 * on Beaglebone White
+	 */
+	if (board_is_bone() && !strncmp(board_ti_get_rev(), "00A1", 4))
+		return;
+
+	if (i2c_probe(TPS65217_CHIP_PM))
+		return;
+
+	/*
+	 * On Beaglebone White we need to ensure we have AC power
+	 * before increasing the frequency.
+	 */
+	if (board_is_bone()) {
+		uchar pmic_status_reg;
+		if (tps65217_reg_read(TPS65217_STATUS,
+				      &pmic_status_reg))
+			return;
+		if (!(pmic_status_reg & TPS65217_PWR_SRC_AC_BITMASK)) {
+			puts("No AC power, switching to default OPP\n");
+			freq = MPUPLL_M_600;
+		}
+	}
+
+	/*
+	 * Override what we have detected since we know if we have
+	 * a Beaglebone Black it supports 1GHz.
+	 */
+	if (board_is_bone_lt())
+		freq = MPUPLL_M_1000;
+
+	if (freq == MPUPLL_M_1000) {
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
+	} else {
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1275MV;
+	}
+
+	switch (freq) {
+	case MPUPLL_M_1000:
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		break;
+	case MPUPLL_M_800:
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1275MV;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		break;
+	case MPUPLL_M_720:
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1200MV;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		break;
+	case MPUPLL_M_600:
+	case MPUPLL_M_500:
+	case MPUPLL_M_300:
+		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1100MV;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
+		break;
+	}
+
+	if (tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
+			       TPS65217_POWER_PATH,
+			       usb_cur_lim,
+			       TPS65217_USB_INPUT_CUR_LIMIT_MASK))
+		puts("tps65217_reg_write failure\n");
+
+	/* Set DCDC3 (CORE) voltage to 1.10V */
+	if (tps65217_voltage_update(TPS65217_DEFDCDC3,
+				    TPS65217_DCDC_VOLT_SEL_1100MV)) {
+		puts("tps65217_voltage_update failure\n");
+		return;
+	}
+
+	/* Set DCDC2 (MPU) voltage */
+	if (tps65217_voltage_update(TPS65217_DEFDCDC2, mpu_vdd)) {
+		puts("tps65217_voltage_update failure\n");
+		return;
+	}
+
+	/*
+	 * Set LDO3, LDO4 output voltage to 3.3V for Beaglebone.
+	 * Set LDO3 to 1.8V and LDO4 to 3.3V for Beaglebone Black.
+	 */
+	if (board_is_bone()) {
+		if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
+				       TPS65217_DEFLS1,
+				       TPS65217_LDO_VOLTAGE_OUT_3_3,
+				       TPS65217_LDO_MASK))
+			puts("tps65217_reg_write failure\n");
+	} else {
+		if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
+				       TPS65217_DEFLS1,
+				       TPS65217_LDO_VOLTAGE_OUT_1_8,
+				       TPS65217_LDO_MASK))
+			puts("tps65217_reg_write failure\n");
+	}
+
+	if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
+			       TPS65217_DEFLS2,
+			       TPS65217_LDO_VOLTAGE_OUT_3_3,
+			       TPS65217_LDO_MASK))
+		puts("tps65217_reg_write failure\n");
+}
+
+void scale_vcores_generic(int freq)
+{
+	int sil_rev, mpu_vdd;
+
+	/*
+	 * The GP EVM, IDK and EVM SK use a TPS65910 PMIC.  For all
+	 * MPU frequencies we support we use a CORE voltage of
+	 * 1.10V.  For MPU voltage we need to switch based on
+	 * the frequency we are running at.
+	 */
+	if (i2c_probe(TPS65910_CTRL_I2C_ADDR))
+		return;
+
+	/*
+	 * Depending on MPU clock and PG we will need a different
+	 * VDD to drive at that speed.
+	 */
+	sil_rev = readl(&cdev->deviceid) >> 28;
+	mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev, freq);
+
+	/* Tell the TPS65910 to use i2c */
+	tps65910_set_i2c_control();
+
+	/* First update MPU voltage. */
+	if (tps65910_voltage_update(MPU, mpu_vdd))
+		return;
+
+	/* Second, update the CORE voltage. */
+	if (tps65910_voltage_update(CORE, TPS65910_OP_REG_SEL_1_1_0))
+		return;
+
+}
+
+void gpi2c_init(void)
+{
+	/* When needed to be invoked prior to BSS initialization */
+	static bool first_time = true;
+
+	if (first_time) {
+		enable_i2c0_pin_mux();
+		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE);
+		first_time = false;
+	}
+}
+
+void scale_vcores(void)
+{
+	int freq;
+
+	gpi2c_init();
+	freq = am335x_get_efuse_mpu_max_freq(cdev);
+
+	if (board_is_bone())
+		scale_vcores_bone(freq);
+	else
+		scale_vcores_generic(freq);
 }
 
 void set_uart_mux_conf(void)
