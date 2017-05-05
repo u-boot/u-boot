@@ -21,7 +21,7 @@
 
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
-#define CONFIG_BMP_24BMP
+#define CONFIG_BMP_24BPP
 #define CONFIG_BMP_32BPP
 
 /* memory */
