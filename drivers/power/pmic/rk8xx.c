@@ -111,6 +111,7 @@ U_BOOT_DRIVER(pmic_rk8xx) = {
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 	.bind = rk8xx_bind,
 #endif
+	.priv_auto_alloc_size   = sizeof(struct rk8xx_priv),
 	.probe = rk8xx_probe,
 	.ops = &rk8xx_ops,
 };
