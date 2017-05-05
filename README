@@ -4512,11 +4512,6 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
 
-- CONFIG_SYS_MPUCLK
-		Defines the MPU clock speed (in MHz).
-
-		NOTE : currently only supported on AM335x platforms.
-
 - CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC:
 		Enables the RTC32K OSC on AM33xx based plattforms
 

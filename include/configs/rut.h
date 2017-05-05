@@ -19,7 +19,6 @@
 
 #include "siemens-am33x-common.h"
 
-#define CONFIG_SYS_MPUCLK	600
 #define RUT_IOCTRL_VAL	0x18b
 #define DDR_PLL_FREQ	303
 

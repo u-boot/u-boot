@@ -148,6 +148,11 @@ config TARGET_CM_T43
 
 endchoice
 
+config SYS_MPUCLK
+	int "MPU CLK speed"
+	default 550
+	help
+	  Defines the MPU clock speed (in MHz).
 
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"
