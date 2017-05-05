@@ -619,4 +619,13 @@ config LCD
 	  CONFIG option. See the README for details. Drives which have been
 	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
+config VIDEO_DW_HDMI
+	bool
+	help
+	  Enables the common driver code for the Designware HDMI TX
+	  block found in SoCs from various vendors.
+	  As this does not provide any functionality by itself (but
+	  rather requires a SoC-specific glue driver to call it), it
+	  can not be enabled from the configuration menu.
+
 endmenu

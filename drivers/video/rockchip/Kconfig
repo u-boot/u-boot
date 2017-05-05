@@ -35,6 +35,7 @@ config DISPLAY_ROCKCHIP_LVDS
 
 config DISPLAY_ROCKCHIP_HDMI
 	bool "HDMI port"
+	select VIDEO_DW_HDMI
 	depends on VIDEO_ROCKCHIP
 	help
 	  This enables High-Definition Multimedia Interface display support.
