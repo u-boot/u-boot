@@ -149,6 +149,14 @@ int board_late_init(void)
 		break;
 	}
 
+	if (is_mx6ul()) {
+#ifdef CONFIG_ENV_IS_IN_MMC
+		setenv("fdt_file", "imx6ul-isiot-emmc.dtb");
+#else
+		setenv("fdt_file", "imx6ul-isiot-nand.dtb");
+#endif
+	}
+
 	return 0;
 }
 
