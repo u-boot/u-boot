@@ -22,22 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE | \
-			PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-			PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_UART1_TX_DATA__UART1_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-int board_early_init_f(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-
-	return 0;
-}
-
 #ifdef CONFIG_NAND_MXS
 
 #define GPMI_PAD_CTRL0		(PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
@@ -184,6 +168,15 @@ int dram_init(void)
 
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-ddr.h>
+
+#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE | \
+			PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
+			PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+static iomux_v3_cfg_t const uart1_pads[] = {
+	MX6_PAD_UART1_TX_DATA__UART1_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
 
 /* MMC board initialization is needed till adding DM support in SPL */
 #if defined(CONFIG_FSL_ESDHC) && !defined(CONFIG_DM_MMC)
@@ -402,7 +395,7 @@ void board_init_f(ulong dummy)
 	ccgr_init();
 
 	/* iomux and setup of i2c */
-	board_early_init_f();
+	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 
 	/* setup GP timer */
 	timer_init();
