@@ -21,6 +21,8 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/video.h>
 
+#include "../common/board.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_NAND_MXS
@@ -48,7 +50,7 @@ iomux_v3_cfg_t gpmi_pads[] = {
 	IOMUX_PADS(PAD_NANDF_D7__NAND_DATA07	| MUX_PAD_CTRL(GPMI_PAD_CTRL2)),
 };
 
-static void setup_gpmi_nand(void)
+void setup_gpmi_nand(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
@@ -141,7 +143,7 @@ struct display_info_t const displays[] = {
 
 size_t display_count = ARRAY_SIZE(displays);
 
-static void setup_display(void)
+void setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -190,24 +192,6 @@ static void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-#ifdef CONFIG_ENV_IS_IN_MMC
-static void mmc_late_init(void)
-{
-	char cmd[32];
-	char mmcblk[32];
-	u32 dev_no = mmc_get_env_dev();
-
-	setenv_ulong("mmcdev", dev_no);
-
-	/* Set mmcblk env */
-	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);
-	setenv("mmcroot", mmcblk);
-
-	sprintf(cmd, "mmc dev %d", dev_no);
-	run_command(cmd, 0);
-}
-#endif
-
 int board_late_init(void)
 {
 	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
@@ -231,29 +215,6 @@ int board_late_init(void)
 		setenv("fdt_file", "imx6q-icore.dtb");
 	else if(is_mx6dl() || is_mx6solo())
 		setenv("fdt_file", "imx6dl-icore.dtb");
-
-	return 0;
-}
-
-int board_init(void)
-{
-	/* Address of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-#ifdef CONFIG_NAND_MXS
-	setup_gpmi_nand();
-#endif
-
-#ifdef CONFIG_VIDEO_IPUV3
-	setup_display();
-#endif
-
-	return 0;
-}
-
-int dram_init(void)
-{
-	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
