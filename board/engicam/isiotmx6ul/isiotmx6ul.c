@@ -260,7 +260,7 @@ int board_mmc_init(bd_t *bis)
 			break;
 		case 1:
 			imx_iomux_v3_setup_multiple_pads(
-				usdhc1_pads, ARRAY_SIZE(usdhc2_pads));
+				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
 			gpio_direction_input(USDHC2_CD_GPIO);
 			usdhc_cfg[i].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			break;
