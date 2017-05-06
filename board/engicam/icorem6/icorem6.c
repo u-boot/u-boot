@@ -23,15 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
-	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-static iomux_v3_cfg_t const uart4_pads[] = {
-	IOMUX_PADS(PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
 #ifdef CONFIG_NAND_MXS
 
 #define GPMI_PAD_CTRL0	(PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
@@ -199,13 +190,6 @@ static void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-int board_early_init_f(void)
-{
-	SETUP_IOMUX_PADS(uart4_pads);
-
-	return 0;
-}
-
 #ifdef CONFIG_ENV_IS_IN_MMC
 static void mmc_late_init(void)
 {
@@ -280,6 +264,15 @@ int dram_init(void)
 
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-ddr.h>
+
+#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
+	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+static iomux_v3_cfg_t const uart4_pads[] = {
+	IOMUX_PADS(PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
 
 /* MMC board initialization is needed till adding DM support in SPL */
 #if defined(CONFIG_FSL_ESDHC) && !defined(CONFIG_DM_MMC)
@@ -617,7 +610,7 @@ void board_init_f(ulong dummy)
 	gpr_init();
 
 	/* iomux */
-	board_early_init_f();
+	SETUP_IOMUX_PADS(uart4_pads);
 
 	/* setup GP timer */
 	timer_init();
