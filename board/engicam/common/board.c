@@ -15,7 +15,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_ENV_IS_IN_MMC
-void mmc_late_init(void)
+static void mmc_late_init(void)
 {
 	char cmd[32];
 	char mmcblk[32];
@@ -31,6 +31,32 @@ void mmc_late_init(void)
 	run_command(cmd, 0);
 }
 #endif
+
+int board_late_init(void)
+{
+	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
+			IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+#ifdef CONFIG_ENV_IS_IN_MMC
+		mmc_late_init();
+#endif
+		setenv("modeboot", "mmcboot");
+		break;
+	case IMX6_BMODE_NAND:
+		setenv("modeboot", "nandboot");
+		break;
+	default:
+		setenv("modeboot", "");
+		break;
+	}
+
+	setenv_fdt_file();
+
+	return 0;
+}
 
 int board_init(void)
 {

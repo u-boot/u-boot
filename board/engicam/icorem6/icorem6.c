@@ -192,31 +192,12 @@ void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-int board_late_init(void)
+void setenv_fdt_file(void)
 {
-	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
-			IMX6_BMODE_SHIFT) {
-	case IMX6_BMODE_SD:
-	case IMX6_BMODE_ESD:
-#ifdef CONFIG_ENV_IS_IN_MMC
-		mmc_late_init();
-#endif
-		setenv("modeboot", "mmcboot");
-		break;
-	case IMX6_BMODE_NAND:
-		setenv("modeboot", "nandboot");
-		break;
-	default:
-		setenv("modeboot", "");
-		break;
-	}
-
 	if (is_mx6dq())
 		setenv("fdt_file", "imx6q-icore.dtb");
 	else if(is_mx6dl() || is_mx6solo())
 		setenv("fdt_file", "imx6dl-icore.dtb");
-
-	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
