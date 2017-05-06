@@ -224,6 +224,18 @@ void board_boot_order(u32 *spl_boot_list)
 #endif
 #endif
 
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_mx6dq() && !strcmp(name, "imx6q-icore-rqs"))
+		return 0;
+	else if ((is_mx6dl() || is_mx6solo()) && !strcmp(name, "imx6dl-icore-rqs"))
+		return 0;
+	else
+		return -1;
+}
+#endif
+
 /*
  * Driving strength:
  *   0x30 == 40 Ohm
