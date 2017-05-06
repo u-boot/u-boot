@@ -243,6 +243,11 @@ int board_late_init(void)
 		break;
 	}
 
+	if (is_mx6dq())
+		setenv("fdt_file", "imx6q-icore.dtb");
+	else if(is_mx6dl() || is_mx6solo())
+		setenv("fdt_file", "imx6dl-icore.dtb");
+
 	return 0;
 }
 

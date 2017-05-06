@@ -141,6 +141,9 @@ int board_late_init(void)
 		break;
 	}
 
+	if (is_mx6ul())
+		setenv("fdt_file", "imx6ul-geam-kit.dtb");
+
 	return 0;
 }
 
