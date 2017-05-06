@@ -98,27 +98,8 @@ int board_mmc_get_env_dev(int devno)
 }
 #endif
 
-int board_late_init(void)
+void setenv_fdt_file(void)
 {
-	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
-			IMX6_BMODE_SHIFT) {
-	case IMX6_BMODE_SD:
-	case IMX6_BMODE_ESD:
-	case IMX6_BMODE_MMC:
-	case IMX6_BMODE_EMMC:
-#ifdef CONFIG_ENV_IS_IN_MMC
-		mmc_late_init();
-#endif
-		setenv("modeboot", "mmcboot");
-		break;
-	case IMX6_BMODE_NAND:
-		setenv("modeboot", "nandboot");
-		break;
-	default:
-		setenv("modeboot", "");
-		break;
-	}
-
 	if (is_mx6ul()) {
 #ifdef CONFIG_ENV_IS_IN_MMC
 		setenv("fdt_file", "imx6ul-isiot-emmc.dtb");
@@ -126,8 +107,6 @@ int board_late_init(void)
 		setenv("fdt_file", "imx6ul-isiot-nand.dtb");
 #endif
 	}
-
-	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD

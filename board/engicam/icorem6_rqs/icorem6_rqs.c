@@ -32,30 +32,12 @@ int board_mmc_get_env_dev(int devno)
 }
 #endif
 
-int board_late_init(void)
+void setenv_fdt_file(void)
 {
-	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
-			IMX6_BMODE_SHIFT) {
-	case IMX6_BMODE_SD:
-	case IMX6_BMODE_ESD:
-	case IMX6_BMODE_MMC:
-	case IMX6_BMODE_EMMC:
-#ifdef CONFIG_ENV_IS_IN_MMC
-		mmc_late_init();
-#endif
-		setenv("modeboot", "mmcboot");
-		break;
-	default:
-		setenv("modeboot", "");
-		break;
-	}
-
 	if (is_mx6dq())
 		setenv("fdt_file", "imx6q-icore-rqs.dtb");
 	else if(is_mx6dl() || is_mx6solo())
 		setenv("fdt_file", "imx6dl-icore-rqs.dtb");
-
-	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD

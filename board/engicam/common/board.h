@@ -6,7 +6,7 @@
 
 #ifndef _BOARD_H_
 #define _BOARD_H_
-void mmc_late_init(void);
+void setenv_fdt_file(void);
 void setup_gpmi_nand(void);
 void setup_display(void);
 #endif /* _BOARD_H_ */
