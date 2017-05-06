@@ -173,6 +173,7 @@ config TARGET_MX6QARM2
 
 config TARGET_MX6Q_ICORE
 	bool "Support Engicam i.Core"
+	select BOARD_LATE_INIT
 	select MX6QDL
 	select OF_CONTROL
 	select DM
