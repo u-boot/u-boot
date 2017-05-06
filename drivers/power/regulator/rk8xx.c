@@ -92,9 +92,9 @@ static const struct rk8xx_reg_info *get_ldo_reg(struct udevice *pmic,
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
 	switch (priv->variant) {
 	case RK818_ID:
-		return &rk818_ldo[num - 1];
+		return &rk818_ldo[num];
 	default:
-		return &rk808_ldo[num - 1];
+		return &rk808_ldo[num];
 	}
 }
 
