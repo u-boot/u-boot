@@ -20,37 +20,15 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/iomux-v3.h>
 
+#include "../common/board.h"
+
 DECLARE_GLOBAL_DATA_PTR;
-
-int board_init(void)
-{
-	/* Address of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-	return 0;
-}
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 int board_mmc_get_env_dev(int devno)
 {
 	/* dev 0 for SD/eSD, dev 1 for MMC/eMMC */
 	return (devno == 3) ? 1 : 0;
-}
-
-static void mmc_late_init(void)
-{
-	char cmd[32];
-	char mmcblk[32];
-	u32 dev_no = mmc_get_env_dev();
-
-	setenv_ulong("mmcdev", dev_no);
-
-	/* Set mmcblk env */
-	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);
-	setenv("mmcroot", mmcblk);
-
-	sprintf(cmd, "mmc dev %d", dev_no);
-	run_command(cmd, 0);
 }
 #endif
 
@@ -76,13 +54,6 @@ int board_late_init(void)
 		setenv("fdt_file", "imx6q-icore-rqs.dtb");
 	else if(is_mx6dl() || is_mx6solo())
 		setenv("fdt_file", "imx6dl-icore-rqs.dtb");
-
-	return 0;
-}
-
-int dram_init(void)
-{
-	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }

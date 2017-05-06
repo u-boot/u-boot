@@ -20,6 +20,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/iomux-v3.h>
 
+#include "../common/board.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_NAND_MXS
@@ -47,7 +49,7 @@ static iomux_v3_cfg_t const nand_pads[] = {
 	IOMUX_PADS(PAD_NAND_READY_B__RAWNAND_READY_B | MUX_PAD_CTRL(GPMI_PAD_CTRL2)),
 };
 
-static void setup_gpmi_nand(void)
+void setup_gpmi_nand(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
@@ -88,24 +90,6 @@ static void setup_gpmi_nand(void)
 }
 #endif /* CONFIG_NAND_MXS */
 
-#ifdef CONFIG_ENV_IS_IN_MMC
-static void mmc_late_init(void)
-{
-	char cmd[32];
-	char mmcblk[32];
-	u32 dev_no = mmc_get_env_dev();
-
-	setenv_ulong("mmcdev", dev_no);
-
-	/* Set mmcblk env */
-	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);
-	setenv("mmcroot", mmcblk);
-
-	sprintf(cmd, "mmc dev %d", dev_no);
-	run_command(cmd, 0);
-}
-#endif
-
 int board_late_init(void)
 {
 	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
@@ -127,25 +111,6 @@ int board_late_init(void)
 
 	if (is_mx6ul())
 		setenv("fdt_file", "imx6ul-geam-kit.dtb");
-
-	return 0;
-}
-
-int board_init(void)
-{
-	/* Address of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-#ifdef CONFIG_NAND_MXS
-	setup_gpmi_nand();
-#endif
-
-	return 0;
-}
-
-int dram_init(void)
-{
-	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
