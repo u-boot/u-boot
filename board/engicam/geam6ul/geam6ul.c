@@ -103,6 +103,25 @@ static void setup_gpmi_nand(void)
 }
 #endif /* CONFIG_NAND_MXS */
 
+int board_late_init(void)
+{
+	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
+			IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+		setenv("modeboot", "mmcboot");
+		break;
+	case IMX6_BMODE_NAND:
+		setenv("modeboot", "nandboot");
+		break;
+	default:
+		setenv("modeboot", "");
+		break;
+	}
+
+	return 0;
+}
+
 int board_init(void)
 {
 	/* Address of boot parameters */

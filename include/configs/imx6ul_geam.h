@@ -63,7 +63,7 @@
 	"fitboot=echo Booting FIT image from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
+	"_mmcboot=run mmcargs; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
@@ -78,6 +78,20 @@
 		"else " \
 			"bootm; " \
 		"fi\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
+			"else " \
+				"if run loadfit; then " \
+					"run fitboot; " \
+				"else " \
+					"if run loadimage; then " \
+						"run _mmcboot; " \
+					"fi; " \
+				"fi; " \
+			"fi; " \
+		"fi\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"if mtdparts; then " \
 			"echo Starting nand boot ...; " \
@@ -89,24 +103,7 @@
 		"nand read ${fdt_addr} dtb 0x100000; " \
 		"bootm ${loadaddr} - ${fdt_addr}\0"
 
-#ifdef CONFIG_NAND_MXS
-# define CONFIG_BOOTCOMMAND		"run nandboot"
-#else
-# define CONFIG_BOOTCOMMAND \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadfit; then " \
-				"run fitboot; " \
-			"else " \
-				"if run loadimage; then " \
-					"run mmcboot; " \
-				"fi; " \
-			"fi; " \
-		"fi; " \
-	"fi"
-#endif
+#define CONFIG_BOOTCOMMAND		"run $modeboot"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
