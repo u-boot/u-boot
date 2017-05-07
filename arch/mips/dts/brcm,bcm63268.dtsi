@@ -6,6 +6,7 @@
 
 #include <dt-bindings/clock/bcm63268-clock.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/power-domain/bcm63268-power-domain.h>
 #include <dt-bindings/reset/bcm63268-reset.h>
 #include "skeleton.dtsi"
 
@@ -116,6 +117,12 @@
 			clocks = <&periph_osc>;
 
 			status = "disabled";
+		};
+
+		periph_pwr: power-controller@1000184c {
+			compatible = "brcm,bcm6328-power-domain";
+			reg = <0x1000184c 0x4>;
+			#power-domain-cells = <1>;
 		};
 
 		leds: led-controller@10001900 {
