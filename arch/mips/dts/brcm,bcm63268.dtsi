@@ -98,6 +98,15 @@
 			status = "disabled";
 		};
 
+		leds: led-controller@10001900 {
+			compatible = "brcm,bcm6328-leds";
+			reg = <0x10001900 0x24>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			status = "disabled";
+		};
+
 		memory-controller@10003000 {
 			compatible = "brcm,bcm6328-mc";
 			reg = <0x10003000 0x1000>;
