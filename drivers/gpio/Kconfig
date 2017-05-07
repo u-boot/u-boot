@@ -21,6 +21,12 @@ config ALTERA_PIO
 	  Select this to enable PIO for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config BCM6345_GPIO
+	bool "BCM6345 GPIO driver"
+	depends on DM_GPIO && ARCH_BMIPS
+	help
+	  This driver supports the GPIO banks on BCM6345 SoCs.
+
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
 	depends on DM && DM_GPIO
