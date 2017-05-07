@@ -73,6 +73,25 @@
 			mask = <0x1>;
 		};
 
+		gpio1: gpio-controller@fffe0080 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0xfffe0080 0x4>, <0xfffe0088 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			ngpios = <8>;
+
+			status = "disabled";
+		};
+
+		gpio0: gpio-controller@fffe0084 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0xfffe0084 0x4>, <0xfffe008c 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
 		uart0: serial@fffe0100 {
 			compatible = "brcm,bcm6345-uart";
 			reg = <0xfffe0100 0x18>;
