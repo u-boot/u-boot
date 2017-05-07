@@ -21,6 +21,49 @@
 	};
 };
 
+&leds {
+	status = "okay";
+	brcm,serial-leds;
+	brcm,serial-dat-low;
+	brcm,serial-shift-inv;
+
+	led@2 {
+		reg = <2>;
+		active-low;
+		label = "VR-3032u:red:inet";
+	};
+
+	led@3 {
+		reg = <3>;
+		active-low;
+		label = "VR-3032u:green:dsl";
+	};
+
+	led@4 {
+		reg = <4>;
+		active-low;
+		label = "VR-3032u:green:usb";
+	};
+
+	led@7 {
+		reg = <7>;
+		active-low;
+		label = "VR-3032u:green:wps";
+	};
+
+	led@8 {
+		reg = <8>;
+		active-low;
+		label = "VR-3032u:green:inet";
+	};
+
+	led@20 {
+		reg = <20>;
+		active-low;
+		label = "VR-3032u:green:power";
+	};
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
