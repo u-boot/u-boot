@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <dt-bindings/clock/bcm63268-clock.h>
 #include <dt-bindings/gpio/gpio.h>
 #include "skeleton.dtsi"
 
@@ -42,6 +43,18 @@
 			#clock-cells = <0>;
 			clock-frequency = <50000000>;
 			u-boot,dm-pre-reloc;
+		};
+
+		periph_clk: periph-clk {
+			compatible = "brcm,bcm6345-clk";
+			reg = <0x10000004 0x4>;
+			#clock-cells = <1>;
+		};
+
+		timer_clk: timer-clk {
+			compatible = "brcm,bcm6345-clk";
+			reg = <0x100000ac 0x4>;
+			#clock-cells = <1>;
 		};
 	};
 
