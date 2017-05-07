@@ -21,6 +21,36 @@
 	};
 };
 
+&leds {
+	status = "okay";
+
+	led@1 {
+		reg = <1>;
+		label = "AR-5387un:red:inet";
+	};
+
+	led@4 {
+		reg = <4>;
+		label = "AR-5387un:red:power";
+	};
+
+	led@7 {
+		reg = <7>;
+		label = "AR-5387un:green:inet";
+	};
+
+	led@8 {
+		reg = <8>;
+		label = "AR-5387un:green:power";
+	};
+
+	led@11 {
+		reg = <11>;
+		active-low;
+		label = "AR-5387un:green:dsl";
+	};
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
