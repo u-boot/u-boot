@@ -660,6 +660,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	ret = device_bind_driver(parent, drv, str, devp);
 	if (ret) {
 		debug("%s: Failed to bind generic driver: %d\n", __func__, ret);
+		free(str);
 		return ret;
 	}
 	debug("%s: No match found: bound generic driver instead\n", __func__);
