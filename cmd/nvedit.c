@@ -234,7 +234,6 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 	}
 	debug("Final value for argc=%d\n", argc);
 	name = argv[1];
-	value = argv[2];
 
 	if (strchr(name, '=')) {
 		printf("## Error: illegal character '='"
