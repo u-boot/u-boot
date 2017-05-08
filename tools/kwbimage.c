@@ -18,10 +18,30 @@
 #include "kwbimage.h"
 
 #ifdef CONFIG_KWB_SECURE
+#include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+static void RSA_get0_key(const RSA *r,
+                 const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
+{
+   if (n != NULL)
+       *n = r->n;
+   if (e != NULL)
+       *e = r->e;
+   if (d != NULL)
+       *d = r->d;
+}
+
+#else
+void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
+{
+	EVP_MD_CTX_reset(ctx);
+}
+#endif
 #endif
 
 static struct image_cfg_element *image_cfg;
@@ -470,12 +490,16 @@ static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
 			     char *keyname)
 {
 	int size_exp, size_mod, size_seq;
+	const BIGNUM *key_e, *key_n;
 	uint8_t *cur;
 	char *errmsg = "Failed to encode %s\n";
 
-	if (!key || !key->e || !key->n || !dst) {
+	RSA_get0_key(key, NULL, &key_e, NULL);
+	RSA_get0_key(key, &key_n, NULL, NULL);
+
+	if (!key || !key_e || !key_n || !dst) {
 		fprintf(stderr, "export pk failed: (%p, %p, %p, %p)",
-			key, key->e, key->n, dst);
+			key, key_e, key_n, dst);
 		fprintf(stderr, errmsg, keyname);
 		return -EINVAL;
 	}
@@ -490,8 +514,8 @@ static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
 	 * do the encoding manually.
 	 */
 
-	size_exp = BN_num_bytes(key->e);
-	size_mod = BN_num_bytes(key->n);
+	size_exp = BN_num_bytes(key_e);
+	size_mod = BN_num_bytes(key_n);
 	size_seq = 4 + size_mod + 4 + size_exp;
 
 	if (size_mod > 256) {
@@ -520,14 +544,14 @@ static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
 	*cur++ = 0x82;
 	*cur++ = (size_mod >> 8) & 0xFF;
 	*cur++ = size_mod & 0xFF;
-	BN_bn2bin(key->n, cur);
+	BN_bn2bin(key_n, cur);
 	cur += size_mod;
 	/* Exponent */
 	*cur++ = 0x02;		/* INTEGER */
 	*cur++ = 0x82;
 	*cur++ = (size_exp >> 8) & 0xFF;
 	*cur++ = size_exp & 0xFF;
-	BN_bn2bin(key->e, cur);
+	BN_bn2bin(key_e, cur);
 
 	if (hashf) {
 		struct hash_v1 pk_hash;
