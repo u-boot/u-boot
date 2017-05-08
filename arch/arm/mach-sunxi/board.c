@@ -204,7 +204,9 @@ void s_init(void)
 	clock_init();
 	timer_init();
 	gpio_init();
+#ifndef CONFIG_DM_I2C
 	i2c_init_board();
+#endif
 	eth_init_board();
 }
 

@@ -37,6 +37,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* CONFIG_DM_I2C */
 
 /*
+ * On SUNXI, we get CONFIG_SYS_TCLK from this include, so we want to
+ * always have it.
+ */
+#if defined(CONFIG_DM_I2C) && defined(CONFIG_ARCH_SUNXI)
+#include <asm/arch/i2c.h>
+#endif
+
+/*
  * TWSI register structure
  */
 
@@ -831,6 +839,7 @@ static const struct dm_i2c_ops mvtwsi_i2c_ops = {
 static const struct udevice_id mvtwsi_i2c_ids[] = {
 	{ .compatible = "marvell,mv64xxx-i2c", },
 	{ .compatible = "marvell,mv78230-i2c", },
+	{ .compatible = "allwinner,sun6i-a31-i2c", },
 	{ /* sentinel */ }
 };
 

@@ -649,6 +649,14 @@ config ARCH_SUNXI
 	select USB_STORAGE if DISTRO_DEFAULTS
 	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USE_TINY_PRINTF
+	imply PRE_CONSOLE_BUFFER
+	imply SPL_GPIO_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT if GENERIC_MMC
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
 
 config TARGET_TS4600
 	bool "Support TS4600"
@@ -1049,6 +1057,8 @@ source "arch/arm/mach-sti/Kconfig"
 
 source "arch/arm/mach-stm32/Kconfig"
 
+source "arch/arm/mach-sunxi/Kconfig"
+
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
@@ -1121,7 +1131,6 @@ source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
-source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/birdland/bav335x/Kconfig"

@@ -3,32 +3,6 @@ if ARCH_SUNXI
 config IDENT_STRING
 	default " Allwinner Technology"
 
-# FIXME: Should not redefine these Kconfig symbols
-config PRE_CONSOLE_BUFFER
-	default y
-
-config SPL_GPIO_SUPPORT
-	default y
-
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC_SUPPORT
-	depends on SPL && GENERIC_MMC
-	default y
-
-config SPL_POWER_SUPPORT
-	default y
-
-config SPL_SERIAL_SUPPORT
-	default y
-
 config SUNXI_HIGH_SRAM
 	bool
 	default n
@@ -58,6 +32,7 @@ config SUNXI_GEN_SUN6I
 
 config MACH_SUNXI_H3_H5
 	bool
+	select DM_I2C
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
@@ -163,6 +138,7 @@ config MACH_SUN9I
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
+	select DM_I2C
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUNXI_HIGH_SRAM
@@ -705,6 +681,16 @@ config VIDEO_LCD_IF_LVDS
 config SUNXI_DE2
 	bool
 	default n
+
+config VIDEO_DE2
+	bool "Display Engine 2 video driver"
+	depends on SUNXI_DE2
+	select DM_VIDEO
+	select DISPLAY
+	default y
+	---help---
+	Say y here if you want to build DE2 video driver which is present on
+	newer SoCs. Currently only HDMI output is supported.
 
 
 choice
