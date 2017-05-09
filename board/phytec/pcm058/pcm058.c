@@ -108,6 +108,7 @@ static iomux_v3_cfg_t const ecspi1_pads[] = {
 	MX6_PAD_EIM_D19__GPIO3_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+#ifdef CONFIG_CMD_NAND
 /* NAND */
 static iomux_v3_cfg_t const nfc_pads[] = {
 	MX6_PAD_NANDF_CLE__NAND_CLE     | MUX_PAD_CTRL(NAND_PAD_CTRL),
@@ -130,11 +131,7 @@ static iomux_v3_cfg_t const nfc_pads[] = {
 	MX6_PAD_NANDF_D7__NAND_DATA07   | MUX_PAD_CTRL(NAND_PAD_CTRL),
 	MX6_PAD_SD4_DAT0__NAND_DQS	| MUX_PAD_CTRL(NAND_PAD_CTRL),
 };
-
-
-/* GPIOS */
-static iomux_v3_cfg_t const gpios_pads[] = {
-};
+#endif
 
 static struct i2c_pads_info i2c_pad_info2 = {
 	.scl = {
@@ -167,7 +164,7 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
-#ifndef CONFIG_CMD_NAND
+#if !defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_CLK__SD4_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_CMD__SD4_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
