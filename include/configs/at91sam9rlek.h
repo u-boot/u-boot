@@ -29,17 +29,10 @@
 #define CONFIG_INITRD_TAG		1
 
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO		1
-#define CONFIG_AT91_GPIO_PULLUP		1
 
 /*
  * Hardware drivers
  */
-
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
@@ -51,13 +44,6 @@
 #define CONFIG_ATMEL_LCD_RGB565		1
 /* Let board_init_f handle the framebuffer allocation */
 #undef CONFIG_FB_ADDR
-
-/* LED */
-#define CONFIG_AT91_LED
-#define	CONFIG_RED_LED		AT91_PIN_PD14	/* this is the power led */
-#define	CONFIG_GREEN_LED	AT91_PIN_PD15	/* this is the user1 led */
-#define	CONFIG_YELLOW_LED	AT91_PIN_PD16	/* this is the user2 led */
-
 
 /*
  * Command line configuration.
@@ -71,7 +57,7 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
 #define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 0x1000 - GENERATED_GBL_DATA_SIZE)
+	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
@@ -95,12 +81,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PB6
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PD17
 
-#endif
-
-/* MMC */
-
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_ATMEL_MCI
 #endif
 
 /* Ethernet - not present */
@@ -130,7 +110,7 @@
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND		1
-#define CONFIG_ENV_OFFSET		0xc0000
+#define CONFIG_ENV_OFFSET		0x120000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x600000; "	\

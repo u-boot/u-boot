@@ -186,8 +186,13 @@ int ddr3_init(const unsigned int base,
 #define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_73	0x6
 #define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_110	0x7
 
-#define ATMEL_MPDDRC_IO_CALIBR_TZQIO		0x7f
+#define ATMEL_MPDDRC_IO_CALIBR_TZQIO		(0x7f << 8)
 #define ATMEL_MPDDRC_IO_CALIBR_TZQIO_(x)	(((x) & 0x7f) << 8)
+
+#define ATMEL_MPDDRC_IO_CALIBR_CALCODEP		(0xf << 16)
+#define ATMEL_MPDDRC_IO_CALIBR_CALCODEP_(x)	(((x) & 0xf) << 16)
+#define ATMEL_MPDDRC_IO_CALIBR_CALCODEN		(0xf << 20)
+#define ATMEL_MPDDRC_IO_CALIBR_CALCODEN_(x)	(((x) & 0xf) << 20)
 
 #define ATMEL_MPDDRC_IO_CALIBR_EN_CALIB		(0x1 << 4)
 

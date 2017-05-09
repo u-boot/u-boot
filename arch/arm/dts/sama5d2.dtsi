@@ -29,6 +29,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
+		u-boot,dm-pre-reloc;
 
 		usb1: ohci@00400000 {
 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
@@ -66,6 +67,7 @@
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
+			u-boot,dm-pre-reloc;
 
 			pmc: pmc@f0014000 {
 				compatible = "atmel,sama5d2-pmc", "syscon";
@@ -73,10 +75,12 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
+				u-boot,dm-pre-reloc;
 
 				main: mainck {
 					compatible = "atmel,at91sam9x5-clk-main";
 					#clock-cells = <0>;
+					u-boot,dm-pre-reloc;
 				};
 
 				plla: pllack@0 {
@@ -87,6 +91,7 @@
 					atmel,clk-input-range = <12000000 12000000>;
 					#atmel,pll-clk-output-range-cells = <4>;
 					atmel,pll-clk-output-ranges = <600000000 1200000000 0 0>;
+					u-boot,dm-pre-reloc;
 				};
 
 				plladiv: plladivck {
@@ -117,6 +122,7 @@
 					compatible = "atmel,at91sam9x5-clk-utmi";
 					#clock-cells = <0>;
 					clocks = <&main>;
+					u-boot,dm-pre-reloc;
 				};
 
 				mck: masterck {
@@ -125,12 +131,14 @@
 					clocks = <&main>, <&plladiv>, <&utmi>;
 					atmel,clk-output-range = <124000000 166000000>;
 					atmel,clk-divisors = <1 2 4 3>;
+					u-boot,dm-pre-reloc;
 				};
 
 				h32ck: h32mxck {
 					#clock-cells = <0>;
 					compatible = "atmel,sama5d4-clk-h32mx";
 					clocks = <&mck>;
+					u-boot,dm-pre-reloc;
 				};
 
 				usb: usbck {
@@ -221,6 +229,7 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&h32ck>;
+					u-boot,dm-pre-reloc;
 
 					macb0_clk: macb0_clk@5 {
 						#clock-cells = <0>;
@@ -248,6 +257,7 @@
 						#clock-cells = <0>;
 						reg = <18>;
 						atmel,clk-output-range = <0 83000000>;
+						u-boot,dm-pre-reloc;
 					};
 
 					flx0_clk: flx0_clk@19 {
@@ -290,6 +300,7 @@
 						#clock-cells = <0>;
 						reg = <25>;
 						atmel,clk-output-range = <0 83000000>;
+						u-boot,dm-pre-reloc;
 					};
 
 					uart2_clk: uart2_clk@26 {
@@ -326,6 +337,7 @@
 						#clock-cells = <0>;
 						reg = <33>;
 						atmel,clk-output-range = <0 83000000>;
+						u-boot,dm-pre-reloc;
 					};
 
 					spi1_clk: spi1_clk@34 {
@@ -430,6 +442,7 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
+					u-boot,dm-pre-reloc;
 
 					dma0_clk: dma0_clk@6 {
 						#clock-cells = <0>;
@@ -469,11 +482,13 @@
 					sdmmc0_hclk: sdmmc0_hclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
+						u-boot,dm-pre-reloc;
 					};
 
 					sdmmc1_hclk: sdmmc1_hclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
+						u-boot,dm-pre-reloc;
 					};
 
 					lcdc_clk: lcdc_clk@45 {
@@ -503,15 +518,18 @@
 					#size-cells = <0>;
 					interrupt-parent = <&pmc>;
 					clocks = <&main>, <&plla>, <&utmi>, <&mck>;
+					u-boot,dm-pre-reloc;
 
 					sdmmc0_gclk: sdmmc0_gclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
+						u-boot,dm-pre-reloc;
 					};
 
 					sdmmc1_gclk: sdmmc1_gclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
+						u-boot,dm-pre-reloc;
 					};
 
 					tcb0_gclk: tcb0_gclk@35 {
@@ -600,6 +618,8 @@
 			uart1: serial@f8020000 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xf8020000 0x100>;
+				clocks = <&uart1_clk>;
+				clock-names = "usart";
 				status = "disabled";
 			};
 
@@ -661,9 +681,11 @@
 				clocks = <&pioA_clk>;
 				gpio-controller;
 				#gpio-cells = <2>;
+				u-boot,dm-pre-reloc;
 
 				pinctrl {
 					compatible = "atmel,sama5d2-pinctrl";
+					u-boot,dm-pre-reloc;
 				};
 			};
 		};

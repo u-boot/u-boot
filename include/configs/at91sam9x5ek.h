@@ -26,12 +26,6 @@
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO
-
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE	ATMEL_BASE_DBGU
-#define CONFIG_USART_ID		ATMEL_ID_SYS
 
 /* LCD */
 #define LCD_BPP			LCD_COLOR16
@@ -67,11 +61,10 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
 #define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
+	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_ATMEL_SPI
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #endif
 
@@ -104,23 +97,9 @@
 #define CONFIG_CMD_UBIFS
 #endif
 
-/* MMC */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_ATMEL_MCI
-#endif
-
-/* Ethernet */
-#define CONFIG_MACB
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_MACB_SEARCH_PHY
-
 /* USB */
 #ifdef CONFIG_CMD_USB
-#ifdef CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_ATMEL
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-#else
+#ifndef CONFIG_USB_EHCI
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_UPLL
 #define CONFIG_USB_OHCI_NEW
@@ -139,7 +118,7 @@
 #ifdef CONFIG_SYS_USE_NANDFLASH
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0xc0000
+#define CONFIG_ENV_OFFSET		0x120000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read " \

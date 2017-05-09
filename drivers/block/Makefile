@@ -11,6 +11,7 @@ ifndef CONFIG_BLK
 obj-y += blk_legacy.o
 endif
 
+obj-$(CONFIG_DWC_AHCI) += dwc_ahci.o
 obj-$(CONFIG_AHCI) += ahci-uclass.o
 obj-$(CONFIG_DM_SCSI) += scsi-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o

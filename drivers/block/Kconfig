@@ -48,4 +48,14 @@ config SATA_CEVA
 	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
 	  AHCI 1.3 specifications with hot-plug detect feature.
 
+
+config DWC_AHCI
+	bool "Enable Synopsys DWC AHCI driver support"
+	select SCSI_AHCI
+	select PHY
+	depends on DM_SCSI
+	help
+	  Enable this driver to support Sata devices through
+	  Synopsys DWC AHCI module.
+
 endmenu

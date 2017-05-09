@@ -54,6 +54,8 @@ source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
 
+source "drivers/phy/Kconfig"
+
 source "drivers/phy/marvell/Kconfig"
 
 source "drivers/pinctrl/Kconfig"

@@ -353,6 +353,26 @@ dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
 	keystone-k2e-evm.dtb \
 	keystone-k2g-evm.dtb
 
+dtb-$(CONFIG_TARGET_AT91SAM9263EK) += at91sam9263ek.dtb
+
+dtb-$(CONFIG_TARGET_AT91SAM9RLEK) += at91sam9rlek.dtb
+
+dtb-$(CONFIG_TARGET_AT91SAM9260EK) += \
+	at91sam9260ek.dtb	\
+	at91sam9g20ek.dtb	\
+	at91sam9g20ek_2mmc.dtb
+
+dtb-$(CONFIG_TARGET_AT91SAM9M10G45EK) += at91sam9m10g45ek.dtb
+
+dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
+	at91sam9g15ek.dtb	\
+	at91sam9g25ek.dtb	\
+	at91sam9g35ek.dtb	\
+	at91sam9x25ek.dtb	\
+	at91sam9x35ek.dtb
+
+dtb-$(CONFIG_TARGET_AT91SAM9N12EK) += at91sam9n12ek.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb
 
