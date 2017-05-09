@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <linux/io.h>
+#include <linux/iopoll.h>
 #include <linux/sizes.h>
 #include <dm/device.h>
+#include <libfdt.h>
 #include <mmc.h>
 #include <sdhci.h>
 
@@ -17,7 +19,7 @@
 #define   SDHCI_CDNS_HRS04_ACK			BIT(26)
 #define   SDHCI_CDNS_HRS04_RD			BIT(25)
 #define   SDHCI_CDNS_HRS04_WR			BIT(24)
-#define   SDHCI_CDNS_HRS04_RDATA_SHIFT		12
+#define   SDHCI_CDNS_HRS04_RDATA_SHIFT		16
 #define   SDHCI_CDNS_HRS04_WDATA_SHIFT		8
 #define   SDHCI_CDNS_HRS04_ADDR_SHIFT		0
 
@@ -34,6 +36,9 @@
 #define SDHCI_CDNS_PHY_DLY_EMMC_LEGACY	0x06
 #define SDHCI_CDNS_PHY_DLY_EMMC_SDR	0x07
 #define SDHCI_CDNS_PHY_DLY_EMMC_DDR	0x08
+#define SDHCI_CDNS_PHY_DLY_SDCLK	0x0b
+#define SDHCI_CDNS_PHY_DLY_HSMMC	0x0c
+#define SDHCI_CDNS_PHY_DLY_STROBE	0x0d
 
 struct sdhci_cdns_plat {
 	struct mmc_config cfg;
@@ -41,11 +46,31 @@ struct sdhci_cdns_plat {
 	void __iomem *hrs_addr;
 };
 
-static void sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
-				     u8 addr, u8 data)
+struct sdhci_cdns_phy_cfg {
+	const char *property;
+	u8 addr;
+};
+
+static const struct sdhci_cdns_phy_cfg sdhci_cdns_phy_cfgs[] = {
+	{ "cdns,phy-input-delay-sd-highspeed", SDHCI_CDNS_PHY_DLY_SD_HS, },
+	{ "cdns,phy-input-delay-legacy", SDHCI_CDNS_PHY_DLY_SD_DEFAULT, },
+	{ "cdns,phy-input-delay-sd-uhs-sdr12", SDHCI_CDNS_PHY_DLY_UHS_SDR12, },
+	{ "cdns,phy-input-delay-sd-uhs-sdr25", SDHCI_CDNS_PHY_DLY_UHS_SDR25, },
+	{ "cdns,phy-input-delay-sd-uhs-sdr50", SDHCI_CDNS_PHY_DLY_UHS_SDR50, },
+	{ "cdns,phy-input-delay-sd-uhs-ddr50", SDHCI_CDNS_PHY_DLY_UHS_DDR50, },
+	{ "cdns,phy-input-delay-mmc-highspeed", SDHCI_CDNS_PHY_DLY_EMMC_SDR, },
+	{ "cdns,phy-input-delay-mmc-ddr", SDHCI_CDNS_PHY_DLY_EMMC_DDR, },
+	{ "cdns,phy-dll-delay-sdclk", SDHCI_CDNS_PHY_DLY_SDCLK, },
+	{ "cdns,phy-dll-delay-sdclk-hsmmc", SDHCI_CDNS_PHY_DLY_HSMMC, },
+	{ "cdns,phy-dll-delay-strobe", SDHCI_CDNS_PHY_DLY_STROBE, },
+};
+
+static int sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
+				    u8 addr, u8 data)
 {
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS04;
 	u32 tmp;
+	int ret;
 
 	tmp = (data << SDHCI_CDNS_HRS04_WDATA_SHIFT) |
 	      (addr << SDHCI_CDNS_HRS04_ADDR_SHIFT);
@@ -54,17 +79,36 @@ static void sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
 	tmp |= SDHCI_CDNS_HRS04_WR;
 	writel(tmp, reg);
 
+	ret = readl_poll_timeout(reg, tmp, tmp & SDHCI_CDNS_HRS04_ACK, 10);
+	if (ret)
+		return ret;
+
 	tmp &= ~SDHCI_CDNS_HRS04_WR;
 	writel(tmp, reg);
+
+	return 0;
 }
 
-static void sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat)
+static int sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat,
+				const void *fdt, int nodeoffset)
 {
-	sdhci_cdns_write_phy_reg(plat, SDHCI_CDNS_PHY_DLY_SD_HS, 4);
-	sdhci_cdns_write_phy_reg(plat, SDHCI_CDNS_PHY_DLY_SD_DEFAULT, 4);
-	sdhci_cdns_write_phy_reg(plat, SDHCI_CDNS_PHY_DLY_EMMC_LEGACY, 9);
-	sdhci_cdns_write_phy_reg(plat, SDHCI_CDNS_PHY_DLY_EMMC_SDR, 2);
-	sdhci_cdns_write_phy_reg(plat, SDHCI_CDNS_PHY_DLY_EMMC_DDR, 3);
+	const u32 *prop;
+	int ret, i;
+
+	for (i = 0; i < ARRAY_SIZE(sdhci_cdns_phy_cfgs); i++) {
+		prop = fdt_getprop(fdt, nodeoffset,
+				   sdhci_cdns_phy_cfgs[i].property, NULL);
+		if (!prop)
+			continue;
+
+		ret = sdhci_cdns_write_phy_reg(plat,
+					       sdhci_cdns_phy_cfgs[i].addr,
+					       fdt32_to_cpu(*prop));
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 static int sdhci_cdns_bind(struct udevice *dev)
@@ -76,6 +120,7 @@ static int sdhci_cdns_bind(struct udevice *dev)
 
 static int sdhci_cdns_probe(struct udevice *dev)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
@@ -94,7 +139,9 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->ioaddr = plat->hrs_addr + SDHCI_CDNS_SRS_BASE;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
 
-	sdhci_cdns_phy_init(plat);
+	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev->of_offset);
+	if (ret)
+		return ret;
 
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
