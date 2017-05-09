@@ -66,6 +66,7 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_UART1_RXD__UART1_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+#ifdef CONFIG_SPL_BUILD
 static iomux_v3_cfg_t const usdhc1_pads[] = {
 	/* 8 bit SD */
 	MX6_PAD_SD1_CLK__USDHC1_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -106,6 +107,7 @@ static iomux_v3_cfg_t const usdhc3_pads[] = {
 	/*CD pin*/
 	MX6_PAD_REF_CLK_32K__GPIO_3_22 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+#endif
 
 static iomux_v3_cfg_t const fec_pads[] = {
 	MX6_PAD_FEC_MDC__FEC_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
