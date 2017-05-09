@@ -71,7 +71,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 int board_mmc_init(bd_t *bis)
 {
 	int ret;

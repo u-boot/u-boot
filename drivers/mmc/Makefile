@@ -6,11 +6,11 @@
 #
 
 ifdef CONFIG_DM_MMC
-obj-$(CONFIG_GENERIC_MMC) += mmc-uclass.o
+obj-$(CONFIG_MMC) += mmc-uclass.o
 endif
 
 ifndef CONFIG_BLK
-obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
+obj-$(CONFIG_MMC) += mmc_legacy.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
@@ -23,9 +23,9 @@ obj-$(CONFIG_MMC_DW_ROCKCHIP)		+= rockchip_dw_mmc.o
 obj-$(CONFIG_MMC_DW_SOCFPGA)		+= socfpga_dw_mmc.o
 obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
-obj-$(CONFIG_GENERIC_MMC) += mmc.o
+obj-$(CONFIG_MMC) += mmc.o
 ifdef CONFIG_SUPPORT_EMMC_BOOT
-obj-$(CONFIG_GENERIC_MMC) += mmc_boot.o
+obj-$(CONFIG_MMC) += mmc_boot.o
 endif
 obj-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
 obj-$(CONFIG_MMC_MESON_GX) += meson_gx_mmc.o
@@ -46,7 +46,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 obj-$(CONFIG_SPL_SAVEENV) += mmc_write.o
 else
-obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
+obj-$(CONFIG_MMC) += mmc_write.o
 endif
 
 # SDHCI

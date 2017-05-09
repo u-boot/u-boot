@@ -115,7 +115,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 #define SB_T35_CD_GPIO 144
 #define SB_T35_WP_GPIO 59
 

@@ -72,7 +72,7 @@ int checkboard(void)
 }
 #endif
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 int board_mmc_init(bd_t *bis)
 {
 	int i, ret, ret_sd = 0;
