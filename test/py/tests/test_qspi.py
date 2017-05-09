@@ -16,6 +16,9 @@ total_size = 0
 
 # Find out qspi memory parameters
 def qspi_pre_commands(u_boot_console):
+    if qspi_detected:
+        return
+
     output = u_boot_console.run_command('sf probe')
     if not "SF: Detected" in output:
         pytest.skip('No QSPI device available')
@@ -62,9 +65,6 @@ def qspi_pre_commands(u_boot_console):
 def test_qspi_read_twice(u_boot_console):
     qspi_pre_commands(u_boot_console)
 
-    if not qspi_detected:
-        pytest.skip('QSPI not detected')
-
     expected_read = "Read: OK"
 
     # TODO maybe add alignment and different start for pages
@@ -88,9 +88,6 @@ def test_qspi_read_twice(u_boot_console):
 def test_qspi_erase_block(u_boot_console):
     qspi_pre_commands(u_boot_console)
 
-    if not qspi_detected:
-        pytest.skip('QSPI not detected')
-
     expected_erase = "Erased: OK"
     for start in range(0, total_size, erase_size):
         output = u_boot_console.run_command('sf erase %x %x' % (start, erase_size))
@@ -102,9 +99,6 @@ def test_qspi_erase_block(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_qspi_write_twice(u_boot_console):
     qspi_pre_commands(u_boot_console)
-
-    if not qspi_detected:
-        pytest.skip('QSPI not detected')
 
     expected_write = "Written: OK"
     expected_read = "Read: OK"
@@ -133,9 +127,6 @@ def test_qspi_write_twice(u_boot_console):
 def test_qspi_erase_all(u_boot_console):
     qspi_pre_commands(u_boot_console)
 
-    if not qspi_detected:
-        pytest.skip('QSPI not detected')
-
     timeout = 100000
 
     expected_erase = "Erased: OK"
@@ -149,8 +140,6 @@ def test_qspi_erase_all(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_sf')
 def test_qspi_boot_images(u_boot_console):
     qspi_pre_commands(u_boot_console)
-    if not qspi_detected:
-        pytest.skip('QSPI not detected')
 
     if not test_net.net_set_up:
         pytest.skip('Network not initialized')
