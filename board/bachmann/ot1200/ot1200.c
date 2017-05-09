@@ -273,10 +273,6 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-static iomux_v3_cfg_t const pwm_pad[] = {
-	MX6_PAD_SD1_CMD__PWM4_OUT | MUX_PAD_CTRL(OUTPUT_40OHM),
-};
-
 static void leds_on(void)
 {
 	/* turn on all possible leds connected via GPIO expander */
