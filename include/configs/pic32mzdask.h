@@ -53,7 +53,6 @@
  * Commands
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_CMD_CLK
 
 /*------------------------------------------------------------
  * Console Configuration

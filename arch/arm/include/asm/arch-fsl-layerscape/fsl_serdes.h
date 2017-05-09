@@ -9,7 +9,7 @@
 
 #include <config.h>
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 enum srds_prtcl {
 	/*
 	 * Nobody will check whether the device 'NONE' has been configured,

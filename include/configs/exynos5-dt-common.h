@@ -31,7 +31,6 @@
 #define CONFIG_EXYNOS_FB
 #define CONFIG_EXYNOS_DP
 #define LCD_BPP			LCD_COLOR16
-#define CONFIG_SYS_WHITE_ON_BLACK
 #endif
 
 /* Enable keyboard */

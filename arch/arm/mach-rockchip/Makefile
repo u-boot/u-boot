@@ -4,6 +4,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_ROCKCHIP_BROM_HELPER) += bootrom.o
+
 ifdef CONFIG_TPL_BUILD
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board-tpl.o
 obj-$(CONFIG_ROCKCHIP_BROM_HELPER) += save_boot_param.o

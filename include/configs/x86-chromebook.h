@@ -46,8 +46,6 @@
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		0x003f8000
 
-#define CONFIG_SYS_WHITE_ON_BLACK
-
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
 					"stderr=vidconsole,serial\0"

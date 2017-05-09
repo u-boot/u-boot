@@ -39,6 +39,12 @@ struct sandbox_spi_info {
 	struct udevice *emul;
 };
 
+struct sandbox_wdt_info {
+	unsigned long long counter;
+	uint reset_count;
+	bool running;
+};
+
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
@@ -69,6 +75,9 @@ struct sandbox_state {
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
 					[CONFIG_SANDBOX_SPI_MAX_CS];
+
+	/* Information about Watchdog */
+	struct sandbox_wdt_info wdt;
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/

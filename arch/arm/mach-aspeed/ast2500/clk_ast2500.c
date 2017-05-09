@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 
 int ast_get_clk(struct udevice **devp)
@@ -27,4 +28,18 @@ void *ast_get_scu(void)
 	priv = dev_get_priv(dev);
 
 	return priv->scu;
+}
+
+void ast_scu_unlock(struct ast2500_scu *scu)
+{
+	writel(SCU_UNLOCK_VALUE, &scu->protection_key);
+	while (!readl(&scu->protection_key))
+		;
+}
+
+void ast_scu_lock(struct ast2500_scu *scu)
+{
+	writel(~SCU_UNLOCK_VALUE, &scu->protection_key);
+	while (readl(&scu->protection_key))
+		;
 }

@@ -13,8 +13,6 @@
 
  /* High Level Configuration Options */
 
-#define CONFIG_MX51	/* in a mx51 */
-
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
@@ -96,13 +94,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-
-/***********************************************************
- * Command definition
- ***********************************************************/
-
-#define CONFIG_CMD_DATE
-
 
 #define CONFIG_ETHPRIME		"FEC0"
 

@@ -372,20 +372,17 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
 #if defined(CONFIG_ARCHES)
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 #elif defined(CONFIG_CANYONLANDS)
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA
 #define CONFIG_CMD_SDRAM
 #elif defined(CONFIG_GLACIER)
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI

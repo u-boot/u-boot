@@ -4,6 +4,8 @@
 
 menu "File systems"
 
+source "fs/cbfs/Kconfig"
+
 source "fs/ext4/Kconfig"
 
 source "fs/reiserfs/Kconfig"

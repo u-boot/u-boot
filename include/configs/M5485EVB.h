@@ -26,7 +26,6 @@
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 /* Command line configuration */
-#undef CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO
 

@@ -29,12 +29,12 @@ dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 dtb-$(CONFIG_EXYNOS7420) += exynos7420-espresso7420.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3036-sdk.dtb \
+	rk3188-radxarock.dtb \
 	rk3288-evb.dtb \
 	rk3288-fennec.dtb \
 	rk3288-firefly.dtb \
 	rk3288-miqi.dtb \
 	rk3288-popmetal.dtb \
-	rk3188-radxarock.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-tinker.dtb \
 	rk3288-veyron-jerry.dtb \
@@ -153,6 +153,7 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_de0_nano_soc.dtb			\
 	socfpga_cyclone5_de1_soc.dtb			\
+	socfpga_cyclone5_de10_nano.dtb			\
 	socfpga_cyclone5_sockit.dtb			\
 	socfpga_cyclone5_socrates.dtb			\
 	socfpga_cyclone5_sr1500.dtb			\
@@ -166,7 +167,7 @@ dtb-$(CONFIG_TARGET_AM57XX_EVM) += am57xx-beagle-x15.dtb \
 	am571x-idk.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
-dtb-$(CONFIG_LS102XA) += ls1021a-qds-duart.dtb \
+dtb-$(CONFIG_ARCH_LS1021A) += ls1021a-qds-duart.dtb \
 	ls1021a-qds-lpuart.dtb \
 	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb \
 	ls1021a-iot-duart.dtb
@@ -184,7 +185,8 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 
 dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb
 
-dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb
+dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb \
+	stm32f769-disco.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
@@ -304,6 +306,10 @@ dtb-$(CONFIG_MACH_SUN8I_H3) += \
 	sun8i-h3-orangepi-plus2e.dtb \
 	sun8i-h3-nanopi-neo.dtb \
 	sun8i-h3-nanopi-neo-air.dtb
+dtb-$(CONFIG_MACH_SUN8I_R40) += \
+	sun8i-r40-bananapi-m2-ultra.dtb
+dtb-$(CONFIG_MACH_SUN8I_V3S) += \
+	sun8i-v3s-licheepi-zero.dtb
 dtb-$(CONFIG_MACH_SUN50I_H5) += \
 	sun50i-h5-orangepi-pc2.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \

@@ -121,7 +121,6 @@
 #define CONFIG_DFU_MMC
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 #define CONFIG_MXC_GPIO
 
 /* Framebuffer and LCD */
@@ -139,7 +138,6 @@
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_CMD_BMP
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

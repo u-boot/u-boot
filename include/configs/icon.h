@@ -159,13 +159,8 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#ifdef CONFIG_VIDEO
-#define CONFIG_CMD_BMP
-#endif
 
 #define	CONFIG_IBM_EMAC4_V4		/* 440SPe has this EMAC version	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/

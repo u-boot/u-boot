@@ -228,55 +228,16 @@ static int stm32_clk_enable(struct clk *clk)
 void clock_setup(int peripheral)
 {
 	switch (peripheral) {
-	case GPIO_A_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_A_EN);
-		break;
-	case GPIO_B_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_B_EN);
-		break;
-	case GPIO_C_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_C_EN);
-		break;
-	case GPIO_D_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_D_EN);
-		break;
-	case GPIO_E_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_E_EN);
-		break;
-	case GPIO_F_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_F_EN);
-		break;
-	case GPIO_G_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_G_EN);
-		break;
-	case GPIO_H_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_H_EN);
-		break;
-	case GPIO_I_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_I_EN);
-		break;
-	case GPIO_J_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_J_EN);
-		break;
-	case GPIO_K_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_GPIO_K_EN);
-		break;
 	case SYSCFG_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->apb2enr, RCC_APB2ENR_SYSCFGEN);
 		break;
 	case TIMER2_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
 		break;
-	case FMC_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb3enr, RCC_AHB3ENR_FMC_EN);
-		break;
 	case STMMAC_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_EN);
 		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_RX_EN);
 		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_TX_EN);
-		break;
-	case QSPI_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb3enr, RCC_AHB3ENR_QSPI_EN);
 		break;
 	default:
 		break;

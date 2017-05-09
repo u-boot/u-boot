@@ -80,7 +80,6 @@
 #define CONFIG_CMD_NAND
 
 #define CONFIG_NET_RETRY_COUNT	100
-#define CONFIG_CMD_DATE
 
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */

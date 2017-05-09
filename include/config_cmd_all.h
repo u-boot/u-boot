@@ -13,13 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
-#define CONFIG_CMD_BMP		/* BMP support			*/
-#define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_CLK		/* Clock support		*/
-#define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
-#define CONFIG_CMD_DIAG		/* Diagnostics			*/
-#define CONFIG_CMD_DISPLAY	/* Display support		*/
 #define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/

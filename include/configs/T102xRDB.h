@@ -493,7 +493,6 @@ unsigned long get_board_ddr_clk(void);
 #undef CONFIG_FSL_DIU_FB	/* RDB doesn't support DIU */
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
@@ -791,7 +790,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ

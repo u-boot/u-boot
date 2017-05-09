@@ -301,7 +301,6 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_SAVES
 
 #ifndef CONFIG_DRIVER_TI_EMAC

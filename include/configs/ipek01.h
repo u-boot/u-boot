@@ -88,10 +88,6 @@
 /*
  * Command line configuration.
  */
-#ifdef CONFIG_VIDEO
-#define CONFIG_CMD_BMP		/* BMP support */
-#endif
-#define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
 #define CONFIG_CMD_IDE		/* IDE harddisk support */
 #define CONFIG_CMD_IRQ		/* irqinfo */
 #define CONFIG_CMD_PCI		/* pciinfo */

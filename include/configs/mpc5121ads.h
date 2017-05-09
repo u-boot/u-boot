@@ -36,7 +36,6 @@
 /* video */
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_IMMR + 0x2100)
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
@@ -397,7 +396,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2

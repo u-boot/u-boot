@@ -44,6 +44,17 @@ config SPL_SERIAL_PRESENT
 	  This option enables the full UART in SPL, so if is it disabled,
 	  the full UART driver will be omitted, thus saving space.
 
+config CONS_INDEX
+	int "UART used for console"
+	depends on ARCH_SUNXI
+	default 2 if MACH_SUN5I
+	default 5 if MACH_SUN8I_A23 || MACH_SUN8I_A33
+	default 1
+	help
+	  Configures the console index.
+	  For Allwinner SoC., default values are 2 for SUN5I and 5 for A23/A33.
+	  Otherwise, the index equals 1.
+
 config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM

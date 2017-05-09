@@ -120,8 +120,9 @@ class Toolchain:
             Priority of toolchain, PRIORITY_CALC=highest, 20=lowest.
         """
         priority_list = ['-elf', '-unknown-linux-gnu', '-linux',
-            '-none-linux-gnueabi', '-uclinux', '-none-eabi',
-            '-gentoo-linux-gnu', '-linux-gnueabi', '-le-linux', '-uclinux']
+            '-none-linux-gnueabi', '-none-linux-gnueabihf', '-uclinux',
+            '-none-eabi', '-gentoo-linux-gnu', '-linux-gnueabi',
+            '-linux-gnueabihf', '-le-linux', '-uclinux']
         for prio in range(len(priority_list)):
             if priority_list[prio] in fname:
                 return PRIORITY_CALC + prio

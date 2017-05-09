@@ -364,8 +364,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 

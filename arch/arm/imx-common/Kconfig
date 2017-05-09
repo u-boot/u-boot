@@ -29,6 +29,29 @@ config SECURE_BOOT
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	select FSL_CAAM
+	imply CMD_DEKBLOB
 	help
 	  This option enables the support for secure boot (HAB).
 	  See doc/README.mxc_hab for more details.
+
+config CMD_BMODE
+	bool "Support the 'bmode' command"
+	default y
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	help
+	  This enables the 'bmode' (bootmode) command for forcing
+	  a boot from specific media.
+
+	  This is useful for forcing the ROM's usb downloader to
+	  activate upon a watchdog reset which is nice when iterating
+	  on U-Boot.  Using the reset button or running bmode normal
+	  will set it back to normal.  This command currently
+	  supports i.MX53 and i.MX6.
+
+config CMD_DEKBLOB
+	bool "Support the 'dek_blob' command"
+	help
+	  This enables the 'dek_blob' command which is used with the
+	  Freescale secure boot mechanism. This command encapsulates and
+	  creates a blob of data. See also CMD_BLOB and doc/README.mxc_hab for
+	  more information.

@@ -101,9 +101,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 #endif
 
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_PREBOOT                 ""
 
 /* Print Buffer Size */

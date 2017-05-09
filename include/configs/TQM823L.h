@@ -91,13 +91,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-
-#ifdef	CONFIG_SPLASH_SCREEN
-    #define CONFIG_CMD_BMP
-#endif
 
 #define CONFIG_NETCONSOLE
 

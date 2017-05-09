@@ -387,6 +387,15 @@ endmenu
 
 menu "Device access commands"
 
+config CMD_CLK
+	bool "clk - Show clock frequencies"
+	help
+	  (deprecated)
+	  Shows clock frequences by calling a sock_clk_dump() hook function.
+	  This is depreated in favour of using the CLK uclass and accessing
+	  clock values from associated drivers. However currently no command
+	  exists for this.
+
 config CMD_DM
 	bool "dm - Access to driver model information"
 	depends on DM
@@ -642,6 +651,28 @@ endmenu
 
 menu "Misc commands"
 
+config CMD_BMP
+	bool "Enable 'bmp' command"
+	depends on LCD || DM_VIDEO || VIDEO
+	help
+	  This provides a way to obtain information about a BMP-format iamge
+	  and to display it. BMP (which presumably stands for BitMaP) is a
+	  file format defined by Microsoft which supports images of various
+	  depths, formats and compression methods. Headers on the file
+	  determine the formats used. This command can be used by first loading
+	  the image into RAM, then using this command to look at it or display
+	  it.
+
+config CMD_BSP
+	bool "Enable board-specific commands"
+	help
+	  (deprecated: instead, please define a Kconfig option for each command)
+
+	  Some boards have board-specific commands which are only enabled
+	  during developemnt and need to be turned off for production. This
+	  option provides a way to control this. The commands that are enabled
+	  vary depending on the board.
+
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC
@@ -666,6 +697,30 @@ config CMD_CACHE
 	bool "icache or dcache"
 	help
 	  Enable the "icache" and "dcache" commands
+
+config CMD_DISPLAY
+	bool "Enable the 'display' command, for character displays"
+	help
+	  (this needs porting to driver model)
+	  This enables the 'display' command which allows a string to be
+	  displayed on a simple board-specific display. Implement
+	  display_putc() to use it.
+
+config CMD_LED
+	bool "led"
+	default y if LED
+	help
+	  Enable the 'led' command which allows for control of LEDs supported
+	  by the board. The LEDs can be listed with 'led list' and controlled
+	  with led on/off/togle/blink. Any LED drivers can be controlled with
+	  this command, e.g. led_gpio.
+
+config CMD_DATE
+	bool "date"
+	default y if DM_RTC
+	help
+	  Enable the 'date' command for getting/setting the time/date in RTC
+	  devices.
 
 config CMD_TIME
 	bool "time"
@@ -760,6 +815,60 @@ config CMD_REGULATOR
 endmenu
 
 menu "Security commands"
+config CMD_AES
+	bool "Enable the 'aes' command"
+	select AES
+	help
+	  This provides a means to encrypt and decrypt data using the AES
+	  (Advanced Encryption Standard). This algorithm uses a symetric key
+	  and is widely used as a streaming cipher. Different key lengths are
+	  supported by the algorithm but this command only supports 128 bits
+	  at present.
+
+config CMD_BLOB
+	bool "Enable the 'blob' command"
+	help
+	  This is used with the Freescale secure boot mechanism.
+
+	  Freescale's SEC block has built-in Blob Protocol which provides
+	  a method for protecting user-defined data across system power
+	  cycles. SEC block protects data in a data structure called a Blob,
+	  which provides both confidentiality and integrity protection.
+
+	  Encapsulating data as a blob
+	  Each time that the Blob Protocol is used to protect data, a
+	  different randomly generated key is used to encrypt the data.
+	  This random key is itself encrypted using a key which is derived
+	  from SoC's non-volatile secret key and a 16 bit Key identifier.
+	  The resulting encrypted key along with encrypted data is called a
+	  blob. The non-volatile secure key is available for use only during
+	  secure boot.
+
+	  During decapsulation, the reverse process is performed to get back
+	  the original data.
+
+	  Sub-commands:
+            blob enc - encapsulating data as a cryptgraphic blob
+	    blob dec - decapsulating cryptgraphic blob to get the data
+
+	  Syntax:
+
+	  blob enc src dst len km
+
+	  Encapsulate and create blob of data $len bytes long
+	  at address $src and store the result at address $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
+	  blob dec src dst len km
+
+	  Decapsulate the  blob of data at address $src and
+	  store result of $len byte at addr $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
 	depends on TPM
@@ -795,6 +904,27 @@ config CMD_CROS_EC
 endmenu
 
 menu "Filesystem commands"
+config CMD_CBFS
+	bool "Enable the 'cbfs' command"
+	depends on FS_CBFS
+	help
+	  Define this to enable support for reading from a Coreboot
+	  filesystem. This is a ROM-based filesystem used for accessing files
+	  on systems that use coreboot as the first boot-loader and then load
+	  U-Boot to actually boot the Operating System. Available commands are
+	  cbfsinit, cbfsinfo, cbfsls and cbfsload.
+
+config CMD_CRAMFS
+	bool "Enable the 'cramfs' command"
+	depends on FS_CRAMFS
+	help
+	  This provides commands for dealing with CRAMFS (Compressed ROM
+	  filesystem). CRAMFS is useful when space is tight since files are
+	  compressed. Two commands are provided:
+
+	     cramfsls   - lists files in a cramfs image
+	     cramfsload - loads a file from a cramfs image
+
 config CMD_EXT2
 	bool "ext2 command support"
 	help
@@ -822,6 +952,11 @@ config CMD_FS_GENERIC
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
 
+config CMD_FS_UUID
+	bool "fsuuid command"
+	help
+	  Enables fsuuid command for filesystem UUID.
+
 config CMD_MTDPARTS
 	depends on ARCH_SUNXI
 	bool "MTD partition support"
@@ -840,6 +975,25 @@ config MTDPARTS_DEFAULT
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format
+
+endmenu
+
+menu "Debug commands"
+
+config CMD_BEDBUG
+	bool "bedbug"
+	help
+	  The bedbug (emBEDded deBUGger) command provides debugging features
+	  for some PowerPC processors. For details please see the
+	  docuemntation in doc/README.beddbug
+
+config CMD_DIAG
+	bool "diag - Board diagnostics"
+	help
+	  This command provides access to board diagnostic tests. These are
+	  called Power-on Self Tests (POST). The command allows listing of
+	  available tests and running either all the tests, or specific tests
+	  identified by name.
 
 endmenu
 

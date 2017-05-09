@@ -62,6 +62,13 @@ int board_eth_init(bd_t *bis)
 		wriop_set_phy_address(WRIOP1_DPMAC8, AQ_PHY_ADDR4);
 
 		break;
+	case 0x4B:
+		wriop_set_phy_address(WRIOP1_DPMAC1, CORTINA_PHY_ADDR1);
+		wriop_set_phy_address(WRIOP1_DPMAC2, CORTINA_PHY_ADDR2);
+		wriop_set_phy_address(WRIOP1_DPMAC3, CORTINA_PHY_ADDR3);
+		wriop_set_phy_address(WRIOP1_DPMAC4, CORTINA_PHY_ADDR4);
+
+		break;
 	default:
 		printf("SerDes1 protocol 0x%x is not supported on LS2080aRDB\n",
 		       srds_s1);

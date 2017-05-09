@@ -41,9 +41,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 
-/* Command definition */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=u-boot.scr\0" \
 	"fit_file=/boot/system.itb\0" \
@@ -203,7 +200,6 @@
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 #define CONFIG_SYS_RTC_BUS_NUM	2
 #define CONFIG_RTC_M41T11
-#define CONFIG_CMD_DATE
 
 /* USB Configs */
 #define CONFIG_USB_EHCI
@@ -235,8 +231,6 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 198000000
 #define CONFIG_IMX_VIDEO_SKIP
-
-#define CONFIG_CMD_BMP
 
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK	66000000

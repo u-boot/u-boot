@@ -10,9 +10,6 @@
 
 #include <linux/sizes.h>
 
-/* enable PMIC */
-#define CONFIG_AS3722_POWER
-
 #include "tegra124-common.h"
 
 /* High-level configuration options */

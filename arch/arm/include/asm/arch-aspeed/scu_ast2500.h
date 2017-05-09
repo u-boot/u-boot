@@ -8,28 +8,134 @@
 
 #define SCU_UNLOCK_VALUE		0x1688a8a8
 
-#define SCU_HWSTRAP_VGAMEM_MASK		3
 #define SCU_HWSTRAP_VGAMEM_SHIFT	2
+#define SCU_HWSTRAP_VGAMEM_MASK		(3 << SCU_HWSTRAP_VGAMEM_SHIFT)
+#define SCU_HWSTRAP_MAC1_RGMII		(1 << 6)
+#define SCU_HWSTRAP_MAC2_RGMII		(1 << 7)
 #define SCU_HWSTRAP_DDR4		(1 << 24)
 #define SCU_HWSTRAP_CLKIN_25MHZ		(1 << 23)
 
 #define SCU_MPLL_DENUM_SHIFT		0
 #define SCU_MPLL_DENUM_MASK		0x1f
 #define SCU_MPLL_NUM_SHIFT		5
-#define SCU_MPLL_NUM_MASK		0xff
+#define SCU_MPLL_NUM_MASK		(0xff << SCU_MPLL_NUM_SHIFT)
 #define SCU_MPLL_POST_SHIFT		13
-#define SCU_MPLL_POST_MASK		0x3f
-
+#define SCU_MPLL_POST_MASK		(0x3f << SCU_MPLL_POST_SHIFT)
+#define SCU_PCLK_DIV_SHIFT		23
+#define SCU_PCLK_DIV_MASK		(7 << SCU_PCLK_DIV_SHIFT)
 #define SCU_HPLL_DENUM_SHIFT		0
 #define SCU_HPLL_DENUM_MASK		0x1f
 #define SCU_HPLL_NUM_SHIFT		5
-#define SCU_HPLL_NUM_MASK		0xff
+#define SCU_HPLL_NUM_MASK		(0xff << SCU_HPLL_NUM_SHIFT)
 #define SCU_HPLL_POST_SHIFT		13
-#define SCU_HPLL_POST_MASK		0x3f
+#define SCU_HPLL_POST_MASK		(0x3f << SCU_HPLL_POST_SHIFT)
 
+#define SCU_MACCLK_SHIFT		16
+#define SCU_MACCLK_MASK			(7 << SCU_MACCLK_SHIFT)
+
+#define SCU_MISC2_RGMII_HPLL		(1 << 23)
+#define SCU_MISC2_RGMII_CLKDIV_SHIFT	20
+#define SCU_MISC2_RGMII_CLKDIV_MASK	(3 << SCU_MISC2_RGMII_CLKDIV_SHIFT)
+#define SCU_MISC2_RMII_MPLL		(1 << 19)
+#define SCU_MISC2_RMII_CLKDIV_SHIFT	16
+#define SCU_MISC2_RMII_CLKDIV_MASK	(3 << SCU_MISC2_RMII_CLKDIV_SHIFT)
 #define SCU_MISC2_UARTCLK_SHIFT		24
 
+#define SCU_MISC_D2PLL_OFF		(1 << 4)
 #define SCU_MISC_UARTCLK_DIV13		(1 << 12)
+#define SCU_MISC_GCRT_USB20CLK		(1 << 21)
+
+#define SCU_MICDS_MAC1RGMII_TXDLY_SHIFT	0
+#define SCU_MICDS_MAC1RGMII_TXDLY_MASK	(0x3f\
+					 << SCU_MICDS_MAC1RGMII_TXDLY_SHIFT)
+#define SCU_MICDS_MAC2RGMII_TXDLY_SHIFT	6
+#define SCU_MICDS_MAC2RGMII_TXDLY_MASK	(0x3f\
+					 << SCU_MICDS_MAC2RGMII_TXDLY_SHIFT)
+#define SCU_MICDS_MAC1RMII_RDLY_SHIFT	12
+#define SCU_MICDS_MAC1RMII_RDLY_MASK	(0x3f << SCU_MICDS_MAC1RMII_RDLY_SHIFT)
+#define SCU_MICDS_MAC2RMII_RDLY_SHIFT	18
+#define SCU_MICDS_MAC2RMII_RDLY_MASK	(0x3f << SCU_MICDS_MAC2RMII_RDLY_SHIFT)
+#define SCU_MICDS_MAC1RMII_TXFALL	(1 << 24)
+#define SCU_MICDS_MAC2RMII_TXFALL	(1 << 25)
+#define SCU_MICDS_RMII1_RCLKEN		(1 << 29)
+#define SCU_MICDS_RMII2_RCLKEN		(1 << 30)
+#define SCU_MICDS_RGMIIPLL		(1 << 31)
+
+/*
+ * SYSRESET is actually more like a Power register,
+ * except that corresponding bit set to 1 means that
+ * the peripheral is off.
+ */
+#define SCU_SYSRESET_XDMA		(1 << 25)
+#define SCU_SYSRESET_MCTP		(1 << 24)
+#define SCU_SYSRESET_ADC		(1 << 23)
+#define SCU_SYSRESET_JTAG		(1 << 22)
+#define SCU_SYSRESET_MIC		(1 << 18)
+#define SCU_SYSRESET_SDIO		(1 << 16)
+#define SCU_SYSRESET_USB11HOST		(1 << 15)
+#define SCU_SYSRESET_USBHUB		(1 << 14)
+#define SCU_SYSRESET_CRT		(1 << 13)
+#define SCU_SYSRESET_MAC2		(1 << 12)
+#define SCU_SYSRESET_MAC1		(1 << 11)
+#define SCU_SYSRESET_PECI		(1 << 10)
+#define SCU_SYSRESET_PWM		(1 << 9)
+#define SCU_SYSRESET_PCI_VGA		(1 << 8)
+#define SCU_SYSRESET_2D			(1 << 7)
+#define SCU_SYSRESET_VIDEO		(1 << 6)
+#define SCU_SYSRESET_LPC		(1 << 5)
+#define SCU_SYSRESET_HAC		(1 << 4)
+#define SCU_SYSRESET_USBHID		(1 << 3)
+#define SCU_SYSRESET_I2C		(1 << 2)
+#define SCU_SYSRESET_AHB		(1 << 1)
+#define SCU_SYSRESET_SDRAM_WDT		(1 << 0)
+
+/* Bits 16-27 in the register control pin functions for I2C devices 3-14 */
+#define SCU_PINMUX_CTRL5_I2C		(1 << 16)
+
+/*
+ * The values are grouped by function, not by register.
+ * They are actually scattered across multiple loosely related registers.
+ */
+#define SCU_PIN_FUN_MAC1_MDC		(1 << 30)
+#define SCU_PIN_FUN_MAC1_MDIO		(1 << 31)
+#define SCU_PIN_FUN_MAC1_PHY_LINK	(1 << 0)
+#define SCU_PIN_FUN_MAC2_MDIO		(1 << 2)
+#define SCU_PIN_FUN_MAC2_PHY_LINK	(1 << 1)
+#define SCU_PIN_FUN_SCL1		(1 << 12)
+#define SCU_PIN_FUN_SCL2		(1 << 14)
+#define SCU_PIN_FUN_SDA1		(1 << 13)
+#define SCU_PIN_FUN_SDA2		(1 << 15)
+
+#define SCU_CLKSTOP_MAC1		(1 << 20)
+#define SCU_CLKSTOP_MAC2		(1 << 21)
+
+#define SCU_D2PLL_EXT1_OFF		(1 << 0)
+#define SCU_D2PLL_EXT1_BYPASS		(1 << 1)
+#define SCU_D2PLL_EXT1_RESET		(1 << 2)
+#define SCU_D2PLL_EXT1_MODE_SHIFT	3
+#define SCU_D2PLL_EXT1_MODE_MASK	(3 << SCU_D2PLL_EXT1_MODE_SHIFT)
+#define SCU_D2PLL_EXT1_PARAM_SHIFT	5
+#define SCU_D2PLL_EXT1_PARAM_MASK	(0x1ff << SCU_D2PLL_EXT1_PARAM_SHIFT)
+
+#define SCU_D2PLL_NUM_SHIFT		0
+#define SCU_D2PLL_NUM_MASK		(0xff << SCU_D2PLL_NUM_SHIFT)
+#define SCU_D2PLL_DENUM_SHIFT		8
+#define SCU_D2PLL_DENUM_MASK		(0x1f << SCU_D2PLL_DENUM_SHIFT)
+#define SCU_D2PLL_POST_SHIFT		13
+#define SCU_D2PLL_POST_MASK		(0x3f << SCU_D2PLL_POST_SHIFT)
+#define SCU_D2PLL_ODIV_SHIFT		19
+#define SCU_D2PLL_ODIV_MASK		(7 << SCU_D2PLL_ODIV_SHIFT)
+#define SCU_D2PLL_SIC_SHIFT		22
+#define SCU_D2PLL_SIC_MASK		(0x1f << SCU_D2PLL_SIC_SHIFT)
+#define SCU_D2PLL_SIP_SHIFT		27
+#define SCU_D2PLL_SIP_MASK		(0x1f << SCU_D2PLL_SIP_SHIFT)
+
+#define SCU_CLKDUTY_DCLK_SHIFT		0
+#define SCU_CLKDUTY_DCLK_MASK		(0x3f << SCU_CLKDUTY_DCLK_SHIFT)
+#define SCU_CLKDUTY_RGMII1TXCK_SHIFT	8
+#define SCU_CLKDUTY_RGMII1TXCK_MASK	(0x7f << SCU_CLKDUTY_RGMII1TXCK_SHIFT)
+#define SCU_CLKDUTY_RGMII2TXCK_SHIFT	16
+#define SCU_CLKDUTY_RGMII2TXCK_MASK	(0x7f << SCU_CLKDUTY_RGMII2TXCK_SHIFT)
 
 #ifndef __ASSEMBLY__
 
@@ -119,6 +225,20 @@ int ast_get_clk(struct udevice **devp);
  * @return pointer to struct ast2500_scu on success, ERR_PTR otherwise
  */
 void *ast_get_scu(void);
+
+/**
+ * ast_scu_unlock() - unlock protected registers
+ *
+ * @scu, pointer to ast2500_scu
+ */
+void ast_scu_unlock(struct ast2500_scu *scu);
+
+/**
+ * ast_scu_lock() - lock protected registers
+ *
+ * @scu, pointer to ast2500_scu
+ */
+void ast_scu_lock(struct ast2500_scu *scu);
 
 #endif  /* __ASSEMBLY__ */
 

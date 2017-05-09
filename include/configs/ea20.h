@@ -102,7 +102,6 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_CMD_BMP
 #endif
 
 /*
@@ -131,7 +130,6 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI

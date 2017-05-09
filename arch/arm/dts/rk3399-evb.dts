@@ -30,6 +30,13 @@
 		status = "okay";
 	};
 
+	vccsys: vccsys {
+		compatible = "regulator-fixed";
+		regulator-name = "vccsys";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
 	vcc3v3_sys: vcc3v3-sys {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc3v3_sys";
@@ -51,6 +58,7 @@
 		regulator-name = "vcc5v0_host";
 		gpio = <&gpio4 25 GPIO_ACTIVE_HIGH>;
 	};
+
 };
 
 &emmc_phy {
@@ -110,6 +118,37 @@
 &dwc3_typec1 {
 	rockchip,vbus-gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	i2c-scl-falling-time-ns = <50>;
+	i2c-scl-rising-time-ns = <100>;
+	u-boot,dm-pre-reloc;
+
+	rk808: pmic@1b {
+		compatible = "rockchip,rk808";
+		clock-output-names = "xin32k", "wifibt_32kin";
+		interrupt-parent = <&gpio0>;
+		interrupts = <4 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pmic_int_l>;
+		reg = <0x1b>;
+		rockchip,system-power-controller;
+		#clock-cells = <1>;
+		u-boot,dm-pre-reloc;
+		status = "okay";
+
+		vcc12-supply = <&vcc3v3_sys>;
+		regulators {
+			vcc33_lcd: SWITCH_REG2 {
+				regulator-always-on;
+				regulator-boot-on;
+				regulator-name = "vcc33_lcd";
+			};
+		};
+	};
 };
 
 &pinctrl {

@@ -14,7 +14,6 @@ obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
-obj-$(CONFIG_BFIN_SDH) += bfin_sdh.o
 obj-$(CONFIG_MMC_DAVINCI)		+= davinci_mmc.o
 
 obj-$(CONFIG_MMC_DW)			+= dw_mmc.o

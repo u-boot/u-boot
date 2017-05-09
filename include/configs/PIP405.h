@@ -44,10 +44,8 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_FDC
 #define CONFIG_SCSI
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_BSP
 
 /**************************************************************
  * I2C Stuff:

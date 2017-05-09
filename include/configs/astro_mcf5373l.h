@@ -59,7 +59,6 @@
 
 /* Define which commands should be available at u-boot command prompt */
 
-#define CONFIG_CMD_DATE
 #if ENABLE_JFFS
 #define CONFIG_CMD_JFFS2
 #endif

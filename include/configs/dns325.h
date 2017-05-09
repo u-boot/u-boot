@@ -31,7 +31,6 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DATE
 #define CONFIG_SYS_MVFS
 
 #define CONFIG_NR_DRAM_BANKS		1

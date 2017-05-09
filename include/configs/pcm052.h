@@ -86,7 +86,6 @@
 #define CONFIG_SYS_I2C_MXC
 
 /* RTC (actually an RV-4162 but M41T62-compatible) */
-#define CONFIG_CMD_DATE
 #define CONFIG_RTC_M41T62
 #define CONFIG_SYS_I2C_RTC_ADDR 0x68
 #define CONFIG_SYS_RTC_BUS_NUM 2

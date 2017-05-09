@@ -27,3 +27,5 @@
 #define PCLK_UART3	503
 #define PCLK_UART4	504
 #define PCLK_UART5	505
+#define PCLK_MAC1	506
+#define PCLK_MAC2	507

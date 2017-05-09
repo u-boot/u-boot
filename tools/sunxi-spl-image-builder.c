@@ -433,7 +433,7 @@ int main(int argc, char **argv)
 			break;
 		case 'c':
 			info.ecc_strength = strtol(optarg, &endptr, 0);
-			if (endptr || *endptr == '/')
+			if (*endptr == '/')
 				info.ecc_step_size = strtol(endptr + 1, NULL, 0);
 			break;
 		case 'p':

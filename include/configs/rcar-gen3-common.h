@@ -12,7 +12,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2

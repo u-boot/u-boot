@@ -64,12 +64,19 @@ config TARGET_IDS8313
 
 config TARGET_KM8360
 	bool "Support km8360"
+	imply CMD_CRAMFS
+	imply CMD_DIAG
+	imply FS_CRAMFS
 
 config TARGET_SUVD3
 	bool "Support suvd3"
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_TQM834X
 	bool "Support TQM834x"

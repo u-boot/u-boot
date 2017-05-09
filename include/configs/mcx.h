@@ -89,7 +89,6 @@
 /* commands to include */
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
@@ -353,7 +352,6 @@
 
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_OMAP3
 
 #endif /* __CONFIG_H */

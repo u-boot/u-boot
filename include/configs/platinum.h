@@ -19,7 +19,6 @@
  * Console configuration
  */
 
-#define CONFIG_CMD_BMODE
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS

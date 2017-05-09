@@ -88,6 +88,12 @@ config ARM_ERRATA_833069
 config ARM_ERRATA_833471
 	bool
 
+config ARM_ERRATA_852421
+	bool
+
+config ARM_ERRATA_852423
+	bool
+
 config CPU_ARM720T
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -174,6 +180,15 @@ config SYS_CACHELINE_SIZE
 	default 64 if SYS_CACHE_SHIFT_6
 	default 32 if SYS_CACHE_SHIFT_5
 
+config ARM_SMCCC
+	bool "Support for ARM SMC Calling Convention (SMCCC)"
+	depends on CPU_V7 || ARM64
+	select ARM_PSCI_FW
+	help
+	  Say Y here if you want to enable ARM SMC Calling Convention.
+	  This should be enabled if U-Boot needs to communicate with system
+	  firmware (for example, PSCI) according to SMCCC.
+
 config SEMIHOSTING
 	bool "support boot from semihosting"
 	help
@@ -253,11 +268,6 @@ config SPL_USE_ARCH_MEMSET
 	  Enable the generation of an optimized version of memset.
 	  Such implementation may be faster under some conditions
 	  but may increase the binary size.
-
-config ARCH_OMAP2
-	bool
-	select CPU_V7
-	select SUPPORT_SPL
 
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
@@ -481,72 +491,6 @@ config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7
 
-config TARGET_BRXRE1
-	bool "Support BRXRE1"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-
-config TARGET_BRPPT1
-	bool "Support BRPPT1"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-
-config TARGET_DRACO
-	bool "Support draco"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_THUBAN
-	bool "Support thuban"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RASTABAN
-	bool "Support rastaban"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_ETAMIN
-	bool "Support etamin"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PXM2
-	bool "Support pxm2"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RUT
-	bool "Support rut"
-	select ARCH_OMAP2
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_TI814X_EVM
-	bool "Support ti814x_evm"
-	select ARCH_OMAP2
-
-config TARGET_TI816X_EVM
-	bool "Support ti816x_evm"
-	select ARCH_OMAP2
-
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
 	select CPU_V7
@@ -604,6 +548,13 @@ config ARCH_KEYSTONE
 	select SUPPORT_SPL
 	select SYS_THUMB_BUILD
 	select CMD_POWEROFF
+	imply FIT
+
+config ARCH_OMAP2PLUS
+	bool "TI OMAP2+"
+	select CPU_V7
+	select SUPPORT_SPL
+	imply FIT
 
 config ARCH_MESON
 	bool "Amlogic Meson"
@@ -638,126 +589,6 @@ config ARCH_MX5
 	bool "Freescale MX5"
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
-
-config TARGET_M53EVK
-	bool "Support m53evk"
-	select CPU_V7
-	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX51EVK
-	bool "Support mx51evk"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53ARD
-	bool "Support mx53ard"
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53EVK
-	bool "Support mx53evk"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53LOCO
-	bool "Support mx53loco"
-	select BOARD_LATE_INIT
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MX53SMD
-	bool "Support mx53smd"
-	select CPU_V7
-	select BOARD_EARLY_INIT_F
-
-config OMAP34XX
-	bool "OMAP34XX SoC"
-	select ARCH_OMAP2
-	select ARM_ERRATA_430973
-	select ARM_ERRATA_454179
-	select ARM_ERRATA_621766
-	select ARM_ERRATA_725233
-	select USE_TINY_PRINTF
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-	imply SYS_THUMB_BUILD
-
-config OMAP44XX
-	bool "OMAP44XX SoC"
-	select ARCH_OMAP2
-	select USE_TINY_PRINTF
-	imply SPL_DISPLAY_PRINT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-	imply SYS_THUMB_BUILD
-
-config OMAP54XX
-	bool "OMAP54XX SoC"
-	select ARCH_OMAP2
-	select ARM_ERRATA_798870
-	select SYS_THUMB_BUILD
-	imply SPL_DISPLAY_PRINT
-	imply SPL_ENV_SUPPORT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
-	imply SPL_LIBCOMMON_SUPPORT
-	imply SPL_LIBDISK_SUPPORT
-	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
-	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-
-config AM43XX
-	bool "AM43XX SoC"
-	select ARCH_OMAP2
-	imply SPL_DM
-	imply SPL_DM_SEQ_ALIAS
-	imply SPL_OF_CONTROL
-	imply SPL_OF_TRANSLATE
-	imply SPL_SEPARATE_BSS
-	imply SPL_SYS_MALLOC_SIMPLE
-	imply SYS_THUMB_BUILD
-	help
-	  Support for AM43xx SOC from Texas Instruments.
-	  The AM43xx high performance SOC features a Cortex-A9
-	  ARM core, a quad core PRU-ICSS for industrial Ethernet
-	  protocols, dual camera support, optional 3D graphics
-	  and an optional customer programmable secure boot.
-
-config AM33XX
-	bool "AM33XX SoC"
-	select ARCH_OMAP2
-	imply SYS_THUMB_BUILD
-	help
-	  Support for AM335x SOC from Texas Instruments.
-	  The AM335x high performance SOC features a Cortex-A8
-	  ARM core, a dual core PRU-ICSS for industrial Ethernet
-	  protocols, optional 3D graphics and an optional customer
-	  programmable secure boot.
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
@@ -796,10 +627,6 @@ config ARCH_SOCFPGA
 	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	select SYS_THUMB_BUILD
 
-config TARGET_CM_T43
-	bool "Support cm_t43"
-	select ARCH_OMAP2
-
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
 	select CMD_GPIO
@@ -822,16 +649,19 @@ config ARCH_SUNXI
 	select USB_STORAGE if DISTRO_DEFAULTS
 	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USE_TINY_PRINTF
+	imply PRE_CONSOLE_BUFFER
+	imply SPL_GPIO_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT if GENERIC_MMC
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
 
 config TARGET_TS4600
 	bool "Support TS4600"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
-
-config TARGET_TS4800
-	bool "Support TS4800"
-	select CPU_V7
-	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
@@ -860,6 +690,7 @@ config ARCH_ZYNQ
 	select CLK
 	select SPL_CLK
 	select CLK_ZYNQ
+	imply CMD_CLK
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
@@ -1226,6 +1057,8 @@ source "arch/arm/mach-sti/Kconfig"
 
 source "arch/arm/mach-stm32/Kconfig"
 
+source "arch/arm/mach-sunxi/Kconfig"
+
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
@@ -1243,10 +1076,7 @@ source "arch/arm/cpu/armv8/Kconfig"
 source "arch/arm/imx-common/Kconfig"
 
 source "board/aries/m28evk/Kconfig"
-source "board/aries/m53evk/Kconfig"
 source "board/bosch/shc/Kconfig"
-source "board/BuR/brxre1/Kconfig"
-source "board/BuR/brppt1/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
@@ -1261,8 +1091,6 @@ source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
-source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
@@ -1283,11 +1111,6 @@ source "board/freescale/mx28evk/Kconfig"
 source "board/freescale/mx31ads/Kconfig"
 source "board/freescale/mx31pdk/Kconfig"
 source "board/freescale/mx35pdk/Kconfig"
-source "board/freescale/mx51evk/Kconfig"
-source "board/freescale/mx53ard/Kconfig"
-source "board/freescale/mx53evk/Kconfig"
-source "board/freescale/mx53loco/Kconfig"
-source "board/freescale/mx53smd/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/gdsys/a38x/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
@@ -1295,15 +1118,12 @@ source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/imx31_phycore/Kconfig"
-source "board/isee/igep0033/Kconfig"
+source "board/isee/igep003x/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
-source "board/siemens/draco/Kconfig"
-source "board/siemens/pxm2/Kconfig"
-source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
@@ -1311,18 +1131,12 @@ source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
-source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/tcl/sl50/Kconfig"
-source "board/ti/am335x/Kconfig"
-source "board/ti/am43xx/Kconfig"
 source "board/birdland/bav335x/Kconfig"
-source "board/ti/ti814x/Kconfig"
-source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/technologic/ts4600/Kconfig"
-source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"

@@ -35,6 +35,7 @@ enum uclass_id {
 	UCLASS_DMA,		/* Direct Memory Access */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
+	UCLASS_FIRMWARE,	/* Firmware */
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
@@ -83,6 +84,7 @@ enum uclass_id {
 	UCLASS_VIDEO,		/* Video or LCD device */
 	UCLASS_VIDEO_BRIDGE,	/* Video bridge, e.g. DisplayPort to LVDS */
 	UCLASS_VIDEO_CONSOLE,	/* Text console driver for video device */
+	UCLASS_WDT,		/* Watchdot Timer driver */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

@@ -33,9 +33,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
-/* Command definition */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

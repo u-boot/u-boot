@@ -26,6 +26,7 @@
 		serial4 = &uart4;
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc;
+		i2c0 = &i2c0;
 	};
 
 	cpus {
@@ -665,6 +666,21 @@
 		dma-names = "tx", "rx";
 		clock-names = "i2s_clk", "i2s_hclk";
 		clocks = <&cru SCLK_I2S2_8CH>, <&cru HCLK_I2S2_8CH>;
+		status = "disabled";
+	};
+
+	i2c0: i2c@ff3c0000 {
+		compatible = "rockchip,rk3399-i2c";
+		reg = <0x0 0xff3c0000 0x0 0x1000>;
+		assigned-clocks = <&pmucru SCLK_I2C0_PMU>;
+		assigned-clock-rates = <200000000>;
+		clocks = <&pmucru SCLK_I2C0_PMU>, <&pmucru PCLK_I2C0_PMU>;
+		clock-names = "i2c", "pclk";
+		interrupts = <GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c0_xfer>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 		status = "disabled";
 	};
 

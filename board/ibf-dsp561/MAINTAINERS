@@ -1,6 +1,0 @@
-IBF-DSP561 BOARD
-M:	I-SYST Micromodule <support@i-syst.com>
-S:	Maintained
-F:	board/ibf-dsp561/
-F:	include/configs/ibf-dsp561.h
-F:	configs/ibf-dsp561_defconfig

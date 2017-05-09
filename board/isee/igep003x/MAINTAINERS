@@ -1,0 +1,6 @@
+IGEP003X BOARD
+M:	Enric Balletbo i Serra <eballetbo@gmail.com>
+S:	Maintained
+F:	board/isee/igep003x/
+F:	include/configs/am335x_igep003x.h
+F:	configs/am335x_igep0033_defconfig

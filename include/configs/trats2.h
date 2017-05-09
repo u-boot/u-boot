@@ -183,7 +183,6 @@
 
 /* LCD console */
 #define LCD_BPP                 LCD_COLOR16
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 /* LCD */
 #define CONFIG_BMP_16BPP

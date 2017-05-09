@@ -28,7 +28,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
 

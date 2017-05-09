@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_LS102XA
-
 #define CONFIG_ARMV7_SECURE_BASE OCRAM_BASE_S_ADDR
 
 #define CONFIG_SYS_FSL_CLK

@@ -26,7 +26,6 @@
 #include "o2dnt-common.h"
 
 /* Additional commands */
-#define CONFIG_CMD_BSP
 #define CONFIG_CMD_REGINFO
 
 /*

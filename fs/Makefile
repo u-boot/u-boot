@@ -12,7 +12,7 @@ obj-$(CONFIG_SPL_EXT_SUPPORT) += ext4/
 else
 obj-y				+= fs.o
 
-obj-$(CONFIG_CMD_CBFS) += cbfs/
+obj-$(CONFIG_FS_CBFS) += cbfs/
 obj-$(CONFIG_CMD_CRAMFS) += cramfs/
 obj-$(CONFIG_FS_EXT4) += ext4/
 obj-y += fat/

@@ -38,7 +38,6 @@
  */
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
 

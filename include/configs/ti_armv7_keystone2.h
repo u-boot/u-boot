@@ -318,7 +318,7 @@
 #ifndef CONFIG_SOC_K2G
 #define CONFIG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_HZ_CLOCK		external_clk[sys_clk]
+#define CONFIG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
 #endif
 
 #endif /* __CONFIG_KS2_EVM_H */

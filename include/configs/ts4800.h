@@ -14,7 +14,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MX51
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage bootloader */
 

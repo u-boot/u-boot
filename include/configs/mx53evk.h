@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX53
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_EVK
 
 #include <asm/arch/imx-regs.h>
@@ -56,11 +54,6 @@
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
-
-#define CONFIG_CMD_DATE
-
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

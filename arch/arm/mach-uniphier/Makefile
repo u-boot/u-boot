@@ -16,7 +16,9 @@ obj-$(CONFIG_DISPLAY_CPUINFO) += cpu-info.o
 obj-y += dram_init.o
 obj-y += board_init.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
+ifndef CONFIG_SYSRESET
 obj-y += reset.o
+endif
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/ micro-support-card.o
 obj-y += pinctrl-glue.o

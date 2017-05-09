@@ -23,7 +23,6 @@ obj-$(CONFIG_CMD_BLOCK_CACHE) += blkcache.o
 obj-$(CONFIG_CMD_BMP) += bmp.o
 obj-$(CONFIG_CMD_BOOTEFI) += bootefi.o
 obj-$(CONFIG_CMD_BOOTMENU) += bootmenu.o
-obj-$(CONFIG_CMD_BOOTLDR) += bootldr.o
 obj-$(CONFIG_CMD_BOOTSTAGE) += bootstage.o
 obj-$(CONFIG_CMD_BOOTZ) += bootz.o
 obj-$(CONFIG_CMD_BOOTI) += booti.o
@@ -32,7 +31,6 @@ obj-$(CONFIG_CMD_CBFS) += cbfs.o
 obj-$(CONFIG_CMD_CLK) += clk.o
 obj-$(CONFIG_CMD_CONFIG) += config.o
 obj-$(CONFIG_CMD_CONSOLE) += console.o
-obj-$(CONFIG_CMD_CPLBINFO) += cplbinfo.o
 obj-$(CONFIG_CMD_CPU) += cpu.o
 obj-$(CONFIG_DATAFLASH_MMC_SELECT) += dataflash_mmc_mux.o
 obj-$(CONFIG_CMD_DATE) += date.o
@@ -77,8 +75,8 @@ obj-$(CONFIG_CMD_IRQ) += irq.o
 obj-$(CONFIG_CMD_ITEST) += itest.o
 obj-$(CONFIG_CMD_JFFS2) += jffs2.o
 obj-$(CONFIG_CMD_CRAMFS) += cramfs.o
-obj-$(CONFIG_CMD_LDRINFO) += ldrinfo.o
-obj-$(CONFIG_LED_STATUS_CMD) += led.o
+obj-$(CONFIG_LED_STATUS_CMD) += legacy_led.o
+obj-$(CONFIG_CMD_LED) += led.o
 obj-$(CONFIG_CMD_LICENSE) += license.o
 obj-y += load.o
 obj-$(CONFIG_LOGBUFFER) += log.o
@@ -99,7 +97,6 @@ obj-$(CONFIG_CMD_MTDPARTS) += mtdparts.o
 obj-$(CONFIG_CMD_NAND) += nand.o
 obj-$(CONFIG_CMD_NET) += net.o
 obj-$(CONFIG_CMD_ONENAND) += onenand.o
-obj-$(CONFIG_CMD_OTP) += otp.o
 obj-$(CONFIG_CMD_PART) += part.o
 ifdef CONFIG_PCI
 obj-$(CONFIG_CMD_PCI) += pci.o
@@ -118,9 +115,7 @@ obj-$(CONFIG_CMD_SF) += sf.o
 obj-$(CONFIG_SCSI) += scsi.o disk.o
 obj-$(CONFIG_CMD_SHA1SUM) += sha1sum.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
-obj-$(CONFIG_CMD_SOFTSWITCH) += softswitch.o
 obj-$(CONFIG_CMD_SPI) += spi.o
-obj-$(CONFIG_CMD_SPIBOOTLDR) += spibootldr.o
 obj-$(CONFIG_CMD_STRINGS) += strings.o
 obj-$(CONFIG_CMD_TERMINAL) += terminal.o
 obj-$(CONFIG_CMD_TIME) += time.o
@@ -157,9 +152,9 @@ obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
-endif # !CONFIG_SPL_BUILD
 
 obj-$(CONFIG_CMD_BLOB) += blob.o
+endif # !CONFIG_SPL_BUILD
 
 # core command
 obj-y += nvedit.o

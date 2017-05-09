@@ -12,7 +12,6 @@
 
 /* LP0 suspend / resume */
 #define CONFIG_TEGRA_LP0
-#define CONFIG_AES
 #define CONFIG_TEGRA_PMU
 #define CONFIG_TPS6586X_POWER
 #define CONFIG_TEGRA_CLOCK_SCALING
@@ -45,16 +44,9 @@
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 
-/* General networking support */
-
 /* Enable keyboard */
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD
-
-/* USB keyboard */
-
-/* LCD support */
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 /* NAND support */
 #define CONFIG_CMD_NAND

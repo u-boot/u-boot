@@ -81,17 +81,18 @@
 	"setenv bs_size " __stringify(CONFIG_BS_SIZE)";"
 
 /* For secure boot flow, default environment used will be used */
-#if defined(CONFIG_SYS_RAMBOOT)
-#if defined(CONFIG_RAMBOOT_NAND)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_NAND_BOOT) || \
+	defined(CONFIG_SD_BOOT)
+#if defined(CONFIG_RAMBOOT_NAND) || defined(CONFIG_NAND_BOOT)
 #define CONFIG_BS_COPY_CMD \
 	"nand read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
 	"nand read $bs_ram $bs_device $bs_size ;"
-#endif /* CONFIG_RAMBOOT_NAND */
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BS_COPY_CMD \
 	"mmc read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
 	"mmc read $bs_ram $bs_device $bs_size ;"
-#else /* CONFIG_SD_BOOT */
+#endif
+#else
 #define CONFIG_BS_COPY_CMD \
 	"cp.b $bs_hdr_device $bs_hdr_ram  $bs_hdr_size ;" \
 	"cp.b $bs_device $bs_ram  $bs_size ;"

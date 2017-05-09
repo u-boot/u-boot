@@ -167,6 +167,13 @@ unsigned long get_board_ddr_clk(void)
 	return CONFIG_DDR_CLK_FREQ;
 }
 
+#ifdef CONFIG_TARGET_T1024RDB
+void board_reset(void)
+{
+	CPLD_WRITE(reset_ctl1, CPLD_LBMAP_RESET);
+}
+#endif
+
 int misc_init_r(void)
 {
 	return 0;

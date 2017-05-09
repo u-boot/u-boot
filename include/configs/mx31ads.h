@@ -55,12 +55,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
 
-/***********************************************************
- * Command definition
- ***********************************************************/
-#define CONFIG_CMD_DATE
-
-
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\

@@ -85,11 +85,6 @@
 /*
  * Command line configuration.
  */
-#ifdef CONFIG_VIDEO
-#define CONFIG_CMD_BMP
-#endif
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IRQ

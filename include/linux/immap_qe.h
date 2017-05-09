@@ -24,7 +24,7 @@
 #endif
 #endif
 
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 #define QE_MURAM_SIZE          0x6000UL
 #define MAX_QE_RISC            1
 #define QE_NUM_OF_SNUM         28

@@ -823,16 +823,11 @@ The following options need to be configured:
 		CONFIG_CMD_AES		  AES 128 CBC encrypt/decrypt
 		CONFIG_CMD_ASKENV	* ask for env variable
 		CONFIG_CMD_BDI		  bdinfo
-		CONFIG_CMD_BEDBUG	* Include BedBug Debugger
-		CONFIG_CMD_BMP		* BMP support
-		CONFIG_CMD_BSP		* Board specific commands
 		CONFIG_CMD_BOOTD	  bootd
 		CONFIG_CMD_BOOTI	* ARM64 Linux kernel Image support
 		CONFIG_CMD_CACHE	* icache, dcache
-		CONFIG_CMD_CLK   	* clock command support
 		CONFIG_CMD_CONSOLE	  coninfo
 		CONFIG_CMD_CRC32	* crc32
-		CONFIG_CMD_DATE		* support for RTC, date/time...
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
 		CONFIG_CMD_DS4510	* ds4510 I2C gpio commands
@@ -1549,13 +1544,6 @@ The following options need to be configured:
 		This will also enable the command "fatwrite" enabling the
 		user to write files to FAT.
 
-- CBFS (Coreboot Filesystem) support:
-		CONFIG_CMD_CBFS
-
-		Define this to enable support for reading from a Coreboot
-		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
-		and cbfsload.
-
 - FAT(File Allocation Table) filesystem cluster size:
 		CONFIG_FS_FAT_MAX_CLUSTSIZE
 
@@ -1581,7 +1569,6 @@ The following options need to be configured:
 
 			CONFIG_SYS_DIU_ADDR
 			CONFIG_VIDEO
-			CONFIG_CMD_BMP
 			CONFIG_CFB_CONSOLE
 			CONFIG_VIDEO_SW_CURSOR
 			CONFIG_VGA_AS_SINGLE_DEVICE
@@ -1641,9 +1628,6 @@ The following options need to be configured:
 			Hitachi	 SP14Q002
 
 			320x240. Black & white.
-
-		Normally display is black on white background; define
-		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
 
 		CONFIG_LCD_ALIGNMENT
 
@@ -2848,16 +2832,6 @@ The following options need to be configured:
 		CONFIG_CMD_HDMIDETECT
 		This enables 'hdmidet' command which returns true if an
 		HDMI monitor is detected.  This command is i.MX 6 specific.
-
-		CONFIG_CMD_BMODE
-		This enables the 'bmode' (bootmode) command for forcing
-		a boot from specific media.
-
-		This is useful for forcing the ROM's usb downloader to
-		activate upon a watchdog reset which is nice when iterating
-		on U-Boot.  Using the reset button or running bmode normal
-		will set it back to normal.  This command currently
-		supports i.MX53 and i.MX6.
 
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT

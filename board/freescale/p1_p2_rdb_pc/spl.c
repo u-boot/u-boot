@@ -17,11 +17,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const u32 sysclk_tbl[] = {
-	66666000, 7499900, 83332500, 8999900,
-	99999000, 11111000, 12499800, 13333200
-};
-
 phys_size_t get_effective_memsize(void)
 {
 	return CONFIG_SYS_L2_SIZE;

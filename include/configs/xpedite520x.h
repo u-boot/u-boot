@@ -287,7 +287,6 @@
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NAND

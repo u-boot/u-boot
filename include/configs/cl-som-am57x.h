@@ -11,8 +11,6 @@
 #ifndef __CONFIG_CL_SOM_AM57X_H
 #define __CONFIG_CL_SOM_AM57X_H
 
-#define CONFIG_DRA7XX
-
 #define CONFIG_NR_DRAM_BANKS		2
 
 #define CONSOLEDEV			"ttyO2"
@@ -84,6 +82,8 @@
 #define CONFIG_SYS_I2C_PCA953X_ADDR     0x20
 #define CONFIG_SYS_I2C_PCA953X_WIDTH    { {0x20, 16} }
 
+#endif /* !CONFIG_SPL_BUILD */
+
 /* USB xHCI HOST */
 #define CONFIG_USB_XHCI_OMAP
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
@@ -97,8 +97,6 @@
 #define CONFIG_USB_ETHER_RNDIS
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_MCS7830
-
-#endif /* !CONFIG_SPL_BUILD */
 
 /* CPSW Ethernet */
 #define CONFIG_DRIVER_TI_CPSW

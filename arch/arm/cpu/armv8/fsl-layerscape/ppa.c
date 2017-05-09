@@ -37,13 +37,20 @@ int ppa_init(void)
 	int ret;
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-	uintptr_t ppa_esbc_hdr = CONFIG_SYS_LS_PPA_ESBC_ADDR;
+	uintptr_t ppa_esbc_hdr = 0;
 	uintptr_t ppa_img_addr = 0;
+#if defined(CONFIG_SYS_LS_PPA_FW_IN_MMC) || \
+	defined(CONFIG_SYS_LS_PPA_FW_IN_NAND)
+	void *ppa_hdr_ddr;
+#endif
 #endif
 
 #ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
 	ppa_fit_addr = (void *)CONFIG_SYS_LS_PPA_FW_ADDR;
 	debug("%s: PPA image load from XIP\n", __func__);
+#ifdef CONFIG_CHAIN_OF_TRUST
+	ppa_esbc_hdr = CONFIG_SYS_LS_PPA_ESBC_ADDR;
+#endif
 #else /* !CONFIG_SYS_LS_PPA_FW_IN_XIP */
 	size_t fw_length, fdt_header_len = sizeof(struct fdt_header);
 
@@ -53,7 +60,7 @@ int ppa_init(void)
 	int dev = CONFIG_SYS_MMC_ENV_DEV;
 	struct fdt_header *fitp;
 	u32 cnt;
-	u32 blk = CONFIG_SYS_LS_PPA_FW_ADDR / 512;
+	u32 blk;
 
 	debug("%s: PPA image load from eMMC/SD\n", __func__);
 
@@ -81,6 +88,7 @@ int ppa_init(void)
 		return -ENOMEM;
 	}
 
+	blk = CONFIG_SYS_LS_PPA_FW_ADDR / 512;
 	cnt = DIV_ROUND_UP(fdt_header_len, 512);
 	debug("%s: MMC read PPA FIT header: dev # %u, block # %u, count %u\n",
 	      __func__, dev, blk, cnt);
@@ -102,6 +110,29 @@ int ppa_init(void)
 		return ret;
 	}
 
+#ifdef CONFIG_CHAIN_OF_TRUST
+	ppa_hdr_ddr = malloc(CONFIG_LS_PPA_ESBC_HDR_SIZE);
+	if (!ppa_hdr_ddr) {
+		printf("PPA: malloc failed for PPA header\n");
+		return -ENOMEM;
+	}
+
+	blk = CONFIG_SYS_LS_PPA_ESBC_ADDR >> 9;
+	cnt = DIV_ROUND_UP(CONFIG_LS_PPA_ESBC_HDR_SIZE, 512);
+	ret = mmc->block_dev.block_read(&mmc->block_dev, blk, cnt, ppa_hdr_ddr);
+	if (ret != cnt) {
+		free(ppa_hdr_ddr);
+		printf("MMC/SD read of PPA header failed\n");
+		return -EIO;
+	}
+	debug("Read PPA header to 0x%p\n", ppa_hdr_ddr);
+
+	/* flush cache after read */
+	flush_cache((ulong)ppa_hdr_ddr, cnt * 512);
+
+	ppa_esbc_hdr = (uintptr_t)ppa_hdr_ddr;
+#endif
+
 	fw_length = fdt_totalsize(fitp);
 	free(fitp);
 
@@ -113,6 +144,7 @@ int ppa_init(void)
 		return -ENOMEM;
 	}
 
+	blk = CONFIG_SYS_LS_PPA_FW_ADDR / 512;
 	cnt = DIV_ROUND_UP(fw_length, 512);
 	debug("%s: MMC read PPA FIT image: dev # %u, block # %u, count %u\n",
 	      __func__, dev, blk, cnt);
@@ -148,6 +180,31 @@ int ppa_init(void)
 		return ret;
 	}
 
+#ifdef CONFIG_CHAIN_OF_TRUST
+	ppa_hdr_ddr = malloc(CONFIG_LS_PPA_ESBC_HDR_SIZE);
+	if (!ppa_hdr_ddr) {
+		printf("PPA: malloc failed for PPA header\n");
+		return -ENOMEM;
+	}
+
+	fw_length = CONFIG_LS_PPA_ESBC_HDR_SIZE;
+
+	ret = nand_read(nand_info[0], (loff_t)CONFIG_SYS_LS_PPA_ESBC_ADDR,
+		       &fw_length, (u_char *)ppa_hdr_ddr);
+	if (ret == -EUCLEAN) {
+		free(ppa_hdr_ddr);
+		printf("NAND read of PPA firmware at offset 0x%x failed\n",
+		       CONFIG_SYS_LS_PPA_FW_ADDR);
+		return -EIO;
+	}
+	debug("Read PPA header to 0x%p\n", ppa_hdr_ddr);
+
+	/* flush cache after read */
+	flush_cache((ulong)ppa_hdr_ddr, fw_length);
+
+	ppa_esbc_hdr = (uintptr_t)ppa_hdr_ddr;
+#endif
+
 	fw_length = fdt_totalsize(&fit);
 
 	ppa_fit_addr = malloc(fw_length);
@@ -177,14 +234,25 @@ int ppa_init(void)
 #ifdef CONFIG_CHAIN_OF_TRUST
 	ppa_img_addr = (uintptr_t)ppa_fit_addr;
 	if (fsl_check_boot_mode_secure() != 0) {
+		/*
+		 * In case of failure in validation, fsl_secboot_validate
+		 * would not return back in case of Production environment
+		 * with ITS=1. In Development environment (ITS=0 and
+		 * SB_EN=1), the function may return back in case of
+		 * non-fatal failures.
+		 */
 		ret = fsl_secboot_validate(ppa_esbc_hdr,
-					   CONFIG_PPA_KEY_HASH,
+					   PPA_KEY_HASH,
 					   &ppa_img_addr);
 		if (ret != 0)
 			printf("PPA validation failed\n");
 		else
 			printf("PPA validation Successful\n");
 	}
+#if defined(CONFIG_SYS_LS_PPA_FW_IN_MMC) || \
+	defined(CONFIG_SYS_LS_PPA_FW_IN_NAND)
+	free(ppa_hdr_ddr);
+#endif
 #endif
 
 #ifdef CONFIG_FSL_LSCH3

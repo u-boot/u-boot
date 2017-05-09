@@ -9,7 +9,6 @@
 obj-$(CONFIG_DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
-obj-$(CONFIG_RTC_BFIN) += bfin_rtc.o
 obj-y += date.o
 obj-$(CONFIG_RTC_DAVINCI) += davinci.o
 obj-$(CONFIG_RTC_DS1302) += ds1302.o

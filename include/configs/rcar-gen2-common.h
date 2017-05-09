@@ -11,7 +11,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 
 /* Support File sytems */

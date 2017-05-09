@@ -44,9 +44,6 @@
 
 #define CONFIG_CONS_INDEX		1
 
-/* *** Command definition *** */
-#define CONFIG_CMD_BMODE
-
 /* Filesystems / image support */
 
 /* MMC */
@@ -118,7 +115,6 @@
 #endif /* CONFIG_CMD_USB      */
 
 /* RTC */
-#define CONFIG_CMD_DATE
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_DS1307
 #define CONFIG_SYS_RTC_BUS_NUM		2

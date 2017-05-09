@@ -294,11 +294,6 @@ void watchdog_reset (void)
 #ifdef CONFIG_OF_BOARD_SETUP
 void ft_cpu_setup (void *blob, bd_t *bd)
 {
-#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
-    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
-	fdt_fixup_ethernet(blob);
-#endif
-
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
 			       "clock-frequency", bd->bi_brgfreq, 1);
 

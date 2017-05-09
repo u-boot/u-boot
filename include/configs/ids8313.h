@@ -413,7 +413,6 @@
  * U-Boot environment setup
  */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_DATE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_CMD_JFFS2
 #define CONFIG_BOOTP_SUBNETMASK

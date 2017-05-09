@@ -40,6 +40,14 @@ config PMIC_ACT8846
 	functions. It uses an I2C interface and is designed for use with
 	tablets and smartphones.
 
+config PMIC_AS3722
+	bool "Enable support for the Austria Micro Systems (AMS) AS7322 PMIC"
+	help
+	  The AS3722 includes 7 DC/DC buck convertors, 11 low-noise LDOs, a
+	  real-time clock, GPIOs, ADC and a few other features. It uses an I2C
+	  interface and is designs to cover most of the power managementment
+	  required for a tablets or laptop.
+
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
 	depends on DM_PMIC

@@ -66,7 +66,6 @@
 /*
  * Command line configuration.
  */
-#undef CONFIG_CMD_BEDBUG
 
 #ifdef CONFIG_DBAU1550
 

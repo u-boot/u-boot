@@ -95,7 +95,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_I2C_GSC			0
-#define CONFIG_I2C_PMIC			1
 #define CONFIG_I2C_EDID
 
 /* MMC Configs */
@@ -142,7 +141,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */

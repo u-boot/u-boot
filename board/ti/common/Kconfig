@@ -13,3 +13,29 @@ config EEPROM_CHIP_ADDRESS
 	hex "Board EEPROM's I2C chip address"
 	range 0 0xff
 	default 0x50
+
+config TI_COMMON_CMD_OPTIONS
+	bool "Enable cmd options on TI platforms"
+	imply CMD_ASKENV
+	imply CMD_BOOTZ
+	imply CMD_DFU if USB_GADGET_DOWNLOAD
+	imply CMD_DHCP
+	imply CMD_EXT2
+	imply CMD_EXT4
+	imply CMD_EXT4_WRITE
+	imply CMD_FASTBOOT if FASTBOOT
+	imply CMD_FAT
+	imply CMD_FS_GENERIC
+	imply CMD_GPIO
+	imply CMD_GPT
+	imply CMD_I2C
+	imply CMD_MII
+	imply CMD_MMC
+	imply CMD_PART
+	imply CMD_PING
+	imply CMD_PMIC if DM_PMIC
+	imply CMD_REGULATOR if DM_REGULATOR
+	imply CMD_SF if SPI_FLASH
+	imply CMD_SPI
+	imply CMD_TIME
+	imply CMD_USB if USB

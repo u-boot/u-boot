@@ -22,8 +22,6 @@ addons:
     - swig
     - libpython-dev
     - gcc-powerpc-linux-gnu
-    - gcc-arm-linux-gnueabihf
-    - gcc-aarch64-linux-gnu
     - iasl
     - grub-efi-ia32-bin
     - rpm2cpio
@@ -40,6 +38,9 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
+ - echo -e "aarch64 = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu" >> ~/.buildman
+ - echo -e "arm = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
  - echo -e "\n[toolchain-alias]\nsh = sh4\nopenrisc = or32" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
@@ -69,7 +70,18 @@ before_script:
       ./tools/buildman/buildman --fetch-arch x86_64;
       echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
     fi
+  - if [[ "${TOOLCHAIN}" == arc ]]; then
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
+    fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
+  # If TOOLCHAIN is unset, we're on some flavour of ARM.
+  - if [[ "${TOOLCHAIN}" == "" ]]; then
+       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/aarch64-linux-gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
+       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz &&
+       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
+       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz;
+    fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
        pushd /tmp/qemu;
@@ -112,6 +124,9 @@ matrix:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
     - env:
+        - BUILDMAN="arc"
+          TOOLCHAIN="arc"
+    - env:
         - BUILDMAN="arm11"
     - env:
         - BUILDMAN="arm7"
@@ -152,7 +167,7 @@ matrix:
     - env:
         - BUILDMAN="sun7i"
     - env:
-        - BUILDMAN="sun8i -x orangepi_pc2"
+        - BUILDMAN="sun8i"
     - env:
         - BUILDMAN="sun9i"
     - env:
@@ -221,7 +236,6 @@ matrix:
         - BUILDMAN="uniphier"
     - env:
         - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
-          TOOLCHAIN="aarch64"
     - env:
         - BUILDMAN="rockchip"
     - env:

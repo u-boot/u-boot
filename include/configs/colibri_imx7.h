@@ -25,8 +25,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-#define CONFIG_CMD_BMODE
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -218,7 +216,6 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO

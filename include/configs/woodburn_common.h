@@ -72,7 +72,6 @@
 /*
  * Command definition
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS

@@ -67,7 +67,7 @@ struct arch_global_data {
 	phys_addr_t resv_ram;
 #endif
 
-#ifdef CONFIG_ARCH_OMAP2
+#ifdef CONFIG_ARCH_OMAP2PLUS
 	u32 omap_boot_device;
 	u32 omap_boot_mode;
 	u8 omap_ch_flags;

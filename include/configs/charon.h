@@ -24,7 +24,6 @@
 
 /* defines special on charon board */
 #undef CONFIG_RTC_MPC5200
-#undef CONFIG_CMD_DATE
 
 #undef CUSTOM_ENV_SETTINGS
 #define CUSTOM_ENV_SETTINGS					\

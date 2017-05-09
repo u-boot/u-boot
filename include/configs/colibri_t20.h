@@ -39,8 +39,6 @@
 #define CONFIG_TFTP_TSIZE
 
 /* LCD support */
-#define CONFIG_SYS_WHITE_ON_BLACK
-#define CONFIG_CMD_BMP
 #define CONFIG_LCD_LOGO
 
 /* NAND support */

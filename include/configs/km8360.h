@@ -270,7 +270,6 @@
 #define CPM_POST_WORD_ADDR  CONFIG_SYS_MEMTEST_END
 #define CONFIG_TESTPIN_REG  gprt3	/* for kmcoge5ne */
 #define CONFIG_TESTPIN_MASK 0x20	/* for kmcoge5ne */
-#define CONFIG_CMD_DIAG	/* so that testpin is inquired for POST test */
 
 #else
 #define CONFIG_SYS_IBAT6L	(0)

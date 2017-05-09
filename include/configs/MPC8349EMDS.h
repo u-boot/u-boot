@@ -463,7 +463,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

@@ -14,8 +14,6 @@
 
 #include <environment/ti/dfu.h>
 
-#define CONFIG_DRA7XX
-
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_IODELAY_RECALIBRATION
 #endif

@@ -222,7 +222,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
@@ -404,7 +403,6 @@
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS		VIDEO_IO_OFFSET
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_CMD_BMP
 #endif
 
 #endif /* __CONFIG_H */

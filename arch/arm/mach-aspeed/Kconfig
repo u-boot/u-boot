@@ -11,18 +11,12 @@ config SYS_TEXT_BASE
 
 config ASPEED_AST2500
 	bool "Support Aspeed AST2500 SoC"
+	depends on DM_RESET
 	select CPU_ARM1176
 	help
 	  The Aspeed AST2500 is a ARM-based SoC with arm1176 CPU.
 	  It is used as Board Management Controller on many server boards,
 	  which is enabled by support of LPC and eSPI peripherals.
-
-config WDT_NUM
-	int "Number of Watchdog Timers"
-	default 3 if ASPEED_AST2500
-	help
-	  The number of Watchdot Timers on a SoC.
-	  AST2500 has three WDTsk earlier versions have two or fewer.
 
 source "arch/arm/mach-aspeed/ast2500/Kconfig"
 

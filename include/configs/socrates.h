@@ -286,8 +286,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_BMP
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_SDRAM

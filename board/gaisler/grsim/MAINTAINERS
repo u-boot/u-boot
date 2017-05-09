@@ -1,6 +1,0 @@
-GRSIM BOARD
-#M:	-
-S:	Maintained
-F:	board/gaisler/grsim/
-F:	include/configs/grsim.h
-F:	configs/grsim_defconfig

@@ -469,7 +469,6 @@ extern int board_pci_host_broken(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

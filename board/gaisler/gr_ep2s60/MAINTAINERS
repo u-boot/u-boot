@@ -1,6 +1,0 @@
-GR_EP2S60 BOARD
-#M:	-
-S:	Maintained
-F:	board/gaisler/gr_ep2s60/
-F:	include/configs/gr_ep2s60.h
-F:	configs/gr_ep2s60_defconfig

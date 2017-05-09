@@ -21,9 +21,6 @@
 /*
  * Supported commands
  */
-#define CONFIG_CMD_BSP
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 

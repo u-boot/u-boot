@@ -51,7 +51,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* turn on command-line edit/hist/auto */
-#define CONFIG_COMMAND_HISTORY
+#define CONFIG_CMDLINE_EDITING
 
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more

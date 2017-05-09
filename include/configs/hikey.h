@@ -107,8 +107,6 @@
 				BOOTENV
 
 /* Preserve environment on sd card */
-#define CONFIG_COMMAND_HISTORY
-
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE               "mmc"

@@ -6,7 +6,7 @@
 #
 
 ifndef CONFIG_STANDALONE_LOAD_ADDR
-ifneq ($(CONFIG_ARCH_OMAP2),)
+ifneq ($(CONFIG_ARCH_OMAP2PLUS),)
 CONFIG_STANDALONE_LOAD_ADDR = 0x80300000
 else
 CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
@@ -45,7 +45,7 @@ endif
 
 # Only test once
 ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
-archprepare: checkthumb
+archprepare: checkthumb checkgcc6
 
 checkthumb:
 	@if test "$(call cc-name)" = "gcc" -a \
@@ -55,7 +55,17 @@ checkthumb:
 		echo '*** Your board is configured for THUMB mode.'; \
 		false; \
 	fi
+else
+archprepare: checkgcc6
 endif
+
+checkgcc6:
+	@if test "$(call cc-name)" = "gcc" -a \
+			"$(call cc-version)" -lt "0600"; then \
+		echo -n '*** Your GCC is older than 6.0 and will not be '; \
+		echo 'supported starting in v2018.01.'; \
+	fi
+
 
 # Try if EABI is supported, else fall back to old API,
 # i. e. for example:

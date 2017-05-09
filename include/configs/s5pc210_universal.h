@@ -190,7 +190,6 @@ int universal_spi_read(void);
 
 /* LCD console */
 #define LCD_BPP			LCD_COLOR16
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 /*
  * LCD Settings

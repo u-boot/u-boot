@@ -18,6 +18,7 @@ config ROCKCHIP_RK3188
 	select SUPPORT_TPL
 	select SPL
 	select TPL
+	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help
 	  The Rockchip RK3188 is a ARM-based SoC with a quad-core Cortex-A9
@@ -55,6 +56,7 @@ config ROCKCHIP_RK3399
 	select SPL
 	select SPL_SEPARATE_BSS
 	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select DEBUG_UART_BOARD_INIT
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.

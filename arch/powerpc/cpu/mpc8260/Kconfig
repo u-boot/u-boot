@@ -10,6 +10,8 @@ choice
 
 config TARGET_KM82XX
 	bool "Support km82xx"
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 endchoice
 

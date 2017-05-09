@@ -172,8 +172,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-#define CONFIG_CMD_BMODE
-
 #ifndef CONFIG_SYS_DCACHE_OFF
 #endif
 
@@ -224,7 +222,6 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO

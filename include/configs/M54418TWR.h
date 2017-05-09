@@ -37,7 +37,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#undef CONFIG_CMD_DATE
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_NAND
 #define CONFIG_CMD_REGINFO

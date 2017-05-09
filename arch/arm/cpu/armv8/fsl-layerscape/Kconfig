@@ -36,6 +36,7 @@ config ARCH_LS1046A
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A008336
 	select SYS_FSL_ERRATUM_A008511
+	select SYS_FSL_ERRATUM_A008850
 	select SYS_FSL_ERRATUM_A009801
 	select SYS_FSL_ERRATUM_A009803
 	select SYS_FSL_ERRATUM_A009942
@@ -63,6 +64,8 @@ config ARCH_LS2080A
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
 	select SYS_FSL_SRDS_2
+	select FSL_TZASC_1
+	select FSL_TZASC_2
 	select SYS_FSL_ERRATUM_A008336
 	select SYS_FSL_ERRATUM_A008511
 	select SYS_FSL_ERRATUM_A008514
@@ -171,6 +174,30 @@ config SYS_LS_PPA_FW_ADDR
 	  QSPI flash, this address is a directly memory-mapped.
 	  If it is in a serial accessed flash, such as NAND and SD
 	  card, it is a byte offset.
+
+config SYS_LS_PPA_ESBC_ADDR
+	hex "hdr address of PPA firmware loading from"
+	depends on FSL_LS_PPA && CHAIN_OF_TRUST
+	default 0x600c0000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
+	default 0x40740000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
+	default 0x40480000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
+	default 0x580c40000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
+	default 0x700000 if SYS_LS_PPA_FW_IN_MMC
+	default 0x700000 if SYS_LS_PPA_FW_IN_NAND
+	help
+	  If the PPA header firmware locate at XIP flash, such as NOR or
+	  QSPI flash, this address is a directly memory-mapped.
+	  If it is in a serial accessed flash, such as NAND and SD
+	  card, it is a byte offset.
+
+config LS_PPA_ESBC_HDR_SIZE
+	hex "Length of PPA ESBC header"
+	depends on FSL_LS_PPA && CHAIN_OF_TRUST && !SYS_LS_PPA_FW_IN_XIP
+	default 0x2000
+	help
+	  Length (in bytes) of PPA ESBC header to be copied from MMC/SD or
+	  NAND to memory to validate PPA image.
+
 endmenu
 
 config SYS_FSL_ERRATUM_A010315
@@ -221,6 +248,12 @@ config SYS_FSL_SRDS_2
 	bool
 
 config SYS_HAS_SERDES
+	bool
+
+config FSL_TZASC_1
+	bool
+
+config FSL_TZASC_2
 	bool
 
 endmenu

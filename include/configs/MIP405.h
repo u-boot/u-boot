@@ -46,7 +46,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IRQ
@@ -54,7 +53,6 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_BSP
 
 /**************************************************************
  * I2C Stuff:

@@ -58,7 +58,6 @@
 /* version string, parser, etc */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_COMMAND_HISTORY
 #define CONFIG_SYS_LONGHELP
 
 #define CONFIG_CRC32_VERIFY

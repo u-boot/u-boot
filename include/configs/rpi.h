@@ -76,7 +76,6 @@
  */
 #define CONFIG_FB_ADDR			0
 #define CONFIG_VIDEO_BCM2835
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
@@ -118,7 +117,7 @@
 
 /* Shell */
 #define CONFIG_SYS_MAXARGS		16
-#define CONFIG_COMMAND_HISTORY
+#define CONFIG_CMDLINE_EDITING
 
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS

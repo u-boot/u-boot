@@ -473,6 +473,7 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 	int i;
 	size_t len;
 	char *name, **valv;
+	char *oldval;
 	char *value = NULL;
 	int valc;
 	int ret;
@@ -507,11 +508,13 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 
 		if (value)
 			value[len - 1] = ' ';
+		oldval = value;
 		value = realloc(value, len + val_len + 1);
 		if (!value) {
 			fprintf(stderr,
 				"Cannot malloc %zu bytes: %s\n",
 				len, strerror(errno));
+			free(oldval);
 			return -1;
 		}
 

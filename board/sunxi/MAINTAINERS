@@ -109,6 +109,12 @@ M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ampe_A76_defconfig
 
+BANANAPI M2 ULTRA BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Bananapi_M2_Ultra_defconfig
+F:	arch/arm/dts/sun8i-r40-bananapi-m2-ultra.dts
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
@@ -182,6 +188,11 @@ M:	Jelle de Jong <jelledejong@powercraft.nl>
 S:	Maintained
 F:	configs/Lamobo_R1_defconfig
 
+LICHEEPI-ZERO BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/LicheePi_Zero_defconfig
+
 LINKSPRITE-PCDUINO BOARD
 M:	Zoltan Herpai <wigyori@uid0.hu>
 S:	Maintained
@@ -232,6 +243,11 @@ M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_defconfig
 
+NANOPI-NEO-AIR BOARD
+M:	Jelle van der Waa <jelle@vdwaa.nl>
+S:	Maintained
+F:	configs/nanopi_neo_air_defconfig
+
 NINTENDO NES CLASSIC EDITION BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
@@ -263,6 +279,11 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Sinlinx_SinA33_defconfig
 W:	http://linux-sunxi.org/Sinlinx_SinA33
+
+SINOVOIP BPI M2 PLUS H3 BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/Sinovoip_BPI_M2_Plus_defconfig
 
 SINOVOIP BPI M3 A83T BOARD
 M:	VishnuPatekar <vishnupatekar0510@gmail.com>

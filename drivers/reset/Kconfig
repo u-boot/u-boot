@@ -51,4 +51,14 @@ config RESET_UNIPHIER
 	  Say Y if you want to control reset signals provided by System Control
 	  block, Media I/O block, Peripheral Block.
 
+config AST2500_RESET
+	bool "Reset controller driver for AST2500 SoCs"
+	depends on DM_RESET && WDT_ASPEED
+	default y if ASPEED_AST2500
+	help
+	  Support for reset controller on AST2500 SoC. This controller uses
+	  watchdog to reset different peripherals and thus only supports
+	  resets that are supported by watchdog. The main limitation though
+	  is that some reset signals, like I2C or MISC reset multiple devices.
+
 endmenu

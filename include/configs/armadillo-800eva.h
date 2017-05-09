@@ -16,7 +16,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 
 #define BOARD_LATE_INIT

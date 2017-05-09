@@ -382,16 +382,10 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
-
-#ifdef CONFIG_VIDEO
-#define CONFIG_CMD_BMP
-#endif
 
 #ifdef CONFIG_440EPX
 #endif

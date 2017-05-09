@@ -692,6 +692,5 @@ U_BOOT_DRIVER(omap3_spi) = {
 	.probe = omap3_spi_probe,
 	.ops    = &omap3_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct omap3_spi_priv),
-	.probe = omap3_spi_probe,
 };
 #endif

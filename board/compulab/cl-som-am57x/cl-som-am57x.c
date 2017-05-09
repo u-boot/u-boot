@@ -53,16 +53,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif /* CONFIG_GENERIC_MMC */
 
-#ifdef CONFIG_USB_XHCI_OMAP
-int board_usb_init(int index, enum usb_init_type init)
-{
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-		     OTG_SS_CLKCTRL_MODULEMODE_HW | OPTFCLKEN_REFCLK960M);
-
-	return 0;
-}
-#endif /* CONFIG_USB_XHCI_OMAP */
-
 int misc_init_r(void)
 {
 	cl_print_pcb_info();

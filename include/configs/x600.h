@@ -107,7 +107,6 @@
 /*
  * Command support defines
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_MTDPARTS

@@ -144,15 +144,9 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BSP
-
-#ifdef CONFIG_VIDEO
-    #define CONFIG_CMD_BMP
-#endif
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
@@ -168,10 +162,6 @@
 	defined(CONFIG_STK52XX)
     #define CONFIG_CFG_USB
     #define CONFIG_CFG_FAT
-#endif
-
-#ifdef CONFIG_POST
-    #define CONFIG_CMD_DIAG
 #endif
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */

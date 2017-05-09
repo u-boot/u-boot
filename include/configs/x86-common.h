@@ -60,14 +60,9 @@
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SUPPORT_VFAT
-
-#ifdef CONFIG_SYS_COREBOOT
-#define CONFIG_CMD_CBFS
-#endif
 
 /* x86 GPIOs are accessed through a PCI device */
 #define CONFIG_INTEL_ICH6_GPIO
@@ -75,7 +70,6 @@
 /*-----------------------------------------------------------------------
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ

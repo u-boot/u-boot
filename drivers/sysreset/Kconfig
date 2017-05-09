@@ -13,4 +13,14 @@ config SYSRESET
 	  to effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
 
+if SYSRESET
+
+config SYSRESET_PSCI
+	bool "Enable support for PSCI System Reset"
+	depends on ARM_PSCI_FW
+	help
+	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
+	  must be running on your system.
+
+endif
 endmenu

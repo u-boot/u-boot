@@ -3,6 +3,8 @@ if TARGET_COREBOOT
 config SYS_COREBOOT
 	bool
 	default y
+	imply CMD_CBFS
+	imply FS_CBFS
 
 config CBMEM_CONSOLE
 	bool

@@ -612,8 +612,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	}
 #endif
 
-	fdt_fixup_ethernet(blob);
-
 	fdt_add_enet_stashing(blob);
 
 #ifndef CONFIG_FSL_TBCLK_EXTRA_DIV

@@ -15,18 +15,14 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/speed.h>
-#ifdef CONFIG_MP
 #include <asm/arch/mp.h>
-#endif
 #include <efi_loader.h>
 #include <fm_eth.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
-#endif
 #ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr.h>
 #endif
@@ -92,7 +88,7 @@ static inline void early_mmu_setup(void)
 
 static void fix_pcie_mmu_map(void)
 {
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	unsigned int i;
 	u32 svr, ver;
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -475,13 +471,19 @@ int cpu_eth_init(bd_t *bis)
 	return error;
 }
 
+static inline int check_psci(void)
+{
+	unsigned int psci_ver;
+
+	psci_ver = sec_firmware_support_psci_version();
+	if (psci_ver == PSCI_INVALID_VER)
+		return 1;
+
+	return 0;
+}
+
 int arch_early_init_r(void)
 {
-#ifdef CONFIG_MP
-	int rv = 1;
-	u32 psci_ver = 0xffffffff;
-#endif
-
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 	u32 svr_dev_id;
 	/*
@@ -495,18 +497,13 @@ int arch_early_init_r(void)
 #if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
 	erratum_a009942_check_cpo();
 #endif
-#ifdef CONFIG_MP
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
-	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
-	/* Check the psci version to determine if the psci is supported */
-	psci_ver = sec_firmware_support_psci_version();
-#endif
-	if (psci_ver == 0xffffffff) {
-		rv = fsl_layerscape_wake_seconday_cores();
-		if (rv)
+	if (check_psci()) {
+		debug("PSCI: PSCI does not exist.\n");
+
+		/* if PSCI does not exist, boot secondary cores here */
+		if (fsl_layerscape_wake_seconday_cores())
 			printf("Did not wake secondary cores\n");
 	}
-#endif
 
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
@@ -523,7 +520,7 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
 	u32 svr_dev_id;
 #endif
@@ -541,7 +538,7 @@ int timer_init(void)
 	out_le32(cltbenr, 0xf);
 #endif
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	/*
 	 * In certain Layerscape SoCs, the clock for each core's
 	 * has an enable bit in the PMU Physical Core Time Base Enable

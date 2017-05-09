@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_defs.h>
+#include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -457,7 +458,20 @@ static int stm32_qspi_probe(struct udevice *bus)
 
 	priv->max_hz = plat->max_hz;
 
-	clock_setup(QSPI_CLOCK_CFG);
+#ifdef CONFIG_CLK
+	int ret;
+	struct clk clk;
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&clk);
+
+	if (ret) {
+		dev_err(bus, "failed to enable clock\n");
+		return ret;
+	}
+#endif
 
 	setbits_le32(&priv->regs->cr, STM32_QSPI_CR_SSHIFT);
 
