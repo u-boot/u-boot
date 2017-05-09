@@ -106,6 +106,48 @@
 				status = "disabled";
 			};
 
+			pinctrl_nb: pinctrl-nb@13800 {
+				compatible = "marvell,armada3710-nb-pinctrl",
+				"syscon", "simple-mfd";
+				reg = <0x13800 0x100>, <0x13C00 0x20>;
+				gpionb: gpionb {
+					#gpio-cells = <2>;
+					gpio-ranges = <&pinctrl_nb 0 0 36>;
+					gpio-controller;
+					interrupts =
+					<GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 155 IRQ_TYPE_LEVEL_HIGH>;
+
+				};
+			};
+
+			pinctrl_sb: pinctrl-sb@18800 {
+				compatible = "marvell,armada3710-sb-pinctrl",
+				"syscon", "simple-mfd";
+				reg = <0x18800 0x100>, <0x18C00 0x20>;
+				gpiosb: gpiosb {
+					#gpio-cells = <2>;
+					gpio-ranges = <&pinctrl_sb 0 0 29>;
+					gpio-controller;
+					interrupts =
+					<GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 159 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 156 IRQ_TYPE_LEVEL_HIGH>;
+				};
+			};
+
 			usb3: usb@58000 {
 				compatible = "marvell,armada3700-xhci",
 				"generic-xhci";
