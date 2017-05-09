@@ -378,7 +378,7 @@ static void board_backlight_brightness(int br)
 
 		/* LEDs on */
 		reg = in_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c));
-		if (!(reg & BACKLIGHT_ENABLE));
+		if (!(reg & BACKLIGHT_ENABLE))
 			out_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c),
 				 reg | BACKLIGHT_ENABLE);
 	} else {
