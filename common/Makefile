@@ -85,6 +85,7 @@ obj-$(CONFIG_SCSI) += scsi.o
 obj-$(CONFIG_UPDATE_TFTP) += update.o
 obj-$(CONFIG_DFU_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 
 endif # !CONFIG_SPL_BUILD
 
@@ -168,11 +169,9 @@ endif
 ifdef CONFIG_CMD_EEPROM_LAYOUT
 obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o
 endif
-# We always have this since drivers/ddr/fs/interactive.c needs it
-obj-$(CONFIG_CMDLINE) += cli_simple.o
 
 obj-y += cli.o
-obj-$(CONFIG_CMDLINE) += cli_readline.o
+obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-y += command.o
 obj-y += s_record.o
