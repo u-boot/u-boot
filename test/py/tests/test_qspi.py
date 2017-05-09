@@ -56,6 +56,7 @@ def qspi_pre_commands(u_boot_console):
     qspi_detected = True
 
 # Read the whole QSPI flash twice, random_size till full flash size, random till page size
+@pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_qspi_read_twice(u_boot_console):
@@ -96,6 +97,7 @@ def test_qspi_erase_block(u_boot_console):
         assert expected_erase in output
 
 # Random write till page size, random till size and full size
+@pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_qspi_write_twice(u_boot_console):
@@ -143,6 +145,7 @@ def test_qspi_erase_all(u_boot_console):
         assert expected_erase in output
 
 # Load FIT image and write boot.bin to start of qspi to be ready for qspi boot
+@pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 def test_qspi_boot_images(u_boot_console):
     qspi_pre_commands(u_boot_console)
