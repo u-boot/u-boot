@@ -253,7 +253,7 @@
 				reg = <0x580000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */
 				      <0x440440 0x4>;		/* utmi-cfg */
-				utmi-port = <UTMI_PHY_TO_USB_HOST0>;
+				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
 				status = "disabled";
 			};
 
@@ -262,7 +262,7 @@
 				reg = <0x581000 0x1000>,	/* utmi-unit */
 				      <0x440420 0x4>,		/* usb-cfg */
 				      <0x440444 0x4>;		/* utmi-cfg */
-				utmi-port = <UTMI_PHY_TO_USB_HOST1>;
+				utmi-port = <UTMI_PHY_TO_USB3_HOST1>;
 				status = "disabled";
 			};
 
@@ -273,6 +273,20 @@
 				dma-coherent;
 				status = "disabled";
 			};
+
+			cpm_nand: nand@720000 {
+				compatible = "marvell,mvebu-pxa3xx-nand";
+				reg = <0x720000 0x100>;
+				#address-cells = <1>;
+
+				clocks = <&cpm_syscon0 1 2>;
+				nand-enable-arbiter;
+				num-cs = <1>;
+				nand-ecc-strength = <4>;
+				nand-ecc-step-size = <512>;
+				status = "disabled";
+			};
+
 		};
 
 		cpm_pcie0: pcie@f2600000 {

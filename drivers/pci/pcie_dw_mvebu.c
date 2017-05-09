@@ -487,12 +487,12 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 	/* Don't register host if link is down */
 	if (!pcie_dw_mvebu_pcie_link_up(pcie->ctrl_base, LINK_SPEED_GEN_3)) {
 		printf("PCIE-%d: Link down\n", dev->seq);
-		return -ENODEV;
+	} else {
+		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
+		       pcie_dw_get_link_speed(pcie->ctrl_base),
+		       pcie_dw_get_link_width(pcie->ctrl_base),
+		       hose->first_busno);
 	}
-
-	printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
-	       pcie_dw_get_link_speed(pcie->ctrl_base),
-	       pcie_dw_get_link_width(pcie->ctrl_base), hose->first_busno);
 
 	pcie_dw_regions_setup(pcie);
 

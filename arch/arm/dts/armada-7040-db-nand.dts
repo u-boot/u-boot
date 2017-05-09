@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Marvell Technology Group Ltd.
+ * Copyright (C) 2017 Marvell Technology Group Ltd.
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPLv2 or the X11 license, at your option. Note that this dual
@@ -42,15 +42,16 @@
 
 /*
  * Device Tree file for Marvell Armada 7040 Development board platform
- * Boot device: SPI NOR, 0x32 (SW3)
+ * Boot device: NAND, 0xE (SW3)
  */
 
 #include "armada-7040.dtsi"
 
 / {
-	model = "Marvell Armada 7040 DB board";
-	compatible = "marvell,armada7040-db", "marvell,armada7040",
-		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+	model = "Marvell Armada 7040 DB board with NAND";
+	compatible = "marvell,armada7040-db-nand", "marvell,armada7040-db",
+		     "marvell,armada7040", "marvell,armada-ap806-quad",
+		     "marvell,armada-ap806";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -72,9 +73,9 @@
 	    * SDIO  [0-5]
 	    * UART0 [11,19]
 	    */
-		  /* 0 1 2 3 4 5 6 7 8 9 */
-	pin-func = < 1 1 1 1 1 1 0 0 0 0
-		     0 3 0 0 0 0 0 0 0 3 >;
+		  /* 0   1   2   3   4   5   6   7   8   9 */
+	pin-func = < 0x1 0x1 0x1 0x1 0x1 0x1 0x0 0x0 0x0 0x0
+		     0x0 0x3 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x3 >;
 };
 
 &uart0 {
@@ -95,30 +96,36 @@
 
 &cpm_pinctl {
 		/* MPP Bus:
-		 * TDM	 [0-11]
-		 * SPI   [13-16]
-		 * SATA1 [28]
-		 * UART0 [29-30]
-		 * SMI	 [32,34]
-		 * XSMI  [35-36]
-		 * I2C	 [37-38]
-		 * RGMII1[44-55]
-		 * SD	 [56-62]
+		 * AUDIO   [0-5]
+                 * GBE     [6-11]
+		 * SS_PWDN [12]
+		 * NF_RBn  [13]
+                 * GPIO    [14]
+		 * DEV_BUS [15-27]
+		 * SATA1   [28]
+		 * UART0   [29-30]
+		 * MSS_VTT_EN [31]
+		 * SMI	   [32,34]
+		 * XSMI    [35-36]
+		 * I2C	   [37-38]
+		 * RGMII1  [44-55]
+		 * SD	   [56-61]
+		 * GPIO    [62]
 		 */
-		/*   0   1   2   3   4   5   6   7   8   9 */
-	pin-func = < 4   4   4   4   4   4   4   4   4   4
-		     4   4   0   3   3   3   3   0   0   0
-		     0   0   0   0   0   0   0   0   9   0xA
-		     0xA 0   7   0   7   7   7   2   2   0
-		     0   0   0   0   1   1   1   1   1   1
-		     1   1   1   1   1   1   0xE 0xE 0xE 0xE
-		     0xE 0xE 0xE >;
+		 /*   0   1   2   3   4   5   6   7   8   9 */
+	 pin-func = < 0x2 0x2 0x2 0x2 0x2 0x2 0x3 0x3 0x3 0x3
+		      0x3 0x3 0x0 0x2 0x0 0x1 0x1 0x1 0x1 0x1
+		      0x1 0x1 0x1 0x1 0x1 0x1 0x1 0x1 0x9 0xa
+		      0xa 0x0 0x7 0x0 0x7 0x7 0x7 0x2 0x2 0x0
+		      0x0 0x0 0x0 0x0 0x1 0x1 0x1 0x1 0x1 0x1
+		      0x1 0x1 0x1 0x1 0x1 0x1 0xe 0xe 0xe 0xe
+		      0xe 0xe 0x0>;
 };
 
 &cpm_spi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&cpm_spi0_pins>;
-	status = "okay";
+	status = "disabled";
 
 	spi-flash@0 {
 		#address-cells = <0x1>;
@@ -159,8 +166,8 @@
 
 &cpm_comphy {
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <PHY_TYPE_SGMII2>;
+		phy-speed = <PHY_SPEED_3_125G>;
 	};
 
 	phy1 {
@@ -189,6 +196,10 @@
 	};
 };
 
+&cpm_nand {
+	status = "okay";
+};
+
 &cpm_utmi0 {
 	status = "okay";
 };
@@ -209,29 +220,4 @@
 	bus-width = <4>;
 	no-1-8-v;
 	non-removable;
-};
-
-&cpm_mdio {
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-	};
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
-};
-
-&cpm_ethernet {
-	status = "okay";
-};
-
-&cpm_eth1 {
-	status = "okay";
-	phy = <&phy0>;
-	phy-mode = "sgmii";
-};
-
-&cpm_eth2 {
-	status = "okay";
-	phy = <&phy1>;
-	phy-mode = "rgmii-id";
 };

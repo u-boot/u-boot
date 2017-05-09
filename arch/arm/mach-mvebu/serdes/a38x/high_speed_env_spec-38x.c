@@ -13,8 +13,6 @@
 #include "high_speed_env_spec.h"
 #include "sys_env_lib.h"
 
-#define SERDES_VERION	"2.0"
-
 u8 selectors_serdes_rev1_map[LAST_SERDES_TYPE][MAX_SERDES_LANES] = {
 	/* 0  1    2    3    4    5 */
 	{0x1, 0x1, NA,  NA,  NA,  NA},		/* PEX0 */

@@ -86,6 +86,7 @@ struct comphy_map {
 	u32 speed;
 	u32 invert;
 	bool clk_src;
+	bool end_point;
 };
 
 struct chip_serdes_phy_config {
@@ -96,7 +97,7 @@ struct chip_serdes_phy_config {
 	void __iomem *hpipe3_base_addr;
 	u32 comphy_lanes_count;
 	u32 comphy_mux_bitcount;
-	u32 comphy_index;
+	u32 cp_index;
 };
 
 /* Register helper functions */
