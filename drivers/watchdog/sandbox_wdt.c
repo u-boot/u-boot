@@ -6,8 +6,8 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/state.h>
 #include <wdt.h>
+#include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,15 +46,6 @@ static int sandbox_wdt_expire_now(struct udevice *dev, ulong flags)
 	return 0;
 }
 
-static int sandbox_wdt_probe(struct udevice *dev)
-{
-	struct sandbox_state *state = state_get_current();
-
-	memset(&state->wdt, 0, sizeof(state->wdt));
-
-	return 0;
-}
-
 static const struct wdt_ops sandbox_wdt_ops = {
 	.start = sandbox_wdt_start,
 	.reset = sandbox_wdt_reset,
@@ -72,5 +63,4 @@ U_BOOT_DRIVER(wdt_sandbox) = {
 	.id = UCLASS_WDT,
 	.of_match = sandbox_wdt_ids,
 	.ops = &sandbox_wdt_ops,
-	.probe = sandbox_wdt_probe,
 };
