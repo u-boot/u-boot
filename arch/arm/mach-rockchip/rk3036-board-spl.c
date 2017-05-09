@@ -17,13 +17,13 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_BASE	0x20008000
-static struct rk3036_grf * const grf = (void *)GRF_BASE;
 
 #define DEBUG_UART_BASE	0x20068000
 
 void board_init_f(ulong dummy)
 {
 #ifdef EARLY_DEBUG
+	struct rk3036_grf * const grf = (void *)GRF_BASE;
 	/*
 	 * NOTE: sd card and debug uart use same iomux in rk3036,
 	 * so if you enable uart,
