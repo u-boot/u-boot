@@ -432,9 +432,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		else
 			strcpy(response, "FAILValue not set");
 	} else {
-		char envstr[32];
+		char *envstr;
 
-		snprintf(envstr, sizeof(envstr) - 1, "fastboot.%s", cmd);
+		envstr = malloc(strlen("fastboot.") + strlen(cmd) + 1);
+		if (!envstr) {
+			fastboot_tx_write_str("FAILmalloc error");
+			return;
+		}
+
+		sprintf(envstr, "fastboot.%s", cmd);
 		s = getenv(envstr);
 		if (s) {
 			strncat(response, s, chars_left);
@@ -442,6 +448,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			printf("WARNING: unknown variable: %s\n", cmd);
 			strcpy(response, "FAILVariable not implemented");
 		}
+
+		free(envstr);
 	}
 	fastboot_tx_write_str(response);
 }
