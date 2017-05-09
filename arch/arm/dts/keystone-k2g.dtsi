@@ -24,6 +24,9 @@
 		spi2 = &spi2;
 		spi3 = &spi3;
 		spi4 = &qspi;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
 	};
 
 	memory {
@@ -145,6 +148,35 @@
 			num-cs = <4>;
 			ti,davinci-spi-intr-line = <0>;
 			interrupts = <GIC_SPI 70 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+		i2c0: i2c@2530000 {
+			compatible = "ti,keystone-i2c";
+			reg = <0x02530000 0x400>;
+			clock-frequency = <100000>;
+			interrupts = <GIC_SPI 88 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c1: i2c@2530400 {
+			compatible = "ti,keystone-i2c";
+			reg = <0x02530400 0x400>;
+			clock-frequency = <100000>;
+			interrupts = <GIC_SPI 89 IRQ_TYPE_EDGE_RISING>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c2: i2c@2530800 {
+			compatible = "ti,keystone-i2c";
+			reg = <0x02530800 0x400>;
+			clock-frequency = <100000>;
+			interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";

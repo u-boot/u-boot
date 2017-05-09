@@ -10,9 +10,46 @@
 
 #include <common.h>
 #include <asm/omap_common.h>
+#include <dm/uclass.h>
 #include <i2c.h>
 
 #include "board_detect.h"
+
+#if defined(CONFIG_DM_I2C_COMPAT)
+/**
+ * ti_i2c_set_alen - Set chip's i2c address length
+ * @bus_addr - I2C bus number
+ * @dev_addr - I2C eeprom id
+ * @alen     - I2C address length in bytes
+ *
+ * DM_I2C by default sets the address length to be used to 1. This
+ * function allows this address length to be changed to match the
+ * eeprom used for board detection.
+ */
+int __maybe_unused ti_i2c_set_alen(int bus_addr, int dev_addr, int alen)
+{
+	struct udevice *dev;
+	struct udevice *bus;
+	int rc;
+
+	rc = uclass_get_device_by_seq(UCLASS_I2C, bus_addr, &bus);
+	if (rc)
+		return rc;
+	rc = i2c_get_chip(bus, dev_addr, 1, &dev);
+	if (rc)
+		return rc;
+	rc = i2c_set_chip_offset_len(dev, alen);
+	if (rc)
+		return rc;
+
+	return 0;
+}
+#else
+int __maybe_unused ti_i2c_set_alen(int bus_addr, int dev_addr, int alen)
+{
+	return 0;
+}
+#endif
 
 /**
  * ti_i2c_eeprom_init - Initialize an i2c bus and probe for a device
@@ -46,7 +83,17 @@ static int __maybe_unused ti_i2c_eeprom_init(int i2c_bus, int dev_addr)
 static int __maybe_unused ti_i2c_eeprom_read(int dev_addr, int offset,
 					     uchar *ep, int epsize)
 {
-	return i2c_read(dev_addr, offset, 2, ep, epsize);
+	int bus_num, rc, alen;
+
+	bus_num = i2c_get_bus_num();
+
+	alen = 2;
+
+	rc = ti_i2c_set_alen(bus_num, dev_addr, alen);
+	if (rc)
+		return rc;
+
+	return i2c_read(dev_addr, offset, alen, ep, epsize);
 }
 
 /**
@@ -88,6 +135,11 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	 * Read the header first then only read the other contents.
 	 */
 	byte = 2;
+
+	rc = ti_i2c_set_alen(bus_addr, dev_addr, byte);
+	if (rc)
+		return rc;
+
 	rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
 	if (rc)
 		return rc;
@@ -100,9 +152,14 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 		 * 1 byte address (some legacy boards need this..)
 		 */
 		byte = 1;
-		if (rc)
+		if (rc) {
+			rc = ti_i2c_set_alen(bus_addr, dev_addr, byte);
+			if (rc)
+				return rc;
+
 			rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read,
 				      4);
+		}
 		if (rc)
 			return rc;
 	}
