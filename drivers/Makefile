@@ -76,6 +76,7 @@ obj-y += firmware/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += hwmon/
 obj-y += misc/
+obj-$(CONFIG_MMC) += mmc/
 obj-y += pcmcia/
 obj-y += dfu/
 obj-$(CONFIG_X86) += pch/

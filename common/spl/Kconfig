@@ -729,7 +729,7 @@ config TPL_MPC8XXX_INIT_DDR_SUPPORT
 
 config TPL_MMC_SUPPORT
 	bool "Support MMC"
-	depends on TPL
+	depends on TPL && MMC
 	help
 	  Enable support for MMC within TPL. See SPL_MMC_SUPPORT for details.
 
