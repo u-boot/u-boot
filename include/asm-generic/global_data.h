@@ -83,8 +83,8 @@ typedef struct global_data {
 #ifdef CONFIG_SYS_I2C_MXC
 	void *srdata[10];
 #endif
-	unsigned long timebase_h;
-	unsigned long timebase_l;
+	unsigned int timebase_h;
+	unsigned int timebase_l;
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	unsigned long malloc_base;	/* base address of early malloc() */
 	unsigned long malloc_limit;	/* limit address */
