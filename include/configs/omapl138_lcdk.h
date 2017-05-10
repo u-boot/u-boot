@@ -227,7 +227,6 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	7
 #define CONFIG_MII
 #undef	CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOOTP_DEFAULT
