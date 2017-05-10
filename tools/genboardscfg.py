@@ -294,6 +294,8 @@ class MaintainersDatabase:
         tmp = self.database[target][0]
         if tmp.startswith('Maintained'):
             return 'Active'
+        elif tmp.startswith('Supported'):
+            return 'Active'
         elif tmp.startswith('Orphan'):
             return 'Orphan'
         else:
