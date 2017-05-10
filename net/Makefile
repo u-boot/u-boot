@@ -25,3 +25,8 @@ obj-$(CONFIG_CMD_PING) += ping.o
 obj-$(CONFIG_CMD_RARP) += rarp.o
 obj-$(CONFIG_CMD_SNTP) += sntp.o
 obj-$(CONFIG_CMD_NET)  += tftp.o
+
+# Disable this warning as it is triggered by:
+# sprintf(buf, index ? "foo%d" : "foo", index)
+# and this is intentional usage.
+CFLAGS_eth_common.o += -Wno-format-extra-args
