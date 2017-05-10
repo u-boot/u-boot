@@ -1,0 +1,88 @@
+menu "Broadcom MIPS platforms"
+	depends on ARCH_BMIPS
+
+config SYS_SOC
+	default "bcm6328" if SOC_BMIPS_BCM6328
+	default "bcm6358" if SOC_BMIPS_BCM6358
+	default "bcm63268" if SOC_BMIPS_BCM63268
+
+choice
+	prompt "Broadcom MIPS SoC select"
+
+config SOC_BMIPS_BCM6328
+	bool "BMIPS BCM6328 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6328 family including BCM63281 and BCM63283.
+
+config SOC_BMIPS_BCM6358
+	bool "BMIPS BCM6358 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6358 family including BCM6358 and BCM6359.
+
+config SOC_BMIPS_BCM63268
+	bool "BMIPS BCM63268 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM63268 family including BCM63168, BCM63169,
+	  BCM63268 and BCM63269.
+
+endchoice
+
+choice
+	prompt "Board select"
+
+config BOARD_COMTREND_AR5387UN
+	bool "Comtrend AR-5387un"
+	depends on SOC_BMIPS_BCM6328
+	select BMIPS_SUPPORTS_BOOT_RAM
+
+config BOARD_COMTREND_VR3032U
+	bool "Comtrend VR-3032u board"
+	depends on SOC_BMIPS_BCM63268
+	select BMIPS_SUPPORTS_BOOT_RAM
+
+config BOARD_HUAWEI_HG556A
+	bool "Huawei EchoLife HG556a"
+	depends on SOC_BMIPS_BCM6358
+	select BMIPS_SUPPORTS_BOOT_RAM
+
+endchoice
+
+choice
+	prompt "Boot mode"
+
+config BMIPS_BOOT_RAM
+	bool "RAM boot"
+	depends on BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  This builds an image that is linked to a RAM address. It can be used
+	  for booting from CFE via TFTP using an ELF image, but it can also be
+	  booted from RAM by other bootloaders using a BIN image.
+
+endchoice
+
+config BMIPS_SUPPORTS_BOOT_RAM
+	bool
+
+source "board/comtrend/ar5387un/Kconfig"
+source "board/comtrend/vr3032u/Kconfig"
+source "board/huawei/hg556a/Kconfig"
+
+endmenu

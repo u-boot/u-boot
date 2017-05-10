@@ -7,3 +7,4 @@
 obj-$(CONFIG_RAM) += ram-uclass.o
 obj-$(CONFIG_SANDBOX) += sandbox_ram.o
 obj-$(CONFIG_STM32_SDRAM) += stm32_sdram.o
+obj-$(CONFIG_ARCH_BMIPS) += bmips_ram.o

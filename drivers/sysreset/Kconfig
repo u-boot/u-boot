@@ -23,4 +23,12 @@ config SYSRESET_PSCI
 	  must be running on your system.
 
 endif
+
+config SYSRESET_SYSCON
+	bool "Enable support for mfd syscon reboot driver"
+	select REGMAP
+	select SYSCON
+	help
+	  Reboot support for generic SYSCON mapped register reset.
+
 endmenu

@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "brcm,bcm6328.dtsi"
+
+/ {
+	model = "Comtrend AR-5387un";
+	compatible = "comtrend,ar5387-un", "brcm,bcm6328";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&leds {
+	status = "okay";
+
+	led@1 {
+		reg = <1>;
+		label = "AR-5387un:red:inet";
+	};
+
+	led@4 {
+		reg = <4>;
+		label = "AR-5387un:red:power";
+	};
+
+	led@7 {
+		reg = <7>;
+		label = "AR-5387un:green:inet";
+	};
+
+	led@8 {
+		reg = <8>;
+		label = "AR-5387un:green:power";
+	};
+
+	led@11 {
+		reg = <11>;
+		active-low;
+		label = "AR-5387un:green:dsl";
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

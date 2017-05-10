@@ -145,6 +145,14 @@ config DEBUG_UART_ATMEL
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
+config DEBUG_UART_BCM6345
+	bool "BCM6345 UART"
+	depends on BCM6345_SERIAL
+	help
+	  Select this to enable a debug UART on BCM6345 SoCs. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -349,6 +357,12 @@ config ATMEL_USART
 	  Select this to enable USART support for Atmel SoCs. It can be
 	  configured in the device tree, and input clock frequency can
 	  be got from the clk node.
+
+config BCM6345_SERIAL
+	bool "Support for BCM6345 UART"
+	depends on DM_SERIAL && ARCH_BMIPS
+	help
+	  Select this to enable UART on BCM6345 SoCs.
 
 config FSL_LPUART
 	bool "Freescale LPUART support"

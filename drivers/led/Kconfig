@@ -9,6 +9,25 @@ config LED
 	  can provide access to board-specific LEDs. Use of the device tree
 	  for configuration is encouraged.
 
+config LED_BCM6328
+	bool "LED Support for BCM6328"
+	depends on LED && ARCH_BMIPS
+	help
+	  This option enables support for LEDs connected to the BCM6328
+	  LED HW controller accessed via MMIO registers.
+	  HW blinking is supported and up to 24 LEDs can be controlled.
+	  All LEDs can blink at the same time but the delay is shared, which
+	  means that if one LED is set to blink at 100ms and then a different
+	  LED is set to blink at 200ms, both will blink at 200ms.
+
+config LED_BCM6358
+	bool "LED Support for BCM6358"
+	depends on LED && ARCH_BMIPS
+	help
+	  This option enables support for LEDs connected to the BCM6358
+	  LED HW controller accessed via MMIO registers.
+	  HW has no blinking capabilities and up to 32 LEDs can be controlled.
+
 config LED_BLINK
 	bool "Support LED blinking"
 	depends on LED

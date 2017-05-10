@@ -12,6 +12,7 @@
 #include <asm/mipsregs.h>
 #include <asm/reboot.h>
 
+#ifndef CONFIG_SYSRESET
 void __weak _machine_restart(void)
 {
 	fprintf(stderr, "*** reset failed ***\n");
@@ -26,6 +27,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 0;
 }
+#endif
 
 void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
 {

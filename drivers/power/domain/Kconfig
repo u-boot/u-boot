@@ -9,6 +9,13 @@ config POWER_DOMAIN
 	  domains). This may be used to save power. This API provides the
 	  means to control such power management hardware.
 
+config BCM6328_POWER_DOMAIN
+	bool "Enable the BCM6328 power domain driver"
+	depends on POWER_DOMAIN && ARCH_BMIPS
+	help
+	  Enable support for manipulating BCM6345 power domains via MMIO
+	  mapped registers.
+
 config SANDBOX_POWER_DOMAIN
 	bool "Enable the sandbox power domain test driver"
 	depends on POWER_DOMAIN && SANDBOX

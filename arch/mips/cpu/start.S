@@ -151,8 +151,13 @@ reset:
 	 mfc0	t0, CP0_GLOBALNUMBER
 #endif
 
+#ifdef CONFIG_ARCH_BMIPS
+1:	mfc0	t0, CP0_DIAGNOSTIC, 3
+	and	t0, t0, (1 << 31)
+#else
 1:	mfc0	t0, CP0_EBASE
 	and	t0, t0, EBASE_CPUNUM
+#endif
 
 	/* Hang if this isn't the first CPU in the system */
 2:	beqz	t0, 4f
@@ -237,6 +242,13 @@ wr_done:
 #ifdef CONFIG_MIPS_INIT_STACK_IN_SRAM
 	/* Set up initial stack and global data */
 	setup_stack_gd
+
+# ifdef CONFIG_DEBUG_UART
+	/* Earliest point to set up debug uart */
+	PTR_LA	t9, debug_uart_init
+	jalr	t9
+	 nop
+# endif
 #endif
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
@@ -263,6 +275,13 @@ wr_done:
 #ifndef CONFIG_MIPS_INIT_STACK_IN_SRAM
 	/* Set up initial stack and global data */
 	setup_stack_gd
+
+# ifdef CONFIG_DEBUG_UART
+	/* Earliest point to set up debug uart */
+	PTR_LA	t9, debug_uart_init
+	jalr	t9
+	 nop
+# endif
 #endif
 
 	move	a0, zero		# a0 <-- boot_flags = 0
