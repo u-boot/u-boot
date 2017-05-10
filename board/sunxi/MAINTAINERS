@@ -237,6 +237,11 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+NANOPI-M1 BOARD
+M:	Mylène Josserand <mylene.josserand@free-electrons.com>
+S:	Maintained
+F:	configs/nanopi_m1_defconfig
+
 NANOPI-NEO BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
