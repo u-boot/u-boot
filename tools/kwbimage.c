@@ -1476,47 +1476,6 @@ static int image_get_version(void)
 	return e->version;
 }
 
-static int image_version_file(const char *input)
-{
-	FILE *fcfg;
-	int version;
-	int ret;
-
-	fcfg = fopen(input, "r");
-	if (!fcfg) {
-		fprintf(stderr, "Could not open input file %s\n", input);
-		return -1;
-	}
-
-	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
-			   sizeof(struct image_cfg_element));
-	if (!image_cfg) {
-		fprintf(stderr, "Cannot allocate memory\n");
-		fclose(fcfg);
-		return -1;
-	}
-
-	memset(image_cfg, 0,
-	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
-	rewind(fcfg);
-
-	ret = image_create_config_parse(fcfg);
-	fclose(fcfg);
-	if (ret) {
-		free(image_cfg);
-		return -1;
-	}
-
-	version = image_get_version();
-	/* Fallback to version 0 is no version is provided in the cfg file */
-	if (version == -1)
-		version = 0;
-
-	free(image_cfg);
-
-	return version;
-}
-
 static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 				struct image_tool_params *params)
 {
@@ -1657,17 +1616,61 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 static int kwbimage_generate(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
+	FILE *fcfg;
 	int alloc_len;
+	int version;
 	void *hdr;
-	int version = 0;
+	int ret;
 
-	version = image_version_file(params->imagename);
-	if (version == 0) {
+	fcfg = fopen(params->imagename, "r");
+	if (!fcfg) {
+		fprintf(stderr, "Could not open input file %s\n",
+			params->imagename);
+		exit(EXIT_FAILURE);
+	}
+
+	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
+			   sizeof(struct image_cfg_element));
+	if (!image_cfg) {
+		fprintf(stderr, "Cannot allocate memory\n");
+		fclose(fcfg);
+		exit(EXIT_FAILURE);
+	}
+
+	memset(image_cfg, 0,
+	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
+	rewind(fcfg);
+
+	ret = image_create_config_parse(fcfg);
+	fclose(fcfg);
+	if (ret) {
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
+
+	version = image_get_version();
+	switch (version) {
+		/*
+		 * Fallback to version 0 if no version is provided in the
+		 * cfg file
+		 */
+	case -1:
+	case 0:
 		alloc_len = sizeof(struct main_hdr_v0) +
 			sizeof(struct ext_hdr_v0);
-	} else {
+		break;
+
+	case 1:
 		alloc_len = image_headersz_v1(NULL);
+		break;
+
+	default:
+		fprintf(stderr, "Unsupported version %d\n", version);
+		free(image_cfg);
+		exit(EXIT_FAILURE);
 	}
+
+	free(image_cfg);
 
 	hdr = malloc(alloc_len);
 	if (!hdr) {
