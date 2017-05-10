@@ -46,7 +46,8 @@ int do_io_iod(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 int do_io_iow(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	ulong addr, size, val;
+	ulong addr, val;
+	int size;
 
 	if (argc != 3)
 		return CMD_RET_USAGE;
