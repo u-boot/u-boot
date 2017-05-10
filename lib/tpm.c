@@ -230,10 +230,9 @@ static uint32_t tpm_sendrecv_command(const void *command,
 		void *response, size_t *size_ptr)
 {
 	struct udevice *dev;
-	int ret;
+	int err, ret;
 	uint8_t response_buffer[COMMAND_BUFFER_SIZE];
 	size_t response_length;
-	uint32_t err;
 
 	if (response) {
 		response_length = *size_ptr;
