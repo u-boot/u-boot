@@ -1033,6 +1033,8 @@
 				interrupts = <0 65 4>, <0 69 4>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
+				snps,enable_guctl1_resume_quirk;
+				snps,enable_guctl1_ipd_quirk;
 				/* dma-coherent; */
 			};
 		};
@@ -1059,6 +1061,8 @@
 				interrupts = <0 70 4>, <0 74 4>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
+				snps,enable_guctl1_resume_quirk;
+				snps,enable_guctl1_ipd_quirk;
 				/* dma-coherent; */
 			};
 		};
