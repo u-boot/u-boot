@@ -246,6 +246,11 @@
 		"nand write $loadaddr 0 0x00020000 && " \
 		"tftpboot $third_image && " \
 		"nand write $loadaddr 0x00020000 0x000e0000\0" \
+	"usbupdate=usb start &&" \
+		"tftpboot $second_image && " \
+		"usb write $loadaddr 0 100 && " \
+		"tftpboot $third_image && " \
+		"usb write $loadaddr 100 700\0" \
 	BOOT_IMAGES \
 	LINUXBOOT_ENV_SETTINGS
 
