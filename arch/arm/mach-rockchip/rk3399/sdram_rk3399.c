@@ -1280,6 +1280,8 @@ static int rk3399_dmc_probe(struct udevice *dev)
 
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	debug("%s: pmugrf=%p\n", __func__, priv->pmugrf);
+	priv->info.base = 0;
+	priv->info.size = sdram_size_mb(priv) << 20;
 #endif
 	return 0;
 }
@@ -1288,9 +1290,7 @@ static int rk3399_dmc_get_info(struct udevice *dev, struct ram_info *info)
 {
 	struct dram_info *priv = dev_get_priv(dev);
 
-	info = &priv->info;
-	priv->info.base = 0;
-	priv->info.size = sdram_size_mb(priv) << 20;
+	*info = priv->info;
 
 	return 0;
 }
@@ -1314,8 +1314,8 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.ofdata_to_platdata = rk3399_dmc_ofdata_to_platdata,
 #endif
 	.probe = rk3399_dmc_probe,
-#ifdef CONFIG_SPL_BUILD
 	.priv_auto_alloc_size = sizeof(struct dram_info),
+#ifdef CONFIG_SPL_BUILD
 	.platdata_auto_alloc_size = sizeof(struct rockchip_dmc_plat),
 #endif
 };

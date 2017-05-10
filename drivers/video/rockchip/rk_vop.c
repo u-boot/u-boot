@@ -117,6 +117,10 @@ void rkvop_mode_set(struct rk3288_vop *regs,
 		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
 				V_RGB_OUT_EN(1));
 		break;
+	case VOP_MODE_MIPI:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_MIPI_OUT_EN(1));
+		 break;
 	}
 
 	if (mode == VOP_MODE_HDMI || mode == VOP_MODE_EDP)
@@ -177,13 +181,11 @@ void rkvop_mode_set(struct rk3288_vop *regs,
  *
  * @dev:	VOP device that we want to connect to the display
  * @fbbase:	Frame buffer address
- * @l2bpp	Log2 of bits-per-pixels for the display
  * @ep_node:	Device tree node to process - this is the offset of an endpoint
  *		node within the VOP's 'port' list.
  * @return 0 if OK, -ve if something went wrong
  */
-int rk_display_init(struct udevice *dev, ulong fbbase,
-		    enum video_log2_bpp l2bpp, int ep_node)
+int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -195,6 +197,7 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 	int ret, remote, i, offset;
 	struct display_plat *disp_uc_plat;
 	struct clk clk;
+	enum video_log2_bpp l2bpp;
 
 	vop_id = fdtdec_get_int(blob, ep_node, "reg", -1);
 	debug("vop_id=%d\n", vop_id);
@@ -244,11 +247,24 @@ int rk_display_init(struct udevice *dev, ulong fbbase,
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (!ret)
 		ret = clk_set_rate(&clk, timing.pixelclock.typ);
-	if (ret) {
+	if (IS_ERR_VALUE(ret)) {
 		debug("%s: Failed to set pixel clock: ret=%d\n", __func__, ret);
 		return ret;
 	}
 
+	/* Set bitwidth for vop display according to vop mode */
+	switch (vop_id) {
+	case VOP_MODE_EDP:
+	case VOP_MODE_HDMI:
+	case VOP_MODE_LVDS:
+		l2bpp = VIDEO_BPP16;
+		break;
+	case VOP_MODE_MIPI:
+		l2bpp = VIDEO_BPP32;
+		break;
+	default:
+		l2bpp = VIDEO_BPP16;
+	}
 	rkvop_mode_set(regs, &timing, vop_id);
 
 	rkvop_enable(regs, fbbase, 1 << l2bpp, &timing);
@@ -326,7 +342,7 @@ static int rk_vop_probe(struct udevice *dev)
 	for (node = fdt_first_subnode(blob, port);
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
-		ret = rk_display_init(dev, plat->base, VIDEO_BPP16, node);
+		ret = rk_display_init(dev, plat->base, node);
 		if (ret)
 			debug("Device failed: ret=%d\n", ret);
 		if (!ret)
@@ -341,7 +357,7 @@ static int rk_vop_bind(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 
-	plat->size = 1920 * 1080 * 2;
+	plat->size = 1920 * 1200 * 4;
 
 	return 0;
 }
@@ -350,6 +366,8 @@ static const struct video_ops rk_vop_ops = {
 };
 
 static const struct udevice_id rk_vop_ids[] = {
+	{ .compatible = "rockchip,rk3399-vop-big" },
+	{ .compatible = "rockchip,rk3399-vop-lit" },
 	{ .compatible = "rockchip,rk3288-vop" },
 	{ }
 };

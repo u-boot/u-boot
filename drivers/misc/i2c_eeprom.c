@@ -10,21 +10,41 @@
 #include <i2c.h>
 #include <i2c_eeprom.h>
 
-static int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf,
-			   int size)
+int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size)
+{
+	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
+
+	if (!ops->read)
+		return -ENOSYS;
+
+	return ops->read(dev, offset, buf, size);
+}
+
+int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size)
+{
+	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
+
+	if (!ops->write)
+		return -ENOSYS;
+
+	return ops->write(dev, offset, buf, size);
+}
+
+static int i2c_eeprom_std_read(struct udevice *dev, int offset, uint8_t *buf,
+			       int size)
 {
 	return dm_i2c_read(dev, offset, buf, size);
 }
 
-static int i2c_eeprom_write(struct udevice *dev, int offset,
-			    const uint8_t *buf, int size)
+static int i2c_eeprom_std_write(struct udevice *dev, int offset,
+				const uint8_t *buf, int size)
 {
 	return -ENODEV;
 }
 
 struct i2c_eeprom_ops i2c_eeprom_std_ops = {
-	.read	= i2c_eeprom_read,
-	.write	= i2c_eeprom_write,
+	.read	= i2c_eeprom_std_read,
+	.write	= i2c_eeprom_std_write,
 };
 
 static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)

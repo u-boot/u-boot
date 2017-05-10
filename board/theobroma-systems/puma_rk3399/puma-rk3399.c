@@ -5,10 +5,18 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <misc.h>
+#include <ram.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
+#include <u-boot/sha256.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#define RK3399_CPUID_OFF  0x7
+#define RK3399_CPUID_LEN  0x10
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -57,7 +65,23 @@ out:
 
 int dram_init(void)
 {
-	gd->ram_size = 0x80000000;
+	struct ram_info ram;
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		debug("DRAM init failed: %d\n", ret);
+		return ret;
+	}
+	ret = ram_get_info(dev, &ram);
+	if (ret) {
+		debug("Cannot get DRAM size: %d\n", ret);
+		return ret;
+	}
+	debug("SDRAM base=%llx, size=%x\n", ram.base, (unsigned int)ram.size);
+	gd->ram_size = ram.size;
+
 	return 0;
 }
 

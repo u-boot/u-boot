@@ -39,8 +39,8 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	debug("size %x\n", size);
 	if (ret) {
 		/* TODO(sjg@chromium.org): This method should return an error */
-		printf("Warning: SPL image is too large (size %#x) and will not boot\n",
-		       size);
+		printf("Warning: SPL image is too large (size %#x) and will "
+		       "not boot\n", size);
 	}
 
 	/*
@@ -71,23 +71,36 @@ static int rkspi_check_image_type(uint8_t type)
 		return EXIT_FAILURE;
 }
 
-/* We pad the file out to a fixed size - this method returns that size */
+/*
+ * The SPI payload needs to be padded out to make space for odd half-sector
+ * layout used in flash (i.e. only the first 2K of each 4K sector is used).
+ */
 static int rkspi_vrec_header(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
-	int pad_size;
+	int padding = rkcommon_vrec_header(params, tparams, 2048);
+	/*
+	 * The file size has not been adjusted at this point (our caller will
+	 * eventually add the header/padding to the file_size), so we need to
+	 * add up the header_size, file_size and padding ourselves.
+	 */
+	int padded_size = tparams->header_size + params->file_size + padding;
 
-	rkcommon_vrec_header(params, tparams);
+	/*
+	 * We need to store the original file-size (i.e. before padding), as
+	 * imagetool does not set this during its adjustment of file_size.
+	 */
+	params->orig_file_size = padded_size;
 
-	pad_size = (rkcommon_get_spl_size(params) + 0x7ff) / 0x800 * 0x800;
-	params->orig_file_size = pad_size;
-
-	/* We will double the image size due to the SPI format */
-	pad_size *= 2;
-	pad_size += RK_SPL_HDR_START;
-	debug("pad_size %x\n", pad_size);
-
-	return pad_size - params->file_size - tparams->header_size;
+	/*
+	 * Converting to the SPI format (i.e. splitting each 4K page into two
+	 * 2K subpages and then padding these 2K pages up to take a complete
+	 * 4K sector again) will will double the image size.
+	 *
+	 * Thus we return the padded_size as an additional padding requirement
+	 * (be sure to add this to the padding returned from the common code).
+	 */
+	return padded_size + padding;
 }
 
 /*

@@ -21,7 +21,21 @@ DECLARE_GLOBAL_DATA_PTR;
 struct rk_pwm_priv {
 	struct rk3288_pwm *regs;
 	ulong freq;
+	uint enable_conf;
 };
+
+static int rk_pwm_set_invert(struct udevice *dev, uint channel, bool polarity)
+{
+	struct rk_pwm_priv *priv = dev_get_priv(dev);
+
+	debug("%s: polarity=%u\n", __func__, polarity);
+	if (polarity)
+		priv->enable_conf |= PWM_DUTY_NEGATIVE | PWM_INACTIVE_POSTIVE;
+	else
+		priv->enable_conf |= PWM_DUTY_POSTIVE | PWM_INACTIVE_NEGATIVE;
+
+	return 0;
+}
 
 static int rk_pwm_set_config(struct udevice *dev, uint channel, uint period_ns,
 			     uint duty_ns)
@@ -32,7 +46,7 @@ static int rk_pwm_set_config(struct udevice *dev, uint channel, uint period_ns,
 
 	debug("%s: period_ns=%u, duty_ns=%u\n", __func__, period_ns, duty_ns);
 	writel(PWM_SEL_SRC_CLK | PWM_OUTPUT_LEFT | PWM_LP_DISABLE |
-		PWM_CONTINUOUS | PWM_DUTY_POSTIVE | PWM_INACTIVE_POSTIVE |
+		PWM_CONTINUOUS | priv->enable_conf |
 		RK_PWM_DISABLE,
 		&regs->ctrl);
 
@@ -83,6 +97,7 @@ static int rk_pwm_probe(struct udevice *dev)
 }
 
 static const struct pwm_ops rk_pwm_ops = {
+	.set_invert	= rk_pwm_set_invert,
 	.set_config	= rk_pwm_set_config,
 	.set_enable	= rk_pwm_set_enable,
 };

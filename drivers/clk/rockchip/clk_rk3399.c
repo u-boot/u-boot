@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2015 Google, Inc
+ * (C) 2017 Theobroma Systems Design und Consulting GmbH
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -207,12 +208,15 @@ enum {
 	DCLK_VOP_DIV_CON_SHIFT          = 0,
 
 	/* CLKSEL_CON58 */
-	CLK_SPI_PLL_SEL_MASK		= 1,
-	CLK_SPI_PLL_SEL_CPLL		= 0,
-	CLK_SPI_PLL_SEL_GPLL		= 1,
-	CLK_SPI_PLL_DIV_CON_MASK	= 0x7f,
-	CLK_SPI5_PLL_DIV_CON_SHIFT	= 8,
-	CLK_SPI5_PLL_SEL_SHIFT		= 15,
+	CLK_SPI_PLL_SEL_WIDTH = 1,
+	CLK_SPI_PLL_SEL_MASK = ((1 < CLK_SPI_PLL_SEL_WIDTH) - 1),
+	CLK_SPI_PLL_SEL_CPLL = 0,
+	CLK_SPI_PLL_SEL_GPLL = 1,
+	CLK_SPI_PLL_DIV_CON_WIDTH = 7,
+	CLK_SPI_PLL_DIV_CON_MASK = ((1 << CLK_SPI_PLL_DIV_CON_WIDTH) - 1),
+
+	CLK_SPI5_PLL_DIV_CON_SHIFT      = 8,
+	CLK_SPI5_PLL_SEL_SHIFT	        = 15,
 
 	/* CLKSEL_CON59 */
 	CLK_SPI1_PLL_SEL_SHIFT		= 15,
@@ -602,7 +606,96 @@ static ulong rk3399_i2c_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 		return -EINVAL;
 	}
 
-	return DIV_TO_RATE(GPLL_HZ, src_clk_div);
+	return rk3399_i2c_get_clk(cru, clk_id);
+}
+
+/*
+ * RK3399 SPI clocks have a common divider-width (7 bits) and a single bit
+ * to select either CPLL or GPLL as the clock-parent. The location within
+ * the enclosing CLKSEL_CON (i.e. div_shift and sel_shift) are variable.
+ */
+
+struct spi_clkreg {
+	uint8_t reg;  /* CLKSEL_CON[reg] register in CRU */
+	uint8_t div_shift;
+	uint8_t sel_shift;
+};
+
+/*
+ * The entries are numbered relative to their offset from SCLK_SPI0.
+ *
+ * Note that SCLK_SPI3 (which is configured via PMUCRU and requires different
+ * logic is not supported).
+ */
+static const struct spi_clkreg spi_clkregs[] = {
+	[0] = { .reg = 59,
+		.div_shift = CLK_SPI0_PLL_DIV_CON_SHIFT,
+		.sel_shift = CLK_SPI0_PLL_SEL_SHIFT, },
+	[1] = { .reg = 59,
+		.div_shift = CLK_SPI1_PLL_DIV_CON_SHIFT,
+		.sel_shift = CLK_SPI1_PLL_SEL_SHIFT, },
+	[2] = { .reg = 60,
+		.div_shift = CLK_SPI2_PLL_DIV_CON_SHIFT,
+		.sel_shift = CLK_SPI2_PLL_SEL_SHIFT, },
+	[3] = { .reg = 60,
+		.div_shift = CLK_SPI4_PLL_DIV_CON_SHIFT,
+		.sel_shift = CLK_SPI4_PLL_SEL_SHIFT, },
+	[4] = { .reg = 58,
+		.div_shift = CLK_SPI5_PLL_DIV_CON_SHIFT,
+		.sel_shift = CLK_SPI5_PLL_SEL_SHIFT, },
+};
+
+static inline u32 extract_bits(u32 val, unsigned width, unsigned shift)
+{
+	return (val >> shift) & ((1 << width) - 1);
+}
+
+static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
+{
+	const struct spi_clkreg *spiclk = NULL;
+	u32 div, val;
+
+	switch (clk_id) {
+	case SCLK_SPI0 ... SCLK_SPI5:
+		spiclk = &spi_clkregs[clk_id - SCLK_SPI0];
+		break;
+
+	default:
+		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	val = readl(&cru->clksel_con[spiclk->reg]);
+	div = extract_bits(val, CLK_SPI_PLL_DIV_CON_WIDTH, spiclk->div_shift);
+
+	return DIV_TO_RATE(GPLL_HZ, div);
+}
+
+static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
+{
+	const struct spi_clkreg *spiclk = NULL;
+	int src_clk_div;
+
+	src_clk_div = RATE_TO_DIV(GPLL_HZ, hz);
+	assert(src_clk_div < 127);
+
+	switch (clk_id) {
+	case SCLK_SPI1 ... SCLK_SPI5:
+		spiclk = &spi_clkregs[clk_id - SCLK_SPI0];
+		break;
+
+	default:
+		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	rk_clrsetreg(&cru->clksel_con[spiclk->reg],
+		     ((CLK_SPI_PLL_DIV_CON_MASK << spiclk->div_shift) |
+		       (CLK_SPI_PLL_SEL_GPLL << spiclk->sel_shift)),
+		     ((src_clk_div << spiclk->div_shift) |
+		      (CLK_SPI_PLL_SEL_GPLL << spiclk->sel_shift)));
+
+	return rk3399_spi_get_clk(cru, clk_id);
 }
 
 static ulong rk3399_vop_set_clk(struct rk3399_cru *cru, ulong clk_id, u32 hz)
@@ -654,6 +747,7 @@ static ulong rk3399_mmc_get_clk(struct rk3399_cru *cru, uint clk_id)
 	u32 div, con;
 
 	switch (clk_id) {
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		con = readl(&cru->clksel_con[16]);
 		break;
@@ -679,6 +773,7 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 	int aclk_emmc = 198*MHz;
 
 	switch (clk_id) {
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		/* Select clk_sdmmc source from GPLL by default */
 		src_clk_div = GPLL_HZ / set_rate;
@@ -768,6 +863,7 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		rate = rk3399_mmc_get_clk(priv->cru, clk->id);
@@ -780,8 +876,19 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case SCLK_I2C7:
 		rate = rk3399_i2c_get_clk(priv->cru, clk->id);
 		break;
+	case SCLK_SPI0...SCLK_SPI5:
+		rate = rk3399_spi_get_clk(priv->cru, clk->id);
+		break;
+	case SCLK_UART0:
+	case SCLK_UART2:
+		return 24000000;
+		break;
+	case PCLK_HDMI_CTRL:
+		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
+		break;
+	case PCLK_EFUSE1024NS:
 		break;
 	default:
 		return -ENOENT;
@@ -798,6 +905,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = rk3399_mmc_set_clk(priv->cru, clk->id, rate);
@@ -814,12 +922,21 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_I2C7:
 		ret = rk3399_i2c_set_clk(priv->cru, clk->id, rate);
 		break;
+	case SCLK_SPI0...SCLK_SPI5:
+		ret = rk3399_spi_set_clk(priv->cru, clk->id, rate);
+		break;
+	case PCLK_HDMI_CTRL:
+	case PCLK_VIO_GRF:
+		/* the PCLK gates for video are enabled by default */
+		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
 		ret = rk3399_vop_set_clk(priv->cru, clk->id, rate);
 		break;
 	case SCLK_DDRCLK:
 		ret = rk3399_ddr_set_clk(priv->cru, rate);
+		break;
+	case PCLK_EFUSE1024NS:
 		break;
 	default:
 		return -ENOENT;

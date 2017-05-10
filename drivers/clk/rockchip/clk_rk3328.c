@@ -397,9 +397,11 @@ static ulong rk3328_mmc_get_clk(struct rk3328_cru *cru, uint clk_id)
 
 	switch (clk_id) {
 	case HCLK_SDMMC:
+	case SCLK_SDMMC:
 		con_id = 30;
 		break;
 	case HCLK_EMMC:
+	case SCLK_EMMC:
 		con_id = 32;
 		break;
 	default:
@@ -423,9 +425,11 @@ static ulong rk3328_mmc_set_clk(struct rk3328_cru *cru,
 
 	switch (clk_id) {
 	case HCLK_SDMMC:
+	case SCLK_SDMMC:
 		con_id = 30;
 		break;
 	case HCLK_EMMC:
+	case SCLK_EMMC:
 		con_id = 32;
 		break;
 	default:
@@ -483,6 +487,8 @@ static ulong rk3328_clk_get_rate(struct clk *clk)
 		return 0;
 	case HCLK_SDMMC:
 	case HCLK_EMMC:
+	case SCLK_SDMMC:
+	case SCLK_EMMC:
 		rate = rk3328_mmc_get_clk(priv->cru, clk->id);
 		break;
 	case SCLK_I2C0:
@@ -511,6 +517,8 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 		return 0;
 	case HCLK_SDMMC:
 	case HCLK_EMMC:
+	case SCLK_SDMMC:
+	case SCLK_EMMC:
 		ret = rk3328_mmc_set_clk(priv->cru, clk->id, rate);
 		break;
 	case SCLK_I2C0:

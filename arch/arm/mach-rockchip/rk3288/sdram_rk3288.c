@@ -24,7 +24,7 @@
 #include <asm/arch/sdram.h>
 #include <linux/err.h>
 #include <power/regulator.h>
-#include <power/rk808_pmic.h>
+#include <power/rk8xx_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -981,11 +981,11 @@ static int veyron_init(struct dram_info *priv)
 		return ret;
 
 	/* Slowly raise to max CPU voltage to prevent overshoot */
-	ret = rk808_spl_configure_buck(pmic, 1, 1200000);
+	ret = rk8xx_spl_configure_buck(pmic, 1, 1200000);
 	if (ret)
 		return ret;
 	udelay(175);/* Must wait for voltage to stabilize, 2mV/us */
-	ret = rk808_spl_configure_buck(pmic, 1, 1400000);
+	ret = rk8xx_spl_configure_buck(pmic, 1, 1400000);
 	if (ret)
 		return ret;
 	udelay(100);/* Must wait for voltage to stabilize, 2mV/us */

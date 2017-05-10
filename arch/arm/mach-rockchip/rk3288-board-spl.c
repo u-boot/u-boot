@@ -164,7 +164,6 @@ void board_init_f(ulong dummy)
 	int ret;
 
 	/* Example code showing how to enable the debug UART on RK3288 */
-#ifdef EARLY_UART
 #include <asm/arch/grf_rk3288.h>
 	/* Enable early UART on the RK3288 */
 #define GRF_BASE	0xff770000
@@ -183,8 +182,7 @@ void board_init_f(ulong dummy)
 	 * printascii("string");
 	 */
 	debug_uart_init();
-#endif
-
+	debug("\nspl:debug uart enabled in %s\n", __func__);
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_early_init() failed: %d\n", ret);
@@ -205,7 +203,7 @@ void board_init_f(ulong dummy)
 		debug("Pinctrl init failed: %d\n", ret);
 		return;
 	}
-
+	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
 		debug("DRAM init failed: %d\n", ret);

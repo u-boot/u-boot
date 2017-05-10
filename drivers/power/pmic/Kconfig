@@ -28,7 +28,7 @@ config SPL_PMIC_CHILDREN
 	This allows PMICs to support child devices (such as regulators) in
 	SPL. This adds quite a bit of code so if you are not using this
 	feature you can turn it off. In this case you may need a 'back door'
-	to call your regulator code (e.g. see rk808.c for direct functions
+	to call your regulator code (e.g. see rk8xx.c for direct functions
 	for use in SPL).
 
 config PMIC_ACT8846
@@ -100,8 +100,8 @@ config PMIC_PM8916
 
 	Driver binding info: doc/device-tree-bindings/pmic/pm8916.txt
 
-config PMIC_RK808
-	bool "Enable support for Rockchip PMIC RK808"
+config PMIC_RK8XX
+	bool "Enable support for Rockchip PMIC RK8XX"
 	depends on DM_PMIC
 	---help---
 	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,

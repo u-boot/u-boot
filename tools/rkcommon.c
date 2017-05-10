@@ -13,6 +13,8 @@
 #include "mkimage.h"
 #include "rkcommon.h"
 
+#define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
+
 enum {
 	RK_SIGNATURE		= 0x0ff0aa55,
 };
@@ -71,6 +73,7 @@ static struct spl_info spl_infos[] = {
 	{ "rk3036", "RK30", 0x1000, false, false },
 	{ "rk3188", "RK31", 0x8000 - 0x800, true, false },
 	{ "rk3288", "RK32", 0x8000, false, false },
+	{ "rk3328", "RK32", 0x8000 - 0x1000, false, false },
 	{ "rk3399", "RK33", 0x20000, false, true },
 };
 
@@ -82,6 +85,9 @@ static unsigned char rc4_key[16] = {
 static struct spl_info *rkcommon_get_spl_info(char *imagename)
 {
 	int i;
+
+	if (!imagename)
+		return NULL;
 
 	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
 		if (!strncmp(imagename, spl_infos[i].imagename, 6))
@@ -95,17 +101,24 @@ int rkcommon_check_params(struct image_tool_params *params)
 	int i;
 
 	if (rkcommon_get_spl_info(params->imagename) != NULL)
-		return 0;
+		return EXIT_SUCCESS;
+
+	/*
+	 * If this is a operation (list or extract), the don't require
+	 * imagename to be set.
+	 */
+	if (params->lflag || params->iflag)
+		return EXIT_SUCCESS;
 
 	fprintf(stderr, "ERROR: imagename (%s) is not supported!\n",
-		strlen(params->imagename) > 0 ? params->imagename : "NULL");
+		params->imagename ? params->imagename : "NULL");
 
 	fprintf(stderr, "Available imagename:");
 	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
 		fprintf(stderr, "\t%s", spl_infos[i].imagename);
 	fprintf(stderr, "\n");
 
-	return -1;
+	return EXIT_FAILURE;
 }
 
 const char *rkcommon_get_spl_hdr(struct image_tool_params *params)
@@ -159,9 +172,21 @@ static void rkcommon_set_header0(void *buf, uint file_size,
 	hdr->disable_rc4 = !rkcommon_need_rc4_spl(params);
 	hdr->init_offset = RK_INIT_OFFSET;
 
-	hdr->init_size = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
-	hdr->init_size = (hdr->init_size + 3) & ~3;
-	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
+	hdr->init_size = DIV_ROUND_UP(file_size, RK_BLK_SIZE);
+	/*
+	 * The init_size has to be a multiple of 4 blocks (i.e. of 2K)
+	 * or the BootROM will not boot the image.
+	 *
+	 * Note: To verify that this is not a legacy constraint, we
+	 *       rechecked this against the RK3399 BootROM.
+	 */
+	hdr->init_size = ROUND(hdr->init_size, 4);
+	/*
+	 * The images we create do not contain the stage following the SPL as
+	 * part of the SPL image, so the init_boot_size (which might have been
+	 * read by Rockchip's miniloder) should be the same as the init_size.
+	 */
+	hdr->init_boot_size = hdr->init_size;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 }
@@ -176,7 +201,7 @@ int rkcommon_set_header(void *buf, uint file_size,
 
 	rkcommon_set_header0(buf, file_size, params);
 
-	/* Set up the SPL name and add the AArch64 'nop' padding, if needed */
+	/* Set up the SPL name */
 	memcpy(&hdr->magic, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
@@ -199,25 +224,33 @@ void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size)
 	}
 }
 
-void rkcommon_vrec_header(struct image_tool_params *params,
-			  struct image_type_params *tparams)
+int rkcommon_vrec_header(struct image_tool_params *params,
+			 struct image_type_params *tparams,
+			 unsigned int alignment)
 {
+	unsigned int  unpadded_size;
+	unsigned int  padded_size;
+
 	/*
 	 * The SPL image looks as follows:
 	 *
 	 * 0x0    header0 (see rkcommon.c)
 	 * 0x800  spl_name ('RK30', ..., 'RK33')
+	 *        (start of the payload for AArch64 payloads: we expect the
+	 *        first 4 bytes to be available for overwriting with our
+	 *        spl_name)
 	 * 0x804  first instruction to be executed
-	 *        (image start for AArch32, 'nop' for AArch64))
-	 * 0x808  second instruction to be executed
-	 *        (image start for AArch64)
+	 *        (start of the image/payload for 32bit payloads)
 	 *
-	 * For AArch64 (ARMv8) payloads, we receive an input file that
-	 * needs to start on an 8-byte boundary (natural alignment), so
-	 * we need to put a NOP at 0x804.
+	 * For AArch64 (ARMv8) payloads, natural alignment (8-bytes) is
+	 * required for its sections (so the image we receive needs to
+	 * have the first 4 bytes reserved for the spl_name).  Reserving
+	 * these 4 bytes is done using the BOOT0_HOOK infrastructure.
 	 *
-	 * Depending on this, the header is either 0x804 or 0x808 bytes
-	 * in length.
+	 * Depending on this, the header is either 0x800 (if this is a
+	 * 'boot0'-style payload, which has reserved 4 bytes at the
+	 * beginning for the 'spl_name' and expects us to overwrite
+	 * its first 4 bytes) or 0x804 bytes in length.
 	 */
 	if (rkcommon_spl_is_boot0(params))
 		tparams->header_size = RK_SPL_HDR_START;
@@ -227,4 +260,17 @@ void rkcommon_vrec_header(struct image_tool_params *params,
 	/* Allocate, clear and install the header */
 	tparams->hdr = malloc(tparams->header_size);
 	memset(tparams->hdr, 0, tparams->header_size);
+	tparams->header_size = tparams->header_size;
+
+	/*
+	 * If someone passed in 0 for the alignment, we'd better handle
+	 * it correctly...
+	 */
+	if (!alignment)
+		alignment = 1;
+
+	unpadded_size = tparams->header_size + params->file_size;
+	padded_size = ROUND(unpadded_size, alignment);
+
+	return padded_size - unpadded_size;
 }

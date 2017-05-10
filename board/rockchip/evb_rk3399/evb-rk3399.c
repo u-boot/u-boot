@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <ram.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/periph.h>
@@ -28,6 +29,13 @@ int board_init(void)
 		goto out;
 	}
 
+	/* Enable pwm0 for panel backlight */
+	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM0);
+	if (ret) {
+		debug("%s PWM0 pinctrl init fail! (ret=%d)\n", __func__, ret);
+		goto out;
+	}
+
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM2);
 	if (ret) {
 		debug("%s PWM2 pinctrl init fail!\n", __func__);
@@ -40,10 +48,9 @@ int board_init(void)
 		goto out;
 	}
 
-	/* rk3399 need init vdd_center to get correct output voltage */
-	ret = regulator_get_by_platname("vdd_center", &regulator);
+	ret = regulators_enable_boot_on(false);
 	if (ret)
-		debug("%s: Cannot get vdd_center regulator\n", __func__);
+		debug("%s: Cannot enable boot on regulator\n", __func__);
 
 	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
 	if (ret) {
@@ -63,7 +70,23 @@ out:
 
 int dram_init(void)
 {
-	gd->ram_size = 0x80000000;
+	struct ram_info ram;
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		debug("DRAM init failed: %d\n", ret);
+		return ret;
+	}
+	ret = ram_get_info(dev, &ram);
+	if (ret) {
+		debug("Cannot get DRAM size: %d\n", ret);
+		return ret;
+	}
+	debug("SDRAM base=%llx, size=%x\n", ram.base, (unsigned int)ram.size);
+	gd->ram_size = ram.size;
+
 	return 0;
 }
 

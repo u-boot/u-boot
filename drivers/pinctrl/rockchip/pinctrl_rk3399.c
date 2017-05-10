@@ -145,7 +145,19 @@ static int pinctrl_rk3399_spi_config(struct rk3399_grf_regs *grf,
 			     | GRF_SPI2TPM_CLK << GRF_GPIO2B3_SEL_SHIFT
 			     | GRF_SPI2TPM_CSN0 << GRF_GPIO2B4_SEL_SHIFT);
 		break;
+	case PERIPH_ID_SPI5:
+		if (cs != 0)
+			goto err;
+		rk_clrsetreg(&grf->gpio2c_iomux,
+			     GRF_GPIO2C4_SEL_MASK | GRF_GPIO2C5_SEL_MASK
+			     | GRF_GPIO2C6_SEL_MASK | GRF_GPIO2C7_SEL_MASK,
+			     GRF_SPI5EXPPLUS_RXD << GRF_GPIO2C4_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_TXD << GRF_GPIO2C5_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CLK << GRF_GPIO2C6_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CSN0 << GRF_GPIO2C7_SEL_SHIFT);
+		break;
 	default:
+		printf("%s: spi_id %d is not supported.\n", __func__, spi_id);
 		goto err;
 	}
 
@@ -232,6 +244,41 @@ static void pinctrl_rk3399_gmac_config(struct rk3399_grf_regs *grf, int mmc_id)
 	rk_clrsetreg(&grf->gpio3c_iomux,
 		     GRF_GPIO3C1_SEL_MASK,
 		     GRF_MAC_TXCLK << GRF_GPIO3C1_SEL_SHIFT);
+
+	/* Set drive strength for GMAC tx io, value 3 means 13mA */
+	rk_clrsetreg(&grf->gpio3_e[0],
+		     GRF_GPIO3A0_E_MASK | GRF_GPIO3A1_E_MASK |
+		     GRF_GPIO3A4_E_MASK | GRF_GPIO3A5_E0_MASK,
+		     3 << GRF_GPIO3A0_E_SHIFT |
+		     3 << GRF_GPIO3A1_E_SHIFT |
+		     3 << GRF_GPIO3A4_E_SHIFT |
+		     1 << GRF_GPIO3A5_E0_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[1],
+		     GRF_GPIO3A5_E12_MASK,
+		     1 << GRF_GPIO3A5_E12_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[2],
+		     GRF_GPIO3B4_E_MASK,
+		     3 << GRF_GPIO3B4_E_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[4],
+		     GRF_GPIO3C1_E_MASK,
+		     3 << GRF_GPIO3C1_E_SHIFT);
+}
+#endif
+
+#if !defined(CONFIG_SPL_BUILD)
+static void pinctrl_rk3399_hdmi_config(struct rk3399_grf_regs *grf, int hdmi_id)
+{
+	switch (hdmi_id) {
+	case PERIPH_ID_HDMI:
+		rk_clrsetreg(&grf->gpio4c_iomux,
+			     GRF_GPIO4C0_SEL_MASK | GRF_GPIO4C1_SEL_MASK,
+			     (GRF_HDMII2C_SCL << GRF_GPIO4C0_SEL_SHIFT) |
+			     (GRF_HDMII2C_SDA << GRF_GPIO4C1_SEL_SHIFT));
+		break;
+	default:
+		debug("%s: hdmi_id = %d unsupported\n", __func__, hdmi_id);
+		break;
+	}
 }
 #endif
 
@@ -259,6 +306,9 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SPI0:
 	case PERIPH_ID_SPI1:
 	case PERIPH_ID_SPI2:
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+	case PERIPH_ID_SPI5:
 		pinctrl_rk3399_spi_config(priv->grf, priv->pmugrf, func, flags);
 		break;
 	case PERIPH_ID_UART0:
@@ -279,6 +329,11 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case PERIPH_ID_GMAC:
 		pinctrl_rk3399_gmac_config(priv->grf, func);
+		break;
+#endif
+#if !defined(CONFIG_SPL_BUILD)
+	case PERIPH_ID_HDMI:
+		pinctrl_rk3399_hdmi_config(priv->grf, func);
 		break;
 #endif
 	default:
@@ -307,6 +362,8 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_SPI1;
 	case 52:
 		return PERIPH_ID_SPI2;
+	case 132:
+		return PERIPH_ID_SPI5;
 	case 57:
 		return PERIPH_ID_I2C0;
 	case 59: /* Note strange order */
@@ -324,6 +381,10 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case 12:
 		return PERIPH_ID_GMAC;
+#endif
+#if !defined(CONFIG_SPL_BUILD)
+	case 23:
+		return PERIPH_ID_HDMI;
 #endif
 	}
 #endif

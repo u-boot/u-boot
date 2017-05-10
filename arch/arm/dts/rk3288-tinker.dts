@@ -67,3 +67,10 @@
 &gpio8 {
 	u-boot,dm-pre-reloc;
 };
+
+&i2c2 {
+    m24c08@50 {
+        compatible = "at,24c08", "i2c-eeprom";
+        reg = <0x50>;
+    };
+};

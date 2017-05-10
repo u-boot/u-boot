@@ -44,7 +44,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 
 	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
-		debug("%s: err=%d\n", __func__, ret);
+		printf("%s: err=%d\n", __func__, ret);
 		return ret;
 	}
 
@@ -76,9 +76,25 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					  "fifo-mode");
+
+	/*
+	 * 'clock-freq-min-max' is deprecated
+	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
+	 */
 	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				 "clock-freq-min-max", priv->minmax, 2))
-		return -EINVAL;
+				 "clock-freq-min-max", priv->minmax, 2)) {
+		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+					  "max-frequency", -EINVAL);
+
+		if (val < 0)
+			return val;
+
+		priv->minmax[0] = 400000;  /* 400 kHz */
+		priv->minmax[1] = val;
+	} else {
+		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+		      __func__);
+	}
 #endif
 	return 0;
 }
@@ -109,7 +125,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 #else
-	ret = clk_get_by_index(dev, 0, &priv->clk);
+	ret = clk_get_by_name(dev, "ciu", &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif
