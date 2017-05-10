@@ -157,7 +157,7 @@ static inline void print_baudrate(void)
 #endif
 }
 
-static inline void print_std_bdinfo(const bd_t *bd)
+static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
 {
 	print_bi_boot_params(bd);
 	print_bi_mem(bd);
