@@ -31,6 +31,7 @@
 
 /* Control Module Base Address */
 #define CTRL_BASE		0x48140000
+#define CTRL_DEVICE_BASE	0x48140600
 
 /* PRCM Base Address */
 #define PRCM_BASE		0x48180000

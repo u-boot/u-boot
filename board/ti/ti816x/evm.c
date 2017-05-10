@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <spl.h>
+#include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -29,6 +30,33 @@ int board_init(void)
 	gpmc_init();
 #endif
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		printf("<ethaddr> not set. Reading from E-fuse\n");
+		/* try reading mac address from efuse */
+		mac_lo = readl(&cdev->macid0l);
+		mac_hi = readl(&cdev->macid0h);
+		mac_addr[0] = mac_hi & 0xFF;
+		mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+		mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+		mac_addr[4] = mac_lo & 0xFF;
+		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+		if (is_valid_ethaddr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		else
+			printf("Unable to read MAC address. Set <ethaddr>\n");
+	}
+
+	return davinci_emac_initialize();
 }
 
 #ifdef CONFIG_SPL_BUILD
