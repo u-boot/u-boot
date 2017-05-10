@@ -68,7 +68,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 		if (numeric != -1) {
 			offset = numeric - uc_priv->gpio_base;
 			/* Allow GPIOs to be numbered from 0 */
-			if (offset >= 0 && offset < uc_priv->gpio_count)
+			if (offset < uc_priv->gpio_count)
 				break;
 		}
 
