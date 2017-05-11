@@ -436,6 +436,33 @@ def setup_boardspec(item):
     if required_boards and ubconfig.board_type not in required_boards:
         pytest.skip('board not supported')
 
+def setup_boardidentity(item):
+    """Process any 'boardidentity' marker for a test.
+
+    Such a marker lists the set of board identity that a test does/doesn't
+    support. If tests are being executed on an unsupported board, the test is
+    marked to be skipped.
+
+    Args:
+        item: The pytest test item.
+
+    Returns:
+        Nothing.
+    """
+    mark = item.get_marker('boardidentity')
+    if not mark:
+        return
+    required_boards = []
+    for board in mark.args:
+        if board.startswith('!'):
+            if ubconfig.board_identity == board[1:]:
+                pytest.skip('board identity not supported')
+                return
+        else:
+            required_boards.append(board)
+    if required_boards and ubconfig.board_identity not in required_boards:
+        pytest.skip('board identity not supported')
+
 def setup_buildconfigspec(item):
     """Process any 'buildconfigspec' marker for a test.
 
@@ -475,6 +502,7 @@ def pytest_runtest_setup(item):
 
     start_test_section(item)
     setup_boardspec(item)
+    setup_boardidentity(item)
     setup_buildconfigspec(item)
 
 def pytest_runtest_protocol(item, nextitem):

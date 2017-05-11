@@ -5,6 +5,7 @@
 import pytest
 import time
 
+@pytest.mark.boardidentity("!qemu")
 def test_sleep(u_boot_console):
     """Test the sleep command, and validate that it sleeps for approximately
     the correct amount of time."""
