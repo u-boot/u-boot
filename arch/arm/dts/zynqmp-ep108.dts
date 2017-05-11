@@ -17,6 +17,7 @@
 	model = "ZynqMP EP108";
 
 	aliases {
+		ethernet0 = &gem0;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 		serial0 = &uart0;
