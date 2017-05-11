@@ -63,6 +63,11 @@ config BOARD_HUAWEI_HG556A
 	depends on SOC_BMIPS_BCM6358
 	select BMIPS_SUPPORTS_BOOT_RAM
 
+config BOARD_SFR_NB4_SER
+	bool "SFR NeufBox 4 (Sercomm)"
+	depends on SOC_BMIPS_BCM6358
+	select BMIPS_SUPPORTS_BOOT_RAM
+
 endchoice
 
 choice
@@ -84,5 +89,6 @@ config BMIPS_SUPPORTS_BOOT_RAM
 source "board/comtrend/ar5387un/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
 source "board/huawei/hg556a/Kconfig"
+source "board/sfr/nb4_ser/Kconfig"
 
 endmenu
