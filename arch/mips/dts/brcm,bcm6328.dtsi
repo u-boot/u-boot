@@ -120,7 +120,7 @@
 
 		memory-controller@10003000 {
 			compatible = "brcm,bcm6328-mc";
-			reg = <0x10003000 0x1000>;
+			reg = <0x10003000 0x864>;
 			u-boot,dm-pre-reloc;
 		};
 	};
