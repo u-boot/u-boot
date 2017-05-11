@@ -22,4 +22,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "omapl138_lcdk"
 
+source "board/ti/common/Kconfig"
+
 endif
