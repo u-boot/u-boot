@@ -174,8 +174,6 @@
 # define CONFIG_ETHPRIME		"FEC"
 
 # define CONFIG_MII
-# define CONFIG_PHYLIB
-# define CONFIG_PHY_SMSC
 #endif
 
 /* Framebuffer */

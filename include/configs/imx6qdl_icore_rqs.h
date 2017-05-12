@@ -127,9 +127,6 @@
 # define CONFIG_FEC_XCV_TYPE		RGMII
 
 # define CONFIG_MII
-# define CONFIG_PHYLIB
-# define CONFIG_PHY_MICREL
-# define CONFIG_PHY_MICREL_KSZ9021
 #endif
 
 /* SPL */
