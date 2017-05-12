@@ -40,7 +40,6 @@
 	"splashpos=m,m\0" \
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
-	"console=ttymxc3\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \

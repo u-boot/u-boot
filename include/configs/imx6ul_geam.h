@@ -39,7 +39,6 @@
 	"script=boot.scr\0" \
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
-	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x87800000\0" \
 	"boot_fdt=try\0" \

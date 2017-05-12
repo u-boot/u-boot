@@ -53,6 +53,11 @@ int board_late_init(void)
 		break;
 	}
 
+	if (is_mx6ul())
+		setenv("console", "ttymxc0");
+	else
+		setenv("console", "ttymxc3");
+
 	setenv_fdt_file();
 
 	return 0;
