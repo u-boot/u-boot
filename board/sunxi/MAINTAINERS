@@ -88,6 +88,11 @@ M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+A20-OLINUXINO-LIME2-EMMC BOARD
+M:	Olliver Schinagl <oliver@schinagl.nl>
+S:	Maintained
+F:	configs/A20-OLinuXino-Lime2-eMMC_defconfig
+
 A33-OLINUXINO BOARD
 M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
