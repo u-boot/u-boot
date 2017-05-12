@@ -36,7 +36,7 @@
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
 	"fdt_high=0xffffffff\0" \
-	"fdt_addr=0x18000000\0" \
+	"fdt_addr=" FDT_ADDR "\0" \
 	"boot_fdt=try\0" \
 	"mmcpart=1\0" \
 	"mmcautodetect=yes\0" \
@@ -90,6 +90,9 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
+
+#define DRAM_OFFSET(x)			0x1##x
+#define FDT_ADDR			__stringify(DRAM_OFFSET(8000000))
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

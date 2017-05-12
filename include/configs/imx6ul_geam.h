@@ -40,7 +40,7 @@
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
 	"fdt_high=0xffffffff\0" \
-	"fdt_addr=0x87800000\0" \
+	"fdt_addr=" FDT_ADDR "\0" \
 	"boot_fdt=try\0" \
 	"mmcpart=1\0" \
 	"nandroot=ubi0:rootfs rootfstype=ubifs\0" \
@@ -107,6 +107,9 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
+
+#define DRAM_OFFSET(x)			0x87##x
+#define FDT_ADDR			__stringify(DRAM_OFFSET(800000))
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
