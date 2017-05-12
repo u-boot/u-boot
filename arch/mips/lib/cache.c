@@ -7,7 +7,9 @@
 
 #include <common.h>
 #include <asm/cacheops.h>
+#ifdef CONFIG_MIPS_L2_CACHE
 #include <asm/cm.h>
+#endif
 #include <asm/mipsregs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
