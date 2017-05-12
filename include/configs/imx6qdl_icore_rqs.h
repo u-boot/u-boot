@@ -119,8 +119,6 @@
 /* MMC */
 #ifdef CONFIG_FSL_USDHC
 # define CONFIG_SYS_MMC_ENV_DEV		0
-# define CONFIG_SYS_FSL_USDHC_NUM	2
-# define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #endif
 
 /* Ethernet */
@@ -137,8 +135,11 @@
 /* SPL */
 #ifdef CONFIG_SPL
 # define CONFIG_SPL_MMC_SUPPORT
+
 # include "imx6_spl.h"
 # ifdef CONFIG_SPL_BUILD
+#  define CONFIG_SYS_FSL_USDHC_NUM	2
+#  define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #  undef CONFIG_DM_GPIO
 #  undef CONFIG_DM_MMC
 # endif
