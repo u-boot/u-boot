@@ -724,20 +724,6 @@ static const struct mmc_ops esdhc_ops = {
 	.getcd		= esdhc_getcd,
 };
 
-static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
-				 struct fsl_esdhc_priv *priv)
-{
-	if (!cfg || !priv)
-		return -EINVAL;
-
-	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
-	priv->bus_width = cfg->max_bus_width;
-	priv->sdhc_clk = cfg->sdhc_clk;
-	priv->wp_enable  = cfg->wp_enable;
-
-	return 0;
-};
-
 static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 {
 	struct fsl_esdhc *regs;
@@ -834,6 +820,21 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
+static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
+				 struct fsl_esdhc_priv *priv)
+{
+	if (!cfg || !priv)
+		return -EINVAL;
+
+	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+	priv->bus_width = cfg->max_bus_width;
+	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
+
+	return 0;
+};
+
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc_priv *priv;
@@ -872,6 +873,7 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 	cfg->sdhc_clk = gd->arch.sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);
 }
+#endif
 
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 void mmc_adapter_card_type_ident(void)
