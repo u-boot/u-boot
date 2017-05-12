@@ -7,6 +7,6 @@ config SYS_VENDOR
 	default "engicam"
 
 config SYS_CONFIG_NAME
-	default "imx6ul_geam"
+	default "imx6-engicam"
 
 endif
