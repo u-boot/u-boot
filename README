@@ -2228,8 +2228,6 @@ The following options need to be configured:
 		eg, MPC823e User's Manual p.16-473). So, set
 		CONFIG_SYS_I2C_SLAVE to 0.
 
-		CONFIG_SYS_I2C_INIT_MPC5XXX
-
 		When a board is reset during an i2c bus transfer
 		chips might think that the current transfer is still
 		in progress.  Reset the slave devices by sending start
