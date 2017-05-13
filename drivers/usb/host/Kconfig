@@ -85,8 +85,8 @@ config USB_EHCI_ATMEL
 	  Enables support for the on-chip EHCI controller on Atmel chips.
 
 config USB_EHCI_MARVELL
-	bool "Support for MVEBU (AXP / A38x) on-chip EHCI USB controller"
-	depends on ARCH_MVEBU
+	bool "Support for Marvell on-chip EHCI USB controller"
+	depends on ARCH_MVEBU || KIRKWOOD || ORION5X
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.

@@ -61,7 +61,6 @@
 #define CONFIG_TFTP_TSIZE
 
 /* USB */
-#define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 
 /* MMC */

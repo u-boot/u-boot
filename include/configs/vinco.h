@@ -66,7 +66,6 @@
 /* USB */
 
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #endif
 

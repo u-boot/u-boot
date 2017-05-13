@@ -89,7 +89,6 @@
  * USB/EHCI
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI
 #endif /* CONFIG_CMD_USB */
 

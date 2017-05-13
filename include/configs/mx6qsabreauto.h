@@ -15,7 +15,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
 /* USB Configs */
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
