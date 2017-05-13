@@ -698,6 +698,19 @@ static const struct mmc_ops sh_sdhi_ops = {
 	.init           = sh_sdhi_initialize,
 };
 
+#ifdef CONFIG_RCAR_GEN3
+static struct mmc_config sh_sdhi_cfg = {
+	.name           = DRIVER_NAME,
+	.ops            = &sh_sdhi_ops,
+	.f_min          = CLKDEV_INIT,
+	.f_max          = CLKDEV_HS_DATA,
+	.voltages       = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34,
+	.host_caps      = MMC_MODE_4BIT | MMC_MODE_8BIT | MMC_MODE_HS |
+			  MMC_MODE_HS_52MHz,
+	.part_type      = PART_TYPE_DOS,
+	.b_max          = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+#else
 static struct mmc_config sh_sdhi_cfg = {
 	.name           = DRIVER_NAME,
 	.ops            = &sh_sdhi_ops,
@@ -708,6 +721,7 @@ static struct mmc_config sh_sdhi_cfg = {
 	.part_type      = PART_TYPE_DOS,
 	.b_max          = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
+#endif
 
 int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 {
