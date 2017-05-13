@@ -2323,12 +2323,6 @@ The following options need to be configured:
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
 
-		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
-
-		This option enables configuration of bi_iic_fast[] flags
-		in u-boot bd_info structure based on u-boot environment
-		variable "i2cfast". (see also i2cfast)
-
 		CONFIG_I2C_MULTI_BUS
 
 		This option allows the use of multiple I2C buses, each of which
