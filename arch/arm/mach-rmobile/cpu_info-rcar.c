@@ -8,7 +8,10 @@
 #include <common.h>
 #include <asm/io.h>
 
-#define PRR 0xFF000044
+#define PRR			0xFF000044
+#define PRR_MASK		0x7fff
+#define R8A7796_REV_1_0		0x5200
+#define R8A7796_REV_1_1		0x5210
 
 u32 rmobile_get_cpu_type(void)
 {
@@ -17,10 +20,20 @@ u32 rmobile_get_cpu_type(void)
 
 u32 rmobile_get_cpu_rev_integer(void)
 {
-	return ((readl(PRR) & 0x000000F0) >> 4) + 1;
+	const u32 prr = readl(PRR);
+
+	if ((prr & PRR_MASK) == R8A7796_REV_1_1)
+		return 1;
+	else
+		return ((prr & 0x000000F0) >> 4) + 1;
 }
 
 u32 rmobile_get_cpu_rev_fraction(void)
 {
-	return readl(PRR) & 0x0000000F;
+	const u32 prr = readl(PRR);
+
+	if ((prr & PRR_MASK) == R8A7796_REV_1_1)
+		return 1;
+	else
+		return prr & 0x0000000F;
 }
