@@ -109,8 +109,8 @@ void reset_cpu(ulong addr)
 static const struct sh_serial_platdata serial_platdata = {
 	.base = SCIF2_BASE,
 	.type = PORT_SCIF,
-	.clk = 14745600,		/* 0xE10000 */
-	.clk_mode = EXT_CLK,
+	.clk = CONFIG_SH_SCIF_CLK_FREQ,
+	.clk_mode = INT_CLK,
 };
 
 U_BOOT_DEVICE(salvator_x_scif2) = {
