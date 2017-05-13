@@ -2323,17 +2323,6 @@ The following options need to be configured:
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
 
-		CONFIG_SYS_I2C_BOARD_LATE_INIT
-
-		An alternative to CONFIG_SYS_I2C_INIT_BOARD. If this option is
-		defined a custom i2c_board_late_init() routine in
-		boards/xxx/board.c is run AFTER the operations in i2c_init()
-		is completed. This callpoint can be used to unreset i2c bus
-		using CPU i2c controller register accesses for CPUs whose i2c
-		controller provide such a method. It is called at the end of
-		i2c_init() to allow i2c_init operations to setup the i2c bus
-		controller on the CPU (e.g. setting bus speed & slave address).
-
 		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
 
 		This option enables configuration of bi_iic_fast[] flags

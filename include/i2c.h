@@ -706,9 +706,6 @@ void i2c_early_init_f(void);
 #endif
 void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
-#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
-void i2c_board_late_init(void);
-#endif
 
 #ifdef CONFIG_SYS_I2C
 /*
