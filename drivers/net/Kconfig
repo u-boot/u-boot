@@ -225,4 +225,12 @@ config GMAC_ROCKCHIP
 	  This driver provides Rockchip SoCs network support based on the
 	  Synopsys Designware driver.
 
+config RENESAS_RAVB
+	bool "Renesas Ethernet AVB MAC"
+	depends on DM_ETH && RCAR_GEN3
+	select PHYLIB
+	help
+	  This driver implements support for the Ethernet AVB block in
+	  Renesas M3 and H3 SoCs.
+
 endif # NETDEVICES
