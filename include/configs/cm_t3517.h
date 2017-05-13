@@ -247,14 +247,7 @@
 /* Status LED */
 #define GREEN_LED_GPIO			186 /* CM-T3517 Green LED is GPIO186 */
 
-/* GPIO banks */
-#ifdef CONFIG_LED_STATUS
-#define CONFIG_OMAP3_GPIO_6	/* GPIO186 is in GPIO bank 6  */
-#endif
-
 /* Display Configuration */
-#define CONFIG_OMAP3_GPIO_2
-#define CONFIG_OMAP3_GPIO_5
 #define CONFIG_VIDEO_OMAP3
 #define LCD_BPP		LCD_COLOR16
 

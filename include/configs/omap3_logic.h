@@ -49,10 +49,6 @@
 
 /* Hardware drivers */
 
-/* GPIO banks */
-#define CONFIG_OMAP3_GPIO_4		/* GPIO 96..128 is in GPIO bank 4 */
-#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
-
 #define CONFIG_USB_OMAP3
 
 /* commands to include */

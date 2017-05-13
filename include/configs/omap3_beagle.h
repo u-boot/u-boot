@@ -66,10 +66,6 @@
 #define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 
-/* GPIO banks */
-#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
-#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
-
 /* commands to include */
 
 #define MTDIDS_DEFAULT			"nand0=nand"

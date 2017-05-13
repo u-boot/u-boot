@@ -46,11 +46,6 @@
 
 /* Hardware drivers */
 
-/* GPIO banks */
-#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63 are in GPIO bank 2 */
-
-/* LED support */
-
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)

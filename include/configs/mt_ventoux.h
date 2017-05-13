@@ -24,7 +24,6 @@
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_OMAP3_GPIO_4
 #define CONFIG_HOSTNAME mt_ventoux
 
 /*

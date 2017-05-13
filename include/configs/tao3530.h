@@ -61,13 +61,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-/* GPIO banks */
-#define CONFIG_OMAP3_GPIO_2		/* GPIO32 ..63  is in GPIO bank 2 */
-#define CONFIG_OMAP3_GPIO_3		/* GPIO64 ..95  is in GPIO bank 3 */
-#define CONFIG_OMAP3_GPIO_4		/* GPIO96 ..127 is in GPIO bank 4 */
-#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
-#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
-
 /* commands to include */
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */

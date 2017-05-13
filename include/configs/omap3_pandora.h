@@ -35,10 +35,6 @@
 /* TWL4030 LED */
 #define CONFIG_TWL4030_LED
 
-/* Initialize GPIOs by default */
-#define CONFIG_OMAP3_GPIO_4	/* GPIO96..127 is in GPIO Bank 4 */
-#define CONFIG_OMAP3_GPIO_6	/* GPIO160..191 is in GPIO Bank 6 */
-
 /*
  * NS16550 Configuration
  */
