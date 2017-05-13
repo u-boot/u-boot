@@ -12,10 +12,6 @@
 #ifndef __CONFIG_TI_OMAP4_COMMON_H
 #define __CONFIG_TI_OMAP4_COMMON_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_OMAP4430		1	/* which is in a 4430 */
 #define CONFIG_MISC_INIT_R
 
 #ifndef CONFIG_SYS_L2CACHE_OFF

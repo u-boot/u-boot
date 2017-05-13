@@ -55,7 +55,7 @@ static struct omap3_otg_regs *otg;
 #define OMAP3_OTG_SYSSTATUS_RESETDONE			0x0001
 
 /* OMAP4430 has an internal PHY, use it */
-#ifdef CONFIG_OMAP4430
+#ifdef CONFIG_OMAP44XX
 #define OMAP3_OTG_INTERFSEL_OMAP			0x0000
 #else
 #define OMAP3_OTG_INTERFSEL_OMAP			0x0001
@@ -122,7 +122,7 @@ int musb_platform_init(void)
 		musb_cfg.extvbus = omap3_evm_need_extvbus();
 #endif
 
-#ifdef CONFIG_OMAP4430
+#ifdef CONFIG_OMAP44XX
 		u32 *usbotghs_control =
 			(u32 *)((*ctrl)->control_usbotghs_ctrl);
 		*usbotghs_control = 0x15;

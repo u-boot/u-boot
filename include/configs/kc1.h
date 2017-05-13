@@ -24,11 +24,6 @@
 #define CONFIG_SYS_PL310_BASE		0x48242000
 
 /*
- * Platform
- */
-#define CONFIG_OMAP4430
-
-/*
  * Board
  */
 

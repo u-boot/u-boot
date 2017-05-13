@@ -30,7 +30,7 @@
 #define CONFIG_SOC_OMAP3430
 #endif
 
-#ifdef CONFIG_OMAP4430
+#ifdef CONFIG_OMAP44XX
 #define CONFIG_ARCH_OMAP4
 #endif
 
