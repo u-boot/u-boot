@@ -24,7 +24,6 @@
 
 /* [A] Hyper Flash */
 /* use to RPC(SPI Multi I/O Bus Controller) */
-#define CONFIG_ENV_IS_NOWHERE
 
 /* Board Clock */
 /* XTAL_CLK : 33.33MHz */
@@ -44,6 +43,15 @@
 #define CONFIG_GICV2
 #define GICD_BASE	0xF1010000
 #define GICC_BASE	0xF1020000
+
+/* SDHI */
+#define CONFIG_SH_SDHI_FREQ		200000000
+
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV		1
+#define CONFIG_SYS_MMC_ENV_PART		2
 
 /* Module stop status bits */
 /* MFIS, SCIF1 */

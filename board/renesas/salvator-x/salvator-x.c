@@ -2,7 +2,7 @@
  * board/renesas/salvator-x/salvator-x.c
  *     This file is Salvator-X board support.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2017 Renesas Electronics Corporation
  * Copyright (C) 2015 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * SPDX-License-Identifier: GPL-2.0+
@@ -22,6 +22,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
+#include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
 
@@ -48,6 +49,15 @@ void s_init(void)
 #define TMU0_MSTP125		BIT(25)	/* secure */
 #define TMU1_MSTP124		BIT(24)	/* non-secure */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
+#define SD0_MSTP314		BIT(14)
+#define SD1_MSTP313		BIT(13)
+#define SD2_MSTP312		BIT(12)	/* either MMC0 */
+#define SD3_MSTP311		BIT(11)	/* either MMC1 */
+
+#define SD0CKCR			0xE6150074
+#define SD1CKCR			0xE6150078
+#define SD2CKCR			0xE6150268
+#define SD3CKCR			0xE615026C
 
 int board_early_init_f(void)
 {
@@ -55,6 +65,15 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
 	/* SCIF2 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
+	/* eMMC */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	/* SDHI0, 3 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+
+	writel(0, SD0CKCR);
+	writel(0, SD1CKCR);
+	writel(0, SD2CKCR);
+	writel(0, SD3CKCR);
 
 	return 0;
 }
@@ -82,6 +101,74 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SH_SDHI
+int board_mmc_init(bd_t *bis)
+{
+	int ret = -ENODEV;
+
+	/* SDHI0 */
+	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD0_CLK, NULL);
+	gpio_request(GPIO_GFN_SD0_CMD, NULL);
+	gpio_request(GPIO_GFN_SD0_CD, NULL);
+	gpio_request(GPIO_GFN_SD0_WP, NULL);
+
+	gpio_request(GPIO_GP_5_2, NULL);
+	gpio_request(GPIO_GP_5_1, NULL);
+	gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
+	gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
+			   SH_SDHI_QUIRK_64BIT_BUF);
+	if (ret)
+		return ret;
+
+	/* SDHI1/SDHI2 eMMC */
+	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD2_CLK, NULL);
+	gpio_request(GPIO_GFN_SD2_CMD, NULL);
+	gpio_request(GPIO_GP_5_3, NULL);
+	gpio_request(GPIO_GP_5_9, NULL);
+	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
+	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
+			   SH_SDHI_QUIRK_64BIT_BUF);
+	if (ret)
+		return ret;
+
+	/* SDHI3 */
+	gpio_request(GPIO_GFN_SD3_DAT0, NULL);	/* GP_4_9 */
+	gpio_request(GPIO_GFN_SD3_DAT1, NULL);	/* GP_4_10 */
+	gpio_request(GPIO_GFN_SD3_DAT2, NULL);	/* GP_4_11 */
+	gpio_request(GPIO_GFN_SD3_DAT3, NULL);	/* GP_4_12 */
+	gpio_request(GPIO_GFN_SD3_CLK, NULL);	/* GP_4_7 */
+	gpio_request(GPIO_GFN_SD3_CMD, NULL);	/* GP_4_8 */
+	/* IPSR10 */
+	gpio_request(GPIO_FN_SD3_CD, NULL);
+	gpio_request(GPIO_FN_SD3_WP, NULL);
+
+	gpio_request(GPIO_GP_3_15, NULL);
+	gpio_request(GPIO_GP_3_14, NULL);
+	gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
+	gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
+			   SH_SDHI_QUIRK_64BIT_BUF);
+	return ret;
+}
+#endif
 
 int dram_init(void)
 {
