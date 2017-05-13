@@ -49,9 +49,6 @@
 
 #define CONFIG_FACTORYSET
 
-/* Watchdog */
-#define CONFIG_OMAP_WATCHDOG
-
 /* Define own nand partitions */
 #define CONFIG_ENV_OFFSET_REDUND	0x2E0000
 #define CONFIG_ENV_SIZE_REDUND		0x2000

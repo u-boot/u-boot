@@ -47,10 +47,6 @@
  */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 
-/* Enable the HW watchdog, since we can use this with bootcount */
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_OMAP_WATCHDOG
-
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and

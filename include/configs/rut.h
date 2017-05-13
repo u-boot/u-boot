@@ -110,10 +110,6 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_HW_WATCHDOG
-#endif
-
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
 #define CONFIG_SPLASH_SCREEN

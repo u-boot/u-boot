@@ -116,9 +116,6 @@
 #define CONFIG_SYS_DCACHE_OFF
 #endif
 
-/* Watchdog */
-#define CONFIG_OMAP_WATCHDOG
-
 /* Define own nand partitions */
 #define CONFIG_ENV_OFFSET_REDUND	0xB80000
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE

@@ -42,9 +42,6 @@
 
 #define CONFIG_FACTORYSET
 
-/* Watchdog */
-#define CONFIG_OMAP_WATCHDOG
-
 #ifndef CONFIG_SPL_BUILD
 
 /* Use common default */
