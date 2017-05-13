@@ -122,7 +122,7 @@ static int wait_for_bb(struct i2c *i2c_base, int waitdelay)
 	u16 stat;
 
 	writew(0xFFFF, &i2c_base->stat);	/* clear current interrupts...*/
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP34XX)
 	while ((stat = readw(&i2c_base->stat) & I2C_STAT_BB) && timeout--) {
 #else
 	/* Read RAW status */
@@ -153,7 +153,7 @@ static u16 wait_for_event(struct i2c *i2c_base, int waitdelay)
 
 	do {
 		udelay(waitdelay);
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP34XX)
 		status = readw(&i2c_base->stat);
 #else
 		/* Read RAW status */
@@ -338,7 +338,7 @@ retry:
 	/* own address */
 	writew(slaveadd, &i2c_base->oa);
 
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP34XX)
 	/*
 	 * Have to enable interrupts for OMAP2/3, these IPs don't have
 	 * an 'irqstatus_raw' register and we shall have to poll 'stat'
