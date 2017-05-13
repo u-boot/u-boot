@@ -17,7 +17,6 @@
 #include <i2c.h>
 #endif
 
-static int eeprom_diag;
 static int mac_diag;
 static int gpio_diag;
 
@@ -136,7 +135,6 @@ struct __attribute__ ((__packed__)) eeprom_layout {
 #define HW_COMP_MAINCPU 2
 
 static struct eeprom_layout eeprom_content;
-static int eeprom_was_read;	/* has_been_read */
 static int eeprom_is_valid;
 static int eeprom_version;
 
@@ -153,53 +151,7 @@ static int eeprom_version;
 
 static int read_eeprom(void)
 {
-	int eeprom_datalen;
-	int ret;
-
-	if (eeprom_was_read)
-		return 0;
-
-	eeprom_is_valid = 0;
-	ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
-			CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
-			(uchar *)&eeprom_content, sizeof(eeprom_content));
-	if (eeprom_diag) {
-		printf("DIAG: %s() read rc[%d], size[%d]\n",
-			__func__, ret, sizeof(eeprom_content));
-	}
-
-	if (ret != 0)
-		return -1;
-
-	eeprom_was_read = 1;
-
-	/*
-	 * check validity of EEPROM content
-	 * (check version, length, optionally checksum)
-	 */
-	eeprom_is_valid = 1;
-	eeprom_datalen = get_eeprom_field_int(eeprom_content.len);
-	eeprom_version = get_eeprom_field_int(eeprom_content.version);
-
-	if (eeprom_diag) {
-		printf("DIAG: %s() magic[%c%c%c] len[%d] ver[%d] type[%d]\n",
-			__func__, eeprom_content.magic[0],
-			eeprom_content.magic[1], eeprom_content.magic[2],
-			eeprom_datalen, eeprom_version, eeprom_content.type);
-	}
-	if (strncmp(eeprom_content.magic, "ifm", strlen("ifm")) != 0)
-		eeprom_is_valid = 0;
-	if (eeprom_datalen < sizeof(struct eeprom_layout) - 5)
-		eeprom_is_valid = 0;
-	if ((eeprom_version != 1) && (eeprom_version != 2))
-		eeprom_is_valid = 0;
-	if (eeprom_content.type != HW_COMP_MAINCPU)
-		eeprom_is_valid = 0;
-
-	if (eeprom_diag)
-		printf("DIAG: %s() valid[%d]\n", __func__, eeprom_is_valid);
-
-	return ret;
+	return -ENOSYS;
 }
 
 int mac_read_from_eeprom(void)
@@ -323,9 +275,6 @@ int misc_init_r(void)
 	u32 keys;
 	char *s;
 	int want_recovery;
-
-	/* we use bus I2C-0 for the on-board eeprom */
-	i2c_set_bus_num(0);
 
 	/* setup GPIO directions and initial values */
 	gpio_configure();

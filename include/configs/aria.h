@@ -340,30 +340,10 @@
 
 #endif
 
-/* I2C */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CONFIG_I2C_MULTI_BUS
-
-/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#if 0
-#define CONFIG_SYS_I2C_NOPROBES	{{0,0x69}}	/* Don't probe these addrs */
-#endif
-
 /*
  * IIM - IC Identification Module
  */
 #undef CONFIG_FSL_IIM
-
-/*
- * EEPROM configuration for Atmel AT24C32A-10TQ-2.7:
- * 16-bit addresses, 10ms write delay, 32-Byte Page Write Mode
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	5
 
 /*
  * Ethernet configuration
@@ -392,7 +372,6 @@
 #define CONFIG_LOADS_ECHO		1
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1
 
-#define CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_FUSE
 #undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2

@@ -241,25 +241,10 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 
-/* I2C */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed */
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* slave address */
-
 /*
  * IIM - IC Identification Module
  */
 #undef CONFIG_FSL_IIM
-
-/*
- * EEPROM configuration
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2	/* 16-bit EEPROM address */
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Atmel: AT24C32A-10TQ-2.7 */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10	/* 10ms of delay */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 5	/* 32-Byte Page Write Mode */
-#define CONFIG_SYS_EEPROM_WREN			/* Use EEPROM write protect */
 
 /*
  * Ethernet configuration
@@ -280,7 +265,7 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_EEPROM		/* Store env in I2C EEPROM	*/
+#define CONFIG_ENV_IS_NOWHERE		/* Store env in I2C EEPROM	*/
 #define CONFIG_ENV_SIZE		0x1000
 #define CONFIG_ENV_OFFSET       0x0000	/* environment starts here	*/
 
@@ -288,7 +273,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_FUSE
 #undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2

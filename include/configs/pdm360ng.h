@@ -302,33 +302,10 @@
 #define CONFIG_SYS_PDM360NG_COPROC_BAUDRATE	38400
 
 /*
- * I2C
- */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
-/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
-/*
  * IIM - IC Identification Module
  */
 #undef CONFIG_FSL_IIM
 
-/*
- * EEPROM configuration
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16-bit EEPROM addr */
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* ST AT24C01 */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* 10ms of delay */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4	/* 16-Byte Write Mode */
-
-/*
- * MAC addr in EEPROM
- */
-#define CONFIG_SYS_I2C_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_MAC_OFFSET	0x10
 /*
  * Enabled only to delete "ethaddr" before testing
  * "ethaddr" setting from EEPROM
@@ -343,12 +320,6 @@
 #define CONFIG_MII		1	/* MII PHY management	*/
 #define CONFIG_FEC_AN_TIMEOUT	1
 #define CONFIG_HAS_ETH0
-
-/*
- * Configure on-board RTC
- */
-#define CONFIG_RTC_M41T62			/* use M41T00 rtc via i2c */
-#define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* at address 0x68	*/
 
 /*
  * Environment
@@ -367,7 +338,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_REGINFO
 
 #undef CONFIG_CMD_FUSE

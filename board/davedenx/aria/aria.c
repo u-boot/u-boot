@@ -29,9 +29,6 @@ int misc_init_r(void)
 {
 	u32 tmp;
 
-	/* we use I2C-2 for on-board eeprom */
-	i2c_set_bus_num(2);
-
 	tmp = in_be32((u32*)CONFIG_SYS_ARIA_FPGA_BASE);
 	printf("FPGA:  %u-%u.%u.%u\n",
 		(tmp & 0xFF000000) >> 24,

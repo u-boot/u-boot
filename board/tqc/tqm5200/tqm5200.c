@@ -486,20 +486,14 @@ int board_early_init_f (void)
 
 static int tfp410_read_reg(int reg, uchar *buf)
 {
-	if (i2c_read(CONFIG_SYS_TFP410_ADDR, reg, 1, buf, 1) != 0) {
-		puts ("Error reading the chip.\n");
-		return 1;
-	}
-	return 0;
+	puts("Error reading the chip.\n");
+	return -ENOSYS;
 }
 
 static int tfp410_write_reg(int reg, uchar buf)
 {
-	if (i2c_write(CONFIG_SYS_TFP410_ADDR, reg, 1, &buf, 1) != 0) {
-		puts ("Error writing the chip.\n");
-		return 1;
-	}
-	return 0;
+	puts("Error writing the chip.\n");
+	return -ENOSYS;
 }
 
 typedef struct _tfp410_config {
@@ -525,11 +519,8 @@ static int charon_last_stage_init(void)
 {
 	volatile struct mpc5xxx_lpb *lpb =
 		(struct mpc5xxx_lpb *) MPC5XXX_LPB;
-	int	oldbus = i2c_get_bus_num();
 	uchar	buf;
 	int	i = 0;
-
-	i2c_set_bus_num(CONFIG_SYS_TFP410_BUS);
 
 	/* check version */
 	if (tfp410_read_reg(TFP410_REG_DEV_ID_H, &buf) != 0)
@@ -551,7 +542,6 @@ static int charon_last_stage_init(void)
 		i++;
 	}
 	printf("TFP410 initialized.\n");
-	i2c_set_bus_num(oldbus);
 
 	/* set deadcycle for cs3 to 0 */
 	setbits_be32(&lpb->cs_deadcycle, 0xffffcfff);

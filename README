@@ -2213,22 +2213,9 @@ The following options need to be configured:
 		- approved multibus support
 		- better i2c mux support
 
-		** Please consider updating your I2C driver now. **
+		** CONFIG_HARD_I2C is now being removed **
 
-		These enable legacy I2C serial bus commands. Defining
-		CONFIG_HARD_I2C will include the appropriate I2C driver
-		for the selected CPU.
-
-		This will allow you to use i2c commands at the u-boot
-		command line (as long as you set CONFIG_CMD_I2C in
-		CONFIG_COMMANDS) and communicate with i2c based realtime
-		clock chips. See common/cmd_i2c.c for a description of the
-		command line interface.
-
-		CONFIG_HARD_I2C selects a hardware I2C controller.
-
-		There are several other quantities that must also be
-		defined when you define CONFIG_HARD_I2C.
+----under removal:
 
 		In both cases you will need to define CONFIG_SYS_I2C_SPEED
 		to be the frequency (in Hz) at which you wish your i2c bus

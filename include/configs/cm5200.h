@@ -44,7 +44,7 @@
 /*
  * POST support
  */
-#define CONFIG_POST		(CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_CPU | CONFIG_SYS_POST_I2C)
+#define CONFIG_POST		(CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_CPU)
 #define MPC5XXX_SRAM_POST_SIZE	(MPC5XXX_SRAM_SIZE - 4)
 /* List of I2C addresses to be verified by POST */
 #define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_SLAVE,	\
@@ -198,16 +198,6 @@
 					"128k(redund_env),128k(dtb),"	\
 					"2m(kernel),27904k(rootfs),"	\
 					"-(config)"
-
-/*
- * I2C configuration
- */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #2 */
-#define CONFIG_SYS_I2C_SPEED		40000	/* 40 kHz */
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_IO		0x38	/* PCA9554AD I2C I/O port address */
-#define CONFIG_SYS_I2C_EEPROM		0x53	/* I2C EEPROM device address */
 
 /*
  * RTC configuration
