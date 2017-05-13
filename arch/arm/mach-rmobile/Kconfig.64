@@ -1,7 +1,12 @@
 if RCAR_GEN3
 
+choice
+	prompt "Select Target SoC"
+
 config R8A7795
-	bool
+	bool "Renesas SoC R8A7795"
+
+endchoice
 
 choice
 	prompt "Renesus ARM64 SoCs board select"
