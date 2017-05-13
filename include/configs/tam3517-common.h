@@ -41,7 +41,6 @@
 /*
  * DDR related
  */
-#define CONFIG_OMAP3_MICRON_DDR		/* Micron DDR */
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
 
 /*
