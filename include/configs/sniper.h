@@ -58,8 +58,6 @@
 /*
  * GPIO
  */
-
-#define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP3_GPIO_2
 #define CONFIG_OMAP3_GPIO_3
 #define CONFIG_OMAP3_GPIO_4

@@ -20,9 +20,6 @@
 /* SPI IP Block */
 #define CONFIG_OMAP3_SPI
 
-/* GPIO block */
-#define CONFIG_OMAP_GPIO
-
 /*
  * GPMC NAND block.  We support 1 device and the physical address to
  * access CS0 at is 0x8000000.

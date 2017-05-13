@@ -54,12 +54,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024 + CONFIG_ENV_SIZE)
 
 /*
- * GPIO
- */
-
-#define CONFIG_OMAP_GPIO
-
-/*
  * I2C
  */
 

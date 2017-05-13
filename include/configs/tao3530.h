@@ -16,7 +16,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SDRC			/* Has an SDRC controller */
 

@@ -83,7 +83,6 @@
 /*
  * High level configuration options
  */
-#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 

@@ -95,6 +95,14 @@ config MSM_GPIO
 	  - APQ8016
 	  - MSM8916
 
+config OMAP_GPIO
+	bool "TI OMAP GPIO driver"
+	depends on ARCH_OMAP2PLUS
+	default y
+	help
+	  Support GPIO controllers on the TI OMAP3/4/5 and related (such as
+	  AM335x/AM43xx/AM57xx/DRA7xx/etc) families of SoCs.
+
 config PM8916_GPIO
 	bool "Qualcomm PM8916 PMIC GPIO/keypad driver"
 	depends on DM_GPIO && PMIC_PM8916

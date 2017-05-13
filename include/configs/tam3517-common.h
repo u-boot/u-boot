@@ -13,7 +13,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 

@@ -547,10 +547,6 @@
 #endif
 #endif
 
-#define CONFIG_OMAP_GPIO
-
-/* Gpio cmd support */
-
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG
 

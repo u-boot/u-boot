@@ -49,7 +49,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
 #define CONFIG_CMD_ASKENV
-#define CONFIG_OMAP_GPIO
 
 #define CONFIG_FS_FAT
 

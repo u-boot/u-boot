@@ -45,9 +45,6 @@
 
 /* Hardware drivers */
 
-/* OMAP GPIO configuration */
-#define CONFIG_OMAP_GPIO
-
 /* NS16550 Configuration */
 #define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
 #define CONFIG_SYS_NS16550_SERIAL

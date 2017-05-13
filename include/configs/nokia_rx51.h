@@ -125,7 +125,6 @@
 #define CONFIG_TWL4030_LED
 #define CONFIG_TWL4030_KEYPAD
 
-#define CONFIG_OMAP_GPIO
 #define GPIO_SLIDE			71
 
 /*
