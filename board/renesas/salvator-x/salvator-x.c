@@ -1,6 +1,6 @@
 /*
  * board/renesas/salvator-x/salvator-x.c
- *     This file is Salvator-X board support.
+ *     This file is Salvator-X/Salvator-XS board support.
  *
  * Copyright (C) 2015-2017 Renesas Electronics Corporation
  * Copyright (C) 2015 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
@@ -98,14 +98,20 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
 	/* Init PFC controller */
+#if defined(CONFIG_R8A7795)
 	r8a7795_pinmux_init();
+#elif defined(CONFIG_R8A7796)
+	r8a7796_pinmux_init();
+#endif
 
+#if defined(CONFIG_R8A7795)
 	/* GSX: force power and clock supply */
 	writel(0x0000001F, SYSC_PWRONCR2);
 	while (readl(SYSC_PWRSR2) != 0x000003E0)
 		mdelay(20);
 
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
+#endif
 
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
@@ -134,6 +140,7 @@ int board_init(void)
 	/* IPSR3 */
 	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
 
+#if defined(CONFIG_R8A7795)
 	/* USB2_OVC */
 	gpio_request(GPIO_GP_6_15, NULL);
 	gpio_direction_input(GPIO_GP_6_15);
@@ -142,7 +149,7 @@ int board_init(void)
 	gpio_request(GPIO_GP_6_14, NULL);
 	gpio_direction_output(GPIO_GP_6_14, 1);
 	gpio_set_value(GPIO_GP_6_14, 1);
-
+#endif
 	/* AVB_PHY_RST */
 	gpio_request(GPIO_GP_2_10, NULL);
 	gpio_direction_output(GPIO_GP_2_10, 0);
@@ -200,7 +207,13 @@ int board_mmc_init(bd_t *bis)
 	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
 	gpio_request(GPIO_GFN_SD2_DAT3, NULL);
 	gpio_request(GPIO_GFN_SD2_CLK, NULL);
+#if defined(CONFIG_R8A7795)
 	gpio_request(GPIO_GFN_SD2_CMD, NULL);
+#elif defined(CONFIG_R8A7796)
+	gpio_request(GPIO_FN_SD2_CMD, NULL);
+#else
+#error Only R8A7795 and R87796 is supported
+#endif
 	gpio_request(GPIO_GP_5_3, NULL);
 	gpio_request(GPIO_GP_5_9, NULL);
 	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
@@ -211,6 +224,7 @@ int board_mmc_init(bd_t *bis)
 	if (ret)
 		return ret;
 
+#if defined(CONFIG_R8A7795)
 	/* SDHI3 */
 	gpio_request(GPIO_GFN_SD3_DAT0, NULL);	/* GP_4_9 */
 	gpio_request(GPIO_GFN_SD3_DAT1, NULL);	/* GP_4_10 */
@@ -218,6 +232,16 @@ int board_mmc_init(bd_t *bis)
 	gpio_request(GPIO_GFN_SD3_DAT3, NULL);	/* GP_4_12 */
 	gpio_request(GPIO_GFN_SD3_CLK, NULL);	/* GP_4_7 */
 	gpio_request(GPIO_GFN_SD3_CMD, NULL);	/* GP_4_8 */
+#elif defined(CONFIG_R8A7796)
+	gpio_request(GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
+	gpio_request(GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
+	gpio_request(GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
+	gpio_request(GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
+	gpio_request(GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
+	gpio_request(GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
+#else
+#error Only R8A7795 and R87796 is supported
+#endif
 	/* IPSR10 */
 	gpio_request(GPIO_FN_SD3_CD, NULL);
 	gpio_request(GPIO_FN_SD3_WP, NULL);
