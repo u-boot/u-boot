@@ -19,14 +19,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
 
-/*
- * Define Master code if there are multiple masters on the I2C_SR bus.
- * Normally not required
- */
-#ifndef CONFIG_OMAP_VC_I2C_HS_MCODE
-#define CONFIG_OMAP_VC_I2C_HS_MCODE 0x0
-#endif
-
 /* Register defines and masks for VC IP Block */
 /* PRM_VC_CFG_I2C_MODE */
 #define PRM_VC_CFG_I2C_MODE_DFILTEREN_BIT	(0x1 << 6)
@@ -84,8 +76,10 @@ static void omap_vc_init(u16 speed_khz)
 	       (cycles_low << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT);
 	writel(val, (*prcm)->prm_vc_cfg_i2c_clk);
 
-	val = CONFIG_OMAP_VC_I2C_HS_MCODE <<
-		PRM_VC_CFG_I2C_MODE_HSMCODE_SHIFT;
+	/*
+	 * Master code if there are multiple masters on the I2C_SR bus.
+	 */
+	val = 0x0 << PRM_VC_CFG_I2C_MODE_HSMCODE_SHIFT;
 	/* No HS mode for now */
 	val &= ~PRM_VC_CFG_I2C_MODE_HSMODEEN_BIT;
 	writel(val, (*prcm)->prm_vc_cfg_i2c_mode);
