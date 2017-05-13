@@ -107,6 +107,9 @@ int board_init(void)
 
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
 
+	/* USB1 pull-up */
+	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
+
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
 	/* GPSR2 */
@@ -130,6 +133,15 @@ int board_init(void)
 	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
 	/* IPSR3 */
 	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+	/* USB2_OVC */
+	gpio_request(GPIO_GP_6_15, NULL);
+	gpio_direction_input(GPIO_GP_6_15);
+
+	/* USB2_PWEN */
+	gpio_request(GPIO_GP_6_14, NULL);
+	gpio_direction_output(GPIO_GP_6_14, 1);
+	gpio_set_value(GPIO_GP_6_14, 1);
 
 	/* AVB_PHY_RST */
 	gpio_request(GPIO_GP_2_10, NULL);
