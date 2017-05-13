@@ -568,7 +568,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	priv->freq = max_hz;
 	priv->mode = mode;
 	priv->wordlen = priv->slave.wordlen;
-#ifdef CONFIG_OMAP3_SPI_D0_D1_SWAPPED
+#if 0
+	/* Please migrate to DM_SPI support for this feature. */
 	priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
 #endif
 
