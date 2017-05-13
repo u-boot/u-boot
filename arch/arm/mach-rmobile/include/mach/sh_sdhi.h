@@ -50,8 +50,10 @@
 /* SDHI CMD VALUE */
 #define CMD_MASK			0x0000ffff
 #define SDHI_APP			0x0040
+#define SDHI_MMC_SEND_OP_COND		0x0701
 #define SDHI_SD_APP_SEND_SCR		0x0073
 #define SDHI_SD_SWITCH			0x1C06
+#define SDHI_MMC_SEND_EXT_CSD		0x1C08
 
 /* SDHI_PORTSEL */
 #define USE_1PORT			(1 << 8) /* 1 port */
@@ -120,7 +122,10 @@
 #define CLK_ENABLE			(1 << 8)
 
 /* SDHI_OPTION */
-#define OPT_BUS_WIDTH_1			(1 << 15)	/* bus width = 1 bit */
+#define OPT_BUS_WIDTH_M			(5 << 13)	/* 101b (15-13bit) */
+#define OPT_BUS_WIDTH_1			(4 << 13)	/* bus width = 1 bit */
+#define OPT_BUS_WIDTH_4			(0 << 13)	/* bus width = 4 bit */
+#define OPT_BUS_WIDTH_8			(1 << 13)	/* bus width = 8 bit */
 
 /* SDHI_ERR_STS1 */
 #define ERR_STS1_CRC_ERROR		((1 << 11) | (1 << 10) | (1 << 9) | \
