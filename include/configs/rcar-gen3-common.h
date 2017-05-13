@@ -100,7 +100,7 @@
 
 #define CONFIG_BOOTCOMMAND	\
 	"tftp 0x48080000 Image; " \
-	"tftp 0x48000000 Image-r8a7795-salvator-x.dtb; " \
+	"tftp 0x48000000 Image-"CONFIG_DEFAULT_FDT_FILE"; " \
 	"booti 0x48080000 - 0x48000000"
 
 #endif	/* __RCAR_GEN3_COMMON_H */
