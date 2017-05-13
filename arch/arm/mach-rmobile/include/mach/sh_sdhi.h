@@ -1,9 +1,9 @@
 /*
  * drivers/mmc/sh-sdhi.h
  *
- * SD/MMC driver for Reneas rmobile ARM SoCs
+ * SD/MMC driver for Renesas rmobile ARM SoCs
  *
- * Copyright (C) 2013-2014 Renesas Electronics Corporation
+ * Copyright (C) 2013-2017 Renesas Electronics Corporation
  * Copyright (C) 2008-2009 Renesas Solutions Corp.
  *
  * SPDX-License-Identifier:	GPL-2.0
@@ -162,7 +162,9 @@
 #define	CLKDEV_INIT			400000		/* 100 - 400 KHz */
 
 /* For quirk */
-#define SH_SDHI_QUIRK_16BIT_BUF		(1)
+#define SH_SDHI_QUIRK_16BIT_BUF		BIT(0)
+#define SH_SDHI_QUIRK_64BIT_BUF		BIT(1)
+
 int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks);
 
 #endif /* _SH_SDHI_H */
