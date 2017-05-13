@@ -26,18 +26,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * MUSB port on OMAP3EVM Rev >= E requires extvbus programming.
- */
-u8 omap3_evm_need_extvbus(void)
-{
-	u8 retval = 0;
-
-	/* TODO: verify if cairo handheld platform needs extvbus programming */
-
-	return retval;
-}
-
-/*
  * Routine: board_init
  * Description: Early hardware init.
  */

@@ -87,8 +87,6 @@
 
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
-#define CONFIG_OMAP3_EVM		/* This is a OMAP3 EVM */
-
 /*
  * Clock related definitions
  */

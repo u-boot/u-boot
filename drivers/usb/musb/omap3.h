@@ -32,7 +32,7 @@
 
 int musb_platform_init(void);
 
-#ifdef CONFIG_OMAP3_EVM
+#ifdef CONFIG_TARGET_OMAP3_EVM
 extern u8 omap3_evm_need_extvbus(void);
 #endif
 

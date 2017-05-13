@@ -118,7 +118,7 @@ int musb_platform_init(void)
 		stdby &= ~OMAP3_OTG_FORCESTDBY_STANDBY;
 		writel(stdby, &otg->forcestdby);
 
-#ifdef CONFIG_OMAP3_EVM
+#ifdef CONFIG_TARGET_OMAP3_EVM
 		musb_cfg.extvbus = omap3_evm_need_extvbus();
 #endif
 
