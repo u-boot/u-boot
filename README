@@ -2204,37 +2204,7 @@ The following options need to be configured:
 
 		If you do not have i2c muxes on your board, omit this define.
 
-----under removal:
-
-- Legacy I2C Support:	CONFIG_SOFT_I2C
-
-		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
-		provides the following compelling advantages:
-
-		- more than one i2c adapter is usable
-		- approved multibus support
-		- better i2c mux support
-
-		** CONFIG_SOFT_I2C is now being removed **
-
-		With CONFIG_SOFT_I2C you will need to define
-		CONFIG_SYS_I2C_SPEED to be the frequency (in Hz) at which you
-		wish your i2c bus to run and CONFIG_SYS_I2C_SLAVE to be the
-		address of this node (ie the CPU's i2c node address).
-
-		Now, the u-boot i2c code for the mpc8xx
-		(arch/powerpc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
-		and so its address should therefore be cleared to 0 (See,
-		eg, MPC823e User's Manual p.16-473). So, set
-		CONFIG_SYS_I2C_SLAVE to 0.
-
-		When a board is reset during an i2c bus transfer
-		chips might think that the current transfer is still
-		in progress.  Reset the slave devices by sending start
-		commands until the slave device responds.
-
-		That's all that's required for CONFIG_HARD_I2C.
-
+- Legacy I2C Support:
 		If you use the software i2c interface (CONFIG_SYS_I2C_SOFT)
 		then the following macros need to be defined (examples are
 		from include/configs/lwmon.h):
