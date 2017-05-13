@@ -65,7 +65,6 @@ int board_early_init_f(void)
 /* -/W 32 Power resume control register 2 (3DG) */
 #define	SYSC_PWRONCR2	0xE618010C
 
-DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* adress of boot parameters */
