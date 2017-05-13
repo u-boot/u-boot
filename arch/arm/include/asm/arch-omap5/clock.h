@@ -370,13 +370,6 @@
 #define DPLL_NO_LOCK	0
 #define DPLL_LOCK	1
 
-/*
- * MAX value for PRM_RSTTIME[9:0]RSTTIME1 stored is 0x3ff.
- * 0x3ff is in the no of FUNC_32K_CLK cycles. Converting cycles
- * into microsec and passing the value.
- */
-#define CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC	31219
-
 #if defined(CONFIG_DRA7XX)
 #define V_OSCK			20000000	/* Clock output from T2 */
 #else

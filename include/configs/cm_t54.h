@@ -86,9 +86,6 @@
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_MCS7830
 
-/* Max time to hold reset on this board, see doc/README.omap-reset-time */
-#define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
-
 /*
  * Miscellaneous configurable options
  */

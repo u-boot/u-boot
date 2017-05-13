@@ -63,6 +63,23 @@ config TI_SECURE_EMIF_PROTECTED_REGION_SIZE
 	  using hardware memory firewalls. This value must be smaller than the
 	  TI_SECURE_EMIF_TOTAL_REGION_SIZE value.
 
+config OMAP_PLATFORM_RESET_TIME_MAX_USEC
+	int "Something"
+	range 0  31219
+	default 31219
+	help
+	  Most OMAPs' provide a way to specify the time for which the reset
+	  should be held low while the voltages and Oscillator outputs
+	  stabilize.
+	  This time is mostly board and PMIC dependent. Hence the boards are
+	  expected to specify a pre-computed time using the above option.
+	  This value can be computed using a summation of the below 3
+	  parameters
+	  1: Time taken by the Osciallator to stop and restart
+	  2: PMIC OTP time
+	  3: Voltage ramp time, which can be derived using the PMIC slew rate
+	     and value of voltage ramp needed.
+
 if TARGET_DRA7XX_EVM || TARGET_AM57XX_EVM
 menu "Voltage Domain OPP selections"
 

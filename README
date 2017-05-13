@@ -3708,11 +3708,6 @@ Configuration Settings:
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
 
-- CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
-	This is set by OMAP boards for the max time that reset should
-	be asserted. See doc/README.omap-reset-time for details on how
-	the value can be calculated on a given board.
-
 - CONFIG_USE_STDINT
 	If stdint.h is available with your toolchain you can define this
 	option to enable it. You can provide option 'USE_STDINT=1' when

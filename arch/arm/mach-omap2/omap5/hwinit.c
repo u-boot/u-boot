@@ -414,12 +414,13 @@ void setup_warmreset_time(void)
 {
 	u32 rst_time, rst_val;
 
-#ifndef CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
-	rst_time = CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC;
-#else
-	rst_time = CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC;
-#endif
-	rst_time = usec_to_32k(rst_time) << RSTTIME1_SHIFT;
+	/*
+	 * MAX value for PRM_RSTTIME[9:0]RSTTIME1 stored is 0x3ff.
+	 * 0x3ff is in the no of FUNC_32K_CLK cycles. Converting cycles
+	 * into microsec and passing the value.
+	 */
+	rst_time = usec_to_32k(CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC)
+		<< RSTTIME1_SHIFT;
 
 	if (rst_time > RSTTIME1_MASK)
 		rst_time = RSTTIME1_MASK;
