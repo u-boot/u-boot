@@ -311,6 +311,7 @@ config SY8106A_VOUT1_VOLT
 config TWL4030_POWER
 	depends on OMAP34XX
 	bool "Enable driver for TI TWL4030 power management chip"
+	imply CMD_POWEROFF
 	---help---
 	The TWL4030 in a combination audio CODEC/power management with
 	GPIO and it is commonly used with the OMAP3 family of processors
