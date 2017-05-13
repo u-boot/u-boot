@@ -90,11 +90,7 @@ static const struct udevice_id bmips_ram_ids[] = {
 	}, {
 		.compatible = "brcm,bcm6358-mc",
 		.data = (ulong)&bmips_ram_bcm6358,
-	}, {
-		.compatible = "brcm,bcm63268-mc",
-		.data = (ulong)&bmips_ram_bcm6328,
-	},
-	{ /* sentinel */ }
+	}, { /* sentinel */ }
 };
 
 static int bmips_ram_probe(struct udevice *dev)
