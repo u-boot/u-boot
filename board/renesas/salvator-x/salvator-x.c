@@ -44,10 +44,10 @@ void s_init(void)
 	writel(0xFFFFFFFF, CPGWPR);
 }
 
-#define GSX_MSTP112	(1 << 12)	/* 3DG */
-#define TMU0_MSTP125	(1 << 25)	/* secure */
-#define TMU1_MSTP124	(1 << 24)	/* non-secure */
-#define SCIF2_MSTP310	(1 << 10)	/* SCIF2 */
+#define GSX_MSTP112		BIT(12)	/* 3DG */
+#define TMU0_MSTP125		BIT(25)	/* secure */
+#define TMU1_MSTP124		BIT(24)	/* non-secure */
+#define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
 
 int board_early_init_f(void)
 {
