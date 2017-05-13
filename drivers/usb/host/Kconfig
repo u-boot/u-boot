@@ -105,6 +105,14 @@ config USB_EHCI_MX7
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX7 SoCs.
 
+config USB_EHCI_OMAP
+	bool "Support for OMAP3+ on-chip EHCI USB controller"
+	depends on ARCH_OMAP2PLUS
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on OMAP3 and later
+	  SoCs.
+
 if USB_EHCI_MX7
 
 config MXC_USB_OTG_HACTIVE
