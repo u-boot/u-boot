@@ -12,7 +12,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP3_MCX		/* working with mcx */
 #define CONFIG_OMAP_GPIO
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
