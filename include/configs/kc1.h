@@ -26,8 +26,6 @@
 /*
  * Platform
  */
-
-#define CONFIG_OMAP
 #define CONFIG_OMAP4430
 
 /*

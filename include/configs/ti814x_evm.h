@@ -18,7 +18,6 @@
 
 #define CONFIG_TI81XX
 #define CONFIG_TI814X
-#define CONFIG_OMAP
 
 #include <asm/arch/omap.h>
 

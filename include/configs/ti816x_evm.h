@@ -12,7 +12,6 @@
 
 #define CONFIG_TI81XX
 #define CONFIG_TI816X
-#define CONFIG_OMAP
 
 #define CONFIG_ARCH_CPU_INIT
 

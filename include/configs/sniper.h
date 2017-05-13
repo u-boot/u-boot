@@ -19,12 +19,6 @@
 #define CONFIG_ARM_ARCH_CP15_ERRATA
 
 /*
- * Platform
- */
-
-#define CONFIG_OMAP
-
-/*
  * Board
  */
 

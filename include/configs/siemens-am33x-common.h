@@ -15,7 +15,6 @@
 #define __CONFIG_SIEMENS_AM33X_COMMON_H
 
 #define CONFIG_AM33XX
-#define CONFIG_OMAP
 
 #include <asm/arch/omap.h>
 

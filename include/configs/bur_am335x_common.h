@@ -13,7 +13,6 @@
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM33XX
-#define CONFIG_OMAP
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Timer information */

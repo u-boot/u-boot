@@ -16,7 +16,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP3_AM3517CRANE	1	/* working with CRANEBOARD */
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */

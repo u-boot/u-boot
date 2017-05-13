@@ -22,9 +22,6 @@
 /*
  * High Level Configuration Options
  */
-
-#define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP3430			/* which is in a 3430 */
 #define CONFIG_OMAP3_RX51		/* working with RX51 */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 

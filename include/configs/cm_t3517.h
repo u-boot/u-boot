@@ -13,7 +13,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP	/* in a TI OMAP core */
 #define CONFIG_CM_T3517	/* working with CM-T3517 */
 
 #define CONFIG_SYS_TEXT_BASE	0x80008000

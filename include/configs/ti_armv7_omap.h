@@ -12,9 +12,6 @@
 #ifndef __CONFIG_TI_ARMV7_OMAP_H__
 #define __CONFIG_TI_ARMV7_OMAP_H__
 
-/* Common defines for all OMAP architecture based SoCs */
-#define CONFIG_OMAP
-
 /* I2C IP block */
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
