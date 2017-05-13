@@ -76,10 +76,6 @@ static const u32 kwmpp_config[] = {
 	MPP8_GPIO,		/* SDA */
 	MPP9_GPIO,		/* SCL */
 #endif
-#if defined(CONFIG_HARD_I2C)
-	MPP8_TW_SDA,
-	MPP9_TW_SCK,
-#endif
 	MPP10_UART0_TXD,
 	MPP11_UART0_RXD,
 	MPP12_GPO,		/* Reserved */
