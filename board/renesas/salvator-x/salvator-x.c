@@ -50,6 +50,7 @@ void s_init(void)
 #define TMU1_MSTP124		BIT(24)	/* non-secure */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
 #define ETHERAVB_MSTP812	BIT(12)
+#define DVFS_MSTP926		BIT(26)
 #define SD0_MSTP314		BIT(14)
 #define SD1_MSTP313		BIT(13)
 #define SD2_MSTP312		BIT(12)	/* either MMC0 */
@@ -78,6 +79,10 @@ int board_early_init_f(void)
 	writel(0, SD2CKCR);
 	writel(0, SD3CKCR);
 
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	/* DVFS for reset */
+	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+#endif
 	return 0;
 }
 
@@ -235,8 +240,12 @@ const struct rmobile_sysinfo sysinfo = {
 
 void reset_cpu(ulong addr)
 {
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
+#else
 	/* only CA57 ? */
 	writel(RST_CODE, RST_CA57RESCNT);
+#endif
 }
 
 static const struct sh_serial_platdata serial_platdata = {
