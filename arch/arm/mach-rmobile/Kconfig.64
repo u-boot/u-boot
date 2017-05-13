@@ -17,9 +17,8 @@ choice
 
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
-	select R8A7795
 	help
-          Support for Renesas R-Car Gen3 R8a7795 platform
+          Support for Renesas R-Car Gen3 platform
 
 endchoice
 
