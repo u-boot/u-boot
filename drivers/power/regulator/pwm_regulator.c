@@ -32,13 +32,13 @@ struct pwm_regulator_info {
 	bool polarity;
 	struct udevice *pwm;
 	/* initialize voltage of regulator */
-	unsigned int init_voltage;
+	int init_voltage;
 	/* the maximum voltage of regulator */
-	unsigned int max_voltage;
+	int max_voltage;
 	/* the minimum voltage of regulator */
-	unsigned int min_voltage;
+	int min_voltage;
 	/* the current voltage of regulator */
-	unsigned int volt_uV;
+	int volt_uV;
 };
 
 static int pwm_regulator_enable(struct udevice *dev, bool enable)
