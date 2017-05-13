@@ -214,7 +214,7 @@ static void compose_module_name(hw_id_t hw_id, char *buf)
 	strcat(buf, tmp);
 }
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
+#if defined(CONFIG_SYS_I2C_SOFT)
 /*
  * Compose string with hostname.
  * buf is assumed to have enough space, and be null-terminated.
@@ -295,7 +295,7 @@ int board_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	uchar buf[6];
 	char str[18];
 	char hostname[MODULE_NAME_MAXLEN];
@@ -323,7 +323,7 @@ int misc_init_r(void)
 	compose_hostname(hw_id, hostname);
 	setenv("hostname", hostname);
 
-#endif /* defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT) */
+#endif /* defined(CONFIG_SYS_I2C_SOFT) */
 	if (!getenv("ethaddr"))
 		printf(LOG_PREFIX "MAC address not set, networking is not "
 					"operational\n");
