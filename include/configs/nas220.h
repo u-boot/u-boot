@@ -94,7 +94,7 @@
  * USB/EHCI
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI			/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_KIRKWOOD	/* on Kirkwood platform	*/
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_SUPPORT_VFAT

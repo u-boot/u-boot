@@ -171,7 +171,7 @@
  * Common USB/EHCI configuration
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI		/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_MARVELL
 #define ORION5X_USB20_HOST_PORT_BASE ORION5X_USB20_PORT0_BASE
 #define CONFIG_SUPPORT_VFAT

@@ -19,7 +19,7 @@
 #include <asm/arch/clock.h>
 #include <errno.h>
 #include <i2c.h>
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/ehci-omap.h>
 #endif
@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Address of the framebuffer in RAM. */
 #define FB_START_ADDRESS 0x88000000
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
 	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,

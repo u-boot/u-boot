@@ -476,8 +476,8 @@ combinations. this should be removed later
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
-#define CONFIG_USB_EHCI  /* USB */
-#ifdef CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD  /* USB */
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_HAS_FSL_DR_USB

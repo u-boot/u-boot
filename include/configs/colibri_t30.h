@@ -33,7 +33,7 @@
 #define CONFIG_SYS_MMC_ENV_PART		1
 
 /* USB host support */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */

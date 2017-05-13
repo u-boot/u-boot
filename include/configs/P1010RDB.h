@@ -670,9 +670,9 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_HAS_FSL_DR_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB)
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #endif
@@ -733,7 +733,7 @@ extern unsigned long get_sdram_size(void);
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) \
+#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI_HCD) \
 		 || defined(CONFIG_FSL_SATA)
 #endif
 

@@ -161,7 +161,7 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 }
 #endif
 
-#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI)
+#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI_HCD)
 void at91_uhp_hw_init(void)
 {
 	/* Enable VBus on UHP ports */

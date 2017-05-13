@@ -15,7 +15,7 @@
 
 #include "panda_mux_data.h"
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
@@ -301,7 +301,7 @@ void board_mmc_power_init(void)
 #endif
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,

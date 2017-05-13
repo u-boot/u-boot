@@ -148,7 +148,7 @@
 /*
  * Support USB
  */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_FSL
 
 /* Current USB implementation supports the only USB controller,

@@ -41,7 +41,7 @@
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 /* USB */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_EXYNOS
 
 /* DFU */

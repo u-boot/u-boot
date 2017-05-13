@@ -362,7 +362,7 @@
 /*
  * USB/EHCI
  */
-#define CONFIG_USB_EHCI			/* Enable EHCI USB support	*/
+#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support	*/
 #define CONFIG_USB_EHCI_PPC4XX		/* on PPC4xx platform		*/
 #define CONFIG_SYS_PPC4XX_USB_ADDR	0xe0000300
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN

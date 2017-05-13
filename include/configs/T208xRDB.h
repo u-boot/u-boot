@@ -12,7 +12,7 @@
 #define __T2080RDB_H
 
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_FSL_SATA_V2
 
 /* High Level Configuration Options */
@@ -652,7 +652,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * USB
  */
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB

@@ -33,7 +33,7 @@ void uniphier_ld11_clk_init(void)
 	/* TODO: use "mmc-pwrseq-emmc" */
 	writel(1, SDCTRL_EMMC_HW_RESET);
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 	{
 		/* FIXME: the current clk driver can not handle parents */
 		u32 tmp;

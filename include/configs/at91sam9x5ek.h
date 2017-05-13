@@ -51,7 +51,7 @@
 #define CONFIG_CMD_NAND
 
 /*
- * define CONFIG_USB_EHCI to enable USB Hi-Speed (aka 2.0)
+ * define CONFIG_USB_EHCI_HCD to enable USB Hi-Speed (aka 2.0)
  * NB: in this case, USB 1.1 devices won't be recognized.
  */
 
@@ -99,7 +99,7 @@
 
 /* USB */
 #ifdef CONFIG_CMD_USB
-#ifndef CONFIG_USB_EHCI
+#ifndef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_UPLL
 #define CONFIG_USB_OHCI_NEW

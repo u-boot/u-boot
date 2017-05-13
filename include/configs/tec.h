@@ -29,7 +29,7 @@
 #define CONFIG_ENV_OFFSET		(SZ_512M - SZ_128K) /* 128K sectors */
 
 /* USB host support */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */

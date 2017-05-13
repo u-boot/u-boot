@@ -195,7 +195,7 @@ void board_mmc_power_init(void)
 }
 #endif
 
-#if defined(CONFIG_USB_EHCI) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
 /* Call usb_stop() before starting the kernel */
 void show_boot_progress(int val)
 {
@@ -219,4 +219,4 @@ int ehci_hcd_stop(int index)
 {
 	return omap_ehci_hcd_stop();
 }
-#endif /* CONFIG_USB_EHCI */
+#endif /* CONFIG_USB_EHCI_HCD */

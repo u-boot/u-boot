@@ -64,7 +64,7 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC2 */
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

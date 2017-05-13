@@ -74,12 +74,6 @@ config USB_EHCI_HCD
 
 	  You may want to read <file:Documentation/usb/ehci.txt>.
 
-config USB_EHCI
-	bool
-	default USB_EHCI_HCD
-	---help---
-	  TODO: rename after most boards switch to Kconfig
-
 if USB_EHCI_HCD
 
 config USB_EHCI_ATMEL

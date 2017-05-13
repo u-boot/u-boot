@@ -212,7 +212,7 @@ int board_init(void)
 	at91sam9x5ek_nand_hw_init();
 #endif
 
-#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI)
+#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI_HCD)
 	at91_uhp_hw_init();
 #endif
 #ifdef CONFIG_LCD
