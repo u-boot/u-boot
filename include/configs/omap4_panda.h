@@ -17,7 +17,6 @@
  */
 
 /* USB UHH support options */
-#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 

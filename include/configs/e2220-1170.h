@@ -33,7 +33,6 @@
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 /* USB2.0 Host support */
-#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */

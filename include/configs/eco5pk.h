@@ -15,7 +15,6 @@
 
 #include "tam3517-common.h"
 
-#undef CONFIG_USB_EHCI_HCD
 #undef CONFIG_USB_EHCI_OMAP
 #undef CONFIG_USB_OMAP3
 

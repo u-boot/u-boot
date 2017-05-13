@@ -121,7 +121,6 @@
  * Common USB/EHCI configuration
  */
 #if defined(CONFIG_CMD_USB) && !defined(CONFIG_DM)
-#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support */
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
 

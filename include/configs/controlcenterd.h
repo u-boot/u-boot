@@ -291,7 +291,6 @@
 /*
  * USB
  */
-#define CONFIG_USB_EHCI_HCD
 
 #define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI_FSL

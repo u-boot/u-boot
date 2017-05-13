@@ -559,7 +559,6 @@
 /*
  * USB
  */
-#define CONFIG_USB_EHCI_HCD
 
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_PCI

@@ -369,7 +369,6 @@
  */
 
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_USB_EHCI_HCD			/* Enable EHCI Support	*/
 #define CONFIG_USB_EHCI_FSL			/* On a FSL platform	*/
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN		/* With big-endian regs	*/
 #define CONFIG_EHCI_DESC_BIG_ENDIAN

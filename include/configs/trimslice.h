@@ -36,7 +36,6 @@
 #define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 /* USB Host support */
-#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */

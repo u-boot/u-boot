@@ -123,9 +123,6 @@
 #endif
 
 /* remove USB */
-#ifdef CONFIG_USB_EHCI_HCD
-#undef CONFIG_USB_EHCI_HCD
-#endif
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA
 #endif

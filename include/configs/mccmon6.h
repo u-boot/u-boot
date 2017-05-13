@@ -98,7 +98,6 @@
 	"128k@0x19C0000(swupdate-kernel-dtb.nor)"
 
 /* USB Configs */
-#define CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2

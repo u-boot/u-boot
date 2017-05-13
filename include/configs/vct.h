@@ -99,7 +99,6 @@
 /*
  * USB/EHCI
  */
-#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support	*/
 #define CONFIG_USB_EHCI_VCT		/* on VCT platform		*/
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN
 #define CONFIG_EHCI_DESC_BIG_ENDIAN

@@ -82,7 +82,6 @@
  * USB
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_HCD		/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_MXC
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORT	1

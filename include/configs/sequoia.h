@@ -192,9 +192,6 @@
 
 /* USB */
 #ifdef CONFIG_440EPX
-
-#undef CONFIG_USB_EHCI_HCD	/* OHCI by default */
-
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_PPC4XX
 #define CONFIG_SYS_PPC4XX_USB_ADDR	0xe0000300

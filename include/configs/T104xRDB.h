@@ -637,8 +637,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_HAS_FSL_DR_USB
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI_HCD
-
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
