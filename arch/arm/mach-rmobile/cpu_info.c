@@ -57,6 +57,7 @@ static const struct {
 	{ 0x4B, "R8A7793" },
 	{ 0x4C, "R8A7794" },
 	{ 0x4F, "R8A7795" },
+	{ 0x52, "R8A7796" },
 	{ 0x0, "CPU" },
 };
 
