@@ -25,6 +25,12 @@
 /* [A] Hyper Flash */
 /* use to RPC(SPI Multi I/O Bus Controller) */
 
+/* Ethernet RAVB */
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_MICREL
+#define CONFIG_BITBANGMII
+#define CONFIG_BITBANGMII_MULTI
+
 /* Board Clock */
 /* XTAL_CLK : 33.33MHz */
 #define RCAR_XTAL_CLK		33333333u

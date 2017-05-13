@@ -49,6 +49,7 @@ void s_init(void)
 #define TMU0_MSTP125		BIT(25)	/* secure */
 #define TMU1_MSTP124		BIT(24)	/* non-secure */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
+#define ETHERAVB_MSTP812	BIT(12)
 #define SD0_MSTP314		BIT(14)
 #define SD1_MSTP313		BIT(13)
 #define SD2_MSTP312		BIT(12)	/* either MMC0 */
@@ -65,6 +66,8 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
 	/* SCIF2 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
+	/* EHTERAVB */
+	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
@@ -99,8 +102,51 @@ int board_init(void)
 
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
 
+#ifdef CONFIG_RAVB
+	/* EtherAVB Enable */
+	/* GPSR2 */
+	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
+	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
+	gpio_request(GPIO_GFN_AVB_LINK, NULL);
+	gpio_request(GPIO_GFN_AVB_PHY_INT, NULL);
+	gpio_request(GPIO_GFN_AVB_MAGIC, NULL);
+	gpio_request(GPIO_GFN_AVB_MDC, NULL);
+
+	/* IPSR0 */
+	gpio_request(GPIO_IFN_AVB_MDC, NULL);
+	gpio_request(GPIO_IFN_AVB_MAGIC, NULL);
+	gpio_request(GPIO_IFN_AVB_PHY_INT, NULL);
+	gpio_request(GPIO_IFN_AVB_LINK, NULL);
+	gpio_request(GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
+	gpio_request(GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
+	/* IPSR1 */
+	gpio_request(GPIO_FN_AVB_AVTP_PPS, NULL);
+	/* IPSR2 */
+	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
+	/* IPSR3 */
+	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+	/* AVB_PHY_RST */
+	gpio_request(GPIO_GP_2_10, NULL);
+	gpio_direction_output(GPIO_GP_2_10, 0);
+	mdelay(20);
+	gpio_set_value(GPIO_GP_2_10, 1);
+	udelay(1);
+#endif
+
 	return 0;
 }
+
+static struct eth_pdata salvator_x_ravb_platdata = {
+	.iobase		= 0xE6800000,
+	.phy_interface	= 0,
+	.max_speed	= 1000,
+};
+
+U_BOOT_DEVICE(salvator_x_ravb) = {
+	.name		= "ravb",
+	.platdata	= &salvator_x_ravb_platdata,
+};
 
 #ifdef CONFIG_SH_SDHI
 int board_mmc_init(bd_t *bis)
