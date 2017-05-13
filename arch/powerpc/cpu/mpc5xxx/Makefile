@@ -9,7 +9,6 @@ extra-y	= start.o
 extra-y += traps.o
 obj-y  += io.o
 obj-y  += firmware_sc_task_bestcomm.impl.o
-obj-y += i2c.o
 obj-y += cpu.o
 obj-y += cpu_init.o
 obj-y += ide.o

@@ -90,7 +90,6 @@ CONFIG_MCFTMR		-- define to use DMA timer
 CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_I2C_FSL	-- define to use FSL common I2C driver
-CONFIG_HARD_I2C		-- define for I2C hardware support
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged
 CONFIG_SYS_I2C_SPEED		-- define for I2C speed
 CONFIG_SYS_I2C_SLAVE		-- define for I2C slave address

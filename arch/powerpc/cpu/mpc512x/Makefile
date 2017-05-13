@@ -9,7 +9,6 @@ obj-y	:= cpu.o
 obj-y	+= traps.o
 obj-y += cpu_init.o
 obj-y += fixed_sdram.o
-obj-y += i2c.o
 obj-y += interrupts.o
 obj-y += iopin.o
 obj-y += serial.o
