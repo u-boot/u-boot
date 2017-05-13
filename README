@@ -2204,7 +2204,9 @@ The following options need to be configured:
 
 		If you do not have i2c muxes on your board, omit this define.
 
-- Legacy I2C Support:	CONFIG_HARD_I2C
+----under removal:
+
+- Legacy I2C Support:	CONFIG_SOFT_I2C
 
 		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
 		provides the following compelling advantages:
@@ -2213,14 +2215,12 @@ The following options need to be configured:
 		- approved multibus support
 		- better i2c mux support
 
-		** CONFIG_HARD_I2C is now being removed **
+		** CONFIG_SOFT_I2C is now being removed **
 
-----under removal:
-
-		In both cases you will need to define CONFIG_SYS_I2C_SPEED
-		to be the frequency (in Hz) at which you wish your i2c bus
-		to run and CONFIG_SYS_I2C_SLAVE to be the address of this node (ie
-		the CPU's i2c node address).
+		With CONFIG_SOFT_I2C you will need to define
+		CONFIG_SYS_I2C_SPEED to be the frequency (in Hz) at which you
+		wish your i2c bus to run and CONFIG_SYS_I2C_SLAVE to be the
+		address of this node (ie the CPU's i2c node address).
 
 		Now, the u-boot i2c code for the mpc8xx
 		(arch/powerpc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node

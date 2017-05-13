@@ -73,11 +73,9 @@ void eeprom_init(int bus)
 #endif
 
 	/* I2C EEPROM */
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 #if defined(CONFIG_SYS_I2C)
 	if (bus >= 0)
 		i2c_set_bus_num(bus);
-#endif
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
