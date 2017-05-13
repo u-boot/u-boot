@@ -235,8 +235,36 @@ int board_mmc_init(bd_t *bis)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+#if (CONFIG_NR_DRAM_BANKS >= 2)
+	gd->ram_size += PHYS_SDRAM_2_SIZE;
+#endif
+#if (CONFIG_NR_DRAM_BANKS >= 3)
+	gd->ram_size += PHYS_SDRAM_3_SIZE;
+#endif
+#if (CONFIG_NR_DRAM_BANKS >= 4)
+	gd->ram_size += PHYS_SDRAM_4_SIZE;
+#endif
 
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+#if (CONFIG_NR_DRAM_BANKS >= 2)
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+#endif
+#if (CONFIG_NR_DRAM_BANKS >= 3)
+	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
+	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
+#endif
+#if (CONFIG_NR_DRAM_BANKS >= 4)
+	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
+	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
+#endif
 	return 0;
 }
 
