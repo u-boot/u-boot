@@ -159,6 +159,7 @@ asm_dram_init:
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l	%sp@-
 
+#ifdef CONFIG_SYS_CS0_BASE
 	/* Must disable global address */
 	move.l	#0xFC008000, %a1
 	move.l	#(CONFIG_SYS_CS0_BASE), (%a1)
@@ -166,6 +167,7 @@ asm_dram_init:
 	move.l	#(CONFIG_SYS_CS0_CTRL), (%a1)
 	move.l	#0xFC008004, %a1
 	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
+#endif
 #endif /* CONFIG_CF_SBF */
 
 #ifdef CONFIG_MCF5441x
@@ -342,6 +344,7 @@ asm_nand_init:
 	movec	%d0, %ACR2
 	movec	%d0, %ACR3
 
+#ifdef CONFIG_SYS_CS0_BASE
 	/* Must disable global address */
 	move.l	#0xFC008000, %a1
 	move.l	#(CONFIG_SYS_CS0_BASE), (%a1)
@@ -349,6 +352,7 @@ asm_nand_init:
 	move.l	#(CONFIG_SYS_CS0_CTRL), (%a1)
 	move.l	#0xFC008004, %a1
 	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
+#endif
 
 	/* NAND port configuration */
 	move.l	#0xEC094048, %a1
