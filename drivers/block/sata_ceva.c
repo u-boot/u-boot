@@ -6,7 +6,6 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <netdev.h>
 #include <ahci.h>
 #include <scsi.h>
 #include <asm/arch/hardware.h>
