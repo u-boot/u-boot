@@ -81,7 +81,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 
 #if defined(CONFIG_PCI)
@@ -144,25 +143,6 @@
  * IPB Bus clocking configuration.
  */
 #undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
-
-/*
- * I2C configuration
- */
-#define CONFIG_HARD_I2C			1	/* I2C with hardware support */
-#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #1 or #2 */
-
-#define CONFIG_SYS_I2C_SPEED		100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
-/*
- * EEPROM configuration
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x52	/* 1010010x */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	6
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
-#define CONFIG_SYS_EEPROM_WREN			1
-#define CONFIG_SYS_EEPROM_WP			GPIO_PSC2_4
 
 /*
  * Flash configuration

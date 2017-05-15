@@ -169,36 +169,6 @@ int misc_init_r(void)
 	clrsetbits_be32(&im->gpio.gpdat, 0x01000000, 0x00040000);
 #endif
 
-#if defined(CONFIG_HARD_I2C)
-	if (!getenv("ethaddr")) {
-		uchar buf[6];
-		uchar ifm_oui[3] = { 0, 2, 1, };
-		int ret;
-
-		/* I2C-0 for on-board eeprom */
-		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS_NUM);
-
-		/* Read ethaddr from EEPROM */
-		ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR,
-			       CONFIG_SYS_I2C_EEPROM_MAC_OFFSET, 1, buf, 6);
-		if (ret != 0) {
-			printf("Error: Unable to read MAC from I2C"
-				" EEPROM at address %02X:%02X\n",
-				CONFIG_SYS_I2C_EEPROM_ADDR,
-				CONFIG_SYS_I2C_EEPROM_MAC_OFFSET);
-			return 1;
-		}
-
-		/* Owned by IFM ? */
-		if (memcmp(buf, ifm_oui, sizeof(ifm_oui))) {
-			printf("Illegal MAC address in EEPROM: %pM\n", buf);
-			return 1;
-		}
-
-		eth_setenv_enetaddr("ethaddr", buf);
-	}
-#endif /* defined(CONFIG_HARD_I2C) */
-
 	return 0;
 }
 

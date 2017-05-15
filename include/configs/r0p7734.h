@@ -40,20 +40,6 @@
 # define CONFIG_SMC911X_BASE (0x84000000)
 #endif
 
-/* I2C */
-#define CONFIG_SH_SH7734_I2C	1
-#define CONFIG_HARD_I2C			1
-#define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_SYS_MAX_I2C_BUS	2
-#define CONFIG_SYS_I2C_MODULE	0
-#define CONFIG_SYS_I2C_SPEED	100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE	0x50
-#define CONFIG_SH_I2C_DATA_HIGH	4
-#define CONFIG_SH_I2C_DATA_LOW	5
-#define CONFIG_SH_I2C_CLOCK		500000000
-#define CONFIG_SH_I2C_BASE0		0xFFC70000
-#define CONFIG_SH_I2C_BASE1		0xFFC7100
-
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */

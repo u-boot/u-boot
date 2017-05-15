@@ -41,10 +41,6 @@ m8260_cpm_reset(void)
 	do {			/* Spin until command processed		*/
 		__asm__ __volatile__ ("eieio");
 	} while ((immr->im_cpm.cp_cpcr & CPM_CR_FLG) && ++count < 1000000);
-
-#ifdef CONFIG_HARD_I2C
-	immr->im_dprambase16[PROFF_I2C_BASE / sizeof(u16)] = 0;
-#endif
 }
 
 /* Allocate some memory from the dual ported ram.

@@ -13,34 +13,6 @@
 
 #ifdef CONFIG_CMD_BSP
 
-static int do_i2c_test(char * const argv[])
-{
-	unsigned char temp, temp1;
-
-	printf("Starting I2C Test\n"
-		"Please set Jumper:\nI2C SDA 2-3\nI2C SCL 2-3\n\n"
-		"Please press any key to start\n\n");
-	getc();
-
-	temp = 0xf0; /* set io 0-4 as output */
-	i2c_write(CONFIG_SYS_I2C_IO, 3, 1, (uchar *)&temp, 1);
-
-	printf("Press I2C4-7. LED I2C0-3 should have the same state\n\n"
-		"Press any key to stop\n\n");
-
-	while (!tstc()) {
-		i2c_read(CONFIG_SYS_I2C_IO, 0, 1, (uchar *)&temp, 1);
-		temp1 = (temp >> 4) & 0x03;
-		temp1 |= (temp >> 3) & 0x08; /* S302 -> LED303 */
-		temp1 |= (temp >> 5) & 0x04; /* S303 -> LED302 */
-		temp = temp1;
-		i2c_write(CONFIG_SYS_I2C_IO, 1, 1, (uchar *)&temp, 1);
-	}
-	getc();
-
-	return 0;
-}
-
 static int do_usb_test(char * const argv[])
 {
 	int i;
@@ -387,9 +359,7 @@ static int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	switch (argc) {
 	case 2:
-		if (strncmp(argv[1], "i2c", 3) == 0)
-			rcode = do_i2c_test(argv);
-		else if (strncmp(argv[1], "led", 3) == 0)
+		if (strncmp(argv[1], "led", 3) == 0)
 			rcode = do_led_test(argv);
 		else if (strncmp(argv[1], "usb", 3) == 0)
 			rcode = do_usb_test(argv);

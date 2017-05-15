@@ -146,15 +146,6 @@ static void fti2c010_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 	set_i2c_bus_speed(chip, speed);
 
 	/* slave init, don't care */
-
-#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
-	/* Call board specific i2c bus reset routine AFTER the bus has been
-	 * initialized. Use either this callpoint or i2c_init_board;
-	 * which is called before fti2c010_init operations.
-	 * For details about this problem see doc/I2C_Edge_Conditions.
-	*/
-	i2c_board_late_init();
-#endif
 }
 
 /*

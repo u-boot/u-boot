@@ -16,7 +16,6 @@
 /* U-Boot Commands */
 #define CONFIG_FAT_WRITE
 
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 
@@ -61,11 +60,6 @@
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
-#endif
-
-/* EEPROM */
-#ifdef CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #endif
 
 /* RTC */

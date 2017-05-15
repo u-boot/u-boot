@@ -7,7 +7,7 @@
 
 extra-y	= start.o
 obj-y	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
-	  interrupts.o ether_fcc.o i2c.o commproc.o \
+	  interrupts.o ether_fcc.o commproc.o \
 	  bedbug_603e.o pci.o spi.o kgdb.o
 
 obj-$(CONFIG_ETHER_ON_SCC) += ether_scc.o

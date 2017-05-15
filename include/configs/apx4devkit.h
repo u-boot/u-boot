@@ -79,12 +79,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif
 
-/* RTC */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_PCF8563
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
-#endif
-
 /* Boot Linux */
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTCOMMAND		"run bootcmd_nand"

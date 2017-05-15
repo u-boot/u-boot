@@ -184,7 +184,7 @@ __weak int dram_init_banksize(void)
 	return 0;
 }
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C)
 static int init_func_i2c(void)
 {
 	puts("I2C:   ");
@@ -767,7 +767,7 @@ static const init_fnc_t init_sequence_f[] = {
 	misc_init_f,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C)
 	init_func_i2c,
 #endif
 #if defined(CONFIG_HARD_SPI)

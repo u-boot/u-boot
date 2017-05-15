@@ -2204,52 +2204,7 @@ The following options need to be configured:
 
 		If you do not have i2c muxes on your board, omit this define.
 
-- Legacy I2C Support:	CONFIG_HARD_I2C
-
-		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
-		provides the following compelling advantages:
-
-		- more than one i2c adapter is usable
-		- approved multibus support
-		- better i2c mux support
-
-		** Please consider updating your I2C driver now. **
-
-		These enable legacy I2C serial bus commands. Defining
-		CONFIG_HARD_I2C will include the appropriate I2C driver
-		for the selected CPU.
-
-		This will allow you to use i2c commands at the u-boot
-		command line (as long as you set CONFIG_CMD_I2C in
-		CONFIG_COMMANDS) and communicate with i2c based realtime
-		clock chips. See common/cmd_i2c.c for a description of the
-		command line interface.
-
-		CONFIG_HARD_I2C selects a hardware I2C controller.
-
-		There are several other quantities that must also be
-		defined when you define CONFIG_HARD_I2C.
-
-		In both cases you will need to define CONFIG_SYS_I2C_SPEED
-		to be the frequency (in Hz) at which you wish your i2c bus
-		to run and CONFIG_SYS_I2C_SLAVE to be the address of this node (ie
-		the CPU's i2c node address).
-
-		Now, the u-boot i2c code for the mpc8xx
-		(arch/powerpc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
-		and so its address should therefore be cleared to 0 (See,
-		eg, MPC823e User's Manual p.16-473). So, set
-		CONFIG_SYS_I2C_SLAVE to 0.
-
-		CONFIG_SYS_I2C_INIT_MPC5XXX
-
-		When a board is reset during an i2c bus transfer
-		chips might think that the current transfer is still
-		in progress.  Reset the slave devices by sending start
-		commands until the slave device responds.
-
-		That's all that's required for CONFIG_HARD_I2C.
-
+- Legacy I2C Support:
 		If you use the software i2c interface (CONFIG_SYS_I2C_SOFT)
 		then the following macros need to be defined (examples are
 		from include/configs/lwmon.h):
@@ -2337,23 +2292,6 @@ The following options need to be configured:
 		connected to the bus. If this option is defined a
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
-
-		CONFIG_SYS_I2C_BOARD_LATE_INIT
-
-		An alternative to CONFIG_SYS_I2C_INIT_BOARD. If this option is
-		defined a custom i2c_board_late_init() routine in
-		boards/xxx/board.c is run AFTER the operations in i2c_init()
-		is completed. This callpoint can be used to unreset i2c bus
-		using CPU i2c controller register accesses for CPUs whose i2c
-		controller provide such a method. It is called at the end of
-		i2c_init() to allow i2c_init operations to setup the i2c bus
-		controller on the CPU (e.g. setting bus speed & slave address).
-
-		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
-
-		This option enables configuration of bi_iic_fast[] flags
-		in u-boot bd_info structure based on u-boot environment
-		variable "i2cfast". (see also i2cfast)
 
 		CONFIG_I2C_MULTI_BUS
 

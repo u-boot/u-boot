@@ -124,8 +124,7 @@
 #ifndef CONFIG_CAM5200
 /* POST support */
 #define CONFIG_POST		(CONFIG_SYS_POST_MEMORY   | \
-				 CONFIG_SYS_POST_CPU	   | \
-				 CONFIG_SYS_POST_I2C)
+				 CONFIG_SYS_POST_CPU)
 #endif
 
 #ifdef CONFIG_POST
@@ -144,7 +143,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 
@@ -276,54 +274,6 @@
  * 66 MHz yet hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
 #define CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2	/* define for 66MHz speed */
-#endif
-
-/*
- * I2C configuration
- */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#ifdef CONFIG_TQM5200_REV100
-#define CONFIG_SYS_I2C_MODULE		1	/* Select I2C module #1 for rev. 100 board */
-#else
-#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #2 for all other revs */
-#endif
-
-/*
- * I2C clock frequency
- *
- * Please notice, that the resulting clock frequency could differ from the
- * configured value. This is because the I2C clock is derived from system
- * clock over a frequency divider with only a few divider values. U-Boot
- * calculates the best approximation for CONFIG_SYS_I2C_SPEED. However the calculated
- * approximation allways lies below the configured value, never above.
- */
-#define CONFIG_SYS_I2C_SPEED		100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
-/*
- * EEPROM configuration for onboard EEPROM M24C32 (M24C64 should work
- * also). For other EEPROMs configuration should be verified. On Mini-FAP the
- * EEPROM (24C64) is on the same I2C address (but on other I2C bus), so the
- * same configuration could be used.
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* 1010000x */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	20
-
-/*
- * HW-Monitor configuration on Mini-FAP
- */
-#if defined (CONFIG_MINIFAP)
-#define CONFIG_SYS_I2C_HWMON_ADDR		0x2C
-#endif
-
-/* List of I2C addresses to be verified by POST */
-#if defined (CONFIG_MINIFAP)
-#undef CONFIG_SYS_POST_I2C_ADDRS
-#define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_EEPROM_ADDR,	\
-					 CONFIG_SYS_I2C_HWMON_ADDR,	\
-					 CONFIG_SYS_I2C_SLAVE}
 #endif
 
 /*
@@ -542,18 +492,6 @@
 #else  /* TMQ5200 Inbetriebnahme-Board */
 # define CONFIG_SYS_GPS_PORT_CONFIG	0x81000004
 #endif
-#endif
-
-/*
- * RTC configuration
- */
-#if defined (CONFIG_STK52XX) && !defined (CONFIG_STK52XX_REV100)
-# define CONFIG_RTC_M41T11 1
-# define CONFIG_SYS_I2C_RTC_ADDR 0x68
-# define CONFIG_SYS_M41T11_BASE_YEAR	1900    /* because Linux uses the same base
-					   year */
-#else
-# define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
 #endif
 
 /*

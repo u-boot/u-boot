@@ -165,7 +165,6 @@
 #define CONFIG_TSEC2
 #define CONFIG_TSEC_ENET
 #define CONFIG_HARD_SPI
-#define CONFIG_HARD_I2C
 
 /*
  * NOR FLASH setup

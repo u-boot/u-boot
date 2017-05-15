@@ -499,9 +499,19 @@ void	reset_phy     (void);
 void	fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
+#ifdef CONFIG_CMD_EEPROM
 void eeprom_init  (int bus);
 int  eeprom_read  (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 int  eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
+#else
+/*
+ * Some EEPROM code is depecated because it used the legacy I2C interface. Add
+ * some macros here so we don't have to touch every one of those uses
+ */
+#define eeprom_init(bus)
+#define eeprom_read(dev_addr, offset, buffer, cnt) ((void)-ENOSYS)
+#define eeprom_write(dev_addr, offset, buffer, cnt) ((void)-ENOSYS)
+#endif
 
 /*
  * Set this up regardless of board

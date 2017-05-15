@@ -42,7 +42,8 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
 void do_board_detect(void)
 {
-	if (ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR))
+	if (ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				 CONFIG_EEPROM_CHIP_ADDRESS))
 		printf("ti_i2c_eeprom_init failed\n");
 }
 #endif

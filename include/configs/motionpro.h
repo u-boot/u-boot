@@ -34,7 +34,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_JFFS2
@@ -256,21 +255,6 @@
 #define CONFIG_SYS_ATA_STRIDE		4
 
 /*
- * I2C configuration
- */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CONFIG_SYS_I2C_MODULE		2	/* select I2C module #2 */
-#define CONFIG_SYS_I2C_SPEED		100000	/* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
-/*
- * EEPROM configuration
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	1	/* 2 bytes per write cycle */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5	/* 2ms/cycle + 3ms extra */
-
-/*
  * RTC configuration
  */
 #define CONFIG_RTC_DS1337	1
@@ -282,12 +266,6 @@
 
 #define ENABLE_GPIO_OUT		0x00000024
 #define LED_ON			0x00000010
-
-/*
- * Temperature sensor
- */
-#define CONFIG_DTT_LM75		1
-#define CONFIG_DTT_SENSORS	{ 0x49 }
 
 /*
  * Environment settings

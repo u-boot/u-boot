@@ -49,7 +49,6 @@ Serial console configuration
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_PCI
 
@@ -121,31 +120,6 @@ IPB Bus clocking configuration.
 #define CONFIG_SYS_XLB_PIPELINING	1
 
 /*---------------------------------------------------------------------------
- I2C configuration
----------------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C 1 /* I2C with hardware support */
-#define CONFIG_SYS_I2C_MODULE 2 /* Select I2C module #1 or #2 */
-#define CONFIG_SYS_I2C_SPEED 100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE 0x7F
-
-/*---------------------------------------------------------------------------
- EEPROM CAT24WC32 configuration
----------------------------------------------------------------------------*/
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x52	/* 1010100x */
-#define CONFIG_SYS_I2C_FACT_ADDR	0x52	/* EEPROM CAT24WC32 */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2	/* Bytes of address */
-#define CONFIG_SYS_EEPROM_SIZE		2048
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 15
-
-/*---------------------------------------------------------------------------
-RTC configuration
----------------------------------------------------------------------------*/
-#define RTC
-#define CONFIG_RTC_PCF8563		1
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
-
-/*---------------------------------------------------------------------------
  Flash configuration
 ---------------------------------------------------------------------------*/
 
@@ -172,11 +146,10 @@ RTC configuration
  Environment settings
 ---------------------------------------------------------------------------*/
 
-/* pcm030 ships with environment is EEPROM by default */
-#define CONFIG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_OFFSET	0x00	/* environment starts at the */
 					/*beginning of the EEPROM */
-#define CONFIG_ENV_SIZE		CONFIG_SYS_EEPROM_SIZE
+#define CONFIG_ENV_SIZE		2048
 
 #define CONFIG_ENV_OVERWRITE	1
 

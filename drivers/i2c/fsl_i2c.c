@@ -284,15 +284,6 @@ static void __i2c_init(const struct fsl_i2c_base *base, int speed, int
 
 		break;
 	}
-
-#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
-	/* Call board specific i2c bus reset routine AFTER the bus has been
-	 * initialized. Use either this callpoint or i2c_init_board;
-	 * which is called before i2c_init operations.
-	 * For details about this problem see doc/I2C_Edge_Conditions.
-	*/
-	i2c_board_late_init();
-#endif
 }
 
 static int

@@ -18,17 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int eeprom_write_enable(unsigned dev_addr, int state)
 {
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-
-	if (dev_addr != CONFIG_SYS_I2C_EEPROM_ADDR)
-		return -1;
-
-	if (state == 0)
-		setbits_be32(&im->gpio.gpdat, 0x00100000);
-	else
-		clrbits_be32(&im->gpio.gpdat, 0x00100000);
-
-	return 0;
+	return -ENOSYS;
 }
 
 int board_early_init_f(void)

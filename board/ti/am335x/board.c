@@ -72,7 +72,8 @@ void do_board_detect(void)
 	enable_i2c0_pin_mux();
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
-	if (ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR))
+	if (ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				 CONFIG_EEPROM_CHIP_ADDRESS))
 		printf("ti_i2c_eeprom_init failed\n");
 }
 #endif

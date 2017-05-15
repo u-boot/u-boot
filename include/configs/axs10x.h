@@ -100,7 +100,7 @@
 /*
  * Environment settings
  */
-#define CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			SZ_512
 #define CONFIG_ENV_OFFSET		0
 

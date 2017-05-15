@@ -127,25 +127,6 @@
 #define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 #endif
 
-#if 0
-/*
- * I2C configuration
- */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #1 or #2 */
-
-#define CONFIG_SYS_I2C_SPEED		100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
-/*
- * EEPROM configuration
- */
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* 1010000x */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	70
-#endif
-
 /*
  * Flash configuration
  */

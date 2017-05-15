@@ -485,24 +485,7 @@ static int initr_env(void)
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_SYS_EXTBDINFO)
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
-#if defined(CONFIG_I2CFAST)
-	/*
-	 * set bi_iic_fast for linux taking environment variable
-	 * "i2cfast" into account
-	 */
-	{
-		char *s = getenv("i2cfast");
 
-		if (s && ((*s == 'y') || (*s == 'Y'))) {
-			gd->bd->bi_iic_fast[0] = 1;
-			gd->bd->bi_iic_fast[1] = 1;
-		}
-	}
-#endif /* CONFIG_I2CFAST */
-#endif /* CONFIG_405GP, CONFIG_405EP */
-#endif /* CONFIG_SYS_EXTBDINFO */
 	return 0;
 }
 

@@ -69,10 +69,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2SR_IIF_CLEAR	(0 << 1)
 #endif
 
-#if defined(CONFIG_HARD_I2C) && !defined(CONFIG_SYS_I2C_BASE)
-#error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
-#endif
-
 #ifdef I2C_QUIRK_REG
 static u16 i2c_clk_div[60][2] = {
 	{ 20,	0x00 }, { 22,	0x01 }, { 24,	0x02 }, { 26,	0x03 },

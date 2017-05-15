@@ -21,7 +21,7 @@
 #include <logbuff.h>
 #endif
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
 
@@ -346,9 +346,6 @@ int stdio_add_devices(void)
 #ifdef CONFIG_SYS_I2C
 	i2c_init_all();
 #else
-#if defined(CONFIG_HARD_I2C)
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
 #endif
 #ifdef CONFIG_DM_VIDEO
 	/*
