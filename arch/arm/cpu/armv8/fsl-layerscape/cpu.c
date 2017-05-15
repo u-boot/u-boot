@@ -244,6 +244,14 @@ u64 get_page_table_size(void)
 
 int arch_cpu_init(void)
 {
+	/*
+	 * This function is called before U-Boot relocates itself to speed up
+	 * on system running. It is not necessary to run if performance is not
+	 * critical. Skip if MMU is already enabled by SPL or other means.
+	 */
+	if (get_sctlr() & CR_M)
+		return 0;
+
 	icache_enable();
 	__asm_invalidate_dcache_all();
 	__asm_invalidate_tlb_all();
@@ -530,7 +538,8 @@ int timer_init(void)
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
 
 	/* Update with accurate clock frequency */
-	asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
+	if (current_el() == 3)
+		asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
 #endif
 
 #ifdef CONFIG_FSL_LSCH3

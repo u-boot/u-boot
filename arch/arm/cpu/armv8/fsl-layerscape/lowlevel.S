@@ -73,6 +73,9 @@ ENDPROC(smp_kick_all_cpus)
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
+	switch_el x1, 1f, 100f, 100f	/* skip if not in EL3 */
+1:
+
 #ifdef CONFIG_FSL_LSCH3
 
 	/* Set Wuo bit for RN-I 20 */
@@ -193,6 +196,7 @@ ENTRY(lowlevel_init)
 #endif
 #endif
 
+100:
 	branch_if_master x0, x1, 2f
 
 #if defined(CONFIG_MP) && defined(CONFIG_ARMV8_MULTIENTRY)
@@ -201,6 +205,8 @@ ENTRY(lowlevel_init)
 #endif
 
 2:
+	switch_el x1, 1f, 100f, 100f	/* skip if not in EL3 */
+1:
 #ifdef CONFIG_FSL_TZPC_BP147
 	/* Set Non Secure access for all devices protected via TZPC */
 	ldr	x1, =TZPCDECPROT_0_SET_BASE /* Decode Protection-0 Set Reg */
@@ -266,8 +272,11 @@ ENTRY(lowlevel_init)
 	isb
 	dsb	sy
 #endif
+100:
 1:
 #ifdef CONFIG_ARCH_LS1046A
+	switch_el x1, 1f, 100f, 100f	/* skip if not in EL3 */
+1:
 	/* Initialize the L2 RAM latency */
 	mrs   x1, S3_1_c11_c0_2
 	mov   x0, #0x1C7
@@ -279,6 +288,7 @@ ENTRY(lowlevel_init)
 	orr   x1,  x1, #0x80
 	msr   S3_1_c11_c0_2, x1
 	isb
+100:
 #endif
 
 #if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD)
@@ -379,11 +389,14 @@ ENTRY(__asm_flush_l3_dcache)
 	/*
 	 * Return status in x0
 	 *    success 0
-	 *    tmeout 1 for setting SFONLY, 2 for FAM, 3 for both
+	 *    timeout 1 for setting SFONLY, 2 for FAM, 3 for both
 	 */
 	mov	x29, lr
 	mov	x8, #0
 
+	switch_el x0, 1f, 100f, 100f	/* skip if not in EL3 */
+
+1:
 	dsb	sy
 	mov	x0, #0x1		/* HNFPSTAT_SFONLY */
 	bl	hnf_set_pstate
@@ -401,6 +414,7 @@ ENTRY(__asm_flush_l3_dcache)
 	bl	hnf_pstate_poll
 	cbz	x0, 1f
 	add	x8, x8, #0x2
+100:
 1:
 	mov	x0, x8
 	mov	lr, x29
