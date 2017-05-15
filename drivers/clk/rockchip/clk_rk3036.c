@@ -116,21 +116,21 @@ static void rkclk_init(struct rk3036_cru *cru)
 		     pclk_div << CORE_PERI_DIV_SHIFT);
 
 	/*
-	 * select apll as pd_bus clock pll source and
+	 * select apll as pd_bus bus clock source and
 	 * set up dependent divisors for PCLK/HCLK and ACLK clocks.
 	 */
-	aclk_div = APLL_HZ / CPU_ACLK_HZ - 1;
-	assert((aclk_div + 1) * CPU_ACLK_HZ == APLL_HZ && aclk_div < 0x1f);
+	aclk_div = GPLL_HZ / BUS_ACLK_HZ - 1;
+	assert((aclk_div + 1) * BUS_ACLK_HZ == GPLL_HZ && aclk_div <= 0x1f);
 
-	pclk_div = APLL_HZ / CPU_PCLK_HZ - 1;
-	assert((pclk_div + 1) * CPU_PCLK_HZ == APLL_HZ && pclk_div < 0x7);
+	pclk_div = GPLL_HZ / BUS_PCLK_HZ - 1;
+	assert((pclk_div + 1) * BUS_PCLK_HZ == GPLL_HZ && pclk_div <= 0x7);
 
-	hclk_div = APLL_HZ / CPU_HCLK_HZ - 1;
-	assert((hclk_div + 1) * CPU_HCLK_HZ == APLL_HZ && hclk_div < 0x3);
+	hclk_div = GPLL_HZ / BUS_HCLK_HZ - 1;
+	assert((hclk_div + 1) * BUS_HCLK_HZ == GPLL_HZ && hclk_div <= 0x3);
 
 	rk_clrsetreg(&cru->cru_clksel_con[0],
 		     BUS_ACLK_PLL_SEL_MASK | BUS_ACLK_DIV_MASK,
-		     BUS_ACLK_PLL_SEL_APLL << BUS_ACLK_PLL_SEL_SHIFT |
+		     BUS_ACLK_PLL_SEL_GPLL << BUS_ACLK_PLL_SEL_SHIFT |
 		     aclk_div << BUS_ACLK_DIV_SHIFT);
 
 	rk_clrsetreg(&cru->cru_clksel_con[1],
@@ -147,7 +147,7 @@ static void rkclk_init(struct rk3036_cru *cru)
 
 	hclk_div = ilog2(PERI_ACLK_HZ / PERI_HCLK_HZ);
 	assert((1 << hclk_div) * PERI_HCLK_HZ ==
-		PERI_ACLK_HZ && (pclk_div < 0x4));
+		PERI_ACLK_HZ && (hclk_div < 0x4));
 
 	pclk_div = ilog2(PERI_ACLK_HZ / PERI_PCLK_HZ);
 	assert((1 << pclk_div) * PERI_PCLK_HZ ==
