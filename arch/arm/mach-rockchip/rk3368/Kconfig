@@ -8,10 +8,15 @@ config TARGET_SHEEP
 	help
 	  Sheep board is designed by Rockchip as a EVB board
 	  for rk3368.
+
+config TARGET_GEEKBOX
+	bool "GeekBox"
+
 endchoice
 
 config SYS_SOC
 	default "rockchip"
 
 source "board/rockchip/sheep_rk3368/Kconfig"
+source "board/geekbuying/geekbox/Kconfig"
 endif
