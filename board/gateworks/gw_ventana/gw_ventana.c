@@ -1203,16 +1203,16 @@ int ft_board_setup(void *blob, bd_t *bd)
 			    strstr((const char *)info->model, "SP331-B"))
 				gpio_cfg[board_type].usd_vsel = 0;
 
-			/* GW520x-E adds WDOG1_B external reset */
-			if (info->model[4] == '0' && rev < 'E')
-				ft_delprop_path(blob, WDOG1_PATH,
-						"fsl,ext-reset-output");
-
 			/* GW522x-B adds WDOG1_B external reset */
-			if (info->model[4] == '2' && rev < 'B')
-				ft_delprop_path(blob, WDOG1_PATH,
-						"fsl,ext-reset-output");
+			ft_delprop_path(blob, WDOG1_PATH,
+					"fsl,ext-reset-output");
 		}
+
+		/* GW520x-E adds WDOG1_B external reset */
+		else if (info->model[4] == '0' && rev < 'E')
+			ft_delprop_path(blob, WDOG1_PATH,
+					"fsl,ext-reset-output");
+
 		break;
 
 	case GW53xx:
