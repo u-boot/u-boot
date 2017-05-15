@@ -1,6 +1,17 @@
 if ROCKCHIP_RK3368
 
+choice
+	prompt "RK3368 board"
+
+config TARGET_SHEEP
+	bool "Sheep board"
+	help
+	  Sheep board is designed by Rockchip as a EVB board
+	  for rk3368.
+endchoice
+
 config SYS_SOC
 	default "rockchip"
 
+source "board/rockchip/sheep_rk3368/Kconfig"
 endif
