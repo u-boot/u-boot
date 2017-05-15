@@ -17,6 +17,7 @@
  * To be aligned with MMU block size
  */
 #define CONFIG_SYS_MEM_RESERVE_SECURE	(2048 * 1024)	/* 2MB */
+#define SPL_TLB_SETBACK	0x1000000	/* 16MB under effective memory top */
 
 #ifdef CONFIG_ARCH_LS2080A
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 4, 4 }
