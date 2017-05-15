@@ -2973,15 +2973,6 @@ FIT uImage format:
 		This define is introduced, as the legacy image format is
 		enabled per default for backward compatibility.
 
-- FIT image support:
-		CONFIG_FIT_DISABLE_SHA256
-		Supporting SHA256 hashes has quite an impact on binary size.
-		For constrained systems sha256 hash support can be disabled
-		with this option.
-
-		TODO(sjg@chromium.org): Adjust this option to be positive,
-		and move it to Kconfig
-
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
