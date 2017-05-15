@@ -70,6 +70,7 @@
 
 /* Pin Monitor */
 #define SG_PINMON0			(SG_DBG_BASE | 0x0100)
+#define SG_PINMON2			(SG_DBG_BASE | 0x0108)
 
 #define SG_PINMON0_CLK_MODE_UPLLSRC_MASK	(0x3 << 19)
 #define SG_PINMON0_CLK_MODE_UPLLSRC_DEFAULT	(0x0 << 19)
