@@ -197,6 +197,16 @@ config PINCTRL_ROCKCHIP_RK3328
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config PINCTRL_ROCKCHIP_RK3368
+	bool "Rockchip RK3368 pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rk3368 SoCs.
+
+	  The driver is controlled by a device tree node which contains both
+	  the GPIO definitions and pin control functions for each available
+	  multiplex function.
+
 config PINCTRL_ROCKCHIP_RK3399
 	bool "Rockchip rk3399 pin control driver"
 	depends on DM
