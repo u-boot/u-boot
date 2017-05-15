@@ -4,6 +4,10 @@
 
 # Test basic shell functionality, such as commands separate by semi-colons.
 
+import pytest
+
+pytestmark = pytest.mark.buildconfigspec('cmd_echo')
+
 def test_shell_execute(u_boot_console):
     """Test any shell command."""
 
