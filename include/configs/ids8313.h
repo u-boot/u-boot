@@ -542,7 +542,5 @@
 
 #define CONFIG_IMAGE_FORMAT_LEGACY
 #define CONFIG_CMD_HASH
-#define CONFIG_SHA1
-#define CONFIG_SHA256
 
 #endif	/* __CONFIG_H */

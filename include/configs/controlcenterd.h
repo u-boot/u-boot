@@ -199,8 +199,6 @@
 #define CONFIG_SF_DEFAULT_MODE		0
 #endif
 
-#define CONFIG_SHA1
-
 /*
  * MMC
  */

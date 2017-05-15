@@ -2756,19 +2756,6 @@ The following options need to be configured:
 		Enable the hash verify command (hash -v). This adds to code
 		size a little.
 
-		CONFIG_SHA1 - This option enables support of hashing using SHA1
-		algorithm. The hash is calculated in software.
-		CONFIG_SHA256 - This option enables support of hashing using
-		SHA256 algorithm. The hash is calculated in software.
-		CONFIG_SHA_HW_ACCEL - This option enables hardware acceleration
-		for SHA1/SHA256 hashing.
-		This affects the 'hash' command and also the
-		hash_lookup_algo() function.
-		CONFIG_SHA_PROG_HW_ACCEL - This option enables
-		hardware-acceleration for SHA1/SHA256 progressive hashing.
-		Data can be streamed in a block at a time and the hashing
-		is performed in hardware.
-
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
 

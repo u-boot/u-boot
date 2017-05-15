@@ -125,8 +125,6 @@
 /* FIT */
 #ifdef CONFIG_FIT
 # define CONFIG_HASH_VERIFY
-# define CONFIG_SHA1
-# define CONFIG_SHA256
 # define CONFIG_IMAGE_FORMAT_LEGACY
 #endif
 

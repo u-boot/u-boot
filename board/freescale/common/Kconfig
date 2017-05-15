@@ -3,5 +3,7 @@ config CHAIN_OF_TRUST
 	imply CMD_BLOB
 	select FSL_CAAM
 	select SPL_BOARD_INIT if (ARM && SPL)
+	select SHA_HW_ACCEL
+	select SHA_PROG_HW_ACCEL
 	bool
 	default y

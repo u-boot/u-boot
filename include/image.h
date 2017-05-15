@@ -30,6 +30,8 @@ struct lmb;
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_FIT_ENABLE_SHA256_SUPPORT
+#define CONFIG_SHA1
+#define CONFIG_SHA256
 
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
@@ -65,8 +67,6 @@ struct lmb;
 #  endif
 # else
 #  define CONFIG_CRC32		/* FIT images need CRC32 support */
-#  define CONFIG_SHA1		/* and SHA1 */
-#  define CONFIG_SHA256		/* and SHA256 */
 #  define IMAGE_ENABLE_CRC32	1
 #  define IMAGE_ENABLE_MD5	1
 #  define IMAGE_ENABLE_SHA1	1
@@ -86,7 +86,6 @@ struct lmb;
 
 #if defined(CONFIG_FIT_ENABLE_SHA256_SUPPORT) || \
 	defined(CONFIG_SPL_SHA256_SUPPORT)
-#define CONFIG_SHA256
 #define IMAGE_ENABLE_SHA256	1
 #else
 #define IMAGE_ENABLE_SHA256	0

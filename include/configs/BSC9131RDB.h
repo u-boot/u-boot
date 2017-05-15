@@ -331,7 +331,6 @@ extern unsigned long get_sdram_size(void);
 /* Hash command with SHA acceleration supported in hardware */
 #ifdef CONFIG_FSL_CAAM
 #define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
 #endif
 
 #ifdef CONFIG_USB_EHCI_HCD

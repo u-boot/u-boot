@@ -233,7 +233,6 @@ unsigned long long get_qixis_addr(void);
 /* Hash command with SHA acceleration supported in hardware */
 #ifdef CONFIG_FSL_CAAM
 #define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
 #endif
 
 #endif /* __LS2_COMMON_H */

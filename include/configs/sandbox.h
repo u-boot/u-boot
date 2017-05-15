@@ -104,8 +104,6 @@
 
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
-#define CONFIG_SHA1
-#define CONFIG_SHA256
 
 #define CONFIG_CMD_SANDBOX
 

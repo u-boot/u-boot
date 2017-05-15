@@ -17,6 +17,7 @@ config ARCH_EXYNOS5
 	bool "Exynos5 SoC family"
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
+	select SHA_HW_ACCEL
 	help
 	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
 	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs

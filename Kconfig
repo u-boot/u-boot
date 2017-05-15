@@ -145,6 +145,7 @@ menu "Boot images"
 config FIT
 	bool "Support Flattened Image Tree"
 	select MD5
+	select SHA1
 	help
 	  This option allows you to boot the new uImage structure,
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
@@ -159,6 +160,7 @@ if FIT
 
 config FIT_ENABLE_SHA256_SUPPORT
 	bool "Support SHA256 checksum of FIT image contents"
+	select SHA256
 	default y
 	help
 	  Enable this to support SHA256 checksum of FIT image contents. A

@@ -26,7 +26,6 @@
 
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
-#define CONFIG_SHA_HW_ACCEL
 
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
@@ -139,8 +138,6 @@
 /* SHA hashing */
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
-#define CONFIG_SHA1
-#define CONFIG_SHA256
 
 /* Enable Time Command */
 
