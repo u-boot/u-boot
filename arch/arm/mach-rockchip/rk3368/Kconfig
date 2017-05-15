@@ -12,6 +12,14 @@ config TARGET_SHEEP
 config TARGET_GEEKBOX
 	bool "GeekBox"
 
+config TARGET_EVB_PX5
+        bool "Evb-PX5"
+        help
+	 PX5 EVB is designed by Rockchip for automotive field
+         with integrated CVBS (TP2825) / MIPI DSI / CSI / LVDS
+         HDMI video input/output interface, audio codec ES8396,
+         WIFI/BT (on RTL8723BS), Gsensor BMA250E and light&proximity
+         sensor STK3410.
 endchoice
 
 config SYS_SOC
@@ -19,4 +27,6 @@ config SYS_SOC
 
 source "board/rockchip/sheep_rk3368/Kconfig"
 source "board/geekbuying/geekbox/Kconfig"
+source "board/rockchip/evb_px5/Kconfig"
+
 endif
