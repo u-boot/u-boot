@@ -93,6 +93,11 @@
 			clocks = <&periph_osc>;
 		};
 
+		wdt-reboot {
+			compatible = "wdt-reboot";
+			wdt = <&wdt>;
+		};
+
 		gpio1: gpio-controller@fffe0080 {
 			compatible = "brcm,bcm6345-gpio";
 			reg = <0xfffe0080 0x4>, <0xfffe0088 0x4>;
