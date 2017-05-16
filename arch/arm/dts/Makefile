@@ -146,6 +146,7 @@ dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am43x-epos-evm.dtb \
 	am437x-idk-evm.dtb
+dtb-$(CONFIG_TI816X) += dm8168-evm.dtb
 dtb-$(CONFIG_THUNDERX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
