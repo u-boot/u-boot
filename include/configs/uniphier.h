@@ -176,7 +176,7 @@
 #define CONFIG_BOOTFILE			"Image.gz"
 #define LINUXBOOT_CMD			"booti"
 #define KERNEL_ADDR_LOAD		"kernel_addr_load=0x84200000\0"
-#define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
+#define KERNEL_ADDR_R			"kernel_addr_r=0x82080000\0"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
