@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 #if defined(CONFIG_NAND)
 	gpmc_init();
 #endif
