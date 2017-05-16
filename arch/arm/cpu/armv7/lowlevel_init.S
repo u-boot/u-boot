@@ -15,7 +15,14 @@
 #include <config.h>
 #include <linux/linkage.h>
 
-ENTRY(lowlevel_init)
+.pushsection .text.s_init, "ax"
+WEAK(s_init)
+	bx	lr
+ENDPROC(s_init)
+.popsection
+
+.pushsection .text.lowlevel_init, "ax"
+WEAK(lowlevel_init)
 	/*
 	 * Setup a temporary stack. Global data is not available yet.
 	 */
@@ -61,3 +68,4 @@ ENTRY(lowlevel_init)
 	bl	s_init
 	pop	{ip, pc}
 ENDPROC(lowlevel_init)
+.popsection
