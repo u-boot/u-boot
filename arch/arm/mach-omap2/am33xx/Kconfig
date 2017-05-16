@@ -1,3 +1,23 @@
+if TI816X
+
+config TARGET_TI816X_EVM
+	bool "Support ti816x_evm"
+	help
+	  This option specifies support for the TI8168 EVM development platform
+	  with PG2.0 silicon and DDR3 DRAM.
+
+endif
+
+if TI814X
+
+config TARGET_TI814X_EVM
+	bool "Support ti814x_evm"
+	help
+	  This option specifies support for the TI8148
+	  EVM development platform.
+
+endif
+
 if AM33XX
 
 config AM33XX_CHILISOM

@@ -16,9 +16,6 @@
 #ifndef __CONFIG_TI814X_EVM_H
 #define __CONFIG_TI814X_EVM_H
 
-#define CONFIG_TI81XX
-#define CONFIG_TI814X
-
 #include <asm/arch/omap.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */

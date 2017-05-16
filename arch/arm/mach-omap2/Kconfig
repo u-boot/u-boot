@@ -54,12 +54,6 @@ config TARGET_RUT
 	select DM_SERIAL
 	select DM_GPIO
 
-config TARGET_TI814X_EVM
-	bool "Support ti814x_evm"
-
-config TARGET_TI816X_EVM
-	bool "Support ti816x_evm"
-
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select ARM_ERRATA_430973
@@ -115,6 +109,20 @@ config OMAP54XX
 	imply SPL_NAND_SUPPORT
 	imply SPL_POWER_SUPPORT
 	imply SPL_SERIAL_SUPPORT
+
+config TI814X
+	bool "TI814X SoC"
+	help
+	  Support for AM335x SOC from Texas Instruments.
+	  The AM335x high performance SOC features a Cortex-A8
+	  ARM core and more.
+
+config TI816X
+	bool "TI816X SoC"
+	help
+	  Support for AM335x SOC from Texas Instruments.
+	  The AM335x high performance SOC features a Cortex-A8
+	  ARM core and more.
 
 config AM43XX
 	bool "AM43XX SoC"

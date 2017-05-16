@@ -10,9 +10,6 @@
 #ifndef __CONFIG_TI816X_EVM_H
 #define __CONFIG_TI816X_EVM_H
 
-#define CONFIG_TI81XX
-#define CONFIG_TI816X
-
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
