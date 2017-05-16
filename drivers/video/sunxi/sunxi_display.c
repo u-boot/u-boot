@@ -14,6 +14,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/lcdc.h>
 #include <asm/arch/pwm.h>
+#include <asm/arch/tve.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -929,63 +930,19 @@ static void sunxi_tvencoder_mode_set(void)
 
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_vga:
-		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3), &tve->gctrl);
-		writel(SUNXI_TVE_CFG0_VGA, &tve->cfg0);
-		writel(SUNXI_TVE_DAC_CFG0_VGA, &tve->dac_cfg0);
-		writel(SUNXI_TVE_UNKNOWN1_VGA, &tve->unknown1);
+		tvencoder_mode_set(tve, tve_mode_vga);
 		break;
 	case sunxi_monitor_composite_pal_nc:
-		writel(SUNXI_TVE_CHROMA_FREQ_PAL_NC, &tve->chroma_freq);
-		/* Fall through */
+		tvencoder_mode_set(tve, tve_mode_composite_pal_nc);
+		break;
 	case sunxi_monitor_composite_pal:
-		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(3, 4), &tve->gctrl);
-		writel(SUNXI_TVE_CFG0_PAL, &tve->cfg0);
-		writel(SUNXI_TVE_DAC_CFG0_COMPOSITE, &tve->dac_cfg0);
-		writel(SUNXI_TVE_FILTER_COMPOSITE, &tve->filter);
-		writel(SUNXI_TVE_PORCH_NUM_PAL, &tve->porch_num);
-		writel(SUNXI_TVE_LINE_NUM_PAL, &tve->line_num);
-		writel(SUNXI_TVE_BLANK_BLACK_LEVEL_PAL, &tve->blank_black_level);
-		writel(SUNXI_TVE_UNKNOWN1_COMPOSITE, &tve->unknown1);
-		writel(SUNXI_TVE_CBR_LEVEL_PAL, &tve->cbr_level);
-		writel(SUNXI_TVE_BURST_WIDTH_COMPOSITE, &tve->burst_width);
-		writel(SUNXI_TVE_UNKNOWN2_PAL, &tve->unknown2);
-		writel(SUNXI_TVE_ACTIVE_NUM_COMPOSITE, &tve->active_num);
-		writel(SUNXI_TVE_CHROMA_BW_GAIN_COMP, &tve->chroma_bw_gain);
-		writel(SUNXI_TVE_NOTCH_WIDTH_COMPOSITE, &tve->notch_width);
-		writel(SUNXI_TVE_RESYNC_NUM_PAL, &tve->resync_num);
-		writel(SUNXI_TVE_SLAVE_PARA_COMPOSITE, &tve->slave_para);
+		tvencoder_mode_set(tve, tve_mode_composite_pal);
 		break;
 	case sunxi_monitor_composite_pal_m:
-		writel(SUNXI_TVE_CHROMA_FREQ_PAL_M, &tve->chroma_freq);
-		writel(SUNXI_TVE_COLOR_BURST_PAL_M, &tve->color_burst);
-		/* Fall through */
+		tvencoder_mode_set(tve, tve_mode_composite_pal_m);
+		break;
 	case sunxi_monitor_composite_ntsc:
-		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3) |
-		       SUNXI_TVE_GCTRL_DAC_INPUT(3, 4), &tve->gctrl);
-		writel(SUNXI_TVE_CFG0_NTSC, &tve->cfg0);
-		writel(SUNXI_TVE_DAC_CFG0_COMPOSITE, &tve->dac_cfg0);
-		writel(SUNXI_TVE_FILTER_COMPOSITE, &tve->filter);
-		writel(SUNXI_TVE_PORCH_NUM_NTSC, &tve->porch_num);
-		writel(SUNXI_TVE_LINE_NUM_NTSC, &tve->line_num);
-		writel(SUNXI_TVE_BLANK_BLACK_LEVEL_NTSC, &tve->blank_black_level);
-		writel(SUNXI_TVE_UNKNOWN1_COMPOSITE, &tve->unknown1);
-		writel(SUNXI_TVE_CBR_LEVEL_NTSC, &tve->cbr_level);
-		writel(SUNXI_TVE_BURST_PHASE_NTSC, &tve->burst_phase);
-		writel(SUNXI_TVE_BURST_WIDTH_COMPOSITE, &tve->burst_width);
-		writel(SUNXI_TVE_UNKNOWN2_NTSC, &tve->unknown2);
-		writel(SUNXI_TVE_SYNC_VBI_LEVEL_NTSC, &tve->sync_vbi_level);
-		writel(SUNXI_TVE_ACTIVE_NUM_COMPOSITE, &tve->active_num);
-		writel(SUNXI_TVE_CHROMA_BW_GAIN_COMP, &tve->chroma_bw_gain);
-		writel(SUNXI_TVE_NOTCH_WIDTH_COMPOSITE, &tve->notch_width);
-		writel(SUNXI_TVE_RESYNC_NUM_NTSC, &tve->resync_num);
-		writel(SUNXI_TVE_SLAVE_PARA_COMPOSITE, &tve->slave_para);
+		tvencoder_mode_set(tve, tve_mode_composite_ntsc);
 		break;
 	case sunxi_monitor_none:
 	case sunxi_monitor_dvi:
@@ -993,14 +950,6 @@ static void sunxi_tvencoder_mode_set(void)
 	case sunxi_monitor_lcd:
 		break;
 	}
-}
-
-static void sunxi_tvencoder_enable(void)
-{
-	struct sunxi_tve_reg * const tve =
-		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
-
-	setbits_le32(&tve->gctrl, SUNXI_TVE_GCTRL_ENABLE);
 }
 
 #endif /* CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_COMPOSITE */
@@ -1080,6 +1029,8 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 	int __maybe_unused clk_div, clk_double;
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
+	struct sunxi_tve_reg * __maybe_unused const tve =
+		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
 
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_none:
@@ -1134,7 +1085,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_tvencoder_mode_set();
 		sunxi_composer_enable();
 		lcdc_enable(lcdc, sunxi_display.depth);
-		sunxi_tvencoder_enable();
+		tvencoder_enable(tve);
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode, true);
@@ -1153,7 +1104,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_tvencoder_mode_set();
 		sunxi_composer_enable();
 		lcdc_enable(lcdc, sunxi_display.depth);
-		sunxi_tvencoder_enable();
+		tvencoder_enable(tve);
 #endif
 		break;
 	}

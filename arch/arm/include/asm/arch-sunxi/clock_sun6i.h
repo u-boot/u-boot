@@ -84,7 +84,8 @@ struct sunxi_ccm_reg {
 	u32 lcd0_ch0_clk_cfg;	/* 0x118 LCD0 CH0 module clock */
 	u32 lcd1_ch0_clk_cfg;	/* 0x11c LCD1 CH0 module clock */
 #endif
-	u32 reserved14[3];
+	u32 tve_clk_cfg;	/* 0x120 H3/H5 TVE module clock */
+	u32 reserved14[2];
 	u32 lcd0_ch1_clk_cfg;	/* 0x12c LCD0 CH1 module clock */
 	u32 lcd1_ch1_clk_cfg;	/* 0x130 LCD1 CH1 module clock */
 	u32 csi0_clk_cfg;	/* 0x134 CSI0 module clock */
@@ -307,6 +308,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_DE_BE0		12
 #define AHB_GATE_OFFSET_DE		12
 #define AHB_GATE_OFFSET_HDMI		11
+#define AHB_GATE_OFFSET_TVE		9
 #ifndef CONFIG_SUNXI_DE2
 #define AHB_GATE_OFFSET_LCD1		5
 #define AHB_GATE_OFFSET_LCD0		4
@@ -415,6 +417,9 @@ struct sunxi_ccm_reg {
 
 #define CCM_HDMI_SLOW_CTRL_DDC_GATE	(1 << 31)
 
+#define CCM_TVE_CTRL_GATE		(0x1 << 31)
+#define CCM_TVE_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+
 #if defined(CONFIG_MACH_SUN50I)
 #define MBUS_CLK_DEFAULT		0x81000002 /* PLL6x2 / 3 */
 #elif defined(CONFIG_MACH_SUN8I)
@@ -448,6 +453,7 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_DE		12
 #define AHB_RESET_OFFSET_HDMI		11
 #define AHB_RESET_OFFSET_HDMI2		10
+#define AHB_RESET_OFFSET_TVE		9
 #ifndef CONFIG_SUNXI_DE2
 #define AHB_RESET_OFFSET_LCD1		5
 #define AHB_RESET_OFFSET_LCD0		4
