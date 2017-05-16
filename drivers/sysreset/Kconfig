@@ -31,4 +31,10 @@ config SYSRESET_SYSCON
 	help
 	  Reboot support for generic SYSCON mapped register reset.
 
+config SYSRESET_WATCHDOG
+	bool "Enable support for watchdog reboot driver"
+	select WDT
+	help
+	  Reboot support for generic watchdog reset.
+
 endmenu
