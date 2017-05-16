@@ -98,6 +98,17 @@ config BOARD_HUAWEI_HG556A
 	depends on SOC_BMIPS_BCM6358
 	select BMIPS_SUPPORTS_BOOT_RAM
 
+config BOARD_NETGEAR_CG3100D
+	bool "Netgear CG3100D"
+	depends on SOC_BMIPS_BCM3380
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Netgear CG3100D boards have a BCM3380 SoC with 64 MB of RAM and 8 MB
+	  of flash (SPI).
+	  Between its different peripherals there's a BCM53115 switch with 4
+	  ethernet ports, 1 UART, GPIO buttons and LEDs, and a BCM43225
+	  (miniPCIe).
+
 config BOARD_SFR_NB4_SER
 	bool "SFR NeufBox 4 (Sercomm)"
 	depends on SOC_BMIPS_BCM6358
@@ -125,6 +136,7 @@ source "board/comtrend/ar5387un/Kconfig"
 source "board/comtrend/ct5361/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
 source "board/huawei/hg556a/Kconfig"
+source "board/netgear/cg3100d/Kconfig"
 source "board/sfr/nb4_ser/Kconfig"
 
 endmenu
