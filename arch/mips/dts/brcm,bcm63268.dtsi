@@ -84,6 +84,12 @@
 			#reset-cells = <1>;
 		};
 
+		wdt: watchdog@1000009c {
+			compatible = "brcm,bcm6345-wdt";
+			reg = <0x1000009c 0xc>;
+			clocks = <&periph_osc>;
+		};
+
 		gpio1: gpio-controller@100000c0 {
 			compatible = "brcm,bcm6345-gpio";
 			reg = <0x100000c0 0x4>, <0x100000c8 0x4>;
