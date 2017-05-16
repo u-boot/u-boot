@@ -128,6 +128,11 @@ static ulong bcm6328_get_cpu_freq(struct bmips_cpu_priv *priv)
 	}
 }
 
+static ulong bcm6338_get_cpu_freq(struct bmips_cpu_priv *priv)
+{
+	return 240000000;
+}
+
 static ulong bcm6348_get_cpu_freq(struct bmips_cpu_priv *priv)
 {
 	unsigned int tmp, n1, n2, m1;
@@ -205,6 +210,12 @@ static const struct bmips_cpu_hw bmips_cpu_bcm6328 = {
 	.get_cpu_desc = bmips_long_cpu_desc,
 	.get_cpu_freq = bcm6328_get_cpu_freq,
 	.get_cpu_count = bcm6328_get_cpu_count,
+};
+
+static const struct bmips_cpu_hw bmips_cpu_bcm6338 = {
+	.get_cpu_desc = bmips_short_cpu_desc,
+	.get_cpu_freq = bcm6338_get_cpu_freq,
+	.get_cpu_count = bcm6345_get_cpu_count,
 };
 
 static const struct bmips_cpu_hw bmips_cpu_bcm6348 = {
@@ -306,6 +317,9 @@ static const struct udevice_id bmips_cpu_ids[] = {
 	}, {
 		.compatible = "brcm,bcm6328-cpu",
 		.data = (ulong)&bmips_cpu_bcm6328,
+	}, {
+		.compatible = "brcm,bcm6338-cpu",
+		.data = (ulong)&bmips_cpu_bcm6338,
 	}, {
 		.compatible = "brcm,bcm6348-cpu",
 		.data = (ulong)&bmips_cpu_bcm6348,
