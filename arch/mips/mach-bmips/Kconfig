@@ -65,6 +65,17 @@ config BOARD_COMTREND_AR5387UN
 	depends on SOC_BMIPS_BCM6328
 	select BMIPS_SUPPORTS_BOOT_RAM
 
+config BOARD_COMTREND_CT5361
+	bool "Comtrend CT-5361"
+	depends on SOC_BMIPS_BCM6348
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend CT-5361 boards have a BCM6348 SoC with 16 MB of RAM and 4 MB
+	  of flash (CFI).
+	  Between its different peripherals there's a BCM5325 switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and a
+	  BCM4312 (miniPCI).
+
 config BOARD_COMTREND_VR3032U
 	bool "Comtrend VR-3032u board"
 	depends on SOC_BMIPS_BCM63268
@@ -99,6 +110,7 @@ config BMIPS_SUPPORTS_BOOT_RAM
 	bool
 
 source "board/comtrend/ar5387un/Kconfig"
+source "board/comtrend/ct5361/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
 source "board/huawei/hg556a/Kconfig"
 source "board/sfr/nb4_ser/Kconfig"
