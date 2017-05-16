@@ -56,7 +56,7 @@ struct bmips_cpu_priv {
 };
 
 /* Specific CPU Ops */
-static int bcm6358_get_cpu_desc(struct bmips_cpu_priv *priv, char *buf,
+static int bmips_short_cpu_desc(struct bmips_cpu_priv *priv, char *buf,
 				int size)
 {
 	unsigned short cpu_id;
@@ -72,7 +72,7 @@ static int bcm6358_get_cpu_desc(struct bmips_cpu_priv *priv, char *buf,
 	return 0;
 }
 
-static int bcm6328_get_cpu_desc(struct bmips_cpu_priv *priv, char *buf,
+static int bmips_long_cpu_desc(struct bmips_cpu_priv *priv, char *buf,
 				int size)
 {
 	unsigned int cpu_id;
@@ -166,19 +166,19 @@ static int bcm6358_get_cpu_count(struct bmips_cpu_priv *priv)
 }
 
 static const struct bmips_cpu_hw bmips_cpu_bcm6328 = {
-	.get_cpu_desc = bcm6328_get_cpu_desc,
+	.get_cpu_desc = bmips_long_cpu_desc,
 	.get_cpu_freq = bcm6328_get_cpu_freq,
 	.get_cpu_count = bcm6328_get_cpu_count,
 };
 
 static const struct bmips_cpu_hw bmips_cpu_bcm6358 = {
-	.get_cpu_desc = bcm6358_get_cpu_desc,
+	.get_cpu_desc = bmips_short_cpu_desc,
 	.get_cpu_freq = bcm6358_get_cpu_freq,
 	.get_cpu_count = bcm6358_get_cpu_count,
 };
 
 static const struct bmips_cpu_hw bmips_cpu_bcm63268 = {
-	.get_cpu_desc = bcm6328_get_cpu_desc,
+	.get_cpu_desc = bmips_long_cpu_desc,
 	.get_cpu_freq = bcm63268_get_cpu_freq,
 	.get_cpu_count = bcm6358_get_cpu_count,
 };
