@@ -163,6 +163,14 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
  */
 void config_sdram(const struct emif_regs *regs, int nr)
 {
+#ifdef CONFIG_TI816X
+	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif_reg[nr]->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif_reg[nr]->emif_ddr_phy_ctrl_1_shdw);
+	writel(0x0000613B, &emif_reg[nr]->emif_sdram_ref_ctrl);   /* initially a large refresh period */
+	writel(0x1000613B, &emif_reg[nr]->emif_sdram_ref_ctrl);   /* trigger initialization           */
+	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
+#else
 	if (regs->zq_config) {
 		writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 		writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
@@ -184,6 +192,7 @@ void config_sdram(const struct emif_regs *regs, int nr)
 	/* Write REG_COS_COUNT_1, REG_COS_COUNT_2, and REG_PR_OLD_COUNT. */
 	if (regs->ocp_config)
 		writel(regs->ocp_config, &emif_reg[nr]->emif_l3_config);
+#endif
 }
 
 /**

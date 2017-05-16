@@ -39,6 +39,27 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int dram_init(void)
+{
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	sdram_init();
+#endif
+
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size(
+			(void *)CONFIG_SYS_SDRAM_BASE,
+			CONFIG_MAX_RAM_BANK_SIZE);
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = gd->ram_size;
+
+	return 0;
+}
+
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct ns16550_platdata am33xx_serial[] = {
 	{ .base = CONFIG_SYS_NS16550_COM1, .reg_shift = 2,

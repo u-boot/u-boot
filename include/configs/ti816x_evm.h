@@ -50,21 +50,6 @@
 
 #define CONFIG_CMD_ASKENV
 
-/*
- * Only one of the following two options (DDR3/DDR2) should be enabled
- * CONFIG_TI816X_EVM_DDR2
- * CONFIG_TI816X_EVM_DDR3
- */
-#define CONFIG_TI816X_EVM_DDR3
-
-/*
- * Supported values: 400, 531, 675 or 796 MHz
- */
-#define CONFIG_TI816X_DDR_PLL_796
-
-#define CONFIG_TI816X_USE_EMIF0	1
-#define CONFIG_TI816X_USE_EMIF1	1
-
 #define CONFIG_NR_DRAM_BANKS	2		/* we have 2 banks of DRAM */
 #define PHYS_DRAM_1		0x80000000	/* DRAM Bank #1 */
 #define PHYS_DRAM_1_SIZE        0x40000000	/* 1 GB */
