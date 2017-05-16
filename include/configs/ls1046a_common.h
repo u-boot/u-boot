@@ -176,23 +176,23 @@
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
  * about 1MB (2048 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080(0x820).
+ * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 18432(0x4800).
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
+#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
 #elif defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_FMAN_FW_ADDR		0x40300000
+#define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
 #define CONFIG_ENV_SPI_MAX_HZ		1000000
 #define CONFIG_ENV_SPI_MODE		0x03
 #elif defined(CONFIG_NAND_BOOT)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_FMAN_FW_ADDR		(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_FMAN_FW_ADDR		(72 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_FMAN_FW_ADDR		0x60300000
+#define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
