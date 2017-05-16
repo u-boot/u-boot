@@ -88,6 +88,12 @@ config BOARD_COMTREND_AR5387UN
 	bool "Comtrend AR-5387un"
 	depends on SOC_BMIPS_BCM6328
 	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend AR-5387un boards have a BCM6328 SoC with 64 MB of RAM and 16
+	  MB of flash (SPI).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
+	  a BCM43225 (PCIe).
 
 config BOARD_COMTREND_CT5361
 	bool "Comtrend CT-5361"
@@ -104,11 +110,23 @@ config BOARD_COMTREND_VR3032U
 	bool "Comtrend VR-3032u board"
 	depends on SOC_BMIPS_BCM63268
 	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend VR-3032u boards have a BCM63268 SoC with 64 MB of RAM and
+	  128 MB of flash (NAND).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs,
+	  and a BCM6362 (integrated).
 
 config BOARD_HUAWEI_HG556A
 	bool "Huawei EchoLife HG556a"
 	depends on SOC_BMIPS_BCM6358
 	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Huawei EchoLife HG556a boards have a BCM6358 SoC with 64 MB of RAM
+	  and 16 MB of flash (CFI).
+	  Between its different peripherals there's a BCM5325 switch with 4
+	  ethernet ports, 3 USB ports, 1 UART, GPIO buttons and LEDs, and
+	  a RT3062F/AR9223 (PCI).
 
 config BOARD_NETGEAR_CG3100D
 	bool "Netgear CG3100D"
@@ -136,6 +154,12 @@ config BOARD_SFR_NB4_SER
 	bool "SFR NeufBox 4 (Sercomm)"
 	depends on SOC_BMIPS_BCM6358
 	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  SFR NeufBox 4 (Sercomm) boards have a BCM6358 SoC with 32 MB of RAM
+	  and 8 MB of flash (CFI).
+	  Between its different peripherals there's a BCM5325 switch with 4
+	  ethernet ports, 2 USB ports, 1 UART, GPIO buttons and LEDs, and
+	  a BCM4318 (PCI).
 
 endchoice
 
