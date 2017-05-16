@@ -18,7 +18,8 @@ static inline phys_addr_t fixup_bigphys_addr(phys_addr_t phys_addr,
 
 static inline int is_bmips_internal_registers(phys_addr_t offset)
 {
-#if defined(CONFIG_SOC_BMIPS_BCM6348) || \
+#if defined(CONFIG_SOC_BMIPS_BCM6338) || \
+	defined(CONFIG_SOC_BMIPS_BCM6348) || \
 	defined(CONFIG_SOC_BMIPS_BCM6358)
 	if (offset >= 0xfffe0000)
 		return 1;
