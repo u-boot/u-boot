@@ -2,6 +2,7 @@ menu "Broadcom MIPS platforms"
 	depends on ARCH_BMIPS
 
 config SYS_SOC
+	default "bcm3380" if SOC_BMIPS_BCM3380
 	default "bcm6328" if SOC_BMIPS_BCM6328
 	default "bcm6348" if SOC_BMIPS_BCM6348
 	default "bcm6358" if SOC_BMIPS_BCM6358
@@ -9,6 +10,17 @@ config SYS_SOC
 
 choice
 	prompt "Broadcom MIPS SoC select"
+
+config SOC_BMIPS_BCM3380
+	bool "BMIPS BCM3380 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_WATCHDOG
+	help
+	  This supports BMIPS BCM3380 family.
 
 config SOC_BMIPS_BCM6328
 	bool "BMIPS BCM6328 family"
