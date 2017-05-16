@@ -40,24 +40,27 @@ static ulong bcm6328_get_ram_size(struct bmips_ram_priv *priv)
 	return readl_be(priv->regs + DDR_CSEND_REG) << 24;
 }
 
+static ulong bmips_dram_size(unsigned int cols, unsigned int rows,
+			     unsigned int is_32b, unsigned int banks)
+{
+	rows += 11; /* 0 => 11 address bits ... 2 => 13 address bits */
+	cols += 8; /* 0 => 8 address bits ... 2 => 10 address bits */
+	is_32b += 1;
+
+	return 1 << (cols + rows + is_32b + banks);
+}
+
 static ulong bcm6358_get_ram_size(struct bmips_ram_priv *priv)
 {
-	unsigned int cols = 0, rows = 0, is_32bits = 0, banks = 0;
+	unsigned int cols = 0, rows = 0, is_32b = 0;
 	u32 val;
 
 	val = readl_be(priv->regs + MEMC_CFG_REG);
 	rows = (val & MEMC_CFG_ROW_MASK) >> MEMC_CFG_ROW_SHIFT;
 	cols = (val & MEMC_CFG_COL_MASK) >> MEMC_CFG_COL_SHIFT;
-	is_32bits = (val & MEMC_CFG_32B_MASK) ? 0 : 1;
-	banks = 2;
+	is_32b = (val & MEMC_CFG_32B_MASK) ? 0 : 1;
 
-	/* 0 => 11 address bits ... 2 => 13 address bits */
-	rows += 11;
-
-	/* 0 => 8 address bits ... 2 => 10 address bits */
-	cols += 8;
-
-	return 1 << (cols + rows + (is_32bits + 1) + banks);
+	return bmips_dram_size(cols, rows, is_32b, 2);
 }
 
 static int bmips_ram_get_info(struct udevice *dev, struct ram_info *info)
