@@ -250,7 +250,7 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 static int init_mmc(void)
 {
 #ifdef CONFIG_MMC_SDHCI

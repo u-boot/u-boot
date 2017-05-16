@@ -10,10 +10,6 @@ config MMC
 	  If you want MMC/SD/SDIO support, you should say Y here and
 	  also to your specific host controller driver.
 
-config GENERIC_MMC
-	bool "Generic MMC driver framework"
-	default MMC
-
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
@@ -138,6 +134,7 @@ config MMC_PCI
 
 config MMC_OMAP_HS
 	bool "TI OMAP High Speed Multimedia Card Interface support"
+	select DM_MMC_OPS if DM_MMC
 	help
 	  This selects the TI OMAP High Speed Multimedia card Interface.
 	  If you have an omap2plus board with a Multimedia Card slot,

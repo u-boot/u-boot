@@ -632,7 +632,7 @@ void arch_preboot_os(void)
 	leds_set_finish();
 }
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	int ret;

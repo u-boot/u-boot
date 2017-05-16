@@ -284,7 +284,7 @@ void board_nand_init(void)
 }
 #endif
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 static void mmc_pinmux_setup(int sdc)
 {
 	unsigned int pin;

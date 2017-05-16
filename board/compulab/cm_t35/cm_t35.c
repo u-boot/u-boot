@@ -372,7 +372,7 @@ void set_muxconf_regs(void)
 		cm_t3730_set_muxconf();
 }
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 #define SB_T35_WP_GPIO 59
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -391,7 +391,7 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);

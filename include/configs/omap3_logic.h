@@ -23,6 +23,7 @@
  * DM support in SPL
  */
 #undef CONFIG_DM_MMC
+#undef CONFIG_DM_MMC_OPS
 #undef OMAP_HSMMC_USE_GPIO
 
 /* select serial console configuration for SPL */

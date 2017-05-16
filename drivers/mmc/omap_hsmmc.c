@@ -326,11 +326,17 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 		}
 	}
 }
-
+#ifndef CONFIG_DM_MMC
 static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
 	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+#else
+static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+#endif
 	struct hsmmc *mmc_base;
 	unsigned int flags, mmc_stat;
 	ulong start;
@@ -558,9 +564,17 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
 static int omap_hsmmc_set_ios(struct mmc *mmc)
 {
 	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+#else
+static int omap_hsmmc_set_ios(struct udevice *dev)
+{
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = upriv->mmc;
+#endif
 	struct hsmmc *mmc_base;
 	unsigned int dsor = 0;
 	ulong start;
@@ -617,9 +631,9 @@ static int omap_hsmmc_set_ios(struct mmc *mmc)
 
 #ifdef OMAP_HSMMC_USE_GPIO
 #ifdef CONFIG_DM_MMC
-static int omap_hsmmc_getcd(struct mmc *mmc)
+static int omap_hsmmc_getcd(struct udevice *dev)
 {
-	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	int value;
 
 	value = dm_gpio_get_value(&priv->cd_gpio);
@@ -632,9 +646,9 @@ static int omap_hsmmc_getcd(struct mmc *mmc)
 	return value;
 }
 
-static int omap_hsmmc_getwp(struct mmc *mmc)
+static int omap_hsmmc_getwp(struct udevice *dev)
 {
-	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	int value;
 
 	value = dm_gpio_get_value(&priv->wp_gpio);
@@ -674,6 +688,16 @@ static int omap_hsmmc_getwp(struct mmc *mmc)
 #endif
 #endif
 
+#ifdef CONFIG_DM_MMC
+static const struct dm_mmc_ops omap_hsmmc_ops = {
+	.send_cmd	= omap_hsmmc_send_cmd,
+	.set_ios	= omap_hsmmc_set_ios,
+#ifdef OMAP_HSMMC_USE_GPIO
+	.get_cd		= omap_hsmmc_getcd,
+	.get_wp		= omap_hsmmc_getwp,
+#endif
+};
+#else
 static const struct mmc_ops omap_hsmmc_ops = {
 	.send_cmd	= omap_hsmmc_send_cmd,
 	.set_ios	= omap_hsmmc_set_ios,
@@ -683,6 +707,7 @@ static const struct mmc_ops omap_hsmmc_ops = {
 	.getwp		= omap_hsmmc_getwp,
 #endif
 };
+#endif
 
 #ifndef CONFIG_DM_MMC
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
@@ -835,7 +860,6 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	struct mmc *mmc;
 
 	cfg->name = "OMAP SD/MMC";
-	cfg->ops = &omap_hsmmc_ops;
 	priv->base_addr = plat->base_addr;
 #ifdef OMAP_HSMMC_USE_GPIO
 	priv->cd_inverted = plat->cd_inverted;
@@ -857,7 +881,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	mmc->dev = dev;
 	upriv->mmc = mmc;
 
-	return 0;
+	return omap_hsmmc_init_setup(mmc);
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -901,6 +925,7 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
+	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
 	.flags	= DM_FLAG_PRE_RELOC,

@@ -33,7 +33,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 #define SB_SOM_CD_GPIO 187
 #define SB_SOM_WP_GPIO 188
 
@@ -51,7 +51,7 @@ int board_mmc_init(bd_t *bis)
 
 	return ret0 && ret1;
 }
-#endif /* CONFIG_GENERIC_MMC */
+#endif /* CONFIG_MMC */
 
 int misc_init_r(void)
 {

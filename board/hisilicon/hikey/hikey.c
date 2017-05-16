@@ -341,7 +341,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 
 static int init_dwmmc(void)
 {
