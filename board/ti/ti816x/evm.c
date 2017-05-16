@@ -25,11 +25,13 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+#if defined(CONFIG_NAND)
+	gpmc_init();
+#endif
 	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
-
 static struct module_pin_mux mmc_pin_mux[] = {
 	{ OFFSET(pincntl157), PULLDOWN_EN | PULLUDDIS | MODE(0x0) },
 	{ OFFSET(pincntl158), PULLDOWN_EN | PULLUDEN | MODE(0x0) },
