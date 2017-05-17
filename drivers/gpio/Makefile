@@ -42,7 +42,6 @@ obj-$(CONFIG_SH_GPIO_PFC)	+= sh_pfc.o
 obj-$(CONFIG_OMAP_GPIO)	+= omap_gpio.o
 obj-$(CONFIG_DB8500_GPIO)	+= db8500_gpio.o
 obj-$(CONFIG_BCM2835_GPIO)	+= bcm2835_gpio.o
-obj-$(CONFIG_S3C2440_GPIO)	+= s3c2440_gpio.o
 obj-$(CONFIG_XILINX_GPIO)	+= xilinx_gpio.o
 obj-$(CONFIG_ADI_GPIO2)	+= adi_gpio2.o
 obj-$(CONFIG_TCA642X)		+= tca642x.o
