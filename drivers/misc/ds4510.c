@@ -12,7 +12,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <command.h>
-#include <ds4510.h>
+#include "ds4510.h"
 
 /* Default to an address that hopefully won't corrupt other i2c devices */
 #ifndef CONFIG_SYS_I2C_DS4510_ADDR
@@ -35,7 +35,7 @@ enum {
 /*
  * Write to DS4510, taking page boundaries into account
  */
-int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
+static int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
 {
 	int wrlen;
 	int i = 0;
@@ -64,7 +64,7 @@ int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
 /*
  * General read from DS4510
  */
-int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
+static int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
 {
 	return i2c_read(chip, offset, 1, buf, count);
 }
@@ -74,7 +74,7 @@ int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
  * nv = 0 - Writes to SEEPROM registers behave like EEPROM
  * nv = 1 - Writes to SEEPROM registers behave like SRAM
  */
-int ds4510_see_write(uint8_t chip, uint8_t nv)
+static int ds4510_see_write(uint8_t chip, uint8_t nv)
 {
 	uint8_t data;
 
@@ -92,7 +92,7 @@ int ds4510_see_write(uint8_t chip, uint8_t nv)
 /*
  * Write de-assertion of reset signal delay
  */
-int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
+static int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
 {
 	uint8_t data;
 
@@ -108,7 +108,7 @@ int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
 /*
  * Write pullup characteristics of IO pins
  */
-int ds4510_pullup_write(uint8_t chip, uint8_t val)
+static int ds4510_pullup_write(uint8_t chip, uint8_t val)
 {
 	val &= DS4510_IO_MASK;
 
@@ -118,7 +118,7 @@ int ds4510_pullup_write(uint8_t chip, uint8_t val)
 /*
  * Read pullup characteristics of IO pins
  */
-int ds4510_pullup_read(uint8_t chip)
+static int ds4510_pullup_read(uint8_t chip)
 {
 	uint8_t val;
 
@@ -131,7 +131,7 @@ int ds4510_pullup_read(uint8_t chip)
 /*
  * Write drive level of IO pins
  */
-int ds4510_gpio_write(uint8_t chip, uint8_t val)
+static int ds4510_gpio_write(uint8_t chip, uint8_t val)
 {
 	uint8_t data;
 	int i;
@@ -155,7 +155,7 @@ int ds4510_gpio_write(uint8_t chip, uint8_t val)
 /*
  * Read drive level of IO pins
  */
-int ds4510_gpio_read(uint8_t chip)
+static int ds4510_gpio_read(uint8_t chip)
 {
 	uint8_t data;
 	int val = 0;
@@ -175,7 +175,7 @@ int ds4510_gpio_read(uint8_t chip)
 /*
  * Read physical level of IO pins
  */
-int ds4510_gpio_read_val(uint8_t chip)
+static int ds4510_gpio_read_val(uint8_t chip)
 {
 	uint8_t val;
 
@@ -185,7 +185,6 @@ int ds4510_gpio_read_val(uint8_t chip)
 	return val & DS4510_IO_MASK;
 }
 
-#ifdef CONFIG_CMD_DS4510
 /*
  * Display DS4510 information
  */
@@ -384,4 +383,3 @@ U_BOOT_CMD(
 	"ds4510 sram write addr off cnt\n"
 	"	- read/write 'cnt' bytes at SRAM offset 'off'"
 );
-#endif /* CONFIG_CMD_DS4510 */

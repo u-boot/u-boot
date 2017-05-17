@@ -50,14 +50,4 @@
 #define DS4510_SRAM				0xfa
 #define DS4510_SRAM_SIZE			0x06
 
-int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count);
-int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count);
-int ds4510_see_write(uint8_t chip, uint8_t nv);
-int ds4510_rstdelay_write(uint8_t chip, uint8_t delay);
-int ds4510_pullup_write(uint8_t chip, uint8_t val);
-int ds4510_pullup_read(uint8_t chip);
-int ds4510_gpio_write(uint8_t chip, uint8_t val);
-int ds4510_gpio_read(uint8_t chip);
-int ds4510_gpio_read_val(uint8_t chip);
-
 #endif /* __DS4510_H_ */
