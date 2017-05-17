@@ -292,6 +292,10 @@ int ppc4xx_pci_sync_clock_config(u32 async);
 unsigned long get_OPB_freq(void);
 unsigned long get_PCI_freq(void);
 
+typedef PPC4xx_SYS_INFO sys_info_t;
+int ppc440spe_revB(void);
+void get_sys_info(sys_info_t *);
+
 #endif	/* __ASSEMBLY__ */
 
 /* for multi-cpu support */

@@ -662,12 +662,6 @@ static inline ulong get_ddr_freq(ulong dummy)
 ulong get_ddr_freq(ulong);
 #endif
 
-#if defined(CONFIG_4xx)
-typedef PPC4xx_SYS_INFO sys_info_t;
-int	ppc440spe_revB(void);
-void	get_sys_info  ( sys_info_t * );
-#endif
-
 int	cpu_init_r    (void);
 
 /* $(CPU)/interrupts.c */
