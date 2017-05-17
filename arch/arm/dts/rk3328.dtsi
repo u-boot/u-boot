@@ -471,6 +471,17 @@
 		status = "disabled";
 	};
 
+	usb_host0_xhci: usb@ff600000 {
+		compatible = "rockchip,rk3328-xhci";
+		reg = <0x0 0xff600000 0x0 0x100000>;
+		interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
+		snps,dis-enblslpm-quirk;
+		snps,phyif-utmi-bits = <16>;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-u2-susphy-quirk;
+		status = "disabled";
+	};
+
 	gic: interrupt-controller@ffb70000 {
 		compatible = "arm,gic-400";
 		#interrupt-cells = <3>;
