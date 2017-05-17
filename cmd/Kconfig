@@ -1200,6 +1200,15 @@ config CMD_IRQ
 
 	     interrupts - enable or disable interrupts
 	     irqinfo - print device-specific interrupt information
+
+config CMD_KGDB
+	bool "kgdb - Allow debugging of U-Boot with gdb"
+	help
+	  This enables a 'kgdb' command which allows gdb to connect to U-Boot
+	  over a serial link for debugging purposes. This allows
+	  single-stepping, inspecting variables, etc. This is supported only
+	  on PowerPC at present.
+
 endmenu
 
 config CMD_UBI

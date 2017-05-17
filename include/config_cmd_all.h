@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_KGDB		/* kgdb				*/
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
 #define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
