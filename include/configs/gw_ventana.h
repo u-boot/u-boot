@@ -141,7 +141,6 @@
 
 /* Various command support */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
-#define CONFIG_CMD_GSC
 #define CONFIG_CMD_UNZIP         /* gzwrite */
 #define CONFIG_RBTREE
 
