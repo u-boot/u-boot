@@ -846,6 +846,14 @@ config CMD_TIME
 	help
 	  Run commands and summarize execution time.
 
+config CMD_GETTIME
+	bool "gettime - read elapsed time"
+	help
+	  Enable the 'gettime' command which reads the elapsed time since
+	  U-Boot started running. This shows the time in seconds and
+	  milliseconds. See also the 'bootstage' command which provides more
+	  flexibility for boot timing.
+
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"

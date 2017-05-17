@@ -87,6 +87,7 @@ config X86
 	select USB_EHCI_HCD
 	select DM_MMC if MMC
 	imply CMD_FPGA_LOADMK
+	imply CMD_GETTIME
 
 config XTENSA
 	bool "Xtensa architecture"
