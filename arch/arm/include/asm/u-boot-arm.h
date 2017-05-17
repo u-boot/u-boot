@@ -47,6 +47,8 @@ ulong	get_timer_masked	(void);
 void	udelay_masked		(unsigned long usec);
 
 /* calls to c from vectors.S */
+struct pt_regs;
+
 void bad_mode(void);
 void do_undefined_instruction(struct pt_regs *pt_regs);
 void do_software_interrupt(struct pt_regs *pt_regs);
