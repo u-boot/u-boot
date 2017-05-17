@@ -438,11 +438,6 @@ void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 
-#if defined (CONFIG_MICROBLAZE)
-unsigned short	in16(unsigned int);
-void		out16(unsigned int, unsigned short value);
-#endif
-
 /* $(CPU)/cpu.c */
 static inline int cpumask_next(int cpu, unsigned int mask)
 {
