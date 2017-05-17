@@ -314,6 +314,14 @@ config CMD_ENV_EXISTS
 	  Check if a variable is defined in the environment for use in
 	  shell scripting.
 
+config CMD_ENV_CALLBACK
+	bool "env callbacks - print callbacks and their associated variables"
+	help
+	  Some environment variable have callbacks defined by
+	  U_BOOT_ENV_CALLBACK. These are called when the variable changes.
+	  For example changing "baudrate" adjust the serial baud rate. This
+	  command lists the currently defined callbacks.
+
 endmenu
 
 menu "Memory commands"
