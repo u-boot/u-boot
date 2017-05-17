@@ -433,9 +433,6 @@ static inline int setenv_addr(const char *varname, const void *addr)
 #ifdef CONFIG_X86
 # include <asm/u-boot.h>
 #endif /* CONFIG_X86 */
-#ifdef CONFIG_SANDBOX
-# include <asm/u-boot.h>
-#endif
 #ifdef CONFIG_NDS32
 # include <asm/mach-types.h>
 # include <asm/setup.h>
