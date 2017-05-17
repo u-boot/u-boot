@@ -115,6 +115,16 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.have_internal_stm = 1,
 	},
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PXS3)
+	{
+		.soc_id = UNIPHIER_PXS3_ID,
+		.boot_device_sel_shift = 1,
+		.boot_device_table = uniphier_pxs3_boot_device_table,
+		.boot_device_count = &uniphier_pxs3_boot_device_count,
+		.boot_device_is_usb = uniphier_pxs3_boot_device_is_usb,
+		.have_internal_stm = 0,
+	},
+#endif
 };
 UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_boot_device_info,
 			     uniphier_boot_device_info)
