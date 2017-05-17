@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
 static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 {

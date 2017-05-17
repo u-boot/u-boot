@@ -638,6 +638,8 @@ void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
 	       u32 txdone, u32 txdone_mask, u32 opp);
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
+struct tag_serialnr;
+
 void omap_die_id_serial(void);
 void omap_die_id_get_board_serial(struct tag_serialnr *serialnr);
 void omap_die_id_usbethaddr(void);

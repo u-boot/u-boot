@@ -9,6 +9,7 @@
 #include <libfdt.h>
 
 #include "tdx-cfg-block.h"
+#include <asm/setup.h>
 #include "tdx-common.h"
 
 #ifdef CONFIG_TDX_CFG_BLOCK

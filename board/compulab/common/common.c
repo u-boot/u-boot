@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/bootm.h>
 #include <asm/gpio.h>
+#include <asm/setup.h>
 
 #include "common.h"
 #include "eeprom.h"

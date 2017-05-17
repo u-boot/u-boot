@@ -26,6 +26,7 @@
 #include <linux/errno.h>
 #include <hwconfig.h>
 #include <asm/mach-types.h>
+#include <asm/setup.h>
 
 #ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>

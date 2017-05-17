@@ -19,6 +19,7 @@
 #include <asm/imx-common/spi.h>
 #include <asm/imx-common/video.h>
 #include <asm/io.h>
+#include <asm/setup.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <hwconfig.h>
