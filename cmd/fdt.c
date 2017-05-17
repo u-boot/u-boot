@@ -20,9 +20,7 @@
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
 #define SCRATCHPAD	1024		/* bytes of scratchpad memory */
-#ifndef CONFIG_CMD_FDT_MAX_DUMP
-#define CONFIG_CMD_FDT_MAX_DUMP 64
-#endif
+#define CMD_FDT_MAX_DUMP 64
 
 /*
  * Global data (for the gd->bd)
@@ -901,7 +899,7 @@ static void print_data(const void *data, int len)
 	}
 
 	if ((len %4) == 0) {
-		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+		if (len > CMD_FDT_MAX_DUMP)
 			printf("* 0x%p [0x%08x]", data, len);
 		else {
 			const __be32 *p;
@@ -913,7 +911,7 @@ static void print_data(const void *data, int len)
 			printf(">");
 		}
 	} else { /* anything else... hexdump */
-		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+		if (len > CMD_FDT_MAX_DUMP)
 			printf("* 0x%p [0x%08x]", data, len);
 		else {
 			const u8 *s;
