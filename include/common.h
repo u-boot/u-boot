@@ -430,8 +430,8 @@ static inline int setenv_addr(const char *varname, const void *addr)
 # include <asm/setup.h>
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
-#ifdef CONFIG_X86		/* x86 version to be fixed! */
-# include <asm/u-boot-x86.h>
+#ifdef CONFIG_X86
+# include <asm/u-boot.h>
 #endif /* CONFIG_X86 */
 #ifdef CONFIG_SANDBOX
 # include <asm/u-boot.h>
