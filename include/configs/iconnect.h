@@ -25,7 +25,6 @@
  * Compression configuration
  */
 #define CONFIG_BZIP2
-#define CONFIG_LZMA
 #define CONFIG_LZO
 
 /*

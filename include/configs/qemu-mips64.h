@@ -121,6 +121,4 @@
 
 #define MEM_SIZE		128
 
-#define CONFIG_LZMA
-
 #endif /* __CONFIG_H */

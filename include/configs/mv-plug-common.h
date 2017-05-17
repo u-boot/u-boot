@@ -22,7 +22,6 @@
  */
 #ifdef CONFIG_SYS_MVFS
 #define CONFIG_BZIP2
-#define CONFIG_LZMA
 #endif /* CONFIG_SYS_MVFS */
 
 /*

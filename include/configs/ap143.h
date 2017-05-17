@@ -37,7 +37,6 @@
 #define CONFIG_BOOTCOMMAND              "sf probe;" \
 					"mtdparts default;" \
 					"bootm 0x9f680000"
-#define CONFIG_LZMA
 
 #define MTDIDS_DEFAULT                  "nor0=spi-flash.0"
 #define MTDPARTS_DEFAULT                "mtdparts=spi-flash.0:" \

@@ -1723,29 +1723,6 @@ The following options need to be configured:
 		the malloc area (as defined by CONFIG_SYS_MALLOC_LEN) should
 		be at least 4MB.
 
-		CONFIG_LZMA
-
-		If this option is set, support for lzma compressed
-		images is included.
-
-		Note: The LZMA algorithm adds between 2 and 4KB of code and it
-		requires an amount of dynamic memory that is given by the
-		formula:
-
-			(1846 + 768 << (lc + lp)) * sizeof(uint16)
-
-		Where lc and lp stand for, respectively, Literal context bits
-		and Literal pos bits.
-
-		This value is upper-bounded by 14MB in the worst case. Anyway,
-		for a ~4MB large kernel image, we have lc=3 and lp=0 for a
-		total amount of (1846 + 768 << (3 + 0)) * 2 = ~41KB... that is
-		a very small buffer.
-
-		Use the lzmainfo tool to determinate the lc and lp values and
-		then calculate the amount of needed dynamic memory (ensuring
-		the appropriate CONFIG_SYS_MALLOC_LEN value).
-
 		CONFIG_LZO
 
 		If this option is set, support for LZO compressed images

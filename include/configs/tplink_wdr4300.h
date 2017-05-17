@@ -36,7 +36,6 @@
 	"console=ttyS0,115200 root=/dev/mtdblock2 rootfstype=squashfs"
 #define CONFIG_BOOTCOMMAND		\
 	"dhcp 192.168.1.1:wdr4300.fit && bootm $loadaddr"
-#define CONFIG_LZMA
 
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x10000
