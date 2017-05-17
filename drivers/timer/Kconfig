@@ -74,4 +74,10 @@ config ARC_TIMER
 	  usually at least one of them exists. Either of them is supported
 	  in U-Boot.
 
+config AG101P_TIMER
+	bool "Ag101p timer support"
+	depends on TIMER
+	help
+	  Select this to enable a timer for Ag101p devices.
+
 endmenu

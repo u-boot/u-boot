@@ -13,6 +13,7 @@
 		/* bootargs = "console=ttyS0,38400n8 earlyprintk=uart8250-32bit,0x99600000 debug bootmem_debug memblock=debug loglevel=7"; */
 		bootargs = "console=ttyS0,38400n8 earlyprintk=uart8250-32bit,0x99600000 debug loglevel=7";
 		stdout-path = "uart0:38400n8";
+		tick-timer = &timer0;
 	};
 
 	memory@0 {
@@ -44,6 +45,13 @@
 		clock-frequency = <14745600>;
 		reg-shift = <2>;
 		no-loopback-test = <1>;
+	};
+
+	timer0: timer@98400000 {
+		compatible = "andestech,attmr010";
+		reg = <0x98400000 0x1000>;
+		interrupts = <19 4>;
+		clock-frequency = <15000000>;
 	};
 
 };
