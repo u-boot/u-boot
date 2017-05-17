@@ -8,6 +8,7 @@
 #define _DM_H_
 
 #include <dm/device.h>
+#include <dm/fdtaddr.h>
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 
