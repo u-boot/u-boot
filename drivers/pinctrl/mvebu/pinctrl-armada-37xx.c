@@ -20,17 +20,22 @@
 #include <common.h>
 #include <config.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <regmap.h>
+#include <asm/gpio.h>
 #include <asm/system.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define OUTPUT_EN	0x0
+#define INPUT_VAL	0x10
+#define OUTPUT_VAL	0x18
 #define OUTPUT_CTL	0x20
 #define SELECTION	0x30
 
@@ -188,6 +193,16 @@ const struct armada_37xx_pin_data armada_37xx_pin_sb = {
 	.groups = armada_37xx_sb_groups,
 	.ngroups = ARRAY_SIZE(armada_37xx_sb_groups),
 };
+
+static inline void armada_37xx_update_reg(unsigned int *reg,
+					  unsigned int offset)
+{
+	/* We never have more than 2 registers */
+	if (offset >= GPIO_PER_REG) {
+		offset -= GPIO_PER_REG;
+		*reg += sizeof(u32);
+	}
+}
 
 static int armada_37xx_get_func_reg(struct armada_37xx_pin_group *grp,
 				    const char *func)
@@ -399,6 +414,149 @@ static int armada_37xx_fill_func(struct armada_37xx_pinctrl *info)
 	return 0;
 }
 
+static int armada_37xx_gpio_get(struct udevice *dev, unsigned int offset)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	unsigned int reg = INPUT_VAL;
+	unsigned int val, mask;
+
+	armada_37xx_update_reg(&reg, offset);
+	mask = BIT(offset);
+
+	val = readl(info->base + reg);
+
+	return (val & mask) != 0;
+}
+
+static int armada_37xx_gpio_set(struct udevice *dev, unsigned int offset,
+				int value)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	unsigned int reg = OUTPUT_VAL;
+	unsigned int mask, val;
+
+	armada_37xx_update_reg(&reg, offset);
+	mask = BIT(offset);
+	val = value ? mask : 0;
+
+	clrsetbits_le32(info->base + reg, mask, val);
+
+	return 0;
+}
+
+static int armada_37xx_gpio_get_direction(struct udevice *dev,
+					  unsigned int offset)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	unsigned int reg = OUTPUT_EN;
+	unsigned int val, mask;
+
+	armada_37xx_update_reg(&reg, offset);
+	mask = BIT(offset);
+	val = readl(info->base + reg);
+
+	if (val & mask)
+		return GPIOF_OUTPUT;
+	else
+		return GPIOF_INPUT;
+}
+
+static int armada_37xx_gpio_direction_input(struct udevice *dev,
+					    unsigned int offset)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	unsigned int reg = OUTPUT_EN;
+	unsigned int mask;
+
+	armada_37xx_update_reg(&reg, offset);
+	mask = BIT(offset);
+
+	clrbits_le32(info->base + reg, mask);
+
+	return 0;
+}
+
+static int armada_37xx_gpio_direction_output(struct udevice *dev,
+					     unsigned int offset, int value)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	unsigned int reg = OUTPUT_EN;
+	unsigned int mask;
+
+	armada_37xx_update_reg(&reg, offset);
+	mask = BIT(offset);
+
+	setbits_le32(info->base + reg, mask);
+
+	/* And set the requested value */
+	return armada_37xx_gpio_set(dev, offset, value);
+}
+
+static int armada_37xx_gpio_probe(struct udevice *dev)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev->parent);
+	struct gpio_dev_priv *uc_priv;
+
+	uc_priv = dev_get_uclass_priv(dev);
+	uc_priv->bank_name = info->data->name;
+	uc_priv->gpio_count = info->data->nr_pins;
+
+	return 0;
+}
+
+static const struct dm_gpio_ops armada_37xx_gpio_ops = {
+	.set_value = armada_37xx_gpio_set,
+	.get_value = armada_37xx_gpio_get,
+	.get_function = armada_37xx_gpio_get_direction,
+	.direction_input = armada_37xx_gpio_direction_input,
+	.direction_output = armada_37xx_gpio_direction_output,
+};
+
+static struct driver armada_37xx_gpio_driver = {
+	.name	= "armada-37xx-gpio",
+	.id	= UCLASS_GPIO,
+	.probe	= armada_37xx_gpio_probe,
+	.ops	= &armada_37xx_gpio_ops,
+};
+
+static int armada_37xx_gpiochip_register(struct udevice *parent,
+					 struct armada_37xx_pinctrl *info)
+{
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(parent);
+	struct uclass_driver *drv;
+	struct udevice *dev;
+	int ret = -ENODEV;
+	int subnode;
+	char *name;
+
+	/* Lookup GPIO driver */
+	drv = lists_uclass_lookup(UCLASS_GPIO);
+	if (!drv) {
+		puts("Cannot find GPIO driver\n");
+		return -ENOENT;
+	}
+
+	fdt_for_each_subnode(subnode, blob, node) {
+		if (!fdtdec_get_bool(blob, subnode, "gpio-controller")) {
+			ret = 0;
+			break;
+		}
+	};
+	if (ret)
+		return ret;
+
+	name = calloc(1, 32);
+	sprintf(name, "armada-37xx-gpio");
+
+	/* Create child device UCLASS_GPIO and bind it */
+	device_bind(parent, &armada_37xx_gpio_driver, name, NULL, subnode,
+		    &dev);
+	dev_set_of_offset(dev, subnode);
+
+	return 0;
+}
+
 const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
 	.get_groups_count = armada_37xx_pmx_get_groups_count,
 	.get_group_name = armada_37xx_pmx_get_group_name,
@@ -441,6 +599,10 @@ int armada_37xx_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	ret = armada_37xx_fill_func(info);
+	if (ret)
+		return ret;
+
+	ret = armada_37xx_gpiochip_register(dev, info);
 	if (ret)
 		return ret;
 
