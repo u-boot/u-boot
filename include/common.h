@@ -512,16 +512,6 @@ int serial_stub_tstc(struct stdio_dev *sdev);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);
-#if defined(CONFIG_LH7A40X) || \
-    defined(CONFIG_EP93XX)
-ulong	get_FCLK (void);
-ulong	get_HCLK (void);
-ulong	get_PCLK (void);
-ulong	get_UCLK (void);
-#endif
-#if defined(CONFIG_LH7A40X)
-ulong	get_PLLCLK (void);
-#endif
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
 
