@@ -90,8 +90,9 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 	for (range = map->range, index = 0; count > 0;
 	     count--, cell += both_len, range++, index++) {
 		fdt_size_t sz;
-		range->start = fdtdec_get_addr_size_fixed(blob, dev->of_offset,
-				"reg", index, addr_len, size_len, &sz, true);
+		range->start = fdtdec_get_addr_size_fixed(blob,
+				dev_of_offset(dev), "reg", index, addr_len,
+				size_len, &sz, true);
 		range->size = sz;
 	}
 	map->base = map->range[0].start;

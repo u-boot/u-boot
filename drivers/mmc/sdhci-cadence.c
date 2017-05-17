@@ -139,7 +139,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->ioaddr = plat->hrs_addr + SDHCI_CDNS_SRS_BASE;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
 
-	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev->of_offset);
+	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
 	if (ret)
 		return ret;
 

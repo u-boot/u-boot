@@ -860,7 +860,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #ifdef CONFIG_PHY_FIXED
 	int sn;
 	const char *name;
-	sn = fdt_first_subnode(gd->fdt_blob, dev->of_offset);
+	sn = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
 	while (sn > 0) {
 		name = fdt_get_name(gd->fdt_blob, sn, NULL);
 		if (name != NULL && strcmp(name, "fixed-link") == 0) {

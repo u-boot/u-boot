@@ -101,7 +101,7 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 	int rv, len;
 
 	/* Get node pinctrl-0 */
-	rv = fdtdec_parse_phandle_with_args(gd->fdt_blob, periph->of_offset,
+	rv = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(periph),
 					   "pinctrl-0", 0, 0, 0, &args);
 	if (rv)
 		return rv;

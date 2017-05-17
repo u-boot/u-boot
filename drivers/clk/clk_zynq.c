@@ -466,7 +466,7 @@ static int zynq_clk_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->ps_clk_freq = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+	priv->ps_clk_freq = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 					    "ps-clk-frequency", 33333333UL);
 
 	return 0;

@@ -129,7 +129,7 @@ static int ich6_gpio_probe(struct udevice *dev)
 	bank->io_sel = plat->base_addr + 4;
 	bank->lvl = plat->base_addr + 8;
 
-	prop = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 			   "use-lvl-write-cache", NULL);
 	if (prop)
 		bank->use_lvl_write_cache = true;

@@ -296,7 +296,7 @@ static void *get_reg(struct udevice *dev, const char *name)
 		return NULL;
 	}
 
-	cell = fdt_getprop(gd->fdt_blob, dev->of_offset, name,
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), name,
 			   &len);
 	if (len < 2*sizeof(fdt32_t)) {
 		error("offset not available for %s\n", name);

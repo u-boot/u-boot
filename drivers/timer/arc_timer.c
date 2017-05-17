@@ -51,7 +51,7 @@ static int arc_timer_probe(struct udevice *dev)
 	struct arc_timer_priv *priv = dev_get_priv(dev);
 
 	/* Get registers offset and size */
-	id = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
+	id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (id < 0)
 		return -EINVAL;
 

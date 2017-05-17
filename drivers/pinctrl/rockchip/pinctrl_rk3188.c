@@ -370,7 +370,7 @@ static int rk3188_pinctrl_get_periph_id(struct udevice *dev,
 	u32 cell[3];
 	int ret;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, periph->of_offset,
+	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(periph),
 				   "interrupts", cell, ARRAY_SIZE(cell));
 	if (ret < 0)
 		return -EINVAL;
@@ -516,7 +516,7 @@ static int rk3188_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	u32 cell[60], *ptr;
 
 	debug("%s: %s %s\n", __func__, dev->name, config->name);
-	ret = fdtdec_get_int_array_count(blob, config->of_offset,
+	ret = fdtdec_get_int_array_count(blob, dev_of_offset(config),
 					 "rockchip,pins", cell,
 					 ARRAY_SIZE(cell));
 	if (ret < 0) {

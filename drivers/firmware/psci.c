@@ -59,8 +59,8 @@ static int psci_probe(struct udevice *dev)
 	DECLARE_GLOBAL_DATA_PTR;
 	const char *method;
 
-	method = fdt_stringlist_get(gd->fdt_blob, dev->of_offset, "method", 0,
-				    NULL);
+	method = fdt_stringlist_get(gd->fdt_blob, dev_of_offset(dev), "method",
+				    0, NULL);
 	if (!method) {
 		printf("missing \"method\" property\n");
 		return -ENXIO;

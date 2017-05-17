@@ -574,8 +574,8 @@ static void *map_syscon_chipselects(struct udevice *bus)
 		return NULL;
 	}
 
-	cell = fdt_getprop(gd->fdt_blob, bus->of_offset, "syscon-chipselects",
-			   &len);
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(bus),
+			   "syscon-chipselects", &len);
 	if (len < 2*sizeof(fdt32_t)) {
 		debug("%s: offset not available\n", __func__);
 		return NULL;

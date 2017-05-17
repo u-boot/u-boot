@@ -79,7 +79,8 @@ static int single_set_state(struct udevice *dev,
 	const struct single_fdt_pin_cfg *prop;
 	int len;
 
-	prop = fdt_getprop(fdt, config->of_offset, "pinctrl-single,pins", &len);
+	prop = fdt_getprop(fdt, dev_of_offset(config), "pinctrl-single,pins",
+			   &len);
 	if (prop) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
 		if (len % sizeof(struct single_fdt_pin_cfg)) {
@@ -100,10 +101,10 @@ static int single_ofdata_to_platdata(struct udevice *dev)
 	int res;
 	struct single_pdata *pdata = dev->platdata;
 
-	pdata->width = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	pdata->width = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				      "pinctrl-single,register-width", 0);
 
-	res = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+	res = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
 				   "reg", of_reg, 2);
 	if (res)
 		return res;
@@ -116,7 +117,7 @@ static int single_ofdata_to_platdata(struct udevice *dev)
 	}
 	pdata->base = addr;
 
-	pdata->mask = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	pdata->mask = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				     "pinctrl-single,function-mask",
 				     0xffffffff);
 	return 0;

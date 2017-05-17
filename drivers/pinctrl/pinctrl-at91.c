@@ -364,7 +364,7 @@ static int at91_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct at91_pinctrl_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	u32 cells[MAX_PINMUX_ENTRIES];
 	const u32 *list = cells;
 	u32 bank, pin;

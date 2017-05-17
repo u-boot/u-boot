@@ -104,7 +104,7 @@ int stm32_sdram_init(struct udevice *dev)
 static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 {
 	int ret;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const void *blob = gd->fdt_blob;
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
 

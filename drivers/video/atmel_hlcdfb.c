@@ -497,7 +497,7 @@ static int atmel_hlcdc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct atmel_hlcdc_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	priv->regs = (struct atmel_hlcd_regs *)devfdt_get_addr(dev);
 	if (!priv->regs) {
@@ -505,7 +505,7 @@ static int atmel_hlcdc_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	if (fdtdec_decode_display_timing(blob, dev->of_offset,
+	if (fdtdec_decode_display_timing(blob, dev_of_offset(dev),
 					 0, &priv->timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;
