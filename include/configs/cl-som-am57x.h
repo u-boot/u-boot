@@ -128,8 +128,10 @@
 	"bootkernel=bootz ${loadaddr} - ${fdtaddr}\0" \
 	"mmcloadfdt=load mmc ${mmcdev} ${fdtaddr} ${fdtfile}\0" \
 	"mmcloadkernel=load mmc ${mmcdev} ${loadaddr} ${kernel}\0" \
+	"emmcloadfdt=load mmc ${mmcdev} ${fdtaddr} ${fdtfile}\0" \
+	"emmcloadkernel=load mmc ${mmcdev} ${loadaddr} ${kernel}\0" \
 	"load_mmc=mmc dev ${mmcdev} && mmc rescan && " \
-		"run mmcloadkernel run mmcloadfdt\0" \
+		"run mmcloadkernel && run mmcloadfdt\0" \
 	"mmcroot=/dev/mmcblk1p2\0" \
 	"mmcrootfstype=ext4 rw rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
@@ -165,7 +167,7 @@
 		"source ${loadaddr}\0" \
 	"sataboot=run load_sata && run sataargs && " \
 		"echo Booting from SATA ... && " \
-		"run bootkernel\0" \
+		"run bootkernel\0"
 
 #undef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND \
