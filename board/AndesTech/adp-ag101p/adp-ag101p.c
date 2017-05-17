@@ -11,6 +11,8 @@
 #include <netdev.h>
 #endif
 #include <linux/io.h>
+#include <asm/io.h>
+#include <asm/mach-types.h>
 
 #include <faraday/ftsdc010.h>
 #include <faraday/ftsmc020.h>

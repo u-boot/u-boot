@@ -12,6 +12,7 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <asm/bootm.h>
+#include <asm/setup.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

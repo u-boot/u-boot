@@ -430,11 +430,6 @@ static inline int setenv_addr(const char *varname, const void *addr)
 # include <asm/setup.h>
 # include <asm/u-boot.h>
 #endif /* CONFIG_ARM */
-#ifdef CONFIG_NDS32
-# include <asm/mach-types.h>
-# include <asm/setup.h>
-# include <asm/u-boot.h>
-#endif /* CONFIG_NDS32 */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
