@@ -14,6 +14,7 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/ppc4xx.h>
 #include <asm/ppc4xx-uic.h>
 #include <asm/ppc4xx-emac.h>
 

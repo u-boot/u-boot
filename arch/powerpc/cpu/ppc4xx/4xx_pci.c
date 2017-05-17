@@ -56,6 +56,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <asm/ppc4xx.h>
 
 #ifdef CONFIG_PCI
 
