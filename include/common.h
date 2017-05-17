@@ -456,11 +456,6 @@ int get_env_id (void);
 void	pci_init      (void);
 void	pci_init_board(void);
 
-#if defined(CONFIG_PCI) && defined(CONFIG_4xx)
-    int	   pci_pre_init	       (struct pci_controller *);
-    int	   is_pci_host	       (struct pci_controller *);
-#endif
-
 #if defined(CONFIG_PCI) && (defined(CONFIG_440) || defined(CONFIG_405EX))
 #   if defined(CONFIG_SYS_PCI_TARGET_INIT)
 	void	pci_target_init	     (struct pci_controller *);
