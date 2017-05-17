@@ -850,7 +850,6 @@ The following options need to be configured:
 		CONFIG_CMD_IMI		  iminfo
 		CONFIG_CMD_IMLS		  List all images found in NOR flash
 		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
-		CONFIG_CMD_IOTRACE	* I/O tracing for debugging
 		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_INI		* import data from an ini file into the env
 		CONFIG_CMD_IRQ		* irqinfo

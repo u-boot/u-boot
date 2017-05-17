@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_IO		/* Access to X86 IO space	*/
 #define CONFIG_CMD_IRQ		/* irqinfo			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_KGDB		/* kgdb				*/

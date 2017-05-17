@@ -493,6 +493,14 @@ config CMD_IDE
 	  geting device info. It also enables the 'diskboot' command which
 	  permits booting from an IDE drive.
 
+config CMD_IO
+	bool "io - Support for performing I/O accesses"
+	help
+	  Provides an 'iod' command to display I/O space and an 'iow' command
+	  to write values to the I/O space. This can be useful for manually
+	  checking the state of devices during boot when debugging device
+	  drivers, etc.
+
 config CMD_LOADB
 	bool "loadb"
 	default y
