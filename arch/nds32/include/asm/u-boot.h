@@ -20,6 +20,8 @@
 #ifndef _U_BOOT_H_
 #define _U_BOOT_H_	1
 
+#include <asm/u-boot-nds32.h>
+
 #include <environment.h>
 
 typedef struct bd_info {
