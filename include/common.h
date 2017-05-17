@@ -445,7 +445,7 @@ static inline int setenv_addr(const char *varname, const void *addr)
 # include <asm/u-boot-mips.h>
 #endif /* CONFIG_MIPS */
 #ifdef CONFIG_ARC
-# include <asm/u-boot-arc.h>
+# include <asm/u-boot.h>
 #endif /* CONFIG_ARC */
 
 #ifdef CONFIG_AUTO_COMPLETE
