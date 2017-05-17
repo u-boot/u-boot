@@ -593,6 +593,14 @@ config CMD_FPGA
 	help
 	  FPGA support.
 
+config CMD_FPGAD
+	bool "fpgad - dump FPGA registers"
+	help
+	  (legacy, needs conversion to driver model)
+	  Provides a way to dump FPGA registers by calling the board-specific
+	  fpga_get_reg() function. This functions similarly to the 'md'
+	  command.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC

@@ -54,7 +54,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_FPGAD
 #undef CONFIG_CMD_IRQ
 
 /*
