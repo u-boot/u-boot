@@ -250,11 +250,9 @@ cmd_tbl_t cmd_ds4510[] = {
 #ifdef CONFIG_CMD_DS4510_RST
 	U_BOOT_CMD_MKENT(rstdelay, 3, 0, (void *)DS4510_CMD_RSTDELAY, "", ""),
 #endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	U_BOOT_CMD_MKENT(eeprom, 6, 0, (void *)DS4510_CMD_EEPROM, "", ""),
 	U_BOOT_CMD_MKENT(seeprom, 6, 0, (void *)DS4510_CMD_SEEPROM, "", ""),
 	U_BOOT_CMD_MKENT(sram, 6, 0, (void *)DS4510_CMD_SRAM, "", ""),
-#endif
 };
 
 int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -264,13 +262,11 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;
 	int tmp;
-#ifdef CONFIG_CMD_DS4510_MEM
 	ulong addr;
 	ulong off;
 	ulong cnt;
 	int end;
 	int (*rw_func)(uint8_t, int, uint8_t *, int);
-#endif
 
 	c = find_cmd_tbl(argv[1], cmd_ds4510, ARRAY_SIZE(cmd_ds4510));
 
@@ -326,7 +322,6 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case DS4510_CMD_RSTDELAY:
 		return ds4510_rstdelay_write(chip, ul_arg2);
 #endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	case DS4510_CMD_EEPROM:
 		end = DS4510_EEPROM + DS4510_EEPROM_SIZE;
 		off = DS4510_EEPROM;
@@ -339,13 +334,11 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		end = DS4510_SRAM + DS4510_SRAM_SIZE;
 		off = DS4510_SRAM;
 		break;
-#endif
 	default:
 		/* We should never get here... */
 		return 1;
 	}
 
-#ifdef CONFIG_CMD_DS4510_MEM
 	/* Only eeprom, seeprom, and sram commands should make it here */
 	if (strcmp(argv[2], "read") == 0)
 		rw_func = ds4510_mem_read;
@@ -364,7 +357,6 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	return rw_func(chip, off, (uint8_t *)addr, cnt);
-#endif
 }
 
 U_BOOT_CMD(
@@ -387,7 +379,6 @@ U_BOOT_CMD(
 	"ds4510 rstdelay 0-3\n"
 	"	- set reset output delay"
 #endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	"\n"
 	"ds4510 eeprom read addr off cnt\n"
 	"ds4510 eeprom write addr off cnt\n"
@@ -398,6 +389,5 @@ U_BOOT_CMD(
 	"ds4510 sram read addr off cnt\n"
 	"ds4510 sram write addr off cnt\n"
 	"	- read/write 'cnt' bytes at SRAM offset 'off'"
-#endif
 );
 #endif /* CONFIG_CMD_DS4510 */

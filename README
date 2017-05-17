@@ -831,7 +831,6 @@ The following options need to be configured:
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
 		CONFIG_CMD_DS4510	* ds4510 I2C gpio commands
-		CONFIG_CMD_DS4510_MEM	* ds4510 I2C eeprom/sram commansd
 		CONFIG_CMD_DS4510_RST	* ds4510 I2C rst command
 		CONFIG_CMD_DTT		* Digital Therm and Thermostat
 		CONFIG_CMD_ECHO		  echo arguments
