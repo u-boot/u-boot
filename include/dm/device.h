@@ -11,6 +11,7 @@
 #ifndef _DM_DEVICE_H
 #define _DM_DEVICE_H
 
+#include <dm/ofnode.h>
 #include <dm/uclass-id.h>
 #include <fdtdec.h>
 #include <linker_lists.h>
@@ -103,7 +104,7 @@ enum {
  * @platdata: Configuration data for this device
  * @parent_platdata: The parent bus's configuration data for this device
  * @uclass_platdata: The uclass's configuration data for this device
- * @of_offset: Device tree node offset for this device (- for none)
+ * @node: Reference to device tree node for this device
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
  * @parent: Parent of this device, or NULL for the top level device
@@ -129,7 +130,7 @@ struct udevice {
 	void *platdata;
 	void *parent_platdata;
 	void *uclass_platdata;
-	int of_offset;
+	ofnode node;
 	ulong driver_data;
 	struct udevice *parent;
 	void *priv;
@@ -158,12 +159,17 @@ struct udevice {
 
 static inline int dev_of_offset(const struct udevice *dev)
 {
-	return dev->of_offset;
+	return ofnode_to_offset(dev->node);
 }
 
 static inline void dev_set_of_offset(struct udevice *dev, int of_offset)
 {
-	dev->of_offset = of_offset;
+	dev->node = offset_to_ofnode(of_offset);
+}
+
+static inline bool dev_has_of_node(struct udevice *dev)
+{
+	return ofnode_valid(dev->node);
 }
 
 /**

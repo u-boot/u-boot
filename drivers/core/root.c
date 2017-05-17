@@ -167,7 +167,7 @@ int dm_init(void)
 	if (ret)
 		return ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	DM_ROOT_NON_CONST->of_offset = 0;
+	DM_ROOT_NON_CONST->node = offset_to_ofnode(0);
 #endif
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)

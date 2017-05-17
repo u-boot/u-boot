@@ -60,7 +60,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	dev->platdata = platdata;
 	dev->driver_data = driver_data;
 	dev->name = name;
-	dev->of_offset = of_offset;
+	dev->node = offset_to_ofnode(of_offset);
 	dev->parent = parent;
 	dev->driver = drv;
 	dev->uclass = uc;
