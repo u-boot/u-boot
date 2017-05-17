@@ -13,6 +13,8 @@
 #ifndef _U_BOOT_ARM_H_
 #define _U_BOOT_ARM_H_	1
 
+#ifndef __ASSEMBLY__
+
 /* for the following variables, see start.S */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */
@@ -58,5 +60,7 @@ void do_irq(struct pt_regs *pt_regs, unsigned int esr);
 void do_fiq(struct pt_regs *pt_regs);
 void do_irq(struct pt_regs *pt_regswq);
 #endif
+
+#endif /* __ASSEMBLY__ */
 
 #endif	/* _U_BOOT_ARM_H_ */
