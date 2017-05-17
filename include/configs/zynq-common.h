@@ -259,10 +259,6 @@
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
-#define CONFIG_CMD_FPGA_LOADMK
-#define CONFIG_CMD_FPGA_LOADP
-#define CONFIG_CMD_FPGA_LOADBP
-#define CONFIG_CMD_FPGA_LOADFS
 
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */

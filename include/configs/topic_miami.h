@@ -44,10 +44,6 @@
 #undef CONFIG_SPL_FPGA_SUPPORT
 
 /* FPGA commands that we don't use */
-#undef CONFIG_CMD_FPGA_LOADMK
-#undef CONFIG_CMD_FPGA_LOADP
-#undef CONFIG_CMD_FPGA_LOADBP
-#undef CONFIG_CMD_FPGA_LOADFS
 
 /* Extras */
 #define CONFIG_CMD_MEMTEST
