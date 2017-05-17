@@ -841,7 +841,6 @@ The following options need to be configured:
 					  that work for multiple fs types
 		CONFIG_CMD_FS_UUID	* Look up a filesystem UUID
 		CONFIG_CMD_SAVEENV	  saveenv
-		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT command support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
