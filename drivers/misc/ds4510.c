@@ -186,7 +186,6 @@ int ds4510_gpio_read_val(uint8_t chip)
 }
 
 #ifdef CONFIG_CMD_DS4510
-#ifdef CONFIG_CMD_DS4510_INFO
 /*
  * Display DS4510 information
  */
@@ -240,7 +239,6 @@ static int ds4510_info(uint8_t chip)
 
 	return 0;
 }
-#endif /* CONFIG_CMD_DS4510_INFO */
 
 cmd_tbl_t cmd_ds4510[] = {
 	U_BOOT_CMD_MKENT(device, 3, 0, (void *)DS4510_CMD_DEVICE, "", ""),
@@ -248,9 +246,7 @@ cmd_tbl_t cmd_ds4510[] = {
 	U_BOOT_CMD_MKENT(output, 4, 0, (void *)DS4510_CMD_OUTPUT, "", ""),
 	U_BOOT_CMD_MKENT(input, 3, 0, (void *)DS4510_CMD_INPUT, "", ""),
 	U_BOOT_CMD_MKENT(pullup, 4, 0, (void *)DS4510_CMD_PULLUP, "", ""),
-#ifdef CONFIG_CMD_DS4510_INFO
 	U_BOOT_CMD_MKENT(info, 2, 0, (void *)DS4510_CMD_INFO, "", ""),
-#endif
 #ifdef CONFIG_CMD_DS4510_RST
 	U_BOOT_CMD_MKENT(rstdelay, 3, 0, (void *)DS4510_CMD_RSTDELAY, "", ""),
 #endif
@@ -324,10 +320,8 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			tmp &= ~(1 << ul_arg2);
 		return ds4510_pullup_write(chip, tmp);
-#ifdef CONFIG_CMD_DS4510_INFO
 	case DS4510_CMD_INFO:
 		return ds4510_info(chip);
-#endif
 #ifdef CONFIG_CMD_DS4510_RST
 	case DS4510_CMD_RSTDELAY:
 		return ds4510_rstdelay_write(chip, ul_arg2);
@@ -378,10 +372,8 @@ U_BOOT_CMD(
 	"ds4510 eeprom/seeprom/sram/gpio access",
 	"device [dev]\n"
 	"	- show or set current device address\n"
-#ifdef CONFIG_CMD_DS4510_INFO
 	"ds4510 info\n"
 	"	- display ds4510 info\n"
-#endif
 	"ds4510 output pin 0|1\n"
 	"	- set pin low or high-Z\n"
 	"ds4510 input pin\n"
