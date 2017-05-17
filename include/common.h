@@ -442,7 +442,7 @@ static inline int setenv_addr(const char *varname, const void *addr)
 # include <asm/u-boot-nds32.h>
 #endif /* CONFIG_NDS32 */
 #ifdef CONFIG_MIPS
-# include <asm/u-boot-mips.h>
+# include <asm/u-boot.h>
 #endif /* CONFIG_MIPS */
 #ifdef CONFIG_ARC
 # include <asm/u-boot.h>
