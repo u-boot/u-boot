@@ -316,4 +316,32 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			       u8 cpu, u16 flags, u8 lint);
 u32 acpi_fill_madt(u32 current);
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
+/**
+ * enter_acpi_mode() - enter into ACPI mode
+ *
+ * This programs the ACPI-defined PM1_CNT register to enable SCI interrupt
+ * so that the whole system swiches to ACPI mode.
+ *
+ * @pm1_cnt:	PM1_CNT register I/O address
+ */
+void enter_acpi_mode(int pm1_cnt);
 ulong write_acpi_tables(ulong start);
+
+/**
+ * acpi_find_fadt() - find ACPI FADT table in the sytem memory
+ *
+ * This routine parses the ACPI table to locate the ACPI FADT table.
+ *
+ * @return:	a pointer to the ACPI FADT table in the system memory
+ */
+struct acpi_fadt *acpi_find_fadt(void);
+
+/**
+ * acpi_find_wakeup_vector() - find OS installed wake up vector address
+ *
+ * This routine parses the ACPI table to locate the wake up vector installed
+ * by the OS previously.
+ *
+ * @return:	wake up vector address installed by the OS
+ */
+void *acpi_find_wakeup_vector(struct acpi_fadt *);

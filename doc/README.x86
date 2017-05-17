@@ -1014,21 +1014,18 @@ compile ACPI DSDT table written in ASL format to AML format. You can get
 the compiler via "apt-get install iasl" if you are on Ubuntu or download
 the source from [17] to compile one by yourself.
 
-Current ACPI support in U-Boot is not complete. More features will be added
-in the future. The status as of today is:
+Current ACPI support in U-Boot is basically complete. More optional features
+can be added in the future. The status as of today is:
 
  * Support generating RSDT, XSDT, FACS, FADT, MADT, MCFG tables.
  * Support one static DSDT table only, compiled by Intel ACPI compiler.
- * Support S0/S5, reboot and shutdown from OS.
+ * Support S0/S3/S4/S5, reboot and shutdown from OS.
  * Support booting a pre-installed Ubuntu distribution via 'zboot' command.
  * Support installing and booting Ubuntu 14.04 (or above) from U-Boot with
    the help of SeaBIOS using legacy interface (non-UEFI mode).
  * Support installing and booting Windows 8.1/10 from U-Boot with the help
    of SeaBIOS using legacy interface (non-UEFI mode).
  * Support ACPI interrupts with SCI only.
-
-Features not supported so far (to make it a complete ACPI solution):
- * S3 (Suspend to RAM), S4 (Suspend to Disk).
 
 Features that are optional:
  * Dynamic AML bytecodes insertion at run-time. We may need this to support
@@ -1045,6 +1042,21 @@ command from the OS.
 
 For other platform boards, ACPI support status can be checked by examining their
 board defconfig files to see if CONFIG_GENERATE_ACPI_TABLE is set to y.
+
+The S3 sleeping state is a low wake latency sleeping state defined by ACPI
+spec where all system context is lost except system memory. To test S3 resume
+with a Linux kernel, simply run "echo mem > /sys/power/state" and kernel will
+put the board to S3 state where the power is off. So when the power button is
+pressed again, U-Boot runs as it does in cold boot and detects the sleeping
+state via ACPI register to see if it is S3, if yes it means we are waking up.
+U-Boot is responsible for restoring the machine state as it is before sleep.
+When everything is done, U-Boot finds out the wakeup vector provided by OSes
+and jump there. To determine whether ACPI S3 resume is supported, check to
+see if CONFIG_HAVE_ACPI_RESUME is set for that specific board.
+
+Note for testing S3 resume with Windows, correct graphics driver must be
+installed for your platform, otherwise you won't find "Sleep" option in
+the "Power" submenu from the Windows start menu.
 
 EFI Support
 -----------

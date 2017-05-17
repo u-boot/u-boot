@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <asm/acpi_s3.h>
+#include <asm/acpi_table.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
@@ -179,6 +181,11 @@ int default_print_cpuinfo(void)
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
 
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	debug("ACPI previous sleep state: %s\n",
+	      acpi_ss_string(gd->arch.prev_sleep_state));
+#endif
+
 	return 0;
 }
 
@@ -198,9 +205,16 @@ __weak void board_final_cleanup(void)
 
 int last_stage_init(void)
 {
-	write_tables();
-
 	board_final_cleanup();
+
+#if CONFIG_HAVE_ACPI_RESUME
+	struct acpi_fadt *fadt = acpi_find_fadt();
+
+	if (fadt != NULL && gd->arch.prev_sleep_state == ACPI_S3)
+		acpi_resume(fadt);
+#endif
+
+	write_tables();
 
 	return 0;
 }
@@ -263,6 +277,18 @@ int reserve_arch(void)
 #ifdef CONFIG_SEABIOS
 	high_table_reserve();
 #endif
+
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	acpi_s3_reserve();
+
+#ifdef CONFIG_HAVE_FSP
+	/*
+	 * Save stack address to CMOS so that at next S3 boot,
+	 * we can use it as the stack address for fsp_contiue()
+	 */
+	fsp_save_s3_stack();
+#endif /* CONFIG_HAVE_FSP */
+#endif /* CONFIG_HAVE_ACPI_RESUME */
 
 	return 0;
 }

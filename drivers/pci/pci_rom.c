@@ -35,8 +35,22 @@
 #include <video_fb.h>
 #include <linux/screen_info.h>
 
+#ifdef CONFIG_X86
+#include <asm/acpi_s3.h>
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 __weak bool board_should_run_oprom(struct udevice *dev)
 {
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_ACPI_RESUME)
+	if (gd->arch.prev_sleep_state == ACPI_S3) {
+		if (IS_ENABLED(CONFIG_S3_VGA_ROM_RUN))
+			return true;
+		else
+			return false;
+	}
+#endif
+
 	return true;
 }
 

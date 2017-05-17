@@ -15,6 +15,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 obj-y	+= cmd_boot.o
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
+obj-y	+= early_cmos.o
 obj-$(CONFIG_EFI) += efi/
 obj-y	+= e820.o
 obj-y	+= gcc.o
@@ -37,6 +38,7 @@ obj-$(CONFIG_INTEL_MID) += scu.o
 obj-y	+= sections.o
 obj-y += sfi.o
 obj-y	+= string.o
+obj-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.o
 ifndef CONFIG_QEMU
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 endif

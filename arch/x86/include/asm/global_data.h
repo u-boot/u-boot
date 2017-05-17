@@ -99,6 +99,10 @@ struct arch_global_data {
 	u32 high_table_ptr;
 	u32 high_table_limit;
 #endif
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	int prev_sleep_state;		/* Previous sleep state ACPI_S0/1../5 */
+	ulong backup_mem;		/* Backup memory address for S3 */
+#endif
 };
 
 #endif

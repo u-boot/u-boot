@@ -199,6 +199,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0 0x20>;
 				bank-name = "A";
+				use-lvl-write-cache;
 			};
 
 			gpiob {
@@ -206,6 +207,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x20 0x20>;
 				bank-name = "B";
+				use-lvl-write-cache;
 			};
 
 			gpioc {
@@ -213,6 +215,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x40 0x20>;
 				bank-name = "C";
+				use-lvl-write-cache;
 			};
 
 			gpiod {
@@ -220,6 +223,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x60 0x20>;
 				bank-name = "D";
+				use-lvl-write-cache;
 			};
 
 			gpioe {
@@ -227,6 +231,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x80 0x20>;
 				bank-name = "E";
+				use-lvl-write-cache;
 			};
 
 			gpiof {
@@ -234,6 +239,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0xA0 0x20>;
 				bank-name = "F";
+				use-lvl-write-cache;
 			};
 		};
 	};

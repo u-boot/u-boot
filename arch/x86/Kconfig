@@ -589,6 +589,38 @@ config GENERATE_ACPI_TABLE
 
 endmenu
 
+config HAVE_ACPI_RESUME
+	bool "Enable ACPI S3 resume"
+	help
+	  Select this to enable ACPI S3 resume. S3 is an ACPI-defined sleeping
+	  state where all system context is lost except system memory. U-Boot
+	  is responsible for restoring the machine state as it was before sleep.
+	  It needs restore the memory controller, without overwriting memory
+	  which is not marked as reserved. For the peripherals which lose their
+	  registers, U-Boot needs to write the original value. When everything
+	  is done, U-Boot needs to find out the wakeup vector provided by OSes
+	  and jump there.
+
+config S3_VGA_ROM_RUN
+	bool "Re-run VGA option ROMs on S3 resume"
+	depends on HAVE_ACPI_RESUME
+	default y if HAVE_ACPI_RESUME
+	help
+	  Execute VGA option ROMs in U-Boot when resuming from S3. Normally
+	  this is needed when graphics console is being used in the kernel.
+
+	  Turning it off can reduce some resume time, but be aware that your
+	  graphics console won't work without VGA options ROMs. Set it to N
+	  if your kernel is only on a serial console.
+
+config STACK_SIZE
+	hex
+	depends on HAVE_ACPI_RESUME
+	default 0x1000
+	help
+	  Estimated U-Boot's runtime stack size that needs to be reserved
+	  during an ACPI S3 resume.
+
 config MAX_PIRQ_LINKS
 	int
 	default 8
