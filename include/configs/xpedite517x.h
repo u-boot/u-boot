@@ -249,7 +249,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_M41T11_BASE_YEAR	2000
 
 /* GPIO/EEPROM/SRAM */
-#define CONFIG_DS4510
 #define CONFIG_SYS_I2C_DS4510_ADDR	0x51
 
 /* GPIO */

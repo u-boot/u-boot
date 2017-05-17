@@ -75,6 +75,14 @@ config CROS_EC_SPI
 	  provides a faster and more robust interface than I2C but the bugs
 	  are less interesting.
 
+config DS4510
+	bool "Enable support for DS4510 CPU supervisor"
+	help
+	  Enable support for the Maxim DS4510 CPU supervisor. It has an
+	  integrated 64-byte EEPROM, four programmable non-volatile I/O pins
+	  and a configurable timer for the supervisor function. The device is
+	  connected over I2C.
+
 config FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
 	help

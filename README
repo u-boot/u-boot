@@ -830,7 +830,6 @@ The following options need to be configured:
 		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
-		CONFIG_CMD_DS4510	* ds4510 I2C gpio commands
 		CONFIG_CMD_DTT		* Digital Therm and Thermostat
 		CONFIG_CMD_ECHO		  echo arguments
 		CONFIG_CMD_EDITENV	  edit env variable
