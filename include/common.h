@@ -434,7 +434,7 @@ static inline int setenv_addr(const char *varname, const void *addr)
 # include <asm/u-boot-x86.h>
 #endif /* CONFIG_X86 */
 #ifdef CONFIG_SANDBOX
-# include <asm/u-boot-sandbox.h>	/* TODO(sjg) what needs to be fixed? */
+# include <asm/u-boot.h>
 #endif
 #ifdef CONFIG_NDS32
 # include <asm/mach-types.h>
