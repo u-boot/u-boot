@@ -7,3 +7,12 @@ config CHAIN_OF_TRUST
 	select SHA_PROG_HW_ACCEL
 	bool
 	default y
+
+config CMD_ESBC_VALIDATE
+	bool "Enable the 'esbc_validate' and 'esbc_halt' commands"
+	default y if CHAIN_OF_TRUST
+	help
+	  This option enables two commands used for secure booting:
+
+	    esbc_validate - validate signature using RSA verification
+	    esbc_halt - put the core in spin loop (Secure Boot Only)
