@@ -59,7 +59,6 @@ obj-$(CONFIG_NAND_MXC) += mxc_nand.o
 obj-$(CONFIG_NAND_MXS) += mxs_nand.o
 obj-$(CONFIG_NAND_NDFC) += ndfc.o
 obj-$(CONFIG_NAND_PXA3XX) += pxa3xx_nand.o
-obj-$(CONFIG_NAND_S3C2410) += s3c2410_nand.o
 obj-$(CONFIG_NAND_SPEAR) += spr_nand.o
 obj-$(CONFIG_TEGRA_NAND) += tegra_nand.o
 obj-$(CONFIG_NAND_OMAP_GPMC) += omap_gpmc.o
