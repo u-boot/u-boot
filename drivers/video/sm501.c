@@ -16,6 +16,7 @@
 #include <common.h>
 
 #include <asm/io.h>
+#include <pci.h>
 #include <video_fb.h>
 #include <sm501.h>
 

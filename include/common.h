@@ -30,9 +30,6 @@ typedef volatile unsigned char	vu_char;
 #include <asm/ptrace.h>
 #include <stdarg.h>
 #include <linux/kernel.h>
-#if defined(CONFIG_PCI) && defined(CONFIG_4xx)
-#include <pci.h>
-#endif
 #if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
 #if defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
