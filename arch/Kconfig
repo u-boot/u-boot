@@ -73,6 +73,7 @@ config SANDBOX
 	imply CMD_IO
 	imply CMD_IOTRACE
 	imply LZMA
+	imply CMD_LZMADEC
 
 config SH
 	bool "SuperH architecture"

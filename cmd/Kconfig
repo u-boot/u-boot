@@ -438,6 +438,17 @@ config CMD_MEMINFO
 	help
 	  Display memory information.
 
+endmenu
+
+menu "Compression commands"
+
+config CMD_LZMADEC
+	bool "lzmadec"
+	select LZMA
+	help
+	  Support decompressing an LZMA (Lempel-Ziv-Markov chain algorithm)
+	  image from memory.
+
 config CMD_UNZIP
 	bool "unzip"
 	help
