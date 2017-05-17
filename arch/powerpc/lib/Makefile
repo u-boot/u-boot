@@ -33,6 +33,7 @@ obj-$(CONFIG_BAT_RW) += bat_rw.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cache.o
 obj-y	+= extable.o
+obj-$(CONFIG_CMD_IMMAP) += immap.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o
 obj-$(CONFIG_IDE) += ide.o

@@ -26,7 +26,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_CMD_KGDB)

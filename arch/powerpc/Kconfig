@@ -49,6 +49,8 @@ config 4xx
 
 endchoice
 
+source "arch/powerpc/lib/Kconfig"
+
 source "arch/powerpc/cpu/mpc512x/Kconfig"
 source "arch/powerpc/cpu/mpc5xx/Kconfig"
 source "arch/powerpc/cpu/mpc5xxx/Kconfig"
