@@ -88,10 +88,6 @@ config TARGET_MPC8536DS
 # Use DDR3 controller with DDR2 DIMMs on this board
 	select SYS_FSL_DDRC_GEN3
 
-config TARGET_MPC8540ADS
-	bool "Support MPC8540ADS"
-	select ARCH_MPC8540
-
 config TARGET_MPC8541CDS
 	bool "Support MPC8541CDS"
 	select ARCH_MPC8541
@@ -107,10 +103,6 @@ config TARGET_MPC8548CDS
 config TARGET_MPC8555CDS
 	bool "Support MPC8555CDS"
 	select ARCH_MPC8555
-
-config TARGET_MPC8560ADS
-	bool "Support MPC8560ADS"
-	select ARCH_MPC8560
 
 config TARGET_MPC8568MDS
 	bool "Support MPC8568MDS"
@@ -1395,12 +1387,10 @@ source "board/freescale/bsc9132qds/Kconfig"
 source "board/freescale/c29xpcie/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8536ds/Kconfig"
-source "board/freescale/mpc8540ads/Kconfig"
 source "board/freescale/mpc8541cds/Kconfig"
 source "board/freescale/mpc8544ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/mpc8555cds/Kconfig"
-source "board/freescale/mpc8560ads/Kconfig"
 source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
 source "board/freescale/mpc8572ds/Kconfig"
