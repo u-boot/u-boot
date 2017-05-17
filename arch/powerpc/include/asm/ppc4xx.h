@@ -289,6 +289,9 @@ static inline void set_mcsr(u32 val)
 
 int ppc4xx_pci_sync_clock_config(u32 async);
 
+unsigned long get_OPB_freq(void);
+unsigned long get_PCI_freq(void);
+
 #endif	/* __ASSEMBLY__ */
 
 /* for multi-cpu support */
