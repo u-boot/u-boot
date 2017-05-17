@@ -305,11 +305,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 #include <asm/fsl_secure_boot.h>
 
 #endif

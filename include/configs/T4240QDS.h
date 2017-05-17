@@ -498,11 +498,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 /*
 * USB
 */

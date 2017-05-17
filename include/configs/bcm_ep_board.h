@@ -67,7 +67,6 @@
 #define CONFIG_FAT_WRITE
 
 /* SHA hashing */
-#define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
 
 /* Enable Time Command */

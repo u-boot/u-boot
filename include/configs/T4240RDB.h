@@ -695,11 +695,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 
 #define __USB_PHY_TYPE	utmi
 

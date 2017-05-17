@@ -26,7 +26,6 @@
 #define CONFIG_KEY_REVOCATION
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_CMD_HASH
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images
  * is picked up from an Extension Table which has

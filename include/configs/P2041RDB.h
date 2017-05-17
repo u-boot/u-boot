@@ -603,11 +603,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
 #endif
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 /*
  * Miscellaneous configurable options
  */

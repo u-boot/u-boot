@@ -503,6 +503,7 @@ config TARGET_BCM28155_AP
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7
+	imply CMD_HASH
 
 config TARGET_BCMNSP
 	bool "Support bcmnsp"

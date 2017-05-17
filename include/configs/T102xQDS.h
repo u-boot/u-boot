@@ -863,11 +863,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTCOMMAND	CONFIG_LINUX
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 #include <asm/fsl_secure_boot.h>
 
 #endif	/* __T1024QDS_H */

@@ -68,6 +68,7 @@ config SANDBOX
 	select DM_SPI
 	select DM_GPIO
 	select DM_MMC
+	imply CMD_HASH
 
 config SH
 	bool "SuperH architecture"

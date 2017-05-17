@@ -523,11 +523,6 @@ combinations. this should be removed later
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 /*
  * Miscellaneous configurable options
  */

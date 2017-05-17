@@ -100,9 +100,6 @@
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_IP_DEFRAG
 
-/* Can't boot elf images */
-
-#define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
 
 #define CONFIG_CMD_SANDBOX

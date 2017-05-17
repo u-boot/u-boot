@@ -846,7 +846,6 @@ The following options need to be configured:
 		CONFIG_CMD_FPGA		  FPGA device initialization support
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
-		CONFIG_CMD_HASH		* calculate hash / digest
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
 		CONFIG_CMD_IMI		  iminfo
@@ -2710,11 +2709,6 @@ The following options need to be configured:
 		but sometimes that is not allowed.
 
 - Hashing support:
-		CONFIG_CMD_HASH
-
-		This enables a generic 'hash' command which can produce
-		hashes / digests from a few algorithms (e.g. SHA1, SHA256).
-
 		CONFIG_HASH_VERIFY
 
 		Enable the hash verify command (hash -v). This adds to code

@@ -1,6 +1,7 @@
 config CHAIN_OF_TRUST
 	depends on !FIT_SIGNATURE && SECURE_BOOT
 	imply CMD_BLOB
+	imply CMD_HASH if ARM
 	select FSL_CAAM
 	select SPL_BOARD_INIT if (ARM && SPL)
 	select SHA_HW_ACCEL

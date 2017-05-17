@@ -41,8 +41,6 @@
 /* select serial console configuration */
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
-#define CONFIG_CMD_HASH
-
 /* Thermal Management Unit */
 #define CONFIG_EXYNOS_TMU
 
@@ -134,7 +132,6 @@
 #endif /*CONFIG_CMD_NET*/
 
 /* SHA hashing */
-#define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
 
 /* Enable Time Command */

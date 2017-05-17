@@ -751,11 +751,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_PCI
 #endif
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 /*
  * Miscellaneous configurable options
  */

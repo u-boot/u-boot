@@ -733,11 +733,6 @@ extern unsigned long get_sdram_size(void);
 		 || defined(CONFIG_FSL_SATA)
 #endif
 
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#endif
-
 /*
  * Miscellaneous configurable options
  */

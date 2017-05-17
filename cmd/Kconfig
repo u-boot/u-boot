@@ -996,6 +996,14 @@ config CMD_BLOB
 	  generation/use as key for cryptographic operation. Key
 	  modifier should be 16 byte long.
 
+config CMD_HASH
+	bool "Support 'hash' command"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The computed digest can be
+	  saved to memory or to an environment variable. It is also possible
+	  to verify a hash against data in memory.
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
 	depends on TPM
