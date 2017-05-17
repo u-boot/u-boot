@@ -59,6 +59,7 @@ config TARGET_O3DNT
 
 config TARGET_DIGSY_MTC
 	bool "Support digsy_mtc"
+	imply CMD_IRQ
 
 config TARGET_PCM030
 	bool "Support pcm030"

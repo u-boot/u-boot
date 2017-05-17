@@ -51,7 +51,6 @@
  */
 #if defined(CONFIG_440)
 #endif
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
 /*

@@ -49,6 +49,7 @@ config TARGET_MPC8349EMDS
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
+	imply CMD_IRQ
 
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"

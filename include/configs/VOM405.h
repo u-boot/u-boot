@@ -53,7 +53,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IRQ
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 

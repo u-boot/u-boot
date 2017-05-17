@@ -484,7 +484,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO

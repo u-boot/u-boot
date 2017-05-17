@@ -52,7 +52,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#undef CONFIG_CMD_IRQ
 
 /*
  * SDRAM configuration (please see cpu/ppc/sdram.[ch])

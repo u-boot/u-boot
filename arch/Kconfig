@@ -34,6 +34,7 @@ config M68K
 config MICROBLAZE
 	bool "MicroBlaze architecture"
 	select SUPPORT_OF_CONTROL
+	imply CMD_IRQ
 
 config MIPS
 	bool "MIPS architecture"
@@ -92,6 +93,7 @@ config X86
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO
+	imply CMD_IRQ
 
 config XTENSA
 	bool "Xtensa architecture"

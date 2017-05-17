@@ -593,7 +593,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI

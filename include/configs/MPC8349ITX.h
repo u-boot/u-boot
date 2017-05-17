@@ -478,7 +478,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_SDRAM
 
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \

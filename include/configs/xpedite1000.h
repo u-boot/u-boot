@@ -175,7 +175,6 @@ extern void out32(unsigned int, unsigned long);
 /*
  * Command configuration
  */
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PCI
 
 /*

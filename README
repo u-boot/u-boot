@@ -852,7 +852,6 @@ The following options need to be configured:
 		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
 		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_INI		* import data from an ini file into the env
-		CONFIG_CMD_IRQ		* irqinfo
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
 		CONFIG_CMD_KGDB		* kgdb
 		CONFIG_CMD_LDRINFO	* ldrinfo (display Blackfin loader)

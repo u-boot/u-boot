@@ -1192,6 +1192,14 @@ config CMD_DIAG
 	  available tests and running either all the tests, or specific tests
 	  identified by name.
 
+config CMD_IRQ
+	bool "irq - Show information about interrupts"
+	depends on !ARM && !MIPS && !SH && !MPC512X
+	help
+	  This enables two commands:
+
+	     interrupts - enable or disable interrupts
+	     irqinfo - print device-specific interrupt information
 endmenu
 
 config CMD_UBI

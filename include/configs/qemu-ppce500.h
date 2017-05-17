@@ -127,7 +127,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IRQ
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
