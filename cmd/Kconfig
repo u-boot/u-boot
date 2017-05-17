@@ -322,6 +322,14 @@ config CMD_ENV_CALLBACK
 	  For example changing "baudrate" adjust the serial baud rate. This
 	  command lists the currently defined callbacks.
 
+config CMD_ENV_FLAGS
+	bool "env flags -print variables that have non-default flags"
+	help
+	  Some environment variables have special flags that control their
+	  behaviour. For example, serial# can only be written once and cannot
+	  be deleted. This command shows the variables that have special
+	  flags.
+
 endmenu
 
 menu "Memory commands"

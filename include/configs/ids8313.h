@@ -444,7 +444,6 @@
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"
 #define CONFIG_FDTFILE			"ids8313/ids8313.dtb"
 #define CONFIG_LOADADDR		0x400000
-#define CONFIG_CMD_ENV_FLAGS
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"
 
 /* Initial Memory map for Linux*/
