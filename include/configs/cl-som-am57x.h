@@ -42,9 +42,9 @@
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 
-/* SD/MMC RAW boot */
-#undef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-#undef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
+/* SD/MMC RAW/FS boot */
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME "u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION 1
 
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 << 10) /* 16 KiB env size */
