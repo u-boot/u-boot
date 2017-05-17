@@ -674,17 +674,6 @@ int	ppc440spe_revB(void);
 void	get_sys_info  ( sys_info_t * );
 #endif
 
-/* $(CPU)/cpu_init.c */
-#if defined(CONFIG_8xx) || defined(CONFIG_MPC8260)
-void	cpu_init_f    (volatile immap_t *immr);
-#endif
-#if defined(CONFIG_4xx) || defined(CONFIG_MCF52x2) || defined(CONFIG_MPC86xx)
-void	cpu_init_f    (void);
-#endif
-#ifdef CONFIG_MPC85xx
-ulong cpu_init_f(void);
-#endif
-
 int	cpu_init_r    (void);
 
 /* $(CPU)/interrupts.c */
