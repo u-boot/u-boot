@@ -69,7 +69,6 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_CMD_HDMIDETECT
 #endif
 
 /* PCI */

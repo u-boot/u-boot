@@ -55,3 +55,9 @@ config CMD_DEKBLOB
 	  Freescale secure boot mechanism. This command encapsulates and
 	  creates a blob of data. See also CMD_BLOB and doc/README.mxc_hab for
 	  more information.
+
+config CMD_HDMIDETECT
+	bool "Support the 'hdmidet' command"
+	help
+	  This enables the 'hdmidet' command which detects if an HDMI monitor
+	  is connected.

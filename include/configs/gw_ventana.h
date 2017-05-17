@@ -140,7 +140,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_UNZIP         /* gzwrite */
 #define CONFIG_RBTREE
 
@@ -173,7 +172,6 @@
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK          260000000
-#define CONFIG_CMD_HDMIDETECT
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_BMP_LOGO

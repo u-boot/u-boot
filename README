@@ -2717,11 +2717,6 @@ The following options need to be configured:
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
 
-- Freescale i.MX specific commands:
-		CONFIG_CMD_HDMIDETECT
-		This enables 'hdmidet' command which returns true if an
-		HDMI monitor is detected.  This command is i.MX 6 specific.
-
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
 
