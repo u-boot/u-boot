@@ -18,7 +18,7 @@ struct generic_ohci {
 
 static int ohci_usb_probe(struct udevice *dev)
 {
-	struct ohci_regs *regs = (struct ohci_regs *)dev_get_addr(dev);
+	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 
 	return ohci_register(dev, regs);
 }

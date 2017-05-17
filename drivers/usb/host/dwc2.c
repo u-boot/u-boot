@@ -1234,7 +1234,7 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 	const void *prop;
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 	priv->regs = (struct dwc2_core_regs *)addr;

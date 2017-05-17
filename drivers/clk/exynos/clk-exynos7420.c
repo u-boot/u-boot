@@ -98,7 +98,7 @@ static int exynos7420_clk_topc_probe(struct udevice *dev)
 	fdt_addr_t base;
 	int ret;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -152,7 +152,7 @@ static int exynos7420_clk_top0_probe(struct udevice *dev)
 	if (!priv)
 		return -EINVAL;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

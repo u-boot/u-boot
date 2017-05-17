@@ -1572,7 +1572,7 @@ static int tegra_dp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct tegra_dp_plat *plat = dev_get_platdata(dev);
 
-	plat->base = dev_get_addr(dev);
+	plat->base = devfdt_get_addr(dev);
 
 	return 0;
 }

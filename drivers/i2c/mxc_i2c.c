@@ -752,7 +752,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 
 	i2c_bus->driver_data = dev_get_driver_data(bus);
 
-	addr = dev_get_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

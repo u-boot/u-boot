@@ -171,7 +171,7 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 
 	host->name = strdup(dev->name);
-	host->ioaddr = (void *)dev_get_addr(dev);
+	host->ioaddr = (void *)devfdt_get_addr(dev);
 	host->bus_width = fdtdec_get_int(gd->fdt_blob, node, "bus-width", 4);
 	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
 	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,

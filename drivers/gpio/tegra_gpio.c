@@ -341,7 +341,7 @@ static int gpio_tegra_bind(struct udevice *parent)
 			 &len))
 		return -EINVAL;
 	bank_count = len / 3 / sizeof(u32);
-	ctlr = (struct gpio_ctlr *)dev_get_addr(parent);
+	ctlr = (struct gpio_ctlr *)devfdt_get_addr(parent);
 	}
 #endif
 	for (bank = 0; bank < bank_count; bank++) {

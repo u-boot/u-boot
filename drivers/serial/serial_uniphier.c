@@ -95,7 +95,7 @@ static int uniphier_serial_probe(struct udevice *dev)
 	fdt_addr_t base;
 	u32 tmp;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

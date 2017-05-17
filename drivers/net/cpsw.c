@@ -1293,7 +1293,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	int num_mode_gpios;
 	int ret;
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	priv->data.version = CPSW_CTRL_VERSION_2;
 	priv->data.bd_ram_ofs = CPSW_BD_OFFSET;
 	priv->data.ale_reg_ofs = CPSW_ALE_OFFSET;

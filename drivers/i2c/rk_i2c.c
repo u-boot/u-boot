@@ -369,7 +369,7 @@ static int rockchip_i2c_probe(struct udevice *bus)
 {
 	struct rk_i2c *priv = dev_get_priv(bus);
 
-	priv->regs = (void *)dev_get_addr(bus);
+	priv->regs = (void *)devfdt_get_addr(bus);
 
 	return 0;
 }

@@ -46,7 +46,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	/*
 	 * Get the base address for XHCI controller from the device node
 	 */
-	plat->hcd_base = dev_get_addr(dev);
+	plat->hcd_base = devfdt_get_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the XHCI register base address\n");
 		return -ENXIO;
@@ -57,7 +57,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	     device_find_next_child(&child)) {
 		if (!of_device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
 			continue;
-		plat->phy_base = dev_get_addr(child);
+		plat->phy_base = devfdt_get_addr(child);
 		break;
 	}
 

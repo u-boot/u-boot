@@ -726,7 +726,7 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 #endif
 	int ret = 0;
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);

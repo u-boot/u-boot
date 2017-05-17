@@ -1452,9 +1452,9 @@ static int eqos_probe(struct udevice *dev)
 	eqos->dev = dev;
 	eqos->config = (void *)dev_get_driver_data(dev);
 
-	eqos->regs = dev_get_addr(dev);
+	eqos->regs = devfdt_get_addr(dev);
 	if (eqos->regs == FDT_ADDR_T_NONE) {
-		error("dev_get_addr() failed");
+		error("devfdt_get_addr() failed");
 		return -ENODEV;
 	}
 	eqos->mac_regs = (void *)(eqos->regs + EQOS_MAC_REGS_BASE);

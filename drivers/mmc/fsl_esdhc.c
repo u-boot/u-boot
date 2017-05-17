@@ -963,7 +963,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	unsigned int val;
 	int ret;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

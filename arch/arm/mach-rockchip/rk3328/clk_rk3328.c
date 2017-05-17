@@ -25,7 +25,7 @@ void *rockchip_get_cru(void)
 	if (ret)
 		return ERR_PTR(ret);
 
-	priv = dev_get_addr_ptr(dev);
+	priv = devfdt_get_addr_ptr(dev);
 
 	return priv->cru;
 }

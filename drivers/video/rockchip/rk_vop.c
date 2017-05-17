@@ -294,7 +294,7 @@ static int rk_vop_probe(struct udevice *dev)
 		return 0;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	priv->regs = (struct rk3288_vop *)dev_get_addr(dev);
+	priv->regs = (struct rk3288_vop *)devfdt_get_addr(dev);
 
 	/* lcdc(vop) iodomain select 1.8V */
 	rk_setreg(&priv->grf->io_vsel, 1 << 0);

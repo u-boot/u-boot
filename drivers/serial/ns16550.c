@@ -395,7 +395,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	int err;
 
 	/* try Processor Local Bus device first */
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 #if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
 	if (addr == FDT_ADDR_T_NONE) {
 		/* then try pci device */

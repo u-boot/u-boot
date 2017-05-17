@@ -776,8 +776,8 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	int ret = 0;
 #endif
 
-	pdata->iobase = dev_get_addr_name(dev, "emac");
-	priv->sysctl_reg = dev_get_addr_name(dev, "syscon");
+	pdata->iobase = devfdt_get_addr_name(dev, "emac");
+	priv->sysctl_reg = devfdt_get_addr_name(dev, "syscon");
 
 	pdata->phy_interface = -1;
 	priv->phyaddr = -1;

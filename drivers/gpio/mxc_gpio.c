@@ -302,7 +302,7 @@ static int mxc_gpio_bind(struct udevice *dev)
 	if (plat)
 		return 0;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

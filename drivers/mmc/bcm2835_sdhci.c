@@ -179,7 +179,7 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	int emmc_freq;
 	int ret;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

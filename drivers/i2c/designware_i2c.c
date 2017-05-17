@@ -545,7 +545,7 @@ static int designware_i2c_probe(struct udevice *bus)
 #endif
 #endif
 	} else {
-		priv->regs = (struct i2c_regs *)dev_get_addr_ptr(bus);
+		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
 	}
 
 	__dw_i2c_init(priv->regs, 0, 0);

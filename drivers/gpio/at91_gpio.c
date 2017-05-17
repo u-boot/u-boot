@@ -587,7 +587,7 @@ static int at91_gpio_probe(struct udevice *dev)
 	uc_priv->gpio_count = GPIO_PER_BANK;
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	plat->base_addr = (uint32_t)dev_get_addr_ptr(dev);
+	plat->base_addr = (uint32_t)devfdt_get_addr_ptr(dev);
 #endif
 	port->regs = (struct at91_port *)plat->base_addr;
 

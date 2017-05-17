@@ -223,7 +223,7 @@ static int vf_usb_ofdata_to_platdata(struct udevice *dev)
 
 	priv->portnr = dev->seq;
 
-	priv->ehci = (struct usb_ehci *)dev_get_addr(dev);
+	priv->ehci = (struct usb_ehci *)devfdt_get_addr(dev);
 	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host")) {

@@ -170,7 +170,7 @@ static int sti_asc_serial_probe(struct udevice *dev)
 	unsigned long val;
 	fdt_addr_t base;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

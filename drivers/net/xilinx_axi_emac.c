@@ -686,7 +686,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	int offset = 0;
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	priv->iobase = (struct axi_regs *)pdata->iobase;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,

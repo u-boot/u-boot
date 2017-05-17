@@ -778,7 +778,7 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
-	dev->base = dev_get_addr_ptr(bus);
+	dev->base = devfdt_get_addr_ptr(bus);
 
 	if (!dev->base)
 		return -ENOMEM;

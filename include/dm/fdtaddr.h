@@ -16,26 +16,26 @@
 struct udevice;
 
 /**
- * dev_get_addr() - Get the reg property of a device
+ * devfdt_get_addr() - Get the reg property of a device
  *
  * @dev: Pointer to a device
  *
  * @return addr
  */
-fdt_addr_t dev_get_addr(struct udevice *dev);
+fdt_addr_t devfdt_get_addr(struct udevice *dev);
 
 /**
- * dev_get_addr_ptr() - Return pointer to the address of the reg property
+ * devfdt_get_addr_ptr() - Return pointer to the address of the reg property
  *                      of a device
  *
  * @dev: Pointer to a device
  *
  * @return Pointer to addr, or NULL if there is no such property
  */
-void *dev_get_addr_ptr(struct udevice *dev);
+void *devfdt_get_addr_ptr(struct udevice *dev);
 
 /**
- * dev_map_physmem() - Read device address from reg property of the
+ * devfdt_map_physmem() - Read device address from reg property of the
  *                     device node and map the address into CPU address
  *                     space.
  *
@@ -45,10 +45,10 @@ void *dev_get_addr_ptr(struct udevice *dev);
  * @return  mapped address, or NULL if the device does not have reg
  *          property.
  */
-void *dev_map_physmem(struct udevice *dev, unsigned long size);
+void *devfdt_map_physmem(struct udevice *dev, unsigned long size);
 
 /**
- * dev_get_addr_index() - Get the indexed reg property of a device
+ * devfdt_get_addr_index() - Get the indexed reg property of a device
  *
  * @dev: Pointer to a device
  * @index: the 'reg' property can hold a list of <addr, size> pairs
@@ -56,10 +56,10 @@ void *dev_map_physmem(struct udevice *dev, unsigned long size);
  *
  * @return addr
  */
-fdt_addr_t dev_get_addr_index(struct udevice *dev, int index);
+fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index);
 
 /**
- * dev_get_addr_size_index() - Get the indexed reg property of a device
+ * devfdt_get_addr_size_index() - Get the indexed reg property of a device
  *
  * Returns the address and size specified in the 'reg' property of a device.
  *
@@ -71,11 +71,11 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index);
  *
  * @return addr
  */
-fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
+fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
 				   fdt_size_t *size);
 
 /**
- * dev_get_addr_name() - Get the reg property of a device, indexed by name
+ * devfdt_get_addr_name() - Get the reg property of a device, indexed by name
  *
  * @dev: Pointer to a device
  * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
@@ -84,7 +84,7 @@ fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
  *
  * @return addr
  */
-fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name);
+fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
 
 /**
  * dm_set_translation_offset() - Set translation offset
@@ -93,7 +93,7 @@ fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name);
  * Some platforms need a special address translation. Those
  * platforms (e.g. mvebu in SPL) can configure a translation
  * offset in the DM by calling this function. It will be
- * added to all addresses returned in dev_get_addr().
+ * added to all addresses returned in devfdt_get_addr().
  */
 void dm_set_translation_offset(fdt_addr_t offs);
 

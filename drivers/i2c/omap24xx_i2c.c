@@ -896,7 +896,7 @@ static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct omap_i2c *priv = dev_get_priv(bus);
 
-	priv->regs = map_physmem(dev_get_addr(bus), sizeof(void *),
+	priv->regs = map_physmem(devfdt_get_addr(bus), sizeof(void *),
 				 MAP_NOCACHE);
 	priv->speed = CONFIG_SYS_OMAP24_I2C_SPEED;
 

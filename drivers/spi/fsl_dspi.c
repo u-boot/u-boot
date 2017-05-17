@@ -654,7 +654,7 @@ static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
 	plat->num_chipselect =
 		fdtdec_get_int(blob, node, "num-cs", FSL_DSPI_MAX_CHIPSELECT);
 
-	addr = dev_get_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("DSPI: Can't get base address or size\n");
 		return -ENOMEM;

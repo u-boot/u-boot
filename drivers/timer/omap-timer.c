@@ -79,7 +79,7 @@ static int omap_timer_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap_timer_priv *priv = dev_get_priv(dev);
 
-	priv->regs = map_physmem(dev_get_addr(dev),
+	priv->regs = map_physmem(devfdt_get_addr(dev),
 				 sizeof(struct omap_gptimer_regs), MAP_NOCACHE);
 
 	return 0;

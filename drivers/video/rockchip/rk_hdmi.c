@@ -85,7 +85,7 @@ static int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;
 
-	hdmi->ioaddr = (ulong)dev_get_addr(dev);
+	hdmi->ioaddr = (ulong)devfdt_get_addr(dev);
 	hdmi->mpll_cfg = rockchip_mpll_cfg;
 	hdmi->phy_cfg = rockchip_phy_config;
 	hdmi->i2c_clk_high = 0x7a;

@@ -52,7 +52,7 @@ static int bcm6328_power_domain_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t size;
 
-	addr = dev_get_addr_size_index(dev, 0, &size);
+	addr = devfdt_get_addr_size_index(dev, 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

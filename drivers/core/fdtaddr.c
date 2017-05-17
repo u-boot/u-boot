@@ -17,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
+fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	fdt_addr_t addr;
@@ -74,7 +74,7 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 	 * Some platforms need a special address translation. Those
 	 * platforms (e.g. mvebu in SPL) can configure a translation
 	 * offset in the DM by calling dm_set_translation_offset() that
-	 * will get added to all addresses returned by dev_get_addr().
+	 * will get added to all addresses returned by devfdt_get_addr().
 	 */
 	addr += dm_get_translation_offset();
 
@@ -84,7 +84,7 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
-fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
+fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
 				   fdt_size_t *size)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -100,13 +100,13 @@ fdt_addr_t dev_get_addr_size_index(struct udevice *dev, int index,
 	 * Get the base address via the existing function which handles
 	 * all Kconfig cases
 	 */
-	return dev_get_addr_index(dev, index);
+	return devfdt_get_addr_index(dev, index);
 #else
 	return FDT_ADDR_T_NONE;
 #endif
 }
 
-fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
+fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	int index;
@@ -116,25 +116,25 @@ fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
 	if (index < 0)
 		return index;
 
-	return dev_get_addr_index(dev, index);
+	return devfdt_get_addr_index(dev, index);
 #else
 	return FDT_ADDR_T_NONE;
 #endif
 }
 
-fdt_addr_t dev_get_addr(struct udevice *dev)
+fdt_addr_t devfdt_get_addr(struct udevice *dev)
 {
-	return dev_get_addr_index(dev, 0);
+	return devfdt_get_addr_index(dev, 0);
 }
 
-void *dev_get_addr_ptr(struct udevice *dev)
+void *devfdt_get_addr_ptr(struct udevice *dev)
 {
-	return (void *)(uintptr_t)dev_get_addr_index(dev, 0);
+	return (void *)(uintptr_t)devfdt_get_addr_index(dev, 0);
 }
 
-void *dev_map_physmem(struct udevice *dev, unsigned long size)
+void *devfdt_map_physmem(struct udevice *dev, unsigned long size)
 {
-	fdt_addr_t addr = dev_get_addr(dev);
+	fdt_addr_t addr = devfdt_get_addr(dev);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return NULL;

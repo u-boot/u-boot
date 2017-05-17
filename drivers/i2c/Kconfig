@@ -134,7 +134,6 @@ config SYS_I2C_INTEL
 
 config SYS_I2C_IMX_LPI2C
 	bool "NXP i.MX LPI2C driver"
-	depends on ARCH_MX7ULP
 	help
 	  Add support for the NXP i.MX LPI2C driver.
 

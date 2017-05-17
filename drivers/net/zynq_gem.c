@@ -683,7 +683,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;

@@ -50,7 +50,7 @@ static int ehci_usb_probe(struct udevice *dev)
 		reset_free(&reset);
 	}
 
-	hccr = map_physmem(dev_get_addr(dev), 0x100, MAP_NOCACHE);
+	hccr = map_physmem(devfdt_get_addr(dev), 0x100, MAP_NOCACHE);
 	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
 				    HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 

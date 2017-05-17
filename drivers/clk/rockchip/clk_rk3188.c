@@ -542,7 +542,7 @@ static int rk3188_clk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3188_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3188_cru *)dev_get_addr(dev);
+	priv->cru = (struct rk3188_cru *)devfdt_get_addr(dev);
 #endif
 
 	return 0;

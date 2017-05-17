@@ -316,7 +316,7 @@ static int pipe3_phy_probe(struct udevice *dev)
 	fdt_size_t sz;
 	struct omap_pipe3 *pipe3 = dev_get_priv(dev);
 
-	addr = dev_get_addr_size_index(dev, 2, &sz);
+	addr = devfdt_get_addr_size_index(dev, 2, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
 		error("missing pll ctrl address\n");
 		return -EINVAL;

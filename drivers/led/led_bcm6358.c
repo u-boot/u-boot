@@ -124,7 +124,7 @@ static int bcm6358_led_probe(struct udevice *dev)
 		unsigned int clk_div;
 		u32 set_bits = 0;
 
-		addr = dev_get_addr_size_index(dev, 0, &size);
+		addr = devfdt_get_addr_size_index(dev, 0, &size);
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 
@@ -158,7 +158,8 @@ static int bcm6358_led_probe(struct udevice *dev)
 		struct bcm6358_led_priv *priv = dev_get_priv(dev);
 		unsigned int pin;
 
-		addr = dev_get_addr_size_index(dev_get_parent(dev), 0, &size);
+		addr = devfdt_get_addr_size_index(dev_get_parent(dev), 0,
+						  &size);
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 

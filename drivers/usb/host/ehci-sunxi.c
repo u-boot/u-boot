@@ -36,7 +36,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct usb_platdata *plat = dev_get_platdata(dev);
 	struct ehci_sunxi_priv *priv = dev_get_priv(dev);
-	struct ehci_hccr *hccr = (struct ehci_hccr *)dev_get_addr(dev);
+	struct ehci_hccr *hccr = (struct ehci_hccr *)devfdt_get_addr(dev);
 	struct ehci_hcor *hcor;
 	int extra_ahb_gate_mask = 0;
 

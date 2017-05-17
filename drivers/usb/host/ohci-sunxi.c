@@ -37,7 +37,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
-	struct ohci_regs *regs = (struct ohci_regs *)dev_get_addr(dev);
+	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 	int extra_ahb_gate_mask = 0;
 
 	bus_priv->companion = true;

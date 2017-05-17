@@ -83,7 +83,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = dev->name;
-	host->ioaddr = dev_get_addr_ptr(dev);
+	host->ioaddr = devfdt_get_addr_ptr(dev);
 #endif
 
 	return 0;

@@ -419,7 +419,7 @@ static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
 	int node = dev->of_offset;
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

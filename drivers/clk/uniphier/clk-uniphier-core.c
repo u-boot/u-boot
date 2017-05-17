@@ -132,7 +132,7 @@ static int uniphier_clk_probe(struct udevice *dev)
 	struct uniphier_clk_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev->parent);
+	addr = devfdt_get_addr(dev->parent);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

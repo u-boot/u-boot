@@ -469,7 +469,7 @@ static int atmel_spi_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	bus_plat->regs = (struct at91_spi *)dev_get_addr(bus);
+	bus_plat->regs = (struct at91_spi *)devfdt_get_addr(bus);
 
 	ret = gpio_request_list_by_name(bus, "cs-gpios", priv->cs_gpios,
 					ARRAY_SIZE(priv->cs_gpios), 0);

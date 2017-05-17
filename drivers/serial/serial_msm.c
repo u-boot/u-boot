@@ -201,7 +201,7 @@ static int msm_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	priv->base = dev_get_addr(dev);
+	priv->base = devfdt_get_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

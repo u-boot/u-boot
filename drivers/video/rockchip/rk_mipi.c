@@ -441,7 +441,7 @@ static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
 		      __func__, (u64)priv->grf);
 		return  -ENXIO;
 	}
-	priv->regs = (void *)dev_get_addr(dev);
+	priv->regs = (void *)devfdt_get_addr(dev);
 	if (priv->regs <= 0) {
 		debug("%s: Get MIPI dsi address failed (ret=%llu)\n", __func__,
 		      (u64)priv->regs);

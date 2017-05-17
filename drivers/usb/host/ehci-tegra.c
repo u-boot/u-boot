@@ -699,7 +699,7 @@ static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 	int node = dev_of_offset(dev);
 	const char *phy, *mode;
 
-	config->reg = (struct usb_ctlr *)dev_get_addr(dev);
+	config->reg = (struct usb_ctlr *)devfdt_get_addr(dev);
 	mode = fdt_getprop(blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host"))

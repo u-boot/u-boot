@@ -158,7 +158,7 @@ static int atmel_pinctrl_probe(struct udevice *dev)
 	fdt_addr_t addr_base;
 
 	dev = dev_get_parent(dev);
-	addr_base = dev_get_addr(dev);
+	addr_base = devfdt_get_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

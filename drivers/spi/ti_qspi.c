@@ -584,7 +584,7 @@ static void *map_syscon_chipselects(struct udevice *bus)
 	return fdtdec_get_number(cell + 1, 1) + regmap_get_range(regmap, 0);
 #else
 	fdt_addr_t addr;
-	addr = dev_get_addr_index(bus, 2);
+	addr = devfdt_get_addr_index(bus, 2);
 	return (addr == FDT_ADDR_T_NONE) ? NULL :
 		map_physmem(addr, 0, MAP_NOCACHE);
 #endif
@@ -597,9 +597,9 @@ static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
 	int node = dev_of_offset(bus);
 
 	priv->ctrl_mod_mmap = map_syscon_chipselects(bus);
-	priv->base = map_physmem(dev_get_addr(bus), sizeof(struct ti_qspi_regs),
-				 MAP_NOCACHE);
-	priv->memory_map = map_physmem(dev_get_addr_index(bus, 1), 0,
+	priv->base = map_physmem(devfdt_get_addr(bus),
+				 sizeof(struct ti_qspi_regs), MAP_NOCACHE);
+	priv->memory_map = map_physmem(devfdt_get_addr_index(bus, 1), 0,
 				       MAP_NOCACHE);
 
 	priv->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", -1);

@@ -233,7 +233,7 @@ static int bcm6345_serial_probe(struct udevice *dev)
 	int ret;
 
 	/* get address */
-	addr = dev_get_addr_size_index(dev, 0, &size);
+	addr = devfdt_get_addr_size_index(dev, 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

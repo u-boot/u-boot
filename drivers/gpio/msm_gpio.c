@@ -97,7 +97,7 @@ static int msm_gpio_probe(struct udevice *dev)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
-	priv->base = dev_get_addr(dev);
+	priv->base = devfdt_get_addr(dev);
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }

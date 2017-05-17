@@ -1279,7 +1279,7 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 	struct fec_priv *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	priv->eth = (struct ethernet_regs *)pdata->iobase;
 
 	pdata->phy_interface = -1;

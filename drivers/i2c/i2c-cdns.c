@@ -419,7 +419,7 @@ static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
 	struct cdns_i2c_platform_data *pdata =
 		(struct cdns_i2c_platform_data *)dev_get_driver_data(dev);
 
-	i2c_bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
+	i2c_bus->regs = (struct cdns_i2c_regs *)devfdt_get_addr(dev);
 	if (!i2c_bus->regs)
 		return -ENOMEM;
 

@@ -392,7 +392,7 @@ static int ftmac100_ofdata_to_platdata(struct udevice *dev)
 	struct ftmac100_data *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const char *mac;
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	priv->iobase = pdata->iobase;
 	mac = dtbmacaddr(0);
 	if (mac)

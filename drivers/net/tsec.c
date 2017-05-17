@@ -780,7 +780,7 @@ int tsec_probe(struct udevice *dev)
 	const char *phy_mode;
 	int ret;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	priv->regs = (struct tsec *)pdata->iobase;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),

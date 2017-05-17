@@ -36,7 +36,7 @@ static int sdhci_tangier_probe(struct udevice *dev)
 	fdt_addr_t base;
 	int ret;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

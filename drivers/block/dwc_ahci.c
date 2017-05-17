@@ -36,10 +36,10 @@ static int dwc_ahci_ofdata_to_platdata(struct udevice *dev)
 	plat->max_lun = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
 					"max-lun", CONFIG_SYS_SCSI_MAX_LUN);
 
-	priv->base = map_physmem(dev_get_addr(dev), sizeof(void *),
+	priv->base = map_physmem(devfdt_get_addr(dev), sizeof(void *),
 				 MAP_NOCACHE);
 
-	addr = dev_get_addr_index(dev, 1);
+	addr = devfdt_get_addr_index(dev, 1);
 	if (addr != FDT_ADDR_T_NONE) {
 		priv->wrapper_base = map_physmem(addr, sizeof(void *),
 						 MAP_NOCACHE);

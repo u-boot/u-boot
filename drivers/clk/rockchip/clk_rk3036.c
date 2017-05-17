@@ -331,7 +331,7 @@ static int rk3036_clk_probe(struct udevice *dev)
 {
 	struct rk3036_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3036_cru *)dev_get_addr(dev);
+	priv->cru = (struct rk3036_cru *)devfdt_get_addr(dev);
 	rkclk_init(priv->cru);
 
 	return 0;

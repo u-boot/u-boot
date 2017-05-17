@@ -505,7 +505,7 @@ static int ti_edma3_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ti_edma3_priv *priv = dev_get_priv(dev);
 
-	priv->base = dev_get_addr(dev);
+	priv->base = devfdt_get_addr(dev);
 
 	return 0;
 }

@@ -576,7 +576,7 @@ static int atmel_mci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	priv->mci = (struct atmel_mci *)dev_get_addr_ptr(dev);
+	priv->mci = (struct atmel_mci *)devfdt_get_addr_ptr(dev);
 
 	atmel_mci_setup_cfg(priv);
 

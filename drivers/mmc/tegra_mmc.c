@@ -616,7 +616,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 	priv->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	priv->reg = (void *)dev_get_addr(dev);
+	priv->reg = (void *)devfdt_get_addr(dev);
 
 	ret = reset_get_by_name(dev, "sdhci", &priv->reset_ctl);
 	if (ret) {

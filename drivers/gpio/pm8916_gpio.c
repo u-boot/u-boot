@@ -173,7 +173,7 @@ static int pm8916_gpio_probe(struct udevice *dev)
 	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
 
-	priv->pid = dev_get_addr(dev);
+	priv->pid = devfdt_get_addr(dev);
 	if (priv->pid == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -259,7 +259,7 @@ static int pm8941_pwrkey_probe(struct udevice *dev)
 	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
 
-	priv->pid = dev_get_addr(dev);
+	priv->pid = devfdt_get_addr(dev);
 	if (priv->pid == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

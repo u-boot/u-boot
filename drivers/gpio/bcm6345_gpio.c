@@ -92,11 +92,11 @@ static int bcm6345_gpio_probe(struct udevice *dev)
 	fdt_addr_t data_addr, dirout_addr;
 	fdt_size_t data_size, dirout_size;
 
-	dirout_addr = dev_get_addr_size_index(dev, 0, &dirout_size);
+	dirout_addr = devfdt_get_addr_size_index(dev, 0, &dirout_size);
 	if (dirout_addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	data_addr = dev_get_addr_size_index(dev, 1, &data_size);
+	data_addr = devfdt_get_addr_size_index(dev, 1, &data_size);
 	if (data_addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

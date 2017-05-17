@@ -88,7 +88,7 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 	int ctrl_mod;
 	int usb_index;
 
-	platdata->base = (void *)dev_get_addr_index(dev, 1);
+	platdata->base = (void *)devfdt_get_addr_index(dev, 1);
 
 	phys = fdtdec_lookup_phandle(fdt, node, "phys");
 	ctrl_mod = fdtdec_lookup_phandle(fdt, phys, "ti,ctrl_mod");

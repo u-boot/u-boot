@@ -58,7 +58,7 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)dev_get_addr(dev);
+	host->ioaddr = (void *)devfdt_get_addr(dev);
 	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;

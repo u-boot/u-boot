@@ -75,7 +75,7 @@ static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct rk3288_pwm *)dev_get_addr(dev);
+	priv->regs = (struct rk3288_pwm *)devfdt_get_addr(dev);
 
 	return 0;
 }

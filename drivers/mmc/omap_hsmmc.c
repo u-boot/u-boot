@@ -808,7 +808,8 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int val;
 
-	plat->base_addr = map_physmem(dev_get_addr(dev), sizeof(struct hsmmc *),
+	plat->base_addr = map_physmem(devfdt_get_addr(dev),
+				      sizeof(struct hsmmc *),
 				      MAP_NOCACHE) + data->reg_offset;
 
 	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;

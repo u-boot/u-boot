@@ -598,7 +598,7 @@ static int emaclite_ofdata_to_platdata(struct udevice *dev)
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	int offset = 0;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	emaclite->regs = (struct emaclite_regs *)ioremap_nocache(pdata->iobase,
 								 0x10000);
 

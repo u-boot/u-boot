@@ -673,7 +673,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

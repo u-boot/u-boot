@@ -81,7 +81,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = dev->name;
-	host->ioaddr = (void *)dev_get_addr(dev);
+	host->ioaddr = (void *)devfdt_get_addr(dev);
 
 	plat->f_max = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				"max-frequency", CONFIG_ZYNQ_SDHCI_MAX_FREQ);

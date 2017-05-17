@@ -5394,18 +5394,18 @@ static int mvpp2_base_probe(struct udevice *dev)
 	memset(bd_space, 0, size);
 
 	/* Save base addresses for later use */
-	priv->base = (void *)dev_get_addr_index(dev, 0);
+	priv->base = (void *)devfdt_get_addr_index(dev, 0);
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
 	if (priv->hw_version == MVPP21) {
-		priv->lms_base = (void *)dev_get_addr_index(dev, 1);
+		priv->lms_base = (void *)devfdt_get_addr_index(dev, 1);
 		if (IS_ERR(priv->lms_base))
 			return PTR_ERR(priv->lms_base);
 
 		priv->mdio_base = priv->lms_base + MVPP21_SMI;
 	} else {
-		priv->iface_base = (void *)dev_get_addr_index(dev, 1);
+		priv->iface_base = (void *)devfdt_get_addr_index(dev, 1);
 		if (IS_ERR(priv->iface_base))
 			return PTR_ERR(priv->iface_base);
 
@@ -5463,7 +5463,7 @@ static int mvpp2_probe(struct udevice *dev)
 	if (priv->hw_version == MVPP21) {
 		int priv_common_regs_num = 2;
 
-		port->base = (void __iomem *)dev_get_addr_index(
+		port->base = (void __iomem *)devfdt_get_addr_index(
 			dev->parent, priv_common_regs_num + port->id);
 		if (IS_ERR(port->base))
 			return PTR_ERR(port->base);

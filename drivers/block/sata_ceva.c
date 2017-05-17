@@ -129,7 +129,7 @@ static int sata_ceva_ofdata_to_platdata(struct udevice *dev)
 {
 	struct scsi_platdata *plat = dev_get_platdata(dev);
 
-	plat->base = dev_get_addr(dev);
+	plat->base = devfdt_get_addr(dev);
 	if (plat->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

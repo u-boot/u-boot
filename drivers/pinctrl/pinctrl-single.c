@@ -109,7 +109,7 @@ static int single_ofdata_to_platdata(struct udevice *dev)
 		return res;
 	pdata->offset = of_reg[1] - pdata->width / 8;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
 		dev_dbg(dev, "no valid base register address\n");
 		return -EINVAL;

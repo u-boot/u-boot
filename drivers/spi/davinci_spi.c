@@ -542,7 +542,7 @@ static int davinci_ofdata_to_platadata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
-	ds->regs = dev_map_physmem(bus, sizeof(struct davinci_spi_regs));
+	ds->regs = devfdt_map_physmem(bus, sizeof(struct davinci_spi_regs));
 	if (!ds->regs) {
 		printf("%s: could not map device address\n", __func__);
 		return -EINVAL;

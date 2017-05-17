@@ -177,7 +177,7 @@ static int ath79_spi_probe(struct udevice *bus)
 	struct ath79_spi_priv *priv = dev_get_priv(bus);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

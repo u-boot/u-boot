@@ -293,7 +293,7 @@ static int tegra_kbd_probe(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	int ret;
 
-	priv->kbc = (struct kbc_tegra *)dev_get_addr(dev);
+	priv->kbc = (struct kbc_tegra *)devfdt_get_addr(dev);
 	if ((fdt_addr_t)priv->kbc == FDT_ADDR_T_NONE) {
 		debug("%s: No keyboard register found\n", __func__);
 		return -EINVAL;

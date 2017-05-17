@@ -166,7 +166,7 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 	if (plat)
 		return 0;
 
-	addr = dev_get_addr_index(dev, 1);
+	addr = devfdt_get_addr_index(dev, 1);
 	if (addr == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

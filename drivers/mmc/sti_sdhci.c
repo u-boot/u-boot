@@ -108,7 +108,7 @@ static int sti_sdhci_ofdata_to_platdata(struct udevice *dev)
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = strdup(dev->name);
-	host->ioaddr = (void *)dev_get_addr(dev);
+	host->ioaddr = (void *)devfdt_get_addr(dev);
 
 	host->bus_width = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "bus-width", 4);
