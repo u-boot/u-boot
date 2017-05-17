@@ -279,7 +279,6 @@
 /*
  * Command line configuration.
  */
-#undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_REGINFO
 

@@ -20,6 +20,7 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_BOOTZ
 	imply CMD_DFU if USB_GADGET_DOWNLOAD
 	imply CMD_DHCP
+	imply CMD_EEPROM
 	imply CMD_EXT2
 	imply CMD_EXT4
 	imply CMD_EXT4_WRITE

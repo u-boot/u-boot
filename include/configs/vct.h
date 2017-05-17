@@ -77,7 +77,6 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_EEPROM
 
 /*
  * Only Premium/Platinum have ethernet support right now
@@ -254,8 +253,6 @@ int vct_gpio_get(int pin);
  * (NOR/OneNAND) usage and Linux kernel booting.
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
-#undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_IRQ
 #undef CONFIG_CMD_LOADY
 #undef CONFIG_CMD_REGINFO

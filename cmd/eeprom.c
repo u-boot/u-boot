@@ -265,10 +265,6 @@ __weak int eeprom_parse_layout_version(char *str)
 
 static unsigned char eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
 
-#ifndef CONFIG_EEPROM_LAYOUT_HELP_STRING
-#define CONFIG_EEPROM_LAYOUT_HELP_STRING "<not defined>"
-#endif
-
 #endif
 
 enum eeprom_action {

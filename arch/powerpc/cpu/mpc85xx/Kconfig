@@ -124,6 +124,7 @@ config TARGET_P1010RDB_PA
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	imply CMD_EEPROM
 
 config TARGET_P1010RDB_PB
 	bool "Support P1010RDB_PB"
@@ -131,6 +132,7 @@ config TARGET_P1010RDB_PB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	imply CMD_EEPROM
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
@@ -141,54 +143,63 @@ config TARGET_P1022DS
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
 	select ARCH_P1023
+	imply CMD_EEPROM
 
 config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
 
 config TARGET_P1020RDB_PC
 	bool "Support P1020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
 
 config TARGET_P1020RDB_PD
 	bool "Support P1020RDB-PD"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
 
 config TARGET_P1020UTM
 	bool "Support P1020UTM"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
 
 config TARGET_P1021RDB
 	bool "Support P1021RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1021
+	imply CMD_EEPROM
 
 config TARGET_P1024RDB
 	bool "Support P1024RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1024
+	imply CMD_EEPROM
 
 config TARGET_P1025RDB
 	bool "Support P1025RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1025
+	imply CMD_EEPROM
 
 config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P2020
+	imply CMD_EEPROM
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
@@ -211,6 +222,7 @@ config TARGET_T1024QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
 
 config TARGET_T1023RDB
 	bool "Support T1023RDB"
@@ -218,6 +230,7 @@ config TARGET_T1023RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
@@ -225,12 +238,14 @@ config TARGET_T1024RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
 
 config TARGET_T1040QDS
 	bool "Support T1040QDS"
 	select ARCH_T1040
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select PHYS_64BIT
+	imply CMD_EEPROM
 
 config TARGET_T1040RDB
 	bool "Support T1040RDB"
@@ -377,6 +392,7 @@ config ARCH_B4420
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_B4860
 	bool
@@ -402,6 +418,7 @@ config ARCH_B4860
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_BSC9131
 	bool
@@ -415,6 +432,7 @@ config ARCH_BSC9131
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_BSC9132
 	bool
@@ -432,6 +450,7 @@ config ARCH_BSC9132
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_C29X
 	bool
@@ -565,6 +584,7 @@ config ARCH_P1010
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_P1011
 	bool
@@ -649,6 +669,7 @@ config ARCH_P1024
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_EEPROM
 
 config ARCH_P1025
 	bool
@@ -678,6 +699,7 @@ config ARCH_P2020
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_EEPROM
 
 config ARCH_P2041
 	bool
@@ -821,6 +843,7 @@ config ARCH_T1023
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_T1024
 	bool
@@ -838,6 +861,7 @@ config ARCH_T1024
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
+	imply CMD_EEPROM
 
 config ARCH_T1040
 	bool

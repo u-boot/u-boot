@@ -12,8 +12,6 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
 
-#define CONFIG_CMD_EEPROM
-
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on VINING_FPGA */
 

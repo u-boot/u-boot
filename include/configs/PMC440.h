@@ -238,7 +238,6 @@
 
 /* Partitions */
 
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO

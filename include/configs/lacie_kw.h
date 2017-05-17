@@ -120,7 +120,6 @@
  */
 #ifdef CONFIG_CMD_I2C
 /* I2C EEPROM HT24LC04 (512B - 32 pages of 16 Bytes) */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4 /* 16-byte page size */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1 /* 8-bit device address */

@@ -91,7 +91,6 @@
 #define CONFIG_PHY_SMSC
 
 #ifndef CONFIG_SPL
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_BUS             1
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN        1

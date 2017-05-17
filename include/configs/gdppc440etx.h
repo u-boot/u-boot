@@ -147,7 +147,6 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_PCI
-#undef CONFIG_CMD_EEPROM
 
 /*
  * PCI stuff

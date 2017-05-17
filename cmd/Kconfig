@@ -338,6 +338,54 @@ config CMD_CRC32
 	help
 	  Compute CRC32.
 
+config CMD_EEPROM
+	bool "eeprom - EEPROM subsystem"
+	help
+	  (deprecated, needs conversion to driver model)
+	  Provides commands to read and write EEPROM (Electrically Erasable
+	  Programmable Read Only Memory) chips that are connected over an
+	  I2C bus.
+
+config CMD_EEPROM_LAYOUT
+	bool "Enable layout-aware eeprom commands"
+	depends on CMD_EEPROM
+	help
+	  (deprecated, needs conversion to driver model)
+	  When enabled, additional eeprom sub-commands become available.
+
+	  eeprom print - prints the contents of the eeprom in a human-readable
+	  way (eeprom layout fields, and data formatted to be fit for human
+	  consumption).
+
+	  eeprom update - allows user to update eeprom fields by specifying
+	  the field name, and providing the new data in a human readable format
+	  (same format as displayed by the eeprom print command).
+
+	  Both commands can either auto detect the layout, or be told which
+	  layout to use.
+
+	  Feature API:
+	  __weak int parse_layout_version(char *str)
+		- override to provide your own layout name parsing
+	  __weak void __eeprom_layout_assign(struct eeprom_layout *layout,
+			int layout_version);
+		- override to setup the layout metadata based on the version
+	  __weak int eeprom_layout_detect(unsigned char *data)
+		- override to provide your own algorithm for detecting layout
+			version
+	  eeprom_field.c
+		- contains various printing and updating functions for common
+			types of eeprom fields. Can be used for defining
+			custom layouts.
+
+config EEPROM_LAYOUT_HELP_STRING
+	  string "Tells user what layout names are supported"
+	  depends on CMD_EEPROM_LAYOUT
+	  default "<not defined>"
+	  help
+	    Help printed with the LAYOUT VERSIONS part of the 'eeprom'
+	    command's help.
+
 config CMD_MD5SUM
 	bool "md5sum"
 	default n

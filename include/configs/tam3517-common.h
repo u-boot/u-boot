@@ -71,7 +71,6 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_EEPROM
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	400000

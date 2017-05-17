@@ -208,7 +208,6 @@
 /* U-Boot command configuration */
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_EEPROM
 
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R

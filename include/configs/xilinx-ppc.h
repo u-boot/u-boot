@@ -28,7 +28,6 @@
 #define CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_MTDPARTS
-#undef CONFIG_CMD_EEPROM
 
 /*Misc*/
 #define CONFIG_SYS_LONGHELP		/* undef to save memory         */

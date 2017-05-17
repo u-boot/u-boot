@@ -48,7 +48,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_EEPROM
 
 
 #define MTDPARTS_DEFAULT	"mtdparts=physmap-flash.0:128k(uboot)ro," \
