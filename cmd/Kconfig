@@ -1147,6 +1147,7 @@ config CMD_FS_UUID
 
 config CMD_JFFS2
 	bool "jffs2 command"
+	select FS_JFFS2
 	help
 	  Enables commands to support the JFFS2 (Journalling Flash File System
 	  version 2) filesystem. This enables fsload, ls and fsinfo which

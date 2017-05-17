@@ -39,7 +39,7 @@
 # define OFFSET_ADJUSTMENT	(flash_info[id.num].start[0])
 #endif
 
-#ifndef CONFIG_CMD_JFFS2
+#ifndef CONFIG_FS_JFFS2
 #include <linux/stat.h>
 char *mkmodestr(unsigned long mode, char *str)
 {
@@ -70,7 +70,7 @@ char *mkmodestr(unsigned long mode, char *str)
 	str[10] = '\0';
 	return str;
 }
-#endif /* CONFIG_CMD_JFFS2 */
+#endif /* CONFIG_FS_JFFS2 */
 
 extern int cramfs_check (struct part_info *info);
 extern int cramfs_load (char *loadoffset, struct part_info *info, char *filename);
