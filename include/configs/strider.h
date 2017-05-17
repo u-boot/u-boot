@@ -28,8 +28,6 @@
 
 #define CONFIG_SYS_ALT_MEMTEST
 
-#define CONFIG_CMD_IOLOOP
-
 /*
  * System Clock Setup
  */

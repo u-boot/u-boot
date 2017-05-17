@@ -23,3 +23,8 @@ config SYS_CONFIG_NAME
 	default "strider"
 
 endif
+
+config CMD_IOLOOP
+	bool "Enable 'ioloop' and 'ioreflect' commands"
+	help
+	  These commands provide FPGA tests.
