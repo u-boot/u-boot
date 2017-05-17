@@ -43,7 +43,6 @@
 #define CONFIG_SYS_I2C_SPEED            100000
 
 /* OCOTP Configs */
-#define CONFIG_CMD_IMXOTP
 #define CONFIG_IMX_OTP
 #define IMX_OTP_BASE                    OCOTP_BASE_ADDR
 #define IMX_OTP_ADDR_MAX                0x7F
