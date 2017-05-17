@@ -87,7 +87,6 @@ obj-y += spmi/
 obj-y += sysreset/
 obj-y += timer/
 obj-y += tpm/
-obj-y += twserial/
 obj-y += video/
 obj-y += watchdog/
 obj-$(CONFIG_QE) += qe/
