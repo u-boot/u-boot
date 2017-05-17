@@ -6,10 +6,12 @@ config MX7
 	select CPU_V7_HAS_VIRT
 	select CPU_V7_HAS_NONSEC
 	select ARCH_SUPPORT_PSCI
+	imply CMD_FUSE
 	default y
 
 config MX7D
 	select ROM_UNIFIED_SECTIONS
+	imply CMD_FUSE
 	bool
 
 choice

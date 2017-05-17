@@ -53,7 +53,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 
 /* Fuse */
-#define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
 /* U-Boot memory offsets */

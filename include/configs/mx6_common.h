@@ -78,7 +78,6 @@
 #define CONFIG_FSL_USDHC
 
 /* Fuses */
-#define CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 
 /* Secure boot (HAB) support */

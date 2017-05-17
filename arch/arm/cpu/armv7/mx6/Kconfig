@@ -7,6 +7,7 @@ config MX6
 	select ARM_ERRATA_751472 if !MX6UL
 	select ARM_ERRATA_761320 if !MX6UL
 	select ARM_ERRATA_794072 if !MX6UL
+	imply CMD_FUSE
 
 config MX6D
 	bool

@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_FUSE		/* Device fuse support		*/
 #define CONFIG_CMD_GETTIME	/* Get time since boot         */
 #define CONFIG_CMD_HASH		/* calculate hash / digest	*/
 #define CONFIG_CMD_IDE		/* IDE harddisk support		*/

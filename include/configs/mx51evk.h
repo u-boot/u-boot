@@ -33,7 +33,6 @@
  * Hardware drivers
  */
 #define CONFIG_FSL_IIM
-#define CONFIG_CMD_FUSE
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE

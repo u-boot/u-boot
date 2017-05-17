@@ -382,8 +382,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 
-#undef CONFIG_CMD_FUSE
-
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #endif

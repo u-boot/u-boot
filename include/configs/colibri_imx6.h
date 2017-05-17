@@ -52,7 +52,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* OCOTP Configs */
-#define CONFIG_CMD_FUSE
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 #endif

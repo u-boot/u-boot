@@ -20,7 +20,6 @@
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 
-#define CONFIG_CMD_FUSE
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 #endif

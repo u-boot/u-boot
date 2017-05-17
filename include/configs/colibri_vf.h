@@ -20,7 +20,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_CMD_FUSE
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 #endif

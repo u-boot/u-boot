@@ -627,6 +627,14 @@ config CMD_FPGAD
 	  fpga_get_reg() function. This functions similarly to the 'md'
 	  command.
 
+config CMD_FUSE
+	bool "fuse - support for the fuse subssystem"
+	help
+	  (deprecated - needs conversion to driver model)
+	  This allows reading, sensing, programming or overriding fuses
+	  which control the behaviour of the device. The command uses the
+	  fuse_...() API.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC

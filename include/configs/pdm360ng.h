@@ -340,8 +340,6 @@
 
 #define CONFIG_CMD_REGINFO
 
-#undef CONFIG_CMD_FUSE
-
 /*
  * Miscellaneous configurable options
  */
