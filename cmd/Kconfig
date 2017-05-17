@@ -711,6 +711,14 @@ config CMD_LINK_LOCAL
 	help
 	  Acquire a network IP address using the link-local protocol
 
+config CMD_ETHSW
+	bool "ethsw"
+	help
+	  Allow control of L2 Ethernet switch commands. These are supported
+	  by the vsc9953 Ethernet driver at present. Sub-commands allow
+	  operations such as enabling / disabling a port and
+	  viewing/maintaining the filtering database (FDB)
+
 endmenu
 
 menu "Misc commands"

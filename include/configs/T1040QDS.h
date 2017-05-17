@@ -629,7 +629,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* Enable VSC9953 L2 Switch driver */
 #define CONFIG_VSC9953
-#define CONFIG_CMD_ETHSW
 #define CONFIG_SYS_FM1_QSGMII11_PHY_ADDR	0x14
 #define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x18
 
