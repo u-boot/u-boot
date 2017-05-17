@@ -72,7 +72,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */

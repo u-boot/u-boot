@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_IDE		/* IDE harddisk support		*/
 #define CONFIG_CMD_IMMAP	/* IMMR dump support		*/
 #define CONFIG_CMD_IO		/* Access to X86 IO space	*/
 #define CONFIG_CMD_IRQ		/* irqinfo			*/

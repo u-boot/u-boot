@@ -62,7 +62,6 @@
  */
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_IDE
 
 #define CONFIG_SUPPORT_VFAT
 

@@ -6,6 +6,7 @@ CONFIG_SYS_PROMPT="DbAu1xx0 # "
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_SAVEENV is not set
+CONFIG_CMD_IDE=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_FLASH is not set

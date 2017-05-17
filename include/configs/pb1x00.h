@@ -148,6 +148,4 @@
  * Command line configuration.
  */
 
-#undef CONFIG_CMD_IDE
-
 #endif	/* __CONFIG_H */

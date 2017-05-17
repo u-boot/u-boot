@@ -50,8 +50,6 @@
 #define CONFIG_SYS_NS16550_COM1		0xffffffffb40003f8
 #define CONFIG_CONS_INDEX		1
 
-#define CONFIG_CMD_IDE
-
 #ifdef CONFIG_SYS_BIG_ENDIAN
 #define CONFIG_IDE_SWAP_IO
 #endif

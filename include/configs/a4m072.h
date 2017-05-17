@@ -81,7 +81,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

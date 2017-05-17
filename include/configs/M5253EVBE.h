@@ -46,7 +46,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 
 /* ATA */
 #define CONFIG_IDE_RESET	1

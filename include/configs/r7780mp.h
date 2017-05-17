@@ -22,7 +22,6 @@
  */
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_IDE
 
 #define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1

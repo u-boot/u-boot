@@ -11,6 +11,7 @@ CONFIG_VERSION_VARIABLE=y
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set
+CONFIG_CMD_IDE=y
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_ECHO is not set
 # CONFIG_CMD_ITEST is not set

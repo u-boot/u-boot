@@ -37,7 +37,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 
 #ifdef CONFIG_CMD_IDE
 /* ATA */

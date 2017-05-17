@@ -27,7 +27,6 @@
  * Default configuraion is to support the QEMU default x86 target
  * Undefine CONFIG_CMD_IDE to support q35 target
  */
-#define CONFIG_CMD_IDE
 #ifdef CONFIG_CMD_IDE
 #define CONFIG_SYS_IDE_MAXBUS		2
 #define CONFIG_SYS_IDE_MAXDEVICE	4

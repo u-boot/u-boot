@@ -38,7 +38,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_IDE
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

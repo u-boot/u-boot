@@ -484,6 +484,14 @@ config CMD_DEMO
 	  option is to use sandbox and pass the -d point to sandbox's
 	  u-boot.dtb file.
 
+config CMD_IDE
+	bool "ide - Support for IDE drivers"
+	help
+	  Provides an 'ide' command which allows accessing the IDE drive,
+	  reseting the IDE interface, printing the partition table and
+	  geting device info. It also enables the 'diskboot' command which
+	  permits booting from an IDE drive.
+
 config CMD_LOADB
 	bool "loadb"
 	default y

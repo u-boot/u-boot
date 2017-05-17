@@ -88,7 +88,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE		/* IDE harddisk support */
 #define CONFIG_CMD_IRQ		/* irqinfo */
 #define CONFIG_CMD_PCI		/* pciinfo */
 

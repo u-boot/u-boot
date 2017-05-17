@@ -33,7 +33,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO

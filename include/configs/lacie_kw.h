@@ -43,7 +43,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_IDE
 #ifndef CONFIG_NETSPACE_MINI_V2 /* No USB ports on Network Space v2 Mini */
 #endif
 

@@ -14,7 +14,6 @@
 #define CONFIG_AP325RXA	1
 
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_IDE
 
 #define CONFIG_BOOTARGS		"console=ttySC2,38400"
 

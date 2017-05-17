@@ -153,7 +153,6 @@
 
 #if defined(CONFIG_CHARON) || defined(CONFIG_FO300) || \
 	defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX)
-    #define CONFIG_CMD_IDE
 #endif
 
 #if defined(CONFIG_CHARON) || defined(CONFIG_FO300) || \

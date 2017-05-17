@@ -28,7 +28,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_IDE
 
 /*
  * Extra file system

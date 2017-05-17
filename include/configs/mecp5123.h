@@ -273,7 +273,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
 #define CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
 
 /*
