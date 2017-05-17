@@ -121,4 +121,6 @@
 #define CONFIG_PANIC_HANG
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
+#include <asm/arch/soc.h>
+
 #endif /* __LS1012A_COMMON_H */

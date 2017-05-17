@@ -9,7 +9,8 @@
 #include <common.h>
 #include <fsl_errata.h>
 #include<fsl_usb.h>
-#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
+	defined(CONFIG_ARM)
 #include <asm/arch/clock.h>
 #endif
 

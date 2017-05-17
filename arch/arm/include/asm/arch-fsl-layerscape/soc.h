@@ -8,6 +8,16 @@
 #ifndef _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_
 #define _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_
 
+#ifndef __ASSEMBLY__
+#include <linux/types.h>
+#ifdef CONFIG_FSL_LSCH2
+#include <asm/arch/immap_lsch2.h>
+#endif
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch/immap_lsch3.h>
+#endif
+#endif
+
 #ifdef CONFIG_SYS_FSL_CCSR_GUR_LE
 #define gur_in32(a)       in_le32(a)
 #define gur_out32(a, v)   out_le32(a, v)
@@ -120,4 +130,5 @@ void erratum_a010315(void);
 bool soc_has_dp_ddr(void);
 bool soc_has_aiop(void);
 #endif
+
 #endif /* _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_ */
