@@ -4,6 +4,14 @@ menu "mpc85xx CPU"
 config SYS_CPU
 	default "mpc85xx"
 
+config CMD_ERRATA
+	bool "Enable the 'errata' command"
+	depends on MPC85xx
+	default y
+	help
+	  This enables the 'errata' command which displays a list of errata
+	  work-arounds which are enabled for the current board.
+
 choice
 	prompt "Target select"
 	optional

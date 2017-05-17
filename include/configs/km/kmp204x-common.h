@@ -370,7 +370,6 @@ int get_scl(void);
  * additionnal command line configuration.
  */
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_ERRATA
 
 /* we don't need flash support */
 #undef CONFIG_FLASH_CFI_MTD
