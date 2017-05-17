@@ -69,6 +69,7 @@ config SANDBOX
 	select DM_SPI
 	select DM_GPIO
 	select DM_MMC
+	imply CMD_GETTIME
 	imply CMD_HASH
 	imply CMD_IO
 	imply CMD_IOTRACE
