@@ -192,7 +192,6 @@
 /* Standard DTT sensor configuration */
 #define CONFIG_DTT_DS1775	1
 #define CONFIG_DTT_SENSORS	{ 0 }
-#define CONFIG_SYS_I2C_DTT_ADDR	0x48
 
 /* RTC configuration */
 #define CONFIG_RTC_X1205	1

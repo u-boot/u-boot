@@ -11,7 +11,7 @@
 #include <i2c.h>
 #include <dtt.h>
 
-#define DTT_I2C_DEV_CODE	CONFIG_SYS_I2C_DTT_ADDR /* Dallas Semi's DS1775 device code */
+#define DTT_I2C_DEV_CODE	0x48 /* Dallas Semi's DS1775 device code */
 #define DTT_READ_TEMP		0x0
 #define DTT_CONFIG		0x1
 #define DTT_TEMP_HYST		0x2

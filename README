@@ -2329,12 +2329,6 @@ The following options need to be configured:
 		If defined, then this indicates the I2C bus number for the DTT.
 		If not defined, then U-Boot assumes that DTT is on I2C bus 0.
 
-		CONFIG_SYS_I2C_DTT_ADDR:
-
-		If defined, specifies the I2C address of the DTT device.
-		If not defined, then U-Boot uses predefined value for
-		specified DTT device.
-
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 
 		defining this will force the i2c_read() function in

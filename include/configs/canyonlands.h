@@ -269,10 +269,6 @@
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
 
-#if defined(CONFIG_ARCHES)
-#define CONFIG_SYS_I2C_DTT_ADDR	0x4a		/* AD7414 I2C address	*/
-#endif
-
 #if !defined(CONFIG_ARCHES)
 /* RTC configuration */
 #define CONFIG_RTC_M41T62
