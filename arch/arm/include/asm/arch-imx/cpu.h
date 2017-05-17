@@ -50,3 +50,10 @@
 #define CS0_32M_CS1_32M_CS2_32M_CS3_32M		3
 
 u32 get_imx_reset_cause(void);
+ulong get_systemPLLCLK(void);
+ulong get_FCLK(void);
+ulong get_HCLK(void);
+ulong get_BCLK(void);
+ulong get_PERCLK1(void);
+ulong get_PERCLK2(void);
+ulong get_PERCLK3(void);
