@@ -270,4 +270,6 @@
 	"ubootupd_nand=echo run load_magic,run load_nand,run upd;\0"	\
 	"bootcmd=run net_testrfs\0"
 
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

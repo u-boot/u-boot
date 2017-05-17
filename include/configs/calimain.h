@@ -316,4 +316,6 @@
 int calimain_get_osc_freq(void);
 #endif
 
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

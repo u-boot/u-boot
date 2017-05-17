@@ -330,4 +330,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					GENERATED_GBL_DATA_SIZE)
 #endif /* CONFIG_DIRECT_NOR_BOOT */
+
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

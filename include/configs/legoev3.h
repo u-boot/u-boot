@@ -214,4 +214,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80010000
 
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

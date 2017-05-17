@@ -301,4 +301,6 @@
 #define CONFIG_IPAM390_GPIO_LED_RED	((16 * 7) + 11)
 #define CONFIG_IPAM390_GPIO_LED_GREEN	((16 * 7) + 12)
 
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

@@ -14,14 +14,15 @@
 #ifndef __ASM_ARCH_HARDWARE_H
 #define __ASM_ARCH_HARDWARE_H
 
-#include <config.h>
 #include <linux/sizes.h>
 
 #define	REG(addr)	(*(volatile unsigned int *)(addr))
 #define REG_P(addr)	((volatile unsigned int *)(addr))
 
+#ifndef __ASSEMBLY__
 typedef volatile unsigned int	dv_reg;
 typedef volatile unsigned int *	dv_reg_p;
+#endif
 
 /*
  * Base register addresses
@@ -285,6 +286,7 @@ typedef volatile unsigned int *	dv_reg_p;
 
 #endif /* CONFIG_SOC_DA8XX */
 
+#ifndef __ASSEMBLY__
 void lpsc_on(unsigned int id);
 void lpsc_syncreset(unsigned int id);
 void lpsc_disable(unsigned int id);
@@ -625,5 +627,6 @@ static inline enum davinci_clk_ids get_async3_src(void)
 #define FLAG_FLGOFF		0x00000010
 
 #endif
+#endif /* !__ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_HARDWARE_H */
