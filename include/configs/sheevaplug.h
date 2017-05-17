@@ -90,13 +90,13 @@
 /*
  * SATA driver configuration
  */
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #define __io
 #define CONFIG_IDE_PREINIT
 #define CONFIG_MVSATA_IDE_USE_PORT0
 #define CONFIG_MVSATA_IDE_USE_PORT1
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 #endif /* _CONFIG_SHEEVAPLUG_H */

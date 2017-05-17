@@ -176,7 +176,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
+#if defined(CONFIG_IDE) && defined(CONFIG_IDE_RESET)
 
 #define GPIO_PSC2_4	0x02000000UL
 
@@ -206,4 +206,4 @@ void ide_set_reset(int idereset)
 	} else
 		setbits_be32(&wu_gpio->dvo, GPIO_PSC2_4);
 }
-#endif /* defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET) */
+#endif /* defined(CONFIG_IDE) && defined(CONFIG_IDE_RESET) */

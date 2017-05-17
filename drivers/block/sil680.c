@@ -17,7 +17,7 @@
  * incorrect for the target board (e.g. the sequoia board requires 0).
  * #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	0
  *
- * #define CONFIG_CMD_IDE
+ * #define CONFIG_IDE
  * #undef  CONFIG_IDE_8xx_DIRECT
  * #undef  CONFIG_IDE_LED
  * #undef  CONFIG_IDE_RESET

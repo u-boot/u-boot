@@ -17,6 +17,7 @@ obj-$(CONFIG_DM_SCSI) += scsi-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 obj-$(CONFIG_FSL_SATA) += fsl_sata.o
+obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_IDE_FTIDE020) += ftide020.o
 obj-$(CONFIG_LIBATA) += libata.o
 obj-$(CONFIG_MVSATA_IDE) += mvsata_ide.o

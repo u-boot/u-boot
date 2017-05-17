@@ -8,7 +8,7 @@
  */
 #include <common.h>
 
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 #include <mpc5xxx.h>
 
 DECLARE_GLOBAL_DATA_PTR;

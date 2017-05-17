@@ -9,7 +9,7 @@
 #define	CONFIG_PCMCIA
 #endif
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
+#if defined(CONFIG_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
 #define	CONFIG_PCMCIA
 #endif
 

@@ -35,7 +35,7 @@ obj-y	+= cache.o
 obj-y	+= extable.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o
-obj-$(CONFIG_CMD_IDE) += ide.o
+obj-$(CONFIG_IDE) += ide.o
 obj-y	+= stack.o
 obj-y	+= time.o
 

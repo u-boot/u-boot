@@ -23,9 +23,7 @@
 #include <dm.h>
 #include <environment.h>
 #include <fdtdec.h>
-#if defined(CONFIG_CMD_IDE)
 #include <ide.h>
-#endif
 #include <initcall.h>
 #include <init_helpers.h>
 #ifdef CONFIG_PS2KBD
@@ -611,7 +609,7 @@ static int initr_post(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_IDE)
 static int initr_pcmcia(void)
 {
 	puts("PCMCIA:");
@@ -620,7 +618,7 @@ static int initr_pcmcia(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 static int initr_ide(void)
 {
 #ifdef	CONFIG_IDE_8xx_PCCARD
@@ -870,10 +868,10 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_POST
 	initr_post,
 #endif
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_IDE)
 	initr_pcmcia,
 #endif
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 	initr_ide,
 #endif
 #ifdef CONFIG_LAST_STAGE_INIT

@@ -486,6 +486,7 @@ config CMD_DEMO
 
 config CMD_IDE
 	bool "ide - Support for IDE drivers"
+	select IDE
 	help
 	  Provides an 'ide' command which allows accessing the IDE drive,
 	  reseting the IDE interface, printing the partition table and

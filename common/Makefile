@@ -145,7 +145,6 @@ obj-y += dlmalloc.o
 ifdef CONFIG_SYS_MALLOC_F_LEN
 obj-y += malloc_simple.o
 endif
-obj-$(CONFIG_CMD_IDE) += ide.o
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_$(SPL_)OF_LIBFDT) += image-fdt.o

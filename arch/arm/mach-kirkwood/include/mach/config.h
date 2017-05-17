@@ -95,7 +95,7 @@
 /*
  * IDE Support on SATA ports
  */
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #define __io
 #define CONFIG_MVSATA_IDE
 #define CONFIG_IDE_PREINIT
@@ -110,12 +110,12 @@
 #define CONFIG_SYS_ATA_STRIDE		4
 /* Controller supports 48-bits LBA addressing */
 #define CONFIG_LBA48
-/* CONFIG_CMD_IDE requires some #defines for ATA registers */
+/* CONFIG_IDE requires some #defines for ATA registers */
 #define CONFIG_SYS_IDE_MAXBUS		2
 #define CONFIG_SYS_IDE_MAXDEVICE	2
 /* ATA registers base is at SATA controller base */
 #define CONFIG_SYS_ATA_BASE_ADDR	MV_SATA_BASE
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 /*
  * I2C related stuff

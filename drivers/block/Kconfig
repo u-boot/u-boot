@@ -59,3 +59,11 @@ config DWC_AHCI
 	  Synopsys DWC AHCI module.
 
 endmenu
+
+config IDE
+	bool "Support IDE controllers"
+	help
+	  Enables support for IDE (Integrated Drive Electronics) hard drives.
+	  This allows access to raw blocks and filesystems on an IDE drive
+	  from U-Boot. See also CMD_IDE which provides an 'ide' command for
+	  performing various IDE operations.

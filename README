@@ -1081,7 +1081,7 @@ The following options need to be configured:
 				       disk/part_efi.c
 		CONFIG_MTD_PARTITIONS  Memory Technology Device partition table.
 
-		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
+		If IDE or SCSI support is enabled (CONFIG_IDE or
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 

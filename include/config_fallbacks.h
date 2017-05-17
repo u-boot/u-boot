@@ -43,7 +43,7 @@
 #endif
 
 /* Rather than repeat this expression each time, add a define for it */
-#if defined(CONFIG_CMD_IDE) || \
+#if defined(CONFIG_IDE) || \
 	defined(CONFIG_CMD_SATA) || \
 	defined(CONFIG_SCSI) || \
 	defined(CONFIG_CMD_USB) || \

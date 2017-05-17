@@ -25,9 +25,9 @@
  *   - AHCI controller is supported for QEMU '-M q35' target
  *
  * Default configuraion is to support the QEMU default x86 target
- * Undefine CONFIG_CMD_IDE to support q35 target
+ * Undefine CONFIG_IDE to support q35 target
  */
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #define CONFIG_SYS_IDE_MAXBUS		2
 #define CONFIG_SYS_IDE_MAXDEVICE	4
 #define CONFIG_SYS_ATA_BASE_ADDR	0

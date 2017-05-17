@@ -411,10 +411,10 @@
 						"1m(u-boot);"		\
 					"mpc5121.nand:-(data)"
 
-#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
+#if defined(CONFIG_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
 #define CONFIG_SUPPORT_VFAT
 
-#endif /* defined(CONFIG_CMD_IDE) */
+#endif /* defined(CONFIG_IDE) */
 
 /*
  * Watchdog timeout = CONFIG_SYS_WATCHDOG_VALUE * 65536 / IPS clock.

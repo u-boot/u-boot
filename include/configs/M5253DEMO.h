@@ -38,7 +38,7 @@
  * Command line configuration.
  */
 
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 /* ATA */
 #	define CONFIG_IDE_RESET		1
 #	define CONFIG_IDE_PREINIT	1

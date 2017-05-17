@@ -119,7 +119,7 @@
 #endif
 
 /* Compact flash Support */
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 #define CONFIG_IDE_RESET        1
 #define CONFIG_SYS_PIO_MODE            1
 #define CONFIG_SYS_IDE_MAXBUS          1   /* IDE bus */
@@ -130,6 +130,6 @@
 #define CONFIG_SYS_ATA_REG_OFFSET      0x1000          /* reg offset */
 #define CONFIG_SYS_ATA_ALT_OFFSET      0x800           /* alternate register offset */
 #define CONFIG_IDE_SWAP_IO
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 #endif /* __R7780RP_H */

@@ -88,7 +88,7 @@ int testdram(void)
 	return (0);
 }
 
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 #include <ata.h>
 
 int ide_preinit(void)

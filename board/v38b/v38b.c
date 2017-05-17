@@ -224,7 +224,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
+#if defined(CONFIG_IDE) && defined(CONFIG_IDE_RESET)
 void init_ide_reset(void)
 {
 	debug("init_ide_reset\n");

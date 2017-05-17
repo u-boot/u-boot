@@ -16,7 +16,7 @@
  * or try to generate a useful default
  */
 #if defined(CONFIG_CMD_PCMCIA) || \
-    (defined(CONFIG_CMD_IDE) && \
+    (defined(CONFIG_IDE) && \
 	(defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_IDE_8xx_DIRECT) ) )
 
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
@@ -268,7 +268,7 @@ extern u_int *pcmcia_pgcrx[];
 #define	PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
 #endif
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
+#if defined(CONFIG_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
 extern int check_ide_device(int slot);
 #endif
 

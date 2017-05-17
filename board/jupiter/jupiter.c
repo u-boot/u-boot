@@ -259,7 +259,7 @@ void pci_init_board(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
+#if defined(CONFIG_IDE) && defined(CONFIG_IDE_RESET)
 
 void init_ide_reset (void)
 {

@@ -81,7 +81,7 @@ int testdram(void)
 	return (0);
 }
 
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #include <ata.h>
 int ide_preinit(void)
 {
@@ -126,4 +126,4 @@ void ide_set_reset(int idereset)
 		setbits_8(&ata->cr, 0x01);
 	}
 }
-#endif				/* CONFIG_CMD_IDE */
+#endif				/* CONFIG_IDE */

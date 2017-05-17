@@ -1250,7 +1250,7 @@ int file_fat_detectfs(void)
 		return 1;
 	}
 
-#if defined(CONFIG_CMD_IDE) || \
+#if defined(CONFIG_IDE) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_SCSI) || \
     defined(CONFIG_CMD_USB) || \

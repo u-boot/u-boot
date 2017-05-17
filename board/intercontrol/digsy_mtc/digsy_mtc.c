@@ -325,7 +325,7 @@ void pci_init_board(void)
 }
 #endif
 
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 
 #ifdef CONFIG_IDE_RESET
 
@@ -369,7 +369,7 @@ void ide_set_reset(int idereset)
 	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, (1 << 25));
 }
 #endif /* CONFIG_IDE_RESET */
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 #ifdef CONFIG_OF_BOARD_SETUP
 static void ft_delete_node(void *fdt, const char *compat)
