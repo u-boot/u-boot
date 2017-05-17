@@ -465,9 +465,6 @@ void	jumptable_init(void);
 /* common/kallsysm.c */
 const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
 
-/* api/api.c */
-void	api_init (void);
-
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);
