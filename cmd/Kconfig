@@ -501,6 +501,40 @@ config CMD_IO
 	  checking the state of devices during boot when debugging device
 	  drivers, etc.
 
+config CMD_IOTRACE
+	bool "iotrace - Support for tracing I/O activity"
+	help
+	  Provides an 'iotrace' command which supports recording I/O reads and
+	  writes in a trace buffer in memory . It also maintains a checksum
+	  of the trace records (even if space is exhausted) so that the
+	  sequence of I/O accesses can be verified.
+
+	  When debugging drivers it is useful to see what I/O accesses were
+	  done and in what order.
+
+	  Even if the individual accesses are of little interest it can be
+	  useful to verify that the access pattern is consistent each time
+	  an operation is performed. In this case a checksum can be used to
+	  characterise the operation of a driver. The checksum can be compared
+	  across different runs of the operation to verify that the driver is
+	  working properly.
+
+	  In particular, when performing major refactoring of the driver, where
+	  the access pattern should not change, the checksum provides assurance
+	  that the refactoring work has not broken the driver.
+
+	  This works by sneaking into the io.h heder for an architecture and
+	  redirecting I/O accesses through iotrace's tracing mechanism.
+
+	  For now no commands are provided to examine the trace buffer. The
+	  format is fairly simple, so 'md' is a reasonable substitute.
+
+	  Note: The checksum feature is only useful for I/O regions where the
+	  contents do not change outside of software control. Where this is not
+	  suitable you can fall back to manually comparing the addresses. It
+	  might be useful to enhance tracing to only checksum the accesses and
+	  not the data read/written.
+
 config CMD_LOADB
 	bool "loadb"
 	default y

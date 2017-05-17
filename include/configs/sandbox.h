@@ -18,7 +18,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
-#define CONFIG_CMD_IOTRACE
 #endif
 
 #ifndef CONFIG_TIMER
