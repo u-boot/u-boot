@@ -5,10 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/* This code should work for both the S3C2400 and the S3C2410
- * as they seem to have the same I2C controller inside.
- * The different address mapping is handled by the s3c24xx.h files below.
- */
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
