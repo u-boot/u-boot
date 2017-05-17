@@ -87,7 +87,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE

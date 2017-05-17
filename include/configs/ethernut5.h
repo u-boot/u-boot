@@ -84,7 +84,6 @@
 #define CONFIG_AT91_GPIO
 
 /* Command line configuration */
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 

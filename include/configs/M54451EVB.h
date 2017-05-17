@@ -36,7 +36,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#undef CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 
 /* Network configuration */

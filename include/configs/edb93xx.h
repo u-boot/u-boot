@@ -76,7 +76,6 @@
 #define CONFIG_SYS_CLK_FREQ	14745600	/* EP93xx has a 14.7456 clock */
 
 /* Monitor configuration */
-#define CONFIG_CMD_JFFS2
 
 #define CONFIG_SYS_LONGHELP			/* Enable "long" help in mon */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */

@@ -172,7 +172,6 @@
 #define CONFIG_CMD_MFSL
 
 #if defined(FLASH)
-# define CONFIG_CMD_JFFS2
 # undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
@@ -186,7 +185,6 @@
 #  define CONFIG_CMD_SAVES
 # endif
 #else
-# undef CONFIG_CMD_JFFS2
 # undef CONFIG_CMD_UBIFS
 #endif
 #endif

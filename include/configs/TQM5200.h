@@ -143,7 +143,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI

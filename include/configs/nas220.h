@@ -101,7 +101,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_NAND
 #define CONFIG_JFFS2_LZO
 #define CONFIG_CMD_UBIFS

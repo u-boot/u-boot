@@ -14,7 +14,6 @@
  */
 
 #define CONFIG_CMD_IRQ		/* irqinfo			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_KGDB		/* kgdb				*/
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
 #define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/

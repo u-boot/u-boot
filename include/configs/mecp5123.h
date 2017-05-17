@@ -273,7 +273,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_JFFS2
 
 /*
  * Watchdog timeout = CONFIG_SYS_WATCHDOG_VALUE * 65536 / IPS clock.

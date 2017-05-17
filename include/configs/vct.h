@@ -234,7 +234,6 @@ int vct_gpio_get(int pin);
  */
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_SYS_USE_UBI
-#define	CONFIG_CMD_JFFS2
 #define	CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS

@@ -854,7 +854,6 @@ The following options need to be configured:
 		CONFIG_CMD_INI		* import data from an ini file into the env
 		CONFIG_CMD_IRQ		* irqinfo
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
-		CONFIG_CMD_JFFS2	* JFFS2 Support
 		CONFIG_CMD_KGDB		* kgdb
 		CONFIG_CMD_LDRINFO	* ldrinfo (display Blackfin loader)
 		CONFIG_CMD_LINK_LOCAL	* link-local IP address auto-configuration

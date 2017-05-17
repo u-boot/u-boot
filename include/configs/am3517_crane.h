@@ -101,7 +101,6 @@
 #endif /* CONFIG_USB_AM35X */
 
 /* commands to include */
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
 #define CONFIG_CMD_NAND		/* NAND support			*/
 

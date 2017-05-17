@@ -74,7 +74,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_JFFS2
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB

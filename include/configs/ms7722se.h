@@ -12,7 +12,6 @@
 #define CONFIG_CPU_SH7722	1
 #define CONFIG_MS7722SE		1
 
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_SDRAM
 
 #define CONFIG_BOOTARGS		"console=ttySC0,115200 root=1f01"

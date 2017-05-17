@@ -226,7 +226,6 @@
 
 #endif
 
-#define CONFIG_CMD_JFFS2		1
 #define CONFIG_JFFS2_CMDLINE		1
 #define CONFIG_JFFS2_NAND		1
 #define CONFIG_JFFS2_DEV		"nand0" /* NAND device jffs2 lives on */

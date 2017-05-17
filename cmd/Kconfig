@@ -1145,6 +1145,14 @@ config CMD_FS_UUID
 	help
 	  Enables fsuuid command for filesystem UUID.
 
+config CMD_JFFS2
+	bool "jffs2 command"
+	help
+	  Enables commands to support the JFFS2 (Journalling Flash File System
+	  version 2) filesystem. This enables fsload, ls and fsinfo which
+	  provide the ability to load files, list directories and obtain
+	  filesystem information.
+
 config CMD_MTDPARTS
 	depends on ARCH_SUNXI
 	bool "MTD partition support"

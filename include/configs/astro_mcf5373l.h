@@ -59,9 +59,6 @@
 
 /* Define which commands should be available at u-boot command prompt */
 
-#if ENABLE_JFFS
-#define CONFIG_CMD_JFFS2
-#endif
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMDLINE_EDITING
 

@@ -104,8 +104,6 @@
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 
-#undef CONFIG_CMD_JFFS2			/* JFFS2 Support */
-
 /* needed for ubi */
 #define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */

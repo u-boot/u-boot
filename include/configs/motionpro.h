@@ -33,7 +33,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -265,13 +264,6 @@
 #define LED_ON			0x00000010
 
 /*
-<<<<<<< 4ba57299158b7a7020d2bd3b8d8369884696a0ae
-=======
- * Temperature sensor
- */
-
-/*
->>>>>>> Drop digital thermometer and thermostat (DTT) drivers
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_FLASH	1

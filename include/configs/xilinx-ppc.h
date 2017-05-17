@@ -26,7 +26,6 @@
 /*Cmd*/
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_MTDPARTS
 
 /*Misc*/
@@ -76,7 +75,6 @@
 #define	CONFIG_SYS_FLASH_EMPTY_INFO	1
 #define	CONFIG_SYS_MAX_FLASH_BANKS	1
 #define	CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
