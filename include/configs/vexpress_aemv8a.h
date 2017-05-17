@@ -125,7 +125,6 @@
 #endif
 
 /*#define CONFIG_MENU_SHOW*/
-#define CONFIG_CMD_ENV
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE

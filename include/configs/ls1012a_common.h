@@ -85,7 +85,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* Command line configuration */
-#define CONFIG_CMD_ENV
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_SYS_HZ			1000

@@ -284,7 +284,6 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_SAVES
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
@@ -309,7 +308,6 @@
 	!defined(CONFIG_USE_SPIFLASH)
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE		(16 << 10)
-#undef CONFIG_CMD_ENV
 #endif
 
 /* SD/MMC */

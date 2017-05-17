@@ -52,7 +52,6 @@
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* Command line configuration */
-#define CONFIG_CMD_ENV
 #define CONFIG_MP
 
 /* BOOTP options */

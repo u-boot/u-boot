@@ -25,7 +25,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA

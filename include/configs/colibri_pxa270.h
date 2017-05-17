@@ -51,7 +51,6 @@
 /*
  * Bootloader Components Configuration
  */
-#define	CONFIG_CMD_ENV
 
 /* I2C support */
 #ifdef CONFIG_SYS_I2C

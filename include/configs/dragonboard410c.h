@@ -46,7 +46,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 
 /* Extra Commands */
-#define CONFIG_CMD_ENV
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */

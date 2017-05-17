@@ -117,7 +117,6 @@
 #define CONFIG_LOADADDR			0xC307FFC0
 #define CONFIG_BOOTARGS			"console=ttyLF0 root=/dev/ram rw"
 
-#define CONFIG_CMD_ENV
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \

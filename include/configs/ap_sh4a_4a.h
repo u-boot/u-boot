@@ -17,7 +17,6 @@
 #define CONFIG_SYS_TEXT_BASE 0x8BFC0000
 
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_ENV
 
 #define CONFIG_BOOTARGS		"console=ttySC4,115200"
 

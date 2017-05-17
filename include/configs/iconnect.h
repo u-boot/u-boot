@@ -32,7 +32,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND
 
 /*

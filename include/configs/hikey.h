@@ -73,7 +73,6 @@
 #define CONFIG_FS_EXT4
 
 /* Command line configuration */
-#define CONFIG_CMD_ENV
 
 #define CONFIG_MTD_PARTITIONS
 

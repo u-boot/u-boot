@@ -351,10 +351,6 @@
     #define CONFIG_CMD_PCI
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_ENV
-#endif
-
 /* Pass Ethernet MAC to VxWorks */
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x000043f0
 

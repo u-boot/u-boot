@@ -241,7 +241,6 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI

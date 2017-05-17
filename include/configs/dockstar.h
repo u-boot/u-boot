@@ -23,7 +23,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_NAND
 /*
  * mv-common.h should be defined after CMD configs since it used them

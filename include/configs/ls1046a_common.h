@@ -139,9 +139,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C4
 
 /* Command line configuration */
-#ifndef SPL_NO_ENV
-#define CONFIG_CMD_ENV
-#endif
 
 /* MMC */
 #ifndef SPL_NO_MMC

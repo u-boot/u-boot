@@ -23,7 +23,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ENV
 
 /* I2C */
 #define CONFIG_SYS_I2C

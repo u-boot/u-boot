@@ -24,7 +24,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_PCI
 
 /* SPI NOR flash default params, used by sf commands */

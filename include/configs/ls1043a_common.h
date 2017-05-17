@@ -174,9 +174,6 @@
 #endif
 
 /* Command line configuration */
-#ifndef SPL_NO_ENV
-#define CONFIG_CMD_ENV
-#endif
 
 /*  MMC  */
 #ifndef SPL_NO_MMC

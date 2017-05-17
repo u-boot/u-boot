@@ -54,7 +54,6 @@
 /*
  * Bootloader Components Configuration
  */
-#define	CONFIG_CMD_ENV
 
 /*
  * MMC Card Configuration
