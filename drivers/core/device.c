@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int device_bind_common(struct udevice *parent, const struct driver *drv,
 			      const char *name, void *platdata,
-			      ulong driver_data, int of_offset,
+			      ulong driver_data, ofnode node,
 			      uint of_platdata_size, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -60,7 +60,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	dev->platdata = platdata;
 	dev->driver_data = driver_data;
 	dev->name = name;
-	dev->node = offset_to_ofnode(of_offset);
+	dev->node = node;
 	dev->parent = parent;
 	dev->driver = drv;
 	dev->uclass = uc;
@@ -76,9 +76,10 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		 * resolved (and ->seq updated) when the device is probed.
 		 */
 		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
-			if (uc->uc_drv->name && of_offset != -1) {
+			if (uc->uc_drv->name && ofnode_valid(node)) {
 				fdtdec_get_alias_seq(gd->fdt_blob,
-						uc->uc_drv->name, of_offset,
+						uc->uc_drv->name,
+						ofnode_to_offset(node),
 						&dev->req_seq);
 			}
 		}
@@ -219,15 +220,15 @@ int device_bind_with_driver_data(struct udevice *parent,
 				 struct udevice **devp)
 {
 	return device_bind_common(parent, drv, name, NULL, driver_data,
-				  of_offset, 0, devp);
+				  offset_to_ofnode(of_offset), 0, devp);
 }
 
 int device_bind(struct udevice *parent, const struct driver *drv,
 		const char *name, void *platdata, int of_offset,
 		struct udevice **devp)
 {
-	return device_bind_common(parent, drv, name, platdata, 0, of_offset, 0,
-				  devp);
+	return device_bind_common(parent, drv, name, platdata, 0,
+				  offset_to_ofnode(of_offset), 0, devp);
 }
 
 int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
@@ -246,7 +247,8 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 	platdata_size = info->platdata_size;
 #endif
 	return device_bind_common(parent, drv, info->name,
-			(void *)info->platdata, 0, -1, platdata_size, devp);
+			(void *)info->platdata, 0, offset_to_ofnode(-1),
+			platdata_size, devp);
 }
 
 static void *alloc_priv(int size, uint flags)
