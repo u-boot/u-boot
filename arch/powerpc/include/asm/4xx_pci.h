@@ -56,5 +56,6 @@ int pci_arbiter_enabled(void);
 int __pci_pre_init(struct pci_controller *hose);
 void __pci_target_init(struct pci_controller *hose);
 void __pci_master_init(struct pci_controller *hose);
+void pci_target_init(struct pci_controller *);
 
 #endif
