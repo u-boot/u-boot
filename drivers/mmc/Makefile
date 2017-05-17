@@ -40,7 +40,6 @@ obj-$(CONFIG_MMC_MXS)			+= mxsmmc.o
 obj-$(CONFIG_MMC_PCI)			+= pci_mmc.o
 obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
-obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_MMC_SANDBOX)		+= sandbox_mmc.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
