@@ -127,4 +127,20 @@ source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
 source "arch/arm/mach-tegra/tegra186/Kconfig"
 
+config CMD_ENTERRCM
+	bool "Enable 'enterrcm' command"
+	default y
+	help
+	  Tegra's boot ROM supports a mode whereby code may be downloaded and
+	  flash-programmed over a USB connection. On dev boards, this is
+	  typically entered by holding down a "force recovery" button and
+	  resetting the CPU. However, not all boards have such a button (one
+	  example is the Compulab Trimslice), so a method to enter RCM from
+	  software is useful.
+
+	  Even on boards other than Trimslice, controlling this over a UART
+	  may be useful, e.g. to allow simple remote control without the need
+	  for mechanical button actuators, or hooking up relays/... to the
+	  button.
+
 endif
