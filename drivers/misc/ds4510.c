@@ -247,9 +247,7 @@ cmd_tbl_t cmd_ds4510[] = {
 	U_BOOT_CMD_MKENT(input, 3, 0, (void *)DS4510_CMD_INPUT, "", ""),
 	U_BOOT_CMD_MKENT(pullup, 4, 0, (void *)DS4510_CMD_PULLUP, "", ""),
 	U_BOOT_CMD_MKENT(info, 2, 0, (void *)DS4510_CMD_INFO, "", ""),
-#ifdef CONFIG_CMD_DS4510_RST
 	U_BOOT_CMD_MKENT(rstdelay, 3, 0, (void *)DS4510_CMD_RSTDELAY, "", ""),
-#endif
 	U_BOOT_CMD_MKENT(eeprom, 6, 0, (void *)DS4510_CMD_EEPROM, "", ""),
 	U_BOOT_CMD_MKENT(seeprom, 6, 0, (void *)DS4510_CMD_SEEPROM, "", ""),
 	U_BOOT_CMD_MKENT(sram, 6, 0, (void *)DS4510_CMD_SRAM, "", ""),
@@ -318,10 +316,8 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ds4510_pullup_write(chip, tmp);
 	case DS4510_CMD_INFO:
 		return ds4510_info(chip);
-#ifdef CONFIG_CMD_DS4510_RST
 	case DS4510_CMD_RSTDELAY:
 		return ds4510_rstdelay_write(chip, ul_arg2);
-#endif
 	case DS4510_CMD_EEPROM:
 		end = DS4510_EEPROM + DS4510_EEPROM_SIZE;
 		off = DS4510_EEPROM;
@@ -374,11 +370,9 @@ U_BOOT_CMD(
 	"	- disable/enable pullup on specified pin\n"
 	"ds4510 nv 0|1\n"
 	"	- make gpio and seeprom writes volatile/non-volatile"
-#ifdef CONFIG_CMD_DS4510_RST
 	"\n"
 	"ds4510 rstdelay 0-3\n"
 	"	- set reset output delay"
-#endif
 	"\n"
 	"ds4510 eeprom read addr off cnt\n"
 	"ds4510 eeprom write addr off cnt\n"
