@@ -663,12 +663,6 @@ ulong get_ddr_freq(ulong);
 #endif
 
 #if defined(CONFIG_4xx)
-#  if defined(CONFIG_440)
-#	if defined(CONFIG_440SPE)
-	 unsigned long determine_sysper(void);
-	 unsigned long determine_pci_clock_per(void);
-#	endif
-#  endif
 typedef PPC4xx_SYS_INFO sys_info_t;
 int	ppc440spe_revB(void);
 void	get_sys_info  ( sys_info_t * );
