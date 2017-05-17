@@ -74,7 +74,6 @@ obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-y += firmware/
 obj-$(CONFIG_FPGA) += fpga/
-obj-y += hwmon/
 obj-y += misc/
 obj-$(CONFIG_MMC) += mmc/
 obj-y += pcmcia/

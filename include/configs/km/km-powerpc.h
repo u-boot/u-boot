@@ -14,7 +14,6 @@
 
 #define CONFIG_BOOTCOUNT_LIMIT
 
-#define CONFIG_CMD_DTT
 #define CONFIG_JFFS2_CMDLINE
 
 /* standard km ethernet_present for piggy */

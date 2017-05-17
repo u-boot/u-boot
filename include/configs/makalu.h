@@ -189,10 +189,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x52	/* I2C boot EEPROM (24C02BN)	*/
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
 
-/* Standard DTT sensor configuration */
-#define CONFIG_DTT_DS1775	1
-#define CONFIG_DTT_SENSORS	{ 0 }
-
 /* RTC configuration */
 #define CONFIG_RTC_X1205	1
 #define CONFIG_SYS_I2C_RTC_ADDR	0x6f
@@ -231,7 +227,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_PCI
 
 /* POST support */

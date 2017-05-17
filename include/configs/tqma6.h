@@ -57,13 +57,6 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		100000
 
-/* I2C SYSMON (LM75) */
-#define CONFIG_DTT_LM75
-#define CONFIG_DTT_MAX_TEMP		70
-#define CONFIG_DTT_MIN_TEMP		-30
-#define CONFIG_DTT_HYSTERESIS	3
-#define CONFIG_CMD_DTT
-
 /* I2C EEPROM (M24C64) */
 #define CONFIG_SYS_I2C_EEPROM_ADDR			0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN			2
@@ -371,8 +364,5 @@
 #endif
 
 /* Support at least the sensor on TQMa6 SOM */
-#if !defined(CONFIG_DTT_SENSORS)
-#define CONFIG_DTT_SENSORS		{ 0 }
-#endif
 
 #endif /* __CONFIG_H */

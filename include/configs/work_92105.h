@@ -85,14 +85,6 @@
 #define CONFIG_RTC_DS1374
 
 /*
- * I2C Temperature Sensor (DTT)
- */
-
-#define CONFIG_CMD_DTT
-#define CONFIG_DTT_SENSORS { 0, 1 }
-#define CONFIG_DTT_DS620
-
-/*
  * U-Boot General Configurations
  */
 #define CONFIG_SYS_LONGHELP

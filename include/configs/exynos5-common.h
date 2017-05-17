@@ -45,8 +45,6 @@
 
 /* Thermal Management Unit */
 #define CONFIG_EXYNOS_TMU
-#define CONFIG_CMD_DTT
-#define CONFIG_TMU_CMD_DTT
 
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030

@@ -26,7 +26,6 @@
 
 #include <miiphy.h>
 #include <i2c.h>
-#include <dtt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,8 +69,13 @@ static inline void blank_string(int size)
  */
 int misc_init_r(void)
 {
-	/* startup fans */
-	dtt_init();
+	/*
+	 * Note: DTT has been removed. Please use UCLASS_THERMAL.
+	 *
+	 * startup fans
+	 *
+	 * dtt_init();
+	 */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */

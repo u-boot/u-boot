@@ -219,8 +219,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 /* I2C DS7505 temperature sensor */
-#define CONFIG_DTT_LM75
-#define CONFIG_DTT_SENSORS		{ 0 }
 #define CONFIG_SYS_I2C_LM75_ADDR	0x48
 
 /* I2C ADT7461 temperature sensor */
@@ -338,7 +336,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NAND

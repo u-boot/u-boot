@@ -268,13 +268,6 @@ int get_sda(void);
 int get_scl(void);
 #endif
 
-/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
-#define CONFIG_DTT_LM75			/* ON Semi's LM75		*/
-#define CONFIG_DTT_SENSORS	{0}	/* Sensor addresses		*/
-#define CONFIG_SYS_DTT_MAX_TEMP	70
-#define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		2
-
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 #define CONFIG_SYS_IMMR		0xF0000000

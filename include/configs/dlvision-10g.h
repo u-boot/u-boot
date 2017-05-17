@@ -54,7 +54,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_IRQ
 
@@ -108,13 +107,6 @@
 #define CONFIG_SYS_SPD_BUS_NUM		4
 
 /* Temp sensor/hwmon/dtt */
-#define CONFIG_SYS_DTT_BUS_NUM	4
-#define CONFIG_DTT_LM63		1	/* National LM63	*/
-#define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e, 0x18 } /* Sensor addresses */
-#define CONFIG_DTT_PWM_LOOKUPTABLE	\
-		{ { 46, 10 }, { 48, 14 }, { 50, 19 }, { 52, 23 },\
-		  { 54, 27 }, { 56, 31 }, { 58, 36 }, { 60, 40 } }
-#define CONFIG_DTT_TACH_LIMIT	0xa10
 
 #define CONFIG_SYS_ICS8N3QV01_I2C	{1, 3}
 #define CONFIG_SYS_SIL1178_I2C		{0, 2}

@@ -11,7 +11,6 @@
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
 
-#include <dtt.h>
 #include <miiphy.h>
 
 #include "405ep.h"
@@ -41,8 +40,13 @@ struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
 
 int misc_init_r(void)
 {
-	/* startup fans */
-	dtt_init();
+	/*
+	 * Note: DTT has been removed. Please use UCLASS_THERMAL.
+	 *
+	 * startup fans
+	 *
+	 * dtt_init();
+	 */
 
 	return 0;
 }

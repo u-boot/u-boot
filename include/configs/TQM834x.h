@@ -184,13 +184,6 @@
 #define CONFIG_RTC_DS1337			/* use ds1337 rtc via i2c */
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* at address 0x68 */
 
-/* I2C SYSMON (LM75) */
-#define CONFIG_DTT_LM75			1	/* ON Semi's LM75 */
-#define CONFIG_DTT_SENSORS		{0}	/* Sensor addresses */
-#define CONFIG_SYS_DTT_MAX_TEMP		70
-#define CONFIG_SYS_DTT_LOW_TEMP		-30
-#define CONFIG_SYS_DTT_HYSTERESIS	3
-
 /*
  * TSEC
  */
@@ -280,7 +273,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO

@@ -215,13 +215,6 @@
 
 #define CONFIG_KM_IVM_BUS		2	/* I2C2 (Mux-Port 1)*/
 
-/* I2C SYSMON (LM75, AD7414 is almost compatible) */
-#define CONFIG_DTT_LM75		/* ON Semi's LM75 */
-#define CONFIG_DTT_SENSORS	{0, 1, 2, 3}	/* Sensor addresses */
-#define CONFIG_SYS_DTT_MAX_TEMP	70
-#define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		1
-
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_KMETER1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

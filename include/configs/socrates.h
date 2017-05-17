@@ -210,13 +210,6 @@
 /* I2C W83782G HW-Monitoring IC */
 #define CONFIG_SYS_I2C_W83782G_ADDR	0x28	/* W83782G address 		*/
 
-/* I2C temp sensor */
-/* Socrates uses Maxim's	DS75, which is compatible with LM75 */
-#define CONFIG_DTT_LM75		1
-#define CONFIG_DTT_SENSORS	{4}		/* Sensor addresses	*/
-#define CONFIG_SYS_DTT_MAX_TEMP	125
-#define CONFIG_SYS_DTT_LOW_TEMP	-55
-#define CONFIG_SYS_DTT_HYSTERESIS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 
 /*
@@ -286,7 +279,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_REGINFO

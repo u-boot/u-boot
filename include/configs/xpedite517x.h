@@ -233,8 +233,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* I2C DS1631 temperature sensor */
 #define CONFIG_SYS_I2C_DS1621_ADDR	0x48
-#define CONFIG_DTT_DS1621
-#define CONFIG_DTT_SENSORS		{ 0 }
 #define CONFIG_SYS_I2C_LM90_ADDR	0x4c
 
 /* I2C EEPROM - AT24C128B */
@@ -501,7 +499,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2

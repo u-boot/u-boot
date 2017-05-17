@@ -830,7 +830,6 @@ The following options need to be configured:
 		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
-		CONFIG_CMD_DTT		* Digital Therm and Thermostat
 		CONFIG_CMD_ECHO		  echo arguments
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
@@ -2323,11 +2322,6 @@ The following options need to be configured:
 
 		If defined, then this indicates the I2C bus number for the RTC.
 		If not defined, then U-Boot assumes that RTC is on I2C bus 0.
-
-		CONFIG_SYS_DTT_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for the DTT.
-		If not defined, then U-Boot assumes that DTT is on I2C bus 0.
 
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 

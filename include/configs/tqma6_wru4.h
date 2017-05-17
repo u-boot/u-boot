@@ -7,10 +7,6 @@
 #ifndef __CONFIG_TQMA6_WRU4_H
 #define __CONFIG_TQMA6_WRU4_H
 
-/* DTT sensors */
-#define CONFIG_DTT_SENSORS		{ 0, 1 }
-#define CONFIG_SYS_DTT_BUS_NUM		2
-
 /* Ethernet */
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_ETHPRIME			"FEC"

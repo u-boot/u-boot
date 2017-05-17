@@ -30,8 +30,6 @@ source "drivers/fpga/Kconfig"
 
 source "drivers/gpio/Kconfig"
 
-source "drivers/hwmon/Kconfig"
-
 source "drivers/i2c/Kconfig"
 
 source "drivers/input/Kconfig"

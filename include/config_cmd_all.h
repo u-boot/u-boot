@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/
 #define CONFIG_CMD_FUSE		/* Device fuse support		*/

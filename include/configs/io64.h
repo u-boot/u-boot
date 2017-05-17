@@ -327,14 +327,6 @@
 #define CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET	0
 #define CONFIG_4xx_CONFIG_BLOCKSIZE		16
 
-/* Temp sensor/hwmon/dtt */
-#define CONFIG_DTT_LM63		1	/* National LM63 */
-#define CONFIG_DTT_SENSORS	{ 0x18, 0x4c, 0x4e }	/* Sensor addresses */
-#define CONFIG_DTT_PWM_LOOKUPTABLE	\
-		{ { 40, 10 }, { 43, 13 }, { 46, 16 },  \
-		  { 50, 20 }, { 53, 27 }, { 56, 34 }, { 60, 40 } }
-#define CONFIG_DTT_TACH_LIMIT	0xa10
-
 /*-----------------------------------------------------------------------
  * Ethernet
  *----------------------------------------------------------------------*/
@@ -373,7 +365,6 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_DTT
 
 #define CONFIG_SYS_POST_MEMORY_ON	CONFIG_SYS_POST_MEMORY
 

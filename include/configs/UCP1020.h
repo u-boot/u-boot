@@ -129,27 +129,6 @@
 
 #define CONFIG_HWCONFIG
 
-#define CONFIG_DTT_ADM1021	1	/* ADM1021 temp sensor support	*/
-#define CONFIG_SYS_DTT_BUS_NUM	1	/* The I2C bus for DTT		*/
-#define CONFIG_DTT_SENSORS	{ 0, 1 }	/* Sensor index	*/
-/*
- * ADM1021/NCT72 temp sensor configuration (see dtt/adm1021.c for details).
- * there will be one entry in this array for each two (dummy) sensors in
- * CONFIG_DTT_SENSORS.
- *
- * For uCP1020 module:
- * - only one ADM1021/NCT72
- * - i2c addr 0x41
- * - conversion rate 0x02 = 0.25 conversions/second
- * - ALERT output disabled
- * - local temp sensor enabled, min set to 0 deg, max set to 85 deg
- * - remote temp sensor enabled, min set to 0 deg, max set to 85 deg
- */
-#define CONFIG_SYS_DTT_ADM1021	{ { CONFIG_SYS_I2C_NCT72_ADDR, \
-					 0x02, 0, 1, 0, 85, 1, 0, 85} }
-
-#define CONFIG_CMD_DTT
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

@@ -571,9 +571,6 @@ void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs);
 #if !defined(CONFIG_SYS_RTC_BUS_NUM)
 #define CONFIG_SYS_RTC_BUS_NUM		0
 #endif
-#if !defined(CONFIG_SYS_DTT_BUS_NUM)
-#define CONFIG_SYS_DTT_BUS_NUM		0
-#endif
 #if !defined(CONFIG_SYS_SPD_BUS_NUM)
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #endif
