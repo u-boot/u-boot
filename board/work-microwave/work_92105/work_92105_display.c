@@ -346,4 +346,4 @@ U_BOOT_CMD(
 	"HD44780 LCD driver control",
 	hd44780_help_text
 );
-#endif /* CONFIG_CMD_HD44780 */
+#endif /* CONFIG_CMD_HD44760 */
