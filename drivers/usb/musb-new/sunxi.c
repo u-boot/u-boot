@@ -17,6 +17,7 @@
  * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>

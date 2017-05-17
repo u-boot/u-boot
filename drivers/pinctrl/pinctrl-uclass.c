@@ -8,10 +8,9 @@
 #include <libfdt.h>
 #include <linux/err.h>
 #include <linux/list.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
-#include <dm/uclass.h>
 #include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;

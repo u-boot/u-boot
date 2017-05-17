@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 #include <linux/io.h>
 #include <linux/err.h>

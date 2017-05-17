@@ -14,7 +14,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/root.h>
 #include <image.h>
 #include <u-boot/zlib.h>

@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/lists.h>
 #include <libfdt.h>
 #include <linux/arm-smccc.h>

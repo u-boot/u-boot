@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <efi_loader.h>
 #include <errno.h>
 #include <libfdt.h>

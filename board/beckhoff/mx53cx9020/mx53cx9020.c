@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -26,7 +27,6 @@
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 #include <fs.h>
-#include <dm/platdata.h>
 #include <dm/platform_data/serial_mxc.h>
 
 enum LED_GPIOS {

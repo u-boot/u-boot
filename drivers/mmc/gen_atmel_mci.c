@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <dm.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
@@ -19,7 +20,6 @@
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
-#include <dm/device.h>
 #include "atmel_mci.h"
 
 DECLARE_GLOBAL_DATA_PTR;

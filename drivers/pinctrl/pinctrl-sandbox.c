@@ -7,7 +7,7 @@
 /* #define DEBUG */
 
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 
 static const char * const sandbox_pins[] = {

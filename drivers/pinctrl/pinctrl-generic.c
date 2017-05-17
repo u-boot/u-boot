@@ -5,8 +5,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/compat.h>
-#include <dm/device.h>
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -9,10 +9,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <dm/device.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

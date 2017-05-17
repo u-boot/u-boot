@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dm/device.h>
+#include <dm.h>
 #include <sysreset.h>
 #include <linux/errno.h>
 #include <linux/psci.h>

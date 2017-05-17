@@ -9,7 +9,7 @@
 #include <clk.h>
 #include <fdtdec.h>
 #include <mmc.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <linux/compat.h>
 #include <linux/io.h>
 #include <linux/sizes.h>

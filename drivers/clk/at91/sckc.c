@@ -6,8 +6,7 @@
  */
 
 #include <common.h>
-#include <dm/device.h>
-#include <dm/root.h>
+#include <dm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

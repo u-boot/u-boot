@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 #include <fdt_support.h>
 #include <linux/err.h>

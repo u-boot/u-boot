@@ -6,10 +6,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/io.h>
 #include <linux/err.h>
 #include <linux/sizes.h>
-#include <dm/device.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"

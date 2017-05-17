@@ -5,13 +5,13 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fsl_validate.h>
 #include <fsl_secboot_err.h>
 #include <fsl_sfp.h>
 #include <fsl_sec.h>
 #include <command.h>
 #include <malloc.h>
-#include <dm/uclass.h>
 #include <u-boot/rsa-mod-exp.h>
 #include <hash.h>
 #include <fsl_secboot_err.h>

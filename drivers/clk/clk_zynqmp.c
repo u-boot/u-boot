@@ -9,8 +9,8 @@
 #include <common.h>
 #include <linux/bitops.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
 #include <clk.h>
+#include <dm.h>
 
 #define ZYNQMP_GEM0_REF_CTRL		0xFF5E0050
 #define ZYNQMP_IOPLL_CTRL		0xFF5E0020

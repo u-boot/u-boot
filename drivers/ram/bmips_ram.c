@@ -9,10 +9,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <ram.h>
 #include <asm/io.h>
-#include <dm/device.h>
 
 #define SDRAM_CFG_REG		0x0
 #define SDRAM_CFG_COL_SHIFT	4

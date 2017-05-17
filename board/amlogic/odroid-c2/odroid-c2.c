@@ -5,10 +5,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/gxbb.h>
 #include <asm/arch/sm.h>
-#include <dm/platdata.h>
 #include <phy.h>
 
 #define EFUSE_SN_OFFSET		20

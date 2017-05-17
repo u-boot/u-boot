@@ -8,12 +8,12 @@
  */
 
 #include <clk.h>
+#include <dm.h>
 #include <debug_uart.h>
 #include <errno.h>
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/types.h>
-#include <dm/device.h>
 
 /* UART Control register */
 #define UART_CTL_REG			0x0

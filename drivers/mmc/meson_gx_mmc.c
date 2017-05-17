@@ -5,12 +5,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/arch/sd_emmc.h>
-#include <dm/device.h>
 #include <linux/log2.h>
 
 static inline void *get_regbase(const struct mmc *mmc)

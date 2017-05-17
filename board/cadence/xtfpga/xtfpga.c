@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <dm/platdata.h>
+#include <dm.h>
 #include <dm/platform_data/net_ethoc.h>
 #include <linux/ctype.h>
 #include <linux/string.h>

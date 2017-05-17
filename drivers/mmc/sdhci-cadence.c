@@ -6,10 +6,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
-#include <dm/device.h>
 #include <libfdt.h>
 #include <mmc.h>
 #include <sdhci.h>

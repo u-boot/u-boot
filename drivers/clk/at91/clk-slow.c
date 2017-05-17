@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 
 static int at91_slow_clk_enable(struct clk *clk)
 {

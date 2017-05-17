@@ -7,9 +7,8 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 #include <dm/util.h>
 #include "pmc.h"
 

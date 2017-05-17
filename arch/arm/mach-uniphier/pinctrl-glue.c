@@ -6,9 +6,8 @@
  */
 
 #include <linux/errno.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
-#include <dm/uclass.h>
 
 #include "init.h"
 

@@ -9,7 +9,7 @@
 
 #include <bouncebuf.h>
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -9,10 +9,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/types.h>
 #include <linux/io.h>
 #include <linux/errno.h>
-#include <dm/device.h>
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>

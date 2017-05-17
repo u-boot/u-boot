@@ -4,6 +4,7 @@
  */
 #define DEBUG
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <libfdt.h>
 #include <os.h>
