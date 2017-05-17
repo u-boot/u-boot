@@ -10,7 +10,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <dm/root.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
 #include <mach/gpio.h>
@@ -276,7 +275,7 @@ static const struct dm_gpio_ops atmel_pio4_ops = {
 
 static int atmel_pio4_bind(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev_of_offset(dev), false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int atmel_pio4_probe(struct udevice *dev)
