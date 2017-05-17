@@ -1,6 +1,6 @@
 MPC8641HPCN BOARD
-#M:	Kumar Gala <kumar.gala@freescale.com>
-S:	Orphan (since 2014-06)
+M:	York Sun <york.sun@nxp.com>
+S:	Maintained
 F:	board/freescale/mpc8641hpcn/
 F:	include/configs/MPC8641HPCN.h
 F:	configs/MPC8641HPCN_defconfig
