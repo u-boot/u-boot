@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <asm/arch/clock.h>
 #include "qbman_portal.h"
 
 /* QBMan portal management command codes */

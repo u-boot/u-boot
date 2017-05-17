@@ -13,6 +13,9 @@
 #include <fsl_ddr.h>
 #include <fsl_immap.h>
 #include <asm/io.h>
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+#include <asm/arch/clock.h>
+#endif
 
 /* To avoid 64-bit full-divides, we factor this here */
 #define ULL_2E12 2000000000000ULL

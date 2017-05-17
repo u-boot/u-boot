@@ -121,28 +121,6 @@ typedef void (interrupt_handler_t)(void *);
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
 
-/*
- * enable common handling for all TQM8xxL/M boards:
- * - CONFIG_TQM8xxM will be defined for all TQM8xxM boards
- * - CONFIG_TQM8xxL will be defined for all TQM8xxL _and_ TQM8xxM boards
- *                  and for the TQM885D board
- */
-#if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
-    defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M)
-# ifndef CONFIG_TQM8xxM
-#  define CONFIG_TQM8xxM
-# endif
-#endif
-#if defined(CONFIG_TQM823L) || defined(CONFIG_TQM850L) || \
-    defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L) || \
-    defined(CONFIG_TQM862L) || defined(CONFIG_TQM8xxM) || \
-    defined(CONFIG_TQM885D)
-# ifndef CONFIG_TQM8xxL
-#  define CONFIG_TQM8xxL
-# endif
-#endif
-
 #if defined(CONFIG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
@@ -455,21 +433,6 @@ int testdram(void);
 #endif /* CONFIG_SYS_DRAM_TEST */
 
 /* $(CPU)/start.S */
-#if defined(CONFIG_5xx) || \
-    defined(CONFIG_8xx)
-uint	get_immr      (uint);
-#endif
-#if defined(CONFIG_MPC5xxx)
-uint	get_svr       (void);
-#endif
-uint	get_pvr	      (void);
-uint	get_svr	      (void);
-uint	rd_ic_cst     (void);
-void	wr_ic_cst     (uint);
-void	wr_ic_adr     (uint);
-uint	rd_dc_cst     (void);
-void	wr_dc_cst     (uint);
-void	wr_dc_adr     (uint);
 int	icache_status (void);
 void	icache_enable (void);
 void	icache_disable(void);
@@ -484,39 +447,10 @@ void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
 #endif
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
-#if defined (CONFIG_4xx)	|| \
-    defined (CONFIG_MPC5xxx)	|| \
-    defined (CONFIG_MPC85xx)	|| \
-    defined (CONFIG_MPC86xx)	|| \
-    defined (CONFIG_MPC83xx)
-unsigned char	in8(unsigned int);
-void		out8(unsigned int, unsigned char);
-unsigned short	in16(unsigned int);
-unsigned short	in16r(unsigned int);
-void		out16(unsigned int, unsigned short value);
-void		out16r(unsigned int, unsigned short value);
-unsigned long	in32(unsigned int);
-unsigned long	in32r(unsigned int);
-void		out32(unsigned int, unsigned long value);
-void		out32r(unsigned int, unsigned long value);
-void		ppcDcbf(unsigned long value);
-void		ppcDcbi(unsigned long value);
-void		ppcSync(void);
-void		ppcDcbz(unsigned long value);
-#endif
+
 #if defined (CONFIG_MICROBLAZE)
 unsigned short	in16(unsigned int);
 void		out16(unsigned int, unsigned short value);
-#endif
-
-#if defined (CONFIG_MPC83xx)
-void		ppcDWload(unsigned int *addr, unsigned int *ret);
-void		ppcDWstore(unsigned int *addr, unsigned int *value);
-void disable_addr_trans(void);
-void enable_addr_trans(void);
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-void ddr_enable_ecc(unsigned int dram_size);
-#endif
 #endif
 
 /* $(CPU)/cpu.c */
@@ -578,9 +512,6 @@ int serial_stub_tstc(struct stdio_dev *sdev);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);
-#if defined(CONFIG_MPC5xxx)
-int	prt_mpc5xxx_clks (void);
-#endif
 #if defined(CONFIG_LH7A40X) || \
     defined(CONFIG_EP93XX)
 ulong	get_FCLK (void);
@@ -602,23 +533,6 @@ ulong get_PERCLK3(void);
 #endif
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
-
-#if defined(CONFIG_MPC85xx)
-typedef MPC85xx_SYS_INFO sys_info_t;
-void	get_sys_info  ( sys_info_t * );
-void ft_fixup_cpu(void *, u64);
-void ft_fixup_num_cores(void *);
-#endif
-#if defined(CONFIG_MPC86xx)
-typedef MPC86xx_SYS_INFO sys_info_t;
-void   get_sys_info  ( sys_info_t * );
-static inline ulong get_ddr_freq(ulong dummy)
-{
-	return get_bus_freq(dummy);
-}
-#else
-ulong get_ddr_freq(ulong);
-#endif
 
 int	cpu_init_r    (void);
 
@@ -844,14 +758,6 @@ int cpu_release(int nr, int argc, char * const argv[]);
 #define _AC(X, Y)       X
 
 #endif	/* __ASSEMBLY__ */
-
-#ifdef CONFIG_PPC
-/*
- * Has to be included outside of the #ifndef __ASSEMBLY__ section.
- * Otherwise might lead to compilation errors in assembler files.
- */
-#include <asm/cache.h>
-#endif
 
 /* Put only stuff here that the assembler can digest */
 

@@ -353,4 +353,5 @@ static struct mm_region final_map[] = {
 
 int fsl_qoriq_core_to_cluster(unsigned int core);
 u32 cpu_mask(void);
+
 #endif /* _FSL_LAYERSCAPE_CPU_H */

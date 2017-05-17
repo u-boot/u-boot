@@ -14,6 +14,9 @@
 #ifdef CONFIG_OF_BOARD_SETUP
 #include <libfdt.h>
 #include <fdt_support.h>
+#ifdef CONFIG_ARM
+#include <asm/arch/clock.h>
+#endif
 #include "pcie_layerscape.h"
 
 #if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)

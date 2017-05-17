@@ -27,6 +27,7 @@
 #ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr.h>
 #endif
+#include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

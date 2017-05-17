@@ -11,6 +11,9 @@
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
 #include <fsl_errata.h>
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+#include <asm/arch/clock.h>
+#endif
 
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008511) | \
 	defined(CONFIG_SYS_FSL_ERRATUM_A009803)

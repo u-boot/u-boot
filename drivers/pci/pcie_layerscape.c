@@ -13,6 +13,10 @@
 #include <errno.h>
 #include <malloc.h>
 #include <dm.h>
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
+	defined(CONFIG_ARM)
+#include <asm/arch/clock.h>
+#endif
 #include "pcie_layerscape.h"
 
 DECLARE_GLOBAL_DATA_PTR;
