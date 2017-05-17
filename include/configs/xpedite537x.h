@@ -232,9 +232,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 #define CONFIG_SYS_M41T11_BASE_YEAR	2000
 
-/* GPIO/EEPROM/SRAM */
-#define CONFIG_SYS_I2C_DS4510_ADDR	0x51
-
 /* GPIO */
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR0	0x18

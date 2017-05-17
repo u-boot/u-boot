@@ -14,11 +14,6 @@
 #include <command.h>
 #include "ds4510.h"
 
-/* Default to an address that hopefully won't corrupt other i2c devices */
-#ifndef CONFIG_SYS_I2C_DS4510_ADDR
-#define CONFIG_SYS_I2C_DS4510_ADDR	(~0)
-#endif
-
 enum {
 	DS4510_CMD_INFO,
 	DS4510_CMD_DEVICE,
@@ -254,7 +249,7 @@ cmd_tbl_t cmd_ds4510[] = {
 
 int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	static uint8_t chip = CONFIG_SYS_I2C_DS4510_ADDR;
+	static uint8_t chip = 0x51;
 	cmd_tbl_t *c;
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;
