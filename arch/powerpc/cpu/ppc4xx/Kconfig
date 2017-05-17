@@ -137,6 +137,12 @@ config CMD_CHIP_CONFIG
 	  and control the CPU and peripehrals clocks. The programmed
 	  configuration is then used when the board boots.
 
+config CMD_ECCTEST
+	bool "Enable the 'ecctest' command"
+	help
+	  This command tests memory ECC by single and double error bit
+	  injection.
+
 source "board/amcc/acadia/Kconfig"
 source "board/amcc/bamboo/Kconfig"
 source "board/amcc/bubinga/Kconfig"
