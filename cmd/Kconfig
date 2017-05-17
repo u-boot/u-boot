@@ -350,6 +350,7 @@ config CMD_MEMORY
 
 config CMD_CRC32
 	bool "crc32"
+	select HASH
 	default y
 	help
 	  Compute CRC32.
@@ -998,6 +999,7 @@ config CMD_BLOB
 
 config CMD_HASH
 	bool "Support 'hash' command"
+	select HASH
 	help
 	  This provides a way to hash data in memory using various supported
 	  algorithms (such as SHA1, MD5, CRC32). The computed digest can be

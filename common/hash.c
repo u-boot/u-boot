@@ -473,5 +473,5 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 
 	return 0;
 }
-#endif
-#endif
+#endif /* CONFIG_CMD_HASH || CONFIG_CMD_SHA1SUM || CONFIG_CMD_CRC32) */
+#endif /* !USE_HOSTCC */

@@ -493,4 +493,16 @@ config BOARD_EARLY_INIT_F
 
 endmenu
 
+menu "Security support"
+
+config HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
+
+endmenu
+
 source "common/spl/Kconfig"
