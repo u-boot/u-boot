@@ -646,8 +646,7 @@ int	get_clocks (void);
 #if defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
-#if defined(CONFIG_S3C24X0) || \
-    defined(CONFIG_LH7A40X) || \
+#if defined(CONFIG_LH7A40X) || \
     defined(CONFIG_EP93XX)
 ulong	get_FCLK (void);
 ulong	get_HCLK (void);
