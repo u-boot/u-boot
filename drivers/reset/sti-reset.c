@@ -30,6 +30,8 @@ struct sti_reset {
  * @reset_bit: Bit number in reset register.
  * @ack_offset: Ack reset register offset in syscon bank.
  * @ack_bit: Bit number in Ack reset register.
+ * @deassert_cnt: incremented when reset is deasserted, reset can only be
+ *                asserted when equal to 0
  */
 
 struct syscfg_reset_channel_data {
@@ -38,6 +40,7 @@ struct syscfg_reset_channel_data {
 	int reset_bit;
 	int ack_offset;
 	int ack_bit;
+	int deassert_cnt;
 };
 
 /**
@@ -54,7 +57,7 @@ struct syscfg_reset_controller_data {
 	bool wait_for_ack;
 	bool active_low;
 	int nr_channels;
-	const struct syscfg_reset_channel_data *channels;
+	struct syscfg_reset_channel_data *channels;
 };
 
 /* STiH407 Peripheral powerdown definitions. */
@@ -102,7 +105,7 @@ static const char stih407_lpm[] = "st,stih407-lpm-syscfg";
 #define SYSSTAT_4520	0x820
 #define SYSCFG_4002	0x8
 
-static const struct syscfg_reset_channel_data stih407_powerdowns[] = {
+static struct syscfg_reset_channel_data stih407_powerdowns[] = {
 	[STIH407_EMISS_POWERDOWN] = STIH407_PDN_0(1),
 	[STIH407_NAND_POWERDOWN] = STIH407_PDN_0(0),
 	[STIH407_USB3_POWERDOWN] = STIH407_PDN_1(6),
@@ -122,7 +125,7 @@ static const struct syscfg_reset_channel_data stih407_powerdowns[] = {
 
 #define LPM_SYSCFG_1	0x4	/* Softreset IRB & SBC UART */
 
-static const struct syscfg_reset_channel_data stih407_softresets[] = {
+static struct syscfg_reset_channel_data stih407_softresets[] = {
 	[STIH407_ETH1_SOFTRESET] = STIH407_SRST_SBC(SYSCFG_4002, 4),
 	[STIH407_MMC1_SOFTRESET] = STIH407_SRST_CORE(SYSCFG_5132, 3),
 	[STIH407_USB2_PORT0_SOFTRESET] = STIH407_SRST_CORE(SYSCFG_5132, 28),
@@ -161,7 +164,7 @@ static const struct syscfg_reset_channel_data stih407_softresets[] = {
 /* PicoPHY reset/control */
 #define SYSCFG_5061	0x0f4
 
-static const struct syscfg_reset_channel_data stih407_picophyresets[] = {
+static struct syscfg_reset_channel_data stih407_picophyresets[] = {
 	[STIH407_PICOPHY0_RESET] = STIH407_SRST_CORE(SYSCFG_5061, 5),
 	[STIH407_PICOPHY1_RESET] = STIH407_SRST_CORE(SYSCFG_5061, 6),
 	[STIH407_PICOPHY2_RESET] = STIH407_SRST_CORE(SYSCFG_5061, 7),
@@ -223,7 +226,7 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 	struct udevice *dev = reset_ctl->dev;
 	struct syscfg_reset_controller_data *reset_desc =
 		(struct syscfg_reset_controller_data *)(dev->driver_data);
-	struct syscfg_reset_channel_data ch;
+	struct syscfg_reset_channel_data *ch;
 	phys_addr_t base;
 	u32 ctrl_val = reset_desc->active_low ? !assert : !!assert;
 	void __iomem *reg;
@@ -235,19 +238,35 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 	/* get reset sysconf register base address */
 	base = sti_reset_get_regmap(reset_desc->channels[reset_ctl->id].compatible);
 
-	ch = reset_desc->channels[reset_ctl->id];
-	reg = (void __iomem *)base + ch.reset_offset;
+	ch = &reset_desc->channels[reset_ctl->id];
+
+	/* check the deassert counter to assert reset when it reaches 0 */
+	if (!assert) {
+		ch->deassert_cnt++;
+		if (ch->deassert_cnt > 1)
+			return 0;
+	} else {
+		if (ch->deassert_cnt > 0) {
+			ch->deassert_cnt--;
+			if (ch->deassert_cnt > 0)
+				return 0;
+		} else
+			error("Reset balancing error: reset_ctl=%p dev=%p id=%lu\n",
+			      reset_ctl, reset_ctl->dev, reset_ctl->id);
+	}
+
+	reg = (void __iomem *)base + ch->reset_offset;
 
 	if (ctrl_val)
-		generic_set_bit(ch.reset_bit, reg);
+		generic_set_bit(ch->reset_bit, reg);
 	else
-		generic_clear_bit(ch.reset_bit, reg);
+		generic_clear_bit(ch->reset_bit, reg);
 
 	if (!reset_desc->wait_for_ack)
 		return 0;
 
-	reg = (void __iomem *)base + ch.ack_offset;
-	if (wait_for_bit(__func__, reg, BIT(ch.ack_bit), ctrl_val,
+	reg = (void __iomem *)base + ch->ack_offset;
+	if (wait_for_bit(__func__, reg, BIT(ch->ack_bit), ctrl_val,
 			 1000, false)) {
 		error("Stuck on waiting ack reset_ctl=%p dev=%p id=%lu\n",
 		      reset_ctl, reset_ctl->dev, reset_ctl->id);
