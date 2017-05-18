@@ -1,0 +1,65 @@
+/dts-v1/;
+/ {
+	compatible = "nds32 ae3xx";
+	#address-cells = <1>;
+	#size-cells = <1>;
+	interrupt-parent = <&intc>;
+
+	aliases {
+		uart0 = &serial0;
+	} ;
+
+	chosen {
+		/* bootargs = "console=ttyS0,38400n8 earlyprintk=uart8250-32bit,0xf0300000 debug bootmem_debug memblock=debug loglevel=7"; */
+		bootargs = "console=ttyS0,38400n8 earlyprintk=uart8250-32bit,0xf0300000 debug loglevel=7";
+		stdout-path = "uart0:38400n8";
+		tick-timer = &timer0;
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			compatible = "andestech,n13";
+			reg = <0>;
+			/* FIXME: to fill correct frqeuency */
+			clock-frequency = <60000000>;
+		};
+	};
+
+	intc: interrupt-controller {
+		compatible = "andestech,atnointc010";
+		#interrupt-cells = <1>;
+		interrupt-controller;
+	};
+
+	serial0: serial@f0300000 {
+		compatible = "andestech,uart16550", "ns16550a";
+		reg = <0xf0300000 0x1000>;
+		interrupts = <7 4>;
+		clock-frequency = <14745600>;
+		reg-shift = <2>;
+		reg-offset = <32>;
+		no-loopback-test = <1>;
+	};
+
+	timer0: timer@f0400000 {
+		compatible = "andestech,atcpit100";
+		reg = <0xf0400000 0x1000>;
+		interrupts = <2 4>;
+		clock-frequency = <30000000>;
+	};
+
+	nor@0,0 {
+		compatible = "cfi-flash";
+		reg = <0x88000000 0x1000>;
+		bank-width = <2>;
+		device-width = <1>;
+	};
+
+};

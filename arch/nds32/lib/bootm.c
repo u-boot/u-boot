@@ -11,6 +11,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
+#include <asm/bootm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -73,6 +74,15 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	       (ulong)theKernel);
 
+	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+#ifdef CONFIG_OF_LIBFDT
+		debug("using: FDT\n");
+		if (image_setup_linux(images)) {
+			printf("FDT creation failed! hanging...");
+			hang();
+		}
+#endif
+	} else if (BOOTM_ENABLE_TAGS) {
 #if defined(CONFIG_SETUP_MEMORY_TAGS) || \
 	defined(CONFIG_CMDLINE_TAG) || \
 	defined(CONFIG_INITRD_TAG) || \
@@ -107,15 +117,16 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		udc_disconnect();
 	}
 #endif
-
+	}
 	cleanup_before_linux();
-
-	theKernel(0, machid, bd->bi_boot_params);
+	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+		theKernel(0, machid, (unsigned long)images->ft_addr);
+	else
+		theKernel(0, machid, bd->bi_boot_params);
 	/* does not return */
 
 	return 1;
 }
-
 
 #if defined(CONFIG_SETUP_MEMORY_TAGS) || \
 	defined(CONFIG_CMDLINE_TAG) || \
@@ -136,7 +147,6 @@ static void setup_start_tag(bd_t *bd)
 	params = tag_next(params);
 }
 
-
 #ifdef CONFIG_SETUP_MEMORY_TAGS
 static void setup_memory_tags(bd_t *bd)
 {
@@ -153,7 +163,6 @@ static void setup_memory_tags(bd_t *bd)
 	}
 }
 #endif /* CONFIG_SETUP_MEMORY_TAGS */
-
 
 static void setup_commandline_tag(bd_t *bd, char *commandline)
 {
@@ -181,7 +190,6 @@ static void setup_commandline_tag(bd_t *bd, char *commandline)
 
 	params = tag_next(params);
 }
-
 
 #ifdef CONFIG_INITRD_TAG
 static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end)
@@ -229,7 +237,6 @@ void setup_revision_tag(struct tag **in_params)
 	params = tag_next(params);
 }
 #endif  /* CONFIG_REVISION_TAG */
-
 
 static void setup_end_tag(bd_t *bd)
 {
