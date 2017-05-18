@@ -3,6 +3,4 @@ M:	Fabio Estevam <fabio.estevam@nxp.com>
 S:	Maintained
 F:	board/freescale/mx6sabresd/
 F:	include/configs/mx6sabresd.h
-F:	configs/mx6dlsabresd_defconfig
-F:	configs/mx6qsabresd_defconfig
-F:	configs/mx6sabresd_spl_defconfig
+F:	configs/mx6sabresd_defconfig
