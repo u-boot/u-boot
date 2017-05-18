@@ -117,6 +117,7 @@ def test_hush_if_test_setup(u_boot_console):
     u_boot_console.run_command('setenv ut_var_nonexistent')
     u_boot_console.run_command('setenv ut_var_exists 1')
 
+@pytest.mark.buildconfigspec('cmd_echo')
 @pytest.mark.parametrize('expr,result', subtests)
 def test_hush_if_test(u_boot_console, expr, result):
     """Test a single "if test" condition."""
@@ -130,6 +131,7 @@ def test_hush_if_test_teardown(u_boot_console):
 
 # We might test this on real filesystems via UMS, DFU, 'save', etc.
 # Of those, only UMS currently allows file removal though.
+@pytest.mark.buildconfigspec('cmd_echo')
 @pytest.mark.boardspec('sandbox')
 def test_hush_if_test_host_file_exists(u_boot_console):
     """Test the "if test -e" shell command."""
