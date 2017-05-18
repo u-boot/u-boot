@@ -149,6 +149,7 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 dtb-$(CONFIG_THUNDERX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
+	socfpga_arria10_socdk_sdmmc.dtb			\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_cyclone5_is1.dtb			\
 	socfpga_cyclone5_mcvevk.dtb			\

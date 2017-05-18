@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Altera Corporation <www.altera.com>
+ * Copyright (C) 2013-2017 Altera Corporation <www.altera.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,7 +21,7 @@ static struct socfpga_system_manager *sysmgr_regs =
  */
 static void populate_sysmgr_fpgaintf_module(void)
 {
-	uint32_t handoff_val = 0;
+	u32 handoff_val = 0;
 
 	/* ISWGRP_HANDOFF_FPGAINTF */
 	writel(0, &sysmgr_regs->iswgrp_handoff[2]);
@@ -56,7 +56,7 @@ static void populate_sysmgr_fpgaintf_module(void)
  */
 void sysmgr_pinmux_init(void)
 {
-	uint32_t regs = (uint32_t)&sysmgr_regs->emacio[0];
+	u32 regs = (u32)&sysmgr_regs->emacio[0];
 	const u8 *sys_mgr_init_table;
 	unsigned int len;
 	int i;
