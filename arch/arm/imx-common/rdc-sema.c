@@ -94,7 +94,7 @@ int imx_rdc_sema_unlock(int per_id)
 
 	reg = readb(&imx_rdc_sema->gate[per_id % SEMA_GATES_NUM]);
 	if ((reg & RDC_SEMA_GATE_GTFSM_MASK) != RDC_SEMA_PROC_ID)
-		return 1;	/*Not the semaphore owner */
+		return -EACCES;	/*Not the semaphore owner */
 
 	writeb(0x0, &imx_rdc_sema->gate[per_id % SEMA_GATES_NUM]);
 

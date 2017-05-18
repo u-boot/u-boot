@@ -173,8 +173,10 @@ config TARGET_MX6QARM2
 
 config TARGET_MX6Q_ICORE
 	bool "Support Engicam i.Core"
+	select BOARD_LATE_INIT
 	select MX6QDL
 	select OF_CONTROL
+	select SPL_OF_LIBFDT
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -182,12 +184,14 @@ config TARGET_MX6Q_ICORE
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
+	select SPL_LOAD_FIT
 
 config TARGET_MX6Q_ICORE_RQS
 	bool "Support Engicam i.Core RQS"
 	select BOARD_LATE_INIT
 	select MX6QDL
 	select OF_CONTROL
+	select SPL_OF_LIBFDT
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -195,6 +199,7 @@ config TARGET_MX6Q_ICORE_RQS
 	select DM_MMC
 	select DM_THERMAL
 	select SUPPORT_SPL
+	select SPL_LOAD_FIT
 
 config TARGET_MX6QSABREAUTO
 	bool "mx6qsabreauto"
@@ -256,6 +261,7 @@ config TARGET_MX6UL_14X14_EVK
 
 config TARGET_MX6UL_GEAM
 	bool "Support Engicam GEAM6UL"
+	select BOARD_LATE_INIT
 	select MX6UL
 	select OF_CONTROL
 	select DM

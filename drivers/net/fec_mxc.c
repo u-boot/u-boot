@@ -563,7 +563,7 @@ static int fec_init(struct eth_device *dev, bd_t *bd)
 	writel(0x00000000, &fec->eth->gaddr2);
 
 	/* Do not access reserved register for i.MX6UL */
-	if (!is_mx6ul()) {
+	if (!is_mx6ul() && !is_mx6ull()) {
 		/* clear MIB RAM */
 		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
 			writel(0, i);
@@ -1023,6 +1023,7 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 	struct eth_device *edev;
 	struct fec_priv *fec;
 	unsigned char ethaddr[6];
+	char mac[16];
 	uint32_t start;
 	int ret = 0;
 
@@ -1085,12 +1086,18 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 	fec->phy_id = phy_id;
 #endif
 	eth_register(edev);
+	/* only support one eth device, the index number pointed by dev_id */
+	edev->index = fec->dev_id;
 
-	if (fec_get_hwaddr(dev_id, ethaddr) == 0) {
-		debug("got MAC%d address from fuse: %pM\n", dev_id, ethaddr);
+	if (fec_get_hwaddr(fec->dev_id, ethaddr) == 0) {
+		debug("got MAC%d address from fuse: %pM\n", fec->dev_id, ethaddr);
 		memcpy(edev->enetaddr, ethaddr, 6);
-		if (!getenv("ethaddr"))
-			eth_setenv_enetaddr("ethaddr", ethaddr);
+		if (fec->dev_id)
+			sprintf(mac, "eth%daddr", fec->dev_id);
+		else
+			strcpy(mac, "ethaddr");
+		if (!getenv(mac))
+			eth_setenv_enetaddr(mac, ethaddr);
 	}
 	return ret;
 err4:

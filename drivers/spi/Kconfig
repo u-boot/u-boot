@@ -197,6 +197,12 @@ config OMAP3_SPI
 
 endif # if DM_SPI
 
+config SOFT_SPI
+	bool "Soft SPI driver"
+	help
+	 Enable Soft SPI driver. This driver is to use GPIO simulate
+	 the SPI protocol.
+
 config FSL_ESPI
 	bool "Freescale eSPI driver"
 	help
