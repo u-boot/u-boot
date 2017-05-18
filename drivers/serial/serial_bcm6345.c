@@ -141,6 +141,8 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 			UART_CTL_RXTIMEOUT_5 |
 			/* set 8 bits/symbol */
 			UART_CTL_BITSPERSYM_8 |
+			/* set 1 stop bit */
+			UART_CTL_STOPBITS_1 |
 			/* set parity to even */
 			UART_CTL_RXPAREVEN_MASK |
 			UART_CTL_TXPAREVEN_MASK);
