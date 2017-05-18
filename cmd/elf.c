@@ -147,25 +147,25 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr; /* Address of the ELF image */
 	unsigned long rc; /* Return value from user code */
-	char *sload, *saddr;
+	char *sload = NULL;
 	const char *ep = getenv("autostart");
-
 	int rcode = 0;
 
-	sload = saddr = NULL;
-	if (argc == 3) {
-		sload = argv[1];
-		saddr = argv[2];
-	} else if (argc == 2) {
-		if (argv[1][0] == '-')
-			sload = argv[1];
-		else
-			saddr = argv[1];
-	}
+	/* Consume 'bootelf' */
+	argc--; argv++;
 
-	if (saddr)
-		addr = simple_strtoul(saddr, NULL, 16);
-	else
+	/* Check for flag. */
+	if (argc >= 1 && (argv[0][0] == '-' && \
+				(argv[0][1] == 'p' || argv[0][1] == 's'))) {
+		sload = argv[0];
+		/* Consume flag. */
+		argc--; argv++;
+	}
+	/* Check for address. */
+	if (argc >= 1 && strict_strtoul(argv[0], 16, &addr) != -EINVAL) {
+		/* Consume address */
+		argc--; argv++;
+	} else
 		addr = load_addr;
 
 	if (!valid_elf_image(addr))
@@ -185,7 +185,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
-	rc = do_bootelf_exec((void *)addr, argc - 1, argv + 1);
+	rc = do_bootelf_exec((void *)addr, argc, argv);
 	if (rc != 0)
 		rcode = 1;
 
@@ -385,7 +385,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	bootelf, 3, 0, do_bootelf,
+	bootelf, CONFIG_SYS_MAXARGS, 0, do_bootelf,
 	"Boot from an ELF image in memory",
 	"[-p|-s] [address]\n"
 	"\t- load ELF image at [address] via program headers (-p)\n"
