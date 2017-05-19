@@ -106,8 +106,12 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 #define BUG_ON(condition) do { if (condition) BUG(); } while(0)
 #endif /* BUG */
 
-#define WARN_ON(x) if (x) {printf("WARNING in %s line %d\n" \
-				  , __FILE__, __LINE__); }
+#define WARN_ON(condition) ({						\
+	int __ret_warn_on = !!(condition);				\
+	if (unlikely(__ret_warn_on))					\
+		printf("WARNING in %s line %d\n", __FILE__, __LINE__);;	\
+	unlikely(__ret_warn_on);					\
+})
 
 #define PAGE_SIZE	4096
 
