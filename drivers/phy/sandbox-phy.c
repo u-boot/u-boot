@@ -80,8 +80,7 @@ static int sandbox_phy_probe(struct udevice *dev)
 
 	priv->initialized = false;
 	priv->on = false;
-	priv->broken = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				       "broken");
+	priv->broken = dev_read_bool(dev, "broken");
 
 	return 0;
 }
