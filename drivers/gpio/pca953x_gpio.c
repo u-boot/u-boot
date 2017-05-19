@@ -228,7 +228,7 @@ static int pca953x_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int pca953x_xlate(struct udevice *dev, struct gpio_desc *desc,
-			 struct fdtdec_phandle_args *args)
+			 struct ofnode_phandle_args *args)
 {
 	desc->offset = args->args[0];
 	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;

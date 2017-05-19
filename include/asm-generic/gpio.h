@@ -7,6 +7,8 @@
 #ifndef _ASM_GENERIC_GPIO_H_
 #define _ASM_GENERIC_GPIO_H_
 
+struct ofnode_phandle_args;
+
 /*
  * Generic GPIO API for U-Boot
  *
@@ -214,7 +216,7 @@ struct fdtdec_phandle_args;
  *
  */
 int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
-			  struct fdtdec_phandle_args *args);
+			  struct ofnode_phandle_args *args);
 
 /**
  * struct struct dm_gpio_ops - Driver model GPIO operations
@@ -286,7 +288,7 @@ struct dm_gpio_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*xlate)(struct udevice *dev, struct gpio_desc *desc,
-		     struct fdtdec_phandle_args *args);
+		     struct ofnode_phandle_args *args);
 };
 
 /**

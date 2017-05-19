@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
+#include <dm/of.h>
 #include <dt-bindings/gpio/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -165,7 +166,7 @@ static int sb_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			 struct fdtdec_phandle_args *args)
+			 struct ofnode_phandle_args *args)
 {
 	desc->offset = args->args[0];
 	if (args->args_count < 2)

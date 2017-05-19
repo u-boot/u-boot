@@ -139,7 +139,7 @@ static int tegra186_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int tegra186_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
+			       struct ofnode_phandle_args *args)
 {
 	int gpio, port, ret;
 

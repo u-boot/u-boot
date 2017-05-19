@@ -114,9 +114,8 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
-int gpio_xlate_offs_flags(struct udevice *dev,
-					 struct gpio_desc *desc,
-					 struct fdtdec_phandle_args *args)
+int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
+			  struct ofnode_phandle_args *args)
 {
 	if (args->args_count < 1)
 		return -EINVAL;
@@ -133,7 +132,7 @@ int gpio_xlate_offs_flags(struct udevice *dev,
 }
 
 static int gpio_find_and_xlate(struct gpio_desc *desc,
-			       struct fdtdec_phandle_args *args)
+			       struct ofnode_phandle_args *args)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 
@@ -642,37 +641,30 @@ int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 	return vector;
 }
 
-static int _gpio_request_by_name_nodev(const void *blob, int node,
-				       const char *list_name, int index,
-				       struct gpio_desc *desc, int flags,
-				       bool add_index)
+static int gpio_request_tail(int ret, ofnode node,
+			     struct ofnode_phandle_args *args,
+			     const char *list_name, int index,
+			     struct gpio_desc *desc, int flags, bool add_index)
 {
-	struct fdtdec_phandle_args args;
-	int ret;
-
 	desc->dev = NULL;
 	desc->offset = 0;
 	desc->flags = 0;
-	ret = fdtdec_parse_phandle_with_args(blob, node, list_name,
-					     "#gpio-cells", 0, index, &args);
-	if (ret) {
-		debug("%s: fdtdec_parse_phandle_with_args failed\n", __func__);
+	if (ret)
 		goto err;
-	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_GPIO, args.node,
-					     &desc->dev);
+	ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
+					  &desc->dev);
 	if (ret) {
 		debug("%s: uclass_get_device_by_of_offset failed\n", __func__);
 		goto err;
 	}
-	ret = gpio_find_and_xlate(desc, &args);
+	ret = gpio_find_and_xlate(desc, args);
 	if (ret) {
 		debug("%s: gpio_find_and_xlate failed\n", __func__);
 		goto err;
 	}
 	ret = dm_gpio_requestf(desc, add_index ? "%s.%s%d" : "%s.%s",
-			       fdt_get_name(blob, node, NULL),
+			       ofnode_get_name(node),
 			       list_name, index);
 	if (ret) {
 		debug("%s: dm_gpio_requestf failed\n", __func__);
@@ -687,8 +679,25 @@ static int _gpio_request_by_name_nodev(const void *blob, int node,
 	return 0;
 err:
 	debug("%s: Node '%s', property '%s', failed to request GPIO index %d: %d\n",
-	      __func__, fdt_get_name(blob, node, NULL), list_name, index, ret);
+	      __func__, ofnode_get_name(node), list_name, index, ret);
 	return ret;
+}
+
+static int _gpio_request_by_name_nodev(const void *blob, int node,
+				       const char *list_name, int index,
+				       struct gpio_desc *desc, int flags,
+				       bool add_index)
+{
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = ofnode_parse_phandle_with_args(offset_to_ofnode(node), list_name,
+					     "#gpio-cells", 0, index, &args);
+	if (ret)
+		debug("%s: fdtdec_parse_phandle_with_args failed\n", __func__);
+
+	return gpio_request_tail(ret, offset_to_ofnode(node), &args, list_name,
+				 index, desc, flags, add_index);
 }
 
 int gpio_request_by_name_nodev(const void *blob, int node,
