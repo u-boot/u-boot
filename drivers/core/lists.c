@@ -140,10 +140,10 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 	int result = 0;
 	int ret = 0;
 
-	name = fdt_get_name(blob, offset, NULL);
-	dm_dbg("bind node %s\n", name);
 	if (devp)
 		*devp = NULL;
+	name = fdt_get_name(blob, offset, NULL);
+	dm_dbg("bind node %s\n", name);
 
 	compat_list = fdt_getprop(blob, offset, "compatible", &compat_length);
 	if (!compat_list) {
