@@ -213,7 +213,6 @@ struct fdtdec_phandle_args;
  *
  * This routine sets the offset field to args[0] and the flags field to
  * GPIOD_ACTIVE_LOW if the GPIO_ACTIVE_LOW flag is present in args[1].
- *
  */
 int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 			  struct ofnode_phandle_args *args);
