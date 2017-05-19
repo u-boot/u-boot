@@ -7,7 +7,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
 #include <dm/device-internal.h>
@@ -113,11 +112,10 @@ static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 
-	if (dev_of_offset(dev) == -1)
+	if (!dev_of_valid(dev))
 		return 0;
 
-	return spi_slave_ofdata_to_platdata(gd->fdt_blob, dev_of_offset(dev),
-					    plat);
+	return spi_slave_ofdata_to_platdata(dev, plat);
 }
 #endif
 
@@ -126,8 +124,7 @@ static int spi_post_probe(struct udevice *bus)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
-	spi->max_hz = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-				     "spi-max-frequency", 0);
+	spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
 #endif
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
@@ -375,7 +372,7 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 	int ret;
 
 	ret = spi_get_bus_and_cs(busnum, cs, speed, mode, NULL, 0, &dev,
-				  &slave);
+				 &slave);
 	if (ret)
 		return NULL;
 
@@ -388,27 +385,27 @@ void spi_free_slave(struct spi_slave *slave)
 	slave->dev = NULL;
 }
 
-int spi_slave_ofdata_to_platdata(const void *blob, int node,
+int spi_slave_ofdata_to_platdata(struct udevice *dev,
 				 struct dm_spi_slave_platdata *plat)
 {
 	int mode = 0;
 	int value;
 
-	plat->cs = fdtdec_get_int(blob, node, "reg", -1);
-	plat->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", 0);
-	if (fdtdec_get_bool(blob, node, "spi-cpol"))
+	plat->cs = dev_read_u32_default(dev, "reg", -1);
+	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency", 0);
+	if (dev_read_bool(dev, "spi-cpol"))
 		mode |= SPI_CPOL;
-	if (fdtdec_get_bool(blob, node, "spi-cpha"))
+	if (dev_read_bool(dev, "spi-cpha"))
 		mode |= SPI_CPHA;
-	if (fdtdec_get_bool(blob, node, "spi-cs-high"))
+	if (dev_read_bool(dev, "spi-cs-high"))
 		mode |= SPI_CS_HIGH;
-	if (fdtdec_get_bool(blob, node, "spi-3wire"))
+	if (dev_read_bool(dev, "spi-3wire"))
 		mode |= SPI_3WIRE;
-	if (fdtdec_get_bool(blob, node, "spi-half-duplex"))
+	if (dev_read_bool(dev, "spi-half-duplex"))
 		mode |= SPI_PREAMBLE;
 
 	/* Device DUAL/QUAD mode */
-	value = fdtdec_get_uint(blob, node, "spi-tx-bus-width", 1);
+	value = dev_read_u32_default(dev, "spi-tx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
@@ -423,7 +420,7 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		break;
 	}
 
-	value = fdtdec_get_uint(blob, node, "spi-rx-bus-width", 1);
+	value = dev_read_u32_default(dev, "spi-rx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
