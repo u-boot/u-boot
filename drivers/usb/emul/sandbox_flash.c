@@ -371,10 +371,8 @@ err:
 static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
 
-	plat->pathname = fdt_getprop(blob, dev_of_offset(dev),
-				     "sandbox,filepath", NULL);
+	plat->pathname = dev_read_string(dev, "sandbox,filepath");
 
 	return 0;
 }

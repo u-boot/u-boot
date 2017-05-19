@@ -277,8 +277,7 @@ static int sandbox_child_post_bind(struct udevice *dev)
 {
 	struct sandbox_hub_platdata *plat = dev_get_parent_platdata(dev);
 
-	plat->port = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg",
-				    -1);
+	plat->port = dev_read_u32_default(dev, "reg", -1);
 
 	return 0;
 }
