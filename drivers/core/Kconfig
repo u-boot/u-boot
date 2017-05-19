@@ -215,4 +215,8 @@ config OF_ISA_BUS
 	  mistranslation of device addresses, so ensure that this is
 	  enabled if your board does include an ISA bus.
 
+config DM_DEV_READ_INLINE
+	bool
+	default y if !OF_LIVE
+
 endmenu
