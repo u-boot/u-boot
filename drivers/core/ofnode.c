@@ -457,8 +457,8 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 
 		na = of_n_addr_cells(np);
 		ns = of_n_addr_cells(np);
-		*sizep = fdt_read_number(prop + na, ns);
-		return fdt_read_number(prop, na);
+		*sizep = of_read_number(prop + na, ns);
+		return of_read_number(prop, na);
 	} else {
 		return fdtdec_get_addr_size(gd->fdt_blob,
 					    ofnode_to_offset(node), property,
