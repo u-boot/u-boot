@@ -1,4 +1,10 @@
 #!/bin/sh
 
-# Run all tests
+# Run all tests that the standard sandbox build can support
 ./test/py/test.py --bd sandbox --build
+
+# Run tests which require sandbox_spl
+./test/py/test.py --bd sandbox_spl --build -k test/py/tests/test_ofplatdata.py
+
+# Run tests for the flat DT version of sandbox
+./test/py/test.py --bd sandbox_flattree --build
