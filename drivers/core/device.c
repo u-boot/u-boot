@@ -701,7 +701,7 @@ int device_set_name(struct udevice *dev, const char *name)
 	return 0;
 }
 
-bool of_device_is_compatible(struct udevice *dev, const char *compat)
+bool device_is_compatible(struct udevice *dev, const char *compat)
 {
 	const void *fdt = gd->fdt_blob;
 

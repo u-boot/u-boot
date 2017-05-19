@@ -40,8 +40,8 @@ static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
 static int psci_bind(struct udevice *dev)
 {
 	/* No SYSTEM_RESET support for PSCI 0.1 */
-	if (of_device_is_compatible(dev, "arm,psci-0.2") ||
-	    of_device_is_compatible(dev, "arm,psci-1.0")) {
+	if (device_is_compatible(dev, "arm,psci-0.2") ||
+	    device_is_compatible(dev, "arm,psci-1.0")) {
 		int ret;
 
 		/* bind psci-sysreset optionally */

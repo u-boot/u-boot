@@ -55,7 +55,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	/* Get the base address for usbphy from the device node */
 	for (device_find_first_child(dev, &child); child;
 	     device_find_next_child(&child)) {
-		if (!of_device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
+		if (!device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
 			continue;
 		plat->phy_base = devfdt_get_addr(child);
 		break;

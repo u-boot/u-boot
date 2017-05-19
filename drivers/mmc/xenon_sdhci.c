@@ -454,7 +454,7 @@ static int xenon_sdhci_ofdata_to_platdata(struct udevice *dev)
 	host->name = dev->name;
 	host->ioaddr = (void *)devfdt_get_addr(dev);
 
-	if (of_device_is_compatible(dev, "marvell,armada-3700-sdhci"))
+	if (device_is_compatible(dev, "marvell,armada-3700-sdhci"))
 		priv->pad_ctrl_reg = (void *)devfdt_get_addr_index(dev, 1);
 
 	name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "marvell,pad-type",

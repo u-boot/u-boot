@@ -563,7 +563,7 @@ int device_set_name(struct udevice *dev, const char *name);
 void device_set_name_alloced(struct udevice *dev);
 
 /**
- * of_device_is_compatible() - check if the device is compatible with the compat
+ * device_is_compatible() - check if the device is compatible with the compat
  *
  * This allows to check whether the device is comaptible with the compat.
  *
@@ -572,7 +572,7 @@ void device_set_name_alloced(struct udevice *dev);
  *		device
  * @return true if OK, false if the compatible is not found
  */
-bool of_device_is_compatible(struct udevice *dev, const char *compat);
+bool device_is_compatible(struct udevice *dev, const char *compat);
 
 /**
  * of_machine_is_compatible() - check if the machine is compatible with

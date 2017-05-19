@@ -104,10 +104,10 @@ int ti_cm_get_macid(struct udevice *dev, int slave, u8 *mac_addr)
 	if (of_machine_is_compatible("ti,am33xx"))
 		return cpsw_am33xx_cm_get_macid(dev, 0x630, slave, mac_addr);
 
-	if (of_device_is_compatible(dev, "ti,am3517-emac"))
+	if (device_is_compatible(dev, "ti,am3517-emac"))
 		return davinci_emac_3517_get_macid(dev, 0x110, slave, mac_addr);
 
-	if (of_device_is_compatible(dev, "ti,dm816-emac"))
+	if (device_is_compatible(dev, "ti,dm816-emac"))
 		return cpsw_am33xx_cm_get_macid(dev, 0x30, slave, mac_addr);
 
 	if (of_machine_is_compatible("ti,am43"))

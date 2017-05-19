@@ -1695,7 +1695,7 @@ static int mvneta_probe(struct udevice *dev)
 	pp->base = (void __iomem *)pdata->iobase;
 
 	/* Configure MBUS address windows */
-	if (of_device_is_compatible(dev, "marvell,armada-3700-neta"))
+	if (device_is_compatible(dev, "marvell,armada-3700-neta"))
 		mvneta_bypass_mbus_windows(pp);
 	else
 		mvneta_conf_mbus_windows(pp);

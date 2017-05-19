@@ -121,7 +121,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	 * Also, the address decoder doesn't need to get setup with this
 	 * SoC, so don't call usb_brg_adrdec_setup().
 	 */
-	if (of_device_is_compatible(dev, "marvell,armada3700-ehci"))
+	if (device_is_compatible(dev, "marvell,armada3700-ehci"))
 		marvell_ehci_ops.powerup_fixup = marvell_ehci_powerup_fixup;
 	else
 		usb_brg_adrdec_setup((void *)priv->hcd_base);
