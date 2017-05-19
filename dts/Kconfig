@@ -32,6 +32,17 @@ config SPL_OF_CONTROL
 	  which is not enough to support device tree. Enable this option to
 	  allow such boards to be supported by U-Boot SPL.
 
+config OF_LIVE
+	bool "Enable use of a live tree"
+	depends on OF_CONTROL
+	help
+	  Normally U-Boot uses a flat device tree which saves space and
+	  avoids the need to unpack the tree before use. However a flat
+	  tree does not support modifcation from within U-Boot since it
+	  can invalidate driver-model device tree offsets. This option
+	  enables a live tree which is available after relocation,
+	  and can be adjusted as needed.
+
 choice
 	prompt "Provider of DTB for DT control"
 	depends on OF_CONTROL

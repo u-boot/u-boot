@@ -72,6 +72,9 @@ typedef struct global_data {
 	const void *fdt_blob;		/* Our device tree, NULL if none */
 	void *new_fdt;			/* Relocated FDT */
 	unsigned long fdt_size;		/* Space reserved for relocated FDT */
+#ifdef CONFIG_OF_LIVE
+	struct device_node *of_root;
+#endif
 	struct jt_funcs *jt;		/* jump table */
 	char env_buf[32];		/* buffer for getenv() before reloc. */
 #ifdef CONFIG_TRACE
