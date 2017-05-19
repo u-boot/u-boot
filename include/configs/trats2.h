@@ -169,7 +169,6 @@
 
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__
-#include <power/max77686_pmic.h>
 
 #define KEY_PWR_PMIC_NAME		"MAX77686_PMIC"
 #define KEY_PWR_STATUS_REG		MAX77686_REG_PMIC_STATUS1

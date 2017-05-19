@@ -176,7 +176,6 @@ int universal_spi_read(void);
 
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__
-#include <power/max8998_pmic.h>
 
 #define KEY_PWR_PMIC_NAME		"MAX8998_PMIC"
 #define KEY_PWR_STATUS_REG		MAX8998_REG_STATUS1
