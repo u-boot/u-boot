@@ -324,8 +324,7 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 	int ret;
 
 	*devp = NULL;
-	find_phandle = fdtdec_get_int(gd->fdt_blob, dev_of_offset(parent), name,
-				      -1);
+	find_phandle = dev_read_u32_default(parent, name, -1);
 	if (find_phandle <= 0)
 		return -ENOENT;
 	ret = uclass_get(id, &uc);
@@ -335,7 +334,7 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
 		uint phandle;
 
-		phandle = fdt_get_phandle(gd->fdt_blob, dev_of_offset(dev));
+		phandle = dev_read_phandle(dev);
 
 		if (phandle == find_phandle) {
 			*devp = dev;
