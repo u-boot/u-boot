@@ -202,7 +202,8 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 #endif
 #ifndef CONFIG_SPL_BUILD
 	/* Use the fixed index with aliase node's index */
-	fdtdec_get_alias_seq(gd->fdt_blob, "mmc", dev_of_offset(dev), &devnum);
+	ret = dev_read_alias_seq(dev, &devnum);
+	debug("%s: alias ret=%d, devnum=%d\n", __func__, ret, devnum);
 #endif
 
 	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
