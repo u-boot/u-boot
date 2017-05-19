@@ -265,4 +265,5 @@ static int dm_test_fdt_offset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fdt_offset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fdt_offset,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
