@@ -75,8 +75,9 @@ static int dm_test_destroy(struct unit_test_state *uts)
 static int dm_do_test(struct unit_test_state *uts, struct unit_test *test)
 {
 	struct sandbox_state *state = state_get_current();
+	const char *fname = strrchr(test->file, '/') + 1;
 
-	printf("Test: %s\n", test->name);
+	printf("Test: %s: %s\n", test->name, fname);
 	ut_assertok(dm_test_init(uts));
 
 	uts->start = mallinfo();

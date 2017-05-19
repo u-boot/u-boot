@@ -30,6 +30,7 @@ struct unit_test_state {
  * @flags: Flags indicated pre-conditions for test
  */
 struct unit_test {
+	const char *file;
 	const char *name;
 	int (*func)(struct unit_test_state *state);
 	int flags;
@@ -38,6 +39,7 @@ struct unit_test {
 /* Declare a new unit test */
 #define UNIT_TEST(_name, _flags, _suite)				\
 	ll_entry_declare(struct unit_test, _name, _suite) = {		\
+		.file = __FILE__,					\
 		.name = #_name,						\
 		.flags = _flags,					\
 		.func = _name,						\
