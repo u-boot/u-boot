@@ -1008,7 +1008,7 @@ struct of_bus {
 };
 
 /* Default translator (generic bus) */
-void of_bus_default_count_cells(const void *blob, int parentoffset,
+void fdt_support_default_count_cells(const void *blob, int parentoffset,
 					int *addrc, int *sizec)
 {
 	const fdt32_t *prop;
@@ -1030,9 +1030,9 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 {
 	u64 cp, s, da;
 
-	cp = of_read_number(range, na);
-	s  = of_read_number(range + na + pna, ns);
-	da = of_read_number(addr, na);
+	cp = fdt_read_number(range, na);
+	s  = fdt_read_number(range + na + pna, ns);
+	da = fdt_read_number(addr, na);
 
 	debug("OF: default map, cp=%" PRIu64 ", s=%" PRIu64
 	      ", da=%" PRIu64 "\n", cp, s, da);
@@ -1044,7 +1044,7 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 
 static int of_bus_default_translate(fdt32_t *addr, u64 offset, int na)
 {
-	u64 a = of_read_number(addr, na);
+	u64 a = fdt_read_number(addr, na);
 	memset(addr, 0, na * 4);
 	a += offset;
 	if (na > 1)
@@ -1086,9 +1086,9 @@ static u64 of_bus_isa_map(fdt32_t *addr, const fdt32_t *range,
 	if ((addr[0] ^ range[0]) & cpu_to_be32(1))
 		return OF_BAD_ADDR;
 
-	cp = of_read_number(range + 1, na - 1);
-	s  = of_read_number(range + na + pna, ns);
-	da = of_read_number(addr + 1, na - 1);
+	cp = fdt_read_number(range + 1, na - 1);
+	s  = fdt_read_number(range + na + pna, ns);
+	da = fdt_read_number(addr + 1, na - 1);
 
 	debug("OF: ISA map, cp=%" PRIu64 ", s=%" PRIu64
 	      ", da=%" PRIu64 "\n", cp, s, da);
@@ -1122,7 +1122,7 @@ static struct of_bus of_busses[] = {
 	{
 		.name = "default",
 		.addresses = "reg",
-		.count_cells = of_bus_default_count_cells,
+		.count_cells = fdt_support_default_count_cells,
 		.map = of_bus_default_map,
 		.translate = of_bus_default_translate,
 	},
@@ -1173,7 +1173,7 @@ static int of_translate_one(const void *blob, int parent, struct of_bus *bus,
 	 */
 	ranges = fdt_getprop(blob, parent, rprop, &rlen);
 	if (ranges == NULL || rlen == 0) {
-		offset = of_read_number(addr, na);
+		offset = fdt_read_number(addr, na);
 		memset(addr, 0, pna * 4);
 		debug("OF: no ranges, 1:1 translation\n");
 		goto finish;
@@ -1253,7 +1253,7 @@ static u64 __of_translate_address(const void *blob, int node_offset,
 		/* If root, we have finished */
 		if (parent < 0) {
 			debug("OF: reached root node\n");
-			result = of_read_number(addr, na);
+			result = fdt_read_number(addr, na);
 			break;
 		}
 
@@ -1666,8 +1666,8 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 	fdt32_t cells[4];
 	int i, addrc, sizec, ret;
 
-	of_bus_default_count_cells(fdt, fdt_parent_offset(fdt, node),
-				   &addrc, &sizec);
+	fdt_support_default_count_cells(fdt, fdt_parent_offset(fdt, node),
+					&addrc, &sizec);
 	i = 0;
 	if (addrc == 2)
 		cells[i++] = cpu_to_fdt32(base_address >> 32);

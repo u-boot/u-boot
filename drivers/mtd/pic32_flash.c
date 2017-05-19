@@ -384,7 +384,7 @@ static int pic32_flash_probe(struct udevice *dev)
 	 * match with reg-names.
 	 */
 	parent = fdt_parent_offset(blob, node);
-	of_bus_default_count_cells(blob, parent, &addrc, &sizec);
+	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
 	list = fdt_getprop(blob, node, "reg-names", &len);
 	if (!list)
 		return -ENOENT;

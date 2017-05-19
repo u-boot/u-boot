@@ -60,9 +60,9 @@ int dram_init(void)
 
 	gd->ram_size = 0;
 	for (i = 0; i < len; i++) {
-		ram_banks[i].start = of_read_number(prop, na);
+		ram_banks[i].start = fdt_read_number(prop, na);
 		prop += na;
-		ram_banks[i].size = of_read_number(prop, ns);
+		ram_banks[i].size = fdt_read_number(prop, ns);
 		prop += ns;
 		gd->ram_size += ram_banks[i].size;
 	}

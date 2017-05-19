@@ -79,13 +79,13 @@ remove_psci_node:
 		puts("couldn't find /cpus node\n");
 		return;
 	}
-	of_bus_default_count_cells(blob, off, &addr_cells, NULL);
+	fdt_support_default_count_cells(blob, off, &addr_cells, NULL);
 
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
 		reg = (fdt32_t *)fdt_getprop(blob, off, "reg", 0);
 		if (reg) {
-			core_id = of_read_number(reg, addr_cells);
+			core_id = fdt_read_number(reg, addr_cells);
 			if (core_id  == 0 || (is_core_online(core_id))) {
 				val = spin_tbl_addr;
 				val += id_to_core(core_id) *

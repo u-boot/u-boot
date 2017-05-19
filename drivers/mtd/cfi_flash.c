@@ -2448,7 +2448,7 @@ static int cfi_flash_probe(struct udevice *dev)
 	int len, idx;
 
 	parent = fdt_parent_offset(blob, node);
-	of_bus_default_count_cells(blob, parent, &addrc, &sizec);
+	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
 	/* decode regs, there may be multiple reg tuples. */
 	cell = fdt_getprop(blob, node, "reg", &len);
 	if (!cell)
