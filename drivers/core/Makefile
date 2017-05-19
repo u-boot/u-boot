@@ -11,3 +11,4 @@ obj-$(CONFIG_$(SPL_)SIMPLE_BUS)	+= simple-bus.o
 obj-$(CONFIG_DM)	+= dump.o
 obj-$(CONFIG_$(SPL_)REGMAP)	+= regmap.o
 obj-$(CONFIG_$(SPL_)SYSCON)	+= syscon-uclass.o
+obj-$(CONFIG_OF_LIVE) += of_access.o
