@@ -525,8 +525,7 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
  * @node:	Node offset to read from
  * @spi:	Place to put the decoded information
  */
-int i2c_chip_ofdata_to_platdata(const void *blob, int node,
-				struct dm_i2c_chip *chip);
+int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip);
 
 /**
  * i2c_dump_msgs() - Dump a list of I2C messages
