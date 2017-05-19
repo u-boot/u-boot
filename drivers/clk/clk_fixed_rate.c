@@ -31,9 +31,8 @@ const struct clk_ops clk_fixed_rate_ops = {
 static int clk_fixed_rate_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	to_clk_fixed_rate(dev)->fixed_rate =
-				fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					       "clock-frequency", 0);
+	to_clk_fixed_rate(dev)->fixed_rate = dev_read_u32_default(dev,
+							"clock-frequency", 0);
 #endif
 
 	return 0;
