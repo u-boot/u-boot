@@ -304,8 +304,7 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 				NULL, 0, &din, din_len);
 	}
 
-	debug("%s: len=%d, dinp=%p, *dinp=%p\n", __func__, len, dinp,
-	      dinp ? *dinp : NULL);
+	debug("%s: len=%d, din=%p\n", __func__, len, din);
 	if (dinp) {
 		/* If we have any data to return, it must be 64bit-aligned */
 		assert(len <= 0 || !((uintptr_t)din & 7));
