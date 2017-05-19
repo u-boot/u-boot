@@ -12,4 +12,4 @@ obj-$(CONFIG_DM)	+= dump.o
 obj-$(CONFIG_$(SPL_)REGMAP)	+= regmap.o
 obj-$(CONFIG_$(SPL_)SYSCON)	+= syscon-uclass.o
 obj-$(CONFIG_OF_LIVE) += of_access.o of_addr.o
-obj-$(CONFIG_OF_CONTROL) += ofnode.o
+obj-$(CONFIG_OF_CONTROL) += of_extra.o ofnode.o

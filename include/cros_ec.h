@@ -14,6 +14,7 @@
 #include <fdtdec.h>
 #include <cros_ec_message.h>
 #include <asm/gpio.h>
+#include <dm/of_extra.h>
 
 /* Our configuration information */
 struct cros_ec_dev {

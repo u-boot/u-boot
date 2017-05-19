@@ -12,6 +12,7 @@
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <asm/sections.h>
+#include <dm/of_extra.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
