@@ -50,6 +50,19 @@ extern int strncasecmp(const char *s1, const char *s2, __kernel_size_t len);
 #ifndef __HAVE_ARCH_STRCHR
 extern char * strchr(const char *,int);
 #endif
+
+/**
+ * strchrnul() - return position of a character in the string, or end of string
+ *
+ * The strchrnul() function is like strchr() except that if c is not found
+ * in s, then it returns a pointer to the nul byte at the end of s, rather than
+ * NULL
+ * @s: string to search
+ * @c: character to search for
+ * @return position of @c in @s, or end of @s if not found
+ */
+const char *strchrnul(const char *s, int c);
+
 #ifndef __HAVE_ARCH_STRRCHR
 extern char * strrchr(const char *,int);
 #endif

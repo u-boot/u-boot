@@ -230,6 +230,14 @@ char * strchr(const char * s, int c)
 }
 #endif
 
+const char *strchrnul(const char *s, int c)
+{
+	for (; *s != (char)c; ++s)
+		if (*s == '\0')
+			break;
+	return s;
+}
+
 #ifndef __HAVE_ARCH_STRRCHR
 /**
  * strrchr - Find the last occurrence of a character in a string
