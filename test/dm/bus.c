@@ -160,8 +160,21 @@ static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 	node = fdt_path_offset(blob, "/d-test");
 	ut_asserteq(-ENODEV, device_find_child_by_of_offset(bus, node, &dev));
 
+	return 0;
+}
+DM_TEST(dm_test_bus_children_funcs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_bus_children_of_offset(struct unit_test_state *uts)
+{
+	const void *blob = gd->fdt_blob;
+	struct udevice *bus, *dev;
+	int node;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+
 	/* Find a valid child */
 	node = fdt_path_offset(blob, "/some-bus/c-test@1");
+	ut_assert(node > 0);
 	ut_assertok(device_find_child_by_of_offset(bus, node, &dev));
 	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
 	ut_assertok(device_get_child_by_of_offset(bus, node, &dev));
@@ -169,7 +182,8 @@ static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_bus_children_funcs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_bus_children_of_offset,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
 
 /* Test that we can iterate through children */
 static int dm_test_bus_children_iterators(struct unit_test_state *uts)
