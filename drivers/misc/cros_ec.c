@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/of_extra.h>
 #include <dm/uclass-internal.h>
 
 #ifdef DEBUG_TRACE
@@ -996,15 +997,12 @@ int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state)
 int cros_ec_register(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	char id[MSG_BYTES];
 
 	cdev->dev = dev;
 	gpio_request_by_name(dev, "ec-interrupt", 0, &cdev->ec_int,
 			     GPIOD_IS_IN);
-	cdev->optimise_flash_write = fdtdec_get_bool(blob, node,
-						     "optimise-flash-write");
+	cdev->optimise_flash_write = dev_read_bool(dev, "optimise-flash-write");
 
 	if (cros_ec_check_version(cdev)) {
 		debug("%s: Could not detect CROS-EC version\n", __func__);
@@ -1023,28 +1021,26 @@ int cros_ec_register(struct udevice *dev)
 	return 0;
 }
 
-int cros_ec_decode_ec_flash(const void *blob, int node,
-			    struct fdt_cros_ec *config)
+int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 {
-	int flash_node;
+	ofnode flash_node, node;
 
-	flash_node = fdt_subnode_offset(blob, node, "flash");
-	if (flash_node < 0) {
+	flash_node = dev_read_subnode(dev, "flash");
+	if (!ofnode_valid(flash_node)) {
 		debug("Failed to find flash node\n");
 		return -1;
 	}
 
-	if (fdtdec_read_fmap_entry(blob, flash_node, "flash",
-				   &config->flash)) {
-		debug("Failed to decode flash node in chrome-ec'\n");
+	if (of_read_fmap_entry(flash_node, "flash", &config->flash)) {
+		debug("Failed to decode flash node in chrome-ec\n");
 		return -1;
 	}
 
-	config->flash_erase_value = fdtdec_get_int(blob, flash_node,
-						    "erase-value", -1);
-	for (node = fdt_first_subnode(blob, flash_node); node >= 0;
-	     node = fdt_next_subnode(blob, node)) {
-		const char *name = fdt_get_name(blob, node, NULL);
+	config->flash_erase_value = ofnode_read_s32_default(flash_node,
+							    "erase-value", -1);
+	for (node = ofnode_first_subnode(flash_node); ofnode_valid(node);
+	     node = ofnode_next_subnode(node)) {
+		const char *name = ofnode_get_name(node);
 		enum ec_flash_region region;
 
 		if (0 == strcmp(name, "ro")) {
@@ -1058,8 +1054,7 @@ int cros_ec_decode_ec_flash(const void *blob, int node,
 			return -1;
 		}
 
-		if (fdtdec_read_fmap_entry(blob, node, "reg",
-					   &config->region[region])) {
+		if (of_read_fmap_entry(node, "reg", &config->region[region])) {
 			debug("Failed to decode flash region in chrome-ec'\n");
 			return -1;
 		}

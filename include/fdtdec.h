@@ -815,19 +815,6 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
 			 fdt_addr_t *basep, fdt_size_t *sizep);
 
-struct fmap_entry;
-/**
- * Read a flash entry from the fdt
- *
- * @param blob		FDT blob
- * @param node		Offset of node to read
- * @param name		Name of node being read
- * @param entry		Place to put offset and size of this node
- * @return 0 if ok, -ve on error
- */
-int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
-			   struct fmap_entry *entry);
-
 /**
  * Obtain an indexed resource from a device property.
  *
