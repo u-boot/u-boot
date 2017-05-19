@@ -40,6 +40,7 @@
 #endif
 #include <mmc.h>
 #include <nand.h>
+#include <of_live.h>
 #include <onenand_uboot.h>
 #include <scsi.h>
 #include <serial.h>
@@ -289,6 +290,14 @@ static int initr_noncached(void)
 {
 	noncached_init();
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_OF_LIVE
+static int initr_of_live(void)
+{
+	return of_live_build(gd->fdt_blob,
+			      (struct device_node **)&gd->of_root);
 }
 #endif
 
@@ -722,6 +731,9 @@ static init_fnc_t init_sequence_r[] = {
 	initr_noncached,
 #endif
 	bootstage_relocate,
+#ifdef CONFIG_OF_LIVE
+	initr_of_live,
+#endif
 #ifdef CONFIG_DM
 	initr_dm,
 #endif
