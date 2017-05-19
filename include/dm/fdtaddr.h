@@ -8,8 +8,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _DM_ADDR_H
-#define _DM_ADDR_H
+#ifndef _DM_FDTADDR_H
+#define _DM_FDTADDR_H
 
 #include <fdtdec.h>
 
