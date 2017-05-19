@@ -4,8 +4,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <common.h>
-#include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -278,20 +278,16 @@ static bool regulator_name_is_unique(struct udevice *check_dev,
 static int regulator_post_bind(struct udevice *dev)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int offset = dev_of_offset(dev);
-	const void *blob = gd->fdt_blob;
 	const char *property = "regulator-name";
 
 	uc_pdata = dev_get_uclass_platdata(dev);
-	if (!uc_pdata)
-		return -ENXIO;
 
 	/* Regulator's mandatory constraint */
-	uc_pdata->name = fdt_getprop(blob, offset, property, NULL);
+	uc_pdata->name = dev_read_string(dev, property);
 	if (!uc_pdata->name) {
-		debug("%s: dev: %s has no property 'regulator-name'\n",
-		      __func__, dev->name);
-		uc_pdata->name = fdt_get_name(blob, offset, NULL);
+		debug("%s: dev '%s' has no property '%s'\n",
+		      __func__, dev->name, property);
+		uc_pdata->name = dev_read_name(dev);
 		if (!uc_pdata->name)
 			return -EINVAL;
 	}
@@ -299,7 +295,7 @@ static int regulator_post_bind(struct udevice *dev)
 	if (regulator_name_is_unique(dev, uc_pdata->name))
 		return 0;
 
-	debug("\"%s\" of dev: \"%s\", has nonunique value: \"%s\"",
+	debug("'%s' of dev: '%s', has nonunique value: '%s\n",
 	      property, dev->name, uc_pdata->name);
 
 	return -EINVAL;
@@ -308,25 +304,22 @@ static int regulator_post_bind(struct udevice *dev)
 static int regulator_pre_probe(struct udevice *dev)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int offset = dev_of_offset(dev);
 
 	uc_pdata = dev_get_uclass_platdata(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
 	/* Regulator's optional constraints */
-	uc_pdata->min_uV = fdtdec_get_int(gd->fdt_blob, offset,
-					  "regulator-min-microvolt", -ENODATA);
-	uc_pdata->max_uV = fdtdec_get_int(gd->fdt_blob, offset,
-					  "regulator-max-microvolt", -ENODATA);
-	uc_pdata->min_uA = fdtdec_get_int(gd->fdt_blob, offset,
-					  "regulator-min-microamp", -ENODATA);
-	uc_pdata->max_uA = fdtdec_get_int(gd->fdt_blob, offset,
-					  "regulator-max-microamp", -ENODATA);
-	uc_pdata->always_on = fdtdec_get_bool(gd->fdt_blob, offset,
-					      "regulator-always-on");
-	uc_pdata->boot_on = fdtdec_get_bool(gd->fdt_blob, offset,
-					    "regulator-boot-on");
+	uc_pdata->min_uV = dev_read_u32_default(dev, "regulator-min-microvolt",
+						-ENODATA);
+	uc_pdata->max_uV = dev_read_u32_default(dev, "regulator-max-microvolt",
+						-ENODATA);
+	uc_pdata->min_uA = dev_read_u32_default(dev, "regulator-min-microamp",
+						-ENODATA);
+	uc_pdata->max_uA = dev_read_u32_default(dev, "regulator-max-microamp",
+						-ENODATA);
+	uc_pdata->always_on = dev_read_bool(dev, "regulator-always-on");
+	uc_pdata->boot_on = dev_read_bool(dev, "regulator-boot-on");
 
 	/* Those values are optional (-ENODATA if unset) */
 	if ((uc_pdata->min_uV != -ENODATA) &&
