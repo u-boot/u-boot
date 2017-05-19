@@ -10,6 +10,7 @@
 #ifndef _DM_UCLASS_H
 #define _DM_UCLASS_H
 
+#include <dm/ofnode.h>
 #include <dm/uclass-id.h>
 #include <linker_lists.h>
 #include <linux/list.h>
@@ -184,6 +185,22 @@ int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp);
  */
 int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 				   struct udevice **devp);
+
+/**
+ * uclass_get_device_by_ofnode() - Get a uclass device by device tree node
+ *
+ * This searches the devices in the uclass for one attached to the given
+ * device tree node.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @np: Device tree node to search for (if NULL then -ENODEV is returned)
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
+				struct udevice **devp);
 
 /**
  * uclass_get_device_by_phandle() - Get a uclass device by phandle
