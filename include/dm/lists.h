@@ -10,6 +10,7 @@
 #ifndef _DM_LISTS_H_
 #define _DM_LISTS_H_
 
+#include <dm/ofnode.h>
 #include <dm/uclass-id.h>
 
 /**
@@ -51,14 +52,12 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
  * @parent as its parent.
  *
  * @parent: parent device (root)
- * @blob: device tree blob
- * @offset: offset of this device tree node
+ * @node: device tree node to bind
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if device was bound, -EINVAL if the device tree is invalid,
  * other -ve value on error
  */
-int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
-		   struct udevice **devp);
+int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp);
 
 /**
  * device_bind_driver() - bind a device to a driver

@@ -103,7 +103,8 @@ int notrace dm_timer_init(void)
 			 * relocation, bind it anyway.
 			 */
 			if (node > 0 &&
-			    !lists_bind_fdt(gd->dm_root, blob, node, &dev)) {
+			    !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
+					    &dev)) {
 				ret = device_probe(dev);
 				if (ret)
 					return ret;

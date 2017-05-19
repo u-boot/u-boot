@@ -235,7 +235,7 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 			dm_dbg("   - ignoring disabled device\n");
 			continue;
 		}
-		err = lists_bind_fdt(parent, blob, offset, NULL);
+		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL);
 		if (err && !ret) {
 			ret = err;
 			debug("%s: ret=%d\n", fdt_get_name(blob, offset, NULL),

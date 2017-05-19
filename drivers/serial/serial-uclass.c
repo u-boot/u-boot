@@ -74,7 +74,8 @@ static void serial_find_console_or_panic(void)
 		 * bind it anyway.
 		 */
 		if (node > 0 &&
-		    !lists_bind_fdt(gd->dm_root, blob, node, &dev)) {
+		    !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
+				    &dev)) {
 			if (!device_probe(dev)) {
 				gd->cur_serial_dev = dev;
 				return;
