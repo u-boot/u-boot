@@ -30,7 +30,7 @@ static int dm_test_init(struct unit_test_state *uts)
 	gd->dm_root = NULL;
 	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
 
-	ut_assertok(dm_init());
+	ut_assertok(dm_init(false));
 	dms->root = dm_root();
 
 	return 0;
@@ -137,7 +137,7 @@ static int dm_test_main(const char *test_name)
 		printf("Failures: %d\n", uts->fail_count);
 
 	gd->dm_root = NULL;
-	ut_assertok(dm_init());
+	ut_assertok(dm_init(false));
 	dm_scan_platdata(false);
 	dm_scan_fdt(gd->fdt_blob, false);
 

@@ -87,9 +87,10 @@ int dm_init_and_scan(bool pre_reloc_only);
  * This function will initialize roots of driver tree and class tree.
  * This needs to be called before anything uses the DM
  *
+ * @of_live:	Enable live device tree
  * @return 0 if OK, -ve on error
  */
-int dm_init(void);
+int dm_init(bool of_live);
 
 /**
  * dm_uninit - Uninitialise Driver Model structures
