@@ -1539,7 +1539,7 @@ int fdt_verify_alias_address(void *fdt, int anode, const char *alias, u64 addr)
 /*
  * Returns the base address of an SOC or PCI node
  */
-u64 fdt_get_base_address(void *fdt, int node)
+u64 fdt_get_base_address(const void *fdt, int node)
 {
 	int size;
 	u32 naddr;

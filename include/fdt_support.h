@@ -207,7 +207,7 @@ int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
 int fdt_verify_alias_address(void *fdt, int anode, const char *alias,
 			      u64 addr);
-u64 fdt_get_base_address(void *fdt, int node);
+u64 fdt_get_base_address(const void *fdt, int node);
 int fdt_read_range(void *fdt, int node, int n, uint64_t *child_addr,
 		   uint64_t *addr, uint64_t *len);
 
