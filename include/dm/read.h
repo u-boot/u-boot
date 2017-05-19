@@ -42,13 +42,16 @@ static inline bool dev_of_valid(struct udevice *dev)
 	return ofnode_valid(dev_ofnode(dev));
 }
 
-#ifdef CONFIG_DM_DEV_READ_INLINE
-
-static inline int dev_read_u32_default(struct udevice *dev,
-				       const char *propname, int def)
-{
-	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
-}
+#ifndef CONFIG_DM_DEV_READ_INLINE
+/**
+ * dev_read_u32_default() - read a 32-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+int dev_read_u32_default(struct udevice *dev, const char *propname, int def);
 
 /**
  * dev_read_string() - Read a string from a device's DT property
@@ -57,11 +60,7 @@ static inline int dev_read_u32_default(struct udevice *dev,
  * @propname:	name of the property to read
  * @return string from property value, or NULL if there is no such property
  */
-static inline const char *dev_read_string(struct udevice *dev,
-					  const char *propname)
-{
-	return ofnode_read_string(dev_ofnode(dev), propname);
-}
+const char *dev_read_string(struct udevice *dev, const char *propname);
 
 /**
  * dev_read_bool() - read a boolean value from a device's DT property
@@ -70,10 +69,7 @@ static inline const char *dev_read_string(struct udevice *dev,
  * @propname:	name of property to read
  * @return true if property is present (meaning true), false if not present
  */
-static inline bool dev_read_bool(struct udevice *dev, const char *propname)
-{
-	return ofnode_read_bool(dev_ofnode(dev), propname);
-}
+bool dev_read_bool(struct udevice *dev, const char *propname);
 
 /**
  * dev_read_subnode() - find a named subnode of a device
@@ -83,11 +79,7 @@ static inline bool dev_read_bool(struct udevice *dev, const char *propname)
  * @return reference to subnode (which can be invalid if there is no such
  * subnode)
  */
-static inline ofnode dev_read_subnode(struct udevice *dev,
-				      const char *subbnode_name)
-{
-	return ofnode_find_subnode(dev_ofnode(dev), subbnode_name);
-}
+ofnode dev_read_subnode(struct udevice *dev, const char *subbnode_name);
 
 /**
  * dev_read_size() - read the size of a property
@@ -96,10 +88,7 @@ static inline ofnode dev_read_subnode(struct udevice *dev,
  * @propname: property to check
  * @return size of property if present, or -EINVAL if not
  */
-static inline int dev_read_size(struct udevice *dev, const char *propname)
-{
-	return ofnode_read_size(dev_ofnode(dev), propname);
-}
+int dev_read_size(struct udevice *dev, const char *propname);
 
 /**
  * dev_read_addr_index() - Get the indexed reg property of a device
@@ -110,10 +99,7 @@ static inline int dev_read_size(struct udevice *dev, const char *propname)
  *
  * @return address or FDT_ADDR_T_NONE if not found
  */
-static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
-{
-	return devfdt_get_addr_index(dev, index);
-}
+fdt_addr_t dev_read_addr_index(struct udevice *dev, int index);
 
 /**
  * dev_read_addr() - Get the reg property of a device
@@ -122,10 +108,7 @@ static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
  *
  * @return address or FDT_ADDR_T_NONE if not found
  */
-static inline fdt_addr_t dev_read_addr(struct udevice *dev)
-{
-	return devfdt_get_addr(dev);
-}
+fdt_addr_t dev_read_addr(struct udevice *dev);
 
 /**
  * dev_read_addr_size() - get address and size from a device property
@@ -138,12 +121,8 @@ static inline fdt_addr_t dev_read_addr(struct udevice *dev)
  * @sizep: place to put size value (on success)
  * @return address value, or FDT_ADDR_T_NONE on error
  */
-static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,
-					    const char *propname,
-					    fdt_size_t *sizep)
-{
-	return ofnode_get_addr_size(dev_ofnode(dev), propname, sizep);
-}
+fdt_addr_t dev_read_addr_size(struct udevice *dev, const char *propname,
+				fdt_size_t *sizep);
 
 /**
  * dev_read_name() - get the name of a device's node
@@ -151,10 +130,7 @@ static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,
  * @node: valid node to look up
  * @return name of node
  */
-static inline const char *dev_read_name(struct udevice *dev)
-{
-	return ofnode_get_name(dev_ofnode(dev));
-}
+const char *dev_read_name(struct udevice *dev);
 
 /**
  * dev_read_stringlist_search() - find string in a string list and return index
@@ -174,12 +150,8 @@ static inline const char *dev_read_name(struct udevice *dev)
  *   -ENODATA if the property is not found
  *   -EINVAL on some other error
  */
-static inline int dev_read_stringlist_search(struct udevice *dev,
-					     const char *propname,
-					     const char *string)
-{
-	return ofnode_stringlist_search(dev_ofnode(dev), propname, string);
-}
+int dev_read_stringlist_search(struct udevice *dev, const char *property,
+			  const char *string);
 
 /**
  * dev_read_phandle_with_args() - Find a node pointed by phandle in a list
@@ -219,14 +191,10 @@ static inline int dev_read_stringlist_search(struct udevice *dev,
  *	@cells_name could not be found, the arguments were truncated or there
  *	were too many arguments.
  */
-static inline int dev_read_phandle_with_args(struct udevice *dev,
-		const char *list_name, const char *cells_name, int cell_count,
-		int index, struct ofnode_phandle_args *out_args)
-{
-	return ofnode_parse_phandle_with_args(dev_ofnode(dev), list_name,
-					      cells_name, cell_count, index,
-					      out_args);
-}
+int dev_read_phandle_with_args(struct udevice *dev, const char *list_name,
+				const char *cells_name, int cell_count,
+				int index,
+				struct ofnode_phandle_args *out_args);
 
 /**
  * dev_read_addr_cells() - Get the number of address cells for a device's node
@@ -237,10 +205,7 @@ static inline int dev_read_phandle_with_args(struct udevice *dev,
  * @dev: devioe to check
  * @return number of address cells this node uses
  */
-static inline int dev_read_addr_cells(struct udevice *dev)
-{
-	return fdt_address_cells(gd->fdt_blob, dev_of_offset(dev));
-}
+int dev_read_addr_cells(struct udevice *dev);
 
 /**
  * dev_read_size_cells() - Get the number of size cells for a device's node
@@ -251,10 +216,7 @@ static inline int dev_read_addr_cells(struct udevice *dev)
  * @dev: devioe to check
  * @return number of size cells this node uses
  */
-static inline int dev_read_size_cells(struct udevice *dev)
-{
-	return fdt_size_cells(gd->fdt_blob, dev_of_offset(dev));
-}
+int dev_read_size_cells(struct udevice *dev);
 
 /**
  * dev_read_phandle() - Get the phandle from a device
@@ -262,10 +224,7 @@ static inline int dev_read_size_cells(struct udevice *dev)
  * @dev: device to check
  * @return phandle (1 or greater), or 0 if no phandle or other error
  */
-static inline int dev_read_phandle(struct udevice *dev)
-{
-	return fdt_get_phandle(gd->fdt_blob, dev_of_offset(dev));
-}
+int dev_read_phandle(struct udevice *dev);
 
 /**
  * dev_read_prop()- - read a property from a device's node
@@ -275,11 +234,7 @@ static inline int dev_read_phandle(struct udevice *dev)
  * @lenp: place to put length on success
  * @return pointer to property, or NULL if not found
  */
-static inline const u32 *dev_read_prop(struct udevice *dev,
-				       const char *propname, int *lenp)
-{
-	return ofnode_read_prop(dev_ofnode(dev), propname, lenp);
-}
+const u32 *dev_read_prop(struct udevice *dev, const char *propname, int *lenp);
 
 /**
  * dev_read_alias_seq() - Get the alias sequence number of a node
@@ -292,11 +247,7 @@ static inline const u32 *dev_read_prop(struct udevice *dev,
  * @devnump: set to the sequence number if one is found
  * @return 0 if a sequence was found, -ve if not
  */
-static inline int dev_read_alias_seq(struct udevice *dev, int *devnump)
-{
-	return fdtdec_get_alias_seq(gd->fdt_blob, dev->uclass->uc_drv->name,
-				    dev_of_offset(dev), devnump);
-}
+int dev_read_alias_seq(struct udevice *dev, int *devnump);
 
 /**
  * dev_read_u32_array() - Find and read an array of 32 bit integers
@@ -314,11 +265,8 @@ static inline int dev_read_alias_seq(struct udevice *dev, int *devnump)
  * property does not have a value, and -EOVERFLOW if the property data isn't
  * large enough.
  */
-static inline int dev_read_u32_array(struct udevice *dev, const char *propname,
-				     u32 *out_values, size_t sz)
-{
-	return ofnode_read_u32_array(dev_ofnode(dev), propname, out_values, sz);
-}
+int dev_read_u32_array(struct udevice *dev, const char *propname,
+		       u32 *out_values, size_t sz);
 
 /**
  * dev_read_first_subnode() - find the first subnode of a device's node
@@ -327,10 +275,7 @@ static inline int dev_read_u32_array(struct udevice *dev, const char *propname,
  * @return reference to the first subnode (which can be invalid if the device's
  * node has no subnodes)
  */
-static inline ofnode dev_read_first_subnode(struct udevice *dev)
-{
-	return ofnode_first_subnode(dev_ofnode(dev));
-}
+ofnode dev_read_first_subnode(struct udevice *dev);
 
 /**
  * ofnode_next_subnode() - find the next sibling of a subnode
@@ -339,10 +284,7 @@ static inline ofnode dev_read_first_subnode(struct udevice *dev)
  * @return reference to the next subnode (which can be invalid if the node
  * has no more siblings)
  */
-static inline ofnode dev_read_next_subnode(ofnode node)
-{
-	return ofnode_next_subnode(node);
-}
+ofnode dev_read_next_subnode(ofnode node);
 
 /**
  * dev_read_u8_array_ptr() - find an 8-bit array
@@ -358,6 +300,120 @@ static inline ofnode dev_read_next_subnode(ofnode node)
  * @return pointer to byte array if found, or NULL if the property is not
  *		found or there is not enough data
  */
+const uint8_t *dev_read_u8_array_ptr(struct udevice *dev, const char *propname,
+				     size_t sz);
+
+#else /* CONFIG_DM_DEV_READ_INLINE is enabled */
+
+static inline int dev_read_u32_default(struct udevice *dev,
+				       const char *propname, int def)
+{
+	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
+}
+
+static inline const char *dev_read_string(struct udevice *dev,
+					  const char *propname)
+{
+	return ofnode_read_string(dev_ofnode(dev), propname);
+}
+
+static inline bool dev_read_bool(struct udevice *dev, const char *propname)
+{
+	return ofnode_read_bool(dev_ofnode(dev), propname);
+}
+
+static inline ofnode dev_read_subnode(struct udevice *dev,
+				      const char *subbnode_name)
+{
+	return ofnode_find_subnode(dev_ofnode(dev), subbnode_name);
+}
+
+static inline int dev_read_size(struct udevice *dev, const char *propname)
+{
+	return ofnode_read_size(dev_ofnode(dev), propname);
+}
+
+static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
+{
+	return devfdt_get_addr_index(dev, index);
+}
+
+static inline fdt_addr_t dev_read_addr(struct udevice *dev)
+{
+	return devfdt_get_addr(dev);
+}
+
+static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,
+					    const char *propname,
+					    fdt_size_t *sizep)
+{
+	return ofnode_get_addr_size(dev_ofnode(dev), propname, sizep);
+}
+
+static inline const char *dev_read_name(struct udevice *dev)
+{
+	return ofnode_get_name(dev_ofnode(dev));
+}
+
+static inline int dev_read_stringlist_search(struct udevice *dev,
+					     const char *propname,
+					     const char *string)
+{
+	return ofnode_stringlist_search(dev_ofnode(dev), propname, string);
+}
+
+static inline int dev_read_phandle_with_args(struct udevice *dev,
+		const char *list_name, const char *cells_name, int cell_count,
+		int index, struct ofnode_phandle_args *out_args)
+{
+	return ofnode_parse_phandle_with_args(dev_ofnode(dev), list_name,
+					      cells_name, cell_count, index,
+					      out_args);
+}
+
+static inline int dev_read_addr_cells(struct udevice *dev)
+{
+	return fdt_address_cells(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline int dev_read_size_cells(struct udevice *dev)
+{
+	return fdt_size_cells(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline int dev_read_phandle(struct udevice *dev)
+{
+	return fdt_get_phandle(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline const u32 *dev_read_prop(struct udevice *dev,
+				       const char *propname, int *lenp)
+{
+	return ofnode_read_prop(dev_ofnode(dev), propname, lenp);
+}
+
+static inline int dev_read_alias_seq(struct udevice *dev, int *devnump)
+{
+	return fdtdec_get_alias_seq(gd->fdt_blob, dev->uclass->uc_drv->name,
+				    dev_of_offset(dev), devnump);
+}
+
+static inline int dev_read_u32_array(struct udevice *dev, const char *propname,
+				     u32 *out_values, size_t sz)
+{
+	return ofnode_read_u32_array(dev_ofnode(dev), propname, out_values, sz);
+}
+
+static inline ofnode dev_read_first_subnode(struct udevice *dev)
+{
+	return ofnode_first_subnode(dev_ofnode(dev));
+}
+
+static inline ofnode dev_read_next_subnode(ofnode node)
+{
+	return ofnode_next_subnode(node);
+}
+
 static inline const uint8_t *dev_read_u8_array_ptr(struct udevice *dev,
 					const char *propname, size_t sz)
 {
