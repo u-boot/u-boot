@@ -72,12 +72,42 @@ static int dm_test_destroy(struct unit_test_state *uts)
 	return 0;
 }
 
+static int dm_do_test(struct unit_test_state *uts, struct unit_test *test)
+{
+	struct sandbox_state *state = state_get_current();
+
+	printf("Test: %s\n", test->name);
+	ut_assertok(dm_test_init(uts));
+
+	uts->start = mallinfo();
+	if (test->flags & DM_TESTF_SCAN_PDATA)
+		ut_assertok(dm_scan_platdata(false));
+	if (test->flags & DM_TESTF_PROBE_TEST)
+		ut_assertok(do_autoprobe(uts));
+	if (test->flags & DM_TESTF_SCAN_FDT)
+		ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
+
+	/*
+	 * Silence the console and rely on console reocrding to get
+	 * our output.
+	 */
+	console_record_reset();
+	if (!state->show_test_output)
+		gd->flags |= GD_FLG_SILENT;
+	test->func(uts);
+	gd->flags &= ~GD_FLG_SILENT;
+	state_set_skip_delays(false);
+
+	ut_assertok(dm_test_destroy(uts));
+
+	return 0;
+}
+
 static int dm_test_main(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);
 	struct unit_test_state *uts = &global_dm_test_state;
-	struct sandbox_state *state = state_get_current();
 	uts->priv = &_global_priv_dm_test_state;
 	struct unit_test *test;
 	int run_count;
@@ -106,30 +136,8 @@ static int dm_test_main(const char *test_name)
 			name += 8;
 		if (test_name && strcmp(test_name, name))
 			continue;
-		printf("Test: %s\n", test->name);
+		ut_assertok(dm_do_test(uts, test));
 		run_count++;
-		ut_assertok(dm_test_init(uts));
-
-		uts->start = mallinfo();
-		if (test->flags & DM_TESTF_SCAN_PDATA)
-			ut_assertok(dm_scan_platdata(false));
-		if (test->flags & DM_TESTF_PROBE_TEST)
-			ut_assertok(do_autoprobe(uts));
-		if (test->flags & DM_TESTF_SCAN_FDT)
-			ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
-
-		/*
-		 * Silence the console and rely on console reocrding to get
-		 * our output.
-		 */
-		console_record_reset();
-		if (!state->show_test_output)
-			gd->flags |= GD_FLG_SILENT;
-		test->func(uts);
-		gd->flags &= ~GD_FLG_SILENT;
-		state_set_skip_delays(false);
-
-		ut_assertok(dm_test_destroy(uts));
 	}
 
 	if (test_name && !run_count)
