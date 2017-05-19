@@ -11,6 +11,7 @@
 #include <fdt_support.h>
 #include <libfdt.h>
 #include <dm/of_access.h>
+#include <dm/of_addr.h>
 #include <dm/ofnode.h>
 #include <linux/err.h>
 
@@ -193,6 +194,32 @@ int ofnode_read_size(ofnode node, const char *propname)
 	}
 
 	return -EINVAL;
+}
+
+fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
+{
+	if (ofnode_is_np(node)) {
+		const __be32 *prop_val;
+		uint flags;
+		u64 size;
+
+		prop_val = of_get_address(
+			(struct device_node *)ofnode_to_np(node), index,
+			&size, &flags);
+		if (!prop_val)
+			return FDT_ADDR_T_NONE;
+		return  be32_to_cpup(prop_val);
+	} else {
+		return fdt_get_base_address(gd->fdt_blob,
+					    ofnode_to_offset(node));
+	}
+
+	return FDT_ADDR_T_NONE;
+}
+
+fdt_addr_t ofnode_get_addr(ofnode node)
+{
+	return ofnode_get_addr_index(node, 0);
 }
 
 int ofnode_stringlist_search(ofnode node, const char *property,

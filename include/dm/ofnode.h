@@ -245,7 +245,7 @@ int ofnode_read_s32_default(ofnode node, const char *propname, s32 def);
 const char *ofnode_read_string(ofnode node, const char *propname);
 
 /**
- * ofnode_read_u32_array - Find and read an array of 32 bit integers
+ * ofnode_read_u32_array() - Find and read an array of 32 bit integers
  *
  * @node:	valid node reference to read property from
  * @propname:	name of the property to read
@@ -315,6 +315,27 @@ const char *ofnode_get_name(ofnode node);
  * @return size of property if present, or -EINVAL if not
  */
 int ofnode_read_size(ofnode node, const char *propname);
+
+/**
+ * ofnode_get_addr_index() - get an address from a node
+ *
+ * This reads the register address from a node
+ *
+ * @node: node to read from
+ * @index: Index of address to read (0 for first)
+ * @return address, or FDT_ADDR_T_NONE if not present or invalid
+ */
+phys_addr_t ofnode_get_addr_index(ofnode node, int index);
+
+/**
+ * ofnode_get_addr() - get an address from a node
+ *
+ * This reads the register address from a node
+ *
+ * @node: node to read from
+ * @return address, or FDT_ADDR_T_NONE if not present or invalid
+ */
+phys_addr_t ofnode_get_addr(ofnode node);
 
 /**
  * ofnode_stringlist_search() - find a string in a string list and return index
