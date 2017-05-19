@@ -914,14 +914,13 @@ static int set_quad_mode(struct spi_flash *flash,
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
+int spi_flash_decode_fdt(struct spi_flash *flash)
 {
 #ifdef CONFIG_DM_SPI_FLASH
 	fdt_addr_t addr;
 	fdt_size_t size;
-	int node = dev_of_offset(flash->dev);
 
-	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
+	addr = dev_read_addr_size(flash->dev, "memory-map", &size);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("%s: Cannot decode address\n", __func__);
 		return 0;
@@ -1081,7 +1080,7 @@ int spi_flash_scan(struct spi_flash *flash)
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-	ret = spi_flash_decode_fdt(gd->fdt_blob, flash);
+	ret = spi_flash_decode_fdt(flash);
 	if (ret) {
 		debug("SF: FDT decode error\n");
 		return -EINVAL;
