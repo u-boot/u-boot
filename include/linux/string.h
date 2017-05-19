@@ -76,6 +76,21 @@ extern __kernel_size_t strlen(const char *);
 #ifndef __HAVE_ARCH_STRNLEN
 extern __kernel_size_t strnlen(const char *,__kernel_size_t);
 #endif
+
+#ifndef __HAVE_ARCH_STRCSPN
+/**
+ * strcspn() - find span of string without given characters
+ *
+ * Calculates the length of the initial segment of @s which consists entirely
+ * of bsytes not in reject.
+ *
+ * @s: string to search
+ * @reject: strings which cause the search to halt
+ * @return number of characters at the start of @s which are not in @reject
+ */
+size_t strcspn(const char *s, const char *reject);
+#endif
+
 #ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 #endif
