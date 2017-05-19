@@ -15,11 +15,13 @@
  * @fail_count: Number of tests that failed
  * @start: Store the starting mallinfo when doing leak test
  * @priv: A pointer to some other info some suites want to track
+ * @of_root: Record of the livetree root node (used for setting up tests)
  */
 struct unit_test_state {
 	int fail_count;
 	struct mallinfo start;
 	void *priv;
+	struct device_node *of_root;
 };
 
 /**

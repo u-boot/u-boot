@@ -110,6 +110,21 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	return 0;
 }
 
+/**
+ * dm_test_run_on_flattree() - Check if we should run a test with flat DT
+ *
+ * This skips long/slow tests where there is not much value in running a flat
+ * DT test in addition to a live DT test.
+ *
+ * @return true to run the given test on the flat device tree
+ */
+static bool dm_test_run_on_flattree(struct unit_test *test)
+{
+	const char *fname = strrchr(test->file, '/') + 1;
+
+	return !strstr(fname, "video") || strstr(test->name, "video_base");
+}
+
 static int dm_test_main(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
@@ -140,14 +155,33 @@ static int dm_test_main(const char *test_name)
 #endif
 	for (test = tests; test < tests + n_ents; test++) {
 		const char *name = test->name;
+		int runs;
 
 		/* All tests have this prefix */
 		if (!strncmp(name, "dm_test_", 8))
 			name += 8;
 		if (test_name && strcmp(test_name, name))
 			continue;
-		ut_assertok(dm_do_test(uts, test, false));
-		run_count++;
+
+		/* Run with the live tree if possible */
+		runs = 0;
+		if (IS_ENABLED(CONFIG_OF_LIVE)) {
+			if (!(test->flags & DM_TESTF_FLAT_TREE)) {
+				ut_assertok(dm_do_test(uts, test, true));
+				runs++;
+			}
+		}
+
+		/*
+		 * Run with the flat tree if we couldn't run it with live tree,
+		 * or it is a core test.
+		 */
+		if (!(test->flags & DM_TESTF_LIVE_TREE) &&
+		    (!runs || dm_test_run_on_flattree(test))) {
+			ut_assertok(dm_do_test(uts, test, false));
+			runs++;
+		}
+		run_count += runs;
 	}
 
 	if (test_name && !run_count)
