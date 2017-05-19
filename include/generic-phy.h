@@ -50,8 +50,7 @@ struct phy_ops {
 	 * @args:	The phy specifier values from device tree.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int	(*of_xlate)(struct phy *phy,
-			struct fdtdec_phandle_args *args);
+	int	(*of_xlate)(struct phy *phy, struct ofnode_phandle_args *args);
 
 	/**
 	 * init - initialize the hardware.

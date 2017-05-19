@@ -17,7 +17,7 @@ static inline struct phy_ops *phy_dev_ops(struct udevice *dev)
 }
 
 static int generic_phy_xlate_offs_flags(struct phy *phy,
-				 struct fdtdec_phandle_args *args)
+					struct ofnode_phandle_args *args)
 {
 	debug("%s(phy=%p)\n", __func__, phy);
 
@@ -31,14 +31,13 @@ static int generic_phy_xlate_offs_flags(struct phy *phy,
 	else
 		phy->id = 0;
 
-
 	return 0;
 }
 
 int generic_phy_get_by_index(struct udevice *dev, int index,
 			     struct phy *phy)
 {
-	struct fdtdec_phandle_args args;
+	struct ofnode_phandle_args args;
 	struct phy_ops *ops;
 	int ret;
 	struct udevice *phydev;
@@ -46,18 +45,17 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 	debug("%s(dev=%p, index=%d, phy=%p)\n", __func__, dev, index, phy);
 
 	assert(phy);
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
-					     "phys", "#phy-cells", 0, index,
-					     &args);
+	ret = dev_read_phandle_with_args(dev, "phys", "#phy-cells", 0, index,
+					 &args);
 	if (ret) {
-		debug("%s: fdtdec_parse_phandle_with_args failed: err=%d\n",
+		debug("%s: dev_read_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
 		return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_PHY, args.node, &phydev);
+	ret = uclass_get_device_by_ofnode(UCLASS_PHY, args.node, &phydev);
 	if (ret) {
-		debug("%s: uclass_get_device_by_of_offset failed: err=%d\n",
+		debug("%s: uclass_get_device_by_ofnode failed: err=%d\n",
 		      __func__, ret);
 		return ret;
 	}
@@ -88,10 +86,9 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 
 	debug("%s(dev=%p, name=%s, phy=%p)\n", __func__, dev, phy_name, phy);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
-				      "phy-names", phy_name);
+	index = dev_read_stringlist_search(dev, "phy-names", phy_name);
 	if (index < 0) {
-		debug("fdt_stringlist_search() failed: %d\n", index);
+		debug("dev_read_stringlist_search() failed: %d\n", index);
 		return index;
 	}
 
