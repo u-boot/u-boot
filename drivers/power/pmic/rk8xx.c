@@ -57,13 +57,11 @@ static int rk8xx_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 static int rk8xx_bind(struct udevice *dev)
 {
-	const void *blob = gd->fdt_blob;
-	int regulators_node;
+	ofnode regulators_node;
 	int children;
 
-	regulators_node = fdt_subnode_offset(blob, dev_of_offset(dev),
-					     "regulators");
-	if (regulators_node <= 0) {
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(regulators_node)) {
 		debug("%s: %s regulators subnode not found!", __func__,
 		      dev->name);
 		return -ENXIO;

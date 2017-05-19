@@ -54,12 +54,11 @@ int s5m8767_enable_32khz_cp(struct udevice *dev)
 
 static int s5m8767_bind(struct udevice *dev)
 {
-	int node;
-	const void *blob = gd->fdt_blob;
 	int children;
+	ofnode node;
 
-	node = fdt_subnode_offset(blob, dev_of_offset(dev), "regulators");
-	if (node <= 0) {
+	node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(node)) {
 		debug("%s: %s regulators subnode not found!", __func__,
 		      dev->name);
 		return -ENXIO;
