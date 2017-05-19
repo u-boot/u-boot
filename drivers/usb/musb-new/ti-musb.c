@@ -227,7 +227,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 		case USB_DR_MODE_HOST:
 			/* Bind MUSB host */
 			ret = device_bind_driver_to_node(parent, "ti-musb-host",
-							 name, node, &dev);
+					name, offset_to_ofnode(node), &dev);
 			if (ret) {
 				error("musb - not able to bind usb host node\n");
 				return ret;

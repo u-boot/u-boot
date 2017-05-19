@@ -85,7 +85,7 @@ int device_bind_driver(struct udevice *parent, const char *drv_name,
  * @devp:	If non-NULL, returns the newly bound device
  */
 int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
-			       const char *dev_name, int node,
+			       const char *dev_name, ofnode node,
 			       struct udevice **devp);
 
 #endif

@@ -121,34 +121,31 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
  */
 static int pinconfig_post_bind(struct udevice *dev)
 {
-	const void *fdt = gd->fdt_blob;
-	int offset = dev_of_offset(dev);
 	bool pre_reloc_only = !(gd->flags & GD_FLG_RELOC);
 	const char *name;
+	ofnode node;
 	int ret;
 
-	for (offset = fdt_first_subnode(fdt, offset);
-	     offset > 0;
-	     offset = fdt_next_subnode(fdt, offset)) {
+	dev_for_each_subnode(node, dev) {
 		if (pre_reloc_only &&
-		    !dm_fdt_pre_reloc(fdt, offset))
+		    !ofnode_pre_reloc(node))
 			continue;
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.
 		 */
-		fdt_get_property(fdt, offset, "compatible", &ret);
+		ofnode_read_prop(node, "compatible", &ret);
 		if (ret >= 0)
 			continue;
 
 		if (ret != -FDT_ERR_NOTFOUND)
 			return ret;
 
-		name = fdt_get_name(fdt, offset, NULL);
+		name = ofnode_get_name(node);
 		if (!name)
 			return -EINVAL;
 		ret = device_bind_driver_to_node(dev, "pinconfig", name,
-						 offset, NULL);
+						 node, NULL);
 		if (ret)
 			return ret;
 	}

@@ -236,7 +236,7 @@ static int bcm6328_led_bind(struct udevice *parent)
 
 		ret = device_bind_driver_to_node(parent, "bcm6328-led",
 						 fdt_get_name(blob, node, NULL),
-						 node, &dev);
+						 offset_to_ofnode(node), &dev);
 		if (ret)
 			return ret;
 

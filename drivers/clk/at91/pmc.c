@@ -79,7 +79,7 @@ int at91_clk_sub_device_bind(struct udevice *dev, const char *drv_name)
 		if (!name)
 			return -EINVAL;
 		ret = device_bind_driver_to_node(dev, drv_name, name,
-						 offset, NULL);
+					offset_to_ofnode(offset), NULL);
 		if (ret)
 			return ret;
 	}

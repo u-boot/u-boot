@@ -74,11 +74,12 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 int device_bind_driver(struct udevice *parent, const char *drv_name,
 		       const char *dev_name, struct udevice **devp)
 {
-	return device_bind_driver_to_node(parent, drv_name, dev_name, -1, devp);
+	return device_bind_driver_to_node(parent, drv_name, dev_name,
+					  ofnode_null(), devp);
 }
 
 int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
-			       const char *dev_name, int node,
+			       const char *dev_name, ofnode node,
 			       struct udevice **devp)
 {
 	struct driver *drv;
@@ -89,14 +90,10 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 		debug("Cannot find driver '%s'\n", drv_name);
 		return -ENOENT;
 	}
-	ret = device_bind(parent, drv, dev_name, NULL, node, devp);
-	if (ret) {
-		debug("Cannot create device named '%s' (err=%d)\n",
-		      dev_name, ret);
-		return ret;
-	}
+	ret = device_bind_with_driver_data(parent, drv, dev_name, 0 /* data */,
+					   node, devp);
 
-	return 0;
+	return ret;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)

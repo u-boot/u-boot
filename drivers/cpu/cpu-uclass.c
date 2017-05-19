@@ -63,11 +63,11 @@ U_BOOT_DRIVER(cpu_bus) = {
 static int uclass_cpu_init(struct uclass *uc)
 {
 	struct udevice *dev;
-	int node;
+	ofnode node;
 	int ret;
 
-	node = fdt_path_offset(gd->fdt_blob, "/cpus");
-	if (node < 0)
+	node = ofnode_path("/cpus");
+	if (!ofnode_valid(node))
 		return 0;
 
 	ret = device_bind_driver_to_node(dm_root(), "cpu_bus", "cpus", node,

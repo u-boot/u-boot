@@ -85,25 +85,22 @@ static int led_gpio_remove(struct udevice *dev)
 
 static int led_gpio_bind(struct udevice *parent)
 {
-	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
-	int node;
+	ofnode node;
 	int ret;
 
-	for (node = fdt_first_subnode(blob, dev_of_offset(parent));
-	     node > 0;
-	     node = fdt_next_subnode(blob, node)) {
+	dev_for_each_subnode(node, parent) {
 		struct led_uc_plat *uc_plat;
 		const char *label;
 
-		label = fdt_getprop(blob, node, "label", NULL);
+		label = ofnode_read_string(node, "label");
 		if (!label) {
 			debug("%s: node %s has no label\n", __func__,
-			      fdt_get_name(blob, node, NULL));
+			      ofnode_get_name(node));
 			return -EINVAL;
 		}
 		ret = device_bind_driver_to_node(parent, "gpio_led",
-						 fdt_get_name(blob, node, NULL),
+						 ofnode_get_name(node),
 						 node, &dev);
 		if (ret)
 			return ret;

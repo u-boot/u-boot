@@ -1008,8 +1008,8 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 			slave_name = malloc(20);
 			snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
 			ret = device_bind_driver_to_node(dev, "eth_ks2_sl",
-							 slave_name, slave,
-							 &sl_dev);
+					slave_name, offset_to_ofnode(slave),
+					&sl_dev);
 			if (ret) {
 				error("ks2_net - not able to bind slave interfaces\n");
 				return ret;
@@ -1029,7 +1029,7 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 		slave_name = malloc(20);
 		snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
 		ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
-						 slave, &sl_dev);
+					offset_to_ofnode(slave), &sl_dev);
 		if (ret) {
 			error("ks2_net - not able to bind slave interfaces\n");
 			return ret;

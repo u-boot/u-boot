@@ -112,19 +112,19 @@ static int tegra186_bpmp_bind(struct udevice *dev)
 	debug("%s(dev=%p)\n", __func__, dev);
 
 	ret = device_bind_driver_to_node(dev, "tegra186_clk", "tegra186_clk",
-					 dev_of_offset(dev), &child);
+					 dev_ofnode(dev), &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_reset",
-					 "tegra186_reset", dev_of_offset(dev),
+					 "tegra186_reset", dev_ofnode(dev),
 					 &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_power_domain",
 					 "tegra186_power_domain",
-					 dev_of_offset(dev), &child);
+					 dev_ofnode(dev), &child);
 	if (ret)
 		return ret;
 
