@@ -683,20 +683,18 @@ int usb_detect_change(void)
 int usb_child_post_bind(struct udevice *dev)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
-	const void *blob = gd->fdt_blob;
 	int val;
 
-	if (dev_of_offset(dev) == -1)
+	if (!dev_of_valid(dev))
 		return 0;
 
 	/* We only support matching a few things */
-	val = fdtdec_get_int(blob, dev_of_offset(dev), "usb,device-class", -1);
+	val = dev_read_u32_default(dev, "usb,device-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_DEV_CLASS;
 		plat->id.bDeviceClass = val;
 	}
-	val = fdtdec_get_int(blob, dev_of_offset(dev), "usb,interface-class",
-			     -1);
+	val = dev_read_u32_default(dev, "usb,interface-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_INT_CLASS;
 		plat->id.bInterfaceClass = val;
