@@ -38,6 +38,7 @@ config TEGRA_COMMON
 	select OF_CONTROL
 	select VIDCONSOLE_AS_LCD if DM_VIDEO
 	select BOARD_EARLY_INIT_F
+	imply CRC32_VERIFY
 
 config TEGRA_NO_BPMP
 	bool "Tegra common options for SoCs without BPMP"

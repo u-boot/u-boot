@@ -107,7 +107,6 @@
 
 /* FIT */
 #ifdef CONFIG_FIT
-# define CONFIG_HASH_VERIFY
 # define CONFIG_IMAGE_FORMAT_LEGACY
 #endif
 

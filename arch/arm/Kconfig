@@ -495,15 +495,19 @@ config TARGET_VEXPRESS_CA9X4
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
 	select CPU_V7
+	imply CRC32_VERIFY
 
 config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
 	select CPU_V7
+	imply CRC32_VERIFY
 
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7
+	imply CRC32_VERIFY
 	imply CMD_HASH
+	imply HASH_VERIFY
 
 config TARGET_BCMNSP
 	bool "Support bcmnsp"
@@ -629,6 +633,7 @@ config ARCH_SOCFPGA
 	select ARCH_MISC_INIT
 	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	select SYS_THUMB_BUILD
+	imply CRC32_VERIFY
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"

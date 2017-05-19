@@ -178,16 +178,9 @@ static struct hash_algo hash_algo[] = {
 	},
 };
 
-#if defined(CONFIG_SHA256) || defined(CONFIG_CMD_SHA1SUM)
-#define MULTI_HASH
-#endif
-
-#if defined(CONFIG_HASH_VERIFY) || defined(CONFIG_CMD_HASH)
-#define MULTI_HASH
-#endif
-
 /* Try to minimize code size for boards that don't want much hashing */
-#ifdef MULTI_HASH
+#if defined(CONFIG_SHA256) || defined(CONFIG_CMD_SHA1SUM) || \
+	defined(CONFIG_CRC32_VERIFY) || defined(CONFIG_CMD_HASH)
 #define multi_hash()	1
 #else
 #define multi_hash()	0
@@ -424,7 +417,8 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		unmap_sysmem(buf);
 
 		/* Try to avoid code bloat when verify is not needed */
-#ifdef CONFIG_HASH_VERIFY
+#if defined(CONFIG_CRC32_VERIFY) || defined(CONFIG_SHA1SUM_VERIFY) || \
+	defined(CONFIG_HASH_VERIFY)
 		if (flags & HASH_FLAG_VERIFY) {
 #else
 		if (0) {

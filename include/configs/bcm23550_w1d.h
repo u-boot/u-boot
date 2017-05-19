@@ -104,7 +104,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 
 /* Initial upstream - boot to cmd prompt only */

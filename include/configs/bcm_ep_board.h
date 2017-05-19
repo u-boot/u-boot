@@ -60,19 +60,14 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 
 /* Commands */
 #define CONFIG_FAT_WRITE
 
-/* SHA hashing */
-#define CONFIG_HASH_VERIFY
-
 /* Enable Time Command */
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CRC32_VERIFY
 
 #endif /* __BCM_EP_BOARD_H */

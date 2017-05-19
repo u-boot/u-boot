@@ -355,6 +355,12 @@ config CMD_CRC32
 	help
 	  Compute CRC32.
 
+config CRC32_VERIFY
+	bool "crc32 -v"
+	depends on CMD_CRC32
+	help
+	  Add -v option to verify data against a crc32 checksum.
+
 config CMD_EEPROM
 	bool "eeprom - EEPROM subsystem"
 	help
@@ -410,12 +416,24 @@ config CMD_MD5SUM
 	help
 	  Compute MD5 checksum.
 
-config MD5SUM_VERFIY
+config MD5SUM_VERIFY
 	bool "md5sum -v"
 	default n
 	depends on CMD_MD5SUM
 	help
 	  Add -v option to verify data against an MD5 checksum.
+
+config CMD_SHA1SUM
+	bool "sha1sum"
+	select SHA1
+	help
+	  Compute SHA1 checksum.
+
+config SHA1SUM_VERIFY
+	bool "sha1sum -v"
+	depends on CMD_SHA1SUM
+	help
+	  Add -v option to verify data against a SHA1 checksum.
 
 config LOOPW
 	bool "loopw"
@@ -1067,6 +1085,12 @@ config CMD_HASH
 	  algorithms (such as SHA1, MD5, CRC32). The computed digest can be
 	  saved to memory or to an environment variable. It is also possible
 	  to verify a hash against data in memory.
+
+config HASH_VERIFY
+	bool "hash -v"
+	depends on CMD_HASH
+	help
+	  Add -v option to verify data against a hash.
 
 config CMD_TPM
 	bool "Enable the 'tpm' command"

@@ -138,7 +138,6 @@
 #define CONFIG_AUTO_COMPLETE			/* Support tab autocompletion */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 #define CONFIG_SHOW_BOOT_PROGRESS
 

@@ -131,9 +131,6 @@
 #define CONFIG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
-/* SHA hashing */
-#define CONFIG_HASH_VERIFY
-
 /* Enable Time Command */
 
 /* USB */

@@ -288,6 +288,4 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-#define CONFIG_CRC32_VERIFY
-
 #endif	/* __CONFIG_H */

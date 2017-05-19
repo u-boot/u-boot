@@ -211,7 +211,6 @@
 
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 #define CONFIG_TIMESTAMP
 

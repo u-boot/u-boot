@@ -15,8 +15,6 @@
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_CLOCKS
 
-#define CONFIG_CRC32_VERIFY
-
 #define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */

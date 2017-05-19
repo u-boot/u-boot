@@ -96,7 +96,6 @@
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CRC32_VERIFY
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>

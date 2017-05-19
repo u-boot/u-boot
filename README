@@ -827,7 +827,6 @@ The following options need to be configured:
 		CONFIG_CMD_BOOTI	* ARM64 Linux kernel Image support
 		CONFIG_CMD_CACHE	* icache, dcache
 		CONFIG_CMD_CONSOLE	  coninfo
-		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
 		CONFIG_CMD_ECHO		  echo arguments
@@ -889,8 +888,6 @@ The following options need to be configured:
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
 		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash
-		CONFIG_CMD_SHA1SUM	* print sha1 memory digest
-					  (requires CONFIG_CMD_MEMORY)
 		CONFIG_CMD_SOFTSWITCH	* Soft switch setting command for BF60x
 		CONFIG_CMD_SOURCE	  "source" command Support
 		CONFIG_CMD_SPI		* SPI serial bus support
@@ -2678,15 +2675,6 @@ The following options need to be configured:
 		the remainder of the TFTP transfer to proceed normally.
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
-
-- Hashing support:
-		CONFIG_HASH_VERIFY
-
-		Enable the hash verify command (hash -v). This adds to code
-		size a little.
-
-		Note: There is also a sha1sum command, which should perhaps
-		be deprecated in favour of 'hash sha1'.
 
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
