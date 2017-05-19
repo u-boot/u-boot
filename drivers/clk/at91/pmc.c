@@ -87,7 +87,7 @@ int at91_clk_sub_device_bind(struct udevice *dev, const char *drv_name)
 	return 0;
 }
 
-int at91_clk_of_xlate(struct clk *clk, struct fdtdec_phandle_args *args)
+int at91_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 {
 	int periph;
 

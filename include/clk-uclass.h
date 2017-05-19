@@ -12,7 +12,8 @@
 /* See clk.h for background documentation. */
 
 #include <clk.h>
-#include <fdtdec.h>
+
+struct ofnode_phandle_args;
 
 /**
  * struct clk_ops - The functions that a clock driver must implement.
@@ -37,7 +38,7 @@ struct clk_ops {
 	 * @return 0 if OK, or a negative error code.
 	 */
 	int (*of_xlate)(struct clk *clock,
-			struct fdtdec_phandle_args *args);
+			struct ofnode_phandle_args *args);
 	/**
 	 * request - Request a translated clock.
 	 *

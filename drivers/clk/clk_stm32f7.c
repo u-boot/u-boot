@@ -252,8 +252,7 @@ static int stm32_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int stm32_clk_of_xlate(struct clk *clk,
-			struct fdtdec_phandle_args *args)
+static int stm32_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 {
 	debug("%s(clk=%p)\n", __func__, clk);
 

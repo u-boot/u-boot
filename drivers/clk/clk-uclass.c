@@ -38,7 +38,7 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
 }
 # else
 static int clk_of_xlate_default(struct clk *clk,
-				struct fdtdec_phandle_args *args)
+				struct ofnode_phandle_args *args)
 {
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -86,9 +86,10 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	ops = clk_dev_ops(dev_clk);
 
 	if (ops->of_xlate)
-		ret = ops->of_xlate(clk, &args);
+		ret = ops->of_xlate(clk, (struct ofnode_phandle_args *)&args);
 	else
-		ret = clk_of_xlate_default(clk, &args);
+		ret = clk_of_xlate_default(clk,
+					   (struct ofnode_phandle_args *)&args);
 	if (ret) {
 		debug("of_xlate() failed: %d\n", ret);
 		return ret;
