@@ -56,7 +56,7 @@ static void sunxi_de2_composer_init(void)
 }
 
 static void sunxi_de2_mode_set(int mux, const struct display_timing *mode,
-			       int bpp, ulong address)
+			       int bpp, ulong address, bool is_composite)
 {
 	ulong de_mux_base = (mux == 0) ?
 			    SUNXI_DE2_MUX0_BASE : SUNXI_DE2_MUX1_BASE;
@@ -72,6 +72,9 @@ static void sunxi_de2_mode_set(int mux, const struct display_timing *mode,
 		(struct de_ui *)(de_mux_base +
 				 SUNXI_DE2_MUX_CHAN_REGS +
 				 SUNXI_DE2_MUX_CHAN_SZ * 1);
+	struct de_csc * const de_csc_regs =
+		(struct de_csc *)(de_mux_base +
+				  SUNXI_DE2_MUX_DCSC_REGS);
 	u32 size = SUNXI_DE2_WH(mode->hactive.typ, mode->vactive.typ);
 	int channel;
 	u32 format;
@@ -128,7 +131,27 @@ static void sunxi_de2_mode_set(int mux, const struct display_timing *mode,
 	writel(0, de_mux_base + SUNXI_DE2_MUX_PEAK_REGS);
 	writel(0, de_mux_base + SUNXI_DE2_MUX_ASE_REGS);
 	writel(0, de_mux_base + SUNXI_DE2_MUX_FCC_REGS);
-	writel(0, de_mux_base + SUNXI_DE2_MUX_DCSC_REGS);
+
+	if (is_composite) {
+		/* set CSC coefficients */
+		writel(0x107, &de_csc_regs->coef11);
+		writel(0x204, &de_csc_regs->coef12);
+		writel(0x64, &de_csc_regs->coef13);
+		writel(0x4200, &de_csc_regs->coef14);
+		writel(0x1f68, &de_csc_regs->coef21);
+		writel(0x1ed6, &de_csc_regs->coef22);
+		writel(0x1c2, &de_csc_regs->coef23);
+		writel(0x20200, &de_csc_regs->coef24);
+		writel(0x1c2, &de_csc_regs->coef31);
+		writel(0x1e87, &de_csc_regs->coef32);
+		writel(0x1fb7, &de_csc_regs->coef33);
+		writel(0x20200, &de_csc_regs->coef34);
+
+		/* enable CSC unit */
+		writel(1, &de_csc_regs->csc_ctl);
+	} else {
+		writel(0, &de_csc_regs->csc_ctl);
+	}
 
 	switch (bpp) {
 	case 16:
@@ -153,7 +176,7 @@ static void sunxi_de2_mode_set(int mux, const struct display_timing *mode,
 
 static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 			  enum video_log2_bpp l2bpp,
-			  struct udevice *disp, int mux)
+			  struct udevice *disp, int mux, bool is_composite)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct display_timing timing;
@@ -183,7 +206,7 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 	}
 
 	sunxi_de2_composer_init();
-	sunxi_de2_mode_set(mux, &timing, 1 << l2bpp, fbbase);
+	sunxi_de2_mode_set(mux, &timing, 1 << l2bpp, fbbase, is_composite);
 
 	ret = display_enable(disp, 1 << l2bpp, &timing);
 	if (ret) {
@@ -204,7 +227,6 @@ static int sunxi_de2_probe(struct udevice *dev)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct udevice *disp;
 	int ret;
-	int mux;
 
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
@@ -212,17 +234,31 @@ static int sunxi_de2_probe(struct udevice *dev)
 
 	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
 					 "sunxi_dw_hdmi", &disp);
+	if (!ret) {
+		int mux;
+		if (IS_ENABLED(CONFIG_MACH_SUNXI_H3_H5))
+			mux = 0;
+		else
+			mux = 1;
+
+		ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, mux,
+				     false);
+		if (!ret) {
+			video_set_flush_dcache(dev, 1);
+			return 0;
+		}
+	}
+
+	debug("%s: hdmi display not found (ret=%d)\n", __func__, ret);
+
+	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
+					"sunxi_tve", &disp);
 	if (ret) {
-		debug("%s: hdmi display not found (ret=%d)\n", __func__, ret);
+		debug("%s: tv not found (ret=%d)\n", __func__, ret);
 		return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_MACH_SUNXI_H3_H5))
-		mux = 0;
-	else
-		mux = 1;
-
-	ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, mux);
+	ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, 1, true);
 	if (ret)
 		return ret;
 
