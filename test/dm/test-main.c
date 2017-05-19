@@ -29,6 +29,7 @@ static int dm_test_init(struct unit_test_state *uts)
 	memset(dms, '\0', sizeof(*dms));
 	gd->dm_root = NULL;
 	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
+	state_reset_for_test(state_get_current());
 
 	ut_assertok(dm_init(false));
 	dms->root = dm_root();

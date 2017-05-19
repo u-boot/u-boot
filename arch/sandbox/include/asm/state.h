@@ -214,6 +214,13 @@ void state_set_skip_delays(bool skip_delays);
 bool state_get_skip_delays(void);
 
 /**
+ * state_reset_for_test() - Reset ready to re-run tests
+ *
+ * This clears out any test state ready for another test run.
+ */
+void state_reset_for_test(struct sandbox_state *state);
+
+/**
  * Initialize the test system state
  */
 int state_init(void);
