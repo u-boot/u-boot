@@ -11,6 +11,9 @@
 #ifndef _DM_DEVICE_INTERNAL_H
 #define _DM_DEVICE_INTERNAL_H
 
+#include <dm/ofnode.h>
+
+struct device_node;
 struct udevice;
 
 /**
@@ -52,16 +55,15 @@ int device_bind(struct udevice *parent, const struct driver *drv,
  * @drv: Device's driver
  * @name: Name of device (e.g. device tree node name)
  * @driver_data: The driver_data field from the driver's match table.
- * @of_offset: Offset of device tree node for this device. This is -1 for
- * devices which don't use device tree.
+ * @node: Device tree node for this device. This is invalid for devices which
+ * don't use device tree.
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
 int device_bind_with_driver_data(struct udevice *parent,
 				 const struct driver *drv, const char *name,
-				 ulong driver_data, int of_offset,
+				 ulong driver_data, ofnode node,
 				 struct udevice **devp);
-
 /**
  * device_bind_by_name: Create a device and bind it to a driver
  *

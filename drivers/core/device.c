@@ -19,6 +19,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/platdata.h>
+#include <dm/read.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
@@ -77,10 +78,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		 */
 		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
 			if (uc->uc_drv->name && ofnode_valid(node)) {
-				fdtdec_get_alias_seq(gd->fdt_blob,
-						uc->uc_drv->name,
-						ofnode_to_offset(node),
-						&dev->req_seq);
+				dev_read_alias_seq(dev, &dev->req_seq);
 			}
 		}
 	}
@@ -216,11 +214,11 @@ fail_alloc1:
 
 int device_bind_with_driver_data(struct udevice *parent,
 				 const struct driver *drv, const char *name,
-				 ulong driver_data, int of_offset,
+				 ulong driver_data, ofnode node,
 				 struct udevice **devp)
 {
-	return device_bind_common(parent, drv, name, NULL, driver_data,
-				  offset_to_ofnode(of_offset), 0, devp);
+	return device_bind_common(parent, drv, name, NULL, driver_data, node,
+				  0, devp);
 }
 
 int device_bind(struct udevice *parent, const struct driver *drv,
@@ -247,8 +245,8 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 	platdata_size = info->platdata_size;
 #endif
 	return device_bind_common(parent, drv, info->name,
-			(void *)info->platdata, 0, offset_to_ofnode(-1),
-			platdata_size, devp);
+			(void *)info->platdata, 0, ofnode_null(), platdata_size,
+			devp);
 }
 
 static void *alloc_priv(int size, uint flags)
@@ -385,7 +383,7 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
-	if (drv->ofdata_to_platdata && dev_of_offset(dev) >= 0) {
+	if (drv->ofdata_to_platdata && dev_has_of_node(dev)) {
 		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
 			goto fail;

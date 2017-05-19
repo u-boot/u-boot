@@ -177,7 +177,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 
 		dm_dbg("   - found match at '%s'\n", entry->name);
 		ret = device_bind_with_driver_data(parent, entry, name,
-						   id->data, offset, &dev);
+				id->data, offset_to_ofnode(offset), &dev);
 		if (ret == -ENODEV) {
 			dm_dbg("Driver '%s' refuses to bind\n", entry->name);
 			continue;
