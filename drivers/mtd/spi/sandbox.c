@@ -515,11 +515,9 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 int sandbox_sf_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 
-	pdata->filename = fdt_getprop(blob, node, "sandbox,filename", NULL);
-	pdata->device_name = fdt_getprop(blob, node, "compatible", NULL);
+	pdata->filename = dev_read_string(dev, "sandbox,filename");
+	pdata->device_name = dev_read_string(dev, "compatible");
 	if (!pdata->filename || !pdata->device_name) {
 		debug("%s: Missing properties, filename=%s, device_name=%s\n",
 		      __func__, pdata->filename, pdata->device_name);
