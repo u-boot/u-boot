@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
@@ -108,9 +107,8 @@ static int sandbox_i2c_pmic_ofdata_to_platdata(struct udevice *emul)
 
 	debug("%s:%d Setting PMIC default registers\n", __func__, __LINE__);
 
-	reg_defaults = fdtdec_locate_byte_array(gd->fdt_blob,
-			dev_of_offset(emul), "reg-defaults",
-			SANDBOX_PMIC_REG_COUNT);
+	reg_defaults = dev_read_u8_array_ptr(emul, "reg-defaults",
+					     SANDBOX_PMIC_REG_COUNT);
 
 	if (!reg_defaults) {
 		error("Property \"reg-defaults\" not found for device: %s!",
