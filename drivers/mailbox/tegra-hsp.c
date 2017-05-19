@@ -72,7 +72,7 @@ static int tegra_hsp_db_id(ulong chan_id)
 }
 
 static int tegra_hsp_of_xlate(struct mbox_chan *chan,
-			      struct fdtdec_phandle_args *args)
+			      struct ofnode_phandle_args *args)
 {
 	debug("%s(chan=%p)\n", __func__, chan);
 
