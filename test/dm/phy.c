@@ -49,8 +49,8 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 
 	/* Try to get a non-existing phy */
 	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 3, &dev));
-	ut_assert(generic_phy_get_by_name(parent, "phy_not_existing",
-					  &phy1_method1) < 0)
+	ut_asserteq(-ENODATA, generic_phy_get_by_name(parent,
+					"phy_not_existing", &phy1_method1));
 
 	return 0;
 }
@@ -68,8 +68,11 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 					      "gen_phy_user", &parent));
 
 	ut_assertok(generic_phy_get_by_name(parent, "phy1", &phy1));
+	ut_asserteq(0, phy1.id);
 	ut_assertok(generic_phy_get_by_name(parent, "phy2", &phy2));
+	ut_asserteq(1, phy2.id);
 	ut_assertok(generic_phy_get_by_name(parent, "phy3", &phy3));
+	ut_asserteq(0, phy3.id);
 
 	/* test normal operations */
 	ut_assertok(generic_phy_init(&phy1));
@@ -100,12 +103,12 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 	/* PHY2 has a known problem with power off */
 	ut_assertok(generic_phy_init(&phy2));
 	ut_assertok(generic_phy_power_on(&phy2));
-	ut_assert(generic_phy_power_off(&phy2) == -EIO);
+	ut_asserteq(-EIO, generic_phy_power_off(&phy2));
 
-	/* PHY3 has a known problem with power off and power on*/
+	/* PHY3 has a known problem with power off and power on */
 	ut_assertok(generic_phy_init(&phy3));
-	ut_assert(generic_phy_power_off(&phy3) == -EIO);
-	ut_assert(generic_phy_power_off(&phy3) == -EIO);
+	ut_asserteq(-EIO, generic_phy_power_off(&phy3));
+	ut_asserteq(-EIO, generic_phy_power_off(&phy3));
 
 	return 0;
 }
