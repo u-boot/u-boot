@@ -732,7 +732,9 @@ static int initf_dm(void)
 #if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
 	int ret;
 
+	bootstage_start(BOOTSTATE_ID_ACCUM_DM_F, "dm_f");
 	ret = dm_init_and_scan(true);
+	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_F);
 	if (ret)
 		return ret;
 #endif
