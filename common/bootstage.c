@@ -8,7 +8,7 @@
 /*
  * This module records the progress of boot and arbitrary commands, and
  * permits accurate timestamping of each.
- *
+  *
  * TBD: Pass timings to kernel in the FDT
  */
 
@@ -291,23 +291,6 @@ void bootstage_report(void)
 			prev = print_time_record(id, rec, -1);
 	}
 }
-
-ulong __timer_get_boot_us(void)
-{
-	static ulong base_time;
-
-	/*
-	 * We can't implement this properly. Return 0 on the first call and
-	 * larger values after that.
-	 */
-	if (base_time)
-		return get_timer(base_time) * 1000;
-	base_time = get_timer(0);
-	return 0;
-}
-
-ulong timer_get_boot_us(void)
-	__attribute__((weak, alias("__timer_get_boot_us")));
 
 /**
  * Append data to a memory buffer

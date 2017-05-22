@@ -2,6 +2,7 @@
  * This file implements recording of each stage of the boot process. It is
  * intended to implement timing of each stage, reporting this information
  * to the user and passing it to the OS for logging / further analysis.
+ * Note that it requires timer_get_boot_us() to be defined by the board
  *
  * Copyright (c) 2011 The Chromium OS Authors.
  *
@@ -209,7 +210,7 @@ enum bootstage_id {
 /*
  * Return the time since boot in microseconds, This is needed for bootstage
  * and should be defined in CPU- or board-specific code. If undefined then
- * millisecond resolution will be used (the standard get_timer()).
+ * you will get a link error.
  */
 ulong timer_get_boot_us(void);
 

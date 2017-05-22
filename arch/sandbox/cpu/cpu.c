@@ -139,3 +139,14 @@ done:
 
 	return 0;
 }
+
+ulong timer_get_boot_us(void)
+{
+	static uint64_t base_count;
+	uint64_t count = os_get_nsec();
+
+	if (!base_count)
+		base_count = count;
+
+	return (count - base_count) / 1000;
+}
