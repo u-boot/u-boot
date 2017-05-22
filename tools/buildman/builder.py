@@ -847,7 +847,7 @@ class Builder:
         delta.reverse()
 
         args = [add, -remove, grow, -shrink, up, -down, up - down]
-        if max(args) == 0:
+        if max(args) == 0 and min(args) == 0:
             return
         args = [self.ColourNum(x) for x in args]
         indent = ' ' * 15
