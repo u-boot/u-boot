@@ -707,11 +707,26 @@ static int jump_to_copy(void)
 /* Record the board_init_f() bootstage (after arch_cpu_init()) */
 static int initf_bootstage(void)
 {
+#if defined(CONFIG_SPL_BOOTSTAGE) && defined(CONFIG_BOOTSTAGE_STASH)
+	bool from_spl = true;
+#else
+	bool from_spl = false;
+#endif
 	int ret;
 
-	ret = bootstage_init(true);
+	ret = bootstage_init(!from_spl);
 	if (ret)
 		return ret;
+	if (from_spl) {
+		const void *stash = map_sysmem(CONFIG_BOOTSTAGE_STASH_ADDR,
+					       CONFIG_BOOTSTAGE_STASH_SIZE);
+
+		ret = bootstage_unstash(stash, CONFIG_BOOTSTAGE_STASH_SIZE);
+		if (ret && ret != -ENOENT) {
+			debug("Failed to unstash bootstage: err=%d\n", ret);
+			return ret;
+		}
+	}
 
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 

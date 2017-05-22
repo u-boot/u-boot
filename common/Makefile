@@ -65,7 +65,6 @@ obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
 
 # others
-obj-$(CONFIG_BOOTSTAGE) += bootstage.o
 obj-$(CONFIG_CONSOLE_MUX) += iomux.o
 obj-$(CONFIG_MTD_NOR_FLASH) += flash.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
@@ -88,6 +87,8 @@ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 
 endif # !CONFIG_SPL_BUILD
+
+obj-$(CONFIG_$(SPL_)BOOTSTAGE) += bootstage.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu.o

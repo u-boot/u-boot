@@ -18,6 +18,15 @@ config BOOTSTAGE
 	  Calls to show_boot_progress() will also result in log entries but
 	  these will not have names.
 
+config SPL_BOOTSTAGE
+	bool "Boot timing and reported in SPL"
+	depends on BOOTSTAGE
+	help
+	  Enable recording of boot time in SPL. To make this visible to U-Boot
+	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing
+	  information when SPL finishes and load it when U-Boot proper starts
+	  up.
+
 config BOOTSTAGE_REPORT
 	bool "Display a detailed boot timing report before booting the OS"
 	depends on BOOTSTAGE

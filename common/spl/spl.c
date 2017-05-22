@@ -232,6 +232,13 @@ static int spl_common_init(bool setup_malloc)
 		gd->malloc_ptr = 0;
 	}
 #endif
+	ret = bootstage_init(true);
+	if (ret) {
+		debug("%s: Failed to set up bootstage: ret=%d\n", __func__,
+		      ret);
+		return ret;
+	}
+	bootstage_mark_name(BOOTSTAGE_ID_START_SPL, "spl");
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
@@ -240,8 +247,10 @@ static int spl_common_init(bool setup_malloc)
 		}
 	}
 	if (IS_ENABLED(CONFIG_SPL_DM)) {
+		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL, "dm_spl");
 		/* With CONFIG_SPL_OF_PLATDATA, bring in all devices */
 		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
+		bootstage_accum(BOOTSTATE_ID_ACCUM_DM_SPL);
 		if (ret) {
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;
@@ -421,6 +430,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	}
 
 	debug("loaded - jumping to U-Boot...\n");
+#ifdef CONFIG_BOOTSTAGE_STASH
+	int ret;
+
+	bootstage_mark_name(BOOTSTAGE_ID_END_SPL, "end_spl");
+	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
+			      CONFIG_BOOTSTAGE_STASH_SIZE);
+	if (ret)
+		debug("Failed to stash bootstage: err=%d\n", ret);
+#endif
 	spl_board_prepare_for_boot();
 	jump_to_image_no_args(&spl_image);
 }

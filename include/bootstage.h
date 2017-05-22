@@ -177,6 +177,7 @@ enum bootstage_id {
 	 */
 	BOOTSTAGE_ID_AWAKE,
 	BOOTSTAGE_ID_START_SPL,
+	BOOTSTAGE_ID_END_SPL,
 	BOOTSTAGE_ID_START_UBOOT_F,
 	BOOTSTAGE_ID_START_UBOOT_R,
 	BOOTSTAGE_ID_USB_START,
@@ -200,6 +201,7 @@ enum bootstage_id {
 	BOOTSTAGE_ID_ACCUM_SPI,
 	BOOTSTAGE_ID_ACCUM_DECOMP,
 	BOOTSTAGE_ID_FPGA_INIT,
+	BOOTSTATE_ID_ACCUM_DM_SPL,
 	BOOTSTATE_ID_ACCUM_DM_F,
 	BOOTSTATE_ID_ACCUM_DM_R,
 
@@ -228,8 +230,14 @@ ulong timer_get_boot_us(void);
 void show_boot_progress(int val);
 #endif
 
-#if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD) && \
-	!defined(USE_HOSTCC)
+#if !defined(USE_HOSTCC)
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
+#define ENABLE_BOOTSTAGE
+#endif
+#endif
+
+#ifdef ENABLE_BOOTSTAGE
+
 /* This is the full bootstage implementation */
 
 /**
@@ -420,7 +428,8 @@ static inline int bootstage_init(bool first)
 {
 	return 0;
 }
-#endif /* CONFIG_BOOTSTAGE */
+
+#endif /* ENABLE_BOOTSTAGE */
 
 /* Helper macro for adding a bootstage to a line of code */
 #define BOOTSTAGE_MARKER()	\
