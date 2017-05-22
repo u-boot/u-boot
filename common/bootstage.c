@@ -8,8 +8,6 @@
 /*
  * This module records the progress of boot and arbitrary commands, and
  * permits accurate timestamping of each.
-  *
- * TBD: Pass timings to kernel in the FDT
  */
 
 #include <common.h>
@@ -84,6 +82,7 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 
 	/* Tell the board about this progress */
 	show_boot_progress(flags & BOOTSTAGEF_ERROR ? -id : id);
+
 	return mark;
 }
 
@@ -105,6 +104,7 @@ ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 
 	if (id == BOOTSTAGE_ID_ALLOC)
 		flags = BOOTSTAGEF_ALLOC;
+
 	return bootstage_add_record(id, name, flags, timer_get_boot_us());
 }
 
@@ -142,6 +142,7 @@ uint32_t bootstage_start(enum bootstage_id id, const char *name)
 
 	rec->start_us = timer_get_boot_us();
 	rec->name = name;
+
 	return rec->start_us;
 }
 
@@ -153,6 +154,7 @@ uint32_t bootstage_accum(enum bootstage_id id)
 
 	duration = (uint32_t)timer_get_boot_us() - rec->start_us;
 	rec->time_us += duration;
+
 	return duration;
 }
 

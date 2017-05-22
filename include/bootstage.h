@@ -217,7 +217,7 @@ ulong timer_get_boot_us(void);
 #if defined(USE_HOSTCC)
 #define show_boot_progress(val) do {} while (0)
 #else
-/*
+/**
  * Board code can implement show_boot_progress() if needed.
  *
  * @param val	Progress state (enum bootstage_id), or -id if an error
@@ -235,7 +235,7 @@ void show_boot_progress(int val);
  *
  * Call this after relocation has happened and after malloc has been initted.
  * We need to copy any pointers in bootstage records that were added pre-
- * relocation, since memory can be overritten later.
+ * relocation, since memory can be overwritten later.
  * @return Always returns 0, to indicate success
  */
 int bootstage_relocate(void);
@@ -251,7 +251,7 @@ int bootstage_relocate(void);
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark);
 
-/*
+/**
  * Mark a time stamp for the current boot stage.
  */
 ulong bootstage_mark(enum bootstage_id id);
@@ -310,7 +310,7 @@ void bootstage_report(void);
  */
 int bootstage_fdt_add_report(void);
 
-/*
+/**
  * Stash bootstage data into memory
  *
  * @param base	Base address of memory buffer
