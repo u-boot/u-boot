@@ -409,7 +409,7 @@ int bootstage_stash(void *base, int size)
 
 	/* Update total data size */
 	hdr->size = ptr - (char *)base;
-	printf("Stashed %d records\n", hdr->count);
+	debug("Stashed %d records\n", hdr->count);
 
 	return 0;
 }
@@ -479,7 +479,7 @@ int bootstage_unstash(void *base, int size)
 
 	/* Mark the records as read */
 	data->rec_count += hdr->count;
-	printf("Unstashed %d records\n", hdr->count);
+	debug("Unstashed %d records\n", hdr->count);
 
 	return 0;
 }
