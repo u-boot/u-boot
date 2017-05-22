@@ -7,6 +7,12 @@
 
 [ -z "$BL31" ] && BL31="bl31.bin"
 
+if [ ! -f $BL31 ]; then
+	echo "WARNING: BL31 file $BL31 NOT found, resulting binary is non-functional" >&2
+	echo "Please read the section on ARM Trusted Firmware (ATF) in board/sunxi/README.sunxi64" >&2
+	BL31=/dev/null
+fi
+
 cat << __HEADER_EOF
 /dts-v1/;
 
