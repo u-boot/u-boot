@@ -561,6 +561,7 @@ int board_late_init(void)
 		setenv("boot_fit", "1");
 
 	omap_die_id_serial();
+	omap_set_fastboot_vars();
 #endif
 	return 0;
 }
