@@ -623,6 +623,7 @@ int board_late_init(void)
 			    val);
 
 	omap_die_id_serial();
+	omap_set_fastboot_vars();
 
 	am57x_idk_lcd_detect();
 
