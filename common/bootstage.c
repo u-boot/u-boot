@@ -484,6 +484,11 @@ int bootstage_unstash(void *base, int size)
 	return 0;
 }
 
+int bootstage_get_size(void)
+{
+	return sizeof(struct bootstage_data);
+}
+
 int bootstage_init(bool first)
 {
 	struct bootstage_data *data;

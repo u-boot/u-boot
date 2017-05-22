@@ -112,6 +112,7 @@ typedef struct global_data {
 #endif
 #ifdef CONFIG_BOOTSTAGE
 	struct bootstage_data *bootstage;	/* Bootstage information */
+	struct bootstage_data *new_bootstage;	/* Relocated bootstage info */
 #endif
 } gd_t;
 #endif

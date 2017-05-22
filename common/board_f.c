@@ -491,6 +491,20 @@ static int reserve_fdt(void)
 	return 0;
 }
 
+static int reserve_bootstage(void)
+{
+#ifdef CONFIG_BOOTSTAGE
+	int size = bootstage_get_size();
+
+	gd->start_addr_sp -= size;
+	gd->new_bootstage = map_sysmem(gd->start_addr_sp, size);
+	debug("Reserving %#x Bytes for bootstage at: %08lx\n", size,
+	      gd->start_addr_sp);
+#endif
+
+	return 0;
+}
+
 int arch_reserve_stacks(void)
 {
 	return 0;
@@ -599,6 +613,24 @@ static int reloc_fdt(void)
 	if (gd->new_fdt) {
 		memcpy(gd->new_fdt, gd->fdt_blob, gd->fdt_size);
 		gd->fdt_blob = gd->new_fdt;
+	}
+#endif
+
+	return 0;
+}
+
+static int reloc_bootstage(void)
+{
+#ifdef CONFIG_BOOTSTAGE
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
+	if (gd->new_bootstage) {
+		int size = bootstage_get_size();
+
+		debug("Copying bootstage from %p to %p, size %x\n",
+		      gd->bootstage, gd->new_bootstage, size);
+		memcpy(gd->new_bootstage, gd->bootstage, size);
+		gd->bootstage = gd->new_bootstage;
 	}
 #endif
 
@@ -828,6 +860,7 @@ static const init_fnc_t init_sequence_f[] = {
 	setup_machine,
 	reserve_global_data,
 	reserve_fdt,
+	reserve_bootstage,
 	reserve_arch,
 	reserve_stacks,
 	dram_init_banksize,
@@ -849,6 +882,7 @@ static const init_fnc_t init_sequence_f[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	reloc_fdt,
+	reloc_bootstage,
 	setup_reloc,
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
 	copy_uboot_to_ram,

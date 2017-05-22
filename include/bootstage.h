@@ -332,6 +332,13 @@ int bootstage_stash(void *base, int size);
 int bootstage_unstash(void *base, int size);
 
 /**
+ * bootstage_get_size() - Get the size of the bootstage data
+ *
+ * @return size of boostage data in bytes
+ */
+int bootstage_get_size(void);
+
+/**
  * bootstage_init() - Prepare bootstage for use
  *
  * @first: true if this is the first time bootstage is set up. This causes it
@@ -398,6 +405,11 @@ static inline int bootstage_stash(void *base, int size)
 static inline int bootstage_unstash(void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
+}
+
+static inline int bootstage_get_size(void)
+{
+	return 0;
 }
 
 static inline int bootstage_init(bool first)
