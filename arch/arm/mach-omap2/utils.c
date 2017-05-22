@@ -19,6 +19,121 @@ static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 	}
 }
 
+#ifdef CONFIG_FASTBOOT_FLASH
+static void omap_set_fastboot_cpu(void)
+{
+	char *cpu;
+	u32 cpu_rev = omap_revision();
+
+	switch (cpu_rev) {
+	case DRA752_ES1_0:
+	case DRA752_ES1_1:
+	case DRA752_ES2_0:
+		cpu = "DRA752";
+		break;
+	case DRA722_ES1_0:
+	case DRA722_ES2_0:
+		cpu = "DRA722";
+		break;
+	default:
+		cpu = NULL;
+		printf("Warning: fastboot.cpu: unknown CPU rev: %u\n", cpu_rev);
+	}
+
+	setenv("fastboot.cpu", cpu);
+}
+
+static void omap_set_fastboot_secure(void)
+{
+	const char *secure;
+	u32 dev = get_device_type();
+
+	switch (dev) {
+	case EMU_DEVICE:
+		secure = "EMU";
+		break;
+	case HS_DEVICE:
+		secure = "HS";
+		break;
+	case GP_DEVICE:
+		secure = "GP";
+		break;
+	default:
+		secure = NULL;
+		printf("Warning: fastboot.secure: unknown CPU sec: %u\n", dev);
+	}
+
+	setenv("fastboot.secure", secure);
+}
+
+static void omap_set_fastboot_board_rev(void)
+{
+	const char *board_rev;
+
+	board_rev = getenv("board_rev");
+	if (board_rev == NULL)
+		printf("Warning: fastboot.board_rev: unknown board revision\n");
+
+	setenv("fastboot.board_rev", board_rev);
+}
+
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+static u32 omap_mmc_get_part_size(const char *part)
+{
+	int res;
+	struct blk_desc *dev_desc;
+	disk_partition_t info;
+	u64 sz = 0;
+
+	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+		error("invalid mmc device\n");
+		return 0;
+	}
+
+	res = part_get_info_by_name(dev_desc, part, &info);
+	if (res < 0) {
+		error("cannot find partition: '%s'\n", part);
+		return 0;
+	}
+
+	/* Calculate size in bytes */
+	sz = (info.size * (u64)info.blksz);
+	/* to KiB */
+	sz >>= 10;
+
+	return (u32)sz;
+}
+
+static void omap_set_fastboot_userdata_size(void)
+{
+	char buf[16];
+	u32 sz_kb;
+
+	sz_kb = omap_mmc_get_part_size("userdata");
+	if (sz_kb == 0) {
+		buf[0] = '\0';
+		printf("Warning: fastboot.userdata_size: unable to calc\n");
+	} else {
+		sprintf(buf, "%u", sz_kb);
+	}
+
+	setenv("fastboot.userdata_size", buf);
+}
+#else
+static inline void omap_set_fastboot_userdata_size(void)
+{
+}
+#endif /* CONFIG_FASTBOOT_FLASH_MMC_DEV */
+void omap_set_fastboot_vars(void)
+{
+	omap_set_fastboot_cpu();
+	omap_set_fastboot_secure();
+	omap_set_fastboot_board_rev();
+	omap_set_fastboot_userdata_size();
+}
+#endif /* CONFIG_FASTBOOT_FLASH */
+
 /*
  * Cancel out the denominator and numerator of a fraction
  * to get smaller numerator and denominator.
