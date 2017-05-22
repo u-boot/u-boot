@@ -673,8 +673,14 @@ static int jump_to_copy(void)
 #endif
 
 /* Record the board_init_f() bootstage (after arch_cpu_init()) */
-static int mark_bootstage(void)
+static int initf_bootstage(void)
 {
+	int ret;
+
+	ret = bootstage_init(true);
+	if (ret)
+		return ret;
+
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 
 	return 0;
@@ -735,7 +741,7 @@ static const init_fnc_t init_sequence_f[] = {
 	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
 	arch_cpu_init_dm,
-	mark_bootstage,		/* need timer, go after init dm */
+	initf_bootstage,		/* need timer, go after init dm */
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif

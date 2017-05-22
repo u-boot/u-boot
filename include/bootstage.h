@@ -331,6 +331,14 @@ int bootstage_stash(void *base, int size);
  */
 int bootstage_unstash(void *base, int size);
 
+/**
+ * bootstage_init() - Prepare bootstage for use
+ *
+ * @first: true if this is the first time bootstage is set up. This causes it
+ *	to add a 'reset' record with a time of 0.
+ */
+int bootstage_init(bool first);
+
 #else
 static inline ulong bootstage_add_record(enum bootstage_id id,
 		const char *name, int flags, ulong mark)
@@ -390,6 +398,11 @@ static inline int bootstage_stash(void *base, int size)
 static inline int bootstage_unstash(void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
+}
+
+static inline int bootstage_init(bool first)
+{
+	return 0;
 }
 #endif /* CONFIG_BOOTSTAGE */
 
