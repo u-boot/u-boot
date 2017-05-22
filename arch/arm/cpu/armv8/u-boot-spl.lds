@@ -56,17 +56,17 @@ SECTIONS
 
 	_image_binary_end = .;
 
-	.bss_start : {
+	.bss_start (NOLOAD) : {
 		. = ALIGN(8);
 		KEEP(*(.__bss_start));
 	} >.sdram
 
-	.bss : {
+	.bss (NOLOAD) : {
 		*(.bss*)
 		 . = ALIGN(8);
 	} >.sdram
 
-	.bss_end : {
+	.bss_end (NOLOAD) : {
 		KEEP(*(.__bss_end));
 	} >.sdram
 
