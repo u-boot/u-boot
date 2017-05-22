@@ -282,7 +282,14 @@
 		compatible = "arm,cortex-a53-edac";
 	};
 
-	pcap {
+	fpga_full: fpga-full {
+		compatible = "fpga-region";
+		fpga-mgr = <&pcap>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+	};
+
+	pcap: pcap {
 		compatible = "xlnx,zynqmp-pcap-fpga";
 	};
 
