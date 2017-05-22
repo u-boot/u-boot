@@ -297,8 +297,15 @@ static int initr_noncached(void)
 #ifdef CONFIG_OF_LIVE
 static int initr_of_live(void)
 {
-	return of_live_build(gd->fdt_blob,
-			      (struct device_node **)&gd->of_root);
+	int ret;
+
+	bootstage_start(BOOTSTAGE_ID_ACCUM_OF_LIVE, "of_live");
+	ret = of_live_build(gd->fdt_blob, (struct device_node **)&gd->of_root);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_OF_LIVE);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 #endif
 
