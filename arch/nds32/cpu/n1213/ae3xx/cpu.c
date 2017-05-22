@@ -41,22 +41,5 @@ int cleanup_before_linux(void)
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	disable_interrupts();
-
-	/*
-	 * reset to the base addr of andesboot.
-	 * currently no ROM loader at addr 0.
-	 * do not use reset_cpu(0);
-	 */
-#ifdef CONFIG_FTWDT010_WATCHDOG
-	/*
-	 * workaround: if we use CONFIG_HW_WATCHDOG with ftwdt010, will lead
-	 * automatic hardware reset when booting Linux.
-	 * Please do not use CONFIG_HW_WATCHDOG and WATCHDOG_RESET() here.
-	 */
-	ftwdt010_wdt_reset();
-	while (1)
-		;
-#endif /* CONFIG_FTWDT010_WATCHDOG */
-
-	/*NOTREACHED*/
+	panic("AE3XX wdt not support yet.\n");
 }

@@ -44,6 +44,7 @@ config MIPS
 
 config NDS32
 	bool "NDS32 architecture"
+	select SUPPORT_OF_CONTROL
 
 config NIOS2
 	bool "Nios II architecture"

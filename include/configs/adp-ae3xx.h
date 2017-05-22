@@ -9,28 +9,25 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch-ag101/ag101.h>
+#include <asm/arch-ae3xx/ae3xx.h>
 
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_ADP_AG101P
-
 #define CONFIG_USE_INTERRUPT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
+#define CONFIG_SKIP_TRUNOFF_WATCHDOG
+
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_PANIC_HANG
 
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
-
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_MEM_REMAP
-#endif
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_TEXT_BASE	0x00500000
@@ -39,11 +36,8 @@
 #define CONFIG_OF_EMBED
 #endif
 #else
-#ifdef CONFIG_MEM_REMAP
+
 #define CONFIG_SYS_TEXT_BASE	0x80000000
-#else
-#define CONFIG_SYS_TEXT_BASE	0x00000000
-#endif
 #endif
 
 /*
@@ -130,132 +124,22 @@
 #define CONFIG_SYS_MALLOC_LEN		(512 << 10)
 
 /*
- * AHB Controller configuration
- */
-#define CONFIG_FTAHBC020S
-
-#ifdef CONFIG_FTAHBC020S
-#include <faraday/ftahbc020s.h>
-
-/* Address of PHYS_SDRAM_0 before memory remap is at 0x(100)00000 */
-#define CONFIG_SYS_FTAHBC020S_SLAVE_BSR_BASE	0x100
-
-/*
- * CONFIG_SYS_FTAHBC020S_SLAVE_BSR_6: this define is used in lowlevel_init.S,
- * hence we cannot use FTAHBC020S_BSR_SIZE(2048) since it will use ffs() wrote
- * in C language.
- */
-#define CONFIG_SYS_FTAHBC020S_SLAVE_BSR_6 \
-	(FTAHBC020S_SLAVE_BSR_BASE(CONFIG_SYS_FTAHBC020S_SLAVE_BSR_BASE) | \
-					FTAHBC020S_SLAVE_BSR_SIZE(0xb))
-#endif
-
-/*
- * Watchdog
- */
-#define CONFIG_FTWDT010_WATCHDOG
-
-/*
- * PMU Power controller configuration
- */
-#define CONFIG_PMU
-#define CONFIG_FTPMU010_POWER
-
-#ifdef CONFIG_FTPMU010_POWER
-#include <faraday/ftpmu010.h>
-#define CONFIG_SYS_FTPMU010_PDLLCR0_HCLKOUTDIS		0x0E
-#define CONFIG_SYS_FTPMU010_SDRAMHTC	(FTPMU010_SDRAMHTC_EBICTRL_DCSR  | \
-					 FTPMU010_SDRAMHTC_EBIDATA_DCSR  | \
-					 FTPMU010_SDRAMHTC_SDRAMCS_DCSR  | \
-					 FTPMU010_SDRAMHTC_SDRAMCTL_DCSR | \
-					 FTPMU010_SDRAMHTC_CKE_DCSR	 | \
-					 FTPMU010_SDRAMHTC_DQM_DCSR	 | \
-					 FTPMU010_SDRAMHTC_SDCLK_DCSR)
-#endif
-
-/*
- * SDRAM controller configuration
- */
-#define CONFIG_FTSDMC021
-
-#ifdef CONFIG_FTSDMC021
-#include <faraday/ftsdmc021.h>
-
-#define CONFIG_SYS_FTSDMC021_TP1	(FTSDMC021_TP1_TRAS(2)	|	\
-					 FTSDMC021_TP1_TRP(1)	|	\
-					 FTSDMC021_TP1_TRCD(1)	|	\
-					 FTSDMC021_TP1_TRF(3)	|	\
-					 FTSDMC021_TP1_TWR(1)	|	\
-					 FTSDMC021_TP1_TCL(2))
-
-#define CONFIG_SYS_FTSDMC021_TP2	(FTSDMC021_TP2_INI_PREC(4) |	\
-					 FTSDMC021_TP2_INI_REFT(8) |	\
-					 FTSDMC021_TP2_REF_INTV(0x180))
-
-/*
- * CONFIG_SYS_FTSDMC021_CR1: this define is used in lowlevel_init.S,
- * hence we cannot use FTSDMC021_BANK_SIZE(64) since it will use ffs() wrote in
- * C language.
- */
-#define CONFIG_SYS_FTSDMC021_CR1	(FTSDMC021_CR1_DDW(2)	 |	\
-					 FTSDMC021_CR1_DSZ(3)	 |	\
-					 FTSDMC021_CR1_MBW(2)	 |	\
-					 FTSDMC021_CR1_BNKSIZE(6))
-
-#define CONFIG_SYS_FTSDMC021_CR2	(FTSDMC021_CR2_IPREC	 |	\
-					 FTSDMC021_CR2_IREF	 |	\
-					 FTSDMC021_CR2_ISMR)
-
-#define CONFIG_SYS_FTSDMC021_BANK0_BASE	CONFIG_SYS_FTAHBC020S_SLAVE_BSR_BASE
-#define CONFIG_SYS_FTSDMC021_BANK0_BSR	(FTSDMC021_BANK_ENABLE	 |	\
-					 CONFIG_SYS_FTSDMC021_BANK0_BASE)
-
-#define CONFIG_SYS_FTSDMC021_BANK1_BASE	\
-	(CONFIG_SYS_FTAHBC020S_SLAVE_BSR_BASE + (PHYS_SDRAM_0_SIZE >> 20))
-#define CONFIG_SYS_FTSDMC021_BANK1_BSR	(FTSDMC021_BANK_ENABLE	 |	\
-					 CONFIG_SYS_FTSDMC021_BANK1_BASE)
-#endif
-
-/*
  * Physical Memory Map
  */
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define PHYS_SDRAM_0	0x00000000  /* SDRAM Bank #1 */
-#else
-#ifdef CONFIG_MEM_REMAP
-#define PHYS_SDRAM_0	0x00000000	/* SDRAM Bank #1 */
-#else
-#define PHYS_SDRAM_0	0x80000000	/* SDRAM Bank #1 */
-#endif
-#endif
 
 #define PHYS_SDRAM_1 \
 	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */
 
 #define CONFIG_NR_DRAM_BANKS	2		/* we have 2 bank of DRAM */
 
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define PHYS_SDRAM_0_SIZE	0x20000000	/* 512 MB */
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512 MB */
-#else
-#ifdef CONFIG_MEM_REMAP
-#define PHYS_SDRAM_0_SIZE	0x20000000	/* 512 MB */
-#define PHYS_SDRAM_1_SIZE	0x20000000	/* 512 MB */
-#else
-#define PHYS_SDRAM_0_SIZE	0x08000000	/* 128 MB */
-#define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
-#endif
-#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_0
 
-#ifdef CONFIG_MEM_REMAP
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xA0000 - \
 					GENERATED_GBL_DATA_SIZE)
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
-					GENERATED_GBL_DATA_SIZE)
-#endif /* CONFIG_MEM_REMAP */
 
 /*
  * Load address and memory test area should agree with
@@ -328,18 +212,12 @@
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL
 
 /* support JEDEC */
+#ifdef CONFIG_CFI_FLASH
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
+#endif
 
 /* Do not use CONFIG_FLASH_CFI_LEGACY to detect on board flash */
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define PHYS_FLASH_1			0x80000000	/* BANK 0 */
-#else
-#ifdef CONFIG_MEM_REMAP
-#define PHYS_FLASH_1			0x80000000	/* BANK 0 */
-#else
-#define PHYS_FLASH_1			0x00000000	/* BANK 0 */
-#endif
-#endif	/* CONFIG_MEM_REMAP */
-
+#define PHYS_FLASH_1			0x88000000	/* BANK 0 */
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
 #define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1

@@ -11,8 +11,12 @@ choice
 config TARGET_ADP_AG101P
 	bool "Support adp-ag101p"
 
+config TARGET_ADP_AE3XX
+	bool "Support adp-ae3xx"
+
 endchoice
 
 source "board/AndesTech/adp-ag101p/Kconfig"
+source "board/AndesTech/adp-ae3xx/Kconfig"
 
 endmenu

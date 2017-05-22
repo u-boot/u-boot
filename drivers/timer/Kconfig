@@ -74,4 +74,16 @@ config ARC_TIMER
 	  usually at least one of them exists. Either of them is supported
 	  in U-Boot.
 
+config AG101P_TIMER
+	bool "AG101P timer support"
+	depends on TIMER && NDS32
+	help
+	  Select this to enable a timer for AG01P devices.
+
+config AE3XX_TIMER
+	bool "AE3XX timer support"
+	depends on TIMER && NDS32
+	help
+	  Select this to enable a timer for AE3XX devices.
+
 endmenu

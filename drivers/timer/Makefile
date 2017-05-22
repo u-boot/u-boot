@@ -12,3 +12,5 @@ obj-$(CONFIG_OMAP_TIMER)	+= omap-timer.o
 obj-$(CONFIG_AST_TIMER)	+= ast_timer.o
 obj-$(CONFIG_STI_TIMER)		+= sti-timer.o
 obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
+obj-$(CONFIG_AG101P_TIMER) += ag101p_timer.o
+obj-$(CONFIG_AE3XX_TIMER) += ae3xx_timer.o
