@@ -390,18 +390,15 @@ int bootstage_stash(void *base, int size)
 
 	/* Write the records, silently stopping when we run out of space */
 	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
-		if (rec->time_us != 0)
-			append_data(&ptr, end, rec, sizeof(*rec));
+		append_data(&ptr, end, rec, sizeof(*rec));
 	}
 
 	/* Write the name strings */
 	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
-		if (rec->time_us != 0) {
-			const char *name;
+		const char *name;
 
-			name = get_record_name(buf, sizeof(buf), rec);
-			append_data(&ptr, end, name, strlen(name) + 1);
-		}
+		name = get_record_name(buf, sizeof(buf), rec);
+		append_data(&ptr, end, name, strlen(name) + 1);
 	}
 
 	/* Check for buffer overflow */
