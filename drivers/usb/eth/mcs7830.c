@@ -622,10 +622,12 @@ static int mcs7830_recv(struct eth_device *eth)
 	int len;
 
 	len = mcs7830_recv_common(ueth, buf);
-	if (len <= 0)
+	if (len >= 0) {
 		net_process_received_packet(buf, len);
+		return 0;
+	}
 
-	return 0;
+	return len;
 }
 
 /*
