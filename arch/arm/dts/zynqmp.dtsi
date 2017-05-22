@@ -281,6 +281,13 @@
 		compatible = "arm,cortex-a53-edac";
 	};
 
+	fpga_full: fpga-full {
+		compatible = "fpga-region";
+		fpga-mgr = <&pcap>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
+
 	nvmem_firmware {
 		compatible = "xlnx,zynqmp-nvmem-fw";
 		#address-cells = <1>;
@@ -291,7 +298,7 @@
 		};
 	};
 
-	pcap {
+	pcap: pcap {
 		compatible = "xlnx,zynqmp-pcap-fpga";
 	};
 
