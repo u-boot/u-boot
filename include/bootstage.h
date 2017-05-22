@@ -329,7 +329,9 @@ int bootstage_stash(void *base, int size);
  *
  * @param base	Base address of memory buffer
  * @param size	Size of memory buffer (-1 if unknown)
- * @return 0 if unstashed ok, -1 if bootstage info not found, or out of space
+ * @return 0 if unstashed ok, -ENOENT if bootstage info not found, -ENOSPC if
+ *	there is not space for read the stacked data, or other error if
+ *	something else went wrong
  */
 int bootstage_unstash(void *base, int size);
 

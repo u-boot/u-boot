@@ -264,7 +264,7 @@ static int add_bootstages_devicetree(struct fdt_header *blob)
 	 */
 	bootstage = fdt_add_subnode(blob, 0, "bootstage");
 	if (bootstage < 0)
-		return -1;
+		return -EINVAL;
 
 	/*
 	 * Insert the timings to the device tree in the reverse order so
@@ -284,13 +284,13 @@ static int add_bootstages_devicetree(struct fdt_header *blob)
 		/* add properties to the node. */
 		if (fdt_setprop_string(blob, node, "name",
 				       get_record_name(buf, sizeof(buf), rec)))
-			return -1;
+			return -EINVAL;
 
 		/* Check if this is a 'mark' or 'accum' record */
 		if (fdt_setprop_cell(blob, node,
 				rec->start_us ? "accum" : "mark",
 				rec->time_us))
-			return -1;
+			return -EINVAL;
 	}
 
 	return 0;
@@ -371,7 +371,7 @@ int bootstage_stash(void *base, int size)
 
 	if (hdr + 1 > (struct bootstage_hdr *)end) {
 		debug("%s: Not enough space for bootstage hdr\n", __func__);
-		return -1;
+		return -ENOSPC;
 	}
 
 	/* Write an arbitrary version number */
@@ -404,7 +404,7 @@ int bootstage_stash(void *base, int size)
 	/* Check for buffer overflow */
 	if (ptr > end) {
 		debug("%s: Not enough space for bootstage stash\n", __func__);
-		return -1;
+		return -ENOSPC;
 	}
 
 	/* Update total data size */
@@ -428,37 +428,37 @@ int bootstage_unstash(void *base, int size)
 
 	if (hdr + 1 > (struct bootstage_hdr *)end) {
 		debug("%s: Not enough space for bootstage hdr\n", __func__);
-		return -1;
+		return -EPERM;
 	}
 
 	if (hdr->magic != BOOTSTAGE_MAGIC) {
 		debug("%s: Invalid bootstage magic\n", __func__);
-		return -1;
+		return -ENOENT;
 	}
 
 	if (ptr + hdr->size > end) {
 		debug("%s: Bootstage data runs past buffer end\n", __func__);
-		return -1;
+		return -ENOSPC;
 	}
 
 	if (hdr->count * sizeof(*rec) > hdr->size) {
 		debug("%s: Bootstage has %d records needing %lu bytes, but "
 			"only %d bytes is available\n", __func__, hdr->count,
 		      (ulong)hdr->count * sizeof(*rec), hdr->size);
-		return -1;
+		return -ENOSPC;
 	}
 
 	if (hdr->version != BOOTSTAGE_VERSION) {
 		debug("%s: Bootstage data version %#0x unrecognised\n",
 		      __func__, hdr->version);
-		return -1;
+		return -EINVAL;
 	}
 
 	if (data->rec_count + hdr->count > RECORD_COUNT) {
 		debug("%s: Bootstage has %d records, we have space for %d\n"
 			"- please increase CONFIG_BOOTSTAGE_USER_COUNT\n",
 		      __func__, hdr->count, RECORD_COUNT - data->rec_count);
-		return -1;
+		return -ENOSPC;
 	}
 
 	ptr += sizeof(*hdr);
