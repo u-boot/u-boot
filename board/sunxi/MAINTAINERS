@@ -72,7 +72,6 @@ F:	configs/q8_a33_tablet_1024x600_defconfig
 F:	include/configs/sun9i.h
 F:	configs/Merrii_A80_Optimus_defconfig
 F:	include/configs/sun50i.h
-F:	configs/pine64_plus_defconfig
 
 A20-OLIMEX-SOM-EVB BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
@@ -262,6 +261,11 @@ ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/orangepi_pc2_defconfig
+
+PINE64 BOARDS
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/pine64_plus_defconfig
 
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>

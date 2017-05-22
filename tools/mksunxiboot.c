@@ -48,8 +48,8 @@ int gen_check_sum(struct boot_file_head *head_p)
 #define ALIGN(x, a) __ALIGN_MASK((x), (typeof(x))(a)-1)
 #define __ALIGN_MASK(x, mask) (((x)+(mask))&~(mask))
 
-#define SUN4I_SRAM_SIZE 0x7600	/* 0x7748+ is used by BROM */
-#define SRAM_LOAD_MAX_SIZE (SUN4I_SRAM_SIZE - sizeof(struct boot_file_head))
+#define SUNXI_SRAM_SIZE 0x8000	/* SoC with smaller size are limited before */
+#define SRAM_LOAD_MAX_SIZE (SUNXI_SRAM_SIZE - sizeof(struct boot_file_head))
 
 /*
  * BROM (at least on A10 and A20) requires NAND-images to be explicitly aligned
@@ -70,11 +70,40 @@ int main(int argc, char *argv[])
 	struct boot_img img;
 	unsigned file_size;
 	int count;
+	char *tool_name = argv[0];
+	char *default_dt = NULL;
 
-	if (argc < 2) {
-		printf("\tThis program makes an input bin file to sun4i " \
-		       "bootable image.\n" \
-		       "\tUsage: %s input_file out_putfile\n", argv[0]);
+	/* a sanity check */
+	if ((sizeof(img.header) % 32) != 0) {
+		fprintf(stderr, "ERROR: the SPL header must be a multiple ");
+		fprintf(stderr, "of 32 bytes.\n");
+		return EXIT_FAILURE;
+	}
+
+	/* process optional command line switches */
+	while (argc >= 2 && argv[1][0] == '-') {
+		if (strcmp(argv[1], "--default-dt") == 0) {
+			if (argc >= 3) {
+				default_dt = argv[2];
+				argv += 2;
+				argc -= 2;
+				continue;
+			}
+			fprintf(stderr, "ERROR: no --default-dt arg\n");
+			return EXIT_FAILURE;
+		} else {
+			fprintf(stderr, "ERROR: bad option '%s'\n", argv[1]);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (argc < 3) {
+		printf("This program converts an input binary file to a sunxi bootable image.\n");
+		printf("\nUsage: %s [options] input_file output_file\n",
+		       tool_name);
+		printf("Where [options] may be:\n");
+		printf("  --default-dt arg         - 'arg' is the default device tree name\n");
+		printf("                             (CONFIG_DEFAULT_DEVICE_TREE).\n");
 		return EXIT_FAILURE;
 	}
 
@@ -121,6 +150,18 @@ int main(int argc, char *argv[])
 
 	memcpy(img.header.spl_signature, SPL_SIGNATURE, 3); /* "sunxi" marker */
 	img.header.spl_signature[3] = SPL_HEADER_VERSION;
+
+	if (default_dt) {
+		if (strlen(default_dt) + 1 <= sizeof(img.header.string_pool)) {
+			strcpy((char *)img.header.string_pool, default_dt);
+			img.header.dt_name_offset =
+				cpu_to_le32(offsetof(struct boot_file_head,
+						     string_pool));
+		} else {
+			printf("WARNING: The SPL header is too small\n");
+			printf("         and has no space to store the dt name.\n");
+		}
+	}
 
 	gen_check_sum(&img.header);
 

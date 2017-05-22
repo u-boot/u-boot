@@ -32,6 +32,10 @@
 # define CONFIG_MACH_TYPE_COMPAT_REV	1
 #endif
 
+#ifdef CONFIG_ARM64
+#define CONFIG_BUILD_TARGET "u-boot.itb"
+#endif
+
 /* Serial & console */
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
@@ -185,12 +189,17 @@
 #endif
 
 #ifdef CONFIG_SUNXI_HIGH_SRAM
-#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x7fc0		/* 32 KiB */
-#define LOW_LEVEL_SRAM_STACK		0x00018000
+#define CONFIG_SPL_TEXT_BASE		0x10060		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
+#ifdef CONFIG_ARM64
+/* end of SRAM A2 for now, as SRAM A1 is pretty tight for an ARM64 build */
+#define LOW_LEVEL_SRAM_STACK		0x00054000
 #else
-#define CONFIG_SPL_TEXT_BASE		0x40		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
+#define LOW_LEVEL_SRAM_STACK		0x00018000
+#endif /* !CONFIG_ARM64 */
+#else
+#define CONFIG_SPL_TEXT_BASE		0x60		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fa0		/* 24KB on sun4i/sun7i */
 #define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
 #endif
 

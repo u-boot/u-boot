@@ -143,12 +143,16 @@ config MACH_SUN50I
 	select SUNXI_GEN_SUN6I
 	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
+	select FIT
+	select SPL_LOAD_FIT
 
 config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"
 	select ARM64
 	select MACH_SUNXI_H3_H5
 	select SUNXI_HIGH_SRAM
+	select FIT
+	select SPL_LOAD_FIT
 
 endchoice
 

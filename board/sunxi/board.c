@@ -512,7 +512,6 @@ int board_mmc_init(bd_t *bis)
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
-	unsigned long ramsize;
 
 #ifdef CONFIG_SY8106A_POWER
 	power_failed = sy8106a_set_vout1(CONFIG_SY8106A_VOUT1_VOLT);
@@ -573,9 +572,9 @@ void sunxi_board_init(void)
 #endif
 #endif
 	printf("DRAM:");
-	ramsize = sunxi_dram_init();
-	printf(" %d MiB\n", (int)(ramsize >> 20));
-	if (!ramsize)
+	gd->ram_size = sunxi_dram_init();
+	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
+	if (!gd->ram_size)
 		hang();
 
 	/*
@@ -758,3 +757,32 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
+	const char *cmp_str = (void *)(ulong)SPL_ADDR;
+
+	/* Check if there is a DT name stored in the SPL header and use that. */
+	if (spl->dt_name_offset) {
+		cmp_str += spl->dt_name_offset;
+	} else {
+#ifdef CONFIG_DEFAULT_DEVICE_TREE
+		cmp_str = CONFIG_DEFAULT_DEVICE_TREE;
+#else
+		return 0;
+#endif
+	};
+
+/* Differentiate the two Pine64 board DTs by their DRAM size. */
+	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
+		if ((gd->ram_size > 512 * 1024 * 1024))
+			return !strstr(name, "plus");
+		else
+			return !!strstr(name, "plus");
+	} else {
+		return strcmp(name, cmp_str);
+	}
+}
+#endif
