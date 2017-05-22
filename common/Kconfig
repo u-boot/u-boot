@@ -38,7 +38,7 @@ config BOOTSTAGE_REPORT
 		 30,361,327    445,160  start_kernel
 
 config BOOTSTAGE_USER_COUNT
-	hex "Number of boot ID numbers available for user use"
+	int "Number of boot ID numbers available for user use"
 	default 20
 	help
 	  This is the number of available user bootstage records.
