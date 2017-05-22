@@ -333,7 +333,7 @@ int bootstage_stash(void *base, int size);
  *	there is not space for read the stacked data, or other error if
  *	something else went wrong
  */
-int bootstage_unstash(void *base, int size);
+int bootstage_unstash(const void *base, int size);
 
 /**
  * bootstage_get_size() - Get the size of the bootstage data
@@ -406,7 +406,7 @@ static inline int bootstage_stash(void *base, int size)
 	return 0;	/* Pretend to succeed */
 }
 
-static inline int bootstage_unstash(void *base, int size)
+static inline int bootstage_unstash(const void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
 }

@@ -205,7 +205,7 @@ uint32_t bootstage_accum(enum bootstage_id id)
  * @return pointer to name, either from the record or pointing to buf.
  */
 static const char *get_record_name(char *buf, int len,
-				   struct bootstage_record *rec)
+				   const struct bootstage_record *rec)
 {
 	if (rec->name)
 		return rec->name;
@@ -361,9 +361,9 @@ static void append_data(char **ptrp, char *end, const void *data, int size)
 
 int bootstage_stash(void *base, int size)
 {
-	struct bootstage_data *data = gd->bootstage;
+	const struct bootstage_data *data = gd->bootstage;
 	struct bootstage_hdr *hdr = (struct bootstage_hdr *)base;
-	struct bootstage_record *rec;
+	const struct bootstage_record *rec;
 	char buf[20];
 	char *ptr = base, *end = ptr + size;
 	uint32_t count;
@@ -414,12 +414,12 @@ int bootstage_stash(void *base, int size)
 	return 0;
 }
 
-int bootstage_unstash(void *base, int size)
+int bootstage_unstash(const void *base, int size)
 {
+	const struct bootstage_hdr *hdr = (struct bootstage_hdr *)base;
 	struct bootstage_data *data = gd->bootstage;
-	struct bootstage_hdr *hdr = (struct bootstage_hdr *)base;
+	const char *ptr = base, *end = ptr + size;
 	struct bootstage_record *rec;
-	char *ptr = base, *end = ptr + size;
 	uint rec_size;
 	int i;
 
