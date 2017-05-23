@@ -7,6 +7,7 @@
 
 	aliases {
 		uart0 = &serial0;
+		ethernet0 = &mac0;
 	} ;
 
 	chosen {
@@ -54,4 +55,9 @@
 		clock-frequency = <15000000>;
 	};
 
+	mac0: mac@90900000 {
+		compatible = "andestech,atmac100";
+		reg = <0x90900000 0x1000>;
+		interrupts = <25 4>;
+	};
 };

@@ -225,4 +225,9 @@ config GMAC_ROCKCHIP
 	  This driver provides Rockchip SoCs network support based on the
 	  Synopsys Designware driver.
 
+config FTMAC100
+	bool "Ftmac100 Ethernet Support"
+	help
+	  This MAC is present in Andestech SoCs.
+
 endif # NETDEVICES
