@@ -66,17 +66,18 @@ static void gpio_write_raw_reg(void *mapped_reg,
 }
 
 static int gpio_read_bit(struct pinmux_data_reg *dr,
+			 unsigned long offset,
 			 unsigned long in_pos)
 {
 	unsigned long pos;
 
 	pos = dr->reg_width - (in_pos + 1);
 
-	debug("read_bit: addr = %lx, pos = %ld, "
-		 "r_width = %ld\n", dr->reg, pos, dr->reg_width);
+	debug("read_bit: addr = %lx, pos = %ld, r_width = %ld\n",
+	      dr->reg + offset, pos, dr->reg_width);
 
-	return
-	    (gpio_read_raw_reg(dr->mapped_reg + 0x4, dr->reg_width) >> pos) & 1;
+	return (gpio_read_raw_reg(dr->mapped_reg + offset,
+				  dr->reg_width) >> pos) & 1;
 }
 
 static void gpio_write_bit(struct pinmux_data_reg *dr,
@@ -559,12 +560,16 @@ static int sh_gpio_direction_output(unsigned offset, int value)
 static int sh_gpio_get_value(struct pinmux_info *gpioc, unsigned gpio)
 {
 	struct pinmux_data_reg *dr = NULL;
-	int bit = 0;
+	int bit = 0, offset = 0;
 
 	if (!gpioc || get_data_reg(gpioc, gpio, &dr, &bit) != 0)
 		return -1;
+#if defined(CONFIG_RCAR_GEN3)
+	if ((gpioc->gpios[gpio].flags & PINMUX_FLAG_TYPE) == PINMUX_TYPE_INPUT)
+		offset += 4;
+#endif
 
-	return gpio_read_bit(dr, bit);
+	return gpio_read_bit(dr, offset, bit);
 }
 
 static int sh_gpio_get(unsigned offset)

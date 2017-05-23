@@ -17,5 +17,6 @@ obj-$(CONFIG_R8A7792) += lowlevel_init_ca15.o cpu_info-rcar.o pfc-r8a7792.o
 obj-$(CONFIG_R8A7793) += lowlevel_init_ca15.o cpu_info-rcar.o pfc-r8a7793.o
 obj-$(CONFIG_R8A7794) += lowlevel_init_ca15.o cpu_info-rcar.o pfc-r8a7794.o
 obj-$(CONFIG_R8A7795) += lowlevel_init_gen3.o cpu_info-rcar.o pfc-r8a7795.o memmap-r8a7795.o
+obj-$(CONFIG_R8A7796) += lowlevel_init_gen3.o cpu_info-rcar.o pfc-r8a7796.o memmap-r8a7796.o
 obj-$(CONFIG_SH73A0) += lowlevel_init.o cpu_info-sh73a0.o pfc-sh73a0.o
 obj-$(CONFIG_TMU_TIMER) += ../../sh/lib/time.o

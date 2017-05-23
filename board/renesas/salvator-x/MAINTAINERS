@@ -3,4 +3,5 @@ M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 S:	Maintained
 F:	board/renesas/salvator-x/
 F:	include/configs/salvator-x.h
-F:	configs/salvator-x_defconfig
+F:	configs/r8a7795_salvator-x_defconfig
+F:	configs/r8a7796_salvator-x_defconfig
