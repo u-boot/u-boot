@@ -135,3 +135,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif
+
+#if defined(CONFIG_RESET_PHY_R)
+void reset_phy(void)
+{
+}
+#endif

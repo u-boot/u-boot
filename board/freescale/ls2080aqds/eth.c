@@ -14,6 +14,7 @@
 #include <fm_eth.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
 #include "../common/qixis.h"
@@ -834,7 +835,6 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 int board_eth_init(bd_t *bis)
 {
 	int error;
-	char *mc_boot_env_var;
 #ifdef CONFIG_FSL_MC_ENET
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 	int serdes1_prtcl = (in_le32(&gur->rcwsr[28]) &
@@ -902,9 +902,6 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
-	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
-	if (mc_boot_env_var)
-		run_command_list(mc_boot_env_var, -1, 0);
 	error = cpu_eth_init(bis);
 
 	if (hwconfig_f("xqsgmii", env_hwconfig)) {
@@ -919,6 +916,9 @@ int board_eth_init(bd_t *bis)
 	return error;
 }
 
-#ifdef CONFIG_FSL_MC_ENET
-
-#endif
+#if defined(CONFIG_RESET_PHY_R)
+void reset_phy(void)
+{
+	mc_env_boot();
+}
+#endif /* CONFIG_RESET_PHY_R */

@@ -27,6 +27,7 @@
 
 #define MC_MEM_SIZE_ENV_VAR	"mcmemsize"
 #define MC_BOOT_TIMEOUT_ENV_VAR	"mcboottimeout"
+#define MC_BOOT_ENV_VAR		"mcinitcmd"
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_boot_status = -1;
@@ -1368,3 +1369,18 @@ U_BOOT_CMD(
 	"fsl_mc lazyapply DPL [DPL_addr] - Apply DPL file on exit\n"
 	"fsl_mc start aiop [FW_addr] - Start AIOP\n"
 );
+
+void mc_env_boot(void)
+{
+#if defined(CONFIG_FSL_MC_ENET)
+	char *mc_boot_env_var;
+	/* The MC may only be initialized in the reset PHY function
+	 * because otherwise U-Boot has not yet set up all the MAC
+	 * address info properly. Without MAC addresses, the MC code
+	 * can not properly initialize the DPC.
+	 */
+	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
+	if (mc_boot_env_var)
+		run_command_list(mc_boot_env_var, -1, 0);
+#endif /* CONFIG_FSL_MC_ENET */
+}
