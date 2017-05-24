@@ -12,9 +12,10 @@
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
 	"MLO.raw raw 0x100 0x100;" \
-	"u-boot.img.raw raw 0x300 0x400;" \
-	"spl-os-args.raw raw 0x80 0x80;" \
-	"spl-os-image.raw raw 0x900 0x2000;" \
+	"u-boot.img.raw raw 0x300 0x1000;" \
+	"u-env.raw raw 0x1300 0x200;" \
+	"spl-os-args.raw raw 0x1500 0x200;" \
+	"spl-os-image.raw raw 0x1700 0x6900;" \
 	"spl-os-args fat 0 1;" \
 	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
@@ -28,8 +29,9 @@
 	"MLO fat 1 1;" \
 	"MLO.raw raw 0x100 0x100;" \
 	"u-boot.img.raw raw 0x300 0x1000;" \
-	"spl-os-args.raw raw 0x80 0x80;" \
-	"spl-os-image.raw raw 0x900 0x2000;" \
+	"u-env.raw raw 0x1300 0x200;" \
+	"spl-os-args.raw raw 0x1500 0x200;" \
+	"spl-os-image.raw raw 0x1700 0x6900;" \
 	"spl-os-args fat 1 1;" \
 	"spl-os-image fat 1 1;" \
 	"u-boot.img fat 1 1;" \
