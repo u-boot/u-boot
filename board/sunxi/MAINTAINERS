@@ -272,6 +272,11 @@ M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/orangepi_pc2_defconfig
 
+ORANGEPI PRIME BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_prime_defconfig
+
 PINE64 BOARDS
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
