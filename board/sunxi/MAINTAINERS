@@ -114,6 +114,11 @@ S:	Maintained
 F:	configs/Bananapi_M2_Ultra_defconfig
 F:	arch/arm/dts/sun8i-r40-bananapi-m2-ultra.dts
 
+BANANAPI M64
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m64_defconfig
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
