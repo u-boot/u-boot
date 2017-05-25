@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <command.h>
 #include <linux/errno.h>
 #include <asm/io.h>
@@ -15,6 +16,10 @@
 #include <fsl_qe.h>
 #ifdef CONFIG_ARCH_LS1021A
 #include <asm/arch/immap_ls102xa.h>
+#endif
+
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
+#include <mmc.h>
 #endif
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
@@ -194,8 +199,37 @@ void u_qe_init(void)
 {
 	qe_immr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
 
-	u_qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
+	void *addr = (void *)CONFIG_SYS_QE_FW_ADDR;
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
+	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
+	u32 blk = CONFIG_SYS_QE_FW_ADDR / 512;
+
+	if (mmc_initialize(gd->bd)) {
+		printf("%s: mmc_initialize() failed\n", __func__);
+		return;
+	}
+	addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
+	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+
+	if (!mmc) {
+		free(addr);
+		printf("\nMMC cannot find device for ucode\n");
+	} else {
+		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
+		       dev, blk, cnt);
+		mmc_init(mmc);
+		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+						addr);
+		/* flush cache after read */
+		flush_cache((ulong)addr, cnt * 512);
+	}
+#endif
+	u_qe_upload_firmware(addr);
 	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
+	free(addr);
+#endif
 }
 #endif
 

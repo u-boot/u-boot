@@ -280,11 +280,9 @@
 
 /* QE */
 #ifndef SPL_NO_QE
-#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
-	!defined(CONFIG_QSPI_BOOT)
+#if !defined(CONFIG_NAND_BOOT) && !defined(CONFIG_QSPI_BOOT)
 #define CONFIG_U_QE
 #endif
-#define CONFIG_SYS_QE_FW_ADDR     0x60940000
 #endif
 
 /* USB */
