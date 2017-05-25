@@ -343,6 +343,54 @@ struct vcores_data am572x_idk_volts = {
 	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
 
+struct vcores_data am571x_idk_volts = {
+	.mpu.value[OPP_NOM]	= VDD_MPU_DRA7_NOM,
+	.mpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
+	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
+	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
+
+	.eve.value[OPP_NOM]	= VDD_EVE_DRA7_NOM,
+	.eve.value[OPP_OD]	= VDD_EVE_DRA7_OD,
+	.eve.value[OPP_HIGH]	= VDD_EVE_DRA7_HIGH,
+	.eve.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_DSPEVE_OD,
+	.eve.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_DSPEVE_HIGH,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
+	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
+
+	.gpu.value[OPP_NOM]	= VDD_GPU_DRA7_NOM,
+	.gpu.value[OPP_OD]	= VDD_GPU_DRA7_OD,
+	.gpu.value[OPP_HIGH]	= VDD_GPU_DRA7_HIGH,
+	.gpu.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_GPU_OD,
+	.gpu.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_GPU_HIGH,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr		= TPS659038_REG_ADDR_SMPS6,
+	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
+
+	.core.value[OPP_NOM]	= VDD_CORE_DRA7_NOM,
+	.core.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.core.addr		= TPS659038_REG_ADDR_SMPS7,
+	.core.pmic		= &tps659038,
+
+	.iva.value[OPP_NOM]	= VDD_IVA_DRA7_NOM,
+	.iva.value[OPP_OD]	= VDD_IVA_DRA7_OD,
+	.iva.value[OPP_HIGH]	= VDD_IVA_DRA7_HIGH,
+	.iva.efuse.reg[OPP_NOM]	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg[OPP_OD]	= STD_FUSE_OPP_VMIN_IVA_OD,
+	.iva.efuse.reg[OPP_HIGH]	= STD_FUSE_OPP_VMIN_IVA_HIGH,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
+	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
+};
+
 int get_voltrail_opp(int rail_offset)
 {
 	int opp;
@@ -452,6 +500,8 @@ void vcores_init(void)
 {
 	if (board_is_am572x_idk())
 		*omap_vcores = &am572x_idk_volts;
+	else if (board_is_am571x_idk())
+		*omap_vcores = &am571x_idk_volts;
 	else
 		*omap_vcores = &beagle_x15_volts;
 }
