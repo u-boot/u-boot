@@ -81,6 +81,8 @@
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
+#define ZYNQ_NAND_ROW_ADDR_CYCL_MASK	0x0F
+#define ZYNQ_NAND_COL_ADDR_CYCL_MASK	0xF0
 
 /* SMC register set */
 struct zynq_nand_smc_regs {
@@ -752,6 +754,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 {
 	struct nand_chip *chip = mtd->priv;
 	const struct zynq_nand_command_format *curr_cmd = NULL;
+	u8 addr_cycles = 0;
 	struct zynq_nand_info *xnand = (struct zynq_nand_info *)chip->priv;
 	void *cmd_addr;
 	unsigned long cmd_data = 0;
@@ -802,8 +805,18 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else
 		end_cmd = curr_cmd->end_cmd;
 
+	if ((command == NAND_CMD_READ0) ||
+	    (command == NAND_CMD_SEQIN)) {
+		addr_cycles = chip->onfi_params.addr_cycles &
+				ZYNQ_NAND_ROW_ADDR_CYCL_MASK;
+		addr_cycles += ((chip->onfi_params.addr_cycles &
+				ZYNQ_NAND_COL_ADDR_CYCL_MASK) >> 4);
+	} else {
+		addr_cycles = curr_cmd->addr_cycles;
+	}
+
 	cmd_phase_addr = (unsigned long)xnand->nand_base	|
-			(curr_cmd->addr_cycles << ADDR_CYCLES_SHIFT)	|
+			(addr_cycles << ADDR_CYCLES_SHIFT)	|
 			(end_cmd_valid << END_CMD_VALID_SHIFT)		|
 			(COMMAND_PHASE)					|
 			(end_cmd << END_CMD_SHIFT)			|
