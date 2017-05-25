@@ -19,7 +19,7 @@
 ******************************************************************************/
 
 #include <xil_io.h>
-/* #include <sleep.h> */
+#include <sleep.h>
 #include "psu_init_gpl.h"
 
 int mask_pollOnValue(u32 add , u32 mask, u32 value );
