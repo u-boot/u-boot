@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifdef CONFIG_SANDBOX
+#if defined(CONFIG_UNIT_TEST)
 #define DEBUG
 #endif
 
