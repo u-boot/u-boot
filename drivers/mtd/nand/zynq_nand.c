@@ -16,6 +16,7 @@
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 
 /* The NAND flash driver defines */
 #define ZYNQ_NAND_CMD_PHASE		1
@@ -82,6 +83,15 @@
 /* ECC block registers bit position and bit mask */
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
+
+#define ZYNQ_NAND_MIO_NUM_NAND_8BIT	13
+#define ZYNQ_NAND_MIO_NUM_NAND_16BIT	8
+
+enum zynq_nand_bus_width {
+	NAND_BW_UNKNOWN = -1,
+	NAND_BW_8BIT,
+	NAND_BW_16BIT,
+};
 
 #ifndef NAND_CMD_LOCK_TIGHT
 #define NAND_CMD_LOCK_TIGHT 0x2c
@@ -1005,6 +1015,23 @@ static int zynq_nand_device_ready(struct mtd_info *mtd)
 	return 0;
 }
 
+static int zynq_nand_check_is_16bit_bw_flash(void)
+{
+	int is_16bit_bw = NAND_BW_UNKNOWN;
+	int mio_num_8bit = 0, mio_num_16bit = 0;
+
+	mio_num_8bit = zynq_slcr_get_mio_pin_status("nand8");
+	if (mio_num_8bit == ZYNQ_NAND_MIO_NUM_NAND_8BIT)
+		is_16bit_bw = NAND_BW_8BIT;
+
+	mio_num_16bit = zynq_slcr_get_mio_pin_status("nand16");
+	if (mio_num_8bit == ZYNQ_NAND_MIO_NUM_NAND_8BIT &&
+	    mio_num_16bit == ZYNQ_NAND_MIO_NUM_NAND_16BIT)
+		is_16bit_bw = NAND_BW_16BIT;
+
+	return is_16bit_bw;
+}
+
 static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 {
 	struct zynq_nand_info *xnand;
@@ -1016,6 +1043,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	unsigned long ecc_cfg;
 	int ondie_ecc_enabled = 0;
 	int err = -1;
+	int is_16bit_bw;
 
 	xnand = calloc(1, sizeof(struct zynq_nand_info));
 	if (!xnand) {
@@ -1044,6 +1072,16 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	/* Buffer read/write routines */
 	nand_chip->read_buf = zynq_nand_read_buf;
 	nand_chip->write_buf = zynq_nand_write_buf;
+
+	is_16bit_bw = zynq_nand_check_is_16bit_bw_flash();
+	if (is_16bit_bw == NAND_BW_UNKNOWN) {
+		printf("%s: Unable detect NAND based on MIO settings\n",
+		       __func__);
+		goto fail;
+	}
+
+	if (is_16bit_bw == NAND_BW_16BIT)
+		nand_chip->options = NAND_BUSWIDTH_16;
 
 	nand_chip->bbt_options = NAND_BBT_USE_FLASH;
 
