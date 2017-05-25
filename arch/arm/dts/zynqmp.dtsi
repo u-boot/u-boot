@@ -1014,6 +1014,7 @@
 			reg-names = "ams-base";
 			#address-cells = <2>;
 			#size-cells = <2>;
+			#io-channel-cells = <1>;
 			ranges;
 
 			ams_ps: ams_ps@ffa50800 {
