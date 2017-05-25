@@ -142,9 +142,11 @@ OBJCOPYFLAGS += -j .text -j .secure_text -j .secure_data -j .rodata -j .hash \
 		-j .data -j .got -j .got.plt -j .u_boot_list -j .rel.dyn
 endif
 
-ifdef CONFIG_OF_EMBED
+# if a dtb section exists we always have to include it
+# there are only two cases where it is generated
+# 1) OF_EMBEDED is turned on
+# 2) unit tests include device tree blobs
 OBJCOPYFLAGS += -j .dtb.init.rodata
-endif
 
 ifdef CONFIG_EFI_LOADER
 OBJCOPYFLAGS += -j .efi_runtime -j .efi_runtime_rel
