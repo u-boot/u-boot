@@ -40,76 +40,38 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-
-#include "sun50i-h5.dtsi"
+#include "sun8i-h3.dtsi"
 
 / {
-	model = "OrangePi PC 2";
-	compatible = "xunlong,orangepi-pc-2", "allwinner,sun50i-h5";
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	memory {
-		reg = <0x40000000 0x40000000>;
-	};
-
-	aliases {
-		serial0 = &uart0;
-		ethernet0 = &emac;
-	};
-
-	soc {
-		reg_vcc3v3: vcc3v3 {
-			compatible = "regulator-fixed";
-			regulator-name = "vcc3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
+	cpus {
+		cpu@0 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@1 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@2 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@3 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
 		};
 	};
-};
 
-&mmc0 {
-	compatible = "allwinner,sun50i-h5-mmc",
-		     "allwinner,sun50i-a64-mmc",
-		     "allwinner,sun5i-a13-mmc";
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 5 6 0>;
-	cd-inverted;
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	status = "okay";
-};
-
-&ohci1 {
-	status = "okay";
-};
-
-&ehci1 {
-	status = "okay";
-};
-
-&emac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&emac_rgmii_pins>;
-	phy-mode = "rgmii";
-	phy = <&phy1>;
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-		reg = <1>;
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
 	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+	};
+};
+
+&gic {
+	compatible = "arm,gic-400";
 };
