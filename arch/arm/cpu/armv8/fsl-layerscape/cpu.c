@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -98,7 +99,8 @@ static void fix_pcie_mmu_map(void)
 
 	/* Fix PCIE base and size for LS2088A */
 	if ((ver == SVR_LS2088A) || (ver == SVR_LS2084A) ||
-	    (ver == SVR_LS2048A) || (ver == SVR_LS2044A)) {
+	    (ver == SVR_LS2048A) || (ver == SVR_LS2044A) ||
+	    (ver == SVR_LS2081A) || (ver == SVR_LS2041A)) {
 		for (i = 0; i < ARRAY_SIZE(final_map); i++) {
 			switch (final_map[i].phys) {
 			case CONFIG_SYS_PCIE1_PHYS_ADDR:

@@ -235,31 +235,34 @@
 #if defined(CONFIG_NAND_BOOT)
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_OFFSET		(24 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_OFFSET		(1024 * 1024)
+#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x20000
 #endif
 
 /* FMan */
 #ifndef SPL_NO_FMAN
-#ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
-#define CONFIG_PHYLIB
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
+#define AQR105_IRQ_MASK			0x40000000
 
+#ifdef CONFIG_NET
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_REALTEK
+#endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+#define CONFIG_FMAN_ENET
+#define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_AQUANTIA
-#define AQR105_IRQ_MASK			0x40000000
 
 #define RGMII_PHY1_ADDR			0x1
 #define RGMII_PHY2_ADDR			0x2
@@ -281,7 +284,7 @@
 	!defined(CONFIG_QSPI_BOOT)
 #define CONFIG_U_QE
 #endif
-#define CONFIG_SYS_QE_FW_ADDR     0x60600000
+#define CONFIG_SYS_QE_FW_ADDR     0x60940000
 #endif
 
 /* USB */

@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017 NXP Semiconductors
  * Copyright (C) 2014 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -1201,6 +1202,7 @@ err:
 int fsl_mc_ldpaa_exit(bd_t *bd)
 {
 	int err = 0;
+	bool is_dpl_apply_status = false;
 
 	if (bd && mc_lazy_dpl_addr && !fsl_mc_ldpaa_exit(NULL)) {
 		mc_apply_dpl(mc_lazy_dpl_addr);
@@ -1211,14 +1213,18 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 	if (bd && get_mc_boot_status() != 0)
 		return 0;
 
-	if (bd && !get_mc_boot_status() && get_dpl_apply_status() == -1) {
-		printf("ERROR: fsl-mc: DPL is not applied\n");
-		err = -ENODEV;
-		return err;
-	}
+	/* If DPL is deployed, set is_dpl_apply_status as TRUE. */
+	if (!get_dpl_apply_status())
+		is_dpl_apply_status = true;
 
-	if (bd && !get_mc_boot_status() && !get_dpl_apply_status())
-		return err;
+	/*
+	 * For case MC is loaded but DPL is not deployed, return success and
+	 * print message on console. Else FDT fix-up code execution hanged.
+	 */
+	if (bd && !get_mc_boot_status() && !is_dpl_apply_status) {
+		printf("fsl-mc: DPL not deployed, DPAA2 ethernet not work\n");
+		return 0;
+	}
 
 	err = dpbp_exit();
 	if (err < 0) {

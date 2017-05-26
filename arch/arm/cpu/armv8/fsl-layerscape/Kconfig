@@ -163,11 +163,12 @@ endchoice
 config SYS_LS_PPA_FW_ADDR
 	hex "Address of PPA firmware loading from"
 	depends on FSL_LS_PPA
-	default 0x40500000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
-	default 0x580a00000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
-	default 0x60500000 if SYS_LS_PPA_FW_IN_XIP
-	default 0x500000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x500000 if SYS_LS_PPA_FW_IN_NAND
+	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
+	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x580400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
+	default 0x60400000 if SYS_LS_PPA_FW_IN_XIP
+	default 0x400000 if SYS_LS_PPA_FW_IN_MMC
+	default 0x400000 if SYS_LS_PPA_FW_IN_NAND
 
 	help
 	  If the PPA firmware locate at XIP flash, such as NOR or

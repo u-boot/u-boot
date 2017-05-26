@@ -4,10 +4,14 @@ The LS2080A Reference Design (RDB) is a high-performance computing,
 evaluation, and development platform that supports the QorIQ LS2080A, LS2088A
 Layerscape Architecture processor.
 
-LS2080A, LS2088A SoC Overview
---------------------
+The LS2081A Reference Design (RDB) is a high-performance computing,
+evaluation, and development platform that supports the QorIQ LS2081A
+Layerscape Architecture processor.More details in below sections
+
+LS2080A, LS2088A, LS2081A SoC Overview
+--------------------------------------
 Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A,
-LS2088A SoC overview.
+LS2081A, LS2088A SoC overview.
 
  LS2080ARDB board Overview
  -----------------------
@@ -38,11 +42,22 @@ LS2088A SoC overview.
  - UART
  - ARM JTAG support
 
+ LS2081ARDB board Overview
+ -------------------------
+ LS2081ARDB board is similar to LS2080ARDB board
+ with few differences like
+  - Hosts LS2081A SoC
+  - Default boot source is QSPI-boot
+  - Does not have IFC interface
+  - RTC and QSPI flash devices are different
+  - Provides QIXIS access via I2C
+
 Memory map from core's view
 ----------------------------
 0x00_0000_0000 .. 0x00_000F_FFFF	Boot Rom
 0x00_0100_0000 .. 0x00_0FFF_FFFF	CCSR
 0x00_1800_0000 .. 0x00_181F_FFFF	OCRAM
+0x00_2000_0000 .. 0x00_2FFF_FFFF	QSPI region #1
 0x00_3000_0000 .. 0x00_3FFF_FFFF	IFC region #1
 0x00_8000_0000 .. 0x00_FFFF_FFFF	DDR region #1
 0x05_1000_0000 .. 0x05_FFFF_FFFF	IFC region #2
@@ -68,6 +83,45 @@ Booting Options
 ---------------
 a) NOR boot
 b) NAND boot
+c) QSPI boot
+
+Memory map for NOR boot
+-------------------------
+Image				Flash Offset
+RCW+PBI				0x00000000
+Boot firmware (U-Boot)		0x00100000
+Boot firmware Environment	0x00300000
+PPA firmware			0x00400000
+Secure Headers			0x00600000
+Cortina PHY firmware		0x00980000
+DPAA2 MC			0x00A00000
+DPAA2 DPL			0x00D00000
+DPAA2 DPC			0x00E00000
+Kernel.itb			0x01000000
+
+cfg_rcw_src switches needs to be changed for booting from different option.
+Refer to board documentation for correct switch setting.
+
+QSPI boot details
+===================
+Supported only for
+ LS2088ARDB RevF board with LS2088A SoC.
+
+Images needs to be copied to QSPI flash
+as per memory map given below.
+
+Memory map for QSPI flash
+-------------------------
+Image				Flash Offset
+RCW+PBI				0x00000000
+Boot firmware (U-Boot)		0x00100000
+Boot firmware Environment	0x00300000
+PPA firmware			0x00400000
+Cortina PHY firmware		0x00980000
+DPAA2 MC			0x00A00000
+DPAA2 DPL			0x00D00000
+DPAA2 DPC			0x00E00000
+Kernel.itb			0x01000000
 
 Booting Linux flavors which do not support 48-bit VA (< Linux 3.18)
 -------------------------------------------------------------------

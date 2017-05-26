@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -262,15 +263,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 
-#if defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_TEXT_BASE		0x20010000
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x100000        /* 1MB */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#else
+#ifndef CONFIG_QSPI_BOOT
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x2000
 #endif
@@ -363,14 +358,14 @@ unsigned long get_board_ddr_clk(void);
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581100000\0"		\
+	"kernel_start=0x581000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"mcmemsize=0x40000000\0"		\
-	"mcinitcmd=esbc_validate 0x580c80000;"  \
-	"esbc_validate 0x580cc0000;"            \
-	"fsl_mc start mc 0x580300000"           \
-	" 0x580800000 \0"
+	"mcinitcmd=esbc_validate 0x580700000;"  \
+	"esbc_validate 0x580740000;"            \
+	"fsl_mc start mc 0x580a00000"           \
+	" 0x580e00000 \0"
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
@@ -380,12 +375,12 @@ unsigned long get_board_ddr_clk(void);
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581100000\0"		\
+	"kernel_start=0x581000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"mcmemsize=0x40000000\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580300000" \
-	" 0x580800000 \0"
+	"mcinitcmd=fsl_mc start mc 0x580a00000" \
+	" 0x580e00000 \0"
 #endif /* CONFIG_SECURE_BOOT */
 
 
