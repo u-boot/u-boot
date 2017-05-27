@@ -6,13 +6,11 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
-# Bring in either the normal fdt library (which relies on libfdt) or the
-# fallback one (which uses fdtget and is slower). Both provide the same
-# interface for this file to use.
-import fdt_normal
+# Bring in the normal fdt library (which relies on libfdt)
+import fdt
 
 def FdtScan(fname):
     """Returns a new Fdt object from the implementation we are using"""
-    dtb = fdt_normal.FdtNormal(fname)
+    dtb = fdt.Fdt(fname)
     dtb.Scan()
     return dtb
