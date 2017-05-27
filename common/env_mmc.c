@@ -121,7 +121,12 @@ static const char *init_mmc_for_env(struct mmc *mmc)
 	if (!mmc)
 		return "!No MMC card found";
 
-#ifndef CONFIG_BLK
+#ifdef CONFIG_BLK
+	struct udevice *dev;
+
+	if (blk_get_from_parent(mmc->dev, &dev))
+		return "!No block device";
+#else
 	if (mmc_init(mmc))
 		return "!MMC init failed";
 #endif
