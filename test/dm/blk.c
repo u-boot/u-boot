@@ -150,3 +150,21 @@ static int dm_test_blk_devnum(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_blk_devnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we can get a block from its parent */
+static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
+{
+	struct udevice *dev, *blk;
+
+	ut_assertok(uclass_get_device(UCLASS_MMC, 0, &dev));
+	ut_assertok(blk_get_from_parent(dev, &blk));
+
+	ut_assertok(uclass_get_device(UCLASS_I2C, 0, &dev));
+	ut_asserteq(-ENOTBLK, blk_get_from_parent(dev, &blk));
+
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 0, &dev));
+	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));
+
+	return 0;
+}
+DM_TEST(dm_test_blk_get_from_parent, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

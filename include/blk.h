@@ -616,4 +616,11 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
  */
 int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
 
+/**
+ * blk_get_from_parent() - obtain a block device by looking up its parent
+ *
+ * All devices with
+ */
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
+
 #endif
