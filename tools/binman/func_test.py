@@ -658,8 +658,8 @@ class TestFunctional(unittest.TestCase):
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
             fd.write(second)
-        fdt = fdt_select.FdtScan(fname)
-        ucode = fdt.GetNode('/microcode')
+        dtb = fdt.FdtScan(fname)
+        ucode = dtb.GetNode('/microcode')
         self.assertTrue(ucode)
         for node in ucode.subnodes:
             self.assertFalse(node.props.get('data'))

@@ -44,9 +44,8 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
             fd.write(self.data)
 
         # Remove the microcode
-        fdt = fdt_select.FdtScan(fname)
-        fdt.Scan()
-        ucode = fdt.GetNode('/microcode')
+        dtb = fdt.FdtScan(fname)
+        ucode = dtb.GetNode('/microcode')
         if not ucode:
             raise self.Raise("No /microcode node found in '%s'" % fname)
 
@@ -64,8 +63,8 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
                     self.ucode_offset = data_prop.GetOffset() + 12
                     self.ucode_size = len(data_prop.bytes)
         if self.collate:
-            fdt.Pack()
-            fdt.Flush()
+            dtb.Pack()
+            dtb.Flush()
 
             # Make this file the contents of this entry
             self._pathname = fname
