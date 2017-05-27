@@ -97,7 +97,7 @@ struct mmc *find_mmc_device(int dev_num)
 	struct udevice *dev, *mmc_dev;
 	int ret;
 
-	ret = blk_get_device(IF_TYPE_MMC, dev_num, &dev);
+	ret = blk_find_device(IF_TYPE_MMC, dev_num, &dev);
 
 	if (ret) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
@@ -108,7 +108,9 @@ struct mmc *find_mmc_device(int dev_num)
 
 	mmc_dev = dev_get_parent(dev);
 
-	return mmc_get_mmc_dev(mmc_dev);
+	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+
+	return mmc;
 }
 
 int get_mmc_num(void)
