@@ -28,21 +28,21 @@ class TestFdt(unittest.TestCase):
     def GetCompiled(self, fname):
         return fdt_util.EnsureCompiled(self.TestFile(fname))
 
-    def _DeleteProp(self, fdt):
-        node = fdt.GetNode('/microcode/update@0')
+    def _DeleteProp(self, dt):
+        node = dt.GetNode('/microcode/update@0')
         node.DeleteProp('data')
 
     def testFdtNormal(self):
         fname = self.GetCompiled('34_x86_ucode.dts')
-        fdt = FdtScan(fname)
-        self._DeleteProp(fdt)
+        dt = FdtScan(fname)
+        self._DeleteProp(dt)
 
     def testFdtFallback(self):
         fname = self.GetCompiled('34_x86_ucode.dts')
-        fdt = FdtScan(fname, True)
-        fdt.GetProp('/microcode/update@0', 'data')
+        dt = FdtScan(fname, True)
+        dt.GetProp('/microcode/update@0', 'data')
         self.assertEqual('fred',
-            fdt.GetProp('/microcode/update@0', 'none', default='fred'))
+            dt.GetProp('/microcode/update@0', 'none', default='fred'))
         self.assertEqual('12345678 12345679',
-            fdt.GetProp('/microcode/update@0', 'data', typespec='x'))
-        self._DeleteProp(fdt)
+            dt.GetProp('/microcode/update@0', 'data', typespec='x'))
+        self._DeleteProp(dt)
