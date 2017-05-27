@@ -12,7 +12,13 @@ import sys
 import fdt
 from fdt import Fdt, NodeBase, PropBase
 import fdt_util
-import libfdt_legacy as libfdt
+try:
+    import libfdt
+    legacy = False
+except ImportError:
+    import libfdt_legacy as libfdt
+    legacy = True
+
 
 # This deals with a device tree, presenting it as a list of Node and Prop
 # objects, representing nodes and properties, respectively.
@@ -36,7 +42,7 @@ class Prop(PropBase):
     """
     def __init__(self, node, offset, name, bytes):
         PropBase.__init__(self, node, offset, name)
-        self.bytes = bytes
+        self.bytes = str(bytes)
         if not bytes:
             self.type = fdt.TYPE_BOOL
             self.value = True
@@ -86,7 +92,10 @@ class Node(NodeBase):
         offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
         while offset >= 0:
             sep = '' if self.path[-1] == '/' else '/'
-            name = libfdt.Name(self._fdt.GetFdt(), offset)
+            if legacy:
+                name = libfdt.Name(self._fdt.GetFdt(), offset)
+            else:
+                name = self._fdt._fdt_obj.get_name(offset)
             path = self.path + sep + name
             node = Node(self._fdt, offset, name, path)
             self.subnodes.append(node)
@@ -139,6 +148,8 @@ class FdtNormal(Fdt):
 
             with open(self._fname) as fd:
                 self._fdt = bytearray(fd.read())
+                if not legacy:
+                    self._fdt_obj = libfdt.Fdt(self._fdt)
 
     def GetFdt(self):
         """Get the contents of the FDT
@@ -175,12 +186,18 @@ class FdtNormal(Fdt):
         props_dict = {}
         poffset = libfdt.fdt_first_property_offset(self._fdt, node._offset)
         while poffset >= 0:
-            dprop, plen = libfdt.fdt_get_property_by_offset(self._fdt, poffset)
-            prop = Prop(node, poffset, libfdt.String(self._fdt, dprop.nameoff),
-                        libfdt.Data(dprop))
-            props_dict[prop.name] = prop
+            if legacy:
+                dprop, plen = libfdt.fdt_get_property_by_offset(self._fdt,
+                                                                poffset)
+                prop = Prop(node, poffset,
+                            libfdt.String(self._fdt, dprop.nameoff),
+                            libfdt.Data(dprop))
+            else:
+                p = self._fdt_obj.get_property_by_offset(poffset)
+                prop = Prop(node, poffset, p.name, p.value)
+                props_dict[prop.name] = prop
 
-            poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
+                poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
         return props_dict
 
     def Invalidate(self):

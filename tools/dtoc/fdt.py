@@ -96,6 +96,7 @@ class PropBase:
                     TYPE_INT: a byte-swapped integer stored as a 4-byte string
                     TYPE_BYTE: a byte stored as a single-byte string
         """
+        bytes = str(bytes)
         size = len(bytes)
         strings = bytes.split('\0')
         is_string = True
