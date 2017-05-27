@@ -150,7 +150,8 @@ int pci_bar_show(struct udevice *dev)
 		if ((!is_64 && size_low) || (is_64 && size)) {
 			size = ~size + 1;
 			printf(" %d   %#016llx  %#016llx  %d     %s   %s\n",
-			       bar_id, base, size, is_64 ? 64 : 32,
+			       bar_id, (unsigned long long)base,
+			       (unsigned long long)size, is_64 ? 64 : 32,
 			       is_io ? "I/O" : "MEM",
 			       prefetchable ? "Prefetchable" : "");
 		}
