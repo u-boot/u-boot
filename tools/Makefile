@@ -141,24 +141,6 @@ tools/_libfdt.so: $(LIBFDT_SRCS) $(LIBFDT_SWIG)
 		$(libfdt_tree)/pylibfdt/setup.py --quiet build_ext \
 			--build-lib tools
 
-# Build a libfdt Python module if swig is available
-# Use 'sudo apt-get install swig libpython-dev' to enable this
-hostprogs-y += \
-	$(if $(shell which swig 2> /dev/null),_libfdt_legacy.so)
-_libfdt_legacy.so-sharedobjs += $(LIBFDT_OBJS)
-libfdt:
-
-tools/_libfdt_legacy.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) \
-		tools/libfdt_legacy_wrap.c
-	LDFLAGS="$(HOSTLDFLAGS)" CFLAGS= ${PYTHON} $(srctree)/lib/libfdt/setup.py \
-		"$(_hostc_flags)" $^
-	mv _libfdt_legacy.so $@
-
-tools/libfdt_legacy_wrap.c: $(srctree)/lib/libfdt/libfdt_legacy.swig
-	swig -python -o $@ $<
-
-# TODO(sjg@chromium.org): Is this correct on Mac OS?
-
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
