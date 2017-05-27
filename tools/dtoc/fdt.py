@@ -14,8 +14,8 @@ import fdt_util
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
 # contains the base classes and defines the high-level API. Most of the
-# implementation is in the FdtFallback and FdtNormal subclasses. See
-# fdt_select.py for how to create an Fdt object.
+# implementation is in the FdtNormal subclass. See fdt_select.py for how to
+# create an Fdt object.
 
 # A list of types we support
 (TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL) = range(4)

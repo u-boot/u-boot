@@ -82,13 +82,3 @@ class TestFdt(unittest.TestCase):
         self.assertEquals(list, type(prop.value))
         self.assertEquals(3, len(prop.value))
         self.assertEquals(['another', 'multi-word', 'message'], prop.value)
-
-    def testFdtFallback(self):
-        fname = self.GetCompiled('34_x86_ucode.dts')
-        dt = FdtScan(fname, True)
-        dt.GetProp('/microcode/update@0', 'data')
-        self.assertEqual('fred',
-            dt.GetProp('/microcode/update@0', 'none', default='fred'))
-        self.assertEqual('12345678 12345679',
-            dt.GetProp('/microcode/update@0', 'data', typespec='x'))
-        self._DeleteProp(dt)
