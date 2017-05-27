@@ -17,7 +17,6 @@ our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
 import fdt
-import fdt_select
 import fdt_util
 
 # When we see these properties we ignore them - i.e. do not create a structure member
@@ -170,7 +169,7 @@ class DtbPlatdata:
         Once this is done, self.fdt.GetRoot() can be called to obtain the
         device tree root node, and progress from there.
         """
-        self.fdt = fdt_select.FdtScan(self._dtb_fname)
+        self.fdt = fdt.FdtScan(self._dtb_fname)
 
     def ScanNode(self, root):
         for node in root.subnodes:

@@ -14,8 +14,8 @@ import libfdt
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
-# contains the base classes and defines the high-level API. See fdt_select.py
-# for how to create an Fdt object.
+# contains the base classes and defines the high-level API. You can use
+# FdtScan() as a convenience function to create and scan an Fdt.
 
 # This implementation uses a libfdt Python library to access the device tree,
 # so it is fairly efficient.
@@ -400,3 +400,9 @@ class Fdt:
         """
         node = Node(fdt, offset, name, path)
         return node
+
+def FdtScan(fname):
+    """Returns a new Fdt object from the implementation we are using"""
+    dtb = Fdt(fname)
+    dtb.Scan()
+    return dtb

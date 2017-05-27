@@ -6,7 +6,7 @@
 # Entry-type module for U-Boot device tree with the microcode removed
 #
 
-import fdt_select
+import fdt
 from entry import Entry
 from blob import Entry_blob
 import tools

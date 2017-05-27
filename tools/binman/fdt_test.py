@@ -12,7 +12,7 @@ import tempfile
 import unittest
 
 import fdt
-from fdt_select import FdtScan
+from fdt import FdtScan
 import fdt_util
 import tools
 

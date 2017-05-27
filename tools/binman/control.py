@@ -12,7 +12,7 @@ import sys
 import tools
 
 import command
-import fdt_select
+import fdt
 import fdt_util
 from image import Image
 import tout

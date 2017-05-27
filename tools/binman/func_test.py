@@ -21,7 +21,7 @@ import cmdline
 import command
 import control
 import entry
-import fdt_select
+import fdt
 import fdt_util
 import tools
 import tout
