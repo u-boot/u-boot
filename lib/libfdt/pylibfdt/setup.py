@@ -97,12 +97,12 @@ files = os.environ.get('SOURCES', '').split()
 cflags = os.environ.get('CPPFLAGS', '').split()
 objdir = os.environ.get('OBJDIR')
 version = os.environ.get('VERSION')
-swig_opts = []
+swig_opts = os.environ.get('SWIG_OPTS', '').split()
 
 # If we were called directly rather than through our Makefile (which is often
 # the case with Python module installation), read the settings from the
 # Makefile.
-if not all((version, files, cflags, objdir)):
+if not all((swig_opts, version, files, cflags, objdir)):
     swig_opts, version, files, cflags, objdir = GetEnvFromMakefiles()
 
 libfdt_module = Extension(
