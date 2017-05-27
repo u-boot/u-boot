@@ -12,7 +12,7 @@ import sys
 import fdt
 from fdt import Fdt, NodeBase, PropBase
 import fdt_util
-import libfdt
+import libfdt_legacy as libfdt
 
 # This deals with a device tree, presenting it as a list of Node and Prop
 # objects, representing nodes and properties, respectively.

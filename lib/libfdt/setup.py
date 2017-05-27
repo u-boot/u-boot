@@ -22,17 +22,17 @@ else:
     cflags = None
 
 libfdt_module = Extension(
-    '_libfdt',
+    '_libfdt_legacy',
     sources = files,
     extra_compile_args =  cflags
 )
 
 sys.argv = [progname, '--quiet', 'build_ext', '--inplace', '--force']
 
-setup (name = 'libfdt',
+setup (name = 'libfdt_legaacy',
        version = '0.1',
        author      = "SWIG Docs",
        description = """Simple swig libfdt from docs""",
        ext_modules = [libfdt_module],
-       py_modules = ["libfdt"],
+       py_modules = ["libfdt_legacy"],
        )

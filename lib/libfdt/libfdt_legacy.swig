@@ -1,5 +1,4 @@
-/* File: libfdt.i */
-%module libfdt
+%module libfdt_legacy
 
 %{
 #define SWIG_FILE_WITH_INIT

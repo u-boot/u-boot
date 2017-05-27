@@ -117,16 +117,17 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 # Build a libfdt Python module if swig is available
 # Use 'sudo apt-get install swig libpython-dev' to enable this
 hostprogs-y += \
-	$(if $(shell which swig 2> /dev/null),_libfdt.so)
-_libfdt.so-sharedobjs += $(LIBFDT_OBJS)
+	$(if $(shell which swig 2> /dev/null),_libfdt_legacy.so)
+_libfdt_legacy.so-sharedobjs += $(LIBFDT_OBJS)
 libfdt:
 
-tools/_libfdt.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) tools/libfdt_wrap.c
+tools/_libfdt_legacy.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) \
+		tools/libfdt_legacy_wrap.c
 	LDFLAGS="$(HOSTLDFLAGS)" CFLAGS= ${PYTHON} $(srctree)/lib/libfdt/setup.py \
 		"$(_hostc_flags)" $^
-	mv _libfdt.so $@
+	mv _libfdt_legacy.so $@
 
-tools/libfdt_wrap.c: $(srctree)/lib/libfdt/libfdt.swig
+tools/libfdt_legacy_wrap.c: $(srctree)/lib/libfdt/libfdt_legacy.swig
 	swig -python -o $@ $<
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
