@@ -437,6 +437,15 @@ config SPL_NOR_SUPPORT
 	  a memory-mapped device makes it very easy to access. Loading from
 	  NOR is typically achieved with just a memcpy().
 
+config SPL_XIP_SUPPORT
+	bool "Support XIP"
+	depends on SPL
+	help
+	  Enable support for execute in place of U-Boot or kernel image. There
+	  is no need to copy image from flash to ram if flash supports execute
+	  in place. Its very useful in systems having enough flash but not
+	  enough ram to load the image.
+
 config SPL_ONENAND_SUPPORT
 	bool "Support OneNAND flash"
 	help
