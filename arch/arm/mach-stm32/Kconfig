@@ -21,6 +21,7 @@ config STM32F7
 	select SPL_OF_CONTROL
 	select SPL_OF_LIBFDT
 	select SPL_OF_TRANSLATE
+	select SPL_OS_BOOT
 	select SPL_PINCTRL
 	select SPL_RAM
 	select SPL_SERIAL_SUPPORT

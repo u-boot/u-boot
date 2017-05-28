@@ -91,6 +91,15 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	debug("SPL: booting kernel\n");
+	/* break into full u-boot on 'c' */
+	return serial_tstc() && serial_getc() == 'c';
+}
+#endif
+
 int spl_dram_init(void)
 {
 	struct udevice *dev;
