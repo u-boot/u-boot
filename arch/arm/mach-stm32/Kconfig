@@ -26,6 +26,7 @@ config STM32F7
 	select SPL_RAM
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYS_MALLOC_SIMPLE
+	select SPL_XIP_SUPPORT
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
 source "arch/arm/mach-stm32/stm32f1/Kconfig"
