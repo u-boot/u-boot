@@ -207,7 +207,7 @@
 #define CONFIG_APBH_DMA_BURST8
 #endif
 
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
+#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
 #ifdef CONFIG_NAND_MXS
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 #else
