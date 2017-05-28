@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <ram.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
@@ -36,16 +37,18 @@ int get_memory_base_size(fdt_addr_t *mr_base, fdt_addr_t *mr_size)
 }
 int dram_init(void)
 {
-	struct udevice *dev;
 	int rv;
 	fdt_addr_t mr_base, mr_size;
 
+#ifndef CONFIG_SUPPORT_SPL
+	struct udevice *dev;
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv) {
 		debug("DRAM init failed: %d\n", rv);
 		return rv;
 	}
 
+#endif
 	rv = get_memory_base_size(&mr_base, &mr_size);
 	if (rv)
 		return rv;
@@ -87,6 +90,28 @@ int board_early_init_f(void)
 }
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+int spl_dram_init(void)
+{
+	struct udevice *dev;
+	int rv;
+	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (rv)
+		debug("DRAM init failed: %d\n", rv);
+	return rv;
+}
+void spl_board_init(void)
+{
+	spl_dram_init();
+	preloader_console_init();
+	arch_cpu_init(); /* to configure mpu for sdram rw permissions */
+}
+u32 spl_boot_device(void)
+{
+	return BOOT_DEVICE_NOR;
+}
+
+#endif
 u32 get_board_rev(void)
 {
 	return 0;

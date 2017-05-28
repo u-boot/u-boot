@@ -8,6 +8,23 @@ config STM32F1
 
 config STM32F7
 	bool "stm32f7 family"
+	select SUPPORT_SPL
+	select SPL
+	select SPL_CLK
+	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_GPIO_SUPPORT
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_MTD_SUPPORT
+	select SPL_OF_CONTROL
+	select SPL_OF_LIBFDT
+	select SPL_OF_TRANSLATE
+	select SPL_PINCTRL
+	select SPL_RAM
+	select SPL_SERIAL_SUPPORT
+	select SPL_SYS_MALLOC_SIMPLE
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
 source "arch/arm/mach-stm32/stm32f1/Kconfig"
