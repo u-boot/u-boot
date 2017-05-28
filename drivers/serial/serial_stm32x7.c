@@ -93,6 +93,9 @@ static int stm32_serial_probe(struct udevice *dev)
 	}
 #endif
 
+	/* Disable usart-> disable overrun-> enable usart */
+	clrbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
+	setbits_le32(&usart->cr3, USART_CR3_OVRDIS);
 	setbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
 
 	return 0;

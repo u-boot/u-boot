@@ -27,6 +27,8 @@ struct stm32_usart {
 #define USART_CR1_TE			(1 << 3)
 #define USART_CR1_UE			(1 << 0)
 
+#define USART_CR3_OVRDIS		(1 << 12)
+
 #define USART_SR_FLAG_RXNE		(1 << 5)
 #define USART_SR_FLAG_TXE		(1 << 7)
 
