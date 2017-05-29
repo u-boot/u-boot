@@ -407,6 +407,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         cc = []
     cmd = ['git', 'send-email', '--annotate']
     if in_reply_to:
+        if type(in_reply_to) != str:
+            in_reply_to = in_reply_to.encode('utf-8')
         cmd.append('--in-reply-to="%s"' % in_reply_to)
     if thread:
         cmd.append('--thread')

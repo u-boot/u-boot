@@ -119,7 +119,7 @@ class Series(dict):
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
                             % tag)
                 if email:
-                    print('      Cc: ', email.encode('utf-8'))
+                    print('      Cc: ', email)
         print
         for item in to_set:
             print('To:\t ', item)
@@ -229,13 +229,17 @@ class Series(dict):
                                            raise_on_error=raise_on_error)
             if add_maintainers:
                 list += get_maintainer.GetMaintainer(commit.patch)
+            list = [m.encode('utf-8') if type(m) != str else m for m in list]
             all_ccs += list
-            print(commit.patch, ', '.join(set(list)).encode('utf-8'), file=fd)
+            print(commit.patch, ', '.join(set(list)), file=fd)
             self._generated_cc[commit.patch] = list
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            cc_list = ', '.join([x.decode('utf-8') for x in set(cover_cc + all_ccs)])
+            cover_cc = [m.encode('utf-8') if type(m) != str else m
+                        for m in cover_cc]
+            cc_list = ', '.join([x.decode('utf-8')
+                                 for x in set(cover_cc + all_ccs)])
             print(cover_fname, cc_list.encode('utf-8'), file=fd)
 
         fd.close()
