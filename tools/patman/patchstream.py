@@ -308,15 +308,6 @@ class PatchStream:
 
         # Well that means this is an ordinary line
         else:
-            pos = 1
-            # Look for ugly ASCII characters
-            for ch in line:
-                # TODO: Would be nicer to report source filename and line
-                if ord(ch) > 0x80:
-                    self.warn.append("Line %d/%d ('%s') has funny ascii char" %
-                        (self.linenum, pos, line))
-                pos += 1
-
             # Look for space before tab
             m = re_space_before_tab.match(line)
             if m:
