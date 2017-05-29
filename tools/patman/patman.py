@@ -82,11 +82,13 @@ if __name__ != "__main__":
 # Run our meagre tests
 elif options.test:
     import doctest
+    import func_test
 
     sys.argv = [sys.argv[0]]
-    suite = unittest.TestLoader().loadTestsFromTestCase(test.TestPatch)
     result = unittest.TestResult()
-    suite.run(result)
+    for module in (test.TestPatch, func_test.TestFunctional):
+        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        suite.run(result)
 
     for module in ['gitutil', 'settings']:
         suite = doctest.DocTestSuite(module)

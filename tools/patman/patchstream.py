@@ -424,6 +424,19 @@ def GetMetaData(start, count):
     """
     return GetMetaDataForList('HEAD~%d' % start, None, count)
 
+def GetMetaDataForTest(text):
+    """Process metadata from a file containing a git log. Used for tests
+
+    Args:
+        text:
+    """
+    series = Series()
+    ps = PatchStream(series, is_log=True)
+    for line in text.splitlines():
+        ps.ProcessLine(line)
+    ps.Finalize()
+    return series
+
 def FixPatch(backup_dir, fname, series, commit):
     """Fix up a patch file, by adding/removing as required.
 
