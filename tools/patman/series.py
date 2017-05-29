@@ -119,7 +119,7 @@ class Series(dict):
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
                             % tag)
                 if email:
-                    print('      Cc: ', email)
+                    print('      Cc: ', email.encode('utf-8'))
         print
         for item in to_set:
             print('To:\t ', item)
@@ -230,7 +230,7 @@ class Series(dict):
             if add_maintainers:
                 list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
-            print(commit.patch, ', '.join(set(list)), file=fd)
+            print(commit.patch, ', '.join(set(list)).encode('utf-8'), file=fd)
             self._generated_cc[commit.patch] = list
 
         if cover_fname:
