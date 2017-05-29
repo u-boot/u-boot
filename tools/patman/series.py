@@ -223,20 +223,20 @@ class Series(dict):
         fd = open(fname, 'w')
         all_ccs = []
         for commit in self.commits:
-            list = []
+            cc = []
             if process_tags:
-                list += gitutil.BuildEmailList(commit.tags,
+                cc += gitutil.BuildEmailList(commit.tags,
                                                raise_on_error=raise_on_error)
-            list += gitutil.BuildEmailList(commit.cc_list,
+            cc += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-            if type(add_maintainers) == type(list):
-                list += add_maintainers
+            if type(add_maintainers) == type(cc):
+                cc += add_maintainers
             elif add_maintainers:
-                list += get_maintainer.GetMaintainer(commit.patch)
-            list = [m.encode('utf-8') if type(m) != str else m for m in list]
-            all_ccs += list
-            print(commit.patch, ', '.join(set(list)), file=fd)
-            self._generated_cc[commit.patch] = list
+                cc += get_maintainer.GetMaintainer(commit.patch)
+            cc = [m.encode('utf-8') if type(m) != str else m for m in cc]
+            all_ccs += cc
+            print(commit.patch, ', '.join(set(cc)), file=fd)
+            self._generated_cc[commit.patch] = cc
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
