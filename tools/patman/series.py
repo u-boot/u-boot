@@ -212,7 +212,9 @@ class Series(dict):
             cover_fname: If non-None the name of the cover letter.
             raise_on_error: True to raise an error when an alias fails to match,
                 False to just print a message.
-            add_maintainers: Call the get_maintainers to CC maintainers
+            add_maintainers: Either:
+                True/False to call the get_maintainers to CC maintainers
+                List of maintainers to include (for testing)
         Return:
             Filename of temp file created
         """
@@ -227,7 +229,9 @@ class Series(dict):
                                                raise_on_error=raise_on_error)
             list += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-            if add_maintainers:
+            if type(add_maintainers) == type(list):
+                list += add_maintainers
+            elif add_maintainers:
                 list += get_maintainer.GetMaintainer(commit.patch)
             list = [m.encode('utf-8') if type(m) != str else m for m in list]
             all_ccs += list
