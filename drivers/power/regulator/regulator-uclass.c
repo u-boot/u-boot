@@ -311,6 +311,17 @@ int regulator_autoset(struct udevice *dev)
 	return ret;
 }
 
+int regulator_unset(struct udevice *dev)
+{
+	struct dm_regulator_uclass_plat *uc_pdata;
+
+	uc_pdata = dev_get_uclass_plat(dev);
+	if (uc_pdata && uc_pdata->force_off)
+		return regulator_set_enable(dev, false);
+
+	return -EMEDIUMTYPE;
+}
+
 static void regulator_show(struct udevice *dev, int ret)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
@@ -443,6 +454,7 @@ static int regulator_pre_probe(struct udevice *dev)
 	uc_pdata->boot_on = dev_read_bool(dev, "regulator-boot-on");
 	uc_pdata->ramp_delay = dev_read_u32_default(dev, "regulator-ramp-delay",
 						    0);
+	uc_pdata->force_off = dev_read_bool(dev, "regulator-force-boot-off");
 
 	node = dev_read_subnode(dev, "regulator-state-mem");
 	if (ofnode_valid(node)) {
@@ -482,6 +494,32 @@ int regulators_enable_boot_on(bool verbose)
 	     dev;
 	     uclass_next_device(&dev)) {
 		ret = regulator_autoset(dev);
+		if (ret == -EMEDIUMTYPE) {
+			ret = 0;
+			continue;
+		}
+		if (verbose)
+			regulator_show(dev, ret);
+		if (ret == -ENOSYS)
+			ret = 0;
+	}
+
+	return ret;
+}
+
+int regulators_enable_boot_off(bool verbose)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_REGULATOR, &uc);
+	if (ret)
+		return ret;
+	for (uclass_first_device(UCLASS_REGULATOR, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		ret = regulator_unset(dev);
 		if (ret == -EMEDIUMTYPE) {
 			ret = 0;
 			continue;
