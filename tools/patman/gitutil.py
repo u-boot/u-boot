@@ -419,10 +419,10 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     if cover_fname:
         cmd.append(cover_fname)
     cmd += args
-    str = ' '.join(cmd)
+    cmdstr = ' '.join(cmd)
     if not dry_run:
-        os.system(str)
-    return str
+        os.system(cmdstr)
+    return cmdstr
 
 
 def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
