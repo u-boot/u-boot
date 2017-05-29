@@ -477,7 +477,6 @@ def FixPatches(series, fnames):
             print
         count += 1
     print('Cleaned %d patches' % count)
-    return series
 
 def InsertCoverLetter(fname, series, count):
     """Inserts a cover letter with the required info into patch 0

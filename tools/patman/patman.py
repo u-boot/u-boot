@@ -141,8 +141,8 @@ else:
                 series)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    series = patchstream.FixPatches(series, args)
-    if series and cover_fname and series.get('cover'):
+    patchstream.FixPatches(series, args)
+    if cover_fname and series.get('cover'):
         patchstream.InsertCoverLetter(cover_fname, series, options.count)
 
     # Do a few checks on the series
