@@ -46,10 +46,10 @@ static int rksd_vrec_header(struct image_tool_params *params,
 			    struct image_type_params *tparams)
 {
 	/*
-	 * Pad to the RK_BLK_SIZE (512 bytes) to be consistent with init_size
-	 * being encoded in RK_BLK_SIZE units in header0 (see rkcommon.c).
+	 * Pad to a 2KB alignment, as required for init_size by the ROM
+	 * (see https://lists.denx.de/pipermail/u-boot/2017-May/293268.html)
 	 */
-	return rkcommon_vrec_header(params, tparams, RK_BLK_SIZE);
+	return rkcommon_vrec_header(params, tparams, RK_INIT_SIZE_ALIGN);
 }
 
 /*

@@ -63,7 +63,7 @@ static int rkspi_check_image_type(uint8_t type)
 static int rkspi_vrec_header(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
-	int padding = rkcommon_vrec_header(params, tparams, 2048);
+	int padding = rkcommon_vrec_header(params, tparams, RK_INIT_SIZE_ALIGN);
 	/*
 	 * The file size has not been adjusted at this point (our caller will
 	 * eventually add the header/padding to the file_size), so we need to
