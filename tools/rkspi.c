@@ -17,16 +17,6 @@ enum {
 	RKSPI_SECT_LEN		= RK_BLK_SIZE * 4,
 };
 
-static int rkspi_verify_header(unsigned char *buf, int size,
-			       struct image_tool_params *params)
-{
-	return 0;
-}
-
-static void rkspi_print_header(const void *buf)
-{
-}
-
 static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 			     struct image_tool_params *params)
 {
@@ -56,11 +46,6 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 		memset(buf + sector * RKSPI_SECT_LEN * 2 + RKSPI_SECT_LEN,
 		       '\0', RKSPI_SECT_LEN);
 	}
-}
-
-static int rkspi_extract_subimage(void *buf, struct image_tool_params *params)
-{
-	return 0;
 }
 
 static int rkspi_check_image_type(uint8_t type)
@@ -112,10 +97,10 @@ U_BOOT_IMAGE_TYPE(
 	0,
 	NULL,
 	rkcommon_check_params,
-	rkspi_verify_header,
-	rkspi_print_header,
+	rkcommon_verify_header,
+	rkcommon_print_header,
 	rkspi_set_header,
-	rkspi_extract_subimage,
+	NULL,
 	rkspi_check_image_type,
 	NULL,
 	rkspi_vrec_header

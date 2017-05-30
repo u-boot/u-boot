@@ -13,29 +13,17 @@
 #include "mkimage.h"
 #include "rkcommon.h"
 
-static int rksd_verify_header(unsigned char *buf,  int size,
-				 struct image_tool_params *params)
-{
-	return 0;
-}
-
-static void rksd_print_header(const void *buf)
-{
-}
-
 static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
-			       struct image_tool_params *params)
+			    struct image_tool_params *params)
 {
 	unsigned int size;
 	int ret;
 
-	printf("params->file_size %d\n", params->file_size);
-	printf("params->orig_file_size %d\n", params->orig_file_size);
-
 	/*
 	 * We need to calculate this using 'RK_SPL_HDR_START' and not using
 	 * 'tparams->header_size', as the additional byte inserted when
-	 * 'is_boot0' is true counts towards the payload.
+	 * 'is_boot0' is true counts towards the payload (and not towards the
+	 * header).
 	 */
 	size = params->file_size - RK_SPL_HDR_START;
 	ret = rkcommon_set_header(buf, size, params);
@@ -44,11 +32,6 @@ static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
 		printf("Warning: SPL image is too large (size %#x) and will "
 		       "not boot\n", size);
 	}
-}
-
-static int rksd_extract_subimage(void *buf,  struct image_tool_params *params)
-{
-	return 0;
 }
 
 static int rksd_check_image_type(uint8_t type)
@@ -78,10 +61,10 @@ U_BOOT_IMAGE_TYPE(
 	0,
 	NULL,
 	rkcommon_check_params,
-	rksd_verify_header,
-	rksd_print_header,
+	rkcommon_verify_header,
+	rkcommon_print_header,
 	rksd_set_header,
-	rksd_extract_subimage,
+	NULL,
 	rksd_check_image_type,
 	NULL,
 	rksd_vrec_header
