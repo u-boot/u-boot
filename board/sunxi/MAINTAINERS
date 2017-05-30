@@ -247,6 +247,11 @@ M:	Mylène Josserand <mylene.josserand@free-electrons.com>
 S:	Maintained
 F:	configs/nanopi_m1_defconfig
 
+NANOPI-M1 PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_m1_plus_defconfig
+
 NANOPI-NEO BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
