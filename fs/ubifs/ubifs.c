@@ -939,7 +939,7 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 
 	printf("Loading file '%s' to addr 0x%08x...\n", filename, addr);
 
-	err = ubifs_read(filename, (void *)addr, 0, size, &actread);
+	err = ubifs_read(filename, (void *)(uintptr_t)addr, 0, size, &actread);
 	if (err == 0) {
 		setenv_hex("filesize", actread);
 		printf("Done\n");
