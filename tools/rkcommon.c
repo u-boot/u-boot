@@ -184,11 +184,14 @@ static void rkcommon_set_header0(void *buf, uint file_size,
 	 */
 	hdr->init_size = ROUND(hdr->init_size, 4);
 	/*
-	 * The images we create do not contain the stage following the SPL as
-	 * part of the SPL image, so the init_boot_size (which might have been
-	 * read by Rockchip's miniloder) should be the same as the init_size.
+	 * init_boot_size needs to be set, as it is read by the BootROM
+	 * to determine the size of the next-stage bootloader (e.g. U-Boot
+	 * proper), when used with the back-to-bootrom functionality.
+	 *
+	 * see https://lists.denx.de/pipermail/u-boot/2017-May/293267.html
+	 * for a more detailed explanation by Andy Yan
 	 */
-	hdr->init_boot_size = hdr->init_size;
+	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 }
