@@ -10,6 +10,7 @@
 
 #include <command.h>
 #include <environment.h>
+#include <fdtdec.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -36,15 +37,37 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-__weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static inline s64 mmc_offset(int copy)
 {
-	s64 offset;
+	const char *propname = "u-boot,mmc-env-offset";
+	s64 defvalue = CONFIG_ENV_OFFSET;
 
-	offset = CONFIG_ENV_OFFSET;
-#ifdef CONFIG_ENV_OFFSET_REDUND
+#if defined(CONFIG_ENV_OFFSET_REDUND)
+	if (copy) {
+		propname = "u-boot,mmc-env-offset-redundant";
+		defvalue = CONFIG_ENV_OFFSET_REDUND;
+	}
+#endif
+
+	return fdtdec_get_config_int(gd->fdt_blob, propname, defvalue);
+}
+#else
+static inline s64 mmc_offset(int copy)
+{
+	s64 offset = CONFIG_ENV_OFFSET;
+
+#if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy)
 		offset = CONFIG_ENV_OFFSET_REDUND;
 #endif
+	return offset;
+}
+#endif
+
+__weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+{
+	s64 offset = mmc_offset(copy);
 
 	if (offset < 0)
 		offset += mmc->capacity;

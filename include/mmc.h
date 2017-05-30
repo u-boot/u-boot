@@ -430,7 +430,7 @@ struct mmc {
 	u8 part_support;
 	u8 part_attr;
 	u8 wr_rel_set;
-	char part_config;
+	u8 part_config;
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;

@@ -71,8 +71,8 @@ static const char max77686_buck_out[] = {
 
 static int max77686_buck_volt2hex(int buck, int uV)
 {
-	unsigned int hex = 0;
-	unsigned int hex_max = 0;
+	int hex = 0;
+	int hex_max = 0;
 
 	switch (buck) {
 	case 2:
@@ -105,7 +105,7 @@ static int max77686_buck_volt2hex(int buck, int uV)
 static int max77686_buck_hex2volt(int buck, int hex)
 {
 	unsigned uV = 0;
-	unsigned int hex_max = 0;
+	int hex_max = 0;
 
 	if (hex < 0)
 		goto bad_hex;
@@ -140,7 +140,7 @@ bad_hex:
 
 static int max77686_ldo_volt2hex(int ldo, int uV)
 {
-	unsigned int hex = 0;
+	int hex = 0;
 
 	switch (ldo) {
 	case 1:
@@ -319,9 +319,9 @@ static int max77686_ldo_modes(int ldo, struct dm_regulator_mode **modesp,
 
 static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
+	unsigned int adr;
 	unsigned char val;
-	int ldo, ret;
+	int hex, ldo, ret;
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
@@ -360,9 +360,9 @@ static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 
 static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, mask, adr;
+	unsigned int mask, adr;
 	unsigned char val;
-	int buck, ret;
+	int hex, buck, ret;
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
