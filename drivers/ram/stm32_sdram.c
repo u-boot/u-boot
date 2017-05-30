@@ -132,8 +132,8 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
-#ifdef CONFIG_CLK
 	int ret;
+#ifdef CONFIG_CLK
 	struct clk clk;
 
 	ret = clk_get_by_index(dev, 0, &clk);
