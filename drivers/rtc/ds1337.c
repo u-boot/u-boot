@@ -150,11 +150,11 @@ int rtc_set (struct rtc_time *tmp)
  * SQW/INTB* pin and program it for 32,768 Hz output. Note that
  * according to the datasheet, turning on the square wave output
  * increases the current drain on the backup battery from about
- * 600 nA to 2uA. Define CONFIG_SYS_RTC_DS1337_NOOSC if you wish to turn
+ * 600 nA to 2uA. Define CONFIG_RTC_DS1337_NOOSC if you wish to turn
  * off the OSC output.
  */
 
-#ifdef CONFIG_SYS_RTC_DS1337_NOOSC
+#ifdef CONFIG_RTC_DS1337_NOOSC
  #define RTC_DS1337_RESET_VAL \
 	(RTC_CTL_BIT_INTCN | RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2)
 #else
@@ -162,16 +162,16 @@ int rtc_set (struct rtc_time *tmp)
 #endif
 void rtc_reset (void)
 {
-#ifdef CONFIG_SYS_RTC_DS1337
+#ifdef CONFIG_RTC_DS1337
 	rtc_write (RTC_CTL_REG_ADDR, RTC_DS1337_RESET_VAL);
-#elif defined CONFIG_SYS_RTC_DS1388
+#elif defined CONFIG_RTC_DS1388
 	rtc_write(RTC_CTL_REG_ADDR, 0x0); /* hw default */
 #endif
-#ifdef CONFIG_SYS_DS1339_TCR_VAL
-	rtc_write (RTC_TC_REG_ADDR, CONFIG_SYS_DS1339_TCR_VAL);
+#ifdef CONFIG_RTC_DS1339_TCR_VAL
+	rtc_write (RTC_TC_REG_ADDR, CONFIG_RTC_DS1339_TCR_VAL);
 #endif
-#ifdef CONFIG_SYS_DS1388_TCR_VAL
-	rtc_write(RTC_TC_REG_ADDR, CONFIG_SYS_DS1388_TCR_VAL);
+#ifdef CONFIG_RTC_DS1388_TCR_VAL
+	rtc_write(RTC_TC_REG_ADDR, CONFIG_RTC_DS1388_TCR_VAL);
 #endif
 }
 
