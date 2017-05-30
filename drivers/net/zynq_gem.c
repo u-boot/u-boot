@@ -192,7 +192,7 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	int err;
 
 	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-			    true, 20000, true);
+			    true, 20000, false);
 	if (err)
 		return err;
 
@@ -205,7 +205,7 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	writel(mgtcr, &regs->phymntnc);
 
 	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-			    true, 20000, true);
+			    true, 20000, false);
 	if (err)
 		return err;
 
