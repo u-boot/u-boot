@@ -407,10 +407,6 @@ static int zynq_gem_init(struct udevice *dev)
 		dummy_rx_bd->addr = ZYNQ_GEM_RXBUF_WRAP_MASK |
 				ZYNQ_GEM_RXBUF_NEW_MASK;
 		dummy_rx_bd->status = 0;
-		flush_dcache_range((ulong)&dummy_tx_bd, (ulong)&dummy_tx_bd +
-				   sizeof(dummy_tx_bd));
-		flush_dcache_range((ulong)&dummy_rx_bd, (ulong)&dummy_rx_bd +
-				   sizeof(dummy_rx_bd));
 
 		writel((ulong)dummy_tx_bd, &regs->transmit_q1_ptr);
 		writel((ulong)dummy_rx_bd, &regs->receive_q1_ptr);
