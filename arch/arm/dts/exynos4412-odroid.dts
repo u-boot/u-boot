@@ -25,8 +25,8 @@
 		i2c7 = "/i2c@138d0000";
 		serial0 = "/serial@13800000";
 		console = "/serial@13810000";
-		mmc2 = "/sdhci@12530000";
-		mmc4 = "/dwmmc@12550000";
+		mmc0 = &mshc_0;
+		mmc1 = &sdhci2;
 	};
 
 	i2c@13860000 {
@@ -224,34 +224,6 @@
 		status = "okay";
 	};
 
-	sdhci@12510000 {
-		status = "disabled";
-	};
-
-	sdhci@12520000 {
-		status = "disabled";
-	};
-
-	sdhci@12530000 {
-		samsung,bus-width = <4>;
-		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpk2 2 0>;
-	};
-
-	sdhci@12540000 {
-		status = "disabled";
-	};
-
-	dwmmc@12550000 {
-		samsung,bus-width = <8>;
-		samsung,timing = <2 1 0>;
-		samsung,removable = <0>;
-		fifoth_val = <0x203f0040>;
-		bus_hz = <400000000>;
-		div = <0x3>;
-		index = <4>;
-	};
-
 	ehci@12580000 {
 		compatible = "samsung,exynos-ehci";
 		reg = <0x12580000 0x100>;
@@ -267,4 +239,22 @@
 		compatible = "samsung,emmc-reset";
 		reset-gpio = <&gpk1 2 0>;
 	};
+};
+
+&sdhci2 {
+	samsung,bus-width = <4>;
+	samsung,timing = <1 2 3>;
+	cd-gpios = <&gpk2 2 0>;
+	status = "okay";
+};
+
+&mshc_0 {
+	samsung,bus-width = <8>;
+	samsung,timing = <2 1 0>;
+	samsung,removable = <0>;
+	fifoth_val = <0x203f0040>;
+	bus_hz = <400000000>;
+	div = <0x3>;
+	index = <4>;
+	status = "okay";
 };

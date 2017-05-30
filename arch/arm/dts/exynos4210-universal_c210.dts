@@ -17,28 +17,6 @@
 	aliases {
 		serial0 = "/serial@13800000";
 		console = "/serial@13820000";
-		mmc0 = "/sdhci@12510000";
-		mmc2 = "/sdhci@12530000";
-	};
-
-	sdhci@12510000 {
-		samsung,bus-width = <8>;
-		samsung,timing = <1 3 3>;
-		pwr-gpios = <&gpk0 2 0>;
-	};
-
-	sdhci@12520000 {
-		status = "disabled";
-	};
-
-	sdhci@12530000 {
-		samsung,bus-width = <4>;
-		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpx3 4 0>;
-	};
-
-	sdhci@12540000 {
-		status = "disabled";
 	};
 
 	soft-spi {
@@ -257,4 +235,18 @@
 			};
 		};
 	};
+};
+
+&sdhci0 {
+	samsung,bus-width = <8>;
+	samsung,timing = <1 3 3>;
+	pwr-gpios = <&gpk0 2 0>;
+	status = "okay";
+};
+
+&sdhci2 {
+	samsung,bus-width = <4>;
+	samsung,timing = <1 2 3>;
+	cd-gpios = <&gpx3 4 0>;
+	status = "okay";
 };

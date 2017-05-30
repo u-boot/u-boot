@@ -22,24 +22,12 @@
 	aliases {
 		serial0 = "/serial@13800000";
 		console = "/serial@13820000";
-		mmc2 = "/sdhci@12530000";
 	};
+};
 
-	sdhci@12510000 {
-		status = "disabled";
-	};
-
-	sdhci@12520000 {
-		status = "disabled";
-	};
-
-	sdhci@12530000 {
-		samsung,bus-width = <4>;
-		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpk2 2 0>;
-	};
-
-	sdhci@12540000 {
-		status = "disabled";
-	};
+&sdhci2 {
+	samsung,bus-width = <4>;
+	samsung,timing = <1 2 3>;
+	cd-gpios = <&gpk2 2 0>;
+	status = "okay";
 };
