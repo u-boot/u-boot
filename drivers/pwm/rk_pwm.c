@@ -92,6 +92,7 @@ static int rk_pwm_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->freq = clk_get_rate(&clk);
+	priv->enable_conf = PWM_DUTY_POSTIVE | PWM_INACTIVE_POSTIVE;
 
 	return 0;
 }
