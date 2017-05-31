@@ -466,9 +466,18 @@ void tegra_dc_sor_set_lane_count(struct udevice *dev, u8 lane_count)
 static int tegra_dc_sor_power_up(struct udevice *dev, int is_lvds)
 {
 	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
+	u32 reg;
 	int ret;
 
 	if (sor->power_is_up)
+		return 0;
+
+	/*
+	 * If for some reason it is already powered up, don't do it again.
+	 * This can happen if U-Boot is the secondary boot loader.
+	 */
+	reg = tegra_sor_readl(sor, DP_PADCTL(sor->portnum));
+	if (reg & DP_PADCTL_PD_TXD_0_NO)
 		return 0;
 
 	/* Set link bw */
