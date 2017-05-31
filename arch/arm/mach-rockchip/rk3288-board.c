@@ -86,8 +86,10 @@ static int veyron_init(void)
 	int ret;
 
 	ret = regulator_get_by_platname("vdd_arm", &dev);
-	if (ret)
+	if (ret) {
+		debug("Cannot set regulator name\n");
 		return ret;
+	}
 
 	/* Slowly raise to max CPU voltage to prevent overshoot */
 	ret = regulator_set_value(dev, 1200000);
