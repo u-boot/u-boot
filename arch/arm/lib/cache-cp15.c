@@ -147,7 +147,7 @@ static inline void mmu_setup(void)
 #endif
 
 	if (is_hyp()) {
-		/* Set HCTR to enable LPAE */
+		/* Set HTCR to enable LPAE */
 		asm volatile("mcr p15, 4, %0, c2, c0, 2"
 			: : "r" (reg) : "memory");
 		/* Set HTTBR0 */
