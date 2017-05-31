@@ -129,7 +129,7 @@ static inline void mmu_setup(void)
 		dram_bank_mmu_setup(i);
 	}
 
-#ifdef CONFIG_ARMV7_LPAE
+#if defined(CONFIG_ARMV7_LPAE) && __LINUX_ARM_ARCH__ != 4
 	/* Set up 4 PTE entries pointing to our 4 1GB page tables */
 	for (i = 0; i < 4; i++) {
 		u64 *page_table = (u64 *)(gd->arch.tlb_addr + (4096 * 4));
