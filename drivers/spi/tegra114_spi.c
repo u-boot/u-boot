@@ -152,6 +152,7 @@ static int tegra114_spi_probe(struct udevice *bus)
 			       bus->name, priv->freq, rate);
 		}
 	}
+	udelay(plat->deactivate_delay_us);
 
 	/* Clear stale status here */
 	setbits_le32(&regs->fifo_status,
