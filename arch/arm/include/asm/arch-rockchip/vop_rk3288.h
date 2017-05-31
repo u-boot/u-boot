@@ -197,6 +197,7 @@ enum vop_modes {
 #define V_DSP_DEN_POL(x)               (((x) & 1) << 6)
 #define V_DSP_VSYNC_POL(x)             (((x) & 1) << 5)
 #define V_DSP_HSYNC_POL(x)             (((x) & 1) << 4)
+#define V_DSP_PIN_POL(x)               (((x) & 0xf) << 4)
 #define V_DSP_OUT_MODE(x)              ((x) & 0xf)
 
 /* VOP_DSP_CTRL1 */
