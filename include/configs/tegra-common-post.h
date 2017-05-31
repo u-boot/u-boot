@@ -105,7 +105,7 @@
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* remove I2C support */
 #ifdef CONFIG_SYS_I2C_TEGRA
