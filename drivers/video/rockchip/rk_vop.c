@@ -105,6 +105,9 @@ static void rkvop_enable_output(struct udevice *dev, enum vop_modes mode)
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	struct rk3288_vop *regs = priv->regs;
 
+	/* remove from standby */
+	clrbits_le32(&regs->sys_ctrl, V_STANDBY_EN(1));
+
 	switch (mode) {
 	case VOP_MODE_HDMI:
 		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
