@@ -36,6 +36,9 @@ static const struct hdmi_phy_config rockchip_phy_config[] = {
 		.mpixelclock = 297000000,
 		.sym_ctr = 0x8039, .term = 0x0005, .vlev_ctr = 0x028d,
 	}, {
+		.mpixelclock = 584000000,
+		.sym_ctr = 0x8039, .term = 0x0000, .vlev_ctr = 0x019d,
+	}, {
 		.mpixelclock = ~0ul,
 		.sym_ctr = 0x0000, .term = 0x0000, .vlev_ctr = 0x0000,
 	}
@@ -60,6 +63,12 @@ static const struct hdmi_mpll_config rockchip_mpll_cfg[] = {
 	}, {
 		.mpixelclock = 148500000,
 		.cpce = 0x0051, .gmp = 0x0003, .curr = 0x0000,
+	}, {
+		.mpixelclock = 272000000,
+		.cpce = 0x0040, .gmp = 0x0003, .curr = 0x0000,
+	}, {
+		.mpixelclock = 340000000,
+		.cpce = 0x0040, .gmp = 0x0003, .curr = 0x0000,
 	}, {
 		.mpixelclock = ~0ul,
 		.cpce = 0x0051, .gmp = 0x0003, .curr = 0x0000,
