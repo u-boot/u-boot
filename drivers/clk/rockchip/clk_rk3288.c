@@ -131,10 +131,8 @@ enum {
 
 /* Keep divisors as low as possible to reduce jitter and power usage */
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
-#ifdef CONFIG_SPL_BUILD
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
-#endif
 
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 			 const struct pll_div *div)
@@ -340,9 +338,8 @@ static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 
 	return 0;
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
-#ifdef CONFIG_SPL_BUILD
 static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
 	u32 aclk_div;
@@ -416,7 +413,6 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 		     GPLL_MODE_NORMAL << GPLL_MODE_SHIFT |
 		     CPLL_MODE_NORMAL << CPLL_MODE_SHIFT);
 }
-#endif
 
 void rk3288_clk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
@@ -786,6 +782,7 @@ static int rk3288_clk_ofdata_to_platdata(struct udevice *dev)
 static int rk3288_clk_probe(struct udevice *dev)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	bool init_clocks = false;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (IS_ERR(priv->grf))
@@ -796,8 +793,24 @@ static int rk3288_clk_probe(struct udevice *dev)
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
-	rkclk_init(priv->cru, priv->grf);
+	init_clocks = true;
 #endif
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		u32 reg;
+
+		/*
+		 * Init clocks in U-Boot proper if the NPLL is runnning. This
+		 * indicates that a previous boot loader set up the clocks, so
+		 * we need to redo it. U-Boot's SPL does not set this clock.
+		 */
+		reg = readl(&priv->cru->cru_mode_con);
+		if (((reg & NPLL_MODE_MASK) >> NPLL_MODE_SHIFT) ==
+				NPLL_MODE_NORMAL)
+			init_clocks = true;
+	}
+
+	if (init_clocks)
+		rkclk_init(priv->cru, priv->grf);
 
 	return 0;
 }
