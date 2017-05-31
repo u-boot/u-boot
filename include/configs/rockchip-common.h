@@ -54,4 +54,6 @@
 #define CONFIG_ENV_OFFSET (96 * 1024)
 #endif
 
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+
 #endif /* _ROCKCHIP_COMMON_H_ */
