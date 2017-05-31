@@ -1087,7 +1087,7 @@ static int sdram_init(struct dram_info *dram,
 
 	debug("Starting SDRAM initialization...\n");
 
-	if ((dramtype == DDR3 && ddr_freq > 800) ||
+	if ((dramtype == DDR3 && ddr_freq > 933) ||
 	    (dramtype == LPDDR3 && ddr_freq > 933) ||
 	    (dramtype == LPDDR4 && ddr_freq > 800)) {
 		debug("SDRAM frequency is to high!");
