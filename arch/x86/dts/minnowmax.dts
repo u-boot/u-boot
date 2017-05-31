@@ -260,7 +260,7 @@
 
 	fsp {
 		compatible = "intel,baytrail-fsp";
-		fsp,mrc-init-tseg-size = <0>;
+		fsp,mrc-init-tseg-size = <1>;
 		fsp,mrc-init-mmio-size = <0x800>;
 		fsp,mrc-init-spd-addr1 = <0xa0>;
 		fsp,mrc-init-spd-addr2 = <0xa2>;

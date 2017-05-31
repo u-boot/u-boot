@@ -148,7 +148,7 @@ void update_fsp_configs(struct fsp_config_data *config,
 
 	fsp_upd->mrc_init_tseg_size = fdtdec_get_int(blob, node,
 						     "fsp,mrc-init-tseg-size",
-						     0);
+						     1);
 	fsp_upd->mrc_init_mmio_size = fdtdec_get_int(blob, node,
 						     "fsp,mrc-init-mmio-size",
 						     0x800);
