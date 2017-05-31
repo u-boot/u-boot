@@ -58,23 +58,22 @@ static int clk_of_xlate_default(struct clk *clk,
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 {
 	int ret;
-	struct fdtdec_phandle_args args;
+	struct ofnode_phandle_args args;
 	struct udevice *dev_clk;
 	struct clk_ops *ops;
 
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
 	assert(clk);
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
-					     "clocks", "#clock-cells", 0, index,
-					     &args);
+	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
+					  index, &args);
 	if (ret) {
 		debug("%s: fdtdec_parse_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
 		return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_CLK, args.node, &dev_clk);
+	ret = uclass_get_device_by_ofnode(UCLASS_CLK, args.node, &dev_clk);
 	if (ret) {
 		debug("%s: uclass_get_device_by_of_offset failed: err=%d\n",
 		      __func__, ret);
@@ -86,10 +85,9 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	ops = clk_dev_ops(dev_clk);
 
 	if (ops->of_xlate)
-		ret = ops->of_xlate(clk, (struct ofnode_phandle_args *)&args);
+		ret = ops->of_xlate(clk, &args);
 	else
-		ret = clk_of_xlate_default(clk,
-					   (struct ofnode_phandle_args *)&args);
+		ret = clk_of_xlate_default(clk, &args);
 	if (ret) {
 		debug("of_xlate() failed: %d\n", ret);
 		return ret;
@@ -105,8 +103,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	debug("%s(dev=%p, name=%s, clk=%p)\n", __func__, dev, name, clk);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
-				      "clock-names", name);
+	index = dev_read_stringlist_search(dev, "clock-names", name);
 	if (index < 0) {
 		debug("fdt_stringlist_search() failed: %d\n", index);
 		return index;
