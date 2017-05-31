@@ -175,9 +175,10 @@ void update_fsp_configs(struct fsp_config_data *config,
 	fsp_upd->enable_azalia = fdtdec_get_bool(blob, node,
 						 "fsp,enable-azalia");
 	fsp_upd->enable_xhci = fdtdec_get_bool(blob, node, "fsp,enable-xhci");
-	fsp_upd->enable_lpe = fdtdec_get_bool(blob, node, "fsp,enable-lpe");
-	fsp_upd->lpss_sio_enable_pci_mode = fdtdec_get_bool(blob, node,
-			"fsp,lpss-sio-enable-pci-mode");
+	fsp_upd->lpe_mode = fdtdec_get_int(blob, node, "fsp,lpe-mode",
+					   LPE_MODE_PCI);
+	fsp_upd->lpss_sio_mode = fdtdec_get_int(blob, node, "fsp,lpss-sio-mode",
+					   LPSS_SIO_MODE_PCI);
 	fsp_upd->enable_dma0 = fdtdec_get_bool(blob, node, "fsp,enable-dma0");
 	fsp_upd->enable_dma1 = fdtdec_get_bool(blob, node, "fsp,enable-dma1");
 	fsp_upd->enable_i2_c0 = fdtdec_get_bool(blob, node, "fsp,enable-i2c0");
@@ -199,8 +200,8 @@ void update_fsp_configs(struct fsp_config_data *config,
 	fsp_upd->mrc_debug_msg = fdtdec_get_bool(blob, node,
 						 "fsp,mrc-debug-msg");
 	fsp_upd->isp_enable = fdtdec_get_bool(blob, node, "fsp,isp-enable");
-	fsp_upd->scc_enable_pci_mode = fdtdec_get_bool(blob, node,
-			"fsp,scc-enable-pci-mode");
+	fsp_upd->scc_mode = fdtdec_get_int(blob, node, "fsp,scc-mode",
+					   SCC_MODE_PCI);
 	fsp_upd->igd_render_standby = fdtdec_get_bool(blob, node,
 						      "fsp,igd-render-standby");
 	fsp_upd->txe_uma_enable = fdtdec_get_bool(blob, node,

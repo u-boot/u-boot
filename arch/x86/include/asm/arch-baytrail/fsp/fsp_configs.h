@@ -93,4 +93,14 @@ struct fspinit_rtbuf {
 #define DIMM_SIDES_1RANKS		0
 #define DIMM_SIDES_2RANKS		1
 
+#define LPE_MODE_DISABLED		0
+#define LPE_MODE_PCI			1
+#define LPE_MODE_ACPI			2
+
+#define LPSS_SIO_MODE_ACPI		0
+#define LPSS_SIO_MODE_PCI		1
+
+#define SCC_MODE_ACPI			0
+#define SCC_MODE_PCI			1
+
 #endif /* __FSP_CONFIGS_H__ */

@@ -268,7 +268,7 @@
 		fsp,enable-sata;
 		fsp,sata-mode = <SATA_MODE_AHCI>;
 		fsp,enable-azalia;
-		fsp,lpss-sio-enable-pci-mode;
+		fsp,lpss-sio-mode = <LPSS_SIO_MODE_PCI>;
 		fsp,enable-dma0;
 		fsp,enable-dma1;
 		fsp,enable-i2c0;
@@ -283,7 +283,7 @@
 		fsp,igd-dvmt50-pre-alloc = <IGD_DVMT50_PRE_ALLOC_64MB>;
 		fsp,aperture-size = <APERTURE_SIZE_256MB>;
 		fsp,gtt-size = <GTT_SIZE_2MB>;
-		fsp,scc-enable-pci-mode;
+		fsp,scc-mode = <SCC_MODE_PCI>;
 		fsp,os-selection = <OS_SELECTION_LINUX>;
 		fsp,enable-igd;
 	};
