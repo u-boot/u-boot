@@ -124,7 +124,7 @@
 };
 
 &dwc3_typec0 {
-	status = "okay";
+	status = "disabled";
 };
 
 &usb_host1_ehci {
@@ -136,6 +136,7 @@
 };
 
 &dwc3_typec1 {
+	rockchip,vbus-gpio = <&gpio4 3 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };
 
@@ -182,7 +183,7 @@
 
 		compatible = "spi-flash";
 		reg = <0>;
-		spi-max-frequency = <5000000>;
+		spi-max-frequency = <49500000>;
 		spi-cpol;
 		spi-cpha;
 	};
