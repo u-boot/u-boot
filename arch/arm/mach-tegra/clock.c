@@ -339,8 +339,11 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 		 * return value doesn't help. In summary this clock driver is
 		 * quite broken but I'm afraid I have no idea how to fix it
 		 * without completely replacing it.
+		 *
+		 * Be careful to avoid a divide by zero error.
 		 */
-		div -= 2;
+		if (div >= 1)
+			div -= 2;
 		break;
 #endif
 	default:
