@@ -561,8 +561,7 @@ static int pic32_eth_probe(struct udevice *dev)
 		phy_addr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	/* phy reset gpio */
-	gpio_request_by_name_nodev(gd->fdt_blob, dev_of_offset(dev),
-				   "reset-gpios", 0,
+	gpio_request_by_name_nodev(dev_ofnode(dev), "reset-gpios", 0,
 				   &priv->rst_gpio, GPIOD_IS_OUT);
 
 	priv->phyif	= pdata->phy_interface;

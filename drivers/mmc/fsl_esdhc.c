@@ -983,15 +983,15 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	 } else {
 		priv->non_removable = 0;
 #ifdef CONFIG_DM_GPIO
-		gpio_request_by_name_nodev(fdt, node, "cd-gpios", 0,
-					   &priv->cd_gpio, GPIOD_IS_IN);
+		gpio_request_by_name_nodev(offset_to_ofnode(node), "cd-gpios",
+					   0, &priv->cd_gpio, GPIOD_IS_IN);
 #endif
 	}
 
 	priv->wp_enable = 1;
 
 #ifdef CONFIG_DM_GPIO
-	ret = gpio_request_by_name_nodev(fdt, node, "wp-gpios", 0,
+	ret = gpio_request_by_name_nodev(offset_to_ofnode(node), "wp-gpios", 0,
 					 &priv->wp_gpio, GPIOD_IS_IN);
 	if (ret)
 		priv->wp_enable = 0;

@@ -414,7 +414,7 @@ static int pic32_spi_probe(struct udevice *bus)
 	 * of the ongoing transfer. To avoid this sort of error we will drive
 	 * /CS manually by toggling cs-gpio pins.
 	 */
-	ret = gpio_request_by_name_nodev(gd->fdt_blob, node, "cs-gpios", 0,
+	ret = gpio_request_by_name_nodev(offset_to_ofnode(node), "cs-gpios", 0,
 					 &priv->cs_gpio, GPIOD_IS_OUT);
 	if (ret) {
 		printf("pic32-spi: error, cs-gpios not found\n");

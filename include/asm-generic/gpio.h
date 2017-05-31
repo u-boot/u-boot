@@ -7,6 +7,8 @@
 #ifndef _ASM_GENERIC_GPIO_H_
 #define _ASM_GENERIC_GPIO_H_
 
+#include <dm/ofnode.h>
+
 struct ofnode_phandle_args;
 
 /*
@@ -488,9 +490,8 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name);
  * This is a version of gpio_request_list_by_name() that does not use a
  * device. Avoid it unless the caller is not yet using driver model
  */
-int gpio_request_by_name_nodev(const void *blob, int node,
-			       const char *list_name,
-			       int index, struct gpio_desc *desc, int flags);
+int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
+			       struct gpio_desc *desc, int flags);
 
 /**
  * gpio_request_list_by_name_nodev() - request GPIOs without a device
@@ -498,8 +499,7 @@ int gpio_request_by_name_nodev(const void *blob, int node,
  * This is a version of gpio_request_list_by_name() that does not use a
  * device. Avoid it unless the caller is not yet using driver model
  */
-int gpio_request_list_by_name_nodev(const void *blob, int node,
-				    const char *list_name,
+int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc_list, int max_count,
 				    int flags);
 

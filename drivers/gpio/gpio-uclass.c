@@ -683,45 +683,41 @@ err:
 	return ret;
 }
 
-static int _gpio_request_by_name_nodev(const void *blob, int node,
-				       const char *list_name, int index,
-				       struct gpio_desc *desc, int flags,
-				       bool add_index)
+static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
+				       int index, struct gpio_desc *desc,
+				       int flags, bool add_index)
 {
 	struct ofnode_phandle_args args;
 	int ret;
 
-	ret = ofnode_parse_phandle_with_args(offset_to_ofnode(node), list_name,
-					     "#gpio-cells", 0, index, &args);
-	if (ret)
-		debug("%s: fdtdec_parse_phandle_with_args failed\n", __func__);
+	ret = ofnode_parse_phandle_with_args(node, list_name, "#gpio-cells", 0,
+					     index, &args);
 
-	return gpio_request_tail(ret, offset_to_ofnode(node), &args, list_name,
-				 index, desc, flags, add_index);
+	return gpio_request_tail(ret, node, &args, list_name, index, desc,
+				 flags, add_index);
 }
 
-int gpio_request_by_name_nodev(const void *blob, int node,
-			       const char *list_name, int index,
+int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
 			       struct gpio_desc *desc, int flags)
 {
-	return _gpio_request_by_name_nodev(blob, node, list_name, index, desc,
-					   flags, index > 0);
+	return _gpio_request_by_name_nodev(node, list_name, index, desc, flags,
+					   index > 0);
 }
 
-int gpio_request_by_name(struct udevice *dev,  const char *list_name, int index,
+int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,
 			 struct gpio_desc *desc, int flags)
 {
-	/*
-	 * This isn't ideal since we don't use dev->name in the debug()
-	 * calls in gpio_request_by_name(), but we can do this until
-	 * gpio_request_by_name_nodev() can be dropped.
-	 */
-	return gpio_request_by_name_nodev(gd->fdt_blob, dev_of_offset(dev),
-					  list_name, index, desc, flags);
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0,
+					 index, &args);
+
+	return gpio_request_tail(ret, dev_ofnode(dev), &args, list_name,
+				 index, desc, flags, index > 0);
 }
 
-int gpio_request_list_by_name_nodev(const void *blob, int node,
-				    const char *list_name,
+int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc, int max_count,
 				    int flags)
 {
@@ -729,7 +725,7 @@ int gpio_request_list_by_name_nodev(const void *blob, int node,
 	int ret;
 
 	for (count = 0; count < max_count; count++) {
-		ret = _gpio_request_by_name_nodev(blob, node, list_name, count,
+		ret = _gpio_request_by_name_nodev(node, list_name, count,
 						  &desc[count], flags, true);
 		if (ret == -ENOENT)
 			break;
@@ -755,9 +751,8 @@ int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
 	 * calls in gpio_request_by_name(), but we can do this until
 	 * gpio_request_list_by_name_nodev() can be dropped.
 	 */
-	return gpio_request_list_by_name_nodev(gd->fdt_blob, dev_of_offset(dev),
-					       list_name, desc, max_count,
-					       flags);
+	return gpio_request_list_by_name_nodev(dev_ofnode(dev), list_name, desc,
+					       max_count, flags);
 }
 
 int gpio_get_list_count(struct udevice *dev, const char *list_name)

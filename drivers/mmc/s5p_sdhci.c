@@ -184,10 +184,10 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 	}
 	host->ioaddr = (void *)base;
 
-	gpio_request_by_name_nodev(blob, node, "pwr-gpios", 0, &host->pwr_gpio,
-				   GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(blob, node, "cd-gpios", 0, &host->cd_gpio,
-				   GPIOD_IS_IN);
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "pwr-gpios", 0,
+				   &host->pwr_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "cd-gpios", 0,
+				   &host->cd_gpio, GPIOD_IS_IN);
 
 	return 0;
 }

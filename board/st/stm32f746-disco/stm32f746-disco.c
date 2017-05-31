@@ -101,7 +101,7 @@ int board_late_init(void)
 	if (node < 0)
 		return -1;
 
-	gpio_request_by_name_nodev(gd->fdt_blob, node, "led-gpio", 0, &gpio,
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "led-gpio", 0, &gpio,
 				   GPIOD_IS_OUT);
 
 	if (dm_gpio_is_valid(&gpio)) {
@@ -115,8 +115,8 @@ int board_late_init(void)
 	if (node < 0)
 		return -1;
 
-	gpio_request_by_name_nodev(gd->fdt_blob, node, "button-gpio", 0, &gpio,
-				   GPIOD_IS_IN);
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "button-gpio", 0,
+				   &gpio, GPIOD_IS_IN);
 
 	if (dm_gpio_is_valid(&gpio)) {
 		if (dm_gpio_get_value(&gpio))

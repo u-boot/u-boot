@@ -728,9 +728,10 @@ static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
 		return -EINVAL;
 	}
-	gpio_request_by_name_nodev(blob, node, "nvidia,vbus-gpio", 0,
-				   &config->vbus_gpio, GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(blob, node, "nvidia,phy-reset-gpio", 0,
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "nvidia,vbus-gpio",
+				   0, &config->vbus_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(offset_to_ofnode(node),
+				   "nvidia,phy-reset-gpio", 0,
 				   &config->phy_reset_gpio, GPIOD_IS_OUT);
 	debug("enabled=%d, legacy_mode=%d, utmi=%d, ulpi=%d, periph_id=%d, "
 		"vbus=%d, phy_reset=%d, dr_mode=%d\n",

@@ -53,8 +53,8 @@ int board_prepare_usb(enum usb_init_type type)
 			printf("Failed to find usb_hub_reset_pm dt node.\n");
 			return node;
 		}
-		ret = gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0,
-						 &hub_reset, 0);
+		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
+						 "gpios", 0, &hub_reset, 0);
 		if (ret < 0) {
 			printf("Failed to request usb_hub_reset_pm gpio.\n");
 			return ret;
@@ -69,8 +69,8 @@ int board_prepare_usb(enum usb_init_type type)
 			printf("Failed to find usb_sw_sel_pm dt node.\n");
 			return 0;
 		}
-		ret = gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0,
-						 &usb_sel, 0);
+		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
+						 "gpios", 0, &usb_sel, 0);
 		if (ret < 0) {
 			printf("Failed to request usb_sw_sel_pm gpio.\n");
 			return ret;
@@ -121,8 +121,8 @@ int misc_init_r(void)
 		return 0;
 	}
 
-	if (gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0, &resin,
-				       0)) {
+	if (gpio_request_by_name_nodev(offset_to_ofnode(node), "gpios", 0,
+				       &resin, 0)) {
 		printf("Failed to request key_vol_down button.\n");
 		return 0;
 	}
