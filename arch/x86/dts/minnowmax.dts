@@ -287,8 +287,6 @@
 		fsp,igd-dvmt50-pre-alloc = <2>;
 		fsp,aperture-size = <2>;
 		fsp,gtt-size = <2>;
-		fsp,serial-debug-port-address = <0x3f8>;
-		fsp,serial-debug-port-type = <1>;
 		fsp,scc-enable-pci-mode;
 		fsp,os-selection = <4>;
 		fsp,emmc45-ddr50-enabled;

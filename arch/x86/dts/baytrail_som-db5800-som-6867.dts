@@ -285,8 +285,6 @@
 		fsp,scc-enable-pci-mode;
 		fsp,os-selection = <4>;
 		fsp,enable-igd;
-		fsp,serial-debug-port-address = <0x3f8>;
-		fsp,serial-debug-port-type = <1>;
 	};
 
 	microcode {

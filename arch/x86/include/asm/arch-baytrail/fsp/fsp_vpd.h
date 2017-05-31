@@ -64,8 +64,7 @@ struct __packed upd_region {
 	uint8_t igd_dvmt50_pre_alloc;		/* Offset 0x0043 */
 	uint8_t aperture_size;			/* Offset 0x0044 */
 	uint8_t gtt_size;			/* Offset 0x0045 */
-	uint32_t serial_debug_port_address;	/* Offset 0x0046 */
-	uint8_t serial_debug_port_type;		/* Offset 0x004a */
+	uint8_t reserved2[5];			/* Offset 0x0046 */
 	uint8_t mrc_debug_msg;			/* Offset 0x004b */
 	uint8_t isp_enable;			/* Offset 0x004c */
 	uint8_t scc_enable_pci_mode;		/* Offset 0x004d */

@@ -60,8 +60,6 @@ discovered by the FSP and used to setup main memory.
 - fsp,igd-dvmt50-pre-alloc
 - fsp,aperture-size
 - fsp,gtt-size
-- fsp,serial-debug-port-address
-- fsp,serial-debug-port-type
 - fsp,os-selection
 - fsp,emmc45-retune-timer-value
 

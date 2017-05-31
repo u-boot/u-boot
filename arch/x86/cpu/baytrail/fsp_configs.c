@@ -193,10 +193,6 @@ void update_fsp_configs(struct fsp_config_data *config,
 	fsp_upd->aperture_size = fdtdec_get_int(blob, node, "fsp,aperture-size",
 						2);
 	fsp_upd->gtt_size = fdtdec_get_int(blob, node, "fsp,gtt-size", 2);
-	fsp_upd->serial_debug_port_address = fdtdec_get_int(blob, node,
-			"fsp,serial-debug-port-address", 0x3f8);
-	fsp_upd->serial_debug_port_type = fdtdec_get_int(blob, node,
-			"fsp,serial-debug-port-type", 1);
 	fsp_upd->mrc_debug_msg = fdtdec_get_bool(blob, node,
 						 "fsp,mrc-debug-msg");
 	fsp_upd->isp_enable = fdtdec_get_bool(blob, node, "fsp,isp-enable");
