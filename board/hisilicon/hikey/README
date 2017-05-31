@@ -56,7 +56,7 @@ Compile U-Boot
 Compile ARM Trusted Firmware (ATF)
 ==================================
 
-  > cd ~/hikey/src/atf
+  > cd ~/hikey/src/arm-trusted-firmware
   > make CROSS_COMPILE=aarch64-linux-gnu- all fip \
     BL30=~/hikey/bin/mcuimage.bin \
     BL33=~/hikey/bin/u-boot.bin DEBUG=1 PLAT=hikey
@@ -67,10 +67,10 @@ Copy resulting binaries
 
 Compile l-loader
 ===============
-  > cd ~/hikey/l-loader
+  > cd ~/hikey/src/l-loader
   > make BL1=~/hikey/bin/bl1.bin all
   > cp *.img ~/hikey/bin
-  > cp l-loader.bin ~/hikey.bin
+  > cp l-loader.bin ~/hikey/bin
 
 These instructions are adapted from
 https://github.com/96boards/documentation/wiki/HiKeyUEFI
@@ -82,7 +82,7 @@ FLASHING
 the hisi-idt.py utility.
 
 The command below assumes HiKey enumerated as the first USB serial port
-  > sudo ~/hikey/burn_boot/hisi-idt.py -d /dev/ttyUSB0 --img1=~/hikey/bin/l-loader.bin
+  > sudo ~/hikey/src/burn-boot/hisi-idt.py -d /dev/ttyUSB0 --img1=~/hikey/bin/l-loader.bin
 
 2. Once LED 0 comes on solid, HiKey board should be detected as a fastboot device by plugging a USB A to mini B
    cable from your PC to the USB OTG port of HiKey (on some boards I've found this to be unreliable).
