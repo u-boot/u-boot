@@ -145,6 +145,76 @@ from the load address. If this changes, you either need to modify U-Boot to be
 fully relocatable, or expect it to hang.
 
 
+chromebook_jerry
+----------------
+
+The instruction are similar to those for Nyan with changes as noted below:
+
+1. Patch U-Boot
+
+Open include/configs/rk3288_common.h
+
+Change:
+
+#define CONFIG_SYS_TEXT_BASE		0x00100000
+
+to:
+
+#define CONFIG_SYS_TEXT_BASE		0x02000100
+
+
+
+2. Build U-Boot
+
+   mkdir b
+   make -j8 O=b/chromebook_jerry CROSS_COMPILE=arm-linux-gnueabi- \
+	chromebook_jerry_defconfig all
+
+
+3. See above
+
+4. Build and sign an image
+
+   ./b/chromebook_jerry/tools/mkimage -f doc/chromium/chromebook_jerry.its \
+	u-boot-chromium.fit
+   echo test >dummy.txt
+   vbutil_kernel --arch arm --keyblock doc/chromium/devkeys/kernel.keyblock \
+	--signprivate doc/chromium/devkeys/kernel_data_key.vbprivk \
+	--version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
+	--bootloader dummy.txt --pack u-boot.kpart
+
+
+5. See above
+
+6. See above
+
+7. Start it up
+
+Reboot the device in dev mode. Make sure that you have USB booting enabled. To
+do this, login as root (via Ctrl-Alt-forward_arrow) and type
+'enable_dev_usb_boot'. You only need to do this once.
+
+Reboot the device with the SD card inserted. Press Clrl-U at the developer
+mode screen. It should show something like the following on the display:
+
+   U-Boot 2017.05-00649-g72acdbf-dirty (May 29 2017 - 14:57:05 -0600)
+
+   Model: Google Jerry
+   Net:   Net Initialization Skipped
+   No ethernet found.
+   Hit any key to stop autoboot:  0
+
+
+8. Known problems
+
+None as yet.
+
+
+9. Notes
+
+None as yet.
+
+
 Other notes
 ===========
 
