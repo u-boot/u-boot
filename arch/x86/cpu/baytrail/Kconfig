@@ -17,4 +17,8 @@ config INTERNAL_UART
 	  reason, it is recommended that the UART port be used for
 	  debug purposes only, eg: U-Boot console.
 
+config DEBUG_UART
+	bool
+	select DEBUG_UART_BOARD_INIT
+
 endif

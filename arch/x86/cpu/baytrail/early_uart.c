@@ -80,3 +80,8 @@ int setup_internal_uart(int enable)
 
 	return 0;
 }
+
+void board_debug_uart_init(void)
+{
+	setup_internal_uart(1);
+}
