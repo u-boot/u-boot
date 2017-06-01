@@ -110,10 +110,6 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	struct upd_region *fsp_upd;
 #endif
 
-#ifdef CONFIG_INTERNAL_UART
-	setup_internal_uart(1);
-#endif
-
 	fsp_hdr = find_fsp_header();
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header was found */
