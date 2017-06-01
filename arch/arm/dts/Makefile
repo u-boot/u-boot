@@ -46,7 +46,8 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3368-px5-evb.dtb \
 	rk3399-evb.dtb \
 	rk3399-firefly.dtb \
-	rk3399-puma.dtb
+	rk3399-puma.dtb \
+	rv1108-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-odroidc2.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
