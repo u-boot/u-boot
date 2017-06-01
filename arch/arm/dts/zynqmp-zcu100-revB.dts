@@ -86,6 +86,7 @@
 		ds5 {
 			label = "ds5";
 			gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "bluetooth-power";
 		};
 
 		/* FIXME this is not correct - used fixed-regulator for it */
