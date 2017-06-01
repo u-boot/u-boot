@@ -69,6 +69,14 @@
 		interrupts = <25 4>;
 	};
 
+	mmc0: mmc@f0e00000 {
+		compatible = "andestech,atsdc010";
+		max-frequency = <100000000>;
+		fifo-depth = <0x10>;
+		reg = <0xf0e00000 0x1000>;
+		interrupts = <17 4>;
+	};
+
 	nor@0,0 {
 		compatible = "cfi-flash";
 		reg = <0x88000000 0x1000>;

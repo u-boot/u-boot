@@ -60,4 +60,12 @@
 		reg = <0x90900000 0x1000>;
 		interrupts = <25 4>;
 	};
+
+	mmc0: mmc@98e00000 {
+		compatible = "andestech,atsdc010";
+		max-frequency = <30000000>;
+		fifo-depth = <0x10>;
+		reg = <0x98e00000 0x1000>;
+		interrupts = <5 4>;
+	};
 };
