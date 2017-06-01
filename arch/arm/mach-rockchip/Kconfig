@@ -79,6 +79,13 @@ config ROCKCHIP_RK3399
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+config ROCKCHIP_RV1108
+	bool "Support Rockchip RV1108"
+	select CPU_V7
+	help
+	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
+	  and a DSP.
+
 config ROCKCHIP_SPL_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
@@ -108,4 +115,5 @@ source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3368/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"
+source "arch/arm/mach-rockchip/rv1108/Kconfig"
 endif
