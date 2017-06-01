@@ -141,6 +141,8 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 			UART_CTL_RXTIMEOUT_5 |
 			/* set 8 bits/symbol */
 			UART_CTL_BITSPERSYM_8 |
+			/* set 1 stop bit */
+			UART_CTL_STOPBITS_1 |
 			/* set parity to even */
 			UART_CTL_RXPAREVEN_MASK |
 			UART_CTL_TXPAREVEN_MASK);
@@ -155,11 +157,11 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 			UART_FIFO_CFG_TX_4);
 
 	/* set baud rate */
-	val = (clk / baudrate) / 16;
+	val = ((clk / baudrate) >> 4);
 	if (val & 0x1)
-		val = val;
+		val = (val >> 1);
 	else
-		val = val / 2 - 1;
+		val = (val >> 1) - 1;
 	writel_be(val, base + UART_BAUD_REG);
 
 	/* clear interrupts */
@@ -241,7 +243,7 @@ static int bcm6345_serial_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
-	priv->uartclk = clk_get_rate(&clk) / 2;
+	priv->uartclk = clk_get_rate(&clk);
 	clk_free(&clk);
 
 	/* initialize serial */
