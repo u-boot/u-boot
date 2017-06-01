@@ -28,6 +28,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <watchdog.h>
+#include <asm/mach-types.h>
 #include "../common/factoryset.h"
 
 DECLARE_GLOBAL_DATA_PTR;

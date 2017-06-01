@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch/sromc.h>
 #include <netdev.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

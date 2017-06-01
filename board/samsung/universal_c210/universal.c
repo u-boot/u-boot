@@ -23,6 +23,7 @@
 #include <libtizen.h>
 #include <samsung/misc.h>
 #include <usb_mass_storage.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

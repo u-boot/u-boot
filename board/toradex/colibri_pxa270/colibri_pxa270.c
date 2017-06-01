@@ -19,6 +19,7 @@
 #include <netdev.h>
 #include <serial.h>
 #include <usb.h>
+#include <asm/mach-types.h>
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;

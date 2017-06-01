@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <asm/mach-types.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/cpu.h>

@@ -24,6 +24,7 @@
 #include <sata.h>
 #include <usb.h>
 #include <asm/gpio.h>
+#include <asm/mach-types.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>

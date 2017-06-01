@@ -24,6 +24,7 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include "arm-ebi.h"
 #include "integrator-sc.h"
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

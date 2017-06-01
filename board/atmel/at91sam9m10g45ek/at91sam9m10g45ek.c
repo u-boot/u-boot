@@ -18,6 +18,7 @@
 #include <lcd.h>
 #include <linux/mtd/nand.h>
 #include <atmel_lcdc.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

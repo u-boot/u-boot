@@ -21,6 +21,7 @@
 #include <spi.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>

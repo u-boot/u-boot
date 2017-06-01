@@ -17,6 +17,7 @@
 #include <asm/emif.h>
 #include <twl6030.h>
 #include "kc1.h"
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

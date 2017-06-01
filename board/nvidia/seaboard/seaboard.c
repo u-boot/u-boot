@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch/clock.h>

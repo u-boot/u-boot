@@ -14,6 +14,7 @@
 #include "../common/common.h"
 #include <spl.h>
 #include <ns16550.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

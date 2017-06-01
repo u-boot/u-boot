@@ -20,6 +20,7 @@
 #include <asm/arch/hardware.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

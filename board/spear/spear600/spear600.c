@@ -11,6 +11,7 @@
 #include <nand.h>
 #include <asm/io.h>
 #include <linux/mtd/fsmc_nand.h>
+#include <asm/mach-types.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_defs.h>
 #include <asm/arch/spr_misc.h>

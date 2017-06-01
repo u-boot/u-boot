@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/systimer.h>
 #include <asm/arch/sysctrl.h>
 #include <asm/arch/wdt.h>

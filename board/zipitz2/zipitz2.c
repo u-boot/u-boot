@@ -16,6 +16,7 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

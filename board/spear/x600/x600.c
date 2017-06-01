@@ -14,6 +14,7 @@
 #include <phy.h>
 #include <rtc.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_defs.h>
 #include <asm/arch/spr_misc.h>

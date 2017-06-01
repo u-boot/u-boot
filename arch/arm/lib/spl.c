@@ -12,6 +12,7 @@
 #include <spl.h>
 #include <image.h>
 #include <linux/compiler.h>
+#include <asm/mach-types.h>
 
 #ifndef CONFIG_SPL_DM
 /* Pointer to as well as the global data structure for SPL */

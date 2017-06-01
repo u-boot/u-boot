@@ -24,6 +24,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <netdev.h>
+#include <asm/mach-types.h>
 
 #ifndef CONFIG_BOARD_LATE_INIT
 #error "CONFIG_BOARD_LATE_INIT must be set for this board"

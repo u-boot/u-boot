@@ -19,6 +19,7 @@
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <asm/mach-types.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>

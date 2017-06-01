@@ -23,6 +23,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <nand.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

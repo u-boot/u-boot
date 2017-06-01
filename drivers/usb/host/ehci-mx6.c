@@ -17,6 +17,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/sys_proto.h>
 #include <dm.h>
+#include <asm/mach-types.h>
 #include <power/regulator.h>
 
 #include "ehci.h"

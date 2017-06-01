@@ -19,6 +19,7 @@
 #include <asm/arch/armada100.h>
 #include <asm/gpio.h>
 #include <miiphy.h>
+#include <asm/mach-types.h>
 
 #ifdef CONFIG_ARMADA100_FEC
 #include <net.h>
