@@ -72,8 +72,6 @@ ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 extra-y	+= eabi_compat.o
 endif
 
-asflags-y += -DCONFIG_ARM_ASM_UNIFIED
-
 # some files can only build in ARM or THUMB2, not THUMB1
 
 ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD

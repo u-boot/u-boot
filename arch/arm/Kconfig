@@ -19,6 +19,15 @@ config HAS_VBAR
 config HAS_THUMB2
 	bool
 
+# Used for compatibility with asm files copied from the kernel
+config ARM_ASM_UNIFIED
+	bool
+	default y
+
+# Used for compatibility with asm files copied from the kernel
+config THUMB2_KERNEL
+	bool
+
 # If set, the workarounds for these ARM errata are applied early during U-Boot
 # startup. Note that in general these options force the workarounds to be
 # applied; no CPU-type/version detection exists, unlike the similar options in
@@ -128,6 +137,7 @@ config CPU_V7
 config CPU_V7M
 	bool
 	select HAS_THUMB2
+	select THUMB2_KERNEL
 	select SYS_CACHE_SHIFT_5
 
 config CPU_PXA
