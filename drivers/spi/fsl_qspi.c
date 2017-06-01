@@ -493,6 +493,8 @@ static void qspi_op_rdbank(struct fsl_qspi_priv *priv, u8 *rxbuf, u32 len)
 		;
 
 	while (1) {
+		WATCHDOG_RESET();
+
 		reg = qspi_read32(priv->flags, &regs->rbsr);
 		if (reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[0]);
@@ -530,6 +532,8 @@ static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 
 	i = 0;
 	while ((RX_BUFFER_SIZE >= len) && (len > 0)) {
+		WATCHDOG_RESET();
+
 		rbsr_reg = qspi_read32(priv->flags, &regs->rbsr);
 		if (rbsr_reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[i]);
@@ -702,6 +706,8 @@ static void qspi_op_rdsr(struct fsl_qspi_priv *priv, void *rxbuf, u32 len)
 		;
 
 	while (1) {
+		WATCHDOG_RESET();
+
 		reg = qspi_read32(priv->flags, &regs->rbsr);
 		if (reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[0]);
@@ -756,6 +762,8 @@ int qspi_xfer(struct fsl_qspi_priv *priv, unsigned int bitlen,
 	u32 bytes = DIV_ROUND_UP(bitlen, 8);
 	static u32 wr_sfaddr;
 	u32 txbuf;
+
+	WATCHDOG_RESET();
 
 	if (dout) {
 		if (flags & SPI_XFER_BEGIN) {
