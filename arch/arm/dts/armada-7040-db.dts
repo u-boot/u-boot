@@ -169,8 +169,7 @@
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_SGMII0>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <PHY_TYPE_SFI>;
 	};
 
 	phy3 {
@@ -222,6 +221,11 @@
 
 &cpm_ethernet {
 	status = "okay";
+};
+
+&cpm_eth0 {
+	status = "okay";
+	phy-mode = "sfi"; /* lane-2 */
 };
 
 &cpm_eth1 {

@@ -131,8 +131,12 @@ int board_init(void)
 	/* Toggle GPIO41 to reset onboard switch and phy */
 	clrbits_le32(MVEBU_GPIO1_BASE + 0x0, BIT(9));
 	clrbits_le32(MVEBU_GPIO1_BASE + 0x4, BIT(9));
+	/* GPIO 19 on ClearFog rev 2.1 controls the uSOM onboard phy reset */
+	clrbits_le32(MVEBU_GPIO0_BASE + 0x0, BIT(19));
+	clrbits_le32(MVEBU_GPIO0_BASE + 0x4, BIT(19));
 	mdelay(1);
 	setbits_le32(MVEBU_GPIO1_BASE + 0x0, BIT(9));
+	setbits_le32(MVEBU_GPIO0_BASE + 0x0, BIT(19));
 	mdelay(10);
 
 	/* Init I2C IO expanders */
