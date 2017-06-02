@@ -132,6 +132,69 @@ To process CONFIG_CMD_FPGAD only for a subset of configs based on path match:
        ./tools/moveconfig.py -Cy CONFIG_CMD_FPGAD -d -
 
 
+Finding implied CONFIGs
+-----------------------
+
+Some CONFIG options can be implied by others and this can help to reduce
+the size of the defconfig files. For example, CONFIG_X86 implies
+CONFIG_CMD_IRQ, so we can put 'imply CMD_IRQ' under 'config X86' and
+all x86 boards will have that option, avoiding adding CONFIG_CMD_IRQ to
+each of the x86 defconfig files.
+
+This tool can help find such configs. To use it, first build a database:
+
+    ./tools/moveconfig.py -b
+
+Then try to query it:
+
+    ./tools/moveconfig.py -i CONFIG_CMD_IRQ
+    CONFIG_CMD_IRQ found in 311/2384 defconfigs
+    44 : CONFIG_SYS_FSL_ERRATUM_IFC_A002769
+    41 : CONFIG_SYS_FSL_ERRATUM_A007075
+    31 : CONFIG_SYS_FSL_DDR_VER_44
+    28 : CONFIG_ARCH_P1010
+    28 : CONFIG_SYS_FSL_ERRATUM_P1010_A003549
+    28 : CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+    28 : CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+    25 : CONFIG_SYS_FSL_ERRATUM_A008044
+    22 : CONFIG_ARCH_P1020
+    21 : CONFIG_SYS_FSL_DDR_VER_46
+    20 : CONFIG_MAX_PIRQ_LINKS
+    20 : CONFIG_HPET_ADDRESS
+    20 : CONFIG_X86
+    20 : CONFIG_PCIE_ECAM_SIZE
+    20 : CONFIG_IRQ_SLOT_COUNT
+    20 : CONFIG_I8259_PIC
+    20 : CONFIG_CPU_ADDR_BITS
+    20 : CONFIG_RAMBASE
+    20 : CONFIG_SYS_FSL_ERRATUM_A005871
+    20 : CONFIG_PCIE_ECAM_BASE
+    20 : CONFIG_X86_TSC_TIMER
+    20 : CONFIG_I8254_TIMER
+    20 : CONFIG_CMD_GETTIME
+    19 : CONFIG_SYS_FSL_ERRATUM_A005812
+    18 : CONFIG_X86_RUN_32BIT
+    17 : CONFIG_CMD_CHIP_CONFIG
+    ...
+
+This shows a list of config options which might imply CONFIG_CMD_EEPROM along
+with how many defconfigs they cover. From this you can see that CONFIG_X86
+implies CONFIG_CMD_EEPROM. Therefore, instead of adding CONFIG_CMD_EEPROM to
+the defconfig of every x86 board, you could add a single imply line to the
+Kconfig file:
+
+    config X86
+        bool "x86 architecture"
+        ...
+        imply CMD_EEPROM
+
+That will cover 20 defconfigs. Many of the options listed are not suitable as
+they are not related. E.g. it would be odd for CONFIG_CMD_GETTIME to imply
+CMD_EEPROM.
+
+Using this search you can reduce the size of moveconfig patches.
+
+
 Available options
 -----------------
 
@@ -195,6 +258,7 @@ To see the complete list of supported options, run
 
 """
 
+import collections
 import copy
 import difflib
 import filecmp
@@ -1398,6 +1462,148 @@ def move_config(configs, options, db_queue):
     slots.show_failed_boards()
     slots.show_suspicious_boards()
 
+def imply_config(config_list, find_superset=False):
+    """Find CONFIG options which imply those in the list
+
+    Some CONFIG options can be implied by others and this can help to reduce
+    the size of the defconfig files. For example, CONFIG_X86 implies
+    CONFIG_CMD_IRQ, so we can put 'imply CMD_IRQ' under 'config X86' and
+    all x86 boards will have that option, avoiding adding CONFIG_CMD_IRQ to
+    each of the x86 defconfig files.
+
+    This function uses the moveconfig database to find such options. It
+    displays a list of things that could possibly imply those in the list.
+    The algorithm ignores any that start with CONFIG_TARGET since these
+    typically refer to only a few defconfigs (often one). It also does not
+    display a config with less than 5 defconfigs.
+
+    The algorithm works using sets. For each target config in config_list:
+        - Get the set 'defconfigs' which use that target config
+        - For each config (from a list of all configs):
+            - Get the set 'imply_defconfig' of defconfigs which use that config
+            -
+            - If imply_defconfigs contains anything not in defconfigs then
+              this config does not imply the target config
+
+    Params:
+        config_list: List of CONFIG options to check (each a string)
+        find_superset: True to look for configs which are a superset of those
+            already found. So for example if CONFIG_EXYNOS5 implies an option,
+            but CONFIG_EXYNOS covers a larger set of defconfigs and also
+            implies that option, this will drop the former in favour of the
+            latter. In practice this option has not proved very used.
+
+    Note the terminoloy:
+        config - a CONFIG_XXX options (a string, e.g. 'CONFIG_CMD_EEPROM')
+        defconfig - a defconfig file (a string, e.g. 'configs/snow_defconfig')
+    """
+    # key is defconfig name, value is dict of (CONFIG_xxx, value)
+    config_db = {}
+
+    # Holds a dict containing the set of defconfigs that contain each config
+    # key is config, value is set of defconfigs using that config
+    defconfig_db = collections.defaultdict(set)
+
+    # Set of all config options we have seen
+    all_configs = set()
+
+    # Set of all defconfigs we have seen
+    all_defconfigs = set()
+
+    # Read in the database
+    configs = {}
+    with open(CONFIG_DATABASE) as fd:
+        for line in fd.readlines():
+            line = line.rstrip()
+            if not line:  # Separator between defconfigs
+                config_db[defconfig] = configs
+                all_defconfigs.add(defconfig)
+                configs = {}
+            elif line[0] == ' ':  # CONFIG line
+                config, value = line.strip().split('=', 1)
+                configs[config] = value
+                defconfig_db[config].add(defconfig)
+                all_configs.add(config)
+            else:  # New defconfig
+                defconfig = line
+
+    # Work through each target config option in tern, independently
+    for config in config_list:
+        defconfigs = defconfig_db.get(config)
+        if not defconfigs:
+            print '%s not found in any defconfig' % config
+            continue
+
+        # Get the set of defconfigs without this one (since a config cannot
+        # imply itself)
+        non_defconfigs = all_defconfigs - defconfigs
+        num_defconfigs = len(defconfigs)
+        print '%s found in %d/%d defconfigs' % (config, num_defconfigs,
+                                                len(all_configs))
+
+        # This will hold the results: key=config, value=defconfigs containing it
+        imply_configs = {}
+        rest_configs = all_configs - set([config])
+
+        # Look at every possible config, except the target one
+        for imply_config in rest_configs:
+            if 'CONFIG_TARGET' in imply_config:
+                continue
+
+            # Find set of defconfigs that have this config
+            imply_defconfig = defconfig_db[imply_config]
+
+            # Get the intersection of this with defconfigs containing the
+            # target config
+            common_defconfigs = imply_defconfig & defconfigs
+
+            # Get the set of defconfigs containing this config which DO NOT
+            # also contain the taret config. If this set is non-empty it means
+            # that this config affects other defconfigs as well as (possibly)
+            # the ones affected by the target config. This means it implies
+            # things we don't want to imply.
+            not_common_defconfigs = imply_defconfig & non_defconfigs
+            if not_common_defconfigs:
+                continue
+
+            # If there are common defconfigs, imply_config may be useful
+            if common_defconfigs:
+                skip = False
+                if find_superset:
+                    for prev in imply_configs.keys():
+                        prev_count = len(imply_configs[prev])
+                        count = len(common_defconfigs)
+                        if (prev_count > count and
+                            (imply_configs[prev] & common_defconfigs ==
+                            common_defconfigs)):
+                            # skip imply_config because prev is a superset
+                            skip = True
+                            break
+                        elif count > prev_count:
+                            # delete prev because imply_config is a superset
+                            del imply_configs[prev]
+                if not skip:
+                    imply_configs[imply_config] = common_defconfigs
+
+        # Now we have a dict imply_configs of configs which imply each config
+        # The value of each dict item is the set of defconfigs containing that
+        # config. Rank them so that we print the configs that imply the largest
+        # number of defconfigs first.
+        ranked_configs = sorted(imply_configs,
+                            key=lambda k: len(imply_configs[k]), reverse=True)
+        for config in ranked_configs:
+            num_common = len(imply_configs[config])
+
+            # Don't bother if there are less than 5 defconfigs affected.
+            if num_common < 5:
+                continue
+            missing = defconfigs - imply_configs[config]
+            missing_str = ', '.join(missing) if missing else 'all'
+            missing_str = ''
+            print '    %d : %-30s%s' % (num_common, config.ljust(30),
+                                        missing_str)
+
+
 def main():
     try:
         cpu_count = multiprocessing.cpu_count()
@@ -1416,6 +1622,8 @@ def main():
                       help='a file containing a list of defconfigs to move, '
                       "one per line (for example 'snow_defconfig') "
                       "or '-' to read from stdin")
+    parser.add_option('-i', '--imply', action='store_true', default=False,
+                      help='find options which imply others')
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
     parser.add_option('-e', '--exit-on-error', action='store_true',
@@ -1440,7 +1648,8 @@ def main():
 
     (options, configs) = parser.parse_args()
 
-    if len(configs) == 0 and not any((options.force_sync, options.build_db)):
+    if len(configs) == 0 and not any((options.force_sync, options.build_db,
+                                      options.imply)):
         parser.print_usage()
         sys.exit(1)
 
@@ -1449,6 +1658,10 @@ def main():
                 for config in configs ]
 
     check_top_directory()
+
+    if options.imply:
+        imply_config(configs)
+        return
 
     config_db = {}
     db_queue = Queue.Queue()
