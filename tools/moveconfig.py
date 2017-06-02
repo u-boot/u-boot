@@ -278,6 +278,24 @@ def get_make_cmd():
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
+def get_matched_defconfig(line):
+    """Get the defconfig files that match a pattern
+
+    Args:
+        line: Path or filename to match, e.g. 'configs/snow_defconfig' or
+            'k2*_defconfig'. If no directory is provided, 'configs/' is
+            prepended
+
+    Returns:
+        a list of matching defconfig files
+    """
+    dirname = os.path.dirname(line)
+    if dirname:
+        pattern = line
+    else:
+        pattern = os.path.join('configs', line)
+    return glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+
 def get_matched_defconfigs(defconfigs_file):
     """Get all the defconfig files that match the patterns in a file."""
     defconfigs = []
@@ -285,8 +303,7 @@ def get_matched_defconfigs(defconfigs_file):
         line = line.strip()
         if not line:
             continue # skip blank lines silently
-        pattern = os.path.join('configs', line)
-        matched = glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+        matched = get_matched_defconfig(line)
         if not matched:
             print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
                                                  (defconfigs_file, i + 1, line)
