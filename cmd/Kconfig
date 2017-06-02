@@ -1166,6 +1166,7 @@ config CMD_EXT4_WRITE
 
 config CMD_FAT
 	bool "FAT command support"
+	select FS_FAT
 	help
 	  Support for the FAT fs
 

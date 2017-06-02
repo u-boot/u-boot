@@ -306,6 +306,7 @@ config SPL_EXT_SUPPORT
 config SPL_FAT_SUPPORT
 	bool "Support FAT filesystems"
 	depends on SPL
+	select FS_FAT
 	help
 	  Enable support for FAT and VFAT filesystems with SPL. This
 	  permits U-Boot (or Linux in Falcon mode) to be loaded from a FAT
