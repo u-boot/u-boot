@@ -377,7 +377,11 @@ static int palmas_smps_probe(struct udevice *dev)
 			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
 			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
 			break;
-
+		case 12:
+			idx = 0;
+			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
+			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
+			break;
 		default:
 			printf("Wrong ID for regulator\n");
 		}
