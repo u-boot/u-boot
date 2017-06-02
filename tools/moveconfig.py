@@ -115,6 +115,23 @@ use your own.  Instead of modifying the list directly, you can give
 them via environments.
 
 
+Tips and trips
+--------------
+
+To sync only X86 defconfigs:
+
+   ./tools/moveconfig.py -s -d <(grep -l X86 configs/*)
+
+or:
+
+   grep -l X86 configs/* | ./tools/moveconfig.py -s -d -
+
+To process CONFIG_CMD_FPGAD only for a subset of configs based on path match:
+
+   ls configs/{hrcon*,iocon*,strider*} | \
+       ./tools/moveconfig.py -Cy CONFIG_CMD_FPGAD -d -
+
+
 Available options
 -----------------
 
@@ -128,7 +145,7 @@ Available options
 
  -d, --defconfigs
   Specify a file containing a list of defconfigs to move.  The defconfig
-  files can be given with shell-style wildcards.
+  files can be given with shell-style wildcards. Use '-' to read from stdin.
 
  -n, --dry-run
    Perform a trial run that does not make any changes.  It is useful to
@@ -169,7 +186,8 @@ Available options
 
  -y, --yes
    Instead of prompting, automatically go ahead with all operations. This
-   includes cleaning up headers and CONFIG_SYS_EXTRA_OPTIONS.
+   includes cleaning up headers, CONFIG_SYS_EXTRA_OPTIONS, the config whitelist
+   and the README.
 
 To see the complete list of supported options, run
 
