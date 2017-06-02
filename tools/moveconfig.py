@@ -297,9 +297,22 @@ def get_matched_defconfig(line):
     return glob.glob(pattern) + glob.glob(pattern + '_defconfig')
 
 def get_matched_defconfigs(defconfigs_file):
-    """Get all the defconfig files that match the patterns in a file."""
+    """Get all the defconfig files that match the patterns in a file.
+
+    Args:
+        defconfigs_file: File containing a list of defconfigs to process, or
+            '-' to read the list from stdin
+
+    Returns:
+        A list of paths to defconfig files, with no duplicates
+    """
     defconfigs = []
-    for i, line in enumerate(open(defconfigs_file)):
+    if defconfigs_file == '-':
+        fd = sys.stdin
+        defconfigs_file = 'stdin'
+    else:
+        fd = open(defconfigs_file)
+    for i, line in enumerate(fd):
         line = line.strip()
         if not line:
             continue # skip blank lines silently
@@ -1328,7 +1341,9 @@ def main():
     parser.add_option('-C', '--commit', action='store_true', default=False,
                       help='Create a git commit for the operation')
     parser.add_option('-d', '--defconfigs', type='string',
-                      help='a file containing a list of defconfigs to move')
+                      help='a file containing a list of defconfigs to move, '
+                      "one per line (for example 'snow_defconfig') "
+                      "or '-' to read from stdin")
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
     parser.add_option('-e', '--exit-on-error', action='store_true',
