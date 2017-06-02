@@ -145,14 +145,6 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /*
- * Common filesystems support.  When we have removable storage we
- * enabled a number of useful commands and support.
- */
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
-#define CONFIG_FAT_WRITE
-#endif
-
-/*
  * Our platforms make use of SPL to initalize the hardware (primarily
  * memory) enough for full U-Boot to be loaded. We make use of the general
  * SPL framework found under common/spl/.  Given our generally common memory
