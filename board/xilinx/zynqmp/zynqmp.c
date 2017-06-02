@@ -130,6 +130,30 @@ static const struct {
 		.id = 0x59,
 		.name = "17eg",
 	},
+	{
+		.id = 0x61,
+		.name = "21dr",
+	},
+	{
+		.id = 0x63,
+		.name = "23dr",
+	},
+	{
+		.id = 0x65,
+		.name = "25dr",
+	},
+	{
+		.id = 0x64,
+		.name = "27dr",
+	},
+	{
+		.id = 0x60,
+		.name = "28dr",
+	},
+	{
+		.id = 0x62,
+		.name = "29dr",
+	},
 };
 #endif
 
