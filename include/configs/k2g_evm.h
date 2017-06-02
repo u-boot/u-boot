@@ -48,8 +48,6 @@
 	"get_pmmc_${boot} run_pmmc get_mon_${boot} run_mon "		\
 	"get_fdt_${boot} get_kern_${boot} run_kern"
 
-#include <configs/ti_armv7_keystone2.h>
-
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c080000
 
@@ -80,4 +78,7 @@
 #endif
 
 #define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS
+
+#include <configs/ti_armv7_keystone2.h>
+
 #endif /* __CONFIG_K2G_EVM_H */
