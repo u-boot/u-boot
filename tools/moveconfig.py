@@ -262,6 +262,9 @@ COLOR_LIGHT_PURPLE = '1;35'
 COLOR_LIGHT_CYAN   = '1;36'
 COLOR_WHITE        = '1;37'
 
+AUTO_CONF_PATH = 'include/config/auto.conf'
+
+
 ### helper functions ###
 def get_devnull():
     """Get the file object of '/dev/null' device."""
@@ -751,8 +754,7 @@ class KconfigParser:
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
         self.spl_autoconf = os.path.join(build_dir, 'spl', 'include',
                                          'autoconf.mk')
-        self.config_autoconf = os.path.join(build_dir, 'include', 'config',
-                                            'auto.conf')
+        self.config_autoconf = os.path.join(build_dir, AUTO_CONF_PATH)
         self.defconfig = os.path.join(build_dir, 'defconfig')
 
     def get_cross_compile(self):
@@ -1070,7 +1072,7 @@ class Slot:
         self.state = STATE_DEFCONFIG
 
     def do_autoconf(self):
-        """Run 'make include/config/auto.conf'."""
+        """Run 'make AUTO_CONF_PATH'."""
 
         self.cross_compile = self.parser.get_cross_compile()
         if self.cross_compile is None:
@@ -1083,7 +1085,7 @@ class Slot:
         if self.cross_compile:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
-        cmd.append('include/config/auto.conf')
+        cmd.append(AUTO_CONF_PATH)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
                                    stderr=subprocess.PIPE,
                                    cwd=self.current_src_dir)
