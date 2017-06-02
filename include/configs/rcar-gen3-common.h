@@ -13,7 +13,6 @@
 #include <asm/arch/rmobile.h>
 
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
@@ -24,7 +23,6 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /* Support File sytems */
-#define CONFIG_FAT_WRITE
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE

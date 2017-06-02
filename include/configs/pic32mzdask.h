@@ -90,8 +90,6 @@
  */
 /* FAT FS */
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_FAT
-#define CONFIG_FAT_WRITE
 
 /* EXT4 FS */
 #define CONFIG_FS_EXT4

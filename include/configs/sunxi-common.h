@@ -180,8 +180,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 
-#define CONFIG_FAT_WRITE	/* enable write access */
-
 #define CONFIG_SPL_FRAMEWORK
 
 #ifndef CONFIG_ARM64		/* AArch64 FEL support is not ready yet */

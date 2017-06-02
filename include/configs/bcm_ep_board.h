@@ -62,9 +62,6 @@
 
 #define CONFIG_MX_CYCLIC
 
-/* Commands */
-#define CONFIG_FAT_WRITE
-
 /* Enable Time Command */
 
 /* Misc utility code */

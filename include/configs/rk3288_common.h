@@ -38,8 +38,6 @@
 /* MMC/SD IP block */
 #define CONFIG_BOUNCE_BUFFER
 
-#define CONFIG_FAT_WRITE
-
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 

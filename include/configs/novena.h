@@ -17,7 +17,6 @@
 #include "mx6_common.h"
 
 /* U-Boot Commands */
-#define CONFIG_FAT_WRITE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA
 

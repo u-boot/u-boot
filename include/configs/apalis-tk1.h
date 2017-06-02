@@ -50,9 +50,6 @@
 #define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
-/* Miscellaneous commands */
-#define CONFIG_FAT_WRITE
-
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
 #define CONFIG_NETMASK		255.255.255.0

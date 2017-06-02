@@ -67,10 +67,6 @@
 #define CONFIG_LZO
 #define CONFIG_RBTREE
 
-/* Debug commands */
-
-/* Miscellaneous commands */
-#define CONFIG_FAT_WRITE
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"mtdparts=" MTDPARTS_DEFAULT "\0"

@@ -15,11 +15,6 @@
 #define CONFIG_SYS_USE_SERIALFLASH	1
 
 /*
- * U-Boot Commands
- */
-#define CONFIG_FAT_WRITE
-
-/*
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_BANKS		1

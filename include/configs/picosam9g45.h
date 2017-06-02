@@ -116,7 +116,6 @@
 #define FAT_ENV_DEVICE_AND_PART	"0"
 #define FAT_ENV_FILE		"uboot.env"
 #define CONFIG_ENV_IS_IN_FAT
-#define CONFIG_FAT_WRITE
 #define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \

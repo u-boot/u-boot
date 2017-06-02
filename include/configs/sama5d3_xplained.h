@@ -74,10 +74,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_FAT_WRITE
-#endif
-
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 
 #if CONFIG_SYS_USE_NANDFLASH

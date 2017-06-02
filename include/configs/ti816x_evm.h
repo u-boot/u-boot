@@ -50,8 +50,6 @@
 
 #define CONFIG_CMD_ASKENV
 
-#define CONFIG_FS_FAT
-
 /*
  * Only one of the following two options (DDR3/DDR2) should be enabled
  * CONFIG_TI816X_EVM_DDR2

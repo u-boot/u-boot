@@ -14,7 +14,6 @@
 #define CONFIG_CMD_SDRAM
 
 /* Support File sytems */
-#define CONFIG_FAT_WRITE
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE

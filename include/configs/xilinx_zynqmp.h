@@ -82,10 +82,6 @@
 # define FAT_ENV_INTERFACE		"mmc"
 #endif
 
-#if defined(CONFIG_MMC_SDHCI_ZYNQ) || defined(CONFIG_ZYNQMP_USB)
-# define CONFIG_FAT_WRITE
-#endif
-
 #ifdef CONFIG_NAND_ARASAN
 # define CONFIG_CMD_NAND_LOCK_UNLOCK
 # define CONFIG_SYS_MAX_NAND_DEVICE	1

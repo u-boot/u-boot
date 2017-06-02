@@ -64,7 +64,6 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FAT_WRITE
 
 /* Network */
 #define CONFIG_FEC_MXC

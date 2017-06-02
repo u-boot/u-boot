@@ -302,9 +302,6 @@
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_CMD_SCSI
-#ifndef CONFIG_CMD_FAT
-#define CONFIG_CMD_FAT
-#endif
 #ifndef CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT2
 #endif

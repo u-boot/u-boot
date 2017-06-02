@@ -41,9 +41,6 @@
 /* PWM */
 #define CONFIG_PWM
 
-/* Command definition*/
-#define CONFIG_FAT_WRITE
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		1024	/* Print Buffer Size */

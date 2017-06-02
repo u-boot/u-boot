@@ -109,9 +109,6 @@
 /* Initial upstream - boot to cmd prompt only */
 #define CONFIG_BOOTCOMMAND		""
 
-/* Commands */
-#define CONFIG_FAT_WRITE
-
 #undef CONFIG_USB_GADGET_VBUS_DRAW
 #define CONFIG_USB_GADGET_VBUS_DRAW	0
 #define CONFIG_USBID_ADDR		0x34052c46

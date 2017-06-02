@@ -8,8 +8,7 @@
 #define __CONFIG_SOCFGPA_ARRIA10_H__
 
 #include <asm/arch/base_addr_a10.h>
-/* U-Boot Commands */
-#define CONFIG_FAT_WRITE
+
 #define CONFIG_HW_WATCHDOG
 
 /* Booting Linux */

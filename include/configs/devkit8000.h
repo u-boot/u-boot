@@ -94,7 +94,6 @@
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
 #undef CONFIG_SUPPORT_RAW_INITRD
-#undef CONFIG_FAT_WRITE
 
 /* BOOTP/DHCP options */
 #define CONFIG_BOOTP_SUBNETMASK

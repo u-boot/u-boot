@@ -118,9 +118,6 @@
 #ifdef CONFIG_FS_EXT4
 #undef CONFIG_FS_EXT4
 #endif
-#ifdef CONFIG_FS_FAT
-#undef CONFIG_FS_FAT
-#endif
 
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA

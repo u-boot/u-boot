@@ -43,8 +43,6 @@
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_FAT
-#define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 
 /* RAW SD card / eMMC locations. */

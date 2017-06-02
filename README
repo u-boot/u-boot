@@ -840,7 +840,6 @@ The following options need to be configured:
 					  that work for multiple fs types
 		CONFIG_CMD_FS_UUID	* Look up a filesystem UUID
 		CONFIG_CMD_SAVEENV	  saveenv
-		CONFIG_CMD_FAT		* FAT command support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
 		CONFIG_CMD_GO		* the 'go' command (exec code)
@@ -1065,8 +1064,6 @@ The following options need to be configured:
 - Partition Labels (disklabels) Supported:
 		Zero or more of the following:
 		CONFIG_MAC_PARTITION   Apple's MacOS partition table.
-		CONFIG_DOS_PARTITION   MS Dos partition table, traditional on the
-				       Intel architecture, USB sticks, etc.
 		CONFIG_ISO_PARTITION   ISO partition table, used on CDROM etc.
 		CONFIG_EFI_PARTITION   GPT partition table, common when EFI is the
 				       bootloader.  Note 2TB partition limit; see
@@ -1518,21 +1515,6 @@ The following options need to be configured:
 		CONFIG_SYS_JFFS2_FIRST_SECTOR,
 		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
 		Define these for a default partition on a NOR device
-
-- FAT(File Allocation Table) filesystem write function support:
-		CONFIG_FAT_WRITE
-
-		Define this to enable support for saving memory data as a
-		file in FAT formatted partition.
-
-		This will also enable the command "fatwrite" enabling the
-		user to write files to FAT.
-
-- FAT(File Allocation Table) filesystem cluster size:
-		CONFIG_FS_FAT_MAX_CLUSTSIZE
-
-		Define the max cluster size for fat operations else
-		a default value of 65536 will be defined.
 
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
@@ -3870,7 +3852,7 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
          environment.
 
        - CONFIG_FAT_WRITE:
-         This should be defined. Otherwise it cannot save the environment file.
+         This must be enabled. Otherwise it cannot save the environment file.
 
 - CONFIG_ENV_IS_IN_MMC:
 

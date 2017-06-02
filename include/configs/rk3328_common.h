@@ -28,8 +28,6 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_FAT
-#define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 
 /* RAW SD card / eMMC locations. */

@@ -20,8 +20,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_FAT_WRITE
-
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_CMD_SATA

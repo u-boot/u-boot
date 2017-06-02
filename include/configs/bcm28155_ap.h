@@ -108,9 +108,6 @@
 /* Initial upstream - boot to cmd prompt only */
 #define CONFIG_BOOTCOMMAND		""
 
-/* Commands */
-#define CONFIG_FAT_WRITE
-
 #define CONFIG_USBID_ADDR		0x34052c46
 
 #endif /* __BCM28155_AP_H */

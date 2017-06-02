@@ -46,9 +46,6 @@
 #define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
-/* Miscellaneous commands */
-#define CONFIG_FAT_WRITE
-
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024

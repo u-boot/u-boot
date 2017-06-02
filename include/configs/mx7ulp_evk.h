@@ -45,9 +45,6 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE			SZ_8K
 
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
 

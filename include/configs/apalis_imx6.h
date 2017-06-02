@@ -66,7 +66,6 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FAT_WRITE
 
 #ifdef CONFIG_MX6Q
 #define CONFIG_CMD_SATA

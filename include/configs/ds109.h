@@ -24,7 +24,6 @@
  * Commands configuration
  */
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /*
  * mv-plug-common.h should be defined after CMD configs since it used them

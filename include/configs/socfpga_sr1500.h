@@ -8,8 +8,6 @@
 
 #include <asm/arch/base_addr_ac5.h>
 
-#define CONFIG_FAT_WRITE
-
 #define CONFIG_HW_WATCHDOG
 
 /* Memory configurations */
