@@ -41,6 +41,9 @@ struct omap_boot_parameters {
 	unsigned char boot_device;
 	unsigned char reset_reason;
 };
+
+#define DEVICE_TYPE_SHIFT		0x8
+#define DEVICE_TYPE_MASK		(0x7 << DEVICE_TYPE_SHIFT)
 #endif
 
 #endif

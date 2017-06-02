@@ -91,6 +91,9 @@ struct s32ktimer {
 	unsigned int s32k_cr;		/* 0x10 */
 };
 
+#define DEVICE_TYPE_SHIFT		0x8
+#define DEVICE_TYPE_MASK		(0x7 << DEVICE_TYPE_SHIFT)
+
 #endif /* __ASSEMBLY__ */
 
 #ifndef __ASSEMBLY__

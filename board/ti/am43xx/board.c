@@ -20,6 +20,7 @@
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
 #include "../common/board_detect.h"
 #include "board.h"
 #include <power/pmic.h>

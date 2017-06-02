@@ -278,15 +278,6 @@ int checkboard(void)
 	return 0;
 }
 
-/*
- *  get_device_type(): tell if GP/HS/EMU/TST
- */
-u32 get_device_type(void)
-{
-	return (readl((*ctrl)->control_status) &
-				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
-}
-
 #if defined(CONFIG_DISPLAY_CPUINFO)
 /*
  * Print CPU information

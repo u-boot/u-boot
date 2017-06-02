@@ -21,6 +21,8 @@ endif
 obj-$(CONFIG_TI816X)	+= ti816x_emif4.o
 obj-y	+= board.o
 obj-y	+= mux.o
+obj-y	+= prcm-regs.o
+obj-y	+= hw_data.o
 
 obj-$(CONFIG_CLOCK_SYNTHESIZER)	+= clk_synthesizer.o
 

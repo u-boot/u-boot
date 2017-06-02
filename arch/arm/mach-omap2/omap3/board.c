@@ -173,6 +173,11 @@ void try_unlock_memory(void)
 	return;
 }
 
+void early_system_init(void)
+{
+	hw_data_init();
+}
+
 /******************************************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
@@ -181,6 +186,7 @@ void try_unlock_memory(void)
 void s_init(void)
 {
 	watchdog_init();
+	early_system_init();
 
 	try_unlock_memory();
 
@@ -204,6 +210,7 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
+	early_system_init();
 	mem_init();
 }
 #endif

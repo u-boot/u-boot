@@ -36,12 +36,6 @@
 #define TCFG_RESET			BIT(0)	/* software reset */
 #define TCFG_EMUFREE			BIT(1)	/* behaviour of tmr on debug */
 #define TCFG_IDLEMOD_SHIFT		(2)	/* power management */
-/* device type */
-#define DEVICE_MASK			(BIT(8) | BIT(9) | BIT(10))
-#define TST_DEVICE			0x0
-#define EMU_DEVICE			0x1
-#define HS_DEVICE			0x2
-#define GP_DEVICE			0x3
 
 /* cpu-id for AM43XX AM33XX and TI81XX family */
 #define AM437X				0xB98C

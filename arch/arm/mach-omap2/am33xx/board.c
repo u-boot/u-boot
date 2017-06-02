@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
+#include <asm/omap_common.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
@@ -347,6 +348,7 @@ void early_system_init(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
+	hw_data_init();
 	early_system_init();
 	board_early_init_f();
 	sdram_init();
@@ -361,6 +363,7 @@ void board_init_f(ulong dummy)
 
 int arch_cpu_init_dm(void)
 {
+	hw_data_init();
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	early_system_init();
 #endif

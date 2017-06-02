@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
+#include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
 #include <asm/omap_mmc.h>
 #include <i2c.h>

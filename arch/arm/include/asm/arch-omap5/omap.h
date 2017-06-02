@@ -127,7 +127,6 @@ struct s32ktimer {
 
 #define DEVICE_TYPE_SHIFT 0x6
 #define DEVICE_TYPE_MASK (0x7 << DEVICE_TYPE_SHIFT)
-#define DEVICE_GP 0x3
 
 /* Output impedance control */
 #define ds_120_ohm	0x0

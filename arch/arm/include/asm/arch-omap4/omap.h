@@ -100,7 +100,6 @@ struct s32ktimer {
 
 #define DEVICE_TYPE_SHIFT (0x8)
 #define DEVICE_TYPE_MASK (0x7 << DEVICE_TYPE_SHIFT)
-#define DEVICE_GP 0x3
 
 #endif /* __ASSEMBLY__ */
 

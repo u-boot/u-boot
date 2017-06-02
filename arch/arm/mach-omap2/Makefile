@@ -20,6 +20,7 @@ endif
 endif
 obj-y	+= utils.o
 
+obj-y	+= sysinfo-common.o
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 obj-y	+= hwinit-common.o
 obj-y	+= clocks-common.o
