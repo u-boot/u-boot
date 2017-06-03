@@ -117,15 +117,17 @@ static void pch_gbe_rx_descs_init(struct udevice *dev)
 
 	memset(rx_desc, 0, sizeof(struct pch_gbe_rx_desc) * PCH_GBE_DESC_NUM);
 	for (i = 0; i < PCH_GBE_DESC_NUM; i++)
-		rx_desc->buffer_addr = dm_pci_phys_to_mem(priv->dev,
-			(ulong)(priv->rx_buff[i]));
+		rx_desc[i].buffer_addr = dm_pci_virt_to_mem(priv->dev,
+			priv->rx_buff[i]);
 
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)rx_desc),
+	flush_dcache_range((ulong)rx_desc, (ulong)&rx_desc[PCH_GBE_DESC_NUM]);
+
+	writel(dm_pci_virt_to_mem(priv->dev, rx_desc),
 	       &mac_regs->rx_dsc_base);
 	writel(sizeof(struct pch_gbe_rx_desc) * (PCH_GBE_DESC_NUM - 1),
 	       &mac_regs->rx_dsc_size);
 
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)(rx_desc + 1)),
+	writel(dm_pci_virt_to_mem(priv->dev, rx_desc + 1),
 	       &mac_regs->rx_dsc_sw_p);
 }
 
@@ -137,11 +139,13 @@ static void pch_gbe_tx_descs_init(struct udevice *dev)
 
 	memset(tx_desc, 0, sizeof(struct pch_gbe_tx_desc) * PCH_GBE_DESC_NUM);
 
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)tx_desc),
+	flush_dcache_range((ulong)tx_desc, (ulong)&tx_desc[PCH_GBE_DESC_NUM]);
+
+	writel(dm_pci_virt_to_mem(priv->dev, tx_desc),
 	       &mac_regs->tx_dsc_base);
 	writel(sizeof(struct pch_gbe_tx_desc) * (PCH_GBE_DESC_NUM - 1),
 	       &mac_regs->tx_dsc_size);
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)(tx_desc + 1)),
+	writel(dm_pci_virt_to_mem(priv->dev, tx_desc + 1),
 	       &mac_regs->tx_dsc_sw_p);
 }
 
@@ -245,24 +249,28 @@ static int pch_gbe_send(struct udevice *dev, void *packet, int length)
 	u32 int_st;
 	ulong start;
 
+	flush_dcache_range((ulong)packet, (ulong)packet + length);
+
 	tx_head = &priv->tx_desc[0];
 	tx_desc = &priv->tx_desc[priv->tx_idx];
 
 	if (length < 64)
 		frame_ctrl |= PCH_GBE_TXD_CTRL_APAD;
 
-	tx_desc->buffer_addr = dm_pci_phys_to_mem(priv->dev, (ulong)packet);
+	tx_desc->buffer_addr = dm_pci_virt_to_mem(priv->dev, packet);
 	tx_desc->length = length;
 	tx_desc->tx_words_eob = length + 3;
 	tx_desc->tx_frame_ctrl = frame_ctrl;
 	tx_desc->dma_status = 0;
 	tx_desc->gbec_status = 0;
 
+	flush_dcache_range((ulong)tx_desc, (ulong)&tx_desc[1]);
+
 	/* Test the wrap-around condition */
 	if (++priv->tx_idx >= PCH_GBE_DESC_NUM)
 		priv->tx_idx = 0;
 
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)(tx_head + priv->tx_idx)),
+	writel(dm_pci_virt_to_mem(priv->dev, tx_head + priv->tx_idx),
 	       &mac_regs->tx_dsc_sw_p);
 
 	start = get_timer(0);
@@ -283,7 +291,8 @@ static int pch_gbe_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct pch_gbe_priv *priv = dev_get_priv(dev);
 	struct pch_gbe_regs *mac_regs = priv->mac_regs;
 	struct pch_gbe_rx_desc *rx_desc;
-	ulong hw_desc, buffer_addr, length;
+	ulong hw_desc, length;
+	void *buffer;
 
 	rx_desc = &priv->rx_desc[priv->rx_idx];
 
@@ -291,12 +300,16 @@ static int pch_gbe_recv(struct udevice *dev, int flags, uchar **packetp)
 	hw_desc = readl(&mac_regs->rx_dsc_hw_p_hld);
 
 	/* Just return if not receiving any packet */
-	if ((ulong)rx_desc == hw_desc)
+	if (virt_to_phys(rx_desc) == hw_desc)
 		return -EAGAIN;
 
-	buffer_addr = dm_pci_mem_to_phys(priv->dev, rx_desc->buffer_addr);
-	*packetp = (uchar *)buffer_addr;
+	/* Invalidate the descriptor */
+	invalidate_dcache_range((ulong)rx_desc, (ulong)&rx_desc[1]);
+
 	length = rx_desc->rx_words_eob - 3 - ETH_FCS_LEN;
+	buffer = dm_pci_mem_to_virt(priv->dev, rx_desc->buffer_addr, length, 0);
+	invalidate_dcache_range((ulong)buffer, (ulong)buffer + length);
+	*packetp = (uchar *)buffer;
 
 	return length;
 }
@@ -315,7 +328,7 @@ static int pch_gbe_free_pkt(struct udevice *dev, uchar *packet, int length)
 	if (++rx_swp >= PCH_GBE_DESC_NUM)
 		rx_swp = 0;
 
-	writel(dm_pci_phys_to_mem(priv->dev, (ulong)(rx_head + rx_swp)),
+	writel(dm_pci_virt_to_mem(priv->dev, rx_head + rx_swp),
 	       &mac_regs->rx_dsc_sw_p);
 
 	return 0;
@@ -422,6 +435,7 @@ int pch_gbe_probe(struct udevice *dev)
 	struct pch_gbe_priv *priv;
 	struct eth_pdata *plat = dev_get_platdata(dev);
 	void *iobase;
+	int err;
 
 	/*
 	 * The priv structure contains the descriptors and frame buffers which
@@ -443,6 +457,10 @@ int pch_gbe_probe(struct udevice *dev)
 	plat->phy_interface = PHY_INTERFACE_MODE_RGMII;
 	pch_gbe_mdio_init(dev->name, priv->mac_regs);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
+
+	err = pch_gbe_reset(dev);
+	if (err)
+		return err;
 
 	return pch_gbe_phy_init(dev);
 }

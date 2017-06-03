@@ -72,12 +72,12 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	if (port == FM1_DTSEC3)
 		if ((rcwsr13 & FSL_CHASSIS2_RCWSR13_EC1) ==
 				FSL_CHASSIS2_RCWSR13_EC1_DTSEC3_RGMII)
-			return PHY_INTERFACE_MODE_RGMII;
+			return PHY_INTERFACE_MODE_RGMII_TXID;
 
 	if (port == FM1_DTSEC4)
 		if ((rcwsr13 & FSL_CHASSIS2_RCWSR13_EC2) ==
 				FSL_CHASSIS2_RCWSR13_EC2_DTSEC4_RGMII)
-			return PHY_INTERFACE_MODE_RGMII;
+			return PHY_INTERFACE_MODE_RGMII_TXID;
 
 	/* handle SGMII, only MAC 2/5/6/9/10 available */
 	switch (port) {

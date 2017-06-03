@@ -22,6 +22,13 @@ menuconfig NETDEVICES
 
 if NETDEVICES
 
+config PHY_GIGE
+	bool "Enable GbE PHY status parsing and configuration"
+	help
+	  Enables support for parsing the status output and for
+	  configuring GbE PHYs (affects the inner workings of some
+	  commands and miiphyutil.c).
+
 config AG7XXX
 	bool "Atheros AG7xxx Ethernet MAC support"
 	depends on DM_ETH && ARCH_ATH79
@@ -187,6 +194,7 @@ config SUN8I_EMAC
         bool "Allwinner Sun8i Ethernet MAC support"
         depends on DM_ETH
         select PHYLIB
+	select PHY_GIGE
         help
           This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
 	  It can be found in H3/A64/A83T based SoCs and compatible with both

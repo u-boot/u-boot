@@ -612,21 +612,25 @@ static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 #endif
 }
 
-static void cpsw_slave_update_link(struct cpsw_slave *slave,
+static int cpsw_slave_update_link(struct cpsw_slave *slave,
 				   struct cpsw_priv *priv, int *link)
 {
 	struct phy_device *phy;
 	u32 mac_control = 0;
+	int ret = -ENODEV;
 
 	phy = priv->phydev;
-
 	if (!phy)
-		return;
+		goto out;
 
-	phy_startup(phy);
-	*link = phy->link;
+	ret = phy_startup(phy);
+	if (ret)
+		goto out;
 
-	if (*link) { /* link up */
+	if (link)
+		*link = phy->link;
+
+	if (phy->link) { /* link up */
 		mac_control = priv->data.mac_control;
 		if (phy->speed == 1000)
 			mac_control |= GIGABITEN;
@@ -637,7 +641,7 @@ static void cpsw_slave_update_link(struct cpsw_slave *slave,
 	}
 
 	if (mac_control == slave->mac_control)
-		return;
+		goto out;
 
 	if (mac_control) {
 		printf("link up on port %d, speed %d, %s duplex\n",
@@ -649,17 +653,20 @@ static void cpsw_slave_update_link(struct cpsw_slave *slave,
 
 	__raw_writel(mac_control, &slave->sliver->mac_control);
 	slave->mac_control = mac_control;
+
+out:
+	return ret;
 }
 
 static int cpsw_update_link(struct cpsw_priv *priv)
 {
-	int link = 0;
+	int ret = -ENODEV;
 	struct cpsw_slave *slave;
 
 	for_active_slave(slave, priv)
-		cpsw_slave_update_link(slave, priv, &link);
+		ret = cpsw_slave_update_link(slave, priv, NULL);
 
-	return link;
+	return ret;
 }
 
 static inline u32  cpsw_get_slave_port(struct cpsw_priv *priv, u32 slave_num)
@@ -822,7 +829,9 @@ static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 	for_active_slave(slave, priv)
 		cpsw_slave_init(slave, priv);
 
-	cpsw_update_link(priv);
+	ret = cpsw_update_link(priv);
+	if (ret)
+		goto out;
 
 	/* init descriptor pool */
 	for (i = 0; i < NUM_DESCS; i++) {
@@ -897,7 +906,8 @@ static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 		}
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static void _cpsw_halt(struct cpsw_priv *priv)

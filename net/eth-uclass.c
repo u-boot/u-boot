@@ -181,7 +181,7 @@ int eth_get_dev_index(void)
 
 static int eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev->platdata;
+	struct eth_pdata *pdata;
 	int ret = 0;
 
 	if (!dev || !device_active(dev))
@@ -189,6 +189,7 @@ static int eth_write_hwaddr(struct udevice *dev)
 
 	/* seq is valid since the device is active */
 	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
+		pdata = dev->platdata;
 		if (!is_valid_ethaddr(pdata->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
 			       dev->name, pdata->enetaddr);
