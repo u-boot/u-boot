@@ -226,6 +226,9 @@ config SUNXI_DRAM_DDR3
 config SUNXI_DRAM_DDR2
 	bool
 
+config SUNXI_DRAM_LPDDR3
+	bool
+
 choice
 	prompt "DRAM Type and Timing"
 	default SUNXI_DRAM_DDR3_1333 if !MACH_SUN8I_V3S
