@@ -1,17 +1,17 @@
 /*
- * Copyright (C) 2016 James Pettigrew <james@innovum.com.au>
+ * Copyright (c) 2016 ARM Ltd.
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
  * licensing only applies to this file, and not this project as a
  * whole.
  *
- *  a) This file is free software; you can redistribute it and/or
+ *  a) This library is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2 of the
  *     License, or (at your option) any later version.
  *
- *     This file is distributed in the hope that it will be useful,
+ *     This library is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
@@ -40,20 +40,38 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-h3-nanopi.dtsi"
+#include "sun8i-h3.dtsi"
 
 / {
-	model = "FriendlyARM NanoPi NEO";
-	compatible = "friendlyarm,nanopi-neo", "allwinner,sun8i-h3";
+	cpus {
+		cpu@0 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@1 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@2 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+		cpu@3 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			enable-method = "psci";
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+	};
 };
 
-&emac {
-	phy = <&phy1>;
-	phy-mode = "mii";
-	allwinner,use-internal-phy;
-	allwinner,leds-active-low;
-	status = "okay";
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
+&gic {
+	compatible = "arm,gic-400";
 };

@@ -114,6 +114,11 @@ S:	Maintained
 F:	configs/Bananapi_M2_Ultra_defconfig
 F:	arch/arm/dts/sun8i-r40-bananapi-m2-ultra.dts
 
+BANANAPI M64
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m64_defconfig
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
@@ -237,6 +242,11 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+NANOPI-M1 BOARD
+M:	Mylène Josserand <mylene.josserand@free-electrons.com>
+S:	Maintained
+F:	configs/nanopi_m1_defconfig
+
 NANOPI-NEO BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
@@ -261,6 +271,11 @@ ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/orangepi_pc2_defconfig
+
+ORANGEPI PRIME BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_prime_defconfig
 
 PINE64 BOARDS
 M:	Andre Przywara <andre.przywara@arm.com>

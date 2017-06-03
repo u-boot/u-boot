@@ -40,33 +40,11 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-
-#include "sun50i-a64-pine64-common.dtsi"
+#include "sun50i-a64-pine64.dts"
 
 / {
 	model = "Pine64+";
 	compatible = "pine64,pine64-plus", "allwinner,sun50i-a64";
 
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	/* There is a model with 2GB of DRAM, but U-Boot fixes this for us. */
-	memory {
-		reg = <0x40000000 0x40000000>;
-	};
+	/* TODO: Camera, Ethernet PHY, touchscreen, etc. */
 };
-
-&emac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
-	phy-mode = "rgmii";
-	phy = <&phy1>;
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-	reg = <1>;
-	};
-};
-

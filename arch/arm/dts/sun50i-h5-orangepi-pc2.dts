@@ -42,39 +42,13 @@
 
 /dts-v1/;
 
-#include "sun8i-h3.dtsi"
+#include "sun50i-h5.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "OrangePi PC 2";
 	compatible = "xunlong,orangepi-pc-2", "allwinner,sun50i-h5";
-
-	cpus {
-		cpu@0 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@1 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@2 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@3 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-	};
-
-	psci {
-		compatible = "arm,psci-0.2";
-		method = "smc";
-	};
-
-	timer {
-		compatible = "arm,armv8-timer";
-	};
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -99,10 +73,6 @@
 	};
 };
 
-&gic {
-	compatible = "arm,gic-400";
-};
-
 &mmc0 {
 	compatible = "allwinner,sun50i-h5-mmc",
 		     "allwinner,sun50i-a64-mmc",
@@ -111,7 +81,7 @@
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
-	cd-gpios = <&pio 5 6 0>;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
 	status = "okay";
 };
