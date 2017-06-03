@@ -380,6 +380,13 @@ static void mctl_h3_zq_calibration_quirk(struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
+	int zq_count;
+
+#if defined CONFIG_SUNXI_DRAM_DW_16BIT
+	zq_count = 4;
+#else
+	zq_count = 6;
+#endif
 
 	if ((readl(SUNXI_SRAMC_BASE + 0x24) & 0xff) == 0 &&
 	    (readl(SUNXI_SRAMC_BASE + 0xf0) & 0x1) == 0) {
@@ -408,7 +415,7 @@ static void mctl_h3_zq_calibration_quirk(struct dram_para *para)
 
 		writel(0x0a0a0a0a, &mctl_ctl->zqdr[2]);
 
-		for (i = 0; i < 6; i++) {
+		for (i = 0; i < zq_count; i++) {
 			u8 zq = (CONFIG_DRAM_ZQ >> (i * 4)) & 0xf;
 
 			writel((zq << 20) | (zq << 16) | (zq << 12) |
@@ -430,7 +437,9 @@ static void mctl_h3_zq_calibration_quirk(struct dram_para *para)
 
 		writel((zq_val[1] << 16) | zq_val[0], &mctl_ctl->zqdr[0]);
 		writel((zq_val[3] << 16) | zq_val[2], &mctl_ctl->zqdr[1]);
-		writel((zq_val[5] << 16) | zq_val[4], &mctl_ctl->zqdr[2]);
+		if (zq_count > 4)
+			writel((zq_val[5] << 16) | zq_val[4],
+			       &mctl_ctl->zqdr[2]);
 	}
 }
 
@@ -580,8 +589,14 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 
 	/* set half DQ */
 	if (!para->bus_full_width) {
+#if defined CONFIG_SUNXI_DRAM_DW_32BIT
 		writel(0x0, &mctl_ctl->dx[2].gcr);
 		writel(0x0, &mctl_ctl->dx[3].gcr);
+#elif defined CONFIG_SUNXI_DRAM_DW_16BIT
+		writel(0x0, &mctl_ctl->dx[1].gcr);
+#else
+#error Unsupported DRAM bus width!
+#endif
 	}
 
 	/* data training configuration */
@@ -612,19 +627,29 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	/* detect ranks and bus width */
 	if (readl(&mctl_ctl->pgsr[0]) & (0xfe << 20)) {
 		/* only one rank */
-		if (((readl(&mctl_ctl->dx[0].gsr[0]) >> 24) & 0x2) ||
-		    ((readl(&mctl_ctl->dx[1].gsr[0]) >> 24) & 0x2)) {
+		if (((readl(&mctl_ctl->dx[0].gsr[0]) >> 24) & 0x2)
+#if defined CONFIG_SUNXI_DRAM_DW_32BIT
+		    || ((readl(&mctl_ctl->dx[1].gsr[0]) >> 24) & 0x2)
+#endif
+		    ) {
 			clrsetbits_le32(&mctl_ctl->dtcr, 0xf << 24, 0x1 << 24);
 			para->dual_rank = 0;
 		}
 
 		/* only half DQ width */
+#if defined CONFIG_SUNXI_DRAM_DW_32BIT
 		if (((readl(&mctl_ctl->dx[2].gsr[0]) >> 24) & 0x1) ||
 		    ((readl(&mctl_ctl->dx[3].gsr[0]) >> 24) & 0x1)) {
 			writel(0x0, &mctl_ctl->dx[2].gcr);
 			writel(0x0, &mctl_ctl->dx[3].gcr);
 			para->bus_full_width = 0;
 		}
+#elif defined CONFIG_SUNXI_DRAM_DW_16BIT
+		if ((readl(&mctl_ctl->dx[1].gsr[0]) >> 24) & 0x1) {
+			writel(0x0, &mctl_ctl->dx[1].gcr);
+			para->bus_full_width = 0;
+		}
+#endif
 
 		mctl_set_cr(socid, para);
 		udelay(20);

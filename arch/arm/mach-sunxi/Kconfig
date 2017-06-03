@@ -37,11 +37,26 @@ config SUNXI_DRAM_DW
 	not have official open-source DRAM initialization code, but can
 	use modified H3 DRAM initialization code.
 
+if SUNXI_DRAM_DW
+config SUNXI_DRAM_DW_16BIT
+	bool
+	---help---
+	Select this for sunxi SoCs with DesignWare DRAM controller and
+	have only 16-bit memory buswidth.
+
+config SUNXI_DRAM_DW_32BIT
+	bool
+	---help---
+	Select this for sunxi SoCs with DesignWare DRAM controller with
+	32-bit memory buswidth.
+endif
+
 config MACH_SUNXI_H3_H5
 	bool
 	select DM_I2C
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
@@ -127,6 +142,7 @@ config MACH_SUN8I_R40
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3s)"
@@ -153,6 +169,7 @@ config MACH_SUN50I
 	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 	select FIT
 	select SPL_LOAD_FIT
 
