@@ -205,4 +205,34 @@ struct sunxi_mctl_ctl_reg {
 #define DXBDLR_WRITE_DELAY(x)	((x) << 8)
 #define DXBDLR_READ_DELAY(x)	((x) << 0)
 
+/*
+ * The delay parameters below allow to allegedly specify delay times of some
+ * unknown unit for each individual bit trace in each of the four data bytes
+ * the 32-bit wide access consists of. Also three control signals can be
+ * adjusted individually.
+ */
+#define BITS_PER_BYTE		8
+#define NR_OF_BYTE_LANES	(32 / BITS_PER_BYTE)
+/* The eight data lines (DQn) plus DM, DQS and DQSN */
+#define LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 3)
+struct dram_para {
+	u16 page_size;
+	u8 bus_full_width;
+	u8 dual_rank;
+	u8 row_bits;
+	u8 bank_bits;
+	const u8 dx_read_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
+	const u8 dx_write_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
+	const u8 ac_delays[31];
+};
+
+static inline int ns_to_t(int nanoseconds)
+{
+	const unsigned int ctrl_freq = CONFIG_DRAM_CLK / 2;
+
+	return DIV_ROUND_UP(ctrl_freq * nanoseconds, 1000);
+}
+
+void mctl_set_timing_params(uint16_t socid, struct dram_para *para);
+
 #endif /* _SUNXI_DRAM_SUN8I_H3_H */

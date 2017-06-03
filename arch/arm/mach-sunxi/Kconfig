@@ -216,6 +216,24 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
+if SUNXI_DRAM_DW
+config SUNXI_DRAM_DDR3
+	bool
+
+choice
+	prompt "DRAM Type and Timing"
+	default SUNXI_DRAM_DDR3_1333
+
+config SUNXI_DRAM_DDR3_1333
+	bool "DDR3 1333"
+	select SUNXI_DRAM_DDR3
+	---help---
+	This option is the original only supported memory type, which suits
+	many H3/H5/A64 boards available now.
+
+endchoice
+endif
+
 config DRAM_TYPE
 	int "sunxi dram type"
 	depends on MACH_SUN8I_A83T

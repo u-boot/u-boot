@@ -1,0 +1,1 @@
+obj-$(CONFIG_SUNXI_DRAM_DDR3_1333)	+= ddr3_1333.o
