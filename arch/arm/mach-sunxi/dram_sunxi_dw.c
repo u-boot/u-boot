@@ -723,6 +723,9 @@ unsigned long sunxi_dram_init(void)
 	uint16_t socid = SOCID_R40;
 	/* Currently we cannot support R40 with dual rank memory */
 	para.dual_rank = 0;
+#elif defined(CONFIG_MACH_SUN8I_V3S)
+	/* TODO: set delays and mbus priority for V3s */
+	uint16_t socid = SOCID_H3;
 #elif defined(CONFIG_MACH_SUN50I)
 	uint16_t socid = SOCID_A64;
 #elif defined(CONFIG_MACH_SUN50I_H5)

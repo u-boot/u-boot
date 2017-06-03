@@ -225,11 +225,13 @@ config SUNXI_DRAM_DDR2
 
 choice
 	prompt "DRAM Type and Timing"
-	default SUNXI_DRAM_DDR3_1333
+	default SUNXI_DRAM_DDR3_1333 if !MACH_SUN8I_V3S
+	default SUNXI_DRAM_DDR2_V3S if MACH_SUN8I_V3S
 
 config SUNXI_DRAM_DDR3_1333
 	bool "DDR3 1333"
 	select SUNXI_DRAM_DDR3
+	depends on !MACH_SUN8I_V3S
 	---help---
 	This option is the original only supported memory type, which suits
 	many H3/H5/A64 boards available now.
@@ -237,6 +239,7 @@ config SUNXI_DRAM_DDR3_1333
 config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"
 	select SUNXI_DRAM_DDR2
+	depends on MACH_SUN8I_V3S
 	---help---
 	This option is only for the DDR2 memory chip which is co-packaged in
 	Allwinner V3s SoC.
