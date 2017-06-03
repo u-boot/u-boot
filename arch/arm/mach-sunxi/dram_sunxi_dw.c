@@ -31,6 +31,7 @@ struct dram_para {
 	u8 bus_full_width;
 	u8 dual_rank;
 	u8 row_bits;
+	u8 bank_bits;
 	const u8 dx_read_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
 	const u8 dx_write_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
 	const u8 ac_delays[31];
@@ -449,7 +450,7 @@ static void mctl_set_cr(uint16_t socid, struct dram_para *para)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 
 	writel(MCTL_CR_BL8 | MCTL_CR_2T | MCTL_CR_DDR3 | MCTL_CR_INTERLEAVED |
-	       MCTL_CR_EIGHT_BANKS |
+	       (para->bank_bits == 3 ? MCTL_CR_EIGHT_BANKS : MCTL_CR_FOUR_BANKS) |
 	       MCTL_CR_BUS_FULL_WIDTH(para->bus_full_width) |
 	       (para->dual_rank ? MCTL_CR_DUAL_RANK : MCTL_CR_SINGLE_RANK) |
 	       MCTL_CR_PAGE_SIZE(para->page_size) |
@@ -689,10 +690,19 @@ static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
 	/* detect row address bits */
 	para->page_size = 512;
 	para->row_bits = 16;
+	para->bank_bits = 2;
 	mctl_set_cr(socid, para);
 
 	for (para->row_bits = 11; para->row_bits < 16; para->row_bits++)
-		if (mctl_mem_matches((1 << (para->row_bits + 3)) * para->page_size))
+		if (mctl_mem_matches((1 << (para->row_bits + para->bank_bits)) * para->page_size))
+			break;
+
+	/* detect bank address bits */
+	para->bank_bits = 3;
+	mctl_set_cr(socid, para);
+
+	for (para->bank_bits = 2; para->bank_bits < 3; para->bank_bits++)
+		if (mctl_mem_matches((1 << para->bank_bits) * para->page_size))
 			break;
 
 	/* detect page size */
@@ -786,6 +796,7 @@ unsigned long sunxi_dram_init(void)
 		.dual_rank = 0,
 		.bus_full_width = 1,
 		.row_bits = 15,
+		.bank_bits = 3,
 		.page_size = 4096,
 
 #if defined(CONFIG_MACH_SUN8I_H3)
@@ -850,6 +861,6 @@ unsigned long sunxi_dram_init(void)
 	mctl_auto_detect_dram_size(socid, &para);
 	mctl_set_cr(socid, &para);
 
-	return (1UL << (para.row_bits + 3)) * para.page_size *
-						(para.dual_rank ? 2 : 1);
+	return (1UL << (para.row_bits + para.bank_bits)) * para.page_size *
+	       (para.dual_rank ? 2 : 1);
 }
