@@ -314,6 +314,11 @@ M:	VishnuPatekar <vishnupatekar0510@gmail.com>
 S:	Maintained
 F:	configs/Sinovoip_BPI_M3_defconfig
 
+SOPINE BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/sopine_baseboard_defconfig
+
 SUNCHIP CX-A99 BOARD
 M:	Rask Ingemann Lambertsen <rask@formelder.dk>
 S:	Maintained
