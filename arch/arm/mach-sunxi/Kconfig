@@ -151,6 +151,9 @@ config MACH_SUN8I_V3S
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
+	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_16BIT
+	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN9I
@@ -259,7 +262,8 @@ config DRAM_CLK
 	default 792 if MACH_SUN9I
 	default 648 if MACH_SUN8I_R40
 	default 312 if MACH_SUN6I || MACH_SUN8I
-	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || \
+		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
@@ -279,6 +283,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 14779 if MACH_SUN8I_V3S
 	default 3881979 if MACH_SUN8I_R40
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
