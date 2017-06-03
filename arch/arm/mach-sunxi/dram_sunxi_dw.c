@@ -28,7 +28,7 @@
 #define LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 3)
 struct dram_para {
 	u16 page_size;
-	u8 bus_width;
+	u8 bus_full_width;
 	u8 dual_rank;
 	u8 row_bits;
 	const u8 dx_read_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
@@ -440,7 +440,8 @@ static void mctl_set_cr(uint16_t socid, struct dram_para *para)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 
 	writel(MCTL_CR_BL8 | MCTL_CR_2T | MCTL_CR_DDR3 | MCTL_CR_INTERLEAVED |
-	       MCTL_CR_EIGHT_BANKS | MCTL_CR_BUS_WIDTH(para->bus_width) |
+	       MCTL_CR_EIGHT_BANKS |
+	       MCTL_CR_BUS_FULL_WIDTH(para->bus_full_width) |
 	       (para->dual_rank ? MCTL_CR_DUAL_RANK : MCTL_CR_SINGLE_RANK) |
 	       MCTL_CR_PAGE_SIZE(para->page_size) |
 	       MCTL_CR_ROW_BITS(para->row_bits), &mctl_com->cr);
@@ -578,7 +579,7 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	}
 
 	/* set half DQ */
-	if (para->bus_width != 32) {
+	if (!para->bus_full_width) {
 		writel(0x0, &mctl_ctl->dx[2].gcr);
 		writel(0x0, &mctl_ctl->dx[3].gcr);
 	}
@@ -622,7 +623,7 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 		    ((readl(&mctl_ctl->dx[3].gsr[0]) >> 24) & 0x1)) {
 			writel(0x0, &mctl_ctl->dx[2].gcr);
 			writel(0x0, &mctl_ctl->dx[3].gcr);
-			para->bus_width = 16;
+			para->bus_full_width = 0;
 		}
 
 		mctl_set_cr(socid, para);
@@ -758,7 +759,7 @@ unsigned long sunxi_dram_init(void)
 
 	struct dram_para para = {
 		.dual_rank = 0,
-		.bus_width = 32,
+		.bus_full_width = 1,
 		.row_bits = 15,
 		.page_size = 4096,
 

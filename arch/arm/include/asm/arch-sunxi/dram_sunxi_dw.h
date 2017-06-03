@@ -53,9 +53,9 @@ struct sunxi_mctl_com_reg {
 #define MCTL_CR_SEQUENTIAL	(0x1 << 15)
 #define MCTL_CR_INTERLEAVED	(0x0 << 15)
 
-#define MCTL_CR_32BIT		(0x1 << 12)
-#define MCTL_CR_16BIT		(0x0 << 12)
-#define MCTL_CR_BUS_WIDTH(x)	((x) == 32 ? MCTL_CR_32BIT : MCTL_CR_16BIT)
+#define MCTL_CR_FULL_WIDTH	(0x1 << 12)
+#define MCTL_CR_HALF_WIDTH	(0x0 << 12)
+#define MCTL_CR_BUS_FULL_WIDTH(x)	((x) << 12)
 
 #define MCTL_CR_PAGE_SIZE(x)	((fls(x) - 4) << 8)
 #define MCTL_CR_ROW_BITS(x)	(((x) - 1) << 4)
