@@ -156,6 +156,11 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
 #define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 
+/* Define phy_reset function to boot the MC based on mcinitcmd.
+ * This happens late enough to properly fixup u-boot env MAC addresses.
+ */
+#define CONFIG_RESET_PHY_R
+
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
  *
@@ -203,9 +208,16 @@ unsigned long long get_qixis_addr(void);
 				"earlycon=uart8250,mmio,0x21c0500 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
+#ifdef CONFIG_SD_BOOT
+#define CONFIG_BOOTCOMMAND	"mmc read 0x80200000 0x6800 0x800;"\
+				" fsl_mc apply dpl 0x80200000 &&" \
+				" mmc read $kernel_load $kernel_start" \
+				" $kernel_size && bootm $kernel_load"
+#else
 #define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580d00000 &&" \
 				" cp.b $kernel_start $kernel_load" \
 				" $kernel_size && bootm $kernel_load"
+#endif
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -228,8 +240,10 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_TEXT_BASE		0x1800a000
 
+#ifdef CONFIG_NAND_BOOT
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+#endif
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(640 * 1024)

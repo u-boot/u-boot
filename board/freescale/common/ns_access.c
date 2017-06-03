@@ -39,7 +39,10 @@ static void enable_devices_ns_access(struct csu_ns_dev *ns_dev, uint32_t num)
 
 void enable_layerscape_ns_access(void)
 {
-	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#ifdef CONFIG_ARM64
+	if (current_el() == 3)
+#endif
+		enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
 }
 
 void set_pcie_ns_access(int pcie, u16 val)

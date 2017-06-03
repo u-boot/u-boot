@@ -9,6 +9,9 @@
 #include <asm/io.h>
 #include <fsl_ifc.h>
 #include <i2c.h>
+#include <fsl_csu.h>
+#include <asm/arch/fdt.h>
+#include <asm/arch/ppa.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -57,6 +60,12 @@ void spl_board_init(void)
 	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
 	out_le32(SMMU_NSCR0, val);
 #endif
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
+#endif
+#ifdef CONFIG_SPL_FSL_LS_PPA
+	ppa_init();
+#endif
 }
 
 void board_init_f(ulong dummy)
@@ -76,5 +85,35 @@ void board_init_f(ulong dummy)
 	i2c_init_all();
 #endif
 	dram_init();
-}
+#ifdef CONFIG_SPL_FSL_LS_PPA
+#ifndef CONFIG_SYS_MEM_RESERVE_SECURE
+#error Need secure RAM for PPA
 #endif
+	/*
+	 * Secure memory location is determined in dram_init_banksize().
+	 * gd->ram_size is deducted by the size of secure ram.
+	 */
+	dram_init_banksize();
+
+	/*
+	 * After dram_init_bank_size(), we know U-Boot only uses the first
+	 * memory bank regardless how big the memory is.
+	 */
+	gd->ram_top = gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
+
+	/*
+	 * If PPA is loaded, U-Boot will resume running at EL2.
+	 * Cache and MMU will be enabled. Need a place for TLB.
+	 * U-Boot will be relocated to the end of available memory
+	 * in first bank. At this point, we cannot know how much
+	 * memory U-Boot uses. Put TLB table lower by SPL_TLB_SETBACK
+	 * to avoid overlapping. As soon as the RAM version U-Boot sets
+	 * up new MMU, this space is no longer needed.
+	 */
+	gd->ram_top -= SPL_TLB_SETBACK;
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->arch.tlb_addr = (gd->ram_top - gd->arch.tlb_size) & ~(0x10000 - 1);
+	gd->arch.tlb_allocated = gd->arch.tlb_addr;
+#endif	/* CONFIG_SPL_FSL_LS_PPA */
+}
+#endif /* CONFIG_SPL_BUILD */

@@ -61,4 +61,5 @@ u64 mc_get_dram_addr(void);
 unsigned long mc_get_dram_block_size(void);
 int fsl_mc_ldpaa_init(bd_t *bis);
 int fsl_mc_ldpaa_exit(bd_t *bd);
+void mc_env_boot(void);
 #endif

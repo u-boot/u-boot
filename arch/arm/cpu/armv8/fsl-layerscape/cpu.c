@@ -244,6 +244,14 @@ u64 get_page_table_size(void)
 
 int arch_cpu_init(void)
 {
+	/*
+	 * This function is called before U-Boot relocates itself to speed up
+	 * on system running. It is not necessary to run if performance is not
+	 * critical. Skip if MMU is already enabled by SPL or other means.
+	 */
+	if (get_sctlr() & CR_M)
+		return 0;
+
 	icache_enable();
 	__asm_invalidate_dcache_all();
 	__asm_invalidate_tlb_all();
@@ -464,7 +472,7 @@ int cpu_eth_init(bd_t *bis)
 {
 	int error = 0;
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	error = fsl_mc_ldpaa_init(bis);
 #endif
 #ifdef CONFIG_FMAN_ENET
@@ -530,7 +538,8 @@ int timer_init(void)
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
 
 	/* Update with accurate clock frequency */
-	asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
+	if (current_el() == 3)
+		asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
 #endif
 
 #ifdef CONFIG_FSL_LSCH3
@@ -608,7 +617,7 @@ phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	/* The start address of MC reserved memory needs to be aligned. */
 	ram_top -= mc_get_dram_block_size();
 	ram_top &= ~(CONFIG_SYS_MC_RSV_MEM_ALIGN - 1);
@@ -723,7 +732,7 @@ int dram_init_banksize(void)
 	}
 #endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=

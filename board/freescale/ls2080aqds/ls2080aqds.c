@@ -280,7 +280,7 @@ int arch_misc_init(void)
 }
 #endif
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
@@ -336,7 +336,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	fdt_fixup_board_enet(blob);
 #endif
 

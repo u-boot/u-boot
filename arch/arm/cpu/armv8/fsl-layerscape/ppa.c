@@ -32,6 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int ppa_init(void)
 {
+	unsigned int el = current_el();
 	void *ppa_fit_addr;
 	u32 *boot_loc_ptr_l, *boot_loc_ptr_h;
 	int ret;
@@ -44,6 +45,12 @@ int ppa_init(void)
 	void *ppa_hdr_ddr;
 #endif
 #endif
+
+	/* Skip if running at lower exception level */
+	if (el < 3) {
+		debug("Skipping PPA init, running at EL%d\n", el);
+		return 0;
+	}
 
 #ifdef CONFIG_SYS_LS_PPA_FW_IN_XIP
 	ppa_fit_addr = (void *)CONFIG_SYS_LS_PPA_FW_ADDR;

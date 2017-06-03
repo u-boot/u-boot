@@ -135,6 +135,19 @@ config FSL_LS_PPA
 	  which is loaded during boot stage, and then remains resident in RAM
 	  and runs in the TrustZone after boot.
 	  Say y to enable it.
+
+config SPL_FSL_LS_PPA
+	bool "FSL Layerscape PPA firmware support for SPL build"
+	depends on !ARMV8_PSCI
+	select SPL_ARMV8_SEC_FIRMWARE_SUPPORT
+	select SEC_FIRMWARE_ARMV8_PSCI
+	select ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT if FSL_LSCH2
+	help
+	  The FSL Primary Protected Application (PPA) is a software component
+	  which is loaded during boot stage, and then remains resident in RAM
+	  and runs in the TrustZone after boot. This is to load PPA during SPL
+	  stage instead of the RAM version of U-Boot. Once PPA is initialized,
+	  the rest of U-Boot (including RAM version) runs at EL2.
 choice
 	prompt "FSL Layerscape PPA firmware loading-media select"
 	depends on FSL_LS_PPA

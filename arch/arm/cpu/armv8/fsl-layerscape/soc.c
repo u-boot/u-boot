@@ -134,7 +134,7 @@ void erratum_a009635(void)
 
 static void erratum_rcw_src(void)
 {
-#if defined(CONFIG_SPL)
+#if defined(CONFIG_SPL) && defined(CONFIG_NAND_BOOT)
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 	u32 __iomem *dcfg_dcsr = (u32 __iomem *)DCFG_DCSR_BASE;
 	u32 val;
@@ -288,6 +288,10 @@ static void erratum_a008850_early(void)
 	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 
+	/* Skip if running at lower exception level */
+	if (current_el() < 3)
+		return;
+
 	/* disables propagation of barrier transactions to DDRC from CCI400 */
 	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
 
@@ -303,6 +307,10 @@ void erratum_a008850_post(void)
 	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 	u32 tmp;
+
+	/* Skip if running at lower exception level */
+	if (current_el() < 3)
+		return;
 
 	/* enable propagation of barrier transactions to DDRC from CCI400 */
 	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
@@ -455,8 +463,10 @@ void fsl_lsch2_early_init_f(void)
 	 * Enable snoop requests and DVM message requests for
 	 * Slave insterface S4 (A53 core cluster)
 	 */
-	out_le32(&cci->slave[4].snoop_ctrl,
-		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+	if (current_el() == 3) {
+		out_le32(&cci->slave[4].snoop_ctrl,
+			 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+	}
 
 	/* Erratum */
 	erratum_a008850_early(); /* part 1 of 2 */
