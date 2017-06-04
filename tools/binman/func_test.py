@@ -21,7 +21,7 @@ import cmdline
 import command
 import control
 import entry
-import fdt_select
+import fdt
 import fdt_util
 import tools
 import tout
@@ -658,8 +658,8 @@ class TestFunctional(unittest.TestCase):
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
             fd.write(second)
-        fdt = fdt_select.FdtScan(fname)
-        ucode = fdt.GetNode('/microcode')
+        dtb = fdt.FdtScan(fname)
+        ucode = dtb.GetNode('/microcode')
         self.assertTrue(ucode)
         for node in ucode.subnodes:
             self.assertFalse(node.props.get('data'))
@@ -683,7 +683,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('nodtb with microcode' + pos_and_size +
                          ' somewhere in here', first)
 
-    def _RunPackUbootSingleMicrocode(self, collate):
+    def _RunPackUbootSingleMicrocode(self):
         """Test that x86 microcode can be handled correctly
 
         We expect to see the following in the image, in order:
@@ -695,8 +695,6 @@ class TestFunctional(unittest.TestCase):
         # We need the libfdt library to run this test since only that allows
         # finding the offset of a property. This is required by
         # Entry_u_boot_dtb_with_ucode.ObtainContents().
-        if not fdt_select.have_libfdt:
-            return
         data = self._DoReadFile('35_x86_single_ucode.dts', True)
 
         second = data[len(U_BOOT_NODTB_DATA):]
@@ -705,34 +703,22 @@ class TestFunctional(unittest.TestCase):
         third = second[fdt_len:]
         second = second[:fdt_len]
 
-        if not collate:
-            ucode_data = struct.pack('>2L', 0x12345678, 0x12345679)
-            self.assertIn(ucode_data, second)
-            ucode_pos = second.find(ucode_data) + len(U_BOOT_NODTB_DATA)
+        ucode_data = struct.pack('>2L', 0x12345678, 0x12345679)
+        self.assertIn(ucode_data, second)
+        ucode_pos = second.find(ucode_data) + len(U_BOOT_NODTB_DATA)
 
-            # Check that the microcode pointer was inserted. It should match the
-            # expected position and size
-            pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
-                                    len(ucode_data))
-            first = data[:len(U_BOOT_NODTB_DATA)]
-            self.assertEqual('nodtb with microcode' + pos_and_size +
-                            ' somewhere in here', first)
+        # Check that the microcode pointer was inserted. It should match the
+        # expected position and size
+        pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
+                                   len(ucode_data))
+        first = data[:len(U_BOOT_NODTB_DATA)]
+        self.assertEqual('nodtb with microcode' + pos_and_size +
+                         ' somewhere in here', first)
 
     def testPackUbootSingleMicrocode(self):
         """Test that x86 microcode can be handled correctly with fdt_normal.
         """
-        self._RunPackUbootSingleMicrocode(False)
-
-    def testPackUbootSingleMicrocodeFallback(self):
-        """Test that x86 microcode can be handled correctly with fdt_fallback.
-
-        This only supports collating the microcode.
-        """
-        try:
-            old_val = fdt_select.UseFallback(True)
-            self._RunPackUbootSingleMicrocode(True)
-        finally:
-            fdt_select.UseFallback(old_val)
+        self._RunPackUbootSingleMicrocode()
 
     def testUBootImg(self):
         """Test that u-boot.img can be put in a file"""
@@ -763,14 +749,12 @@ class TestFunctional(unittest.TestCase):
     def testMicrocodeWithoutPtrInElf(self):
         """Test that a U-Boot binary without the microcode symbol is detected"""
         # ELF file without a '_dt_ucode_base_size' symbol
-        if not fdt_select.have_libfdt:
-            return
         try:
             with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
                 TestFunctional._MakeInputFile('u-boot', fd.read())
 
             with self.assertRaises(ValueError) as e:
-                self._RunPackUbootSingleMicrocode(False)
+                self._RunPackUbootSingleMicrocode()
             self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot locate "
                     "_dt_ucode_base_size symbol in u-boot", str(e.exception))
 

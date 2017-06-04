@@ -21,6 +21,9 @@ sys.path.append(os.path.join(our_path, '../patman'))
 sys.path.append(os.path.join(our_path, '../dtoc'))
 sys.path.append(os.path.join(our_path, '../'))
 
+# Bring in the libfdt module
+sys.path.append('tools')
+
 # Also allow entry-type modules to be brought in from the etype directory.
 sys.path.append(os.path.join(our_path, 'etype'))
 

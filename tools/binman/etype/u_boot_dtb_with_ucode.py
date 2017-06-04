@@ -6,7 +6,7 @@
 # Entry-type module for U-Boot device tree with the microcode removed
 #
 
-import fdt_select
+import fdt
 from entry import Entry
 from blob import Entry_blob
 import tools
@@ -44,9 +44,8 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
             fd.write(self.data)
 
         # Remove the microcode
-        fdt = fdt_select.FdtScan(fname)
-        fdt.Scan()
-        ucode = fdt.GetNode('/microcode')
+        dtb = fdt.FdtScan(fname)
+        ucode = dtb.GetNode('/microcode')
         if not ucode:
             raise self.Raise("No /microcode node found in '%s'" % fname)
 
@@ -57,20 +56,15 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
             data_prop = node.props.get('data')
             if data_prop:
                 self.ucode_data += ''.join(data_prop.bytes)
-                if not self.collate:
-                    poffset = data_prop.GetOffset()
-                    if poffset is None:
-                        # We cannot obtain a property offset. Collate instead.
-                        self.collate = True
-                    else:
-                        # Find the offset in the device tree of the ucode data
-                        self.ucode_offset = poffset + 12
-                        self.ucode_size = len(data_prop.bytes)
                 if self.collate:
                     prop = node.DeleteProp('data')
+                else:
+                    # Find the offset in the device tree of the ucode data
+                    self.ucode_offset = data_prop.GetOffset() + 12
+                    self.ucode_size = len(data_prop.bytes)
         if self.collate:
-            fdt.Pack()
-            fdt.Flush()
+            dtb.Pack()
+            dtb.Flush()
 
             # Make this file the contents of this entry
             self._pathname = fname

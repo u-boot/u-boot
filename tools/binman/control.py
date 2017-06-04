@@ -12,7 +12,7 @@ import sys
 import tools
 
 import command
-import fdt_select
+import fdt
 import fdt_util
 from image import Image
 import tout
@@ -40,15 +40,15 @@ def _ReadImageDesc(binman_node):
         images['image'] = Image('image', binman_node)
     return images
 
-def _FindBinmanNode(fdt):
+def _FindBinmanNode(dtb):
     """Find the 'binman' node in the device tree
 
     Args:
-        fdt: Fdt object to scan
+        dtb: Fdt object to scan
     Returns:
         Node object of /binman node, or None if not found
     """
-    for node in fdt.GetRoot().subnodes:
+    for node in dtb.GetRoot().subnodes:
         if node.name == 'binman':
             return node
     return None
@@ -92,8 +92,8 @@ def Binman(options, args):
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
-            fdt = fdt_select.FdtScan(dtb_fname)
-            node = _FindBinmanNode(fdt)
+            dtb = fdt.FdtScan(dtb_fname)
+            node = _FindBinmanNode(dtb)
             if not node:
                 raise ValueError("Device tree '%s' does not have a 'binman' "
                                  "node" % dtb_fname)
