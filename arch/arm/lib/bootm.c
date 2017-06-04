@@ -360,6 +360,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 #ifdef CONFIG_CPU_V7M
 	ulong addr = (ulong)kernel_entry | 1;
 	kernel_entry = (void *)addr;
+	dcache_disable();
 #endif
 	s = getenv("machid");
 	if (s) {
