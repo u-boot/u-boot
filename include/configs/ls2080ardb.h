@@ -385,69 +385,66 @@ unsigned long get_board_sys_clk(void);
 	" 0x580e00000 \0"                       \
 	BOOTENV
 #else
-#ifdef CONFIG_QSPI_BOOT
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x21000000\0"		\
-	"mcmemsize=0x40000000\0"		\
-	"mcinitcmd=fsl_mc start mc 0x20a00000" \
-	" 0x20e00000 \0"                       \
-	BOOTENV
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581000000\0"		\
-	"kernel_load=0xa0000000\0"		\
+	"fdt_addr=0x64f00000\0"			\
+	"kernel_addr=0x65000000\0"		\
+	"scriptaddr=0x80000000\0"		\
+	"fdtheader_addr_r=0x80100000\0"		\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernel_addr_r=0x81000000\0"		\
+	"fdt_addr_r=0x90000000\0"		\
+	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
-	"mcmemsize=0x40000000\0"		\
-	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580a00000" \
-	" 0x580e00000 \0"                       \
-	BOOTENV
-#endif
+	"console=ttyAMA0,38400n8\0"		\
+	BOOTENV					\
+	"boot_scripts=ls2088ardb_boot.scr\0"	\
+	"scan_dev_for_boot_part="		\
+		"part list ${devtype} ${devnum} devplist; "	\
+		"env exists devplist || setenv devplist 1; "	\
+		"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "			\
+				"${devnum}:${distro_bootpart} "	\
+				"bootfstype; then "		\
+				"run scan_dev_for_boot; "	\
+			"fi; "					\
+		"done\0"					\
+	"installer=load mmc 0:2 $load_addr "			\
+		"/flex_installer_arm64.itb; "			\
+		"bootm $load_addr#ls2088ardb\0"			\
+	"qspi_bootcmd=echo Trying load from qspi..;"		\
+		"sf probe && sf read $load_addr "		\
+		"$kernel_addr $kernel_size &&"			\
+		" bootm $load_addr#$board\0"			\
+	"nor_bootcmd=echo Trying load from nor..;"		\
+		"cp.b $kernel_addr $load_addr "			\
+		"$kernel_size && bootm $load_addr#$board\0"
 #endif
 
+#undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_QSPI_BOOT
+/* Try to boot an on-QSPI kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND						\
+			"fsl_mc start mc 0x20a00000 0x20e00000 &&"	\
+			" fsl_mc lazyapply dpl 0x20d00000;"		\
+			"run distro_bootcmd;run qspi_bootcmd"
+#else
+/* Try to boot an on-NOR kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND						\
+			"fsl_mc start mc 0x580a00000 0x580e00000 &&"	\
+			" fsl_mc lazyapply dpl 0x580d00000;"		\
+			"run distro_bootcmd;run nor_bootcmd"
+#endif
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
-
-#undef CONFIG_BOOTCOMMAND
-#ifdef CONFIG_QSPI_BOOT
-/* Try to boot an on-QSPI kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x20d00000" \
-			   " && bootm $kernel_start" \
-			   " || run distro_bootcmd"
-#else
-/* Try to boot an on-NOR kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580d00000" \
-			   " && cp.b $kernel_start $kernel_load $kernel_size" \
-			   " && bootm $kernel_load" \
-			   " || run distro_bootcmd"
-#endif
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
