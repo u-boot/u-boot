@@ -664,20 +664,18 @@ static void qspi_op_write(struct fsl_qspi_priv *priv, u8 *txbuf, u32 len)
 	tx_size = (len > TX_BUFFER_SIZE) ?
 		TX_BUFFER_SIZE : len;
 
-	size = tx_size / 4;
-	for (i = 0; i < size; i++) {
+	size = tx_size / 16;
+	/*
+	 * There must be atleast 128bit data
+	 * available in TX FIFO for any pop operation
+	 */
+	if (tx_size % 16)
+		size++;
+	for (i = 0; i < size * 4; i++) {
 		memcpy(&data, txbuf, 4);
 		data = qspi_endian_xchg(data);
 		qspi_write32(priv->flags, &regs->tbdr, data);
 		txbuf += 4;
-	}
-
-	size = tx_size % 4;
-	if (size) {
-		data = 0;
-		memcpy(&data, txbuf, size);
-		data = qspi_endian_xchg(data);
-		qspi_write32(priv->flags, &regs->tbdr, data);
 	}
 
 	qspi_write32(priv->flags, &regs->ipcr,
