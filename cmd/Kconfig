@@ -266,7 +266,9 @@ config CMD_XIMG
 	  Extract a part of a multi-image.
 
 config CMD_POWEROFF
-	bool
+	bool "poweroff"
+	help
+	  Poweroff/Shutdown the system
 
 endmenu
 
