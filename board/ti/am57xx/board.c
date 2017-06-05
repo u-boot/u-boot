@@ -643,8 +643,8 @@ void set_muxconf_regs(void)
 void recalibrate_iodelay(void)
 {
 	const struct pad_conf_entry *pconf;
-	const struct iodelay_cfg_entry *iod;
-	int pconf_sz, iod_sz;
+	const struct iodelay_cfg_entry *iod, *delta_iod;
+	int pconf_sz, iod_sz, delta_iod_sz = 0;
 	int ret;
 
 	if (board_is_am572x_idk()) {
@@ -696,6 +696,9 @@ void recalibrate_iodelay(void)
 		if (am571x_idk_needs_lcd()) {
 			pconf = core_padconf_array_vout_am571x_idk;
 			pconf_sz = ARRAY_SIZE(core_padconf_array_vout_am571x_idk);
+			delta_iod = iodelay_cfg_array_am571x_idk_4port;
+			delta_iod_sz = ARRAY_SIZE(iodelay_cfg_array_am571x_idk_4port);
+
 		} else {
 			pconf = core_padconf_array_icss1eth_am571x_idk;
 			pconf_sz = ARRAY_SIZE(core_padconf_array_icss1eth_am571x_idk);
@@ -705,6 +708,10 @@ void recalibrate_iodelay(void)
 
 	/* Setup IOdelay configuration */
 	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iod, iod_sz);
+	if (delta_iod_sz)
+		ret = do_set_iodelay((*ctrl)->iodelay_config_base, delta_iod,
+				     delta_iod_sz);
+
 err:
 	/* Closeup.. remove isolation */
 	__recalibrate_iodelay_end(ret);
