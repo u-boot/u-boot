@@ -102,13 +102,11 @@ struct usb_linux_config_descriptor {
 } __attribute__ ((packed));
 
 #if defined CONFIG_EHCI_DESC_BIG_ENDIAN
-#define ehci_readl(x)		cpu_to_be32((*((volatile u32 *)(x))))
-#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
-					cpu_to_be32(((volatile u32)b)))
+#define ehci_readl(x)		cpu_to_be32(readl(x))
+#define ehci_writel(a, b)	writel(cpu_to_be32(b), a)
 #else
-#define ehci_readl(x)		cpu_to_le32((*((volatile u32 *)(x))))
-#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
-					cpu_to_le32(((volatile u32)b)))
+#define ehci_readl(x)		cpu_to_le32(readl(x))
+#define ehci_writel(a, b)	writel(cpu_to_le32(b), a)
 #endif
 
 #if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
