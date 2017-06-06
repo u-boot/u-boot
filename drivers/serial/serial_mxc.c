@@ -357,3 +357,29 @@ U_BOOT_DRIVER(serial_mxc) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 #endif
+
+#ifdef CONFIG_DEBUG_UART_MXC
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+	struct mxc_uart *base = (struct mxc_uart *)CONFIG_DEBUG_UART_BASE;
+
+	_mxc_serial_init(base);
+	_mxc_serial_setbrg(base, CONFIG_DEBUG_UART_CLOCK,
+			   CONFIG_BAUDRATE, false);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct mxc_uart *base = (struct mxc_uart *)CONFIG_DEBUG_UART_BASE;
+
+	while (!(readl(&base->ts) & UTS_TXEMPTY))
+		WATCHDOG_RESET();
+
+	writel(ch, &base->txd);
+}
+
+DEBUG_UART_FUNCS
+
+#endif

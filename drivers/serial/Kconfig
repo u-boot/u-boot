@@ -248,6 +248,14 @@ config DEBUG_UART_PIC32
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_MXC
+	bool "IMX Serial port"
+	depends on MXC_UART
+	help
+	  Select this to enable a debug UART using the serial_mxc driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 config DEBUG_UART_UNIPHIER
 	bool "UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
