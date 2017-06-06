@@ -162,6 +162,9 @@ static void mxc_serial_setbrg(void)
 	writel(0xf, &mxc_base->bir);
 	writel(clk / (2 * gd->baudrate), &mxc_base->bmr);
 
+	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
+	       &mxc_base->cr2);
+	writel(UCR1_UARTEN, &mxc_base->cr1);
 }
 
 static int mxc_serial_getc(void)
@@ -215,11 +218,6 @@ static int mxc_serial_init(void)
 	writel(0, &mxc_base->ts);
 
 	serial_setbrg();
-
-	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
-	       &mxc_base->cr2);
-
-	writel(UCR1_UARTEN, &mxc_base->cr1);
 
 	return 0;
 }
