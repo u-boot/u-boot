@@ -89,6 +89,7 @@ F:	include/dm/platform_data/serial_bcm283x_mu.h
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
+M:	Fabio Estevam <fabio.estevam@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-imx.git
 F:	arch/arm/cpu/arm1136/mx*/
