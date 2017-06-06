@@ -14,6 +14,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/gpio.h>
+#include <asm/hardware.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/grf_rk3288.h>
