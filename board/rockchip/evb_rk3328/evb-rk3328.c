@@ -31,11 +31,6 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int usb_gadget_handle_interrupts(void)
-{
-	return 0;
-}
-
 int board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
