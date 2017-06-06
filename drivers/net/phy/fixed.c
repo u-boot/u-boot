@@ -34,7 +34,6 @@ int fixedphy_probe(struct phy_device *phydev)
 	memset(priv, 0, sizeof(*priv));
 
 	phydev->priv = priv;
-	phydev->addr = 0;
 
 	priv->link_speed = val;
 	priv->duplex = fdtdec_get_bool(gd->fdt_blob, ofnode, "full-duplex");
