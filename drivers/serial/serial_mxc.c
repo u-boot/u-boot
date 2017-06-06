@@ -137,6 +137,21 @@ struct mxc_uart {
 	u32 ts;
 };
 
+static void _mxc_serial_init(struct mxc_uart *base)
+{
+	writel(0, &base->cr1);
+	writel(0, &base->cr2);
+
+	while (!(readl(&base->cr2) & UCR2_SRST));
+
+	writel(0x704 | UCR3_ADNIMP, &base->cr3);
+	writel(0x8000, &base->cr4);
+	writel(0x2b, &base->esc);
+	writel(0, &base->tim);
+
+	writel(0, &base->ts);
+}
+
 #ifndef CONFIG_DM_SERIAL
 
 #ifndef CONFIG_MXC_UART_BASE
@@ -205,17 +220,7 @@ static int mxc_serial_tstc(void)
  */
 static int mxc_serial_init(void)
 {
-	writel(0, &mxc_base->cr1);
-	writel(0, &mxc_base->cr2);
-
-	while (!(readl(&mxc_base->cr2) & UCR2_SRST));
-
-	writel(0x704 | UCR3_ADNIMP, &mxc_base->cr3);
-	writel(0x8000, &mxc_base->cr4);
-	writel(0x2b, &mxc_base->esc);
-	writel(0, &mxc_base->tim);
-
-	writel(0, &mxc_base->ts);
+	_mxc_serial_init(mxc_base);
 
 	serial_setbrg();
 
@@ -271,16 +276,8 @@ int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 static int mxc_serial_probe(struct udevice *dev)
 {
 	struct mxc_serial_platdata *plat = dev->platdata;
-	struct mxc_uart *const uart = plat->reg;
 
-	writel(0, &uart->cr1);
-	writel(0, &uart->cr2);
-	while (!(readl(&uart->cr2) & UCR2_SRST));
-	writel(0x704 | UCR3_ADNIMP, &uart->cr3);
-	writel(0x8000, &uart->cr4);
-	writel(0x2b, &uart->esc);
-	writel(0, &uart->tim);
-	writel(0, &uart->ts);
+	_mxc_serial_init(plat->reg);
 
 	return 0;
 }
