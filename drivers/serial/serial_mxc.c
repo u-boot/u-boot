@@ -108,6 +108,8 @@
 #define  UTS_TXFULL	 (1<<4)	 /* TxFIFO full */
 #define  UTS_RXFULL	 (1<<3)	 /* RxFIFO full */
 #define  UTS_SOFTRS	(1<<0)	 /* Software reset */
+#define TXTL		2  /* reset default */
+#define RXTL		1  /* reset default */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -152,6 +154,26 @@ static void _mxc_serial_init(struct mxc_uart *base)
 	writel(0, &base->ts);
 }
 
+static void _mxc_serial_setbrg(struct mxc_uart *base, unsigned long clk,
+			       unsigned long baudrate, bool use_dte)
+{
+	u32 tmp;
+
+	tmp = RFDIV << UFCR_RFDIV_SHF;
+	if (use_dte)
+		tmp |= UFCR_DCEDTE;
+	else
+		tmp |= (TXTL << UFCR_TXTL_SHF) | (RXTL << UFCR_RXTL_SHF);
+	writel(tmp, &base->fcr);
+
+	writel(0xf, &base->bir);
+	writel(clk / (2 * baudrate), &base->bmr);
+
+	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
+	       &base->cr2);
+	writel(UCR1_UARTEN, &base->cr1);
+}
+
 #ifndef CONFIG_DM_SERIAL
 
 #ifndef CONFIG_MXC_UART_BASE
@@ -160,9 +182,6 @@ static void _mxc_serial_init(struct mxc_uart *base)
 
 #define mxc_base	((struct mxc_uart *)CONFIG_MXC_UART_BASE)
 
-#define TXTL  2 /* reset default */
-#define RXTL  1 /* reset default */
-
 static void mxc_serial_setbrg(void)
 {
 	u32 clk = imx_get_uartclk();
@@ -170,16 +189,7 @@ static void mxc_serial_setbrg(void)
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
 
-	writel(((RFDIV << UFCR_RFDIV_SHF) |
-		(TXTL << UFCR_TXTL_SHF) |
-		(RXTL << UFCR_RXTL_SHF)),
-		&mxc_base->fcr);
-	writel(0xf, &mxc_base->bir);
-	writel(clk / (2 * gd->baudrate), &mxc_base->bmr);
-
-	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
-	       &mxc_base->cr2);
-	writel(UCR1_UARTEN, &mxc_base->cr1);
+	_mxc_serial_setbrg(mxc_base, clk, gd->baudrate, false);
 }
 
 static int mxc_serial_getc(void)
@@ -254,21 +264,9 @@ __weak struct serial_device *default_serial_console(void)
 int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mxc_serial_platdata *plat = dev->platdata;
-	struct mxc_uart *const uart = plat->reg;
 	u32 clk = imx_get_uartclk();
-	u32 tmp;
 
-	tmp = RFDIV << UFCR_RFDIV_SHF;
-	if (plat->use_dte)
-		tmp |= UFCR_DCEDTE;
-	writel(tmp, &uart->fcr);
-
-	writel(0xf, &uart->bir);
-	writel(clk / (2 * baudrate), &uart->bmr);
-
-	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
-	       &uart->cr2);
-	writel(UCR1_UARTEN, &uart->cr1);
+	_mxc_serial_setbrg(plat->reg, clk, baudrate, plat->use_dte);
 
 	return 0;
 }
