@@ -482,7 +482,10 @@ static int m88e1145_config(struct phy_device *phydev)
 
 	genphy_config_aneg(phydev);
 
-	phy_reset(phydev);
+	/* soft reset */
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+	reg |= BMCR_RESET;
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, reg);
 
 	return 0;
 }
