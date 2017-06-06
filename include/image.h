@@ -785,7 +785,8 @@ static inline int image_check_type(const image_header_t *hdr, uint8_t type)
 }
 static inline int image_check_arch(const image_header_t *hdr, uint8_t arch)
 {
-	return (image_get_arch(hdr) == arch);
+	return (image_get_arch(hdr) == arch) ||
+		(image_get_arch(hdr) == IH_ARCH_ARM && arch == IH_ARCH_ARM64);
 }
 static inline int image_check_os(const image_header_t *hdr, uint8_t os)
 {
