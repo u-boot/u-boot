@@ -220,9 +220,11 @@
 	"fdt_addr=0x64f00000\0"                 \
 	"kernel_addr=0x65000000\0"              \
 	"scriptaddr=0x80000000\0"               \
+	"scripthdraddr=0x80080000\0"		\
 	"fdtheader_addr_r=0x80100000\0"         \
 	"kernelheader_addr_r=0x80200000\0"      \
 	"load_addr=0xa0000000\0"            \
+	"kernel_addr_r=0x81000000\0"            \
 	"fdt_addr_r=0x90000000\0"               \
 	"ramdisk_addr_r=0xa0000000\0"           \
 	"kernel_start=0x1000000\0"		\
@@ -232,6 +234,7 @@
 		MTDPARTS_DEFAULT "\0"		\
 	BOOTENV					\
 	"boot_scripts=ls1046ardb_boot.scr\0"    \
+	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"	\
 	"scan_dev_for_boot_part="               \
 		"part list ${devtype} ${devnum} devplist; "   \
 		"env exists devplist || setenv devplist 1; "  \
@@ -242,6 +245,21 @@
 			"run scan_dev_for_boot; "            \
 		  "fi; "                                   \
 		"done\0"                                   \
+	"scan_dev_for_boot="				  \
+		"echo Scanning ${devtype} "		  \
+				"${devnum}:${distro_bootpart}...; "  \
+		"for prefix in ${boot_prefixes}; do "	  \
+			"run scan_dev_for_scripts; "	  \
+		"done;"					  \
+		"\0"					  \
+	"boot_a_script="				  \
+		"load ${devtype} ${devnum}:${distro_bootpart} "  \
+			"${scriptaddr} ${prefix}${script}; "    \
+		"env exists secureboot && load ${devtype} "     \
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+			"&& esbc_validate ${scripthdraddr};"    \
+		"source ${scriptaddr}\0"	  \
 	"installer=load mmc 0:2 $load_addr "          \
 		"/flex_installer_arm64.itb; "          \
 		"bootm $load_addr#ls1046ardb\0"	 \
