@@ -4,11 +4,8 @@
  * SPDX-License-Identifier:     GPL-2.0+	X11
  */
 
-/dts-v1/;
-
 #include <dt-bindings/pwm/pwm.h>
 #include "rk3399.dtsi"
-#include "rk3399-sdram-ddr3-1600.dtsi"
 
 / {
 	model = "Theobroma Systems RK3399-Q7 SoM";
