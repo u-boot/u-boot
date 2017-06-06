@@ -110,32 +110,39 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct mxc_uart {
+	u32 rxd;
+	u32 spare0[15];
+
+	u32 txd;
+	u32 spare1[15];
+
+	u32 cr1;
+	u32 cr2;
+	u32 cr3;
+	u32 cr4;
+
+	u32 fcr;
+	u32 sr1;
+	u32 sr2;
+	u32 esc;
+
+	u32 tim;
+	u32 bir;
+	u32 bmr;
+	u32 brc;
+
+	u32 onems;
+	u32 ts;
+};
+
 #ifndef CONFIG_DM_SERIAL
 
 #ifndef CONFIG_MXC_UART_BASE
 #error "define CONFIG_MXC_UART_BASE to use the MXC UART driver"
 #endif
 
-#define UART_PHYS	CONFIG_MXC_UART_BASE
-
-#define __REG(x)     (*((volatile u32 *)(x)))
-
-/* Register definitions */
-#define URXD  0x0  /* Receiver Register */
-#define UTXD  0x40 /* Transmitter Register */
-#define UCR1  0x80 /* Control Register 1 */
-#define UCR2  0x84 /* Control Register 2 */
-#define UCR3  0x88 /* Control Register 3 */
-#define UCR4  0x8c /* Control Register 4 */
-#define UFCR  0x90 /* FIFO Control Register */
-#define USR1  0x94 /* Status Register 1 */
-#define USR2  0x98 /* Status Register 2 */
-#define UESC  0x9c /* Escape Character Register */
-#define UTIM  0xa0 /* Escape Timer Register */
-#define UBIR  0xa4 /* BRM Incremental Register */
-#define UBMR  0xa8 /* BRM Modulator Register */
-#define UBRC  0xac /* Baud Rate Count Register */
-#define UTS   0xb4 /* UART Test Register (mx31) */
+#define mxc_base	((struct mxc_uart *)CONFIG_MXC_UART_BASE)
 
 #define TXTL  2 /* reset default */
 #define RXTL  1 /* reset default */
@@ -148,19 +155,20 @@ static void mxc_serial_setbrg(void)
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
 
-	__REG(UART_PHYS + UFCR) = (RFDIV << UFCR_RFDIV_SHF)
-		| (TXTL << UFCR_TXTL_SHF)
-		| (RXTL << UFCR_RXTL_SHF);
-	__REG(UART_PHYS + UBIR) = 0xf;
-	__REG(UART_PHYS + UBMR) = clk / (2 * gd->baudrate);
+	writel(((RFDIV << UFCR_RFDIV_SHF) |
+		(TXTL << UFCR_TXTL_SHF) |
+		(RXTL << UFCR_RXTL_SHF)),
+		&mxc_base->fcr);
+	writel(0xf, &mxc_base->bir);
+	writel(clk / (2 * gd->baudrate), &mxc_base->bmr);
 
 }
 
 static int mxc_serial_getc(void)
 {
-	while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY)
+	while (readl(&mxc_base->ts) & UTS_RXEMPTY)
 		WATCHDOG_RESET();
-	return (__REG(UART_PHYS + URXD) & URXD_RX_DATA); /* mask out status from upper word */
+	return (readl(&mxc_base->rxd) & URXD_RX_DATA); /* mask out status from upper word */
 }
 
 static void mxc_serial_putc(const char c)
@@ -169,10 +177,10 @@ static void mxc_serial_putc(const char c)
 	if (c == '\n')
 		serial_putc('\r');
 
-	__REG(UART_PHYS + UTXD) = c;
+	writel(c, &mxc_base->txd);
 
 	/* wait for transmitter to be ready */
-	while (!(__REG(UART_PHYS + UTS) & UTS_TXEMPTY))
+	while (!(readl(&mxc_base->ts) & UTS_TXEMPTY))
 		WATCHDOG_RESET();
 }
 
@@ -182,7 +190,7 @@ static void mxc_serial_putc(const char c)
 static int mxc_serial_tstc(void)
 {
 	/* If receive fifo is empty, return false */
-	if (__REG(UART_PHYS + UTS) & UTS_RXEMPTY)
+	if (readl(&mxc_base->ts) & UTS_RXEMPTY)
 		return 0;
 	return 1;
 }
@@ -194,23 +202,24 @@ static int mxc_serial_tstc(void)
  */
 static int mxc_serial_init(void)
 {
-	__REG(UART_PHYS + UCR1) = 0x0;
-	__REG(UART_PHYS + UCR2) = 0x0;
+	writel(0, &mxc_base->cr1);
+	writel(0, &mxc_base->cr2);
 
-	while (!(__REG(UART_PHYS + UCR2) & UCR2_SRST));
+	while (!(readl(&mxc_base->cr2) & UCR2_SRST));
 
-	__REG(UART_PHYS + UCR3) = 0x0704 | UCR3_ADNIMP;
-	__REG(UART_PHYS + UCR4) = 0x8000;
-	__REG(UART_PHYS + UESC) = 0x002b;
-	__REG(UART_PHYS + UTIM) = 0x0;
+	writel(0x704 | UCR3_ADNIMP, &mxc_base->cr3);
+	writel(0x8000, &mxc_base->cr4);
+	writel(0x2b, &mxc_base->esc);
+	writel(0, &mxc_base->tim);
 
-	__REG(UART_PHYS + UTS) = 0x0;
+	writel(0, &mxc_base->ts);
 
 	serial_setbrg();
 
-	__REG(UART_PHYS + UCR2) = UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST;
+	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
+	       &mxc_base->cr2);
 
-	__REG(UART_PHYS + UCR1) = UCR1_UARTEN;
+	writel(UCR1_UARTEN, &mxc_base->cr1);
 
 	return 0;
 }
@@ -238,32 +247,6 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 
 #ifdef CONFIG_DM_SERIAL
-
-struct mxc_uart {
-	u32 rxd;
-	u32 spare0[15];
-
-	u32 txd;
-	u32 spare1[15];
-
-	u32 cr1;
-	u32 cr2;
-	u32 cr3;
-	u32 cr4;
-
-	u32 fcr;
-	u32 sr1;
-	u32 sr2;
-	u32 esc;
-
-	u32 tim;
-	u32 bir;
-	u32 bmr;
-	u32 brc;
-
-	u32 onems;
-	u32 ts;
-};
 
 int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 {
