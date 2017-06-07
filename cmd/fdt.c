@@ -975,7 +975,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			/* no property value */
 			printf("%s %s\n", pathp, prop);
 			return 0;
-		} else if (len > 0) {
+		} else if (nodep && len > 0) {
 			printf("%s = ", prop);
 			print_data (nodep, len);
 			printf("\n");
