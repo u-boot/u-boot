@@ -380,7 +380,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				/* no property value */
 				setenv(var, "");
 				return 0;
-			} else if (len > 0) {
+			} else if (nodep && len > 0) {
 				if (subcmd[0] == 'v') {
 					int ret;
 
