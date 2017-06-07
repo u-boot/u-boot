@@ -149,3 +149,13 @@ config DM_REGULATOR_LP873X
 	This enables implementation of driver-model regulator uclass
 	features for REGULATOR LP873X and the family of LP873X PMICs.
 	The driver implements get/set api for: value and enable.
+
+config DM_REGULATOR_LP87565
+	bool "Enable driver for LP87565 PMIC regulators"
+        depends on PMIC_LP87565
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP87565 and the family of LP87565 PMICs.
+	LP87565 series of PMICs have 4 single phase BUCKs that can also
+	be configured in multi phase modes. The driver implements
+	get/set api for value and enable.
