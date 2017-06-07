@@ -20,6 +20,7 @@ static int dm_test_wdt_base(struct unit_test_state *uts)
 	const u64 timeout = 42;
 
 	ut_assertok(uclass_get_device(UCLASS_WDT, 0, &dev));
+	ut_assertnonnull(dev);
 	ut_asserteq(0, state->wdt.counter);
 	ut_asserteq(false, state->wdt.running);
 
