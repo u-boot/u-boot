@@ -1132,13 +1132,11 @@ static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	int ret;
 
-	ret = fdtdec_get_int_array(blob, node, "rockchip,sdram-params",
-			(u32 *)&plat->sdram_params,
-			sizeof(plat->sdram_params) / sizeof(u32));
+	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
+				 (u32 *)&plat->sdram_params,
+				 sizeof(plat->sdram_params) / sizeof(u32));
 	if (ret) {
 		printf("%s: Cannot read rockchip,sdram-params %d\n",
 		       __func__, ret);
