@@ -10,6 +10,7 @@
 #include <asm/arch/vop_rk3288.h>
 
 struct rk_vop_priv {
+	void *grf;
 	void *regs;
 };
 
