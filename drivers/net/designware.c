@@ -760,15 +760,14 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 		pdata->max_speed = fdt32_to_cpu(*cell);
 
 #ifdef CONFIG_DM_GPIO
-	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-			    "snps,reset-active-low"))
+	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
 	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
 		&priv->reset_gpio, reset_flags);
 	if (ret == 0) {
-		ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-			"snps,reset-delays-us", dw_pdata->reset_delays, 3);
+		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
+					 dw_pdata->reset_delays, 3);
 	} else if (ret == -ENOENT) {
 		ret = 0;
 	}

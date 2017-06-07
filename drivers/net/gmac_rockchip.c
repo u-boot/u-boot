@@ -43,18 +43,16 @@ struct rk_gmac_ops {
 static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
 {
 	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 
 	/* Check the new naming-style first... */
-	pdata->tx_delay = fdtdec_get_int(blob, node, "tx_delay", -ENOENT);
-	pdata->rx_delay = fdtdec_get_int(blob, node, "rx_delay", -ENOENT);
+	pdata->tx_delay = dev_read_u32_default(dev, "tx_delay", -ENOENT);
+	pdata->rx_delay = dev_read_u32_default(dev, "rx_delay", -ENOENT);
 
 	/* ... and fall back to the old naming style or default, if necessary */
 	if (pdata->tx_delay == -ENOENT)
-		pdata->tx_delay = fdtdec_get_int(blob, node, "tx-delay", 0x30);
+		pdata->tx_delay = dev_read_u32_default(dev, "tx-delay", 0x30);
 	if (pdata->rx_delay == -ENOENT)
-		pdata->rx_delay = fdtdec_get_int(blob, node, "rx-delay", 0x10);
+		pdata->rx_delay = dev_read_u32_default(dev, "rx-delay", 0x10);
 
 	return designware_eth_ofdata_to_platdata(dev);
 }
