@@ -148,8 +148,8 @@ static bool cea_is_hdmi_vsdb_present(struct edid_cea861_info *info)
 	/* check for end of data block */
 	end = info->dtd_offset;
 	if (end == 0)
-		end = 127;
-	if (end < 4 || end > 127)
+		end = sizeof(info->data);
+	if (end < 4 || end > sizeof(info->data))
 		return false;
 	end -= 4;
 
