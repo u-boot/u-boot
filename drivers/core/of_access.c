@@ -244,6 +244,12 @@ static struct device_node *__of_get_next_child(const struct device_node *node,
 		return NULL;
 
 	next = prev ? prev->sibling : node->child;
+	/*
+	 * coverity[dead_error_line : FALSE]
+	 * Dead code here since our current implementation of of_node_get()
+	 * always returns NULL (Coverity CID 163245). But we leave it as is
+	 * since we may want to implement get/put later.
+	 */
 	for (; next; next = next->sibling)
 		if (of_node_get(next))
 			break;
