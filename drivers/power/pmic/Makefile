@@ -21,6 +21,7 @@ obj-$(CONFIG_PMIC_TPS65090) += tps65090.o
 obj-$(CONFIG_PMIC_S5M8767) += s5m8767.o
 obj-$(CONFIG_$(SPL_)PMIC_PALMAS) += palmas.o
 obj-$(CONFIG_$(SPL_)PMIC_LP873X) += lp873x.o
+obj-$(CONFIG_$(SPL_)PMIC_LP87565) += lp87565.o
 
 obj-$(CONFIG_POWER_LTC3676) += pmic_ltc3676.o
 obj-$(CONFIG_POWER_MAX77696) += pmic_max77696.o

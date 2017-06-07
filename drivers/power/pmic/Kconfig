@@ -188,6 +188,13 @@ config PMIC_LP873X
 	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
 	This driver binds the pmic children.
 
+config PMIC_LP87565
+	bool "Enable driver for Texas Instruments LP87565 PMIC"
+	depends on DM_PMIC
+	---help---
+	The LP87565 is a PMIC containing a bunch of SMPS.
+	This driver binds the pmic children.
+
 config POWER_MC34VR500
 	bool "Enable driver for Freescale MC34VR500 PMIC"
 	---help---
