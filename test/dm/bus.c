@@ -171,13 +171,16 @@ static int dm_test_bus_children_of_offset(struct unit_test_state *uts)
 	int node;
 
 	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+	ut_assertnonnull(bus);
 
 	/* Find a valid child */
 	node = fdt_path_offset(blob, "/some-bus/c-test@1");
 	ut_assert(node > 0);
 	ut_assertok(device_find_child_by_of_offset(bus, node, &dev));
+	ut_assertnonnull(dev);
 	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
 	ut_assertok(device_get_child_by_of_offset(bus, node, &dev));
+	ut_assertnonnull(dev);
 	ut_assert(dev->flags & DM_FLAG_ACTIVATED);
 
 	return 0;
