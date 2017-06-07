@@ -50,8 +50,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	max_frequency = dtplat->max_frequency;
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &clk);
 #else
-	max_frequency = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-			"max-frequency", 0);
+	max_frequency = dev_read_u32_default(dev, "max-frequency", 0);
 	ret = clk_get_by_index(dev, 0, &clk);
 #endif
 	if (!ret) {

@@ -59,32 +59,28 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = (void *)devfdt_get_addr(dev);
-	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"bus-width", 4);
+	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
 	/* use non-removeable as sdcard and emmc as judgement */
-	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev), "non-removable"))
+	if (dev_read_bool(dev, "non-removable"))
 		host->dev_index = 0;
 	else
 		host->dev_index = 1;
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "fifo-depth", 0);
+	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
-	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-					  "fifo-mode");
+	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
 
 	/*
 	 * 'clock-freq-min-max' is deprecated
 	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
 	 */
-	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				 "clock-freq-min-max", priv->minmax, 2)) {
-		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					  "max-frequency", -EINVAL);
+	if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+		int val = dev_read_u32_default(dev, "max-frequency", -EINVAL);
 
 		if (val < 0)
 			return val;
