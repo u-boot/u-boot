@@ -17,22 +17,7 @@
 #define cfg_read(val, addr, type, op)	*val = op((type)(addr))
 #define cfg_write(val, addr, type, op)	op((type *)(addr), (val))
 
-#if defined(CONFIG_MPC8260)
-#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
-static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose,		 \
-			      pci_dev_t dev, int offset, type val)	 \
-{									 \
-	u32 b, d,f;							 \
-	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
-	b = b - hose->first_busno;					 \
-	dev = PCI_BDF(b, d, f);						 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
-	sync();								 \
-	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;							 \
-}
-#elif defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
+#if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)                        \
 static int                                                               \
 indirect_##rw##_config_##size(struct pci_controller *hose,               \

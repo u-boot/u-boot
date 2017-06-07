@@ -170,14 +170,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 static void move64(const unsigned long long *src, unsigned long long *dest)
 {
-#if defined(CONFIG_MPC8260)
-	asm ("lfd  0, 0(3)\n\t" /* fpr0	  =  *scr	*/
-	 "stfd 0, 0(4)"		/* *dest  =  fpr0	*/
-	 : : : "fr0" );		/* Clobbers fr0		*/
-    return;
-#else
 	*dest = *src;
-#endif
 }
 
 /*

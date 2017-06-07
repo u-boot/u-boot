@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_MPC8260) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 void lynxkdi_boot(image_header_t *hdr)
 {
 	void (*lynxkdi)(void) = (void(*)(void))image_get_ep(hdr);

@@ -54,13 +54,6 @@ void bedbug_init (void)
 	bedbug405_init ();
 #endif
 
-#if defined(CONFIG_MPC824X) || defined(CONFIG_MPC8260)
-	/* Processors that are 603e core based */
-	void bedbug603e_init (void);
-
-	bedbug603e_init ();
-#endif
-
 	return;
 }				/* bedbug_init */
 

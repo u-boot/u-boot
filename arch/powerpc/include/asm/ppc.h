@@ -19,11 +19,6 @@
 #include <mpc5xxx.h>
 #elif defined(CONFIG_MPC512X)
 #include <asm/immap_512x.h>
-#elif defined(CONFIG_MPC8260)
-#if defined(CONFIG_MPC8247) || defined(CONFIG_MPC8272)
-#define CONFIG_MPC8272_FAMILY	1
-#endif
-#include <asm/immap_8260.h>
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>

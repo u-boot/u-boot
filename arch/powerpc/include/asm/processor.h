@@ -1364,9 +1364,6 @@ int prt_8260_clks(void);
 #if defined(CONFIG_WALNUT)
 #define _machine _MACH_walnut
 #define have_of 0
-#elif defined(CONFIG_MPC8260)
-#define _machine _MACH_8260
-#define have_of 0
 #else
 #error "Machine not defined correctly"
 #endif

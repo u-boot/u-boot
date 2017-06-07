@@ -17,10 +17,6 @@
  */
 
 #include <common.h>
-#ifdef	CONFIG_MPC8260			/* only valid for MPC8260 */
-#include <ioports.h>
-#include <asm/io.h>
-#endif
 #if defined(CONFIG_AVR32)
 #include <asm/arch/portmux.h>
 #endif
@@ -94,12 +90,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef	I2C_SOFT_DECLARATIONS
-# if defined(CONFIG_MPC8260)
-#  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = \
-		ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
-# else
 #  define I2C_SOFT_DECLARATIONS
-# endif
 #endif
 
 #if !defined(CONFIG_SYS_I2C_SOFT_SPEED)

@@ -9,9 +9,7 @@
 
 /* if not overridden */
 #ifndef CONFIG_LED_STATUS_BOARD_SPECIFIC
-# if defined(CONFIG_MPC8260)
-#  include <mpc8260.h>
-# elif defined(CONFIG_5xx)
+# if defined(CONFIG_5xx)
 #  include <mpc5xx.h>
 # else
 #  error CPU specific Status LED header file missing.

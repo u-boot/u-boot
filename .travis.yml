@@ -200,8 +200,6 @@ matrix:
     - env:
         - BUILDMAN="mpc5xxx"
     - env:
-        - BUILDMAN="mpc8260"
-    - env:
         - BUILDMAN="mpc83xx"
     - env:
         - BUILDMAN="mpc85xx -x freescale"

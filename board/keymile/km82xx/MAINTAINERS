@@ -1,7 +1,0 @@
-KM82XX BOARD
-M:	Holger Brunck <holger.brunck@keymile.com>
-S:	Maintained
-F:	board/keymile/km82xx/
-F:	include/configs/km82xx.h
-F:	configs/mgcoge_defconfig
-F:	configs/mgcoge3ne_defconfig

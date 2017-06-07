@@ -700,14 +700,6 @@ The following options need to be configured:
 		Select one of the baudrates listed in
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
 
-- Console Rx buffer length
-		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
-		the maximum receive buffer length for the SMC.
-		This option is actual only for 82xx possible.
-		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
-		must be defined, to setup the maximum idle timeout for
-		the SMC.
-
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND
 		Only needed when CONFIG_BOOTDELAY is enabled;
@@ -937,11 +929,9 @@ The following options need to be configured:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
 		support for the SoC. There must be support in the SoC
-		specific code for a watchdog. For the 8260
-		CPUs, the SIU Watchdog feature is enabled in the SYPCR
-		register.  When supported for a specific SoC is
-		available, then no further board specific code should
-		be needed to use it.
+		specific code for a watchdog. When supported for a
+		specific SoC is available, then no further board specific
+		code should be needed to use it.
 
 		CONFIG_HW_WATCHDOG
 		When using a watchdog circuitry external to the used
@@ -2108,12 +2098,6 @@ The following options need to be configured:
 
 		eg: #define I2C_INIT (immr->im_cpm.cp_pbdir |=	PB_SCL)
 
-		I2C_PORT
-
-		(Only for MPC8260 CPU). The I/O port to use (the code
-		assumes both bits are on the same port). Valid values
-		are 0..3 for ports A..D.
-
 		I2C_ACTIVE
 
 		The code necessary to make the I2C data line active
@@ -2402,7 +2386,7 @@ The following options need to be configured:
 
 			IVMS8, IVML24, SPD8xx,
 			HERMES, IP860, RPXlite, LWMON,
-			FLAGADM, TQM8260
+			FLAGADM
 
 - Access to physical memory region (> 4GB)
 		Some basic support is provided for operations on memory not
@@ -3860,16 +3844,6 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  set. If this value is set, it must be set to the same value as
 	  CONFIG_ENV_SIZE.
 
-- CONFIG_SYS_SPI_INIT_OFFSET
-
-	Defines offset to the initial SPI buffer area in DPRAM. The
-	area is used at an early stage (ROM part) if the environment
-	is configured to reside in the SPI EEPROM: We need a 520 byte
-	scratch DPRAM area. It is used between the two initialization
-	calls (spi_init_f() and spi_init_r()). A value of 0xB00 seems
-	to be a good choice since it makes it far enough from the
-	start of the data area as well as from the stack pointer.
-
 Please note that the environment is read-only until the monitor
 has been relocated to RAM and a RAM copy of the environment has been
 created; also, when using EEPROM you will have to use getenv_f()
@@ -3923,13 +3897,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_CACHELINE_SIZE:
 		Cache Line Size of the CPU.
 
-- CONFIG_SYS_DEFAULT_IMMR:
-		Default address of the IMMR after system reset.
-
-		Needed on some 8260 systems (MPC8260ADS, PQ2FADS-ZU,
-		and RPXsuper) to be able to adjust the position of
-		the IMMR register after a reset.
-
 - CONFIG_SYS_CCSRBAR_DEFAULT:
 		Default (power-on reset) physical address of CCSR on Freescale
 		PowerPC SOCs.
@@ -3937,9 +3904,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_CCSRBAR:
 		Virtual address of CCSR.  On a 32-bit build, this is typically
 		the same value as CONFIG_SYS_CCSRBAR_DEFAULT.
-
-		CONFIG_SYS_DEFAULT_IMMR must also be set to this value,
-		for cross-platform code that uses that macro instead.
 
 - CONFIG_SYS_CCSRBAR_PHYS:
 		Physical address of CCSR.  CCSR can be relocated to a new
@@ -4016,8 +3980,6 @@ Low Level (hardware related) configuration options:
 		sequences.
 
 		U-Boot uses the following memory types:
-		- MPC8260: IMMR (internal memory of the CPU)
-		- MPC824X: data cache
 		- PPC4xx:  data cache
 
 - CONFIG_SYS_GBL_DATA_OFFSET:
@@ -4068,27 +4030,6 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_OR_TIMING_SDRAM, CONFIG_SYS_OR2_PRELIM, CONFIG_SYS_BR2_PRELIM,
   CONFIG_SYS_OR3_PRELIM, CONFIG_SYS_BR3_PRELIM:
 		Memory Controller Definitions: BR2/3 and OR2/3 (SDRAM)
-
-- CONFIG_SYS_MAMR_PTA, CONFIG_SYS_MPTPR_2BK_4K, CONFIG_SYS_MPTPR_1BK_4K, CONFIG_SYS_MPTPR_2BK_8K,
-  CONFIG_SYS_MPTPR_1BK_8K, CONFIG_SYS_MAMR_8COL, CONFIG_SYS_MAMR_9COL:
-		Machine Mode Register and Memory Periodic Timer
-		Prescaler definitions (SDRAM timing)
-
-- CONFIG_SYS_CPM_POST_WORD_ADDR: (MPC8260 only)
-		Offset of the bootmode word in DPRAM used by post
-		(Power On Self Tests). This definition overrides
-		#define'd default value in commproc.h resp.
-		cpm_8260.h.
-
-- CONFIG_SYS_PCI_SLV_MEM_LOCAL, CONFIG_SYS_PCI_SLV_MEM_BUS, CONFIG_SYS_PICMR0_MASK_ATTRIB,
-  CONFIG_SYS_PCI_MSTR0_LOCAL, CONFIG_SYS_PCIMSK0_MASK, CONFIG_SYS_PCI_MSTR1_LOCAL,
-  CONFIG_SYS_PCIMSK1_MASK, CONFIG_SYS_PCI_MSTR_MEM_LOCAL, CONFIG_SYS_PCI_MSTR_MEM_BUS,
-  CONFIG_SYS_CPU_PCI_MEM_START, CONFIG_SYS_PCI_MSTR_MEM_SIZE, CONFIG_SYS_POCMR0_MASK_ATTRIB,
-  CONFIG_SYS_PCI_MSTR_MEMIO_LOCAL, CONFIG_SYS_PCI_MSTR_MEMIO_BUS, CPU_PCI_MEMIO_START,
-  CONFIG_SYS_PCI_MSTR_MEMIO_SIZE, CONFIG_SYS_POCMR1_MASK_ATTRIB, CONFIG_SYS_PCI_MSTR_IO_LOCAL,
-  CONFIG_SYS_PCI_MSTR_IO_BUS, CONFIG_SYS_CPU_PCI_IO_START, CONFIG_SYS_PCI_MSTR_IO_SIZE,
-  CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
-		Overrides the default PCI memory map in arch/powerpc/cpu/mpc8260/pci.c if set.
 
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not
@@ -5710,9 +5651,9 @@ configuration for CS0# this is a mirror of the on board Flash memory.
 To be able to re-map memory U-Boot then jumps to its link address.
 To be able to implement the initialization code in C, a (small!)
 initial stack is set up in the internal Dual Ported RAM (in case CPUs
-which provide such a feature like MPC8xx or MPC8260), or in a locked
-part of the data cache. After that, U-Boot initializes the CPU core,
-the caches and the SIU.
+which provide such a feature like), or in a locked part of the data
+cache. After that, U-Boot initializes the CPU core, the caches and
+the SIU.
 
 Next, all (potentially) available memory banks are mapped using a
 preliminary mapping. For example, we put them on 512 MB boundaries

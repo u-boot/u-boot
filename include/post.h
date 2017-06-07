@@ -29,10 +29,6 @@
 #define _POST_WORD_ADDR \
 	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
-#elif defined(CONFIG_MPC8260)
-#include <asm/cpm_8260.h>
-#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
-
 #elif defined(CONFIG_MPC8360)
 #include <linux/immap_qe.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)

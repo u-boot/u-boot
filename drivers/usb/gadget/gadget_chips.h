@@ -125,13 +125,6 @@
 #define gadget_is_musbhdrc(g)	0
 #endif
 
-/* from Montavista kernel (?) */
-#ifdef CONFIG_USB_GADGET_MPC8272
-#define gadget_is_mpc8272(g)	(!strcmp("mpc8272_udc", (g)->name))
-#else
-#define gadget_is_mpc8272(g)	0
-#endif
-
 #ifdef CONFIG_USB_GADGET_M66592
 #define	gadget_is_m66592(g)	(!strcmp("m66592_udc", (g)->name))
 #else
@@ -209,8 +202,6 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x14;
 	else if (gadget_is_musbhdrc(gadget))
 		return 0x15;
-	else if (gadget_is_mpc8272(gadget))
-		return 0x16;
 	else if (gadget_is_atmel_usba(gadget))
 		return 0x17;
 	else if (gadget_is_fsl_usb2(gadget))

@@ -660,9 +660,7 @@ extern struct i2c_bus_hose	i2c_bus[];
 #endif
 
 #ifndef I2C_SOFT_DECLARATIONS
-# if defined(CONFIG_MPC8260)
-#  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
-# elif (defined(CONFIG_AT91RM9200) || \
+# if (defined(CONFIG_AT91RM9200) || \
 	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
 	defined(CONFIG_AT91SAM9263))
 #  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) ATMEL_BASE_PIOA;

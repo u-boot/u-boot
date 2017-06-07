@@ -140,7 +140,7 @@ ppcDWload:
 
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
-#endif /* CONFIG_SYS_DEFAULT_IMMR */
+#endif /* CONFIG_DEFAULT_IMMR */
 #ifndef CONFIG_SYS_IMMR
 #define CONFIG_SYS_IMMR CONFIG_DEFAULT_IMMR
 #endif /* CONFIG_SYS_IMMR */

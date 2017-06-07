@@ -17,9 +17,6 @@ config 5xx
 config MPC5xxx
 	bool "MPC5xxx"
 
-config MPC8260
-	bool "MPC8260"
-
 config MPC83xx
 	bool "MPC83xx"
 	select CREATE_ARCH_SYMLINK
@@ -48,12 +45,9 @@ config 4xx
 
 endchoice
 
-source "arch/powerpc/lib/Kconfig"
-
 source "arch/powerpc/cpu/mpc512x/Kconfig"
 source "arch/powerpc/cpu/mpc5xx/Kconfig"
 source "arch/powerpc/cpu/mpc5xxx/Kconfig"
-source "arch/powerpc/cpu/mpc8260/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc86xx/Kconfig"
