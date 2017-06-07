@@ -246,7 +246,6 @@
 #define CONFIG_SYS_ATA_REG_OFFSET	0	/* reg offset */
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x200	/* alternate register offset */
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #define CONFIG_IDE_RESET		/* reset for ide supported...	*/
 #define CONFIG_IDE_RESET_ROUTINE	/* with a special reset function */

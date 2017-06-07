@@ -323,11 +323,6 @@ uint8_t i2c_reg_read(uint8_t addr, uint8_t reg)
 {
 	uint8_t buf;
 
-#ifdef CONFIG_8xx
-	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
-	/* maybe it is now the time for it ... */
-	i2c_set_bus_num(i2c_get_bus_num());
-#endif
 	i2c_read(addr, reg, 1, &buf, 1);
 
 #ifdef DEBUG
@@ -340,12 +335,6 @@ uint8_t i2c_reg_read(uint8_t addr, uint8_t reg)
 
 void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val)
 {
-#ifdef CONFIG_8xx
-	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
-	/* maybe it is now the time for it ... */
-	i2c_set_bus_num(i2c_get_bus_num());
-#endif
-
 #ifdef DEBUG
 	printf("%s: bus=%d addr=0x%02x, reg=0x%02x, val=0x%02x\n",
 	       __func__, i2c_get_bus_num(), addr, reg, val);

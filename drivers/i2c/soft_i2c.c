@@ -97,9 +97,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # if defined(CONFIG_MPC8260)
 #  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = \
 		ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
-# elif defined(CONFIG_8xx)
-#  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = \
-		(immap_t *)CONFIG_SYS_IMMR;
 # else
 #  define I2C_SOFT_DECLARATIONS
 # endif

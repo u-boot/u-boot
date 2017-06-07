@@ -180,18 +180,6 @@ struct post_test post_list[] =
 	CONFIG_SYS_POST_ETHER
     },
 #endif
-#if CONFIG_POST & CONFIG_SYS_POST_SPI
-    {
-	"SPI test",
-	"spi",
-	"This test verifies the SPI operation.",
-	POST_RAM | POST_ALWAYS,
-	&spi_post_test,
-	NULL,
-	NULL,
-	CONFIG_SYS_POST_SPI
-    },
-#endif
 #if CONFIG_POST & CONFIG_SYS_POST_USB
     {
 	"USB test",

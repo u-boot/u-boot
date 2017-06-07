@@ -22,7 +22,6 @@
 #include <asm/interrupt.h>
 #include <asm/ppc4xx.h>
 #include <ppc_asm.tmpl>
-#include <commproc.h>
 
 #if (UIC_MAX > 3)
 #define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \

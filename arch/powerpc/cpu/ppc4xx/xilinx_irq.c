@@ -12,7 +12,6 @@
 #include <asm/interrupt.h>
 #include <asm/ppc4xx.h>
 #include <ppc_asm.tmpl>
-#include <commproc.h>
 #include <asm/io.h>
 #include <asm/xilinx_irq.h>
 

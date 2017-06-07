@@ -21,7 +21,6 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <ppc_asm.tmpl>
-#include <commproc.h>
 #include <asm/ppc4xx.h>
 #include <asm/ppc4xx-emac.h>
 #include <asm/ppc4xx-mal.h>

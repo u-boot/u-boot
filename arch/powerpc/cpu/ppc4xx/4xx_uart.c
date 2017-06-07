@@ -9,7 +9,6 @@
  */
 
 #include <common.h>
-#include <commproc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <watchdog.h>

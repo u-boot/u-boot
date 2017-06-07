@@ -41,7 +41,6 @@ ifdef CONFIG_USB_DEVICE
 obj-y += core.o
 obj-y += ep0.o
 obj-$(CONFIG_DW_UDC) += designware_udc.o
-obj-$(CONFIG_MPC885_FAMILY) += mpc8xx_udc.o
 obj-$(CONFIG_CPU_PXA27X) += pxa27x_udc.o
 endif
 endif

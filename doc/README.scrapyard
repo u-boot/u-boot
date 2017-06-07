@@ -316,7 +316,6 @@ ADCIOP           powerpc     ppc4xx         99bcad1     2012-09-19  Matthias Fuc
 DASA_SIM         powerpc     ppc4xx         99bcad1     2012-09-19  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 apollon          arm         omap24xx       535c74f     2012-09-18  Kyungmin Park <kyungmin.park@samsung.com>
 tb0229           mips        mips32         3f3110d     2011-12-12
-rmu              powerpc     MPC850         fb82fd7     2011-12-07  Wolfgang Denk <wd@denx.de>
 OXC              powerpc     MPC8240        309a292     2011-12-07
 BAB7xx           powerpc     MPC740/MPC750  c53043b     2011-12-07  Frank Gottschling <fgottschling@eltec.de>
 xm250            arm         pxa            c477d72     2011-11-25

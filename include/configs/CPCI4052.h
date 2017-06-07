@@ -139,7 +139,6 @@
  * IDE/ATA stuff
  *-----------------------------------------------------------------------
  */
-#undef	CONFIG_IDE_8xx_DIRECT		    /* no pcmcia interface required */
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #define CONFIG_IDE_RESET	1	/* reset for ide supported	*/
 

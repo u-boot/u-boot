@@ -24,11 +24,6 @@
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #endif /* defined(CONFIG_MPC512X) */
 
-#if defined(CONFIG_8xx)
-#define CONFIG_SYS_BOOTCOUNT_ADDR (((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + \
-				CPM_BOOTCOUNT_ADDR)
-#endif /* defined(CONFIG_8xx) */
-
 #if defined(CONFIG_MPC8260)
 #include <asm/cpm_8260.h>
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + CPM_BOOTCOUNT_ADDR)

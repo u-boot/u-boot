@@ -562,11 +562,7 @@ __weak void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 		*cmap = (((cte.red)   << 8) & 0xf800) |
 			(((cte.green) << 3) & 0x07e0) |
 			(((cte.blue)  >> 3) & 0x001f);
-#if defined(CONFIG_MPC823)
-		cmap--;
-#else
 		cmap++;
-#endif
 	}
 }
 

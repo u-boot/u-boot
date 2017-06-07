@@ -584,9 +584,6 @@
  *-----------------------------------------------------------------------
  */
 
-#undef	CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card Adapter */
-
-#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
 #undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 
 #define CONFIG_IDE_RESET		/* reset for ide supported	*/

@@ -73,6 +73,5 @@ These are weakly defined in arch/arm/lib/board.c to noops. Where applicable, def
 these functions in the board specific source.
 
 TBD : Describe older board dependent macros similar to what is done for
-CONFIG_TQM8xxL.
 
 TBD : Describe general support via asm/status_led.h

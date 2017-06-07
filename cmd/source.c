@@ -22,9 +22,6 @@
 #include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/io.h>
-#if defined(CONFIG_8xx)
-#include <mpc8xx.h>
-#endif
 
 int
 source (ulong addr, const char *fit_uname)

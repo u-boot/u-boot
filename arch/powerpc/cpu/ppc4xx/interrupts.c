@@ -22,7 +22,6 @@
 #include <asm/interrupt.h>
 #include <asm/ppc4xx.h>
 #include <ppc_asm.tmpl>
-#include <commproc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

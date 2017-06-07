@@ -346,8 +346,6 @@ IPB Bus clocking configuration.
  IDE/ATA stuff Supports IDE harddisk
 ----------------------------------------------------------------------------*/
 
-#undef  CONFIG_IDE_8xx_PCCARD	/* Use IDE with PC Card Adapter */
-#undef	CONFIG_IDE_8xx_DIRECT	/* Direct IDE not supported */
 #undef	CONFIG_IDE_LED		/* LED for ide not supported */
 #define CONFIG_SYS_ATA_CS_ON_TIMER01
 #define	CONFIG_IDE_RESET 1	/* reset for ide supported */

@@ -56,7 +56,6 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 	void (*loader)(bd_t *, image_header_t *, char *, char *);
 	image_header_t *os_hdr, *hdr;
 	ulong kernel_data, kernel_len;
-	char *consdev;
 	char *cmdline;
 
 	if (flag != BOOTM_STATE_OS_GO)
@@ -88,17 +87,6 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 			os_hdr = hdr;
 	}
 
-	consdev = "";
-#if   defined(CONFIG_8xx_CONS_SMC1)
-	consdev = "smc1";
-#elif defined(CONFIG_8xx_CONS_SMC2)
-	consdev = "smc2";
-#elif defined(CONFIG_8xx_CONS_SCC2)
-	consdev = "scc2";
-#elif defined(CONFIG_8xx_CONS_SCC3)
-	consdev = "scc3";
-#endif
-
 	if (argc > 0) {
 		ulong len;
 		int   i;
@@ -127,7 +115,7 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 	 *   arg[2]: char pointer to the console device to use
 	 *   arg[3]: char pointer to the boot arguments
 	 */
-	(*loader)(gd->bd, os_hdr, consdev, cmdline);
+	(*loader)(gd->bd, os_hdr, "", cmdline);
 
 	return 1;
 }

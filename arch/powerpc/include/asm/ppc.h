@@ -13,19 +13,7 @@
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_8xx)
-#include <asm/8xx_immap.h>
-#if defined(CONFIG_MPC859) || defined(CONFIG_MPC859T) || \
-	defined(CONFIG_MPC866) ||  defined(CONFIG_MPC866P)
-# define CONFIG_MPC866_FAMILY 1
-#elif defined(CONFIG_MPC885)
-# define CONFIG_MPC885_FAMILY   1
-#endif
-#if defined(CONFIG_MPC860) || defined(CONFIG_MPC860T) || \
-	defined(CONFIG_MPC866_FAMILY) || defined(CONFIG_MPC885_FAMILY)
-# define CONFIG_MPC86x 1
-#endif
-#elif defined(CONFIG_5xx)
+#if defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
@@ -62,29 +50,7 @@
 #include <asm/arch/immap_lsch2.h>
 #endif
 
-/*
- * enable common handling for all TQM8xxL/M boards:
- * - CONFIG_TQM8xxM will be defined for all TQM8xxM boards
- * - CONFIG_TQM8xxL will be defined for all TQM8xxL _and_ TQM8xxM boards
- *                  and for the TQM885D board
- */
-#if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
-	defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
-	defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M)
-# ifndef CONFIG_TQM8xxM
-#  define CONFIG_TQM8xxM
-# endif
-#endif
-#if defined(CONFIG_TQM823L) || defined(CONFIG_TQM850L) || \
-	defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L) || \
-	defined(CONFIG_TQM862L) || defined(CONFIG_TQM8xxM) || \
-	defined(CONFIG_TQM885D)
-# ifndef CONFIG_TQM8xxL
-#  define CONFIG_TQM8xxL
-# endif
-#endif
-
-#if defined(CONFIG_5xx) || defined(CONFIG_8xx)
+#if defined(CONFIG_5xx)
 uint get_immr(uint);
 #endif
 #if defined(CONFIG_MPC5xxx)

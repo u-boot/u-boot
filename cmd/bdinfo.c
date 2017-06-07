@@ -183,7 +183,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_flash(bd);
 	print_num("sramstart",		bd->bi_sramstart);
 	print_num("sramsize",		bd->bi_sramsize);
-#if	defined(CONFIG_5xx)  || defined(CONFIG_8xx) || \
+#if	defined(CONFIG_5xx)  || \
 	defined(CONFIG_MPC8260) || defined(CONFIG_E500)
 	print_num("immr_base",		bd->bi_immr_base);
 #endif

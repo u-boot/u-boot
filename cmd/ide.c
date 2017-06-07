@@ -18,7 +18,7 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_IDE_8xx_DIRECT) || defined(CONFIG_IDE_PCMCIA)
+#if defined(CONFIG_IDE_PCMCIA)
 # include <pcmcia.h>
 #endif
 
@@ -42,12 +42,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 	case 2:
 		if (strncmp(argv[1], "res", 3) == 0) {
-			puts("\nReset IDE"
-#ifdef CONFIG_IDE_8xx_DIRECT
-			     " on PCMCIA " PCMCIA_SLOT_MSG
-#endif
-			     ": ");
-
+			puts("\nReset IDE: ");
 			ide_init();
 			return 0;
 		} else if (strncmp(argv[1], "inf", 3) == 0) {

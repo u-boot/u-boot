@@ -12,17 +12,11 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_8xx) || defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 
-#if defined(CONFIG_8xx)
-#include <asm/8xx_immap.h>
-#include <commproc.h>
-#include <asm/iopin_8xx.h>
-#elif defined(CONFIG_MPC8260)
 #include <asm/immap_8260.h>
 #include <asm/cpm_8260.h>
 #include <asm/iopin_8260.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,19 +32,12 @@ do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile sysconf8xx_t *sc = &immap->im_siu_conf;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile sysconf8260_t *sc = &immap->im_siu_conf;
 #endif
 
 	printf ("SIUMCR= %08x SYPCR = %08x\n", sc->sc_siumcr, sc->sc_sypcr);
-#if defined(CONFIG_8xx)
-	printf ("SWT   = %08x\n", sc->sc_swt);
-	printf ("SIPEND= %08x SIMASK= %08x\n", sc->sc_sipend, sc->sc_simask);
-	printf ("SIEL  = %08x SIVEC = %08x\n", sc->sc_siel, sc->sc_sivec);
-	printf ("TESR  = %08x SDCR  = %08x\n", sc->sc_tesr, sc->sc_sdcr);
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	printf ("BCR   = %08x\n", sc->sc_bcr);
 	printf ("P_ACR =       %02x P_ALRH= %08x P_ALRL= %08x\n",
 		sc->sc_ppc_acr, sc->sc_ppc_alrh, sc->sc_ppc_alrl);
@@ -69,10 +56,7 @@ do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	int nbanks = 8;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	int nbanks = 12;
 #endif
@@ -90,16 +74,12 @@ do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf ("MAR   = %08x", memctl->memc_mar);
-#if defined(CONFIG_8xx)
-	printf (" MCR   = %08x\n", memctl->memc_mcr);
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	putc ('\n');
 #endif
 	printf ("MAMR  = %08x MBMR  = %08x",
 		memctl->memc_mamr, memctl->memc_mbmr);
-#if defined(CONFIG_8xx)
-	printf ("\nMSTAT =     %04x\n", memctl->memc_mstat);
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	printf (" MCMR  = %08x\n", memctl->memc_mcmr);
 #endif
 	printf ("MPTPR =     %04x MDR   = %08x\n",
@@ -137,17 +117,11 @@ do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile car8xx_t *car = &immap->im_clkrst;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile car8260_t *car = &immap->im_clkrst;
 #endif
 
-#if defined(CONFIG_8xx)
-	printf ("SCCR  = %08x\n", car->car_sccr);
-	printf ("PLPRCR= %08x\n", car->car_plprcr);
-	printf ("RSR   = %08x\n", car->car_rsr);
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	printf ("SCCR  = %08x\n", car->car_sccr);
 	printf ("SCMR  = %08x\n", car->car_scmr);
 	printf ("RSR   = %08x\n", car->car_rsr);
@@ -200,14 +174,7 @@ static void binary (char *label, uint value, int nbits)
 		putc ('\n');
 }
 
-#if defined(CONFIG_8xx)
-#define PA_NBITS	16
-#define PA_NB_ODR	 8
-#define PB_NBITS	18
-#define PB_NB_ODR	16
-#define PC_NBITS	12
-#define PD_NBITS	13
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 #define PA_NBITS	32
 #define PA_NB_ODR	32
 #define PB_NBITS	28
@@ -221,10 +188,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile iop8xx_t *iop = &immap->im_ioport;
-	volatile ushort *l, *r;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile iop8260_t *iop = &immap->im_ioport;
 	volatile uint *l, *r;
 #endif
@@ -237,10 +201,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Ports A & B
 	 */
 
-#if defined(CONFIG_8xx)
-	l = &iop->iop_padir;
-	R = &immap->im_cpm.cp_pbdir;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	l = &iop->iop_pdira;
 	R = &iop->iop_pdirb;
 #endif
@@ -263,10 +224,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Ports C & D
 	 */
 
-#if defined(CONFIG_8xx)
-	l = &iop->iop_pcdir;
-	r = &iop->iop_pddir;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	l = &iop->iop_pdirc;
 	r = &iop->iop_pdird;
 #endif
@@ -274,11 +232,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	binary ("PD_DIR", *r++, PD_NBITS);
 	binary ("PC_PAR", *l++, PC_NBITS);
 	binary ("PD_PAR", *r++, PD_NBITS);
-#if defined(CONFIG_8xx)
-	binary ("PC_SO ", *l++, PC_NBITS);
-	binary ("      ", 0, 0);
-	r++;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	binary ("PC_SOR", *l++, PC_NBITS);
 	binary ("PD_SOR", *r++, PD_NBITS);
 	binary ("PC_ODR", *l++, PC_NBITS);
@@ -286,9 +240,6 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	binary ("PC_DAT", *l++, PC_NBITS);
 	binary ("PD_DAT", *r++, PD_NBITS);
-#if defined(CONFIG_8xx)
-	binary ("PC_INT", *l++, PC_NBITS);
-#endif
 
 	header ();
 	return 0;
@@ -313,9 +264,6 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		SOR,
 		ODR,
 		DAT,
-#if defined(CONFIG_8xx)
-		INT
-#endif
 	} cmd = DAT;
 
 	if (argc != 5) {
@@ -350,11 +298,6 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 's':
 		cmd = SOR;
 		break;
-#if defined(CONFIG_8xx)
-	case 'i':
-		cmd = INT;
-		break;
-#endif
 	default:
 		printf ("iopset: unknown command %s\n", argv[3]);
 		rcode = 1;
@@ -400,14 +343,6 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			else
 				iopin_set_low (&iopin);
 			break;
-#if defined(CONFIG_8xx)
-		case INT:
-			if (value)
-				iopin_set_falledge (&iopin);
-			else
-				iopin_set_anyedge (&iopin);
-			break;
-#endif
 		}
 
 	}
@@ -434,9 +369,7 @@ static void prbrg (int n, uint val)
 	uint cd = (val & CPM_BRG_CD_MASK) >> 1;
 	uint div16 = (val & CPM_BRG_DIV16) != 0;
 
-#if defined(CONFIG_8xx)
-	ulong clock = gd->cpu_clk;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	ulong clock = gd->arch.brg_clk;
 #endif
 
@@ -486,10 +419,7 @@ do_brginfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile cpm8xx_t *cp = &immap->im_cpm;
-	volatile uint *p = &cp->cp_brgc1;
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile uint *p = &immap->im_brgc1;
 #endif
 	int i = 1;
@@ -510,11 +440,7 @@ do_i2cinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_8xx)
-	volatile i2c8xx_t *i2c = &immap->im_i2c;
-	volatile cpm8xx_t *cp = &immap->im_cpm;
-	volatile iic_t *iip = (iic_t *) & cp->cp_dparam[PROFF_IIC];
-#elif defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260)
 	volatile i2c8260_t *i2c = &immap->im_i2c;
 	volatile iic_t *iip;
 	uint dpaddr;

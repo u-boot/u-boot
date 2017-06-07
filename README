@@ -328,34 +328,6 @@ The following options need to be configured:
 					  multiple fs option at one time
 					  for marvell soc family
 
-- 8xx CPU Options: (if using an MPC8xx CPU)
-		CONFIG_8xx_GCLK_FREQ	- deprecated: CPU clock if
-					  get_gclk_freq() cannot work
-					  e.g. if there is no 32KHz
-					  reference PIT/RTC clock
-		CONFIG_8xx_OSCLK	- PLL input clock (either EXTCLK
-					  or XTAL/EXTAL)
-
-- 859/866/885 CPU options: (if using a MPC859 or MPC866 or MPC885 CPU):
-		CONFIG_SYS_8xx_CPUCLK_MIN
-		CONFIG_SYS_8xx_CPUCLK_MAX
-		CONFIG_8xx_CPUCLK_DEFAULT
-			See doc/README.MPC866
-
-		CONFIG_SYS_MEASURE_CPUCLK
-
-		Define this to measure the actual CPU clock instead
-		of relying on the correctness of the configured
-		values. Mostly useful for board bringup to make sure
-		the PLL is locked at the intended frequency. Note
-		that this requires a (stable) reference clock (32 kHz
-		RTC clock or CONFIG_SYS_8XX_XIN)
-
-		CONFIG_SYS_DELAYED_ICACHE
-
-		Define this option if you want to enable the
-		ICache only when Code runs from RAM.
-
 - 85xx CPU Options:
 		CONFIG_SYS_PPC64
 
@@ -723,26 +695,15 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
-- Console Interface:
-		Depending on board, define exactly one serial port
-		(like CONFIG_8xx_CONS_SMC1, CONFIG_8xx_CONS_SMC2,
-		CONFIG_8xx_CONS_SCC1, ...), or switch off the serial
-		console by defining CONFIG_8xx_CONS_NONE
-
-		Note: if CONFIG_8xx_CONS_NONE is defined, the serial
-		port routines must be defined elsewhere
-		(i.e. serial_init(), serial_getc(), ...)
-
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
-		CONFIG_SYS_BRGCLK_PRESCALE, baudrate prescale
 
 - Console Rx buffer length
 		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
 		the maximum receive buffer length for the SMC.
-		This option is actual only for 82xx and 8xx possible.
+		This option is actual only for 82xx possible.
 		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
@@ -912,7 +873,7 @@ The following options need to be configured:
 	Note:	Don't enable the "icache" and "dcache" commands
 		(configuration option CONFIG_CMD_CACHE) unless you know
 		what you (and your U-Boot users) are doing. Data
-		cache cannot be enabled on systems like the 8xx or
+		cache cannot be enabled on systems like the
 		8260 (where accesses to the IMMR region must be
 		uncached), and it cannot be disabled on all other
 		systems where we (mis-) use the data cache to hold an
@@ -976,7 +937,7 @@ The following options need to be configured:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
 		support for the SoC. There must be support in the SoC
-		specific code for a watchdog. For the 8xx and 8260
+		specific code for a watchdog. For the 8260
 		CPUs, the SIU Watchdog feature is enabled in the SYPCR
 		register.  When supported for a specific SoC is
 		available, then no further board specific code should
@@ -1004,7 +965,6 @@ The following options need to be configured:
 		has to be selected, too. Define exactly one of the
 		following options:
 
-		CONFIG_RTC_MPC8xx	- use internal RTC of MPC8xx
 		CONFIG_RTC_PCF8563	- use Philips PCF8563 RTC
 		CONFIG_RTC_MC13XXX	- use MC13783 or MC13892 RTC
 		CONFIG_RTC_MC146818	- use MC146818 RTC
@@ -1344,11 +1304,6 @@ The following options need to be configured:
 			CONFIG_SYS_CONSOLE_IS_IN_ENV
 			Define this if you want stdin, stdout &/or stderr to
 			be set to usbtty.
-
-			mpc8xx:
-				CONFIG_SYS_USB_EXTC_CLK 0xBLAH
-				Derive USB clock from external clock "blah"
-				- CONFIG_SYS_USB_EXTC_CLK 0x02
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -1953,7 +1908,7 @@ The following options need to be configured:
 
 		Defining CONFIG_CAN_DRIVER enables CAN driver support
 		on those systems that support this (optional)
-		feature, like the TQM8xxL modules.
+		feature.
 
 - I2C Support:	CONFIG_SYS_I2C
 
@@ -2445,7 +2400,7 @@ The following options need to be configured:
 		following board configurations are known to be
 		"pRAM-clean":
 
-			IVMS8, IVML24, SPD8xx, TQM8xxL,
+			IVMS8, IVML24, SPD8xx,
 			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
 
@@ -4048,7 +4003,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
-		doing! (11-4) [MPC8xx/82xx systems only]
+		doing! (11-4) [82xx systems only]
 
 - CONFIG_SYS_INIT_RAM_ADDR:
 
@@ -4061,7 +4016,7 @@ Low Level (hardware related) configuration options:
 		sequences.
 
 		U-Boot uses the following memory types:
-		- MPC8xx and MPC8260: IMMR (internal memory of the CPU)
+		- MPC8260: IMMR (internal memory of the CPU)
 		- MPC824X: data cache
 		- PPC4xx:  data cache
 
@@ -4119,19 +4074,7 @@ Low Level (hardware related) configuration options:
 		Machine Mode Register and Memory Periodic Timer
 		Prescaler definitions (SDRAM timing)
 
-- CONFIG_SYS_I2C_UCODE_PATCH, CONFIG_SYS_I2C_DPMEM_OFFSET [0x1FC0]:
-		enable I2C microcode relocation patch (MPC8xx);
-		define relocation offset in DPRAM [DSP2]
-
-- CONFIG_SYS_SMC_UCODE_PATCH, CONFIG_SYS_SMC_DPMEM_OFFSET [0x1FC0]:
-		enable SMC microcode relocation patch (MPC8xx);
-		define relocation offset in DPRAM [SMC1]
-
-- CONFIG_SYS_SPI_UCODE_PATCH, CONFIG_SYS_SPI_DPMEM_OFFSET [0x1FC0]:
-		enable SPI microcode relocation patch (MPC8xx);
-		define relocation offset in DPRAM [SCC4]
-
-- CONFIG_SYS_CPM_POST_WORD_ADDR: (MPC8xx, MPC8260 only)
+- CONFIG_SYS_CPM_POST_WORD_ADDR: (MPC8260 only)
 		Offset of the bootmode word in DPRAM used by post
 		(Power On Self Tests). This definition overrides
 		#define'd default value in commproc.h resp.
@@ -4224,21 +4167,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should
 		be configured using CS0 and CS1 instead of CS2 and CS3.
-
-- CONFIG_ETHER_ON_FEC[12]
-		Define to enable FEC[12] on a 8xx series processor.
-
-- CONFIG_FEC[12]_PHY
-		Define to the hardcoded PHY address which corresponds
-		to the given FEC; i. e.
-			#define CONFIG_FEC1_PHY 4
-		means that the PHY with address 4 is connected to FEC1
-
-		When set to -1, means to probe for first available.
-
-- CONFIG_FEC[12]_PHY_NORXERR
-		The PHY does not have a RXERR line (RMII only).
-		(so program the FEC to ignore it).
 
 - CONFIG_RMII
 		Enable RMII mode for all FECs.

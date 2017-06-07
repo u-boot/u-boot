@@ -1361,10 +1361,7 @@ int prt_8260_clks(void);
 #endif /* ndef ASSEMBLY*/
 
 #ifdef CONFIG_MACH_SPECIFIC
-#if defined(CONFIG_8xx)
-#define _machine _MACH_8xx
-#define have_of 0
-#elif defined(CONFIG_WALNUT)
+#if defined(CONFIG_WALNUT)
 #define _machine _MACH_walnut
 #define have_of 0
 #elif defined(CONFIG_MPC8260)

@@ -662,9 +662,6 @@ extern struct i2c_bus_hose	i2c_bus[];
 #ifndef I2C_SOFT_DECLARATIONS
 # if defined(CONFIG_MPC8260)
 #  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
-# elif defined(CONFIG_8xx)
-#  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-
 # elif (defined(CONFIG_AT91RM9200) || \
 	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
 	defined(CONFIG_AT91SAM9263))
@@ -672,15 +669,6 @@ extern struct i2c_bus_hose	i2c_bus[];
 # else
 #  define I2C_SOFT_DECLARATIONS
 # endif
-#endif
-
-#ifdef CONFIG_8xx
-/* Set default value for the I2C bus speed on 8xx. In the
- * future, we'll define these in all 8xx board config files.
- */
-#ifndef	CONFIG_SYS_I2C_SPEED
-#define	CONFIG_SYS_I2C_SPEED	50000
-#endif
 #endif
 
 /*
@@ -814,11 +802,6 @@ static inline u8 i2c_reg_read(u8 addr, u8 reg)
 {
 	u8 buf;
 
-#ifdef CONFIG_8xx
-	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-
 #ifdef DEBUG
 	printf("%s: addr=0x%02x, reg=0x%02x\n", __func__, addr, reg);
 #endif
@@ -830,11 +813,6 @@ static inline u8 i2c_reg_read(u8 addr, u8 reg)
 
 static inline void i2c_reg_write(u8 addr, u8 reg, u8 val)
 {
-#ifdef CONFIG_8xx
-	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-
 #ifdef DEBUG
 	printf("%s: addr=0x%02x, reg=0x%02x, val=0x%02x\n",
 	       __func__, addr, reg, val);

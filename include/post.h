@@ -29,10 +29,6 @@
 #define _POST_WORD_ADDR \
 	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
-#elif defined(CONFIG_8xx)
-#define _POST_WORD_ADDR \
-	(((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR)
-
 #elif defined(CONFIG_MPC8260)
 #include <asm/cpm_8260.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
@@ -164,7 +160,6 @@ extern int memory_post_test(int flags);
 #define CONFIG_SYS_POST_CACHE		0x00000020
 #define CONFIG_SYS_POST_UART		0x00000040
 #define CONFIG_SYS_POST_ETHER		0x00000080
-#define CONFIG_SYS_POST_SPI		0x00000100
 #define CONFIG_SYS_POST_USB		0x00000200
 #define CONFIG_SYS_POST_SPR		0x00000400
 #define CONFIG_SYS_POST_SYSMON		0x00000800

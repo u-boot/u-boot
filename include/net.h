@@ -12,10 +12,6 @@
 #ifndef __NET_H__
 #define __NET_H__
 
-#if defined(CONFIG_8xx)
-#include <commproc.h>
-#endif	/* CONFIG_8xx */
-
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 
