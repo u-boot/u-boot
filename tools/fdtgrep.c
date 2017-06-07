@@ -522,18 +522,21 @@ static int check_type_include(void *priv, int type, const char *data, int size)
 	 * return 1 at the first match. For exclusive conditions, we must
 	 * check that there are no matches.
 	 */
-	for (val = disp->value_head; val; val = val->next) {
-		if (!(type & val->type))
-			continue;
-		match = fdt_stringlist_contains(data, size, val->string);
-		debug("      - val->type=%x, str='%s', match=%d\n",
-		      val->type, val->string, match);
-		if (match && val->include) {
-			debug("   - match inc %s\n", val->string);
-			return 1;
+	if (data) {
+		for (val = disp->value_head; val; val = val->next) {
+			if (!(type & val->type))
+				continue;
+			match = fdt_stringlist_contains(data, size,
+							val->string);
+			debug("      - val->type=%x, str='%s', match=%d\n",
+			      val->type, val->string, match);
+			if (match && val->include) {
+				debug("   - match inc %s\n", val->string);
+				return 1;
+			}
+			if (match)
+				none_match &= ~val->type;
 		}
-		if (match)
-			none_match &= ~val->type;
 	}
 
 	/*
