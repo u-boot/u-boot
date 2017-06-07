@@ -4000,16 +4000,6 @@ Low Level (hardware related) configuration options:
 		point to an otherwise UNUSED address space between
 		the top of RAM and the start of the PCI space.
 
-- CONFIG_SYS_SIUMCR:	SIU Module Configuration (11-6)
-
-- CONFIG_SYS_SYPCR:	System Protection Control (11-9)
-
-- CONFIG_SYS_TBSCR:	Time Base Status and Control (11-26)
-
-- CONFIG_SYS_PISCR:	Periodic Interrupt Status and Control (11-31)
-
-- CONFIG_SYS_PLPRCR:	PLL, Low-Power, and Reset Control Register (15-30)
-
 - CONFIG_SYS_SCCR:	System Clock and reset Control Register (15-27)
 
 - CONFIG_SYS_OR_TIMING_SDRAM:
@@ -4017,8 +4007,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_MAMR_PTA:
 		periodic timer for refresh
-
-- CONFIG_SYS_DER:	Debug Event Register (37-47)
 
 - FLASH_BASE0_PRELIM, FLASH_BASE1_PRELIM, CONFIG_SYS_REMAP_OR_AM,
   CONFIG_SYS_PRELIM_OR_AM, CONFIG_SYS_OR_TIMING_FLASH, CONFIG_SYS_OR0_REMAP,

@@ -64,21 +64,10 @@ int timer_init(void)
 {
 	unsigned long temp;
 
-#if defined(CONFIG_5xx)
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-
-	/* unlock */
-	immap->im_sitk.sitk_tbk = KAPWR_KEY;
-#endif
-
 	/* reset */
 	asm volatile("li %0,0 ; mttbu %0 ; mttbl %0;"
 	     : "=&r"(temp) );
 
-#if defined(CONFIG_5xx)
-	/* enable */
-	immap->im_sit.sit_tbscr |= TBSCR_TBE;
-#endif
 	return (0);
 }
 /* ------------------------------------------------------------------------- */

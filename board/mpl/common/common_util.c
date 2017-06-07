@@ -28,10 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_PATI)
-#define FIRM_START 0xFFF00000
-#endif
-
 extern int mem_test(ulong start, ulong ramsize, int quiet);
 
 #define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */
@@ -189,11 +185,8 @@ mpl_prg(uchar *src, ulong size)
 	ulong start;
 	flash_info_t *info = &flash_info[0];
 	int i, rc;
-#if defined(CONFIG_PATI)
-	int start_sect;
-#endif
-#if defined(CONFIG_PIP405) || defined(CONFIG_TARGET_MIP405) \
-		|| defined(CONFIG_TARGET_MIP405T) || defined(CONFIG_PATI)
+#if defined(CONFIG_PIP405) || defined(CONFIG_TARGET_MIP405) || \
+	defined(CONFIG_TARGET_MIP405T)
 	char *copystr = (char *)src;
 	ulong *magic = (ulong *)src;
 
@@ -219,7 +212,6 @@ mpl_prg(uchar *src, ulong size)
 		printf("Wrong Firmware Image: %s\n", &copystr[i]);
 		return -1;
 	}
-#if !defined(CONFIG_PATI)
 	start = 0 - size;
 
 	/* unprotect sectors used by u-boot */
@@ -241,38 +233,6 @@ mpl_prg(uchar *src, ulong size)
 		flash_perror(rc);
 		return (1);
 	}
-
-#else /* #if !defined(CONFIG_PATI) */
-	start = FIRM_START;
-	start_sect = -1;
-
-	/* search start sector */
-	for (i = info->sector_count-1; i > 0; i--)
-		if (start >= info->start[i])
-			break;
-
-	start_sect = i;
-
-	for (i = info->sector_count-1; i > 0; i--)
-		if ((start + size) >= info->start[i])
-			break;
-
-	/* unprotect sectors used by u-boot */
-	flash_protect(FLAG_PROTECT_CLEAR,
-		      start,
-		      start + size,
-		      info);
-
-	/* now erase flash */
-	printf ("Erasing at %lx to %lx (sector %d to %d) (%lx to %lx)\n",
-		start, start + size, start_sect, i,
-		info->start[start_sect], info->start[i]);
-	if ((rc = flash_erase (info, start_sect, i)) != 0) {
-		puts ("ERROR ");
-		flash_perror (rc);
-		return (1);
-	}
-#endif /* defined(CONFIG_PATI) */
 #endif
 	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",
 		(ulong)src, size);
@@ -380,7 +340,6 @@ mpl_prg_image(uchar *ld_addr)
 	return(rc);
 }
 
-#if !defined(CONFIG_PATI)
 void get_backup_values(backup_t *buf)
 {
 	i2c_read(CONFIG_SYS_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)buf,sizeof(backup_t));
@@ -541,17 +500,13 @@ void check_env(void)
 	}
 }
 
-#endif /* #if !defined(CONFIG_PATI) */
-
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ld_addr;
 	int result;
-#if !defined(CONFIG_PATI)
 	ulong size = IMAGE_SIZE;
 	ulong src = MULTI_PURPOSE_SOCKET_ADDR;
 	backup_t back;
-#endif
 
 	if (strcmp(argv[1], "flash") == 0)
 	{
@@ -587,15 +542,12 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			result=mpl_prg_image((uchar *)ld_addr);
 			return result;
 		}
-#if !defined(CONFIG_PATI)
 		if (strcmp(argv[2], "mps") == 0) {
 			puts("\nupdating bootloader image from MPS\n");
 			result=mpl_prg((uchar *)src,size);
 			return result;
 		}
-#endif /* #if !defined(CONFIG_PATI)	*/
 	}
-#if !defined(CONFIG_PATI)
 	if (strcmp(argv[1], "clearenvvalues") == 0)
 	{
 		if (strcmp(argv[2], "yes") == 0)
@@ -618,7 +570,6 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		set_backup_values(1);
 		return 0;
 	}
-#endif
 	return cmd_usage(cmdtp);
 }
 

@@ -13,9 +13,7 @@
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_5xx)
-#include <asm/5xx_immap.h>
-#elif defined(CONFIG_MPC5xxx)
+#if defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
 #elif defined(CONFIG_MPC512X)
 #include <asm/immap_512x.h>
@@ -45,9 +43,6 @@
 #include <asm/arch/immap_lsch2.h>
 #endif
 
-#if defined(CONFIG_5xx)
-uint get_immr(uint);
-#endif
 #if defined(CONFIG_MPC5xxx)
 uint get_svr(void);
 #endif

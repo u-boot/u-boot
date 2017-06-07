@@ -11,9 +11,6 @@ choice
 config MPC512X
 	bool "MPC512X"
 
-config 5xx
-	bool "MPC5xx"
-
 config MPC5xxx
 	bool "MPC5xxx"
 
@@ -46,7 +43,6 @@ config 4xx
 endchoice
 
 source "arch/powerpc/cpu/mpc512x/Kconfig"
-source "arch/powerpc/cpu/mpc5xx/Kconfig"
 source "arch/powerpc/cpu/mpc5xxx/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"

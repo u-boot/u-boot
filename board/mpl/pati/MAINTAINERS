@@ -1,6 +1,0 @@
-PATI BOARD
-#M:	-
-S:	Maintained
-F:	board/mpl/pati/
-F:	include/configs/PATI.h
-F:	configs/PATI_defconfig
