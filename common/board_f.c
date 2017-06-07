@@ -706,11 +706,8 @@ static int jump_to_copy(void)
 /* Record the board_init_f() bootstage (after arch_cpu_init()) */
 static int initf_bootstage(void)
 {
-#if defined(CONFIG_SPL_BOOTSTAGE) && defined(CONFIG_BOOTSTAGE_STASH)
-	bool from_spl = true;
-#else
-	bool from_spl = false;
-#endif
+	bool from_spl = IS_ENABLED(CONFIG_SPL_BOOTSTAGE) &&
+			IS_ENABLED(CONFIG_BOOTSTAGE_STASH);
 	int ret;
 
 	ret = bootstage_init(!from_spl);
