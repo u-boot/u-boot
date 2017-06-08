@@ -438,7 +438,7 @@ static int tegra_mmc_set_ios(struct udevice *dev)
 	else if (mmc->bus_width == 4)
 		ctrl |= (1 << 1);
 	else
-		ctrl &= ~(1 << 1);
+		ctrl &= ~(1 << 1 | 1 << 5);
 
 	writeb(ctrl, &priv->reg->hostctl);
 	debug("mmc_set_ios: hostctl = %08X\n", ctrl);
