@@ -15,7 +15,9 @@ endif
 obj-$(CONFIG_ROCKCHIP_RK3188) += sysreset_rk3188.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += sysreset_rk3288.o
 obj-$(CONFIG_ROCKCHIP_RK3328) += sysreset_rk3328.o
+obj-$(CONFIG_ROCKCHIP_RK3368) += sysreset_rk3368.o
 obj-$(CONFIG_ROCKCHIP_RK3399) += sysreset_rk3399.o
+obj-$(CONFIG_ROCKCHIP_RV1108) += sysreset_rv1108.o
 obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
 obj-$(CONFIG_ARCH_SNAPDRAGON) += sysreset_snapdragon.o
 obj-$(CONFIG_ARCH_STI) += sysreset_sti.o

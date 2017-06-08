@@ -56,8 +56,7 @@ Package the image
 =================
 
 	> tools/mkimage -n rk3399 -T rksd -d spl/u-boot-spl.bin spl.img
-	> tools/mkimage -f board/theobroma/puma_rk3399/fit_spl_atf.its \
-		-E rk3399_bl3x.itb
+	> make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
 
 Flash the image
 ===============
@@ -67,7 +66,7 @@ Copy the SPL to offset 32k and the FIT image containing the payloads
 card.
 
   > dd if=spl.img of=/dev/sdb seek=64
-  > dd if=rk3399_bl3x.itb of=/dev/sdb seek=512
+  > dd if=u-boot.itb of=/dev/sdb seek=512
 
 After powering up the board (with the inserted SD card), you should see
 a U-Boot console on UART0 (115200n8).

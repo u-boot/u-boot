@@ -65,12 +65,11 @@ static int rkclk_set_pll(struct rk3036_cru *cru, enum rk_clk_id clk_id,
 	rk_clrreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
 
 	rk_clrsetreg(&pll->con0,
-		     PLL_POSTDIV1_MASK << PLL_POSTDIV1_SHIFT | PLL_FBDIV_MASK,
+		     PLL_POSTDIV1_MASK | PLL_FBDIV_MASK,
 		     (div->postdiv1 << PLL_POSTDIV1_SHIFT) | div->fbdiv);
-	rk_clrsetreg(&pll->con1, PLL_POSTDIV2_MASK << PLL_POSTDIV2_SHIFT |
-			PLL_REFDIV_MASK << PLL_REFDIV_SHIFT,
-			(div->postdiv2 << PLL_POSTDIV2_SHIFT |
-			 div->refdiv << PLL_REFDIV_SHIFT));
+	rk_clrsetreg(&pll->con1, PLL_POSTDIV2_MASK | PLL_REFDIV_MASK,
+		     (div->postdiv2 << PLL_POSTDIV2_SHIFT |
+		     div->refdiv << PLL_REFDIV_SHIFT));
 
 	/* waiting for pll lock */
 	while (readl(&pll->con1) & (1 << PLL_LOCK_STATUS_SHIFT))
@@ -87,8 +86,7 @@ static void rkclk_init(struct rk3036_cru *cru)
 
 	/* pll enter slow-mode */
 	rk_clrsetreg(&cru->cru_mode_con,
-		     GPLL_MODE_MASK << GPLL_MODE_SHIFT |
-		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     GPLL_MODE_MASK | APLL_MODE_MASK,
 		     GPLL_MODE_SLOW << GPLL_MODE_SHIFT |
 		     APLL_MODE_SLOW << APLL_MODE_SHIFT);
 
@@ -97,8 +95,8 @@ static void rkclk_init(struct rk3036_cru *cru)
 	rkclk_set_pll(cru, CLK_GENERAL, &gpll_init_cfg);
 
 	/*
-	 * select apll as core clock pll source and
-	 * set up dependent divisors for PCLK/HCLK and ACLK clocks.
+	 * select apll as cpu/core clock pll source and
+	 * set up dependent divisors for PERI and ACLK clocks.
 	 * core hz : apll = 1:1
 	 */
 	aclk_div = APLL_HZ / CORE_ACLK_HZ - 1;
@@ -108,44 +106,40 @@ static void rkclk_init(struct rk3036_cru *cru)
 	assert((pclk_div + 1) * CORE_PERI_HZ == APLL_HZ && pclk_div < 0xf);
 
 	rk_clrsetreg(&cru->cru_clksel_con[0],
-		     CORE_CLK_PLL_SEL_MASK << CORE_CLK_PLL_SEL_SHIFT |
-		     CORE_DIV_CON_MASK << CORE_DIV_CON_SHIFT,
+		     CORE_CLK_PLL_SEL_MASK | CORE_DIV_CON_MASK,
 		     CORE_CLK_PLL_SEL_APLL << CORE_CLK_PLL_SEL_SHIFT |
 		     0 << CORE_DIV_CON_SHIFT);
 
 	rk_clrsetreg(&cru->cru_clksel_con[1],
-		     CORE_ACLK_DIV_MASK << CORE_ACLK_DIV_SHIFT |
-		     CORE_PERI_DIV_MASK << CORE_PERI_DIV_SHIFT,
+		     CORE_ACLK_DIV_MASK | CORE_PERI_DIV_MASK,
 		     aclk_div << CORE_ACLK_DIV_SHIFT |
 		     pclk_div << CORE_PERI_DIV_SHIFT);
 
 	/*
-	 * select apll as cpu clock pll source and
+	 * select apll as pd_bus bus clock source and
 	 * set up dependent divisors for PCLK/HCLK and ACLK clocks.
 	 */
-	aclk_div = APLL_HZ / CPU_ACLK_HZ - 1;
-	assert((aclk_div + 1) * CPU_ACLK_HZ == APLL_HZ && aclk_div < 0x1f);
+	aclk_div = GPLL_HZ / BUS_ACLK_HZ - 1;
+	assert((aclk_div + 1) * BUS_ACLK_HZ == GPLL_HZ && aclk_div <= 0x1f);
 
-	pclk_div = APLL_HZ / CPU_PCLK_HZ - 1;
-	assert((pclk_div + 1) * CPU_PCLK_HZ == APLL_HZ && pclk_div < 0x7);
+	pclk_div = GPLL_HZ / BUS_PCLK_HZ - 1;
+	assert((pclk_div + 1) * BUS_PCLK_HZ == GPLL_HZ && pclk_div <= 0x7);
 
-	hclk_div = APLL_HZ / CPU_HCLK_HZ - 1;
-	assert((hclk_div + 1) * CPU_HCLK_HZ == APLL_HZ && hclk_div < 0x3);
+	hclk_div = GPLL_HZ / BUS_HCLK_HZ - 1;
+	assert((hclk_div + 1) * BUS_HCLK_HZ == GPLL_HZ && hclk_div <= 0x3);
 
 	rk_clrsetreg(&cru->cru_clksel_con[0],
-		     CPU_CLK_PLL_SEL_MASK << CPU_CLK_PLL_SEL_SHIFT |
-		     ACLK_CPU_DIV_MASK << ACLK_CPU_DIV_SHIFT,
-		     CPU_CLK_PLL_SEL_APLL << CPU_CLK_PLL_SEL_SHIFT |
-		     aclk_div << ACLK_CPU_DIV_SHIFT);
+		     BUS_ACLK_PLL_SEL_MASK | BUS_ACLK_DIV_MASK,
+		     BUS_ACLK_PLL_SEL_GPLL << BUS_ACLK_PLL_SEL_SHIFT |
+		     aclk_div << BUS_ACLK_DIV_SHIFT);
 
 	rk_clrsetreg(&cru->cru_clksel_con[1],
-		     CPU_PCLK_DIV_MASK << CPU_PCLK_DIV_SHIFT |
-		     CPU_HCLK_DIV_MASK << CPU_HCLK_DIV_SHIFT,
-		     pclk_div << CPU_PCLK_DIV_SHIFT |
-		     hclk_div << CPU_HCLK_DIV_SHIFT);
+		     BUS_PCLK_DIV_MASK | BUS_HCLK_DIV_MASK,
+		     pclk_div << BUS_PCLK_DIV_SHIFT |
+		     hclk_div << BUS_HCLK_DIV_SHIFT);
 
 	/*
-	 * select gpll as peri clock pll source and
+	 * select gpll as pd_peri bus clock source and
 	 * set up dependent divisors for PCLK/HCLK and ACLK clocks.
 	 */
 	aclk_div = GPLL_HZ / PERI_ACLK_HZ - 1;
@@ -153,17 +147,15 @@ static void rkclk_init(struct rk3036_cru *cru)
 
 	hclk_div = ilog2(PERI_ACLK_HZ / PERI_HCLK_HZ);
 	assert((1 << hclk_div) * PERI_HCLK_HZ ==
-		PERI_ACLK_HZ && (pclk_div < 0x4));
+		PERI_ACLK_HZ && (hclk_div < 0x4));
 
 	pclk_div = ilog2(PERI_ACLK_HZ / PERI_PCLK_HZ);
 	assert((1 << pclk_div) * PERI_PCLK_HZ ==
 		PERI_ACLK_HZ && pclk_div < 0x8);
 
 	rk_clrsetreg(&cru->cru_clksel_con[10],
-		     PERI_PLL_SEL_MASK << PERI_PLL_SEL_SHIFT |
-		     PERI_PCLK_DIV_MASK << PERI_PCLK_DIV_SHIFT |
-		     PERI_HCLK_DIV_MASK << PERI_HCLK_DIV_SHIFT |
-		     PERI_ACLK_DIV_MASK << PERI_ACLK_DIV_SHIFT,
+		     PERI_PLL_SEL_MASK | PERI_PCLK_DIV_MASK |
+		     PERI_HCLK_DIV_MASK | PERI_ACLK_DIV_MASK,
 		     PERI_PLL_GPLL << PERI_PLL_SEL_SHIFT |
 		     pclk_div << PERI_PCLK_DIV_SHIFT |
 		     hclk_div << PERI_HCLK_DIV_SHIFT |
@@ -171,8 +163,7 @@ static void rkclk_init(struct rk3036_cru *cru)
 
 	/* PLL enter normal-mode */
 	rk_clrsetreg(&cru->cru_mode_con,
-		     GPLL_MODE_MASK << GPLL_MODE_SHIFT |
-		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     GPLL_MODE_MASK | APLL_MODE_MASK,
 		     GPLL_MODE_NORM << GPLL_MODE_SHIFT |
 		     APLL_MODE_NORM << APLL_MODE_SHIFT);
 }
@@ -189,9 +180,9 @@ static uint32_t rkclk_pll_get_rate(struct rk3036_cru *cru,
 		0xff, APLL_MODE_SHIFT, DPLL_MODE_SHIFT, 0xff,
 		GPLL_MODE_SHIFT, 0xff
 	};
-	static u8 clk_mask[CLK_COUNT] = {
-		0xff, APLL_MODE_MASK, DPLL_MODE_MASK, 0xff,
-		GPLL_MODE_MASK, 0xff
+	static u32 clk_mask[CLK_COUNT] = {
+		0xffffffff, APLL_MODE_MASK, DPLL_MODE_MASK, 0xffffffff,
+		GPLL_MODE_MASK, 0xffffffff
 	};
 	uint shift;
 	uint mask;
@@ -200,18 +191,18 @@ static uint32_t rkclk_pll_get_rate(struct rk3036_cru *cru,
 	shift = clk_shift[clk_id];
 	mask = clk_mask[clk_id];
 
-	switch ((con >> shift) & mask) {
+	switch ((con & mask) >> shift) {
 	case GPLL_MODE_SLOW:
 		return OSC_HZ;
 	case GPLL_MODE_NORM:
 
 		/* normal mode */
 		con = readl(&pll->con0);
-		postdiv1 = (con >> PLL_POSTDIV1_SHIFT) & PLL_POSTDIV1_MASK;
-		fbdiv = (con >> PLL_FBDIV_SHIFT) & PLL_FBDIV_MASK;
+		postdiv1 = (con & PLL_POSTDIV1_MASK) >> PLL_POSTDIV1_SHIFT;
+		fbdiv = (con & PLL_FBDIV_MASK) >> PLL_FBDIV_SHIFT;
 		con = readl(&pll->con1);
-		postdiv2 = (con >> PLL_POSTDIV2_SHIFT) & PLL_POSTDIV2_MASK;
-		refdiv = (con >> PLL_REFDIV_SHIFT) & PLL_REFDIV_MASK;
+		postdiv2 = (con & PLL_POSTDIV2_MASK) >> PLL_POSTDIV2_SHIFT;
+		refdiv = (con & PLL_REFDIV_MASK) >> PLL_REFDIV_SHIFT;
 		return (24 * fbdiv / (refdiv * postdiv1 * postdiv2)) * 1000000;
 	case GPLL_MODE_DEEP:
 	default:
@@ -230,14 +221,14 @@ static ulong rockchip_mmc_get_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	case HCLK_EMMC:
 	case SCLK_EMMC:
 		con = readl(&cru->cru_clksel_con[12]);
-		mux = (con >> EMMC_PLL_SHIFT) & EMMC_PLL_MASK;
-		div = (con >> EMMC_DIV_SHIFT) & EMMC_DIV_MASK;
+		mux = (con & EMMC_PLL_MASK) >> EMMC_PLL_SHIFT;
+		div = (con & EMMC_DIV_MASK) >> EMMC_DIV_SHIFT;
 		break;
 	case HCLK_SDIO:
 	case SCLK_SDIO:
 		con = readl(&cru->cru_clksel_con[12]);
-		mux = (con >> MMC0_PLL_SHIFT) & MMC0_PLL_MASK;
-		div = (con >> MMC0_DIV_SHIFT) & MMC0_DIV_MASK;
+		mux = (con & MMC0_PLL_MASK) >> MMC0_PLL_SHIFT;
+		div = (con & MMC0_DIV_MASK) >> MMC0_DIV_SHIFT;
 		break;
 	default:
 		return -EINVAL;
@@ -269,16 +260,14 @@ static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	case HCLK_EMMC:
 	case SCLK_EMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
-			     EMMC_PLL_MASK << EMMC_PLL_SHIFT |
-			     EMMC_DIV_MASK << EMMC_DIV_SHIFT,
+			     EMMC_PLL_MASK | EMMC_DIV_MASK,
 			     mux << EMMC_PLL_SHIFT |
 			     (src_clk_div - 1) << EMMC_DIV_SHIFT);
 		break;
 	case HCLK_SDIO:
 	case SCLK_SDIO:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
-			     MMC0_PLL_MASK << MMC0_PLL_SHIFT |
-			     MMC0_DIV_MASK << MMC0_DIV_SHIFT,
+			     MMC0_PLL_MASK | MMC0_DIV_MASK,
 			     mux << MMC0_PLL_SHIFT |
 			     (src_clk_div - 1) << MMC0_DIV_SHIFT);
 		break;

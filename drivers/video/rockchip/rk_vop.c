@@ -17,24 +17,25 @@
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3288.h>
-#include <asm/arch/grf_rk3288.h>
 #include <asm/arch/edp_rk3288.h>
 #include <asm/arch/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <dt-bindings/clock/rk3288-cru.h>
 #include <power/regulator.h>
+#include "rk_vop.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct rk_vop_priv {
-	struct rk3288_vop *regs;
-	struct rk3288_grf *grf;
+enum vop_pol {
+	HSYNC_POSITIVE = 0,
+	VSYNC_POSITIVE = 1,
+	DEN_NEGATIVE   = 2,
+	DCLK_INVERT    = 3
 };
 
-void rkvop_enable(struct rk3288_vop *regs, ulong fbbase,
-		  int fb_bits_per_pixel, const struct display_timing *edid)
+static void rkvop_enable(struct rk3288_vop *regs, ulong fbbase,
+			 int fb_bits_per_pixel,
+			 const struct display_timing *edid)
 {
 	u32 lb_mode;
 	u32 rgb_mode;
@@ -89,9 +90,56 @@ void rkvop_enable(struct rk3288_vop *regs, ulong fbbase,
 	writel(0x01, &regs->reg_cfg_done); /* enable reg config */
 }
 
-void rkvop_mode_set(struct rk3288_vop *regs,
-		    const struct display_timing *edid, enum vop_modes mode)
+static void rkvop_set_pin_polarity(struct udevice *dev,
+				   enum vop_modes mode, u32 polarity)
 {
+	struct rkvop_driverdata *ops =
+		(struct rkvop_driverdata *)dev_get_driver_data(dev);
+
+	if (ops->set_pin_polarity)
+		ops->set_pin_polarity(dev, mode, polarity);
+}
+
+static void rkvop_enable_output(struct udevice *dev, enum vop_modes mode)
+{
+	struct rk_vop_priv *priv = dev_get_priv(dev);
+	struct rk3288_vop *regs = priv->regs;
+
+	switch (mode) {
+	case VOP_MODE_HDMI:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_HDMI_OUT_EN(1));
+		break;
+
+	case VOP_MODE_EDP:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_EDP_OUT_EN(1));
+		break;
+
+	case VOP_MODE_LVDS:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_RGB_OUT_EN(1));
+		break;
+
+	case VOP_MODE_MIPI:
+		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
+				V_MIPI_OUT_EN(1));
+		break;
+
+	default:
+		debug("%s: unsupported output mode %x\n", __func__, mode);
+	}
+}
+
+static void rkvop_mode_set(struct udevice *dev,
+			   const struct display_timing *edid,
+			   enum vop_modes mode)
+{
+	struct rk_vop_priv *priv = dev_get_priv(dev);
+	struct rk3288_vop *regs = priv->regs;
+	struct rkvop_driverdata *data =
+		(struct rkvop_driverdata *)dev_get_driver_data(dev);
+
 	u32 hactive = edid->hactive.typ;
 	u32 vactive = edid->vactive.typ;
 	u32 hsync_len = edid->hsync_len.typ;
@@ -100,43 +148,25 @@ void rkvop_mode_set(struct rk3288_vop *regs,
 	u32 vback_porch = edid->vback_porch.typ;
 	u32 hfront_porch = edid->hfront_porch.typ;
 	u32 vfront_porch = edid->vfront_porch.typ;
-	uint flags;
 	int mode_flags;
+	u32 pin_polarity;
 
-	switch (mode) {
-	case VOP_MODE_HDMI:
-		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
-				V_HDMI_OUT_EN(1));
-		break;
-	case VOP_MODE_EDP:
-	default:
-		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
-				V_EDP_OUT_EN(1));
-		break;
-	case VOP_MODE_LVDS:
-		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
-				V_RGB_OUT_EN(1));
-		break;
-	case VOP_MODE_MIPI:
-		clrsetbits_le32(&regs->sys_ctrl, M_ALL_OUT_EN,
-				V_MIPI_OUT_EN(1));
-		 break;
-	}
+	pin_polarity = BIT(DCLK_INVERT);
+	if (edid->flags & DISPLAY_FLAGS_HSYNC_HIGH)
+		pin_polarity |= BIT(HSYNC_POSITIVE);
+	if (edid->flags & DISPLAY_FLAGS_VSYNC_HIGH)
+		pin_polarity |= BIT(VSYNC_POSITIVE);
 
-	if (mode == VOP_MODE_HDMI || mode == VOP_MODE_EDP)
-		/* RGBaaa */
-		mode_flags = 15;
-	else
-		/* RGB888 */
-		mode_flags = 0;
+	rkvop_set_pin_polarity(dev, mode, pin_polarity);
+	rkvop_enable_output(dev, mode);
 
-	flags = V_DSP_OUT_MODE(mode_flags) |
-		V_DSP_HSYNC_POL(!!(edid->flags & DISPLAY_FLAGS_HSYNC_HIGH)) |
-		V_DSP_VSYNC_POL(!!(edid->flags & DISPLAY_FLAGS_VSYNC_HIGH));
+	mode_flags = 0;  /* RGB888 */
+	if ((data->features & VOP_FEATURE_OUTPUT_10BIT) &&
+	    (mode == VOP_MODE_HDMI || mode == VOP_MODE_EDP))
+		mode_flags = 15;  /* RGBaaa */
 
-	clrsetbits_le32(&regs->dsp_ctrl0,
-			M_DSP_OUT_MODE | M_DSP_VSYNC_POL | M_DSP_HSYNC_POL,
-			flags);
+	clrsetbits_le32(&regs->dsp_ctrl0, M_DSP_OUT_MODE,
+			V_DSP_OUT_MODE(mode_flags));
 
 	writel(V_HSYNC(hsync_len) |
 	       V_HORPRD(hsync_len + hback_porch + hactive + hfront_porch),
@@ -185,7 +215,7 @@ void rkvop_mode_set(struct rk3288_vop *regs,
  *		node within the VOP's 'port' list.
  * @return 0 if OK, -ve if something went wrong
  */
-int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
+static int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -255,18 +285,18 @@ int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
 	/* Set bitwidth for vop display according to vop mode */
 	switch (vop_id) {
 	case VOP_MODE_EDP:
-	case VOP_MODE_HDMI:
 	case VOP_MODE_LVDS:
 		l2bpp = VIDEO_BPP16;
 		break;
+	case VOP_MODE_HDMI:
 	case VOP_MODE_MIPI:
 		l2bpp = VIDEO_BPP32;
 		break;
 	default:
 		l2bpp = VIDEO_BPP16;
 	}
-	rkvop_mode_set(regs, &timing, vop_id);
 
+	rkvop_mode_set(dev, &timing, vop_id);
 	rkvop_enable(regs, fbbase, 1 << l2bpp, &timing);
 
 	ret = display_enable(disp, 1 << l2bpp, &timing);
@@ -281,52 +311,36 @@ int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
 	return 0;
 }
 
-static int rk_vop_probe(struct udevice *dev)
+void rk_vop_probe_regulators(struct udevice *dev,
+			     const char * const *names, int cnt)
+{
+	int i, ret;
+	const char *name;
+	struct udevice *reg;
+
+	for (i = 0; i < cnt; ++i) {
+		name = names[i];
+		debug("%s: probing regulator '%s'\n", dev->name, name);
+
+		ret = regulator_autoset_by_name(name, &reg);
+		if (!ret)
+			ret = regulator_set_enable(reg, true);
+	}
+}
+
+int rk_vop_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	const void *blob = gd->fdt_blob;
 	struct rk_vop_priv *priv = dev_get_priv(dev);
-	struct udevice *reg;
-	int ret, port, node;
+	int ret = 0;
+	int port, node;
 
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 
-	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->regs = (struct rk3288_vop *)devfdt_get_addr(dev);
-
-	/* lcdc(vop) iodomain select 1.8V */
-	rk_setreg(&priv->grf->io_vsel, 1 << 0);
-
-	/*
-	 * Try some common regulators. We should really get these from the
-	 * device tree somehow.
-	 */
-	ret = regulator_autoset_by_name("vcc18_lcd", &reg);
-	if (ret)
-		debug("%s: Cannot autoset regulator vcc18_lcd\n", __func__);
-	ret = regulator_autoset_by_name("VCC18_LCD", &reg);
-	if (ret)
-		debug("%s: Cannot autoset regulator VCC18_LCD\n", __func__);
-	ret = regulator_autoset_by_name("vdd10_lcd_pwren_h", &reg);
-	if (ret) {
-		debug("%s: Cannot autoset regulator vdd10_lcd_pwren_h\n",
-		      __func__);
-	}
-	ret = regulator_autoset_by_name("vdd10_lcd", &reg);
-	if (ret) {
-		debug("%s: Cannot autoset regulator vdd10_lcd\n",
-		      __func__);
-	}
-	ret = regulator_autoset_by_name("VDD10_LCD", &reg);
-	if (ret) {
-		debug("%s: Cannot autoset regulator VDD10_LCD\n",
-		      __func__);
-	}
-	ret = regulator_autoset_by_name("vcc33_lcd", &reg);
-	if (ret)
-		debug("%s: Cannot autoset regulator vcc33_lcd\n", __func__);
 
 	/*
 	 * Try all the ports until we find one that works. In practice this
@@ -353,31 +367,12 @@ static int rk_vop_probe(struct udevice *dev)
 	return ret;
 }
 
-static int rk_vop_bind(struct udevice *dev)
+int rk_vop_bind(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 
-	plat->size = 1920 * 1200 * 4;
+	plat->size = 4 * (CONFIG_VIDEO_ROCKCHIP_MAX_XRES *
+			  CONFIG_VIDEO_ROCKCHIP_MAX_YRES);
 
 	return 0;
 }
-
-static const struct video_ops rk_vop_ops = {
-};
-
-static const struct udevice_id rk_vop_ids[] = {
-	{ .compatible = "rockchip,rk3399-vop-big" },
-	{ .compatible = "rockchip,rk3399-vop-lit" },
-	{ .compatible = "rockchip,rk3288-vop" },
-	{ }
-};
-
-U_BOOT_DRIVER(rk_vop) = {
-	.name	= "rk_vop",
-	.id	= UCLASS_VIDEO,
-	.of_match = rk_vop_ids,
-	.ops	= &rk_vop_ops,
-	.bind	= rk_vop_bind,
-	.probe	= rk_vop_probe,
-	.priv_auto_alloc_size	= sizeof(struct rk_vop_priv),
-};

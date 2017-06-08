@@ -5,6 +5,7 @@
  *
  * Adapted from coreboot.
  */
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -19,6 +20,7 @@
 #include <asm/arch/grf_rk3399.h>
 #include <asm/arch/hardware.h>
 #include <linux/err.h>
+#include <time.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 struct chan_info {
@@ -506,6 +508,7 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	u32 tmp, tmp1, tmp2;
 	u32 pwrup_srefresh_exit;
 	int ret;
+	const ulong timeout_ms = 200;
 
 	/*
 	 * work around controller bug:
@@ -588,13 +591,15 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
 
 	/* Wating for PHY and DRAM init complete */
-	tmp = 0;
-	while (!(readl(&denali_ctl[203]) & (1 << 3))) {
-		mdelay(10);
-		tmp++;
-		if (tmp > 10)
+	tmp = get_timer(0);
+	do {
+		if (get_timer(tmp) > timeout_ms) {
+			error("DRAM (%s): phy failed to lock within  %ld ms\n",
+			      __func__, timeout_ms);
 			return -ETIME;
-	}
+		}
+	} while (!(readl(&denali_ctl[203]) & (1 << 3)));
+	debug("DRAM (%s): phy locked after %ld ms\n", __func__, get_timer(tmp));
 
 	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
 			pwrup_srefresh_exit);
@@ -1082,7 +1087,7 @@ static int sdram_init(struct dram_info *dram,
 
 	debug("Starting SDRAM initialization...\n");
 
-	if ((dramtype == DDR3 && ddr_freq > 800) ||
+	if ((dramtype == DDR3 && ddr_freq > 933) ||
 	    (dramtype == LPDDR3 && ddr_freq > 933) ||
 	    (dramtype == LPDDR4 && ddr_freq > 800)) {
 		debug("SDRAM frequency is to high!");

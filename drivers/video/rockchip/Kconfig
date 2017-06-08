@@ -12,11 +12,30 @@ menuconfig VIDEO_ROCKCHIP
 	bool "Enable Rockchip Video Support"
 	depends on DM_VIDEO
 	help
-		Rockchip SoCs provide video output capabilities for High-Definition
-		Multimedia Interface (HDMI), Low-voltage Differential Signalling
-		(LVDS), embedded DisplayPort (eDP) and Display Serial Interface
-		(DSI). This driver supports the on-chip video output device, and
-		targets the Rockchip RK3288 and RK3399.
+	  Rockchip SoCs provide video output capabilities for High-Definition
+	  Multimedia Interface (HDMI), Low-voltage Differential Signalling
+	  (LVDS), embedded DisplayPort (eDP) and Display Serial Interface (DSI).
+
+	  This driver supports the on-chip video output device, and targets the
+	  Rockchip RK3288 and RK3399.
+
+config VIDEO_ROCKCHIP_MAX_XRES
+        int "Maximum horizontal resolution (for memory allocation purposes)"
+	depends on VIDEO_ROCKCHIP
+	default 1920
+	help
+	  The maximum horizontal resolution to support for the framebuffer.
+	  This configuration is used for reserving/allocating memory for the
+	  framebuffer during device-model binding/probing.
+
+config VIDEO_ROCKCHIP_MAX_YRES
+        int "Maximum vertical resolution (for memory allocation purposes)"
+	depends on VIDEO_ROCKCHIP
+	default 1080
+	help
+	  The maximum vertical resolution to support for the framebuffer.
+	  This configuration is used for reserving/allocating memory for the
+	  framebuffer during device-model binding/probing.
 
 if VIDEO_ROCKCHIP
 

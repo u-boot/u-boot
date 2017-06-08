@@ -2,6 +2,8 @@
  * (C) Copyright 2015 Google,  Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
+ * (C) 2017 Theobroma Systems Design und Consulting GmbH
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  *
  * Helper functions for Rockchip images
@@ -75,6 +77,7 @@ static struct spl_info spl_infos[] = {
 	{ "rk3288", "RK32", 0x8000, false, false },
 	{ "rk3328", "RK32", 0x8000 - 0x1000, false, false },
 	{ "rk3399", "RK33", 0x20000, false, true },
+	{ "rv1108", "RK11", 0x1800, false, false},
 };
 
 static unsigned char rc4_key[16] = {
@@ -182,11 +185,14 @@ static void rkcommon_set_header0(void *buf, uint file_size,
 	 */
 	hdr->init_size = ROUND(hdr->init_size, 4);
 	/*
-	 * The images we create do not contain the stage following the SPL as
-	 * part of the SPL image, so the init_boot_size (which might have been
-	 * read by Rockchip's miniloder) should be the same as the init_size.
+	 * init_boot_size needs to be set, as it is read by the BootROM
+	 * to determine the size of the next-stage bootloader (e.g. U-Boot
+	 * proper), when used with the back-to-bootrom functionality.
+	 *
+	 * see https://lists.denx.de/pipermail/u-boot/2017-May/293267.html
+	 * for a more detailed explanation by Andy Yan
 	 */
-	hdr->init_boot_size = hdr->init_size;
+	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 }
@@ -201,7 +207,7 @@ int rkcommon_set_header(void *buf, uint file_size,
 
 	rkcommon_set_header0(buf, file_size, params);
 
-	/* Set up the SPL name */
+	/* Set up the SPL name (i.e. copy spl_hdr over) */
 	memcpy(&hdr->magic, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
@@ -209,6 +215,121 @@ int rkcommon_set_header(void *buf, uint file_size,
 					params->file_size - RK_SPL_HDR_START);
 
 	return 0;
+}
+
+static inline unsigned rkcommon_offset_to_spi(unsigned offset)
+{
+	/*
+	 * While SD/MMC images use a flat addressing, SPI images are padded
+	 * to use the first 2K of every 4K sector only.
+	 */
+	return ((offset & ~0x7ff) << 1) + (offset & 0x7ff);
+}
+
+static inline unsigned rkcommon_spi_to_offset(unsigned offset)
+{
+	return ((offset & ~0x7ff) >> 1) + (offset & 0x7ff);
+}
+
+static int rkcommon_parse_header(const void *buf, struct header0_info *header0,
+				 struct spl_info **spl_info)
+{
+	unsigned hdr1_offset;
+	struct header1_info *hdr1_sdmmc, *hdr1_spi;
+	int i;
+
+	if (spl_info)
+		*spl_info = NULL;
+
+	/*
+	 * The first header (hdr0) is always RC4 encoded, so try to decrypt
+	 * with the well-known key.
+	 */
+	memcpy((void *)header0, buf, sizeof(struct header0_info));
+	rc4_encode((void *)header0, sizeof(struct header0_info), rc4_key);
+
+	if (header0->signature != RK_SIGNATURE)
+		return -EPROTO;
+
+	/* We don't support RC4 encoded image payloads here, yet... */
+	if (header0->disable_rc4 == 0)
+		return -ENOSYS;
+
+	hdr1_offset = header0->init_offset * RK_BLK_SIZE;
+	hdr1_sdmmc = (struct header1_info *)(buf + hdr1_offset);
+	hdr1_spi = (struct header1_info *)(buf +
+					   rkcommon_offset_to_spi(hdr1_offset));
+
+	for (i = 0; i < ARRAY_SIZE(spl_infos); i++) {
+		if (!memcmp(&hdr1_sdmmc->magic, spl_infos[i].spl_hdr, 4)) {
+			if (spl_info)
+				*spl_info = &spl_infos[i];
+			return IH_TYPE_RKSD;
+		} else if (!memcmp(&hdr1_spi->magic, spl_infos[i].spl_hdr, 4)) {
+			if (spl_info)
+				*spl_info = &spl_infos[i];
+			return IH_TYPE_RKSPI;
+		}
+	}
+
+	return -1;
+}
+
+int rkcommon_verify_header(unsigned char *buf, int size,
+			   struct image_tool_params *params)
+{
+	struct header0_info header0;
+	struct spl_info *img_spl_info, *spl_info;
+	int ret;
+
+	ret = rkcommon_parse_header(buf, &header0, &img_spl_info);
+
+	/* If this is the (unimplemented) RC4 case, then rewrite the result */
+	if (ret == -ENOSYS)
+		return 0;
+
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * If no 'imagename' is specified via the commandline (e.g. if this is
+	 * 'dumpimage -l' w/o any further constraints), we accept any spl_info.
+	 */
+	if (params->imagename == NULL)
+		return 0;
+
+	/* Match the 'imagename' against the 'spl_hdr' found */
+	spl_info = rkcommon_get_spl_info(params->imagename);
+	if (spl_info && img_spl_info)
+		return strcmp(spl_info->spl_hdr, img_spl_info->spl_hdr);
+
+	return -ENOENT;
+}
+
+void rkcommon_print_header(const void *buf)
+{
+	struct header0_info header0;
+	struct spl_info *spl_info;
+	uint8_t image_type;
+	int ret;
+
+	ret = rkcommon_parse_header(buf, &header0, &spl_info);
+
+	/* If this is the (unimplemented) RC4 case, then fail silently */
+	if (ret == -ENOSYS)
+		return;
+
+	if (ret < 0) {
+		fprintf(stderr, "Error: image verification failed\n");
+		return;
+	}
+
+	image_type = ret;
+
+	printf("Image Type:   Rockchip %s (%s) boot image\n",
+	       spl_info->spl_hdr,
+	       (image_type == IH_TYPE_RKSD) ? "SD/MMC" : "SPI");
+	printf("Data Size:    %d bytes\n", header0.init_size * RK_BLK_SIZE);
 }
 
 void rkcommon_rc4_encode_spl(void *buf, unsigned int offset, unsigned int size)

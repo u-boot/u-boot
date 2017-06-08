@@ -11,10 +11,10 @@
 #include <malloc.h>
 #include <usb.h>
 #include <watchdog.h>
-#include <asm/gpio.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
+#include <power/regulator.h>
 
 #include "xhci.h"
 
@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct rockchip_xhci_platdata {
 	fdt_addr_t hcd_base;
 	fdt_addr_t phy_base;
-	struct gpio_desc vbus_gpio;
+	struct udevice *vbus_supply;
 };
 
 /*
@@ -66,11 +66,13 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 		return -ENXIO;
 	}
 
-	/* Vbus gpio */
-	ret = gpio_request_by_name(dev, "rockchip,vbus-gpio", 0,
-				   &plat->vbus_gpio, GPIOD_IS_OUT);
+#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
+	/* Vbus regulator */
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &plat->vbus_supply);
 	if (ret)
-		debug("rockchip,vbus-gpio node missing!");
+		debug("Can't get vbus supply\n");
+#endif
 
 	return 0;
 }
@@ -153,9 +155,11 @@ static int xhci_usb_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uint64_t)ctx->hcd +
 			HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
 
-	/* setup the Vbus gpio here */
-	if (dm_gpio_is_valid(&plat->vbus_gpio))
-		dm_gpio_set_value(&plat->vbus_gpio, 1);
+#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
+	ret = regulator_set_enable(plat->vbus_supply, true);
+	if (ret)
+		debug("XHCI: Failed to enable vbus supply\n");
+#endif
 
 	ret = rockchip_xhci_core_init(ctx, dev);
 	if (ret) {
@@ -168,6 +172,7 @@ static int xhci_usb_probe(struct udevice *dev)
 
 static int xhci_usb_remove(struct udevice *dev)
 {
+	struct rockchip_xhci_platdata *plat = dev_get_platdata(dev);
 	struct rockchip_xhci *ctx = dev_get_priv(dev);
 	int ret;
 
@@ -178,11 +183,18 @@ static int xhci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
+#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
+	ret = regulator_set_enable(plat->vbus_supply, false);
+	if (ret)
+		debug("XHCI: Failed to disable vbus supply\n");
+#endif
+
 	return 0;
 }
 
 static const struct udevice_id xhci_usb_ids[] = {
 	{ .compatible = "rockchip,rk3399-xhci" },
+	{ .compatible = "rockchip,rk3328-xhci" },
 	{ }
 };
 
@@ -202,6 +214,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 
 static const struct udevice_id usb_phy_ids[] = {
 	{ .compatible = "rockchip,rk3399-usb3-phy" },
+	{ .compatible = "rockchip,rk3328-usb3-phy" },
 	{ }
 };
 

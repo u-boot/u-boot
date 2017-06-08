@@ -43,3 +43,16 @@
 	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8>;
 	status = "okay";
 };
+
+&usb_host0_ehci {
+	status = "okay";
+};
+
+&usb_host0_ohci {
+	status = "okay";
+};
+
+&usb_host0_xhci {
+	rockchip,vbus-gpio = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};

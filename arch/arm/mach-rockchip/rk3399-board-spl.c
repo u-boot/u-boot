@@ -156,8 +156,6 @@ void secure_timer_init(void)
 	writel(TIMER_EN | TIMER_FMODE, TIMER_CHN10_BASE + TIMER_CONTROL_REG);
 }
 
-#define SGRF_DDR_RGN_CON16 0xff330040
-
 void board_debug_uart_init(void)
 {
 #include <asm/arch/grf_rk3399.h>
@@ -188,6 +186,8 @@ void board_debug_uart_init(void)
 }
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
+#define SGRF_DDR_RGN_CON16 0xff330040
+#define SGRF_SLV_SECURE_CON4 0xff33e3d0
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -207,6 +207,7 @@ void board_init_f(ulong dummy)
 	debug_uart_init();
 	printascii("U-Boot SPL board init");
 #endif
+
 	/*  Emmc clock generator: disable the clock multipilier */
 	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
 
@@ -217,7 +218,7 @@ void board_init_f(ulong dummy)
 	}
 
 	/*
-	 * Disable DDR security regions.
+	 * Disable DDR and SRAM security regions.
 	 *
 	 * As we are entered from the BootROM, the region from
 	 * 0x0 through 0xfffff (i.e. the first MB of memory) will
@@ -226,6 +227,7 @@ void board_init_f(ulong dummy)
 	 * located in this range.
 	 */
 	rk_clrsetreg(SGRF_DDR_RGN_CON16, 0x1FF, 0);
+	rk_clrreg(SGRF_SLV_SECURE_CON4, 0x2000);
 
 	secure_timer_init();
 

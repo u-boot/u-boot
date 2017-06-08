@@ -41,9 +41,15 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-veyron-mickey.dtb \
 	rk3288-veyron-minnie.dtb \
 	rk3328-evb.dtb \
+	rk3368-sheep.dtb \
+	rk3368-geekbox.dtb \
+	rk3368-px5-evb.dtb \
 	rk3399-evb.dtb \
 	rk3399-firefly.dtb \
-	rk3399-puma.dtb
+	rk3399-puma-ddr1333.dtb \
+	rk3399-puma-ddr1600.dtb \
+	rk3399-puma-ddr1866.dtb \
+	rv1108-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-odroidc2.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \

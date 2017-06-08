@@ -10,6 +10,7 @@
 
 enum {
 	RK_BLK_SIZE		= 512,
+	RK_INIT_SIZE_ALIGN      = 2048,
 	RK_INIT_OFFSET		= 4,
 	RK_MAX_BOOT_SIZE	= 512 << 10,
 	RK_SPL_HDR_START	= RK_INIT_OFFSET * RK_BLK_SIZE,
@@ -54,6 +55,25 @@ int rkcommon_get_spl_size(struct image_tool_params *params);
  */
 int rkcommon_set_header(void *buf, uint file_size,
 			struct image_tool_params *params);
+
+/**
+ * rkcommon_verify_header() - verify the header for a Rockchip boot image
+ *
+ * @buf:	Pointer to the image file
+ * @file_size:	Size of entire bootable image file (incl. all padding)
+ * @return 0 if OK
+ */
+int rkcommon_verify_header(unsigned char *buf, int size,
+			   struct image_tool_params *params);
+
+/**
+ * rkcommon_print_header() - print the header for a Rockchip boot image
+ *
+ * This prints the header, spl_name and whether this is a SD/MMC or SPI image.
+ *
+ * @buf:	Pointer to the image (can be a read-only file-mapping)
+ */
+void rkcommon_print_header(const void *buf);
 
 /**
  * rkcommon_need_rc4_spl() - check if rc4 encoded spl is required
