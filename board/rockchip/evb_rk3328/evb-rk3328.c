@@ -7,13 +7,20 @@
 #include <common.h>
 #include <asm/armv8/mmu.h>
 #include <dwc3-uboot.h>
+#include <power/regulator.h>
 #include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	return 0;
+	int ret;
+
+	ret = regulators_enable_boot_on(false);
+	if (ret)
+		debug("%s: Cannot enable boot on regulator\n", __func__);
+
+	return ret;
 }
 
 #if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
