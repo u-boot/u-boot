@@ -22,16 +22,6 @@ __weak void arm_init_domains(void)
 {
 }
 
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++)
-		nop();
-	asm volatile("" : : : "memory");
-}
-
 void set_section_dcache(int section, enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
@@ -205,7 +195,6 @@ static inline void mmu_setup(void)
 
 	/* and enable the mmu */
 	reg = get_cr();	/* get control reg. */
-	cp_delay();
 	set_cr(reg | CR_M);
 }
 
@@ -223,7 +212,6 @@ static void cache_enable(uint32_t cache_bit)
 	if ((cache_bit == CR_C) && !mmu_enabled())
 		mmu_setup();
 	reg = get_cr();	/* get control reg. */
-	cp_delay();
 	set_cr(reg | cache_bit);
 }
 
@@ -233,7 +221,6 @@ static void cache_disable(uint32_t cache_bit)
 	uint32_t reg;
 
 	reg = get_cr();
-	cp_delay();
 
 	if (cache_bit == CR_C) {
 		/* if cache isn;t enabled no need to disable */
@@ -243,7 +230,7 @@ static void cache_disable(uint32_t cache_bit)
 		cache_bit |= CR_M;
 	}
 	reg = get_cr();
-	cp_delay();
+
 	if (cache_bit == (CR_C | CR_M))
 		flush_dcache_all();
 	set_cr(reg & ~cache_bit);
