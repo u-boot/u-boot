@@ -64,6 +64,8 @@ static int bcm6345_gpio_direction_output(struct udevice *dev, unsigned offset,
 {
 	struct bcm6345_gpio_priv *priv = dev_get_priv(dev);
 
+	bcm6345_gpio_set_value(dev, offset, value);
+
 	return bcm6345_gpio_set_direction(priv->reg_dirout, offset, 0);
 }
 
