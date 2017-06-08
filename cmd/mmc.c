@@ -253,7 +253,11 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 	/* Switch to the RPMB partition */
+#ifndef CONFIG_BLK
 	original_part = mmc->block_dev.hwpart;
+#else
+	original_part = mmc_get_blk_desc(mmc)->hwpart;
+#endif
 	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
 	    0)
 		return CMD_RET_FAILURE;
