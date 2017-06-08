@@ -43,6 +43,7 @@ struct dwc2_priv {
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 	bool ext_vbus;
+	bool hnp_srp_disable;
 	bool oc_disable;
 };
 
@@ -394,6 +395,9 @@ static void dwc_otg_core_init(struct dwc2_priv *priv)
 		usbcfg |= DWC2_GUSBCFG_ULPI_CLK_SUS_M;
 	}
 #endif
+	if (priv->hnp_srp_disable)
+		usbcfg |= DWC2_GUSBCFG_FORCEHOSTMODE;
+
 	writel(usbcfg, &regs->gusbcfg);
 
 	/* Program the GAHBCFG Register. */
@@ -422,12 +426,16 @@ static void dwc_otg_core_init(struct dwc2_priv *priv)
 
 	writel(ahbcfg, &regs->gahbcfg);
 
-	/* Program the GUSBCFG register for HNP/SRP. */
-	setbits_le32(&regs->gusbcfg, DWC2_GUSBCFG_HNPCAP | DWC2_GUSBCFG_SRPCAP);
+	/* Program the capabilities in GUSBCFG Register */
+	usbcfg = 0;
 
+	if (!priv->hnp_srp_disable)
+		usbcfg |= DWC2_GUSBCFG_HNPCAP | DWC2_GUSBCFG_SRPCAP;
 #ifdef CONFIG_DWC2_IC_USB_CAP
-	setbits_le32(&regs->gusbcfg, DWC2_GUSBCFG_IC_USB_CAP);
+	usbcfg |= DWC2_GUSBCFG_IC_USB_CAP;
 #endif
+
+	setbits_le32(&regs->gusbcfg, usbcfg);
 }
 
 /*
@@ -1243,6 +1251,11 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 			   "disable-over-current", NULL);
 	if (prop)
 		priv->oc_disable = true;
+
+	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
+			   "hnp-srp-disable", NULL);
+	if (prop)
+		priv->hnp_srp_disable = true;
 
 	return 0;
 }
