@@ -1556,7 +1556,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	int err = 1;
 	char tmp_parts[MTDPARTS_MAXLEN];
 
-	debug("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
+	debug("\n---parse_mtdparts---\nmtdparts = %s\n\n", mtdparts);
 
 	/* delete all devices and partitions */
 	if (mtd_devices_init() != 0) {
