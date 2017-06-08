@@ -184,13 +184,11 @@ static void pinctrl_rk3328_sdmmc_config(struct rk3328_grf_regs *grf,
 		if (com_iomux & IOMUX_SEL_SDMMC_MASK)
 			rk_clrsetreg(&grf->gpio0d_iomux,
 				     GPIO0D6_SEL_MASK,
-				     GPIO0D6_SDMMC0_PWRENM1
-				     << GPIO0D6_SEL_SHIFT);
+				     GPIO0D6_GPIO << GPIO0D6_SEL_SHIFT);
 		else
 			rk_clrsetreg(&grf->gpio2a_iomux,
 				     GPIO2A7_SEL_MASK,
-				     GPIO2A7_SDMMC0_PWRENM0
-				     << GPIO2A7_SEL_SHIFT);
+				     GPIO2A7_GPIO << GPIO2A7_SEL_SHIFT);
 		rk_clrsetreg(&grf->gpio1a_iomux,
 			     GPIO1A0_SEL_MASK,
 			     GPIO1A0_CARD_DATA_CLK_CMD_DETN
