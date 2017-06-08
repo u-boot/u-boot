@@ -93,10 +93,18 @@ void show_regs (struct pt_regs *regs)
 		thumb_mode (regs) ? " (T)" : "");
 }
 
+/* fixup PC to point to the instruction leading to the exception */
+static inline void fixup_pc(struct pt_regs *regs, int offset)
+{
+	uint32_t pc = instruction_pointer(regs) + offset;
+	regs->ARM_pc = pc | (regs->ARM_pc & PCMASK);
+}
+
 void do_undefined_instruction (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("undefined instruction\n");
+	fixup_pc(pt_regs, -4);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -105,6 +113,7 @@ void do_software_interrupt (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("software interrupt\n");
+	fixup_pc(pt_regs, -4);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -113,6 +122,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("prefetch abort\n");
+	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -121,6 +131,7 @@ void do_data_abort (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("data abort\n");
+	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -129,6 +140,7 @@ void do_not_used (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("not used\n");
+	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -137,6 +149,7 @@ void do_fiq (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("fast interrupt request\n");
+	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
 	bad_mode ();
 }
@@ -145,6 +158,7 @@ void do_irq (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
 	printf ("interrupt request\n");
+	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
 	bad_mode ();
 }
