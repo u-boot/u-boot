@@ -15,6 +15,14 @@
 		stdout-path = &uart2;
 	};
 
+	vcc3v3_sdmmc: sdmmc-pwren {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		gpio = <&gpio0 30 GPIO_ACTIVE_LOW>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
 	vcc5v0_otg: vcc5v0-otg-drv {
 		compatible = "regulator-fixed";
 		enable-active-high;
