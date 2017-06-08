@@ -23,8 +23,9 @@ struct stm32_usart {
 };
 
 
-#define USART_CR1_RE			(1 << 2)
+#define USART_CR1_OVER8			(1 << 15)
 #define USART_CR1_TE			(1 << 3)
+#define USART_CR1_RE			(1 << 2)
 #define USART_CR1_UE			(1 << 0)
 
 #define USART_CR3_OVRDIS		(1 << 12)
