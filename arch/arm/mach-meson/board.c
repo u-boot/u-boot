@@ -37,9 +37,11 @@ int dram_init(void)
 int dram_init_banksize(void)
 {
 	/* Reserve first 16 MiB of RAM for firmware */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE + (16 * 1024 * 1024);
-	gd->bd->bi_dram[0].size = gd->ram_size - (16 * 1024 * 1024);
-
+	gd->bd->bi_dram[0].start = 0x1000000;
+	gd->bd->bi_dram[0].size  = 0xf000000;
+	/* Reserve 2 MiB for ARM Trusted Firmware (BL31) */
+	gd->bd->bi_dram[1].start = 0x10000000;
+	gd->bd->bi_dram[1].size  = gd->ram_size - 0x10200000;
 	return 0;
 }
 
