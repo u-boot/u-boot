@@ -548,7 +548,11 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 const struct boot_mode soc_boot_modes[] = {
 	{"normal",	MAKE_CFGVAL(0x00, 0x00, 0x00, 0x00)},
 	/* reserved value should start rom usb */
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+	{"usb",		MAKE_CFGVAL(0x20, 0x00, 0x00, 0x00)},
+#else
 	{"usb",		MAKE_CFGVAL(0x10, 0x00, 0x00, 0x00)},
+#endif
 	{"sata",	MAKE_CFGVAL(0x20, 0x00, 0x00, 0x00)},
 	{"ecspi1:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x08)},
 	{"ecspi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
