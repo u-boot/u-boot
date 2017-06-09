@@ -226,11 +226,6 @@ static inline unsigned rkcommon_offset_to_spi(unsigned offset)
 	return ((offset & ~0x7ff) << 1) + (offset & 0x7ff);
 }
 
-static inline unsigned rkcommon_spi_to_offset(unsigned offset)
-{
-	return ((offset & ~0x7ff) >> 1) + (offset & 0x7ff);
-}
-
 static int rkcommon_parse_header(const void *buf, struct header0_info *header0,
 				 struct spl_info **spl_info)
 {
