@@ -13,9 +13,38 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum pca_type {
+	PCA9544,
+	PCA9547,
+	PCA9548
+};
+
+struct chip_desc {
+	u8 enable;
+	enum muxtype {
+		pca954x_ismux = 0,
+		pca954x_isswi,
+	} muxtype;
+};
+
 struct pca954x_priv {
 	u32 addr; /* I2C mux address */
 	u32 width; /* I2C mux width - number of busses */
+};
+
+static const struct chip_desc chips[] = {
+	[PCA9544] = {
+		.enable = 0x4,
+		.muxtype = pca954x_ismux,
+	},
+	[PCA9547] = {
+		.enable = 0x8,
+		.muxtype = pca954x_ismux,
+	},
+	[PCA9548] = {
+		.enable = 0x8,
+		.muxtype = pca954x_isswi,
+	},
 };
 
 static int pca954x_deselect(struct udevice *mux, struct udevice *bus,
@@ -31,7 +60,13 @@ static int pca954x_select(struct udevice *mux, struct udevice *bus,
 			  uint channel)
 {
 	struct pca954x_priv *priv = dev_get_priv(mux);
-	uchar byte = 1 << channel;
+	const struct chip_desc *chip = &chips[dev_get_driver_data(mux)];
+	uchar byte;
+
+	if (chip->muxtype == pca954x_ismux)
+		byte = channel | chip->enable;
+	else
+		byte = 1 << channel;
 
 	return dm_i2c_write(mux, priv->addr, &byte, 1);
 }
@@ -42,8 +77,9 @@ static const struct i2c_mux_ops pca954x_ops = {
 };
 
 static const struct udevice_id pca954x_ids[] = {
-	{ .compatible = "nxp,pca9548", .data = (ulong)8 },
-	{ .compatible = "nxp,pca9544", .data = (ulong)4 },
+	{ .compatible = "nxp,pca9544", .data = PCA9544 },
+	{ .compatible = "nxp,pca9547", .data = PCA9547 },
+	{ .compatible = "nxp,pca9548", .data = PCA9548 },
 	{ }
 };
 
