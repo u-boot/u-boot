@@ -257,31 +257,17 @@ int board_early_init_f(void)
 
 int misc_init_r(void)
 {
-#ifdef CONFIG_FSL_QIXIS
 	/*
-	 * LS2081ARDB has smart voltage translator which needs
-	 * to be programmed as below
-	 */
-#ifndef CONFIG_TARGET_LS2081ARDB
-	u8 sw;
-
-	sw = QIXIS_READ(arch);
-	/*
-	 * LS2080ARDB/LS2088ARDB RevF board has smart voltage translator
+	 * LS2081ARDB RevF board has smart voltage translator
 	 * which needs to be programmed to enable high speed SD interface
 	 * by setting GPIO4_10 output to zero
 	 */
-	if ((sw & 0xf) == 0x5) {
-#endif
+#ifdef CONFIG_TARGET_LS2081ARDB
 		out_le32(GPIO4_GPDIR_ADDR, (1 << 21 |
 					    in_le32(GPIO4_GPDIR_ADDR)));
 		out_le32(GPIO4_GPDAT_ADDR, (~(1 << 21) &
 					    in_le32(GPIO4_GPDAT_ADDR)));
-#ifndef CONFIG_TARGET_LS2081ARDB
-	}
 #endif
-#endif
-
 	if (hwconfig("sdhc"))
 		config_board_mux(MUX_TYPE_SDHC);
 
