@@ -13,6 +13,7 @@
 #define __CONFIG_AM57XX_EVM_H
 
 #include <environment/ti/dfu.h>
+#include <linux/sizes.h>
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_IODELAY_RECALIBRATION
@@ -20,11 +21,14 @@
 
 #define CONFIG_NR_DRAM_BANKS		2
 
-#define CONFIG_ENV_SIZE			(64 << 10)
-#define CONFIG_ENV_IS_IN_FAT
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_DEVICE_AND_PART		"0:1"
-#define FAT_ENV_FILE			"uboot.env"
+/* MMC ENV related defines */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		1		/* eMMC */
+#define CONFIG_SYS_MMC_ENV_PART		0
+#define CONFIG_ENV_SIZE			SZ_128K
+#define CONFIG_ENV_OFFSET		0x260000
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONSOLEDEV			"ttyO2"
 #define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
