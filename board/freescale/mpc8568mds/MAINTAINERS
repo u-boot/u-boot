@@ -1,5 +1,5 @@
 MPC8568MDS BOARD
-#M:	-
+M:	York Sun <york.sun@nxp.com>
 S:	Maintained
 F:	board/freescale/mpc8568mds/
 F:	include/configs/MPC8568MDS.h
