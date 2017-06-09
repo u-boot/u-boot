@@ -26,7 +26,6 @@ config AM33XX_CHILISOM
 
 choice
 	prompt "AM33xx board select"
-	optional
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
@@ -104,6 +103,14 @@ config TARGET_BAV335X
 
 	  For more information, visit: http://birdland.com/oem
 
+config TARGET_BRXRE1
+	bool "Support BRXRE1"
+	select BOARD_LATE_INIT
+
+config TARGET_BRPPT1
+	bool "Support BRPPT1"
+	select BOARD_LATE_INIT
+
 config TARGET_CHILIBOARD
 	bool "Grinn chiliBoard"
 	select AM33XX_CHILISOM
@@ -113,6 +120,20 @@ config TARGET_CHILIBOARD
 
 config TARGET_CM_T335
 	bool "Support cm_t335"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_DRACO
+	bool "Support draco"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_ETAMIN
+	bool "Support etamin"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -135,11 +156,42 @@ config TARGET_PEPPER
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_PXM2
+	bool "Support pxm2"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RASTABAN
+	bool "Support rastaban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RUT
+	bool "Support rut"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_THUBAN
+	bool "Support thuban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 endchoice
 
 endif
 
 if AM43XX
+
+choice
+	prompt "AM43xx board select"
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
@@ -171,6 +223,12 @@ config TARGET_AM43XX_EVM
 	  evaluation module system that enables developers
 	  to write software and develop hardware around
 	  an AM43xx processor subsystem.
+
+config TARGET_CM_T43
+	bool "Support cm_t43"
+
+endchoice
+
 endif
 
 if AM43XX || AM33XX

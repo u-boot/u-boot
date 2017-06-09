@@ -2,57 +2,7 @@ if ARCH_OMAP2PLUS
 
 choice
 	prompt "OMAP2+ platform select"
-	default TARGET_BRXRE1
-
-config TARGET_BRXRE1
-	bool "Support BRXRE1"
-	select BOARD_LATE_INIT
-
-config TARGET_BRPPT1
-	bool "Support BRPPT1"
-	select BOARD_LATE_INIT
-
-config TARGET_DRACO
-	bool "Support draco"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_THUBAN
-	bool "Support thuban"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RASTABAN
-	bool "Support rastaban"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_ETAMIN
-	bool "Support etamin"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_PXM2
-	bool "Support pxm2"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
-config TARGET_RUT
-	bool "Support rut"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
+	default OMAP34XX
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
@@ -150,9 +100,6 @@ config AM33XX
 	  ARM core, a dual core PRU-ICSS for industrial Ethernet
 	  protocols, optional 3D graphics and an optional customer
 	  programmable secure boot.
-
-config TARGET_CM_T43
-	bool "Support cm_t43"
 
 endchoice
 

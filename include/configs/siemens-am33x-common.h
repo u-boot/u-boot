@@ -14,8 +14,6 @@
 #ifndef __CONFIG_SIEMENS_AM33X_COMMON_H
 #define __CONFIG_SIEMENS_AM33X_COMMON_H
 
-#define CONFIG_AM33XX
-
 #include <asm/arch/omap.h>
 
 #define CONFIG_DMA_COHERENT
