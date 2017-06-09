@@ -340,8 +340,8 @@ T:	git git://git.denx.de/u-boot-mpc82xx.git
 F:	arch/powerpc/cpu/mpc82*/
 
 POWERPC MPC83XX
-#M:	Kim Phillips <kim.phillips@freescale.com>
-S:	Orphaned (Since 2016-02)
+M:	Mario Six <mario.six@gdsys.cc>
+S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc83xx.git
 F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
