@@ -20,6 +20,14 @@ config ALTERA_SYSID
 	  Select this to enable a sysid for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config ATSHA204A
+	bool "Support for Atmel ATSHA204A module"
+	depends on MISC
+	help
+	   Enable support for I2C connected Atmel's ATSHA204A
+	   CryptoAuthentication module found for example on the Turris Omnia
+	   board.
+
 config ROCKCHIP_EFUSE
         bool "Rockchip e-fuse support"
 	depends on MISC
