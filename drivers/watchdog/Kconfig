@@ -62,4 +62,11 @@ config WDT_BCM6345
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
 
+config WDT_ORION
+	bool "Orion watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Orion watchdog timer, which can be found on some
+	   Marvell Armada chips.
+
 endmenu
