@@ -377,6 +377,13 @@ int blk_find_max_devnum(enum if_type if_type);
  */
 int blk_select_hwpart(struct udevice *dev, int hwpart);
 
+/**
+ * blk_get_from_parent() - obtain a block device by looking up its parent
+ *
+ * All devices with
+ */
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
+
 #else
 #include <errno.h>
 /*
@@ -615,12 +622,5 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
  * @return 0 if OK, -ve on error
  */
 int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
-
-/**
- * blk_get_from_parent() - obtain a block device by looking up its parent
- *
- * All devices with
- */
-int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 
 #endif
