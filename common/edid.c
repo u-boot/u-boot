@@ -295,7 +295,7 @@ static void edid_print_dtd(struct edid_monitor_descriptor *monitor,
 
 		h_total = h_active + h_blanking;
 		v_total = v_active + v_blanking;
-		if (v_total * h_total)
+		if (v_total > 0 && h_total > 0)
 			vfreq = pixclock / (v_total * h_total);
 		else
 			vfreq = 1; /* Error case */

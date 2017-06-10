@@ -90,6 +90,23 @@ struct de_ui {
 	u32 ovl_size;
 };
 
+struct de_csc {
+	u32 csc_ctl;
+	u8 res[0xc];
+	u32 coef11;
+	u32 coef12;
+	u32 coef13;
+	u32 coef14;
+	u32 coef21;
+	u32 coef22;
+	u32 coef23;
+	u32 coef24;
+	u32 coef31;
+	u32 coef32;
+	u32 coef33;
+	u32 coef34;
+};
+
 /*
  * DE register constants.
  */
