@@ -146,8 +146,10 @@ int regulator_get_by_platname(const char *plat_name, struct udevice **devp)
 
 	for (ret = uclass_find_first_device(UCLASS_REGULATOR, &dev); dev;
 	     ret = uclass_find_next_device(&dev)) {
-		if (ret)
+		if (ret) {
+			debug("regulator %s, ret=%d\n", dev->name, ret);
 			continue;
+		}
 
 		uc_pdata = dev_get_uclass_platdata(dev);
 		if (!uc_pdata || strcmp(plat_name, uc_pdata->name))
@@ -156,7 +158,7 @@ int regulator_get_by_platname(const char *plat_name, struct udevice **devp)
 		return uclass_get_device_tail(dev, 0, devp);
 	}
 
-	debug("%s: can't find: %s\n", __func__, plat_name);
+	debug("%s: can't find: %s, ret=%d\n", __func__, plat_name, ret);
 
 	return -ENODEV;
 }
@@ -219,7 +221,7 @@ int regulator_autoset_by_name(const char *platname, struct udevice **devp)
 	if (devp)
 		*devp = dev;
 	if (ret) {
-		debug("Can get the regulator: %s!", platname);
+		debug("Can get the regulator: %s (err=%d)\n", platname, ret);
 		return ret;
 	}
 

@@ -38,7 +38,8 @@ reset:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+		!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 	bl	cpu_init_crit
 #endif
 
@@ -62,7 +63,8 @@ c_runtime_cpu_setup:
  *************************************************************************
  */
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+		!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 cpu_init_crit:
 
 	mov	ip, lr

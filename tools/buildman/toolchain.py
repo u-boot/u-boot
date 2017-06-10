@@ -144,7 +144,9 @@ class Toolchain:
         """Returns an environment for using the toolchain.
 
         Thie takes the current environment and adds CROSS_COMPILE so that
-        the tool chain will operate correctly.
+        the tool chain will operate correctly. This also disables localized
+        output and possibly unicode encoded output of all build tools by
+        adding LC_ALL=C.
 
         Args:
             full_path: Return the full path in CROSS_COMPILE and don't set
@@ -158,6 +160,8 @@ class Toolchain:
         else:
             env['CROSS_COMPILE'] = wrapper + self.cross
             env['PATH'] = self.path + ':' + env['PATH']
+
+        env['LC_ALL'] = 'C'
 
         return env
 

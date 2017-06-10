@@ -86,8 +86,10 @@ static int veyron_init(void)
 	int ret;
 
 	ret = regulator_get_by_platname("vdd_arm", &dev);
-	if (ret)
+	if (ret) {
+		debug("Cannot set regulator name\n");
 		return ret;
+	}
 
 	/* Slowly raise to max CPU voltage to prevent overshoot */
 	ret = regulator_set_value(dev, 1200000);
@@ -307,3 +309,38 @@ U_BOOT_CMD(
 	"display information about clocks",
 	""
 );
+
+#define GRF_SOC_CON2 0xff77024c
+
+int board_early_init_f(void)
+{
+	struct udevice *pinctrl;
+	struct udevice *dev;
+	int ret;
+
+	/*
+	 * This init is done in SPL, but when chain-loading U-Boot SPL will
+	 * have been skipped. Allow the clock driver to check if it needs
+	 * setting up.
+	 */
+	ret = rockchip_get_clk(&dev);
+	if (ret) {
+		debug("CLK init failed: %d\n", ret);
+		return ret;
+	}
+	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
+	if (ret) {
+		debug("%s: Cannot find pinctrl device\n", __func__);
+		return ret;
+	}
+
+	/* Enable debug UART */
+	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
+	if (ret) {
+		debug("%s: Failed to set up console UART\n", __func__);
+		return ret;
+	}
+	rk_setreg(GRF_SOC_CON2, 1 << 0);
+
+	return 0;
+}

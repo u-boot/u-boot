@@ -1004,7 +1004,20 @@ static int rk_edp_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-int rk_edp_probe(struct udevice *dev)
+static int rk_edp_remove(struct udevice *dev)
+{
+	struct rk_edp_priv *priv = dev_get_priv(dev);
+	struct rk3288_edp *regs = priv->regs;
+
+	setbits_le32(&regs->video_ctl_1, VIDEO_MUTE);
+	clrbits_le32(&regs->video_ctl_1, VIDEO_EN);
+	clrbits_le32(&regs->sys_ctl_3, F_HPD | HPD_CTRL);
+	setbits_le32(&regs->func_en_1, SW_FUNC_EN_N);
+
+	return 0;
+}
+
+static int rk_edp_probe(struct udevice *dev)
 {
 	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
 	struct rk_edp_priv *priv = dev_get_priv(dev);
@@ -1080,5 +1093,6 @@ U_BOOT_DRIVER(dp_rockchip) = {
 	.ops	= &dp_rockchip_ops,
 	.ofdata_to_platdata	= rk_edp_ofdata_to_platdata,
 	.probe	= rk_edp_probe,
+	.remove	= rk_edp_remove,
 	.priv_auto_alloc_size	= sizeof(struct rk_edp_priv),
 };

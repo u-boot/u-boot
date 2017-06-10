@@ -891,6 +891,24 @@ void clock_early_init(void)
 	udelay(2);
 }
 
+/*
+ * clock_early_init_done - Check if clock_early_init() has been called
+ *
+ * Check a register that we set up to see if clock_early_init() has already
+ * been called.
+ *
+ * @return true if clock_early_init() was called, false if not
+ */
+bool clock_early_init_done(void)
+{
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 val;
+
+	val = readl(&clkrst->crc_sclk_brst_pol);
+
+	return val == 0x20002222;
+}
+
 void arch_timer_init(void)
 {
 	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;

@@ -129,7 +129,7 @@ static inline void mmu_setup(void)
 		dram_bank_mmu_setup(i);
 	}
 
-#ifdef CONFIG_ARMV7_LPAE
+#if defined(CONFIG_ARMV7_LPAE) && __LINUX_ARM_ARCH__ != 4
 	/* Set up 4 PTE entries pointing to our 4 1GB page tables */
 	for (i = 0; i < 4; i++) {
 		u64 *page_table = (u64 *)(gd->arch.tlb_addr + (4096 * 4));
@@ -147,7 +147,7 @@ static inline void mmu_setup(void)
 #endif
 
 	if (is_hyp()) {
-		/* Set HCTR to enable LPAE */
+		/* Set HTCR to enable LPAE */
 		asm volatile("mcr p15, 4, %0, c2, c0, 2"
 			: : "r" (reg) : "memory");
 		/* Set HTTBR0 */
@@ -172,6 +172,15 @@ static inline void mmu_setup(void)
 			: : "r" (MEMORY_ATTRIBUTES) : "memory");
 	}
 #elif defined(CONFIG_CPU_V7)
+	if (is_hyp()) {
+		/* Set HTCR to disable LPAE */
+		asm volatile("mcr p15, 4, %0, c2, c0, 2"
+			: : "r" (0) : "memory");
+	} else {
+		/* Set TTBCR to disable LPAE */
+		asm volatile("mcr p15, 0, %0, c2, c0, 2"
+			: : "r" (0) : "memory");
+	}
 	/* Set TTBR0 */
 	reg = gd->arch.tlb_addr & TTBR0_BASE_ADDR_MASK;
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)

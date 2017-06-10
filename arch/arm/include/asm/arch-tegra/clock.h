@@ -288,6 +288,9 @@ void clock_init(void);
 /* Initialize the PLLs */
 void clock_early_init(void);
 
+/* @return true if hardware indicates that clock_early_init() was called */
+bool clock_early_init_done(void);
+
 /* Returns a pointer to the clock source register for a peripheral */
 u32 *get_periph_source_reg(enum periph_id periph_id);
 

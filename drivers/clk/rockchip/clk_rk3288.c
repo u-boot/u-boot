@@ -59,14 +59,14 @@ enum {
 	PLL_RESET_SHIFT		= 5,
 
 	/* CLKSEL0 */
-	CORE_SEL_PLL_MASK	= 1,
 	CORE_SEL_PLL_SHIFT	= 15,
-	A17_DIV_MASK		= 0x1f,
+	CORE_SEL_PLL_MASK	= 1 << CORE_SEL_PLL_SHIFT,
 	A17_DIV_SHIFT		= 8,
-	MP_DIV_MASK		= 0xf,
+	A17_DIV_MASK		= 0x1f << A17_DIV_SHIFT,
 	MP_DIV_SHIFT		= 4,
-	M0_DIV_MASK		= 0xf,
+	MP_DIV_MASK		= 0xf << MP_DIV_SHIFT,
 	M0_DIV_SHIFT		= 0,
+	M0_DIV_MASK		= 0xf << M0_DIV_SHIFT,
 
 	/* CLKSEL1: pd bus clk pll sel: codec or general */
 	PD_BUS_SEL_PLL_MASK	= 15,
@@ -75,41 +75,41 @@ enum {
 
 	/* pd bus pclk div: pclk = pd_bus_aclk /(div + 1) */
 	PD_BUS_PCLK_DIV_SHIFT	= 12,
-	PD_BUS_PCLK_DIV_MASK	= 7,
+	PD_BUS_PCLK_DIV_MASK	= 7 << PD_BUS_PCLK_DIV_SHIFT,
 
 	/* pd bus hclk div: aclk_bus: hclk_bus = 1:1 or 2:1 or 4:1 */
 	PD_BUS_HCLK_DIV_SHIFT	= 8,
-	PD_BUS_HCLK_DIV_MASK	= 3,
+	PD_BUS_HCLK_DIV_MASK	= 3 << PD_BUS_HCLK_DIV_SHIFT,
 
 	/* pd bus aclk div: pd_bus_aclk = pd_bus_src_clk /(div0 * div1) */
 	PD_BUS_ACLK_DIV0_SHIFT	= 3,
-	PD_BUS_ACLK_DIV0_MASK	= 0x1f,
+	PD_BUS_ACLK_DIV0_MASK	= 0x1f << PD_BUS_ACLK_DIV0_SHIFT,
 	PD_BUS_ACLK_DIV1_SHIFT	= 0,
-	PD_BUS_ACLK_DIV1_MASK	= 0x7,
+	PD_BUS_ACLK_DIV1_MASK	= 0x7 << PD_BUS_ACLK_DIV1_SHIFT,
 
 	/*
 	 * CLKSEL10
 	 * peripheral bus pclk div:
 	 * aclk_bus: pclk_bus = 1:1 or 2:1 or 4:1 or 8:1
 	 */
-	PERI_SEL_PLL_MASK	 = 1,
 	PERI_SEL_PLL_SHIFT	 = 15,
+	PERI_SEL_PLL_MASK	 = 1 << PERI_SEL_PLL_SHIFT,
 	PERI_SEL_CPLL		= 0,
 	PERI_SEL_GPLL,
 
 	PERI_PCLK_DIV_SHIFT	= 12,
-	PERI_PCLK_DIV_MASK	= 3,
+	PERI_PCLK_DIV_MASK	= 3 << PERI_PCLK_DIV_SHIFT,
 
 	/* peripheral bus hclk div: aclk_bus: hclk_bus = 1:1 or 2:1 or 4:1 */
 	PERI_HCLK_DIV_SHIFT	= 8,
-	PERI_HCLK_DIV_MASK	= 3,
+	PERI_HCLK_DIV_MASK	= 3 << PERI_HCLK_DIV_SHIFT,
 
 	/*
 	 * peripheral bus aclk div:
 	 *    aclk_periph = periph_clk_src / (peri_aclk_div_con + 1)
 	 */
 	PERI_ACLK_DIV_SHIFT	= 0,
-	PERI_ACLK_DIV_MASK	= 0x1f,
+	PERI_ACLK_DIV_MASK	= 0x1f << PERI_ACLK_DIV_SHIFT,
 
 	SOCSTS_DPLL_LOCK	= 1 << 5,
 	SOCSTS_APLL_LOCK	= 1 << 6,
@@ -131,10 +131,8 @@ enum {
 
 /* Keep divisors as low as possible to reduce jitter and power usage */
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
-#ifdef CONFIG_SPL_BUILD
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
-#endif
 
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 			 const struct pll_div *div)
@@ -154,8 +152,7 @@ static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 	/* enter reset */
 	rk_setreg(&pll->con3, 1 << PLL_RESET_SHIFT);
 
-	rk_clrsetreg(&pll->con0,
-		     CLKR_MASK << CLKR_SHIFT | PLL_OD_MASK,
+	rk_clrsetreg(&pll->con0, CLKR_MASK | PLL_OD_MASK,
 		     ((div->nr - 1) << CLKR_SHIFT) | (div->no - 1));
 	rk_clrsetreg(&pll->con1, CLKF_MASK, div->nf - 1);
 	rk_clrsetreg(&pll->con2, PLL_BWADJ_MASK, (div->nf >> 1) - 1);
@@ -198,7 +195,7 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 	}
 
 	/* pll enter slow-mode */
-	rk_clrsetreg(&cru->cru_mode_con, DPLL_MODE_MASK << DPLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, DPLL_MODE_MASK,
 		     DPLL_MODE_SLOW << DPLL_MODE_SHIFT);
 
 	rkclk_set_pll(cru, CLK_DDR, &dpll_cfg[cfg]);
@@ -208,7 +205,7 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 		udelay(1);
 
 	/* PLL enter normal-mode */
-	rk_clrsetreg(&cru->cru_mode_con, DPLL_MODE_MASK << DPLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, DPLL_MODE_MASK,
 		     DPLL_MODE_NORMAL << DPLL_MODE_SHIFT);
 
 	return 0;
@@ -296,7 +293,7 @@ static int rockchip_mac_set_clk(struct rk3288_cru *cru,
 {
 	/* Assuming mac_clk is fed by an external clock */
 	rk_clrsetreg(&cru->cru_clksel_con[21],
-		     RMII_EXTCLK_MASK << RMII_EXTCLK_SHIFT,
+		     RMII_EXTCLK_MASK,
 		     RMII_EXTCLK_SELECT_EXT_CLK << RMII_EXTCLK_SHIFT);
 
 	 return 0;
@@ -313,7 +310,7 @@ static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 	if (ret)
 		return ret;
 
-	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK << NPLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK,
 		     NPLL_MODE_SLOW << NPLL_MODE_SHIFT);
 	rkclk_set_pll(cru, CLK_NEW, &npll_config);
 
@@ -324,7 +321,7 @@ static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 		udelay(1);
 	}
 
-	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK << NPLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK,
 		     NPLL_MODE_NORMAL << NPLL_MODE_SHIFT);
 
 	/* vop dclk source clk: npll,dclk_div: 1 */
@@ -341,9 +338,8 @@ static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 
 	return 0;
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
-#ifdef CONFIG_SPL_BUILD
 static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
 	u32 aclk_div;
@@ -352,8 +348,7 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 
 	/* pll enter slow-mode */
 	rk_clrsetreg(&cru->cru_mode_con,
-		     GPLL_MODE_MASK << GPLL_MODE_SHIFT |
-		     CPLL_MODE_MASK << CPLL_MODE_SHIFT,
+		     GPLL_MODE_MASK | CPLL_MODE_MASK,
 		     GPLL_MODE_SLOW << GPLL_MODE_SHIFT |
 		     CPLL_MODE_SLOW << CPLL_MODE_SHIFT);
 
@@ -382,10 +377,8 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 		PD_BUS_ACLK_HZ && pclk_div < 0x7);
 
 	rk_clrsetreg(&cru->cru_clksel_con[1],
-		     PD_BUS_PCLK_DIV_MASK << PD_BUS_PCLK_DIV_SHIFT |
-		     PD_BUS_HCLK_DIV_MASK << PD_BUS_HCLK_DIV_SHIFT |
-		     PD_BUS_ACLK_DIV0_MASK << PD_BUS_ACLK_DIV0_SHIFT |
-		     PD_BUS_ACLK_DIV1_MASK << PD_BUS_ACLK_DIV1_SHIFT,
+		     PD_BUS_PCLK_DIV_MASK | PD_BUS_HCLK_DIV_MASK |
+		     PD_BUS_ACLK_DIV0_MASK | PD_BUS_ACLK_DIV1_MASK,
 		     pclk_div << PD_BUS_PCLK_DIV_SHIFT |
 		     hclk_div << PD_BUS_HCLK_DIV_SHIFT |
 		     aclk_div << PD_BUS_ACLK_DIV0_SHIFT |
@@ -407,9 +400,8 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 		PERI_ACLK_HZ && (pclk_div < 0x4));
 
 	rk_clrsetreg(&cru->cru_clksel_con[10],
-		     PERI_PCLK_DIV_MASK << PERI_PCLK_DIV_SHIFT |
-		     PERI_HCLK_DIV_MASK << PERI_HCLK_DIV_SHIFT |
-		     PERI_ACLK_DIV_MASK << PERI_ACLK_DIV_SHIFT,
+		     PERI_PCLK_DIV_MASK | PERI_HCLK_DIV_MASK |
+		     PERI_ACLK_DIV_MASK,
 		     PERI_SEL_GPLL << PERI_SEL_PLL_SHIFT |
 		     pclk_div << PERI_PCLK_DIV_SHIFT |
 		     hclk_div << PERI_HCLK_DIV_SHIFT |
@@ -417,18 +409,15 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 
 	/* PLL enter normal-mode */
 	rk_clrsetreg(&cru->cru_mode_con,
-		     GPLL_MODE_MASK << GPLL_MODE_SHIFT |
-		     CPLL_MODE_MASK << CPLL_MODE_SHIFT,
+		     GPLL_MODE_MASK | CPLL_MODE_MASK,
 		     GPLL_MODE_NORMAL << GPLL_MODE_SHIFT |
 		     CPLL_MODE_NORMAL << CPLL_MODE_SHIFT);
 }
-#endif
 
 void rk3288_clk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
 	/* pll enter slow-mode */
-	rk_clrsetreg(&cru->cru_mode_con,
-		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, APLL_MODE_MASK,
 		     APLL_MODE_SLOW << APLL_MODE_SHIFT);
 
 	rkclk_set_pll(cru, CLK_ARM, &apll_init_cfg);
@@ -444,10 +433,8 @@ void rk3288_clk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
 	 * arm clk = 1800MHz, mpclk = 450MHz, m0clk = 900MHz
 	 */
 	rk_clrsetreg(&cru->cru_clksel_con[0],
-		     CORE_SEL_PLL_MASK << CORE_SEL_PLL_SHIFT |
-		     A17_DIV_MASK << A17_DIV_SHIFT |
-		     MP_DIV_MASK << MP_DIV_SHIFT |
-		     M0_DIV_MASK << M0_DIV_SHIFT,
+		     CORE_SEL_PLL_MASK | A17_DIV_MASK | MP_DIV_MASK |
+		     M0_DIV_MASK,
 		     0 << A17_DIV_SHIFT |
 		     3 << MP_DIV_SHIFT |
 		     1 << M0_DIV_SHIFT);
@@ -457,16 +444,14 @@ void rk3288_clk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
 	 * l2ramclk = 900MHz, atclk = 450MHz, pclk_dbg = 450MHz
 	 */
 	rk_clrsetreg(&cru->cru_clksel_con[37],
-		     CLK_L2RAM_DIV_MASK << CLK_L2RAM_DIV_SHIFT |
-		     ATCLK_CORE_DIV_CON_MASK << ATCLK_CORE_DIV_CON_SHIFT |
-		     PCLK_CORE_DBG_DIV_MASK >> PCLK_CORE_DBG_DIV_SHIFT,
+		     CLK_L2RAM_DIV_MASK | ATCLK_CORE_DIV_CON_MASK |
+		     PCLK_CORE_DBG_DIV_MASK,
 		     1 << CLK_L2RAM_DIV_SHIFT |
 		     3 << ATCLK_CORE_DIV_CON_SHIFT |
 		     3 << PCLK_CORE_DBG_DIV_SHIFT);
 
 	/* PLL enter normal-mode */
-	rk_clrsetreg(&cru->cru_mode_con,
-		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+	rk_clrsetreg(&cru->cru_mode_con, APLL_MODE_MASK,
 		     APLL_MODE_NORMAL << APLL_MODE_SHIFT);
 }
 
@@ -486,16 +471,16 @@ static uint32_t rkclk_pll_get_rate(struct rk3288_cru *cru,
 
 	con = readl(&cru->cru_mode_con);
 	shift = clk_shift[clk_id];
-	switch ((con >> shift) & APLL_MODE_MASK) {
+	switch ((con >> shift) & CRU_MODE_MASK) {
 	case APLL_MODE_SLOW:
 		return OSC_HZ;
 	case APLL_MODE_NORMAL:
 		/* normal mode */
 		con = readl(&pll->con0);
-		no = ((con >> CLKOD_SHIFT) & CLKOD_MASK) + 1;
-		nr = ((con >> CLKR_SHIFT) & CLKR_MASK) + 1;
+		no = ((con & CLKOD_MASK) >> CLKOD_SHIFT) + 1;
+		nr = ((con & CLKR_MASK) >> CLKR_SHIFT) + 1;
 		con = readl(&pll->con1);
-		nf = ((con >> CLKF_SHIFT) & CLKF_MASK) + 1;
+		nf = ((con & CLKF_MASK) >> CLKF_SHIFT) + 1;
 
 		return (24 * nf / (nr * no)) * 1000000;
 	case APLL_MODE_DEEP:
@@ -515,20 +500,20 @@ static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint gclk_rate,
 	case HCLK_EMMC:
 	case SCLK_EMMC:
 		con = readl(&cru->cru_clksel_con[12]);
-		mux = (con >> EMMC_PLL_SHIFT) & EMMC_PLL_MASK;
-		div = (con >> EMMC_DIV_SHIFT) & EMMC_DIV_MASK;
+		mux = (con & EMMC_PLL_MASK) >> EMMC_PLL_SHIFT;
+		div = (con & EMMC_DIV_MASK) >> EMMC_DIV_SHIFT;
 		break;
 	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		con = readl(&cru->cru_clksel_con[11]);
-		mux = (con >> MMC0_PLL_SHIFT) & MMC0_PLL_MASK;
-		div = (con >> MMC0_DIV_SHIFT) & MMC0_DIV_MASK;
+		mux = (con & MMC0_PLL_MASK) >> MMC0_PLL_SHIFT;
+		div = (con & MMC0_DIV_MASK) >> MMC0_DIV_SHIFT;
 		break;
 	case HCLK_SDIO0:
 	case SCLK_SDIO0:
 		con = readl(&cru->cru_clksel_con[12]);
-		mux = (con >> SDIO0_PLL_SHIFT) & SDIO0_PLL_MASK;
-		div = (con >> SDIO0_DIV_SHIFT) & SDIO0_DIV_MASK;
+		mux = (con & SDIO0_PLL_MASK) >> SDIO0_PLL_SHIFT;
+		div = (con & SDIO0_DIV_MASK) >> SDIO0_DIV_SHIFT;
 		break;
 	default:
 		return -EINVAL;
@@ -561,24 +546,21 @@ static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	case HCLK_EMMC:
 	case SCLK_EMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
-			     EMMC_PLL_MASK << EMMC_PLL_SHIFT |
-			     EMMC_DIV_MASK << EMMC_DIV_SHIFT,
+			     EMMC_PLL_MASK | EMMC_DIV_MASK,
 			     mux << EMMC_PLL_SHIFT |
 			     (src_clk_div - 1) << EMMC_DIV_SHIFT);
 		break;
 	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
-			     MMC0_PLL_MASK << MMC0_PLL_SHIFT |
-			     MMC0_DIV_MASK << MMC0_DIV_SHIFT,
+			     MMC0_PLL_MASK | MMC0_DIV_MASK,
 			     mux << MMC0_PLL_SHIFT |
 			     (src_clk_div - 1) << MMC0_DIV_SHIFT);
 		break;
 	case HCLK_SDIO0:
 	case SCLK_SDIO0:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
-			     SDIO0_PLL_MASK << SDIO0_PLL_SHIFT |
-			     SDIO0_DIV_MASK << SDIO0_DIV_SHIFT,
+			     SDIO0_PLL_MASK | SDIO0_DIV_MASK,
 			     mux << SDIO0_PLL_SHIFT |
 			     (src_clk_div - 1) << SDIO0_DIV_SHIFT);
 		break;
@@ -598,18 +580,18 @@ static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint gclk_rate,
 	switch (periph) {
 	case SCLK_SPI0:
 		con = readl(&cru->cru_clksel_con[25]);
-		mux = (con >> SPI0_PLL_SHIFT) & SPI0_PLL_MASK;
-		div = (con >> SPI0_DIV_SHIFT) & SPI0_DIV_MASK;
+		mux = (con & SPI0_PLL_MASK) >> SPI0_PLL_SHIFT;
+		div = (con & SPI0_DIV_MASK) >> SPI0_DIV_SHIFT;
 		break;
 	case SCLK_SPI1:
 		con = readl(&cru->cru_clksel_con[25]);
-		mux = (con >> SPI1_PLL_SHIFT) & SPI1_PLL_MASK;
-		div = (con >> SPI1_DIV_SHIFT) & SPI1_DIV_MASK;
+		mux = (con & SPI1_PLL_MASK) >> SPI1_PLL_SHIFT;
+		div = (con & SPI1_DIV_MASK) >> SPI1_DIV_SHIFT;
 		break;
 	case SCLK_SPI2:
 		con = readl(&cru->cru_clksel_con[39]);
-		mux = (con >> SPI2_PLL_SHIFT) & SPI2_PLL_MASK;
-		div = (con >> SPI2_DIV_SHIFT) & SPI2_DIV_MASK;
+		mux = (con & SPI2_PLL_MASK) >> SPI2_PLL_SHIFT;
+		div = (con & SPI2_DIV_MASK) >> SPI2_DIV_SHIFT;
 		break;
 	default:
 		return -EINVAL;
@@ -629,22 +611,19 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	switch (periph) {
 	case SCLK_SPI0:
 		rk_clrsetreg(&cru->cru_clksel_con[25],
-			     SPI0_PLL_MASK << SPI0_PLL_SHIFT |
-			     SPI0_DIV_MASK << SPI0_DIV_SHIFT,
+			     SPI0_PLL_MASK | SPI0_DIV_MASK,
 			     SPI0_PLL_SELECT_GENERAL << SPI0_PLL_SHIFT |
 			     src_clk_div << SPI0_DIV_SHIFT);
 		break;
 	case SCLK_SPI1:
 		rk_clrsetreg(&cru->cru_clksel_con[25],
-			     SPI1_PLL_MASK << SPI1_PLL_SHIFT |
-			     SPI1_DIV_MASK << SPI1_DIV_SHIFT,
+			     SPI1_PLL_MASK | SPI1_DIV_MASK,
 			     SPI1_PLL_SELECT_GENERAL << SPI1_PLL_SHIFT |
 			     src_clk_div << SPI1_DIV_SHIFT);
 		break;
 	case SCLK_SPI2:
 		rk_clrsetreg(&cru->cru_clksel_con[39],
-			     SPI2_PLL_MASK << SPI2_PLL_SHIFT |
-			     SPI2_DIV_MASK << SPI2_DIV_SHIFT,
+			     SPI2_PLL_MASK | SPI2_DIV_MASK,
 			     SPI2_PLL_SELECT_GENERAL << SPI2_PLL_SHIFT |
 			     src_clk_div << SPI2_DIV_SHIFT);
 		break;
@@ -803,6 +782,7 @@ static int rk3288_clk_ofdata_to_platdata(struct udevice *dev)
 static int rk3288_clk_probe(struct udevice *dev)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	bool init_clocks = false;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (IS_ERR(priv->grf))
@@ -813,8 +793,24 @@ static int rk3288_clk_probe(struct udevice *dev)
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
-	rkclk_init(priv->cru, priv->grf);
+	init_clocks = true;
 #endif
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		u32 reg;
+
+		/*
+		 * Init clocks in U-Boot proper if the NPLL is runnning. This
+		 * indicates that a previous boot loader set up the clocks, so
+		 * we need to redo it. U-Boot's SPL does not set this clock.
+		 */
+		reg = readl(&priv->cru->cru_mode_con);
+		if (((reg & NPLL_MODE_MASK) >> NPLL_MODE_SHIFT) ==
+				NPLL_MODE_NORMAL)
+			init_clocks = true;
+	}
+
+	if (init_clocks)
+		rkclk_init(priv->cru, priv->grf);
 
 	return 0;
 }

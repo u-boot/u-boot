@@ -70,6 +70,19 @@ static int rk3288_vop_probe(struct udevice *dev)
 	return rk_vop_probe(dev);
 }
 
+static int rk_vop_remove(struct udevice *dev)
+{
+	struct rk_vop_priv *priv = dev_get_priv(dev);
+        struct rk3288_vop *regs = priv->regs;
+
+	setbits_le32(&regs->sys_ctrl, V_STANDBY_EN(1));
+
+	/* wait frame complete (60Hz) to enter standby */
+	mdelay(17);
+
+	return 0;
+}
+
 struct rkvop_driverdata rk3288_driverdata = {
 	.features = VOP_FEATURE_OUTPUT_10BIT,
 	.set_pin_polarity = rk3288_set_pin_polarity,
@@ -91,5 +104,6 @@ U_BOOT_DRIVER(rk_vop) = {
 	.ops	= &rk3288_vop_ops,
 	.bind	= rk_vop_bind,
 	.probe	= rk3288_vop_probe,
+        .remove = rk_vop_remove,
 	.priv_auto_alloc_size	= sizeof(struct rk_vop_priv),
 };

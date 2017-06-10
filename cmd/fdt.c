@@ -257,6 +257,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		char *prop;		/* property */
 		int  nodeoffset;	/* node offset from libfdt */
 		static char data[SCRATCHPAD];	/* storage for the property */
+		const void *ptmp;
 		int  len;		/* new length of the property */
 		int  ret;		/* return value */
 
@@ -268,13 +269,6 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		pathp  = argv[2];
 		prop   = argv[3];
-		if (argc == 4) {
-			len = 0;
-		} else {
-			ret = fdt_parse_prop(&argv[4], argc - 4, data, &len);
-			if (ret != 0)
-				return ret;
-		}
 
 		nodeoffset = fdt_path_offset (working_fdt, pathp);
 		if (nodeoffset < 0) {
@@ -284,6 +278,21 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
+		}
+
+		if (argc == 4) {
+			len = 0;
+		} else {
+			ptmp = fdt_getprop(working_fdt, nodeoffset, prop, &len);
+			if (len > SCRATCHPAD) {
+				printf("prop (%d) doesn't fit in scratchpad!\n",
+				       len);
+				return 1;
+			}
+			memcpy(data, ptmp, len);
+			ret = fdt_parse_prop(&argv[4], argc - 4, data, &len);
+			if (ret != 0)
+				return ret;
 		}
 
 		ret = fdt_setprop(working_fdt, nodeoffset, prop, data, len);
@@ -766,7 +775,11 @@ static int fdt_parse_prop(char * const *newval, int count, char *data, int *len)
 
 			cp = newp;
 			tmp = simple_strtoul(cp, &newp, 0);
-			*(fdt32_t *)data = cpu_to_fdt32(tmp);
+			if (*cp != '?')
+				*(fdt32_t *)data = cpu_to_fdt32(tmp);
+			else
+				newp++;
+
 			data  += 4;
 			*len += 4;
 

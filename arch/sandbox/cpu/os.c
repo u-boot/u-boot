@@ -395,7 +395,7 @@ const char *os_dirent_typename[OS_FILET_COUNT] = {
 
 const char *os_dirent_get_typename(enum os_dirent_t type)
 {
-	if (type >= 0 && type < OS_FILET_COUNT)
+	if (type >= OS_FILET_REG && type < OS_FILET_COUNT)
 		return os_dirent_typename[type];
 
 	return os_dirent_typename[OS_FILET_UNKNOWN];
