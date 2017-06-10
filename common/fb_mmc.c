@@ -162,7 +162,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 				void *download_buffer,
 				unsigned int download_bytes)
 {
-	u32 hdr_addr;				/* boot image header address */
+	uintptr_t hdr_addr;			/* boot image header address */
 	struct andr_img_hdr *hdr;		/* boot image header */
 	lbaint_t hdr_sectors;			/* boot image header sectors */
 	u8 *ramdisk_buffer;
@@ -185,7 +185,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	}
 
 	/* Put boot image header in fastboot buffer after downloaded zImage */
-	hdr_addr = (u32)download_buffer + ALIGN(download_bytes, PAGE_SIZE);
+	hdr_addr = (uintptr_t)download_buffer + ALIGN(download_bytes, PAGE_SIZE);
 	hdr = (struct andr_img_hdr *)hdr_addr;
 
 	/* Read boot image header */
