@@ -1,9 +1,9 @@
 /*
  * drivers/mmc/sh-sdhi.h
  *
- * SD/MMC driver for Reneas rmobile ARM SoCs
+ * SD/MMC driver for Renesas rmobile ARM SoCs
  *
- * Copyright (C) 2013-2014 Renesas Electronics Corporation
+ * Copyright (C) 2013-2017 Renesas Electronics Corporation
  * Copyright (C) 2008-2009 Renesas Solutions Corp.
  *
  * SPDX-License-Identifier:	GPL-2.0
@@ -50,8 +50,10 @@
 /* SDHI CMD VALUE */
 #define CMD_MASK			0x0000ffff
 #define SDHI_APP			0x0040
+#define SDHI_MMC_SEND_OP_COND		0x0701
 #define SDHI_SD_APP_SEND_SCR		0x0073
 #define SDHI_SD_SWITCH			0x1C06
+#define SDHI_MMC_SEND_EXT_CSD		0x1C08
 
 /* SDHI_PORTSEL */
 #define USE_1PORT			(1 << 8) /* 1 port */
@@ -120,7 +122,10 @@
 #define CLK_ENABLE			(1 << 8)
 
 /* SDHI_OPTION */
-#define OPT_BUS_WIDTH_1			(1 << 15)	/* bus width = 1 bit */
+#define OPT_BUS_WIDTH_M			(5 << 13)	/* 101b (15-13bit) */
+#define OPT_BUS_WIDTH_1			(4 << 13)	/* bus width = 1 bit */
+#define OPT_BUS_WIDTH_4			(0 << 13)	/* bus width = 4 bit */
+#define OPT_BUS_WIDTH_8			(1 << 13)	/* bus width = 8 bit */
 
 /* SDHI_ERR_STS1 */
 #define ERR_STS1_CRC_ERROR		((1 << 11) | (1 << 10) | (1 << 9) | \
@@ -162,7 +167,9 @@
 #define	CLKDEV_INIT			400000		/* 100 - 400 KHz */
 
 /* For quirk */
-#define SH_SDHI_QUIRK_16BIT_BUF		(1)
+#define SH_SDHI_QUIRK_16BIT_BUF		BIT(0)
+#define SH_SDHI_QUIRK_64BIT_BUF		BIT(1)
+
 int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks);
 
 #endif /* _SH_SDHI_H */

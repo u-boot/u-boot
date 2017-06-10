@@ -422,6 +422,13 @@ void scale_vcores_generic(u32 m)
 		printf("%s failure\n", __func__);
 		return;
 	}
+
+	/* Set DCDC3 (DDR) voltage */
+	if (tps65218_voltage_update(TPS65218_DCDC3,
+	    TPS65218_DCDC3_VOLT_SEL_1350MV)) {
+		printf("%s failure\n", __func__);
+		return;
+	}
 }
 
 void scale_vcores_idk(u32 m)

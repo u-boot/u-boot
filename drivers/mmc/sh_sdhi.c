@@ -3,7 +3,7 @@
  *
  * SD/MMC driver for Renesas rmobile ARM SoCs.
  *
- * Copyright (C) 2011,2013-2014 Renesas Electronics Corporation
+ * Copyright (C) 2011,2013-2017 Renesas Electronics Corporation
  * Copyright (C) 2014 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * Copyright (C) 2008-2009 Renesas Solutions Corp.
  *
@@ -29,6 +29,17 @@ struct sh_sdhi_host {
 	unsigned char sd_error;
 	unsigned char detect_waiting;
 };
+
+static inline void sh_sdhi_writeq(struct sh_sdhi_host *host, int reg, u64 val)
+{
+	writeq(val, host->addr + (reg << host->bus_shift));
+}
+
+static inline u64 sh_sdhi_readq(struct sh_sdhi_host *host, int reg)
+{
+	return readq(host->addr + (reg << host->bus_shift));
+}
+
 static inline void sh_sdhi_writew(struct sh_sdhi_host *host, int reg, u16 val)
 {
 	writew(val, host->addr + (reg << host->bus_shift));
@@ -261,6 +272,7 @@ static int sh_sdhi_single_read(struct sh_sdhi_host *host, struct mmc_data *data)
 	long time;
 	unsigned short blocksize, i;
 	unsigned short *p = (unsigned short *)data->dest;
+	u64 *q = (u64 *)data->dest;
 
 	if ((unsigned long)p & 0x00000001) {
 		debug(DRIVER_NAME": %s: The data pointer is unaligned.",
@@ -281,8 +293,12 @@ static int sh_sdhi_single_read(struct sh_sdhi_host *host, struct mmc_data *data)
 
 	host->wait_int = 0;
 	blocksize = sh_sdhi_readw(host, SDHI_SIZE);
-	for (i = 0; i < blocksize / 2; i++)
-		*p++ = sh_sdhi_readw(host, SDHI_BUF0);
+	if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+		for (i = 0; i < blocksize / 8; i++)
+			*q++ = sh_sdhi_readq(host, SDHI_BUF0);
+	else
+		for (i = 0; i < blocksize / 2; i++)
+			*p++ = sh_sdhi_readw(host, SDHI_BUF0);
 
 	time = sh_sdhi_wait_interrupt_flag(host);
 	if (time == 0 || host->sd_error != 0)
@@ -297,6 +313,7 @@ static int sh_sdhi_multi_read(struct sh_sdhi_host *host, struct mmc_data *data)
 	long time;
 	unsigned short blocksize, i, sec;
 	unsigned short *p = (unsigned short *)data->dest;
+	u64 *q = (u64 *)data->dest;
 
 	if ((unsigned long)p & 0x00000001) {
 		debug(DRIVER_NAME": %s: The data pointer is unaligned.",
@@ -319,8 +336,12 @@ static int sh_sdhi_multi_read(struct sh_sdhi_host *host, struct mmc_data *data)
 
 		host->wait_int = 0;
 		blocksize = sh_sdhi_readw(host, SDHI_SIZE);
-		for (i = 0; i < blocksize / 2; i++)
-			*p++ = sh_sdhi_readw(host, SDHI_BUF0);
+		if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+			for (i = 0; i < blocksize / 8; i++)
+				*q++ = sh_sdhi_readq(host, SDHI_BUF0);
+		else
+			for (i = 0; i < blocksize / 2; i++)
+				*p++ = sh_sdhi_readw(host, SDHI_BUF0);
 	}
 
 	return 0;
@@ -332,6 +353,7 @@ static int sh_sdhi_single_write(struct sh_sdhi_host *host,
 	long time;
 	unsigned short blocksize, i;
 	const unsigned short *p = (const unsigned short *)data->src;
+	const u64 *q = (const u64 *)data->src;
 
 	if ((unsigned long)p & 0x00000001) {
 		debug(DRIVER_NAME": %s: The data pointer is unaligned.",
@@ -356,8 +378,12 @@ static int sh_sdhi_single_write(struct sh_sdhi_host *host,
 
 	host->wait_int = 0;
 	blocksize = sh_sdhi_readw(host, SDHI_SIZE);
-	for (i = 0; i < blocksize / 2; i++)
-		sh_sdhi_writew(host, SDHI_BUF0, *p++);
+	if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+		for (i = 0; i < blocksize / 8; i++)
+			sh_sdhi_writeq(host, SDHI_BUF0, *q++);
+	else
+		for (i = 0; i < blocksize / 2; i++)
+			sh_sdhi_writew(host, SDHI_BUF0, *p++);
 
 	time = sh_sdhi_wait_interrupt_flag(host);
 	if (time == 0 || host->sd_error != 0)
@@ -372,6 +398,7 @@ static int sh_sdhi_multi_write(struct sh_sdhi_host *host, struct mmc_data *data)
 	long time;
 	unsigned short i, sec, blocksize;
 	const unsigned short *p = (const unsigned short *)data->src;
+	const u64 *q = (const u64 *)data->src;
 
 	debug("%s: blocks = %d, blocksize = %d\n",
 	      __func__, data->blocks, data->blocksize);
@@ -388,8 +415,12 @@ static int sh_sdhi_multi_write(struct sh_sdhi_host *host, struct mmc_data *data)
 
 		host->wait_int = 0;
 		blocksize = sh_sdhi_readw(host, SDHI_SIZE);
-		for (i = 0; i < blocksize / 2; i++)
-			sh_sdhi_writew(host, SDHI_BUF0, *p++);
+		if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+			for (i = 0; i < blocksize / 8; i++)
+				sh_sdhi_writeq(host, SDHI_BUF0, *q++);
+		else
+			for (i = 0; i < blocksize / 2; i++)
+				sh_sdhi_writew(host, SDHI_BUF0, *p++);
 	}
 
 	return 0;
@@ -458,6 +489,13 @@ static unsigned short sh_sdhi_set_cmd(struct sh_sdhi_host *host,
 		else /* SD_SWITCH */
 			opc = SDHI_SD_SWITCH;
 		break;
+	case MMC_CMD_SEND_OP_COND:
+		opc = SDHI_MMC_SEND_OP_COND;
+		break;
+	case MMC_CMD_SEND_EXT_CSD:
+		if (data)
+			opc = SDHI_MMC_SEND_EXT_CSD;
+		break;
 	default:
 		break;
 	}
@@ -482,6 +520,7 @@ static unsigned short sh_sdhi_data_trans(struct sh_sdhi_host *host,
 	case MMC_CMD_READ_SINGLE_BLOCK:
 	case SDHI_SD_APP_SEND_SCR:
 	case SDHI_SD_SWITCH: /* SD_SWITCH */
+	case SDHI_MMC_SEND_EXT_CSD:
 		ret = sh_sdhi_single_read(host, data);
 		break;
 	default:
@@ -546,8 +585,6 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 			break;
 	}
 
-	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
-
 	host->wait_int = 0;
 	sh_sdhi_writew(host, SDHI_INFO1_MASK,
 		       ~INFO1M_RESP_END & sh_sdhi_readw(host, SDHI_INFO1_MASK));
@@ -556,6 +593,8 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		       INFO2M_END_ERROR | INFO2M_TIMEOUT |
 		       INFO2M_RESP_TIMEOUT | INFO2M_ILA) &
 		       sh_sdhi_readw(host, SDHI_INFO2_MASK));
+
+	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
 
 	time = sh_sdhi_wait_interrupt_flag(host);
 	if (!time)
@@ -617,12 +656,18 @@ static int sh_sdhi_set_ios(struct mmc *mmc)
 	if (ret)
 		return -EINVAL;
 
-	if (mmc->bus_width == 4)
-		sh_sdhi_writew(host, SDHI_OPTION, ~OPT_BUS_WIDTH_1 &
-			       sh_sdhi_readw(host, SDHI_OPTION));
+	if (mmc->bus_width == 8)
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_8 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
+	else if (mmc->bus_width == 4)
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_4 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
 	else
-		sh_sdhi_writew(host, SDHI_OPTION, OPT_BUS_WIDTH_1 |
-			       sh_sdhi_readw(host, SDHI_OPTION));
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_1 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
 
 	debug("clock = %d, buswidth = %d\n", mmc->clock, mmc->bus_width);
 
@@ -653,6 +698,19 @@ static const struct mmc_ops sh_sdhi_ops = {
 	.init           = sh_sdhi_initialize,
 };
 
+#ifdef CONFIG_RCAR_GEN3
+static struct mmc_config sh_sdhi_cfg = {
+	.name           = DRIVER_NAME,
+	.ops            = &sh_sdhi_ops,
+	.f_min          = CLKDEV_INIT,
+	.f_max          = CLKDEV_HS_DATA,
+	.voltages       = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34,
+	.host_caps      = MMC_MODE_4BIT | MMC_MODE_8BIT | MMC_MODE_HS |
+			  MMC_MODE_HS_52MHz,
+	.part_type      = PART_TYPE_DOS,
+	.b_max          = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+#else
 static struct mmc_config sh_sdhi_cfg = {
 	.name           = DRIVER_NAME,
 	.ops            = &sh_sdhi_ops,
@@ -663,6 +721,7 @@ static struct mmc_config sh_sdhi_cfg = {
 	.part_type      = PART_TYPE_DOS,
 	.b_max          = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
+#endif
 
 int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 {
@@ -687,7 +746,9 @@ int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 	host->addr = addr;
 	host->quirks = quirks;
 
-	if (host->quirks & SH_SDHI_QUIRK_16BIT_BUF)
+	if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+		host->bus_shift = 2;
+	else if (host->quirks & SH_SDHI_QUIRK_16BIT_BUF)
 		host->bus_shift = 1;
 
 	return ret;

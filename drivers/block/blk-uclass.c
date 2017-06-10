@@ -453,6 +453,32 @@ int blk_prepare_device(struct udevice *dev)
 	return 0;
 }
 
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
+{
+	struct udevice *dev;
+	enum uclass_id id;
+	int ret;
+
+	device_find_first_child(parent, &dev);
+	if (!dev) {
+		debug("%s: No block device found for parent '%s'\n", __func__,
+		      parent->name);
+		return -ENODEV;
+	}
+	id = device_get_uclass_id(dev);
+	if (id != UCLASS_BLK) {
+		debug("%s: Incorrect uclass %s for block device '%s'\n",
+		      __func__, uclass_get_name(id), dev->name);
+		return -ENOTBLK;
+	}
+	ret = device_probe(dev);
+	if (ret)
+		return ret;
+	*devp = dev;
+
+	return 0;
+}
+
 int blk_find_max_devnum(enum if_type if_type)
 {
 	struct udevice *dev;
