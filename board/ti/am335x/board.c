@@ -344,14 +344,6 @@ static void scale_vcores_bone(int freq)
 	if (board_is_bone_lt())
 		freq = MPUPLL_M_1000;
 
-	if (freq == MPUPLL_M_1000) {
-		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
-		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
-	} else {
-		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
-		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1275MV;
-	}
-
 	switch (freq) {
 	case MPUPLL_M_1000:
 		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
@@ -359,15 +351,16 @@ static void scale_vcores_bone(int freq)
 		break;
 	case MPUPLL_M_800:
 		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1275MV;
-		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
 		break;
 	case MPUPLL_M_720:
 		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1200MV;
-		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
+		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
 		break;
 	case MPUPLL_M_600:
 	case MPUPLL_M_500:
 	case MPUPLL_M_300:
+	default:
 		mpu_vdd = TPS65217_DCDC_VOLT_SEL_1100MV;
 		usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1300MA;
 		break;
@@ -470,7 +463,7 @@ void scale_vcores(void)
 	gpi2c_init();
 	freq = am335x_get_efuse_mpu_max_freq(cdev);
 
-	if (board_is_bone())
+	if (board_is_beaglebonex())
 		scale_vcores_bone(freq);
 	else
 		scale_vcores_generic(freq);
