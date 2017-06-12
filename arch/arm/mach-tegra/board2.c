@@ -156,8 +156,10 @@ int board_init(void)
 #if defined(CONFIG_DM_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
-	if (err)
+	if (err) {
+		debug("Failed to set up LCD PMIC\n");
 		return err;
+	}
 #endif
 
 #ifdef CONFIG_TEGRA_NAND
