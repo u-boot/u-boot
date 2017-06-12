@@ -261,6 +261,24 @@ static inline int of_property_read_string_index(const struct device_node *np,
 }
 
 /**
+ * of_property_count_strings() - Find and return the number of strings from a
+ * multiple strings property.
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ *
+ * Search for a property in a device tree node and retrieve the number of null
+ * terminated string contain in it. Returns the number of strings on
+ * success, -EINVAL if the property does not exist, -ENODATA if property
+ * does not have a value, and -EILSEQ if the string is not null-terminated
+ * within the length of the property data.
+ */
+static inline int of_property_count_strings(const struct device_node *np,
+					    const char *propname)
+{
+	return of_property_read_string_helper(np, propname, NULL, 0, 0);
+}
+
+/**
  * of_parse_phandle - Resolve a phandle property to a device_node pointer
  * @np: Pointer to device node holding phandle property
  * @phandle_name: Name of property holding a phandle value

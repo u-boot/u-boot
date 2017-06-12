@@ -359,7 +359,7 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
 			     const char *string);
 
 /**
- * fdt_stringlist_get() - obtain the string at a given index in a string list
+ * ofnode_read_string_index() - obtain an indexed string from a string list
  *
  * Note that this will successfully extract strings from properties with
  * non-NUL-terminated values. For example on small-valued cell properties
@@ -378,6 +378,16 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
  */
 int ofnode_read_string_index(ofnode node, const char *propname, int index,
 			     const char **outp);
+
+/**
+ * ofnode_read_string_count() - find the number of strings in a string list
+ *
+ * @node: node to check
+ * @propname: name of the property containing the string list
+ * @return:
+ *   number of strings in the list, or -ve error value if not found
+ */
+int ofnode_read_string_count(ofnode node, const char *property);
 
 /**
  * ofnode_parse_phandle_with_args() - Find a node pointed by phandle in a list
