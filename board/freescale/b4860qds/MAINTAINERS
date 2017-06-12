@@ -1,5 +1,5 @@
 B4860QDS BOARD
-#M:	-
+M:	Ashish Kumar <ashish.kumar@nxp.com>
 S:	Maintained
 F:	board/freescale/b4860qds/
 F:	include/configs/B4860QDS.h

@@ -1,5 +1,5 @@
 P1010RDB BOARD
-#M:	-
+M:	Qiang Zhao <qiang.zhao@nxp.com>
 S:	Maintained
 F:	board/freescale/p1010rdb/
 F:	include/configs/P1010RDB.h
