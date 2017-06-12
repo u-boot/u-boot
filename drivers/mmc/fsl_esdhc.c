@@ -92,6 +92,7 @@ struct fsl_esdhc {
  * @dev: pointer for the device
  * @non_removable: 0: removable; 1: non-removable
  * @wp_enable: 1: enable checking wp; 0: no check
+ * @vs18_enable: 1: use 1.8V voltage; 0: use 3.3V
  * @cd_gpio: gpio for card detection
  * @wp_gpio: gpio for write protection
  */
@@ -104,6 +105,7 @@ struct fsl_esdhc_priv {
 	struct udevice *dev;
 	int non_removable;
 	int wp_enable;
+	int vs18_enable;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc cd_gpio;
 	struct gpio_desc wp_gpio;
@@ -674,6 +676,9 @@ static int esdhc_init(struct mmc *mmc)
 	esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 #endif
 
+	if (priv->vs18_enable)
+		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
+
 	return 0;
 }
 
@@ -745,6 +750,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
 			VENDORSPEC_HCKEN | VENDORSPEC_IPGEN | VENDORSPEC_CKEN);
 #endif
+
+	if (priv->vs18_enable)
+		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
 	memset(&priv->cfg, 0, sizeof(priv->cfg));
@@ -831,6 +839,7 @@ static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 	priv->bus_width = cfg->max_bus_width;
 	priv->sdhc_clk = cfg->sdhc_clk;
 	priv->wp_enable  = cfg->wp_enable;
+	priv->vs18_enable  = cfg->vs18_enable;
 
 	return 0;
 };
