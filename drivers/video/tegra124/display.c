@@ -471,7 +471,9 @@ static int tegra124_lcd_probe(struct udevice *dev)
 	int ret;
 
 	start = get_timer(0);
+	bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "lcd");
 	ret = tegra124_lcd_init(dev, (void *)plat->base, VIDEO_BPP16);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
 	debug("LCD init took %lu ms\n", get_timer(start));
 	if (ret)
 		printf("%s: Error %d\n", __func__, ret);
