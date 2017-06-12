@@ -138,3 +138,14 @@ const uint8_t *dev_read_u8_array_ptr(struct udevice *dev, const char *propname,
 {
 	return ofnode_read_u8_array_ptr(dev_ofnode(dev), propname, sz);
 }
+
+int dev_read_enabled(struct udevice *dev)
+{
+	ofnode node = dev_ofnode(dev);
+
+	if (ofnode_is_np(node))
+		return of_device_is_available(ofnode_to_np(node));
+	else
+		return fdtdec_get_is_enabled(gd->fdt_blob,
+					     ofnode_to_offset(node));
+}

@@ -315,6 +315,19 @@ ofnode dev_read_next_subnode(ofnode node);
 const uint8_t *dev_read_u8_array_ptr(struct udevice *dev, const char *propname,
 				     size_t sz);
 
+/**
+ * dev_read_enabled() - check whether a node is enabled
+ *
+ * This looks for a 'status' property. If this exists, then returns 1 if
+ * the status is 'ok' and 0 otherwise. If there is no status property,
+ * it returns 1 on the assumption that anything mentioned should be enabled
+ * by default.
+ *
+ * @dev: device to examine
+ * @return integer value 0 (not enabled) or 1 (enabled)
+ */
+int dev_read_enabled(struct udevice *dev);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32_default(struct udevice *dev,
@@ -430,6 +443,11 @@ static inline const uint8_t *dev_read_u8_array_ptr(struct udevice *dev,
 					const char *propname, size_t sz)
 {
 	return ofnode_read_u8_array_ptr(dev_ofnode(dev), propname, sz);
+}
+
+static inline int dev_read_enabled(struct udevice *dev)
+{
+	return fdtdec_get_is_enabled(gd->fdt_blob, dev_of_offset(dev));
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */
