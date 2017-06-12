@@ -812,3 +812,7 @@
 		clock-names = "pll_a", "pll_a_out0", "mclk";
 	};
 };
+
+&uartd {
+	status = "okay";
+};
