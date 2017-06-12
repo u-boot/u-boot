@@ -14,6 +14,7 @@
 #include <watchdog.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <dm/of_access.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -81,9 +82,20 @@ static void serial_find_console_or_panic(void)
 			return;
 		}
 	} else if (CONFIG_IS_ENABLED(OF_CONTROL) && blob) {
-		if (!serial_check_stdout(blob, &dev)) {
-			gd->cur_serial_dev = dev;
-			return;
+		/* Live tree has support for stdout */
+		if (of_live_active()) {
+			struct device_node *np = of_get_stdout();
+
+			if (np && !uclass_get_device_by_ofnode(UCLASS_SERIAL,
+					np_to_ofnode(np), &dev)) {
+				gd->cur_serial_dev = dev;
+				return;
+			}
+		} else {
+			if (!serial_check_stdout(blob, &dev)) {
+				gd->cur_serial_dev = dev;
+				return;
+			}
 		}
 	}
 	if (!SPL_BUILD || !CONFIG_IS_ENABLED(OF_CONTROL) || !blob) {
