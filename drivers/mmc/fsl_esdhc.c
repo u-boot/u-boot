@@ -16,6 +16,7 @@
 #include <hwconfig.h>
 #include <mmc.h>
 #include <part.h>
+#include <power/regulator.h>
 #include <malloc.h>
 #include <fsl_esdhc.h>
 #include <fdt_support.h>
@@ -971,6 +972,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
+	struct udevice *vqmmc_dev;
 	fdt_addr_t addr;
 	unsigned int val;
 	int ret;
@@ -1008,6 +1010,29 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	if (ret)
 		priv->wp_enable = 0;
 #endif
+
+	priv->vs18_enable = 0;
+
+#ifdef CONFIG_DM_REGULATOR
+	/*
+	 * If emmc I/O has a fixed voltage at 1.8V, this must be provided,
+	 * otherwise, emmc will work abnormally.
+	 */
+	ret = device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_dev);
+	if (ret) {
+		dev_dbg(dev, "no vqmmc-supply\n");
+	} else {
+		ret = regulator_set_enable(vqmmc_dev, true);
+		if (ret) {
+			dev_err(dev, "fail to enable vqmmc-supply\n");
+			return ret;
+		}
+
+		if (regulator_get_value(vqmmc_dev) == 1800000)
+			priv->vs18_enable = 1;
+	}
+#endif
+
 	/*
 	 * TODO:
 	 * Because lack of clk driver, if SDHC clk is not enabled,
