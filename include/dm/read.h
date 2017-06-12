@@ -14,6 +14,8 @@
 #include <dm/ofnode.h>
 #include <dm/uclass.h>
 
+struct resource;
+
 #if CONFIG_IS_ENABLED(OF_LIVE)
 static inline const struct device_node *dev_np(struct udevice *dev)
 {
@@ -41,6 +43,16 @@ static inline bool dev_of_valid(struct udevice *dev)
 {
 	return ofnode_valid(dev_ofnode(dev));
 }
+
+/**
+ * dev_read_resource() - obtain an indexed resource from a device.
+ *
+ * @dev: devuce to examine
+ * @index index of the resource to retrieve (0 = first)
+ * @res returns the resource
+ * @return 0 if ok, negative on error
+ */
+int dev_read_resource(struct udevice *dev, uint index, struct resource *res);
 
 #ifndef CONFIG_DM_DEV_READ_INLINE
 /**
