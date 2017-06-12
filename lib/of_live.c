@@ -216,9 +216,12 @@ static void *unflatten_dt_node(const void *blob, void *mem, int *poffset,
 	*poffset = fdt_next_node(blob, *poffset, &depth);
 	if (depth < 0)
 		depth = 0;
-	while (*poffset > 0 && depth > old_depth)
+	while (*poffset > 0 && depth > old_depth) {
 		mem = unflatten_dt_node(blob, mem, poffset, np, NULL,
 					fpsize, dryrun);
+		if (!mem)
+			return NULL;
+	}
 
 	if (*poffset < 0 && *poffset != -FDT_ERR_NOTFOUND) {
 		debug("unflatten: error %d processing FDT\n", *poffset);
@@ -286,6 +289,8 @@ static int unflatten_device_tree(const void *blob,
 	start = 0;
 	size = (unsigned long)unflatten_dt_node(blob, NULL, &start, NULL, NULL,
 						0, true);
+	if (!size)
+		return -EFAULT;
 	size = ALIGN(size, 4);
 
 	debug("  size is %lx, allocating...\n", size);
