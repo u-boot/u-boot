@@ -8,7 +8,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <watchdog.h>
@@ -395,7 +394,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	int err;
 
 	/* try Processor Local Bus device first */
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 #if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
 	if (addr == FDT_ADDR_T_NONE) {
 		/* then try pci device */
@@ -434,11 +433,8 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->base = (unsigned long)map_physmem(addr, 0, MAP_NOCACHE);
 #endif
 
-	plat->reg_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				     "reg-offset", 0);
-	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					 "reg-shift", 0);
-
+	plat->reg_offset = dev_read_u32_default(dev, "reg-offset", 0);
+	plat->reg_shift = dev_read_u32_default(dev, "reg-shift", 0);
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
 		err = clk_get_rate(&clk);
@@ -450,9 +446,8 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (!plat->clock)
-		plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					     "clock-frequency",
-					     CONFIG_SYS_NS16550_CLK);
+		plat->clock = dev_read_u32_default(dev, "clock-frequency",
+						   CONFIG_SYS_NS16550_CLK);
 	if (!plat->clock) {
 		debug("ns16550 clock not defined\n");
 		return -EINVAL;
