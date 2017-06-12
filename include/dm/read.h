@@ -231,6 +231,26 @@ int dev_read_addr_cells(struct udevice *dev);
 int dev_read_size_cells(struct udevice *dev);
 
 /**
+ * dev_read_addr_cells() - Get the address cells property in a node
+ *
+ * This function matches fdt_address_cells().
+ *
+ * @dev: devioe to check
+ * @return number of address cells this node uses
+ */
+int dev_read_simple_addr_cells(struct udevice *dev);
+
+/**
+ * dev_read_size_cells() - Get the size cells property in a node
+ *
+ * This function matches fdt_size_cells().
+ *
+ * @dev: devioe to check
+ * @return number of size cells this node uses
+ */
+int dev_read_simple_size_cells(struct udevice *dev);
+
+/**
  * dev_read_phandle() - Get the phandle from a device
  *
  * @dev: device to check
@@ -398,10 +418,22 @@ static inline int dev_read_phandle_with_args(struct udevice *dev,
 
 static inline int dev_read_addr_cells(struct udevice *dev)
 {
+	/* NOTE: this call should walk up the parent stack */
 	return fdt_address_cells(gd->fdt_blob, dev_of_offset(dev));
 }
 
 static inline int dev_read_size_cells(struct udevice *dev)
+{
+	/* NOTE: this call should walk up the parent stack */
+	return fdt_size_cells(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline int dev_read_simple_addr_cells(struct udevice *dev)
+{
+	return fdt_address_cells(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline int dev_read_simple_size_cells(struct udevice *dev)
 {
 	return fdt_size_cells(gd->fdt_blob, dev_of_offset(dev));
 }

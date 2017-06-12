@@ -61,6 +61,26 @@ int of_n_addr_cells(const struct device_node *np);
 int of_n_size_cells(const struct device_node *np);
 
 /**
+ * of_simple_addr_cells() - Get the address cells property in a node
+ *
+ * This function matches fdt_address_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #address-cells property in this node, or 2 if none
+ */
+int of_simple_addr_cells(const struct device_node *np);
+
+/**
+ * of_simple_size_cells() - Get the size cells property in a node
+ *
+ * This function matches fdt_size_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #size-cells property in this node, or 2 if none
+ */
+int of_simple_size_cells(const struct device_node *np);
+
+/**
  * of_find_property() - find a property in a node
  *
  * @np: Pointer to device node holding property

@@ -562,6 +562,26 @@ int ofnode_read_addr_cells(ofnode node);
 int ofnode_read_size_cells(ofnode node);
 
 /**
+ * ofnode_read_simple_addr_cells() - Get the address cells property in a node
+ *
+ * This function matches fdt_address_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #address-cells property in this node, or 2 if none
+ */
+int ofnode_read_simple_addr_cells(ofnode node);
+
+/**
+ * ofnode_read_simple_size_cells() - Get the size cells property in a node
+ *
+ * This function matches fdt_size_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #size-cells property in this node, or 2 if none
+ */
+int ofnode_read_simple_size_cells(ofnode node);
+
+/**
  * ofnode_pre_reloc() - check if a node should be bound before relocation
  *
  * Device tree nodes can be marked as needing-to-be-bound in the loader stages

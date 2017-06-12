@@ -94,6 +94,16 @@ int dev_read_size_cells(struct udevice *dev)
 	return ofnode_read_size_cells(dev_ofnode(dev));
 }
 
+int dev_read_simple_addr_cells(struct udevice *dev)
+{
+	return ofnode_read_simple_addr_cells(dev_ofnode(dev));
+}
+
+int dev_read_simple_size_cells(struct udevice *dev)
+{
+	return ofnode_read_simple_size_cells(dev_ofnode(dev));
+}
+
 int dev_read_phandle(struct udevice *dev)
 {
 	ofnode node = dev_ofnode(dev);
