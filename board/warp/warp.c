@@ -62,7 +62,7 @@ static void setup_iomux_uart(void)
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC2_BASE_ADDR},
+	{USDHC2_BASE_ADDR, 0, 0, 0, 1},
 };
 
 int board_mmc_getcd(struct mmc *mmc)

@@ -673,10 +673,6 @@ static int esdhc_init(struct mmc *mmc)
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
-#ifdef CONFIG_SYS_FSL_ESDHC_FORCE_VSELECT
-	esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
-#endif
-
 	if (priv->vs18_enable)
 		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
