@@ -96,7 +96,7 @@ int regulator_set_current(struct udevice *dev, int uA)
 	return ops->set_current(dev, uA);
 }
 
-bool regulator_get_enable(struct udevice *dev)
+int regulator_get_enable(struct udevice *dev)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 
