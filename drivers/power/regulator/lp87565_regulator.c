@@ -166,7 +166,7 @@ static int buck_set_value(struct udevice *dev, int uV)
 	return lp87565_buck_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool buck_get_enable(struct udevice *dev)
+static int buck_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
