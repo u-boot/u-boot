@@ -267,6 +267,11 @@ M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	configs/Nintendo_NES_Classic_Edition_defconfig
 
+ORANGEPI WIN/WIN PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_win_defconfig
+
 ORANGEPI ZERO BOARD
 M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained
