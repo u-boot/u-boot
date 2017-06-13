@@ -495,7 +495,7 @@ dp83902a_recv(u8 *data, int len)
 					printf(" %02x", tmp);
 					if (0 == (++dx % 16)) printf("\n ");
 #endif
-					*data++ = tmp;;
+					*data++ = tmp;
 					mlen--;
 				}
 			}

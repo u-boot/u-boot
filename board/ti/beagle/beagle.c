@@ -443,13 +443,13 @@ int misc_init_r(void)
 		printf("Recognized BeagleBoardToys WiFi board\n");
 		MUX_BBTOYS_WIFI()
 		setenv("buddy", "bbtoys-wifi");
-		break;;
+		break;
 	case BBTOYS_VGA:
 		printf("Recognized BeagleBoardToys VGA board\n");
-		break;;
+		break;
 	case BBTOYS_LCD:
 		printf("Recognized BeagleBoardToys LCD board\n");
-		break;;
+		break;
 	case BCT_BRETTL3:
 		printf("Recognized bct electronic GmbH brettl3 board\n");
 		break;

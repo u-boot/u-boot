@@ -142,7 +142,7 @@ void amplifier_init(void)
 static void i2s_init(void)
 {
 	unsigned long i;
-	struct mpc5xxx_psc *psc = (struct mpc5xxx_psc*)MPC5XXX_PSC2;;
+	struct mpc5xxx_psc *psc = (struct mpc5xxx_psc*)MPC5XXX_PSC2;
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio*)MPC5XXX_GPIO;
 
 	gpio->port_config |= 0x00000070; /* PSC2 ports as Codec with MCLK */

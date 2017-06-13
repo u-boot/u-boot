@@ -320,7 +320,7 @@ void read_a_file(char *fn)
 		i++;
 		if (i > 32) {
 			printf("\n");
-			i = 0;;
+			i = 0;
 		}
 	}
 	printf("\n");

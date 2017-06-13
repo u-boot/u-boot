@@ -1880,7 +1880,7 @@ void configure_ppc440ep_pins(void)
 	if (ppc440ep_core_selection[PACKET_REJ_FUNC_EN] == CORE_SELECTED)
 	{
 		mfsdr(SDR0_MFR, sdr0_mfr);
-		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_PKT_REJ_MASK) | SDR0_MFR_PKT_REJ_EN;;
+		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_PKT_REJ_MASK) | SDR0_MFR_PKT_REJ_EN;
 		mtsdr(SDR0_MFR, sdr0_mfr);
 	}
 

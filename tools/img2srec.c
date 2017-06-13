@@ -112,7 +112,7 @@ static char* ExtractDecimal (uint32_t* value,  char* getPtr)
 
 static void ExtractNumber (uint32_t* value,  char* getPtr)
 {
-  bool  neg = false;;
+  bool  neg = false;
 
   while (*getPtr == ' ') getPtr++;
   if (*getPtr == '-') {

@@ -475,7 +475,7 @@ static void fec_halt(struct eth_device *dev)
 
 	/* Disable DMA tasks */
 	MCD_killDma(info->txTask);
-	MCD_killDma(info->rxTask);;
+	MCD_killDma(info->rxTask);
 
 	/* Disable the Ethernet Controller */
 	fecp->ecr &= ~FEC_ECR_ETHER_EN;

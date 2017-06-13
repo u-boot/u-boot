@@ -709,7 +709,7 @@ unsigned long determine_pci_clock_per(void)
 			pci_period = PERIOD_66_66MHZ;
 			break;
 		default:
-			pci_period = PERIOD_33_33MHZ;;
+			pci_period = PERIOD_33_33MHZ;
 			break;
 	}
 

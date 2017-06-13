@@ -559,7 +559,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 		/* Graceful stop complete */
 		if (in_be32(&fec->eth->x_cntrl) & 0x00000001) {
 			mpc512x_fec_halt (dev);
-			clrbits_be32(&fec->eth->x_cntrl, 0x00000001);;
+			clrbits_be32(&fec->eth->x_cntrl, 0x00000001);
 			mpc512x_fec_init (dev, NULL);
 		}
 	}

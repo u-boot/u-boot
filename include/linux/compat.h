@@ -109,7 +109,7 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 #define WARN_ON(condition) ({						\
 	int __ret_warn_on = !!(condition);				\
 	if (unlikely(__ret_warn_on))					\
-		printf("WARNING in %s line %d\n", __FILE__, __LINE__);;	\
+		printf("WARNING in %s line %d\n", __FILE__, __LINE__);	\
 	unlikely(__ret_warn_on);					\
 })
 

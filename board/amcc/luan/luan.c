@@ -161,7 +161,7 @@ static void l2cache_enable(void)	/* see p258 7.4.1 Enabling L2 Cache */
 
 	mtdcr( L2_CACHE_CMD, 0x80000000 );	/* issue HCLEAR command via L2_CMD */
 
-	while (!(mfdcr( L2_CACHE_STAT ) & 0x80000000 ))  ;; /* poll L2_SR for completion */
+	while (!(mfdcr( L2_CACHE_STAT ) & 0x80000000 ))  ; /* poll L2_SR for completion */
 
 	mtdcr( L2_CACHE_CMD, 0x10000000 );	/* clear cache errors L2_CMD[CCP] */
 

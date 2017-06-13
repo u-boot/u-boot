@@ -49,7 +49,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		case AT45DB081:
@@ -61,7 +61,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		case AT45DB161:
@@ -73,7 +73,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		case AT45DB321:
@@ -85,7 +85,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		case AT45DB642:
@@ -97,7 +97,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		case AT45DB128:
@@ -109,7 +109,7 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
 			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
-			found[i] += dfcode;;
+			found[i] += dfcode;
 			break;
 
 		default:
