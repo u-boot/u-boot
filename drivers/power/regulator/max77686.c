@@ -688,7 +688,7 @@ static int ldo_set_value(struct udevice *dev, int uV)
 	return max77686_ldo_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
@@ -752,7 +752,7 @@ static int buck_set_value(struct udevice *dev, int uV)
 	return max77686_buck_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool buck_get_enable(struct udevice *dev)
+static int buck_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
