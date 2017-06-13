@@ -31,8 +31,6 @@
 /* I2C IP block */
 #define CONFIG_SYS_OMAP24_I2C_SPEED_PSOC	20000
 
-/* GPIO */
-
 /* MMC/SD IP block */
 #define CONFIG_SUPPORT_EMMC_BOOT
 
