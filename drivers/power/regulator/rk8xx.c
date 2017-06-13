@@ -177,7 +177,7 @@ static int buck_set_enable(struct udevice *dev, bool enable)
 	return _buck_set_enable(dev->parent, buck, enable);
 }
 
-static bool buck_get_enable(struct udevice *dev)
+static int buck_get_enable(struct udevice *dev)
 {
 	int buck = dev->driver_data - 1;
 	int ret;
@@ -236,7 +236,7 @@ static int ldo_set_enable(struct udevice *dev, bool enable)
 			       enable ? mask : 0);
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	int ldo = dev->driver_data - 1;
 	int ret;
@@ -262,7 +262,7 @@ static int switch_set_enable(struct udevice *dev, bool enable)
 			       enable ? mask : 0);
 }
 
-static bool switch_get_enable(struct udevice *dev)
+static int switch_get_enable(struct udevice *dev)
 {
 	int sw = dev->driver_data - 1;
 	int ret;
