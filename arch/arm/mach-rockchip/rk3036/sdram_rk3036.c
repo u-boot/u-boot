@@ -710,11 +710,12 @@ static void sdram_all_config(struct rk3036_sdram_priv *priv)
 	os_reg = config.ddr_type << DDR_TYPE_SHIFT |
 			0 << DDR_CHN_CNT_SHIFT |
 			(config.rank - 1) << DDR_RANK_CNT_SHIFT |
-			(config.col - 1) << DDR_COL_SHIFT |
+			(config.col - 9) << DDR_COL_SHIFT |
 			(config.bank == 3 ? 0 : 1) << DDR_BANK_SHIFT |
 			(config.cs0_row - 13) << DDR_CS0_ROW_SHIFT |
 			cs1_row << DDR_CS1_ROW_SHIFT |
-			1 << DDR_BW_SHIFT | config.bw << DDR_DIE_BW_SHIFT;
+			1 << DDR_BW_SHIFT |
+			(2 >> config.bw) << DDR_DIE_BW_SHIFT;
 	writel(os_reg, &priv->grf->os_reg[1]);
 }
 
