@@ -6,6 +6,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef __TI_DFU_H
+#define __TI_DFU_H
+
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \
@@ -75,3 +78,5 @@
 	"u-boot-env raw 0x1C0000 0x010000;" \
 	"u-boot-env.backup raw 0x1D0000 0x010000;" \
 	"kernel raw 0x1E0000 0x800000\0"
+
+#endif /* __TI_DFU_H */
