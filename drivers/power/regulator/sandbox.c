@@ -234,7 +234,7 @@ static int buck_set_current(struct udevice *dev, int uA)
 			      buck_current_range, uA);
 }
 
-static bool buck_get_enable(struct udevice *dev)
+static int buck_get_enable(struct udevice *dev)
 {
 	if (out_get_mode(dev) == BUCK_OM_OFF)
 		return false;
@@ -310,7 +310,7 @@ static int ldo_set_current(struct udevice *dev, int uA)
 			     ldo_current_range, uA);
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	if (out_get_mode(dev) == LDO_OM_OFF)
 		return false;
