@@ -687,7 +687,12 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(1, 0, 0, -1, -1);
+	int rc = 0;
+
+	rc |= omap_mmc_init(0, 0, 0, -1, -1);
+	rc |= omap_mmc_init(1, 0, 0, -1, -1);
+
+	return rc;
 }
 #endif
 int overwrite_console(void)
