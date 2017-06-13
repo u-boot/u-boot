@@ -19,11 +19,6 @@
 #define CONFIG_LCD_NOSTDOUT
 #define LCD_BPP				LCD_COLOR32
 
-#define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
-
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
@@ -56,16 +51,10 @@ BUR_COMMON_ENV \
 "loadromfs=mmc dev 1; mmc read ${vx_romfsbase} 700 100\0" \
 "autoload=0\0" \
 "loadaddr=0x80100000\0" \
-"logoaddr=0x82000000\0" \
 "defaultARlen=0x8000\0" \
 "loaddefaultAR=mmc dev 1; mmc read ${loadaddr} 800 ${defaultARlen}\0" \
 "defaultAR=run loadromfs; run loaddefaultAR; bootvx ${loadaddr}\0" \
-"logo0=fatload mmc 1:1 ${logoaddr} SYSTEM/ADDON/Bootlogo/Bootlogo.bmp.gz && " \
-	"bmp display ${logoaddr} 0 0\0" \
-"logo1=fatload mmc 1:1 ${logoaddr} SYSTEM/BASE/Bootlogo/Bootlogo.bmp.gz && " \
-	"bmp display ${logoaddr} 0 0\0" \
 "mmcboot=echo booting AR from eMMC-flash ...; "\
-	"run logo0 || run logo1; " \
 	"run loadromfs; " \
 	"fatload mmc 1:1 ${loadaddr} arimg && bootvx ${loadaddr}; " \
 	"run defaultAR;\0" \
