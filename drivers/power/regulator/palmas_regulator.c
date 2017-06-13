@@ -304,7 +304,7 @@ static int ldo_set_value(struct udevice *dev, int uV)
 	return palmas_ldo_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
@@ -411,7 +411,7 @@ static int smps_set_value(struct udevice *dev, int uV)
 	return palmas_smps_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool smps_get_enable(struct udevice *dev)
+static int smps_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
