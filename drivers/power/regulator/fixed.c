@@ -89,7 +89,7 @@ static int fixed_regulator_get_current(struct udevice *dev)
 	return uc_pdata->min_uA;
 }
 
-static bool fixed_regulator_get_enable(struct udevice *dev)
+static int fixed_regulator_get_enable(struct udevice *dev)
 {
 	struct fixed_regulator_platdata *dev_pdata = dev_get_platdata(dev);
 
