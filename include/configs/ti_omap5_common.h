@@ -50,14 +50,12 @@
 /*
  * Environment setup
  */
-#ifndef PARTS_DEFAULT
-#define PARTS_DEFAULT
-#endif
 
 #ifndef DFUARGS
 #define DFUARGS
 #endif
 
+#include <environment/ti/boot.h>
 #include <environment/ti/mmc.h>
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -65,62 +63,10 @@
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
-	"console=" CONSOLEDEV ",115200n8\0" \
-	"fdtfile=undefined\0" \
-	"bootpart=0:2\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
-	"usbtty=cdc_acm\0" \
-	"vram=16M\0" \
-	"partitions=" PARTS_DEFAULT "\0" \
-	"optargs=\0" \
-	"dofastboot=0\0" \
-	"findfdt="\
-		"if test $board_name = omap5_uevm; then " \
-			"setenv fdtfile omap5-uevm.dtb; fi; " \
-		"if test $board_name = dra7xx; then " \
-			"setenv fdtfile dra7-evm.dtb; fi;" \
-		"if test $board_name = dra72x-revc; then " \
-			"setenv fdtfile dra72-evm-revc.dtb; fi;" \
-		"if test $board_name = dra72x; then " \
-			"setenv fdtfile dra72-evm.dtb; fi;" \
-		"if test $board_name = dra71x; then " \
-			"setenv fdtfile dra71-evm.dtb; fi;" \
-		"if test $board_name = beagle_x15; then " \
-			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
-		"if test $board_name = beagle_x15_revb1; then " \
-			"setenv fdtfile am57xx-beagle-x15-revb1.dtb; fi;" \
-		"if test $board_name = am572x_idk; then " \
-			"setenv fdtfile am572x-idk.dtb; fi;" \
-		"if test $board_name = am57xx_evm; then " \
-			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
-		"if test $board_name = am57xx_evm_reva3; then " \
-			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
-		"if test $board_name = am571x_idk; then " \
-			"setenv fdtfile am571x-idk.dtb; fi;" \
-		"if test $fdtfile = undefined; then " \
-			"echo WARNING: Could not determine device tree to use; fi; \0" \
+	DEFAULT_COMMON_BOOT_TI_ARGS \
+	DEFAULT_FDT_TI_ARGS \
 	DFUARGS \
 	NETARGS \
-
-#define CONFIG_BOOTCOMMAND \
-	"if test ${dofastboot} -eq 1; then " \
-		"echo Boot fastboot requested, resetting dofastboot ...;" \
-		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; " \
-		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
-	"fi;" \
-	"if test ${boot_fit} -eq 1; then "	\
-		"run update_to_fit;"	\
-	"fi;"	\
-	"run findfdt; " \
-	"run envboot; " \
-	"run mmcboot;" \
-	"setenv mmcdev 1; " \
-	"setenv bootpart 1:2; " \
-	"setenv mmcroot /dev/mmcblk0p2 rw; " \
-	"run mmcboot;" \
-	""
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
