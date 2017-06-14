@@ -16,6 +16,7 @@
 
 	chosen {
 		stdout-path = &uart2;
+		u-boot,spl-boot-order = &sdhci, &sdmmc;
 	};
 
 	backlight: backlight {
@@ -587,6 +588,12 @@
 
 &saradc {
 	vref-supply = <&vccadc_ref>;
+	status = "okay";
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+	bus-width = <4>;
 	status = "okay";
 };
 
