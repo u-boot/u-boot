@@ -1,9 +1,0 @@
-if TARGET_IPEK01
-
-config SYS_BOARD
-	default "ipek01"
-
-config SYS_CONFIG_NAME
-	default "ipek01"
-
-endif

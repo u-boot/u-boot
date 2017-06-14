@@ -608,10 +608,6 @@ The following options need to be configured:
 		 * Adds the "fdt" command
 		 * The bootm command automatically updates the fdt
 
-		OF_CPU - The proper name of the cpus node (only required for
-			MPC512X and MPC5xxx based boards).
-		OF_SOC - The proper name of the soc node (only required for
-			MPC512X and MPC5xxx based boards).
 		OF_TBCLK - The timebase frequency.
 		OF_STDOUT_PATH - The path to the console device
 
@@ -1232,7 +1228,7 @@ The following options need to be configured:
 
 - USB Support:
 		At the moment only the UHCI host controller is
-		supported (PIP405, MIP405, MPC5200); define
+		supported (PIP405, MIP405); define
 		CONFIG_USB_UHCI to enable it.
 		define CONFIG_USB_KEYBOARD to enable the USB Keyboard
 		and define CONFIG_USB_STORAGE to enable the USB
@@ -1240,19 +1236,6 @@ The following options need to be configured:
 		Note:
 		Supported are USB Keyboards and USB Floppy drives
 		(TEAC FD-05PUB).
-		MPC5200 USB requires additional defines:
-			CONFIG_USB_CLOCK
-				for 528 MHz Clock: 0x0001bbbb
-			CONFIG_PSC3_USB
-				for USB on PSC3
-			CONFIG_USB_CONFIG
-				for differential drivers: 0x00001000
-				for single ended drivers: 0x00005000
-				for differential drivers on PSC3: 0x00000100
-				for single ended drivers on PSC3: 0x00004100
-			CONFIG_SYS_USB_EVENT_POLL
-				May be defined to allow interrupt polling
-				instead of using asynchronous interrupts
 
 		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
 		txfilltuning field in the EHCI controller on reset.
@@ -1893,12 +1876,6 @@ The following options need to be configured:
 		GPIO low value corresponds to LED on state.
 		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
 		with a list of GPIO LEDs that have inverted polarity.
-
-- CAN Support:	CONFIG_CAN_DRIVER
-
-		Defining CONFIG_CAN_DRIVER enables CAN driver support
-		on those systems that support this (optional)
-		feature.
 
 - I2C Support:	CONFIG_SYS_I2C
 

@@ -1,6 +1,0 @@
-CANMB BOARD
-#M:	-
-S:	Maintained
-F:	board/canmb/
-F:	include/configs/canmb.h
-F:	configs/canmb_defconfig

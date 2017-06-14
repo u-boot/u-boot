@@ -8,12 +8,6 @@ choice
 	prompt "CPU select"
 	optional
 
-config MPC512X
-	bool "MPC512X"
-
-config MPC5xxx
-	bool "MPC5xxx"
-
 config MPC83xx
 	bool "MPC83xx"
 	select CREATE_ARCH_SYMLINK
@@ -42,8 +36,6 @@ config 4xx
 
 endchoice
 
-source "arch/powerpc/cpu/mpc512x/Kconfig"
-source "arch/powerpc/cpu/mpc5xxx/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc86xx/Kconfig"

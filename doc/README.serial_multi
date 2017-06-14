@@ -52,29 +52,3 @@ PPC4XX Specific
 	setenv stdout serial0
 	setenv stderr serial0
 	setenv stdin serial0
-
-MPC5xxx Specific
-================
-
-Up to two PSCs can be used as console.
-
-Support for hardware handshake has not been implemented yet.
-
-*) The first (default) console port is defined by:
-	#define CONFIG_PSC_CONSOLE <PSC number>
-
-*) The second (alternative) console port is defined by:
-	#define CONFIG_PSC_CONSOLE2 <PSC number>
-
-*) Commands to switch to the second console:
-	setenv stdout serial1
-	setenv stderr serial1
-	setenv stdin serial1
-
-*) Commands to switch to the first console:
-	setenv stdout serial0
-	setenv stderr serial0
-	setenv stdin serial0
-
-*) If a file descriptor is set to "serial" then the
-   current serial device will be used.

@@ -14,16 +14,6 @@
  */
 #if !defined(CONFIG_SYS_BOOTCOUNT_ADDR)
 
-#if defined(CONFIG_MPC5xxx)
-#define CONFIG_SYS_BOOTCOUNT_ADDR	(MPC5XXX_CDM_BRDCRMB)
-#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
-#endif /* defined(CONFIG_MPC5xxx) */
-
-#if defined(CONFIG_MPC512X)
-#define CONFIG_SYS_BOOTCOUNT_ADDR	(&((immap_t *)CONFIG_SYS_IMMR)->clk.bcr)
-#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
-#endif /* defined(CONFIG_MPC512X) */
-
 #if defined(CONFIG_QE)
 #include <linux/immap_qe.h>
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + 0x110000 + \

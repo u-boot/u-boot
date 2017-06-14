@@ -133,7 +133,6 @@ serial_initfunc(marvell_serial_initialize);
 serial_initfunc(max3100_serial_initialize);
 serial_initfunc(mcf_serial_initialize);
 serial_initfunc(ml2_serial_initialize);
-serial_initfunc(mpc512x_serial_initialize);
 serial_initfunc(mpc5xx_serial_initialize);
 serial_initfunc(mpc8260_scc_serial_initialize);
 serial_initfunc(mpc8260_smc_serial_initialize);
@@ -224,7 +223,6 @@ void serial_initialize(void)
 	max3100_serial_initialize();
 	mcf_serial_initialize();
 	ml2_serial_initialize();
-	mpc512x_serial_initialize();
 	mpc5xx_serial_initialize();
 	mpc8260_scc_serial_initialize();
 	mpc8260_smc_serial_initialize();

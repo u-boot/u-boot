@@ -194,12 +194,6 @@ matrix:
         - BUILDMAN="mips"
           TOOLCHAIN="mips"
     - env:
-        - BUILDMAN="mpc512x"
-    - env:
-        - BUILDMAN="mpc5xx"
-    - env:
-        - BUILDMAN="mpc5xxx"
-    - env:
         - BUILDMAN="mpc83xx"
     - env:
         - BUILDMAN="mpc85xx -x freescale"

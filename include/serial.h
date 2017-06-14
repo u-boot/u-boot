@@ -29,9 +29,8 @@ extern struct serial_device *default_serial_console(void);
 #if	defined(CONFIG_405GP) || \
 	defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
 	defined(CONFIG_405EX) || defined(CONFIG_440) || \
-	defined(CONFIG_MPC5xxx) || \
 	defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || \
-	defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520) || \
+	defined(CONFIG_MPC86xx) || \
 	defined(CONFIG_TEGRA) || defined(CONFIG_SYS_COREBOOT) || \
 	defined(CONFIG_MICROBLAZE)
 extern struct serial_device serial0_device;
@@ -68,13 +67,6 @@ extern int usbtty_tstc(void);
 #define usbtty_tstc() 0
 
 #endif /* CONFIG_USB_TTY */
-
-#if defined(CONFIG_MPC512X)
-extern struct stdio_dev *open_port(int num, int baudrate);
-extern int close_port(int num);
-extern int write_port(struct stdio_dev *port, char *buf);
-extern int read_port(struct stdio_dev *port, char *buf, int size);
-#endif
 
 struct udevice;
 
@@ -192,7 +184,6 @@ void marvell_serial_initialize(void);
 void max3100_serial_initialize(void);
 void mcf_serial_initialize(void);
 void ml2_serial_initialize(void);
-void mpc512x_serial_initialize(void);
 void mpc5xx_serial_initialize(void);
 void mpc8260_scc_serial_initialize(void);
 void mpc8260_smc_serial_initialize(void);

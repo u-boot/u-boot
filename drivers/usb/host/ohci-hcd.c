@@ -53,7 +53,6 @@
 #if defined(CONFIG_CPU_ARM920T) || \
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \
-    defined(CONFIG_MPC5200) || \
     defined(CONFIG_SYS_OHCI_USE_NPS)
 # define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #endif
@@ -1088,10 +1087,6 @@ static void check_status(td_t *td_list)
 				*phwHeadP &= m32_swap(0xfffffff2);
 			flush_dcache_ed(td_list->ed);
 		}
-#ifdef CONFIG_MPC5200
-		td_list->hwNextTD = 0;
-		flush_dcache_td(td_list);
-#endif
 	}
 }
 

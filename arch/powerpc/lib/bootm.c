@@ -283,10 +283,6 @@ static void set_clocks_in_mhz (bd_t *kbd)
 		kbd->bi_sccfreq /= 1000000L;
 		kbd->bi_vco	/= 1000000L;
 #endif
-#if defined(CONFIG_MPC5xxx)
-		kbd->bi_ipbfreq /= 1000000L;
-		kbd->bi_pcifreq /= 1000000L;
-#endif /* CONFIG_MPC5xxx */
 	}
 }
 

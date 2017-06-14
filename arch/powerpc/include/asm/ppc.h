@@ -13,11 +13,6 @@
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_MPC5xxx)
-#include <mpc5xxx.h>
-#elif defined(CONFIG_MPC512X)
-#include <asm/immap_512x.h>
-#endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
 #include <asm/immap_86xx.h>
@@ -43,9 +38,6 @@
 #include <asm/arch/immap_lsch2.h>
 #endif
 
-#if defined(CONFIG_MPC5xxx)
-uint get_svr(void);
-#endif
 uint get_pvr(void);
 uint get_svr(void);
 uint rd_ic_cst(void);
@@ -56,7 +48,6 @@ void wr_dc_cst(uint);
 void wr_dc_adr(uint);
 
 #if defined(CONFIG_4xx)	|| \
-	defined(CONFIG_MPC5xxx)	|| \
 	defined(CONFIG_MPC85xx)	|| \
 	defined(CONFIG_MPC86xx)	|| \
 	defined(CONFIG_MPC83xx)
@@ -83,10 +74,6 @@ void enable_addr_trans(void);
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 void ddr_enable_ecc(unsigned int dram_size);
 #endif
-#endif
-
-#if defined(CONFIG_MPC5xxx)
-int	prt_mpc5xxx_clks(void);
 #endif
 
 #if defined(CONFIG_MPC85xx)

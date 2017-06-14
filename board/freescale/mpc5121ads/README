@@ -1,7 +1,0 @@
-To configure for the current (Rev 3.x) ADS5121
-	make mpc5121ads_config
-This will automatically include PCI, the Real Time CLock, add backup flash
-ability and set the correct frequency and memory configuration.
-
-To configure for the older Rev 2 ADS5121 type (this will not have PCI)
-	make mpc5121ads_rev2_config

@@ -1,9 +1,0 @@
-DIGSY_MTC BOARD
-M:	Werner Pfister <Pfister_Werner@intercontrol.de>
-S:	Maintained
-F:	board/intercontrol/digsy_mtc/
-F:	include/configs/digsy_mtc.h
-F:	configs/digsy_mtc_defconfig
-F:	configs/digsy_mtc_RAMBOOT_defconfig
-F:	configs/digsy_mtc_rev5_defconfig
-F:	configs/digsy_mtc_rev5_RAMBOOT_defconfig

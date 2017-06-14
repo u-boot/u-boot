@@ -1,6 +1,0 @@
-INKA4X0 BOARD
-M:	Anatolij Gustschin <agust@denx.de>
-S:	Maintained
-F:	board/inka4x0/
-F:	include/configs/inka4x0.h
-F:	configs/inka4x0_defconfig

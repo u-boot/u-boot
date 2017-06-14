@@ -125,13 +125,8 @@ typedef struct td td_t;
 #define NUM_INTS 32		/* part of the OHCI standard */
 struct ohci_hcca {
 	__u32 int_table[NUM_INTS];	/* Interrupt ED table */
-#if defined(CONFIG_MPC5200)
-	__u16 pad1;		/* set to 0 on each frame_no change */
-	__u16 frame_no;		/* current frame number */
-#else
 	__u16 frame_no;		/* current frame number */
 	__u16 pad1;		/* set to 0 on each frame_no change */
-#endif
 	__u32 done_head;	/* info returned for an interrupt */
 	u8 reserved_for_hc[116];
 } __attribute__((aligned(256)));

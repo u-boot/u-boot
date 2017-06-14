@@ -44,7 +44,7 @@ typedef struct bd_info {
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
-#if defined(CONFIG_MPC5xxx) || defined(CONFIG_M68K)
+#if defined(CONFIG_M68K)
 	unsigned long	bi_mbar_base;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83xx)
@@ -62,10 +62,7 @@ typedef struct bd_info {
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */
 	unsigned long	bi_vco;		/* VCO Out from PLL, in MHz */
 #endif
-#if defined(CONFIG_MPC512X)
-	unsigned long	bi_ipsfreq;	/* IPS Bus Freq, in MHz */
-#endif /* CONFIG_MPC512X */
-#if defined(CONFIG_MPC5xxx) || defined(CONFIG_M68K)
+#if defined(CONFIG_M68K)
 	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif

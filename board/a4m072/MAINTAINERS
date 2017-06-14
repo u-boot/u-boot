@@ -1,6 +1,0 @@
-A4M072 BOARD
-M:	Sergei Poselenov <sposelenov@emcraft.com>
-S:	Maintained
-F:	board/a4m072/
-F:	include/configs/a4m072.h
-F:	configs/a4m072_defconfig

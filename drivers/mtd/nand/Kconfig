@@ -33,11 +33,11 @@ config NAND_DENALI_SPARE_AREA_SKIP_BYTES
 	  used to preserve the bad block marker in the OOB area.
 
 config NAND_VF610_NFC
-	bool "Support for Freescale NFC for VF610/MPC5125"
+	bool "Support for Freescale NFC for VF610"
 	select SYS_NAND_SELF_INIT
 	help
 	  Enables support for NAND Flash Controller on some Freescale
-	  processors like the VF610, MPC5125, MCF54418 or Kinetis K70.
+	  processors like the VF610, MCF54418 or Kinetis K70.
 	  The driver supports a maximum 2k page size. The driver
 	  currently does not support hardware ECC.
 

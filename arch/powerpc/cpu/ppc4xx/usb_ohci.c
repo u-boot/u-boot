@@ -782,9 +782,6 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 				} else
 					td_list->ed->hwHeadP &= ohci_cpu_to_le32 (0xfffffff2);
 			}
-#ifdef CONFIG_MPC5200
-			td_list->hwNextTD = 0;
-#endif
 		}
 
 		td_list->next_dl_td = td_rev;

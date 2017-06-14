@@ -81,13 +81,6 @@ struct arch_global_data {
 #if defined(CONFIG_E500)
 	u32 used_tlb_cams[(CONFIG_SYS_NUM_TLBCAMS+31)/32];
 #endif
-#if defined(CONFIG_MPC5xxx)
-	unsigned long ipb_clk;
-#endif
-#if defined(CONFIG_MPC512X)
-	u32 ips_clk;
-	u32 csb_clk;
-#endif /* CONFIG_MPC512X */
 	unsigned long reset_status;	/* reset status register at boot */
 #if defined(CONFIG_MPC83xx)
 	unsigned long arbiter_event_attributes;

@@ -9,7 +9,6 @@ extra-y        := hello_world
 extra-$(CONFIG_SMC91111)           += smc91111_eeprom
 extra-$(CONFIG_SMC911X)            += smc911x_eeprom
 extra-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
-extra-$(CONFIG_MPC5xxx)            += interrupt
 extra-$(CONFIG_PPC)                += sched
 
 #

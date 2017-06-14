@@ -56,10 +56,6 @@ void status_led_set  (int led, int state);
    * filling this file up with lots of custom board stuff.
    */
 
-#elif defined(CONFIG_V38B)
-
-# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0 */
-
 #elif defined(CONFIG_LED_STATUS_BOARD_SPECIFIC)
 /* led_id_t is unsigned long mask */
 typedef unsigned long led_id_t;

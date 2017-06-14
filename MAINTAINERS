@@ -321,12 +321,6 @@ M:	Wolfgang Denk <wd@denx.de>
 S:	Maintained
 F:	arch/powerpc/
 
-POWERPC MPC5XXX
-M:	Wolfgang Denk <wd@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-mpc5xxx.git
-F:	arch/powerpc/cpu/mpc5*/
-
 POWERPC MPC8XX
 M:	Wolfgang Denk <wd@denx.de>
 S:	Maintained

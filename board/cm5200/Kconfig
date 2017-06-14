@@ -1,9 +1,0 @@
-if TARGET_CM5200
-
-config SYS_BOARD
-	default "cm5200"
-
-config SYS_CONFIG_NAME
-	default "cm5200"
-
-endif
