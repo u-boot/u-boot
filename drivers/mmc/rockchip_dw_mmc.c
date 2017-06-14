@@ -115,7 +115,8 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	host->dev_index = 0;
 	priv->fifo_depth = dtplat->fifo_depth;
 	priv->fifo_mode = 0;
-	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
+	priv->minmax[0] = 400000;  /*  400 kHz */
+	priv->minmax[1] = dtplat->max_frequency;
 
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
 	if (ret < 0)
