@@ -88,6 +88,7 @@ class DtbPlatdata:
         self._phandle_node = {}
         self._outfile = None
         self._lines = []
+        self._aliases = {}
 
     def SetupOutput(self, fname):
         """Set up the output destination
@@ -159,9 +160,10 @@ class DtbPlatdata:
             C identifier for the first compatible string
         """
         compat = node.props['compatible'].value
+        aliases = []
         if type(compat) == list:
-            compat = compat[0]
-        return Conv_name_to_c(compat)
+            compat, aliases = compat[0], compat[1:]
+        return Conv_name_to_c(compat), [Conv_name_to_c(a) for a in aliases]
 
     def ScanDtb(self):
         """Scan the device tree to obtain a tree of notes and properties
@@ -239,7 +241,7 @@ class DtbPlatdata:
         """
         structs = {}
         for node in self._valid_nodes:
-            node_name = self.GetCompatName(node)
+            node_name, _ = self.GetCompatName(node)
             fields = {}
 
             # Get a list of all the valid properties in this node.
@@ -263,12 +265,17 @@ class DtbPlatdata:
 
         upto = 0
         for node in self._valid_nodes:
-            node_name = self.GetCompatName(node)
+            node_name, _ = self.GetCompatName(node)
             struct = structs[node_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
             upto += 1
+
+            struct_name, aliases = self.GetCompatName(node)
+            for alias in aliases:
+                self._aliases[alias] = struct_name
+
         return structs
 
     def ScanPhandles(self):
@@ -327,13 +334,17 @@ class DtbPlatdata:
                 self.Out(';\n')
             self.Out('};\n')
 
+        for alias, struct_name in self._aliases.iteritems():
+            self.Out('#define %s%s %s%s\n'% (STRUCT_PREFIX, alias,
+                                             STRUCT_PREFIX, struct_name))
+
     def OutputNode(self, node):
         """Output the C code for a node
 
         Args:
             node: node to output
         """
-        struct_name = self.GetCompatName(node)
+        struct_name, _ = self.GetCompatName(node)
         var_name = Conv_name_to_c(node.name)
         self.Buf('static struct %s%s %s%s = {\n' %
             (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
@@ -384,8 +395,11 @@ class DtbPlatdata:
         """Generate device defintions for the platform data
 
         This writes out C platform data initialisation data and
-        U_BOOT_DEVICE() declarations for each valid node. See the
-        documentation in README.of-plat for more information.
+        U_BOOT_DEVICE() declarations for each valid node. Where a node has
+        multiple compatible strings, a #define is used to make them equivalent.
+
+        See the documentation in doc/driver-model/of-plat.txt for more
+        information.
         """
         self.Out('#include <common.h>\n')
         self.Out('#include <dm.h>\n')
