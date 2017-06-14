@@ -1,6 +1,0 @@
-MPC8540ADS BOARD
-#M:	Kumar Gala <kumar.gala@freescale.com>
-S:	Orphan (since 2014-06)
-F:	board/freescale/mpc8540ads/
-F:	include/configs/MPC8540ADS.h
-F:	configs/MPC8540ADS_defconfig

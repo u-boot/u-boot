@@ -154,7 +154,9 @@ static void lowest_common_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 	static const struct options_string options[] = {
 		COMMON_TIMING(tckmin_x_ps),
 		COMMON_TIMING(tckmax_ps),
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		COMMON_TIMING(taamin_ps),
+#endif
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
@@ -422,7 +424,9 @@ static void print_lowest_common_dimm_parameters(
 		const common_timing_params_t *plcd_dimm_params)
 {
 	static const struct options_string options[] = {
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		COMMON_TIMING(taamin_ps),
+#endif
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
