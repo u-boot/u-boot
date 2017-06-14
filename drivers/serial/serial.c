@@ -223,7 +223,6 @@ void serial_initialize(void)
 	max3100_serial_initialize();
 	mcf_serial_initialize();
 	ml2_serial_initialize();
-	mpc5xx_serial_initialize();
 	mpc85xx_serial_initialize();
 	mpc8xx_serial_initialize();
 	mxc_serial_initialize();

@@ -184,7 +184,6 @@ void marvell_serial_initialize(void);
 void max3100_serial_initialize(void);
 void mcf_serial_initialize(void);
 void ml2_serial_initialize(void);
-void mpc5xx_serial_initialize(void);
 void mpc85xx_serial_initialize(void);
 void mpc8xx_serial_initialize(void);
 void mxc_serial_initialize(void);
