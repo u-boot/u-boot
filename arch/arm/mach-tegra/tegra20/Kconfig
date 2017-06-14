@@ -36,10 +36,6 @@ config TARGET_VENTANA
 	bool "NVIDIA Tegra20 Ventana evaluation board"
 	select BOARD_LATE_INIT
 
-config TARGET_WHISTLER
-	bool "NVIDIA Tegra20 Whistler evaluation board"
-	select BOARD_LATE_INIT
-
 config TARGET_COLIBRI_T20
 	bool "Toradex Colibri T20 board"
 	select BOARD_LATE_INIT
@@ -57,7 +53,6 @@ source "board/nvidia/seaboard/Kconfig"
 source "board/avionic-design/tec/Kconfig"
 source "board/compulab/trimslice/Kconfig"
 source "board/nvidia/ventana/Kconfig"
-source "board/nvidia/whistler/Kconfig"
 source "board/toradex/colibri_t20/Kconfig"
 
 endif
