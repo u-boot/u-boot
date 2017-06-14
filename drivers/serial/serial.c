@@ -224,8 +224,6 @@ void serial_initialize(void)
 	mcf_serial_initialize();
 	ml2_serial_initialize();
 	mpc5xx_serial_initialize();
-	mpc8260_scc_serial_initialize();
-	mpc8260_smc_serial_initialize();
 	mpc85xx_serial_initialize();
 	mpc8xx_serial_initialize();
 	mxc_serial_initialize();
