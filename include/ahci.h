@@ -200,4 +200,26 @@ int achi_start_ports_dm(struct udevice *dev);
  */
 int ahci_init_dm(struct udevice *dev, void __iomem *base);
 
+/**
+ * ahci_bind_scsi() - bind a new SCSI bus as a child
+ *
+ * Note that the SCSI bus device will itself bind block devices
+ *
+ * @ahci_dev: AHCI parent device
+ * @devp: Returns new SCSI bus device
+ * @return 0 if OK, -ve on error
+ */
+int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp);
+
+/**
+ * ahci_probe_scsi() - probe and scan the attached SCSI bus
+ *
+ * Note that the SCSI device will itself bind block devices for any storage
+ * devices it finds.
+ *
+ * @ahci_dev: AHCI parent device
+ * @return 0 if OK, -ve on error
+ */
+int ahci_probe_scsi(struct udevice *ahci_dev);
+
 #endif

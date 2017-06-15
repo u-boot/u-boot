@@ -19,10 +19,13 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <pci.h>
 #include <scsi.h>
 #include <libata.h>
 #include <linux/ctype.h>
 #include <ahci.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
@@ -1142,9 +1145,63 @@ static int ahci_scsi_bus_reset(struct udevice *dev)
 }
 
 #ifdef CONFIG_DM_SCSI
+int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = device_bind_driver(ahci_dev, "ahci_scsi", "ahci_scsi", &dev);
+	if (ret)
+		return ret;
+	*devp = dev;
+
+	return 0;
+}
+
+int ahci_probe_scsi(struct udevice *ahci_dev)
+{
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	return -ENOSYS;  /* TODO(sjg@chromium.org): Support non-PCI AHCI */
+#else
+	struct ahci_uc_priv *uc_priv;
+	struct scsi_platdata *uc_plat;
+	struct udevice *dev;
+	int ret;
+
+	device_find_first_child(ahci_dev, &dev);
+	if (!dev)
+		return -ENODEV;
+	uc_plat = dev_get_uclass_platdata(dev);
+	uc_plat->base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
+					      PCI_REGION_MEM);
+	uc_plat->max_lun = 1;
+	uc_plat->max_id = 2;
+	uc_priv = dev_get_uclass_priv(dev);
+	ret = ahci_init_one(uc_priv, dev);
+	if (ret)
+		return ret;
+	ret = ahci_start_ports(uc_priv);
+	if (ret)
+		return ret;
+
+	debug("Scanning %s\n", dev->name);
+	ret = scsi_scan_dev(dev, true);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+
 struct scsi_ops scsi_ops = {
 	.exec		= ahci_scsi_exec,
 	.bus_reset	= ahci_scsi_bus_reset,
+};
+
+U_BOOT_DRIVER(ahci_scsi) = {
+	.name		= "ahci_scsi",
+	.id		= UCLASS_SCSI,
+	.ops		= &scsi_ops,
 };
 #else
 int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
