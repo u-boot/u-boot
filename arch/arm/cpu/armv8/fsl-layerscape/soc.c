@@ -225,7 +225,7 @@ int sata_init(void)
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
-	scsi_scan(0);
+	scsi_scan(false);
 
 	return 0;
 }
@@ -244,7 +244,7 @@ int sata_init(void)
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA);
-	scsi_scan(0);
+	scsi_scan(false);
 
 	return 0;
 }

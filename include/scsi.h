@@ -199,10 +199,12 @@ void scsi_init(void);
 int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb);
 int scsi_bus_reset(struct udevice *dev);
 
-/***************************************************************************
- * functions residing inside cmd_scsi.c
+/**
+ * scsi_scan() - Scan all SCSI controllers for available devices
+ *
+ * @vebose: true to show information about each device found
  */
-int scsi_scan(int mode);
+int scsi_scan(bool verbose);
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 

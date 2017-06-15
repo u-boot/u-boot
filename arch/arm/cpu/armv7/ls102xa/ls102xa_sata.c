@@ -36,7 +36,7 @@ int ls1021a_sata_init(void)
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 
 	ahci_init((void __iomem *)AHCI_BASE_ADDR);
-	scsi_scan(0);
+	scsi_scan(false);
 
 	return 0;
 }

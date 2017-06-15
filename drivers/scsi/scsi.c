@@ -326,7 +326,7 @@ void scsi_init(void)
 #endif
 	bootstage_start(BOOTSTAGE_ID_ACCUM_SCSI, "ahci");
 	scsi_low_level_init(busdevfunc);
-	scsi_scan(1);
+	scsi_scan(true);
 	bootstage_accum(BOOTSTAGE_ID_ACCUM_SCSI);
 }
 #endif
@@ -555,7 +555,7 @@ removable:
  * to the user if mode = 1
  */
 #if defined(CONFIG_DM_SCSI)
-static int do_scsi_scan_one(struct udevice *dev, int id, int lun, int mode)
+static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 {
 	int ret;
 	struct udevice *bdev;
@@ -594,21 +594,21 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, int mode)
 	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
 	part_init(bdesc);
 
-	if (mode == 1) {
+	if (verbose) {
 		printf("  Device %d: ", 0);
 		dev_print(bdesc);
 	}
 	return 0;
 }
 
-int scsi_scan(int mode)
+int scsi_scan(bool verbose)
 {
 	unsigned char i, lun;
 	struct uclass *uc;
 	struct udevice *dev; /* SCSI controller */
 	int ret;
 
-	if (mode == 1)
+	if (verbose)
 		printf("scanning bus for devices...\n");
 
 	blk_unbind_all(IF_TYPE_SCSI);
@@ -630,18 +630,18 @@ int scsi_scan(int mode)
 
 		for (i = 0; i < plat->max_id; i++)
 			for (lun = 0; lun < plat->max_lun; lun++)
-				do_scsi_scan_one(dev, i, lun, mode);
+				do_scsi_scan_one(dev, i, lun, verbose);
 	}
 
 	return 0;
 }
 #else
-int scsi_scan(int mode)
+int scsi_scan(bool verbose)
 {
 	unsigned char i, lun;
 	int ret;
 
-	if (mode == 1)
+	if (verbose)
 		printf("scanning bus for devices...\n");
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_DEVICE; i++)
 		scsi_init_dev_desc(&scsi_dev_desc[i], i);
@@ -655,10 +655,10 @@ int scsi_scan(int mode)
 				continue;
 			part_init(&scsi_dev_desc[scsi_max_devs]);
 
-			if (mode == 1) {
+			if (verbose) {
 				printf("  Device %d: ", 0);
 				dev_print(&scsi_dev_desc[scsi_max_devs]);
-			} /* if mode */
+			}
 			scsi_max_devs++;
 		} /* next LUN */
 	}

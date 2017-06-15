@@ -67,7 +67,7 @@ void scsi_init(void)
 	cphy_disable_overrides();
 	if (reg & PWRDOM_STAT_SATA) {
 		ahci_init((void __iomem *)HB_AHCI_BASE);
-		scsi_scan(1);
+		scsi_scan(true);
 	}
 }
 #endif
