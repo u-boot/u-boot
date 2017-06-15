@@ -45,7 +45,7 @@ obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu/
 obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
-obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
+obj-$(CONFIG_SPL_SATA_SUPPORT) += ata/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += block/
 endif
@@ -66,6 +66,7 @@ endif
 ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 
 obj-y += adc/
+obj-y += ata/
 obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/

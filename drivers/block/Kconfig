@@ -10,28 +10,6 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
-config AHCI
-	bool "Support SATA controllers with driver model"
-	depends on DM
-	help
-	  This enables a uclass for disk controllers in U-Boot. Various driver
-	  types can use this, such as AHCI/SATA. It does not provide any standard
-	  operations at present. The block device interface has not been converted
-	  to driver model.
-
-config SATA
-	bool "Support SATA controllers"
-	help
-	  This enables support for SATA (Serial Advanced Technology
-	  Attachment), a serial bus standard for connecting to hard drives and
-	  other storage devices.
-
-	  SATA replaces PATA (originally just ATA), which stands for Parallel AT
-	  Attachment, where AT refers to an IBM AT (Advanced Technology)
-	  computer released in 1984.
-
-	  See also CMD_SATA which provides command-line support.
-
 config SCSI
 	bool "Support SCSI controllers"
 	help
@@ -58,29 +36,6 @@ config BLOCK_CACHE
 	  This is most useful when accessing filesystems under U-Boot since
 	  it will prevent repeated reads from directory structures and other
 	  filesystem data structures.
-
-menu "SATA/SCSI device support"
-
-config SATA_CEVA
-	bool "Ceva Sata controller"
-	depends on AHCI
-	depends on DM_SCSI
-	help
-	  This option enables Ceva Sata controller hard IP available on Xilinx
-	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
-	  AHCI 1.3 specifications with hot-plug detect feature.
-
-
-config DWC_AHCI
-	bool "Enable Synopsys DWC AHCI driver support"
-	select SCSI_AHCI
-	select PHY
-	depends on DM_SCSI
-	help
-	  Enable this driver to support Sata devices through
-	  Synopsys DWC AHCI module.
-
-endmenu
 
 config IDE
 	bool "Support IDE controllers"

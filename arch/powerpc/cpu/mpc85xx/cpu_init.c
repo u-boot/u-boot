@@ -48,7 +48,7 @@
 #ifndef CONFIG_ARCH_QEMU_E500
 #include <fsl_ddr.h>
 #endif
-#include "../../../../drivers/block/fsl_sata.h"
+#include "../../../../drivers/ata/fsl_sata.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
 #endif
