@@ -162,6 +162,7 @@ struct ahci_uc_priv {
 	pci_dev_t	dev;
 #endif
 	struct ahci_ioports	port[AHCI_MAX_PORTS];
+	u16 *ataid[AHCI_MAX_PORTS];
 	u32	n_ports;
 	u32	hard_port_no;
 	u32	host_flags;

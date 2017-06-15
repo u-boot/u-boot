@@ -25,7 +25,6 @@
 static int ata_io_flush(u8 port);
 
 struct ahci_uc_priv *probe_ent = NULL;
-u16 *ataid[AHCI_MAX_PORTS];
 
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
 
@@ -109,11 +108,11 @@ static int waiting_for_cmd_completed(void __iomem *offset,
 	return (i < timeout_msec) ? 0 : -1;
 }
 
-int __weak ahci_link_up(struct ahci_uc_priv *probe_ent, u8 port)
+int __weak ahci_link_up(struct ahci_uc_priv *uc_priv, u8 port)
 {
 	u32 tmp;
 	int j = 0;
-	void __iomem *port_mmio = probe_ent->port[port].port_mmio;
+	void __iomem *port_mmio = uc_priv->port[port].port_mmio;
 
 	/*
 	 * Bring up SATA link.
@@ -555,7 +554,7 @@ static int wait_spinup(void __iomem *port_mmio)
 	return -ETIMEDOUT;
 }
 
-static int ahci_port_start(u8 port)
+static int ahci_port_start(struct ahci_uc_priv *probe_ent, u8 port)
 {
 	struct ahci_ioports *pp = &(probe_ent->port[port]);
 	void __iomem *port_mmio = pp->port_mmio;
@@ -689,7 +688,8 @@ static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 /*
  * SCSI INQUIRY command operation.
  */
-static int ata_scsiop_inquiry(struct scsi_cmd *pccb)
+static int ata_scsiop_inquiry(struct ahci_uc_priv *uc_priv,
+			      struct scsi_cmd *pccb)
 {
 	static const u8 hdr[] = {
 		0,
@@ -726,15 +726,15 @@ static int ata_scsiop_inquiry(struct scsi_cmd *pccb)
 		return -EIO;
 	}
 
-	if (!ataid[port]) {
-		ataid[port] = malloc(ATA_ID_WORDS * 2);
-		if (!ataid[port]) {
+	if (!uc_priv->ataid[port]) {
+		uc_priv->ataid[port] = malloc(ATA_ID_WORDS * 2);
+		if (!uc_priv->ataid[port]) {
 			printf("%s: No memory for ataid[port]\n", __func__);
 			return -ENOMEM;
 		}
 	}
 
-	idbuf = ataid[port];
+	idbuf = uc_priv->ataid[port];
 
 	memcpy(idbuf, tmpid, ATA_ID_WORDS * 2);
 	ata_swap_buf_le16(idbuf, ATA_ID_WORDS);
@@ -864,20 +864,21 @@ static int ata_scsiop_read_write(struct scsi_cmd *pccb, u8 is_write)
 /*
  * SCSI READ CAPACITY10 command operation.
  */
-static int ata_scsiop_read_capacity10(struct scsi_cmd *pccb)
+static int ata_scsiop_read_capacity10(struct ahci_uc_priv *uc_priv,
+				      struct scsi_cmd *pccb)
 {
 	u32 cap;
 	u64 cap64;
 	u32 block_size;
 
-	if (!ataid[pccb->target]) {
+	if (!uc_priv->ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY10 command failure. "
 		       "\tNo ATA info!\n"
 		       "\tPlease run SCSI command INQUIRY first!\n");
 		return -EPERM;
 	}
 
-	cap64 = ata_id_n_sectors(ataid[pccb->target]);
+	cap64 = ata_id_n_sectors(uc_priv->ataid[pccb->target]);
 	if (cap64 > 0x100000000ULL)
 		cap64 = 0xffffffff;
 
@@ -894,19 +895,20 @@ static int ata_scsiop_read_capacity10(struct scsi_cmd *pccb)
 /*
  * SCSI READ CAPACITY16 command operation.
  */
-static int ata_scsiop_read_capacity16(struct scsi_cmd *pccb)
+static int ata_scsiop_read_capacity16(struct ahci_uc_priv *uc_priv,
+				      struct scsi_cmd *pccb)
 {
 	u64 cap;
 	u64 block_size;
 
-	if (!ataid[pccb->target]) {
+	if (!uc_priv->ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY16 command failure. "
 		       "\tNo ATA info!\n"
 		       "\tPlease run SCSI command INQUIRY first!\n");
 		return -EPERM;
 	}
 
-	cap = ata_id_n_sectors(ataid[pccb->target]);
+	cap = ata_id_n_sectors(uc_priv->ataid[pccb->target]);
 	cap = cpu_to_be64(cap);
 	memcpy(pccb->pdata, &cap, sizeof(cap));
 
@@ -920,14 +922,16 @@ static int ata_scsiop_read_capacity16(struct scsi_cmd *pccb)
 /*
  * SCSI TEST UNIT READY command operation.
  */
-static int ata_scsiop_test_unit_ready(struct scsi_cmd *pccb)
+static int ata_scsiop_test_unit_ready(struct ahci_uc_priv *uc_priv,
+				      struct scsi_cmd *pccb)
 {
-	return (ataid[pccb->target]) ? 0 : -EPERM;
+	return (uc_priv->ataid[pccb->target]) ? 0 : -EPERM;
 }
 
 
 int scsi_exec(struct scsi_cmd *pccb)
 {
+	struct ahci_uc_priv *uc_priv = probe_ent;
 	int ret;
 
 	switch (pccb->cmd[0]) {
@@ -939,16 +943,16 @@ int scsi_exec(struct scsi_cmd *pccb)
 		ret = ata_scsiop_read_write(pccb, 1);
 		break;
 	case SCSI_RD_CAPAC10:
-		ret = ata_scsiop_read_capacity10(pccb);
+		ret = ata_scsiop_read_capacity10(uc_priv, pccb);
 		break;
 	case SCSI_RD_CAPAC16:
-		ret = ata_scsiop_read_capacity16(pccb);
+		ret = ata_scsiop_read_capacity16(uc_priv, pccb);
 		break;
 	case SCSI_TST_U_RDY:
-		ret = ata_scsiop_test_unit_ready(pccb);
+		ret = ata_scsiop_test_unit_ready(uc_priv, pccb);
 		break;
 	case SCSI_INQUIRY:
-		ret = ata_scsiop_inquiry(pccb);
+		ret = ata_scsiop_inquiry(uc_priv, pccb);
 		break;
 	default:
 		printf("Unsupport SCSI command 0x%02x\n", pccb->cmd[0]);
@@ -992,7 +996,7 @@ void scsi_low_level_init(int busdevfunc)
 
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		if (((linkmap >> i) & 0x01)) {
-			if (ahci_port_start((u8) i)) {
+			if (ahci_port_start(probe_ent, (u8) i)) {
 				printf("Can not start port %d\n", i);
 				continue;
 			}
@@ -1035,7 +1039,7 @@ int ahci_init(void __iomem *base)
 
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		if (((linkmap >> i) & 0x01)) {
-			if (ahci_port_start((u8) i)) {
+			if (ahci_port_start(probe_ent, (u8) i)) {
 				printf("Can not start port %d\n", i);
 				continue;
 			}
