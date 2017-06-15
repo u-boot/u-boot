@@ -29,7 +29,8 @@
 # endif
 #endif
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
+#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT) && \
+	!defined(CONFIG_DM_SCSI)
 const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
 #endif
 static struct scsi_cmd tempccb;	/* temporary scsi command buffer */
@@ -274,7 +275,8 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 	return blkcnt;
 }
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
+#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT) && \
+	!defined(CONFIG_DM_SCSI)
 void scsi_init(void)
 {
 	int busdevfunc = -1;
