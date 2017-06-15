@@ -151,6 +151,9 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 {
 #ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct udevice *bdev = dev->parent;
+#else
+	struct udevice *bdev = NULL;
 #endif
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
@@ -195,7 +198,7 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		debug("scsi_read_ext: startblk " LBAF
 		      ", blccnt %x buffer %" PRIXPTR "\n",
 		      start, smallblks, buf_addr);
-		if (scsi_exec(pccb) != true) {
+		if (scsi_exec(bdev, pccb)) {
 			scsi_print_error(pccb);
 			blkcnt -= blks;
 			break;
@@ -224,6 +227,9 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 {
 #ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct udevice *bdev = dev->parent;
+#else
+	struct udevice *bdev = NULL;
 #endif
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
@@ -256,7 +262,7 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 		}
 		debug("%s: startblk " LBAF ", blccnt %x buffer %" PRIXPTR "\n",
 		      __func__, start, smallblks, buf_addr);
-		if (scsi_exec(pccb) != true) {
+		if (scsi_exec(bdev, pccb)) {
 			scsi_print_error(pccb);
 			blkcnt -= blks;
 			break;
@@ -350,8 +356,8 @@ static void scsi_ident_cpy(unsigned char *dest, unsigned char *src,
 	*dest = '\0';
 }
 
-static int scsi_read_capacity(struct scsi_cmd *pccb, lbaint_t *capacity,
-			      unsigned long *blksz)
+static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
+			      lbaint_t *capacity, unsigned long *blksz)
 {
 	*capacity = 0;
 
@@ -362,7 +368,7 @@ static int scsi_read_capacity(struct scsi_cmd *pccb, lbaint_t *capacity,
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 8;
-	if (scsi_exec(pccb) != true)
+	if (scsi_exec(dev, pccb) != true)
 		return 1;
 
 	*capacity = ((lbaint_t)pccb->pdata[0] << 24) |
@@ -387,7 +393,7 @@ static int scsi_read_capacity(struct scsi_cmd *pccb, lbaint_t *capacity,
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 16;
-	if (scsi_exec(pccb) != true)
+	if (scsi_exec(dev, pccb) != true)
 		return 1;
 
 	*capacity = ((uint64_t)pccb->pdata[0] << 56) |
@@ -480,7 +486,8 @@ static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
  *
  * Return: 0 on success, error value otherwise
  */
-static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
+static int scsi_detect_dev(struct udevice *dev, int target, int lun,
+			   struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
 	lbaint_t capacity;
@@ -492,7 +499,7 @@ static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 	pccb->pdata = (unsigned char *)&tempbuff;
 	pccb->datalen = 512;
 	scsi_setup_inquiry(pccb);
-	if (scsi_exec(pccb) != true) {
+	if (scsi_exec(dev, pccb) != true) {
 		if (pccb->contr_stat == SCSI_SEL_TIME_OUT) {
 			/*
 			  * selection timeout => assuming no
@@ -523,7 +530,7 @@ static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 
 	pccb->datalen = 0;
 	scsi_setup_test_unit_ready(pccb);
-	if (scsi_exec(pccb) != true) {
+	if (scsi_exec(dev, pccb) != true) {
 		if (dev_desc->removable) {
 			dev_desc->type = perq;
 			goto removable;
@@ -531,7 +538,7 @@ static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 		scsi_print_error(pccb);
 		return -EINVAL;
 	}
-	if (scsi_read_capacity(pccb, &capacity, &blksz)) {
+	if (scsi_read_capacity(dev, pccb, &capacity, &blksz)) {
 		scsi_print_error(pccb);
 		return -EINVAL;
 	}
@@ -561,7 +568,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, int mode)
 	 * size, number of blocks) and other parameters (ids, type, ...)
 	 */
 	scsi_init_dev_desc_priv(&bd);
-	if (scsi_detect_dev(id, lun, &bd))
+	if (scsi_detect_dev(dev, id, lun, &bd))
 		return -ENODEV;
 
 	/*
@@ -642,7 +649,7 @@ int scsi_scan(int mode)
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
-			ret = scsi_detect_dev(i, lun,
+			ret = scsi_detect_dev(NULL, i, lun,
 					      &scsi_dev_desc[scsi_max_devs]);
 			if (ret)
 				continue;

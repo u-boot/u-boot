@@ -26,7 +26,9 @@
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
+#ifndef CONFIG_DM_SCSI
 struct ahci_uc_priv *probe_ent = NULL;
+#endif
 
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
 
@@ -926,9 +928,14 @@ static int ata_scsiop_test_unit_ready(struct ahci_uc_priv *uc_priv,
 }
 
 
-int scsi_exec(struct scsi_cmd *pccb)
+int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
-	struct ahci_uc_priv *uc_priv = probe_ent;
+	struct ahci_uc_priv *uc_priv;
+#ifdef CONFIG_DM_SCSI
+	uc_priv = dev_get_uclass_priv(dev);
+#else
+	uc_priv = probe_ent;
+#endif
 	int ret;
 
 	switch (pccb->cmd[0]) {
@@ -1128,7 +1135,9 @@ static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port)
 }
 
 
-__weak void scsi_bus_reset(void)
+__weak int scsi_bus_reset(struct udevice *dev)
 {
 	/*Not implement*/
+
+	return 0;
 }

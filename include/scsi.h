@@ -196,8 +196,8 @@ void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
 #endif
 
-int scsi_exec(struct scsi_cmd *pccb);
-void scsi_bus_reset(void);
+int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb);
+int scsi_bus_reset(struct udevice *dev);
 
 /***************************************************************************
  * functions residing inside cmd_scsi.c
