@@ -171,6 +171,26 @@ struct scsi_platdata {
 	unsigned long max_id;
 };
 
+/* Operations for SCSI */
+struct scsi_ops {
+	/**
+	 * exec() - execute a command
+	 *
+	 * @dev:	SCSI bus
+	 * @cmd:	Command to execute
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*exec)(struct udevice *dev, struct scsi_cmd *cmd);
+
+	/**
+	 * bus_reset() - reset the bus
+	 *
+	 * @dev:	SCSI bus to reset
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*bus_reset)(struct udevice *dev);
+};
+
 #ifndef CONFIG_DM_SCSI
 void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
