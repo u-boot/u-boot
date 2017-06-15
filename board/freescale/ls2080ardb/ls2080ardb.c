@@ -204,24 +204,11 @@ int config_board_mux(int ctrl_type)
 
 int board_init(void)
 {
-	char *env_hwconfig;
-	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 #ifdef CONFIG_FSL_MC_ENET
 	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
 #endif
-	u32 val;
 
 	init_final_memctl_regs();
-
-	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
-
-	env_hwconfig = getenv("hwconfig");
-
-	if (hwconfig_f("dspi", env_hwconfig) &&
-	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))
-		config_board_mux(MUX_TYPE_DSPI);
-	else
-		config_board_mux(MUX_TYPE_SDHC);
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
@@ -257,6 +244,20 @@ int board_early_init_f(void)
 
 int misc_init_r(void)
 {
+	char *env_hwconfig;
+	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 val;
+
+	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
+
+	env_hwconfig = getenv("hwconfig");
+
+	if (hwconfig_f("dspi", env_hwconfig) &&
+	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))
+		config_board_mux(MUX_TYPE_DSPI);
+	else
+		config_board_mux(MUX_TYPE_SDHC);
+
 	/*
 	 * LS2081ARDB RevF board has smart voltage translator
 	 * which needs to be programmed to enable high speed SD interface
