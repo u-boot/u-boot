@@ -461,6 +461,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_CMDLINE_TAG
 
+#undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
 					"e0000 f00000 && bootm $kernel_load"

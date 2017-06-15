@@ -240,10 +240,8 @@
 #endif
 
 #ifndef SPL_NO_MISC
-#define CONFIG_BOOTCOMMAND		"sf probe 0:0;sf read $kernel_load" \
-					"$kernel_start $kernel_size;" \
-					"bootm $kernel_load"
-
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd;run qspi_bootcmd"
 #define MTDPARTS_DEFAULT "mtdparts=1550000.quadspi:1m(rcw)," \
 			"15m(u-boot),48m(kernel.itb);" \
 			"7e800000.flash:16m(nand_uboot)," \
