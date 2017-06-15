@@ -928,7 +928,7 @@ static int ata_scsiop_test_unit_ready(struct ahci_uc_priv *uc_priv,
 }
 
 
-int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
+static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
 	struct ahci_uc_priv *uc_priv;
 #ifdef CONFIG_DM_SCSI
@@ -1134,10 +1134,21 @@ static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port)
 	return 0;
 }
 
+static int ahci_scsi_bus_reset(struct udevice *dev)
+{
+	/* Not implemented */
+
+	return 0;
+}
+
+int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
+{
+	return ahci_scsi_exec(dev, pccb);
+}
 
 __weak int scsi_bus_reset(struct udevice *dev)
 {
-	/*Not implement*/
+	return ahci_scsi_bus_reset(dev);
 
 	return 0;
 }
