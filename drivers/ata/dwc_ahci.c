@@ -81,7 +81,11 @@ static int dwc_ahci_probe(struct udevice *dev)
 		writel(val, priv->wrapper_base + TI_SATA_SYSCONFIG);
 	}
 
-	return ahci_init(priv->base);
+	ret = ahci_init(priv->base);
+	if (ret)
+		return ret;
+
+	return achi_start_ports_dm(dev);
 }
 
 static const struct udevice_id dwc_ahci_ids[] = {

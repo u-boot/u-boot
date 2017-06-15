@@ -171,9 +171,7 @@ struct scsi_platdata {
 	unsigned long max_id;
 };
 
-#if defined(CONFIG_DM_SCSI)
-void scsi_low_level_init(int busdevfunc, struct udevice *dev);
-#else
+#ifndef CONFIG_DM_SCSI
 void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
 #endif

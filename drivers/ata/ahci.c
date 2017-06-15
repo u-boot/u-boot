@@ -6,6 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  *
  * with the reference on libata and ahci drvier in kernel
+ *
+ * This driver provides a SCSI interface to SATA.
  */
 #include <common.h>
 
@@ -990,11 +992,8 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
 	return 0;
 }
 
-#if defined(CONFIG_DM_SCSI)
-void scsi_low_level_init(int busdevfunc, struct udevice *dev)
-#else
+#ifndef CONFIG_DM_SCSI
 void scsi_low_level_init(int busdevfunc)
-#endif
 {
 	struct ahci_uc_priv *uc_priv;
 
@@ -1007,8 +1006,6 @@ void scsi_low_level_init(int busdevfunc)
 	if (ret)
 		return;
 	ahci_init_one(dev);
-# elif defined(CONFIG_DM_SCSI)
-	ahci_init_one(dev);
 # else
 	ahci_init_one(busdevfunc);
 # endif
@@ -1016,6 +1013,23 @@ void scsi_low_level_init(int busdevfunc)
 	uc_priv = probe_ent;
 
 	ahci_start_ports(uc_priv);
+}
+#endif
+
+#ifndef CONFIG_SCSI_AHCI_PLAT
+# if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
+int achi_init_one_dm(struct udevice *dev)
+{
+	return ahci_init_one(dev);
+}
+#endif
+#endif
+
+int achi_start_ports_dm(struct udevice *dev)
+{
+	struct ahci_uc_priv *uc_priv = probe_ent;
+
+	return ahci_start_ports(uc_priv);
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT

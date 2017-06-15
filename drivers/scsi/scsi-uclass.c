@@ -13,16 +13,8 @@
 #include <dm.h>
 #include <scsi.h>
 
-static int scsi_post_probe(struct udevice *dev)
-{
-	debug("%s: device %p\n", __func__, dev);
-	scsi_low_level_init(0, dev);
-	return 0;
-}
-
 UCLASS_DRIVER(scsi) = {
 	.id		= UCLASS_SCSI,
 	.name		= "scsi",
-	.post_probe	 = scsi_post_probe,
 	.per_device_platdata_auto_alloc_size = sizeof(struct scsi_platdata),
 };

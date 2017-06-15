@@ -116,7 +116,8 @@ static int sata_ceva_probe(struct udevice *dev)
 	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 
 	ceva_init_sata(plat->base);
-	return 0;
+
+	return achi_init_one_dm(dev);
 }
 
 static const struct udevice_id sata_ceva_ids[] = {
