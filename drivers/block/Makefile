@@ -28,6 +28,5 @@ obj-$(CONFIG_SATA_MV) += sata_mv.o
 obj-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
 obj-$(CONFIG_SANDBOX) += sandbox.o sandbox_scsi.o sata_sandbox.o
-obj-$(CONFIG_SCSI_SYM53C8XX) += sym53c8xx.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
 obj-$(CONFIG_BLOCK_CACHE) += blkcache.o

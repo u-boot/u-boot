@@ -1042,16 +1042,11 @@ The following options need to be configured:
 			Default is 32bit.
 
 - SCSI Support:
-		At the moment only there is only support for the
-		SYM53C8XX SCSI controller; define
-		CONFIG_SCSI_SYM53C8XX to enable it.
-
 		CONFIG_SYS_SCSI_MAX_LUN [8], CONFIG_SYS_SCSI_MAX_SCSI_ID [7] and
 		CONFIG_SYS_SCSI_MAX_DEVICE [CONFIG_SYS_SCSI_MAX_SCSI_ID *
 		CONFIG_SYS_SCSI_MAX_LUN] can be adjusted to define the
 		maximum numbers of LUNs, SCSI ID's and target
 		devices.
-		CONFIG_SYS_SCSI_SYM53C8XX_CCF to fix clock timing (80Mhz)
 
 		The environment variable 'scsidevs' is set to the number of
 		SCSI devices found during the last scan.
