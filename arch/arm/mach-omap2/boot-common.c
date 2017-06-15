@@ -65,6 +65,23 @@ void save_omap_boot_params(void)
 	if (boot_device == BOOT_DEVICE_QSPI_4)
 		boot_device = BOOT_DEVICE_SPI;
 #endif
+#ifdef CONFIG_TI816X
+	/*
+	 * On PG2.0 and later TI816x the values we get when booting are not the
+	 * same as on PG1.0, which is what the defines are based on.  Update
+	 * them as needed.
+	 */
+	if (get_cpu_rev() != 1) {
+		if (boot_device == 0x05) {
+			omap_boot_params->boot_device = BOOT_DEVICE_NAND;
+			boot_device = BOOT_DEVICE_NAND;
+		}
+		if (boot_device == 0x08) {
+			omap_boot_params->boot_device = BOOT_DEVICE_MMC1;
+			boot_device = BOOT_DEVICE_MMC1;
+		}
+	}
+#endif
 	/*
 	 * When booting from peripheral booting, the boot device is not usable
 	 * as-is (unless there is support for it), so the boot device is instead
