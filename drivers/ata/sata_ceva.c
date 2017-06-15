@@ -113,7 +113,7 @@ static int ceva_init_sata(ulong mmio)
 
 static int sata_ceva_probe(struct udevice *dev)
 {
-	struct scsi_platdata *plat = dev_get_platdata(dev);
+	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 
 	ceva_init_sata(plat->base);
 	return 0;
@@ -126,7 +126,7 @@ static const struct udevice_id sata_ceva_ids[] = {
 
 static int sata_ceva_ofdata_to_platdata(struct udevice *dev)
 {
-	struct scsi_platdata *plat = dev_get_platdata(dev);
+	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 
 	plat->base = devfdt_get_addr(dev);
 	if (plat->base == FDT_ADDR_T_NONE)
@@ -145,5 +145,4 @@ U_BOOT_DRIVER(ceva_host_blk) = {
 	.of_match = sata_ceva_ids,
 	.probe = sata_ceva_probe,
 	.ofdata_to_platdata = sata_ceva_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct scsi_platdata),
 };

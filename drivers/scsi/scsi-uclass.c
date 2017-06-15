@@ -24,4 +24,5 @@ UCLASS_DRIVER(scsi) = {
 	.id		= UCLASS_SCSI,
 	.name		= "scsi",
 	.post_probe	 = scsi_post_probe,
+	.per_device_platdata_auto_alloc_size = sizeof(struct scsi_platdata),
 };

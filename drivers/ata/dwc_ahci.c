@@ -28,7 +28,7 @@ struct dwc_ahci_priv {
 static int dwc_ahci_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc_ahci_priv *priv = dev_get_priv(dev);
-	struct scsi_platdata *plat = dev_get_platdata(dev);
+	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 	fdt_addr_t addr;
 
 	plat->max_id = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
@@ -96,6 +96,5 @@ U_BOOT_DRIVER(dwc_ahci) = {
 	.ofdata_to_platdata = dwc_ahci_ofdata_to_platdata,
 	.probe	= dwc_ahci_probe,
 	.priv_auto_alloc_size = sizeof(struct dwc_ahci_priv),
-	.platdata_auto_alloc_size = sizeof(struct scsi_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

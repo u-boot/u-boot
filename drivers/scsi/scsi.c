@@ -619,7 +619,7 @@ int scsi_scan(int mode)
 			return ret;
 
 		/* Get controller platdata */
-		plat = dev_get_platdata(dev);
+		plat = dev_get_uclass_platdata(dev);
 
 		for (i = 0; i < plat->max_id; i++)
 			for (lun = 0; lun < plat->max_lun; lun++)
