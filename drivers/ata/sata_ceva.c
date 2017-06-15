@@ -144,6 +144,7 @@ U_BOOT_DRIVER(ceva_host_blk) = {
 	.name = "ceva_sata",
 	.id = UCLASS_SCSI,
 	.of_match = sata_ceva_ids,
+	.ops = &scsi_ops,
 	.probe = sata_ceva_probe,
 	.ofdata_to_platdata = sata_ceva_ofdata_to_platdata,
 };

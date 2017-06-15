@@ -98,6 +98,7 @@ U_BOOT_DRIVER(dwc_ahci) = {
 	.id	= UCLASS_SCSI,
 	.of_match = dwc_ahci_ids,
 	.ofdata_to_platdata = dwc_ahci_ofdata_to_platdata,
+	.ops	= &scsi_ops,
 	.probe	= dwc_ahci_probe,
 	.priv_auto_alloc_size = sizeof(struct dwc_ahci_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,

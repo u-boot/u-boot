@@ -191,12 +191,25 @@ struct scsi_ops {
 	int (*bus_reset)(struct udevice *dev);
 };
 
-#ifndef CONFIG_DM_SCSI
-void scsi_low_level_init(int busdevfunc);
-void scsi_init(void);
-#endif
+#define scsi_get_ops(dev)        ((struct scsi_ops *)(dev)->driver->ops)
 
-int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb);
+extern struct scsi_ops scsi_ops;
+
+/**
+ * scsi_exec() - execute a command
+ *
+ * @dev:	SCSI bus
+ * @cmd:	Command to execute
+ * @return 0 if OK, -ve on error
+ */
+int scsi_exec(struct udevice *dev, struct scsi_cmd *cmd);
+
+/**
+ * scsi_bus_reset() - reset the bus
+ *
+ * @dev:	SCSI bus to reset
+ * @return 0 if OK, -ve on error
+ */
 int scsi_bus_reset(struct udevice *dev);
 
 /**
@@ -205,6 +218,11 @@ int scsi_bus_reset(struct udevice *dev);
  * @vebose: true to show information about each device found
  */
 int scsi_scan(bool verbose);
+
+#ifndef CONFIG_DM_SCSI
+void scsi_low_level_init(int busdevfunc);
+void scsi_init(void);
+#endif
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 

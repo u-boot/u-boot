@@ -1141,6 +1141,12 @@ static int ahci_scsi_bus_reset(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_DM_SCSI
+struct scsi_ops scsi_ops = {
+	.exec		= ahci_scsi_exec,
+	.bus_reset	= ahci_scsi_bus_reset,
+};
+#else
 int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
 	return ahci_scsi_exec(dev, pccb);
@@ -1152,3 +1158,4 @@ __weak int scsi_bus_reset(struct udevice *dev)
 
 	return 0;
 }
+#endif

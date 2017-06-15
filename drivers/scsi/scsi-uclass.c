@@ -13,6 +13,26 @@
 #include <dm.h>
 #include <scsi.h>
 
+int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
+{
+	struct scsi_ops *ops = scsi_get_ops(dev);
+
+	if (!ops->exec)
+		return -ENOSYS;
+
+	return ops->exec(dev, pccb);
+}
+
+int scsi_bus_reset(struct udevice *dev)
+{
+	struct scsi_ops *ops = scsi_get_ops(dev);
+
+	if (!ops->bus_reset)
+		return -ENOSYS;
+
+	return ops->bus_reset(dev);
+}
+
 UCLASS_DRIVER(scsi) = {
 	.id		= UCLASS_SCSI,
 	.name		= "scsi",
