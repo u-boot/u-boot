@@ -601,9 +601,30 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	return 0;
 }
 
+int scsi_scan_dev(struct udevice *dev, bool verbose)
+{
+	struct scsi_platdata *uc_plat; /* scsi controller platdata */
+	int ret;
+	int i;
+	int lun;
+
+	/* probe SCSI controller driver */
+	ret = device_probe(dev);
+	if (ret)
+		return ret;
+
+	/* Get controller platdata */
+	uc_plat = dev_get_uclass_platdata(dev);
+
+	for (i = 0; i < uc_plat->max_id; i++)
+		for (lun = 0; lun < uc_plat->max_lun; lun++)
+			do_scsi_scan_one(dev, i, lun, verbose);
+
+	return 0;
+}
+
 int scsi_scan(bool verbose)
 {
-	unsigned char i, lun;
 	struct uclass *uc;
 	struct udevice *dev; /* SCSI controller */
 	int ret;
@@ -618,19 +639,9 @@ int scsi_scan(bool verbose)
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		struct scsi_platdata *plat; /* scsi controller platdata */
-
-		/* probe SCSI controller driver */
-		ret = device_probe(dev);
+		ret = scsi_scan_dev(dev, verbose);
 		if (ret)
 			return ret;
-
-		/* Get controller platdata */
-		plat = dev_get_uclass_platdata(dev);
-
-		for (i = 0; i < plat->max_id; i++)
-			for (lun = 0; lun < plat->max_lun; lun++)
-				do_scsi_scan_one(dev, i, lun, verbose);
 	}
 
 	return 0;
