@@ -7,7 +7,7 @@
  #ifndef _SCSI_H
  #define _SCSI_H
 
-typedef struct SCSI_cmd_block{
+typedef struct scsi_cmd{
 	unsigned char		cmd[16];					/* command				   */
 	/* for request sense */
 	unsigned char		sense_buf[64]
