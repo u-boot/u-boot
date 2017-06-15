@@ -113,7 +113,6 @@
 /*
  * SATA/SCSI/AHCI configuration
  */
-#define CONFIG_SCSI
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_LIBATA

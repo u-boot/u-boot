@@ -25,12 +25,14 @@ config TARGET_DRA7XX_EVM
 	select DRA7XX
 	select TI_I2C_BOARD_DETECT
 	select PHYS_64BIT
+	imply SCSI
 
 config TARGET_AM57XX_EVM
 	bool "AM57XX"
 	select BOARD_LATE_INIT
 	select DRA7XX
 	select TI_I2C_BOARD_DETECT
+	imply SCSI
 
 endchoice
 

@@ -117,6 +117,7 @@ config TARGET_MPC8572DS
 	select ARCH_MPC8572
 # Use DDR3 controller with DDR2 DIMMs on this board
 	select SYS_FSL_DDRC_GEN3
+	imply SCSI
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"

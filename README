@@ -826,7 +826,6 @@ The following options need to be configured:
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SANDBOX	* sb command to access sandbox features
 		CONFIG_CMD_SAVES	* save S record dump
-		CONFIG_SCSI		* SCSI Support
 		CONFIG_CMD_SDRAM	* print SDRAM configuration information
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash

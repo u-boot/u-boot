@@ -98,7 +98,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SCSI
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM
