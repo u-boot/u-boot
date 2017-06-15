@@ -248,7 +248,6 @@
  */
 #define CONFIG_LIBATA
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
 
 #define CONFIG_FSL_SATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	2

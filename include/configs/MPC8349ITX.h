@@ -485,10 +485,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 	#define CONFIG_SUPPORT_VFAT
 #endif
 
-#ifdef CONFIG_SATA_SIL3114
-	#define CONFIG_CMD_SATA
-#endif
-
 #if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
 #endif
 

@@ -23,7 +23,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_SATA
 
 /*
  * The debugging version enables USB support via defconfig.

@@ -77,6 +77,7 @@ config TARGET_ADVANTECH_DMS_BA16
 	bool "Advantech dms-ba16"
 	select BOARD_LATE_INIT
 	select MX6Q
+	imply CMD_SATA
 
 config TARGET_APALIS_IMX6
 	bool "Toradex Apalis iMX6 board"
@@ -85,6 +86,7 @@ config TARGET_APALIS_IMX6
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL
+	imply CMD_SATA
 
 config TARGET_ARISTAINETOS
 	bool "aristainetos"
@@ -141,6 +143,7 @@ config TARGET_GE_B850V3
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	select SUPPORT_SPL
+	imply CMD_SATA
 
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"
@@ -302,6 +305,7 @@ config TARGET_OPOS6ULDEV
 config TARGET_OT1200
 	bool "Bachmann OT1200"
 	select SUPPORT_SPL
+	imply CMD_SATA
 
 config TARGET_PICO_IMX6UL
 	bool "PICO-IMX6UL-EMMC"

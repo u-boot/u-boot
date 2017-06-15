@@ -57,6 +57,7 @@ config MV78230
 config MV78260
 	bool
 	select ARMADA_XP
+	imply CMD_SATA
 
 config MV78460
 	bool
@@ -113,6 +114,7 @@ config TARGET_THEADORABLE
 	bool "Support theadorable Armada XP"
 	select BOARD_LATE_INIT if USB
 	select MV78260
+	imply CMD_SATA
 
 config TARGET_CONTROLCENTERDC
 	bool "Support CONTROLCENTERDC"

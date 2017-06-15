@@ -628,7 +628,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
 #define CONFIG_SYS_SATA1_FLAGS		FLAGS_DMA
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
 #endif
 
 /*

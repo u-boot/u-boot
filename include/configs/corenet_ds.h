@@ -562,7 +562,6 @@
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
 #endif
 
 #ifdef CONFIG_FMAN_ENET
