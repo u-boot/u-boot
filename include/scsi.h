@@ -158,26 +158,6 @@ typedef struct SCSI_cmd_block{
 #define SCSI_WRITE_LONG	0x3F		/* Write Long (O) */
 #define SCSI_WRITE_SAME	0x41		/* Write Same (O) */
 
-
-/****************************************************************************
- * decleration of functions which have to reside in the LowLevel Part Driver
- */
-
-int scsi_exec(ccb *pccb);
-void scsi_bus_reset(void);
-#if !defined(CONFIG_DM_SCSI)
-void scsi_low_level_init(int busdevfunc);
-#else
-void scsi_low_level_init(int busdevfunc, struct udevice *dev);
-#endif
-
-/***************************************************************************
- * functions residing inside cmd_scsi.c
- */
-void scsi_init(void);
-int scsi_scan(int mode);
-
-#if defined(CONFIG_DM_SCSI)
 /**
  * struct scsi_platdata - stores information about SCSI controller
  *
@@ -190,7 +170,21 @@ struct scsi_platdata {
 	unsigned long max_lun;
 	unsigned long max_id;
 };
+
+#if defined(CONFIG_DM_SCSI)
+void scsi_low_level_init(int busdevfunc, struct udevice *dev);
+#else
+void scsi_low_level_init(int busdevfunc);
+void scsi_init(void);
 #endif
+
+int scsi_exec(ccb *pccb);
+void scsi_bus_reset(void);
+
+/***************************************************************************
+ * functions residing inside cmd_scsi.c
+ */
+int scsi_scan(int mode);
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 
