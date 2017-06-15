@@ -24,7 +24,7 @@
 
 static int ata_io_flush(u8 port);
 
-struct ahci_probe_ent *probe_ent = NULL;
+struct ahci_uc_priv *probe_ent = NULL;
 u16 *ataid[AHCI_MAX_PORTS];
 
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
@@ -109,7 +109,7 @@ static int waiting_for_cmd_completed(void __iomem *offset,
 	return (i < timeout_msec) ? 0 : -1;
 }
 
-int __weak ahci_link_up(struct ahci_probe_ent *probe_ent, u8 port)
+int __weak ahci_link_up(struct ahci_uc_priv *probe_ent, u8 port)
 {
 	u32 tmp;
 	int j = 0;
@@ -166,7 +166,7 @@ int ahci_reset(void __iomem *base)
 	return 0;
 }
 
-static int ahci_host_init(struct ahci_probe_ent *probe_ent)
+static int ahci_host_init(struct ahci_uc_priv *probe_ent)
 {
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # ifdef CONFIG_DM_PCI
@@ -344,7 +344,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 }
 
 
-static void ahci_print_info(struct ahci_probe_ent *probe_ent)
+static void ahci_print_info(struct ahci_uc_priv *probe_ent)
 {
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
 # if defined(CONFIG_DM_PCI)
@@ -437,13 +437,13 @@ static int ahci_init_one(pci_dev_t dev)
 #endif
 	int rc;
 
-	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	probe_ent = malloc(sizeof(struct ahci_uc_priv));
 	if (!probe_ent) {
 		printf("%s: No memory for probe_ent\n", __func__);
 		return -ENOMEM;
 	}
 
-	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
+	memset(probe_ent, 0, sizeof(struct ahci_uc_priv));
 	probe_ent->dev = dev;
 
 	probe_ent->host_flags = ATA_FLAG_SATA
@@ -1006,13 +1006,13 @@ int ahci_init(void __iomem *base)
 	int i, rc = 0;
 	u32 linkmap;
 
-	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	probe_ent = malloc(sizeof(struct ahci_uc_priv));
 	if (!probe_ent) {
 		printf("%s: No memory for probe_ent\n", __func__);
 		return -ENOMEM;
 	}
 
-	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
+	memset(probe_ent, 0, sizeof(struct ahci_uc_priv));
 
 	probe_ent->host_flags = ATA_FLAG_SATA
 				| ATA_FLAG_NO_LEGACY

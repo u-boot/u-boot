@@ -144,8 +144,19 @@ struct ahci_ioports {
 	u32	rx_fis;
 };
 
-struct ahci_probe_ent {
+/**
+ * struct ahci_uc_priv - information about an AHCI controller
+ *
+ * When driver model is used, this is accessible using dev_get_uclass_priv(dev)
+ * where dev is the controller (although at present it sometimes stands alone).
+ */
+struct ahci_uc_priv {
 #if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
+	/*
+	 * TODO(sjg@chromium.org): Drop this once this structure is only used
+	 * in a driver-model context (i.e. attached to a device with
+	 * dev_get_uclass_priv()
+	 */
 	struct udevice *dev;
 #else
 	pci_dev_t	dev;
