@@ -163,7 +163,6 @@ typedef struct SCSI_cmd_block{
  * decleration of functions which have to reside in the LowLevel Part Driver
  */
 
-void scsi_print_error(ccb *pccb);
 int scsi_exec(ccb *pccb);
 void scsi_bus_reset(void);
 #if !defined(CONFIG_DM_SCSI)

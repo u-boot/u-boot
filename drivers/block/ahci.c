@@ -1092,8 +1092,3 @@ __weak void scsi_bus_reset(void)
 {
 	/*Not implement*/
 }
-
-void scsi_print_error(ccb * pccb)
-{
-	/*The ahci error info can be read in the ahci driver*/
-}

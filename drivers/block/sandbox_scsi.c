@@ -23,7 +23,3 @@ int scsi_exec(ccb *pccb)
 {
 	return 0;
 }
-
-void scsi_print_error(ccb *pccb)
-{
-}

@@ -48,6 +48,11 @@ static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 #define SCSI_MAX_READ_BLK 0xFFFF
 #define SCSI_LBA48_READ	0xFFFFFFF
 
+static void scsi_print_error(ccb *pccb)
+{
+	/* Dummy function that could print an error for debugging */
+}
+
 #ifdef CONFIG_SYS_64BIT_LBA
 void scsi_setup_read16(ccb *pccb, lbaint_t start, unsigned long blocks)
 {
