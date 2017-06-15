@@ -368,7 +368,7 @@ static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 8;
-	if (scsi_exec(dev, pccb) != true)
+	if (scsi_exec(dev, pccb))
 		return 1;
 
 	*capacity = ((lbaint_t)pccb->pdata[0] << 24) |
@@ -393,7 +393,7 @@ static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 16;
-	if (scsi_exec(dev, pccb) != true)
+	if (scsi_exec(dev, pccb))
 		return 1;
 
 	*capacity = ((uint64_t)pccb->pdata[0] << 56) |
@@ -499,7 +499,7 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 	pccb->pdata = (unsigned char *)&tempbuff;
 	pccb->datalen = 512;
 	scsi_setup_inquiry(pccb);
-	if (scsi_exec(dev, pccb) != true) {
+	if (scsi_exec(dev, pccb)) {
 		if (pccb->contr_stat == SCSI_SEL_TIME_OUT) {
 			/*
 			  * selection timeout => assuming no
@@ -530,7 +530,7 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 
 	pccb->datalen = 0;
 	scsi_setup_test_unit_ready(pccb);
-	if (scsi_exec(dev, pccb) != true) {
+	if (scsi_exec(dev, pccb)) {
 		if (dev_desc->removable) {
 			dev_desc->type = perq;
 			goto removable;

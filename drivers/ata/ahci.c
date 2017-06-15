@@ -960,14 +960,14 @@ static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 		break;
 	default:
 		printf("Unsupport SCSI command 0x%02x\n", pccb->cmd[0]);
-		return false;
+		return -ENOTSUPP;
 	}
 
 	if (ret) {
 		debug("SCSI command 0x%02x ret errno %d\n", pccb->cmd[0], ret);
-		return false;
+		return ret;
 	}
-	return true;
+	return 0;
 
 }
 
