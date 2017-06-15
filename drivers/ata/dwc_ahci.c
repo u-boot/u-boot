@@ -81,7 +81,7 @@ static int dwc_ahci_probe(struct udevice *dev)
 		writel(val, priv->wrapper_base + TI_SATA_SYSCONFIG);
 	}
 
-	ret = ahci_init(priv->base);
+	ret = ahci_init_dm(dev, priv->base);
 	if (ret)
 		return ret;
 

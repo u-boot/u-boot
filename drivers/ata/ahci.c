@@ -428,25 +428,16 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
 # if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
-static int ahci_init_one(struct udevice *dev)
+static int ahci_init_one(struct ahci_uc_priv *uc_priv, struct udevice *dev)
 # else
-static int ahci_init_one(pci_dev_t dev)
+static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 # endif
 {
-	struct ahci_uc_priv *uc_priv;
 #if !defined(CONFIG_DM_SCSI)
 	u16 vendor;
 #endif
 	int rc;
 
-	probe_ent = malloc(sizeof(struct ahci_uc_priv));
-	if (!probe_ent) {
-		printf("%s: No memory for uc_priv\n", __func__);
-		return -ENOMEM;
-	}
-
-	uc_priv = probe_ent;
-	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
 	uc_priv->dev = dev;
 
 	uc_priv->host_flags = ATA_FLAG_SATA
@@ -998,6 +989,12 @@ void scsi_low_level_init(int busdevfunc)
 	struct ahci_uc_priv *uc_priv;
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
+	probe_ent = calloc(1, sizeof(struct ahci_uc_priv));
+	if (!probe_ent) {
+		printf("%s: No memory for uc_priv\n", __func__);
+		return;
+	}
+	uc_priv = probe_ent;
 # if defined(CONFIG_DM_PCI)
 	struct udevice *dev;
 	int ret;
@@ -1005,12 +1002,13 @@ void scsi_low_level_init(int busdevfunc)
 	ret = dm_pci_bus_find_bdf(busdevfunc, &dev);
 	if (ret)
 		return;
-	ahci_init_one(dev);
+	ahci_init_one(uc_priv, dev);
 # else
-	ahci_init_one(busdevfunc);
+	ahci_init_one(uc_priv, busdevfunc);
 # endif
-#endif
+#else
 	uc_priv = probe_ent;
+#endif
 
 	ahci_start_ports(uc_priv);
 }
@@ -1020,32 +1018,24 @@ void scsi_low_level_init(int busdevfunc)
 # if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 int achi_init_one_dm(struct udevice *dev)
 {
-	return ahci_init_one(dev);
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	return ahci_init_one(uc_priv, dev);
 }
 #endif
 #endif
 
 int achi_start_ports_dm(struct udevice *dev)
 {
-	struct ahci_uc_priv *uc_priv = probe_ent;
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	return ahci_start_ports(uc_priv);
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT
-int ahci_init(void __iomem *base)
+static int ahci_init_common(struct ahci_uc_priv *uc_priv, void __iomem *base)
 {
-	struct ahci_uc_priv *uc_priv;
-	int rc = 0;
-
-	probe_ent = malloc(sizeof(struct ahci_uc_priv));
-	if (!probe_ent) {
-		printf("%s: No memory for uc_priv\n", __func__);
-		return -ENOMEM;
-	}
-
-	uc_priv = probe_ent;
-	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
+	int rc;
 
 	uc_priv->host_flags = ATA_FLAG_SATA
 				| ATA_FLAG_NO_LEGACY
@@ -1070,11 +1060,36 @@ err_out:
 	return rc;
 }
 
+#ifndef CONFIG_DM_SCSI
+int ahci_init(void __iomem *base)
+{
+	struct ahci_uc_priv *uc_priv;
+
+	probe_ent = malloc(sizeof(struct ahci_uc_priv));
+	if (!probe_ent) {
+		printf("%s: No memory for uc_priv\n", __func__);
+		return -ENOMEM;
+	}
+
+	uc_priv = probe_ent;
+	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
+
+	return ahci_init_common(uc_priv, base);
+}
+#endif
+
+int ahci_init_dm(struct udevice *dev, void __iomem *base)
+{
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	return ahci_init_common(uc_priv, base);
+}
+
 void __weak scsi_init(void)
 {
 }
 
-#endif
+#endif /* CONFIG_SCSI_AHCI_PLAT */
 
 /*
  * In the general case of generic rotating media it makes sense to have a

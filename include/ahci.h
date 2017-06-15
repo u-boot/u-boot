@@ -193,4 +193,11 @@ int achi_init_one_dm(struct udevice *dev);
  */
 int achi_start_ports_dm(struct udevice *dev);
 
+/**
+ * ahci_init_dm() - init AHCI for a controller, finding all ports
+ *
+ * @dev: Device to init
+ */
+int ahci_init_dm(struct udevice *dev, void __iomem *base);
+
 #endif
