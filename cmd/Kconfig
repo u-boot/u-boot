@@ -736,6 +736,7 @@ config CMD_FDC
 
 config CMD_SATA
 	bool "sata - Access SATA subsystem"
+	select SATA
 	help
 	  SATA (Serial Advanced Technology Attachment) is a serial bus
 	  standard for connecting to hard drives and other storage devices.

@@ -244,7 +244,7 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	if (is_cpu_type(MXC_CPU_MX6Q))
 		setup_sata();
 #endif

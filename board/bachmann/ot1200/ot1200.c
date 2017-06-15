@@ -338,7 +338,7 @@ int board_init(void)
 
 	leds_on();
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 

@@ -19,6 +19,19 @@ config AHCI
 	  operations at present. The block device interface has not been converted
 	  to driver model.
 
+config SATA
+	bool "Support SATA controllers"
+	help
+	  This enables support for SATA (Serial Advanced Technology
+	  Attachment), a serial bus standard for connecting to hard drives and
+	  other storage devices.
+
+	  SATA replaces PATA (originally just ATA), which stands for Parallel AT
+	  Attachment, where AT refers to an IBM AT (Advanced Technology)
+	  computer released in 1984.
+
+	  See also CMD_SATA which provides command-line support.
+
 config SCSI
 	bool "Support SCSI controllers"
 	help
