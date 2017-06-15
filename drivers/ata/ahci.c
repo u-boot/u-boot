@@ -689,7 +689,7 @@ static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 /*
  * SCSI INQUIRY command operation.
  */
-static int ata_scsiop_inquiry(ccb *pccb)
+static int ata_scsiop_inquiry(struct scsi_cmd *pccb)
 {
 	static const u8 hdr[] = {
 		0,
@@ -753,7 +753,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 /*
  * SCSI READ10/WRITE10 command operation.
  */
-static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
+static int ata_scsiop_read_write(struct scsi_cmd *pccb, u8 is_write)
 {
 	lbaint_t lba = 0;
 	u16 blocks = 0;
@@ -864,7 +864,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 /*
  * SCSI READ CAPACITY10 command operation.
  */
-static int ata_scsiop_read_capacity10(ccb *pccb)
+static int ata_scsiop_read_capacity10(struct scsi_cmd *pccb)
 {
 	u32 cap;
 	u64 cap64;
@@ -894,7 +894,7 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 /*
  * SCSI READ CAPACITY16 command operation.
  */
-static int ata_scsiop_read_capacity16(ccb *pccb)
+static int ata_scsiop_read_capacity16(struct scsi_cmd *pccb)
 {
 	u64 cap;
 	u64 block_size;
@@ -920,13 +920,13 @@ static int ata_scsiop_read_capacity16(ccb *pccb)
 /*
  * SCSI TEST UNIT READY command operation.
  */
-static int ata_scsiop_test_unit_ready(ccb *pccb)
+static int ata_scsiop_test_unit_ready(struct scsi_cmd *pccb)
 {
 	return (ataid[pccb->target]) ? 0 : -EPERM;
 }
 
 
-int scsi_exec(ccb *pccb)
+int scsi_exec(struct scsi_cmd *pccb)
 {
 	int ret;
 

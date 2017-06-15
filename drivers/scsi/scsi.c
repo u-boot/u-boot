@@ -32,7 +32,7 @@
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
 #endif
-static ccb tempccb;	/* temporary scsi command buffer */
+static struct scsi_cmd tempccb;	/* temporary scsi command buffer */
 
 static unsigned char tempbuff[512]; /* temporary data buffer */
 
@@ -48,13 +48,14 @@ static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 #define SCSI_MAX_READ_BLK 0xFFFF
 #define SCSI_LBA48_READ	0xFFFFFFF
 
-static void scsi_print_error(ccb *pccb)
+static void scsi_print_error(struct scsi_cmd *pccb)
 {
 	/* Dummy function that could print an error for debugging */
 }
 
 #ifdef CONFIG_SYS_64BIT_LBA
-void scsi_setup_read16(ccb *pccb, lbaint_t start, unsigned long blocks)
+void scsi_setup_read16(struct scsi_cmd *pccb, lbaint_t start,
+		       unsigned long blocks)
 {
 	pccb->cmd[0] = SCSI_READ16;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -82,7 +83,7 @@ void scsi_setup_read16(ccb *pccb, lbaint_t start, unsigned long blocks)
 }
 #endif
 
-static void scsi_setup_read_ext(ccb *pccb, lbaint_t start,
+static void scsi_setup_read_ext(struct scsi_cmd *pccb, lbaint_t start,
 				unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_READ10;
@@ -103,7 +104,7 @@ static void scsi_setup_read_ext(ccb *pccb, lbaint_t start,
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-static void scsi_setup_write_ext(ccb *pccb, lbaint_t start,
+static void scsi_setup_write_ext(struct scsi_cmd *pccb, lbaint_t start,
 				 unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_WRITE10;
@@ -125,7 +126,7 @@ static void scsi_setup_write_ext(ccb *pccb, lbaint_t start,
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-static void scsi_setup_inquiry(ccb *pccb)
+static void scsi_setup_inquiry(struct scsi_cmd *pccb)
 {
 	pccb->cmd[0] = SCSI_INQUIRY;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -154,7 +155,7 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
-	ccb *pccb = (ccb *)&tempccb;
+	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
 
 	/* Setup device */
 	pccb->target = block_dev->target;
@@ -227,7 +228,7 @@ static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
-	ccb *pccb = (ccb *)&tempccb;
+	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
 
 	/* Setup device */
 	pccb->target = block_dev->target;
@@ -349,7 +350,7 @@ static void scsi_ident_cpy(unsigned char *dest, unsigned char *src,
 	*dest = '\0';
 }
 
-static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
+static int scsi_read_capacity(struct scsi_cmd *pccb, lbaint_t *capacity,
 			      unsigned long *blksz)
 {
 	*capacity = 0;
@@ -414,7 +415,7 @@ static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
 /*
  * Some setup (fill-in) routines
  */
-static void scsi_setup_test_unit_ready(ccb *pccb)
+static void scsi_setup_test_unit_ready(struct scsi_cmd *pccb)
 {
 	pccb->cmd[0] = SCSI_TST_U_RDY;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -484,7 +485,7 @@ static int scsi_detect_dev(int target, int lun, struct blk_desc *dev_desc)
 	unsigned char perq, modi;
 	lbaint_t capacity;
 	unsigned long blksz;
-	ccb *pccb = (ccb *)&tempccb;
+	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
 
 	pccb->target = target;
 	pccb->lun = lun;

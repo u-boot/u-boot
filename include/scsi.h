@@ -7,7 +7,7 @@
  #ifndef _SCSI_H
  #define _SCSI_H
 
-typedef struct scsi_cmd{
+struct scsi_cmd {
 	unsigned char		cmd[16];					/* command				   */
 	/* for request sense */
 	unsigned char		sense_buf[64]
@@ -27,7 +27,7 @@ typedef struct scsi_cmd{
 	unsigned long		trans_bytes;			/* tranfered bytes		*/
 
 	unsigned int		priv;
-}ccb;
+};
 
 /*-----------------------------------------------------------
 **
@@ -178,7 +178,7 @@ void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
 #endif
 
-int scsi_exec(ccb *pccb);
+int scsi_exec(struct scsi_cmd *pccb);
 void scsi_bus_reset(void);
 
 /***************************************************************************

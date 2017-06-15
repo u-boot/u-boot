@@ -19,7 +19,7 @@ void scsi_init(void)
 {
 }
 
-int scsi_exec(ccb *pccb)
+int scsi_exec(struct scsi_cmd *pccb)
 {
 	return 0;
 }
