@@ -971,6 +971,25 @@ int scsi_exec(struct scsi_cmd *pccb)
 
 }
 
+static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
+{
+	u32 linkmap;
+	int i;
+
+	linkmap = uc_priv->link_port_map;
+
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
+		if (((linkmap >> i) & 0x01)) {
+			if (ahci_port_start(uc_priv, (u8) i)) {
+				printf("Can not start port %d\n", i);
+				continue;
+			}
+		}
+	}
+
+	return 0;
+}
+
 #if defined(CONFIG_DM_SCSI)
 void scsi_low_level_init(int busdevfunc, struct udevice *dev)
 #else
@@ -978,8 +997,6 @@ void scsi_low_level_init(int busdevfunc)
 #endif
 {
 	struct ahci_uc_priv *uc_priv;
-	int i;
-	u32 linkmap;
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
 # if defined(CONFIG_DM_PCI)
@@ -998,24 +1015,14 @@ void scsi_low_level_init(int busdevfunc)
 #endif
 	uc_priv = probe_ent;
 
-	linkmap = uc_priv->link_port_map;
-
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
-		if (((linkmap >> i) & 0x01)) {
-			if (ahci_port_start(uc_priv, (u8) i)) {
-				printf("Can not start port %d\n", i);
-				continue;
-			}
-		}
-	}
+	ahci_start_ports(uc_priv);
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT
 int ahci_init(void __iomem *base)
 {
 	struct ahci_uc_priv *uc_priv;
-	int i, rc = 0;
-	u32 linkmap;
+	int rc = 0;
 
 	probe_ent = malloc(sizeof(struct ahci_uc_priv));
 	if (!probe_ent) {
@@ -1043,16 +1050,8 @@ int ahci_init(void __iomem *base)
 
 	ahci_print_info(uc_priv);
 
-	linkmap = uc_priv->link_port_map;
+	rc = ahci_start_ports(uc_priv);
 
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
-		if (((linkmap >> i) & 0x01)) {
-			if (ahci_port_start(uc_priv, (u8) i)) {
-				printf("Can not start port %d\n", i);
-				continue;
-			}
-		}
-	}
 err_out:
 	return rc;
 }
