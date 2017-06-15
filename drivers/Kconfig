@@ -72,6 +72,8 @@ source "drivers/reset/Kconfig"
 
 source "drivers/rtc/Kconfig"
 
+source "drivers/scsi/Kconfig"
+
 source "drivers/serial/Kconfig"
 
 source "drivers/sound/Kconfig"

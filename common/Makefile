@@ -79,7 +79,6 @@ obj-$(CONFIG_LCD_ROTATION) += lcd_console_rotation.o
 obj-$(CONFIG_LCD_DT_SIMPLEFB) += lcd_simplefb.o
 obj-$(CONFIG_LYNXKDI) += lynxkdi.o
 obj-$(CONFIG_MENU) += menu.o
-obj-$(CONFIG_SCSI) += scsi.o
 obj-$(CONFIG_UPDATE_TFTP) += update.o
 obj-$(CONFIG_DFU_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
@@ -120,9 +119,6 @@ obj-$(CONFIG_ENV_IS_IN_EXT4) += env_ext4.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
-endif
-ifdef CONFIG_SPL_SATA_SUPPORT
-obj-$(CONFIG_SCSI) += scsi.o
 endif
 endif
 #environment

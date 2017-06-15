@@ -13,6 +13,6 @@ endif
 
 obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_IDE_FTIDE020) += ftide020.o
-obj-$(CONFIG_SANDBOX) += sandbox.o sandbox_scsi.o
+obj-$(CONFIG_SANDBOX) += sandbox.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
 obj-$(CONFIG_BLOCK_CACHE) += blkcache.o
