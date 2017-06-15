@@ -14,19 +14,19 @@
 #include <dm/uclass-internal.h>
 
 #if !defined(CONFIG_DM_SCSI)
-#ifdef CONFIG_SCSI_DEV_LIST
-#define SCSI_DEV_LIST CONFIG_SCSI_DEV_LIST
-#else
-#ifdef CONFIG_SATA_ULI5288
+# ifdef CONFIG_SCSI_DEV_LIST
+#  define SCSI_DEV_LIST CONFIG_SCSI_DEV_LIST
+# else
+#  ifdef CONFIG_SATA_ULI5288
 
-#define SCSI_VEND_ID 0x10b9
-#define SCSI_DEV_ID  0x5288
+#   define SCSI_VEND_ID 0x10b9
+#   define SCSI_DEV_ID  0x5288
 
-#elif !defined(CONFIG_SCSI_AHCI_PLAT)
-#error no scsi device defined
-#endif
-#define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
-#endif
+#  elif !defined(CONFIG_SCSI_AHCI_PLAT)
+#   error no scsi device defined
+#  endif
+# define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
+# endif
 #endif
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
