@@ -33,6 +33,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(DEBUG)
 const static uint8_t syndrome_codes[] = {
 	0xF4, 0XF1, 0XEC, 0XEA, 0XE9, 0XE6, 0XE5, 0XE3,
 	0XDC, 0XDA, 0XD9, 0XD6, 0XD5, 0XD3, 0XCE, 0XCB,
@@ -44,6 +45,7 @@ const static uint8_t syndrome_codes[] = {
 	0X1C, 0X1A, 0X19, 0X16, 0X15, 0X13, 0X0E, 0X0B,
 	0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
+#endif
 
 #define ECC_START_ADDR		0x10
 #define ECC_STOP_ADDR		0x2000
