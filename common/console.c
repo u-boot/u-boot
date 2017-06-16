@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
@@ -416,9 +417,13 @@ int tstc(void)
 
 static void pre_console_putc(const char c)
 {
-	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+	char *buffer;
+
+	buffer = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 
 	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
+
+	unmap_sysmem(buffer);
 }
 
 static void pre_console_puts(const char *s)
@@ -430,14 +435,16 @@ static void pre_console_puts(const char *s)
 static void print_pre_console_buffer(int flushpoint)
 {
 	unsigned long in = 0, out = 0;
-	char *buf_in = (char *)CONFIG_PRE_CON_BUF_ADDR;
 	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
+	char *buf_in;
 
+	buf_in = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
 		in = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
 
 	while (in < gd->precon_buf_idx)
 		buf_out[out++] = buf_in[CIRC_BUF_IDX(in++)];
+	unmap_sysmem(buf_in);
 
 	buf_out[out] = 0;
 
