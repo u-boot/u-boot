@@ -16,6 +16,7 @@
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
 #define CONFIG_SMSC_LPC47M
+#define CONFIG_MISC_INIT_R
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
