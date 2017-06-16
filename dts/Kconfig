@@ -90,14 +90,15 @@ config DEFAULT_DEVICE_TREE
 
 config OF_LIST
 	string "List of device tree files to include for DT control"
-	depends on SPL_LOAD_FIT
+	depends on SPL_LOAD_FIT || FIT_EMBED
 	default DEFAULT_DEVICE_TREE
 	help
 	  This option specifies a list of device tree files to use for DT
-	  control. These will be packaged into a FIT. At run-time, SPL will
-	  select the correct DT to use by examining the hardware (e.g.
-	  reading a board ID value). This is a list of device tree files
-	  (without the directory or .dtb suffix) separated by <space>.
+	  control. These will be packaged into a FIT. At run-time, U-boot
+	  or SPL will select the correct DT to use by examining the
+	  hardware (e.g. reading a board ID value). This is a list of
+	  device tree files (without the directory or .dtb suffix)
+	  separated by <space>.
 
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
