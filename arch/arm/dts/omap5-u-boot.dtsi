@@ -9,7 +9,7 @@
 
 /{
 	ocp {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 
 		ocp2scp@4a090000 {
 			compatible = "ti,omap-ocp2scp", "simple-bus";
@@ -18,37 +18,37 @@
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &uart3 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &mmc1 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &mmc2 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &l4_cfg {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &scm {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &scm_conf {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &qspi {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 
 	m25p80@0 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 	};
 };
