@@ -359,6 +359,10 @@ int get_env_id (void);
 void	pci_init      (void);
 void	pci_init_board(void);
 
+#if defined(CONFIG_DTB_RESELECT)
+int	embedded_dtb_select(void);
+#endif
+
 int	misc_init_f   (void);
 int	misc_init_r   (void);
 

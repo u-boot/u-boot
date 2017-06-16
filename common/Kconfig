@@ -437,6 +437,15 @@ config SYS_STDIO_DEREGISTER
 
 endmenu
 
+config DTB_RESELECT
+	bool "Support swapping dtbs at a later point in boot"
+	depends on FIT_EMBED
+	help
+	  It is possible during initial boot you may need to use a generic
+	  dtb until you can fully determine the board your running on. This
+	  config allows boards to implement a function at a later point
+	  during boot to switch to the "correct" dtb.
+
 config FIT_EMBED
 	bool "Support a FIT image embedded in the U-boot image"
 	help
