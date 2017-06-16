@@ -194,6 +194,48 @@ CMD_EEPROM.
 
 Using this search you can reduce the size of moveconfig patches.
 
+You can automatically add 'imply' statements in the Kconfig with the -a
+option:
+
+    ./tools/moveconfig.py -s -i CONFIG_SCSI \
+            -a CONFIG_ARCH_LS1021A,CONFIG_ARCH_LS1043A
+
+This will add 'imply SCSI' to the two CONFIG options mentioned, assuming that
+the database indicates that they do actually imply CONFIG_SCSI and do not
+already have an 'imply SCSI'.
+
+The output shows where the imply is added:
+
+   18 : CONFIG_ARCH_LS1021A       arch/arm/cpu/armv7/ls102xa/Kconfig:1
+   13 : CONFIG_ARCH_LS1043A       arch/arm/cpu/armv8/fsl-layerscape/Kconfig:11
+   12 : CONFIG_ARCH_LS1046A       arch/arm/cpu/armv8/fsl-layerscape/Kconfig:31
+
+The first number is the number of boards which can avoid having a special
+CONFIG_SCSI option in their defconfig file if this 'imply' is added.
+The location at the right is the Kconfig file and line number where the config
+appears. For example, adding 'imply CONFIG_SCSI' to the 'config ARCH_LS1021A'
+in arch/arm/cpu/armv7/ls102xa/Kconfig at line 1 will help 18 boards to reduce
+the size of their defconfig files.
+
+If you want to add an 'imply' to every imply config in the list, you can use
+
+    ./tools/moveconfig.py -s -i CONFIG_SCSI -a all
+
+To control which ones are displayed, use -I <list> where list is a list of
+options (use '-I help' to see possible options and their meaning).
+
+To skip showing you options that already have an 'imply' attached, use -A.
+
+When you have finished adding 'imply' options you can regenerate the
+defconfig files for affected boards with something like:
+
+    git show --stat | ./tools/moveconfig.py -s -d -
+
+This will regenerate only those defconfigs changed in the current commit.
+If you start with (say) 100 defconfigs being changed in the commit, and add
+a few 'imply' options as above, then regenerate, hopefully you can reduce the
+number of defconfigs changed in the commit.
+
 
 Available options
 -----------------
@@ -276,6 +318,9 @@ import tempfile
 import threading
 import time
 
+sys.path.append(os.path.join(os.path.dirname(__file__), 'buildman'))
+import kconfiglib
+
 SHOW_GNU_MAKE = 'scripts/show-gnu-make'
 SLEEP_TIME=0.03
 
@@ -331,6 +376,7 @@ COLOR_WHITE        = '1;37'
 AUTO_CONF_PATH = 'include/config/auto.conf'
 CONFIG_DATABASE = 'moveconfig.db'
 
+CONFIG_LEN = len('CONFIG_')
 
 ### helper functions ###
 def get_devnull():
@@ -801,6 +847,19 @@ class Progress:
         """Display the progress."""
         print ' %d defconfigs out of %d\r' % (self.current, self.total),
         sys.stdout.flush()
+
+
+class KconfigScanner:
+    """Kconfig scanner."""
+
+    def __init__(self):
+        """Scan all the Kconfig files and create a Config object."""
+        # Define environment variables referenced from Kconfig
+        os.environ['srctree'] = os.getcwd()
+        os.environ['UBOOTVERSION'] = 'dummy'
+        os.environ['KCONFIG_OBJDIR'] = ''
+        self.conf = kconfiglib.Config()
+
 
 class KconfigParser:
 
@@ -1464,15 +1523,98 @@ def move_config(configs, options, db_queue):
     slots.show_failed_boards()
     slots.show_suspicious_boards()
 
-(IMPLY_MIN_2, IMPLY_TARGET, IMPLY_CMD) = (1, 2, 4)
+def find_kconfig_rules(kconf, config, imply_config):
+    """Check whether a config has a 'select' or 'imply' keyword
+
+    Args:
+        kconf: Kconfig.Config object
+        config: Name of config to check (without CONFIG_ prefix)
+        imply_config: Implying config (without CONFIG_ prefix) which may or
+            may not have an 'imply' for 'config')
+
+    Returns:
+        Symbol object for 'config' if found, else None
+    """
+    sym = kconf.get_symbol(imply_config)
+    if sym:
+        for sel in sym.get_selected_symbols():
+            if sel.get_name() == config:
+                return sym
+    return None
+
+def check_imply_rule(kconf, config, imply_config):
+    """Check if we can add an 'imply' option
+
+    This finds imply_config in the Kconfig and looks to see if it is possible
+    to add an 'imply' for 'config' to that part of the Kconfig.
+
+    Args:
+        kconf: Kconfig.Config object
+        config: Name of config to check (without CONFIG_ prefix)
+        imply_config: Implying config (without CONFIG_ prefix) which may or
+            may not have an 'imply' for 'config')
+
+    Returns:
+        tuple:
+            filename of Kconfig file containing imply_config, or None if none
+            line number within the Kconfig file, or 0 if none
+            message indicating the result
+    """
+    sym = kconf.get_symbol(imply_config)
+    if not sym:
+        return 'cannot find sym'
+    locs = sym.get_def_locations()
+    if len(locs) != 1:
+        return '%d locations' % len(locs)
+    fname, linenum = locs[0]
+    cwd = os.getcwd()
+    if cwd and fname.startswith(cwd):
+        fname = fname[len(cwd) + 1:]
+    file_line = ' at %s:%d' % (fname, linenum)
+    with open(fname) as fd:
+        data = fd.read().splitlines()
+    if data[linenum - 1] != 'config %s' % imply_config:
+        return None, 0, 'bad sym format %s%s' % (data[linenum], file_line)
+    return fname, linenum, 'adding%s' % file_line
+
+def add_imply_rule(config, fname, linenum):
+    """Add a new 'imply' option to a Kconfig
+
+    Args:
+        config: config option to add an imply for (without CONFIG_ prefix)
+        fname: Kconfig filename to update
+        linenum: Line number to place the 'imply' before
+
+    Returns:
+        Message indicating the result
+    """
+    file_line = ' at %s:%d' % (fname, linenum)
+    data = open(fname).read().splitlines()
+    linenum -= 1
+
+    for offset, line in enumerate(data[linenum:]):
+        if line.strip().startswith('help') or not line:
+            data.insert(linenum + offset, '\timply %s' % config)
+            with open(fname, 'w') as fd:
+                fd.write('\n'.join(data) + '\n')
+            return 'added%s' % file_line
+
+    return 'could not insert%s'
+
+(IMPLY_MIN_2, IMPLY_TARGET, IMPLY_CMD, IMPLY_NON_ARCH_BOARD) = (
+    1, 2, 4, 8)
 
 IMPLY_FLAGS = {
     'min2': [IMPLY_MIN_2, 'Show options which imply >2 boards (normally >5)'],
     'target': [IMPLY_TARGET, 'Allow CONFIG_TARGET_... options to imply'],
     'cmd': [IMPLY_CMD, 'Allow CONFIG_CMD_... to imply'],
+    'non-arch-board': [
+        IMPLY_NON_ARCH_BOARD,
+        'Allow Kconfig options outside arch/ and /board/ to imply'],
 };
 
-def do_imply_config(config_list, imply_flags, find_superset=False):
+def do_imply_config(config_list, add_imply, imply_flags, skip_added,
+                    check_kconfig=True, find_superset=False):
     """Find CONFIG options which imply those in the list
 
     Some CONFIG options can be implied by others and this can help to reduce
@@ -1497,8 +1639,12 @@ def do_imply_config(config_list, imply_flags, find_superset=False):
 
     Params:
         config_list: List of CONFIG options to check (each a string)
+        add_imply: Automatically add an 'imply' for each config.
         imply_flags: Flags which control which implying configs are allowed
            (IMPLY_...)
+        skip_added: Don't show options which already have an imply added.
+        check_kconfig: Check if implied symbols already have an 'imply' or
+            'select' for the target config, and show this information if so.
         find_superset: True to look for configs which are a superset of those
             already found. So for example if CONFIG_EXYNOS5 implies an option,
             but CONFIG_EXYNOS covers a larger set of defconfigs and also
@@ -1509,6 +1655,10 @@ def do_imply_config(config_list, imply_flags, find_superset=False):
         config - a CONFIG_XXX options (a string, e.g. 'CONFIG_CMD_EEPROM')
         defconfig - a defconfig file (a string, e.g. 'configs/snow_defconfig')
     """
+    kconf = KconfigScanner().conf if check_kconfig else None
+    if add_imply and add_imply != 'all':
+        add_imply = add_imply.split()
+
     # key is defconfig name, value is dict of (CONFIG_xxx, value)
     config_db = {}
 
@@ -1607,19 +1757,68 @@ def do_imply_config(config_list, imply_flags, find_superset=False):
         # The value of each dict item is the set of defconfigs containing that
         # config. Rank them so that we print the configs that imply the largest
         # number of defconfigs first.
-        ranked_configs = sorted(imply_configs,
+        ranked_iconfigs = sorted(imply_configs,
                             key=lambda k: len(imply_configs[k]), reverse=True)
-        for config in ranked_configs:
-            num_common = len(imply_configs[config])
+        kconfig_info = ''
+        cwd = os.getcwd()
+        add_list = collections.defaultdict(list)
+        for iconfig in ranked_iconfigs:
+            num_common = len(imply_configs[iconfig])
 
             # Don't bother if there are less than 5 defconfigs affected.
             if num_common < (2 if imply_flags & IMPLY_MIN_2 else 5):
                 continue
-            missing = defconfigs - imply_configs[config]
+            missing = defconfigs - imply_configs[iconfig]
             missing_str = ', '.join(missing) if missing else 'all'
             missing_str = ''
-            print '    %d : %-30s%s' % (num_common, config.ljust(30),
-                                        missing_str)
+            show = True
+            if kconf:
+                sym = find_kconfig_rules(kconf, config[CONFIG_LEN:],
+                                         iconfig[CONFIG_LEN:])
+                kconfig_info = ''
+                if sym:
+                    locs = sym.get_def_locations()
+                    if len(locs) == 1:
+                        fname, linenum = locs[0]
+                        if cwd and fname.startswith(cwd):
+                            fname = fname[len(cwd) + 1:]
+                        kconfig_info = '%s:%d' % (fname, linenum)
+                        if skip_added:
+                            show = False
+                else:
+                    sym = kconf.get_symbol(iconfig[CONFIG_LEN:])
+                    fname = ''
+                    if sym:
+                        locs = sym.get_def_locations()
+                        if len(locs) == 1:
+                            fname, linenum = locs[0]
+                            if cwd and fname.startswith(cwd):
+                                fname = fname[len(cwd) + 1:]
+                    in_arch_board = not sym or (fname.startswith('arch') or
+                                                fname.startswith('board'))
+                    if (not in_arch_board and
+                        not (imply_flags & IMPLY_NON_ARCH_BOARD)):
+                        continue
+
+                    if add_imply and (add_imply == 'all' or
+                                      iconfig in add_imply):
+                        fname, linenum, kconfig_info = (check_imply_rule(kconf,
+                                config[CONFIG_LEN:], iconfig[CONFIG_LEN:]))
+                        if fname:
+                            add_list[fname].append(linenum)
+
+            if show and kconfig_info != 'skip':
+                print '%5d : %-30s%-25s %s' % (num_common, iconfig.ljust(30),
+                                              kconfig_info, missing_str)
+
+        # Having collected a list of things to add, now we add them. We process
+        # each file from the largest line number to the smallest so that
+        # earlier additions do not affect our line numbers. E.g. if we added an
+        # imply at line 20 it would change the position of each line after
+        # that.
+        for fname, linenums in add_list.iteritems():
+            for linenum in sorted(linenums, reverse=True):
+                add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
 
 def main():
@@ -1630,6 +1829,12 @@ def main():
 
     parser = optparse.OptionParser()
     # Add options here
+    parser.add_option('-a', '--add-imply', type='string', default='',
+                      help='comma-separated list of CONFIG options to add '
+                      "an 'imply' statement to for the CONFIG in -i")
+    parser.add_option('-A', '--skip-added', action='store_true', default=False,
+                      help="don't show options which are already marked as "
+                      'implying others')
     parser.add_option('-b', '--build-db', action='store_true', default=False,
                       help='build a CONFIG database')
     parser.add_option('-c', '--color', action='store_true', default=False,
@@ -1690,7 +1895,8 @@ def main():
                 sys.exit(1)
             imply_flags |= IMPLY_FLAGS[flag][0]
 
-        do_imply_config(configs, imply_flags)
+        do_imply_config(configs, options.add_imply, imply_flags,
+                        options.skip_added)
         return
 
     config_db = {}
