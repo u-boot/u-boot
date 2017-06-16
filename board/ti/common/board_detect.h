@@ -206,6 +206,15 @@ void set_board_info_env(char *name);
 void board_ti_set_ethaddr(int index);
 
 /**
+ * board_ti_was_eeprom_read() - Check to see if the eeprom contents have been read
+ *
+ * This function is useful to determine if the eeprom has already been read and
+ * its contents have already been loaded into memory. It utiltzes the magic
+ * number that the header value is set to upon successful eeprom read.
+ */
+bool board_ti_was_eeprom_read(void);
+
+/**
  * ti_i2c_eeprom_am_set() - Setup the eeprom data with predefined values
  * @name:	Name of the board
  * @rev:	Revision of the board
