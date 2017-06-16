@@ -202,7 +202,6 @@ static void console_putc(int file, const char c)
 	}
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static void console_puts_noserial(int file, const char *s)
 {
 	int i;
@@ -214,7 +213,6 @@ static void console_puts_noserial(int file, const char *s)
 			dev->puts(dev, s);
 	}
 }
-#endif
 
 static void console_puts(int file, const char *s)
 {
@@ -248,13 +246,11 @@ static inline void console_putc(int file, const char c)
 	stdio_devices[file]->putc(stdio_devices[file], c);
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static inline void console_puts_noserial(int file, const char *s)
 {
 	if (strcmp(stdio_devices[file]->name, "serial") != 0)
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
-#endif
 
 static inline void console_puts(int file, const char *s)
 {
@@ -697,6 +693,19 @@ static void console_update_silent(void)
 	else
 		gd->flags &= ~GD_FLG_SILENT;
 #endif
+}
+
+int console_announce_r(void)
+{
+#if !CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+
+	display_options_get_banner(false, buf, sizeof(buf));
+
+	console_puts_noserial(stdout, buf);
+#endif
+
+	return 0;
 }
 
 /* Called before relocation - use serial functions */
