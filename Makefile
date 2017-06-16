@@ -873,7 +873,21 @@ dts/dt.dtb: checkdtc u-boot
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_OF_SEPARATE),y)
+ifeq ($(CONFIG_FIT_EMBED),y)
+
+fit-dtb.blob: dts/dt.dtb FORCE
+	$(call if_changed,mkimage)
+
+MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
+	-a 0 -e 0 -E \
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) -d /dev/null
+
+u-boot-fit-dtb.bin: u-boot-nodtb.bin fit-dtb.blob
+	$(call if_changed,cat)
+
+u-boot.bin: u-boot-fit-dtb.bin FORCE
+	$(call if_changed,copy)
+else ifeq ($(CONFIG_OF_SEPARATE),y)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
@@ -1473,7 +1487,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
 CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
-	       boot* u-boot* MLO* SPL System.map
+	       boot* u-boot* MLO* SPL System.map fit-dtb.blob
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
