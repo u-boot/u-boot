@@ -9,13 +9,14 @@
  */
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include "skeleton.dtsi"
 
 / {
 	model = "Texas Instruments K2G SoC";
 	#address-cells = <1>;
 	#size-cells = <1>;
 	interrupt-parent = <&gic>;
+
+	chosen { };
 
 	aliases {
 		serial0	= &uart0;
