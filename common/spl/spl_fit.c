@@ -11,58 +11,6 @@
 #include <libfdt.h>
 #include <spl.h>
 
-#define FDT_ERROR ((ulong)(-1))
-
-static ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
-{
-	const u32 *cell;
-	int len;
-
-	cell = fdt_getprop(fdt, node, prop, &len);
-	if (!cell || len != sizeof(*cell))
-		return FDT_ERROR;
-
-	return fdt32_to_cpu(*cell);
-}
-
-/*
- * Iterate over all /configurations subnodes and call a platform specific
- * function to find the matching configuration.
- * Returns the node offset or a negative error number.
- */
-static int spl_fit_find_config_node(const void *fdt)
-{
-	const char *name;
-	int conf, node, len;
-
-	conf = fdt_path_offset(fdt, FIT_CONFS_PATH);
-	if (conf < 0) {
-		debug("%s: Cannot find /configurations node: %d\n", __func__,
-		      conf);
-		return -EINVAL;
-	}
-	for (node = fdt_first_subnode(fdt, conf);
-	     node >= 0;
-	     node = fdt_next_subnode(fdt, node)) {
-		name = fdt_getprop(fdt, node, "description", &len);
-		if (!name) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-			printf("%s: Missing FDT description in DTB\n",
-			       __func__);
-#endif
-			return -EINVAL;
-		}
-		if (board_fit_config_name_match(name))
-			continue;
-
-		debug("Selecting config '%s'", name);
-
-		return node;
-	}
-
-	return -ENOENT;
-}
-
 /**
  * spl_fit_get_image_node(): By using the matching configuration subnode,
  * retrieve the name of an image, specified by a property name and an index
@@ -82,7 +30,7 @@ static int spl_fit_get_image_node(const void *fit, int images,
 	int node, conf_node;
 	int len, i;
 
-	conf_node = spl_fit_find_config_node(fit);
+	conf_node = fit_find_config_node(fit);
 	if (conf_node < 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("No matching DT out of these options:\n");
