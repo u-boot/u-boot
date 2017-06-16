@@ -150,6 +150,16 @@ int board_early_init_f(void)
 }
 #endif
 
+#if defined(CONFIG_FIT_EMBED)
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(name, "keystone-k2hk-evm"))
+		return 0;
+
+	return -1;
+}
+#endif
+
 #ifdef CONFIG_SPL_BUILD
 void spl_init_keystone_plls(void)
 {

@@ -214,6 +214,20 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#if defined(CONFIG_FIT_EMBED)
+int board_fit_config_name_match(const char *name)
+{
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!strcmp(name, "keystone-k2g-generic") && !eeprom_read)
+		return 0;
+	else if (!strcmp(name, "keystone-k2g-evm") && board_ti_is("66AK2GGP"))
+		return 0;
+	else
+		return -1;
+}
+#endif
+
 #if defined(CONFIG_DTB_RESELECT)
 static int k2g_alt_board_detect(void)
 {

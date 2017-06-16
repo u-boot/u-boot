@@ -166,6 +166,16 @@ int get_num_eth_ports(void)
 }
 #endif
 
+#if defined(CONFIG_FIT_EMBED)
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(name, "keystone-k2e-evm"))
+		return 0;
+
+	return -1;
+}
+#endif
+
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 int board_early_init_f(void)
 {
