@@ -52,8 +52,7 @@ void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 	__raw_writel(phy_cfg->dtpr2, base + KS2_DDRPHY_DTPR2_OFFSET);
 	__raw_writel(phy_cfg->mr0,   base + KS2_DDRPHY_MR0_OFFSET);
 	__raw_writel(phy_cfg->mr1,   base + KS2_DDRPHY_MR1_OFFSET);
-	if (!cpu_is_k2g())
-		__raw_writel(phy_cfg->mr2,   base + KS2_DDRPHY_MR2_OFFSET);
+	__raw_writel(phy_cfg->mr2,   base + KS2_DDRPHY_MR2_OFFSET);
 	__raw_writel(phy_cfg->dtcr,  base + KS2_DDRPHY_DTCR_OFFSET);
 	__raw_writel(phy_cfg->pgcr2, base + KS2_DDRPHY_PGCR2_OFFSET);
 
