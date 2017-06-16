@@ -274,6 +274,8 @@ int embedded_dtb_select(void)
 
 	fdtdec_setup();
 
+	k2g_mux_config();
+
 	k2g_reset_mux_config();
 
 	/* deassert FLASH_HOLD */
