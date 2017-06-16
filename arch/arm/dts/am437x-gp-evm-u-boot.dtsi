@@ -9,30 +9,30 @@
 
 /{
 	ocp {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 	};
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &mmc1 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &mac {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &davinci_mdio {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &cpsw_emac0 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &phy_sel {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
