@@ -225,6 +225,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else if (!strcmp(name, "keystone-k2g-evm") && board_ti_is("66AK2GGP"))
 		return 0;
+	else if (!strcmp(name, "keystone-k2g-ice") && board_ti_is("66AK2GIC"))
+		return 0;
 	else
 		return -1;
 }
