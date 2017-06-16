@@ -15,6 +15,26 @@
 
 extern struct eth_priv_t eth_priv_cfg[];
 
+#if defined(CONFIG_TI_I2C_BOARD_DETECT)
+static inline int board_is_k2g_gp(void)
+{
+	return board_ti_is("66AK2GGP");
+}
+static inline int board_is_k2g_ice(void)
+{
+	return board_ti_is("66AK2GIC");
+}
+#else
+static inline int board_is_k2g_gp(void)
+{
+	return false;
+}
+static inline int board_is_k2g_ice(void)
+{
+	return false;
+}
+#endif
+
 int get_num_eth_ports(void);
 void spl_init_keystone_plls(void);
 
