@@ -437,6 +437,13 @@ config SYS_STDIO_DEREGISTER
 
 endmenu
 
+config FIT_EMBED
+	bool "Support a FIT image embedded in the U-boot image"
+	help
+	  This option provides hooks to allow U-boot to parse an
+	  appended FIT image and enable board specific code to then select
+	  the correct DTB to be used.
+
 config DEFAULT_FDT_FILE
 	string "Default fdt file"
 	help

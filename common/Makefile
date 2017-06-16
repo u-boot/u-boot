@@ -151,6 +151,7 @@ obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_$(SPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_)FIT) += image-fit.o
+obj-$(CONFIG_FIT_EMBED) += boot_fit.o common_fit.o
 obj-$(CONFIG_$(SPL_)FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o

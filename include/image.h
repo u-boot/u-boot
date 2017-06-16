@@ -1272,6 +1272,9 @@ void board_fit_image_post_process(void **p_image, size_t *p_size);
 
 #define FDT_ERROR	((ulong)(-1))
 
+ulong fdt_getprop_u32(const void *fdt, int node, const char *prop);
+int fit_find_config_node(const void *fdt);
+
 /**
  * Mapping of image types to function handlers to be invoked on the associated
  * loaded images
