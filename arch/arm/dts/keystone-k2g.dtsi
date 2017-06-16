@@ -30,11 +30,6 @@
 		i2c2 = &i2c2;
 	};
 
-	memory {
-		device_type = "memory";
-		reg = <0x80000000 0x80000000>;
-	};
-
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
