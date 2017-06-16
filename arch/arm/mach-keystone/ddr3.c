@@ -65,11 +65,33 @@ void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 		;
 
 	if (cpu_is_k2g()) {
-		setbits_le32(base + KS2_DDRPHY_DATX8_4_OFFSET, 0x1);
-		clrbits_le32(base + KS2_DDRPHY_DATX8_5_OFFSET, 0x1);
-		clrbits_le32(base + KS2_DDRPHY_DATX8_6_OFFSET, 0x1);
-		clrbits_le32(base + KS2_DDRPHY_DATX8_7_OFFSET, 0x1);
-		clrbits_le32(base + KS2_DDRPHY_DATX8_8_OFFSET, 0x1);
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_2_OFFSET,
+				phy_cfg->datx8_2_mask,
+				phy_cfg->datx8_2_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_3_OFFSET,
+				phy_cfg->datx8_3_mask,
+				phy_cfg->datx8_3_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_4_OFFSET,
+				phy_cfg->datx8_4_mask,
+				phy_cfg->datx8_4_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_5_OFFSET,
+				phy_cfg->datx8_5_mask,
+				phy_cfg->datx8_5_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_6_OFFSET,
+				phy_cfg->datx8_6_mask,
+				phy_cfg->datx8_6_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_7_OFFSET,
+				phy_cfg->datx8_7_mask,
+				phy_cfg->datx8_7_val);
+
+		clrsetbits_le32(base + KS2_DDRPHY_DATX8_8_OFFSET,
+				phy_cfg->datx8_8_mask,
+				phy_cfg->datx8_8_val);
 	}
 
 	__raw_writel(phy_cfg->pir_v2, base + KS2_DDRPHY_PIR_OFFSET);
