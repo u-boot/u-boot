@@ -597,6 +597,106 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 }
 
+#ifndef CONFIG_DM_MMC_OPS
+static void mmc_set_ios(struct mmc *mmc)
+{
+	if (mmc->cfg->ops->set_ios)
+		mmc->cfg->ops->set_ios(mmc);
+}
+#endif
+
+static void mmc_set_bus_width(struct mmc *mmc, uint width)
+{
+	mmc->bus_width = width;
+
+	mmc_set_ios(mmc);
+}
+
+static int mmc_select_bus_width(struct mmc *mmc)
+{
+	/* Only version 4 of MMC supports wider bus widths */
+	int idx;
+	int err;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
+
+
+	/* An array of possible bus widths in order of preference */
+	static unsigned ext_csd_bits[] = {
+		EXT_CSD_BUS_WIDTH_8,
+		EXT_CSD_BUS_WIDTH_4,
+	};
+
+		/* An array to map CSD bus widths to host cap bits */
+	static unsigned ext_to_hostcaps[] = {
+		[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
+		[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
+	};
+
+	/* An array to map chosen bus width to an integer */
+	static unsigned widths[] = {
+		8, 4,
+	};
+
+	err = mmc_send_ext_csd(mmc, ext_csd);
+
+	for (idx = 0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
+		unsigned int extw = ext_csd_bits[idx];
+		unsigned int caps = ext_to_hostcaps[extw];
+
+		/*
+		 * If the bus width is still not changed,
+		 * don't try to set the default again.
+		 * Otherwise, recover from switch attempts
+		 * by switching to 1-bit bus width.
+		 */
+		if (extw == EXT_CSD_BUS_WIDTH_1 &&
+		    mmc->bus_width == 1) {
+			err = 0;
+			break;
+		}
+
+		/*
+		 * Check to make sure the card and controller support
+		 * these capabilities
+		 */
+		if ((mmc->card_caps & caps) != caps)
+			continue;
+
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			EXT_CSD_BUS_WIDTH, extw);
+
+		if (err)
+			continue;
+
+		mmc_set_bus_width(mmc, widths[idx]);
+
+		err = mmc_send_ext_csd(mmc, test_csd);
+		if (err)
+			continue;
+
+		/* Only compare read only fields */
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
+			== test_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
+		    ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
+			== test_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
+		    ext_csd[EXT_CSD_REV]
+			== test_csd[EXT_CSD_REV] &&
+		    ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+			== test_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
+		    memcmp(&ext_csd[EXT_CSD_SEC_CNT],
+			   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
+			break;
+		else
+			err = -EBADMSG;
+	}
+
+	if (err)
+		return err;
+
+	return 0;
+}
+
 static int mmc_change_freq(struct mmc *mmc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
@@ -624,15 +724,18 @@ static int mmc_change_freq(struct mmc *mmc)
 	if (mmc->forcehs)
 		cardtype &= ~EXT_CSD_CARD_TYPE_HS200;
 
-	if (cardtype & EXT_CSD_CARD_TYPE_HS200)
+	if (cardtype & EXT_CSD_CARD_TYPE_HS200) {
+		err = mmc_select_bus_width(mmc);
+		if (err)
+			return err;
 		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				 EXT_CSD_HS_TIMING,
 				 EXT_CSD_HS_TIMING_HS200);
-	else
+	} else {
 		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				 EXT_CSD_HS_TIMING,
 				 EXT_CSD_HS_TIMING_HIGH_SPEED);
-
+	}
 	if (err)
 		return err;
 
@@ -1228,14 +1331,6 @@ static const u8 multipliers[] = {
 	80,
 };
 
-#ifndef CONFIG_DM_MMC_OPS
-static void mmc_set_ios(struct mmc *mmc)
-{
-	if (mmc->cfg->ops->set_ios)
-		mmc->cfg->ops->set_ios(mmc);
-}
-#endif
-
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
 	if (clock > mmc->cfg->f_max)
@@ -1249,12 +1344,6 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 	mmc_set_ios(mmc);
 }
 
-static void mmc_set_bus_width(struct mmc *mmc, uint width)
-{
-	mmc->bus_width = width;
-
-	mmc_set_ios(mmc);
-}
 #ifndef CONFIG_DM_MMC_OPS
 static int mmc_switch_uhs(struct mmc *mmc)
 {
@@ -1642,7 +1731,9 @@ static int mmc_startup(struct mmc *mmc)
 			else
 				mmc->tran_speed = 25000000;
 		}
-	} else if (mmc->version >= MMC_VERSION_4) {
+	} else if ((mmc->version >= MMC_VERSION_4) &&
+		   ((ext_csd[EXT_CSD_CARD_TYPE] & EXT_CSD_CARD_TYPE_MASK) !=
+		    EXT_CSD_CARD_TYPE_HS200)) {
 		/* Only version 4 of MMC supports wider bus widths */
 		int idx;
 
@@ -1725,7 +1816,9 @@ static int mmc_startup(struct mmc *mmc)
 
 		if (err)
 			return err;
+	}
 
+	if (!IS_SD(mmc)) {
 		if (mmc->card_caps & MMC_MODE_HS200) {
 			mmc->tran_speed = 200000000;
 		} else if (mmc->card_caps & MMC_MODE_HS) {
