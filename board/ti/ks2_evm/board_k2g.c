@@ -246,24 +246,6 @@ static int k2g_alt_board_detect(void)
 	return 0;
 }
 
-int embedded_dtb_select(void)
-{
-	int rc;
-
-	rc = k2g_alt_board_detect();
-	if (rc) {
-		printf("Unable to do board detection\n");
-		return -1;
-	}
-
-	fdtdec_setup();
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-
 static void k2g_reset_mux_config(void)
 {
 	/* Unlock the reset mux register */
@@ -277,11 +259,20 @@ static void k2g_reset_mux_config(void)
 	setbits_le32(KS2_RSTMUX8, RSTMUX_LOCK8_MASK);
 }
 
-int board_early_init_f(void)
+int embedded_dtb_select(void)
 {
-	init_plls();
+	int rc;
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+			CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc) {
+		rc = k2g_alt_board_detect();
+		if (rc) {
+			printf("Unable to do board detection\n");
+			return -1;
+		}
+	}
 
-	k2g_mux_config();
+	fdtdec_setup();
 
 	k2g_reset_mux_config();
 
@@ -308,6 +299,17 @@ int board_late_init(void)
 
 	board_ti_set_ethaddr(1);
 #endif
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	init_plls();
+
+	k2g_mux_config();
 
 	return 0;
 }

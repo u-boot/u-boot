@@ -11,6 +11,7 @@
 #define _KS2_BOARD
 
 #include <asm/ti-common/keystone_net.h>
+#include "../common/board_detect.h"
 
 extern struct eth_priv_t eth_priv_cfg[];
 
