@@ -99,6 +99,7 @@ netcp: netcp@4000000 {
 	reg = <0x2620110 0x8>;
 	reg-names = "efuse";
 	compatible = "ti,netcp-1.0";
+	status = "disabled";
 	#address-cells = <1>;
 	#size-cells = <1>;
 	/* power-domains = <&k2g_pds K2G_DEV_NSS0>; */

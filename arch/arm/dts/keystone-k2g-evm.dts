@@ -37,6 +37,10 @@
 	phy-handle = <&ethphy0>;
 };
 
+&netcp {
+	status = "okay";
+};
+
 &spi1 {
 	status = "okay";
 
