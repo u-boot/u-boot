@@ -11,8 +11,12 @@
 #include <asm/ti-common/keystone_net.h>
 #include <asm/arch/psc_defs.h>
 #include <asm/arch/mmc_host_def.h>
+#include <fdtdec.h>
+#include <i2c.h>
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
+
+#define K2G_GP_AUDIO_CODEC_ADDRESS	0x1B
 
 const unsigned int sysclk_array[MAX_SYSCLK] = {
 	19200000,
@@ -206,6 +210,40 @@ int board_mmc_init(bd_t *bis)
 
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_DTB_RESELECT)
+static int k2g_alt_board_detect(void)
+{
+	int rc;
+
+	rc = i2c_set_bus_num(1);
+	if (rc)
+		return rc;
+
+	rc = i2c_probe(K2G_GP_AUDIO_CODEC_ADDRESS);
+	if (rc)
+		return rc;
+
+	ti_i2c_eeprom_am_set("66AK2GGP", "1.0X");
+
+	return 0;
+}
+
+int embedded_dtb_select(void)
+{
+	int rc;
+
+	rc = k2g_alt_board_detect();
+	if (rc) {
+		printf("Unable to do board detection\n");
+		return -1;
+	}
+
+	fdtdec_setup();
+
 	return 0;
 }
 #endif

@@ -277,3 +277,10 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 	ddr3_check_ecc_int(KS2_DDR3A_EMIF_CTRL_BASE);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
+
+#if defined(CONFIG_DTB_RESELECT)
+int __weak embedded_dtb_select(void)
+{
+	return 0;
+}
+#endif
