@@ -5,6 +5,7 @@
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
+	model = "sandbox";
 
 	aliases {
 		eth5 = "/eth@90000000";
