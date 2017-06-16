@@ -1464,7 +1464,15 @@ def move_config(configs, options, db_queue):
     slots.show_failed_boards()
     slots.show_suspicious_boards()
 
-def imply_config(config_list, find_superset=False):
+(IMPLY_MIN_2, IMPLY_TARGET, IMPLY_CMD) = (1, 2, 4)
+
+IMPLY_FLAGS = {
+    'min2': [IMPLY_MIN_2, 'Show options which imply >2 boards (normally >5)'],
+    'target': [IMPLY_TARGET, 'Allow CONFIG_TARGET_... options to imply'],
+    'cmd': [IMPLY_CMD, 'Allow CONFIG_CMD_... to imply'],
+};
+
+def do_imply_config(config_list, imply_flags, find_superset=False):
     """Find CONFIG options which imply those in the list
 
     Some CONFIG options can be implied by others and this can help to reduce
@@ -1489,6 +1497,8 @@ def imply_config(config_list, find_superset=False):
 
     Params:
         config_list: List of CONFIG options to check (each a string)
+        imply_flags: Flags which control which implying configs are allowed
+           (IMPLY_...)
         find_superset: True to look for configs which are a superset of those
             already found. So for example if CONFIG_EXYNOS5 implies an option,
             but CONFIG_EXYNOS covers a larger set of defconfigs and also
@@ -1549,8 +1559,14 @@ def imply_config(config_list, find_superset=False):
 
         # Look at every possible config, except the target one
         for imply_config in rest_configs:
-            if 'CONFIG_TARGET' in imply_config:
+            if 'ERRATUM' in imply_config:
                 continue
+            if not (imply_flags & IMPLY_CMD):
+                if 'CONFIG_CMD' in imply_config:
+                    continue
+            if not (imply_flags & IMPLY_TARGET):
+                if 'CONFIG_TARGET' in imply_config:
+                    continue
 
             # Find set of defconfigs that have this config
             imply_defconfig = defconfig_db[imply_config]
@@ -1597,7 +1613,7 @@ def imply_config(config_list, find_superset=False):
             num_common = len(imply_configs[config])
 
             # Don't bother if there are less than 5 defconfigs affected.
-            if num_common < 5:
+            if num_common < (2 if imply_flags & IMPLY_MIN_2 else 5):
                 continue
             missing = defconfigs - imply_configs[config]
             missing_str = ', '.join(missing) if missing else 'all'
@@ -1626,6 +1642,8 @@ def main():
                       "or '-' to read from stdin")
     parser.add_option('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
+    parser.add_option('-I', '--imply-flags', type='string', default='',
+                      help="control the -i option ('help' for help")
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
     parser.add_option('-e', '--exit-on-error', action='store_true',
@@ -1662,7 +1680,17 @@ def main():
     check_top_directory()
 
     if options.imply:
-        imply_config(configs)
+        imply_flags = 0
+        for flag in options.imply_flags.split():
+            if flag == 'help' or flag not in IMPLY_FLAGS:
+                print "Imply flags: (separate with ',')"
+                for name, info in IMPLY_FLAGS.iteritems():
+                    print ' %-15s: %s' % (name, info[1])
+                parser.print_usage()
+                sys.exit(1)
+            imply_flags |= IMPLY_FLAGS[flag][0]
+
+        do_imply_config(configs, imply_flags)
         return
 
     config_db = {}
