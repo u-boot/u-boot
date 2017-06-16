@@ -40,9 +40,6 @@ enum {
 			 "divisors on line " __stringify(__LINE__));
 
 /* use interge mode*/
-static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 3, 1);
-static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2, 1);
-
 static inline int rv1108_pll_id(enum rk_clk_id clk_id)
 {
 	int id = 0;
