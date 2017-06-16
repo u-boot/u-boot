@@ -404,6 +404,8 @@ def get_matched_defconfigs(defconfigs_file):
         line = line.strip()
         if not line:
             continue # skip blank lines silently
+        if ' ' in line:
+            line = line.split(' ')[0]  # handle 'git log' input
         matched = get_matched_defconfig(line)
         if not matched:
             print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
