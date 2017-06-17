@@ -465,9 +465,11 @@ static int zynq_gem_init(struct udevice *dev)
 		zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
 #else
+	{
 		ret = clk_set_rate(&priv->clk, clk_rate);
 		if (IS_ERR_VALUE(ret))
 			return -1;
+	}
 #endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
