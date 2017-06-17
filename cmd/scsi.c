@@ -36,7 +36,9 @@ static int do_scsi(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	case 2:
 		if (strncmp(argv[1], "res", 3) == 0) {
 			printf("\nReset SCSI\n");
+#ifndef CONFIG_DM_SCSI
 			scsi_bus_reset(NULL);
+#endif
 			ret = scsi_scan(true);
 			if (ret)
 				return CMD_RET_FAILURE;
