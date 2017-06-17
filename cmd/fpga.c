@@ -410,5 +410,7 @@ U_BOOT_CMD(fpga, 8, 1, do_fpga,
 	   "address whose :size and IV/PPK at address with size. The secure\n"
 	   "image type specifies whether it is authenticated/encrypted\n"
 	   "(0-enc, 1-auth) type of bitstream\n"
+	   "NOTE: To use device key stored in efuse key:size should be\n"
+	   "      0xFFFFFFFF:0xFFFFFFFF (only for encrypted bitstreams)\n"
 #endif
 );
