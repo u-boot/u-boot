@@ -1183,11 +1183,6 @@ int ahci_probe_scsi(struct udevice *ahci_dev)
 	ret = ahci_start_ports(uc_priv);
 	if (ret)
 		return ret;
-
-	debug("Scanning %s\n", dev->name);
-	ret = scsi_scan_dev(dev, true);
-	if (ret)
-		return ret;
 #endif
 
 	return 0;
