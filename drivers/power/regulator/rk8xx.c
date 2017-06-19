@@ -30,6 +30,9 @@
 #define RK818_LDO_VSEL_MASK		0x1f
 #define RK818_LDO3_ON_VSEL_MASK	0xf
 #define RK818_BOOST_ON_VSEL_MASK	0xe0
+#define RK818_USB_ILIM_SEL_MASK		0x0f
+#define RK818_USB_CHG_SD_VSEL_MASK	0x70
+
 
 struct rk8xx_reg_info {
 	uint min_uv;
@@ -75,6 +78,14 @@ static const struct rk8xx_reg_info rk818_ldo[] = {
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, RK818_LDO_VSEL_MASK, },
 };
 #endif
+
+static const u16 rk818_chrg_cur_input_array[] = {
+	450, 800, 850, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000
+};
+
+static const uint rk818_chrg_shutdown_vsel_array[] = {
+	2780000, 2850000, 2920000, 2990000, 3060000, 3130000, 3190000, 3260000
+};
 
 static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 					     int num)
@@ -352,4 +363,27 @@ int rk8xx_spl_configure_buck(struct udevice *pmic, int buck, int uvolt)
 		return ret;
 
 	return _buck_set_enable(pmic, buck, true);
+}
+
+int rk818_spl_configure_usb_input_current(struct udevice *pmic, int current_ma)
+{
+	uint i;
+
+	for (i = 0; i < ARRAY_SIZE(rk818_chrg_cur_input_array); i++)
+		if (current_ma <= rk818_chrg_cur_input_array[i])
+			break;
+
+	return pmic_clrsetbits(pmic, REG_USB_CTRL, RK818_USB_ILIM_SEL_MASK, i);
+}
+
+int rk818_spl_configure_usb_chrg_shutdown(struct udevice *pmic, int uvolt)
+{
+	uint i;
+
+	for (i = 0; i < ARRAY_SIZE(rk818_chrg_shutdown_vsel_array); i++)
+		if (uvolt <= rk818_chrg_shutdown_vsel_array[i])
+			break;
+
+	return pmic_clrsetbits(pmic, REG_USB_CTRL, RK818_USB_CHG_SD_VSEL_MASK,
+			       i);
 }
