@@ -72,6 +72,60 @@ def tab_to(num_tabs, line):
         return line + ' '
     return line + '\t' * (num_tabs - len(line) // 8)
 
+def get_value(ftype, value):
+    """Get a value as a C expression
+
+    For integers this returns a byte-swapped (little-endian) hex string
+    For bytes this returns a hex string, e.g. 0x12
+    For strings this returns a literal string enclosed in quotes
+    For booleans this return 'true'
+
+    Args:
+        type: Data type (fdt_util)
+        value: Data value, as a string of bytes
+    """
+    if ftype == fdt.TYPE_INT:
+        return '%#x' % fdt_util.fdt32_to_cpu(value)
+    elif ftype == fdt.TYPE_BYTE:
+        return '%#x' % ord(value[0])
+    elif ftype == fdt.TYPE_STRING:
+        return '"%s"' % value
+    elif ftype == fdt.TYPE_BOOL:
+        return 'true'
+
+def get_compat_name(node):
+    """Get a node's first compatible string as a C identifier
+
+    Args:
+        node: Node object to check
+    Return:
+        Tuple:
+            C identifier for the first compatible string
+            List of C identifiers for all the other compatible strings
+                (possibly empty)
+    """
+    compat = node.props['compatible'].value
+    aliases = []
+    if isinstance(compat, list):
+        compat, aliases = compat[0], compat[1:]
+    return conv_name_to_c(compat), [conv_name_to_c(a) for a in aliases]
+
+def is_phandle(prop):
+    """Check if a node contains phandles
+
+    We have no reliable way of detecting whether a node uses a phandle
+    or not. As an interim measure, use a list of known property names.
+
+    Args:
+        prop: Prop object to check
+    Return:
+        True if the object value contains phandles, else False
+    """
+    if prop.name in ['clocks']:
+        return True
+    return False
+
+
 class DtbPlatdata(object):
     """Provide a means to convert device tree binary data to platform data
 
@@ -139,43 +193,6 @@ class DtbPlatdata(object):
         self._lines = []
         return lines
 
-    @staticmethod
-    def get_value(ftype, value):
-        """Get a value as a C expression
-
-        For integers this returns a byte-swapped (little-endian) hex string
-        For bytes this returns a hex string, e.g. 0x12
-        For strings this returns a literal string enclosed in quotes
-        For booleans this return 'true'
-
-        Args:
-            type: Data type (fdt_util)
-            value: Data value, as a string of bytes
-        """
-        if ftype == fdt.TYPE_INT:
-            return '%#x' % fdt_util.fdt32_to_cpu(value)
-        elif ftype == fdt.TYPE_BYTE:
-            return '%#x' % ord(value[0])
-        elif ftype == fdt.TYPE_STRING:
-            return '"%s"' % value
-        elif ftype == fdt.TYPE_BOOL:
-            return 'true'
-
-    @staticmethod
-    def get_compat_name(node):
-        """Get a node's first compatible string as a C identifier
-
-        Args:
-            node: Node object to check
-        Return:
-            C identifier for the first compatible string
-        """
-        compat = node.props['compatible'].value
-        aliases = []
-        if isinstance(compat, list):
-            compat, aliases = compat[0], compat[1:]
-        return conv_name_to_c(compat), [conv_name_to_c(a) for a in aliases]
-
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of notes and properties
 
@@ -219,22 +236,6 @@ class DtbPlatdata(object):
         self._valid_nodes = []
         return self.scan_node(self._fdt.GetRoot())
 
-    @staticmethod
-    def is_phandle(prop):
-        """Check if a node contains phandles
-
-        We have no reliable way of detecting whether a node uses a phandle
-        or not. As an interim measure, use a list of known property names.
-
-        Args:
-            prop: Prop object to check
-        Return:
-            True if the object value contains phandles, else False
-        """
-        if prop.name in ['clocks']:
-            return True
-        return False
-
     def scan_structs(self):
         """Scan the device tree building up the C structures we will use.
 
@@ -248,7 +249,7 @@ class DtbPlatdata(object):
         """
         structs = {}
         for node in self._valid_nodes:
-            node_name, _ = self.get_compat_name(node)
+            node_name, _ = get_compat_name(node)
             fields = {}
 
             # Get a list of all the valid properties in this node.
@@ -272,14 +273,14 @@ class DtbPlatdata(object):
 
         upto = 0
         for node in self._valid_nodes:
-            node_name, _ = self.get_compat_name(node)
+            node_name, _ = get_compat_name(node)
             struct = structs[node_name]
             for name, prop in node.props.items():
                 if name not in PROP_IGNORE_LIST and name[0] != '#':
                     prop.Widen(struct[name])
             upto += 1
 
-            struct_name, aliases = self.get_compat_name(node)
+            struct_name, aliases = get_compat_name(node)
             for alias in aliases:
                 self._aliases[alias] = struct_name
 
@@ -302,7 +303,7 @@ class DtbPlatdata(object):
                 if pname in PROP_IGNORE_LIST or pname[0] == '#':
                     continue
                 if isinstance(prop.value, list):
-                    if self.is_phandle(prop):
+                    if is_phandle(prop):
                         # Process the list as pairs of (phandle, id)
                         value_it = iter(prop.value)
                         for phandle_cell, _ in zip(value_it, value_it):
@@ -326,7 +327,7 @@ class DtbPlatdata(object):
             self.out('struct %s%s {\n' % (STRUCT_PREFIX, name))
             for pname in sorted(structs[name]):
                 prop = structs[name][pname]
-                if self.is_phandle(prop):
+                if is_phandle(prop):
                     # For phandles, include a reference to the target
                     self.out('\t%s%s[%d]' % (tab_to(2, 'struct phandle_2_cell'),
                                              conv_name_to_c(prop.name),
@@ -350,7 +351,7 @@ class DtbPlatdata(object):
         Args:
             node: node to output
         """
-        struct_name, _ = self.get_compat_name(node)
+        struct_name, _ = get_compat_name(node)
         var_name = conv_name_to_c(node.name)
         self.buf('static struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
@@ -366,7 +367,7 @@ class DtbPlatdata(object):
                 vals = []
                 # For phandles, output a reference to the platform data
                 # of the target node.
-                if self.is_phandle(prop):
+                if is_phandle(prop):
                     # Process the list as pairs of (phandle, id)
                     value_it = iter(prop.value)
                     for phandle_cell, id_cell in zip(value_it, value_it):
@@ -377,11 +378,11 @@ class DtbPlatdata(object):
                         vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id_num))
                 else:
                     for val in prop.value:
-                        vals.append(self.get_value(prop.type, val))
+                        vals.append(get_value(prop.type, val))
                 self.buf(', '.join(vals))
                 self.buf('}')
             else:
-                self.buf(self.get_value(prop.type, prop.value))
+                self.buf(get_value(prop.type, prop.value))
             self.buf(',\n')
         self.buf('};\n')
 
