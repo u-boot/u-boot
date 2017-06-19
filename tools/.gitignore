@@ -11,6 +11,7 @@
 /img2srec
 /kwboot
 /dumpimage
+/mips-relocs
 /mkenvimage
 /mkimage
 /mkexynosspl
