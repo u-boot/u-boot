@@ -177,7 +177,7 @@ class DtbPlatdata:
         for node in root.subnodes:
             if 'compatible' in node.props:
                 status = node.props.get('status')
-                if (not options.include_disabled and not status or
+                if (not self._options.include_disabled and not status or
                     status.value != 'disabled'):
                     self._valid_nodes.append(node)
                     phandle_prop = node.props.get('phandle')
@@ -203,7 +203,7 @@ class DtbPlatdata:
         for node in self.fdt.GetRoot().subnodes:
             if 'compatible' in node.props:
                 status = node.props.get('status')
-                if (not options.include_disabled and not status or
+                if (not self._options.include_disabled and not status or
                     status.value != 'disabled'):
                     node_list.append(node)
                     phandle_prop = node.props.get('phandle')
