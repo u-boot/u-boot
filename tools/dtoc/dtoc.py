@@ -6,6 +6,26 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+"""Device tree to C tool
+
+This tool converts a device tree binary file (.dtb) into two C files. The
+indent is to allow a C program to access data from the device tree without
+having to link against libfdt. By putting the data from the device tree into
+C structures, normal C code can be used. This helps to reduce the size of the
+compiled program.
+
+Dtoc produces two output files:
+
+   dt-structs.h  - contains struct definitions
+   dt-platdata.c - contains data from the device tree using the struct
+                      definitions, as well as U-Boot driver definitions.
+
+This tool is used in U-Boot to provide device tree data to SPL without
+increasing the code size of SPL. This supports the CONFIG_SPL_OF_PLATDATA
+options. For more information about the use of this options and tool please
+see doc/driver-model/of-plat.txt
+"""
+
 import copy
 from optparse import OptionError, OptionParser
 import os
