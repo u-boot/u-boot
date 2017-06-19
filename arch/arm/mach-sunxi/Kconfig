@@ -29,11 +29,34 @@ config SUNXI_GEN_SUN6I
 	separate ahb reset control registers, custom pmic bus, new style
 	watchdog, etc.
 
+config SUNXI_DRAM_DW
+	bool
+	---help---
+	Select this for sunxi SoCs which uses a DRAM controller like the
+	DesignWare controller used in H3, mainly SoCs after H3, which do
+	not have official open-source DRAM initialization code, but can
+	use modified H3 DRAM initialization code.
+
+if SUNXI_DRAM_DW
+config SUNXI_DRAM_DW_16BIT
+	bool
+	---help---
+	Select this for sunxi SoCs with DesignWare DRAM controller and
+	have only 16-bit memory buswidth.
+
+config SUNXI_DRAM_DW_32BIT
+	bool
+	---help---
+	Select this for sunxi SoCs with DesignWare DRAM controller with
+	32-bit memory buswidth.
+endif
 
 config MACH_SUNXI_H3_H5
 	bool
 	select DM_I2C
 	select SUNXI_DE2
+	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
@@ -118,6 +141,8 @@ config MACH_SUN8I_R40
 	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3s)"
@@ -126,6 +151,9 @@ config MACH_SUN8I_V3S
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
+	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_16BIT
+	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN9I
@@ -143,6 +171,8 @@ config MACH_SUN50I
 	select SUNXI_GEN_SUN6I
 	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
+	select SUNXI_DRAM_DW
+	select SUNXI_DRAM_DW_32BIT
 	select FIT
 	select SPL_LOAD_FIT
 
@@ -189,6 +219,47 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
+if SUNXI_DRAM_DW
+config SUNXI_DRAM_DDR3
+	bool
+
+config SUNXI_DRAM_DDR2
+	bool
+
+config SUNXI_DRAM_LPDDR3
+	bool
+
+choice
+	prompt "DRAM Type and Timing"
+	default SUNXI_DRAM_DDR3_1333 if !MACH_SUN8I_V3S
+	default SUNXI_DRAM_DDR2_V3S if MACH_SUN8I_V3S
+
+config SUNXI_DRAM_DDR3_1333
+	bool "DDR3 1333"
+	select SUNXI_DRAM_DDR3
+	depends on !MACH_SUN8I_V3S
+	---help---
+	This option is the original only supported memory type, which suits
+	many H3/H5/A64 boards available now.
+
+config SUNXI_DRAM_LPDDR3_STOCK
+	bool "LPDDR3 with Allwinner stock configuration"
+	select SUNXI_DRAM_LPDDR3
+	---help---
+	This option is the LPDDR3 timing used by the stock boot0 by
+	Allwinner.
+
+config SUNXI_DRAM_DDR2_V3S
+	bool "DDR2 found in V3s chip"
+	select SUNXI_DRAM_DDR2
+	depends on MACH_SUN8I_V3S
+	---help---
+	This option is only for the DDR2 memory chip which is co-packaged in
+	Allwinner V3s SoC.
+
+endchoice
+endif
+
 config DRAM_TYPE
 	int "sunxi dram type"
 	depends on MACH_SUN8I_A83T
@@ -201,7 +272,8 @@ config DRAM_CLK
 	default 792 if MACH_SUN9I
 	default 648 if MACH_SUN8I_R40
 	default 312 if MACH_SUN6I || MACH_SUN8I
-	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || \
+		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
@@ -221,6 +293,7 @@ config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
+	default 14779 if MACH_SUN8I_V3S
 	default 3881979 if MACH_SUN8I_R40
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I

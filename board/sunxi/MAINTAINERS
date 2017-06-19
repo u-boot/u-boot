@@ -247,10 +247,20 @@ M:	Mylène Josserand <mylene.josserand@free-electrons.com>
 S:	Maintained
 F:	configs/nanopi_m1_defconfig
 
+NANOPI-M1 PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_m1_plus_defconfig
+
 NANOPI-NEO BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_defconfig
+
+NANOPI-NEO2 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_neo2_defconfig
 
 NANOPI-NEO-AIR BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
@@ -262,10 +272,20 @@ M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	configs/Nintendo_NES_Classic_Edition_defconfig
 
+ORANGEPI WIN/WIN PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_win_defconfig
+
 ORANGEPI ZERO BOARD
 M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained
 F:	configs/orangepi_zero_defconfig
+
+ORANGEPI ZERO PLUS 2 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_zero_plus2_defconfig
 
 ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
@@ -308,6 +328,11 @@ SINOVOIP BPI M3 A83T BOARD
 M:	VishnuPatekar <vishnupatekar0510@gmail.com>
 S:	Maintained
 F:	configs/Sinovoip_BPI_M3_defconfig
+
+SOPINE BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/sopine_baseboard_defconfig
 
 SUNCHIP CX-A99 BOARD
 M:	Rask Ingemann Lambertsen <rask@formelder.dk>

@@ -118,6 +118,23 @@ static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
 	}
 }
 
+#ifdef CONFIG_MACH_SUN8I_R40
+/* secondary core entry address is programmed differently on R40 */
+static void __secure sunxi_set_entry_address(void *entry)
+{
+	writel((u32)entry,
+	       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
+}
+#else
+static void __secure sunxi_set_entry_address(void *entry)
+{
+	struct sunxi_cpucfg_reg *cpucfg =
+		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
+
+	writel((u32)entry, &cpucfg->priv0);
+}
+#endif
+
 #ifdef CONFIG_MACH_SUN7I
 /* sun7i (A20) is different from other single cluster SoCs */
 static void __secure sunxi_cpu_set_power(int __always_unused cpu, bool on)
@@ -236,13 +253,7 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc)
 	psci_save_target_pc(cpu, pc);
 
 	/* Set secondary core power on PC */
-#ifdef CONFIG_MACH_SUN8I_R40
-	/* secondary core entry address is programmed differently */
-	writel((u32)&psci_cpu_entry,
-	       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
-#else
-	writel((u32)&psci_cpu_entry, &cpucfg->priv0);
-#endif
+	sunxi_set_entry_address(&psci_cpu_entry);
 
 	/* Assert reset on target CPU */
 	writel(0, &cpucfg->cpu[cpu].rst);
