@@ -83,17 +83,17 @@ class DtbPlatdata(object):
         _fdt: Fdt object, referencing the device tree
         _dtb_fname: Filename of the input device tree binary file
         _valid_nodes: A list of Node object with compatible strings
-        _options: Command-line options
+        _include_disabled: true to include nodes marked status = "disabled"
         _phandle_nodes: A dict of nodes indexed by phandle number (1, 2...)
         _outfile: The current output file (sys.stdout or a real file)
         _lines: Stashed list of output lines for outputting in the future
         _phandle_nodes: A dict of Nodes indexed by phandle (an integer)
     """
-    def __init__(self, dtb_fname, options):
+    def __init__(self, dtb_fname, include_disabled):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
-        self._options = options
+        self._include_disabled = include_disabled
         self._phandle_nodes = {}
         self._outfile = None
         self._lines = []
@@ -196,7 +196,7 @@ class DtbPlatdata(object):
         for node in root.subnodes:
             if 'compatible' in node.props:
                 status = node.props.get('status')
-                if (not self._options.include_disabled and not status or
+                if (not self._include_disabled and not status or
                         status.value != 'disabled'):
                     self._valid_nodes.append(node)
                     phandle_prop = node.props.get('phandle')

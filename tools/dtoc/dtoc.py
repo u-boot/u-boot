@@ -52,7 +52,7 @@ parser.add_option('-o', '--output', action='store', default='-',
 if not args:
     raise ValueError('Please specify a command: struct, platdata')
 
-plat = dtb_platdata.DtbPlatdata(options.dtb_file, options)
+plat = dtb_platdata.DtbPlatdata(options.dtb_file, options.include_disabled)
 plat.scan_dtb()
 plat.scan_tree()
 plat.setup_output(options.output)
