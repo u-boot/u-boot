@@ -46,6 +46,9 @@ VAL_PREFIX = 'dtv_'
 def conv_name_to_c(name):
     """Convert a device-tree name to a C identifier
 
+    This uses multiple replace() calls instead of re.sub() since it is faster
+    (400ms for 1m calls versus 1000ms for the 're' version).
+
     Args:
         name:   Name to convert
     Return:
