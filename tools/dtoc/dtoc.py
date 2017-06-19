@@ -53,16 +53,16 @@ if not args:
     raise ValueError('Please specify a command: struct, platdata')
 
 plat = dtb_platdata.DtbPlatdata(options.dtb_file, options)
-plat.ScanDtb()
-plat.ScanTree()
-plat.SetupOutput(options.output)
-structs = plat.ScanStructs()
-plat.ScanPhandles()
+plat.scan_dtb()
+plat.scan_tree()
+plat.setup_output(options.output)
+structs = plat.scan_structs()
+plat.scan_phandles()
 
 for cmd in args[0].split(','):
     if cmd == 'struct':
-        plat.GenerateStructs(structs)
+        plat.generate_structs(structs)
     elif cmd == 'platdata':
-        plat.GenerateTables()
+        plat.generate_tables()
     else:
         raise ValueError("Unknown command '%s': (use: struct, platdata)" % cmd)
