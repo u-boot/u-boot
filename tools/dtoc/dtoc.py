@@ -29,6 +29,7 @@ see doc/driver-model/of-plat.txt
 from optparse import OptionParser
 import os
 import sys
+import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
@@ -36,9 +37,24 @@ sys.path.append(os.path.join(our_path, '../patman'))
 
 import dtb_platdata
 
+def run_tests():
+    """Run all the test we have for dtoc"""
+    import test_dtoc
 
-if __name__ != "__main__":
-    pass
+    result = unittest.TestResult()
+    sys.argv = [sys.argv[0]]
+    for module in (test_dtoc.TestDtoc,):
+        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        suite.run(result)
+
+    print result
+    for _, err in result.errors:
+        print err
+    for _, err in result.failures:
+        print err
+
+if __name__ != '__main__':
+    sys.exit(1)
 
 parser = OptionParser()
 parser.add_option('-d', '--dtb-file', action='store',
@@ -47,7 +63,14 @@ parser.add_option('--include-disabled', action='store_true',
                   help='Include disabled nodes')
 parser.add_option('-o', '--output', action='store', default='-',
                   help='Select output filename')
+parser.add_option('-t', '--test', action='store_true', dest='test',
+                  default=False, help='run tests')
 (options, args) = parser.parse_args()
 
-dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,
-                       options.output)
+# Run our meagre tests
+if options.test:
+    run_tests()
+
+else:
+    dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,
+                           options.output)
