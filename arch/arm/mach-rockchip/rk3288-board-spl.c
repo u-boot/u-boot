@@ -8,6 +8,7 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <i2c.h>
 #include <led.h>
 #include <malloc.h>
 #include <ram.h>
@@ -25,6 +26,7 @@
 #include <dm/test.h>
 #include <dm/util.h>
 #include <power/regulator.h>
+#include <power/rk8xx_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -157,6 +159,32 @@ static int configure_emmc(struct udevice *pinctrl)
 }
 #endif
 
+#if !defined(CONFIG_SPL_OF_PLATDATA)
+static int phycore_init(void)
+{
+	struct udevice *pmic;
+	int ret;
+
+	ret = uclass_first_device_err(UCLASS_PMIC, &pmic);
+	if (ret)
+		return ret;
+
+#if defined(CONFIG_SPL_POWER_SUPPORT)
+	/* Increase USB input current to 2A */
+	ret = rk818_spl_configure_usb_input_current(pmic, 2000);
+	if (ret)
+		return ret;
+
+	/* Close charger when USB lower then 3.26V */
+	ret = rk818_spl_configure_usb_chrg_shutdown(pmic, 3260000);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
@@ -203,6 +231,18 @@ void board_init_f(ulong dummy)
 		debug("Pinctrl init failed: %d\n", ret);
 		return;
 	}
+
+#if !defined(CONFIG_SPL_OF_PLATDATA)
+	if (of_machine_is_compatible("phytec,rk3288-phycore-som")) {
+		ret = phycore_init();
+		if (ret) {
+			debug("Failed to set up phycore power settings: %d\n",
+			      ret);
+			return;
+		}
+	}
+#endif
+
 	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {

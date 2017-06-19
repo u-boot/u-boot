@@ -66,6 +66,14 @@ config TARGET_MIQI_RK3288
 	  has 1 or 2 GiB SDRAM. Expansion connectors provide access to
 	  I2C, SPI, UART, GPIOs and fan control.
 
+config TARGET_PHYCORE_RK3288
+	bool "phyCORE-RK3288"
+        select BOARD_LATE_INIT
+	help
+	  Add basic support for the PCM-947 carrier board, a RK3288 based
+	  development board made by PHYTEC. This board works in a combination
+	  with the phyCORE-RK3288 System on Module.
+
 config TARGET_POPMETAL_RK3288
 	bool "PopMetal-RK3288"
 	select BOARD_LATE_INIT
@@ -128,6 +136,8 @@ source "board/firefly/firefly-rk3288/Kconfig"
 source "board/google/veyron/Kconfig"
 
 source "board/mqmaker/miqi_rk3288/Kconfig"
+
+source "board/phytec/phycore_rk3288/Kconfig"
 
 source "board/radxa/rock2/Kconfig"
 
