@@ -10,8 +10,8 @@
 
 struct rk3288_pwm {
 	u32 cnt;
-	u32 duty_lpr;
 	u32 period_hpr;
+	u32 duty_lpr;
 	u32 ctrl;
 };
 check_member(rk3288_pwm, ctrl, 0xc);
