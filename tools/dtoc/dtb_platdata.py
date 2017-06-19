@@ -422,3 +422,32 @@ class DtbPlatdata(object):
                     nodes_to_output.remove(req_node)
             self.output_node(node)
             nodes_to_output.remove(node)
+
+
+def run_steps(args, dtb_file, include_disabled, output):
+    """Run all the steps of the dtoc tool
+
+    Args:
+        args: List of non-option arguments provided to the problem
+        dtb_file: Filename of dtb file to process
+        include_disabled: True to include disabled nodes
+        output: Name of output file
+    """
+    if not args:
+        raise ValueError('Please specify a command: struct, platdata')
+
+    plat = DtbPlatdata(dtb_file, include_disabled)
+    plat.scan_dtb()
+    plat.scan_tree()
+    plat.setup_output(output)
+    structs = plat.scan_structs()
+    plat.scan_phandles()
+
+    for cmd in args[0].split(','):
+        if cmd == 'struct':
+            plat.generate_structs(structs)
+        elif cmd == 'platdata':
+            plat.generate_tables()
+        else:
+            raise ValueError("Unknown command '%s': (use: struct, platdata)" %
+                             cmd)
