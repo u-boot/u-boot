@@ -44,7 +44,7 @@ static void ums_fini(void)
 	for (i = 0; i < ums_count; i++)
 		free((void *)ums[i].name);
 	free(ums);
-	ums = 0;
+	ums = NULL;
 	ums_count = 0;
 }
 
@@ -133,7 +133,7 @@ cleanup:
 	return ret;
 }
 
-int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
+static int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 			       int argc, char * const argv[])
 {
 	const char *usb_controller;
