@@ -55,7 +55,6 @@ def conv_name_to_c(name):
     new = new.replace('-', '_')
     new = new.replace(',', '_')
     new = new.replace('.', '_')
-    new = new.replace('/', '__')
     return new
 
 def tab_to(num_tabs, line):
