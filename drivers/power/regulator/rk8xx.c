@@ -45,6 +45,14 @@ static const struct rk8xx_reg_info rk808_buck[] = {
 	{ 1800000, 100000, REG_BUCK4_ON_VSEL, RK808_BUCK4_VSEL_MASK, },
 };
 
+static const struct rk8xx_reg_info rk818_buck[] = {
+	{ 712500, 12500, REG_BUCK1_ON_VSEL, RK818_BUCK_VSEL_MASK, },
+	{ 712500, 12500, REG_BUCK2_ON_VSEL, RK818_BUCK_VSEL_MASK, },
+	{ 712500, 12500, -1, RK818_BUCK_VSEL_MASK, },
+	{ 1800000, 100000, REG_BUCK4_ON_VSEL, RK818_BUCK4_VSEL_MASK, },
+};
+
+#ifdef ENABLE_DRIVER
 static const struct rk8xx_reg_info rk808_ldo[] = {
 	{ 1800000, 100000, REG_LDO1_ON_VSEL, RK808_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO2_ON_VSEL, RK808_LDO_VSEL_MASK, },
@@ -54,13 +62,6 @@ static const struct rk8xx_reg_info rk808_ldo[] = {
 	{ 800000, 100000, REG_LDO6_ON_VSEL, RK808_LDO_VSEL_MASK, },
 	{ 800000, 100000, REG_LDO7_ON_VSEL, RK808_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, RK808_LDO_VSEL_MASK, },
-};
-
-static const struct rk8xx_reg_info rk818_buck[] = {
-	{ 712500, 12500, REG_BUCK1_ON_VSEL, RK818_BUCK_VSEL_MASK, },
-	{ 712500, 12500, REG_BUCK2_ON_VSEL, RK818_BUCK_VSEL_MASK, },
-	{ 712500, 12500, -1, RK818_BUCK_VSEL_MASK, },
-	{ 1800000, 100000, REG_BUCK4_ON_VSEL, RK818_BUCK4_VSEL_MASK, },
 };
 
 static const struct rk8xx_reg_info rk818_ldo[] = {
@@ -73,6 +74,7 @@ static const struct rk8xx_reg_info rk818_ldo[] = {
 	{ 800000, 100000, REG_LDO7_ON_VSEL, RK818_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, RK818_LDO_VSEL_MASK, },
 };
+#endif
 
 static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 					     int num)
@@ -83,18 +85,6 @@ static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 		return &rk818_buck[num];
 	default:
 		return &rk808_buck[num];
-	}
-}
-
-static const struct rk8xx_reg_info *get_ldo_reg(struct udevice *pmic,
-					     int num)
-{
-	struct rk8xx_priv *priv = dev_get_priv(pmic);
-	switch (priv->variant) {
-	case RK818_ID:
-		return &rk818_ldo[num];
-	default:
-		return &rk808_ldo[num];
 	}
 }
 
@@ -133,6 +123,18 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 }
 
 #ifdef ENABLE_DRIVER
+static const struct rk8xx_reg_info *get_ldo_reg(struct udevice *pmic,
+					     int num)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	switch (priv->variant) {
+	case RK818_ID:
+		return &rk818_ldo[num];
+	default:
+		return &rk808_ldo[num];
+	}
+}
+
 static int buck_get_value(struct udevice *dev)
 {
 	int buck = dev->driver_data - 1;
