@@ -110,9 +110,12 @@ static u8 scratch_buf[PAGE_4K];
  */
 int onenand_spl_read_block(int block, int offset, int len, void *dst)
 {
-	int page, read, psize;
+	int page, read;
+	static int psize;
 
-	psize = onenand_spl_get_geometry();
+	if (!psize)
+		psize = onenand_spl_get_geometry();
+
 	/* Calculate the page number */
 	page = offset / psize;
 	/* Offset to the start of a flash page */
