@@ -266,9 +266,9 @@ int efi_disk_register(void)
 #ifdef CONFIG_BLK
 	struct udevice *dev;
 
-	for (uclass_first_device(UCLASS_BLK, &dev);
+	for (uclass_first_device_check(UCLASS_BLK, &dev);
 	     dev;
-	     uclass_next_device(&dev)) {
+	     uclass_next_device_check(&dev)) {
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 		const char *if_typename = dev->driver->name;
 
