@@ -133,6 +133,12 @@ static int stm32_pinctrl_config(int offset)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(PINCTRL_FULL)
+static int stm32_pinctrl_set_state(struct udevice *dev, struct udevice *config)
+{
+	return stm32_pinctrl_config(dev_of_offset(config));
+}
+#else /* PINCTRL_FULL */
 static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 					  struct udevice *periph)
 {
@@ -165,9 +171,14 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 
 	return 0;
 }
+#endif /* PINCTRL_FULL */
 
 static struct pinctrl_ops stm32_pinctrl_ops = {
+#if CONFIG_IS_ENABLED(PINCTRL_FULL)
+	.set_state		= stm32_pinctrl_set_state,
+#else /* PINCTRL_FULL */
 	.set_state_simple	= stm32_pinctrl_set_state_simple,
+#endif /* PINCTRL_FULL */
 };
 
 static const struct udevice_id stm32_pinctrl_ids[] = {
