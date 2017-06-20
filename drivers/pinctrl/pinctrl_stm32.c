@@ -93,39 +93,31 @@ static int prep_gpio_ctl(struct stm32_gpio_ctl *gpio_ctl, u32 gpio_fn, int node)
 	return 0;
 }
 
-static int stm32_pinctrl_set_state_simple(struct udevice *dev,
-					  struct udevice *periph)
+static int stm32_pinctrl_config(int offset)
 {
 	u32 pin_mux[MAX_PINS_ONE_IP];
-	struct fdtdec_phandle_args args;
 	int rv, len;
 
-	/* Get node pinctrl-0 */
-	rv = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(periph),
-					   "pinctrl-0", 0, 0, 0, &args);
-	if (rv)
-		return rv;
 	/*
 	 * check for "pinmux" property in each subnode (e.g. pins1 and pins2 for
 	 * usart1) of pin controller phandle "pinctrl-0"
 	 * */
-	fdt_for_each_subnode(args.node, gd->fdt_blob, args.node) {
+	fdt_for_each_subnode(offset, gd->fdt_blob, offset) {
 		struct stm32_gpio_dsc gpio_dsc;
 		struct stm32_gpio_ctl gpio_ctl;
 		int i;
 
-		len = fdtdec_get_int_array_count(gd->fdt_blob, args.node,
+		len = fdtdec_get_int_array_count(gd->fdt_blob, offset,
 						 "pinmux", pin_mux,
 						 ARRAY_SIZE(pin_mux));
-		debug("%s: periph->name = %s, no of pinmux entries= %d\n",
-		      __func__, periph->name, len);
+		debug("%s: no of pinmux entries= %d\n", __func__, len);
 		if (len < 0)
 			return -EINVAL;
 		for (i = 0; i < len; i++) {
 			struct gpio_desc desc;
 			debug("%s: pinmux = %x\n", __func__, *(pin_mux + i));
 			prep_gpio_dsc(&gpio_dsc, *(pin_mux + i));
-			prep_gpio_ctl(&gpio_ctl, *(pin_mux + i), args.node);
+			prep_gpio_ctl(&gpio_ctl, *(pin_mux + i), offset);
 			rv = uclass_get_device_by_seq(UCLASS_GPIO,
 						      gpio_dsc.port, &desc.dev);
 			if (rv)
@@ -136,6 +128,39 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 			if (rv)
 				return rv;
 		}
+	}
+
+	return 0;
+}
+
+static int stm32_pinctrl_set_state_simple(struct udevice *dev,
+					  struct udevice *periph)
+{
+	const void *fdt = gd->fdt_blob;
+	const fdt32_t *list;
+	uint32_t phandle;
+	int config_node;
+	int size, i, ret;
+
+	list = fdt_getprop(fdt, dev_of_offset(periph), "pinctrl-0", &size);
+	if (!list)
+		return -EINVAL;
+
+	debug("%s: periph->name = %s\n", __func__, periph->name);
+
+	size /= sizeof(*list);
+	for (i = 0; i < size; i++) {
+		phandle = fdt32_to_cpu(*list++);
+
+		config_node = fdt_node_offset_by_phandle(fdt, phandle);
+		if (config_node < 0) {
+			error("prop pinctrl-0 index %d invalid phandle\n", i);
+			return -EINVAL;
+		}
+
+		ret = stm32_pinctrl_config(config_node);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
