@@ -1018,8 +1018,6 @@
 			compatible = "xlnx,zynqmp-dwc3";
 			reg = <0x0 0xff9d0000 0x0 0x100>;
 			clock-names = "bus_clk", "ref_clk";
-			#stream-id-cells = <1>;
-			iommus = <&smmu 0x860>;
 			power-domains = <&pd_usb0>;
 			ranges;
 			nvmem-cells = <&soc_revision>;
@@ -1031,6 +1029,8 @@
 				reg = <0x0 0xfe200000 0x0 0x40000>;
 				interrupt-parent = <&gic>;
 				interrupts = <0 65 4>, <0 69 4>;
+				#stream-id-cells = <1>;
+				iommus = <&smmu 0x860>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
 				/* dma-coherent; */
@@ -1044,8 +1044,6 @@
 			compatible = "xlnx,zynqmp-dwc3";
 			reg = <0x0 0xff9e0000 0x0 0x100>;
 			clock-names = "bus_clk", "ref_clk";
-			#stream-id-cells = <1>;
-			iommus = <&smmu 0x861>;
 			power-domains = <&pd_usb1>;
 			ranges;
 			nvmem-cells = <&soc_revision>;
@@ -1057,6 +1055,8 @@
 				reg = <0x0 0xfe300000 0x0 0x40000>;
 				interrupt-parent = <&gic>;
 				interrupts = <0 70 4>, <0 74 4>;
+				#stream-id-cells = <1>;
+				iommus = <&smmu 0x861>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
 				/* dma-coherent; */
