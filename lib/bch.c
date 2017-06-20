@@ -61,7 +61,11 @@
 #include <linux/bitops.h>
 #else
 #include <errno.h>
+#if defined(__FreeBSD__)
+#include <sys/endian.h>
+#else
 #include <endian.h>
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,6 +117,7 @@ struct gf_poly_deg1 {
 };
 
 #ifdef USE_HOSTCC
+#ifndef __BSD_VISIBLE
 static int fls(int x)
 {
 	int r = 32;
@@ -141,6 +146,7 @@ static int fls(int x)
 	}
 	return r;
 }
+#endif
 #endif
 
 /*
