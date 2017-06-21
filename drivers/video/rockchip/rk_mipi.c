@@ -437,14 +437,14 @@ static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (priv->grf <= 0) {
-		debug("%s: Get syscon grf failed (ret=%llu)\n",
-		      __func__, (u64)priv->grf);
+		debug("%s: Get syscon grf failed (ret=%p)\n",
+		      __func__, priv->grf);
 		return  -ENXIO;
 	}
 	priv->regs = devfdt_get_addr(dev);
 	if (priv->regs <= 0) {
-		debug("%s: Get MIPI dsi address failed (ret=%llu)\n", __func__,
-		      (u64)priv->regs);
+		debug("%s: Get MIPI dsi address failed (ret=%lu)\n", __func__,
+		      priv->regs);
 		return  -ENXIO;
 	}
 
