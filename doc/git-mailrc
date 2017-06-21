@@ -40,6 +40,7 @@ alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
+alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
 alias sbabic         Stefano Babic <sbabic@denx.de>
@@ -77,7 +78,7 @@ alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
-alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>
+alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>, ptomsich
 alias avr32          uboot, abiessmann
 
 alias bfin           uboot, vapier, sonic

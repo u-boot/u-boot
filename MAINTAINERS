@@ -133,6 +133,7 @@ F:	arch/arm/mach-rmobile/
 
 ARM ROCKCHIP
 M:	Simon Glass <sjg@chromium.org>
+M:	Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-rockchip.git
 F:	arch/arm/mach-rockchip/
