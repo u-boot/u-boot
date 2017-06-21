@@ -375,6 +375,8 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("Early malloc usage: %lx / %x\n", gd->malloc_ptr,
 	       CONFIG_SYS_MALLOC_F_LEN);
 #endif
+	if (gd->fdt_blob)
+		printf("fdt_blob = %p\n", gd->fdt_blob);
 
 	return 0;
 }
