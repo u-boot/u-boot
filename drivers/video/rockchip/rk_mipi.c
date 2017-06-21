@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <panel.h>
 #include <regmap.h>
+#include "rk_mipi.h"
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/hardware.h>
@@ -22,38 +23,11 @@
 #include <asm/arch/cru_rk3399.h>
 #include <asm/arch/grf_rk3399.h>
 #include <asm/arch/rockchip_mipi_dsi.h>
-#include <dt-bindings/clock/rk3288-cru.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Private information for rk mipi
- *
- * @regs: mipi controller address
- * @grf: GRF register
- * @panel: panel assined by device tree
- * @ref_clk: reference clock for mipi dsi pll
- * @sysclk: config clock for mipi dsi register
- * @pix_clk: pixel clock for vop->dsi data transmission
- * @phy_clk: mipi dphy output clock
- * @txbyte_clk: clock for dsi->dphy high speed data transmission
- * @txesc_clk: clock for tx esc mode
- */
-struct rk_mipi_priv {
-	uintptr_t regs;
-	struct rk3399_grf_regs *grf;
-	struct udevice *panel;
-	struct mipi_dsi *dsi;
-	u32 ref_clk;
-	u32 sys_clk;
-	u32 pix_clk;
-	u32 phy_clk;
-	u32 txbyte_clk;
-	u32 txesc_clk;
-};
-
-static int rk_mipi_read_timing(struct udevice *dev,
-			       struct display_timing *timing)
+int rk_mipi_read_timing(struct udevice *dev,
+			struct display_timing *timing)
 {
 	int ret;
 
@@ -102,45 +76,17 @@ static void rk_mipi_dsi_write(uintptr_t regs, u32 reg, u32 val)
 	writel(dat, addr);
 }
 
-static int rk_mipi_dsi_enable(struct udevice *dev,
-			      const struct display_timing *timing)
+int rk_mipi_dsi_enable(struct udevice *dev,
+		       const struct display_timing *timing)
 {
 	int node, timing_node;
 	int val;
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 	uintptr_t regs = priv->regs;
-	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
 	u32 txbyte_clk = priv->txbyte_clk;
 	u32 txesc_clk = priv->txesc_clk;
 
 	txesc_clk = txbyte_clk/(txbyte_clk/txesc_clk + 1);
-
-	/* Select the video source */
-	switch (disp_uc_plat->source_id) {
-	case VOP_B:
-		rk_clrsetreg(&priv->grf->soc_con20, GRF_DSI0_VOP_SEL_MASK,
-			     GRF_DSI0_VOP_SEL_B << GRF_DSI0_VOP_SEL_SHIFT);
-		 break;
-	case VOP_L:
-		rk_clrsetreg(&priv->grf->soc_con20, GRF_DSI0_VOP_SEL_MASK,
-			     GRF_DSI0_VOP_SEL_L << GRF_DSI0_VOP_SEL_SHIFT);
-		 break;
-	default:
-		 debug("%s: Invalid VOP id\n", __func__);
-		 return -EINVAL;
-	}
-
-	/* Set Controller as TX mode */
-	val = GRF_DPHY_TX0_RXMODE_DIS << GRF_DPHY_TX0_RXMODE_SHIFT;
-	rk_clrsetreg(&priv->grf->soc_con22, GRF_DPHY_TX0_RXMODE_MASK, val);
-
-	/* Exit tx stop mode */
-	val |= GRF_DPHY_TX0_TXSTOPMODE_DIS << GRF_DPHY_TX0_TXSTOPMODE_SHIFT;
-	rk_clrsetreg(&priv->grf->soc_con22, GRF_DPHY_TX0_TXSTOPMODE_MASK, val);
-
-	/* Disable turnequest */
-	val |= GRF_DPHY_TX0_TURNREQUEST_DIS << GRF_DPHY_TX0_TURNREQUEST_SHIFT;
-	rk_clrsetreg(&priv->grf->soc_con22, GRF_DPHY_TX0_TURNREQUEST_MASK, val);
 
 	/* Set Display timing parameter */
 	rk_mipi_dsi_write(regs, VID_HSA_TIME, timing->hsync_len.typ);
@@ -249,7 +195,7 @@ static void rk_mipi_phy_write(uintptr_t regs, unsigned char test_code,
  * fsfreqrang value ,cap ,lpf and so on according to the given pix clk rate,
  * and then enable phy.
  */
-static int rk_mipi_phy_enable(struct udevice *dev)
+int rk_mipi_phy_enable(struct udevice *dev)
 {
 	int i;
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
@@ -385,107 +331,3 @@ static int rk_mipi_phy_enable(struct udevice *dev)
 	return 0;
 }
 
-/*
- * This function is called by rk_display_init() using rk_mipi_dsi_enable() and
- * rk_mipi_phy_enable() to initialize mipi controller and dphy. If success,
- * enable backlight.
- */
-static int rk_display_enable(struct udevice *dev, int panel_bpp,
-			  const struct display_timing *timing)
-{
-	int ret;
-	struct rk_mipi_priv *priv = dev_get_priv(dev);
-
-	/* Fill the mipi controller parameter */
-	priv->ref_clk = 24 * MHz;
-	priv->sys_clk = priv->ref_clk;
-	priv->pix_clk = timing->pixelclock.typ;
-	priv->phy_clk = priv->pix_clk * 6;
-	priv->txbyte_clk = priv->phy_clk / 8;
-	priv->txesc_clk = 20 * MHz;
-
-	/* Config  and enable mipi dsi according to timing */
-	ret = rk_mipi_dsi_enable(dev, timing);
-	if (ret) {
-		debug("%s: rk_mipi_dsi_enable() failed (err=%d)\n",
-		      __func__, ret);
-		return ret;
-	}
-
-	/* Config and enable mipi phy */
-	ret = rk_mipi_phy_enable(dev);
-	if (ret) {
-		debug("%s: rk_mipi_phy_enable() failed (err=%d)\n",
-		      __func__, ret);
-		return ret;
-	}
-
-	/* Enable backlight */
-	ret = panel_enable_backlight(priv->panel);
-	if (ret) {
-		debug("%s: panel_enable_backlight() failed (err=%d)\n",
-		      __func__, ret);
-		return ret;
-	}
-
-	return 0;
-}
-
-static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
-{
-	struct rk_mipi_priv *priv = dev_get_priv(dev);
-
-	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (priv->grf <= 0) {
-		debug("%s: Get syscon grf failed (ret=%p)\n",
-		      __func__, priv->grf);
-		return  -ENXIO;
-	}
-	priv->regs = devfdt_get_addr(dev);
-	if (priv->regs <= 0) {
-		debug("%s: Get MIPI dsi address failed (ret=%lu)\n", __func__,
-		      priv->regs);
-		return  -ENXIO;
-	}
-
-	return 0;
-}
-
-/*
- * Probe function: check panel existence and readingit's timing. Then config
- * mipi dsi controller and enable it according to the timing parameter.
- */
-static int rk_mipi_probe(struct udevice *dev)
-{
-	int ret;
-	struct rk_mipi_priv *priv = dev_get_priv(dev);
-
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev, "rockchip,panel",
-					   &priv->panel);
-	if (ret) {
-		debug("%s: Can not find panel (err=%d)\n", __func__, ret);
-		return ret;
-	}
-
-	return 0;
-}
-
-static const struct dm_display_ops rk_mipi_dsi_ops = {
-	.read_timing = rk_mipi_read_timing,
-	.enable = rk_display_enable,
-};
-
-static const struct udevice_id rk_mipi_dsi_ids[] = {
-	{ .compatible = "rockchip,rk3399_mipi_dsi" },
-	{ }
-};
-
-U_BOOT_DRIVER(rk_mipi_dsi) = {
-	.name	= "rk_mipi_dsi",
-	.id	= UCLASS_DISPLAY,
-	.of_match = rk_mipi_dsi_ids,
-	.ofdata_to_platdata = rk_mipi_ofdata_to_platdata,
-	.probe	= rk_mipi_probe,
-	.ops	= &rk_mipi_dsi_ops,
-	.priv_auto_alloc_size   = sizeof(struct rk_mipi_priv),
-};
