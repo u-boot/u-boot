@@ -8,7 +8,7 @@
 #define __RK_MIPI_H
 
 struct rk_mipi_priv {
-	ulong regs;
+	uintptr_t regs;
 	void *grf;
 	struct udevice *panel;
 	struct mipi_dsi *dsi;
