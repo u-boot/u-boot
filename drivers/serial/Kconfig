@@ -65,7 +65,7 @@ config DM_SERIAL
 	  defined in include/serial.h.
 
 config SPL_DM_SERIAL
-	bool "Enable Driver Model for serial drivers"
+	bool "Enable Driver Model for serial drivers in SPL"
 	depends on DM_SERIAL
 	default y if SPL && DM_SERIAL
 	help
@@ -75,7 +75,7 @@ config SPL_DM_SERIAL
 	  defined in include/serial.h.
 
 config TPL_DM_SERIAL
-	bool "Enable Driver Model for serial drivers"
+	bool "Enable Driver Model for serial drivers in TPL"
 	depends on DM_SERIAL
 	default y if TPL && DM_SERIAL
 	help
