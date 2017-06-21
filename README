@@ -2534,12 +2534,6 @@ The following options need to be configured:
 		Define this option to include a destructive SPI flash
 		test ('sf test').
 
-		CONFIG_SF_DUAL_FLASH		Dual flash memories
-
-		Define this option to use dual flash support where two flash
-		memories can be connected with a given cs line.
-		Currently Xilinx Zynq qspi supports these type of connections.
-
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 

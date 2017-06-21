@@ -2,7 +2,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-dtb-y += microblaze-generic.dtb
+dtb-y += $(shell echo $(CONFIG_DEFAULT_DEVICE_TREE)).dtb
 
 targets += $(dtb-y)
 
