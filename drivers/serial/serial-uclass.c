@@ -212,27 +212,30 @@ void serial_stdio_init(void)
 {
 }
 
-#if defined(CONFIG_DM_STDIO) && CONFIG_IS_ENABLED(SERIAL_PRESENT)
+#if defined(CONFIG_DM_STDIO)
+
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
 	_serial_putc(sdev->priv, ch);
 }
 #endif
 
-void serial_stub_puts(struct stdio_dev *sdev, const char *str)
+static void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 {
 	_serial_puts(sdev->priv, str);
 }
 
-int serial_stub_getc(struct stdio_dev *sdev)
+static int serial_stub_getc(struct stdio_dev *sdev)
 {
 	return _serial_getc(sdev->priv);
 }
 
-int serial_stub_tstc(struct stdio_dev *sdev)
+static int serial_stub_tstc(struct stdio_dev *sdev)
 {
 	return _serial_tstc(sdev->priv);
 }
+#endif
 
 /**
  * on_baudrate() - Update the actual baudrate when the env var changes

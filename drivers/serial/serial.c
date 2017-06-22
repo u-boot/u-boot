@@ -273,14 +273,14 @@ static void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 	dev->puts(str);
 }
 
-int serial_stub_getc(struct stdio_dev *sdev)
+static int serial_stub_getc(struct stdio_dev *sdev)
 {
 	struct serial_device *dev = sdev->priv;
 
 	return dev->getc();
 }
 
-int serial_stub_tstc(struct stdio_dev *sdev)
+static int serial_stub_tstc(struct stdio_dev *sdev)
 {
 	struct serial_device *dev = sdev->priv;
 

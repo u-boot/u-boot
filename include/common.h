@@ -490,11 +490,6 @@ void	serial_puts   (const char *);
 int	serial_getc   (void);
 int	serial_tstc   (void);
 
-/* These versions take a stdio_dev pointer */
-struct stdio_dev;
-int serial_stub_getc(struct stdio_dev *sdev);
-int serial_stub_tstc(struct stdio_dev *sdev);
-
 /* $(CPU)/speed.c */
 int	get_clocks (void);
 ulong	get_bus_freq  (ulong);
