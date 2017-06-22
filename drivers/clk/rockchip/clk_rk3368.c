@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.com>
+ * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  * SPDX-License-Identifier:	GPL-2.0
  */
 
@@ -74,7 +75,7 @@ static uint32_t rkclk_pll_get_rate(struct rk3368_cru *cru,
 }
 
 static int rkclk_set_pll(struct rk3368_cru *cru, enum rk3368_pll_id pll_id,
-			 const struct pll_div *div, bool has_bwadj)
+			 const struct pll_div *div)
 {
 	struct rk3368_pll *pll = &cru->pll[pll_id];
 	/* All PLLs have same VCO and output frequency range restrictions*/
@@ -92,6 +93,12 @@ static int rkclk_set_pll(struct rk3368_cru *cru, enum rk3368_pll_id pll_id,
 		     ((div->nr - 1) << PLL_NR_SHIFT) |
 		     ((div->no - 1) << PLL_OD_SHIFT));
 	writel((div->nf - 1) << PLL_NF_SHIFT, &pll->con1);
+	/*
+	 * BWADJ should be set to NF / 2 to ensure the nominal bandwidth.
+	 * Compare the RK3368 TRM, section "3.6.4 PLL Bandwidth Adjustment".
+	 */
+	clrsetbits_le32(&pll->con2, PLL_BWADJ_MASK, (div->nf >> 1) - 1);
+
 	udelay(10);
 
 	/* return from reset */
@@ -111,10 +118,10 @@ static void rkclk_init(struct rk3368_cru *cru)
 {
 	u32 apllb, aplll, dpll, cpll, gpll;
 
-	rkclk_set_pll(cru, APLLB, &apll_b_init_cfg, false);
-	rkclk_set_pll(cru, APLLL, &apll_l_init_cfg, false);
-	rkclk_set_pll(cru, GPLL, &gpll_init_cfg, false);
-	rkclk_set_pll(cru, CPLL, &cpll_init_cfg, false);
+	rkclk_set_pll(cru, APLLB, &apll_b_init_cfg);
+	rkclk_set_pll(cru, APLLL, &apll_l_init_cfg);
+	rkclk_set_pll(cru, GPLL, &gpll_init_cfg);
+	rkclk_set_pll(cru, CPLL, &cpll_init_cfg);
 
 	apllb = rkclk_pll_get_rate(cru, APLLB);
 	aplll = rkclk_pll_get_rate(cru, APLLL);
