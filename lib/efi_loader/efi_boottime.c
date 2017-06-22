@@ -104,9 +104,9 @@ static void EFIAPI efi_restore_tpl(unsigned long old_tpl)
 	EFI_EXIT(efi_unsupported(__func__));
 }
 
-efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
-					   unsigned long pages,
-					   uint64_t *memory)
+static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
+						  unsigned long pages,
+						  uint64_t *memory)
 {
 	efi_status_t r;
 
@@ -115,7 +115,8 @@ efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
 	return EFI_EXIT(r);
 }
 
-efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory, unsigned long pages)
+static efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory,
+					      unsigned long pages)
 {
 	efi_status_t r;
 
@@ -124,11 +125,12 @@ efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory, unsigned long pages)
 	return EFI_EXIT(r);
 }
 
-efi_status_t EFIAPI efi_get_memory_map_ext(unsigned long *memory_map_size,
-					   struct efi_mem_desc *memory_map,
-					   unsigned long *map_key,
-					   unsigned long *descriptor_size,
-					   uint32_t *descriptor_version)
+static efi_status_t EFIAPI efi_get_memory_map_ext(
+					unsigned long *memory_map_size,
+					struct efi_mem_desc *memory_map,
+					unsigned long *map_key,
+					unsigned long *descriptor_size,
+					uint32_t *descriptor_version)
 {
 	efi_status_t r;
 
