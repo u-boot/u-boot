@@ -434,17 +434,11 @@ int ofnode_decode_display_timing(ofnode parent, int index,
 
 const u32 *ofnode_read_prop(ofnode node, const char *propname, int *lenp)
 {
-	if (ofnode_is_np(node)) {
-		struct property *prop;
-
-		prop = of_find_property(ofnode_to_np(node), propname, lenp);
-		if (!prop)
-			return NULL;
-		return prop->value;
-	} else {
+	if (ofnode_is_np(node))
+		return of_get_property(ofnode_to_np(node), propname, lenp);
+	else
 		return fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
 				   propname, lenp);
-	}
 }
 
 bool ofnode_is_available(ofnode node)
