@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <mapmem.h>
 #include <dm/root.h>
+#include <dm/util.h>
 
 static void show_devices(struct udevice *dev, int depth, int last_flag)
 {
