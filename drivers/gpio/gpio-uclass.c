@@ -494,8 +494,8 @@ static const char * const gpio_function[GPIOF_COUNT] = {
 	"func",
 };
 
-int get_function(struct udevice *dev, int offset, bool skip_unused,
-		 const char **namep)
+static int get_function(struct udevice *dev, int offset, bool skip_unused,
+			const char **namep)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
