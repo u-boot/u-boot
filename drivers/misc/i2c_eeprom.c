@@ -42,7 +42,7 @@ static int i2c_eeprom_std_write(struct udevice *dev, int offset,
 	return -ENODEV;
 }
 
-struct i2c_eeprom_ops i2c_eeprom_std_ops = {
+static const struct i2c_eeprom_ops i2c_eeprom_std_ops = {
 	.read	= i2c_eeprom_std_read,
 	.write	= i2c_eeprom_std_write,
 };
@@ -59,7 +59,7 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-int i2c_eeprom_std_probe(struct udevice *dev)
+static int i2c_eeprom_std_probe(struct udevice *dev)
 {
 	return 0;
 }
