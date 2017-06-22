@@ -92,7 +92,7 @@ static int sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
 static int sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat,
 				const void *fdt, int nodeoffset)
 {
-	const u32 *prop;
+	const fdt32_t *prop;
 	int ret, i;
 
 	for (i = 0; i < ARRAY_SIZE(sdhci_cdns_phy_cfgs); i++) {
