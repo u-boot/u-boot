@@ -250,6 +250,37 @@ static ulong rk3368_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
+{
+	const struct pll_div *dpll_cfg = NULL;
+	const ulong MHz = 1000000;
+
+	/* Fout = ((Fin /NR) * NF )/ NO */
+	static const struct pll_div dpll_1200 =
+		PLL_DIVISORS(1200 * MHz, 1, 1);
+	static const struct pll_div dpll_1332 =
+		PLL_DIVISORS(1332 * MHz, 2, 1);
+	static const struct pll_div dpll_1600 =
+		PLL_DIVISORS(1600 * MHz, 3, 2);
+
+	switch (set_rate) {
+	case 1200*MHz:
+		dpll_cfg = &dpll_1200;
+		break;
+	case 1332*MHz:
+		dpll_cfg = &dpll_1332;
+		break;
+	case 1600*MHz:
+		dpll_cfg = &dpll_1600;
+		break;
+	default:
+		error("Unsupported SDRAM frequency!,%ld\n", set_rate);
+	}
+	rkclk_set_pll(cru, DPLL, dpll_cfg);
+
+	return set_rate;
+}
+
 static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
@@ -257,6 +288,10 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 
 	debug("%s id:%ld rate:%ld\n", __func__, clk->id, rate);
 	switch (clk->id) {
+	case CLK_DDR:
+		ret = rk3368_ddr_set_clk(priv->cru, rate);
+		break;
+
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = rk3368_mmc_set_clk(priv->cru, clk->id, rate);
