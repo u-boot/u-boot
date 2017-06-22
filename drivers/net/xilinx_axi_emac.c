@@ -694,8 +694,8 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		printf("%s: axistream is not found\n", __func__);
 		return -EINVAL;
 	}
-	priv->dmatx = (struct axidma_reg *)fdtdec_get_int(gd->fdt_blob,
-							  offset, "reg", 0);
+	priv->dmatx = (struct axidma_reg *)fdtdec_get_addr(gd->fdt_blob,
+							  offset, "reg");
 	if (!priv->dmatx) {
 		printf("%s: axi_dma register space not found\n", __func__);
 		return -EINVAL;
