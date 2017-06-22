@@ -23,7 +23,7 @@ int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 	if (ofnode_is_np(node)) {
 		return of_read_u32(ofnode_to_np(node), propname, outp);
 	} else {
-		const int *cell;
+		const fdt32_t *cell;
 		int len;
 
 		cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
@@ -487,7 +487,7 @@ const uint8_t *ofnode_read_u8_array_ptr(ofnode node, const char *propname,
 int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 			 const char *propname, struct fdt_pci_addr *addr)
 {
-	const u32 *cell;
+	const fdt32_t *cell;
 	int len;
 	int ret = -ENOENT;
 
