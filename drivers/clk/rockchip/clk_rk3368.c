@@ -8,7 +8,9 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
+#include <mapmem.h>
 #include <syscon.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cru_rk3368.h>
@@ -18,6 +20,12 @@
 #include <dt-bindings/clock/rk3368-cru.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+struct rk3368_clk_plat {
+	struct dtd_rockchip_rk3368_cru dtd;
+};
+#endif
 
 struct pll_div {
 	u32 nr;
@@ -254,7 +262,11 @@ static struct clk_ops rk3368_clk_ops = {
 static int rk3368_clk_probe(struct udevice *dev)
 {
 	struct rk3368_clk_priv *priv = dev_get_priv(dev);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct rk3368_clk_plat *plat = dev_get_platdata(dev);
 
+	priv->cru = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
+#endif
 	rkclk_init(priv->cru);
 
 	return 0;
@@ -262,9 +274,11 @@ static int rk3368_clk_probe(struct udevice *dev)
 
 static int rk3368_clk_ofdata_to_platdata(struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_clk_priv *priv = dev_get_priv(dev);
 
 	priv->cru = (struct rk3368_cru *)devfdt_get_addr(dev);
+#endif
 
 	return 0;
 }
@@ -291,6 +305,9 @@ U_BOOT_DRIVER(rockchip_rk3368_cru) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk3368_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3368_clk_priv),
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	.platdata_auto_alloc_size = sizeof(struct rk3368_clk_plat),
+#endif
 	.ofdata_to_platdata = rk3368_clk_ofdata_to_platdata,
 	.ops		= &rk3368_clk_ops,
 	.bind		= rk3368_clk_bind,
