@@ -76,8 +76,11 @@ struct rk3368_grf {
 	u32 soc_con15;
 	u32 soc_con16;
 	u32 soc_con17;
+	u32 reserved5[0x6e];
+	u32 ddrc0_con0;
 };
 check_member(rk3368_grf, soc_con17, 0x444);
+check_member(rk3368_grf, ddrc0_con0, 0x600);
 
 struct rk3368_pmu_grf {
 	u32 gpio0a_iomux;

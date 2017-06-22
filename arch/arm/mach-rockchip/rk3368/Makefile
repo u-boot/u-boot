@@ -5,5 +5,4 @@
 #
 obj-y		+= clk_rk3368.o
 obj-y		+= rk3368.o
-obj-y 		+= sdram_rk3368.o
 obj-y 		+= syscon_rk3368.o
