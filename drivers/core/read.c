@@ -116,7 +116,7 @@ int dev_read_phandle(struct udevice *dev)
 
 const u32 *dev_read_prop(struct udevice *dev, const char *propname, int *lenp)
 {
-	return ofnode_read_prop(dev_ofnode(dev), propname, lenp);
+	return ofnode_get_property(dev_ofnode(dev), propname, lenp);
 }
 
 int dev_read_alias_seq(struct udevice *dev, int *devnump)

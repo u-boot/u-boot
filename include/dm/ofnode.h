@@ -473,14 +473,14 @@ int ofnode_decode_display_timing(ofnode node, int index,
 				 struct display_timing *config);
 
 /**
- * ofnode_read_prop()- - read a node property
+ * ofnode_get_property()- - get a pointer to the value of a node property
  *
  * @node: node to read
  * @propname: property to read
  * @lenp: place to put length on success
  * @return pointer to property, or NULL if not found
  */
-const u32 *ofnode_read_prop(ofnode node, const char *propname, int *lenp);
+const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
 
 /**
  * ofnode_is_available() - check if a node is marked available

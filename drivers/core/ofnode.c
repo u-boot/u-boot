@@ -432,7 +432,7 @@ int ofnode_decode_display_timing(ofnode parent, int index,
 	return ret;
 }
 
-const u32 *ofnode_read_prop(ofnode node, const char *propname, int *lenp)
+const void *ofnode_get_property(ofnode node, const char *propname, int *lenp)
 {
 	if (ofnode_is_np(node))
 		return of_get_property(ofnode_to_np(node), propname, lenp);
@@ -503,7 +503,7 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 	 * #size-cells. They need to be 3 and 2 accordingly. However,
 	 * for simplicity we skip the check here.
 	 */
-	cell = ofnode_read_prop(node, propname, &len);
+	cell = ofnode_get_property(node, propname, &len);
 	if (!cell)
 		goto fail;
 

@@ -197,7 +197,7 @@ static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
 	int upto;
 	int len;
 
-	cell = ofnode_read_prop(node, "linux,keymap", &len);
+	cell = ofnode_get_property(node, "linux,keymap", &len);
 	ec->matrix_count = len / 4;
 	ec->matrix = calloc(ec->matrix_count, sizeof(*ec->matrix));
 	if (!ec->matrix) {
