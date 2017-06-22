@@ -57,20 +57,16 @@ int ofnode_read_s32_default(ofnode node, const char *propname, s32 def)
 
 bool ofnode_read_bool(ofnode node, const char *propname)
 {
-	bool val;
+	const void *prop;
 
 	assert(ofnode_valid(node));
 	debug("%s: %s: ", __func__, propname);
 
-	if (ofnode_is_np(node)) {
-		val = !!of_find_property(ofnode_to_np(node), propname, NULL);
-	} else {
-		val = !!fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
-				    propname, NULL);
-	}
-	debug("%s\n", val ? "true" : "false");
+	prop = ofnode_get_property(node, propname, NULL);
 
-	return val;
+	debug("%s\n", prop ? "true" : "false");
+
+	return prop ? true : false;
 }
 
 const char *ofnode_read_string(ofnode node, const char *propname)
