@@ -28,11 +28,11 @@ enum dram_size {
 };
 
 /* PHY */
-const int rof_pos_shift_pre[RANK_BLOCKS_TR][2] = { {0, 0}, {0, 0} };
-const int rof_neg_shift_pre[RANK_BLOCKS_TR][2] = { {0, 0}, {0, 0} };
-const int rof_pos_shift[RANK_BLOCKS_TR][2] = { {-35, -35}, {-35, -35} };
-const int rof_neg_shift[RANK_BLOCKS_TR][2] = { {-17, -17}, {-17, -17} };
-const int tof_shift[RANK_BLOCKS_TR][2] = { {-50, -50}, {-50, -50} };
+static const int rof_pos_shift_pre[RANK_BLOCKS_TR][2] = { {0, 0}, {0, 0} };
+static const int rof_neg_shift_pre[RANK_BLOCKS_TR][2] = { {0, 0}, {0, 0} };
+static const int rof_pos_shift[RANK_BLOCKS_TR][2] = { {-35, -35}, {-35, -35} };
+static const int rof_neg_shift[RANK_BLOCKS_TR][2] = { {-17, -17}, {-17, -17} };
+static const int tof_shift[RANK_BLOCKS_TR][2] = { {-50, -50}, {-50, -50} };
 
 /* Register address */
 #define PHY_ZQ0CR1	0x00000184
@@ -65,7 +65,7 @@ const int tof_shift[RANK_BLOCKS_TR][2] = { {-50, -50}, {-50, -50} };
 #define PHY_DSWBD_MASK		0x3F000000	/* bit[29:24] */
 #define PHY_DSDQOE_MASK		0x00000FFF
 
-static void ddrphy_maskwritel(u32 data, u32 mask, void *addr)
+static void ddrphy_maskwritel(u32 data, u32 mask, void __iomem *addr)
 {
 	u32 value;
 
@@ -73,7 +73,7 @@ static void ddrphy_maskwritel(u32 data, u32 mask, void *addr)
 	writel(value, addr);
 }
 
-static u32 ddrphy_maskreadl(u32 mask, void *addr)
+static u32 ddrphy_maskreadl(u32 mask, void __iomem *addr)
 {
 	return readl(addr) & mask;
 }

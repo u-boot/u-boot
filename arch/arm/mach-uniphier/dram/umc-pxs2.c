@@ -436,7 +436,7 @@ static void umc_set_system_latency(void __iomem *dc_base, int phy_latency)
 }
 
 /* enable/disable auto refresh */
-void umc_refresh_ctrl(void __iomem *dc_base, int enable)
+static void umc_refresh_ctrl(void __iomem *dc_base, int enable)
 {
 	u32 tmp;
 

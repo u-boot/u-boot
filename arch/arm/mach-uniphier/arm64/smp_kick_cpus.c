@@ -8,6 +8,8 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 
+#include "../init.h"
+
 #define UNIPHIER_SMPCTRL_ROM_RSV0	0x59801200
 
 void uniphier_smp_setup(void);
