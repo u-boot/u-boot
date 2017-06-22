@@ -937,7 +937,7 @@ unknown:
 	return -1;
 }
 
-const struct ehci_ops default_ehci_ops = {
+static const struct ehci_ops default_ehci_ops = {
 	.set_usb_mode		= ehci_set_usbmode,
 	.get_port_speed		= ehci_get_port_speed,
 	.powerup_fixup		= ehci_powerup_fixup,

@@ -192,7 +192,7 @@ static int xhci_start(struct xhci_hcor *hcor)
  * @param hcor	pointer to host controller operation registers
  * @return -EBUSY if XHCI Controller is not halted else status of handshake
  */
-int xhci_reset(struct xhci_hcor *hcor)
+static int xhci_reset(struct xhci_hcor *hcor)
 {
 	u32 cmd;
 	u32 state;
@@ -481,7 +481,7 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
  * @param udev	pointer to the Device Data Structure
  * @return Returns 0 on succes else return error code on failure
  */
-int _xhci_alloc_device(struct usb_device *udev)
+static int _xhci_alloc_device(struct usb_device *udev)
 {
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;

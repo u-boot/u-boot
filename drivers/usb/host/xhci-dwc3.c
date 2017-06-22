@@ -19,7 +19,7 @@ void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 			DWC3_GCTL_PRTCAPDIR(mode));
 }
 
-void dwc3_phy_reset(struct dwc3 *dwc3_reg)
+static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 {
 	/* Assert USB3 PHY reset */
 	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
