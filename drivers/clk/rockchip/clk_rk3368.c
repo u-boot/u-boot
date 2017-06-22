@@ -50,10 +50,14 @@ struct pll_div {
 		       (_nr * _no) == hz, #hz "Hz cannot be hit with PLL " \
 		       "divisors on line " __stringify(__LINE__));
 
+#if IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_TPL_BUILD)
 static const struct pll_div apll_l_init_cfg = PLL_DIVISORS(APLL_L_HZ, 12, 2);
 static const struct pll_div apll_b_init_cfg = PLL_DIVISORS(APLL_B_HZ, 1, 2);
+#if !defined(CONFIG_TPL_BUILD)
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 1, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 6);
+#endif
+#endif
 
 /* Get pll rate by id */
 static uint32_t rkclk_pll_get_rate(struct rk3368_cru *cru,
@@ -82,6 +86,7 @@ static uint32_t rkclk_pll_get_rate(struct rk3368_cru *cru,
 	}
 }
 
+#if IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_TPL_BUILD)
 static int rkclk_set_pll(struct rk3368_cru *cru, enum rk3368_pll_id pll_id,
 			 const struct pll_div *div)
 {
@@ -121,15 +126,23 @@ static int rkclk_set_pll(struct rk3368_cru *cru, enum rk3368_pll_id pll_id,
 
 	return 0;
 }
+#endif
 
+#if IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_TPL_BUILD)
 static void rkclk_init(struct rk3368_cru *cru)
 {
 	u32 apllb, aplll, dpll, cpll, gpll;
 
 	rkclk_set_pll(cru, APLLB, &apll_b_init_cfg);
 	rkclk_set_pll(cru, APLLL, &apll_l_init_cfg);
+#if !defined(CONFIG_TPL_BUILD)
+	/*
+	 * If we plan to return to the boot ROM, we can't increase the
+	 * GPLL rate from the SPL stage.
+	 */
 	rkclk_set_pll(cru, GPLL, &gpll_init_cfg);
 	rkclk_set_pll(cru, CPLL, &cpll_init_cfg);
+#endif
 
 	apllb = rkclk_pll_get_rate(cru, APLLB);
 	aplll = rkclk_pll_get_rate(cru, APLLL);
@@ -140,6 +153,7 @@ static void rkclk_init(struct rk3368_cru *cru)
 	debug("%s apllb(%d) apll(%d) dpll(%d) cpll(%d) gpll(%d)\n",
 	       __func__, apllb, aplll, dpll, cpll, gpll);
 }
+#endif
 
 static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 {
@@ -261,13 +275,15 @@ static struct clk_ops rk3368_clk_ops = {
 
 static int rk3368_clk_probe(struct udevice *dev)
 {
-	struct rk3368_clk_priv *priv = dev_get_priv(dev);
+	struct rk3368_clk_priv __maybe_unused *priv = dev_get_priv(dev);
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_clk_plat *plat = dev_get_platdata(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
 #endif
+#if IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_TPL_BUILD)
 	rkclk_init(priv->cru);
+#endif
 
 	return 0;
 }
