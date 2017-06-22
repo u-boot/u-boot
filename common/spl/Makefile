@@ -10,6 +10,7 @@
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
+obj-$(CONFIG_SPL_BOOTROM_SUPPORT) += spl_bootrom.o
 obj-$(CONFIG_SPL_LOAD_FIT) += spl_fit.o
 obj-$(CONFIG_SPL_NOR_SUPPORT) += spl_nor.o
 obj-$(CONFIG_SPL_XIP_SUPPORT) += spl_xip.o

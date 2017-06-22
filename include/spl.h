@@ -268,4 +268,14 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev);
 
 void bl31_entry(void);
+
+/**
+ * board_return_to_bootrom - allow for boards to continue with the boot ROM
+ *
+ * If a board (e.g. the Rockchip RK3368 boards) provide some
+ * supporting functionality for SPL in their boot ROM and the SPL
+ * stage wants to return to the ROM code to continue booting, boards
+ * can implement 'board_return_to_bootrom'.
+ */
+void board_return_to_bootrom(void);
 #endif

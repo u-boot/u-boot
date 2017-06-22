@@ -25,6 +25,17 @@ config SPL_BOARD_INIT
 	  spl_board_init() from board_init_r(). This function should be
 	  provided by the board.
 
+config SPL_BOOTROM_SUPPORT
+        bool "Support returning to the BOOTROM"
+	help
+	  Some platforms (e.g. the Rockchip RK3368) provide support in their
+	  ROM for loading the next boot-stage after performing basic setup
+	  from the SPL stage.
+
+	  Enable this option, to return to the BOOTROM through the
+	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
+	  boot device list, if not implemented for a given board)
+
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
 	default n if (ARCH_MX6 && (SPL_MMC_SUPPORT || SPL_SATA_SUPPORT))
