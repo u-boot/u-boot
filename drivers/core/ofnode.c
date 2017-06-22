@@ -582,22 +582,22 @@ int ofnode_read_simple_size_cells(ofnode node)
 
 bool ofnode_pre_reloc(ofnode node)
 {
-	if (ofnode_read_prop(node, "u-boot,dm-pre-reloc", NULL))
+	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
 		return true;
 
 #ifdef CONFIG_TPL_BUILD
-	if (ofnode_read_prop(node, "u-boot,dm-tpl", NULL))
+	if (ofnode_read_bool(node, "u-boot,dm-tpl"))
 		return true;
 #elif defined(CONFIG_SPL_BUILD)
-	if (ofnode_read_prop(node, "u-boot,dm-spl", NULL))
+	if (ofnode_read_bool(node, "u-boot,dm-spl"))
 		return true;
 #else
 	/*
 	 * In regular builds individual spl and tpl handling both
 	 * count as handled pre-relocation for later second init.
 	 */
-	if (ofnode_read_prop(node, "u-boot,dm-spl", NULL) ||
-	    ofnode_read_prop(node, "u-boot,dm-tpl", NULL))
+	if (ofnode_read_bool(node, "u-boot,dm-spl") ||
+	    ofnode_read_bool(node, "u-boot,dm-tpl"))
 		return true;
 #endif
 
