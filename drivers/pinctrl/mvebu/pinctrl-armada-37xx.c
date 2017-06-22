@@ -539,7 +539,7 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	}
 
 	fdt_for_each_subnode(subnode, blob, node) {
-		if (!fdtdec_get_bool(blob, subnode, "gpio-controller")) {
+		if (fdtdec_get_bool(blob, subnode, "gpio-controller")) {
 			ret = 0;
 			break;
 		}
