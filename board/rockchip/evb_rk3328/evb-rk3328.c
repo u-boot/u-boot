@@ -16,12 +16,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	gd->ram_size = 0x80000000;
-	return 0;
-}
-
 int dram_init_banksize(void)
 {
 	/* Reserve 0x200000 for ATF bl31 */

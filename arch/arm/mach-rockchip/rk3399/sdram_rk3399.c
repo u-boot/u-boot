@@ -15,6 +15,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sdram_common.h>
 #include <asm/arch/sdram_rk3399.h>
 #include <asm/arch/cru_rk3399.h>
 #include <asm/arch/grf_rk3399.h>
@@ -42,50 +43,6 @@ struct dram_info {
 	struct ram_info info;
 	struct rk3399_pmugrf_regs *pmugrf;
 };
-
-/*
- * sys_reg bitfield struct
- * [31]		row_3_4_ch1
- * [30]		row_3_4_ch0
- * [29:28]	chinfo
- * [27]		rank_ch1
- * [26:25]	col_ch1
- * [24]		bk_ch1
- * [23:22]	cs0_row_ch1
- * [21:20]	cs1_row_ch1
- * [19:18]	bw_ch1
- * [17:16]	dbw_ch1;
- * [15:13]	ddrtype
- * [12]		channelnum
- * [11]		rank_ch0
- * [10:9]	col_ch0
- * [8]		bk_ch0
- * [7:6]	cs0_row_ch0
- * [5:4]	cs1_row_ch0
- * [3:2]	bw_ch0
- * [1:0]	dbw_ch0
-*/
-#define SYS_REG_DDRTYPE_SHIFT		13
-#define SYS_REG_DDRTYPE_MASK		7
-#define SYS_REG_NUM_CH_SHIFT		12
-#define SYS_REG_NUM_CH_MASK		1
-#define SYS_REG_ROW_3_4_SHIFT(ch)	(30 + (ch))
-#define SYS_REG_ROW_3_4_MASK		1
-#define SYS_REG_CHINFO_SHIFT(ch)	(28 + (ch))
-#define SYS_REG_RANK_SHIFT(ch)		(11 + (ch) * 16)
-#define SYS_REG_RANK_MASK		1
-#define SYS_REG_COL_SHIFT(ch)		(9 + (ch) * 16)
-#define SYS_REG_COL_MASK		3
-#define SYS_REG_BK_SHIFT(ch)		(8 + (ch) * 16)
-#define SYS_REG_BK_MASK			1
-#define SYS_REG_CS0_ROW_SHIFT(ch)	(6 + (ch) * 16)
-#define SYS_REG_CS0_ROW_MASK		3
-#define SYS_REG_CS1_ROW_SHIFT(ch)	(4 + (ch) * 16)
-#define SYS_REG_CS1_ROW_MASK		3
-#define SYS_REG_BW_SHIFT(ch)		(2 + (ch) * 16)
-#define SYS_REG_BW_MASK			3
-#define SYS_REG_DBW_SHIFT(ch)		((ch) * 16)
-#define SYS_REG_DBW_MASK		3
 
 #define PRESET_SGRF_HOLD(n)	((0x1 << (6 + 16)) | ((n) << 6))
 #define PRESET_GPIO0_HOLD(n)	((0x1 << (7 + 16)) | ((n) << 7))
@@ -1229,50 +1186,6 @@ static int rk3399_dmc_init(struct udevice *dev)
 }
 #endif
 
-size_t sdram_size_mb(struct dram_info *dram)
-{
-	u32 rank, col, bk, cs0_row, cs1_row, bw, row_3_4;
-	size_t chipsize_mb = 0;
-	size_t size_mb = 0;
-	u32 ch;
-
-	u32 sys_reg = readl(&dram->pmugrf->os_reg2);
-	u32 ch_num = 1 + ((sys_reg >> SYS_REG_NUM_CH_SHIFT)
-		       & SYS_REG_NUM_CH_MASK);
-
-	for (ch = 0; ch < ch_num; ch++) {
-		rank = 1 + (sys_reg >> SYS_REG_RANK_SHIFT(ch) &
-			SYS_REG_RANK_MASK);
-		col = 9 + (sys_reg >> SYS_REG_COL_SHIFT(ch) & SYS_REG_COL_MASK);
-		bk = 3 - ((sys_reg >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
-		cs0_row = 13 + (sys_reg >> SYS_REG_CS0_ROW_SHIFT(ch) &
-				SYS_REG_CS0_ROW_MASK);
-		cs1_row = 13 + (sys_reg >> SYS_REG_CS1_ROW_SHIFT(ch) &
-				SYS_REG_CS1_ROW_MASK);
-		bw = (2 >> ((sys_reg >> SYS_REG_BW_SHIFT(ch)) &
-			SYS_REG_BW_MASK));
-		row_3_4 = sys_reg >> SYS_REG_ROW_3_4_SHIFT(ch) &
-			SYS_REG_ROW_3_4_MASK;
-
-		chipsize_mb = (1 << (cs0_row + col + bk + bw - 20));
-
-		if (rank > 1)
-			chipsize_mb += chipsize_mb >> (cs0_row - cs1_row);
-		if (row_3_4)
-			chipsize_mb = chipsize_mb * 3 / 4;
-		size_mb += chipsize_mb;
-	}
-
-	/*
-	 * we use the 0x00000000~0xf7ffffff space
-	 * since 0xf8000000~0xffffffff is soc register space
-	 * so we reserve it
-	 */
-	size_mb = min_t(size_t, size_mb, 0xf8000000/(1<<20));
-
-	return size_mb;
-}
-
 static int rk3399_dmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_SPL_BUILD
@@ -1283,8 +1196,9 @@ static int rk3399_dmc_probe(struct udevice *dev)
 
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	debug("%s: pmugrf=%p\n", __func__, priv->pmugrf);
-	priv->info.base = 0;
-	priv->info.size = sdram_size_mb(priv) << 20;
+	priv->info.base = CONFIG_SYS_SDRAM_BASE;
+	priv->info.size = rockchip_sdram_size(
+			(phys_addr_t)&priv->pmugrf->os_reg2);
 #endif
 	return 0;
 }

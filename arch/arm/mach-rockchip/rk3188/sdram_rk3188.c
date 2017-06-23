@@ -22,6 +22,7 @@
 #include <asm/arch/grf_rk3188.h>
 #include <asm/arch/pmu_rk3188.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/sdram_common.h>
 #include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -796,49 +797,7 @@ error:
 	printf("DRAM init failed!\n");
 	hang();
 }
-#endif /* CONFIG_SPL_BUILD */
 
-size_t sdram_size_mb(struct rk3188_pmu *pmu)
-{
-	u32 rank, col, bk, cs0_row, cs1_row, bw, row_3_4;
-	size_t chipsize_mb = 0;
-	size_t size_mb = 0;
-	u32 ch;
-	u32 sys_reg = readl(&pmu->sys_reg[2]);
-	u32 chans;
-
-	chans = 1 + ((sys_reg >> SYS_REG_NUM_CH_SHIFT) & SYS_REG_NUM_CH_MASK);
-
-	for (ch = 0; ch < chans; ch++) {
-		rank = 1 + (sys_reg >> SYS_REG_RANK_SHIFT(ch) &
-			SYS_REG_RANK_MASK);
-		col = 9 + (sys_reg >> SYS_REG_COL_SHIFT(ch) & SYS_REG_COL_MASK);
-		bk = 3 - ((sys_reg >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
-		cs0_row = 13 + (sys_reg >> SYS_REG_CS0_ROW_SHIFT(ch) &
-				SYS_REG_CS0_ROW_MASK);
-		cs1_row = 13 + (sys_reg >> SYS_REG_CS1_ROW_SHIFT(ch) &
-				SYS_REG_CS1_ROW_MASK);
-		bw = (2 >> ((sys_reg >> SYS_REG_BW_SHIFT(ch)) &
-			SYS_REG_BW_MASK));
-		row_3_4 = sys_reg >> SYS_REG_ROW_3_4_SHIFT(ch) &
-			SYS_REG_ROW_3_4_MASK;
-		chipsize_mb = (1 << (cs0_row + col + bk + bw - 20));
-
-		if (rank > 1)
-			chipsize_mb += chipsize_mb >>
-				(cs0_row - cs1_row);
-		if (row_3_4)
-			chipsize_mb = chipsize_mb * 3 / 4;
-		size_mb += chipsize_mb;
-	}
-
-	/* there can be no more than 2gb of memory */
-	size_mb = min(size_mb, 0x80000000 >> 20);
-
-	return size_mb;
-}
-
-#ifdef CONFIG_SPL_BUILD
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
@@ -913,12 +872,15 @@ static int rk3188_dmc_probe(struct udevice *dev)
 {
 #ifdef CONFIG_SPL_BUILD
 	struct rk3188_sdram_params *plat = dev_get_platdata(dev);
+	struct regmap *map;
+	struct udevice *dev_clk;
+	int ret;
 #endif
 	struct dram_info *priv = dev_get_priv(dev);
-	struct regmap *map;
-	int ret;
-	struct udevice *dev_clk;
 
+	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
+
+#ifdef CONFIG_SPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = conv_of_platdata(dev);
 	if (ret)
@@ -930,12 +892,9 @@ static int rk3188_dmc_probe(struct udevice *dev)
 	priv->chan[0].msch = regmap_get_range(map, 0);
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
 
-#ifdef CONFIG_SPL_BUILD
 	priv->chan[0].pctl = regmap_get_range(plat->map, 0);
 	priv->chan[0].publ = regmap_get_range(plat->map, 1);
-#endif
 
 	ret = rockchip_get_clk(&dev_clk);
 	if (ret)
@@ -948,13 +907,14 @@ static int rk3188_dmc_probe(struct udevice *dev)
 	priv->cru = rockchip_get_cru();
 	if (IS_ERR(priv->cru))
 		return PTR_ERR(priv->cru);
-#ifdef CONFIG_SPL_BUILD
 	ret = setup_sdram(dev);
 	if (ret)
 		return ret;
-#endif
+#else
 	priv->info.base = CONFIG_SYS_SDRAM_BASE;
-	priv->info.size = sdram_size_mb(priv->pmu) << 20;
+	priv->info.size = rockchip_sdram_size(
+				(phys_addr_t)&priv->pmu->sys_reg[2]);
+#endif
 
 	return 0;
 }
