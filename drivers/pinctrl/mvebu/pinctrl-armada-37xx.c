@@ -159,8 +159,9 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 	PIN_GRP_GPIO("onewire", 4, 1, BIT(16), "onewire"),
 	PIN_GRP_GPIO("uart1", 25, 2, BIT(17), "uart"),
 	PIN_GRP_GPIO("spi_quad", 15, 2, BIT(18), "spi"),
-	PIN_GRP_EXTRA("uart2", 9, 2, BIT(13) | BIT(14) | BIT(19),
-		      BIT(13) | BIT(14), BIT(19), 18, 2, "gpio", "uart"),
+	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+		      18, 2, "gpio", "uart"),
 	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
 	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
 	PIN_GRP_GPIO("led2_od", 13, 1, BIT(22), "led"),
@@ -538,7 +539,7 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	}
 
 	fdt_for_each_subnode(subnode, blob, node) {
-		if (!fdtdec_get_bool(blob, subnode, "gpio-controller")) {
+		if (fdtdec_get_bool(blob, subnode, "gpio-controller")) {
 			ret = 0;
 			break;
 		}
