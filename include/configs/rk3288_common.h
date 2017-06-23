@@ -48,6 +48,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_NR_DRAM_BANKS		1
 #define SDRAM_BANK_SIZE			(2UL << 30)
+#define SDRAM_MAX_SIZE			0xfe000000
 
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI

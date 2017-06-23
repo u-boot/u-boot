@@ -12,6 +12,8 @@
 #include <asm/arch/hardware.h>
 #include <linux/sizes.h>
 
+#define CONFIG_SYS_SDRAM_BASE		0
+#define SDRAM_MAX_SIZE			0xff000000
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_BAUDRATE			115200

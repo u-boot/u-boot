@@ -19,6 +19,9 @@ else
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board.o
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036-board.o
+ifdef CONFIG_RAM
+obj-y += sdram_common.o
+endif
 endif
 ifndef CONFIG_ARM64
 obj-y += rk_timer.o
