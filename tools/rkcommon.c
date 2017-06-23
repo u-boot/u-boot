@@ -76,7 +76,7 @@ static struct spl_info spl_infos[] = {
 	{ "rk3188", "RK31", 0x8000 - 0x800, true, false },
 	{ "rk3288", "RK32", 0x8000, false, false },
 	{ "rk3328", "RK32", 0x8000 - 0x1000, false, false },
-	{ "rk3399", "RK33", 0x20000, false, true },
+	{ "rk3399", "RK33", 0x30000 - 0x2000, false, true },
 	{ "rv1108", "RK11", 0x1800, false, false},
 };
 
@@ -224,11 +224,6 @@ static inline unsigned rkcommon_offset_to_spi(unsigned offset)
 	 * to use the first 2K of every 4K sector only.
 	 */
 	return ((offset & ~0x7ff) << 1) + (offset & 0x7ff);
-}
-
-static inline unsigned rkcommon_spi_to_offset(unsigned offset)
-{
-	return ((offset & ~0x7ff) >> 1) + (offset & 0x7ff);
 }
 
 static int rkcommon_parse_header(const void *buf, struct header0_info *header0,

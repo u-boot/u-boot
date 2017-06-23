@@ -40,7 +40,7 @@ enum {
 			 #hz "Hz cannot be hit with PLL "\
 			 "divisors on line " __stringify(__LINE__));
 
-/* use interge mode*/
+/* use integer mode*/
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 3, 1);
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2, 1);
 
@@ -61,8 +61,8 @@ static int rkclk_set_pll(struct rk3036_cru *cru, enum rk_clk_id clk_id,
 	assert(vco_hz >= VCO_MIN_HZ && vco_hz <= VCO_MAX_HZ &&
 	       output_hz >= OUTPUT_MIN_HZ && output_hz <= OUTPUT_MAX_HZ);
 
-	/* use interger mode */
-	rk_clrreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
+	/* use integer mode */
+	rk_setreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
 
 	rk_clrsetreg(&pll->con0,
 		     PLL_POSTDIV1_MASK | PLL_FBDIV_MASK,
