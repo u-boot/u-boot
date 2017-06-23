@@ -24,6 +24,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	u8 mac_addr[EFUSE_MAC_SIZE];
+	char serial[EFUSE_SN_SIZE];
 	ssize_t len;
 
 	/* Set RGMII mode */
@@ -48,6 +49,13 @@ int misc_init_r(void)
 					  mac_addr, EFUSE_MAC_SIZE);
 		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
+	}
+
+	if (!getenv("serial#")) {
+		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
+			EFUSE_SN_SIZE);
+		if (len == EFUSE_SN_SIZE) 
+			setenv("serial#", serial);
 	}
 
 	return 0;
