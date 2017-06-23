@@ -184,6 +184,7 @@
 	};
 
 	grf: syscon@ff100000 {
+		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3328-grf", "syscon", "simple-mfd";
 		reg = <0x0 0xff100000 0x0 0x1000>;
 		#address-cells = <1>;
@@ -348,6 +349,12 @@
 		resets = <&cru SRST_SARADC_P>;
 		reset-names = "saradc-apb";
 		status = "disabled";
+	};
+
+	dmc: dmc@ff400000 {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,rk3328-dmc", "syscon";
+		reg = <0x0 0xff400000 0x0 0x1000>;
 	};
 
 	cru: clock-controller@ff440000 {
