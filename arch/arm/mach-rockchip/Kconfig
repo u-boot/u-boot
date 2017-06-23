@@ -124,6 +124,7 @@ config SPL_MMC_SUPPORT
 
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3188/Kconfig"
+source "arch/arm/mach-rockchip/rk322x/Kconfig"
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3368/Kconfig"
