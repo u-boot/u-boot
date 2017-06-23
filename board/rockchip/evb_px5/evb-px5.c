@@ -33,12 +33,3 @@ int board_init(void)
 {
 	return 0;
 }
-
-int dram_init_banksize(void)
-{
-	 /* Reserve 0x200000 for ATF bl31 */
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = 0x3fe00000;
-
-	return 0;
-}

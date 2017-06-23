@@ -20,11 +20,3 @@ int board_init(void)
 {
 	return 0;
 }
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = 0x7fe00000;
-
-	return 0;
-}
