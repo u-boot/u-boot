@@ -211,6 +211,9 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x301000
 #define CONFIG_SPL_STACK_R
 #define CONFIG_SPL_STACK_R_ADDR		CONFIG_SYS_TEXT_BASE
+/* we have only 4k sram in SPL, so cut SYS_MALLOC_F_LEN */
+#undef CONFIG_SYS_MALLOC_F_LEN
+#define CONFIG_SYS_MALLOC_F_LEN 0x400
 #else
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
