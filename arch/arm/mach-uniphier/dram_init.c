@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <fdtdec.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>

@@ -97,8 +97,10 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-38x-controlcenterdc.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
+	uniphier-ld11-global.dtb \
 	uniphier-ld11-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD20) += \
+	uniphier-ld20-global.dtb \
 	uniphier-ld20-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD4) += \
 	uniphier-ld4-ref.dtb

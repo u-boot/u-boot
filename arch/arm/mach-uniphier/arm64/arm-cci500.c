@@ -11,6 +11,8 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 
+#include "../init.h"
+
 #define CCI500_BASE			0x5FD00000
 #define CCI500_SLAVE_OFFSET		0x1000
 

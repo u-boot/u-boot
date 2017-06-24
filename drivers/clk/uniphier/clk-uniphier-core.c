@@ -121,7 +121,7 @@ static ulong uniphier_clk_set_rate(struct clk *clk, ulong rate)
 	return best_rate;
 }
 
-const struct clk_ops uniphier_clk_ops = {
+static const struct clk_ops uniphier_clk_ops = {
 	.enable = uniphier_clk_enable,
 	.get_rate = uniphier_clk_get_rate,
 	.set_rate = uniphier_clk_set_rate,

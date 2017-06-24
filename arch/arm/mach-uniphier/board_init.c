@@ -21,7 +21,7 @@ static void uniphier_setup_xirq(void)
 {
 	const void *fdt = gd->fdt_blob;
 	int soc_node, aidet_node;
-	const u32 *val;
+	const fdt32_t *val;
 	unsigned long aidet_base;
 	u32 tmp;
 
