@@ -9,6 +9,7 @@
 
 #include <blk.h>
 #include <ide.h>
+#include <uuid.h>
 
 struct block_drvr {
 	char *name;
@@ -54,10 +55,10 @@ typedef struct disk_partition {
 	uchar	type[32];	/* string type description		*/
 	int	bootable;	/* Active/Bootable flag is set		*/
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	char	uuid[37];	/* filesystem UUID as string, if exists	*/
+	char	uuid[UUID_STR_LEN + 1];	/* filesystem UUID as string, if exists	*/
 #endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
-	char	type_guid[37];	/* type GUID as string, if exists	*/
+	char	type_guid[UUID_STR_LEN + 1];	/* type GUID as string, if exists	*/
 #endif
 #ifdef CONFIG_DOS_PARTITION
 	uchar	sys_ind;	/* partition type 			*/

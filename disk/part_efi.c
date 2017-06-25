@@ -183,7 +183,7 @@ void part_print_efi(struct blk_desc *dev_desc)
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 	int i = 0;
-	char uuid[37];
+	char uuid[UUID_STR_LEN + 1];
 	unsigned char *uuid_bin;
 
 	/* This function validates AND fills in the GPT header and PTE */
