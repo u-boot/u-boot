@@ -49,6 +49,7 @@ struct block_drvr {
 
 #define PART_NAME_LEN 32
 #define PART_TYPE_LEN 32
+#define MAX_SEARCH_PARTITIONS 64
 
 typedef struct disk_partition {
 	lbaint_t	start;	/* # of first block in partition	*/
