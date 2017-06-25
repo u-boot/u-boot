@@ -166,6 +166,14 @@ void sdram_init(void)
 		config_ddr(400, &ioregs_igep0034_lite, &ddr3_igep0034_lite_data,
 			&ddr3_igep0034_lite_cmd_ctrl_data, &ddr3_igep0034_lite_emif_reg_data, 0);
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	return serial_tstc() && serial_getc() == 'c';
+}
+#endif
 #endif
 
 /*
