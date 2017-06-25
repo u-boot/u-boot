@@ -47,12 +47,15 @@ struct block_drvr {
 #define DEV_TYPE_CDROM		0x05	/* CD-ROM */
 #define DEV_TYPE_OPDISK		0x07	/* optical disk */
 
+#define PART_NAME_LEN 32
+#define PART_TYPE_LEN 32
+
 typedef struct disk_partition {
 	lbaint_t	start;	/* # of first block in partition	*/
 	lbaint_t	size;	/* number of blocks in partition	*/
 	ulong	blksz;		/* block size in bytes			*/
-	uchar	name[32];	/* partition name			*/
-	uchar	type[32];	/* string type description		*/
+	uchar	name[PART_NAME_LEN];	/* partition name			*/
+	uchar	type[PART_TYPE_LEN];	/* string type description		*/
 	int	bootable;	/* Active/Bootable flag is set		*/
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	char	uuid[UUID_STR_LEN + 1];	/* filesystem UUID as string, if exists	*/
