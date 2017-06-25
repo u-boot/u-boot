@@ -178,6 +178,37 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
  * Public Functions (include/part.h)
  */
 
+/*
+ * UUID is displayed as 32 hexadecimal digits, in 5 groups,
+ * separated by hyphens, in the form 8-4-4-4-12 for a total of 36 characters
+ */
+int get_disk_guid(struct blk_desc * dev_desc, char *guid)
+{
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
+	gpt_entry *gpt_pte = NULL;
+	unsigned char *guid_bin;
+
+	/* This function validates AND fills in the GPT header and PTE */
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+			 gpt_head, &gpt_pte) != 1) {
+		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		if (is_gpt_valid(dev_desc, dev_desc->lba - 1,
+				 gpt_head, &gpt_pte) != 1) {
+			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			       __func__);
+			return -EINVAL;
+		} else {
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
+		}
+	}
+
+	guid_bin = gpt_head->disk_guid.b;
+	uuid_bin_to_str(guid_bin, guid, UUID_STR_FORMAT_GUID);
+
+	return 0;
+}
+
 void part_print_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);

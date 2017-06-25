@@ -398,6 +398,23 @@ static int gpt_verify(struct blk_desc *blk_dev_desc, const char *str_part)
 	return ret;
 }
 
+static int do_disk_guid(struct blk_desc *dev_desc, char * const namestr)
+{
+	int ret;
+	char disk_guid[UUID_STR_LEN + 1];
+
+	ret = get_disk_guid(dev_desc, disk_guid);
+	if (ret < 0)
+		return CMD_RET_FAILURE;
+
+	if (namestr)
+		setenv(namestr, disk_guid);
+	else
+		printf("%s\n", disk_guid);
+
+	return ret;
+}
+
 /**
  * do_gpt(): Perform GPT operations
  *
@@ -436,6 +453,8 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} else if ((strcmp(argv[1], "verify") == 0)) {
 		ret = gpt_verify(blk_dev_desc, argv[4]);
 		printf("Verify GPT: ");
+	} else if (strcmp(argv[1], "guid") == 0) {
+		ret = do_disk_guid(blk_dev_desc, argv[4]);
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -458,4 +477,11 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" Example usage:\n"
 	" gpt write mmc 0 $partitions\n"
 	" gpt verify mmc 0 $partitions\n"
+	" guid <interface> <dev>\n"
+	"    - print disk GUID\n"
+	" guid <interface> <dev> <varname>\n"
+	"    - set environment variable to disk GUID\n"
+	" Example usage:\n"
+	" gpt guid mmc 0\n"
+	" gpt guid mmc 0 varname\n"
 );

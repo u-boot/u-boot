@@ -171,7 +171,8 @@ To restore GUID partition table one needs to:
    The fields 'uuid' and 'uuid_disk' are optional if CONFIG_RANDOM_UUID is
    enabled. A random uuid will be used if omitted or they point to an empty/
    non-existent environment variable. The environment variable will be set to
-   the generated UUID.
+   the generated UUID.  The 'gpt guid' command reads the current value of the
+   uuid_disk from the GPT.
 
    The field 'bootable' is optional, it is used to mark the GPT partition
    bootable (set attribute flags "Legacy BIOS bootable").

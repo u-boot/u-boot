@@ -372,6 +372,21 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 int gpt_verify_partitions(struct blk_desc *dev_desc,
 			  disk_partition_t *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte);
+
+
+/**
+ * get_disk_guid() - Function to read the GUID string from a device's GPT
+ *
+ * This function reads the GUID string from a block device whose descriptor
+ * is provided.
+ *
+ * @param dev_desc - block device descriptor
+ * @param guid - pre-allocated string in which to return the GUID
+ *
+ * @return - '0' on success, otherwise error
+ */
+int get_disk_guid(struct blk_desc *dev_desc, char *guid);
+
 #endif
 
 #if CONFIG_IS_ENABLED(DOS_PARTITION)
