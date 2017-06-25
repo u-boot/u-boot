@@ -175,6 +175,8 @@ HOSTCFLAGS_rsa-sign.o += -Wno-deprecated-declarations
 endif
 endif
 
+HOSTCFLAGS_fit_image.o += -DMKIMAGE_DTC=\"$(DTC)\"
+
 HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
 HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
 HOSTLOADLIBES_fit_check_sign := $(HOSTLOADLIBES_mkimage)
