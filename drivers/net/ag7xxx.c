@@ -285,18 +285,33 @@ static int ag7xxx_switch_reg_write(struct mii_dev *bus, int reg, u32 val)
 	return 0;
 }
 
-static u16 ag7xxx_mdio_rw(struct mii_dev *bus, int addr, int reg, u32 val)
+static int ag7xxx_mdio_rw(struct mii_dev *bus, int addr, int reg, u32 val)
 {
 	u32 data;
+	unsigned long start;
+	int ret;
+	/* No idea if this is long enough or too long */
+	int timeout_ms = 1000;
 
 	/* Dummy read followed by PHY read/write command. */
-	ag7xxx_switch_reg_read(bus, 0x98, &data);
+	ret = ag7xxx_switch_reg_read(bus, 0x98, &data);
+	if (ret < 0)
+		return ret;
 	data = val | (reg << 16) | (addr << 21) | BIT(30) | BIT(31);
-	ag7xxx_switch_reg_write(bus, 0x98, data);
+	ret = ag7xxx_switch_reg_write(bus, 0x98, data);
+	if (ret < 0)
+		return ret;
+
+	start = get_timer(0);
 
 	/* Wait for operation to finish */
 	do {
-		ag7xxx_switch_reg_read(bus, 0x98, &data);
+		ret = ag7xxx_switch_reg_read(bus, 0x98, &data);
+		if (ret < 0)
+			return ret;
+
+		if (get_timer(start) > timeout_ms)
+			return -ETIMEDOUT;
 	} while (data & BIT(31));
 
 	return data & 0xffff;
@@ -310,7 +325,11 @@ static int ag7xxx_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 static int ag7xxx_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 			     u16 val)
 {
-	ag7xxx_mdio_rw(bus, addr, reg, val);
+	int ret;
+
+	ret = ag7xxx_mdio_rw(bus, addr, reg, val);
+	if (ret < 0)
+		return ret;
 	return 0;
 }
 
