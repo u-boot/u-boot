@@ -26,6 +26,7 @@ enum ag7xxx_model {
 	AG7XXX_MODEL_AG934X,
 };
 
+/* MAC Configuration 1 */
 #define AG7XXX_ETH_CFG1				0x00
 #define AG7XXX_ETH_CFG1_SOFT_RST		BIT(31)
 #define AG7XXX_ETH_CFG1_RX_RST			BIT(19)
@@ -34,6 +35,7 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_CFG1_RX_EN			BIT(2)
 #define AG7XXX_ETH_CFG1_TX_EN			BIT(0)
 
+/* MAC Configuration 2 */
 #define AG7XXX_ETH_CFG2				0x04
 #define AG7XXX_ETH_CFG2_IF_1000			BIT(9)
 #define AG7XXX_ETH_CFG2_IF_10_100		BIT(8)
@@ -43,26 +45,34 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_CFG2_PAD_CRC_EN		BIT(2)
 #define AG7XXX_ETH_CFG2_FDX			BIT(0)
 
+/* MII Configuration */
 #define AG7XXX_ETH_MII_MGMT_CFG			0x20
 #define AG7XXX_ETH_MII_MGMT_CFG_RESET		BIT(31)
 
+/* MII Command */
 #define AG7XXX_ETH_MII_MGMT_CMD			0x24
 #define AG7XXX_ETH_MII_MGMT_CMD_READ		0x1
 
+/* MII Address */
 #define AG7XXX_ETH_MII_MGMT_ADDRESS		0x28
 #define AG7XXX_ETH_MII_MGMT_ADDRESS_SHIFT	8
 
+/* MII Control */
 #define AG7XXX_ETH_MII_MGMT_CTRL		0x2c
 
+/* MII Status */
 #define AG7XXX_ETH_MII_MGMT_STATUS		0x30
 
+/* MII Indicators */
 #define AG7XXX_ETH_MII_MGMT_IND			0x34
 #define AG7XXX_ETH_MII_MGMT_IND_INVALID		BIT(2)
 #define AG7XXX_ETH_MII_MGMT_IND_BUSY		BIT(0)
 
+/* STA Address 1 & 2 */
 #define AG7XXX_ETH_ADDR1			0x40
 #define AG7XXX_ETH_ADDR2			0x44
 
+/* ETH Configuration 0 - 5 */
 #define AG7XXX_ETH_FIFO_CFG_0			0x48
 #define AG7XXX_ETH_FIFO_CFG_1			0x4c
 #define AG7XXX_ETH_FIFO_CFG_2			0x50
@@ -70,18 +80,24 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_FIFO_CFG_4			0x58
 #define AG7XXX_ETH_FIFO_CFG_5			0x5c
 
+/* DMA Transfer Control for Queue 0 */
 #define AG7XXX_ETH_DMA_TX_CTRL			0x180
 #define AG7XXX_ETH_DMA_TX_CTRL_TXE		BIT(0)
 
+/* Descriptor Address for Queue 0 Tx */
 #define AG7XXX_ETH_DMA_TX_DESC			0x184
 
+/* DMA Tx Status */
 #define AG7XXX_ETH_DMA_TX_STATUS		0x188
 
+/* Rx Control */
 #define AG7XXX_ETH_DMA_RX_CTRL			0x18c
 #define AG7XXX_ETH_DMA_RX_CTRL_RXE		BIT(0)
 
+/* Pointer to Rx Descriptor */
 #define AG7XXX_ETH_DMA_RX_DESC			0x190
 
+/* Rx Status */
 #define AG7XXX_ETH_DMA_RX_STATUS		0x194
 
 /* Custom register at 0x18070000 */
