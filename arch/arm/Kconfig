@@ -837,6 +837,19 @@ config TARGET_HIKEY
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
 
+config TARGET_POPLAR
+	bool "Support Poplar 96boards Enterprise Edition Platform"
+	select ARM64
+	select DM
+	select OF_CONTROL
+	select DM_SERIAL
+	select DM_USB
+	  help
+	  Support for Poplar 96boards EE platform. It features a HI3798cv200
+	  SoC, with 4xA53 CPU, 1GB RAM and the high performance Mali T720 GPU
+	  making it capable of running any commercial set-top solution based on
+	  Linux or Android.
+
 config TARGET_LS1012AQDS
 	bool "Support ls1012aqds"
 	select ARCH_LS1012A
@@ -1165,6 +1178,7 @@ source "board/grinn/chiliboard/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
+source "board/hisilicon/poplar/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
