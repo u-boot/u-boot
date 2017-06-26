@@ -20,7 +20,7 @@
 
 static int hi6220_dwmci_core_init(struct dwmci_host *host, int index)
 {
-	host->name = "HiKey DWMMC";
+	host->name = "Hisilicon DWMMC";
 
 	host->dev_index = index;
 
