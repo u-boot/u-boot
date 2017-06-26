@@ -224,6 +224,8 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	g_dnl_string_defs[1].id = id;
 	device_desc.iProduct = id;
 
+	g_dnl_bind_fixup(&device_desc, cdev->driver->name);
+
 	if (strlen(g_dnl_serial)) {
 		id = usb_string_id(cdev);
 		if (id < 0)
@@ -233,7 +235,6 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 		device_desc.iSerialNumber = id;
 	}
 
-	g_dnl_bind_fixup(&device_desc, cdev->driver->name);
 	ret = g_dnl_config_register(cdev);
 	if (ret)
 		goto error;
