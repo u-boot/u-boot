@@ -52,3 +52,11 @@
 		u-boot,dm-spl;
 	};
 };
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio7 {
+	u-boot,dm-spl;
+};
