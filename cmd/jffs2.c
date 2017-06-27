@@ -166,8 +166,9 @@ static int mtd_device_validate(u8 type, u8 num, u32 *size)
 #endif
 	} else if (type == MTD_DEV_TYPE_NAND) {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
-		if (num < CONFIG_SYS_MAX_NAND_DEVICE) {
-			*size = nand_info[num]->size;
+		struct mtd_info *mtd = get_nand_dev_by_index(num);
+		if (mtd) {
+			*size = mtd->size;
 			return 0;
 		}
 
@@ -244,7 +245,7 @@ static inline u32 get_part_sector_size_nand(struct mtdids *id)
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
 	struct mtd_info *mtd;
 
-	mtd = nand_info[id->num];
+	mtd = get_nand_dev_by_index(id->num);
 
 	return mtd->erasesize;
 #else
