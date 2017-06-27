@@ -1,6 +1,0 @@
-PMC440 BOARD
-M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
-S:	Maintained
-F:	board/esd/pmc440/
-F:	include/configs/PMC440.h
-F:	configs/PMC440_defconfig

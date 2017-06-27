@@ -1,6 +1,0 @@
-ACADIA BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/acadia/
-F:	include/configs/acadia.h
-F:	configs/acadia_defconfig

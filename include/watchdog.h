@@ -72,11 +72,6 @@ int init_func_watchdog_reset(void);
  * Prototypes from $(CPU)/cpu.c.
  */
 
-/* AMCC 4xx */
-#if defined(CONFIG_4xx) && !defined(__ASSEMBLY__)
-	void reset_4xx_watchdog(void);
-#endif
-
 #if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)
 	void hw_watchdog_init(void);
 #endif

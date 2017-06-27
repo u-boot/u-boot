@@ -949,16 +949,6 @@ config CMD_TIMER
 	help
 	  Access the system timer.
 
-config CMD_SETGETDCR
-	bool "getdcr, setdcr, getidcr, setidcr"
-	depends on 4xx
-	default y
-	help
-	  getdcr - Get an AMCC PPC 4xx DCR's value
-	  setdcr - Set an AMCC PPC 4xx DCR's value
-	  getidcr - Get a register value via indirect DCR addressing
-	  setidcr - Set a register value via indirect DCR addressing
-
 config CMD_SOUND
 	bool "sound"
 	depends on SOUND

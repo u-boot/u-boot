@@ -883,9 +883,6 @@ static const init_fnc_t init_sequence_f[] = {
 	setup_board_part2,
 #endif
 	display_new_sp,
-#ifdef CONFIG_SYS_EXTBDINFO
-	setup_board_extra,
-#endif
 #ifdef CONFIG_OF_BOARD_FIXUP
 	fix_fdt,
 #endif

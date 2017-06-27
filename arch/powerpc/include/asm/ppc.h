@@ -25,9 +25,6 @@
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
 #endif
-#ifdef	CONFIG_4xx
-#include <asm/ppc4xx.h>
-#endif
 #ifdef CONFIG_SOC_DA8XX
 #include <asm/arch/hardware.h>
 #endif
@@ -47,8 +44,7 @@ uint rd_dc_cst(void);
 void wr_dc_cst(uint);
 void wr_dc_adr(uint);
 
-#if defined(CONFIG_4xx)	|| \
-	defined(CONFIG_MPC85xx)	|| \
+#if defined(CONFIG_MPC85xx)	|| \
 	defined(CONFIG_MPC86xx)	|| \
 	defined(CONFIG_MPC83xx)
 unsigned char	in8(unsigned int);

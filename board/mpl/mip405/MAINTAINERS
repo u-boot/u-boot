@@ -1,7 +1,0 @@
-MIP405 BOARD
-M:	Denis Peter <d.peter@mpl.ch>
-S:	Maintained
-F:	board/mpl/mip405/
-F:	include/configs/MIP405.h
-F:	configs/MIP405_defconfig
-F:	configs/MIP405T_defconfig

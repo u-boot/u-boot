@@ -1,6 +1,0 @@
-BAMBOO BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/bamboo/
-F:	include/configs/bamboo.h
-F:	configs/bamboo_defconfig

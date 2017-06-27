@@ -241,17 +241,6 @@ enum dmac_ctrl {
 #define DMA_CONTROL_TPE		(1 << 2)
 #define DMA_CONTROL_RESET	(1 << 0)
 
-#if defined(CONFIG_XILINX_440) || defined(CONFIG_XILINX_405)
-
-/* Xilinx Device Control Register (DCR) in/out accessors */
-unsigned ll_temac_xldcr_in32(phys_addr_t addr);
-void ll_temac_xldcr_out32(phys_addr_t addr, unsigned value);
-
-/* collect all register addresses for Xilinx DCR in/out accessors */
-void ll_temac_collect_xldcr_sdma_reg_addr(struct eth_device *dev);
-
-#endif /* CONFIG_XILINX_440 || CONFIG_XILINX_405 */
-
 /* Xilinx Processor Local Bus (PLB) in/out accessors */
 unsigned ll_temac_xlplb_in32(phys_addr_t base);
 void ll_temac_xlplb_out32(phys_addr_t base, unsigned value);

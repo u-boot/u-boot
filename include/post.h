@@ -35,10 +35,6 @@
 #include <asm/immap_86xx.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_PIC_OFFSET + \
 				offsetof(ccsr_pic_t, tfrr))
-
-#elif defined (CONFIG_4xx)
-#define _POST_WORD_ADDR \
-	(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 #endif
 
 #ifndef _POST_WORD_ADDR

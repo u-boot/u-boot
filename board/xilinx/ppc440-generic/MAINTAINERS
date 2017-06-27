@@ -1,7 +1,0 @@
-PPC440-GENERIC BOARD
-M:	Ricardo Ribalda <ricardo.ribalda@gmail.com>
-S:	Maintained
-F:	board/xilinx/ppc440-generic/
-F:	include/configs/xilinx-ppc440-generic.h
-F:	configs/xilinx-ppc440-generic_defconfig
-F:	configs/xilinx-ppc440-generic_flash_defconfig

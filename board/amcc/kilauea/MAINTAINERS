@@ -1,7 +1,0 @@
-KILAUEA BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/kilauea/
-F:	include/configs/kilauea.h
-F:	configs/haleakala_defconfig
-F:	configs/kilauea_defconfig

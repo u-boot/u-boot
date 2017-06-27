@@ -1,6 +1,0 @@
-405EX BOARD
-M:	Dirk Eibach <eibach@gdsys.de>
-S:	Maintained
-F:	board/gdsys/405ex/
-F:	include/configs/io64.h
-F:	configs/io64_defconfig

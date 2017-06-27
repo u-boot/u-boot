@@ -90,9 +90,6 @@ struct arch_global_data {
 	unsigned int dp_alloc_base;
 	unsigned int dp_alloc_top;
 #endif
-#if defined(CONFIG_4xx)
-	u32 uart_clk;
-#endif /* CONFIG_4xx */
 #ifdef CONFIG_SYS_FPGA_COUNT
 	unsigned fpga_state[CONFIG_SYS_FPGA_COUNT];
 #endif

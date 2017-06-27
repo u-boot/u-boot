@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-USB Support for PIP405 and MIP405 (UHCI)
-========================================
+USB Support
+===========
 
 The USB support is implemented on the base of the UHCI Host
 controller.

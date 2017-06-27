@@ -35,8 +35,7 @@
 #define CONFIG_SYS_BOOT_GET_KBD
 
 #ifndef CONFIG_MAX_MEM_MAPPED
-#if	defined(CONFIG_4xx)		|| \
-	defined(CONFIG_E500)		|| \
+#if	defined(CONFIG_E500)		|| \
 	defined(CONFIG_MPC86xx)		|| \
 	defined(CONFIG_E300)
 #define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)

@@ -20,11 +20,6 @@
 					 QE_MURAM_SIZE - 2 * sizeof(u32))
 #endif /* defined(CONFIG_QE) */
 
-#if defined(CONFIG_4xx)
-#define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_OCM_DATA_ADDR + \
-				CONFIG_SYS_BOOTCOUNT_ADDR)
-#endif /* defined(CONFIG_4xx) */
-
 #endif /* !defined(CONFIG_SYS_BOOTCOUNT_ADDR) */
 
 /* Now implement the generic default functions */

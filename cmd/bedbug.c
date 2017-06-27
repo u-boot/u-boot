@@ -47,13 +47,6 @@ int bedbug_puts (const char *str)
 void bedbug_init (void)
 {
 	/* -------------------------------------------------- */
-
-#if defined(CONFIG_4xx)
-	void bedbug405_init (void);
-
-	bedbug405_init ();
-#endif
-
 	return;
 }				/* bedbug_init */
 

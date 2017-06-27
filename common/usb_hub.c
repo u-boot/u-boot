@@ -40,9 +40,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #include <usb.h>
-#ifdef CONFIG_4xx
-#include <asm/4xx_pci.h>
-#endif
 
 #define USB_BUFSIZ	512
 
