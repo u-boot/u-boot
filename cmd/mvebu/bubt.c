@@ -311,23 +311,21 @@ static int nand_burn_image(size_t image_size)
 {
 	int ret;
 	uint32_t block_size;
-	struct mtd_info *nand;
-	int dev = nand_curr_device;
+	struct mtd_info *mtd;
 
-	if ((dev < 0) || (dev >= CONFIG_SYS_MAX_NAND_DEVICE) ||
-	    (!nand_info[dev]->name)) {
+	mtd = get_nand_dev_by_index(nand_curr_device);
+	if (!mtd) {
 		puts("\nno devices available\n");
 		return -ENOMEDIUM;
 	}
-	nand = nand_info[dev];
-	block_size = nand->erasesize;
+	block_size = mtd->erasesize;
 
 	/* Align U-Boot size to currently used blocksize */
 	image_size = ((image_size + (block_size - 1)) & (~(block_size - 1)));
 
 	/* Erase the U-BOOT image space */
 	printf("Erasing 0x%x - 0x%x:...", 0, (int)image_size);
-	ret = nand_erase(nand, 0, image_size);
+	ret = nand_erase(mtd, 0, image_size);
 	if (ret) {
 		printf("Error!\n");
 		goto error;
@@ -337,7 +335,7 @@ static int nand_burn_image(size_t image_size)
 	/* Write the image to flash */
 	printf("Writing %d bytes from 0x%lx to offset 0 ... ",
 	       (int)image_size, get_load_addr());
-	ret = nand_write(nand, 0, &image_size, (void *)get_load_addr());
+	ret = nand_write(mtd, 0, &image_size, (void *)get_load_addr());
 	if (ret)
 		printf("Error!\n");
 	else
