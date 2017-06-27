@@ -19,7 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int nand_curr_device = -1;
 
-struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
+static struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
 #ifndef CONFIG_SYS_NAND_SELF_INIT
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];

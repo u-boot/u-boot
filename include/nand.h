@@ -44,7 +44,6 @@ extern int board_nand_init(struct nand_chip *nand);
 #endif
 
 extern int nand_curr_device;
-extern struct mtd_info *nand_info[];
 
 static inline int nand_read(struct mtd_info *info, loff_t ofs, size_t *len,
 			    u_char *buf)
