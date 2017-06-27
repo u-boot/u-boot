@@ -165,6 +165,7 @@ void early_system_init(void)
 	 * to prevent overwrites.
 	 */
 	save_omap_boot_params();
+	spl_early_init();
 #endif
 	do_board_detect();
 	vcores_init();
