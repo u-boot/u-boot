@@ -754,6 +754,10 @@ int pci_last_busno(void);
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
 
+#ifdef CONFIG_PCIE_IMX
+extern void imx_pcie_remove(void);
+#endif
+
 #if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 /**
  * pci_write_bar32() - Write the address of a BAR including control bits

@@ -158,7 +158,7 @@ u32 get_cpu_speed_grade_hz(void)
  * OCOTP_MEM0[7:6] (see Fusemap Description Table offset 0x480)
  * defines a 2-bit Temperature Grade
  *
- * return temperature grade and min/max temperature in celcius
+ * return temperature grade and min/max temperature in Celsius
  */
 #define OCOTP_MEM0_TEMP_SHIFT          6
 

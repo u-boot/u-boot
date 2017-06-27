@@ -92,6 +92,14 @@ config PHY_MICREL_KSZ9031
 
 endif # PHY_MICREL
 
+config PHY_MICREL_KSZ9021
+	bool "Micrel KSZ9021 Ethernet PHYs support"
+	depends on PHY_MICREL
+	help
+          KSZ9021 is a completely integrated triple speed (10Base-T/100Base-TX/1000Base-T)
+	  Ethernet Physical Layer Transceiver for transmission and reception of data over
+	  standard CAT-5 unshielded twisted pair (UTP) cable.
+
 config PHY_MSCC
 	bool "Microsemi Corp Ethernet PHYs support"
 

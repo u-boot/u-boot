@@ -521,7 +521,13 @@ out:
 
 static void set_sysctl(struct mmc *mmc, uint clock)
 {
-	int div, pre_div;
+	int div = 1;
+#ifdef ARCH_MXC
+	int pre_div = 1;
+#else
+	int pre_div = 2;
+#endif
+	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
 	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int sdhc_clk = priv->sdhc_clk;
@@ -530,18 +536,13 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	if (clock < mmc->cfg->f_min)
 		clock = mmc->cfg->f_min;
 
-	if (sdhc_clk / 16 > clock) {
-		for (pre_div = 2; pre_div < 256; pre_div *= 2)
-			if ((sdhc_clk / pre_div) <= (clock * 16))
-				break;
-	} else
-		pre_div = 2;
+	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
+		pre_div *= 2;
 
-	for (div = 1; div <= 16; div++)
-		if ((sdhc_clk / (div * pre_div)) <= clock)
-			break;
+	while (sdhc_clk / (div * pre_div * ddr_pre_div) > clock && div < 16)
+		div++;
 
-	pre_div >>= mmc->ddr_mode ? 2 : 1;
+	pre_div >>= 1;
 	div -= 1;
 
 	clk = (pre_div << 8) | (div << 4);
@@ -723,20 +724,6 @@ static const struct mmc_ops esdhc_ops = {
 	.getcd		= esdhc_getcd,
 };
 
-static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
-				 struct fsl_esdhc_priv *priv)
-{
-	if (!cfg || !priv)
-		return -EINVAL;
-
-	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
-	priv->bus_width = cfg->max_bus_width;
-	priv->sdhc_clk = cfg->sdhc_clk;
-	priv->wp_enable  = cfg->wp_enable;
-
-	return 0;
-};
-
 static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 {
 	struct fsl_esdhc *regs;
@@ -833,6 +820,21 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
+static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
+				 struct fsl_esdhc_priv *priv)
+{
+	if (!cfg || !priv)
+		return -EINVAL;
+
+	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+	priv->bus_width = cfg->max_bus_width;
+	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
+
+	return 0;
+};
+
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc_priv *priv;
@@ -871,6 +873,7 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 	cfg->sdhc_clk = gd->arch.sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);
 }
+#endif
 
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 void mmc_adapter_card_type_ident(void)

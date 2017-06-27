@@ -35,11 +35,6 @@
  */
 #define CONFIG_SPL_PAD_TO		0x11000
 
-/* NAND support */
-#if defined(CONFIG_SPL_NAND_SUPPORT)
-#define CONFIG_SPL_NAND_MXS
-#endif
-
 /* MMC support */
 #if defined(CONFIG_SPL_MMC_SUPPORT)
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1

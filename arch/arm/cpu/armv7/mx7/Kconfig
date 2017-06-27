@@ -25,6 +25,13 @@ config TARGET_MX7DSABRESD
 	select DM
 	select DM_THERMAL
 
+config TARGET_PICO_IMX7D
+	bool "pico-imx7d"
+	select BOARD_LATE_INIT
+	select MX7D
+	select DM
+	select DM_THERMAL
+
 config TARGET_WARP7
 	bool "warp7"
 	select BOARD_LATE_INIT
@@ -45,6 +52,7 @@ config SYS_SOC
 	default "mx7"
 
 source "board/freescale/mx7dsabresd/Kconfig"
+source "board/technexion/pico-imx7d/Kconfig"
 source "board/toradex/colibri_imx7/Kconfig"
 source "board/warp7/Kconfig"
 
