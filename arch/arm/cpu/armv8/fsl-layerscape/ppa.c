@@ -173,8 +173,9 @@ int ppa_init(void)
 	debug("%s: PPA image load from NAND\n", __func__);
 
 	nand_init();
-	ret = nand_read(nand_info[0], (loff_t)CONFIG_SYS_LS_PPA_FW_ADDR,
-		       &fdt_header_len, (u_char *)&fit);
+	ret = nand_read(get_nand_dev_by_index(0),
+			(loff_t)CONFIG_SYS_LS_PPA_FW_ADDR,
+			&fdt_header_len, (u_char *)&fit);
 	if (ret == -EUCLEAN) {
 		printf("NAND read of PPA FIT header at offset 0x%x failed\n",
 		       CONFIG_SYS_LS_PPA_FW_ADDR);
@@ -196,8 +197,9 @@ int ppa_init(void)
 
 	fw_length = CONFIG_LS_PPA_ESBC_HDR_SIZE;
 
-	ret = nand_read(nand_info[0], (loff_t)CONFIG_SYS_LS_PPA_ESBC_ADDR,
-		       &fw_length, (u_char *)ppa_hdr_ddr);
+	ret = nand_read(get_nand_dev_by_index(0),
+			(loff_t)CONFIG_SYS_LS_PPA_ESBC_ADDR,
+			&fw_length, (u_char *)ppa_hdr_ddr);
 	if (ret == -EUCLEAN) {
 		free(ppa_hdr_ddr);
 		printf("NAND read of PPA firmware at offset 0x%x failed\n",
@@ -221,8 +223,9 @@ int ppa_init(void)
 		return -ENOMEM;
 	}
 
-	ret = nand_read(nand_info[0], (loff_t)CONFIG_SYS_LS_PPA_FW_ADDR,
-		       &fw_length, (u_char *)ppa_fit_addr);
+	ret = nand_read(get_nand_dev_by_index(0),
+			(loff_t)CONFIG_SYS_LS_PPA_FW_ADDR,
+			&fw_length, (u_char *)ppa_fit_addr);
 	if (ret == -EUCLEAN) {
 		free(ppa_fit_addr);
 		printf("NAND read of PPA firmware at offset 0x%x failed\n",
