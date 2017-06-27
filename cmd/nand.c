@@ -128,7 +128,7 @@ static int set_dev(int dev)
 	nand_curr_device = dev;
 
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
-	board_nand_select_device(mtd->priv, dev);
+	board_nand_select_device(mtd_to_nand(mtd), dev);
 #endif
 
 	return 0;
