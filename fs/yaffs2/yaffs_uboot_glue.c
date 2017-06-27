@@ -166,10 +166,14 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 	char *mp = NULL;
 	struct nand_chip *chip;
 
+	mtd = get_nand_dev_by_index(flash_dev);
+	if (!mtd) {
+		error("\nno NAND devices available\n");
+		return;
+	}
+
 	dev = calloc(1, sizeof(*dev));
 	mp = strdup(_mp);
-
-	mtd = nand_info[flash_dev];
 
 	if (!dev || !mp) {
 		/* Alloc error */
