@@ -158,6 +158,14 @@ void early_system_init(void)
 	do_io_settings();
 #endif
 	setup_early_clocks();
+#ifdef CONFIG_SPL_BUILD
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+	save_omap_boot_params();
+#endif
 	do_board_detect();
 	vcores_init();
 #ifdef CONFIG_DEBUG_UART_OMAP

@@ -195,13 +195,6 @@ u32 spl_boot_mode(const u32 boot_device)
 
 void spl_board_init(void)
 {
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-	save_omap_boot_params();
-
 	/* Prepare console output */
 	preloader_console_init();
 
