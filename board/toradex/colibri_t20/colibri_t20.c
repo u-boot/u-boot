@@ -69,7 +69,7 @@ int checkboard(void)
 {
 	printf("Model: Toradex Colibri T20 %dMB V%s\n",
 	       (gd->ram_size == 0x10000000) ? 256 : 512,
-	       (nand_info[0]->erasesize >> 10 == 512) ?
+	       (get_nand_dev_by_index(0)->erasesize >> 10 == 512) ?
 	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
 
 	return 0;

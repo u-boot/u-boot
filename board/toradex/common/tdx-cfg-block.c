@@ -154,8 +154,10 @@ static int read_tdx_cfg_block_from_nand(unsigned char *config_block)
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
 
 	/* Read production parameter config block from NAND page */
-	return nand_read_skip_bad(nand_info[0], CONFIG_TDX_CFG_BLOCK_OFFSET,
-			 &size, NULL, TDX_CFG_BLOCK_MAX_SIZE, config_block);
+	return nand_read_skip_bad(get_nand_dev_by_index(0),
+				  CONFIG_TDX_CFG_BLOCK_OFFSET,
+				  &size, NULL, TDX_CFG_BLOCK_MAX_SIZE,
+				  config_block);
 }
 
 static int write_tdx_cfg_block_to_nand(unsigned char *config_block)
@@ -163,7 +165,8 @@ static int write_tdx_cfg_block_to_nand(unsigned char *config_block)
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
 
 	/* Write production parameter config block to NAND page */
-	return nand_write_skip_bad(nand_info[0], CONFIG_TDX_CFG_BLOCK_OFFSET,
+	return nand_write_skip_bad(get_nand_dev_by_index(0),
+				   CONFIG_TDX_CFG_BLOCK_OFFSET,
 				   &size, NULL, TDX_CFG_BLOCK_MAX_SIZE,
 				   config_block, WITH_WR_VERIFY);
 }
@@ -426,7 +429,8 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * empty (config block invalid...)
 		 */
 		printf("NAND erase block %d need to be erased before creating a Toradex config block\n",
-		       CONFIG_TDX_CFG_BLOCK_OFFSET / nand_info[0]->erasesize);
+		       CONFIG_TDX_CFG_BLOCK_OFFSET /
+		       get_nand_dev_by_index(0)->erasesize);
 		goto out;
 #elif defined(CONFIG_TDX_CFG_BLOCK_IS_IN_NOR)
 		/*
