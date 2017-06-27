@@ -465,7 +465,7 @@ static int do_imls_nand(void)
 	printf("\n");
 
 	for (nand_dev = 0; nand_dev < CONFIG_SYS_MAX_NAND_DEVICE; nand_dev++) {
-		mtd = nand_info[nand_dev];
+		mtd = get_nand_dev_by_index(nand_dev);
 		if (!mtd->name || !mtd->size)
 			continue;
 
