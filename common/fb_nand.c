@@ -59,7 +59,7 @@ static int fb_nand_lookup(const char *partname,
 		return -EINVAL;
 	}
 
-	*mtd = nand_info[dev->id->num];
+	*mtd = get_nand_dev_by_index(dev->id->num);
 
 	return 0;
 }
