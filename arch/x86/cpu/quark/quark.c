@@ -16,6 +16,11 @@
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
 
+static struct pci_device_id mmc_supported[] = {
+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_QRK_SDIO },
+	{},
+};
+
 static void quark_setup_mtrr(void)
 {
 	u32 base, mask;
@@ -321,6 +326,11 @@ int arch_early_init_r(void)
 	quark_usb_init();
 
 	return 0;
+}
+
+int cpu_mmc_init(bd_t *bis)
+{
+	return pci_mmc_init("Quark SDHCI", mmc_supported);
 }
 
 int arch_misc_init(void)
