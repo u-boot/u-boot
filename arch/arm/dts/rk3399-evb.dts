@@ -60,6 +60,18 @@
 		gpio = <&gpio4 25 GPIO_ACTIVE_HIGH>;
 	};
 
+	vcc5v0_typec0: vcc5v0-typec0-en {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_typec0";
+		gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+	};
+
+	vcc5v0_typec1: vcc5v0-typec1-en {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_typec1";
+		gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	};
+
 	clkin_gmac: external-gmac-clock {
 		compatible = "fixed-clock";
 		clock-frequency = <125000000>;
@@ -163,7 +175,7 @@
 };
 
 &dwc3_typec0 {
-	rockchip,vbus-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+	vbus-supply = <&vcc5v0_typec0>;
 	status = "okay";
 };
 
@@ -176,7 +188,7 @@
 };
 
 &dwc3_typec1 {
-	rockchip,vbus-gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	vbus-supply = <&vcc5v0_typec1>;
 	status = "okay";
 };
 
