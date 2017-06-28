@@ -467,6 +467,16 @@
 		status = "disabled";
 	};
 
+	usb20_otg: usb@ff580000 {
+		compatible = "rockchip,rk3328-usb", "rockchip,rk3066-usb",
+			     "snps,dwc2";
+		reg = <0x0 0xff580000 0x0 0x40000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		hnp-srp-disable;
+		dr_mode = "otg";
+		status = "disabled";
+	};
+
 	sdmmc_ext: rksdmmc@ff5f0000 {
 		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x0 0xff5f0000 0x0 0x4000>;
