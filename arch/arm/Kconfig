@@ -253,7 +253,7 @@ config USE_ARCH_MEMCPY
 	  but may increase the binary size.
 
 config SPL_USE_ARCH_MEMCPY
-	bool "Use an assembly optimized implementation of memcpy"
+	bool "Use an assembly optimized implementation of memcpy for SPL"
 	default y if USE_ARCH_MEMCPY
 	depends on !ARM64
 	help
@@ -271,7 +271,7 @@ config USE_ARCH_MEMSET
 	  but may increase the binary size.
 
 config SPL_USE_ARCH_MEMSET
-	bool "Use an assembly optimized implementation of memset"
+	bool "Use an assembly optimized implementation of memset for SPL"
 	default y if USE_ARCH_MEMSET
 	depends on !ARM64
 	help
