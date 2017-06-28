@@ -742,8 +742,8 @@ void tftp_start(enum proto_t protocol)
 			(net_ip.s_addr >> 16) & 0xFF,
 			(net_ip.s_addr >> 24) & 0xFF);
 
-		strncpy(tftp_filename, default_filename, MAX_LEN);
-		tftp_filename[MAX_LEN - 1] = 0;
+		strncpy(tftp_filename, default_filename, DEFAULT_NAME_LEN);
+		tftp_filename[DEFAULT_NAME_LEN - 1] = 0;
 
 		printf("*** Warning: no boot file name; using '%s'\n",
 		       tftp_filename);
