@@ -448,12 +448,3 @@ U_BOOT_CMD(
 );
 #endif
 #endif
-
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
-	.base_addr = ATMEL_BASE_DBGU,
-};
-
-U_BOOT_DEVICE(at91sam9260_serial) = {
-	.name   = "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
-};
