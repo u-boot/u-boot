@@ -20,6 +20,16 @@ config SPL_CLK
 	  setting up clocks within SPL, and allows the same drivers to be
 	  used as U-Boot proper.
 
+config TPL_CLK
+	bool "Enable clock support in TPL"
+	depends on CLK && TPL_DM
+	help
+	  The clock subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use clock drivers in
+	  SPL, enable this option. It might provide a cleaner interface to
+	  setting up clocks within TPL, and allows the same drivers to be
+	  used as U-Boot proper.
+
 config CLK_BCM6345
 	bool "Clock controller driver for BCM6345"
 	depends on CLK && ARCH_BMIPS
