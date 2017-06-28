@@ -43,6 +43,10 @@ struct dwc2_priv {
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 	bool ext_vbus;
+	/*
+	 * The hnp/srp capability must be disabled if the platform
+	 * does't support hnp/srp. Otherwise the force mode can't work.
+	 */
 	bool hnp_srp_disable;
 	bool oc_disable;
 };
@@ -1239,7 +1243,6 @@ static int dwc2_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
-	const void *prop;
 	fdt_addr_t addr;
 
 	addr = devfdt_get_addr(dev);
@@ -1247,15 +1250,8 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	priv->regs = (struct dwc2_core_regs *)addr;
 
-	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-			   "disable-over-current", NULL);
-	if (prop)
-		priv->oc_disable = true;
-
-	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-			   "hnp-srp-disable", NULL);
-	if (prop)
-		priv->hnp_srp_disable = true;
+	priv->oc_disable = dev_read_bool(dev, "disable-over-current");
+	priv->hnp_srp_disable = dev_read_bool(dev, "hnp-srp-disable");
 
 	return 0;
 }
