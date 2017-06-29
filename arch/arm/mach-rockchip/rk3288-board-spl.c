@@ -249,7 +249,7 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
-#if defined(CONFIG_ROCKCHIP_SPL_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom();
 #endif
 }
@@ -316,7 +316,7 @@ void spl_board_init(void)
 	}
 
 	preloader_console_init();
-#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	back_to_bootrom();
 #endif
 	return;

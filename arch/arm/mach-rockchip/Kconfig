@@ -101,10 +101,21 @@ config ROCKCHIP_RV1108
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.
 
-config ROCKCHIP_SPL_BACK_TO_BROM
+config SPL_ROCKCHIP_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
 	select ROCKCHIP_BROM_HELPER
+	depends on SPL
+	help
+	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
+          SPL will return to the boot rom, which will then load the U-Boot
+          binary to keep going on.
+
+config TPL_ROCKCHIP_BACK_TO_BROM
+	bool "TPL returns to bootrom"
+	default y if ROCKCHIP_RK3368
+	select ROCKCHIP_BROM_HELPER
+	depends on TPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
           SPL will return to the boot rom, which will then load the U-Boot
@@ -122,7 +133,7 @@ config ROCKCHIP_BROM_HELPER
 	bool
 
 config SPL_MMC_SUPPORT
-	default y if !ROCKCHIP_SPL_BACK_TO_BROM
+	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3188/Kconfig"

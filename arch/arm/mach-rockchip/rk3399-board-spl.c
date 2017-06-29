@@ -28,7 +28,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int spl_node_to_boot_device(int node)
 {
 	struct udevice *parent;
@@ -263,7 +263,7 @@ void spl_board_init(void)
 	}
 
 	preloader_console_init();
-#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	back_to_bootrom();
 #endif
 

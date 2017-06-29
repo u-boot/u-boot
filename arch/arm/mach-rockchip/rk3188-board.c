@@ -39,7 +39,7 @@ int board_late_init(void)
 
 int board_init(void)
 {
-#if defined(CONFIG_ROCKCHIP_SPL_BACK_TO_BROM)
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	struct udevice *pinctrl;
 	int ret;
 

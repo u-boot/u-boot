@@ -78,7 +78,7 @@ int board_late_init(void)
 	return rk_board_late_init();
 }
 
-#ifndef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+#if !CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 static int veyron_init(void)
 {
 	struct udevice *dev;
@@ -115,7 +115,7 @@ static int veyron_init(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	struct udevice *pinctrl;
 	int ret;
 

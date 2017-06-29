@@ -26,7 +26,7 @@
 
 #define CONFIG_SYS_NS16550_MEM32
 
-#ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+#ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
 /* Bootrom will load u-boot binary to 0x60000000 once return from SPL */
 #define CONFIG_SYS_TEXT_BASE		0x60000000
 #else
