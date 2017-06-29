@@ -752,8 +752,8 @@ static efi_status_t EFIAPI efi_handle_protocol(void *handle,
 					       efi_guid_t *protocol,
 					       void **protocol_interface)
 {
-	return efi_open_protocol(handle, protocol, protocol_interface,
-				 NULL, NULL, 0);
+	return efi_open_protocol(handle, protocol, protocol_interface, NULL,
+				 NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 }
 
 static const struct efi_boot_services efi_boot_services = {
