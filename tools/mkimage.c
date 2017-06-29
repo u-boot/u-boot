@@ -113,7 +113,7 @@ static void usage(const char *msg)
 #endif
 	fprintf(stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
-	fprintf(stderr, "Use -T to see a list of available image types\n");
+	fprintf(stderr, "Use '-T list' to see a list of available image types\n");
 
 	exit(EXIT_FAILURE);
 }
@@ -260,6 +260,10 @@ static void process_args(int argc, char **argv)
 			params.skipcpy = 1;
 			break;
 		case 'T':
+			if (strcmp(optarg, "list") == 0) {
+				show_valid_options(IH_TYPE);
+				exit(EXIT_SUCCESS);
+			}
 			type = genimg_get_type_id(optarg);
 			if (type < 0) {
 				show_valid_options(IH_TYPE);
