@@ -208,6 +208,7 @@ config TARGET_MX6Q_ICORE_RQS
 config TARGET_MX6QSABREAUTO
 	bool "mx6qsabreauto"
 	select BOARD_LATE_INIT
+	select SUPPORT_SPL
 	select DM
 	select DM_THERMAL
 	select BOARD_EARLY_INIT_F

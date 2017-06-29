@@ -9,6 +9,10 @@
 #ifndef __MX6QSABREAUTO_CONFIG_H
 #define __MX6QSABREAUTO_CONFIG_H
 
+#ifdef CONFIG_SPL
+#include "imx6_spl.h"
+#endif
+
 #define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
