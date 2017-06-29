@@ -1,5 +1,4 @@
 Technexion PICO-IMX7D board
-M:	Wig Cheng <wig.cheng@technexion.com>
 M:	Vanessa Maegima <vanessa.maegima@nxp.com>
 S:	Maintained
 F:	board/technexion/pico-imx7d/
