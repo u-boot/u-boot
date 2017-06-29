@@ -6,4 +6,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := mx6qsabreauto.o
+obj-y  := mx6sabreauto.o

@@ -1,0 +1,20 @@
+How to use and build U-Boot on mx6sabreauto
+-------------------------------------------
+
+mx6sabreauto_defconfig target supports mx6q/mx6dl/mx6qp sabreauto variants.
+
+In order to build it:
+
+$ make mx6sabreauto_defconfig
+
+$ make
+
+This will generate the SPL and u-boot.img binaries.
+
+- Flash the SPL binary into the SD card:
+
+$ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
+
+- Flash the u-boot.img binary into the SD card:
+
+$ sudo dd if=u-boot.img of=/dev/sdX bs=1K seek=69 && sync

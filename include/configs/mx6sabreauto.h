@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX6QSABREAUTO_CONFIG_H
-#define __MX6QSABREAUTO_CONFIG_H
+#ifndef __MX6SABREAUTO_CONFIG_H
+#define __MX6SABREAUTO_CONFIG_H
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
@@ -76,4 +76,4 @@
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
-#endif                         /* __MX6QSABREAUTO_CONFIG_H */
+#endif                         /* __MX6SABREAUTO_CONFIG_H */

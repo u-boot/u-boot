@@ -205,8 +205,8 @@ config TARGET_MX6Q_ICORE_RQS
 	select SUPPORT_SPL
 	select SPL_LOAD_FIT
 
-config TARGET_MX6QSABREAUTO
-	bool "mx6qsabreauto"
+config TARGET_MX6SABREAUTO
+	bool "mx6sabreauto"
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select DM
@@ -417,7 +417,7 @@ source "board/engicam/icorem6/Kconfig"
 source "board/engicam/icorem6_rqs/Kconfig"
 source "board/engicam/isiotmx6ul/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
-source "board/freescale/mx6qsabreauto/Kconfig"
+source "board/freescale/mx6sabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sllevk/Kconfig"
