@@ -114,12 +114,12 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 	}
 
 	/*
-	* Overwrite the image headers after authentication
-	* and decryption. Update size to reflect removal
-	* of header.
-	*/
-	memcpy(image, image + KS2_HS_SEC_HEADER_LEN, *p_size);
+	 * Overwrite the image headers after authentication
+	 * and decryption. Update size to reflect removal
+	 * of header.
+	 */
 	*p_size -= KS2_HS_SEC_HEADER_LEN;
+	memcpy(image, image + KS2_HS_SEC_HEADER_LEN, *p_size);
 
 	/*
 	 * Output notification of successful authentication to re-assure the
