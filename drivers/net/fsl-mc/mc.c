@@ -1336,14 +1336,18 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 {
 	int err = 0;
 	bool is_dpl_apply_status = false;
+	bool mc_boot_status = false;
 
 	if (bd && mc_lazy_dpl_addr && !fsl_mc_ldpaa_exit(NULL)) {
 		mc_apply_dpl(mc_lazy_dpl_addr);
 		mc_lazy_dpl_addr = 0;
 	}
 
+	if (!get_mc_boot_status())
+		mc_boot_status = true;
+
 	/* MC is not loaded intentionally, So return success. */
-	if (bd && get_mc_boot_status() != 0)
+	if (bd && !mc_boot_status)
 		return 0;
 
 	/* If DPL is deployed, set is_dpl_apply_status as TRUE. */
@@ -1354,10 +1358,13 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 	 * For case MC is loaded but DPL is not deployed, return success and
 	 * print message on console. Else FDT fix-up code execution hanged.
 	 */
-	if (bd && !get_mc_boot_status() && !is_dpl_apply_status) {
+	if (bd && mc_boot_status && !is_dpl_apply_status) {
 		printf("fsl-mc: DPL not deployed, DPAA2 ethernet not work\n");
 		return 0;
 	}
+
+	if (bd && mc_boot_status && is_dpl_apply_status)
+		return 0;
 
 	err = dpbp_exit();
 	if (err < 0) {
