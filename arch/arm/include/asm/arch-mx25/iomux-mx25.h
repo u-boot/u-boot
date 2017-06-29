@@ -16,7 +16,7 @@
 #ifndef __IOMUX_MX25_H__
 #define __IOMUX_MX25_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 /* Pad control groupings */
 #define MX25_KPP_ROW_PAD_CTRL	PAD_CTL_PUS_100K_UP

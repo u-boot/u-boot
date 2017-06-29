@@ -7,7 +7,7 @@
 #ifndef __IOMUX_VF610_H__
 #define __IOMUX_VF610_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 /* Pad control groupings */
 #define VF610_UART_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_DSE_25ohm | \

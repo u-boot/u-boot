@@ -8,7 +8,7 @@
 #ifndef _MX31_SYS_PROTO_H_
 #define _MX31_SYS_PROTO_H_
 
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 struct mxc_weimcs {
 	u32 upper;

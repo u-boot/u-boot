@@ -7,7 +7,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/hab.h>
+#include <asm/mach-imx/hab.h>
 
 static char *get_reset_cause(char *);
 

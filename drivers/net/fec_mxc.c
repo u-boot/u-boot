@@ -23,7 +23,7 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

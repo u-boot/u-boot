@@ -9,7 +9,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <watchdog.h>
 
 int force_idle_bus(void *priv)

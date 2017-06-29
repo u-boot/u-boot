@@ -16,7 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
-#include <asm/imx-common/mx5_video.h>
+#include <asm/mach-imx/mx5_video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <mc13892.h>

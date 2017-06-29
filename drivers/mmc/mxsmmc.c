@@ -25,7 +25,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/dma.h>
+#include <asm/mach-imx/dma.h>
 #include <bouncebuf.h>
 
 struct mxsmmc_priv {

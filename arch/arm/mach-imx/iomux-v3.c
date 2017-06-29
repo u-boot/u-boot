@@ -11,8 +11,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/sys_proto.h>
 
 static void *base = (void *)IOMUXC_BASE_ADDR;
 

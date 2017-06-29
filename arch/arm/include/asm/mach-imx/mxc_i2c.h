@@ -6,7 +6,7 @@
 #ifndef __ASM_ARCH_MXC_MXC_I2C_H__
 #define __ASM_ARCH_MXC_MXC_I2C_H__
 #include <asm-generic/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 struct i2c_pin_ctrl {
 	iomux_v3_cfg_t i2c_mode;

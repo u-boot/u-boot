@@ -8,7 +8,7 @@
 #include <asm/armv7.h>
 #include <asm/pl310.h>
 #include <asm/io.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)

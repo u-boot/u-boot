@@ -13,7 +13,7 @@
 #ifndef __REGS_APBH_H__
 #define __REGS_APBH_H__
 
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 

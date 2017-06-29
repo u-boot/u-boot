@@ -16,7 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 
 #include <common.h>
 #include <fsl_esdhc.h>

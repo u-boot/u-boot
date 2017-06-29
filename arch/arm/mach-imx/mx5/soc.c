@@ -14,7 +14,7 @@
 
 #include <linux/errno.h>
 #include <asm/io.h>
-#include <asm/imx-common/boot_mode.h>
+#include <asm/mach-imx/boot_mode.h>
 
 #if !(defined(CONFIG_MX51) || defined(CONFIG_MX53))
 #error "CPU_TYPE not defined"

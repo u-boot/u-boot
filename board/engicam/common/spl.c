@@ -20,8 +20,8 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

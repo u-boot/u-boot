@@ -4,7 +4,7 @@
 
 #include <common.h>
 #include <linux/errno.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/video.h>
 
 int board_video_skip(void)
 {

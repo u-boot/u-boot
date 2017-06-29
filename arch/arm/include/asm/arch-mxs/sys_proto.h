@@ -10,7 +10,7 @@
 #ifndef __MXS_SYS_PROTO_H__
 #define __MXS_SYS_PROTO_H__
 
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int));
 

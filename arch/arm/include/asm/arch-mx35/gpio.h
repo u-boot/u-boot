@@ -9,6 +9,6 @@
 #ifndef __ASM_ARCH_MX35_GPIO_H
 #define __ASM_ARCH_MX35_GPIO_H
 
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #endif

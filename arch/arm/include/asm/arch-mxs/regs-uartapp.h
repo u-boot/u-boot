@@ -12,7 +12,7 @@
 #ifndef __ARCH_ARM___MXS_UARTAPP_H
 #define __ARCH_ARM___MXS_UARTAPP_H
 
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 #ifndef __ASSEMBLY__
 struct mxs_uartapp_regs {

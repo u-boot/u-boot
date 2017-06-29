@@ -359,7 +359,7 @@
 #endif
 #define FEC_QUIRK_ENET_MAC
 
-#include <asm/imx-common/regs-lcdif.h>
+#include <asm/mach-imx/regs-lcdif.h>
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 

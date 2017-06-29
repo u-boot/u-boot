@@ -14,10 +14,10 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/spi.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/spi.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -25,7 +25,7 @@
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
 #include <asm/arch/mxc_hdmi.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/video.h>
 #include <asm/arch/crm_regs.h>
 #include <pca953x.h>
 #include <power/pmic.h>

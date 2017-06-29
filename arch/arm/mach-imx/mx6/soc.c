@@ -13,9 +13,9 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/dma.h>
-#include <asm/imx-common/hab.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/dma.h>
+#include <asm/mach-imx/hab.h>
 #include <stdbool.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>

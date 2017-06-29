@@ -9,7 +9,7 @@
 #define __XPRESS_CONFIG_H
 
 #include "mx6_common.h"
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 /* SPL options */
 #include "imx6_spl.h"

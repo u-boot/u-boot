@@ -17,7 +17,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
-#include <asm/imx-common/mx5_video.h>
+#include <asm/mach-imx/mx5_video.h>
 #include <ACEX1K.h>
 #include <netdev.h>
 #include <i2c.h>

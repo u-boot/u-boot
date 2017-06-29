@@ -14,7 +14,7 @@
 #define __IMX_REGS_LCDIF_H__
 
 #ifndef	__ASSEMBLY__
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 struct mxs_lcdif_regs {
 	mxs_reg_32(hw_lcdif_ctrl)		/* 0x00 */

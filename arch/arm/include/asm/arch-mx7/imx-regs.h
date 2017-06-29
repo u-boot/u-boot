@@ -224,7 +224,7 @@
 					 CONFIG_SYS_FSL_JR0_OFFSET)
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC   1
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
-#include <asm/imx-common/regs-lcdif.h>
+#include <asm/mach-imx/regs-lcdif.h>
 #include <asm/types.h>
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);

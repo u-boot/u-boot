@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_MX6_MX6_PINS_H__
 #define __ASM_ARCH_MX6_MX6_PINS_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 enum {
 	 MX6_PAD_GPIO1_IO00__I2C1_SCL                           = IOMUX_PAD(0x035C, 0x0014, IOMUX_CONFIG_SION | 0, 0x07A8, 1, 0),

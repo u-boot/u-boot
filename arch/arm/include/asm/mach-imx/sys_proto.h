@@ -9,7 +9,7 @@
 #define _SYS_PROTO_H_
 
 #include <asm/io.h>
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 #include <common.h>
 #include "../arch-imx/cpu.h"
 

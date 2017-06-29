@@ -11,7 +11,7 @@
 #include <asm/system.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/hab.h>
+#include <asm/mach-imx/hab.h>
 
 /* -------- start of HAB API updates ------------*/
 

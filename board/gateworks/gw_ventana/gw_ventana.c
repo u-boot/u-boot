@@ -14,10 +14,10 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/spi.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/spi.h>
+#include <asm/mach-imx/video.h>
 #include <asm/io.h>
 #include <asm/setup.h>
 #include <dm.h>

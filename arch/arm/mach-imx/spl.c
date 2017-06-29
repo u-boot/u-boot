@@ -13,7 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/spl.h>
 #include <spl.h>
-#include <asm/imx-common/hab.h>
+#include <asm/mach-imx/hab.h>
 
 #if defined(CONFIG_MX6)
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */

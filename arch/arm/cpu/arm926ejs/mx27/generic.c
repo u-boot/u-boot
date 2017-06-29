@@ -12,7 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 #ifdef CONFIG_MMC_MXC
 #include <asm/arch/mxcmmc.h>
 #endif

@@ -8,7 +8,7 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 #include <asm/io.h>
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 /* 1 second delay should be plenty of time for block reset. */
 #define	RESET_MAX_TIMEOUT	1000000

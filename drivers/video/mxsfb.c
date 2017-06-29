@@ -15,7 +15,7 @@
 #include <linux/errno.h>
 #include <asm/io.h>
 
-#include <asm/imx-common/dma.h>
+#include <asm/mach-imx/dma.h>
 
 #include "videomodes.h"
 

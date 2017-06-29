@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <malloc.h>
 

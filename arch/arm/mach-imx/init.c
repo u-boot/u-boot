@@ -8,7 +8,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/boot_mode.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/crm_regs.h>
 
 void init_aips(void)
