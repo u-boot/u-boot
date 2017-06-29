@@ -427,11 +427,6 @@ int arch_cpu_init(void)
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
-#ifdef CONFIG_APBH_DMA
-	/* Start APBH DMA */
-	mxs_dma_init();
-#endif
-
 	init_src();
 
 	return 0;

@@ -1114,6 +1114,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Init the DMA controller. */
+	mxs_dma_init();
 	for (j = MXS_DMA_CHANNEL_AHB_APBH_GPMI0;
 		j <= MXS_DMA_CHANNEL_AHB_APBH_GPMI7; j++) {
 		ret = mxs_dma_init_channel(j);
