@@ -8,6 +8,7 @@
 #include <common.h>
 #include <linux/compiler.h>
 #include <linux/kernel.h>
+#include <linux/log2.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
 
@@ -215,17 +216,33 @@ void cache_init(void)
 	read_decode_cache_bcr_arcv2();
 
 	if (ioc_exists) {
+		/* IOC Aperture start is equal to DDR start */
+		unsigned int ap_base = CONFIG_SYS_SDRAM_BASE;
+		/* IOC Aperture size is equal to DDR size */
+		long ap_size = CONFIG_SYS_SDRAM_SIZE;
+
 		flush_dcache_all();
 		invalidate_dcache_all();
 
-		/* IO coherency base - 0x8z */
-		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, 0x80000);
-		/* IO coherency aperture size - 512Mb: 0x8z-0xAz */
-		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE, 0x11);
-		/* Enable partial writes */
+		if (!is_power_of_2(ap_size) || ap_size < 4096)
+			panic("IOC Aperture size must be power of 2 and bigger 4Kib");
+
+		/*
+		 * IOC Aperture size decoded as 2 ^ (SIZE + 2) KB,
+		 * so setting 0x11 implies 512M, 0x12 implies 1G...
+		 */
+		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE,
+			      order_base_2(ap_size/1024) - 2);
+
+
+		/* IOC Aperture start must be aligned to the size of the aperture */
+		if (ap_base % ap_size != 0)
+			panic("IOC Aperture start must be aligned to the size of the aperture");
+
+		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, ap_base >> 12);
 		write_aux_reg(ARC_AUX_IO_COH_PARTIAL, 1);
-		/* Enable IO coherency */
 		write_aux_reg(ARC_AUX_IO_COH_ENABLE, 1);
+
 	}
 #endif
 }
