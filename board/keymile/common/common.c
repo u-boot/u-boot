@@ -355,9 +355,6 @@ static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
 #if defined(CONFIG_POST)
 	testpin = post_hotkeys_pressed();
 #endif
-#if defined(CONFIG_MGCOGE3NE)
-	testpin = get_testpin();
-#endif
 	s = getenv("test_bank");
 	/* when test_bank is not set, act as if testpin is not asserted */
 	testboot = (testpin != 0) && (s);
