@@ -62,6 +62,15 @@ config SPL_SYS_MALLOC_SIMPLE
 	  this will make the SPL binary smaller at the cost of more heap
 	  usage as the *_simple malloc functions do not re-use free-ed mem.
 
+config TPL_SYS_MALLOC_SIMPLE
+	bool
+	prompt "Only use malloc_simple functions in the TPL"
+	help
+	  Say Y here to only use the *_simple malloc functions from
+	  malloc_simple.c, rather then using the versions from dlmalloc.c;
+	  this will make the TPL binary smaller at the cost of more heap
+	  usage as the *_simple malloc functions do not re-use free-ed mem.
+
 config SPL_STACK_R
 	bool "Enable SDRAM location for SPL stack"
 	help
