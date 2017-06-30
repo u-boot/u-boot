@@ -1343,7 +1343,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	 * and make sure the chip (> 16MiB) in default 3-byte address mode,
 	 * in case of warm bootup, the chip was set to 4-byte mode in kernel.
 	 */
-	if (((flash->size >> flash->shift) < SPI_FLASH_16MB_BOUN) &&
+	if (((flash->size >> flash->shift) <= SPI_FLASH_16MB_BOUN) &&
 	    (flash->spi->bytemode == SPI_4BYTE_MODE))
 		/*
 		 * Clear the 4-byte support if the flash size is
