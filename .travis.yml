@@ -143,7 +143,7 @@ matrix:
         - BUILDMAN="avr32"
           TOOLCHAIN="avr32"
     - env:
-        - BUILDMAN="denx"
+        - BUILDMAN="aries"
     - env:
         - JOB="Freescale ARM32"
           BUILDMAN="freescale -x powerpc,m68k,aarch64"
@@ -174,7 +174,7 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
