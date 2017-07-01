@@ -22,6 +22,7 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/sata.h>
 #include <asm/imx-common/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -312,6 +313,10 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_VIDEO_IPUV3
 	ret = setup_display();
+#endif
+
+#ifdef CONFIG_CMD_SATA
+	setup_sata();
 #endif
 
 #ifdef CONFIG_USB_EHCI_MX6
