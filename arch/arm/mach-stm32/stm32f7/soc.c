@@ -17,6 +17,8 @@ u32 get_cpu_rev(void)
 
 int arch_cpu_init(void)
 {
+	int i;
+
 	struct mpu_region_config stm32_region_config[] = {
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
 		O_I_WB_RD_WR_ALLOC, REGION_4GB },
@@ -35,7 +37,7 @@ int arch_cpu_init(void)
 	};
 
 	disable_mpu();
-	for (int i = 0; i < ARRAY_SIZE(stm32_region_config); i++)
+	for (i = 0; i < ARRAY_SIZE(stm32_region_config); i++)
 		mpu_config(&stm32_region_config[i]);
 	enable_mpu();
 
