@@ -354,6 +354,12 @@ int power_init_board(void)
 
 	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
 
+	/*
+	 * Set the voltage of VLDO4 output to 2.8V which feeds
+	 * the MIPI DSI and MIPI CSI inputs.
+	 */
+	pmic_clrsetbits(dev, PFUZE3000_VLD4CTL, 0xF, 0xA);
+
 	return 0;
 }
 #endif
