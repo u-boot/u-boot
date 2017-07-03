@@ -132,6 +132,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-topic-miami.dtb \
 	zynq-topic-miamilite.dtb \
 	zynq-topic-miamiplus.dtb \
+	zynq-zturn-myir.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm011.dtb \
 	zynq-zc770-xm012.dtb \
