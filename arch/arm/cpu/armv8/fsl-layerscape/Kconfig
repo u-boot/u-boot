@@ -307,7 +307,7 @@ config SYS_FSL_DSPI_CLK_DIV
 	default 2
 	help
 	  This is the divider that is used to derive DSPI clock from Platform
-	  PLL, in another word DSPI_clk = Platform_PLL_freq / this_divider.
+	  clock, in another word DSPI_clk = Platform_clk / this_divider.
 
 config SYS_FSL_DUART_CLK_DIV
 	int "DUART clock divider"
