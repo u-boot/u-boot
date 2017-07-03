@@ -224,9 +224,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * USB
  */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2
-#endif
 
 /*
  * USB Gadget (DFU, UMS)

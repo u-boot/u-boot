@@ -201,3 +201,13 @@ config USB_UHCI_HCD
 if USB_UHCI_HCD
 
 endif # USB_UHCI_HCD
+
+config USB_DWC2
+	bool "DesignWare USB2 Core support"
+	select USB_HOST
+	---help---
+	  The DesignWare USB 2.0 controller is compliant with the
+	  USB-Implementers Forum (USB-IF) USB 2.0 specifications.
+	  Hi-Speed (480 Mbps), Full-Speed (12 Mbps), and Low-Speed (1.5 Mbps)
+	  operation is compliant to the controller Supplement. If you want to
+	  enable this controller in host mode, say Y.
