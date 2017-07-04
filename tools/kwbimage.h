@@ -34,20 +34,20 @@
 
 /* Structure of the main header, version 0 (Kirkwood, Dove) */
 struct main_hdr_v0 {
-	uint8_t  blockid;		/*0     */
-	uint8_t  nandeccmode;		/*1     */
-	uint16_t nandpagesize;		/*2-3   */
-	uint32_t blocksize;		/*4-7   */
-	uint32_t rsvd1;			/*8-11  */
-	uint32_t srcaddr;		/*12-15 */
-	uint32_t destaddr;		/*16-19 */
-	uint32_t execaddr;		/*20-23 */
-	uint8_t  satapiomode;		/*24    */
-	uint8_t  rsvd3;			/*25    */
-	uint16_t ddrinitdelay;		/*26-27 */
-	uint16_t rsvd2;			/*28-29 */
-	uint8_t  ext;			/*30    */
-	uint8_t  checksum;		/*31    */
+	uint8_t  blockid;		/* 0x0       */
+	uint8_t  nandeccmode;		/* 0x1       */
+	uint16_t nandpagesize;		/* 0x2-0x3   */
+	uint32_t blocksize;		/* 0x4-0x7   */
+	uint32_t rsvd1;			/* 0x8-0xB   */
+	uint32_t srcaddr;		/* 0xC-0xF   */
+	uint32_t destaddr;		/* 0x10-0x13 */
+	uint32_t execaddr;		/* 0x14-0x17 */
+	uint8_t  satapiomode;		/* 0x18      */
+	uint8_t  rsvd3;			/* 0x19      */
+	uint16_t ddrinitdelay;		/* 0x1A-0x1B */
+	uint16_t rsvd2;			/* 0x1C-0x1D */
+	uint8_t  ext;			/* 0x1E      */
+	uint8_t  checksum;		/* 0x1F      */
 };
 
 struct ext_hdr_v0_reg {
@@ -72,23 +72,23 @@ struct kwb_header {
 
 /* Structure of the main header, version 1 (Armada 370/38x/XP) */
 struct main_hdr_v1 {
-	uint8_t  blockid;               /* 0 */
-	uint8_t  flags;                 /* 1 */
-	uint16_t reserved2;             /* 2-3 */
-	uint32_t blocksize;             /* 4-7 */
-	uint8_t  version;               /* 8 */
-	uint8_t  headersz_msb;          /* 9 */
-	uint16_t headersz_lsb;          /* A-B */
-	uint32_t srcaddr;               /* C-F */
-	uint32_t destaddr;              /* 10-13 */
-	uint32_t execaddr;              /* 14-17 */
-	uint8_t  options;               /* 18 */
-	uint8_t  nandblocksize;         /* 19 */
-	uint8_t  nandbadblklocation;    /* 1A */
-	uint8_t  reserved4;             /* 1B */
-	uint16_t reserved5;             /* 1C-1D */
-	uint8_t  ext;                   /* 1E */
-	uint8_t  checksum;              /* 1F */
+	uint8_t  blockid;               /* 0x0       */
+	uint8_t  flags;                 /* 0x1       */
+	uint16_t reserved2;             /* 0x2-0x3   */
+	uint32_t blocksize;             /* 0x4-0x7   */
+	uint8_t  version;               /* 0x8       */
+	uint8_t  headersz_msb;          /* 0x9       */
+	uint16_t headersz_lsb;          /* 0xA-0xB   */
+	uint32_t srcaddr;               /* 0xC-0xF   */
+	uint32_t destaddr;              /* 0x10-0x13 */
+	uint32_t execaddr;              /* 0x14-0x17 */
+	uint8_t  options;               /* 0x18      */
+	uint8_t  nandblocksize;         /* 0x19      */
+	uint8_t  nandbadblklocation;    /* 0x1A      */
+	uint8_t  reserved4;             /* 0x1B      */
+	uint16_t reserved5;             /* 0x1C-0x1D */
+	uint8_t  ext;                   /* 0x1E      */
+	uint8_t  checksum;              /* 0x1F      */
 };
 
 /*
