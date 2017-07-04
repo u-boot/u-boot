@@ -62,7 +62,7 @@ struct blk_desc {
 	char		vendor[40+1];	/* IDE model, SCSI Vendor */
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 	/*
 	 * For now we have a few functions which take struct blk_desc as a
 	 * parameter. This field allows them to look up the associated
@@ -174,7 +174,7 @@ static inline void blkcache_invalidate(int iftype, int dev) {}
 
 #endif
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 struct udevice;
 
 /* Operations on block devices */

@@ -5,9 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_BLK) += blk-uclass.o
+obj-$(CONFIG_$(SPL_)BLK) += blk-uclass.o
 
-ifndef CONFIG_BLK
+ifndef CONFIG_$(SPL_)BLK
 obj-y += blk_legacy.o
 endif
 

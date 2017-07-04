@@ -321,7 +321,7 @@ struct mmc_data {
 /* forward decl. */
 struct mmc;
 
-#ifdef CONFIG_DM_MMC_OPS
+#if CONFIG_IS_ENABLED(DM_MMC_OPS)
 struct dm_mmc_ops {
 	/**
 	 * send_cmd() - Send a command to the MMC device
@@ -385,7 +385,7 @@ struct mmc_ops {
 
 struct mmc_config {
 	const char *name;
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
 	const struct mmc_ops *ops;
 #endif
 	uint host_caps;
@@ -409,7 +409,7 @@ struct sd_ssr {
  * TODO struct mmc should be in mmc_private but it's hard to fix right now
  */
 struct mmc {
-#ifndef CONFIG_BLK
+#if !CONFIG_IS_ENABLED(BLK)
 	struct list_head link;
 #endif
 	const struct mmc_config *cfg;	/* provided configuration */
@@ -444,14 +444,14 @@ struct mmc {
 	u64 capacity_gp[4];
 	u64 enh_user_start;
 	u64 enh_user_size;
-#ifndef CONFIG_BLK
+#if !CONFIG_IS_ENABLED(BLK)
 	struct blk_desc block_dev;
 #endif
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
 	int ddr_mode;
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	struct udevice *dev;	/* Device for this MMC controller */
 #endif
 };
@@ -519,7 +519,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
 int mmc_hwpart_config(struct mmc *mmc, const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode);
 
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
 int mmc_getcd(struct mmc *mmc);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
