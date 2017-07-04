@@ -19,6 +19,9 @@
 #include <linux/ctype.h>
 #include <div64.h>
 #include <memalign.h>
+#include <linux/compat.h>
+
+static LIST_HEAD(disk_partitions);
 
 /**
  * extract_env(): Expand env name from string format '&{env_name}'
@@ -150,6 +153,122 @@ static bool found_key(const char *str, const char *key)
 
 	return result;
 }
+
+#ifdef CONFIG_CMD_GPT_RENAME
+static void del_gpt_info(void)
+{
+	struct list_head *pos = &disk_partitions;
+	struct disk_part *curr;
+	while (!list_empty(pos)) {
+		curr = list_entry(pos->next, struct disk_part, list);
+		list_del(pos->next);
+		free(curr);
+	}
+}
+
+static struct disk_part *allocate_disk_part(disk_partition_t *info, int partnum)
+{
+	struct disk_part *newpart;
+	newpart = malloc(sizeof(*newpart));
+	if (!newpart)
+		return ERR_PTR(-ENOMEM);
+	memset(newpart, '\0', sizeof(newpart));
+
+	newpart->gpt_part_info.start = info->start;
+	newpart->gpt_part_info.size = info->size;
+	newpart->gpt_part_info.blksz = info->blksz;
+	strncpy((char *)newpart->gpt_part_info.name, (const char *)info->name,
+		PART_NAME_LEN);
+	newpart->gpt_part_info.name[PART_NAME_LEN - 1] = '\0';
+	strncpy((char *)newpart->gpt_part_info.type, (const char *)info->type,
+		PART_TYPE_LEN);
+	newpart->gpt_part_info.type[PART_TYPE_LEN - 1] = '\0';
+	newpart->gpt_part_info.bootable = info->bootable;
+#ifdef CONFIG_PARTITION_UUIDS
+	strncpy(newpart->gpt_part_info.uuid, (const char *)info->uuid,
+		UUID_STR_LEN);
+	/* UUID_STR_LEN is correct, as uuid[]'s length is UUID_STR_LEN+1 chars */
+	newpart->gpt_part_info.uuid[UUID_STR_LEN] = '\0';
+#endif
+	newpart->partnum = partnum;
+
+	return newpart;
+}
+
+static void print_gpt_info(void)
+{
+	struct list_head *pos;
+	struct disk_part *curr;
+
+	list_for_each(pos, &disk_partitions) {
+		curr = list_entry(pos, struct disk_part, list);
+		printf("Partition %d:\n", curr->partnum);
+		printf("1st block %x, size %x\n", (unsigned)curr->gpt_part_info.start,
+		       (unsigned)curr->gpt_part_info.size);
+		printf("Block size %lu, name %s\n", curr->gpt_part_info.blksz,
+		       curr->gpt_part_info.name);
+		printf("Type %s, bootable %d\n", curr->gpt_part_info.type,
+		       curr->gpt_part_info.bootable);
+#ifdef CONFIG_PARTITION_UUIDS
+		printf("UUID %s\n", curr->gpt_part_info.uuid);
+#endif
+		printf("\n");
+	}
+}
+
+/*
+ * read partition info into disk_partitions list where
+ * it can be printed or modified
+ */
+static int get_gpt_info(struct blk_desc *dev_desc)
+{
+	/* start partition numbering at 1, as U-Boot does */
+	int valid_parts = 0, p, ret;
+	disk_partition_t info;
+	struct disk_part *new_disk_part;
+
+	if (disk_partitions.next == NULL)
+		INIT_LIST_HEAD(&disk_partitions);
+
+	for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
+		ret = part_get_info(dev_desc, p, &info);
+		if (ret)
+			continue;
+
+		/* Add 1 here because counter is zero-based but p1 is
+		   the first partition */
+		new_disk_part = allocate_disk_part(&info, valid_parts+1);
+		if (IS_ERR(new_disk_part))
+			goto out;
+
+		list_add_tail(&new_disk_part->list, &disk_partitions);
+		valid_parts++;
+	}
+	if (valid_parts == 0) {
+		printf("** No valid partitions found **\n");
+		goto out;
+	}
+	return valid_parts;
+ out:
+	if (valid_parts >= 1)
+		del_gpt_info();
+	return -ENODEV;
+}
+
+/* a wrapper to test get_gpt_info */
+static int do_get_gpt_info(struct blk_desc *dev_desc)
+{
+	int ret;
+
+	ret = get_gpt_info(dev_desc);
+	if (ret > 0) {
+		print_gpt_info();
+		del_gpt_info();
+		return 0;
+	}
+	return ret;
+}
+#endif
 
 /**
  * set_gpt_info(): Fill partition information from string
@@ -455,6 +574,10 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Verify GPT: ");
 	} else if (strcmp(argv[1], "guid") == 0) {
 		ret = do_disk_guid(blk_dev_desc, argv[4]);
+#ifdef CONFIG_CMD_GPT_RENAME
+	} else if (strcmp(argv[1], "read") == 0) {
+		ret = do_get_gpt_info(blk_dev_desc);
+#endif
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -477,6 +600,8 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" Example usage:\n"
 	" gpt write mmc 0 $partitions\n"
 	" gpt verify mmc 0 $partitions\n"
+	" read <interface> <dev>\n"
+	"    - read GPT into a data structure for manipulation\n"
 	" guid <interface> <dev>\n"
 	"    - print disk GUID\n"
 	" guid <interface> <dev> <varname>\n"

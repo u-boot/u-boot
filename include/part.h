@@ -10,6 +10,7 @@
 #include <blk.h>
 #include <ide.h>
 #include <uuid.h>
+#include <linux/list.h>
 
 struct block_drvr {
 	char *name;
@@ -68,6 +69,12 @@ typedef struct disk_partition {
 	uchar	sys_ind;	/* partition type 			*/
 #endif
 } disk_partition_t;
+
+struct disk_part {
+	int partnum;
+	disk_partition_t gpt_part_info;
+	struct list_head list;
+};
 
 /* Misc _get_dev functions */
 #ifdef CONFIG_PARTITIONS
