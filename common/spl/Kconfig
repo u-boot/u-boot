@@ -698,6 +698,17 @@ config TPL
 
 if TPL
 
+config TPL_BOOTROM_SUPPORT
+        bool "Support returning to the BOOTROM (from TPL)"
+	help
+	  Some platforms (e.g. the Rockchip RK3368) provide support in their
+	  ROM for loading the next boot-stage after performing basic setup
+	  from the TPL stage.
+
+	  Enable this option, to return to the BOOTROM through the
+	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
+	  boot device list, if not implemented for a given board)
+
 config TPL_ENV_SUPPORT
 	bool "Support an environment"
 	help
