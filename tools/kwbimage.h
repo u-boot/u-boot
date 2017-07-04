@@ -70,7 +70,7 @@ struct kwb_header {
 	struct ext_hdr_v0	kwb_exthdr;
 };
 
-/* Structure of the main header, version 1 (Armada 370, Armada XP) */
+/* Structure of the main header, version 1 (Armada 370/38x/XP) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0 */
 	uint8_t  flags;                 /* 1 */
