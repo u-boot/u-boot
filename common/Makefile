@@ -53,7 +53,7 @@ obj-$(CONFIG_ENV_IS_IN_UBI) += env_ubi.o
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
-obj-$(CONFIG_$(SPL_)OF_LIBFDT) += fdt_support.o
+obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
 
 obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
@@ -96,7 +96,7 @@ obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
-obj-$(CONFIG_SPL_OF_LIBFDT) += fdt_support.o
+obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
 ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
@@ -146,10 +146,10 @@ endif
 endif
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
-obj-$(CONFIG_$(SPL_)OF_LIBFDT) += image-fdt.o
-obj-$(CONFIG_$(SPL_)FIT) += image-fit.o
+obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
+obj-$(CONFIG_$(SPL_TPL_)FIT) += image-fit.o
 obj-$(CONFIG_FIT_EMBED) += boot_fit.o common_fit.o
-obj-$(CONFIG_$(SPL_)FIT_SIGNATURE) += image-sig.o
+obj-$(CONFIG_$(SPL_TPL_)FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
