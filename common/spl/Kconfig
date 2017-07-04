@@ -718,6 +718,14 @@ config TPL_BOOTROM_SUPPORT
 	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
 	  boot device list, if not implemented for a given board)
 
+config TPL_DRIVERS_MISC_SUPPORT
+	bool "Support misc drivers in TPL"
+	help
+	  Enable miscellaneous drivers in TPL. These drivers perform various
+	  tasks that don't fall nicely into other categories, Enable this
+	  option to build the drivers in drivers/misc as part of an TPL
+	  build, for those that support building in TPL (not all drivers do).
+
 config TPL_ENV_SUPPORT
 	bool "Support an environment"
 	help
