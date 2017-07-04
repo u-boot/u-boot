@@ -147,15 +147,28 @@ static void *copy_fdt(void *fdt)
 	return new_fdt;
 }
 
+static ulong efi_do_enter(void *image_handle,
+			  struct efi_system_table *st,
+			  asmlinkage ulong (*entry)(void *image_handle,
+				struct efi_system_table *st))
+{
+	efi_status_t ret = EFI_LOAD_ERROR;
+
+	if (entry)
+		ret = entry(image_handle, st);
+	st->boottime->exit(image_handle, ret, 0, NULL);
+	return ret;
+}
+
 #ifdef CONFIG_ARM64
-static unsigned long efi_run_in_el2(ulong (*entry)(void *image_handle,
-		struct efi_system_table *st), void *image_handle,
-		struct efi_system_table *st)
+static unsigned long efi_run_in_el2(asmlinkage ulong (*entry)(
+			void *image_handle, struct efi_system_table *st),
+			void *image_handle, struct efi_system_table *st)
 {
 	/* Enable caches again */
 	dcache_enable();
 
-	return entry(image_handle, st);
+	return efi_do_enter(image_handle, st, entry);
 }
 #endif
 
@@ -260,7 +273,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	}
 #endif
 
-	return entry(&loaded_image_info, &systab);
+	return efi_do_enter(&loaded_image_info, &systab, entry);
 }
 
 
