@@ -59,6 +59,8 @@ static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 6);
 #endif
 #endif
 
+static ulong rk3368_clk_get_rate(struct clk *clk);
+
 /* Get pll rate by id */
 static uint32_t rkclk_pll_get_rate(struct rk3368_cru *cru,
 				   enum rk3368_pll_id pll_id)
@@ -155,16 +157,17 @@ static void rkclk_init(struct rk3368_cru *cru)
 }
 #endif
 
+#if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
 static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 {
 	u32 div, con, con_id, rate;
 	u32 pll_rate;
 
 	switch (clk_id) {
-	case SCLK_SDMMC:
+	case HCLK_SDMMC:
 		con_id = 50;
 		break;
-	case SCLK_EMMC:
+	case HCLK_EMMC:
 		con_id = 51;
 		break;
 	case SCLK_SDIO0:
@@ -175,7 +178,7 @@ static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
-	switch ((con & MMC_PLL_SEL_MASK) >> MMC_PLL_SEL_SHIFT) {
+	switch (con & MMC_PLL_SEL_MASK) {
 	case MMC_PLL_SEL_GPLL:
 		pll_rate = rkclk_pll_get_rate(cru, GPLL);
 		break;
@@ -183,6 +186,8 @@ static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 		pll_rate = OSC_HZ;
 		break;
 	case MMC_PLL_SEL_CPLL:
+		pll_rate = rkclk_pll_get_rate(cru, CPLL);
+		break;
 	case MMC_PLL_SEL_USBPHY_480M:
 	default:
 		return -EINVAL;
@@ -190,23 +195,76 @@ static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 	div = (con & MMC_CLK_DIV_MASK) >> MMC_CLK_DIV_SHIFT;
 	rate = DIV_TO_RATE(pll_rate, div);
 
+	debug("%s: raw rate %d (post-divide by 2)\n", __func__, rate);
 	return rate >> 1;
 }
 
-static ulong rk3368_mmc_set_clk(struct rk3368_cru *cru,
-				ulong clk_id, ulong rate)
+static ulong rk3368_mmc_find_best_rate_and_parent(struct clk *clk,
+						  ulong rate,
+						  u32 *best_mux,
+						  u32 *best_div)
 {
-	u32 div;
-	u32 con_id;
-	u32 gpll_rate = rkclk_pll_get_rate(cru, GPLL);
+	int i;
+	ulong best_rate = 0;
+	const ulong MHz = 1000000;
+	const struct {
+		u32 mux;
+		ulong rate;
+	} parents[] = {
+		{ .mux = MMC_PLL_SEL_CPLL, .rate = CPLL_HZ },
+		{ .mux = MMC_PLL_SEL_GPLL, .rate = GPLL_HZ },
+		{ .mux = MMC_PLL_SEL_24M,  .rate = 24 * MHz }
+	};
 
-	div = RATE_TO_DIV(gpll_rate, rate << 1);
+	debug("%s: target rate %ld\n", __func__, rate);
+	for (i = 0; i < ARRAY_SIZE(parents); ++i) {
+		/*
+		 * Find the largest rate no larger than the target-rate for
+		 * the current parent.
+		 */
+		ulong parent_rate = parents[i].rate;
+		u32 div = DIV_ROUND_UP(parent_rate, rate);
+		u32 adj_div = div;
+		ulong new_rate = parent_rate / adj_div;
+
+		debug("%s: rate %ld, parent-mux %d, parent-rate %ld, div %d\n",
+		      __func__, rate, parents[i].mux, parents[i].rate, div);
+
+		/* Skip, if not representable */
+		if ((div - 1) > MMC_CLK_DIV_MASK)
+			continue;
+
+		/* Skip, if we already have a better (or equal) solution */
+		if (new_rate <= best_rate)
+			continue;
+
+		/* This is our new best rate. */
+		best_rate = new_rate;
+		*best_mux = parents[i].mux;
+		*best_div = div - 1;
+	}
+
+	debug("%s: best_mux = %x, best_div = %d, best_rate = %ld\n",
+	      __func__, *best_mux, *best_div, best_rate);
+
+	return best_rate;
+}
+
+static ulong rk3368_mmc_set_clk(struct clk *clk, ulong rate)
+{
+	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
+	struct rk3368_cru *cru = priv->cru;
+	ulong clk_id = clk->id;
+	u32 con_id, mux = 0, div = 0;
+
+	/* Find the best parent and rate */
+	rk3368_mmc_find_best_rate_and_parent(clk, rate << 1, &mux, &div);
 
 	switch (clk_id) {
-	case SCLK_SDMMC:
+	case HCLK_SDMMC:
 		con_id = 50;
 		break;
-	case SCLK_EMMC:
+	case HCLK_EMMC:
 		con_id = 51;
 		break;
 	case SCLK_SDIO0:
@@ -216,33 +274,33 @@ static ulong rk3368_mmc_set_clk(struct rk3368_cru *cru,
 		return -EINVAL;
 	}
 
-	if (div > 0x3f) {
-		div = RATE_TO_DIV(OSC_HZ, rate);
-		rk_clrsetreg(&cru->clksel_con[con_id],
-			     MMC_PLL_SEL_MASK | MMC_CLK_DIV_MASK,
-			     (MMC_PLL_SEL_24M << MMC_PLL_SEL_SHIFT) |
-			     (div << MMC_CLK_DIV_SHIFT));
-	} else {
-		rk_clrsetreg(&cru->clksel_con[con_id],
-			     MMC_PLL_SEL_MASK | MMC_CLK_DIV_MASK,
-			     (MMC_PLL_SEL_GPLL << MMC_PLL_SEL_SHIFT) |
-			     div << MMC_CLK_DIV_SHIFT);
-	}
+	rk_clrsetreg(&cru->clksel_con[con_id],
+		     MMC_PLL_SEL_MASK | MMC_CLK_DIV_MASK,
+		     mux | div);
 
 	return rk3368_mmc_get_clk(cru, clk_id);
 }
+#endif
 
 static ulong rk3368_clk_get_rate(struct clk *clk)
 {
 	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong rate = 0;
 
-	debug("%s id:%ld\n", __func__, clk->id);
+	debug("%s: id %ld\n", __func__, clk->id);
 	switch (clk->id) {
+	case PLL_CPLL:
+		rate = rkclk_pll_get_rate(priv->cru, CPLL);
+		break;
+	case PLL_GPLL:
+		rate = rkclk_pll_get_rate(priv->cru, GPLL);
+		break;
+#if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
 	case HCLK_SDMMC:
 	case HCLK_EMMC:
 		rate = rk3368_mmc_get_clk(priv->cru, clk->id);
 		break;
+#endif
 	default:
 		return -ENOENT;
 	}
@@ -291,10 +349,15 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 	case CLK_DDR:
 		ret = rk3368_ddr_set_clk(priv->cru, rate);
 		break;
-
-	case SCLK_SDMMC:
-	case SCLK_EMMC:
-		ret = rk3368_mmc_set_clk(priv->cru, clk->id, rate);
+#if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
+	case HCLK_SDMMC:
+	case HCLK_EMMC:
+		ret = rk3368_mmc_set_clk(clk, rate);
+		break;
+#endif
+	case SCLK_MAC:
+		/* nothing to do, as this is an external clock */
+		ret = rate;
 		break;
 	default:
 		return -ENOENT;
