@@ -176,9 +176,8 @@ static int mmc_clk_io_on(int sdc_no)
 	return mmc_set_mod_clk(priv, 24000000);
 }
 
-static int mmc_update_clk(struct mmc *mmc)
+static int mmc_update_clk(struct sunxi_mmc_priv *priv)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int cmd;
 	unsigned timeout_msecs = 2000;
 
@@ -198,15 +197,14 @@ static int mmc_update_clk(struct mmc *mmc)
 	return 0;
 }
 
-static int mmc_config_clock(struct mmc *mmc)
+static int mmc_config_clock(struct sunxi_mmc_priv *priv, struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned rval = readl(&priv->reg->clkcr);
 
 	/* Disable Clock */
 	rval &= ~SUNXI_MMC_CLK_ENABLE;
 	writel(rval, &priv->reg->clkcr);
-	if (mmc_update_clk(mmc))
+	if (mmc_update_clk(priv))
 		return -1;
 
 	/* Set mod_clk to new rate */
@@ -220,21 +218,20 @@ static int mmc_config_clock(struct mmc *mmc)
 	/* Re-enable Clock */
 	rval |= SUNXI_MMC_CLK_ENABLE;
 	writel(rval, &priv->reg->clkcr);
-	if (mmc_update_clk(mmc))
+	if (mmc_update_clk(priv))
 		return -1;
 
 	return 0;
 }
 
-static int sunxi_mmc_set_ios(struct mmc *mmc)
+static int sunxi_mmc_set_ios_common(struct sunxi_mmc_priv *priv,
+				    struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
-
 	debug("set ios: bus_width: %x, clock: %d\n",
 	      mmc->bus_width, mmc->clock);
 
 	/* Change clock first */
-	if (mmc->clock && mmc_config_clock(mmc) != 0) {
+	if (mmc->clock && mmc_config_clock(priv, mmc) != 0) {
 		priv->fatal_err = 1;
 		return -EINVAL;
 	}
@@ -261,9 +258,9 @@ static int sunxi_mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
+static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
+				 struct mmc_data *data)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
 	const int reading = !!(data->flags & MMC_DATA_READ);
 	const uint32_t status_bit = reading ? SUNXI_MMC_STATUS_FIFO_EMPTY :
 					      SUNXI_MMC_STATUS_FIFO_FULL;
@@ -293,10 +290,9 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 	return 0;
 }
 
-static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
-			 unsigned int done_bit, const char *what)
+static int mmc_rint_wait(struct sunxi_mmc_priv *priv, struct mmc *mmc,
+			 uint timeout_msecs, uint done_bit, const char *what)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int status;
 
 	do {
@@ -313,10 +309,10 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 	return 0;
 }
 
-static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			      struct mmc_data *data)
+static int sunxi_mmc_send_cmd_common(struct sunxi_mmc_priv *priv,
+				     struct mmc *mmc, struct mmc_cmd *cmd,
+				     struct mmc_data *data)
 {
-	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
 	unsigned int timeout_msecs;
 	int error = 0;
@@ -372,7 +368,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		bytecnt = data->blocksize * data->blocks;
 		debug("trans data %d bytes\n", bytecnt);
 		writel(cmdval | cmd->cmdidx, &priv->reg->cmd);
-		ret = mmc_trans_data_by_cpu(mmc, data);
+		ret = mmc_trans_data_by_cpu(priv, mmc, data);
 		if (ret) {
 			error = readl(&priv->reg->rint) &
 				SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT;
@@ -381,14 +377,15 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	}
 
-	error = mmc_rint_wait(mmc, 1000, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
+	error = mmc_rint_wait(priv, mmc, 1000, SUNXI_MMC_RINT_COMMAND_DONE,
+			      "cmd");
 	if (error)
 		goto out;
 
 	if (data) {
 		timeout_msecs = 120;
 		debug("cacl timeout %x msec\n", timeout_msecs);
-		error = mmc_rint_wait(mmc, timeout_msecs,
+		error = mmc_rint_wait(priv, mmc, timeout_msecs,
 				      data->blocks > 1 ?
 				      SUNXI_MMC_RINT_AUTO_COMMAND_DONE :
 				      SUNXI_MMC_RINT_DATA_OVER,
@@ -425,7 +422,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 out:
 	if (error < 0) {
 		writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
-		mmc_update_clk(mmc);
+		mmc_update_clk(priv);
 	}
 	writel(0xffffffff, &priv->reg->rint);
 	writel(readl(&priv->reg->gctrl) | SUNXI_MMC_GCTRL_FIFO_RESET,
@@ -434,7 +431,22 @@ out:
 	return error;
 }
 
-static int sunxi_mmc_getcd(struct mmc *mmc)
+static int sunxi_mmc_set_ios_legacy(struct mmc *mmc)
+{
+	struct sunxi_mmc_priv *priv = mmc->priv;
+
+	return sunxi_mmc_set_ios_common(priv, mmc);
+}
+
+static int sunxi_mmc_send_cmd_legacy(struct mmc *mmc, struct mmc_cmd *cmd,
+				     struct mmc_data *data)
+{
+	struct sunxi_mmc_priv *priv = mmc->priv;
+
+	return sunxi_mmc_send_cmd_common(priv, mmc, cmd, data);
+}
+
+static int sunxi_mmc_getcd_legacy(struct mmc *mmc)
 {
 	struct sunxi_mmc_priv *priv = mmc->priv;
 	int cd_pin;
@@ -447,17 +459,18 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {
-	.send_cmd	= sunxi_mmc_send_cmd,
-	.set_ios	= sunxi_mmc_set_ios,
+	.send_cmd	= sunxi_mmc_send_cmd_legacy,
+	.set_ios	= sunxi_mmc_set_ios_legacy,
 	.init		= sunxi_mmc_core_init,
-	.getcd		= sunxi_mmc_getcd,
+	.getcd		= sunxi_mmc_getcd_legacy,
 };
 
 struct mmc *sunxi_mmc_init(int sdc_no)
 {
-	struct mmc_config *cfg = &mmc_host[sdc_no].cfg;
+	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
+	struct mmc_config *cfg = &priv->cfg;
 
-	memset(&mmc_host[sdc_no], 0, sizeof(struct sunxi_mmc_priv));
+	memset(priv, '\0', sizeof(struct sunxi_mmc_priv));
 
 	cfg->name = "SUNXI SD/MMC";
 	cfg->ops  = &sunxi_mmc_ops;
@@ -479,5 +492,5 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	mmc_clk_io_on(sdc_no);
 
-	return mmc_create(cfg, &mmc_host[sdc_no]);
+	return mmc_create(cfg, mmc_host);
 }
