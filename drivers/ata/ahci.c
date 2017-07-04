@@ -431,7 +431,7 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 	       cap2 & (1 << 0) ? "boh " : "");
 }
 
-#ifndef CONFIG_SCSI_AHCI_PLAT
+#if defined(CONFIG_DM_SCSI) || !defined(CONFIG_SCSI_AHCI_PLAT)
 # if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 static int ahci_init_one(struct ahci_uc_priv *uc_priv, struct udevice *dev)
 # else
@@ -1158,11 +1158,8 @@ int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp)
 	return 0;
 }
 
-int ahci_probe_scsi(struct udevice *ahci_dev)
+int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 {
-#ifdef CONFIG_SCSI_AHCI_PLAT
-	return -ENOSYS;  /* TODO(sjg@chromium.org): Support non-PCI AHCI */
-#else
 	struct ahci_uc_priv *uc_priv;
 	struct scsi_platdata *uc_plat;
 	struct udevice *dev;
@@ -1172,21 +1169,32 @@ int ahci_probe_scsi(struct udevice *ahci_dev)
 	if (!dev)
 		return -ENODEV;
 	uc_plat = dev_get_uclass_platdata(dev);
-	uc_plat->base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
-					      PCI_REGION_MEM);
+	uc_plat->base = base;
 	uc_plat->max_lun = 1;
 	uc_plat->max_id = 2;
-	uc_priv = dev_get_uclass_priv(dev);
+
+	uc_priv = dev_get_uclass_priv(ahci_dev);
 	ret = ahci_init_one(uc_priv, dev);
 	if (ret)
 		return ret;
 	ret = ahci_start_ports(uc_priv);
 	if (ret)
 		return ret;
-#endif
 
 	return 0;
 }
+
+#ifdef CONFIG_DM_PCI
+int ahci_probe_scsi_pci(struct udevice *ahci_dev)
+{
+	ulong base;
+
+	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
+				     PCI_REGION_MEM);
+
+	return ahci_probe_scsi(ahci_dev, base);
+}
+#endif
 
 struct scsi_ops scsi_ops = {
 	.exec		= ahci_scsi_exec,

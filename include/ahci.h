@@ -218,8 +218,20 @@ int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp);
  * devices it finds.
  *
  * @ahci_dev: AHCI parent device
+ * @base: Base address of AHCI port
  * @return 0 if OK, -ve on error
  */
-int ahci_probe_scsi(struct udevice *ahci_dev);
+int ahci_probe_scsi(struct udevice *ahci_dev, ulong base);
+
+/**
+ * ahci_probe_scsi_pci() - probe and scan the attached SCSI bus on PCI
+ *
+ * Note that the SCSI device will itself bind block devices for any storage
+ * devices it finds.
+ *
+ * @ahci_dev: AHCI parent device
+ * @return 0 if OK, -ve on error
+ */
+int ahci_probe_scsi_pci(struct udevice *ahci_dev);
 
 #endif
