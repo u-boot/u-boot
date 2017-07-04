@@ -43,7 +43,7 @@ static int sunxi_mmc_getcd_gpio(int sdc_no)
 
 static int mmc_resource_init(int sdc_no)
 {
-	struct sunxi_mmc_priv *mmchost = &mmc_host[sdc_no];
+	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int cd_pin, ret = 0;
 
@@ -51,26 +51,26 @@ static int mmc_resource_init(int sdc_no)
 
 	switch (sdc_no) {
 	case 0:
-		mmchost->reg = (struct sunxi_mmc *)SUNXI_MMC0_BASE;
-		mmchost->mclkreg = &ccm->sd0_clk_cfg;
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC0_BASE;
+		priv->mclkreg = &ccm->sd0_clk_cfg;
 		break;
 	case 1:
-		mmchost->reg = (struct sunxi_mmc *)SUNXI_MMC1_BASE;
-		mmchost->mclkreg = &ccm->sd1_clk_cfg;
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC1_BASE;
+		priv->mclkreg = &ccm->sd1_clk_cfg;
 		break;
 	case 2:
-		mmchost->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
-		mmchost->mclkreg = &ccm->sd2_clk_cfg;
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
+		priv->mclkreg = &ccm->sd2_clk_cfg;
 		break;
 	case 3:
-		mmchost->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
-		mmchost->mclkreg = &ccm->sd3_clk_cfg;
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
+		priv->mclkreg = &ccm->sd3_clk_cfg;
 		break;
 	default:
 		printf("Wrong mmc number %d\n", sdc_no);
 		return -1;
 	}
-	mmchost->mmc_no = sdc_no;
+	priv->mmc_no = sdc_no;
 
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
 	if (cd_pin >= 0) {
@@ -84,7 +84,7 @@ static int mmc_resource_init(int sdc_no)
 	return ret;
 }
 
-static int mmc_set_mod_clk(struct sunxi_mmc_priv *mmchost, unsigned int hz)
+static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
 
@@ -112,8 +112,8 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *mmchost, unsigned int hz)
 	}
 
 	if (n > 3) {
-		printf("mmc %u error cannot set clock to %u\n",
-		       mmchost->mmc_no, hz);
+		printf("mmc %u error cannot set clock to %u\n", priv->mmc_no,
+		       hz);
 		return -1;
 	}
 
@@ -145,18 +145,17 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *mmchost, unsigned int hz)
 
 	writel(CCM_MMC_CTRL_ENABLE | pll | CCM_MMC_CTRL_SCLK_DLY(sclk_dly) |
 	       CCM_MMC_CTRL_N(n) | CCM_MMC_CTRL_OCLK_DLY(oclk_dly) |
-	       CCM_MMC_CTRL_M(div), mmchost->mclkreg);
+	       CCM_MMC_CTRL_M(div), priv->mclkreg);
 
 	debug("mmc %u set mod-clk req %u parent %u n %u m %u rate %u\n",
-	      mmchost->mmc_no, hz, pll_hz, 1u << n, div,
-	      pll_hz / (1u << n) / div);
+	      priv->mmc_no, hz, pll_hz, 1u << n, div, pll_hz / (1u << n) / div);
 
 	return 0;
 }
 
 static int mmc_clk_io_on(int sdc_no)
 {
-	struct sunxi_mmc_priv *mmchost = &mmc_host[sdc_no];
+	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	debug("init mmc %d clock and io\n", sdc_no);
@@ -174,53 +173,53 @@ static int mmc_clk_io_on(int sdc_no)
 	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
 #endif
 
-	return mmc_set_mod_clk(mmchost, 24000000);
+	return mmc_set_mod_clk(priv, 24000000);
 }
 
 static int mmc_update_clk(struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int cmd;
 	unsigned timeout_msecs = 2000;
 
 	cmd = SUNXI_MMC_CMD_START |
 	      SUNXI_MMC_CMD_UPCLK_ONLY |
 	      SUNXI_MMC_CMD_WAIT_PRE_OVER;
-	writel(cmd, &mmchost->reg->cmd);
-	while (readl(&mmchost->reg->cmd) & SUNXI_MMC_CMD_START) {
+	writel(cmd, &priv->reg->cmd);
+	while (readl(&priv->reg->cmd) & SUNXI_MMC_CMD_START) {
 		if (!timeout_msecs--)
 			return -1;
 		udelay(1000);
 	}
 
 	/* clock update sets various irq status bits, clear these */
-	writel(readl(&mmchost->reg->rint), &mmchost->reg->rint);
+	writel(readl(&priv->reg->rint), &priv->reg->rint);
 
 	return 0;
 }
 
 static int mmc_config_clock(struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
-	unsigned rval = readl(&mmchost->reg->clkcr);
+	struct sunxi_mmc_priv *priv = mmc->priv;
+	unsigned rval = readl(&priv->reg->clkcr);
 
 	/* Disable Clock */
 	rval &= ~SUNXI_MMC_CLK_ENABLE;
-	writel(rval, &mmchost->reg->clkcr);
+	writel(rval, &priv->reg->clkcr);
 	if (mmc_update_clk(mmc))
 		return -1;
 
 	/* Set mod_clk to new rate */
-	if (mmc_set_mod_clk(mmchost, mmc->clock))
+	if (mmc_set_mod_clk(priv, mmc->clock))
 		return -1;
 
 	/* Clear internal divider */
 	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
-	writel(rval, &mmchost->reg->clkcr);
+	writel(rval, &priv->reg->clkcr);
 
 	/* Re-enable Clock */
 	rval |= SUNXI_MMC_CLK_ENABLE;
-	writel(rval, &mmchost->reg->clkcr);
+	writel(rval, &priv->reg->clkcr);
 	if (mmc_update_clk(mmc))
 		return -1;
 
@@ -229,34 +228,34 @@ static int mmc_config_clock(struct mmc *mmc)
 
 static int sunxi_mmc_set_ios(struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 
 	debug("set ios: bus_width: %x, clock: %d\n",
 	      mmc->bus_width, mmc->clock);
 
 	/* Change clock first */
 	if (mmc->clock && mmc_config_clock(mmc) != 0) {
-		mmchost->fatal_err = 1;
+		priv->fatal_err = 1;
 		return -EINVAL;
 	}
 
 	/* Change bus width */
 	if (mmc->bus_width == 8)
-		writel(0x2, &mmchost->reg->width);
+		writel(0x2, &priv->reg->width);
 	else if (mmc->bus_width == 4)
-		writel(0x1, &mmchost->reg->width);
+		writel(0x1, &priv->reg->width);
 	else
-		writel(0x0, &mmchost->reg->width);
+		writel(0x0, &priv->reg->width);
 
 	return 0;
 }
 
 static int sunxi_mmc_core_init(struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 
 	/* Reset controller */
-	writel(SUNXI_MMC_GCTRL_RESET, &mmchost->reg->gctrl);
+	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
 	udelay(1000);
 
 	return 0;
@@ -264,7 +263,7 @@ static int sunxi_mmc_core_init(struct mmc *mmc)
 
 static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 	const int reading = !!(data->flags & MMC_DATA_READ);
 	const uint32_t status_bit = reading ? SUNXI_MMC_STATUS_FIFO_EMPTY :
 					      SUNXI_MMC_STATUS_FIFO_FULL;
@@ -276,19 +275,19 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 		timeout_usecs = 2000000;
 
 	/* Always read / write data through the CPU */
-	setbits_le32(&mmchost->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
+	setbits_le32(&priv->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
 
 	for (i = 0; i < (byte_cnt >> 2); i++) {
-		while (readl(&mmchost->reg->status) & status_bit) {
+		while (readl(&priv->reg->status) & status_bit) {
 			if (!timeout_usecs--)
 				return -1;
 			udelay(1);
 		}
 
 		if (reading)
-			buff[i] = readl(&mmchost->reg->fifo);
+			buff[i] = readl(&priv->reg->fifo);
 		else
-			writel(buff[i], &mmchost->reg->fifo);
+			writel(buff[i], &priv->reg->fifo);
 	}
 
 	return 0;
@@ -297,11 +296,11 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 			 unsigned int done_bit, const char *what)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int status;
 
 	do {
-		status = readl(&mmchost->reg->rint);
+		status = readl(&priv->reg->rint);
 		if (!timeout_msecs-- ||
 		    (status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT)) {
 			debug("%s timeout %x\n", what,
@@ -317,14 +316,14 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
 	unsigned int timeout_msecs;
 	int error = 0;
 	unsigned int status = 0;
 	unsigned int bytecnt = 0;
 
-	if (mmchost->fatal_err)
+	if (priv->fatal_err)
 		return -1;
 	if (cmd->resp_type & MMC_RSP_BUSY)
 		debug("mmc cmd %d check rsp busy\n", cmd->cmdidx);
@@ -351,16 +350,16 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			cmdval |= SUNXI_MMC_CMD_WRITE;
 		if (data->blocks > 1)
 			cmdval |= SUNXI_MMC_CMD_AUTO_STOP;
-		writel(data->blocksize, &mmchost->reg->blksz);
-		writel(data->blocks * data->blocksize, &mmchost->reg->bytecnt);
+		writel(data->blocksize, &priv->reg->blksz);
+		writel(data->blocks * data->blocksize, &priv->reg->bytecnt);
 	}
 
-	debug("mmc %d, cmd %d(0x%08x), arg 0x%08x\n", mmchost->mmc_no,
+	debug("mmc %d, cmd %d(0x%08x), arg 0x%08x\n", priv->mmc_no,
 	      cmd->cmdidx, cmdval | cmd->cmdidx, cmd->cmdarg);
-	writel(cmd->cmdarg, &mmchost->reg->arg);
+	writel(cmd->cmdarg, &priv->reg->arg);
 
 	if (!data)
-		writel(cmdval | cmd->cmdidx, &mmchost->reg->cmd);
+		writel(cmdval | cmd->cmdidx, &priv->reg->cmd);
 
 	/*
 	 * transfer data and check status
@@ -372,10 +371,10 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 		bytecnt = data->blocksize * data->blocks;
 		debug("trans data %d bytes\n", bytecnt);
-		writel(cmdval | cmd->cmdidx, &mmchost->reg->cmd);
+		writel(cmdval | cmd->cmdidx, &priv->reg->cmd);
 		ret = mmc_trans_data_by_cpu(mmc, data);
 		if (ret) {
-			error = readl(&mmchost->reg->rint) & \
+			error = readl(&priv->reg->rint) &
 				SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT;
 			error = -ETIMEDOUT;
 			goto out;
@@ -401,7 +400,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (cmd->resp_type & MMC_RSP_BUSY) {
 		timeout_msecs = 2000;
 		do {
-			status = readl(&mmchost->reg->status);
+			status = readl(&priv->reg->status);
 			if (!timeout_msecs--) {
 				debug("busy timeout\n");
 				error = -ETIMEDOUT;
@@ -412,35 +411,35 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (cmd->resp_type & MMC_RSP_136) {
-		cmd->response[0] = readl(&mmchost->reg->resp3);
-		cmd->response[1] = readl(&mmchost->reg->resp2);
-		cmd->response[2] = readl(&mmchost->reg->resp1);
-		cmd->response[3] = readl(&mmchost->reg->resp0);
+		cmd->response[0] = readl(&priv->reg->resp3);
+		cmd->response[1] = readl(&priv->reg->resp2);
+		cmd->response[2] = readl(&priv->reg->resp1);
+		cmd->response[3] = readl(&priv->reg->resp0);
 		debug("mmc resp 0x%08x 0x%08x 0x%08x 0x%08x\n",
 		      cmd->response[3], cmd->response[2],
 		      cmd->response[1], cmd->response[0]);
 	} else {
-		cmd->response[0] = readl(&mmchost->reg->resp0);
+		cmd->response[0] = readl(&priv->reg->resp0);
 		debug("mmc resp 0x%08x\n", cmd->response[0]);
 	}
 out:
 	if (error < 0) {
-		writel(SUNXI_MMC_GCTRL_RESET, &mmchost->reg->gctrl);
+		writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
 		mmc_update_clk(mmc);
 	}
-	writel(0xffffffff, &mmchost->reg->rint);
-	writel(readl(&mmchost->reg->gctrl) | SUNXI_MMC_GCTRL_FIFO_RESET,
-	       &mmchost->reg->gctrl);
+	writel(0xffffffff, &priv->reg->rint);
+	writel(readl(&priv->reg->gctrl) | SUNXI_MMC_GCTRL_FIFO_RESET,
+	       &priv->reg->gctrl);
 
 	return error;
 }
 
 static int sunxi_mmc_getcd(struct mmc *mmc)
 {
-	struct sunxi_mmc_priv *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *priv = mmc->priv;
 	int cd_pin;
 
-	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
+	cd_pin = sunxi_mmc_getcd_gpio(priv->mmc_no);
 	if (cd_pin < 0)
 		return 1;
 
