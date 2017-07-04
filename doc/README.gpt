@@ -210,6 +210,24 @@ Following line can be used to assess if GPT verification has succeed:
 U-BOOT> gpt verify mmc 0 $partitions
 U-BOOT> if test $? = 0; then echo "GPT OK"; else echo "GPT ERR"; fi
 
+Renaming GPT partitions from U-Boot:
+====================================
+
+GPT partition names are a mechanism via which userspace and U-Boot can
+communicate about software updates and boot failure.  The 'gpt guid',
+'gpt read', 'gpt rename' and 'gpt swap' commands facilitate
+programmatic renaming of partitions from bootscripts by generating and
+modifying the partitions layout string.  Here is an illustration of
+employing 'swap' to exchange 'primary' and 'backup' partition names:
+
+U-BOOT> gpt swap mmc 0 primary backup
+
+Afterwards, all partitions previously named 'primary' will be named
+'backup', and vice-versa.  Alternatively, single partitions may be
+renamed.  In this example, mmc0's first partition will be renamed
+'primary':
+
+U-BOOT> gpt rename mmc 0 1 primary
 
 The GPT functionality may be tested with the 'sandbox' board by
 creating a disk image as described under 'Block Device Emulation' in
@@ -228,7 +246,7 @@ board/sandbox/README.sandbox:
 =>host bind 0 ./disk.raw
 => gpt read host 0
 [ . . . ]
-=> gpt flip host 0
+=> gpt swap host 0 name othername
 [ . . . ]
 
 Partition type GUID:

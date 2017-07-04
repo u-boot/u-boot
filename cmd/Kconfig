@@ -595,6 +595,14 @@ config CMD_GPT
 	  Enable the 'gpt' command to ready and write GPT style partition
 	  tables.
 
+config CMD_GPT_RENAME
+	bool "GPT partition renaming commands"
+	depends on CMD_GPT
+	help
+	  Enables the 'gpt' command to interchange names on two GPT
+	  partitions via the 'gpt swap' command or to rename single
+	  partitions via the 'rename' command.
+
 config CMD_ARMFLASH
 	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
