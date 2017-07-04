@@ -19,7 +19,7 @@
 #include <asm/arch/mmc.h>
 #include <asm-generic/gpio.h>
 
-struct sunxi_mmc_host {
+struct sunxi_mmc_priv {
 	unsigned mmc_no;
 	uint32_t *mclkreg;
 	unsigned fatal_err;
@@ -28,7 +28,7 @@ struct sunxi_mmc_host {
 };
 
 /* support 4 mmc hosts */
-struct sunxi_mmc_host mmc_host[4];
+struct sunxi_mmc_priv mmc_host[4];
 
 static int sunxi_mmc_getcd_gpio(int sdc_no)
 {
@@ -43,7 +43,7 @@ static int sunxi_mmc_getcd_gpio(int sdc_no)
 
 static int mmc_resource_init(int sdc_no)
 {
-	struct sunxi_mmc_host *mmchost = &mmc_host[sdc_no];
+	struct sunxi_mmc_priv *mmchost = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int cd_pin, ret = 0;
 
@@ -84,7 +84,7 @@ static int mmc_resource_init(int sdc_no)
 	return ret;
 }
 
-static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
+static int mmc_set_mod_clk(struct sunxi_mmc_priv *mmchost, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
 
@@ -156,7 +156,7 @@ static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
 
 static int mmc_clk_io_on(int sdc_no)
 {
-	struct sunxi_mmc_host *mmchost = &mmc_host[sdc_no];
+	struct sunxi_mmc_priv *mmchost = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	debug("init mmc %d clock and io\n", sdc_no);
@@ -179,7 +179,7 @@ static int mmc_clk_io_on(int sdc_no)
 
 static int mmc_update_clk(struct mmc *mmc)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	unsigned int cmd;
 	unsigned timeout_msecs = 2000;
 
@@ -201,7 +201,7 @@ static int mmc_update_clk(struct mmc *mmc)
 
 static int mmc_config_clock(struct mmc *mmc)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	unsigned rval = readl(&mmchost->reg->clkcr);
 
 	/* Disable Clock */
@@ -229,7 +229,7 @@ static int mmc_config_clock(struct mmc *mmc)
 
 static int sunxi_mmc_set_ios(struct mmc *mmc)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 
 	debug("set ios: bus_width: %x, clock: %d\n",
 	      mmc->bus_width, mmc->clock);
@@ -253,7 +253,7 @@ static int sunxi_mmc_set_ios(struct mmc *mmc)
 
 static int sunxi_mmc_core_init(struct mmc *mmc)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 
 	/* Reset controller */
 	writel(SUNXI_MMC_GCTRL_RESET, &mmchost->reg->gctrl);
@@ -264,7 +264,7 @@ static int sunxi_mmc_core_init(struct mmc *mmc)
 
 static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	const int reading = !!(data->flags & MMC_DATA_READ);
 	const uint32_t status_bit = reading ? SUNXI_MMC_STATUS_FIFO_EMPTY :
 					      SUNXI_MMC_STATUS_FIFO_FULL;
@@ -297,7 +297,7 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 			 unsigned int done_bit, const char *what)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	unsigned int status;
 
 	do {
@@ -317,7 +317,7 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
 	unsigned int timeout_msecs;
 	int error = 0;
@@ -437,7 +437,7 @@ out:
 
 static int sunxi_mmc_getcd(struct mmc *mmc)
 {
-	struct sunxi_mmc_host *mmchost = mmc->priv;
+	struct sunxi_mmc_priv *mmchost = mmc->priv;
 	int cd_pin;
 
 	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
@@ -458,7 +458,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 {
 	struct mmc_config *cfg = &mmc_host[sdc_no].cfg;
 
-	memset(&mmc_host[sdc_no], 0, sizeof(struct sunxi_mmc_host));
+	memset(&mmc_host[sdc_no], 0, sizeof(struct sunxi_mmc_priv));
 
 	cfg->name = "SUNXI SD/MMC";
 	cfg->ops  = &sunxi_mmc_ops;
