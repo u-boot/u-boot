@@ -156,6 +156,25 @@ static bool found_key(const char *str, const char *key)
 	return result;
 }
 
+static int calc_parts_list_len(int numparts)
+{
+	int partlistlen = UUID_STR_LEN + 1 + strlen("uuid_disk=");
+	/* for the comma */
+	partlistlen++;
+
+	/* per-partition additions; numparts starts at 1, so this should be correct */
+	partlistlen += numparts * (strlen("name=,") + PART_NAME_LEN + 1);
+	/* see part.h for definition of struct disk_partition */
+	partlistlen += numparts * (strlen("start=MiB,") + sizeof(lbaint_t) + 1);
+	partlistlen += numparts * (strlen("size=MiB,") + sizeof(lbaint_t) + 1);
+	partlistlen += numparts * (strlen("uuid=;") + UUID_STR_LEN + 1);
+	/* for the terminating null */
+	partlistlen++;
+	debug("Length of partitions_list is %d for %d partitions\n", partlistlen,
+	      numparts);
+	return partlistlen;
+}
+
 #ifdef CONFIG_CMD_GPT_RENAME
 static void del_gpt_info(void)
 {
@@ -232,25 +251,6 @@ static void print_gpt_info(void)
 #endif
 		printf("\n");
 	}
-}
-
-static int calc_parts_list_len(int numparts)
-{
-	int partlistlen = UUID_STR_LEN + 1 + strlen("uuid_disk=");
-	/* for the comma */
-	partlistlen++;
-
-	/* per-partition additions; numparts starts at 1, so this should be correct */
-	partlistlen += numparts * (strlen("name=,") + PART_NAME_LEN + 1);
-	/* see part.h for definition of struct disk_partition */
-	partlistlen += numparts * (strlen("start=MiB,") + sizeof(lbaint_t) + 1);
-	partlistlen += numparts * (strlen("size=MiB,") + sizeof(lbaint_t) + 1);
-	partlistlen += numparts * (strlen("uuid=;") + UUID_STR_LEN + 1);
-	/* for the terminating null */
-	partlistlen++;
-	debug("Length of partitions_list is %d for %d partitions\n", partlistlen,
-	      numparts);
-	return partlistlen;
 }
 
 /*
@@ -385,6 +385,7 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 	int errno = 0;
 	uint64_t size_ll, start_ll;
 	lbaint_t offset = 0;
+	int max_str_part = calc_parts_list_len(MAX_SEARCH_PARTITIONS);
 
 	debug("%s:  lba num: 0x%x %d\n", __func__,
 	      (unsigned int)dev_desc->lba, (unsigned int)dev_desc->lba);
@@ -402,6 +403,8 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 	if (!val) {
 #ifdef CONFIG_RANDOM_UUID
 		*str_disk_guid = malloc(UUID_STR_LEN + 1);
+		if (str_disk_guid == NULL)
+			return -ENOMEM;
 		gen_rand_uuid_str(*str_disk_guid, UUID_STR_FORMAT_STD);
 #else
 		free(str);
@@ -416,10 +419,14 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 		/* Move s to first partition */
 		strsep(&s, ";");
 	}
-	if (strlen(s) == 0)
+	if (s == NULL) {
+		printf("Error: is the partitions string NULL-terminated?\n");
+		return -EINVAL;
+	}
+	if (strnlen(s, max_str_part) == 0)
 		return -3;
 
-	i = strlen(s) - 1;
+	i = strnlen(s, max_str_part) - 1;
 	if (s[i] == ';')
 		s[i] = '\0';
 
@@ -433,6 +440,8 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 
 	/* allocate memory for partitions */
 	parts = calloc(sizeof(disk_partition_t), p_count);
+	if (parts == NULL)
+		return -ENOMEM;
 
 	/* retrieve partitions data from string */
 	for (i = 0; i < p_count; i++) {
@@ -454,12 +463,12 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 		} else {
 			if (extract_env(val, &p))
 				p = val;
-			if (strlen(p) >= sizeof(parts[i].uuid)) {
+			if (strnlen(p, max_str_part) >= sizeof(parts[i].uuid)) {
 				printf("Wrong uuid format for partition %d\n", i);
 				errno = -4;
 				goto err;
 			}
-			strcpy((char *)parts[i].uuid, p);
+			strncpy((char *)parts[i].uuid, p, max_str_part);
 			free(val);
 		}
 #ifdef CONFIG_PARTITION_TYPE_GUID
@@ -469,13 +478,13 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 			/* 'type' is optional */
 			if (extract_env(val, &p))
 				p = val;
-			if (strlen(p) >= sizeof(parts[i].type_guid)) {
+			if (strnlen(p, max_str_part) >= sizeof(parts[i].type_guid)) {
 				printf("Wrong type guid format for partition %d\n",
 				       i);
 				errno = -4;
 				goto err;
 			}
-			strcpy((char *)parts[i].type_guid, p);
+			strncpy((char *)parts[i].type_guid, p, max_str_part);
 			free(val);
 		}
 #endif
@@ -487,11 +496,11 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 		}
 		if (extract_env(val, &p))
 			p = val;
-		if (strlen(p) >= sizeof(parts[i].name)) {
+		if (strnlen(p, max_str_part) >= sizeof(parts[i].name)) {
 			errno = -4;
 			goto err;
 		}
-		strcpy((char *)parts[i].name, p);
+		strncpy((char *)parts[i].name, p, max_str_part);
 		free(val);
 
 		/* size */
