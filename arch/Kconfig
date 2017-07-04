@@ -94,6 +94,7 @@ config X86
 	select DM_GPIO
 	select DM_SPI
 	select DM_SPI_FLASH
+	select USB
 	select USB_EHCI_HCD
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
