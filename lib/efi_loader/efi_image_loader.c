@@ -26,7 +26,7 @@ efi_status_t EFIAPI efi_return_handle(void *handle, efi_guid_t *protocol,
 	return EFI_SUCCESS;
 }
 
-static void efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
+static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			unsigned long rel_size, void *efi_reloc)
 {
 	const IMAGE_BASE_RELOCATION *end;
@@ -63,11 +63,13 @@ static void efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			default:
 				printf("Unknown Relocation off %x type %x\n",
 				       offset, type);
+				return EFI_LOAD_ERROR;
 			}
 			relocs++;
 		}
 		rel = (const IMAGE_BASE_RELOCATION *)relocs;
 	}
+	return EFI_SUCCESS;
 }
 
 void __weak invalidate_icache_all(void)
@@ -171,7 +173,11 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	}
 
 	/* Run through relocations */
-	efi_loader_relocate(rel, rel_size, efi_reloc);
+	if (efi_loader_relocate(rel, rel_size, efi_reloc) != EFI_SUCCESS) {
+		efi_free_pages((uintptr_t) efi_reloc,
+			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
+		return NULL;
+	}
 
 	/* Flush cache */
 	flush_cache((ulong)efi_reloc,

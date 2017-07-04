@@ -133,7 +133,13 @@ static void *copy_fdt(void *fdt)
 			       &new_fdt_addr) != EFI_SUCCESS) {
 		/* If we can't put it there, put it somewhere */
 		new_fdt_addr = (ulong)memalign(4096, fdt_size);
+		if (efi_allocate_pages(1, EFI_BOOT_SERVICES_DATA, fdt_pages,
+				       &new_fdt_addr) != EFI_SUCCESS) {
+			printf("ERROR: Failed to reserve space for FDT\n");
+			return NULL;
+		}
 	}
+
 	new_fdt = (void*)(ulong)new_fdt_addr;
 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
 	fdt_set_totalsize(new_fdt, fdt_size);

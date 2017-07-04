@@ -28,6 +28,9 @@ enum efi_event_type {
 	EFI_TIMER_RELATIVE = 2
 };
 
+#define EVT_NOTIFY_WAIT		0x00000100
+#define EVT_NOTIFY_SIGNAL	0x00000200
+
 /* EFI Boot Services table */
 struct efi_boot_services {
 	struct efi_table_hdr hdr;

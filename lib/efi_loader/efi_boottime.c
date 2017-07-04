@@ -104,9 +104,9 @@ static void EFIAPI efi_restore_tpl(unsigned long old_tpl)
 	EFI_EXIT(efi_unsupported(__func__));
 }
 
-efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
-					   unsigned long pages,
-					   uint64_t *memory)
+static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
+						  unsigned long pages,
+						  uint64_t *memory)
 {
 	efi_status_t r;
 
@@ -115,7 +115,8 @@ efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
 	return EFI_EXIT(r);
 }
 
-efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory, unsigned long pages)
+static efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory,
+					      unsigned long pages)
 {
 	efi_status_t r;
 
@@ -124,11 +125,12 @@ efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory, unsigned long pages)
 	return EFI_EXIT(r);
 }
 
-efi_status_t EFIAPI efi_get_memory_map_ext(unsigned long *memory_map_size,
-					   struct efi_mem_desc *memory_map,
-					   unsigned long *map_key,
-					   unsigned long *descriptor_size,
-					   uint32_t *descriptor_version)
+static efi_status_t EFIAPI efi_get_memory_map_ext(
+					unsigned long *memory_map_size,
+					struct efi_mem_desc *memory_map,
+					unsigned long *map_key,
+					unsigned long *descriptor_size,
+					uint32_t *descriptor_version)
 {
 	efi_status_t r;
 
@@ -189,6 +191,16 @@ static efi_status_t EFIAPI efi_create_event(
 		return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 	}
 
+	if (event == NULL)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	if ((type & EVT_NOTIFY_SIGNAL) && (type & EVT_NOTIFY_WAIT))
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	if ((type & (EVT_NOTIFY_SIGNAL|EVT_NOTIFY_WAIT)) &&
+	    notify_function == NULL)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	efi_event.type = type;
 	efi_event.notify_tpl = notify_tpl;
 	efi_event.notify_function = notify_function;
@@ -210,7 +222,9 @@ void efi_timer_check(void)
 		/* Triggering! */
 		if (efi_event.trigger_type == EFI_TIMER_PERIODIC)
 			efi_event.trigger_next += efi_event.trigger_time / 10;
-		efi_event.notify_function(&efi_event, efi_event.notify_context);
+		if (efi_event.type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL))
+			efi_event.notify_function(&efi_event,
+			                          efi_event.notify_context);
 	}
 
 	WATCHDOG_RESET();
@@ -738,8 +752,8 @@ static efi_status_t EFIAPI efi_handle_protocol(void *handle,
 					       efi_guid_t *protocol,
 					       void **protocol_interface)
 {
-	return efi_open_protocol(handle, protocol, protocol_interface,
-				 NULL, NULL, 0);
+	return efi_open_protocol(handle, protocol, protocol_interface, NULL,
+				 NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 }
 
 static const struct efi_boot_services efi_boot_services = {
