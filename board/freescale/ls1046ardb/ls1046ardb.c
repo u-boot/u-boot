@@ -69,10 +69,6 @@ int board_init(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
-
 #ifdef CONFIG_SECURE_BOOT
 	/*
 	 * In case of Secure Boot, the IBR configures the SMMU

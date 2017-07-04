@@ -201,10 +201,6 @@ int board_init(void)
 
 	ls102xa_smmu_stream_id_init();
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
-
 	return 0;
 }
 

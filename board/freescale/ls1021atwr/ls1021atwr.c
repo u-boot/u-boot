@@ -435,7 +435,6 @@ void board_init_f(ulong dummy)
 	/* Allow OCRAM access permission as R/W */
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
-	enable_layerscape_ns_access();
 #endif
 
 	/*
