@@ -253,8 +253,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
 	if (setjmp(&loaded_image_info.exit_jmp)) {
-		efi_status_t status = loaded_image_info.exit_status;
-		return status == EFI_SUCCESS ? 0 : -EINVAL;
+		return loaded_image_info.exit_status;
 	}
 
 #ifdef CONFIG_ARM64
@@ -282,7 +281,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *saddr, *sfdt;
 	unsigned long addr, fdt_addr = 0;
-	int r = 0;
+	unsigned long r;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -307,12 +306,13 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
 	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
-	printf("## Application terminated, r = %d\n", r);
+	printf("## Application terminated, r = %lu\n",
+	       r & ~EFI_ERROR_MASK);
 
-	if (r != 0)
-		r = 1;
-
-	return r;
+	if (r != EFI_SUCCESS)
+		return 1;
+	else
+		return 0;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
