@@ -153,29 +153,6 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	return 0;
 }
 
-static int mmc_clk_io_on(int sdc_no)
-{
-	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	debug("init mmc %d clock and io\n", sdc_no);
-
-	/* config ahb clock */
-	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
-
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	/* unassert reset */
-	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
-#endif
-#if defined(CONFIG_MACH_SUN9I)
-	/* sun9i has a mmc-common module, also set the gate and reset there */
-	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
-	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
-#endif
-
-	return mmc_set_mod_clk(priv, 24000000);
-}
-
 static int mmc_update_clk(struct sunxi_mmc_priv *priv)
 {
 	unsigned int cmd;
@@ -467,8 +444,10 @@ static const struct mmc_ops sunxi_mmc_ops = {
 
 struct mmc *sunxi_mmc_init(int sdc_no)
 {
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
 	struct mmc_config *cfg = &priv->cfg;
+	int ret;
 
 	memset(priv, '\0', sizeof(struct sunxi_mmc_priv));
 
@@ -490,7 +469,22 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	if (mmc_resource_init(sdc_no) != 0)
 		return NULL;
 
-	mmc_clk_io_on(sdc_no);
+	/* config ahb clock */
+	debug("init mmc %d clock and io\n", sdc_no);
+	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
+
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	/* unassert reset */
+	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
+#endif
+#if defined(CONFIG_MACH_SUN9I)
+	/* sun9i has a mmc-common module, also set the gate and reset there */
+	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
+	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
+#endif
+	ret = mmc_set_mod_clk(priv, 24000000);
+	if (ret)
+		return NULL;
 
 	return mmc_create(cfg, mmc_host);
 }
