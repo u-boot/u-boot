@@ -102,6 +102,10 @@ enum {
 	/* SOFTRST1_CON */
 	MCU_PO_SRST_MASK		= BIT(13),
 	MCU_SYS_SRST_MASK		= BIT(12),
+	DMA1_SRST_REQ                   = BIT(2),
+
+	/* SOFTRST4_CON */
+	DMA2_SRST_REQ                   = BIT(0),
 
 	/* GLB_RST_CON */
 	PMU_GLB_SRST_CTRL_SHIFT		= 2,
