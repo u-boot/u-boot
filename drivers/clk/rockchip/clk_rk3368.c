@@ -353,7 +353,7 @@ static ulong rk3368_gmac_set_clk(struct rk3368_cru *cru,
 
 static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
+	__maybe_unused struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong ret = 0;
 
 	debug("%s id:%ld rate:%ld\n", __func__, clk->id, rate);
