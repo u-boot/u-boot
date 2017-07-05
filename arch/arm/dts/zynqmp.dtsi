@@ -284,8 +284,8 @@
 	fpga_full: fpga-full {
 		compatible = "fpga-region";
 		fpga-mgr = <&pcap>;
-		#address-cells = <1>;
-		#size-cells = <1>;
+		#address-cells = <2>;
+		#size-cells = <2>;
 	};
 
 	nvmem_firmware {
