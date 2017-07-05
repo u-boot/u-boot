@@ -141,19 +141,6 @@ gd_t *global_data;
 "	lwi	r5, r5, %1\n"			\
 "	bra	r5\n"				\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r5");
-#elif defined(CONFIG_AVR32)
-/*
- * r6 holds the pointer to the global_data. r8 is call clobbered.
- */
-#define EXPORT_FUNC(f, a, x, ...)					\
-	asm volatile(					\
-		"	.globl\t" #x "\n"		\
-		#x ":\n"				\
-		"	ld.w	r8, r6[%0]\n"		\
-		"	ld.w	pc, r8[%1]\n"		\
-		:					\
-		: "i"(offsetof(gd_t, jt)), "i"(FO(x))	\
-		: "r8");
 #elif defined(CONFIG_SH)
 /*
  * r13 holds the pointer to the global_data. r1 is a call clobbered.

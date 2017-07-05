@@ -22,7 +22,7 @@
 #endif
 
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SUPERH) \
-	&& !defined(CONFIG_AVR32) && !defined(CONFIG_PPC32) \
+	&& !defined(CONFIG_PPC32) \
 	&& !defined(CONFIG_PPC64) && !defined(CONFIG_MIPS) \
 	&& !defined(CONFIG_M68K)
 static inline void readsl(const void __iomem *addr, void *buf, int len)

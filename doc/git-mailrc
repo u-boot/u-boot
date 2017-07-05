@@ -54,7 +54,7 @@ alias vapier         Mike Frysinger <vapier@gentoo.org>
 alias wd             Wolfgang Denk <wd@denx.de>
 
 # Architecture aliases
-alias arch           arc, arm, avr32, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
+alias arch           arc, arm, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
 alias arches         arch
 
 alias arc            uboot, abrodkin
@@ -79,7 +79,6 @@ alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>, ptomsich
-alias avr32          uboot, abiessmann
 
 alias bfin           uboot, vapier, sonic
 alias blackfin       bfin

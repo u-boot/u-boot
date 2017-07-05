@@ -221,12 +221,6 @@ S:	Maintained
 F:	arch/arm/cpu/armv8/zynqmp/
 F:	arch/arm/include/asm/arch-zynqmp/
 
-AVR32
-M:	Andreas Bießmann <andreas@biessmann.org>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-avr32.git
-F:	arch/avr32/
-
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

@@ -136,7 +136,6 @@ Directory Hierarchy:
 /arch			Architecture specific files
   /arc			Files generic to ARC architecture
   /arm			Files generic to ARM architecture
-  /avr32		Files generic to AVR32 architecture
   /m68k			Files generic to m68k architecture
   /microblaze		Files generic to microblaze architecture
   /mips			Files generic to MIPS architecture
@@ -319,9 +318,6 @@ The following options need to be configured:
 - CPU Type:	Define exactly one, e.g. CONFIG_MPC85XX.
 
 - Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
-
-- CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
-		Define exactly one, e.g. CONFIG_ATSTK1002
 
 - Marvell Family Member
 		CONFIG_SYS_MVFS		- define it if you want to enable
@@ -4810,9 +4806,9 @@ details; basically, the header defines the following image properties:
   LynxOS, pSOS, QNX, RTEMS, INTEGRITY;
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
   INTEGRITY).
-* Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
+* Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
   IA64, MIPS, NDS32, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, AVR32, Intel x86, MIPS, NDS32, Nios II, PowerPC).
+  Currently supported: ARM, Intel x86, MIPS, NDS32, Nios II, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point

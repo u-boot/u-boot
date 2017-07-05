@@ -343,12 +343,6 @@ Toolchain '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc' at priori
       - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/usr/bin'
 Tool chain test:  OK, arch='powerpc', priority 4
 Tool chain test:  OK, arch='or32', priority 4
-   - scanning path '/toolchains/gcc-4.2.4-nolibc/avr32-linux'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/.'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin'
-         - found '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/usr/bin'
-Tool chain test:  OK, arch='avr32', priority 4
    - scanning path '/'
       - looking in '/.'
       - looking in '/bin'
@@ -381,7 +375,6 @@ aarch64   : /toolchains/gcc-4.9.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
 alpha     : /toolchains/gcc-4.9.0-nolibc/alpha-linux/bin/alpha-linux-gcc
 am33_2.0  : /toolchains/gcc-4.9.0-nolibc/am33_2.0-linux/bin/am33_2.0-linux-gcc
 arm       : /opt/arm-eabi-4.6/bin/arm-eabi-gcc
-avr32     : /toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc
 bfin      : /toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin/bfin-uclinux-gcc
 c89       : /usr/bin/c89-gcc
 c99       : /usr/bin/c99-gcc
@@ -428,7 +421,7 @@ Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.2.4/
-Available architectures: alpha am33_2.0 arm avr32 bfin cris crisv32 frv h8300
+Available architectures: alpha am33_2.0 arm bfin cris crisv32 frv h8300
 hppa hppa64 i386 ia64 m32r m68k mips mips64 or32 powerpc powerpc64 s390x sh4
 sparc sparc64 tilegx x86_64 xtensa
 
@@ -473,7 +466,7 @@ Buildman should now be set up to use your new toolchain.
 
 At the time of writing, U-Boot has these architectures:
 
-   arc, arm, avr32, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
+   arc, arm, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
    powerpc, sandbox, sh, sparc, x86
 
 Of these, only arc and nds32 are not available at kernel.org..

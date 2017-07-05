@@ -206,7 +206,6 @@ CROSS_COMPILE = {
     'arc': 'arc-linux-',
     'aarch64': 'aarch64-linux-',
     'arm': 'arm-unknown-linux-gnueabi-',
-    'avr32': 'avr32-linux-',
     'm68k': 'm68k-linux-',
     'microblaze': 'microblaze-linux-',
     'mips': 'mips-linux-',

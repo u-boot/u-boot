@@ -60,7 +60,6 @@ env:
 
 before_script:
   # install toolchains based on TOOLCHAIN} variable
-  - if [[ "${TOOLCHAIN}" == *avr32* ]]; then ./tools/buildman/buildman --fetch-arch avr32 ; fi
   - if [[ "${TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
   - if [[ "${TOOLCHAIN}" == *microblaze* ]]; then ./tools/buildman/buildman --fetch-arch microblaze ; fi
   - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
@@ -138,10 +137,7 @@ matrix:
     - env:
         - BUILDMAN="arm946es"
     - env:
-        - BUILDMAN="atmel -x avr32"
-    - env:
-        - BUILDMAN="avr32"
-          TOOLCHAIN="avr32"
+        - BUILDMAN="atmel"
     - env:
         - BUILDMAN="aries"
     - env:

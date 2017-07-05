@@ -11,8 +11,7 @@ to write blocks.
 - AT91SAM9260 (not tested, but MCI is to AT91SAM9XE)
 - AT91SAM9G20 (not tested, should work)
 
-It should work with all other ATMEL devices that have MCI,
-including AVR32.
+It should work with all other ATMEL devices that have MCI.
 
 The generic driver does NOT assign port pins to the MCI block
 nor does it start the MCI clock. This has to be handled in a

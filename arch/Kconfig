@@ -23,10 +23,6 @@ config ARM
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select SUPPORT_OF_CONTROL
 
-config AVR32
-	bool "AVR32 architecture"
-	select CREATE_ARCH_SYMLINK
-
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
@@ -166,7 +162,6 @@ config SYS_CONFIG_NAME
 
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
-source "arch/avr32/Kconfig"
 source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"

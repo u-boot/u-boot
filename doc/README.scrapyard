@@ -94,12 +94,6 @@ vpac270_ond_256  arm         pxa            452ef830    2015-08-30  Marek Vasut 
 xaeniax          arm         pxa            1c87dd76    2015-08-30
 zipitz2          arm         pxa            49d8899b    2015-08-30  Cliff Brake <cliff.brake@gmail.com>
 cam_enc_4xx      arm         arm926ejs      8d775763    2015-08-20  Heiko Schocher <hs@denx.de>
-atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-atstk1006        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-mimc200          avr32       -              c62d2f8f    2015-06-10  Mark Jackson <mpfj@mimc.co.uk>
-hammerhead       avr32       -              e3693076    2015-06-10  Alex Raimondi <alex.raimondi@miromico.ch>
-favr-32-ezkit    avr32       -              9eb45aab    2015-06-10  Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
 afeb9260         arm         arm926ejs      f6b42c14    2015-05-13  Sergey Lapin <slapin@ossfans.org>
 tny_a9260        arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
 sbc35_a9g20      arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>

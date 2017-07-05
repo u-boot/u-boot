@@ -44,13 +44,8 @@
 #define USBA_REMOTE_WAKE_UP			(1 << 10)
 #define USBA_PULLD_DIS				(1 << 11)
 
-#if defined(CONFIG_AVR32)
-#define USBA_ENABLE_MASK			USBA_EN_USBA
-#define USBA_DISABLE_MASK			0
-#elif defined(CONFIG_AT91FAMILY)
 #define USBA_ENABLE_MASK			(USBA_EN_USBA | USBA_PULLD_DIS)
 #define USBA_DISABLE_MASK			USBA_DETACH
-#endif /* CONFIG_ARCH_AT91 */
 
 /* Bitfields in FNUM */
 #define USBA_MICRO_FRAME_NUM_OFFSET		0

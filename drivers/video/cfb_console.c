@@ -1968,7 +1968,7 @@ static void *video_logo(void)
 static int cfb_fb_is_in_dram(void)
 {
 	bd_t *bd = gd->bd;
-#if defined(CONFIG_ARM) || defined(CONFIG_AVR32) || defined(CONFIG_NDS32) || \
+#if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || \
 defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
 	ulong start, end;
 	int i;

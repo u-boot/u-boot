@@ -32,10 +32,6 @@ typedef struct bd_info {
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
-#ifdef CONFIG_AVR32
-	unsigned char   bi_phy_id[4];   /* PHY address for ATAG_ETHERNET */
-	unsigned long   bi_board_number;/* ATAG_BOARDINFO */
-#endif
 #ifdef CONFIG_ARM
 	unsigned long	bi_arm_freq; /* arm frequency */
 	unsigned long	bi_dsp_freq; /* dsp core frequency */
