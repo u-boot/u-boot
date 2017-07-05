@@ -308,18 +308,16 @@ static ulong rk3368_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+#if IS_ENABLED(CONFIG_TPL_BUILD)
 static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
 {
 	const struct pll_div *dpll_cfg = NULL;
 	const ulong MHz = 1000000;
 
 	/* Fout = ((Fin /NR) * NF )/ NO */
-	static const struct pll_div dpll_1200 =
-		PLL_DIVISORS(1200 * MHz, 1, 1);
-	static const struct pll_div dpll_1332 =
-		PLL_DIVISORS(1332 * MHz, 2, 1);
-	static const struct pll_div dpll_1600 =
-		PLL_DIVISORS(1600 * MHz, 3, 2);
+	static const struct pll_div dpll_1200 = PLL_DIVISORS(1200 * MHz, 1, 1);
+	static const struct pll_div dpll_1332 =	PLL_DIVISORS(1332 * MHz, 2, 1);
+	static const struct pll_div dpll_1600 =	PLL_DIVISORS(1600 * MHz, 3, 2);
 
 	switch (set_rate) {
 	case 1200*MHz:
@@ -338,6 +336,7 @@ static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
 
 	return set_rate;
 }
+#endif
 
 static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 {
@@ -346,9 +345,11 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 
 	debug("%s id:%ld rate:%ld\n", __func__, clk->id, rate);
 	switch (clk->id) {
+#if IS_ENABLED(CONFIG_TPL_BUILD)
 	case CLK_DDR:
 		ret = rk3368_ddr_set_clk(priv->cru, rate);
 		break;
+#endif
 #if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
 	case HCLK_SDMMC:
 	case HCLK_EMMC:
