@@ -328,6 +328,32 @@ void board_quiesce_devices(void)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
+void fsl_fdt_fixup_flash(void *fdt)
+{
+	int offset;
+
+/*
+ * IFC and QSPI are muxed on board.
+ * So disable IFC node in dts if QSPI is enabled or
+ * disable QSPI node in dts in case QSPI is not enabled.
+ */
+#ifdef CONFIG_FSL_QSPI
+	offset = fdt_path_offset(fdt, "/soc/ifc");
+
+	if (offset < 0)
+		offset = fdt_path_offset(fdt, "/ifc");
+#else
+	offset = fdt_path_offset(fdt, "/soc/quadspi");
+
+	if (offset < 0)
+		offset = fdt_path_offset(fdt, "/quadspi");
+#endif
+	if (offset < 0)
+		return;
+
+	fdt_status_disabled(fdt, offset);
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
@@ -354,6 +380,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
 	fsl_fdt_fixup_dr_usb(blob, bd);
+
+	fsl_fdt_fixup_flash(blob);
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
