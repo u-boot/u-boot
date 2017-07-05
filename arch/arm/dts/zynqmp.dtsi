@@ -307,6 +307,54 @@
 		#reset-cells = <1>;
 	};
 
+	xlnx_dp_snd_card: dp_snd_card {
+		compatible = "xlnx,dp-snd-card";
+		status = "disabled";
+		xlnx,dp-snd-pcm = <&xlnx_dp_snd_pcm0>, <&xlnx_dp_snd_pcm1>;
+		xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
+	};
+
+	xlnx_dp_snd_codec0: dp_snd_codec0 {
+		compatible = "xlnx,dp-snd-codec";
+		status = "disabled";
+		clock-names = "aud_clk";
+	};
+
+	xlnx_dp_snd_pcm0: dp_snd_pcm0 {
+		compatible = "xlnx,dp-snd-pcm";
+		status = "disabled";
+		dmas = <&xlnx_dpdma 4>;
+		dma-names = "tx";
+	};
+
+	xlnx_dp_snd_pcm1: dp_snd_pcm1 {
+		compatible = "xlnx,dp-snd-pcm";
+		status = "disabled";
+		dmas = <&xlnx_dpdma 5>;
+		dma-names = "tx";
+	};
+
+	xilinx_drm: xilinx_drm {
+		compatible = "xlnx,drm";
+		status = "disabled";
+		xlnx,encoder-slave = <&xlnx_dp>;
+		xlnx,connector-type = "DisplayPort";
+		xlnx,dp-sub = <&xlnx_dp_sub>;
+		planes {
+			xlnx,pixel-format = "rgb565";
+			plane0 {
+				dmas = <&xlnx_dpdma 3>;
+				dma-names = "dma0";
+			};
+			plane1 {
+				dmas = <&xlnx_dpdma 0>,
+					<&xlnx_dpdma 1>,
+					<&xlnx_dpdma 2>;
+				dma-names = "dma0", "dma1", "dma2";
+			};
+		};
+	};
+
 	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -1044,27 +1092,6 @@
 			};
 		};
 
-		xilinx_drm: xilinx_drm {
-			compatible = "xlnx,drm";
-			status = "disabled";
-			xlnx,encoder-slave = <&xlnx_dp>;
-			xlnx,connector-type = "DisplayPort";
-			xlnx,dp-sub = <&xlnx_dp_sub>;
-			planes {
-				xlnx,pixel-format = "rgb565";
-				plane0 {
-					dmas = <&xlnx_dpdma 3>;
-					dma-names = "dma0";
-				};
-				plane1 {
-					dmas = <&xlnx_dpdma 0>,
-					       <&xlnx_dpdma 1>,
-					       <&xlnx_dpdma 2>;
-					dma-names = "dma0", "dma1", "dma2";
-				};
-			};
-		};
-
 		xlnx_dp: dp@fd4a0000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
@@ -1083,33 +1110,6 @@
 			xlnx,audio-chan = <2>;
 			xlnx,dp-sub = <&xlnx_dp_sub>;
 			xlnx,max-pclock-frequency = <300000>;
-		};
-
-		xlnx_dp_snd_card: dp_snd_card {
-			compatible = "xlnx,dp-snd-card";
-			status = "disabled";
-			xlnx,dp-snd-pcm = <&xlnx_dp_snd_pcm0>, <&xlnx_dp_snd_pcm1>;
-			xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
-		};
-
-		xlnx_dp_snd_codec0: dp_snd_codec0 {
-			compatible = "xlnx,dp-snd-codec";
-			status = "disabled";
-			clock-names = "aud_clk";
-		};
-
-		xlnx_dp_snd_pcm0: dp_snd_pcm0 {
-			compatible = "xlnx,dp-snd-pcm";
-			status = "disabled";
-			dmas = <&xlnx_dpdma 4>;
-			dma-names = "tx";
-		};
-
-		xlnx_dp_snd_pcm1: dp_snd_pcm1 {
-			compatible = "xlnx,dp-snd-pcm";
-			status = "disabled";
-			dmas = <&xlnx_dpdma 5>;
-			dma-names = "tx";
 		};
 
 		xlnx_dp_sub: dp_sub@fd4aa000 {
