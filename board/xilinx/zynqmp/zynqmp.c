@@ -266,7 +266,7 @@ int board_late_init(void)
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
 		mode = "mmc0";
-		setenv("modeboot", "sdboot");
+		setenv("modeboot", "emmcboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
