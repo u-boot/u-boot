@@ -48,7 +48,7 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
 	int ret = 0;
 	const struct wdt_ops *ops;
 
-	debug("WDT Resettting: %lu\n", flags);
+	debug("WDT Resetting: %lu\n", flags);
 	ops = device_get_ops(dev);
 	if (ops->expire_now) {
 		return ops->expire_now(dev, flags);
