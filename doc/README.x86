@@ -18,6 +18,8 @@ U-Boot supports running as a coreboot [1] payload on x86. So far only Link
 work with minimal adjustments on other x86 boards since coreboot deals with
 most of the low-level details.
 
+U-Boot is a main bootloader on Intel Edison board.
+
 U-Boot also supports booting directly from x86 reset vector, without coreboot.
 In this case, known as bare mode, from the fact that it runs on the
 'bare metal', U-Boot acts like a BIOS replacement. The following platforms
@@ -60,6 +62,16 @@ x86 architecture  --->
 Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
 to point to a new board. You can also change the Cache-As-RAM (CAR) related
 settings here if the default values do not fit your new board.
+
+Build Instructions for U-Boot as main bootloader
+------------------------------------------------
+
+Intel Edison instructions:
+
+Simple you can build U-Boot and obtain u-boot.bin
+
+$ make edison_defconfig
+$ make all
 
 Build Instructions for U-Boot as BIOS replacement (bare mode)
 -------------------------------------------------------------
@@ -454,6 +466,33 @@ Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
 => zboot 01000000 - 04000000 1b1ab50
+
+Updating U-Boot on Edison
+-------------------------
+By default Intel Edison boards are shipped with preinstalled heavily
+patched U-Boot v2014.04. Though it supports DFU which we may be able to
+use.
+
+1. Prepare u-boot.bin as described in chapter above. You still need one
+more step (if and only if you have original U-Boot), i.e. run the
+following command:
+
+$ truncate -s %4096 u-boot.bin
+
+2. Run your board and interrupt booting to U-Boot console. In the console
+call:
+
+ => run do_force_flash_os
+
+3. Wait for few seconds, it will prepare environment variable and runs
+DFU. Run DFU command from the host system:
+
+$ dfu-util -v -d 8087:0a99 --alt u-boot0 -D u-boot.bin
+
+4. Return to U-Boot console and following hint. i.e. push Ctrl+C, and
+reset the board:
+
+ => reset
 
 CPU Microcode
 -------------

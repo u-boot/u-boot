@@ -10,6 +10,7 @@ dtb-y += bayleybay.dtb \
 	cougarcanyon2.dtb \
 	crownbay.dtb \
 	dfi-bt700-q7x-151.dtb \
+	edison.dtb \
 	efi.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
