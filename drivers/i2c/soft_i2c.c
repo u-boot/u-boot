@@ -29,7 +29,7 @@
 #include <asm/arch/gpio.h>
 #endif
 #endif
-#if defined(CONFIG_MPC852T) || defined(CONFIG_MPC866)
+#if defined(CONFIG_8xx)
 #include <asm/io.h>
 #endif
 #include <i2c.h>

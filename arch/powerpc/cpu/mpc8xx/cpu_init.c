@@ -48,7 +48,7 @@ void cpu_init_f(immap_t __iomem *immr)
 	/* System integration timers. Don't change EBDF! (15-27) */
 
 	out_be32(&immr->im_clkrstk.cark_sccrk, KAPWR_KEY);
-	clrsetbits_be32(&immr->im_clkrst.car_sccr, ~SCCR_MASK,
+	clrsetbits_be32(&immr->im_clkrst.car_sccr, ~CONFIG_SYS_SCCR_MASK,
 			CONFIG_SYS_SCCR);
 
 	/*

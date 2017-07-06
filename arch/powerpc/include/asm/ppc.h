@@ -15,11 +15,6 @@
 
 #if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
-#if defined(CONFIG_MPC866)
-# define CONFIG_MPC866_FAMILY 1
-#elif defined(CONFIG_MPC885)
-# define CONFIG_MPC885_FAMILY   1
-#endif
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>

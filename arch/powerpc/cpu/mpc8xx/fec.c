@@ -376,7 +376,7 @@ static void fec_pin_init(int fecidx)
 	out_be32(&immr->im_cpm.cp_fec1.fec_mii_speed,
 		 ((bd->bi_intfreq + 4999999) / 5000000) << 1);
 
-#if defined(CONFIG_MPC885_FAMILY) && defined(WANT_MII)
+#if defined(CONFIG_MPC885) && defined(WANT_MII)
 	/* use MDC for MII */
 	setbits_be16(&immr->im_ioport.iop_pdpar, 0x0080);
 	clrbits_be16(&immr->im_ioport.iop_pddir, 0x0080);
@@ -385,7 +385,7 @@ static void fec_pin_init(int fecidx)
 	if (fecidx == 0) {
 #if defined(CONFIG_ETHER_ON_FEC1)
 
-#if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
+#if defined(CONFIG_MPC885) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
 
@@ -435,7 +435,7 @@ static void fec_pin_init(int fecidx)
 	} else if (fecidx == 1) {
 #if defined(CONFIG_ETHER_ON_FEC2)
 
-#if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
+#if defined(CONFIG_MPC885) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
 		setbits_be32(&immr->im_cpm.cp_pepar, 0x0003fffc);
@@ -460,7 +460,7 @@ static void fec_pin_init(int fecidx)
 		clrbits_be32(&immr->im_cpm.cp_cptr, 0x00000028);
 #endif /* CONFIG_RMII */
 
-#endif /* CONFIG_MPC885_FAMILY */
+#endif /* CONFIG_MPC885 */
 
 #endif /* CONFIG_ETHER_ON_FEC2 */
 	}
