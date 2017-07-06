@@ -44,7 +44,7 @@ static inline int is_extended(int part_type)
 
 static inline int is_bootable(dos_partition_t *p)
 {
-	return p->boot_ind == 0x80;
+	return (p->sys_ind == 0xef) || (p->boot_ind == 0x80);
 }
 
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
