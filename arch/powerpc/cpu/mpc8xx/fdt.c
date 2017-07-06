@@ -20,6 +20,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			     "bus-frequency", bd->bi_busfreq, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 			     "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_by_compat_u32(blob, "fsl,pq1-soc", "clock-frequency",
+			       bd->bi_intfreq, 1);
 	do_fixup_by_compat_u32(blob, "fsl,cpm-brg", "clock-frequency",
 			       gd->arch.brg_clk, 1);
 
