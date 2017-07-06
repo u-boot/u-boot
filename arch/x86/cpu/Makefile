@@ -34,6 +34,7 @@ obj-$(CONFIG_QEMU) += qemu/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_INTEL_QUARK) += quark/
 obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
+obj-$(CONFIG_INTEL_TANGIER) += tangier/
 obj-y += lapic.o ioapic.o
 obj-y += irq.o
 ifndef CONFIG_$(SPL_)X86_64

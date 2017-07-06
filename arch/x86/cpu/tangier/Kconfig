@@ -1,0 +1,20 @@
+#
+# Copyright (c) 2017 Intel Corporation
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+config INTEL_TANGIER
+	bool
+	depends on INTEL_MID
+
+config SYS_CAR_ADDR
+	hex
+	default 0x19200000
+
+config SYS_CAR_SIZE
+	hex
+	default 0x4000
+	help
+	  Space in bytes in eSRAM used as Cache-As-RAM (CAR).
+	  Note this size must not exceed eSRAM's total size.

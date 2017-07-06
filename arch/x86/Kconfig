@@ -114,6 +114,7 @@ source "arch/x86/cpu/ivybridge/Kconfig"
 source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
+source "arch/x86/cpu/tangier/Kconfig"
 
 # architecture-specific options below
 
