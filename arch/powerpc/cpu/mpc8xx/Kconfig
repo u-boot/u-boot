@@ -10,4 +10,13 @@ choice
 
 endchoice
 
+comment "Specific commands"
+
+config CMD_IMMAP
+	bool "Enable various commands to dump IMMR information"
+	help
+	  This enables various commands such as:
+
+	    siuinfo - print System Interface Unit (SIU) registers
+	    memcinfo - print Memory Controller registers
 endmenu

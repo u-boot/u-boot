@@ -12,8 +12,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_8xx)
-
 #include <asm/8xx_immap.h>
 #include <commproc.h>
 #include <asm/iopin_8xx.h>
@@ -394,4 +392,3 @@ U_BOOT_CMD(
 	"print Baud Rate Generator (BRG) registers",
 	""
 );
-#endif
