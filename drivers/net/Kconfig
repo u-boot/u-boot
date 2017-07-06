@@ -246,4 +246,62 @@ config RENESAS_RAVB
 	  This driver implements support for the Ethernet AVB block in
 	  Renesas M3 and H3 SoCs.
 
+config MPC8XX_FEC
+	bool "Fast Ethernet Controller on MPC8XX"
+	depends on 8xx
+	select MII
+	help
+	  This driver implements support for the Fast Ethernet Controller
+	  on MPC8XX
+
+config ETHER_ON_FEC1
+	bool "FEC1"
+	depends on MPC8XX_FEC
+	default y
+
+config FEC1_PHY
+	int "FEC1 PHY"
+	depends on ETHER_ON_FEC1
+	default -1
+	help
+	  Define to the hardcoded PHY address which corresponds
+	  to the given FEC; i. e.
+		#define CONFIG_FEC1_PHY 4
+	  means that the PHY with address 4 is connected to FEC1
+
+	  When set to -1, means to probe for first available.
+
+config PHY_NORXERR
+	bool "PHY_NORXERR"
+	depends on ETHER_ON_FEC1
+	default n
+	help
+	  The PHY does not have a RXERR line (RMII only).
+	  (so program the FEC to ignore it).
+
+config ETHER_ON_FEC2
+	bool "FEC2"
+	depends on MPC8XX_FEC && MPC885
+	default y
+
+config FEC2_PHY
+	int "FEC2 PHY"
+	depends on ETHER_ON_FEC2
+	default -1
+	help
+	  Define to the hardcoded PHY address which corresponds
+	  to the given FEC; i. e.
+		#define CONFIG_FEC1_PHY 4
+	  means that the PHY with address 4 is connected to FEC1
+
+	  When set to -1, means to probe for first available.
+
+config FEC2_PHY_NORXERR
+	bool "PHY_NORXERR"
+	depends on ETHER_ON_FEC2
+	default n
+	help
+	  The PHY does not have a RXERR line (RMII only).
+	  (so program the FEC to ignore it).
+
 endif # NETDEVICES

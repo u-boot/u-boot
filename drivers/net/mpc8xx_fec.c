@@ -16,14 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NET) && \
-	(defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2))
-
-/* compatibility test, if only FEC_ENET defined assume ETHER on FEC1 */
-#if defined(FEC_ENET) && !defined(CONFIG_ETHER_ON_FEC1) && !defined(CONFIG_ETHER_ON_FEC2)
-#define CONFIG_ETHER_ON_FEC1 1
-#endif
-
 /* define WANT_MII when MII support is required */
 #if defined(CONFIG_SYS_DISCOVER_PHY) || defined(CONFIG_FEC1_PHY) || defined(CONFIG_FEC2_PHY)
 #define WANT_MII
@@ -65,11 +57,7 @@ static struct ether_fcc_info_s
 	{
 		0,
 		offsetof(immap_t, im_cpm.cp_fec1),
-#if defined(CONFIG_FEC1_PHY)
 		CONFIG_FEC1_PHY,
-#else
-		-1,	/* discover */
-#endif
 		-1,
 		0,
 
@@ -79,11 +67,7 @@ static struct ether_fcc_info_s
 	{
 		1,
 		offsetof(immap_t, im_cpm.cp_fec2),
-#if defined(CONFIG_FEC2_PHY)
 		CONFIG_FEC2_PHY,
-#else
-		-1,
-#endif
 		-1,
 		0,
 	},
@@ -845,6 +829,4 @@ int fec8xx_miiphy_write(struct mii_dev *bus, int addr, int devad, int reg,
 
 	return 0;
 }
-#endif
-
 #endif
