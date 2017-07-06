@@ -51,6 +51,26 @@ void cpu_init_f(immap_t __iomem *immr)
 	clrsetbits_be32(&immr->im_clkrst.car_sccr, ~SCCR_MASK,
 			CONFIG_SYS_SCCR);
 
+	/*
+	 * MPC866/885 ERRATA GLL2
+	 * Description:
+	 *   In 1:2:1 mode, when HRESET is detected at the positive edge of
+	 *   EXTCLK, then there will be a loss of phase between
+	 *   EXTCLK and CLKOUT.
+	 *
+	 * Workaround:
+	 *   Reprogram the SCCR:
+	 *   1.   Write 1'b00 to SCCR[EBDF].
+	 *   2.   Write 1'b01 to SCCR[EBDF].
+	 *   3.   Rewrite the desired value to the PLPRCR register.
+	 */
+	reg = in_be32(&immr->im_clkrst.car_sccr);
+	/* Are we in mode 1:2:1 ? */
+	if ((reg & SCCR_EBDF11) == SCCR_EBDF01) {
+		clrbits_be32(&immr->im_clkrst.car_sccr, SCCR_EBDF11);
+		setbits_be32(&immr->im_clkrst.car_sccr, SCCR_EBDF01);
+	}
+
 	/* PLL (CPU clock) settings (15-30) */
 
 	out_be32(&immr->im_clkrstk.cark_plprcrk, KAPWR_KEY);
