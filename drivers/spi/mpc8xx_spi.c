@@ -25,8 +25,6 @@
 #include <post.h>
 #include <serial.h>
 
-#ifdef CONFIG_SPI
-
 #define SPI_EEPROM_WREN		0x06
 #define SPI_EEPROM_RDSR		0x05
 #define SPI_EEPROM_READ		0x03
@@ -336,4 +334,3 @@ ssize_t spi_xfer(size_t count)
 
 	return count;
 }
-#endif	/* CONFIG_SPI */
