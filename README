@@ -324,6 +324,9 @@ The following options need to be configured:
 					  multiple fs option at one time
 					  for marvell soc family
 
+- 8xx CPU Options: (if using an MPC8xx CPU)
+		CONFIG_8xx_GCLK_FREQ	- CPU clock
+
 - 85xx CPU Options:
 		CONFIG_SYS_PPC64
 
@@ -687,10 +690,29 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
+- Console Interface:
+		Depending on board, define exactly one serial port
+		(CONFIG_8xx_CONS_SMC1 or CONFIG_8xx_CONS_SMC2),
+		or switch off the serial console by defining
+		CONFIG_8xx_CONS_NONE
+
+		Note: if CONFIG_8xx_CONS_NONE is defined, the serial
+		port routines must be defined elsewhere
+		(i.e. serial_init(), serial_getc(), ...)
+
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
+		CONFIG_SYS_BRGCLK_PRESCALE, baudrate prescale
+
+- Console Rx buffer length
+		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
+		the maximum receive buffer length for the SMC.
+		This option is actual only for 8xx possible.
+		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
+		must be defined, to setup the maximum idle timeout for
+		the SMC.
 
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND
@@ -856,7 +878,7 @@ The following options need to be configured:
 		(configuration option CONFIG_CMD_CACHE) unless you know
 		what you (and your U-Boot users) are doing. Data
 		cache cannot be enabled on systems like the
-		8260 (where accesses to the IMMR region must be
+		8xx (where accesses to the IMMR region must be
 		uncached), and it cannot be disabled on all other
 		systems where we (mis-) use the data cache to hold an
 		initial stack and some data.
@@ -919,9 +941,11 @@ The following options need to be configured:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
 		support for the SoC. There must be support in the SoC
-		specific code for a watchdog. When supported for a
-		specific SoC is available, then no further board specific
-		code should be needed to use it.
+		specific code for a watchdog. For the 8xx
+		CPUs, the SIU Watchdog feature is enabled in the SYPCR
+		register.  When supported for a specific SoC is
+		available, then no further board specific code should
+		be needed to use it.
 
 		CONFIG_HW_WATCHDOG
 		When using a watchdog circuitry external to the used
@@ -3932,7 +3956,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
-		doing! (11-4) [82xx systems only]
+		doing! (11-4) [MPC8xx systems only]
 
 - CONFIG_SYS_INIT_RAM_ADDR:
 
@@ -3945,6 +3969,7 @@ Low Level (hardware related) configuration options:
 		sequences.
 
 		U-Boot uses the following memory types:
+		- MPC8xx: IMMR (internal memory of the CPU)
 
 - CONFIG_SYS_GBL_DATA_OFFSET:
 
@@ -3964,6 +3989,16 @@ Low Level (hardware related) configuration options:
 		point to an otherwise UNUSED address space between
 		the top of RAM and the start of the PCI space.
 
+- CONFIG_SYS_SIUMCR:	SIU Module Configuration (11-6)
+
+- CONFIG_SYS_SYPCR:	System Protection Control (11-9)
+
+- CONFIG_SYS_TBSCR:	Time Base Status and Control (11-26)
+
+- CONFIG_SYS_PISCR:	Periodic Interrupt Status and Control (11-31)
+
+- CONFIG_SYS_PLPRCR:	PLL, Low-Power, and Reset Control Register (15-30)
+
 - CONFIG_SYS_SCCR:	System Clock and reset Control Register (15-27)
 
 - CONFIG_SYS_OR_TIMING_SDRAM:
@@ -3971,6 +4006,8 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_MAMR_PTA:
 		periodic timer for refresh
+
+- CONFIG_SYS_DER:	Debug Event Register (37-47)
 
 - FLASH_BASE0_PRELIM, FLASH_BASE1_PRELIM, CONFIG_SYS_REMAP_OR_AM,
   CONFIG_SYS_PRELIM_OR_AM, CONFIG_SYS_OR_TIMING_FLASH, CONFIG_SYS_OR0_REMAP,
@@ -4056,6 +4093,21 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should
 		be configured using CS0 and CS1 instead of CS2 and CS3.
+
+- CONFIG_ETHER_ON_FEC[12]
+		Define to enable FEC[12] on a 8xx series processor.
+
+- CONFIG_FEC[12]_PHY
+		Define to the hardcoded PHY address which corresponds
+		to the given FEC; i. e.
+			#define CONFIG_FEC1_PHY 4
+		means that the PHY with address 4 is connected to FEC1
+
+		When set to -1, means to probe for first available.
+
+- CONFIG_FEC[12]_PHY_NORXERR
+		The PHY does not have a RXERR line (RMII only).
+		(so program the FEC to ignore it).
 
 - CONFIG_RMII
 		Enable RMII mode for all FECs.

@@ -1,0 +1,13 @@
+menu "mpc8xx CPU"
+	depends on 8xx
+
+config SYS_CPU
+	default "mpc8xx"
+
+choice
+	prompt "Target select"
+	optional
+
+endchoice
+
+endmenu

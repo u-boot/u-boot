@@ -19,6 +19,9 @@ struct arch_global_data {
 	u8 sdhc_adapter;
 #endif
 #endif
+#if defined(CONFIG_8xx)
+	unsigned long brg_clk;
+#endif
 #if defined(CONFIG_CPM2)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long vco_out;

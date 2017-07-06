@@ -319,7 +319,7 @@ S:	Maintained
 F:	arch/powerpc/
 
 POWERPC MPC8XX
-M:	Wolfgang Denk <wd@denx.de>
+M:	Christophe Leroy <christophe.leroy@c-s.fr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc8xx.git
 F:	arch/powerpc/cpu/mpc8xx/

@@ -29,10 +29,16 @@ config MPC86xx
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 
+config 8xx
+	bool "MPC8xx"
+
 endchoice
+
+source "arch/powerpc/lib/Kconfig"
 
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc86xx/Kconfig"
+source "arch/powerpc/cpu/mpc8xx/Kconfig"
 
 endmenu

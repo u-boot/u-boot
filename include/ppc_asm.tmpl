@@ -81,6 +81,52 @@
 #define	r30	30
 #define	r31	31
 
+#if defined(CONFIG_8xx)
+
+/* Some special registers */
+
+#define ICR	148	/* Interrupt Cause Register (37-44) */
+#define DER	149
+#define COUNTA	150	/* Breakpoint Counter	    (37-44) */
+#define COUNTB	151	/* Breakpoint Counter	    (37-44) */
+#define LCTRL1	156	/* Load/Store Support	    (37-40) */
+#define LCTRL2	157	/* Load/Store Support	    (37-41) */
+#define ICTRL	158
+
+#endif	/* CONFIG_8xx */
+
+
+#if defined(CONFIG_8xx)
+
+/* Registers in the processor's internal memory map that we use.
+*/
+#define SYPCR	0x00000004
+#define BR0	0x00000100
+#define OR0	0x00000104
+#define BR1	0x00000108
+#define OR1	0x0000010c
+#define BR2	0x00000110
+#define OR2	0x00000114
+#define BR3	0x00000118
+#define OR3	0x0000011c
+#define BR4	0x00000120
+#define OR4	0x00000124
+
+#define MAR	0x00000164
+#define MCR	0x00000168
+#define MAMR	0x00000170
+#define MBMR	0x00000174
+#define MSTAT	0x00000178
+#define MPTPR	0x0000017a
+#define MDR	0x0000017c
+
+#define TBSCR	0x00000200
+#define TBREFF0	0x00000204
+
+#define PLPRCR	0x00000284
+
+#endif
+
 #define curptr r2
 
 #define SYNC \
