@@ -687,29 +687,10 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
-- Console Interface:
-		Depending on board, define exactly one serial port
-		(CONFIG_8xx_CONS_SMC1 or CONFIG_8xx_CONS_SMC2),
-		or switch off the serial console by defining
-		CONFIG_8xx_CONS_NONE
-
-		Note: if CONFIG_8xx_CONS_NONE is defined, the serial
-		port routines must be defined elsewhere
-		(i.e. serial_init(), serial_getc(), ...)
-
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
-		CONFIG_SYS_BRGCLK_PRESCALE, baudrate prescale
-
-- Console Rx buffer length
-		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
-		the maximum receive buffer length for the SMC.
-		This option is actual only for 8xx possible.
-		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
-		must be defined, to setup the maximum idle timeout for
-		the SMC.
 
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND

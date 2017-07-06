@@ -14,8 +14,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_8xx_CONS_NONE)	/* No Console at all */
-
 #if defined(CONFIG_8xx_CONS_SMC1)	/* Console on SMC1 */
 #define	SMC_INDEX	0
 #define PROFF_SMC	PROFF_SMC1
@@ -29,15 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IOPINS		0xc00
 
 #endif /* CONFIG_8xx_CONS_SMCx */
-
-#if !defined(CONFIG_SYS_SMC_RXBUFLEN)
-#define CONFIG_SYS_SMC_RXBUFLEN	1
-#define CONFIG_SYS_MAXIDLE	0
-#else
-#if !defined(CONFIG_SYS_MAXIDLE)
-#error "you must define CONFIG_SYS_MAXIDLE"
-#endif
-#endif
 
 struct serialbuffer {
 	cbd_t	rxbd;		/* Rx BD */
@@ -56,9 +45,7 @@ static void serial_setdivisor(cpm8xx_t __iomem *cp)
 		divisor = (50 * 1000 * 1000 + 8 * 9600) / 16 / 9600;
 	}
 
-#ifdef CONFIG_SYS_BRGCLK_PRESCALE
 	divisor /= CONFIG_SYS_BRGCLK_PRESCALE;
-#endif
 
 	if (divisor <= 0x1000)
 		out_be32(&cp->cp_brgc1, ((divisor - 1) << 1) | CPM_BRG_EN);
@@ -110,18 +97,10 @@ static int smc_init(void)
 	out_be32(&im->im_siu_conf.sc_sdcr, 1);
 
 	/* clear error conditions */
-#ifdef	CONFIG_SYS_SDSR
 	out_8(&im->im_sdma.sdma_sdsr, CONFIG_SYS_SDSR);
-#else
-	out_8(&im->im_sdma.sdma_sdsr, 0x83);
-#endif
 
 	/* clear SDMA interrupt mask */
-#ifdef	CONFIG_SYS_SDMR
 	out_8(&im->im_sdma.sdma_sdmr, CONFIG_SYS_SDMR);
-#else
-	out_8(&im->im_sdma.sdma_sdmr, 0x00);
-#endif
 
 	/* Use Port B for SMCx instead of other functions. */
 	setbits_be32(&cp->cp_pbpar, IOPINS);
@@ -275,5 +254,3 @@ void mpc8xx_serial_initialize(void)
 {
 	serial_register(&serial_smc_device);
 }
-
-#endif	/* CONFIG_8xx_CONS_NONE */

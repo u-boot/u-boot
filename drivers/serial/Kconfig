@@ -491,4 +491,57 @@ config STI_ASC_SERIAL
 	  on STiH410 SoC. This is a basic implementation,  it supports
 	  following baudrate 9600, 19200, 38400, 57600 and 115200.
 
+config MPC8XX_CONS
+	bool "Console driver for MPC8XX"
+	depends on 8xx
+	default y
+
+choice
+	prompt "Console port"
+	default 8xx_CONS_SMC1
+	depends on MPC8XX_CONS
+	help
+	  Depending on board, select one serial port
+	  (CONFIG_8xx_CONS_SMC1 or CONFIG_8xx_CONS_SMC2)
+
+config 8xx_CONS_SMC1
+	bool "SMC1"
+
+config 8xx_CONS_SMC2
+	bool "SMC2"
+
+endchoice
+
+config SYS_SMC_RXBUFLEN
+	int "Console Rx buffer length"
+	depends on MPC8XX_CONS
+	default 1
+	help
+	  With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
+	  the maximum receive buffer length for the SMC.
+	  This option is actual only for 8xx possible.
+	  If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
+	  must be defined, to setup the maximum idle timeout for
+	  the SMC.
+
+config SYS_MAXIDLE
+	int "maximum idle timeout"
+	depends on MPC8XX_CONS
+	default 0
+
+config SYS_BRGCLK_PRESCALE
+	int "BRG Clock Prescale"
+	depends on MPC8XX_CONS
+	default 1
+
+config SYS_SDSR
+	hex "SDSR Value"
+	depends on MPC8XX_CONS
+	default 0x83
+
+config SYS_SDMR
+	hex "SDMR Value"
+	depends on MPC8XX_CONS
+	default 0
+
 endmenu
