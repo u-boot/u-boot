@@ -20,11 +20,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	SMC_INDEX	0
 #define PROFF_SMC	PROFF_SMC1
 #define CPM_CR_CH_SMC	CPM_CR_CH_SMC1
+#define IOPINS		0xc0
 
 #elif defined(CONFIG_8xx_CONS_SMC2)	/* Console on SMC2 */
 #define SMC_INDEX	1
 #define PROFF_SMC	PROFF_SMC2
 #define CPM_CR_CH_SMC	CPM_CR_CH_SMC2
+#define IOPINS		0xc00
 
 #endif /* CONFIG_8xx_CONS_SMCx */
 
@@ -37,15 +39,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 #endif
 
-typedef volatile struct serialbuffer {
+struct serialbuffer {
 	cbd_t	rxbd;		/* Rx BD */
 	cbd_t	txbd;		/* Tx BD */
 	uint	rxindex;	/* index for next character to read */
-	volatile uchar	rxbuf[CONFIG_SYS_SMC_RXBUFLEN];/* rx buffers */
-	volatile uchar	txbuf;	/* tx buffers */
-} serialbuffer_t;
+	uchar	rxbuf[CONFIG_SYS_SMC_RXBUFLEN];/* rx buffers */
+	uchar	txbuf;	/* tx buffers */
+};
 
-static void serial_setdivisor(volatile cpm8xx_t *cp)
+static void serial_setdivisor(cpm8xx_t __iomem *cp)
 {
 	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
 
@@ -58,11 +60,11 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 	divisor /= CONFIG_SYS_BRGCLK_PRESCALE;
 #endif
 
-	if(divisor<=0x1000) {
-		cp->cp_brgc1=((divisor-1)<<1) | CPM_BRG_EN;
-	} else {
-		cp->cp_brgc1=((divisor/16-1)<<1) | CPM_BRG_EN | CPM_BRG_DIV16;
-	}
+	if (divisor <= 0x1000)
+		out_be32(&cp->cp_brgc1, ((divisor - 1) << 1) | CPM_BRG_EN);
+	else
+		out_be32(&cp->cp_brgc1, ((divisor / 16 - 1) << 1) | CPM_BRG_EN |
+			 CPM_BRG_DIV16);
 }
 
 /*
@@ -72,8 +74,8 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 
 static void smc_setbrg (void)
 {
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	volatile cpm8xx_t *cp = &(im->im_cpm);
+	immap_t __iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
 	 * See 8xx_io/commproc.c for details.
@@ -81,117 +83,107 @@ static void smc_setbrg (void)
 	 * Wire BRG1 to SMCx
 	 */
 
-	cp->cp_simode = 0x00000000;
+	out_be32(&cp->cp_simode, 0);
 
 	serial_setdivisor(cp);
 }
 
 static int smc_init (void)
 {
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	volatile smc_t *sp;
-	volatile smc_uart_t *up;
-	volatile cpm8xx_t *cp = &(im->im_cpm);
-	uint	dpaddr;
-	volatile serialbuffer_t *rtx;
+	immap_t __iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	smc_t __iomem *sp;
+	smc_uart_t __iomem *up;
+	cpm8xx_t __iomem *cp = &(im->im_cpm);
+	struct serialbuffer __iomem *rtx;
 
 	/* initialize pointers to SMC */
 
-	sp = (smc_t *) &(cp->cp_smc[SMC_INDEX]);
-	up = (smc_uart_t *) &cp->cp_dparam[PROFF_SMC];
+	sp = cp->cp_smc + SMC_INDEX;
+	up = (smc_uart_t __iomem *)&cp->cp_dparam[PROFF_SMC];
 	/* Disable relocation */
-	up->smc_rpbase = 0;
+	out_be16(&up->smc_rpbase, 0);
 
 	/* Disable transmitter/receiver. */
-	sp->smc_smcmr &= ~(SMCMR_REN | SMCMR_TEN);
+	clrbits_be16(&sp->smc_smcmr, SMCMR_REN | SMCMR_TEN);
 
 	/* Enable SDMA. */
-	im->im_siu_conf.sc_sdcr = 1;
+	out_be32(&im->im_siu_conf.sc_sdcr, 1);
 
 	/* clear error conditions */
 #ifdef	CONFIG_SYS_SDSR
-	im->im_sdma.sdma_sdsr = CONFIG_SYS_SDSR;
+	out_8(&im->im_sdma.sdma_sdsr, CONFIG_SYS_SDSR);
 #else
-	im->im_sdma.sdma_sdsr = 0x83;
+	out_8(&im->im_sdma.sdma_sdsr, 0x83);
 #endif
 
 	/* clear SDMA interrupt mask */
 #ifdef	CONFIG_SYS_SDMR
-	im->im_sdma.sdma_sdmr = CONFIG_SYS_SDMR;
+	out_8(&im->im_sdma.sdma_sdmr, CONFIG_SYS_SDMR);
 #else
-	im->im_sdma.sdma_sdmr = 0x00;
+	out_8(&im->im_sdma.sdma_sdmr, 0x00);
 #endif
 
-#if defined(CONFIG_8xx_CONS_SMC1)
-	/* Use Port B for SMC1 instead of other functions. */
-	cp->cp_pbpar |=  0x000000c0;
-	cp->cp_pbdir &= ~0x000000c0;
-	cp->cp_pbodr &= ~0x000000c0;
-#else	/* CONFIG_8xx_CONS_SMC2 */
-	/* Use Port B for SMC2 instead of other functions.
-	 */
-	cp->cp_pbpar |=  0x00000c00;
-	cp->cp_pbdir &= ~0x00000c00;
-	cp->cp_pbodr &= ~0x00000c00;
-#endif
+	/* Use Port B for SMCx instead of other functions. */
+	setbits_be32(&cp->cp_pbpar, IOPINS);
+	clrbits_be32(&cp->cp_pbdir, IOPINS);
+	clrbits_be16(&cp->cp_pbodr, IOPINS);
 
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */
-	dpaddr = CPM_SERIAL_BASE;
-
-	rtx = (serialbuffer_t *)&cp->cp_dpmem[dpaddr];
+	rtx = (struct serialbuffer __iomem *)&cp->cp_dpmem[CPM_SERIAL_BASE];
 	/* Allocate space for two buffer descriptors in the DP ram.
 	 * For now, this address seems OK, but it may have to
 	 * change with newer versions of the firmware.
 	 * damm: allocating space after the two buffers for rx/tx data
 	 */
 
-	rtx->rxbd.cbd_bufaddr = (uint) &rtx->rxbuf;
-	rtx->rxbd.cbd_sc      = 0;
+	out_be32(&rtx->rxbd.cbd_bufaddr, (__force uint)&rtx->rxbuf);
+	out_be16(&rtx->rxbd.cbd_sc, 0);
 
-	rtx->txbd.cbd_bufaddr = (uint) &rtx->txbuf;
-	rtx->txbd.cbd_sc      = 0;
+	out_be32(&rtx->txbd.cbd_bufaddr, (__force uint)&rtx->txbuf);
+	out_be16(&rtx->txbd.cbd_sc, 0);
 
 	/* Set up the uart parameters in the parameter ram. */
-	up->smc_rbase = dpaddr;
-	up->smc_tbase = dpaddr+sizeof(cbd_t);
-	up->smc_rfcr = SMC_EB;
-	up->smc_tfcr = SMC_EB;
+	out_be16(&up->smc_rbase, CPM_SERIAL_BASE);
+	out_be16(&up->smc_tbase, CPM_SERIAL_BASE + sizeof(cbd_t));
+	out_8(&up->smc_rfcr, SMC_EB);
+	out_8(&up->smc_tfcr, SMC_EB);
 
 	/* Set UART mode, 8 bit, no parity, one stop.
 	 * Enable receive and transmit.
 	 */
-	sp->smc_smcmr = smcr_mk_clen(9) |  SMCMR_SM_UART;
+	out_be16(&sp->smc_smcmr, smcr_mk_clen(9) | SMCMR_SM_UART);
 
 	/* Mask all interrupts and remove anything pending.
 	*/
-	sp->smc_smcm = 0;
-	sp->smc_smce = 0xff;
+	out_8(&sp->smc_smcm, 0);
+	out_8(&sp->smc_smce, 0xff);
 
 	/* Set up the baud rate generator */
 	smc_setbrg ();
 
 	/* Make the first buffer the only buffer. */
-	rtx->txbd.cbd_sc |= BD_SC_WRAP;
-	rtx->rxbd.cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
+	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_WRAP);
+	setbits_be16(&rtx->rxbd.cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
 
 	/* single/multi character receive. */
-	up->smc_mrblr = CONFIG_SYS_SMC_RXBUFLEN;
-	up->smc_maxidl = CONFIG_SYS_MAXIDLE;
-	rtx->rxindex = 0;
+	out_be16(&up->smc_mrblr, CONFIG_SYS_SMC_RXBUFLEN);
+	out_be16(&up->smc_maxidl, CONFIG_SYS_MAXIDLE);
+	out_be32(&rtx->rxindex, 0);
 
 	/* Initialize Tx/Rx parameters.	*/
-	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
-	  ;
+	while (in_be16(&cp->cp_cpcr) & CPM_CR_FLG)	/* wait if cp is busy */
+		;
 
-	cp->cp_cpcr = mk_cr_cmd(CPM_CR_CH_SMC, CPM_CR_INIT_TRX) | CPM_CR_FLG;
+	out_be16(&cp->cp_cpcr,
+		 mk_cr_cmd(CPM_CR_CH_SMC, CPM_CR_INIT_TRX) | CPM_CR_FLG);
 
-	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
-	  ;
+	while (in_be16(&cp->cp_cpcr) & CPM_CR_FLG)	/* wait if cp is busy */
+		;
 
 	/* Enable transmitter/receiver.	*/
-	sp->smc_smcmr |= SMCMR_REN | SMCMR_TEN;
+	setbits_be16(&sp->smc_smcmr, SMCMR_REN | SMCMR_TEN);
 
 	return (0);
 }
@@ -199,28 +191,22 @@ static int smc_init (void)
 static void
 smc_putc(const char c)
 {
-	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
-	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
-	volatile serialbuffer_t	*rtx;
+	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
+	struct serialbuffer	__iomem *rtx;
 
 	if (c == '\n')
 		smc_putc ('\r');
 
-	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
-
-	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
+	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
 	/* Wait for last character to go. */
-	rtx->txbuf = c;
-	rtx->txbd.cbd_datlen = 1;
-	rtx->txbd.cbd_sc |= BD_SC_READY;
-	__asm__("eieio");
+	out_8(&rtx->txbuf, c);
+	out_be16(&rtx->txbd.cbd_datlen, 1);
+	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_READY);
 
-	while (rtx->txbd.cbd_sc & BD_SC_READY) {
+	while (in_be16(&rtx->txbd.cbd_sc) & BD_SC_READY)
 		WATCHDOG_RESET ();
-		__asm__("eieio");
-	}
 }
 
 static void
@@ -234,46 +220,44 @@ smc_puts (const char *s)
 static int
 smc_getc(void)
 {
-	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
-	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
-	volatile serialbuffer_t	*rtx;
+	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
+	struct serialbuffer	__iomem *rtx;
 	unsigned char  c;
+	uint rxindex;
 
-	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
-	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
+	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
 	/* Wait for character to show up. */
-	while (rtx->rxbd.cbd_sc & BD_SC_EMPTY)
+	while (in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY)
 		WATCHDOG_RESET ();
 
 	/* the characters are read one by one,
 	 * use the rxindex to know the next char to deliver
 	 */
-	c = *(unsigned char *) (rtx->rxbd.cbd_bufaddr+rtx->rxindex);
-	rtx->rxindex++;
+	rxindex = in_be32(&rtx->rxindex);
+	c = in_8(rtx->rxbuf + rxindex);
+	rxindex++;
 
 	/* check if all char are readout, then make prepare for next receive */
-	if (rtx->rxindex >= rtx->rxbd.cbd_datlen) {
-		rtx->rxindex = 0;
-		rtx->rxbd.cbd_sc |= BD_SC_EMPTY;
+	if (rxindex >= in_be16(&rtx->rxbd.cbd_datlen)) {
+		rxindex = 0;
+		setbits_be16(&rtx->rxbd.cbd_sc, BD_SC_EMPTY);
 	}
+	out_be32(&rtx->rxindex, rxindex);
 	return(c);
 }
 
 static int
 smc_tstc(void)
 {
-	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
-	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
-	volatile serialbuffer_t	*rtx;
+	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
+	struct serialbuffer	__iomem *rtx;
 
-	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
+	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
-	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
-
-	return !(rtx->rxbd.cbd_sc & BD_SC_EMPTY);
+	return !(in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY);
 }
 
 struct serial_device serial_smc_device =

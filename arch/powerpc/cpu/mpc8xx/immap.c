@@ -15,64 +15,60 @@
 #include <asm/8xx_immap.h>
 #include <commproc.h>
 #include <asm/iopin_8xx.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int
 do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	sysconf8xx_t __iomem *sc = &immap->im_siu_conf;
 
-	volatile sysconf8xx_t *sc = &immap->im_siu_conf;
-
-	printf ("SIUMCR= %08x SYPCR = %08x\n", sc->sc_siumcr, sc->sc_sypcr);
-	printf ("SWT   = %08x\n", sc->sc_swt);
-	printf ("SIPEND= %08x SIMASK= %08x\n", sc->sc_sipend, sc->sc_simask);
-	printf ("SIEL  = %08x SIVEC = %08x\n", sc->sc_siel, sc->sc_sivec);
-	printf ("TESR  = %08x SDCR  = %08x\n", sc->sc_tesr, sc->sc_sdcr);
+	printf("SIUMCR= %08x SYPCR = %08x\n",
+	       in_be32(&sc->sc_siumcr), in_be32(&sc->sc_sypcr));
+	printf("SWT   = %08x\n", in_be32(&sc->sc_swt));
+	printf("SIPEND= %08x SIMASK= %08x\n",
+	       in_be32(&sc->sc_sipend), in_be32(&sc->sc_simask));
+	printf("SIEL  = %08x SIVEC = %08x\n",
+	       in_be32(&sc->sc_siel), in_be32(&sc->sc_sivec));
+	printf("TESR  = %08x SDCR  = %08x\n",
+	       in_be32(&sc->sc_tesr), in_be32(&sc->sc_sdcr));
 	return 0;
 }
 
 int
 do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
 	int nbanks = 8;
-	volatile uint *p = &memctl->memc_br0;
+	uint __iomem *p = &memctl->memc_br0;
 	int i;
 
-	for (i = 0; i < nbanks; i++, p += 2) {
-		if (i < 10) {
-			printf ("BR%d   = %08x OR%d   = %08x\n",
-				i, p[0], i, p[1]);
-		} else {
-			printf ("BR%d  = %08x OR%d  = %08x\n",
-				i, p[0], i, p[1]);
-		}
-	}
+	for (i = 0; i < nbanks; i++, p += 2)
+		printf("BR%-2d  = %08x OR%-2d  = %08x\n",
+		       i, in_be32(p), i, in_be32(p + 1));
 
-	printf ("MAR   = %08x", memctl->memc_mar);
-	printf (" MCR   = %08x\n", memctl->memc_mcr);
-	printf ("MAMR  = %08x MBMR  = %08x",
-		memctl->memc_mamr, memctl->memc_mbmr);
-	printf ("\nMSTAT =     %04x\n", memctl->memc_mstat);
-	printf ("MPTPR =     %04x MDR   = %08x\n",
-		memctl->memc_mptpr, memctl->memc_mdr);
+	printf("MAR   = %08x", in_be32(&memctl->memc_mar));
+	printf(" MCR   = %08x\n", in_be32(&memctl->memc_mcr));
+	printf("MAMR  = %08x MBMR  = %08x",
+	       in_be32(&memctl->memc_mamr), in_be32(&memctl->memc_mbmr));
+	printf("\nMSTAT =     %04x\n", in_be16(&memctl->memc_mstat));
+	printf("MPTPR =     %04x MDR   = %08x\n",
+	       in_be16(&memctl->memc_mptpr), in_be32(&memctl->memc_mdr));
 	return 0;
 }
 
 int
 do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	car8xx_t __iomem *car = &immap->im_clkrst;
 
-	volatile car8xx_t *car = &immap->im_clkrst;
-
-	printf ("SCCR  = %08x\n", car->car_sccr);
-	printf ("PLPRCR= %08x\n", car->car_plprcr);
-	printf ("RSR   = %08x\n", car->car_rsr);
+	printf("SCCR  = %08x\n", in_be32(&car->car_sccr));
+	printf("PLPRCR= %08x\n", in_be32(&car->car_plprcr));
+	printf("RSR   = %08x\n", in_be32(&car->car_rsr));
 	return 0;
 }
 
@@ -130,11 +126,10 @@ static void binary (char *label, uint value, int nbits)
 int
 do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-
-	volatile iop8xx_t *iop = &immap->im_ioport;
-	volatile ushort *l, *r;
-	volatile uint *R;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	iop8xx_t __iomem *iop = &immap->im_ioport;
+	ushort __iomem *l, *r;
+	uint __iomem *R;
 
 	counter = 0;
 	header ();
@@ -145,14 +140,14 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	l = &iop->iop_padir;
 	R = &immap->im_cpm.cp_pbdir;
-	binary ("PA_DIR", *l++, PA_NBITS);
-	binary ("PB_DIR", *R++, PB_NBITS);
-	binary ("PA_PAR", *l++, PA_NBITS);
-	binary ("PB_PAR", *R++, PB_NBITS);
-	binary ("PA_ODR", *l++, PA_NB_ODR);
-	binary ("PB_ODR", *R++, PB_NB_ODR);
-	binary ("PA_DAT", *l++, PA_NBITS);
-	binary ("PB_DAT", *R++, PB_NBITS);
+	binary("PA_DIR", in_be16(l++), PA_NBITS);
+	binary("PB_DIR", in_be32(R++), PB_NBITS);
+	binary("PA_PAR", in_be16(l++), PA_NBITS);
+	binary("PB_PAR", in_be32(R++), PB_NBITS);
+	binary("PA_ODR", in_be16(l++), PA_NB_ODR);
+	binary("PB_ODR", in_be32(R++), PB_NB_ODR);
+	binary("PA_DAT", in_be16(l++), PA_NBITS);
+	binary("PB_DAT", in_be32(R++), PB_NBITS);
 
 	header ();
 
@@ -162,16 +157,16 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	l = &iop->iop_pcdir;
 	r = &iop->iop_pddir;
-	binary ("PC_DIR", *l++, PC_NBITS);
-	binary ("PD_DIR", *r++, PD_NBITS);
-	binary ("PC_PAR", *l++, PC_NBITS);
-	binary ("PD_PAR", *r++, PD_NBITS);
-	binary ("PC_SO ", *l++, PC_NBITS);
-	binary ("      ", 0, 0);
+	binary("PC_DIR", in_be16(l++), PC_NBITS);
+	binary("PD_DIR", in_be16(r++), PD_NBITS);
+	binary("PC_PAR", in_be16(l++), PC_NBITS);
+	binary("PD_PAR", in_be16(r++), PD_NBITS);
+	binary("PC_SO ", in_be16(l++), PC_NBITS);
+	binary("      ", 0, 0);
 	r++;
-	binary ("PC_DAT", *l++, PC_NBITS);
-	binary ("PD_DAT", *r++, PD_NBITS);
-	binary ("PC_INT", *l++, PC_NBITS);
+	binary("PC_DAT", in_be16(l++), PC_NBITS);
+	binary("PD_DAT", in_be16(r++), PD_NBITS);
+	binary("PC_INT", in_be16(l++), PC_NBITS);
 
 	header ();
 	return 0;
@@ -343,14 +338,13 @@ static void prbrg (int n, uint val)
 int
 do_brginfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-
-	volatile cpm8xx_t *cp = &immap->im_cpm;
-	volatile uint *p = &cp->cp_brgc1;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &immap->im_cpm;
+	uint __iomem *p = &cp->cp_brgc1;
 	int i = 1;
 
 	while (i <= 4)
-		prbrg (i++, *p++);
+		prbrg(i++, in_be32(p++));
 
 	return 0;
 }

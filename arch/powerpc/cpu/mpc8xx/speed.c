@@ -8,6 +8,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,8 +39,8 @@ void get_brgclk(uint sccr)
 int get_clocks (void)
 {
 	uint immr = get_immr (0);	/* Return full IMMR contents */
-	volatile immap_t *immap = (immap_t *) (immr & 0xFFFF0000);
-	uint sccr = immap->im_clkrst.car_sccr;
+	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
+	uint sccr = in_be32(&immap->im_clkrst.car_sccr);
 	/*
 	 * If for some reason measuring the gclk frequency won't
 	 * work, we return the hardwired value.

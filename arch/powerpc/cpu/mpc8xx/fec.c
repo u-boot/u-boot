@@ -10,6 +10,7 @@
 #include <commproc.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/io.h>
 
 #include <phy.h>
 
@@ -115,12 +116,12 @@ static uint txIdx;	/* index of the current TX buffer */
   * Provide for Double Buffering
   */
 
-typedef volatile struct CommonBufferDescriptor {
+struct common_buf_desc {
     cbd_t rxbd[PKTBUFSRX];		/* Rx BD */
     cbd_t txbd[TX_BUF_CNT];		/* Tx BD */
-} RTXBD;
+};
 
-static RTXBD *rtx = NULL;
+static struct common_buf_desc __iomem *rtx;
 
 static int fec_send(struct eth_device *dev, void *packet, int length);
 static int fec_recv(struct eth_device* dev);
@@ -189,13 +190,15 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 {
 	int j, rc;
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
 	/* section 16.9.23.3
 	 * Wait for ready
 	 */
 	j = 0;
-	while ((rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY) && (j<TOUT_LOOP)) {
+	while ((in_be16(&rtx->txbd[txIdx].cbd_sc) & BD_ENET_TX_READY) &&
+	       (j < TOUT_LOOP)) {
 		udelay(1);
 		j++;
 	}
@@ -203,16 +206,18 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 		printf("TX not ready\n");
 	}
 
-	rtx->txbd[txIdx].cbd_bufaddr = (uint)packet;
-	rtx->txbd[txIdx].cbd_datlen  = length;
-	rtx->txbd[txIdx].cbd_sc |= BD_ENET_TX_READY | BD_ENET_TX_LAST;
-	__asm__ ("eieio");
+	out_be32(&rtx->txbd[txIdx].cbd_bufaddr, (uint)packet);
+	out_be16(&rtx->txbd[txIdx].cbd_datlen, length);
+	setbits_be16(&rtx->txbd[txIdx].cbd_sc,
+		     BD_ENET_TX_READY | BD_ENET_TX_LAST);
 
 	/* Activate transmit Buffer Descriptor polling */
-	fecp->fec_x_des_active = 0x01000000;	/* Descriptor polling active	*/
+	/* Descriptor polling active	*/
+	out_be32(&fecp->fec_x_des_active, 0x01000000);
 
 	j = 0;
-	while ((rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY) && (j<TOUT_LOOP)) {
+	while ((in_be16(&rtx->txbd[txIdx].cbd_sc) & BD_ENET_TX_READY) &&
+	       (j < TOUT_LOOP)) {
 		udelay(1);
 		j++;
 	}
@@ -220,7 +225,7 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 		printf("TX timeout\n");
 	}
 	/* return only status bits */;
-	rc = (rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_STATS);
+	rc = in_be16(&rtx->txbd[txIdx].cbd_sc) & BD_ENET_TX_STATS;
 
 	txIdx = (txIdx + 1) % TX_BUF_CNT;
 
@@ -230,21 +235,20 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 static int fec_recv (struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp =
-		(volatile fec_t *) (CONFIG_SYS_IMMR + efis->fecp_offset);
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 	int length;
 
 	for (;;) {
 		/* section 16.9.23.2 */
-		if (rtx->rxbd[rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
+		if (in_be16(&rtx->rxbd[rxIdx].cbd_sc) & BD_ENET_RX_EMPTY) {
 			length = -1;
 			break;	/* nothing received - leave for() loop */
 		}
 
-		length = rtx->rxbd[rxIdx].cbd_datlen;
+		length = in_be16(&rtx->rxbd[rxIdx].cbd_datlen);
 
-		if (rtx->rxbd[rxIdx].cbd_sc & 0x003f) {
-		} else {
+		if (!(in_be16(&rtx->rxbd[rxIdx].cbd_sc) & 0x003f)) {
 			uchar *rx = net_rx_packets[rxIdx];
 
 			length -= 4;
@@ -263,22 +267,21 @@ static int fec_recv (struct eth_device *dev)
 		}
 
 		/* Give the buffer back to the FEC. */
-		rtx->rxbd[rxIdx].cbd_datlen = 0;
+		out_be16(&rtx->rxbd[rxIdx].cbd_datlen, 0);
 
 		/* wrap around buffer index when necessary */
 		if ((rxIdx + 1) >= PKTBUFSRX) {
-			rtx->rxbd[PKTBUFSRX - 1].cbd_sc =
-				(BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
+			out_be16(&rtx->rxbd[PKTBUFSRX - 1].cbd_sc,
+				 BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
 			rxIdx = 0;
 		} else {
-			rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
+			out_be16(&rtx->rxbd[rxIdx].cbd_sc, BD_ENET_RX_EMPTY);
 			rxIdx++;
 		}
 
-		__asm__ ("eieio");
-
 		/* Try to fill Buffer Descriptors */
-		fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active    */
+		/* Descriptor polling active    */
+		out_be32(&fecp->fec_r_des_active, 0x01000000);
 	}
 
 	return length;
@@ -313,11 +316,12 @@ static inline void fec_10Mbps(struct eth_device *dev)
 	struct ether_fcc_info_s *efis = dev->priv;
 	int fecidx = efis->ether_index;
 	uint mask = (fecidx == 0) ? 0x0000010 : 0x0000008;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	if ((unsigned int)fecidx >= 2)
 		hang();
 
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_cptr |=  mask;
+	setbits_be32(&immr->im_cpm.cp_cptr, mask);
 }
 
 static inline void fec_100Mbps(struct eth_device *dev)
@@ -325,11 +329,12 @@ static inline void fec_100Mbps(struct eth_device *dev)
 	struct ether_fcc_info_s *efis = dev->priv;
 	int fecidx = efis->ether_index;
 	uint mask = (fecidx == 0) ? 0x0000010 : 0x0000008;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	if ((unsigned int)fecidx >= 2)
 		hang();
 
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_cptr &= ~mask;
+	clrbits_be32(&immr->im_cpm.cp_cptr, mask);
 }
 
 #endif
@@ -337,25 +342,27 @@ static inline void fec_100Mbps(struct eth_device *dev)
 static inline void fec_full_duplex(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
-	fecp->fec_r_cntrl &= ~FEC_RCNTRL_DRT;
-	fecp->fec_x_cntrl |=  FEC_TCNTRL_FDEN;	/* FD enable */
+	clrbits_be32(&fecp->fec_r_cntrl, FEC_RCNTRL_DRT);
+	setbits_be32(&fecp->fec_x_cntrl,  FEC_TCNTRL_FDEN);	/* FD enable */
 }
 
 static inline void fec_half_duplex(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
-	fecp->fec_r_cntrl |=  FEC_RCNTRL_DRT;
-	fecp->fec_x_cntrl &= ~FEC_TCNTRL_FDEN;	/* FD disable */
+	setbits_be32(&fecp->fec_r_cntrl, FEC_RCNTRL_DRT);
+	clrbits_be32(&fecp->fec_x_cntrl,  FEC_TCNTRL_FDEN);	/* FD disable */
 }
 
 static void fec_pin_init(int fecidx)
 {
 	bd_t           *bd = gd->bd;
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	/*
 	 * Set MII speed to 2.5 MHz or slightly below.
@@ -369,12 +376,13 @@ static void fec_pin_init(int fecidx)
 	 *
 	 * All MII configuration is done via FEC1 registers:
 	 */
-	immr->im_cpm.cp_fec1.fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
+	out_be32(&immr->im_cpm.cp_fec1.fec_mii_speed,
+		 ((bd->bi_intfreq + 4999999) / 5000000) << 1);
 
 #if defined(CONFIG_MPC885_FAMILY) && defined(WANT_MII)
 	/* use MDC for MII */
-	immr->im_ioport.iop_pdpar |=  0x0080;
-	immr->im_ioport.iop_pddir &= ~0x0080;
+	setbits_be16(&immr->im_ioport.iop_pdpar, 0x0080);
+	clrbits_be16(&immr->im_ioport.iop_pddir, 0x0080);
 #endif
 
 	if (fecidx == 0) {
@@ -384,37 +392,37 @@ static void fec_pin_init(int fecidx)
 
 #if !defined(CONFIG_RMII)
 
-		immr->im_ioport.iop_papar |=  0xf830;
-		immr->im_ioport.iop_padir |=  0x0830;
-		immr->im_ioport.iop_padir &= ~0xf000;
+		setbits_be16(&immr->im_ioport.iop_papar, 0xf830);
+		setbits_be16(&immr->im_ioport.iop_padir, 0x0830);
+		clrbits_be16(&immr->im_ioport.iop_padir, 0xf000);
 
-		immr->im_cpm.cp_pbpar     |=  0x00001001;
-		immr->im_cpm.cp_pbdir     &= ~0x00001001;
+		setbits_be32(&immr->im_cpm.cp_pbpar, 0x00001001);
+		clrbits_be32(&immr->im_cpm.cp_pbdir, 0x00001001);
 
-		immr->im_ioport.iop_pcpar |=  0x000c;
-		immr->im_ioport.iop_pcdir &= ~0x000c;
+		setbits_be16(&immr->im_ioport.iop_pcpar, 0x000c);
+		clrbits_be16(&immr->im_ioport.iop_pcdir, 0x000c);
 
-		immr->im_cpm.cp_pepar     |=  0x00000003;
-		immr->im_cpm.cp_pedir     |=  0x00000003;
-		immr->im_cpm.cp_peso      &= ~0x00000003;
+		setbits_be32(&immr->im_cpm.cp_pepar, 0x00000003);
+		setbits_be32(&immr->im_cpm.cp_pedir, 0x00000003);
+		clrbits_be32(&immr->im_cpm.cp_peso, 0x00000003);
 
-		immr->im_cpm.cp_cptr      &= ~0x00000100;
+		clrbits_be32(&immr->im_cpm.cp_cptr, 0x00000100);
 
 #else
 
 #if !defined(CONFIG_FEC1_PHY_NORXERR)
-		immr->im_ioport.iop_papar |=  0x1000;
-		immr->im_ioport.iop_padir &= ~0x1000;
+		setbits_be16(&immr->im_ioport.iop_papar, 0x1000);
+		clrbits_be16(&immr->im_ioport.iop_padir, 0x1000);
 #endif
-		immr->im_ioport.iop_papar |=  0xe810;
-		immr->im_ioport.iop_padir |=  0x0810;
-		immr->im_ioport.iop_padir &= ~0xe000;
+		setbits_be16(&immr->im_ioport.iop_papar, 0xe810);
+		setbits_be16(&immr->im_ioport.iop_padir, 0x0810);
+		clrbits_be16(&immr->im_ioport.iop_padir, 0xe000);
 
-		immr->im_cpm.cp_pbpar     |=  0x00000001;
-		immr->im_cpm.cp_pbdir     &= ~0x00000001;
+		setbits_be32(&immr->im_cpm.cp_pbpar, 0x00000001);
+		clrbits_be32(&immr->im_cpm.cp_pbdir, 0x00000001);
 
-		immr->im_cpm.cp_cptr      |=  0x00000100;
-		immr->im_cpm.cp_cptr      &= ~0x00000050;
+		setbits_be32(&immr->im_cpm.cp_cptr, 0x00000100);
+		clrbits_be32(&immr->im_cpm.cp_cptr, 0x00000050);
 
 #endif /* !CONFIG_RMII */
 
@@ -422,9 +430,8 @@ static void fec_pin_init(int fecidx)
 		/*
 		 * Configure all of port D for MII.
 		 */
-		immr->im_ioport.iop_pdpar = 0x1fff;
-
-			immr->im_ioport.iop_pddir = 0x1fff;	/* Rev. D and later */
+		out_be16(&immr->im_ioport.iop_pdpar, 0x1fff);
+		out_be16(&immr->im_ioport.iop_pddir, 0x1fff);
 #endif
 
 #endif	/* CONFIG_ETHER_ON_FEC1 */
@@ -435,26 +442,26 @@ static void fec_pin_init(int fecidx)
 #if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
-		immr->im_cpm.cp_pepar     |=  0x0003fffc;
-		immr->im_cpm.cp_pedir     |=  0x0003fffc;
-		immr->im_cpm.cp_peso      &= ~0x000087fc;
-		immr->im_cpm.cp_peso      |=  0x00037800;
+		setbits_be32(&immr->im_cpm.cp_pepar, 0x0003fffc);
+		setbits_be32(&immr->im_cpm.cp_pedir, 0x0003fffc);
+		clrbits_be32(&immr->im_cpm.cp_peso, 0x000087fc);
+		setbits_be32(&immr->im_cpm.cp_peso, 0x00037800);
 
-		immr->im_cpm.cp_cptr      &= ~0x00000080;
+		clrbits_be32(&immr->im_cpm.cp_cptr, 0x00000080);
 #else
 
 #if !defined(CONFIG_FEC2_PHY_NORXERR)
-		immr->im_cpm.cp_pepar     |=  0x00000010;
-		immr->im_cpm.cp_pedir     |=  0x00000010;
-		immr->im_cpm.cp_peso      &= ~0x00000010;
+		setbits_be32(&immr->im_cpm.cp_pepar, 0x00000010);
+		setbits_be32(&immr->im_cpm.cp_pedir, 0x00000010);
+		clrbits_be32(&immr->im_cpm.cp_peso, 0x00000010);
 #endif
-		immr->im_cpm.cp_pepar     |=  0x00039620;
-		immr->im_cpm.cp_pedir     |=  0x00039620;
-		immr->im_cpm.cp_peso      |=  0x00031000;
-		immr->im_cpm.cp_peso      &= ~0x00008620;
+		setbits_be32(&immr->im_cpm.cp_pepar, 0x00039620);
+		setbits_be32(&immr->im_cpm.cp_pedir, 0x00039620);
+		setbits_be32(&immr->im_cpm.cp_peso, 0x00031000);
+		clrbits_be32(&immr->im_cpm.cp_peso, 0x00008620);
 
-		immr->im_cpm.cp_cptr      |=  0x00000080;
-		immr->im_cpm.cp_cptr      &= ~0x00000028;
+		setbits_be32(&immr->im_cpm.cp_cptr, 0x00000080);
+		clrbits_be32(&immr->im_cpm.cp_cptr, 0x00000028);
 #endif /* CONFIG_RMII */
 
 #endif /* CONFIG_MPC885_FAMILY */
@@ -464,7 +471,7 @@ static void fec_pin_init(int fecidx)
 	}
 }
 
-static int fec_reset(volatile fec_t *fecp)
+static int fec_reset(fec_t __iomem *fecp)
 {
 	int i;
 
@@ -476,12 +483,11 @@ static int fec_reset(volatile fec_t *fecp)
 	 * still in progress.
 	 */
 
-	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET;
-	for (i = 0;
-	     (fecp->fec_ecntrl & FEC_ECNTRL_RESET) && (i < FEC_RESET_DELAY);
-	     ++i) {
+	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET);
+	for (i = 0; (in_be32(&fecp->fec_ecntrl) & FEC_ECNTRL_RESET) &&
+	     (i < FEC_RESET_DELAY); ++i)
 		udelay (1);
-	}
+
 	if (i == FEC_RESET_DELAY)
 		return -1;
 
@@ -491,9 +497,9 @@ static int fec_reset(volatile fec_t *fecp)
 static int fec_init (struct eth_device *dev, bd_t * bd)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fec_t *fecp =
-		(volatile fec_t *) (CONFIG_SYS_IMMR + efis->fecp_offset);
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 	int i;
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -510,41 +516,42 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 
 	/* We use strictly polling mode only
 	 */
-	fecp->fec_imask = 0;
+	out_be32(&fecp->fec_imask, 0);
 
 	/* Clear any pending interrupt
 	 */
-	fecp->fec_ievent = 0xffc0;
+	out_be32(&fecp->fec_ievent, 0xffc0);
 
 	/* No need to set the IVEC register */
 
 	/* Set station address
 	 */
 #define ea dev->enetaddr
-	fecp->fec_addr_low = (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
-	fecp->fec_addr_high = (ea[4] << 8) | (ea[5]);
+	out_be32(&fecp->fec_addr_low, (ea[0] << 24) | (ea[1] << 16) |
+				      (ea[2] << 8) | ea[3]);
+	out_be16(&fecp->fec_addr_high, (ea[4] << 8) | ea[5]);
 #undef ea
 
 #if defined(CONFIG_CMD_CDP)
 	/*
 	 * Turn on multicast address hash table
 	 */
-	fecp->fec_hash_table_high = 0xffffffff;
-	fecp->fec_hash_table_low = 0xffffffff;
+	out_be32(&fecp->fec_hash_table_high, 0xffffffff);
+	out_be32(&fecp->fec_hash_table_low, 0xffffffff);
 #else
 	/* Clear multicast address hash table
 	 */
-	fecp->fec_hash_table_high = 0;
-	fecp->fec_hash_table_low = 0;
+	out_be32(&fecp->fec_hash_table_high, 0);
+	out_be32(&fecp->fec_hash_table_low, 0);
 #endif
 
 	/* Set maximum receive buffer size.
 	 */
-	fecp->fec_r_buff_size = PKT_MAXBLR_SIZE;
+	out_be32(&fecp->fec_r_buff_size, PKT_MAXBLR_SIZE);
 
 	/* Set maximum frame length
 	 */
-	fecp->fec_r_hash = PKT_MAXBUF_SIZE;
+	out_be32(&fecp->fec_r_hash, PKT_MAXBUF_SIZE);
 
 	/*
 	 * Setup Buffers and Buffer Desriptors
@@ -553,18 +560,19 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	txIdx = 0;
 
 	if (!rtx)
-		rtx = (RTXBD *)(immr->im_cpm.cp_dpmem + CPM_FEC_BASE);
+		rtx = (struct common_buf_desc __iomem *)
+		      (immr->im_cpm.cp_dpmem + CPM_FEC_BASE);
 	/*
 	 * Setup Receiver Buffer Descriptors (13.14.24.18)
 	 * Settings:
 	 *     Empty, Wrap
 	 */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
-		rtx->rxbd[i].cbd_datlen = 0;	/* Reset */
-		rtx->rxbd[i].cbd_bufaddr = (uint) net_rx_packets[i];
+		out_be16(&rtx->rxbd[i].cbd_sc, BD_ENET_RX_EMPTY);
+		out_be16(&rtx->rxbd[i].cbd_datlen, 0);	/* Reset */
+		out_be32(&rtx->rxbd[i].cbd_bufaddr, (uint)net_rx_packets[i]);
 	}
-	rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
+	setbits_be16(&rtx->rxbd[PKTBUFSRX - 1].cbd_sc, BD_ENET_RX_WRAP);
 
 	/*
 	 * Setup Ethernet Transmitter Buffer Descriptors (13.14.24.19)
@@ -572,26 +580,26 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	 *    Last, Tx CRC
 	 */
 	for (i = 0; i < TX_BUF_CNT; i++) {
-		rtx->txbd[i].cbd_sc = BD_ENET_TX_LAST | BD_ENET_TX_TC;
-		rtx->txbd[i].cbd_datlen = 0;	/* Reset */
-		rtx->txbd[i].cbd_bufaddr = (uint) (&txbuf[0]);
+		out_be16(&rtx->txbd[i].cbd_sc, BD_ENET_TX_LAST | BD_ENET_TX_TC);
+		out_be16(&rtx->txbd[i].cbd_datlen, 0);	/* Reset */
+		out_be32(&rtx->txbd[i].cbd_bufaddr, (uint)txbuf);
 	}
-	rtx->txbd[TX_BUF_CNT - 1].cbd_sc |= BD_ENET_TX_WRAP;
+	setbits_be16(&rtx->txbd[TX_BUF_CNT - 1].cbd_sc, BD_ENET_TX_WRAP);
 
 	/* Set receive and transmit descriptor base
 	 */
-	fecp->fec_r_des_start = (unsigned int) (&rtx->rxbd[0]);
-	fecp->fec_x_des_start = (unsigned int) (&rtx->txbd[0]);
+	out_be32(&fecp->fec_r_des_start, (__force unsigned int)rtx->rxbd);
+	out_be32(&fecp->fec_x_des_start, (__force unsigned int)rtx->txbd);
 
 	/* Enable MII mode
 	 */
 	/* Half duplex mode */
-	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
-	fecp->fec_x_cntrl = 0;
+	out_be32(&fecp->fec_r_cntrl, FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT);
+	out_be32(&fecp->fec_x_cntrl, 0);
 
 	/* Enable big endian and don't care about SDMA FC.
 	 */
-	fecp->fec_fun_code = 0x78000000;
+	out_be32(&fecp->fec_fun_code, 0x78000000);
 
 	/*
 	 * Setup the pin configuration of the FEC
@@ -604,7 +612,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/*
 	 * Now enable the transmit and receive processing
 	 */
-	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
+	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN);
 
 	if (efis->phy_addr == -1) {
 #ifdef CONFIG_SYS_DISCOVER_PHY
@@ -647,7 +655,8 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 #endif
 
 	/* And last, try to fill Rx Buffer Descriptors */
-	fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active    */
+	/* Descriptor polling active    */
+	out_be32(&fecp->fec_r_des_active, 0x01000000);
 
 	efis->initialized = 1;
 
@@ -658,7 +667,8 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 static void fec_halt(struct eth_device* dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
+	fec_t __iomem *fecp =
+			(fec_t __iomem *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 	int i;
 
 	/* avoid halt if initialized; mii gets stuck otherwise */
@@ -673,12 +683,11 @@ static void fec_halt(struct eth_device* dev)
 	 * still in progress.
 	 */
 
-	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET;
-	for (i = 0;
-	     (fecp->fec_ecntrl & FEC_ECNTRL_RESET) && (i < FEC_RESET_DELAY);
-	     ++i) {
+	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET);
+	for (i = 0; (in_be32(&fecp->fec_ecntrl) & FEC_ECNTRL_RESET) &&
+	     (i < FEC_RESET_DELAY); ++i)
 		udelay (1);
-	}
+
 	if (i == FEC_RESET_DELAY) {
 		printf ("FEC_RESET_DELAY timeout\n");
 		return;
@@ -717,23 +726,24 @@ static uint
 mii_send(uint mii_cmd)
 {
 	uint mii_reply;
-	volatile fec_t	*ep;
+	fec_t __iomem *ep;
 	int cnt;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
-	ep = &(((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_fec);
+	ep = &immr->im_cpm.cp_fec;
 
-	ep->fec_mii_data = mii_cmd;	/* command to phy */
+	out_be32(&ep->fec_mii_data, mii_cmd);	/* command to phy */
 
 	/* wait for mii complete */
 	cnt = 0;
-	while (!(ep->fec_ievent & FEC_ENET_MII)) {
+	while (!(in_be32(&ep->fec_ievent) & FEC_ENET_MII)) {
 		if (++cnt > 1000) {
 			printf("mii_send STUCK!\n");
 			break;
 		}
 	}
-	mii_reply = ep->fec_mii_data;		/* result from phy */
-	ep->fec_ievent = FEC_ENET_MII;		/* clear MII complete */
+	mii_reply = in_be32(&ep->fec_mii_data);		/* result from phy */
+	out_be32(&ep->fec_ievent, FEC_ENET_MII);	/* clear MII complete */
 	return (mii_reply & 0xffff);		/* data read from phy */
 }
 #endif
@@ -782,23 +792,23 @@ static int mii_discover_phy(struct eth_device *dev)
  */
 static void __mii_init(void)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	fec_t __iomem *fecp = &immr->im_cpm.cp_fec;
 
 	if (fec_reset(fecp) < 0)
 		printf ("FEC_RESET_DELAY timeout\n");
 
 	/* We use strictly polling mode only
 	 */
-	fecp->fec_imask = 0;
+	out_be32(&fecp->fec_imask, 0);
 
 	/* Clear any pending interrupt
 	 */
-	fecp->fec_ievent = 0xffc0;
+	out_be32(&fecp->fec_ievent, 0xffc0);
 
 	/* Now enable the transmit and receive processing
 	 */
-	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
+	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN);
 }
 
 void mii_init (void)

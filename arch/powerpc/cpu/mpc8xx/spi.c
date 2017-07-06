@@ -44,6 +44,9 @@
 #define	CONFIG_SYS_SPI_INIT_OFFSET	0xB00
 #endif
 
+#define CPM_SPI_BASE_RX	CPM_SPI_BASE
+#define CPM_SPI_BASE_TX	(CPM_SPI_BASE + sizeof(cbd_t))
+
 /* -------------------
  * Function prototypes
  * ------------------- */
@@ -80,19 +83,13 @@ static uchar *txbuf =
  * *********************************************************************** */
 void spi_init_f (void)
 {
-	unsigned int dpaddr;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &immr->im_cpm;
+	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
+	cbd_t __iomem *tbdf, *rbdf;
 
-	volatile spi_t *spi;
-	volatile immap_t *immr;
-	volatile cpm8xx_t *cp;
-	volatile cbd_t *tbdf, *rbdf;
-
-	immr = (immap_t *)  CONFIG_SYS_IMMR;
-	cp   = (cpm8xx_t *) &immr->im_cpm;
-
-	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
 	/* Disable relocation */
-	spi->spi_rpbase = 0;
+	out_be16(&spi->spi_rpbase, 0);
 
 /* 1 */
 	/* ------------------------------------------------
@@ -107,8 +104,7 @@ void spi_init_f (void)
 	 * PBPAR[30] = 1 [0x00000002] -> PERI: (SPICLK)
 	 * PBPAR[31] = 0 [0x00000001] -> GPIO: (CS for PCUE/CCM-EEPROM)
 	 * -------------------------------------------- */
-	cp->cp_pbpar |=  0x0000000E;	/* set  bits	*/
-	cp->cp_pbpar &= ~0x00000001;	/* reset bit	*/
+	clrsetbits_be32(&cp->cp_pbpar, 0x00000001, 0x0000000E);	/* set  bits */
 
 	/* ----------------------------------------------
 	 * In/Out or per. Function 0/1
@@ -117,7 +113,7 @@ void spi_init_f (void)
 	 * PBDIR[30] = 1 [0x00000002] -> PERI1: SPICLK
 	 * PBDIR[31] = 1 [0x00000001] -> GPIO OUT: CS for PCUE/CCM-EEPROM
 	 * ---------------------------------------------- */
-	cp->cp_pbdir |= 0x0000000F;
+	setbits_be32(&cp->cp_pbdir, 0x0000000F);
 
 	/* ----------------------------------------------
 	 * open drain or active output
@@ -127,29 +123,26 @@ void spi_init_f (void)
 	 * PBODR[31] = 0 [0x00000001] -> active output: GPIO OUT: CS for PCUE/CCM
 	 * ---------------------------------------------- */
 
-	cp->cp_pbodr |=  0x00000008;
-	cp->cp_pbodr &= ~0x00000007;
+	clrsetbits_be16(&cp->cp_pbodr, 0x00000007, 0x00000008);
 
 	/* Initialize the parameter ram.
 	 * We need to make sure many things are initialized to zero
 	 */
-	spi->spi_rstate	= 0;
-	spi->spi_rdp	= 0;
-	spi->spi_rbptr	= 0;
-	spi->spi_rbc	= 0;
-	spi->spi_rxtmp	= 0;
-	spi->spi_tstate	= 0;
-	spi->spi_tdp	= 0;
-	spi->spi_tbptr	= 0;
-	spi->spi_tbc	= 0;
-	spi->spi_txtmp	= 0;
-
-	dpaddr = CPM_SPI_BASE;
+	out_be32(&spi->spi_rstate, 0);
+	out_be32(&spi->spi_rdp, 0);
+	out_be16(&spi->spi_rbptr, 0);
+	out_be16(&spi->spi_rbc, 0);
+	out_be32(&spi->spi_rxtmp, 0);
+	out_be32(&spi->spi_tstate, 0);
+	out_be32(&spi->spi_tdp, 0);
+	out_be16(&spi->spi_tbptr, 0);
+	out_be16(&spi->spi_tbc, 0);
+	out_be32(&spi->spi_txtmp, 0);
 
 /* 3 */
 	/* Set up the SPI parameters in the parameter ram */
-	spi->spi_rbase = dpaddr;
-	spi->spi_tbase = dpaddr + sizeof (cbd_t);
+	out_be16(&spi->spi_rbase, CPM_SPI_BASE_RX);
+	out_be16(&spi->spi_tbase, CPM_SPI_BASE_TX);
 
 	/***********IMPORTANT******************/
 
@@ -160,45 +153,47 @@ void spi_init_f (void)
 	 * is missing from the sample I2C driver. If you dont
 	 * initialize these pointers, the kernel hangs.
 	 */
-	spi->spi_rbptr = spi->spi_rbase;
-	spi->spi_tbptr = spi->spi_tbase;
+	out_be16(&spi->spi_rbptr, CPM_SPI_BASE_RX);
+	out_be16(&spi->spi_tbptr, CPM_SPI_BASE_TX);
 
 /* 4 */
 	/* Init SPI Tx + Rx Parameters */
-	while (cp->cp_cpcr & CPM_CR_FLG)
+	while (in_be16(&cp->cp_cpcr) & CPM_CR_FLG)
 		;
-	cp->cp_cpcr = mk_cr_cmd(CPM_CR_CH_SPI, CPM_CR_INIT_TRX) | CPM_CR_FLG;
-	while (cp->cp_cpcr & CPM_CR_FLG)
+
+	out_be16(&cp->cp_cpcr, mk_cr_cmd(CPM_CR_CH_SPI, CPM_CR_INIT_TRX) |
+			       CPM_CR_FLG);
+	while (in_be16(&cp->cp_cpcr) & CPM_CR_FLG)
 		;
 
 /* 5 */
 	/* Set SDMA configuration register */
-	immr->im_siu_conf.sc_sdcr = 0x0001;
+	out_be32(&immr->im_siu_conf.sc_sdcr, 0x0001);
 
 /* 6 */
 	/* Set to big endian. */
-	spi->spi_tfcr = SMC_EB;
-	spi->spi_rfcr = SMC_EB;
+	out_8(&spi->spi_tfcr, SMC_EB);
+	out_8(&spi->spi_rfcr, SMC_EB);
 
 /* 7 */
 	/* Set maximum receive size. */
-	spi->spi_mrblr = MAX_BUFFER;
+	out_be16(&spi->spi_mrblr, MAX_BUFFER);
 
 /* 8 + 9 */
 	/* tx and rx buffer descriptors */
-	tbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_tbase];
-	rbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_rbase];
+	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
+	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
-	tbdf->cbd_sc &= ~BD_SC_READY;
-	rbdf->cbd_sc &= ~BD_SC_EMPTY;
+	clrbits_be16(&tbdf->cbd_sc, BD_SC_READY);
+	clrbits_be16(&rbdf->cbd_sc, BD_SC_EMPTY);
 
 	/* Set the bd's rx and tx buffer address pointers */
-	rbdf->cbd_bufaddr = (ulong) rxbuf;
-	tbdf->cbd_bufaddr = (ulong) txbuf;
+	out_be32(&rbdf->cbd_bufaddr, (ulong)rxbuf);
+	out_be32(&tbdf->cbd_bufaddr, (ulong)txbuf);
 
 /* 10 + 11 */
-	cp->cp_spim = 0;			/* Mask  all SPI events */
-	cp->cp_spie = SPI_EMASK;		/* Clear all SPI events	*/
+	out_8(&cp->cp_spim, 0);			/* Mask  all SPI events */
+	out_8(&cp->cp_spie, SPI_EMASK);		/* Clear all SPI events	*/
 
 	return;
 }
@@ -216,28 +211,24 @@ void spi_init_f (void)
  * *********************************************************************** */
 void spi_init_r (void)
 {
-	volatile cpm8xx_t *cp;
-	volatile spi_t *spi;
-	volatile immap_t *immr;
-	volatile cbd_t *tbdf, *rbdf;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &immr->im_cpm;
+	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
+	cbd_t __iomem *tbdf, *rbdf;
 
-	immr = (immap_t *)  CONFIG_SYS_IMMR;
-	cp   = (cpm8xx_t *) &immr->im_cpm;
-
-	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
 	/* Disable relocation */
-	spi->spi_rpbase = 0;
+	out_be16(&spi->spi_rpbase, 0);
 
 	/* tx and rx buffer descriptors */
-	tbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_tbase];
-	rbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_rbase];
+	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
+	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
 	/* Allocate memory for RX and TX buffers */
 	rxbuf = (uchar *) malloc (MAX_BUFFER);
 	txbuf = (uchar *) malloc (MAX_BUFFER);
 
-	rbdf->cbd_bufaddr = (ulong) rxbuf;
-	tbdf->cbd_bufaddr = (ulong) txbuf;
+	out_be32(&rbdf->cbd_bufaddr, (ulong)rxbuf);
+	out_be32(&tbdf->cbd_bufaddr, (ulong)txbuf);
 
 	return;
 }
@@ -301,59 +292,46 @@ ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
  **************************************************************************** */
 ssize_t spi_xfer (size_t count)
 {
-	volatile immap_t *immr;
-	volatile cpm8xx_t *cp;
-	volatile spi_t *spi;
-	cbd_t *tbdf, *rbdf;
-	ushort loop;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &immr->im_cpm;
+	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
+	cbd_t __iomem *tbdf, *rbdf;
 	int tm;
 
-	immr = (immap_t *) CONFIG_SYS_IMMR;
-	cp   = (cpm8xx_t *) &immr->im_cpm;
-
-	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
 	/* Disable relocation */
-	spi->spi_rpbase = 0;
+	out_be16(&spi->spi_rpbase, 0);
 
-	tbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_tbase];
-	rbdf = (cbd_t *) & cp->cp_dpmem[spi->spi_rbase];
+	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
+	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
 	/* Set CS for device */
-	cp->cp_pbdat &= ~0x0001;
+	clrbits_be32(&cp->cp_pbdat, 0x0001);
 
 	/* Setting tx bd status and data length */
-	tbdf->cbd_sc  = BD_SC_READY | BD_SC_LAST | BD_SC_WRAP;
-	tbdf->cbd_datlen = count;
+	out_be16(&tbdf->cbd_sc, BD_SC_READY | BD_SC_LAST | BD_SC_WRAP);
+	out_be16(&tbdf->cbd_datlen, count);
 
 	/* Setting rx bd status and data length */
-	rbdf->cbd_sc = BD_SC_EMPTY | BD_SC_WRAP;
-	rbdf->cbd_datlen = 0;	 /* rx length has no significance */
+	out_be16(&rbdf->cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
+	out_be16(&rbdf->cbd_datlen, 0);	 /* rx length has no significance */
 
-	loop = cp->cp_spmode & SPMODE_LOOP;
-	cp->cp_spmode = /*SPMODE_DIV16	|*/	/* BRG/16 mode not used here */
-			loop		|
-			SPMODE_REV	|
-			SPMODE_MSTR	|
-			SPMODE_EN	|
-			SPMODE_LEN(8)	|	/* 8 Bits per char */
-			SPMODE_PM(0x8) ;	/* medium speed */
-	cp->cp_spim = 0;			/* Mask  all SPI events */
-	cp->cp_spie = SPI_EMASK;		/* Clear all SPI events	*/
+	clrsetbits_be16(&cp->cp_spmode, ~SPMODE_LOOP, SPMODE_REV | SPMODE_MSTR |
+			SPMODE_EN | SPMODE_LEN(8) | SPMODE_PM(0x8));
+	out_8(&cp->cp_spim, 0);		/* Mask  all SPI events */
+	out_8(&cp->cp_spie, SPI_EMASK);	/* Clear all SPI events	*/
 
 	/* start spi transfer */
-	cp->cp_spcom |= SPI_STR;		/* Start transmit */
+	setbits_8(&cp->cp_spcom, SPI_STR);		/* Start transmit */
 
 	/* --------------------------------
 	 * Wait for SPI transmit to get out
 	 * or time out (1 second = 1000 ms)
 	 * -------------------------------- */
 	for (tm=0; tm<1000; ++tm) {
-		if (cp->cp_spie & SPI_TXB) {	/* Tx Buffer Empty */
+		if (in_8(&cp->cp_spie) & SPI_TXB)	/* Tx Buffer Empty */
 			break;
-		}
-		if ((tbdf->cbd_sc & BD_SC_READY) == 0) {
+		if ((in_be16(&tbdf->cbd_sc) & BD_SC_READY) == 0)
 			break;
-		}
 		udelay (1000);
 	}
 	if (tm >= 1000) {
@@ -361,7 +339,7 @@ ssize_t spi_xfer (size_t count)
 	}
 
 	/* Clear CS for device */
-	cp->cp_pbdat |= 0x0001;
+	setbits_be32(&cp->cp_pbdat, 0x0001);
 
 	return count;
 }

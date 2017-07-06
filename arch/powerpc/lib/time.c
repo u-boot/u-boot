@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 
 /* ------------------------------------------------------------------------- */
 
@@ -65,10 +66,10 @@ int timer_init(void)
 	unsigned long temp;
 
 #if defined(CONFIG_8xx)
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	/* unlock */
-	immap->im_sitk.sitk_tbk = KAPWR_KEY;
+	out_be32(&immap->im_sitk.sitk_tbk, KAPWR_KEY);
 #endif
 
 	/* reset */
@@ -77,7 +78,7 @@ int timer_init(void)
 
 #if defined(CONFIG_8xx)
 	/* enable */
-	immap->im_sit.sit_tbscr |= TBSCR_TBE;
+	setbits_be16(&immap->im_sit.sit_tbscr, TBSCR_TBE);
 #endif
 	return (0);
 }

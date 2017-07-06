@@ -10,6 +10,7 @@
 
 #include <mpc8xx.h>
 #include <commproc.h>
+#include <asm/io.h>
 
 /*
  * Breath some life into the CPU...
@@ -18,46 +19,41 @@
  * initialize a bunch of registers,
  * initialize the UPM's
  */
-void cpu_init_f (volatile immap_t * immr)
+void cpu_init_f(immap_t __iomem *immr)
 {
-	volatile memctl8xx_t *memctl = &immr->im_memctl;
-# ifdef CONFIG_SYS_PLPRCR
-	ulong mfmask;
-# endif
+	memctl8xx_t __iomem *memctl = &immr->im_memctl;
 	ulong reg;
 
 	/* SYPCR - contains watchdog control (11-9) */
 
-	immr->im_siu_conf.sc_sypcr = CONFIG_SYS_SYPCR;
+	out_be32(&immr->im_siu_conf.sc_sypcr, CONFIG_SYS_SYPCR);
 
 #if defined(CONFIG_WATCHDOG)
 	reset_8xx_watchdog (immr);
 #endif /* CONFIG_WATCHDOG */
 
 	/* SIUMCR - contains debug pin configuration (11-6) */
-	immr->im_siu_conf.sc_siumcr |= CONFIG_SYS_SIUMCR;
+	setbits_be32(&immr->im_siu_conf.sc_siumcr, CONFIG_SYS_SIUMCR);
 	/* initialize timebase status and control register (11-26) */
 	/* unlock TBSCRK */
 
-	immr->im_sitk.sitk_tbscrk = KAPWR_KEY;
-	immr->im_sit.sit_tbscr = CONFIG_SYS_TBSCR;
+	out_be32(&immr->im_sitk.sitk_tbscrk, KAPWR_KEY);
+	out_be16(&immr->im_sit.sit_tbscr, CONFIG_SYS_TBSCR);
 
 	/* initialize the PIT (11-31) */
 
-	immr->im_sitk.sitk_piscrk = KAPWR_KEY;
-	immr->im_sit.sit_piscr = CONFIG_SYS_PISCR;
+	out_be32(&immr->im_sitk.sitk_piscrk, KAPWR_KEY);
+	out_be16(&immr->im_sit.sit_piscr, CONFIG_SYS_PISCR);
 
 	/* System integration timers. Don't change EBDF! (15-27) */
 
-	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;
-	reg = immr->im_clkrst.car_sccr;
-	reg &= SCCR_MASK;
-	reg |= CONFIG_SYS_SCCR;
-	immr->im_clkrst.car_sccr = reg;
+	out_be32(&immr->im_clkrstk.cark_sccrk, KAPWR_KEY);
+	clrsetbits_be32(&immr->im_clkrst.car_sccr, ~SCCR_MASK,
+			CONFIG_SYS_SCCR);
 
 	/* PLL (CPU clock) settings (15-30) */
 
-	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
+	out_be32(&immr->im_clkrstk.cark_plprcrk, KAPWR_KEY);
 
 	/* If CONFIG_SYS_PLPRCR (set in the various *_config.h files) tries to
 	 * set the MF field, then just copy CONFIG_SYS_PLPRCR over car_plprcr,
@@ -67,27 +63,19 @@ void cpu_init_f (volatile immap_t * immr)
 	 * For newer (starting MPC866) chips PLPRCR layout is different.
 	 */
 #ifdef CONFIG_SYS_PLPRCR
-	   mfmask = PLPRCR_MFACT_MSK;
-
-	if ((CONFIG_SYS_PLPRCR & mfmask) != 0)
-	   reg = CONFIG_SYS_PLPRCR;			/* reset control bits   */
-	else {
-	   reg = immr->im_clkrst.car_plprcr;
-	   reg &= mfmask;			/* isolate MF-related fields */
-	   reg |= CONFIG_SYS_PLPRCR;			/* reset control bits   */
-	}
-	immr->im_clkrst.car_plprcr = reg;
+	if ((CONFIG_SYS_PLPRCR & PLPRCR_MFACT_MSK) != 0) /* reset control bits*/
+		out_be32(&immr->im_clkrst.car_plprcr, CONFIG_SYS_PLPRCR);
+	else /* isolate MF-related fields and reset control bits */
+		clrsetbits_be32(&immr->im_clkrst.car_plprcr, ~PLPRCR_MFACT_MSK,
+				CONFIG_SYS_PLPRCR);
 #endif
 
 	/*
 	 * Memory Controller:
 	 */
 
-	/* perform BR0 reset that MPC850 Rev. A can't guarantee */
-	reg = memctl->memc_br0;
-	reg &= BR_PS_MSK;	/* Clear everything except Port Size bits */
-	reg |= BR_V;		/* then add just the "Bank Valid" bit     */
-	memctl->memc_br0 = reg;
+	/* Clear everything except Port Size bits & add the "Bank Valid" bit */
+	clrsetbits_be32(&memctl->memc_br0, ~BR_PS_MSK, BR_V);
 
 	/* Map banks 0 (and maybe 1) to the FLASH banks 0 (and 1) at
 	 * preliminary addresses - these have to be modified later
@@ -114,61 +102,61 @@ void cpu_init_f (volatile immap_t * immr)
 	 */
 
 #if defined(CONFIG_SYS_OR0_REMAP)
-	memctl->memc_or0 = CONFIG_SYS_OR0_REMAP;
+	out_be32(&memctl->memc_or0, CONFIG_SYS_OR0_REMAP);
 #endif
 #if defined(CONFIG_SYS_OR1_REMAP)
-	memctl->memc_or1 = CONFIG_SYS_OR1_REMAP;
+	out_be32(&memctl->memc_or1, CONFIG_SYS_OR1_REMAP);
 #endif
 #if defined(CONFIG_SYS_OR5_REMAP)
-	memctl->memc_or5 = CONFIG_SYS_OR5_REMAP;
+	out_be32(&memctl->memc_or5, CONFIG_SYS_OR5_REMAP);
 #endif
 
 	/* now restrict to preliminary range */
-	memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;
-	memctl->memc_or0 = CONFIG_SYS_OR0_PRELIM;
+	out_be32(&memctl->memc_br0, CONFIG_SYS_BR0_PRELIM);
+	out_be32(&memctl->memc_or0, CONFIG_SYS_OR0_PRELIM);
 
 #if (defined(CONFIG_SYS_OR1_PRELIM) && defined(CONFIG_SYS_BR1_PRELIM))
-	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
-	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
+	out_be32(&memctl->memc_or1, CONFIG_SYS_OR1_PRELIM);
+	out_be32(&memctl->memc_br1, CONFIG_SYS_BR1_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
-	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
-	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
+	out_be32(&memctl->memc_or2, CONFIG_SYS_OR2_PRELIM);
+	out_be32(&memctl->memc_br2, CONFIG_SYS_BR2_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR3_PRELIM) && defined(CONFIG_SYS_BR3_PRELIM)
-	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
-	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
+	out_be32(&memctl->memc_or3, CONFIG_SYS_OR3_PRELIM);
+	out_be32(&memctl->memc_br3, CONFIG_SYS_BR3_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR4_PRELIM) && defined(CONFIG_SYS_BR4_PRELIM)
-	memctl->memc_or4 = CONFIG_SYS_OR4_PRELIM;
-	memctl->memc_br4 = CONFIG_SYS_BR4_PRELIM;
+	out_be32(&memctl->memc_or4, CONFIG_SYS_OR4_PRELIM);
+	out_be32(&memctl->memc_br4, CONFIG_SYS_BR4_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR5_PRELIM) && defined(CONFIG_SYS_BR5_PRELIM)
-	memctl->memc_or5 = CONFIG_SYS_OR5_PRELIM;
-	memctl->memc_br5 = CONFIG_SYS_BR5_PRELIM;
+	out_be32(&memctl->memc_or5, CONFIG_SYS_OR5_PRELIM);
+	out_be32(&memctl->memc_br5, CONFIG_SYS_BR5_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR6_PRELIM) && defined(CONFIG_SYS_BR6_PRELIM)
-	memctl->memc_or6 = CONFIG_SYS_OR6_PRELIM;
-	memctl->memc_br6 = CONFIG_SYS_BR6_PRELIM;
+	out_be32(&memctl->memc_or6, CONFIG_SYS_OR6_PRELIM);
+	out_be32(&memctl->memc_br6, CONFIG_SYS_BR6_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_OR7_PRELIM) && defined(CONFIG_SYS_BR7_PRELIM)
-	memctl->memc_or7 = CONFIG_SYS_OR7_PRELIM;
-	memctl->memc_br7 = CONFIG_SYS_BR7_PRELIM;
+	out_be32(&memctl->memc_or7, CONFIG_SYS_OR7_PRELIM);
+	out_be32(&memctl->memc_br7, CONFIG_SYS_BR7_PRELIM);
 #endif
 
 	/*
 	 * Reset CPM
 	 */
-	immr->im_cpm.cp_cpcr = CPM_CR_RST | CPM_CR_FLG;
-	do {			/* Spin until command processed     */
-		__asm__ ("eieio");
-	} while (immr->im_cpm.cp_cpcr & CPM_CR_FLG);
+	out_be16(&immr->im_cpm.cp_cpcr, CPM_CR_RST | CPM_CR_FLG);
+	/* Spin until command processed */
+	while (in_be16(&immr->im_cpm.cp_cpcr) & CPM_CR_FLG)
+		;
 }
 
 /*

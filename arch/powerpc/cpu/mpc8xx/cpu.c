@@ -41,7 +41,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 {
 	char *id_str =
 	NULL;
-	volatile immap_t *immap = (immap_t *) (immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
 	uint k, m;
 	char buf[32];
 	char pre = 'X';
@@ -54,7 +54,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		return -1;
 
 	k = (immr << 16) |
-		immap->im_cpm.cp_dparam16[PROFF_REVNUM / sizeof(u16)];
+	    in_be16(&immap->im_cpm.cp_dparam16[PROFF_REVNUM / sizeof(u16)]);
 	m = 0;
 	suf = "";
 
@@ -95,10 +95,9 @@ static int check_CPU (long clock, uint pvr, uint immr)
 
 	/* do we have a FEC (860T/P or 852/859/866/885)? */
 
-	immap->im_cpm.cp_fec.fec_addr_low = 0x12345678;
-	if (immap->im_cpm.cp_fec.fec_addr_low == 0x12345678) {
+	out_be32(&immap->im_cpm.cp_fec.fec_addr_low, 0x12345678);
+	if (in_be32(&immap->im_cpm.cp_fec.fec_addr_low) == 0x12345678)
 		printf (" FEC present");
-	}
 
 	if (!m) {
 		puts (cpu_warning);
@@ -127,11 +126,11 @@ int checkcpu (void)
 
 int checkicache (void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
 	u32 cacheon = rd_ic_cst () & IDC_ENABLED;
-
-	u32 k = memctl->memc_br0 & ~0x00007fff;	/* probe in flash memoryarea */
+	/* probe in flash memoryarea */
+	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
 	u32 m;
 	u32 lines = -1;
 
@@ -168,11 +167,11 @@ int checkicache (void)
 
 int checkdcache (void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
 	u32 cacheon = rd_dc_cst () & IDC_ENABLED;
-
-	u32 k = memctl->memc_br0 & ~0x00007fff;	/* probe in flash memoryarea */
+	/* probe in flash memoryarea */
+	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
 	u32 m;
 	u32 lines = -1;
 
@@ -204,12 +203,12 @@ void upmconfig (uint upm, uint * table, uint size)
 {
 	uint i;
 	uint addr = 0;
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
 
 	for (i = 0; i < size; i++) {
-		memctl->memc_mdr = table[i];	/* (16-15) */
-		memctl->memc_mcr = addr | upm;	/* (16-16) */
+		out_be32(&memctl->memc_mdr, table[i]);		/* (16-15) */
+		out_be32(&memctl->memc_mcr, addr | upm);	/* (16-16) */
 		addr++;
 	}
 }
@@ -220,9 +219,10 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong msr, addr;
 
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
-	immap->im_clkrst.car_plprcr |= PLPRCR_CSR;	/* Checkstop Reset enable */
+	/* Checkstop Reset enable */
+	setbits_be32(&immap->im_clkrst.car_plprcr, PLPRCR_CSR);
 
 	/* Interrupts and MMU off */
 	__asm__ volatile ("mtspr    81, 0");
@@ -260,14 +260,13 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 unsigned long get_tbclk (void)
 {
 	uint immr = get_immr (0);	/* Return full IMMR contents */
-	volatile immap_t *immap = (volatile immap_t *)(immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
 	ulong oscclk, factor, pll;
 
-	if (immap->im_clkrst.car_sccr & SCCR_TBS) {
+	if (in_be32(&immap->im_clkrst.car_sccr) & SCCR_TBS)
 		return (gd->cpu_clk / 16);
-	}
 
-	pll = immap->im_clkrst.car_plprcr;
+	pll = in_be32(&immap->im_clkrst.car_plprcr);
 
 #define PLPRCR_val(a) ((pll & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
 
@@ -287,9 +286,10 @@ unsigned long get_tbclk (void)
 
 	oscclk = gd->cpu_clk / factor;
 
-	if ((immap->im_clkrst.car_sccr & SCCR_RTSEL) == 0 || factor > 2) {
+	if ((in_be32(&immap->im_clkrst.car_sccr) & SCCR_RTSEL) == 0 ||
+	    factor > 2)
 		return (oscclk / 4);
-	}
+
 	return (oscclk / 16);
 }
 
@@ -300,7 +300,7 @@ void watchdog_reset (void)
 {
 	int re_enable = disable_interrupts ();
 
-	reset_8xx_watchdog ((immap_t *) CONFIG_SYS_IMMR);
+	reset_8xx_watchdog((immap_t __iomem *)CONFIG_SYS_IMMR);
 	if (re_enable)
 		enable_interrupts ();
 }
@@ -308,13 +308,13 @@ void watchdog_reset (void)
 
 #if defined(CONFIG_WATCHDOG)
 
-void reset_8xx_watchdog (volatile immap_t * immr)
+void reset_8xx_watchdog(immap_t __iomem *immr)
 {
 	/*
 	 * All other boards use the MPC8xx Internal Watchdog
 	 */
-	immr->im_siu_conf.sc_swsr = 0x556c;	/* write magic1 */
-	immr->im_siu_conf.sc_swsr = 0xaa39;	/* write magic2 */
+	out_be16(&immr->im_siu_conf.sc_swsr, 0x556c);	/* write magic1 */
+	out_be16(&immr->im_siu_conf.sc_swsr, 0xaa39);	/* write magic2 */
 }
 #endif /* CONFIG_WATCHDOG */
 
