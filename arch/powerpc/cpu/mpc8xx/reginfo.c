@@ -20,7 +20,7 @@ void mpc8xx_reginfo(void)
 	 * other useful registers
 	 */
 
-	printf ("\nSystem Configuration registers\n"
+	printf("\nSystem Configuration registers\n"
 		"\tIMMR\t0x%08X\n", get_immr(0));
 
 	printf("\tSIUMCR\t0x%08X", in_be32(&sysconf->sc_siumcr));

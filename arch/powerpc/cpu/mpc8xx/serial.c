@@ -49,11 +49,11 @@ struct serialbuffer {
 
 static void serial_setdivisor(cpm8xx_t __iomem *cp)
 {
-	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
+	int divisor = (gd->cpu_clk + 8 * gd->baudrate) / 16 / gd->baudrate;
 
-	if(divisor/16>0x1000) {
+	if (divisor / 16 > 0x1000) {
 		/* bad divisor, assume 50MHz clock and 9600 baud */
-		divisor=(50*1000*1000 + 8*9600)/16/9600;
+		divisor = (50 * 1000 * 1000 + 8 * 9600) / 16 / 9600;
 	}
 
 #ifdef CONFIG_SYS_BRGCLK_PRESCALE
@@ -72,7 +72,7 @@ static void serial_setdivisor(cpm8xx_t __iomem *cp)
  * as serial console interface.
  */
 
-static void smc_setbrg (void)
+static void smc_setbrg(void)
 {
 	immap_t __iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &(im->im_cpm);
@@ -88,7 +88,7 @@ static void smc_setbrg (void)
 	serial_setdivisor(cp);
 }
 
-static int smc_init (void)
+static int smc_init(void)
 {
 	immap_t __iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	smc_t __iomem *sp;
@@ -161,7 +161,7 @@ static int smc_init (void)
 	out_8(&sp->smc_smce, 0xff);
 
 	/* Set up the baud rate generator */
-	smc_setbrg ();
+	smc_setbrg();
 
 	/* Make the first buffer the only buffer. */
 	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_WRAP);
@@ -185,18 +185,17 @@ static int smc_init (void)
 	/* Enable transmitter/receiver.	*/
 	setbits_be16(&sp->smc_smcmr, SMCMR_REN | SMCMR_TEN);
 
-	return (0);
+	return 0;
 }
 
-static void
-smc_putc(const char c)
+static void smc_putc(const char c)
 {
 	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
 	struct serialbuffer	__iomem *rtx;
 
 	if (c == '\n')
-		smc_putc ('\r');
+		smc_putc('\r');
 
 	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
@@ -206,19 +205,16 @@ smc_putc(const char c)
 	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_READY);
 
 	while (in_be16(&rtx->txbd.cbd_sc) & BD_SC_READY)
-		WATCHDOG_RESET ();
+		WATCHDOG_RESET();
 }
 
-static void
-smc_puts (const char *s)
+static void smc_puts(const char *s)
 {
-	while (*s) {
-		smc_putc (*s++);
-	}
+	while (*s)
+		smc_putc(*s++);
 }
 
-static int
-smc_getc(void)
+static int smc_getc(void)
 {
 	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
@@ -230,7 +226,7 @@ smc_getc(void)
 
 	/* Wait for character to show up. */
 	while (in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY)
-		WATCHDOG_RESET ();
+		WATCHDOG_RESET();
 
 	/* the characters are read one by one,
 	 * use the rxindex to know the next char to deliver
@@ -245,11 +241,10 @@ smc_getc(void)
 		setbits_be16(&rtx->rxbd.cbd_sc, BD_SC_EMPTY);
 	}
 	out_be32(&rtx->rxindex, rxindex);
-	return(c);
+	return c;
 }
 
-static int
-smc_tstc(void)
+static int smc_tstc(void)
 {
 	immap_t	__iomem *im = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
@@ -260,8 +255,7 @@ smc_tstc(void)
 	return !(in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY);
 }
 
-struct serial_device serial_smc_device =
-{
+struct serial_device serial_smc_device = {
 	.name	= "serial_smc",
 	.start	= smc_init,
 	.stop	= NULL,

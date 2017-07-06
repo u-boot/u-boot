@@ -7,7 +7,7 @@
  *
  * This file contains structures and information for the communication
  * processor channels.  Some CPM control and status is available
- * throught the MPC8xx internal memory map.  See immap.h for details.
+ * through the MPC8xx internal memory map.  See immap.h for details.
  * This file only contains what I need for the moment, not the total
  * CPM capabilities.  I (or someone else) will add definitions as they
  * are needed.  -- Dan
@@ -81,7 +81,7 @@ typedef struct cpm_buf_desc {
 #define BD_SC_INTRPT	((ushort)0x1000)	/* Interrupt on change */
 #define BD_SC_LAST	((ushort)0x0800)	/* Last buffer in frame */
 #define BD_SC_TC	((ushort)0x0400)	/* Transmit CRC */
-#define BD_SC_CM	((ushort)0x0200)	/* Continous mode */
+#define BD_SC_CM	((ushort)0x0200)	/* Continuous mode */
 #define BD_SC_ID	((ushort)0x0100)	/* Rec'd too many idles */
 #define BD_SC_P		((ushort)0x0100)	/* xmt preamble */
 #define BD_SC_BR	((ushort)0x0020)	/* Break received */
@@ -582,8 +582,8 @@ typedef struct spi {
 #define SPMODE_LENMSK	((ushort)0x00f0)	/* character length */
 #define SPMODE_PMMSK	((ushort)0x000f)	/* prescale modulus */
 
-#define SPMODE_LEN(x)	((((x)-1)&0xF)<<4)
-#define SPMODE_PM(x)	((x) &0xF)
+#define SPMODE_LEN(x)	((((x) - 1) & 0xF) << 4)
+#define SPMODE_PM(x)	((x) & 0xF)
 
 /* HDLC parameter RAM.
 */
@@ -672,7 +672,7 @@ typedef struct hdlc_pram_s {
 #define CPMVEC_PIO_PC4		((ushort)0x01 | CPMVEC_OFFSET)
 #define CPMVEC_ERROR		((ushort)0x00 | CPMVEC_OFFSET)
 
-extern void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
+void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 
 /* CPM interrupt configuration vector.
 */
@@ -680,7 +680,7 @@ extern void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 #define	CICR_SCC_SCC3		((uint)0x00200000)	/* SCC3 @ SCCc */
 #define	CICR_SCB_SCC2		((uint)0x00040000)	/* SCC2 @ SCCb */
 #define	CICR_SCA_SCC1		((uint)0x00000000)	/* SCC1 @ SCCa */
-#define CICR_IRL_MASK		((uint)0x0000e000)	/* Core interrrupt */
+#define CICR_IRL_MASK		((uint)0x0000e000)	/* Core interrupt */
 #define CICR_HP_MASK		((uint)0x00001f00)	/* Hi-pri int. */
 #define CICR_IEN		((uint)0x00000080)	/* Int. enable */
 #define CICR_SPS		((uint)0x00000001)	/* SCC Spread */

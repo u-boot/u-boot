@@ -50,11 +50,7 @@
 /* -------------------
  * Function prototypes
  * ------------------- */
-void spi_init (void);
-
-ssize_t spi_read (uchar *, int, uchar *, int);
-ssize_t spi_write (uchar *, int, uchar *, int);
-ssize_t spi_xfer (size_t);
+ssize_t spi_xfer(size_t);
 
 /* -------------------
  * Variables
@@ -66,10 +62,10 @@ ssize_t spi_xfer (size_t);
  * Initially we place the RX and TX buffers at a fixed location in DPRAM!
  * ---------------------------------------------------------------------- */
 static uchar *rxbuf =
-  (uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
+	(uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
 			[CONFIG_SYS_SPI_INIT_OFFSET];
 static uchar *txbuf =
-  (uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
+	(uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
 			[CONFIG_SYS_SPI_INIT_OFFSET+MAX_BUFFER];
 
 /* **************************************************************************
@@ -81,7 +77,7 @@ static uchar *txbuf =
  *  return:      ---
  *
  * *********************************************************************** */
-void spi_init_f (void)
+void spi_init_f(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
@@ -120,7 +116,7 @@ void spi_init_f (void)
 	 * PBODR[28] = 1 [0x00000008] -> open drain: SPIMISO
 	 * PBODR[29] = 0 [0x00000004] -> active output SPIMOSI
 	 * PBODR[30] = 0 [0x00000002] -> active output: SPICLK
-	 * PBODR[31] = 0 [0x00000001] -> active output: GPIO OUT: CS for PCUE/CCM
+	 * PBODR[31] = 0 [0x00000001] -> active output GPIO OUT: CS for PCUE/CCM
 	 * ---------------------------------------------- */
 
 	clrsetbits_be16(&cp->cp_pbodr, 0x00000007, 0x00000008);
@@ -209,7 +205,7 @@ void spi_init_f (void)
  *  return:      ---
  *
  * *********************************************************************** */
-void spi_init_r (void)
+void spi_init_r(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
@@ -224,8 +220,8 @@ void spi_init_r (void)
 	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
 	/* Allocate memory for RX and TX buffers */
-	rxbuf = (uchar *) malloc (MAX_BUFFER);
-	txbuf = (uchar *) malloc (MAX_BUFFER);
+	rxbuf = (uchar *)malloc(MAX_BUFFER);
+	txbuf = (uchar *)malloc(MAX_BUFFER);
 
 	out_be32(&rbdf->cbd_bufaddr, (ulong)rxbuf);
 	out_be32(&tbdf->cbd_bufaddr, (ulong)txbuf);
@@ -236,7 +232,7 @@ void spi_init_r (void)
 /****************************************************************************
  *  Function:    spi_write
  **************************************************************************** */
-ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
+ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 {
 	int i;
 
@@ -253,14 +249,12 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 		*txbuf = SPI_EEPROM_RDSR;	/* read status		*/
 		txbuf[1] = 0;
 		spi_xfer(2);
-		if (!(rxbuf[1] & 1)) {
+		if (!(rxbuf[1] & 1))
 			break;
-		}
 		udelay(1000);
 	}
-	if (i >= 1000) {
-		printf ("*** spi_write: Time out while writing!\n");
-	}
+	if (i >= 1000)
+		printf("*** spi_write: Time out while writing!\n");
 
 	return len;
 }
@@ -268,7 +262,7 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 /****************************************************************************
  *  Function:    spi_read
  **************************************************************************** */
-ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
+ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
 {
 	memset(rxbuf, 0, MAX_BUFFER);
 	memset(txbuf, 0, MAX_BUFFER);
@@ -290,7 +284,7 @@ ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
 /****************************************************************************
  *  Function:    spi_xfer
  **************************************************************************** */
-ssize_t spi_xfer (size_t count)
+ssize_t spi_xfer(size_t count)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
@@ -327,16 +321,15 @@ ssize_t spi_xfer (size_t count)
 	 * Wait for SPI transmit to get out
 	 * or time out (1 second = 1000 ms)
 	 * -------------------------------- */
-	for (tm=0; tm<1000; ++tm) {
+	for (tm = 0; tm < 1000; ++tm) {
 		if (in_8(&cp->cp_spie) & SPI_TXB)	/* Tx Buffer Empty */
 			break;
 		if ((in_be16(&tbdf->cbd_sc) & BD_SC_READY) == 0)
 			break;
-		udelay (1000);
+		udelay(1000);
 	}
-	if (tm >= 1000) {
-		printf ("*** spi_xfer: Time out while xferring to/from SPI!\n");
-	}
+	if (tm >= 1000)
+		printf("*** spi_xfer: Time out while xferring to/from SPI!\n");
 
 	/* Clear CS for device */
 	setbits_be32(&cp->cp_pbdat, 0x0001);

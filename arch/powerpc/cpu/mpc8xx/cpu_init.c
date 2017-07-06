@@ -29,7 +29,7 @@ void cpu_init_f(immap_t __iomem *immr)
 	out_be32(&immr->im_siu_conf.sc_sypcr, CONFIG_SYS_SYPCR);
 
 #if defined(CONFIG_WATCHDOG)
-	reset_8xx_watchdog (immr);
+	reset_8xx_watchdog(immr);
 #endif /* CONFIG_WATCHDOG */
 
 	/* SIUMCR - contains debug pin configuration (11-6) */
@@ -182,7 +182,7 @@ void cpu_init_f(immap_t __iomem *immr)
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r (void)
+int cpu_init_r(void)
 {
-	return (0);
+	return 0;
 }

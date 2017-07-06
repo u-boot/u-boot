@@ -45,7 +45,8 @@ static void print_backtrace(unsigned long *sp)
 		if (cnt++ % 7 == 0)
 			printf("\n");
 		printf("%08lX ", i);
-		if (cnt > 32) break;
+		if (cnt > 32)
+			break;
 		sp = (unsigned long *)*sp;
 	}
 	printf("\n");
@@ -58,23 +59,19 @@ void show_regs(struct pt_regs *regs)
 	printf("NIP: %08lX XER: %08lX LR: %08lX REGS: %p TRAP: %04lx DAR: %08lX\n",
 	       regs->nip, regs->xer, regs->link, regs, regs->trap, regs->dar);
 	printf("MSR: %08lx EE: %01x PR: %01x FP: %01x ME: %01x IR/DR: %01x%01x\n",
-	       regs->msr, regs->msr&MSR_EE ? 1 : 0, regs->msr&MSR_PR ? 1 : 0,
-	       regs->msr & MSR_FP ? 1 : 0,regs->msr&MSR_ME ? 1 : 0,
-	       regs->msr&MSR_IR ? 1 : 0,
-	       regs->msr&MSR_DR ? 1 : 0);
+	       regs->msr, regs->msr & MSR_EE ? 1 : 0,
+	       regs->msr & MSR_PR ? 1 : 0, regs->msr & MSR_FP ? 1 : 0,
+	       regs->msr & MSR_ME ? 1 : 0, regs->msr & MSR_IR ? 1 : 0,
+	       regs->msr & MSR_DR ? 1 : 0);
 
 	printf("\n");
 	for (i = 0;  i < 32;  i++) {
 		if ((i % 8) == 0)
-		{
 			printf("GPR%02d: ", i);
-		}
 
 		printf("%08lX ", regs->gpr[i]);
 		if ((i % 8) == 7)
-		{
 			printf("\n");
-		}
 	}
 }
 
@@ -83,37 +80,37 @@ static void _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
+	panic("Exception in kernel pc %lx signal %d", regs->nip, signr);
 }
 
 void MachineCheckException(struct pt_regs *regs)
 {
-	unsigned long fixup;
+	unsigned long fixup = search_exception_table(regs->nip);
 
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
 	 * the PCI exception handler.
 	 */
-	if ((fixup = search_exception_table(regs->nip)) != 0) {
+	if (fixup != 0) {
 		regs->nip = fixup;
 		return;
 	}
 
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
-	printf("regs %p ",regs);
-	switch( regs->msr & 0x000F0000) {
-	case (0x80000000>>12):
+	printf("regs %p ", regs);
+	switch (regs->msr & 0x000F0000) {
+	case (0x80000000 >> 12):
 		printf("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
 		break;
-	case (0x80000000>>13):
+	case (0x80000000 >> 13):
 		printf("Transfer error ack signal\n");
 		break;
-	case (0x80000000>>14):
+	case (0x80000000 >> 14):
 		printf("Data parity signal\n");
 		break;
-	case (0x80000000>>15):
+	case (0x80000000 >> 15):
 		printf("Address parity signal\n");
 		break;
 	default:
@@ -155,8 +152,8 @@ void UnknownException(struct pt_regs *regs)
 
 void DebugException(struct pt_regs *regs)
 {
-  printf("Debugger trap at @ %lx\n", regs->nip );
-  show_regs(regs);
+	printf("Debugger trap at @ %lx\n", regs->nip);
+	show_regs(regs);
 }
 
 /* Probe an address by reading.  If not present, return -1, otherwise

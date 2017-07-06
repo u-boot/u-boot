@@ -102,7 +102,7 @@ static struct ether_fcc_info_s
 #define PKT_MAXBLR_SIZE		1520
 
 #ifdef __GNUC__
-static char txbuf[DBUF_LENGTH] __attribute__ ((aligned(8)));
+static char txbuf[DBUF_LENGTH] __aligned(8);
 #else
 #error txbuf must be aligned.
 #endif
@@ -117,28 +117,27 @@ static uint txIdx;	/* index of the current TX buffer */
   */
 
 struct common_buf_desc {
-    cbd_t rxbd[PKTBUFSRX];		/* Rx BD */
-    cbd_t txbd[TX_BUF_CNT];		/* Tx BD */
+	cbd_t rxbd[PKTBUFSRX];		/* Rx BD */
+	cbd_t txbd[TX_BUF_CNT];		/* Tx BD */
 };
 
 static struct common_buf_desc __iomem *rtx;
 
 static int fec_send(struct eth_device *dev, void *packet, int length);
-static int fec_recv(struct eth_device* dev);
-static int fec_init(struct eth_device* dev, bd_t * bd);
-static void fec_halt(struct eth_device* dev);
+static int fec_recv(struct eth_device *dev);
+static int fec_init(struct eth_device *dev, bd_t *bd);
+static void fec_halt(struct eth_device *dev);
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static void __mii_init(void);
 #endif
 
 int fec_initialize(bd_t *bis)
 {
-	struct eth_device* dev;
+	struct eth_device *dev;
 	struct ether_fcc_info_s *efis;
 	int             i;
 
 	for (i = 0; i < ARRAY_SIZE(ether_fcc_info); i++) {
-
 		dev = malloc(sizeof(*dev));
 		if (dev == NULL)
 			hang();
@@ -147,12 +146,11 @@ int fec_initialize(bd_t *bis)
 
 		/* for FEC1 make sure that the name of the interface is the same
 		   as the old one for compatibility reasons */
-		if (i == 0) {
+		if (i == 0)
 			strcpy(dev->name, "FEC");
-		} else {
-			sprintf (dev->name, "FEC%d",
+		else
+			sprintf(dev->name, "FEC%d",
 				ether_fcc_info[i].ether_index + 1);
-		}
 
 		efis = &ether_fcc_info[i];
 
@@ -202,9 +200,8 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 		udelay(1);
 		j++;
 	}
-	if (j>=TOUT_LOOP) {
+	if (j >= TOUT_LOOP)
 		printf("TX not ready\n");
-	}
 
 	out_be32(&rtx->txbd[txIdx].cbd_bufaddr, (uint)packet);
 	out_be16(&rtx->txbd[txIdx].cbd_datlen, length);
@@ -221,9 +218,9 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 		udelay(1);
 		j++;
 	}
-	if (j>=TOUT_LOOP) {
+	if (j >= TOUT_LOOP)
 		printf("TX timeout\n");
-	}
+
 	/* return only status bits */;
 	rc = in_be16(&rtx->txbd[txIdx].cbd_sc) & BD_ENET_TX_STATS;
 
@@ -232,7 +229,7 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	return rc;
 }
 
-static int fec_recv (struct eth_device *dev)
+static int fec_recv(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
 	fec_t __iomem *fecp =
@@ -436,7 +433,6 @@ static void fec_pin_init(int fecidx)
 
 #endif	/* CONFIG_ETHER_ON_FEC1 */
 	} else if (fecidx == 1) {
-
 #if defined(CONFIG_ETHER_ON_FEC2)
 
 #if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
@@ -467,7 +463,6 @@ static void fec_pin_init(int fecidx)
 #endif /* CONFIG_MPC885_FAMILY */
 
 #endif /* CONFIG_ETHER_ON_FEC2 */
-
 	}
 }
 
@@ -486,7 +481,7 @@ static int fec_reset(fec_t __iomem *fecp)
 	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET);
 	for (i = 0; (in_be32(&fecp->fec_ecntrl) & FEC_ECNTRL_RESET) &&
 	     (i < FEC_RESET_DELAY); ++i)
-		udelay (1);
+		udelay(1);
 
 	if (i == FEC_RESET_DELAY)
 		return -1;
@@ -494,7 +489,7 @@ static int fec_reset(fec_t __iomem *fecp)
 	return 0;
 }
 
-static int fec_init (struct eth_device *dev, bd_t * bd)
+static int fec_init(struct eth_device *dev, bd_t *bd)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
@@ -512,7 +507,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 #endif
 
 	if (fec_reset(fecp) < 0)
-		printf ("FEC_RESET_DELAY timeout\n");
+		printf("FEC_RESET_DELAY timeout\n");
 
 	/* We use strictly polling mode only
 	 */
@@ -554,7 +549,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	out_be32(&fecp->fec_r_hash, PKT_MAXBUF_SIZE);
 
 	/*
-	 * Setup Buffers and Buffer Desriptors
+	 * Setup Buffers and Buffer Descriptors
 	 */
 	rxIdx = 0;
 	txIdx = 0;
@@ -604,7 +599,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/*
 	 * Setup the pin configuration of the FEC
 	 */
-	fec_pin_init (efis->ether_index);
+	fec_pin_init(efis->ether_index);
 
 	rxIdx = 0;
 	txIdx = 0;
@@ -619,10 +614,10 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 		/*
 		 * wait for the PHY to wake up after reset
 		 */
-		efis->actual_phy_addr = mii_discover_phy (dev);
+		efis->actual_phy_addr = mii_discover_phy(dev);
 
 		if (efis->actual_phy_addr == -1) {
-			printf ("Unable to discover phy!\n");
+			printf("Unable to discover phy!\n");
 			return -1;
 		}
 #else
@@ -636,22 +631,20 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/*
 	 * adapt the RMII speed to the speed of the phy
 	 */
-	if (miiphy_speed (dev->name, efis->actual_phy_addr) == _100BASET) {
-		fec_100Mbps (dev);
-	} else {
-		fec_10Mbps (dev);
-	}
+	if (miiphy_speed(dev->name, efis->actual_phy_addr) == _100BASET)
+		fec_100Mbps(dev);
+	else
+		fec_10Mbps(dev);
 #endif
 
 #if defined(CONFIG_MII)
 	/*
 	 * adapt to the half/full speed settings
 	 */
-	if (miiphy_duplex (dev->name, efis->actual_phy_addr) == FULL) {
-		fec_full_duplex (dev);
-	} else {
-		fec_half_duplex (dev);
-	}
+	if (miiphy_duplex(dev->name, efis->actual_phy_addr) == FULL)
+		fec_full_duplex(dev);
+	else
+		fec_half_duplex(dev);
 #endif
 
 	/* And last, try to fill Rx Buffer Descriptors */
@@ -664,7 +657,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 }
 
 
-static void fec_halt(struct eth_device* dev)
+static void fec_halt(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
 	fec_t __iomem *fecp =
@@ -686,10 +679,10 @@ static void fec_halt(struct eth_device* dev)
 	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET);
 	for (i = 0; (in_be32(&fecp->fec_ecntrl) & FEC_ECNTRL_RESET) &&
 	     (i < FEC_RESET_DELAY); ++i)
-		udelay (1);
+		udelay(1);
 
 	if (i == FEC_RESET_DELAY) {
-		printf ("FEC_RESET_DELAY timeout\n");
+		printf("FEC_RESET_DELAY timeout\n");
 		return;
 	}
 
@@ -744,7 +737,7 @@ mii_send(uint mii_cmd)
 	}
 	mii_reply = in_be32(&ep->fec_mii_data);		/* result from phy */
 	out_be32(&ep->fec_ievent, FEC_ENET_MII);	/* clear MII complete */
-	return (mii_reply & 0xffff);		/* data read from phy */
+	return mii_reply & 0xffff;		/* data read from phy */
 }
 #endif
 
@@ -776,9 +769,9 @@ static int mii_discover_phy(struct eth_device *dev)
 			}
 		}
 	}
-	if (phyaddr < 0) {
+	if (phyaddr < 0)
 		printf("No PHY device found.\n");
-	}
+
 	return phyaddr;
 }
 #endif	/* CONFIG_SYS_DISCOVER_PHY */
@@ -796,7 +789,7 @@ static void __mii_init(void)
 	fec_t __iomem *fecp = &immr->im_cpm.cp_fec;
 
 	if (fec_reset(fecp) < 0)
-		printf ("FEC_RESET_DELAY timeout\n");
+		printf("FEC_RESET_DELAY timeout\n");
 
 	/* We use strictly polling mode only
 	 */
@@ -811,7 +804,7 @@ static void __mii_init(void)
 	out_be32(&fecp->fec_ecntrl, FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN);
 }
 
-void mii_init (void)
+void mii_init(void)
 {
 	int i;
 

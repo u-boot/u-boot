@@ -27,8 +27,7 @@ typedef struct {
 #define IOPIN_PORTC	2
 #define IOPIN_PORTD	3
 
-static __inline__ void
-iopin_set_high(iopin_t *iopin)
+static inline void iopin_set_high(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -51,8 +50,7 @@ iopin_set_high(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_low(iopin_t *iopin)
+static inline void iopin_set_low(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -75,8 +73,7 @@ iopin_set_low(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_high(iopin_t *iopin)
+static inline uint iopin_is_high(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -100,8 +97,7 @@ iopin_is_high(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_low(iopin_t *iopin)
+static inline uint iopin_is_low(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -125,8 +121,7 @@ iopin_is_low(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ void
-iopin_set_out(iopin_t *iopin)
+static inline void iopin_set_out(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -149,8 +144,7 @@ iopin_set_out(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_in(iopin_t *iopin)
+static inline void iopin_set_in(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -173,8 +167,7 @@ iopin_set_in(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_out(iopin_t *iopin)
+static inline uint iopin_is_out(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -198,8 +191,7 @@ iopin_is_out(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_in(iopin_t *iopin)
+static inline uint iopin_is_in(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -223,8 +215,7 @@ iopin_is_in(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ void
-iopin_set_odr(iopin_t *iopin)
+static inline void iopin_set_odr(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -239,8 +230,7 @@ iopin_set_odr(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_act(iopin_t *iopin)
+static inline void iopin_set_act(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -255,8 +245,7 @@ iopin_set_act(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_odr(iopin_t *iopin)
+static inline uint iopin_is_odr(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -272,8 +261,7 @@ iopin_is_odr(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_act(iopin_t *iopin)
+static inline uint iopin_is_act(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -289,8 +277,7 @@ iopin_is_act(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ void
-iopin_set_ded(iopin_t *iopin)
+static inline void iopin_set_ded(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -313,8 +300,7 @@ iopin_set_ded(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_gen(iopin_t *iopin)
+static inline void iopin_set_gen(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -337,8 +323,7 @@ iopin_set_gen(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_ded(iopin_t *iopin)
+static inline uint iopin_is_ded(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -362,8 +347,7 @@ iopin_is_ded(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_gen(iopin_t *iopin)
+static inline uint iopin_is_gen(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -387,8 +371,7 @@ iopin_is_gen(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ void
-iopin_set_opt2(iopin_t *iopin)
+static inline void iopin_set_opt2(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -399,8 +382,7 @@ iopin_set_opt2(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_opt1(iopin_t *iopin)
+static inline void iopin_set_opt1(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -411,8 +393,7 @@ iopin_set_opt1(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_opt2(iopin_t *iopin)
+static inline uint iopin_is_opt2(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -424,8 +405,7 @@ iopin_is_opt2(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_opt1(iopin_t *iopin)
+static inline uint iopin_is_opt1(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -437,8 +417,7 @@ iopin_is_opt1(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ void
-iopin_set_falledge(iopin_t *iopin)
+static inline void iopin_set_falledge(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -449,8 +428,7 @@ iopin_set_falledge(iopin_t *iopin)
 	}
 }
 
-static __inline__ void
-iopin_set_anyedge(iopin_t *iopin)
+static inline void iopin_set_anyedge(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -461,8 +439,7 @@ iopin_set_anyedge(iopin_t *iopin)
 	}
 }
 
-static __inline__ uint
-iopin_is_falledge(iopin_t *iopin)
+static inline uint iopin_is_falledge(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -474,8 +451,7 @@ iopin_is_falledge(iopin_t *iopin)
 	return 0;
 }
 
-static __inline__ uint
-iopin_is_anyedge(iopin_t *iopin)
+static inline uint iopin_is_anyedge(iopin_t *iopin)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 

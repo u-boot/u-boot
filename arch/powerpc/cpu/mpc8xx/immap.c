@@ -19,8 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int
-do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_siuinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	sysconf8xx_t __iomem *sc = &immap->im_siu_conf;
@@ -37,8 +36,7 @@ do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int
-do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_memcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	memctl8xx_t __iomem *memctl = &immap->im_memctl;
@@ -60,8 +58,7 @@ do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int
-do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_carinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	car8xx_t __iomem *car = &immap->im_clkrst;
@@ -74,8 +71,7 @@ do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int counter;
 
-static void
-header(void)
+static void header(void)
 {
 	char *data = "\
        --------------------------------        --------------------------------\
@@ -93,27 +89,27 @@ header(void)
 		printf("%.79s\n", data);
 }
 
-static void binary (char *label, uint value, int nbits)
+static void binary(char *label, uint value, int nbits)
 {
 	uint mask = 1 << (nbits - 1);
 	int i, second = (counter++ % 2);
 
 	if (second)
-		putc (' ');
-	puts (label);
+		putc(' ');
+	puts(label);
 	for (i = 32 + 1; i != nbits; i--)
-		putc (' ');
+		putc(' ');
 
 	while (mask != 0) {
 		if (value & mask)
-			putc ('1');
+			putc('1');
 		else
-			putc ('0');
+			putc('0');
 		mask >>= 1;
 	}
 
 	if (second)
-		putc ('\n');
+		putc('\n');
 }
 
 #define PA_NBITS	16
@@ -123,8 +119,7 @@ static void binary (char *label, uint value, int nbits)
 #define PC_NBITS	12
 #define PD_NBITS	13
 
-int
-do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_iopinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immap->im_ioport;
@@ -132,7 +127,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	uint __iomem *R;
 
 	counter = 0;
-	header ();
+	header();
 
 	/*
 	 * Ports A & B
@@ -149,7 +144,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	binary("PA_DAT", in_be16(l++), PA_NBITS);
 	binary("PB_DAT", in_be32(R++), PB_NBITS);
 
-	header ();
+	header();
 
 	/*
 	 * Ports C & D
@@ -168,7 +163,7 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	binary("PD_DAT", in_be16(r++), PD_NBITS);
 	binary("PC_INT", in_be16(l++), PC_NBITS);
 
-	header ();
+	header();
 	return 0;
 }
 
@@ -177,14 +172,13 @@ do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * this needs a clean up for smaller tighter code
  * use *uint and set the address based on cmd + port
  */
-int
-do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_iopset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint rcode = 0;
 	iopin_t iopin;
-	static uint port = 0;
-	static uint pin = 0;
-	static uint value = 0;
+	static uint port;
+	static uint pin;
+	static uint value;
 	static enum {
 		DIR,
 		PAR,
@@ -195,7 +189,7 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} cmd = DAT;
 
 	if (argc != 5) {
-		puts ("iopset PORT PIN CMD VALUE\n");
+		puts("iopset PORT PIN CMD VALUE\n");
 		return 1;
 	}
 	port = argv[1][0] - 'A';
@@ -203,7 +197,7 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		port -= 0x20;
 	if (port > 3)
 		rcode = 1;
-	pin = simple_strtol (argv[2], NULL, 10);
+	pin = simple_strtol(argv[2], NULL, 10);
 	if (pin > 31)
 		rcode = 1;
 
@@ -230,7 +224,7 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		cmd = INT;
 		break;
 	default:
-		printf ("iopset: unknown command %s\n", argv[3]);
+		printf("iopset: unknown command %s\n", argv[3]);
 		rcode = 1;
 	}
 	if (argv[4][0] == '1')
@@ -246,47 +240,46 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		switch (cmd) {
 		case DIR:
 			if (value)
-				iopin_set_out (&iopin);
+				iopin_set_out(&iopin);
 			else
-				iopin_set_in (&iopin);
+				iopin_set_in(&iopin);
 			break;
 		case PAR:
 			if (value)
-				iopin_set_ded (&iopin);
+				iopin_set_ded(&iopin);
 			else
-				iopin_set_gen (&iopin);
+				iopin_set_gen(&iopin);
 			break;
 		case SOR:
 			if (value)
-				iopin_set_opt2 (&iopin);
+				iopin_set_opt2(&iopin);
 			else
-				iopin_set_opt1 (&iopin);
+				iopin_set_opt1(&iopin);
 			break;
 		case ODR:
 			if (value)
-				iopin_set_odr (&iopin);
+				iopin_set_odr(&iopin);
 			else
-				iopin_set_act (&iopin);
+				iopin_set_act(&iopin);
 			break;
 		case DAT:
 			if (value)
-				iopin_set_high (&iopin);
+				iopin_set_high(&iopin);
 			else
-				iopin_set_low (&iopin);
+				iopin_set_low(&iopin);
 			break;
 		case INT:
 			if (value)
-				iopin_set_falledge (&iopin);
+				iopin_set_falledge(&iopin);
 			else
-				iopin_set_anyedge (&iopin);
+				iopin_set_anyedge(&iopin);
 			break;
 		}
-
 	}
 	return rcode;
 }
 
-static void prbrg (int n, uint val)
+static void prbrg(int n, uint val)
 {
 	uint extc = (val >> 14) & 3;
 	uint cd = (val & CPM_BRG_CD_MASK) >> 1;
@@ -294,26 +287,26 @@ static void prbrg (int n, uint val)
 
 	ulong clock = gd->cpu_clk;
 
-	printf ("BRG%d:", n);
+	printf("BRG%d:", n);
 
 	if (val & CPM_BRG_RST)
-		puts (" RESET");
+		puts(" RESET");
 	else
-		puts ("      ");
+		puts("      ");
 
 	if (val & CPM_BRG_EN)
-		puts ("  ENABLED");
+		puts("  ENABLED");
 	else
-		puts (" DISABLED");
+		puts(" DISABLED");
 
-	printf (" EXTC=%d", extc);
+	printf(" EXTC=%d", extc);
 
 	if (val & CPM_BRG_ATB)
-		puts (" ATB");
+		puts(" ATB");
 	else
-		puts ("    ");
+		puts("    ");
 
-	printf (" DIVIDER=%4d", cd);
+	printf(" DIVIDER=%4d", cd);
 	if (extc == 0 && cd != 0) {
 		uint baudrate;
 
@@ -322,21 +315,20 @@ static void prbrg (int n, uint val)
 		else
 			baudrate = clock / (cd + 1);
 
-		printf ("=%6d bps", baudrate);
+		printf("=%6d bps", baudrate);
 	} else {
-		puts ("           ");
+		puts("           ");
 	}
 
 	if (val & CPM_BRG_DIV16)
-		puts (" DIV16");
+		puts(" DIV16");
 	else
-		puts ("      ");
+		puts("      ");
 
-	putc ('\n');
+	putc('\n');
 }
 
-int
-do_brginfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_brginfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immap->im_cpm;
