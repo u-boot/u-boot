@@ -110,24 +110,24 @@
 #ifdef CONFIG_MMC
 #define MMCARGS \
 "dtbdev=mmc\0" \
-"dtbpart=0:1\0" \
+"dtbpart=1:1\0" \
 "mmcroot0=setenv bootargs ${optargs_rot} ${optargs} console=${console}\0" \
 "mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
 	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
 "mmcboot0=echo booting Updatesystem from mmc (ext4-fs) ...; " \
 	"setenv simplefb 1; " \
-	"ext4load mmc 0:1 ${loadaddr} /${kernel}; " \
-	"ext4load mmc 0:1 ${ramaddr} /${ramdisk}; " \
+	"ext4load mmc 1:1 ${loadaddr} /${kernel}; " \
+	"ext4load mmc 1:1 ${ramaddr} /${ramdisk}; " \
 	"run mmcroot0; bootz ${loadaddr} ${ramaddr} ${dtbaddr};\0" \
 "mmcboot1=echo booting PPT-OS from mmc (ext4-fs) ...; " \
 	"setenv simplefb 0; " \
-	"ext4load mmc 0:2 ${loadaddr} /boot/${kernel}; " \
+	"ext4load mmc 1:2 ${loadaddr} /boot/${kernel}; " \
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
-"defboot=ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
-	"ext4load mmc 0:1 ${dtbaddr} /$dtb && run mmcboot0; " \
+"defboot=ext4load mmc 1:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
+	"ext4load mmc 1:1 ${dtbaddr} /$dtb && run mmcboot0; " \
 	"run ramboot; run usbscript;\0" \
 "bootlimit=1\0" \
-"altbootcmd=run mmcboot0;\0" \
+"altbootcmd=mmc dev 1; run mmcboot0;\0" \
 "upduboot=dhcp; " \
 	"tftp ${loadaddr} MLO && mmc write ${loadaddr} 100 100; " \
 	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 400;\0"
@@ -178,7 +178,7 @@ MMCARGS
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
-	"run defboot;"
+	"mmc dev 1; run defboot;"
 
 #ifdef CONFIG_NAND
 /*
@@ -253,7 +253,7 @@ MMCARGS
 #elif defined(CONFIG_EMMC_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
