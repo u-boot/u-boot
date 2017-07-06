@@ -13,6 +13,7 @@ obj-y	+= fec.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_CMD_IMMAP) += immap.o
 obj-y	+= interrupts.o
+obj-$(CONFIG_CMD_REGINFO) += reginfo.o
 obj-y	+= serial.o
 obj-y	+= speed.o
 obj-y	+= spi.o
