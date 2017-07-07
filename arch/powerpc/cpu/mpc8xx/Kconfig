@@ -8,6 +8,9 @@ choice
 	prompt "Target select"
 	optional
 
+config TARGET_MCR3000
+	bool "Support MCR3000 board from CSSI"
+
 endchoice
 
 choice
@@ -166,5 +169,7 @@ config SYS_OR7_PRELIM
 
 config SYS_IMMR
 	hex "Value for IMMR"
+
+source "board/cssi/MCR3000/Kconfig"
 
 endmenu

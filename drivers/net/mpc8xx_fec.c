@@ -413,6 +413,26 @@ static void fec_pin_init(int fecidx)
 		 */
 		out_be16(&immr->im_ioport.iop_pdpar, 0x1fff);
 		out_be16(&immr->im_ioport.iop_pddir, 0x1fff);
+
+#if defined(CONFIG_TARGET_MCR3000)
+		out_be16(&immr->im_ioport.iop_papar, 0xBBFF);
+		out_be16(&immr->im_ioport.iop_padir, 0x04F0);
+		out_be16(&immr->im_ioport.iop_paodr, 0x0000);
+
+		out_be32(&immr->im_cpm.cp_pbpar, 0x000133FF);
+		out_be32(&immr->im_cpm.cp_pbdir, 0x0003BF0F);
+		out_be16(&immr->im_cpm.cp_pbodr, 0x0000);
+
+		out_be16(&immr->im_ioport.iop_pcpar, 0x0400);
+		out_be16(&immr->im_ioport.iop_pcdir, 0x0080);
+		out_be16(&immr->im_ioport.iop_pcso , 0x0D53);
+		out_be16(&immr->im_ioport.iop_pcint, 0x0000);
+
+		out_be16(&immr->im_ioport.iop_pdpar, 0x03FE);
+		out_be16(&immr->im_ioport.iop_pddir, 0x1C09);
+
+		setbits_be32(&immr->im_ioport.utmode, 0x80);
+#endif
 #endif
 
 #endif	/* CONFIG_ETHER_ON_FEC1 */

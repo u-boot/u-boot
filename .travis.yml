@@ -206,6 +206,8 @@ matrix:
     - env:
         - BUILDMAN="mpc86xx"
     - env:
+        - BUILDMAN="mpc8xx"
+    - env:
         - BUILDMAN="siemens"
     - env:
         - BUILDMAN="tegra"
