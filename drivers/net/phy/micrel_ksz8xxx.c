@@ -365,7 +365,8 @@ static int ksz9021_config(struct phy_device *phydev)
 		ctrl1000 |= ADVERTISE_1000HALF | master;
 	if (features & SUPPORTED_1000baseT_Full)
 		ctrl1000 |= ADVERTISE_1000FULL | master;
-	phydev->advertising = phydev->supported = features;
+	phydev->advertising = features;
+	phydev->supported = features;
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, ctrl1000);
 	genphy_config_aneg(phydev);
 	genphy_restart_aneg(phydev);
@@ -479,14 +480,14 @@ static int ksz9031_phy_extread(struct phy_device *phydev, int addr, int devaddr,
 {
 	return ksz9031_phy_extended_read(phydev, devaddr, regnum,
 					 MII_KSZ9031_MOD_DATA_NO_POST_INC);
-};
+}
 
 static int ksz9031_phy_extwrite(struct phy_device *phydev, int addr,
 				int devaddr, int regnum, u16 val)
 {
 	return ksz9031_phy_extended_write(phydev, devaddr, regnum,
 					 MII_KSZ9031_MOD_DATA_POST_INC_RW, val);
-};
+}
 
 static int ksz9031_config(struct phy_device *phydev)
 {
@@ -537,7 +538,7 @@ static struct phy_driver ksz886x_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-int phy_micrel_init(void)
+int phy_micrel_ksz8xxx_init(void)
 {
 	phy_register(&KSZ804_driver);
 	phy_register(&KSZ8031_driver);
