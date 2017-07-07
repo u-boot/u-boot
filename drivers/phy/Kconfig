@@ -43,7 +43,7 @@ config PHY_SANDBOX
 
 config PIPE3_PHY
 	bool "Support omap's PIPE3 PHY"
-	depends on PHY && ARCH_OMAP2
+	depends on PHY && ARCH_OMAP2PLUS
 	help
 	  Support for the omap PIPE3 phy for sata
 
@@ -52,7 +52,7 @@ config PIPE3_PHY
 
 config SPL_PIPE3_PHY
 	bool "Support omap's PIPE3 PHY in SPL"
-	depends on SPL_PHY && ARCH_OMAP2
+	depends on SPL_PHY && ARCH_OMAP2PLUS
 	help
 	  Support for the omap PIPE3 phy for sata in SPL
 
