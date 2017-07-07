@@ -123,6 +123,8 @@ struct zynqmp_qspi_regs {
 	u32 gqxfersts;	/* 0x5C */
 	u32 gqfifosnap;	/* 0x60 */
 	u32 gqrxcpy;	/* 0x64 */
+	u32 reserved3[36];	/* 0x68 */
+	u32 gqspidlyadj;	/* 0xF8 */
 };
 
 struct zynqmp_qspi_dma_regs {
@@ -342,6 +344,65 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 	zynqmp_qspi_fill_gen_fifo(priv, gqspi_fifo_reg);
 }
 
+#define GQSPI_BAUD_DIV_SHIFT		2
+#define GQSPI_LPBK_DLY_ADJ_LPBK_SHIFT	5
+#define GQSPI_LPBK_DLY_ADJ_DLY_1	0x2
+#define GQSPI_LPBK_DLY_ADJ_DLY_1_SHIFT	3
+#define GQSPI_LPBK_DLY_ADJ_DLY_0	0x3
+#define GQSPI_USE_DATA_DLY		0x1
+#define GQSPI_USE_DATA_DLY_SHIFT	31
+#define GQSPI_DATA_DLY_ADJ_VALUE	0x2
+#define GQSPI_DATA_DLY_ADJ_SHIFT	28
+#define TAP_DLY_BYPASS_LQSPI_RX_VALUE	0x1
+#define TAP_DLY_BYPASS_LQSPI_RX_SHIFT	2
+#define GQSPI_DATA_DLY_ADJ_OFST		0x000001F8
+#define IOU_TAPDLY_BYPASS_OFST		0xFF180390
+#define GQSPI_LPBK_DLY_ADJ_USE_LPBK_MASK	0x00000020
+#define GQSPI_FREQ_40MHZ		40000000
+#define GQSPI_FREQ_100MHZ		100000000
+#define GQSPI_FREQ_150MHZ		150000000
+#define IOU_TAPDLY_BYPASS_MASK		0x7
+
+void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
+{
+	struct zynqmp_qspi_platdata *plat = bus->platdata;
+	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
+	struct zynqmp_qspi_regs *regs = priv->regs;
+	u32 tapdlybypass = 0, lpbkdlyadj = 0, datadlyadj = 0, clk_rate;
+	u32 reqhz = 0;
+
+	clk_rate = plat->frequency;
+	reqhz = (clk_rate / (GQSPI_BAUD_DIV_SHIFT << baudrateval));
+
+	debug("%s, req_hz:%d, clk_rate:%d, baudrateval:%d\n",
+	      __func__, reqhz, clk_rate, baudrateval);
+
+	if (reqhz < GQSPI_FREQ_40MHZ) {
+		zynqmp_mmio_read(IOU_TAPDLY_BYPASS_OFST, &tapdlybypass);
+		tapdlybypass |= (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
+	} else if (reqhz < GQSPI_FREQ_100MHZ) {
+		zynqmp_mmio_read(IOU_TAPDLY_BYPASS_OFST, &tapdlybypass);
+		tapdlybypass |= (TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
+				TAP_DLY_BYPASS_LQSPI_RX_SHIFT);
+		lpbkdlyadj = readl(&regs->lpbkdly);
+		lpbkdlyadj |= (GQSPI_LPBK_DLY_ADJ_USE_LPBK_MASK);
+		datadlyadj = readl(&regs->gqspidlyadj);
+		datadlyadj |= ((GQSPI_USE_DATA_DLY << GQSPI_USE_DATA_DLY_SHIFT)
+				| (GQSPI_DATA_DLY_ADJ_VALUE <<
+					GQSPI_DATA_DLY_ADJ_SHIFT));
+	} else if (reqhz < GQSPI_FREQ_150MHZ) {
+		lpbkdlyadj = readl(&regs->lpbkdly);
+		lpbkdlyadj |= ((GQSPI_LPBK_DLY_ADJ_USE_LPBK_MASK) |
+				GQSPI_LPBK_DLY_ADJ_DLY_0);
+	}
+
+	zynqmp_mmio_write(IOU_TAPDLY_BYPASS_OFST, IOU_TAPDLY_BYPASS_MASK,
+			  tapdlybypass);
+	writel(lpbkdlyadj, &regs->lpbkdly);
+	writel(datadlyadj, &regs->gqspidlyadj);
+}
+
 static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 {
 	struct zynqmp_qspi_platdata *plat = bus->platdata;
@@ -376,6 +437,7 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 
 	priv->freq = speed;
 
+	zynqmp_qspi_set_tapdelay(bus, baud_rate_val);
 	debug("regs=%p, mode=%d\n", priv->regs, priv->freq);
 
 	return 0;
