@@ -97,7 +97,7 @@
 				"ams_ref", "pl0", "pl1", "pl2", "pl3", "wdt";
 	};
 
-	dp_aclk: clock0 {
+	dp_aclk: dp_aclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <100000000>;
