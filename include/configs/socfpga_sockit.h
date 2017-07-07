@@ -20,7 +20,7 @@
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9021
+#define CONFIG_PHY_MICREL_KSZ90X1
 #endif
 
 /* The rest of the configuration is shared */

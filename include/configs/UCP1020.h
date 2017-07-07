@@ -479,10 +479,8 @@
 
 #if defined(CONFIG_TSEC_ENET)
 
-#if defined(CONFIG_UCP1020_REV_1_2)
-#define CONFIG_PHY_MICREL_KSZ9021
-#elif defined(CONFIG_UCP1020_REV_1_3)
-#define CONFIG_PHY_MICREL_KSZ9031
+#if defined(CONFIG_UCP1020_REV_1_2) || defined(CONFIG_UCP1020_REV_1_3)
+#define CONFIG_PHY_MICREL_KSZ90X1
 #else
 #error "UCP1020 module revision is not defined !!!"
 #endif

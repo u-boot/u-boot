@@ -45,7 +45,7 @@
 
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
-#define CONFIG_PHY_KSZ9031
+#define CONFIG_PHY_MICREL_KSZ90X1
 
 /* SPI Flash */
 #define CONFIG_MXC_SPI

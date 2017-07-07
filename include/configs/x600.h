@@ -76,7 +76,7 @@
 #define CONFIG_PHY_ADDR		0	/* PHY address */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 #define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9031
+#define CONFIG_PHY_MICREL_KSZ90X1
 
 #define CONFIG_SPEAR_GPIO
 
