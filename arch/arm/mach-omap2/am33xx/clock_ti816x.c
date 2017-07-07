@@ -335,7 +335,13 @@ static void peripheral_enable(void)
 	writel(PRCM_MOD_EN, &cmalwon->gpio0clkctrl);
 	while (readl(&cmalwon->gpio0clkctrl) != PRCM_MOD_EN)
 		;
-	writel((BIT(8)), &cmalwon->gpio0clkctrl);
+	writel((BIT(1) | BIT(8)), &cmalwon->gpio0clkctrl);
+
+	/* Enable gpio1 */
+	writel(PRCM_MOD_EN, &cmalwon->gpio1clkctrl);
+	while (readl(&cmalwon->gpio1clkctrl) != PRCM_MOD_EN)
+		;
+	writel((BIT(1) | BIT(8)), &cmalwon->gpio1clkctrl);
 
 	/* Enable spi */
 	writel(PRCM_MOD_EN, &cmalwon->spiclkctrl);
