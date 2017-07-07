@@ -17,6 +17,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk.h>
 #include "../mtd/spi/sf_internal.h"
+#include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -174,12 +175,34 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 	u32 mode = 0;
 	int offset;
 	u32 value;
+	int ret;
+	struct clk clk;
+	unsigned long clock;
 
 	debug("%s\n", __func__);
 
 	plat->regs = (struct zynqmp_qspi_regs *)(dev_get_addr(bus) + 0x100);
 	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)(dev_get_addr(bus) +
 							 0x800);
+
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(dev, "failed to get rate\n");
+		return clock;
+	}
+	printf("%s: CLK %ld\n", __func__, clock);
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
 
 	is_dual = fdtdec_get_int(gd->fdt_blob, bus->of_offset, "is-dual", -1);
 	if (is_dual < 0)
@@ -223,8 +246,8 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	plat->tx_rx_mode = mode;
 
-	plat->frequency = 166666666;
-	plat->speed_hz = plat->frequency / 2;
+	plat->frequency = clock;
+	plat->speed_hz = plat->frequency;
 
 	return 0;
 }
