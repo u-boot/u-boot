@@ -639,6 +639,8 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;
 
+	spi->dummy_bytes = flash->dummy_byte;
+
 	if (flash->spi->bytemode == SPI_4BYTE_MODE)
 		cmdsz += 1;
 
@@ -712,6 +714,8 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		}
 	}
 #endif
+
+	spi->dummy_bytes = 0;
 
 	free(cmd);
 	return ret;
