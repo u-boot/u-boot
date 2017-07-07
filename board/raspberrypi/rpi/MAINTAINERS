@@ -1,6 +1,6 @@
 RPI BOARD
-M:	Stephen Warren <swarren@wwwdotorg.org>
-S:	Maintained
+#M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Orphaned (Since 2017-07)
 F:	board/raspberrypi/rpi/
 F:	include/configs/rpi.h
 F:	configs/rpi_*defconfig
