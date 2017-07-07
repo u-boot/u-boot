@@ -745,6 +745,13 @@ int board_ehci_power(int port, int on)
 #include <spl.h>
 #include <libfdt.h>
 
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	return 0;
+}
+#endif
+
 static void ccgr_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
