@@ -166,6 +166,8 @@ struct zynqmp_qspi_priv {
 	unsigned int bus;
 	unsigned int stripe;
 	unsigned cs_change:1;
+	unsigned int dummy_bytes;
+	unsigned int tx_rx_mode;
 };
 
 static u8 last_cmd;
@@ -466,6 +468,7 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	priv->regs = plat->regs;
 	priv->dma_regs = plat->dma_regs;
 	priv->is_dual = plat->is_dual;
+	priv->tx_rx_mode = plat->tx_rx_mode;
 
 	if (priv->is_dual == -1) {
 		debug("%s: No QSPI device detected based on MIO settings\n",
@@ -566,6 +569,9 @@ static void zynqmp_qspi_genfifo_cmd(struct zynqmp_qspi_priv *priv)
 	u32 gen_fifo_cmd;
 	u32 bytecount = 0;
 
+	if (priv->dummy_bytes)
+		priv->len -= priv->dummy_bytes;
+
 	while (priv->len) {
 		gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
 		gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_TX;
@@ -583,6 +589,20 @@ static void zynqmp_qspi_genfifo_cmd(struct zynqmp_qspi_priv *priv)
 
 		debug("GFIFO_CMD_Cmd = 0x%x\n", gen_fifo_cmd);
 
+		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+	}
+
+	if (priv->dummy_bytes) {
+		gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
+		gen_fifo_cmd &= ~(ZYNQMP_QSPI_GFIFO_TX | ZYNQMP_QSPI_GFIFO_RX);
+		if (priv->tx_rx_mode & SPI_RX_QUAD)
+			gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_QSPI;
+		else if (priv->tx_rx_mode & SPI_RX_DUAL)
+			gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_DUAL_SPI;
+		else
+			gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_SPI;
+		gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_DATA_XFR_MASK;
+		gen_fifo_cmd |= (priv->dummy_bytes * 8);
 		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
 	}
 }
@@ -825,6 +845,7 @@ int zynqmp_qspi_xfer(struct udevice *dev, unsigned int bitlen, const void *dout,
 {
 	struct udevice *bus = dev->parent;
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	debug("%s: priv: 0x%08lx bitlen: %d dout: 0x%08lx ", __func__,
 	      (unsigned long)priv, bitlen, (unsigned long)dout);
@@ -864,6 +885,7 @@ int zynqmp_qspi_xfer(struct udevice *dev, unsigned int bitlen, const void *dout,
 			priv->stripe = 1;
 	}
 
+	priv->dummy_bytes = slave->dummy_bytes;
 	zynqmp_qspi_transfer(priv);
 
 	return 0;
