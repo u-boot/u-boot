@@ -154,7 +154,6 @@ struct zynqmp_qspi_priv {
 	struct zynqmp_qspi_regs *regs;
 	struct zynqmp_qspi_dma_regs *dma_regs;
 	u8 mode;
-	u32 freq;
 	const void *tx_buf;
 	void *rx_buf;
 	unsigned len;
@@ -431,16 +430,14 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 		if (baud_rate_val > ZYNQMP_QSPI_MAX_BAUD_RATE_VAL)
 			baud_rate_val = ZYNQMP_QSPI_DFLT_BAUD_RATE_VAL;
 
-		plat->speed_hz = speed / (2 << baud_rate_val);
+		plat->speed_hz = plat->frequency / (2 << baud_rate_val);
 	}
 	confr &= ~ZYNQMP_QSPI_BAUD_DIV_MASK;
 	confr |= (baud_rate_val << 3);
 	writel(confr, &regs->confr);
 
-	priv->freq = speed;
-
 	zynqmp_qspi_set_tapdelay(bus, baud_rate_val);
-	debug("regs=%p, mode=%d\n", priv->regs, priv->freq);
+	debug("regs=%p, speed=%d\n", priv->regs, plat->speed_hz);
 
 	return 0;
 }
