@@ -197,6 +197,7 @@ static int port_exp_direction_output(unsigned gpio, int value)
 	return 0;
 }
 
+#ifdef CONFIG_MTD_NOR_FLASH
 static iomux_v3_cfg_t const eimnor_pads[] = {
 	IOMUX_PADS(PAD_EIM_D16__EIM_DATA16	| MUX_PAD_CTRL(WEIM_NOR_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D17__EIM_DATA17	| MUX_PAD_CTRL(WEIM_NOR_PAD_CTRL)),
@@ -292,6 +293,7 @@ static void setup_iomux_eimnor(void)
 
 	eimnor_cs_setup();
 }
+#endif
 
 static void setup_iomux_enet(void)
 {
@@ -571,8 +573,10 @@ int board_early_init_f(void)
 #ifdef CONFIG_NAND_MXS
 	setup_gpmi_nand();
 #endif
-	eim_clk_setup();
 
+#ifdef CONFIG_MTD_NOR_FLASH
+	eim_clk_setup();
+#endif
 	return 0;
 }
 
@@ -601,7 +605,10 @@ int board_init(void)
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_display();
 #endif
+
+#ifdef CONFIG_MTD_NOR_FLASH
 	setup_iomux_eimnor();
+#endif
 	return 0;
 }
 
