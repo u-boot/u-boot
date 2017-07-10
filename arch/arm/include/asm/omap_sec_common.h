@@ -28,6 +28,12 @@ u32 secure_rom_call(u32 service, u32 proc_id, u32 flag, ...);
 int secure_boot_verify_image(void **p_image, size_t *p_size);
 
 /*
+ * Return the start of secure reserved RAM, if a default start address has
+ * not been configured then return a region at the end of the external DRAM.
+ */
+u32 get_sec_mem_start(void);
+
+/*
  * Invoke a secure HAL API that allows configuration of the external memory
  * firewall regions.
  */

@@ -176,7 +176,7 @@ auth_exit:
 	return result;
 }
 
-static u32 get_sec_mem_start(void)
+u32 get_sec_mem_start(void)
 {
 	u32 sec_mem_start = CONFIG_TI_SECURE_EMIF_REGION_START;
 	u32 sec_mem_size = CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE;

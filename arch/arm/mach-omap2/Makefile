@@ -45,4 +45,6 @@ obj-y	+= lowlevel_init.o
 
 obj-y	+= mem-common.o
 
+obj-y	+= fdt-common.o
+
 obj-$(CONFIG_TI_SECURE_DEVICE) += sec-common.o
