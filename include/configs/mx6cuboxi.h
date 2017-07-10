@@ -95,6 +95,7 @@
 	"console=" CONSOLE_DEV ",115200\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \
@@ -123,6 +124,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run finduuid; " \
 	"run distro_bootcmd"
 
 #define BOOT_TARGET_DEVICES(func) \
