@@ -16,7 +16,6 @@
 #define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
 /* USB Configs */
 #define CONFIG_USB_HOST_ETHER
