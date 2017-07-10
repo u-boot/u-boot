@@ -397,7 +397,7 @@ int fdt_next_region(const void *fdt,
 			last_node = offset;
 			p.depth++;
 			if (p.depth == FDT_MAX_DEPTH)
-				return -FDT_ERR_TOODEEP;
+				return -FDT_ERR_BADSTRUCTURE;
 			name = fdt_get_name(fdt, offset, &len);
 			if (p.end - path + 2 + len >= path_len)
 				return -FDT_ERR_NOSPACE;

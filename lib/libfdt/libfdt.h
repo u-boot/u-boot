@@ -93,12 +93,7 @@
 	/* FDT_ERR_NOPHANDLES: The device tree doesn't have any
 	 * phandle available anymore without causing an overflow */
 
-#define FDT_ERR_TOODEEP	18
-	/* FDT_ERR_TOODEEP: The depth of a node has exceeded the internal
-	 * libfdt limit. This can happen if you have more than
-	 * FDT_MAX_DEPTH nested nodes. */
-
-#define FDT_ERR_MAX		18
+#define FDT_ERR_MAX		17
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
