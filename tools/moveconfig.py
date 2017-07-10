@@ -107,12 +107,8 @@ Toolchains
 
 Appropriate toolchain are necessary to generate include/autoconf.mk
 for all the architectures supported by U-Boot.  Most of them are available
-at the kernel.org site, some are not provided by kernel.org.
-
-The default per-arch CROSS_COMPILE used by this tool is specified by
-the list below, CROSS_COMPILE.  You may wish to update the list to
-use your own.  Instead of modifying the list directly, you can give
-them via environments.
+at the kernel.org site, some are not provided by kernel.org. This tool uses
+the same tools as buildman, so see that tool for setup (e.g. --fetch-arch).
 
 
 Tips and trips
@@ -319,32 +315,13 @@ import threading
 import time
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'buildman'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'patman'))
+import bsettings
 import kconfiglib
+import toolchain
 
 SHOW_GNU_MAKE = 'scripts/show-gnu-make'
 SLEEP_TIME=0.03
-
-# Here is the list of cross-tools I use.
-# Most of them are available at kernel.org
-# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the following:
-# arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
-# nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
-# nios2: https://sourcery.mentor.com/GNUToolchain/subscription42545
-# sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu
-CROSS_COMPILE = {
-    'arc': 'arc-linux-',
-    'aarch64': 'aarch64-linux-',
-    'arm': 'arm-unknown-linux-gnueabi-',
-    'm68k': 'm68k-linux-',
-    'microblaze': 'microblaze-linux-',
-    'mips': 'mips-linux-',
-    'nds32': 'nds32le-linux-',
-    'nios2': 'nios2-linux-gnu-',
-    'powerpc': 'powerpc-linux-',
-    'sh': 'sh-linux-gnu-',
-    'x86': 'i386-linux-',
-    'xtensa': 'xtensa-linux-'
-}
 
 STATE_IDLE = 0
 STATE_DEFCONFIG = 1
@@ -503,51 +480,6 @@ def show_diff(a, b, file_path, color_enabled):
             print color_text(color_enabled, COLOR_GREEN, line),
         else:
             print line,
-
-def update_cross_compile(color_enabled):
-    """Update per-arch CROSS_COMPILE via environment variables
-
-    The default CROSS_COMPILE values are available
-    in the CROSS_COMPILE list above.
-
-    You can override them via environment variables
-    CROSS_COMPILE_{ARCH}.
-
-    For example, if you want to override toolchain prefixes
-    for ARM and PowerPC, you can do as follows in your shell:
-
-    export CROSS_COMPILE_ARM=...
-    export CROSS_COMPILE_POWERPC=...
-
-    Then, this function checks if specified compilers really exist in your
-    PATH environment.
-    """
-    archs = []
-
-    for arch in os.listdir('arch'):
-        if os.path.exists(os.path.join('arch', arch, 'Makefile')):
-            archs.append(arch)
-
-    # arm64 is a special case
-    archs.append('aarch64')
-
-    for arch in archs:
-        env = 'CROSS_COMPILE_' + arch.upper()
-        cross_compile = os.environ.get(env)
-        if not cross_compile:
-            cross_compile = CROSS_COMPILE.get(arch, '')
-
-        for path in os.environ["PATH"].split(os.pathsep):
-            gcc_path = os.path.join(path, cross_compile + 'gcc')
-            if os.path.isfile(gcc_path) and os.access(gcc_path, os.X_OK):
-                break
-        else:
-            print >> sys.stderr, color_text(color_enabled, COLOR_YELLOW,
-                 'warning: %sgcc: not found in PATH.  %s architecture boards will be skipped'
-                                            % (cross_compile, arch))
-            cross_compile = None
-
-        CROSS_COMPILE[arch] = cross_compile
 
 def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
                          extend_post):
@@ -885,15 +817,11 @@ class KconfigParser:
         self.config_autoconf = os.path.join(build_dir, AUTO_CONF_PATH)
         self.defconfig = os.path.join(build_dir, 'defconfig')
 
-    def get_cross_compile(self):
-        """Parse .config file and return CROSS_COMPILE.
+    def get_arch(self):
+        """Parse .config file and return the architecture.
 
         Returns:
-          A string storing the compiler prefix for the architecture.
-          Return a NULL string for architectures that do not require
-          compiler prefix (Sandbox and native build is the case).
-          Return None if the specified compiler is missing in your PATH.
-          Caller should distinguish '' and None.
+          Architecture name (e.g. 'arm').
         """
         arch = ''
         cpu = ''
@@ -913,7 +841,7 @@ class KconfigParser:
         if arch == 'arm' and cpu == 'armv8':
             arch = 'aarch64'
 
-        return CROSS_COMPILE.get(arch, None)
+        return arch
 
     def parse_one_config(self, config, dotconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
@@ -1105,11 +1033,12 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, configs, options, progress, devnull, make_cmd,
-                 reference_src_dir, db_queue):
+    def __init__(self, toolchains, configs, options, progress, devnull,
+		 make_cmd, reference_src_dir, db_queue):
         """Create a new process slot.
 
         Arguments:
+          toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
@@ -1119,6 +1048,7 @@ class Slot:
                              source tree.
           db_queue: output queue to write config info for the database
         """
+        self.toolchains = toolchains
         self.options = options
         self.progress = progress
         self.build_dir = tempfile.mkdtemp()
@@ -1235,19 +1165,20 @@ class Slot:
     def do_autoconf(self):
         """Run 'make AUTO_CONF_PATH'."""
 
-        self.cross_compile = self.parser.get_cross_compile()
-        if self.cross_compile is None:
+        arch = self.parser.get_arch()
+        try:
+            toolchain = self.toolchains.Select(arch)
+        except ValueError:
             self.log += color_text(self.options.color, COLOR_YELLOW,
-                                   "Compiler is missing.  Do nothing.\n")
+                    "Tool chain for '%s' is missing.  Do nothing.\n % arch")
             self.finish(False)
             return
+	env = toolchain.MakeEnvironment(False)
 
         cmd = list(self.make_cmd)
-        if self.cross_compile:
-            cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append(AUTO_CONF_PATH)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull, env=env,
                                    stderr=subprocess.PIPE,
                                    cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
@@ -1345,10 +1276,12 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, configs, options, progress, reference_src_dir, db_queue):
+    def __init__(self, toolchains, configs, options, progress,
+		 reference_src_dir, db_queue):
         """Create a new slots controller.
 
         Arguments:
+          toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
@@ -1361,8 +1294,9 @@ class Slots:
         devnull = get_devnull()
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
-            self.slots.append(Slot(configs, options, progress, devnull,
-                                   make_cmd, reference_src_dir, db_queue))
+            self.slots.append(Slot(toolchains, configs, options, progress,
+				   devnull, make_cmd, reference_src_dir,
+				   db_queue))
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
@@ -1474,7 +1408,7 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(configs, options, db_queue):
+def move_config(toolchains, configs, options, db_queue):
     """Move config options to defconfig files.
 
     Arguments:
@@ -1504,7 +1438,8 @@ def move_config(configs, options, db_queue):
         defconfigs = get_all_defconfigs()
 
     progress = Progress(len(defconfigs))
-    slots = Slots(configs, options, progress, reference_src_dir, db_queue)
+    slots = Slots(toolchains, configs, options, progress, reference_src_dir,
+		  db_queue)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -1914,8 +1849,11 @@ def main():
 
     if not options.cleanup_headers_only:
         check_clean_directory()
-        update_cross_compile(options.color)
-        move_config(configs, options, db_queue)
+	bsettings.Setup('')
+        toolchains = toolchain.Toolchains()
+        toolchains.GetSettings()
+        toolchains.Scan(verbose=False)
+        move_config(toolchains, configs, options, db_queue)
         db_queue.join()
 
     if configs:
