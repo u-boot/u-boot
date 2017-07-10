@@ -20,8 +20,6 @@
 /* Support 2 Ethernet ports now */
 #define BCM_ETH_MAX_PORT_NUM	2
 
-#define CONFIG_BCM_SF2_ETH_DEFAULT_PORT	0
-
 enum {
 	MAC_DMA_TX = 1,
 	MAC_DMA_RX = 2

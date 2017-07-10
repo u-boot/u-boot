@@ -47,6 +47,30 @@ config ALTERA_TSE
 	  Please find details on the "Triple-Speed Ethernet MegaCore Function
 	  Resource Center" of Altera.
 
+config BCM_SF2_ETH
+	bool "Broadcom SF2 (Starfighter2) Ethernet support"
+	select PHYLIB
+	help
+	  This is an abstract framework which provides a generic interface
+	  to MAC and DMA management for multiple Broadcom SoCs such as
+	  Cygnus, NSP and bcm28155_ap platforms.
+
+config BCM_SF2_ETH_DEFAULT_PORT
+	int "Broadcom SF2 (Starfighter2) Ethernet default port number"
+	depends on BCM_SF2_ETH
+	default 0
+	help
+	  Default port number for the Starfighter2 ethernet driver.
+
+config BCM_SF2_ETH_GMAC
+	bool "Broadcom SF2 (Starfighter2) GMAC Ethernet support"
+	depends on BCM_SF2_ETH
+	help
+	  This flag enables the ethernet support for Broadcom platforms with
+	  GMAC such as Cygnus. This driver is based on the framework provided
+	  by the BCM_SF2_ETH driver.
+	  Say Y to any bcmcygnus based platforms.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH

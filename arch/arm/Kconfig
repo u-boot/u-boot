@@ -523,6 +523,9 @@ config TARGET_BCMCYGNUS
 	imply CMD_HASH
 	imply FAT_WRITE
 	imply HASH_VERIFY
+	imply NETDEVICES
+	imply BCM_SF2_ETH
+	imply BCM_SF2_ETH_GMAC
 
 config TARGET_BCMNSP
 	bool "Support bcmnsp"
