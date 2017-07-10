@@ -1886,14 +1886,21 @@ def main():
 
     if options.imply:
         imply_flags = 0
-        for flag in options.imply_flags.split():
-            if flag == 'help' or flag not in IMPLY_FLAGS:
-                print "Imply flags: (separate with ',')"
-                for name, info in IMPLY_FLAGS.iteritems():
-                    print ' %-15s: %s' % (name, info[1])
-                parser.print_usage()
-                sys.exit(1)
-            imply_flags |= IMPLY_FLAGS[flag][0]
+        if options.imply_flags == 'all':
+            imply_flags = -1
+
+        elif options.imply_flags:
+            for flag in options.imply_flags.split(','):
+                bad = flag not in IMPLY_FLAGS
+                if bad:
+                    print "Invalid flag '%s'" % flag
+                if flag == 'help' or bad:
+                    print "Imply flags: (separate with ',')"
+                    for name, info in IMPLY_FLAGS.iteritems():
+                        print ' %-15s: %s' % (name, info[1])
+                    parser.print_usage()
+                    sys.exit(1)
+                imply_flags |= IMPLY_FLAGS[flag][0]
 
         do_imply_config(configs, options.add_imply, imply_flags,
                         options.skip_added)
