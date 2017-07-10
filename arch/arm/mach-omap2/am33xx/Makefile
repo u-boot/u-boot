@@ -23,6 +23,7 @@ obj-y	+= board.o
 obj-y	+= mux.o
 obj-y	+= prcm-regs.o
 obj-y	+= hw_data.o
+obj-y	+= fdt.o
 
 obj-$(CONFIG_CLOCK_SYNTHESIZER)	+= clk_synthesizer.o
 
