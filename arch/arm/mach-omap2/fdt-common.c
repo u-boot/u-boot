@@ -134,14 +134,22 @@ int ft_hs_add_tee(void *fdt, bd_t *bd)
 	if (!tee_loaded)
 		return 0;
 
-	path = "/";
+	path = "/firmware";
 	offs = fdt_path_offset(fdt, path);
-
-	subpath = "firmware";
-	offs = fdt_add_subnode(fdt, offs, subpath);
 	if (offs < 0) {
-		printf("Could not create %s node.\n", subpath);
-		return 1;
+		path = "/";
+		offs = fdt_path_offset(fdt, path);
+		if (offs < 0) {
+			printf("Could not find root node.\n");
+			return 1;
+		}
+
+		subpath = "firmware";
+		offs = fdt_add_subnode(fdt, offs, subpath);
+		if (offs < 0) {
+			printf("Could not create %s node.\n", subpath);
+			return 1;
+		}
 	}
 
 	subpath = "optee";
