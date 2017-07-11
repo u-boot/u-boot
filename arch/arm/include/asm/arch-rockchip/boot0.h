@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Theobroma Systems Design und Consulting GmbH
  *
@@ -13,7 +14,17 @@
  */
 
 #ifdef CONFIG_SPL_BUILD
-	.space 0x4         /* space for the 'RK33' */
+	/*
+	 * We need to add 4 bytes of space for the 'RK33' at the
+	 * beginning of the executable.	 However, as we want to keep
+	 * this generic and make it applicable to builds that are like
+	 * the RK3368 (TPL needs this, SPL doesn't) or the RK3399 (no
+	 * TPL, but extra space needed in the SPL), we simply repeat
+	 * the 'b reset' with the expectation that the first one will
+	 * be overwritten, if this is the first stage contained in the
+	 * final image created with mkimage)...
+	 */
+	b reset	 /* may be overwritten --- should be 'nop' or a 'b reset' */
 #endif
 	b reset
 
