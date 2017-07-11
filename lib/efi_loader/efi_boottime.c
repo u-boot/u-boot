@@ -718,15 +718,35 @@ static efi_status_t EFIAPI efi_open_protocol(
 {
 	struct list_head *lhandle;
 	int i;
-	efi_status_t r = EFI_UNSUPPORTED;
+	efi_status_t r = EFI_INVALID_PARAMETER;
 
 	EFI_ENTRY("%p, %p, %p, %p, %p, 0x%x", handle, protocol,
 		  protocol_interface, agent_handle, controller_handle,
 		  attributes);
 
-	if (!protocol_interface && attributes !=
-	    EFI_OPEN_PROTOCOL_TEST_PROTOCOL) {
-		r = EFI_INVALID_PARAMETER;
+	if (!handle || !protocol ||
+	    (!protocol_interface && attributes !=
+	     EFI_OPEN_PROTOCOL_TEST_PROTOCOL)) {
+		goto out;
+	}
+
+	switch (attributes) {
+	case EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL:
+	case EFI_OPEN_PROTOCOL_GET_PROTOCOL:
+	case EFI_OPEN_PROTOCOL_TEST_PROTOCOL:
+		break;
+	case EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER:
+		if (controller_handle == handle)
+			goto out;
+	case EFI_OPEN_PROTOCOL_BY_DRIVER:
+	case EFI_OPEN_PROTOCOL_BY_DRIVER | EFI_OPEN_PROTOCOL_EXCLUSIVE:
+		if (controller_handle == NULL)
+			goto out;
+	case EFI_OPEN_PROTOCOL_EXCLUSIVE:
+		if (agent_handle == NULL)
+			goto out;
+		break;
+	default:
 		goto out;
 	}
 
@@ -752,8 +772,11 @@ static efi_status_t EFIAPI efi_open_protocol(
 				goto out;
 			}
 		}
+		goto unsupported;
 	}
 
+unsupported:
+	r = EFI_UNSUPPORTED;
 out:
 	return EFI_EXIT(r);
 }
