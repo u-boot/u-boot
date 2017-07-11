@@ -395,6 +395,30 @@ struct efi_console_control_protocol
 			uint16_t *password);
 };
 
+#define EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID \
+	EFI_GUID(0x8b843e20, 0x8132, 0x4852, \
+		 0x90, 0xcc, 0x55, 0x1a, 0x4e, 0x4a, 0x7f, 0x1c)
+
+struct efi_device_path_protocol
+{
+	uint8_t type;
+	uint8_t sub_type;
+	uint16_t length;
+	uint8_t data[];
+};
+
+struct efi_device_path_to_text_protocol
+{
+	uint16_t *(EFIAPI *convert_device_node_to_text)(
+			struct efi_device_path_protocol *device_node,
+			bool display_only,
+			bool allow_shortcuts);
+	uint16_t *(EFIAPI *convert_device_path_to_text)(
+			struct efi_device_path_protocol *device_path,
+			bool display_only,
+			bool allow_shortcuts);
+};
+
 #define EFI_GOP_GUID \
 	EFI_GUID(0x9042a9de, 0x23dc, 0x4a38, \
 		 0x96, 0xfb, 0x7a, 0xde, 0xd0, 0x80, 0x51, 0x6a)
