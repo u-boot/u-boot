@@ -1,0 +1,14 @@
+/*
+ * Xilinx ZynqMP QSPI Quad Parallel DTS
+ *
+ * Copyright (C) 2015 - 2017 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include "zynqmp-mini-qspi.dtsi"
+
+&qspi {
+	is-dual = <1>;
+	spi-rx-bus-width = <4>;
+};

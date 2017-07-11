@@ -131,7 +131,13 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm017-dc3.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb		\
-	zynqmp-mini-qspi.dtb			\
+	zynqmp-mini-qspi-parallel.dtb		\
+	zynqmp-mini-qspi-single.dtb		\
+	zynqmp-mini-qspi-stacked.dtb		\
+	zynqmp-mini-qspi-x1-single.dtb		\
+	zynqmp-mini-qspi-x1-stacked.dtb		\
+	zynqmp-mini-qspi-x2-single.dtb		\
+	zynqmp-mini-qspi-x2-stacked.dtb		\
 	zynqmp-mini-nand.dtb			\
 	zynqmp-mini-emmc.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
