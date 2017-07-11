@@ -466,9 +466,6 @@ static efi_status_t EFIAPI efi_locate_handle(
 	struct list_head *lhandle;
 	unsigned long size = 0;
 
-	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
-		  buffer_size, buffer);
-
 	/* Count how much space we need */
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
@@ -480,7 +477,7 @@ static efi_status_t EFIAPI efi_locate_handle(
 
 	if (*buffer_size < size) {
 		*buffer_size = size;
-		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
+		return EFI_BUFFER_TOO_SMALL;
 	}
 
 	/* Then fill the array */
@@ -493,7 +490,19 @@ static efi_status_t EFIAPI efi_locate_handle(
 	}
 
 	*buffer_size = size;
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_SUCCESS;
+}
+
+static efi_status_t EFIAPI efi_locate_handle_ext(
+			enum efi_locate_search_type search_type,
+			efi_guid_t *protocol, void *search_key,
+			unsigned long *buffer_size, efi_handle_t *buffer)
+{
+	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
+		  buffer_size, buffer);
+
+	return EFI_EXIT(efi_locate_handle(search_type, protocol, search_key,
+			buffer_size, buffer));
 }
 
 static efi_status_t EFIAPI efi_locate_device_path(efi_guid_t *protocol,
@@ -953,7 +962,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.handle_protocol = efi_handle_protocol,
 	.reserved = NULL,
 	.register_protocol_notify = efi_register_protocol_notify,
-	.locate_handle = efi_locate_handle,
+	.locate_handle = efi_locate_handle_ext,
 	.locate_device_path = efi_locate_device_path,
 	.install_configuration_table = efi_install_configuration_table_ext,
 	.load_image = efi_load_image,
