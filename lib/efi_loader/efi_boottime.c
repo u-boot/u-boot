@@ -384,8 +384,6 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(void *handle,
 	int i;
 	efi_status_t r = EFI_NOT_FOUND;
 
-	EFI_ENTRY("%p, %p, %p", handle, protocol, protocol_interface);
-
 	if (!handle || !protocol) {
 		r = EFI_INVALID_PARAMETER;
 		goto out;
@@ -417,7 +415,16 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(void *handle,
 	}
 
 out:
-	return EFI_EXIT(r);
+	return r;
+}
+
+static efi_status_t EFIAPI efi_uninstall_protocol_interface_ext(void *handle,
+			efi_guid_t *protocol, void *protocol_interface)
+{
+	EFI_ENTRY("%p, %p, %p", handle, protocol, protocol_interface);
+
+	return EFI_EXIT(efi_uninstall_protocol_interface(handle, protocol,
+							 protocol_interface));
 }
 
 static efi_status_t EFIAPI efi_register_protocol_notify(efi_guid_t *protocol,
@@ -905,7 +912,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.check_event = efi_check_event,
 	.install_protocol_interface = efi_install_protocol_interface_ext,
 	.reinstall_protocol_interface = efi_reinstall_protocol_interface,
-	.uninstall_protocol_interface = efi_uninstall_protocol_interface,
+	.uninstall_protocol_interface = efi_uninstall_protocol_interface_ext,
 	.handle_protocol = efi_handle_protocol,
 	.reserved = NULL,
 	.register_protocol_notify = efi_register_protocol_notify,
