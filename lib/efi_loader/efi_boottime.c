@@ -786,27 +786,35 @@ out:
 	return EFI_EXIT(r);
 }
 
-static struct efi_class_map efi_class_maps[] = {
-	{
-		.guid = &efi_guid_console_control,
-		.interface = &efi_console_control
-	},
-};
-
 static efi_status_t EFIAPI efi_locate_protocol(efi_guid_t *protocol,
 					       void *registration,
 					       void **protocol_interface)
 {
+	struct list_head *lhandle;
 	int i;
 
 	EFI_ENTRY("%p, %p, %p", protocol, registration, protocol_interface);
-	for (i = 0; i < ARRAY_SIZE(efi_class_maps); i++) {
-		struct efi_class_map *curmap = &efi_class_maps[i];
-		if (!guidcmp(protocol, curmap->guid)) {
-			*protocol_interface = (void*)curmap->interface;
-			return EFI_EXIT(EFI_SUCCESS);
+
+	if (!protocol || !protocol_interface)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	list_for_each(lhandle, &efi_obj_list) {
+		struct efi_object *efiobj;
+
+		efiobj = list_entry(lhandle, struct efi_object, link);
+		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
+			struct efi_handler *handler = &efiobj->protocols[i];
+
+			if (!handler->guid)
+				continue;
+			if (!guidcmp(handler->guid, protocol)) {
+				*protocol_interface =
+					handler->protocol_interface;
+				return EFI_EXIT(EFI_SUCCESS);
+			}
 		}
 	}
+	*protocol_interface = NULL;
 
 	return EFI_EXIT(EFI_NOT_FOUND);
 }

@@ -80,6 +80,10 @@ static struct efi_object loaded_image_info_obj = {
 			.guid = &efi_guid_device_path,
 			.protocol_interface = bootefi_device_path,
 		},
+		{
+			.guid = &efi_guid_console_control,
+			.protocol_interface = (void *) &efi_console_control
+		},
 	},
 };
 

@@ -37,16 +37,6 @@ extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 
 /*
- * While UEFI objects can have callbacks, you can also call functions on
- * protocols (classes) themselves. This struct maps a protocol GUID to its
- * interface (usually a struct with callback functions).
- */
-struct efi_class_map {
-	const efi_guid_t *guid;
-	const void *interface;
-};
-
-/*
  * When the UEFI payload wants to open a protocol on an object to get its
  * interface (usually a struct with callback functions), this struct maps the
  * protocol GUID to the respective protocol interface */
