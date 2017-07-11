@@ -51,8 +51,6 @@ check_member(rk3368_cru, emmc_con[1], 0x41c);
 
 struct rk3368_clk_priv {
 	struct rk3368_cru *cru;
-	ulong rate;
-	bool has_bwadj;
 };
 
 enum {
