@@ -54,14 +54,6 @@ static struct efi_device_path_file_path bootefi_device_path[] = {
 	}
 };
 
-static efi_status_t EFIAPI bootefi_open_dp(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	*protocol_interface = bootefi_device_path;
-	return EFI_SUCCESS;
-}
-
 /* The EFI loaded_image interface for the image executed via "bootefi" */
 static struct efi_loaded_image loaded_image_info = {
 	.device_handle = bootefi_device_path,
@@ -78,7 +70,7 @@ static struct efi_object loaded_image_info_obj = {
 			 * return handle which points to loaded_image_info
 			 */
 			.guid = &efi_guid_loaded_image,
-			.open = &efi_return_handle,
+			.protocol_interface = &loaded_image_info,
 		},
 		{
 			/*
@@ -86,7 +78,7 @@ static struct efi_object loaded_image_info_obj = {
 			 * bootefi_device_path
 			 */
 			.guid = &efi_guid_device_path,
-			.open = &bootefi_open_dp,
+			.protocol_interface = bootefi_device_path,
 		},
 	},
 };
@@ -99,7 +91,7 @@ static struct efi_object bootefi_device_obj = {
 			/* When asking for the device path interface, return
 			 * bootefi_device_path */
 			.guid = &efi_guid_device_path,
-			.open = &bootefi_open_dp,
+			.protocol_interface = bootefi_device_path
 		}
 	},
 };

@@ -172,7 +172,7 @@ int efi_gop_register(void)
 
 	/* Fill in object data */
 	gopobj->parent.protocols[0].guid = &efi_gop_guid;
-	gopobj->parent.protocols[0].open = efi_return_handle;
+	gopobj->parent.protocols[0].protocol_interface = &gopobj->ops;
 	gopobj->parent.handle = &gopobj->ops;
 	gopobj->ops.query_mode = gop_query_mode;
 	gopobj->ops.set_mode = gop_set_mode;

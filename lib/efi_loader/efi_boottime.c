@@ -442,7 +442,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		.protocols = {
 			{
 				.guid = &efi_guid_loaded_image,
-				.open = &efi_return_handle,
 			},
 		},
 	};
@@ -452,6 +451,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 	info = malloc(sizeof(*info));
+	loaded_image_info_obj.protocols[0].protocol_interface = info;
 	obj = malloc(sizeof(loaded_image_info_obj));
 	memset(info, 0, sizeof(*info));
 	memcpy(obj, &loaded_image_info_obj, sizeof(loaded_image_info_obj));
@@ -723,6 +723,13 @@ static efi_status_t EFIAPI efi_open_protocol(
 	EFI_ENTRY("%p, %p, %p, %p, %p, 0x%x", handle, protocol,
 		  protocol_interface, agent_handle, controller_handle,
 		  attributes);
+
+	if (!protocol_interface && attributes !=
+	    EFI_OPEN_PROTOCOL_TEST_PROTOCOL) {
+		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
 		efiobj = list_entry(lhandle, struct efi_object, link);
@@ -736,9 +743,12 @@ static efi_status_t EFIAPI efi_open_protocol(
 			if (!hprotocol)
 				break;
 			if (!guidcmp(hprotocol, protocol)) {
-				r = handler->open(handle, protocol,
-				    protocol_interface, agent_handle,
-				    controller_handle, attributes);
+				if (attributes !=
+				    EFI_OPEN_PROTOCOL_TEST_PROTOCOL) {
+					*protocol_interface =
+						handler->protocol_interface;
+				}
+				r = EFI_SUCCESS;
 				goto out;
 			}
 		}

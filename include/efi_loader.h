@@ -49,15 +49,10 @@ struct efi_class_map {
 /*
  * When the UEFI payload wants to open a protocol on an object to get its
  * interface (usually a struct with callback functions), this struct maps the
- * protocol GUID to the respective protocol handler open function for that
- * object protocol combination.
- */
+ * protocol GUID to the respective protocol interface */
 struct efi_handler {
 	const efi_guid_t *guid;
-	efi_status_t (EFIAPI *open)(void *handle,
-			efi_guid_t *protocol, void **protocol_interface,
-			void *agent_handle, void *controller_handle,
-			uint32_t attributes);
+	void *protocol_interface;
 };
 
 /*
@@ -91,14 +86,6 @@ void efi_smbios_register(void);
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
 
-/*
- * Stub implementation for a protocol opener that just returns the handle as
- * interface
- */
-efi_status_t EFIAPI efi_return_handle(void *handle,
-		efi_guid_t *protocol, void **protocol_interface,
-		void *agent_handle, void *controller_handle,
-		uint32_t attributes);
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
 /* PE loader implementation */
