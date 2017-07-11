@@ -1,0 +1,14 @@
+/*
+ * Xilinx CSE QSPI x2 Stacked DTS
+ *
+ * Copyright (C) 2015 - 2017 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include "zynq-cse-qspi.dtsi"
+
+&qspi {
+	is-dual = <0>;
+	spi-rx-bus-width = <2>;
+};

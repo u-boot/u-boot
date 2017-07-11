@@ -101,7 +101,13 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-microzed.dtb \
 	zynq-cc108.dtb \
 	zynq-cse-nand.dtb \
-	zynq-cse-qspi.dtb \
+	zynq-cse-qspi-parallel.dtb \
+	zynq-cse-qspi-single.dtb \
+	zynq-cse-qspi-stacked.dtb \
+	zynq-cse-qspi-x1-single.dtb \
+	zynq-cse-qspi-x1-stacked.dtb \
+	zynq-cse-qspi-x2-single.dtb \
+	zynq-cse-qspi-x2-stacked.dtb \
 	zynq-picozed.dtb \
 	zynq-topic-miami.dtb \
 	zynq-topic-miamiplus.dtb \
