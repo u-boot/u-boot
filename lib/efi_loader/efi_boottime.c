@@ -758,9 +758,32 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 			efi_guid_t *protocol, void *search_key,
 			unsigned long *no_handles, efi_handle_t **buffer)
 {
+	efi_status_t r;
+	unsigned long buffer_size = 0;
+
 	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);
-	return EFI_EXIT(EFI_NOT_FOUND);
+
+	if (!no_handles || !buffer) {
+		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	*no_handles = 0;
+	*buffer = NULL;
+	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
+			      *buffer);
+	if (r != EFI_BUFFER_TOO_SMALL)
+		goto out;
+	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+			      (void **)buffer);
+	if (r != EFI_SUCCESS)
+		goto out;
+	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
+			      *buffer);
+	if (r == EFI_SUCCESS)
+		*no_handles = buffer_size / sizeof(void *);
+out:
+	return EFI_EXIT(r);
 }
 
 static struct efi_class_map efi_class_maps[] = {
