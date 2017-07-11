@@ -48,7 +48,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	 */
 	plat->hcd_base = devfdt_get_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
-		debug("Can't get the XHCI register base address\n");
+		error("Can't get the XHCI register base address\n");
 		return -ENXIO;
 	}
 
@@ -62,17 +62,15 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (plat->phy_base == FDT_ADDR_T_NONE) {
-		debug("Can't get the usbphy register address\n");
+		error("Can't get the usbphy register address\n");
 		return -ENXIO;
 	}
 
-#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
 	/* Vbus regulator */
 	ret = device_get_supply_regulator(dev, "vbus-supply",
 					  &plat->vbus_supply);
 	if (ret)
-		debug("Can't get vbus supply\n");
-#endif
+		debug("Can't get VBus regulator!\n");
 
 	return 0;
 }
@@ -86,18 +84,15 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 				    struct udevice *dev)
 {
 	u32 reg;
-	const void *blob = gd->fdt_blob;
 	u32 utmi_bits;
 
 	/* Set dwc3 usb2 phy config */
 	reg = readl(&dwc3_reg->g_usb2phycfg[0]);
 
-	if (fdtdec_get_bool(blob, dev_of_offset(dev),
-			    "snps,dis-enblslpm-quirk"))
+	if (dev_read_bool(dev, "snps,dis-enblslpm-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
 
-	utmi_bits = fdtdec_get_int(blob, dev_of_offset(dev),
-				   "snps,phyif-utmi-bits", -1);
+	utmi_bits = dev_read_u32_default(dev, "snps,phyif-utmi-bits", -1);
 	if (utmi_bits == 16) {
 		reg |= DWC3_GUSB2PHYCFG_PHYIF;
 		reg &= ~DWC3_GUSB2PHYCFG_USBTRDTIM_MASK;
@@ -108,12 +103,10 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_8BIT;
 	}
 
-	if (fdtdec_get_bool(blob, dev_of_offset(dev),
-			    "snps,dis-u2-freeclk-exists-quirk"))
+	if (dev_read_bool(dev, "snps,dis-u2-freeclk-exists-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS;
 
-	if (fdtdec_get_bool(blob, dev_of_offset(dev),
-			    "snps,dis-u2-susphy-quirk"))
+	if (dev_read_bool(dev, "snps,dis-u2-susphy-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 
 	writel(reg, &dwc3_reg->g_usb2phycfg[0]);
@@ -126,7 +119,7 @@ static int rockchip_xhci_core_init(struct rockchip_xhci *rkxhci,
 
 	ret = dwc3_core_init(rkxhci->dwc3_reg);
 	if (ret) {
-		debug("failed to initialize core\n");
+		error("failed to initialize core\n");
 		return ret;
 	}
 
@@ -155,15 +148,17 @@ static int xhci_usb_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uint64_t)ctx->hcd +
 			HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
 
-#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
-	ret = regulator_set_enable(plat->vbus_supply, true);
-	if (ret)
-		debug("XHCI: Failed to enable vbus supply\n");
-#endif
+	if (plat->vbus_supply) {
+		ret = regulator_set_enable(plat->vbus_supply, true);
+		if (ret) {
+			error("XHCI: failed to set VBus supply\n");
+			return ret;
+		}
+	}
 
 	ret = rockchip_xhci_core_init(ctx, dev);
 	if (ret) {
-		debug("XHCI: failed to initialize controller\n");
+		error("XHCI: failed to initialize controller\n");
 		return ret;
 	}
 
@@ -183,13 +178,13 @@ static int xhci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
-	ret = regulator_set_enable(plat->vbus_supply, false);
-	if (ret)
-		debug("XHCI: Failed to disable vbus supply\n");
-#endif
+	if (plat->vbus_supply) {
+		ret = regulator_set_enable(plat->vbus_supply, false);
+		if (ret)
+			error("XHCI: failed to set VBus supply\n");
+	}
 
-	return 0;
+	return ret;
 }
 
 static const struct udevice_id xhci_usb_ids[] = {

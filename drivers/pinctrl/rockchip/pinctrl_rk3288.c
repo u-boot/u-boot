@@ -402,6 +402,119 @@ static void pinctrl_rk3288_sdmmc_config(struct rk3288_grf *grf, int mmc_id)
 	}
 }
 
+static void pinctrl_rk3288_gmac_config(struct rk3288_grf *grf, int gmac_id)
+{
+	switch (gmac_id) {
+	case PERIPH_ID_GMAC:
+		rk_clrsetreg(&grf->gpio3dl_iomux,
+			     GPIO3D3_MASK << GPIO3D3_SHIFT |
+			     GPIO3D2_MASK << GPIO3D2_SHIFT |
+			     GPIO3D2_MASK << GPIO3D1_SHIFT |
+			     GPIO3D0_MASK << GPIO3D0_SHIFT,
+			     GPIO3D3_MAC_RXD3 << GPIO3D3_SHIFT |
+			     GPIO3D2_MAC_RXD2 << GPIO3D2_SHIFT |
+			     GPIO3D1_MAC_TXD3 << GPIO3D1_SHIFT |
+			     GPIO3D0_MAC_TXD2 << GPIO3D0_SHIFT);
+
+		rk_clrsetreg(&grf->gpio3dh_iomux,
+			     GPIO3D7_MASK << GPIO3D7_SHIFT |
+			     GPIO3D6_MASK << GPIO3D6_SHIFT |
+			     GPIO3D5_MASK << GPIO3D5_SHIFT |
+			     GPIO3D4_MASK << GPIO3D4_SHIFT,
+			     GPIO3D7_MAC_RXD1 << GPIO3D7_SHIFT |
+			     GPIO3D6_MAC_RXD0 << GPIO3D6_SHIFT |
+			     GPIO3D5_MAC_TXD1 << GPIO3D5_SHIFT |
+			     GPIO3D4_MAC_TXD0 << GPIO3D4_SHIFT);
+
+		/* switch the Tx pins to 12ma drive-strength */
+		rk_clrsetreg(&grf->gpio1_e[2][3],
+			     GPIO_BIAS_MASK |
+			     (GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(1)) |
+			     (GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(4)) |
+			     (GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(5)),
+			     (GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(0)) |
+			     (GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(1)) |
+			     (GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(4)) |
+			     (GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(5)));
+
+		/* Set normal pull for all GPIO3D pins */
+		rk_clrsetreg(&grf->gpio1_p[2][3],
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(1)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(2)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(3)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(4)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(7)),
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(1)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(2)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(3)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(4)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(6)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(7)));
+
+		rk_clrsetreg(&grf->gpio4al_iomux,
+			     GPIO4A3_MASK << GPIO4A3_SHIFT |
+			     GPIO4A1_MASK << GPIO4A1_SHIFT |
+			     GPIO4A0_MASK << GPIO4A0_SHIFT,
+			     GPIO4A3_MAC_CLK << GPIO4A3_SHIFT |
+			     GPIO4A1_MAC_TXDV << GPIO4A1_SHIFT |
+			     GPIO4A0_MAC_MDC << GPIO4A0_SHIFT);
+
+		rk_clrsetreg(&grf->gpio4ah_iomux,
+			     GPIO4A6_MASK << GPIO4A6_SHIFT |
+			     GPIO4A5_MASK << GPIO4A5_SHIFT |
+			     GPIO4A4_MASK << GPIO4A4_SHIFT,
+			     GPIO4A6_MAC_RXCLK << GPIO4A6_SHIFT |
+			     GPIO4A5_MAC_MDIO << GPIO4A5_SHIFT |
+			     GPIO4A4_MAC_TXEN << GPIO4A4_SHIFT);
+
+		/* switch GPIO4A4 to 12ma drive-strength */
+		rk_clrsetreg(&grf->gpio1_e[3][0],
+			     GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(4),
+			     GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(4));
+
+		/* Set normal pull for all GPIO4A pins */
+		rk_clrsetreg(&grf->gpio1_p[3][0],
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(1)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(2)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(3)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(4)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(7)),
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(1)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(2)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(3)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(4)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(5)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(6)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(7)));
+
+		/* switch GPIO4B1 to 12ma drive-strength */
+		rk_clrsetreg(&grf->gpio1_e[3][1],
+			     GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(1),
+			     GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(1));
+
+		/* Set pull normal for GPIO4B1, pull up for GPIO4B0 */
+		rk_clrsetreg(&grf->gpio1_p[3][1],
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(1)),
+			     (GPIO_PULL_UP << GPIO_PULL_SHIFT(0)) |
+			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(1)));
+
+		break;
+	default:
+		printf("gmac id = %d iomux error!\n", gmac_id);
+		break;
+	}
+}
+
 #ifndef CONFIG_SPL_BUILD
 static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 {
@@ -465,6 +578,9 @@ static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk3288_sdmmc_config(priv->grf, func);
 		break;
+	case PERIPH_ID_GMAC:
+		pinctrl_rk3288_gmac_config(priv->grf, func);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -479,12 +595,13 @@ static int rk3288_pinctrl_get_periph_id(struct udevice *dev,
 	u32 cell[3];
 	int ret;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(periph),
-				   "interrupts", cell, ARRAY_SIZE(cell));
+	ret = dev_read_u32_array(periph, "interrupts", cell, ARRAY_SIZE(cell));
 	if (ret < 0)
 		return -EINVAL;
 
 	switch (cell[1]) {
+	case 27:
+		return PERIPH_ID_GMAC;
 	case 44:
 		return PERIPH_ID_SPI0;
 	case 45:

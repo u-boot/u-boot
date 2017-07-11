@@ -64,6 +64,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define CONFIG_NR_DRAM_BANKS		1
 #define SDRAM_BANK_SIZE			(2UL << 30)
+#define SDRAM_MAX_SIZE			0x80000000
 
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI
@@ -84,7 +85,6 @@
 
 /* usb host support */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX

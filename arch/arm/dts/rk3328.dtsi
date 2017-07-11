@@ -184,6 +184,7 @@
 	};
 
 	grf: syscon@ff100000 {
+		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3328-grf", "syscon", "simple-mfd";
 		reg = <0x0 0xff100000 0x0 0x1000>;
 		#address-cells = <1>;
@@ -350,6 +351,12 @@
 		status = "disabled";
 	};
 
+	dmc: dmc@ff400000 {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,rk3328-dmc", "syscon";
+		reg = <0x0 0xff400000 0x0 0x1000>;
+	};
+
 	cru: clock-controller@ff440000 {
 		compatible = "rockchip,rk3328-cru", "rockchip,cru", "syscon";
 		reg = <0x0 0xff440000 0x0 0x1000>;
@@ -415,7 +422,7 @@
 	sdmmc: rksdmmc@ff500000 {
 		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x0 0xff500000 0x0 0x4000>;
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>;
 		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
@@ -426,7 +433,7 @@
 	sdio: dwmmc@ff510000 {
 		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x0 0xff510000 0x0 0x4000>;
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDIO>, <&cru SCLK_SDIO>,
 			 <&cru SCLK_SDIO_DRV>, <&cru SCLK_SDIO_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
@@ -438,7 +445,7 @@
 	emmc: rksdmmc@ff520000 {
 		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x0 0xff520000 0x0 0x4000>;
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_EMMC>, <&cru SCLK_EMMC>;
 		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
@@ -460,10 +467,20 @@
 		status = "disabled";
 	};
 
+	usb20_otg: usb@ff580000 {
+		compatible = "rockchip,rk3328-usb", "rockchip,rk3066-usb",
+			     "snps,dwc2";
+		reg = <0x0 0xff580000 0x0 0x40000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		hnp-srp-disable;
+		dr_mode = "otg";
+		status = "disabled";
+	};
+
 	sdmmc_ext: rksdmmc@ff5f0000 {
 		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x0 0xff5f0000 0x0 0x4000>;
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>;
 		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;

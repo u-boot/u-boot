@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * @txesc_clk: clock for tx esc mode
  */
 struct rk_mipi_priv {
-	void __iomem *regs;
+	uintptr_t regs;
 	struct rk3399_grf_regs *grf;
 	struct udevice *panel;
 	struct mipi_dsi *dsi;
@@ -76,13 +76,13 @@ static int rk_mipi_read_timing(struct udevice *dev,
  *        use define in rk_mipi.h directly for this parameter
  *  @val: value that will be write to specified bits of register
  */
-static void rk_mipi_dsi_write(u32 regs, u32 reg, u32 val)
+static void rk_mipi_dsi_write(uintptr_t regs, u32 reg, u32 val)
 {
 	u32 dat;
 	u32 mask;
 	u32 offset = (reg >> OFFSET_SHIFT) & 0xff;
 	u32 bits = (reg >> BITS_SHIFT) & 0xff;
-	u64 addr = (reg >> ADDR_SHIFT) + regs;
+	uintptr_t addr = (reg >> ADDR_SHIFT) + regs;
 
 	/* Mask for specifiled bits,the corresponding bits will be clear */
 	mask = ~((0xffffffff << offset) & (0xffffffff >> (32 - offset - bits)));
@@ -108,7 +108,7 @@ static int rk_mipi_dsi_enable(struct udevice *dev,
 	int node, timing_node;
 	int val;
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
-	u64 regs = (u64)priv->regs;
+	uintptr_t regs = priv->regs;
 	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
 	u32 txbyte_clk = priv->txbyte_clk;
 	u32 txesc_clk = priv->txesc_clk;
@@ -224,7 +224,7 @@ static int rk_mipi_dsi_enable(struct udevice *dev,
 }
 
 /* rk mipi dphy write function. It is used to write test data to dphy */
-static void rk_mipi_phy_write(u32 regs, unsigned char test_code,
+static void rk_mipi_phy_write(uintptr_t regs, unsigned char test_code,
 			      unsigned char *test_data, unsigned char size)
 {
 	int i = 0;
@@ -253,7 +253,7 @@ static int rk_mipi_phy_enable(struct udevice *dev)
 {
 	int i;
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
-	u64 regs = (u64)priv->regs;
+	uintptr_t regs = priv->regs;
 	u64 fbdiv;
 	u64 prediv = 1;
 	u32 max_fbdiv = 512;
@@ -437,14 +437,14 @@ static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (priv->grf <= 0) {
-		debug("%s: Get syscon grf failed (ret=%llu)\n",
-		      __func__, (u64)priv->grf);
+		debug("%s: Get syscon grf failed (ret=%p)\n",
+		      __func__, priv->grf);
 		return  -ENXIO;
 	}
-	priv->regs = (void *)devfdt_get_addr(dev);
+	priv->regs = devfdt_get_addr(dev);
 	if (priv->regs <= 0) {
-		debug("%s: Get MIPI dsi address failed (ret=%llu)\n", __func__,
-		      (u64)priv->regs);
+		debug("%s: Get MIPI dsi address failed (ret=%lu)\n", __func__,
+		      priv->regs);
 		return  -ENXIO;
 	}
 

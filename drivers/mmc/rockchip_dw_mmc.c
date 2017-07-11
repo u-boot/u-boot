@@ -44,7 +44,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 
 	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
-		printf("%s: err=%d\n", __func__, ret);
+		debug("%s: err=%d\n", __func__, ret);
 		return ret;
 	}
 
@@ -59,32 +59,28 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = (void *)devfdt_get_addr(dev);
-	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"bus-width", 4);
+	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
 	/* use non-removeable as sdcard and emmc as judgement */
-	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev), "non-removable"))
+	if (dev_read_bool(dev, "non-removable"))
 		host->dev_index = 0;
 	else
 		host->dev_index = 1;
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "fifo-depth", 0);
+	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
-	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-					  "fifo-mode");
+	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
 
 	/*
 	 * 'clock-freq-min-max' is deprecated
 	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
 	 */
-	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				 "clock-freq-min-max", priv->minmax, 2)) {
-		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					  "max-frequency", -EINVAL);
+	if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+		int val = dev_read_u32_default(dev, "max-frequency", -EINVAL);
 
 		if (val < 0)
 			return val;
@@ -119,13 +115,14 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	host->dev_index = 0;
 	priv->fifo_depth = dtplat->fifo_depth;
 	priv->fifo_mode = 0;
-	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
+	priv->minmax[0] = 400000;  /*  400 kHz */
+	priv->minmax[1] = dtplat->max_frequency;
 
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #else
-	ret = clk_get_by_name(dev, "ciu", &priv->clk);
+	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif

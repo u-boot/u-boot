@@ -182,8 +182,6 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(bus);
 	int ret;
 
 	plat->base = devfdt_get_addr(bus);
@@ -195,12 +193,13 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 		return ret;
 	}
 
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					 50000000);
-	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
-					"spi-deactivate-delay", 0);
-	plat->activate_delay_us = fdtdec_get_int(blob, node,
-						 "spi-activate-delay", 0);
+	plat->frequency =
+		dev_read_u32_default(bus, "spi-max-frequency", 50000000);
+	plat->deactivate_delay_us =
+		dev_read_u32_default(bus, "spi-deactivate-delay", 0);
+	plat->activate_delay_us =
+		dev_read_u32_default(bus, "spi-activate-delay", 0);
+
 	debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, (uint)plat->base, plat->frequency,
 	      plat->deactivate_delay_us);

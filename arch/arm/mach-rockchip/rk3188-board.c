@@ -72,28 +72,6 @@ err:
 #endif
 }
 
-int dram_init(void)
-{
-	struct ram_info ram;
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		debug("DRAM init failed: %d\n", ret);
-		return ret;
-	}
-	ret = ram_get_info(dev, &ram);
-	if (ret) {
-		debug("Cannot get DRAM size: %d\n", ret);
-		return ret;
-	}
-	debug("SDRAM base=%lx, size=%x\n", ram.base, ram.size);
-	gd->ram_size = ram.size;
-
-	return 0;
-}
-
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {

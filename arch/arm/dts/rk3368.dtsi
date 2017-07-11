@@ -546,6 +546,12 @@
 		status = "disabled";
 	};
 
+	dmc: dmc@ff610000 {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,rk3368-dmc", "syscon";
+		reg = <0x0 0xff610000 0x0 0x1000>;
+	};
+
 	i2c0: i2c@ff650000 {
 		compatible = "rockchip,rk3368-i2c", "rockchip,rk3288-i2c";
 		reg = <0x0 0xff650000 0x0 0x1000>;
@@ -641,6 +647,7 @@
 	};
 
 	pmugrf: syscon@ff738000 {
+		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3368-pmugrf", "syscon";
 		reg = <0x0 0xff738000 0x0 0x1000>;
 	};

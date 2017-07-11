@@ -189,5 +189,7 @@ struct rk8xx_priv {
 };
 
 int rk8xx_spl_configure_buck(struct udevice *pmic, int buck, int uvolt);
+int rk818_spl_configure_usb_input_current(struct udevice *pmic, int current_ma);
+int rk818_spl_configure_usb_chrg_shutdown(struct udevice *pmic, int uvolt);
 
 #endif
