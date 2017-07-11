@@ -65,8 +65,8 @@ struct efi_handler {
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
-	/* We support up to 4 "protocols" an object can be accessed through */
-	struct efi_handler protocols[4];
+	/* We support up to 8 "protocols" an object can be accessed through */
+	struct efi_handler protocols[8];
 	/* The object spawner can either use this for data or as identifier */
 	void *handle;
 };
