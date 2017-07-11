@@ -92,10 +92,11 @@ struct rk3368_pmu_grf {
 	u32 gpio0d_drv;
 	u32 gpio0l_sr;
 	u32 gpio0h_sr;
-	u32 reserved[(0x200 - 0x34) / 4 - 1];
+	u32 reserved[0x72];
 	u32 os_reg[4];
 };
-check_member(rk3368_pmu_grf, os_reg[3], 0x20c);
+check_member(rk3368_pmu_grf, gpio0h_sr, 0x34);
+check_member(rk3368_pmu_grf, os_reg[0], 0x200);
 
 /*GRF_GPIO0C_IOMUX*/
 enum {
