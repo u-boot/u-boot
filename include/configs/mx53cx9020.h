@@ -67,6 +67,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x71ff0000\0" \
+	"pxefile_addr_r=0x73000000\0" \
 	"ramdisk_addr_r=0x72000000\0" \
 	"console=ttymxc1,115200\0" \
 	"uenv=/boot/uEnv.txt\0" \
@@ -81,6 +82,7 @@
 		"rootfstype=${mmcrootfstype} " \
 		"${cmdline}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadpxe=dhcp;setenv kernel_addr_r ${loadaddr};pxe get;pxe boot;\0" \
 	"loadrd=load mmc ${bootpart} ${ramdisk_addr_r} ${bootdir}/${rdfile};" \
 		"setenv rdsize ${filesize}\0" \
 	"loadfdt=echo loading ${fdt_path} ...;" \
@@ -130,6 +132,9 @@
 			"echo debug: [${bootargs}] ... ;" \
 			"echo debug: [bootz ${loadaddr} - ${fdt_addr_r}];" \
 			"bootz ${loadaddr} - ${fdt_addr_r}; " \
+		"else " \
+			"echo loading from dhcp ...; " \
+			"run loadpxe; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
