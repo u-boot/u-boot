@@ -58,7 +58,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *signal_event)(void *event);
 	efi_status_t (EFIAPI *close_event)(void *event);
 	efi_status_t (EFIAPI *check_event)(void *event);
-
+#define EFI_NATIVE_INTERFACE	0x00000000
 	efi_status_t (EFIAPI *install_protocol_interface)(
 			void **handle, efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface);
