@@ -155,7 +155,10 @@ int board_early_init_r(void)
 {
 	u32 val;
 
-	if (current_el() == 3) {
+	val = readl(&crlapb_base->timestamp_ref_ctrl);
+	val &= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
+
+	if (current_el() == 3 && !val) {
 		val = readl(&crlapb_base->timestamp_ref_ctrl);
 		val |= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
 		writel(val, &crlapb_base->timestamp_ref_ctrl);
