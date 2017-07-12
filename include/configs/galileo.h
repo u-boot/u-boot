@@ -24,7 +24,6 @@
 
 /* SATA is not supported in Quark SoC */
 #undef CONFIG_SCSI_AHCI
-#undef CONFIG_SCSI
 
 /* 10/100M Ethernet support */
 #define CONFIG_DESIGNWARE_ETH

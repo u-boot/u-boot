@@ -657,7 +657,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_SATA2		CONFIG_SYS_MPC85xx_SATA2_ADDR
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 
-#define CONFIG_CMD_SATA
 #define CONFIG_LBA48
 #endif /* #ifdef CONFIG_FSL_SATA  */
 

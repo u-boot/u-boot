@@ -9,14 +9,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <ns16550.h>
-#include <linux/compiler.h>
-#include <linux/sizes.h>
+#include <usb.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/funcmux.h>
-#include <asm/arch/pinmux.h>
-#include <asm/arch/pmu.h>
-#include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
@@ -25,17 +19,17 @@
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
 #include <asm/arch-tegra/gpu.h>
+#include <asm/arch-tegra/usb.h>
+#include <asm/arch-tegra/xusb-padctl.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
+#include <asm/arch/pinmux.h>
+#include <asm/arch/pmu.h>
+#include <asm/arch/tegra.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
-#include <asm/arch-tegra/usb.h>
-#ifdef CONFIG_USB_EHCI_TEGRA
-#include <usb.h>
-#endif
-#include <asm/arch-tegra/xusb-padctl.h>
 #include <power/as3722.h>
-#include <i2c.h>
-#include <spi.h>
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -162,8 +156,10 @@ int board_init(void)
 #if defined(CONFIG_DM_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
-	if (err)
+	if (err) {
+		debug("Failed to set up LCD PMIC\n");
 		return err;
+	}
 #endif
 
 #ifdef CONFIG_TEGRA_NAND

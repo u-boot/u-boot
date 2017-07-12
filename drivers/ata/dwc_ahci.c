@@ -28,7 +28,7 @@ struct dwc_ahci_priv {
 static int dwc_ahci_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc_ahci_priv *priv = dev_get_priv(dev);
-	struct scsi_platdata *plat = dev_get_platdata(dev);
+	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 	fdt_addr_t addr;
 
 	plat->max_id = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
@@ -81,7 +81,11 @@ static int dwc_ahci_probe(struct udevice *dev)
 		writel(val, priv->wrapper_base + TI_SATA_SYSCONFIG);
 	}
 
-	return ahci_init(priv->base);
+	ret = ahci_init_dm(dev, priv->base);
+	if (ret)
+		return ret;
+
+	return achi_start_ports_dm(dev);
 }
 
 static const struct udevice_id dwc_ahci_ids[] = {
@@ -94,8 +98,8 @@ U_BOOT_DRIVER(dwc_ahci) = {
 	.id	= UCLASS_SCSI,
 	.of_match = dwc_ahci_ids,
 	.ofdata_to_platdata = dwc_ahci_ofdata_to_platdata,
+	.ops	= &scsi_ops,
 	.probe	= dwc_ahci_probe,
 	.priv_auto_alloc_size = sizeof(struct dwc_ahci_priv),
-	.platdata_auto_alloc_size = sizeof(struct scsi_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

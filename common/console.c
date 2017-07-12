@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
@@ -202,7 +203,6 @@ static void console_putc(int file, const char c)
 	}
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static void console_puts_noserial(int file, const char *s)
 {
 	int i;
@@ -214,7 +214,6 @@ static void console_puts_noserial(int file, const char *s)
 			dev->puts(dev, s);
 	}
 }
-#endif
 
 static void console_puts(int file, const char *s)
 {
@@ -248,13 +247,11 @@ static inline void console_putc(int file, const char c)
 	stdio_devices[file]->putc(stdio_devices[file], c);
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static inline void console_puts_noserial(int file, const char *s)
 {
 	if (strcmp(stdio_devices[file]->name, "serial") != 0)
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
-#endif
 
 static inline void console_puts(int file, const char *s)
 {
@@ -420,9 +417,13 @@ int tstc(void)
 
 static void pre_console_putc(const char c)
 {
-	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+	char *buffer;
+
+	buffer = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 
 	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
+
+	unmap_sysmem(buffer);
 }
 
 static void pre_console_puts(const char *s)
@@ -434,14 +435,16 @@ static void pre_console_puts(const char *s)
 static void print_pre_console_buffer(int flushpoint)
 {
 	unsigned long in = 0, out = 0;
-	char *buf_in = (char *)CONFIG_PRE_CON_BUF_ADDR;
 	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
+	char *buf_in;
 
+	buf_in = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
 		in = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
 
 	while (in < gd->precon_buf_idx)
 		buf_out[out++] = buf_in[CIRC_BUF_IDX(in++)];
+	unmap_sysmem(buf_in);
 
 	buf_out[out] = 0;
 
@@ -462,13 +465,6 @@ static inline void print_pre_console_buffer(int flushpoint) {}
 
 void putc(const char c)
 {
-#ifdef CONFIG_SANDBOX
-	/* sandbox can send characters to stdout before it has a console */
-	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
-		os_putc(c);
-		return;
-	}
-#endif
 #ifdef CONFIG_DEBUG_UART
 	/* if we don't have a console yet, use the debug UART */
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
@@ -505,12 +501,6 @@ void putc(const char c)
 
 void puts(const char *s)
 {
-#ifdef CONFIG_SANDBOX
-	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
-		os_puts(s);
-		return;
-	}
-#endif
 #ifdef CONFIG_DEBUG_UART
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		while (*s) {
@@ -697,6 +687,19 @@ static void console_update_silent(void)
 	else
 		gd->flags &= ~GD_FLG_SILENT;
 #endif
+}
+
+int console_announce_r(void)
+{
+#if !CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+
+	display_options_get_banner(false, buf, sizeof(buf));
+
+	console_puts_noserial(stdout, buf);
+#endif
+
+	return 0;
 }
 
 /* Called before relocation - use serial functions */

@@ -333,7 +333,7 @@ the contents of the root directory on the second partion of the image
 A disk image can be created using the following commands:
 
 $> truncate -s 1200M ./disk.raw
-$> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sfdisk  ./disk.raw
+$> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sgdisk  ./disk.raw
 $> lodev=`sudo losetup -P -f --show ./disk.raw`
 $> sudo mkfs.vfat -n EFI -v ${lodev}p1
 $> sudo mkfs.ext4 -L ROOT -v ${lodev}p2

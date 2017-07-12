@@ -162,7 +162,7 @@ static inline int splash_init_usb(void)
 }
 #endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 static int splash_init_sata(void)
 {
 	return sata_initialize();

@@ -25,6 +25,9 @@
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+		mmc2 = &sdmmc_ext;
 	};
 
 	cpus {

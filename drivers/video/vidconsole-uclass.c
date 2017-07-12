@@ -77,6 +77,7 @@ static int vidconsole_back(struct udevice *dev)
 		if (priv->ycur < 0)
 			priv->ycur = 0;
 	}
+	video_sync(dev->parent);
 
 	return 0;
 }

@@ -244,7 +244,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 			      struct sandbox_flash_priv *priv, const void *buff,
 			      int len)
 {
-	const struct SCSI_cmd_block *req = buff;
+	const struct scsi_cmd *req = buff;
 
 	switch (*req->cmd) {
 	case SCSI_INQUIRY: {

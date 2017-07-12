@@ -46,7 +46,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_SCSI
 
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_RESET_TO_RETRY

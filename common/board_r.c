@@ -829,6 +829,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	console_init_r,		/* fully init console as a device */
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
+	console_announce_r,
 	show_board_info,
 #endif
 #ifdef CONFIG_ARCH_MISC_INIT

@@ -11,19 +11,16 @@
 #include <common.h>
 #include <scsi.h>
 
-void scsi_bus_reset(void)
+int scsi_bus_reset(struct udevice *dev)
 {
+	return 0;
 }
 
 void scsi_init(void)
 {
 }
 
-int scsi_exec(ccb *pccb)
+int scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
 	return 0;
-}
-
-void scsi_print_error(ccb *pccb)
-{
 }

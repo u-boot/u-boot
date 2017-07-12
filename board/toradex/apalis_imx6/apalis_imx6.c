@@ -784,7 +784,7 @@ int board_init(void)
 	(void) pmic_init();
 #endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 

@@ -21,6 +21,7 @@ config TARGET_MPC8610HPCD
 config TARGET_MPC8641HPCN
 	bool "Support MPC8641HPCN"
 	select ARCH_MPC8641
+	imply SCSI
 
 config TARGET_XPEDITE517X
 	bool "Support xpedite517x"

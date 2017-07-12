@@ -6,6 +6,8 @@ source "drivers/core/Kconfig"
 
 source "drivers/adc/Kconfig"
 
+source "drivers/ata/Kconfig"
+
 source "drivers/block/Kconfig"
 
 source "drivers/clk/Kconfig"
@@ -69,6 +71,8 @@ source "drivers/remoteproc/Kconfig"
 source "drivers/reset/Kconfig"
 
 source "drivers/rtc/Kconfig"
+
+source "drivers/scsi/Kconfig"
 
 source "drivers/serial/Kconfig"
 

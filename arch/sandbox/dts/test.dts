@@ -289,6 +289,25 @@
 		};
 	};
 
+	probing {
+		compatible = "simple-bus";
+		test1 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test2 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test3 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test4 {
+			compatible = "denx,u-boot-probe-test";
+		};
+	};
+
 	pwrdom: power-domain {
 		compatible = "sandbox,power-domain";
 		#power-domain-cells = <1>;

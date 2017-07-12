@@ -8,13 +8,13 @@
 #include <dm.h>
 #include <environment.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <watchdog.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <dm/of_access.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,11 +27,53 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #error "Serial is required before relocation - define CONFIG_SYS_MALLOC_F_LEN to make this work"
 #endif
 
+static int serial_check_stdout(const void *blob, struct udevice **devp)
+{
+	int node;
+
+	/* Check for a chosen console */
+	node = fdtdec_get_chosen_node(blob, "stdout-path");
+	if (node < 0) {
+		const char *str, *p, *name;
+
+		/*
+		 * Deal with things like
+		 *	stdout-path = "serial0:115200n8";
+		 *
+		 * We need to look up the alias and then follow it to the
+		 * correct node.
+		 */
+		str = fdtdec_get_chosen_prop(blob, "stdout-path");
+		if (str) {
+			p = strchr(str, ':');
+			name = fdt_get_alias_namelen(blob, str,
+					p ? p - str : strlen(str));
+			if (name)
+				node = fdt_path_offset(blob, name);
+		}
+	}
+	if (node < 0)
+		node = fdt_path_offset(blob, "console");
+	if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node, devp))
+		return 0;
+
+	/*
+	 * If the console is not marked to be bound before relocation, bind it
+	 * anyway.
+	 */
+	if (node > 0 && !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
+					devp)) {
+		if (!device_probe(*devp))
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
 static void serial_find_console_or_panic(void)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
-	int node;
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		uclass_first_device(UCLASS_SERIAL, &dev);
@@ -40,43 +82,17 @@ static void serial_find_console_or_panic(void)
 			return;
 		}
 	} else if (CONFIG_IS_ENABLED(OF_CONTROL) && blob) {
-		/* Check for a chosen console */
-		node = fdtdec_get_chosen_node(blob, "stdout-path");
-		if (node < 0) {
-			const char *str, *p, *name;
+		/* Live tree has support for stdout */
+		if (of_live_active()) {
+			struct device_node *np = of_get_stdout();
 
-			/*
-			 * Deal with things like
-			 *	stdout-path = "serial0:115200n8";
-			 *
-			 * We need to look up the alias and then follow it to
-			 * the correct node.
-			 */
-			str = fdtdec_get_chosen_prop(blob, "stdout-path");
-			if (str) {
-				p = strchr(str, ':');
-				name = fdt_get_alias_namelen(blob, str,
-						p ? p - str : strlen(str));
-				if (name)
-					node = fdt_path_offset(blob, name);
+			if (np && !uclass_get_device_by_ofnode(UCLASS_SERIAL,
+					np_to_ofnode(np), &dev)) {
+				gd->cur_serial_dev = dev;
+				return;
 			}
-		}
-		if (node < 0)
-			node = fdt_path_offset(blob, "console");
-		if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node,
-						    &dev)) {
-			gd->cur_serial_dev = dev;
-			return;
-		}
-
-		/*
-		 * If the console is not marked to be bound before relocation,
-		 * bind it anyway.
-		 */
-		if (node > 0 &&
-		    !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
-				    &dev)) {
-			if (!device_probe(dev)) {
+		} else {
+			if (!serial_check_stdout(blob, &dev)) {
 				gd->cur_serial_dev = dev;
 				return;
 			}

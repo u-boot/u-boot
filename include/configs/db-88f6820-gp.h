@@ -25,7 +25,6 @@
  * Commands configuration
  */
 #define CONFIG_CMD_PCI
-#define CONFIG_SCSI
 
 /* I2C */
 #define CONFIG_SYS_I2C

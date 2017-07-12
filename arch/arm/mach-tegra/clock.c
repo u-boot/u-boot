@@ -7,6 +7,8 @@
 /* Tegra SoC common clock control functions */
 
 #include <common.h>
+#include <div64.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -15,8 +17,6 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/timer.h>
-#include <div64.h>
-#include <fdtdec.h>
 
 /*
  * This is our record of the current clock rate of each clock. We don't

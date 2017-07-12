@@ -18,7 +18,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_SATA
 
 /* U-Boot general configurations */
 

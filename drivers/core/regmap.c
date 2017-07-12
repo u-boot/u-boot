@@ -72,8 +72,8 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 	ofnode node = dev_ofnode(dev);
 	struct resource r;
 
-	addr_len = dev_read_addr_cells(dev->parent);
-	size_len = dev_read_size_cells(dev->parent);
+	addr_len = dev_read_simple_addr_cells(dev->parent);
+	size_len = dev_read_simple_size_cells(dev->parent);
 	both_len = addr_len + size_len;
 
 	len = dev_read_size(dev, "reg");

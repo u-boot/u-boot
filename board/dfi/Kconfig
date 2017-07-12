@@ -12,6 +12,7 @@ choice
 
 config TARGET_DFI_BT700
 	bool "DFI BT700 BayTrail"
+	imply SCSI
 	help
 	  This is the DFI Q7X-151 baseboard equipped with the
 	  DFI BayTrail Bt700 SoM. It contains an Atom E3845 with

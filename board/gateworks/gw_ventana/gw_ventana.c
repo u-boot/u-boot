@@ -633,7 +633,7 @@ int board_init(void)
 #endif
 	setup_ventana_i2c();
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 	/* read Gateworks EEPROM into global struct (used later) */

@@ -27,7 +27,6 @@
  */
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_SATA
 
 /* I2C */
 #define CONFIG_SYS_I2C

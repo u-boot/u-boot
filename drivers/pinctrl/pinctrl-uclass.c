@@ -134,7 +134,7 @@ static int pinconfig_post_bind(struct udevice *dev)
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.
 		 */
-		ofnode_read_prop(node, "compatible", &ret);
+		ofnode_get_property(node, "compatible", &ret);
 		if (ret >= 0)
 			continue;
 

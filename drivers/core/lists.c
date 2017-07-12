@@ -141,8 +141,7 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp)
 	name = ofnode_get_name(node);
 	dm_dbg("bind node %s\n", name);
 
-	compat_list = (const char *)ofnode_read_prop(node, "compatible",
-						     &compat_length);
+	compat_list = ofnode_get_property(node, "compatible", &compat_length);
 	if (!compat_list) {
 		if (compat_length == -FDT_ERR_NOTFOUND) {
 			dm_dbg("Device '%s' has no compatible string\n", name);

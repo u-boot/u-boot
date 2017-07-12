@@ -63,8 +63,10 @@ void scsi_init(void)
 	scsi_scan(1);
 }
 
-void scsi_bus_reset(void)
+int scsi_bus_reset(struct udevice *dev)
 {
 	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
 	ahci_init((void __iomem *)DWC_AHSATA_BASE);
+
+	return 0;
 }

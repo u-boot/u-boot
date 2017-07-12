@@ -67,10 +67,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 #define CONFIG_BOUNCE_BUFFER
 
-#ifdef CONFIG_MX6Q
-#define CONFIG_CMD_SATA
-#endif
-
 /*
  * SATA Configs
  */

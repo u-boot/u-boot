@@ -734,6 +734,19 @@ config CMD_FDC
 	help
 	  The 'fdtboot' command allows booting an image from a floppy disk.
 
+config CMD_SATA
+	bool "sata - Access SATA subsystem"
+	select SATA
+	help
+	  SATA (Serial Advanced Technology Attachment) is a serial bus
+	  standard for connecting to hard drives and other storage devices.
+	  This command provides information about attached devices and allows
+	  reading, writing and other operations.
+
+	  SATA replaces PATA (originally just ATA), which stands for Parallel AT
+	  Attachment, where AT refers to an IBM AT (Advanced Technology)
+	  computer released in 1984.
+
 endmenu
 
 

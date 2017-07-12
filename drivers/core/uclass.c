@@ -366,8 +366,7 @@ int uclass_get_device_by_driver(enum uclass_id id,
 	return -ENODEV;
 }
 
-int uclass_get_device_tail(struct udevice *dev, int ret,
-				  struct udevice **devp)
+int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp)
 {
 	if (ret)
 		return ret;
@@ -491,6 +490,33 @@ int uclass_next_device(struct udevice **devp)
 	if (!dev)
 		return 0;
 	return uclass_get_device_tail(dev, ret, devp);
+}
+
+int uclass_first_device_check(enum uclass_id id, struct udevice **devp)
+{
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_first_device(id, devp);
+	if (ret)
+		return ret;
+	if (!*devp)
+		return 0;
+
+	return device_probe(*devp);
+}
+
+int uclass_next_device_check(struct udevice **devp)
+{
+	int ret;
+
+	ret = uclass_find_next_device(devp);
+	if (ret)
+		return ret;
+	if (!*devp)
+		return 0;
+
+	return device_probe(*devp);
 }
 
 int uclass_bind_device(struct udevice *dev)

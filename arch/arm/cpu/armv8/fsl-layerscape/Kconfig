@@ -26,6 +26,7 @@ config ARCH_LS1043A
 	select SYS_FSL_HAS_DDR4
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 
 config ARCH_LS1046A
 	bool
@@ -46,6 +47,7 @@ config ARCH_LS1046A
 	select SYS_FSL_SRDS_2
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 
 config ARCH_LS2080A
 	bool

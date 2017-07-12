@@ -430,7 +430,6 @@
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_SCSI
 #endif
 
 #define CONFIG_WATCHDOG			/* watchdog enabled */

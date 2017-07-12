@@ -66,7 +66,6 @@
 
 #define CONSOLEDEV		"ttyO2"
 
-#define CONFIG_SCSI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT

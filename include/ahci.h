@@ -144,13 +144,25 @@ struct ahci_ioports {
 	u32	rx_fis;
 };
 
-struct ahci_probe_ent {
+/**
+ * struct ahci_uc_priv - information about an AHCI controller
+ *
+ * When driver model is used, this is accessible using dev_get_uclass_priv(dev)
+ * where dev is the controller (although at present it sometimes stands alone).
+ */
+struct ahci_uc_priv {
 #if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
+	/*
+	 * TODO(sjg@chromium.org): Drop this once this structure is only used
+	 * in a driver-model context (i.e. attached to a device with
+	 * dev_get_uclass_priv()
+	 */
 	struct udevice *dev;
 #else
 	pci_dev_t	dev;
 #endif
 	struct ahci_ioports	port[AHCI_MAX_PORTS];
+	u16 *ataid[AHCI_MAX_PORTS];
 	u32	n_ports;
 	u32	hard_port_no;
 	u32	host_flags;
@@ -166,5 +178,48 @@ struct ahci_probe_ent {
 
 int ahci_init(void __iomem *base);
 int ahci_reset(void __iomem *base);
+
+/**
+ * achi_init_one_dm() - set up a single AHCI port
+ *
+ * @dev: Controller to init
+ */
+int achi_init_one_dm(struct udevice *dev);
+
+/**
+ * achi_start_ports_dm() - start all AHCI ports for a controller
+ *
+ * @dev: Controller containing ports to start
+ */
+int achi_start_ports_dm(struct udevice *dev);
+
+/**
+ * ahci_init_dm() - init AHCI for a controller, finding all ports
+ *
+ * @dev: Device to init
+ */
+int ahci_init_dm(struct udevice *dev, void __iomem *base);
+
+/**
+ * ahci_bind_scsi() - bind a new SCSI bus as a child
+ *
+ * Note that the SCSI bus device will itself bind block devices
+ *
+ * @ahci_dev: AHCI parent device
+ * @devp: Returns new SCSI bus device
+ * @return 0 if OK, -ve on error
+ */
+int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp);
+
+/**
+ * ahci_probe_scsi() - probe and scan the attached SCSI bus
+ *
+ * Note that the SCSI device will itself bind block devices for any storage
+ * devices it finds.
+ *
+ * @ahci_dev: AHCI parent device
+ * @return 0 if OK, -ve on error
+ */
+int ahci_probe_scsi(struct udevice *ahci_dev);
 
 #endif

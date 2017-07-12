@@ -359,7 +359,7 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
 			     const char *string);
 
 /**
- * fdt_stringlist_get() - obtain the string at a given index in a string list
+ * ofnode_read_string_index() - obtain an indexed string from a string list
  *
  * Note that this will successfully extract strings from properties with
  * non-NUL-terminated values. For example on small-valued cell properties
@@ -378,6 +378,16 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
  */
 int ofnode_read_string_index(ofnode node, const char *propname, int index,
 			     const char **outp);
+
+/**
+ * ofnode_read_string_count() - find the number of strings in a string list
+ *
+ * @node: node to check
+ * @propname: name of the property containing the string list
+ * @return:
+ *   number of strings in the list, or -ve error value if not found
+ */
+int ofnode_read_string_count(ofnode node, const char *property);
 
 /**
  * ofnode_parse_phandle_with_args() - Find a node pointed by phandle in a list
@@ -463,14 +473,14 @@ int ofnode_decode_display_timing(ofnode node, int index,
 				 struct display_timing *config);
 
 /**
- * ofnode_read_prop()- - read a node property
+ * ofnode_get_property()- - get a pointer to the value of a node property
  *
  * @node: node to read
  * @propname: property to read
  * @lenp: place to put length on success
  * @return pointer to property, or NULL if not found
  */
-const u32 *ofnode_read_prop(ofnode node, const char *propname, int *lenp);
+const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
 
 /**
  * ofnode_is_available() - check if a node is marked available
@@ -550,6 +560,26 @@ int ofnode_read_addr_cells(ofnode node);
  * @return number of size cells this node uses
  */
 int ofnode_read_size_cells(ofnode node);
+
+/**
+ * ofnode_read_simple_addr_cells() - Get the address cells property in a node
+ *
+ * This function matches fdt_address_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #address-cells property in this node, or 2 if none
+ */
+int ofnode_read_simple_addr_cells(ofnode node);
+
+/**
+ * ofnode_read_simple_size_cells() - Get the size cells property in a node
+ *
+ * This function matches fdt_size_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #size-cells property in this node, or 2 if none
+ */
+int ofnode_read_simple_size_cells(ofnode node);
 
 /**
  * ofnode_pre_reloc() - check if a node should be bound before relocation

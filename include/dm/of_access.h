@@ -61,6 +61,26 @@ int of_n_addr_cells(const struct device_node *np);
 int of_n_size_cells(const struct device_node *np);
 
 /**
+ * of_simple_addr_cells() - Get the address cells property in a node
+ *
+ * This function matches fdt_address_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #address-cells property in this node, or 2 if none
+ */
+int of_simple_addr_cells(const struct device_node *np);
+
+/**
+ * of_simple_size_cells() - Get the size cells property in a node
+ *
+ * This function matches fdt_size_cells().
+ *
+ * @np: Node pointer to check
+ * @return value of #size-cells property in this node, or 2 if none
+ */
+int of_simple_size_cells(const struct device_node *np);
+
+/**
  * of_find_property() - find a property in a node
  *
  * @np: Pointer to device node holding property
@@ -258,6 +278,24 @@ static inline int of_property_read_string_index(const struct device_node *np,
 {
 	int rc = of_property_read_string_helper(np, propname, output, 1, index);
 	return rc < 0 ? rc : 0;
+}
+
+/**
+ * of_property_count_strings() - Find and return the number of strings from a
+ * multiple strings property.
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ *
+ * Search for a property in a device tree node and retrieve the number of null
+ * terminated string contain in it. Returns the number of strings on
+ * success, -EINVAL if the property does not exist, -ENODATA if property
+ * does not have a value, and -EILSEQ if the string is not null-terminated
+ * within the length of the property data.
+ */
+static inline int of_property_count_strings(const struct device_node *np,
+					    const char *propname)
+{
+	return of_property_read_string_helper(np, propname, NULL, 0, 0);
 }
 
 /**

@@ -763,12 +763,12 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 	int len;
 	int i;
 
-	prop = ofnode_read_prop(node, "ranges", &len);
+	prop = ofnode_get_property(node, "ranges", &len);
 	if (!prop)
 		return -EINVAL;
-	pci_addr_cells = ofnode_read_addr_cells(node);
-	addr_cells = ofnode_read_addr_cells(parent_node);
-	size_cells = ofnode_read_size_cells(node);
+	pci_addr_cells = ofnode_read_simple_addr_cells(node);
+	addr_cells = ofnode_read_simple_addr_cells(parent_node);
+	size_cells = ofnode_read_simple_size_cells(node);
 
 	/* PCI addresses are always 3-cells */
 	len /= sizeof(u32);

@@ -93,3 +93,7 @@
 		};
 	};
 };
+
+&uartd {
+	status = "okay";
+};

@@ -63,7 +63,7 @@ void dev_stor_init(void)
 	specs[ENUM_MMC].type = DEV_TYP_STOR | DT_STOR_MMC;
 	specs[ENUM_MMC].name = "mmc";
 #endif
-#if defined(CONFIG_CMD_SATA)
+#if defined(CONFIG_SATA)
 	specs[ENUM_SATA].max_dev = CONFIG_SYS_SATA_MAX_DEVICE;
 	specs[ENUM_SATA].enum_started = 0;
 	specs[ENUM_SATA].enum_ended = 0;

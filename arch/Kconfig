@@ -75,6 +75,8 @@ config SANDBOX
 	imply FAT_WRITE
 	imply HASH_VERIFY
 	imply LZMA
+	imply SCSI
+	imply CMD_SATA
 
 config SH
 	bool "SuperH architecture"

@@ -18,6 +18,7 @@ enum uclass_id {
 	UCLASS_TEST,
 	UCLASS_TEST_FDT,
 	UCLASS_TEST_BUS,
+	UCLASS_TEST_PROBE,
 	UCLASS_SPI_EMUL,	/* sandbox SPI device emulator */
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
 	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */

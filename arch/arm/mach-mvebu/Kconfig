@@ -57,6 +57,7 @@ config MV78230
 config MV78260
 	bool
 	select ARMADA_XP
+	imply CMD_SATA
 
 config MV78460
 	bool
@@ -77,6 +78,7 @@ config TARGET_CLEARFOG
 config TARGET_MVEBU_ARMADA_37XX
 	bool "Support Armada 37xx platforms"
 	select ARMADA_3700
+	imply SCSI
 
 config TARGET_DB_88F6720
 	bool "Support DB-88F6720 Armada 375"
@@ -94,6 +96,7 @@ config TARGET_MVEBU_ARMADA_8K
 	bool "Support Armada 7k/8k platforms"
 	select ARMADA_8K
 	select BOARD_LATE_INIT
+	imply SCSI
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
@@ -111,6 +114,7 @@ config TARGET_THEADORABLE
 	bool "Support theadorable Armada XP"
 	select BOARD_LATE_INIT if USB
 	select MV78260
+	imply CMD_SATA
 
 config TARGET_CONTROLCENTERDC
 	bool "Support CONTROLCENTERDC"

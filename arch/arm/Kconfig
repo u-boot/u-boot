@@ -792,6 +792,7 @@ config TARGET_LS2080AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select ARCH_MISC_INIT
+	imply SCSI
 	help
 	  Support for Freescale LS2080AQDS platform
 	  The LS2080A Development System (QDS) is a high-performance
@@ -806,6 +807,7 @@ config TARGET_LS2080ARDB
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select ARCH_MISC_INIT
+	imply SCSI
 	help
 	  Support for Freescale LS2080ARDB platform.
 	  The LS2080A Reference design board (RDB) is a high-performance
@@ -866,6 +868,7 @@ config TARGET_LS1012ARDB
 	select ARCH_LS1012A
 	select ARM64
 	select BOARD_LATE_INIT
+	imply SCSI
 	help
 	  Support for Freescale LS1012ARDB platform.
 	  The LS1012A Reference design board (RDB) is a high-performance
@@ -894,6 +897,7 @@ config TARGET_LS1021AQDS
 	select LS1_DEEP_SLEEP
 	select SYS_FSL_DDR
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
@@ -906,6 +910,7 @@ config TARGET_LS1021ATWR
 	select ARCH_SUPPORT_PSCI
 	select LS1_DEEP_SLEEP
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 
 config TARGET_LS1021AIOT
 	bool "Support ls1021aiot"
@@ -916,6 +921,7 @@ config TARGET_LS1021AIOT
 	select SUPPORT_SPL
 	select ARCH_LS1021A
 	select ARCH_SUPPORT_PSCI
+	imply SCSI
 	help
 	  Support for Freescale LS1021AIOT platform.
 	  The LS1021A Freescale board (IOT) is a high-performance
@@ -930,6 +936,7 @@ config TARGET_LS1043AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 	help
 	  Support for Freescale LS1043AQDS platform.
 
@@ -941,6 +948,7 @@ config TARGET_LS1043ARDB
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 	help
 	  Support for Freescale LS1043ARDB platform.
 
@@ -953,6 +961,7 @@ config TARGET_LS1046AQDS
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if DM_SPI
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 	help
 	  Support for Freescale LS1046AQDS platform.
 	  The LS1046A Development System (QDS) is a high-performance
@@ -969,6 +978,7 @@ config TARGET_LS1046ARDB
 	select DM_SPI_FLASH if DM_SPI
 	select POWER_MC34VR500
 	select BOARD_EARLY_INIT_F
+	imply SCSI
 	help
 	  Support for Freescale LS1046ARDB platform.
 	  The LS1046A Reference Design Board (RDB) is a high-performance

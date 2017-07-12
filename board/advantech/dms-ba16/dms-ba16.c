@@ -609,7 +609,7 @@ int board_late_init(void)
 	pwm_enable(0);
 #endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_ba16_sata();
 #endif
 

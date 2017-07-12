@@ -8,7 +8,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <watchdog.h>
@@ -395,7 +394,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	int err;
 
 	/* try Processor Local Bus device first */
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 #if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
 	if (addr == FDT_ADDR_T_NONE) {
 		/* then try pci device */

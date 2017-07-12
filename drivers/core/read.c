@@ -94,6 +94,16 @@ int dev_read_size_cells(struct udevice *dev)
 	return ofnode_read_size_cells(dev_ofnode(dev));
 }
 
+int dev_read_simple_addr_cells(struct udevice *dev)
+{
+	return ofnode_read_simple_addr_cells(dev_ofnode(dev));
+}
+
+int dev_read_simple_size_cells(struct udevice *dev)
+{
+	return ofnode_read_simple_size_cells(dev_ofnode(dev));
+}
+
 int dev_read_phandle(struct udevice *dev)
 {
 	ofnode node = dev_ofnode(dev);
@@ -106,7 +116,7 @@ int dev_read_phandle(struct udevice *dev)
 
 const u32 *dev_read_prop(struct udevice *dev, const char *propname, int *lenp)
 {
-	return ofnode_read_prop(dev_ofnode(dev), propname, lenp);
+	return ofnode_get_property(dev_ofnode(dev), propname, lenp);
 }
 
 int dev_read_alias_seq(struct udevice *dev, int *devnump)
@@ -137,4 +147,15 @@ const uint8_t *dev_read_u8_array_ptr(struct udevice *dev, const char *propname,
 				     size_t sz)
 {
 	return ofnode_read_u8_array_ptr(dev_ofnode(dev), propname, sz);
+}
+
+int dev_read_enabled(struct udevice *dev)
+{
+	ofnode node = dev_ofnode(dev);
+
+	if (ofnode_is_np(node))
+		return of_device_is_available(ofnode_to_np(node));
+	else
+		return fdtdec_get_is_enabled(gd->fdt_blob,
+					     ofnode_to_offset(node));
 }

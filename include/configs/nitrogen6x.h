@@ -47,10 +47,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       2
 
-#ifdef CONFIG_MX6Q
-#define CONFIG_CMD_SATA
-#endif
-
 /*
  * SATA Configs
  */

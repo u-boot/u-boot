@@ -1,0 +1,62 @@
+config AHCI
+	bool "Support SATA controllers with driver model"
+	depends on DM
+	help
+	  This enables a uclass for disk controllers in U-Boot. Various driver
+	  types can use this, such as AHCI/SATA. It does not provide any standard
+	  operations at present. The block device interface has not been converted
+	  to driver model.
+
+config SATA
+	bool "Support SATA controllers"
+	help
+	  This enables support for SATA (Serial Advanced Technology
+	  Attachment), a serial bus standard for connecting to hard drives and
+	  other storage devices.
+
+	  SATA replaces PATA (originally just ATA), which stands for Parallel AT
+	  Attachment, where AT refers to an IBM AT (Advanced Technology)
+	  computer released in 1984.
+
+	  See also CMD_SATA which provides command-line support.
+
+config SCSI
+	bool "Support SCSI controllers"
+	help
+	  This enables support for SCSI (Small Computer System Interface),
+	  a parallel interface widely used with storage peripherals such as
+	  hard drives and optical drives. The SCSI standards define physical
+	  interfaces as well as protocols for controlling devices and
+	  tranferring data.
+
+config DM_SCSI
+	bool "Support SCSI controllers with driver model"
+	depends on BLK
+	help
+	  This option enables the SCSI (Small Computer System Interface) uclass
+	  which supports SCSI and SATA HDDs. For every device configuration
+	  (IDs/LUNs) a block device is created with RAW read/write and
+	  filesystem support.
+
+menu "SATA/SCSI device support"
+
+config SATA_CEVA
+	bool "Ceva Sata controller"
+	depends on AHCI
+	depends on DM_SCSI
+	help
+	  This option enables Ceva Sata controller hard IP available on Xilinx
+	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
+	  AHCI 1.3 specifications with hot-plug detect feature.
+
+
+config DWC_AHCI
+	bool "Enable Synopsys DWC AHCI driver support"
+	select SCSI_AHCI
+	select PHY
+	depends on DM_SCSI
+	help
+	  Enable this driver to support Sata devices through
+	  Synopsys DWC AHCI module.
+
+endmenu

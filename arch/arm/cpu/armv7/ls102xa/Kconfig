@@ -14,6 +14,7 @@ config ARCH_LS1021A
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	imply SCSI
 
 menu "LS102xA architecture"
 	depends on ARCH_LS1021A

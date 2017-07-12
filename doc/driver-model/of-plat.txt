@@ -156,6 +156,11 @@ This avoids the code overhead of converting the device tree data to
 platform data in the driver. The ofdata_to_platdata() method should
 therefore do nothing in such a driver.
 
+Where a node has multiple compatible strings, a #define is used to make them
+equivalent, e.g.:
+
+#define dtd_rockchip_rk3299_dw_mshc dtd_rockchip_rk3288_dw_mshc
+
 
 Converting of-platdata to a useful form
 ---------------------------------------
