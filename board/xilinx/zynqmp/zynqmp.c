@@ -118,6 +118,11 @@ int board_early_init_f(void)
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
 	zynqmp_pmufw_version();
 #endif
+
+#if defined(CONFIG_SPL_BUILD)
+	psu_init();
+#endif
+
 	return 0;
 }
 
