@@ -131,6 +131,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm017-dc3.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb		\
+	zynqmp-mini.dtb				\
 	zynqmp-mini-qspi-parallel.dtb		\
 	zynqmp-mini-qspi-single.dtb		\
 	zynqmp-mini-qspi-stacked.dtb		\
