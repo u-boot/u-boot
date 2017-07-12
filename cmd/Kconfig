@@ -1196,7 +1196,6 @@ config CMD_JFFS2
 	  filesystem information.
 
 config CMD_MTDPARTS
-	depends on ARCH_SUNXI
 	bool "MTD partition support"
 	help
 	  MTD partition support
