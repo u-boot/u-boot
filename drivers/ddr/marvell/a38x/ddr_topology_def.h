@@ -37,6 +37,12 @@ enum hws_mem_size {
 	MEM_SIZE_LAST
 };
 
+enum hws_timing {
+	HWS_TIM_DEFAULT,
+	HWS_TIM_1T,
+	HWS_TIM_2T
+};
+
 struct bus_params {
 	/* Chip Select (CS) bitmask (bits 0-CS0, bit 1- CS1 ...) */
 	u8 cs_bitmask;
@@ -84,6 +90,9 @@ struct if_params {
 
 	/* operation temperature */
 	enum hws_temperature interface_temp;
+
+	/* 2T vs 1T mode (by default computed from number of CSs) */
+	enum hws_timing timing;
 };
 
 struct hws_topology_map {

@@ -92,6 +92,10 @@ config TARGET_DB_88F6820_AMC
 	bool "Support DB-88F6820-AMC"
 	select 88F6820
 
+config TARGET_TURRIS_OMNIA
+	bool "Support Turris Omnia"
+	select 88F6820
+
 config TARGET_MVEBU_ARMADA_8K
 	bool "Support Armada 7k/8k platforms"
 	select ARMADA_8K
@@ -128,6 +132,7 @@ config SYS_BOARD
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
+	default "turris_omnia" if TARGET_TURRIS_OMNIA
 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
@@ -145,6 +150,7 @@ config SYS_CONFIG_NAME
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
 	default "theadorable" if TARGET_THEADORABLE
+	default "turris_omnia" if TARGET_TURRIS_OMNIA
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -155,9 +161,25 @@ config SYS_VENDOR
 	default "Marvell" if TARGET_MVEBU_ARMADA_8K
 	default "solidrun" if TARGET_CLEARFOG
 	default "Synology" if TARGET_DS414
+	default "CZ.NIC" if TARGET_TURRIS_OMNIA
 
 config SYS_SOC
 	default "mvebu"
+
+if TARGET_TURRIS_OMNIA
+
+choice
+	prompt "Turris Omnia boot method"
+
+config TURRIS_OMNIA_SPL_BOOT_DEVICE_SPI
+	bool "SPI NOR flash"
+
+config TURRIS_OMNIA_SPL_BOOT_DEVICE_MMC
+	bool "SDIO/MMC card"
+
+endchoice
+
+endif
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"

@@ -8,6 +8,7 @@
 obj-$(CONFIG_MISC) += misc-uclass.o
 obj-$(CONFIG_ALI152X) += ali512x.o
 obj-$(CONFIG_ALTERA_SYSID) += altera_sysid.o
+obj-$(CONFIG_ATSHA204A) += atsha204a-i2c.o
 obj-$(CONFIG_DS4510)  += ds4510.o
 obj-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
 ifndef CONFIG_SPL_BUILD
