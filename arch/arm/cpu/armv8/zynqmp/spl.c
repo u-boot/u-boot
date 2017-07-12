@@ -17,7 +17,7 @@
 
 void board_init_f(ulong dummy)
 {
-	psu_init();
+	board_early_init_f();
 	board_early_init_r();
 
 #ifdef CONFIG_DEBUG_UART
