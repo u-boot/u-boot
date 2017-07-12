@@ -119,7 +119,7 @@ int board_early_init_f(void)
 	zynqmp_pmufw_version();
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	psu_init();
 #endif
 

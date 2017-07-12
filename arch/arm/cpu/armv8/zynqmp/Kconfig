@@ -62,6 +62,11 @@ config DEFINE_TCM_OCM_MMAP
 	  This option if enabled defines the TCM and OCM memory and its
 	  memory attributes in MMU table entry.
 
+config ZYNQMP_PSU_INIT_ENABLED
+	bool "Include psu_init"
+	help
+	  Include psu_init to full u-boot. SPL include psu_init by default.
+
 config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 	bool "Overwrite SPL bootmode"
 	depends on SPL
