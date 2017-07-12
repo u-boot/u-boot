@@ -1255,6 +1255,7 @@ config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
 	select CRC32
 	select MTD_UBI
+	select CMD_MTDPARTS
 	default y if NAND_SUNXI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
