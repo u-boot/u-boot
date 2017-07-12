@@ -116,10 +116,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			/* FIXME address unknown at this time */
-			clock_8t49n287: 8t49n287@20 { /* 8T49N287 - u182 */
+			clock_8t49n287: 8t49n287@6c { /* 8T49N287 - u182 */
 				compatible = "idt,8t49n287";
-				reg = <0x20>;
+				reg = <0x6c>;
 			};
 		};
 
@@ -127,15 +126,15 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			irps5401_13: irps54012@13 { /* IRPS5401 - u175 */
+			irps5401_43: irps54012@43 { /* IRPS5401 - u175 */
 				#clock-cells = <0>;
 				compatible = "infineon,irps5401";
-				reg = <0x13>;
+				reg = <0x43>;
 			};
-			irps5401_14: irps54012@14 { /* IRPS5401 - u180 */
+			irps5401_4d: irps54012@4d { /* IRPS5401 - u180 */
 				#clock-cells = <0>;
 				compatible = "infineon,irps5401";
-				reg = <0x14>;
+				reg = <0x4d>;
 			};
 		};
 
@@ -143,7 +142,8 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			tca6416_u61: gpio@21 { /* FIXME enable it by i2c mw 21 6 0 */
+			/* FIXME Npt detected */
+			tca6416_u97: gpio@21 { /* FIXME enable it by i2c mw 21 6 0 */
 				compatible = "ti,tca6416";
 				reg = <0x21>;
 				gpio-controller;
@@ -379,9 +379,8 @@
 
 &qspi {
 	status = "okay";
-	is-dual = <1>;
 	flash@0 {
-		compatible = "m25p80"; /* 64MB */
+		compatible = "m25p80"; /* n25q512a 128MiB */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
