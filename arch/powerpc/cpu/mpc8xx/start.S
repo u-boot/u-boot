@@ -310,38 +310,6 @@ get_pvr:
 	mfspr	r3, PVR
 	blr
 
-
-	.globl wr_ic_cst
-wr_ic_cst:
-	mtspr	IC_CST, r3
-	blr
-
-	.globl rd_ic_cst
-rd_ic_cst:
-	mfspr	r3, IC_CST
-	blr
-
-	.globl wr_ic_adr
-wr_ic_adr:
-	mtspr	IC_ADR, r3
-	blr
-
-
-	.globl wr_dc_cst
-wr_dc_cst:
-	mtspr	DC_CST, r3
-	blr
-
-	.globl rd_dc_cst
-rd_dc_cst:
-	mfspr	r3, DC_CST
-	blr
-
-	.globl wr_dc_adr
-wr_dc_adr:
-	mtspr	DC_ADR, r3
-	blr
-
 /*------------------------------------------------------------------------------*/
 
 /*

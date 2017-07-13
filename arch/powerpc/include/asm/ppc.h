@@ -50,12 +50,6 @@ static inline uint get_immr(uint mask)
 #endif
 uint get_pvr(void);
 uint get_svr(void);
-uint rd_ic_cst(void);
-void wr_ic_cst(uint);
-void wr_ic_adr(uint);
-uint rd_dc_cst(void);
-void wr_dc_cst(uint);
-void wr_dc_adr(uint);
 
 #if defined(CONFIG_MPC85xx)	|| \
 	defined(CONFIG_MPC86xx)	|| \

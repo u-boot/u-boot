@@ -107,6 +107,38 @@ void disable_cpc_sram(void);
 
 #define DC_DFWT		0x40000000	/* Data cache is forced write through */
 #define DC_LES		0x20000000	/* Caches are little endian mode */
+
+#if !defined(__ASSEMBLY__)
+static inline uint rd_ic_cst(void)
+{
+	return mfspr(IC_CST);
+}
+
+static inline void wr_ic_cst(uint val)
+{
+	mtspr(IC_CST, val);
+}
+
+static inline void wr_ic_adr(uint val)
+{
+	mtspr(IC_ADR, val);
+}
+
+static inline uint rd_dc_cst(void)
+{
+	return mfspr(DC_CST);
+}
+
+static inline void wr_dc_cst(uint val)
+{
+	mtspr(DC_CST, val);
+}
+
+static inline void wr_dc_adr(uint val)
+{
+	mtspr(DC_ADR, val);
+}
+#endif
 #endif /* CONFIG_8xx */
 
 #endif
