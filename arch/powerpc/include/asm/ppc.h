@@ -48,8 +48,15 @@ static inline uint get_immr(uint mask)
 	return mask ? (immr & mask) : immr;
 }
 #endif
-uint get_pvr(void);
-uint get_svr(void);
+static inline uint get_pvr(void)
+{
+	return mfspr(PVR);
+}
+
+static inline uint get_svr(void)
+{
+	return mfspr(SVR);
+}
 
 #if defined(CONFIG_MPC85xx)	|| \
 	defined(CONFIG_MPC86xx)	|| \

@@ -1427,16 +1427,6 @@ dcache_status:
 	andi.	r3,r3,L1CSR0_DCE
 	blr
 
-	.globl get_pvr
-get_pvr:
-	mfspr	r3,PVR
-	blr
-
-	.globl get_svr
-get_svr:
-	mfspr	r3,SVR
-	blr
-
 /*------------------------------------------------------------------------------- */
 /* Function:	 in8 */
 /* Description:	 Input 8 bits */
