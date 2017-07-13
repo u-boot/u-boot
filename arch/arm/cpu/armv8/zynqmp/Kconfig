@@ -42,6 +42,13 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
+config SYS_MEM_RSVD_FOR_MMU
+	bool "Reserve memory for MMU Table"
+	help
+	  If defined this option is used to setup different space for
+	  MMU table than the one which will be allocated during
+	  relocation.
+
 config BOOT_INIT_FILE
 	string "boot.bin init register filename"
 	depends on SPL
