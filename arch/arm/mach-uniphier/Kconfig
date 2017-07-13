@@ -10,14 +10,6 @@ config ARCH_UNIPHIER_32BIT
 	select ARMV7_NONSEC
 	select ARCH_SUPPORT_PSCI
 
-config ARCH_UNIPHIER_64BIT
-	bool
-	select ARM64
-	select CMD_UNZIP
-	select SPL_SEPARATE_BSS if SPL
-	select ARMV8_MULTIENTRY if SPL
-	select ARMV8_SPIN_TABLE if SPL
-
 choice
         prompt "UniPhier SoC select"
         default ARCH_UNIPHIER_PRO4
@@ -38,18 +30,11 @@ config ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	bool "UniPhier Pro5/PXs2/LD6b SoCs"
 	select ARCH_UNIPHIER_32BIT
 
-config ARCH_UNIPHIER_LD11_SINGLE
-	bool "UniPhier LD11 SoC"
-	select ARCH_UNIPHIER_64BIT
-
-config ARCH_UNIPHIER_LD20_SINGLE
-	bool "UniPhier LD20 SoC"
-	select ARCH_UNIPHIER_64BIT
-
 config ARCH_UNIPHIER_V8_MULTI
 	bool "UniPhier V8 SoCs"
 	depends on !SPL
-	select ARCH_UNIPHIER_64BIT
+	select ARM64
+	select CMD_UNZIP
 
 endchoice
 
@@ -79,13 +64,13 @@ config ARCH_UNIPHIER_LD6B
 	default y
 
 config ARCH_UNIPHIER_LD11
-	bool "Enable UniPhier LD11 SoC support" if ARCH_UNIPHIER_V8_MULTI
-	depends on ARCH_UNIPHIER_LD11_SINGLE || ARCH_UNIPHIER_V8_MULTI
+	bool "Enable UniPhier LD11 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
 	default y
 
 config ARCH_UNIPHIER_LD20
-	bool "Enable UniPhier LD20 SoC support" if ARCH_UNIPHIER_V8_MULTI
-	depends on ARCH_UNIPHIER_LD20_SINGLE || ARCH_UNIPHIER_V8_MULTI
+	bool "Enable UniPhier LD20 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
 	select OF_BOARD_SETUP
 	default y
 

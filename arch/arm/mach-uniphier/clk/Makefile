@@ -11,8 +11,6 @@ obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= clk-early-sld3.o clk-dram-sld3.o dpll-sld8.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= clk-early-sld3.o clk-dram-pro5.o dpll-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= clk-early-sld3.o clk-dram-pxs2.o dpll-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= clk-early-sld3.o clk-dram-pxs2.o dpll-pxs2.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= clk-early-ld11.o clk-dram-ld11.o dpll-ld11.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= clk-early-ld11.o clk-dram-ld20.o dpll-ld20.o
 
 else
 

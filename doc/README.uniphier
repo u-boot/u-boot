@@ -55,11 +55,11 @@ LD6b reference board:
     $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-ld6b-ref
 
 LD11 reference board:
-    $ make uniphier_ld11_defconfig
-    $ make CROSS_COMPILE=aarch64-linux-gnu-
+    $ make uniphier_v8_defconfig
+    $ make CROSS_COMPILE=aarch64-linux-gnu- DEVICE_TREE=uniphier-ld11-ref
 
 LD20 reference board:
-    $ make uniphier_ld20_defconfig
+    $ make uniphier_v8_defconfig
     $ make CROSS_COMPILE=aarch64-linux-gnu-
 
 PXs3 reference board:
