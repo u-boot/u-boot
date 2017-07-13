@@ -195,13 +195,3 @@ void UnknownException(struct pt_regs *regs)
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);
 }
-
-/*
- * Probe an address by reading.
- * If not present, return -1,
- * otherwise return 0.
- */
-int addr_probe(uint *addr)
-{
-	return 0;
-}
