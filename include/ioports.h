@@ -1,14 +1,12 @@
 /*
- * definitions for MPC8260 I/O Ports
- *
- * (in addition to those provided in <asm/immap_8260.h>)
+ * definitions for MPC8xxx I/O Ports
  *
  * Murray.Jensen@cmst.csiro.au, 20-Oct-00
  */
 
 /*
  * this structure mirrors the layout of the five port registers in
- * the internal memory map - see iop8260_t in <asm/immap_8260.h>
+ * the internal memory map
  */
 typedef struct {
     unsigned int pdir;		/* Port Data Direction Register (35-3) */
@@ -46,7 +44,6 @@ typedef struct {
 
 /*
  * a table that contains configuration information for all 32 pins
- * of all four MPC8260 I/O ports.
  *
  * NOTE: in the second dimension of this table, index 0 refers to pin 31
  * and index 31 refers to pin 0. this made the code in the table look more

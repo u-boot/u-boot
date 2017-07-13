@@ -978,18 +978,6 @@
 #define PVR_850		PVR_821
 #define PVR_860		PVR_821
 #define PVR_7400	0x000C0000
-#define PVR_8240	0x00810100
-
-/*
- * PowerQUICC II family processors report different PVR values depending
- * on silicon process (HiP3, HiP4, HiP7, etc.)
- */
-#define PVR_8260	PVR_8240
-#define PVR_8260_HIP3	0x00810101
-#define PVR_8260_HIP4	0x80811014
-#define PVR_8260_HIP7	0x80822011
-#define PVR_8260_HIP7R1 0x80822013
-#define PVR_8260_HIP7RA	0x80822014
 
 /*
  * MPC 52xx
@@ -1345,8 +1333,6 @@ void ll_puts(const char *);
 void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 
 int prt_83xx_rsr(void);
-int prt_8260_rsr(void);
-int prt_8260_clks(void);
 
 #endif /* ndef ASSEMBLY*/
 

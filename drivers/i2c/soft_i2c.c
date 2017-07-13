@@ -17,10 +17,6 @@
  */
 
 #include <common.h>
-#ifdef	CONFIG_MPC8260			/* only valid for MPC8260 */
-#include <ioports.h>
-#include <asm/io.h>
-#endif
 #if defined(CONFIG_AT91FAMILY)
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
