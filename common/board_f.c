@@ -429,7 +429,7 @@ static int reserve_round_4k(void)
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF)) && \
 		defined(CONFIG_ARM)
-static int reserve_mmu(void)
+__weak int reserve_mmu(void)
 {
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;
