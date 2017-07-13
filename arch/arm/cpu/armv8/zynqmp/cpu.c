@@ -77,6 +77,18 @@ u64 get_page_table_size(void)
 	return 0x14000;
 }
 
+#ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
+int reserve_mmu(void)
+{
+	initialize_tcm(TCM_LOCK);
+	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->arch.tlb_addr = ZYNQMP_TCM_BASE_ADDR;
+
+	return 0;
+}
+#endif
+
 static unsigned int zynqmp_get_silicon_version_secure(void)
 {
 	u32 ver;
