@@ -34,19 +34,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static char *cpu_warning = "\n         " \
-	"*** Warning: CPU Core has Silicon Bugs -- Check the Errata ***";
-
 static int check_CPU(long clock, uint pvr, uint immr)
 {
-	char *id_str =
-	NULL;
 	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
-	uint k, m;
+	uint k;
 	char buf[32];
-	char pre = 'X';
-	char *mid = "xx";
-	char *suf;
 
 	/* the highest 16 bits should be 0x0050 for a 860 */
 
@@ -55,8 +47,6 @@ static int check_CPU(long clock, uint pvr, uint immr)
 
 	k = (immr << 16) |
 	    in_be16(&immap->im_cpm.cp_dparam16[PROFF_REVNUM / sizeof(u16)]);
-	m = 0;
-	suf = "";
 
 	/*
 	 * Some boards use sockets so different CPUs can be used.
@@ -65,31 +55,19 @@ static int check_CPU(long clock, uint pvr, uint immr)
 	switch (k) {
 		/* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
 	case 0x08010004:		/* Rev. A.0 */
-		suf = "A";
-		/* fall through */
-	case 0x08000003:		/* Rev. 0.3 */
-		pre = 'M'; m = 1;
-		if (id_str == NULL)
-			id_str =
-		"PC866x"; /* Unknown chip from MPC866 family */
+		printf("MPC866xxxZPnnA");
 		break;
-	case 0x09000000:
-		pre = 'M'; mid = suf = ""; m = 1;
-		if (id_str == NULL)
-			id_str = "PC885"; /* 870/875/880/885 */
+	case 0x08000003:		/* Rev. 0.3 */
+		printf("MPC866xxxZPnn");
+		break;
+	case 0x09000000:		/* 870/875/880/885 */
+		puts("MPC885ZPnn");
 		break;
 
 	default:
-		suf = NULL;
+		printf("unknown MPC86x (0x%08x)", k);
 		break;
 	}
-
-	if (id_str == NULL)
-		id_str = "PC86x";	/* Unknown 86x chip */
-	if (suf)
-		printf("%c%s%sZPnn%s", pre, id_str, mid, suf);
-	else
-		printf("unknown M%s (0x%08x)", id_str, k);
 
 	printf(" at %s MHz: ", strmhz(buf, clock));
 
@@ -101,9 +79,6 @@ static int check_CPU(long clock, uint pvr, uint immr)
 	out_be32(&immap->im_cpm.cp_fec.fec_addr_low, 0x12345678);
 	if (in_be32(&immap->im_cpm.cp_fec.fec_addr_low) == 0x12345678)
 		printf(" FEC present");
-
-	if (!m)
-		puts(cpu_warning);
 
 	putc('\n');
 
