@@ -206,6 +206,21 @@ static void write_tcm_boot_trampoline(u32 boot_addr)
 	}
 }
 
+void initialize_tcm(bool mode)
+{
+	if (!mode) {
+		set_r5_tcm_mode(LOCK);
+		set_r5_halt_mode(HALT, LOCK);
+		enable_clock_r5();
+		release_r5_reset(LOCK);
+	} else {
+		set_r5_tcm_mode(SPLIT);
+		set_r5_halt_mode(HALT, SPLIT);
+		enable_clock_r5();
+		release_r5_reset(SPLIT);
+	}
+}
+
 int cpu_release(int nr, int argc, char * const argv[])
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
