@@ -305,62 +305,6 @@ int_return:
 	SYNC
 	rfi
 
-/* Cache functions.
-*/
-	.globl	icache_enable
-icache_enable:
-	SYNC
-	lis	r3, IDC_INVALL@h
-	mtspr	IC_CST, r3
-	lis	r3, IDC_ENABLE@h
-	mtspr	IC_CST, r3
-	blr
-
-	.globl	icache_disable
-icache_disable:
-	SYNC
-	lis	r3, IDC_DISABLE@h
-	mtspr	IC_CST, r3
-	blr
-
-	.globl	icache_status
-icache_status:
-	mfspr	r3, IC_CST
-	srwi	r3, r3, 31	/* >>31 => select bit 0 */
-	blr
-
-	.globl	dcache_enable
-dcache_enable:
-	lis	r3, 0x0400		/* Set cache mode with MMU off */
-	mtspr	MD_CTR, r3
-
-	lis	r3, IDC_INVALL@h
-	mtspr	DC_CST, r3
-	lis	r3, IDC_ENABLE@h
-	mtspr	DC_CST, r3
-	blr
-
-	.globl	dcache_disable
-dcache_disable:
-	SYNC
-	lis	r3, IDC_DISABLE@h
-	mtspr	DC_CST, r3
-	lis	r3, IDC_INVALL@h
-	mtspr	DC_CST, r3
-	blr
-
-	.globl	dcache_status
-dcache_status:
-	mfspr	r3, DC_CST
-	srwi	r3, r3, 31	/* >>31 => select bit 0 */
-	blr
-
-	.globl	dc_read
-dc_read:
-	mtspr	DC_ADR, r3
-	mfspr	r3, DC_DAT
-	blr
-
 /*
  * unsigned int get_immr (unsigned int mask)
  *

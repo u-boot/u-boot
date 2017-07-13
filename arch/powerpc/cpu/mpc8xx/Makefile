@@ -14,3 +14,4 @@ obj-$(CONFIG_CMD_IMMAP) += immap.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_REGINFO) += reginfo.o
 obj-y	+= speed.o
+obj-y	+= cache.o
