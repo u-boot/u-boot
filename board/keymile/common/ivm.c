@@ -189,7 +189,7 @@ static int ivm_check_crc(unsigned char *buf, int block)
 
 /* take care of the possible MAC address offset and the IVM content offset */
 static int process_mac(unsigned char *valbuf, unsigned char *buf,
-				int offset)
+				int offset, bool unique)
 {
 	unsigned char mac[6];
 	unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
@@ -198,6 +198,13 @@ static int process_mac(unsigned char *valbuf, unsigned char *buf,
 	 * MAC address is at offset 1
 	 */
 	memcpy(mac, buf+1, 6);
+
+	/* MAC adress can be set to locally administred, this is only allowed
+	 * for interfaces which have now connection to the outside. For these
+	 * addresses we need to set the second bit in the first byte.
+	 */
+	if (!unique)
+		mac[0] |= 0x2;
 
 	if (offset) {
 		val += offset;
@@ -300,12 +307,23 @@ static int ivm_populate_env(unsigned char *buf, int len)
 		return 0;
 	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN*2];
 
+#ifndef CONFIG_KMTEGR1
 	/* if an offset is defined, add it */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
 	setenv((char *)"ethaddr", (char *)valbuf);
 #ifdef CONFIG_KMVECT1
 /* KMVECT1 has two ethernet interfaces */
-	process_mac(valbuf, page2, 1);
+	process_mac(valbuf, page2, 1, true);
+	setenv((char *)"eth1addr", (char *)valbuf);
+#endif
+#else
+/* KMTEGR1 has a special setup. eth0 has no connection to the outside and
+ * gets an locally administred MAC address, eth1 is the debug interface and
+ * gets the official MAC address from the IVM
+ */
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, false);
+	setenv((char *)"ethaddr", (char *)valbuf);
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
 	setenv((char *)"eth1addr", (char *)valbuf);
 #endif
 
