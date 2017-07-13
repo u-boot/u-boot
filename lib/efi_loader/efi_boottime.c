@@ -865,10 +865,53 @@ static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 			efi_guid_t ***protocol_buffer,
 			unsigned long *protocol_buffer_count)
 {
+	unsigned long buffer_size;
+	struct efi_object *efiobj;
+	unsigned long i, j;
+	struct list_head *lhandle;
+	efi_status_t r;
+
 	EFI_ENTRY("%p, %p, %p", handle, protocol_buffer,
 		  protocol_buffer_count);
+
+	if (!handle || !protocol_buffer || !protocol_buffer_count)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	*protocol_buffer = NULL;
 	*protocol_buffer_count = 0;
-	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+	list_for_each(lhandle, &efi_obj_list) {
+		efiobj = list_entry(lhandle, struct efi_object, link);
+
+		if (efiobj->handle != handle)
+			continue;
+
+		/* Count protocols */
+		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
+			if (efiobj->protocols[i].guid)
+				++*protocol_buffer_count;
+		}
+		/* Copy guids */
+		if (*protocol_buffer_count) {
+			buffer_size = sizeof(efi_guid_t *) *
+					*protocol_buffer_count;
+			r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
+					      buffer_size,
+					      (void **)protocol_buffer);
+			if (r != EFI_SUCCESS)
+				return EFI_EXIT(r);
+			j = 0;
+			for (i = 0; i < ARRAY_SIZE(efiobj->protocols); ++i) {
+				if (efiobj->protocols[i].guid) {
+					(*protocol_buffer)[j] = (void *)
+						efiobj->protocols[i].guid;
+					++j;
+				}
+			}
+		}
+		break;
+	}
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 static efi_status_t EFIAPI efi_locate_handle_buffer(
