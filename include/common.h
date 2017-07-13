@@ -286,6 +286,7 @@ void board_show_dram(phys_size_t size);
  */
 int arch_fixup_fdt(void *blob);
 
+int reserve_mmu(void);
 /* common/flash.c */
 void flash_perror (int);
 
