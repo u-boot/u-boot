@@ -51,7 +51,6 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
 
 /* USB Composite download gadget - g_dnl */

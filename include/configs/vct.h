@@ -252,7 +252,6 @@ int vct_gpio_get(int pin);
  * (NOR/OneNAND) usage and Linux kernel booting.
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
-#undef CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_STRINGS
 #undef CONFIG_CMD_TERMINAL
 

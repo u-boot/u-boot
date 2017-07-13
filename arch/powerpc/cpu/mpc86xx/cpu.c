@@ -13,6 +13,7 @@
 #include <asm/mmu.h>
 #include <mpc86xx.h>
 #include <asm/fsl_law.h>
+#include <asm/ppc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -160,7 +161,7 @@ watchdog_reset(void)
  * Print out the state of various machine registers.
  * Currently prints out LAWs, BR0/OR0, and BATs
  */
-void mpc86xx_reginfo(void)
+void print_reginfo(void)
 {
 	print_bats();
 	print_laws();

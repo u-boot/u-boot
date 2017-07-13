@@ -38,7 +38,6 @@
 
 /* Command line configuration */
 #undef CONFIG_CMD_NAND
-#define CONFIG_CMD_REGINFO
 
 /*
  * NAND FLASH

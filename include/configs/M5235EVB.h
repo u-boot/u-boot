@@ -35,7 +35,6 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_REGINFO
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC

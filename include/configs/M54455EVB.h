@@ -37,7 +37,6 @@
 
 /* Command line configuration */
 #undef CONFIG_CMD_PCI
-#define CONFIG_CMD_REGINFO
 
 /* Network configuration */
 #define CONFIG_MCFFEC

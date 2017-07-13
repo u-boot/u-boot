@@ -61,7 +61,6 @@
  ***********************************************************/
 #undef CONFIG_CMD_NAND
 
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
 #define CONFIG_CMD_MTDPARTS
 

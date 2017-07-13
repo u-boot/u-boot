@@ -25,9 +25,6 @@
 #undef CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
-/* Command line configuration */
-#define CONFIG_CMD_REGINFO
-
 #ifdef CONFIG_NANDFLASH_SIZE
 #      define CONFIG_CMD_NAND
 #endif

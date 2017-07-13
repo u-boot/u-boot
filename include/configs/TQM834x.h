@@ -273,8 +273,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_REGINFO
-
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
 #endif

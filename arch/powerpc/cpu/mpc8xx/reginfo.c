@@ -8,8 +8,9 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <asm/io.h>
+#include <asm/ppc.h>
 
-void mpc8xx_reginfo(void)
+void print_reginfo(void)
 {
 	immap_t __iomem     *immap  = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	memctl8xx_t __iomem *memctl = &immap->im_memctl;

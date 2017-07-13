@@ -49,7 +49,6 @@
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
-#define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_TFTP
 
 /* Partition table support */
