@@ -302,14 +302,11 @@ static int ivm_populate_env(unsigned char *buf, int len)
 
 	/* if an offset is defined, add it */
 	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
-	if (getenv("ethaddr") == NULL)
-		setenv((char *)"ethaddr", (char *)valbuf);
+	setenv((char *)"ethaddr", (char *)valbuf);
 #ifdef CONFIG_KMVECT1
 /* KMVECT1 has two ethernet interfaces */
-	if (getenv("eth1addr") == NULL) {
-		process_mac(valbuf, page2, 1);
-		setenv((char *)"eth1addr", (char *)valbuf);
-	}
+	process_mac(valbuf, page2, 1);
+	setenv((char *)"eth1addr", (char *)valbuf);
 #endif
 
 	return 0;
