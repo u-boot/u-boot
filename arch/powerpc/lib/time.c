@@ -66,7 +66,7 @@ int timer_init(void)
 	unsigned long temp;
 
 	/* reset */
-	asm volatile("li %0,0 ; mttbu %0 ; mttbl %0;"
+	asm volatile("li %0,0 ; mttbl %0 ; mttbu %0;"
 	     : "=&r"(temp) );
 
 	return (0);
