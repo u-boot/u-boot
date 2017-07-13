@@ -38,7 +38,10 @@ void cpu_init_f(immap_t __iomem *immr)
 	/* unlock TBSCRK */
 
 	out_be32(&immr->im_sitk.sitk_tbscrk, KAPWR_KEY);
-	out_be16(&immr->im_sit.sit_tbscr, CONFIG_SYS_TBSCR);
+	out_be16(&immr->im_sit.sit_tbscr, CONFIG_SYS_TBSCR | TBSCR_TBE);
+
+	/* Unlock timebase register */
+	out_be32(&immr->im_sitk.sitk_tbk, KAPWR_KEY);
 
 	/* initialize the PIT (11-31) */
 
