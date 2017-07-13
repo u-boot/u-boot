@@ -75,3 +75,7 @@
 &uart2 {
 	status = "okay";
 };
+
+&usb20_otg {
+       status = "okay";
+};

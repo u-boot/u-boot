@@ -403,6 +403,16 @@
 		status = "disabled";
 	};
 
+	usb20_otg: usb@30040000 {
+		compatible = "rockchip,rk3229-usb", "rockchip,rk3288-usb",
+			     "snps,dwc2";
+		reg = <0x30040000 0x40000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		hnp-srp-disable;
+		dr_mode = "otg";
+		status = "disabled";
+	};
+
 	gmac: ethernet@30200000 {
 		compatible = "rockchip,rk3228-gmac";
 		reg = <0x30200000 0x10000>;
