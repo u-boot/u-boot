@@ -33,20 +33,6 @@ extern void timer_interrupt_cpu (struct pt_regs *);
 
 static unsigned decrementer_count; /* count value for 1e6/HZ microseconds */
 
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-
-	asm volatile ("mfmsr %0":"=r" (msr):);
-
-	return msr;
-}
-
-static __inline__ void set_msr (unsigned long msr)
-{
-	asm volatile ("mtmsr %0"::"r" (msr));
-}
-
 static __inline__ unsigned long get_dec (void)
 {
 	unsigned long val;

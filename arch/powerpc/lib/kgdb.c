@@ -38,20 +38,6 @@ kgdb_longjmp(long *buf, int val)
 	     : "=&r"(temp) : "r" (buf), "r" (val));
 }
 
-static inline unsigned long
-get_msr(void)
-{
-	unsigned long msr;
-	asm volatile("mfmsr %0" : "=r" (msr):);
-	return msr;
-}
-
-static inline void
-set_msr(unsigned long msr)
-{
-	asm volatile("mtmsr %0" : : "r" (msr));
-}
-
 /* Convert the SPARC hardware trap type code to a unix signal number. */
 /*
  * This table contains the mapping between PowerPC hardware trap types, and

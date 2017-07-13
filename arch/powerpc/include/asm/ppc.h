@@ -96,6 +96,20 @@ static inline ulong get_ddr_freq(ulong dummy)
 ulong get_ddr_freq(ulong);
 #endif
 
+static inline unsigned long get_msr(void)
+{
+	unsigned long msr;
+
+	asm volatile ("mfmsr %0" : "=r" (msr) : );
+
+	return msr;
+}
+
+static inline void set_msr(unsigned long msr)
+{
+	asm volatile ("mtmsr %0" : : "r" (msr));
+}
+
 #endif /* !__ASSEMBLY__ */
 
 #ifdef CONFIG_PPC
