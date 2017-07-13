@@ -38,8 +38,15 @@
 #include <asm/arch/immap_lsch2.h>
 #endif
 
+#include <asm/processor.h>
+
 #if defined(CONFIG_8xx)
-uint get_immr(uint);
+static inline uint get_immr(uint mask)
+{
+	uint immr = mfspr(SPRN_IMMR);
+
+	return mask ? (immr & mask) : immr;
+}
 #endif
 uint get_pvr(void);
 uint get_svr(void);

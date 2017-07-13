@@ -305,21 +305,6 @@ int_return:
 	SYNC
 	rfi
 
-/*
- * unsigned int get_immr (unsigned int mask)
- *
- * return (mask ? (IMMR & mask) : IMMR);
- */
-	.globl	get_immr
-get_immr:
-	mr	r4,r3		/* save mask */
-	mfspr	r3, IMMR	/* IMMR */
-	cmpwi	0,r4,0		/* mask != 0 ? */
-	beq	4f
-	and	r3,r3,r4	/* IMMR & mask */
-4:
-	blr
-
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
