@@ -28,9 +28,6 @@ void __board_show_activity (ulong dummy)
 #define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
 
-extern int interrupt_init_cpu (unsigned *);
-extern void timer_interrupt_cpu (struct pt_regs *);
-
 static unsigned decrementer_count; /* count value for 1e6/HZ microseconds */
 
 static __inline__ unsigned long get_dec (void)

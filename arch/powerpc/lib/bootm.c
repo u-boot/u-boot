@@ -18,6 +18,8 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 #include <asm/mp.h>
+#include <bootm.h>
+#include <vxworks.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>

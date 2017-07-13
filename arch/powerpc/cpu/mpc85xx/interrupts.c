@@ -20,7 +20,7 @@
 #include <post.h>
 #endif
 
-int interrupt_init_cpu(unsigned int *decrementer_count)
+int interrupt_init_cpu(unsigned *decrementer_count)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 

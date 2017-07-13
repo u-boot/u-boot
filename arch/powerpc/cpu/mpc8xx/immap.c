@@ -19,7 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_siuinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_siuinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	sysconf8xx_t __iomem *sc = &immap->im_siu_conf;
@@ -36,7 +36,8 @@ int do_siuinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_memcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_memcinfo(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	memctl8xx_t __iomem *memctl = &immap->im_memctl;
@@ -58,7 +59,7 @@ int do_memcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_carinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_carinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	car8xx_t __iomem *car = &immap->im_clkrst;
@@ -119,7 +120,7 @@ static void binary(char *label, uint value, int nbits)
 #define PC_NBITS	12
 #define PD_NBITS	13
 
-int do_iopinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_iopinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immap->im_ioport;
@@ -172,7 +173,7 @@ int do_iopinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * this needs a clean up for smaller tighter code
  * use *uint and set the address based on cmd + port
  */
-int do_iopset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_iopset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint rcode = 0;
 	iopin_t iopin;
@@ -328,7 +329,7 @@ static void prbrg(int n, uint val)
 	putc('\n');
 }
 
-int do_brginfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_brginfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immap->im_cpm;
