@@ -79,6 +79,46 @@ static void pinctrl_rk3368_gmac_config(struct rk3368_grf *grf, int gmac_id)
 }
 #endif
 
+static void pinctrl_rk3368_sdmmc_config(struct rk3368_grf *grf, int mmc_id)
+{
+	switch (mmc_id) {
+	case PERIPH_ID_EMMC:
+		debug("mmc id = %d setting registers!\n", mmc_id);
+		rk_clrsetreg(&grf->gpio1c_iomux,
+			     GPIO1C2_MASK | GPIO1C3_MASK |
+			     GPIO1C4_MASK | GPIO1C5_MASK |
+			     GPIO1C6_MASK | GPIO1C7_MASK,
+			     GPIO1C2_EMMC_DATA0 |
+			     GPIO1C3_EMMC_DATA1 |
+			     GPIO1C4_EMMC_DATA2 |
+			     GPIO1C5_EMMC_DATA3 |
+			     GPIO1C6_EMMC_DATA4 |
+			     GPIO1C7_EMMC_DATA5);
+		rk_clrsetreg(&grf->gpio1d_iomux,
+			     GPIO1D0_MASK | GPIO1D1_MASK |
+			     GPIO1D2_MASK | GPIO1D3_MASK,
+			     GPIO1D0_EMMC_DATA6 |
+			     GPIO1D1_EMMC_DATA7 |
+			     GPIO1D2_EMMC_CMD |
+			     GPIO1D3_EMMC_PWREN);
+		rk_clrsetreg(&grf->gpio2a_iomux,
+			     GPIO2A3_MASK | GPIO2A4_MASK,
+			     GPIO2A3_EMMC_RSTNOUT |
+			     GPIO2A4_EMMC_CLKOUT);
+		break;
+	case PERIPH_ID_SDCARD:
+		/*
+		 * We assume that the BROM has already set this up
+		 * correctly for us and that there's nothing to do
+		 * here.
+		 */
+		break;
+	default:
+		debug("mmc id = %d iomux error!\n", mmc_id);
+		break;
+	}
+}
+
 static int rk3368_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk3368_pinctrl_priv *priv = dev_get_priv(dev);
@@ -91,6 +131,10 @@ static int rk3368_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_UART3:
 	case PERIPH_ID_UART4:
 		pinctrl_rk3368_uart_config(priv, func);
+		break;
+	case PERIPH_ID_EMMC:
+	case PERIPH_ID_SDCARD:
+		pinctrl_rk3368_sdmmc_config(priv->grf, func);
 		break;
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case PERIPH_ID_GMAC:
@@ -126,6 +170,10 @@ static int rk3368_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_UART1;
 	case 55:
 		return PERIPH_ID_UART0;
+	case 35:
+		return PERIPH_ID_EMMC;
+	case 32:
+		return PERIPH_ID_SDCARD;
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case 27:
 		return PERIPH_ID_GMAC;
