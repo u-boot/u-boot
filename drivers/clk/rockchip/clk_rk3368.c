@@ -338,6 +338,19 @@ static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+static ulong rk3368_gmac_set_clk(struct rk3368_cru *cru,
+				 ulong clk_id, ulong set_rate)
+{
+	/*
+	 * This models the 'assigned-clock-parents = <&ext_gmac>' from
+	 * the DTS and switches to the 'ext_gmac' clock parent.
+	 */
+	rk_setreg(&cru->clksel_con[43], GMAC_MUX_SEL_EXTCLK);
+	return set_rate;
+}
+#endif
+
 static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
@@ -356,10 +369,12 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 		ret = rk3368_mmc_set_clk(clk, rate);
 		break;
 #endif
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
 	case SCLK_MAC:
-		/* nothing to do, as this is an external clock */
-		ret = rate;
+		/* select the external clock */
+		ret = rk3368_gmac_set_clk(priv->cru, clk->id, rate);
 		break;
+#endif
 	default:
 		return -ENOENT;
 	}
