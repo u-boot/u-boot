@@ -212,6 +212,12 @@ void board_init_f(ulong dummy)
 {
 	early_system_init();
 	mem_init();
+	/*
+	* Save the boot parameters passed from romcode.
+	* We cannot delay the saving further than this,
+	* to prevent overwrites.
+	*/
+	save_omap_boot_params();
 }
 #endif
 
