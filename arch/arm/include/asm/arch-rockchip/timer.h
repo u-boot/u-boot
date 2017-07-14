@@ -8,12 +8,12 @@
 #define __ASM_ARCH_TIMER_H
 
 struct rk_timer {
-	unsigned int timer_load_count0;
-	unsigned int timer_load_count1;
-	unsigned int timer_curr_value0;
-	unsigned int timer_curr_value1;
-	unsigned int timer_ctrl_reg;
-	unsigned int timer_int_status;
+	u32 timer_load_count0;
+	u32 timer_load_count1;
+	u32 timer_curr_value0;
+	u32 timer_curr_value1;
+	u32 timer_ctrl_reg;
+	u32 timer_int_status;
 };
 
 void rockchip_timer_init(void);

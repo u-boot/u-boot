@@ -4,9 +4,9 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
+#include <common.h>
 #include <asm/arch/timer.h>
 #include <asm/io.h>
-#include <common.h>
 #include <linux/types.h>
 
 struct rk_timer * const timer_ptr = (void *)CONFIG_SYS_TIMER_BASE;
