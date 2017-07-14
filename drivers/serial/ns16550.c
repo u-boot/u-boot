@@ -314,6 +314,80 @@ DEBUG_UART_FUNCS
 #endif
 
 #ifdef CONFIG_DM_SERIAL
+
+#if CONFIG_IS_ENABLED(SERIAL_IRQ_BUFFER)
+
+#define BUF_COUNT	256
+
+static void rx_fifo_to_buf(struct udevice *dev)
+{
+	struct NS16550 *const com_port = dev_get_priv(dev);
+	struct ns16550_platdata *plat = dev->platdata;
+
+	/* Read all available chars into buffer */
+	while ((serial_in(&com_port->lsr) & UART_LSR_DR)) {
+		plat->buf[plat->wr_ptr++] = serial_in(&com_port->rbr);
+		plat->wr_ptr %= BUF_COUNT;
+	}
+}
+
+static int rx_pending(struct udevice *dev)
+{
+	struct ns16550_platdata *plat = dev->platdata;
+
+	/*
+	 * At startup it may happen, that some already received chars are
+	 * "stuck" in the RX FIFO, even with the interrupt enabled. This
+	 * RX FIFO flushing makes sure, that these chars are read out and
+	 * the RX interrupts works as expected.
+	 */
+	rx_fifo_to_buf(dev);
+
+	return plat->rd_ptr != plat->wr_ptr ? 1 : 0;
+}
+
+static int rx_get(struct udevice *dev)
+{
+	struct ns16550_platdata *plat = dev->platdata;
+	char val;
+
+	val = plat->buf[plat->rd_ptr++];
+	plat->rd_ptr %= BUF_COUNT;
+
+	return val;
+}
+
+void ns16550_handle_irq(void *data)
+{
+	struct udevice *dev = (struct udevice *)data;
+	struct NS16550 *const com_port = dev_get_priv(dev);
+
+	/* Check if interrupt is pending */
+	if (serial_in(&com_port->iir) & UART_IIR_NO_INT)
+		return;
+
+	/* Flush all available characters from the RX FIFO into the RX buffer */
+	rx_fifo_to_buf(dev);
+}
+
+#else /* CONFIG_SERIAL_IRQ_BUFFER */
+
+static int rx_pending(struct udevice *dev)
+{
+	struct NS16550 *const com_port = dev_get_priv(dev);
+
+	return serial_in(&com_port->lsr) & UART_LSR_DR ? 1 : 0;
+}
+
+static int rx_get(struct udevice *dev)
+{
+	struct NS16550 *const com_port = dev_get_priv(dev);
+
+	return serial_in(&com_port->rbr);
+}
+
+#endif /* CONFIG_SERIAL_IRQ_BUFFER */
+
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
@@ -339,19 +413,17 @@ static int ns16550_serial_pending(struct udevice *dev, bool input)
 	struct NS16550 *const com_port = dev_get_priv(dev);
 
 	if (input)
-		return serial_in(&com_port->lsr) & UART_LSR_DR ? 1 : 0;
+		return rx_pending(dev);
 	else
 		return serial_in(&com_port->lsr) & UART_LSR_THRE ? 0 : 1;
 }
 
 static int ns16550_serial_getc(struct udevice *dev)
 {
-	struct NS16550 *const com_port = dev_get_priv(dev);
-
-	if (!(serial_in(&com_port->lsr) & UART_LSR_DR))
+	if (!ns16550_serial_pending(dev, true))
 		return -EAGAIN;
 
-	return serial_in(&com_port->rbr);
+	return rx_get(dev);
 }
 
 static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
@@ -374,8 +446,39 @@ int ns16550_serial_probe(struct udevice *dev)
 	com_port->plat = dev_get_platdata(dev);
 	NS16550_init(com_port, -1);
 
+#if CONFIG_IS_ENABLED(SERIAL_IRQ_BUFFER)
+	if (gd->flags & GD_FLG_RELOC) {
+		struct ns16550_platdata *plat = dev->platdata;
+
+		/* Allocate the RX buffer */
+		plat->buf = malloc(BUF_COUNT);
+
+		/* Install the interrupt handler */
+		irq_install_handler(plat->irq, ns16550_handle_irq, dev);
+
+		/* Enable RX interrupts */
+		serial_out(UART_IER_RDI, &com_port->ier);
+	}
+#endif
+
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT) && \
+	(!defined(CONFIG_TPL_BUILD) || defined(CONFIG_TPL_DM_SERIAL))
+static int ns16550_serial_remove(struct udevice *dev)
+{
+#if CONFIG_IS_ENABLED(SERIAL_IRQ_BUFFER)
+	if (gd->flags & GD_FLG_RELOC) {
+		struct ns16550_platdata *plat = dev->platdata;
+
+		irq_free_handler(plat->irq);
+	}
+#endif
+
+	return 0;
+}
+#endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 enum {
@@ -458,6 +561,15 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	if (port_type == PORT_JZ4780)
 		plat->fcr |= UART_FCR_UME;
 
+#if CONFIG_IS_ENABLED(SERIAL_IRQ_BUFFER)
+	plat->irq = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				   "interrupts", 0);
+	if (!plat->irq) {
+		debug("ns16550 interrupt not provided\n");
+		return -EINVAL;
+	}
+#endif
+
 	return 0;
 }
 #endif
@@ -505,6 +617,7 @@ U_BOOT_DRIVER(ns16550_serial) = {
 #endif
 	.priv_auto_alloc_size = sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,
+	.remove = ns16550_serial_remove,
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

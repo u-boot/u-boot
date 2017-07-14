@@ -51,6 +51,10 @@
  * @base:		Base register address
  * @reg_shift:		Shift size of registers (0=byte, 1=16bit, 2=32bit...)
  * @clock:		UART base clock speed in Hz
+ *
+ * @buf:		Pointer to the RX interrupt buffer
+ * @rd_ptr:		Read pointer in the RX interrupt buffer
+ * @wr_ptr:		Write pointer in the RX interrupt buffer
  */
 struct ns16550_platdata {
 	unsigned long base;
@@ -58,6 +62,12 @@ struct ns16550_platdata {
 	int clock;
 	int reg_offset;
 	u32 fcr;
+
+	int irq;
+
+	char *buf;
+	int rd_ptr;
+	int wr_ptr;
 };
 
 struct udevice;
