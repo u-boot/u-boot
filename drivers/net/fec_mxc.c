@@ -985,9 +985,18 @@ static void fec_free_descs(struct fec_priv *fec)
 	free(fec->tbd_base);
 }
 
+#ifdef CONFIG_DM_ETH
+struct mii_dev *fec_get_miibus(struct udevice *dev, int dev_id)
+#else
 struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id)
+#endif
 {
+#ifdef CONFIG_DM_ETH
+	struct fec_priv *priv = dev_get_priv(dev);
+	struct ethernet_regs *eth = priv->eth;
+#else
 	struct ethernet_regs *eth = (struct ethernet_regs *)base_addr;
+#endif
 	struct mii_dev *bus;
 	int ret;
 
