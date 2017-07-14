@@ -52,6 +52,33 @@ static void pinctrl_rk3368_uart_config(struct rk3368_pinctrl_priv *priv,
 	}
 }
 
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+static void pinctrl_rk3368_gmac_config(struct rk3368_grf *grf, int gmac_id)
+{
+	rk_clrsetreg(&grf->gpio3b_iomux,
+		     GPIO3B0_MASK | GPIO3B1_MASK |
+		     GPIO3B2_MASK | GPIO3B5_MASK |
+		     GPIO3B6_MASK | GPIO3B7_MASK,
+		     GPIO3B0_MAC_TXD0 | GPIO3B1_MAC_TXD1 |
+		     GPIO3B2_MAC_TXD2 | GPIO3B5_MAC_TXEN |
+		     GPIO3B6_MAC_TXD3 | GPIO3B7_MAC_RXD0);
+	rk_clrsetreg(&grf->gpio3c_iomux,
+		     GPIO3C0_MASK | GPIO3C1_MASK |
+		     GPIO3C2_MASK | GPIO3C3_MASK |
+		     GPIO3C4_MASK | GPIO3C5_MASK |
+		     GPIO3C6_MASK,
+		     GPIO3C0_MAC_RXD1 | GPIO3C1_MAC_RXD2 |
+		     GPIO3C2_MAC_RXD3 | GPIO3C3_MAC_MDC |
+		     GPIO3C4_MAC_RXDV | GPIO3C5_MAC_RXEN |
+		     GPIO3C6_MAC_CLK);
+	rk_clrsetreg(&grf->gpio3d_iomux,
+		     GPIO3D0_MASK | GPIO3D1_MASK |
+		     GPIO3D4_MASK,
+		     GPIO3D0_MAC_MDIO | GPIO3D1_MAC_RXCLK |
+		     GPIO3D4_MAC_TXCLK);
+}
+#endif
+
 static int rk3368_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk3368_pinctrl_priv *priv = dev_get_priv(dev);
@@ -65,6 +92,11 @@ static int rk3368_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_UART4:
 		pinctrl_rk3368_uart_config(priv, func);
 		break;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case PERIPH_ID_GMAC:
+		pinctrl_rk3368_gmac_config(priv->grf, func);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -94,6 +126,10 @@ static int rk3368_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_UART1;
 	case 55:
 		return PERIPH_ID_UART0;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case 27:
+		return PERIPH_ID_GMAC;
+#endif
 	}
 
 	return -ENOENT;
