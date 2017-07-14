@@ -379,6 +379,9 @@ efi_status_t efi_free_pool(void *buffer)
 	efi_status_t r;
 	struct efi_pool_allocation *alloc;
 
+	if (buffer == NULL)
+		return EFI_INVALID_PARAMETER;
+
 	alloc = container_of(buffer, struct efi_pool_allocation, data);
 	/* Sanity check, was the supplied address returned by allocate_pool */
 	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
