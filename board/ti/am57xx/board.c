@@ -36,11 +36,11 @@
 
 #define board_is_x15()		board_ti_is("BBRDX15_")
 #define board_is_x15_revb1()	(board_ti_is("BBRDX15_") && \
-				 (strncmp("B.10", board_ti_get_rev(), 3) <= 0))
+				 !strncmp("B.10", board_ti_get_rev(), 3))
 #define board_is_am572x_evm()	board_ti_is("AM572PM_")
 #define board_is_am572x_evm_reva3()	\
 				(board_ti_is("AM572PM_") && \
-				 (strncmp("A.30", board_ti_get_rev(), 3) <= 0))
+				 !strncmp("A.30", board_ti_get_rev(), 3))
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
 #define board_is_am571x_idk()	board_ti_is("AM571IDK")
 
