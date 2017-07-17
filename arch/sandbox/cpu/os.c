@@ -413,17 +413,6 @@ int os_get_filesize(const char *fname, loff_t *size)
 	return 0;
 }
 
-void os_putc(int ch)
-{
-	putchar(ch);
-}
-
-void os_puts(const char *str)
-{
-	while (*str)
-		os_putc(*str++);
-}
-
 int os_write_ram_buf(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
