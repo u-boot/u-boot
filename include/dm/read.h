@@ -266,7 +266,7 @@ int dev_read_phandle(struct udevice *dev);
  * @lenp: place to put length on success
  * @return pointer to property, or NULL if not found
  */
-const u32 *dev_read_prop(struct udevice *dev, const char *propname, int *lenp);
+const void *dev_read_prop(struct udevice *dev, const char *propname, int *lenp);
 
 /**
  * dev_read_alias_seq() - Get the alias sequence number of a node
@@ -443,8 +443,8 @@ static inline int dev_read_phandle(struct udevice *dev)
 	return fdt_get_phandle(gd->fdt_blob, dev_of_offset(dev));
 }
 
-static inline const u32 *dev_read_prop(struct udevice *dev,
-				       const char *propname, int *lenp)
+static inline const void *dev_read_prop(struct udevice *dev,
+					const char *propname, int *lenp)
 {
 	return ofnode_get_property(dev_ofnode(dev), propname, lenp);
 }

@@ -114,7 +114,7 @@ int dev_read_phandle(struct udevice *dev)
 		return fdt_get_phandle(gd->fdt_blob, ofnode_to_offset(node));
 }
 
-const u32 *dev_read_prop(struct udevice *dev, const char *propname, int *lenp)
+const void *dev_read_prop(struct udevice *dev, const char *propname, int *lenp)
 {
 	return ofnode_get_property(dev_ofnode(dev), propname, lenp);
 }
