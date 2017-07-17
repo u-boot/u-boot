@@ -52,11 +52,18 @@
 	"get_mon_mmc=load mmc ${bootpart} ${addr_mon} ${bootdir}/${name_mon}\0"\
 	"name_fs=arago-base-tisdk-image-k2g-evm.cpio\0"
 
+#ifndef CONFIG_TI_SECURE_DEVICE
 #define CONFIG_BOOTCOMMAND						\
 	"run envboot; "							\
 	"run set_name_pmmc init_${boot} init_fw_rd_${boot} "		\
 	"get_pmmc_${boot} run_pmmc get_mon_${boot} run_mon "		\
 	"findfdt get_fdt_${boot} get_kern_${boot} run_kern"
+#else
+#define CONFIG_BOOTCOMMAND						\
+	"run envboot; run run_mon_hs set_name_pmmc init_${boot} "	\
+	"get_pmmc_${boot} run_pmmc findfdt get_fit_${boot};"		\
+	"bootm ${fit_loadaddr}#${name_fdt} "
+#endif
 
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c080000
