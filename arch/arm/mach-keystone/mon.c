@@ -13,7 +13,7 @@
 #include <spl.h>
 asm(".arch_extension sec\n\t");
 
-int mon_install(u32 addr, u32 dpsc, u32 freq)
+int mon_install(u32 addr, u32 dpsc, u32 freq, u32 bm_addr)
 {
 	int result;
 
@@ -22,11 +22,12 @@ int mon_install(u32 addr, u32 dpsc, u32 freq)
 		"mov r0, %1\n"
 		"mov r1, %2\n"
 		"mov r2, %3\n"
+		"mov r3, %4\n"
 		"blx r0\n"
 		"ldmfd r13!, {lr}\n"
 		: "=&r" (result)
-		: "r" (addr), "r" (dpsc), "r" (freq)
-		: "cc", "r0", "r1", "r2", "memory");
+		: "r" (addr), "r" (dpsc), "r" (freq), "r" (bm_addr)
+		: "cc", "r0", "r1", "r2", "r3", "memory");
 	return result;
 }
 

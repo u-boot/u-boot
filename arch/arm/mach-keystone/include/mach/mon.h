@@ -10,7 +10,7 @@
 #ifndef _MACH_MON_H_
 #define _MACH_MON_H_
 
-int mon_install(u32 addr, u32 dpsc, u32 freq);
+int mon_install(u32 addr, u32 dpsc, u32 freq, u32 bm_addr);
 int mon_power_on(int core_id, void *ep);
 int mon_power_off(int core_id);
 
