@@ -496,6 +496,10 @@ static void pinctrl_rk3288_gmac_config(struct rk3288_grf *grf, int gmac_id)
 			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(6)) |
 			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(7)));
 
+		rk_clrsetreg(&grf->gpio4bl_iomux,
+			    GPIO4B1_MASK << GPIO4B1_SHIFT,
+			    GPIO4B1_MAC_TXCLK << GPIO4B1_SHIFT);
+
 		/* switch GPIO4B1 to 12ma drive-strength */
 		rk_clrsetreg(&grf->gpio1_e[3][1],
 			     GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(1),
