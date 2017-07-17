@@ -501,11 +501,9 @@ static void pinctrl_rk3288_gmac_config(struct rk3288_grf *grf, int gmac_id)
 			     GPIO_BIAS_MASK << GPIO_BIAS_SHIFT(1),
 			     GPIO_BIAS_12MA << GPIO_BIAS_SHIFT(1));
 
-		/* Set pull normal for GPIO4B1, pull up for GPIO4B0 */
+		/* Set pull normal for GPIO4B1 */
 		rk_clrsetreg(&grf->gpio1_p[3][1],
-			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(0)) |
 			     (GPIO_PULL_MASK << GPIO_PULL_SHIFT(1)),
-			     (GPIO_PULL_UP << GPIO_PULL_SHIFT(0)) |
 			     (GPIO_PULL_NORMAL << GPIO_PULL_SHIFT(1)));
 
 		break;
