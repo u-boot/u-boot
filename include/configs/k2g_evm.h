@@ -54,15 +54,24 @@
 
 #ifndef CONFIG_TI_SECURE_DEVICE
 #define CONFIG_BOOTCOMMAND						\
+	"run findfdt; "							\
 	"run envboot; "							\
-	"run set_name_pmmc init_${boot} init_fw_rd_${boot} "		\
-	"get_pmmc_${boot} run_pmmc get_mon_${boot} run_mon "		\
-	"findfdt get_fdt_${boot} get_kern_${boot} run_kern"
+	"run init_${boot}; "						\
+	"run get_mon_${boot} run_mon; "					\
+	"run set_name_pmmc get_pmmc_${boot} run_pmmc; "			\
+	"run get_kern_${boot}; "					\
+	"run init_fw_rd_${boot}; "					\
+	"run get_fdt_${boot}; "						\
+	"run run_kern"
 #else
 #define CONFIG_BOOTCOMMAND						\
-	"run envboot; run run_mon_hs set_name_pmmc init_${boot} "	\
-	"get_pmmc_${boot} run_pmmc findfdt get_fit_${boot};"		\
-	"bootm ${fit_loadaddr}#${name_fdt} "
+	"run findfdt; "							\
+	"run envboot; "							\
+	"run run_mon_hs; "						\
+	"run init_${boot}; "						\
+	"run set_name_pmmc get_pmmc_${boot} run_pmmc; "			\
+	"run get_fit_${boot}; "						\
+	"bootm ${fit_loadaddr}#${name_fdt}"
 #endif
 
 /* SPL SPI Loader Configuration */
