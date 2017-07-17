@@ -23,6 +23,7 @@
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_PMMC_BOOT_ENV						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
+	DEFAULT_FIT_TI_ARGS						\
 	"boot=mmc\0"							\
 	"console=ttyS0,115200n8\0"					\
 	"bootpart=0:2\0"						\

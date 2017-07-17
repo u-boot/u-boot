@@ -15,9 +15,18 @@
 /* Platform type */
 #define CONFIG_SOC_K2E
 
+#ifdef CONFIG_TI_SECURE_DEVICE
+#define DEFAULT_SEC_BOOT_ENV						\
+	DEFAULT_FIT_TI_ARGS						\
+	"findfdt=setenv fdtfile ${name_fdt}\0"
+#else
+#define DEFAULT_SEC_BOOT_ENV
+#endif
+
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
+	DEFAULT_SEC_BOOT_ENV						\
 	"boot=ubi\0"							\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
