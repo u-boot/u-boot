@@ -353,6 +353,24 @@ int of_parse_phandle_with_args(const struct device_node *np,
 			       int index, struct of_phandle_args *out_args);
 
 /**
+ * of_count_phandle_with_args() - Count the number of phandle in a list
+ *
+ * @np:		pointer to a device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies phandles' arguments count
+ * @return number of phandle found, -ENOENT if
+ *	@list_name does not exist, -EINVAL if a phandle was not found,
+ *	@cells_name could not be found, the arguments were truncated or there
+ *	were too many arguments.
+ *
+ * Returns number of phandle found on success, on error returns appropriate
+ * errno value.
+ *
+ */
+int of_count_phandle_with_args(const struct device_node *np,
+			       const char *list_name, const char *cells_name);
+
+/**
  * of_alias_scan() - Scan all properties of the 'aliases' node
  *
  * The function scans all the properties of the 'aliases' node and populates
