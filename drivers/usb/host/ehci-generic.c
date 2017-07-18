@@ -34,7 +34,7 @@ static int ehci_usb_probe(struct udevice *dev)
 		if (ret < 0)
 			break;
 		if (clk_enable(&clk))
-			printf("failed to enable clock %d\n", i);
+			error("failed to enable clock %d\n", i);
 		clk_free(&clk);
 	}
 
@@ -46,7 +46,7 @@ static int ehci_usb_probe(struct udevice *dev)
 		if (ret < 0)
 			break;
 		if (reset_deassert(&reset))
-			printf("failed to deassert reset %d\n", i);
+			error("failed to deassert reset %d\n", i);
 		reset_free(&reset);
 	}
 
