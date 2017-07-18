@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm/ofnode.h>
+#include <generic-phy.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <dm.h>
@@ -21,6 +22,7 @@ struct generic_ehci {
 	struct ehci_ctrl ctrl;
 	struct clk *clocks;
 	struct reset_ctl *resets;
+	struct phy phy;
 	int clock_count;
 	int reset_count;
 };
@@ -91,15 +93,36 @@ static int ehci_usb_probe(struct udevice *dev)
 		}
 	}
 
+	err = generic_phy_get_by_index(dev, 0, &priv->phy);
+	if (err) {
+		if (err != -ENOENT) {
+			error("failed to get usb phy\n");
+			goto reset_err;
+		}
+	}
+
+	err = generic_phy_init(&priv->phy);
+	if (err) {
+		error("failed to init usb phy\n");
+		goto reset_err;
+	}
+
 	hccr = map_physmem(devfdt_get_addr(dev), 0x100, MAP_NOCACHE);
 	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
 				    HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	err = ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 	if (err)
-		goto reset_err;
+		goto phy_err;
 
 	return 0;
+
+phy_err:
+	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_exit(&priv->phy);
+		if (ret)
+			error("failed to release phy\n");
+	}
 
 reset_err:
 	ret = reset_release_all(priv->resets, priv->reset_count);
@@ -121,6 +144,12 @@ static int ehci_usb_remove(struct udevice *dev)
 	ret = ehci_deregister(dev);
 	if (ret)
 		return ret;
+
+	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_exit(&priv->phy);
+		if (ret)
+			return ret;
+	}
 
 	ret =  reset_release_all(priv->resets, priv->reset_count);
 	if (ret)
