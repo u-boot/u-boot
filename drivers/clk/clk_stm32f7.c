@@ -83,6 +83,10 @@ struct pll_psc {
 #define APB_PSC_8			0x6
 #define APB_PSC_16			0x7
 
+struct stm32_clk {
+	struct stm32_rcc_regs *base;
+};
+
 #if !defined(CONFIG_STM32_HSE_HZ)
 #error "CONFIG_STM32_HSE_HZ not defined!"
 #else
@@ -104,23 +108,26 @@ struct pll_psc sys_pll_psc = {
 #endif
 #endif
 
-static int configure_clocks(void)
+static int configure_clocks(struct udevice *dev)
 {
+	struct stm32_clk *priv = dev_get_priv(dev);
+	struct stm32_rcc_regs *regs = priv->base;
+
 	/* Reset RCC configuration */
-	setbits_le32(&STM32_RCC->cr, RCC_CR_HSION);
-	writel(0, &STM32_RCC->cfgr); /* Reset CFGR */
-	clrbits_le32(&STM32_RCC->cr, (RCC_CR_HSEON | RCC_CR_CSSON
+	setbits_le32(&regs->cr, RCC_CR_HSION);
+	writel(0, &regs->cfgr); /* Reset CFGR */
+	clrbits_le32(&regs->cr, (RCC_CR_HSEON | RCC_CR_CSSON
 		| RCC_CR_PLLON));
-	writel(0x24003010, &STM32_RCC->pllcfgr); /* Reset value from RM */
-	clrbits_le32(&STM32_RCC->cr, RCC_CR_HSEBYP);
-	writel(0, &STM32_RCC->cir); /* Disable all interrupts */
+	writel(0x24003010, &regs->pllcfgr); /* Reset value from RM */
+	clrbits_le32(&regs->cr, RCC_CR_HSEBYP);
+	writel(0, &regs->cir); /* Disable all interrupts */
 
 	/* Configure for HSE+PLL operation */
-	setbits_le32(&STM32_RCC->cr, RCC_CR_HSEON);
-	while (!(readl(&STM32_RCC->cr) & RCC_CR_HSERDY))
+	setbits_le32(&regs->cr, RCC_CR_HSEON);
+	while (!(readl(&regs->cr) & RCC_CR_HSERDY))
 		;
 
-	setbits_le32(&STM32_RCC->cfgr, ((
+	setbits_le32(&regs->cfgr, ((
 		sys_pll_psc.ahb_psc << RCC_CFGR_HPRE_SHIFT)
 		| (sys_pll_psc.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
 		| (sys_pll_psc.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
@@ -132,15 +139,15 @@ static int configure_clocks(void)
 	pllcfgr |= sys_pll_psc.pll_n << RCC_PLLCFGR_PLLN_SHIFT;
 	pllcfgr |= ((sys_pll_psc.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT;
 	pllcfgr |= sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT;
-	writel(pllcfgr, &STM32_RCC->pllcfgr);
+	writel(pllcfgr, &regs->pllcfgr);
 
 	/* Enable the main PLL */
-	setbits_le32(&STM32_RCC->cr, RCC_CR_PLLON);
-	while (!(readl(&STM32_RCC->cr) & RCC_CR_PLLRDY))
+	setbits_le32(&regs->cr, RCC_CR_PLLON);
+	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
 		;
 
 	/* Enable high performance mode, System frequency up to 200 MHz */
-	setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_PWREN);
+	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
 	setbits_le32(&STM32_PWR->cr1, PWR_CR1_ODEN);
 	/* Infinite wait! */
 	while (!(readl(&STM32_PWR->csr1) & PWR_CSR1_ODRDY))
@@ -152,10 +159,10 @@ static int configure_clocks(void)
 		;
 
 	stm32_flash_latency_cfg(5);
-	clrbits_le32(&STM32_RCC->cfgr, (RCC_CFGR_SW0 | RCC_CFGR_SW1));
-	setbits_le32(&STM32_RCC->cfgr, RCC_CFGR_SW_PLL);
+	clrbits_le32(&regs->cfgr, (RCC_CFGR_SW0 | RCC_CFGR_SW1));
+	setbits_le32(&regs->cfgr, RCC_CFGR_SW_PLL);
 
-	while ((readl(&STM32_RCC->cfgr) & RCC_CFGR_SWS_MASK) !=
+	while ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) !=
 			RCC_CFGR_SWS_PLL)
 		;
 
@@ -215,12 +222,14 @@ unsigned long clock_get(enum clock clck)
 
 static int stm32_clk_enable(struct clk *clk)
 {
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
 	u32 offset = clk->id / 32;
 	u32 bit_index = clk->id % 32;
 
 	debug("%s: clkid = %ld, offset from AHB1ENR is %d, bit_index = %d\n",
 	      __func__, clk->id, offset, bit_index);
-	setbits_le32(&STM32_RCC->ahb1enr + offset, BIT(bit_index));
+	setbits_le32(&regs->ahb1enr + offset, BIT(bit_index));
 
 	return 0;
 }
@@ -247,7 +256,17 @@ void clock_setup(int peripheral)
 static int stm32_clk_probe(struct udevice *dev)
 {
 	debug("%s: stm32_clk_probe\n", __func__);
-	configure_clocks();
+
+	struct stm32_clk *priv = dev_get_priv(dev);
+	fdt_addr_t addr;
+
+	addr = devfdt_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->base = (struct stm32_rcc_regs *)addr;
+
+	configure_clocks(dev);
 
 	return 0;
 }
