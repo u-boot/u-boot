@@ -31,6 +31,8 @@ enum efi_event_type {
 #define EVT_NOTIFY_WAIT		0x00000100
 #define EVT_NOTIFY_SIGNAL	0x00000200
 
+struct efi_event;
+
 /* EFI Boot Services table */
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
@@ -48,16 +50,17 @@ struct efi_boot_services {
 
 	efi_status_t (EFIAPI *create_event)(enum efi_event_type type,
 			unsigned long notify_tpl,
-			void (EFIAPI *notify_function) (void *event,
-							void *context),
-			void *notify_context, void **event);
-	efi_status_t (EFIAPI *set_timer)(void *event, int type,
+			void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			void *notify_context, struct efi_event **event);
+	efi_status_t (EFIAPI *set_timer)(struct efi_event *event, int type,
 			uint64_t trigger_time);
 	efi_status_t (EFIAPI *wait_for_event)(unsigned long number_of_events,
-			void *event, unsigned long *index);
-	efi_status_t (EFIAPI *signal_event)(void *event);
-	efi_status_t (EFIAPI *close_event)(void *event);
-	efi_status_t (EFIAPI *check_event)(void *event);
+			struct efi_event **event, unsigned long *index);
+	efi_status_t (EFIAPI *signal_event)(struct efi_event *event);
+	efi_status_t (EFIAPI *close_event)(struct efi_event *event);
+	efi_status_t (EFIAPI *check_event)(struct efi_event *event);
 #define EFI_NATIVE_INTERFACE	0x00000000
 	efi_status_t (EFIAPI *install_protocol_interface)(
 			void **handle, efi_guid_t *protocol,
@@ -71,7 +74,7 @@ struct efi_boot_services {
 					       void **);
 	void *reserved;
 	efi_status_t (EFIAPI *register_protocol_notify)(
-			efi_guid_t *protocol, void *event,
+			efi_guid_t *protocol, struct efi_event *event,
 			void **registration);
 	efi_status_t (EFIAPI *locate_handle)(
 			enum efi_locate_search_type search_type,
@@ -374,7 +377,7 @@ struct efi_simple_input_interface {
 	efi_status_t(EFIAPI *read_key_stroke)(
 			struct efi_simple_input_interface *this,
 			struct efi_input_key *key);
-	void *wait_for_key;
+	struct efi_event *wait_for_key;
 };
 
 #define CONSOLE_CONTROL_GUID \

@@ -165,13 +165,14 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
  * Our event capabilities are very limited. Only support a single
  * event to exist, so we don't need to maintain lists.
  */
-static struct {
+static struct efi_event {
 	enum efi_event_type type;
 	u32 trigger_type;
 	u32 trigger_time;
 	u64 trigger_next;
 	unsigned long notify_tpl;
-	void (EFIAPI *notify_function) (void *event, void *context);
+	void (EFIAPI *notify_function) (struct efi_event *event,
+					void *context);
 	void *notify_context;
 } efi_event = {
 	/* Disable timers on bootup */
@@ -180,9 +181,10 @@ static struct {
 
 static efi_status_t EFIAPI efi_create_event(
 			enum efi_event_type type, ulong notify_tpl,
-			void (EFIAPI *notify_function) (void *event,
-							void *context),
-			void *notify_context, void **event)
+			void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			void *notify_context, struct efi_event **event)
 {
 	EFI_ENTRY("%d, 0x%lx, %p, %p", type, notify_tpl, notify_function,
 		  notify_context);
@@ -230,7 +232,7 @@ void efi_timer_check(void)
 	WATCHDOG_RESET();
 }
 
-static efi_status_t EFIAPI efi_set_timer(void *event, int type,
+static efi_status_t EFIAPI efi_set_timer(struct efi_event *event, int type,
 					 uint64_t trigger_time)
 {
 	/* We don't have 64bit division available everywhere, so limit timer
@@ -267,7 +269,8 @@ static efi_status_t EFIAPI efi_set_timer(void *event, int type,
 }
 
 static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
-					      void *event, unsigned long *index)
+					      struct efi_event **event,
+					      unsigned long *index)
 {
 	u64 now;
 
@@ -280,20 +283,20 @@ static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_signal_event(void *event)
+static efi_status_t EFIAPI efi_signal_event(struct efi_event *event)
 {
 	EFI_ENTRY("%p", event);
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_close_event(void *event)
+static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 {
 	EFI_ENTRY("%p", event);
 	efi_event.trigger_next = -1ULL;
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_check_event(void *event)
+static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 {
 	EFI_ENTRY("%p", event);
 	return EFI_EXIT(EFI_NOT_READY);
@@ -428,7 +431,7 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface_ext(void *handle,
 }
 
 static efi_status_t EFIAPI efi_register_protocol_notify(efi_guid_t *protocol,
-							void *event,
+							struct efi_event *event,
 							void **registration)
 {
 	EFI_ENTRY("%p, %p, %p", protocol, event, registration);
