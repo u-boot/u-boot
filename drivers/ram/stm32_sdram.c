@@ -120,8 +120,8 @@ struct stm32_sdram_timing {
 struct stm32_sdram_params {
 	struct stm32_fmc_regs *base;
 	u8 no_sdram_banks;
-	struct stm32_sdram_control sdram_control;
-	struct stm32_sdram_timing sdram_timing;
+	struct stm32_sdram_control *sdram_control;
+	struct stm32_sdram_timing *sdram_timing;
 	u32 sdram_ref_count;
 };
 
@@ -133,24 +133,26 @@ int stm32_sdram_init(struct udevice *dev)
 {
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
 	struct stm32_fmc_regs *regs = params->base;
+	struct stm32_sdram_control *control = params->sdram_control;
+	struct stm32_sdram_timing *timing = params->sdram_timing;
 
-	writel(params->sdram_control.sdclk << FMC_SDCR_SDCLK_SHIFT
-		| params->sdram_control.cas_latency << FMC_SDCR_CAS_SHIFT
-		| params->sdram_control.no_banks << FMC_SDCR_NB_SHIFT
-		| params->sdram_control.memory_width << FMC_SDCR_MWID_SHIFT
-		| params->sdram_control.no_rows << FMC_SDCR_NR_SHIFT
-		| params->sdram_control.no_columns << FMC_SDCR_NC_SHIFT
-		| params->sdram_control.rd_pipe_delay << FMC_SDCR_RPIPE_SHIFT
-		| params->sdram_control.rd_burst << FMC_SDCR_RBURST_SHIFT,
+	writel(control->sdclk << FMC_SDCR_SDCLK_SHIFT
+		| control->cas_latency << FMC_SDCR_CAS_SHIFT
+		| control->no_banks << FMC_SDCR_NB_SHIFT
+		| control->memory_width << FMC_SDCR_MWID_SHIFT
+		| control->no_rows << FMC_SDCR_NR_SHIFT
+		| control->no_columns << FMC_SDCR_NC_SHIFT
+		| control->rd_pipe_delay << FMC_SDCR_RPIPE_SHIFT
+		| control->rd_burst << FMC_SDCR_RBURST_SHIFT,
 		&regs->sdcr1);
 
-	writel(params->sdram_timing.trcd << FMC_SDTR_TRCD_SHIFT
-		| params->sdram_timing.trp << FMC_SDTR_TRP_SHIFT
-		| params->sdram_timing.twr << FMC_SDTR_TWR_SHIFT
-		| params->sdram_timing.trc << FMC_SDTR_TRC_SHIFT
-		| params->sdram_timing.tras << FMC_SDTR_TRAS_SHIFT
-		| params->sdram_timing.txsr << FMC_SDTR_TXSR_SHIFT
-		| params->sdram_timing.tmrd << FMC_SDTR_TMRD_SHIFT,
+	writel(timing->trcd << FMC_SDTR_TRCD_SHIFT
+		| timing->trp << FMC_SDTR_TRP_SHIFT
+		| timing->twr << FMC_SDTR_TWR_SHIFT
+		| timing->trc << FMC_SDTR_TRC_SHIFT
+		| timing->tras << FMC_SDTR_TRAS_SHIFT
+		| timing->txsr << FMC_SDTR_TXSR_SHIFT
+		| timing->tmrd << FMC_SDTR_TMRD_SHIFT,
 		&regs->sdtr1);
 
 	writel(FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_START_CLOCK,
@@ -169,7 +171,7 @@ int stm32_sdram_init(struct udevice *dev)
 	FMC_BUSY_WAIT(regs);
 
 	writel(FMC_SDCMR_BANK_1 | (SDRAM_MODE_BL << SDRAM_MODE_BL_SHIFT
-	       | params->sdram_control.cas_latency << SDRAM_MODE_CAS_SHIFT)
+	       | control->cas_latency << SDRAM_MODE_CAS_SHIFT)
 	       << FMC_SDCMR_MODE_REGISTER_SHIFT | FMC_SDCMR_MODE_WRITE_MODE,
 	       &regs->sdcmr);
 	udelay(100);
@@ -187,27 +189,36 @@ int stm32_sdram_init(struct udevice *dev)
 
 static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 {
-	int ret;
-	int node = dev_of_offset(dev);
-	const void *blob = gd->fdt_blob;
+	ofnode bank_node;
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
 
-	params->no_sdram_banks = fdtdec_get_uint(blob, node, "mr-nbanks", 1);
+	params->no_sdram_banks = dev_read_u32_default(dev, "mr-nbanks", 1);
 	debug("%s, no of banks = %d\n", __func__, params->no_sdram_banks);
 
-	fdt_for_each_subnode(node, blob, node) {
-		ret = fdtdec_get_byte_array(blob, node, "st,sdram-control",
-					    (u8 *)&params->sdram_control,
-					    sizeof(params->sdram_control));
-		if (ret)
-			return ret;
-		ret = fdtdec_get_byte_array(blob, node, "st,sdram-timing",
-					    (u8 *)&params->sdram_timing,
-					    sizeof(params->sdram_timing));
-		if (ret)
-			return ret;
+	dev_for_each_subnode(bank_node, dev) {
+		params->sdram_control = (struct stm32_sdram_control *)
+					ofnode_read_u8_array_ptr(bank_node,
+						"st,sdram-control",
+						sizeof(struct stm32_sdram_control));
 
-		params->sdram_ref_count = fdtdec_get_int(blob, node,
+		if (!params->sdram_control) {
+			error("st,sdram-control not found for device: %s",
+			      dev->name);
+			return -EINVAL;
+		}
+
+		params->sdram_timing = (struct stm32_sdram_timing *)
+					ofnode_read_u8_array_ptr(bank_node,
+						"st,sdram-timing",
+						sizeof(struct stm32_sdram_timing));
+
+		if (!params->sdram_timing) {
+			error("st,sdram-timing not found for device: %s",
+			      dev->name);
+			return -EINVAL;
+		}
+
+		params->sdram_ref_count = ofnode_read_u32_default(bank_node,
 						"st,sdram-refcount", 8196);
 	}
 
