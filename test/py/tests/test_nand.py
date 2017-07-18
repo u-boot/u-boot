@@ -18,9 +18,7 @@ TODO:
 - Handle multiple controller cases, as of now it assumes one.
 
 """
-pytestmark = pytest.mark.buildconfigspec('cmd_bdi')
-pytestmark = pytest.mark.buildconfigspec('cmd_nand')
-pytestmark = pytest.mark.buildconfigspec('cmd_memory')
+pytestmark = pytest.mark.buildconfigspec('cmd_bdi cmd_nand cmd_memory')
 
 nand_detected = False
 page_size = 0
