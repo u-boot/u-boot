@@ -2237,6 +2237,9 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 		}
 
 		info->sector_count = sect_cnt;
+#ifdef CONFIG_ZYNQ_M29EW_WB_HACK
+		qry.max_buf_write_size = 0x8;
+#endif
 		info->buffer_size = 1 << le16_to_cpu(qry.max_buf_write_size);
 		tmp = 1 << qry.block_erase_timeout_typ;
 		info->erase_blk_tout = tmp *
